@@ -116,10 +116,6 @@ var selected_master_info: MasterInfo = null
 # routes to the main menu instead of the "connection lost" screen.
 var _intentional_disconnect: bool = false
 
-# Whether this launch has already tried its stored session. The main menu is returned to on every logout,
-# and resuming each time it appears would make quitting to the menu bounce the player straight back in.
-var _auto_resume_attempted: bool = false
-
 
 func _ready() -> void:
 	chunk_stream = ChunkStreamManagerScript.new()
@@ -209,18 +205,6 @@ func resume_session() -> void:
 	assert(_connection_state == ConnectionState.DISCONNECTED)
 	last_connection_error = ConnectionError.NO_ERROR
 	_passkey_login.TryResume(SettingsManager.login_server_url)
-
-
-## Resumes without being asked, at most once per launch. Returns whether an attempt was actually started,
-## which is the menu's cue to show a wait instead of a Sign in button.
-func auto_resume_session() -> bool:
-	if _auto_resume_attempted or not has_stored_session():
-		return false
-
-	_auto_resume_attempted = true
-	resume_session()
-
-	return true
 
 
 ## Discards the stored session here and on the server, so the next start needs a passkey again.

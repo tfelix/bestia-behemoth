@@ -6,11 +6,6 @@ extends Control
 @onready var _cancel_login_button = %CancelLoginButton
 @onready var _sign_out_button = %SignOutButton
 
-# Whether the sign-in in flight was asked for. A resume the player started may fall through to the browser
-# when the stored session turns out to be dead; one that started by itself on launch must not, because
-# opening a browser nobody asked for is not something to do on a game's first frame.
-var _login_requested: bool = false
-
 
 func _ready() -> void:
 	ConnectionManager.disconnect_from_server()
@@ -20,10 +15,6 @@ func _ready() -> void:
 	ConnectionManager.passkey_browser_opened.connect(_on_passkey_browser_opened)
 	ConnectionManager.passkey_login_failed.connect(_on_passkey_login_failed)
 	ConnectionManager.session_resume_unavailable.connect(_on_session_resume_unavailable)
-
-	if ConnectionManager.auto_resume_session():
-		_set_buttons_disabled(true)
-		_show_status("Signing you in...")
 
 
 func _on_quit_button_pressed() -> void:
@@ -44,7 +35,6 @@ func _on_credits_button_pressed() -> void:
 ##
 ## A stored session skips all of that, which is the ordinary case after the first run.
 func _on_login_button_pressed() -> void:
-	_login_requested = true
 	_set_buttons_disabled(true)
 
 	if ConnectionManager.has_stored_session():
@@ -79,17 +69,11 @@ func _on_passkey_login_failed(reason: String) -> void:
 	_show_status(reason)
 
 
-## The stored session is gone. If the player pressed Sign in they still want to get in, so carry straight
+## The stored session is gone. The player asked to sign in and still wants to get in, so carry straight
 ## on into the browser rather than making them press the same button twice.
 func _on_session_resume_unavailable() -> void:
-	if _login_requested:
-		_show_status("Opening your browser...")
-		ConnectionManager.login_with_passkey()
-
-		return
-
-	_reset_buttons()
-	_show_status("Your saved sign-in has expired.")
+	_show_status("Opening your browser...")
+	ConnectionManager.login_with_passkey()
 
 
 func _show_status(text: String) -> void:
@@ -98,7 +82,6 @@ func _show_status(text: String) -> void:
 
 
 func _reset_buttons() -> void:
-	_login_requested = false
 	_set_buttons_disabled(false)
 	_cancel_login_button.visible = false
 	_sign_out_button.visible = ConnectionManager.has_stored_session()
