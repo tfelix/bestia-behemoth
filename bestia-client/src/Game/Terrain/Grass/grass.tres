@@ -1,0 +1,24 @@
+[gd_resource type="ShaderMaterial" load_steps=4 format=3]
+
+[ext_resource type="Shader" path="res://Game/Terrain/Grass/grass.gdshader" id="1_grass"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_grass"]
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_grass"]
+seamless = true
+noise = SubResource("FastNoiseLite_grass")
+
+[resource]
+resource_name = "Grass"
+shader = ExtResource("1_grass")
+shader_parameter/color = Color(0.2415, 0.6713, 0.2757, 1)
+shader_parameter/color2 = Color(0.2643, 0.2847, 0.0447, 1)
+shader_parameter/noise = SubResource("NoiseTexture2D_grass")
+shader_parameter/noiseScale = 20.0
+shader_parameter/uv_v_at_tip = false
+shader_parameter/wind_max_lean = 0.45
+shader_parameter/wind_reference_speed = 9.0
+shader_parameter/gust_wavelength = 9.0
+shader_parameter/gust_depth = 0.45
+shader_parameter/flutter_amount = 0.18
+shader_parameter/flutter_speed = 4.5

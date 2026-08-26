@@ -188,3 +188,11 @@ weather_temperature={
 "type": "float",
 "value": 15.0
 }
+weather_wind={
+"type": "vec3",
+"value": Vector3(2.2, 0, 1.4)
+}
+weather_gust_phase={
+"type": "float",
+"value": 0.0
+}

@@ -5,7 +5,7 @@ using Godot;
 namespace BestiaBehemothClient.Game.World
 {
   /// <summary>
-  /// Draws the static entities of each held chunk: trees, mana crystals, wound spires, landmarks.
+  /// Draws the static entities of each held chunk: trees, ground cover, mana crystals, wound spires, landmarks.
   /// </summary>
   /// <remarks>
   /// A sibling of <see cref="TerrainRenderer"/> and it keeps the same contract: one node per chunk, removed
@@ -19,7 +19,7 @@ namespace BestiaBehemothClient.Game.World
   ///
   /// <para>
   /// <b>A prop is an entity with a visual on it, drawn without being one.</b> The scenes under
-  /// <c>Game/Entity/Visual/</c> are what a prop looks like, and a kind with art gets one instantiated per
+  /// <c>Game/Entity/Visual/</c> are what a prop looks like, and a kind with a scene gets one instantiated per
   /// prop - so a tree here is the same <c>TreeVisual</c> an entity would carry. What it deliberately does
   /// <i>not</i> get is the rest of an entity: props never go through <c>EntityManager</c>, which instantiates
   /// a full <c>Entity.tscn</c> - health bar, nameplate, chat bubble, damage numbers, movement prediction -
@@ -28,61 +28,82 @@ namespace BestiaBehemothClient.Game.World
   /// </para>
   ///
   /// <para>
-  /// <b>The cost of that is real and worth stating.</b> A scene instance per prop is a node per prop, where a
-  /// <see cref="MultiMesh"/> would be one draw call per kind per chunk with the transforms in a buffer. Kinds
-  /// with no art still take the multimesh path, so only trees pay it today. If a dense wood turns out to cost
-  /// too much, the fix is a <c>MultiMesh</c> built from the visual scene's own mesh for kinds that are a
-  /// single static <c>MeshInstance3D</c> - which is a change to <see cref="AddSceneProp"/> and
-  /// <see cref="PropAppearance"/>, not to anything upstream of them.
+  /// <b>Everything that is not a tree is batched, art or no art.</b> A kind with a
+  /// <see cref="PropAppearance.Kind.MeshPath"/> is drawn as its own mesh in a <see cref="MultiMesh"/>, and a
+  /// kind with neither path is drawn as a placeholder box in exactly the same one - the two differ only in
+  /// which mesh goes in and how the transform is scaled. So a chunk costs one draw call per kind, whether
+  /// that kind is a thousand tufts of grass or a dozen crystals.
   /// </para>
   ///
   /// <para>
-  /// <b>Collectible kinds take a third path, and leave the multimesh to do it.</b> A kind that
-  /// <see cref="PropAppearance.Kind.Collectible"/> marks gets one <see cref="Node3D"/> per prop, holding the
-  /// same shared placeholder mesh plus a <c>PropPicker</c> area carrying the entity id a click needs. That
-  /// looks like giving up the batching, and it is - but the batching was already spent: a
-  /// <see cref="MultiMesh"/> instance is not pickable at all, so a clickable prop needs a collision node
-  /// regardless, and a <see cref="MultiMesh"/> cannot delete an arbitrary instance (only truncate the tail via
-  /// <c>VisibleInstanceCount</c>). Keeping both would mean zero-scaling a collected crystal's transform,
-  /// leaving a hole in the buffer, and maintaining an <c>entityId -> slot</c> index to find it by. One node
-  /// per prop is fewer moving parts.
+  /// <b>That batching is recent, and the ground cover is what forced it.</b> Collectible kinds used to take a
+  /// third path - one <c>Node3D</c>, one <c>MeshInstance3D</c> and one <c>PropPicker</c> area each - on the
+  /// argument that the batching was already spent, since a <see cref="MultiMesh"/> instance is not pickable
+  /// and a clickable prop needs a collision node regardless. That was a fair trade at one collectible every
+  /// 145 m. The ground cover kinds are collectible and run at about twice the tree density, so a view volume
+  /// holds on the order of a thousand of them, and a thousand draw calls for the layer the player is least
+  /// likely to be looking at is not a trade at all.
   /// </para>
   ///
   /// <para>
-  /// <b>The population that justified it is gone, and this is the next thing here that needs work.</b> That
-  /// argument rested on collectible props being two orders of magnitude below the trees - true while they were
-  /// crystals and aetherite, at one every 145 m. The ground cover kinds are collectible and run at about twice
-  /// the tree density, so a view volume now holds on the order of a thousand nodes each carrying a
-  /// <c>PropPicker</c> area, where it held tens. The batching this gave up cheaply is no longer cheap.
+  /// <b>What a collectible kind still pays is one <see cref="Area3D"/> per prop, and no more.</b> The mesh
+  /// left, the picker stayed: <c>MouseManager</c>'s pending collect uses <c>is_instance_valid</c> on the
+  /// picker as its liveness test and <c>global_position</c> as the place to walk to, so a picker is a node
+  /// per prop by contract and not by accident. Consolidating those into one area per kind per chunk, with the
+  /// click resolved through <c>shape_idx</c> against a slot table, is the next thing here that would pay -
+  /// but it is a change to the GDScript collect flow rather than to this file, and it buys a node where the
+  /// batching bought a draw call.
   /// </para>
   ///
   /// <para>
-  /// The fix is the one <see cref="MultiMesh"/> paragraph above already describes, plus a single picker per
-  /// kind per chunk resolved against a transform buffer rather than one area per prop - the same
-  /// <c>entityId -> slot</c> index that was not worth building for a few dozen crystals.
-  /// </para>
-  ///
-  /// <para>
-  /// Trees and the artless non-collectible kinds are untouched: still a scene instance and a multimesh
-  /// respectively, and still not clickable. Felling one of those goes through damage, not a click.
+  /// Removing one prop out of a batch is what <see cref="Drawn"/> is for. A <see cref="MultiMesh"/> cannot
+  /// delete an arbitrary instance - only truncate the tail via <c>VisibleInstanceCount</c> - so a collected
+  /// plant's slot is parked at a zero basis and the hole is left in the buffer. That is cheap precisely
+  /// because the ledger which finds the slot has to exist anyway, to find the picker.
   /// </para>
   /// </remarks>
   [GlobalClass]
   public partial class StaticEntityRenderer : Node3D
   {
     /// <summary>
+    /// What was drawn for one prop, so that prop can be taken away on its own.
+    /// </summary>
+    /// <remarks>
+    /// Both halves are optional and a prop has at least one of them: a tree is a <see cref="Node"/> with no
+    /// batch, an ordinary shrub is a batch slot with a picker node, and a wound spire is a batch slot with no
+    /// node at all because nothing can click it.
+    /// </remarks>
+    private readonly struct Drawn
+    {
+      /// <summary>The scene instance, or the picker area, or null.</summary>
+      public Node3D Node { get; init; }
+
+      /// <summary>The multimesh this prop has a slot in, or null for a prop drawn as a scene.</summary>
+      public MultiMesh Batch { get; init; }
+
+      /// <summary>Which slot, meaningless without <see cref="Batch"/>.</summary>
+      public int Slot { get; init; }
+    }
+
+    /// <summary>
     /// Chunk -> the one node holding everything drawn for it.
     /// </summary>
     /// <remarks>
     /// A container per chunk rather than a list of nodes, so that removing a chunk is a single
-    /// <c>QueueFree</c> whichever mix of scene instances and multimeshes it happens to hold.
+    /// <c>QueueFree</c> whichever mix of scene instances, multimeshes and pickers it happens to hold.
     /// </remarks>
     private readonly Dictionary<ChunkKey, Node3D> _byChunk = new();
 
-    /// <summary>Kind -> its visual scene, loaded once. Only holds kinds that have art.</summary>
+    /// <summary>Kind -> its visual scene, loaded once. Only holds kinds that have one.</summary>
     private readonly Dictionary<int, PackedScene> _scenes = new();
 
-    /// <summary>Kind -> its placeholder mesh, built once. Only holds kinds that do not.</summary>
+    /// <summary>Kind -> its batched art mesh, loaded once. Only holds kinds that have one.</summary>
+    private readonly Dictionary<int, Godot.Mesh> _art = new();
+
+    /// <summary>Kind -> the material its art is drawn with, built once. Null for a kind that keeps the mesh's.</summary>
+    private readonly Dictionary<int, Material> _materials = new();
+
+    /// <summary>Kind -> its placeholder mesh, built once. Only holds kinds with no art at all.</summary>
     /// <remarks>
     /// <c>Godot.Mesh</c> spelled in full, and it has to be: this file's own namespace has a
     /// <c>BestiaBehemothClient.Game.World.Mesh</c> in it - the surface-nets code in <c>Game/World/Mesh/</c> -
@@ -91,15 +112,21 @@ namespace BestiaBehemothClient.Game.World
     private readonly Dictionary<int, Godot.Mesh> _placeholders = new();
 
     /// <summary>
-    /// Chunk -> entity id -> the node drawn for that collectible prop, so one can be removed on its own.
+    /// Chunk -> entity id -> what was drawn for it, so one prop can be removed on its own.
     /// </summary>
     /// <remarks>
-    /// A drawing ledger, not a second copy of the world. It answers only "which node did I draw for this id";
-    /// what actually stands in a column is <c>ChunkStreamManager</c>'s retained batch, which is pruned in step
-    /// with the manifest and is the replay source when a renderer attaches late. Keeping entries here instead
-    /// would mean a removal had to be applied to both, or a re-attach would redraw a crystal already collected.
+    /// A drawing ledger, not a second copy of the world. It answers only "what did I draw for this id"; what
+    /// actually stands in a column is <c>ChunkStreamManager</c>'s retained batch, which is pruned in step with
+    /// the manifest and is the replay source when a renderer attaches late. Keeping entries here instead would
+    /// mean a removal had to be applied to both, or a re-attach would redraw a crystal already collected.
+    ///
+    /// <para>
+    /// Holds <i>every</i> prop, not only the collectible ones. It used to hold only those, on the reading that
+    /// nothing else could be removed individually - which was never quite true, since a felled tree is removed
+    /// by the same <c>StaticEntityRemovedSMSG</c> and simply found no entry here to act on.
+    /// </para>
     /// </remarks>
-    private readonly Dictionary<ChunkKey, Dictionary<long, Node3D>> _collectibleNodes = new();
+    private readonly Dictionary<ChunkKey, Dictionary<long, Drawn>> _drawn = new();
 
     /// <summary>
     /// The script every collectible prop's click target wears, loaded once.
@@ -111,6 +138,10 @@ namespace BestiaBehemothClient.Game.World
     /// </remarks>
     private static readonly GDScript PropPicker =
       GD.Load<GDScript>("res://Game/World/prop_picker.gd");
+
+    private static readonly StringName BladeTip = "color";
+    private static readonly StringName BladeBase = "color2";
+    private static readonly StringName UvVAtTip = "uv_v_at_tip";
 
     /// <summary>
     /// Metres per voxel, so that a prop stands where the ground it was grounded against was drawn.
@@ -227,7 +258,7 @@ namespace BestiaBehemothClient.Game.World
       AddChild(container);
       _byChunk[batch.Key] = container;
 
-      // Only allocated if this chunk actually holds an artless kind, which a wood never does.
+      // Only allocated once this chunk turns out to hold something that is not a tree, which most do.
       Dictionary<int, List<ChunkStaticEntitiesSMSG.Entry>> batched = null;
 
       foreach (var entry in batch.Entries)
@@ -236,13 +267,7 @@ namespace BestiaBehemothClient.Game.World
 
         if (appearance.HasScene)
         {
-          AddSceneProp(container, entry, appearance);
-          continue;
-        }
-
-        if (appearance.Collectible)
-        {
-          AddCollectibleProp(container, batch.Key, entry, appearance);
+          AddSceneProp(container, batch.Key, entry, appearance);
           continue;
         }
 
@@ -262,21 +287,22 @@ namespace BestiaBehemothClient.Game.World
 
       foreach (var (kind, entries) in batched)
       {
-        AddPlaceholderBatch(container, kind, entries);
+        AddBatch(container, batch.Key, kind, entries);
       }
     }
 
     /// <summary>
-    /// Instantiates one visual scene for a prop that has art.
+    /// Instantiates one visual scene for a prop that has one.
     /// </summary>
     /// <remarks>
-    /// Scaled <b>uniformly</b>, unlike <see cref="AddPlaceholderBatch"/>'s y-only scaling. A placeholder is a
-    /// unit box whose width means nothing, so stretching it vertically is the only sensible reading of a
-    /// height; a real model is proportioned, and the generator draws a tree's trunk height and crown radius
-    /// off the same roll specifically so that a big tree has a big crown. Scaling one axis would give a tall
-    /// tree a sapling's canopy.
+    /// Scaled <b>uniformly</b>, as the batched art is and unlike a placeholder box's y-only scaling. A
+    /// placeholder is a unit box whose width means nothing, so stretching it vertically is the only sensible
+    /// reading of a height; a real model is proportioned, and the generator draws a tree's trunk height and
+    /// crown radius off the same roll specifically so that a big tree has a big crown. Scaling one axis would
+    /// give a tall tree a sapling's canopy.
     /// </remarks>
-    private void AddSceneProp(Node3D container, ChunkStaticEntitiesSMSG.Entry entry, PropAppearance.Kind appearance)
+    private void AddSceneProp(
+      Node3D container, ChunkKey key, ChunkStaticEntitiesSMSG.Entry entry, PropAppearance.Kind appearance)
     {
       var scene = SceneFor(entry.Kind, appearance);
       if (scene == null)
@@ -291,63 +317,161 @@ namespace BestiaBehemothClient.Game.World
 
       node.Transform = new Transform3D(basis, GroundedPositionOf(entry));
       container.AddChild(node);
+
+      Record(key, entry.EntityId, new Drawn { Node = node });
     }
 
     /// <summary>
-    /// Draws one collectible prop as its own node, with a click target on it.
+    /// Draws every prop of one kind in this chunk as a single multimesh, plus a click target each if the kind
+    /// is collectible.
     /// </summary>
     /// <remarks>
-    /// The mesh is the *same shared instance* every prop of this kind uses, straight out of
-    /// <see cref="PlaceholderFor"/> - a <c>MeshInstance3D</c> holds a reference, so a hundred crystals cost one
-    /// mesh between them and the y-scale that makes each one its own height lives on the node's transform.
+    /// One method for both the real art and the placeholder boxes, because the difference between them is two
+    /// lines: which mesh goes in, and whether the transform is scaled proportionally or only vertically.
     ///
     /// <para>
-    /// The pick box is at least <c>MinPickWidth</c> across whatever the drawn box measures, because a 0.3 m
-    /// shard at any distance is otherwise a target nobody can hit. It is deliberately not the server's
-    /// <c>collider</c> block from <c>prop-kinds.yml</c>: that one is for movement, which wants the real
-    /// extent, and this one is for clicking, which wants a generous one.
+    /// <b>Art scales uniformly</b>, for <see cref="AddSceneProp"/>'s reason - a plant that grew tall grew wide
+    /// - and because the wind in <c>grass.gdshader</c> inverts this basis on the assumption that it is a yaw
+    /// and a uniform scale, which makes the inverse a transpose rather than a general one.
     /// </para>
     ///
     /// <para>
-    /// The y-scale that makes each prop its own height lives on the <b>mesh node</b>, not on the prop root, so
-    /// that the <see cref="Area3D"/> hangs off an unscaled parent and its box is sized in plain metres. A
-    /// collision shape under a non-uniformly scaled ancestor is a shape Godot has to warn about and physics
-    /// has to special-case; the shape is only three floats, so there is nothing to gain by scaling it.
+    /// <b>A placeholder scales on y only</b>: the mesh is a box of the kind's own width standing on its own
+    /// origin, so this makes a tall thing tall rather than also fat. A building is the exception and is scaled
+    /// on all three axes, because its footprint arrives per entry - see
+    /// <see cref="ChunkStaticEntitiesSMSG.Entry.HasFootprint"/>. Its x and z factors are <i>relative to the
+    /// kind's own placeholder width</i>, since the shared mesh is already that wide; a building whose row said
+    /// 5 m and whose lot is 9 m across is scaled by 1.8 rather than by 9. Keeping the shared mesh is what lets
+    /// a whole town's houses stay one multimesh instead of one draw each.
     /// </para>
     /// </remarks>
-    private void AddCollectibleProp(
-      Node3D container, ChunkKey key, ChunkStaticEntitiesSMSG.Entry entry, PropAppearance.Kind appearance)
+    private void AddBatch(
+      Node3D container, ChunkKey key, int kind, List<ChunkStaticEntitiesSMSG.Entry> entries)
     {
-      var prop = new Node3D
+      var appearance = PropAppearance.Of(kind);
+
+      // Null when the kind has no art, and also when it named art that would not load - in which case it falls
+      // back to the placeholder box rather than to nothing, on the reasoning behind PropAppearance's magenta:
+      // a prop that is drawn wrong is a bug report, and one that is not drawn at all is indistinguishable from
+      // ground that genuinely has nothing on it.
+      var art = appearance.HasMesh ? ArtFor(kind, appearance) : null;
+
+      var multi = new MultiMesh
       {
-        Name = $"prop {entry.EntityId}",
-        Transform = new Transform3D(new Basis(Vector3.Up, entry.Yaw), GroundedPositionOf(entry))
+        TransformFormat = MultiMesh.TransformFormatEnum.Transform3D,
+        Mesh = art ?? PlaceholderFor(kind),
+        InstanceCount = entries.Count
       };
 
-      // Scaled on y only, exactly as AddPlaceholderBatch does and for the same reason: the box is a unit cube
-      // standing on its own origin, so this makes a tall thing tall rather than also fat.
-      prop.AddChild(new MeshInstance3D
+      // The mesh's own footprint, which is what a pick box is sized against once a kind is drawn as art. Zero
+      // for a placeholder, where PlaceholderWidth is the answer instead.
+      var footprint = 0f;
+      if (art != null)
       {
-        Mesh = PlaceholderFor(entry.Kind),
-        Scale = new Vector3(1f, entry.Height, 1f)
-      });
+        var box = art.GetAabb().Size;
+        footprint = Mathf.Max(box.X, box.Z);
+      }
 
-      var area = new Area3D { Name = "Picker" };
+      // The width the shared placeholder mesh was built at, which every per-entry footprint is expressed
+      // against. Guarded because a row with a zero width would otherwise divide by it.
+      var meshWidth = Mathf.Max(appearance.PlaceholderWidth, 0.001f);
+
+      for (var i = 0; i < entries.Count; i++)
+      {
+        var entry = entries[i];
+        var position = GroundedPositionOf(entry);
+
+        Basis basis;
+        float pickWidth;
+
+        if (art != null)
+        {
+          var scale = appearance.NaturalHeight > 0f ? entry.Height / appearance.NaturalHeight : 1f;
+          basis = new Basis(Vector3.Up, entry.Yaw).Scaled(new Vector3(scale, scale, scale));
+          pickWidth = footprint * scale;
+        }
+        else
+        {
+          // Local x is the facing axis, so half-length scales x and half-width scales z. Doubled because the
+          // wire carries half-extents and the mesh is a full width.
+          var along = entry.HasFootprint ? entry.HalfLength * 2f / meshWidth : 1f;
+          var across = entry.HasFootprint ? entry.HalfWidth * 2f / meshWidth : 1f;
+
+          // The server's z is the ground the prop stands on, and a mesh built upward from its own origin wants
+          // that as its base.
+          basis = new Basis(Vector3.Up, entry.Yaw).Scaled(new Vector3(along, entry.Height, across));
+          pickWidth = appearance.PlaceholderWidth;
+        }
+
+        multi.SetInstanceTransform(i, new Transform3D(basis, position));
+
+        var picker = appearance.Collectible
+          ? AddPicker(container, entry, position, pickWidth)
+          : null;
+
+        Record(key, entry.EntityId, new Drawn { Node = picker, Batch = multi, Slot = i });
+      }
+
+      var node = new MultiMeshInstance3D { Multimesh = multi };
+
+      if (art != null)
+      {
+        var material = MaterialFor(kind, appearance);
+        if (material != null)
+        {
+          node.MaterialOverride = material;
+        }
+
+        // The wind in grass.gdshader moves vertices that Godot's own bounds know nothing about, so a leaning
+        // tuft at the edge of the frustum would be culled with its blades still on screen. A flat margin
+        // rather than a computed AABB because the displacement has a hard ceiling: `wind_max_lean` times the
+        // tallest thing drawn this way, which is a reed at about 2.3 m.
+        node.ExtraCullMargin = WindReach;
+      }
+
+      container.AddChild(node);
+    }
+
+    /// <summary>
+    /// Gives one prop a click target: an <see cref="Area3D"/> standing where it does, carrying its id.
+    /// </summary>
+    /// <remarks>
+    /// The pick box is at least <see cref="MinPickWidth"/> across, because a 0.3 m shard at any distance is
+    /// otherwise a target nobody can hit. It is deliberately not the server's <c>collider</c> block from
+    /// <c>prop-kinds.yml</c>: that one is for movement, which wants the real extent, and this one is for
+    /// clicking, which wants a generous one.
+    ///
+    /// <para>
+    /// For a kind with art the width is the <i>drawn</i> footprint, which for a clump of grass is a couple of
+    /// metres and far wider than the row's <c>PlaceholderWidth</c>. That is the point: what the player is
+    /// aiming at is the blades they can see, and a 0.6 m box in the middle of a 2.3 m clump would refuse
+    /// clicks that visibly landed on the plant.
+    /// </para>
+    ///
+    /// <para>
+    /// No yaw on it, unlike the mesh instance: the box is square in x and z, so turning it changes nothing.
+    /// </para>
+    /// </remarks>
+    private Node3D AddPicker(
+      Node3D container, ChunkStaticEntitiesSMSG.Entry entry, Vector3 position, float width)
+    {
+      var area = new Area3D
+      {
+        Name = $"prop {entry.EntityId}",
+        Transform = new Transform3D(Basis.Identity, position)
+      };
 
       // Before AddChild, so the script is attached by the time the node enters the tree - the same ordering
       // TerrainRenderer.NewBody documents.
       area.SetScript(PropPicker);
 
-      var width = Mathf.Max(appearance.PlaceholderWidth, MinPickWidth);
-      var shape = new CollisionShape3D
+      var size = Mathf.Max(width, MinPickWidth);
+      area.AddChild(new CollisionShape3D
       {
-        Shape = new BoxShape3D { Size = new Vector3(width, entry.Height, width) },
+        Shape = new BoxShape3D { Size = new Vector3(size, entry.Height, size) },
         // The prop grows upward from its own origin, so the box's centre sits at half its height.
         Position = new Vector3(0f, entry.Height * 0.5f, 0f)
-      };
-
-      area.AddChild(shape);
-      prop.AddChild(area);
+      });
 
       area.Set("entity_id", entry.EntityId);
       area.Set("kind", entry.Kind);
@@ -355,71 +479,30 @@ namespace BestiaBehemothClient.Game.World
       // Physics picking is a signal on the collision object, and a node built in code has to wire it itself.
       area.Connect(CollisionObject3D.SignalName.InputEvent, new Callable(area, "_on_input_event"));
 
-      container.AddChild(prop);
+      container.AddChild(area);
 
-      if (!_collectibleNodes.TryGetValue(key, out var byId))
-      {
-        byId = new Dictionary<long, Node3D>();
-        _collectibleNodes[key] = byId;
-      }
-
-      byId[entry.EntityId] = prop;
+      return area;
     }
 
-    /// <summary>
-    /// Draws every prop of one artless kind in this chunk as a single multimesh.
-    /// </summary>
-    /// <remarks>
-    /// Scaled on y only for most kinds: the mesh is a box of the kind's own width standing on its own origin,
-    /// so this makes a tall thing tall rather than also fat. See <see cref="AddSceneProp"/> for why a real
-    /// model is treated differently.
-    ///
-    /// <para>
-    /// A building is the exception, and it is scaled on all three axes because its footprint arrives per entry
-    /// - see <see cref="ChunkStaticEntitiesSMSG.Entry.HasFootprint"/>. The x and z factors are *relative to the
-    /// kind's own placeholder width*, since the shared mesh is already that wide; a building whose row said 5 m
-    /// and whose lot is 9 m across is scaled by 1.8 rather than by 9. Keeping the shared mesh is what lets a
-    /// whole town's houses stay one multimesh instead of one draw each.
-    /// </para>
-    /// </remarks>
-    private void AddPlaceholderBatch(Node3D container, int kind, List<ChunkStaticEntitiesSMSG.Entry> entries)
+    /// <summary>Notes what was drawn for one prop, so <see cref="RemoveEntity"/> can find it again.</summary>
+    private void Record(ChunkKey key, long entityId, Drawn drawn)
     {
-      var multi = new MultiMesh
+      if (!_drawn.TryGetValue(key, out var byId))
       {
-        TransformFormat = MultiMesh.TransformFormatEnum.Transform3D,
-        Mesh = PlaceholderFor(kind),
-        InstanceCount = entries.Count
-      };
-
-      // The width the shared mesh was built at, which every per-entry footprint is expressed against. Guarded
-      // because a row with a zero width would otherwise divide by it.
-      var meshWidth = Mathf.Max(PropAppearance.Of(kind).PlaceholderWidth, 0.001f);
-
-      for (var i = 0; i < entries.Count; i++)
-      {
-        var entry = entries[i];
-
-        // Local x is the facing axis, so half-length scales x and half-width scales z. Doubled because the
-        // wire carries half-extents and the mesh is a full width.
-        var along = entry.HasFootprint ? entry.HalfLength * 2f / meshWidth : 1f;
-        var across = entry.HasFootprint ? entry.HalfWidth * 2f / meshWidth : 1f;
-
-        // The server's z is the ground the prop stands on, and a mesh built upward from its own origin wants
-        // that as its base.
-        var basis = new Basis(Vector3.Up, entry.Yaw).Scaled(new Vector3(along, entry.Height, across));
-        multi.SetInstanceTransform(i, new Transform3D(basis, GroundedPositionOf(entry)));
+        byId = new Dictionary<long, Drawn>();
+        _drawn[key] = byId;
       }
 
-      container.AddChild(new MultiMeshInstance3D { Multimesh = multi });
+      byId[entityId] = drawn;
     }
 
     /// <summary>
-    /// Un-draws one collectible prop, leaving the rest of its chunk alone.
+    /// Un-draws one prop, leaving the rest of its chunk alone.
     /// </summary>
     /// <remarks>
     /// Surgical rather than re-running <see cref="Apply"/> for the chunk, because <see cref="Apply"/> replaces
-    /// the whole container: collecting one crystal would free and re-instantiate every <c>TreeVisual</c> in
-    /// the column, which is a visible hitch for a change to a single node.
+    /// the whole container: collecting one herb would free and re-instantiate every <c>TreeVisual</c> in the
+    /// column, which is a visible hitch for a change to a single prop.
     ///
     /// <para>
     /// Idempotent, which matters more than it looks. A prop that was promoted before being collected carries a
@@ -427,22 +510,31 @@ namespace BestiaBehemothClient.Game.World
     /// map-channel removal - and a chunk that unloads between the two calls has already taken the node.
     /// </para>
     /// </remarks>
-    /// <returns>true if a node was actually freed</returns>
+    /// <returns>true if something was actually taken away</returns>
     public bool RemoveEntity(ChunkKey key, long entityId)
     {
-      if (!_collectibleNodes.TryGetValue(key, out var byId) || !byId.Remove(entityId, out var node))
+      if (!_drawn.TryGetValue(key, out var byId) || !byId.Remove(entityId, out var drawn))
       {
         return false;
       }
 
       if (byId.Count == 0)
       {
-        _collectibleNodes.Remove(key);
+        _drawn.Remove(key);
       }
 
-      if (IsInstanceValid(node))
+      // A MultiMesh can only truncate its tail, so an arbitrary instance goes away by being parked at a zero
+      // basis: every triangle collapses to a point and the rasteriser drops it. The slot is not reused - the
+      // next batch for this chunk rebuilds the whole buffer anyway.
+      if (drawn.Batch != null && IsInstanceValid(drawn.Batch))
       {
-        node.QueueFree();
+        drawn.Batch.SetInstanceTransform(
+          drawn.Slot, new Transform3D(new Basis(Vector3.Zero, Vector3.Zero, Vector3.Zero), Vector3.Zero));
+      }
+
+      if (drawn.Node != null && IsInstanceValid(drawn.Node))
+      {
+        drawn.Node.QueueFree();
       }
 
       return true;
@@ -451,9 +543,9 @@ namespace BestiaBehemothClient.Game.World
     /// <summary>Drops everything drawn for a chunk. Safe to call for a chunk that was never drawn.</summary>
     public void Remove(ChunkKey key)
     {
-      // Dropped wholesale rather than per node: the container's own QueueFree below already takes the prop
-      // nodes with it, so this is only the ledger catching up.
-      _collectibleNodes.Remove(key);
+      // Dropped wholesale rather than per prop: the container's own QueueFree below already takes the scene
+      // instances, the multimeshes and the pickers with it, so this is only the ledger catching up.
+      _drawn.Remove(key);
 
       if (!_byChunk.Remove(key, out var container))
       {
@@ -496,9 +588,83 @@ namespace BestiaBehemothClient.Game.World
       return scene;
     }
 
+    /// <summary>The batched art mesh for a kind, loaded once, or null if it could not be loaded.</summary>
+    /// <remarks>
+    /// Cached by kind rather than by path even though six kinds name two meshes between them, because
+    /// <see cref="ResourceLoader"/> already returns the same instance for the same path - so the second kind
+    /// to ask costs a dictionary miss and not a second copy of the mesh.
+    /// </remarks>
+    private Godot.Mesh ArtFor(int kind, PropAppearance.Kind appearance)
+    {
+      if (_art.TryGetValue(kind, out var cached))
+      {
+        return cached;
+      }
+
+      var mesh = ResourceLoader.Load<Godot.Mesh>(appearance.MeshPath);
+      if (mesh == null)
+      {
+        GD.PushError(
+          $"[props] kind {kind} names {appearance.MeshPath}, which did not load; it falls back to a box.");
+      }
+
+      _art[kind] = mesh;
+      return mesh;
+    }
+
+    /// <summary>
+    /// The material a kind's art is drawn with, built once, or null to keep the mesh's own.
+    /// </summary>
+    /// <remarks>
+    /// Duplicated per kind rather than shared, so that a blighted twin can differ from its healthy one by two
+    /// colours without a second material file. A shallow duplicate: the noise texture behind the albedo is a
+    /// sub-resource and stays shared between all six.
+    /// </remarks>
+    private Material MaterialFor(int kind, PropAppearance.Kind appearance)
+    {
+      if (_materials.TryGetValue(kind, out var cached))
+      {
+        return cached;
+      }
+
+      Material material = null;
+
+      if (!string.IsNullOrEmpty(appearance.MaterialPath))
+      {
+        var template = ResourceLoader.Load<ShaderMaterial>(appearance.MaterialPath);
+
+        if (template == null)
+        {
+          GD.PushError(
+            $"[props] kind {kind} names {appearance.MaterialPath}, which did not load; " +
+            "it falls back to the mesh's own material.");
+        }
+        else
+        {
+          var own = (ShaderMaterial)template.Duplicate();
+          own.SetShaderParameter(UvVAtTip, appearance.UvVAtTip);
+
+          if (appearance.BladeTip.HasValue)
+          {
+            own.SetShaderParameter(BladeTip, appearance.BladeTip.Value);
+          }
+
+          if (appearance.BladeBase.HasValue)
+          {
+            own.SetShaderParameter(BladeBase, appearance.BladeBase.Value);
+          }
+
+          material = own;
+        }
+      }
+
+      _materials[kind] = material;
+      return material;
+    }
+
     /// <summary>A placeholder mesh for a kind with no art, built once.</summary>
     /// <remarks>
-    /// Unit height, because <see cref="AddPlaceholderBatch"/> scales by the prop's own height.
+    /// Unit height, because <see cref="AddBatch"/> scales a placeholder by the prop's own height.
     /// </remarks>
     private Godot.Mesh PlaceholderFor(int kind)
     {
@@ -528,5 +694,16 @@ namespace BestiaBehemothClient.Game.World
     /// being generous: overlapping pick boxes still resolve to the nearest, and the server checks range anyway.
     /// </remarks>
     private const float MinPickWidth = 0.6f;
+
+    /// <summary>
+    /// How far, in metres, the wind can carry a blade outside the bounds Godot culls its batch against.
+    /// </summary>
+    /// <remarks>
+    /// <c>grass.gdshader</c>'s <c>wind_max_lean</c> is 0.45 of a plant's height at the tip, and the tallest
+    /// thing drawn this way is a reed at the top of its spread, about 2.3 m. Rounded up, and generous on
+    /// purpose: the cost of an over-large margin is a batch drawn a frame after it could have been culled,
+    /// and the cost of a short one is grass vanishing at the edge of the screen in a gale.
+    /// </remarks>
+    private const float WindReach = 1.2f;
   }
 }

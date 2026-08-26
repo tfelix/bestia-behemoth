@@ -33,6 +33,13 @@ namespace BestiaBehemothClient.Game.World
   /// </para>
   ///
   /// <para>
+  /// <see cref="Wind"/> is the one value that is both, and that is not a hedge. <c>cloud_shadows.gd</c> reads
+  /// the property and integrates it into a drift; <c>grass.gdshader</c> reads the global, because it runs per
+  /// vertex on every plant in the view and there is no path from GDScript to a MultiMesh's vertex shader
+  /// short of a per-kind material uniform pushed on every weather message.
+  /// </para>
+  ///
+  /// <para>
   /// <see cref="WeatherLook"/> holds the decisions - which kind means rain, how grey a sky goes. This holds
   /// the smoothing and the plumbing. It is forwarded field by field for the reason <see cref="WorldClock"/>
   /// forwards <see cref="WorldClock.SunriseHour"/>: a struct is not one of Godot's Variant types and cannot
@@ -50,6 +57,42 @@ namespace BestiaBehemothClient.Game.World
     private static readonly StringName Wetness = "weather_wetness";
     private static readonly StringName Snow = "weather_snow";
     private static readonly StringName Temperature = "weather_temperature";
+
+    /// <summary>
+    /// The same vector <see cref="Wind"/> reports, as a global shader parameter.
+    /// </summary>
+    /// <remarks>
+    /// Published as well as exposed, rather than instead of, because the two have different readers. The
+    /// property is polled per frame by <c>cloud_shadows.gd</c>, which integrates it into a drift; the global
+    /// is read by <c>grass.gdshader</c>, which is a vertex shader on every plant in the view and has no way
+    /// to be handed anything from GDScript at all.
+    /// </remarks>
+    private static readonly StringName WindParameter = "weather_wind";
+
+    /// <summary>
+    /// How far the gust field has travelled downwind, in radians of <see cref="GustReferenceMetres"/>.
+    /// </summary>
+    /// <remarks>
+    /// <b>Integrated here rather than derived from <c>TIME</c> in the shader, and that is a bug fix.</b> The
+    /// obvious form for a wave travelling downwind is <c>sin(dot(p, dir) - speed * TIME)</c>, and it is wrong
+    /// whenever the speed is itself changing: differentiate it and the apparent rate is not <c>speed</c> but
+    /// <c>speed + TIME * dspeed/dt</c>. <c>TIME</c> is seconds since the process started, so the error scales
+    /// with how long the client has been open.
+    ///
+    /// <para>
+    /// That is exactly the shape of the symptom it caused. This node is created by the <c>ConnectionManager</c>
+    /// autoload at launch, but the first weather does not arrive until the player authenticates - minutes of
+    /// menu later. A wind ramping to 6 m/s over <see cref="WindSeconds"/> at <c>TIME</c> = 120 s made the grass
+    /// whip at ten times the speed it should, decaying over the following seconds as the ramp flattened.
+    /// </para>
+    ///
+    /// <para>
+    /// An integral has no such term, and it wraps, so it holds full float precision for a session of any
+    /// length - which the metres form would not. <c>cloud_shadows.gd</c>'s own drift is the same integral for
+    /// the same reason.
+    /// </para>
+    /// </remarks>
+    private static readonly StringName GustPhaseParameter = "weather_gust_phase";
 
     /// <summary>
     /// How long the ground takes to respond, in seconds, getting wetter and then drying again.
@@ -90,6 +133,18 @@ namespace BestiaBehemothClient.Game.World
     /// wheel the whole shadow field round in front of the player.
     /// </remarks>
     [Export] public float WindSeconds { get; set; } = 12.0f;
+
+    /// <summary>
+    /// The gust wavelength, in metres, that <see cref="GustPhaseParameter"/>'s radians are measured against.
+    /// </summary>
+    /// <remarks>
+    /// Matches <c>grass.tres</c>'s <c>gust_wavelength</c>, and the two agreeing is what makes a gust cross the
+    /// ground at exactly the wind's own speed. Nothing breaks if they drift apart - a shorter wavelength in
+    /// the material simply makes its waves travel proportionally slower - so this is a look knob and not a
+    /// contract. It is a number rather than a read of the material because the phase is one global serving
+    /// every material that wants it, and there is no material to ask.
+    /// </remarks>
+    [Export] public float GustReferenceMetres { get; set; } = 9.0f;
 
     /// <summary>
     /// Ignores the server and renders the weather set below.
@@ -136,6 +191,37 @@ namespace BestiaBehemothClient.Game.World
     private float _visibility = 1.0f;
     private float _hazeTint;
     private Vector3 _wind = Vector3.Zero;
+
+    /// <summary>
+    /// The wind as the rendering server last heard it, which is what decides whether a publish is due.
+    /// </summary>
+    /// <remarks>
+    /// A second copy rather than testing <see cref="_wind"/> against its own new value, because that value has
+    /// to be committed either way - see <see cref="_Process"/>. Starts at a deliberately impossible vector so
+    /// that the first frame always publishes: the project setting's default is a light breeze, not zero, and
+    /// a client that started in a dead calm would otherwise leave it standing.
+    /// </remarks>
+    private Vector3 _publishedWind = new(float.NaN, float.NaN, float.NaN);
+
+    /// <summary>See <see cref="GustPhaseParameter"/>. Radians, wrapped, and a double so the wrap is exact.</summary>
+    private double _gustPhase;
+
+    /// <summary>
+    /// Whether a reading has ever arrived, which is what decides between settling and transitioning.
+    /// </summary>
+    /// <remarks>
+    /// The smoothing here is for weather <i>changing</i>, and every constant is chosen against that: five
+    /// seconds for a shower starting, three minutes for ground to dry, twelve for the wind to swing round.
+    /// None of them means anything for the first reading, because there is no previous sky to come from - the
+    /// weather in a region was already happening before the player logged into it.
+    ///
+    /// <para>
+    /// Left ramping, the first minute of every session was a lie in the player's favour or against it: walking
+    /// into a downpour on dry ground that then slowly darkened, or a dead calm that gradually picked up. See
+    /// <see cref="Settle"/>.
+    /// </para>
+    /// </remarks>
+    private bool _seeded;
 
     private bool _attached;
 
@@ -295,6 +381,49 @@ namespace BestiaBehemothClient.Game.World
       _windSpeed = weather.WindSpeed;
       _windDirection = weather.WindDirection;
       _temperatureTarget = weather.TemperatureCelsius;
+
+      if (_seeded)
+      {
+        return;
+      }
+
+      _seeded = true;
+      Settle();
+    }
+
+    /// <summary>
+    /// Jumps every smoothed value to what the current reading implies, with no transition.
+    /// </summary>
+    /// <remarks>
+    /// Only ever called once, on the first reading - see <see cref="_seeded"/>. Every field here is one the
+    /// smoothing in <see cref="_Process"/> would have converged to anyway; this only refuses to spend a minute
+    /// getting there.
+    ///
+    /// <para>
+    /// <see cref="_gustPhase"/> is deliberately not among them. It is a clock rather than a state, so there is
+    /// nothing for it to settle to.
+    /// </para>
+    /// </remarks>
+    private void Settle()
+    {
+      var look = Look();
+
+      _wetnessTarget = look.GroundWetRate;
+      _snowTarget = look.SnowRate;
+
+      _wetness = _wetnessTarget;
+      _snow = _snowTarget;
+      _temperature = TargetTemperature();
+
+      _rainRate = look.RainRate;
+      _snowRate = look.SnowRate;
+      _dustRate = look.DustRate;
+      _overcast = look.Overcast;
+      _visibility = look.Visibility;
+      _hazeTint = look.HazeTint * (1.0f - look.Visibility);
+      _wind = TargetWind(look);
+
+      Publish();
     }
 
     public override void _Process(double delta)
@@ -317,13 +446,26 @@ namespace BestiaBehemothClient.Game.World
       _overcast = Approach(_overcast, look.Overcast, step, SkySeconds, SkySeconds);
       _visibility = Approach(_visibility, look.Visibility, step, SkySeconds, SkySeconds);
       _hazeTint = Approach(_hazeTint, look.HazeTint * (1.0f - look.Visibility), step, SkySeconds, SkySeconds);
+
+      // Assigned before the publish test below rather than after it, unlike the three that follow: this one is
+      // read straight off the property every frame by cloud_shadows.gd, so holding it back on a frame that is
+      // not worth publishing would stall the shadow drift rather than merely delay a shader parameter.
       _wind = ApproachVector(_wind, TargetWind(look), step, WindSeconds);
+
+      // Advanced and published every frame, unlike everything below it, because this one is a clock: holding it
+      // back on a frame is not a saved round trip but a stalled animation.
+      _gustPhase = Mathf.Wrap(
+        _gustPhase + Mathf.Tau * _wind.Length() * delta / Mathf.Max(GustReferenceMetres, 0.001f),
+        0.0, Mathf.Tau);
+
+      RenderingServer.GlobalShaderParameterSet(GustPhaseParameter, (float)_gustPhase);
 
       // Only publish on a change worth a round trip to the rendering server - the values are stable for minutes
       // at a time and this runs every frame. The sky values above are read as properties and need no publish.
       if (Mathf.IsEqualApprox(wetness, _wetness) &&
           Mathf.IsEqualApprox(snow, _snow) &&
-          Mathf.IsEqualApprox(temperature, _temperature))
+          Mathf.IsEqualApprox(temperature, _temperature) &&
+          _wind.IsEqualApprox(_publishedWind))
       {
         return;
       }
@@ -385,6 +527,9 @@ namespace BestiaBehemothClient.Game.World
       RenderingServer.GlobalShaderParameterSet(Wetness, _wetness);
       RenderingServer.GlobalShaderParameterSet(Snow, _snow);
       RenderingServer.GlobalShaderParameterSet(Temperature, _temperature);
+      RenderingServer.GlobalShaderParameterSet(WindParameter, _wind);
+
+      _publishedWind = _wind;
     }
   }
 }

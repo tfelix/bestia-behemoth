@@ -13,12 +13,29 @@ namespace BestiaBehemothClient.Game.World
   /// the same reason.
   ///
   /// <para>
-  /// <b>Two ways to draw a prop, and which one a kind gets is just whether it has art yet.</b> A kind with a
-  /// <see cref="Kind.ScenePath"/> is instantiated per prop, so it can be a real model with a trunk, a canopy
-  /// and eventually an animation. A kind without one falls back to a placeholder box batched into a
-  /// multimesh - crude, cheap, and deliberately a different width and colour per kind so that a wrong-kind
-  /// bug is visible rather than merely wrong. Giving a kind art is adding a scene path and a natural height
-  /// to its row here and nothing else.
+  /// <b>Three ways to draw a prop, and which one a kind gets is what sort of art it has.</b>
+  /// </para>
+  ///
+  /// <list type="bullet">
+  /// <item>
+  /// A kind with a <see cref="Kind.ScenePath"/> is instantiated per prop, so it can be a real model with a
+  /// trunk, a canopy and eventually an animation. One node and one draw call each, which is why only the
+  /// trees have it.
+  /// </item>
+  /// <item>
+  /// A kind with a <see cref="Kind.MeshPath"/> is one mesh batched into a <c>MultiMesh</c>: a single draw
+  /// call for every prop of that kind in a chunk, with nothing per instance but a transform. The right shape
+  /// for anything that comes in hundreds and does not need moving parts, which is what the ground cover is.
+  /// </item>
+  /// <item>
+  /// A kind with neither falls back to a placeholder box, batched the same way - crude, cheap, and
+  /// deliberately a different width and colour per kind so that a wrong-kind bug is visible rather than
+  /// merely wrong.
+  /// </item>
+  /// </list>
+  ///
+  /// <para>
+  /// Giving a kind art is filling in the paths and a natural height on its row here and nothing else.
   /// </para>
   /// </remarks>
   public static class PropAppearance
@@ -30,7 +47,32 @@ namespace BestiaBehemothClient.Game.World
       public string ScenePath { get; init; }
 
       /// <summary>
-      /// The height, in metres, that <see cref="ScenePath"/>'s scene is authored at.
+      /// The mesh to batch into a multimesh, or null. Ignored when this kind has a <see cref="ScenePath"/>.
+      /// </summary>
+      /// <remarks>
+      /// A mesh resource rather than a scene, and the difference is what makes the batching possible: a
+      /// <c>MultiMesh</c> draws one mesh many times, so a kind that wants this path has to be a single
+      /// surface with nothing hanging off it. That is a real constraint - a prop needing two materials or a
+      /// child node has to take <see cref="ScenePath"/> and pay a draw call each - and it is why the field is
+      /// separate rather than the renderer sniffing a scene for a lone <c>MeshInstance3D</c>.
+      /// </remarks>
+      public string MeshPath { get; init; }
+
+      /// <summary>
+      /// The material <see cref="MeshPath"/>'s mesh is drawn with, or null to keep the one it was saved with.
+      /// </summary>
+      /// <remarks>
+      /// Named here rather than left inside the mesh because one material serves several kinds and one mesh
+      /// serves several kinds, and the two groupings are not the same: a herb and a blighted herb share a
+      /// mesh and differ in colour, while a shrub and a reed share a colour and differ in mesh. Rows carry a
+      /// recolour in <see cref="BladeTip"/> and <see cref="BladeBase"/>, which the renderer applies to a
+      /// per-kind duplicate, so the file itself stays the one place the look is authored.
+      /// </remarks>
+      public string MaterialPath { get; init; }
+
+      /// <summary>
+      /// The height, in metres, that <see cref="ScenePath"/>'s scene or <see cref="MeshPath"/>'s mesh is
+      /// authored at.
       /// </summary>
       /// <remarks>
       /// The divisor that turns the server's height into a scale factor, and it has to be measured off the
@@ -40,7 +82,30 @@ namespace BestiaBehemothClient.Game.World
       /// </remarks>
       public float NaturalHeight { get; init; }
 
-      /// <summary>Width of the placeholder box, in metres. Unused once this kind has a scene.</summary>
+      /// <summary>
+      /// Whether <see cref="MeshPath"/>'s mesh was unwrapped with V at 1 on the base and 0 at the tip.
+      /// </summary>
+      /// <remarks>
+      /// A fact about the mesh rather than a look, and it has to be recorded because <c>grass2</c> was
+      /// unwrapped the opposite way round from <c>grass</c> and neither is wrong. <c>grass.gdshader</c> reads
+      /// it to find which end of a blade is the root, which decides both the colour gradient and which end
+      /// the wind bends from - so getting it backwards is visible twice.
+      /// </remarks>
+      public bool UvVAtTip { get; init; }
+
+      /// <summary>
+      /// Tip and base colours for <see cref="MaterialPath"/>'s material, or null to keep its authored ones.
+      /// </summary>
+      /// <remarks>
+      /// The two <c>source_color</c> uniforms <c>grass.gdshader</c> blends along a blade, named <c>color</c>
+      /// and <c>color2</c> there. Set on the blighted rows and left alone on the healthy ones, so that
+      /// retuning the healthy grass is editing one <c>.tres</c> in the editor and its twins follow.
+      /// </remarks>
+      public Color? BladeTip { get; init; }
+
+      public Color? BladeBase { get; init; }
+
+      /// <summary>Width of the placeholder box, in metres. Unused once this kind has art.</summary>
       public float PlaceholderWidth { get; init; }
 
       /// <summary>Colour of the placeholder box. Unused once this kind has a scene.</summary>
@@ -69,7 +134,22 @@ namespace BestiaBehemothClient.Game.World
       public bool Collectible { get; init; }
 
       public bool HasScene => !string.IsNullOrEmpty(ScenePath);
+
+      public bool HasMesh => !string.IsNullOrEmpty(MeshPath);
     }
+
+    /// <summary>The two grass meshes, and the material they are both drawn with.</summary>
+    /// <remarks>
+    /// <c>grass</c> is a clump of a dozen blades 2.24 m tall and 2.85 m across; <c>grass2</c> is a single
+    /// tuft 0.71 m tall. They are used at their own sizes rather than one being a scaled copy of the other,
+    /// because the server's kinds differ in habit and not only in height: a herb is one plant you could pick
+    /// and a reed bed is a thicket, and scaling the thicket down to 0.45 m draws a herb as twelve blades.
+    /// </remarks>
+    private const string GrassClump = "res://Game/Terrain/Grass/grass.res";
+
+    private const string GrassTuft = "res://Game/Terrain/Grass/grass2.res";
+
+    private const string GrassMaterial = "res://Game/Terrain/Grass/grass.tres";
 
     /// <summary>
     /// Every kind the server can send, in <c>StaticEntityKind</c> ordinal order.
@@ -151,17 +231,56 @@ namespace BestiaBehemothClient.Game.World
       // The ground cover: a herb, a shrub and a reed, each with its blighted twin. Collectible - every one of
       // them has a `collect` block in prop-kinds.yml - so all six get a click target.
       //
-      // The narrowest boxes in the table by some way, and that is the point rather than a placeholder's
-      // indifference: these are the densest props in the world and drawing them at a landmark's width would
-      // wall a meadow off. Greens, so that the ground cover reads as growth against the stone and ore above,
-      // with the blighted twins desaturated toward the corruption palette the player already knows from a
-      // blighted tree.
-      new Kind { PlaceholderWidth = 0.3f, PlaceholderColour = new Color(0.42f, 0.62f, 0.28f), Collectible = true }, // HERB
-      new Kind { PlaceholderWidth = 0.3f, PlaceholderColour = new Color(0.44f, 0.44f, 0.26f), Collectible = true }, // BLIGHTED_HERB
-      new Kind { PlaceholderWidth = 0.6f, PlaceholderColour = new Color(0.28f, 0.46f, 0.24f), Collectible = true }, // SHRUB
-      new Kind { PlaceholderWidth = 0.6f, PlaceholderColour = new Color(0.34f, 0.32f, 0.22f), Collectible = true }, // BLIGHTED_SHRUB
-      new Kind { PlaceholderWidth = 0.4f, PlaceholderColour = new Color(0.56f, 0.60f, 0.34f), Collectible = true }, // REED
-      new Kind { PlaceholderWidth = 0.4f, PlaceholderColour = new Color(0.46f, 0.44f, 0.30f), Collectible = true }  // BLIGHTED_REED
+      // The first kinds to take the batched-mesh path, and the reason it exists. These are the densest props
+      // in the world: `GroundCoverParams.litterGain` is set at about twice the tree density, so a view volume
+      // holds on the order of a thousand of them. A scene instance each would be a thousand draw calls for
+      // the layer the player is least likely to be looking at.
+      //
+      // The natural heights are the top of each mesh's own AABB above y=0, which is where they stand - not
+      // the AABB's height, which counts the few millimetres both dip below the origin so that a base does not
+      // float over uneven ground.
+      //
+      // `PlaceholderWidth` is still read, and only for the pick box's floor: the drawn footprint is the mesh
+      // scaled, which is far wider than these numbers, and `StaticEntityRenderer` takes the larger.
+      //
+      // The blighted twins are the same meshes recoloured, unlike the blighted *tree* which is still a box on
+      // the grounds that a corrupted tree drawn as a healthy one is worse than one that is obviously
+      // unfinished. That argument does not carry down here: a blighted herb desaturated toward the corruption
+      // palette is not mistakable for a healthy one at the size these are drawn, and a meadow of magenta-free
+      // placeholder boxes in the middle of real grass would be the worse read.
+      new Kind
+      {
+        MeshPath = GrassTuft, MaterialPath = GrassMaterial, NaturalHeight = 0.7053f, UvVAtTip = true,
+        PlaceholderWidth = 0.3f, PlaceholderColour = new Color(0.42f, 0.62f, 0.28f), Collectible = true
+      }, // HERB
+      new Kind
+      {
+        MeshPath = GrassTuft, MaterialPath = GrassMaterial, NaturalHeight = 0.7053f, UvVAtTip = true,
+        BladeTip = new Color(0.44f, 0.44f, 0.26f), BladeBase = new Color(0.26f, 0.23f, 0.10f),
+        PlaceholderWidth = 0.3f, PlaceholderColour = new Color(0.44f, 0.44f, 0.26f), Collectible = true
+      }, // BLIGHTED_HERB
+      new Kind
+      {
+        MeshPath = GrassClump, MaterialPath = GrassMaterial, NaturalHeight = 2.2391f,
+        PlaceholderWidth = 0.6f, PlaceholderColour = new Color(0.28f, 0.46f, 0.24f), Collectible = true
+      }, // SHRUB
+      new Kind
+      {
+        MeshPath = GrassClump, MaterialPath = GrassMaterial, NaturalHeight = 2.2391f,
+        BladeTip = new Color(0.34f, 0.32f, 0.22f), BladeBase = new Color(0.22f, 0.19f, 0.11f),
+        PlaceholderWidth = 0.6f, PlaceholderColour = new Color(0.34f, 0.32f, 0.22f), Collectible = true
+      }, // BLIGHTED_SHRUB
+      new Kind
+      {
+        MeshPath = GrassClump, MaterialPath = GrassMaterial, NaturalHeight = 2.2391f,
+        PlaceholderWidth = 0.4f, PlaceholderColour = new Color(0.56f, 0.60f, 0.34f), Collectible = true
+      }, // REED
+      new Kind
+      {
+        MeshPath = GrassClump, MaterialPath = GrassMaterial, NaturalHeight = 2.2391f,
+        BladeTip = new Color(0.46f, 0.44f, 0.30f), BladeBase = new Color(0.28f, 0.24f, 0.13f),
+        PlaceholderWidth = 0.4f, PlaceholderColour = new Color(0.46f, 0.44f, 0.30f), Collectible = true
+      }  // BLIGHTED_REED
     };
 
     /// <summary>
