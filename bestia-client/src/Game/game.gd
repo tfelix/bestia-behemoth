@@ -9,9 +9,11 @@ extends Node3D
 
 const TerrainRendererScript = preload("res://Game/World/TerrainRenderer.cs")
 const StaticEntityRendererScript = preload("res://Game/World/StaticEntityRenderer.cs")
+const TerrainGrassScript = preload("res://Game/World/TerrainGrass.cs")
 
 var _terrain: Node3D = null
 var _props: Node3D = null
+var _grass: Node3D = null
 
 func _ready() -> void:
 	_terrain = TerrainRendererScript.new()
@@ -23,6 +25,15 @@ func _ready() -> void:
 	_props = StaticEntityRendererScript.new()
 	_props.name = "Props"
 	add_child(_props)
+
+	# The decorative grass field, which is the terrain's and not the props'. It is a sample of the ground
+	# rather than something standing on it, so it has to be rebuilt whenever the ground is - which is why the
+	# terrain drives it directly instead of the chunk stream doing so. A sibling all the same, so that the
+	# terrain re-meshing a chunk frees one node and not a MultiMesh with thousands of transforms in it.
+	_grass = TerrainGrassScript.new()
+	_grass.name = "Grass"
+	add_child(_grass)
+	_terrain.Grass = _grass
 
 	if ConnectionManager.chunk_stream != null:
 		ConnectionManager.chunk_stream.Renderer = _terrain
@@ -39,6 +50,11 @@ func _exit_tree() -> void:
 	if ConnectionManager.chunk_stream != null:
 		ConnectionManager.chunk_stream.Renderer = null
 		ConnectionManager.chunk_stream.StaticEntities = null
+
+	# The terrain and the grass die together with this scene, so this is only about not leaving a freed node
+	# reachable in between.
+	if _terrain != null:
+		_terrain.Grass = null
 
 
 func _process(_delta: float) -> void:

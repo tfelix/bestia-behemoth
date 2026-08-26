@@ -20,28 +20,6 @@ size = Vector3(1, 0.2, 1)
 script = ExtResource("1_oscxy")
 
 [node name="Environment" parent="." unique_id=47354015 instance=ExtResource("3_jxerj")]
-peak_elevation_degrees = 68.0
-min_elevation_degrees = 9.0
-sweep_degrees = 120.0
-base_azimuth_degrees = 40.0
-sun_energy = 1.0
-moon_energy = 0.16
-sun_day_colour = Color(1, 0.96, 0.88, 1)
-sun_twilight_colour = Color(1, 0.52, 0.26, 1)
-moon_colour = Color(0.55, 0.67, 1, 1)
-sky_top_day = Color(0.845, 0.906, 0.989, 1)
-sky_top_twilight = Color(0.24, 0.24, 0.46, 1)
-sky_top_night = Color(0.021, 0.03, 0.086, 1)
-sky_horizon_day = Color(0.646, 0.656, 0.671, 1)
-sky_horizon_twilight = Color(0.86, 0.42, 0.24, 1)
-sky_horizon_night = Color(0.055, 0.075, 0.15, 1)
-ground_day = Color(0.646, 0.656, 0.671, 1)
-ground_twilight = Color(0.33, 0.22, 0.2, 1)
-ground_night = Color(0.026, 0.03, 0.048, 1)
-fog_day = Color(0.63, 0.729, 0.829, 1)
-fog_twilight = Color(0.72, 0.42, 0.3, 1)
-fog_night = Color(0.045, 0.06, 0.115, 1)
-twilight_strength = 0.75
 
 [node name="UI" parent="." unique_id=426573470 instance=ExtResource("2_eqev2")]
 

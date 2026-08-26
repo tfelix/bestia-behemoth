@@ -89,6 +89,18 @@ namespace BestiaBehemothClient.Game.World
     [Export] public Material LavaMaterial { get; set; }
 
     /// <summary>
+    /// The decorative grass field, or null to draw none. Set by <c>game.gd</c>.
+    /// </summary>
+    /// <remarks>
+    /// Driven from here rather than wired to <c>ChunkStreamManager</c> the way the props are, because what it
+    /// scatters on is the <see cref="ChunkSurface"/> this renderer built - which exists only for the moment
+    /// between the mesher finishing and the <c>ArrayMesh</c> being uploaded, and is not kept afterwards. It
+    /// also has to follow this lifecycle exactly: a chunk re-meshed by a patch is a chunk whose grass is now
+    /// scattered on ground that moved.
+    /// </remarks>
+    public TerrainGrass Grass { get; set; }
+
+    /// <summary>
     /// The fallback: vertex colour as albedo, and rough.
     /// </summary>
     /// <remarks>
@@ -260,6 +272,8 @@ namespace BestiaBehemothClient.Game.World
         tile.Body?.QueueFree();
       }
 
+      Grass?.Clear();
+
       _tiles.Clear();
       _pending.Clear();
       _queued.Clear();
@@ -298,6 +312,8 @@ namespace BestiaBehemothClient.Game.World
     /// <summary>Drops a chunk's geometry, for a manifest that took it out of the subscribed set.</summary>
     public void Remove(ChunkKey key)
     {
+      Grass?.Remove(key);
+
       if (!_tiles.Remove(key, out var tile))
       {
         return;
@@ -509,6 +525,10 @@ namespace BestiaBehemothClient.Game.World
       // collider here would instead stop the camera's spring arm at the surface of every pool, and make the
       // pool a clickable floor the pathfinder then refuses - a worse lie than no floor at all.
       tile.CollisionFaces = mesh.Terrain == null || mesh.Terrain.IsEmpty ? null : FacesOf(mesh.Terrain);
+
+      // After the surfaces, because a re-mesh replaces the grass with it and there is no point scattering onto
+      // ground that is about to be replaced in the same call.
+      Grass?.Build(mesh.Key, mesh.Terrain);
 
       // A rebuilt mesh invalidates whatever shape was there, so drop it and let the sync decide afresh.
       tile.Shape?.QueueFree();
