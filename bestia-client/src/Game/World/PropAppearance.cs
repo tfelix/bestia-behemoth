@@ -138,16 +138,18 @@ namespace BestiaBehemothClient.Game.World
       public bool HasMesh => !string.IsNullOrEmpty(MeshPath);
     }
 
-    /// <summary>The two grass meshes, and the material they are both drawn with.</summary>
+    /// <summary>The grass mesh the shrubs and reeds are drawn with, and the material for it.</summary>
     /// <remarks>
-    /// <c>grass</c> is a clump of a dozen blades 2.24 m tall and 2.85 m across; <c>grass2</c> is a single
-    /// tuft 0.71 m tall. They are used at their own sizes rather than one being a scaled copy of the other,
-    /// because the server's kinds differ in habit and not only in height: a herb is one plant you could pick
-    /// and a reed bed is a thicket, and scaling the thicket down to 0.45 m draws a herb as twelve blades.
+    /// A clump of a dozen blades, 2.24 m tall and 2.85 m across. Used at its own size and scaled by the prop's
+    /// height, because the server's kinds differ in habit and not only in height: a reed bed is a thicket where
+    /// a herb is one plant you could pick.
+    ///
+    /// <para>
+    /// The other mesh in that folder, <c>grass2</c>'s single tuft, was what the herbs used and is now
+    /// <see cref="TerrainGrass"/>'s alone - see the note on the herb rows below.
+    /// </para>
     /// </remarks>
     private const string GrassClump = "res://Game/Terrain/Grass/grass.res";
-
-    private const string GrassTuft = "res://Game/Terrain/Grass/grass2.res";
 
     private const string GrassMaterial = "res://Game/Terrain/Grass/grass.tres";
 
@@ -243,20 +245,23 @@ namespace BestiaBehemothClient.Game.World
       // `PlaceholderWidth` is still read, and only for the pick box's floor: the drawn footprint is the mesh
       // scaled, which is far wider than these numbers, and `StaticEntityRenderer` takes the larger.
       //
-      // The blighted twins are the same meshes recoloured, unlike the blighted *tree* which is still a box on
-      // the grounds that a corrupted tree drawn as a healthy one is worse than one that is obviously
-      // unfinished. That argument does not carry down here: a blighted herb desaturated toward the corruption
-      // palette is not mistakable for a healthy one at the size these are drawn, and a meadow of magenta-free
-      // placeholder boxes in the middle of real grass would be the worse read.
+      // The blighted shrubs and reeds are their healthy twin's mesh recoloured, unlike the blighted *tree*
+      // which is still a box on the grounds that a corrupted tree drawn as a healthy one is worse than one
+      // that is obviously unfinished. That argument does not carry down here: a blighted shrub desaturated
+      // toward the corruption palette is not mistakable for a healthy one at the size these are drawn, and a
+      // thicket of magenta-free placeholder boxes in the middle of real grass would be the worse read.
+      //
+      // The **herbs** are the exception, and deliberately so. They were drawn from `grass2`, which
+      // `TerrainGrass` now scatters across the whole decorative field - so a herb keeping that art would be
+      // one 0.45 m tuft to be picked out of a field of near-identical ones. Being obviously not scenery is
+      // worth more than being pretty for the one kind here the player has to *find*, so both herbs are back
+      // to boxes until they have a model of their own.
       new Kind
       {
-        MeshPath = GrassTuft, MaterialPath = GrassMaterial, NaturalHeight = 0.7053f, UvVAtTip = true,
         PlaceholderWidth = 0.3f, PlaceholderColour = new Color(0.42f, 0.62f, 0.28f), Collectible = true
       }, // HERB
       new Kind
       {
-        MeshPath = GrassTuft, MaterialPath = GrassMaterial, NaturalHeight = 0.7053f, UvVAtTip = true,
-        BladeTip = new Color(0.44f, 0.44f, 0.26f), BladeBase = new Color(0.26f, 0.23f, 0.10f),
         PlaceholderWidth = 0.3f, PlaceholderColour = new Color(0.44f, 0.44f, 0.26f), Collectible = true
       }, // BLIGHTED_HERB
       new Kind
