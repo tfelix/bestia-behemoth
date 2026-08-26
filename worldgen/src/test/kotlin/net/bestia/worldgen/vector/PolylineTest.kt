@@ -140,6 +140,28 @@ class PolylineTest {
   }
 
   @Test
+  fun `truncation cuts inside a segment and keeps the vertices before it`() {
+    val cut = elbow.truncatedTo(150.0)
+
+    assertEquals(150.0, cut.length, 1e-9)
+    assertEquals(elbow.points.first(), cut.points.first())
+    assertEquals(Vec2d(100.0, 50.0), cut.points.last())
+    // The corner at 100 m survives; only the tail past the cut is gone.
+    assertEquals(3, cut.vertexCount)
+  }
+
+  @Test
+  fun `truncation at or past the end returns the line itself`() {
+    assertEquals(elbow, elbow.truncatedTo(200.0))
+    assertEquals(elbow, elbow.truncatedTo(500.0))
+  }
+
+  @Test
+  fun `truncation to nothing is refused rather than producing a point`() {
+    assertFailsWith<IllegalArgumentException> { elbow.truncatedTo(0.0) }
+  }
+
+  @Test
   fun `chaikin pins the endpoints and shortens the line`() {
     val staircase = Polyline(
       listOf(

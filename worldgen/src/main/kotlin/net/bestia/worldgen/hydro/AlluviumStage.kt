@@ -330,8 +330,16 @@ class AlluviumStage(
     /**
      * Metres above sea level at which a river mouth counts as reaching the sea.
      *
-     * Not zero: the bed elevation is a station value on a resampled centreline, and the last station is not
-     * exactly at the waterline. A metre and a half is under one voxel of slack.
+     * Not zero: the bed channel carries bank-top elevation, and a bank standing at the waterline is a
+     * channel depth above it.
+     *
+     * This only became a test that decides anything when [HydrologyStage] began cutting mouths back to the
+     * shoreline. Before that the last station sat out in open water with the sea floor under it, so every
+     * river reaching the sea passed whatever number stood here; now the mouth is at the waterline and the
+     * tolerance selects, keeping the rivers that arrive across a flat and rejecting the ones that drop into
+     * the sea over a steep shelf - which is where an estuary forms rather than a delta. On the reference
+     * world five mouths sit between this and nine metres, so it is the number to re-measure first if delta
+     * counts are ever tuned.
      */
     private const val DELTA_TOLERANCE = 1.5
   }

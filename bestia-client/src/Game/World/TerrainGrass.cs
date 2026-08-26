@@ -33,11 +33,11 @@ namespace BestiaBehemothClient.Game.World
   ///
   /// <para>
   /// <b>Two meshes, and most of the field is the cheaper one.</b> <c>grass</c>'s twelve-blade clump is a
-  /// near-field layer; <c>grass2</c>'s single tuft, drawn tall enough to span as much ground, carries the field
-  /// all the way to the fade. That is worth doing because fewer triangles per instance is not the same as fewer
-  /// per square metre hidden - see <see cref="TuftPath"/> for the break-even, and <see cref="TuftDensity"/> for
-  /// the measurement: the mix covers more ground within 20 m than one layer of clumps did, for 1.46 M triangles
-  /// against 2.34 M. Two silhouettes is also what stops the field reading as one model repeated.
+  /// near-field layer; <c>grass2</c>'s single tuft carries the field all the way to the fade. Fewer triangles
+  /// per instance is not the same as fewer per square metre hidden, and which way round the two come out
+  /// depends entirely on how tall the tuft is drawn - see <see cref="TuftPath"/> for the break-even and
+  /// <see cref="TuftHeight"/> for where it currently sits. Two silhouettes is also what stops the field
+  /// reading as one model repeated.
   /// </para>
   ///
   /// <para>
@@ -140,31 +140,44 @@ namespace BestiaBehemothClient.Game.World
 
     /// <summary>Single tufts per square metre of fully grassy, flat ground.</summary>
     /// <remarks>
-    /// <b>The body of the field.</b> Set near what <see cref="Density"/> alone used to be, because a tuft at
-    /// <see cref="TuftHeight"/> spans 1.53 m against a 1.2 m clump's 1.53 m - the two cover the same ground, so
-    /// an instance is an instance and this can carry the field on its own past
-    /// <see cref="FadeOutMetres"/>.
+    /// <b>The body of the field.</b> A tuft at <see cref="TuftHeight"/> spans 1.07 m against a 1.2 m clump's
+    /// 1.53 m, so it no longer covers quite what a clump covers - but there are more than twice as many of
+    /// them, and it is this layer that carries the field on its own past <see cref="FadeOutMetres"/>.
     ///
     /// <para>
-    /// Measured against the single-layer field it replaces: 4.5 tufts plus 2.0 clumps covers more ground within
-    /// 20 m than 5.0 clumps did and costs <b>1.46 M triangles against 2.34 M</b>, because most of the field is
-    /// now made of the cheaper mesh. That saving is what pays for the band reaching 60 m.
+    /// <b>Turning this up to buy coverage back needs <see cref="MaxVisibleInstances"/> turned up with it, or it
+    /// does nothing at all.</b> The budget is a ceiling on the whole field, so raising the density raises what
+    /// the field asks for, which trims every cell harder, which the coverage compensation answers by drawing
+    /// what is left *larger* - straight back to the plant size the density was raised to get away from. The two
+    /// knobs only move the field when they move together.
     /// </para>
     /// </remarks>
     [Export(PropertyHint.Range, "0,20,0.1")] public float TuftDensity { get; set; } = 4.5f;
 
     /// <summary>Height of a tuft in metres, before <see cref="HeightSpread"/>.</summary>
     /// <remarks>
-    /// <b>Above 1.34 m or this layer is a loss.</b> See <see cref="TuftPath"/>: the tuft is narrower for its
-    /// height than the clump, so it only beats the clump on triangles per square metre covered once it is drawn
-    /// tall enough to span as much. 1.8 m matches a 1.2 m clump's footprint and comes out 45% cheaper.
+    /// <b>Deliberately below the 1.34 m break-even, and that costs something.</b> See <see cref="TuftPath"/>:
+    /// the tuft is narrower for its height than the clump, so it only beats the clump on triangles per square
+    /// metre covered once it is drawn tall enough to span as much. At 1.8 m it spanned a 1.2 m clump's 1.53 m
+    /// for 45% fewer triangles; at 1.26 m it spans 1.07 m and costs 63 triangles per square metre covered
+    /// against the clump's 56 - about 13% the wrong side of the line.
     ///
     /// <para>
-    /// It stands 0.6 m taller than a clump, which is why the two layers cross-fade in density rather than
-    /// swapping at a radius - no plant ever changes height, and both are present through the transition.
+    /// It is drawn short anyway because 1.8 m tufts stood over the player's head, which is a look and not an
+    /// efficiency, and 13% of the cheaper half of the field is a small price for it. What the shortening does
+    /// cost in earnest is coverage, which goes with the square: the tuft layer hides 49% of the ground it did
+    /// and the whole field 65%. <see cref="TuftDensity"/> is the knob that buys that back, and see it for why
+    /// turning it up needs <see cref="MaxVisibleInstances"/> turned up with it.
+    /// </para>
+    ///
+    /// <para>
+    /// It now stands within 6 cm of a clump rather than 0.6 m over one. The two layers still cross-fade in
+    /// density rather than swapping at a radius, and that matters slightly less than it did: with the heights
+    /// this close, a swap would no longer read as a step. The cross-fade stays because it also keeps the mix of
+    /// silhouettes even across the band.
     /// </para>
     /// </remarks>
-    [Export(PropertyHint.Range, "0.05,4,0.01")] public float TuftHeight { get; set; } = 1.8f;
+    [Export(PropertyHint.Range, "0.05,4,0.01")] public float TuftHeight { get; set; } = 1.26f;
 
     /// <summary>How far from the player, in metres, tufts are drawn at their full <see cref="TuftDensity"/>.</summary>
     [Export(PropertyHint.Range, "0,200,1")] public float TuftFullDensityMetres { get; set; } = 15.0f;
@@ -325,8 +338,8 @@ namespace BestiaBehemothClient.Game.World
     /// <b>It is drawn taller than the clump, and that is the whole reason it is worth using.</b> Fewer
     /// triangles per instance is not the same as fewer per square metre of ground hidden, and the tuft is half
     /// again narrower for its height than the clump is - so at its authored proportions it costs about six
-    /// times as much per unit of coverage. The break-even is 1.34 m; at <see cref="TuftHeight"/>'s 1.8 m it
-    /// spans what a 1.2 m clump spans, for 72 triangles against 130.
+    /// times as much per unit of coverage. The break-even against a 1.2 m clump is 1.34 m, and
+    /// <see cref="TuftHeight"/> now sits just under it: see there for why the layer is kept anyway.
     ///
     /// <para>
     /// Nobody can tell a stretched tuft from a rosette at the distances this carries, and up close the two
@@ -373,9 +386,21 @@ namespace BestiaBehemothClient.Game.World
     /// <remarks><see cref="PropAppearance"/> carries the same number for the same mesh, and for the same reason.</remarks>
     private const float ClumpNaturalHeight = 2.2391f;
 
-    /// <summary>How much the coverage scale has to move before it is worth pushing to the shader.</summary>
-    /// <remarks>A hundredth of a clump's size, which at a metre-tall clump is a centimetre and invisible.</remarks>
-    private const float ScaleEpsilon = 0.01f;
+    /// <summary>The step the coverage scale is rounded to, and so one shared material's worth of it.</summary>
+    /// <remarks>
+    /// <b>Quantised because the scale is a material uniform now and no longer a per-instance one</b> - see
+    /// <see cref="ScaledMaterial"/> for why it had to stop being one. A continuous per-cell scale would want a
+    /// material per cell, which is thousands; rounding to a step wants one per step - thirty per layer at
+    /// <see cref="MaxCoverageScale"/>'s default of 2.5, and sixty at the top of its exported range.
+    ///
+    /// <para>
+    /// A twentieth is the coarsest step that is still invisible where it is spent. The compensation only ever
+    /// leaves 1 on a cell the distance has already thinned, so a step is at most 5% of the size of a plant that
+    /// is by then tens of metres away - about two pixels at 40 m on a 1080p screen, and less further out. Up
+    /// close, where the step would be visible, the scale is pinned at 1 and no rounding happens at all.
+    /// </para>
+    /// </remarks>
+    private const float ScaleStep = 0.05f;
 
     /// <summary>Cull margin, in metres, covering the wind - which moves vertices Godot's bounds know nothing about.</summary>
     /// <remarks>The same margin <see cref="StaticEntityRenderer"/>'s batches carry, for the same reason.</remarks>
@@ -399,8 +424,17 @@ namespace BestiaBehemothClient.Game.World
       /// <summary>What <see cref="MultiMesh.VisibleInstanceCount"/> was last set to. -1 until the first pass.</summary>
       internal int Visible = -1;
 
-      /// <summary>What was last pushed to the shader's per-instance scale. -1 until the first pass.</summary>
-      internal float Scale = -1.0f;
+      /// <summary>
+      /// Which <see cref="ScaleStep"/> of coverage compensation this cell's material is currently drawing at.
+      /// </summary>
+      /// <remarks>
+      /// Zero is the neutral scale and is what <see cref="Install"/> assigns, so a cell that is never thinned -
+      /// which is most of what the terrain holds - keeps the layer's own shared material and is never written
+      /// to. It cannot start below zero the way the float it replaces did: that was a sentinel meaning nothing
+      /// had been pushed yet, and pushing on the first pass regardless is exactly what spent an instance-uniform
+      /// slot on every cell in the view volume, including the ones past the fade radius that draw nothing.
+      /// </remarks>
+      internal int Level;
 
       /// <summary>
       /// This frame's share of the cell, carried between the two passes of <see cref="_Process"/>.
@@ -435,14 +469,25 @@ namespace BestiaBehemothClient.Game.World
     private Godot.Mesh _tuft;
     private Material _material;
     private Material _tuftMaterial;
+
+    /// <summary>Per layer, the shared material for each <see cref="ScaleStep"/> above the neutral one.</summary>
+    /// <remarks>
+    /// Built on demand and then kept, because which steps a session asks for depends on the zoom and on how
+    /// grassy the ground is. Bounded by <see cref="MaxCoverageScale"/> over <see cref="ScaleStep"/> - thirty
+    /// per layer at the ceiling - so it cannot grow with the size of the world the way a material per cell
+    /// would.
+    /// </remarks>
+    private readonly Dictionary<int, ShaderMaterial>[] _scaled =
+    {
+      new Dictionary<int, ShaderMaterial>(),
+      new Dictionary<int, ShaderMaterial>(),
+    };
     private bool _loaded;
 
     /// <summary>Where the camera is looking, which is where the player is. Null until told - see <see cref="SetFocusAt"/>.</summary>
     private Vector3? _focus;
 
-    /// <summary>
-    /// The shader's per-instance scale boost. A <see cref="StringName"/> so the per-cell push allocates nothing.
-    /// </summary>
+    /// <summary>The shader's scale boost, which is a material uniform - see <see cref="ScaledMaterial"/>.</summary>
     private static readonly StringName ExtraScaleParameter = "grass_extra_scale";
 
     /// <summary>
@@ -1009,17 +1054,75 @@ namespace BestiaBehemothClient.Game.World
       // long as MaxCoverageScale has headroom.
       var scale = GrassLod.CoverageScale(fraction, CoverageCompensation, MaxCoverageScale);
 
-      // Compared against a threshold rather than for equality. A distance that changes smoothly makes a float
-      // that never repeats exactly, so an exact compare would push a uniform every frame for every visible cell
-      // to move a clump by a fraction of a millimetre.
-      if (Mathf.Abs(scale - patch.Scale) > ScaleEpsilon)
+      // Three quarters of a step of dead band around what this cell is already drawing at, rather than a plain
+      // round to the nearest step. A cell whose distance leaves it sitting on a step boundary would otherwise
+      // flip between two materials on the sub-millimetre jitter the spring arm puts into the band scale, and a
+      // whole cell of grass changing size twice a second is far more visible than the 5% a step is worth.
+      // Walking crosses the band properly and the level follows.
+      if (Mathf.Abs(scale - (1.0f + patch.Level * ScaleStep)) <= ScaleStep * 0.75f)
       {
-        patch.Scale = scale;
-
-        // The shader adds this to 1, so an instance nobody sets is an instance at its authored size - which is
-        // what every ground-cover prop StaticEntityRenderer draws with this same shader relies on.
-        patch.Node.SetInstanceShaderParameter(ExtraScaleParameter, scale - 1.0f);
+        return;
       }
+
+      patch.Level = Mathf.RoundToInt((scale - 1.0f) / ScaleStep);
+      patch.Node.MaterialOverride = ScaledMaterial(patch.Layer, patch.Level);
+    }
+
+    /// <summary>
+    /// The shared material that draws <paramref name="layer"/> at <paramref name="level"/> steps of compensation.
+    /// </summary>
+    /// <remarks>
+    /// <b>This is where the scale stopped being an <c>instance uniform</c>, and the reason is an engine limit
+    /// rather than a preference.</b> Godot gives every instance that has ever been handed an instance uniform a
+    /// fixed sixteen-slot block of the one buffer <c>rendering/limits/global_shader_variables/buffer_size</c>
+    /// sizes - 65536 entries by default, so 4096 instances for the whole game - and it does not take the block
+    /// back until the instance itself is freed. This field is one multimesh per <see cref="CellMetres"/> cell
+    /// per layer, so 32 per chunk, and the server offers an 11x11 chunk view volume: about four thousand nodes
+    /// before a single prop, decal or character has asked for one. <see cref="Retune"/> pushed a scale to every
+    /// one of them on its first pass - including the cells past the fade radius, whose scale is the neutral 1 -
+    /// so the buffer ran dry within twenty seconds of login, and from then on
+    /// <c>global_shader_parameters_instance_allocate</c> returned -1 and every newly raised cell drew at its
+    /// authored size for the rest of the session.
+    ///
+    /// <para>
+    /// A material uniform costs nothing from that buffer, and the price of the swap is that the scale has to be
+    /// shared: one material per <see cref="ScaleStep"/> rather than one float per cell. Thirty per layer at the
+    /// ceiling, against four thousand slots - and see <see cref="ScaleStep"/> for why the rounding is invisible
+    /// where it is spent.
+    /// </para>
+    ///
+    /// <para>
+    /// Level zero is the layer's own material rather than a copy of it, so the common case allocates nothing and
+    /// <see cref="Install"/> can hand out the neutral material without asking. The copies are taken from that
+    /// material and never write to it, which matters because <c>grass.tres</c> is the same resource
+    /// <see cref="PropAppearance"/> gives every herb, shrub and reed - setting the scale on it would grow the
+    /// collectible ground cover along with the field.
+    /// </para>
+    /// </remarks>
+    private Material ScaledMaterial(Layer layer, int level)
+    {
+      var neutral = layer == Layer.Tuft ? _tuftMaterial : _material;
+
+      // Under the neutral scale is not a state CoverageScale can reach - it never returns below 1 - so a
+      // negative level is a rounding artefact rather than a smaller plant, and nothing is gained by giving it a
+      // material of its own.
+      if (level <= 0 || neutral is not ShaderMaterial shader)
+      {
+        return neutral;
+      }
+
+      var pool = _scaled[(int)layer];
+
+      if (pool.TryGetValue(level, out var cached))
+      {
+        return cached;
+      }
+
+      var own = (ShaderMaterial)shader.Duplicate();
+      own.SetShaderParameter(ExtraScaleParameter, level * ScaleStep);
+      pool[level] = own;
+
+      return own;
     }
 
     /// <summary>

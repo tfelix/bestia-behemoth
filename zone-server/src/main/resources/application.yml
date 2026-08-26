@@ -291,8 +291,19 @@ spring:
 #
 # A different port from `socket.port` above so the two can be firewalled and load-balanced apart: tiles are
 # cacheable public-ish assets that a CDN could reasonably sit in front of, and the game socket is neither.
+#
+# Deliberately *not* pinned to an address. This was `address: 127.0.0.1`, and the cost was a map that took
+# thirty seconds per tile: Godot's `IP.resolve_hostname` answers `localhost` with `::1` first, and a Tomcat
+# bound to an IPv4 literal has nothing listening there, so every request paid a failover before it finally
+# succeeded. No single address covers both loopback families, so serving both means the wildcard - which is
+# what `login-server` already does, and is why its `localhost` URL was always fast.
+#
+# The price is that the port is no longer loopback-only. Keep it off a public interface with a firewall
+# rather than with this line: pinning it here breaks any client that resolves the host to AAAA first, and it
+# does so silently, as a slow map rather than as a refused connection. The game socket gets away with
+# `socket.ip-address: 127.0.0.1` only because `BnetSocket.cs` uses .NET's `TcpClient.Connect(host, port)`,
+# which tries every resolved address instead of only the first.
 server:
-  address: 127.0.0.1
   port: 8091
 
 cartography:

@@ -217,6 +217,28 @@ class Polyline(points: List<Vec2d>) {
   }
 
   /**
+   * The prefix of this line, from its start out to arc length [s]. Returns the line itself when [s]
+   * is at or past the end.
+   *
+   * The cut point is interpolated rather than snapped to the nearest vertex, because a caller trimming a
+   * line is matching it against a boundary that knows nothing about where its vertices fall - a river's
+   * mouth against the shoreline, say - and snapping would put the end back on the wrong side of it.
+   */
+  fun truncatedTo(s: Double): Polyline {
+    require(s > 0.0) { "s must be positive, was $s" }
+    if (s >= length) return this
+
+    val last = segmentIndexFor(s)
+    val out = ArrayList<Vec2d>(last + 2)
+    for (i in 0..last) {
+      out.add(points[i])
+    }
+    out.add(pointAt(s))
+
+    return Polyline(out)
+  }
+
+  /**
    * Chaikin corner cutting. Two or three iterations are enough to take the staircase out of a D8
    * flow path while keeping the endpoints pinned.
    */

@@ -20,6 +20,9 @@ class Reach(
    * The last entry is the reach's terminus and belongs to whatever it flows into - the confluence
    * below it, a lake, or the sea. Including it is what makes adjacent reaches join up rather than stop
    * a cell short of each other.
+   *
+   * At the sea there is nothing on the other side to join, so that cell is open water and the geometry
+   * built from these has to be cut back to the shoreline - `HydrologyStage.shoreCrossing`.
    */
   val cells: IntArray,
   val strahler: Int,

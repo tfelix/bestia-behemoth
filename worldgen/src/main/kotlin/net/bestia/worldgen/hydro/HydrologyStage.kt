@@ -3,6 +3,7 @@ package net.bestia.worldgen.hydro
 import net.bestia.worldgen.climate.ClimateStage
 import net.bestia.worldgen.core.CellRegion
 import net.bestia.worldgen.core.FeatureIds
+import net.bestia.worldgen.core.FloatLayer
 import net.bestia.worldgen.core.GenContext
 import net.bestia.worldgen.core.GenRng
 import net.bestia.worldgen.core.LayerId
@@ -204,7 +205,13 @@ data class HydrologyParams(
    */
   val bankRoughnessWavelength: Double = 0.8,
 
-  /** Reaches shorter than this in metres are dropped: they are single-cell stubs at drainage divides. */
+  /**
+   * Reaches shorter than this in metres are dropped: they are single-cell stubs at drainage divides.
+   *
+   * Applied twice - once to the routed reach and again to what is left of one whose mouth was cut back to
+   * the shoreline, which is what takes out the coastal stubs that are almost entirely seaward of it. On the
+   * reference world that is six of forty-six.
+   */
   val minReachLength: Double = 700.0,
 
   /** Confluence smoothing disc radius, as a multiple of the joined channel's width. */
@@ -329,7 +336,8 @@ class HydrologyStage(
     val cellArea = metres * metres
     val seaLevel = ctx.config.seaLevel
 
-    val elevation = Grid.from(ctx.layers.float(LayerId.ELEVATION))
+    val surface = ctx.layers.float(LayerId.ELEVATION)
+    val elevation = Grid.from(surface)
     val precipitation = Grid.resampled(ctx.layers.float(LayerId.PRECIPITATION), region)
 
     val network = FlowRouting.solve(elevation, seaLevel, metres)
@@ -379,7 +387,7 @@ class HydrologyStage(
       channelDischarge * aridity * steepness
     }
 
-    val features = buildFeatures(ctx, region, network, discharge, graph)
+    val features = buildFeatures(ctx, region, surface, network, discharge, graph)
 
     val direction = IntGrid(region.width, region.height, network.direction.copyOf())
 
@@ -452,15 +460,19 @@ class HydrologyStage(
    * 3. **Station attributes** are interpolated from the per-cell tables by *normalised position along
    *    the reach*, which stays a pure function of arc length - the requirement that makes the whole
    *    thing seam-free.
+   *
+   * A fourth then takes the mouth back off again where the reach ran into the sea - see [shoreCrossing].
    */
   private fun buildFeatures(
     ctx: GenContext,
     region: CellRegion,
+    surface: FloatLayer,
     network: DrainageNetwork,
     discharge: Grid,
     graph: RiverGraph
   ): List<VectorFeature> {
     val metres = region.resolution.metresPerCell
+    val seaLevel = ctx.config.seaLevel
     val nextId = FeatureIds.allocator(id)
     val features = ArrayList<VectorFeature>(graph.reachCount + graph.confluences.size)
 
@@ -504,13 +516,25 @@ class HydrologyStage(
       val meanderSeed = GenRng.hash(ctx.seed, id.hash, reach.id.toLong())
       val taper = max(params.minReachLength * 0.35, fine.length * END_TAPER_FRACTION)
 
-      val centerline = fine.offsetLaterally { s ->
+      val meandered = fine.offsetLaterally { s ->
         Meander.offset(meanderSeed, s, fine.length, amplitude, wavelength, taper)
       }
 
+      // Only a reach that ends in the sea: cutting one that ends at a confluence would pull it off the
+      // reach below, and the length floor is re-applied here rather than earlier because what is left after
+      // the cut is what decides whether this is still a river or a smudge on the shoreline.
+      val centerline = if (reach.endsInSea) {
+        val mouth = shoreCrossing(meandered, surface, seaLevel)
+        if (mouth < params.minReachLength) continue
+        meandered.truncatedTo(mouth)
+      } else {
+        meandered
+      }
+
       // Normalised position along the reach, which is what the station tables are indexed by. Using the
-      // pre-meander length is deliberate: it is a fixed number rather than one that shifts with the
-      // offset being computed, so the mapping stays a pure function of arc length.
+      // pre-meander, pre-trim length is deliberate: it is a fixed number rather than one that shifts with
+      // the offset being computed, so the mapping stays a pure function of arc length - and a trimmed
+      // mouth then lands part-way through the tables instead of stretching them over a shorter channel.
       val span = fine.length.coerceAtLeast(1e-9)
       fun positionOf(s: Double) = (s / span).coerceIn(0.0, 1.0) * (cellCount - 1)
 
@@ -562,6 +586,51 @@ class HydrologyStage(
     }
 
     return features
+  }
+
+  /**
+   * Arc length at which [line] last leaves dry land, or its whole length if it never does.
+   *
+   * ### Why a reach has to be cut back at all
+   *
+   * A reach ends at the cell it flows into, and [Reach.cells] includes that cell - which is what makes two
+   * reaches meet exactly at their confluence. At the coast there is nothing on the other side to meet, so
+   * that last cell is simply open water, and the channel is drawn, carved and filled up to a whole cell
+   * beyond the shore. On a kilometre grid that was measured at a median of 600 m and up to 1.3 km of river
+   * lying over the sea.
+   *
+   * ### Why the cut is against the interpolated surface and not the cell mask
+   *
+   * Routing classifies a *cell* as ocean or not, but nothing downstream draws that classification: the map
+   * inks the zero crossing of the bicubically sampled elevation and chunk generation lifts the same field,
+   * precisely so the shoreline resolves finer than a kilometre. Cutting at the cell boundary would still
+   * leave the mouth on the wrong side of the line everyone else sees - by up to half a cell in either
+   * direction, since the crossing sits wherever the two cells' heights say it does. So this asks the same
+   * question the renderer asks, at the same field.
+   *
+   * Walking back from the end rather than forward from the start finds the *last* crossing, so a channel
+   * running out along a spit is cut where it finally enters the sea and not where it first touched it.
+   */
+  private fun shoreCrossing(line: Polyline, surface: FloatLayer, seaLevel: Double): Double {
+    fun heightAbove(point: Vec2d): Double {
+      return surface.sampleBicubic(point.x, point.y) - seaLevel
+    }
+
+    var last = line.vertexCount - 1
+    while (last >= 0 && heightAbove(line.points[last]) <= 0.0) {
+      last--
+    }
+
+    if (last < 0) return 0.0
+    if (last == line.vertexCount - 1) return line.length
+
+    // Linear between the two straddling vertices. They are one station apart against a field whose finest
+    // feature is a kilometre cell, so the field is straight over that span to well under a metre.
+    val dry = heightAbove(line.points[last])
+    val wet = heightAbove(line.points[last + 1])
+    val t = dry / (dry - wet)
+
+    return line.arcLengthAt(last) + t * (line.arcLengthAt(last + 1) - line.arcLengthAt(last))
   }
 
   companion object {

@@ -86,13 +86,23 @@ uniform float flutter_speed : hint_range(0.0, 20.0) = 4.5;
 
 group_uniforms;
 
-// How much bigger to draw this instance than it was authored, as a share of its own size. Written per cell by
-// `TerrainGrass.Retune` so that a cell thinned by distance still covers its ground - see `GrassLod.CoverageScale`.
+// How much bigger to draw this material's plants than they were authored, as a share of their own size. Set by
+// `TerrainGrass` so that a cell thinned by distance still covers its ground - see `GrassLod.CoverageScale`.
 //
 // **Additive, so that not setting it is a no-op.** `StaticEntityRenderer` draws every ground-cover prop in the
 // world with this same shader and sets nothing, and a multiplier those instances read as zero would collapse
-// every herb, shrub and reed to a point. Nought means unchanged whatever an unset instance uniform resolves to.
-instance uniform float grass_extra_scale = 0.0;
+// every herb, shrub and reed to a point. Nought means unchanged.
+//
+// **A material uniform and not an `instance uniform`, and that is a hard limit rather than a preference.**
+// Godot gives every instance that has ever been handed an instance uniform a fixed sixteen-slot block out of
+// the one buffer `rendering/limits/global_shader_variables/buffer_size` sizes - 65536 entries by default, so
+// 4096 instances for the whole game - and it never takes a block back until that instance is freed. The field
+// is one multimesh per 8 m cell per layer, which is 32 per chunk across a 121-chunk view volume, so writing
+// this per node ran the buffer dry within twenty seconds of login: `global_shader_parameters_instance_allocate`
+// then returns -1 and every grass cell raised after that draws at its authored size for the rest of the
+// session. `TerrainGrass` quantises the scale and keeps one shared material per step instead - a few dozen
+// materials for the whole world, and no per-instance allocation at all.
+uniform float grass_extra_scale = 0.0;
 
 varying vec3 worldPos;
 
