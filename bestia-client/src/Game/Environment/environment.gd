@@ -96,6 +96,22 @@ extends Node
 ## because at night there is nothing overhead for it to scatter back down.
 @export_range(0, 1, 0.01) var overcast_night_darkening: float = 0.35
 
+## How much of the sky's light reaches a shadowed surface, clear sky to closed deck.
+##
+## A pair rather than the single authored 1.0, because a shadow reads as crisp from two things - how narrow
+## its edge is and how deep its interior goes - and only the first was ever driven. Ambient here is sampled
+## from the sky dome, and the clear-day dome is a bright grey along the horizon, so a shadow at noon was
+## filled nearly as well as one under cloud and the sun had to fight its own fill for contrast.
+##
+## Driven from WeatherLook.Diffusion, like the sun's disc and its energy, so the fill rises exactly as the
+## direct light is taken away. Moving light out of one direction and into every direction is what cloud
+## does; doing only half of it is what made an overcast noon and a clear one look alike.
+##
+## Turn sun_energy up with the clear end if lit surfaces now read dark. What is wanted here is the ratio
+## between sun and fill, not the overall level.
+@export_range(0.2, 1.5, 0.01) var clear_ambient_energy: float = 0.65
+@export_range(0.2, 1.5, 0.01) var overcast_ambient_energy: float = 1.0
+
 ## Where the fog closes to in a whiteout, in metres. The authored distances are the clear-day end.
 ##
 ## Floored well above where a blizzard would put them if visibility alone decided, and the camera is why:
@@ -318,6 +334,10 @@ func _apply_sky(daylight: float, twilight: float, overcast: float, visibility: f
 	_environment.fog_depth_begin = lerpf(whiteout_fog_begin, _clear_fog_begin, visibility)
 	_environment.fog_depth_end = lerpf(whiteout_fog_end, _clear_fog_end, visibility)
 
+	# Here with the sky rather than with the lights, because this is the sky's own contribution: ambient is
+	# sampled from the dome set above, and this only says how much of it arrives.
+	_environment.ambient_light_energy = lerpf(clear_ambient_energy, overcast_ambient_energy, _diffusion())
+
 
 ## The palette entry for one surface: weather first, then the hour.
 ##
@@ -390,10 +410,19 @@ func _show_flash() -> void:
 	_environment.fog_light_color = _base_fog_colour.lerp(lightning_colour, energy * 0.75)
 
 
-## The five weather readings, each with the value that means "no weather" when there is nobody to ask.
+## The weather readings, each with the value that means "no weather" when there is nobody to ask.
 ##
 ## Landed in a typed local rather than returned straight out of the ternary: a C# property crosses into
 ## GDScript as a Variant, and the analyser cannot see that the branch types agree.
+func _diffusion() -> float:
+	if _weather == null:
+		return 0.0
+
+	var value: float = _weather.Diffusion
+
+	return value
+
+
 func _overcast() -> float:
 	if _weather == null:
 		return 0.0
