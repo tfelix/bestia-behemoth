@@ -285,28 +285,47 @@ namespace BestiaBehemothClient.Game.World
       get { return _wind.Length(); }
     }
 
+    /// <summary>How much of the sunlight has become skylight - see <see cref="WeatherLook.Diffusion"/>.</summary>
+    /// <remarks>
+    /// This and the four below are the cover curves applied to the <b>smoothed</b> cover rather than read off
+    /// <see cref="Look"/>, which is why <see cref="WeatherLook"/> carries a static form of each. A look is
+    /// built from the raw reading and a reading is a step: read that way, the sun's disc crossed its whole
+    /// range in a single frame while the sky that should have explained it eased over <see cref="SkySeconds"/>.
+    /// <c>cloud_shadows.gd</c> already read <see cref="Overcast"/>, so the two halves of one effect ran on
+    /// different clocks.
+    ///
+    /// <para>
+    /// Everything still on <see cref="Look"/> below is a decision rather than a curve - which kind flashes,
+    /// what colour its air goes - and a decision has nothing to smooth.
+    /// </para>
+    /// </remarks>
+    public float Diffusion
+    {
+      get { return WeatherLook.DiffusionFor(_overcast); }
+    }
+
     /// <summary>How strongly cloud shadows should read on the ground, 0 to 1, before the sun's height.</summary>
     public float ShadowStrength
     {
-      get { return Look().ShadowStrength; }
+      get { return WeatherLook.ShadowStrengthFor(_overcast); }
     }
 
     /// <summary>What to multiply the sun's authored energy by.</summary>
     public float SunEnergyScale
     {
-      get { return Look().SunEnergyScale; }
+      get { return WeatherLook.SunEnergyScaleFor(_overcast); }
     }
 
     /// <summary>How wide to open the sun's angular diameter, in degrees, so its shadows soften.</summary>
     public float SunAngularDegrees
     {
-      get { return Look().SunAngularDegrees; }
+      get { return WeatherLook.SunAngularDegreesFor(_overcast); }
     }
 
     /// <summary>How much of the authored twilight colour survives, 0 to 1.</summary>
     public float TwilightScale
     {
-      get { return Look().TwilightScale; }
+      get { return WeatherLook.TwilightScaleFor(_overcast); }
     }
 
     /// <summary>Whether this sky flashes.</summary>

@@ -229,6 +229,8 @@ func _apply_lights(daylight: float, twilight: float) -> void:
 	var elevation: float = deg_to_rad(peak_elevation_degrees) * sin(PI * progress)
 	var azimuth: float = deg_to_rad(base_azimuth_degrees + (progress - 0.5) * sweep_degrees)
 
+	# Both of these come off one curve - see WeatherLook.Diffusion. A broken deck leaves the sun where it was;
+	# only a deck that has closed over dims it, and it widens it in the same breath.
 	var dimming := _sun_energy_scale()
 
 	# Widening the disc as well as dimming it. Cloud does not merely block light, it scatters it: an
@@ -421,7 +423,7 @@ func _sun_energy_scale() -> float:
 
 func _sun_angular_degrees() -> float:
 	if _weather == null:
-		return 0.5
+		return 0.0
 
 	var value: float = _weather.SunAngularDegrees
 
