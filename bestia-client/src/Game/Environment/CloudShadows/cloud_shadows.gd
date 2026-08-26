@@ -136,6 +136,17 @@ var _drift := Vector2.ZERO
 ## The sun-parallax offset, smoothed. See [method _sun_offset].
 var _parallax := Vector2.ZERO
 
+## Whether [member _parallax] has ever held a real offset, as opposed to its starting zero.
+##
+## The smoothing below is for the sun [i]moving[/i], and it is slow on purpose: the sun only steps every
+## [member update_delay_seconds], and near sunrise the parallax term grows fast enough that an unsmoothed
+## one would shift the whole shadow field sideways once every ten seconds.
+##
+## None of that applies to the first offset, because there is no previous sun to come from. Lerping to it from
+## zero swept the field across up to four tiles - a kilometre - in the two seconds after the shadows first
+## became visible, which reads as clouds tearing overhead and then settling.
+var _parallax_seeded := false
+
 var _built_coverage := -1.0
 
 
@@ -180,8 +191,14 @@ func _process(delta: float) -> void:
 	_drift += Vector2(wind.x, wind.z) * wind_multiplier * delta
 
 	# Smoothed because the sun only moves every update_delay_seconds, and an unsmoothed parallax would step
-	# the whole shadow field sideways once every ten seconds near sunrise, where the term grows fastest.
-	_parallax = _parallax.lerp(_sun_offset(), 1.0 - exp(-delta / 2.0))
+	# the whole shadow field sideways once every ten seconds near sunrise, where the term grows fastest. Taken
+	# whole the first time, though - see _parallax_seeded.
+	var parallax_target := _sun_offset()
+	if _parallax_seeded:
+		_parallax = _parallax.lerp(parallax_target, 1.0 - exp(-delta / 2.0))
+	else:
+		_parallax_seeded = true
+		_parallax = parallax_target
 
 	_place(camera.global_position, _drift + _parallax, strength)
 
