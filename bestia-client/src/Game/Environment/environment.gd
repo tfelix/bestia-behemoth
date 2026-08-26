@@ -7,6 +7,19 @@ extends Node
 ## rather than handed over by whatever scene this is dropped into. Only the clock and the weather come from
 ## outside, and both are allowed to be missing: this is a visual layer, and a client that has not been told
 ## the time or the sky should still be playable under the light the scene was authored with.
+##
+## [b]Why the sun's shadow cascades are split where they are.[/b] The camera orbits eight to thirty-six
+## metres out, and Godot sizes each PSSM cascade from the bounding sphere of its frustum slice - so the
+## split ratios, not the distance, decide the texel size of every shadow the player is looking at. Pushed
+## out to 0.05 and 0.17 the whole orbit band falls inside one cascade, eleven to thirty-seven metres, at
+## about 2.4 cm a texel. On the defaults the band straddles the first boundary instead, which is both
+## coarser and puts the player on the split blend.
+##
+## [b]Lowering directional_shadow_max_distance does not help, it hurts.[/b] The obvious economy - shadows
+## reach 220 m to meet fog_depth_end, the camera sees forty - is a trap, because the ratios are fractions
+## of that distance. Cutting it to 140 drags the boundaries inward until the player stands in the third
+## cascade, at 4.4 cm a texel rather than 2.4. Reach is nearly free here; the atlas size and the ratios are
+## the only things that are not.
 
 ## How high the sun climbs at its peak, in degrees.
 ##
