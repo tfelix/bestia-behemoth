@@ -150,7 +150,7 @@ void fragment() {
 		ALBEDO = surface.albedo;
 		ROUGHNESS = surface.roughness;
 		AO = surface.ao;
-		AO_LIGHT_AFFECT = 1.0;
+		AO_LIGHT_AFFECT = 0.0;
 		NORMAL = normalize((VIEW_MATRIX * vec4(surface.world_normal, 0.0)).xyz);
 		SPECULAR = 0.0;
 	} else {
