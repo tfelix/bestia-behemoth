@@ -78,8 +78,24 @@ internal class Building(
   val eaveElevation: Double get() = floorElevation + storeys * STOREY_HEIGHT
 
   companion object {
-    /** Floor-to-floor height in metres. Two and a half is about right for pre-industrial building. */
-    const val STOREY_HEIGHT = 2.6
+    /**
+     * Floor-to-floor height in metres, and therefore the shortest a building can be.
+     *
+     * Was 2.6, which is a plausible pre-industrial storey and made the sixty-odd single-storey buildings of a
+     * demo world - every market and every farmstead - 2.6 m tall, under a wall a player could not see over.
+     * Three is the floor the world wants, and a storey is the only place to put it: a building carries a
+     * storey *count* on the wire, not a height, so a minimum in metres would have to be re-derived by every
+     * consumer. Mirrored by `BuildingProps` and `TownStructures`, which draw from the count.
+     */
+    const val STOREY_HEIGHT = 3.0
+
+    /**
+     * How much of its plot a building covers. The rest is yard, and the gap between neighbours.
+     *
+     * Here rather than in [Zoning] because a plot's minimum size is derived from it - `TownStage` divides the
+     * smallest building it will accept by this to get the smallest plot it will cut.
+     */
+    const val FOOTPRINT_FILL = 0.90
   }
 }
 
@@ -257,8 +273,8 @@ internal class Zoning(
     // Applied to the plot's own axes, *before* the broad-front swap below. Getting that order wrong puts a
     // temple's along-the-street multiplier onto its depth, which is the one direction it does not want.
     val size = footprintFor(function)
-    val frontage = lot.halfFrontage * FOOTPRINT_FILL * size.first
-    val depth = lot.halfDepth * FOOTPRINT_FILL * size.second
+    val frontage = lot.halfFrontage * Building.FOOTPRINT_FILL * size.first
+    val depth = lot.halfDepth * Building.FOOTPRINT_FILL * size.second
     val halfLength = if (broadFront) frontage else depth
     val halfWidth = if (broadFront) depth else frontage
 
@@ -356,16 +372,13 @@ internal class Zoning(
     /** Half-angle of the noxious quarter, in radians. About fifty degrees each side. */
     const val NOXIOUS_ARC = 0.9
 
-    /** How much of its plot a building covers. The rest is yard, and the gap between neighbours. */
-    const val FOOTPRINT_FILL = 0.90
-
     /**
-     * The most of its plot any building may take, as a multiple of [FOOTPRINT_FILL].
+     * The most of its plot any building may take, as a multiple of [Building.FOOTPRINT_FILL].
      *
      * `1 / FOOTPRINT_FILL` exactly: a building at this size fills its plot and not a millimetre more, which is
      * the boundary the plot-overlap test guarantees. See [footprintFor].
      */
-    const val MAX_PLOT_FILL = 1.0 / FOOTPRINT_FILL
+    const val MAX_PLOT_FILL = 1.0 / Building.FOOTPRINT_FILL
 
     const val MAX_STOREYS = 4
 

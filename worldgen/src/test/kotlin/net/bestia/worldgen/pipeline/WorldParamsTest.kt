@@ -92,7 +92,8 @@ class WorldParamsTest {
   @Test
   fun `the defaults are pinned`() {
     // Moved with `ResourceParams.ore` and with ruby's and diamond's retuning; see ParamsVersionTest's own pins.
-    assertEquals(-1_090_744_351_799_380_755L, WorldParams.DEFAULT.version, "re-pin: the world tuning moved")
+    // Moved again with `TownParams.minBuildingWidth`/`minBuildingDepth`.
+    assertEquals(-3_295_159_731_520_792_573L, WorldParams.DEFAULT.version, "re-pin: the world tuning moved")
     // Moved with `ChunkMaterializer.VERSION` 1 -> 2: buildings stopped being voxels and the strata draw
     // collapsed to STONE plus LIMESTONE, both of which change what a column materialises into. Moved again
     // when `GroundCoverParams` was folded in - a new prop source changes what `propsIn` returns for every

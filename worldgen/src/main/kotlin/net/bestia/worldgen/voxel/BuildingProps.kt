@@ -170,7 +170,7 @@ class BuildingProps(
      * feature carries the storey *count*, and the height a storey stands for is a fact about how a building is
      * drawn rather than about how a town is laid out.
      */
-    const val STOREY_HEIGHT = 2.6
+    const val STOREY_HEIGHT = 3.0
     const val MAX_STOREYS = 8
   }
 }

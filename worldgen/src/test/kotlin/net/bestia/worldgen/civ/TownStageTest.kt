@@ -8,8 +8,10 @@ import net.bestia.worldgen.vector.BlendMode
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.FootprintFeature
 import net.bestia.worldgen.vector.PointMarker
+import net.bestia.worldgen.vector.Vec2d
 import net.bestia.worldgen.voxel.BlockType
 import net.bestia.worldgen.voxel.PropKind
+import kotlin.math.abs
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -94,6 +96,76 @@ class TownStageTest {
       assertTrue(
         building.attribute(BuildingChannels.FLOOR_ELEVATION).isFinite(),
         "building ${building.id} has no floor"
+      )
+    }
+  }
+
+  /**
+   * No two buildings stand on the same ground.
+   *
+   * The one property of a town nobody can miss from inside it, and it was false: on this world 299 of 2531
+   * buildings intersected another one, in pairs a couple of metres into each other. The cause was that a
+   * block-cut plot is the *bounding rectangle* of a trapezoidal leaf - `ConvexPolygons.orientedExtent` says
+   * so, and names the plot-overlap index as what makes that safe - and `BlockSubdivider` was the one
+   * producer of plots that never consulted the index. Only the patched core could do it; disabling the
+   * core took the count to zero, which is what identified it.
+   *
+   * Tested on buildings rather than on plots because a building is what a player walks into, and because it
+   * is the claim `BuildingProps.cellOf` relies on to name a building by the metre cell of its own centre.
+   */
+  @Test
+  fun `no two buildings overlap`() {
+    fun extentAlong(building: FootprintFeature, axis: Vec2d): Double {
+      return abs(building.halfLength * (building.bearing dot axis)) +
+          abs(building.halfWidth * (building.bearing.perpendicular() dot axis))
+    }
+
+    fun overlap(a: FootprintFeature, b: FootprintFeature): Boolean {
+      for (axis in listOf(a.bearing, a.bearing.perpendicular(), b.bearing, b.bearing.perpendicular())) {
+        if (abs((b.center - a.center) dot axis) >= extentAlong(a, axis) + extentAlong(b, axis)) return false
+      }
+      return true
+    }
+
+    // Per settlement, and only against near neighbours: two towns cannot collide, and the widest building the
+    // stage can make is 27 m deep, so nothing further than the diagonal of two of those can reach.
+    for ((settlement, theirs) in buildings.groupBy { it.attribute(BuildingChannels.SETTLEMENT).toInt() }) {
+      for (i in theirs.indices) {
+        for (j in i + 1 until theirs.size) {
+          if (theirs[i].center.distanceTo(theirs[j].center) > NEIGHBOUR_REACH) continue
+          assertTrue(
+            !overlap(theirs[i], theirs[j]),
+            "buildings ${theirs[i].id} and ${theirs[j].id} in settlement $settlement stand in each other"
+          )
+        }
+      }
+    }
+  }
+
+  /**
+   * Every building is big enough to be one.
+   *
+   * A street plot is exactly `lotFrontage` by `lotDepth` and cannot produce a small building; a block-cut
+   * plot is whatever the recursion left, and `quantiseDown` floors at half a step, so before
+   * `TownParams.minBuildingWidth`/`minBuildingDepth` the core reached down to a 4.5 m by 14.5 m shed and
+   * sixty-odd buildings stood 2.6 m tall - shorter than the wall around them.
+   */
+  @Test
+  fun `no building is smaller than a building`() {
+    val params = TownParams()
+
+    for (building in buildings) {
+      val short = minOf(building.halfLength, building.halfWidth) * 2.0
+      val long = maxOf(building.halfLength, building.halfWidth) * 2.0
+      assertTrue(
+        short >= params.minBuildingWidth && long >= params.minBuildingDepth,
+        "building ${building.id} is %.2f m by %.2f m".format(short, long)
+      )
+
+      val storeys = building.attribute(BuildingChannels.STOREYS).toInt()
+      assertTrue(
+        storeys * Building.STOREY_HEIGHT >= MIN_BUILDING_HEIGHT,
+        "building ${building.id} stands ${storeys * Building.STOREY_HEIGHT} m to the eaves"
       )
     }
   }
@@ -374,5 +446,16 @@ class TownStageTest {
 
     /** Share of samples that must be level to within [LEVEL_TOLERANCE]. See the test's own KDoc. */
     const val LEVEL_MAJORITY = 0.8
+
+    /**
+     * Metres within which two buildings are compared for overlap.
+     *
+     * Twice the diagonal of the largest plot `BlockSubdivider` may cut, so nothing that could reach another
+     * building is skipped, and the quadratic loop stays a local one.
+     */
+    const val NEIGHBOUR_REACH = 70.0
+
+    /** Metres to the eaves that the world promises. Mirrors `Building.STOREY_HEIGHT`, which is the floor. */
+    const val MIN_BUILDING_HEIGHT = 3.0
   }
 }

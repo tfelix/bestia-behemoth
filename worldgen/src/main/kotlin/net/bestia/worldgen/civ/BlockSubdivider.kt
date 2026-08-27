@@ -52,6 +52,24 @@ internal object BlockSubdivider {
     /** Largest plot a cut leaf may become, as half-extents. Anything beyond it is garden. */
     maxHalfFrontage: Double,
     maxHalfDepth: Double,
+    /**
+     * Smallest plot a cut leaf may become, as half-extents. Below either one the leaf is dropped.
+     *
+     * A floor on the *plot*, because a floor on the building is not expressible: a building may not grow past
+     * its plot without landing on its neighbour, so the only way to guarantee a minimum building is to refuse
+     * the ground that could not hold one. What is refused becomes yard, which is what a leaf too small to
+     * build on always was.
+     */
+    minHalfFrontage: Double,
+    minHalfDepth: Double,
+    /**
+     * Every plot the settlement has already laid, including the ones from other patches.
+     *
+     * Shared across the whole town rather than built per patch: a leaf's plot is its *bounding* rectangle and
+     * can reach past the leaf, so neighbouring plots - and, where blocks come close, neighbouring patches'
+     * plots - have to be tested against each other. See [LotIndex].
+     */
+    placed: LotIndex,
     salt: Long,
     roll: (Long, Long) -> Double
   ): List<Lot> {
@@ -72,7 +90,10 @@ internal object BlockSubdivider {
       // building wide.
       if (roll(key, EMPTY_SALT) < grain.emptyProb) continue
 
-      val lot = lotOf(patch, leaf, rankFor, distanceAt, lotStep, maxHalfFrontage, maxHalfDepth) ?: continue
+      val lot = lotOf(
+        patch, leaf, rankFor, distanceAt, lotStep,
+        maxHalfFrontage, maxHalfDepth, minHalfFrontage, minHalfDepth
+      ) ?: continue
 
       // Inside the town, as well as buildable. A Voronoi cell is bounded by its neighbours and by the guard ring,
       // **not** by the town's edge - so an outer cell can reach past it wherever the guards happen to be sparse,
@@ -83,6 +104,9 @@ internal object BlockSubdivider {
       // every patch in the middle of the town to pay for one at its edge.
       if (!frame.encloses(lot.centre)) continue
       if (!frame.buildable(lot.centre)) continue
+      if (placed.overlaps(lot)) continue
+
+      placed.add(lot)
       out.add(lot)
     }
 
@@ -147,7 +171,9 @@ internal object BlockSubdivider {
     distanceAt: (Vec2d) -> Double,
     lotStep: Double,
     maxHalfFrontage: Double,
-    maxHalfDepth: Double
+    maxHalfDepth: Double,
+    minHalfFrontage: Double,
+    minHalfDepth: Double
   ): Lot? {
     val extent = ConvexPolygons.orientedExtent(leaf) ?: return null
     val centre = extent.centre
@@ -185,14 +211,18 @@ internal object BlockSubdivider {
     // Quantising the **full** extent and halving, not the half-extent. Flooring a half-extent to the step throws
     // away up to a whole step off each side - a plot 8 m across came back 5 m across, a 38 per cent cut - and the
     // town's smallest buildings came out as 41 m² sheds because of it.
-    halfFrontage = quantiseDown(halfFrontage * 2.0, lotStep) * 0.5
+    halfFrontage = quantiseDown(halfFrontage * 2.0, lotStep) * 0.5 * LOT_GAP
     halfDepth = quantiseDown(halfDepth * 2.0, lotStep) * 0.5
-    if (halfFrontage <= 0.0 || halfDepth <= 0.0) return null
+
+    // Against the finished half-extents, after the cap, the step and the gap, because those are what the
+    // building is actually sized from. `quantiseDown` floors at half a step, so without this a leaf that the
+    // minimum-area test passed as a long sliver came back as a plot 1.15 m across.
+    if (halfFrontage < minHalfFrontage || halfDepth < minHalfDepth) return null
 
     return Lot(
       centre = centre,
       inwards = inwards,
-      halfFrontage = halfFrontage * LOT_GAP,
+      halfFrontage = halfFrontage,
       halfDepth = halfDepth,
       streetRank = rankFor(nearest.edge),
       // At the plot's front, on the street, for the same reason `LotPlanner` measures it there.
