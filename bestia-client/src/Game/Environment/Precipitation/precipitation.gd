@@ -13,9 +13,15 @@ extends Node3D
 ## emitter does not drag the drops already in the air along with it.
 ##
 ## Wind enters in exactly one place: it tilts [member ParticleProcessMaterial.direction] away from straight
-## down. Everything else follows - the streaks lean because
-## [constant GPUParticles3D.TRANSFORM_ALIGN_Z_BILLBOARD_Y_TO_VELOCITY] points them along their own velocity,
-## and the field drifts because that is where the drops are going.
+## down. Everything else follows - the field drifts because that is where the drops are going, and the rain
+## streaks lean because [code]rain_streak.gdshader[/code] is handed the same unit vector and lays every quad
+## along it. Snow and dust are round dots and have nothing to lean.
+##
+## [b]The streaks are not oriented from their own velocity, and that is the point.[/b]
+## [constant GPUParticles3D.TRANSFORM_ALIGN_Z_BILLBOARD_Y_TO_VELOCITY] does exactly that and falls apart on a
+## steeply pitched camera, where the fall direction and the view direction very nearly coincide - see the
+## shader for the arithmetic. Pointing the whole field with one uniform instead is what keeps it leaning with
+## the wind from every angle, and what lets a drop coming at the camera foreshorten instead of spin.
 
 ## How far above the camera each kind appears, in metres, and how long it then has to live.
 ##
@@ -94,11 +100,20 @@ const _WIND_BAND := 0.15
 ## which the rate ramping up hides anyway.
 const _MAX_PREPROCESS := 4.0
 
+## The shader that lays a rain quad along the wind - see the note on alignment above.
+##
+## Preloaded rather than looked up, so a rename that misses this file is a script that will not compile rather
+## than a storm with no rain in it. Nothing else here is loaded at all: the meshes and textures are generated.
+const _STREAK_SHADER := preload("res://Game/Environment/Precipitation/rain_streak.gdshader")
+
 var _weather: Node = null
 
 var _rain: GPUParticles3D = null
 var _snow: GPUParticles3D = null
 var _dust: GPUParticles3D = null
+
+## Rain's own material, kept because [method _drive] writes the wind into it.
+var _rain_streak: ShaderMaterial = null
 
 var _last_wind := Vector3(9999.0, 0.0, 0.0)
 
@@ -117,13 +132,19 @@ func _ready() -> void:
 	# level with the camera when it dies, and the camera looks *down* - so the entire field lives above the
 	# frame. Both get a tall box centred near the camera instead, and are in the view from the moment they
 	# exist rather than having to fall into it.
-	_rain = _build_emitter("Rain", rain_drops, rain_lifetime, rain_colour, null,
-		Vector2(0.035, 0.9), 2.0, GPUParticles3D.TRANSFORM_ALIGN_Z_BILLBOARD_Y_TO_VELOCITY)
+	#
+	# Rain is also the one kind whose transform is left alone - `TRANSFORM_ALIGN_DISABLED` - because its
+	# shader builds the whole orientation itself and wants a particle basis that is nothing but a uniform
+	# scale to build it on.
+	_rain_streak = _build_streak_material(rain_colour)
 
-	_snow = _build_emitter("Snow", snow_flakes, snow_lifetime, snow_colour, soft_dot,
+	_rain = _build_emitter("Rain", rain_drops, rain_lifetime, _rain_streak,
+		Vector2(0.035, 0.7), 2.0, GPUParticles3D.TRANSFORM_ALIGN_DISABLED)
+
+	_snow = _build_emitter("Snow", snow_flakes, snow_lifetime, _build_dot_material(snow_colour, soft_dot),
 		Vector2(0.26, 0.26), 30.0, GPUParticles3D.TRANSFORM_ALIGN_Z_BILLBOARD)
 
-	_dust = _build_emitter("Dust", dust_motes, dust_lifetime, dust_colour, soft_dot,
+	_dust = _build_emitter("Dust", dust_motes, dust_lifetime, _build_dot_material(dust_colour, soft_dot),
 		Vector2(0.38, 0.38), 16.0, GPUParticles3D.TRANSFORM_ALIGN_Z_BILLBOARD)
 
 	# Snow tumbles as it comes down; rain does not, and dust is too small to read as anything but a haze.
@@ -160,7 +181,7 @@ func _process(_delta: float) -> void:
 	var dust_rate: float = _weather.DustRate
 
 	_drive(_rain, rain_rate, wind, rain_fall_speed, rain_wind_factor, rain_spawn_height, rain_lifetime,
-		camera, retune)
+		camera, retune, _rain_streak)
 	_drive(_snow, snow_rate, wind, snow_fall_speed, snow_wind_factor, snow_spawn_height, snow_lifetime,
 		camera, retune)
 	_drive(_dust, dust_rate, wind, dust_fall_speed, dust_wind_factor, dust_spawn_height, dust_lifetime,
@@ -168,8 +189,11 @@ func _process(_delta: float) -> void:
 
 
 ## Points one emitter at the wind, positions it over the camera, and sets how much of it is running.
+##
+## [param streak] is the material to point along with it, for the kind that shows which way it is going.
 func _drive(emitter: GPUParticles3D, rate: float, wind: Vector3, fall_speed: float, wind_factor: float,
-		spawn_height: float, base_lifetime: float, camera: Camera3D, retune: bool) -> void:
+		spawn_height: float, base_lifetime: float, camera: Camera3D, retune: bool,
+		streak: ShaderMaterial = null) -> void:
 	if rate < _CUTOFF:
 		emitter.emitting = false
 		return
@@ -197,10 +221,17 @@ func _drive(emitter: GPUParticles3D, rate: float, wind: Vector3, fall_speed: flo
 	emitter.global_position = camera.global_position + Vector3(0.0, spawn_height, 0.0) - lead
 
 	if retune or not emitter.emitting:
+		var heading := travel / speed
+
 		var process := emitter.process_material as ParticleProcessMaterial
-		process.direction = travel / speed
+		process.direction = heading
 		process.initial_velocity_min = speed
 		process.initial_velocity_max = speed
+
+		# Written in the same breath as the direction above, and out of the same local, so the streak cannot
+		# end up pointing anywhere but where the drop is actually going.
+		if streak != null:
+			streak.set_shader_parameter("rain_direction", heading)
 
 	# amount_ratio and not amount: the latter reallocates the buffer and restarts the system, which would
 	# empty the sky and refill it from the top every time a WeatherSMSG arrived.
@@ -212,19 +243,10 @@ func _drive(emitter: GPUParticles3D, rate: float, wind: Vector3, fall_speed: flo
 		emitter.emitting = true
 
 
-func _build_emitter(node_name: String, amount: int, lifetime: float, colour: Color, texture: Texture2D,
+func _build_emitter(node_name: String, amount: int, lifetime: float, material: Material,
 		quad: Vector2, box_height: float, align: int) -> GPUParticles3D:
 	var mesh := QuadMesh.new()
 	mesh.size = quad
-
-	var material := StandardMaterial3D.new()
-	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	material.albedo_color = colour
-	material.albedo_texture = texture
-	material.cull_mode = BaseMaterial3D.CULL_DISABLED
-	material.vertex_color_use_as_albedo = true
-	material.disable_receive_shadows = true
 
 	var process := ParticleProcessMaterial.new()
 	process.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_BOX
@@ -270,6 +292,29 @@ func _build_emitter(node_name: String, amount: int, lifetime: float, colour: Col
 	add_child(emitter)
 
 	return emitter
+
+
+## A flat camera-facing dot, for the kinds that have no direction to show.
+func _build_dot_material(colour: Color, texture: Texture2D) -> StandardMaterial3D:
+	var material := StandardMaterial3D.new()
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	material.albedo_color = colour
+	material.albedo_texture = texture
+	material.cull_mode = BaseMaterial3D.CULL_DISABLED
+	material.vertex_color_use_as_albedo = true
+	material.disable_receive_shadows = true
+
+	return material
+
+
+## Rain's streak material, which orients itself - see [code]rain_streak.gdshader[/code].
+func _build_streak_material(colour: Color) -> ShaderMaterial:
+	var material := ShaderMaterial.new()
+	material.shader = _STREAK_SHADER
+	material.set_shader_parameter("tint", colour)
+
+	return material
 
 
 func _turbulence(process: ParticleProcessMaterial, strength: float, noise_scale: float) -> void:
