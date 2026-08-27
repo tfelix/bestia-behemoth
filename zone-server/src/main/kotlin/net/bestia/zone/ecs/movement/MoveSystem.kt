@@ -1,6 +1,7 @@
 package net.bestia.zone.ecs.movement
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.zone.ecs.battle.damage.Dead
 import net.bestia.zone.ecs.core.Component
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.System
@@ -26,11 +27,15 @@ import org.springframework.stereotype.Component as SpringComponent
 @Order(40)
 class MoveSystem(private val ground: GroundHeight) : System {
 
-  override val reads: ComponentClassSet = setOf(Speed::class)
+  override val reads: ComponentClassSet = setOf(Speed::class, Dead::class)
   override val writes: ComponentClassSet = setOf(Position::class, Path::class)
 
   override fun update(world: World, deltaTime: Float) {
     world.query(Position::class, Speed::class, Path::class).each { id ->
+      // A player body stays where it fell. PlayerDeathSystem drops the path on the tick the entity
+      // dies, so this only catches one added afterwards.
+      if (world.has(id, Dead::class)) return@each
+
       val position = get<Position>()
       val speed = get<Speed>()
       val movementPath = get<Path>()

@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "DeadComponentSmsgProto";
+
+// A player-owned entity (master or owned bestia) that has been reduced to 0 HP and is lying where it
+// fell, awaiting a respawn. Unlike a wild mob - which is destroyed outright and announced with a
+// VanishEntitySMSG of kind DEATH - a player body stays in the world, so its death is entity state and
+// is synced to everyone in range. Removal of the underlying component re-sends this same message with
+// removed = true (= respawned).
+message DeadComponentSMSG {
+  fixed64 entity_id = 1;
+  bool removed = 2;
+}

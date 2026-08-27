@@ -43,7 +43,7 @@ class PropDeathDivergenceSystemTest {
       add(eid, Position.fromVec3(Vec3L(1, 2, 3)))
       add(eid, StaticVisual(StaticEntityKind.TREE, variant = 0, heightDm = 90))
       add(eid, WorldObjectIdentity(propId, latticeVersion = 1L))
-      add(eid, Dead)
+      add(eid, Dead())
     }
 
     system(divergence).update(world, 0f)
@@ -66,7 +66,7 @@ class PropDeathDivergenceSystemTest {
       add(eid, Position.fromVec3(Vec3L(1, 2, 3)))
       add(eid, StaticVisual(StaticEntityKind.POI_LOST_GRAVE, variant = 0, heightDm = 12))
       add(eid, WorldObjectIdentity(propId, latticeVersion = 1L))
-      add(eid, Dead)
+      add(eid, Dead())
     }
 
     system(divergence).update(world, 0f)
@@ -90,7 +90,7 @@ class PropDeathDivergenceSystemTest {
       add(eid, Position.fromVec3(Vec3L(1, 2, 3)))
       add(eid, StaticVisual(StaticEntityKind.MANA_CRYSTAL_SMALL, variant = 0, heightDm = 12))
       add(eid, WorldObjectIdentity(789L, latticeVersion = 1L))
-      add(eid, Dead)
+      add(eid, Dead())
     }
 
     system(divergence).update(world, 0f)
@@ -103,7 +103,7 @@ class PropDeathDivergenceSystemTest {
     val divergence = pristine()
     val world = testWorld()
 
-    world.createEntity { eid -> add(eid, Dead) }
+    world.createEntity { eid -> add(eid, Dead()) }
 
     system(divergence).update(world, 0f)
 

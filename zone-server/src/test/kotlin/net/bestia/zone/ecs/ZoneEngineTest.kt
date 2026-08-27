@@ -67,7 +67,7 @@ class ZoneEngineTest {
     val entity = world.createEntity { id ->
       add(id, Position.fromVec3(pos))
       add(id, EntityVisual(VisualKind.ITEM, 1L))
-      add(id, Dead)
+      add(id, Dead())
     }
 
     world.destroy(entity)

@@ -5,6 +5,7 @@ import net.bestia.zone.battle.BattleContextFactory
 import net.bestia.zone.battle.damage.DamageEntitySMSG
 import net.bestia.zone.battle.damage.Heal
 import net.bestia.zone.battle.damage.Miss
+import net.bestia.zone.ecs.battle.damage.Dead
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.movement.Position
@@ -40,6 +41,13 @@ class AttackExecutionService(
    * the same swing, which is the point.
    */
   fun attack(world: World, attackerId: EntityId, targetId: EntityId, attack: BattleAttack) {
+    // A player-owned body stays in the world after it dies, so "still alive" is no longer the same
+    // question as "still a valid combatant". Neither end of a swing may be a corpse.
+    if (world.has(attackerId, Dead::class) || world.has(targetId, Dead::class)) {
+      LOG.debug { "Basic attack by $attackerId at $targetId fizzled: one of them is dead" }
+      return
+    }
+
     val ctx = battleContextFactory.create(world, attackerId, attack, targetId, targetPosition = null)
     if (ctx == null) {
       LOG.debug { "Basic attack by $attackerId fizzled: attacker or target no longer resolvable" }

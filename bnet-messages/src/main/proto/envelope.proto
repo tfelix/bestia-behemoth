@@ -57,8 +57,10 @@ import "messages/inventory/unequip_item_cmsg.proto";
 import "messages/component/equipment_component_smsg.proto";
 import "messages/component/status_values_smsg.proto";
 import "messages/component/base_status_values_smsg.proto";
+import "messages/component/dead_component_smsg.proto";
 import "messages/component/status_points_smsg.proto";
 import "messages/system/request_logout_cmsg.proto";
+import "messages/system/respawn_cmsg.proto";
 import "messages/system/dialog_smsg.proto";
 import "messages/component/logout_intent_smsg.proto";
 import "messages/component/casting_component_smsg.proto";
@@ -112,6 +114,7 @@ message Envelope {
     RequestLogoutCMSG request_logout = 124;
     DialogSMSG dialog = 125;
     // 126 is reserved for the DialogChoiceCMSG that answers a CHOICE dialog.
+    RespawnCMSG respawn = 127;
 
     // MAP 200
     WorldInfoSMSG world_info = 200;
@@ -179,6 +182,7 @@ message Envelope {
     StatusValuesSMSG comp_status_values = 533;
     StatusPointsSMSG comp_status_points = 534;
     BaseStatusValuesSMSG comp_base_status_values = 535;
+    DeadComponentSMSG comp_dead = 536;
 
     // SOCIAL & PARTY 600
     AcceptPartyInviteCMSG accept_party_invite = 600;

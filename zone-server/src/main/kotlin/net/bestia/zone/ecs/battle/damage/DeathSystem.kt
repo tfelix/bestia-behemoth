@@ -36,6 +36,14 @@ class DeathSystem(
 
   override fun update(world: World, deltaTime: Float) {
     world.query(Dead::class).each { entityId ->
+      // A player-owned body is not gone for good: it stays where it fell until its owner respawns it,
+      // driven by PlayerDeathSystem (@68) and RespawnSystem (@44). Skipping it here also stops an
+      // owned bestia paying out species EXP and loot when another player kills it - it carries
+      // EntityVisual(BESTIA) exactly like the wild version, which is all `bestiaSpeciesOf` looks at.
+      if (world.has(entityId, Account::class)) {
+        return@each
+      }
+
       LOG.debug { "Entity $entityId is dead" }
 
       assignExp(world, entityId)

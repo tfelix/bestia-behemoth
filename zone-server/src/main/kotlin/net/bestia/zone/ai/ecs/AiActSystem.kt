@@ -8,6 +8,7 @@ import net.bestia.zone.ai.core.behavior.Status
 import net.bestia.zone.ai.core.planner.EffectWriteBack
 import net.bestia.zone.ecs.ZoneConfig
 import net.bestia.zone.ecs.battle.damage.Damage
+import net.bestia.zone.ecs.battle.damage.Dead
 import net.bestia.zone.ecs.entity.Animation
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.battle.status.Mana
@@ -50,7 +51,7 @@ class AiActSystem(
   private val zoneConfig: ZoneConfig,
 ) : System {
 
-  override val reads: ComponentClassSet = setOf(Position::class, PlayerControlled::class)
+  override val reads: ComponentClassSet = setOf(Position::class, PlayerControlled::class, Dead::class)
 
   /**
    * Everything the behaviour trees can touch, directly or through the services their leaves hold.
@@ -79,6 +80,11 @@ class AiActSystem(
 
     world.query(AiAgent::class, Position::class).each { id ->
       val agent = get<AiAgent>()
+
+      // Same belt-and-braces pairing with the think stage as the PlayerControlled check below, for the
+      // same reason: a step adopted on the tick before the creature died must not still be carried out
+      // by its corpse.
+      if (world.has(id, Dead::class)) return@each
 
       // Belt and braces alongside the same check in the think stage: think drops the plan of a controlled
       // entity, but a plan adopted on the tick before control was taken must not get one more step executed

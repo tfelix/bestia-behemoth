@@ -62,6 +62,7 @@ var LootItemCMSG = load("res://Bnet/Message/Inventory/LootItemCMSG.cs")
 var EquipItemCMSG = load("res://Bnet/Message/Inventory/EquipItemCMSG.cs")
 var UnequipItemCMSG = load("res://Bnet/Message/Inventory/UnequipItemCMSG.cs")
 var RequestLogoutCMSG = load("res://Bnet/Message/System/RequestLogoutCMSG.cs")
+var RespawnCMSG = load("res://Bnet/Message/System/RespawnCMSG.cs")
 var CollectPropCMSG = load("res://Bnet/Message/Map/CollectPropCMSG.cs")
 var CraftItemCMSG = load("res://Bnet/Message/Crafting/CraftItemCMSG.cs")
 var CancelCraftCMSG = load("res://Bnet/Message/Crafting/CancelCraftCMSG.cs")
@@ -164,6 +165,14 @@ func request_logout() -> void:
 func cancel_logout() -> void:
 	assert(is_ready_to_send())
 	_socket.SendMessage(MoveActiveEntityCMSG.new())
+
+
+## Asks the server to revive the active entity at its save point. Only meaningful while that entity
+## is dead; the server refuses it silently otherwise. Confirmation is its DeadComponentSMSG arriving
+## with Removed = true.
+func request_respawn() -> void:
+	assert(is_ready_to_send())
+	_socket.SendMessage(RespawnCMSG.new())
 
 
 ## Deliberately disconnects and returns to the main menu (used by the logout flow), bypassing the

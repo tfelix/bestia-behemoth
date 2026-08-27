@@ -5,6 +5,7 @@ import net.bestia.zone.battle.skill.NoSkillScriptException
 import net.bestia.zone.battle.skill.SkillCheckService
 import net.bestia.zone.battle.skill.SkillExecutionService
 import net.bestia.zone.battle.skill.SkillStrategyFactory
+import net.bestia.zone.ecs.battle.damage.DeadActionGuard
 import net.bestia.zone.ecs.battle.skill.Casting
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
@@ -39,6 +40,7 @@ class ActivateSkillHandler(
   private val skillStrategyFactory: SkillStrategyFactory,
   private val skillExecutionService: SkillExecutionService,
   private val logoutCancelService: LogoutCancelService,
+  private val deadActionGuard: DeadActionGuard,
   private val propPromotion: PropPromotionService,
   private val outMessageProcessor: OutMessageProcessor,
 ) : InMessageProcessor.IncomingMessageHandler<ActivateSkillCMSG> {
@@ -48,6 +50,10 @@ class ActivateSkillHandler(
     LOG.trace { "RX: $msg" }
 
     val activeEntityId = connectionInfoService.getActiveEntityId(msg.playerId)
+
+    if (deadActionGuard.refuses(activeEntityId, "activate a skill")) {
+      return true
+    }
 
     // Using a skill is player activity - abort any pending logout.
     logoutCancelService.cancelLogout(activeEntityId)

@@ -3,7 +3,9 @@ package net.bestia.zone.ecs.persistence.persisters
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.account.master.MasterRepository
 import net.bestia.zone.ecs.account.Master as MasterComponent
+import net.bestia.zone.ecs.battle.damage.Dead
 import net.bestia.zone.ecs.battle.level.Level
+import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.battle.status.BaseStatusValues
 import net.bestia.zone.ecs.battle.status.SkillPoints
 import net.bestia.zone.ecs.battle.status.StatusPoints
@@ -33,6 +35,9 @@ data class MasterSnapshot(
   val dexterity: Int,
   val willpower: Int,
   val agility: Int,
+  val currentHealth: Int?,
+  /** Left the world dead, so the write-back resolves the respawn instead of storing where it fell. */
+  val died: Boolean,
 ) : EntitySnapshot
 
 /**
@@ -71,6 +76,8 @@ class MasterEntityPersister(
       dexterity = baseStatusValues?.dexterity ?: 10,
       willpower = baseStatusValues?.willpower ?: 10,
       agility = baseStatusValues?.agility ?: 10,
+      currentHealth = world.get(id, Health::class)?.current,
+      died = world.has(id, Dead::class),
     )
   }
 
@@ -83,7 +90,15 @@ class MasterEntityPersister(
         LOG.warn { "Master ${snap.masterId} was not found, cannot persist it" }
         continue
       }
-      master.currentPosition = Vec3L(snap.x, snap.y, snap.z)
+      if (snap.died) {
+        // Dying and then leaving resolves the respawn on the way out, so the player does not
+        // re-materialise on top of whatever killed them - and cannot sit out the death by quitting.
+        master.currentPosition = master.spawnPosition
+        master.currentHealth = 1
+      } else {
+        master.currentPosition = Vec3L(snap.x, snap.y, snap.z)
+        master.currentHealth = snap.currentHealth
+      }
       master.level = snap.level
       master.skillPoints = snap.skillPoints
       master.statusPoints = snap.statusPoints

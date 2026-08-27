@@ -1,6 +1,7 @@
 package net.bestia.zone.account.master
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.zone.bestia.PlayerBestiaRepository
 import net.bestia.zone.world.MasterSpawnPointService
 import net.bestia.zone.world.WorldRecreatedEvent
 import org.springframework.context.event.EventListener
@@ -22,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional
 @Component
 class MasterWorldResetListener(
   private val masterRepository: MasterRepository,
+  private val playerBestiaRepository: PlayerBestiaRepository,
   private val masterSpawnPointService: MasterSpawnPointService
 ) {
 
@@ -58,6 +60,7 @@ class MasterWorldResetListener(
     // lands on the first candidate.
     val byName = candidates.associateBy { it.settlementName }
     var kept = 0
+    var bestias = 0
 
     for (master in masters) {
       val spawnPoint = byName[master.homeSettlementName]?.also { kept++ } ?: fallback
@@ -65,14 +68,26 @@ class MasterWorldResetListener(
       master.spawnPosition = spawnPoint.position
       master.currentPosition = spawnPoint.position
       master.homeSettlementName = spawnPoint.settlementName
+
+      // An owned bestia's save point is a stored coordinate into the same discarded terrain, so it
+      // needs re-homing for exactly the reason the master's does. Onto the owner's new spawn point
+      // rather than the old one it was stationed at, which is not there any more either.
+      val ownedBestias = playerBestiaRepository.findAllByMasterId(master.id)
+      for (playerBestia in ownedBestias) {
+        playerBestia.spawnPosition = spawnPoint.position
+        playerBestia.position = spawnPoint.position
+      }
+      playerBestiaRepository.saveAll(ownedBestias)
+      bestias += ownedBestias.size
     }
 
     masterRepository.saveAll(masters)
 
     LOG.warn {
-      "World '${event.world.name}' was regenerated; re-homed ${masters.size} masters onto its spawn points " +
-          "($kept kept their home settlement, ${masters.size - kept} were moved to '${fallback.settlementName}' " +
-          "at ${fallback.position}), because where they were standing is not there any more"
+      "World '${event.world.name}' was regenerated; re-homed ${masters.size} masters and $bestias owned " +
+          "bestias onto its spawn points ($kept masters kept their home settlement, ${masters.size - kept} " +
+          "were moved to '${fallback.settlementName}' at ${fallback.position}), because where they were " +
+          "standing is not there any more"
     }
   }
 

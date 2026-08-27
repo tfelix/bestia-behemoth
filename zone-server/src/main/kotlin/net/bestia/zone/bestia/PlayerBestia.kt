@@ -35,6 +35,24 @@ class PlayerBestia(
   var position: Vec3L = Vec3L.ZERO
 
   /**
+   * Where this bestia is put back on its feet after it dies.
+   *
+   * Its own rather than its master's, so a creature stationed away from its owner's home town comes
+   * back where it was working. [Vec3L.ZERO] means "never set" and falls back to the master's save
+   * point - the reading for every row written before this column existed, since the schema is
+   * `ddl-auto: update` against a live database. Re-homed on a world reset by
+   * [net.bestia.zone.account.master.MasterWorldResetListener], because a stored coordinate into
+   * discarded terrain does not fail loudly.
+   */
+  @Embedded
+  @AttributeOverrides(
+    AttributeOverride(name = "x", column = Column(name = "spawn_position_x")),
+    AttributeOverride(name = "y", column = Column(name = "spawn_position_y")),
+    AttributeOverride(name = "z", column = Column(name = "spawn_position_z"))
+  )
+  var spawnPosition: Vec3L = Vec3L.ZERO
+
+  /**
    * The owner's standing order for what this bestia does while they are not driving it.
    *
    * Belongs here rather than in the mob catalogue because it is per-creature player configuration, exactly like

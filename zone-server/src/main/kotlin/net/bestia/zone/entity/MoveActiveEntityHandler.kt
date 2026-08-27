@@ -5,6 +5,7 @@ import net.bestia.zone.ecs.movement.Path
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.WorldView
+import net.bestia.zone.ecs.battle.damage.DeadActionGuard
 import net.bestia.zone.ecs.battle.skill.CastCancelService
 import net.bestia.zone.ecs.logout.LogoutCancelService
 import net.bestia.zone.geometry.Vec3L
@@ -24,6 +25,7 @@ class MoveActiveEntityHandler(
   private val world: WorldView,
   private val logoutCancelService: LogoutCancelService,
   private val castCancelService: CastCancelService,
+  private val deadActionGuard: DeadActionGuard,
   private val walkQuery: LocalWalkQuery,
 ) : InMessageProcessor.IncomingMessageHandler<MoveActiveEntityCMSG> {
   override val handles = MoveActiveEntityCMSG::class
@@ -32,6 +34,11 @@ class MoveActiveEntityHandler(
     LOG.trace { "RX: $msg" }
 
     val activeEntityId = connectionInfoService.getActiveEntityId(msg.playerId)
+
+    // Before the cancel calls: a corpse expresses no intent, so it must not even abort its own logout.
+    if (deadActionGuard.refuses(activeEntityId, "move")) {
+      return true
+    }
 
     // Any movement command (including an empty-path "stop", which the client's logout Cancel button
     // sends) counts as player activity and aborts a pending logout.

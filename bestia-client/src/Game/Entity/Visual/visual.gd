@@ -18,6 +18,12 @@ func update_animation(_msg: AnimationComponentSMSG) -> void:
 	pass
 
 
+## Drops this entity into its death pose, or picks it back up. Only player-owned entities are ever
+## told this - a wild mob is destroyed on death and gets [method vanish] instead.
+func set_dead(_dead: bool) -> void:
+	pass
+
+
 ## Shows/updates the cast bar while this entity channels a skill.
 func update_casting(_msg: CastingComponentSMSG) -> void:
 	pass

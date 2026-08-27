@@ -59,9 +59,13 @@ class ReceivedDamageSystem : System {
         }
       }
 
-      if (health.current == 0) {
+      // Guarded rather than added unconditionally: `World.add` overwrites, and a player body stays
+      // at 0 HP with its Dead component for as long as it lies there. A second drain - a simultaneous
+      // attacker, a ground effect staged before it went down - would otherwise replace the component
+      // and, with it, the flag saying this death has already been paid for.
+      if (health.current == 0 && !world.has(id, Dead::class)) {
         LOG.trace { "$id died due to damage." }
-        world.add(id, Dead)
+        world.add(id, Dead())
       }
     }
   }

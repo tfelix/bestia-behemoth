@@ -3,6 +3,7 @@ package net.bestia.zone.battle
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.battle.skill.AttackExecutionService
 import net.bestia.zone.battle.skill.BattleAttack
+import net.bestia.zone.ecs.battle.damage.DeadActionGuard
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.logout.LogoutCancelService
@@ -24,6 +25,7 @@ class AttackEntityHandler(
   private val world: WorldView,
   private val attackExecutionService: AttackExecutionService,
   private val logoutCancelService: LogoutCancelService,
+  private val deadActionGuard: DeadActionGuard,
 ) : InMessageProcessor.IncomingMessageHandler<AttackEntityCMSG> {
   override val handles = AttackEntityCMSG::class
 
@@ -31,6 +33,12 @@ class AttackEntityHandler(
     LOG.trace { "RX: $msg" }
 
     val attackerId = connectionInfoService.getActiveEntityId(msg.playerId)
+
+    // AttackExecutionService refuses a dead attacker anyway; caught here too so a corpse does not
+    // cancel its own pending logout on the way to being refused.
+    if (deadActionGuard.refuses(attackerId, "attack")) {
+      return true
+    }
 
     // Swinging at something is player activity - abort any pending logout.
     logoutCancelService.cancelLogout(attackerId)

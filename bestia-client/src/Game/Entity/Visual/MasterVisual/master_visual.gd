@@ -86,6 +86,21 @@ func clear_casting() -> void:
 	_cast_bar.clear_casting()
 
 
+## Death is entity state, not one of the server's three AnimationKinds, so it bypasses
+## [method _map_animation_name] entirely. Death_A plays through once and Death_A_Pose holds the body
+## on the ground; [Entity] stops feeding walk/idle in the meantime.
+func set_dead(dead: bool) -> void:
+	if not dead:
+		if _anim_player.has_animation("Idle"):
+			_anim_player.play("Idle")
+		return
+
+	if _anim_player.has_animation("Death_A"):
+		_anim_player.play("Death_A")
+		if _anim_player.has_animation("Death_A_Pose"):
+			_anim_player.queue("Death_A_Pose")
+
+
 func update_animation(msg: AnimationComponentSMSG) -> void:
 	if _anim_player.current_animation == msg.Kind:
 		return

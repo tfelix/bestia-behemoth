@@ -1,6 +1,7 @@
 package net.bestia.zone.crafting
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.zone.ecs.battle.damage.DeadActionGuard
 import net.bestia.zone.ecs.battle.skill.CastCancelService
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
@@ -22,6 +23,7 @@ class CraftItemHandler(
   private val world: WorldView,
   private val craftingService: CraftingService,
   private val castCancelService: CastCancelService,
+  private val deadActionGuard: DeadActionGuard,
   private val outMessageProcessor: OutMessageProcessor,
 ) : InMessageProcessor.IncomingMessageHandler<CraftItemCMSG> {
   override val handles = CraftItemCMSG::class
@@ -30,6 +32,10 @@ class CraftItemHandler(
     LOG.trace { "RX: $msg" }
 
     val activeEntityId = connectionInfoService.getActiveEntityId(msg.playerId)
+
+    if (deadActionGuard.refuses(activeEntityId, "craft")) {
+      return true
+    }
 
     // A craft and a cast share one progress bar on the client, so starting one has to end the other - see
     // Crafting's own note on why it reuses CastingComponentSMSG.

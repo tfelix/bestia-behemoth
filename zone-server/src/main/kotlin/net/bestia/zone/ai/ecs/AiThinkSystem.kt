@@ -2,6 +2,7 @@ package net.bestia.zone.ai.ecs
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ai.core.planner.Planner
+import net.bestia.zone.ecs.battle.damage.Dead
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.System
@@ -36,7 +37,7 @@ class AiThinkSystem(
 
   override val schedule: Schedule = Schedule.EveryTick
 
-  override val reads: ComponentClassSet = setOf(Position::class, PlayerControlled::class)
+  override val reads: ComponentClassSet = setOf(Position::class, PlayerControlled::class, Dead::class)
 
   /** Written: the goal/plan/behaviour-tree fields and the agent's memory snapshot. */
   override val writes: ComponentClassSet = setOf(AiAgent::class)
@@ -46,6 +47,14 @@ class AiThinkSystem(
 
     world.query(AiAgent::class, Position::class).each { id ->
       val agent = get<AiAgent>()
+
+      // An owned bestia keeps its body - and its agent - after it dies, so without this it would go
+      // on planning and walk its own corpse away. The plan is dropped rather than frozen, for the
+      // same reason as below: it should decide afresh once it is back on its feet.
+      if (world.has(id, Dead::class)) {
+        if (agent.hasActivePlan()) agent.clearPlan()
+        return@each
+      }
 
       // The player is driving this one; it has no business making up its own mind. Its plan is dropped rather
       // than frozen, so when control is handed back it decides afresh from the world as it is then, instead of

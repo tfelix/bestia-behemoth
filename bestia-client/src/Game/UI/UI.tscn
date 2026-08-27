@@ -19,6 +19,7 @@
 [ext_resource type="PackedScene" path="res://Game/UI/Map/MapOverlay.tscn" id="17_mapovl"]
 [ext_resource type="Script" uid="uid://chthlxaerqb0t" path="res://Game/UI/Map/map_source.gd" id="18_mapsrc"]
 [ext_resource type="PackedScene" uid="uid://btradewin0001" path="res://Game/UI/Trade/Trade.tscn" id="19_trade"]
+[ext_resource type="PackedScene" uid="uid://cdeath0scrn01" path="res://Game/UI/Death/Death.tscn" id="20_death"]
 
 [node name="UI" type="Control" unique_id=549600065]
 layout_mode = 3
@@ -98,6 +99,9 @@ offset_right = -16.0
 offset_bottom = 450.0
 
 [node name="Options" parent="." unique_id=1824369574 instance=ExtResource("10_opts")]
+layout_mode = 1
+
+[node name="Death" parent="." unique_id=1824369575 instance=ExtResource("20_death")]
 layout_mode = 1
 
 [node name="MapSource" type="Node" parent="." unique_id=456323444]
