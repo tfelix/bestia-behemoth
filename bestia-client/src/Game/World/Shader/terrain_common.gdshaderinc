@@ -238,6 +238,15 @@ global uniform vec3 grass_field_focus;
 global uniform float grass_field_begin;
 global uniform float grass_field_end;
 
+// How steeply the field is thinning across that band right now: `GrassLod.Sharpen`'s exponent, never below 1.
+//
+// The band says how far the geometry may reach; this says how much of it actually gets there, and the two are
+// not the same question. `TerrainGrass` fits the field to an instance budget by raising its own distance taper
+// to this power, so under a tight budget the tufts are gone well inside `grass_field_end` - and a tint ramped
+// as if they were not leaves bare ground showing where it thinks there is still grass. One is the off switch:
+// at an exponent of 1 the field is not being thinned by the budget at all.
+global uniform float grass_field_falloff;
+
 group_uniforms;
 
 varying vec3 v_world_pos;
@@ -551,11 +560,25 @@ TerrainSurface terrain_surface(vec3 tint) {
 	// Applied before the snow and wetness below, so far grass still darkens in rain and is still buried by
 	// snow rather than showing through it.
 	//
-	// smoothstep clamps, so past `grass_field_end` the correction is at full strength and stays there to the
-	// horizon. That is right rather than merely convenient: past the field, the ground is all there is.
-	float grass_far = grass_field_end > grass_field_begin
-		? smoothstep(grass_field_begin, grass_field_end, distance(v_world_pos, grass_field_focus))
-		: 0.0;
+	// **The ramp is the field's own taper read backwards, and it used to be a smoothstep that was not.**
+	// `GrassLod.FractionAt` hands a cell `t * t` across this band, where `t` runs 1 at the near edge down to 0
+	// at the far one, and `GrassLod.Sharpen` then raises that to `grass_field_falloff` to fit the instance
+	// budget. So the share of tufts still standing is exactly `t` to the power of twice the falloff, and what
+	// this owes is one minus it. A smoothstep is not that curve at any exponent: at the 2.5 a full view volume
+	// settles on it was a third applied where nine tenths of the blades had already gone, which is the ring
+	// that made the grass look like it was growing in as the player walked at it.
+	//
+	// Clamped rather than extrapolated, so past `grass_field_end` the correction is at full strength and stays
+	// there to the horizon. That is right rather than merely convenient: past the field, the ground is all
+	// there is.
+	float grass_span = grass_field_end - grass_field_begin;
+	float grass_far = 0.0;
+	if (grass_span > 0.0) {
+		float past = clamp(
+			(distance(v_world_pos, grass_field_focus) - grass_field_begin) / grass_span, 0.0, 1.0);
+
+		grass_far = 1.0 - pow(1.0 - past, 2.0 * max(grass_field_falloff, 1.0));
+	}
 
 	albedo *= mix(vec3(1.0), grass_field_correction, weights[TERRAIN_SLOT_GRASS] * grass_far);
 

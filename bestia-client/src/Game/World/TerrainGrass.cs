@@ -98,9 +98,17 @@ namespace BestiaBehemothClient.Game.World
   {
     /// <summary>Tufts per square metre of fully grassy, flat ground.</summary>
     /// <remarks>
-    /// The coverage-neutral replacement for the two layers this used to run: a tuft at <see cref="Height"/>
-    /// spans 1.07 m where a 1.2 m clump spanned 1.53 m, so it takes about 8.6 of them to hide what 2.0 clumps
-    /// and 4.5 tufts hid between them.
+    /// A tuft at <see cref="Height"/> spans about 0.68 m of ground, and coverage is <c>count * footprint</c>
+    /// with the footprint going as the square of the span.
+    ///
+    /// <para>
+    /// <b>This does not hold coverage, and it is not meant to.</b> The field at 8.6 tufts of 1.26 m hid about
+    /// three quarters of its ground; eleven of 0.68 m hide about half of it, because the height came down
+    /// twice and the count only went up once. What is uncovered is the terrain's own grass texture, which is
+    /// the right thing to be looking at - a shorter field is a thinner one, and pretending otherwise is what
+    /// makes short grass read as moss. <b>Raise this first if it reads too sparse</b>, since it is the only
+    /// number here that buys cover without making the field taller again.
+    /// </para>
     ///
     /// <para>
     /// Ground that is only partly grass gets proportionally less, because the weight it is multiplied by is the
@@ -109,36 +117,53 @@ namespace BestiaBehemothClient.Game.World
     /// </para>
     ///
     /// <para>
-    /// <b>Turning this up no longer needs <see cref="MaxVisibleInstances"/> turned up with it, but it does
-    /// change what the budget buys.</b> The ceiling is on the whole field, so a higher density is met by a
-    /// higher <see cref="GrassLod.Sharpen"/> exponent - which spends the extra plants on the near field and
-    /// takes them back out of the far one. That is usually the trade wanted; it is not the same as a denser
-    /// field everywhere.
+    /// <b>Turning this up without <see cref="MaxVisibleInstances"/> is a trade and not a gain.</b> The ceiling
+    /// is on the whole field, so a higher density is met by a higher <see cref="GrassLod.Sharpen"/> exponent -
+    /// which spends the extra tufts on the near field and takes them straight back out of the far one. That is
+    /// sometimes the trade wanted. It is not the same as a denser field everywhere, and it is the opposite of
+    /// what a horizon that looks thin is asking for.
     /// </para>
     /// </remarks>
-    [Export(PropertyHint.Range, "0,20,0.1")] public float Density { get; set; } = 8.6f;
+    [Export(PropertyHint.Range, "0,20,0.1")] public float Density { get; set; } = 11.0f;
 
     /// <summary>Height of a tuft in metres, before <see cref="HeightSpread"/>.</summary>
     /// <remarks>
-    /// The mesh is scaled uniformly, so this is its whole scale and not only its height: at 1.26 m one spans
-    /// about 1.07 m of ground.
+    /// The mesh is scaled uniformly, so this is its whole scale and not only its height: at 0.80 m one spans
+    /// about 0.68 m of ground.
     ///
     /// <para>
-    /// It is <b>taller than a herb</b>, which stands at 0.45 m, so the collectible ground cover is inside the
-    /// field rather than above it. That is deliberate and known: the plants worth picking are to be told apart
-    /// by having their own model, not by being the tallest thing around. It is kept well under the 1.8 m it was
-    /// first drawn at for the opposite reason - tufts that tall stood over the player's head.
+    /// <b>Read against the master, who stands at about 1.8 m.</b> With <see cref="HeightSpread"/> the tallest
+    /// tufts reach 1.04 m, so the field comes to a player's waist and the whole upper body is clear of it
+    /// wherever they stand. That last part is the test this is set by: at 1.26 m, and at 1.8 m before that, a
+    /// player standing in a meadow was a hat in a lawn - findable only by moving it.
+    /// </para>
+    ///
+    /// <para>
+    /// It is still <b>taller than a herb</b>, which stands at 0.45 m, so the collectible ground cover is inside
+    /// the field rather than above it. That is deliberate and known: the plants worth picking are to be told
+    /// apart by having their own model, not by being the tallest thing around.
     /// </para>
     /// </remarks>
-    [Export(PropertyHint.Range, "0.05,4,0.01")] public float Height { get; set; } = 1.26f;
+    [Export(PropertyHint.Range, "0.05,4,0.01")] public float Height { get; set; } = 0.8f;
 
     /// <summary>Half-width of the size spread around <see cref="Height"/>, as a share of it.</summary>
     /// <remarks>
-    /// <b>Wider than it was, because there is only one mesh now.</b> Two silhouettes side by side were what
-    /// stopped the field reading as one model repeated; with the clump layer retired, size variation has to do
-    /// that work on its own, and the yaw the scatter already randomises is not enough by itself.
+    /// Three tenths, so tufts run 0.56 m to 1.04 m and the tallest of them still stops at a 1.8 m master's
+    /// waist.
+    ///
+    /// <para>
+    /// <b>Narrower than the half it carried at the taller <see cref="Height"/>, and it had to come down with
+    /// it.</b> This is a share and not an absolute: half of 1.26 m reached 1.89 m, so shrinking the field
+    /// without shrinking this would have left the top of the range exactly where the complaint was.
+    /// </para>
+    ///
+    /// <para>
+    /// It is still the only thing varying the silhouette. There is one mesh now - two side by side were what
+    /// stopped the field reading as one model repeated - and the scatter randomises nothing but yaw, so this is
+    /// kept as wide as the ceiling above allows rather than trimmed to taste.
+    /// </para>
     /// </remarks>
-    [Export(PropertyHint.Range, "0,1,0.01")] public float HeightSpread { get; set; } = 0.5f;
+    [Export(PropertyHint.Range, "0,1,0.01")] public float HeightSpread { get; set; } = 0.3f;
 
     /// <summary>How far from the <b>player</b>, in metres, grass is drawn at its full <see cref="Density"/>.</summary>
     /// <remarks>
@@ -212,18 +237,26 @@ namespace BestiaBehemothClient.Game.World
 
     /// <summary>Ceiling on that compensation, past which the field goes back to fading out.</summary>
     /// <remarks>
-    /// <b>Lower than it was, because holding coverage at the horizon is no longer this node's job.</b> The
-    /// terrain shader carries the far field's colour - see <see cref="PublishField"/> - so what the geometry
-    /// owes out there is grain and not cover. At 2.5 a thinned tuft was drawn 3.15 m tall, and a sparse
-    /// scattering of those on a skyline reads as bushes; at 1.8 the far field stays plant-sized and simply gets
-    /// sparser, over ground that is already the right colour.
+    /// <b>Raised twice now, each time <see cref="Height"/> came down, which is why the horizon did not come
+    /// down with the near field.</b> This is a multiplier on the tuft's own size, so what the far field is
+    /// actually drawn at is the product of the two: 1.8 over a 1.26 m tuft gave 2.27 m, and 2.6 over a 0.80 m
+    /// one gives 2.08 m. The grass at the player's feet has lost more than a third of its height since; the
+    /// grass on the skyline is within a tenth of where it started.
     ///
     /// <para>
-    /// It also sizes <see cref="MultiMeshInstance3D.ExtraCullMargin"/>, since a tuft drawn at nearly twice its
+    /// There is a ceiling at all because <b>holding coverage at the horizon is not this node's job</b>. The
+    /// terrain shader carries the far field's colour - see <see cref="PublishField"/> - so what the geometry
+    /// owes out there is grain and not cover. Compensating without a ceiling ends the field in clumps the size
+    /// of bushes, which is what 2.5 over the taller tuft did at 3.15 m; past this the far field simply gets
+    /// sparser, over ground that is already the right colour.
+    /// </para>
+    ///
+    /// <para>
+    /// It also sizes <see cref="MultiMeshInstance3D.ExtraCullMargin"/>, since a tuft drawn at over twice its
     /// size stands outside the bounds Godot computed from the transforms.
     /// </para>
     /// </remarks>
-    [Export(PropertyHint.Range, "1,4,0.1")] public float MaxCoverageScale { get; set; } = 1.8f;
+    [Export(PropertyHint.Range, "1,4,0.1")] public float MaxCoverageScale { get; set; } = 2.6f;
 
     /// <summary>
     /// Tufts this may draw at once across the whole field, or 0 for no budget.
@@ -248,10 +281,19 @@ namespace BestiaBehemothClient.Game.World
     ///
     /// <para>
     /// Every instance is the same 72-triangle tuft now, so unlike when there were two meshes this is a
-    /// straightforward triangle bound: eighteen thousand is 1.3 M triangles.
+    /// straightforward triangle bound: twenty-five thousand is 1.8 M triangles.
+    /// </para>
+    ///
+    /// <para>
+    /// <b>It went up with <see cref="Density"/> rather than after it, and that is what reached the horizon.</b>
+    /// This is what the field is thinned down to, so a denser field met by the old ceiling is not a denser
+    /// field at all - it is the same tuft count under a steeper <see cref="GrassLod.Sharpen"/> exponent, which
+    /// takes the whole difference out of the far end. Raising the two in step is what lets the extra density
+    /// arrive where it was asked for instead of piling up at the player's feet, and this is the one number to
+    /// bring back down if the field costs more than it is worth.
     /// </para>
     /// </remarks>
-    [Export(PropertyHint.Range, "0,200000,1000")] public int MaxVisibleInstances { get; set; } = 18_000;
+    [Export(PropertyHint.Range, "0,200000,1000")] public int MaxVisibleInstances { get; set; } = 25_000;
 
     /// <summary>
     /// How much wider than the camera's own field of view to count ground as visible, in degrees.
@@ -403,8 +445,8 @@ namespace BestiaBehemothClient.Game.World
     /// <remarks>
     /// <b>Quantised because the scale is a material uniform now and no longer a per-instance one</b> - see
     /// <see cref="ScaledMaterial"/> for why it had to stop being one. A continuous per-cell scale would want a
-    /// material per cell, which is thousands; rounding to a step wants one per step - sixteen at
-    /// <see cref="MaxCoverageScale"/>'s default of 1.8, and sixty at the top of its exported range.
+    /// material per cell, which is thousands; rounding to a step wants one per step - thirty-two at
+    /// <see cref="MaxCoverageScale"/>'s default of 2.6, and sixty at the top of its exported range.
     ///
     /// <para>
     /// A twentieth is the coarsest step that is still invisible where it is spent. The compensation only ever
@@ -485,8 +527,9 @@ namespace BestiaBehemothClient.Game.World
     /// <summary>The shared material for each <see cref="ScaleStep"/> above the neutral one.</summary>
     /// <remarks>
     /// Built on demand and then kept, because which steps a session asks for depends on the zoom and on how
-    /// grassy the ground is. Bounded by <see cref="MaxCoverageScale"/> over <see cref="ScaleStep"/> - sixteen
-    /// at the default - so it cannot grow with the size of the world the way a material per cell would.
+    /// grassy the ground is. Bounded by <see cref="MaxCoverageScale"/> over <see cref="ScaleStep"/> -
+    /// thirty-two at the default - so it cannot grow with the size of the world the way a material per cell
+    /// would.
     /// </remarks>
     private readonly Dictionary<int, ShaderMaterial> _scaled = new();
 
@@ -516,6 +559,9 @@ namespace BestiaBehemothClient.Game.World
 
     /// <summary>Where that tint reaches full strength, which is where the geometry ends.</summary>
     private static readonly StringName FieldEndParameter = "grass_field_end";
+
+    /// <summary>The exponent the field is thinning at, so the tint can give way at the same rate.</summary>
+    private static readonly StringName FieldFalloffParameter = "grass_field_falloff";
 
     /// <summary>
     /// Tells the field where the player is, so the level of detail can be measured from them.
@@ -986,7 +1032,7 @@ namespace BestiaBehemothClient.Game.World
       {
         // No field for the ground to match. Published rather than left alone, so the terrain stops being
         // coloured as grass the moment there is no grass on it - on the way out of a scene, say.
-        PublishField(Vector3.Zero, 0.0f, 0.0f);
+        PublishField(Vector3.Zero, 0.0f, 0.0f, 1.0f);
         return;
       }
 
@@ -1002,7 +1048,9 @@ namespace BestiaBehemothClient.Game.World
       var full = FullDensityMetres * band;
       var fade = FadeOutMetres * band;
 
-      PublishField(focus, full, fade);
+      // The exponent the passes below are about to thin with, and not the one the controller will settle on
+      // at the end of this frame: the tint has to describe the field being drawn now, not the next one.
+      PublishField(focus, full, fade, _exponent);
 
       var cosHalfAngle = Mathf.Cos(GrassLod.HalfViewAngle(camera.Fov, ViewAspect(camera), ViewMarginDegrees));
 
@@ -1065,6 +1113,17 @@ namespace BestiaBehemothClient.Game.World
     /// </para>
     ///
     /// <para>
+    /// <b>The exponent goes with the band, and leaving it out is what left a ring anyway.</b> The band says
+    /// where the geometry <i>may</i> reach; <see cref="GrassLod.Sharpen"/> decides how much of it actually
+    /// gets there, and under a tight <see cref="MaxVisibleInstances"/> that is a steep curve rather than a
+    /// gentle one. Ramped linearly over 15 m to 150 m the tint was barely a third applied at 64 m, where an
+    /// exponent of 2.5 has already taken nine tenths of the tufts away - so the ground went bare a long way
+    /// inside the ring the tint was covering, and the grass appeared to grow in as the player walked at it.
+    /// Handing the exponent over lets the shader raise its own ramp to the same power, so the colour arrives
+    /// exactly as fast as the blades leave, at whatever exponent the budget settles on that frame.
+    /// </para>
+    ///
+    /// <para>
     /// <b>Anchored on the player and not on the camera</b>, which is the whole reason these are pushed from
     /// here rather than read off <c>CAMERA_POSITION_WORLD</c> in the shader. The band published is the one the
     /// field is actually drawing at, zoom scaling included, so the tint and the geometry cannot drift apart
@@ -1077,11 +1136,12 @@ namespace BestiaBehemothClient.Game.World
     /// debug shader has a second copy of. Three calls a frame, against a walk over thousands of cells.
     /// </para>
     /// </remarks>
-    private static void PublishField(Vector3 focus, float begin, float end)
+    private static void PublishField(Vector3 focus, float begin, float end, float falloff)
     {
       RenderingServer.GlobalShaderParameterSet(FieldFocusParameter, focus);
       RenderingServer.GlobalShaderParameterSet(FieldBeginParameter, begin);
       RenderingServer.GlobalShaderParameterSet(FieldEndParameter, end);
+      RenderingServer.GlobalShaderParameterSet(FieldFalloffParameter, falloff);
     }
 
     /// <summary>
@@ -1157,9 +1217,9 @@ namespace BestiaBehemothClient.Game.World
     ///
     /// <para>
     /// A material uniform costs nothing from that buffer, and the price of the swap is that the scale has to be
-    /// shared: one material per <see cref="ScaleStep"/> rather than one float per cell. Sixteen at the default
-    /// ceiling, against four thousand slots - and see <see cref="ScaleStep"/> for why the rounding is invisible
-    /// where it is spent.
+    /// shared: one material per <see cref="ScaleStep"/> rather than one float per cell. Thirty-two at the
+    /// default ceiling, against four thousand slots - and see <see cref="ScaleStep"/> for why the rounding is
+    /// invisible where it is spent.
     /// </para>
     ///
     /// <para>
