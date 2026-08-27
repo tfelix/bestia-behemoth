@@ -139,13 +139,29 @@ namespace BestiaBehemothClient.Game.World
     [Export] public float SkySeconds { get; set; } = 5.0f;
 
     /// <summary>
-    /// How long the wind takes to swing round, in seconds.
+    /// How long the wind takes to swing round, in seconds. The bearing only - see <see cref="WindSpeedSeconds"/>.
     /// </summary>
     /// <remarks>
     /// Slower than the sky, because the cloud shadows drift on it: a wind that turned in five seconds would
     /// wheel the whole shadow field round in front of the player.
     /// </remarks>
     [Export] public float WindSeconds { get; set; } = 12.0f;
+
+    /// <summary>
+    /// How long the wind takes to get up, in seconds.
+    /// </summary>
+    /// <remarks>
+    /// A quarter of <see cref="WindSeconds"/>, and the two are separate because they are different events. The
+    /// bearing backing round is weather - slow, and carrying the cloud shadows with it. A gust arriving is
+    /// something the player watches happen, and a meadow that took twelve seconds to notice a squall read as
+    /// the message having been missed rather than as the wind taking its time.
+    ///
+    /// <para>
+    /// Splitting them is also what lets the wind be smoothed in polar form at all, which fixes a fault of its
+    /// own: see <see cref="WindSmoothing"/>.
+    /// </para>
+    /// </remarks>
+    [Export] public float WindSpeedSeconds { get; set; } = 3.0f;
 
     /// <summary>
     /// Ignores the server and renders the weather set below.
@@ -268,9 +284,9 @@ namespace BestiaBehemothClient.Game.World
     /// Which way the weather is going and how fast, in metres per second, in Godot axes.
     /// </summary>
     /// <remarks>
-    /// Smoothed as a vector rather than as a bearing. A wind swinging past due west crosses the wrap in the
-    /// server's radians, and a smoothed angle would take the long way round - wheeling the entire cloud
-    /// shadow field through a half turn in front of the player over the following few seconds.
+    /// Smoothed speed and bearing apart, on <see cref="WindSpeedSeconds"/> and <see cref="WindSeconds"/> - see
+    /// <see cref="WindSmoothing"/> for why the bearing is turned rather than lerped, and for the dead calm
+    /// halfway through a reversal that the vector form used to pass through.
     ///
     /// <para>
     /// The server sends a bearing with zero pointing east and turning counter-clockwise, in its own XY. Y
@@ -472,7 +488,7 @@ namespace BestiaBehemothClient.Game.World
       // Assigned before the publish test below rather than after it, unlike the three that follow: this one is
       // read straight off the property every frame by cloud_shadows.gd, so holding it back on a frame that is
       // not worth publishing would stall the shadow drift rather than merely delay a shader parameter.
-      _wind = ApproachVector(_wind, TargetWind(look), step, WindSeconds);
+      _wind = WindSmoothing.Approach(_wind, TargetWind(look), step, WindSpeedSeconds, WindSeconds);
 
       // Advanced and published every frame, unlike everything below it, because this one is a clock: holding it
       // back on a frame is not a saved round trip but a stalled animation.
@@ -540,12 +556,6 @@ namespace BestiaBehemothClient.Game.World
       var seconds = Mathf.Max(target > value ? riseSeconds : fallSeconds, 0.001f);
 
       return Mathf.Lerp(value, target, 1.0f - Mathf.Exp(-delta / seconds));
-    }
-
-    /// <summary><see cref="Approach"/> componentwise, so a turning wind sweeps rather than wraps.</summary>
-    private static Vector3 ApproachVector(Vector3 value, Vector3 target, float delta, float seconds)
-    {
-      return value.Lerp(target, 1.0f - Mathf.Exp(-delta / Mathf.Max(seconds, 0.001f)));
     }
 
     private void Publish()
