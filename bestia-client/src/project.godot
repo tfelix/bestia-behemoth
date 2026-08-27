@@ -209,3 +209,7 @@ grass_field_end={
 "type": "float",
 "value": 0.0
 }
+grass_field_falloff={
+"type": "float",
+"value": 1.0
+}
