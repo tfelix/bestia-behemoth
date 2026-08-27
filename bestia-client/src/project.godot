@@ -197,3 +197,15 @@ weather_gust_phase={
 "type": "float",
 "value": 0.0
 }
+grass_field_focus={
+"type": "vec3",
+"value": Vector3(0, 0, 0)
+}
+grass_field_begin={
+"type": "float",
+"value": 0.0
+}
+grass_field_end={
+"type": "float",
+"value": 0.0
+}

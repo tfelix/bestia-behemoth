@@ -271,5 +271,263 @@ namespace BestiaBehemothClient.Tests
       // Diagonally off one corner: 3-4-5 in the horizontal plane, and between the faces vertically.
       Assert.Equal(5.0f, GrassLod.DistanceToBox(new Vector3(11.0f, 1.0f, 12.0f), min, max), 4);
     }
+
+    /// <summary>
+    /// The ground the player is standing on is never thinned to pay for the ground at the horizon.
+    /// </summary>
+    /// <remarks>
+    /// <b>The property the whole distance-weighted budget rests on, and the reason it replaced a flat trim.</b>
+    /// A single multiplier across the field coarsened the grass at the player's feet exactly as hard as the
+    /// grass at the fade radius, so reaching further always cost something up close - which is why the radius
+    /// was kept at sixty metres. Sharpening cannot: <c>pow(1, k)</c> is 1 for every k, and
+    /// <see cref="GrassLod.FractionAt"/> returns exactly 1 everywhere inside the full-density band.
+    ///
+    /// <para>
+    /// Stated over the two together rather than over <see cref="GrassLod.Sharpen"/> alone, because it is the
+    /// pair that has to hold: a taper that stopped returning a clean 1 near the player would break this while
+    /// leaving <c>Sharpen</c> itself perfectly correct.
+    /// </para>
+    /// </remarks>
+    [Fact]
+    public void SharpeningNeverThinsTheGroundThePlayerStandsOn()
+    {
+      foreach (var exponent in new[] { 1.0f, 1.5f, 2.3f, 6.0f, 40.0f })
+      {
+        foreach (var distance in new[] { 0.0f, 1.0f, 7.5f, Full })
+        {
+          Assert.Equal(1.0f, GrassLod.Sharpen(GrassLod.FractionAt(distance, Full, Fade), exponent));
+        }
+      }
+    }
+
+    /// <summary>
+    /// Sharpening only ever takes, it takes more the further out a cell is, and it takes more the higher the
+    /// exponent.
+    /// </summary>
+    [Fact]
+    public void SharpeningOnlyEverTakesAndTakesMonotonically()
+    {
+      foreach (var fraction in new[] { 0.9f, 0.5f, 0.2f, 0.05f })
+      {
+        var previous = fraction;
+
+        foreach (var exponent in new[] { 1.0f, 1.5f, 2.0f, 3.0f, 6.0f })
+        {
+          var sharpened = GrassLod.Sharpen(fraction, exponent);
+
+          Assert.InRange(sharpened, 0.0f, previous);
+          previous = sharpened;
+        }
+      }
+    }
+
+    /// <summary>
+    /// An exponent of one is the identity, which is what makes <c>MaxExponent</c> a switch.
+    /// </summary>
+    /// <remarks>
+    /// Turning it to 1 in the inspector gives back the flat <see cref="GrassLod.BudgetTrim"/> exactly, which is
+    /// how the distance weighting is judged against the alternative in the running game.
+    /// </remarks>
+    [Fact]
+    public void AUnitExponentIsTheIdentity()
+    {
+      foreach (var fraction in new[] { 0.0f, 0.05f, 0.5f, 0.99f, 1.0f })
+      {
+        Assert.Equal(fraction, GrassLod.Sharpen(fraction, 1.0f));
+      }
+    }
+
+    /// <summary>An empty cell stays empty, and one past the fade cannot come back.</summary>
+    [Fact]
+    public void AnEmptyCellStaysEmptyAtEveryExponent()
+    {
+      foreach (var exponent in new[] { 1.0f, 2.5f, 6.0f })
+      {
+        Assert.Equal(0.0f, GrassLod.Sharpen(0.0f, exponent));
+        Assert.Equal(0.0f, GrassLod.Sharpen(-1.0f, exponent));
+      }
+    }
+
+    /// <summary>The exponent rises when the field is over budget and falls back when it is under.</summary>
+    [Fact]
+    public void TheExponentRisesOverBudgetAndFallsBackUnderIt()
+    {
+      // Twice the budget, corrected at a half: the square root of two.
+      Assert.Equal(1.4142f, GrassLod.NextExponent(1.0f, 40_000, 20_000, 6.0f, 0.5f), 3);
+
+      // Half the budget, from an exponent of two: the same step, downward.
+      Assert.Equal(1.4142f, GrassLod.NextExponent(2.0f, 10_000, 20_000, 6.0f, 0.5f), 3);
+
+      // Exactly on budget holds still, whatever it is currently at.
+      Assert.Equal(2.5f, GrassLod.NextExponent(2.5f, 20_000, 20_000, 6.0f, 0.5f), 4);
+    }
+
+    /// <summary>The exponent never leaves its bounds, however far off the budget the field is.</summary>
+    /// <remarks>
+    /// Below 1 it would <i>add</i> grass at distance rather than removing it, which is not a state the field
+    /// has any way to pay for. Above the ceiling one pathological frame could empty the far field outright.
+    /// </remarks>
+    [Fact]
+    public void TheExponentStaysInsideItsBounds()
+    {
+      Assert.Equal(1.0f, GrassLod.NextExponent(1.0f, 1, 20_000, 6.0f, 0.5f));
+      Assert.Equal(6.0f, GrassLod.NextExponent(5.0f, 1_000_000, 10_000, 6.0f, 0.5f));
+
+      // A ceiling of 1 pins it, which is the off switch stated as a bound.
+      Assert.Equal(1.0f, GrassLod.NextExponent(3.0f, 100_000, 10_000, 1.0f, 0.5f));
+    }
+
+    /// <summary>No budget, or nothing asking for one, leaves the taper alone.</summary>
+    [Fact]
+    public void AnUnsetBudgetPinsTheExponent()
+    {
+      Assert.Equal(1.0f, GrassLod.NextExponent(3.0f, 40_000, 0, 6.0f, 0.5f));
+      Assert.Equal(1.0f, GrassLod.NextExponent(3.0f, 0, 20_000, 6.0f, 0.5f));
+    }
+
+    /// <summary>A response of zero holds the exponent wherever it is.</summary>
+    [Fact]
+    public void AZeroResponsePinsTheExponent()
+    {
+      Assert.Equal(2.5f, GrassLod.NextExponent(2.5f, 90_000, 18_000, 6.0f, 0.0f), 4);
+    }
+
+    /// <summary>
+    /// The controller actually converges on a field that fits, rather than merely stepping in the right
+    /// direction.
+    /// </summary>
+    /// <remarks>
+    /// A stand-in field whose count falls as one over the exponent, which has a fixed point at 2.78 for this
+    /// budget. What is being pinned is that repeated application settles there instead of ringing or walking
+    /// off to the ceiling - the reason nothing else in the loop smooths.
+    /// </remarks>
+    [Fact]
+    public void TheExponentSettlesOnAFieldThatFits()
+    {
+      const int Budget = 18_000;
+
+      var exponent = 1.0f;
+      var wanted = 0;
+
+      for (var frame = 0; frame < 40; frame++)
+      {
+        wanted = (int)(50_000.0f / exponent);
+        exponent = GrassLod.NextExponent(exponent, wanted, Budget, 6.0f, 0.5f);
+      }
+
+      Assert.InRange(wanted, (int)(Budget * 0.95f), (int)(Budget * 1.05f));
+      Assert.InRange(exponent, 1.0f, 6.0f);
+    }
+
+    /// <summary>
+    /// The wedge follows the shape of the viewport, because Godot only stores the vertical angle.
+    /// </summary>
+    /// <remarks>
+    /// <c>Camera3D.Fov</c> is vertical under the default Keep Height, so the spring arm camera's 65 degrees is
+    /// 97 across a 16:9 screen and more than that on an ultrawide. A hard-coded wedge would thin the field on
+    /// exactly the monitors that show the most of it.
+    /// </remarks>
+    [Fact]
+    public void TheWedgeFollowsTheViewportShape()
+    {
+      var wide = Mathf.RadToDeg(GrassLod.HalfViewAngle(65.0f, 16.0f / 9.0f, 0.0f));
+      var square = Mathf.RadToDeg(GrassLod.HalfViewAngle(65.0f, 1.0f, 0.0f));
+
+      Assert.Equal(48.56f, wide, 1);
+      Assert.Equal(32.5f, square, 1);
+      Assert.True(wide > square);
+
+      // The margin is added on top, in degrees.
+      Assert.Equal(square + 20.0f, Mathf.RadToDeg(GrassLod.HalfViewAngle(65.0f, 1.0f, 20.0f)), 1);
+    }
+
+    /// <summary>
+    /// A margin of 180 saturates the wedge at the whole disc rather than wrapping past it.
+    /// </summary>
+    /// <remarks>
+    /// <b>The clamp is what makes the off switch exact.</b> Without it a half-angle of 228 degrees has a cosine
+    /// of -0.66, so ground directly behind the player - at a dot product of -1 - would fall back <i>out</i> of a
+    /// wedge that was meant to be everything, and turning the feature off would thin the field instead.
+    /// </remarks>
+    [Fact]
+    public void AFullMarginCountsEverything()
+    {
+      var half = GrassLod.HalfViewAngle(65.0f, 16.0f / 9.0f, 180.0f);
+
+      Assert.Equal(Mathf.Pi, half, 4);
+      Assert.Equal(-1.0f, Mathf.Cos(half), 4);
+
+      var behind = new Vector3(0.0f, 0.0f, 40.0f);
+
+      Assert.True(GrassLod.InView(behind, Vector3.Zero, new Vector3(0.0f, 0.0f, -1.0f), Mathf.Cos(half), 0.0f));
+    }
+
+    /// <summary>A viewport or a field of view that measures nothing counts every cell.</summary>
+    /// <remarks>
+    /// Fails open, like the rest of this: the failure of the measurement is a field that goes thin, and
+    /// counting too much only spends a little of the budget.
+    /// </remarks>
+    [Fact]
+    public void ADegenerateViewportCountsEverything()
+    {
+      Assert.Equal(Mathf.Pi, GrassLod.HalfViewAngle(65.0f, 0.0f, 20.0f), 4);
+      Assert.Equal(Mathf.Pi, GrassLod.HalfViewAngle(65.0f, -1.0f, 20.0f), 4);
+      Assert.Equal(Mathf.Pi, GrassLod.HalfViewAngle(0.0f, 1.778f, 20.0f), 4);
+    }
+
+    /// <summary>
+    /// Ground ahead of the camera competes for the budget and ground behind it does not.
+    /// </summary>
+    /// <remarks>
+    /// The whole point of the wedge. Godot culls the grass behind the player for the price of one bounds test,
+    /// but it was still being counted when the field totalled what it wanted - so the grass on screen was
+    /// thinned to pay for grass nobody can see.
+    /// </remarks>
+    [Fact]
+    public void GroundAheadIsCountedAndGroundBehindIsNot()
+    {
+      var eye = Vector3.Zero;
+      var forward = new Vector3(0.0f, 0.0f, -1.0f);
+      var cos = Mathf.Cos(Mathf.DegToRad(60.0f));
+
+      Assert.True(GrassLod.InView(new Vector3(0.0f, 0.0f, -50.0f), eye, forward, cos, 0.0f));
+      Assert.True(GrassLod.InView(new Vector3(40.0f, 0.0f, -50.0f), eye, forward, cos, 0.0f));
+
+      Assert.False(GrassLod.InView(new Vector3(0.0f, 0.0f, 50.0f), eye, forward, cos, 0.0f));
+      Assert.False(GrassLod.InView(new Vector3(50.0f, 0.0f, 0.0f), eye, forward, cos, 0.0f));
+
+      // Height is not part of the test: the field is a layer on the ground and the camera pitches onto it, so
+      // the bearing is the whole of what separates on screen from behind.
+      Assert.True(GrassLod.InView(new Vector3(0.0f, 30.0f, -50.0f), eye, forward, cos, 0.0f));
+    }
+
+    /// <summary>
+    /// Ground close to the eye is counted whatever its bearing, because it is still in front of the player.
+    /// </summary>
+    /// <remarks>
+    /// The wedge is measured from the camera, which sits metres behind the character on the spring arm - so
+    /// ground beside and even a little behind the eye is plainly on screen. That radius is the zoom, which is
+    /// why <c>TerrainGrass</c> derives it rather than exporting it.
+    /// </remarks>
+    [Fact]
+    public void GroundBesideTheEyeIsCountedWhateverItsBearing()
+    {
+      var eye = Vector3.Zero;
+      var forward = new Vector3(0.0f, 0.0f, -1.0f);
+      var cos = Mathf.Cos(Mathf.DegToRad(60.0f));
+
+      Assert.True(GrassLod.InView(new Vector3(0.0f, 0.0f, 10.0f), eye, forward, cos, 20.0f));
+      Assert.False(GrassLod.InView(new Vector3(0.0f, 0.0f, 30.0f), eye, forward, cos, 20.0f));
+    }
+
+    /// <summary>A camera with no bearing at all - looking straight down - counts every cell.</summary>
+    [Fact]
+    public void ACameraWithNoBearingCountsEverything()
+    {
+      var cos = Mathf.Cos(Mathf.DegToRad(60.0f));
+
+      Assert.True(GrassLod.InView(new Vector3(0.0f, 0.0f, 50.0f), Vector3.Zero, Vector3.Down, cos, 0.0f));
+      Assert.True(GrassLod.InView(new Vector3(0.0f, 0.0f, 50.0f), Vector3.Zero, Vector3.Zero, cos, 0.0f));
+    }
   }
 }

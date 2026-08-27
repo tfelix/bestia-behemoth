@@ -43,7 +43,9 @@
 // this number; anything that changes it changes the vertex format anyway.
 
 // Slot ordinals the shader itself has to name. Everything else it treats as opaque, which is the point of the
-// encoding - but slope has to know what rock is, and weather has to know what snow is.
+// encoding - but slope has to know what rock is, weather has to know what snow is, and the far-field
+// correction at the bottom of terrain_surface has to know what grass is.
+const int TERRAIN_SLOT_GRASS = 1;
 const int TERRAIN_SLOT_ROCK = 5;
 const int TERRAIN_SLOT_SNOW = 6;
 
@@ -196,6 +198,45 @@ uniform vec3 snow_colour : source_color = vec3(0.92, 0.94, 0.96);
 
 // Above this, snow does not lie however hard it falls.
 uniform float snow_melt_celsius : hint_range(-20.0, 20.0) = 1.0;
+
+group_uniforms;
+
+group_uniforms Grass;
+
+// What the decorative grass field is, as a per-channel correction on the ground it grows out of.
+//
+// The colour a field of tufts averages to, divided by the colour the GRASS slot averages to on its own.
+// Applied where the geometry has thinned out, so the ground carries the field's colour past where the field
+// itself stops - see the block at the bottom of terrain_surface for why an edge that loses its blades is far
+// less visible than one that changes colour.
+//
+// A correction and not a colour, which is exactly what `correction` above is and for the same reason: a
+// multiply moves the average of the ground while leaving its own variation intact, where a mix toward a
+// constant would flatten a hundred metres of terrain to one flat green.
+//
+// **A cross-file coupling, and there is no way for it not to be one.** The numerator is authored in grass.tres
+// (`color`, `color2`) and in TerrainGrass (`Density`, `Height`); the denominator is BlockAppearance's GRASS
+// palette entry; none of the three knows this exists. The default is what those worked out to when it was
+// written, for a field covering about three quarters of its ground - and it is meant to be judged by eye
+// against the horizon rather than recomputed.
+//
+// **White is the off switch**, since a correction of one changes nothing. That is how this is A/B'd against
+// the field in the running editor.
+uniform vec3 grass_field_correction : source_color = vec3(0.43, 0.62, 0.35);
+
+// Where the grass field is centred, how far out it is still at full density, and where its last tuft stands.
+//
+// Published every frame by `TerrainGrass.PublishField` and declared in project.godot's [shader_globals], which
+// is also what gives them a value in the editor while there is no game running - the arrangement
+// `weather_wind` already has. That default is a zero-width band, which the ramp below reads as no field at all.
+//
+// Centred on the **player** and never on the camera, which is the whole reason these are pushed in rather than
+// worked out here from CAMERA_POSITION_WORLD. The field measures its own level of detail from the player, so
+// anything measuring it from the eye drifts away from it by the length of the spring arm every time the player
+// zooms out - and the ring this exists to hide would come back, only now it would slide about.
+global uniform vec3 grass_field_focus;
+global uniform float grass_field_begin;
+global uniform float grass_field_end;
 
 group_uniforms;
 
@@ -494,6 +535,29 @@ TerrainSurface terrain_surface(vec3 tint) {
 	vec3 albedo = share0 * sample0.albedo + share1 * sample1.albedo;
 
 	albedo *= mix(vec3(1.0), correction, tint_strength);
+
+	// THE FAR FIELD: ground that grass stands on, drawn as grass long after the grass itself has stopped.
+	//
+	// TerrainGrass draws real tufts out to `grass_field_end` and nothing past it, while there is terrain to
+	// about 176 m and the fog does not finish closing until 220. The blades going is not what made that edge
+	// visible: the field's albedo is a dark saturated green and the bare grass texture is a much lighter one,
+	// so where the geometry stopped the ground changed *colour*, in a ring, at whatever radius the fade
+	// happened to sit at. A step in colour reads at any distance; a step in grain does not.
+	//
+	// Keyed on the grass weight *after* the cliff shed above, so a grassy slope too steep to grow a tuft on is
+	// also too steep to be tinted like one - MinUpright and cliff_start very nearly agree, which is worth
+	// keeping that way. DRY_GRASS is deliberately excluded, because TerrainGrass does not scatter on it either.
+	//
+	// Applied before the snow and wetness below, so far grass still darkens in rain and is still buried by
+	// snow rather than showing through it.
+	//
+	// smoothstep clamps, so past `grass_field_end` the correction is at full strength and stays there to the
+	// horizon. That is right rather than merely convenient: past the field, the ground is all there is.
+	float grass_far = grass_field_end > grass_field_begin
+		? smoothstep(grass_field_begin, grass_field_end, distance(v_world_pos, grass_field_focus))
+		: 0.0;
+
+	albedo *= mix(vec3(1.0), grass_field_correction, weights[TERRAIN_SLOT_GRASS] * grass_far);
 
 	// Normals from the two slots are already in world space, so blending them is a plain interpolation. It is
 	// only within one slot that the three projections needed reorienting first.
