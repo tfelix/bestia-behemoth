@@ -292,18 +292,21 @@ spring:
 # A different port from `socket.port` above so the two can be firewalled and load-balanced apart: tiles are
 # cacheable public-ish assets that a CDN could reasonably sit in front of, and the game socket is neither.
 #
-# Deliberately *not* pinned to an address. This was `address: 127.0.0.1`, and the cost was a map that took
-# thirty seconds per tile: Godot's `IP.resolve_hostname` answers `localhost` with `::1` first, and a Tomcat
-# bound to an IPv4 literal has nothing listening there, so every request paid a failover before it finally
-# succeeded. No single address covers both loopback families, so serving both means the wildcard - which is
-# what `login-server` already does, and is why its `localhost` URL was always fast.
+# Pinned to the IPv4 loopback: the tile endpoint is then unreachable from off-box without a tunnel, the same
+# stance `socket.ip-address` takes for the game socket.
 #
-# The price is that the port is no longer loopback-only. Keep it off a public interface with a firewall
-# rather than with this line: pinning it here breaks any client that resolves the host to AAAA first, and it
-# does so silently, as a slow map rather than as a refused connection. The game socket gets away with
-# `socket.ip-address: 127.0.0.1` only because `BnetSocket.cs` uses .NET's `TcpClient.Connect(host, port)`,
-# which tries every resolved address instead of only the first.
+# The pin holds only because every client spells the host as an IPv4 literal. `server.address` takes exactly
+# one address and Spring has no list form, so nothing is listening on `::1` - and a client that resolves
+# `localhost` to AAAA first does not fail, it *stalls*, paying a connect timeout per tile. That reads as a
+# map filling in one row every half minute rather than as a connection problem, which is what makes it
+# expensive to find. Godot's `HTTPRequest` tries exactly one resolved address, so
+# `SettingsManager.map_server_url` says `http://127.0.0.1:8091` and has to keep saying it; `BnetSocket.cs`
+# is immune to the same trap only because .NET's `TcpClient.Connect(host, port)` tries all of them.
+#
+# Serving both loopback families needs a second Tomcat connector from a `WebServerFactoryCustomizer` - there
+# is no property for it. Widen to the wildcard and firewall the port if a client ever has to say `localhost`.
 server:
+  address: 127.0.0.1
   port: 8091
 
 cartography:

@@ -10,11 +10,13 @@ var login_server_url = "http://localhost:8080"
 # traffic with their own caching, and the two are meant to be firewalled and scaled apart. See
 # `zone-server/src/main/resources/application.yml`.
 #
-# An IPv4 literal rather than `localhost`, and that is not cosmetic. [HTTPRequest] resolves one address and
-# Godot answers `localhost` with `::1` first, so against a server not listening on IPv6 every single tile
-# request pays a thirty-second failover - which reads as a map that fills in one row of tiles every half
-# minute, not as a connection problem. [BnetSocket] is immune to the same trap because .NET's `TcpClient`
+# An IPv4 literal rather than `localhost`, and it is load-bearing rather than cosmetic: `server.address` in
+# that file pins Tomcat to 127.0.0.1, so nothing answers on `::1` at all. Godot resolves `localhost` to `::1`
+# first and [HTTPRequest] tries exactly one resolved address, so the wrong spelling here would not fail -
+# every tile request would pay a connect timeout, which reads as a map filling in one row every half minute
+# rather than as a connection problem. [BnetSocket] is immune to the same trap because .NET's `TcpClient`
 # tries every resolved address; [HTTPRequest] does not, so the map is the one place the spelling matters.
+# This line and `server.address` move together or not at all.
 var map_server_url = "http://127.0.0.1:8091"
 
 # Distance (world units) within which the mouse's ground position must be from an
