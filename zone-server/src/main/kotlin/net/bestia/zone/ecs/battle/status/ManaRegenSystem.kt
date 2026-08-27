@@ -1,6 +1,7 @@
 package net.bestia.zone.ecs.battle.status
 
 import net.bestia.zone.battle.status.RegenerationCalculator
+import net.bestia.zone.ecs.battle.damage.Dead
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.System
@@ -24,12 +25,15 @@ class ManaRegenSystem(
   override val reads: ComponentClassSet = setOf(
     StatusValues::class,
     InCombat::class,
+    Dead::class,
     RegenerationModifiers::class
   )
   override val writes: ComponentClassSet = setOf(Mana::class)
 
   override fun update(world: World, deltaTime: Float) {
     world.query(Mana::class).each { id ->
+      // Nothing regenerates while dead - see HpRegenSystem.
+      if (world.has(id, Dead::class)) return@each
       if (world.has(id, InCombat::class)) return@each
 
       val mana = get<Mana>()

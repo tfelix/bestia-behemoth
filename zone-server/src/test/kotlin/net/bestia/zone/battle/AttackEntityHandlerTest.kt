@@ -7,6 +7,7 @@ import net.bestia.zone.ecs.battle.status.StatusValues
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.testWorld
+import net.bestia.zone.ecs.battle.damage.DeadActionGuard
 import net.bestia.zone.ecs.logout.LogoutCancelService
 import net.bestia.zone.ecs.logout.LogoutIntent
 import net.bestia.zone.ecs.movement.Position
@@ -43,6 +44,7 @@ class AttackEntityHandlerTest {
         mockk(relaxed = true)
       ),
       logoutCancelService = LogoutCancelService(world),
+      deadActionGuard = DeadActionGuard(world),
     )
   }
 

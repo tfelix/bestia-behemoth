@@ -42,7 +42,7 @@ class AreaEffectSystemTest {
     val id = world.createEntity { entityId ->
       add(entityId, Position.fromVec3(position))
       add(entityId, Health(current = 500, max = 500))
-      if (dead) add(entityId, Dead)
+      if (dead) add(entityId, Dead())
     }
     aoi.setEntityPosition(id, position)
     return id

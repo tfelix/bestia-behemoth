@@ -94,7 +94,7 @@ class MasterEntitySpawner(
       add(id, MasterComponent(master.id, master.name))
       add(id, Position.fromVec3(master.currentPosition))
       add(id, Level(master.level))
-      add(id, Exp(0, levelUpExpCalculator.getRequiredExperience(master.level)))
+      add(id, Exp(master.exp, levelUpExpCalculator.getRequiredExperience(master.level)))
       add(id, Speed())
       add(id, KnownSkills(learnedSkillIds.toMutableMap()))
       add(id, SkillPoints(master.skillPoints))
@@ -141,7 +141,9 @@ class MasterEntitySpawner(
       val maxStamina = conditionValueCalculator.computeMaxStamina(
         master.level, baseStatusValues.vitality, baseStatusValues.strength, baseStatusValues.willpower
       )
-      add(id, Health(current = maxHp, max = maxHp))
+      // Coerced to at least 1: a master must never materialise already dead, with no way back out.
+      // Null is a row written before the column existed, and enters the world at full.
+      add(id, Health(current = master.currentHealth?.coerceIn(1, maxHp) ?: maxHp, max = maxHp))
       add(id, Mana(current = maxMana, max = maxMana))
       add(id, Stamina(current = maxStamina, max = maxStamina))
       add(id, FormulaDrivenVitals)

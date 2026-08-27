@@ -1,6 +1,7 @@
 package net.bestia.zone.ecs.battle.status
 
 import net.bestia.zone.battle.status.RegenerationCalculator
+import net.bestia.zone.ecs.battle.damage.Dead
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.System
@@ -31,11 +32,16 @@ class StaminaRegenSystem(
 ) : System {
 
   override val schedule: Schedule = Schedule.EverySeconds(10f)
-  override val reads: ComponentClassSet = setOf(StatusValues::class, RegenerationModifiers::class)
+  override val reads: ComponentClassSet =
+    setOf(StatusValues::class, Dead::class, RegenerationModifiers::class)
   override val writes: ComponentClassSet = setOf(Stamina::class)
 
   override fun update(world: World, deltaTime: Float) {
     world.query(Stamina::class).each { id ->
+      // Nothing regenerates while dead - see HpRegenSystem. This gate is about death, not combat,
+      // so it applies here even though the InCombat one deliberately does not.
+      if (world.has(id, Dead::class)) return@each
+
       val stamina = get<Stamina>()
       if (stamina.current >= stamina.max) return@each
 

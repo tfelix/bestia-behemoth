@@ -25,6 +25,7 @@ import net.bestia.zone.item.inventory.GetInventoryCMSG
 import net.bestia.zone.item.loot.LootItemCMSG
 import net.bestia.zone.item.UseItemCMSG
 import net.bestia.zone.ecs.logout.RequestLogoutCMSG
+import net.bestia.zone.ecs.respawn.RespawnCMSG
 import net.bestia.zone.party.AcceptPartyInviteCMSG
 import net.bestia.zone.party.DeclinePartyInviteCMSG
 import net.bestia.zone.trade.AnswerTradeRequestCMSG
@@ -77,6 +78,7 @@ class BnetMessageProcessorAdapter(
       envelope.hasEquipItem() -> EquipItemCMSG.Companion.fromBnet(accountId, envelope.equipItem)
       envelope.hasUnequipItem() -> UnequipItemCMSG.Companion.fromBnet(accountId, envelope.unequipItem)
       envelope.hasRequestLogout() -> RequestLogoutCMSG.Companion.fromBnet(accountId, envelope.requestLogout)
+      envelope.hasRespawn() -> RespawnCMSG.Companion.fromBnet(accountId, envelope.respawn)
       envelope.hasAcceptPartyInvite() -> AcceptPartyInviteCMSG.fromBnet(accountId, envelope.acceptPartyInvite)
       envelope.hasDeclinePartyInvite() -> DeclinePartyInviteCMSG.fromBnet(accountId, envelope.declinePartyInvite)
       envelope.hasChunkRequest() -> ChunkRequestCMSG.fromBnet(accountId, envelope.chunkRequest)

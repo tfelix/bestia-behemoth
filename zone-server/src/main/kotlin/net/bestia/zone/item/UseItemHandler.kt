@@ -1,6 +1,7 @@
 package net.bestia.zone.item
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.zone.ecs.battle.damage.DeadActionGuard
 import net.bestia.zone.ecs.core.AsyncJobExecutor
 import net.bestia.zone.ecs.item.Inventory
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
@@ -18,6 +19,7 @@ class UseItemHandler(
   private val connectionInfoService: ConnectionInfoService,
   private val inventoryService: InventoryService,
   private val asyncJobExecutor: AsyncJobExecutor,
+  private val deadActionGuard: DeadActionGuard,
   private val world: WorldView
 ) : InMessageProcessor.IncomingMessageHandler<UseItemCMSG> {
   override val handles = UseItemCMSG::class
@@ -39,6 +41,10 @@ class UseItemHandler(
 
     // Get the currently selected entity for this player
     val activeEntityId = connectionInfoService.getActiveEntityId(msg.playerId)
+
+    if (deadActionGuard.refuses(activeEntityId, "use an item")) {
+      return true
+    }
 
     // Access the entity and verify inventory ownership
     val consumed = world.modify(activeEntityId) { id ->

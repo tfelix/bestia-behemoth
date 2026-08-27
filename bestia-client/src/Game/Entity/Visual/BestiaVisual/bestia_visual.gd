@@ -68,6 +68,18 @@ func update_animation(msg: AnimationComponentSMSG) -> void:
 	_anim_player.play(clip)
 
 
+## An owned bestia that dies keeps its body, so unlike [method vanish] this plays the death clip and
+## simply lets it end - AnimationPlayer holds the final pose, which is the creature on the ground.
+## Wild mobs never get here: they are destroyed on death and take the vanish path instead.
+func set_dead(dead: bool) -> void:
+	_anim_player.clear_queue()
+
+	if dead:
+		_anim_player.play("death")
+	else:
+		_anim_player.play(_IDLE_ANIM)
+
+
 func vanish(msg: VanishEntitySMSG) -> void:
 	_health_bar.visible = false
 	_cast_bar.clear_casting()

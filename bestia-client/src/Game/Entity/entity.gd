@@ -75,6 +75,12 @@ var _health: ConditionPool = null
 var _mana: ConditionPool = null
 var _stamina: ConditionPool = null
 
+# True while this entity is lying dead awaiting a respawn (server-driven via DeadComponentSMSG,
+# cleared by one with Removed = true). Player-owned bodies only - a wild mob is destroyed outright
+# and arrives as a vanish instead. Gates the local walk/idle animation heuristic, which would
+# otherwise overwrite the death pose on the very next frame.
+var _is_dead: bool = false
+
 # True while this entity is channelling a skill (server-driven via CastingComponentSMSG, cleared by
 # a CastingComponentSMSG with Removed = true). For the owned entity this also gates movement input,
 # since moving cancels the cast server-side.
@@ -139,6 +145,10 @@ func _process(delta: float) -> void:
 
 
 func _update_movement(delta: float) -> void:
+	# A corpse neither walks nor idles; its pose belongs to the visual until it gets back up.
+	if _is_dead:
+		return
+
 	if not _is_moving or _nodes.size() < 2 or _speed <= 0.0:
 		if not _has_reset_walk_anim:
 			_has_reset_walk_anim = true
@@ -435,10 +445,36 @@ func update_speed(msg: SpeedComponentSMSG) -> void:
 		_is_moving = false
 
 
+## Lying dead, or back on its feet. Also stops the local walk/idle heuristic in _update_movement,
+## which would otherwise replace the death pose on the next frame.
+func update_dead(msg: DeadComponentSMSG) -> void:
+	_is_dead = not msg.Removed
+
+	# Going down interrupts a walk: the server keeps the body where it fell, so any predicted path
+	# left over here would drag the model off the corpse.
+	if _is_dead:
+		_is_moving = false
+		_has_reset_walk_anim = false
+
+	var visual = get_node_or_null(_VISUAL_NODE_NAME)
+	if visual != null and visual.has_method("set_dead"):
+		visual.set_dead(_is_dead)
+
+
+## Whether this entity is a body waiting to respawn.
+func is_dead() -> bool:
+	return _is_dead
+
+
 ## This is only used if you play an enum. Other animations are often indirectly 
 ## sourced from the current action. For example if an entity is activly moving 
 ## it automatically played the move animation. This avoids server desyncs.
 func update_animation(msg: AnimationComponentSMSG) -> void:
+	# Same reason _update_movement bails while dead: the death pose outranks idle/walk/sleep, and the
+	# server may still have one in flight from the tick the entity went down.
+	if _is_dead:
+		return
+
 	print_debug("Entity: %s set animation: %s" % [msg.Kind, entity_id])
 	var visual = _get_visual_for_method("update_animation")
 	if visual != null:

@@ -27,6 +27,7 @@ func _ready() -> void:
 	_countdown.visible = false
 
 	$Menu/CenterContainer/PanelContainer/VBoxContainer/ContinueButton.pressed.connect(_hide_menu)
+	$Menu/CenterContainer/PanelContainer/VBoxContainer/RespawnButton.pressed.connect(_on_respawn_pressed)
 	$Menu/CenterContainer/PanelContainer/VBoxContainer/MasterSelectButton.pressed.connect(_on_master_select_pressed)
 	$Menu/CenterContainer/PanelContainer/VBoxContainer/DisconnectButton.pressed.connect(_on_disconnect_pressed)
 	$Menu/CenterContainer/PanelContainer/VBoxContainer/ExitGameButton.pressed.connect(_on_exit_pressed)
@@ -36,6 +37,12 @@ func _ready() -> void:
 	ConnectionManager.logout_countdown_received.connect(_on_logout_countdown)
 	ConnectionManager.logout_cancelled.connect(_on_logout_cancelled)
 	ConnectionManager.entity_received.connect(_on_entity_received)
+
+	# The death window owns the dead state; this button is only the way back to it after the player
+	# dismissed it, so it is hidden whenever there is nothing to respawn from.
+	var death := get_parent().get_node_or_null("Death")
+	if death != null:
+		death.dead_state_changed.connect(_on_dead_state_changed)
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -63,6 +70,17 @@ func _hide_menu() -> void:
 
 
 # --- Menu button handlers: pick an action, then start the protected logout. ---
+
+func _on_respawn_pressed() -> void:
+	_hide_menu()
+	var death := get_parent().get_node_or_null("Death")
+	if death != null:
+		death.reopen()
+
+
+func _on_dead_state_changed(is_dead: bool) -> void:
+	$Menu/CenterContainer/PanelContainer/VBoxContainer/RespawnButton.visible = is_dead
+
 
 func _on_master_select_pressed() -> void:
 	_begin_logout(PendingAction.MASTER_SELECT)

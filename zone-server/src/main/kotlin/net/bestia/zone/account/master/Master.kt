@@ -140,6 +140,17 @@ class Master(
       field = value
     }
 
+  /**
+   * Hit points this master last left the world with, or null to enter it at full.
+   *
+   * Nullable because the schema is `ddl-auto: update` against a live database: every row written
+   * before this column existed reads back as null, and "as many as it had" is not an answer for
+   * those. Null is also what a master that died and logged out does *not* get - that one is stored
+   * as 1, next to its save point, so leaving while dead resolves the respawn rather than dodging it.
+   */
+  @Column(name = "current_health")
+  var currentHealth: Int? = null
+
   @OneToMany(mappedBy = "master", cascade = [CascadeType.ALL], orphanRemoval = true)
   val learnedSkills: MutableSet<LearnedSkill> = mutableSetOf()
 

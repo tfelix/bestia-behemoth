@@ -1,6 +1,7 @@
 package net.bestia.zone.ecs.battle.status
 
 import net.bestia.zone.battle.status.RegenerationCalculator
+import net.bestia.zone.ecs.battle.damage.Dead
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.System
@@ -24,12 +25,16 @@ class HpRegenSystem(
   override val reads: ComponentClassSet = setOf(
     StatusValues::class,
     InCombat::class,
+    Dead::class,
     RegenerationModifiers::class
   )
   override val writes: ComponentClassSet = setOf(Health::class)
 
   override fun update(world: World, deltaTime: Float) {
     world.query(Health::class).each { id ->
+      // A player body lies dead until it respawns, and InCombat lapses after ten seconds - without
+      // this the corpse would quietly heal itself back to full while still tagged Dead.
+      if (world.has(id, Dead::class)) return@each
       if (world.has(id, InCombat::class)) return@each
 
       val health = get<Health>()

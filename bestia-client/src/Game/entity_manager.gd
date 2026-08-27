@@ -157,6 +157,8 @@ func _on_entity_message_received(msg: EntitySMSG) -> void:
 	elif msg is ExpComponentSMSG:
 		# no handling so far
 		pass
+	elif msg is DeadComponentSMSG:
+		entity.update_dead(msg)
 	elif msg is HealthComponentSMSG:
 		entity.update_health(msg)
 	elif msg is ManaComponentSMSG:

@@ -44,6 +44,7 @@ class PlayerBestiaFactory(
 
     val pb = master.addPlayerBestia(bestia, playerBestiaPolicy)
     pb.position = playerBestiaCreateData.spawnPosition
+    pb.spawnPosition = playerBestiaCreateData.spawnPosition
 
     return playerBestiaRepository.save(pb)
   }
