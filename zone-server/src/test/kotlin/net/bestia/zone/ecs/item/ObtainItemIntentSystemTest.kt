@@ -18,6 +18,7 @@ import net.bestia.zone.item.loot.LootItemEntitySpawner
 import net.bestia.zone.util.EntityId
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -35,8 +36,8 @@ class ObtainItemIntentSystemTest {
   // behavior under test, so it should actually run off-thread instead of being stubbed away.
   private val asyncJobExecutor = AsyncJobExecutor(workerCount = 1)
 
-  private val sword = Item(id = 1L, identifier = "sword", weight = 10, type = Item.ItemType.ETC)
-  private val boulder = Item(id = 2L, identifier = "boulder", weight = 1000, type = Item.ItemType.ETC)
+  private val sword = Item(id = 1L, identifier = "sword", weight = 120, type = Item.ItemType.ETC)
+  private val boulder = Item(id = 2L, identifier = "boulder", weight = 5000, type = Item.ItemType.ETC)
 
   private lateinit var world: World
 
@@ -80,7 +81,7 @@ class ObtainItemIntentSystemTest {
   fun `create item intent adds the item to the ecs inventory and persists it asynchronously`() {
     setUp()
     stub(sword)
-    val entity = createCarrier(capacityMax = 100)
+    val entity = createCarrier(capacityMax = 2475)
 
     world.modify(entity) { id -> add(id, ObtainItemIntent.CreateItemIntent(itemId = sword.id, amount = 3)) }
     world.tick(0.1f)
@@ -97,7 +98,7 @@ class ObtainItemIntentSystemTest {
   fun `create item intent drops the item on the ground instead when it would exceed carry capacity`() {
     setUp()
     stub(boulder)
-    val entity = createCarrier(capacityMax = 5, pos = Vec3L(3, 4, 0))
+    val entity = createCarrier(capacityMax = 50, pos = Vec3L(3, 4, 0))
 
     world.modify(entity) { id -> add(id, ObtainItemIntent.CreateItemIntent(itemId = boulder.id, amount = 1)) }
     world.tick(0.1f)
@@ -135,7 +136,7 @@ class ObtainItemIntentSystemTest {
   fun `create item intent for an unknown item is ignored without touching the inventory`() {
     setUp()
     every { itemRepository.findById(999L) } returns Optional.empty()
-    val entity = createCarrier(capacityMax = 100)
+    val entity = createCarrier(capacityMax = 2475)
 
     world.modify(entity) { id -> add(id, ObtainItemIntent.CreateItemIntent(itemId = 999L, amount = 1)) }
     world.tick(0.1f)
@@ -150,7 +151,7 @@ class ObtainItemIntentSystemTest {
   fun `loot item intent within range grants the item and destroys the ground stack`() {
     setUp()
     stub(sword)
-    val looter = createCarrier(capacityMax = 100, pos = Vec3L(0, 0, 0))
+    val looter = createCarrier(capacityMax = 2475, pos = Vec3L(0, 0, 0))
     val groundStack = world.createEntity { id ->
       add(id, Position.fromVec3(Vec3L(0, 0, 0)))
       add(id, GroundItemStack(itemId = sword.id, amount = 2))
@@ -172,7 +173,7 @@ class ObtainItemIntentSystemTest {
   fun `loot item intent re-attaches a unique instance carrying its unique id`() {
     setUp()
     stub(sword)
-    val looter = createCarrier(capacityMax = 100, pos = Vec3L(0, 0, 0))
+    val looter = createCarrier(capacityMax = 2475, pos = Vec3L(0, 0, 0))
     val groundStack = world.createEntity { id ->
       add(id, Position.fromVec3(Vec3L(0, 0, 0)))
       add(id, GroundItemStack(itemId = sword.id, amount = 1, uniqueId = 77L))
@@ -189,7 +190,7 @@ class ObtainItemIntentSystemTest {
   @Test
   fun `loot item intent out of range leaves the ground stack untouched`() {
     setUp()
-    val looter = createCarrier(capacityMax = 100, pos = Vec3L(0, 0, 0))
+    val looter = createCarrier(capacityMax = 2475, pos = Vec3L(0, 0, 0))
     val groundStack = world.createEntity { id ->
       add(id, Position.fromVec3(Vec3L(100, 100, 0)))
       add(id, GroundItemStack(itemId = sword.id, amount = 2))
@@ -207,7 +208,7 @@ class ObtainItemIntentSystemTest {
   fun `loot item intent over capacity leaves the ground stack untouched instead of losing it`() {
     setUp()
     stub(boulder)
-    val looter = createCarrier(capacityMax = 5, pos = Vec3L(0, 0, 0))
+    val looter = createCarrier(capacityMax = 50, pos = Vec3L(0, 0, 0))
     val groundStack = world.createEntity { id ->
       add(id, Position.fromVec3(Vec3L(0, 0, 0)))
       add(id, GroundItemStack(itemId = boulder.id, amount = 1))
@@ -220,6 +221,60 @@ class ObtainItemIntentSystemTest {
     assertTrue(world.get(looter, Inventory::class)!!.isEmpty())
     assertFalse(world.has(looter, ObtainItemIntent.LootItemIntent::class))
     verifyNoItemGranted()
+  }
+
+  /**
+   * The gate used to read `CarryCapacity.current`, which nothing wrote after spawn - so it stayed at the
+   * weight the entity logged in with and a session had no carry limit at all. The state below is what an
+   * hour of looting produced: a full inventory behind a `current` that never moved.
+   */
+  @Test
+  fun `the capacity gate reads the live inventory, not the last synced current`() {
+    setUp()
+    stub(sword)
+    val entity = createCarrier(capacityMax = 500, pos = Vec3L(7, 8, 0))
+    world.get(entity, Inventory::class)!!
+      .addItem(Inventory.Item(itemId = boulder.id, amount = 1, weight = 450))
+
+    world.modify(entity) { id -> add(id, ObtainItemIntent.CreateItemIntent(itemId = sword.id, amount = 1)) }
+    world.tick(0.1f)
+
+    assertNull(world.get(entity, Inventory::class)!!.getItem(sword.id.toInt()))
+    verify {
+      lootItemEntitySpawner.spawnLootItem(
+        world = world, itemId = sword.id, amount = 1, pos = Vec3L(7, 8, 0)
+      )
+    }
+    verifyNoItemGranted()
+  }
+
+  /**
+   * One pass resolves both intents on the same entity. Gating each against a `current` that only refreshes
+   * between ticks would let both through and overfill by a whole stack.
+   */
+  @Test
+  fun `two grants in the same tick cannot both spend the same capacity`() {
+    setUp()
+    stub(sword)
+    val looter = createCarrier(capacityMax = 500, pos = Vec3L(0, 0, 0))
+    val groundStack = world.createEntity { id ->
+      add(id, Position.fromVec3(Vec3L(0, 0, 0)))
+      add(id, GroundItemStack(itemId = sword.id, amount = 1))
+    }
+
+    world.modify(looter) { id ->
+      add(id, ObtainItemIntent.LootItemIntent(sourceEntityItemStackId = groundStack))
+      add(id, ObtainItemIntent.CreateItemIntent(itemId = sword.id, amount = 4))
+    }
+    world.tick(0.1f)
+
+    // The loot fits (120 of 500) and the create does not (another 480 on top), so exactly one lands.
+    assertEquals(1, world.get(looter, Inventory::class)!!.getItem(sword.id.toInt())?.amount)
+    verify {
+      lootItemEntitySpawner.spawnLootItem(
+        world = world, itemId = sword.id, amount = 4, pos = Vec3L(0, 0, 0)
+      )
+    }
   }
 
   companion object {

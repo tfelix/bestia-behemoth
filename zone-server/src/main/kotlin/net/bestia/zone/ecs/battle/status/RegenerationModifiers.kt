@@ -27,9 +27,10 @@ import net.bestia.zone.ecs.core.Component
  * nothing to the new context and must therefore stop contributing here - accumulating with `+=`
  * would make every expired effect permanent. The counterpart risk is the component going stale
  * because nothing triggers a recalc; that is what the `IsStatusValueDirty` markers on equipping,
- * effect expiry and skill learning are for. `net.bestia.zone.ecs.item.CarryCapacity` is the
- * cautionary tale - it caches its inputs for a `CarryCapacitySystem` that was never written, so a
- * weight limit still ignores buffs and level-ups entirely.
+ * effect expiry and skill learning are for. A cached input with nothing to invalidate it is a value
+ * that silently stops being true - `net.bestia.zone.ecs.item.CarryCapacity` spent a long time in
+ * exactly that state, ignoring every buff and level-up, because the system meant to own it was never
+ * written.
  *
  * Server-side bookkeeping only - deliberately not [net.bestia.zone.ecs.core.Dirtyable]. The client
  * sees the consequence in the [Health] / [Mana] / [Stamina] values it already receives and has no

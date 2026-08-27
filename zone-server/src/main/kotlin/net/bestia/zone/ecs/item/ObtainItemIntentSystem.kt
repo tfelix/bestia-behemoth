@@ -21,9 +21,9 @@ import org.springframework.stereotype.Component
  * Resolves [ObtainItemIntent]s: whichever entity has one attached (master or player bestia,
  * whichever is currently the active entity - see `ConnectionInfoService.getActiveEntityId`) gets
  * checked against its carry capacity and, if it fits, the item is added to its ECS [Inventory]
- * component immediately. Runs before [CarryCapacitySystem] (`@Order(61)`) so a same-tick inventory
- * change is already reflected in [CarryCapacity] this tick (same pattern as `ExpSystem` (60) ->
- * [CarryCapacitySystem] for level-ups).
+ * component immediately. Runs before [CarryCapacitySystem] (`@Order(61)`) so a same-tick grant is
+ * already reflected in the [CarryCapacity] the owner is about to be sent (same pattern as
+ * `GainExpSystem` (60) -> [CarryCapacitySystem] for level-ups).
  */
 @Component
 @Order(59)
@@ -43,7 +43,8 @@ class ObtainItemIntentSystem(
 
   override val reads: ComponentClassSet = setOf(
     ObtainItemIntent.LootItemIntent::class, ObtainItemIntent.CreateItemIntent::class,
-    Position::class, Account::class, GroundItemStack::class, CarryCapacity::class
+    Position::class, Account::class, GroundItemStack::class, CarryCapacity::class,
+    Inventory::class
   )
   override val writes: ComponentClassSet = setOf(
     ObtainItemIntent.LootItemIntent::class, ObtainItemIntent.CreateItemIntent::class, Inventory::class
@@ -142,12 +143,21 @@ class ObtainItemIntentSystem(
     )
   }
 
-  /** True if [entityId] has an inventory at all and adding [itemWeight] would still fit its carry capacity. */
+  /**
+   * True if [entityId] has an inventory at all and adding [itemWeight] would still fit its carry capacity.
+   *
+   * Weighed against the live [Inventory] rather than [CarryCapacity.current], for two reasons that both
+   * bite. One pass of [update] can resolve a loot intent and a create intent on the same entity, and gating
+   * both on the same tick-old `current` would let both through and overfill by a whole stack; [grantItem]
+   * mutates the inventory synchronously, so reading it back here is self-consistent. And `CurMax` clamps
+   * `current` to `max`, so an entity that somehow ends up over its limit under-reports its load and the gate
+   * would let still more in. `Inventory.totalWeight` cannot lie about either.
+   */
   private fun canObtain(world: World, entityId: EntityId, itemWeight: Int): Boolean {
-    if (!world.has(entityId, Inventory::class)) return false
+    val inventory = world.get(entityId, Inventory::class) ?: return false
     val capacity = world.get(entityId, CarryCapacity::class) ?: return false
 
-    return capacity.current + itemWeight <= capacity.max
+    return inventory.totalWeight + itemWeight <= capacity.max
   }
 
   /** Adds [item] to [entityId]'s live ECS inventory and schedules the durable DB write. */
