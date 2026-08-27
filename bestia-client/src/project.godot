@@ -193,9 +193,9 @@ weather_wind={
 "type": "vec3",
 "value": Vector3(2.2, 0, 1.4)
 }
-weather_gust_phase={
-"type": "float",
-"value": 0.0
+weather_gust_drift={
+"type": "vec2",
+"value": Vector2(0, 0)
 }
 grass_field_focus={
 "type": "vec3",

@@ -70,7 +70,7 @@ namespace BestiaBehemothClient.Game.World
     private static readonly StringName WindParameter = "weather_wind";
 
     /// <summary>
-    /// How far the gust field has travelled downwind, in radians of <see cref="GustReferenceMetres"/>.
+    /// How far the gust field has been carried downwind, in metres, in Godot's axes.
     /// </summary>
     /// <remarks>
     /// <b>Integrated here rather than derived from <c>TIME</c> in the shader, and that is a bug fix.</b> The
@@ -87,12 +87,25 @@ namespace BestiaBehemothClient.Game.World
     /// </para>
     ///
     /// <para>
-    /// An integral has no such term, and it wraps, so it holds full float precision for a session of any
-    /// length - which the metres form would not. <c>cloud_shadows.gd</c>'s own drift is the same integral for
-    /// the same reason.
+    /// <b>Metres and not radians, which is the second half of the same bug and much the louder half.</b> A
+    /// scalar phase only says how far a wave has advanced <i>along the current bearing</i>, so the shader had
+    /// to supply the bearing itself - and a plane wave oriented by the bearing is pinned to the world origin,
+    /// which means turning the wind sweeps the whole field about a point up to 90 km away. See
+    /// <c>grass.gdshader</c> for the arithmetic; the symptom was grass whipping for a minute and a half after
+    /// every <c>/date</c> and, more quietly, after every weather heartbeat. A displacement carries the
+    /// bearing in itself and needs no pivot, so the field slides instead of pivoting.
+    /// </para>
+    ///
+    /// <para>
+    /// Not wrapped, unlike the phase it replaces, and it no longer needs to be: the shader folds it into one
+    /// period with <c>fract</c>, so nothing downstream cares how large it grows, and the wrap would have had
+    /// to be a whole number of the material's own periods to be invisible - a constant shared across two
+    /// languages, for no gain. Accumulated in double because a float32 step at a million metres is a fair
+    /// fraction of the tens of centimetres a frame adds, and a long session in a stiff wind gets there.
+    /// <c>cloud_shadows.gd</c>'s <c>_drift</c> is the same integral, unwrapped for the same reason.
     /// </para>
     /// </remarks>
-    private static readonly StringName GustPhaseParameter = "weather_gust_phase";
+    private static readonly StringName GustDriftParameter = "weather_gust_drift";
 
     /// <summary>
     /// How long the ground takes to respond, in seconds, getting wetter and then drying again.
@@ -133,18 +146,6 @@ namespace BestiaBehemothClient.Game.World
     /// wheel the whole shadow field round in front of the player.
     /// </remarks>
     [Export] public float WindSeconds { get; set; } = 12.0f;
-
-    /// <summary>
-    /// The gust wavelength, in metres, that <see cref="GustPhaseParameter"/>'s radians are measured against.
-    /// </summary>
-    /// <remarks>
-    /// Matches <c>grass.tres</c>'s <c>gust_wavelength</c>, and the two agreeing is what makes a gust cross the
-    /// ground at exactly the wind's own speed. Nothing breaks if they drift apart - a shorter wavelength in
-    /// the material simply makes its waves travel proportionally slower - so this is a look knob and not a
-    /// contract. It is a number rather than a read of the material because the phase is one global serving
-    /// every material that wants it, and there is no material to ask.
-    /// </remarks>
-    [Export] public float GustReferenceMetres { get; set; } = 9.0f;
 
     /// <summary>
     /// Ignores the server and renders the weather set below.
@@ -203,8 +204,10 @@ namespace BestiaBehemothClient.Game.World
     /// </remarks>
     private Vector3 _publishedWind = new(float.NaN, float.NaN, float.NaN);
 
-    /// <summary>See <see cref="GustPhaseParameter"/>. Radians, wrapped, and a double so the wrap is exact.</summary>
-    private double _gustPhase;
+    /// <summary>See <see cref="GustDriftParameter"/>. Metres, unwrapped, and doubles so it stays smooth.</summary>
+    private double _gustDriftX;
+
+    private double _gustDriftZ;
 
     /// <summary>
     /// Whether a reading has ever arrived, which is what decides between settling and transitioning.
@@ -419,8 +422,8 @@ namespace BestiaBehemothClient.Game.World
     /// getting there.
     ///
     /// <para>
-    /// <see cref="_gustPhase"/> is deliberately not among them. It is a clock rather than a state, so there is
-    /// nothing for it to settle to.
+    /// The gust drift is deliberately not among them. It is a clock rather than a state, so there is nothing
+    /// for it to settle to.
     /// </para>
     /// </remarks>
     private void Settle()
@@ -473,11 +476,15 @@ namespace BestiaBehemothClient.Game.World
 
       // Advanced and published every frame, unlike everything below it, because this one is a clock: holding it
       // back on a frame is not a saved round trip but a stalled animation.
-      _gustPhase = Mathf.Wrap(
-        _gustPhase + Mathf.Tau * _wind.Length() * delta / Mathf.Max(GustReferenceMetres, 0.001f),
-        0.0, Mathf.Tau);
+      //
+      // The whole vector, and not its length: this is where the wind's *bearing* enters the gust field. That
+      // it enters as a displacement and never as an angle is the reason a turning wind now slides the field
+      // instead of pivoting it about the world origin - see GustDriftParameter.
+      _gustDriftX += _wind.X * delta;
+      _gustDriftZ += _wind.Z * delta;
 
-      RenderingServer.GlobalShaderParameterSet(GustPhaseParameter, (float)_gustPhase);
+      RenderingServer.GlobalShaderParameterSet(
+        GustDriftParameter, new Vector2((float)_gustDriftX, (float)_gustDriftZ));
 
       // Only publish on a change worth a round trip to the rendering server - the values are stable for minutes
       // at a time and this runs every frame. The sky values above are read as properties and need no publish.
