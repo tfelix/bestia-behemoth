@@ -5,17 +5,18 @@
 [ext_resource type="PackedScene" uid="uid://bq7cst1bar0ck" path="res://Game/VFX/CastBar/CastBar.tscn" id="3_castb"]
 [ext_resource type="PackedScene" uid="uid://g1nu1oan0ehe" path="res://Game/Entity/NameTag/NameTag.tscn" id="4_nmtag"]
 
-[sub_resource type="ViewportTexture" id="ViewportTexture_castb"]
+[sub_resource type="ViewportTexture" id="ViewportTexture_g4jv4"]
 viewport_path = NodePath("SubViewport")
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_mstpick"]
-radius = 0.45
-height = 2.3
+radius = 0.8486328
+height = 2.0898926
 
 [node name="MasterVisual" type="Node3D" unique_id=922268045]
 script = ExtResource("1_biohp")
 
 [node name="Mage" parent="." unique_id=1300394641 instance=ExtResource("2_1txkv")]
+transform = Transform3D(0.7, 0, 0, 0, 0.7, 0, 0, 0, 0.7, 0, 0, 0)
 
 [node name="Skeleton3D" parent="Mage/Rig" index="0"]
 bones/1/position = Vector3(4.3561184e-18, 0.36031148, 1.0385796e-24)
@@ -92,19 +93,19 @@ autoplay = &"Idle"
 [node name="ChatAnchor" type="Node3D" parent="." unique_id=946323673]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.912204, 0)
 
-[node name="CastBar" parent="." instance=ExtResource("3_castb")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.35, 0)
-texture = SubResource("ViewportTexture_castb")
+[node name="CastBar" parent="." unique_id=644624692 instance=ExtResource("3_castb")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.265028, 0)
+texture = SubResource("ViewportTexture_g4jv4")
 
-[node name="NameTag" parent="." instance=ExtResource("4_nmtag")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.65, 0)
+[node name="NameTag" parent="." unique_id=1429696708 instance=ExtResource("4_nmtag")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.5100465, 0)
 visible = false
 text = "Master"
 
-[node name="Area3D" type="Area3D" parent="."]
+[node name="Area3D" type="Area3D" parent="." unique_id=2039661180]
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.15, 0)
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D" unique_id=1627233747]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.0449463, 0)
 shape = SubResource("CapsuleShape3D_mstpick")
 
 [connection signal="input_event" from="Area3D" to="." method="_on_area_3d_input_event"]
