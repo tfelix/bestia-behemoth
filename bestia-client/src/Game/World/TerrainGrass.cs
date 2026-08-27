@@ -32,18 +32,21 @@ namespace BestiaBehemothClient.Game.World
   /// </para>
   ///
   /// <para>
-  /// <b>Two meshes, and most of the field is the cheaper one.</b> <c>grass</c>'s twelve-blade clump is a
-  /// near-field layer; <c>grass2</c>'s single tuft carries the field all the way to the fade. Fewer triangles
-  /// per instance is not the same as fewer per square metre hidden, and which way round the two come out
-  /// depends entirely on how tall the tuft is drawn - see <see cref="TuftPath"/> for the break-even and
-  /// <see cref="TuftHeight"/> for where it currently sits. Two silhouettes is also what stops the field
-  /// reading as one model repeated.
+  /// <b>One mesh, and it is <c>grass2</c>'s single tuft.</b> The field ran two layers for a while - the tuft
+  /// carrying the distance and <c>grass</c>'s twelve-blade clump as a near-field detail - and the clump was
+  /// retired because the tuft's longer blades read better and a rosette was hard to pick out of a field of
+  /// them at all. The arithmetic is close either way and slightly against this: at the coverage-neutral
+  /// density the field costs about 6% more triangles per square metre than the mix did. What it buys is the
+  /// look, and half the multimeshes - a cell is one node now rather than two, so the whole view volume is
+  /// about two thousand of them rather than four, which halves both the cull pass and <see cref="Retune"/>'s
+  /// walk. <c>grass.res</c> and <c>grass.tres</c> stay where they are: <see cref="PropAppearance"/> draws every
+  /// shrub and reed in the world from them.
   /// </para>
   ///
   /// <para>
   /// <b>The unit of drawing is a cell, not a chunk.</b> Each chunk's grass is split across a world-aligned
-  /// <see cref="CellMetres"/> grid, and each cell is one <see cref="MultiMesh"/> per layer whose density is set
-  /// from that cell's own distance to the player. Doing it per chunk instead is the obvious thing and it does not work:
+  /// <see cref="CellMetres"/> grid, and each cell is one <see cref="MultiMesh"/> whose density is set from that
+  /// cell's own distance to the player. Doing it per chunk instead is the obvious thing and it does not work:
   /// a chunk is 32 m across, so one whose near corner is under the player's feet also reaches past the fade
   /// radius, and measuring it by its nearest point draws the whole thousand square metres at full density.
   /// Measured on nine by nine grassy chunks, that was 2.1 M triangles where cells make it under a million.
@@ -66,12 +69,23 @@ namespace BestiaBehemothClient.Game.World
   /// </para>
   ///
   /// <para>
-  /// <b>Thinning a cell does not have to bare its ground.</b> Coverage is <c>count * footprint</c>, so a cell
-  /// cut to a fraction of its clumps holds its coverage if what is left grows by the inverse square root of
-  /// that fraction - see <see cref="GrassLod.CoverageScale"/>. What falls off with distance is then the grain
-  /// of the field rather than how much of the ground it hides, which is what lets <see cref="FadeOutMetres"/>
-  /// reach much further for the same triangles, and what makes <see cref="MaxVisibleInstances"/> able to pin
-  /// the cost flat across the whole zoom range.
+  /// <b>The budget is spent on the ground the camera is pointed at, and it is spent near-first.</b> Two things
+  /// that used to be neither. The wedge - <see cref="GrassLod.InView"/>, sized by
+  /// <see cref="ViewMarginDegrees"/> - stops the field paying for grass behind the player that Godot culls for
+  /// nothing; roughly three quarters of the disc was being counted and never drawn. The exponent -
+  /// <see cref="GrassLod.Sharpen"/>, bounded by <see cref="MaxExponent"/> - takes what is still over budget out
+  /// of the far field only, because a fraction of 1 stays 1 at every power. Together they are what let
+  /// <see cref="FadeOutMetres"/> go from sixty metres to the edge of the streamed terrain without
+  /// <see cref="MaxVisibleInstances"/> moving at all.
+  /// </para>
+  ///
+  /// <para>
+  /// <b>Thinning a cell does not have to bare its ground - and past the field, it is not this that stops it.</b>
+  /// Coverage is <c>count * footprint</c>, so a cell cut to a fraction of its tufts holds its coverage if what
+  /// is left grows by the inverse square root of that fraction - see <see cref="GrassLod.CoverageScale"/>. That
+  /// carries the near and middle field. Out at the horizon the compensation saturates and the geometry does
+  /// give up its coverage, which is now safe because the terrain shader has taken it over: see
+  /// <see cref="PublishField"/> and <c>grass_field_correction</c> in <c>terrain_common.gdshaderinc</c>.
   /// </para>
   ///
   /// <para>
@@ -82,42 +96,63 @@ namespace BestiaBehemothClient.Game.World
   [GlobalClass]
   public partial class TerrainGrass : Node3D
   {
-    /// <summary>Twelve-blade clumps per square metre of fully grassy, flat ground.</summary>
+    /// <summary>Tufts per square metre of fully grassy, flat ground.</summary>
     /// <remarks>
-    /// The near-field layer. A clump is 130 triangles against the tuft's 72 for the same footprint, so this is
-    /// the expensive half of the field and it is deliberately the one with the short band - see
-    /// <see cref="TuftDensity"/> for what carries the rest.
+    /// The coverage-neutral replacement for the two layers this used to run: a tuft at <see cref="Height"/>
+    /// spans 1.07 m where a 1.2 m clump spanned 1.53 m, so it takes about 8.6 of them to hide what 2.0 clumps
+    /// and 4.5 tufts hid between them.
     ///
     /// <para>
     /// Ground that is only partly grass gets proportionally less, because the weight it is multiplied by is the
     /// slot weight the terrain shader blends with - so a dune with green patches on it grows grass on the
     /// patches and nowhere else, without this having to know what a dune is.
     /// </para>
-    /// </remarks>
-    [Export(PropertyHint.Range, "0,20,0.1")] public float Density { get; set; } = 2.0f;
-
-    /// <summary>Height of a clump in metres, before <see cref="HeightSpread"/>.</summary>
-    /// <remarks>
-    /// The clump is scaled uniformly, so this is the model's whole scale and not only its height: at 1.2 m one
-    /// spans about 1.53 m of ground where at 0.4 m it spanned 0.51 m. Nine times the ground per clump for the
-    /// same 130 triangles, which is why raising this is by far the cheapest way to make the field read as
-    /// full - see <see cref="Density"/>, which can come down to pay for it.
     ///
     /// <para>
-    /// It is <b>taller than a herb</b>, which stands at 0.45 m, so the collectible ground cover is now inside
-    /// the field rather than above it. That is deliberate and known: the plants worth picking are to be told
-    /// apart by having their own model, not by being the tallest thing around.
+    /// <b>Turning this up no longer needs <see cref="MaxVisibleInstances"/> turned up with it, but it does
+    /// change what the budget buys.</b> The ceiling is on the whole field, so a higher density is met by a
+    /// higher <see cref="GrassLod.Sharpen"/> exponent - which spends the extra plants on the near field and
+    /// takes them back out of the far one. That is usually the trade wanted; it is not the same as a denser
+    /// field everywhere.
     /// </para>
     /// </remarks>
-    [Export(PropertyHint.Range, "0.05,4,0.01")] public float Height { get; set; } = 1.2f;
+    [Export(PropertyHint.Range, "0,20,0.1")] public float Density { get; set; } = 8.6f;
+
+    /// <summary>Height of a tuft in metres, before <see cref="HeightSpread"/>.</summary>
+    /// <remarks>
+    /// The mesh is scaled uniformly, so this is its whole scale and not only its height: at 1.26 m one spans
+    /// about 1.07 m of ground.
+    ///
+    /// <para>
+    /// It is <b>taller than a herb</b>, which stands at 0.45 m, so the collectible ground cover is inside the
+    /// field rather than above it. That is deliberate and known: the plants worth picking are to be told apart
+    /// by having their own model, not by being the tallest thing around. It is kept well under the 1.8 m it was
+    /// first drawn at for the opposite reason - tufts that tall stood over the player's head.
+    /// </para>
+    /// </remarks>
+    [Export(PropertyHint.Range, "0.05,4,0.01")] public float Height { get; set; } = 1.26f;
 
     /// <summary>Half-width of the size spread around <see cref="Height"/>, as a share of it.</summary>
-    [Export(PropertyHint.Range, "0,1,0.01")] public float HeightSpread { get; set; } = 0.35f;
+    /// <remarks>
+    /// <b>Wider than it was, because there is only one mesh now.</b> Two silhouettes side by side were what
+    /// stopped the field reading as one model repeated; with the clump layer retired, size variation has to do
+    /// that work on its own, and the yaw the scatter already randomises is not enough by itself.
+    /// </remarks>
+    [Export(PropertyHint.Range, "0,1,0.01")] public float HeightSpread { get; set; } = 0.5f;
 
     /// <summary>How far from the <b>player</b>, in metres, grass is drawn at its full <see cref="Density"/>.</summary>
     /// <remarks>
     /// From the player rather than from the camera, which is the whole of <see cref="SetFocusAt"/>'s reason -
     /// see it for why measuring from the eye made zooming out empty the field.
+    ///
+    /// <para>
+    /// <b>This is also the ground the budget can never take anything from.</b>
+    /// <see cref="GrassLod.FractionAt"/> returns exactly 1 inside this radius and
+    /// <see cref="GrassLod.Sharpen"/> leaves a 1 alone at every exponent, so the grass the player is standing
+    /// in holds its density however far <see cref="FadeOutMetres"/> is pushed. At the default band that inner
+    /// disc is about six thousand instances - a third of the budget, spent on the fifteen metres anyone can
+    /// actually look at.
+    /// </para>
     ///
     /// <para>
     /// Both this and <see cref="FadeOutMetres"/> are the band at the reference zoom; the band actually used
@@ -126,64 +161,26 @@ namespace BestiaBehemothClient.Game.World
     /// </remarks>
     [Export(PropertyHint.Range, "0,200,1")] public float FullDensityMetres { get; set; } = 15.0f;
 
-    /// <summary>How far from the player, in metres, the last clump goes out.</summary>
+    /// <summary>How far from the player, in metres, the last tuft goes out - and so where the field ends.</summary>
     /// <remarks>
     /// Measured to the <i>nearest</i> point of a cell rather than to its middle, so a cell the player is
     /// standing at the edge of is at full density rather than at whatever a half-cell offset works out to.
     ///
     /// <para>
-    /// Safe to turn up by eye, which it was not before: <see cref="MaxVisibleInstances"/> bounds what the
-    /// increase can cost, so raising this makes the field reach further rather than making frames longer.
-    /// </para>
-    /// </remarks>
-    [Export(PropertyHint.Range, "0,400,1")] public float FadeOutMetres { get; set; } = 30.0f;
-
-    /// <summary>Single tufts per square metre of fully grassy, flat ground.</summary>
-    /// <remarks>
-    /// <b>The body of the field.</b> A tuft at <see cref="TuftHeight"/> spans 1.07 m against a 1.2 m clump's
-    /// 1.53 m, so it no longer covers quite what a clump covers - but there are more than twice as many of
-    /// them, and it is this layer that carries the field on its own past <see cref="FadeOutMetres"/>.
-    ///
-    /// <para>
-    /// <b>Turning this up to buy coverage back needs <see cref="MaxVisibleInstances"/> turned up with it, or it
-    /// does nothing at all.</b> The budget is a ceiling on the whole field, so raising the density raises what
-    /// the field asks for, which trims every cell harder, which the coverage compensation answers by drawing
-    /// what is left *larger* - straight back to the plant size the density was raised to get away from. The two
-    /// knobs only move the field when they move together.
-    /// </para>
-    /// </remarks>
-    [Export(PropertyHint.Range, "0,20,0.1")] public float TuftDensity { get; set; } = 4.5f;
-
-    /// <summary>Height of a tuft in metres, before <see cref="HeightSpread"/>.</summary>
-    /// <remarks>
-    /// <b>Deliberately below the 1.34 m break-even, and that costs something.</b> See <see cref="TuftPath"/>:
-    /// the tuft is narrower for its height than the clump, so it only beats the clump on triangles per square
-    /// metre covered once it is drawn tall enough to span as much. At 1.8 m it spanned a 1.2 m clump's 1.53 m
-    /// for 45% fewer triangles; at 1.26 m it spans 1.07 m and costs 63 triangles per square metre covered
-    /// against the clump's 56 - about 13% the wrong side of the line.
-    ///
-    /// <para>
-    /// It is drawn short anyway because 1.8 m tufts stood over the player's head, which is a look and not an
-    /// efficiency, and 13% of the cheaper half of the field is a small price for it. What the shortening does
-    /// cost in earnest is coverage, which goes with the square: the tuft layer hides 49% of the ground it did
-    /// and the whole field 65%. <see cref="TuftDensity"/> is the knob that buys that back, and see it for why
-    /// turning it up needs <see cref="MaxVisibleInstances"/> turned up with it.
+    /// <b>Far enough to reach the edge of the streamed terrain at every zoom, which is the point.</b> The
+    /// server offers an 11x11 view volume of 32 m chunks, so there is ground out to about 176 m and the fog
+    /// does not finish closing until 220 - and at sixty metres the field stopped less than halfway there,
+    /// leaving a ring of bare ground that nothing hid. Turning this up is free of build cost: the transforms
+    /// already exist for every chunk the terrain holds, and this only decides how many of them are drawn.
     /// </para>
     ///
     /// <para>
-    /// It now stands within 6 cm of a clump rather than 0.6 m over one. The two layers still cross-fade in
-    /// density rather than swapping at a radius, and that matters slightly less than it did: with the heights
-    /// this close, a swap would no longer read as a step. The cross-fade stays because it also keeps the mix of
-    /// silhouettes even across the band.
+    /// What it costs in draw is bounded by <see cref="MaxVisibleInstances"/>, and since the budget is now taken
+    /// out by distance rather than flat, turning it up makes the field <i>reach</i> further rather than making
+    /// the grass at the player's feet coarser. That was not true before <see cref="GrassLod.Sharpen"/>.
     /// </para>
     /// </remarks>
-    [Export(PropertyHint.Range, "0.05,4,0.01")] public float TuftHeight { get; set; } = 1.26f;
-
-    /// <summary>How far from the player, in metres, tufts are drawn at their full <see cref="TuftDensity"/>.</summary>
-    [Export(PropertyHint.Range, "0,200,1")] public float TuftFullDensityMetres { get; set; } = 15.0f;
-
-    /// <summary>How far from the player, in metres, the last tuft goes out - and so where the field ends.</summary>
-    [Export(PropertyHint.Range, "0,400,1")] public float TuftFadeOutMetres { get; set; } = 60.0f;
+    [Export(PropertyHint.Range, "0,400,1")] public float FadeOutMetres { get; set; } = 150.0f;
 
     /// <summary>Camera distance, in metres, that <see cref="FullDensityMetres"/> was chosen against.</summary>
     /// <remarks>
@@ -215,51 +212,86 @@ namespace BestiaBehemothClient.Game.World
 
     /// <summary>Ceiling on that compensation, past which the field goes back to fading out.</summary>
     /// <remarks>
-    /// It also sizes <see cref="MultiMeshInstance3D.ExtraCullMargin"/>, since a clump drawn at two and a half
-    /// times its size stands well outside the bounds Godot computed from the transforms.
+    /// <b>Lower than it was, because holding coverage at the horizon is no longer this node's job.</b> The
+    /// terrain shader carries the far field's colour - see <see cref="PublishField"/> - so what the geometry
+    /// owes out there is grain and not cover. At 2.5 a thinned tuft was drawn 3.15 m tall, and a sparse
+    /// scattering of those on a skyline reads as bushes; at 1.8 the far field stays plant-sized and simply gets
+    /// sparser, over ground that is already the right colour.
+    ///
+    /// <para>
+    /// It also sizes <see cref="MultiMeshInstance3D.ExtraCullMargin"/>, since a tuft drawn at nearly twice its
+    /// size stands outside the bounds Godot computed from the transforms.
+    /// </para>
     /// </remarks>
-    [Export(PropertyHint.Range, "1,4,0.1")] public float MaxCoverageScale { get; set; } = 2.5f;
+    [Export(PropertyHint.Range, "1,4,0.1")] public float MaxCoverageScale { get; set; } = 1.8f;
 
     /// <summary>
-    /// Clumps this may draw at once across the whole field, or 0 for no budget.
+    /// Tufts this may draw at once across the whole field, or 0 for no budget.
     /// </summary>
     /// <remarks>
     /// The draw-cost twin of <see cref="BuildBudgetMillis"/>, and what makes <see cref="FadeOutMetres"/> and
-    /// <see cref="ZoomResponse"/> safe to turn up at all. Over budget, every cell is thinned by the same share
-    /// rather than the far ones being cut - see <see cref="GrassLod.BudgetTrim"/>.
+    /// <see cref="ZoomResponse"/> safe to turn up at all. Over budget, the excess is taken out of the far field
+    /// by <see cref="GrassLod.Sharpen"/> rather than off every cell alike - see
+    /// <see cref="FullDensityMetres"/> for what that protects.
     ///
     /// <para>
     /// <b>This is not a backstop like <see cref="MaxPerChunk"/>; it is the knob that decides what the field
-    /// costs.</b> The ground on screen grows with the square of the camera distance, so the band following the
-    /// zoom asks for 84 thousand clumps at full zoom against 23 thousand at the default - eleven million
-    /// triangles, from a field that measured 11.5 thousand clumps and 1.5 M before any of this.
+    /// costs.</b> The ground on screen grows with the square of the camera distance, and the field now reaches
+    /// out to the terrain's own edge, so what it asks for unbounded is several times this.
     /// </para>
     ///
     /// <para>
-    /// <b>What it buys is a flat cost across the whole zoom range.</b> The count is the same whether the camera
-    /// is at 8 m or at 36 m, because whatever the trim takes in count the coverage compensation gives back in
-    /// plant size: at full zoom that is 21% of them at 2.16 times the size, and <c>0.21 * 2.16²</c> is 1.
-    /// Coverage is held exactly, and what changes with the zoom is the grain rather than how much ground is
-    /// covered - which is the right way round, since at full zoom the plants are small on screen and their
-    /// grain is the last thing anyone can pick out.
+    /// <b>What it buys is a flat cost across the whole zoom range and the whole radius.</b> The count is the
+    /// same whether the camera is at 8 m or at 36 m and whether the fade is at 60 m or at 150; what changes is
+    /// the exponent, and so how quickly the field thins out with distance.
     /// </para>
     ///
     /// <para>
-    /// <b>It counts instances, not triangles, and the two stopped being the same thing.</b> A tuft is 72
-    /// triangles and a clump 130, so this is a <i>conservative</i> triangle bound: 18 thousand is at worst
-    /// 2.34 M if every one of them were a clump, and at the default mix it measures 1.46 M. Erring that way is
-    /// the right direction - the budget cannot be undersold by a field that leans cheap - but a reader sizing a
-    /// frame from this number should multiply by the mix rather than by 130.
-    /// </para>
-    ///
-    /// <para>
-    /// It follows that this and <see cref="MaxCoverageScale"/> are tied. The compensation saturates below a
-    /// fraction of <c>1 / MaxCoverageScale²</c>, which at 2.5 is 0.16, so a budget low enough to trim past that
-    /// stops holding coverage and the field bares its ground again. Eighteen thousand trims to 0.21 and has
-    /// headroom; twelve thousand would not.
+    /// Every instance is the same 72-triangle tuft now, so unlike when there were two meshes this is a
+    /// straightforward triangle bound: eighteen thousand is 1.3 M triangles.
     /// </para>
     /// </remarks>
     [Export(PropertyHint.Range, "0,200000,1000")] public int MaxVisibleInstances { get; set; } = 18_000;
+
+    /// <summary>
+    /// How much wider than the camera's own field of view to count ground as visible, in degrees.
+    /// </summary>
+    /// <remarks>
+    /// The margin on <see cref="GrassLod.InView"/>'s wedge. Wide enough that an ordinary turn does not move
+    /// what the budget is spent on: a cell entering the wedge is a cell that was already tuned, since
+    /// <see cref="Retune"/> runs over every cell whatever the bearing, but a wedge that hugged the frustum
+    /// would make the <i>exponent</i> chase every mouse movement.
+    ///
+    /// <para>
+    /// <b>180 turns the wedge off</b> and counts the whole disc, which is what the field did before there was
+    /// one - see <see cref="GrassLod.HalfViewAngle"/> for the clamp that makes that exact. The same "set one
+    /// number and the feature is gone" property <see cref="ZoomResponse"/> and
+    /// <see cref="CoverageCompensation"/> have, and it is how the two halves of the budget work are told apart
+    /// by eye.
+    /// </para>
+    /// </remarks>
+    [Export(PropertyHint.Range, "0,180,1")] public float ViewMarginDegrees { get; set; } = 20.0f;
+
+    /// <summary>How steeply the field may be made to thin with distance to fit its budget.</summary>
+    /// <remarks>
+    /// The ceiling on <see cref="GrassLod.Sharpen"/>'s exponent. Six is well above what a grassy view volume
+    /// asks for at the default settings - which settles near 2.3 - and exists so that a pathological view
+    /// cannot drive the far field to nothing in one step.
+    ///
+    /// <para>
+    /// <b>1 turns the distance weighting off</b> and gives back the flat <see cref="GrassLod.BudgetTrim"/>
+    /// exactly, which is the other half of the A/B against <see cref="ViewMarginDegrees"/>.
+    /// </para>
+    /// </remarks>
+    [Export(PropertyHint.Range, "1,12,0.1")] public float MaxExponent { get; set; } = 6.0f;
+
+    /// <summary>How fast the exponent chases the budget. 0 pins it, 1 corrects in one frame.</summary>
+    /// <remarks>
+    /// See <see cref="GrassLod.NextExponent"/>. A half settles within a few percent in three or four frames,
+    /// which is fast enough to read as instant and damped enough not to ring. It is the only smoothing in the
+    /// loop, so lowering it is the answer if the field pumps when the camera swings.
+    /// </remarks>
+    [Export(PropertyHint.Range, "0,1,0.05")] public float BudgetResponse { get; set; } = 0.5f;
 
     /// <summary>
     /// Edge of one LOD cell, in metres. The granularity the density can vary at, and one draw call each.
@@ -283,16 +315,19 @@ namespace BestiaBehemothClient.Game.World
     /// <remarks>
     /// A memory bound rather than a rendering one - the buffers are built for every chunk the terrain holds,
     /// including the ones beyond <see cref="FadeOutMetres"/> that will draw none of them, because the
-    /// <see cref="ChunkSurface"/> they are scattered from is handed over once at install and is not kept.
+    /// <see cref="ChunkSurface"/> they are scattered from is handed over once at install and is not kept. Each
+    /// buffer is sized to the count actually placed, so this is a ceiling and not a reservation.
     ///
     /// <para>
     /// A backstop rather than a knob. It is applied by scaling <see cref="Density"/> down for the chunk that
     /// would exceed it, so a capped chunk is uniformly thinner rather than bare on one side - but a chunk that
     /// hits it is drawn at a density its neighbours are not, which is a seam. The default is above what a
-    /// wholly grassy 32 m chunk asks for at the default density, so nothing reaches it in ordinary play.
+    /// wholly grassy 32 m chunk asks for - 1024 square metres at 8.6 is about 8,800 - so nothing reaches it in
+    /// ordinary play. <b>It has to move whenever <see cref="Density"/> does</b>, or the greenest ground in the
+    /// world is the only ground that gets thinned.
     /// </para>
     /// </remarks>
-    [Export(PropertyHint.Range, "0,40000,100")] public int MaxPerChunk { get; set; } = 8000;
+    [Export(PropertyHint.Range, "0,40000,100")] public int MaxPerChunk { get; set; } = 10_000;
 
     /// <summary>
     /// How upright ground has to be to grow grass, as the vertical component of its normal.
@@ -301,6 +336,12 @@ namespace BestiaBehemothClient.Game.World
     /// 0.6 is about 53 degrees. Grass is drawn standing straight up whatever it grows on, which is right for a
     /// slope and absurd for a wall: on a cliff face the blades would stand out of it sideways, and the
     /// surface-nets mesh has plenty of near-vertical triangles where a terrace steps down.
+    ///
+    /// <para>
+    /// Close to where <c>terrain_common.gdshaderinc</c>'s <c>cliff_start</c> sheds the loose cover off a slope,
+    /// which is not a coincidence and is worth keeping that way: the far-field grass tint is applied to what is
+    /// left after that shed, so the ground that stops being tinted is the ground that stops growing tufts.
+    /// </para>
     /// </remarks>
     [Export(PropertyHint.Range, "0,1,0.01")] public float MinUpright { get; set; } = 0.6f;
 
@@ -322,76 +363,48 @@ namespace BestiaBehemothClient.Game.World
     /// </remarks>
     [Export(PropertyHint.Range, "0.1,16,0.1")] public float BuildBudgetMillis { get; set; } = 1.5f;
 
-    /// <summary>The mesh one clump is drawn with, and the material to draw it with.</summary>
+    /// <summary>The mesh the whole field is drawn with: <c>grass2</c>'s single tuft, 72 triangles.</summary>
     /// <remarks>
-    /// The larger of the two grass meshes, which is the cheaper one per square metre covered: a dozen blades
-    /// spanning 2.85 m for 130 triangles, against <c>grass2</c>'s single tuft spanning 0.6 m for 72. Both are
-    /// what <see cref="PropAppearance"/> gives the ground cover, so the field and the plants standing in it are
-    /// the same art at different sizes.
-    /// </remarks>
-    private const string ClumpPath = "res://Game/Terrain/Grass/grass.res";
-
-    private const string MaterialPath = "res://Game/Terrain/Grass/grass.tres";
-
-    /// <summary>The other grass mesh: a single tuft, and what most of the field is actually made of.</summary>
-    /// <remarks>
-    /// <b>It is drawn taller than the clump, and that is the whole reason it is worth using.</b> Fewer
-    /// triangles per instance is not the same as fewer per square metre of ground hidden, and the tuft is half
-    /// again narrower for its height than the clump is - so at its authored proportions it costs about six
-    /// times as much per unit of coverage. The break-even against a 1.2 m clump is 1.34 m, and
-    /// <see cref="TuftHeight"/> now sits just under it: see there for why the layer is kept anyway.
+    /// <b>Its V runs the opposite way to <c>grass</c>'s</b>, which is the only reason the material below has to
+    /// be duplicated rather than used as authored - see <see cref="UvVAtTip"/>.
     ///
     /// <para>
-    /// Nobody can tell a stretched tuft from a rosette at the distances this carries, and up close the two
-    /// silhouettes side by side are what stops the field reading as one model repeated.
+    /// <c>grass.res</c>, the twelve-blade clump this used to be layered with, is still loaded elsewhere:
+    /// <see cref="PropAppearance"/> gives it to every shrub and reed, so the field and the plants standing in
+    /// it remain the same art at different sizes.
     /// </para>
     /// </remarks>
-    private const string TuftPath = "res://Game/Terrain/Grass/grass2.res";
-
-    /// <summary>Height, in metres, that <see cref="TuftPath"/>'s mesh stands at above its own origin.</summary>
-    /// <remarks><see cref="PropAppearance"/> carried the same number while the herbs were drawn from it.</remarks>
-    private const float TuftNaturalHeight = 0.7053f;
+    private const string MeshPath = "res://Game/Terrain/Grass/grass2.res";
 
     /// <summary>
-    /// Which of the two meshes a patch draws. One <see cref="MultiMesh"/> holds one mesh, so a mixed field is
-    /// two multimeshes per cell rather than one.
+    /// The material the field is drawn with, and the one <see cref="PropAppearance"/> gives the ground cover.
     /// </summary>
     /// <remarks>
-    /// They are separate layers rather than a per-instance choice for a second reason beyond the multimesh:
-    /// each wants its own band. The clumps are a near-field detail that stops early, the tufts carry the field
-    /// all the way out - so what the player walks through is a mix and what they see at the fade is tufts, with
-    /// no boundary where one mesh becomes the other. Cross-fading the two *densities* rather than swapping the
-    /// mesh at a radius is what keeps the 0.6 m height difference between them from reading as a step.
+    /// Never written to. <see cref="Load"/> takes a duplicate and sets <see cref="UvVAtTip"/> on that, because
+    /// setting it here would flip the unwrap direction for every prop in the world along with the field.
     /// </remarks>
-    private enum Layer
-    {
-      Clump = 0,
-      Tuft = 1,
-    }
+    private const string MaterialPath = "res://Game/Terrain/Grass/grass.tres";
 
-    /// <summary>How many <see cref="Layer"/>s there are, for the arrays keyed on one.</summary>
-    private const int Layers = 2;
+    /// <summary>Height, in metres, that <see cref="MeshPath"/>'s mesh stands at above its own origin.</summary>
+    /// <remarks><see cref="PropAppearance"/> carried the same number while the herbs were drawn from it.</remarks>
+    private const float NaturalHeight = 0.7053f;
 
     /// <summary>
     /// <c>grass2</c> was unwrapped with V at the base where <c>grass</c> has it at the tip.
     /// </summary>
     /// <remarks>
-    /// A fact about the mesh and a <i>material</i> uniform, not a per-instance one, which is the only reason
-    /// the tuft needs a material of its own at all. Getting it backwards is visible twice over: the blade is
-    /// dark at the tip and bright at the root, and it bends from the wrong end.
+    /// A fact about the mesh and a <i>material</i> uniform, not a per-instance one, which is why the field
+    /// cannot simply use <c>grass.tres</c> as authored. Getting it backwards is visible twice over: the blade
+    /// is dark at the tip and bright at the root, and it bends from the wrong end.
     /// </remarks>
     private static readonly StringName UvVAtTip = "uv_v_at_tip";
-
-    /// <summary>Height, in metres, that <see cref="ClumpPath"/>'s mesh stands at above its own origin.</summary>
-    /// <remarks><see cref="PropAppearance"/> carries the same number for the same mesh, and for the same reason.</remarks>
-    private const float ClumpNaturalHeight = 2.2391f;
 
     /// <summary>The step the coverage scale is rounded to, and so one shared material's worth of it.</summary>
     /// <remarks>
     /// <b>Quantised because the scale is a material uniform now and no longer a per-instance one</b> - see
     /// <see cref="ScaledMaterial"/> for why it had to stop being one. A continuous per-cell scale would want a
-    /// material per cell, which is thousands; rounding to a step wants one per step - thirty per layer at
-    /// <see cref="MaxCoverageScale"/>'s default of 2.5, and sixty at the top of its exported range.
+    /// material per cell, which is thousands; rounding to a step wants one per step - sixteen at
+    /// <see cref="MaxCoverageScale"/>'s default of 1.8, and sixty at the top of its exported range.
     ///
     /// <para>
     /// A twentieth is the coarsest step that is still invisible where it is spent. The compensation only ever
@@ -406,14 +419,11 @@ namespace BestiaBehemothClient.Game.World
     /// <remarks>The same margin <see cref="StaticEntityRenderer"/>'s batches carry, for the same reason.</remarks>
     private const float WindCullMargin = 1.2f;
 
-    /// <summary>One cell's worth of grass: a multimesh, and the box its clumps stand in.</summary>
+    /// <summary>One cell's worth of grass: a multimesh, and the box its tufts stand in.</summary>
     private sealed class Patch
     {
       internal MultiMeshInstance3D Node;
       internal MultiMesh Multi;
-
-      /// <summary>Which mesh this cell draws, and so which band measures it.</summary>
-      internal Layer Layer;
 
       /// <summary>The box the LOD measures its distance to.</summary>
       internal Vector3 Min;
@@ -429,7 +439,7 @@ namespace BestiaBehemothClient.Game.World
       /// </summary>
       /// <remarks>
       /// Zero is the neutral scale and is what <see cref="Install"/> assigns, so a cell that is never thinned -
-      /// which is most of what the terrain holds - keeps the layer's own shared material and is never written
+      /// which is most of what the terrain holds - keeps the field's own shared material and is never written
       /// to. It cannot start below zero the way the float it replaces did: that was a sentinel meaning nothing
       /// had been pushed yet, and pushing on the first pass regardless is exactly what spent an instance-uniform
       /// slot on every cell in the view volume, including the ones past the fade radius that draw nothing.
@@ -441,7 +451,9 @@ namespace BestiaBehemothClient.Game.World
       /// </summary>
       /// <remarks>
       /// Held here rather than in a list beside the patches so the second pass does not measure every cell's
-      /// distance again, and so nothing has to be allocated per frame to pair the two up.
+      /// distance again, and so nothing has to be allocated per frame to pair the two up. Already sharpened by
+      /// <see cref="GrassLod.Sharpen"/> when it is written, so the second pass has only the budget's own
+      /// backstop left to apply.
       /// </remarks>
       internal float Fraction;
     }
@@ -465,30 +477,45 @@ namespace BestiaBehemothClient.Game.World
     /// </remarks>
     private readonly Dictionary<ChunkKey, ChunkSurface> _pending = new();
 
-    private Godot.Mesh _clump;
-    private Godot.Mesh _tuft;
-    private Material _material;
-    private Material _tuftMaterial;
+    private Godot.Mesh _mesh;
 
-    /// <summary>Per layer, the shared material for each <see cref="ScaleStep"/> above the neutral one.</summary>
+    /// <summary>The duplicate of <see cref="MaterialPath"/> with <see cref="UvVAtTip"/> set for this mesh.</summary>
+    private Material _material;
+
+    /// <summary>The shared material for each <see cref="ScaleStep"/> above the neutral one.</summary>
     /// <remarks>
     /// Built on demand and then kept, because which steps a session asks for depends on the zoom and on how
-    /// grassy the ground is. Bounded by <see cref="MaxCoverageScale"/> over <see cref="ScaleStep"/> - thirty
-    /// per layer at the ceiling - so it cannot grow with the size of the world the way a material per cell
-    /// would.
+    /// grassy the ground is. Bounded by <see cref="MaxCoverageScale"/> over <see cref="ScaleStep"/> - sixteen
+    /// at the default - so it cannot grow with the size of the world the way a material per cell would.
     /// </remarks>
-    private readonly Dictionary<int, ShaderMaterial>[] _scaled =
-    {
-      new Dictionary<int, ShaderMaterial>(),
-      new Dictionary<int, ShaderMaterial>(),
-    };
+    private readonly Dictionary<int, ShaderMaterial> _scaled = new();
+
     private bool _loaded;
 
     /// <summary>Where the camera is looking, which is where the player is. Null until told - see <see cref="SetFocusAt"/>.</summary>
     private Vector3? _focus;
 
+    /// <summary>
+    /// How steeply the field is currently thinning with distance, carried between frames.
+    /// </summary>
+    /// <remarks>
+    /// One is the neutral exponent, which leaves <see cref="GrassLod.FractionAt"/>'s own taper alone. It is
+    /// state rather than a per-frame solve because <see cref="GrassLod.NextExponent"/> is a controller - see
+    /// there for why fitting the budget exactly has no closed form worth paying for.
+    /// </remarks>
+    private float _exponent = 1.0f;
+
     /// <summary>The shader's scale boost, which is a material uniform - see <see cref="ScaledMaterial"/>.</summary>
     private static readonly StringName ExtraScaleParameter = "grass_extra_scale";
+
+    /// <summary>Where the field is centred, for the terrain shader - see <see cref="PublishField"/>.</summary>
+    private static readonly StringName FieldFocusParameter = "grass_field_focus";
+
+    /// <summary>Where the far-field ground tint starts ramping in, in metres from the focus.</summary>
+    private static readonly StringName FieldBeginParameter = "grass_field_begin";
+
+    /// <summary>Where that tint reaches full strength, which is where the geometry ends.</summary>
+    private static readonly StringName FieldEndParameter = "grass_field_end";
 
     /// <summary>
     /// Tells the field where the player is, so the level of detail can be measured from them.
@@ -525,7 +552,7 @@ namespace BestiaBehemothClient.Game.World
     /// it is a sample of it, so a surface that changed means a sample that is wrong.
     ///
     /// <para>
-    /// The scatter is seeded from the chunk key alone, so a re-mesh puts every clump back where it was. Only
+    /// The scatter is seeded from the chunk key alone, so a re-mesh puts every tuft back where it was. Only
     /// the ground that actually changed moves.
     /// </para>
     ///
@@ -546,7 +573,6 @@ namespace BestiaBehemothClient.Game.World
 
       var vertices = terrain.Vertices;
       var normals = terrain.Normals;
-      var indices = terrain.Indices;
       var weights = terrain.SlotWeights0;
 
       // No weights, no idea which of this ground is grass. A surface built before the slot channels existed, or
@@ -572,25 +598,16 @@ namespace BestiaBehemothClient.Game.World
     {
       var cells = Scatter(key, terrain.Vertices, terrain.Normals, terrain.Indices, terrain.SlotWeights0);
 
-      var total = 0;
-      for (var layer = 0; layer < Layers; layer++)
-      {
-        total += cells[layer].Count;
-      }
-
-      if (total == 0)
+      if (cells.Count == 0)
       {
         return;
       }
 
-      var patches = new List<Patch>(total);
+      var patches = new List<Patch>(cells.Count);
 
-      for (var layer = 0; layer < Layers; layer++)
+      foreach (var (cell, transforms) in cells)
       {
-        foreach (var (cell, transforms) in cells[layer])
-        {
-          patches.Add(Install(key, cell, transforms, (Layer)layer));
-        }
+        patches.Add(Install(key, cell, transforms));
       }
 
       // Published before _Process's passes measure anything, because Drain is only ever called from the top of
@@ -605,7 +622,7 @@ namespace BestiaBehemothClient.Game.World
     /// <remarks>
     /// Nearest first because the queue is longest at login, when the whole view volume arrives at once, and
     /// the order it drains in is the order the field appears in. Ground under the player's feet is what they
-    /// are looking at; ground out at the fade radius is a handful of clumps whenever it gets there.
+    /// are looking at; ground out at the fade radius is a handful of tufts whenever it gets there.
     /// </remarks>
     private void Drain(Vector3? eye)
     {
@@ -666,20 +683,18 @@ namespace BestiaBehemothClient.Game.World
     }
 
     /// <summary>Turns one cell's transforms into a multimesh under this node.</summary>
-    private Patch Install(ChunkKey key, long cell, List<Transform3D> transforms, Layer layer)
+    private Patch Install(ChunkKey key, long cell, List<Transform3D> transforms)
     {
-      var tuft = layer == Layer.Tuft;
-
       var multi = new MultiMesh
       {
         TransformFormat = MultiMesh.TransformFormatEnum.Transform3D,
-        Mesh = tuft ? _tuft : _clump,
+        Mesh = _mesh,
         InstanceCount = transforms.Count
       };
 
       // Filled through the buffer rather than by SetInstanceTransform per instance, which is one call across
-      // the managed boundary each: at a couple of thousand clumps a chunk and two chunks installed a frame,
-      // that was the single most expensive thing about streaming into a meadow. Same data, one call.
+      // the managed boundary each: at a few thousand tufts a chunk and two chunks installed a frame, that was
+      // the single most expensive thing about streaming into a meadow. Same data, one call.
       //
       // The layout is the 3x4 matrix in row-major order - three basis rows of three, each followed by one
       // component of the origin. `Basis`'s C# indexer addresses *columns*, so the row-major read is
@@ -714,15 +729,15 @@ namespace BestiaBehemothClient.Game.World
 
       multi.Buffer = buffer;
 
-      // The tallest this layer's plants stand above the ground they were placed on. Both meshes are authored
+      // The tallest this field's plants stand above the ground they were placed on. The mesh is authored
       // standing on y = 0, so this is the whole of what the transforms do not already record.
-      var top = (tuft ? TuftHeight : Height) * (1.0f + HeightSpread);
+      var top = Height * (1.0f + HeightSpread);
 
       var node = new MultiMeshInstance3D
       {
-        Name = $"Grass_{layer}_{key.X}_{key.Y}_{cell}",
+        Name = $"Grass_{key.X}_{key.Y}_{cell}",
         Multimesh = multi,
-        MaterialOverride = tuft ? _tuftMaterial : _material,
+        MaterialOverride = _material,
         CastShadow = GeometryInstance3D.ShadowCastingSetting.Off,
 
         // The wind's margin, plus however far the coverage compensation can grow a plant past the transforms
@@ -742,35 +757,31 @@ namespace BestiaBehemothClient.Game.World
         // Grown by the tallest plant, because the transforms only record where each one stands. A box that
         // stopped at the ground would call a cell below the camera further away than its blades are.
         Max = max + new Vector3(0.0f, top, 0.0f),
-        Total = transforms.Count,
-        Layer = layer
+        Total = transforms.Count
       };
     }
 
     /// <summary>
-    /// Places clumps over the grassy part of one chunk's surface, grouped by cell and shuffled within each.
+    /// Places tufts over the grassy part of one chunk's surface, grouped by cell and shuffled within each.
     /// </summary>
     /// <remarks>
     /// Area-weighted per triangle and slot-weighted per triangle, with the fraction left over carried into the
     /// next one. The carry is what makes a low density work at all: a triangle of a quarter of a square metre
-    /// wants 0.6 of a clump, and rounding that to zero everywhere would leave thin ground bare no matter how
+    /// wants 0.6 of a tuft, and rounding that to zero everywhere would leave thin ground bare no matter how
     /// much of it there was.
     ///
     /// <para>
     /// <see cref="BlockAppearance.SurfaceSlot.DryGrass"/> is deliberately not included, though bunchgrass is
     /// still grass. It is a different colour, and this draws one material - so a dune would come out the green
     /// of a meadow. Giving it its own tint is a per-instance colour on the multimesh and a <c>COLOR</c> read in
-    /// the shader, which is worth doing and is not done here.
+    /// the shader, which is worth doing and is not done here. The terrain shader's far-field tint is keyed to
+    /// the same slot for the same reason, so the two agree about where the field is without being told.
     /// </para>
     /// </remarks>
-    private Dictionary<long, List<Transform3D>>[] Scatter(
+    private Dictionary<long, List<Transform3D>> Scatter(
       ChunkKey key, Vector3[] vertices, Vector3[] normals, int[] indices, byte[] weights)
     {
-      var cells = new Dictionary<long, List<Transform3D>>[Layers];
-      for (var layer = 0; layer < Layers; layer++)
-      {
-        cells[layer] = new Dictionary<long, List<Transform3D>>();
-      }
+      var cells = new Dictionary<long, List<Transform3D>>();
 
       // Seeded from the chunk alone - not from the mesh - so that a re-mesh, a reconnect or a second client
       // standing in the same field all scatter the same grass. Mixed rather than concatenated because
@@ -781,21 +792,8 @@ namespace BestiaBehemothClient.Game.World
 
       var edge = Mathf.Max(CellMetres, 0.5f);
 
-      // Per layer, and interleaved rather than run as two passes over the index buffer: one walk costs what it
-      // costs, and the carry below only works if a layer sees every triangle in order.
-      var carry = new float[Layers];
-      var density = new float[Layers];
-      var height = new float[Layers];
-      var natural = new float[Layers];
-
-      density[(int)Layer.Clump] = Density;
-      height[(int)Layer.Clump] = Height;
-      natural[(int)Layer.Clump] = ClumpNaturalHeight;
-
-      // Zero density is how a failed tuft load turns into a clump-only field, with nothing else to check.
-      density[(int)Layer.Tuft] = _tuft == null ? 0.0f : TuftDensity;
-      height[(int)Layer.Tuft] = TuftHeight;
-      natural[(int)Layer.Tuft] = TuftNaturalHeight;
+      var carry = 0.0f;
+      var density = Density;
 
       // Two passes, because the cap has to be applied as a density and not as a stopping point. Walking until
       // MaxPerChunk plants had been placed would fill the chunk in the order the mesher emitted its triangles
@@ -809,15 +807,10 @@ namespace BestiaBehemothClient.Game.World
         return cells;
       }
 
-      // Shared across the layers, because MaxPerChunk bounds the memory one chunk's buffers take and that is a
-      // property of the chunk rather than of either layer. Scaled by the same factor so a capped chunk keeps
-      // the mix it was tuned with instead of losing whichever layer is checked second.
-      var asked = grassy * (density[0] + density[1]);
+      var asked = grassy * density;
       if (asked > MaxPerChunk)
       {
-        var shrink = MaxPerChunk / asked;
-        density[0] *= shrink;
-        density[1] *= shrink;
+        density *= MaxPerChunk / asked;
       }
 
       for (var t = 0; t + 2 < indices.Length; t += 3)
@@ -853,61 +846,55 @@ namespace BestiaBehemothClient.Game.World
           continue;
         }
 
-        for (var layer = 0; layer < Layers; layer++)
+        carry += area * grass * density;
+
+        var wanted = (int)carry;
+        carry -= wanted;
+
+        for (var n = 0; n < wanted; n++)
         {
-          carry[layer] += area * grass * density[layer];
-
-          var wanted = (int)carry[layer];
-          carry[layer] -= wanted;
-
-          for (var n = 0; n < wanted; n++)
+          // Uniform over the triangle: the two rolls address the enclosing parallelogram, and folding the
+          // far half back over the diagonal is what keeps it uniform rather than piling points into one
+          // corner.
+          var u = rng.Float();
+          var v = rng.Float();
+          if (u + v > 1.0f)
           {
-            // Uniform over the triangle: the two rolls address the enclosing parallelogram, and folding the
-            // far half back over the diagonal is what keeps it uniform rather than piling points into one
-            // corner.
-            var u = rng.Float();
-            var v = rng.Float();
-            if (u + v > 1.0f)
-            {
-              u = 1.0f - u;
-              v = 1.0f - v;
-            }
-
-            var at = a + ab * u + ac * v;
-
-            var grown = height[layer] * (1.0f + (rng.Float() - 0.5f) * 2.0f * HeightSpread);
-            var scale = grown / natural[layer];
-
-            // Uniform, so the basis stays a rotation times a scalar - which is the assumption grass.gdshader
-            // inverts the model matrix under. Grass is drawn straight up whatever it grows on, rather than
-            // along the ground's normal: a plant on a slope grows towards the sky, not out of the hill
-            // sideways.
-            var basis = new Basis(Vector3.Up, rng.Float() * Mathf.Tau).Scaled(new Vector3(scale, scale, scale));
-
-            var cell = CellOf(at, edge);
-            if (!cells[layer].TryGetValue(cell, out var list))
-            {
-              list = new List<Transform3D>();
-              cells[layer][cell] = list;
-            }
-
-            list.Add(new Transform3D(basis, at));
+            u = 1.0f - u;
+            v = 1.0f - v;
           }
+
+          var at = a + ab * u + ac * v;
+
+          var grown = Height * (1.0f + (rng.Float() - 0.5f) * 2.0f * HeightSpread);
+          var scale = grown / NaturalHeight;
+
+          // Uniform, so the basis stays a rotation times a scalar - which is the assumption grass.gdshader
+          // inverts the model matrix under. Grass is drawn straight up whatever it grows on, rather than
+          // along the ground's normal: a plant on a slope grows towards the sky, not out of the hill
+          // sideways.
+          var basis = new Basis(Vector3.Up, rng.Float() * Mathf.Tau).Scaled(new Vector3(scale, scale, scale));
+
+          var cell = CellOf(at, edge);
+          if (!cells.TryGetValue(cell, out var list))
+          {
+            list = new List<Transform3D>();
+            cells[cell] = list;
+          }
+
+          list.Add(new Transform3D(basis, at));
         }
       }
 
       // Shuffled so that VisibleInstanceCount's prefix is a subset of the whole cell rather than of whichever
       // triangles the mesher emitted first. Without this, halving the count on a distant cell would empty one
       // side of it and leave the other at full density.
-      for (var layer = 0; layer < Layers; layer++)
+      foreach (var transforms in cells.Values)
       {
-        foreach (var transforms in cells[layer].Values)
+        for (var i = transforms.Count - 1; i > 0; i--)
         {
-          for (var i = transforms.Count - 1; i > 0; i--)
-          {
-            var j = (int)(rng.Next() % (uint)(i + 1));
-            (transforms[i], transforms[j]) = (transforms[j], transforms[i]);
-          }
+          var j = (int)(rng.Next() % (uint)(i + 1));
+          (transforms[i], transforms[j]) = (transforms[j], transforms[i]);
         }
       }
 
@@ -964,47 +951,68 @@ namespace BestiaBehemothClient.Game.World
     }
 
     /// <summary>
-    /// Retunes every cell's instance count and clump size for where the player and the camera are now.
+    /// Retunes every cell's instance count and tuft size for where the player and the camera are now.
     /// </summary>
     /// <remarks>
     /// Two passes, and the second one is the work the single pass used to do. The first exists only to total
-    /// what every cell is asking for, because <see cref="MaxVisibleInstances"/> is a budget across the whole
-    /// field and cannot be spent until it is known how many are competing for it. Each cell's share is kept on
+    /// what the field is asking for, because <see cref="MaxVisibleInstances"/> is a budget across the whole
+    /// field and cannot be spent until it is known how much is competing for it. Each cell's share is kept on
     /// its own <see cref="Patch.Fraction"/> in between, so no distance is measured twice and nothing is
     /// allocated to pair the passes up.
     ///
     /// <para>
-    /// Cheap enough to run unconditionally: a subtraction and a rounding per cell, with both assignments skipped
-    /// unless the value actually changed - which, at a metre or so of movement, they mostly do not. A cell
-    /// outside the fade radius settles on a count of zero and a scale of one and is then never written to again,
-    /// which is most of what the terrain holds.
+    /// <b>Only the cells in the wedge are totalled, and every cell is retuned.</b> Godot culls an off-screen
+    /// multimesh for the price of one bounds test, so grass behind the player costs no triangles - but it was
+    /// still competing for the budget, which meant the grass on screen was thinned to pay for it. Excluding it
+    /// from the sum and not from the retune is what makes turning free: a cell coming into view was tuned all
+    /// along, and nothing pops.
+    /// </para>
+    ///
+    /// <para>
+    /// Cheap enough to run unconditionally: a subtraction, a power and a rounding per cell, with both
+    /// assignments skipped unless the value actually changed - which, at a metre or so of movement, they mostly
+    /// do not. A cell outside the fade radius settles on a count of zero and a scale of one and is then never
+    /// written to again, which is most of what the terrain holds.
     /// </para>
     /// </remarks>
     public override void _Process(double delta)
     {
-      var eye = Eye();
+      var camera = GetViewport()?.GetCamera3D();
+      var eye = camera == null ? (Vector3?)null : camera.GlobalPosition;
 
       Drain(eye);
 
       if (_patches.Count == 0 || !eye.HasValue)
       {
+        // No field for the ground to match. Published rather than left alone, so the terrain stops being
+        // coloured as grass the moment there is no grass on it - on the way out of a scene, say.
+        PublishField(Vector3.Zero, 0.0f, 0.0f);
         return;
       }
 
-      // The eye is the fallback for the same reason Eye() may be null at all: this node is built before the
-      // scene has finished coming up, so the first frames can arrive with no player to measure from. Falling
-      // back to the old behaviour draws the field slightly wrong for a frame; refusing to draw it does not.
+      // The eye is the fallback for the same reason the camera may be null at all: this node is built before
+      // the scene has finished coming up, so the first frames can arrive with no player to measure from.
+      // Falling back to the old behaviour draws the field slightly wrong for a frame; refusing to draw it does
+      // not.
       var focus = _focus ?? eye.Value;
 
-      var band = GrassLod.BandScale(focus.DistanceTo(eye.Value), ReferenceZoomMetres, ZoomResponse, MaxZoomScale);
+      var zoom = focus.DistanceTo(eye.Value);
+      var band = GrassLod.BandScale(zoom, ReferenceZoomMetres, ZoomResponse, MaxZoomScale);
 
-      // A band each, which is what makes the two meshes a cross-fade rather than a swap at a radius: the clumps
-      // thin out over their own shorter taper while the tufts are still at full density, so the mix shifts
-      // gradually and no plant ever changes height.
-      var clumpFull = FullDensityMetres * band;
-      var clumpFade = FadeOutMetres * band;
-      var tuftFull = TuftFullDensityMetres * band;
-      var tuftFade = TuftFadeOutMetres * band;
+      var full = FullDensityMetres * band;
+      var fade = FadeOutMetres * band;
+
+      PublishField(focus, full, fade);
+
+      var cosHalfAngle = Mathf.Cos(GrassLod.HalfViewAngle(camera.Fov, ViewAspect(camera), ViewMarginDegrees));
+
+      // Godot's cameras look down their own -Z.
+      var forward = -camera.GlobalTransform.Basis.Z;
+
+      // The wedge's apex is at the eye, which sits `zoom` metres behind the player - so everything within that
+      // radius is in front of the character and on screen whatever its bearing. A cell's width on top, because
+      // the test below is against the cell's middle.
+      var near = zoom + CellMetres;
 
       var wanted = 0;
 
@@ -1012,14 +1020,14 @@ namespace BestiaBehemothClient.Game.World
       {
         foreach (var patch in patches)
         {
-          var tuft = patch.Layer == Layer.Tuft;
+          patch.Fraction = GrassLod.Sharpen(
+            GrassLod.FractionAt(GrassLod.DistanceToBox(focus, patch.Min, patch.Max), full, fade),
+            _exponent);
 
-          patch.Fraction = GrassLod.FractionAt(
-            GrassLod.DistanceToBox(focus, patch.Min, patch.Max),
-            tuft ? tuftFull : clumpFull,
-            tuft ? tuftFade : clumpFade);
-
-          wanted += Mathf.RoundToInt(patch.Total * patch.Fraction);
+          if (GrassLod.InView((patch.Min + patch.Max) * 0.5f, eye.Value, forward, cosHalfAngle, near))
+          {
+            wanted += Mathf.RoundToInt(patch.Total * patch.Fraction);
+          }
         }
       }
 
@@ -1032,9 +1040,72 @@ namespace BestiaBehemothClient.Game.World
           Retune(patch, trim);
         }
       }
+
+      // Last, and fed this frame's own answer: the exponent used above is what produced `wanted`, so the ratio
+      // of the two is exactly the overshoot the controller has to correct. Moving this before the passes would
+      // measure the field at one exponent and draw it at another.
+      _exponent = GrassLod.NextExponent(_exponent, wanted, MaxVisibleInstances, MaxExponent, BudgetResponse);
     }
 
-    /// <summary>Sets one cell's instance count and clump size from the share it was given this frame.</summary>
+    /// <summary>
+    /// Tells the terrain shader where the field is and how far it reaches, so the ground past it can be
+    /// coloured as grass.
+    /// </summary>
+    /// <remarks>
+    /// <b>The field ends long before the ground does, and that used to be plainly visible.</b> There is terrain
+    /// out to about 176 m and fog does not finish closing until 220, so wherever the geometry stopped there was
+    /// a ring where the ground went from the field's dark saturated green to the bare grass texture's much
+    /// lighter one. Nothing to do with the number of blades: a step in <i>colour</i>, which reads at any
+    /// distance.
+    ///
+    /// <para>
+    /// <c>terrain_common.gdshaderinc</c> answers it by correcting the grass slot toward the field's own average
+    /// colour, ramped over exactly this band. Past <see cref="FadeOutMetres"/> the correction is at full
+    /// strength and stays there to the horizon, which is right: past the field, the ground is all there is.
+    /// </para>
+    ///
+    /// <para>
+    /// <b>Anchored on the player and not on the camera</b>, which is the whole reason these are pushed from
+    /// here rather than read off <c>CAMERA_POSITION_WORLD</c> in the shader. The band published is the one the
+    /// field is actually drawing at, zoom scaling included, so the tint and the geometry cannot drift apart
+    /// when the spring arm moves.
+    /// </para>
+    ///
+    /// <para>
+    /// Globals rather than material uniforms, the arrangement <c>WeatherState</c> already uses: there is one
+    /// player and one field, and a material uniform would have to be pushed to the terrain material - which the
+    /// debug shader has a second copy of. Three calls a frame, against a walk over thousands of cells.
+    /// </para>
+    /// </remarks>
+    private static void PublishField(Vector3 focus, float begin, float end)
+    {
+      RenderingServer.GlobalShaderParameterSet(FieldFocusParameter, focus);
+      RenderingServer.GlobalShaderParameterSet(FieldBeginParameter, begin);
+      RenderingServer.GlobalShaderParameterSet(FieldEndParameter, end);
+    }
+
+    /// <summary>
+    /// How much wider than it is tall the viewport is, which is what turns a vertical field of view into a
+    /// horizontal one.
+    /// </summary>
+    /// <remarks>
+    /// <c>Camera3D.Fov</c> is the vertical angle only while <c>KeepAspect</c> is Keep Height, which is the
+    /// default. Under Keep Width it is already the horizontal angle, and the right aspect to hand
+    /// <see cref="GrassLod.HalfViewAngle"/> is then 1 - otherwise the wedge would be widened twice.
+    /// </remarks>
+    private float ViewAspect(Camera3D camera)
+    {
+      if (camera.KeepAspect == Camera3D.KeepAspectEnum.Width)
+      {
+        return 1.0f;
+      }
+
+      var size = GetViewport().GetVisibleRect().Size;
+
+      return size.Y > 0.0f ? size.X / size.Y : 0.0f;
+    }
+
+    /// <summary>Sets one cell's instance count and tuft size from the share it was given this frame.</summary>
     private void Retune(Patch patch, float trim)
     {
       var fraction = patch.Fraction * trim;
@@ -1050,8 +1121,8 @@ namespace BestiaBehemothClient.Game.World
         patch.Node.Visible = visible > 0;
       }
 
-      // Fed the *trimmed* fraction, so what the budget takes away in count it gives back in clump size for as
-      // long as MaxCoverageScale has headroom.
+      // Fed the fraction the cell is actually drawing at - sharpened by distance and then trimmed - so what the
+      // budget takes away in count it gives back in tuft size for as long as MaxCoverageScale has headroom.
       var scale = GrassLod.CoverageScale(fraction, CoverageCompensation, MaxCoverageScale);
 
       // Three quarters of a step of dead band around what this cell is already drawing at, rather than a plain
@@ -1065,81 +1136,59 @@ namespace BestiaBehemothClient.Game.World
       }
 
       patch.Level = Mathf.RoundToInt((scale - 1.0f) / ScaleStep);
-      patch.Node.MaterialOverride = ScaledMaterial(patch.Layer, patch.Level);
+      patch.Node.MaterialOverride = ScaledMaterial(patch.Level);
     }
 
     /// <summary>
-    /// The shared material that draws <paramref name="layer"/> at <paramref name="level"/> steps of compensation.
+    /// The shared material that draws the field at <paramref name="level"/> steps of compensation.
     /// </summary>
     /// <remarks>
     /// <b>This is where the scale stopped being an <c>instance uniform</c>, and the reason is an engine limit
     /// rather than a preference.</b> Godot gives every instance that has ever been handed an instance uniform a
     /// fixed sixteen-slot block of the one buffer <c>rendering/limits/global_shader_variables/buffer_size</c>
     /// sizes - 65536 entries by default, so 4096 instances for the whole game - and it does not take the block
-    /// back until the instance itself is freed. This field is one multimesh per <see cref="CellMetres"/> cell
-    /// per layer, so 32 per chunk, and the server offers an 11x11 chunk view volume: about four thousand nodes
-    /// before a single prop, decal or character has asked for one. <see cref="Retune"/> pushed a scale to every
-    /// one of them on its first pass - including the cells past the fade radius, whose scale is the neutral 1 -
-    /// so the buffer ran dry within twenty seconds of login, and from then on
+    /// back until the instance itself is freed. This field is one multimesh per <see cref="CellMetres"/> cell,
+    /// so sixteen per chunk, and the server offers an 11x11 chunk view volume: about two thousand nodes before
+    /// a single prop, decal or character has asked for one. <see cref="Retune"/> pushed a scale to every one of
+    /// them on its first pass - including the cells past the fade radius, whose scale is the neutral 1 - so the
+    /// buffer ran dry within seconds of login, and from then on
     /// <c>global_shader_parameters_instance_allocate</c> returned -1 and every newly raised cell drew at its
     /// authored size for the rest of the session.
     ///
     /// <para>
     /// A material uniform costs nothing from that buffer, and the price of the swap is that the scale has to be
-    /// shared: one material per <see cref="ScaleStep"/> rather than one float per cell. Thirty per layer at the
+    /// shared: one material per <see cref="ScaleStep"/> rather than one float per cell. Sixteen at the default
     /// ceiling, against four thousand slots - and see <see cref="ScaleStep"/> for why the rounding is invisible
     /// where it is spent.
     /// </para>
     ///
     /// <para>
-    /// Level zero is the layer's own material rather than a copy of it, so the common case allocates nothing and
-    /// <see cref="Install"/> can hand out the neutral material without asking. The copies are taken from that
-    /// material and never write to it, which matters because <c>grass.tres</c> is the same resource
-    /// <see cref="PropAppearance"/> gives every herb, shrub and reed - setting the scale on it would grow the
-    /// collectible ground cover along with the field.
+    /// Level zero is the field's own material rather than a copy of it, so the common case allocates nothing
+    /// and <see cref="Install"/> can hand out the neutral material without asking. The copies are taken from
+    /// that material and never write to it, which matters because it is itself a duplicate of
+    /// <see cref="MaterialPath"/> - the resource <see cref="PropAppearance"/> gives every shrub and reed.
     /// </para>
     /// </remarks>
-    private Material ScaledMaterial(Layer layer, int level)
+    private Material ScaledMaterial(int level)
     {
-      var neutral = layer == Layer.Tuft ? _tuftMaterial : _material;
-
       // Under the neutral scale is not a state CoverageScale can reach - it never returns below 1 - so a
       // negative level is a rounding artefact rather than a smaller plant, and nothing is gained by giving it a
       // material of its own.
-      if (level <= 0 || neutral is not ShaderMaterial shader)
+      if (level <= 0 || _material is not ShaderMaterial shader)
       {
-        return neutral;
+        return _material;
       }
 
-      var pool = _scaled[(int)layer];
-
-      if (pool.TryGetValue(level, out var cached))
+      if (_scaled.TryGetValue(level, out var cached))
       {
         return cached;
       }
 
       var own = (ShaderMaterial)shader.Duplicate();
       own.SetShaderParameter(ExtraScaleParameter, level * ScaleStep);
-      pool[level] = own;
+      _scaled[level] = own;
 
       return own;
-    }
-
-    /// <summary>
-    /// Where the camera is, or null if there is not one yet.
-    /// </summary>
-    /// <remarks>
-    /// Null is a real state and not only a test's: this node is built by <c>game.gd</c> before the scene has
-    /// finished coming up, so the first chunks can be installed with no camera to measure against. It leaves a
-    /// cell at its full count rather than at none, because the two failures are not comparable - a frame or two
-    /// of grass drawn too densely is a frame or two of grass, and grass that defaults to hidden and never hears
-    /// otherwise is a feature that silently does nothing.
-    /// </remarks>
-    private Vector3? Eye()
-    {
-      var camera = GetViewport()?.GetCamera3D();
-
-      return camera == null ? null : camera.GlobalPosition;
     }
 
     public void Remove(ChunkKey key)
@@ -1179,24 +1228,16 @@ namespace BestiaBehemothClient.Game.World
     {
       if (_loaded)
       {
-        return _clump != null;
+        return _mesh != null;
       }
 
       _loaded = true;
 
-      _clump = ResourceLoader.Load<Godot.Mesh>(ClumpPath);
-      if (_clump == null)
+      _mesh = ResourceLoader.Load<Godot.Mesh>(MeshPath);
+      if (_mesh == null)
       {
-        GD.PushError($"[grass] {ClumpPath} did not load; the ground will have no grass on it.");
+        GD.PushError($"[grass] {MeshPath} did not load; the ground will have no grass on it.");
         return false;
-      }
-
-      // A missing tuft is survivable where a missing clump is not: the field comes out as the clump layer
-      // alone, which is thinner and dearer but is still a field. Scatter skips a layer with no mesh.
-      _tuft = ResourceLoader.Load<Godot.Mesh>(TuftPath);
-      if (_tuft == null)
-      {
-        GD.PushError($"[grass] {TuftPath} did not load; the field will be clumps only.");
       }
 
       var authored = ResourceLoader.Load<ShaderMaterial>(MaterialPath);
@@ -1206,15 +1247,14 @@ namespace BestiaBehemothClient.Game.World
         return true;
       }
 
-      _material = authored;
-
       // Its own copy, with the one flag that is a fact about the mesh flipped - the same duplicate-and-set
       // StaticEntityRenderer.MaterialFor does per kind, and for the same reason: `uv_v_at_tip` is a material
-      // uniform, so two meshes unwrapped in opposite directions cannot share one. One duplicate for the whole
-      // field, so the tufts are still a single material however many cells carry them.
-      var tuftMaterial = (ShaderMaterial)authored.Duplicate();
-      tuftMaterial.SetShaderParameter(UvVAtTip, true);
-      _tuftMaterial = tuftMaterial;
+      // uniform, and grass.tres is the very resource PropAppearance hands every shrub and reed. Setting it in
+      // place would unwrap all of them backwards. One duplicate for the whole field, so it is still a single
+      // material however many cells carry it.
+      var own = (ShaderMaterial)authored.Duplicate();
+      own.SetShaderParameter(UvVAtTip, true);
+      _material = own;
 
       return true;
     }
