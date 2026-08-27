@@ -41,14 +41,30 @@ uniform float noiseScale = 20.0;
 // material uniform would have to be pushed to one material per kind on every weather message.
 global uniform vec3 weather_wind;
 
-// How far the gust field has travelled downwind, in radians of `WeatherState.GustReferenceMetres`.
+// How far the gust field has been carried downwind, in metres, in Godot's axes: the running integral of
+// `weather_wind`. Published by `WeatherState._Process` and declared in project.godot's [shader_globals], so
+// it has a value in the editor while there is no server to ask.
 //
-// Integrated on the CPU rather than worked out here as `speed * TIME`, and that is not a preference. A wave
-// written `sin(dot(p, dir) - speed * TIME)` travels at `speed + TIME * dspeed/dt`, so while the wind is
-// ramping - which it does for twelve seconds after the first weather message - the error is proportional to
-// how long the client has been running. It made the grass whip for the first seconds of every session and
-// then settle, and the longer the player had sat in the menu the worse it was.
-global uniform float weather_gust_phase;
+// **A displacement and not a phase, and that is what stopped the grass whipping whenever the wind turned.**
+// The gust used to be one plane wave, `sin(TAU * dot(p, dir) / wavelength - phase)`, with `dir` the current
+// bearing and `p` the plant's world position - a wave field rigidly pinned to the world origin. Turning
+// `dir` therefore swept the entire field about that origin, and a plant at radius `r` saw its phase move by
+// `TAU * r * dtheta / wavelength`. The origin is an arbitrary corner of the map: stood in the middle of a
+// 128 km world, `r` is about 90 km, so a one-radian veer moved the phase through sixty thousand radians.
+// Spread over the twelve seconds `WeatherState` takes to swing the wind that is hundreds of hertz of pure
+// aliasing, falling to something merely visible after a minute and a half. `/date` re-rolls the bearing
+// outright and so is the loudest way to hear it, but the two-minute weather heartbeat was doing the same
+// thing at a few hertz all along.
+//
+// Advection has no such term. The field below is a fixed shape in world space that the wind only ever
+// slides, so a bearing change alters where the field is *going* and never where it *is*: continuous however
+// hard the wind turns, and the same wherever in the world the player stands. `cloud_shadows.gd` drifts its
+// mask this way already, which is why cloud shadows never had this fault.
+//
+// Still integrated on the CPU rather than taken as `wind * TIME` here, which is the older half of the same
+// lesson: anything written against `TIME` travels at `speed + TIME * dspeed/dt`, so while the wind ramps the
+// error grows with how long the client has been open.
+global uniform vec2 weather_gust_drift;
 
 group_uniforms mesh;
 
@@ -72,8 +88,14 @@ uniform float wind_max_lean : hint_range(0.0, 1.5) = 0.45;
 // proportional to it would push the tips of a reed bed through the ground and out the other side.
 uniform float wind_reference_speed : hint_range(0.5, 40.0) = 9.0;
 
-// Distance between crests of the gust wave, in metres: how wide the ripple crossing a meadow is.
-uniform float gust_wavelength : hint_range(0.5, 60.0) = 9.0;
+// Metres before the gust field repeats itself, in both x and z: how wide the patchwork crossing a meadow is.
+//
+// A period rather than a wavelength, because the field is three waves and not one. Each wave's own crest
+// spacing is this over the length of its integer wave number below - about a fifth of it - so 45 m here is
+// the 9 m ripple the single wave used to draw. It has to stay a whole-field period: the waves are integers
+// over it precisely so that `fract` can fold both the position and the drift into one tile without moving
+// the field, which is what keeps float32 honest millions of metres from the world origin.
+uniform float gust_period : hint_range(5.0, 300.0) = 45.0;
 
 // How much of the lean the gust takes away and gives back, 0 to 1. At 1 the grass comes fully upright
 // between gusts; at 0 it holds a constant angle and only flutters.
@@ -137,15 +159,48 @@ void vertex() {
 
 	float lean = wind_max_lean * (1.0 - exp(-speed / max(wind_reference_speed, 0.001)));
 
-	// A plane wave travelling downwind. Its spatial phase comes off the world position, so neighbouring plants
-	// are out of step with each other for free - which is what lets a whole chunk be one MultiMesh carrying
-	// nothing per instance but a transform - and its temporal phase is the integral above.
+	// The gust field: a fixed patchwork of stronger and weaker wind, slid bodily downwind by the drift above.
+	// Its shape comes off the world position, so neighbouring plants are out of step with each other for free
+	// - which is what lets a whole chunk be one MultiMesh carrying nothing per instance but a transform.
 	//
-	// The wave crosses the ground at the wind's own speed exactly when `gust_wavelength` matches the reference
-	// the phase was measured against. Retuning it here makes the waves travel proportionally faster, which is a
-	// look and not a fault.
-	float phase = TAU * dot(rest.xz, dir) / max(gust_wavelength, 0.001) - weather_gust_phase;
-	float gust = 1.0 + gust_depth * sin(phase);
+	// It crosses the ground at exactly the wind's own velocity, for any bearing and whatever `gust_period` is
+	// set to, because the drift is measured in metres rather than in radians of an assumed wavelength.
+	//
+	// **Three waves rather than one, and they are why the crests no longer follow the wind round.** A single
+	// wave has to be *oriented*, and orienting it by the bearing is the pinned-to-the-origin fault the drift
+	// above documents. Three fixed bearings need no orientation and, being non-parallel, cannot all be
+	// broadside to the drift at once - so the field always travels, whichever way the wind blows, which one
+	// fixed wave would not. What is lost is crests square to the wind, and that is not something the eye can
+	// find: what it reads is the *lean*, and the lean is downwind here as it always was.
+	//
+	// The wave numbers are integer vectors, which is what makes the field exactly periodic on `gust_period`
+	// in x and z and so what makes the `fract` below free. Their lengths are 5.0 to 5.4, so the three crest
+	// spacings are 8.4 to 9.0 m at the default period - the 9 m ripple this replaces. Their bearings are 11,
+	// 68 and 127 degrees: within a few degrees of 60 apart, so the field has no grain of its own, and none of
+	// them axis-aligned, so nothing beats with the lattice the plants are scattered on.
+	float period = max(gust_period, 0.001);
+
+	// Both terms folded into one tile before anything is multiplied out. Subtracting a whole number of periods
+	// from either leaves every wave below untouched - that is what integer wave numbers buy - so this is exact
+	// and not an approximation, and it keeps the arithmetic in the first few metres rather than the first few
+	// million.
+	//
+	// Which matters at both ends, and only past a million metres. `WorldConfig` allows a world 4096 km across,
+	// where a plant near the middle stands at 2.9e6 metres; and the drift above is never wrapped, so a long
+	// session in a stiff wind reaches the same order. Either puts the phase past 2e4 periods, where one float32
+	// step is no smaller than the tenth of a metre a frame of drift adds - so the gust would crawl in stutters
+	// rather than move. The 128 km dev world is nowhere near that, and this costs two instructions.
+	vec2 tile = fract(rest.xz / period) - fract(weather_gust_drift / period);
+
+	// Weighted so the sum has the same RMS as the single sine it replaces, which is what keeps `gust_depth`
+	// meaning what it meant. Clamped because three waves in step reach 1.7, and `gust_depth` promises a bound:
+	// the clip lands on the tails of the distribution and reads as a gust holding its peak.
+	float field =
+		0.70 * sin(TAU * dot(tile, vec2(5.0, 1.0))) +
+		0.55 * sin(TAU * dot(tile, vec2(2.0, 5.0)) + 1.7) +
+		0.45 * sin(TAU * dot(tile, vec2(-3.0, 4.0)) + 3.9);
+
+	float gust = 1.0 + gust_depth * clamp(field, -1.0, 1.0);
 
 	// Deliberately incommensurate multipliers on x and z: a flutter keyed to round numbers would beat with
 	// the three-metre lattice the plants are scattered on and read as rows.
