@@ -1,5 +1,7 @@
 extends PanelContainer
 
+const WEIGHT_UNITS_PER_KG := 100.0
+
 var _master_info: MasterInfo
 var _master_entity_id: int = 0
 
@@ -81,7 +83,7 @@ func _on_entity_received(msg: EntitySMSG) -> void:
 	if msg is ExpComponentSMSG:
 		_update_exp(msg.Exp, msg.RequiredExpNextLevel)
 	if msg is CarryCapacityComponentSMSG:
-		_weight_label.text = "Weight: %s / %s" % [msg.Current, msg.Max]
+		_update_weight(msg.Current, msg.Max)
 	if msg is MasterVisualComponentSMSG:
 		_profile_portrait.apply_visual(msg)
 
@@ -104,6 +106,17 @@ func _update_bar(bar: ProgressBar, value_label: Label, current: int, max_value: 
 	bar.max_value = max_value
 	bar.value = current
 	value_label.text = "%s / %s" % [current, max_value]
+
+
+## Carry weight arrives in the server's own units - fixed point at 100 per kilogram, see `Item.weight`
+## - because that is the scale the weight limit is computed on and nothing on the wire converts it.
+## Displayed in kilograms, since the raw units would read "1 / 2275" and mean nothing to a player. One
+## decimal is deliberate: a chart weighs 10g and should show as 0.0, while a lump of ore moves the
+## number by 3.0.
+func _update_weight(current: int, max_weight: int) -> void:
+	_weight_label.text = "Weight: %.1f / %.1f kg" % [
+		current / WEIGHT_UNITS_PER_KG, max_weight / WEIGHT_UNITS_PER_KG
+	]
 
 
 func _update_exp(exp: int, required_exp_next_level: int) -> void:

@@ -4,9 +4,8 @@
 
 [resource]
 script = ExtResource("1_script")
-item_id = 11
-name_key = "CLAY"
-description_key = "CLAY_DESC"
-weight = 150
+item_id = 24
+name_key = "BRAMBLE_BERRIES"
+description_key = "BRAMBLE_BERRIES_DESC"
+weight = 10
 type = 2
-level = 1

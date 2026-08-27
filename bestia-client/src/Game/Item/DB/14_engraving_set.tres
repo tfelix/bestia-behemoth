@@ -7,6 +7,6 @@ script = ExtResource("1_script")
 item_id = 14
 name_key = "ENGRAVING_SET"
 description_key = "ENGRAVING_SET_DESC"
-weight = 45
+weight = 50
 type = 2
 level = 10

@@ -7,6 +7,6 @@ script = ExtResource("1_script")
 item_id = 21
 name_key = "CHART"
 description_key = "CHART_DESC"
-weight = 5
+weight = 1
 level = 1
 type = 2

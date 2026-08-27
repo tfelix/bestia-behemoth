@@ -17,7 +17,12 @@ class Item(
 
   val identifier: String,
   /**
-   * 10 weight roughly equals 1kg.
+   * Fixed point mass at 100 per kilogram, so one unit is 10g - fine enough that the lightest thing in
+   * the catalogue, a single sheet of vellum, still weighs something instead of rounding away to nothing.
+   *
+   * [net.bestia.zone.ecs.item.WeightLimitCalculator] returns a carry limit on this same scale, so the
+   * two are compared without conversion. The client is the only place the scale is spelled out again,
+   * because it is the only place a kilogram is ever displayed.
    */
   var weight: Int,
   var type: ItemType,
