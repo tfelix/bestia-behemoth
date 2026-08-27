@@ -230,7 +230,7 @@ class ParamsVersionTest {
       "SpawnerParams" to 8_534_286_933_049_913_492L,
       // Both moved with the de-circularising of the town: `StreetParams` gained the arc and boundary fields and
       // lost nothing, and `TownParams` holds it.
-      "TownParams" to 4_581_537_478_736_483_729L,
+      "TownParams" to 5_886_364_774_618_654_379L,
       "StreetParams" to 7_767_182_004_335_302_930L,
       "EconomyParams" to 6_863_789_847_631_252_411L,
       "PoiParams" to 9_183_715_732_977_741_057L,

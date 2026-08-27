@@ -336,8 +336,8 @@ namespace BestiaBehemothClient.Game.World
     /// </para>
     ///
     /// <para>
-    /// <b>A placeholder scales on y only</b>: the mesh is a box of the kind's own width standing on its own
-    /// origin, so this makes a tall thing tall rather than also fat. A building is the exception and is scaled
+    /// <b>A placeholder scales on y only</b>: the mesh is a box of the kind's own width, so this makes a tall
+    /// thing tall rather than also fat. A building is the exception and is scaled
     /// on all three axes, because its footprint arrives per entry - see
     /// <see cref="ChunkStaticEntitiesSMSG.Entry.HasFootprint"/>. Its x and z factors are <i>relative to the
     /// kind's own placeholder width</i>, since the shared mesh is already that wide; a building whose row said
@@ -384,6 +384,12 @@ namespace BestiaBehemothClient.Game.World
         Basis basis;
         float pickWidth;
 
+        // A placeholder is a BoxMesh, and Godot centres one on its own origin - so drawn at the ground
+        // position every one of them stood half underground, which on a three-storey house is four and a half
+        // metres of it. Art keeps its own origin, which sits at the base. AddPicker already lifted its box by
+        // the same half-height, so the click target was the only part of a placeholder in the right place.
+        var lift = 0f;
+
         if (art != null)
         {
           var scale = appearance.NaturalHeight > 0f ? entry.Height / appearance.NaturalHeight : 1f;
@@ -397,13 +403,17 @@ namespace BestiaBehemothClient.Game.World
           var along = entry.HasFootprint ? entry.HalfLength * 2f / meshWidth : 1f;
           var across = entry.HasFootprint ? entry.HalfWidth * 2f / meshWidth : 1f;
 
-          // The server's z is the ground the prop stands on, and a mesh built upward from its own origin wants
-          // that as its base.
-          basis = new Basis(Vector3.Up, entry.Yaw).Scaled(new Vector3(along, entry.Height, across));
+          // Scaled in the prop's own frame, not the world's. <c>Basis.Scaled</c> multiplies rows, which is
+          // <c>diag(s) * B</c> - a world-axis scale applied after the yaw - and a non-uniform one of those
+          // shears a turned box into a parallelepiped: at 45 deg of yaw a 10.35 x 16.2 m house drew as a 13.6 m
+          // rhombus with 115 deg corners, and at 90 deg its length and width swapped outright. Uniform scales
+          // commute with rotation, which is why the art path above can keep the shorter spelling.
+          basis = new Basis(Vector3.Up, entry.Yaw) * Basis.FromScale(new Vector3(along, entry.Height, across));
           pickWidth = appearance.PlaceholderWidth;
+          lift = entry.Height * 0.5f;
         }
 
-        multi.SetInstanceTransform(i, new Transform3D(basis, position));
+        multi.SetInstanceTransform(i, new Transform3D(basis, position + new Vector3(0f, lift, 0f)));
 
         var picker = appearance.Collectible
           ? AddPicker(container, entry, position, pickWidth)

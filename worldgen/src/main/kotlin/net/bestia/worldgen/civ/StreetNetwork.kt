@@ -1289,60 +1289,6 @@ internal object LotPlanner {
   private const val LOT_GAP = 0.92
 }
 
-/**
- * A bucket grid over placed plots, for the overlap test.
- *
- * The same shape as the settlement stage's separation index and for the same reason: a town lays a few
- * thousand candidate plots and rejects most of them for touching one already there, and testing each against
- * every placed plot is quadratic in the longest loop of the stage.
- */
-private class LotIndex(private val cellMetres: Double) {
-
-  private val buckets = HashMap<Long, ArrayList<Lot>>()
-
-  fun add(lot: Lot) {
-    buckets.getOrPut(keyOf(lot.centre)) { ArrayList() }.add(lot)
-  }
-
-  fun overlaps(lot: Lot): Boolean {
-    val bx = Math.floor(lot.centre.x / cellMetres).toLong()
-    val by = Math.floor(lot.centre.y / cellMetres).toLong()
-
-    for (dy in -1..1) {
-      for (dx in -1..1) {
-        val bucket = buckets[key(bx + dx, by + dy)] ?: continue
-        for (other in bucket) {
-          if (intersects(lot, other)) return true
-        }
-      }
-    }
-    return false
-  }
-
-  /**
-   * Oriented-box intersection by the separating-axis theorem.
-   *
-   * Four axes - each box's two - and the boxes are apart if any one of them separates them. A bounding-circle
-   * test would be far simpler and is not usable here: consecutive plots on the same street are nine metres
-   * apart and their circumscribed circles are nine metres across, so a circle test rejects every plot's own
-   * neighbour and a town comes out with every other plot empty.
-   */
-  private fun intersects(a: Lot, b: Lot): Boolean {
-    val axes = arrayOf(a.inwards.perpendicular(), a.inwards, b.inwards.perpendicular(), b.inwards)
-    for (axis in axes) {
-      val centreGap = abs((b.centre - a.centre) dot axis)
-      val spread = a.extentAlong(axis) + b.extentAlong(axis)
-      if (centreGap > spread) return false
-    }
-    return true
-  }
-
-  private fun keyOf(at: Vec2d) =
-    key(Math.floor(at.x / cellMetres).toLong(), Math.floor(at.y / cellMetres).toLong())
-
-  private fun key(bx: Long, by: Long) = (bx shl 32) xor (by and 0xFFFF_FFFFL)
-}
-
 /** A keyed roll for the layout, folding the world seed, the stage and the settlement. */
 internal fun townRoll(streamBase: Long, settlement: Int): (Long, Long) -> Double =
   { a, b -> GenRng.hashUnit(streamBase, settlement.toLong(), a, b) }

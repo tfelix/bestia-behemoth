@@ -1106,7 +1106,7 @@ class TownStructures(features: List<VectorFeature>, private val seed: Long) {
     val WOUND_SPIRE_UNITS = Quantize.toFixed(WOUND_SPIRE_SPACING)
 
     /** Must match `Building.STOREY_HEIGHT`; the marker stores storeys, not metres. */
-    const val STOREY_HEIGHT = 2.6
+    const val STOREY_HEIGHT = 3.0
 
     /** Metres of wall thickness measured inwards from the footprint edge. */
     const val WALL_THICKNESS = 0.75

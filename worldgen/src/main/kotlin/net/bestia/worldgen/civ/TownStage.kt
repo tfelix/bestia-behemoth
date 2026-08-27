@@ -133,6 +133,18 @@ data class TownParams(
   val lotStep: Double = 2.5,
 
   /**
+   * The smallest building a settlement may contain, in metres: across its frontage, and back into its plot.
+   *
+   * Only the patched core can produce anything smaller. A street plot is exactly [lotFrontage] by [lotDepth]
+   * and comes out at 10.35 m by 16.2 m every time; a block-cut plot is whatever the recursion left, and on a
+   * demo world that reached down to a 4.5 m by 14.5 m shed of 65 m². Divided by `Building.FOOTPRINT_FILL`
+   * below to get the smallest plot `BlockSubdivider` will keep; anything under it is dropped as yard, so
+   * raising these costs buildings rather than shrinking the town - which is the trade they are chosen for.
+   */
+  val minBuildingWidth: Double = 6.0,
+  val minBuildingDepth: Double = 10.0,
+
+  /**
    * Ceiling on buildings per settlement.
    *
    * A cap, and an honest one: a city of forty thousand wants seven thousand buildings, and a world of
@@ -172,6 +184,8 @@ data class TownParams(
     require(lotStep > 0.0 && lotStep < lotFrontage) {
       "lotStep must be positive and under lotFrontage $lotFrontage, was $lotStep"
     }
+    require(minBuildingWidth > 0.0) { "minBuildingWidth must be positive, was $minBuildingWidth" }
+    require(minBuildingDepth > 0.0) { "minBuildingDepth must be positive, was $minBuildingDepth" }
     require(maxBuildingsPerSettlement >= 0) {
       "maxBuildingsPerSettlement must not be negative, was $maxBuildingsPerSettlement"
     }
@@ -195,6 +209,8 @@ data class TownParams(
     .put("lotDepth", lotDepth)
     .put("setback", setback)
     .put("lotStep", lotStep)
+    .put("minBuildingWidth", minBuildingWidth)
+    .put("minBuildingDepth", minBuildingDepth)
     .put("maxBuildingsPerSettlement", maxBuildingsPerSettlement)
     .put("maxBuildableSlope", maxBuildableSlope)
     .put("riverClearance", riverClearance)
@@ -248,7 +264,9 @@ class TownStage(
   // which still has not happened. The git history holds the note that used to be here.
   // 2: a building's walls and roof stopped being `BlockType` ids on the footprint and became `WallMaterial`
   // and `RoofMaterial` ordinals, because the building itself stopped being blocks.
-  override val version = 2
+  // 3: block-cut plots go through the plot-overlap index and a minimum size, so a core plot can no longer be
+  // laid on top of its neighbour or come out too small to build on.
+  override val version = 3
 
   override val paramsVersion get() = GenRng.hash(params.digest().value, Culture.catalogueDigest(), SettlementTier.catalogueDigest())
   /**
@@ -398,6 +416,11 @@ class TownStage(
 
     // The core first: it is the part a player walks through, and its plots are the ones worth keeping when the
     // suburbs would otherwise take the frontage.
+    //
+    // One index across all the patches, not one per patch: a block is set back from its patch edge, but a plot
+    // is a leaf's *bounding* rectangle and can reach past that setback into the next patch's. Sized to twice
+    // the largest plot a block may produce, which is the furthest apart two overlapping plots' centres can be.
+    val coreIndex = LotIndex((params.lotFrontage + params.lotDepth) * MAX_BLOCK_PLOT * 2.0)
     val coreLots = ArrayList<Lot>()
     for ((index, patch) in patches.withIndex()) {
       coreLots.addAll(
@@ -419,6 +442,11 @@ class TownStage(
           // patrician quarter's gardens and a temple's forecourt need. Beyond that the extra ground is yard.
           maxHalfFrontage = params.lotFrontage * MAX_BLOCK_PLOT,
           maxHalfDepth = params.lotDepth * MAX_BLOCK_PLOT,
+          // The plot that holds the smallest building the world allows. Divided by the fill because a building
+          // leaves a yard inside its own plot, and halved because a plot is stated as half-extents.
+          minHalfFrontage = params.minBuildingWidth * 0.5 / Building.FOOTPRINT_FILL,
+          minHalfDepth = params.minBuildingDepth * 0.5 / Building.FOOTPRINT_FILL,
+          placed = coreIndex,
           salt = index.toLong(),
           roll = roll
         )
