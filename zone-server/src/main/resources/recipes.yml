@@ -89,8 +89,8 @@ recipes:
 
   # --- Blacksmith sub-tree ------------------------------------------------------------------------
 
-  # The one refining recipe, and the reason a furnace is worth placing: two ore plus coal weigh 170 and
-  # come out as an ingot weighing 60.
+  # The one refining recipe, and the reason a furnace is worth placing: two ore plus coal weigh 700 and
+  # come out as an ingot weighing 250.
   - id: 20
     identifier: IRON_INGOT
     effect: PRODUCE

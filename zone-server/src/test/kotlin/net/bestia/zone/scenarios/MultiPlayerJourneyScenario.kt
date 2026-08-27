@@ -140,15 +140,11 @@ class MultiPlayerJourneyScenario : BestiaNoSocketScenario(autoClientConnect = fa
 
     // Granted before selection so MasterEntitySpawner hydrates them straight into the live ECS
     // Inventory/Equipment components - the equip scenario tests further down rely on both already
-    // being held. InventoryService.addItem deliberately does not weight-check (that is the
-    // caller's job); shoes (20) + boots (40) alone would blow past the default level-1 carry limit
-    // (22), so strength is bumped enough to comfortably carry both plus the apple picked up later
-    // (Order 16/17) without perturbing any of this file's other level/skill-point assertions.
+    // being held. Shoes (80) and boots (200), plus the apple picked up later (Order 16/17), sit well
+    // inside the default level-1 carry limit of 2475, so nothing here needs its attributes bent.
     val newMaster = masterRepository.findByIdOrThrow(newMasterId)
     inventoryService.addItem(newMaster, "shoes", 1)
     inventoryService.addItem(newMaster, "boots", 1)
-    newMaster.strength = 100
-    masterRepository.save(newMaster)
 
     // This master is created through the real message flow rather than by the fixture, so it starts with Basic
     // Skill at rank 0 - and the chat and party orders below would then be testing BasicSkillGate instead of

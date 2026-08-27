@@ -7,6 +7,6 @@ script = ExtResource("1_script")
 item_id = 16
 name_key = "WEAPON_BLUEPRINT"
 description_key = "WEAPON_BLUEPRINT_DESC"
-weight = 10
+weight = 1
 type = 2
 level = 15

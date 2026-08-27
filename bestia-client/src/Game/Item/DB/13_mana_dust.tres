@@ -7,6 +7,6 @@ script = ExtResource("1_script")
 item_id = 13
 name_key = "MANA_DUST"
 description_key = "MANA_DUST_DESC"
-weight = 3
+weight = 10
 type = 2
 level = 15

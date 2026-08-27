@@ -13,7 +13,7 @@ items:
   - id: 1
     item-db-name: apple
     level: 1
-    weight: 1
+    weight: 15
     type: USABLE
     script: AppleScript
     description: |
@@ -24,13 +24,13 @@ items:
   - id: 2
     item-db-name: jelly
     level: 1
-    weight: 1
+    weight: 10
     type: ETC
 
   - id: 3
     item-db-name: small_health_potion
     level: 3
-    weight: 1
+    weight: 25
     type: USABLE
     script: SmallHealthPotionScript
     description: |
@@ -43,7 +43,7 @@ items:
   - id: 4
     item-db-name: shoes
     level: 1
-    weight: 20
+    weight: 80
     type: EQUIP
     equip-slot: FOOTGEAR
     max-durability: 120
@@ -56,7 +56,7 @@ items:
   - id: 5
     item-db-name: boots
     level: 10
-    weight: 40
+    weight: 200
     type: EQUIP
     equip-slot: FOOTGEAR
     max-durability: 260
@@ -73,7 +73,7 @@ items:
   - id: 6
     item-db-name: mana_crystal
     level: 5
-    weight: 5
+    weight: 30
     type: ETC
     description: |
       A shard of raw mana crystal, cool to the touch and faintly lit from within.
@@ -81,7 +81,7 @@ items:
   - id: 7
     item-db-name: aetherite_shard
     level: 10
-    weight: 8
+    weight: 40
     type: ETC
     description: |
       A splinter of aetherite, prised from corrupted rock. It hums faintly against the palm.
@@ -92,11 +92,12 @@ items:
   # is not usable and not worn, it is only ever an input or an output of a recipe.
   #
   # Weights are shaped so that carrying ore is a decision - `WeightLimitCalculator` counts every one of
-  # these - and so that refining is a *gain*: two ore plus one coal (170) become one ingot (60).
+  # these, and eight lumps of ore is most of what a fresh master can lift - and so that refining is a
+  # *gain*: two ore plus one coal (700) become one ingot (250).
   - id: 8
     item-db-name: iron_ore
     level: 10
-    weight: 70
+    weight: 300
     type: ETC
     description: |
       A lump of raw iron ore, streaked with rust-coloured veins.
@@ -106,7 +107,7 @@ items:
   - id: 9
     item-db-name: iron_ingot
     level: 12
-    weight: 60
+    weight: 250
     type: ETC
     description: |
       A bar of refined iron, still warm from the furnace.
@@ -116,7 +117,7 @@ items:
   - id: 10
     item-db-name: coal
     level: 5
-    weight: 30
+    weight: 100
     type: ETC
     description: |
       A handful of coal. It burns hot enough to melt ore, and dirties everything it touches.
@@ -124,7 +125,7 @@ items:
   - id: 11
     item-db-name: clay
     level: 1
-    weight: 25
+    weight: 150
     type: ETC
     description: |
       Wet river clay, kneaded into a ball. It takes a shape and keeps it.
@@ -132,7 +133,7 @@ items:
   - id: 12
     item-db-name: void_essence
     level: 30
-    weight: 2
+    weight: 5
     type: ETC
     description: |
       A bead of condensed void, cold in a way that has nothing to do with temperature.
@@ -140,7 +141,7 @@ items:
   - id: 13
     item-db-name: mana_dust
     level: 15
-    weight: 3
+    weight: 10
     type: ETC
     description: |
       Mana crystal ground to a fine, faintly glowing powder.
@@ -148,7 +149,7 @@ items:
   - id: 14
     item-db-name: engraving_set
     level: 10
-    weight: 45
+    weight: 50
     type: ETC
     description: |
       A roll of fine chisels and gravers.
@@ -158,7 +159,7 @@ items:
   - id: 16
     item-db-name: weapon_blueprint
     level: 15
-    weight: 10
+    weight: 1
     type: ETC
     description: |
       A smith's drawing of a blade, annotated in a hand that assumed the reader already knew how.
@@ -166,7 +167,7 @@ items:
   - id: 17
     item-db-name: armor_blueprint
     level: 15
-    weight: 10
+    weight: 1
     type: ETC
     description: |
       A smith's drawing of a breastplate, with the hard part - the fitting - left as an exercise.
@@ -175,7 +176,7 @@ items:
   - id: 18
     item-db-name: hearty_stew
     level: 5
-    weight: 15
+    weight: 60
     type: USABLE
     script: HeartyStewScript
     description: |
@@ -190,7 +191,7 @@ items:
   - id: 19
     item-db-name: iron_sword
     level: 20
-    weight: 90
+    weight: 120
     type: EQUIP
     equip-slot: RIGHT_HAND
     max-durability: 200
@@ -203,7 +204,7 @@ items:
   - id: 20
     item-db-name: iron_cuirass
     level: 25
-    weight: 240
+    weight: 650
     type: EQUIP
     equip-slot: ARMOR
     max-durability: 300
@@ -216,7 +217,7 @@ items:
   - id: 21
     item-db-name: chart
     level: 1
-    weight: 5
+    weight: 1
     type: ETC
     # Never stacks: the surveyed ground lives on a `map_chart` row keyed by this item's instance, so two
     # charts merged into one stack would be one chart and one orphaned row.
@@ -230,7 +231,7 @@ items:
   - id: 22
     item-db-name: chart_blank
     level: 1
-    weight: 5
+    weight: 1
     type: ETC
     description: |
       Blank vellum, ruled and ready to be drawn on.
@@ -243,11 +244,12 @@ items:
   #
   # Light, because foraging is something you do while walking somewhere else. `WeightLimitCalculator`
   # counts every one, and a herb that cost as much to carry as a lump of ore would make picking it a
-  # decision instead of a reflex.
+  # decision instead of a reflex. A fresh master carries 495 herbs against 8 lumps of ore, which is the
+  # ratio that keeps it a reflex - `ItemCatalogWeightTest` holds these to a tenth of an ore each.
   - id: 23
     item-db-name: wild_herb
     level: 1
-    weight: 1
+    weight: 5
     type: ETC
     description: |
       A handful of leaves and roots, pulled up at the wayside.
@@ -257,7 +259,7 @@ items:
   - id: 24
     item-db-name: bramble_berries
     level: 1
-    weight: 2
+    weight: 10
     type: ETC
     description: |
       Dark berries picked off a thorny shrub, still cold from the shade.
@@ -265,7 +267,7 @@ items:
   - id: 25
     item-db-name: reed_stalk
     level: 1
-    weight: 3
+    weight: 20
     type: ETC
     description: |
       A cut reed stalk, hollow and stubbornly straight.
