@@ -168,6 +168,14 @@ func _on_entity_message_received(msg: EntitySMSG) -> void:
 		entity.update_mana(msg)
 	elif msg is StaminaComponentSMSG:
 		entity.update_stamina(msg)
+	elif msg is PlaceComponentSMSG:
+		# Owner-only on the wire, so this only ever arrives for the local master. Cached on the entity for
+		# the reason update_mana states: the location panel may not exist yet when the first one lands.
+		entity.update_place(msg)
+	elif msg is AreaNameComponentSMSG:
+		# No handling yet. A label over a town gate needs a visual that can carry one, which
+		# StaticEntityRenderer deliberately does not - see its note on nameplates.
+		pass
 	elif msg is CarryCapacityComponentSMSG:
 		# no handling so far. The local player's carry capacity is handled directly by
 		# MasterProfile, same as InventoryComponentSMSG below.

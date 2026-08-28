@@ -116,6 +116,16 @@ namespace BestiaBehemothClient.Bnet.Message
           var msg = Entity.StaminaComponentSMSG.FromProto(envelope.CompStamina);
           EmitSignal(SignalName.MessageReceived, msg);
         }
+        else if (envelope.CompPlace != null)
+        {
+          var msg = Entity.PlaceComponentSMSG.FromProto(envelope.CompPlace);
+          EmitSignal(SignalName.MessageReceived, msg);
+        }
+        else if (envelope.CompAreaName != null)
+        {
+          var msg = Entity.AreaNameComponentSMSG.FromProto(envelope.CompAreaName);
+          EmitSignal(SignalName.MessageReceived, msg);
+        }
         else if (envelope.CompCarryCapacity != null)
         {
           var msg = Entity.CarryCapacityComponentSMSG.FromProto(envelope.CompCarryCapacity);
