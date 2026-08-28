@@ -6,6 +6,7 @@ import net.bestia.worldgen.civ.SettlementTier
 import net.bestia.worldgen.history.Names
 import net.bestia.worldgen.pipeline.GeneratedWorld
 import net.bestia.worldgen.pipeline.StandardWorld
+import net.bestia.worldgen.place.PlaceRegions
 import net.bestia.worldgen.render.Viewport
 import net.bestia.worldgen.render.optionalAttribute
 import net.bestia.worldgen.vector.Aabb
@@ -86,7 +87,7 @@ object MapInspectMain {
     }
 
     if (to == null) {
-      reportPoint(inputs, x, y)
+      reportPoint(generated, inputs, x, y)
     } else {
       val (toX, toY) = to.split(',').let { it[0].trim().toDouble() to it[1].trim().toDouble() }
       reportTransect(inputs, x, y, toX, toY, args.int(STEPS, 40), args.int(LEVEL, 7))
@@ -267,7 +268,7 @@ object MapInspectMain {
     }
   }
 
-  private fun reportPoint(inputs: TileInputs, x: Double, y: Double) {
+  private fun reportPoint(generated: GeneratedWorld, inputs: TileInputs, x: Double, y: Double) {
     val metresPerCell = inputs.elevation.region.resolution.metresPerCell
     println()
     println("at %.0f, %.0f  (cell %d, %d)".format(
@@ -277,6 +278,7 @@ object MapInspectMain {
     println("  base height     %10.2f m".format(Locale.ROOT, inputs.baseHeight.heightAt(x, y)))
     println("  water level     %10s".format(Locale.ROOT, waterLevelText(inputs, x, y)))
     println("  biome           %10s".format(Locale.ROOT, biomeAt(inputs, x, y)?.label ?: "outside"))
+    println("  place           %10s".format(Locale.ROOT, placeAt(generated, x, y)))
     println("  canopy cover    %10.2f".format(Locale.ROOT, inputs.canopyCover.sampleBilinear(x, y)))
     println("  discharge       %10.2f m3/s".format(Locale.ROOT, inputs.discharge.sampleBilinear(x, y)))
 
@@ -334,6 +336,23 @@ object MapInspectMain {
         )
       )
     }
+  }
+
+  /**
+   * The name a player standing here would read, and the region facts behind it.
+   *
+   * The partition is built here rather than taken off [GeneratedWorld] because it is not part of the
+   * pipeline - see `place/PlaceRegions`. Cheap next to the world build this tool already paid for.
+   */
+  private fun placeAt(generated: GeneratedWorld, x: Double, y: Double): String {
+    val regions = PlaceRegions.of(generated.world)
+    val region = regions.regionAt(x, y)
+
+    val squareKm = region.cellCount * regions.cellSize * regions.cellSize / 1_000_000.0
+
+    return "%s  (%s, %.0f km2, relief %.0f m, of %d regions)".format(
+      Locale.ROOT, region.name, region.kind.name, squareKm, region.relief, regions.count
+    )
   }
 
   private fun waterLevelText(inputs: TileInputs, x: Double, y: Double): String {
