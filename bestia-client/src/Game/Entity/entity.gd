@@ -81,6 +81,9 @@ var _stamina: ConditionPool = null
 # otherwise overwrite the death pose on the very next frame.
 var _is_dead: bool = false
 
+## Where this entity is, in words. Owner-only on the wire, so null on every entity but the local master.
+var _place: PlaceComponentSMSG = null
+
 # True while this entity is channelling a skill (server-driven via CastingComponentSMSG, cleared by
 # a CastingComponentSMSG with Removed = true). For the owned entity this also gates movement input,
 # since moving cancels the cast server-side.
@@ -540,6 +543,17 @@ func update_mana(msg: ManaComponentSMSG) -> void:
 
 func update_stamina(msg: StaminaComponentSMSG) -> void:
 	_stamina = ConditionPool.new(msg.Current, msg.Max)
+
+
+## Cached for the same reason as mana and stamina: the server pushes this once on spawn and then only on
+## a border crossing, so a HUD that appears after login would otherwise have nothing to show until the
+## player next walked out of the region they logged in to.
+func update_place(msg: PlaceComponentSMSG) -> void:
+	_place = msg
+
+
+func get_place() -> PlaceComponentSMSG:
+	return _place
 
 
 ## Null until the server has pushed this pool at least once, which is why callers must null-check

@@ -21,6 +21,7 @@
 [ext_resource type="PackedScene" uid="uid://btradewin0001" path="res://Game/UI/Trade/Trade.tscn" id="19_trade"]
 [ext_resource type="PackedScene" uid="uid://cdeath0scrn01" path="res://Game/UI/Death/Death.tscn" id="20_death"]
 [ext_resource type="PackedScene" path="res://Game/UI/Weather/Weather.tscn" id="21_weather"]
+[ext_resource type="PackedScene" path="res://Game/UI/Location/Location.tscn" id="22_location"]
 
 [node name="UI" type="Control" unique_id=549600065]
 layout_mode = 3
@@ -93,6 +94,9 @@ window_title = "Trade"
 layout_mode = 1
 
 [node name="Weather" parent="." instance=ExtResource("21_weather")]
+layout_mode = 1
+
+[node name="Location" parent="." instance=ExtResource("22_location")]
 layout_mode = 1
 
 [node name="BuffList" parent="." unique_id=1824369573 instance=ExtResource("9_74y3c")]

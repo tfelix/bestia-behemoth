@@ -69,6 +69,7 @@ func open() -> void:
 	# running gets it centred on where they are rather than where they were when the scene loaded.
 	_view.follow_player = false
 	_update_scale()
+	_update_title()
 
 
 func close() -> void:
@@ -93,3 +94,24 @@ func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
 		close()
 		get_viewport().set_input_as_handled()
+
+
+## Names the map after wherever the player is standing.
+##
+## Read when the map opens rather than kept in step with a signal: the map re-centres on the player every
+## time it opens and does not follow them afterwards, so the name and the view are captured at the same
+## moment and cannot drift apart while it is being panned.
+##
+## Falls back to the static title against a server that sends no place - the same reason
+## [code]location_panel.gd[/code] stays hidden rather than showing "Unknown".
+func _update_title() -> void:
+	var entity_manager := EntityManager.get_instance()
+	var player: Entity = entity_manager.get_owned_entity() if entity_manager else null
+	if player == null:
+		return
+
+	var place: PlaceComponentSMSG = player.get_place()
+	if place == null or place.Name.is_empty():
+		return
+
+	_title.text = place.Name
