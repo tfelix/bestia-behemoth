@@ -282,6 +282,26 @@ func _snap_ground_offset() -> void:
 	_apply_position()
 
 
+## Which way this entity's model is facing, flat and unit length, or [constant Vector3.ZERO] when it has
+## no visual to read.
+##
+## Taken from the Visual's basis rather than this node's, because this node never turns - only the model
+## does, see [method _face_direction] - and the model's front is +Z rather than Godot's -Z.
+##
+## Zero rather than an arbitrary default so a caller can tell "not facing anywhere yet" from "facing north",
+## which for a marker drawn on the map is the difference between a stale arrow and no arrow.
+func facing() -> Vector3:
+	var visual := get_node_or_null(_VISUAL_NODE_NAME) as Node3D
+	if visual == null:
+		return Vector3.ZERO
+
+	var forward := visual.global_transform.basis.z
+
+	# normalized() of a zero vector is zero in Godot 4, so a degenerate basis falls out here as the same
+	# "nowhere" the missing visual above returns.
+	return Vector3(forward.x, 0.0, forward.z).normalized()
+
+
 func _face_direction(direction: Vector3) -> void:
 	# Only yaw the model towards the movement direction, ignore any vertical
 	# component so it doesn't pitch up/down on sloped waypoint segments.
