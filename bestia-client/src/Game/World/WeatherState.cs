@@ -304,6 +304,23 @@ namespace BestiaBehemothClient.Game.World
       get { return _wind.Length(); }
     }
 
+    /// <summary>Wind speed in metres per second as the server reported it, without any look multiplier.</summary>
+    /// <remarks>
+    /// For the HUD, which <i>reports</i> the weather rather than renders it. <see cref="WindSpeed"/> carries
+    /// <see cref="WeatherLook.WindScale"/>, the exaggeration that makes a blizzard's grass whip; putting that
+    /// number in front of the player would show a look decision as a measurement.
+    ///
+    /// <para>
+    /// Unsmoothed, unlike everything around it, and for the same reason the clock does not tween between
+    /// minutes: this is a reading rather than an appearance. Only the <i>direction</i> a readout draws needs
+    /// the smoothed <see cref="Wind"/>, so that a turning wind sweeps its marker rather than jumping it.
+    /// </para>
+    /// </remarks>
+    public float ReportedWindSpeed
+    {
+      get { return DebugOverrideEnabled ? DebugWindSpeed : _windSpeed; }
+    }
+
     /// <summary>How much of the sunlight has become skylight - see <see cref="WeatherLook.Diffusion"/>.</summary>
     /// <remarks>
     /// This and the four below are the cover curves applied to the <b>smoothed</b> cover rather than read off

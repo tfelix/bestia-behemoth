@@ -23,9 +23,8 @@ import org.springframework.stereotype.Component as SpringComponent
  * ### This is the steady state, not the first message
  *
  * A player's *first* weather comes from `SelectMasterHandler` the moment their master is spawned, because
- * waiting for this sweep meant up to `weather.evaluation-seconds` of whatever sky the client happened to
- * start with. Both go through [WeatherPublisher], which owns the dedup state, so the handover costs no
- * duplicate message.
+ * waiting for this sweep meant up to `weather.evaluation-seconds`.
+ * Both go through [WeatherPublisher], which owns the dedup state, so the handover costs no duplicate message.
  */
 @SpringComponent
 @Order(46)
