@@ -413,6 +413,26 @@ namespace BestiaBehemothClient.Game.World
     [Export(PropertyHint.Range, "0,0.2,0.005")] public float RevealSpan { get; set; } = 0.06f;
 
     /// <summary>
+    /// How long, in seconds, a cell takes to grow to its full size after it is scattered.
+    /// </summary>
+    /// <remarks>
+    /// <see cref="RevealSpan"/> answers the fade front, which is where grass is revealed while the player
+    /// walks. It cannot answer a cell that arrives already inside the band: that one's front is at whatever
+    /// its distance deserves on the very first frame, so every blade behind it is fully grown at once.
+    ///
+    /// <para>
+    /// Ordinary walking never does this - the server streams at 176 m and the widest the tuft band ever gets
+    /// is about 114 m, so a chunk is scattered long before it can be seen. Logging in, teleporting, and the
+    /// re-mesh after a dig all do, and a dig happens under the player's feet.
+    /// </para>
+    ///
+    /// <para>
+    /// 0 is the sprout turned off, and a cell then appears the moment it is scattered.
+    /// </para>
+    /// </remarks>
+    [Export(PropertyHint.Range, "0,3,0.05")] public float AppearSeconds { get; set; } = 0.4f;
+
+    /// <summary>
     /// How long, in milliseconds, one frame may spend scattering newly arrived chunks.
     /// </summary>
     /// <remarks>
@@ -523,6 +543,16 @@ namespace BestiaBehemothClient.Game.World
 
       /// <summary>What was last pushed as the reveal front. -1 until the first pass.</summary>
       internal float Front = -1.0f;
+
+      /// <summary>
+      /// How far this cell has grown since it was scattered, 0 to 1.
+      /// </summary>
+      /// <remarks>
+      /// Multiplied into the coverage scale rather than into the reveal front, and the difference is what it
+      /// looks like: sweeping the front would grow the cell one blade at a time in its own shuffled order,
+      /// which reads as a wave crossing the ground. A cell that has just arrived should come up together.
+      /// </remarks>
+      internal float Appear;
 
       /// <summary>
       /// This frame's share of the cell, carried between the two passes of <see cref="_Process"/>.
@@ -1127,6 +1157,12 @@ namespace BestiaBehemothClient.Game.World
             GrassLod.FractionAt(GrassLod.DistanceToBox(focus, patch.Min, patch.Max), full, fade),
             _exponent);
 
+          // Advanced here because this pass already walks every cell, and because it is the one place the
+          // frame's own delta is in scope. A cell scattered outside the band grows while it is hidden, so it
+          // is already up by the time the player is near enough to see it - so this runs for every cell, and
+          // not only for the ones the wedge below is counting.
+          patch.Appear = GrassLod.Appear(patch.Appear, 1.0f, (float)delta, AppearSeconds);
+
           if (GrassLod.InView((patch.Min + patch.Max) * 0.5f, eye.Value, forward, cosHalfAngle, near))
           {
             // What the cell will *draw*, which the ramp puts slightly above its fraction - a blade grown to a
@@ -1295,7 +1331,7 @@ namespace BestiaBehemothClient.Game.World
       // so fed the fraction it would be answering for a cell whose blades are all full size, which is not this
       // one.
       var scale = GrassLod.CoverageScale(
-        GrassLod.RevealedFraction(front, RevealSpan), CoverageCompensation, MaxCoverageScale);
+        GrassLod.RevealedFraction(front, RevealSpan), CoverageCompensation, MaxCoverageScale) * patch.Appear;
 
       // Three quarters of a step of dead band around what this cell is already drawing at, rather than a plain
       // round to the nearest step. A cell whose distance leaves it sitting on a step boundary would otherwise
