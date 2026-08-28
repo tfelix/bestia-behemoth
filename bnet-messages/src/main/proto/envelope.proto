@@ -36,6 +36,8 @@ import "messages/component/stamina_component_smsg.proto";
 import "messages/component/carry_capacity_component_smsg.proto";
 import "messages/component/inventory_component_smsg.proto";
 import "messages/component/skill_points_smsg.proto";
+import "messages/component/area_name_component_smsg.proto";
+import "messages/component/place_component_smsg.proto";
 import "messages/component/skill_list_smsg.proto";
 import "messages/component/animation_component_smsg.proto";
 import "messages/component/status_effect_list_smsg.proto";
@@ -183,6 +185,8 @@ message Envelope {
     StatusPointsSMSG comp_status_points = 534;
     BaseStatusValuesSMSG comp_base_status_values = 535;
     DeadComponentSMSG comp_dead = 536;
+    PlaceComponentSMSG comp_place = 537;
+    AreaNameComponentSMSG comp_area_name = 538;
 
     // SOCIAL & PARTY 600
     AcceptPartyInviteCMSG accept_party_invite = 600;
