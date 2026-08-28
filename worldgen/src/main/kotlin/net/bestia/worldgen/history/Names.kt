@@ -53,6 +53,55 @@ object Names {
     return joined.replaceFirstChar { it.uppercase() }
   }
 
+  /**
+   * A region name: "Elm Downs", "Iron Fells", "Salt Sound".
+   *
+   * Stem plus the region's own form word, and the stem comes from the same [Style.placeStems] the towns
+   * inside it draw on. A region and a settlement landing on one stem is not a collision to be avoided -
+   * "Elmford in the Elm Downs" reads as one language, and arguably as one etymology.
+   *
+   * @param cultureIndex the culture that named it, or negative where nobody lives near enough to have.
+   *   An absent culture picks one off the seed rather than falling through [styleOf]'s clamp to the
+   *   first: the clamp would name every empty quarter of the world like a farming valley, and a
+   *   wilderness named in an arbitrary idiom at least varies the way real exonyms do. This is the same
+   *   problem [site]'s `wound` branch solves, one step less drastically - a region is somewhere people
+   *   pass through, so it gets a language rather than an epithet.
+   * @param epithet widens the name space with a leading adjective - "Elder Elm Downs".
+   *
+   *   Twenty stems and ten forms is two hundred names per culture, and regions competing for one form
+   *   in one culture see only the twenty. A hundred and eighty regions therefore *will* collide, and
+   *   that is not a reason to add a word pool: real toponymy disambiguates the same way, and the
+   *   [Style.epithets] this reuses already exist. Callers should only reach for it on an actual clash -
+   *   a world where every region has an adjective reads as generated.
+   */
+  fun region(seed: Long, cultureIndex: Int, form: String, epithet: Boolean = false): String {
+    val culture = if (cultureIndex >= 0) {
+      cultureIndex
+    } else {
+      (GenRng.hash(seed, REGION_CULTURE_SALT) ushr 1).mod(STYLES.size.toLong()).toInt()
+    }
+    val style = styleOf(culture)
+
+    // A bare stem or a whole place-word, on a coin flip. [artifact] makes this argument first and it is
+    // the same one: a world where every region is "<Stem> <Form>" reads as generated, and half the stems
+    // in a pool are name fragments rather than words - "Elm Downs" carries itself, "Sube Deep" does not.
+    // It also widens the pool from twenty names per culture to several hundred, which is what stops
+    // ninety ocean regions colliding on two form words.
+    val head = if (unit(seed, REGION_SHAPE_SALT) < 0.5) {
+      pick(style.placeStems, seed, REGION_STEM_SALT)
+    } else {
+      place(seed, culture).lowercase()
+    }
+
+    val qualified = if (epithet) {
+      "${pick(style.epithets, seed, REGION_EPITHET_SALT)} $head"
+    } else {
+      head
+    }
+
+    return "${qualified.replaceFirstChar { it.uppercase() }} ${form.replaceFirstChar { it.uppercase() }}"
+  }
+
   /** A personal name, plus a byname often enough that a chronicle does not read as a list of nouns. */
   fun person(seed: Long, cultureIndex: Int, role: FigureRole): String {
     val style = styleOf(cultureIndex)
@@ -136,6 +185,11 @@ object Names {
 
   private const val WOUND_SALT = 0x77L
   private const val WOUND_NOUN_SALT = 0x78L
+
+  private const val REGION_STEM_SALT = 0x80L
+  private const val REGION_CULTURE_SALT = 0x81L
+  private const val REGION_EPITHET_SALT = 0x82L
+  private const val REGION_SHAPE_SALT = 0x83L
 
   private fun styleOf(cultureIndex: Int): Style = STYLES[cultureIndex.coerceIn(0, STYLES.size - 1)]
 
