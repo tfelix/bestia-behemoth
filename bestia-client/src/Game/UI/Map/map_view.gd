@@ -35,6 +35,19 @@ const _ARROW_TAIL := 3.5
 const _ARROW_HALF := 4.0
 const _ARROW_NOTCH := 1.0
 
+## The north mark. Warm rather than the marker's amber, so that the fixed thing and the moving thing are not
+## the same colour at a glance.
+const _NORTH_COLOUR := Color(1.0, 0.94, 0.78)
+const _NORTH_FONT_SIZE := 11
+const _NORTH_PIP_TIP := 2.0
+const _NORTH_PIP_BASE := 9.0
+const _NORTH_PIP_HALF := 4.0
+const _NORTH_PIP_INSET := 1.5
+
+## The tip is a point rather than an edge, so pulling it in by the plain inset would barely move it. This is
+## the ratio that keeps the light triangle's apex clear of the dark one's.
+const _NORTH_PIP_TIP_INSET_RATIO := 1.6
+
 ## Metres per pixel is 2^level, so 0 is one metre to the pixel and 9 is 512.
 @export var level: int = 2
 
@@ -43,6 +56,13 @@ const _ARROW_NOTCH := 1.0
 
 ## Whether the centre tracks the player. True for the minimap; the overlay sets it once when it opens.
 @export var follow_player: bool = false
+
+## Whether to mark which way north is. True for the minimap, false for the overlay.
+##
+## Not because the overlay is any less north-up - it is the same drawing - but because it is large enough to
+## carry its own labelled ground, while the minimap is a 168 pixel window with nothing in it to say which way
+## it is held.
+@export var show_north: bool = false
 
 ## Where the player's own marker is drawn, and what [member follow_player] follows.
 var entity_manager: Node = null
@@ -158,6 +178,7 @@ func _draw() -> void:
 			draw_texture_rect(texture, Rect2(corner, Vector2(_tile_pixels, _tile_pixels)), false)
 
 	_draw_player()
+	_draw_north()
 
 
 func _draw_player() -> void:
@@ -198,6 +219,45 @@ func _draw_arrow(at: Vector2, forward: Vector2, scale: float, colour: Color) -> 
 		at - f * _ARROW_TAIL + r * _ARROW_HALF,
 		at - f * _ARROW_NOTCH,
 		at - f * _ARROW_TAIL - r * _ARROW_HALF,
+	]), colour)
+
+
+## Marks the top of the view as north.
+##
+## Static geometry, because this view is north-up and has no way not to be - see [method _to_screen], which is
+## a translate and a flip with no rotation in it anywhere. If that ever stops being true, this is one of the
+## two places that has to learn about it; the other is the player arrow.
+func _draw_north() -> void:
+	if not show_north:
+		return
+
+	var centre_x := size.x * 0.5
+
+	# Two passes, dark under light, for the reason the player marker has two: the tile underneath can be any
+	# brightness.
+	_draw_north_pip(centre_x, 0.0, _MARKER_OUTLINE)
+	_draw_north_pip(centre_x, _NORTH_PIP_INSET, _NORTH_COLOUR)
+
+	# draw_string positions the *baseline*, not the top left, so the ascent has to be added on and the width
+	# measured to centre it. The project has no Theme resource, hence the default font.
+	var font := get_theme_default_font()
+	var width := font.get_string_size("N", HORIZONTAL_ALIGNMENT_LEFT, -1, _NORTH_FONT_SIZE).x
+	var baseline := _NORTH_PIP_BASE + 1.0 + font.get_ascent(_NORTH_FONT_SIZE)
+
+	draw_string(font, Vector2(centre_x - width * 0.5, baseline), "N",
+		HORIZONTAL_ALIGNMENT_LEFT, -1, _NORTH_FONT_SIZE, _NORTH_COLOUR)
+
+
+## The pip, pulled [param inset] pixels in from every edge.
+##
+## Inset rather than scaled, unlike the player arrow above. The arrow is scaled about the player's own
+## position, which is inside it; this triangle has no such point to scale about, and scaling it about its tip
+## left the two passes sharing that vertex - so the light one had no dark edge exactly where it needed one.
+func _draw_north_pip(centre_x: float, inset: float, colour: Color) -> void:
+	draw_colored_polygon(PackedVector2Array([
+		Vector2(centre_x, _NORTH_PIP_TIP + inset * _NORTH_PIP_TIP_INSET_RATIO),
+		Vector2(centre_x - _NORTH_PIP_HALF + inset, _NORTH_PIP_BASE - inset),
+		Vector2(centre_x + _NORTH_PIP_HALF - inset, _NORTH_PIP_BASE - inset),
 	]), colour)
 
 
