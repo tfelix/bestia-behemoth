@@ -212,7 +212,14 @@ class SceneTest {
     try {
       val written = ViewerExport.exportAll(scene, directory, widthPx = 160, heightPx = 160)
 
-      assertEquals(scene.fields.size, written.size, "wrote ${written.map { it.name }}")
+      val names = written.map { it.nameWithoutExtension }.toSet()
+
+      // One per field, and one more: the region overlay, which is not a field. Named explicitly rather
+      // than folded into the count, so a future extra picture fails here with something to read instead
+      // of an off-by-one.
+      assertTrue(names.contains("place-regions"), "the region overlay is missing; wrote $names")
+      assertEquals(scene.fields.size + 1, written.size, "wrote $names")
+
       for (file in written) {
         assertTrue(file.length() > 0, "${file.name} is empty")
       }

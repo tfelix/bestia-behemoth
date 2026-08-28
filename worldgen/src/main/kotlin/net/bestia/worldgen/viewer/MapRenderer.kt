@@ -77,7 +77,20 @@ data class RenderOptions(
    * Separate because the two answer different questions and one is a hundred times larger than the other:
    * "where can a cart go" is the road network, and "can anything cross this valley at all" is the lattice.
    */
-  val navWilderness: Boolean = true
+  val navWilderness: Boolean = true,
+
+  /**
+   * Draw the place-name partition - the regions a player is told they are standing in.
+   *
+   * Off by default, and opaque enough to hide the field underneath when on: it is a categorical overlay
+   * rather than a shading of the terrain, so blending it with a scalar view would make both unreadable.
+   * The **only** renderer that draws these borders - see [RegionOverlay] for why that is deliberate
+   * rather than an omission everywhere else.
+   */
+  val regions: Boolean = false,
+
+  /** Draw each visible region's name at its centre. */
+  val regionLabels: Boolean = true
 ) {
 
   fun draws(kind: FeatureKind) = features && (featureKinds == null || kind in featureKinds)
@@ -148,7 +161,15 @@ class RenderedMap(
    * Reported for the same reason [MapRenderer.gridsSuppressed] is: the overlay caps itself on a large world,
    * and an overlay that quietly draws a fraction of itself is worse than one that says how much.
    */
-  val navStats: NavGraphOverlay.Stats = NavGraphOverlay.Stats.NONE
+  val navStats: NavGraphOverlay.Stats = NavGraphOverlay.Stats.NONE,
+
+  /**
+   * What the region overlay drew, when it was on.
+   *
+   * The toggle is the only way to find out that a world has no partition to draw - see
+   * [RegionOverlay] - so it has to be able to say "nothing", not just draw nothing.
+   */
+  val regionStats: RegionOverlay.Stats = RegionOverlay.Stats.NONE
 )
 
 /**
@@ -179,7 +200,9 @@ class MapRenderer(
     options: RenderOptions = RenderOptions(),
     features: List<VectorFeature> = emptyList(),
     /** The prepared navigation overlay, or null when this scene has no graph. See [WorldScene.navOverlay]. */
-    navOverlay: NavGraphOverlay? = null
+    navOverlay: NavGraphOverlay? = null,
+    /** The prepared region overlay, or null on a world with no partition. See [WorldScene.regionOverlay]. */
+    regionOverlay: RegionOverlay? = null
   ): RenderedMap {
     val image = BufferedImage(view.widthPx, view.heightPx, BufferedImage.TYPE_INT_RGB)
 
@@ -212,12 +235,13 @@ class MapRenderer(
       }
     }
 
-    val navStats = drawOverlays(image, view, options, features, navOverlay)
+    val overlayStats = drawOverlays(image, view, options, features, navOverlay, regionOverlay)
 
     return RenderedMap(
       image, field, range.first, range.second,
       categories = if (field.palette.categorical) census(values) else emptyList(),
-      navStats = navStats
+      navStats = overlayStats.nav,
+      regionStats = overlayStats.regions
     )
   }
 
@@ -319,13 +343,15 @@ class MapRenderer(
     view: Viewport,
     options: RenderOptions,
     features: List<VectorFeature>,
-    navOverlay: NavGraphOverlay?
-  ): NavGraphOverlay.Stats {
+    navOverlay: NavGraphOverlay?,
+    regionOverlay: RegionOverlay?
+  ): OverlayStats {
     val drawsNav = options.navGraph && navOverlay != null && !navOverlay.isEmpty
+    val drawsRegions = options.regions && regionOverlay != null
     if (!options.chunkGrid && !options.cellGrid && options.seams.isEmpty() && !drawsNav &&
-      !(options.features && features.isNotEmpty())
+      !drawsRegions && !(options.features && features.isNotEmpty())
     ) {
-      return NavGraphOverlay.Stats.NONE
+      return OverlayStats.NONE
     }
 
     val g = image.createGraphics()
@@ -333,6 +359,13 @@ class MapRenderer(
       g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
       g.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE)
 
+      // First, under everything: the partition is a backdrop that says where you are, and a road or a
+      // seam marker has to stay legible over it.
+      val regionStats = if (drawsRegions) {
+        regionOverlay!!.draw(g, view, options.regionLabels)
+      } else {
+        RegionOverlay.Stats.NONE
+      }
       if (options.cellGrid) {
         drawGrid(g, view, config.baseResolution.metresPerCell, CELL_GRID_COLOR)
       }
@@ -352,7 +385,7 @@ class MapRenderer(
       if (options.seams.isNotEmpty()) {
         drawSeams(g, view, options.seams)
       }
-      return navStats
+      return OverlayStats(nav = navStats, regions = regionStats)
     } finally {
       g.dispose()
     }
@@ -503,6 +536,17 @@ class MapRenderer(
       val sx = view.screenX(worldX)
       val sy = view.screenY(worldY)
       g.draw(Ellipse2D.Double(sx - 3.0, sy - 3.0, 6.0, 6.0))
+    }
+  }
+
+  /** What each vector overlay drew, so one pass can report on both. */
+  private class OverlayStats(
+    val nav: NavGraphOverlay.Stats,
+    val regions: RegionOverlay.Stats
+  ) {
+
+    companion object {
+      val NONE = OverlayStats(NavGraphOverlay.Stats.NONE, RegionOverlay.Stats.NONE)
     }
   }
 

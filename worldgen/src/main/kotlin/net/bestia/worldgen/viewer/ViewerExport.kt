@@ -1,5 +1,6 @@
 package net.bestia.worldgen.viewer
 
+import net.bestia.worldgen.core.LayerId
 import net.bestia.worldgen.render.Viewport
 import net.bestia.worldgen.vector.FeatureKind
 import java.io.File
@@ -16,7 +17,13 @@ import kotlin.math.ceil
  */
 object ViewerExport {
 
-  /** One PNG per field, plus a chunk-scale close-up when the scene has a chunk pipeline. */
+  /**
+   * One PNG per field, plus a chunk-scale close-up when the scene has a chunk pipeline, plus the region
+   * overlay when the world got as far as biomes.
+   *
+   * The last one is not a field and does not correspond to one, which is why callers should match on names
+   * rather than count what came back.
+   */
   fun exportAll(
     scene: WorldScene,
     directory: File,
@@ -52,9 +59,40 @@ object ViewerExport {
 
         written.add(write(map, directory, field.name))
       }
+
+      // One extra picture rather than the overlay on all of them: the partition is the same everywhere, so
+      // repeating it per field would say nothing new, and it hides whatever field it is drawn over. Exported
+      // at all because a partition that collapsed to one region is invisible in every other view here.
+      regionExport(scene, renderer, view, options, widthPx, heightPx)?.let {
+        written.add(write(it, directory, "place-regions"))
+      }
     }
 
     return written
+  }
+
+  private fun regionExport(
+    scene: WorldScene,
+    renderer: MapRenderer,
+    view: Viewport,
+    options: RenderOptions,
+    widthPx: Int,
+    heightPx: Int
+  ): RenderedMap? {
+    val overlay = scene.regionOverlay ?: return null
+    val relief = scene.fields.firstOrNull { it.name == LayerId.ELEVATION.name } ?: return null
+
+    val target = viewFor(relief, scene, view, widthPx, heightPx)
+    val map = renderer.render(
+      relief,
+      target,
+      options.copy(regions = true, features = false),
+      emptyList(),
+      null,
+      overlay
+    )
+
+    return if (map.unavailable != null) null else map
   }
 
   /**
