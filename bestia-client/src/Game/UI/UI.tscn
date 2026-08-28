@@ -20,6 +20,7 @@
 [ext_resource type="Script" uid="uid://chthlxaerqb0t" path="res://Game/UI/Map/map_source.gd" id="18_mapsrc"]
 [ext_resource type="PackedScene" uid="uid://btradewin0001" path="res://Game/UI/Trade/Trade.tscn" id="19_trade"]
 [ext_resource type="PackedScene" uid="uid://cdeath0scrn01" path="res://Game/UI/Death/Death.tscn" id="20_death"]
+[ext_resource type="PackedScene" path="res://Game/UI/Weather/Weather.tscn" id="21_weather"]
 
 [node name="UI" type="Control" unique_id=549600065]
 layout_mode = 3
@@ -89,6 +90,9 @@ content = ExtResource("19_trade")
 window_title = "Trade"
 
 [node name="Clock" parent="." unique_id=1359698401 instance=ExtResource("14_clock")]
+layout_mode = 1
+
+[node name="Weather" parent="." instance=ExtResource("21_weather")]
 layout_mode = 1
 
 [node name="BuffList" parent="." unique_id=1824369573 instance=ExtResource("9_74y3c")]
