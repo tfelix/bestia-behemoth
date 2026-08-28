@@ -27,6 +27,7 @@ import net.bestia.worldgen.geo.ClosedBasins
 import net.bestia.worldgen.history.SiteChannels
 import net.bestia.worldgen.hydro.LakeChannels
 import net.bestia.worldgen.karst.CaveChannels
+import net.bestia.worldgen.place.PlaceRegions
 import net.bestia.worldgen.poi.PoiChannels
 import net.bestia.worldgen.poi.PoiKind
 import net.bestia.worldgen.pop.BusinessCatalogue
@@ -268,6 +269,9 @@ object Invariants {
     checkPropsAreWellPlaced(generated, ::fail)
     checkPoisBecomeProps(generated, ::fail)
     checkDistrictsHoldTheirBuildings(generated, ::fail)
+
+    // Place names. Not a stage, so nothing above has touched it - see `place/PlaceRegions`.
+    checkEveryCornerOfTheWorldIsNamed(generated, ::fail)
 
     return out
   }
@@ -3170,4 +3174,67 @@ object Invariants {
     }
   }
 
+  /**
+   * Every cell of the world belongs to a region, and every region has a name and one element.
+   *
+   * Coverage is the entire promise of the place-name system: a hole in the partition is a corner of the
+   * world where a player is told nothing, and it is invisible until somebody walks into it. The rest are
+   * the failures that would leave the system technically working and useless - one region for the whole
+   * world, no land in any of them, a blank name, or a name covering both a bay and the hill above it.
+   *
+   * Builds the partition itself rather than taking one, because nothing in the pipeline produces it and a
+   * caller that forgot to pass one would silently check nothing.
+   */
+  private fun checkEveryCornerOfTheWorldIsNamed(
+    generated: GeneratedWorld,
+    fail: (String, String) -> Unit
+  ) {
+    // A partial pipeline has no biomes to partition on, and saying nothing is right there.
+    if (generated.world.layers[LayerId.BIOME] == null) return
+
+    val regions = PlaceRegions.of(generated.world)
+    val config = generated.config
+
+    if (regions.count < 2) {
+      fail("the world is divided into regions", "the partition produced ${regions.count} region(s)")
+      return
+    }
+
+    if (regions.landCount == 0) {
+      fail("some region holds land", "every one of ${regions.count} regions is water")
+    }
+
+    val blank = regions.regions.filter { it.name.isBlank() }
+    if (blank.isNotEmpty()) {
+      fail("every region has a name", "${blank.size} region(s) rendered a blank name")
+    }
+
+    val mixed = regions.regions.filter {
+      if (it.isWater) it.landShare >= 0.5 else it.landShare <= 0.5
+    }
+    if (mixed.isNotEmpty()) {
+      val first = mixed.first()
+      fail(
+        "no region spans the coastline",
+        "${first.name} is ${if (first.isWater) "water" else "land"} at a land share of ${first.landShare}"
+      )
+    }
+
+    // Every cell centre in the world, because coverage is not a property a sample can establish: one
+    // unreached island is one place a player can stand and be told nothing.
+    val step = config.baseResolution.metresPerCell
+    var y = step * 0.5
+    while (y < config.heightMetres) {
+      var x = step * 0.5
+      while (x < config.widthMetres) {
+        val index = regions.indexAt(x, y)
+        if (index !in 0 until regions.count) {
+          fail("every position resolves to a region", "($x, $y) resolved to region $index")
+          return
+        }
+        x += step
+      }
+      y += step
+    }
+  }
 }

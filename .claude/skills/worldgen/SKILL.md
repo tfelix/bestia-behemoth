@@ -41,6 +41,7 @@ core/       Stage, GenContext, GenRng, LayerStore/FeatureStore, WorldGenPipeline
 fields/     Noise, Grid, Points (Poisson disk), DistanceTransform, DoubleIntHeap
 
 geo/ climate/ hydro/ bio/ resource/ civ/ history/ pop/ mana/ karst/ spawn/ poi/   ← the 23 Stages, see below
+place/      PlaceRegions: named 5-10 km areas covering the whole world. NOT a stage - see below
 
 voxel/      BlockType palette, Stratigraphy, ChunkMaterializer, RleCodec, CaveNetwork, VegetationScatter
 derived/    ChunkDelta (player edits), ColumnSummary, OpacityGrid, WalkableTile, DerivedStore
@@ -225,6 +226,35 @@ discarded for a year. Every test was green in all three cases. **Count the outpu
 tests.** Where existence can't be asserted per seed - most worlds legitimately have none of a given rare
 thing - pin the check to a seed that does have one, rather than writing a conditional that passes vacuously
 on every seed that doesn't.
+
+## Place names (`place/`) - the not-a-stage tier
+
+`place/PlaceRegions.of(world)` divides the world into ~180 named areas on a 128 km world (7.5 km across at
+the median) so `zone-server` can tell a player where they are without coordinates. It is **not a `Stage`**,
+for `climate/WeatherRegions`' reason: nothing in the pipeline consumes it, so a stage would buy a
+`paramsVersion` and a `pipelineVersion` move - invalidating every stored world - in exchange for nothing.
+`civ/SettlementSpawnPoints` is the second precedent. The cost is that it reads layers off `World` directly
+and so loses `LayerStore`'s undeclared-read exception; what replaces it is structural, since it runs after
+the pipeline has frozen.
+
+Three things about it are worth knowing before touching it:
+
+- **It rasterises, against `WeatherRegions`' explicit advice.** That advice is about a categorical boundary
+  being *drawn*, and a place-name boundary is not: the only observable is the metre at which a label
+  changes, quantised to a kilometre. The rule that keeps it true is that **borders are never rendered to a
+  player** - `viewer/RegionOverlay` (the `R` key, and one PNG from `viewerExport`) is the only renderer
+  with them, deliberately, because judging the cost field needs them visible.
+- **Coverage is the promise, and the seeding does not provide it.** A cost-weighted Dijkstra refuses to
+  cross the coastline, so an island smaller than the seed spacing is unreachable. `RegionGrowth.assign`
+  closes that itself by flooding every unclaimed component as its own region; `Invariants` asserts it per
+  seed.
+- **`Names.region` adds no word pool**, which is why this whole tier moves no version number: it draws on
+  the existing `STYLES` pools with new salts, and `Names.catalogueDigest()` hashes pools, not salts.
+  `PlaceRegionsTest` pins the digest, so that claim is asserted rather than assumed.
+
+`RegionCalibrationTest` is `@Disabled` and holds the measurements every constant here came from - relief
+percentiles, region widths per spacing. Read it before changing `RegionParams.spacing` or
+`RegionKind`'s thresholds; the first guesses at both were wrong (nine regions in ten came back as fells).
 
 ## The vector feature system (`vector/`)
 
