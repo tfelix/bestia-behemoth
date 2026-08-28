@@ -1,0 +1,70 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://Game/UI/Weather/weather.gd" id="1_weather"]
+[ext_resource type="Script" path="res://Game/UI/Weather/compass_strip.gd" id="2_strip"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_weatherpanel"]
+bg_color = Color(0.075, 0.065, 0.055, 1)
+
+[node name="Weather" type="PanelContainer"]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -140.0
+offset_top = 8.0
+offset_right = 140.0
+offset_bottom = 78.0
+grow_horizontal = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_weatherpanel")
+script = ExtResource("1_weather")
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 4
+
+[node name="Rows" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 2
+
+[node name="Compass" type="Control" parent="Margin/Rows"]
+custom_minimum_size = Vector2(0, 28)
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("2_strip")
+
+[node name="Bottom" type="HBoxContainer" parent="Margin/Rows"]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Temp" type="Label" parent="Margin/Rows/Bottom"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+theme_override_font_sizes/font_size = 22
+text = "—"
+vertical_alignment = 1
+
+[node name="Right" type="VBoxContainer" parent="Margin/Rows/Bottom"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 0
+
+[node name="Sky" type="Label" parent="Margin/Rows/Bottom/Right"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_font_sizes/font_size = 12
+text = "—"
+horizontal_alignment = 2
+
+[node name="Wind" type="Label" parent="Margin/Rows/Bottom/Right"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_font_sizes/font_size = 12
+text = "—"
+horizontal_alignment = 2
