@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "PlaceComponentSMSGProto";
+
+
+// Where an entity is, in words. Owner-only, and sent only when the answer changes.
+//
+// One name, not a list. Areas can overlap on the ground, but "where am I" has one answer and the server
+// is what decides it - a client asked to rank a town against the region around it would be reimplementing
+// a server rule, and the two would drift. For the same reason no kind travels: a name is a name to whoever
+// is reading it, and whether it came from a region, a town or a player's claim is the server's business.
+//
+// No id and no geometry. A client that accumulated those over a few walks would have the shape of the
+// world map, which is what WeatherSMSG keeps opaque and WorldInfoSMSG withholds the seed to prevent.
+//
+// The name is English by construction. Generated strings cannot pass through Godot's build-time tr()
+// tables, so only the sentence around a name is ever translated. Making this translatable would mean
+// sending the pattern and the word indices instead - roughly 150 CSV rows, since the word pools are small
+// and closed - and adding those fields later is a non-breaking proto3 change, so nothing here forecloses
+// it.
+message PlaceComponentSMSG {
+  fixed64 entity_id = 1;
+  string name = 2;
+}

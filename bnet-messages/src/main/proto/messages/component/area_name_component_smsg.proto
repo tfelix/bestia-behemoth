@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "AreaNameComponentSMSGProto";
+
+
+// The name on an area entity itself - a town gate, a claim stone - public to anyone in range.
+//
+// Distinct from PlaceComponentSMSG, which tells one player privately where they are standing. This is a
+// label on a thing in the world; that is an answer about a player. Sending one and deriving the other
+// would mean either broadcasting a player's location or hiding a town's name from passers-by.
+message AreaNameComponentSMSG {
+  fixed64 entity_id = 1;
+  string name = 2;
+  // How far the name reaches from the entity, in position units (one unit is one metre).
+  uint64 radius = 3;
+}
