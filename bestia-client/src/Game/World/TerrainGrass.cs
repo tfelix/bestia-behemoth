@@ -388,6 +388,31 @@ namespace BestiaBehemothClient.Game.World
     [Export(PropertyHint.Range, "0,1,0.01")] public float MinUpright { get; set; } = 0.6f;
 
     /// <summary>
+    /// How wide the band is over which a blade grows in at the fade front, as a share of its cell.
+    /// </summary>
+    /// <remarks>
+    /// Without it a blade is switched on at full size the moment the count reaches it, and
+    /// <see cref="CoverageCompensation"/> makes that worse rather than better: the blades appearing at the
+    /// front are the ones it has grown by up to <see cref="MaxCoverageScale"/>. Walking towards a cell in the
+    /// middle of the taper adds several of them a second.
+    ///
+    /// <para>
+    /// A share of the cell rather than a count of blades, so a blade takes the same <i>time</i> to grow
+    /// whether its cell holds thirty of them or three hundred - how fast the front moves is a property of
+    /// the taper and of walking speed, not of the density. At 0.06 and four metres a second that is roughly
+    /// half a second in the middle of the tuft band.
+    /// </para>
+    ///
+    /// <para>
+    /// <b>0 reproduces the old hard pop exactly</b>, the way <see cref="ZoomResponse"/> at 0 reproduces a
+    /// fixed band - which is what makes "did the reveal cause this" answerable by setting one number to zero.
+    /// It costs a little coverage in the taper and far less than its width suggests, because where the band
+    /// is thinnest the whole ramp falls away with the cube - see <c>GrassLod.RevealedFraction</c>.
+    /// </para>
+    /// </remarks>
+    [Export(PropertyHint.Range, "0,0.2,0.005")] public float RevealSpan { get; set; } = 0.06f;
+
+    /// <summary>
     /// How long, in milliseconds, one frame may spend scattering newly arrived chunks.
     /// </summary>
     /// <remarks>
@@ -457,6 +482,14 @@ namespace BestiaBehemothClient.Game.World
     /// </remarks>
     private const float ScaleStep = 0.05f;
 
+    /// <summary>How far the reveal front has to move before it is worth pushing to the shader.</summary>
+    /// <remarks>
+    /// A hundredth of the ramp, so no blade's size jumps by more than a percent between pushes. Unlike the
+    /// coverage scale this one really does move every frame the player is walking, so the guard saves less -
+    /// but a cell that has settled at either end of its taper still stops being written to.
+    /// </remarks>
+    private const float RevealEpsilon = 0.01f;
+
     /// <summary>Cull margin, in metres, covering the wind - which moves vertices Godot's bounds know nothing about.</summary>
     /// <remarks>The same margin <see cref="StaticEntityRenderer"/>'s batches carry, for the same reason.</remarks>
     private const float WindCullMargin = 1.2f;
@@ -487,6 +520,9 @@ namespace BestiaBehemothClient.Game.World
       /// slot on every cell in the view volume, including the ones past the fade radius that draw nothing.
       /// </remarks>
       internal int Level;
+
+      /// <summary>What was last pushed as the reveal front. -1 until the first pass.</summary>
+      internal float Front = -1.0f;
 
       /// <summary>
       /// This frame's share of the cell, carried between the two passes of <see cref="_Process"/>.
@@ -535,6 +571,9 @@ namespace BestiaBehemothClient.Game.World
 
     private bool _loaded;
 
+    /// <summary>The ramp width the materials were last told about. NaN so the first push always happens.</summary>
+    private float _pushedSpan = float.NaN;
+
     /// <summary>Where the camera is looking, which is where the player is. Null until told - see <see cref="SetFocusAt"/>.</summary>
     private Vector3? _focus;
 
@@ -562,6 +601,15 @@ namespace BestiaBehemothClient.Game.World
 
     /// <summary>The exponent the field is thinning at, so the tint can give way at the same rate.</summary>
     private static readonly StringName FieldFalloffParameter = "grass_field_falloff";
+
+    /// <summary>How far apart this cell's instances sit in its own order. Pushed once, at install.</summary>
+    private static readonly StringName InstanceStepParameter = "grass_instance_step";
+
+    /// <summary>Where this cell's reveal has reached. The one push that moves while the player walks.</summary>
+    private static readonly StringName RevealParameter = "grass_reveal";
+
+    /// <summary>The ramp's width. A material uniform, so it is set once for the whole field.</summary>
+    private static readonly StringName RevealSpanParameter = "grass_reveal_span";
 
     /// <summary>
     /// Tells the field where the player is, so the level of detail can be measured from them.
@@ -793,6 +841,11 @@ namespace BestiaBehemothClient.Game.World
       };
 
       AddChild(node);
+
+      // Constant for the life of the cell, so it is pushed here and never again. It is the shader's divisor and
+      // its sentinel both: a node that never sets it draws at full size, which is what every ground-cover prop
+      // StaticEntityRenderer puts on the ground with this same shader relies on.
+      node.SetInstanceShaderParameter(InstanceStepParameter, GrassLod.RevealStep(transforms.Count));
 
       return new Patch
       {
@@ -1028,6 +1081,8 @@ namespace BestiaBehemothClient.Game.World
 
       Drain(eye);
 
+      PushRevealSpan();
+
       if (_patches.Count == 0 || !eye.HasValue)
       {
         // No field for the ground to match. Published rather than left alone, so the terrain stops being
@@ -1074,7 +1129,10 @@ namespace BestiaBehemothClient.Game.World
 
           if (GrassLod.InView((patch.Min + patch.Max) * 0.5f, eye.Value, forward, cosHalfAngle, near))
           {
-            wanted += Mathf.RoundToInt(patch.Total * patch.Fraction);
+            // What the cell will *draw*, which the ramp puts slightly above its fraction - a blade grown to a
+            // fiftieth of its size still costs a vertex shader, so the budget has to see it.
+            wanted += Mathf.RoundToInt(
+              patch.Total * GrassLod.DrawnFraction(GrassLod.RevealFront(patch.Fraction, RevealSpan)));
           }
         }
       }
@@ -1165,11 +1223,45 @@ namespace BestiaBehemothClient.Game.World
       return size.Y > 0.0f ? size.X / size.Y : 0.0f;
     }
 
+    /// <summary>
+    /// Keeps the shader's copy of the ramp width in step with <see cref="RevealSpan"/>.
+    /// </summary>
+    /// <remarks>
+    /// A material uniform rather than a per-instance one, because it is one number for the whole field. Pushed
+    /// from here rather than once at load so that the knob can be swept in the inspector while the game runs -
+    /// which is the point of it, since 0 reproduces the old hard pop and makes "did the reveal cause this"
+    /// answerable by setting one number to zero. A float compare a frame, and nothing pushed once it settles.
+    /// </remarks>
+    private void PushRevealSpan()
+    {
+      if (_material is not ShaderMaterial shader || Mathf.IsEqualApprox(RevealSpan, _pushedSpan))
+      {
+        return;
+      }
+
+      _pushedSpan = RevealSpan;
+
+      shader.SetShaderParameter(RevealSpanParameter, RevealSpan);
+
+      // The compensation levels are duplicates of the material above, so one made after this push already
+      // carries the new width - but the ones already cached do not, and a cell drawing at any of them would
+      // otherwise keep revealing at whatever the width was when its level was first needed.
+      foreach (var scaled in _scaled.Values)
+      {
+        scaled.SetShaderParameter(RevealSpanParameter, RevealSpan);
+      }
+    }
+
     /// <summary>Sets one cell's instance count and tuft size from the share it was given this frame.</summary>
     private void Retune(Patch patch, float trim)
     {
       var fraction = patch.Fraction * trim;
-      var visible = Mathf.RoundToInt(patch.Total * fraction);
+
+      // Taken from the front rather than from the fraction, so the frontmost blade drawn is the one the ramp
+      // has shrunk to nothing. Truncating at the fraction would cut the ramp off halfway down and leave a
+      // blade of real size winking out - the pop this is here to remove, only smaller.
+      var front = GrassLod.RevealFront(fraction, RevealSpan);
+      var visible = Mathf.RoundToInt(patch.Total * GrassLod.DrawnFraction(front));
 
       if (visible != patch.Visible)
       {
@@ -1189,9 +1281,21 @@ namespace BestiaBehemothClient.Game.World
         return;
       }
 
-      // Fed the fraction the cell is actually drawing at - sharpened by distance and then trimmed - so what the
-      // budget takes away in count it gives back in tuft size for as long as MaxCoverageScale has headroom.
-      var scale = GrassLod.CoverageScale(fraction, CoverageCompensation, MaxCoverageScale);
+      // Compared against a threshold for the same reason the scale below is, and it matters more here: the
+      // front follows the player's distance directly, so an exact compare would push for every drawn cell on
+      // every frame they are moving.
+      if (Mathf.Abs(front - patch.Front) > RevealEpsilon * Mathf.Max(RevealSpan, 0.001f))
+      {
+        patch.Front = front;
+        patch.Node.SetInstanceShaderParameter(RevealParameter, front);
+      }
+
+      // Fed what the ramp actually reveals, not the sharpened-and-trimmed fraction. The compensation rests on
+      // coverage being count times footprint, and a blade at a third of its size hides a ninth of the ground -
+      // so fed the fraction it would be answering for a cell whose blades are all full size, which is not this
+      // one.
+      var scale = GrassLod.CoverageScale(
+        GrassLod.RevealedFraction(front, RevealSpan), CoverageCompensation, MaxCoverageScale);
 
       // Three quarters of a step of dead band around what this cell is already drawing at, rather than a plain
       // round to the nearest step. A cell whose distance leaves it sitting on a step boundary would otherwise

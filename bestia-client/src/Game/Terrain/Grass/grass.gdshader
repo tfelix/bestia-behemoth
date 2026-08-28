@@ -126,6 +126,26 @@ group_uniforms;
 // materials for the whole world, and no per-instance allocation at all.
 uniform float grass_extra_scale = 0.0;
 
+// Where this cell's reveal has reached, in shares of its own instance order, and how wide the ramp behind that
+// front is. Written per cell by `TerrainGrass.Retune`; the arithmetic is `GrassLod.RevealFront`, and the two
+// lines below transcribe `GrassLod.Reveal`.
+//
+// The multimesh can only truncate its tail, and `TerrainGrass.Scatter` shuffles each cell precisely so that the
+// prefix left standing is a uniform subset of the ground. That is what makes `INSTANCE_ID` enough on its own:
+// it already says where a blade sits relative to the front, so nothing has to be stored per instance.
+//
+// **Nought is a cell nobody is revealing**, for the same reason `grass_extra_scale` is additive: every herb,
+// shrub and reed in the world is drawn by `StaticEntityRenderer` with this shader and sets no instance uniform
+// at all. An unset one resolves to the default declared here, so the default has to mean "already grown".
+instance uniform float grass_instance_step = 0.0;
+instance uniform float grass_reveal = 0.0;
+
+// A share of the cell rather than a count of blades, so a blade takes the same *time* to grow whether its cell
+// holds thirty of them or three hundred - how fast the front moves is a property of the player's walking speed
+// and the taper, not of the density. It costs the field a little coverage in the taper, and much less than its
+// width suggests: at 0.06 the tuft band is short by at most 0.03 of a cell. See `GrassLod.RevealedFraction`.
+uniform float grass_reveal_span : hint_range(0.005, 0.2) = 0.06;
+
 varying vec3 worldPos;
 
 // 0 at the base of a blade and 1 at its tip, whichever way this mesh was unwrapped.
@@ -134,11 +154,27 @@ varying float blade_v;
 void vertex() {
 	blade_v = uv_v_at_tip ? 1.0 - UV.y : UV.y;
 
+	// How grown this blade is: nothing at the reveal front, full size a span behind it. The half-instance
+	// offset centres a blade in its own slot, which is what makes this agree with the count the multimesh was
+	// truncated to - the blade about to wink out is already too small to see, and the next one is not drawn.
+	//
+	// The branch is uniform across the draw call, so it costs no divergence.
+	float mine = (float(INSTANCE_ID) + 0.5) * grass_instance_step;
+	float grow = grass_instance_step > 0.0
+		? clamp((grass_reveal - mine) / max(grass_reveal_span, 0.0001), 0.0, 1.0)
+		: 1.0;
+
 	// Grown about the plant's own base, which both meshes are authored standing on, so a scaled clump stays
 	// planted instead of sinking or floating. Done before `rest` below rather than after, so that everything
 	// measured from it follows for free: `above` is the taller lever arm, and a clump drawn at twice its size
 	// sways like the taller plant it now is rather than like the one it was authored as.
-	VERTEX *= 1.0 + grass_extra_scale;
+	//
+	// The same argument is what makes the reveal cost nothing downstream. `above` scales with `grow`, so the
+	// whole displacement does: a half-grown blade bends through the same *angle* and moves half as far, which
+	// is what a shorter blade should do. At `grow` of nought the offset is zero, which the length-preserving
+	// drop below already guards for. Uniformly, never a squash in y - that would flatten the splayed blades of
+	// a clump into a disc lying on the ground, which from this camera is worse than the pop it would fix.
+	VERTEX *= grow * (1.0 + grass_extra_scale);
 
 	// Where this vertex would stand in dead calm. Kept, because the offset has to be turned back into model
 	// space at the end and because the albedo noise below is a property of the ground, not of the blade.
