@@ -1181,6 +1181,14 @@ namespace BestiaBehemothClient.Game.World
         patch.Node.Visible = visible > 0;
       }
 
+      // A cell drawing nothing has nobody to read what it would be told. This is most of what the terrain
+      // holds - everything past the fade radius - and Patch.Scale starting at -1 means that without this,
+      // every one of those cells still pushed once on the frame its chunk arrived.
+      if (visible == 0)
+      {
+        return;
+      }
+
       // Fed the fraction the cell is actually drawing at - sharpened by distance and then trimmed - so what the
       // budget takes away in count it gives back in tuft size for as long as MaxCoverageScale has headroom.
       var scale = GrassLod.CoverageScale(fraction, CoverageCompensation, MaxCoverageScale);
