@@ -166,6 +166,11 @@ ECS library):
   as a Spring `@Component` with an `@Order(n)` that fixes registration order.
 - Domain subpackages sit alongside `core/`: `battle/`, `bestia/`, `item/`, `movement/`,
   `persistence/`, `spawn/`, ... — components + systems per gameplay area.
+- `ecs/place/` names positions: `Place` (owner-only, where a player is in words) and `AreaName` (public,
+  the label on a town or claim). `PlaceNameService` owns the one rule that resolves a position to a single
+  name - narrowest area wins, region otherwise - against `AreaNameRegistry` plus the world's region
+  partition. `PlaceSystem` re-resolves only where `Position` is dirty. Generated settlements and
+  player-founded areas share the one registry deliberately, so there is a single resolver.
 
 Three things that bite:
 

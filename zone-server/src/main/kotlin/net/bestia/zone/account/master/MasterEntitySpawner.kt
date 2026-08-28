@@ -20,6 +20,8 @@ import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.movement.Speed
 import net.bestia.zone.ecs.account.Account
 import net.bestia.zone.ecs.account.ActivePlayer
+import net.bestia.zone.ecs.place.Place
+import net.bestia.zone.ecs.place.PlaceNameService
 import net.bestia.zone.ecs.account.Master as MasterComponent
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.battle.level.Level
@@ -53,6 +55,7 @@ class MasterEntitySpawner(
   private val levelUpExpCalculator: LevelUpExperienceCalculator,
   private val conditionValueCalculator: ConditionValueCalculator,
   private val statusEffectPersistenceService: StatusEffectPersistenceService,
+  private val placeNames: PlaceNameService,
 ) {
 
   /**
@@ -170,6 +173,12 @@ class MasterEntitySpawner(
 
       add(id, ActivePlayer)
       add(id, Persistent)
+
+      // Resolved here rather than left to PlaceSystem's first tick, which would leave a player looking at
+      // an empty location panel for a frame after every login. `clock.gd`'s replay problem in reverse:
+      // there the message arrives before the HUD, here the HUD would arrive before the message.
+      val spawn = master.currentPosition
+      add(id, Place(placeNames.resolve(spawn.x, spawn.y)))
 
       // Whatever the master was carrying when it last left the world, plus anything seeded for it
       // before it ever entered - MasterFactory puts MASTER_INTRO_MARKER here at creation. Nothing is

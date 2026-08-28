@@ -9,6 +9,7 @@ import net.bestia.zone.util.AccountId
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.movement.Position
+import net.bestia.zone.ecs.place.Place
 import net.bestia.zone.ecs.core.WorldView
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
@@ -342,7 +343,10 @@ class PartyService(
             masterName = partyMemberMaster.name,
             onlineData = PartyInfoSMSG.PartyMember.OnlineData(
               entityId = partyMemberEntityId,
-              areaName = "", // TODO: Get from ECS when this is implemented
+              // Read off the member's own component rather than resolved here: PlaceSystem already did
+              // the work this tick, and resolving again would need the world's partition from inside a
+              // transactional service. Blank only for a member whose first resolve has not run yet.
+              areaName = get(id, Place::class)?.place?.name ?: "",
               position = position.toVec3L(),
               hp = health
             )
