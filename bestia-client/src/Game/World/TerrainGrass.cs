@@ -569,6 +569,10 @@ namespace BestiaBehemothClient.Game.World
     /// <summary>Chunk -> its cells, so a re-mesh or a withdrawal takes all of them together.</summary>
     private readonly Dictionary<ChunkKey, List<Patch>> _patches = new();
 
+    /// <summary>Cells that have been withdrawn and are shrinking away before they are freed.</summary>
+    /// <remarks>Empty almost always: see <see cref="Remove"/> for how little this is asked to do.</remarks>
+    private readonly List<Patch> _dying = new();
+
     /// <summary>
     /// Chunks whose ground has arrived but whose grass has not been scattered yet.
     /// </summary>
@@ -688,7 +692,7 @@ namespace BestiaBehemothClient.Game.World
     /// </remarks>
     public void Build(ChunkKey key, ChunkSurface terrain)
     {
-      Remove(key);
+      Remove(key, fade: false);
 
       if (terrain == null || terrain.IsEmpty || Density <= 0.0f || MaxPerChunk <= 0)
       {
@@ -1112,6 +1116,7 @@ namespace BestiaBehemothClient.Game.World
       Drain(eye);
 
       PushRevealSpan();
+      Vanish(delta);
 
       if (_patches.Count == 0 || !eye.HasValue)
       {
@@ -1399,7 +1404,24 @@ namespace BestiaBehemothClient.Game.World
       return own;
     }
 
-    public void Remove(ChunkKey key)
+    /// <summary>
+    /// Takes one chunk's grass away, either at once or over <see cref="AppearSeconds"/>.
+    /// </summary>
+    /// <remarks>
+    /// <b>A withdrawal fades; a replacement does not.</b> The two callers want opposite things.
+    /// <see cref="Build"/> removes a chunk because it is about to scatter the same chunk again, and the
+    /// scatter is seeded from the chunk key alone - so the new blades land in the very same spots as the old
+    /// ones, and a fade there reads as doubled grass rather than as a transition. Bare ground for a frame or
+    /// two is the right answer there and is the one <see cref="Build"/> already argues for.
+    ///
+    /// <para>
+    /// Worth being straight about what the fade buys today: nothing visible. A chunk leaves the manifest at
+    /// 160 m at the closest, and the widest the tuft band ever reaches is about 114 m, so every withdrawal
+    /// already lands on a cell that was drawing nothing. It is here against the view radius being lowered,
+    /// which is the server's number to change.
+    /// </para>
+    /// </remarks>
+    public void Remove(ChunkKey key, bool fade)
     {
       _pending.Remove(key);
 
@@ -1408,12 +1430,58 @@ namespace BestiaBehemothClient.Game.World
         return;
       }
 
+      if (fade && AppearSeconds > 0.0f)
+      {
+        // Unkeyed on purpose. A chunk that streams back in while its old cells are still going out installs
+        // fresh nodes that know nothing about them, so there is no collision to resolve and no key to hold -
+        // only two nodes wanting the same name, which Godot settles by renaming one.
+        //
+        // Build never gets here, so a re-mesh still frees its old cells outright.
+        _dying.AddRange(patches);
+
+        return;
+      }
+
       foreach (var patch in patches)
       {
-        if (IsInstanceValid(patch.Node))
+        Free(patch);
+      }
+    }
+
+    /// <summary>Frees one cell's node, if the engine has not already.</summary>
+    private static void Free(Patch patch)
+    {
+      if (IsInstanceValid(patch.Node))
+      {
+        patch.Node.QueueFree();
+      }
+    }
+
+    /// <summary>
+    /// Shrinks the cells that are on their way out, and frees the ones that have got there.
+    /// </summary>
+    /// <remarks>
+    /// They keep the fraction they were last measured at rather than being measured again - what they are
+    /// doing is leaving, not tracking the player - and they stay out of the frame's budget, because a fraction
+    /// of a second of overshoot is not worth the accounting.
+    /// </remarks>
+    private void Vanish(double delta)
+    {
+      for (var i = _dying.Count - 1; i >= 0; i--)
+      {
+        var patch = _dying[i];
+
+        patch.Appear = GrassLod.Appear(patch.Appear, 0.0f, (float)delta, AppearSeconds);
+
+        if (patch.Appear <= 0.0f)
         {
-          patch.Node.QueueFree();
+          Free(patch);
+          _dying.RemoveAt(i);
+
+          continue;
         }
+
+        Retune(patch, 1.0f);
       }
     }
 
@@ -1423,8 +1491,16 @@ namespace BestiaBehemothClient.Game.World
 
       foreach (var key in new List<ChunkKey>(_patches.Keys))
       {
-        Remove(key);
+        Remove(key, fade: false);
       }
+
+      // Including whatever was still on its way out. A world change is not a withdrawal to be eased.
+      foreach (var patch in _dying)
+      {
+        Free(patch);
+      }
+
+      _dying.Clear();
     }
 
     /// <summary>Loads the mesh and material once. False if the mesh could not be loaded.</summary>

@@ -312,7 +312,8 @@ namespace BestiaBehemothClient.Game.World
     /// <summary>Drops a chunk's geometry, for a manifest that took it out of the subscribed set.</summary>
     public void Remove(ChunkKey key)
     {
-      Grass?.Remove(key);
+      // Faded rather than dropped: this is the chunk leaving the view volume, not being replaced.
+      Grass?.Remove(key, fade: true);
 
       if (!_tiles.Remove(key, out var tile))
       {
