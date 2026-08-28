@@ -24,6 +24,17 @@ extends Control
 ## window.
 const _FOG := Color(0.11, 0.095, 0.08)
 
+## The player marker: a dark hull with a lighter one inside it, so it reads over any tile.
+const _MARKER_OUTLINE := Color(0.15, 0.11, 0.08)
+const _MARKER_FILL := Color(1.0, 0.86, 0.35)
+
+## The arrow head, in pixels from the player's own position. The notch is what stops it reading as a plain
+## triangle, which at this size is the difference between "facing" and "here".
+const _ARROW_TIP := 6.0
+const _ARROW_TAIL := 3.5
+const _ARROW_HALF := 4.0
+const _ARROW_NOTCH := 1.0
+
 ## Metres per pixel is 2^level, so 0 is one metre to the pixel and 9 is 512.
 @export var level: int = 2
 
@@ -158,8 +169,54 @@ func _draw_player() -> void:
 	if not Rect2(Vector2.ZERO, size).has_point(screen):
 		return
 
-	draw_circle(screen, 4.0, Color(0.15, 0.11, 0.08))
-	draw_circle(screen, 2.5, Color(1.0, 0.86, 0.35))
+	var forward := _player_forward()
+
+	# A dot until the character has turned at all. An arrow needs a direction to be honest about, and a
+	# default one would point north on every spawn - which reads as a heading rather than as the absence of
+	# one.
+	if forward.is_zero_approx():
+		draw_circle(screen, 4.0, _MARKER_OUTLINE)
+		draw_circle(screen, 2.5, _MARKER_FILL)
+		return
+
+	# Dark under light, the same two passes the dot used: a chart tile can be any brightness, and a
+	# single-colour marker disappears into half of them.
+	_draw_arrow(screen, forward, 1.0, _MARKER_OUTLINE)
+	_draw_arrow(screen, forward, 0.62, _MARKER_FILL)
+
+
+## An arrow head pointing along [param forward], scaled about [param at] rather than about its own centroid.
+##
+## Scaling about the point is what lets the light pass sit inside the dark one while both stay centred on the
+## player's actual position - the same trick the two concentric circles above play.
+func _draw_arrow(at: Vector2, forward: Vector2, scale: float, colour: Color) -> void:
+	var f := forward * scale
+	var r := Vector2(-forward.y, forward.x) * scale
+
+	draw_colored_polygon(PackedVector2Array([
+		at + f * _ARROW_TIP,
+		at - f * _ARROW_TAIL + r * _ARROW_HALF,
+		at - f * _ARROW_NOTCH,
+		at - f * _ARROW_TAIL - r * _ARROW_HALF,
+	]), colour)
+
+
+## Which way the player faces in this view's pixels, or [constant Vector2.ZERO] when there is nothing to ask.
+##
+## The view's own y flip is the whole conversion. [method _to_screen] is a translate and a flip; applied to a
+## direction rather than a point the translate drops out, so north (+z) becomes screen-up and east (+x) stays
+## screen-right. The scale drops out too, which is why this needs no metres-per-pixel.
+func _player_forward() -> Vector2:
+	if entity_manager == null:
+		return Vector2.ZERO
+
+	var player = entity_manager.get_owned_entity()
+	if player == null:
+		return Vector2.ZERO
+
+	var facing: Vector3 = player.facing()
+
+	return Vector2(facing.x, -facing.z)
 
 
 func _gui_input(event: InputEvent) -> void:
