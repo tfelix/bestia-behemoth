@@ -50,6 +50,8 @@ class ViewerFrame(private val scene: WorldScene) : JFrame("worldgen - ${scene.na
   private var exaggeration = 2.0
   private var navGraph = false
   private var navWilderness = true
+  private var regions = false
+  private var regionLabels = true
 
   /**
    * Which feature kinds are drawn. Only ever holds kinds this world actually has.
@@ -99,8 +101,15 @@ class ViewerFrame(private val scene: WorldScene) : JFrame("worldgen - ${scene.na
           append(", ${nav.nodesDrawn} nodes")
         }
 
+        // Says so even at zero, unlike the nav line: a world that stopped before biomes has no partition
+        // at all, and without this the toggle and a missing partition look identical.
+        if (regions) {
+          val place = map.regionStats
+          append("   |   regions: ${place.regionsOnScreen} in view, ${place.labels} named")
+        }
+
         append("   |   drag pan, wheel zoom, 1 voxel scale, F fit, H shade, C chunks, G cells, ")
-        append("V features, A auto-range, N nav graph, M nav wilderness, S seam check, [ ] relief")
+        append("V features, A auto-range, N nav graph, M nav wilderness, R regions, S seam check, [ ] relief")
       }
     }
 
@@ -156,6 +165,11 @@ class ViewerFrame(private val scene: WorldScene) : JFrame("worldgen - ${scene.na
       )
       panel.add(toggle("   ...including wilderness", navWilderness) { navWilderness = it; applyOptions() })
     }
+
+    // Unguarded, unlike the nav graph above: the partition exists on any world that got as far as biomes,
+    // and the toggle is how you find out that it did not.
+    panel.add(toggle("place regions (R)", regions) { regions = it; applyOptions() })
+    panel.add(toggle("   ...with names", regionLabels) { regionLabels = it; applyOptions() })
 
     panel.add(Box.createVerticalStrut(10))
     panel.add(featureLegend())
@@ -352,6 +366,7 @@ class ViewerFrame(private val scene: WorldScene) : JFrame("worldgen - ${scene.na
       KeyEvent.VK_A -> { autoRange = !autoRange; applyOptions() }
       KeyEvent.VK_N -> { navGraph = !navGraph; applyOptions() }
       KeyEvent.VK_M -> { navWilderness = !navWilderness; applyOptions() }
+      KeyEvent.VK_R -> { regions = !regions; applyOptions() }
       KeyEvent.VK_OPEN_BRACKET -> { exaggeration = (exaggeration / 1.4).coerceAtLeast(0.2); applyOptions() }
       KeyEvent.VK_CLOSE_BRACKET -> { exaggeration = (exaggeration * 1.4).coerceAtMost(30.0); applyOptions() }
       KeyEvent.VK_S -> runSeamCheck()
@@ -390,7 +405,9 @@ class ViewerFrame(private val scene: WorldScene) : JFrame("worldgen - ${scene.na
       cellGrid = cellGrid,
       autoRange = autoRange,
       navGraph = navGraph,
-      navWilderness = navWilderness
+      navWilderness = navWilderness,
+      regions = regions,
+      regionLabels = regionLabels
     )
   }
 

@@ -14,6 +14,7 @@ import net.bestia.worldgen.core.World
 import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.history.HistoryChannels
 import net.bestia.worldgen.pipeline.GeneratedWorld
+import net.bestia.worldgen.place.PlaceRegions
 import net.bestia.worldgen.render.Ramps
 import net.bestia.worldgen.render.Viewport
 import net.bestia.worldgen.render.optionalAttribute
@@ -39,7 +40,16 @@ class WorldScene(
   val features: FeatureStore,
   val chunkSource: ChunkColumnSource? = null,
   /** The macro navigation graph, or [NavGraph.EMPTY] for a pipeline that had no navigation stage. */
-  val navGraph: NavGraph = NavGraph.EMPTY
+  val navGraph: NavGraph = NavGraph.EMPTY,
+  /**
+   * The world the scene was built from, for views derived from more than one layer at a time.
+   *
+   * Null only for a scene assembled by hand in a test. Everything else here is a projection of one layer
+   * or one feature store; this is here because `place/PlaceRegions` needs layers, features and the
+   * chronicle together, and decomposing it into the constructor would mean four more parameters that
+   * only it uses.
+   */
+  val world: World? = null
 ) {
 
   /**
@@ -51,6 +61,19 @@ class WorldScene(
    * nobody asks the overlay about never pays for it at all.
    */
   val navOverlay: NavGraphOverlay by lazy { NavGraphOverlay(navGraph) }
+
+  /**
+   * The place-name partition, or null on a world with no biomes to partition.
+   *
+   * Lazy for [navOverlay]'s reason and more so: building it is a Dijkstra over every cell in the world,
+   * which is not something a viewer should do before somebody asks to see it.
+   */
+  val placeRegions: PlaceRegions? by lazy {
+    val source = world ?: return@lazy null
+    if (source.layers[LayerId.BIOME] == null) null else PlaceRegions.of(source)
+  }
+
+  val regionOverlay: RegionOverlay? by lazy { placeRegions?.let { RegionOverlay(it) } }
 
   /**
    * How many features of each kind this world has, in [FeatureKind] declaration order.
@@ -245,7 +268,7 @@ class WorldScene(
       // about the least useful thing to be shown by a tool you have just opened to look at a world.
       worldMapOf(world)?.let { fields.add(0, it) }
 
-      return WorldScene(name, world.config, fields, world.features, chunkSource, world.navGraph)
+      return WorldScene(name, world.config, fields, world.features, chunkSource, world.navGraph, world)
     }
 
     /**
