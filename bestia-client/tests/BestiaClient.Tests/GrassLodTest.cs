@@ -529,5 +529,302 @@ namespace BestiaBehemothClient.Tests
       Assert.True(GrassLod.InView(new Vector3(0.0f, 0.0f, 50.0f), Vector3.Zero, Vector3.Down, cos, 0.0f));
       Assert.True(GrassLod.InView(new Vector3(0.0f, 0.0f, 50.0f), Vector3.Zero, Vector3.Zero, cos, 0.0f));
     }
+
+    /// <summary>The ramp's width, as a share of a cell. <c>grass.gdshader</c> carries the same default.</summary>
+    private const float Span = 0.06f;
+
+    /// <summary>Instance counts a cell realistically holds, from nearly bare to a dense tuft layer.</summary>
+    private static readonly int[] Totals = { 30, 100, 288, 1000 };
+
+    /// <summary>How many instances a cell draws at this front, which is what the multimesh is truncated to.</summary>
+    private static int Drawn(int total, float front) =>
+      Mathf.RoundToInt(total * GrassLod.DrawnFraction(front));
+
+    /// <summary>
+    /// An instance nobody sets is fully grown.
+    /// </summary>
+    /// <remarks>
+    /// <b>The contract the rest of the world rests on, and the one that would break silently.</b>
+    /// <c>StaticEntityRenderer</c> draws every herb, shrub and reed with this same shader and sets no instance
+    /// uniform at all, so the unset case has to mean "already grown" rather than "not yet revealed". Getting it
+    /// backwards collapses every ground-cover prop in the world to a point, and nothing in the grass field
+    /// would show it.
+    /// </remarks>
+    [Fact]
+    public void AnInstanceNobodySetsIsFullyGrown()
+    {
+      Assert.Equal(0.0f, GrassLod.RevealStep(0));
+
+      foreach (var index in new[] { 0, 1, 17, 500, 4000 })
+      {
+        Assert.Equal(1.0f, GrassLod.Reveal(index, GrassLod.RevealStep(0), 0.0f, Span));
+      }
+    }
+
+    /// <summary>
+    /// A cell at full density draws every blade at its authored size.
+    /// </summary>
+    /// <remarks>
+    /// <b>Why <see cref="GrassLod.RevealFront"/> inflates past 1.</b> <see cref="GrassLod.FractionAt"/> returns
+    /// exactly 1 everywhere inside the full-density radius, so a front sitting at the fraction itself would
+    /// leave the last <c>Span</c> of every cell permanently stunted - the ground under the player's feet worst
+    /// of all, where nothing is fading. This fails the moment anyone takes the inflation back out.
+    /// </remarks>
+    [Fact]
+    public void AFullCellIsWhollyGrown()
+    {
+      var front = GrassLod.RevealFront(1.0f, Span);
+
+      foreach (var total in Totals)
+      {
+        Assert.Equal(total, Drawn(total, front));
+
+        for (var index = 0; index < total; index++)
+        {
+          Assert.Equal(1.0f, GrassLod.Reveal(index, GrassLod.RevealStep(total), front, Span));
+        }
+      }
+    }
+
+    /// <summary>An empty cell grows nothing, and settles there.</summary>
+    [Fact]
+    public void AnEmptyCellGrowsNothing()
+    {
+      var front = GrassLod.RevealFront(0.0f, Span);
+
+      Assert.Equal(0.0f, front);
+      Assert.Equal(0, Drawn(288, front));
+      Assert.Equal(0.0f, GrassLod.Reveal(0, GrassLod.RevealStep(288), front, Span));
+      Assert.Equal(0.0f, GrassLod.RevealedFraction(front, Span));
+    }
+
+    /// <summary>
+    /// The blade about to wink out is already too small to see, and the next one is not drawn at all.
+    /// </summary>
+    /// <remarks>
+    /// <b>The pop, stated as a property.</b> The two have to agree: a ramp that ended before the truncation
+    /// would put a blade of real size on the boundary - the pop this exists to remove, only smaller - and one
+    /// that ended after it would draw instances nobody can see. Centring each blade in its own slot bounds the
+    /// frontmost drawn one at <c>1 / (total * span)</c>, which is why a sparse cell is the hardest case and a
+    /// dense one is free.
+    /// </remarks>
+    [Fact]
+    public void TheNewestBladeEntersAtNothingAndTheNextIsNotDrawn()
+    {
+      foreach (var total in Totals)
+      {
+        var step = GrassLod.RevealStep(total);
+        var bound = 1.0f / (total * Span);
+
+        // Swept finely enough to land on both sides of RoundToInt's banker's rounding.
+        for (var k = 1; k < 2000; k++)
+        {
+          var front = GrassLod.RevealFront(k / 2000.0f, Span);
+
+          // Only while the cell is still filling. Once it is full, a full-size last blade is the point.
+          if (front > 1.0f)
+          {
+            continue;
+          }
+
+          var drawn = Drawn(total, front);
+          if (drawn <= 0)
+          {
+            continue;
+          }
+
+          var last = GrassLod.Reveal(drawn - 1, step, front, Span);
+          Assert.True(last <= bound + 0.001f, $"the frontmost blade of {total} was at {last}, over {bound}");
+
+          if (drawn < total)
+          {
+            Assert.Equal(0.0f, GrassLod.Reveal(drawn, step, front, Span));
+          }
+        }
+      }
+    }
+
+    /// <summary>
+    /// A blade never shrinks as the player walks towards it.
+    /// </summary>
+    /// <remarks>
+    /// Hysteresis as a property. The reveal is a pure function of distance and holds no state, so walking back
+    /// and forth over the same ground has to retrace the same sizes rather than flickering. Fails if anyone
+    /// makes the span depend on the fraction.
+    /// </remarks>
+    [Fact]
+    public void ABladeNeverShrinksAsThePlayerApproaches()
+    {
+      const int Total = 288;
+      var step = GrassLod.RevealStep(Total);
+
+      foreach (var index in new[] { 0, 50, 200, 287 })
+      {
+        var previous = 0.0f;
+
+        for (var k = 0; k <= 200; k++)
+        {
+          var grown = GrassLod.Reveal(index, step, GrassLod.RevealFront(k / 200.0f, Span), Span);
+
+          Assert.True(grown >= previous, $"blade {index} shrank from {previous} to {grown} on approach");
+
+          previous = grown;
+        }
+      }
+    }
+
+    /// <summary>The reveal is a prefix: no blade is grown past one that comes before it.</summary>
+    /// <remarks>
+    /// <b>Why <c>TerrainGrass.Scatter</c> shuffles.</b> The multimesh can only truncate its tail, so the shape
+    /// drawn is always a prefix of the cell's order - and it is the shuffle that makes a prefix a uniform
+    /// subset of the ground rather than of whichever triangles the mesher emitted first.
+    /// </remarks>
+    [Fact]
+    public void TheRevealIsAPrefix()
+    {
+      const int Total = 288;
+      var step = GrassLod.RevealStep(Total);
+
+      foreach (var fraction in new[] { 0.05f, 0.25f, 0.5f, 0.75f, 0.99f })
+      {
+        var front = GrassLod.RevealFront(fraction, Span);
+        var previous = 1.0f;
+
+        for (var index = 0; index < Total; index++)
+        {
+          var grown = GrassLod.Reveal(index, step, front, Span);
+
+          Assert.True(grown <= previous, $"blade {index} was grown past the one before it");
+
+          previous = grown;
+        }
+      }
+    }
+
+    /// <summary>
+    /// The closed form matches what the blades actually add up to.
+    /// </summary>
+    /// <remarks>
+    /// <see cref="GrassLod.RevealedFraction"/> is an integral solved on paper and
+    /// <see cref="GrassLod.Reveal"/> is what the shader draws; this is the only thing standing between a wrong
+    /// antiderivative and a field that is quietly the wrong density. Coverage goes with the square of the
+    /// scale, so the sum is of squares.
+    /// </remarks>
+    [Fact]
+    public void TheRevealedCoverageMatchesTheBlades()
+    {
+      foreach (var total in Totals)
+      {
+        var step = GrassLod.RevealStep(total);
+
+        for (var k = 0; k <= 120; k++)
+        {
+          var front = GrassLod.RevealFront(k / 120.0f, Span);
+          var drawn = Drawn(total, front);
+
+          var summed = 0.0f;
+          for (var index = 0; index < drawn; index++)
+          {
+            var grown = GrassLod.Reveal(index, step, front, Span);
+            summed += grown * grown;
+          }
+
+          // A hundredth of a cell. The sum steps one instance at a time where the closed form integrates, so
+          // it cannot be exact - but a wrong antiderivative is out by about 2/3 of the span, which is four
+          // times this.
+          var closed = GrassLod.RevealedFraction(front, Span);
+          Assert.InRange(summed / total, closed - 0.01f, closed + 0.01f);
+        }
+      }
+    }
+
+    /// <summary>The revealed fraction never steps, at either of the joins in its closed form.</summary>
+    [Fact]
+    public void TheRevealedFractionIsContinuousAcrossItsBranches()
+    {
+      var previous = 0.0f;
+
+      for (var k = 0; k <= 4000; k++)
+      {
+        var front = k * (1.0f + Span) / 4000.0f;
+        var revealed = GrassLod.RevealedFraction(front, Span);
+
+        Assert.True(revealed >= previous - 0.0001f, $"revealed coverage fell at a front of {front}");
+        Assert.True(revealed - previous < 0.01f, $"revealed coverage stepped at a front of {front}");
+
+        previous = revealed;
+      }
+
+      Assert.Equal(1.0f, GrassLod.RevealedFraction(GrassLod.RevealFront(1.0f, Span), Span), 3);
+    }
+
+    /// <summary>
+    /// Coverage is still held once the blades ramp in.
+    /// </summary>
+    /// <remarks>
+    /// <see cref="CoverageIsHeldWhileTheScaleHasHeadroom"/> restated through the ramp, and the reason
+    /// <see cref="GrassLod.RevealedFraction"/> exists at all: fed the raw fraction instead, the compensation
+    /// would be answering a question about a cell whose blades are all full size, which is no longer the cell
+    /// being drawn. That test would go on passing while the field it pins had gone thin.
+    /// </remarks>
+    [Fact]
+    public void CoverageIsStillHeldOnceTheBladesRampIn()
+    {
+      const int Total = 1000;
+      var step = GrassLod.RevealStep(Total);
+
+      foreach (var fraction in new[] { 0.3f, 0.5f, 0.7f, 0.9f })
+      {
+        var front = GrassLod.RevealFront(fraction, Span);
+        var revealed = GrassLod.RevealedFraction(front, Span);
+        var scale = GrassLod.CoverageScale(revealed, 1.0f, 2.5f);
+
+        var covered = 0.0f;
+        for (var index = 0; index < Drawn(Total, front); index++)
+        {
+          var grown = GrassLod.Reveal(index, step, front, Span) * scale;
+          covered += grown * grown;
+        }
+
+        // The identity: count times footprint holds, so the thinned cell still hides its ground. Within a
+        // few percent, because the compensation multiplies the sum's own discretisation error by its square.
+        Assert.InRange(covered, Total * 0.97f, Total * 1.03f);
+      }
+    }
+
+    /// <summary>Appearing rises to one, arrives exactly, and stops there.</summary>
+    /// <remarks>
+    /// Arriving is the point rather than a detail - a cell fading out is freed when it reaches nought, so a
+    /// curve that only approached its target would leave the node in the scene for good.
+    /// </remarks>
+    [Fact]
+    public void AppearRisesToOneAndStops()
+    {
+      var appear = 0.0f;
+
+      for (var frame = 0; frame < 60; frame++)
+      {
+        appear = GrassLod.Appear(appear, 1.0f, 1.0f / 60.0f, 0.4f);
+      }
+
+      Assert.Equal(1.0f, appear);
+      Assert.Equal(1.0f, GrassLod.Appear(appear, 1.0f, 1.0f / 60.0f, 0.4f));
+
+      var vanishing = 1.0f;
+      for (var frame = 0; frame < 60; frame++)
+      {
+        vanishing = GrassLod.Appear(vanishing, 0.0f, 1.0f / 60.0f, 0.4f);
+      }
+
+      Assert.Equal(0.0f, vanishing);
+    }
+
+    /// <summary>Zero seconds is the fade turned off, and lands on the target at once.</summary>
+    [Fact]
+    public void ZeroSecondsIsTheFadeTurnedOff()
+    {
+      Assert.Equal(1.0f, GrassLod.Appear(0.0f, 1.0f, 1.0f / 60.0f, 0.0f));
+      Assert.Equal(0.0f, GrassLod.Appear(1.0f, 0.0f, 1.0f / 60.0f, 0.0f));
+    }
   }
 }
