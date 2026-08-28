@@ -325,5 +325,133 @@ namespace BestiaBehemothClient.Game.World
     /// </remarks>
     public static float DistanceToBox(Vector3 point, Vector3 min, Vector3 max) =>
       (min - point).Max(point - max).Max(Vector3.Zero).Length();
+
+    /// <summary>How far apart two neighbouring instances sit in a cell's own 0 to 1 order.</summary>
+    /// <remarks>
+    /// The shader's divisor and its sentinel both. Nought means "not a cell of grass", which is what every
+    /// ground-cover prop <c>StaticEntityRenderer</c> draws is - those set no instance uniform at all, and an
+    /// unset one resolves to the shader's declared default. So an empty cell has to answer nought as well.
+    /// </remarks>
+    public static float RevealStep(int total) => total <= 0 ? 0.0f : 1.0f / total;
+
+    /// <summary>
+    /// How far into a cell's own shuffled order this frame's reveal has reached.
+    /// </summary>
+    /// <remarks>
+    /// <b>Inflated past 1 by the ramp's own width, and that is the whole reason this is not just
+    /// <see cref="FractionAt"/>.</b> A blade's size is measured backwards from this front, so a front sitting
+    /// exactly at the fraction would leave the last <paramref name="span"/> of <i>every</i> cell permanently
+    /// stunted - including the cell the player is standing in, where <see cref="FractionAt"/> returns 1 and
+    /// nothing is fading at all. Scaling by <c>1 + span</c> lifts the whole ramp above the last instance the
+    /// moment the cell is full, and still collapses to nought when it is empty.
+    /// </remarks>
+    public static float RevealFront(float fraction, float span) =>
+      fraction <= 0.0f ? 0.0f : fraction * (1.0f + Mathf.Max(span, 0.0f));
+
+    /// <summary>What share of a cell to actually draw, so that the whole ramp is on screen.</summary>
+    /// <remarks>
+    /// Taken from the front rather than from the fraction, so the frontmost blade drawn is the one the ramp has
+    /// shrunk to nothing. Truncating at the fraction instead would cut the ramp off halfway down and leave a
+    /// blade of real size winking out - the pop this is all here to remove, only smaller. The ramp may run past
+    /// the end of the cell; the prefix may not.
+    /// </remarks>
+    public static float DrawnFraction(float front) => Mathf.Min(front, 1.0f);
+
+    /// <summary>How grown the blade at this index is, from nothing at the front to full behind it.</summary>
+    /// <remarks>
+    /// <b>The line <c>grass.gdshader</c> transcribes.</b> It lives here so that the shader is a copy of
+    /// something a test can reach, rather than the only statement of the arithmetic.
+    ///
+    /// <para>
+    /// A <paramref name="step"/> of nought is fully grown, which is the contract every prop in the world rests
+    /// on - see <see cref="RevealStep"/>. The half-instance offset centres a blade in its own slot, which is
+    /// what makes the ramp and <see cref="DrawnFraction"/>'s truncation agree to within half a blade.
+    /// </para>
+    /// </remarks>
+    public static float Reveal(int index, float step, float front, float span)
+    {
+      if (step <= 0.0f)
+      {
+        return 1.0f;
+      }
+
+      var mine = (index + 0.5f) * step;
+
+      return Mathf.Clamp((front - mine) / Mathf.Max(span, 0.0001f), 0.0f, 1.0f);
+    }
+
+    /// <summary>The coverage a cell revealed to this front carries, as the fraction that would match it.</summary>
+    /// <remarks>
+    /// <b>What <see cref="CoverageScale"/> has to be fed instead of the raw fraction.</b> That identity rests on
+    /// coverage being <c>count * footprint</c>, and the ramp breaks the count half of it: a blade at a third of
+    /// its size hides a ninth of the ground. Feeding it the plain fraction would leave the field quietly short
+    /// while <c>CoverageIsHeldWhileTheScaleHasHeadroom</c> went on passing.
+    ///
+    /// <para>
+    /// The closed form of the integral of <see cref="Reveal"/> squared across the cell, in four pieces: the
+    /// ramp still climbing out of the near end, the ordinary case with a flat body behind it, the ramp running
+    /// off the far end, and the cell wholly grown. Continuous at every join.
+    /// </para>
+    ///
+    /// <para>
+    /// It costs the field a little coverage in the taper and that is the trade, but far less than the width of
+    /// the ramp suggests: at a span of 0.06 the tuft band is short by at most 0.03 of a cell, because where the
+    /// band is thinnest the whole ramp is inside the first piece and falls away with the cube.
+    /// </para>
+    /// </remarks>
+    public static float RevealedFraction(float front, float span)
+    {
+      var width = Mathf.Max(span, 0.0001f);
+
+      if (front <= 0.0f)
+      {
+        return 0.0f;
+      }
+
+      if (front <= width)
+      {
+        return front * front * front / (3.0f * width * width);
+      }
+
+      var body = front - 2.0f * width / 3.0f;
+
+      if (front <= 1.0f)
+      {
+        return body;
+      }
+
+      if (front <= 1.0f + width)
+      {
+        var over = front - 1.0f;
+
+        return body - over * over * over / (3.0f * width * width);
+      }
+
+      return 1.0f;
+    }
+
+    /// <summary>Walks a cell's appearance towards where it is going, a share of the way each frame.</summary>
+    /// <remarks>
+    /// Linear rather than the exponential approach <c>WeatherState</c> smooths the wind with, because this one
+    /// has to <i>arrive</i>: a cell fading out is freed when it gets to nought, and a curve that only approaches
+    /// its target would leave the node in the scene forever. Arriving exactly is also what lets a cell that has
+    /// finished appearing settle on one value and stop being written to.
+    ///
+    /// <para>
+    /// <paramref name="seconds"/> of nought is the feature turned off, in the inspector, while the game runs -
+    /// the same escape <see cref="CoverageScale"/>'s strength offers.
+    /// </para>
+    /// </remarks>
+    public static float Appear(float current, float target, float delta, float seconds)
+    {
+      if (seconds <= 0.0f)
+      {
+        return target;
+      }
+
+      var step = Mathf.Max(delta, 0.0f) / seconds;
+
+      return current < target ? Mathf.Min(target, current + step) : Mathf.Max(target, current - step);
+    }
   }
 }
