@@ -22,6 +22,9 @@
 [ext_resource type="PackedScene" uid="uid://cdeath0scrn01" path="res://Game/UI/Death/Death.tscn" id="20_death"]
 [ext_resource type="PackedScene" path="res://Game/UI/Weather/Weather.tscn" id="21_weather"]
 [ext_resource type="PackedScene" path="res://Game/UI/Location/Location.tscn" id="22_location"]
+[ext_resource type="Script" path="res://Game/UI/Map/map_marks.gd" id="23_mapmarks"]
+[ext_resource type="PackedScene" path="res://Game/UI/Map/MarkNamePopup.tscn" id="24_markpopup"]
+[ext_resource type="PackedScene" path="res://Game/UI/Map/MarkDeletePopup.tscn" id="25_markdelpopup"]
 
 [node name="UI" type="Control" unique_id=549600065]
 layout_mode = 3
@@ -114,6 +117,13 @@ layout_mode = 1
 
 [node name="MapSource" type="Node" parent="." unique_id=456323444]
 script = ExtResource("18_mapsrc")
+
+[node name="MapMarks" type="Node" parent="."]
+script = ExtResource("23_mapmarks")
+
+[node name="MarkNamePopup" parent="." instance=ExtResource("24_markpopup")]
+
+[node name="MarkDeletePopup" parent="." instance=ExtResource("25_markdelpopup")]
 
 [node name="Minimap" parent="." unique_id=1254805221 instance=ExtResource("16_minimap")]
 visible = false

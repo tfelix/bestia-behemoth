@@ -16,6 +16,10 @@ const _BASIC_SKILL_PRIMER := "BASIC_SKILL_PRIMER"
 @onready var _minimap: Minimap = $Minimap
 @onready var _map_overlay: MapOverlay = $MapOverlay
 @onready var _chat: Chat = $Chat
+@onready var _weather: Weather = $Weather
+@onready var _map_marks: MapMarks = $MapMarks
+@onready var _mark_name_popup: MarkNamePopup = $MarkNamePopup
+@onready var _mark_delete_popup: MarkDeletePopup = $MarkDeletePopup
 
 ## Item ids of the map charts, from items.yml. The minimap exists exactly while one of these is carried.
 const _CHART_ENABLING_ITEM_IDS := [21]
@@ -25,10 +29,38 @@ const _CHART_ENABLING_ITEM_IDS := [21]
 ## the code that phrases it, or the phrasing cannot be translated.
 const _MAP_UNAVAILABLE_TEXT := "The map is unavailable - this session is no longer recognised by the map server."
 
+## How far from the player a place or a mark still earns a bearing on the compass, in metres.
+##
+## About what the minimap spans at its own zoom, which is the point: the strip is a reading of the
+## neighbourhood the player can already half-see, not an index of the world. Further out it would be
+## answering a question the full map answers better.
+const _COMPASS_RADIUS_METRES := 2000.0
+
+## Most bearings one source may put on the strip at once. A player standing in a city is near dozens of
+## named places, and a strip carrying all of them is a fence rather than a compass.
+const _COMPASS_MAX_MARKS := 6
+
+## How often the bearings are recomputed. The strip redraws itself every frame from what it holds; this is
+## only how often *what it holds* is rebuilt, and a walking player does not change neighbourhood at 60 Hz.
+const _COMPASS_REFRESH_SECONDS := 0.5
+
+## Compass ink. Distinct from the wind's, and matching what the map draws each set in, so a bearing and the
+## thing it points at are recognisably the same thing on both.
+const _COMPASS_PLACE_COLOUR := Color(0.97, 0.93, 0.85)
+const _COMPASS_MARK_COLOUR := Color(0.62, 0.85, 1.0)
+
 ## The charts the player was last seen holding, as a sorted signature. Compared rather than counted, so
 ## swapping one chart for another - which changes what is visible without changing how many are held -
 ## still drops the cache.
 var _chart_signature: String = ""
+
+## The world the marks were last loaded for, so a version arriving after a master selection - or the other
+## way round - still ends with the pair loaded exactly once.
+var _marks_version: String = ""
+var _marks_master_id: int = 0
+var _marks_loaded_version: String = ""
+
+var _compass_refresh_countdown: float = 0.0
 
 
 ## GroundDropZone and Shortcuts can't get their Inventory reference from an editor-wired
@@ -77,7 +109,19 @@ func _ready() -> void:
 	# The map draws no text of its own, so a map that has stopped working reports itself where the other
 	# window-less refusals do. Connected before the first request, so a refusal of it is not missed.
 	_map_source.map_unavailable.connect(_on_map_unavailable)
+
+	# The player's own marks, wired before the first request for the same reason: /meta is what names the
+	# world they are keyed to, and missing that answer would leave them unloaded for the session.
+	_map_source.meta_ready.connect(_on_map_meta_ready)
+	_map_marks.marks_changed.connect(_on_marks_changed)
+	_minimap.set_marks(_map_marks)
+	_map_overlay.set_marks(_map_marks)
+	_map_overlay.mark_requested.connect(_on_mark_requested)
+	_map_overlay.mark_clicked.connect(_on_mark_clicked)
+	_map_overlay.place_selected.connect(_on_place_selected)
+
 	_map_source.fetch_meta()
+	_load_marks()
 
 	# The one thing the client needs to know about its own fog is which charts it holds, and that arrives
 	# with the inventory it was already being sent. No map channel message, no coverage-changed push.
@@ -91,6 +135,154 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("toggle_map"):
 		_map_overlay.toggle()
 		get_viewport().set_input_as_handled()
+
+
+func _process(delta: float) -> void:
+	_compass_refresh_countdown -= delta
+	if _compass_refresh_countdown <= 0.0:
+		_compass_refresh_countdown = _COMPASS_REFRESH_SECONDS
+		_update_compass_marks()
+
+
+## Puts the nearby world places and the player's own marks on the compass strip.
+##
+## Two sources rather than one merged list, because [method CompassStrip.set_marks] is keyed by source and
+## they change on different schedules - the marks when the player edits one, the places when a tile arrives -
+## so merging them would mean rebuilding both to change either.
+func _update_compass_marks() -> void:
+	var compass := _weather.compass()
+	if compass == null:
+		return
+
+	var at: Variant = _minimap.player_metres()
+	if at == null:
+		compass.clear_marks(&"places")
+		compass.clear_marks(&"marks")
+		return
+
+	var here: Vector2 = at
+
+	var place_marks: Array = []
+	for place in _map_source.places_near(here, _COMPASS_RADIUS_METRES, _COMPASS_MAX_MARKS):
+		var label := _map_overlay.label_of(place)
+		if label.is_empty():
+			continue
+		place_marks.append(_bearing_mark(here, place, label, _COMPASS_PLACE_COLOUR))
+
+	var own_marks: Array = []
+	for mark in _map_marks.all():
+		var to := Vector2(float(mark["x"]), float(mark["y"]))
+		if here.distance_to(to) > _COMPASS_RADIUS_METRES:
+			continue
+		own_marks.append(_bearing_mark(here, mark, str(mark["name"]), _COMPASS_MARK_COLOUR))
+		if own_marks.size() >= _COMPASS_MAX_MARKS:
+			break
+
+	compass.set_marks(&"places", place_marks)
+	compass.set_marks(&"marks", own_marks)
+
+
+## One strip entry for something at a map position.
+##
+## The map's frame is x-east, y-north; [method CompassStrip.bearing_between] takes a [Vector3] in the game's
+## frame, where north is +z. So the y of a map position becomes the z of the vector, which is the same swap
+## [method MapView.player_metres] performs in the other direction and for the same reason.
+func _bearing_mark(here: Vector2, at: Dictionary, label: String, colour: Color) -> Dictionary:
+	var to := Vector2(float(at.get("x", 0.0)), float(at.get("y", 0.0)))
+
+	return {
+		"bearing": CompassStrip.bearing_between(
+			Vector3(here.x, 0.0, here.y), Vector3(to.x, 0.0, to.y)
+		),
+		"colour": colour,
+		"label": label,
+	}
+
+
+func _on_map_meta_ready(meta: Dictionary) -> void:
+	_marks_version = str(meta.get("worldMapVersion", ""))
+	_load_marks()
+
+
+## Loads the marks once both halves of their key are known.
+##
+## The world version arrives from `/meta` and the master from the selection that preceded this scene, and
+## neither order is guaranteed - so this is called from both and does nothing until it has both.
+func _load_marks() -> void:
+	var master_id := 0
+	if ConnectionManager.selected_master_info != null:
+		master_id = int(ConnectionManager.selected_master_info.MasterId)
+
+	if _marks_version.is_empty() or master_id == 0:
+		return
+
+	# Compared against what was last loaded rather than against whether anything came back: a master with no
+	# marks yet is the ordinary case, and a guard that keyed on the set being non-empty would reload the file
+	# on every call for exactly the players who have nothing in it.
+	if master_id == _marks_master_id and _marks_version == _marks_loaded_version:
+		return
+
+	_marks_master_id = master_id
+	_marks_loaded_version = _marks_version
+	_map_marks.use(_marks_version, master_id)
+
+
+func _on_marks_changed() -> void:
+	_minimap.redraw()
+	_map_overlay.redraw()
+	_update_compass_marks()
+
+
+## Right-clicked ground: ask what to call it, and store it if the player says.
+func _on_mark_requested(at: Vector2) -> void:
+	if _map_marks.count() >= MapMarks.MAX_MARKS:
+		# Said where the other window-less refusals are said, rather than opening the popup and rejecting
+		# the answer - the player has not done anything wrong yet, and being asked for a name that cannot
+		# be kept is the worse version of this.
+		_chat.error_line(tr("MARKS_FULL"))
+		return
+
+	_ask_for_name(func(entered: String) -> void: _map_marks.add(entered, at))
+
+
+## Right-clicked one of their own: ask whether to take it away.
+##
+## The same gesture that made the mark, so it has to be confirmed. A second right-click near one the player
+## just placed is an easy thing to do by accident, and there is no undo for a note they wrote themselves.
+func _on_mark_clicked(index: int) -> void:
+	var existing: Array[Dictionary] = _map_marks.all()
+	if index < 0 or index >= existing.size():
+		return
+
+	_listen_once(
+		_mark_delete_popup.confirmed,
+		func() -> void: _map_marks.remove(index)
+	)
+	_mark_delete_popup.ask(DisplayServer.mouse_get_position(), str(existing[index]["name"]))
+
+
+## Opens the name popup at the cursor, with exactly one listener on the answer.
+func _ask_for_name(on_submitted: Callable) -> void:
+	_listen_once(_mark_name_popup.submitted, on_submitted)
+	_mark_name_popup.ask(DisplayServer.mouse_get_position())
+
+
+## Wires [param handler] to [param subject] as the only listener, for one firing.
+##
+## Both popups are asked the same question repeatedly about different marks, and each answer means whatever
+## the question that opened it meant - so a listener left connected from last time would delete the mark
+## before the one the player is looking at now. Cleared and reconnected per question rather than bound once.
+func _listen_once(subject: Signal, handler: Callable) -> void:
+	for connection in subject.get_connections():
+		subject.disconnect(connection["callable"])
+
+	subject.connect(handler, CONNECT_ONE_SHOT)
+
+
+## A place picked on the map is highlighted there and refreshed onto the compass immediately, rather than
+## waiting out the refresh interval - a click is the one moment the player is looking for the answer.
+func _on_place_selected(_place: Dictionary) -> void:
+	_update_compass_marks()
 
 
 ## Shows or hides both map views, and drops the tiles that depended on the old charts.

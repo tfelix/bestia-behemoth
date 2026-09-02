@@ -1,0 +1,42 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://Game/UI/Map/mark_delete_popup.gd" id="1_markdeletepopup"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_markdeletepanel"]
+bg_color = Color(0.075, 0.065, 0.055, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.3, 0.26, 0.21, 1)
+content_margin_left = 10.0
+content_margin_top = 8.0
+content_margin_right = 10.0
+content_margin_bottom = 8.0
+
+[node name="MarkDeletePopup" type="PopupPanel"]
+size = Vector2i(260, 88)
+theme_override_styles/panel = SubResource("StyleBoxFlat_markdeletepanel")
+script = ExtResource("1_markdeletepopup")
+
+[node name="Rows" type="VBoxContainer" parent="."]
+offset_left = 10.0
+offset_top = 8.0
+offset_right = 250.0
+offset_bottom = 80.0
+theme_override_constants/separation = 8
+
+[node name="Prompt" type="Label" parent="Rows"]
+layout_mode = 2
+autowrap_mode = 2
+
+[node name="Buttons" type="HBoxContainer" parent="Rows"]
+layout_mode = 2
+alignment = 2
+theme_override_constants/separation = 6
+
+[node name="Keep" type="Button" parent="Rows/Buttons"]
+layout_mode = 2
+
+[node name="Delete" type="Button" parent="Rows/Buttons"]
+layout_mode = 2

@@ -1,0 +1,35 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://Game/UI/Map/mark_name_popup.gd" id="1_marknamepopup"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_marknamepanel"]
+bg_color = Color(0.075, 0.065, 0.055, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.3, 0.26, 0.21, 1)
+content_margin_left = 10.0
+content_margin_top = 8.0
+content_margin_right = 10.0
+content_margin_bottom = 8.0
+
+[node name="MarkNamePopup" type="PopupPanel"]
+size = Vector2i(240, 84)
+theme_override_styles/panel = SubResource("StyleBoxFlat_marknamepanel")
+script = ExtResource("1_marknamepopup")
+
+[node name="Rows" type="VBoxContainer" parent="."]
+offset_left = 10.0
+offset_top = 8.0
+offset_right = 230.0
+offset_bottom = 76.0
+theme_override_constants/separation = 6
+
+[node name="Prompt" type="Label" parent="Rows"]
+layout_mode = 2
+
+[node name="Name" type="LineEdit" parent="Rows"]
+layout_mode = 2
+max_length = 32
+caret_blink = true

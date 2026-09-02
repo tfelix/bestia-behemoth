@@ -20,3 +20,27 @@ DEATH_TITLE,You have died.
 DEATH_TEXT,Your body lies where it fell. Return to your save point, or stay a while longer.
 DEATH_RESPAWN,Respawn
 DEATH_DISMISS,Not yet
+POI_LOST_GRAVE,Lost Grave
+POI_STANDING_STONES,Standing Stones
+POI_BROKEN_OBELISK,Broken Obelisk
+POI_WAYSTONE,Waystone
+POI_PETRIFIED_TREE,Petrified Tree
+POI_SUNKEN_IDOL,Sunken Idol
+FEATURE_RUIN,Ruins
+FEATURE_ASH_RUIN,Burnt Ruins
+FEATURE_FORT,Fort
+FEATURE_MONASTERY,Monastery
+FEATURE_LIGHTHOUSE,Lighthouse
+FEATURE_MONUMENT,Monument
+FEATURE_TOMB,Tomb
+FEATURE_BATTLEFIELD,Battlefield
+FEATURE_MINE,Mine
+FEATURE_SHRINE,Shrine
+FEATURE_ROADSIDE_INN,Roadside Inn
+FEATURE_VOLCANIC_VENT,Volcano
+FEATURE_WOUND,The Wound
+MARKS_FULL,You are keeping as many marks as one map will hold.
+MARK_NAME_PROMPT,Name this place
+MARK_DELETE_PROMPT,Remove the mark “%s”?
+MARK_DELETE_CONFIRM,Remove
+MARK_DELETE_KEEP,Keep

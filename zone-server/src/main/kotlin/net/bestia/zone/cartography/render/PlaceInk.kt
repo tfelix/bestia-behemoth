@@ -1,12 +1,10 @@
 package net.bestia.zone.cartography.render
 
-import net.bestia.worldgen.civ.SettlementChannels
 import net.bestia.worldgen.civ.SettlementTier
-import net.bestia.worldgen.history.Names
 import net.bestia.worldgen.render.Viewport
-import net.bestia.worldgen.render.optionalAttribute
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.PointMarker
+import net.bestia.zone.cartography.render.PlaceNames.visibleTo
 import java.awt.BasicStroke
 import java.awt.Font
 import java.awt.Graphics2D
@@ -27,14 +25,18 @@ import java.awt.geom.Rectangle2D
  *
  * ### Where a name comes from
  *
- * Not from the marker. A settlement's name lives as a 48-bit seed on its chronicle record, and rendering it
- * needs the culture off the `SETTLEMENT` marker as well - the same two-sided join `civ/SettlementSpawnPoints`
- * performs, for the same reason: placement knows the culture and history knows the name. A world with no
- * history simply has no names, which is why the lookup is nullable rather than defaulted.
+ * [PlaceNames], which is also what `MapTileService.features` asks. It used to be private here, and moved out
+ * the moment a second caller existed: two copies of "which channel holds the name seed" would drift, and a
+ * town labelled one thing on the atlas and another in the client is not an error any build catches.
  *
  * Generated names are English-only by construction. The localisation path is build-time Godot `tr()` CSVs, so
  * a per-world string can never enter it - see `world/SettlementLoreService`. That is also why labels are drawn
  * here only for the offline tool: a served tile leaves them to the client, which has the font.
+ *
+ * Note that this draws a name for settlements only, while [PlaceNames.nameOf] answers for built sites too.
+ * That is not an oversight to fix by symmetry: a ruin's name belongs beside its symbol at the zoom a player
+ * reads it at, and the atlas plate this renders is a world map where those labels would be a thicket. The
+ * client labels them instead, over this same ink.
  */
 object PlaceInk {
 
@@ -50,11 +52,11 @@ object PlaceInk {
       val y = view.screenY(feature.position.y)
 
       if (feature.kind == FeatureKind.SETTLEMENT) {
-        val tier = tierOf(feature) ?: continue
+        val tier = PlaceNames.tierOf(feature) ?: continue
         if (view.metresPerPixel > tier.visibleTo) continue
 
         settlement(g, x, y, tier, palette)
-        nameOf(inputs, feature)?.let { labels += Label(it, x, y, tier) }
+        PlaceNames.nameOf(inputs.chronicle, feature)?.let { labels += Label(it, x, y, tier) }
       } else {
         site(g, x, y, feature.kind, palette)
       }
@@ -148,39 +150,11 @@ object PlaceInk {
     g.drawString(label.text, x.toFloat(), y.toFloat())
   }
 
-  private fun tierOf(marker: PointMarker): SettlementTier? {
-    val ordinal = marker.optionalAttribute(SettlementChannels.TIER)?.toInt() ?: return null
-    return SettlementTier.entries.getOrNull(ordinal)
-  }
-
-  private fun nameOf(inputs: TileInputs, marker: PointMarker): String? {
-    val index = marker.optionalAttribute(SettlementChannels.INDEX)?.toInt() ?: return null
-    val culture = marker.optionalAttribute(SettlementChannels.CULTURE)?.toInt() ?: return null
-    val record = inputs.chronicle.settlements.getOrNull(index) ?: return null
-    if (record.nameSeed == 0L) return null
-
-    return Names.place(record.nameSeed, culture)
-  }
-
   private fun dot(x: Double, y: Double, r: Double) = Ellipse2D.Double(x - r, y - r, r * 2, r * 2)
 
   private fun circle(x: Double, y: Double, r: Double) = Ellipse2D.Double(x - r, y - r, r * 2, r * 2)
 
   private class Label(val text: String, val x: Double, val y: Double, val tier: SettlementTier)
-
-  /**
-   * Coarsest zoom each tier survives to, in metres per pixel.
-   *
-   * A world map that marked every hamlet would be a map of dots. Cities and towns carry the shape of a
-   * country, so they stay at every zoom; the smaller two appear as you come in.
-   */
-  private val SettlementTier.visibleTo: Double
-    get() = when (this) {
-      SettlementTier.CITY -> Double.MAX_VALUE
-      SettlementTier.TOWN -> Double.MAX_VALUE
-      SettlementTier.VILLAGE -> 96.0
-      SettlementTier.HAMLET -> 40.0
-    }
 
   private val SettlementTier.labelPoints: Int
     get() = when (this) {
@@ -199,7 +173,7 @@ object PlaceInk {
 
   private const val MARGIN_PIXELS = 40.0
 
-  private const val CITY_RADIUS = 4.6
+  private const val CITY_RADIUS = 5.8
   private const val TOWN_RADIUS = 3.2
   private const val VILLAGE_RADIUS = 1.7
   private const val HAMLET_RADIUS = 1.5

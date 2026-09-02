@@ -14,6 +14,13 @@ extends Control
 ## source of map knowledge, so a player holding none would get a full screen of fog. A whole screen of it is
 ## the worse version of the empty panel that argument was about.
 
+## Forwarded from the view, so a listener wires to the widget it can see rather than reaching through
+## it for a child. See [MapView] for what each one means.
+signal mark_requested(at: Vector2)
+signal mark_clicked(index: int)
+signal place_selected(place: Dictionary)
+
+
 @onready var _view: MapView = $Panel/Margin/Rows/View
 @onready var _title: Label = $Panel/Margin/Rows/Header/Title
 @onready var _scale_label: Label = $Panel/Margin/Rows/Footer/Scale
@@ -31,7 +38,11 @@ var _has_chart: bool = false
 
 
 func setup(source: MapSource, entities: Node) -> void:
+	_view.mark_requested.connect(func(at: Vector2) -> void: mark_requested.emit(at))
+	_view.mark_clicked.connect(func(index: int) -> void: mark_clicked.emit(index))
+	_view.place_selected.connect(func(place: Dictionary) -> void: place_selected.emit(place))
 	_view.interactive = true
+	_view.can_travel = true
 	_view.setup(source, entities)
 	_view.go_to_level(_OPEN_LEVEL)
 
@@ -115,3 +126,17 @@ func _update_title() -> void:
 		return
 
 	_title.text = place.Name
+
+
+## The player's own marks. Editable here, unlike on the minimap: this is the view with room to aim in.
+func set_marks(marks: MapMarks) -> void:
+	_view.marks = marks
+
+
+## What the map prints for a place, so a caller putting one on the compass labels it the same way.
+func label_of(place: Dictionary) -> String:
+	return _view.label_of(place)
+
+
+func redraw() -> void:
+	_view.queue_redraw()

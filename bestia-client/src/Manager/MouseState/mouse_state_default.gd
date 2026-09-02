@@ -50,8 +50,10 @@ func handle_object_hover(mgr: MouseManager, object: Node3D, entered: bool) -> vo
 
 func handle_ground_input_event(mgr: MouseManager, click_position: Vector3, event: InputEvent) -> void:
 	if event.is_action_pressed("normal_action"):
-		# An explicit walk order replaces whatever we were walking towards.
+		# An explicit walk order replaces whatever we were walking towards - including a journey, which is
+		# only ever the client steering and so stops the moment the player steers themselves.
 		mgr.cancel_pending_collect()
+		TravelPilot.cancel()
 		ConnectionManager.move_to(click_position)
 
 

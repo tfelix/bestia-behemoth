@@ -92,6 +92,10 @@ func request_collect(picker: PropPicker) -> void:
 	if player.is_casting():
 		return
 
+	# Walking to a prop is the player taking over, so it ends any journey for the same reason a plain
+	# ground click does.
+	TravelPilot.cancel()
+
 	_pending_collect = PendingCollect.new()
 	_pending_collect.picker = picker
 	_pending_collect.target = picker.global_position

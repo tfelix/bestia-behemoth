@@ -26,6 +26,8 @@ SettingsManager="*res://Manager/SettingsManager.gd"
 ConnectionManager="*res://Manager/ConnectionManager.tscn"
 MouseManager="*res://Manager/mouse_manager.gd"
 DialogManager="*res://Manager/dialog_manager.gd"
+TravelPilot="*res://Manager/travel_pilot.gd"
+RenderDebug="*res://Dev/RenderDebug/render_debug.gd"
 
 [display]
 

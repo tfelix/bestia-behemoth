@@ -17,7 +17,7 @@ import org.springframework.web.server.ResponseStatusException
 import java.time.Duration
 
 /**
- * The map's HTTP surface: geometry, and tiles.
+ * The map's HTTP surface: geometry, tiles, and the names of what stands on them.
  *
  * ### Why HTTP rather than the game socket
  *
@@ -103,6 +103,56 @@ class MapTileController(
       .cacheControl(cacheControl)
       .contentType(MediaType.IMAGE_PNG)
       .body(tile.bytes)
+  }
+
+  /**
+   * The named places inside a tile, for the client to label the symbols the tile already carries.
+   *
+   * Addressed exactly like the tile it belongs to, so the client's tile keys, its disk cache layout and its
+   * absent-tile memory all work unchanged for these too. A **404 means the same thing here as there** - you
+   * have charted none of this - and for the same reason: an uncharted tile is never rendered and never
+   * described, so neither the imagery nor the list of what stands on it reaches the client.
+   *
+   * The caching split is the tile's: a wholly charted tile's places are the same for everybody and go out
+   * `immutable`, and a partly charted one revalidates against an ETag carrying the coverage digest.
+   */
+  @GetMapping("/p/{level}/{tx}/{ty}.json")
+  fun places(
+    @PathVariable level: Int,
+    @PathVariable tx: Long,
+    @PathVariable ty: Long,
+    request: HttpServletRequest
+  ): ResponseEntity<List<MapTileService.Place>> {
+    val masterId = request.getAttribute(MapAuthFilter.MASTER_ID) as? Long
+      ?: throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "No master on the request")
+
+    val id = try {
+      TileId(level, tx, ty)
+    } catch (e: IllegalArgumentException) {
+      throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
+    }
+
+    val places = try {
+      tiles.places(masterId, id)
+    } catch (e: IllegalArgumentException) {
+      throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
+    } ?: return ResponseEntity.notFound().build()
+
+    if (request.getHeader("If-None-Match") == places.etag) {
+      return ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(places.etag).build()
+    }
+
+    val cacheControl = if (places.shared) {
+      CacheControl.maxAge(Duration.ofDays(IMMUTABLE_DAYS)).cachePublic().immutable()
+    } else {
+      CacheControl.noCache().cachePrivate()
+    }
+
+    return ResponseEntity.ok()
+      .eTag(places.etag)
+      .cacheControl(cacheControl)
+      .contentType(MediaType.APPLICATION_JSON)
+      .body(places.places)
   }
 
   private companion object {

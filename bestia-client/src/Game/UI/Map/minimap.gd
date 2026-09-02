@@ -21,6 +21,7 @@ const _LEVEL := 2
 func setup(source: MapSource, entities: Node) -> void:
 	_view.follow_player = true
 	_view.interactive = false
+	_view.can_travel = true
 	_view.setup(source, entities)
 	_view.go_to_level(_LEVEL)
 
@@ -33,3 +34,20 @@ func set_has_chart(has_chart: bool) -> void:
 func _ready() -> void:
 	visible = false
 	_hint.text = "M"
+
+
+## The player's own marks, drawn here as well as on the overlay.
+##
+## Shown but not editable: this view takes no input at all, which is the same reason it does not pan.
+func set_marks(marks: MapMarks) -> void:
+	_view.marks = marks
+
+
+## The player's position in world metres, or null. Forwarded so callers that need it - the compass, which
+## reckons every bearing from where the player is - do not each redo the voxel-to-metre conversion.
+func player_metres() -> Variant:
+	return _view.player_metres()
+
+
+func redraw() -> void:
+	_view.queue_redraw()

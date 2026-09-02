@@ -1,3 +1,4 @@
+class_name Weather
 extends PanelContainer
 
 ## The weather and the compass, top centre of the HUD.
@@ -45,6 +46,16 @@ var _weather: Node = null
 
 ## The bearing the wind mark was last built at, or [constant NAN] while it is calm.
 var _wind_bearing: float = NAN
+
+
+## The strip itself, for the other things that put bearings on it.
+##
+## The wind is this widget's own business and is set from here; the player's map places and their own marks
+## are the map's, and it owns neither. Handing out the strip rather than growing a method per source is what
+## [method CompassStrip.set_marks] being a registry is for - each caller replaces its own set and none of
+## them has to know the others exist.
+func compass() -> CompassStrip:
+	return _compass
 
 
 func _ready() -> void:

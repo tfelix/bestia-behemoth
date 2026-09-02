@@ -223,14 +223,17 @@ class ParamsVersionTest {
       "CaveParams" to -4_263_381_643_348_589_984L,
       "ManaParams" to -7_122_319_974_616_012_373L,
       "HabitabilityParams" to -8_568_146_273_010_455_127L,
-      "SettlementParams" to -5_086_656_145_453_525_411L,
+      // Moved when roads stopped being stamped against the kilometre raster: the stage now carries the
+      // chunk tier's `detail` so it can decide a running surface against the ground a chunk builds, plus the
+      // router's grade tunables and the road width variation. See `SettlementStage.sampleElevation`.
+      "SettlementParams" to -2_448_817_072_905_495_878L,
       "OrderInfluence" to 2_558_661_069_677_437_569L,
       "HistoryParams" to 2_362_190_350_999_628_922L,
       "CorruptionParams" to -8_182_278_140_807_375_004L,
       "SpawnerParams" to 9_011_422_239_801_402_374L,
       // Both moved with the de-circularising of the town: `StreetParams` gained the arc and boundary fields and
       // lost nothing, and `TownParams` holds it.
-      "TownParams" to 5_886_364_774_618_654_379L,
+      "TownParams" to 3_777_996_315_585_783_957L,
       "StreetParams" to 7_767_182_004_335_302_930L,
       "EconomyParams" to 6_863_789_847_631_252_411L,
       "PoiParams" to 9_183_715_732_977_741_057L,

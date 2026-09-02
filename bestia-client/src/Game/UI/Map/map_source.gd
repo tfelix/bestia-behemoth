@@ -25,6 +25,10 @@ signal tile_ready(key: String, texture: Texture2D)
 ## The server has no tile there for this player: they have charted none of that ground.
 signal tile_absent(key: String)
 
+## The names of what stands on a tile arrived. [param places] is an [Array] of [Dictionary], as
+## [method places_of] returns them.
+signal places_ready(key: String, places: Array)
+
 ## World geometry and the level range, from [code]/map/v1/meta[/code]. Nothing can be addressed before it.
 signal meta_ready(meta: Dictionary)
 
@@ -65,6 +69,17 @@ const _MAX_RETRY_AFTER := 4096
 const _META_ATTEMPTS := 10
 const _META_RETRY_SECONDS := 1.5
 
+## What is being asked about a tile: [code]t[/code] for the picture, [code]p[/code] for the names of what
+## stands on it.
+##
+## One queue and one pool serve both, because they are the same request pattern against the same addressing -
+## and because a screen of map wants both at once, so a second pool would race this one for the same six
+## connections instead of sharing them. Everything keyed per request - the queue, what is in flight, what is
+## known absent, what is backing off - is keyed by this rather than by the bare tile key, so a picture and a
+## name list can be in flight, absent or backing off independently.
+const _WANT_TILE := "t"
+const _WANT_PLACES := "p"
+
 const _CACHE_ROOT := "user://mapcache/"
 
 ## World geometry, empty until [signal meta_ready]. Read it rather than assuming 256 or level 9.
@@ -72,6 +87,14 @@ var meta: Dictionary = {}
 
 ## Tiles every player sees identically. See [method _is_shared] for how one is recognised.
 var _shared: Dictionary = {}
+
+## The names of what stands on each tile, as key -> [Array] of [Dictionary].
+##
+## [b]Memory only, unlike the tiles.[/b] The disk cache exists because a tile is hundreds of kilobytes and
+## decoding a screen of them is a visible hitch at login; a tile's places are a few hundred bytes of JSON, so
+## the argument does not transfer and neither does the complexity - no index, no write-through, no directory
+## to sweep when the chart set changes. They are re-asked for once per session and that is the whole cost.
+var _places: Dictionary = {}
 
 ## Tiles masked to this player's charts. Dropped whenever those change - see [method set_chart_signature].
 var _personal: Dictionary = {}
@@ -149,21 +172,73 @@ func cached(key: String) -> Texture2D:
 
 
 func is_absent(key: String) -> bool:
-	return _absent.has(key)
+	return _absent.has(_WANT_TILE + ":" + key)
 
 
-## Requests [param key] unless it is already known, in flight, known to be absent, or backing off.
+## What stands on [param key], as an [Array] of [Dictionary], or an empty one if it has not arrived.
+##
+## A tile with nothing on it and a tile whose names have not come back are deliberately the same answer here:
+## both mean "draw no labels", and the caller has nothing different to do about them. [signal places_ready]
+## is what says an answer landed.
+##
+## Each entry carries [code]kind[/code], [code]x[/code] and [code]y[/code] in world metres, and then whichever
+## of [code]name[/code], [code]tier[/code] and [code]poi[/code] the server had for it - see
+## [code]MapTileService.Place[/code]. A [code]name[/code] is a generated string and is English by
+## construction; [code]poi[/code] and [code]kind[/code] are enum names, so a client builds a translatable key
+## out of them instead.
+func places_of(key: String) -> Array:
+	return _places.get(key, [])
+
+
+## Places within [param radius] metres of [param at], nearest first, at most [param limit] of them.
+##
+## Scans what is already cached rather than asking for anything: what is near the player is on screen or was
+## a moment ago, so it is here. Ground they have never had a tile for is ground they have not charted, and
+## there is nothing to say about it on a compass either.
+##
+## Nearest-first and capped because the consumer is a strip a few hundred pixels wide - a player standing in a
+## district of a city is near dozens of places, and all of them at once is not a reading.
+func places_near(at: Vector2, radius: float, limit: int) -> Array:
+	var found: Array = []
+
+	for key in _places:
+		for place in _places[key]:
+			var to := Vector2(float(place.get("x", 0.0)), float(place.get("y", 0.0)))
+			var distance := to.distance_to(at)
+			if distance <= radius:
+				found.append({"place": place, "distance": distance})
+
+	found.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a["distance"] < b["distance"])
+
+	var nearest: Array = []
+	for entry in found.slice(0, limit):
+		nearest.append(entry["place"])
+
+	return nearest
+
+
+## Requests the picture of [param key] unless it is already known, in flight, absent, or backing off.
 func want(level: int, tx: int, ty: int) -> void:
+	_want(_WANT_TILE, key_of(level, tx, ty))
+
+
+## Requests the names of what stands on [param key], under the same conditions as [method want].
+func want_places(level: int, tx: int, ty: int) -> void:
+	_want(_WANT_PLACES, key_of(level, tx, ty))
+
+
+func _want(kind: String, key: String) -> void:
 	if not _may_request():
 		return
 
-	var key := key_of(level, tx, ty)
-	if cached(key) != null or is_absent(key) or _in_flight.has(key) or _queue.has(key):
+	var id := kind + ":" + key
+	var have := _places.has(key) if kind == _WANT_PLACES else cached(key) != null
+	if have or _absent.has(id) or _in_flight.has(id) or _queue.has(id):
 		return
-	if Time.get_ticks_msec() < int(_retry_after.get(key, 0)):
+	if Time.get_ticks_msec() < int(_retry_after.get(id, 0)):
 		return
 
-	_queue.append(key)
+	_queue.append(id)
 	_pump()
 
 
@@ -196,6 +271,7 @@ func set_chart_signature(signature: String) -> void:
 
 	_chart_key = key
 	_personal.clear()
+	_places.clear()
 	_absent.clear()
 	_retry_after.clear()
 	_use_chart_set()
@@ -258,17 +334,21 @@ func _retry_meta(attempt: int) -> void:
 
 func _pump() -> void:
 	while not _queue.is_empty() and not _idle.is_empty():
-		var key: String = _queue.pop_front()
+		var id: String = _queue.pop_front()
 		var request: HTTPRequest = _idle.pop_back()
-		_in_flight[key] = request
+		_in_flight[id] = request
 
-		var parts := key.split("/")
-		var url := "%s/map/v1/t/%s/%s/%s.png" % [_base(), parts[0], parts[1], parts[2]]
+		var kind := id.substr(0, 1)
+		var parts := id.substr(2).split("/")
+		var url := "%s/map/v1/%s/%s/%s/%s.%s" % [
+			_base(), kind, parts[0], parts[1], parts[2],
+			"png" if kind == _WANT_TILE else "json"
+		]
 
 		var handler := func(
 			result: int, code: int, headers: PackedStringArray, body: PackedByteArray
 		) -> void:
-			_on_tile_completed(key, request, result, code, headers, body)
+			_on_completed(id, request, result, code, headers, body)
 
 		# Connected per request and disconnected on completion: the node is reused, and a signal left
 		# connected would deliver the next tile to every closure that had ever used this node.
@@ -276,32 +356,38 @@ func _pump() -> void:
 
 		if request.request(url, _headers()) != OK:
 			request.request_completed.disconnect(handler)
-			_back_off(key)
-			_release(key, request)
+			_back_off(id)
+			_release(id, request)
 
 
-func _on_tile_completed(
-	key: String,
+## Everything both kinds of answer have in common - which is every failure mode, because the credential, the
+## fog and the backoff are properties of the request rather than of what was asked for.
+func _on_completed(
+	id: String,
 	request: HTTPRequest,
 	result: int,
 	code: int,
 	headers: PackedStringArray,
 	body: PackedByteArray
 ) -> void:
-	_release(key, request)
+	_release(id, request)
+
+	var key := id.substr(2)
+	var is_tile := id.begins_with(_WANT_TILE + ":")
 
 	if result != HTTPRequest.RESULT_SUCCESS:
 		# A transport failure, not an answer. Backed off rather than simply left uncached: the next attempt
 		# would otherwise be the next frame. See _RETRY_AFTER_SECONDS.
-		_back_off(key)
+		_back_off(id)
 		return
 
 	if code == 404:
 		# Uncharted ground, which is most of the world. Remembered so panning over it is not a request
 		# storm, and forgotten as soon as the player's charts change.
 		if _absent.size() < _MAX_ABSENT:
-			_absent[key] = true
-		tile_absent.emit(key)
+			_absent[id] = true
+		if is_tile:
+			tile_absent.emit(key)
 		return
 
 	if code == 401:
@@ -314,18 +400,25 @@ func _on_tile_completed(
 		if not _warned_no_master:
 			_warned_no_master = true
 			push_warning("MapSource: the zone has no master selected for this account yet; still trying")
-		_back_off(key)
+		_back_off(id)
 		return
 
 	if code != 200:
-		push_warning("MapSource: tile %s returned %s" % [key, code])
-		_back_off(key)
+		push_warning("MapSource: %s returned %s" % [id, code])
+		_back_off(id)
 		return
 
+	if is_tile:
+		_accept_tile(key, headers, body)
+	else:
+		_accept_places(key, body)
+
+
+func _accept_tile(key: String, headers: PackedStringArray, body: PackedByteArray) -> void:
 	var image := Image.new()
 	if image.load_png_from_buffer(body) != OK:
 		push_warning("MapSource: tile %s was not a readable PNG" % key)
-		_back_off(key)
+		_back_off(_WANT_TILE + ":" + key)
 		return
 
 	var texture := ImageTexture.create_from_image(image)
@@ -337,6 +430,17 @@ func _on_tile_completed(
 		_write_through(key, body, _personal_dir, _disk_personal)
 
 	tile_ready.emit(key, texture)
+
+
+func _accept_places(key: String, body: PackedByteArray) -> void:
+	var json := JSON.new()
+	if json.parse(body.get_string_from_utf8()) != OK or typeof(json.data) != TYPE_ARRAY:
+		push_warning("MapSource: places %s was not an array" % key)
+		_back_off(_WANT_PLACES + ":" + key)
+		return
+
+	_places[key] = json.data
+	places_ready.emit(key, json.data)
 
 
 ## Whether the server said this picture is the same for everybody.
@@ -395,6 +499,7 @@ func _use_version(version: String) -> void:
 	_cache_dir = dir
 	_shared.clear()
 	_personal.clear()
+	_places.clear()
 	_absent.clear()
 	_retry_after.clear()
 	DirAccess.make_dir_recursive_absolute(dir)

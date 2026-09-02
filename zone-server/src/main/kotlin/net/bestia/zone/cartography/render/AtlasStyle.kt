@@ -123,7 +123,7 @@ class AtlasStyle(
      * Part of the tile cache key. Without it a change in here serves whatever was baked under the previous
      * look, and a half-restyled map is indistinguishable from a rendering bug.
      */
-    const val VERSION = 1
+    const val VERSION = 2
 
     /**
      * Lattice pitch and symbol size in pixels, per family.

@@ -48,6 +48,59 @@ const _NORTH_PIP_INSET := 1.5
 ## the ratio that keeps the light triangle's apex clear of the dark one's.
 const _NORTH_PIP_TIP_INSET_RATIO := 1.6
 
+## Label ink, and the halo behind it. The halo is the fog colour so a name reads over any tile.
+const _LABEL_COLOUR := Color(0.97, 0.93, 0.85)
+const _LABEL_SELECTED := Color(1.0, 0.86, 0.35)
+const _LABEL_HALO := Color(0.11, 0.095, 0.08, 0.8)
+
+## The player's own marks. A cool ink against the warm one the world's places use, because the difference
+## that matters at a glance is 'mine' against 'the world's' rather than which kind of place it is.
+const _MARK_COLOUR := Color(0.62, 0.85, 1.0)
+const _MARK_PIN_RADIUS := 2.6
+
+## Point size per settlement tier, and for everything that is not a settlement. A city's name carries further
+## than a hamlet's for the same reason its symbol does.
+const _LABEL_SIZES := {
+	"CITY": 14,
+	"TOWN": 12,
+	"VILLAGE": 10,
+	"HAMLET": 9,
+}
+const _LABEL_SIZE_DEFAULT := 10
+
+## Pixels above the symbol the name sits, per tier, so a name clears the mark it belongs to.
+##
+## Mirrors the radii `PlaceInk` draws server-side - a city's double ring is the widest mark on the map, and a
+## flat offset that cleared it would leave a hamlet's name floating. Kept in step by hand rather than sent
+## with the place: the numbers are a drawing decision on each side, and shipping them per tile would put the
+## atlas's pen sizes on the wire for every town.
+const _LABEL_OFFSETS := {
+	"CITY": 10.0,
+	"TOWN": 7.5,
+	"VILLAGE": 6.0,
+	"HAMLET": 6.0,
+}
+
+## For everything that is not a settlement: the site marks are all about the same size.
+const _LABEL_OFFSET := 7.0
+
+## How near a click has to land to count as hitting a place. Generous next to the symbols, which are a few
+## pixels across: this is a click on a name, and the name is what the player is aiming at.
+const _PLACE_HIT_RADIUS := 14.0
+
+## The player picked a place on the map. Carries the whole entry - see [method MapSource.places_of] - so a
+## listener can put it on the compass without asking anything back.
+signal place_selected(place: Dictionary)
+
+## The player right-clicked empty ground at [param at] world metres, asking for a mark there.
+##
+## Reported rather than acted on: this control draws a map and does not own the marks, so what a request
+## for one becomes - a popup, a name, a stored entry - belongs to whoever wired the two together.
+signal mark_requested(at: Vector2)
+
+## The player right-clicked one of their own marks. [param index] indexes [member marks].
+signal mark_clicked(index: int)
+
 ## Metres per pixel is 2^level, so 0 is one metre to the pixel and 9 is 512.
 @export var level: int = 2
 
@@ -63,6 +116,13 @@ const _NORTH_PIP_TIP_INSET_RATIO := 1.6
 ## carry its own labelled ground, while the minimap is a 168 pixel window with nothing in it to say which way
 ## it is held.
 @export var show_north: bool = false
+
+## Whether a click here sets the player walking. True for both views.
+##
+## Separate from [member interactive], which is about panning and zooming, because the minimap wants one
+## without the other: it is deliberately fixed to the player and deliberately still a place you can point
+## at and say 'there'. Keeping them as one flag was what made a minimap click do nothing at all.
+@export var can_travel: bool = false
 
 ## Where the player's own marker is drawn, and what [member follow_player] follows.
 var entity_manager: Node = null
@@ -88,6 +148,21 @@ var _world_height: float = 0.0
 
 var _dragging := false
 
+## Whether the pointer moved between press and release. What separates a click from the end of a pan.
+var _dragged := false
+
+## The places drawn on the last frame, in the order they were collected. What [method _place_at] hit-tests
+## against, so a click can only reach something the player can actually see.
+var _visible_places: Array = []
+
+## Feature id of the selected place, or 0. An id rather than the entry itself: the entries are rebuilt every
+## frame from the source's cache, so holding one would keep highlighting a copy after the real one moved.
+var _selected_id: int = 0
+
+## The player's own marks, or null for a view that does not show them. Assigned rather than fetched so
+## that both views share one set without this knowing where it is stored.
+var marks: MapMarks = null
+
 
 func _ready() -> void:
 	clip_contents = true
@@ -99,6 +174,7 @@ func setup(map_source: MapSource, entities: Node) -> void:
 
 	source.tile_ready.connect(func(_key: String, _texture: Texture2D) -> void: queue_redraw())
 	source.tile_absent.connect(func(_key: String) -> void: queue_redraw())
+	source.places_ready.connect(func(_key: String, _places: Array) -> void: queue_redraw())
 	source.meta_ready.connect(_on_meta_ready)
 
 	if not source.meta.is_empty():
@@ -128,7 +204,7 @@ func go_to_level(to_level: int) -> void:
 
 ## Centres on the player, if there is one to centre on.
 func centre_on_player() -> void:
-	var at: Variant = _player_metres()
+	var at: Variant = player_metres()
 	if at != null:
 		centre = at
 		queue_redraw()
@@ -152,6 +228,8 @@ func _draw() -> void:
 	var mpp := _metres_per_pixel()
 	var span := _tile_pixels * mpp
 	var half := size * 0.5
+
+	var places: Array = []
 
 	var west := centre.x - half.x * mpp
 	var east := centre.x + half.x * mpp
@@ -177,12 +255,218 @@ func _draw() -> void:
 			var corner := _to_screen(Vector2(tx * span, (ty + 1) * span))
 			draw_texture_rect(texture, Rect2(corner, Vector2(_tile_pixels, _tile_pixels)), false)
 
+			# Asked for only once the picture is here. A tile the player has charted none of answers 404
+			# for both, so asking on the fog path would double the requests that exist to be refused.
+			source.want_places(level, tx, ty)
+			places.append_array(source.places_of(key))
+
+	_visible_places = places
+	_draw_places()
+	_draw_marks()
 	_draw_player()
 	_draw_north()
 
 
+## A left click that was not a pan: pick the place under it, or set off for the ground.
+##
+## Selecting wins over travelling, because it is the specific intent - the player aimed at a name, and
+## everywhere else on the map is everywhere else. Clicking the same name twice is how they then travel to it,
+## which is the one case where "select" and "go" want the same gesture and can have it.
+func _on_click(at: Vector2) -> void:
+	var place := _place_at(at)
+
+	if not place.is_empty():
+		var id := int(place.get("id", 0))
+		if id != _selected_id:
+			_selected_id = id
+			place_selected.emit(place)
+			queue_redraw()
+			return
+
+		# Already selected, so this is the second click: go there.
+		_travel_to(Vector2(float(place.get("x", 0.0)), float(place.get("y", 0.0))))
+		return
+
+	# Ground the player has no tile for is not a destination. The server refuses it anyway - it has the
+	# authoritative fog - but refusing it here means a click on the fog is simply inert rather than a message
+	# that comes back as an error line.
+	var world := _to_world(at)
+	if source != null and source.is_absent(_key_at(world)):
+		return
+
+	_travel_to(world)
+
+
+## Sets off for a point on the map, if this view is one that may and the world has said how big a voxel is.
+##
+## The [code]/meta[/code] check is not belt and braces: [member _metres_per_voxel] defaults to one, and a
+## click landing before the answer would convert the destination against a guess. The map is nothing but fog
+## until meta arrives, so there is nothing worth clicking on either.
+##
+## The walk itself is [TravelPilot]'s, and is a client-side affair from end to end - the server is only ever
+## sent the ordinary short paths it already understands.
+func _travel_to(at: Vector2) -> void:
+	if not can_travel or source == null or source.meta.is_empty():
+		return
+
+	# Metres to tiles, the exact inverse of [method player_metres], which reads the entity's position in
+	# tiles and multiplies. The map's northing is the entity's z, hence the y here landing in z there.
+	TravelPilot.travel_to(at / _metres_per_voxel)
+
+
+## The tile key covering a world position at this view's level.
+func _key_at(world: Vector2) -> String:
+	var span := _tile_pixels * _metres_per_pixel()
+	return MapSource.key_of(level, floori(world.x / span), floori(world.y / span))
+
+
+## Names over the symbols the tiles already carry.
+##
+## [b]Labels only, never a symbol.[/b] The served tile is drawn with every mark already on it - see the
+## server's `PlaceInk` - and is drawn without labels on purpose, because the client is the side with the font
+## and the locale. Drawing a mark here as well would put two of them on every town.
+func _draw_places() -> void:
+	var font := get_theme_default_font()
+	if font == null:
+		return
+
+	var bounds := Rect2(Vector2.ZERO, size)
+
+	for place in _visible_places:
+		var text := label_of(place)
+		if text.is_empty():
+			continue
+
+		var at := _to_screen(Vector2(float(place.get("x", 0.0)), float(place.get("y", 0.0))))
+		if not bounds.has_point(at):
+			continue
+
+		var tier := str(place.get("tier", ""))
+		var points: int = _LABEL_SIZES.get(tier, _LABEL_SIZE_DEFAULT)
+		var lift: float = _LABEL_OFFSETS.get(tier, _LABEL_OFFSET)
+		var width := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, points).x
+		var origin := Vector2(at.x - width * 0.5, at.y - lift)
+
+		var selected: bool = _selected_id != 0 and int(place.get("id", 0)) == _selected_id
+		var ink := _LABEL_SELECTED if selected else _LABEL_COLOUR
+
+		# A halo of the fog colour behind the text rather than a box, the same trick the atlas uses: a name
+		# over hatching or a forest has to stay readable, and a plate behind every label would bury the map.
+		for dx in [-1, 0, 1]:
+			for dy in [-1, 0, 1]:
+				if dx == 0 and dy == 0:
+					continue
+				draw_string(
+					font, origin + Vector2(dx, dy), text,
+					HORIZONTAL_ALIGNMENT_LEFT, -1, points, _LABEL_HALO
+				)
+
+		draw_string(font, origin, text, HORIZONTAL_ALIGNMENT_LEFT, -1, points, ink)
+
+
+## The player's own marks: a pin and a name, in their own ink.
+##
+## These do get a symbol of their own, unlike the world's places - nothing on the tile is drawn for them,
+## because the server has never heard of them.
+func _draw_marks() -> void:
+	if marks == null:
+		return
+
+	var font := get_theme_default_font()
+	var bounds := Rect2(Vector2.ZERO, size)
+
+	for mark in marks.all():
+		var at := _to_screen(Vector2(float(mark["x"]), float(mark["y"])))
+		if not bounds.has_point(at):
+			continue
+
+		draw_circle(at, _MARK_PIN_RADIUS + 1.0, _MARKER_OUTLINE)
+		draw_circle(at, _MARK_PIN_RADIUS, _MARK_COLOUR)
+
+		if font == null:
+			continue
+
+		var text := str(mark["name"])
+		var width := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, _LABEL_SIZE_DEFAULT).x
+		var origin := Vector2(at.x - width * 0.5, at.y - _LABEL_OFFSET)
+
+		for dx in [-1, 0, 1]:
+			for dy in [-1, 0, 1]:
+				if dx == 0 and dy == 0:
+					continue
+				draw_string(
+					font, origin + Vector2(dx, dy), text,
+					HORIZONTAL_ALIGNMENT_LEFT, -1, _LABEL_SIZE_DEFAULT, _LABEL_HALO
+				)
+
+		draw_string(font, origin, text, HORIZONTAL_ALIGNMENT_LEFT, -1, _LABEL_SIZE_DEFAULT, _MARK_COLOUR)
+
+
+## A right click: on one of the player's own marks, or on ground they might want to mark.
+##
+## Their own marks are tested first and win. A mark sits where the player put it, which is often exactly on
+## top of something worth marking - so resolving the tie the other way would make a mark next to a town
+## impossible to rename.
+func _on_right_click(at: Vector2) -> void:
+	if marks == null:
+		return
+
+	var world := _to_world(at)
+
+	var hit := marks.nearest(world, _PLACE_HIT_RADIUS * _metres_per_pixel())
+	if hit >= 0:
+		mark_clicked.emit(hit)
+		return
+
+	mark_requested.emit(world)
+
+
+## What to print for a place, or "" for one with nothing to say.
+##
+## A generated [code]name[/code] wins because it is the specific thing - "Elmford" beats "town". Failing that
+## a kind is printed through [method Object.tr], which works precisely because [code]poi[/code] and
+## [code]kind[/code] arrive as enum names rather than as the server's English labels: the landmark kinds are a
+## closed set, so they can live in [code]general.csv[/code] like every other fixed string.
+func label_of(place: Dictionary) -> String:
+	var name_of := str(place.get("name", ""))
+	if not name_of.is_empty():
+		return name_of
+
+	var poi := str(place.get("poi", ""))
+	if not poi.is_empty():
+		return tr("POI_" + poi)
+
+	var kind := str(place.get("kind", ""))
+	if kind.is_empty():
+		return ""
+
+	# Untranslated keys come back as the key itself, which would print "FEATURE_LAVA_POOL" on the map. A kind
+	# nobody has written a line for is better left unlabelled: its symbol is already drawn.
+	var key := "FEATURE_" + kind
+	var text := tr(key)
+	return "" if text == key else text
+
+
+## The place under [param at], or an empty [Dictionary]. Nearest wins, so overlapping labels are reachable.
+func _place_at(at: Vector2) -> Dictionary:
+	var best := {}
+	var best_distance := _PLACE_HIT_RADIUS
+
+	for place in _visible_places:
+		if label_of(place).is_empty():
+			continue
+
+		var screen := _to_screen(Vector2(float(place.get("x", 0.0)), float(place.get("y", 0.0))))
+		var distance := screen.distance_to(at)
+		if distance < best_distance:
+			best_distance = distance
+			best = place
+
+	return best
+
+
 func _draw_player() -> void:
-	var at: Variant = _player_metres()
+	var at: Variant = player_metres()
 	if at == null:
 		return
 
@@ -281,11 +565,35 @@ func _player_forward() -> Vector2:
 
 func _gui_input(event: InputEvent) -> void:
 	if not interactive:
+		# A view that does not pan or zoom can still be pointed at. Reached through the gate rather than
+		# folded into it because everything below is about panning, and the minimap does none of it.
+		if (
+			can_travel
+			and event is InputEventMouseButton
+			and event.button_index == MOUSE_BUTTON_LEFT
+			and not event.pressed
+		):
+			_on_click(event.position)
+			accept_event()
 		return
 
 	if event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_LEFT:
-			_dragging = event.pressed
+			if event.pressed:
+				_dragging = true
+				_dragged = false
+			else:
+				_dragging = false
+				# A press and release without motion between them is a click, and a pan ends with a release
+				# too - so without this the map would act on whatever was under the cursor at the end of
+				# every drag, which is something on nearly every pan.
+				if not _dragged:
+					_on_click(event.position)
+			accept_event()
+
+		elif event.button_index == MOUSE_BUTTON_RIGHT:
+			if event.pressed:
+				_on_right_click(event.position)
 			accept_event()
 
 		# The camera's own zoom actions rather than the wheel buttons directly, so the map and the world behind
@@ -302,6 +610,7 @@ func _gui_input(event: InputEvent) -> void:
 			accept_event()
 
 	elif event is InputEventMouseMotion and _dragging:
+		_dragged = true
 		var mpp := _metres_per_pixel()
 		centre.x -= event.relative.x * mpp
 		centre.y += event.relative.y * mpp
@@ -374,7 +683,7 @@ func _to_world(screen: Vector2) -> Vector2:
 ## Godot is Y-up and the server is Z-up, so the map's northing is the entity's [code]z[/code] - the same
 ## swap [code]Vec3Convert[/code] performs in the other direction. Positions are in voxels, which is why
 ## the world's metres-per-voxel is read from [code]/meta[/code] rather than assumed to be one.
-func _player_metres() -> Variant:
+func player_metres() -> Variant:
 	if entity_manager == null:
 		return null
 

@@ -2,11 +2,16 @@ package net.bestia.zone.cartography.tile
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.annotation.PreDestroy
+import net.bestia.worldgen.vector.FeatureKind
+import net.bestia.worldgen.vector.PointMarker
 import net.bestia.zone.cartography.CartographyConfig
 import net.bestia.zone.cartography.chart.ChartService
 import net.bestia.zone.cartography.chart.ChartsChangedEvent
 import net.bestia.zone.cartography.coverage.AreaCoverage
 import net.bestia.zone.cartography.coverage.Coverage
+import net.bestia.zone.cartography.render.MapVisibility
+import net.bestia.zone.cartography.render.PlaceNames
+import net.bestia.zone.cartography.render.PlaceNames.visibleTo
 import net.bestia.zone.cartography.render.TileInputs
 import net.bestia.zone.world.WorldService
 import org.springframework.stereotype.Service
@@ -73,6 +78,31 @@ class MapTileService(
       return result
     }
   }
+
+  /**
+   * One place worth a name, in world metres.
+   *
+   * [name] is a **generated** string and is therefore English by construction: it is built from a per-world
+   * seed, so it can never pass through Godot's build-time `tr()` tables. `place_component_smsg.proto` makes
+   * the same argument at length about the same kind of string.
+   *
+   * [poi] is the opposite case and is why it is a separate field rather than folded into [name]. The landmark
+   * kinds are a closed, hand-authored list, so a client can translate them - but only if it is told *which*
+   * kind rather than being handed `PoiKind.label` already rendered into English. Sending the enum name is what
+   * keeps that door open. [kind] serves the same purpose for a site with no name of its own.
+   */
+  data class Place(
+    val id: Long,
+    val kind: String,
+    val x: Double,
+    val y: Double,
+    val name: String?,
+    val tier: String?,
+    val poi: String?
+  )
+
+  /** The places in one tile, and how the client is allowed to cache them. Mirrors [Tile]. */
+  data class Places(val places: List<Place>, val etag: String, val shared: Boolean)
 
   /**
    * The render pool did not answer in time.
@@ -201,6 +231,100 @@ class MapTileService(
     if (masked.size < MAX_MASKED_TILES) masked[cacheKey] = bytes
 
     return Tile(bytes, etag = "\"${resources.key}-$cacheKey\"", shared = false)
+  }
+
+  /**
+   * The named places inside a tile, or null when the master has charted nothing in it.
+   *
+   * ### Why this is a second request and not part of the tile
+   *
+   * A served tile already carries every symbol - `PlaceInk` draws them - but deliberately no labels, because
+   * `TileInputs.labels` is false for anything but the offline atlas: the client has the font, the locale and
+   * the zoom, and a name baked into a PNG has none of them. So the imagery and the words are two answers to
+   * two questions, and this is the second one. The client draws these over the symbols the tile already has;
+   * it must not draw symbols of its own, or every town is marked twice.
+   *
+   * ### The fog test is per point, not per area
+   *
+   * [tile] asks about [FogMask.clearingArea] because a mask fringes *inward* from the tile edge, so coverage
+   * stopping on that edge still changes pixels inside it. A place has no fringe: it is at one coordinate and
+   * the only question is whether that coordinate is charted. So the area tests here are the tile's own bounds
+   * and the per-place test is [Coverage.contains], which is exact.
+   *
+   * That makes `shared` a slightly different question from the one [tile] asks, and legitimately so - a tile
+   * whose own cells are all charted can still need a mask for its margin while every place in it is visible
+   * to everyone. Both answers are correct for what they key.
+   *
+   * @throws IllegalArgumentException for a level outside the pyramid, which is a malformed request rather than
+   *   an empty answer
+   */
+  fun places(masterId: Long, id: TileId): Places? {
+    require(id.level in 0..resources.fitLevel) {
+      "Level ${id.level} is outside 0..${resources.fitLevel}"
+    }
+
+    if (!holdsTile(id)) return null
+
+    val coverage = coverageFor(masterId)
+
+    val (shared, digest) = when (val over = coverage.coverageOf(id.bounds)) {
+      AreaCoverage.None -> return null
+      AreaCoverage.Full -> true to UNKEYED_DIGEST
+      is AreaCoverage.Partial -> false to over.digest
+    }
+
+    val suffix = if (shared) id.path() else "${id.path()}#$digest"
+
+    return Places(
+      places = placesIn(id, coverage, shared),
+      etag = "\"${resources.key}-p-$suffix\"",
+      shared = shared
+    )
+  }
+
+  /**
+   * Every place in the tile the asker may know about, at this zoom.
+   *
+   * Two gates, and they are not interchangeable. [MapVisibility.draws] is the **disclosure** rule - its
+   * exhaustive `when` with no `else` is what stops an ore body or a creature den reaching a client because
+   * somebody added a feature kind and the drawing code had a sensible default - and the coverage test is the
+   * **fog** rule. A place has to pass both.
+   *
+   * The zoom gates are `PlaceInk`'s own, so a label is drawn exactly where its symbol is and never floats
+   * over ground with no mark under it.
+   */
+  private fun placesIn(id: TileId, coverage: Coverage, shared: Boolean): List<Place> {
+    val places = ArrayList<Place>()
+    val chronicle = resources.inputs.chronicle
+
+    for (feature in resources.inputs.featuresIn(id.bounds)) {
+      if (feature !is PointMarker) continue
+      if (!MapVisibility.draws(feature.kind, id.metresPerPixel)) continue
+
+      val position = feature.position
+      // Skipped for a wholly charted tile: the answer is known, and `contains` is a lattice lookup per place.
+      if (!shared && !coverage.contains(position.x, position.y)) continue
+
+      val tier = if (feature.kind == FeatureKind.SETTLEMENT) {
+        PlaceNames.tierOf(feature) ?: continue
+      } else {
+        null
+      }
+
+      if (tier != null && id.metresPerPixel > tier.visibleTo) continue
+
+      places += Place(
+        id = feature.id.value,
+        kind = feature.kind.name,
+        x = position.x,
+        y = position.y,
+        name = PlaceNames.nameOf(chronicle, feature),
+        tier = tier?.name,
+        poi = PlaceNames.poiKindOf(feature)?.name
+      )
+    }
+
+    return places
   }
 
   /**
