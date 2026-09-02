@@ -19,7 +19,7 @@
 //
 // SLOTS
 //
-// Eight fixed texture layers, weighted per vertex - not four material indices plus four weights. On a
+// Sixteen fixed texture layers, weighted per vertex - not four material indices plus four weights. On a
 // surface-nets mesh one vertex is shared by every quad around it, so a triangle routinely spans three
 // materials, and an index interpolated across it means nothing. Fixing the layer to the channel makes
 // interpolation exactly right instead: three corners of grass, sand and rock become a real three-way blend.
@@ -27,14 +27,15 @@
 // The layer order is BlockAppearance.SurfaceSlot's ordinals and is a wire format between that file and this
 // one:
 //
-//     0 NEUTRAL   1 GRASS   2 DRY_GRASS   3 SAND   4 SOIL   5 ROCK   6 SNOW   7 WETLAND
+//     0 NEUTRAL   1 GRASS   2 DRY_GRASS   3 SAND   4 SOIL   5 ROCK   6 SNOW   7 WETLAND   8 SCORCHED
 //
+// Nine are named; 9 to 15 exist because the vertex format reaches that far and no block maps to them yet.
 // Slot 7 was held in reserve for the first material that genuinely needed its own texture rather than a tint
-// over somebody else's. That material is MUD: a bog on the soil layer was a ploughed field in a darker brown,
-// because wetness is not a grain and no tint supplies one. The reserve is now spent - there is no ninth slot
-// short of doubling the vertex format.
+// over somebody else's, and MUD spent it: a bog on the soil layer was a ploughed field in a darker brown,
+// because wetness is not a grain and no tint supplies one. SCORCHED is the same argument, and is what took the
+// count from eight to sixteen - four RGBA8 vertex attributes, which is every one Godot offers.
 
-// The slot count is written as a literal 8 throughout rather than as a name.
+// The slot count is written as a literal 16 throughout rather than as a name.
 //
 // Not a style choice - Godot's shader preprocessor only runs for a shader loaded from a path, and it gives up
 // on the whole file if it dislikes any directive, silently handing the raw text with its '#'s to the tokenizer.
@@ -80,6 +81,20 @@ uniform float normal_strength : hint_range(0.0, 2.0) = 1.0;
 
 // How much the texture's ambient occlusion darkens it.
 uniform float ao_strength : hint_range(0.0, 1.0) = 1.0;
+
+// Reflectance at normal incidence, on Godot's own scale where 0.5 is the 4% every dielectric has.
+//
+// Zero was hardcoded here until the slots carried real roughness. The reason was sound at the time and is
+// worth keeping written down: the sky is near-white and terrain is mostly large and flat, so a broad specular
+// lobe over a surface that was uniformly fully rough put a sheet of sky back into the camera, which reads on
+// screen as "the material did not apply" because it is indistinguishable from Godot's white fallback.
+//
+// What changed is that roughness is now measured per texel rather than assumed - grass runs 0.65 to 1.0
+// across its blades - so the lobe has somewhere to vary and the highlight lands on the wet-looking parts of
+// the grain instead of on everything at once. It ships at zero anyway, because turning it on is a decision
+// about how the whole world looks rather than a fix, and the terrain testbed is where that decision is
+// cheapest to make. Wetness still drives its own specular through roughness regardless of this.
+uniform float specular : hint_range(0.0, 1.0) = 0.5;
 
 group_uniforms;
 
@@ -147,13 +162,22 @@ uniform float tint_strength : hint_range(0.0, 1.0) = 1.0;
 
 // Whether the palette's colours are read as sRGB or as linear.
 //
-// Off matches what the vertex-colour renderer did, and is the default so that turning the shader on did not
-// silently restyle the world. It is almost certainly not what the palette author meant, though: BlockAppearance
-// picks values like GRANITE 0.60/0.56/0.55 as "what grey granite looks like", and rendering them as linear puts
-// them on screen around 0.80 - which is why bare rock reads closer to white than to stone. Turning this on
-// makes the world match the numbers in that file. It is a change to how everything looks, so it is a decision
-// rather than a fix, and this is here to make it a one-click one.
-uniform bool tint_is_srgb = false;
+// Off used to be the default, matching what the vertex-colour renderer did so that turning this shader on did
+// not silently restyle the world. It was already suspect - BlockAppearance picks values like GRANITE
+// 0.60/0.56/0.55 as "what grey granite looks like", and rendering them as linear puts them on screen around
+// 0.80, which is why bare rock read closer to white than to stone - but it was arguably a matter of taste
+// while every slot was grey placeholder noise.
+//
+// **Photographic albedo settled it, and not on taste.** The correction below is `tint / slot_reference_tint`,
+// and its whole contract is that a material whose texture already matches its palette colour comes out
+// unchanged. That identity only holds if the two are measured in the same space, and they are not when this is
+// off: the reference is the mean of the sRGB-decoded texture, so dividing a raw sRGB tint by it is a ratio
+// between two different encodings. On a grey placeholder that is invisible - R, G and B are equal, so the
+// error is a uniform brightness shift. On the grass pack, whose linear mean is (0.173, 0.271, 0.041), it is a
+// per-channel ratio of (1.62, 1.66, 4.69), and a 4.7x lift in blue alone is not a brightness shift, it is
+// desaturation: rich green art rendered as pale mint. Decoding the tint first gives (0.37, 0.63, 0.74), which
+// is the gentle darkening towards the palette that this was always meant to be.
+uniform bool tint_is_srgb = true;
 
 group_uniforms;
 
@@ -252,7 +276,7 @@ group_uniforms;
 varying vec3 v_world_pos;
 varying vec3 v_world_normal;
 
-// The eight slot weights, as the two RGBA8 attributes they are packed into.
+// The sixteen slot weights, as the four RGBA8 attributes they are packed into.
 //
 // Forwarded explicitly because CUSTOM0..CUSTOM3 exist only in the vertex stage - unlike COLOR, which is
 // available in both and needs none of this.

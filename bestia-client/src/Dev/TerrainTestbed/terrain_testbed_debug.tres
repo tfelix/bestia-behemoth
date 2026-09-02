@@ -1,15 +1,19 @@
 [gd_resource type="ShaderMaterial" format=3]
 
-[ext_resource type="Shader" path="res://Game/World/Shader/terrain.gdshader" id="1_eegv1"]
+; The debug twin of terrain_testbed.tres. Pick what it draws with "debug_view" below, or in the inspector.
+;
+; 0 is the shipping look; the rest expose one intermediate each - slot weights, the height blend, the
+; triplanar axes, slope, the tint, the normal. See terrain_debug.gdshader for the list.
+
+[ext_resource type="Shader" path="res://Game/World/Shader/terrain_debug.gdshader" id="1_debug"]
 
 [resource]
 render_priority = 0
-shader = ExtResource("1_eegv1")
+shader = ExtResource("1_debug")
 shader_parameter/normal_strength = 1.0
 shader_parameter/ao_strength = 1.0
 shader_parameter/specular = 0.0
 shader_parameter/slot_uv_scale = PackedFloat32Array(2, 1.5, 1.5, 1.5, 2, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2)
-shader_parameter/slot_reference_tint = null
 shader_parameter/slot_uv_origin = PackedVector3Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 shader_parameter/slot_height_contrast = PackedFloat32Array(0.4, 0.5, 0.5, 0.25, 0.5, 0.9, 0.2, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5)
 shader_parameter/height_blend_range = 0.15
@@ -22,3 +26,4 @@ shader_parameter/wetness_darkening = 0.72
 shader_parameter/wetness_roughness = 0.12
 shader_parameter/snow_colour = Color(0.92, 0.94, 0.96, 1)
 shader_parameter/snow_melt_celsius = 1.0
+shader_parameter/debug_view = 1

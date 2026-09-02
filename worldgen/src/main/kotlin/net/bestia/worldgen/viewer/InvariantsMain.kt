@@ -182,6 +182,11 @@ object InvariantsMain {
             "  mana ${manaLog.last().joinToString("/")}" +
             "  dens ${dens.last().joinToString("/")}" +
             "  dens/km2 ${"%.2f".format(Locale.ROOT, Invariants.spawnerDensity(generated))}" +
+            // Per band, because the budget is stated per band: a whole-world mean cannot see the starter
+            // ring miss its number while the endgame hits its own.
+            "  creatures/km2 ${Invariants.spawnerBandDensity(generated).joinToString("/") {
+              "%.0f".format(Locale.ROOT, it)
+            }}" +
             "  index ${index.oversizedCount}/${index.size}"
         if (single.isClean) {
           println("  seed $seed ok    $measured")

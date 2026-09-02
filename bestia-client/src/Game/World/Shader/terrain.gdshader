@@ -37,8 +37,7 @@ void fragment() {
 	// say so. Fragment-stage NORMAL is view space, hence the matrix.
 	NORMAL = normalize((VIEW_MATRIX * vec4(surface.world_normal, 0.0)).xyz);
 
-	// Zero rather than left alone. The scene's sky is near-white and terrain is mostly large and flat, so any
-	// specular at all is a sheet of sky reflected back into the camera - which reads on screen as "the material
-	// did not apply", because it is indistinguishable from Godot's white fallback.
-	SPECULAR = 0.0;
+	// A uniform rather than a constant, now that the slots supply measured roughness for the lobe to vary
+	// across - see `specular` in terrain_common.gdshaderinc for why it still ships at zero.
+	SPECULAR = specular;
 }

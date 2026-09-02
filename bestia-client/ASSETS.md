@@ -10,9 +10,13 @@
 * Hand Painted Mountainside 2 - Stone and Dirt, [The Chayed](https://opengameart.org/content/hand-painted-mountainside-2-stone-and-dirt) [OGA-BY 3.0](http://opengameart.org/content/oga-by-30-faq)
 * handpainted-style-textures-3, [rubberduck](https://opengameart.org/content/2k-handpainted-style-textures) [CC 0](http://creativecommons.org/publicdomain/zero/1.0/)
 
-The terrain slot textures in `src/Game/World/Shader/Slots/` are derived from the two grass sets above,
-downscaled to 512 and repacked with height in the alpha channel. The remaining slots have no art and are
-generated at load; dropping a correctly named PNG into that folder replaces one.
+The terrain slot textures in `src/Game/World/Shader/Slots/` are one PNG per map —
+`<ordinal>_<slot>_albedo.png` plus any of `_normal`, `_height`, `_ao` and `_smoothness` — assembled into two
+texture arrays at load and resampled to 512. The remaining slots have no art and are generated at load;
+dropping a correctly named set into that folder replaces one.
+
+`dry_grass` is derived from the two grass sets above, in the older packed form. **The `grass` set is not
+covered by any line above and still needs its source and licence recorded here.**
 
 ## Images, Particles, Textures
 

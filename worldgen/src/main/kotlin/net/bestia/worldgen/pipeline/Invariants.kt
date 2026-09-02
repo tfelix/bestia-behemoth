@@ -56,6 +56,7 @@ import net.bestia.worldgen.mana.CorruptionStage
 import net.bestia.worldgen.spawn.SpawnerChannels
 import net.bestia.worldgen.spawn.VegetationStandChannels
 import kotlin.math.abs
+import kotlin.math.floor
 import kotlin.math.hypot
 
 /**
@@ -118,12 +119,17 @@ object Invariants {
    * at the default 192 cells that is a few megabytes each, but a sweep at `--cells 512` should expect to
    * need a heap sized for a dozen of them.
    *
-   * **That warning became binding when den density went up fifty-fold.** `SpawnerParams.candidateSpacing`
-   * dropped from 2 500 m to 350 m, so a 128 km world carries some thirty thousand `BESTIA_SPAWN` markers
-   * instead of six hundred and a 512 km world carries on the order of half a million - a few hundred
-   * megabytes of markers per world, times one world per core in flight. A wide sweep at `--cells 512` will
-   * spend its time in the collector or die in it. Sweep at 192-256 cells unless the question genuinely needs
-   * a large world, and raise the heap when it does. `:worldgen:test` had to go to 4 GB for the same reason.
+   * **That warning became binding when den density went up.** `SpawnerParams.candidateSpacing` dropped from
+   * 2 500 m to 250 m, so a 128 km world samples a few hundred thousand Poisson candidates where it used to
+   * sample thousands, and carries some tens of thousands of `BESTIA_SPAWN` markers instead of six hundred -
+   * a few hundred megabytes per world at 512 cells, times one world per core in flight. A wide sweep at
+   * `--cells 512` will spend its time in the collector or die in it. Sweep at 192-256 cells unless the
+   * question genuinely needs a large world, and raise the heap when it does. `:worldgen:test` had to go to
+   * 4 GB for the same reason.
+   *
+   * The candidate count still scales quadratically with the spacing, but the **marker** count no longer does:
+   * `SpawnerStage` spends a per-cell creature budget, so lowering the spacing buys resolution rather than
+   * dens. `SpawnerParams.starterPack` and its siblings are the lever on how many markers a world carries.
    *
    * Note that each build runs serially inside its own thread, since [Parallel.map] marks its workers as
    * being in a parallel region already. That is the right way round: twelve whole worlds at once keeps
@@ -241,6 +247,7 @@ object Invariants {
     checkEmploymentAddsUp(generated, ::fail)
     checkBusinessesAreWellFormed(generated, ::fail)
     checkRoadsideInnsAreOnTheRoad(generated, ::fail)
+    checkRoadsLieOnTheGround(generated, ::fail)
     checkSeaLanesStayAtSea(generated, ::fail)
     checkBuiltSitesAreWhereTheyClaim(generated, ::fail)
     checkCavesAreWellFormed(generated, ::fail)
@@ -1078,6 +1085,17 @@ object Invariants {
     return Vec2d(edge.y, -edge.x)
   }
 
+  /**
+   * Metres a road's running surface may sit from the ground before it is a defect.
+   *
+   * Set from what the geometry legitimately produces rather than from what looks tidy. Between two stations
+   * the spline follows a chord over sixty metres of ground that carries up to fifteen metres of sub-cell
+   * detail, and a road stamped across a ridge crest is genuinely below it at the middle. Twelve metres is
+   * comfortably above that and an order of magnitude below the failure it exists to catch, which ran to two
+   * hundred and sixty.
+   */
+  private const val ROAD_OFF_GRADE_TOLERANCE = 12.0
+
   /** Kinds that cut or fill the ground and are emitted after the ponds are placed. See the shore check. */
   private val RESHAPES_THE_GROUND = setOf(
     FeatureKind.ROAD,
@@ -1427,6 +1445,74 @@ object Invariants {
           "inn ${inn.id} is only ${nearestSettlement.toInt()} m from a standing settlement"
         )
         return
+      }
+    }
+  }
+
+  /**
+   * A road's running surface is the ground it runs over.
+   *
+   * ### Why this needs an invariant and the river beds do not
+   *
+   * `checkRiverBedsDescend` above cannot fail: the bed channel is built as a running minimum, so it is
+   * monotone by construction and the check restates the constructor. This one can, and did. A road is stamped
+   * with [BlendMode.REPLACE] at a priority above the terrain, so its station elevations are not a request -
+   * they are what the ground becomes for the width of the carriageway, and nothing downstream will notice if
+   * they describe somewhere else. The failure that motivated this had a three-metre track sitting eighty
+   * metres under the hillside it crossed, drawn as a slot canyon with vertical walls, and every other check in
+   * this file passed on that world.
+   *
+   * ### Why roads and not streets
+   *
+   * A street is stamped over ground its own settlement has already regraded, so the surface it is entitled to
+   * sit on is the base heightfield *plus* the grading feature - which is what `TownStage.Grading` hands it,
+   * and it is not what this reads. Measured against the bare heightfield, seventeen of twenty-five reference
+   * worlds report streets twelve to twenty-five metres out, and every one of them is the settlement's own cut
+   * showing through rather than a street in the wrong place. Checking those properly means rebuilding that
+   * grading reference here; until something does, saying nothing about streets beats saying something false.
+   *
+   * ### Why it samples between the stations and not on them
+   *
+   * On a station the answer is zero by construction - the producer sets the station elevation by asking this
+   * same surface at this same point - so a check that lands there is `checkRiverBedsDescend` again: a
+   * restatement of the constructor that cannot fail whatever the road is doing. Halfway between two stations
+   * is where the profile is a *cubic spline over sixty metres of real ground* rather than a copy of it, and
+   * it is also where the failure this exists to catch showed: the old nearest-cell sampler agreed with itself
+   * at every station of an eighty-metre slot.
+   *
+   * That midpoint is also genuinely off the ground by a little, which is why the bound is
+   * [ROAD_OFF_GRADE_TOLERANCE] rather than zero - see there for what sets it.
+   */
+  private fun checkRoadsLieOnTheGround(generated: GeneratedWorld, fail: (String, String) -> Unit) {
+    for (feature in generated.world.features.all()) {
+      if (feature.kind != FeatureKind.ROAD) continue
+      val road = feature as? PolylineFeature ?: continue
+
+      val surface = runCatching { road.stations.channel(Profiles.CHANNEL_SURFACE_ELEVATION) }
+        .getOrNull() ?: continue
+      val halfWidth = runCatching { road.stations.channel(Profiles.CHANNEL_HALF_WIDTH) }
+        .getOrNull() ?: continue
+
+      val line = road.centerline
+      for (station in 0 until road.stations.stationCount - 1) {
+        // A zeroed half-width either side is a bridge gap: the carriageway is not stamped there, so its
+        // elevation says nothing about the ground and the deck is a voxel structure that answers for it.
+        if (road.stations.valueAt(halfWidth, station) <= 0.0) continue
+        if (road.stations.valueAt(halfWidth, station + 1) <= 0.0) continue
+
+        val midpoint = (line.arcLengthAt(station) + line.arcLengthAt(station + 1)) * 0.5
+        val at = line.pointAt(midpoint)
+        val stamped = road.stations.sample(surface, line.stationParamAt(midpoint))
+        val offGrade = generated.base.heightAt(at.x, at.y) - stamped
+
+        if (abs(offGrade) > ROAD_OFF_GRADE_TOLERANCE) {
+          fail(
+            "roads lie on the ground",
+            "road ${feature.id} between stations $station and ${station + 1} at " +
+                "(${at.x.toInt()}, ${at.y.toInt()}) is ${offGrade.toInt()} m off grade"
+          )
+          return
+        }
       }
     }
   }
@@ -1826,6 +1912,21 @@ object Invariants {
   }
 
   /**
+   * Which of [spawnerCensus]' four bands a den's `LEVEL_MAX` falls in.
+   *
+   * `SpawnerParams.bandOf` is the same grouping expressed in terms of the tunables that decide the edges, and
+   * zone-server's `WildSpawnConfig.Band` is the same grouping again. Three copies rather than one because this
+   * module is the *measurement* and must not move when a param does - a census that followed its own subject's
+   * banding could not see the banding change.
+   */
+  private fun spawnerBandOf(levelMax: Int): Int = when {
+    levelMax <= 8 -> 0
+    levelMax <= 40 -> 1
+    levelMax <= 79 -> 2
+    else -> 3
+  }
+
+  /**
    * Spawners per level band: `1..8`, `9..40`, `41..79`, `80..100`.
    *
    * Four numbers rather than a mean, because a mean cannot tell "the whole world is level forty" from "half
@@ -1837,28 +1938,21 @@ object Invariants {
     for (feature in generated.world.features.all()) {
       if (feature.kind != FeatureKind.BESTIA_SPAWN) continue
       val marker = feature as? PointMarker ?: continue
-      val level = marker.attribute(SpawnerChannels.LEVEL_MAX).toInt()
-      val band = when {
-        level <= 8 -> 0
-        level <= 40 -> 1
-        level <= 79 -> 2
-        else -> 3
-      }
-      bands[band]++
+      bands[spawnerBandOf(marker.attribute(SpawnerChannels.LEVEL_MAX).toInt())]++
     }
     return bands
   }
 
   /**
-   * Dens per square kilometre.
+   * Dens per square kilometre, over the whole world including its oceans.
    *
    * Beside [spawnerCensus] because the census answers "is the ramp working" and this answers "will a player
    * ever meet anything", which are independent and were confused once already: the shipped world had a
    * perfectly shaped four-band distribution over 656 dens spread across 16 384 km², so a player could walk
    * for kilometres between encounters while every assertion passed.
    *
-   * `SpawnerParams.candidateSpacing` is the lever, and it is quadratic, so this is the number to read when
-   * turning it - printed per seed by the sweep, so a spacing can be dialled in without booting a server.
+   * Read it beside [spawnerBandDensity], which is the number `SpawnerParams` is actually set in. This one is
+   * a whole-world average and so is dominated by how much ocean a seed happens to have.
    */
   fun spawnerDensity(generated: GeneratedWorld): Double {
     val dens = generated.world.features.all().count { it.kind == FeatureKind.BESTIA_SPAWN }
@@ -1866,6 +1960,43 @@ object Invariants {
     val squareKm = (config.widthCells * config.heightCells) *
         (config.baseResolution.metresPerCell / 1_000.0).let { it * it }
     return if (squareKm <= 0.0) 0.0 else dens / squareKm
+  }
+
+  /**
+   * Creatures per square kilometre in each of [spawnerCensus]' four bands.
+   *
+   * **The measurement `SpawnerParams.starterDensity` and its siblings are set against, and the only one that
+   * can see them missed.** The budget is stated per band in this unit, and a kilometre cell that could not
+   * reach its target - too few candidates on the ground, or `packCeiling` biting on the absorption - shows up
+   * here as a band below the number it was given, and nowhere else. `spawnerDensity` cannot see it because it
+   * averages the bands together, and `spawnerCensus` cannot because it counts dens rather than creatures.
+   *
+   * Normalised per band by the kilometre cells that band actually occupies, not by the world: the bands cover
+   * wildly different amounts of country - the starter ring is a few hundred square kilometres against an
+   * endgame of thousands - so dividing each by the whole world would say nothing about any of them. Cells are
+   * counted from the markers themselves, so ground no den stands on is correctly not counted as empty.
+   */
+  fun spawnerBandDensity(generated: GeneratedWorld): DoubleArray {
+    val creatures = DoubleArray(4)
+    val cells = Array(4) { HashSet<Long>() }
+    val metres = generated.config.baseResolution.metresPerCell
+
+    for (feature in generated.world.features.all()) {
+      if (feature.kind != FeatureKind.BESTIA_SPAWN) continue
+      val marker = feature as? PointMarker ?: continue
+      val band = spawnerBandOf(marker.attribute(SpawnerChannels.LEVEL_MAX).toInt())
+
+      creatures[band] += marker.attribute(SpawnerChannels.PACK)
+      val cellX = floor(marker.position.x / metres).toLong()
+      val cellY = floor(marker.position.y / metres).toLong()
+      cells[band].add((cellX shl 32) or (cellY and 0xFFFFFFFFL))
+    }
+
+    val squareKmPerCell = (metres / 1_000.0) * (metres / 1_000.0)
+    return DoubleArray(4) { band ->
+      val occupied = cells[band].size * squareKmPerCell
+      if (occupied <= 0.0) 0.0 else creatures[band] / occupied
+    }
   }
 
   fun landFraction(generated: GeneratedWorld, layerId: LayerId = LayerId.ELEVATION): Double {
@@ -2626,8 +2757,8 @@ object Invariants {
    * The world has dens on it at all.
    *
    * Safe to assert unconditionally, unlike the sea-lane existence check that could not be: every world this
-   * pipeline produces has land, and land takes spawners at a floor acceptance rate. A zero here is the
-   * shipped-dead failure and nothing else.
+   * pipeline produces has land, and every land cell is handed a creature budget it spends on whatever
+   * candidates it has. A zero here is the shipped-dead failure and nothing else.
    */
   private fun checkTheWorldHasSpawners(generated: GeneratedWorld, fail: (String, String) -> Unit) {
     // Nothing to say on a partial pipeline that never ran the stage; a world that ran it and produced none

@@ -206,7 +206,10 @@ data class WorldParams(
    * value, and no caller that has to remember to resolve first.
    */
   val resolved: WorldParams by lazy {
-    val settlementResolved = settlement.copy(habitability = habitability)
+    // `detail` for the same reason `pond` and `town` get it: a road's running surface is stamped with
+    // REPLACE against the ground, so it has to be decided against the surface the chunk tier builds rather
+    // than against the kilometre raster underneath it.
+    val settlementResolved = settlement.copy(habitability = habitability, detail = detail)
     copy(
       // Erosion reapplies the ocean margin after the timesteps lift it, so it has to use the depth and wobble
       // tectonics carved. Two copies of a number that must agree is one copy too many.

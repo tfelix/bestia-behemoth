@@ -3,6 +3,7 @@ package net.bestia.worldgen.civ
 import net.bestia.worldgen.bio.Biome
 import net.bestia.worldgen.bio.BiomeStage
 import net.bestia.worldgen.climate.ClimateStage
+import net.bestia.worldgen.core.BaseHeightField
 import net.bestia.worldgen.core.CellRegion
 import net.bestia.worldgen.core.FeatureIds
 import net.bestia.worldgen.core.GenContext
@@ -20,7 +21,10 @@ import net.bestia.worldgen.core.StageScale
 import net.bestia.worldgen.core.Timings
 import net.bestia.worldgen.core.WorldWrap
 import net.bestia.worldgen.fields.Grid
+import net.bestia.worldgen.fields.Noise
+import net.bestia.worldgen.geo.DetailParams
 import net.bestia.worldgen.geo.ErosionStage
+import net.bestia.worldgen.geo.WorldHeightField
 import net.bestia.worldgen.hydro.HydrologyStage
 import net.bestia.worldgen.resource.ResourceStage
 import net.bestia.worldgen.vector.BlendMode
@@ -77,7 +81,68 @@ data class SettlementParams(
   val maxFill: Double = 2.5,
 
   /** Widest river a road will bridge. Anything wider needs a ferry, which is not a vector feature. */
-  val maxBridgeSpan: Double = 260.0
+  val maxBridgeSpan: Double = 260.0,
+
+  /**
+   * Grade a road holds to before the router starts paying to avoid it.
+   *
+   * About six and a half percent, which is where a loaded ox cart stops being able to keep going and the
+   * drivers start double-teaming the hill. It is the number that decides whether a road goes over a shoulder
+   * or round it, and it is charged per routing step - a kilometre cell at the ruling grade climbs sixty-five
+   * metres, so it is generous rather than restrictive at the scale a route is found on.
+   *
+   * ### Measured, on the reference world
+   *
+   * Grade over a five hundred metre baseline, which is the scale the router decides at rather than the scale
+   * the ground wobbles at, against total road mileage - the price of every detour:
+   *
+   * ```
+   * penalty    length   p95    p99    max    over 0.15   over 0.10
+   * off        123 km   0.20   0.31   0.42     9.4%        15.6%
+   * this       183 km   0.13   0.18   0.41     3.0%         9.9%
+   * doubled    311 km   0.10   0.14   0.27     0.7%         6.0%
+   * ```
+   *
+   * The last row is the trap and is why this is not tuned harder. Halving the steep mileage again costs
+   * two and a half times the road, and a network that takes two and a half times the direct route does not
+   * read as careful - it reads as spaghetti. A real road detours tens of percent to avoid a hill, not
+   * hundreds. Half the steep segments for half again the mileage is the trade this picks.
+   */
+  val roadRulingGrade: Double = 0.065,
+
+  /** How hard the router charges the excess over [roadRulingGrade]. See [RouteFinder.gradeFactor]. */
+  val roadGradePenalty: Double = 10.0,
+
+  /** Longest detour, as a multiple of distance, that one steep step can justify. See [RouteFinder]. */
+  val roadMaxGradeFactor: Double = 12.0,
+
+  /**
+   * How much wider than its tier's width a road gets where the way opens out, as a share of that width.
+   *
+   * Nobody surveyed these. A medieval road is a right of way that traffic wore rather than a cross-section
+   * somebody specified, so it opens out where the ground allowed and pinches back where it did not, and an
+   * unvarying ribbon is the single strongest tell that it was extruded along a spline. A fifth is enough to
+   * read as a road that was used into existence and not enough to turn a track into a clearing.
+   *
+   * **One-sided, so the tier width is a floor rather than a midpoint.** A road that sometimes comes out
+   * narrower than its class is a road whose class no longer means anything, and the narrow end is the end
+   * that stops reading as a road at all. Widening only is also the truer direction: traffic went round the
+   * mire, and what it left behind was wider than the way, never narrower.
+   */
+  val roadWidthVariation: Double = 0.22,
+
+  /** Metres along the road between one width wobble and the next. */
+  val roadWidthWavelength: Double = 260.0,
+
+  /**
+   * Terrain detail, forwarded from the same field `StandardWorld.assemble` hands the chunk tier.
+   *
+   * The two have to agree. A road's running surface is stamped with [BlendMode.REPLACE], so it is not a
+   * request that the ground negotiates with - whatever height this stage decides, that is the height the
+   * ground becomes for the width of the carriageway. Deciding it against a surface the chunk tier does not
+   * build is how a track ends up at the bottom of an eighty metre slot; see `sampleElevation`.
+   */
+  val detail: DetailParams = DetailParams()
 ) : Params {
 
   init {
@@ -93,6 +158,15 @@ data class SettlementParams(
     require(maxCut >= 0.0) { "maxCut must not be negative, was $maxCut" }
     require(maxFill >= 0.0) { "maxFill must not be negative, was $maxFill" }
     require(maxBridgeSpan >= 0.0) { "maxBridgeSpan must not be negative, was $maxBridgeSpan" }
+    require(roadRulingGrade > 0.0) { "roadRulingGrade must be positive, was $roadRulingGrade" }
+    require(roadGradePenalty >= 0.0) { "roadGradePenalty must not be negative, was $roadGradePenalty" }
+    require(roadMaxGradeFactor >= 1.0) { "roadMaxGradeFactor must be at least 1, was $roadMaxGradeFactor" }
+    require(roadWidthVariation in 0.0..0.9) {
+      "roadWidthVariation must be in [0,0.9], was $roadWidthVariation"
+    }
+    require(roadWidthWavelength > 0.0) {
+      "roadWidthWavelength must be positive, was $roadWidthWavelength"
+    }
   }
 
   override fun digest() = ParamsDigest()
@@ -107,6 +181,12 @@ data class SettlementParams(
     .put("maxCut", maxCut)
     .put("maxFill", maxFill)
     .put("maxBridgeSpan", maxBridgeSpan)
+    .put("roadRulingGrade", roadRulingGrade)
+    .put("roadGradePenalty", roadGradePenalty)
+    .put("roadMaxGradeFactor", roadMaxGradeFactor)
+    .put("roadWidthVariation", roadWidthVariation)
+    .put("roadWidthWavelength", roadWidthWavelength)
+    .nested("detail", detail.digest().value)
 }
 
 /**
@@ -133,7 +213,9 @@ class SettlementStage(
 ) : Stage {
 
   override val id = ID
-  override val version = 1
+  // 2: roads are routed on grade rather than on the isotropic cost field alone, are stamped against the
+  // surface the chunk tier actually builds, and are the width of a road rather than of a footpath.
+  override val version = 2
 
   override val paramsVersion get() = GenRng.hash(params.digest().value, Culture.catalogueDigest(), SettlementTier.catalogueDigest())
   override val dependencies = listOf(
@@ -196,12 +278,31 @@ class SettlementStage(
     val waterCost = Timings.measure("settle.waterCost") { waterCostField(ctx, region, terms) }
     features.addAll(
       Timings.measure("settle.buildRoads") {
-        buildRoads(ctx, region, sites, movementCost, waterCost, elevation, rivers, terms, nextId)
+        buildRoads(ctx, region, sites, movementCost, waterCost, elevation, groundOf(ctx), rivers, terms, nextId)
       }
     )
 
     return StageResult(features = features)
   }
+
+  /**
+   * The surface a chunk will actually build, detail noise and all.
+   *
+   * Built exactly as `civ/TownStage.kt` and `hydro/PondStage.kt` build theirs, and for the same reason:
+   * `StandardWorld.assemble` has not run, so `GeneratedWorld.base` does not exist yet, and the coarse
+   * `ELEVATION` raster on its own is not the ground - it is the ground's kilometre average.
+   *
+   * This stage is the last of the three to get one, and it is the one that needed it most. A street already
+   * went through `TownStage.Grading`, which reads this; a road between settlements read the raster by nearest
+   * cell instead. See `sampleElevation` for what that cost.
+   */
+  private fun groundOf(ctx: GenContext): BaseHeightField = WorldHeightField(
+    elevation = ctx.layers.float(LayerId.ELEVATION),
+    hardness = ctx.layers.float(LayerId.ROCK_HARDNESS),
+    seed = ctx.config.seed,
+    seaLevel = ctx.config.seaLevel,
+    params = params.detail
+  )
 
   // --- Placement -------------------------------------------------------------------------------------
 
@@ -450,6 +551,7 @@ class SettlementStage(
     movementCost: Grid,
     waterCost: Grid,
     elevation: Grid,
+    ground: BaseHeightField,
     rivers: List<PolylineFeature>,
     terms: Terms,
     nextId: () -> FeatureId
@@ -462,7 +564,16 @@ class SettlementStage(
     val edges = gabrielEdges(nodes)
     if (edges.isEmpty()) return emptyList()
 
-    val finder = RouteFinder(movementCost, metres)
+    // The elevation grid, not just the cost field: see `RouteFinder`'s note on why an isotropic cost cannot
+    // tell contouring round a hill from climbing straight over it, and why a road needs it to.
+    val finder = RouteFinder(
+      cost = movementCost,
+      metresPerCell = metres,
+      elevation = elevation,
+      rulingGrade = params.roadRulingGrade,
+      gradePenalty = params.roadGradePenalty,
+      maxGradeFactor = params.roadMaxGradeFactor
+    )
     val routes = LinkedHashMap<Pair<Int, Int>, RouteFinder.Route>()
 
     // Pairs a road cannot serve, kept rather than dropped. Water is expensive in the movement cost field
@@ -514,7 +625,7 @@ class SettlementStage(
     for ((pair, lane) in lanes) {
       out.add(
         seaLaneMarker(
-          nextId(), region, nodes, pair, lane, traffic[pair] ?: 0.0, elevation, ctx.config.seaLevel,
+          nextId(), region, nodes, pair, lane, traffic[pair] ?: 0.0, ground, ctx.config.seaLevel,
           waterCost
         )
       )
@@ -532,10 +643,10 @@ class SettlementStage(
       val tier = roadTierOf(traffic[pair] ?: 0.0)
       val crossings = riverCrossings(centerline, rivers)
 
-      out.add(roadFeature(nextId(), centerline, tier, elevation, crossings))
+      out.add(roadFeature(nextId(), centerline, tier, ground, crossings))
       for (crossing in crossings) {
         if (!crossing.bridgeable) continue
-        out.add(bridgeMarker(nextId(), centerline, crossing, tier, elevation))
+        out.add(bridgeMarker(nextId(), centerline, crossing, tier, ground))
       }
     }
 
@@ -781,7 +892,7 @@ class SettlementStage(
     pair: Pair<Int, Int>,
     lane: Lane,
     traffic: Double,
-    elevation: Grid,
+    ground: BaseHeightField,
     seaLevel: Double,
     waterCost: Grid
   ): MarkerFeature {
@@ -793,7 +904,7 @@ class SettlementStage(
 
     val stationCount = centerline.vertexCount
     val depth = DoubleArray(stationCount) { station ->
-      max(0.0, seaLevel - sampleElevation(elevation, centerline.points[station]))
+      max(0.0, seaLevel - sampleElevation(ground, centerline.points[station]))
     }
 
     // Lower settlement index first, so "which two places" reads the same whichever end you sample from.
@@ -917,11 +1028,33 @@ class SettlementStage(
     else -> RoadTier.TRACK
   }
 
-  /** Road surface class: width, and how much earthwork it justifies. */
+  /**
+   * Road surface class: width, and how much earthwork it justifies.
+   *
+   * ### Why these are wider than a cart is
+   *
+   * A medieval road is not a carriageway with kerbs; it is a right of way. The Statute of Winchester's answer
+   * to highway robbery was to clear two hundred feet either side of the king's roads, and what a traveller
+   * saw was a worn strip wide enough for carts to pass, with the beaten ground spreading wherever the middle
+   * had turned to mud. The first numbers here - a 3.2 m track, a 6 m road - were the *vehicle's* width rather
+   * than the way's, and at a metre per voxel that draws a footpath through the trees.
+   *
+   * So the carriageway is 10 m, 13 m and 16 m across by tier, and [roadFeature] varies each of them along its
+   * length rather than extruding one number end to end.
+   *
+   * ### And why the shoulder grew with them
+   *
+   * The shoulder is the verge: the band over which the profile eases from the running surface back to
+   * whatever the ground was doing. Its width is what sets the batter of every cut and fill the road makes,
+   * because `Profiles.road` smoothsteps across it - so the steepest slope it can produce is one and a half
+   * times the height it has to make up, divided by this. Three metres of it was why a mismatch of any size at
+   * all arrived as a wall. Ten to eighteen metres turns the same mismatch into a bank you can walk up, and it
+   * is what a road cut into a hillside has either side of it in any case.
+   */
   private enum class RoadTier(val halfWidth: Double, val shoulder: Double) {
-    TRACK(1.6, 3.0),
-    ROAD(3.0, 6.0),
-    HIGHWAY(5.0, 11.0)
+    TRACK(5.0, 10.0),
+    ROAD(6.5, 14.0),
+    HIGHWAY(8.0, 18.0)
   }
 
   /**
@@ -994,7 +1127,7 @@ class SettlementStage(
     id: FeatureId,
     centerline: Polyline,
     tier: RoadTier,
-    elevation: Grid,
+    ground: BaseHeightField,
     crossings: List<Crossing>
   ): PolylineFeature {
     // Both the carriageway *and* the shoulder have to go to zero over a crossing. Zeroing only the carriageway
@@ -1014,13 +1147,30 @@ class SettlementStage(
 
     fun inGap(s: Double) = crossings.any { kotlin.math.abs(s - it.roadArcLength) < halfWindow(it) }
 
+    /*
+     * How wide the way is here, as a share of its tier's nominal width.
+     *
+     * One smooth noise field along the arc length, sampled off the lattice row so it is a genuine curve
+     * rather than the zero line gradient noise carries at integer coordinates. Seeded from the feature id, so
+     * two roads never wear the same pattern, and a pure function of arc length, so the width a chunk computes
+     * for a column does not depend on which chunk asked - the same seam guarantee the river banks keep.
+     *
+     * The carriageway and the verge take the *same* factor rather than one each. A way that opens out opens
+     * out entire: separate fields would give a road that is widest where its verge is narrowest, which is a
+     * shape nothing produces.
+     */
+    val seed = GenRng.mix64(id.value)
+    fun widthShare(s: Double) = 1.0 + params.roadWidthVariation *
+        (0.5 + 0.5 * Noise.gradient2d(seed, s / params.roadWidthWavelength, LATTICE_OFFSET))
+          .coerceIn(0.0, 1.0)
+
     return LinearFeatures.road(
       id = id,
       centerline = centerline,
       stationSpacing = params.roadSpacing,
-      surfaceElevation = { s -> sampleElevation(elevation, centerline.pointAt(s)) },
-      halfWidth = { s -> if (inGap(s)) 0.0 else tier.halfWidth },
-      shoulder = { s -> if (inGap(s)) 0.0 else tier.shoulder },
+      surfaceElevation = { s -> sampleElevation(ground, centerline.pointAt(s)) },
+      halfWidth = { s -> if (inGap(s)) 0.0 else tier.halfWidth * widthShare(s) },
+      shoulder = { s -> if (inGap(s)) 0.0 else tier.shoulder * widthShare(s) },
       endTaper = tier.shoulder * 2.0,
       // The caller already resampled, and the crossings above were found on *that* line. Letting the
       // feature resample again would give it a centerline the crossings were not measured against.
@@ -1033,10 +1183,10 @@ class SettlementStage(
     road: Polyline,
     crossing: Crossing,
     tier: RoadTier,
-    elevation: Grid
+    ground: BaseHeightField
   ): PointMarker {
     val bearing = road.tangentAt(crossing.roadArcLength)
-    val deck = sampleElevation(elevation, crossing.point) + BRIDGE_CLEARANCE
+    val deck = sampleElevation(ground, crossing.point) + BRIDGE_CLEARANCE
 
     return PointMarker(
       id = id,
@@ -1060,18 +1210,29 @@ class SettlementStage(
   // --- Helpers -------------------------------------------------------------------------------------
 
   /**
-   * Ground elevation at a world position, clamped to the grid.
+   * Ground elevation at a world position, on the surface a chunk will build.
    *
-   * Nearest cell rather than interpolated, deliberately: this feeds a road's *station* elevations, which are
-   * then interpolated by the station spline anyway. Interpolating twice would smooth the profile past the
-   * point where the road still follows the ground it is supposed to be on.
+   * ### What this used to be, and what it cost
+   *
+   * A **nearest-cell** read of the kilometre `ELEVATION` raster, defended on the grounds that the station
+   * spline interpolates the result anyway and interpolating twice would smooth the road off the ground it is
+   * supposed to follow. The reasoning does not survive contact with what the ground actually is: the chunk
+   * tier builds `WorldHeightField`, which is the **bicubic** of that raster plus sub-cell detail. Nearest
+   * cell is not the un-smoothed version of that surface, it is a different surface - one flat kilometre step
+   * per cell - and the gap between them is half a cell of horizontal offset times the local gradient.
+   *
+   * Measured on the reference world before this changed: 39% of stamped road stations sat more than 10 m off
+   * the ground, 16% more than 30 m, the 5th and 95th percentiles at -42 m and +51 m, and the extremes at
+   * -260 m and +239 m. Because a road is stamped with [BlendMode.REPLACE], every one of those is not an error
+   * the terrain absorbs but an instruction it obeys - so a three-metre track came out as an eighty-metre slot
+   * with vertical walls, and somewhere in that world a road stood on a two-hundred-and-sixty-metre pillar.
+   *
+   * The split of that gap is the part worth keeping: the kilometre quantisation ran -262 m to +235 m, and the
+   * sub-cell detail noise it was allegedly protecting the profile from ran -3.7 m to +15.2 m. It was the
+   * larger error by a factor of twenty.
    */
-  private fun sampleElevation(elevation: Grid, point: Vec2d): Double {
-    val metres = resolution.metresPerCell
-    val x = (point.x / metres).toInt().coerceIn(0, elevation.width - 1)
-    val y = (point.y / metres).toInt().coerceIn(0, elevation.height - 1)
-    return elevation.data[y * elevation.width + x]
-  }
+  private fun sampleElevation(ground: BaseHeightField, point: Vec2d): Double =
+    ground.heightAt(point.x, point.y)
 
   private fun cellOf(region: CellRegion, position: Vec2d, metres: Double): Int? {
     val x = (position.x / metres).toInt() - region.minX
@@ -1120,6 +1281,15 @@ class SettlementStage(
     private const val MIN_GAP_STATIONS = 1.5
 
     private const val ROAD_SMOOTHING = 2
+
+    /**
+     * Which lattice row the road's width wobble is read off.
+     *
+     * Gradient noise is exactly zero at integer coordinates, so a one-dimensional walk along `y = 0` samples
+     * the one line of the field that carries no signal and every road comes out its nominal width. Half a cell
+     * is the furthest from that line it is possible to be.
+     */
+    private const val LATTICE_OFFSET = 0.5
 
     /**
      * Per-metre cost of open water, and therefore the floor of the water cost field.

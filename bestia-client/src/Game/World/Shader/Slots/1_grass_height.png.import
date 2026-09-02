@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://pa31xvv1oya6"
-path="res://.godot/imported/1_grass.png-0ee0a56bd31ccb07e0b49d25487f5762.ctex"
+uid="uid://cfnouhnixgc03"
+path="res://.godot/imported/1_grass_height.png-372a91653cd4f97d57a434152fef1aae.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Game/World/Shader/Slots/1_grass.png"
-dest_files=["res://.godot/imported/1_grass.png-0ee0a56bd31ccb07e0b49d25487f5762.ctex"]
+source_file="res://Game/World/Shader/Slots/1_grass_height.png"
+dest_files=["res://.godot/imported/1_grass_height.png-372a91653cd4f97d57a434152fef1aae.ctex"]
 
 [params]
 
@@ -31,7 +31,7 @@ process/channel_remap/red=0
 process/channel_remap/green=1
 process/channel_remap/blue=2
 process/channel_remap/alpha=3
-process/fix_alpha_border=false
+process/fix_alpha_border=true
 process/premult_alpha=false
 process/normal_map_invert_y=false
 process/hdr_as_srgb=false

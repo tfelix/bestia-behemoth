@@ -1,15 +1,24 @@
 [gd_resource type="ShaderMaterial" format=3]
 
-[ext_resource type="Shader" path="res://Game/World/Shader/terrain.gdshader" id="1_eegv1"]
+; The terrain shader, wired up for the testbed scene and for nothing else.
+;
+; A separate resource from Game/World/Shader/terrain.tres on purpose. The testbed has to put the assembled
+; Texture2DArrays on whatever material it draws with, and those are built in memory with no resource path -
+; so a material that carries them serialises them as an empty "_images = Array[Image]([null, ...])" the
+; moment anyone saves it. Keeping that hazard away from the shipping material is worth one duplicated file;
+; the node's "Copy tuning to terrain.tres" button moves the numbers across without the textures.
+;
+; The slot arrays are sixteen long, matching "uniform float slot_uv_scale[16]" in terrain_common.gdshaderinc.
+
+[ext_resource type="Shader" path="res://Game/World/Shader/terrain.gdshader" id="1_terrain"]
 
 [resource]
 render_priority = 0
-shader = ExtResource("1_eegv1")
+shader = ExtResource("1_terrain")
 shader_parameter/normal_strength = 1.0
 shader_parameter/ao_strength = 1.0
 shader_parameter/specular = 0.0
 shader_parameter/slot_uv_scale = PackedFloat32Array(2, 1.5, 1.5, 1.5, 2, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2)
-shader_parameter/slot_reference_tint = null
 shader_parameter/slot_uv_origin = PackedVector3Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 shader_parameter/slot_height_contrast = PackedFloat32Array(0.4, 0.5, 0.5, 0.25, 0.5, 0.9, 0.2, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5)
 shader_parameter/height_blend_range = 0.15

@@ -1,0 +1,28 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://Dev/TerrainTestbed/TerrainTestbed.cs" id="1_testbed"]
+[ext_resource type="ShaderMaterial" path="res://Dev/TerrainTestbed/terrain_testbed.tres" id="2_material"]
+[ext_resource type="ShaderMaterial" path="res://Dev/TerrainTestbed/terrain_testbed_debug.tres" id="3_debug"]
+[ext_resource type="PackedScene" uid="uid://ykdxpspi6cly" path="res://Game/Environment/Environment.tscn" id="4_environment"]
+[ext_resource type="Script" path="res://Dev/TerrainTestbed/fly_camera.gd" id="5_camera"]
+
+[node name="TerrainTestbed" type="Node3D"]
+script = ExtResource("1_testbed")
+Palette = 0
+Relief = 1
+PatchVoxels = 16
+ReliefMetres = 12.0
+DomeRadius = 0.85
+ShowLabels = true
+ShowDebugView = false
+TerrainMaterial = ExtResource("2_material")
+DebugMaterial = ExtResource("3_debug")
+
+[node name="Environment" parent="." instance=ExtResource("4_environment")]
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.7227, 0.6913, 0, -0.6913, 0.7227, 0, 56, 46)
+current = true
+fov = 58.0
+far = 800.0
+script = ExtResource("5_camera")

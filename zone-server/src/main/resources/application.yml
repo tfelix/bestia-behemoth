@@ -184,10 +184,9 @@ world:
 # with no consequence at all, because a den is rebuilt from the generator's markers at every boot. Nothing
 # in this block moves `pipelineVersion` and nothing in it can destroy a world.
 #
-# The one direction it cannot go: `den-share` can only THIN. Nothing here can invent a marker, so
-# `spawner.candidateSpacing` in worldgen is set for the thickest band anyone will want - the starter
-# country - and every other band is thinned down from it here. Wanting a band *thicker* than the generator
-# produced is a params change and a world regeneration.
+# The one direction it cannot go: `den-share` can only THIN. Nothing here can invent a marker, and the
+# generator now emits each band at its own creatures/km2 (`spawner.starterDensity` and siblings in worldgen),
+# so wanting a band *thicker* than it was born is a params change and a world regeneration.
 wild-spawn:
   # Matched against the den's own LEVEL_MAX, using the same 1-8 / 9-40 / 41-79 / 80-100 banding
   # `Invariants.spawnerCensus` prints per seed - so the generator's census and this config are talking
@@ -196,29 +195,29 @@ wild-spawn:
   # Spring REPLACES this list rather than merging into it, so a block here must be complete; a partial one
   # would silently drop the bands it omits. `WildSpawnConfig`'s init refuses a set that stops below 100.
   #
-  # The multipliers on the first three bands were solved against the figures `WildSpawnDensityTest` prints,
-  # not guessed. `pack-multiplier` decides how many creatures a den keeps and `radius-multiplier` how widely
-  # they stand, and both matter: more creatures in the same box is a bigger huddle, not more country with
-  # something in it. Together they land at roughly two to three creatures on screen.
+  # Every multiplier is neutral, and that is deliberate. The density curve lives in the generator now, stated
+  # per band as creatures per square kilometre (`SpawnerParams.starterDensity` and its siblings), so anything
+  # other than 1.0 here would apply that curve twice - a den-share of 0.35 would thin an endgame already
+  # chosen to be an eighth of the starter band. These stay as the restart-cheap knob to tune *away* from.
   bands:
-    # Starter country. The generator's spacing is tuned for this band, so nothing is thinned.
+    # Starter country: 200 creatures/km2 out of the generator, about twenty-five on a screen.
     - max-level: 9
       den-share: 1.0
-      pack-multiplier: 1.4
-      radius-multiplier: 1.25
+      pack-multiplier: 1.0
+      radius-multiplier: 1.0
     - max-level: 40
       den-share: 1.0
-      pack-multiplier: 1.4
-      radius-multiplier: 1.25
+      pack-multiplier: 1.0
+      radius-multiplier: 1.0
     - max-level: 79
-      den-share: 0.7
-      pack-multiplier: 1.4
-      radius-multiplier: 1.25
-    # The endgame, deliberately sparse: a level-ninety pack is a fight rather than scenery. Boss dens are
-    # exempt from den-share - dropping one of those drops content, not density.
+      den-share: 1.0
+      pack-multiplier: 1.0
+      radius-multiplier: 1.0
+    # The endgame, already sparse when it arrives: a level-ninety pack is a fight rather than scenery. Boss
+    # dens are exempt from den-share - dropping one of those drops content, not density.
     - max-level: 100
-      den-share: 0.35
-      pack-multiplier: 0.6
+      den-share: 1.0
+      pack-multiplier: 1.0
       radius-multiplier: 1.0
 
   # Species never auto-placed, whatever their bestia row says. The operational escape hatch for a species

@@ -399,6 +399,15 @@ namespace BestiaBehemothClient.Game.World
 
       if (material == null)
       {
+        // Said out loud, because the alternative is a key that does nothing and gives no reason. The debug
+        // material is allowed to be absent - losing it should cost the binding rather than the terrain - but
+        // "allowed to be absent" and "silently absent" are different things when someone is standing on a
+        // hillside pressing F3.
+        GD.PushError(
+          _materials == null
+            ? "[terrain] no materials loaded, so debug shading cannot be toggled"
+            : "[terrain] terrain_debug.tres did not load; debug shading is unavailable this session");
+
         return;
       }
 

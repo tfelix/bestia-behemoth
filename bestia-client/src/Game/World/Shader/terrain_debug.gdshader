@@ -152,7 +152,7 @@ void fragment() {
 		AO = surface.ao;
 		AO_LIGHT_AFFECT = 0.0;
 		NORMAL = normalize((VIEW_MATRIX * vec4(surface.world_normal, 0.0)).xyz);
-		SPECULAR = 0.0;
+		SPECULAR = specular;
 	} else {
 		ALBEDO = vec3(0.0);
 		EMISSION = debug_colour(surface);

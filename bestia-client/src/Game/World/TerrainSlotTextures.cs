@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using BestiaBehemothClient.Game.World.Mesh;
 using Godot;
 
@@ -7,14 +8,43 @@ namespace BestiaBehemothClient.Game.World
   /// Assembles the terrain shader's texture array from whatever art exists, and invents the rest.
   /// </summary>
   /// <remarks>
-  /// <b>Slot art is found by filename, not by assignment.</b> A slot's texture is
-  /// <c>Game/World/Shader/Slots/&lt;ordinal&gt;_*.png</c>, RGB albedo with height in the alpha; anything not found
-  /// is generated. That is the same directory-scan idiom the client already uses for the attack and item
-  /// catalogues, and it is what makes dropping in real art a file copy rather than a code change.
+  /// <b>Slot art is found by filename, not by assignment.</b> A slot's maps are
+  /// <c>Game/World/Shader/Slots/&lt;ordinal&gt;_&lt;name&gt;_&lt;map&gt;.png</c>, one file per map exactly as a
+  /// texture pack ships them and as <c>StandardMaterial3D</c> would take them:
+  ///
+  /// <list type="table">
+  /// <item><term>_albedo</term><description>RGB base colour, sRGB.</description></item>
+  /// <item><term>_normal</term><description>Tangent normal, OpenGL convention (+Y up), the one Godot
+  /// expects.</description></item>
+  /// <item><term>_height</term><description>Grey displacement. Read by the height blend, not by a parallax
+  /// step.</description></item>
+  /// <item><term>_ao</term><description>Grey ambient occlusion.</description></item>
+  /// <item><term>_smoothness</term><description>Grey, inverted here into roughness. <c>_roughness</c> is taken
+  /// directly if that is what the pack ships instead.</description></item>
+  /// </list>
   ///
   /// <para>
-  /// <b>Every slot renders from the first day, and that is the point of the generated ones.</b> Seven of the
-  /// eight have no art, and the alternative to inventing something is a black world or a shader that has to
+  /// Every map is optional and each has its own fallback, so a pack that ships three of them works and the
+  /// missing two read as "no relief, fully rough, unoccluded" rather than as a hole. The older two-file form -
+  /// <c>&lt;ordinal&gt;_&lt;name&gt;.png</c> with height in the alpha, plus <c>_n.png</c> carrying RG normal,
+  /// B roughness, A occlusion - is still read when no <c>_albedo</c> or <c>_normal</c> is found, which is what
+  /// keeps <c>dry_grass</c> rendering while only <c>grass</c> has been redone.
+  /// </para>
+  ///
+  /// <para>
+  /// <b>Metallic is deliberately not read, and neither is an edge or curvature map.</b> Terrain is rough
+  /// dielectrics from end to end - the shader has always said so by writing <c>SPECULAR</c> rather than a
+  /// metal workflow - so a metalness channel would be zero for every material the palette has. It is not free
+  /// to carry: the two arrays below are already full at eight channels, and a third would add up to six
+  /// texture fetches per pixel to the two-slot blend. The grass pack's own <c>_metallic</c> is the argument
+  /// rather than the exception, at a mean of 0.61 with a -0.45 correlation against its occlusion: it is a
+  /// cavity mask under a metalness name, and feeding it to <c>METALLIC</c> would render a lawn as painted tin.
+  /// Its <c>_edge</c> correlates 0.78 with the same occlusion map, so it is that information twice.
+  /// </para>
+  ///
+  /// <para>
+  /// <b>Every slot renders from the first day, and that is the point of the generated ones.</b> Fourteen of the
+  /// sixteen have no art, and the alternative to inventing something is a black world or a shader that has to
   /// branch on whether a layer exists. A neutral grey with structure in it is neither, and it is honest about
   /// being unfinished in a way a wrong-but-detailed texture would not be.
   /// </para>
@@ -35,11 +65,31 @@ namespace BestiaBehemothClient.Game.World
     /// Edge length of every layer.
     /// </summary>
     /// <remarks>
-    /// All layers of a <c>Texture2DArray</c> must agree on size and format, so this is not per slot. 512 puts
-    /// the eight layers at about 11 MB with mipmaps, which is small enough not to need block compression while
-    /// the art is placeholder - and detailed enough that nothing here is what a texture looks blurry because of.
+    /// All layers of a <c>Texture2DArray</c> must agree on size and format, so this is not per slot, and art
+    /// that arrives at another size is resampled to it.
+    ///
+    /// <para>
+    /// <b>Still 512 although the grass pack ships at 1024, and the tiling is why.</b> Sixteen layers across two
+    /// uncompressed RGBA8 arrays is 32 MiB here and about 43 MiB once the mip chain is on it; at 1024 the same
+    /// arrays are 171 MiB. What that would buy is texel density the tiling cannot use - grass repeats every two
+    /// metres, so 512 is already 256 texels to the metre, or a texel every four millimetres, on a surface the
+    /// camera views from eight metres up and almost entirely at a grazing angle. Raising this is one edit if a
+    /// slot ever wants it; paying 128 MiB for detail below a pixel is not.
+    /// </para>
     /// </remarks>
     private const int Size = 512;
+
+    /// <summary>A tangent normal pointing straight out, for a slot with no normal map.</summary>
+    private const byte FlatNormal = 128;
+
+    /// <summary>Mid height, which the blend reads as a surface with no relief to assert.</summary>
+    private const byte NoRelief = 128;
+
+    /// <summary>Terrain's resting state, and what a slot with no roughness map gets.</summary>
+    private const byte FullyRough = 255;
+
+    /// <summary>No occlusion, so the ambient reaches the surface unmodified.</summary>
+    private const byte Unoccluded = 255;
 
     /// <summary>Slot ordinal to the name its file carries, for the log and for finding it.</summary>
     /// <remarks>
@@ -94,40 +144,84 @@ namespace BestiaBehemothClient.Game.World
       var surface = new Godot.Collections.Array<Image>();
       var tints = new Vector3[BlockAppearance.Slots];
 
-      var authoredAlbedo = 0;
-      var authoredSurface = 0;
+      var report = new List<string>();
 
       for (var slot = 0; slot < BlockAppearance.Slots; slot++)
       {
-        var colour = LoadAuthored(slot, "");
-        var maps = LoadAuthored(slot, "_n");
+        var found = new List<string>();
 
-        if (colour != null)
+        // The legacy pair is looked up only where its replacement is absent, and is kept in its own local
+        // rather than merged into the new one. Its extra channels are not the new maps' extra channels - the
+        // old _n packed roughness in B and occlusion in A, where a real normal map has the tangent Z and an
+        // opaque alpha there. Reading those as roughness would set every slot on the new convention to 0.98
+        // rough, which is close enough to right to survive a look and wrong for a reason nobody would find.
+        var colour = LoadMap(slot, "_albedo", found);
+        var legacyColour = colour == null ? LoadMap(slot, "", found) : null;
+
+        var normal = LoadMap(slot, "_normal", found);
+        var legacySurface = normal == null ? LoadMap(slot, "_n", found) : null;
+
+        var height = LoadMap(slot, "_height", found);
+        var occlusion = LoadMap(slot, "_ao", found);
+        var smoothness = LoadMap(slot, "_smoothness", found);
+        var roughness = smoothness == null ? LoadMap(slot, "_roughness", found) : null;
+
+        var source = colour ?? legacyColour ?? Generate(slot);
+        var tangent = normal ?? legacySurface;
+
+        var albedoData = new byte[Size * Size * 4];
+        var surfaceData = new byte[Size * Size * 4];
+
+        for (var at = 0; at < albedoData.Length; at += 4)
         {
-          authoredAlbedo++;
+          albedoData[at] = source[at];
+          albedoData[at + 1] = source[at + 1];
+          albedoData[at + 2] = source[at + 2];
+
+          // Height, in order: its own map; then flat, if the albedo came from a file whose alpha is just
+          // opacity; then the alpha of whatever did supply the colour, which is where both the legacy
+          // convention and Generate put their height.
+          albedoData[at + 3] =
+            height != null ? height[at] :
+            colour != null ? NoRelief : source[at + 3];
+
+          surfaceData[at] = tangent != null ? tangent[at] : FlatNormal;
+          surfaceData[at + 1] = tangent != null ? tangent[at + 1] : FlatNormal;
+
+          // Smoothness is the same measurement upside down, and is what this pack ships. Inverting it here
+          // rather than in the shader keeps the array's meaning single: B is roughness, whatever the art
+          // called it.
+          surfaceData[at + 2] =
+            smoothness != null ? (byte)(255 - smoothness[at]) :
+            roughness != null ? roughness[at] :
+            legacySurface != null ? legacySurface[at + 2] : FullyRough;
+
+          surfaceData[at + 3] =
+            occlusion != null ? occlusion[at] :
+            legacySurface != null ? legacySurface[at + 3] : Unoccluded;
         }
 
-        if (maps != null)
-        {
-          authoredSurface++;
-        }
-
-        colour ??= Generate(slot);
-        maps ??= FlatSurface();
+        var albedoImage = Image.CreateFromData(Size, Size, false, Image.Format.Rgba8, albedoData);
+        var surfaceImage = Image.CreateFromData(Size, Size, false, Image.Format.Rgba8, surfaceData);
 
         // Measured before mipmaps are generated: the mean wants the full-resolution layer, and the levels are
         // appended to the same buffer MeanColour reads.
-        tints[slot] = MeanColour(colour);
+        tints[slot] = MeanColour(albedoImage);
 
         // Not optional. The shader asks for anisotropic mipmapped filtering, but a Texture2DArray only has the
         // mip levels its source images had, and neither the imported PNGs nor the generated ones carry any. The
         // result would be terrain that crawls with aliasing at any distance - and it would look like a shader
         // problem rather than a missing pyramid.
-        colour.GenerateMipmaps();
-        maps.GenerateMipmaps();
+        albedoImage.GenerateMipmaps();
+        surfaceImage.GenerateMipmaps();
 
-        albedo.Add(colour);
-        surface.Add(maps);
+        albedo.Add(albedoImage);
+        surface.Add(surfaceImage);
+
+        if (found.Count > 0)
+        {
+          report.Add($"{slot} {Names[slot]} [{string.Join(' ', found)}]");
+        }
       }
 
       var albedoArray = new Texture2DArray();
@@ -136,47 +230,33 @@ namespace BestiaBehemothClient.Game.World
       var surfaceArray = new Texture2DArray();
       surfaceArray.CreateFromImages(surface);
 
+      // Every map that was found, named. The failure this exists for is silent by construction: a misspelt
+      // suffix or a slot renamed out from under its files loads nothing, generates grey, and reports success -
+      // so the only way to see that _smoothness never arrived is for the log to list what did.
       GD.Print(
         $"[terrain] slot textures {Size}x{Size} x{BlockAppearance.Slots}: " +
-        $"albedo {authoredAlbedo} authored, surface {authoredSurface} authored, rest generated");
+        $"{(report.Count == 0 ? "none authored" : string.Join(", ", report))}; " +
+        $"{BlockAppearance.Slots - report.Count} generated");
 
       return new Assembled { Albedo = albedoArray, Surface = surfaceArray, ReferenceTints = tints };
     }
 
     /// <summary>
-    /// The surface maps of a material nobody has authored: flat, fully rough, unoccluded.
-    /// </summary>
-    /// <remarks>
-    /// Deliberately featureless even where <see cref="Generate"/> invents structure for the albedo. A normal map
-    /// invented to match a texture that was itself invented would light the world with detail that is not in the
-    /// silhouette or the collision - a placeholder that lies rather than one that waits.
-    /// </remarks>
-    private static Image FlatSurface()
-    {
-      var data = new byte[Size * Size * 4];
-
-      for (var at = 0; at < data.Length; at += 4)
-      {
-        // (0.5, 0.5) unpacks to a tangent normal of (0, 0, 1): straight out of the surface.
-        data[at] = 128;
-        data[at + 1] = 128;
-        data[at + 2] = 255;
-        data[at + 3] = 255;
-      }
-
-      return Image.CreateFromData(Size, Size, false, Image.Format.Rgba8, data);
-    }
-
-    /// <summary>
-    /// The slot's art, or null if nobody has made it yet.
+    /// One of a slot's maps as raw RGBA8 at <see cref="Size"/>, or null if that file does not exist.
     /// </summary>
     /// <remarks>
     /// Goes through the imported texture rather than reading the PNG, so the art keeps whatever compression and
     /// mipmap settings the importer was told to use. Decompressed straight back out again because the array is
     /// assembled from raw images - which costs a moment at load and saves having to keep the slot PNGs on a
     /// different import preset from every other texture in the project.
+    ///
+    /// <para>
+    /// Bytes rather than an <c>Image</c>, because every caller wants one or two channels out of it and
+    /// <c>GetPixel</c> is a marshalled call. A quarter of a million texels times six maps times sixteen slots is
+    /// not a loop to make that way.
+    /// </para>
     /// </remarks>
-    private static Image LoadAuthored(int slot, string suffix)
+    private static byte[] LoadMap(int slot, string suffix, List<string> found)
     {
       var path = $"{SlotDirectory}{slot}_{Names[slot]}{suffix}.png";
 
@@ -206,7 +286,9 @@ namespace BestiaBehemothClient.Game.World
         image.Resize(Size, Size, Image.Interpolation.Lanczos);
       }
 
-      return image;
+      found.Add(suffix.Length == 0 ? "albedo(legacy)" : suffix.TrimStart('_'));
+
+      return image.GetData();
     }
 
     /// <summary>
@@ -223,7 +305,7 @@ namespace BestiaBehemothClient.Game.World
     /// placeholder boundary would be a straight linear fade and the feature would look broken rather than idle.
     /// </para>
     /// </remarks>
-    private static Image Generate(int slot)
+    private static byte[] Generate(int slot)
     {
       // Written as a flat buffer rather than through SetPixel, which is a marshalled call per pixel: six
       // generated layers at this size is a million and a half of them, and this runs while the player is
@@ -255,7 +337,7 @@ namespace BestiaBehemothClient.Game.World
         }
       }
 
-      return Image.CreateFromData(Size, Size, false, Image.Format.Rgba8, data);
+      return data;
     }
 
     /// <summary>

@@ -19,11 +19,12 @@ import org.springframework.boot.context.properties.ConfigurationProperties
  * ### The one direction this cannot go
  *
  * **The server can only thin.** [Band.denShare] is capped at 1.0 because nothing here can invent a marker -
- * a den either came out of the generator or it does not exist. So `SpawnerParams.candidateSpacing` has to be
- * set for the *thickest* band anyone will ever want, which is the starter country, and every other band is
- * thinned down from it here. Wanting a band **thicker** than the generator produced is the one change that
- * is still a params edit and a world regeneration, and it is worth knowing that before reaching for
- * `den-share: 1.5` and finding it refused.
+ * a den either came out of the generator or it does not exist. The generator now emits **each band at its own
+ * density** (`SpawnerParams.starterDensity` and its three siblings), so wanting a band *thicker* than it was
+ * born is a params edit and a regenerated world, and no setting here will do it. That trade was taken
+ * deliberately: the alternative is emitting every band at the starter band's density and throwing seven
+ * eighths of the endgame markers away. Worth knowing before reaching for `den-share: 1.5` and finding it
+ * refused.
  */
 @ConfigurationProperties(prefix = "wild-spawn")
 data class WildSpawnConfig(
@@ -147,28 +148,22 @@ data class WildSpawnConfig(
     /**
      * The shipped banding, matching `Invariants.spawnerCensus`' `1-8 / 9-40 / 41-79 / 80-100`.
      *
-     * The endgame is thinned hard and deliberately: a level-ninety pack is a fight rather than scenery, and
-     * the density that makes starter country feel alive would make the far mountains impassable.
+     * **Every multiplier is 1.0, and that is the whole content of this list.** The shape of the density curve
+     * moved into the generator, where it is stated outright as creatures per square kilometre per band -
+     * `SpawnerParams.starterDensity` carries the argument for why. A `den-share` of 0.35 or a
+     * `pack-multiplier` of 1.4 left here would apply that curve a second time on top of itself: the endgame
+     * would be thinned to a third of a figure already chosen to be an eighth of the starter band's.
      *
-     * ### Where the multipliers come from
-     *
-     * Measured, not guessed - `WildSpawnDensityTest` prints the figures these were solved against. At 1.0
-     * across the board the shipped world came out at 1.8 creatures on the average screen of country the
-     * catalogue can stock, and only 0.83 dens reached that screen at all, which reads as knots of creatures
-     * with empty ground between rather than as populated country.
-     *
-     * [Band.packMultiplier] fixes the count and [Band.radiusMultiplier] fixes the *spread*, and both are
-     * needed: more creatures per den without a wider den is a bigger huddle in the same place. Together they
-     * land at roughly two to three creatures on screen with about one den always reaching it.
-     *
-     * They live here rather than in `SpawnerParams` because they are balance rather than terrain - moving
-     * them costs a restart, while moving the generator's own radius costs the world.
+     * So the bands are declared and left neutral rather than deleted. They are still the level designer's
+     * surface, and the reason is unchanged - "level eighty dens should be sparser" wants trying, reverting and
+     * trying again, and moving one of these costs a restart while moving the generator's own density costs the
+     * world. This is the identity to tune away from, not dead code.
      */
     val DEFAULT_BANDS = listOf(
-      Band(maxLevel = 9, packMultiplier = 1.4, radiusMultiplier = 1.25),
-      Band(maxLevel = 40, packMultiplier = 1.4, radiusMultiplier = 1.25),
-      Band(maxLevel = 79, denShare = 0.7, packMultiplier = 1.4, radiusMultiplier = 1.25),
-      Band(maxLevel = TOP_LEVEL, denShare = 0.35, packMultiplier = 0.6)
+      Band(maxLevel = 9),
+      Band(maxLevel = 40),
+      Band(maxLevel = 79),
+      Band(maxLevel = TOP_LEVEL)
     )
   }
 }

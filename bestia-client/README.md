@@ -32,6 +32,18 @@ To get set up:
 For more on how the client is structured internally, see the
 [Client docs](https://docs.bestia-game.net/docs/client/overview).
 
+### Development scenes
+
+`src/Dev/` holds scenes that exist only to look at something in isolation. They run without a
+server and are not reachable from the game.
+
+* `Dev/TerrainTestbed/TerrainTestbed.tscn` — a static field carrying every terrain texture slot at
+  once, meshed in the editor by the shipping mesher, for tuning the terrain shader. Open the scene
+  and select its root node: the blend, slope, tint and triplanar settings are on
+  `terrain_testbed.tres`, and a button copies them across to the shipping `terrain.tres` when they
+  are worth keeping. Do not point the node at `terrain.tres` directly — the header comment in
+  `terrain_testbed.tres` says why.
+
 ## Contributing
 
 * Found a bug? Report it on [GitHub Issues](https://github.com/tfelix/bestia-client/issues)
