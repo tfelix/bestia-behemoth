@@ -7,6 +7,16 @@ import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.SyncTargets
 import net.bestia.zone.message.EntitySMSG
 
+/**
+ * A pose the client could not work out for itself, derived every tick from the current plan step by
+ * [net.bestia.zone.ai.ecs.AiActSystem].
+ *
+ * Deliberately narrow, for the reason [net.bestia.zone.ai.core.action.Posture] already gives: anything an
+ * observer can read off ordinary components does not belong here. Walking was in here and was exactly that -
+ * `entity.gd` plays its walk clip off its own movement prediction, every frame it is moving, so the server's
+ * WALK was overwritten within a frame of arriving and only ever cost bytes. A master has no [Animation]
+ * component at all and has always been animated that way.
+ */
 data class Animation(
   private var _currentAnimation: AnimationKind = AnimationKind.IDLE
 ) : Component, Dirtyable {
@@ -23,8 +33,10 @@ data class Animation(
     }
 
   enum class AnimationKind {
+    /** Nothing overriding: the client's own walk/idle heuristic owns the pose. */
     IDLE,
-    WALK,
+
+    /** Lying down asleep. */
     SLEEP
   }
 

@@ -3,9 +3,12 @@ using Godot;
 namespace BestiaBehemothClient.Bnet.Message.Entity
 {
   /// <summary>
-  /// Message for updating an entity's animation component.
-  /// Contains the entity ID and the animation clip name it should currently play
-  /// (matches the AnimationPlayer clip names used by the visual scenes, e.g. "Idle"/"Walk").
+  /// A pose the client could not have worked out for itself, as an AnimationPlayer clip name.
+  /// <para>
+  /// Deliberately narrow: walking is not on this list, because Entity plays its walk clip off its own
+  /// movement prediction and always did. "Idle" here means "nothing overriding" - hand the pose back
+  /// to that local heuristic - rather than "stand still".
+  /// </para>
   /// </summary>
   [GlobalClass]
   public partial class AnimationComponentSMSG : EntitySMSG
@@ -20,7 +23,6 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
         EntityId = protoAnimation.EntityId,
         Kind = protoAnimation.Kind switch
         {
-          global::Bnet.AnimationKind.Walk => "Walk",
           global::Bnet.AnimationKind.Sleep => "Sleep",
           _ => "Idle"
         }

@@ -24,6 +24,7 @@ import net.bestia.zone.ecs.entity.VisualComponentSMSG
 import net.bestia.zone.ecs.logout.LogoutIntentComponentSMSG
 import net.bestia.zone.ecs.logout.RequestLogoutCMSG
 import net.bestia.zone.ecs.movement.Position
+import net.bestia.zone.ecs.movement.PathSMSG
 import net.bestia.zone.ecs.movement.PositionSMSG
 import net.bestia.zone.entity.MoveActiveEntityCMSG
 import net.bestia.zone.entity.VanishEntitySMSG
@@ -188,10 +189,22 @@ class MultiPlayerJourneyScenario : BestiaNoSocketScenario(autoClientConnect = fa
       assertEquals(step.x to step.y, now.x to now.y, "the walk did not move the entity")
     }
 
-    assertTrue(
-      clientPlayer1.receivedAny(PositionSMSG::class) { it.entityId == activeEntityId },
-      "a player must be told where its own entity ended up"
-    )
+    // Told where it ended up by the *stop*, not by a per-step position: a walk this short takes one
+    // tile and MoveSystem publishes one position in POSITION_RESYNC_STEPS. The empty path is the stop
+    // notification and its stopPosition is the whole answer - see Path.toRemovedMessage.
+    //
+    // Asserted against the entity and against the tile, not on "some PathSMSG arrived", for the same
+    // reason the position check above is: every nearby entity's traffic lands in this mailbox.
+    await {
+      assertTrue(
+        clientPlayer1.receivedAny(PathSMSG::class) {
+          it.entityId == activeEntityId &&
+            it.path.isEmpty() &&
+            it.stopPosition?.let { stop -> stop.x to stop.y } == step.x to step.y
+        },
+        "a player must be told where its own entity ended up"
+      )
+    }
   }
 
   @Test

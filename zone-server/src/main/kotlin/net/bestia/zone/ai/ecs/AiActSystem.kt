@@ -141,10 +141,13 @@ class AiActSystem(
   /**
    * Points the entity's `Animation` at whatever it is doing right now.
    *
-   * Only two of the three kinds are decided here. Lying down is knowledge only the plan has — nothing about
-   * a sleeping creature's components distinguishes it from one standing still — so it comes from the current
-   * action's [Posture]. Walking, on the other hand, is already written on the entity as a `Path`, and reading
-   * it there rather than having every movement action declare itself keeps the two from disagreeing.
+   * Lying down is the only thing this can say, because it is the only thing an observer could not work out
+   * for itself: nothing about a sleeping creature's components distinguishes it from one standing still, so
+   * it has to come from the current action's [Posture]. Walking used to be derived here from the entity's
+   * `Path` and sent as its own kind, and the client had been playing its walk clip off its own movement
+   * prediction the whole time - every frame it is moving - so the message was overwritten within a frame of
+   * arriving. The walk is now the client's alone, and IDLE means "nothing overriding" rather than "stand
+   * still".
    *
    * A no-op for anything without the component: mobs get one from the spawner, and an entity that has none
    * simply has no animation to drive.
@@ -152,9 +155,8 @@ class AiActSystem(
   private fun updatePosture(world: World, entityId: Long, action: Action?) {
     val animation = world.get(entityId, Animation::class) ?: return
 
-    animation.currentAnimation = when {
-      action?.posture == Posture.SLEEPING -> Animation.AnimationKind.SLEEP
-      world.has(entityId, Path::class) -> Animation.AnimationKind.WALK
+    animation.currentAnimation = when (action?.posture) {
+      Posture.SLEEPING -> Animation.AnimationKind.SLEEP
       else -> Animation.AnimationKind.IDLE
     }
   }

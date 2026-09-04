@@ -18,9 +18,8 @@ func update_animation(_msg: AnimationComponentSMSG) -> void:
 	pass
 
 
-## Client-side animation state, driven by [Entity] every frame it moves or comes to rest, rather than
-## by a server message. A visual with no walk/idle clips of its own just ignores it.
-func update_animation_direct(_animation_name: String) -> void:
+## Client-side animation state, driven by [Entity] every frame it moves or comes to rest.
+func update_animation_from_client(_animation_name: String) -> void:
 	pass
 
 
@@ -50,7 +49,7 @@ func show_chat(msg: ChatSMSG) -> void:
 	if chat_anchor == null:
 		printerr("Visual %s received chat but has not ChatAnchor set." % [name])
 		return
-	
+
 	for x in chat_anchor.get_children():
 		x.queue_free()
 	var chat_text = ChatText.instantiate()

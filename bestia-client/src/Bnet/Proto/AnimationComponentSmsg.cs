@@ -27,9 +27,9 @@ namespace Bnet {
             "CjFtZXNzYWdlcy9jb21wb25lbnQvYW5pbWF0aW9uX2NvbXBvbmVudF9zbXNn",
             "LnByb3RvEgRibmV0Ik4KFkFuaW1hdGlvbkNvbXBvbmVudFNNU0cSEQoJZW50",
             "aXR5X2lkGAEgASgGEiEKBGtpbmQYAiABKA4yEy5ibmV0LkFuaW1hdGlvbktp",
-            "bmQqLgoNQW5pbWF0aW9uS2luZBIICgRJRExFEAASCAoEV0FMSxABEgkKBVNM",
-            "RUVQEAJCNAoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQhtBbmltYXRpb25Db21w",
-            "b25lbnRTTVNHUHJvdG9iBnByb3RvMw=="));
+            "bmQqKgoNQW5pbWF0aW9uS2luZBIICgRJRExFEAASCQoFU0xFRVAQAiIECAEQ",
+            "AUI0ChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CG0FuaW1hdGlvbkNvbXBvbmVu",
+            "dFNNU0dQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.AnimationKind), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -40,9 +40,24 @@ namespace Bnet {
 
   }
   #region Enums
+  /// <summary>
+  ///*
+  /// A pose the client could not work out for itself.
+  ///
+  /// Deliberately narrow. Walking used to be in here too, and it was pure duplication: the client
+  /// already plays its walk clip off its own movement prediction, every frame, so the server's WALK
+  /// lost the argument anyway - and a master, which has no Animation component at all, has always been
+  /// animated that way. Anything an observer can read off ordinary components (moving = has a path,
+  /// dead = has the Dead component) does not belong here.
+  /// </summary>
   public enum AnimationKind {
+    /// <summary>
+    ///* Nothing overriding: the client's own walk/idle heuristic owns the pose. 
+    /// </summary>
     [pbr::OriginalName("IDLE")] Idle = 0,
-    [pbr::OriginalName("WALK")] Walk = 1,
+    /// <summary>
+    ///* Lying down asleep - knowledge only the AI plan has (see ai/core/action/Posture). 
+    /// </summary>
     [pbr::OriginalName("SLEEP")] Sleep = 2,
   }
 

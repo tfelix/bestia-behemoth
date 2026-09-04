@@ -56,7 +56,7 @@ func update_animation(msg: AnimationComponentSMSG) -> void:
 ## [Entity] drives walk and idle off its own movement state instead of waiting for the server, and says so
 ## in the server's uppercase kinds. This placeholder has no walk clip, so WALK lands on Idle by the same
 ## fallback as any other kind it cannot play.
-func update_animation_direct(animation_name: String) -> void:
+func update_animation_from_client(animation_name: String) -> void:
 	if animation_name.to_upper() == "WALK":
 		_play_clip("Walk")
 	else:

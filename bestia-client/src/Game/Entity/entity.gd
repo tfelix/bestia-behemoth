@@ -1,32 +1,14 @@
 class_name Entity extends Node3D
 
-# Movement Prediction System
-# ========================
-# This system handles client-side movement prediction for networked entities.
+# Movement prediction
+# ===================
+# Entities follow server-sent paths client-side with the same integrator as the server's MoveSystem.
+# Waypoints arrive once per walk (PathComponentSMSG; an empty one means "stopped" and says where),
+# plus a resync position every MoveSystem.POSITION_RESYNC_STEPS tiles and a speed in tiles/second.
 #
-# Key Features:
-# - Follows server-provided paths at specified speeds (tiles/second)
-# - Smoothly corrects to server-authoritative positions when they arrive
-# - Handles edge cases like speed changes during movement and new paths
-#
-# Server Communication:
-# - PositionComponent: Authoritative position updates (whole coordinates only)
-# - PathComponentSMSG: Array of waypoints to follow
-# - SpeedComponentSMSG: Movement speed in tiles per second (1 tile = 1 meter)
-#
-# The server only sends position updates for whole coordinates (e.g., x:1, y:5),
-# never for fractional positions. Client handles smooth movement between tiles.
-#
-# Logical vs. drawn position
-# ==========================
-# `position` is NOT where the server says this entity is. It is _logical_position - which is - plus
-# two corrections. Half a tile horizontally, because a tile coordinate names that tile's corner and a
-# model standing on the corner straddles four of them (see TileSpace). A sub-voxel ground offset
-# vertically, because whole-voxel heights do not meet the terrain that gets drawn. Everything in the
-# prediction system below works in logical space; only _apply_position crosses over. Anything outside
-# this file that needs a server coordinate must ask get_logical_position() rather than reading
-# `position`, or a round trip through Vec3Convert's rounding can come back a tile away.
-# See _update_ground_offset.
+# `position` is _logical_position plus half a tile horizontally (a tile coordinate names its corner,
+# see TileSpace) and _ground_offset vertically. Everything else here works in logical space, so use
+# get_logical_position() outside this file - rounding `position` back can land a tile away.
 
 
 var BestiaModelScn = preload("res://Game/Entity/Visual/BestiaVisual/BestiaVisual.tscn")
@@ -35,75 +17,49 @@ var Camera = preload("res://Game/SpringArmCamera/SpringArmCamera.tscn")
 
 var entity_id: int = 0
 
-# Latest known buff/debuff list (BuffListEntry), cached here so BuffList can seed
-# itself with whatever we already know as soon as this entity gets selected,
-# without waiting for the next BuffListSMSG to arrive.
+# Latest state pushed by the server, cached because the window or HUD showing it may be closed.
+#
+# Buffs and debuffs (BuffListEntry).
 var _effects: Array = []
 
-# Latest known available skill points (master entities only - bestias never spend
-# points via this system), cached here for the same reason as _buffs: the Skills
-# window may not be open (or may be showing a different bestia's tree) when the
-# server pushes an update, so it needs somewhere durable to seed itself from.
+# Skill points (masters only).
 var _skill_points: int = 0
 
-# Latest known worn items, by EquipmentSlot ordinal ({slot: {"item_id": int, "unique_id":
-# int}}), cached here for the same reason as _skill_points: the Equipment window may not be
-# open (or may be showing a different entity) when the server pushes an update, so it needs
-# somewhere durable to seed itself from.
+# Worn items by EquipmentSlot ordinal: {slot: {"item_id": int, "unique_id": int}}.
 var _equipment: Dictionary = {}
 
-# Latest known effective base status values ({"strength": int, "vitality": int, "intelligence":
-# int, "dexterity": int, "willpower": int, "agility": int}), cached here for the same reason as
-# _skill_points: the StatusPoints window may not be open when the server pushes an update, so it
-# needs somewhere durable to seed itself from.
+# Effective base status values: {"strength": int, ...}.
 var _status_values: Dictionary = {}
 
-# Latest known *unbuffed* status values, same keys as _status_values. Kept apart from the effective
-# ones because the cost of the next status point is priced off the base value - pricing it off a
-# buffed value would make a point cost more for as long as the buff happened to be running.
+# Unbuffed status values, same keys - the next point's cost is priced off these, not the buffed ones.
 var _base_status_values: Dictionary = {}
 
-# Latest known available status points (master entities only, same reason as _skill_points).
+# Status points (masters only).
 var _status_points: int = 0
 
-# Latest known condition pools, cached for the same reason as _skill_points, but with a sharper edge
-# to it: a master spawns with its pools already full, so the server's push at spawn is the *only* one
-# until something damages it, and MasterProfile is often still being loaded when that push lands.
-# Without a cache here the HUD has nothing to seed from and keeps showing its scene placeholders.
-# Null until the first push for that pool arrives - see ConditionPool on why absent is not zero.
+# Condition pools, null until the first push - a master spawns full, so that may be its only one.
 var _health: ConditionPool = null
 var _mana: ConditionPool = null
 var _stamina: ConditionPool = null
 
-# The last health push, kept verbatim so it can be replayed into a visual that is built after it
-# arrived. HealthBar only opens on a push that *changes* the pool, so it needs the spawn push as a
-# silent seed - and component and visual messages race, so the bar cannot count on being alive yet.
+# The last health push, replayed into a visual that was built after it arrived - see _seed_visual.
 var _last_health_msg: HealthComponentSMSG = null
 
-# True while this entity is lying dead awaiting a respawn (server-driven via DeadComponentSMSG,
-# cleared by one with Removed = true). Player-owned bodies only - a wild mob is destroyed outright
-# and arrives as a vanish instead. Gates the local walk/idle animation heuristic, which would
-# otherwise overwrite the death pose on the very next frame.
+# True while lying dead awaiting respawn (player bodies only; mobs vanish). Gates the walk/idle pose.
 var _is_dead: bool = false
 
-## Where this entity is, in words. Owner-only on the wire, so null on every entity but the local master.
+## Where this entity is, in words. Owner-only on the wire, so null on all but the local master.
 var _place: PlaceComponentSMSG = null
 
-# True while this entity is channelling a skill (server-driven via CastingComponentSMSG, cleared by
-# a CastingComponentSMSG with Removed = true). For the owned entity this also gates movement input,
-# since moving cancels the cast server-side.
+# True while channelling a skill; on the owned entity it also blocks movement input.
 var _casting: bool = false
 
 var _camera: Node3D = null
-##
 var _speed: float = 2.5
 
 
-# Movement prediction: follow the server's path in "tile steps", matching the
-# server integrator (MoveSystem advances a fraction by speed*dt and treats every
-# waypoint - straight OR diagonal - as exactly 1.0). Diagonals are therefore
-# faster in world space, exactly as on the server, so authoritative position
-# updates line up with our prediction instead of fighting it.
+# Prediction in "tile steps", like the server's MoveSystem: every waypoint counts as 1.0, straight
+# or diagonal, so diagonals run faster in world space here too and the server's updates line up.
 var _nodes: Array[Vector3] = []      # [anchor, wp1, wp2, ...]
 var _progress: float = 0.0           # continuous index into _nodes
 var _error: float = 0.0              # outstanding server correction, in tile steps
@@ -115,10 +71,13 @@ var _visual_rotation_start_basis: Basis = Basis.IDENTITY
 var _visual_rotation_target_basis: Basis = Basis.IDENTITY
 var _visual_rotation_start_time: float = 0.0
 var _visual_rotating: bool = false
-# This flag prevents resetting the walk animation twice so we do not run into
-# the problem that we might cancel out any other animation that comes in from
-# the server.
+# Guards against resetting the walk animation twice, which could cancel a server animation.
 var _has_reset_walk_anim: bool = false
+
+# The server's posture, outranked only by death. "IDLE" means it asserts nothing and the local
+# walk/idle heuristic owns the pose. Walk and idle never arrive here - sleeping and the like do.
+const _POSTURE_NONE = "IDLE"
+var _posture: String = _POSTURE_NONE
 
 
 const _CORRECTION_IGNORE: float = 0.4    # steps of desync trusted as latency, not error
@@ -132,17 +91,11 @@ const _VISUAL_NODE_NAME = "Visual"
 const _GROUND_MAX_RATE: float = 6.0      # metres/second the correction may travel
 const _GROUND_MAX_OFFSET: float = 1.0    # metres of correction the terrain is trusted for
 
-# Where the server says this entity is: whole-voxel coordinates in Godot's axis order, and for a
-# moving entity the lerp between two of them. `position` is this plus _ground_offset.
-#
-# The split is the point. "Which tile am I on" is the server's to answer and is what every path,
-# distance and reconciliation is built from; "where do I draw" has to meet terrain that whole-voxel
-# coordinates cannot express. Keeping them in one field means one of the two questions gets the
-# wrong answer, so they are two fields.
+# Where the server says this entity is: whole-voxel coordinates in Godot's axis order, lerped
+# between two of them while moving. `position` is this plus the drawing corrections.
 var _logical_position: Vector3 = Vector3.ZERO
 
-# How far the entity is lifted or dropped from that, so its feet meet the terrain that is actually
-# drawn. Applied to this node, which is what puts the camera on it too - see _update_ground_offset.
+# Height correction that puts the feet on the drawn terrain - see _update_ground_offset.
 var _ground_offset: float = 0.0
 
 
@@ -153,18 +106,23 @@ func _process(delta: float) -> void:
 
 
 func _update_movement(delta: float) -> void:
-	# A corpse neither walks nor idles; its pose belongs to the visual until it gets back up.
+	# A corpse neither walks nor idles - its pose belongs to the visual.
 	if _is_dead:
 		return
+
+	# Likewise an asserted posture (asleep, say). Movement still runs, so it slides rather than sits.
+	var pose_is_ours := _posture == _POSTURE_NONE
 
 	if not _is_moving or _nodes.size() < 2 or _speed <= 0.0:
 		if not _has_reset_walk_anim:
 			_has_reset_walk_anim = true
-			_update_animation_direct("IDLE")
+			if pose_is_ours:
+				_update_animation_from_client("IDLE")
 		return
 	else:
 		_has_reset_walk_anim = false
-		_update_animation_direct("WALK")
+		if pose_is_ours:
+			_update_animation_from_client("WALK")
 
 	var last := _nodes.size() - 1
 
@@ -174,8 +132,7 @@ func _update_movement(delta: float) -> void:
 		step += _error
 		_error = 0.0
 	elif absf(_error) > 0.0001:
-		# Speed up (behind) or slow down (ahead) by folding part of the error
-		# into this frame's advance. Clamped so we never travel backwards.
+		# Fold part of the error into this advance, clamped so we never travel backwards.
 		var corr := _error * minf(1.0, delta / _CORRECTION_TIME)
 		corr = clampf(corr, -_speed * delta, _CORRECTION_MAX_BOOST * delta)
 		step += corr
@@ -198,9 +155,6 @@ func _update_movement(delta: float) -> void:
 
 
 ## Where the server thinks this entity is, without the ground correction `position` carries.
-##
-## Anything converting back to server coordinates wants this one - a whole-voxel round trip through
-## the corrected position can land a tile boundary away.
 func get_logical_position() -> Vector3:
 	return _logical_position
 
@@ -210,43 +164,20 @@ func _apply_position() -> void:
 	position = _logical_position + TileSpace.CENTRE_OFFSET + Vector3(0.0, _ground_offset, 0.0)
 
 
-## Sub-voxel height correction, applied to this node so that everything hanging off it follows.
-##
-## The height the server sends is a whole voxel - ChunkCoords.standingZ rounds the real elevation -
-## while the terrain is drawn at the sub-voxel height the generator wrote and then nudged again by
-## the mesher's corner averaging. Walking a path therefore ramps between whole numbers while the
-## ground underneath curves, and the mismatch reads as the entity stepping rather than walking.
-##
-## Correcting the [b]Visual[/b] child instead would fix the model and nothing else, which is not
-## enough: the camera's spring arm is a child of this node, so it would keep climbing in whole-voxel
-## steps while the model it is pointed at moved smoothly. The correction has to be on the transform
-## the camera inherits, which is this one.
-##
-## `position` is therefore no longer the server's answer to where this entity is - see
-## [method get_logical_position], which is. Movement prediction is unaffected either way: `_nodes`
-## and `_progress` are in logical space throughout, so nothing here can desync us.
+## Sub-voxel height correction, applied to this node so the camera on its spring arm follows too.
+## Server heights are whole voxels while the terrain is drawn sub-voxel, so a walk would otherwise
+## ramp between whole numbers over curved ground and read as stepping.
 func _update_ground_offset(delta: float) -> void:
 	var target := _probe_ground_offset()
 	if is_nan(target):
-		# Terrain we have not been sent yet, or nothing to stand on within reach - a swimming or
-		# falling entity. Hold the last offset rather than easing back to zero, so a streaming
-		# hiccup does not show up as the entity dropping and rising again.
+		# Terrain not streamed yet, or swimming/falling: hold the last offset rather than dropping.
 		return
 
-	# Rate limited rather than exponentially smoothed, and the difference matters now that the camera
-	# rides on this. An exponential filter always lags its target, and the target here moves fast -
-	# it is the gap between a straight ramp and a curved surface, which swings most of a metre over a
-	# single tile step. That lag would put a soft corner back at every waypoint, which is the exact
-	# artefact this exists to remove. A speed limit has no lag at all while the correction is moving
-	# slower than the limit, which is every ordinary step, and only bites on a genuine discontinuity
-	# - a carve under our feet, or a chunk arriving - where easing in over a few frames is what is
-	# wanted anyway.
+	# Rate limited rather than smoothed: a filter's lag would put back the soft corner at every
+	# waypoint this exists to remove. The limit only bites on a carve underfoot or a chunk arriving.
 	var moved := move_toward(_ground_offset, target, _GROUND_MAX_RATE * delta)
 
-	# Exact equality is the right test and not a float sin: move_toward steps by a fixed amount or
-	# lands on the target, so a settled offset compares equal to itself bit for bit. Worth the branch
-	# because _update_movement has already written this frame's position if we are walking, and a
-	# standing entity should not dirty its transform sixty times a second for no change.
+	# move_toward lands exactly on target, so equality is safe and a settled entity skips the write.
 	if moved == _ground_offset:
 		return
 
@@ -254,20 +185,14 @@ func _update_ground_offset(delta: float) -> void:
 	_apply_position()
 
 
-## The correction the terrain wants right now, or NAN if it cannot be known.
-##
-## Clamped because a probe that finds the wrong surface should look like an entity standing slightly
-## wrong, not like one buried in the ground: the honest answer is never more than about half a
-## voxel, so anything past a whole one is a disagreement worth ignoring rather than obeying.
+## The correction the terrain wants right now, or NAN if it cannot be known. Clamped, because an
+## honest answer is never much more than half a voxel.
 func _probe_ground_offset() -> float:
 	if ConnectionManager.chunk_stream == null:
 		return NAN
 
-	# Probed under the model - the middle of the tile - rather than at the corner the tile's coordinate
-	# names, because the middle is where the feet are and half a tile of slope is worth having.
-	#
-	# Horizontally only. The height fed in is the logical one, not the drawn one: feeding the corrected
-	# height back in would make the offset measure itself and decay to nothing.
+	# Probed under the model, where the feet are, and off the logical height - feeding the corrected
+	# one back would make the offset measure itself.
 	var ground: float = ConnectionManager.chunk_stream.GroundYAt(
 		_logical_position.x + TileSpace.CENTRE_OFFSET.x,
 		_logical_position.z + TileSpace.CENTRE_OFFSET.z,
@@ -278,10 +203,7 @@ func _probe_ground_offset() -> float:
 	return clampf(ground - _logical_position.y, -_GROUND_MAX_OFFSET, _GROUND_MAX_OFFSET)
 
 
-## Puts the entity on the ground this frame instead of easing onto it.
-##
-## For teleports, where the old offset belongs to terrain on the other side of the map and easing
-## across would be seen as the entity sinking into place after it arrived.
+## Puts the entity on the ground this frame instead of easing onto it - for teleports.
 func _snap_ground_offset() -> void:
 	var target := _probe_ground_offset()
 	if not is_nan(target):
@@ -290,14 +212,8 @@ func _snap_ground_offset() -> void:
 	_apply_position()
 
 
-## Which way this entity's model is facing, flat and unit length, or [constant Vector3.ZERO] when it has
-## no visual to read.
-##
-## Taken from the Visual's basis rather than this node's, because this node never turns - only the model
-## does, see [method _face_direction] - and the model's front is +Z rather than Godot's -Z.
-##
-## Zero rather than an arbitrary default so a caller can tell "not facing anywhere yet" from "facing north",
-## which for a marker drawn on the map is the difference between a stale arrow and no arrow.
+## Which way the model faces, flat and unit length, or [constant Vector3.ZERO] when there is no
+## visual - read off the Visual, since this node never turns and the model's front is +Z.
 func facing() -> Vector3:
 	var visual := get_node_or_null(_VISUAL_NODE_NAME) as Node3D
 	if visual == null:
@@ -305,14 +221,12 @@ func facing() -> Vector3:
 
 	var forward := visual.global_transform.basis.z
 
-	# normalized() of a zero vector is zero in Godot 4, so a degenerate basis falls out here as the same
-	# "nowhere" the missing visual above returns.
+	# normalized() of a zero vector is zero in Godot 4, so a degenerate basis also reads as nowhere.
 	return Vector3(forward.x, 0.0, forward.z).normalized()
 
 
 func _face_direction(direction: Vector3) -> void:
-	# Only yaw the model towards the movement direction, ignore any vertical
-	# component so it doesn't pitch up/down on sloped waypoint segments.
+	# Yaw only, so the model does not pitch on sloped segments.
 	var flat_direction = Vector3(direction.x, 0.0, direction.z)
 	if flat_direction.length_squared() < 0.0001:
 		return
@@ -356,8 +270,7 @@ func show_chat(msg: ChatSMSG) -> void:
 		printerr("Entity %s has no show_chat visual", [entity_id])
 
 
-## Builds this entity's visual from a kind plus a catalogue id. Masters go through
-## update_master_visual instead - their appearance is a set of parameters, not one id.
+## Builds the visual from a kind plus a catalogue id. Masters go through update_master_visual.
 func update_visual(msg: VisualComponentSMSG) -> void:
 	var scene: PackedScene = _visual_scene_for(msg)
 	if scene == null:
@@ -367,8 +280,7 @@ func update_visual(msg: VisualComponentSMSG) -> void:
 	if existing != null:
 		existing.queue_free()
 
-	# Untyped on purpose: each kind's visual declares its own setup_visual, and MasterVisual's takes a
-	# different message - so there is no common base method to call through.
+	# Untyped on purpose: each kind's visual declares its own setup_visual, taking its own message.
 	var visual = scene.instantiate()
 	visual.setup_visual(msg)
 	visual.name = _VISUAL_NODE_NAME
@@ -382,9 +294,7 @@ func _visual_scene_for(msg: VisualComponentSMSG) -> PackedScene:
 			return BestiaModelScn
 		VisualKind.ITEM:
 			var item_resource = ItemDB.get_instance().get_item(msg.VisualId)
-			# An id the ItemDB has never heard of is a real desync and stays an error. An item the DB
-			# knows but has no mesh for is not: get_item_visual() hands back the placeholder so it
-			# still drops as something visible and lootable.
+			# An unknown id is a real desync; a known item without a mesh gets a placeholder instead.
 			if item_resource == null:
 				printerr("Entity %s: no item %s in the ItemDB" % [entity_id, msg.VisualId])
 				return null
@@ -411,9 +321,7 @@ func update_master_visual(msg: MasterVisualComponentSMSG) -> void:
 	_seed_visual(visual)
 
 
-## Pushes the component state that arrived before this visual existed into it. Only health so far:
-## the rest of the cached components either have no visual of their own or are re-pushed often
-## enough that a fresh visual catches up on its own within a tick or two.
+## Pushes state that arrived before this visual existed into it. Only health needs it so far.
 func _seed_visual(visual: Node) -> void:
 	if _last_health_msg != null and visual.has_method("update_health"):
 		visual.update_health(_last_health_msg)
@@ -423,9 +331,7 @@ func set_selected(is_selected: bool) -> void:
 	print("Entity: set_selected: %s" % [is_selected])
 
 
-### This is called if you clicked on an entity via the mouse_manager. You
-### can implement a further delegation maybe against the visual component how
-### to handle the click.
+## Called by mouse_manager when this entity is clicked; may delegate to the visual.
 func on_interact() -> void:
 	print("Entity: on_interact")
 
@@ -450,8 +356,7 @@ func update_position(msg: PositionComponent) -> void:
 		_snap_ground_offset()
 		return
 
-	# Reconcile in the progress domain: the server just reached node idx, so the
-	# gap to our own progress becomes an error we bleed into the movement rate.
+	# Reconcile in the progress domain: the gap to the server's node becomes an error we bleed off.
 	var e := float(idx) - _progress
 	if absf(e) <= _CORRECTION_IGNORE:
 		# Within latency noise, trust our own prediction.
@@ -459,11 +364,13 @@ func update_position(msg: PositionComponent) -> void:
 	_error = e
 
 
+## A walk, or - with an empty path - the end of one. Sent once per walk, not per tile step.
 func update_path(msg: PathComponentSMSG) -> void:
-	# Rebuild the node list anchored where we currently are, then follow it. The logical position
-	# rather than the rendered one: the waypoints behind it are the server's whole voxels, and
-	# anchoring the chain on a height that has been nudged onto the terrain would feed the correction
-	# into the path and then correct it a second time.
+	if msg.Path.is_empty():
+		_stop_at(msg)
+		return
+
+	# Anchor on the logical position - the ground-corrected height would apply that correction twice.
 	_nodes.clear()
 	_nodes.append(_logical_position)
 	for vec3 in msg.Path:
@@ -475,21 +382,34 @@ func update_path(msg: PathComponentSMSG) -> void:
 	_is_moving = _nodes.size() >= 2
 
 
+## The walk is over - finished, or cut short by combat, sleep, death, a stop or a teleport. Only the
+## first leaves us where the server is, hence the stop position; snapped, since _error is dropped.
+func _stop_at(msg: PathComponentSMSG) -> void:
+	_is_moving = false
+	_progress = 0.0
+	_error = 0.0
+	_faced_seg = -1
+
+	if msg.HasStopPosition:
+		_logical_position = msg.StopPosition
+		_snap_ground_offset()   # applies the position too
+
+	_nodes.clear()
+	_nodes.append(_logical_position)
+
+
 func update_speed(msg: SpeedComponentSMSG) -> void:
-	# Progress is decoupled from elapsed time, so a speed change just takes effect
-	# on the next frame - no re-timing needed.
+	# Progress is decoupled from elapsed time, so a new speed just applies from the next frame.
 	_speed = msg.Speed
 	if _speed <= 0.0:
 		_is_moving = false
 
 
-## Lying dead, or back on its feet. Also stops the local walk/idle heuristic in _update_movement,
-## which would otherwise replace the death pose on the next frame.
+## Lying dead, or back on its feet. Also stops the local walk/idle heuristic in _update_movement.
 func update_dead(msg: DeadComponentSMSG) -> void:
 	_is_dead = not msg.Removed
 
-	# Going down interrupts a walk: the server keeps the body where it fell, so any predicted path
-	# left over here would drag the model off the corpse.
+	# Going down interrupts the walk: the body stays where it fell, so a leftover path would drag it.
 	if _is_dead:
 		_is_moving = false
 		_has_reset_walk_anim = false
@@ -504,26 +424,29 @@ func is_dead() -> bool:
 	return _is_dead
 
 
-## This is only used if you play an enum. Other animations are often indirectly 
-## sourced from the current action. For example if an entity is activly moving 
-## it automatically played the move animation. This avoids server desyncs.
+## A posture from the server: a pose no observer could work out for itself. Walk and idle are not
+## among them. "IDLE" drops the claim and hands the pose back to the local heuristic.
 func update_animation(msg: AnimationComponentSMSG) -> void:
-	# Same reason _update_movement bails while dead: the death pose outranks idle/walk/sleep, and the
-	# server may still have one in flight from the tick the entity went down.
+	_posture = msg.Kind.to_upper()
+
+	# The death pose outranks every posture, and one may still be in flight from the tick it died.
 	if _is_dead:
 		return
 
-	print_debug("Entity: %s set animation: %s" % [msg.Kind, entity_id])
+	if _posture == _POSTURE_NONE:
+		# Nothing to play, but _update_movement must re-assert over a stale _has_reset_walk_anim.
+		_has_reset_walk_anim = false
+		return
+
 	var visual = _get_visual_for_method("update_animation")
 	if visual != null:
 		visual.update_animation(msg)
 
-
-func _update_animation_direct(animation_name: String) -> void:
-	# print_debug("Entity: _update_animation_direct set animation: %s" % [animation_name])
-	var visual = _get_visual_for_method("update_animation_direct")
+# Called from client code, not the server, when an action implies the animation (e.g. a new path).
+func _update_animation_from_client(animation_name: String) -> void:
+	var visual = _get_visual_for_method("update_animation_from_client")
 	if visual != null:
-		visual.update_animation_direct(animation_name)
+		visual.update_animation_from_client(animation_name)
 
 
 func _index_of_node(p: Vector3) -> int:
@@ -546,15 +469,13 @@ func show_damage(msg: DamageEntitySMSG) -> void:
 func update_health(msg: HealthComponentSMSG) -> void:
 	_health = ConditionPool.new(msg.Current, msg.Max)
 	_last_health_msg = msg
-	# Deliberately not _get_visual_for_method: this arriving before the visual exists is the normal
-	# race, not an error, and _seed_visual replays it once the visual is built.
+	# Arriving before the visual exists is the normal race, not an error - _seed_visual replays it.
 	var visual = get_node_or_null(_VISUAL_NODE_NAME)
 	if visual != null and visual.has_method("update_health"):
 		visual.update_health(msg)
 
 
-## Mana and stamina have no visual of their own (no floating bar over an entity shows them) - they
-## are cached purely so the owner's HUD can seed itself, unlike update_health above.
+## Mana and stamina have no visual of their own; cached only so the owner's HUD can seed itself.
 func update_mana(msg: ManaComponentSMSG) -> void:
 	_mana = ConditionPool.new(msg.Current, msg.Max)
 
@@ -563,9 +484,7 @@ func update_stamina(msg: StaminaComponentSMSG) -> void:
 	_stamina = ConditionPool.new(msg.Current, msg.Max)
 
 
-## Cached for the same reason as mana and stamina: the server pushes this once on spawn and then only on
-## a border crossing, so a HUD that appears after login would otherwise have nothing to show until the
-## player next walked out of the region they logged in to.
+## Cached like mana: pushed on spawn and then only on a border crossing, so a late HUD needs it.
 func update_place(msg: PlaceComponentSMSG) -> void:
 	_place = msg
 
@@ -574,8 +493,7 @@ func get_place() -> PlaceComponentSMSG:
 	return _place
 
 
-## Null until the server has pushed this pool at least once, which is why callers must null-check
-## rather than treat a missing pool as 0/0.
+## Null until the server has pushed this pool at least once - a missing pool is not 0/0.
 func get_health() -> ConditionPool:
 	return _health
 
@@ -595,8 +513,7 @@ func update_casting(msg: CastingComponentSMSG) -> void:
 		visual.update_casting(msg)
 
 
-## The Casting component was removed: the cast either completed or was interrupted. Both look the
-## same on the wire, since either way the bar just goes away and movement is unblocked again.
+## The Casting component was removed - the cast completed or was interrupted, which look the same.
 func clear_casting() -> void:
 	_casting = false
 	var visual = _get_visual_for_method("clear_casting")
@@ -609,12 +526,8 @@ func is_casting() -> bool:
 	return _casting
 
 
-## Whether this entity is walking a predicted path right now.
-##
-## [b]Prediction state, not truth.[/b] It goes false at the end of every path segment and the server can
-## replace the path at any moment via PathComponentSMSG. So this answers "is the walk still running",
-## which is useful for noticing one that has [i]stopped[/i] short - it is not a way to detect arrival.
-## Anything that needs "am I there yet" should measure the distance.
+## Whether the predicted walk is still running. Good for spotting one that stopped short, no good
+## for detecting arrival - measure the distance for that.
 func is_moving() -> bool:
 	return _is_moving
 
@@ -697,12 +610,11 @@ func _get_visual_for_method(method_name: String) -> Visual:
 	if visual != null && visual.has_method(method_name):
 		return visual
 	else:
-		printerr("Entity %s visual method %s handler missing, dropping message" % [entity_id, method_name])
+		printerr("Entity %s visual method %s handler missing" % [entity_id, method_name])
 		return null
 
 
 func vanish(msg: VanishEntitySMSG) -> void:
-	# Check if a visual node can handle the vanish.
 	var visual = get_node_or_null(_VISUAL_NODE_NAME)
 	if visual != null && visual.has_method("vanish"):
 		visual.vanish(msg)

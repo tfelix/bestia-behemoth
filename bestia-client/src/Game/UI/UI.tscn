@@ -15,14 +15,14 @@
 [ext_resource type="PackedScene" uid="uid://bgk82i8fwg1a2" path="res://Game/UI/Dialog/MessageDialog.tscn" id="13_dialog"]
 [ext_resource type="PackedScene" path="res://Game/UI/Clock/Clock.tscn" id="14_clock"]
 [ext_resource type="PackedScene" uid="uid://bcrafting0win" path="res://Game/UI/Crafting/Crafting.tscn" id="15_craft"]
-[ext_resource type="PackedScene" path="res://Game/UI/Map/Minimap.tscn" id="16_minimap"]
+[ext_resource type="PackedScene" uid="uid://0qpytwvenfl2" path="res://Game/UI/Map/Minimap.tscn" id="16_minimap"]
 [ext_resource type="PackedScene" path="res://Game/UI/Map/MapOverlay.tscn" id="17_mapovl"]
 [ext_resource type="Script" uid="uid://chthlxaerqb0t" path="res://Game/UI/Map/map_source.gd" id="18_mapsrc"]
 [ext_resource type="PackedScene" uid="uid://btradewin0001" path="res://Game/UI/Trade/Trade.tscn" id="19_trade"]
 [ext_resource type="PackedScene" uid="uid://cdeath0scrn01" path="res://Game/UI/Death/Death.tscn" id="20_death"]
 [ext_resource type="PackedScene" path="res://Game/UI/Weather/Weather.tscn" id="21_weather"]
 [ext_resource type="PackedScene" path="res://Game/UI/Location/Location.tscn" id="22_location"]
-[ext_resource type="Script" path="res://Game/UI/Map/map_marks.gd" id="23_mapmarks"]
+[ext_resource type="Script" uid="uid://t7ftdjhb107i" path="res://Game/UI/Map/map_marks.gd" id="23_mapmarks"]
 [ext_resource type="PackedScene" path="res://Game/UI/Map/MarkNamePopup.tscn" id="24_markpopup"]
 [ext_resource type="PackedScene" path="res://Game/UI/Map/MarkDeletePopup.tscn" id="25_markdelpopup"]
 
@@ -96,10 +96,10 @@ window_title = "Trade"
 [node name="Clock" parent="." unique_id=1359698401 instance=ExtResource("14_clock")]
 layout_mode = 1
 
-[node name="Weather" parent="." instance=ExtResource("21_weather")]
+[node name="Weather" parent="." unique_id=2140555537 instance=ExtResource("21_weather")]
 layout_mode = 1
 
-[node name="Location" parent="." instance=ExtResource("22_location")]
+[node name="Location" parent="." unique_id=1390602605 instance=ExtResource("22_location")]
 layout_mode = 1
 
 [node name="BuffList" parent="." unique_id=1824369573 instance=ExtResource("9_74y3c")]
@@ -118,12 +118,14 @@ layout_mode = 1
 [node name="MapSource" type="Node" parent="." unique_id=456323444]
 script = ExtResource("18_mapsrc")
 
-[node name="MapMarks" type="Node" parent="."]
+[node name="MapMarks" type="Node" parent="." unique_id=1192329381]
 script = ExtResource("23_mapmarks")
 
-[node name="MarkNamePopup" parent="." instance=ExtResource("24_markpopup")]
+[node name="MarkNamePopup" parent="." unique_id=183566451 instance=ExtResource("24_markpopup")]
+oversampling_override = 1.0
 
-[node name="MarkDeletePopup" parent="." instance=ExtResource("25_markdelpopup")]
+[node name="MarkDeletePopup" parent="." unique_id=38783233 instance=ExtResource("25_markdelpopup")]
+oversampling_override = 1.0
 
 [node name="Minimap" parent="." unique_id=1254805221 instance=ExtResource("16_minimap")]
 visible = false
@@ -134,6 +136,7 @@ visible = false
 layout_mode = 1
 
 [node name="MessageDialog" parent="." unique_id=1957725178 instance=ExtResource("13_dialog")]
+oversampling_override = 1.0
 
 [connection signal="equipment_win_toggled" from="MasterProfile" to="." method="_on_master_profile_equipment_win_toggled"]
 [connection signal="inventory_win_toggled" from="MasterProfile" to="." method="_on_master_profile_inventory_win_toggled"]

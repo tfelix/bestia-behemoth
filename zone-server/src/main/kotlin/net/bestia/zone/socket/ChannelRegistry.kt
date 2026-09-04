@@ -71,23 +71,47 @@ class ChannelRegistry(
 
   override fun sendMessage(playerId: Long, outMessage: SMSG) {
     val channel = getChannel(playerId)
-    if (channel != null && channel.isActive) {
-      val envelope = outMessage.toBnetEnvelope()
-      channel.writeAndFlush(envelope)
+    if (channel == null || !channel.isActive) {
+      LOG.warn { "No active channel for player $playerId found" }
+      return
+    }
 
-      // Quite some complex log filtering if trace is enabled
-      if (LOG.isTraceEnabled()) {
-        val envelopeTxt = envelope.toString()
-        val isLogMessage = logMessages.isEmpty() || logMessages.any { envelopeTxt.contains(it) }
-        val isNotLogMessage = notLogMessages.isEmpty() || notLogMessages.none { envelopeTxt.contains(it) }
-        if (isLogMessage && isNotLogMessage) {
-          LOG.trace {
-            "TX player: $playerId - ${channel.remoteAddress()}: $envelope"
-          }
+    write(playerId, channel, outMessage)
+    channel.flush()
+  }
+
+  /**
+   * One flush for the whole batch, which is the only reason this overload exists - see
+   * [OutMessageHandler.sendMessages]. `write` queues onto the channel's event loop without touching
+   * the socket, so the messages are framed in order and leave together.
+   */
+  override fun sendMessages(playerId: Long, outMessages: Collection<SMSG>) {
+    if (outMessages.isEmpty()) return
+
+    val channel = getChannel(playerId)
+    if (channel == null || !channel.isActive) {
+      LOG.warn { "No active channel for player $playerId found" }
+      return
+    }
+
+    outMessages.forEach { write(playerId, channel, it) }
+    channel.flush()
+  }
+
+  private fun write(playerId: Long, channel: Channel, outMessage: SMSG) {
+    val envelope = outMessage.toBnetEnvelope()
+    channel.write(envelope)
+
+    // Quite some complex log filtering if trace is enabled
+    if (LOG.isTraceEnabled()) {
+      val envelopeTxt = envelope.toString()
+      val isLogMessage = logMessages.isEmpty() || logMessages.any { envelopeTxt.contains(it) }
+      val isNotLogMessage = notLogMessages.isEmpty() || notLogMessages.none { envelopeTxt.contains(it) }
+      if (isLogMessage && isNotLogMessage) {
+        LOG.trace {
+          "TX player: $playerId - ${channel.remoteAddress()}: $envelope"
         }
       }
-    } else {
-      LOG.warn { "No active channel for player $playerId found" }
     }
   }
 

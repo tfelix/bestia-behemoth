@@ -3,7 +3,6 @@
 [ext_resource type="Script" uid="uid://mmrfu0moui5f" path="res://Menu/Main/main.gd" id="1_rv483"]
 [ext_resource type="Texture2D" uid="uid://cqqbv00yp7hu5" path="res://Menu/Main/bestia_logo.png" id="2_3d38s"]
 [ext_resource type="PackedScene" uid="uid://cw0vrhad75kej" path="res://Menu/Main/Background/Background.tscn" id="2_sevqj"]
-[ext_resource type="Texture2D" uid="uid://byosbcjv3p4jw" path="res://Menu/Main/build-on-ethereum.webp" id="4_k6b14"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_k6b14"]
 content_margin_left = 0.0
@@ -104,19 +103,6 @@ text = "Credits"
 layout_mode = 2
 text = "Quit
 "
-
-[node name="BuildOnEth" type="TextureRect" parent="." unique_id=322066921]
-layout_mode = 1
-anchors_preset = 2
-anchor_top = 1.0
-anchor_bottom = 1.0
-offset_left = 25.999998
-offset_top = -94.0
-offset_right = 1106.0
-offset_bottom = 454.0
-grow_vertical = 0
-scale = Vector2(0.10854577, 0.10854577)
-texture = ExtResource("4_k6b14")
 
 [connection signal="pressed" from="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/LoginButton" to="." method="_on_login_button_pressed"]
 [connection signal="pressed" from="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/CancelLoginButton" to="." method="_on_cancel_login_button_pressed"]

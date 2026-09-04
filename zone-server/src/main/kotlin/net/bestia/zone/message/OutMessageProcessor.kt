@@ -14,11 +14,11 @@ class OutMessageProcessor(
 ) {
 
   fun sendToAllPlayersInRange(pos: Vec3L, msgs: Collection<SMSG>) {
+    if (msgs.isEmpty()) return
+
     val accountIdsInRange = playerAOIService.queryEntitiesInCube(pos, interestRange.cubeEdge)
 
-    accountIdsInRange.forEach { accountIdInRange ->
-      msgs.forEach { msg -> sendToPlayer(accountIdInRange, msg) }
-    }
+    accountIdsInRange.forEach { accountIdInRange -> sendToPlayer(accountIdInRange, msgs) }
   }
 
   fun sendToAllPlayersInRange(pos: Vec3L, msg: SMSG) {
@@ -50,7 +50,8 @@ class OutMessageProcessor(
     outMessageHandler.sendMessage(playerId, msg)
   }
 
+  /** One flush for the batch rather than one per message; see [OutMessageHandler.sendMessages]. */
   fun sendToPlayer(playerId: Long, msgs: Collection<SMSG>) {
-    msgs.forEach { msg -> sendToPlayer(playerId, msg) }
+    outMessageHandler.sendMessages(playerId, msgs)
   }
 }

@@ -22,7 +22,6 @@ data class AnimationSMSG(
     private fun Animation.AnimationKind.toProto(): AnimationComponentSMSGProto.AnimationKind =
       when (this) {
         Animation.AnimationKind.IDLE -> AnimationComponentSMSGProto.AnimationKind.IDLE
-        Animation.AnimationKind.WALK -> AnimationComponentSMSGProto.AnimationKind.WALK
         Animation.AnimationKind.SLEEP -> AnimationComponentSMSGProto.AnimationKind.SLEEP
       }
   }

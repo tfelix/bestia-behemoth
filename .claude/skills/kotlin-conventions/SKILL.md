@@ -1,6 +1,6 @@
 ---
 name: kotlin-conventions
-description: Kotlin code conventions - file/class organization, function bodies, and comment style. Read this BEFORE creating a new Kotlin class, exception, or DTO, before adding a second top-level type to an existing file, before writing a function, or before writing comments/KDoc. Triggers on: new .kt file, top-level class, nested class, inner class, sealed class subtypes, exception hierarchy, DTO class, one class per file, multiple classes in one file, expression body, single-expression function, one-liner, comment, comments, KDoc, docstring, code documentation.
+description: Kotlin code conventions - file/class organization and function bodies (comment style lives in the code-comments skill). Read this BEFORE creating a new Kotlin class, exception, or DTO, before adding a second top-level type to an existing file, or before writing a function. Triggers on: new .kt file, top-level class, nested class, inner class, sealed class subtypes, exception hierarchy, DTO class, one class per file, multiple classes in one file, expression body, single-expression function, one-liner.
 ---
 
 # Kotlin file & class organization
@@ -41,14 +41,9 @@ fun accountFor(ticket: String): Long? {
 
 # Comments
 
-Comments you write must be direct and concise, and explain **why**, not **how**. The code already
-states how; a comment that restates it is noise that goes stale on the next edit.
+Comment style lives in [code-comments](../code-comments/SKILL.md) - it applies to KDoc, GDScript
+`##` and C# XML doc alike. The short version: explain **why**, not **how**; one or two lines; and if
+the comment cannot be checked against the code, refactor the code instead of explaining it.
 
-- Write a comment when something is non-obvious: a non-obvious invariant, a deliberate trade-off,
-  a workaround for an upstream bug, a formula's source, an ordering that matters.
-- Don't narrate the mechanics (`// increment the counter`), don't restate a signature in KDoc, and
-  don't leave scaffolding chatter (`// added for the new feature`, `// changed from X`) - the diff
-  and git history already carry that.
-- No filler openers ("Note that...", "This method simply..."). Lead with the point.
-- One or two lines is usually enough. If a comment needs a paragraph to justify the code, that's
-  a signal to reshape the code instead.
+Kotlin-specific: don't restate a signature in KDoc, and don't KDoc a `private` member whose name
+already says what it is.

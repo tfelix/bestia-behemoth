@@ -25,20 +25,33 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CixtZXNzYWdlcy9jb21wb25lbnQvcGF0aF9jb21wb25lbnRfc21zZy5wcm90",
-            "bxIEYm5ldBoTbWVzc2FnZXMvdmVjMy5wcm90byJAChFQYXRoQ29tcG9uZW50",
+            "bxIEYm5ldBoTbWVzc2FnZXMvdmVjMy5wcm90byJjChFQYXRoQ29tcG9uZW50",
             "U01TRxIRCgllbnRpdHlfaWQYASABKAYSGAoEcGF0aBgCIAMoCzIKLmJuZXQu",
-            "VmVjM0IvChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CFlBhdGhDb21wb25lbnRT",
-            "TVNHUHJvdG9iBnByb3RvMw=="));
+            "VmVjMxIhCg1zdG9wX3Bvc2l0aW9uGAMgASgLMgouYm5ldC5WZWMzQi8KFW5l",
+            "dC5iZXN0aWEuYm5ldC5wcm90b0IWUGF0aENvbXBvbmVudFNNU0dQcm90b2IG",
+            "cHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Bnet.Vec3Reflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.PathComponentSMSG), global::Bnet.PathComponentSMSG.Parser, new[]{ "EntityId", "Path" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.PathComponentSMSG), global::Bnet.PathComponentSMSG.Parser, new[]{ "EntityId", "Path", "StopPosition" }, null, null, null, null)
           }));
     }
     #endregion
 
   }
   #region Messages
+  /// <summary>
+  ///*
+  /// The waypoints an entity is walking, sent once when the path is *set* and not again while it is
+  /// walked - the client integrates it with the same arithmetic the server's MoveSystem uses, so
+  /// re-sending the shrinking remainder every tile step only told it what it already knew (and cost
+  /// O(n^2) bytes for an n-tile walk).
+  ///
+  /// An empty `path` is the stop notification, sent when the Path component comes off the entity - a
+  /// walk finishing, but also one cut short by combat, sleep, death or a stop command. It carries
+  /// `stop_position` because the client cannot work that out: its own prediction is where the entity
+  /// *would* have been, not where the server halted it. This is eAthena's ZC_STOPMOVE.
+  /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class PathComponentSMSG : pb::IMessage<PathComponentSMSG>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
@@ -76,6 +89,7 @@ namespace Bnet {
     public PathComponentSMSG(PathComponentSMSG other) : this() {
       entityId_ = other.entityId_;
       path_ = other.path_.Clone();
+      stopPosition_ = other.stopPosition_ != null ? other.stopPosition_.Clone() : null;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -108,6 +122,24 @@ namespace Bnet {
       get { return path_; }
     }
 
+    /// <summary>Field number for the "stop_position" field.</summary>
+    public const int StopPositionFieldNumber = 3;
+    private global::Bnet.Vec3 stopPosition_;
+    /// <summary>
+    ///*
+    /// Where the entity actually stands, set only on a stop (empty `path`) and only once it has taken
+    /// at least one step - a path removed before the first step leaves the entity where the client
+    /// already has it, so there is nothing to correct.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Bnet.Vec3 StopPosition {
+      get { return stopPosition_; }
+      set {
+        stopPosition_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -125,6 +157,7 @@ namespace Bnet {
       }
       if (EntityId != other.EntityId) return false;
       if(!path_.Equals(other.path_)) return false;
+      if (!object.Equals(StopPosition, other.StopPosition)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -134,6 +167,7 @@ namespace Bnet {
       int hash = 1;
       if (EntityId != 0UL) hash ^= EntityId.GetHashCode();
       hash ^= path_.GetHashCode();
+      if (stopPosition_ != null) hash ^= StopPosition.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -157,6 +191,10 @@ namespace Bnet {
         output.WriteFixed64(EntityId);
       }
       path_.WriteTo(output, _repeated_path_codec);
+      if (stopPosition_ != null) {
+        output.WriteRawTag(26);
+        output.WriteMessage(StopPosition);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -172,6 +210,10 @@ namespace Bnet {
         output.WriteFixed64(EntityId);
       }
       path_.WriteTo(ref output, _repeated_path_codec);
+      if (stopPosition_ != null) {
+        output.WriteRawTag(26);
+        output.WriteMessage(StopPosition);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -186,6 +228,9 @@ namespace Bnet {
         size += 1 + 8;
       }
       size += path_.CalculateSize(_repeated_path_codec);
+      if (stopPosition_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(StopPosition);
+      }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -202,6 +247,12 @@ namespace Bnet {
         EntityId = other.EntityId;
       }
       path_.Add(other.path_);
+      if (other.stopPosition_ != null) {
+        if (stopPosition_ == null) {
+          StopPosition = new global::Bnet.Vec3();
+        }
+        StopPosition.MergeFrom(other.StopPosition);
+      }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -225,6 +276,13 @@ namespace Bnet {
             path_.AddEntriesFrom(input, _repeated_path_codec);
             break;
           }
+          case 26: {
+            if (stopPosition_ == null) {
+              StopPosition = new global::Bnet.Vec3();
+            }
+            input.ReadMessage(StopPosition);
+            break;
+          }
         }
       }
     #endif
@@ -246,6 +304,13 @@ namespace Bnet {
           }
           case 18: {
             path_.AddEntriesFrom(ref input, _repeated_path_codec);
+            break;
+          }
+          case 26: {
+            if (stopPosition_ == null) {
+              StopPosition = new global::Bnet.Vec3();
+            }
+            input.ReadMessage(StopPosition);
             break;
           }
         }

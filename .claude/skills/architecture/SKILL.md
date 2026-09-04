@@ -225,7 +225,8 @@ AiThinkSystem     @Order(20)  EveryTick         -> selects a goal; replans only 
 AiActSystem       @Order(30)  EveryTick         -> ticks the current step's tree; on SUCCESS applies
                                                    that action's effects, then advances the plan.
                                                    Also derives the `Animation` component from the
-                                                   current step's `Posture` plus `Path`
+                                                   current step's `Posture` alone - walking is not on
+                                                   the wire, the client derives it from the path
 ```
 
 Four rules worth knowing before touching any of it:

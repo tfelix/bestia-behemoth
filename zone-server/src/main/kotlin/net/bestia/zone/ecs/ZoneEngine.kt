@@ -74,15 +74,16 @@ class ZoneEngine(
     }
 
     // Turn removals of opted-in components into client notifications. Fires only for explicit
-    // single-component removals (not whole-entity destroy), resolving the sync targets while the
-    // world lock is still held and the owner is still reachable. The removal is the component's own
-    // message type re-sent with removed = true, not a separate generic notification - see Removable.
+    // single-component removals (not whole-entity destroy), resolving the message and the sync
+    // targets while the world lock is still held, the entity's other components are still readable
+    // and the owner is still reachable. The removal is the component's own message type re-sent with
+    // removed = true, not a separate generic notification - see Removable.
     world.onComponentRemoved { entityId, component ->
       if (component is Removable) {
         removedComponentOutbox.add(
           RemovedComponentRecord(
             entityId,
-            component.toEntityMessage(entityId, removed = true),
+            component.toRemovedMessage(world, entityId),
             component.syncTargets(world, entityId)
           )
         )
@@ -148,11 +149,18 @@ class ZoneEngine(
       for (syncableComponentType in syncableComponentTypes) {
         world.each(syncableComponentType) { id, comp ->
           val dirtyable = comp as Dirtyable
+
+          // Re-indexing is driven by Position.moved, not by the sync flag, because the two are no
+          // longer the same question: a walking entity publishes one step in
+          // MoveSystem.POSITION_RESYNC_STEPS but has to be indexed on every one of them. See
+          // Position.moved for what reads the index.
+          if (comp is Position && comp.moved) {
+            positionChanged.add(id)
+            comp.clearMoved()
+          }
+
           if (!dirtyable.isDirty()) return@each
           perEntity.getOrPut(id) { mutableListOf() }.add(dirtyable)
-          if (syncableComponentType == Position::class) {
-            positionChanged.add(id)
-          }
           dirtyable.clearDirty()
         }
       }

@@ -5,9 +5,21 @@ package bnet;
 option java_package = "net.bestia.bnet.proto";
 option java_outer_classname = "AnimationComponentSMSGProto";
 
+/**
+ * A pose the client could not work out for itself.
+ *
+ * Deliberately narrow. Walking used to be in here too, and it was pure duplication: the client
+ * already plays its walk clip off its own movement prediction, every frame, so the server's WALK
+ * lost the argument anyway - and a master, which has no Animation component at all, has always been
+ * animated that way. Anything an observer can read off ordinary components (moving = has a path,
+ * dead = has the Dead component) does not belong here.
+ */
 enum AnimationKind {
+  reserved 1; // was WALK, now derived on the client from the path
+
+  /** Nothing overriding: the client's own walk/idle heuristic owns the pose. */
   IDLE = 0;
-  WALK = 1;
+  /** Lying down asleep - knowledge only the AI plan has (see ai/core/action/Posture). */
   SLEEP = 2;
 }
 
