@@ -18,6 +18,12 @@ func update_animation(_msg: AnimationComponentSMSG) -> void:
 	pass
 
 
+## Client-side animation state, driven by [Entity] every frame it moves or comes to rest, rather than
+## by a server message. A visual with no walk/idle clips of its own just ignores it.
+func update_animation_direct(_animation_name: String) -> void:
+	pass
+
+
 ## Drops this entity into its death pose, or picks it back up. Only player-owned entities are ever
 ## told this - a wild mob is destroyed on death and gets [method vanish] instead.
 func set_dead(_dead: bool) -> void:

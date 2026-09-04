@@ -67,6 +67,33 @@ namespace BestiaBehemothClient.Dev
       Domes
     }
 
+    /// <summary>What a column is made of below its surface.</summary>
+    public enum FieldColumn
+    {
+      /// <summary>
+      /// The patch's own material all the way down.
+      /// </summary>
+      /// <remarks>
+      /// The default, and the right one for judging art: nothing but the material under test is within reach of
+      /// any vertex, including on a steep flank where a cover would put a second material beside every one of
+      /// them.
+      /// </remarks>
+      Uniform,
+
+      /// <summary>
+      /// One voxel of the patch's material over subsoil over bedrock, the way the generator writes a column.
+      /// </summary>
+      /// <remarks>
+      /// <b>The acceptance criterion is that this looks the same as <see cref="Uniform"/>.</b> A surface cap is
+      /// one voxel thick and is the only partial voxel in a column, so a mesher that ranks cells by how much
+      /// material they hold names the subsoil instead of the cap and paints the whole field brown - which is
+      /// what the running game looked like while the testbed, uniform to the bottom, looked correct. Any patch
+      /// that goes brown or grey here and not under <see cref="Uniform"/> is that bug, back again. The one
+      /// difference that is meant to survive is a vertical face deep enough to expose the subsoil honestly.
+      /// </remarks>
+      Layered
+    }
+
     /// <summary>Patches per axis. Sixteen slots want four.</summary>
     private const int Columns = 4;
 
@@ -130,6 +157,10 @@ namespace BestiaBehemothClient.Dev
 
     private FieldPalette _palette = FieldPalette.Slots;
     private FieldRelief _relief = FieldRelief.Domes;
+    private FieldColumn _column = FieldColumn.Uniform;
+    private float _grassFieldBegin;
+    private float _grassFieldEnd;
+    private float _grassFieldFalloff = 1.0f;
     private int _patchVoxels = 16;
     private float _reliefMetres = 12.0f;
     private float _domeRadius = 0.85f;
@@ -150,6 +181,14 @@ namespace BestiaBehemothClient.Dev
     {
       get => _relief;
       set { _relief = value; Rebuild(); }
+    }
+
+    /// <summary>Uniform for judging art, layered for checking the mesher reads a real column the same way.</summary>
+    [Export]
+    public FieldColumn Column
+    {
+      get => _column;
+      set { _column = value; Rebuild(); }
     }
 
     /// <summary>How wide one material's patch is, in voxels.</summary>
@@ -202,6 +241,54 @@ namespace BestiaBehemothClient.Dev
     /// <summary>
     /// The material under test. Its own resource, never <c>terrain.tres</c> - see the class remarks.
     /// </summary>
+    /// <summary>
+    /// Where the far-field grass tint starts and finishes, in metres from the middle of the field.
+    /// </summary>
+    /// <remarks>
+    /// <c>grass_field_correction</c> is the colour the ground is pushed towards once the grass field has thinned
+    /// out, and it is ramped in by distance between two <b>global</b> shader parameters that only
+    /// <c>TerrainGrass</c> publishes. The testbed has no grass field and so published neither, which left the
+    /// globals at their project defaults - a zero-width band, which the shader reads as "no field" and skips. So
+    /// the correction slider on the material was a transport to <c>terrain.tres</c> and nothing else: it could be
+    /// carried across but never seen. Setting <see cref="GrassFieldEnd"/> above
+    /// <see cref="GrassFieldBegin"/> turns the ramp on here, measured from the centre of the field outwards, so
+    /// that near ground and far ground are both on screen at once and the colour can be judged against a fixed
+    /// distance rather than against a memory of the last login.
+    ///
+    /// <para>
+    /// Both default to zero, which is off. That keeps the field flat-lit for the art-judging the testbed is
+    /// mostly used for, where a colour that changes with distance is exactly what is not wanted.
+    /// </para>
+    /// </remarks>
+    [Export(PropertyHint.Range, "0,200,1")]
+    public float GrassFieldBegin
+    {
+      get => _grassFieldBegin;
+      set { _grassFieldBegin = Math.Max(0.0f, value); PublishGrassField(); }
+    }
+
+    /// <inheritdoc cref="GrassFieldBegin"/>
+    [Export(PropertyHint.Range, "0,200,1")]
+    public float GrassFieldEnd
+    {
+      get => _grassFieldEnd;
+      set { _grassFieldEnd = Math.Max(0.0f, value); PublishGrassField(); }
+    }
+
+    /// <summary>How hard the tint arrives across that band, matching <c>GrassLod.Sharpen</c>'s exponent.</summary>
+    /// <remarks>
+    /// In game this is not a setting - it is whatever the level-of-detail controller happens to be spending to
+    /// stay inside its instance budget, so it moves while the player walks. One here, meaning the plain squared
+    /// ramp, is the value to judge a colour at; turning it up shows what the tint looks like when the field is
+    /// under pressure and arriving early.
+    /// </remarks>
+    [Export(PropertyHint.Range, "1,6,0.1")]
+    public float GrassFieldFalloff
+    {
+      get => _grassFieldFalloff;
+      set { _grassFieldFalloff = Math.Max(1.0f, value); PublishGrassField(); }
+    }
+
     [Export] public ShaderMaterial TerrainMaterial { get; set; }
 
     /// <summary>The debug twin, shown instead when <see cref="ShowDebugView"/> is on.</summary>
@@ -228,6 +315,33 @@ namespace BestiaBehemothClient.Dev
 
     public override void _Ready() => Rebuild();
 
+    /// <summary>
+    /// Puts the far-field grass ramp on the globals the terrain shader reads it from.
+    /// </summary>
+    /// <remarks>
+    /// Globals rather than material parameters because two shaders read them - <c>terrain.gdshader</c> and its
+    /// debug twin - which is the same reason <c>TerrainGrass.PublishField</c> sets them that way in game. Nothing
+    /// here is per-frame: the focus is the middle of the field and does not move, so this runs when one of the
+    /// three settings changes and on rebuild, rather than out of <c>_Process</c>.
+    ///
+    /// <para>
+    /// The focus carries the field's own ground height. Distance in the shader is measured in three dimensions,
+    /// so leaving it at zero would put the focus twelve metres underground and start the ramp early by however
+    /// much of that the camera angle turned into horizontal distance.
+    /// </para>
+    /// </remarks>
+    private void PublishGrassField()
+    {
+      // Begin above end is a band the shader would read backwards, so it is clamped to off rather than trusted.
+      var end = Math.Max(_grassFieldBegin, _grassFieldEnd);
+
+      RenderingServer.GlobalShaderParameterSet(
+        "grass_field_focus", new Vector3(0.0f, (BaseElevation + 0.5f) * VoxelSize, 0.0f));
+      RenderingServer.GlobalShaderParameterSet("grass_field_begin", _grassFieldBegin);
+      RenderingServer.GlobalShaderParameterSet("grass_field_end", end);
+      RenderingServer.GlobalShaderParameterSet("grass_field_falloff", _grassFieldFalloff);
+    }
+
     /// <summary>Reassembles the texture arrays from whatever is in <c>Game/World/Shader/Slots</c> now.</summary>
     public void ReloadTextures()
     {
@@ -248,6 +362,8 @@ namespace BestiaBehemothClient.Dev
       {
         return;
       }
+
+      PublishGrassField();
 
       var existing = GetNodeOrNull<Node3D>("Generated");
       if (existing != null)
@@ -422,11 +538,54 @@ namespace BestiaBehemothClient.Dev
         });
       }
 
+      // Always registered, whatever Column is set to. A block id the appearance does not know reads back as the
+      // Neutral slot and a transparent-black tint, so a field switched to Layered against a table built without
+      // them would render as holes rather than as anything diagnosable.
+      blocks.Add(new BlockAppearance.Block
+      {
+        Id = SubsoilId,
+        Name = "subsoil",
+        Solid = true,
+        Surface = BlockAppearance.SurfaceKind.Terrain,
+        Slot = BlockAppearance.SurfaceSlot.Soil,
+        Colour = new Color(0.38f, 0.28f, 0.19f)
+      });
+
+      blocks.Add(new BlockAppearance.Block
+      {
+        Id = BedrockId,
+        Name = "bedrock",
+        Solid = true,
+        Surface = BlockAppearance.SurfaceKind.Terrain,
+        Slot = BlockAppearance.SurfaceSlot.Rock,
+        Colour = new Color(0.55f, 0.53f, 0.49f)
+      });
+
       return BlockAppearance.From(blocks);
     }
 
     /// <summary>The invented id a patch's material carries. One-based, because zero is air.</summary>
     private static byte BlockIdOf(int patch) => (byte)(patch + 1);
+
+    /// <summary>
+    /// What <see cref="FieldColumn.Layered"/> puts under the cap, past the sixteen ids the patches use.
+    /// </summary>
+    /// <remarks>
+    /// Their tints are <c>DIRT</c>'s and <c>STONE</c>'s from the shipping palette rather than anything invented,
+    /// because the point of the mode is to reproduce what the generator writes and being wrong about the colour
+    /// of the thing that should not be visible would make a failure harder to recognise, not easier.
+    /// </remarks>
+    private const byte SubsoilId = 17;
+
+    private const byte BedrockId = 18;
+
+    /// <summary>How much subsoil <see cref="FieldColumn.Layered"/> lays under the cap, in whole voxels.</summary>
+    /// <remarks>
+    /// Two, which is mid-range for what <c>BiomeStage</c>'s residual soil depth gives on flat ground. The cap
+    /// above it is one voxel and partial, exactly as <c>ChunkMaterializer</c> writes it - that ratio is the
+    /// whole content of this mode and the reason it is not simply a thicker cover.
+    /// </remarks>
+    private const int SubsoilVoxels = 2;
 
     private string NameOf(int patch) => Palette == FieldPalette.Slots
       ? $"{patch} {SlotName(patch)}"
@@ -478,9 +637,11 @@ namespace BestiaBehemothClient.Dev
     /// One chunk: every column solid to its surface elevation, in that column's own material.
     /// </summary>
     /// <remarks>
-    /// Uniform all the way down rather than a cover over bedrock, which is what the generator writes. A cover
-    /// would put a second material within reach of every vertex on a steep flank - realistic, and the opposite
-    /// of what a testbed wants, since the flank is where the material under test is meant to be shown alone.
+    /// Uniform all the way down by default rather than a cover over bedrock, which is what the generator writes.
+    /// A cover would put a second material within reach of every vertex on a steep flank - realistic, and the
+    /// opposite of what a testbed wants, since the flank is where the material under test is meant to be shown
+    /// alone. <see cref="FieldColumn.Layered"/> writes the generator's column instead, for the times when the
+    /// question is about the mesher rather than about the art.
     /// </remarks>
     private VoxelChunk BuildChunk(int chunkX, int chunkY)
     {
@@ -501,9 +662,16 @@ namespace BestiaBehemothClient.Dev
           var fraction = elevation - top;
           var offset = (localY * ChunkSize + localX) * ChunkHeight;
 
+          var subsoilFrom = Column == FieldColumn.Layered ? Math.Max(0, top - SubsoilVoxels) : top;
+
           for (var z = 0; z < top; z++)
           {
-            blocks[offset + z] = block;
+            blocks[offset + z] = Column == FieldColumn.Uniform
+              ? block
+              : z >= subsoilFrom
+                ? SubsoilId
+                : BedrockId;
+
             occupancy[offset + z] = 255;
           }
 

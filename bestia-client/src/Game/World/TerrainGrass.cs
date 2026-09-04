@@ -111,6 +111,14 @@ namespace BestiaBehemothClient.Game.World
     /// </para>
     ///
     /// <para>
+    /// <b>This number was last judged against a field that was placing about two thirds of it.</b>
+    /// <see cref="Scatter"/> weights a triangle by its grass slot weight, and the mesher used to hand it the
+    /// soil under the turf rather than the turf, so ground that is entirely grass came through at about 0.64.
+    /// Fixing that took every meadow to 1.0, which is half again as many tufts at the same setting - so if the
+    /// field now reads too thick, this is the number that grew and not one that needs raising.
+    /// </para>
+    ///
+    /// <para>
     /// Ground that is only partly grass gets proportionally less, because the weight it is multiplied by is the
     /// slot weight the terrain shader blends with - so a dune with green patches on it grows grass on the
     /// patches and nowhere else, without this having to know what a dune is.
@@ -364,12 +372,21 @@ namespace BestiaBehemothClient.Game.World
     /// A backstop rather than a knob. It is applied by scaling <see cref="Density"/> down for the chunk that
     /// would exceed it, so a capped chunk is uniformly thinner rather than bare on one side - but a chunk that
     /// hits it is drawn at a density its neighbours are not, which is a seam. The default is above what a
-    /// wholly grassy 32 m chunk asks for - 1024 square metres at 8.6 is about 8,800 - so nothing reaches it in
-    /// ordinary play. <b>It has to move whenever <see cref="Density"/> does</b>, or the greenest ground in the
-    /// world is the only ground that gets thinned.
+    /// wholly grassy 32 m chunk asks for - 1024 square metres at 11.0 is about 11,300 - so nothing reaches it
+    /// in ordinary play. <b>It has to move whenever <see cref="Density"/> does</b>, or the greenest ground in
+    /// the world is the only ground that gets thinned.
+    ///
+    /// <para>
+    /// It very nearly did not move when it had to, twice over. The arithmetic here read 8.6 until well after
+    /// <see cref="Density"/> was 11.0, and even then a wholly grassy chunk did not exist to test it against:
+    /// the mesher named the soil under the turf rather than the turf, so the grass weight
+    /// <see cref="Scatter"/> integrates averaged about 0.64 on ground that is entirely grass and the real ask
+    /// was nearer 7,200. Fixing that in <c>SurfaceNets.AccumulateSurface</c> raised every meadow in the world
+    /// to 1.0 in one step, which is a 1.56x rise in demand and would have walked straight into a 10,000
+    /// ceiling that nothing had ever reached.
     /// </para>
     /// </remarks>
-    [Export(PropertyHint.Range, "0,40000,100")] public int MaxPerChunk { get; set; } = 10_000;
+    [Export(PropertyHint.Range, "0,40000,100")] public int MaxPerChunk { get; set; } = 13_000;
 
     /// <summary>
     /// How upright ground has to be to grow grass, as the vertical component of its normal.

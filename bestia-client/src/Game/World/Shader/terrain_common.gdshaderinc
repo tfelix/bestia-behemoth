@@ -240,13 +240,29 @@ group_uniforms Grass;
 //
 // **A cross-file coupling, and there is no way for it not to be one.** The numerator is authored in grass.tres
 // (`color`, `color2`) and in TerrainGrass (`Density`, `Height`); the denominator is BlockAppearance's GRASS
-// palette entry; none of the three knows this exists. The default is what those worked out to when it was
-// written, for a field covering about three quarters of its ground - and it is meant to be judged by eye
-// against the horizon rather than recomputed.
+// palette entry; none of the three knows this exists.
 //
-// **White is the off switch**, since a correction of one changes nothing. That is how this is A/B'd against
-// the field in the running editor.
-uniform vec3 grass_field_correction : source_color = vec3(0.43, 0.62, 0.35);
+// **What the target actually is: the composite, not the tufts.** Near the player the eye gets tufts *and* the
+// ground between them; out here it gets ground alone. So the two match when the correction takes bare ground
+// to `f * tuft + (1 - f) * ground` for the fraction `f` the field covers - not to the tuft colour, which is
+// where the first value came from and why it was too dark. In linear light, with the tuft field averaging
+// (0.0049, 0.0433, 0.0023) and the GRASS palette entry (0.0637, 0.1708, 0.0300), `f = 0.5` gives
+// (0.54, 0.63, 0.54), which is this default in sRGB. Redo that line for another coverage: `f = 0.75` would
+// want about (0.59, 0.69, 0.59) and the old `f = 0.85` is where (0.43, 0.62, 0.35) came from.
+//
+// Half is what TerrainGrass's own `Density` remarks claim for the present field, and the claim only became
+// true recently: the mesher used to name the soil under the turf rather than the turf, so the grass weight
+// this ramp and `TerrainGrass.Scatter` both key on sat near 0.64 on ground that is entirely grass and the
+// field placed a third fewer tufts than it was asked for. Two things moved under this value without moving
+// it: the field got shorter in `0dc9ac97a`, which uncovered ground, and fixing the mesher raised the tuft
+// count by half again, which covers some of it back.
+//
+// **Not yet judged by eye at this value.** The arithmetic above is a starting point, and the horizon is the
+// authority. `Dev/TerrainTestbed` can now show the ramp - set `GrassFieldBegin` and `GrassFieldEnd` - so this
+// no longer needs a login and a meadow to A/B.
+//
+// **White is the off switch**, since a correction of one changes nothing.
+uniform vec3 grass_field_correction : source_color = vec3(0.76, 0.81, 0.76);
 
 // Where the grass field is centred, how far out it is still at full density, and where its last tuft stands.
 //

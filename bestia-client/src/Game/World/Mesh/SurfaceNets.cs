@@ -53,6 +53,29 @@ namespace BestiaBehemothClient.Game.World.Mesh
     /// own surface elevation exactly.</summary>
     public const float Iso = 0.5f;
 
+    /// <summary>Cells <see cref="AccumulateSurface"/> reads for a vertex's material: its own, then its six faces.</summary>
+    private const int StencilLength = 7;
+
+    /// <summary>Where the cell above the vertex sits in that stencil.</summary>
+    /// <remarks>
+    /// Named because it is the one cell never tested for a roof, and a bare <c>2</c> at the test would read as an
+    /// off-by-one waiting to be tidied away. See <see cref="AccumulateSurface"/> for why it is exempt.
+    /// </remarks>
+    private const int StencilAbove = 2;
+
+    /// <summary>
+    /// The stencil offsets, in the order they are scored.
+    /// </summary>
+    /// <remarks>
+    /// The order is the tie-break and not a matter of taste: the argmax keeps the <i>first</i> cell of the highest
+    /// score, so the vertex's own cell has to come first or a neighbour holding the same material at the same
+    /// occupancy would displace it. Two chunks meshing a shared seam vertex walk this in the same order over the
+    /// same bytes, which is half of why they agree; the other half is that every step of the arithmetic is integer.
+    /// </remarks>
+    private static readonly int[] StencilX = { 0, 0, 0, -1, 1, 0, 0 };
+    private static readonly int[] StencilY = { 0, 0, 0, 0, 0, -1, 1 };
+    private static readonly int[] StencilZ = { 0, -1, 1, 0, 0, 0, 0 };
+
     /// <summary>Cube corner offsets, indexed by <c>i + 2j + 4k</c>.</summary>
     private static readonly int[] OffsetX = { 0, 1, 0, 1, 0, 1, 0, 1 };
     private static readonly int[] OffsetY = { 0, 0, 1, 1, 0, 0, 1, 1 };
@@ -297,9 +320,10 @@ namespace BestiaBehemothClient.Game.World.Mesh
     /// One accumulator per slot, reused for every vertex.
     /// </summary>
     /// <remarks>
-    /// Eight ints. Thread-local for the same reason as the buffers above rather than for its size - a
-    /// <c>stackalloc</c> would do, but a <c>Span</c> cannot be captured by <c>AccumulateSurface</c>'s inner
-    /// function, and hoisting that function's body inline to avoid it would repeat the bounds test seven times.
+    /// Sixteen ints. Thread-local for the same reason as the buffers above rather than for its size: it is filled
+    /// by <c>AccumulateSurface</c> and read by <c>PackWeights</c>, so it outlives either of them and a
+    /// <c>stackalloc</c> in one of them could not be it. The small fixed spans inside <c>AccumulateSurface</c>
+    /// itself, which do not cross that boundary, are stack allocated.
     /// </remarks>
     [ThreadStatic] private static int[] _slotWeight;
 
@@ -412,10 +436,56 @@ namespace BestiaBehemothClient.Game.World.Mesh
     /// What this vertex is made of: how much of each texture slot, and which single material tints it.
     /// </summary>
     /// <remarks>
-    /// The cell holding the vertex is usually the right answer - the surface voxel is the partially filled one and
-    /// carries the surface cap. On a vertical face it can be air, with the material in the cell beside it, so the
-    /// six face neighbours are considered too. Masked by the surface being built, so the water pass cannot pick up
-    /// the riverbed.
+    /// Seven cells are in reach: the one holding the vertex and its six face neighbours. On a vertical face the
+    /// vertex's own cell is air and the material is entirely in the neighbours, which is why the neighbours are
+    /// read at all. Masked by the surface being built, so the water pass cannot pick up the riverbed.
+    ///
+    /// <para>
+    /// <b>A cell with this surface's material directly above it is buried, and buried cells do not count.</b>
+    /// Occupancy fills a cell from the bottom, so anything standing in the cell overhead covers this one
+    /// completely - not mostly, completely. Scoring every cell by its occupancy and taking the largest asks how
+    /// much material each cell holds, and answers that correctly; the question this function is actually being
+    /// asked is what the surface is made of, and a buried cell is not a minority of that, it is none of it.
+    ///
+    /// <para>
+    /// It matters because of the shape the generator writes. <c>ChunkMaterializer</c> sets
+    /// <c>soilTop = capTop - 1</c>, so a surface cap is <b>one voxel</b>, and it fills everything it wrote
+    /// completely except the topmost, so that cap is also the <b>only partial one</b>. A metre of turf over dirt
+    /// therefore scored the dirt at 255 against the grass at 77, and every meadow in the world was tinted with
+    /// the soil under it and splatted about two fifths soil - which is also why the ground read brown at
+    /// distance, since <c>terrain_common.gdshaderinc</c> reproduces the palette colour it is handed exactly.
+    /// </para>
+    ///
+    /// <para>
+    /// The rule is deliberately not "the cell holding the vertex wins". Where the ground slopes, the mesher emits
+    /// a second vertex per lattice crossing whose own cell is the full soil under the cap - about one vertex in
+    /// five on a one-in-four slope - and a rule keyed on the vertex's own cell leaves exactly those speckled with
+    /// the buried material. Keyed on what is overhead, the same test covers them.
+    /// </para>
+    /// </para>
+    ///
+    /// <para>
+    /// <b>Where everything in reach is buried, nothing is skipped.</b> That is not a safety net, it is the
+    /// vertical-face case: beside a dug shaft the vertex sits in air, the only cell holding anything is the wall
+    /// beside it, and the wall has more wall on top of it. Falling back to the plain scan there gives what this
+    /// function has always given. It also keeps <see cref="PackWeights"/>' grey fallback as unreachable as it was.
+    /// </para>
+    ///
+    /// <para>
+    /// The cell above the vertex is the one exception, never tested for a roof. It is the carrier for a cave
+    /// ceiling, where the material hangs over a vertex sitting in air; the cell that would bury it is two up,
+    /// outside the stencil, and outside the patch entirely at the top of a column, where two chunks meshing the
+    /// same seam would not agree about it. Material two cells overhead cannot bury a vertex that straddles here
+    /// in any case.
+    /// </para>
+    ///
+    /// <para>
+    /// <b>This borrows a convention the rest of the file does not need</b> - see the class remarks, which point
+    /// out that a crossing needs no declaration of which way a fraction fills. Reading a roof does. It holds
+    /// because <c>ChunkMaterializer.carve</c> writes ceilings by the centre rule and never leaves a fractional
+    /// voxel with a full one above it, which is a rule enforced in another module, in another language, and
+    /// tested on neither side.
+    /// </para>
     ///
     /// <para>
     /// <b>The two answers come from the same scan but not from the same rule, and that is deliberate.</b> Slot
@@ -430,50 +500,87 @@ namespace BestiaBehemothClient.Game.World.Mesh
     /// <para>
     /// <b>Every arithmetic step here is integer, and the seams depend on it.</b> The cell on a chunk's high edge
     /// is meshed by that chunk and by its neighbour both, and the two must agree to the bit or the boundary shows
-    /// a hairline of the wrong material. They read the same seven cells - the aprons guarantee it - so identical
-    /// integer operations over identical bytes give identical results. Floating-point accumulation would be
-    /// deterministic too, but only for as long as nobody reorders the sum.
+    /// a hairline of the wrong material. They read the same eleven cells - seven scored and four roofs over the
+    /// laterals, the aprons guarantee all of them - so identical integer operations over identical bytes give
+    /// identical results. Floating-point accumulation would be deterministic too, but only for as long as nobody
+    /// reorders the sum.
     /// </para>
     /// </remarks>
     private static byte AccumulateSurface(
       TerrainPatch patch, int px, int py, int pz, byte[] includeMask, BlockAppearance appearance, int[] weights)
     {
+      Span<byte> blocks = stackalloc byte[StencilLength];
+      Span<int> scores = stackalloc int[StencilLength];
+
+      var roofed = 0u;
+      var exposed = false;
+
+      for (var i = 0; i < StencilLength; i++)
+      {
+        var x = px + StencilX[i];
+        var y = py + StencilY[i];
+        var z = pz + StencilZ[i];
+
+        var cell = IndexOf(patch, x, y, z);
+
+        blocks[i] = cell < 0 ? (byte)VoxelChunk.AirBlockId : patch.BlockAt(cell);
+        scores[i] = cell < 0 ? 0 : patch.RawOccupancyAt(cell) & includeMask[blocks[i]];
+
+        if (i != StencilAbove && ScoreAt(patch, includeMask, x, y, z + 1) > 0)
+        {
+          roofed |= 1u << i;
+        }
+        else
+        {
+          // Only a cell that is both unburied and holds something keeps the scan from falling back, so a wall
+          // seen edge-on - every candidate roofed by more wall - still names its own material.
+          exposed |= scores[i] > 0;
+        }
+      }
+
       var best = (byte)VoxelChunk.AirBlockId;
       var bestScore = -1;
 
-      Consider(px, py, pz);
-      Consider(px, py, pz - 1);
-      Consider(px, py, pz + 1);
-      Consider(px - 1, py, pz);
-      Consider(px + 1, py, pz);
-      Consider(px, py - 1, pz);
-      Consider(px, py + 1, pz);
-
-      return best;
-
-      void Consider(int x, int y, int z)
+      for (var i = 0; i < StencilLength; i++)
       {
-        if (x < 0 || y < 0 || z < 0 || x >= patch.Width || y >= patch.Width || z >= patch.Depth)
+        if (exposed && (roofed & (1u << i)) != 0)
         {
-          return;
+          continue;
         }
-
-        var index = patch.PatchIndexOf(x, y, z);
-        var block = patch.BlockAt(index);
-        var score = patch.RawOccupancyAt(index) & includeMask[block];
 
         // Air and every material masked out of this surface score zero, so they weigh nothing. The argmax still
         // considers them, because a vertex whose whole neighbourhood scores zero has to name some material and
         // the one it used to name is the one it still does.
-        weights[(int)appearance.SlotOf(block)] += score;
+        weights[(int)appearance.SlotOf(blocks[i])] += scores[i];
 
-        if (score > bestScore)
+        if (scores[i] > bestScore)
         {
-          bestScore = score;
-          best = block;
+          bestScore = scores[i];
+          best = blocks[i];
         }
       }
+
+      return best;
     }
+
+    /// <summary>How much this cell contributes to this surface, or zero where it is outside the patch.</summary>
+    private static int ScoreAt(TerrainPatch patch, byte[] includeMask, int x, int y, int z)
+    {
+      var cell = IndexOf(patch, x, y, z);
+
+      return cell < 0 ? 0 : patch.RawOccupancyAt(cell) & includeMask[patch.BlockAt(cell)];
+    }
+
+    /// <summary>This cell's index within the patch, or <c>-1</c> if it lies outside it.</summary>
+    /// <remarks>
+    /// Outside reads as air rather than as a missing answer, which is what makes the roof test safe at the top of
+    /// a column: a cell with nothing above it in the patch is treated as unburied, and unburied is the reading
+    /// that keeps its material.
+    /// </remarks>
+    private static int IndexOf(TerrainPatch patch, int x, int y, int z) =>
+      x < 0 || y < 0 || z < 0 || x >= patch.Width || y >= patch.Width || z >= patch.Depth
+        ? -1
+        : patch.PatchIndexOf(x, y, z);
 
     /// <summary>
     /// Scales the accumulated weights to bytes summing to exactly 255 and appends them to the two channels.

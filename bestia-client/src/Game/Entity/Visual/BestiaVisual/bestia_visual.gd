@@ -50,11 +50,25 @@ func clear_casting() -> void:
 
 
 func update_animation(msg: AnimationComponentSMSG) -> void:
+	_play_clip(msg.Kind)
+
+
+## [Entity] drives walk and idle off its own movement state instead of waiting for the server, and says so
+## in the server's uppercase kinds. This placeholder has no walk clip, so WALK lands on Idle by the same
+## fallback as any other kind it cannot play.
+func update_animation_direct(animation_name: String) -> void:
+	if animation_name.to_upper() == "WALK":
+		_play_clip("Walk")
+	else:
+		_play_clip(_IDLE_ANIM)
+
+
+func _play_clip(kind: String) -> void:
 	# The server's vocabulary is wider than any one visual's clip set - this placeholder has no Walk - so an
 	# unknown kind falls back to Idle rather than leaving whatever was playing to run on. Without that a
 	# creature that fell asleep and then got up and walked away would keep playing its sleep loop the whole
 	# way, because nothing else would ever interrupt it.
-	var clip := msg.Kind if _anim_player.has_animation(msg.Kind) else _IDLE_ANIM
+	var clip := kind if _anim_player.has_animation(kind) else _IDLE_ANIM
 	if _anim_player.current_animation == clip:
 		return
 

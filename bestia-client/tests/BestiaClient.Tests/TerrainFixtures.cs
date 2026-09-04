@@ -46,6 +46,17 @@ namespace BestiaBehemothClient.Tests
     internal const byte Grass = 13;
 
     /// <summary>
+    /// The soil the generator lays under a surface cap, for the fixtures that reproduce a real column.
+    /// </summary>
+    /// <remarks>
+    /// The fixture palette had no <c>Soil</c>-slot material at all until this, which is half of why the mesher
+    /// could name the buried soil instead of the cap for as long as it did: every fixture here wrote its cover
+    /// straight onto granite, so the slot that the bug actually leaked into was not in the table to be asserted
+    /// about. See <see cref="Soiled"/>.
+    /// </remarks>
+    internal const byte Dirt = 11;
+
+    /// <summary>
     /// Rich gold ore, for the tests about what a single ore voxel in a granite wall looks like.
     /// </summary>
     /// <remarks>
@@ -73,6 +84,8 @@ namespace BestiaBehemothClient.Tests
         BlockAppearance.SurfaceSlot.Rock, new Color(0.60f, 0.56f, 0.55f)),
       Block(Sand, "SAND", true, BlockAppearance.SurfaceKind.Terrain,
         BlockAppearance.SurfaceSlot.Sand, new Color(0.85f, 0.76f, 0.55f)),
+      Block(Dirt, "DIRT", true, BlockAppearance.SurfaceKind.Terrain,
+        BlockAppearance.SurfaceSlot.Soil, new Color(0.38f, 0.28f, 0.19f)),
       Block(Grass, "GRASS", true, BlockAppearance.SurfaceKind.Terrain,
         BlockAppearance.SurfaceSlot.Grass, new Color(0.28f, 0.45f, 0.19f)),
       Block(GoldOre, "ORE_GOLD_RICH", true, BlockAppearance.SurfaceKind.Terrain,
@@ -105,8 +118,10 @@ namespace BestiaBehemothClient.Tests
     /// Every column solid up to <paramref name="surface"/>, with the topmost voxel partially filled.
     /// </summary>
     /// <remarks>
-    /// Exactly what <c>ChunkMaterializer</c> produces: one solid run and one partial voxel carrying the fraction
-    /// of the surface elevation that a whole voxel cannot.
+    /// The shape <c>ChunkMaterializer</c> produces: one solid run and one partial voxel carrying the fraction of
+    /// the surface elevation that a whole voxel cannot. Not the *materials* it produces - the generator interposes
+    /// a soil column between the cap and the bed rock, and <see cref="Soiled"/> is the fixture that does too.
+    /// Nothing driven off this one asserts a material, so the difference does not reach them.
     /// </remarks>
     internal static VoxelChunk Flat(int chunkX, int chunkY, int chunkZ, double surface)
     {
@@ -140,12 +155,18 @@ namespace BestiaBehemothClient.Tests
     /// How deep the surface cover goes in <see cref="Capped"/>, in whole voxels below the partial one.
     /// </summary>
     /// <remarks>
-    /// Three, matching <see cref="Rolling"/> and, more to the point, matching what the server writes:
-    /// <c>SurfaceCover</c> puts a soil column under the cap rather than one voxel of grass on bare rock. It is
-    /// not decoration for the slot tests - it is what makes them test anything. The mesher scores a cell by its
-    /// occupancy, and the cap voxel is the *partial* one, so with a single voxel of cover the full granite cell
-    /// beneath outscores it and the vertex takes the rock's material. That is correct behaviour on data the
-    /// generator never produces, and it would quietly make every assertion below about the wrong material.
+    /// Three, matching <see cref="Rolling"/>. A deliberately thick single-material cover, so that the blending
+    /// tests driven off this fixture are about blending and nothing else.
+    ///
+    /// <para>
+    /// <b>It is not what the server writes, and this comment used to claim it was.</b> <c>SurfaceCover</c> puts a
+    /// soil column under the cap, but the cap itself is a single voxel - <c>ChunkMaterializer</c> sets
+    /// <c>soilTop = capTop - 1</c> - and the cap is the only partial one, so the full cell beneath used to
+    /// outscore it and the vertex took the buried material. The old text called that "correct behaviour on data
+    /// the generator never produces"; it was the only data the generator produces, and the cover depth here was
+    /// hiding it. <see cref="Soiled"/> writes the real column, and
+    /// <c>SurfaceSlotTest.TheSurfaceCapOutranksTheSoilItLiesOn</c> is what now holds the mesher to it.
+    /// </para>
     /// </remarks>
     private const int CoverDepth = 3;
 
@@ -180,6 +201,109 @@ namespace BestiaBehemothClient.Tests
 
           blocks[offset + top] = cover;
           occupancy[offset + top] = Quantise(fraction);
+        }
+      }
+
+      return new VoxelChunk(chunkX, chunkY, 0, Size, Height, blocks, occupancy);
+    }
+
+    /// <summary>
+    /// The column the generator actually writes: one partly filled cap voxel over full soil over bed rock.
+    /// </summary>
+    /// <remarks>
+    /// The difference from <see cref="Capped"/> is the whole point of it. <c>ChunkMaterializer</c> sets
+    /// <c>soilTop = capTop - 1</c> and then fills every voxel it wrote completely except the topmost, so the
+    /// surface cap is <b>one voxel</b> and it is the <b>only</b> partial one. A scan that ranks a cell by how much
+    /// material is in it therefore puts the buried soil above the cap on every square metre of ordinary ground.
+    /// <see cref="Capped"/> writes its cover three deep and so cannot see that; this can.
+    ///
+    /// <para>
+    /// <paramref name="surface"/> is a callback rather than a scalar so one fixture expresses both the flat case
+    /// and a ramp, and the ramp earns its place: a one-voxel step puts the neighbouring column's full soil
+    /// <i>beside</i> the cap rather than under it, which is a second way for the same mistake to show and takes a
+    /// second answer.
+    /// </para>
+    /// </remarks>
+    internal static VoxelChunk Soiled(
+      int chunkX, int chunkY, Func<int, int, double> surface, Func<int, int, byte> cap,
+      int soilVoxels = 2, int? waterLevel = null)
+    {
+      var blocks = new byte[Size * Size * Height];
+      var occupancy = new byte[Size * Size * Height];
+
+      for (var localY = 0; localY < Size; localY++)
+      {
+        for (var localX = 0; localX < Size; localX++)
+        {
+          var worldX = chunkX * Size + localX;
+          var worldY = chunkY * Size + localY;
+
+          var elevation = surface(worldX, worldY);
+          var top = (int)Math.Floor(elevation);
+          var offset = (localY * Size + localX) * Height;
+
+          for (var z = 0; z < top; z++)
+          {
+            blocks[offset + z] = z >= top - soilVoxels ? Dirt : Granite;
+            occupancy[offset + z] = 255;
+          }
+
+          blocks[offset + top] = cap(worldX, worldY);
+          occupancy[offset + top] = Quantise(elevation - top);
+
+          if (waterLevel is not { } level || level <= top)
+          {
+            continue;
+          }
+
+          for (var z = top + 1; z < level; z++)
+          {
+            blocks[offset + z] = Water;
+            occupancy[offset + z] = 255;
+          }
+
+          blocks[offset + level] = Water;
+          occupancy[offset + level] = Quantise(WaterFraction);
+        }
+      }
+
+      return new VoxelChunk(chunkX, chunkY, 0, Size, Height, blocks, occupancy);
+    }
+
+    /// <summary>
+    /// A forty-five degree wall of wholly full voxels, cutting through two beds of different rock.
+    /// </summary>
+    /// <remarks>
+    /// Every cell here is either completely full or completely empty, which is what the fixture is for. A
+    /// <i>vertical</i> face puts its vertices in the air cell beside the wall, where the material can only come
+    /// from the neighbours anyway; a <i>staircase</i> puts them in a full cell, and that is the one shape where
+    /// the cell below a vertex is genuine context rather than something buried under a surface cap. Natural cliffs
+    /// and everything <c>writeStructure</c> lays down are staircases of full voxels, so this is not contrived.
+    ///
+    /// <para>
+    /// Solid where <c>x + z &lt; intercept</c>, which makes the straddling cells the ones on
+    /// <c>x + z == intercept - 1</c> and every one of them full. The bed boundary at <paramref name="bedTop"/>
+    /// crosses that diagonal in exactly one column, and the vertices there are the ones that have to carry both
+    /// rocks.
+    /// </para>
+    /// </remarks>
+    internal static VoxelChunk DiagonalWall(int chunkX, int chunkY, int intercept, int bedTop)
+    {
+      var blocks = new byte[Size * Size * Height];
+      var occupancy = new byte[Size * Size * Height];
+
+      for (var localY = 0; localY < Size; localY++)
+      {
+        for (var localX = 0; localX < Size; localX++)
+        {
+          var offset = (localY * Size + localX) * Height;
+          var ceiling = Math.Min(Height, intercept - (chunkX * Size + localX));
+
+          for (var z = 0; z < ceiling; z++)
+          {
+            blocks[offset + z] = z < bedTop ? Granite : Sand;
+            occupancy[offset + z] = 255;
+          }
         }
       }
 

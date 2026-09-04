@@ -111,9 +111,13 @@ func update_animation(msg: AnimationComponentSMSG) -> void:
 		_anim_player.play(mapped_animation)
 
 
-func update_animation_direct(animation_name: String) -> void:	
+## Called by [Entity] every frame it is walking, so it has to be cheap and idempotent - the guard below
+## is what keeps it from restarting the walk clip on each of those frames.
+func update_animation_direct(animation_name: String) -> void:
 	var mapped_animation = _map_animation_name(animation_name)
-	
+	if _anim_player.current_animation == mapped_animation:
+		return
+
 	if _anim_player.has_animation(mapped_animation):
 		_anim_player.play(mapped_animation)
 

@@ -11,18 +11,15 @@ import net.bestia.zone.message.MessageHandlingFailedException
 import net.bestia.bnet.proto.AuthenticationSuccessProto
 import net.bestia.bnet.proto.DisconnectedProto
 import net.bestia.bnet.proto.EnvelopeProto
-import java.time.Clock
 import java.util.UUID
 import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
 
 class ClientMessageHandler(
   private val handlerCtx: ClientMessageHandlerContext,
-  private val clock: Clock = Clock.systemUTC()
 ) : SimpleChannelInboundHandler<EnvelopeProto.Envelope>() {
 
   private val connectionUuid = UUID.randomUUID().toString()
-  private val connectedAt = clock.instant()
   private var authTimeoutTask: ScheduledFuture<*>? = null
   private var accountId: Long? = null
 
