@@ -62,9 +62,9 @@ abstract class Countdown(
 
   companion object {
     /**
-     * Doubles as the worst case before a bystander who walks into range mid-cast sees the bar:
-     * [net.bestia.zone.entity.GetAllEntitiesHandler] does not carry countdown state, so the next
-     * heartbeat is the only thing that tells them.
+     * Doubles as the worst case before a bystander who walks into range mid-cast sees the bar: the
+     * snapshot they get on arrival carries the remaining seconds, but a bar that started while they were
+     * already watching is only refreshed by the next heartbeat.
      */
     const val SYNC_INTERVAL_SECONDS = 1f
   }

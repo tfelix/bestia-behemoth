@@ -98,14 +98,20 @@ func vanish(msg: VanishEntitySMSG) -> void:
 	_health_bar.visible = false
 	_cast_bar.clear_casting()
 	_name_tag.visible = false
+	# Freed at once, with no send-off to await: an entity that merely left the view can be back inside the
+	# second - it only takes pacing a chunk boundary - and EntityManager has already dropped the id, so a
+	# node still fading out while the entity returns leaves two of it on screen.
+	if msg.IsOutOfSight():
+		get_parent().queue_free()
+		return
+
 	if msg.IsDead():
 		_anim_player.play("death")
-		await _anim_player.animation_finished
-		get_parent().queue_free()
 	else:
 		_anim_player.play(_APPEAR_ANIM, -1, 1.0, true)
-		await _anim_player.animation_finished
-		get_parent().queue_free()
+
+	await _anim_player.animation_finished
+	get_parent().queue_free()
 
 
 func get_bestia_entity_id() -> int:

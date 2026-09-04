@@ -47,18 +47,26 @@ class GameClientMock(
   }
 
   fun clearMessages() {
-    rxBuffer.clear()
+    synchronized(rxBuffer) { rxBuffer.clear() }
   }
 
+  /**
+   * A copy taken under the buffer's own lock.
+   *
+   * The buffer is a `Collections.synchronizedList`, which guards each operation but *not* iteration - and the
+   * server writes to it from the zone tick and from `AsyncJobExecutor`'s workers while the test thread reads.
+   */
+  private fun received(): List<SMSG> = synchronized(rxBuffer) { rxBuffer.toList() }
+
   fun <T : SMSG> tryGetLastReceived(type: KClass<T>): T? {
-    return rxBuffer.filterIsInstance(type.java).lastOrNull()
+    return received().filterIsInstance(type.java).lastOrNull()
   }
 
   /** Unlike [tryGetLastReceived], checks the whole buffer rather than only the most recent message
    * of [type] - useful when unrelated background traffic (e.g. periodic regen) of the same type
    * may arrive after the message under test. */
   fun <T : SMSG> receivedAny(type: KClass<T>, predicate: (T) -> Boolean): Boolean {
-    return rxBuffer.filterIsInstance(type.java).any(predicate)
+    return received().filterIsInstance(type.java).any(predicate)
   }
 
   fun <T : SMSG> getLastReceived(type: KClass<T>): T {

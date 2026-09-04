@@ -15,7 +15,6 @@ import net.bestia.zone.skill.GetSkillsCMSG
 import net.bestia.zone.chat.ChatCMSG
 import net.bestia.zone.crafting.CancelCraftCMSG
 import net.bestia.zone.crafting.CraftItemCMSG
-import net.bestia.zone.entity.GetAllEntitiesCMSG
 import net.bestia.zone.entity.MoveActiveEntityCMSG
 import net.bestia.zone.entity.SelectEntityCMSG
 import net.bestia.zone.item.DropItemCMSG
@@ -69,7 +68,6 @@ class BnetMessageProcessorAdapter(
       envelope.hasActivateSkill() -> ActivateSkillCMSG.Companion.fromBnet(accountId, envelope.activateSkill)
       envelope.hasSelectActiveEntity() -> SelectEntityCMSG(accountId, envelope.selectActiveEntity.entityId)
       envelope.hasMoveActiveEntity() -> MoveActiveEntityCMSG.Companion.fromBnet(accountId, envelope.moveActiveEntity)
-      envelope.hasGetAllEntities() -> GetAllEntitiesCMSG(accountId)
       envelope.hasAttackEntity() -> AttackEntityCMSG.Companion.fromBnet(accountId, envelope.attackEntity)
       envelope.hasGetInventory() -> GetInventoryCMSG(accountId)
       envelope.hasUseItem() -> UseItemCMSG.Companion.fromBnet(accountId, envelope.useItem)

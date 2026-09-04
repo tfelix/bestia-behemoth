@@ -276,9 +276,7 @@ func update_visual(msg: VisualComponentSMSG) -> void:
 	if scene == null:
 		return
 
-	var existing = get_node_or_null(_VISUAL_NODE_NAME)
-	if existing != null:
-		existing.queue_free()
+	_release_visual()
 
 	# Untyped on purpose: each kind's visual declares its own setup_visual, taking its own message.
 	var visual = scene.instantiate()
@@ -311,14 +309,26 @@ func _visual_scene_for(msg: VisualComponentSMSG) -> PackedScene:
 
 
 func update_master_visual(msg: MasterVisualComponentSMSG) -> void:
-	var existing = get_node_or_null(_VISUAL_NODE_NAME)
-	if existing != null:
-		existing.queue_free()
+	_release_visual()
 	var visual = MasterModelScn.instantiate() as MasterVisual
 	visual.setup_visual(msg)
 	visual.name = _VISUAL_NODE_NAME
 	add_child(visual)
 	_seed_visual(visual)
+
+
+## Frees the attached visual, giving up its name first.
+##
+## queue_free is deferred to the end of the frame, so a replacement added in the same frame would find the
+## name still taken - Godot renames the newcomer, and _VISUAL_NODE_NAME then resolves to the node that is
+## about to disappear, and to null after that.
+func _release_visual() -> void:
+	var existing = get_node_or_null(_VISUAL_NODE_NAME)
+	if existing == null:
+		return
+
+	existing.name = "VisualOutgoing"
+	existing.queue_free()
 
 
 ## Pushes state that arrived before this visual existed into it. Only health needs it so far.
@@ -376,7 +386,9 @@ func update_path(msg: PathComponentSMSG) -> void:
 	for vec3 in msg.Path:
 		_nodes.append(vec3)
 
-	_progress = 0.0
+	# Not zero: the server may be telling us about a walk already under way, and _nodes[0] is the tile it
+	# last reached rather than where it stands.
+	_progress = clampf(msg.StartOffset, 0.0, 1.0)
 	_error = 0.0
 	_faced_seg = -1
 	_is_moving = _nodes.size() >= 2

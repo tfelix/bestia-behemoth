@@ -6,7 +6,7 @@ import net.bestia.zone.socket.PingCMSG
 import net.bestia.zone.socket.PongSMSG
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.movement.Position
-import net.bestia.zone.ecs.movement.PositionSMSG
+import net.bestia.zone.ecs.movement.PathSMSG
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.session.NoActiveSessionException
 import net.bestia.zone.entity.MoveActiveEntityCMSG
@@ -118,10 +118,20 @@ class BehemothE2EScenarios : BestiaNoSocketScenario(
 
     clientPlayer1.sendMessage(msg)
 
-    // check DB + received packages
+    // Asserted against this entity and against the tile it stopped on. A bare "some PositionSMSG arrived"
+    // passed whether or not the walk was accepted, because every nearby entity's traffic lands in the same
+    // mailbox - and a three-tile walk publishes no position of its own at all: MoveSystem sends one every
+    // POSITION_RESYNC_STEPS tiles and the arrival rides the stop notification instead.
     Awaitility.await().untilAsserted {
-      val pos = clientPlayer1.tryGetLastReceived(PositionSMSG::class)
-      assertNotNull(pos)
+      val arrived = world.read { get(entityId, Position::class)!!.toVec3L() }
+      assertEquals(from.y + 3, arrived.y, "the walk did not move the entity")
+
+      assertTrue(
+        clientPlayer1.receivedAny(PathSMSG::class) {
+          it.entityId == entityId && it.path.isEmpty() && it.stopPosition?.y == from.y + 3
+        },
+        "a player must be told where its own entity ended up"
+      )
     }
   }
 

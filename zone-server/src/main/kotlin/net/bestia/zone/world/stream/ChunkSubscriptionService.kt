@@ -64,6 +64,7 @@ class ChunkSubscriptionService {
   private val firstSubscriber = ArrayList<(ChunkPos) -> Unit>()
   private val lastSubscriber = ArrayList<(ChunkPos) -> Unit>()
   private val chunkSent = ArrayList<(Long, ChunkPos) -> Unit>()
+  private val chunkUnsent = ArrayList<(Long, ChunkPos) -> Unit>()
 
   /**
    * Called when a chunk goes from held by nobody to held by somebody, and back.
@@ -107,6 +108,17 @@ class ChunkSubscriptionService {
    */
   fun onChunkSent(listener: (accountId: Long, chunk: ChunkPos) -> Unit) {
     chunkSent.add(listener)
+  }
+
+  /**
+   * The counterpart to [onChunkSent]: this account held the chunk and no longer does.
+   *
+   * Fires for a chunk the manifest withdrew, and **not** for one released by [forget] - an account being
+   * forgotten has no client left to tell. Same two rules as [onChunkSent]: mark and return, and the address
+   * is one slab.
+   */
+  fun onChunkUnsent(listener: (accountId: Long, chunk: ChunkPos) -> Unit) {
+    chunkUnsent.add(listener)
   }
 
   val trackedAccounts get() = announced.size
@@ -197,7 +209,9 @@ class ChunkSubscriptionService {
    * Called when a chunk leaves the subscription, and when a revision moves past what the client holds by
    * more than a patch can express - a re-send is then the only way to catch it up.
    */
-  fun unsend(accountId: Long, chunk: ChunkPos) {
+  fun unsend(accountId: Long, chunk: ChunkPos) = unsend(accountId, chunk, notify = true)
+
+  private fun unsend(accountId: Long, chunk: ChunkPos, notify: Boolean) {
     val wasSent = sent[accountId]?.remove(chunk) == true
 
     // Guarded on `wasSent` rather than mirroring the `subscribers` bookkeeping below, because unsending a
@@ -214,6 +228,8 @@ class ChunkSubscriptionService {
       } else {
         column?.put(accountId, held)
       }
+
+      if (notify) chunkUnsent.forEach { it(accountId, chunk) }
     }
 
     val holders = subscribers[chunk] ?: return
@@ -227,7 +243,7 @@ class ChunkSubscriptionService {
 
   /** Drops every trace of a connection. Called on disconnect and when a session is deactivated. */
   fun forget(accountId: Long) {
-    sentTo(accountId).toList().forEach { unsend(accountId, it) }
+    sentTo(accountId).toList().forEach { unsend(accountId, it, notify = false) }
 
     announced.remove(accountId)
     sent.remove(accountId)

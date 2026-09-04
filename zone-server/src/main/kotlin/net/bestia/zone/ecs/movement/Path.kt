@@ -11,28 +11,12 @@ import net.bestia.zone.message.EntitySMSG
 /**
  * The waypoints an entity is walking, and the one message that tells observers about a walk.
  *
- * ### Sent when the path changes, not while it is walked
+ * Sent when the path *changes*, not while it is walked: the client follows these waypoints with the same
+ * arithmetic [MoveSystem] uses, so the shrinking remainder is nothing it does not already hold.
  *
- * [MoveSystem] consuming a waypoint does **not** dirty this component, and [removeFirst] deliberately
- * does not mark it. The client integrates the waypoints with the same arithmetic the server does
- * (`entity.gd`'s prediction says so in its own header), so the shrinking remainder is something it
- * already knows. Sending it anyway cost O(n^2) bytes for an n-tile walk - a click at the edge of the
- * view volume is ~176 tiles, which was some 200 kB per observer - and it actively broke the
- * prediction it was feeding: `update_path` re-anchors on the client's current position and resets its
- * progress, so a step's `Position` then arrived to be looked up in an already-shortened waypoint list
- * and, whenever the client was more than half a tile behind, missed it and took the "server is off our
- * predicted path" branch. Snap, stop, idle, restart - four times a second.
- *
- * ### Its removal is the stop notification
- *
- * [Removable], so coming off an entity re-sends this message with an empty path and the position the
- * entity stopped at - see [toRemovedMessage]. Seven places remove it and only one of them is a walk finishing: combat, sleep
- * ([net.bestia.zone.ai.bt.leaves.Sleep]), death, a client stop command and a GM teleport all cut a
- * walk short, and none of them dirty [Position] on the way. Before this was `Removable` those stops
- * were invisible on the wire, so every observer walked the entity on to the end of the path it was no
- * longer following and left it there - a mob that lay down mid-walk slept a tile or more away from
- * where the server had it, indefinitely, because a stationary entity's position never goes dirty
- * again.
+ * Its removal is the stop notification - see [toRemovedMessage]. That matters because only one of the seven
+ * places that remove a path is a walk finishing; combat, sleep, death, a client stop and a GM teleport all cut
+ * one short, and none of them dirties [Position].
  */
 data class Path(
   private var _path: MutableList<Vec3L>
@@ -47,24 +31,26 @@ data class Path(
   /**
    * Whether the waypoints' vertical has been checked against the terrain yet.
    *
-   * A player-supplied path arrives with a vertical the *client* invented: `path_calculator.gd` interpolates it
-   * linearly between the two endpoints and says in its own docstring that it ignores terrain. Correcting the
-   * entity's [Position] as it walks is not enough on its own, because this component is synced to every client in
-   * range and `entity.gd` interpolates the rendered position *along these waypoints* between position updates - so
-   * an unresolved path makes every observer draw the walk along that straight line through the hillside.
-   *
-   * [MoveSystem] resolves it on the tick it first sees the path, which is before the component sync runs.
+   * A client-supplied path arrives with a vertical `path_calculator.gd` interpolated linearly, ignoring
+   * terrain - and observers draw the walk *along these waypoints*, so correcting only [Position] would leave
+   * every one of them running it through the hillside. [MoveSystem] resolves it before the sync runs.
    */
   var groundResolved: Boolean = false
     private set
 
+  /**
+   * How far past its last reached tile the entity stands, 0..1, refreshed by [MoveSystem] each tick.
+   *
+   * On the wire so a client told about a walk already under way joins it where the entity actually is.
+   * Writing it does not dirty the component: it changes every tick and is only read once something else has
+   * decided to send the path.
+   */
+  var startOffset: Float = 0f
+
   val path: List<Vec3L>
     get() = _path.toList()
 
-  /**
-   * Hands out the next waypoint. Does **not** dirty the component - see the note on the class: what
-   * observers need is the path, once, not the remainder of it sixty-odd times.
-   */
+  /** Hands out the next waypoint. Deliberately does not dirty the component - see the class note. */
   fun removeFirst(): Vec3L = _path.removeFirst()
 
   fun setPath(newPath: List<Vec3L>) {
@@ -85,9 +71,8 @@ data class Path(
   /**
    * Replaces every waypoint's vertical with the ground's, and marks the path resolved.
    *
-   * A waypoint whose column has no answer - off the grid, or no world yet - keeps the vertical it arrived with,
-   * on the same reasoning as [MoveSystem]'s per-step fallback: moving somewhere approximately right beats
-   * refusing to move.
+   * A waypoint whose column has no answer - off the grid, or no world yet - keeps the vertical it arrived
+   * with: moving somewhere approximately right beats refusing to move.
    */
   fun resolveGround(groundAt: (Vec3L) -> Long?) {
     for (i in _path.indices) {
@@ -118,19 +103,17 @@ data class Path(
   override fun toEntityMessage(entityId: Long, removed: Boolean): EntitySMSG {
     return PathSMSG(
       entityId = entityId,
-      path = path
+      path = path,
+      startOffset = startOffset
     )
   }
 
   /**
-   * The stop notification: an empty path plus where the entity actually halted. Same message type as
-   * the walk on purpose, which is what [Removable] buys - the client's `update_path` reads an empty
-   * path as "stop here" and needs no second thing to dispatch on.
+   * The stop notification: an empty path plus where the entity actually halted. Same message type as the walk,
+   * so the client needs no second thing to dispatch on.
    *
-   * The position is read live rather than remembered from the last step, because two of the removers
-   * move the entity in the same breath: `RespawnSystem` puts it at its respawn point and
-   * `ChunkStreamSystem` teleports it. A tile stamped during the walk would have snapped every observer
-   * back to where the entity died.
+   * The position is read live rather than remembered from the last step, because two removers move the entity
+   * in the same breath - `RespawnSystem` and `ChunkStreamSystem`'s teleport.
    */
   override fun toRemovedMessage(world: World, entityId: EntityId): EntitySMSG {
     return PathSMSG(

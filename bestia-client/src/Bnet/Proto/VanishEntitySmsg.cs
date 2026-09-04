@@ -26,9 +26,10 @@ namespace Bnet {
           string.Concat(
             "CihtZXNzYWdlcy9lbnRpdHkvdmFuaXNoX2VudGl0eV9zbXNnLnByb3RvEgRi",
             "bmV0IkUKEFZhbmlzaEVudGl0eVNNU0cSEQoJZW50aXR5X2lkGAEgASgEEh4K",
-            "BGtpbmQYAiABKA4yEC5ibmV0LlZhbmlzaEtpbmQqIQoKVmFuaXNoS2luZBII",
-            "CgRHT05FEAASCQoFREVBVEgQAUIuChVuZXQuYmVzdGlhLmJuZXQucHJvdG9C",
-            "FVZhbmlzaEVudGl0eVNtc2dQcm90b2IGcHJvdG8z"));
+            "BGtpbmQYAiABKA4yEC5ibmV0LlZhbmlzaEtpbmQqMwoKVmFuaXNoS2luZBII",
+            "CgRHT05FEAASCQoFREVBVEgQARIQCgxPVVRfT0ZfU0lHSFQQAkIuChVuZXQu",
+            "YmVzdGlhLmJuZXQucHJvdG9CFVZhbmlzaEVudGl0eVNtc2dQcm90b2IGcHJv",
+            "dG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.VanishKind), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -39,17 +40,29 @@ namespace Bnet {
 
   }
   #region Enums
+  /// <summary>
+  ///* Why an entity stopped being drawn, so the client can pick a send-off for it. 
+  /// </summary>
   public enum VanishKind {
+    /// <summary>
+    ///* Removed from the world for a reason the client is not told. 
+    /// </summary>
     [pbr::OriginalName("GONE")] Gone = 0,
+    /// <summary>
+    ///* Killed, so a death animation is worth playing. 
+    /// </summary>
     [pbr::OriginalName("DEATH")] Death = 1,
+    /// <summary>
+    ///* Still alive, just no longer in view. Nothing to play - the entity is simply not this client's any more. 
+    /// </summary>
+    [pbr::OriginalName("OUT_OF_SIGHT")] OutOfSight = 2,
   }
 
   #endregion
 
   #region Messages
   /// <summary>
-  ///*
-  /// Sends the active selected entity to the server.
+  ///* An entity the client should stop drawing. 
   /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class VanishEntitySMSG : pb::IMessage<VanishEntitySMSG>

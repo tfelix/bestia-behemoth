@@ -11,21 +11,26 @@ data class VanishEntitySMSG(
 ) : EntitySMSG {
 
   enum class VanishKind {
-    /**
-     * Entity is just gone.
-     */
+    /** Removed from the world for a reason the client is not told. */
     GONE,
 
+    /** Killed, so a death animation is worth playing. */
+    DEATH,
+
     /**
-     * Play death animation if present.
+     * Still alive, just no longer in view - the chunk it stands in has left this client's subscription.
+     *
+     * Distinct from [GONE] because it must not play a send-off: an entity pacing a chunk boundary would
+     * otherwise fade out and back repeatedly, and the client has to be free to drop the node at once.
      */
-    DEATH
+    OUT_OF_SIGHT
   }
 
   override fun toBnetEnvelope(): EnvelopeProto.Envelope {
     val kind = when (kind) {
       VanishKind.GONE -> VanishEntitySmsgProto.VanishKind.GONE
       VanishKind.DEATH -> VanishEntitySmsgProto.VanishKind.DEATH
+      VanishKind.OUT_OF_SIGHT -> VanishEntitySmsgProto.VanishKind.OUT_OF_SIGHT
     }
 
     val vanishMsg = VanishEntitySmsgProto.VanishEntitySMSG.newBuilder()

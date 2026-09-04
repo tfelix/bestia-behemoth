@@ -137,6 +137,11 @@ func _on_entity_received(message) -> void:
 	if entity_manager == null or message.EntityId != entity_manager.get_owned_master_entity_id():
 		return
 
+	# Only a real removal counts. An out-of-sight vanish says the entity is still alive and merely outside
+	# the view, which for our own master means a terrain hiccup - not that the logout went through.
+	if message.IsOutOfSight():
+		return
+
 	_execute_pending_action()
 
 

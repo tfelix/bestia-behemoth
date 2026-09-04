@@ -8,8 +8,6 @@ extends RefCounted
 ## setup and cleanup (cursor texture, 3D indicators) can't leak into the
 ## others - see MouseManager.change_state().
 
-## mgr is the MouseManager autoload; left untyped since autoload scripts
-## can't declare a class_name identical to their singleton name.
 @warning_ignore("unused_parameter")
 func enter(mgr: MouseManager) -> void:
 	pass

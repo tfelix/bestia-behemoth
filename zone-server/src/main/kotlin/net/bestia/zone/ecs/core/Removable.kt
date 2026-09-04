@@ -16,15 +16,12 @@ import net.bestia.zone.util.EntityId
 interface Removable : Dirtyable {
 
   /**
-   * The message announcing this component's removal.
+   * The message announcing this component's removal, defaulting to what the marker above promises.
    *
-   * Defaults to exactly what the marker promises above - the component's own message, re-sent with
-   * `removed = true`. Override it only when the notification has to say something the component itself
-   * cannot answer: [net.bestia.zone.ecs.movement.Path] does, because a stop has to carry *where* the
-   * entity stopped, which lives on its [net.bestia.zone.ecs.movement.Position] and not on the path.
-   *
-   * Called with the world lock held, from the removal itself, so the entity's other components are
-   * still readable and still current. Do no I/O here.
+   * Override it only when the notification has to say something the component cannot answer for itself:
+   * [net.bestia.zone.ecs.movement.Path] does, because a stop carries *where* the entity stopped, which lives
+   * on its `Position`. Called with the world lock held, so the entity's other components are still readable
+   * and current - do no I/O here.
    */
   fun toRemovedMessage(world: World, entityId: EntityId): EntitySMSG = toEntityMessage(entityId, removed = true)
 }

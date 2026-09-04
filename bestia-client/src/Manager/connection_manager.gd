@@ -49,7 +49,6 @@ var GetSelfCMSG = load("res://Bnet/Message/Master/GetSelfCMSG.cs")
 var SelectMasterCMSG = load("res://Bnet/Message/Master/SelectMasterCMSG.cs")
 var CreateMasterCMSG = load("res://Bnet/Message/Master/CreateMasterCMSG.cs")
 var DeleteMasterCMSG = load("res://Bnet/Message/Master/DeleteMasterCMSG.cs")
-var GetAllEntities = load("res://Bnet/Message/Entity/GetAllEntities.cs")
 var AttackEntityCMSG = load("res://Bnet/Message/Entity/AttackEntityCMSG.cs")
 var MoveActiveEntityCMSG = load("res://Bnet/Message/Entity/MoveActiveEntityCMSG.cs")
 var GetInventoryCMSG = load("res://Bnet/Message/Inventory/GetInventoryCMSG.cs")
@@ -548,14 +547,6 @@ func select_bestia_master(master_info: MasterInfo) -> void:
 	msg.MasterId = master_info.MasterId
 	_socket.SendMessage(msg)
 	SceneManager.goto_scene("res://Game/Game.tscn")
-
-
-# Is it maybe a better approach to just call into C# instead of building the msg
-# object here and then calling in? Could also save a few messages we would need to build.
-func get_all_entities() -> void:
-	assert(is_ready_to_send())
-	var msg = GetAllEntities.new()
-	_socket.SendMessage(msg)
 
 
 func _on_bnet_socket_message_received(message: Object) -> void:

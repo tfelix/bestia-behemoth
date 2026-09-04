@@ -14,6 +14,49 @@ class ChunkSubscriptionServiceTest {
   private val b = ChunkPos(1, 0, 0)
 
   @Test
+  fun `a withdrawn chunk is reported to its departure listener`() {
+    val seen = mutableListOf<Pair<Long, ChunkPos>>()
+    subscriptions.onChunkUnsent { accountId, chunk -> seen.add(accountId to chunk) }
+
+    subscriptions.applyManifest(1L, listOf(a, b), emptyList(), reset = true)
+    subscriptions.markSent(1L, a)
+    subscriptions.markSent(1L, b)
+
+    subscriptions.applyManifest(1L, added = emptyList(), removed = listOf(a), reset = false)
+
+    assertEquals(listOf(1L to a), seen, "only the withdrawn slab, and only for the account that held it")
+  }
+
+  @Test
+  fun `a chunk that was only announced reports no departure`() {
+    val seen = mutableListOf<ChunkPos>()
+    subscriptions.onChunkUnsent { _, chunk -> seen.add(chunk) }
+
+    subscriptions.applyManifest(1L, listOf(a), emptyList(), reset = true)
+    subscriptions.applyManifest(1L, added = emptyList(), removed = listOf(a), reset = false)
+
+    assertTrue(seen.isEmpty(), "nothing was ever sent, so nothing left")
+  }
+
+  /**
+   * An account being forgotten has no client left to tell, so its releases must stay silent - otherwise a
+   * logout emits a departure for every chunk in the view volume to a session that is already gone.
+   */
+  @Test
+  fun `forgetting an account reports no departures`() {
+    val seen = mutableListOf<ChunkPos>()
+    subscriptions.onChunkUnsent { _, chunk -> seen.add(chunk) }
+
+    subscriptions.markSent(1L, a)
+    subscriptions.markSent(1L, b)
+
+    subscriptions.forget(1L)
+
+    assertTrue(seen.isEmpty(), "forget is not a departure")
+    assertTrue(subscriptions.subscribersOf(a).isEmpty(), "but it still releases the subscription")
+  }
+
+  @Test
   fun `announcing authorises a request but does not make the client a patch recipient`() {
     subscriptions.applyManifest(1L, added = listOf(a), removed = emptyList(), reset = true)
 

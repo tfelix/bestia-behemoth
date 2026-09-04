@@ -9,10 +9,14 @@ import net.bestia.zone.ecs.battle.damage.Dead
 import net.bestia.zone.ecs.core.AsyncJobExecutor
 import net.bestia.zone.ecs.core.Dirtyable
 import net.bestia.zone.ecs.core.Removable
+import net.bestia.zone.util.AccountId
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.ecs.core.scanDirtyableComponentTypes
+import net.bestia.zone.ecs.core.dirtyableComponentTypes
+import net.bestia.zone.ecs.prop.StaticSync
 import net.bestia.zone.ecs.prop.WorldObjectIdentity
+import net.bestia.zone.ecs.visibility.EntitySnapshotBuilder
+import net.bestia.zone.ecs.visibility.EntityVisibility
 import net.bestia.zone.entity.VanishEntitySMSG
 import net.bestia.zone.message.EntitySMSG
 import net.bestia.zone.message.SMSG
@@ -47,6 +51,8 @@ class ZoneEngine(
   private val playerAOIService: ActivePlayerAOIService,
   private val outMessageProcessor: OutMessageProcessor,
   private val asyncJobExecutor: AsyncJobExecutor,
+  private val entityVisibility: EntityVisibility,
+  private val snapshotBuilder: EntitySnapshotBuilder,
 ) {
 
   private data class RemovedComponentRecord(
@@ -55,7 +61,7 @@ class ZoneEngine(
     val targets: SyncTargets,
   )
 
-  private val syncableComponentTypes = scanDirtyableComponentTypes()
+  private val syncableComponentTypes = dirtyableComponentTypes
 
   private val tickExecutor = Executors.newSingleThreadExecutor { r -> Thread(r, "zone-tick") }
   private val removedComponentOutbox = ConcurrentLinkedQueue<RemovedComponentRecord>()
@@ -69,8 +75,14 @@ class ZoneEngine(
     // to whoever the entity was ever synced to (see notifyVanishOnDestroy).
     world.onDestroy { entityId ->
       entityAOIService.removeEntityPosition(entityId)
-      playerAOIService.removeEntityPosition(entityId)
+
+      // Keyed by account rather than by entity - and EntityId is a typealias for Long, so nothing
+      // catches the difference but the index.
+      world.get(entityId, Account::class)?.accountId?.let { playerAOIService.removeEntityPosition(it) }
+      // Before forgetting it: notifyVanishOnDestroy asks who was watching, and that answer lives in the
+      // index this drops.
       notifyVanishOnDestroy(entityId)
+      entityVisibility.forgot(entityId)
     }
 
     // Turn removals of opted-in components into client notifications. Fires only for explicit
@@ -171,12 +183,16 @@ class ZoneEngine(
       for (id in positionChanged) {
         val pos = world.get(id, Position::class)?.toVec3L() ?: continue
         // A promoted prop (world/prop/PropPromotionService) has just gained a real, dirty Position, and the
-        // bare default below would silently re-home it from AoiLayer.STATIC to DYNAMIC - PerceptionSystem and
-        // GetAllEntitiesHandler deliberately query DYNAMIC_ONLY to avoid double-delivering something the
-        // per-chunk static batch already sent, so a promoted prop must stay STATIC even while it can move
-        // through combat's HP tracking.
+        // bare default below would silently re-home it from AoiLayer.STATIC to DYNAMIC - PerceptionSystem
+        // queries DYNAMIC_ONLY, so a promoted prop must stay STATIC even while it can move through combat's
+        // HP tracking.
         val layer = if (world.has(id, WorldObjectIdentity::class)) AoiLayer.STATIC else AoiLayer.DYNAMIC
         entityAOIService.setEntityPosition(id, pos, layer)
+
+        // StaticSync rather than the layer above: the layer buckets the spatial index, this asks the one
+        // question visibility cares about - whether the entity already reaches clients on the static batch.
+        if (!world.has(id, StaticSync::class)) entityVisibility.moved(id, pos)
+
         if (world.has(id, ActivePlayer::class)) {
           val accountId = world.get(id, Account::class)?.accountId
           if (accountId != null) playerAOIService.setEntityPosition(accountId, pos)
@@ -211,7 +227,9 @@ class ZoneEngine(
       }
 
       if (broadcastMsgs.isNotEmpty()) {
-        asyncJobExecutor.submit(key = entityId) { outMessageProcessor.sendToAllPlayersInRange(pos, broadcastMsgs) }
+        publicAudienceOf(entityId).forEach { accountId ->
+          asyncJobExecutor.submit(key = accountId) { outMessageProcessor.sendToPlayer(accountId, broadcastMsgs) }
+        }
       }
       byAccountMsgs.forEach { (accountId, msgs) ->
         asyncJobExecutor.submit(key = accountId) { outMessageProcessor.sendToPlayer(accountId, msgs) }
@@ -219,6 +237,53 @@ class ZoneEngine(
     }
 
     flushRemovedComponents()
+    flushVisibilityChanges()
+  }
+
+  /**
+   * Who is told about a [SyncTargets.PublicInRange] change to [entityId].
+   *
+   * The accounts holding the chunk it stands in, plus - always - the account that owns it. A player has to
+   * hear about its own entity whatever terrain it happens to be holding: the chunk it is walking into may not
+   * have been requested and served yet, and losing sight of yourself for those ticks is never the right
+   * answer.
+   */
+  private fun publicAudienceOf(entityId: EntityId): Set<AccountId> {
+    val observers = entityVisibility.observersOf(entityId)
+
+    if (!world.has(entityId, ActivePlayer::class)) return observers
+
+    val owner = world.get(entityId, Account::class)?.accountId ?: return observers
+
+    return if (owner in observers) observers else observers + owner
+  }
+
+  /**
+   * Sends a full snapshot for every entity that has just come into an account's view.
+   *
+   * Built here rather than where the change was noticed because this is the one place that is on the tick
+   * thread, after every system, and outside the world lock - and a snapshot is a read of up to
+   * twenty-five components against sync targets that may look at other entities.
+   *
+   * No budget of its own: arrivals are driven by chunks going out, which `ChunkStreamSystem` already meters
+   * at `chunksPerTickPerPlayer`, so a login spreads over the same second or two the terrain does.
+   */
+  private fun flushVisibilityChanges() {
+    for (delivery in entityVisibility.drain()) {
+      val msgs = delivery.appeared.flatMap { entityId ->
+        snapshotBuilder.build(world, entityId, delivery.accountId)
+      }
+
+      val withVanishes = msgs + delivery.vanished.map {
+        VanishEntitySMSG(it, VanishEntitySMSG.VanishKind.OUT_OF_SIGHT)
+      }
+
+      if (withVanishes.isEmpty()) continue
+
+      asyncJobExecutor.submit(key = delivery.accountId) {
+        outMessageProcessor.sendToPlayer(delivery.accountId, withVanishes)
+      }
+    }
   }
 
   /**
@@ -233,9 +298,8 @@ class ZoneEngine(
       val msg = record.msg
 
       when (val targets = record.targets) {
-        is SyncTargets.PublicInRange -> {
-          val pos = world.get(record.entityId, Position::class)?.toVec3L() ?: continue
-          asyncJobExecutor.submit(key = record.entityId) { outMessageProcessor.sendToAllPlayersInRange(pos, msg) }
+        is SyncTargets.PublicInRange -> publicAudienceOf(record.entityId).forEach { accountId ->
+          asyncJobExecutor.submit(key = accountId) { outMessageProcessor.sendToPlayer(accountId, msg) }
         }
 
         is SyncTargets.OwnerOnly -> {
@@ -265,9 +329,8 @@ class ZoneEngine(
     val msg = VanishEntitySMSG(entityId, kind)
 
     when (targets) {
-      is SyncTargets.PublicInRange -> {
-        val pos = world.get(entityId, Position::class)?.toVec3L() ?: return
-        asyncJobExecutor.submit(key = entityId) { outMessageProcessor.sendToAllPlayersInRange(pos, msg) }
+      is SyncTargets.PublicInRange -> publicAudienceOf(entityId).forEach { accountId ->
+        asyncJobExecutor.submit(key = accountId) { outMessageProcessor.sendToPlayer(accountId, msg) }
       }
 
       is SyncTargets.Accounts -> targets.accountIds.forEach { accountId ->

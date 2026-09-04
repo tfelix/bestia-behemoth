@@ -14,9 +14,9 @@ import org.springframework.stereotype.Service
  *   hundred position units. [ChunkCoords] is the authority on that and says one unit is one voxel is
  *   one metre - so the constant was not a hundred-metre range, it was a **ten-kilometre cube**, and
  *   every public component update was broadcast to a quarter of the world.
- * - `GetAllEntitiesHandler.ENTITY_QUERY_RANGE` was `30`, and
- *   [net.bestia.zone.ecs.AreaOfInterestService] halves what it is given, so the initial snapshot a
- *   client asked for on login covered fifteen metres.
+ * - the login snapshot's own `ENTITY_QUERY_RANGE` was `30`, and
+ *   [net.bestia.zone.ecs.AreaOfInterestService] halves what it is given, so the snapshot a client asked
+ *   for on login covered fifteen metres.
  *
  * Between them an entity was invisible until it moved and then visible from five kilometres away.
  * That is survivable while everything of interest is a mob that moves - it is why the defect went

@@ -16,7 +16,6 @@ import "messages/crafting/craft_item_cmsg.proto";
 import "messages/crafting/cancel_craft_cmsg.proto";
 import "messages/crafting/craftable_recipes_smsg.proto";
 import "messages/entity/move_active_entity.proto";
-import "messages/entity/get_all_entities.proto";
 import "messages/entity/select_active_entity.proto";
 import "messages/system/authentication_success.proto";
 import "messages/system/disconnected.proto";
@@ -99,6 +98,10 @@ option java_package = "net.bestia.bnet.proto";
 option java_outer_classname = "EnvelopeProto";
 
 message Envelope {
+  // Field numbers that were in use and must never be reused - a client built against an older schema would
+  // read the new message as the old one.
+  reserved 502;
+
   oneof message {
     // SYSTEM & ACCOUNT 100
     OperationSuccess operation_success = 1;
@@ -157,7 +160,8 @@ message Envelope {
     // ENTITY & COMPONENTS 500
     SelectActiveEntity select_active_entity = 500;
     MoveActiveEntity move_active_entity = 501;
-    GetAllEntities get_all_entities = 502;
+    // 502 held GetAllEntities, the one-shot login snapshot, and is reserved below. An entity is now
+    // announced when the chunk it stands in reaches the client - see ChunkEntityVisibility.
     AttackEntityCMSG attack_entity = 503;
     VanishEntitySMSG vanish_entity = 504;
     DamageEntitySMSG damage_entity = 505;

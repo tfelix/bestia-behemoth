@@ -11,11 +11,8 @@ import net.bestia.zone.message.EntitySMSG
  * A pose the client could not work out for itself, derived every tick from the current plan step by
  * [net.bestia.zone.ai.ecs.AiActSystem].
  *
- * Deliberately narrow, for the reason [net.bestia.zone.ai.core.action.Posture] already gives: anything an
- * observer can read off ordinary components does not belong here. Walking was in here and was exactly that -
- * `entity.gd` plays its walk clip off its own movement prediction, every frame it is moving, so the server's
- * WALK was overwritten within a frame of arriving and only ever cost bytes. A master has no [Animation]
- * component at all and has always been animated that way.
+ * Deliberately narrow, for the reason [net.bestia.zone.ai.core.action.Posture] gives: anything an observer can
+ * read off ordinary components does not belong here. Walking is the client's own, off its movement prediction.
  */
 data class Animation(
   private var _currentAnimation: AnimationKind = AnimationKind.IDLE

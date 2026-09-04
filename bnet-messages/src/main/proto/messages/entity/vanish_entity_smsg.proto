@@ -5,14 +5,17 @@ package bnet;
 option java_package = "net.bestia.bnet.proto";
 option java_outer_classname = "VanishEntitySmsgProto";
 
+/** Why an entity stopped being drawn, so the client can pick a send-off for it. */
 enum VanishKind {
+  /** Removed from the world for a reason the client is not told. */
   GONE = 0;
+  /** Killed, so a death animation is worth playing. */
   DEATH = 1;
+  /** Still alive, just no longer in view. Nothing to play - the entity is simply not this client's any more. */
+  OUT_OF_SIGHT = 2;
 }
 
-/**
- * Sends the active selected entity to the server.
- */
+/** An entity the client should stop drawing. */
 message VanishEntitySMSG {
   uint64 entity_id = 1;
   VanishKind kind = 2;

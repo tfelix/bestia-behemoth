@@ -10,6 +10,8 @@ import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.annotation.Profile
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
+import java.util.Collections
+import java.util.concurrent.ConcurrentHashMap
 import org.springframework.transaction.annotation.Transactional
 
 @Component
@@ -29,7 +31,13 @@ class GameClientMockFactory(
   @Profile("no-socket")
   class MockConnectionAdapter : OutMessageHandler {
 
-    val createdClientBuffer: MutableMap<AccountId, MutableList<SMSG>> = mutableMapOf()
+    /**
+     * Written by whichever thread the server sent from - the zone tick, or one of `AsyncJobExecutor`'s
+     * workers - and read by the test thread, usually inside an Awaitility poll. So the buffers are
+     * synchronized: an `ArrayList` here throws `ConcurrentModificationException` out of the assertion rather
+     * than out of the code under test, which is a confusing way to learn nothing.
+     */
+    val createdClientBuffer: MutableMap<AccountId, MutableList<SMSG>> = ConcurrentHashMap()
 
     override fun sendMessage(playerId: Long, outMessage: SMSG) {
       // add message to the according clients buffer.
@@ -48,7 +56,7 @@ class GameClientMockFactory(
     requireNotNull(account) { "Account $accountId was not found" }
 
     val buffer = connectionAdapter.createdClientBuffer.getOrPut(accountId) {
-      mutableListOf()
+      Collections.synchronizedList(mutableListOf())
     }
 
     return GameClientMock(

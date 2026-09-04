@@ -148,6 +148,25 @@ class MoveSystemTest {
   }
 
   @Test
+  fun `the path carries how far past its last tile the entity stands`() {
+    // Without it a client told about a walk already under way starts it a whole tile behind, because the
+    // waypoints say where the walk goes and the position says only which tile was last reached.
+    val world = testWorld(systems = listOf(MoveSystem(flat)))
+    val id = world.create()
+
+    val position = Position(0, 0, 100)
+    val path = Path(straightPath(4))
+    world.add(id, position)
+    world.add(id, Speed(1.0f))
+    world.add(id, path)
+
+    world.tick(0.25f)
+
+    assertEquals(0.25f, path.startOffset, 0.0001f, "a quarter of a tile at unit speed")
+    assertEquals(0.25f, (path.toEntityMessage(id) as PathSMSG).startOffset, 0.0001f)
+  }
+
+  @Test
   fun `a column with no height falls back to the waypoint rather than dropping the entity`() {
     // Off the grid, or before the world is generated. Refusing to move would be worse than trusting the
     // waypoint, and answering zero would drop the entity to sea level from wherever it was.

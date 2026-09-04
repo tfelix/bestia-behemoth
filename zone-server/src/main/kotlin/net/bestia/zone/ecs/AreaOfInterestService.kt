@@ -13,8 +13,8 @@ import kotlin.concurrent.write
  *
  * Writes come from the tick thread only ([ZoneEngine][net.bestia.zone.ecs.ZoneEngine]'s dirty-position
  * pass, and world-object residency). Reads come from anywhere: the tick thread via
- * `PerceptionSystem`, `AsyncJobExecutor` workers via `OutMessageProcessor`, and a Netty worker via
- * `GetAllEntitiesHandler`. Those reads used to run against plain `LinkedHashMap`s being mutated
+ * `PerceptionSystem`, and `AsyncJobExecutor` workers via `OutMessageProcessor`. Those reads used to run
+ * against plain `LinkedHashMap`s being mutated
  * concurrently, which is a data race that can hang a reader inside `HashMap.get` on a resize - so
  * everything now goes through a [ReentrantReadWriteLock]. Reads are frequent and concurrent, writes
  * are brief and single-threaded, which is exactly what that lock is shaped for.

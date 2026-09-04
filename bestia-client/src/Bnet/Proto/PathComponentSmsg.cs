@@ -25,15 +25,15 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CixtZXNzYWdlcy9jb21wb25lbnQvcGF0aF9jb21wb25lbnRfc21zZy5wcm90",
-            "bxIEYm5ldBoTbWVzc2FnZXMvdmVjMy5wcm90byJjChFQYXRoQ29tcG9uZW50",
+            "bxIEYm5ldBoTbWVzc2FnZXMvdmVjMy5wcm90byJ5ChFQYXRoQ29tcG9uZW50",
             "U01TRxIRCgllbnRpdHlfaWQYASABKAYSGAoEcGF0aBgCIAMoCzIKLmJuZXQu",
-            "VmVjMxIhCg1zdG9wX3Bvc2l0aW9uGAMgASgLMgouYm5ldC5WZWMzQi8KFW5l",
-            "dC5iZXN0aWEuYm5ldC5wcm90b0IWUGF0aENvbXBvbmVudFNNU0dQcm90b2IG",
-            "cHJvdG8z"));
+            "VmVjMxIhCg1zdG9wX3Bvc2l0aW9uGAMgASgLMgouYm5ldC5WZWMzEhQKDHN0",
+            "YXJ0X29mZnNldBgEIAEoAkIvChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CFlBh",
+            "dGhDb21wb25lbnRTTVNHUHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Bnet.Vec3Reflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.PathComponentSMSG), global::Bnet.PathComponentSMSG.Parser, new[]{ "EntityId", "Path", "StopPosition" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.PathComponentSMSG), global::Bnet.PathComponentSMSG.Parser, new[]{ "EntityId", "Path", "StopPosition", "StartOffset" }, null, null, null, null)
           }));
     }
     #endregion
@@ -90,6 +90,7 @@ namespace Bnet {
       entityId_ = other.entityId_;
       path_ = other.path_.Clone();
       stopPosition_ = other.stopPosition_ != null ? other.stopPosition_.Clone() : null;
+      startOffset_ = other.startOffset_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -140,6 +141,26 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "start_offset" field.</summary>
+    public const int StartOffsetFieldNumber = 4;
+    private float startOffset_;
+    /// <summary>
+    ///*
+    /// How far the entity already is along the first segment, 0..1.
+    ///
+    /// The waypoints say where the walk goes and the entity's position says which tile it last reached, but
+    /// neither says how far past that tile it currently stands - so a client told about a walk already in
+    /// progress would start it a whole tile behind and then have to correct.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public float StartOffset {
+      get { return startOffset_; }
+      set {
+        startOffset_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -158,6 +179,7 @@ namespace Bnet {
       if (EntityId != other.EntityId) return false;
       if(!path_.Equals(other.path_)) return false;
       if (!object.Equals(StopPosition, other.StopPosition)) return false;
+      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(StartOffset, other.StartOffset)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -168,6 +190,7 @@ namespace Bnet {
       if (EntityId != 0UL) hash ^= EntityId.GetHashCode();
       hash ^= path_.GetHashCode();
       if (stopPosition_ != null) hash ^= StopPosition.GetHashCode();
+      if (StartOffset != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(StartOffset);
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -195,6 +218,10 @@ namespace Bnet {
         output.WriteRawTag(26);
         output.WriteMessage(StopPosition);
       }
+      if (StartOffset != 0F) {
+        output.WriteRawTag(37);
+        output.WriteFloat(StartOffset);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -214,6 +241,10 @@ namespace Bnet {
         output.WriteRawTag(26);
         output.WriteMessage(StopPosition);
       }
+      if (StartOffset != 0F) {
+        output.WriteRawTag(37);
+        output.WriteFloat(StartOffset);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -230,6 +261,9 @@ namespace Bnet {
       size += path_.CalculateSize(_repeated_path_codec);
       if (stopPosition_ != null) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(StopPosition);
+      }
+      if (StartOffset != 0F) {
+        size += 1 + 4;
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -252,6 +286,9 @@ namespace Bnet {
           StopPosition = new global::Bnet.Vec3();
         }
         StopPosition.MergeFrom(other.StopPosition);
+      }
+      if (other.StartOffset != 0F) {
+        StartOffset = other.StartOffset;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -283,6 +320,10 @@ namespace Bnet {
             input.ReadMessage(StopPosition);
             break;
           }
+          case 37: {
+            StartOffset = input.ReadFloat();
+            break;
+          }
         }
       }
     #endif
@@ -311,6 +352,10 @@ namespace Bnet {
               StopPosition = new global::Bnet.Vec3();
             }
             input.ReadMessage(StopPosition);
+            break;
+          }
+          case 37: {
+            StartOffset = input.ReadFloat();
             break;
           }
         }

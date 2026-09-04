@@ -27,4 +27,12 @@ message PathComponentSMSG {
    * already has it, so there is nothing to correct.
    */
   Vec3 stop_position = 3;
+  /**
+   * How far the entity already is along the first segment, 0..1.
+   *
+   * The waypoints say where the walk goes and the entity's position says which tile it last reached, but
+   * neither says how far past that tile it currently stands - so a client told about a walk already in
+   * progress would start it a whole tile behind and then have to correct.
+   */
+  float start_offset = 4;
 }

@@ -2,3 +2,8 @@ Title: Stylized Grass Shader
 Author: StayAtHomeDev
 Source: https://stayathomedev.itch.io/stylized-grass-shader
 License: MIT
+
+Title: Cursor Pack
+Author: Kenney
+Source: https://kenney-assets.itch.io/cursor-pack
+License: CC0 1.0

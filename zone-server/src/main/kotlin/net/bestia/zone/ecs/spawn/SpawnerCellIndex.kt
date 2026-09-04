@@ -20,9 +20,9 @@ import org.springframework.stereotype.Service
  *    key has no z axis, and a query is a column rather than a cube - which is exactly the shape the question
  *    has, and which a cube query would have had to fake with an artificial vertical extent.
  *
- * Dens are also deliberately kept out of the entity AOI index. That one is read by `PerceptionSystem`,
- * `GetAllEntitiesHandler`, `WorldObjectResidencyService` and the client's initial snapshot, and a den is not
- * a thing a fireball should hit or a client should ever hear about.
+ * Dens are also deliberately kept out of the entity AOI index. That one is read by `PerceptionSystem` and
+ * `WorldObjectResidencyService`, and a den is not a thing a fireball should hit or a client should ever hear
+ * about.
  *
  * ### The correctness condition
  *

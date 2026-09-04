@@ -28,13 +28,21 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
     [Export]
     public bool HasStopPosition { get; set; }
 
+    /// <summary>
+    /// How far the entity already is along the first segment, 0..1. Zero for a walk that is just starting;
+    /// non-zero when we are being told about one already under way.
+    /// </summary>
+    [Export]
+    public float StartOffset { get; set; }
+
     public static PathComponentSMSG FromProto(global::Bnet.PathComponentSMSG protoPath)
     {
       var pathComponent = new PathComponentSMSG
       {
         EntityId = protoPath.EntityId,
         Path = new Godot.Collections.Array<Vector3>(),
-        HasStopPosition = protoPath.StopPosition != null
+        HasStopPosition = protoPath.StopPosition != null,
+        StartOffset = protoPath.StartOffset
       };
 
       foreach (var pathPoint in protoPath.Path)
