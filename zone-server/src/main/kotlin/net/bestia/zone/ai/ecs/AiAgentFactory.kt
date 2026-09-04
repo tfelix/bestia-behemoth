@@ -83,17 +83,11 @@ class AiAgentFactory(
     memory.set(BestiaDomain.TIREDNESS_THRESHOLD, tuning.tirednessThreshold, Blackboard.PERMANENT)
     memory.set(BestiaDomain.RESTLESS_THRESHOLD, tuning.restlessThreshold, Blackboard.PERMANENT)
 
-    // The player's two knobs override the archetype's, always clamped. Everything else about the species is
-    // not theirs to change.
-    val sanitised = config?.sanitised()
-    memory.set(
-      BestiaDomain.FLEE_THRESHOLD_PCT,
-      sanitised?.fleeThresholdPct ?: tuning.fleeThresholdPct,
-      Blackboard.PERMANENT,
-    )
+    // The player's one numeric knob overrides the archetype's, always clamped. Everything else about the
+    // species is not theirs to change.
     memory.set(
       BestiaDomain.AGGRESSION,
-      sanitised?.aggression ?: tuning.aggression,
+      config?.sanitised()?.aggression ?: tuning.aggression,
       Blackboard.PERMANENT,
     )
   }

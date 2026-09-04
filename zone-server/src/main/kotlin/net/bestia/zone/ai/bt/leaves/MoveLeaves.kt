@@ -37,30 +37,6 @@ class MoveTo(
 }
 
 /**
- * Backs away from [threat] until at least [safeDistance] tiles from it.
- *
- * SUCCESS once far enough away, FAILURE when cornered with nowhere legal to back into — which is a
- * real outcome the think stage needs to hear about, because a cornered creature should be allowed to
- * pick a different goal (turn and fight) rather than shuffle against a wall forever.
- */
-class FleeFrom(
-  private val threat: Vec3L,
-  private val locomotion: Locomotion,
-  private val safeDistance: Long,
-) : BtNode {
-
-  override fun tick(context: BtContext): Status {
-    if (locomotion.distanceTo(context.world, context.entityId, threat) >= safeDistance) {
-      return Status.SUCCESS
-    }
-
-    return if (locomotion.stepAwayFrom(context, threat)) Status.RUNNING else Status.FAILURE
-  }
-
-  override fun toString(): String = "FleeFrom($threat, safe>=$safeDistance)"
-}
-
-/**
  * Ambles about within [radius] of [home]. Always RUNNING, even when penned in by terrain: wandering is
  * what a creature does while nothing better applies, and reporting FAILURE would make the think stage
  * replan on every single tick for as long as it stayed hemmed in.

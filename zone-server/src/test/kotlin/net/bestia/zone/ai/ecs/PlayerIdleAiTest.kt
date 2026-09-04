@@ -34,7 +34,7 @@ class PlayerIdleAiTest {
     val patrolling = agentWith("aggressive_melee", AiConfig(stance = IdleStance.PATROL))
     val names = patrolling.goals.map { it.name }
 
-    assertTrue(names.containsAll(listOf("Wander", "ReturnHome", "KillAttacker", "Flee")))
+    assertTrue(names.containsAll(listOf("Wander", "ReturnHome", "KillAttacker")))
     assertFalse(names.contains("KillEnemy"), "a patrolling bestia must not go hunting")
     assertFalse(names.contains("EatVegetation"), "patrol is not forage")
   }
@@ -43,7 +43,7 @@ class PlayerIdleAiTest {
   fun `holding leaves only self defence`() {
     val holding = agentWith("aggressive_melee", AiConfig(stance = IdleStance.HOLD))
 
-    assertEquals(setOf("KillAttacker", "Flee"), holding.goals.map { it.name }.toSet())
+    assertEquals(setOf("KillAttacker"), holding.goals.map { it.name }.toSet())
   }
 
   @Test
@@ -68,7 +68,7 @@ class PlayerIdleAiTest {
     IdleStance.entries.forEach { stance ->
       val agent = agentWith("aggressive_melee", AiConfig(stance = stance))
       assertTrue(
-        agent.goals.any { it.name == "KillAttacker" } && agent.goals.any { it.name == "Flee" },
+        agent.goals.any { it.name == "KillAttacker" },
         "stance $stance must not be able to switch off self defence",
       )
     }
@@ -86,20 +86,17 @@ class PlayerIdleAiTest {
 
   @Test
   fun `player supplied numbers are clamped rather than trusted`() {
-    val absurd = AiConfig(stance = IdleStance.DEFEND, aggression = 5_000, fleeThresholdPct = -20).sanitised()
-
-    assertEquals(100, absurd.aggression)
-    assertEquals(0, absurd.fleeThresholdPct)
+    assertEquals(100, AiConfig(stance = IdleStance.DEFEND, aggression = 5_000).sanitised().aggression)
+    assertEquals(0, AiConfig(stance = IdleStance.DEFEND, aggression = -20).sanitised().aggression)
   }
 
   @Test
-  fun `clamped knobs reach the agent's memory and override the archetype's`() {
-    val agent = agentWith("aggressive_melee", AiConfig(stance = IdleStance.DEFEND, aggression = 999, fleeThresholdPct = 70))
+  fun `the clamped knob reaches the agent's memory and overrides the archetype's`() {
+    val agent = agentWith("aggressive_melee", AiConfig(stance = IdleStance.DEFEND, aggression = 999))
 
+    // The archetype's own value was 80; the player's clamped 100 overrides it.
     assertEquals(100, agent.memory.get(BestiaDomain.AGGRESSION))
-    assertEquals(70, agent.memory.get(BestiaDomain.FLEE_THRESHOLD_PCT))
-    // The archetype's own value was 35; the player's overrides it.
-    assertNotEquals(35, agent.memory.get(BestiaDomain.FLEE_THRESHOLD_PCT))
+    assertNotEquals(80, agent.memory.get(BestiaDomain.AGGRESSION))
   }
 
   @Test

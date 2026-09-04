@@ -10,7 +10,7 @@ import net.bestia.zone.util.PlayerBestiaId
 /**
  * The standing order now actually in force for one bestia.
  *
- * Sent after a successful change rather than assuming the client can predict the result: the numbers are clamped
+ * Sent after a successful change rather than assuming the client can predict the result: aggression is clamped
  * on the way in, so what was asked for and what was stored are not always the same, and the client should show
  * the latter.
  */
@@ -26,7 +26,6 @@ data class BestiaAiConfigSMSG(
         SetBestiaAiConfigCmsgProto.SetBestiaAiConfigCMSG.IdleStance.valueOf(config.stance.name)
       )
       .setAggression(config.aggression)
-      .setFleeThresholdPct(config.fleeThresholdPct)
 
     return EnvelopeProto.Envelope.newBuilder()
       .setBestiaAiConfig(payload)

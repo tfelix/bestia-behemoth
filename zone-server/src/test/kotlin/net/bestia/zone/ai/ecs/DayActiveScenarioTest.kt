@@ -129,7 +129,7 @@ class DayActiveScenarioTest {
   }
 
   @Test
-  fun `it hunts rather than flees, however badly hurt`() {
+  fun `it hunts down its attacker, however badly hurt`() {
     ai.setDay()
     val mob = ai.spawnMob("passiv_day_active", Vec3L(0, 0, 0), health = 10, maxHealth = 10)
     val player = ai.spawnPlayer(Vec3L(3, 0, 0))
@@ -137,13 +137,13 @@ class DayActiveScenarioTest {
     ai.recordHit(victim = mob, attacker = player)
     ai.tickUntilGoal(mob, "KillAttacker")
 
-    // 10% of max would have any of the other archetypes running. This one has no Flee goal at all, and a goal
-    // a profile does not list is one the creature cannot have — the temperament is in the goal list, not in a
-    // threshold that could be tuned back into cowardice by accident.
+    // 10% of max used to send any of the other archetypes running while this one held its ground, which was
+    // this archetype's whole distinguishing feature. Fleeing is gone from the domain, so standing and fighting
+    // is now simply what every creature does — the assertion is kept because the *behaviour* is still the
+    // contract here, not because this archetype is special in it any more.
     ai.setHealth(mob, 1)
     ai.tick(times = 20 * 5)
 
-    assertNotEquals("Flee", ai.goalNameOf(mob))
     assertEquals("KillAttacker", ai.goalNameOf(mob))
   }
 

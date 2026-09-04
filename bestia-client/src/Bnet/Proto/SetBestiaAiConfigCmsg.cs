@@ -25,18 +25,17 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "Ci9tZXNzYWdlcy9tYXN0ZXIvc2V0X2Jlc3RpYV9haV9jb25maWdfY21zZy5w",
-            "cm90bxIEYm5ldCLyAQoVU2V0QmVzdGlhQWlDb25maWdDTVNHEhgKEHBsYXll",
+            "cm90bxIEYm5ldCLcAQoVU2V0QmVzdGlhQWlDb25maWdDTVNHEhgKEHBsYXll",
             "cl9iZXN0aWFfaWQYASABKAQSNgoGc3RhbmNlGAIgASgOMiYuYm5ldC5TZXRC",
             "ZXN0aWFBaUNvbmZpZ0NNU0cuSWRsZVN0YW5jZRISCgphZ2dyZXNzaW9uGAMg",
-            "ASgNEhoKEmZsZWVfdGhyZXNob2xkX3BjdBgEIAEoDSJXCgpJZGxlU3RhbmNl",
-            "EhsKF0lETEVfU1RBTkNFX1VOU1BFQ0lGSUVEEAASCAoESE9MRBABEgoKBlBB",
-            "VFJPTBACEgoKBkZPUkFHRRADEgoKBkRFRkVORBAEQjMKFW5ldC5iZXN0aWEu",
-            "Ym5ldC5wcm90b0IaU2V0QmVzdGlhQWlDb25maWdDbXNnUHJvdG9iBnByb3Rv",
-            "Mw=="));
+            "ASgNIlcKCklkbGVTdGFuY2USGwoXSURMRV9TVEFOQ0VfVU5TUEVDSUZJRUQQ",
+            "ABIICgRIT0xEEAESCgoGUEFUUk9MEAISCgoGRk9SQUdFEAMSCgoGREVGRU5E",
+            "EARKBAgEEAVCMwoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQhpTZXRCZXN0aWFB",
+            "aUNvbmZpZ0Ntc2dQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.SetBestiaAiConfigCMSG), global::Bnet.SetBestiaAiConfigCMSG.Parser, new[]{ "PlayerBestiaId", "Stance", "Aggression", "FleeThresholdPct" }, null, new[]{ typeof(global::Bnet.SetBestiaAiConfigCMSG.Types.IdleStance) }, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.SetBestiaAiConfigCMSG), global::Bnet.SetBestiaAiConfigCMSG.Parser, new[]{ "PlayerBestiaId", "Stance", "Aggression" }, null, new[]{ typeof(global::Bnet.SetBestiaAiConfigCMSG.Types.IdleStance) }, null, null)
           }));
     }
     #endregion
@@ -47,9 +46,9 @@ namespace Bnet {
   ///*
   /// Sets what one of the player's own bestias should do while they are not driving it.
   ///
-  /// The vocabulary is deliberately narrow. A stance is an enum rather than a list of goals, and the two
-  /// numbers are clamped server-side, so the client can never author behaviour directly — it states an
-  /// intent and the server decides what that means. See AiConfig on the server for why.
+  /// The vocabulary is deliberately narrow. A stance is an enum rather than a list of goals, and aggression is
+  /// clamped server-side, so the client can never author behaviour directly — it states an intent and the
+  /// server decides what that means. See AiConfig on the server for why.
   /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class SetBestiaAiConfigCMSG : pb::IMessage<SetBestiaAiConfigCMSG>
@@ -89,7 +88,6 @@ namespace Bnet {
       playerBestiaId_ = other.playerBestiaId_;
       stance_ = other.stance_;
       aggression_ = other.aggression_;
-      fleeThresholdPct_ = other.fleeThresholdPct_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -141,21 +139,6 @@ namespace Bnet {
       }
     }
 
-    /// <summary>Field number for the "flee_threshold_pct" field.</summary>
-    public const int FleeThresholdPctFieldNumber = 4;
-    private uint fleeThresholdPct_;
-    /// <summary>
-    ///* 0..100 health percentage at or below which it breaks off and runs. Clamped. 
-    /// </summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public uint FleeThresholdPct {
-      get { return fleeThresholdPct_; }
-      set {
-        fleeThresholdPct_ = value;
-      }
-    }
-
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -174,7 +157,6 @@ namespace Bnet {
       if (PlayerBestiaId != other.PlayerBestiaId) return false;
       if (Stance != other.Stance) return false;
       if (Aggression != other.Aggression) return false;
-      if (FleeThresholdPct != other.FleeThresholdPct) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -185,7 +167,6 @@ namespace Bnet {
       if (PlayerBestiaId != 0UL) hash ^= PlayerBestiaId.GetHashCode();
       if (Stance != global::Bnet.SetBestiaAiConfigCMSG.Types.IdleStance.Unspecified) hash ^= Stance.GetHashCode();
       if (Aggression != 0) hash ^= Aggression.GetHashCode();
-      if (FleeThresholdPct != 0) hash ^= FleeThresholdPct.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -216,10 +197,6 @@ namespace Bnet {
         output.WriteRawTag(24);
         output.WriteUInt32(Aggression);
       }
-      if (FleeThresholdPct != 0) {
-        output.WriteRawTag(32);
-        output.WriteUInt32(FleeThresholdPct);
-      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -242,10 +219,6 @@ namespace Bnet {
         output.WriteRawTag(24);
         output.WriteUInt32(Aggression);
       }
-      if (FleeThresholdPct != 0) {
-        output.WriteRawTag(32);
-        output.WriteUInt32(FleeThresholdPct);
-      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -264,9 +237,6 @@ namespace Bnet {
       }
       if (Aggression != 0) {
         size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Aggression);
-      }
-      if (FleeThresholdPct != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(FleeThresholdPct);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -288,9 +258,6 @@ namespace Bnet {
       }
       if (other.Aggression != 0) {
         Aggression = other.Aggression;
-      }
-      if (other.FleeThresholdPct != 0) {
-        FleeThresholdPct = other.FleeThresholdPct;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -319,10 +286,6 @@ namespace Bnet {
             Aggression = input.ReadUInt32();
             break;
           }
-          case 32: {
-            FleeThresholdPct = input.ReadUInt32();
-            break;
-          }
         }
       }
     #endif
@@ -348,10 +311,6 @@ namespace Bnet {
           }
           case 24: {
             Aggression = input.ReadUInt32();
-            break;
-          }
-          case 32: {
-            FleeThresholdPct = input.ReadUInt32();
             break;
           }
         }

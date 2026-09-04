@@ -1,4 +1,6 @@
-# An aggressive melee hunter: attacks players on sight, retaliates when hit, and bolts once badly hurt.
+# An aggressive melee hunter: attacks players on sight and retaliates when hit. It does not break off - there
+# is no flee mechanic any more, so a wounded hunter presses the attack or loses interest in favour of eating
+# or sleeping, but it never runs.
 #
 # YAML selects and tunes; the priority formula behind each goal lives in Kotlin, in BestiaDomain.Goals.
 identifier: aggressive_melee
@@ -10,14 +12,10 @@ melee_range: 1
 hunger_threshold: 85
 tiredness_threshold: 80
 restless_threshold: 60
-# Fights on until badly hurt, then runs. The same threshold switches KillEnemy off and Flee on, so the
-# creature never oscillates between charging and bolting.
-flee_threshold_pct: 35
 aggression: 80
 goals:
   - { name: KillEnemy }
   - { name: KillAttacker }
-  - { name: Flee }
   - { name: EatVegetation }
   - { name: Sleep }
   - { name: ReturnHome }
@@ -25,7 +23,6 @@ goals:
 actions:
   - approachTarget
   - attack
-  - flee
   - walkToVegetation
   - eatVegetation
   - sleep

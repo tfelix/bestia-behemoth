@@ -28,12 +28,20 @@ const _FOG := Color(0.11, 0.095, 0.08)
 const _MARKER_OUTLINE := Color(0.15, 0.11, 0.08)
 const _MARKER_FILL := Color(1.0, 0.86, 0.35)
 
-## The arrow head, in pixels from the player's own position. The notch is what stops it reading as a plain
-## triangle, which at this size is the difference between "facing" and "here".
+## The arrow head, in pixels from the player's own position at [member marker_scale] 1. The notch is what
+## stops it reading as a plain triangle, which at this size is the difference between "facing" and "here".
 const _ARROW_TIP := 6.0
 const _ARROW_TAIL := 3.5
 const _ARROW_HALF := 4.0
 const _ARROW_NOTCH := 1.0
+
+## How much of the dark hull the lighter one inside it covers. A ratio rather than a second set of lengths, so
+## that resizing the marker keeps the outline an outline instead of swallowing it.
+const _ARROW_FILL_RATIO := 0.62
+
+## The dot the marker falls back to before the character has turned, in pixels at [member marker_scale] 1.
+const _DOT_OUTLINE_RADIUS := 4.0
+const _DOT_FILL_RADIUS := 2.5
 
 ## The north mark. Warm rather than the marker's amber, so that the fixed thing and the moving thing are not
 ## the same colour at a glance.
@@ -123,6 +131,16 @@ signal mark_clicked(index: int)
 ## without the other: it is deliberately fixed to the player and deliberately still a place you can point
 ## at and say 'there'. Keeping them as one flag was what made a minimap click do nothing at all.
 @export var can_travel: bool = false
+
+## Size of the player marker, as a multiple of the size the minimap is tuned for.
+##
+## Exported for the same reason the zoom is: the minimap is a 168 pixel window, where a 6 pixel arrow is a
+## fair share of the view, while on the full overlay that same arrow is a speck. Scales the dot the marker
+## falls back to as well, so an unturned character does not change size relative to a turned one.
+@export_range(0.25, 4.0, 0.05, "or_greater") var marker_scale: float = 1.0:
+	set(value):
+		marker_scale = value
+		queue_redraw()
 
 ## Where the player's own marker is drawn, and what [member follow_player] follows.
 var entity_manager: Node = null
@@ -480,14 +498,14 @@ func _draw_player() -> void:
 	# default one would point north on every spawn - which reads as a heading rather than as the absence of
 	# one.
 	if forward.is_zero_approx():
-		draw_circle(screen, 4.0, _MARKER_OUTLINE)
-		draw_circle(screen, 2.5, _MARKER_FILL)
+		draw_circle(screen, _DOT_OUTLINE_RADIUS * marker_scale, _MARKER_OUTLINE)
+		draw_circle(screen, _DOT_FILL_RADIUS * marker_scale, _MARKER_FILL)
 		return
 
 	# Dark under light, the same two passes the dot used: a chart tile can be any brightness, and a
 	# single-colour marker disappears into half of them.
-	_draw_arrow(screen, forward, 1.0, _MARKER_OUTLINE)
-	_draw_arrow(screen, forward, 0.62, _MARKER_FILL)
+	_draw_arrow(screen, forward, marker_scale, _MARKER_OUTLINE)
+	_draw_arrow(screen, forward, marker_scale * _ARROW_FILL_RATIO, _MARKER_FILL)
 
 
 ## An arrow head pointing along [param forward], scaled about [param at] rather than about its own centroid.

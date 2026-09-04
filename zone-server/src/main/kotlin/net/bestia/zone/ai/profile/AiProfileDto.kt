@@ -41,13 +41,11 @@ data class AiProfileDto(
   val hungerThreshold: Int = 85,
   val tirednessThreshold: Int = 80,
   val restlessThreshold: Int = 60,
-  /** Health percentage at or below which this archetype would rather run than fight. */
-  val fleeThresholdPct: Int = 35,
   /**
    * 0..100 temperament knob feeding the kill goals' priority curves.
    *
-   * There is deliberately no separate `courage`: how readily a creature gives up the fight is already what
-   * [fleeThresholdPct] says, and two knobs for one concept only invited them to disagree.
+   * There is deliberately no separate `courage`, and since fleeing was removed there is nothing for one to
+   * mean: nothing gives up a fight, so how readily it would have is not a property any archetype has.
    */
   val aggression: Int = 50,
   val goals: List<GoalDto> = emptyList(),

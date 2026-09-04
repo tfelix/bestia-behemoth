@@ -18,7 +18,6 @@ import net.bestia.zone.ai.core.state.WorldState
 import net.bestia.zone.ai.domain.bestia.action.ApproachTargetActionTemplate
 import net.bestia.zone.ai.domain.bestia.action.AttackActionTemplate
 import net.bestia.zone.ai.domain.bestia.action.EatVegetationActionTemplate
-import net.bestia.zone.ai.domain.bestia.action.FleeActionTemplate
 import net.bestia.zone.ai.domain.bestia.action.ReturnHomeActionTemplate
 import net.bestia.zone.ai.domain.bestia.action.SleepActionTemplate
 import net.bestia.zone.ai.domain.bestia.action.WalkToVegetationActionTemplate
@@ -42,10 +41,10 @@ import net.bestia.zone.geometry.Vec3L
  *    written only by the perception system, from the real world. No action's effect may claim them.
  *  - **Profile knobs** ([WANDER_RADIUS], [HUNGER_THRESHOLD], [AGGRESSION], [ACTIVITY_CYCLE], ...) are written
  *    once, permanently, when a profile is attached, and read by goal availability and priority.
- *  - **Beliefs** ([KNOWN_VEGETATION], [ATTACK_EFFECTIVENESS], [TARGET_DEAD], [SAFE], [RESTED], and the drives
+ *  - **Beliefs** ([KNOWN_VEGETATION], [ATTACK_EFFECTIVENESS], [TARGET_DEAD], [RESTED], and the drives
  *    [HUNGER]/[TIREDNESS]/[RESTLESSNESS]) are what an action's effects may update, and only once that
  *    action's behaviour tree has actually reported success. Perception may *clear* a belief its observations
- *    contradict — that is how [SAFE] and [RESTED] end — but it never asserts one.
+ *    contradict — that is how [RESTED] ends — but it never asserts one.
  *
  * The planner still simulates effects over observation keys during A* — `walkTo(spot)` has to be able
  * to imagine standing on the spot, or no plan involving movement could ever be found. The rule is about
@@ -57,7 +56,6 @@ object BestiaDomain {
   const val ARRIVAL_RADIUS = 1L
   const val DEFAULT_WANDER_RADIUS = 5L
   const val DEFAULT_MELEE_RANGE = 1L
-  const val DEFAULT_FLEE_THRESHOLD_PCT = 35
   const val DEFAULT_RESTLESS_THRESHOLD = 60
 
   /**
@@ -68,9 +66,6 @@ object BestiaDomain {
    * or the reverse, and both read as a mob twitching in and out of bed.
    */
   const val RESTED_TIREDNESS = 20
-
-  /** How far from a threat counts as having escaped it. */
-  const val SAFE_DISTANCE = 12L
 
   // ---------------------------------------------------------------- observations
 
@@ -83,7 +78,6 @@ object BestiaDomain {
   val TARGET_ID = StateKey<Long>("targetId", observed = true)
   val TARGET_ARCHETYPE = StateKey<String>("targetArchetype", observed = true)
   val TARGET_POSITION = StateKey<Vec3L>("targetPosition", observed = true)
-  val THREAT_POSITION = StateKey<Vec3L>("threatPosition", observed = true)
 
   /** Flipped true by perception when this bestia is attacked, gating retaliation. */
   val IS_AGGRO = StateKey<Boolean>("isAggro", observed = true)
@@ -104,9 +98,6 @@ object BestiaDomain {
   val MELEE_RANGE = StateKey<Long>("meleeRange")
   val HUNGER_THRESHOLD = StateKey<Int>("hungerThreshold")
   val TIREDNESS_THRESHOLD = StateKey<Int>("tirednessThreshold")
-
-  /** Health percentage at or below which fleeing becomes available. */
-  val FLEE_THRESHOLD_PCT = StateKey<Int>("fleeThresholdPct")
 
   /** Restlessness at or above which idle wandering becomes available. */
   val RESTLESS_THRESHOLD = StateKey<Int>("restlessThreshold")
@@ -135,12 +126,9 @@ object BestiaDomain {
    */
   val RESTLESSNESS = StateKey<Int>("restlessness")
 
-  /** Believed-safe. Set by fleeing, cleared by perception the moment a hostile is in sight again. */
-  val SAFE = StateKey<Boolean>("safe")
-
   /**
    * Has slept out whatever made it want to. Set by the sleep action, cleared by perception for as long as
-   * this creature's resting phase lasts — exactly the shape [SAFE] already has, and for the same reason.
+   * this creature's resting phase lasts.
    *
    * Without it a night-sleeping creature could not be expressed at all. [Goals.SLEEP]'s other desired
    * condition is a tiredness ceiling, which a rested creature already meets, and the planner skips a goal
@@ -206,43 +194,19 @@ object BestiaDomain {
 
   private fun wanderRadiusOf(state: WorldState): Long = state.get(WANDER_RADIUS) ?: DEFAULT_WANDER_RADIUS
 
-  private fun fleeThresholdOf(state: WorldState): Int = state.get(FLEE_THRESHOLD_PCT) ?: DEFAULT_FLEE_THRESHOLD_PCT
-
   private fun healthPctOf(state: WorldState): Int = state.get(HEALTH_PCT) ?: 100
 
   private fun enemyInSight(state: WorldState): Boolean = state.get(ENEMY_IN_SIGHT) == true
 
-  /** Hurt enough that self-preservation should be on the table. */
-  private fun isWounded(state: WorldState): Boolean = healthPctOf(state) <= fleeThresholdOf(state)
-
-  /**
-   * How badly fleeing is wanted, measured *relative to this archetype's own threshold* rather than against
-   * absolute health: 0.6 the moment it becomes wounded, rising to 1.0 at death.
-   *
-   * A plain `HEALTH_PCT.inverseLinear()` cannot work here, because the threshold is per-archetype. A critter
-   * that runs at 80% health would get an urgency of only 0.2 from an absolute curve and would go on trading
-   * blows, while a hardened predator that runs at 20% would get 0.8 — the same wound producing opposite
-   * behaviour purely because the archetypes disagree about when to worry.
-   *
-   * The floor of 0.6 exists so that whenever fleeing is available at all it outranks retaliating. Availability
-   * is where the flight-or-fight decision is made; priority only orders what is already on the table, and a
-   * creature that has decided it is losing should not be talked back into the fight by arithmetic.
-   */
   /**
    * How badly sleeping is wanted purely because of the hour, independent of how tired the creature is.
    *
    * The value is chosen against the other goals' bases rather than picked for feel: at 0.9 of [Goals.SLEEP]'s
-   * base it outranks a starving creature's [Goals.EAT_VEGETATION] (80 at its maximum) but stays well under
-   * [Goals.KILL_ATTACKER] (95) and [Goals.FLEE] — so a diurnal animal sleeps the night through rather than
-   * grazing in the dark, and still wakes up the moment something bites it.
+   * base it outranks a starving creature's [Goals.EAT_VEGETATION] (80 at its maximum) but stays under
+   * [Goals.KILL_ATTACKER] (95) — so a diurnal animal sleeps the night through rather than grazing in the
+   * dark, and still wakes up the moment something bites it.
    */
   private val restingPhaseUrgency = Curve { state -> if (isRestingPhase(state)) 0.9 else 0.0 }
-
-  private val fleeUrgency = Curve { state ->
-    val threshold = fleeThresholdOf(state).coerceAtLeast(1)
-    val health = healthPctOf(state).coerceIn(0, threshold)
-    0.6 + 0.4 * (1.0 - health.toDouble() / threshold)
-  }
 
   object Goals {
 
@@ -300,6 +264,11 @@ object BestiaDomain {
      * Retaliation: gated purely on [IS_AGGRO], which perception flips true when this bestia is hit.
      * Available to any archetype, however peaceful — being attacked is not something a profile opts
      * into.
+     *
+     * Since nothing runs away any more, this is the *whole* of what being attacked provokes, and its base
+     * outranks every other goal on purpose: a creature that is being hit fights back rather than wandering
+     * off to graze or lying down to sleep mid-fight. It stays available however badly hurt — there is no
+     * health floor below which a cornered animal stops defending itself.
      */
     val KILL_ATTACKER = Goal(
       name = "KillAttacker",
@@ -309,12 +278,19 @@ object BestiaDomain {
     )
 
     /**
-     * Unprovoked aggression: attack whatever hostile is in sight, as long as not already too hurt to
-     * be picking fights. Only archetypes that list it are aggressive on sight, which is what separates
-     * a wolf from a deer.
+     * Unprovoked aggression: attack whatever hostile is in sight. Only archetypes that list it are
+     * aggressive on sight, which is what separates a wolf from a deer.
      *
-     * Scaled by [AGGRESSION] and by current health, so a wounded aggressor loses interest before it
-     * gets itself killed — and [FLEE] takes over via the same threshold from the other side.
+     * Availability is the bare sighting, with no health floor under it. It used to also require *not* being
+     * wounded, which paired off against a flee goal enabled by the same threshold — exactly one of the two
+     * was ever available, so a hurt predator broke off and ran instead of charging. With fleeing gone that
+     * gate had nothing to hand over to: it would have left a wounded hunter with its target in plain sight
+     * and no goal about it at all, standing still until something else became available.
+     *
+     * [HEALTH_PCT] survives as a *consideration* rather than a gate, which is the part of the old behaviour
+     * worth keeping: a badly hurt aggressor still wants the kill less than a healthy one, so it will drop a
+     * fight it merely picked in favour of eating or sleeping. Being attacked is a different question and
+     * [KILL_ATTACKER] answers it, unscaled.
      */
     val KILL_ENEMY = Goal(
       name = "KillEnemy",
@@ -322,26 +298,8 @@ object BestiaDomain {
         consider(AGGRESSION.linear())
         consider(HEALTH_PCT.linear())
       },
-      availability = Precondition { s -> enemyInSight(s) && !isWounded(s) },
+      availability = Precondition { s -> enemyInSight(s) },
       desiredState = listOf(Preconditions.equalTo(TARGET_DEAD, true)),
-    )
-
-    /**
-     * Self-preservation. Available only while actually threatened *and* wounded — the same
-     * [FLEE_THRESHOLD_PCT] that switches [KILL_ENEMY] off, so those two can never both be available and the
-     * creature does not oscillate between charging and bolting.
-     *
-     * The base is deliberately far above every other goal's, because [KILL_ATTACKER] *is* still available
-     * while wounded: being attacked is not something a creature stops noticing because it is hurt. Retaliation
-     * therefore remains the fallback if fleeing turns out to be impossible — a cornered animal fights — while
-     * an escape route that exists is always preferred. [fleeUrgency]'s floor is what guarantees that ordering
-     * for every archetype rather than only for those whose threshold happens to be low.
-     */
-    val FLEE = Goal(
-      name = "Flee",
-      priority = priority(base = 200f) { consider(fleeUrgency) },
-      availability = Precondition { s -> enemyInSight(s) && isWounded(s) },
-      desiredState = listOf(Preconditions.equalTo(SAFE, true)),
     )
 
     /**
@@ -357,7 +315,7 @@ object BestiaDomain {
       desiredState = listOf(Preconditions.atMost(RESTLESSNESS, 20)),
     )
 
-    val ALL = listOf(EAT_VEGETATION, SLEEP, RETURN_HOME, KILL_ATTACKER, KILL_ENEMY, FLEE, WANDER)
+    val ALL = listOf(EAT_VEGETATION, SLEEP, RETURN_HOME, KILL_ATTACKER, KILL_ENEMY, WANDER)
 
     val BY_NAME = ALL.associateBy { it.name }
   }
@@ -389,7 +347,6 @@ object BestiaDomain {
     "sleep" to { _ -> SleepActionTemplate() },
     "approachTarget" to { c -> ApproachTargetActionTemplate(c.locomotion) },
     "attack" to { c -> AttackActionTemplate(c.attacks, c.skills, c.attackExecution) },
-    "flee" to { c -> FleeActionTemplate(c.locomotion) },
   )
 
   /** Every action id a profile may name, for fail-fast validation at boot without building anything. */

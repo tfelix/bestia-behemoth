@@ -2,12 +2,11 @@
 #
 # Reads left to right through its day: it ambles about its patch, eats where the ground will feed it, and at
 # dusk lies down until morning. It has no KillEnemy goal, so a player can stand next to it all day and it will
-# not care — but it has no Flee goal either, so the one thing that *does* get its attention is being hit, and
-# then it comes after them rather than bolting.
+# not care — the one thing that *does* get its attention is being hit, and then it comes after them.
 #
-# The absence of Flee is the whole temperament, and it is expressed by leaving the goal out rather than by
-# tuning a number: a goal a profile does not list is one the creature cannot have. flee_threshold_pct is set
-# to 0 for consistency with that, not because anything reads it here.
+# This archetype was authored to never run when the other two still could, so it read as the odd one out. It
+# no longer is: fleeing has been removed from the domain, and every archetype now stands its ground. What is
+# still distinctive here is the long aggro memory below.
 identifier: passiv_day_active
 faction: critters
 # Diurnal: night is its resting phase, so Sleep outranks grazing after dark and it beds down until dawn.
@@ -24,8 +23,6 @@ melee_range: 1
 hunger_threshold: 60
 tiredness_threshold: 75
 restless_threshold: 35
-# Never breaks off — see the note above. It has no Flee goal to enable.
-flee_threshold_pct: 0
 aggression: 60
 goals:
   - { name: KillAttacker }

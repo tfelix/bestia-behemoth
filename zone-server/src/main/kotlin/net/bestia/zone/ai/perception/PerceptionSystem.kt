@@ -74,8 +74,8 @@ class PerceptionSystem(
       memory.set(BestiaDomain.IS_NIGHT, isNight, Blackboard.PERMANENT)
 
       // Being in this creature's resting phase is what "has not slept it out yet" means, and clearing the
-      // belief here is what lets the sleep goal become unsatisfied again at every dusk — the same shape as
-      // clearing SAFE below, and the reason a rested animal still goes to bed when its night comes round.
+      // belief here is what lets the sleep goal become unsatisfied again at every dusk — the reason a
+      // rested animal still goes to bed when its night comes round.
       if (profile.tuning.activityCycle.isRestingAt(isNight)) {
         memory.remove(BestiaDomain.RESTED)
       }
@@ -96,14 +96,9 @@ class PerceptionSystem(
         val targetPos = world.get(target, Position::class)?.toVec3L() ?: selfPos
         memory.set(BestiaDomain.TARGET_ID, target)
         memory.set(BestiaDomain.TARGET_POSITION, targetPos)
-        memory.set(BestiaDomain.THREAT_POSITION, targetPos)
-        // Being in sight of something hostile is exactly what "no longer safe" means, and clearing the
-        // belief here is what lets the flee goal become unsatisfied again after a previous escape.
-        memory.remove(BestiaDomain.SAFE)
       } else {
         memory.remove(BestiaDomain.TARGET_ID)
         memory.remove(BestiaDomain.TARGET_POSITION)
-        memory.remove(BestiaDomain.THREAT_POSITION)
         memory.remove(BestiaDomain.TARGET_ARCHETYPE)
       }
 

@@ -62,30 +62,6 @@ class Locomotion(private val navigation: NavigationService) {
   }
 
   /**
-   * Backs away from [threat], preferring whichever legal direction increases the distance most.
-   *
-   * Tries alternatives rather than only the directly-opposite tile, because the opposite tile is exactly the
-   * one most likely to be a wall - something cornered used to give up and stand there being hit.
-   */
-  fun stepAwayFrom(context: BtContext, threat: Vec3L): Boolean {
-    if (isMoving(context.world, context.entityId)) return true
-
-    val from = position(context.world, context.entityId)
-
-    val away = DIRECTIONS
-      .map { from + it }
-      .filter { it.distance(threat) > from.distance(threat) }
-      .sortedByDescending { it.distance(threat) }
-
-    for (candidate in away) {
-      val step = navigation.stepToward(from, candidate) ?: continue
-      return apply(context.world, context.entityId, listOf(step))
-    }
-
-    return false
-  }
-
-  /**
    * Wanders within [radius] of [home].
    *
    * Picks a destination a few tiles off and paths to it, rather than one adjacent tile per call. Both are

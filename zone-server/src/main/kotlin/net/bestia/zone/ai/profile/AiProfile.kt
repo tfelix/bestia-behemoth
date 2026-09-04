@@ -35,7 +35,6 @@ data class AiProfile(
     val hungerThreshold: Int,
     val tirednessThreshold: Int,
     val restlessThreshold: Int,
-    val fleeThresholdPct: Int,
     val aggression: Int,
   )
 
@@ -60,7 +59,6 @@ data class AiProfile(
         hungerThreshold = dto.hungerThreshold,
         tirednessThreshold = dto.tirednessThreshold,
         restlessThreshold = dto.restlessThreshold,
-        fleeThresholdPct = dto.fleeThresholdPct,
         aggression = dto.aggression,
       ),
       goals = dto.goals.map { GoalTuning(it.name, it.basePriority) },

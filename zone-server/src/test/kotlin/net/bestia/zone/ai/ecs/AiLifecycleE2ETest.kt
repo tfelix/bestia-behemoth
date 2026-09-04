@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test
 
 /**
  * End-to-end demonstration of the whole AI stack driving one mob through its full behavioural lifecycle:
- * idling until restless, spotting a player, chasing, attacking, and finally fleeing at low health.
+ * idling until restless, spotting a player, chasing, attacking, and staying in the fight at low health.
  *
  * Unlike [AiBehaviorScenarioTest] (single transitions), this runs a faithful mini game-loop: the real AI
  * systems plus the real `MoveSystem` registered in an ecs world and stepped at 20 tps, so perception, drives,
@@ -26,7 +26,7 @@ class AiLifecycleE2ETest {
   }
 
   @Test
-  fun `a mob idles, hunts the player, closes to melee, then flees when hurt`() {
+  fun `a mob idles, hunts the player, closes to melee, and stays in the fight when hurt`() {
     // ---- Phase 1: a lone mob, nobody around. Restlessness is the only drive that will fire first. ----
     val mob = ai.spawnMob("aggressive_melee", Vec3L(0, 0, 0), health = 10, maxHealth = 10)
 
@@ -40,14 +40,32 @@ class AiLifecycleE2ETest {
       ai.distanceBetween(mob, player) <= 1
     }
 
-    // ---- Phase 3: badly wounded. ----
-    ai.setHealth(mob, 2) // 20% of max, below the profile's 35% flee threshold
-    ai.tickUntilGoal(mob, "Flee")
+    // ---- Phase 3: badly wounded, and still has a fight to pursue. ----
+    // This phase used to assert the opposite: at 20% health the mob dropped below its flee threshold, took the
+    // Flee goal and opened the distance. What is guarded now is the availability *gate* rather than a
+    // distance: KillEnemy used to require not being wounded, paired against Flee on the same threshold, so
+    // removing Flee without removing that gate would have left a hurt hunter with its target in plain sight
+    // and no combat goal at all.
+    //
+    // Deliberately no assertion that it stays in melee. Health still scales KillEnemy's priority down, so an
+    // un-attacked predator may interleave ReturnHome with pressing a hunt it merely picked - that is the
+    // pre-existing "loses enthusiasm" curve, not flight. Being hit is what pins a creature to a fight, and
+    // phase 4 is where that is shown.
+    ai.setHealth(mob, 2)
+    ai.tick(times = 20 * 5)
 
-    val distanceWhenHurt = ai.distanceBetween(mob, player)
-    ai.tickUntil(describe = { "the fleeing mob never increased its distance from $distanceWhenHurt" }) {
-      ai.distanceBetween(mob, player) > distanceWhenHurt
+    assertEquals("KillEnemy", ai.goalNameOf(mob))
+
+    // ---- Phase 4: the player hits back. ----
+    // The reported bug, in the shape it was reported: a mob you start hitting must turn and fight rather than
+    // become unhittable. KillAttacker's flat 95 outranks every drive, so nothing talks it out of the fight.
+    ai.recordHit(victim = mob, attacker = player)
+    ai.tickUntilGoal(mob, "KillAttacker")
+
+    ai.tickUntil(describe = { "the mob never closed on its attacker (d=${ai.distanceBetween(mob, player)})" }) {
+      ai.distanceBetween(mob, player) <= 1
     }
+    assertEquals("KillAttacker", ai.goalNameOf(mob), "it must not lose interest in whoever is hitting it")
   }
 
   @Test

@@ -203,7 +203,7 @@ each step out.** Layered so the bottom is domain-agnostic:
 | `ai/core/{action,precondition,effect,goal}` | Grounded `Action` (pre/effects/cost, `behavior` **and** `Posture`), `ActionTemplate`, `Precondition(s)`, `Effect(s)`, `Goal` (availability vs desired state), `Priority`/`Curve` DSL |
 | `ai/core/planner` | Forward-A\* `Planner`, `Plan`, `EffectWriteBack` (scope-aware), `PlanExecutor` (simulation harness for domain tests only) |
 | `ai/core/agent` | `Agent` interface + `SimpleAgent` for tests |
-| `ai/bt` | The tree library: `SequenceNode`/`SelectorNode`/`ParallelNode`, `Inverter`/`Succeeder`/`Repeat`/`Cooldown`, the `sequence { } / selector { }` DSL, `Locomotion`, parameterised leaves (`MoveTo`, `FleeFrom`, `Wander`, `UseSkill`, `Wait`, `Sleep`) |
+| `ai/bt` | The tree library: `SequenceNode`/`SelectorNode`/`ParallelNode`, `Inverter`/`Succeeder`/`Repeat`/`Cooldown`, the `sequence { } / selector { }` DSL, `Locomotion`, parameterised leaves (`MoveTo`, `Wander`, `UseSkill`, `Wait`, `Sleep`) |
 | `ai/perception` | `PerceptionSystem` — the **only** writer of observation keys; `SenseSystem` + `Sense`/`SenseContext` — the agents' eyes and ears, a periodic sweep hosting pluggable senses; `ForageSense` + `ForageGround`/`BiomeForageGround` — the one sense today, writer of `KNOWN_VEGETATION` from the world's biome raster |
 | `ai/ecs` | `AiAgent` component, `AiDriveSystem`, `AiThinkSystem`, `AiActSystem`, `AiAgentFactory`, `SharedMemoryService`, `PlayerControlled` |
 | `ai/domain/bestia` | `BestiaDomain`: the keys, goals and action templates for mobs; `ActivityCycle` (diurnal/nocturnal/cathemeral) |
@@ -258,8 +258,14 @@ and tunes numbers only — it cannot express behaviour, and the registry fails t
 id. Mobs get their profile from `mob/*.yml`'s `ai:` key via `BestiaEntitySpawner`; player-owned
 bestias get one from `PlayerBestiaEntitySpawner` narrowed by the owner's persisted `AiConfig`.
 
-Profiles today: `aggressive-melee` (hunts on sight, flees when hurt), `passive-wanderer` (grazer that
-runs early), `passive-day-active` (diurnal grazer that never flees and hunts whoever hits it).
+Profiles today: `aggressive-melee` (hunts on sight), `passive-wanderer` (grazer that fights back),
+`passive-day-active` (diurnal grazer with a long grudge). **Nothing flees.** There was a `Flee` goal, a
+`flee` action, a `FleeFrom` leaf and a per-archetype `flee_threshold_pct`; all of it is gone, because a mob
+that bolted the moment its health dipped could not be fought at all. Two consequences worth knowing:
+`KillEnemy`'s availability is now the bare sighting (it used to also require *not* being wounded, paired
+against `Flee` on the same threshold — leaving that gate in place would have given a hurt hunter no combat
+goal at all), and `KillAttacker`'s base of 95 is what keeps a creature under attack from wandering off to
+graze (80) or sleep (90), so do not tune it down per-profile.
 
 ## login-server & the login↔zone handoff
 

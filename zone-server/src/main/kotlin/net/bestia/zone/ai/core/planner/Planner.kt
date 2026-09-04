@@ -59,7 +59,7 @@ class Planner(
     if (plan != null) {
       log.trace("[{}] found plan: {}", agent.name, plan)
     } else {
-      log.warn("[{}] no plan found to satisfy goal '{}' from state {}", agent.name, goal.name, start)
+      log.trace("[{}] no plan found to satisfy goal '{}' from state {}", agent.name, goal.name, start)
     }
     return plan
   }

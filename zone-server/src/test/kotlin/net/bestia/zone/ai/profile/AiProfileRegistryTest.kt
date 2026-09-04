@@ -27,7 +27,6 @@ class AiProfileRegistryTest {
     val profile = loadedRegistry().getOrThrow("aggressive_melee")
 
     assertEquals(8, profile.perception.sightRadius)
-    assertEquals(35, profile.tuning.fleeThresholdPct)
     assertEquals(80, profile.tuning.aggression)
     assertEquals(listOf("claw"), profile.attacks.map { it.id })
     assertEquals(1L, profile.attacks.single().range)
@@ -85,9 +84,31 @@ class AiProfileRegistryTest {
 
   @Test
   fun `a base priority override is carried through`() {
-    val profile = loadedRegistry().getOrThrow("passive_wanderer")
-    val retaliation = profile.goals.single { it.name == "KillAttacker" }
+    // Built here rather than read off a shipped archetype: none of them override a base priority now that
+    // passive_wanderer's `KillAttacker: 60` is gone, and that override was only ever readable as tuning
+    // because fleeing was the real answer to being hurt. The mechanism still has to work, so it is tested
+    // directly instead of through whichever profile happened to use it.
+    val registry = AiProfileRegistry()
+    registry.register(
+      AiProfileDto(
+        identifier = "tuned",
+        goals = listOf(AiProfileDto.GoalDto("KillAttacker", basePriority = 60f)),
+        actions = listOf("approachTarget", "attack"),
+      )
+    )
 
+    val retaliation = registry.getOrThrow("tuned").goals.single { it.name == "KillAttacker" }
     assertEquals(60f, retaliation.basePriority)
+  }
+
+  @Test
+  fun `no shipped archetype can flee`() {
+    // The flee mechanic is gone from the domain, so a profile naming it would fail the boot outright. This
+    // guards the profiles themselves: an archetype that listed `Flee` or a `flee` action could not load, and
+    // finding that out at boot is worse than finding it out here.
+    loadedRegistry().all().forEach { profile ->
+      assertTrue(profile.goals.none { it.name == "Flee" }, "${profile.identifier} still lists a Flee goal")
+      assertTrue("flee" !in profile.actionIds, "${profile.identifier} still lists a flee action")
+    }
   }
 }

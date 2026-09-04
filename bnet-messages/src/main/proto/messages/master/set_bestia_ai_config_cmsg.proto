@@ -8,9 +8,9 @@ option java_outer_classname = "SetBestiaAiConfigCmsgProto";
 /**
  * Sets what one of the player's own bestias should do while they are not driving it.
  *
- * The vocabulary is deliberately narrow. A stance is an enum rather than a list of goals, and the two
- * numbers are clamped server-side, so the client can never author behaviour directly — it states an
- * intent and the server decides what that means. See AiConfig on the server for why.
+ * The vocabulary is deliberately narrow. A stance is an enum rather than a list of goals, and aggression is
+ * clamped server-side, so the client can never author behaviour directly — it states an intent and the
+ * server decides what that means. See AiConfig on the server for why.
  */
 message SetBestiaAiConfigCMSG {
   /** Which of the player's bestias to configure. */
@@ -21,8 +21,10 @@ message SetBestiaAiConfigCMSG {
   /** 0..100. Out-of-range values are clamped, not rejected. */
   uint32 aggression = 3;
 
-  /** 0..100 health percentage at or below which it breaks off and runs. Clamped. */
-  uint32 flee_threshold_pct = 4;
+  // Was `flee_threshold_pct`, removed along with the flee mechanic — nothing runs away any more, so there is
+  // no threshold for a player to set. Reserved rather than recycled: an old client still sending field 4
+  // must not have it read as something else.
+  reserved 4;
 
   enum IdleStance {
     /** Never sent by a well-behaved client; present so an unset field is not silently a real stance. */

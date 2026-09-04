@@ -75,6 +75,11 @@ var _health: ConditionPool = null
 var _mana: ConditionPool = null
 var _stamina: ConditionPool = null
 
+# The last health push, kept verbatim so it can be replayed into a visual that is built after it
+# arrived. HealthBar only opens on a push that *changes* the pool, so it needs the spawn push as a
+# silent seed - and component and visual messages race, so the bar cannot count on being alive yet.
+var _last_health_msg: HealthComponentSMSG = null
+
 # True while this entity is lying dead awaiting a respawn (server-driven via DeadComponentSMSG,
 # cleared by one with Removed = true). Player-owned bodies only - a wild mob is destroyed outright
 # and arrives as a vanish instead. Gates the local walk/idle animation heuristic, which would
@@ -368,6 +373,7 @@ func update_visual(msg: VisualComponentSMSG) -> void:
 	visual.setup_visual(msg)
 	visual.name = _VISUAL_NODE_NAME
 	add_child(visual)
+	_seed_visual(visual)
 
 
 func _visual_scene_for(msg: VisualComponentSMSG) -> PackedScene:
@@ -402,6 +408,15 @@ func update_master_visual(msg: MasterVisualComponentSMSG) -> void:
 	visual.setup_visual(msg)
 	visual.name = _VISUAL_NODE_NAME
 	add_child(visual)
+	_seed_visual(visual)
+
+
+## Pushes the component state that arrived before this visual existed into it. Only health so far:
+## the rest of the cached components either have no visual of their own or are re-pushed often
+## enough that a fresh visual catches up on its own within a tick or two.
+func _seed_visual(visual: Node) -> void:
+	if _last_health_msg != null and visual.has_method("update_health"):
+		visual.update_health(_last_health_msg)
 
 
 func set_selected(is_selected: bool) -> void:
@@ -530,8 +545,11 @@ func show_damage(msg: DamageEntitySMSG) -> void:
 
 func update_health(msg: HealthComponentSMSG) -> void:
 	_health = ConditionPool.new(msg.Current, msg.Max)
-	var visual = _get_visual_for_method("update_health")
-	if visual != null:
+	_last_health_msg = msg
+	# Deliberately not _get_visual_for_method: this arriving before the visual exists is the normal
+	# race, not an error, and _seed_visual replays it once the visual is built.
+	var visual = get_node_or_null(_VISUAL_NODE_NAME)
+	if visual != null and visual.has_method("update_health"):
 		visual.update_health(msg)
 
 

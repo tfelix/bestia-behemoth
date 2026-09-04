@@ -11,8 +11,12 @@ import kotlin.test.assertNotNull
 
 /**
  * Exercises the combat goals: closing to melee range before attacking, preferring whichever
- * remembered-effective attack is cheapest once several are in range, and choosing between retaliating and
- * running away depending on how badly hurt the bestia is.
+ * remembered-effective attack is cheapest once several are in range, and standing and fighting however badly
+ * hurt the bestia is.
+ *
+ * That last one used to be the opposite assertion — a wounded creature was expected to break off and run.
+ * There is no flee goal any more, so the cases that asserted it now assert that being hurt changes nothing
+ * about whether a creature defends itself.
  */
 class AggroScenarioTest {
 
@@ -22,7 +26,6 @@ class AggroScenarioTest {
   private val combatGoals = listOf(
     BestiaDomain.Goals.KILL_ATTACKER,
     BestiaDomain.Goals.KILL_ENEMY,
-    BestiaDomain.Goals.FLEE,
   )
 
   private fun aggroMemory(
@@ -33,7 +36,6 @@ class AggroScenarioTest {
     set(BestiaDomain.POSITION, Vec3L(0, 0, 0))
     set(BestiaDomain.HOME_POSITION, Vec3L(0, 0, 0), Blackboard.PERMANENT)
     set(BestiaDomain.MELEE_RANGE, 1L, Blackboard.PERMANENT)
-    set(BestiaDomain.FLEE_THRESHOLD_PCT, 35, Blackboard.PERMANENT)
     set(BestiaDomain.AGGRESSION, 80, Blackboard.PERMANENT)
     set(BestiaDomain.HEALTH_PCT, healthPct)
     set(BestiaDomain.IS_AGGRO, true)
@@ -41,7 +43,6 @@ class AggroScenarioTest {
     set(BestiaDomain.TARGET_ID, 42L)
     set(BestiaDomain.TARGET_ARCHETYPE, archetype)
     set(BestiaDomain.TARGET_POSITION, targetPosition)
-    set(BestiaDomain.THREAT_POSITION, targetPosition)
   }
 
   @Test
@@ -52,7 +53,7 @@ class AggroScenarioTest {
       name = "wolf",
       goals = combatGoals,
       memory = memory,
-      actionResolver = BestiaDomainFixture.resolver(listOf("approachTarget", "attack", "flee"), attacks),
+      actionResolver = BestiaDomainFixture.resolver(listOf("approachTarget", "attack"), attacks),
     )
     val world = Blackboard()
 
@@ -93,7 +94,7 @@ class AggroScenarioTest {
       goals = combatGoals,
       memory = memory,
       actionResolver = BestiaDomainFixture.resolver(
-        listOf("approachTarget", "attack", "flee"),
+        listOf("approachTarget", "attack"),
         listOf(AttackDefinition(id = "claw", range = 1)),
       ),
     )
@@ -103,31 +104,58 @@ class AggroScenarioTest {
   }
 
   @Test
-  fun `flees instead of fighting once hurt past its threshold`() {
-    val memory = aggroMemory(targetPosition = Vec3L(1, 0, 0), healthPct = 20)
+  fun `still fights back when nearly dead, rather than breaking off`() {
+    val memory = aggroMemory(targetPosition = Vec3L(1, 0, 0), healthPct = 5)
     val agent = SimpleAgent(
       name = "wolf",
       goals = combatGoals,
       memory = memory,
       actionResolver = BestiaDomainFixture.resolver(
-        listOf("approachTarget", "attack", "flee"),
+        listOf("approachTarget", "attack"),
         listOf(AttackDefinition(id = "claw", range = 1)),
       ),
     )
     val world = Blackboard()
 
-    // Flee outranks retaliation at 20% health because its base priority is higher *and* its urgency curve
-    // rises as health falls, while KillEnemy is not even available below the threshold.
+    // The inverse of the flee test this replaces. At 5% health there is nothing left to prefer over
+    // retaliating, so the creature swings back instead of running — which is the whole point of removing the
+    // mechanic: a mob that bolts on the first hit cannot be fought.
     val plan = planner.makePlanForAgent(agent, world)
-    assertEquals("Flee", plan?.goal?.name)
-    assertEquals(listOf("flee"), plan?.actions?.map { it.name })
+    assertEquals("KillAttacker", plan?.goal?.name)
+    assertEquals(listOf("attack(claw)"), plan?.actions?.map { it.name })
 
     executor.execute(plan!!, agent, world)
-    assertEquals(true, memory.get(BestiaDomain.SAFE))
+    assertEquals(true, memory.get(BestiaDomain.TARGET_DEAD))
   }
 
   @Test
-  fun `does not consider unprovoked aggression while wounded`() {
+  fun `retaliation outranks the drives, so a hungry tired mob does not wander off mid-fight`() {
+    val memory = aggroMemory(targetPosition = Vec3L(1, 0, 0), healthPct = 30).apply {
+      set(BestiaDomain.HUNGER, 100)
+      set(BestiaDomain.HUNGER_THRESHOLD, 60, Blackboard.PERMANENT)
+      set(BestiaDomain.TIREDNESS, 100)
+      set(BestiaDomain.TIREDNESS_THRESHOLD, 70, Blackboard.PERMANENT)
+    }
+
+    val agent = SimpleAgent(
+      name = "blob",
+      goals = combatGoals + listOf(BestiaDomain.Goals.EAT_VEGETATION, BestiaDomain.Goals.SLEEP),
+      memory = memory,
+      actionResolver = BestiaDomainFixture.resolver(
+        listOf("approachTarget", "attack", "sleep"),
+        listOf(AttackDefinition(id = "claw", range = 1)),
+      ),
+    )
+
+    // KillAttacker's flat 95 beats EatVegetation (80 at its maximum) and Sleep (90), which is what the
+    // passive-wanderer profile relies on now that its base_priority override is gone: that override used to
+    // hold retaliation down at 60, below both of these, because fleeing was the real answer to being hurt.
+    val plan = planner.makePlanForAgent(agent, Blackboard())
+    assertEquals("KillAttacker", plan?.goal?.name)
+  }
+
+  @Test
+  fun `considers unprovoked aggression even while wounded`() {
     val memory = aggroMemory(targetPosition = Vec3L(3, 0, 0), healthPct = 20)
     memory.set(BestiaDomain.IS_AGGRO, false)
 
@@ -141,8 +169,11 @@ class AggroScenarioTest {
       ),
     )
 
-    // KillEnemy and Flee share one threshold from opposite sides, so a wounded creature is never offered
-    // both — which is what stops it flip-flopping between charging and bolting.
-    assertEquals(null, planner.makePlanForAgent(agent, Blackboard()))
+    // KillEnemy used to be gated off below the flee threshold, so exactly one of hunting and running was
+    // ever available. With nothing left to hand over to, that gate would have left a wounded hunter with its
+    // target in plain sight and no goal at all — so it is gone, and health only scales the priority now.
+    val plan = planner.makePlanForAgent(agent, Blackboard())
+    assertEquals("KillEnemy", plan?.goal?.name)
+    assertEquals(listOf("approachTarget", "attack(claw)"), plan?.actions?.map { it.name })
   }
 }

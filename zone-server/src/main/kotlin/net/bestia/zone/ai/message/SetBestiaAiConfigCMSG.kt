@@ -10,20 +10,19 @@ import net.bestia.zone.util.PlayerBestiaId
  * A player setting the standing order for one of their own bestias.
  *
  * [stance] is null when the client sent `IDLE_STANCE_UNSPECIFIED`, which the handler refuses. An unrecognised
- * stance is the one thing here that cannot be clamped into something sensible — unlike the two numbers, there
- * is no "nearest valid stance" — so it is rejected rather than guessed at.
+ * stance is the one thing here that cannot be clamped into something sensible — unlike [aggression], there is
+ * no "nearest valid stance" — so it is rejected rather than guessed at.
  */
 data class SetBestiaAiConfigCMSG(
   override val playerId: Long,
   val playerBestiaId: PlayerBestiaId,
   val stance: IdleStance?,
   val aggression: Int,
-  val fleeThresholdPct: Int,
 ) : CMSG {
 
-  /** The requested config, with both numbers forced into range. Only valid once [stance] is known non-null. */
+  /** The requested config, with [aggression] forced into range. Only valid once [stance] is known non-null. */
   fun toConfig(stance: IdleStance): AiConfig =
-    AiConfig(stance = stance, aggression = aggression, fleeThresholdPct = fleeThresholdPct).sanitised()
+    AiConfig(stance = stance, aggression = aggression).sanitised()
 
   companion object {
     fun fromBnet(
@@ -34,7 +33,6 @@ data class SetBestiaAiConfigCMSG(
       playerBestiaId = msg.playerBestiaId,
       stance = stanceOf(msg.stance),
       aggression = msg.aggression,
-      fleeThresholdPct = msg.fleeThresholdPct,
     )
 
     /**

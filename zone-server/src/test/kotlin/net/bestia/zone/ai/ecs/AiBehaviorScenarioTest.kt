@@ -79,19 +79,22 @@ class AiBehaviorScenarioTest {
   }
 
   @Test
-  fun `a wounded mob switches from hunting to fleeing and retreats`() {
+  fun `a wounded mob keeps hunting instead of breaking off`() {
     val mob = ai.spawnMob("aggressive_melee", Vec3L(0, 0, 0), health = 10, maxHealth = 10)
     val player = ai.spawnPlayer(Vec3L(2, 0, 0))
 
     ai.tickUntilGoal(mob, "KillEnemy")
 
-    // 20% of max, under the profile's 35% flee threshold.
+    // 20% of max. This used to be under the profile's flee threshold and used to switch the mob from KillEnemy
+    // to Flee; both the threshold and the goal are gone, so a wound is no longer a reason to disengage. The
+    // real regression being guarded is the *gate*: KillEnemy's availability once required not being wounded,
+    // so dropping Flee without dropping that would have left the mob with no combat goal at all.
     ai.setHealth(mob, 2)
-    ai.tickUntilGoal(mob, "Flee")
+    ai.tick(times = 20 * 5)
 
-    val distanceBefore = ai.distanceBetween(mob, player)
-    ai.tickUntil(describe = { "the fleeing mob never opened the distance from $distanceBefore" }) {
-      ai.distanceBetween(mob, player) > distanceBefore
+    assertEquals("KillEnemy", ai.goalNameOf(mob), "a hurt hunter must still have a fight to pursue")
+    ai.tickUntil(describe = { "the wounded mob never closed on the player" }) {
+      ai.distanceBetween(mob, player) <= 1
     }
   }
 

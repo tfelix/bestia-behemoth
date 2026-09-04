@@ -74,7 +74,7 @@ enum class ParallelPolicy {
  *
  * Unlike [SequenceNode]/[SelectorNode] this does not short-circuit before ticking the rest, which is
  * the whole point: it is how one action drives two things at once — "walk to the target while
- * shouting an alert", or "keep fleeing while watching for a safe tile". Children must therefore be
+ * shouting an alert", or "chase while keeping an eye on the rest of the pack". Children must therefore be
  * genuinely independent; two children that both write `Path` will fight over it.
  */
 class ParallelNode(

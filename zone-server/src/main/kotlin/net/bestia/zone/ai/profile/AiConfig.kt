@@ -14,8 +14,8 @@ import jakarta.persistence.Enumerated
  * is an input to an A* search, so unconstrained values are unconstrained planner cost.
  *
  * A small enumerated vocabulary avoids all of that. Every [stance] compiles to a fixed, reviewed set of goals
- * (see [IdleStance.goalNames]), and the two numeric knobs are clamped on the way in. The player expresses
- * intent; the server decides what that means.
+ * (see [IdleStance.goalNames]), and [aggression] is clamped on the way in. The player expresses intent; the
+ * server decides what that means.
  *
  * Stored inline on `PlayerBestia`. All fields are defaulted, which is also what gives Kotlin the no-arg
  * constructor Hibernate needs for an embeddable.
@@ -27,27 +27,20 @@ data class AiConfig(
 
   /** 0..100; how strongly the creature wants the kill goals it has. */
   val aggression: Int = DEFAULT_AGGRESSION,
-
-  /** 0..100; health percentage at or below which it breaks off and runs. */
-  val fleeThresholdPct: Int = DEFAULT_FLEE_THRESHOLD_PCT,
 ) {
 
   /**
-   * The same config with both numbers forced into range.
+   * The same config with [aggression] forced into range.
    *
    * Clamping rather than rejecting is deliberate for values that arrive over the wire: a client sending 5000
    * aggression is asking for "as aggressive as possible", and answering that with an error achieves nothing a
    * clamp does not. Anything structural — an unknown stance — cannot be clamped and is refused at the handler
    * instead.
    */
-  fun sanitised(): AiConfig = copy(
-    aggression = aggression.coerceIn(0, 100),
-    fleeThresholdPct = fleeThresholdPct.coerceIn(0, 100),
-  )
+  fun sanitised(): AiConfig = copy(aggression = aggression.coerceIn(0, 100))
 
   companion object {
     const val DEFAULT_AGGRESSION = 50
-    const val DEFAULT_FLEE_THRESHOLD_PCT = 35
   }
 }
 
@@ -58,23 +51,23 @@ data class AiConfig(
  * replacing them, so a stance can never grant a creature a behaviour its species does not have — a critter told
  * to DEFEND still cannot hunt, because its profile has no kill-on-sight goal to enable.
  *
- * `KillAttacker` and `Flee` are in every stance on purpose: self-defence is not a standing order a player gets
- * to switch off, and an owned creature that stood still while being killed because it was told to HOLD would be
- * a bug reported as one.
+ * `KillAttacker` is in every stance on purpose: self-defence is not a standing order a player gets to switch
+ * off, and an owned creature that stood still while being killed because it was told to HOLD would be a bug
+ * reported as one. It is now the *only* response to being attacked, since nothing runs away.
  */
 enum class IdleStance(val goalNames: Set<String>) {
 
   /** Stay put. Defends itself, but will not wander off, forage or pick fights. */
-  HOLD(setOf("KillAttacker", "Flee")),
+  HOLD(setOf("KillAttacker")),
 
   /** Roam around where it was left, and come back if it strays. The default. */
-  PATROL(setOf("KillAttacker", "Flee", "Wander", "ReturnHome")),
+  PATROL(setOf("KillAttacker", "Wander", "ReturnHome")),
 
   /** Look after itself: eat and sleep as needed, roam meanwhile. */
-  FORAGE(setOf("KillAttacker", "Flee", "Wander", "ReturnHome", "EatVegetation", "Sleep")),
+  FORAGE(setOf("KillAttacker", "Wander", "ReturnHome", "EatVegetation", "Sleep")),
 
   /** Engage anything hostile that comes near, rather than waiting to be hit first. */
-  DEFEND(setOf("KillAttacker", "Flee", "KillEnemy", "ReturnHome"));
+  DEFEND(setOf("KillAttacker", "KillEnemy", "ReturnHome"));
 
   companion object {
     fun fromNameOrNull(name: String): IdleStance? = entries.firstOrNull { it.name.equals(name, ignoreCase = true) }

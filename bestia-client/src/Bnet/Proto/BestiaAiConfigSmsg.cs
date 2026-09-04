@@ -26,15 +26,15 @@ namespace Bnet {
           string.Concat(
             "CittZXNzYWdlcy9tYXN0ZXIvYmVzdGlhX2FpX2NvbmZpZ19zbXNnLnByb3Rv",
             "EgRibmV0Gi9tZXNzYWdlcy9tYXN0ZXIvc2V0X2Jlc3RpYV9haV9jb25maWdf",
-            "Y21zZy5wcm90byKWAQoSQmVzdGlhQWlDb25maWdTTVNHEhgKEHBsYXllcl9i",
+            "Y21zZy5wcm90byKAAQoSQmVzdGlhQWlDb25maWdTTVNHEhgKEHBsYXllcl9i",
             "ZXN0aWFfaWQYASABKAQSNgoGc3RhbmNlGAIgASgOMiYuYm5ldC5TZXRCZXN0",
             "aWFBaUNvbmZpZ0NNU0cuSWRsZVN0YW5jZRISCgphZ2dyZXNzaW9uGAMgASgN",
-            "EhoKEmZsZWVfdGhyZXNob2xkX3BjdBgEIAEoDUIwChVuZXQuYmVzdGlhLmJu",
-            "ZXQucHJvdG9CF0Jlc3RpYUFpQ29uZmlnU21zZ1Byb3RvYgZwcm90bzM="));
+            "SgQIBBAFQjAKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0IXQmVzdGlhQWlDb25m",
+            "aWdTbXNnUHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Bnet.SetBestiaAiConfigCmsgReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.BestiaAiConfigSMSG), global::Bnet.BestiaAiConfigSMSG.Parser, new[]{ "PlayerBestiaId", "Stance", "Aggression", "FleeThresholdPct" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.BestiaAiConfigSMSG), global::Bnet.BestiaAiConfigSMSG.Parser, new[]{ "PlayerBestiaId", "Stance", "Aggression" }, null, null, null, null)
           }));
     }
     #endregion
@@ -86,7 +86,6 @@ namespace Bnet {
       playerBestiaId_ = other.playerBestiaId_;
       stance_ = other.stance_;
       aggression_ = other.aggression_;
-      fleeThresholdPct_ = other.fleeThresholdPct_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -132,18 +131,6 @@ namespace Bnet {
       }
     }
 
-    /// <summary>Field number for the "flee_threshold_pct" field.</summary>
-    public const int FleeThresholdPctFieldNumber = 4;
-    private uint fleeThresholdPct_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public uint FleeThresholdPct {
-      get { return fleeThresholdPct_; }
-      set {
-        fleeThresholdPct_ = value;
-      }
-    }
-
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -162,7 +149,6 @@ namespace Bnet {
       if (PlayerBestiaId != other.PlayerBestiaId) return false;
       if (Stance != other.Stance) return false;
       if (Aggression != other.Aggression) return false;
-      if (FleeThresholdPct != other.FleeThresholdPct) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -173,7 +159,6 @@ namespace Bnet {
       if (PlayerBestiaId != 0UL) hash ^= PlayerBestiaId.GetHashCode();
       if (Stance != global::Bnet.SetBestiaAiConfigCMSG.Types.IdleStance.Unspecified) hash ^= Stance.GetHashCode();
       if (Aggression != 0) hash ^= Aggression.GetHashCode();
-      if (FleeThresholdPct != 0) hash ^= FleeThresholdPct.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -204,10 +189,6 @@ namespace Bnet {
         output.WriteRawTag(24);
         output.WriteUInt32(Aggression);
       }
-      if (FleeThresholdPct != 0) {
-        output.WriteRawTag(32);
-        output.WriteUInt32(FleeThresholdPct);
-      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -230,10 +211,6 @@ namespace Bnet {
         output.WriteRawTag(24);
         output.WriteUInt32(Aggression);
       }
-      if (FleeThresholdPct != 0) {
-        output.WriteRawTag(32);
-        output.WriteUInt32(FleeThresholdPct);
-      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -252,9 +229,6 @@ namespace Bnet {
       }
       if (Aggression != 0) {
         size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Aggression);
-      }
-      if (FleeThresholdPct != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(FleeThresholdPct);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -276,9 +250,6 @@ namespace Bnet {
       }
       if (other.Aggression != 0) {
         Aggression = other.Aggression;
-      }
-      if (other.FleeThresholdPct != 0) {
-        FleeThresholdPct = other.FleeThresholdPct;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -307,10 +278,6 @@ namespace Bnet {
             Aggression = input.ReadUInt32();
             break;
           }
-          case 32: {
-            FleeThresholdPct = input.ReadUInt32();
-            break;
-          }
         }
       }
     #endif
@@ -336,10 +303,6 @@ namespace Bnet {
           }
           case 24: {
             Aggression = input.ReadUInt32();
-            break;
-          }
-          case 32: {
-            FleeThresholdPct = input.ReadUInt32();
             break;
           }
         }

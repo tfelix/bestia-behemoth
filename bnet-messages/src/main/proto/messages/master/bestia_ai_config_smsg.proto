@@ -17,5 +17,7 @@ message BestiaAiConfigSMSG {
   uint64 player_bestia_id = 1;
   SetBestiaAiConfigCMSG.IdleStance stance = 2;
   uint32 aggression = 3;
-  uint32 flee_threshold_pct = 4;
+
+  // See SetBestiaAiConfigCMSG: field 4 was `flee_threshold_pct`.
+  reserved 4;
 }

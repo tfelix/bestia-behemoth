@@ -15,7 +15,7 @@ import net.bestia.zone.ecs.core.Component
  * the plan it is currently carrying out.
  *
  * Replaces the old `Brain`, which mixed these with static archetype configuration — wander radius, melee
- * range, flee threshold, attack cooldown — that a profile already held. Those now live where they belong:
+ * range, attack cooldown — that a profile already held. Those now live where they belong:
  * tuning numbers are written into [memory] as permanent facts when the profile is attached, so goal
  * availability and priority read them the same way they read anything else, and there is one place to
  * change a number rather than two.
