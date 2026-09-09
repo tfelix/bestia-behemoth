@@ -11,4 +11,10 @@ data class ZoneConfig(
   val logoutProtectionSeconds: Float = 20f,
   /** Share of its current EXP an entity forfeits when it dies. */
   val deathExpLossFraction: Float = 0.01f,
+  /**
+   * Sustained ceiling on move requests from one account, and how many it may bank against a flurry of
+   * clicking. See [net.bestia.zone.entity.MoveRequestRateLimit] for why a move request is worth limiting.
+   */
+  val moveRequestsPerSecond: Float = 10f,
+  val moveRequestBurst: Float = 20f,
 )
