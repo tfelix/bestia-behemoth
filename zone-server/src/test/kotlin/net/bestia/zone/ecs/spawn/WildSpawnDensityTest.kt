@@ -21,7 +21,7 @@ import kotlin.math.floor
 import kotlin.math.hypot
 
 /**
- * How thick the wilderness actually is, in creatures a player can see.
+ * How thick the **den layer** is, in creatures a player can see.
  *
  * `WildDenCoverageTest`'s idea - a content measurement wearing a test's clothes - pointed at the question
  * that measurement could not answer. A perfectly shaped level ramp over 656 dens spread across 16 384 km²
@@ -42,6 +42,22 @@ import kotlin.math.hypot
  * would hide that half the map is quiet. The gap closes as species are authored, with no code change.
  */
 class WildSpawnDensityTest {
+
+  /**
+   * Ground the camera actually shows, in metres across.
+   *
+   * This is the number this test used to get wrong, and the reason a wilderness tuned to look right measured
+   * right and played empty. The figure below it - `stream box` - is
+   * [ChunkStreamConfig.chunksAcrossView] x `chunkSize`, which `InterestRange`'s own KDoc identifies as the
+   * **view volume**: the terrain a client is holding, 352 m across. What the player looks at is a 3D camera
+   * on a spring arm of 8 to 36 m with a 65 degree field of view and its pitch capped at -20 degrees, which
+   * puts sixty-odd metres of ground on screen at the far end of the zoom.
+   *
+   * So the box overstates the visible area by a factor of about thirty-four, and "two to three creatures on
+   * screen" was really about seven hundredths of one. The generous end of the zoom is used deliberately: if
+   * the country is thin even at full zoom-out, it is thinner still up close.
+   */
+  private val cameraFootprintMetres = 60.0
 
   /** The two species that actually ship, transcribed from `resources/mob/`. */
   private val shipped = listOf(
@@ -71,7 +87,7 @@ class WildSpawnDensityTest {
   )
 
   @Test
-  fun `the wilderness is thick enough to walk into and not so thick it runs away`() {
+  fun `the den layer is thick enough to walk into and not so thick it runs away`() {
     val settings = WorldGenConfig()
     val config = WorldConfig(
       seed = DEV_SEED,
@@ -95,8 +111,9 @@ class WildSpawnDensityTest {
     // Derived from the real configs rather than restated, so the test cannot drift away from what the client
     // is actually streamed.
     val stream = ChunkStreamConfig()
-    val screenMetres = stream.chunksAcrossView * settings.chunkSize * settings.voxelSizeMetres
-    val screenKm2 = (screenMetres / 1_000.0) * (screenMetres / 1_000.0)
+    val streamBoxMetres = stream.chunksAcrossView * settings.chunkSize * settings.voxelSizeMetres
+    val streamBoxKm2 = (streamBoxMetres / 1_000.0) * (streamBoxMetres / 1_000.0)
+    val cameraKm2 = (cameraFootprintMetres / 1_000.0) * (cameraFootprintMetres / 1_000.0)
 
     val worldKm2 = (settings.widthCells * settings.cellSizeMetres / 1_000.0) *
         (settings.heightCells * settings.cellSizeMetres / 1_000.0)
@@ -110,16 +127,19 @@ class WildSpawnDensityTest {
     // square of side `screen + range`. This is the clumping figure: the mean alone cannot tell a field of
     // creatures from knots of six with empty country between them, and the radius is the knob that decides
     // which one it is.
-    val reach = (screenMetres + meanRange) / 1_000.0
+    val reach = (streamBoxMetres + meanRange) / 1_000.0
 
     // The honest pair: the biomes the catalogue can actually stock, against the whole world.
     val coveredBiomes = shipped.flatMap { it.habitat.split(',') }.filter { it.isNotBlank() }.toSet()
     val coveredShare = coveredShareOfDens(generated, coveredBiomes)
     val mobsPerKm2InHabitat = if (coveredShare <= 0.0) 0.0 else mobsPerKm2 / coveredShare
 
-    val densPerScreen = densPerKm2 * reach * reach
-    val densPerScreenInHabitat = if (coveredShare <= 0.0) 0.0 else densPerScreen / coveredShare
-    val emptyScreenShare = exp(-densPerScreenInHabitat)
+    val densPerBox = densPerKm2 * reach * reach
+    val densPerBoxInHabitat = if (coveredShare <= 0.0) 0.0 else densPerBox / coveredShare
+
+    // The honest headline: what the player is actually looking at, and how often it is empty.
+    val onCamera = mobsPerKm2InHabitat * cameraKm2
+    val emptyCameraShare = exp(-onCamera)
 
     println("=== wild spawn density (seed $DEV_SEED, ${settings.widthCells}x${settings.heightCells} km) ===")
     println(
@@ -136,14 +156,18 @@ class WildSpawnDensityTest {
           "(catalogue covers ${"%.0f".format(coveredShare * 100)}% of dens; the rest is missing content)"
     )
     println(
-      "screen=${screenMetres.toInt()}m (${"%.4f".format(screenKm2)} km2)  " +
-          "expected mobs on screen=${"%.1f".format(mobsPerKm2 * screenKm2)}  " +
-          "within stockable biomes=${"%.1f".format(mobsPerKm2InHabitat * screenKm2)}"
+      "stream box=${streamBoxMetres.toInt()}m (${"%.4f".format(streamBoxKm2)} km2)  " +
+          "dens holding creatures in it=${"%.1f".format(mobsPerKm2InHabitat * streamBoxKm2)} in habitat " +
+          "- this is the VIEW VOLUME, not the screen"
     )
     println(
-      "mean spawn radius=${meanRange.toInt()}m  dens contributing per screen=${"%.2f".format(densPerScreen)}  " +
-          "within stockable biomes=${"%.2f".format(densPerScreenInHabitat)}  " +
-          "P(stockable screen holds nothing)=${"%.0f".format(emptyScreenShare * 100)}%"
+      "camera=${cameraFootprintMetres.toInt()}m (${"%.5f".format(cameraKm2)} km2)  " +
+          "dens put ${"%.2f".format(onCamera)} creature(s) on screen in habitat  " +
+          "P(camera holds nothing)=${"%.0f".format(emptyCameraShare * 100)}%"
+    )
+    println(
+      "mean spawn radius=${meanRange.toInt()}m  dens contributing per stream box=" +
+          "${"%.2f".format(densPerBox)}  within stockable biomes=${"%.2f".format(densPerBoxInHabitat)}"
     )
 
     // The two figures the per-cell creature budget is set against. Everything above is a world average, and
@@ -197,9 +221,13 @@ class WildSpawnDensityTest {
     // - asserting on the world-wide number would be asserting on how much content exists, and would fail
     // for a reason no change to this subsystem can fix.
     assertTrue(stocking.dens.isNotEmpty(), "not one den on the world could be stocked")
+    // Bounds on the DEN LAYER alone, which is all this test measures. The dens are concentrations, not the
+    // population - `AmbientSpawnDensityTest` is what asserts that a player can see something. Widening these
+    // to cover the total would make them contradict each other, since the two layers differ by a factor of
+    // fifty.
     assertTrue(
       mobsPerKm2InHabitat > 10.0,
-      "country the catalogue can stock holds only ${"%.1f".format(mobsPerKm2InHabitat)} creatures/km2"
+      "country the catalogue can stock holds only ${"%.1f".format(mobsPerKm2InHabitat)} creatures/km2 in dens"
     )
     // Raised from 200 when the per-cell creature budget landed: `SpawnerParams.starterDensity` *is* 200
     // creatures/km2, so the old ceiling would have failed the moment the starter band hit its target, and
@@ -208,16 +236,17 @@ class WildSpawnDensityTest {
     // magnitude, not a factor of two.
     assertTrue(
       mobsPerKm2InHabitat < 600.0,
-      "the wilderness has run away at ${"%.1f".format(mobsPerKm2InHabitat)} creatures/km2"
+      "the den layer has run away at ${"%.1f".format(mobsPerKm2InHabitat)} creatures/km2"
     )
     assertTrue(
       stocking.markers < 200_000,
       "${stocking.markers} markers - generation cost has run away; check SpawnerParams.candidateSpacing"
     )
     assertTrue(
-      densPerScreenInHabitat > 0.9,
-      "only ${"%.2f".format(densPerScreenInHabitat)} dens reach the average stockable screen; the field is " +
-          "knots with empty ground between them rather than populated country. `radius-multiplier` is the knob."
+      densPerBoxInHabitat > 0.9,
+      "only ${"%.2f".format(densPerBoxInHabitat)} dens reach the average stockable stream box; the den field " +
+          "is knots with empty ground between them rather than populated country. `radius-multiplier` is the " +
+          "knob."
     )
     assertTrue(
       nearestOverall < 1_000.0,

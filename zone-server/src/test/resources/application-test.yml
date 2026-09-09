@@ -37,6 +37,19 @@ wild-spawn:
     - max-level: 100
       den-share: 0.0
 
+# And no baseline wilderness either, for the reason above and more so.
+#
+# The ambient layer is denser than the dens by a factor of fifty by design - a hundred and forty creatures
+# inside one player's interest cube - so leaving it on in the shared context does exactly what the block
+# above describes, and it does not have the excuse of being accidentally dead.
+#
+# The integration path is still exercised: `AmbientSpawnerBootRunner` validates the configuration in this
+# very context whether or not sites are stocked. Everything about the sites themselves is measured in
+# `AmbientSiteLatticeTest`, `AmbientSpawnerSystemTest` and `AmbientSpawnDensityTest`, which build their own
+# worlds. A scenario that ever wants a populated wilderness should override this for itself.
+ambient-spawn:
+  enabled: false
+
 # Tests build worlds no client will ever see - a 32-cell world, a mocked config, a chunk size chosen to keep a
 # fixture small - so the boot gate that protects real players from an undrawable world has nothing to protect
 # here and would only refuse to start. See `ClientWorldContract`; `ClientWorldContractTest` covers the gate

@@ -44,6 +44,30 @@ class AiSchedulingTest {
     assertEquals(ai.systems.size, reversed.waveCount)
   }
 
+  /**
+   * The level-of-detail marker must not be able to move a stage into another wave.
+   *
+   * It is safe only because `SystemScheduler.conflicts` looks at *writes*: the marker is attached before any
+   * system sees the entity and nothing ever writes it, so declaring it as read adds no conflict edge. A
+   * future change that started writing it would silently repartition the AI pipeline, and the wave
+   * assertions above would be the only thing to notice - so this pins the premise they rely on.
+   */
+  @Test
+  fun `the throttle marker is read by the AI stages and written by none`() {
+    val ai = AiPipelineFixture()
+
+    val readers = ai.systems.count { AiThrottleable::class in it.reads }
+    assertEquals(3, readers, "perception, senses and think should all read the throttle marker")
+
+    for (system in ai.systems) {
+      assertEquals(
+        false,
+        AiThrottleable::class in system.writes,
+        "${system::class.simpleName} writes AiThrottleable, which would repartition the scheduler waves"
+      )
+    }
+  }
+
   @Test
   fun `the act stage declares the components its behaviour trees actually write`() {
     val ai = AiPipelineFixture()

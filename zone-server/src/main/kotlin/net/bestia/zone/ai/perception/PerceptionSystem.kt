@@ -3,7 +3,11 @@ package net.bestia.zone.ai.perception
 import net.bestia.zone.ai.core.state.Blackboard
 import net.bestia.zone.ai.domain.bestia.BestiaDomain
 import net.bestia.zone.ai.ecs.AiAgent
+import net.bestia.zone.ai.ecs.AiThrottle
+import net.bestia.zone.ai.ecs.AiThrottleable
+import net.bestia.zone.ai.ecs.PlayerControlled
 import net.bestia.zone.ai.profile.AiProfileRegistry
+import net.bestia.zone.ecs.account.ActivePlayer
 import net.bestia.zone.ecs.AoiLayer
 import net.bestia.zone.ecs.EntityAOIService
 import net.bestia.zone.ecs.account.Master
@@ -39,12 +43,21 @@ class PerceptionSystem(
   private val profileRegistry: AiProfileRegistry,
   private val aoiService: EntityAOIService,
   private val clock: BestiaClock,
+  private val throttle: AiThrottle,
 ) : EcsSystem {
 
   override val schedule: Schedule = Schedule.EverySeconds(0.5f)
 
-  override val reads: ComponentClassSet =
-    setOf(Position::class, Health::class, Master::class, TakenDamage::class, StatusEffects::class)
+  override val reads: ComponentClassSet = setOf(
+    Position::class,
+    Health::class,
+    Master::class,
+    TakenDamage::class,
+    StatusEffects::class,
+    ActivePlayer::class,
+    AiThrottleable::class,
+    PlayerControlled::class
+  )
 
   /**
    * `AiAgent` is declared as written, not read: this system mutates the agent's blackboard on every
@@ -60,9 +73,22 @@ class PerceptionSystem(
     // has finished loading throws — and a zone with no AI in it has no reason to ask at all.
     var night: Boolean? = null
 
+    // Gathered once per sweep rather than per agent: the throttle asks how far the nearest player is, and
+    // there are a handful of players against a hundred and forty creatures each.
+    val players = if (throttle.isActive) activePlayerPositions(world) else emptyList()
+
     world.query(AiAgent::class, Position::class).each { id ->
       val agent = get<AiAgent>()
       val position = get<Position>()
+
+      // Scenery nobody is near perceives less often. Never a den mob, a boss or a player's bestia - see
+      // AiThrottle. The gate is inside the loop rather than in the query because `reads`/`writes` decide
+      // scheduling waves, and this system already conflicts with every other AI stage on `AiAgent`.
+      val factor = throttle.factorFor(world, id, agent, players)
+      if (factor > 1) {
+        if (world.tickCount < agent.nextPerceiveTick) return@each
+        agent.nextPerceiveTick = world.tickCount + factor * PERCEIVE_PERIOD_TICKS + (id % factor)
+      }
 
       val profile = profileRegistry.get(agent.profileId) ?: return@each
       val selfPos = position.toVec3L()
@@ -158,4 +184,17 @@ class PerceptionSystem(
     return (health.current * 100 / health.max).coerceIn(0, 100)
   }
 
+  /** The same anchor set `SpawnerSystem` and `ChunkStreamSystem` use: only a player who picked a master. */
+  private fun activePlayerPositions(world: World): List<Vec3L> {
+    val positions = ArrayList<Vec3L>()
+    world.query(Position::class, ActivePlayer::class).each {
+      positions.add(get<Position>().toVec3L())
+    }
+    return positions
+  }
+
+  private companion object {
+    /** Ticks in one ordinary perception sweep, so a throttle factor multiplies a real period. */
+    const val PERCEIVE_PERIOD_TICKS = 10L
+  }
 }
