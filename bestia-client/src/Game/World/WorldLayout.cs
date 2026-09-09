@@ -67,8 +67,10 @@ namespace BestiaBehemothClient.Game.World
     /// </summary>
     /// <remarks>
     /// The server refuses a step whose rise exceeds <c>tan</c> of this over one voxel of run, and it refuses it
-    /// silently - a click into a hillside simply stops short. Here so that the terrain can be drawn to show
-    /// where that happens, which is the only warning a player gets.
+    /// silently - a click into a hillside simply stops short. So this is also what
+    /// <see cref="TerrainMaterials.SetWalkableSlope"/> and <see cref="TerrainGrass.MinUpright"/> derive their
+    /// thresholds from: the point cover gives way to rock is the point walking stops, and a player who can see
+    /// one knows the other.
     /// </remarks>
     public const double MaxWalkSlopeDegrees = 45.0;
   }
