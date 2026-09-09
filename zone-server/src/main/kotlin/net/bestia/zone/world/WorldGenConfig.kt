@@ -65,6 +65,15 @@ data class WorldGenConfig(
   val onMismatch: OnMismatch = OnMismatch.REFUSE,
 
   /**
+   * Whether to refuse a world whose geometry no client could draw - see [ClientWorldContract].
+   *
+   * On, because the failure it replaces is silent: terrain still meshes correctly under the wrong chunk size
+   * and only the props and colliders land somewhere else. Off for tests, which legitimately build worlds no
+   * client will ever see, and which is why this is a setting rather than an assertion.
+   */
+  val enforceClientLayout: Boolean = true,
+
+  /**
    * Which Order to treat as the previous incarnation's victor when there is no previous incarnation to ask.
    *
    * **A development lever, not the source of truth.** The real answer comes off the world being replaced, in
