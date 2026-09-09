@@ -35,7 +35,7 @@ class SpawnerSystemTest {
   private val spawned = mutableListOf<EntityId>()
 
   init {
-    every { bestiaSpawner.spawnMob(any(), any<Long>(), any(), any(), any()) } answers {
+    every { bestiaSpawner.spawnMob(any(), any<Long>(), any(), any(), any(), any()) } answers {
       world.createEntity { }.also { spawned.add(it) }
     }
   }
@@ -103,7 +103,7 @@ class SpawnerSystemTest {
     tick(5f)
 
     assertTrue(den.spawnedEntities.isEmpty())
-    verify(exactly = 0) { bestiaSpawner.spawnMob(any(), any<Long>(), any(), any(), any()) }
+    verify(exactly = 0) { bestiaSpawner.spawnMob(any(), any<Long>(), any(), any(), any(), any()) }
   }
 
   @Test
@@ -149,7 +149,7 @@ class SpawnerSystemTest {
     // The same creatures, not replacements: this is the whole reason the delay exists. Stepping out of a camp
     // and back must not reset the creatures in it - including their damage, their aggro and where they stand.
     assertEquals(original.toSet(), livingPackOf(den).toSet())
-    verify(exactly = 2) { bestiaSpawner.spawnMob(any(), any<Long>(), any(), any(), any()) }
+    verify(exactly = 2) { bestiaSpawner.spawnMob(any(), any<Long>(), any(), any(), any(), any()) }
   }
 
   @Test
@@ -170,7 +170,7 @@ class SpawnerSystemTest {
     tick(SpawnerSystem.UNLOAD_DELAY_SECONDS * 2)
 
     assertTrue(den.spawnedEntities.isEmpty())
-    verify(exactly = 2) { bestiaSpawner.spawnMob(any(), any<Long>(), any(), any(), any()) }
+    verify(exactly = 2) { bestiaSpawner.spawnMob(any(), any<Long>(), any(), any(), any(), any()) }
   }
 
   @Test
@@ -244,7 +244,7 @@ class SpawnerSystemTest {
     tick(5f)
 
     assertEquals(3, den.spawner.spawnedEntities.size)
-    verify(exactly = 0) { bestiaSpawner.spawnMob(any(), any<Long>(), any(), any(), any()) }
+    verify(exactly = 0) { bestiaSpawner.spawnMob(any(), any<Long>(), any(), any(), any(), any()) }
   }
 
   @Test
@@ -256,7 +256,7 @@ class SpawnerSystemTest {
     tick(5f)
 
     assertEquals(3, den.spawner.spawnedEntities.size)
-    verify(exactly = 1) { bestiaSpawner.spawnMob(any(), any<Long>(), any(), any(), any()) }
+    verify(exactly = 1) { bestiaSpawner.spawnMob(any(), any<Long>(), any(), any(), any(), any()) }
   }
 
   @Test
@@ -268,7 +268,7 @@ class SpawnerSystemTest {
     tick(2f)
 
     verify {
-      bestiaSpawner.spawnMob(any(), any<Long>(), any(), any(), DenMember(den.spawner.identity))
+      bestiaSpawner.spawnMob(any(), any<Long>(), any(), any(), DenMember(den.spawner.identity), any())
     }
   }
 
