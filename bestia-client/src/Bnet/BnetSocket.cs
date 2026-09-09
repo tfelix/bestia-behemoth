@@ -488,7 +488,12 @@ namespace BestiaBehemothClient.Bnet.Message
       try
       {
         // Connect to server
-        _tcpClient = new TcpClient();
+        _tcpClient = new TcpClient
+        {
+          // A move click is a few dozen bytes and there is nothing behind it to wait for, so Nagle can only
+          // hold it back. The server side sets the same option explicitly in SocketServer.
+          NoDelay = true
+        };
         GD.Print($"Attempting to connect to {ServerName}:{Port}");
 
         _tcpClient.Connect(ServerName, Port);
