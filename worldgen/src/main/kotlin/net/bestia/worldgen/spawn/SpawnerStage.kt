@@ -610,8 +610,8 @@ class SpawnerStage(
   /**
    * The ordinary danger curve, `0` in a village's fields and `1` in the remotest harsh ground.
    *
-   * Normalised by the sum of the weights, so retuning one term does not rescale the level curve - which it
-   * would if the weights merely added up to whatever they added up to.
+   * The curve itself lives in [SpawnDangerCurve] because zone-server needs the same answer for ground
+   * between the dens; that file explains why it is shared rather than copied.
    */
   private fun dangerAt(
     civDistance: Double,
@@ -619,20 +619,13 @@ class SpawnerStage(
     elevation: Double,
     biome: Biome
   ): Double {
-    val civilisation = ramp(nearestSettlement, 0.0, params.settlementSafeRange)
-    val remoteness = ramp(civDistance, 0.0, params.remotenessRange)
-    val relief = ramp(elevation, params.mountainStart, params.mountainFull)
-    val hostility = SpawnHostility.of(biome)
-
-    val weights = params.weightCivilisation + params.weightRemoteness +
-        params.weightRelief + params.weightBiome
-
-    return (
-        params.weightCivilisation * civilisation +
-            params.weightRemoteness * remoteness +
-            params.weightRelief * relief +
-            params.weightBiome * hostility
-        ) / weights
+    return SpawnDangerCurve.of(
+      civDistance = civDistance,
+      nearestSettlement = nearestSettlement,
+      elevationAboveSea = elevation,
+      biome = biome,
+      params = params
+    )
   }
 
   /** The level range a den in some ground gets. */
@@ -780,9 +773,6 @@ class SpawnerStage(
       .homeCandidateIndices(populations)
       .mapNotNull { byIndex[it]?.position }
   }
-
-  private fun ramp(value: Double, from: Double, to: Double): Double =
-    ((value - from) / (to - from)).coerceIn(0.0, 1.0)
 
   private fun lerp(from: Double, to: Double, t: Double) = from + (to - from) * t
 
