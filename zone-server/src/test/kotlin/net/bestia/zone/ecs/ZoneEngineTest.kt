@@ -2,6 +2,7 @@ package net.bestia.zone.ecs
 
 import io.mockk.clearMocks
 import io.mockk.mockk
+import io.mockk.slot
 import io.mockk.verify
 import net.bestia.zone.ecs.account.Account
 import net.bestia.zone.ecs.battle.damage.Dead
@@ -16,6 +17,7 @@ import net.bestia.zone.ecs.movement.Path
 import net.bestia.zone.ecs.movement.PathSMSG
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.visibility.EntityAudience
+import net.bestia.zone.ecs.movement.PositionSMSG
 import net.bestia.zone.ecs.visibility.EntitySnapshotBuilder
 import net.bestia.zone.ecs.visibility.EntityVisibility
 import net.bestia.zone.ecs.prop.StaticSync
@@ -378,5 +380,27 @@ class ZoneEngineTest {
     verify {
       outMessageProcessor.sendToPlayer(accountId, listOf(CarryCapacityComponentSMSG(entity, current = 7, max = 100)))
     }
+  }
+
+  @Test
+  fun `an entity's position goes out ahead of its path`() {
+    val pos = Vec3L(1, 2, 0)
+    // Path first: the dirty log is in marking order, so this is the order a flush would otherwise send in.
+    val entity = world.createEntity { id ->
+      add(id, Path(mutableListOf(Vec3L(2, 2, 0))))
+      add(id, Position.fromVec3(pos))
+    }
+    watched(entity)
+
+    zoneEngine.tickOnce(0.05f)
+
+    val sent = slot<Collection<SMSG>>()
+    verify(timeout = 1000) { outMessageProcessor.sendToPlayer(watcher, capture(sent)) }
+
+    assertEquals(
+      listOf(PositionSMSG::class, PathSMSG::class),
+      sent.captured.map { it::class },
+      "entity.gd reconciles an arriving path against where it thinks the entity is"
+    )
   }
 }
