@@ -24,6 +24,19 @@ namespace BestiaBehemothClient.Game.World
       Z = z;
     }
 
+    /// <summary>
+    /// This chunk's horizontal column, which is <c>Z</c> zero by the server's own convention.
+    /// </summary>
+    /// <remarks>
+    /// Some of what the server sends is about a column rather than a slab - a static entity batch, a ground
+    /// overlay - and it addresses those as <c>ChunkPos(x, y, 0)</c>, because a column spans the whole vertical
+    /// extent and no one slab index means anything for it. That is not interchangeable with a chunk address,
+    /// and confusing the two is silent: a column key looked up in a slab-keyed map simply asks about slab
+    /// zero, which is held only in the bottom 256 m of the world. This exists so the conversion is written
+    /// down where it happens rather than implied by a literal <c>0</c>.
+    /// </remarks>
+    public ChunkKey Column => new(X, Y, 0);
+
     public static ChunkKey FromProto(global::Bnet.ChunkPos pos) => new(pos.X, pos.Y, pos.Z);
 
     public global::Bnet.ChunkPos ToProto() => new() { X = X, Y = Y, Z = Z };

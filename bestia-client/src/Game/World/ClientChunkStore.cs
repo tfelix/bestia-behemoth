@@ -102,6 +102,29 @@ namespace BestiaBehemothClient.Game.World
 
     public VoxelChunk Get(ChunkKey key) => _held.TryGetValue(key, out var held) ? held.Chunk : null;
 
+  /// <summary>
+  /// Whether any slab of this column is held.
+  /// </summary>
+  /// <remarks>
+  /// The question column-scoped state has to ask before it retires itself. A static batch or a ground overlay
+  /// describes a whole column, so it stops being true when the client holds *none* of that column - not when
+  /// one slab of it is withdrawn, which is what a per-slab test would have said and which is almost never the
+  /// same moment. A linear scan over the held set: it runs once per withdrawn chunk in a manifest, against a
+  /// few hundred entries, and the alternative is a second index to keep correct.
+  /// </remarks>
+  public bool HoldsColumn(int chunkX, int chunkY)
+  {
+    foreach (var key in _held.Keys)
+    {
+      if (key.X == chunkX && key.Y == chunkY)
+      {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
     public ChunkBands BandsOf(ChunkKey key) => _held.TryGetValue(key, out var held) ? held.Bands : null;
 
     public bool Holds(ChunkKey key, uint revision) =>

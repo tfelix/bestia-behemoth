@@ -115,9 +115,13 @@ namespace BestiaBehemothClient.Game.World
 
         value.Configure(Store, WorldInfo);
 
-        foreach (var batch in _staticBatches.Values)
+        // A new renderer has drawn nothing, whatever the last one was given. Cleared before the replay so the
+        // "already applied" guard in ApplyStatics cannot skip a column on behalf of a renderer that is gone.
+        _appliedStatics.Clear();
+
+        foreach (var column in _staticBatches.Keys)
         {
-          value.Apply(batch);
+          ApplyStatics(column);
         }
       }
     }
@@ -125,14 +129,27 @@ namespace BestiaBehemothClient.Game.World
     private StaticEntityRenderer _staticEntities;
 
     /// <summary>
-    /// The latest static batch for each chunk still held, so a late-attached renderer can be caught up.
+    /// The latest static batch for each column still held, so a late-attached renderer can be caught up.
     /// </summary>
     /// <remarks>
-    /// Keyed and dropped in step with <see cref="Store"/> rather than by its own rule: a batch describes the
-    /// contents of a column the client holds terrain for, so it stops being true at exactly the moment that
-    /// terrain does.
+    /// Keyed by <see cref="ChunkKey.Column"/>, which is what the server addresses a batch with, and dropped
+    /// when the client holds no slab of that column - see the prune in <see cref="OnManifest"/>. It cannot be
+    /// keyed or dropped per slab: a column is typically held through one slab and its batch describes the
+    /// whole of it.
     /// </remarks>
     private readonly Dictionary<ChunkKey, ChunkStaticEntitiesSMSG> _staticBatches = new();
+
+    /// <summary>
+    /// How many of a column's prop slabs were decoded when its batch was last handed to the renderer.
+    /// </summary>
+    /// <remarks>
+    /// Zero-or-absent means "not drawn yet". The count rather than a flag, because a batch can have props in
+    /// more than one slab - a crystal in a cave and a tree on the roof of it - and those slabs arrive on
+    /// separate messages. Re-applying when the count grows is what draws the second one; not re-applying when
+    /// it has not is what stops every slab of a column tearing the whole column's props down and building
+    /// them again.
+    /// </remarks>
+    private readonly Dictionary<ChunkKey, int> _appliedStatics = new();
 
     /// <summary>
     /// The scorch and fire masks for the columns this client holds.
@@ -144,9 +161,15 @@ namespace BestiaBehemothClient.Game.World
     /// </remarks>
     private readonly Dictionary<ChunkKey, ChunkGroundOverlaySMSG> _burnMasks = new();
 
-    /// <summary>The overlay for one column, or null when that ground is clean.</summary>
+    /// <summary>
+    /// The overlay for one column, or null when that ground is clean.
+    /// </summary>
+    /// <remarks>
+    /// Takes any chunk of the column and reduces it, so a caller holding a slab address - which is what a
+    /// renderer has - cannot silently ask about slab zero and be told the ground is clean.
+    /// </remarks>
     public ChunkGroundOverlaySMSG BurnMaskOf(ChunkKey key) =>
-      _burnMasks.TryGetValue(key, out var mask) ? mask : null;
+      _burnMasks.TryGetValue(key.Column, out var mask) ? mask : null;
 
     /// <summary>The world's chunk grid, for the addresses this class derives rather than receives.</summary>
     private ChunkWrap _wrap = ChunkWrap.None;
@@ -330,11 +353,11 @@ namespace BestiaBehemothClient.Game.World
           // whoever draws them needs the mesh, and gets it when the chunk lands.
           if (overlay.IsClean)
           {
-            _burnMasks.Remove(overlay.Key);
+            _burnMasks.Remove(overlay.Key.Column);
           }
           else
           {
-            _burnMasks[overlay.Key] = overlay;
+            _burnMasks[overlay.Key.Column] = overlay;
           }
           break;
 
@@ -347,13 +370,12 @@ namespace BestiaBehemothClient.Game.World
           // stand on the surface as drawn rather than as rounded, and a batch that lands while its own chunk
           // is still in _toDecode would find nothing there and silently fall back for the whole column. So it
           // waits, and Decode applies it - the batch is retained here for late-attaching renderers anyway, so
-          // holding it costs nothing and it is still placed exactly once.
-          _staticBatches[statics.Key] = statics;
-
-          if (Store.Get(statics.Key) != null)
-          {
-            StaticEntities?.Apply(statics);
-          }
+          // holding it costs nothing.
+          //
+          // The key is already a column: the server addresses a batch `ChunkPos(x, y, 0)`. See ApplyStatics
+          // for why that must not be handed to the slab-keyed store as it stands.
+          _staticBatches[statics.Key.Column] = statics;
+          ApplyStatics(statics.Key.Column);
           break;
 
         case StaticEntityRemovedSMSG removed:
@@ -378,7 +400,9 @@ namespace BestiaBehemothClient.Game.World
     /// </remarks>
     private void OnStaticEntityRemoved(StaticEntityRemovedSMSG removed)
     {
-      if (!_staticBatches.TryGetValue(removed.Key, out var batch))
+      var column = removed.Key.Column;
+
+      if (!_staticBatches.TryGetValue(column, out var batch))
       {
         return;
       }
@@ -389,8 +413,70 @@ namespace BestiaBehemothClient.Game.World
         return;
       }
 
-      _staticBatches[removed.Key] = pruned;
-      StaticEntities?.RemoveEntity(removed.Key, removed.EntityId);
+      _staticBatches[column] = pruned;
+      StaticEntities?.RemoveEntity(column, removed.EntityId);
+    }
+
+    /// <summary>
+    /// Draws a column's props once the ground they stand on has been decoded.
+    /// </summary>
+    /// <remarks>
+    /// A prop reads the terrain under it so that it stands on the surface as drawn rather than as rounded, so
+    /// a batch has to wait for its ground. Which chunk *is* its ground is the part that was wrong: a batch is
+    /// addressed by column - the server sends <c>ChunkPos(x, y, 0)</c> - and that address was being handed
+    /// straight to the slab-keyed <see cref="Store"/>, so the test asked whether slab zero was held. Slab
+    /// zero is the ground only in the bottom 256 m of a world whose slabs are 256 m tall, so anywhere higher
+    /// the answer was permanently no and the props were never drawn at all: not on arrival, and not from
+    /// <see cref="Decode"/> either, which was looking the batch up under its own slab key and missing it.
+    ///
+    /// <para>
+    /// The slab a prop stands in comes from its own global voxel <c>z</c>, which is what the batch carries it
+    /// as. Any slab that is held is enough to draw the props in it; the ones whose slab has not arrived are
+    /// placed when it does.
+    /// </para>
+    /// </remarks>
+    private void ApplyStatics(ChunkKey column)
+    {
+      if (!_staticBatches.TryGetValue(column, out var batch) || StaticEntities == null)
+      {
+        return;
+      }
+
+      var ready = ReadySlabsOf(batch);
+      if (ready == 0 || ready <= (_appliedStatics.TryGetValue(column, out var done) ? done : 0))
+      {
+        return;
+      }
+
+      _appliedStatics[column] = ready;
+      StaticEntities.Apply(batch);
+    }
+
+    /// <summary>How many distinct slabs this batch has props in that are decoded and ready to stand on.</summary>
+    private int ReadySlabsOf(ChunkStaticEntitiesSMSG batch)
+    {
+      var height = WorldInfo?.ChunkHeight ?? 0;
+      if (height <= 0)
+      {
+        return 0;
+      }
+
+      var ready = 0;
+      var counted = new HashSet<int>();
+
+      foreach (var entry in batch.Entries)
+      {
+        // Floor division, not integer division: a prop in a cave below sea level has a negative voxel z, and
+        // truncation towards zero would name the slab above it.
+        var slab = (int)Math.Floor((double)entry.Position.Y / height);
+
+        if (counted.Add(slab) && Store.Get(new ChunkKey(batch.Key.X, batch.Key.Y, slab)) != null)
+        {
+          ready++;
+        }
+      }
+
+      return ready;
     }
 
     private void OnWorldInfo(WorldInfoSMSG info)
@@ -444,6 +530,7 @@ namespace BestiaBehemothClient.Game.World
       Store.Clear();
       _toDecode.Clear();
       _staticBatches.Clear();
+      _appliedStatics.Clear();
       _burnMasks.Clear();
       StaticEntities?.Clear();
     }
@@ -472,9 +559,21 @@ namespace BestiaBehemothClient.Game.World
         }
 
         Renderer?.Remove(key);
-        _staticBatches.Remove(key);
-        _burnMasks.Remove(key);
-        StaticEntities?.Remove(key);
+
+        // Column-scoped state retires when the *column* empties, not when one of its slabs is withdrawn. A
+        // batch and an overlay are addressed `(x, y, 0)`, so keying these off the withdrawn slab matched
+        // nothing at all above the bottom 256 m of the world: the props of every column a player had ever
+        // held stayed in the scene, and the buffer they are replayed from grew for the whole session.
+        var column = key.Column;
+        if (Store.HoldsColumn(column.X, column.Y))
+        {
+          continue;
+        }
+
+        _staticBatches.Remove(column);
+        _burnMasks.Remove(column);
+        _appliedStatics.Remove(column);
+        StaticEntities?.Remove(column);
       }
 
       GD.Print(
@@ -502,10 +601,7 @@ namespace BestiaBehemothClient.Game.World
         // Anything waiting on this ground can now be stood on it. Ordinary rather than exceptional: the
         // server sends a column's static batch right behind its payload, and decoding is budgeted, so a batch
         // usually arrives several frames before the chunk it belongs to comes off the queue.
-        if (_staticBatches.TryGetValue(data.Key, out var waiting))
-        {
-          StaticEntities?.Apply(waiting);
-        }
+        ApplyStatics(data.Key.Column);
 
         _decoded++;
         _payloadBytes += data.PayloadBytes;
