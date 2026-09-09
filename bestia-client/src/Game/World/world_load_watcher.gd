@@ -167,14 +167,13 @@ func _on_entity_received(msg: EntitySMSG) -> void:
 		begin()
 
 
-## Unknowable before the world info arrives, and INF there means nothing is ever taken for a jump.
+## INF until the world info has arrived, so nothing is taken for a jump before there is a world.
 func _jump_distance() -> float:
 	var stream: Node = _connection.chunk_stream if _connection != null else null
-	var info = stream.WorldInfo if stream != null else null
-	if info == null:
+	if stream == null or stream.WorldInfo == null:
 		return INF
 
-	return _JUMP_CHUNKS * float(info.ChunkSize) * float(info.VoxelSizeMetres)
+	return _JUMP_CHUNKS * float(stream.ChunkExtentMetres)
 
 
 ## Only a load this watcher started. The login handshake raises the same screen and is not ours to

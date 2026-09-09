@@ -110,6 +110,10 @@ class ChunkStreamingScenario : BestiaNoSocketScenario(
       assertEquals(ChunkEngine.VERSION, info.chunkEngineVersion)
       assertTrue(info.widthCells > 0 && info.heightCells > 0)
       assertTrue(info.name.isNotBlank())
+
+      // Off the running configuration, not a constant: the client sizes its loading screen as `2r + 1`
+      // columns each way, so a radius this does not track shows a bar that finishes at the wrong time.
+      assertEquals(settings.viewRadiusChunks, info.viewRadiusChunks)
     }
   }
 

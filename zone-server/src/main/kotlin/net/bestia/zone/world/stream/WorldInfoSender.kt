@@ -23,7 +23,8 @@ class WorldInfoSender(
   private val subscriptions: ChunkSubscriptionService,
   private val inbox: ChunkStreamInbox,
   private val outMessageProcessor: OutMessageProcessor,
-  private val bestiaClock: BestiaClock
+  private val bestiaClock: BestiaClock,
+  private val settings: ChunkStreamConfig
 ) {
 
   @EventListener
@@ -35,7 +36,12 @@ class WorldInfoSender(
 
     outMessageProcessor.sendToPlayer(
       event.accountId,
-      WorldInfoSMSG.of(worldService.record, bestiaClock.now(), bestiaClock.speedFactor)
+      WorldInfoSMSG.of(
+        worldService.record,
+        bestiaClock.now(),
+        bestiaClock.speedFactor,
+        settings.viewRadiusChunks
+      )
     )
 
     LOG.debug { "Sent world info to account ${event.accountId}" }

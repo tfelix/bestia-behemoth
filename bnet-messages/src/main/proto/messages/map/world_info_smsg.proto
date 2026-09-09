@@ -11,18 +11,19 @@ option java_outer_classname = "WorldInfoSMSGProto";
  *
  * ### What is no longer here, and why
  *
- * The world's *geometry* used to be: chunk dimensions, voxel size, cell size, both wrap flags, the sea
- * level and the view radius. Every one of them described a shape that has never been anything else, and
- * none is something a client can adapt to at runtime - so the client compiles them in instead, as
+ * The world's *geometry* used to be: chunk dimensions, voxel size, cell size, both wrap flags and the
+ * sea level. Every one of them described a shape that has never been anything else, and none is
+ * something a client can adapt to at runtime - so the client compiles them in instead, as
  * `WorldLayout.cs`, and `zone-server` refuses to boot a world that is not that shape. See
  * `ClientWorldContract`.
  *
  * The extent stays, because it genuinely varies: a 64 km world and a 192 km world are both real. The
- * calendar stays for the opposite reason to the geometry - see `hours_per_day` below.
+ * calendar stays for the opposite reason to the geometry - see `hours_per_day` below. The view radius
+ * stays because it is neither geometry nor calendar - see `view_radius_chunks`.
  *
- * Fields 4, 10-13, 20, 21 and 40 were the geometry, and are reserved rather than reused. A client
- * reading a new server as an old message would decode whatever took field 12 as a voxel size, which is
- * the shape of failure field 55 below is also reserved for: plausible, wrong, and silent.
+ * Fields 4, 10-13, 20 and 21 were the geometry, and are reserved rather than reused. A client reading a
+ * new server as an old message would decode whatever took field 12 as a voxel size, which is the shape
+ * of failure field 55 below is also reserved for: plausible, wrong, and silent.
  *
  * ### The seed is deliberately absent
  *
@@ -36,9 +37,9 @@ message WorldInfoSMSG {
   int32 width_cells = 2;
   int32 height_cells = 3;
 
-  reserved 4, 10, 11, 12, 13, 20, 21, 40;
+  reserved 4, 10, 11, 12, 13, 20, 21;
   reserved "cell_size_metres", "chunk_size", "chunk_height", "voxel_size_metres";
-  reserved "sea_level_metres", "wrap_x", "wrap_y", "view_radius_chunks";
+  reserved "sea_level_metres", "wrap_x", "wrap_y";
 
   /**
    * One number covering everything a client has to agree with the server about to read a chunk: the
@@ -51,6 +52,15 @@ message WorldInfoSMSG {
    * Sending the vector would only invite it to make a decision it has no basis for.
    */
   uint32 chunk_engine_version = 30;
+
+  /**
+   * Horizontal radius, in chunks from the player's own, of the view volume the server streams.
+   *
+   * On the wire, unlike the geometry above, because it is not part of a world at all: it is a `chunk-stream`
+   * setting, tuned per deployment. Informational, in that the server enforces its own radius when deciding
+   * what to offer - a client uses it to size a load, as `2r + 1` columns each way clamped by the extent.
+   */
+  int32 view_radius_chunks = 40;
 
   /**
    * The world calendar, as an anchor the client runs forward on its own rather than as a ticking message.

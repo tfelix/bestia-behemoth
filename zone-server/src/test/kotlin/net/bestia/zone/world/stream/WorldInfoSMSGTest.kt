@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
 import java.time.Duration
 
 /**
- * The calendar half of the world info, which the client refuses as a whole if any part of it is zero.
+ * The parts of the world info a client reads as a number rather than a field, and so cannot see go missing.
  *
  * `WorldClock.Anchor` treats a zero `hours_per_day`, `days_per_month`, `months_per_year` or
  * `time_speed_factor` as "this server predates the world clock" and leaves the HUD clock hidden rather than
@@ -20,7 +20,8 @@ class WorldInfoSMSGTest {
   private fun infoAt(elapsed: Duration) = WorldInfoSMSG.of(
     record = mockk(relaxed = true),
     now = BestiaDateTime.since(elapsed),
-    timeSpeedFactor = BestiaDateTime.SPEED_FACTOR
+    timeSpeedFactor = BestiaDateTime.SPEED_FACTOR,
+    viewRadiusChunks = VIEW_RADIUS
   ).toBnetEnvelope().worldInfo
 
   @Test
@@ -63,6 +64,17 @@ class WorldInfoSMSGTest {
   }
 
   /**
+   * The view radius is what the client's loading screen counts towards, and a dropped field is a zero.
+   *
+   * `ChunkStreamManager` sizes the expected column count as `2r + 1` each way, so zero is one column: a
+   * load that reports itself complete as soon as the player's own chunk arrives.
+   */
+  @Test
+  fun `the view radius reaches the wire`() {
+    assertEquals(VIEW_RADIUS, infoAt(Duration.ZERO).viewRadiusChunks)
+  }
+
+  /**
    * The anchor is elapsed Bestia-seconds, so a world eight real hours old is one Bestia day in.
    *
    * Zero is a legitimate value here - a world created this instant - which is why the client's guard does not
@@ -79,5 +91,10 @@ class WorldInfoSMSGTest {
       secondsPerBestiaDay / 1_000,
       "eight real hours at speed factor 3 is one Bestia day"
     )
+  }
+
+  private companion object {
+    /** Deliberately not [ChunkStreamConfig]'s default, so a hard-coded 5 anywhere on the path fails here. */
+    private const val VIEW_RADIUS = 7
   }
 }
