@@ -37,6 +37,11 @@ class BestiaEntitySpawner(
    *   afterwards because `SpawnerSystem` calls this mid-tick, where `World.add` is *deferred* to the end of
    *   the tick; going through `configure` puts it on inside the same `createEntity` lock, atomically, and
    *   gives rehydration the identical entry point.
+   * @param persistent whether this creature should survive a restart. Defaults to true because that is what
+   *   a den's pack needs and what every caller wanted when there was no choice; the wrong default here would
+   *   silently stop persisting packs and grow the population on every restart, which is a bug this file has
+   *   shipped once already. False is for a population dense enough that rows would be a liability - see
+   *   `Persistent`, and `AreaEffectSpawner` for the same decision made about spell effects.
    */
   fun spawnMob(
     world: WorldView,
@@ -44,6 +49,7 @@ class BestiaEntitySpawner(
     pos: Vec3L,
     entityId: EntityId? = null,
     den: DenMember? = null,
+    persistent: Boolean = true,
   ): EntityId {
     LOG.debug { "Spawning mob bestia $bestiaId on $pos" }
 
@@ -79,7 +85,7 @@ class BestiaEntitySpawner(
           agility = baseStatusValues.agility
         )
       )
-      add(id, Persistent)
+      if (persistent) add(id, Persistent)
       // Only when a den made it. Absence is what marks a creature nothing owns; see DenMember.
       den?.let { add(id, it) }
 

@@ -14,6 +14,7 @@ import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.session.NoActiveSessionException
 import net.bestia.zone.ecs.persistence.PersistedEntityDeletionQueue
+import net.bestia.zone.ecs.persistence.Persistent
 import net.bestia.zone.item.loot.LootItemEntitySpawner
 import net.bestia.zone.party.PartyMembership
 import net.bestia.zone.util.EntityId
@@ -30,7 +31,15 @@ class DeathSystem(
 ) : System {
 
   override val reads: ComponentClassSet =
-    setOf(Dead::class, TakenDamage::class, EntityVisual::class, Position::class, Account::class, PartyMembership::class)
+    setOf(
+      Dead::class,
+      TakenDamage::class,
+      EntityVisual::class,
+      Position::class,
+      Account::class,
+      PartyMembership::class,
+      Persistent::class
+    )
 
   override val writes: ComponentClassSet = setOf(Exp::class)
 
@@ -50,8 +59,12 @@ class DeathSystem(
       spawnLoot(world, entityId)
 
       // A dead entity is gone for good — drop any persisted row so it is not resurrected on reload.
-      // The actual DB delete is batched off the tick thread by the persistence sync.
-      deletionQueue.enqueue(entityId)
+      // The actual DB delete is batched off the tick thread by the persistence sync. Only for an entity
+      // that could have a row: a transient one has none, and queueing those spends a growing DELETE ... IN
+      // every sync on ids the table never held.
+      if (world.has(entityId, Persistent::class)) {
+        deletionQueue.enqueue(entityId)
+      }
 
       world.destroy(entityId)
     }

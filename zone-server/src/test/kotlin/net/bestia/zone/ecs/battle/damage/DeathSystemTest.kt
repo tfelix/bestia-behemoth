@@ -10,7 +10,9 @@ import net.bestia.zone.ecs.entity.EntityVisual
 import net.bestia.zone.ecs.entity.VisualKind
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.persistence.PersistedEntityDeletionQueue
+import net.bestia.zone.ecs.persistence.Persistent
 import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.util.EntityId
 import net.bestia.zone.item.loot.LootItemEntitySpawner
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -36,10 +38,16 @@ class DeathSystemTest {
     connectionInfoService = ConnectionInfoService(),
   )
 
-  private fun net.bestia.zone.ecs.core.World.deadBestia(owner: Long?) = createEntity { eid ->
+  private fun net.bestia.zone.ecs.core.World.deadBestia(
+    owner: Long? = null,
+    persistent: Boolean = true
+  ) = createEntity { eid ->
     add(eid, Position.fromVec3(Vec3L(1, 2, 3)))
     add(eid, EntityVisual(VisualKind.BESTIA, 7L))
     add(eid, Dead())
+    // Every mob `BestiaEntitySpawner` persists carries this, so a fixture without it was modelling a
+    // creature that cannot exist - and the deletion assertion below is about exactly that marker.
+    if (persistent) add(eid, Persistent)
     if (owner != null) add(eid, Account(owner))
   }
 
@@ -52,6 +60,17 @@ class DeathSystemTest {
 
     assertFalse(world.isAlive(id))
     assertEquals(listOf(id), deletionQueue.drainAll())
+  }
+
+  @Test
+  fun `a transient mob is destroyed without queueing a deletion`() {
+    val world = testWorld()
+    val id = world.deadBestia(persistent = false)
+
+    sut.update(world, 0f)
+
+    assertFalse(world.isAlive(id))
+    assertEquals(emptyList<EntityId>(), deletionQueue.drainAll())
   }
 
   @Test
