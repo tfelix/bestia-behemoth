@@ -19,8 +19,6 @@ class WorldInfoSMSGTest {
 
   private fun infoAt(elapsed: Duration) = WorldInfoSMSG.of(
     record = mockk(relaxed = true),
-    config = mockk(relaxed = true),
-    viewRadiusChunks = 8,
     now = BestiaDateTime.since(elapsed),
     timeSpeedFactor = BestiaDateTime.SPEED_FACTOR
   ).toBnetEnvelope().worldInfo

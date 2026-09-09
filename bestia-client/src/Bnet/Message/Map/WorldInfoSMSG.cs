@@ -3,12 +3,14 @@ using Godot;
 namespace BestiaBehemothClient.Bnet.Message.Map
 {
   /// <summary>
-  /// The world's shape and identity. Arrives once, right after authentication, before any chunk.
+  /// The world's identity, its extent, and the clock. Arrives once, right after authentication, before any
+  /// chunk.
   /// </summary>
   /// <remarks>
-  /// Needed before a chunk payload means anything: a position cannot become a chunk address without
-  /// <see cref="ChunkSize"/>, and a voxel index cannot become an elevation without
-  /// <see cref="VoxelSizeMetres"/> plus the fact that index zero is sea level.
+  /// The world's geometry is <see cref="Game.World.WorldLayout"/>'s, not this message's: it never varies, and
+  /// nothing here could adapt to it if it did. What remains is what genuinely differs between worlds - the
+  /// extent, which <see cref="Game.World.ChunkWrap"/> turns into a chunk count - plus the clock, and the one
+  /// number this client is asked to compare against its own.
   ///
   /// <para>
   /// There is no seed here and there should not be. This client does not generate base terrain, so it has no
@@ -20,17 +22,10 @@ namespace BestiaBehemothClient.Bnet.Message.Map
   {
     [Export] public string Name { get; set; } = "";
 
+    /// <summary>The world's extent, in world-tier cells. A cell is <c>WorldLayout.CellSizeMetres</c>.</summary>
     [Export] public int WidthCells { get; set; }
+
     [Export] public int HeightCells { get; set; }
-    [Export] public double CellSizeMetres { get; set; }
-
-    [Export] public int ChunkSize { get; set; }
-    [Export] public int ChunkHeight { get; set; }
-    [Export] public double VoxelSizeMetres { get; set; }
-    [Export] public double SeaLevelMetres { get; set; }
-
-    [Export] public bool WrapX { get; set; }
-    [Export] public bool WrapY { get; set; }
 
     /// <summary>
     /// The chunk encoding and block palette this server speaks, as one number.
@@ -41,8 +36,6 @@ namespace BestiaBehemothClient.Bnet.Message.Map
     /// what arrives or must be updated, so it is told the one thing it can act on.
     /// </remarks>
     [Export] public uint ChunkEngineVersion { get; set; }
-
-    [Export] public int ViewRadiusChunks { get; set; }
 
     /// <summary>
     /// Bestia-seconds elapsed since the world began, as of the moment this message was built.
@@ -113,26 +106,16 @@ namespace BestiaBehemothClient.Bnet.Message.Map
         Name = proto.Name,
         WidthCells = proto.WidthCells,
         HeightCells = proto.HeightCells,
-        CellSizeMetres = proto.CellSizeMetres,
-        ChunkSize = proto.ChunkSize,
-        ChunkHeight = proto.ChunkHeight,
-        VoxelSizeMetres = proto.VoxelSizeMetres,
-        SeaLevelMetres = proto.SeaLevelMetres,
-        WrapX = proto.WrapX,
-        WrapY = proto.WrapY,
-        ChunkEngineVersion = proto.ChunkEngineVersion,
-        ViewRadiusChunks = proto.ViewRadiusChunks
+        ChunkEngineVersion = proto.ChunkEngineVersion
       };
     }
 
     public override string ToString()
     {
-      var widthKm = WidthCells * CellSizeMetres / 1000.0;
-      var heightKm = HeightCells * CellSizeMetres / 1000.0;
+      var widthKm = WidthCells * Game.World.WorldLayout.CellSizeMetres / 1000.0;
+      var heightKm = HeightCells * Game.World.WorldLayout.CellSizeMetres / 1000.0;
 
-      return $"{Name} {widthKm:F0}x{heightKm:F0} km, chunks {ChunkSize}x{ChunkSize}x{ChunkHeight} " +
-             $"@{VoxelSizeMetres:F1}m, sea level {SeaLevelMetres:F0}m, wrapX={WrapX} wrapY={WrapY}, " +
-             $"chunk engine v{ChunkEngineVersion}, view radius {ViewRadiusChunks}";
+      return $"{Name} {widthKm:F0}x{heightKm:F0} km, chunk engine v{ChunkEngineVersion}";
     }
   }
 }

@@ -24,25 +24,24 @@ namespace Bnet {
     static WorldInfoSmsgReflection() {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
-            "CiJtZXNzYWdlcy9tYXAvd29ybGRfaW5mb19zbXNnLnByb3RvEgRibmV0IpUE",
+            "CiJtZXNzYWdlcy9tYXAvd29ybGRfaW5mb19zbXNnLnByb3RvEgRibmV0IoUE",
             "Cg1Xb3JsZEluZm9TTVNHEgwKBG5hbWUYASABKAkSEwoLd2lkdGhfY2VsbHMY",
-            "AiABKAUSFAoMaGVpZ2h0X2NlbGxzGAMgASgFEhgKEGNlbGxfc2l6ZV9tZXRy",
-            "ZXMYBCABKAESEgoKY2h1bmtfc2l6ZRgKIAEoBRIUCgxjaHVua19oZWlnaHQY",
-            "CyABKAUSGQoRdm94ZWxfc2l6ZV9tZXRyZXMYDCABKAESGAoQc2VhX2xldmVs",
-            "X21ldHJlcxgNIAEoARIOCgZ3cmFwX3gYFCABKAgSDgoGd3JhcF95GBUgASgI",
-            "EhwKFGNodW5rX2VuZ2luZV92ZXJzaW9uGB4gASgNEhoKEnZpZXdfcmFkaXVz",
-            "X2NodW5rcxgoIAEoBRIgChh3b3JsZF9hZ2VfYmVzdGlhX3NlY29uZHMYMiAB",
-            "KAESGQoRdGltZV9zcGVlZF9mYWN0b3IYMyABKAESFQoNaG91cnNfcGVyX2Rh",
-            "eRg0IAEoBRIWCg5kYXlzX3Blcl9tb250aBg1IAEoBRIXCg9tb250aHNfcGVy",
-            "X3llYXIYNiABKAUSFgoObmlnaHRfZW5kX2hvdXIYOCABKAUSFQoNZGF3bl9l",
-            "bmRfaG91chg5IAEoBRIXCg9kdXNrX3N0YXJ0X2hvdXIYOiABKAUSGAoQbmln",
-            "aHRfc3RhcnRfaG91chg7IAEoBUoECDcQOFILbmlnaHRfaG91cnNCKwoVbmV0",
-            "LmJlc3RpYS5ibmV0LnByb3RvQhJXb3JsZEluZm9TTVNHUHJvdG9iBnByb3Rv",
-            "Mw=="));
+            "AiABKAUSFAoMaGVpZ2h0X2NlbGxzGAMgASgFEhwKFGNodW5rX2VuZ2luZV92",
+            "ZXJzaW9uGB4gASgNEiAKGHdvcmxkX2FnZV9iZXN0aWFfc2Vjb25kcxgyIAEo",
+            "ARIZChF0aW1lX3NwZWVkX2ZhY3RvchgzIAEoARIVCg1ob3Vyc19wZXJfZGF5",
+            "GDQgASgFEhYKDmRheXNfcGVyX21vbnRoGDUgASgFEhcKD21vbnRoc19wZXJf",
+            "eWVhchg2IAEoBRIWCg5uaWdodF9lbmRfaG91chg4IAEoBRIVCg1kYXduX2Vu",
+            "ZF9ob3VyGDkgASgFEhcKD2R1c2tfc3RhcnRfaG91chg6IAEoBRIYChBuaWdo",
+            "dF9zdGFydF9ob3VyGDsgASgFSgQIBBAFSgQIChALSgQICxAMSgQIDBANSgQI",
+            "DRAOSgQIFBAVSgQIFRAWSgQIKBApSgQINxA4UhBjZWxsX3NpemVfbWV0cmVz",
+            "UgpjaHVua19zaXplUgxjaHVua19oZWlnaHRSEXZveGVsX3NpemVfbWV0cmVz",
+            "UhBzZWFfbGV2ZWxfbWV0cmVzUgZ3cmFwX3hSBndyYXBfeVISdmlld19yYWRp",
+            "dXNfY2h1bmtzUgtuaWdodF9ob3Vyc0IrChVuZXQuYmVzdGlhLmJuZXQucHJv",
+            "dG9CEldvcmxkSW5mb1NNU0dQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.WorldInfoSMSG), global::Bnet.WorldInfoSMSG.Parser, new[]{ "Name", "WidthCells", "HeightCells", "CellSizeMetres", "ChunkSize", "ChunkHeight", "VoxelSizeMetres", "SeaLevelMetres", "WrapX", "WrapY", "ChunkEngineVersion", "ViewRadiusChunks", "WorldAgeBestiaSeconds", "TimeSpeedFactor", "HoursPerDay", "DaysPerMonth", "MonthsPerYear", "NightEndHour", "DawnEndHour", "DuskStartHour", "NightStartHour" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.WorldInfoSMSG), global::Bnet.WorldInfoSMSG.Parser, new[]{ "Name", "WidthCells", "HeightCells", "ChunkEngineVersion", "WorldAgeBestiaSeconds", "TimeSpeedFactor", "HoursPerDay", "DaysPerMonth", "MonthsPerYear", "NightEndHour", "DawnEndHour", "DuskStartHour", "NightStartHour" }, null, null, null, null)
           }));
     }
     #endregion
@@ -51,11 +50,23 @@ namespace Bnet {
   #region Messages
   /// <summary>
   ///*
-  /// The world's shape and identity, sent once per connection as soon as it is authenticated.
+  /// The world's identity, its extent, and the clock - sent once per connection as soon as it is
+  /// authenticated.
   ///
-  /// Everything here is needed before a chunk payload means anything: the client cannot turn a position
-  /// into a chunk address without the chunk dimensions, and cannot turn a voxel index back into an
-  /// elevation without the voxel size and the fact that index zero is sea level.
+  /// ### What is no longer here, and why
+  ///
+  /// The world's *geometry* used to be: chunk dimensions, voxel size, cell size, both wrap flags, the sea
+  /// level and the view radius. Every one of them described a shape that has never been anything else, and
+  /// none is something a client can adapt to at runtime - so the client compiles them in instead, as
+  /// `WorldLayout.cs`, and `zone-server` refuses to boot a world that is not that shape. See
+  /// `ClientWorldContract`.
+  ///
+  /// The extent stays, because it genuinely varies: a 64 km world and a 192 km world are both real. The
+  /// calendar stays for the opposite reason to the geometry - see `hours_per_day` below.
+  ///
+  /// Fields 4, 10-13, 20, 21 and 40 were the geometry, and are reserved rather than reused. A client
+  /// reading a new server as an old message would decode whatever took field 12 as a voxel size, which is
+  /// the shape of failure field 55 below is also reserved for: plausible, wrong, and silent.
   ///
   /// ### The seed is deliberately absent
   ///
@@ -101,15 +112,7 @@ namespace Bnet {
       name_ = other.name_;
       widthCells_ = other.widthCells_;
       heightCells_ = other.heightCells_;
-      cellSizeMetres_ = other.cellSizeMetres_;
-      chunkSize_ = other.chunkSize_;
-      chunkHeight_ = other.chunkHeight_;
-      voxelSizeMetres_ = other.voxelSizeMetres_;
-      seaLevelMetres_ = other.seaLevelMetres_;
-      wrapX_ = other.wrapX_;
-      wrapY_ = other.wrapY_;
       chunkEngineVersion_ = other.chunkEngineVersion_;
-      viewRadiusChunks_ = other.viewRadiusChunks_;
       worldAgeBestiaSeconds_ = other.worldAgeBestiaSeconds_;
       timeSpeedFactor_ = other.timeSpeedFactor_;
       hoursPerDay_ = other.hoursPerDay_;
@@ -164,96 +167,6 @@ namespace Bnet {
       }
     }
 
-    /// <summary>Field number for the "cell_size_metres" field.</summary>
-    public const int CellSizeMetresFieldNumber = 4;
-    private double cellSizeMetres_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public double CellSizeMetres {
-      get { return cellSizeMetres_; }
-      set {
-        cellSizeMetres_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "chunk_size" field.</summary>
-    public const int ChunkSizeFieldNumber = 10;
-    private int chunkSize_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int ChunkSize {
-      get { return chunkSize_; }
-      set {
-        chunkSize_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "chunk_height" field.</summary>
-    public const int ChunkHeightFieldNumber = 11;
-    private int chunkHeight_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int ChunkHeight {
-      get { return chunkHeight_; }
-      set {
-        chunkHeight_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "voxel_size_metres" field.</summary>
-    public const int VoxelSizeMetresFieldNumber = 12;
-    private double voxelSizeMetres_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public double VoxelSizeMetres {
-      get { return voxelSizeMetres_; }
-      set {
-        voxelSizeMetres_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "sea_level_metres" field.</summary>
-    public const int SeaLevelMetresFieldNumber = 13;
-    private double seaLevelMetres_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public double SeaLevelMetres {
-      get { return seaLevelMetres_; }
-      set {
-        seaLevelMetres_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "wrap_x" field.</summary>
-    public const int WrapXFieldNumber = 20;
-    private bool wrapX_;
-    /// <summary>
-    ///* East and west are the same place. 
-    /// </summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool WrapX {
-      get { return wrapX_; }
-      set {
-        wrapX_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "wrap_y" field.</summary>
-    public const int WrapYFieldNumber = 21;
-    private bool wrapY_;
-    /// <summary>
-    ///* North and south are the same place. 
-    /// </summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool WrapY {
-      get { return wrapY_; }
-      set {
-        wrapY_ = value;
-      }
-    }
-
     /// <summary>Field number for the "chunk_engine_version" field.</summary>
     public const int ChunkEngineVersionFieldNumber = 30;
     private uint chunkEngineVersion_;
@@ -274,21 +187,6 @@ namespace Bnet {
       get { return chunkEngineVersion_; }
       set {
         chunkEngineVersion_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "view_radius_chunks" field.</summary>
-    public const int ViewRadiusChunksFieldNumber = 40;
-    private int viewRadiusChunks_;
-    /// <summary>
-    ///* How far the server will stream, in chunks from the player's own. Informational; the server decides. 
-    /// </summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int ViewRadiusChunks {
-      get { return viewRadiusChunks_; }
-      set {
-        viewRadiusChunks_ = value;
       }
     }
 
@@ -440,15 +338,7 @@ namespace Bnet {
       if (Name != other.Name) return false;
       if (WidthCells != other.WidthCells) return false;
       if (HeightCells != other.HeightCells) return false;
-      if (!pbc::ProtobufEqualityComparers.BitwiseDoubleEqualityComparer.Equals(CellSizeMetres, other.CellSizeMetres)) return false;
-      if (ChunkSize != other.ChunkSize) return false;
-      if (ChunkHeight != other.ChunkHeight) return false;
-      if (!pbc::ProtobufEqualityComparers.BitwiseDoubleEqualityComparer.Equals(VoxelSizeMetres, other.VoxelSizeMetres)) return false;
-      if (!pbc::ProtobufEqualityComparers.BitwiseDoubleEqualityComparer.Equals(SeaLevelMetres, other.SeaLevelMetres)) return false;
-      if (WrapX != other.WrapX) return false;
-      if (WrapY != other.WrapY) return false;
       if (ChunkEngineVersion != other.ChunkEngineVersion) return false;
-      if (ViewRadiusChunks != other.ViewRadiusChunks) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseDoubleEqualityComparer.Equals(WorldAgeBestiaSeconds, other.WorldAgeBestiaSeconds)) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseDoubleEqualityComparer.Equals(TimeSpeedFactor, other.TimeSpeedFactor)) return false;
       if (HoursPerDay != other.HoursPerDay) return false;
@@ -468,15 +358,7 @@ namespace Bnet {
       if (Name.Length != 0) hash ^= Name.GetHashCode();
       if (WidthCells != 0) hash ^= WidthCells.GetHashCode();
       if (HeightCells != 0) hash ^= HeightCells.GetHashCode();
-      if (CellSizeMetres != 0D) hash ^= pbc::ProtobufEqualityComparers.BitwiseDoubleEqualityComparer.GetHashCode(CellSizeMetres);
-      if (ChunkSize != 0) hash ^= ChunkSize.GetHashCode();
-      if (ChunkHeight != 0) hash ^= ChunkHeight.GetHashCode();
-      if (VoxelSizeMetres != 0D) hash ^= pbc::ProtobufEqualityComparers.BitwiseDoubleEqualityComparer.GetHashCode(VoxelSizeMetres);
-      if (SeaLevelMetres != 0D) hash ^= pbc::ProtobufEqualityComparers.BitwiseDoubleEqualityComparer.GetHashCode(SeaLevelMetres);
-      if (WrapX != false) hash ^= WrapX.GetHashCode();
-      if (WrapY != false) hash ^= WrapY.GetHashCode();
       if (ChunkEngineVersion != 0) hash ^= ChunkEngineVersion.GetHashCode();
-      if (ViewRadiusChunks != 0) hash ^= ViewRadiusChunks.GetHashCode();
       if (WorldAgeBestiaSeconds != 0D) hash ^= pbc::ProtobufEqualityComparers.BitwiseDoubleEqualityComparer.GetHashCode(WorldAgeBestiaSeconds);
       if (TimeSpeedFactor != 0D) hash ^= pbc::ProtobufEqualityComparers.BitwiseDoubleEqualityComparer.GetHashCode(TimeSpeedFactor);
       if (HoursPerDay != 0) hash ^= HoursPerDay.GetHashCode();
@@ -516,41 +398,9 @@ namespace Bnet {
         output.WriteRawTag(24);
         output.WriteInt32(HeightCells);
       }
-      if (CellSizeMetres != 0D) {
-        output.WriteRawTag(33);
-        output.WriteDouble(CellSizeMetres);
-      }
-      if (ChunkSize != 0) {
-        output.WriteRawTag(80);
-        output.WriteInt32(ChunkSize);
-      }
-      if (ChunkHeight != 0) {
-        output.WriteRawTag(88);
-        output.WriteInt32(ChunkHeight);
-      }
-      if (VoxelSizeMetres != 0D) {
-        output.WriteRawTag(97);
-        output.WriteDouble(VoxelSizeMetres);
-      }
-      if (SeaLevelMetres != 0D) {
-        output.WriteRawTag(105);
-        output.WriteDouble(SeaLevelMetres);
-      }
-      if (WrapX != false) {
-        output.WriteRawTag(160, 1);
-        output.WriteBool(WrapX);
-      }
-      if (WrapY != false) {
-        output.WriteRawTag(168, 1);
-        output.WriteBool(WrapY);
-      }
       if (ChunkEngineVersion != 0) {
         output.WriteRawTag(240, 1);
         output.WriteUInt32(ChunkEngineVersion);
-      }
-      if (ViewRadiusChunks != 0) {
-        output.WriteRawTag(192, 2);
-        output.WriteInt32(ViewRadiusChunks);
       }
       if (WorldAgeBestiaSeconds != 0D) {
         output.WriteRawTag(145, 3);
@@ -610,41 +460,9 @@ namespace Bnet {
         output.WriteRawTag(24);
         output.WriteInt32(HeightCells);
       }
-      if (CellSizeMetres != 0D) {
-        output.WriteRawTag(33);
-        output.WriteDouble(CellSizeMetres);
-      }
-      if (ChunkSize != 0) {
-        output.WriteRawTag(80);
-        output.WriteInt32(ChunkSize);
-      }
-      if (ChunkHeight != 0) {
-        output.WriteRawTag(88);
-        output.WriteInt32(ChunkHeight);
-      }
-      if (VoxelSizeMetres != 0D) {
-        output.WriteRawTag(97);
-        output.WriteDouble(VoxelSizeMetres);
-      }
-      if (SeaLevelMetres != 0D) {
-        output.WriteRawTag(105);
-        output.WriteDouble(SeaLevelMetres);
-      }
-      if (WrapX != false) {
-        output.WriteRawTag(160, 1);
-        output.WriteBool(WrapX);
-      }
-      if (WrapY != false) {
-        output.WriteRawTag(168, 1);
-        output.WriteBool(WrapY);
-      }
       if (ChunkEngineVersion != 0) {
         output.WriteRawTag(240, 1);
         output.WriteUInt32(ChunkEngineVersion);
-      }
-      if (ViewRadiusChunks != 0) {
-        output.WriteRawTag(192, 2);
-        output.WriteInt32(ViewRadiusChunks);
       }
       if (WorldAgeBestiaSeconds != 0D) {
         output.WriteRawTag(145, 3);
@@ -701,32 +519,8 @@ namespace Bnet {
       if (HeightCells != 0) {
         size += 1 + pb::CodedOutputStream.ComputeInt32Size(HeightCells);
       }
-      if (CellSizeMetres != 0D) {
-        size += 1 + 8;
-      }
-      if (ChunkSize != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeInt32Size(ChunkSize);
-      }
-      if (ChunkHeight != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeInt32Size(ChunkHeight);
-      }
-      if (VoxelSizeMetres != 0D) {
-        size += 1 + 8;
-      }
-      if (SeaLevelMetres != 0D) {
-        size += 1 + 8;
-      }
-      if (WrapX != false) {
-        size += 2 + 1;
-      }
-      if (WrapY != false) {
-        size += 2 + 1;
-      }
       if (ChunkEngineVersion != 0) {
         size += 2 + pb::CodedOutputStream.ComputeUInt32Size(ChunkEngineVersion);
-      }
-      if (ViewRadiusChunks != 0) {
-        size += 2 + pb::CodedOutputStream.ComputeInt32Size(ViewRadiusChunks);
       }
       if (WorldAgeBestiaSeconds != 0D) {
         size += 2 + 8;
@@ -776,32 +570,8 @@ namespace Bnet {
       if (other.HeightCells != 0) {
         HeightCells = other.HeightCells;
       }
-      if (other.CellSizeMetres != 0D) {
-        CellSizeMetres = other.CellSizeMetres;
-      }
-      if (other.ChunkSize != 0) {
-        ChunkSize = other.ChunkSize;
-      }
-      if (other.ChunkHeight != 0) {
-        ChunkHeight = other.ChunkHeight;
-      }
-      if (other.VoxelSizeMetres != 0D) {
-        VoxelSizeMetres = other.VoxelSizeMetres;
-      }
-      if (other.SeaLevelMetres != 0D) {
-        SeaLevelMetres = other.SeaLevelMetres;
-      }
-      if (other.WrapX != false) {
-        WrapX = other.WrapX;
-      }
-      if (other.WrapY != false) {
-        WrapY = other.WrapY;
-      }
       if (other.ChunkEngineVersion != 0) {
         ChunkEngineVersion = other.ChunkEngineVersion;
-      }
-      if (other.ViewRadiusChunks != 0) {
-        ViewRadiusChunks = other.ViewRadiusChunks;
       }
       if (other.WorldAgeBestiaSeconds != 0D) {
         WorldAgeBestiaSeconds = other.WorldAgeBestiaSeconds;
@@ -857,40 +627,8 @@ namespace Bnet {
             HeightCells = input.ReadInt32();
             break;
           }
-          case 33: {
-            CellSizeMetres = input.ReadDouble();
-            break;
-          }
-          case 80: {
-            ChunkSize = input.ReadInt32();
-            break;
-          }
-          case 88: {
-            ChunkHeight = input.ReadInt32();
-            break;
-          }
-          case 97: {
-            VoxelSizeMetres = input.ReadDouble();
-            break;
-          }
-          case 105: {
-            SeaLevelMetres = input.ReadDouble();
-            break;
-          }
-          case 160: {
-            WrapX = input.ReadBool();
-            break;
-          }
-          case 168: {
-            WrapY = input.ReadBool();
-            break;
-          }
           case 240: {
             ChunkEngineVersion = input.ReadUInt32();
-            break;
-          }
-          case 320: {
-            ViewRadiusChunks = input.ReadInt32();
             break;
           }
           case 401: {
@@ -956,40 +694,8 @@ namespace Bnet {
             HeightCells = input.ReadInt32();
             break;
           }
-          case 33: {
-            CellSizeMetres = input.ReadDouble();
-            break;
-          }
-          case 80: {
-            ChunkSize = input.ReadInt32();
-            break;
-          }
-          case 88: {
-            ChunkHeight = input.ReadInt32();
-            break;
-          }
-          case 97: {
-            VoxelSizeMetres = input.ReadDouble();
-            break;
-          }
-          case 105: {
-            SeaLevelMetres = input.ReadDouble();
-            break;
-          }
-          case 160: {
-            WrapX = input.ReadBool();
-            break;
-          }
-          case 168: {
-            WrapY = input.ReadBool();
-            break;
-          }
           case 240: {
             ChunkEngineVersion = input.ReadUInt32();
-            break;
-          }
-          case 320: {
-            ViewRadiusChunks = input.ReadInt32();
             break;
           }
           case 401: {
