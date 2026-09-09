@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component
  * Tells a freshly authenticated connection what world it is in, and cleans up after it when it leaves.
  *
  * Sent on connect rather than on master selection, because none of it depends on having an entity: a client
- * needs the chunk dimensions to make sense of *any* payload, and getting them out of the way early means the
+ * needs the world's extent to fold an address across a seam, and getting it out of the way early means the
  * first manifest can be acted on the moment it arrives.
  */
 @Component
@@ -23,7 +23,6 @@ class WorldInfoSender(
   private val subscriptions: ChunkSubscriptionService,
   private val inbox: ChunkStreamInbox,
   private val outMessageProcessor: OutMessageProcessor,
-  private val settings: ChunkStreamConfig,
   private val bestiaClock: BestiaClock
 ) {
 
@@ -36,13 +35,7 @@ class WorldInfoSender(
 
     outMessageProcessor.sendToPlayer(
       event.accountId,
-      WorldInfoSMSG.of(
-        worldService.record,
-        worldService.config,
-        settings.viewRadiusChunks,
-        bestiaClock.now(),
-        bestiaClock.speedFactor
-      )
+      WorldInfoSMSG.of(worldService.record, bestiaClock.now(), bestiaClock.speedFactor)
     )
 
     LOG.debug { "Sent world info to account ${event.accountId}" }

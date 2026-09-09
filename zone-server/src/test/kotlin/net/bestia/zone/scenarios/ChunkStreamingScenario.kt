@@ -92,15 +92,14 @@ class ChunkStreamingScenario : BestiaNoSocketScenario(
     await {
       val info = assertNotNull(
         clientPlayer1.tryGetLastReceived(WorldInfoSMSG::class),
-        "a client needs the chunk dimensions before any payload means anything"
+        "a client needs the world's extent before it can fold an address across a seam"
       )
 
       // One number, not the server's three-part version vector. The client holds a static palette and a
       // decoder; either they match what is being sent or it must be updated, and it has no use for knowing
       // which half disagreed.
       assertEquals(ChunkEngine.VERSION, info.chunkEngineVersion)
-      assertEquals(settings.viewRadiusChunks, info.viewRadiusChunks)
-      assertTrue(info.chunkSize > 0 && info.chunkHeight > 0)
+      assertTrue(info.widthCells > 0 && info.heightCells > 0)
       assertTrue(info.name.isNotBlank())
     }
   }

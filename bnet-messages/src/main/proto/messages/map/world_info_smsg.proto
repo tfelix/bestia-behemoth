@@ -6,11 +6,23 @@ option java_package = "net.bestia.bnet.proto";
 option java_outer_classname = "WorldInfoSMSGProto";
 
 /**
- * The world's shape and identity, sent once per connection as soon as it is authenticated.
+ * The world's identity, its extent, and the clock - sent once per connection as soon as it is
+ * authenticated.
  *
- * Everything here is needed before a chunk payload means anything: the client cannot turn a position
- * into a chunk address without the chunk dimensions, and cannot turn a voxel index back into an
- * elevation without the voxel size and the fact that index zero is sea level.
+ * ### What is no longer here, and why
+ *
+ * The world's *geometry* used to be: chunk dimensions, voxel size, cell size, both wrap flags, the sea
+ * level and the view radius. Every one of them described a shape that has never been anything else, and
+ * none is something a client can adapt to at runtime - so the client compiles them in instead, as
+ * `WorldLayout.cs`, and `zone-server` refuses to boot a world that is not that shape. See
+ * `ClientWorldContract`.
+ *
+ * The extent stays, because it genuinely varies: a 64 km world and a 192 km world are both real. The
+ * calendar stays for the opposite reason to the geometry - see `hours_per_day` below.
+ *
+ * Fields 4, 10-13, 20, 21 and 40 were the geometry, and are reserved rather than reused. A client
+ * reading a new server as an old message would decode whatever took field 12 as a voxel size, which is
+ * the shape of failure field 55 below is also reserved for: plausible, wrong, and silent.
  *
  * ### The seed is deliberately absent
  *
@@ -23,17 +35,10 @@ message WorldInfoSMSG {
 
   int32 width_cells = 2;
   int32 height_cells = 3;
-  double cell_size_metres = 4;
 
-  int32 chunk_size = 10;
-  int32 chunk_height = 11;
-  double voxel_size_metres = 12;
-  double sea_level_metres = 13;
-
-  /** East and west are the same place. */
-  bool wrap_x = 20;
-  /** North and south are the same place. */
-  bool wrap_y = 21;
+  reserved 4, 10, 11, 12, 13, 20, 21, 40;
+  reserved "cell_size_metres", "chunk_size", "chunk_height", "voxel_size_metres";
+  reserved "sea_level_metres", "wrap_x", "wrap_y", "view_radius_chunks";
 
   /**
    * One number covering everything a client has to agree with the server about to read a chunk: the
@@ -46,9 +51,6 @@ message WorldInfoSMSG {
    * Sending the vector would only invite it to make a decision it has no basis for.
    */
   uint32 chunk_engine_version = 30;
-
-  /** How far the server will stream, in chunks from the player's own. Informational; the server decides. */
-  int32 view_radius_chunks = 40;
 
   /**
    * The world calendar, as an anchor the client runs forward on its own rather than as a ticking message.
