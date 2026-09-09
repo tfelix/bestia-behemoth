@@ -18,7 +18,7 @@ data class PathSMSG(
    * practice) stop for an entity carrying no [Position] at all.
    */
   val stopPosition: Vec3L? = null,
-  /** Progress along the first segment, 0..1; see [Position.fraction]. */
+  /** Progress along the first segment, 0..1; see [Position.stepProgress]. */
   val startOffset: Float = 0f,
 ) : EntitySMSG {
   override fun toBnetEnvelope(): EnvelopeProto.Envelope {

@@ -59,6 +59,10 @@ data class Path(
   val isEmpty: Boolean
     get() = _path.isEmpty()
 
+  /** The waypoint being walked towards. Only meaningful while this is not [isEmpty]. */
+  val next: Vec3L
+    get() = _path.first()
+
   /** Hands out the next waypoint. Deliberately does not dirty the component - see the class note. */
   fun removeFirst(): Vec3L = _path.removeFirst()
 

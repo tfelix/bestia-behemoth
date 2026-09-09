@@ -12,10 +12,22 @@ import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.navigation.local.LocalWalkQuery
 import net.bestia.zone.util.EntityId
 import org.springframework.core.annotation.Order
+import kotlin.math.sqrt
 import org.springframework.stereotype.Component as SpringComponent
 
 /**
- * Advances entities along their [Path], one tile per `fraction` rollover.
+ * Advances entities along their [Path], charging each step the ground it actually covers.
+ *
+ * ### A diagonal step is longer, so it takes longer
+ *
+ * This used to add `speed * deltaTime` to a counter and pop a waypoint whenever it passed 1.0 - every
+ * waypoint costing the same whichever way it went. A diagonal waypoint is sqrt(2) m away, so diagonal
+ * movement ran at 4*sqrt(2) m/s against 4 m/s cardinal: the 41% difference players notice. `entity.gd`
+ * mirrored the same arithmetic deliberately, so the two agreed with each other and both disagreed with the
+ * world.
+ *
+ * The pathfinder never did. `LocalWalkGraph.cost` has always charged sqrt(2) for a diagonal, so A* was
+ * optimising for a cost model movement did not use and NPCs preferred straight routes that took longer.
  *
  * `z` is recomputed here from the heightfield rather than taken from the waypoint, so the character follows
  * the ground and a client cannot choose its own altitude - `path_calculator.gd` interpolates the vertical
@@ -53,29 +65,41 @@ class MoveSystem(
 
         // A fresh path is a fresh walk, so the resync counter starts over with it.
         position.stepsSinceSync = 0
+
+        // A fresh path starts from this tile, not from however far into its own step the walk before it had
+        // got. `entity.gd` anchors its prediction on the entity's current position when the path arrives, so
+        // carried-over progress is a disagreement from the very first step.
+        position.stepProgress = 0f
       }
 
       if (movementPath.isEmpty) {
         world.remove(id, Path::class)
-        position.fraction = 0f
+        position.stepProgress = 0f
         return@each
       }
 
-      // calculate the movement advances of the entity since the last call.
+      // Ground covered since the last call, in metres.
       val elapsed = coarseElapsed(world, id, deltaTime) ?: return@each
-      position.fraction += speed.speed * elapsed
+      position.stepProgress += speed.speed * elapsed
 
-      // entity has moved more than one tile so its position can be updated.
       // `!isEmpty` is a real condition rather than belt and braces: an entity faster than one tile per tick
-      // crosses several tiles in one update, and a walk that ran out of waypoints with the fraction still
-      // above one would go round again and take `removeFirst` off an empty list.
+      // crosses several tiles in one update, and a walk that ran out of waypoints with progress still left
+      // would go round again and take `removeFirst` off an empty list.
       // A player's path was only checked where the ground was loaded when it arrived; NPC paths come from the
       // local pathfinder, which already checks every step.
       val checkSteps = world.has(id, Account::class)
       var refused = false
       var stepped = 0
-      while (position.fraction >= 1 && !movementPath.isEmpty) {
-        val nextPoint = movementPath.removeFirst()
+      while (!movementPath.isEmpty) {
+        val nextPoint = movementPath.next
+        val stepLength = groundDistance(position, nextPoint)
+
+        // A step is taken only once its own ground has been paid for, so a diagonal costs the sqrt(2) it
+        // spans instead of the 1 a waypoint count charged it.
+        if (position.stepProgress < stepLength) break
+
+        position.stepProgress -= stepLength
+        movementPath.removeFirst()
 
         if (checkSteps && refusesStep(position.toVec3L(), nextPoint)) {
           refused = true
@@ -100,30 +124,34 @@ class MoveSystem(
         trample.steppedOn(id, fromX, fromY, nextPoint.x, nextPoint.y)
 
         LOG.trace { "Entity $id on $nextPoint" }
-
-        position.fraction -= 1
       }
 
       // The client drew the walk through, so it is told where the entity really stopped.
       if (refused) {
         world.remove(id, Path::class)
-        position.fraction = 0f
+        position.stepProgress = 0f
         position.markDirty()
         return@each
       }
 
       // Arrival, checked after the loop rather than inside it so that the removal and the loop's exit are the
       // same decision. The removal is the stop notification and reads this position off the entity, so the
-      // arrival needs no position sync of its own - see Path.toRemovedMessage. The fraction goes with it:
+      // arrival needs no position sync of its own - see Path.toRemovedMessage. The progress goes with it:
       // whatever is left over belongs to a walk that is finished, and carrying it into the next path would
       // spend the first tile of that one before it started.
       if (movementPath.isEmpty) {
         world.remove(id, Path::class)
-        position.fraction = 0f
+        position.stepProgress = 0f
       }
 
-      // Every tick, stepped or not, so a path sent to a late observer says where the entity is now.
-      movementPath.startOffset = position.fraction.coerceIn(0f, 1f)
+      // Every tick, stepped or not, so a path sent to a late observer says where the entity is now. As a
+      // share of the step being walked rather than in metres: that is what the client scales its own
+      // first segment by, and it is the one segment whose length the client cannot infer from Position.
+      movementPath.startOffset = if (movementPath.isEmpty) {
+        0f
+      } else {
+        (position.stepProgress / groundDistance(position, movementPath.next)).coerceIn(0f, 1f)
+      }
 
       if (stepped == 0) return@each
 
@@ -166,5 +194,23 @@ class MoveSystem(
      * It is not what keeps the walk in step - the shared integrator is - so it scales with nothing.
      */
     const val POSITION_RESYNC_STEPS = 8
+
+    /**
+     * Ground distance from where an entity is to a waypoint, in metres: 1 for a cardinal step, sqrt(2) for a
+     * diagonal one.
+     *
+     * Not [net.bestia.zone.geometry.Vec3L.distance], which truncates to a whole number and would therefore
+     * report a diagonal step as 1 - which is the bug, not the fix.
+     *
+     * Horizontal, matching what the client measures its own interpolation along. A walkable slope does not
+     * make an entity slower: `LocalWalkGraph.cost` prices climbing as a *preference* between legal routes
+     * rather than as extra ground to cover.
+     */
+    private fun groundDistance(from: Position, to: Vec3L): Float {
+      val dx = (to.x - from.x).toDouble()
+      val dy = (to.y - from.y).toDouble()
+
+      return sqrt(dx * dx + dy * dy).toFloat()
+    }
   }
 }
