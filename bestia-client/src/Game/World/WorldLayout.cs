@@ -72,6 +72,6 @@ namespace BestiaBehemothClient.Game.World
     /// thresholds from: the point cover gives way to rock is the point walking stops, and a player who can see
     /// one knows the other.
     /// </remarks>
-    public const double MaxWalkSlopeDegrees = 45.0;
+    public const double MaxWalkSlopeDegrees = 60.0;
   }
 }

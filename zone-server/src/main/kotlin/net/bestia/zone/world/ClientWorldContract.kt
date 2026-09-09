@@ -24,7 +24,7 @@ object ClientWorldContract {
   const val CELL_SIZE_METRES = 1000.0
   const val WRAP_X = true
   const val WRAP_Y = true
-  const val MAX_WALK_SLOPE_DEGREES = 45.0
+  const val MAX_WALK_SLOPE_DEGREES = 60.0
 
   /**
    * Every way [config] and [maxWalkSlopeDegrees] would be rendered wrongly by a client built against this.

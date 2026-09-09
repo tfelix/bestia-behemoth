@@ -41,7 +41,7 @@ class ClientWorldContractTest {
     assertEquals(1000.0, ClientWorldContract.CELL_SIZE_METRES, "Update this pin, $editTheClient")
     assertTrue(ClientWorldContract.WRAP_X, "Update this pin, $editTheClient")
     assertTrue(ClientWorldContract.WRAP_Y, "Update this pin, $editTheClient")
-    assertEquals(45.0, ClientWorldContract.MAX_WALK_SLOPE_DEGREES, "Update this pin, $editTheClient")
+    assertEquals(60.0, ClientWorldContract.MAX_WALK_SLOPE_DEGREES, "Update this pin, $editTheClient")
   }
 
   @Test

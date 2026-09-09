@@ -18,6 +18,10 @@ data class AgentProfile(
    * Fractional because floors are: a shallow slope of terrain is a sequence of surfaces a fraction of a
    * voxel apart, and an integer step height would either quantise that to nothing or wave through a rise
    * nearly twice its real size.
+   *
+   * The default of one voxel is not the running game's rule and no longer pretends to be. `zone-server`
+   * always builds through [forMaxSlope] from a configured angle, so this is what a test or a caller with no
+   * opinion gets - one, because that is the angle at which a rise equals its run.
    */
   val maxStep: Double = 1.0,
   /**
