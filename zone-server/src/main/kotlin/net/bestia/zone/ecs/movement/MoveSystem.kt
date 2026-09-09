@@ -74,7 +74,7 @@ class MoveSystem(
       val checkSteps = world.has(id, Account::class)
       var refused = false
       var stepped = 0
-      while (position.fraction > 1 && !movementPath.isEmpty) {
+      while (position.fraction >= 1 && !movementPath.isEmpty) {
         val nextPoint = movementPath.removeFirst()
 
         if (checkSteps && refusesStep(position.toVec3L(), nextPoint)) {
