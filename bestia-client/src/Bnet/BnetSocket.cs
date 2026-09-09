@@ -300,19 +300,9 @@ namespace BestiaBehemothClient.Bnet.Message
         {
           // A MapSMSG for ChunkStaticEntitiesSMSG's reason: it describes ground, not an entity this client ever
           // spawned, so EntityManager must never see it.
-          //
-          // Decoding needs the chunk size, which only WorldInfoSMSG carries - so a mask arriving before that
-          // has nothing to validate its length against and is dropped rather than guessed at.
-          if (ChunkEngine.ChunkSize <= 0)
-          {
-            GD.PushWarning("[bnet] ground overlay before WorldInfo; dropped");
-          }
-          else
-          {
-            var msg = Map.ChunkGroundOverlaySMSG.FromProto(
-              envelope.ChunkGroundOverlay, ChunkEngine.ChunkSize);
-            EmitSignal(SignalName.MessageReceived, msg);
-          }
+          var msg = Map.ChunkGroundOverlaySMSG.FromProto(
+            envelope.ChunkGroundOverlay, WorldLayout.ChunkSize);
+          EmitSignal(SignalName.MessageReceived, msg);
         }
         else if (envelope.StaticEntityRemoved != null)
         {

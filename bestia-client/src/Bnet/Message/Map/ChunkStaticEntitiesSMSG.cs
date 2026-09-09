@@ -87,9 +87,9 @@ namespace BestiaBehemothClient.Bnet.Message.Map
           // Local horizontally, global vertically - see the proto. Expanded here so nothing downstream has to
           // remember which of the three axes is which.
           Position = new Vector3I(
-            proto.Pos.X * ChunkEngine.ChunkSize + (int)entry.LocalX,
+            proto.Pos.X * WorldLayout.ChunkSize + (int)entry.LocalX,
             entry.Z,
-            proto.Pos.Y * ChunkEngine.ChunkSize + (int)entry.LocalY
+            proto.Pos.Y * WorldLayout.ChunkSize + (int)entry.LocalY
           ),
           Height = entry.HeightDm / 10f,
           Yaw = entry.YawCentiradians / 100f,

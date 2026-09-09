@@ -29,8 +29,9 @@ namespace BestiaBehemothClient.Game.World
   ///
   /// <para>
   /// A <c>readonly struct</c> so it can be captured by value into a mesh job rather than read from live config
-  /// inside one. Jobs run off the main thread and a fresh <c>WorldInfoSMSG</c> reconfigures the renderer
-  /// wholesale, so a job that read the extent as it went could mesh half of one world and half of the next.
+  /// inside one. The extent still arrives on <c>WorldInfoSMSG</c> - it is the one part of the world's shape
+  /// that genuinely varies - and a fresh one reconfigures the renderer wholesale, so a job that read it as it
+  /// went could mesh half of one world and half of the next.
   /// </para>
   /// </remarks>
   public readonly struct ChunkWrap
@@ -58,13 +59,19 @@ namespace BestiaBehemothClient.Game.World
     public bool WrapY { get; }
 
     /// <summary>
-    /// The world's chunk grid as described by <paramref name="worldInfo"/>.
+    /// The world's chunk grid, sized by the extent <paramref name="worldInfo"/> carries.
     /// </summary>
     /// <remarks>
     /// The same arithmetic as <c>WorldConfig.chunkExtent</c> and <c>WorldWrap.chunksAcross</c> on the server:
     /// the world's extent in metres over one chunk's, rounded up. Ceiling rather than truncation because a
     /// world whose width is not a whole number of chunks still has that last partial column, and the server
     /// counts it.
+    ///
+    /// <para>
+    /// Only the extent comes off the message; everything else the division needs is
+    /// <see cref="WorldLayout"/>'s. That is also why an unconfigured client is <see cref="None"/> rather than
+    /// a world of the wrong size - without an extent there is nothing to wrap by.
+    /// </para>
     /// </remarks>
     public static ChunkWrap Of(WorldInfoSMSG worldInfo)
     {
@@ -73,16 +80,12 @@ namespace BestiaBehemothClient.Game.World
         return None;
       }
 
-      var chunkExtent = worldInfo.ChunkSize * worldInfo.VoxelSizeMetres;
-      if (chunkExtent <= 0.0)
-      {
-        return None;
-      }
+      const double chunkExtent = WorldLayout.ChunkSize * WorldLayout.VoxelSizeMetres;
 
-      var across = (int)Math.Ceiling(worldInfo.WidthCells * worldInfo.CellSizeMetres / chunkExtent);
-      var down = (int)Math.Ceiling(worldInfo.HeightCells * worldInfo.CellSizeMetres / chunkExtent);
+      var across = (int)Math.Ceiling(worldInfo.WidthCells * WorldLayout.CellSizeMetres / chunkExtent);
+      var down = (int)Math.Ceiling(worldInfo.HeightCells * WorldLayout.CellSizeMetres / chunkExtent);
 
-      return new ChunkWrap(across, down, worldInfo.WrapX, worldInfo.WrapY);
+      return new ChunkWrap(across, down, WorldLayout.WrapX, WorldLayout.WrapY);
     }
 
     /// <summary>The canonical spelling of <paramref name="key"/>: inside the world on every wrapped axis.</summary>

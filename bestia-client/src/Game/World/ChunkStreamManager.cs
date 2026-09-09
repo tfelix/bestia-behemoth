@@ -310,11 +310,6 @@ namespace BestiaBehemothClient.Game.World
     {
       WorldInfo = info;
 
-      // Before anything else: a chunk or static-entity batch for this world can arrive the instant after this
-      // message, and ChunkStaticEntitiesSMSG.FromProto expands local->global coordinates using this the moment
-      // it decodes, from inside BnetSocket's dispatch, which has no world context of its own to pass instead.
-      ChunkEngine.ChunkSize = info.ChunkSize;
-
       // Cached rather than derived per call: GroundYAt is asked once per entity per frame by entity.gd.
       _wrap = ChunkWrap.Of(info);
 
@@ -491,16 +486,12 @@ namespace BestiaBehemothClient.Game.World
         return float.NaN;
       }
 
-      var voxelSize = (float)WorldInfo.VoxelSizeMetres;
-      if (voxelSize <= 0f)
-      {
-        return float.NaN;
-      }
+      const float voxelSize = (float)WorldLayout.VoxelSizeMetres;
 
       var surface = SurfaceProbe.SurfaceAt(
         Store, BlockAppearance.Current,
         worldX / voxelSize, worldZ / voxelSize, nearY / voxelSize,
-        WorldInfo.ChunkSize, WorldInfo.ChunkHeight, _wrap);
+        WorldLayout.ChunkSize, WorldLayout.ChunkHeight, _wrap);
 
       return double.IsNaN(surface) ? float.NaN : (float)(surface * voxelSize);
     }
