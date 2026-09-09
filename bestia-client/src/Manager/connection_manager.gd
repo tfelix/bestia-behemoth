@@ -107,6 +107,20 @@ var WorldClockScript = load("res://Game/World/WorldClock.cs")
 
 var _connection_state : ConnectionState = ConnectionState.DISCONNECTED
 
+## Smoothed round trip to the server, in milliseconds, or -1 before the first measurement.
+##
+## Measured without any help from the protocol: Ping and Pong carry nothing, and they do not need to, because
+## the client is the one that knows when it sent the ping. One ping is in flight at a time, so a single send
+## time is enough to attribute the answer - a stale pong with nothing outstanding is ignored rather than
+## timed against the wrong ping. [member rtt_ms] is the raw last sample this is smoothed from.
+##
+## Exponentially smoothed, because a single sample is mostly scheduler noise. [member latency_jitter_msec] is
+## the mean deviation from that average, which is the number that says whether a walk should look smooth.
+var latency_msec: float = -1.0
+var latency_jitter_msec: float = 0.0
+
+const _LATENCY_SMOOTHING: float = 0.2
+
 ## Client-side terrain streaming: reconciles chunk manifests, decodes payloads, applies patches.
 ##
 ## Created here in code rather than added to ConnectionManager.tscn, because a scene node needs a
@@ -141,7 +155,7 @@ var last_connection_error: ConnectionError = ConnectionError.NO_ERROR
 
 ## Round trip of the last answered ping, or -1 before the first pong.
 var rtt_ms: int = -1
-var _ping_sent_at_ms: int = 0
+var _ping_sent_at_ms: int = -1
 
 var selected_master_info: MasterInfo = null
 
@@ -737,8 +751,27 @@ func _on_bnet_socket_message_received(message: Object) -> void:
 		printerr("ConnectionManager: message was not identified and processed: %s" % message)
 
 
+## Times the round trip against the ping this answers.
+##
+## A pong with nothing outstanding is dropped: it is either a duplicate or the answer to a ping whose send
+## time a reconnect has already discarded, and timing it would report a round trip of however long the client
+## has been running.
 func _on_pong() -> void:
+	if _ping_sent_at_ms < 0:
+		return
+
 	rtt_ms = Time.get_ticks_msec() - _ping_sent_at_ms
+	_ping_sent_at_ms = -1
+
+	var sample := float(rtt_ms)
+
+	if latency_msec < 0.0:
+		latency_msec = sample
+		latency_jitter_msec = 0.0
+		return
+
+	latency_jitter_msec = lerpf(latency_jitter_msec, absf(sample - latency_msec), _LATENCY_SMOOTHING)
+	latency_msec = lerpf(latency_msec, sample, _LATENCY_SMOOTHING)
 
 
 func is_ready_to_send() -> bool:
@@ -757,6 +790,10 @@ func _on_bnet_socket_connection_status_changed(status: int) -> void:
 		_connection_state = ConnectionState.DISCONNECTED
 		_ping_timer.stop()
 		rtt_ms = -1
+		# A measurement belongs to the connection it was taken on; the next one starts over.
+		_ping_sent_at_ms = -1
+		latency_msec = -1.0
+		latency_jitter_msec = 0.0
 		# The zone forgot this ticket the moment the socket died, so holding on to it would only let the map
 		# present a credential that is already refused.
 		_http_ticket = ""
