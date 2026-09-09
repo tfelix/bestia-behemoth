@@ -47,28 +47,35 @@ and reaches the gate through `pipelineVersion`. Bump it when chunk-tier *code* c
   world over a rain-frequency tweak. The KDoc says "do not fix it"; believe it.
 - `PoiParams`, `NavParams`, `VegetationStandParams` — world tier only, no chunk depends on them.
 - `CrystalParams`, `AetheriteParams` — chunk tier only, no stage reads them.
-- The world's **name** — `driftFrom` (`WorldConfigMapping.kt:61-80`) skips it on purpose; renaming is
+- The world's **name** — `driftFrom` (`PersistedWorld.kt:194-213`) skips it on purpose; renaming is
   cosmetic and must not read as a request for different terrain.
 
 ## What the boot actually checks
 
-`WorldGenerationBootRunner` (`@Order(1)`) → `WorldService.load()` (`WorldService.kt:129`). Three
-independent failure modes, and they are **not the same failure**:
+`WorldGenerationBootRunner` (`@Order(1)`) → `WorldService.load()`. Four independent failure modes, and
+they are **not the same failure**:
 
 1. **The row cannot describe itself** — `verifyRecordIsComplete` (`:320`). Recomputes `shapeVersion` from
    the columns and compares it to the stored one. They can only disagree if a terrain-deciding
    `WorldConfig` field has no column in `PersistedWorld`, so the row silently names a different world.
    **Always fatal** (`IncompleteWorldRecordException`, code `WORLD_RECORD_INCOMPLETE`); no policy applies,
    because regenerating writes the same incomplete row and fails identically next boot. The fix is a
-   column plus a mapping in `WorldConfigMapping.kt` — all three places in that one file.
+   column plus a mapping in `PersistedWorld.kt` — `toWorldConfig`, `driftFrom` and the row construction in
+   `WorldProvisioning.recreate`.
 2. **This build generates different terrain** — `incompatibilityOf` (`:290`), the `VersionGate` call.
    Governed by `onMismatch`.
-3. **The settings ask for a different world** — `driftFrom` (`WorldConfigMapping.kt:61`), a named
+3. **The settings ask for a different world** — `driftFrom` (`PersistedWorld.kt:194`), a named
    per-field diff rather than a hash, so the log says `seed: 11753242 -> 42` instead of "incompatible".
    Warned about **always**, acted on **only** under `REGENERATE`. Drift alone never refuses a boot: a
    running world keeping its own dimensions is the documented contract, not a bug.
 
-`resolve` (`:251`) applies the policy. Cases 2 and 3 are reported together in one message.
+4. **No client can draw it** — `verifyClientsCanDrawIt`, against `ClientWorldContract`. The world is
+   coherent and this build generates it correctly; it is simply not the geometry clients compile in, which
+   they no longer receive over the wire and cannot adapt to. **Fatal** (`ClientLayoutMismatchException`,
+   code `WORLD_CLIENT_LAYOUT_MISMATCH`) and no policy applies, because regenerating produces the same
+   shape. `worldgen.enforce-client-layout: false` is the way past it, and is what the test profile sets.
+
+`resolve` applies the policy to cases 2 and 3, which are reported together in one message.
 
 ### The three policies (`WorldGenConfig.OnMismatch`)
 
@@ -108,7 +115,7 @@ carries `null`.
 There is no "reset now" flag. `REGENERATE` only fires on a mismatch or a drift, so if you want a fresh
 world from identical code and settings, change something that counts as drift — the seed is the obvious
 one (`worldgen.seed` in `application.yml`), and it is compared only when explicitly set
-(`WorldConfigMapping.kt:69`). Otherwise, wipe the database (below).
+(`PersistedWorld.kt:199-202`). Otherwise, wipe the database (below).
 
 ### 3. Wipe the database
 
@@ -175,6 +182,7 @@ question from `ChunkMaterializer.VERSION`, which is terrain-generation compatibi
 ## Ground truth
 
 `WorldService.kt` (the three-case policy), `WorldProvisioning.kt` (what a reset deletes),
-`WorldConfigMapping.kt` (all three row↔config directions in one file), `store/VersionGate.kt` and
+`PersistedWorld.kt` (the row↔config mappings), `ClientWorldContract.kt` (what a client can draw),
+`store/VersionGate.kt` and
 `core/WorldGenPipeline.kt` (how the numbers are built). The stage pipeline itself is the `worldgen` skill's
 subject, not this one's.

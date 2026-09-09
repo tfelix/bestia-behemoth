@@ -4,6 +4,7 @@ import net.bestia.worldgen.core.Faction
 import net.bestia.worldgen.pipeline.StandardWorld
 import net.bestia.worldgen.store.PipelineVersion
 import net.bestia.worldgen.voxel.RleCodec
+import net.bestia.zone.world.stream.ChunkStreamConfig
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -37,6 +38,9 @@ class WorldProvisioningTest {
   @Autowired
   private lateinit var settings: WorldGenConfig
 
+  @Autowired
+  private lateinit var streamSettings: ChunkStreamConfig
+
   /**
    * Records what was published instead of delivering it.
    *
@@ -68,7 +72,9 @@ class WorldProvisioningTest {
    * the policy they are testing rather than inherit it.
    */
   private fun refusingService() =
-    WorldService(provisioning, settings.copy(onMismatch = WorldGenConfig.OnMismatch.REFUSE), events)
+    WorldService(
+      provisioning, settings.copy(onMismatch = WorldGenConfig.OnMismatch.REFUSE), streamSettings, events
+    )
 
   @Test
   fun `the first boot creates Genesis and records how it was made`() {
@@ -176,6 +182,7 @@ class WorldProvisioningTest {
     val service = WorldService(
       provisioning,
       settings.copy(onMismatch = WorldGenConfig.OnMismatch.REGENERATE),
+      streamSettings,
       events
     )
 
@@ -186,6 +193,36 @@ class WorldProvisioningTest {
   }
 
   @Test
+  fun `a world no client could draw refuses the boot, and says which number moved`() {
+    // The stored row and not the configuration, because the gate judges the world that will be served. A
+    // server whose settings drifted still serves the row it already has, and that is the one clients get.
+    worldRepository.save(worldOf(seed = 99L, widthCells = 64, heightCells = 64, chunkSize = 16))
+
+    // REFUSE, so the row survives to be judged. Under REGENERATE this world is not a problem at all: the
+    // drift is what fires, and regenerating replaces it with the configured - drawable - geometry.
+    val service = WorldService(
+      provisioning,
+      settings.copy(enforceClientLayout = true, onMismatch = WorldGenConfig.OnMismatch.REFUSE),
+      streamSettings,
+      events
+    )
+
+    val failure = assertFailsWith<ClientLayoutMismatchException> { service.load() }
+
+    assertTrue(failure.message!!.contains("chunk-size is 16"), "name the field and the value: ${failure.message}")
+    assertTrue(failure.message!!.contains("32"), "and what clients expect instead: ${failure.message}")
+  }
+
+  @Test
+  fun `the shipped configuration is one clients can draw`() {
+    // The half of the gate that would otherwise only be discovered by a developer's first boot failing. The
+    // test profile turns enforcement off, so this asks the question the profile is suppressing.
+    val enforced = settings.copy(enforceClientLayout = true)
+
+    WorldService(provisioning, enforced, streamSettings, events).load()
+  }
+
+  @Test
   fun `REGENERATE replaces a world the configuration has moved on from`() {
     val stored = worldRepository.save(worldOf(seed = 4242L, widthCells = 64, heightCells = 64))
     assertNotEquals(settings.widthCells, stored.widthCells, "the test is vacuous unless these differ")
@@ -193,6 +230,7 @@ class WorldProvisioningTest {
     val service = WorldService(
       provisioning,
       settings.copy(onMismatch = WorldGenConfig.OnMismatch.REGENERATE),
+      streamSettings,
       events
     )
     service.load()
@@ -296,9 +334,11 @@ class WorldProvisioningTest {
     heightCells: Int,
     pipelineVersion: Long? = null,
     blockPaletteVersion: Long? = null,
-    shapeVersion: Long? = null
+    shapeVersion: Long? = null,
+    chunkSize: Int = settings.chunkSize
   ): PersistedWorld {
-    val config = settings.copy(widthCells = widthCells, heightCells = heightCells).toWorldConfig(seed)
+    val birth = settings.copy(widthCells = widthCells, heightCells = heightCells, chunkSize = chunkSize)
+    val config = birth.toWorldConfig(seed)
     val current = PipelineVersion.current(StandardWorld.pipeline(config).pipelineVersion)
 
     return PersistedWorld(
@@ -307,7 +347,7 @@ class WorldProvisioningTest {
       widthCells = widthCells,
       heightCells = heightCells,
       cellSizeMetres = settings.cellSizeMetres,
-      chunkSize = settings.chunkSize,
+      chunkSize = chunkSize,
       chunkHeight = settings.chunkHeight,
       voxelSizeMetres = settings.voxelSizeMetres,
       seaLevelMetres = settings.seaLevelMetres,

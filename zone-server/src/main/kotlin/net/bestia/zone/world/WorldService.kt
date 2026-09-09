@@ -11,6 +11,7 @@ import net.bestia.worldgen.pipeline.GeneratedWorld
 import net.bestia.worldgen.pipeline.StandardWorld
 import net.bestia.worldgen.store.PipelineVersion
 import net.bestia.worldgen.store.VersionGate
+import net.bestia.zone.world.stream.ChunkStreamConfig
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 
@@ -29,6 +30,7 @@ import org.springframework.stereotype.Service
 class WorldService(
   private val provisioning: WorldProvisioning,
   private val settings: WorldGenConfig,
+  private val streamSettings: ChunkStreamConfig,
   private val events: ApplicationEventPublisher
 ) {
 
@@ -67,6 +69,8 @@ class WorldService(
    *    dangerous: the row is authoritative and self-consistent, so the running world is still coherent, just
    *    not the one the file describes. Warned about always, acted on only under `REGENERATE` - which is what
    *    that policy is for.
+   * 4. **No client can draw it.** The world is coherent and this build generates it correctly; it simply is
+   *    not the shape clients compile in. See [verifyClientsCanDrawIt].
    */
   fun load() {
     if (loaded != null) return
@@ -95,6 +99,10 @@ class WorldService(
     }
 
     val config = record.toWorldConfig()
+
+    // After the row is settled, so it judges the world that will actually be served rather than one a
+    // regeneration was about to replace.
+    verifyClientsCanDrawIt(config)
 
     val startedAt = System.nanoTime()
     // The *row's* previous victor, never the config's. See `WorldGenConfig.paramsFor`: the tuning has to be a
@@ -266,8 +274,30 @@ class WorldService(
     throw IncompleteWorldRecordException(
       "World '${record.name}' rebuilds to shape $rebuilt but was generated as ${record.shapeVersion}. A " +
           "WorldConfig field that decides terrain has no column in PersistedWorld, so the stored row " +
-          "describes a different world than the one it was created from. Add the column and the mapping in " +
-          "WorldConfigMapping.kt; regenerating will not fix it."
+          "describes a different world than the one it was created from. Add the column to PersistedWorld " +
+          "and the mapping to its own toWorldConfig; regenerating will not fix it."
+    )
+  }
+
+  /**
+   * Checks the world is the shape every client is built for.
+   *
+   * Separate from [verifyRecordIsComplete] because it asks a different question of the same numbers: that one
+   * is whether the row can describe itself, this one is whether anyone can render what it describes. A world
+   * can pass either and fail the other, and a boot log naming which is the difference between adding a column
+   * and shipping a client.
+   */
+  private fun verifyClientsCanDrawIt(config: WorldConfig) {
+    if (!settings.enforceClientLayout) return
+
+    val disagreements =
+      ClientWorldContract.disagreementsWith(config, streamSettings.maxWalkSlopeDegrees)
+    if (disagreements.isEmpty()) return
+
+    throw ClientLayoutMismatchException(
+      "This world is not the shape clients are built for: ${disagreements.joinToString("; ")}. Regenerating " +
+          "will not fix it - either restore the configuration clients expect, or ship a client built for " +
+          "this one and update ClientWorldContract. Set worldgen.enforce-client-layout=false to run anyway."
     )
   }
 

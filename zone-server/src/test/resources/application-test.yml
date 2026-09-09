@@ -36,3 +36,10 @@ wild-spawn:
   bands:
     - max-level: 100
       den-share: 0.0
+
+# Tests build worlds no client will ever see - a 32-cell world, a mocked config, a chunk size chosen to keep a
+# fixture small - so the boot gate that protects real players from an undrawable world has nothing to protect
+# here and would only refuse to start. See `ClientWorldContract`; `ClientWorldContractTest` covers the gate
+# itself without needing a context.
+worldgen:
+  enforce-client-layout: false
