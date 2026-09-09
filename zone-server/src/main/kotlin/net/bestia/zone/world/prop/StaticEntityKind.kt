@@ -79,6 +79,17 @@ enum class StaticEntityKind {
   REED,
   BLIGHTED_REED;
 
+  /**
+   * Whether this is a building, whose walls are voxels rather than something drawn from the prop alone.
+   *
+   * The distinction matters wherever a prop's fate is decided by the ground under it: undermining a house is
+   * not the same event as undermining a tree, because the masonry is still standing and is still terrain.
+   */
+  val isBuilding: Boolean
+    get() {
+      return this in BUILDING_KINDS
+    }
+
   companion object {
 
     /**
