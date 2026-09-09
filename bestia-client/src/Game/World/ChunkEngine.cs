@@ -34,18 +34,5 @@ namespace BestiaBehemothClient.Game.World
     // LIMESTONE, peat and clay became MUD, four gems arrived, and every id was renumbered densely - the ids,
     // the names and the row count all at once, which is every clause of the bump rule in one change.
     public const uint Version = 2;
-
-    /// <summary>
-    /// Voxels per chunk edge, for expanding a chunk-local coordinate to a global one.
-    /// </summary>
-    /// <remarks>
-    /// Unlike <see cref="Version"/> this is not a build-time compatibility constant - it is per-world runtime
-    /// config carried on <c>WorldInfoSMSG</c>, set once by <see cref="ChunkStreamManager"/> the instant a
-    /// connection authenticates (before any chunk or static-entity batch can arrive) and never touched again
-    /// until the next <c>WorldInfoSMSG</c>, which is exactly the point every prior chunk is discarded too.
-    /// Held here rather than threaded as a parameter because <c>ChunkStaticEntitiesSMSG.FromProto</c> runs
-    /// inside <c>BnetSocket</c>'s stateless decode dispatch, which has no world context of its own.
-    /// </remarks>
-    public static int ChunkSize { get; set; }
   }
 }

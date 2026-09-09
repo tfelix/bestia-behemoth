@@ -30,10 +30,11 @@ namespace BestiaBehemothClient.Game.World
   /// </para>
   ///
   /// <para><b>It refuses rather than guesses.</b> A version it does not know, a truncated stream, trailing
-  /// bytes, a zero-length run - each throws. This is the one place data from outside the process becomes a
-  /// chunk, and the server's own decoder validates for the same reason: an invariant that only holds for
-  /// payloads you produced yourself is not an invariant. Silently reinterpreting a payload under the current
-  /// chunk size is not one of the two acceptable outcomes.</para>
+  /// bytes, a zero-length run, dimensions that are not <see cref="WorldLayout"/>'s - each throws. This is the
+  /// one place data from outside the process becomes a chunk, and the server's own decoder validates for the
+  /// same reason: an invariant that only holds for payloads you produced yourself is not an invariant.
+  /// Silently reinterpreting a payload under the current chunk size is not one of the two acceptable
+  /// outcomes.</para>
   /// </remarks>
   public static class RleCodec
   {
@@ -59,6 +60,16 @@ namespace BestiaBehemothClient.Game.World
         // A length read off the wire must not be allowed to size an allocation unchecked.
         throw new InvalidDataException(
           $"Chunk ({chunkX},{chunkY},{chunkZ}) claims implausible dimensions {size}x{size}x{height}");
+      }
+
+      if (size != WorldLayout.ChunkSize || height != WorldLayout.ChunkHeight)
+      {
+        // The one thing that catches a world whose geometry is not the one this client compiles in. Everything
+        // downstream would otherwise work: the mesh is built from these dimensions and draws correctly, while
+        // props, colliders and ground probes address chunks by WorldLayout and land somewhere else.
+        throw new InvalidDataException(
+          $"Chunk ({chunkX},{chunkY},{chunkZ}) is {size}x{size}x{height}, this client is built for " +
+          $"{WorldLayout.ChunkSize}x{WorldLayout.ChunkSize}x{WorldLayout.ChunkHeight}");
       }
 
       var volume = size * size * height;

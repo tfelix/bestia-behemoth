@@ -151,7 +151,7 @@ namespace BestiaBehemothClient.Game.World
     /// Godot units, so anything placed on that terrain has to apply the same factor. Heights and radii do
     /// not: they arrive in metres already, and a Godot unit is a metre.
     /// </remarks>
-    private float _voxelSize = 1.0f;
+    private const float VoxelSize = (float)WorldLayout.VoxelSizeMetres;
 
     /// <summary>
     /// The terrain a prop is standing on, so its base can be put where that terrain is drawn.
@@ -163,9 +163,9 @@ namespace BestiaBehemothClient.Game.World
     private ClientChunkStore _store;
 
     /// <summary>Chunk dimensions, needed to address a voxel from a global coordinate.</summary>
-    private int _chunkSize = 32;
+    private const int ChunkSize = WorldLayout.ChunkSize;
 
-    private int _chunkHeight = 256;
+    private const int ChunkHeight = WorldLayout.ChunkHeight;
 
     /// <summary>The world's chunk grid, so a prop next to a seam finds the ground under it.</summary>
     private ChunkWrap _wrap = ChunkWrap.None;
@@ -186,9 +186,6 @@ namespace BestiaBehemothClient.Game.World
 
       if (worldInfo != null)
       {
-        _voxelSize = (float)worldInfo.VoxelSizeMetres;
-        _chunkSize = worldInfo.ChunkSize;
-        _chunkHeight = worldInfo.ChunkHeight;
         _wrap = ChunkWrap.Of(worldInfo);
       }
 
@@ -221,7 +218,7 @@ namespace BestiaBehemothClient.Game.World
       // Entry.Position is already in Godot's axis order, so y is the vertical one and z is the server's y - which
       // is why the half-voxel centring goes on x and z and the vertical is left to the surface probe below.
       var centre = (Vector3)entry.Position + new Vector3(0.5f, 0f, 0.5f);
-      var placed = centre * _voxelSize;
+      var placed = centre * VoxelSize;
 
       if (_store == null)
       {
@@ -230,11 +227,11 @@ namespace BestiaBehemothClient.Game.World
 
       var surface = Mesh.SurfaceProbe.SurfaceAt(
         _store, Mesh.BlockAppearance.Current,
-        centre.X, centre.Z, entry.Position.Y, _chunkSize, _chunkHeight, _wrap);
+        centre.X, centre.Z, entry.Position.Y, ChunkSize, ChunkHeight, _wrap);
 
       return double.IsNaN(surface)
         ? placed
-        : new Vector3(placed.X, (float)(surface * _voxelSize), placed.Z);
+        : new Vector3(placed.X, (float)(surface * VoxelSize), placed.Z);
     }
 
     /// <summary>

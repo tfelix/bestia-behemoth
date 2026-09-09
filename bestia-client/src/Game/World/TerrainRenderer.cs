@@ -205,9 +205,12 @@ namespace BestiaBehemothClient.Game.World
     private readonly System.Collections.Concurrent.ConcurrentQueue<ChunkMesh> _finished = new();
 
     private ClientChunkStore _store;
-    private float _voxelSize = 1.0f;
-    private int _chunkSize = 32;
-    private int _chunkHeight = 256;
+
+    /// <summary>The world's geometry, as a float because every use of it here is float arithmetic.</summary>
+    private const float VoxelSize = (float)WorldLayout.VoxelSizeMetres;
+
+    private const int ChunkSize = WorldLayout.ChunkSize;
+    private const int ChunkHeight = WorldLayout.ChunkHeight;
 
     /// <summary>The world's chunk grid, so locally derived addresses fold across a seam the way the
     /// server's already have. <see cref="ChunkWrap.None"/> until configured.</summary>
@@ -257,8 +260,8 @@ namespace BestiaBehemothClient.Game.World
     /// </summary>
     /// <remarks>
     /// Everything already meshed is discarded. This is called on a world info message, which means either a fresh
-    /// login or a reconnect, and in both cases the voxel size and chunk dimensions the existing meshes were built
-    /// against can no longer be assumed.
+    /// login or a reconnect, and in both cases the world's extent the existing meshes were built against can no
+    /// longer be assumed.
     /// </remarks>
     public void Configure(ClientChunkStore store, WorldInfoSMSG worldInfo)
     {
@@ -274,9 +277,6 @@ namespace BestiaBehemothClient.Game.World
 
       if (worldInfo != null)
       {
-        _voxelSize = (float)worldInfo.VoxelSizeMetres;
-        _chunkSize = worldInfo.ChunkSize;
-        _chunkHeight = worldInfo.ChunkHeight;
         _wrap = ChunkWrap.Of(worldInfo);
       }
 
@@ -371,9 +371,9 @@ namespace BestiaBehemothClient.Game.World
       // The same signal serves the shader's floating-point origin. It is not about collision, but it wants
       // exactly this: somewhere near the player, updated rarely, in whole chunk steps.
       _materials?.SetUvAnchor(new Vector3(
-        anchor.X * _chunkSize * _voxelSize,
-        anchor.Z * _chunkHeight * _voxelSize,
-        anchor.Y * _chunkSize * _voxelSize));
+        anchor.X * ChunkSize * VoxelSize,
+        anchor.Z * ChunkHeight * VoxelSize,
+        anchor.Y * ChunkSize * VoxelSize));
 
       foreach (var (key, tile) in _tiles)
       {
@@ -470,7 +470,9 @@ namespace BestiaBehemothClient.Game.World
         }
 
         var source = _store;
-        var voxelSize = _voxelSize;
+
+        // Snapshotted for the reason ChunkWrap is a struct: the extent is live config, and a job that read it
+        // as it went could mesh half of one world and half of the next. The voxel size needs no snapshot.
         var wrap = _wrap;
 
         // Incremented with an interlock even though only this thread increments it: the workers decrement it, and a
@@ -485,7 +487,7 @@ namespace BestiaBehemothClient.Game.World
             // mesher returns one rather than null so that an empty mesh still carries what it was waiting on.
             // Substituting a debt-free mesh here is how a chunk of sea that meshed before its water arrived
             // became a hole nothing would ever revisit.
-            _finished.Enqueue(SurfaceNets.Build(source, key, BlockAppearance.Current, voxelSize, wrap));
+            _finished.Enqueue(SurfaceNets.Build(source, key, BlockAppearance.Current, VoxelSize, wrap));
           }
           catch (Exception ex)
           {
@@ -791,17 +793,17 @@ namespace BestiaBehemothClient.Game.World
     public ChunkKey ChunkAt(Vector3 position)
     {
       // Godot (x, y, z) is the server's (x, z, y): its vertical axis is the server's z, whose zero is sea level.
-      var voxelX = (long)Mathf.Floor(position.X / _voxelSize);
-      var voxelY = (long)Mathf.Floor(position.Z / _voxelSize);
-      var voxelZ = (long)Mathf.Floor(position.Y / _voxelSize);
+      var voxelX = (long)Mathf.Floor(position.X / VoxelSize);
+      var voxelY = (long)Mathf.Floor(position.Z / VoxelSize);
+      var voxelZ = (long)Mathf.Floor(position.Y / VoxelSize);
 
       // Folded, because this is derived from a scene position rather than received: a player standing in the
       // last column names the chunk past the seam as readily as any other, and the tile it wants is the one
       // the server sent under the canonical address.
       return _wrap.Normalise(new ChunkKey(
-        FloorDiv(voxelX, _chunkSize),
-        FloorDiv(voxelY, _chunkSize),
-        FloorDiv(voxelZ, _chunkHeight)));
+        FloorDiv(voxelX, ChunkSize),
+        FloorDiv(voxelY, ChunkSize),
+        FloorDiv(voxelZ, ChunkHeight)));
     }
 
     private static int FloorDiv(long value, int divisor)
