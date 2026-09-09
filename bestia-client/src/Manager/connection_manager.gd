@@ -352,6 +352,12 @@ func move_to(destination: Vector3) -> void:
 	msg.Path = path
 	_socket.SendMessage(msg)
 
+	# Walk it now rather than a round trip from now. Waiting for the server's own PathComponentSMSG before
+	# moving put the whole round trip between the click and the first step, which is what made movement feel
+	# unresponsive however well the interpolation behaved. The server remains the authority - see
+	# Entity.predict_path for what happens when it disagrees, or does not answer.
+	owned_entity.predict_path(path)
+
 
 func use_item(item_id: int) -> void:
 	assert(is_ready_to_send())

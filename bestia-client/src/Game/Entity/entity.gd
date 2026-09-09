@@ -73,6 +73,23 @@ var _is_moving: bool = false
 var _seg: int = 0                    # cursor into _nodes, so _segment_at need not rescan from zero
 var _faced_seg: int = -1
 
+# A walk this client started on its own click, still waiting for the server to confirm it. Empty on every
+# entity but our own, and cleared the moment the server answers. See predict_path.
+var _predicted_path: Array[Vector3] = []
+var _prediction_deadline_msec: int = 0
+
+# Whether the walk currently running is one we started ourselves, as opposed to one the server handed us for
+# somebody else's entity. Outlives _predicted_path, which only covers the wait for confirmation: we stay a
+# one-way trip ahead of the server for the whole walk, and update_position has to know that is expected.
+var _is_predicted_walk: bool = false
+
+# Where a walk we predicted is headed, while the server's own account of that walk is still arriving. Every
+# position it reports is a trip old, so on a short walk they all land after we have finished it - and
+# snapping to one would yank the entity back to a tile it has already left. Cleared by the empty path the
+# server sends when it drops the path, which is the end of every walk.
+var _awaiting_arrival: bool = false
+var _predicted_destination: Vector3 = Vector3.ZERO
+
 # Visual facing rotation
 var _visual_rotation_start_basis: Basis = Basis.IDENTITY
 var _visual_rotation_target_basis: Basis = Basis.IDENTITY
@@ -93,6 +110,11 @@ const _CORRECTION_IGNORE: float = 0.4    # metres of desync trusted as latency, 
 const _CORRECTION_TIME: float = 0.25     # seconds to bleed a correction back in
 const _CORRECTION_MAX_BOOST: float = 2.5 # cap on extra metres/sec while catching up
 const _SNAP_METRES: float = 2.5          # desync this large just snaps
+# How long a walk we started ourselves may run unconfirmed. The server answers a move it accepted within a
+# round trip, so an answer that has not come by now means it never will: the path was refused outright (a
+# click into the wall beside you), or the request was dropped or rate limited. Fixed rather than derived
+# because nothing measures the round trip yet.
+const _PREDICTION_GRACE_MSEC: int = 1000
 const _ROTATION_DURATION: float = 0.3  # Time to turn the model to face movement direction
 const _VISUAL_NODE_NAME = "Visual"
 
@@ -103,6 +125,10 @@ const _GROUND_MAX_OFFSET: float = 1.0    # metres of correction the terrain is t
 # Where the server says this entity is: whole-voxel coordinates in Godot's axis order, lerped
 # between two of them while moving. `position` is this plus the drawing corrections.
 var _logical_position: Vector3 = Vector3.ZERO
+
+# The last position the server actually stated, as opposed to the one we interpolated towards it. A
+# prediction that is never answered has no stop message to land on - see _abandon_prediction.
+var _server_position: Vector3 = Vector3.ZERO
 
 # Height correction that puts the feet on the drawn terrain - see _update_ground_offset.
 var _ground_offset: float = 0.0
@@ -121,6 +147,9 @@ func _update_movement(delta: float) -> void:
 
 	# Likewise an asserted posture (asleep, say). Movement still runs, so it slides rather than sits.
 	var pose_is_ours := _posture == _POSTURE_NONE
+
+	if not _predicted_path.is_empty() and Time.get_ticks_msec() > _prediction_deadline_msec:
+		_abandon_prediction()
 
 	if not _is_moving or _nodes.size() < 2 or _speed <= 0.0:
 		if pose_is_ours:
@@ -398,8 +427,17 @@ func on_interact() -> void:
 
 func update_position(msg: PositionComponent) -> void:
 	var new_position: Vector3 = msg.Position
+	_server_position = new_position
 
 	if not _is_moving:
+		# Mid-way reports of a walk we predicted and have already finished. They are a trip old, so they
+		# describe tiles this entity has left; snapping to one walks it backwards and then forwards again.
+		# Only the destination is worth hearing, and the path's removal ends the wait either way.
+		if _awaiting_arrival:
+			if _ground_distance(new_position, _predicted_destination) <= 0.001:
+				_awaiting_arrival = false
+			return
+
 		# Nothing to reconcile against, just snap.
 		_logical_position = new_position
 		_error = 0.0
@@ -408,7 +446,8 @@ func update_position(msg: PositionComponent) -> void:
 
 	var idx := _index_of_node(new_position)
 	if idx < 0:
-		# Server is off our predicted path (new route/teleport): snap and stop.
+		# Server is off our predicted path (new route/teleport): snap and stop. Whatever we were predicting
+		# is settled by this - the server has stated a position that is not on the path at all.
 		_logical_position = new_position
 		_nodes = [new_position]
 		_arc.clear()
@@ -416,6 +455,9 @@ func update_position(msg: PositionComponent) -> void:
 		_seg = 0
 		_travelled = 0.0
 		_is_moving = false
+		_is_predicted_walk = false
+		_awaiting_arrival = false
+		_predicted_path.clear()
 		_error = 0.0
 		_snap_ground_offset()
 		return
@@ -426,6 +468,18 @@ func update_position(msg: PositionComponent) -> void:
 	if absf(e) <= _CORRECTION_IGNORE:
 		# Within latency noise, trust our own prediction.
 		return
+
+	# On a walk we started ourselves, being ahead of the server is the whole point: its report of where it
+	# is left a one-way trip ago, so it always reads as behind us and correcting for that would stall the
+	# walk back into the latency we just removed. Only a shortfall is worth bleeding in. An over-run large
+	# enough to matter still falls through to the snap, and a prediction that was simply wrong shows up as
+	# an off-path position above rather than as a gap along the path.
+	#
+	# The exact answer needs the server's report compared against where we were when it was written, which
+	# needs a round-trip measurement the protocol does not carry yet.
+	if _is_predicted_walk and e < 0.0 and absf(e) <= _SNAP_METRES:
+		return
+
 	_error = e
 
 
@@ -435,10 +489,91 @@ func update_path(msg: PathComponentSMSG) -> void:
 		_stop_at(msg)
 		return
 
-	# Anchor on the logical position - the ground-corrected height would apply that correction twice.
+	# Our own click, confirmed. Rebuilding here would zero _travelled and re-anchor the chain on ground we
+	# have already covered - a hitch on every click, which is the thing predicting exists to remove.
+	#
+	# Deliberately not conditional on still being under way: a short click on a slow connection finishes
+	# before its own echo arrives, and re-anchoring then would walk the path a second time from the far end
+	# of it. There is simply nothing left to adopt in that case.
+	if _confirms_prediction(msg.Path):
+		if _is_moving:
+			_adopt_heights(msg.Path)
+		_predicted_path.clear()
+		return
+
+	_predicted_path.clear()
+	_follow_path(msg.Path, msg.StartOffset)
+
+
+## Walks a path this client asked for, before the server has confirmed it.
+##
+## The server stays the authority and will answer: with the same path if it accepted it, with a shorter one
+## if it cut the walk at something `path_calculator.gd` walked into - that file ignores terrain, so clicking
+## past a rock is routine rather than hostile - and with nothing at all if it refused the first step
+## outright. [method update_path] adopts a matching answer without disturbing this walk and re-anchors on
+## one that differs; an answer that never comes expires, see [constant _PREDICTION_GRACE_MSEC].
+func predict_path(waypoints: Array[Vector3]) -> void:
+	_predicted_path = waypoints.duplicate()
+	_prediction_deadline_msec = Time.get_ticks_msec() + _PREDICTION_GRACE_MSEC
+	_follow_path(waypoints)
+	_is_predicted_walk = true
+	_awaiting_arrival = true
+	_predicted_destination = waypoints[waypoints.size() - 1]
+
+
+## Whether [param waypoints] is the path we are currently predicting.
+##
+## Horizontally only, because the vertical is the one thing that legitimately differs: the client
+## interpolates it and ignores terrain, and `MoveSystem` replaces every waypoint's height with the ground's
+## before echoing the path back. See [method _adopt_heights].
+func _confirms_prediction(waypoints: Array[Vector3]) -> bool:
+	if _predicted_path.size() != waypoints.size():
+		return false
+
+	for i in _predicted_path.size():
+		if _ground_distance(_predicted_path[i], waypoints[i]) > 0.001:
+			return false
+
+	return true
+
+
+## Takes the server's heights for a path we are already walking.
+##
+## Costs no timing: the node chain is paced by [member _arc], which is ground distance and ignores height,
+## so replacing the vertical changes where the entity is drawn and nothing else. The anchor at index 0 keeps
+## its own height - it is where we are, not a waypoint.
+func _adopt_heights(waypoints: Array[Vector3]) -> void:
+	for i in waypoints.size():
+		_nodes[i + 1] = waypoints[i]
+
+
+## Gives up on an unconfirmed prediction and returns to where the server last said we were.
+func _abandon_prediction() -> void:
+	_predicted_path.clear()
+	_nodes.clear()
+	_arc.clear()
+	_seg = 0
+	_travelled = 0.0
+	_error = 0.0
+	_faced_seg = -1
+	_is_moving = false
+	_is_predicted_walk = false
+	_awaiting_arrival = false
+	_logical_position = _server_position
+	_snap_ground_offset()
+
+
+## Anchors a chain of waypoints where the entity currently is and starts walking it.
+##
+## [param start_offset] is the share of the first segment already covered, for a path the server is
+## reporting mid-walk; our own click starts from where we stand and passes nothing.
+func _follow_path(waypoints: Array[Vector3], start_offset: float = 0.0) -> void:
+	# Anchored on the logical position rather than the rendered one: the waypoints behind it are the
+	# server's whole voxels, and anchoring the chain on a height that has been nudged onto the terrain
+	# would feed the correction into the path and then correct it a second time.
 	_nodes.clear()
 	_nodes.append(_logical_position)
-	for vec3 in msg.Path:
+	for vec3 in waypoints:
 		_nodes.append(vec3)
 
 	# Cumulative ground distance, which is what the walk is paced by. The first segment is usually a part
@@ -456,18 +591,23 @@ func update_path(msg: PathComponentSMSG) -> void:
 	# last reached rather than where it stands. StartOffset is the share of that first step already walked,
 	# so in metres it is that share of the first segment.
 	if _nodes.size() >= 2:
-		_travelled = clampf(msg.StartOffset, 0.0, 1.0) * _arc[1]
+		_travelled = clampf(start_offset, 0.0, 1.0) * _arc[1]
 	else:
 		_travelled = 0.0
 	_error = 0.0
 	_faced_seg = -1
 	_is_moving = _nodes.size() >= 2
+	_is_predicted_walk = false
+	_awaiting_arrival = false
 
 
 ## The walk is over - finished, or cut short by combat, sleep, death, a stop or a teleport. Only the
 ## first leaves us where the server is, hence the stop position; snapped, since _error is dropped.
 func _stop_at(msg: PathComponentSMSG) -> void:
 	_is_moving = false
+	_predicted_path.clear()
+	_is_predicted_walk = false
+	_awaiting_arrival = false
 	_travelled = 0.0
 	_error = 0.0
 	_faced_seg = -1
