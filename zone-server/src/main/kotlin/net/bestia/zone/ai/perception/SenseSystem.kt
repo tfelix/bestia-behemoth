@@ -1,6 +1,11 @@
 package net.bestia.zone.ai.perception
 
 import net.bestia.zone.ai.ecs.AiAgent
+import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.ecs.account.ActivePlayer
+import net.bestia.zone.ai.ecs.PlayerControlled
+import net.bestia.zone.ai.ecs.AiThrottleable
+import net.bestia.zone.ai.ecs.AiThrottle
 import net.bestia.zone.ai.ecs.SharedMemoryService
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Schedule
@@ -45,6 +50,7 @@ import org.springframework.stereotype.Component as SpringComponent
 class SenseSystem(
   private val senses: List<Sense>,
   private val sharedMemory: SharedMemoryService,
+  private val throttle: AiThrottle,
 ) : System {
 
   override val schedule: Schedule = Schedule.EverySeconds(BASE_INTERVAL_SECONDS)
@@ -56,7 +62,12 @@ class SenseSystem(
    * that reads `Health` makes this system conflict with whatever writes `Health`, without anyone having to
    * remember to widen a set in this file.
    */
-  override val reads: ComponentClassSet = setOf(Position::class) + senses.flatMap { it.reads }
+  override val reads: ComponentClassSet = setOf(
+    Position::class,
+    ActivePlayer::class,
+    AiThrottleable::class,
+    PlayerControlled::class
+  ) + senses.flatMap { it.reads }
 
   /** Writes the agents' (and their packs') blackboards, so it conflicts with the AI stages by declaration. */
   override val writes: ComponentClassSet = setOf(AiAgent::class)
@@ -64,14 +75,31 @@ class SenseSystem(
   /** Seconds since each sense last ran, parallel to [senses]. */
   private val sinceLastRun = FloatArray(senses.size)
 
+  /**
+   * Sweeps run so far, the rotation a throttled agent is staggered against.
+   *
+   * A counter here rather than another field on `AiAgent`: the senses already keep their own timers, so all
+   * a throttled agent needs is to be skipped on a predictable share of the sweeps - and spreading that by
+   * entity id keeps the cost flat instead of bunching every ambient creature onto the same sweep.
+   */
+  private var sweep = 0L
+
   override fun update(world: World, deltaTime: Float) {
     val due = takeDueSenses(deltaTime)
     if (due.isEmpty()) return
 
+    sweep++
     val worldMemory = sharedMemory.worldBoard()
+    val players = if (throttle.isActive) activePlayerPositions(world) else emptyList()
 
     world.query(AiAgent::class, Position::class).each { id ->
       val agent = get<AiAgent>()
+
+      // Scenery nobody is near senses less often. `ForageSense` costs a biome sample per agent, which is
+      // affordable for a den's pack and not for a hundred and forty creatures per player.
+      val factor = throttle.factorFor(world, id, agent, players)
+      if (factor > 1 && (sweep + id) % factor != 0L) return@each
+
       val context = SenseContext(
         world = world,
         entityId = id,
@@ -82,6 +110,15 @@ class SenseSystem(
 
       due.forEach { it.sense(context) }
     }
+  }
+
+  /** The same anchor set `PerceptionSystem` uses: only a player who has picked a master. */
+  private fun activePlayerPositions(world: World): List<Vec3L> {
+    val positions = ArrayList<Vec3L>()
+    world.query(Position::class, ActivePlayer::class).each {
+      positions.add(get<Position>().toVec3L())
+    }
+    return positions
   }
 
   /**

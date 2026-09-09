@@ -7,6 +7,8 @@ import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
+import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.ecs.account.ActivePlayer
 import net.bestia.zone.ecs.movement.Position
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component as SpringComponent
@@ -33,17 +35,25 @@ import org.springframework.stereotype.Component as SpringComponent
 class AiThinkSystem(
   private val planner: Planner,
   private val sharedMemory: SharedMemoryService,
+  private val throttle: AiThrottle,
 ) : System {
 
   override val schedule: Schedule = Schedule.EveryTick
 
-  override val reads: ComponentClassSet = setOf(Position::class, PlayerControlled::class, Dead::class)
+  override val reads: ComponentClassSet = setOf(
+    Position::class,
+    PlayerControlled::class,
+    Dead::class,
+    ActivePlayer::class,
+    AiThrottleable::class
+  )
 
   /** Written: the goal/plan/behaviour-tree fields and the agent's memory snapshot. */
   override val writes: ComponentClassSet = setOf(AiAgent::class)
 
   override fun update(world: World, deltaTime: Float) {
     val worldBoard = sharedMemory.worldBoard()
+    val players = if (throttle.isActive) activePlayerPositions(world) else emptyList()
 
     world.query(AiAgent::class, Position::class).each { id ->
       val agent = get<AiAgent>()
@@ -71,7 +81,9 @@ class AiThinkSystem(
 
       if (world.tickCount < agent.nextThinkTick) return@each
       // Offset by id so agents created on the same tick still land on different ticks from here on.
-      agent.nextThinkTick = world.tickCount + THINK_PERIOD_TICKS + (id % THINK_PERIOD_TICKS)
+      // Scenery nobody is near replans on a multiple of the period; see AiThrottle.
+      val period = THINK_PERIOD_TICKS * throttle.factorFor(world, id, agent, players)
+      agent.nextThinkTick = world.tickCount + period + (id % period)
 
       val state = agent.snapshotState(worldBoard)
       val goal = planner.selectCurrentGoal(agent, state)
@@ -97,6 +109,15 @@ class AiThinkSystem(
       agent.adopt(goal, plan, state)
       LOG.trace { "Entity $id adopts goal '${goal.name}' with plan ${plan.actions.map { it.name }}" }
     }
+  }
+
+  /** The same anchor set `PerceptionSystem` uses: only a player who has picked a master. */
+  private fun activePlayerPositions(world: World): List<Vec3L> {
+    val positions = ArrayList<Vec3L>()
+    world.query(Position::class, ActivePlayer::class).each {
+      positions.add(get<Position>().toVec3L())
+    }
+    return positions
   }
 
   companion object {

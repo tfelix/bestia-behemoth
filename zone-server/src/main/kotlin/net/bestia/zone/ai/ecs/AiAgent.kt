@@ -83,6 +83,15 @@ class AiAgent(
    */
   var nextThinkTick: Long = 0L
 
+  /**
+   * Earliest tick this agent may perceive again.
+   *
+   * Beside [nextThinkTick] rather than folded into it because the two cadences differ: perception runs on a
+   * half-second sweep and planning on its own stagger, and a throttled agent has to slow both or the saving
+   * is spent on the cheaper half. See `AiThrottle`.
+   */
+  var nextPerceiveTick: Long = 0L
+
   fun currentAction(): Action? = currentPlan?.actions?.getOrNull(planCursor)
 
   fun hasActivePlan(): Boolean = currentActionNode != null

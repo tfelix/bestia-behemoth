@@ -18,6 +18,7 @@ import net.bestia.zone.ecs.battle.damage.TakenDamage
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
+import net.bestia.zone.ecs.spawn.ambient.AmbientSpawnConfig
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.ecs.entity.Animation
 import net.bestia.zone.ecs.movement.MoveSystem
@@ -74,13 +75,21 @@ class AiPipelineFixture(tickRate: Int = 20) {
     sharedMemory = sharedMemory,
   )
 
+  /**
+   * Throttling off, so a scenario measures behaviour rather than cadence.
+   *
+   * `factor = 1` is the documented off switch, and it means these tests exercise exactly the code path a
+   * den mob takes on the live server. `AiThrottleTest` covers the throttled path on its own.
+   */
+  val throttle = AiThrottle(AmbientSpawnConfig(throttleFactor = 1))
+
   /** The AI stages in pipeline order, plus movement so a decision to walk actually moves something. */
   val systems: List<System> = listOf(
-    PerceptionSystem(profiles, aoi, clock),
+    PerceptionSystem(profiles, aoi, clock, throttle),
     // Spring collects the Sense beans in the live server; a test names the ones its scenario cares about.
-    SenseSystem(listOf(ForageSense { grazeableGround }), sharedMemory),
+    SenseSystem(listOf(ForageSense { grazeableGround }), sharedMemory, throttle),
     AiDriveSystem(sharedMemory),
-    AiThinkSystem(Planner(), sharedMemory),
+    AiThinkSystem(Planner(), sharedMemory, throttle),
     AiActSystem(sharedMemory, ZoneConfig(tickRate = tickRate)),
     // No terrain in these scenarios, so no ground to snap to; null keeps the waypoint's own z, which is what
     // the flat test navigation produces anyway.

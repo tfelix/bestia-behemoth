@@ -19,21 +19,6 @@ import kotlin.math.roundToInt
 import org.springframework.stereotype.Component as SpringComponent
 
 /**
- * Cold and heat cost stamina, and then health.
- *
- * ### This is the system that makes the weather model impossible to ship dead
- *
- * `worldgen` shipped three subsystems in a row that were complete, tested, and never *reached*: sea lanes
- * that produced none on forty worlds, four built sites blocked by an integer overflow, and four seasonal
- * climate layers that were summed and discarded for a year. Every one of them looked finished.
- *
- * Weather without a consumer is in exactly that position: it would keep evaluating, keep sending messages, and
- * nothing in the game would be different if it silently stopped. With this, a player who walks into the
- * mountains in winter starts losing stamina, and if the weather ever stops being computed **they stop losing
- * it** - which is loud, immediate and reported by players rather than discovered in a sweep.
- *
- * ### Stamina first, health second
- *
  * Exposure drains stamina, and only bites health once stamina is gone. That ordering is the whole difference
  * between a mechanic and a nuisance: a player crossing a cold pass is slowed and warned, and a player who
  * ignores it dies. Damage straight to health would make a blizzard an unavoidable tax on travel.

@@ -240,6 +240,51 @@ wild-spawn:
   temperature-falloff-celsius: 10.0
   min-temperature-weight: 0.05
 
+# The baseline wilderness, on top of the dens above.
+#
+# The dens cannot produce the density this is for and no knob above can make them: `den-share` only thins,
+# and the generator's `candidateSpacing` is quadratic - one den per thirty metres would be millions of
+# markers and a regenerated world. So the baseline is not markers at all. It is a function of the world seed
+# and a position, worked out for the ground a player is standing on and never written down, which is what
+# makes eleven hundred creatures per square kilometre affordable.
+#
+# Everything here takes effect on a restart, moves no version and destroys nothing - `AmbientSpawnConfig`
+# has the argument. `spacing-tiles` is the one to know about: it renames every lattice cell and so re-rolls
+# the whole wilderness, which is harmless only because no ambient creature is persisted.
+ambient-spawn:
+  # Off leaves exactly the den-only world. The first knob to reach for if the wilderness misbehaves.
+  enabled: true
+  # Tiles between sites before thinning; one tile is one metre. 30 puts about four creatures in the ~60 m of
+  # ground the camera actually shows. Population scales with the inverse square, so 20 is twice as many.
+  spacing-tiles: 30
+  # Share of sites removed in the harshest country, against the same danger curve the dens use. Because that
+  # curve's largest term is distance to the nearest town, this is also what makes a village's fields the
+  # fullest ground on the map without anything here mentioning towns.
+  danger-thinning: 0.6
+  # Ceiling on an ambient creature's level. Corrupted ground is level 80 up by construction, and that many
+  # level-ninety creatures is impassable terrain rather than atmosphere - the dens are the danger there.
+  max-level: 40
+  # 176 (interest radius) + 40 (widest wander radius) + margin, so a creature is standing before it can be
+  # seen. `AmbientSpawnerBootRunner` refuses a value that does not clear that sum.
+  activation-radius-tiles: 240
+  # Creatures created per 0.25 s pass across all players. 12 fills a fresh view in about three seconds,
+  # which happens outside the view volume and so is invisible.
+  spawns-per-pass: 12
+  # Matches SpawnerSystem.UNLOAD_DELAY_SECONDS: stepping away and back must not disturb anything.
+  unload-delay-seconds: 60
+  # How long a killed site stays empty. Without it, standing on one spot is an endless supply.
+  respawn-delay-seconds: 120
+  # Clearance beyond a town's outermost building, not its centre - settlements are neither round nor all the
+  # same size. Quantised up to TownClearance.MASK_CELL_METRES, so 100 lands between 100 and 128 m.
+  town-clearance-tiles: 100
+  # Resolved cells kept in memory. A site cannot change, so this is a memo with nothing to invalidate.
+  site-cache-size: 200000
+  # Ambient creatures perceive, sense and think at 1/factor the usual rate when no player is near. 1 turns
+  # the mechanism off. Never applies to a den mob, a boss, a /spawn'ed mob or a player's own bestia.
+  throttle-factor: 4
+  # AI profiles this layer refuses to throttle, for a species that must stay sharp at any distance.
+  never-throttled-profiles: []
+
 world-time:
   # Left unset: defaults to this server instance's boot time (a new world timeline each restart).
   # world-epoch: 2026-01-01T00:00:00Z
