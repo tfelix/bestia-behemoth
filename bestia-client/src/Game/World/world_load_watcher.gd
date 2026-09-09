@@ -12,8 +12,20 @@ class_name WorldLoadWatcher extends Node
 ## entity is resynced every 8 tiles against a 32-tile chunk, so two chunks cannot pass between syncs.
 const _JUMP_CHUNKS := 2.0
 
-## Nothing keeps the player behind the screen longer than this, whatever the stream reports.
-const _FAILSAFE_SECONDS := 30.0
+## How long the load may make no progress at all before the screen comes down anyway.
+##
+## This replaces a flat 30 s cap on the whole load, which could not tell a slow load from a stuck one and
+## regularly picked the wrong answer. Every streaming budget on the server is per tick, so a tick running long
+## - a login into dense ground, where props are being materialised and columns costed - stretches the whole
+## delivery without anything being wrong with it. The old cap then fired mid-load and revealed a world that
+## was still arriving, which reads exactly like terrain that failed to load.
+##
+## Stalling is the thing actually worth giving up on, and it is cheap to detect: either the delivered fraction
+## rises or the build backlog falls, and while neither moves for this long nothing is coming.
+const _STALL_SECONDS := 10.0
+
+## The hard cap, for a load that inches forward for ever rather than stopping outright.
+const _FAILSAFE_SECONDS := 180.0
 
 const _GAME_SCENE := "res://Game/Game.tscn"
 const _STREAMING := "Streaming terrain..."
@@ -24,6 +36,13 @@ var _owned_entity_id: int = 0
 var _last_server_position := Vector3.ZERO
 var _has_server_position: bool = false
 var _elapsed: float = 0.0
+var _stalled_for: float = 0.0
+
+## The best the stream has ever reported this load. Compared against rather than the last reading, so a
+## measure that dips - a manifest withdrawing columns as the view moves - does not read as progress when it
+## recovers.
+var _best_progress: float = 0.0
+var _least_backlog: int = 0
 
 
 func _ready() -> void:
@@ -45,6 +64,10 @@ func attach(connection: Node) -> void:
 ## The ground under the player is about to change wholesale. Raises the screen and starts watching.
 func begin() -> void:
 	_elapsed = 0.0
+	_stalled_for = 0.0
+	_best_progress = 0.0
+	# Nothing has been measured yet, so the first reading has to count as progress whatever it is.
+	_least_backlog = 1 << 30
 	SceneManager.show_loading(_STREAMING)
 	set_process(true)
 
@@ -70,10 +93,27 @@ func _process(delta: float) -> void:
 		_finish()
 		return
 
-	if _elapsed >= _FAILSAFE_SECONDS:
-		push_warning("World load gave up after %.0f s: %s; %s"
-			% [_elapsed, stream.Summary(), _renderer_summary(stream)])
-		_finish()
+	_age_stall(stream, progress, delta)
+
+	if _stalled_for < _STALL_SECONDS and _elapsed < _FAILSAFE_SECONDS:
+		return
+
+	push_warning("World load gave up after %.0f s (%.0f s of it stalled at %.0f%%): %s; %s"
+		% [_elapsed, _stalled_for, progress * 100.0, stream.Summary(), _renderer_summary(stream)])
+	_finish()
+
+
+## Advances or resets the stall timer. Either measure moving means the load is still going somewhere.
+func _age_stall(stream: Node, progress: float, delta: float) -> void:
+	var backlog: int = stream.BuildBacklog
+
+	if progress > _best_progress or backlog < _least_backlog:
+		_best_progress = maxf(_best_progress, progress)
+		_least_backlog = mini(_least_backlog, backlog)
+		_stalled_for = 0.0
+		return
+
+	_stalled_for += delta
 
 
 func _finish() -> void:

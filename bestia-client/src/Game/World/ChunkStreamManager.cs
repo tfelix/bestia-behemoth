@@ -265,6 +265,17 @@ namespace BestiaBehemothClient.Game.World
     /// <summary>Chunk payloads received and not yet decoded.</summary>
     public int DecodeBacklog => _toDecode.Count;
 
+    /// <summary>
+    /// Everything received and not yet drawn: payloads waiting to decode, and chunks waiting to be meshed.
+    /// </summary>
+    /// <remarks>
+    /// The other half of <see cref="ViewLoadProgress"/>, and the reason a loading screen can tell a slow load
+    /// from a stalled one. Progress measures what has *arrived*, which reaches 1.0 while the whole view volume
+    /// is still an unmeshed pile; this measures what is left to turn into geometry. Between them, something is
+    /// happening exactly while one of the two is still moving.
+    /// </remarks>
+    public int BuildBacklog => _toDecode.Count + (Renderer?.Backlog ?? 0);
+
     /// <summary>How long the announced set must hold still before it counts as all the server intends to offer.</summary>
     private const double AnnouncedQuietSeconds = 1.0;
 

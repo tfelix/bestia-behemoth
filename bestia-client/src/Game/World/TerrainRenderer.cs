@@ -234,6 +234,16 @@ namespace BestiaBehemothClient.Game.World
     public int PendingCount => _pending.Count;
 
     /// <summary>
+    /// Everything still queued, in flight or waiting to be installed.
+    /// </summary>
+    /// <remarks>
+    /// <see cref="IsIdle"/> says whether there is work left; this says how much, which is what tells a slow
+    /// build apart from a stuck one. <c>world_load_watcher</c> holds the loading screen up while this is
+    /// falling and gives up when it stops falling, rather than on a stopwatch that cannot tell the two apart.
+    /// </remarks>
+    public int Backlog => _pending.Count + _running + _finished.Count;
+
+    /// <summary>
     /// Nothing left to mesh, build or install.
     /// </summary>
     /// <remarks>
