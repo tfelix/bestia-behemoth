@@ -57,9 +57,6 @@ const float TERRAIN_WEIGHT_EPSILON = 0.002;
 // entirely one axis, so this is what keeps the common case at one fetch per slot rather than three.
 const float TERRAIN_AXIS_EPSILON = 0.001;
 
-// Rec. 709, for reading a texture's brightness without reading its colour.
-const vec3 TERRAIN_LUMA = vec3(0.2126, 0.7152, 0.0722);
-
 group_uniforms Textures;
 
 // RGB albedo, A height. Height is unused until the phase that blends by it; it rides along because a second
@@ -257,56 +254,31 @@ group_uniforms Grass;
 // (0.54, 0.63, 0.54), which is this default in sRGB. Redo that line for another coverage: `f = 0.75` would
 // want about (0.59, 0.69, 0.59) and the old `f = 0.85` is where (0.43, 0.62, 0.35) came from.
 //
-// Half is what TerrainGrass's own `Density` remarks claim for the present field, and the claim only became
-// true recently: the mesher used to name the soil under the turf rather than the turf, so the grass weight
-// this ramp and `TerrainGrass.Scatter` both key on sat near 0.64 on ground that is entirely grass and the
-// field placed a third fewer tufts than it was asked for. Two things moved under this value without moving
-// it: the field got shorter in `0dc9ac97a`, which uncovered ground, and fixing the mesher raised the tuft
-// count by half again, which covers some of it back.
+// Half is what TerrainGrass's own `Density` remarks claim for the present field.
 //
-// **Not yet judged by eye at this value.** The arithmetic above is a starting point, and the horizon is the
-// authority. `Dev/TerrainTestbed` can now show the ramp - set `GrassFieldBegin` and `GrassFieldEnd` - so this
-// no longer needs a login and a meadow to A/B.
+// **Not yet judged by eye at this value.** The arithmetic above is a starting point and the horizon is the
+// authority; `Dev/TerrainTestbed` shows it without a login and a meadow. It is also the knob to reach for if
+// the ground now reads too dark *near* the player, since the correction no longer fades in with distance.
 //
 // **White is the off switch**, since a correction of one changes nothing.
 uniform vec3 grass_field_correction : source_color = vec3(0.76, 0.81, 0.76);
 
-// What the ground grows in place of the plants it no longer has: fine grain, and a normal broken up enough to
-// catch the light unevenly.
+// The field's own large-scale colour variation, so the corrected ground carries it too.
 //
-// The correction above gets the far field's *colour* right and cannot get its *surface* right - a hundred
-// metres of correctly-coloured ground with one interpolated normal across it reads as painted paper, which is
-// what a zoomed-out horizon actually looked like. Relief is the half that fixes it; the grain alone only
-// stipples a plane.
+// **The one frequency that survives the distance, and leaving it out is what made the horizon flat.** A metre
+// of ground about a hundred metres out is three or four pixels tall on a 1080p viewport at this camera's
+// pitch, so everything finer than about half a metre is at Nyquist and mips to its own average - a correction
+// that is one flat colour over the whole far field therefore *is* one flat colour. The blades do not look flat
+// out there because `grass.gdshader` varies them over twenty metres, which is a hundred pixels at the same
+// distance.
 //
-// Both sample the GRASS slot that is already loaded, at `grass_canopy_scale` of its own tiling - finer,
-// because out here it is standing in for tufts rather than for turf. Nought on either is its off switch.
-uniform float grass_canopy_grain : hint_range(0.0, 2.0) = 0.7;
-uniform float grass_canopy_relief : hint_range(0.0, 1.0) = 0.8;
-uniform float grass_canopy_scale : hint_range(0.05, 1.0) = 0.35;
-
-// Where the grass field is centred, where its geometry starts giving up, and where the last plant stands.
-//
-// Published every frame by `TerrainGrass.PublishField` and declared in project.godot's [shader_globals], which
-// is also what gives them a value in the editor while there is no game running - the arrangement
-// `weather_wind` already has. That default is a zero-width band, which the ramp below reads as no field at all.
-//
-// Centred on the **player** and never on the camera, which is the whole reason these are pushed in rather than
-// worked out here from CAMERA_POSITION_WORLD. The field measures its own level of detail from the player, so
-// anything measuring it from the eye drifts away from it by the length of the spring arm every time the player
-// zooms out - and the ring this exists to hide would come back, only now it would slide about.
-global uniform vec3 grass_field_focus;
-global uniform float grass_field_begin;
-global uniform float grass_field_end;
-
-// How steeply the field is thinning across that band right now: `GrassLod.Sharpen`'s exponent, never below 1.
-//
-// The band says how far the geometry may reach; this says how much of it actually gets there, and the two are
-// not the same question. `TerrainGrass` fits the field to a triangle budget by raising its own distance taper
-// to this power, so under a tight budget the tufts are gone well inside `grass_field_end` - and a tint ramped
-// as if they were not leaves bare ground showing where it thinks there is still grass. One is the off switch:
-// at an exponent of 1 the field is not being thinned by the budget at all.
-global uniform float grass_field_falloff;
+// These three mirror `grass.tres`: `color`, `color2`, and a seamless `NoiseTexture2D` over a default
+// `FastNoiseLite`. Copied rather than shared because a material cannot reference another material's
+// sub-resource - so `GrassCanopyTest` pins them against the values the blades actually use.
+uniform vec3 grass_canopy_tip : source_color = vec3(0.2415, 0.6713, 0.2757);
+uniform vec3 grass_canopy_root : source_color = vec3(0.2643, 0.2847, 0.0447);
+uniform sampler2D grass_canopy_noise : repeat_enable;
+uniform float grass_canopy_noise_scale : hint_range(1.0, 200.0) = 20.0;
 
 group_uniforms;
 
@@ -606,94 +578,40 @@ TerrainSurface terrain_surface(vec3 tint) {
 
 	albedo *= mix(vec3(1.0), correction, tint_strength);
 
-	// THE FAR FIELD: ground that grass stands on, drawn as grass long after the grass itself has stopped.
+	// THE CANOPY: ground that grass stands on is drawn as grass seen from above, everywhere and always.
 	//
-	// TerrainGrass gives its geometry up across `grass_field_begin` to `grass_field_end` - the band its tussock
-	// tier thins over - and draws nothing past it, while there is terrain to about 176 m and the fog does not
-	// finish closing until 220. The plants going is not what made that edge visible: the field's albedo is a
-	// dark saturated green and the bare grass texture is a much lighter one, so where the geometry stopped the
-	// ground changed *colour*, in a ring, at whatever radius the fade happened to sit at. A step in colour
-	// reads at any distance; a step in grain does not.
+	// **Not ramped with distance, and that is the whole point.** A correction that fades in past some radius is
+	// a ring, and a ring is the one thing the eye finds instantly - it was visible as "the grass grows in as you
+	// walk at it", and it moved with the zoom because the radius did. Applying it uniformly means there is no
+	// boundary to see, and it means the geometry above can thin as hard as the budget likes: what thinning
+	// uncovers already looks like the field.
+	//
+	// It costs nothing up close, where the plants hide the ground anyway, and it is the entire appearance of the
+	// field past the last plant - there is terrain to about 176 m and the fog does not finish closing until 220.
 	//
 	// Keyed on the grass weight *after* the cliff shed above, so a grassy slope too steep to grow a tuft on is
-	// also too steep to be tinted like one - MinUpright and cliff_start are the same walkable-slope angle in
-	// two metrics, so they agree by construction rather than by having been chosen to sit near each other.
+	// also too steep to be drawn like one - MinUpright and cliff_start are the same walkable-slope angle in two
+	// metrics, so they agree by construction rather than by having been chosen to sit near each other.
 	// DRY_GRASS is deliberately excluded, because TerrainGrass does not scatter on it either.
 	//
-	// Applied before the snow and wetness below, so far grass still darkens in rain and is still buried by
+	// Applied before the snow and wetness below, so the canopy still darkens in rain and is still buried by
 	// snow rather than showing through it.
 	//
-	// **The ramp is the field's own taper read backwards, and it used to be a smoothstep that was not.**
-	// `GrassLod.FractionAt` hands a cell `t * t` across this band, where `t` runs 1 at the near edge down to 0
-	// at the far one, and `GrassLod.Sharpen` then raises that to `grass_field_falloff` to fit the instance
-	// budget. So the share of tufts still standing is exactly `t` to the power of twice the falloff, and what
-	// this owes is one minus it. A smoothstep is not that curve at any exponent: at the 2.5 a full view volume
-	// settles on it was a third applied where nine tenths of the blades had already gone, which is the ring
-	// that made the grass look like it was growing in as the player walked at it.
-	//
-	// Clamped rather than extrapolated, so past `grass_field_end` the correction is at full strength and stays
-	// there to the horizon. That is right rather than merely convenient: past the field, the ground is all
-	// there is.
-	float grass_span = grass_field_end - grass_field_begin;
-	float grass_far = 0.0;
-	if (grass_span > 0.0) {
-		float past = clamp(
-			(distance(v_world_pos, grass_field_focus) - grass_field_begin) / grass_span, 0.0, 1.0);
+	// The swing is `grass.gdshader`'s own second factor, divided by its mean so it varies the ground without
+	// moving its average off the correction that was measured for it. Both halves matter: the correction alone
+	// is flat, and the swing alone is the wrong colour.
+	float grassy = weights[TERRAIN_SLOT_GRASS];
 
-		grass_far = 1.0 - pow(1.0 - past, 2.0 * max(grass_field_falloff, 1.0));
-	}
+	float variation = texture(grass_canopy_noise, v_world_pos.xz / max(grass_canopy_noise_scale, 0.001)).r;
 
-	float canopy = weights[TERRAIN_SLOT_GRASS] * grass_far;
+	vec3 swing = mix(grass_canopy_tip, grass_canopy_root, variation)
+		/ max(mix(grass_canopy_tip, grass_canopy_root, 0.5), vec3(0.0001));
 
-	albedo *= mix(vec3(1.0), grass_field_correction, canopy);
+	albedo *= mix(vec3(1.0), grass_field_correction * swing, grassy);
 
 	// Normals from the two slots are already in world space, so blending them is a plain interpolation. It is
 	// only within one slot that the three projections needed reorienting first.
 	vec3 world_normal = normalize(share0 * sample0.normal + share1 * sample1.normal);
-
-	// THE CANOPY: what the ground grows where the geometry has gone.
-	//
-	// `canopy` is the share of the plants TerrainGrass has given up here, so it is exactly how much of the field
-	// this owes. The correction above already moved the colour; this is the surface, and it is the half that
-	// decides whether the horizon reads as grass or as paper.
-	//
-	// Downward projection only. Ground this shallow to the eye is nearly all facing up, and the two axes it
-	// leaves out would cost two more fetches at the distance the frame can least afford them.
-	if (canopy > TERRAIN_WEIGHT_EPSILON) {
-		float grain_scale = max(slot_uv_scale[TERRAIN_SLOT_GRASS] * grass_canopy_scale, 0.0001);
-
-		vec2 gp = (v_world_pos.xz - slot_uv_origin[TERRAIN_SLOT_GRASS].xz) / grain_scale;
-
-		// Explicit, for the reason terrain_sample_slot gives: this branch is non-uniform, and an implicit
-		// derivative inside one is undefined exactly along the line where it flips.
-		vec2 gx = ddx.xz / grain_scale;
-		vec2 gy = ddy.xz / grain_scale;
-
-		float layer = float(TERRAIN_SLOT_GRASS);
-
-		vec4 grain = textureGrad(albedo_height, vec3(gp, layer), gx, gy);
-		vec4 grain_maps = textureGrad(normal_rough_ao, vec3(gp, layer), gx, gy);
-
-		// Around the slot's own mean, so the grain lightens as well as darkens. Per-channel it would be a
-		// second tint over the one the correction just applied, which is not what is wanted here.
-		//
-		// Bounded because the divisor is data: TerrainSlotTextures generates a flat grey for any slot whose
-		// art is missing and measures the mean off whatever it ends up with, so a dark or degenerate layer
-		// would otherwise put fireflies across a hundred metres of ground.
-		float lit = dot(grain.rgb, TERRAIN_LUMA);
-		float mean = max(dot(slot_reference_tint[TERRAIN_SLOT_GRASS], TERRAIN_LUMA), 0.0001);
-
-		float grained = clamp(lit / mean, 0.25, 2.5);
-
-		albedo *= mix(1.0, grained, clamp(canopy * grass_canopy_grain, 0.0, 1.0));
-
-		// Whiteout against the geometric normal, the same reorientation terrain_sample_slot does for its own
-		// downward projection - this mesh has no tangents, so NORMAL_MAP is not available at any price.
-		vec2 tangent = (grain_maps.rg * 2.0 - 1.0) * normal_strength;
-		vec3 relief = normalize(vec3(tangent.x + normal.x, normal.y, tangent.y + normal.z));
-
-		world_normal = normalize(mix(world_normal, relief, canopy * grass_canopy_relief));
-	}
 
 	float ao = mix(1.0, share0 * sample0.ao + share1 * sample1.ao, ao_strength);
 

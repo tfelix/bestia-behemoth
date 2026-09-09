@@ -2,19 +2,22 @@ using Godot;
 
 namespace BestiaBehemothClient.Game.World
 {
-  /// <summary>What a cell of the field is drawn with, coarsening with distance.</summary>
+  /// <summary>How many blades a cell's tufts keep, thinning with distance.</summary>
   /// <remarks>
-  /// Each tier holds the coverage the one in front of it gave up, in its own currency rather than by growing
-  /// the plants: tussocks stand in for groups of tufts, and past them the terrain shader draws the canopy on
-  /// the ground itself. <see cref="GrassLod.CoverageScale"/> says why size cannot be that currency.
+  /// Rungs of one ladder rather than different things: every one of them is <c>grass2</c>, at its size and in
+  /// its place, with blades taken out - see <see cref="GrassBlades"/> for why that is the only reduction the
+  /// eye cannot find. Past the last rung the terrain shader carries the field on the ground itself.
   /// </remarks>
   public enum GrassTier
   {
-    /// <summary><c>grass2</c>'s tuft, at its authored size.</summary>
-    Tuft,
+    /// <summary>All six of <c>grass2</c>'s blades: 72 triangles.</summary>
+    Full,
 
-    /// <summary><see cref="GrassTussock"/>'s crown, one per group of tufts.</summary>
-    Tussock,
+    /// <summary>The three tallest blades: 36 triangles.</summary>
+    Half,
+
+    /// <summary>The two tallest blades: 24 triangles.</summary>
+    Sparse,
 
     /// <summary>No geometry. The ground carries the field from here to the fog.</summary>
     None
@@ -105,9 +108,9 @@ namespace BestiaBehemothClient.Game.World
     /// <para>
     /// <b>Bounded low, and fed a distance-only fraction.</b> A plant's size is a silhouette the player measures
     /// against their own character, so it can absorb only a little and it must never move with the frame's
-    /// budget - see <c>TerrainGrass.Retune</c>, which is what feeds it. Coverage the geometry gives up beyond
-    /// that is held by the tussock tier and then by the ground itself, not by growing what is left: see
-    /// <see cref="TierAt"/> and <c>grass_field_correction</c> in <c>terrain_common.gdshaderinc</c>.
+    /// budget - see <c>TerrainGrass.Retune</c>, which is what feeds it. Coverage the geometry gives up is held
+    /// by the ground, which is drawn as grass everywhere and not only past a radius: see the canopy block in
+    /// <c>terrain_common.gdshaderinc</c>.
     /// </para>
     ///
     /// <para>
@@ -308,9 +311,9 @@ namespace BestiaBehemothClient.Game.World
     /// </para>
     ///
     /// <para>
-    /// Both arguments are triangles rather than instances: a tussock stands in for a group of tufts at a
-    /// fraction of their cost, so pricing the two alike would spend the budget on whichever the field happened
-    /// to be drawing. A <paramref name="maxVisible"/> of zero or less means no budget at all.
+    /// Both arguments are triangles rather than instances: the same tuft is 72, 36 or 24 triangles depending on
+    /// how many blades it has kept, so pricing instances alike would spend the budget on whichever rung the
+    /// field happened to be drawing. A <paramref name="maxVisible"/> of zero or less means no budget at all.
     /// </para>
     /// </remarks>
     public static float BudgetTrim(int wantedTotal, int maxVisible)
@@ -323,47 +326,32 @@ namespace BestiaBehemothClient.Game.World
       return maxVisible / (float)wantedTotal;
     }
 
-    /// <summary>Which representation a cell at this distance is drawn with.</summary>
+    /// <summary>How many of its blades a cell at this distance draws its tufts with.</summary>
     /// <remarks>
-    /// One tier per cell, never two. Carrying both meshes for the cells straddling an edge doubles the nodes
-    /// and the instance-uniform blocks they each hold forever - see <c>TerrainGrass.ScaledMaterial</c> - to
-    /// smooth a ring that <see cref="CellDither"/> already breaks up.
+    /// One rung per cell, never two. Carrying two meshes for the cells straddling an edge doubles the nodes and
+    /// the instance-uniform blocks they each hold forever - see <c>TerrainGrass.ScaledMaterial</c> - to smooth a
+    /// step that <see cref="CellDither"/> already breaks up and that changes no silhouette in the first place.
     /// </remarks>
-    public static GrassTier TierAt(float distance, float tuftEnd, float tussockEnd)
+    public static GrassTier TierAt(float distance, float halfEdge, float sparseEdge, float endMetres)
     {
-      if (distance < tuftEnd)
+      if (distance < halfEdge)
       {
-        return GrassTier.Tuft;
+        return GrassTier.Full;
       }
 
-      return distance < tussockEnd ? GrassTier.Tussock : GrassTier.None;
-    }
+      if (distance < sparseEdge)
+      {
+        return GrassTier.Half;
+      }
 
-    /// <summary>How full a cell's own tier is at this distance, before any budget was taken out of it.</summary>
-    /// <remarks>
-    /// <b>The one number <see cref="CoverageScale"/> may be fed, and it takes no budget argument on purpose.</b>
-    /// A plant's size is a silhouette the player measures against their own character, so a frame the budget
-    /// squeezes must not change it - and the way to guarantee that is for the arithmetic to have no way of
-    /// seeing the budget, rather than for a comment to ask the next reader not to pass it one.
-    ///
-    /// <para>
-    /// Each tier is full at its near edge and tapers to nothing at its far one, so the two bands hand over at
-    /// <paramref name="tuftEnd"/> with the arriving tier already at full.
-    /// </para>
-    /// </remarks>
-    public static float TierCoverage(
-      GrassTier tier, float distance, float fullMetres, float tuftEnd, float tussockEnd) => tier switch
-    {
-      GrassTier.Tuft => FractionAt(distance, fullMetres, tuftEnd),
-      GrassTier.Tussock => FractionAt(distance, tuftEnd, tussockEnd),
-      _ => 0.0f
-    };
+      return distance < endMetres ? GrassTier.Sparse : GrassTier.None;
+    }
 
     /// <summary>How far to move one cell's tier edges, in cells, so the boundary is not a clean circle.</summary>
     /// <remarks>
-    /// Tufts and tussocks are close enough in colour and silhouette that the eye finds the transition by its
-    /// <i>shape</i>. A ragged edge has no shape to find. Hashed from the cell key so a cell's own edge does not
-    /// move while the player walks, which would make it flip tiers repeatedly.
+    /// Neighbouring rungs differ only in how many blades a tuft has, so what is left to notice is the line
+    /// itself - and a ragged line has none. Hashed from the cell key so a cell's own edge does not move while
+    /// the player walks, which would make it flip rungs repeatedly.
     /// </remarks>
     /// <returns>A stable offset in [-0.5, 0.5].</returns>
     public static float CellDither(long cell)

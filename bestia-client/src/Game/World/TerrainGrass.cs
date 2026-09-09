@@ -32,12 +32,12 @@ namespace BestiaBehemothClient.Game.World
   /// </para>
   ///
   /// <para>
-  /// <b>Three tiers, and a cell is in exactly one of them.</b> <c>grass2</c>'s tuft near the player,
-  /// <see cref="GrassTussock"/>'s crown standing in for a group of them through the middle distance, and past
-  /// that no geometry at all - the terrain shader draws the canopy on the ground itself. Which tier a cell
-  /// takes is its distance from the player, dithered per cell so the ring between two of them has no shape the
-  /// eye can find. Both tiers draw from the one buffer the scatter built and share one material, so the mid
-  /// tier costs no second node, no second upload and no colour of its own.
+  /// <b>One tuft, drawn with fewer of its own blades as it goes out.</b> Six near the player, then three, then
+  /// two - see <see cref="GrassBlades"/> - and past the last rung no geometry at all, because the terrain
+  /// shader draws the ground as grass everywhere and there is nothing left for geometry to add. Every rung is
+  /// the same mesh at the same size, so no boundary changes a silhouette; which rung a cell takes is its
+  /// distance from the player, dithered per cell so the line itself has no shape to find. All of them draw
+  /// from the one buffer the scatter built and share one material.
   ///
   /// <para>
   /// <c>grass.res</c> and <c>grass.tres</c> stay where they are: <see cref="PropAppearance"/> draws every shrub
@@ -86,8 +86,8 @@ namespace BestiaBehemothClient.Game.World
   /// size - but its size is also a silhouette the player measures against their own character, so it can
   /// absorb almost nothing before the field is taller than they are. <see cref="GrassLod.CoverageScale"/> is
   /// therefore held near 1 and is fed a distance-only number no budget can reach. What each tier gives up is
-  /// held by the next one instead, and the last of them is the ground: see <see cref="PublishField"/> and the
-  /// canopy block in <c>terrain_common.gdshaderinc</c>.
+  /// held by the next one instead, and the last of them is the ground: see the canopy block in
+  /// <c>terrain_common.gdshaderinc</c>.
   /// </para>
   ///
   /// <para>
@@ -196,30 +196,20 @@ namespace BestiaBehemothClient.Game.World
     /// </remarks>
     [Export(PropertyHint.Range, "0,200,1")] public float FullDensityMetres { get; set; } = 15.0f;
 
-    /// <summary>How far from the player, in metres, the tufts give way to tussocks.</summary>
+    /// <summary>How far from the player, in metres, tufts drop from six blades to three.</summary>
     /// <remarks>
-    /// The end of the tuft tier: full <see cref="Density"/> inside <see cref="FullDensityMetres"/>, tapering to
-    /// nothing here, and <see cref="GrassTussock"/>'s crowns from here to <see cref="FadeOutMetres"/>.
-    ///
-    /// <para>
-    /// <b>This is the one number that decides what the field costs.</b> Tufts are 72 triangles against a
-    /// tussock's nineteen for twenty-odd times the ground, so the tuft disc is most of the budget at any
-    /// setting and everything beyond it is nearly free. Twenty-six metres is a little past the spring arm's
-    /// reach at its default zoom, so what the player is looking at is tufts.
-    /// </para>
+    /// The first rung of <see cref="GrassBlades"/>' ladder, and the one that decides what the field costs: a
+    /// six-blade tuft is 72 triangles against a three-blade tuft's 36, and the disc inside this is most of the
+    /// budget at any setting. Past the spring arm's own default zoom, so what the player is looking down at is
+    /// whole tufts. Fixed in metres - see <see cref="_Process"/> for why the rungs do not follow the zoom.
     /// </remarks>
-    [Export(PropertyHint.Range, "0,200,1")] public float TuftReachMetres { get; set; } = 26.0f;
+    [Export(PropertyHint.Range, "0,200,1")] public float BladeHalfMetres { get; set; } = 22.0f;
 
-    /// <summary>Tufts one tussock stands in for, and so how much the mid tier thins the scatter.</summary>
-    /// <remarks>
-    /// A tuft is mostly gaps and hides about a twentieth of a square metre; a crown is opaque and hides its
-    /// whole footprint. Twenty-four holds roughly the same share of the ground at
-    /// <see cref="GrassTussock"/>'s width - tune it by eye against the tuft band beside it, which is what it is
-    /// exported for.
-    /// </remarks>
-    [Export(PropertyHint.Range, "1,80,1")] public int TuftsPerTussock { get; set; } = 24;
+    /// <summary>How far from the player, in metres, tufts drop from three blades to two.</summary>
+    /// <remarks>The last rung: 24 triangles, held until the count itself runs out at <see cref="FadeOutMetres"/>.</remarks>
+    [Export(PropertyHint.Range, "0,300,1")] public float BladeSparseMetres { get; set; } = 50.0f;
 
-    /// <summary>How far from the player, in metres, the last tussock goes out - and so where the geometry ends.</summary>
+    /// <summary>How far from the player, in metres, the last tuft goes out - and so where the geometry ends.</summary>
     /// <remarks>
     /// Measured to the <i>nearest</i> point of a cell rather than to its middle, so a cell the player is
     /// standing at the edge of is at full density rather than at whatever a half-cell offset works out to.
@@ -233,7 +223,7 @@ namespace BestiaBehemothClient.Game.World
     ///
     /// <para>
     /// Past here the terrain shader draws the field on the ground itself, so this is where the geometry stops
-    /// rather than where the grass does - see <see cref="PublishField"/>.
+    /// rather than where the grass does - the canopy in <c>terrain_common.gdshaderinc</c> carries it from here on.
     /// </para>
     /// </remarks>
     [Export(PropertyHint.Range, "0,400,1")] public float FadeOutMetres { get; set; } = 150.0f;
@@ -283,8 +273,8 @@ namespace BestiaBehemothClient.Game.World
     ///
     /// <para>
     /// Kept above 1 at all only to cover the reveal ramp's own shrinkage within a cell. <b>Holding coverage is
-    /// not this node's job</b>: the tussock tier holds it through the middle distance and the terrain shader
-    /// holds it past that - see <see cref="TuftReachMetres"/> and <see cref="PublishField"/>.
+    /// not this node's job</b>: the ground is drawn as grass everywhere, so what thinning uncovers already
+    /// looks like the field - see the canopy block in <c>terrain_common.gdshaderinc</c>.
     /// </para>
     ///
     /// <para>
@@ -304,10 +294,9 @@ namespace BestiaBehemothClient.Game.World
     /// <see cref="FullDensityMetres"/> for what that protects.
     ///
     /// <para>
-    /// <b>Triangles rather than instances, because the tiers do not cost alike.</b> A tussock stands in for
-    /// <see cref="TuftsPerTussock"/> tufts at nineteen triangles against their 72 apiece, so an instance budget
-    /// would price the cheap tier as dearly as the expensive one and spend itself on whichever the field
-    /// happened to be drawing.
+    /// <b>Triangles rather than instances, because the rungs do not cost alike.</b> The same tuft is 72, 36 or
+    /// 24 triangles depending on how many blades it has kept, so an instance budget would price them alike and
+    /// spend itself on whichever rung the field happened to be drawing.
     /// </para>
     ///
     /// <para>
@@ -617,19 +606,6 @@ namespace BestiaBehemothClient.Game.World
       /// <summary>What <see cref="Tier"/> was when the mesh was last assigned, so it is assigned only on a change.</summary>
       internal GrassTier Drawn = GrassTier.None;
 
-      /// <summary>
-      /// Instances this cell's current tier may draw, which is the whole scatter only for the tufts.
-      /// </summary>
-      /// <remarks>
-      /// One crown stands in for <see cref="TuftsPerTussock"/> tufts, so the mid tier draws a short prefix of
-      /// the same shuffled order. Every share below is taken against this rather than against
-      /// <see cref="Total"/>, which is what keeps the reveal ramp the width of the tier it is ramping.
-      /// </remarks>
-      internal int Pool;
-
-      /// <summary>What <see cref="InstanceStepParameter"/> was last pushed as. -1 until the first pass.</summary>
-      internal float Step = -1.0f;
-
       /// <summary>This cell's own offset to the tier edges, in cells - see <see cref="GrassLod.CellDither"/>.</summary>
       internal float Dither;
     }
@@ -659,13 +635,12 @@ namespace BestiaBehemothClient.Game.World
 
     private Godot.Mesh _mesh;
 
-    /// <summary>The mid-tier crown, built once - see <see cref="GrassTussock"/>.</summary>
-    private Godot.Mesh _tussock;
+    /// <summary>One mesh per <see cref="GrassTier"/>, thinned from <see cref="_mesh"/> at load.</summary>
+    /// <remarks>Null where the split failed, which draws the full tuft rather than nothing.</remarks>
+    private readonly Godot.Mesh[] _rungs = new Godot.Mesh[3];
 
-    /// <summary>What each tier's mesh actually costs. Counted at load rather than named, so neither can go stale.</summary>
-    private int _tuftTriangles = 1;
-
-    private int _tussockTriangles = GrassTussock.Triangles;
+    /// <summary>What each rung actually costs. Counted at load rather than named, so neither can go stale.</summary>
+    private readonly int[] _rungTriangles = { 1, 1, 1 };
 
     /// <summary>The duplicate of <see cref="MaterialPath"/> with <see cref="UvVAtTip"/> set for this mesh.</summary>
     private Material _material;
@@ -699,18 +674,6 @@ namespace BestiaBehemothClient.Game.World
 
     /// <summary>The shader's scale boost, which is a material uniform - see <see cref="ScaledMaterial"/>.</summary>
     private static readonly StringName ExtraScaleParameter = "grass_extra_scale";
-
-    /// <summary>Where the field is centred, for the terrain shader - see <see cref="PublishField"/>.</summary>
-    private static readonly StringName FieldFocusParameter = "grass_field_focus";
-
-    /// <summary>Where the far-field ground tint starts ramping in, in metres from the focus.</summary>
-    private static readonly StringName FieldBeginParameter = "grass_field_begin";
-
-    /// <summary>Where that tint reaches full strength, which is where the geometry ends.</summary>
-    private static readonly StringName FieldEndParameter = "grass_field_end";
-
-    /// <summary>The exponent the field is thinning at, so the tint can give way at the same rate.</summary>
-    private static readonly StringName FieldFalloffParameter = "grass_field_falloff";
 
     /// <summary>How far apart this cell's instances sit in its own order. Pushed once, at install.</summary>
     private static readonly StringName InstanceStepParameter = "grass_instance_step";
@@ -944,30 +907,25 @@ namespace BestiaBehemothClient.Game.World
         MaterialOverride = _material,
         CastShadow = GeometryInstance3D.ShadowCastingSetting.Off,
 
-        // The wind's margin, plus however far a plant can stand outside the transforms Godot measured the
-        // bounds from: the coverage compensation grows it, and a tussock is wider than the tuft the bounds were
-        // taken for. Without them a cell pops out of view while its plants are still on screen.
-        ExtraCullMargin = WindCullMargin
-          + top * (Mathf.Max(MaxCoverageScale, 1.0f) - 1.0f)
-          + top * GrassTussock.WidthOverHeight
+        // The wind's margin, plus however far the coverage compensation can grow a plant past the transforms
+        // Godot measured the bounds from. Without the second term a compensated cell pops out of view while its
+        // plants are still on screen.
+        ExtraCullMargin = WindCullMargin + top * (Mathf.Max(MaxCoverageScale, 1.0f) - 1.0f)
       };
 
       AddChild(node);
 
-      // The tuft tier's divisor, pushed here so the common case never pushes again - Retune only revisits it
-      // when the cell changes tier. It is the shader's sentinel too: a node that never sets it draws at full
-      // size, which is what every ground-cover prop StaticEntityRenderer puts on the ground with this same
-      // shader relies on.
-      var step = GrassLod.RevealStep(transforms.Count);
-
-      node.SetInstanceShaderParameter(InstanceStepParameter, step);
+      // Constant for the life of the cell, so it is pushed here and never again - every rung draws the same
+      // instances in the same order, only with fewer blades each. It is the shader's sentinel too: a node that
+      // never sets it draws at full size, which is what every ground-cover prop StaticEntityRenderer puts on
+      // the ground with this same shader relies on.
+      node.SetInstanceShaderParameter(InstanceStepParameter, GrassLod.RevealStep(transforms.Count));
 
       return new Patch
       {
         Node = node,
         Multi = multi,
         Min = min,
-        Step = step,
 
         // Grown by the tallest plant, because the transforms only record where each one stands. A box that
         // stopped at the ground would call a cell below the camera further away than its blades are.
@@ -1203,9 +1161,6 @@ namespace BestiaBehemothClient.Game.World
 
       if (_patches.Count == 0 || !eye.HasValue)
       {
-        // No field for the ground to match. Published rather than left alone, so the terrain stops being
-        // coloured as grass the moment there is no grass on it - on the way out of a scene, say.
-        PublishField(Vector3.Zero, 0.0f, 0.0f, 1.0f);
         return;
       }
 
@@ -1219,18 +1174,22 @@ namespace BestiaBehemothClient.Game.World
       var band = GrassLod.BandScale(zoom, ReferenceZoomMetres, ZoomResponse, MaxZoomScale);
 
       var full = FullDensityMetres * band;
-      var tuftEnd = Mathf.Max(TuftReachMetres * band, full);
 
       // Clamped to the terrain that exists. At full zoom the band alone reaches nearly 300 m, where the server
       // streams about 176 and the fog has closed by 220 - so past this the budget would be spent counting cells
       // that were never built.
       var fade = Mathf.Min(FadeOutMetres * band, ReachMetres);
 
-      var perTussock = Mathf.Max(TuftsPerTussock, 1);
-
-      // The band the geometry actually gives up over, and the exponent the passes below are about to thin with
-      // rather than the one the controller will settle on: the ground has to match the field being drawn now.
-      PublishField(focus, tuftEnd, fade, _exponent);
+      // **Fixed in metres, and deliberately not widened by the zoom the way the density band is.** The band
+      // scales because zooming out puts more ground on screen and the field would otherwise empty; a rung is
+      // the opposite question - a tuft at thirty metres covers fewer pixels at full zoom than at none, so if
+      // anything it can lose blades sooner. Leaving them still also means the lines between rungs do not sweep
+      // across the ground while the player zooms, which is its own thing to notice.
+      //
+      // Ordered rather than trusted: an inspector can put them in any order, and a ladder that runs backwards
+      // would draw two blades in front of six.
+      var half = Mathf.Min(BladeHalfMetres, fade);
+      var sparse = Mathf.Clamp(BladeSparseMetres, half, fade);
 
       var cosHalfAngle = Mathf.Cos(GrassLod.HalfViewAngle(camera.Fov, ViewAspect(camera), ViewMarginDegrees));
 
@@ -1250,25 +1209,17 @@ namespace BestiaBehemothClient.Game.World
         {
           var distance = GrassLod.DistanceToBox(focus, patch.Min, patch.Max);
 
-          // A cell's own edges, so the ring between two tiers is ragged rather than a circle the eye can find.
+          // A cell's own edges, so each line between two rungs is ragged rather than a circle.
           var edge = patch.Dither * CellMetres;
 
-          patch.Tier = GrassLod.TierAt(distance, tuftEnd + edge, fade + edge);
+          patch.Tier = GrassLod.TierAt(distance, half + edge, sparse + edge, fade + edge);
 
-          // Distance only, and it takes no budget argument at all - which is what keeps the frame's budget away
-          // from how big a plant is drawn. The count below is this same number thinned to fit.
-          patch.Coverage = GrassLod.TierCoverage(patch.Tier, distance, full, tuftEnd + edge, fade + edge);
+          // Distance only, and FractionAt takes no budget argument at all - which is what keeps the frame's
+          // budget away from how big a plant is drawn. One taper across the whole band rather than one per
+          // rung: the rungs change how many blades a tuft has, never how many tufts there are.
+          patch.Coverage = GrassLod.FractionAt(distance, full, fade + edge);
 
           patch.Fraction = GrassLod.Sharpen(patch.Coverage, _exponent);
-
-          // One crown stands in for a group of tufts, so the mid tier is the same shuffled order taken as a
-          // shorter prefix - no second buffer, and no second node to hold an instance-uniform block forever.
-          patch.Pool = patch.Tier switch
-          {
-            GrassTier.Tuft => patch.Total,
-            GrassTier.Tussock => Mathf.Max(patch.Total / perTussock, 1),
-            _ => 0
-          };
 
           // Advanced here because this pass already walks every cell, and because it is the one place the
           // frame's own delta is in scope. A cell scattered outside the band grows while it is hidden, so it
@@ -1281,7 +1232,7 @@ namespace BestiaBehemothClient.Game.World
             // What the cell will *draw*, which the ramp puts slightly above its fraction - a plant grown to a
             // fiftieth of its size still costs a vertex shader, so the budget has to see it.
             var visible = Mathf.RoundToInt(
-              patch.Pool * GrassLod.DrawnFraction(GrassLod.RevealFront(patch.Fraction, RevealSpan)));
+              patch.Total * GrassLod.DrawnFraction(GrassLod.RevealFront(patch.Fraction, RevealSpan)));
 
             wanted += visible * TrianglesOf(patch.Tier);
           }
@@ -1302,45 +1253,6 @@ namespace BestiaBehemothClient.Game.World
       // of the two is exactly the overshoot the controller has to correct. Moving this before the passes would
       // measure the field at one exponent and draw it at another.
       _exponent = GrassLod.NextExponent(_exponent, wanted, MaxVisibleTriangles, MaxExponent, BudgetResponse);
-    }
-
-    /// <summary>
-    /// Tells the terrain shader where the field is and how far it reaches, so the ground past it can be drawn
-    /// as grass.
-    /// </summary>
-    /// <remarks>
-    /// <b>The third tier, and the one that reaches the horizon.</b> There is terrain out to about 176 m and fog
-    /// does not finish closing until 220, and no amount of geometry is worth spending out there - so past
-    /// <see cref="FadeOutMetres"/> the ground grows its own canopy: the tufts' colour, their grain and a normal
-    /// broken up enough to catch the light unevenly. See the far-field block in
-    /// <c>terrain_common.gdshaderinc</c>.
-    ///
-    /// <para>
-    /// The band published is where the <i>geometry</i> gives up, which is <see cref="TuftReachMetres"/> to
-    /// <see cref="FadeOutMetres"/> and not the tuft band. The exponent goes with it because the band only says
-    /// where the geometry may reach; <see cref="GrassLod.Sharpen"/> decides how much of it gets there, and the
-    /// shader raises its own ramp to the same power so the ground arrives exactly as fast as the plants leave.
-    /// </para>
-    ///
-    /// <para>
-    /// <b>Anchored on the player and not on the camera</b>, which is the whole reason these are pushed from
-    /// here rather than read off <c>CAMERA_POSITION_WORLD</c> in the shader. The band published is the one the
-    /// field is actually drawing at, zoom scaling included, so the tint and the geometry cannot drift apart
-    /// when the spring arm moves.
-    /// </para>
-    ///
-    /// <para>
-    /// Globals rather than material uniforms, the arrangement <c>WeatherState</c> already uses: there is one
-    /// player and one field, and a material uniform would have to be pushed to the terrain material - which the
-    /// debug shader has a second copy of. Three calls a frame, against a walk over thousands of cells.
-    /// </para>
-    /// </remarks>
-    private static void PublishField(Vector3 focus, float begin, float end, float falloff)
-    {
-      RenderingServer.GlobalShaderParameterSet(FieldFocusParameter, focus);
-      RenderingServer.GlobalShaderParameterSet(FieldBeginParameter, begin);
-      RenderingServer.GlobalShaderParameterSet(FieldEndParameter, end);
-      RenderingServer.GlobalShaderParameterSet(FieldFalloffParameter, falloff);
     }
 
     /// <summary>
@@ -1405,7 +1317,7 @@ namespace BestiaBehemothClient.Game.World
       {
         patch.Drawn = patch.Tier;
 
-        var mesh = patch.Tier == GrassTier.Tussock ? _tussock : _mesh;
+        var mesh = _rungs[(int)patch.Tier] ?? _mesh;
 
         if (mesh != null && patch.Multi.Mesh != mesh)
         {
@@ -1417,7 +1329,7 @@ namespace BestiaBehemothClient.Game.World
       // has shrunk to nothing. Truncating at the fraction would cut the ramp off halfway down and leave a
       // blade of real size winking out - the pop this is here to remove, only smaller.
       var front = GrassLod.RevealFront(fraction, RevealSpan);
-      var visible = Mathf.RoundToInt(patch.Pool * GrassLod.DrawnFraction(front));
+      var visible = Mathf.RoundToInt(patch.Total * GrassLod.DrawnFraction(front));
 
       if (visible != patch.Visible)
       {
@@ -1435,17 +1347,6 @@ namespace BestiaBehemothClient.Game.World
       if (visible == 0)
       {
         return;
-      }
-
-      // The ramp is a width in the cell's own 0-to-1 order, so it has to be told which order that is: the mid
-      // tier draws a twenty-fourth of the instances, and a step left at the tuft tier's would put the whole of
-      // its prefix inside the ramp and draw every crown stunted.
-      var step = GrassLod.RevealStep(patch.Pool);
-
-      if (!Mathf.IsEqualApprox(step, patch.Step))
-      {
-        patch.Step = step;
-        patch.Node.SetInstanceShaderParameter(InstanceStepParameter, step);
       }
 
       // Compared against a threshold for the same reason the scale below is, and it matters more here: the
@@ -1634,7 +1535,31 @@ namespace BestiaBehemothClient.Game.World
     }
 
     /// <summary>What one instance of a tier costs, for the budget in <see cref="_Process"/>.</summary>
-    private int TrianglesOf(GrassTier tier) => tier == GrassTier.Tussock ? _tussockTriangles : _tuftTriangles;
+    private int TrianglesOf(GrassTier tier) => tier == GrassTier.None ? 0 : _rungTriangles[(int)tier];
+
+    /// <summary>Thins the tuft into one mesh per rung, and measures what each actually costs.</summary>
+    /// <remarks>
+    /// A rung that could not be thinned is left null and draws the full tuft - the field is then more expensive
+    /// than it meant to be, which is the right way round for art that has been re-exported into a shape
+    /// <see cref="GrassBlades"/> does not recognise.
+    /// </remarks>
+    private void BuildRungs()
+    {
+      int[] keep = { 0, 3, 2 };
+
+      for (var rung = 0; rung < _rungs.Length; rung++)
+      {
+        _rungs[rung] = keep[rung] > 0 ? GrassBlades.Thin(_mesh, keep[rung]) : _mesh;
+
+        if (_rungs[rung] == null)
+        {
+          GD.PushWarning(
+            $"[grass] {MeshPath} would not thin to {keep[rung]} blades; that level of detail draws the whole tuft.");
+        }
+
+        _rungTriangles[rung] = Mathf.Max((_rungs[rung] ?? _mesh).GetFaces().Length / 3, 1);
+      }
+    }
 
     /// <summary>Loads the mesh and material once. False if the mesh could not be loaded.</summary>
     /// <remarks>
@@ -1657,12 +1582,7 @@ namespace BestiaBehemothClient.Game.World
         return false;
       }
 
-      // Built rather than loaded, so its width and raggedness are constants next to the tier that uses them
-      // instead of a mesh nobody can adjust without Blender.
-      _tussock = GrassTussock.Build(NaturalHeight);
-
-      _tuftTriangles = Mathf.Max(_mesh.GetFaces().Length / 3, 1);
-      _tussockTriangles = Mathf.Max(_tussock.GetFaces().Length / 3, 1);
+      BuildRungs();
 
       var authored = ResourceLoader.Load<ShaderMaterial>(MaterialPath);
       if (authored == null)

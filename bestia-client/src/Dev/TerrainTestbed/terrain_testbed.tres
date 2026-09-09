@@ -1,4 +1,4 @@
-[gd_resource type="ShaderMaterial" format=3]
+[gd_resource type="ShaderMaterial" load_steps=3 format=3]
 
 ; The terrain shader, wired up for the testbed scene and for nothing else.
 ;
@@ -11,6 +11,12 @@
 ; The slot arrays are sixteen long, matching "uniform float slot_uv_scale[16]" in terrain_common.gdshaderinc.
 
 [ext_resource type="Shader" path="res://Game/World/Shader/terrain.gdshader" id="1_terrain"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_canopy"]
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_canopy"]
+seamless = true
+noise = SubResource("FastNoiseLite_canopy")
 
 [resource]
 render_priority = 0
@@ -31,3 +37,4 @@ shader_parameter/wetness_darkening = 0.72
 shader_parameter/wetness_roughness = 0.12
 shader_parameter/snow_colour = Color(0.92, 0.94, 0.96, 1)
 shader_parameter/snow_melt_celsius = 1.0
+shader_parameter/grass_canopy_noise = SubResource("NoiseTexture2D_canopy")

@@ -837,9 +837,9 @@ namespace BestiaBehemothClient.Tests
     /// master, a 0.80 m tuft spread to 1.04 reached 2.70 m and was taller than the character.
     ///
     /// <para>
-    /// <see cref="GrassLod.TierCoverage"/> takes no budget argument, so the guarantee is structural rather than
-    /// remembered. This pins the consequence: the same distance answers the same coverage however hard the
-    /// field is being squeezed.
+    /// <see cref="GrassLod.FractionAt"/> is the only thing <c>CoverageScale</c> is fed and it takes no budget
+    /// argument, so the guarantee is structural rather than remembered. This pins the consequence: the same
+    /// distance answers the same coverage however hard the field is being squeezed.
     /// </para>
     /// </remarks>
     [Fact]
@@ -850,21 +850,22 @@ namespace BestiaBehemothClient.Tests
         var band = GrassLod.BandScale(zoom, 10.0f, 0.5f, 2.5f);
 
         var full = 15.0f * band;
-        var tuftEnd = 26.0f * band;
+        var half = 30.0f * band;
+        var sparse = 70.0f * band;
         var fade = 150.0f * band;
 
         // Ground the player is standing on, which is what the bug reached.
-        var here = GrassLod.TierAt(0.0f, tuftEnd, fade);
-        var coverage = GrassLod.TierCoverage(here, 0.0f, full, tuftEnd, fade);
+        var here = GrassLod.TierAt(0.0f, half, sparse, fade);
+        var coverage = GrassLod.FractionAt(0.0f, full, fade);
 
-        Assert.Equal(GrassTier.Tuft, here);
+        Assert.Equal(GrassTier.Full, here);
         Assert.Equal(1.0f, coverage);
         Assert.Equal(1.0f, GrassLod.CoverageScale(coverage, 1.0f, 1.2f));
 
         // And every exponent and trim the controller can reach leaves that alone, because neither is an input.
         for (var exponent = 1.0f; exponent <= 6.0f; exponent += 0.5f)
         {
-          Assert.Equal(coverage, GrassLod.TierCoverage(here, 0.0f, full, tuftEnd, fade));
+          Assert.Equal(coverage, GrassLod.FractionAt(0.0f, full, fade));
           Assert.Equal(1.0f, GrassLod.Sharpen(coverage, exponent));
         }
       }
@@ -894,44 +895,59 @@ namespace BestiaBehemothClient.Tests
     [Fact]
     public void TiersOnlyEverCoarsenWithDistance()
     {
-      const float TuftEnd = 26.0f;
+      const float Half = 30.0f;
+      const float Sparse = 70.0f;
       const float Fade = 150.0f;
 
-      var previous = GrassTier.Tuft;
+      var previous = GrassTier.Full;
 
       for (var distance = 0.0f; distance < 220.0f; distance += 0.5f)
       {
-        var tier = GrassLod.TierAt(distance, TuftEnd, Fade);
+        var tier = GrassLod.TierAt(distance, Half, Sparse, Fade);
 
         Assert.True(tier >= previous, $"at {distance} m the field went back from {previous} to {tier}");
 
         previous = tier;
       }
 
-      Assert.Equal(GrassTier.Tuft, GrassLod.TierAt(0.0f, TuftEnd, Fade));
-      Assert.Equal(GrassTier.Tussock, GrassLod.TierAt(100.0f, TuftEnd, Fade));
-      Assert.Equal(GrassTier.None, GrassLod.TierAt(200.0f, TuftEnd, Fade));
+      Assert.Equal(GrassTier.Full, GrassLod.TierAt(0.0f, Half, Sparse, Fade));
+      Assert.Equal(GrassTier.Half, GrassLod.TierAt(50.0f, Half, Sparse, Fade));
+      Assert.Equal(GrassTier.Sparse, GrassLod.TierAt(100.0f, Half, Sparse, Fade));
+      Assert.Equal(GrassTier.None, GrassLod.TierAt(200.0f, Half, Sparse, Fade));
     }
 
-    /// <summary>Each tier hands over at full, so the ring between two of them is not a trough.</summary>
+    /// <summary>Crossing a rung changes how many blades a tuft has, never how many tufts there are.</summary>
     /// <remarks>
-    /// Both bands taper to nothing at their own far edge and start full at their near one. If the tussocks
-    /// began part-grown the hand-off would be a visible dip in cover, which is the thing three tiers exist to
-    /// avoid.
+    /// <b>The property that makes the ladder invisible.</b> Coverage is one taper across the whole band and the
+    /// rung is chosen separately, so at the metre either side of an edge the field draws the same number of
+    /// plants in the same places - only with fewer blades each. A per-rung taper, which is what the tussock
+    /// tier had, would put a step in the count at exactly the distance the mesh also changed.
     /// </remarks>
     [Fact]
-    public void TheTiersHandOverAtFullCoverage()
+    public void CrossingARungDoesNotChangeTheCount()
     {
       const float Full = 15.0f;
-      const float TuftEnd = 26.0f;
+      const float Half = 30.0f;
+      const float Sparse = 70.0f;
       const float Fade = 150.0f;
 
-      Assert.Equal(0.0f, GrassLod.TierCoverage(GrassTier.Tuft, TuftEnd, Full, TuftEnd, Fade));
-      Assert.Equal(1.0f, GrassLod.TierCoverage(GrassTier.Tussock, TuftEnd, Full, TuftEnd, Fade));
-      Assert.Equal(0.0f, GrassLod.TierCoverage(GrassTier.Tussock, Fade, Full, TuftEnd, Fade));
+      foreach (var edge in new[] { Half, Sparse })
+      {
+        var before = GrassLod.TierAt(edge - 0.01f, Half, Sparse, Fade);
+        var after = GrassLod.TierAt(edge + 0.01f, Half, Sparse, Fade);
 
-      // Nothing outside a tier of its own.
-      Assert.Equal(0.0f, GrassLod.TierCoverage(GrassTier.None, 10.0f, Full, TuftEnd, Fade));
+        Assert.NotEqual(before, after);
+
+        // The coverage either side is the same taper sampled a centimetre apart, so it cannot step.
+        Assert.Equal(
+          GrassLod.FractionAt(edge - 0.01f, Full, Fade),
+          GrassLod.FractionAt(edge + 0.01f, Full, Fade),
+          3);
+      }
+
+      // And the taper itself never depends on the rung - there is only one of it.
+      Assert.Equal(1.0f, GrassLod.FractionAt(0.0f, Full, Fade));
+      Assert.Equal(0.0f, GrassLod.FractionAt(Fade, Full, Fade));
     }
 
     /// <summary>The dither is bounded, stable and actually spread out.</summary>
@@ -972,30 +988,34 @@ namespace BestiaBehemothClient.Tests
     }
 
     /// <summary>
-    /// The budget is spent in triangles, so the cheap tier buys the reach it is there for.
+    /// The budget is spent in triangles, so a thinned tuft buys the reach it is there for.
     /// </summary>
     /// <remarks>
-    /// A tussock stands in for a group of tufts at about a quarter of their triangles. Priced per instance the
-    /// two look alike and the mid band is charged for cover it delivers far more cheaply than the near one.
+    /// The same tuft in the same place is 72, 36 or 24 triangles depending on how many blades it kept. Priced
+    /// per instance all three look alike, and the budget would then be spent on whichever rung the field
+    /// happened to be drawing rather than on what it actually costs.
     /// </remarks>
     [Fact]
-    public void TheCheapTierCostsLessOfTheBudget()
+    public void AThinnedTuftCostsLessOfTheBudget()
     {
       const int Budget = 1_200_000;
-      const int Tuft = 72;
-      const int Tussock = 19;
-      const int PerTussock = 24;
+      const int Full = 72;
+      const int Half = 36;
+      const int Sparse = 24;
 
-      // The same ground, drawn either way.
+      // The same ground, the same tufts, three rungs.
       const int Tufts = 20_000;
 
-      var asTufts = Tufts * Tuft;
-      var asTussocks = Tufts / PerTussock * Tussock;
+      Assert.Equal(Full / 2, Half);
+      Assert.Equal(Full / 3, Sparse);
 
-      Assert.True(asTussocks * 20 < asTufts, $"{asTussocks} against {asTufts} is not the saving the tier is for");
+      var whole = Tufts * Full;
+      var thinned = Tufts * Sparse;
 
-      Assert.Equal(1.0f, GrassLod.BudgetTrim(asTussocks, Budget));
-      Assert.True(GrassLod.BudgetTrim(asTufts * 2, Budget) < 1.0f);
+      Assert.True(thinned * 3 == whole, $"{thinned} against {whole} is not the third the ladder promises");
+
+      Assert.Equal(1.0f, GrassLod.BudgetTrim(thinned, Budget));
+      Assert.True(GrassLod.BudgetTrim(whole * 2, Budget) < 1.0f);
     }
   }
 }

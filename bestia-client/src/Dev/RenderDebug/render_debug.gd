@@ -201,9 +201,11 @@ func _toggle_all_gi() -> void:
 ##
 ## [code]MaxVisibleTriangles[/code] of 0 means no budget, and that is a bigger switch than it sounds: with no
 ## budget [code]GrassLod.BudgetTrim[/code] returns 1 and [code]GrassLod.NextExponent[/code] returns 1, so
-## the per-frame feedback loop that thins the far field is out of the picture, and so is the
-## [code]grass_field_falloff[/code] global it publishes to the terrain shader every frame. If the ground
-## stops breathing with this off, the flicker was the field being retuned and not a shadow.
+## the per-frame feedback loop that thins the far field is out of the picture. If the ground stops breathing
+## with this off, the flicker was the field being retuned and not a shadow.
+##
+## It is also how to see the canopy on its own: with every tuft drawn the ground is hidden, and with the field
+## switched off entirely what is left is what the terrain shader draws in its place.
 ##
 ## It costs frames, and is meant to: every tuft the field wanted is now drawn.
 func _toggle_grass_budget() -> void:

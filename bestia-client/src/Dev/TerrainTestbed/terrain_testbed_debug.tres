@@ -1,4 +1,4 @@
-[gd_resource type="ShaderMaterial" format=3]
+[gd_resource type="ShaderMaterial" load_steps=3 format=3]
 
 ; The debug twin of terrain_testbed.tres. Pick what it draws with "debug_view" below, or in the inspector.
 ;
@@ -6,6 +6,12 @@
 ; triplanar axes, slope, the tint, the normal. See terrain_debug.gdshader for the list.
 
 [ext_resource type="Shader" path="res://Game/World/Shader/terrain_debug.gdshader" id="1_debug"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_canopy"]
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_canopy"]
+seamless = true
+noise = SubResource("FastNoiseLite_canopy")
 
 [resource]
 render_priority = 0
@@ -27,3 +33,4 @@ shader_parameter/wetness_roughness = 0.12
 shader_parameter/snow_colour = Color(0.92, 0.94, 0.96, 1)
 shader_parameter/snow_melt_celsius = 1.0
 shader_parameter/debug_view = 1
+shader_parameter/grass_canopy_noise = SubResource("NoiseTexture2D_canopy")
