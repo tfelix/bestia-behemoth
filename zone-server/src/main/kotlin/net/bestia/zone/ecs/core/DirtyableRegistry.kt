@@ -17,6 +17,11 @@ val dirtyableComponentTypes: List<KClass<out Component>> by lazy { scanDirtyable
 /**
  * Scans the classpath for every concrete [Component] that also implements [Dirtyable]. Prefer
  * [dirtyableComponentTypes], which does this once.
+ *
+ * Ordered by name, because `Reflections` answers with a `HashSet` and the flush sends one entity's updates
+ * for a tick in whatever order this list is in. An order that can differ between JVM runs makes the wire
+ * order of two components of the same entity unreproducible - and the client reconciles a path against the
+ * position it arrives with, so which of the two comes first is not a detail.
  */
 fun scanDirtyableComponentTypes(): List<KClass<out Component>> {
   return Reflections("net.bestia.zone", Scanners.SubTypes)
@@ -27,5 +32,6 @@ fun scanDirtyableComponentTypes(): List<KClass<out Component>> {
       @Suppress("UNCHECKED_CAST")
       it.kotlin as KClass<out Component>
     }
+    .sortedBy { it.qualifiedName }
     .toList()
 }

@@ -10,6 +10,7 @@ import net.bestia.zone.ecs.movement.Speed
 import net.bestia.zone.ecs.battle.exp.Exp
 import net.bestia.zone.ecs.battle.level.Level
 import net.bestia.zone.ecs.battle.status.SkillPoints
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
@@ -35,6 +36,17 @@ class DirtyableRegistryTest {
     assertTrue(
       syncTypes.toSet().containsAll(expected),
       "expected all known Dirtyable types to be discovered, missing: ${expected - syncTypes.toSet()}"
+    )
+  }
+
+  @Test
+  fun `the discovered order does not depend on hash order`() {
+    val syncTypes = scanDirtyableComponentTypes()
+
+    assertEquals(
+      syncTypes.sortedBy { it.qualifiedName },
+      syncTypes,
+      "ZoneEngine sends a tick's updates in this order, so it has to be the same on every run"
     )
   }
 }

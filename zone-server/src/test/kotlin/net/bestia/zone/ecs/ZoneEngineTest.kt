@@ -1,6 +1,7 @@
 package net.bestia.zone.ecs
 
 import io.mockk.mockk
+import io.mockk.slot
 import io.mockk.verify
 import net.bestia.zone.ecs.account.Account
 import net.bestia.zone.ecs.account.ActivePlayer
@@ -14,6 +15,7 @@ import net.bestia.zone.ecs.entity.VisualKind
 import net.bestia.zone.ecs.movement.Path
 import net.bestia.zone.ecs.movement.PathSMSG
 import net.bestia.zone.ecs.movement.Position
+import net.bestia.zone.ecs.movement.PositionSMSG
 import net.bestia.zone.ecs.visibility.EntitySnapshotBuilder
 import net.bestia.zone.ecs.visibility.EntityVisibility
 import net.bestia.zone.ecs.prop.StaticSync
@@ -274,5 +276,25 @@ class ZoneEngineTest {
     verify(timeout = 1000) {
       outMessageProcessor.sendToPlayer(accountId, VanishEntitySMSG(entity, VanishEntitySMSG.VanishKind.GONE))
     }
+  }
+
+  @Test
+  fun `an entity's position goes out ahead of its path`() {
+    val pos = Vec3L(1, 2, 0)
+    val entity = world.createEntity { id ->
+      add(id, Position.fromVec3(pos))
+      add(id, Path(mutableListOf(Vec3L(2, 2, 0))))
+    }
+
+    zoneEngine.tickOnce(0.05f)
+
+    val broadcast = slot<Collection<SMSG>>()
+    verify(timeout = 1000) { outMessageProcessor.sendToAllPlayersInRange(pos, capture(broadcast)) }
+
+    assertEquals(
+      listOf(PositionSMSG::class, PathSMSG::class),
+      broadcast.captured.map { it::class },
+      "entity.gd reconciles an arriving path against where it thinks the entity is"
+    )
   }
 }

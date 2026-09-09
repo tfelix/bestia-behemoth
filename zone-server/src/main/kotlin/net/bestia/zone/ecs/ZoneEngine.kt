@@ -61,7 +61,13 @@ class ZoneEngine(
     val targets: SyncTargets,
   )
 
+  /**
+   * Position leads deliberately: the client reconciles an arriving path against where it believes the entity
+   * is, so it has to be told where the entity *is* before it is told where the entity is *going*. Everything
+   * behind it keeps the scan's own order, which is stable - see [dirtyableComponentTypes].
+   */
   private val syncableComponentTypes = dirtyableComponentTypes
+    .sortedBy { if (it == Position::class) 0 else 1 }
 
   private val tickExecutor = Executors.newSingleThreadExecutor { r -> Thread(r, "zone-tick") }
   private val removedComponentOutbox = ConcurrentLinkedQueue<RemovedComponentRecord>()
