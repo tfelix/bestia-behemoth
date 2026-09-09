@@ -70,35 +70,39 @@ class ChannelRegistry(
   override val connectedAccountIds: Set<Long> get() = channelsByAccountId.keys.toSet()
 
   override fun sendMessage(playerId: Long, outMessage: SMSG) {
-    val channel = getChannel(playerId)
-    if (channel == null || !channel.isActive) {
-      LOG.warn { "No active channel for player $playerId found" }
-      return
-    }
+    val channel = activeChannel(playerId) ?: return
 
-    write(playerId, channel, outMessage)
+    writeEnvelope(playerId, channel, outMessage)
     channel.flush()
   }
 
   /**
    * One flush for the whole batch, which is the only reason this overload exists - see
-   * [OutMessageHandler.sendMessages]. `write` queues onto the channel's event loop without touching
-   * the socket, so the messages are framed in order and leave together.
+   * [OutMessageHandler.sendMessages]. `channel.write` queues onto the channel's event loop without
+   * touching the socket, so the messages are framed in order and leave together.
    */
   override fun sendMessages(playerId: Long, outMessages: Collection<SMSG>) {
     if (outMessages.isEmpty()) return
 
-    val channel = getChannel(playerId)
-    if (channel == null || !channel.isActive) {
-      LOG.warn { "No active channel for player $playerId found" }
-      return
-    }
+    val channel = activeChannel(playerId) ?: return
 
-    outMessages.forEach { write(playerId, channel, it) }
+    outMessages.forEach { writeEnvelope(playerId, channel, it) }
     channel.flush()
   }
 
-  private fun write(playerId: Long, channel: Channel, outMessage: SMSG) {
+  private fun activeChannel(playerId: Long): Channel? {
+    val channel = getChannel(playerId)
+
+    if (channel == null || !channel.isActive) {
+      LOG.warn { "No active channel for player $playerId found" }
+      return null
+    }
+
+    return channel
+  }
+
+  /** Queues one envelope on [channel] without flushing; the caller decides when the batch goes out. */
+  private fun writeEnvelope(playerId: Long, channel: Channel, outMessage: SMSG) {
     val envelope = outMessage.toBnetEnvelope()
     channel.write(envelope)
 

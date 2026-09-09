@@ -16,9 +16,9 @@ import java.util.concurrent.atomic.AtomicInteger
  * granting a looted item). Inject this directly into a system, the same way systems already
  * inject other Spring services (e.g. `ItemRepository`).
  *
- * This is the same pool [net.bestia.zone.ecs.ZoneEngine] uses for its own fire-and-forget work
- * (network sends, ...) - there is a single shared "do this now, off-thread" pool for all of
- * zone-server rather than one per subsystem.
+ * Client traffic deliberately does **not** come through here: [net.bestia.zone.ecs.ZoneEngine] keeps its own
+ * pool for sends, because a position update queued behind one of the blocking database writes below is
+ * rubberbanding.
  *
  * ### Ordering
  * A job submitted with a [submit] `key` is guaranteed to never run concurrently with another job
@@ -28,7 +28,8 @@ import java.util.concurrent.atomic.AtomicInteger
  * otherwise be able to interleave into a lost update. Jobs with different keys may run fully in
  * parallel. Always key by a stable domain id (e.g. a masterId or accountId), never by a transient
  * ECS entity id. Use the keyless [submit] overload only for jobs with no ordering requirement
- * against anything else.
+ * against anything else. That last rule is about read-modify-write, which is what this pool is for; a pool
+ * whose jobs only order a message stream may legitimately key by whatever names the stream.
  */
 @Service
 class AsyncJobExecutor(

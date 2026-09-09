@@ -3,6 +3,7 @@ package net.bestia.zone.socket
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.netty.bootstrap.ServerBootstrap
 import io.netty.channel.ChannelFuture
+import io.netty.channel.ChannelOption
 import io.netty.channel.ChannelInitializer
 import io.netty.channel.EventLoopGroup
 import io.netty.channel.nio.NioEventLoopGroup
@@ -36,6 +37,10 @@ class SocketServer(
         val bootstrap = ServerBootstrap()
         bootstrap.group(bossGroup, workerGroup)
           .channel(NioServerSocketChannel::class.java)
+          // Netty already enables this by default on anything but Android, so this changes nothing today. It
+          // is here because the movement protocol depends on it: a position update is a few dozen bytes and
+          // Nagle would hold it back waiting for company that never comes.
+          .childOption(ChannelOption.TCP_NODELAY, true)
           .childHandler(object : ChannelInitializer<SocketChannel>() {
             override fun initChannel(ch: SocketChannel) {
               ch.pipeline().addLast(

@@ -6,7 +6,6 @@ import io.mockk.verify
 import net.bestia.zone.ecs.account.Account
 import net.bestia.zone.ecs.account.ActivePlayer
 import net.bestia.zone.ecs.battle.damage.Dead
-import net.bestia.zone.ecs.core.AsyncJobExecutor
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.ecs.item.CarryCapacity
@@ -42,7 +41,6 @@ class ZoneEngineTest {
   private val entityAOIService = EntityAOIService()
   private val playerAOIService = ActivePlayerAOIService()
   private val outMessageProcessor = mockk<OutMessageProcessor>(relaxed = true)
-  private val asyncJobExecutor = AsyncJobExecutor(workerCount = 1)
 
   /** Records what it is told, so the position sweep's static/dynamic split can be asserted. */
   private val entityVisibility = RecordingEntityVisibility()
@@ -69,7 +67,6 @@ class ZoneEngineTest {
       entityAOIService = entityAOIService,
       playerAOIService = playerAOIService,
       outMessageProcessor = outMessageProcessor,
-      asyncJobExecutor = asyncJobExecutor,
       entityVisibility = entityVisibility,
       snapshotBuilder = EntitySnapshotBuilder(),
     )
