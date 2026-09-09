@@ -629,6 +629,17 @@ class ChunkService(
    * The right place for the [editedSlabs] bookkeeping precisely because it is the single funnel every content
    * change already goes through, whatever route the edit arrived by. An apron-only touch deliberately does
    * *not* reach here: nothing about that chunk changed, so nothing about which slabs hold content did either.
+   *
+   * ### Tracked as well as invalidated, because `invalidate` alone drops the interesting case
+   *
+   * `DerivedStore.invalidate` returns early for a chunk that has no entry yet, which is correct on its own
+   * terms - there is nothing to keep current. But a shaft dug through the floor of a column reaches a slab
+   * nobody had subscribed, so nobody had tracked, and that is exactly where walkability then answered
+   * "unknown" for good: `ChunkGroundHeight` fell through to the heightfield, which is not edit-aware, and
+   * reported the ground as though the shaft had never been dug.
+   *
+   * A chunk somebody dug in is a chunk something may walk in, which is the residency argument `track`'s own
+   * KDoc makes. It is idempotent, and it costs one entry in the same rebuild queue the invalidation uses.
    */
   private fun onChunkChanged(chunk: ChunkPos) {
     revisions[chunk] = revisionOf(chunk) + 1
@@ -637,6 +648,7 @@ class ChunkService(
     edited.add(chunk.z)
     edited.add(chunk.z - 1)
 
+    loaded.derived.track(chunk)
     loaded.derived.invalidate(chunk)
     for (listener in changeListeners) listener(chunk)
   }
