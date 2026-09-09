@@ -32,8 +32,8 @@ class MoveSystemTest {
     world.add(id, Path(path.toMutableList()))
 
     // Ticked until the path is drained rather than a counted number of times: `MoveSystem` advances on
-    // `fraction > 1` strictly, so one tile per tick of unit speed is always one short and a count here would be
-    // asserting the rollover arithmetic rather than the height.
+    // `fraction >= 1`; the generous tick count keeps this helper about the height rather than
+    // the rollover arithmetic.
     repeat(path.size * 2 + 2) { world.tick(1.0f) }
 
     return position
@@ -90,7 +90,7 @@ class MoveSystemTest {
     world.add(id, Speed(1.0f))
     world.add(id, path)
 
-    // The first tick resolves the ground and takes no step; this is the one send observers get.
+    // The first tick is the one send observers get: the path arrives dirty, and the ground resolves on it.
     world.tick(1.0f)
     assertTrue(path.isDirty(), "the walk itself has to be announced")
     path.clearDirty()
@@ -98,7 +98,7 @@ class MoveSystemTest {
 
     world.tick(1.0f)
 
-    assertEquals(1L, position.x, "the entity did step")
+    assertEquals(2L, position.x, "the entity did step")
     assertFalse(path.isDirty(), "the shrinking remainder is not news")
     assertFalse(position.isDirty(), "nor is a step the client predicts for itself")
   }
@@ -259,5 +259,19 @@ class MoveSystemTest {
     assertEquals(6L, fine.x)
     assertEquals(6L, coarse.x, "the time between its turns is not lost")
     assertTrue(coarseMoves <= 60 / 4 + 1, "it stepped on $coarseMoves ticks")
+  }
+
+  @Test
+  fun `one tile of travel is one tile, not one tick short of it`() {
+    val world = testWorld(systems = listOf(MoveSystem(flat, GroundTrample.NONE, TestNavigation.flatGround())))
+    val id = world.create()
+    val position = Position(0, 0, 100)
+    world.add(id, position)
+    world.add(id, Speed(1.0f))
+    world.add(id, Path(straightPath(2)))
+
+    world.tick(1.0f)
+
+    assertEquals(1, position.x)
   }
 }
