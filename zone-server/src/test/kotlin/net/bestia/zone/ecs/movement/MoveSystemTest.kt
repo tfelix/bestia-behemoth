@@ -215,6 +215,20 @@ class MoveSystemTest {
   }
 
   @Test
+  fun `walking a path does not re-dirty it, because the client already has the waypoints`() {
+    val walker = walker(listOf(Vec3L(1, 0, 100), Vec3L(2, 0, 100), Vec3L(3, 0, 100)), speed = 1.0f)
+
+    // Resolving the waypoints against the terrain is a real change and does dirty it; what follows is the
+    // walk itself.
+    walker.world.tick(1.0f)
+    walker.path.clearDirty()
+
+    repeat(2) { walker.world.tick(1.0f) }
+
+    assertFalse(walker.path.isDirty(), "stepping along a path the client already has is not news")
+  }
+
+  @Test
   fun `a fresh path starts from this tile, not from the previous walk's leftover progress`() {
     val walker = walker(listOf(Vec3L(1, 0, 100)), speed = 1.0f)
 
