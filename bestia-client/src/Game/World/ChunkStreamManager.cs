@@ -205,6 +205,13 @@ namespace BestiaBehemothClient.Game.World
     /// <summary>Columns the server's view volume covers, or 0 until the world info has arrived.</summary>
     public int ExpectedColumnCount { get; private set; }
 
+    /// <summary><see cref="WorldLayout.ChunkExtentMetres"/>, reachable from GDScript.</summary>
+    /// <remarks>
+    /// GDScript cannot reach a C# static class, so <c>world_load_watcher.gd</c> - which needs a distance in
+    /// chunks as metres - asks this node, which it already holds.
+    /// </remarks>
+    public float ChunkExtentMetres => (float)WorldLayout.ChunkExtentMetres;
+
     /// <summary>How much of the view volume around the player is delivered, 0..1.</summary>
     /// <remarks>
     /// Monotone by construction: un-costed columns count as zero rather than being left out of the
@@ -466,12 +473,6 @@ namespace BestiaBehemothClient.Game.World
     /// <summary>How many distinct slabs this batch has props in that are decoded and ready to stand on.</summary>
     private int ReadySlabsOf(ChunkStaticEntitiesSMSG batch)
     {
-      var height = WorldInfo?.ChunkHeight ?? 0;
-      if (height <= 0)
-      {
-        return 0;
-      }
-
       var ready = 0;
       var counted = new HashSet<int>();
 
@@ -479,7 +480,7 @@ namespace BestiaBehemothClient.Game.World
       {
         // Floor division, not integer division: a prop in a cave below sea level has a negative voxel z, and
         // truncation towards zero would name the slab above it.
-        var slab = (int)Math.Floor((double)entry.Position.Y / height);
+        var slab = (int)Math.Floor((double)entry.Position.Y / WorldLayout.ChunkHeight);
 
         if (counted.Add(slab) && Store.Get(new ChunkKey(batch.Key.X, batch.Key.Y, slab)) != null)
         {

@@ -80,10 +80,10 @@ namespace BestiaBehemothClient.Game.World
         return None;
       }
 
-      const double chunkExtent = WorldLayout.ChunkSize * WorldLayout.VoxelSizeMetres;
-
-      var across = (int)Math.Ceiling(worldInfo.WidthCells * WorldLayout.CellSizeMetres / chunkExtent);
-      var down = (int)Math.Ceiling(worldInfo.HeightCells * WorldLayout.CellSizeMetres / chunkExtent);
+      var across = (int)Math.Ceiling(
+        worldInfo.WidthCells * WorldLayout.CellSizeMetres / WorldLayout.ChunkExtentMetres);
+      var down = (int)Math.Ceiling(
+        worldInfo.HeightCells * WorldLayout.CellSizeMetres / WorldLayout.ChunkExtentMetres);
 
       return new ChunkWrap(across, down, WorldLayout.WrapX, WorldLayout.WrapY);
     }

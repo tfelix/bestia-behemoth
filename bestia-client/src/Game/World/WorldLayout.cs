@@ -47,6 +47,16 @@ namespace BestiaBehemothClient.Game.World
     public const double VoxelSizeMetres = 1.0;
 
     /// <summary>
+    /// Horizontal edge length of one chunk in metres, which is what a distance quoted in chunks means.
+    /// </summary>
+    /// <remarks>
+    /// Derived from the two above, so deliberately absent from <c>ClientWorldContract</c>: there is nothing
+    /// here for a server to disagree with that <see cref="ChunkSize"/> and <see cref="VoxelSizeMetres"/> do
+    /// not already cover.
+    /// </remarks>
+    public const double ChunkExtentMetres = ChunkSize * VoxelSizeMetres;
+
+    /// <summary>
     /// Edge length of one world-tier raster cell in metres, which the world's extent is quoted in.
     /// </summary>
     /// <remarks>

@@ -24,24 +24,24 @@ namespace Bnet {
     static WorldInfoSmsgReflection() {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
-            "CiJtZXNzYWdlcy9tYXAvd29ybGRfaW5mb19zbXNnLnByb3RvEgRibmV0IoUE",
+            "CiJtZXNzYWdlcy9tYXAvd29ybGRfaW5mb19zbXNnLnByb3RvEgRibmV0IocE",
             "Cg1Xb3JsZEluZm9TTVNHEgwKBG5hbWUYASABKAkSEwoLd2lkdGhfY2VsbHMY",
             "AiABKAUSFAoMaGVpZ2h0X2NlbGxzGAMgASgFEhwKFGNodW5rX2VuZ2luZV92",
-            "ZXJzaW9uGB4gASgNEiAKGHdvcmxkX2FnZV9iZXN0aWFfc2Vjb25kcxgyIAEo",
-            "ARIZChF0aW1lX3NwZWVkX2ZhY3RvchgzIAEoARIVCg1ob3Vyc19wZXJfZGF5",
-            "GDQgASgFEhYKDmRheXNfcGVyX21vbnRoGDUgASgFEhcKD21vbnRoc19wZXJf",
-            "eWVhchg2IAEoBRIWCg5uaWdodF9lbmRfaG91chg4IAEoBRIVCg1kYXduX2Vu",
-            "ZF9ob3VyGDkgASgFEhcKD2R1c2tfc3RhcnRfaG91chg6IAEoBRIYChBuaWdo",
-            "dF9zdGFydF9ob3VyGDsgASgFSgQIBBAFSgQIChALSgQICxAMSgQIDBANSgQI",
-            "DRAOSgQIFBAVSgQIFRAWSgQIKBApSgQINxA4UhBjZWxsX3NpemVfbWV0cmVz",
-            "UgpjaHVua19zaXplUgxjaHVua19oZWlnaHRSEXZveGVsX3NpemVfbWV0cmVz",
-            "UhBzZWFfbGV2ZWxfbWV0cmVzUgZ3cmFwX3hSBndyYXBfeVISdmlld19yYWRp",
-            "dXNfY2h1bmtzUgtuaWdodF9ob3Vyc0IrChVuZXQuYmVzdGlhLmJuZXQucHJv",
-            "dG9CEldvcmxkSW5mb1NNU0dQcm90b2IGcHJvdG8z"));
+            "ZXJzaW9uGB4gASgNEhoKEnZpZXdfcmFkaXVzX2NodW5rcxgoIAEoBRIgChh3",
+            "b3JsZF9hZ2VfYmVzdGlhX3NlY29uZHMYMiABKAESGQoRdGltZV9zcGVlZF9m",
+            "YWN0b3IYMyABKAESFQoNaG91cnNfcGVyX2RheRg0IAEoBRIWCg5kYXlzX3Bl",
+            "cl9tb250aBg1IAEoBRIXCg9tb250aHNfcGVyX3llYXIYNiABKAUSFgoObmln",
+            "aHRfZW5kX2hvdXIYOCABKAUSFQoNZGF3bl9lbmRfaG91chg5IAEoBRIXCg9k",
+            "dXNrX3N0YXJ0X2hvdXIYOiABKAUSGAoQbmlnaHRfc3RhcnRfaG91chg7IAEo",
+            "BUoECAQQBUoECAoQC0oECAsQDEoECAwQDUoECA0QDkoECBQQFUoECBUQFkoE",
+            "CDcQOFIQY2VsbF9zaXplX21ldHJlc1IKY2h1bmtfc2l6ZVIMY2h1bmtfaGVp",
+            "Z2h0UhF2b3hlbF9zaXplX21ldHJlc1IQc2VhX2xldmVsX21ldHJlc1IGd3Jh",
+            "cF94UgZ3cmFwX3lSC25pZ2h0X2hvdXJzQisKFW5ldC5iZXN0aWEuYm5ldC5w",
+            "cm90b0ISV29ybGRJbmZvU01TR1Byb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.WorldInfoSMSG), global::Bnet.WorldInfoSMSG.Parser, new[]{ "Name", "WidthCells", "HeightCells", "ChunkEngineVersion", "WorldAgeBestiaSeconds", "TimeSpeedFactor", "HoursPerDay", "DaysPerMonth", "MonthsPerYear", "NightEndHour", "DawnEndHour", "DuskStartHour", "NightStartHour" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.WorldInfoSMSG), global::Bnet.WorldInfoSMSG.Parser, new[]{ "Name", "WidthCells", "HeightCells", "ChunkEngineVersion", "ViewRadiusChunks", "WorldAgeBestiaSeconds", "TimeSpeedFactor", "HoursPerDay", "DaysPerMonth", "MonthsPerYear", "NightEndHour", "DawnEndHour", "DuskStartHour", "NightStartHour" }, null, null, null, null)
           }));
     }
     #endregion
@@ -55,18 +55,19 @@ namespace Bnet {
   ///
   /// ### What is no longer here, and why
   ///
-  /// The world's *geometry* used to be: chunk dimensions, voxel size, cell size, both wrap flags, the sea
-  /// level and the view radius. Every one of them described a shape that has never been anything else, and
-  /// none is something a client can adapt to at runtime - so the client compiles them in instead, as
+  /// The world's *geometry* used to be: chunk dimensions, voxel size, cell size, both wrap flags and the
+  /// sea level. Every one of them described a shape that has never been anything else, and none is
+  /// something a client can adapt to at runtime - so the client compiles them in instead, as
   /// `WorldLayout.cs`, and `zone-server` refuses to boot a world that is not that shape. See
   /// `ClientWorldContract`.
   ///
   /// The extent stays, because it genuinely varies: a 64 km world and a 192 km world are both real. The
-  /// calendar stays for the opposite reason to the geometry - see `hours_per_day` below.
+  /// calendar stays for the opposite reason to the geometry - see `hours_per_day` below. The view radius
+  /// stays because it is neither geometry nor calendar - see `view_radius_chunks`.
   ///
-  /// Fields 4, 10-13, 20, 21 and 40 were the geometry, and are reserved rather than reused. A client
-  /// reading a new server as an old message would decode whatever took field 12 as a voxel size, which is
-  /// the shape of failure field 55 below is also reserved for: plausible, wrong, and silent.
+  /// Fields 4, 10-13, 20 and 21 were the geometry, and are reserved rather than reused. A client reading a
+  /// new server as an old message would decode whatever took field 12 as a voxel size, which is the shape
+  /// of failure field 55 below is also reserved for: plausible, wrong, and silent.
   ///
   /// ### The seed is deliberately absent
   ///
@@ -113,6 +114,7 @@ namespace Bnet {
       widthCells_ = other.widthCells_;
       heightCells_ = other.heightCells_;
       chunkEngineVersion_ = other.chunkEngineVersion_;
+      viewRadiusChunks_ = other.viewRadiusChunks_;
       worldAgeBestiaSeconds_ = other.worldAgeBestiaSeconds_;
       timeSpeedFactor_ = other.timeSpeedFactor_;
       hoursPerDay_ = other.hoursPerDay_;
@@ -187,6 +189,26 @@ namespace Bnet {
       get { return chunkEngineVersion_; }
       set {
         chunkEngineVersion_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "view_radius_chunks" field.</summary>
+    public const int ViewRadiusChunksFieldNumber = 40;
+    private int viewRadiusChunks_;
+    /// <summary>
+    ///*
+    /// Horizontal radius, in chunks from the player's own, of the view volume the server streams.
+    ///
+    /// On the wire, unlike the geometry above, because it is not part of a world at all: it is a `chunk-stream`
+    /// setting, tuned per deployment. Informational, in that the server enforces its own radius when deciding
+    /// what to offer - a client uses it to size a load, as `2r + 1` columns each way clamped by the extent.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int ViewRadiusChunks {
+      get { return viewRadiusChunks_; }
+      set {
+        viewRadiusChunks_ = value;
       }
     }
 
@@ -339,6 +361,7 @@ namespace Bnet {
       if (WidthCells != other.WidthCells) return false;
       if (HeightCells != other.HeightCells) return false;
       if (ChunkEngineVersion != other.ChunkEngineVersion) return false;
+      if (ViewRadiusChunks != other.ViewRadiusChunks) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseDoubleEqualityComparer.Equals(WorldAgeBestiaSeconds, other.WorldAgeBestiaSeconds)) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseDoubleEqualityComparer.Equals(TimeSpeedFactor, other.TimeSpeedFactor)) return false;
       if (HoursPerDay != other.HoursPerDay) return false;
@@ -359,6 +382,7 @@ namespace Bnet {
       if (WidthCells != 0) hash ^= WidthCells.GetHashCode();
       if (HeightCells != 0) hash ^= HeightCells.GetHashCode();
       if (ChunkEngineVersion != 0) hash ^= ChunkEngineVersion.GetHashCode();
+      if (ViewRadiusChunks != 0) hash ^= ViewRadiusChunks.GetHashCode();
       if (WorldAgeBestiaSeconds != 0D) hash ^= pbc::ProtobufEqualityComparers.BitwiseDoubleEqualityComparer.GetHashCode(WorldAgeBestiaSeconds);
       if (TimeSpeedFactor != 0D) hash ^= pbc::ProtobufEqualityComparers.BitwiseDoubleEqualityComparer.GetHashCode(TimeSpeedFactor);
       if (HoursPerDay != 0) hash ^= HoursPerDay.GetHashCode();
@@ -401,6 +425,10 @@ namespace Bnet {
       if (ChunkEngineVersion != 0) {
         output.WriteRawTag(240, 1);
         output.WriteUInt32(ChunkEngineVersion);
+      }
+      if (ViewRadiusChunks != 0) {
+        output.WriteRawTag(192, 2);
+        output.WriteInt32(ViewRadiusChunks);
       }
       if (WorldAgeBestiaSeconds != 0D) {
         output.WriteRawTag(145, 3);
@@ -464,6 +492,10 @@ namespace Bnet {
         output.WriteRawTag(240, 1);
         output.WriteUInt32(ChunkEngineVersion);
       }
+      if (ViewRadiusChunks != 0) {
+        output.WriteRawTag(192, 2);
+        output.WriteInt32(ViewRadiusChunks);
+      }
       if (WorldAgeBestiaSeconds != 0D) {
         output.WriteRawTag(145, 3);
         output.WriteDouble(WorldAgeBestiaSeconds);
@@ -522,6 +554,9 @@ namespace Bnet {
       if (ChunkEngineVersion != 0) {
         size += 2 + pb::CodedOutputStream.ComputeUInt32Size(ChunkEngineVersion);
       }
+      if (ViewRadiusChunks != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeInt32Size(ViewRadiusChunks);
+      }
       if (WorldAgeBestiaSeconds != 0D) {
         size += 2 + 8;
       }
@@ -572,6 +607,9 @@ namespace Bnet {
       }
       if (other.ChunkEngineVersion != 0) {
         ChunkEngineVersion = other.ChunkEngineVersion;
+      }
+      if (other.ViewRadiusChunks != 0) {
+        ViewRadiusChunks = other.ViewRadiusChunks;
       }
       if (other.WorldAgeBestiaSeconds != 0D) {
         WorldAgeBestiaSeconds = other.WorldAgeBestiaSeconds;
@@ -629,6 +667,10 @@ namespace Bnet {
           }
           case 240: {
             ChunkEngineVersion = input.ReadUInt32();
+            break;
+          }
+          case 320: {
+            ViewRadiusChunks = input.ReadInt32();
             break;
           }
           case 401: {
@@ -696,6 +738,10 @@ namespace Bnet {
           }
           case 240: {
             ChunkEngineVersion = input.ReadUInt32();
+            break;
+          }
+          case 320: {
+            ViewRadiusChunks = input.ReadInt32();
             break;
           }
           case 401: {

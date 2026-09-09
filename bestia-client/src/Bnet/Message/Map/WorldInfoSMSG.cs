@@ -9,8 +9,9 @@ namespace BestiaBehemothClient.Bnet.Message.Map
   /// <remarks>
   /// The world's geometry is <see cref="Game.World.WorldLayout"/>'s, not this message's: it never varies, and
   /// nothing here could adapt to it if it did. What remains is what genuinely differs between worlds - the
-  /// extent, which <see cref="Game.World.ChunkWrap"/> turns into a chunk count - plus the clock, and the one
-  /// number this client is asked to compare against its own.
+  /// extent, which <see cref="Game.World.ChunkWrap"/> turns into a chunk count, and the view radius, which is
+  /// a server setting rather than a world's shape - plus the clock, and the one number this client is asked to
+  /// compare against its own.
   ///
   /// <para>
   /// There is no seed here and there should not be. This client does not generate base terrain, so it has no
@@ -36,6 +37,16 @@ namespace BestiaBehemothClient.Bnet.Message.Map
     /// what arrives or must be updated, so it is told the one thing it can act on.
     /// </remarks>
     [Export] public uint ChunkEngineVersion { get; set; }
+
+    /// <summary>
+    /// Horizontal radius, in chunks from the player's own, of the view volume the server will stream.
+    /// </summary>
+    /// <remarks>
+    /// Not geometry, so not in <see cref="Game.World.WorldLayout"/>: it is a server-side streaming setting,
+    /// tuned per deployment. <c>ChunkStreamManager</c> turns it into the column count a finished load means,
+    /// <c>2r + 1</c> each way clamped by the extent; the server enforces its own radius regardless.
+    /// </remarks>
+    [Export] public int ViewRadiusChunks { get; set; }
 
     /// <summary>
     /// Bestia-seconds elapsed since the world began, as of the moment this message was built.
@@ -106,7 +117,8 @@ namespace BestiaBehemothClient.Bnet.Message.Map
         Name = proto.Name,
         WidthCells = proto.WidthCells,
         HeightCells = proto.HeightCells,
-        ChunkEngineVersion = proto.ChunkEngineVersion
+        ChunkEngineVersion = proto.ChunkEngineVersion,
+        ViewRadiusChunks = proto.ViewRadiusChunks
       };
     }
 
@@ -115,7 +127,8 @@ namespace BestiaBehemothClient.Bnet.Message.Map
       var widthKm = WidthCells * Game.World.WorldLayout.CellSizeMetres / 1000.0;
       var heightKm = HeightCells * Game.World.WorldLayout.CellSizeMetres / 1000.0;
 
-      return $"{Name} {widthKm:F0}x{heightKm:F0} km, chunk engine v{ChunkEngineVersion}";
+      return $"{Name} {widthKm:F0}x{heightKm:F0} km, chunk engine v{ChunkEngineVersion}, " +
+             $"view radius {ViewRadiusChunks} chunks";
     }
   }
 }
