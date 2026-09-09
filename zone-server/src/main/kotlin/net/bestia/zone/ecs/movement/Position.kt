@@ -24,7 +24,14 @@ data class Position(
   private var _x: Long,
   private var _y: Long,
   private var _z: Long,
-  var fraction: Float = 0f
+  /**
+   * How far into the step towards the next waypoint this entity has travelled, in metres.
+   *
+   * Metres rather than a fraction of the step, because a cardinal step is 1 m long and a diagonal one is
+   * sqrt(2): a fraction would have to be rescaled every time the next step changed direction. Never synced -
+   * the client interpolates the sub-tile part itself, from the path and the speed.
+   */
+  var stepProgress: Float = 0f
 ) : Component, Dirtyable {
 
   private var dirty: Boolean = true

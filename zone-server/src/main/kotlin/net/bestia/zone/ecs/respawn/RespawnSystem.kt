@@ -57,7 +57,7 @@ class RespawnSystem(
 
       position.x = savePoint.x
       position.y = savePoint.y
-      position.fraction = 0f
+      position.stepProgress = 0f
 
       val z = groundHeight.standingZAt(savePoint)
       if (z != null) {

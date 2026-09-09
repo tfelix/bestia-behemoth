@@ -7,6 +7,7 @@ import net.bestia.zone.util.EntityId
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.math.sqrt
 import kotlin.test.assertTrue
 
 class MoveSystemTest {
@@ -48,6 +49,20 @@ class MoveSystemTest {
     repeat(path.size) { walker.world.tick(1.0f) }
 
     return walker.position
+  }
+
+  /** Simulated seconds a walk down [path] takes at one metre a second. */
+  private fun secondsToWalk(path: List<Vec3L>): Float {
+    val walker = walker(path, speed = 1.0f)
+    val delta = 0.01f
+    var elapsed = 0f
+
+    while (walker.world.has(walker.id, Path::class) && elapsed < 60f) {
+      walker.world.tick(delta)
+      elapsed += delta
+    }
+
+    return elapsed
   }
 
   @Test
@@ -202,7 +217,43 @@ class MoveSystemTest {
 
     assertEquals(2, walker.position.x)
     assertFalse(walker.world.has(walker.id, Path::class), "the path is spent, so it is gone")
-    assertEquals(0f, walker.position.fraction, 1e-4f, "and its leftover travel does not carry to the next path")
+    assertEquals(0f, walker.position.stepProgress, 1e-4f, "and its leftover travel does not carry to the next path")
+  }
+
+  @Test
+  fun `a cardinal step is one metre of travel`() {
+    val walker = walker(listOf(Vec3L(1, 0, 100)), speed = 1.0f)
+
+    walker.world.tick(0.99f)
+    assertEquals(0, walker.position.x, "not a metre yet")
+
+    walker.world.tick(0.02f)
+    assertEquals(1, walker.position.x)
+  }
+
+  @Test
+  fun `a diagonal step is sqrt(2) metres of travel, not one`() {
+    // The reported symptom. Charging every waypoint 1.0 made a diagonal 41% faster in world space, because
+    // the tile it arrives at is sqrt(2) away rather than 1.
+    val walker = walker(listOf(Vec3L(1, 1, 100)), speed = 1.0f)
+
+    walker.world.tick(1.2f)
+    assertEquals(0, walker.position.x, "a metre of travel does not reach a tile 1.41 m away")
+
+    walker.world.tick(0.3f)
+    assertEquals(1, walker.position.x)
+    assertEquals(1, walker.position.y)
+  }
+
+  @Test
+  fun `walking diagonally is the same speed over the ground as walking straight`() {
+    val steps = 8
+    val cardinal = secondsToWalk((1..steps).map { Vec3L(it.toLong(), 0, 100) })
+    val diagonal = secondsToWalk((1..steps).map { Vec3L(it.toLong(), it.toLong(), 100) })
+
+    // Same count of steps, sqrt(2) times the ground - so sqrt(2) times the time, which is what "the same
+    // speed" means.
+    assertEquals(sqrt(2.0).toFloat(), diagonal / cardinal, 0.02f)
   }
 
   @Test

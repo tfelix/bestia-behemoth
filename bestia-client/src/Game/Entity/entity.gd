@@ -58,12 +58,19 @@ var _camera: Node3D = null
 var _speed: float = 2.5
 
 
-# Prediction in "tile steps", like the server's MoveSystem: every waypoint counts as 1.0, straight
-# or diagonal, so diagonals run faster in world space here too and the server's updates line up.
+# Movement prediction: follow the server's path in metres of ground covered, matching MoveSystem, which
+# charges each step the distance it actually spans - 1 for a cardinal step and sqrt(2) for a diagonal.
+#
+# Metres rather than a count of waypoints, and that is what makes the two agree. Advancing one waypoint per
+# 1/speed seconds made diagonals 41% faster in world space; it also meant the partial first segment left by
+# every re-anchor cost a whole step's worth of time, so the client ran slower than the server and lived on
+# the correction below. See _arc.
 var _nodes: Array[Vector3] = []      # [anchor, wp1, wp2, ...]
-var _progress: float = 0.0           # continuous index into _nodes
-var _error: float = 0.0              # outstanding server correction, in tile steps
+var _arc: Array[float] = []          # ground distance from _nodes[0] to each node, so _arc[0] is always 0
+var _travelled: float = 0.0          # metres along _nodes
+var _error: float = 0.0              # outstanding server correction, in metres
 var _is_moving: bool = false
+var _seg: int = 0                    # cursor into _nodes, so _segment_at need not rescan from zero
 var _faced_seg: int = -1
 
 # Visual facing rotation
@@ -80,10 +87,10 @@ const _POSTURE_NONE = "IDLE"
 var _posture: String = _POSTURE_NONE
 
 
-const _CORRECTION_IGNORE: float = 0.4    # steps of desync trusted as latency, not error
+const _CORRECTION_IGNORE: float = 0.4    # metres of desync trusted as latency, not error
 const _CORRECTION_TIME: float = 0.25     # seconds to bleed a correction back in
-const _CORRECTION_MAX_BOOST: float = 2.5 # cap on extra steps/sec while catching up
-const _SNAP_STEPS: float = 2.5           # desync this large just snaps
+const _CORRECTION_MAX_BOOST: float = 2.5 # cap on extra metres/sec while catching up
+const _SNAP_METRES: float = 2.5          # desync this large just snaps
 const _ROTATION_DURATION: float = 0.3  # Time to turn the model to face movement direction
 const _VISUAL_NODE_NAME = "Visual"
 
@@ -124,10 +131,10 @@ func _update_movement(delta: float) -> void:
 		if pose_is_ours:
 			_update_animation_from_client("WALK")
 
-	var last := _nodes.size() - 1
+	var total := _arc[_arc.size() - 1]
 
 	var step := _speed * delta
-	if absf(_error) > _SNAP_STEPS:
+	if absf(_error) > _SNAP_METRES:
 		# Way out of sync (teleport, long stall, dropped packets): jump.
 		step += _error
 		_error = 0.0
@@ -139,10 +146,12 @@ func _update_movement(delta: float) -> void:
 		_error -= corr
 
 	step = maxf(step, 0.0)
-	_progress = minf(_progress + step, float(last))
+	_travelled = minf(_travelled + step, total)
 
-	var seg := mini(int(_progress), last - 1)
-	var frac := _progress - float(seg)
+	var seg := _segment_at(_travelled)
+	var seg_length := _arc[seg + 1] - _arc[seg]
+	# A zero-length segment is a duplicate waypoint, which the server tolerates too - draw its start.
+	var frac := 0.0 if seg_length <= 0.0 else (_travelled - _arc[seg]) / seg_length
 	_logical_position = _nodes[seg].lerp(_nodes[seg + 1], frac)
 	_apply_position()
 
@@ -150,8 +159,30 @@ func _update_movement(delta: float) -> void:
 		_face_direction(_nodes[seg + 1] - _nodes[seg])
 		_faced_seg = seg
 
-	if _progress >= float(last) and absf(_error) < 0.0001:
+	if _travelled >= total and absf(_error) < 0.0001:
 		_is_moving = false
+
+
+## Which segment of [member _nodes] a distance along the chain falls in.
+##
+## Walks a cursor rather than scanning from zero: this runs once per entity per frame and a path can be
+## hundreds of nodes long. The second loop covers the only way [member _travelled] moves backwards, which is
+## a negative snap.
+func _segment_at(distance: float) -> int:
+	var last := _nodes.size() - 2
+
+	while _seg < last and _arc[_seg + 1] <= distance:
+		_seg += 1
+	while _seg > 0 and _arc[_seg] > distance:
+		_seg -= 1
+
+	return _seg
+
+
+## Ground distance between two logical positions, ignoring height - the same measure MoveSystem charges a
+## step, so that a metre here is a metre there.
+func _ground_distance(from: Vector3, to: Vector3) -> float:
+	return Vector2(to.x - from.x, to.z - from.z).length()
 
 
 ## Where the server thinks this entity is, without the ground correction `position` carries.
@@ -361,13 +392,18 @@ func update_position(msg: PositionComponent) -> void:
 		# Server is off our predicted path (new route/teleport): snap and stop.
 		_logical_position = new_position
 		_nodes = [new_position]
+		_arc.clear()
+		_arc.append(0.0)
+		_seg = 0
+		_travelled = 0.0
 		_is_moving = false
 		_error = 0.0
 		_snap_ground_offset()
 		return
 
-	# Reconcile in the progress domain: the gap to the server's node becomes an error we bleed off.
-	var e := float(idx) - _progress
+	# Reconcile in metres: the server has just reached node idx, which is _arc[idx] along the chain, so the
+	# gap to how far we believe we have come is an error we bleed into the movement rate.
+	var e := _arc[idx] - _travelled
 	if absf(e) <= _CORRECTION_IGNORE:
 		# Within latency noise, trust our own prediction.
 		return
@@ -386,9 +422,24 @@ func update_path(msg: PathComponentSMSG) -> void:
 	for vec3 in msg.Path:
 		_nodes.append(vec3)
 
+	# Cumulative ground distance, which is what the walk is paced by. The first segment is usually a part
+	# tile, because the anchor is wherever we had got to rather than a waypoint - measuring it means it costs
+	# the time it deserves instead of a whole step's worth.
+	_arc.clear()
+	_arc.resize(_nodes.size())
+	_arc[0] = 0.0
+	for i in range(1, _nodes.size()):
+		_arc[i] = _arc[i - 1] + _ground_distance(_nodes[i - 1], _nodes[i])
+
+	_seg = 0
+
 	# Not zero: the server may be telling us about a walk already under way, and _nodes[0] is the tile it
-	# last reached rather than where it stands.
-	_progress = clampf(msg.StartOffset, 0.0, 1.0)
+	# last reached rather than where it stands. StartOffset is the share of that first step already walked,
+	# so in metres it is that share of the first segment.
+	if _nodes.size() >= 2:
+		_travelled = clampf(msg.StartOffset, 0.0, 1.0) * _arc[1]
+	else:
+		_travelled = 0.0
 	_error = 0.0
 	_faced_seg = -1
 	_is_moving = _nodes.size() >= 2
@@ -398,9 +449,10 @@ func update_path(msg: PathComponentSMSG) -> void:
 ## first leaves us where the server is, hence the stop position; snapped, since _error is dropped.
 func _stop_at(msg: PathComponentSMSG) -> void:
 	_is_moving = false
-	_progress = 0.0
+	_travelled = 0.0
 	_error = 0.0
 	_faced_seg = -1
+	_seg = 0
 
 	if msg.HasStopPosition:
 		_logical_position = msg.StopPosition
@@ -408,6 +460,8 @@ func _stop_at(msg: PathComponentSMSG) -> void:
 
 	_nodes.clear()
 	_nodes.append(_logical_position)
+	_arc.clear()
+	_arc.append(0.0)
 
 
 func update_speed(msg: SpeedComponentSMSG) -> void:
