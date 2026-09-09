@@ -158,9 +158,6 @@ namespace BestiaBehemothClient.Dev
     private FieldPalette _palette = FieldPalette.Slots;
     private FieldRelief _relief = FieldRelief.Domes;
     private FieldColumn _column = FieldColumn.Uniform;
-    private float _grassFieldBegin;
-    private float _grassFieldEnd;
-    private float _grassFieldFalloff = 1.0f;
     private int _patchVoxels = 16;
     private float _reliefMetres = 12.0f;
     private float _domeRadius = 0.85f;
@@ -241,54 +238,6 @@ namespace BestiaBehemothClient.Dev
     /// <summary>
     /// The material under test. Its own resource, never <c>terrain.tres</c> - see the class remarks.
     /// </summary>
-    /// <summary>
-    /// Where the far-field grass tint starts and finishes, in metres from the middle of the field.
-    /// </summary>
-    /// <remarks>
-    /// <c>grass_field_correction</c> is the colour the ground is pushed towards once the grass field has thinned
-    /// out, and it is ramped in by distance between two <b>global</b> shader parameters that only
-    /// <c>TerrainGrass</c> publishes. The testbed has no grass field and so published neither, which left the
-    /// globals at their project defaults - a zero-width band, which the shader reads as "no field" and skips. So
-    /// the correction slider on the material was a transport to <c>terrain.tres</c> and nothing else: it could be
-    /// carried across but never seen. Setting <see cref="GrassFieldEnd"/> above
-    /// <see cref="GrassFieldBegin"/> turns the ramp on here, measured from the centre of the field outwards, so
-    /// that near ground and far ground are both on screen at once and the colour can be judged against a fixed
-    /// distance rather than against a memory of the last login.
-    ///
-    /// <para>
-    /// Both default to zero, which is off. That keeps the field flat-lit for the art-judging the testbed is
-    /// mostly used for, where a colour that changes with distance is exactly what is not wanted.
-    /// </para>
-    /// </remarks>
-    [Export(PropertyHint.Range, "0,200,1")]
-    public float GrassFieldBegin
-    {
-      get => _grassFieldBegin;
-      set { _grassFieldBegin = Math.Max(0.0f, value); PublishGrassField(); }
-    }
-
-    /// <inheritdoc cref="GrassFieldBegin"/>
-    [Export(PropertyHint.Range, "0,200,1")]
-    public float GrassFieldEnd
-    {
-      get => _grassFieldEnd;
-      set { _grassFieldEnd = Math.Max(0.0f, value); PublishGrassField(); }
-    }
-
-    /// <summary>How hard the tint arrives across that band, matching <c>GrassLod.Sharpen</c>'s exponent.</summary>
-    /// <remarks>
-    /// In game this is not a setting - it is whatever the level-of-detail controller happens to be spending to
-    /// stay inside its instance budget, so it moves while the player walks. One here, meaning the plain squared
-    /// ramp, is the value to judge a colour at; turning it up shows what the tint looks like when the field is
-    /// under pressure and arriving early.
-    /// </remarks>
-    [Export(PropertyHint.Range, "1,6,0.1")]
-    public float GrassFieldFalloff
-    {
-      get => _grassFieldFalloff;
-      set { _grassFieldFalloff = Math.Max(1.0f, value); PublishGrassField(); }
-    }
-
     [Export] public ShaderMaterial TerrainMaterial { get; set; }
 
     /// <summary>The debug twin, shown instead when <see cref="ShowDebugView"/> is on.</summary>
@@ -315,32 +264,6 @@ namespace BestiaBehemothClient.Dev
 
     public override void _Ready() => Rebuild();
 
-    /// <summary>
-    /// Puts the far-field grass ramp on the globals the terrain shader reads it from.
-    /// </summary>
-    /// <remarks>
-    /// Globals rather than material parameters because two shaders read them - <c>terrain.gdshader</c> and its
-    /// debug twin - which is the same reason <c>TerrainGrass.PublishField</c> sets them that way in game. Nothing
-    /// here is per-frame: the focus is the middle of the field and does not move, so this runs when one of the
-    /// three settings changes and on rebuild, rather than out of <c>_Process</c>.
-    ///
-    /// <para>
-    /// The focus carries the field's own ground height. Distance in the shader is measured in three dimensions,
-    /// so leaving it at zero would put the focus twelve metres underground and start the ramp early by however
-    /// much of that the camera angle turned into horizontal distance.
-    /// </para>
-    /// </remarks>
-    private void PublishGrassField()
-    {
-      // Begin above end is a band the shader would read backwards, so it is clamped to off rather than trusted.
-      var end = Math.Max(_grassFieldBegin, _grassFieldEnd);
-
-      RenderingServer.GlobalShaderParameterSet(
-        "grass_field_focus", new Vector3(0.0f, (BaseElevation + 0.5f) * VoxelSize, 0.0f));
-      RenderingServer.GlobalShaderParameterSet("grass_field_begin", _grassFieldBegin);
-      RenderingServer.GlobalShaderParameterSet("grass_field_end", end);
-      RenderingServer.GlobalShaderParameterSet("grass_field_falloff", _grassFieldFalloff);
-    }
 
     /// <summary>Reassembles the texture arrays from whatever is in <c>Game/World/Shader/Slots</c> now.</summary>
     public void ReloadTextures()
@@ -362,8 +285,6 @@ namespace BestiaBehemothClient.Dev
       {
         return;
       }
-
-      PublishGrassField();
 
       var existing = GetNodeOrNull<Node3D>("Generated");
       if (existing != null)
@@ -493,7 +414,7 @@ namespace BestiaBehemothClient.Dev
         "cliff_start", "cliff_end",
         "wetness_darkening", "wetness_roughness",
         "snow_colour", "snow_melt_celsius",
-        "grass_field_correction", "grass_canopy_grain", "grass_canopy_relief", "grass_canopy_scale"
+        "grass_field_correction", "grass_canopy_tip", "grass_canopy_root", "grass_canopy_noise_scale"
       };
 
       foreach (var parameter in tuning)
