@@ -54,7 +54,17 @@ object BestiaDomain {
 
   /** Grid tiles counted as "arrived" — [net.bestia.zone.geometry.Vec3L.distance] is exact tile distance. */
   const val ARRIVAL_RADIUS = 1L
-  const val DEFAULT_WANDER_RADIUS = 5L
+  /**
+   * Tiles a creature may stray from its home before [Goals.RETURN_HOME] pulls it back.
+   *
+   * A home range, not a tether. At the five tiles this was, a creature scattered once by its den stood
+   * within a few paces of that spot for the rest of its life, so a pack stayed the knot it was seeded as and
+   * no amount of density made the country look inhabited. It has to be at least comparable to the spacing
+   * between creatures, or neighbouring ranges never overlap and the field reads as pinned scenery.
+   *
+   * Stride is a separate question - see [net.bestia.zone.ai.bt.Locomotion.WANDER_STEP_TILES].
+   */
+  const val DEFAULT_WANDER_RADIUS = 24L
   const val DEFAULT_MELEE_RANGE = 1L
   const val DEFAULT_RESTLESS_THRESHOLD = 60
 

@@ -3,6 +3,7 @@ package net.bestia.zone.ai.profile
 import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import com.fasterxml.jackson.databind.annotation.JsonNaming
 import net.bestia.zone.ai.domain.bestia.ActivityCycle
+import net.bestia.zone.ai.domain.bestia.BestiaDomain
 
 /**
  * Jackson mirror of a `resources/ai/<name>.yml` archetype — the one AI profile format, replacing the two
@@ -36,7 +37,7 @@ data class AiProfileDto(
    * the profiles that do not set it.
    */
   val activityCycle: ActivityCycle = ActivityCycle.CATHEMERAL,
-  val wanderRadius: Long = 5,
+  val wanderRadius: Long = BestiaDomain.DEFAULT_WANDER_RADIUS,
   val meleeRange: Long = 1,
   val hungerThreshold: Int = 85,
   val tirednessThreshold: Int = 80,
