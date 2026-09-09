@@ -108,14 +108,26 @@ data class ChunkStreamConfig(
   val allowDebugEdits: Boolean = true,
 
   /**
-   * Steepest rise a step may cross and still count as walkable, in degrees.
+   * Steepest rise a step may cross and still count as walkable, in degrees, up or down alike.
    *
    * Feeds the one [net.bestia.worldgen.derived.AgentProfile] shared by NPC pathfinding and the player's own
-   * move validation - see `AgentProfile.forMaxSlope` - so retuning this retunes both together. Forty-five is
-   * not an arbitrary default: it is the angle at which a rise equals its run, which is why it was already the
-   * hard-coded step height before this became a setting.
+   * move validation - see `AgentProfile.forMaxSlope` - so retuning this retunes both together.
+   *
+   * **And it retunes the client, which is why it cannot be retuned here alone.** The terrain is drawn as bare
+   * rock from exactly this angle, so that a player can see where walking stops rather than discovering it by
+   * a click that goes nowhere. The client compiles the number in;
+   * [net.bestia.zone.world.ClientWorldContract] holds the copy the boot gate checks against, and moving one
+   * without the other refuses the boot.
+   *
+   * Sixty rather than the forty-five it began as, which was the angle at which a rise equals its run - a
+   * property of the arithmetic rather than a judgement about terrain. Sixty is steep enough that the
+   * mountainsides `worldgen` produces are mostly walkable, and it is the angle the client already drew as
+   * cliff at the top of its blend.
+   *
+   * A road is routed more conservatively: `NavGraphStage.maxSlopeDegrees` stays at forty-five. Generated
+   * routes are content, and moving that number moves a `paramsVersion` and every world with it.
    */
-  val maxWalkSlopeDegrees: Double = 45.0
+  val maxWalkSlopeDegrees: Double = 60.0
 ) {
 
   init {

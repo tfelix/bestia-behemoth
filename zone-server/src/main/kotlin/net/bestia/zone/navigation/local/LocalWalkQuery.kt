@@ -13,13 +13,17 @@ import net.bestia.zone.geometry.Vec3L
  * for the sake of a step test, so the consumer states the question here and the layer that can answer it
  * registers an adapter.
  *
- * ### This is where the forty-five degree rule is actually enforced
+ * ### This is where the walkable-slope rule is actually enforced
  *
  * Not in the macro graph, which sees a kilometre per cell and cannot resolve a cliff. The implementation
  * delegates to `DerivedStore.canStep`, which admits a step only when the rise is within
- * `AgentProfile.maxStep` - one voxel of rise per one voxel of run, against the real voxels including
- * whatever players have built since. See `NavigationSlopeTest` for the constant that pins those two
- * together.
+ * `AgentProfile.maxStep` - `tan` of `ChunkStreamConfig.maxWalkSlopeDegrees` per voxel of run, against the
+ * real voxels including whatever players have built since. `WalkableSlopeTest` pins the conversion; the
+ * angle itself is also what the client draws as cliff, which `ClientWorldContractTest` pins.
+ *
+ * The limit is symmetric: a drop is capped at the same rise, so a pit deeper than one step can be neither
+ * entered nor left. That is deliberate - there is no fall anywhere in this server - and it is why a hole has
+ * to be dug as a ramp to be walked into.
  *
  * **Only safe to call from the tick thread**, because the implementation is not thread safe.
  */

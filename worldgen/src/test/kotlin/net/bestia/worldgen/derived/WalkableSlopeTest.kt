@@ -10,16 +10,18 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 /**
- * Pins the forty-five degree walkability rule to the constants that actually implement it.
+ * Pins the slope-to-step-height conversion, and the default that is only a default.
  *
  * The rule is enforced *here*, at the chunk tier, and not by the macro navigation graph - which runs at a
- * kilometre per cell and cannot resolve a cliff inside one. What enforces it is
- * [AgentProfile.maxStep] of one voxel against a horizontal run of one voxel, and `tan(45 degrees)` being
- * exactly one.
+ * kilometre per cell and cannot resolve a cliff inside one. What enforces it is [AgentProfile.maxStep]
+ * against a horizontal run of one voxel.
  *
- * That is two independent constants agreeing, which is worth a test precisely because nothing in the code says
- * they must: raising `maxStep` to 1.2 for a more athletic creature, or changing `voxelSize`, would silently
- * reopen every cliff in the world to NPC pathing with no compile error and no obvious symptom.
+ * The angle the game actually runs at is `zone-server`'s `ChunkStreamConfig.maxWalkSlopeDegrees`, always
+ * applied through [AgentProfile.forMaxSlope]; the bare-constructor default pinned below is what a caller with
+ * no opinion gets, and forty-five is where a rise equals its run. Worth a test precisely because nothing in
+ * the code says the two numbers must line up: raising `maxStep` for a more athletic creature, or changing
+ * `voxelSize`, would silently reopen every cliff in the world to NPC pathing with no compile error and no
+ * obvious symptom.
  */
 class WalkableSlopeTest {
 
