@@ -274,4 +274,22 @@ class MoveSystemTest {
 
     assertEquals(1, position.x)
   }
+
+  @Test
+  fun `a fresh path starts from this tile, not from the previous walk's leftover progress`() {
+    val world = testWorld(systems = listOf(MoveSystem(flat, GroundTrample.NONE, TestNavigation.flatGround())))
+    val id = world.create()
+    val position = Position(0, 0, 100)
+    val path = Path(mutableListOf(Vec3L(1, 0, 100)))
+    world.add(id, position)
+    world.add(id, Speed(1.0f))
+    world.add(id, path)
+
+    // Nine tenths of the way into the first step, then re-routed.
+    world.tick(0.9f)
+    path.setPath(listOf(Vec3L(0, 1, 100)))
+    world.tick(0.5f)
+
+    assertEquals(0, position.y, "half a step into a fresh path is not a whole step")
+  }
 }
