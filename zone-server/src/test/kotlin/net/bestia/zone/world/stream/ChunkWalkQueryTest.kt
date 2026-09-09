@@ -217,6 +217,37 @@ class ChunkWalkQueryTest {
   }
 
   @Test
+  fun `carving a chunk nobody tracked makes it answerable, rather than leaving it blind`() {
+    val service = newService()
+    val query = ChunkWalkQuery(service)
+
+    val standing = standingZ()
+    val slab = chunkOf(high.voxelX, high.voxelY, standing)
+    val position = Vec3L(high.voxelX, high.voxelY, standing)
+
+    // Nothing tracked at all, which is the case `invalidate` on its own dropped: it early-returns for a chunk
+    // with no entry, so a shaft dug into a slab nobody had subscribed left walkability answering "unknown"
+    // for the rest of the process - and `ChunkGroundHeight` then reported the pre-carve heightfield.
+    assertTrue(!query.isResident(position), "the premise: this chunk has no derived structures")
+
+    val carved = service.carve(
+      CarveBrush.sphere(
+        high.voxelX + 0.5,
+        high.voxelY + 0.5,
+        (standing - 1).toDouble() + 0.5,
+        CarveBrush.MIN_RADIUS + 0.4
+      )
+    )
+    assertTrue(carved.voxels.isNotEmpty(), "nothing was carved just below the surface at ${high.elevation} m")
+
+    // Only the budgeted rebuild, never an explicit track - the carve has to have queued it by itself.
+    service.derived().rebuildAll()
+
+    assertTrue(query.isResident(position), "a chunk somebody dug in is a chunk something may walk in")
+    assertNotNull(query.surfaceAt(position), "and it reports the floor the carve left, not nothing")
+  }
+
+  @Test
   fun `residency is answered for the slab the position is in, not for slab zero`() {
     val service = newService()
     val query = ChunkWalkQuery(service)
