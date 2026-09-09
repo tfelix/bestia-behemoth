@@ -6,6 +6,9 @@ import net.bestia.worldgen.voxel.CarveBrush
 import net.bestia.worldgen.voxel.ChunkEngine
 import net.bestia.worldgen.voxel.RleCodec
 import net.bestia.zone.chat.ChatCMSG
+import net.bestia.zone.ecs.core.WorldView
+import net.bestia.zone.ecs.core.session.ConnectionInfoService
+import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.world.stream.ChunkCoords
 import net.bestia.zone.world.stream.ChunkDataSMSG
 import net.bestia.zone.world.stream.ChunkManifestSMSG
@@ -51,6 +54,12 @@ class ChunkStreamingScenario : BestiaNoSocketScenario(
 
   @Autowired
   private lateinit var settings: ChunkStreamConfig
+
+  @Autowired
+  private lateinit var world: WorldView
+
+  @Autowired
+  private lateinit var connectionInfoService: ConnectionInfoService
 
   /**
    * The chunk and voxel the carve test aimed at, so the authoritative-view test can check the same spot.
@@ -451,6 +460,43 @@ class ChunkStreamingScenario : BestiaNoSocketScenario(
 
   @Test
   @Order(10)
+  fun `digging the ground out from under a standing player drops them onto the new floor`() {
+    // `MoveSystem` re-derives z once per tile stepped, so anything walking corrects itself. A player standing
+    // still had nothing to correct them: `Grounded` is set once and never comes off, so they hovered over the
+    // hole - and could not walk out of it either, because the rim is further than one step above the floor
+    // they were now standing on.
+    val entityId = connectionInfoService.getActiveEntityId(clientPlayer1.connectedPlayerId)
+    val before = assertNotNull(
+      world.read { get(entityId, Position::class)?.toVec3L() },
+      "the player has to be in the world to be dug out from under"
+    )
+
+    // Wide enough that the bore is deeper than one step, or the drop would be inside the walkable rise and
+    // there would be nothing to see.
+    val radius = CarveBrush.MIN_RADIUS + 1.5
+
+    clientPlayer1.sendMessage(
+      ChatCMSG(
+        clientPlayer1.connectedPlayerId,
+        ChatCMSG.Type.COMMAND,
+        "/carve ${before.x} ${before.y} ${before.z - 1} $radius"
+      )
+    )
+
+    await {
+      val now = assertNotNull(world.read { get(entityId, Position::class)?.toVec3L() })
+
+      assertTrue(
+        now.z < before.z,
+        "the player should have been put on the floor of the hole under them: ${before.z} -> ${now.z}"
+      )
+      assertEquals(before.x, now.x, "re-grounding moves the vertical only")
+      assertEquals(before.y, now.y, "re-grounding moves the vertical only")
+    }
+  }
+
+  @Test
+  @Order(11)
   fun `a request past the token budget is deferred rather than dropped`() {
     // The rate limit used to `break` out of the loop and discard the rest of the request. Nothing brought those
     // chunks back: the manifest offers what was never *announced*, not what never *arrived*, so a client that
