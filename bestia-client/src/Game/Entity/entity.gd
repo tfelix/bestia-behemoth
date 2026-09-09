@@ -110,11 +110,10 @@ const _CORRECTION_IGNORE: float = 0.4    # metres of desync trusted as latency, 
 const _CORRECTION_TIME: float = 0.25     # seconds to bleed a correction back in
 const _CORRECTION_MAX_BOOST: float = 2.5 # cap on extra metres/sec while catching up
 const _SNAP_METRES: float = 2.5          # desync this large just snaps
-# How long a walk we started ourselves may run unconfirmed. The server answers a move it accepted within a
-# round trip, so an answer that has not come by now means it never will: the path was refused outright (a
-# click into the wall beside you), or the request was dropped or rate limited. Fixed rather than derived
-# because nothing measures the round trip yet.
-const _PREDICTION_GRACE_MSEC: int = 1000
+# Shortest an unconfirmed prediction may be given, whatever the measured round trip says. A local server
+# reports well under a millisecond, and letting the grace follow it down would abandon a good prediction
+# over one hitched frame.
+const _PREDICTION_GRACE_FLOOR_MSEC: int = 600
 const _ROTATION_DURATION: float = 0.3  # Time to turn the model to face movement direction
 const _VISUAL_NODE_NAME = "Visual"
 
@@ -511,14 +510,28 @@ func update_path(msg: PathComponentSMSG) -> void:
 ## if it cut the walk at something `path_calculator.gd` walked into - that file ignores terrain, so clicking
 ## past a rock is routine rather than hostile - and with nothing at all if it refused the first step
 ## outright. [method update_path] adopts a matching answer without disturbing this walk and re-anchors on
-## one that differs; an answer that never comes expires, see [constant _PREDICTION_GRACE_MSEC].
+## one that differs; an answer that never comes expires, see [method _prediction_grace_msec].
 func predict_path(waypoints: Array[Vector3]) -> void:
 	_predicted_path = waypoints.duplicate()
-	_prediction_deadline_msec = Time.get_ticks_msec() + _PREDICTION_GRACE_MSEC
+	_prediction_deadline_msec = Time.get_ticks_msec() + _prediction_grace_msec()
 	_follow_path(waypoints)
 	_is_predicted_walk = true
 	_awaiting_arrival = true
 	_predicted_destination = waypoints[waypoints.size() - 1]
+
+
+## How long to keep walking a path the server has not answered for.
+##
+## Long enough that a server which was going to answer has answered, and no longer: past that the walk is
+## running on nothing. Two round trips plus a tick's worth of slack, off the measured latency rather than a
+## guess - which is what measuring it is for.
+func _prediction_grace_msec() -> int:
+	if ConnectionManager.latency_msec < 0.0:
+		return _PREDICTION_GRACE_FLOOR_MSEC
+
+	var budget := 2.0 * (ConnectionManager.latency_msec + ConnectionManager.latency_jitter_msec) + 100.0
+
+	return maxi(_PREDICTION_GRACE_FLOOR_MSEC, int(budget))
 
 
 ## Whether [param waypoints] is the path we are currently predicting.

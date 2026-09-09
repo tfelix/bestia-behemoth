@@ -13,7 +13,7 @@ script = ExtResource("2_ofxgg")
 metadata/_custom_type_script = "uid://b6fewlw5bpykm"
 
 [node name="PingTimer" type="Timer" parent="." unique_id=1223624401]
-wait_time = 10.0
+wait_time = 1.0
 
 [node name="PasskeyLogin" type="Node" parent="." unique_id=1360672931]
 script = ExtResource("3_pkyln")
