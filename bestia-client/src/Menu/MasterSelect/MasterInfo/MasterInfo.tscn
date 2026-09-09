@@ -1,11 +1,8 @@
-[gd_scene load_steps=6 format=3 uid="uid://dy8byfwofun6c"]
+[gd_scene load_steps=5 format=3 uid="uid://dy8byfwofun6c"]
 
 [ext_resource type="Script" uid="uid://dhi8u236he6jh" path="res://Menu/MasterSelect/MasterInfo/master_info.gd" id="1_kpukv"]
 [ext_resource type="PackedScene" uid="uid://cycbux25m2as5" path="res://Menu/MasterSelect/MasterInfo/MasterProfileImage/MasterProfileImage.tscn" id="2_5yp0s"]
 [ext_resource type="LabelSettings" uid="uid://k7yxyg5xi86r" path="res://Menu/Shared/muted_text_label_settings.tres" id="3_5ufew"]
-
-[sub_resource type="ViewportTexture" id="ViewportTexture_5yp0s"]
-viewport_path = NodePath("PortraitViewport")
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hl"]
 bg_color = Color(1, 1, 1, 0)
@@ -43,7 +40,6 @@ theme_override_constants/separation = 4
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
-texture = SubResource("ViewportTexture_5yp0s")
 expand_mode = 3
 mouse_filter = 2
 

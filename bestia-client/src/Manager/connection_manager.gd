@@ -42,13 +42,11 @@ enum ConnectionError {NO_ERROR, ZONE_CONNECTION_LOST}
 @onready var _socket = $BnetSocket
 @onready var _passkey_login = $PasskeyLogin
 
-## Covers the game while the world around the player is still arriving.
+## Watches the terrain stream and drives SceneManager's loading screen while the world arrives.
 ##
-## A child of this autoload rather than of Game.tscn because it has to outlive it: the screen goes up
-## before the game scene exists, and a teleport raises it again with no scene change at all. It is not
-## SceneManager's, unlike the transition curtain - what it waits for is terrain and entities, which
-## would give a standalone scene loader a dependency on the connection it has none of today.
-@onready var world_loading: WorldLoadingScreen = $WorldLoadingScreen
+## Here rather than in Game.tscn because it has to outlive it: the watch starts before the game scene
+## exists, and a teleport restarts it with no scene change at all.
+@onready var world_load: WorldLoadWatcher = $WorldLoadWatcher
 
 
 var Authentication = load("res://Bnet/Message/Authentication.cs")
@@ -141,7 +139,7 @@ func _ready() -> void:
 	add_child(world_clock)
 	world_clock.Attach(_socket)
 
-	world_loading.attach(self)
+	world_load.attach(self)
 
 
 ## Credential for this client's REST calls, or empty before the zone has authenticated this connection.
@@ -198,6 +196,9 @@ func _accept_login_token(token: String) -> void:
 
 	# We have a valid JWT now. Go to master select (blocked until the zone confirms auth) and connect.
 	SceneManager.goto_scene("res://Menu/MasterSelect/MasterSelect.tscn", true)
+	# A real round trip to the zone, and nothing about it is measurable from here - so a caption and
+	# no figure. Taken down again in the AuthenticationSuccess branch that unblocks the transition.
+	SceneManager.show_loading("Signing in...")
 
 	# Applied here rather than left to BnetSocket's own exported defaults, so the socket and the two
 	# HTTP endpoints are all named by one settings file instead of one of the three needing a rebuild.
@@ -563,10 +564,10 @@ func select_bestia_master(master_info: MasterInfo) -> void:
 	msg.MasterId = master_info.MasterId
 	_socket.SendMessage(msg)
 
-	# Raised before the transition, so SceneManager's curtain fades out onto the loading screen rather
-	# than onto a world that has not been streamed yet.
-	world_loading.begin()
+	# The transition first: goto_scene returns at its first await, so the watch is armed well before
+	# the fade reaches black and the loading screen comes up out of it rather than over the menu.
 	SceneManager.goto_scene("res://Game/Game.tscn")
+	world_load.begin()
 
 
 func _on_bnet_socket_message_received(message: Object) -> void:
@@ -577,6 +578,7 @@ func _on_bnet_socket_message_received(message: Object) -> void:
 		_connection_state = ConnectionState.CONNECTED_AUTHED
 		_http_ticket = message.HttpTicket
 		SceneManager.unblock_transition()
+		SceneManager.hide_loading()
 	elif message is Pong:
 		_on_pong()
 	elif message is MasterSMSG:
@@ -638,8 +640,8 @@ func _on_bnet_socket_connection_status_changed(status: int) -> void:
 		# present a credential that is already refused.
 		_http_ticket = ""
 		# Nothing is going to finish loading now, and the scene change below is to a menu the player has
-		# to be able to use.
-		world_loading.dismiss()
+		# to be able to use. Covers the sign-in screen too, which this same socket may have raised.
+		world_load.abort()
 		if _intentional_disconnect:
 			# Player-initiated logout: go home quietly instead of showing "connection lost".
 			_intentional_disconnect = false

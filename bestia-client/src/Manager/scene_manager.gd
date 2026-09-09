@@ -3,11 +3,25 @@ extends Node
 ## Emitted once a transition has swapped in its new scene, with the path it was loaded from.
 signal scene_changed(path: String)
 
+## Emitted once the loading screen is gone and the player is looking at what they waited for.
+signal loading_finished()
+
 var current_scene = null
 
 
-var _loading_screen: LoadingScreen
-var _loading_screen_scene: PackedScene = preload("res://Menu/LoadingScreen/LoadingScreen.tscn")
+var _scene_fade: SceneFade
+var _scene_fade_scene: PackedScene = preload("res://Menu/SceneFade/SceneFade.tscn")
+
+## Kept in its own field rather than beside _scene_fade, because the two have different lifetimes:
+## every goto_scene frees the fade, while the loading screen has to survive the very scene swap it
+## is covering.
+var _loading: LoadingScreen = null
+var _loading_scene: PackedScene = preload("res://Menu/LoadingScreen/LoadingScreen.tscn")
+
+## Set by show_loading() while a fade is still running, so the screen can come up out of the black
+## rather than cutting over a scene the player can still see.
+var _loading_armed_caption: String = ""
+var _is_loading_armed: bool = false
 
 var _is_blocking: bool = false
 var _is_loading: bool = false
@@ -28,15 +42,20 @@ func goto_scene(content_path: String, is_blocking: bool = false) -> void:
 	_is_loading = true
 	_content_path = content_path
 
-	# Create and start new loading screen
-	_loading_screen = _loading_screen_scene.instantiate() as LoadingScreen
-	get_tree().root.add_child(_loading_screen)
-	_loading_screen.start_transition()
-	await _loading_screen.anim_player.animation_finished
+	# Create and start new scene fade
+	_scene_fade = _scene_fade_scene.instantiate() as SceneFade
+	get_tree().root.add_child(_scene_fade)
+	_scene_fade.start_transition()
+	await _scene_fade.anim_player.animation_finished
 
 	# Check if this transition was cancelled while waiting for animation
 	if current_transition_id != _transition_id:
 		return
+
+	# The screen belongs on top of black, not on top of the scene being left behind.
+	if _is_loading_armed:
+		_is_loading_armed = false
+		_raise_loading(_loading_armed_caption)
 
 	var loader = ResourceLoader.load_threaded_request(content_path)
 	if not ResourceLoader.exists(content_path) or loader == null:
@@ -53,10 +72,10 @@ func _cancel_current_transition() -> void:
 		# but we can ignore the result by clearing the path and incrementing the ID
 		_content_path = ""
 
-	# Clean up current loading screen if it exists
-	if _loading_screen != null:
-		_loading_screen.queue_free()
-		_loading_screen = null
+	# Clean up current scene fade if it exists
+	if _scene_fade != null:
+		_scene_fade.queue_free()
+		_scene_fade = null
 
 	# Reset state (this will also clear _loaded_resource)
 	_reset_transition_state()
@@ -111,12 +130,81 @@ func _finalize_transition() -> void:
 	if _is_loading:
 		return
 
-	if _loading_screen != null:
-		_loading_screen.finish_transition()
-		# wait for LoadingScreen's transition to finish playing
-		await _loading_screen.anim_player.animation_finished
-		_loading_screen.queue_free()
-		_loading_screen = null
+	if _scene_fade != null:
+		_scene_fade.finish_transition()
+		# wait for the fade's outro to finish playing
+		await _scene_fade.anim_player.animation_finished
+		_scene_fade.queue_free()
+		_scene_fade = null
+
+
+## Raises the loading screen for a wait whose length is not knowable yet.
+##
+## Called while a transition is still fading, it waits for the black rather than cutting over the
+## outgoing scene. Called with none in flight - a teleport, which changes no scene - it fades in
+## over whatever is there.
+func show_loading(caption: String) -> void:
+	if _scene_fade != null and not _is_loading_visible():
+		_loading_armed_caption = caption
+		_is_loading_armed = true
+		return
+
+	_raise_loading(caption)
+
+
+## A figure between 0 and 1 for a wait that can be measured. Ignored if nothing is being shown.
+func set_loading_progress(value: float, caption: String) -> void:
+	if _loading == null:
+		return
+
+	_loading.set_progress(value, caption)
+
+
+## True while the player is being made to wait: the screen is up, or a transition has one armed to
+## come up out of its black.
+##
+## Anything that would interrupt the player - a dialog, say - should hold off while this is true and
+## come back on [signal loading_finished], since the incoming scene and its UI are built *behind*
+## the screen and being in the tree is not the same as being looked at.
+func is_loading_screen_up() -> bool:
+	return _is_loading_armed or _is_loading_visible()
+
+
+## [param fade] false when there is nothing worth revealing, e.g. a connection that just dropped.
+func hide_loading(fade: bool = true) -> void:
+	var was_up := is_loading_screen_up()
+	_is_loading_armed = false
+
+	if _is_loading_visible():
+		# loading_finished follows from the screen's own dismissal, so a reveal still fading out is
+		# not yet reported as over.
+		if fade:
+			_loading.reveal()
+		else:
+			_loading.dismiss()
+		return
+
+	# Armed but never actually raised - there is nothing to take down, yet whatever held off waiting
+	# for the screen still has to be let go.
+	if was_up:
+		loading_finished.emit()
+
+
+## Made once and reused, unlike the fade, so a reveal still running cannot be freed underneath its
+## own tween. A child of this node rather than of root: root's child order is what
+## _instantiate_and_switch_scene positions the incoming scene against.
+func _raise_loading(caption: String) -> void:
+	if _loading == null:
+		_loading = _loading_scene.instantiate() as LoadingScreen
+		_loading.dismissed.connect(loading_finished.emit)
+		add_child(_loading)
+
+	_loading.appear(caption)
+
+
+## Showing, or part way through fading out - either way it is already on screen and needs no handover.
+func _is_loading_visible() -> bool:
+	return _loading != null and _loading.visible
 
 
 # We observe the current loading state of the requsted file.

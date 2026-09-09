@@ -1,94 +1,75 @@
-[gd_scene load_steps=6 format=3 uid="uid://b07x5gwj05pk"]
+[gd_scene format=3 uid="uid://o8kd2shfnrk7"]
 
-[ext_resource type="Texture2D" uid="uid://dkiqqirwohg25" path="res://Menu/LoadingScreen/cycle.svg" id="1_m65sw"]
-[ext_resource type="Script" uid="uid://b44kc1i8d1ffk" path="res://Menu/LoadingScreen/loading_screen.gd" id="1_uouu1"]
+[ext_resource type="Script" uid="uid://b767gih6ndfx0" path="res://Menu/LoadingScreen/loading_screen.gd" id="1_wlscr"]
+[ext_resource type="Texture2D" uid="uid://c6vp35y8niuin" path="res://Game/loading_screen_01.jpg" id="2_art"]
 
-[sub_resource type="Animation" id="Animation_awkqi"]
-length = 0.001
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("ColorRect:color")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Color(0, 0, 0, 0)]
-}
+[node name="LoadingScreen" type="CanvasLayer" unique_id=1288041131]
+layer = 128
+script = ExtResource("1_wlscr")
 
-[sub_resource type="Animation" id="Animation_uouu1"]
-resource_name = "fade_to_black"
-length = 0.2
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("ColorRect:color")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.2),
-"transitions": PackedFloat32Array(1, 1),
-"update": 0,
-"values": [Color(0, 0, 0, 0), Color(0, 0, 0, 1)]
-}
-
-[sub_resource type="AnimationLibrary" id="AnimationLibrary_oelju"]
-_data = {
-&"RESET": SubResource("Animation_awkqi"),
-&"fade_to_black": SubResource("Animation_uouu1")
-}
-
-[node name="LoadingScreen" type="Control"]
+[node name="Fade" type="Control" parent="." unique_id=165452283]
+unique_name_in_owner = true
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-script = ExtResource("1_uouu1")
 
-[node name="ColorRect" type="ColorRect" parent="."]
+[node name="Letterbox" type="ColorRect" parent="Fade" unique_id=218961401]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0, 0, 0, 0)
+color = Color(0, 0, 0, 1)
 
-[node name="LoaderUi" type="HBoxContainer" parent="."]
+[node name="Art" type="TextureRect" parent="Fade" unique_id=2075644371]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_art")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Scrim" type="ColorRect" parent="Fade" unique_id=1277623223]
 visible = false
 layout_mode = 1
-anchors_preset = 3
-anchor_left = 1.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.35)
+
+[node name="Bottom" type="MarginContainer" parent="Fade" unique_id=370012434]
+layout_mode = 1
+anchors_preset = 12
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -237.0
-offset_top = -119.0
-offset_right = -92.0
-offset_bottom = -69.0
-grow_horizontal = 0
+offset_top = -140.0
+grow_horizontal = 2
 grow_vertical = 0
-theme_override_constants/separation = 20
+theme_override_constants/margin_left = 80
+theme_override_constants/margin_right = 80
+theme_override_constants/margin_bottom = 60
 
-[node name="Label" type="Label" parent="LoaderUi"]
+[node name="Panel" type="VBoxContainer" parent="Fade/Bottom" unique_id=1683557206]
+layout_mode = 2
+size_flags_vertical = 8
+theme_override_constants/separation = 10
+
+[node name="Caption" type="Label" parent="Fade/Bottom/Panel" unique_id=1748667974]
+unique_name_in_owner = true
 layout_mode = 2
 text = "Loading..."
 
-[node name="LoadSpinner" type="TextureRect" parent="LoaderUi"]
+[node name="Progress" type="ProgressBar" parent="Fade/Bottom/Panel" unique_id=217369284]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(50, 50)
+custom_minimum_size = Vector2(0, 20)
 layout_mode = 2
-size_flags_horizontal = 0
-size_flags_vertical = 4
-texture = ExtResource("1_m65sw")
-expand_mode = 1
-stretch_mode = 4
-
-[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
-libraries = {
-&"": SubResource("AnimationLibrary_oelju")
-}

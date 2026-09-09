@@ -5,6 +5,10 @@ class_name MasterInfoScn
 ## selection screen owns the confirmation prompt and the message to the server.
 signal delete_requested(master_info: MasterInfo)
 
+## Loaded on demand rather than preloaded: the scene's root node carries this script, so a
+## preload here is a load cycle and MasterInfo.tscn fails to parse.
+const SCENE_PATH := "res://Menu/MasterSelect/MasterInfo/MasterInfo.tscn"
+
 @onready var pos_x = %PosX
 @onready var pos_y = %PosY
 @onready var master_name = %MasterName
@@ -18,7 +22,7 @@ var _master_info: MasterInfo
 ## Returns the concrete type rather than a plain Control so callers can reach [signal delete_requested]
 ## without the static analyser rejecting it.
 static func create(master_info: MasterInfo) -> MasterInfoScn:
-	var master_info_scn := preload("res://Menu/MasterSelect/MasterInfo/MasterInfo.tscn").instantiate() as MasterInfoScn
+	var master_info_scn := (load(SCENE_PATH) as PackedScene).instantiate() as MasterInfoScn
 	master_info_scn._master_info = master_info
 
 	return master_info_scn

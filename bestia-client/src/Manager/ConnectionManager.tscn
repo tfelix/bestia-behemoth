@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://d0nk10l8vv8au" path="res://Manager/connection_manager.gd" id="1_so4ce"]
 [ext_resource type="Script" uid="uid://b6fewlw5bpykm" path="res://Bnet/BnetSocket.cs" id="2_ofxgg"]
 [ext_resource type="Script" uid="uid://kjzde8gxd6ncf" path="res://Auth/PasskeyLoginService.cs" id="3_pkyln"]
-[ext_resource type="PackedScene" uid="uid://o8kd2shfnrk7" path="res://Game/UI/WorldLoading/WorldLoadingScreen.tscn" id="4_wload"]
+[ext_resource type="Script" path="res://Game/World/world_load_watcher.gd" id="4_wload"]
 
 [node name="ConnectionManager" type="Node" unique_id=124796652]
 script = ExtResource("1_so4ce")
@@ -19,7 +19,8 @@ wait_time = 10.0
 script = ExtResource("3_pkyln")
 metadata/_custom_type_script = "uid://kjzde8gxd6ncf"
 
-[node name="WorldLoadingScreen" parent="." instance=ExtResource("4_wload")]
+[node name="WorldLoadWatcher" type="Node" parent="."]
+script = ExtResource("4_wload")
 
 [connection signal="ConnectionStatusChanged" from="BnetSocket" to="." method="_on_bnet_socket_connection_status_changed"]
 [connection signal="MessageReceived" from="BnetSocket" to="." method="_on_bnet_socket_message_received"]

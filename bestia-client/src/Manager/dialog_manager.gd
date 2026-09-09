@@ -11,6 +11,11 @@ extends Node
 ## Dialogs are shown strictly one at a time. Two arriving back to back would otherwise clobber each
 ## other, since the presenter is a single modal window.
 ##
+## A registered presenter is not on its own enough to show one: the game UI is built behind the loading
+## screen, so a dialog waiting on a fresh master would otherwise pop over artwork the player is still
+## waiting out. The queue therefore also holds while [method SceneManager.is_loading_screen_up], and
+## drains on [signal SceneManager.loading_finished].
+##
 ## [b]Client-only dialogs go through exactly the same queue.[/b] Static information that needs nothing from
 ## the server - what a skill unlocks, how a screen works - has no business being a wire message, so
 ## [method show_local] pushes a [DialogContent] built from a key in the same [code]dialogs.csv[/code] the
@@ -42,6 +47,7 @@ var _seen_loaded: bool = false
 
 func _ready() -> void:
 	ConnectionManager.dialog_received.connect(_on_dialog_received)
+	SceneManager.loading_finished.connect(_show_next)
 
 
 ## Called by the dialog window as it enters the tree. Registering immediately drains whatever piled
@@ -166,6 +172,11 @@ func _on_dialog_received(message) -> void:
 
 func _show_next() -> void:
 	if _showing or _presenter == null or _queue.is_empty():
+		return
+
+	# Behind a loading screen the presenter is in the tree but not being looked at, so this waits for
+	# the reveal and is called again by it.
+	if SceneManager.is_loading_screen_up():
 		return
 
 	_showing = true
