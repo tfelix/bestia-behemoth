@@ -78,8 +78,10 @@ var _visual_rotation_start_basis: Basis = Basis.IDENTITY
 var _visual_rotation_target_basis: Basis = Basis.IDENTITY
 var _visual_rotation_start_time: float = 0.0
 var _visual_rotating: bool = false
-# Guards against resetting the walk animation twice, which could cancel a server animation.
-var _has_reset_walk_anim: bool = false
+# The pose the walk/idle heuristic last asked for, latched so it is asked for once per change rather than
+# once per frame. Cleared whenever something else takes the pose - a death, or a server posture being
+# dropped - so the heuristic re-asserts rather than staying silent on a stale answer.
+var _driven_pose: String = ""
 
 # The server's posture, outranked only by death. "IDLE" means it asserts nothing and the local
 # walk/idle heuristic owns the pose. Walk and idle never arrive here - sleeping and the like do.
@@ -121,23 +123,24 @@ func _update_movement(delta: float) -> void:
 	var pose_is_ours := _posture == _POSTURE_NONE
 
 	if not _is_moving or _nodes.size() < 2 or _speed <= 0.0:
-		if not _has_reset_walk_anim:
-			_has_reset_walk_anim = true
-			if pose_is_ours:
-				_update_animation_from_client("IDLE")
+		if pose_is_ours:
+			_drive_pose("IDLE")
 		return
 	else:
-		_has_reset_walk_anim = false
 		if pose_is_ours:
-			_update_animation_from_client("WALK")
+			_drive_pose("WALK")
 
 	var total := _arc[_arc.size() - 1]
 
 	var step := _speed * delta
+	var snapping := false
 	if absf(_error) > _SNAP_METRES:
-		# Way out of sync (teleport, long stall, dropped packets): jump.
+		# Way out of sync (teleport, long stall, dropped packets): jump - backwards too, if that is where
+		# the server is. The floor below used to apply here as well, which silently threw away every
+		# correction that pointed behind us and left an over-run uncorrected for good.
 		step += _error
 		_error = 0.0
+		snapping = true
 	elif absf(_error) > 0.0001:
 		# Fold part of the error into this advance, clamped so we never travel backwards.
 		var corr := _error * minf(1.0, delta / _CORRECTION_TIME)
@@ -145,8 +148,11 @@ func _update_movement(delta: float) -> void:
 		step += corr
 		_error -= corr
 
-	step = maxf(step, 0.0)
-	_travelled = minf(_travelled + step, total)
+	# A correction may stall the walk but never reverse it, because a reversal reads as a stutter. A snap is
+	# a different thing and is allowed to go wherever the server says.
+	if not snapping:
+		step = maxf(step, 0.0)
+	_travelled = clampf(_travelled + step, 0.0, total)
 
 	var seg := _segment_at(_travelled)
 	var seg_length := _arc[seg + 1] - _arc[seg]
@@ -159,8 +165,12 @@ func _update_movement(delta: float) -> void:
 		_face_direction(_nodes[seg + 1] - _nodes[seg])
 		_faced_seg = seg
 
-	if _travelled >= total and absf(_error) < 0.0001:
+	# The leftover correction is deliberately dropped rather than waited for: it is under
+	# _CORRECTION_IGNORE by now, there is no path left to bleed it along, and holding _is_moving true kept
+	# the walk animation running with nothing moving for up to _error/_CORRECTION_MAX_BOOST seconds.
+	if _travelled >= total:
 		_is_moving = false
+		_error = 0.0
 
 
 ## Which segment of [member _nodes] a distance along the chain falls in.
@@ -183,6 +193,15 @@ func _segment_at(distance: float) -> int:
 ## step, so that a metre here is a metre there.
 func _ground_distance(from: Vector3, to: Vector3) -> float:
 	return Vector2(to.x - from.x, to.z - from.z).length()
+
+
+## Asks the visual for a pose, but only when it is not the one already asked for.
+func _drive_pose(pose: String) -> void:
+	if _driven_pose == pose:
+		return
+
+	_driven_pose = pose
+	_update_animation_from_client(pose)
 
 
 ## Where the server thinks this entity is, without the ground correction `position` carries.
@@ -478,7 +497,7 @@ func update_dead(msg: DeadComponentSMSG) -> void:
 	# Going down interrupts the walk: the body stays where it fell, so a leftover path would drag it.
 	if _is_dead:
 		_is_moving = false
-		_has_reset_walk_anim = false
+		_driven_pose = ""
 
 	var visual = get_node_or_null(_VISUAL_NODE_NAME)
 	if visual != null and visual.has_method("set_dead"):
@@ -500,8 +519,8 @@ func update_animation(msg: AnimationComponentSMSG) -> void:
 		return
 
 	if _posture == _POSTURE_NONE:
-		# Nothing to play, but _update_movement must re-assert over a stale _has_reset_walk_anim.
-		_has_reset_walk_anim = false
+		# Nothing to play, but _update_movement has to re-assert its pose over a stale latch.
+		_driven_pose = ""
 		return
 
 	var visual = _get_visual_for_method("update_animation")

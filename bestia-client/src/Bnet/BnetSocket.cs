@@ -40,6 +40,19 @@ namespace BestiaBehemothClient.Bnet.Message
     /// </remarks>
     private const int MaxFrameLength = 1048576;
 
+    /// <summary>
+    /// Logs every envelope in both directions. Off by default.
+    /// </summary>
+    /// <remarks>
+    /// It was unconditional, and it is not cheap: the summary is built for every message received, and for
+    /// most kinds that means protobuf's text-format serialisation plus stdout, on the main thread, inside the
+    /// frame that drains the receive queue. Position and path updates arrive several times a second per
+    /// nearby entity, so the frame cost scaled with how crowded the area was. The server has always filtered
+    /// exactly those two out of its own trace log; the client never got the same treatment.
+    /// </remarks>
+    [Export]
+    public bool LogMessages { get; set; } = false;
+
     [Signal]
     public delegate void MessageReceivedEventHandler(ISMSG message);
 
@@ -69,7 +82,10 @@ namespace BestiaBehemothClient.Bnet.Message
       // Process any complete messages from the queue
       while (_messageQueue.TryDequeue(out Envelope envelope))
       {
-        GD.Print("BnetSocket RX: ", Describe(envelope));
+        if (LogMessages)
+        {
+          GD.Print("BnetSocket RX: ", Describe(envelope));
+        }
 
         if (envelope.Disconnected != null)
         {
@@ -376,6 +392,20 @@ namespace BestiaBehemothClient.Bnet.Message
                $"{statics.Entries.Count} entries";
       }
 
+      if (envelope.CompPosition != null)
+      {
+        // The two highest-frequency messages in the protocol, and the two the server filters out of its own
+        // trace log by default. A full dump of either drowns everything else.
+        var pos = envelope.CompPosition;
+        return $"Position({pos.EntityId}) ({pos.Position.X},{pos.Position.Y},{pos.Position.Z})";
+      }
+
+      if (envelope.CompPath != null)
+      {
+        var path = envelope.CompPath;
+        return $"Path({path.EntityId}) {path.Path.Count} waypoints";
+      }
+
       return envelope.ToString();
     }
 
@@ -474,7 +504,12 @@ namespace BestiaBehemothClient.Bnet.Message
       try
       {
         // Connect to server
-        _tcpClient = new TcpClient();
+        _tcpClient = new TcpClient
+        {
+          // A move click is a few dozen bytes and there is nothing behind it to wait for, so Nagle can only
+          // hold it back. The server side sets the same option explicitly in SocketServer.
+          NoDelay = true
+        };
         GD.Print($"Attempting to connect to {ServerName}:{Port}");
 
         _tcpClient.Connect(ServerName, Port);
@@ -655,7 +690,10 @@ namespace BestiaBehemothClient.Bnet.Message
             _networkStream.Write(buffer, 0, buffer.Length);
             _networkStream.Flush();
 
-            GD.Print("BnetSocket TX: ", envelope.ToString());
+            if (LogMessages)
+            {
+              GD.Print("BnetSocket TX: ", Describe(envelope));
+            }
             // GD.Print($"Sent envelope message of {messageBytes.Length} bytes");
           }
         }
