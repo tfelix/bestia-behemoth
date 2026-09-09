@@ -5,6 +5,7 @@ import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.navigation.TestNavigation
 import org.junit.jupiter.api.Test
+import kotlin.math.sqrt
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
@@ -31,9 +32,8 @@ class MoveSystemTest {
     world.add(id, Speed(1.0f))
     world.add(id, Path(path.toMutableList()))
 
-    // Ticked until the path is drained rather than a counted number of times: `MoveSystem` advances on
-    // `fraction >= 1`; the generous tick count keeps this helper about the height rather than
-    // the rollover arithmetic.
+    // Ticked until the path is drained rather than a counted number of times, so a count here would be
+    // asserting the rollover arithmetic rather than the height.
     repeat(path.size * 2 + 2) { world.tick(1.0f) }
 
     return position
@@ -196,7 +196,7 @@ class MoveSystemTest {
     assertEquals(3, position.x, "the walk ends at the last waypoint, not past it")
     assertEquals(100, position.z)
     assertFalse(world.has(id, Path::class), "and the path comes off, which is what tells observers it stopped")
-    assertEquals(0f, position.fraction, "the leftover belongs to a finished walk and must not fund the next")
+    assertEquals(0f, position.stepProgress, "the leftover belongs to a finished walk and must not fund the next")
   }
 
   @Test
@@ -291,5 +291,70 @@ class MoveSystemTest {
     world.tick(0.5f)
 
     assertEquals(0, position.y, "half a step into a fresh path is not a whole step")
+  }
+
+  /** Simulated seconds a walk down [path] takes at one metre a second. */
+  private fun secondsToWalk(path: List<Vec3L>): Float {
+    val world = testWorld(systems = listOf(MoveSystem(flat, GroundTrample.NONE, TestNavigation.flatGround())))
+    val id = world.create()
+    world.add(id, Position(0, 0, 100))
+    world.add(id, Speed(1.0f))
+    world.add(id, Path(path.toMutableList()))
+
+    val delta = 0.01f
+    var elapsed = 0f
+
+    while (world.has(id, Path::class) && elapsed < 60f) {
+      world.tick(delta)
+      elapsed += delta
+    }
+
+    return elapsed
+  }
+
+  @Test
+  fun `a cardinal step is one metre of travel`() {
+    val world = testWorld(systems = listOf(MoveSystem(flat, GroundTrample.NONE, TestNavigation.flatGround())))
+    val id = world.create()
+    val position = Position(0, 0, 100)
+    world.add(id, position)
+    world.add(id, Speed(1.0f))
+    world.add(id, Path(mutableListOf(Vec3L(1, 0, 100))))
+
+    world.tick(0.99f)
+    assertEquals(0, position.x, "not a metre yet")
+
+    world.tick(0.02f)
+    assertEquals(1, position.x)
+  }
+
+  @Test
+  fun `a diagonal step is sqrt(2) metres of travel, not one`() {
+    // The reported symptom. Charging every waypoint 1.0 made a diagonal 41% faster in world space, because
+    // the tile it arrives at is sqrt(2) away rather than 1.
+    val world = testWorld(systems = listOf(MoveSystem(flat, GroundTrample.NONE, TestNavigation.flatGround())))
+    val id = world.create()
+    val position = Position(0, 0, 100)
+    world.add(id, position)
+    world.add(id, Speed(1.0f))
+    world.add(id, Path(mutableListOf(Vec3L(1, 1, 100))))
+
+    world.tick(1.2f)
+    assertEquals(0, position.x, "a metre of travel does not reach a tile 1.41 m away")
+
+    world.tick(0.3f)
+    assertEquals(1, position.x)
+    assertEquals(1, position.y)
+  }
+
+  @Test
+  fun `walking diagonally is the same speed over the ground as walking straight`() {
+    val steps = 8
+    val cardinal = secondsToWalk((1..steps).map { Vec3L(it.toLong(), 0, 100) })
+    val diagonal = secondsToWalk((1..steps).map { Vec3L(it.toLong(), it.toLong(), 100) })
+
+    // Same count of steps, sqrt(2) times the ground - so sqrt(2) times the time, which is what "the same
+    // speed" means.
+    assertEquals(sqrt(2.0).toFloat(), diagonal / cardinal, 0.02f)
   }
 }
