@@ -62,31 +62,61 @@ class Locomotion(private val navigation: NavigationService) {
   }
 
   /**
-   * Wanders within [radius] of [home].
+   * Wanders within [radius] of [home], one amble of at most [stepTiles] at a time.
    *
    * Picks a destination a few tiles off and paths to it, rather than one adjacent tile per call. Both are
    * random walks, but this one produces a creature that ambles somewhere and then somewhere else, instead of
    * one that jitters between neighbouring tiles - and it costs fewer searches, not more, because one path
    * lasts several tiles.
+   *
+   * ### Why the step length is not the radius
+   *
+   * It used to be: the draw was `nextLong(1, radius)`, so widening a creature's territory also widened its
+   * stride. At a radius worth calling a home range that asks [NavigationService] for a local path dozens of
+   * tiles long, which is past what the local tier is sized for - the budget fallback then fires on almost
+   * every attempt and the creature crawls one checked tile at a time, slower and dearer than with a small
+   * radius. Territory size and stride are separate questions, so they are separate parameters, and per-search
+   * cost no longer scales with the leash.
+   *
+   * ### Why the clamp is radial
+   *
+   * A per-axis `coerceIn` keeps a creature inside a *square*, which at 5 tiles is invisible and at 40 reads
+   * as a fenced plot. A disc is what a home range looks like, and [Vec3L.distance] is deliberately the same
+   * horizontal measure `Goals.RETURN_HOME` tests - a target this accepted but that goal considered out of
+   * range would put the creature in a loop. [radius] has no default so that `BestiaDomain` stays the one
+   * place a territory size is decided; this package deliberately knows nothing about the bestia domain.
+   *
+   * The draw is capped by the radius as well, so from anywhere inside the disc at least the inward directions
+   * land inside it and there is always something to pick. A creature that starts *outside* its range - one
+   * that has just fled - would otherwise have no legal candidate at all and stand still, so a target that is
+   * merely closer to home than it already is counts as well. `Goals.RETURN_HOME` outranks wandering and will
+   * normally have walked it back first; this only keeps the leaf from being a dead end when it has not.
    */
-  fun wanderStep(context: BtContext, home: Vec3L, radius: Long = 5): Boolean {
+  fun wanderStep(
+    context: BtContext,
+    home: Vec3L,
+    radius: Long,
+    stepTiles: Long = WANDER_STEP_TILES
+  ): Boolean {
     if (isMoving(context.world, context.entityId)) return true
 
     val from = position(context.world, context.entityId)
+    val reach = minOf(stepTiles, radius).coerceAtLeast(2)
 
     // Shuffled and then tried in order: a wander target can land in a rock face, and trying only one
     // candidate per tick makes a creature in broken country look stuck rather than idle.
     val candidates = DIRECTIONS.shuffled(Random.Default).map { direction ->
-      val distance = Random.nextLong(1, radius.coerceAtLeast(2))
+      val distance = Random.nextLong(1, reach)
       Vec3L(
-        (from.x + direction.x * distance).coerceIn(home.x - radius, home.x + radius),
-        (from.y + direction.y * distance).coerceIn(home.y - radius, home.y + radius),
+        from.x + direction.x * distance,
+        from.y + direction.y * distance,
         from.z
       )
     }
 
     for (target in candidates) {
       if (target.x == from.x && target.y == from.y) continue
+      if (!keepsTerritory(target, from, home, radius)) continue
       val path = navigation.pathTo(from, target)
         ?: navigation.stepToward(from, target)?.let { listOf(it) }
         ?: continue
@@ -150,7 +180,21 @@ class Locomotion(private val navigation: NavigationService) {
     return true
   }
 
+  /** Whether [target] leaves the creature inside its home range, or at least nearer to it. */
+  private fun keepsTerritory(target: Vec3L, from: Vec3L, home: Vec3L, radius: Long): Boolean {
+    val reach = target.distance(home)
+    return reach <= radius || reach < from.distance(home)
+  }
+
   companion object {
+    /**
+     * Tiles a creature covers in one wander bout, whatever its territory.
+     *
+     * Sized for the local pathfinding tier rather than for looks: short enough that `pathTo` answers from
+     * its budget instead of falling back to a single checked step. See [wanderStep].
+     */
+    const val WANDER_STEP_TILES = 6L
+
     /** The eight walkable neighbours of a tile. Shared, so one per class rather than one per instance. */
     private val DIRECTIONS = listOf(
       Vec3L(-1, -1, 0), Vec3L(0, -1, 0), Vec3L(1, -1, 0),

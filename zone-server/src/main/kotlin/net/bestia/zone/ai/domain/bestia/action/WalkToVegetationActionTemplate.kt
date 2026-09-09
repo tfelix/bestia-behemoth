@@ -50,6 +50,6 @@ class WalkToVegetationActionTemplate(
 
   companion object {
     /** Tiles. Several times a generous wander radius, so foraging can range wider than idling but not far. */
-    private const val DEFAULT_MAX_DISTANCE = 48L
+    private const val DEFAULT_MAX_DISTANCE = 120L
   }
 }

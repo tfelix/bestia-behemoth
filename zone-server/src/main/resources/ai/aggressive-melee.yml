@@ -7,7 +7,7 @@ identifier: aggressive_melee
 faction: wild_beasts
 perception:
   sight_radius: 8
-wander_radius: 5
+wander_radius: 24
 melee_range: 1
 hunger_threshold: 85
 tiredness_threshold: 80
