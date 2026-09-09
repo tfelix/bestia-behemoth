@@ -25,10 +25,24 @@ class DerivedStore(
   private val opacityFactor: Int = OpacityGrid.DEFAULT_FACTOR
 ) {
 
+  /**
+   * One chunk's derived structures.
+   *
+   * [walkable] is eager because something asks for it on nearly every tick: NPC pathing and the player's own
+   * move validation both go through it. [summary] and [opacity] are lazy because nothing asks for them at
+   * all. Each is a full pass over a chunk's 262 144 voxels, so building all three eagerly had a tracked
+   * chunk pay three passes to have one of them read - and a login tracks a whole view volume at once, which
+   * put two thirds of the [rebuild] budget into structures with no reader. That is the saving
+   * `ChunkStreamConfig.derivedRebuildsPerTick` names as the obvious one to take when this shows up on the
+   * tick budget, and it has.
+   *
+   * Null here means "not built yet", never "no answer": [summaryOf] and [opacityOf] build on demand and
+   * cache from then on, exactly as they would have done if a reader had ever existed.
+   */
   private class Entry(
-    var summary: ColumnSummary,
-    var opacity: OpacityGrid,
     var walkable: WalkableTile,
+    var summary: ColumnSummary? = null,
+    var opacity: OpacityGrid? = null,
     var stale: Boolean = false
   )
 
@@ -43,11 +57,31 @@ class DerivedStore(
   /** Chunks currently holding stale structures. Useful in a test, and in a health endpoint. */
   fun staleChunks(): Set<ChunkPos> = queue.toSet()
 
-  fun summaryOf(chunk: ChunkPos): ColumnSummary = entryOf(chunk).summary
+  /** Built on the first ask rather than with the chunk, then cached - see [Entry]. */
+  fun summaryOf(chunk: ChunkPos): ColumnSummary {
+    val merged = buildIfAbsent(chunk)
+    val entry = entries.getValue(chunk)
 
-  fun opacityOf(chunk: ChunkPos): OpacityGrid = entryOf(chunk).opacity
+    entry.summary?.let { return it }
 
-  fun walkableOf(chunk: ChunkPos): WalkableTile = entryOf(chunk).walkable
+    return ColumnSummary.of(merged ?: voxels(chunk)).also { entry.summary = it }
+  }
+
+  /** Built on the first ask rather than with the chunk, then cached - see [Entry]. */
+  fun opacityOf(chunk: ChunkPos): OpacityGrid {
+    val merged = buildIfAbsent(chunk)
+    val entry = entries.getValue(chunk)
+
+    entry.opacity?.let { return it }
+
+    return OpacityGrid.of(merged ?: voxels(chunk), opacityFactor).also { entry.opacity = it }
+  }
+
+  fun walkableOf(chunk: ChunkPos): WalkableTile {
+    buildIfAbsent(chunk)
+
+    return entries.getValue(chunk).walkable
+  }
 
   /**
    * True when this chunk's structures are queued and so may not reflect recent edits.
@@ -127,15 +161,20 @@ class DerivedStore(
       // A queued chunk may have no entry yet - that is what `track` queues, a first build rather than a
       // rebuild - so an absent entry is inserted rather than skipped. An existing one is updated in place so
       // that anything holding the entry keeps seeing the current structures.
-      val built = build(chunk)
+      val merged = voxels(chunk)
+      val walkable = WalkableTile.of(merged, agent)
       val entry = entries[chunk]
 
       if (entry == null) {
-        entries[chunk] = built
+        entries[chunk] = Entry(walkable = walkable)
       } else {
-        entry.summary = built.summary
-        entry.opacity = built.opacity
-        entry.walkable = built.walkable
+        entry.walkable = walkable
+
+        // The lazy parts are dropped rather than rebuilt, and dropped *here* rather than in `invalidate`.
+        // Dropping them on invalidation would have the next query rebuild from the edited voxels, which is
+        // exactly the answer this class promises not to give until the budget has paid for it.
+        entry.summary = null
+        entry.opacity = null
         entry.stale = false
       }
 
@@ -170,14 +209,19 @@ class DerivedStore(
     return walkableOf(from).isWalkable(fromLocalX, fromLocalY, ColumnSummary.voxelOf(fromSurface))
   }
 
-  private fun entryOf(chunk: ChunkPos): Entry = entries.getOrPut(chunk) { build(chunk) }
+  /**
+   * Builds this chunk's eager structures if it has none, and hands back the voxels it merged to do so.
+   *
+   * The return value is what keeps a lazy part to one merge rather than two: a first [summaryOf] would
+   * otherwise merge once to build the entry and again to build the summary, and the merge is the expensive
+   * half of both. `null` means the entry was already there, so a lazy part has to merge for itself.
+   */
+  private fun buildIfAbsent(chunk: ChunkPos): VoxelChunk? {
+    if (chunk in entries) return null
 
-  private fun build(chunk: ChunkPos): Entry {
     val merged = voxels(chunk)
-    return Entry(
-      summary = ColumnSummary.of(merged),
-      opacity = OpacityGrid.of(merged, opacityFactor),
-      walkable = WalkableTile.of(merged, agent)
-    )
+    entries[chunk] = Entry(walkable = WalkableTile.of(merged, agent))
+
+    return merged
   }
 }

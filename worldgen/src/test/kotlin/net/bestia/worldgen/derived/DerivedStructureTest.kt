@@ -589,11 +589,15 @@ class DerivedStructureTest {
     assertEquals(1, builds)
     assertEquals(3, store.summaryOf(pos).surfaceAt(0, 0), "the build is a real one, not a placeholder")
 
+    // Counted from here rather than against a literal, because the summary above is built lazily and merges
+    // once for itself - see DerivedStore.Entry. What this pins is that a *second* track adds nothing.
+    val afterFirstBuild = builds
+
     // Idempotent: a chunk somebody is already holding must not be queued for a pointless rebuild when a second
     // player walks into it, which at a view volume apiece would be most of what the budget ever did.
     store.track(pos)
     assertEquals(0, store.pendingRebuilds)
-    assertEquals(1, builds)
+    assertEquals(afterFirstBuild, builds)
   }
 
   @Test

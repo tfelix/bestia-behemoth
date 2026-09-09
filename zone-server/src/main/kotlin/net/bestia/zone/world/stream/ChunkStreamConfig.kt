@@ -98,9 +98,10 @@ data class ChunkStreamConfig(
    * whole view volume at once, so at the default tick rate of 20 this is 160 chunks a second and fresh ground
    * becomes walkable inside a second; at the old 2 it took three.
    *
-   * One build is a `ChunkStore.merged` plus three full passes over a chunk's 262 144 voxels. Two of those
-   * three - `ColumnSummary` and `OpacityGrid` - have no gameplay reader today; splitting them out so only
-   * `WalkableTile` is built eagerly is the obvious next saving if this ever shows up on the tick budget.
+   * One build is a `ChunkStore.merged` plus one full pass over a chunk's 262 144 voxels. It used to be three
+   * passes: `ColumnSummary` and `OpacityGrid` were built alongside `WalkableTile` and have no gameplay reader,
+   * so two thirds of this budget went into structures nothing looked at. `DerivedStore` now builds those two
+   * on demand, which is what took a login into dense ground from whole ticks of overrun back inside budget.
    */
   val derivedRebuildsPerTick: Int = 8,
 
