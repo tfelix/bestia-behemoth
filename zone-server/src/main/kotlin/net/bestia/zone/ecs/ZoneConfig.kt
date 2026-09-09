@@ -16,4 +16,10 @@ data class ZoneConfig(
   val maxMovePathSteps: Int = 64,
   /** How long a dropped plain item lies on the ground before it is gone. Real time, not Bestia time. */
   val groundItemDespawnAfter: Duration = Duration.ofDays(7),
+  /**
+   * Sustained ceiling on move requests from one account, and how many it may bank against a flurry of
+   * clicking. See [net.bestia.zone.entity.MoveRequestRateLimit] for why a move request is worth limiting.
+   */
+  val moveRequestsPerSecond: Float = 10f,
+  val moveRequestBurst: Float = 20f,
 )

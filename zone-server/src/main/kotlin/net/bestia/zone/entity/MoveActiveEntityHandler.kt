@@ -31,6 +31,7 @@ class MoveActiveEntityHandler(
   private val deadActionGuard: DeadActionGuard,
   private val walkQuery: LocalWalkQuery,
   private val zoneConfig: ZoneConfig,
+  private val rateLimit: MoveRequestRateLimit,
 ) : InMessageProcessor.IncomingMessageHandler<MoveActiveEntityCMSG> {
   override val handles = MoveActiveEntityCMSG::class
 
@@ -55,6 +56,12 @@ class MoveActiveEntityHandler(
 
     // Walking away is how a player calls off a fight - there is no other message for it.
     attackCancelService.cancelAttack(activeEntityId)
+    // After the cancels, so a spammed click still counts as intent and cannot be used to keep a cast alive,
+    // and before the expensive half - the world lock and the broadcast - which is the part worth bounding.
+    if (!rateLimit.spend(msg.playerId)) {
+      LOG.debug { "Dropping move for account ${msg.playerId}: over its request rate" }
+      return true
+    }
 
     world.modify(activeEntityId) { id ->
       if (msg.path.isEmpty()) {
@@ -74,7 +81,7 @@ class MoveActiveEntityHandler(
 
       if (validPath.isEmpty()) {
         LOG.warn {
-          "Dropping move for entity $id: path start ${msg.path.first()} is not reachable from current " +
+          "Dropping move for entity $id: path start ${requested.first()} is not reachable from current " +
             "position (${position?.x}, ${position?.y}, ${position?.z})"
         }
 
