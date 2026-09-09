@@ -12,6 +12,7 @@ import net.bestia.zone.ecs.movement.GroundHeight
 import net.bestia.zone.ecs.movement.Grounded
 import net.bestia.zone.ecs.movement.Path
 import net.bestia.zone.ecs.movement.Position
+import net.bestia.zone.ecs.prop.PropPose
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.socket.ChunkFanOut
 import net.bestia.zone.util.EntityId
@@ -24,7 +25,7 @@ import org.springframework.stereotype.Component as SpringComponent
  * Ordered after `MoveSystem` so a player's subscription is computed from where they ended the tick rather
  * than where they started it.
  *
- * ### The order of the five steps is load bearing
+ * ### The order of the six steps is load bearing
  *
  * 1. **Apply queued edits.** They came off the network on another thread; this is the first point at which
  *    it is safe to touch the store.
@@ -32,12 +33,16 @@ import org.springframework.stereotype.Component as SpringComponent
  * 3. **Broadcast changes** from step 1 to the clients that already hold the affected chunks.
  * 4. **Serve requests** that arrived on earlier ticks.
  * 5. **Spend the derived-rebuild budget.**
+ * 6. **Put back on the ground anything the edits dug out from under.**
  *
  * Three and four are in that order on purpose. A client served in step four is marked as holding the chunk
  * at its *current* revision, which already includes this tick's edits - so it must not also receive a patch
  * describing them. Serving first and broadcasting second would send it a patch whose `from_revision` is one
  * behind what it holds, which it would correctly reject and then re-request: correct, but a wasted round
  * trip on every edit that races a request.
+ *
+ * Six is last for a plainer reason: the tile it has to read is the one step five rebuilds. Asking any earlier
+ * reads the ground as it was before the hole and settles the entity back onto it.
  */
 @SpringComponent
 @Order(45)
@@ -50,7 +55,7 @@ class ChunkStreamSystem(
   private val groundHeight: GroundHeight
 ) : System {
 
-  override val reads: ComponentClassSet = setOf(Account::class, ActivePlayer::class)
+  override val reads: ComponentClassSet = setOf(Account::class, ActivePlayer::class, PropPose::class)
 
   /**
    * [Position] and [Path] are written, not just read, because a teleport moves a player.
@@ -90,6 +95,14 @@ class ChunkStreamSystem(
   /** Token buckets, so a client cannot ask faster than it is served. */
   private val tokens = HashMap<Long, Int>()
 
+  /**
+   * Packed `(x, y)` chunk columns an edit has touched and whose occupants have not been put back on the ground.
+   *
+   * Survives a tick, because the tile a re-grounding has to read is rebuilt out of a budget: a carve that
+   * spans more chunks than the budget covers leaves the rest here until their turn comes.
+   */
+  private val carvedColumns = LinkedHashSet<Long>()
+
   override fun update(world: World, deltaTime: Float) {
     if (!chunkService.isReady) return
 
@@ -105,6 +118,7 @@ class ChunkStreamSystem(
     broadcastChanges()
     serveRequests()
     chunkService.rebuildDerived()
+    regroundCarvedColumns(world)
   }
 
   // ---------------------------------------------------------------- step 1
@@ -133,6 +147,7 @@ class ChunkStreamSystem(
       )
 
       val result = chunkService.carve(brush)
+      result.chunks.forEach { carvedColumns.add(columnOf(it)) }
 
       LOG.debug {
         "Account ${carve.accountId} carved r=${carve.radius} at (${carve.x},${carve.y},${carve.z}): " +
@@ -580,7 +595,96 @@ class ChunkStreamSystem(
     tokens.remove(accountId)
   }
 
+  // ---------------------------------------------------------------- step 6
+
+  /**
+   * Puts every entity standing in a freshly edited column back on the ground.
+   *
+   * `MoveSystem` re-derives an entity's `z` from the terrain once per tile stepped, so anything *walking*
+   * corrects itself the moment it moves. Anything standing still does not, and [Grounded] is a one-shot marker
+   * that never comes off - so before this, digging the floor out from under a player left them hovering over
+   * the hole, and unable to move: `LocalWalkQuery` resolves the step they asked for against the floor now
+   * beneath them, which is further than one step down from the rim they were trying to walk onto.
+   *
+   * ### Not by clearing [Grounded]
+   *
+   * That marker means "has been reconciled with the terrain at least once", and its own KDoc argues against
+   * exactly the heuristic that would make it do this job - snapping anything found below the terrain, which
+   * teleports a cave dweller to the surface. Two concerns, two mechanisms. What makes this one safe in a cave
+   * is that `ChunkWalkQuery` picks the standable surface *closest to where the entity already is*, so an
+   * entity on a cave floor in a column dug elsewhere stays on its cave floor.
+   *
+   * ### A prop is not an entity for this purpose
+   *
+   * A promoted prop carries both `PropPose` and `Position`, and its vertical is the pose's business - which is
+   * why the two components are separate at all. What happens to a prop whose ground has gone is decided in
+   * `world/prop/`, and snapping it into the hole first would only be undone there.
+   *
+   * A column whose chunks are still queued for a rebuild is left for the next tick rather than answered from a
+   * stale tile. That is the same trade the rebuild budget itself makes: pathing briefly wrong beats a hitch.
+   */
+  private fun regroundCarvedColumns(world: World) {
+    if (carvedColumns.isEmpty()) return
+
+    val derived = chunkService.derived()
+    val ready = carvedColumns.filterTo(HashSet()) { column -> !derived.isStale(anySlabOf(column)) }
+    if (ready.isEmpty()) return
+
+    carvedColumns.removeAll(ready)
+
+    val size = chunkService.config.chunkSize.toLong()
+    val standing = ArrayList<EntityId>()
+
+    world.query(Position::class).each { id ->
+      val position = get<Position>()
+      val column = pack(
+        Math.floorDiv(position.x, size).toInt(),
+        Math.floorDiv(position.y, size).toInt()
+      )
+      if (column in ready) standing.add(id)
+    }
+
+    for (entityId in standing) {
+      if (world.get(entityId, PropPose::class) != null) continue
+
+      val position = world.get(entityId, Position::class) ?: continue
+      val z = groundHeight.standingZAt(position.toVec3L()) ?: continue
+      if (z == position.z) continue
+
+      LOG.info { "Re-grounded entity $entityId after an edit at (${position.x},${position.y}): ${position.z} -> $z" }
+      position.z = z
+    }
+  }
+
+  /**
+   * A slab of [column] to ask [net.bestia.worldgen.derived.DerivedStore.isStale] about.
+   *
+   * Slab zero, because staleness is per chunk and the question being asked is only "has the rebuild budget
+   * caught up with this column yet" - and every chunk an edit touched was queued by the same edit, so any of
+   * them answers it. Naming one keeps this from walking a column's whole vertical extent to learn nothing more.
+   */
+  private fun anySlabOf(column: Long): ChunkPos {
+    return ChunkPos(unpackX(column), unpackY(column), 0)
+  }
+
   private companion object {
     private val LOG = KotlinLogging.logger { }
+
+    /** Two signed chunk coordinates in one long, so a column can be a `HashSet` member without allocating. */
+    private fun pack(x: Int, y: Int): Long {
+      return (x.toLong() shl 32) or (y.toLong() and 0xFFFFFFFFL)
+    }
+
+    private fun unpackX(column: Long): Int {
+      return (column shr 32).toInt()
+    }
+
+    private fun unpackY(column: Long): Int {
+      return column.toInt()
+    }
+
+    private fun columnOf(chunk: ChunkPos): Long {
+      return pack(chunk.x, chunk.y)
+    }
   }
 }
