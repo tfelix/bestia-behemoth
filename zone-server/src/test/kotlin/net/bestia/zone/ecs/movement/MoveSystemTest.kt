@@ -1,7 +1,9 @@
 package net.bestia.zone.ecs.movement
 
+import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.util.EntityId
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -18,22 +20,34 @@ class MoveSystemTest {
   /** A straight walk east along [flat], one waypoint per tile. */
   private fun straightPath(tiles: Int) = MutableList(tiles) { i -> Vec3L(i + 1L, 0, 100) }
 
-  /** Walks the whole path and returns where the entity ended up. */
-  private fun walk(path: List<Vec3L>, ground: GroundHeight): Position {
+  private class Walker(
+    val world: World,
+    val id: EntityId,
+    val position: Position,
+    val path: Path
+  )
+
+  /** An entity at the origin with [path] ahead of it, ready to be ticked. */
+  private fun walker(path: List<Vec3L>, speed: Float, ground: GroundHeight = flat): Walker {
     val world = testWorld(systems = listOf(MoveSystem(ground)))
     val id = world.create()
 
     val position = Position(0, 0, 100)
+    val pathComponent = Path(path.toMutableList())
     world.add(id, position)
-    world.add(id, Speed(1.0f))
-    world.add(id, Path(path.toMutableList()))
+    world.add(id, Speed(speed))
+    world.add(id, pathComponent)
 
-    // Ticked until the path is drained rather than a counted number of times: `MoveSystem` advances on
-    // `fraction > 1` strictly, so one tile per tick of unit speed is always one short and a count here would be
-    // asserting the rollover arithmetic rather than the height.
-    repeat(path.size * 2 + 2) { world.tick(1.0f) }
+    return Walker(world, id, position, pathComponent)
+  }
 
-    return position
+  /** Walks [path] to its end, one tile per tick, and returns where the entity ended up. */
+  private fun walk(path: List<Vec3L>, ground: GroundHeight): Position {
+    val walker = walker(path, speed = 1.0f, ground = ground)
+
+    repeat(path.size) { walker.world.tick(1.0f) }
+
+    return walker.position
   }
 
   @Test
@@ -59,18 +73,16 @@ class MoveSystemTest {
     // Path is synced to every client in range and entity.gd interpolates along it between position updates, so a
     // path left at the client's straight line makes observers draw the walk through the hill even though the
     // authoritative position is right.
-    val world = testWorld(systems = listOf(MoveSystem(ridge)))
-    val id = world.create()
+    val walker = walker(
+      listOf(Vec3L(1, 0, 100), Vec3L(2, 0, 100), Vec3L(3, 0, 100)),
+      speed = 1.0f,
+      ground = ridge
+    )
 
-    world.add(id, Position(0, 0, 100))
-    world.add(id, Speed(1.0f))
-    val path = Path(mutableListOf(Vec3L(1, 0, 100), Vec3L(2, 0, 100), Vec3L(3, 0, 100)))
-    world.add(id, path)
+    walker.world.tick(0.1f)
 
-    world.tick(0.1f)
-
-    assertEquals(listOf(101L, 102L, 103L), path.path.map { it.z }, "the ridge climbs one per step")
-    assertTrue(path.groundResolved)
+    assertEquals(listOf(101L, 102L, 103L), walker.path.path.map { it.z }, "the ridge climbs one per step")
+    assertTrue(walker.path.groundResolved)
   }
 
   @Test
@@ -87,7 +99,7 @@ class MoveSystemTest {
     world.add(id, Speed(1.0f))
     world.add(id, path)
 
-    // The first tick resolves the ground and takes no step; this is the one send observers get.
+    // The first tick is the one send observers get: the path arrives dirty, and the ground resolves on it.
     world.tick(1.0f)
     assertTrue(path.isDirty(), "the walk itself has to be announced")
     path.clearDirty()
@@ -95,7 +107,7 @@ class MoveSystemTest {
 
     world.tick(1.0f)
 
-    assertEquals(1L, position.x, "the entity did step")
+    assertEquals(2L, position.x, "the entity did step")
     assertFalse(path.isDirty(), "the shrinking remainder is not news")
     assertFalse(position.isDirty(), "nor is a step the client predicts for itself")
   }
@@ -176,5 +188,41 @@ class MoveSystemTest {
 
     assertEquals(1, position.x)
     assertEquals(137, position.z)
+  }
+
+  @Test
+  fun `a tick long enough to drain the path lands on the last waypoint instead of throwing`() {
+    // The removal is deferred to the end of the tick, so a path drained mid-loop is still attached on the next
+    // turn of the rollover - which used to call removeFirst on an empty list and abandon every later wave plus
+    // the tick's whole component sync.
+    val walker = walker(listOf(Vec3L(1, 0, 100), Vec3L(2, 0, 100)), speed = 4.0f)
+
+    // A second of travel at four tiles a second, against a path two tiles long.
+    walker.world.tick(1.0f)
+
+    assertEquals(2, walker.position.x)
+    assertFalse(walker.world.has(walker.id, Path::class), "the path is spent, so it is gone")
+    assertEquals(0f, walker.position.fraction, 1e-4f, "and its leftover travel does not carry to the next path")
+  }
+
+  @Test
+  fun `one tile of travel is one tile, not one tick short of it`() {
+    val walker = walker(listOf(Vec3L(1, 0, 100), Vec3L(2, 0, 100)), speed = 1.0f)
+
+    walker.world.tick(1.0f)
+
+    assertEquals(1, walker.position.x)
+  }
+
+  @Test
+  fun `a fresh path starts from this tile, not from the previous walk's leftover progress`() {
+    val walker = walker(listOf(Vec3L(1, 0, 100)), speed = 1.0f)
+
+    // Nine tenths of the way into the first step, then re-routed.
+    walker.world.tick(0.9f)
+    walker.path.setPath(listOf(Vec3L(0, 1, 100)))
+    walker.world.tick(0.5f)
+
+    assertEquals(0, walker.position.y, "half a step into a fresh path is not a whole step")
   }
 }

@@ -50,6 +50,15 @@ data class Path(
   val path: List<Vec3L>
     get() = _path.toList()
 
+  /**
+   * Whether any waypoint is left, without the copy [path] hands out on every read.
+   *
+   * [MoveSystem] asks this once per tile stepped, so on a long path the copies alone were quadratic in its
+   * length.
+   */
+  val isEmpty: Boolean
+    get() = _path.isEmpty()
+
   /** Hands out the next waypoint. Deliberately does not dirty the component - see the class note. */
   fun removeFirst(): Vec3L = _path.removeFirst()
 

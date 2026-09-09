@@ -44,20 +44,23 @@ class MoveSystem(private val ground: GroundHeight) : System {
 
         // A fresh path is a fresh walk, so the resync counter starts over with it.
         position.stepsSinceSync = 0
-      }
 
-      if (movementPath.path.isEmpty()) {
-        world.remove(id, Path::class)
+        // A fresh path starts from this tile, not from however far into its own step the walk before it had
+        // got. `entity.gd` anchors its prediction on the entity's current position when the path arrives, so
+        // a carried-over fraction is a disagreement from the very first step.
         position.fraction = 0f
-        return@each
       }
 
       // calculate the movement advances of the entity since the last call.
       position.fraction += speed.speed * deltaTime
 
-      // entity has moved more than one tile so its position can be updated.
       var stepped = 0
-      while (position.fraction > 1) {
+
+      // Emptiness bounds the loop rather than being handled inside it: the removal below is deferred to the
+      // end of the tick, so a path drained mid-loop is still attached on the next turn and `removeFirst`
+      // would throw - taking every later wave and the tick's whole component sync down with it. A tick long
+      // enough to cross several tiles does legitimately cross several tiles.
+      while (position.fraction >= 1 && !movementPath.isEmpty) {
         val nextPoint = movementPath.removeFirst()
 
         // The waypoint's z is the fallback, reached only for a column with no height - off the grid, or a
@@ -70,13 +73,16 @@ class MoveSystem(private val ground: GroundHeight) : System {
 
         LOG.trace { "Entity $id on $nextPoint" }
 
-        if (movementPath.path.isEmpty()) {
-          // The removal is the stop notification and reads this position off the entity, so the arrival
-          // needs no position sync of its own. See Path.toRemovedMessage.
-          world.remove(id, Path::class)
-        }
-
         position.fraction -= 1
+      }
+
+      if (movementPath.isEmpty) {
+        // The removal is the stop notification and reads this position off the entity, so the arrival
+        // needs no position sync of its own. See Path.toRemovedMessage.
+        world.remove(id, Path::class)
+
+        // The walk is over, so there is no part-step left to stand in.
+        position.fraction = 0f
       }
 
       // Every tick, stepped or not, so a path sent to a late observer says where the entity is now.
