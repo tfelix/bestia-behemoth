@@ -407,17 +407,21 @@ namespace BestiaBehemothClient.Game.World
     /// How upright ground has to be to grow grass, as the vertical component of its normal.
     /// </summary>
     /// <remarks>
-    /// 0.6 is about 53 degrees. Grass is drawn standing straight up whatever it grows on, which is right for a
-    /// slope and absurd for a wall: on a cliff face the blades would stand out of it sideways, and the
-    /// surface-nets mesh has plenty of near-vertical triangles where a terrace steps down.
+    /// <c>cos</c> of the steepest slope a player can walk, so grass stops exactly where walking does. Grass is
+    /// drawn standing straight up whatever it grows on, which is right for a slope and absurd for a wall, and
+    /// the surface-nets mesh has plenty of near-vertical triangles where a terrace steps down.
     ///
     /// <para>
-    /// Close to where <c>terrain_common.gdshaderinc</c>'s <c>cliff_start</c> sheds the loose cover off a slope,
-    /// which is not a coincidence and is worth keeping that way: the far-field grass tint is applied to what is
-    /// left after that shed, so the ground that stops being tinted is the ground that stops growing tufts.
+    /// The same surface <c>terrain_common.gdshaderinc</c>'s <c>cliff_start</c> sheds the loose cover at,
+    /// expressed in the other metric - see <see cref="TerrainMaterials.SetWalkableSlope"/>. The two used to be
+    /// chosen to sit near each other and now meet by construction, which matters because the far-field grass
+    /// tint is applied to what is left after that shed: the ground that stops being tinted has to be the
+    /// ground that stops growing tufts.
     /// </para>
     /// </remarks>
-    [Export(PropertyHint.Range, "0,1,0.01")] public float MinUpright { get; set; } = 0.6f;
+    [Export(PropertyHint.Range, "0,1,0.01")]
+    public float MinUpright { get; set; } =
+      (float)System.Math.Cos(System.Math.PI * WorldLayout.MaxWalkSlopeDegrees / 180.0);
 
     /// <summary>
     /// How wide the band is over which a blade grows in at the fade front, as a share of its cell.

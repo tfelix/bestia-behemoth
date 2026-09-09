@@ -1,3 +1,4 @@
+using System;
 using BestiaBehemothClient.Game.World.Mesh;
 using Godot;
 
@@ -63,9 +64,46 @@ namespace BestiaBehemothClient.Game.World
       };
 
       materials.BuildSlotTextures();
+      materials.SetWalkableSlope(WorldLayout.MaxWalkSlopeDegrees);
       materials._uvScale = shipping.GetShaderParameter(SlotUvScale).AsFloat32Array();
 
       return materials;
+    }
+
+    /// <summary>
+    /// Moves the point cover gives way to rock to the point a player can no longer walk.
+    /// </summary>
+    /// <remarks>
+    /// The shader measures steepness as <c>1 - abs(normal.y)</c> - zero flat, one vertical - so an angle
+    /// becomes a threshold through <c>1 - cos</c>. <see cref="TerrainGrass.MinUpright"/> is the same surface in
+    /// the other metric, <c>cos</c> of the same angle, which is why the two now meet by construction rather
+    /// than by having been chosen to sit near each other.
+    ///
+    /// <para>
+    /// The two rules still measure different things and will not agree to the pixel: the server takes a finite
+    /// difference between adjacent columns, this takes a surface-nets mesh normal, and the normal wobbles at
+    /// one-voxel features. They part company at a ledge, where it reads near-vertical and the server still
+    /// sees one metre of rise. Close enough to tell a player where to walk, not a contract.
+    /// </para>
+    ///
+    /// <para>
+    /// It also moves the snowline, because <c>terrain_common.gdshaderinc</c> reads the same two uniforms
+    /// backwards to decide where snow settles. Snow not sticking to a cliff is the same statement about the
+    /// same ground, so that follows rather than fights.
+    /// </para>
+    /// </remarks>
+    public void SetWalkableSlope(double degrees)
+    {
+      var start = (float)(1.0 - Math.Cos(Math.PI * degrees / 180.0));
+      var end = (float)(1.0 - Math.Cos(Math.PI * Math.Min(degrees + CliffBandDegrees, 89.0) / 180.0));
+
+      Shipping?.SetShaderParameter(CliffStart, start);
+      Shipping?.SetShaderParameter(CliffEnd, end);
+
+      // The debug material too, or pressing the debug key shows a world with a different cliff line than the
+      // one being judged.
+      Debug?.SetShaderParameter(CliffStart, start);
+      Debug?.SetShaderParameter(CliffEnd, end);
     }
 
     private static readonly StringName AlbedoHeight = "albedo_height";
@@ -73,6 +111,18 @@ namespace BestiaBehemothClient.Game.World
     private static readonly StringName SlotReferenceTint = "slot_reference_tint";
     private static readonly StringName SlotUvScale = "slot_uv_scale";
     private static readonly StringName SlotUvOrigin = "slot_uv_origin";
+    private static readonly StringName CliffStart = "cliff_start";
+    private static readonly StringName CliffEnd = "cliff_end";
+
+    /// <summary>
+    /// How much steeper than walkable the ground has to get before it is drawn as bare rock throughout.
+    /// </summary>
+    /// <remarks>
+    /// The band exists because a hard edge at one angle reads as a painted line rather than as rock. Fifteen
+    /// degrees is wide enough to look like a transition and narrow enough that the middle of it is still
+    /// visibly past the point a player can walk.
+    /// </remarks>
+    private const double CliffBandDegrees = 15.0;
 
     /// <summary>
     /// Assembles the texture array and tells the shader what colour each layer is.

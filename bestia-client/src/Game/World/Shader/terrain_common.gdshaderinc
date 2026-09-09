@@ -199,6 +199,10 @@ group_uniforms Slope;
 
 // Where loose cover starts giving way to bare rock, and where it has entirely gone. Slope is zero on flat
 // ground and one on a vertical face.
+//
+// Both are overwritten at load by TerrainMaterials.SetWalkableSlope, from the steepest slope a player can
+// actually walk: cover begins to go exactly where walking stops, so the terrain tells a player what the
+// server will refuse. The values below are what the editor shows with no server attached.
 uniform float cliff_start : hint_range(0.0, 1.0) = 0.35;
 uniform float cliff_end : hint_range(0.0, 1.0) = 0.62;
 
@@ -612,8 +616,9 @@ TerrainSurface terrain_surface(vec3 tint) {
 	// reads at any distance; a step in grain does not.
 	//
 	// Keyed on the grass weight *after* the cliff shed above, so a grassy slope too steep to grow a tuft on is
-	// also too steep to be tinted like one - MinUpright and cliff_start very nearly agree, which is worth
-	// keeping that way. DRY_GRASS is deliberately excluded, because TerrainGrass does not scatter on it either.
+	// also too steep to be tinted like one - MinUpright and cliff_start are the same walkable-slope angle in
+	// two metrics, so they agree by construction rather than by having been chosen to sit near each other.
+	// DRY_GRASS is deliberately excluded, because TerrainGrass does not scatter on it either.
 	//
 	// Applied before the snow and wetness below, so far grass still darkens in rain and is still buried by
 	// snow rather than showing through it.
@@ -706,6 +711,8 @@ TerrainSurface terrain_surface(vec3 tint) {
 	// It settles on what faces up, melts above a temperature, and fills hollows first - which is what the
 	// height channel is doing in the mask.
 	float cold = smoothstep(snow_melt_celsius + 3.0, snow_melt_celsius, weather_temperature);
+	// The cliff band read backwards, so the snowline moves with the walkable slope - snow does not stick to a
+	// cliff, and a cliff is what that angle now means.
 	float settled = smoothstep(cliff_end, cliff_start, surface.slope) * max(world_normal.y, 0.0);
 	float snow = clamp(weather_snow, 0.0, 1.0) * cold * settled;
 
