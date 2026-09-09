@@ -58,7 +58,12 @@ class MoveActiveEntityHandlerTest {
     override fun isResident(position: Vec3L) = abs(position.z) < 10
   }
 
-  private fun handlerFor(world: World, entityId: EntityId, walkQuery: LocalWalkQuery): MoveActiveEntityHandler {
+  private fun handlerFor(
+    world: World,
+    entityId: EntityId,
+    walkQuery: LocalWalkQuery,
+    rateLimit: MoveRequestRateLimit = MoveRequestRateLimit(ZoneConfig(tickRate = 20)),
+  ): MoveActiveEntityHandler {
     val connectionInfoService = ConnectionInfoService()
     connectionInfoService.activateSession(accountId, masterId = 1L, masterEntityId = entityId)
 
@@ -71,6 +76,7 @@ class MoveActiveEntityHandlerTest {
       deadActionGuard = DeadActionGuard(world),
       walkQuery = walkQuery,
       zoneConfig = ZoneConfig(tickRate = 20),
+      rateLimit = rateLimit,
     )
   }
 
@@ -199,5 +205,41 @@ class MoveActiveEntityHandlerTest {
     handler.handle(MoveActiveEntityCMSG(playerId = accountId, path = emptyList()))
 
     assertNull(world.get(id, Path::class))
+  }
+
+  @Test
+  fun `an account over its request rate is ignored rather than served`() {
+    val world = testWorld()
+    val id = world.create()
+    world.add(id, Position(0, 0, 0))
+
+    // Two tokens and no refill, so the assertion does not depend on how long the test itself takes.
+    val exhausted = MoveRequestRateLimit(
+      ZoneConfig(tickRate = 20, moveRequestsPerSecond = 0f, moveRequestBurst = 2f)
+    )
+    val handler = handlerFor(world, id, OpenWalkQuery(), exhausted)
+
+    repeat(2) {
+      handler.handle(MoveActiveEntityCMSG(playerId = accountId, path = listOf(Vec3L(1, 0, 0))))
+    }
+    world.remove(id, Path::class)
+
+    handler.handle(MoveActiveEntityCMSG(playerId = accountId, path = listOf(Vec3L(1, 0, 0))))
+
+    assertNull(world.get(id, Path::class), "the request past the burst never reached the world")
+  }
+
+  @Test
+  fun `a burst of clicking is served, because that is what clicking looks like`() {
+    val world = testWorld()
+    val id = world.create()
+    world.add(id, Position(0, 0, 0))
+    val handler = handlerFor(world, id, OpenWalkQuery())
+
+    repeat(10) {
+      handler.handle(MoveActiveEntityCMSG(playerId = accountId, path = listOf(Vec3L(1, 0, 0))))
+    }
+
+    assertTrue(world.get(id, Path::class) != null, "ten clicks is a person, not an attack")
   }
 }
