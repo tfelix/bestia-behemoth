@@ -9,7 +9,7 @@ import net.bestia.worldgen.spawn.SpawnerChannels
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.PointMarker
 import net.bestia.zone.bestia.Bestia
-import net.bestia.zone.bestia.BestiaRepository
+import net.bestia.zone.bestia.BestiaCatalogue
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.world.WorldService
 import net.bestia.zone.world.stream.ChunkCoords
@@ -63,7 +63,7 @@ import kotlin.math.roundToInt
 @Service
 class WildSpawnerService(
   private val worldService: WorldService,
-  private val bestiaRepository: BestiaRepository,
+  private val bestiaCatalogue: BestiaCatalogue,
   private val config: WildSpawnConfig
 ) {
 
@@ -88,11 +88,10 @@ class WildSpawnerService(
   private fun resolve(): List<Den> {
     val excluded = config.excludedSpecies.toSet()
 
-    // `sortedBy { id }` is load bearing, not tidiness. The weighted draw walks the eligible list in order,
-    // so the class's promise that a den holds the same species on every boot rested on MariaDB happening to
-    // return rows in insertion order. Invisible with two species; a bestiary that reshuffles after a table
-    // reorg with thirty.
-    val all = bestiaRepository.findAll().sortedBy { it.id }
+    // The weighted draw walks the eligible list in order, so a den holds the same species on every boot
+    // only because `BestiaCatalogue` promises a stable one. Invisible with two species; a bestiary that
+    // reshuffles after a table reorg with thirty.
+    val all = bestiaCatalogue.all()
     val catalogue = all.filterNot { it.identifier in excluded }.map(::Candidate)
 
     val unmatched = excluded - all.map { it.identifier }.toSet()
