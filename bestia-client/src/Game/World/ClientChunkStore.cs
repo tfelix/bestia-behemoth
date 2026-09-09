@@ -72,6 +72,34 @@ namespace BestiaBehemothClient.Game.World
 
     public int AnnouncedCount => _announced.Count;
 
+    /// <summary>
+    /// Horizontal columns the announced set covers, and how many of those are held in full.
+    /// </summary>
+    /// <remarks>
+    /// The unit is the column rather than the chunk because only the column count is stable: the server's
+    /// desired set grows tick by tick as its slab budget costs new ground, so a chunk-based fraction would
+    /// run backwards. A column absent here has not been offered yet - <c>ChunkCoords.offeredSlabs</c> always
+    /// offers the player's own slab, so an offered column is a costed one.
+    /// </remarks>
+    public (int Delivered, int Announced) ColumnProgress()
+    {
+      var columns = new HashSet<long>();
+      var incomplete = new HashSet<long>();
+
+      foreach (var key in _announced.Keys)
+      {
+        var column = ((long)key.X << 32) | (uint)key.Y;
+        columns.Add(column);
+
+        if (!_held.ContainsKey(key))
+        {
+          incomplete.Add(column);
+        }
+      }
+
+      return (columns.Count - incomplete.Count, columns.Count);
+    }
+
     public VoxelChunk Get(ChunkKey key) => _held.TryGetValue(key, out var held) ? held.Chunk : null;
 
     public ChunkBands BandsOf(ChunkKey key) => _held.TryGetValue(key, out var held) ? held.Bands : null;

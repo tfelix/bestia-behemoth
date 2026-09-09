@@ -2,9 +2,27 @@ using Godot;
 
 namespace BestiaBehemothClient.Game.World
 {
+  /// <summary>What a cell of the field is drawn with, coarsening with distance.</summary>
+  /// <remarks>
+  /// Each tier holds the coverage the one in front of it gave up, in its own currency rather than by growing
+  /// the plants: tussocks stand in for groups of tufts, and past them the terrain shader draws the canopy on
+  /// the ground itself. <see cref="GrassLod.CoverageScale"/> says why size cannot be that currency.
+  /// </remarks>
+  public enum GrassTier
+  {
+    /// <summary><c>grass2</c>'s tuft, at its authored size.</summary>
+    Tuft,
+
+    /// <summary><see cref="GrassTussock"/>'s crown, one per group of tufts.</summary>
+    Tussock,
+
+    /// <summary>No geometry. The ground carries the field from here to the fog.</summary>
+    None
+  }
+
   /// <summary>
-  /// The arithmetic behind <see cref="TerrainGrass"/>'s level of detail: how much of a cell to draw, how big to
-  /// draw it, and how to stay inside a budget.
+  /// The arithmetic behind <see cref="TerrainGrass"/>'s level of detail: which representation a cell is drawn
+  /// with, how much of it to draw, how big, and how to stay inside a budget.
   /// </summary>
   /// <remarks>
   /// Static and free of every Godot node type on purpose. <see cref="TerrainGrass"/> is a <c>Node3D</c> and
@@ -78,29 +96,25 @@ namespace BestiaBehemothClient.Game.World
     }
 
     /// <summary>
-    /// How much bigger to draw each surviving clump so that a thinned cell still covers its ground.
+    /// How much bigger to draw each surviving plant so that a thinned cell still covers its ground.
     /// </summary>
     /// <remarks>
-    /// <b>Why thinning is visible at all.</b> How much of the ground a cell hides is
-    /// <c>count * footprint</c>, and a clump's footprint goes with the square of its scale. So dropping the
-    /// count to a fraction <c>f</c> and scaling what is left by <c>1/sqrt(f)</c> leaves the product where it
-    /// was - the field holds its coverage and what changes is the grain, from many small clumps to fewer larger
-    /// ones. That identity is the whole trick, and it is what
-    /// <c>GrassLodTest.CoverageIsHeldWhileTheScaleHasHeadroom</c> pins.
+    /// Coverage is <c>count * footprint</c> and a plant's footprint goes with the square of its scale, so a cell
+    /// cut to a fraction <c>f</c> holds its coverage if what is left grows by <c>1/sqrt(f)</c>.
     ///
     /// <para>
-    /// <paramref name="maxScale"/> is where it stops, and past that point coverage does fall again - which is
-    /// wanted rather than tolerated. Compensation all the way down would end the field in clumps the size of
-    /// bushes; saturating instead means the far edge fades out as before, only much further away than the
-    /// uncompensated one did.
+    /// <b>Bounded low, and fed a distance-only fraction.</b> A plant's size is a silhouette the player measures
+    /// against their own character, so it can absorb only a little and it must never move with the frame's
+    /// budget - see <c>TerrainGrass.Retune</c>, which is what feeds it. Coverage the geometry gives up beyond
+    /// that is held by the tussock tier and then by the ground itself, not by growing what is left: see
+    /// <see cref="TierAt"/> and <c>grass_field_correction</c> in <c>terrain_common.gdshaderinc</c>.
     /// </para>
     ///
     /// <para>
-    /// <paramref name="strength"/> exists to be turned to 0 in the inspector while the game runs. Coarser grain
-    /// at distance is a look, and a look is judged by eye against the alternative rather than argued about.
+    /// <paramref name="strength"/> of 0 turns the compensation off in the inspector while the game runs.
     /// </para>
     /// </remarks>
-    /// <returns>A multiplier on the clump's own scale, never below 1.</returns>
+    /// <returns>A multiplier on the plant's own scale, never below 1.</returns>
     public static float CoverageScale(float fraction, float strength, float maxScale)
     {
       // A cell drawing nothing is not thin, it is absent, and 1/sqrt(0) is not a number. Anything at or below
@@ -128,11 +142,11 @@ namespace BestiaBehemothClient.Game.World
     /// short to stay affordable.
     ///
     /// <para>
-    /// It also composes with <see cref="CoverageScale"/> without any special case, because what comes out is
-    /// still a fraction in [0, 1] and the compensation only ever sees the number the cell is actually drawing
-    /// at. What the far field loses in coverage is now the terrain shader's to give back - see
-    /// <c>grass_field_correction</c> in <c>terrain_common.gdshaderinc</c> - which is what makes thinning it
-    /// this hard safe at all.
+    /// <b>Thins counts and nothing else.</b> <see cref="CoverageScale"/> is deliberately not fed this, so no
+    /// amount of budget pressure can change how big a plant is drawn. What the far field loses in coverage is
+    /// the terrain shader's to give back - <c>grass_field_correction</c> in
+    /// <c>terrain_common.gdshaderinc</c>, ramped over the same band at this same exponent - which is what makes
+    /// thinning it this hard safe at all.
     /// </para>
     ///
     /// <para>
@@ -279,30 +293,24 @@ namespace BestiaBehemothClient.Game.World
     }
 
     /// <summary>
-    /// The factor every cell's share is multiplied by to bring the whole field inside its instance budget.
+    /// The factor every cell's share is multiplied by to bring the whole field inside its triangle budget.
     /// </summary>
     /// <remarks>
-    /// <b>This is what makes the range safe to turn up</b>, and it is <c>BuildBudgetMillis</c>'s argument moved
-    /// from build cost to draw cost: raising <c>FadeOutMetres</c> should make the field *reach further* rather
-    /// than make frames longer. Without it, the band scaling above turns a zoom-out into an unbounded triangle
-    /// count, since the ground on screen grows with the square of the camera distance.
-    ///
-    /// <para>
-    /// <b>A backstop now rather than the main mechanism.</b> <see cref="Sharpen"/> is what actually fits the
-    /// field into the budget, and it does it by distance so the near field is never touched. This stays on top
-    /// as a hard ceiling for the few frames <see cref="NextExponent"/> takes to catch up after the view swings,
-    /// and returns 1 once it has.
-    /// </para>
+    /// <b>A backstop, not the main mechanism.</b> <see cref="Sharpen"/> is what fits the field into the budget,
+    /// and it does it by distance so the near field is never touched. This stays on top as a hard ceiling for
+    /// the few frames <see cref="NextExponent"/> takes to catch up after the view swings, and returns 1 once it
+    /// has.
     ///
     /// <para>
     /// Proportional rather than a cutoff at some radius, because a cutoff moves the fade edge inward under load
-    /// - the field visibly retreats. Trimming everything by the same share thins uniformly instead, and the
-    /// coverage compensation above is fed the trimmed fraction, so what the budget takes in count it gives back
-    /// in clump size for as long as that has headroom.
+    /// and the field visibly retreats. Trimming everything by the same share thins uniformly instead - and it
+    /// thins counts only, because <see cref="CoverageScale"/> is not fed this.
     /// </para>
     ///
     /// <para>
-    /// A <paramref name="maxVisible"/> of zero or less means no budget at all.
+    /// Both arguments are triangles rather than instances: a tussock stands in for a group of tufts at a
+    /// fraction of their cost, so pricing the two alike would spend the budget on whichever the field happened
+    /// to be drawing. A <paramref name="maxVisible"/> of zero or less means no budget at all.
     /// </para>
     /// </remarks>
     public static float BudgetTrim(int wantedTotal, int maxVisible)
@@ -313,6 +321,60 @@ namespace BestiaBehemothClient.Game.World
       }
 
       return maxVisible / (float)wantedTotal;
+    }
+
+    /// <summary>Which representation a cell at this distance is drawn with.</summary>
+    /// <remarks>
+    /// One tier per cell, never two. Carrying both meshes for the cells straddling an edge doubles the nodes
+    /// and the instance-uniform blocks they each hold forever - see <c>TerrainGrass.ScaledMaterial</c> - to
+    /// smooth a ring that <see cref="CellDither"/> already breaks up.
+    /// </remarks>
+    public static GrassTier TierAt(float distance, float tuftEnd, float tussockEnd)
+    {
+      if (distance < tuftEnd)
+      {
+        return GrassTier.Tuft;
+      }
+
+      return distance < tussockEnd ? GrassTier.Tussock : GrassTier.None;
+    }
+
+    /// <summary>How full a cell's own tier is at this distance, before any budget was taken out of it.</summary>
+    /// <remarks>
+    /// <b>The one number <see cref="CoverageScale"/> may be fed, and it takes no budget argument on purpose.</b>
+    /// A plant's size is a silhouette the player measures against their own character, so a frame the budget
+    /// squeezes must not change it - and the way to guarantee that is for the arithmetic to have no way of
+    /// seeing the budget, rather than for a comment to ask the next reader not to pass it one.
+    ///
+    /// <para>
+    /// Each tier is full at its near edge and tapers to nothing at its far one, so the two bands hand over at
+    /// <paramref name="tuftEnd"/> with the arriving tier already at full.
+    /// </para>
+    /// </remarks>
+    public static float TierCoverage(
+      GrassTier tier, float distance, float fullMetres, float tuftEnd, float tussockEnd) => tier switch
+    {
+      GrassTier.Tuft => FractionAt(distance, fullMetres, tuftEnd),
+      GrassTier.Tussock => FractionAt(distance, tuftEnd, tussockEnd),
+      _ => 0.0f
+    };
+
+    /// <summary>How far to move one cell's tier edges, in cells, so the boundary is not a clean circle.</summary>
+    /// <remarks>
+    /// Tufts and tussocks are close enough in colour and silhouette that the eye finds the transition by its
+    /// <i>shape</i>. A ragged edge has no shape to find. Hashed from the cell key so a cell's own edge does not
+    /// move while the player walks, which would make it flip tiers repeatedly.
+    /// </remarks>
+    /// <returns>A stable offset in [-0.5, 0.5].</returns>
+    public static float CellDither(long cell)
+    {
+      var x = (uint)cell ^ (uint)(cell >> 32);
+
+      x ^= x >> 16;
+      x *= 0x7FEB352Du;
+      x ^= x >> 15;
+
+      return (x >> 8) * (1.0f / 16777216.0f) - 0.5f;
     }
 
     /// <summary>

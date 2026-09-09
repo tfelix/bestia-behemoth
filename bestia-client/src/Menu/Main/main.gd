@@ -9,7 +9,7 @@ extends Control
 
 func _ready() -> void:
 	ConnectionManager.disconnect_from_server()
-	_version_label.text = SettingsManager.version
+	_version_label.text = SettingsManager.VERSION
 	_reset_buttons()
 
 	ConnectionManager.passkey_browser_opened.connect(_on_passkey_browser_opened)

@@ -30,7 +30,7 @@ layout_mode = 2
 mouse_filter = 2
 script = ExtResource("2_mapview")
 show_north = true
-marker_scale = 3.0
+marker_scale = 2.0
 
 [node name="Hint" type="Label" parent="Margin" unique_id=230960757]
 layout_mode = 2

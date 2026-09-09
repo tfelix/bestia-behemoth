@@ -826,5 +826,176 @@ namespace BestiaBehemothClient.Tests
       Assert.Equal(1.0f, GrassLod.Appear(0.0f, 1.0f, 1.0f / 60.0f, 0.0f));
       Assert.Equal(0.0f, GrassLod.Appear(1.0f, 0.0f, 1.0f / 60.0f, 0.0f));
     }
+
+    /// <summary>
+    /// A plant's world size cannot be changed by the budget, at any zoom and any load.
+    /// </summary>
+    /// <remarks>
+    /// <b>The bug in the screenshots, stated as a property.</b> The field met its budget by thinning the
+    /// scatter and growing what was left, and the trim that did the thinning was flat - so zooming out, which
+    /// puts far more ground in the wedge, inflated the tuft the player was standing next to. Against a 2.09 m
+    /// master, a 0.80 m tuft spread to 1.04 reached 2.70 m and was taller than the character.
+    ///
+    /// <para>
+    /// <see cref="GrassLod.TierCoverage"/> takes no budget argument, so the guarantee is structural rather than
+    /// remembered. This pins the consequence: the same distance answers the same coverage however hard the
+    /// field is being squeezed.
+    /// </para>
+    /// </remarks>
+    [Fact]
+    public void BudgetPressureNeverChangesHowBigAPlantIsDrawn()
+    {
+      foreach (var zoom in new[] { 8.0f, 10.0f, 20.0f, 36.0f })
+      {
+        var band = GrassLod.BandScale(zoom, 10.0f, 0.5f, 2.5f);
+
+        var full = 15.0f * band;
+        var tuftEnd = 26.0f * band;
+        var fade = 150.0f * band;
+
+        // Ground the player is standing on, which is what the bug reached.
+        var here = GrassLod.TierAt(0.0f, tuftEnd, fade);
+        var coverage = GrassLod.TierCoverage(here, 0.0f, full, tuftEnd, fade);
+
+        Assert.Equal(GrassTier.Tuft, here);
+        Assert.Equal(1.0f, coverage);
+        Assert.Equal(1.0f, GrassLod.CoverageScale(coverage, 1.0f, 1.2f));
+
+        // And every exponent and trim the controller can reach leaves that alone, because neither is an input.
+        for (var exponent = 1.0f; exponent <= 6.0f; exponent += 0.5f)
+        {
+          Assert.Equal(coverage, GrassLod.TierCoverage(here, 0.0f, full, tuftEnd, fade));
+          Assert.Equal(1.0f, GrassLod.Sharpen(coverage, exponent));
+        }
+      }
+    }
+
+    /// <summary>
+    /// The tallest plant the field can draw stays under the player's own height.
+    /// </summary>
+    /// <remarks>
+    /// The master's pick capsule is 2.09 m and the field is <c>Height</c> 0.80 spread by 0.30, so the ceiling
+    /// that matters is on the product. At <c>MaxCoverageScale</c> 1.2 that is 1.25 m, about waist height; the
+    /// 2.6 it replaced gave 2.70 m.
+    /// </remarks>
+    [Fact]
+    public void TheTallestPlantStaysShorterThanTheCharacter()
+    {
+      const float Character = 2.09f;
+      const float Tallest = 0.8f * 1.3f;
+
+      var grown = Tallest * GrassLod.CoverageScale(0.0001f, 1.0f, 1.2f);
+
+      Assert.True(grown < Character, $"a plant may reach {grown} m against a {Character} m character");
+      Assert.Equal(1.25f, grown, 2);
+    }
+
+    /// <summary>Tiers coarsen with distance and never go back, whatever the dither did to the edges.</summary>
+    [Fact]
+    public void TiersOnlyEverCoarsenWithDistance()
+    {
+      const float TuftEnd = 26.0f;
+      const float Fade = 150.0f;
+
+      var previous = GrassTier.Tuft;
+
+      for (var distance = 0.0f; distance < 220.0f; distance += 0.5f)
+      {
+        var tier = GrassLod.TierAt(distance, TuftEnd, Fade);
+
+        Assert.True(tier >= previous, $"at {distance} m the field went back from {previous} to {tier}");
+
+        previous = tier;
+      }
+
+      Assert.Equal(GrassTier.Tuft, GrassLod.TierAt(0.0f, TuftEnd, Fade));
+      Assert.Equal(GrassTier.Tussock, GrassLod.TierAt(100.0f, TuftEnd, Fade));
+      Assert.Equal(GrassTier.None, GrassLod.TierAt(200.0f, TuftEnd, Fade));
+    }
+
+    /// <summary>Each tier hands over at full, so the ring between two of them is not a trough.</summary>
+    /// <remarks>
+    /// Both bands taper to nothing at their own far edge and start full at their near one. If the tussocks
+    /// began part-grown the hand-off would be a visible dip in cover, which is the thing three tiers exist to
+    /// avoid.
+    /// </remarks>
+    [Fact]
+    public void TheTiersHandOverAtFullCoverage()
+    {
+      const float Full = 15.0f;
+      const float TuftEnd = 26.0f;
+      const float Fade = 150.0f;
+
+      Assert.Equal(0.0f, GrassLod.TierCoverage(GrassTier.Tuft, TuftEnd, Full, TuftEnd, Fade));
+      Assert.Equal(1.0f, GrassLod.TierCoverage(GrassTier.Tussock, TuftEnd, Full, TuftEnd, Fade));
+      Assert.Equal(0.0f, GrassLod.TierCoverage(GrassTier.Tussock, Fade, Full, TuftEnd, Fade));
+
+      // Nothing outside a tier of its own.
+      Assert.Equal(0.0f, GrassLod.TierCoverage(GrassTier.None, 10.0f, Full, TuftEnd, Fade));
+    }
+
+    /// <summary>The dither is bounded, stable and actually spread out.</summary>
+    /// <remarks>
+    /// Bounded because it moves a tier edge by that many cells and a cell is 8 m; stable because a cell whose
+    /// edge moved while the player walked would flip tiers repeatedly; spread because a hash that clustered
+    /// would leave the ring it exists to break up.
+    /// </remarks>
+    [Fact]
+    public void TheDitherIsBoundedStableAndSpread()
+    {
+      var low = 0;
+      var high = 0;
+
+      for (var x = -40L; x < 40L; x++)
+      {
+        for (var z = -40L; z < 40L; z++)
+        {
+          var cell = (x << 32) ^ (uint)z;
+          var dither = GrassLod.CellDither(cell);
+
+          Assert.InRange(dither, -0.5f, 0.5f);
+          Assert.Equal(dither, GrassLod.CellDither(cell));
+
+          if (dither < 0.0f)
+          {
+            low++;
+          }
+          else
+          {
+            high++;
+          }
+        }
+      }
+
+      // A hash that answered one side of the edge for most cells would give back the clean ring.
+      Assert.InRange(low / (float)(low + high), 0.4f, 0.6f);
+    }
+
+    /// <summary>
+    /// The budget is spent in triangles, so the cheap tier buys the reach it is there for.
+    /// </summary>
+    /// <remarks>
+    /// A tussock stands in for a group of tufts at about a quarter of their triangles. Priced per instance the
+    /// two look alike and the mid band is charged for cover it delivers far more cheaply than the near one.
+    /// </remarks>
+    [Fact]
+    public void TheCheapTierCostsLessOfTheBudget()
+    {
+      const int Budget = 1_200_000;
+      const int Tuft = 72;
+      const int Tussock = 19;
+      const int PerTussock = 24;
+
+      // The same ground, drawn either way.
+      const int Tufts = 20_000;
+
+      var asTufts = Tufts * Tuft;
+      var asTussocks = Tufts / PerTussock * Tussock;
+
+      Assert.True(asTussocks * 20 < asTufts, $"{asTussocks} against {asTufts} is not the saving the tier is for");
+
+      Assert.Equal(1.0f, GrassLod.BudgetTrim(asTussocks, Budget));
+      Assert.True(GrassLod.BudgetTrim(asTufts * 2, Budget) < 1.0f);
+    }
   }
 }

@@ -10,12 +10,29 @@ extends Node3D
 const TerrainRendererScript = preload("res://Game/World/TerrainRenderer.cs")
 const StaticEntityRendererScript = preload("res://Game/World/StaticEntityRenderer.cs")
 const TerrainGrassScript = preload("res://Game/World/TerrainGrass.cs")
+const MouseManagerScript = preload("res://Game/Mouse/mouse_manager.gd")
+const MovementPilotScript = preload("res://Game/Movement/movement_pilot.gd")
 
 var _terrain: Node3D = null
 var _props: Node3D = null
 var _grass: Node3D = null
+var _mouse: MouseManager = null
+var _pilot: MovementPilot = null
 
 func _ready() -> void:
+	# Everything the mouse layer holds is world state, so it lives and dies with this scene rather than
+	# with the process. Added first: it joins its group in _enter_tree(), so it is findable the moment
+	# add_child returns, and every caller resolves it through MouseManager.get_instance().
+	_mouse = MouseManagerScript.new()
+	_mouse.name = "MouseManager"
+	add_child(_mouse)
+
+	# Steers the player towards a map pin or a prop. Scene-scoped for the same reason: a walk in
+	# progress means nothing once the world it was crossing is gone.
+	_pilot = MovementPilotScript.new()
+	_pilot.name = "MovementPilot"
+	add_child(_pilot)
+
 	_terrain = TerrainRendererScript.new()
 	_terrain.name = "Terrain"
 	add_child(_terrain)
@@ -50,6 +67,11 @@ func _exit_tree() -> void:
 	if ConnectionManager.chunk_stream != null:
 		ConnectionManager.chunk_stream.Renderer = null
 		ConnectionManager.chunk_stream.StaticEntities = null
+
+		# The connection can outlive this scene - returning to master selection does exactly that - and the
+		# zone drops the subscription the moment the account has no active entity. Terrain kept past that
+		# receives no more patches.
+		ConnectionManager.chunk_stream.ResetView()
 
 	# The terrain and the grass die together with this scene, so this is only about not leaving a freed node
 	# reachable in between.

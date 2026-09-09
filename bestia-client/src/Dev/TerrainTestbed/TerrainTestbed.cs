@@ -493,7 +493,7 @@ namespace BestiaBehemothClient.Dev
         "cliff_start", "cliff_end",
         "wetness_darkening", "wetness_roughness",
         "snow_colour", "snow_melt_celsius",
-        "grass_field_correction"
+        "grass_field_correction", "grass_canopy_grain", "grass_canopy_relief", "grass_canopy_scale"
       };
 
       foreach (var parameter in tuning)

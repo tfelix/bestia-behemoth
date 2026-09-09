@@ -4,7 +4,7 @@
 [ext_resource type="PackedScene" uid="uid://coopsp0c6tacr" path="res://Game/UI/UI.tscn" id="2_eqev2"]
 [ext_resource type="PackedScene" uid="uid://ykdxpspi6cly" path="res://Game/Environment/Environment.tscn" id="3_jxerj"]
 [ext_resource type="Script" uid="uid://cnjm7a2eprhpj" path="res://Game/entity_manager.gd" id="9_eqev2"]
-[ext_resource type="Script" uid="uid://q7faijbdj6o4" path="res://Game/MouseMarker/mouse_marker.gd" id="11_msmrk"]
+[ext_resource type="Script" uid="uid://q7faijbdj6o4" path="res://Game/Mouse/mouse_marker.gd" id="11_msmrk"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_oscxy"]
 transparency = 1

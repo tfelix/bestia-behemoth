@@ -199,7 +199,7 @@ func _toggle_all_gi() -> void:
 
 ## Takes the grass field's draw budget away, which takes its whole level-of-detail controller with it.
 ##
-## [code]MaxVisibleInstances[/code] of 0 means no budget, and that is a bigger switch than it sounds: with no
+## [code]MaxVisibleTriangles[/code] of 0 means no budget, and that is a bigger switch than it sounds: with no
 ## budget [code]GrassLod.BudgetTrim[/code] returns 1 and [code]GrassLod.NextExponent[/code] returns 1, so
 ## the per-frame feedback loop that thins the far field is out of the picture, and so is the
 ## [code]grass_field_falloff[/code] global it publishes to the terrain shader every frame. If the ground
@@ -213,12 +213,12 @@ func _toggle_grass_budget() -> void:
 		return
 
 	if _saved_budget < 0:
-		_saved_budget = grass.MaxVisibleInstances
-		grass.MaxVisibleInstances = 0
+		_saved_budget = grass.MaxVisibleTriangles
+		grass.MaxVisibleTriangles = 0
 		print("[render debug] grass draw budget: off (was %d)" % _saved_budget)
 		return
 
-	grass.MaxVisibleInstances = _saved_budget
+	grass.MaxVisibleTriangles = _saved_budget
 	print("[render debug] grass draw budget: %d" % _saved_budget)
 	_saved_budget = -1
 

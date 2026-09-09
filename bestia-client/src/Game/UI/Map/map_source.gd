@@ -613,7 +613,7 @@ func _write_through(key: String, png: PackedByteArray, dir_path: String, index: 
 
 
 func _base() -> String:
-	return SettingsManager.map_server_url
+	return SettingsManager.get_instance().map_server_url
 
 
 func _headers() -> PackedStringArray:

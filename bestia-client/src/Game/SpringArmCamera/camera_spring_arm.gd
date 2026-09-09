@@ -53,8 +53,9 @@ func _unhandled_input(event: InputEvent) -> void:
 		spring_arm.spring_length = clamp(spring_arm.spring_length, min_cam_distance, max_cam_distance)
 
 	if event.is_action_pressed("camera_mouse_capture"):
-		if MouseManager.is_targeting():
-			MouseManager.cancel_targeting()
+		var mouse := MouseManager.get_instance()
+		if mouse != null and mouse.is_targeting():
+			mouse.cancel_targeting()
 			return
 		_rmb_pressed = true
 		_rmb_dragged = false
@@ -67,7 +68,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
 				Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 		else:
-			MouseManager.right_clicked(get_viewport().get_mouse_position())
+			MouseManager.get_instance().right_clicked(get_viewport().get_mouse_position())
 
 
 func save_camera() -> void:

@@ -321,7 +321,7 @@ func _on_click(at: Vector2) -> void:
 ## click landing before the answer would convert the destination against a guess. The map is nothing but fog
 ## until meta arrives, so there is nothing worth clicking on either.
 ##
-## The walk itself is [TravelPilot]'s, and is a client-side affair from end to end - the server is only ever
+## The walk itself is [MovementPilot]'s, and is a client-side affair from end to end - the server is only ever
 ## sent the ordinary short paths it already understands.
 func _travel_to(at: Vector2) -> void:
 	if not can_travel or source == null or source.meta.is_empty():
@@ -329,7 +329,7 @@ func _travel_to(at: Vector2) -> void:
 
 	# Metres to tiles, the exact inverse of [method player_metres], which reads the entity's position in
 	# tiles and multiplies. The map's northing is the entity's z, hence the y here landing in z there.
-	TravelPilot.travel_to(at / _metres_per_voxel)
+	MovementPilot.get_instance().travel_to(at / _metres_per_voxel)
 
 
 ## The tile key covering a world position at this view's level.

@@ -59,7 +59,7 @@ func use_skill(level: int) -> void:
 		else:
 			printerr("AttackResource: Failed to load or instantiate attack script for skill: %s" % [skill_id])
 	else:
-		MouseManager.enter_skill_targeting(self, level)
+		MouseManager.get_instance().enter_skill_targeting(self, level)
 
 
 func _get_or_create_attack_use_instance() -> AttackUse:

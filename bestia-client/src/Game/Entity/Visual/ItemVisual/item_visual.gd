@@ -26,4 +26,4 @@ func get_item_entity_id() -> int:
 
 
 func _on_area_3d_input_event(_camera: Node, event: InputEvent, event_position: Vector3, _normal: Vector3, _shape_idx: int) -> void:
-	MouseManager.object_clicked(self, event, event_position)
+	MouseManager.get_instance().object_clicked(self, event, event_position)

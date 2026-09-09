@@ -63,19 +63,19 @@ func set_selected(selected: bool) -> void:
 
 
 func _on_area_3d_input_event(_camera: Node, event: InputEvent, event_position: Vector3, _normal: Vector3, _shape_idx: int) -> void:
-	MouseManager.object_clicked(self, event, event_position)
+	MouseManager.get_instance().object_clicked(self, event, event_position)
 
 
 func _on_area_3d_mouse_entered() -> void:
 	_hovered = true
 	_name_tag.visible = true
-	MouseManager.on_object_hover(self, true)
+	MouseManager.get_instance().on_object_hover(self, true)
 
 
 func _on_area_3d_mouse_exited() -> void:
 	_hovered = false
 	_name_tag.visible = _selected
-	MouseManager.on_object_hover(self, false)
+	MouseManager.get_instance().on_object_hover(self, false)
 
 
 func update_casting(msg: CastingComponentSMSG) -> void:

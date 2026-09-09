@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ClientSettings" format=3]
+
+[ext_resource type="Script" path="res://Settings/client_settings.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+login_server_url = "http://localhost:8080"
+map_server_url = "http://127.0.0.1:8091"
+game_server_host = "localhost"
+game_server_port = 8090
+skill_target_snap_distance = 1.5

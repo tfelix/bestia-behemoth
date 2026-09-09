@@ -176,6 +176,75 @@ namespace BestiaBehemothClient.Game.World
     private long _payloadBytes;
     private long _decodedBytes;
 
+    private int _quietAnnouncedColumns;
+    private double _announcedStableFor;
+
+    /// <summary>Columns the server's view volume covers, or 0 until the world info has arrived.</summary>
+    public int ExpectedColumnCount { get; private set; }
+
+    /// <summary>How much of the view volume around the player is delivered, 0..1.</summary>
+    /// <remarks>
+    /// Monotone by construction: un-costed columns count as zero rather than being left out of the
+    /// denominator, which is what stops the fraction reading 100% two chunks into a load.
+    ///
+    /// <para>
+    /// Counted on every read rather than once a frame, so the answer does not depend on whether the caller
+    /// is processed before or after this node. A cached count is a frame stale, and the frame that matters
+    /// is the one a teleport lands in: the manifest has already withdrawn the old view by then, but a stale
+    /// count still describes it - complete, and about somewhere the player no longer is.
+    /// </para>
+    /// </remarks>
+    public float ViewLoadProgress
+    {
+      get
+      {
+        var (delivered, announced) = Store.ColumnProgress();
+        var total = Math.Max(ExpectedColumnCount, announced);
+
+        return total <= 0 ? 0f : Math.Clamp((float)delivered / total, 0f, 1f);
+      }
+    }
+
+    /// <summary>
+    /// The view volume is delivered and drawn: nothing more is coming and nothing is still being built.
+    /// </summary>
+    /// <remarks>
+    /// Entities need no separate test. The server announces one when the chunk it stands in reaches this
+    /// client, on the same ordered stream and behind that chunk's payload, so held terrain implies the
+    /// entities standing on it have already been dispatched.
+    ///
+    /// <para>
+    /// The quiescence arm covers the case the column count cannot: a world edge, or any column the server
+    /// declines to offer, would otherwise hold the count one short for ever. Manifests arrive every tick
+    /// while ground is still being costed, so a second of no change cannot be mistaken for a finished load.
+    /// </para>
+    /// </remarks>
+    public bool ViewLoadComplete
+    {
+      get
+      {
+        if (WorldInfo == null || DecodeBacklog > 0 || !(Renderer?.IsIdle ?? true))
+        {
+          return false;
+        }
+
+        var (delivered, announced) = Store.ColumnProgress();
+
+        if (ExpectedColumnCount > 0 && delivered >= ExpectedColumnCount)
+        {
+          return true;
+        }
+
+        return announced > 0 && delivered == announced && _announcedStableFor >= AnnouncedQuietSeconds;
+      }
+    }
+
+    /// <summary>Chunk payloads received and not yet decoded.</summary>
+    public int DecodeBacklog => _toDecode.Count;
+
+    /// <summary>How long the announced set must hold still before it counts as all the server intends to offer.</summary>
+    private const double AnnouncedQuietSeconds = 1.0;
+
     public override void _Ready()
     {
       if (SocketPath != null && !SocketPath.IsEmpty)
@@ -212,6 +281,24 @@ namespace BestiaBehemothClient.Game.World
       {
         Decode(_toDecode.Dequeue());
       }
+
+      AgeAnnouncedQuiet(delta);
+    }
+
+    /// <summary>
+    /// Ages the "the server has stopped offering" timer <see cref="ViewLoadComplete"/> falls back on.
+    /// </summary>
+    /// <remarks>
+    /// The one part of the load state that cannot be answered on demand. Its staleness is harmless in the
+    /// direction that matters: a frame-old count can only reset the timer early, never age it past a second
+    /// it has not run for.
+    /// </remarks>
+    private void AgeAnnouncedQuiet(double delta)
+    {
+      var announced = Store.ColumnProgress().Announced;
+
+      _announcedStableFor = announced == _quietAnnouncedColumns ? _announcedStableFor + delta : 0.0;
+      _quietAnnouncedColumns = announced;
     }
 
     private void OnMessageReceived(ISMSG message)
@@ -318,6 +405,11 @@ namespace BestiaBehemothClient.Game.World
       // Cached rather than derived per call: GroundYAt is asked once per entity per frame by entity.gd.
       _wrap = ChunkWrap.Of(info);
 
+      // Clamped by the world's own width, or a world narrower than the view would name columns twice and
+      // leave the loading screen waiting for ground that has already arrived under another spelling.
+      var across = 2 * info.ViewRadiusChunks + 1;
+      ExpectedColumnCount = SpanOf(across, _wrap.ChunksAcross) * SpanOf(across, _wrap.ChunksDown);
+
       GD.Print($"[world] {info}");
 
       if (info.ChunkEngineVersion != ChunkEngine.Version)
@@ -332,15 +424,33 @@ namespace BestiaBehemothClient.Game.World
       }
 
       // A new world, or a reconnect: nothing held can be assumed to still be right.
+      ResetView();
+
+      Renderer?.Configure(Store, info);
+      StaticEntities?.Configure(Store, info);
+    }
+
+    /// <summary>
+    /// Forgets the terrain this client holds, because the server has stopped tracking it.
+    /// </summary>
+    /// <remarks>
+    /// Returning to master selection tears the game world down without the connection going with it, and the
+    /// zone drops the subscription as soon as the account has no active entity. Anything kept here past that
+    /// point stops receiving patches while still looking current - and still reads as a complete view to
+    /// whoever is waiting for the next one to arrive.
+    /// </remarks>
+    public void ResetView()
+    {
       Store.Clear();
       _toDecode.Clear();
       _staticBatches.Clear();
       _burnMasks.Clear();
       StaticEntities?.Clear();
-
-      Renderer?.Configure(Store, info);
-      StaticEntities?.Configure(Store, info);
     }
+
+    /// <summary>The view's extent along one axis, in columns. <paramref name="worldChunks"/> of 0 means unknown.</summary>
+    private static int SpanOf(int viewChunks, int worldChunks) =>
+      worldChunks > 0 ? Math.Min(viewChunks, worldChunks) : viewChunks;
 
     private void OnManifest(ChunkManifestSMSG manifest)
     {

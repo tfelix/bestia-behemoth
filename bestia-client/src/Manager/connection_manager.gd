@@ -42,6 +42,14 @@ enum ConnectionError {NO_ERROR, ZONE_CONNECTION_LOST}
 @onready var _socket = $BnetSocket
 @onready var _passkey_login = $PasskeyLogin
 
+## Covers the game while the world around the player is still arriving.
+##
+## A child of this autoload rather than of Game.tscn because it has to outlive it: the screen goes up
+## before the game scene exists, and a teleport raises it again with no scene change at all. It is not
+## SceneManager's, unlike the transition curtain - what it waits for is terrain and entities, which
+## would give a standalone scene loader a dependency on the connection it has none of today.
+@onready var world_loading: WorldLoadingScreen = $WorldLoadingScreen
+
 
 var Authentication = load("res://Bnet/Message/Authentication.cs")
 var GetMasterCMSG = load("res://Bnet/Message/Master/GetMasterCMSG.cs")
@@ -133,6 +141,8 @@ func _ready() -> void:
 	add_child(world_clock)
 	world_clock.Attach(_socket)
 
+	world_loading.attach(self)
+
 
 ## Credential for this client's REST calls, or empty before the zone has authenticated this connection.
 ##
@@ -188,6 +198,12 @@ func _accept_login_token(token: String) -> void:
 
 	# We have a valid JWT now. Go to master select (blocked until the zone confirms auth) and connect.
 	SceneManager.goto_scene("res://Menu/MasterSelect/MasterSelect.tscn", true)
+
+	# Applied here rather than left to BnetSocket's own exported defaults, so the socket and the two
+	# HTTP endpoints are all named by one settings file instead of one of the three needing a rebuild.
+	var settings := SettingsManager.get_instance()
+	_socket.ServerName = settings.game_server_host
+	_socket.Port = settings.game_server_port
 	_socket.ConnectToServer()
 
 
@@ -199,7 +215,7 @@ func _accept_login_token(token: String) -> void:
 func login_with_passkey() -> void:
 	assert(_connection_state == ConnectionState.DISCONNECTED)
 	last_connection_error = ConnectionError.NO_ERROR
-	_passkey_login.StartLogin(SettingsManager.login_server_url)
+	_passkey_login.StartLogin(SettingsManager.get_instance().login_server_url)
 
 
 ## Whether a stored session exists, i.e. whether signing in can skip the browser.
@@ -212,12 +228,12 @@ func has_stored_session() -> bool:
 func resume_session() -> void:
 	assert(_connection_state == ConnectionState.DISCONNECTED)
 	last_connection_error = ConnectionError.NO_ERROR
-	_passkey_login.TryResume(SettingsManager.login_server_url)
+	_passkey_login.TryResume(SettingsManager.get_instance().login_server_url)
 
 
 ## Discards the stored session here and on the server, so the next start needs a passkey again.
 func sign_out() -> void:
-	_passkey_login.SignOut(SettingsManager.login_server_url)
+	_passkey_login.SignOut(SettingsManager.get_instance().login_server_url)
 
 
 ## Abandons an in-flight passkey login. The browser tab is left alone - we cannot close it, and the
@@ -312,7 +328,7 @@ func invest_status_points(investments: Array) -> void:
 func move_to(destination: Vector3) -> void:
 	assert(is_ready_to_send())
 
-	var entity_manager = get_tree().get_first_node_in_group("entity_manager")
+	var entity_manager := EntityManager.get_instance()
 	var owned_entity = entity_manager.get_owned_entity() if entity_manager else null
 	if owned_entity == null:
 		printerr("ConnectionManager: cannot move, no owned entity yet")
@@ -546,6 +562,10 @@ func select_bestia_master(master_info: MasterInfo) -> void:
 	var msg = SelectMasterCMSG.new()
 	msg.MasterId = master_info.MasterId
 	_socket.SendMessage(msg)
+
+	# Raised before the transition, so SceneManager's curtain fades out onto the loading screen rather
+	# than onto a world that has not been streamed yet.
+	world_loading.begin()
 	SceneManager.goto_scene("res://Game/Game.tscn")
 
 
@@ -617,6 +637,9 @@ func _on_bnet_socket_connection_status_changed(status: int) -> void:
 		# The zone forgot this ticket the moment the socket died, so holding on to it would only let the map
 		# present a credential that is already refused.
 		_http_ticket = ""
+		# Nothing is going to finish loading now, and the scene change below is to a menu the player has
+		# to be able to use.
+		world_loading.dismiss()
 		if _intentional_disconnect:
 			# Player-initiated logout: go home quietly instead of showing "connection lost".
 			_intentional_disconnect = false
@@ -629,7 +652,7 @@ func _on_bnet_socket_connection_status_changed(status: int) -> void:
 			_connection_state = ConnectionState.CONNECTED_NOT_AUTHED
 			var auth_msg = Authentication.new(
 				_login_token,
-				SettingsManager.version
+				SettingsManager.VERSION
 			)
 			_socket.SendMessage(auth_msg)
 	elif status == 2:

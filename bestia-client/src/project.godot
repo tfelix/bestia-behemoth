@@ -21,12 +21,9 @@ config/icon="uid://dc0oxq2bg1lcb"
 
 [autoload]
 
-SceneManager="*res://Manager/SceneManager.gd"
-SettingsManager="*res://Manager/SettingsManager.gd"
+SceneManager="*res://Manager/scene_manager.gd"
 ConnectionManager="*res://Manager/ConnectionManager.tscn"
-MouseManager="*res://Manager/mouse_manager.gd"
 DialogManager="*res://Manager/dialog_manager.gd"
-TravelPilot="*res://Manager/travel_pilot.gd"
 RenderDebug="*res://Dev/RenderDebug/render_debug.gd"
 
 [display]

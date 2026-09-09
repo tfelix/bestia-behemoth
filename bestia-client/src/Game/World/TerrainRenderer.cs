@@ -234,6 +234,15 @@ namespace BestiaBehemothClient.Game.World
     public int PendingCount => _pending.Count;
 
     /// <summary>
+    /// Nothing left to mesh, build or install.
+    /// </summary>
+    /// <remarks>
+    /// A drained-queue test rather than "every held chunk has a tile": an all-air chunk meshes to no surface
+    /// and installs nothing, so a per-chunk test would never come back true.
+    /// </remarks>
+    public bool IsIdle => _pending.Count == 0 && _running == 0 && _finished.IsEmpty;
+
+    /// <summary>
     /// Points the renderer at a store and tells it the world's dimensions.
     /// </summary>
     /// <remarks>
