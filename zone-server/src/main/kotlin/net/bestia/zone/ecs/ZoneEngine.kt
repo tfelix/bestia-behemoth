@@ -121,11 +121,53 @@ class ZoneEngine(
           LOG.error(e) { "Error in zone tick: ${e.message}" }
         }
 
-        val sleep = (1000L / config.tickRate) - (System.currentTimeMillis() - now)
+        val budget = 1000L / config.tickRate
+        val elapsed = System.currentTimeMillis() - now
+
+        if (elapsed > budget) reportSlowTick(elapsed, budget)
+
+        val sleep = budget - elapsed
         if (sleep > 0) Thread.sleep(sleep)
       }
     }
   }
+
+  /**
+   * Says out loud that a tick did not fit in its budget, and what it spent.
+   *
+   * **Every streaming budget in the zone is per tick**, so a tick that runs at two and a half times its
+   * period quietly divides the whole streaming layer's throughput by two and a half. That is not visible from
+   * anything else: `chunk-stream`'s numbers all read "per tick", the client sees terrain arriving slowly, and
+   * the only symptom is a loading screen that hits its own failsafe with a half-built world behind it. There
+   * was no line of log anywhere that said the tick was late.
+   *
+   * Rate limited to one line a second, with the suppressed count carried on it: a login into dense ground
+   * overruns for tens of consecutive ticks, and one warning per tick would bury the breakdown it is for while
+   * a single warning would understate a sustained problem as a blip.
+   */
+  private fun reportSlowTick(elapsedMs: Long, budgetMs: Long) {
+    slowTicks++
+
+    val now = System.currentTimeMillis()
+    if (now - lastSlowTickReport < SLOW_TICK_REPORT_INTERVAL_MS) return
+
+    val suppressed = slowTicks - 1
+    lastSlowTickReport = now
+    slowTicks = 0
+
+    LOG.warn {
+      "Zone tick took $elapsedMs ms against a $budgetMs ms budget " +
+          "(systems $lastWorldTickMs ms, component sync $lastSyncMs ms): ${world.lastTickBreakdown()}" +
+          if (suppressed > 0) "; $suppressed more late ticks since the last of these" else ""
+    }
+  }
+
+  private var lastSlowTickReport = 0L
+  private var slowTicks = 0
+
+  /** The tick's two halves, split so the breakdown cannot be misread as the whole cost. */
+  private var lastWorldTickMs = 0L
+  private var lastSyncMs = 0L
 
   @PreDestroy
   fun stop() {
@@ -148,8 +190,14 @@ class ZoneEngine(
    * the background loop.
    */
   fun tickOnce(deltaTime: Float) {
+    val started = System.nanoTime()
     world.tick(deltaTime)
+
+    val ticked = System.nanoTime()
     syncDirtyComponents()
+
+    lastWorldTickMs = (ticked - started) / 1_000_000
+    lastSyncMs = (System.nanoTime() - ticked) / 1_000_000
   }
 
   private fun syncDirtyComponents() {
@@ -364,5 +412,8 @@ class ZoneEngine(
 
   companion object {
     private val LOG = KotlinLogging.logger { }
+
+    /** Shortest gap between two slow-tick warnings. See [reportSlowTick]. */
+    private const val SLOW_TICK_REPORT_INTERVAL_MS = 1_000L
   }
 }

@@ -92,6 +92,9 @@ class World(
   val systemCount: Int get() = scheduler.systemCount
   val waveCount: Int get() = scheduler.waveCount
 
+  /** What the systems on the most recent [tick] cost, slowest first. See [SystemScheduler.lastTickBreakdown]. */
+  fun lastTickBreakdown(limit: Int = 5): String = scheduler.lastTickBreakdown(limit)
+
   // ---------------------------------------------------------------- entities
   fun create(): EntityId = lock.withLock { entities.create() }
 

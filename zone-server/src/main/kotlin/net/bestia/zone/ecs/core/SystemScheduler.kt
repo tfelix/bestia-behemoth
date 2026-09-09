@@ -1,5 +1,6 @@
 package net.bestia.zone.ecs.core
 
+import java.util.Locale
 import java.util.concurrent.ForkJoinPool
 
 /**
@@ -29,6 +30,9 @@ class SystemScheduler(private val parallel: Boolean = false) {
 
     /** Real elapsed time since this entry last ran; what actually gets passed to [System.update]. */
     var effectiveDelta = 0f
+
+    /** How long this entry's last run took, or 0 if it did not run on the most recent tick. */
+    var lastNanos = 0L
   }
 
   private val entries = ArrayList<Entry>()
@@ -51,6 +55,11 @@ class SystemScheduler(private val parallel: Boolean = false) {
   }
 
   fun tick(world: World, deltaTime: Float) {
+    // Cleared before due-ness rather than after the run, so a system that did not run this tick reports
+    // nothing rather than whatever it cost the last time it did - which is what makes a slow-tick warning
+    // about *this* tick.
+    for (e in entries) e.lastNanos = 0L
+
     // Evaluate due-ness exactly once per entry (this mutates cadence counters).
     val due = HashSet<Entry>()
     for (e in entries) {
@@ -63,16 +72,45 @@ class SystemScheduler(private val parallel: Boolean = false) {
       if (toRun.isEmpty()) continue
 
       if (pool == null || toRun.size == 1) {
-        toRun.forEach { it.system.update(world, it.effectiveDelta) }
+        toRun.forEach { it.run(world) }
       } else {
         // Run this wave's systems concurrently and wait for completion before
         // advancing to the next (dependent) wave.
         pool.submit {
-          toRun.parallelStream().forEach { it.system.update(world, it.effectiveDelta) }
+          toRun.parallelStream().forEach { it.run(world) }
         }.get()
       }
     }
   }
+
+  /**
+   * Runs one system and records what it cost.
+   *
+   * `java.lang.System` spelled out because [System] in this package is the ECS one, and the shorter spelling
+   * silently resolves to it.
+   */
+  private fun Entry.run(world: World) {
+    val started = java.lang.System.nanoTime()
+
+    try {
+      system.update(world, effectiveDelta)
+    } finally {
+      lastNanos = java.lang.System.nanoTime() - started
+    }
+  }
+
+  /**
+   * What the systems that ran on the most recent tick cost, slowest first.
+   *
+   * Exists for one line of log: `ZoneEngine` prints this when a tick overruns its budget. Without it an
+   * overrunning tick is only visible as everything downstream of it going slowly - streaming budgets are all
+   * per tick, so a login that should take three seconds silently takes eight and looks like a network fault.
+   */
+  fun lastTickBreakdown(limit: Int): String = entries
+    .filter { it.lastNanos > 0L }
+    .sortedByDescending { it.lastNanos }
+    .take(limit)
+    .joinToString(", ") { String.format(Locale.ROOT, "%s %.1fms", it.system.name, it.lastNanos / 1_000_000.0) }
 
   /**
    * Determines whether [e] runs this tick. For schedules that skip ticks, [Entry.effectiveDelta] is
