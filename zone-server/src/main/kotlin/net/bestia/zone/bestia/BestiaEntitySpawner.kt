@@ -25,7 +25,7 @@ import org.springframework.stereotype.Component
 
 @Component
 class BestiaEntitySpawner(
-  private val bestiaRepository: BestiaRepository,
+  private val bestiaCatalogue: BestiaCatalogue,
   private val aiProfileRegistry: AiProfileRegistry,
   private val aiAgentFactory: AiAgentFactory,
   private val movementProfileRegistry: MovementProfileRegistry
@@ -47,7 +47,7 @@ class BestiaEntitySpawner(
   ): EntityId {
     LOG.debug { "Spawning mob bestia $bestiaId on $pos" }
 
-    val bestia = bestiaRepository.findByIdOrThrow(bestiaId)
+    val bestia = bestiaCatalogue.byId(bestiaId)
 
     val configure: World.(EntityId) -> Unit = { id ->
       add(id, Position.fromVec3(pos))
@@ -125,7 +125,7 @@ class BestiaEntitySpawner(
     identifier: String,
     pos: Vec3L,
   ): EntityId {
-    val bestia = bestiaRepository.findByIdentifierOrThrow(identifier)
+    val bestia = bestiaCatalogue.byIdentifier(identifier)
 
     return spawnMob(
       world,
