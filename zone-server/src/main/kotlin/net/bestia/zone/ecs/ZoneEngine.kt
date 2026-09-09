@@ -317,7 +317,11 @@ class ZoneEngine(
     val broadcastMsgs = mutableListOf<SMSG>()
     val byAccountMsgs = LinkedHashMap<Long, MutableList<SMSG>>()
 
-    for (c in comps) {
+    // Position leads deliberately: the client reconciles an arriving path against where it believes the entity
+    // is, so it has to be told where the entity *is* before it is told where it is *going*. The dirty log is in
+    // the order components were first marked, which puts a path set by a handler ahead of the position the
+    // tick then moves. Stable, so everything behind Position keeps that order.
+    for (c in comps.sortedBy { if (it is Position) 0 else 1 }) {
       val msg = c.toEntityMessage(entityId)
 
       when (val target = c.syncTargets(world, entityId)) {
