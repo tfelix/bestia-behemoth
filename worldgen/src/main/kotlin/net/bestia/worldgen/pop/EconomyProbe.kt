@@ -94,7 +94,9 @@ object EconomyProbe {
         economy.attribute(EconomyChannels.CLERGY).toInt(),
         economy.attribute(EconomyChannels.SOLDIERS).toInt()
       ),
-      traffic = economy.attribute(EconomyChannels.TRAFFIC)
+      traffic = economy.attribute(EconomyChannels.TRAFFIC),
+      foodCapacity = economy.attribute(EconomyChannels.FOOD_CAPACITY),
+      cerealShare = economy.attribute(EconomyChannels.CEREAL_SHARE)
     )
   }
 

@@ -59,7 +59,15 @@ class PopulationSummary(
    * recovers slowest, so a caller that forgot to pass it gets a pessimistic town rather than a
    * suspiciously resilient one.
    */
-  val traffic: Double = 0.0
+  val traffic: Double = 0.0,
+  /**
+   * People the catchment's land could feed, which is what the runtime turns into an area under the
+   * plough - see the settlement damage sweep. Defaults to none, so a caller that forgot it gets a town
+   * whose farmland is nil rather than one that is invulnerable.
+   */
+  val foodCapacity: Double = 0.0,
+  /** Share of that capacity which is cereal rather than pasture, orchard or fish. */
+  val cerealShare: Double = 0.0
 )
 
 /**

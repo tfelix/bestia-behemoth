@@ -896,17 +896,12 @@ internal class Catchments(
         val distance = sqrt(dx * dx + dy * dy)
         if (distance > radius) continue
 
-        body(y * region.width + x, 1.0 - distance / radius * CLAIM_FALLOFF)
+        body(y * region.width + x, Catchment.weightAt(distance, radius))
       }
     }
   }
 
-  private fun catchmentOf(tier: SettlementTier): Double = when (tier) {
-    SettlementTier.CITY -> params.cityCatchment
-    SettlementTier.TOWN -> params.townCatchment
-    SettlementTier.VILLAGE -> params.villageCatchment
-    SettlementTier.HAMLET -> params.hamletCatchment
-  }
+  private fun catchmentOf(tier: SettlementTier): Double = Catchment.radiusOf(tier, params)
 
   /** How much of a cell's fertility the climate lets a farmer realise. */
   private fun climateFactor(celsius: Double): Double = when {
@@ -964,9 +959,6 @@ internal class Catchments(
   }
 
   private companion object {
-    /** How much of its weight a cell loses at the edge of a catchment. Never all of it. */
-    const val CLAIM_FALLOFF = 0.75
-
     const val MAX_ARABLE_SLOPE = 0.3
 
     /**
