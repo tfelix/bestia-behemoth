@@ -1,11 +1,14 @@
 package net.bestia.worldgen.pop
 
 import net.bestia.worldgen.core.World
+import net.bestia.worldgen.history.HistoryChannels
 import net.bestia.worldgen.pipeline.GeneratedWorld
 import net.bestia.worldgen.pipeline.StandardWorld
+import net.bestia.worldgen.vector.Aabb
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.PointMarker
 import net.bestia.worldgen.vector.Vec2d
+import net.bestia.worldgen.vector.VectorFeature
 
 /**
  * Reads the economy back out of a generated world, for tooling.
@@ -34,8 +37,25 @@ object EconomyProbe {
    * @return null when the settlement has no economy marker - it was never founded, or is a ruin
    */
   fun summaryFor(world: World, settlement: Int): PopulationSummary? {
-    val features = world.features.all()
+    return summaryIn(world.features.all(), settlement)
+  }
 
+  /**
+   * [summaryFor] narrowed to the ground a settlement occupies.
+   *
+   * The unscoped overload copies the whole feature store, three times over once the history lookups are
+   * counted. That is the right trade for tooling asking about one town and the wrong one for a server
+   * asking about every town a player walks into, so this takes the bucketed spatial query instead.
+   *
+   * [area] has to contain the settlement's economy, history and business markers. Its graded footprint is
+   * enough: the first two sit on the centre and every business sits on a building, which `TownStage` keeps
+   * inside that radius.
+   */
+  fun summaryFor(world: World, settlement: Int, area: Aabb): PopulationSummary? {
+    return summaryIn(world.features.query(area), settlement)
+  }
+
+  private fun summaryIn(features: List<VectorFeature>, settlement: Int): PopulationSummary? {
     val economy = features
       .filter { it.kind == FeatureKind.SETTLEMENT_ECONOMY }
       .filterIsInstance<PointMarker>()
@@ -55,11 +75,13 @@ object EconomyProbe {
       .sortedBy { it.key }
       .map { it.key to it.value }
 
+    val history = historyIn(features, settlement)
+
     return PopulationSummary(
       settlement = settlement,
       position = economy.position,
-      population = populationOf(world, settlement),
-      wealth = wealthOf(world, settlement),
+      population = history?.attribute(HistoryChannels.POPULATION)?.toInt() ?: 0,
+      wealth = history?.attribute(HistoryChannels.WEALTH) ?: 0.0,
       householdCount = economy.attribute(EconomyChannels.HOUSEHOLD_COUNT).toInt(),
       seed = economy.attribute(EconomyChannels.HOUSEHOLD_SEED).toLong(),
       businesses = roster,
@@ -96,23 +118,15 @@ object EconomyProbe {
       ?.setting
   }
 
-  /** Population from the history marker, which is where the present-day number lives. */
-  private fun populationOf(world: World, settlement: Int): Int =
-    historyOf(world, settlement)
-      ?.attribute(net.bestia.worldgen.history.HistoryChannels.POPULATION)?.toInt()
-      ?: 0
-
-  private fun wealthOf(world: World, settlement: Int): Double =
-    historyOf(world, settlement)
-      ?.attribute(net.bestia.worldgen.history.HistoryChannels.WEALTH)
-      ?: 0.0
-
-  private fun historyOf(world: World, settlement: Int): PointMarker? = world.features.all()
-    .filter { it.kind == FeatureKind.SETTLEMENT_HISTORY }
-    .filterIsInstance<PointMarker>()
-    .firstOrNull {
-      it.attribute(net.bestia.worldgen.history.HistoryChannels.INDEX).toInt() == settlement
-    }
+  /** The history marker, which is where the present-day population and wealth live. */
+  private fun historyIn(features: List<VectorFeature>, settlement: Int): PointMarker? {
+    return features
+      .filterIsInstance<PointMarker>()
+      .firstOrNull {
+        it.kind == FeatureKind.SETTLEMENT_HISTORY &&
+          it.attribute(HistoryChannels.INDEX).toInt() == settlement
+      }
+  }
 
   /** Where a settlement's economy marker sits, for a caller that only needs the position. */
   fun positionOf(world: World, settlement: Int): Vec2d? = world.features.all()
