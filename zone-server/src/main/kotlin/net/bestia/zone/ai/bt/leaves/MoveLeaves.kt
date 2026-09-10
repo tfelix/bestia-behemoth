@@ -4,6 +4,7 @@ import net.bestia.zone.ai.bt.Locomotion
 import net.bestia.zone.ai.core.behavior.BtContext
 import net.bestia.zone.ai.core.behavior.BtNode
 import net.bestia.zone.ai.core.behavior.Status
+import net.bestia.zone.ecs.movement.Path
 import net.bestia.zone.geometry.Vec3L
 
 /**
@@ -56,4 +57,22 @@ class Wander(
   }
 
   override fun toString(): String = "Wander(around $home, r=$radius)"
+}
+
+/**
+ * Stays where it is, and drops any waypoints already handed to the movement system.
+ *
+ * The drop is the whole leaf. A plan step's tree replaces the previous one immediately, but a `Path` the
+ * movement system is already walking outlives it - so an agent that arrived somewhere and then decided to
+ * stand there would wander off down the tail of the journey that brought it. `Sleep` carries the same
+ * guard for the same reason.
+ */
+object StandStill : BtNode {
+
+  override fun tick(context: BtContext): Status {
+    context.world.remove(context.entityId, Path::class)
+    return Status.RUNNING
+  }
+
+  override fun toString(): String = "StandStill"
 }

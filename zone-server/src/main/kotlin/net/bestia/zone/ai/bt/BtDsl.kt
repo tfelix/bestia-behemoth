@@ -2,6 +2,7 @@ package net.bestia.zone.ai.bt
 
 import net.bestia.zone.ai.core.behavior.BtContext
 import net.bestia.zone.ai.core.behavior.BtNode
+import net.bestia.zone.ai.core.state.HourWindow
 import net.bestia.zone.ai.core.behavior.Status
 
 /**
@@ -75,6 +76,8 @@ class BtBuilder {
 
   /** Rate-limits the block to at most one success every [seconds]; FAILURE while cooling down. */
   fun cooldown(seconds: Float, block: BtBuilder.() -> Unit) = node(Cooldown(single(block), seconds))
+
+  fun untilHour(window: HourWindow, block: BtBuilder.() -> Unit) = node(UntilHour(window, single(block)))
 
   internal fun build(): List<BtNode> = children.toList()
 

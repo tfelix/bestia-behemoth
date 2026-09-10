@@ -3,6 +3,8 @@ package net.bestia.zone.ai.bt
 import net.bestia.zone.ai.core.behavior.BtContext
 import net.bestia.zone.ai.core.behavior.BtNode
 import net.bestia.zone.ai.core.behavior.Status
+import net.bestia.zone.ai.core.state.CommonKeys
+import net.bestia.zone.ai.core.state.HourWindow
 
 /**
  * Swaps SUCCESS and FAILURE; RUNNING passes through untouched.
@@ -98,4 +100,30 @@ class Cooldown(private val child: BtNode, private val seconds: Float) : BtNode {
       else -> status
     }
   }
+}
+
+/**
+ * Ticks [child] for as long as the world clock is still inside [window], then succeeds.
+ *
+ * Against the *absolute* hour rather than a countdown, and that is the point rather than a detail. A plan
+ * step's tree is rebuilt on every adoption, so a relative "run for twelve hours" timer restarts whenever
+ * the agent reconsiders - a guard who glanced at something at five in the afternoon would then work until
+ * five the next morning. The hour says when the shift ends however often the tree is rebuilt.
+ *
+ * The child completing does **not** end the span: a shift is a length of time, and the work inside it
+ * repeats. Child FAILURE does end it, because a shift whose work cannot be done is over.
+ *
+ * FAILURE when the hour is unknown. Nothing has perceived yet, and standing somewhere until an unknown
+ * clock says otherwise is indistinguishable from standing there forever.
+ */
+class UntilHour(private val window: HourWindow, private val child: BtNode) : BtNode {
+
+  override fun tick(context: BtContext): Status {
+    val hour = context.memory.get(CommonKeys.HOUR_OF_DAY) ?: return Status.FAILURE
+    if (!window.covers(hour)) return Status.SUCCESS
+
+    return if (child.tick(context) == Status.FAILURE) Status.FAILURE else Status.RUNNING
+  }
+
+  override fun toString(): String = "UntilHour($window)"
 }
