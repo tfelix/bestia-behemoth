@@ -1,0 +1,69 @@
+# What a townsperson does with a day.
+#
+# `shift` is the post, `rest` the bed, and OccupationCatalogue refuses an occupation whose two overlap.
+# `rest` may be left out for anybody keeping ordinary hours - see OccupationCatalogue.DEFAULT_REST.
+#
+# `business` joins an occupation to a BusinessCatalogue trade, which is how the roster the world generator
+# already decides gets people in it. Every trade must appear either as somebody's `business` or in
+# `unstaffed` below; OccupationCoverage fails the boot otherwise.
+occupations:
+  - id: guard
+    business: barracks
+    shift: { from: 6, to: 18 }
+
+  - id: priest
+    business: temple
+    shift: { from: 8, to: 18 }
+
+  - id: innkeeper
+    business: inn
+    # Open late, and so up late: an innkeeper on the commoner's bedtime would shut at ten every night.
+    shift: { from: 10, to: 23 }
+    rest: { from: 0, to: 7 }
+
+  # No shop of their own. A town has these whether or not its roster has room for a trade.
+  - id: farmer
+    # The fields are outside the walls and the light is what decides, so this is the longest day in town.
+    shift: { from: 6, to: 19 }
+    rest: { from: 21, to: 5 }
+
+  - id: labourer
+    shift: { from: 7, to: 17 }
+
+  - id: beggar
+    shift: { from: 9, to: 17 }
+
+  # No shift at all, which is the case the WorkShift goal has to survive rather than a placeholder.
+  - id: child
+    rest: { from: 21, to: 7 }
+
+# Trades the generator builds that nobody keeps yet. This list is the release's to-do, and it shrinks as
+# occupations arrive - a name must come off it the day somebody takes the trade on.
+unstaffed:
+  - alchemist
+  - apothecary
+  - armourer
+  - baker
+  - banker
+  - blacksmith
+  - bookbinder
+  - brewer
+  - butcher
+  - carpenter
+  - charcoaler
+  - dyer
+  - fishmonger
+  - general_store
+  - healer
+  - jeweller
+  - market_trader
+  - mason
+  - miller
+  - potter
+  - scribe
+  - shipwright
+  - stable
+  - tailor
+  - tanner
+  - vintner
+  - weaver
