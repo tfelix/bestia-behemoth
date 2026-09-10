@@ -10,10 +10,8 @@ import net.bestia.worldgen.pop.Sector
 import net.bestia.zone.ai.domain.townsfolk.Occupation
 import net.bestia.zone.ai.domain.townsfolk.OccupationCatalogue
 import net.bestia.zone.geometry.Vec3L
-import net.bestia.zone.world.WorldService
 import net.bestia.zone.world.settlement.SettlementSite
 import net.bestia.zone.world.settlement.SettlementSiteIndex
-import net.bestia.zone.world.stream.ChunkCoords
 import org.springframework.stereotype.Service
 
 /**
@@ -28,7 +26,6 @@ import org.springframework.stereotype.Service
 class HouseholdPlacement(
   private val sites: SettlementSiteIndex,
   private val occupations: OccupationCatalogue,
-  private val worldService: WorldService,
 ) {
 
   /**
@@ -60,9 +57,9 @@ class HouseholdPlacement(
     return Placement(
       settlement = settlement,
       household = expanded,
-      home = standingAt(house),
+      home = sites.doorstepOf(house),
       homeBuilding = house.propId,
-      workplace = workplaceOf(site, expanded, household)?.let { standingAt(it) },
+      workplace = workplaceOf(site, expanded, household)?.let { sites.doorstepOf(it) },
     )
   }
 
@@ -100,24 +97,6 @@ class HouseholdPlacement(
     }
 
     return candidates.getOrNull(index % candidates.size.coerceAtLeast(1))
-  }
-
-  /**
-   * The doorstep as somewhere to stand.
-   *
-   * Feature positions are metres and an entity's are position units, so the horizontal pair converts the
-   * way `SettlementSiteIndex.siteCovering` does in reverse. The height is the building's own graded floor
-   * rather than a fresh surface sample: the door is against the wall, and the two would disagree by
-   * whatever cut or fill the town stage applied there.
-   */
-  private fun standingAt(building: SettlementSite.Building): Vec3L {
-    val config = worldService.config
-
-    return Vec3L(
-      Math.round(building.door.x / config.voxelSize),
-      Math.round(building.door.y / config.voxelSize),
-      ChunkCoords.standingZ(config, building.floorElevation)
-    )
   }
 
   private companion object {

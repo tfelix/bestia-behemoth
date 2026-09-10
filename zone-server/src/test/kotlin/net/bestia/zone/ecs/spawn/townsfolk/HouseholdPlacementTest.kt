@@ -4,8 +4,6 @@ import io.mockk.every
 import io.mockk.mockk
 import net.bestia.worldgen.civ.BuildingFunction
 import net.bestia.worldgen.civ.SettlementTier
-import net.bestia.worldgen.core.Resolution
-import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.pop.BusinessCatalogue
 import net.bestia.worldgen.pop.Household
 import net.bestia.worldgen.pop.Kinship
@@ -14,7 +12,7 @@ import net.bestia.worldgen.pop.PopulationSummary
 import net.bestia.worldgen.pop.Sector
 import net.bestia.worldgen.vector.Vec2d
 import net.bestia.zone.ai.domain.townsfolk.OccupationCatalogue
-import net.bestia.zone.world.WorldService
+import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.world.settlement.SettlementSite
 import net.bestia.zone.world.settlement.SettlementSiteIndex
 import kotlin.test.Test
@@ -52,7 +50,6 @@ class HouseholdPlacementTest {
   )
 
   private val sites = mockk<SettlementSiteIndex>()
-  private val worldService = mockk<WorldService>()
   private val occupations = OccupationCatalogue().apply { load() }
 
   private val sut: HouseholdPlacement
@@ -60,9 +57,11 @@ class HouseholdPlacementTest {
   init {
     every { sites.siteOf(SETTLEMENT) } returns site
     every { sites.siteOf(neq(SETTLEMENT)) } returns null
-    every { worldService.config } returns CONFIG
+    // Metres to position units is the index's own job and `SettlementSiteIndexTest` covers it; here the
+    // door coordinate passing through unchanged is what makes the assertions below readable.
+    every { sites.doorstepOf(any()) } answers { firstArg<SettlementSite.Building>().door.let { Vec3L(it.x.toLong(), it.y.toLong(), 0) } }
 
-    sut = HouseholdPlacement(sites, occupations, worldService)
+    sut = HouseholdPlacement(sites, occupations)
   }
 
   @Test
@@ -183,19 +182,5 @@ class HouseholdPlacementTest {
 
   private companion object {
     const val SETTLEMENT = 12
-
-    /** Voxel size one, so a metre is a position unit and the doors above read directly. */
-    val CONFIG = WorldConfig(
-      seed = 1L,
-      widthCells = 64,
-      heightCells = 64,
-      baseResolution = Resolution(1_000.0),
-      seaLevel = 0.0,
-      chunkSize = 32,
-      chunkHeight = 32,
-      voxelSize = 1.0,
-      wrapX = false,
-      wrapY = false
-    )
   }
 }

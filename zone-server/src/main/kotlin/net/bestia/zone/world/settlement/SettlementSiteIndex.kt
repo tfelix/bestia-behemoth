@@ -12,7 +12,9 @@ import net.bestia.worldgen.vector.PointMarker
 import net.bestia.worldgen.vector.Vec2d
 import net.bestia.worldgen.voxel.BuildingProps
 import net.bestia.zone.ecs.spawn.ambient.StandingSettlements
+import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.world.WorldService
+import net.bestia.zone.world.stream.ChunkCoords
 import org.springframework.stereotype.Service
 
 /**
@@ -79,6 +81,23 @@ class SettlementSiteIndex(
     return settlements
       .coveringWithin(x * metres, y * metres, reach * metres)
       .map { it.index }
+  }
+
+  /**
+   * A building's doorstep as somewhere to stand.
+   *
+   * Feature positions are metres and an entity's are position units. The height is the building's own
+   * graded floor rather than a fresh surface sample: the door is against the wall, and the two would
+   * disagree by whatever cut or fill the town stage applied there.
+   */
+  fun doorstepOf(building: SettlementSite.Building): Vec3L {
+    val config = worldService.config
+
+    return Vec3L(
+      Math.round(building.door.x / config.voxelSize),
+      Math.round(building.door.y / config.voxelSize),
+      ChunkCoords.standingZ(config, building.floorElevation)
+    )
   }
 
   private fun build(entry: StandingSettlements.Entry): SettlementSite {
