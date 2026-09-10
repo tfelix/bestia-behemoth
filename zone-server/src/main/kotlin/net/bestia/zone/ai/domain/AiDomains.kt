@@ -1,6 +1,7 @@
 package net.bestia.zone.ai.domain
 
 import net.bestia.zone.ai.domain.bestia.BestiaDomain
+import net.bestia.zone.ai.domain.townsfolk.TownsfolkDomain
 
 /**
  * Every domain a profile may declare, by id.
@@ -11,7 +12,7 @@ import net.bestia.zone.ai.domain.bestia.BestiaDomain
  */
 object AiDomains {
 
-  private val byId: Map<String, AiDomainCatalogue> = listOf(BestiaDomain).associateBy { it.id }
+  private val byId: Map<String, AiDomainCatalogue> = listOf(BestiaDomain, TownsfolkDomain).associateBy { it.id }
 
   val ids: Set<String> get() = byId.keys
 
