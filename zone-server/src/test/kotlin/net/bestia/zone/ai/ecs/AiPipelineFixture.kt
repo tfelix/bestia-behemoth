@@ -9,6 +9,9 @@ import net.bestia.zone.ai.domain.bestia.BestiaRuntime
 import net.bestia.zone.ai.domain.townsfolk.Occupation
 import net.bestia.zone.ai.domain.townsfolk.TownsfolkDomain
 import net.bestia.zone.ai.domain.townsfolk.TownsfolkRuntime
+import net.bestia.zone.ecs.spawn.townsfolk.IndoorRegistry
+import net.bestia.zone.ecs.spawn.townsfolk.Townsfolk
+import net.bestia.zone.ecs.spawn.townsfolk.TownsfolkIdentity
 import net.bestia.zone.ai.perception.ForageSense
 import net.bestia.zone.ai.perception.PerceptionSystem
 import net.bestia.zone.ai.perception.SenseSystem
@@ -90,7 +93,10 @@ class AiPipelineFixture(tickRate: Int = 20) {
     attackExecution = attackExecution,
   )
 
-  val townsfolk = TownsfolkRuntime(navigation = TestNavigation.service())
+  /** Where a townsperson goes when they walk through a door. Readable, so a test can assert on it. */
+  val indoors = IndoorRegistry()
+
+  val townsfolk = TownsfolkRuntime(navigation = TestNavigation.service(), indoors = indoors)
 
   val agentFactory = AiAgentFactory(runtimes = listOf(bestia, townsfolk), sharedMemory = sharedMemory)
 
@@ -140,13 +146,24 @@ class AiPipelineFixture(tickRate: Int = 20) {
    * A townsperson with a trade, which is a fact about the individual rather than about the archetype - so
    * it goes into the blackboard the agent is built on, exactly as `BestiaEntitySpawner` does it.
    */
-  fun spawnTownsfolk(occupation: Occupation, home: Vec3L, post: Vec3L? = null): EntityId {
+  fun spawnTownsfolk(
+    occupation: Occupation,
+    home: Vec3L,
+    post: Vec3L? = null,
+    /** A prop id gives them a door to go through at night; without one they lie down where they stand. */
+    homeBuilding: Long? = null,
+    identity: Long = TownsfolkIdentity.of(settlement = 1, household = 0, member = 0),
+  ): EntityId {
     val memory = Blackboard().apply {
       set(TownsfolkDomain.OCCUPATION, occupation, Blackboard.PERMANENT)
       post?.let { set(TownsfolkDomain.WORK_POSITION, it, Blackboard.PERMANENT) }
+      homeBuilding?.let { set(TownsfolkDomain.HOME_BUILDING, it, Blackboard.PERMANENT) }
     }
 
-    return spawnMob("townsfolk_commoner", home, memory = memory)
+    val id = spawnMob("townsfolk_commoner", home, memory = memory)
+    world.add(id, Townsfolk(identity))
+
+    return id
   }
 
   /** Moves the calendar on by [hours], carrying into the next day, month and year as it goes. */

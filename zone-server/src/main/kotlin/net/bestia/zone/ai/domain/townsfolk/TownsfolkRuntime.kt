@@ -7,6 +7,7 @@ import net.bestia.zone.ai.core.state.Drive
 import net.bestia.zone.ai.core.state.RestingWindow
 import net.bestia.zone.ai.domain.AiDomainRuntime
 import net.bestia.zone.ai.profile.AiConfig
+import net.bestia.zone.ecs.spawn.townsfolk.IndoorRegistry
 import net.bestia.zone.ai.profile.AiProfile
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.navigation.NavigationService
@@ -19,7 +20,10 @@ import org.springframework.stereotype.Service
  * seam earning its keep: townsfolk do not fight, so nothing about them reaches the battle system.
  */
 @Service
-class TownsfolkRuntime(navigation: NavigationService) : AiDomainRuntime {
+class TownsfolkRuntime(
+  navigation: NavigationService,
+  private val indoors: IndoorRegistry,
+) : AiDomainRuntime {
 
   private val locomotion = Locomotion(navigation)
 
@@ -39,7 +43,7 @@ class TownsfolkRuntime(navigation: NavigationService) : AiDomainRuntime {
   }
 
   override fun resolver(profile: AiProfile): ActionResolver {
-    return TownsfolkDomain.resolver(profile.actionIds, TownsfolkDomain.Collaborators(locomotion))
+    return TownsfolkDomain.resolver(profile.actionIds, TownsfolkDomain.Collaborators(locomotion, indoors))
   }
 
   /** The occupation's hours when the caller seeded one, and ordinary hours otherwise. */

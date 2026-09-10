@@ -16,6 +16,7 @@ goals:
   - { name: GoHome }
   - { name: Loiter }
 actions:
+  - enterHome
   - goHome
   - goToWork
   - loiter

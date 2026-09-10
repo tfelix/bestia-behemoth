@@ -2,6 +2,7 @@ package net.bestia.zone.ai.domain.townsfolk
 
 import net.bestia.zone.ai.bt.Locomotion
 import net.bestia.zone.ai.core.action.ActionResolver
+import net.bestia.zone.ecs.spawn.townsfolk.IndoorRegistry
 import net.bestia.zone.navigation.TestNavigation
 
 /**
@@ -12,10 +13,13 @@ import net.bestia.zone.navigation.TestNavigation
  */
 object TownsfolkDomainFixture {
 
-  fun resolver(actionIds: List<String> = TownsfolkDomain.actionIds.toList()): ActionResolver {
+  fun resolver(
+    actionIds: List<String> = TownsfolkDomain.actionIds.toList(),
+    indoors: IndoorRegistry = IndoorRegistry(),
+  ): ActionResolver {
     return TownsfolkDomain.resolver(
       actionIds,
-      TownsfolkDomain.Collaborators(Locomotion(TestNavigation.service()))
+      TownsfolkDomain.Collaborators(Locomotion(TestNavigation.service()), indoors)
     )
   }
 }

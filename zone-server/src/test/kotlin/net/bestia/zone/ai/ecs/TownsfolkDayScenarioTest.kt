@@ -4,8 +4,10 @@ import net.bestia.zone.ai.core.state.HourWindow
 import net.bestia.zone.ai.domain.townsfolk.Occupation
 import net.bestia.zone.ai.domain.townsfolk.TownsfolkDomain
 import net.bestia.zone.ecs.entity.Animation
+import net.bestia.zone.ecs.spawn.townsfolk.Townsfolk
 import net.bestia.zone.geometry.Vec3L
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
@@ -142,6 +144,38 @@ class TownsfolkDayScenarioTest {
   }
 
   @Test
+  fun `somebody with a house goes into it, and stops existing`() {
+    val villager = ai.spawnTownsfolk(GUARD, home = home, post = post, homeBuilding = HOUSE)
+    val identity = ai.world.getOrThrow(villager, Townsfolk::class).identity
+
+    ai.advanceTo(TownsfolkDomain.BEDTIME_HOUR)
+
+    ai.tickUntil(
+      maxTicks = 20 * 180,
+      describe = { "the villager never went inside (goal=${ai.goalNameOf(villager)})" }
+    ) {
+      ai.indoors.isIndoors(identity)
+    }
+
+    // The whole point of a door: a town asleep costs a map entry per person, not an entity apiece.
+    ai.tick(times = 2)
+    assertFalse(ai.world.hasEntity(villager), "the entity is still standing about after going indoors")
+  }
+
+  @Test
+  fun `they went in by their own front door, and will come out of it`() {
+    val villager = ai.spawnTownsfolk(GUARD, home = home, post = post, homeBuilding = HOUSE)
+    val identity = ai.world.getOrThrow(villager, Townsfolk::class).identity
+
+    ai.advanceTo(TownsfolkDomain.BEDTIME_HOUR)
+    ai.tickUntil(maxTicks = 20 * 180, describe = { "the villager never went inside" }) {
+      ai.indoors.isIndoors(identity)
+    }
+
+    assertEquals(home, ai.indoors.leave(identity)?.door)
+  }
+
+  @Test
   fun `the hour of day reaches its memory`() {
     // The one thing every timetable from here on rests on. IS_NIGHT cannot carry it: full night is 22:00 to
     // 04:00 while a commoner rises at 06:00, and an occupation's shift will want finer still.
@@ -157,5 +191,8 @@ class TownsfolkDayScenarioTest {
 
   private companion object {
     val GUARD = Occupation("guard", "guard", "barracks", HourWindow(6, 18), HourWindow(22, 6))
+
+    /** Any prop id will do; what matters to the plan is that there is one. */
+    const val HOUSE = 9_001L
   }
 }

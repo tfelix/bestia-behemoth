@@ -18,8 +18,10 @@ import net.bestia.zone.ai.core.state.HourWindow
 import net.bestia.zone.ai.core.state.RestingWindow
 import net.bestia.zone.ai.core.state.StateKey
 import net.bestia.zone.ai.core.state.WorldState
+import net.bestia.zone.ecs.spawn.townsfolk.IndoorRegistry
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.ai.domain.AiDomainCatalogue
+import net.bestia.zone.ai.domain.townsfolk.action.EnterHomeActionTemplate
 import net.bestia.zone.ai.domain.townsfolk.action.GoHomeActionTemplate
 import net.bestia.zone.ai.domain.townsfolk.action.GoToWorkActionTemplate
 import net.bestia.zone.ai.domain.townsfolk.action.LoiterActionTemplate
@@ -71,6 +73,18 @@ object TownsfolkDomain : AiDomainCatalogue {
 
   /** Where the post is. Absent for somebody with no workplace, which makes [Goals.WORK_SHIFT] unavailable. */
   val WORK_POSITION = StateKey<Vec3L>("workPosition", retain = Blackboard.PERMANENT)
+
+  /**
+   * The prop id of the house, for somebody who has a real one.
+   *
+   * Absent for a person a GM put down at a bare coordinate, and that absence decides how they spend the
+   * night: there is no door to go through, so they lie down on the spot instead. See
+   * [net.bestia.zone.ai.domain.townsfolk.action.EnterHomeActionTemplate].
+   */
+  val HOME_BUILDING = StateKey<Long>("homeBuilding", retain = Blackboard.PERMANENT)
+
+  /** Claimed by going through a door. Nothing reads it back - the agent is gone by then; see [Goals.SLEEP]. */
+  val INDOORS = StateKey<Boolean>("indoors", retain = Blackboard.PERMANENT)
 
   /**
    * The [DAY_INDEX] on which the shift was last seen through.
@@ -262,6 +276,11 @@ object TownsfolkDomain : AiDomainCatalogue {
      *
      * Both desired conditions are needed. A tiredness ceiling on its own is already met by somebody who
      * slept well, so at nightfall the goal would count as satisfied and be skipped - see [CommonKeys.RESTED].
+     *
+     * Two actions claim them, and exactly one is ever available: somebody with a real house goes through
+     * its door, and somebody a GM put down at a bare coordinate lies down where they stand. The two are
+     * kept apart by what they ground on rather than by cost, so the planner is never choosing between
+     * them.
      */
     val SLEEP = Goal(
       name = "Sleep",
@@ -288,13 +307,14 @@ object TownsfolkDomain : AiDomainCatalogue {
     val BY_NAME = ALL.associateBy { it.name }
   }
 
-  /** What a template needs beyond the planning contract. Only movement, so far. */
-  data class Collaborators(val locomotion: Locomotion)
+  /** What a template needs beyond the planning contract. */
+  data class Collaborators(val locomotion: Locomotion, val indoors: IndoorRegistry)
 
   private val TEMPLATE_FACTORIES: Map<String, (Collaborators) -> ActionTemplate> = mapOf(
     "goHome" to { c -> GoHomeActionTemplate(c.locomotion) },
     "goToWork" to { c -> GoToWorkActionTemplate(c.locomotion) },
     "loiter" to { c -> LoiterActionTemplate(c.locomotion) },
+    "enterHome" to { c -> EnterHomeActionTemplate(c.indoors) },
     "sleepAtHome" to { _ -> SleepAtHomeActionTemplate() },
     "workShift" to { _ -> WorkShiftActionTemplate() },
   )

@@ -43,6 +43,9 @@ class BestiaEntitySpawner(
    *   silently stop persisting packs and grow the population on every restart, which is a bug this file has
    *   shipped once already. False is for a population dense enough that rows would be a liability - see
    *   `Persistent`, and `AreaEffectSpawner` for the same decision made about spell effects.
+   * @param homePosition where this creature's AI should consider home, when that is not where it is being
+   *   put. A townsperson stepping out of a shop at noon lives in a house on the other side of town, and its
+   *   home-range goals are about the house. Defaults to [pos], which is what a den's pack wants.
    * @param aiMemory a blackboard to build the agent on, for a caller with facts about this *individual* that
    *   the archetype cannot carry - which occupation a townsperson holds, where their post is. Given here
    *   rather than written afterwards because `World.add` is deferred mid-tick, so the component may not be
@@ -56,6 +59,7 @@ class BestiaEntitySpawner(
     den: DenMember? = null,
     persistent: Boolean = true,
     aiMemory: Blackboard? = null,
+    homePosition: Vec3L? = null,
   ): EntityId {
     LOG.debug { "Spawning mob bestia $bestiaId on $pos" }
 
@@ -104,7 +108,7 @@ class BestiaEntitySpawner(
       // it, and the pathfinder has to know how it moves. `getOrDefault` covers the null and the typo alike.
       add(id, MovementCapability(movementProfileRegistry.getOrDefault(bestia.movementProfile).identifier))
 
-      attachAi(id, bestia, pos, aiMemory)
+      attachAi(id, bestia, homePosition ?: pos, aiMemory)
     }
 
     // Rehydrated mobs keep their persisted id; freshly spawned ones get a new one.

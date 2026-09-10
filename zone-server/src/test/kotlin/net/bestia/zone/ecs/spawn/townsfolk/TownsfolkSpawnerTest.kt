@@ -63,6 +63,7 @@ class TownsfolkSpawnerTest {
       settlement = 12,
       household = household,
       home = Vec3L(100, 100, 0),
+      homeBuilding = 7_777L,
       workplace = Vec3L(140, 100, 0),
     )
     every { placement.occupationFor(any(), any()) } answers {
@@ -71,7 +72,7 @@ class TownsfolkSpawnerTest {
     }
 
     every {
-      bestiaSpawner.spawnMob(any(), any(), any(), any(), any(), capture(persistent), capture(seeded))
+      bestiaSpawner.spawnMob(any(), any(), any(), any(), any(), capture(persistent), capture(seeded), any())
     } answers { world.createEntity { } }
 
     sut = TownsfolkEntitySpawner(placement, catalogue, bestiaSpawner)

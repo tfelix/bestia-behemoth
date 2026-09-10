@@ -38,6 +38,25 @@ class TownsfolkDayTest {
   }
 
   @Test
+  fun `somebody with a real house goes in through its door`() {
+    val plan = planner.makePlanForAgent(
+      townsperson(at = Vec3L(108, 100, 0), hour = 22, homeBuilding = 4_242L),
+      Blackboard()
+    )
+
+    assertEquals("Sleep", plan?.goal?.name)
+    assertEquals(listOf("goHome", "enterHome"), plan?.actions?.map { it.name })
+  }
+
+  @Test
+  fun `and somebody a GM put down in a field lies down in it`() {
+    // The two never compete: exactly one of them grounds, decided by whether there is a door at all.
+    val plan = planner.makePlanForAgent(townsperson(at = home, hour = 22), Blackboard())
+
+    assertEquals(listOf("sleepAtHome"), plan?.actions?.map { it.name })
+  }
+
+  @Test
   fun `at bedtime, already at the door, there is nothing to do but sleep`() {
     val plan = planner.makePlanForAgent(townsperson(at = home, hour = 22), Blackboard())
 
@@ -173,6 +192,7 @@ class TownsfolkDayTest {
     rested: Boolean = false,
     occupation: Occupation? = null,
     post: Vec3L? = null,
+    homeBuilding: Long? = null,
     workedOnDay: Long? = null,
   ): SimpleAgent {
     val memory = Blackboard().apply {
@@ -186,6 +206,7 @@ class TownsfolkDayTest {
       if (rested) set(TownsfolkDomain.RESTED, true, Blackboard.PERMANENT)
       occupation?.let { set(TownsfolkDomain.OCCUPATION, it, Blackboard.PERMANENT) }
       post?.let { set(TownsfolkDomain.WORK_POSITION, it, Blackboard.PERMANENT) }
+      homeBuilding?.let { set(TownsfolkDomain.HOME_BUILDING, it, Blackboard.PERMANENT) }
       workedOnDay?.let { set(TownsfolkDomain.WORKED_ON_DAY, it, Blackboard.PERMANENT) }
     }
 

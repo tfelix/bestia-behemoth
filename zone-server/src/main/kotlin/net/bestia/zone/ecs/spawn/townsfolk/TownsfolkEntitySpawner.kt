@@ -8,6 +8,7 @@ import net.bestia.zone.bestia.BestiaCatalogue
 import net.bestia.zone.bestia.BestiaEntitySpawner
 import net.bestia.zone.ecs.battle.status.Invulnerable
 import net.bestia.zone.ecs.core.WorldView
+import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Service
 
@@ -33,38 +34,51 @@ class TownsfolkEntitySpawner(
   /** @return the entities put down, or empty when the settlement has no such household to expand */
   fun spawnHousehold(world: WorldView, settlement: Int, household: Int): List<EntityId> {
     val placed = placement.of(settlement, household) ?: return emptyList()
-    val bestiaId = bestiaCatalogue.byIdentifier(COMMONER).id
 
-    return placed.household.members.mapIndexed { member, person ->
-      val occupation = placement.occupationFor(placed.household, person)
-      val memory = Blackboard().apply {
-        set(TownsfolkDomain.OCCUPATION, occupation, Blackboard.PERMANENT)
-        placed.workplace?.let { set(TownsfolkDomain.WORK_POSITION, it, Blackboard.PERMANENT) }
-      }
-
-      val id = spawner.spawnMob(
-        world,
-        bestiaId = bestiaId,
-        pos = placed.home,
-        persistent = false,
-        aiMemory = memory,
-      )
-
-      val identity = TownsfolkIdentity.of(settlement, household, member)
-
-      // Applied at the end of the tick when this runs inside a system, exactly as `AmbientSpawnerSystem`
-      // adds its own markers and for the same reason - `World.tick` holds `iterating` for the scheduler
-      // pass. Harmless here: nothing has had a chance to swing at a villager in the tick it was born, and
-      // teardown is driven from the residency record rather than from the marker.
-      world.modify(id) {
-        add(id, Townsfolk(identity))
-        add(id, AiThrottleable)
-        add(id, Invulnerable)
-      }
-
-      LOG.trace { "Spawned ${occupation.id} ${TownsfolkIdentity.describe(identity)} as entity $id" }
-      id
+    return placed.household.members.indices.mapNotNull { member ->
+      spawn(world, placed, member, placed.home)
     }
+  }
+
+  private fun spawn(
+    world: WorldView,
+    placed: HouseholdPlacement.Placement,
+    member: Int,
+    at: Vec3L,
+  ): EntityId? {
+    val person = placed.household.members.getOrNull(member) ?: return null
+    val occupation = placement.occupationFor(placed.household, person)
+    val identity = TownsfolkIdentity.of(placed.settlement, placed.household.index, member)
+
+    val memory = Blackboard().apply {
+      set(TownsfolkDomain.OCCUPATION, occupation, Blackboard.PERMANENT)
+      set(TownsfolkDomain.HOME_BUILDING, placed.homeBuilding, Blackboard.PERMANENT)
+      placed.workplace?.let { set(TownsfolkDomain.WORK_POSITION, it, Blackboard.PERMANENT) }
+    }
+
+    // `homePosition` is the door rather than [at]: somebody stepping out of a shop at noon still lives
+    // where they live, and the home-range goals are about the house.
+    val id = spawner.spawnMob(
+      world,
+      bestiaId = bestiaCatalogue.byIdentifier(COMMONER).id,
+      pos = at,
+      persistent = false,
+      aiMemory = memory,
+      homePosition = placed.home,
+    )
+
+    // Applied at the end of the tick when this runs inside a system, exactly as `AmbientSpawnerSystem`
+    // adds its own markers and for the same reason - `World.tick` holds `iterating` for the scheduler
+    // pass. Harmless here: nothing has had a chance to swing at a villager in the tick it was born, and
+    // teardown is driven from the residency record rather than from the marker.
+    world.modify(id) {
+      add(id, Townsfolk(identity))
+      add(id, AiThrottleable)
+      add(id, Invulnerable)
+    }
+
+    LOG.trace { "Spawned ${occupation.id} ${TownsfolkIdentity.describe(identity)} as entity $id" }
+    return id
   }
 
   private companion object {

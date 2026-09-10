@@ -40,6 +40,8 @@ class HouseholdPlacement(
     val settlement: Int,
     val household: Household,
     val home: Vec3L,
+    /** The house's prop id. What tells somebody with a door from somebody standing in a field. */
+    val homeBuilding: Long,
     val workplace: Vec3L?,
   )
 
@@ -53,11 +55,13 @@ class HouseholdPlacement(
     if (homes.isEmpty()) return null
 
     val expanded = Households.one(summary, household)
+    val house = homes[household % homes.size]
 
     return Placement(
       settlement = settlement,
       household = expanded,
-      home = standingAt(homes[household % homes.size]),
+      home = standingAt(house),
+      homeBuilding = house.propId,
       workplace = workplaceOf(site, expanded, household)?.let { standingAt(it) },
     )
   }
