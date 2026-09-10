@@ -152,6 +152,14 @@ object BestiaDomain {
    */
   val RESTED = StateKey<Boolean>("rested")
 
+  /**
+   * Whatever this creature was fighting is dead. Written by the attack action's effect - which reports
+   * success only on a real death - and cleared by perception the next time it sees a live target.
+   *
+   * The clearer is what makes it usable at all. Both kill goals ask for it to be true and the planner skips
+   * a goal whose desired state already holds, so a creature that kept the belief would stand and take a
+   * beating from its next attacker.
+   */
   val TARGET_DEAD = StateKey<Boolean>("targetDead")
 
   /** Shared pack-wide: one bestia's foraging discovery becomes every packmate's knowledge. */

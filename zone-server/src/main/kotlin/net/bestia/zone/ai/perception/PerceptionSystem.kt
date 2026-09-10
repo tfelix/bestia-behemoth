@@ -122,6 +122,10 @@ class PerceptionSystem(
         val targetPos = world.get(target, Position::class)?.toVec3L() ?: selfPos
         memory.set(BestiaDomain.TARGET_ID, target)
         memory.set(BestiaDomain.TARGET_POSITION, targetPos)
+        // Something is alive in front of it, so whatever it killed last is not the question any more. Both
+        // kill goals want `TARGET_DEAD` true and the planner skips a goal whose desired state already holds,
+        // so a belief carried over from the previous kill is a creature that stands and takes the beating.
+        memory.remove(BestiaDomain.TARGET_DEAD)
       } else {
         memory.remove(BestiaDomain.TARGET_ID)
         memory.remove(BestiaDomain.TARGET_POSITION)

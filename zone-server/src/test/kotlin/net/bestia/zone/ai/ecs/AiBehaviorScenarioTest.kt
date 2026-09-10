@@ -148,6 +148,19 @@ class AiBehaviorScenarioTest {
   }
 
   @Test
+  fun `a mob that has killed once still fights the next thing that attacks it`() {
+    val mob = ai.spawnMob("aggressive_melee", Vec3L(0, 0, 0))
+    val player = ai.spawnPlayer(Vec3L(2, 0, 0))
+
+    // What the attack action's effect leaves behind after a kill. Nothing but perception takes it away, and
+    // both kill goals are satisfied while it stands - so this mob has no reason to fight anybody.
+    ai.agentOf(mob).memory.set(BestiaDomain.TARGET_DEAD, true)
+    ai.recordHit(victim = mob, attacker = player)
+
+    ai.tickUntilGoal(mob, "KillAttacker")
+  }
+
+  @Test
   fun `an idle mob eventually gets restless and wanders`() {
     val mob = ai.spawnMob("passive_wanderer", Vec3L(0, 0, 0))
 
