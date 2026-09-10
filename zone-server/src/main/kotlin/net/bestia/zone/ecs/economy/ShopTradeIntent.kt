@@ -1,0 +1,24 @@
+package net.bestia.zone.ecs.economy
+
+import net.bestia.zone.ecs.core.Component
+
+/**
+ * Intent to buy or sell [amount] of [itemId] with the settlement this entity is standing in.
+ *
+ * Attached by `ShopTradeHandler` and resolved by `ShopTradeIntentSystem`, where every check lives -
+ * `CollectPropIntent`'s arrangement, and for the same reason: the settlement ledger is a plain map
+ * touched only from the tick thread, and a message handler runs on a Netty thread.
+ *
+ * The race it resolves is sharper here than for a prop. Two players buying the last loaf are visited by
+ * a single pass of one system: the first decrements the in-memory ledger synchronously, so the second is
+ * quoted against a town with one fewer loaf in it and refused if that leaves none. Entity operations
+ * defer to the end of the tick and would have granted twice.
+ *
+ * Only one can be attached at a time, since components are one per class per entity - a player who
+ * clicks buy twice inside the same 50 ms tick gets the second. Matches `CollectPropIntent`.
+ */
+data class ShopTradeIntent(
+  val itemId: Long,
+  val amount: Int,
+  val selling: Boolean,
+) : Component

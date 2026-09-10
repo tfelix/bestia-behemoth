@@ -35,6 +35,8 @@ import net.bestia.zone.trade.RequestTradeCMSG
 import net.bestia.zone.trade.RetractTradeItemCMSG
 import net.bestia.zone.trade.SetTradeLockCMSG
 import net.bestia.zone.socket.PingCMSG
+import net.bestia.zone.economy.shop.OpenShopCMSG
+import net.bestia.zone.economy.shop.ShopTradeCMSG
 import net.bestia.zone.world.prop.collect.CollectPropCMSG
 import net.bestia.zone.world.prop.interact.InteractEntityCMSG
 import net.bestia.zone.world.stream.ChunkRequestCMSG
@@ -83,6 +85,8 @@ class BnetMessageProcessorAdapter(
       envelope.hasChunkRequest() -> ChunkRequestCMSG.fromBnet(accountId, envelope.chunkRequest)
       envelope.hasCollectProp() -> CollectPropCMSG.fromBnet(accountId, envelope.collectProp)
       envelope.hasInteractEntity() -> InteractEntityCMSG.fromBnet(accountId, envelope.interactEntity)
+      envelope.hasOpenShop() -> OpenShopCMSG(accountId)
+      envelope.hasShopTrade() -> ShopTradeCMSG.fromBnet(accountId, envelope.shopTrade)
       envelope.hasCraftItem() -> CraftItemCMSG.fromBnet(accountId, envelope.craftItem)
       envelope.hasCancelCraft() -> CancelCraftCMSG(accountId)
       envelope.hasRequestTrade() -> RequestTradeCMSG.fromBnet(accountId, envelope.requestTrade)
