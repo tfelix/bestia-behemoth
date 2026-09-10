@@ -7,6 +7,8 @@ import net.bestia.zone.ai.core.behavior.BtNode
 import net.bestia.zone.ai.core.goal.Goal
 import net.bestia.zone.ai.core.planner.Plan
 import net.bestia.zone.ai.core.state.Blackboard
+import net.bestia.zone.ai.core.state.Drive
+import net.bestia.zone.ai.core.state.RestingWindow
 import net.bestia.zone.ai.core.state.WorldState
 import net.bestia.zone.ecs.core.Component
 
@@ -36,6 +38,10 @@ class AiAgent(
   override val actionResolver: ActionResolver,
   override val memory: Blackboard,
   override val teamMemory: Blackboard? = null,
+  /** The appetites `AiDriveSystem` moves for this agent. Empty for one that wants nothing on its own. */
+  val drives: List<Drive> = emptyList(),
+  /** When perception should clear [net.bestia.zone.ai.core.state.CommonKeys.RESTED]. */
+  val restingWindow: RestingWindow = RestingWindow.NEVER,
 ) : Component, Agent {
 
   var currentGoal: Goal? = null

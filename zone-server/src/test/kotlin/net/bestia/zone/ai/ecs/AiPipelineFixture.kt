@@ -49,17 +49,28 @@ class AiPipelineFixture(tickRate: Int = 20) {
   val profiles = AiProfileRegistry().apply { load() }
 
   /**
-   * The hour the world calendar reports, as a whole Bestia-hour. Move it with [setDay]/[setNight] rather than
-   * by waiting: a Bestia day takes eight real-world hours, so no test could ever tick its way to nightfall.
+   * What the world calendar reports. Move it with [advanceHours]/[setDay]/[setNight] rather than by waiting:
+   * a Bestia day takes eight real-world hours, so no test could ever tick its way to nightfall.
+   *
+   * A whole date rather than an hour, because a day has to be able to roll over. Anything that happens once
+   * a day latches against `CommonKeys.DAY_INDEX` and is cleared by that number moving, so on a calendar
+   * pinned to day one such a latch never clears and the behaviour cannot be tested at all.
    */
-  var hourOfDay: Int = NOON
+  var now: BestiaDateTime = BestiaDateTime(year = 1, month = 1, day = 1, hour = NOON, minute = 0, second = 0)
+
+  var hourOfDay: Int
+    get() = now.hour
+    set(value) {
+      now = now.copy(hour = value)
+    }
 
   /**
    * A calendar the test drives. `BestiaClock` is anchored to the persisted world row and there is no world
    * here, so the only options are a fake and not testing day/night at all.
    */
   val clock: BestiaClock = mockk<BestiaClock>().also {
-    every { it.now() } answers { BestiaDateTime(year = 1, month = 1, day = 1, hour = hourOfDay, minute = 0, second = 0) }
+    every { it.now() } answers { now }
+    every { it.speedFactor } returns BestiaDateTime.SPEED_FACTOR
   }
 
   /**
@@ -88,7 +99,7 @@ class AiPipelineFixture(tickRate: Int = 20) {
     PerceptionSystem(profiles, aoi, clock, throttle),
     // Spring collects the Sense beans in the live server; a test names the ones its scenario cares about.
     SenseSystem(listOf(ForageSense { grazeableGround }), sharedMemory, throttle),
-    AiDriveSystem(sharedMemory),
+    AiDriveSystem(sharedMemory, clock),
     AiThinkSystem(Planner(), sharedMemory, throttle),
     AiActSystem(sharedMemory, ZoneConfig(tickRate = tickRate)),
     // No terrain in these scenarios, so no ground to snap to; null keeps the waypoint's own z, which is what
@@ -110,6 +121,26 @@ class AiPipelineFixture(tickRate: Int = 20) {
       world.add(id, Animation())
       world.add(id, agentFactory.create(profiles.getOrThrow(profileId), homePosition = pos))
     }
+
+  /** Moves the calendar on by [hours], carrying into the next day, month and year as it goes. */
+  fun advanceHours(hours: Int) {
+    require(hours >= 0) { "the calendar only runs forwards, was $hours" }
+
+    var day = (now.day - 1).toLong() + (now.hour + hours) / BestiaDateTime.HOURS_PER_DAY
+    val hour = (now.hour + hours) % BestiaDateTime.HOURS_PER_DAY
+    var month = (now.month - 1).toLong() + day / BestiaDateTime.DAYS_PER_MONTH
+    day %= BestiaDateTime.DAYS_PER_MONTH
+    val year = now.year + month / BestiaDateTime.MONTHS_PER_YEAR
+    month %= BestiaDateTime.MONTHS_PER_YEAR
+
+    now = now.copy(year = year, month = month.toInt() + 1, day = day.toInt() + 1, hour = hour)
+  }
+
+  /** Moves the calendar to [hour], tomorrow if that hour has already gone by today. */
+  fun advanceTo(hour: Int) {
+    val delta = hour - now.hour
+    advanceHours(if (delta > 0) delta else delta + BestiaDateTime.HOURS_PER_DAY)
+  }
 
   /** Puts the world calendar into the daytime portion of the Bestia day. */
   fun setDay() {
@@ -195,6 +226,11 @@ class AiPipelineFixture(tickRate: Int = 20) {
     tickUntil(maxTicks, describe = { "entity $id never adopted '$goalName' (last was ${goalNameOf(id)})" }) {
       goalNameOf(id) == goalName
     }
+  }
+
+  /** What [key] currently says on this agent's own board, for asserting a latch directly. */
+  fun <T> beliefOf(id: EntityId, key: StateKey<T>): T? {
+    return agentOf(id).memory.get(key)
   }
 
   companion object {

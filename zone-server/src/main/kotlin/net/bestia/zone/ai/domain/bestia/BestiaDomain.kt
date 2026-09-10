@@ -12,6 +12,9 @@ import net.bestia.zone.ai.core.goal.priority
 import net.bestia.zone.ai.core.precondition.Precondition
 import net.bestia.zone.ai.core.precondition.Preconditions
 import net.bestia.zone.ai.core.state.Blackboard
+import net.bestia.zone.ai.core.state.CommonKeys
+import net.bestia.zone.ai.core.state.Drive
+import net.bestia.zone.ai.core.state.RestingWindow
 import net.bestia.zone.ai.core.state.MemoryScope
 import net.bestia.zone.ai.core.state.StateKey
 import net.bestia.zone.ai.core.state.WorldState
@@ -77,98 +80,67 @@ object BestiaDomain {
    */
   const val RESTED_TIREDNESS = 20
 
-  // ---------------------------------------------------------------- observations
+  // ------------------------------------------------------------ shared with every domain
 
-  val POSITION = StateKey<Vec3L>("position", observed = true)
+  // Re-exported rather than redeclared. Keys are equal by name, so these already addressed the same slots
+  // as `CommonKeys`; aliasing makes that visible and leaves one declaration to get the metadata right.
+  val POSITION = CommonKeys.POSITION
+  val HEALTH_PCT = CommonKeys.HEALTH_PCT
+  val ENEMY_IN_SIGHT = CommonKeys.ENEMY_IN_SIGHT
+  val TARGET_ID = CommonKeys.TARGET_ID
+  val TARGET_ARCHETYPE = CommonKeys.TARGET_ARCHETYPE
+  val TARGET_POSITION = CommonKeys.TARGET_POSITION
+  val IS_AGGRO = CommonKeys.IS_AGGRO
+  val IS_NIGHT = CommonKeys.IS_NIGHT
+  val HOME_POSITION = CommonKeys.HOME_POSITION
+  val WANDER_RADIUS = CommonKeys.WANDER_RADIUS
+  val HUNGER_THRESHOLD = CommonKeys.HUNGER_THRESHOLD
+  val TIREDNESS_THRESHOLD = CommonKeys.TIREDNESS_THRESHOLD
+  val RESTLESS_THRESHOLD = CommonKeys.RESTLESS_THRESHOLD
+  val HUNGER = CommonKeys.HUNGER
+  val TIREDNESS = CommonKeys.TIREDNESS
+  val RESTLESSNESS = CommonKeys.RESTLESSNESS
+  val RESTED = CommonKeys.RESTED
+  val TARGET_DEAD = CommonKeys.TARGET_DEAD
 
-  /** Own health as a 0..100 percentage, so the utility curves can read it like any other stat. */
-  val HEALTH_PCT = StateKey<Int>("healthPct", observed = true)
+  // ------------------------------------------------------------------ this domain
 
-  val ENEMY_IN_SIGHT = StateKey<Boolean>("enemyInSight", observed = true)
-  val TARGET_ID = StateKey<Long>("targetId", observed = true)
-  val TARGET_ARCHETYPE = StateKey<String>("targetArchetype", observed = true)
-  val TARGET_POSITION = StateKey<Vec3L>("targetPosition", observed = true)
-
-  /** Flipped true by perception when this bestia is attacked, gating retaliation. */
-  val IS_AGGRO = StateKey<Boolean>("isAggro", observed = true)
-
-  /**
-   * Whether the world calendar currently says night, read from `BestiaClock` by perception.
-   *
-   * An observation about the world, not about the creature: what a given creature *does* about the hour is
-   * [ACTIVITY_CYCLE]'s business, and [isRestingPhase] is where the two meet.
-   */
-  val IS_NIGHT = StateKey<Boolean>("isNight", observed = true)
-
-  // --------------------------------------------------------------- profile knobs
-
-  /** Spawn tile, written once (permanently) when a profile is attached. */
-  val HOME_POSITION = StateKey<Vec3L>("homePosition")
-  val WANDER_RADIUS = StateKey<Long>("wanderRadius")
-  val MELEE_RANGE = StateKey<Long>("meleeRange")
-  val HUNGER_THRESHOLD = StateKey<Int>("hungerThreshold")
-  val TIREDNESS_THRESHOLD = StateKey<Int>("tirednessThreshold")
-
-  /** Restlessness at or above which idle wandering becomes available. */
-  val RESTLESS_THRESHOLD = StateKey<Int>("restlessThreshold")
+  val MELEE_RANGE = StateKey<Long>("meleeRange", retain = Blackboard.PERMANENT)
 
   /** 0..100 temperament knob; scales how strongly the kill goals are wanted. */
-  val AGGRESSION = StateKey<Int>("aggression")
+  val AGGRESSION = StateKey<Int>("aggression", retain = Blackboard.PERMANENT)
 
   /** When this species sleeps, against the world's day/night cycle. See [isRestingPhase]. */
-  val ACTIVITY_CYCLE = StateKey<ActivityCycle>("activityCycle")
+  val ACTIVITY_CYCLE = StateKey<ActivityCycle>("activityCycle", retain = Blackboard.PERMANENT)
 
-  // -------------------------------------------------------------------- beliefs
-
-  val HUNGER = StateKey<Int>("hunger", retain = Blackboard.PERMANENT)
-  val TIREDNESS = StateKey<Int>("tiredness", retain = Blackboard.PERMANENT)
-
-  /**
-   * Builds up while nothing else is worth doing and is spent by wandering.
-   *
-   * This key is what lets idling be an ordinary goal. A "keep wandering" goal has no naturally
-   * unsatisfied state — its desired state either holds before any step is taken, so the planner (which
-   * only selects goals that are *not* already satisfied) would never pick it, or holds forever after one
-   * step, so it would never run again. The previous code worked around that with a reflexive
-   * `fallbackWander` escape hatch outside the goal system entirely. Giving idleness a decaying drive,
-   * exactly like hunger and tiredness, removes the special case: restlessness rises, the wander goal
-   * becomes available and unsatisfied, wandering spends it, and it rises again.
-   */
-  val RESTLESSNESS = StateKey<Int>("restlessness", retain = Blackboard.PERMANENT)
-
-  /**
-   * Has slept out whatever made it want to. Set by the sleep action, cleared by perception for as long as
-   * this creature's resting phase lasts.
-   *
-   * Without it a night-sleeping creature could not be expressed at all. [Goals.SLEEP]'s other desired
-   * condition is a tiredness ceiling, which a rested creature already meets, and the planner skips a goal
-   * whose desired state already holds — so a well-slept animal would have wandered about all night. Its job
-   * is to keep the goal *unsatisfied* for as long as it is bedtime.
-   *
-   * It is therefore normal for it to be absent rather than false on a creature that has just woken at dawn:
-   * the night ending makes the goal unavailable, so the sleep behaviour is dropped rather than completing,
-   * and nothing writes the effect. Absent and false mean the same thing to every reader, and availability is
-   * what actually decides — this is a latch against the resting phase, not a diary.
-   */
-  val RESTED = StateKey<Boolean>("rested", retain = Blackboard.PERMANENT)
-
-  /**
-   * Whatever this creature was fighting is dead. Written by the attack action's effect - which reports
-   * success only on a real death - and cleared by perception the next time it sees a live target.
-   *
-   * The clearer is what makes it usable at all. Both kill goals ask for it to be true and the planner skips
-   * a goal whose desired state already holds, so a creature that kept the belief would stand and take a
-   * beating from its next attacker. Permanent like the beliefs above now that perception is what ends it
-   * rather than a timer.
-   */
-  val TARGET_DEAD = StateKey<Boolean>("targetDead", retain = Blackboard.PERMANENT)
 
   /** Shared pack-wide: one bestia's foraging discovery becomes every packmate's knowledge. */
-  val KNOWN_VEGETATION = StateKey<List<VegetationMemory>>("knownVegetation", MemoryScope.TEAM, retain = Blackboard.PERMANENT)
+  val KNOWN_VEGETATION =
+    StateKey<List<VegetationMemory>>("knownVegetation", MemoryScope.TEAM, retain = Blackboard.PERMANENT)
 
   /** Shared world-wide: "fire hurts golems" is knowledge the whole species can learn once. */
   val ATTACK_EFFECTIVENESS =
     StateKey<Map<EffectivenessKey, Double>>("attackEffectiveness", MemoryScope.WORLD, retain = Blackboard.PERMANENT)
+
+  /**
+   * What a creature's body does to it while nothing else is happening.
+   *
+   * Per in-game hour. These are the long-standing per-real-second rates - peckish in about three real
+   * minutes, sleepy in seven, bored in one - restated in the unit a day is measured in, at the shipped
+   * speed factor of three. Tiredness runs backwards while asleep, and twenty times as fast, so a full
+   * night is slept off well before dawn; an interrupted night therefore means something, because the
+   * recovery is continuous rather than a jump when the sleeping finishes.
+   */
+  val DRIVES = listOf(
+    Drive(HUNGER, perGameHour = 660f),
+    Drive(TIREDNESS, perGameHour = 300f, whileSleepingPerGameHour = -6_000f),
+    Drive(RESTLESSNESS, perGameHour = 1_920f),
+  )
+
+  /** A species sleeps by the sun, so its window is whatever its [ActivityCycle] calls resting. */
+  fun restingWindow(cycle: ActivityCycle): RestingWindow {
+    return RestingWindow { _, isNight -> cycle.isRestingAt(isNight) }
+  }
 
   // ------------------------------------------------------------------- helpers
 

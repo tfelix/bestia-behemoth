@@ -1,7 +1,6 @@
 package net.bestia.zone.ai.perception
 
-import net.bestia.zone.ai.core.state.Blackboard
-import net.bestia.zone.ai.domain.bestia.BestiaDomain
+import net.bestia.zone.ai.core.state.CommonKeys
 import net.bestia.zone.ai.ecs.AiAgent
 import net.bestia.zone.ai.ecs.AiThrottle
 import net.bestia.zone.ai.ecs.AiThrottleable
@@ -21,6 +20,7 @@ import net.bestia.zone.ecs.core.System as EcsSystem
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.environment.time.BestiaClock
+import net.bestia.zone.environment.time.BestiaDateTime
 import net.bestia.zone.geometry.Vec3L
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component as SpringComponent
@@ -71,7 +71,7 @@ class PerceptionSystem(
     // Read at most once per sweep and only when there is somebody to tell, rather than hoisted out of the
     // query: the world calendar is anchored to the persisted world row, so asking the clock before the world
     // has finished loading throws — and a zone with no AI in it has no reason to ask at all.
-    var night: Boolean? = null
+    var time: BestiaDateTime? = null
 
     // Gathered once per sweep rather than per agent: the throttle asks how far the nearest player is, and
     // there are a handful of players against a hundred and forty creatures each.
@@ -93,17 +93,20 @@ class PerceptionSystem(
       val profile = profileRegistry.get(agent.profileId) ?: return@each
       val selfPos = position.toVec3L()
       val memory = agent.memory
-      val isNight = night ?: clock.now().isNight.also { night = it }
+      val now = time ?: clock.now().also { time = it }
 
-      memory.set(BestiaDomain.POSITION, selfPos, Blackboard.PERMANENT)
-      memory.set(BestiaDomain.HEALTH_PCT, healthPct(world, id), Blackboard.PERMANENT)
-      memory.set(BestiaDomain.IS_NIGHT, isNight, Blackboard.PERMANENT)
+      memory.set(CommonKeys.POSITION, selfPos)
+      memory.set(CommonKeys.HEALTH_PCT, healthPct(world, id))
+      memory.set(CommonKeys.IS_NIGHT, now.isNight)
+      memory.set(CommonKeys.HOUR_OF_DAY, now.hour)
+      memory.set(CommonKeys.DAY_INDEX, now.absoluteDay.toLong())
 
-      // Being in this creature's resting phase is what "has not slept it out yet" means, and clearing the
-      // belief here is what lets the sleep goal become unsatisfied again at every dusk — the reason a
-      // rested animal still goes to bed when its night comes round.
-      if (profile.tuning.activityCycle.isRestingAt(isNight)) {
-        memory.remove(BestiaDomain.RESTED)
+      // Being off duty is what "has not slept it out yet" means, and clearing the belief here is what lets
+      // the sleep goal become unsatisfied again at every dusk — the reason a rested animal still goes to bed
+      // when its night comes round. Asked of the agent rather than its profile because a night watchman
+      // rests through exactly the hours a diurnal animal is awake.
+      if (agent.restingWindow.isRestingAt(now.hour, now.isNight)) {
+        memory.remove(CommonKeys.RESTED)
       }
 
       val nearestHostile = nearestHostile(world, id, selfPos, profile.perception.sightRadius)
@@ -115,21 +118,21 @@ class PerceptionSystem(
       // aggro key existed but was never set by anything.
       val target = attacker ?: nearestHostile
 
-      memory.set(BestiaDomain.IS_AGGRO, attacker != null)
-      memory.set(BestiaDomain.ENEMY_IN_SIGHT, target != null)
+      memory.set(CommonKeys.IS_AGGRO, attacker != null)
+      memory.set(CommonKeys.ENEMY_IN_SIGHT, target != null)
 
       if (target != null) {
         val targetPos = world.get(target, Position::class)?.toVec3L() ?: selfPos
-        memory.set(BestiaDomain.TARGET_ID, target)
-        memory.set(BestiaDomain.TARGET_POSITION, targetPos)
-        // Something is alive in front of it, so whatever it killed last is not the question any more. Both
-        // kill goals want `TARGET_DEAD` true and the planner skips a goal whose desired state already holds,
-        // so a belief carried over from the previous kill is a creature that stands and takes the beating.
-        memory.remove(BestiaDomain.TARGET_DEAD)
+        memory.set(CommonKeys.TARGET_ID, target)
+        memory.set(CommonKeys.TARGET_POSITION, targetPos)
+        // Something is alive in front of it, so whatever it killed last is not the question any more. A kill
+        // goal asks for `TARGET_DEAD` and the planner skips a goal whose desired state already holds, so a
+        // belief carried over from the previous kill is an agent that stands and takes the beating.
+        memory.remove(CommonKeys.TARGET_DEAD)
       } else {
-        memory.remove(BestiaDomain.TARGET_ID)
-        memory.remove(BestiaDomain.TARGET_POSITION)
-        memory.remove(BestiaDomain.TARGET_ARCHETYPE)
+        memory.remove(CommonKeys.TARGET_ID)
+        memory.remove(CommonKeys.TARGET_POSITION)
+        memory.remove(CommonKeys.TARGET_ARCHETYPE)
       }
 
       // Unblocks planning. Until this is set the think stage leaves the agent alone, so nothing is ever

@@ -66,6 +66,8 @@ class AiAgentFactory(
       ),
       memory = memory,
       teamMemory = sharedMemory.teamBoard(profile.faction),
+      drives = BestiaDomain.DRIVES,
+      restingWindow = BestiaDomain.restingWindow(profile.tuning.activityCycle),
     )
   }
 
