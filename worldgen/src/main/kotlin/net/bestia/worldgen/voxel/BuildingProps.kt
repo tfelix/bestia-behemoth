@@ -66,7 +66,6 @@ class BuildingProps(
     val flags: Int
   )
 
-  private val cellUnits = Quantize.toFixed(BUILDING_CELL_SIZE)
 
   private val sites: List<Site> = features
     .asSequence()
@@ -156,12 +155,28 @@ class BuildingProps(
    * Injective because two buildings cannot share a centre - lots do not overlap, which `TownStage`'s own
    * plot-overlap test guarantees.
    */
-  private fun cellOf(world: Double): Long = Math.floorDiv(Quantize.toFixed(world), cellUnits)
+  private fun cellOf(world: Double): Long = Companion.cellOf(world)
 
   companion object {
 
     /** See [cellOf]. Not a spacing: nothing is laid out on this lattice, it only names things. */
     const val BUILDING_CELL_SIZE = 1.0
+
+    private val cellUnits = Quantize.toFixed(BUILDING_CELL_SIZE)
+
+    fun cellOf(world: Double): Long {
+      return Math.floorDiv(Quantize.toFixed(world), cellUnits)
+    }
+
+    /**
+     * The [PropId] the building centred on ([x], [y]) is emitted with.
+     *
+     * Public so a runtime index can join a building it read off a `FootprintFeature` to the prop the
+     * player can actually knock down, without restating the quantisation and drifting from it.
+     */
+    fun propIdAt(x: Double, y: Double): Long {
+      return PropId.of(PropKind.BUILDING, cellOf(x), cellOf(y))
+    }
 
     /**
      * Mirrors `Building.STOREY_HEIGHT` and `TownBuildings`' own cap.
