@@ -104,15 +104,15 @@ class SpawnDangerCurveTest {
    * the gate regenerates the world - which is the point. Editing the literal to make the build pass without
    * that being the intent is the mistake this exists to make loud.
    *
-   * Moved 3 -> 4 for exactly that reason, and not by this branch: the per-cell creature budget retuned
-   * `SpawnerParams` and bumped the stage with it, so the world regenerates on its account. Extracting the
-   * curve into [SpawnDangerCurve] is the pure refactor the tests above measure, and moves neither number.
+   * Moved 4 -> 5 by the home ring coming to cap the boss roll: a stored world can hold a level-100 den
+   * inside a starter town's ring, so it has to be regenerated. Extracting the curve into [SpawnDangerCurve]
+   * is the pure refactor the tests above measure, and moves neither number.
    */
   @Test
-  fun `SpawnerStage still declares version four and an unchanged params digest`() {
+  fun `SpawnerStage declares version five and an unchanged params digest`() {
     val stage = SpawnerStage()
 
-    assertEquals(4, stage.version)
+    assertEquals(5, stage.version)
     assertEquals(
       net.bestia.worldgen.core.GenRng.hash(
         SpawnerParams().digest().value,

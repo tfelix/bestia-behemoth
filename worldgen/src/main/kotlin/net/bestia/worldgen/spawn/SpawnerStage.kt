@@ -480,7 +480,9 @@ class SpawnerStage(
   //    allocates feature ids in cell order rather than in Poisson order, so every den is renamed even where
   //    the arithmetic would have agreed - and `DenIdentity` hashes that id, so a stored pack must not be
   //    handed back to a den that is no longer the same den.
-  override val version = 4
+  // 5: the home safety ring caps the boss roll as well. A stored world can hold a level-100 den inside a
+  //    starter town's ring, which is the one thing the ring exists to prevent.
+  override val version = 5
 
   override val paramsVersion get() = GenRng.hash(params.digest().value, SpawnHostility.catalogueDigest())
 
@@ -629,7 +631,7 @@ class SpawnerStage(
   }
 
   /** The level range a den in some ground gets. */
-  private class Levels(val min: Int, val max: Int)
+  internal class Levels(val min: Int, val max: Int)
 
   /**
    * The `LEVEL_MIN`/`LEVEL_MAX` pair for given ground, with nothing random about it but the [boss] flag.
@@ -637,39 +639,46 @@ class SpawnerStage(
    * Pulled out of [marker] because the per-cell creature budget is keyed on the *band*, so the band has to be
    * known before any marker in the cell is built - and it must be the same function, or a cell could be given
    * one band's density and then filled with the next band's dens.
+   *
+   * `internal` so `SpawnerHomeRingTest` can ask it directly. Reaching the same answer through a generated
+   * world costs a world per case and only finds a violation on a seed that happens to corrupt ground near a
+   * starter town - which is how the boss path stayed uncapped.
    */
-  private fun levelsAt(
+  internal fun levelsAt(
     danger: Double,
     severity: Double,
     corrupted: Boolean,
     nearHome: Boolean,
     boss: Boolean
   ): Levels {
-    if (boss) return Levels(params.maxLevel, params.maxLevel)
+    val levels = if (boss) {
+      Levels(params.maxLevel, params.maxLevel)
+    } else {
+      val centre = when {
+        // Inside the band, severity and the ordinary danger share the say, so a corrupted mountain is worse
+        // than a corrupted plain rather than both being pinned to the same number.
+        corrupted -> lerp(
+          params.corruptedMinLevel.toDouble(),
+          params.maxLevel.toDouble(),
+          0.5 * severity + 0.5 * danger
+        )
+        // `levelCurve` bends this so low-level country is a region rather than a rounding error.
+        else -> lerp(1.0, params.wildMaxLevel.toDouble(), danger.pow(params.levelCurve))
+      }
 
-    val centre = when {
-      // Inside the band, severity and the ordinary danger share the say, so a corrupted mountain is worse
-      // than a corrupted plain rather than both being pinned to the same number.
-      corrupted -> lerp(
-        params.corruptedMinLevel.toDouble(),
-        params.maxLevel.toDouble(),
-        0.5 * severity + 0.5 * danger
+      Levels(
+        (centre - params.levelSpread).toInt().coerceIn(1, params.maxLevel),
+        (centre + params.levelSpread).toInt().coerceIn(1, params.maxLevel)
       )
-      // `levelCurve` bends this so low-level country is a region rather than a rounding error.
-      else -> lerp(1.0, params.wildMaxLevel.toDouble(), danger.pow(params.levelCurve))
     }
 
-    val levelMin = (centre - params.levelSpread).toInt().coerceIn(1, params.maxLevel)
-    val levelMax = (centre + params.levelSpread).toInt().coerceIn(1, params.maxLevel)
+    if (!nearHome) return levels
 
-    // The home ring, applied as a clamp on the top of the range rather than on its centre - so nothing
-    // inside it can roll above the cap, which is what "safe" has to mean to a level-one master.
-    if (nearHome) {
-      val capped = minOf(levelMax, params.homeMaxLevel)
-      return Levels(minOf(levelMin, capped), capped)
-    }
-
-    return Levels(levelMin, levelMax)
+    // The one exit from the level curve, so no path can reach the ring uncapped - the boss roll least of
+    // all, since a level-100 den is precisely what "safe" has to exclude for a level-one master. Clamped on
+    // the top of the range rather than on its centre, for the same reason.
+    val capped = minOf(levels.max, params.homeMaxLevel)
+    return Levels(minOf(levels.min, capped), capped)
   }
 
   private fun marker(
