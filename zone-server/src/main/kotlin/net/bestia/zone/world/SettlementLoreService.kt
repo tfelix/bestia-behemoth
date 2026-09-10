@@ -70,6 +70,15 @@ class SettlementLoreService(
    * whoever is speaking - a grandmother and a chronicler place the same year differently - and re-deriving it
    * from the detail string would be impossible.
    */
+  /**
+   * One event a settlement has a claim on, and which of the two claims it is.
+   *
+   * [own] separates "this happened to us" from "this happened where we could see it", which is the
+   * distinction a reader has to make: a founding belongs to a town forever, while an eruption seven
+   * kilometres away is something it merely witnessed.
+   */
+  class Located(val event: HistoryEvent, val own: Boolean)
+
   data class Memory(
     val year: Int,
     val kind: EventKind,
@@ -133,6 +142,30 @@ class SettlementLoreService(
       nearbyRange: Double = NEARBY_RANGE,
       positions: Map<Int, Vec2d> = settlementPositions(generated)
     ): List<Memory> {
+      return knownAt(generated, settlementIndex, nearbyRange, positions)
+        .map { it.event.toMemory(nearby = !it.own) }
+        .sortedWith(compareByDescending<Memory> { it.importance }.thenByDescending { it.year })
+        .take(limit)
+    }
+
+    /**
+     * The raw events this settlement has any claim on, unsorted and untrimmed.
+     *
+     * [loreOf]'s query without its rendering, because a caller that has to decide *who in the town* knows a
+     * thing needs what [Memory] drops: the event id to key on, and the actors to name. Keeping one query
+     * rather than two is the point - the nearby half is subtle enough (see below) that a second copy would
+     * drift.
+     *
+     * Note what is **not** here: an event too far away and too unimportant to be local news is still known
+     * everywhere if it is famous enough. That tier belongs to whoever is modelling a person, because how
+     * famous is famous enough is a property of the listener rather than of the town.
+     */
+    fun knownAt(
+      generated: GeneratedWorld,
+      settlementIndex: Int,
+      nearbyRange: Double = NEARBY_RANGE,
+      positions: Map<Int, Vec2d> = settlementPositions(generated)
+    ): List<Located> {
       val chronicle = generated.world.chronicle
       if (settlementIndex !in chronicle.settlements.indices) return emptyList()
 
@@ -151,9 +184,7 @@ class SettlementLoreService(
         }
       }
 
-      return (own.map { it.toMemory(nearby = false) } + nearby.map { it.toMemory(nearby = true) })
-        .sortedWith(compareByDescending<Memory> { it.importance }.thenByDescending { it.year })
-        .take(limit)
+      return own.map { Located(it, own = true) } + nearby.map { Located(it, own = false) }
     }
 
     private fun HistoryEvent.toMemory(nearby: Boolean) =
