@@ -7,6 +7,7 @@ import com.fasterxml.jackson.module.kotlin.kotlinModule
 import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.annotation.PostConstruct
 import net.bestia.worldgen.civ.BuildingFunction
+import net.bestia.worldgen.pop.BusinessCatalogue
 import net.bestia.worldgen.pop.Sector
 import org.springframework.core.io.ClassPathResource
 import org.springframework.stereotype.Service
@@ -89,6 +90,11 @@ class EconomyCatalogue {
   /** The trade making [commodity], or null for something only trade with the outside world supplies. */
   fun producerOf(commodity: String): Trade? {
     return trades.firstOrNull { it.produces == commodity }
+  }
+
+  /** Index into `BusinessCatalogue.ALL` for a trade's business, or -1 for a sector trade. */
+  fun businessTypeOf(business: String): Int {
+    return BusinessCatalogue.ALL.indexOfFirst { it.id == business }
   }
 
   fun retailTrades(): Set<String> {
