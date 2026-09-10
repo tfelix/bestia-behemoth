@@ -251,6 +251,21 @@ wild-spawn:
 # Everything here takes effect on a restart, moves no version and destroys nothing - `AmbientSpawnConfig`
 # has the argument. `spacing-tiles` is the one to know about: it renames every lattice cell and so re-rolls
 # the whole wilderness, which is harmless only because no ambient creature is persisted.
+townsfolk:
+  # Off leaves the empty towns this was added to. The first knob to reach for if a town misbehaves.
+  enabled: true
+  # Measured against where a person would *be*, not where they live - a farmer's field can be a kilometre
+  # from their door. Same figure as the ambient ring and chosen the same way: interest radius, plus the
+  # widest anybody strays, plus margin, so somebody is standing before they can be seen.
+  activation-radius-tiles: 240
+  # People created per 0.25 s pass, across all players. Independent of the ambient budget, so a player at a
+  # city edge draws both allocations at once - worth knowing before either is raised.
+  spawns-per-pass: 12
+  # Matches the ambient layer: stepping away and back must not empty a street and refill it.
+  unload-delay-seconds: 60
+  # No throttle knob: townsfolk carry AiThrottleable and AiThrottle reads one cadence for everything that
+  # opts in, which is ambient-spawn.throttle-factor below.
+
 ambient-spawn:
   # Off leaves exactly the den-only world. The first knob to reach for if the wilderness misbehaves.
   enabled: true
