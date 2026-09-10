@@ -2,6 +2,7 @@ package net.bestia.zone.bestia
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ai.ecs.AiAgent
+import net.bestia.zone.ai.core.state.Blackboard
 import net.bestia.zone.ai.ecs.AiAgentFactory
 import net.bestia.zone.ai.profile.AiProfileRegistry
 import net.bestia.zone.navigation.MovementCapability
@@ -42,6 +43,10 @@ class BestiaEntitySpawner(
    *   silently stop persisting packs and grow the population on every restart, which is a bug this file has
    *   shipped once already. False is for a population dense enough that rows would be a liability - see
    *   `Persistent`, and `AreaEffectSpawner` for the same decision made about spell effects.
+   * @param aiMemory a blackboard to build the agent on, for a caller with facts about this *individual* that
+   *   the archetype cannot carry - which occupation a townsperson holds, where their post is. Given here
+   *   rather than written afterwards because `World.add` is deferred mid-tick, so the component may not be
+   *   readable when this returns, and because the agent's resting window is decided from it at construction.
    */
   fun spawnMob(
     world: WorldView,
@@ -50,6 +55,7 @@ class BestiaEntitySpawner(
     entityId: EntityId? = null,
     den: DenMember? = null,
     persistent: Boolean = true,
+    aiMemory: Blackboard? = null,
   ): EntityId {
     LOG.debug { "Spawning mob bestia $bestiaId on $pos" }
 
@@ -98,7 +104,7 @@ class BestiaEntitySpawner(
       // it, and the pathfinder has to know how it moves. `getOrDefault` covers the null and the typo alike.
       add(id, MovementCapability(movementProfileRegistry.getOrDefault(bestia.movementProfile).identifier))
 
-      attachAi(id, bestia, pos)
+      attachAi(id, bestia, pos, aiMemory)
     }
 
     // Rehydrated mobs keep their persisted id; freshly spawned ones get a new one.
@@ -114,7 +120,7 @@ class BestiaEntitySpawner(
    * skill and needs no entry (it used to be seeded as skill id 0, a row `skills.yml` never had). A mob that
    * should also *cast* something gets a real skill id from its AI profile's attack list.
    */
-  private fun World.attachAi(id: EntityId, bestia: Bestia, spawnPosition: Vec3L) {
+  private fun World.attachAi(id: EntityId, bestia: Bestia, spawnPosition: Vec3L, memory: Blackboard?) {
     val profileId = bestia.aiProfile ?: return
 
     val profile = aiProfileRegistry.get(profileId)
@@ -123,7 +129,7 @@ class BestiaEntitySpawner(
       return
     }
 
-    add(id, aiAgentFactory.create(profile, homePosition = spawnPosition))
+    add(id, aiAgentFactory.create(profile, homePosition = spawnPosition, memory = memory ?: Blackboard()))
   }
 
   fun spawnMob(
