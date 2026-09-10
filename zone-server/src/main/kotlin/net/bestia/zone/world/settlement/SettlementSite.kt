@@ -20,8 +20,18 @@ class SettlementSite(
   val centre: Vec2d,
   val tier: SettlementTier,
   val population: PopulationSummary?,
-  val buildings: List<Building>
+  unordered: List<Building>
 ) {
+
+  /**
+   * Every building here, in a fixed order.
+   *
+   * Sorted by [Building.propId], which is a function of where the building stands and therefore the same
+   * on every run and every machine. The order is load-bearing: households are given a house by index into
+   * this list, so a settlement whose buildings came back in a different order would rehouse the whole town.
+   * What comes out of the feature index is bucket order, which is deterministic today and is not a promise.
+   */
+  val buildings: List<Building> = unordered.sortedBy { it.propId }
 
   /**
    * @param propId what this building is called once it is a prop a player can knock down
@@ -44,7 +54,7 @@ class SettlementSite(
     return byFunction[function].orEmpty()
   }
 
-  /** Every building whose trade is [businessType], in the order the generator emitted them. */
+  /** Every building whose trade is [businessType], in [buildings] order. */
   fun buildingsFor(businessType: Int): List<Building> {
     return buildings.filter { it.businessType == businessType }
   }

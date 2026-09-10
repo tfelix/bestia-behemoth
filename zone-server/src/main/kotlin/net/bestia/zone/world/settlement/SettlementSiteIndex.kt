@@ -105,7 +105,7 @@ class SettlementSiteIndex(
       centre = Vec2d(entry.x, entry.y),
       tier = entry.tier,
       population = EconomyProbe.summaryFor(worldService.generated.world, entry.index, area),
-      buildings = buildings
+      unordered = buildings
     )
   }
 
