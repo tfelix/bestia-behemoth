@@ -58,6 +58,49 @@ class SettlementEconomyService(
     return SettlementMarket(catalogue, reference, advance(settlement, reference, today), today.mod(YEAR))
   }
 
+  /**
+   * The shop window of the settlement at ([x], [y]) in position units, or null out in the country.
+   *
+   * The one entry point a trade uses, so the settlement a player buys from is decided by where they are
+   * standing and never by anything the client sends.
+   */
+  fun shopAt(x: Long, y: Long): Pair<Int, Shop>? {
+    val settlement = sites.siteCovering(x, y)?.index ?: return null
+    val reference = referenceOf(settlement) ?: return null
+    val market = marketOf(settlement) ?: return null
+
+    return settlement to Shop(catalogue, market, reference)
+  }
+
+  /**
+   * Moves [units] of a commodity and [coins] between a settlement and a player.
+   *
+   * I6 and I7 in one place: what the player takes leaves the ledger and what they pay enters the
+   * treasury, both exactly, because there is only one statement doing each. The books are brought up to
+   * date first, so a trade in a town nobody has visited for a week is settled against today's prices and
+   * not last week's.
+   *
+   * This is one of only two ways a settlement first gets a row - the other is player damage. Everything
+   * else in this class can only move a row that already exists, or delete it.
+   */
+  fun settle(settlement: Int, commodity: String, units: Int, coins: Long, selling: Boolean) {
+    val reference = referenceOf(settlement) ?: return
+    val today = clock.now().absoluteDay
+    val current = advance(settlement, reference, today)
+
+    val moved = units.toDouble() * if (selling) 1.0 else -1.0
+    val paid = coins.toDouble() * if (selling) -1.0 else 1.0
+
+    rememberIfWorthIt(
+      settlement,
+      reference,
+      current.copy(
+        deltaStock = current.deltaStock + (commodity to (current.deltaStock[commodity] ?: 0.0) + moved),
+        treasury = current.treasury + paid,
+      )
+    )
+  }
+
   /** The derived path this settlement's ledger is a deviation from, cached per settlement. */
   fun referenceOf(settlement: Int): SettlementReference? {
     references[settlement]?.let { return it }

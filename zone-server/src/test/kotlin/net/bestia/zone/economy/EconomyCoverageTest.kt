@@ -28,6 +28,9 @@ class EconomyCoverageTest {
 
   init {
     every { items.findByIdentifier(any()) } returns null
+    // Coin has to exist or every check below trips over the one that says so.
+    every { items.findByIdentifier(CommodityItems.COIN) } returns
+      Item(id = 26, identifier = CommodityItems.COIN, weight = 0, type = Item.ItemType.ETC)
     KNOWN.forEach { (identifier, id) ->
       every { items.findByIdentifier(identifier) } returns Item(id = id, identifier = identifier, weight = 1, type = Item.ItemType.ETC)
     }
@@ -94,7 +97,7 @@ class EconomyCoverageTest {
     coverage().check()
   }
 
-  private fun coverage() = EconomyCoverage(catalogue, recipes, items)
+  private fun coverage() = EconomyCoverage(catalogue, recipes, items, CommodityItems(catalogue, items))
 
   private fun bake(grainPerLoaf: Int, chance: Float) = Recipe(
     id = 1,
