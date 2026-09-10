@@ -51,7 +51,15 @@ class PopulationSummary(
   /** The roster: `(index into BusinessCatalogue.ALL, count)`, in catalogue order. */
   val businesses: List<Pair<Int, Int>>,
   /** People by [Sector], indexed by ordinal. */
-  val sectors: IntArray
+  val sectors: IntArray,
+  /**
+   * Road traffic through the settlement, as the economy stage recorded it.
+   *
+   * Defaults to none, which is the conservative reading: an isolated place is the one whose economy
+   * recovers slowest, so a caller that forgot to pass it gets a pessimistic town rather than a
+   * suspiciously resilient one.
+   */
+  val traffic: Double = 0.0
 )
 
 /**

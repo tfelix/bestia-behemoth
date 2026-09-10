@@ -93,7 +93,8 @@ object EconomyProbe {
         economy.attribute(EconomyChannels.ADMINISTRATORS).toInt(),
         economy.attribute(EconomyChannels.CLERGY).toInt(),
         economy.attribute(EconomyChannels.SOLDIERS).toInt()
-      )
+      ),
+      traffic = economy.attribute(EconomyChannels.TRAFFIC)
     )
   }
 
