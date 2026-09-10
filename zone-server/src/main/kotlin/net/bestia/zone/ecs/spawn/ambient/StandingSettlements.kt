@@ -29,12 +29,19 @@ class StandingSettlements private constructor(
   private val byCell: Map<Long, List<Entry>>
 ) {
 
+  private val byIndex: Map<Int, Entry> = entries.associateBy { it.index }
+
   /** A standing settlement's centre and the radius of the ground it graded. */
-  class Entry(val x: Double, val y: Double, val tier: SettlementTier) {
+  class Entry(val index: Int, val x: Double, val y: Double, val tier: SettlementTier) {
     val footprintRadius: Double get() = tier.footprintRadius
   }
 
   val size: Int get() = entries.size
+
+  /** The settlement history left standing at [index], or null for one it never founded or left a ruin. */
+  fun entryOf(index: Int): Entry? {
+    return byIndex[index]
+  }
 
   /**
    * Metres to the nearest standing settlement centre, or [Double.MAX_VALUE] on a world with none.
@@ -140,7 +147,7 @@ class StandingSettlements private constructor(
         if (!record.wasFounded || record.isRuin) continue
 
         val tier = SettlementTier.entries[feature.attribute(SettlementChannels.TIER).toInt()]
-        entries.add(Entry(feature.position.x, feature.position.y, tier))
+        entries.add(Entry(index, feature.position.x, feature.position.y, tier))
       }
 
       val byCell = HashMap<Long, MutableList<Entry>>()
