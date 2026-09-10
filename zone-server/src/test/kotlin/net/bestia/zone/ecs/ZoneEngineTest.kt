@@ -282,11 +282,12 @@ class ZoneEngineTest {
       add(id, Position.fromVec3(pos))
       add(id, Path(mutableListOf(Vec3L(2, 2, 0))))
     }
+    watched(entity)
 
     zoneEngine.tickOnce(0.05f)
 
     val broadcast = slot<Collection<SMSG>>()
-    verify(timeout = 1000) { outMessageProcessor.sendToAllPlayersInRange(pos, capture(broadcast)) }
+    verify(timeout = 1000) { outMessageProcessor.sendToPlayer(watcher, capture(broadcast)) }
 
     assertEquals(
       listOf(PositionSMSG::class, PathSMSG::class),
