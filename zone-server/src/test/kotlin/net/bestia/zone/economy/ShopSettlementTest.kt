@@ -38,6 +38,7 @@ class ShopSettlementTest {
   private val service = SettlementEconomyService(
     catalogue = catalogue,
     step = EconomyStep(catalogue, UndamagedCapacity(), UnclaimedProduction()),
+    damage = UndamagedCapacity(),
     sites = sites,
     repository = repository,
     asyncJobExecutor = mockk<AsyncJobExecutor>().also {
@@ -126,7 +127,7 @@ class ShopSettlementTest {
     buy(units = 200)
 
     // Six months, because the treasury is the slowest thing to come back: the shelves refill in weeks,
-    // and the coin a purchase left behind reverts on a twenty-day time constant from thousands.
+    // and the coin a purchase left behind reverts on a two-month time constant from thousands.
     repeat(6) {
       now = if (now.month == BestiaDateTime.MONTHS_PER_YEAR) {
         now.copy(year = now.year + 1, month = 1)

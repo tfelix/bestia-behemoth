@@ -31,9 +31,14 @@ data class LedgerState(
    * A tolerance rather than an equality because relaxation is exponential and never quite arrives, and
    * because the price target divides two numbers that are equal in arithmetic and not in floating point.
    */
-  fun isNegligible(stockTolerance: Double, priceTolerance: Double, treasuryReference: Double): Boolean {
+  fun isNegligible(
+    stockTolerance: Double,
+    priceTolerance: Double,
+    treasuryReference: Double,
+    treasuryTolerance: Double,
+  ): Boolean {
     return deltaStock.values.all { abs(it) < stockTolerance } &&
       deltaLogPrice.values.all { abs(it) < priceTolerance } &&
-      abs(treasury - treasuryReference) < stockTolerance
+      abs(treasury - treasuryReference) < treasuryReference * treasuryTolerance
   }
 }

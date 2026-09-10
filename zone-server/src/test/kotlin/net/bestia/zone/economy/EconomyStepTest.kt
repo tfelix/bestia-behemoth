@@ -43,7 +43,12 @@ class EconomyStepTest {
     val looked = walk(LedgerState(treasury = village.treasury, lastStepDay = START), days = 90)
 
     assertTrue(
-      looked.isNegligible(stockTolerance = 1e-3, priceTolerance = 1e-6, treasuryReference = village.treasury),
+      looked.isNegligible(
+        stockTolerance = 1e-3,
+        priceTolerance = 1e-6,
+        treasuryReference = village.treasury,
+        treasuryTolerance = 1e-9,
+      ),
       "standing in the town for ninety days moved its books to $looked"
     )
   }
@@ -65,6 +70,29 @@ class EconomyStepTest {
         short < expected * 0.05,
         "${commodity.id} is still $short short of $expected after sixty days, so the world can be killed"
       )
+    }
+  }
+
+  @Test
+  fun `a town whose workshops are gone is poor, not merely idle`() {
+    // The other half of charging for imports. A settlement that produces nothing still collects the
+    // reference treasury unless its income follows its output, and a full purse buys its way back to
+    // normal however thoroughly its workshops were knocked down.
+    val idle = EconomyStep(catalogue, ClosedWorkshops(), UnclaimedProduction())
+
+    val ruined = walk(LedgerState(treasury = village.treasury, lastStepDay = START), days = 90, with = idle)
+    val working = walk(LedgerState(treasury = village.treasury, lastStepDay = START), days = 90)
+
+    assertTrue(
+      ruined.treasury < working.treasury * 0.9,
+      "a town making nothing kept ${ruined.treasury} against a working town's ${working.treasury}"
+    )
+  }
+
+  /** Every workshop down to I20's floor, which is what a thorough siege leaves. */
+  private class ClosedWorkshops : SettlementCapacity {
+    override fun capacityOf(settlement: Int, trade: String): Double {
+      return 1.0 - SettlementDamage.WORKPLACE_CEILING
     }
   }
 
@@ -169,8 +197,8 @@ class EconomyStepTest {
     assertTrue(market.offerableOf("bread") >= 0.0, "a town short of bread offers a negative amount of it")
   }
 
-  private fun walk(from: LedgerState, days: Int): LedgerState {
-    return (1..days).fold(from) { state, _ -> step.advance(village, state, state.lastStepDay + 1.0) }
+  private fun walk(from: LedgerState, days: Int, with: EconomyStep = step): LedgerState {
+    return (1..days).fold(from) { state, _ -> with.advance(village, state, state.lastStepDay + 1.0) }
   }
 
   private fun market(state: LedgerState): SettlementMarket {

@@ -31,6 +31,7 @@ import org.springframework.stereotype.Service
 class SettlementEconomyService(
   private val catalogue: EconomyCatalogue,
   private val step: EconomyStep,
+  private val damage: SettlementCapacity,
   private val sites: SettlementSiteIndex,
   private val repository: SettlementLedgerRepository,
   private val asyncJobExecutor: AsyncJobExecutor,
@@ -124,10 +125,14 @@ class SettlementEconomyService(
    * its own and deletes itself, with nobody having to remember to sweep it.
    */
   fun catchUpAll() {
-    if (live.isEmpty()) return
+    // Damaged settlements as well as the ones already written down. A town whose fields were burnt
+    // while nobody was there has no row yet, and without this it would not get one until somebody
+    // happened to walk in - and would then only ever be a day behind, however long the fire burnt.
+    val wanted = live.keys + damage.damagedSettlements()
+    if (wanted.isEmpty()) return
 
     val today = clock.now().absoluteDay
-    for (settlement in live.keys.toList()) {
+    for (settlement in wanted) {
       val reference = referenceOf(settlement) ?: continue
       advance(settlement, reference, today)
     }
@@ -163,7 +168,8 @@ class SettlementEconomyService(
   }
 
   private fun rememberIfWorthIt(settlement: Int, reference: SettlementReference, state: LedgerState) {
-    val worthKeeping = !state.isNegligible(STOCK_TOLERANCE, PRICE_TOLERANCE, reference.treasury)
+    val worthKeeping =
+      !state.isNegligible(STOCK_TOLERANCE, PRICE_TOLERANCE, reference.treasury, TREASURY_TOLERANCE)
 
     if (worthKeeping) {
       live[settlement] = state
@@ -177,8 +183,19 @@ class SettlementEconomyService(
     }
   }
 
+  /**
+   * Where a settlement with no row starts: at its reference, as of one day ago.
+   *
+   * A day ago rather than now, and that is load bearing. Anchored at now, the first advance is always
+   * zero days long - and because a settlement at its reference is not written down, the next call
+   * anchors at now again, so a town that is *damaged but has no row yet* could never take its first
+   * step and would sit at full price forever with its fields burnt.
+   *
+   * Harmless for the undamaged case, which is nearly all of them: one sub-step from zero leaves zero,
+   * the state is still negligible, and no row appears. I18 holds either way.
+   */
   private fun atReference(reference: SettlementReference, today: Double): LedgerState {
-    return LedgerState(treasury = reference.treasury, lastStepDay = today)
+    return LedgerState(treasury = reference.treasury, lastStepDay = today - FIRST_STEP_DAYS)
   }
 
   private fun save(settlement: Int, state: LedgerState) {
@@ -191,11 +208,24 @@ class SettlementEconomyService(
   }
 
   companion object {
-    /** Units of stock, and coins of treasury, below which a settlement counts as being at its reference. */
+    /** Units of stock below which a settlement counts as being at its reference. */
     const val STOCK_TOLERANCE = 0.5
+
+    /**
+     * How far a purse may sit from the reference and still count as being at it, as a share of it.
+     *
+     * Relative, where the stock tolerance is absolute, because a treasury is thousands of coins and half
+     * a coin of it is a precision nothing observes. Held absolute, how long a row survives would be set
+     * by whatever time constant the purse happens to revert on rather than by whether the town is
+     * actually disturbed.
+     */
+    const val TREASURY_TOLERANCE = 0.05
 
     /** In log price, so about a twentieth of a percent - well under the smallest coin. */
     const val PRICE_TOLERANCE = 5e-4
+
+    /** How far back a settlement nobody has stepped before is assumed to have been at its reference. */
+    private const val FIRST_STEP_DAYS = 1.0
 
     private val YEAR = Commodity.DAYS_PER_YEAR.toDouble()
 

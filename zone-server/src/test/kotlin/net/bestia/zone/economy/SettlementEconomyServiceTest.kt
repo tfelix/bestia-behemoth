@@ -40,6 +40,7 @@ class SettlementEconomyServiceTest {
   private val service = SettlementEconomyService(
     catalogue = catalogue,
     step = EconomyStep(catalogue, UndamagedCapacity(), UnclaimedProduction()),
+    damage = UndamagedCapacity(),
     sites = sites,
     repository = repository,
     // Runs the durable write on the calling thread, so a test can assert on it without waiting.
@@ -110,10 +111,14 @@ class SettlementEconomyServiceTest {
     service.loadAll()
     assertEquals(1, service.trackedSettlements, "the stored ledger was not picked up")
 
-    // A month at a time, six times. Longer than I17's sixty days, and a month is exactly the step
-    // ceiling - jumping six months in one go would be clamped to thirty days and simulate five of them
-    // away, which is I15 working rather than the town failing to recover.
-    repeat(6) {
+    // A month at a time, and a month is exactly the step ceiling - jumping the whole way in one go would
+    // be clamped to thirty days and simulate the rest away, which is I15 working rather than the town
+    // failing to recover.
+    //
+    // Far longer than I17's sixty days because the shelves are not the slow part: they refill inside
+    // that, and it is the purse, emptied along with them, that needs about three of its two-month time
+    // constants before the town is indistinguishable from one nothing ever happened to.
+    repeat(9) {
       advanceOneMonth()
       service.catchUpAll()
     }

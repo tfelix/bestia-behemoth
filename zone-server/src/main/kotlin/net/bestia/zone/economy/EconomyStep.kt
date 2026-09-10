@@ -3,6 +3,7 @@ package net.bestia.zone.economy
 import org.springframework.stereotype.Service
 import kotlin.math.exp
 import kotlin.math.floor
+import kotlin.math.max
 import kotlin.math.min
 
 /**
@@ -24,10 +25,13 @@ import kotlin.math.min
  * exact fixed point. Seasonality moves the reference under it without moving the deviation at all, which
  * is why a town's grain rises and falls with the harvest while its database row goes on not existing.
  *
- * Three independent reasons it cannot run away, any one of which suffices: the price deviation relaxes
- * toward a target that is itself clamped, so its bound is an invariant set; more stock always means more
- * spoilage and more export and never more production of the same good; and no positive feedback loop can
- * exist because production depends only on a good's *inputs*, which [EconomyCatalogue] checks is acyclic.
+ * Two reasons it cannot run away, either of which suffices: the price deviation relaxes toward a target
+ * that is itself clamped, so its bound is an invariant set; and more stock never means more production of
+ * the same good, while always meaning more spoilage and more export.
+ *
+ * There is one positive feedback loop, added deliberately - a shortage makes imports dearer, which buys
+ * fewer of them. It lives entirely inside that clamp, so it deepens an equilibrium rather than escaping
+ * one. See [tradeAcross].
  */
 @Service
 class EconomyStep(
@@ -64,9 +68,17 @@ class EconomyStep(
 
     val stock = HashMap(state.deltaStock)
     val price = HashMap(state.deltaLogPrice)
+    var purse = state.treasury
+
+    // The town's tax base, gathered as the day is worked: what its trades actually made, against what
+    // they would have made undamaged. Both at reference prices, so it weighs a loaf against a sack the
+    // way the town's own income does.
+    var earned = 0.0
+    var earnable = 0.0
 
     // In topological order, so a day's grain is milled and baked the same day rather than a shock taking
-    // one extra day to travel each stage of the chain.
+    // one extra day to travel each stage of the chain. It is also the order the purse is spent in, which
+    // means a town short of money buys the staple at the bottom of the chain before the luxuries above it.
     for (commodity in catalogue.topological) {
       val rate = reference.throughput[commodity.id] ?: continue
       if (rate <= 0.0) continue
@@ -74,13 +86,20 @@ class EconomyStep(
       val expected = (reference.stock[commodity.id] ?: 0.0) * commodity.seasonAt(dayOfYear)
       val standing = visible(expected, stock[commodity.id] ?: 0.0, reference.warehouseCap(commodity.id))
 
-      val made = rate * runFraction(reference, commodity.id, stock, dayOfYear) -
+      val run = runFraction(reference, commodity.id, stock, dayOfYear)
+      val made = rate * run * restockingEffort(standing, expected, run) -
         budget.claimed(reference.settlement, commodity.id)
+
+      earned += max(0.0, made) * commodity.refPrice
+      earnable += rate * commodity.refPrice
 
       // Everything below is a *deviation*: at full production `made` equals `rate`, the flow is zero, and
       // what is left is the decay pulling an existing deviation back toward nothing.
-      val decayed = (stock[commodity.id] ?: 0.0) * exp(-(commodity.spoilPerDay + reference.kappa))
-      stock[commodity.id] = clampToStore(decayed + (made - rate), expected, reference.warehouseCap(commodity.id))
+      val spoiled = (stock[commodity.id] ?: 0.0) * exp(-commodity.spoilPerDay) + (made - rate)
+      val traded = tradeAcross(reference, commodity, spoiled, purse, price[commodity.id] ?: 0.0)
+
+      purse += traded.coins
+      stock[commodity.id] = clampToStore(spoiled - traded.units, expected, reference.warehouseCap(commodity.id))
 
       price[commodity.id] = relaxPrice(price[commodity.id] ?: 0.0, commodity, standing, rate, dayOfYear)
     }
@@ -88,9 +107,101 @@ class EconomyStep(
     return LedgerState(
       deltaStock = stock,
       deltaLogPrice = price,
-      treasury = reference.treasury + (state.treasury - reference.treasury) * exp(-1.0 / TREASURY_TAU_DAYS),
+      treasury = revertTreasury(purse, reference.treasury * livelihood(earned, earnable)),
       lastStepDay = day,
     )
+  }
+
+  /**
+   * What a town's purse tends back toward: taxes and trade the map does not simulate, in proportion to
+   * what the town still makes.
+   *
+   * A town that has lost its workshops is poor as well as idle, and without this it would keep a full
+   * income while producing nothing. What it does *not* do is set how hard damage bites overall - a fire
+   * in the fields moves it very little, because a village's income is mostly the value of the bread at
+   * the end of the chain and that keeps flowing while the stores last. [TREASURY_TAU_DAYS] is the figure
+   * that governs that.
+   */
+  private fun livelihood(earned: Double, earnable: Double): Double {
+    if (earnable <= 0.0) return 1.0
+
+    return (earned / earnable).coerceIn(0.0, 1.0)
+  }
+
+  private fun revertTreasury(purse: Double, target: Double): Double {
+    return target + (purse - target) * exp(-1.0 / TREASURY_TAU_DAYS)
+  }
+
+  /** What the outside world moved, and what the settlement's purse gained or lost by it. */
+  private class Traded(val units: Double, val coins: Double)
+
+  /**
+   * Trade with the un-simulated world beyond the map, and what it costs.
+   *
+   * How fast a shortage can be covered from outside, and what covering it costs. κ is the roads.
+   *
+   * **Charging it to the treasury is what makes destruction bite.** Left free, a village with a road
+   * imports its way out of a burnt field indefinitely and no amount of damage moves a price by more
+   * than a couple of percent.
+   *
+   * At the *local* price, not the reference one, which is what makes the charge bite rather than merely
+   * exist. A shortage is precisely when a town has to pay over the odds for a sack of grain, so the
+   * cost of covering one rises with its depth and the imports throttle themselves. Priced flat, a
+   * village's ordinary income buys very nearly the shortfall a fire creates - close enough to cancel it -
+   * and the fire is invisible a fortnight later.
+   *
+   * The loop that implies is real and is bounded: dearer imports mean fewer, which means dearer still.
+   * [PriceCurve] clamps the premium, so the whole thing lives inside a bounded set and settles at a
+   * worse equilibrium rather than running away. A glut is symmetric - it sells outward cheap.
+   *
+   * That charge is also why [restockingEffort] has to exist. Imports were the only way a store could
+   * refill, so making them cost money would otherwise strand a town that has been emptied and robbed -
+   * exactly the state I17 promises is survivable.
+   */
+  private fun tradeAcross(
+    reference: SettlementReference,
+    commodity: Commodity,
+    delta: Double,
+    purse: Double,
+    premium: Double,
+  ): Traded {
+    val wanted = delta * (1.0 - exp(-reference.kappa))
+    val price = commodity.refPrice * reference.priceMultiplier * exp(PriceCurve.clamp(premium))
+
+    // A glut is sold outward and pays; only the importing direction is rationed.
+    if (wanted >= 0.0) return Traded(wanted, wanted * price)
+
+    val affordable = if (price <= 0.0) 0.0 else max(0.0, purse) / price
+    val units = -min(-wanted, affordable)
+
+    return Traded(units, units * price)
+  }
+
+  /**
+   * How much harder a settlement works when its stores are down, as a multiple of its ordinary output.
+   *
+   * Without this a town cannot restock itself at all: production is a *fraction* of a reference that
+   * equals consumption, so full output exactly feeds the town and leaves the shelves wherever a shock
+   * put them. Buying the shortfall in was covering for that, and only while imports were free - the
+   * moment they are charged, an emptied town with an empty purse has no way back and I17 fails.
+   *
+   * A settlement has the headroom for it: it works only as much of its catchment as it eats, so the
+   * effort is the fields it does not normally need and the rations it does not normally have to keep.
+   *
+   * Scaled by [run], because whatever stops the ordinary work stops the extra work too: there is no
+   * working harder on ground that has burnt, and a mill with no grain cannot make up a shortfall by
+   * turning faster. Without that scaling a town could very nearly shrug off a fire, which is the hole
+   * this branch exists to close. Replanting elsewhere is real, but it is a season's work, and in this
+   * model it arrives as the rain taking the scars.
+   *
+   * It is exactly one at the reference either way, so I16's fixed point survives untouched.
+   */
+  private fun restockingEffort(standing: Double, expected: Double, run: Double): Double {
+    if (expected <= 0.0) return 1.0
+
+    val shortfall = ((expected - standing) / expected).coerceAtLeast(0.0)
+
+    return 1.0 + min(RESTOCK_CEILING, shortfall * RESTOCK_GAIN) * run
   }
 
   /**
@@ -169,10 +280,29 @@ class EconomyStep(
      */
     const val MIN_TRADE_RATE = 0.1
 
+    /**
+     * The most a settlement will exert itself to refill an empty store, over its ordinary output.
+     *
+     * Sets how long recovery takes, and is what I17's sixty days rest on: a store holding `n` days of
+     * cover refills from empty in about `n / this`, so the deepest one in the catalogue - grain, at a
+     * month - comes back inside the window with room to spare.
+     */
+    const val RESTOCK_CEILING = 0.6
+
+    /** How far down a store has to be before that effort is fully committed - a third of it, here. */
+    private const val RESTOCK_GAIN = 3.0
+
     /** Game-days a price takes to make most of its move, so a shortage is felt over a day or two. */
     private const val PRICE_TAU_DAYS = 2.0
 
-    /** Game-days the treasury takes to revert to what a town that size ought to hold. */
-    private const val TREASURY_TAU_DAYS = 20.0
+    /**
+     * Game-days the treasury takes to revert to what a town that size ought to hold.
+     *
+     * Two game-months, because this is the one figure that decides whether damage lasts. Reversion is
+     * the only income the model gives a settlement, so it is also a subsidy of `treasury / this` coins a
+     * day that a ruined town spends on imports - at twenty days that subsidy buys most of the shortfall
+     * a fire creates, and the fire stops mattering. Rebuilding savings from nothing is slow work.
+     */
+    private const val TREASURY_TAU_DAYS = 60.0
   }
 }
