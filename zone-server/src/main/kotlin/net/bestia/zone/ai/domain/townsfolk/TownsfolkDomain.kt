@@ -87,6 +87,28 @@ object TownsfolkDomain : AiDomainCatalogue {
   val INDOORS = StateKey<Boolean>("indoors", retain = Blackboard.PERMANENT)
 
   /**
+   * Where the nearest fight is, for as long as there is one.
+   *
+   * Written and cleared by [net.bestia.zone.ai.perception.ShelterSense] on every sweep, so its own TTL
+   * never decides anything - the fight ending is what ends it, and that is also what sends people back
+   * out into the street.
+   */
+  val THREAT_POSITION = StateKey<Vec3L>("threatPosition", observed = true)
+
+  /** The doorway picked to run for, held until the fight is over so nobody dithers mid-street. */
+  val SHELTER_DOOR = StateKey<Vec3L>("shelterDoor", observed = true)
+
+  /**
+   * Standing in a doorway out of the way of a fight.
+   *
+   * A *planning* device, exactly as [WORKED_ON_DAY] is, and never actually written: a shelter goal needs
+   * a desired state some action can reach, and "the fight is over" is not one - nothing a townsperson
+   * does ends it. Sheltering is a behaviour with no end of its own, so the action never reports success
+   * and the effect stays a prediction. The goal losing its threat is what releases them.
+   */
+  val SHELTERED = StateKey<Boolean>("sheltered", retain = Blackboard.PERMANENT)
+
+  /**
    * The [DAY_INDEX] on which the shift was last seen through.
    *
    * Mostly a *planning* device. [Goals.WORK_SHIFT] needs a desired state some action can actually reach,

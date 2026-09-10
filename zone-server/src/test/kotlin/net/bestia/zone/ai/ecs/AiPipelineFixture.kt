@@ -15,6 +15,7 @@ import net.bestia.zone.ecs.spawn.townsfolk.TownsfolkIdentity
 import net.bestia.zone.ai.perception.ForageSense
 import net.bestia.zone.ai.perception.PerceptionSystem
 import net.bestia.zone.ai.perception.SenseSystem
+import net.bestia.zone.ai.perception.ShelterSense
 import net.bestia.zone.ai.profile.AiProfileRegistry
 import net.bestia.zone.battle.skill.AttackExecutionService
 import net.bestia.zone.battle.skill.SkillExecutionService
@@ -86,6 +87,12 @@ class AiPipelineFixture(tickRate: Int = 20) {
    */
   var grazeableGround: Boolean = false
 
+  /**
+   * Doorsteps a frightened townsperson could run to. Empty by default, so a scenario that is not about
+   * fighting never has anybody make for one - see [ShelterSense].
+   */
+  val doorsteps = mutableListOf<Vec3L>()
+
   // Spring collects the domain runtimes in the live server; a test names them.
   val bestia = BestiaRuntime(
     navigation = TestNavigation.service(),
@@ -112,7 +119,14 @@ class AiPipelineFixture(tickRate: Int = 20) {
   val systems: List<System> = listOf(
     PerceptionSystem(profiles, aoi, clock, throttle),
     // Spring collects the Sense beans in the live server; a test names the ones its scenario cares about.
-    SenseSystem(listOf(ForageSense { grazeableGround }), sharedMemory, throttle),
+    SenseSystem(
+      listOf(
+        ForageSense { grazeableGround },
+        ShelterSense(aoi) { at, reach -> doorsteps.filter { it.distance(at) <= reach } },
+      ),
+      sharedMemory,
+      throttle
+    ),
     AiDriveSystem(sharedMemory, clock),
     AiThinkSystem(Planner(), sharedMemory, throttle),
     AiActSystem(sharedMemory, ZoneConfig(tickRate = tickRate)),
@@ -208,6 +222,16 @@ class AiPipelineFixture(tickRate: Int = 20) {
     }
     aoi.setEntityPosition(id, pos)
     return id
+  }
+
+  /** Puts an entity somewhere else with the AOI tree kept in step, which is what a walk does for real. */
+  fun teleport(id: EntityId, to: Vec3L) {
+    world.getOrThrow(id, Position::class).apply {
+      x = to.x
+      y = to.y
+      z = to.z
+    }
+    aoi.setEntityPosition(id, to)
   }
 
   /** Records [attacker] having hit [victim], the signal retaliation is gated on. */
