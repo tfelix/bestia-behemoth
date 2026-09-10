@@ -1,0 +1,20 @@
+# An ordinary town-dweller with no trade yet: about the street by day, home in bed at night.
+#
+# Deliberately thin. Occupations, shifts and workplaces are the next piece of work, and this archetype is
+# what they will be measured against - a person who keeps a believable day without one.
+identifier: townsfolk_commoner
+domain: townsfolk
+faction: townsfolk
+perception:
+  sight_radius: 8
+# Tiles from the door. A town square rather than a home range - see TownsfolkDomain.DEFAULT_LOITER_RADIUS.
+wander_radius: 12
+tiredness_threshold: 80
+goals:
+  - { name: Sleep }
+  - { name: GoHome }
+  - { name: Loiter }
+actions:
+  - goHome
+  - loiter
+  - sleepAtHome
