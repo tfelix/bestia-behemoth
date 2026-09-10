@@ -21,8 +21,11 @@ import net.bestia.zone.ai.core.state.WorldState
 import net.bestia.zone.ecs.spawn.townsfolk.IndoorRegistry
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.ai.domain.AiDomainCatalogue
+import net.bestia.zone.ai.domain.townsfolk.action.BuyFoodActionTemplate
+import net.bestia.zone.ai.domain.townsfolk.action.EatActionTemplate
 import net.bestia.zone.ai.domain.townsfolk.action.EnterHomeActionTemplate
 import net.bestia.zone.ai.domain.townsfolk.action.GoHomeActionTemplate
+import net.bestia.zone.ai.domain.townsfolk.action.GoToMealActionTemplate
 import net.bestia.zone.ai.domain.townsfolk.action.GoToShelterActionTemplate
 import net.bestia.zone.ai.domain.townsfolk.action.GoToWorkActionTemplate
 import net.bestia.zone.ai.domain.townsfolk.action.LoiterActionTemplate
@@ -56,6 +59,8 @@ object TownsfolkDomain : AiDomainCatalogue {
   val POSITION = CommonKeys.POSITION
   val HOME_POSITION = CommonKeys.HOME_POSITION
   val HOUR_OF_DAY = CommonKeys.HOUR_OF_DAY
+  val HUNGER = CommonKeys.HUNGER
+  val HUNGER_THRESHOLD = CommonKeys.HUNGER_THRESHOLD
   val TIREDNESS = CommonKeys.TIREDNESS
   val TIREDNESS_THRESHOLD = CommonKeys.TIREDNESS_THRESHOLD
   val RESTLESSNESS = CommonKeys.RESTLESSNESS
@@ -99,6 +104,20 @@ object TownsfolkDomain : AiDomainCatalogue {
 
   /** The doorway picked to run for, held until the fight is over so nobody dithers mid-street. */
   val SHELTER_DOOR = StateKey<Vec3L>("shelterDoor", observed = true)
+
+  /** Where a meal can be had, from [net.bestia.zone.ai.perception.SettlementSense]. */
+  val MEAL_POSITION = StateKey<Vec3L>("mealPosition", observed = true, retain = Blackboard.PERMANENT)
+
+  /** Whether the town has anything to sell. False is how a burnt field reaches the people in the square. */
+  val MEAL_IN_STOCK = StateKey<Boolean>("mealInStock", observed = true, retain = Blackboard.PERMANENT)
+
+  /**
+   * Carrying a meal, bought and not yet eaten.
+   *
+   * A real latch rather than a planning device, unlike [WORKED_ON_DAY]: buying and eating are two
+   * actions with a walk possible between them, so something has to remember that the first happened.
+   */
+  val HAS_FOOD = StateKey<Boolean>("hasFood", retain = Blackboard.PERMANENT)
 
   /**
    * Standing in a doorway out of the way of a fight.
@@ -162,15 +181,25 @@ object TownsfolkDomain : AiDomainCatalogue {
   const val SETTLED_RESTLESSNESS = 20
 
   const val DEFAULT_TIREDNESS_THRESHOLD = 80
+  const val DEFAULT_HUNGER_THRESHOLD = 70
+
+  /** Hunger at or below which a townsperson has eaten enough. */
+  const val FED_HUNGER = 10
 
   /**
-   * The same two appetites the wild creatures have, at the same rates.
+   * Appetites on a *person's* timescale rather than a creature's, which is the whole reason rates are
+   * authored per game-hour: a wild animal is peckish in three real minutes, and a villager eats at noon.
    *
-   * Hunger is deliberately absent until there is somewhere to buy food: a drive that climbs to a hundred
-   * with no action able to spend it is a townsperson permanently pursuing a goal it can never satisfy.
+   * Tiredness fills a waking day and is cleared by a night, which is what it has to be for a bedtime to
+   * mean anything - at the creatures' rate a townsperson was ready for bed every five real minutes and
+   * only the shortness of the tests hid it. Hunger runs about three times a day.
+   *
+   * Restlessness is deliberately the fast one. It is the floor goal's fuel, so a townsperson who has
+   * nothing else to do should always have a few paces in them.
    */
   val DRIVES = listOf(
-    Drive(TIREDNESS, perGameHour = 300f, whileSleepingPerGameHour = -6_000f),
+    Drive(HUNGER, perGameHour = 10f),
+    Drive(TIREDNESS, perGameHour = 5f, whileSleepingPerGameHour = -14f),
     Drive(RESTLESSNESS, perGameHour = 1_920f),
   )
 
@@ -191,6 +220,13 @@ object TownsfolkDomain : AiDomainCatalogue {
 
   fun restHoursOf(occupation: Occupation?): HourWindow {
     return occupation?.rest ?: DEFAULT_REST
+  }
+
+  /** Somewhere to eat, and something to eat there - or a meal already in hand. */
+  fun canEat(state: WorldState): Boolean {
+    if (state.get(HAS_FOOD) == true) return true
+
+    return state.get(MEAL_POSITION) != null && state.get(MEAL_IN_STOCK) == true
   }
 
   /** False rather than null when the hour is unknown: an agent that has not perceived yet is not in bed. */
@@ -220,6 +256,12 @@ object TownsfolkDomain : AiDomainCatalogue {
   /** Whether this person's job is to stay put while there is fighting. False for anybody with no trade. */
   fun holdsGround(state: WorldState): Boolean {
     return state.get(OCCUPATION)?.holdsGround == true
+  }
+
+  fun isAtMeal(state: WorldState): Boolean {
+    val stall = state.get(MEAL_POSITION) ?: return false
+    val position = state.get(POSITION) ?: return false
+    return position.distance(stall) <= DOORSTEP_RADIUS
   }
 
   fun isAtHome(state: WorldState): Boolean {
@@ -307,6 +349,32 @@ object TownsfolkDomain : AiDomainCatalogue {
     )
 
     /**
+     * A meal, once hunger says so.
+     *
+     * A hungry villager breaks off what they are doing and walks to the vendor, which is the behaviour
+     * the whole chain exists to show - but a fight outside still outranks lunch.
+     *
+     * The base looks far higher than [WORK_SHIFT]'s and is not, which is the trap in scaled priorities:
+     * a consideration *multiplies* the base, so ninety-five at seven-tenths hungry scores sixty-six and
+     * loses to a flat seventy-five. That is the wanted shape - work through peckish, break off when
+     * genuinely hungry - but it has to be arrived at deliberately rather than by reading the bases.
+     *
+     * Availability wants somewhere to buy as well as an appetite, for [WORK_SHIFT]'s reason. It is
+     * also what keeps hunger from being a drive nobody can spend: in a hamlet with no counter the goal
+     * is simply never available, rather than being chosen and unplannable.
+     */
+    val EAT = Goal(
+      name = "Eat",
+      priority = priority(base = 95f, combine = Combine.MAX) {
+        consider(HUNGER.linear())
+      },
+      availability = Precondition { s ->
+        (s.get(HUNGER) ?: 0) >= (s.get(HUNGER_THRESHOLD) ?: DEFAULT_HUNGER_THRESHOLD) && canEat(s)
+      },
+      desiredState = listOf(Preconditions.atMost(HUNGER, FED_HUNGER)),
+    )
+
+    /**
      * The floor. Always available, so there is never a moment with no goal at all.
      *
      * That is not decoration: `Planner.selectCurrentGoal` returns null when nothing is both available and
@@ -352,6 +420,7 @@ object TownsfolkDomain : AiDomainCatalogue {
     )
 
     val ALL = listOf(
+      EAT,
       GO_HOME,
       LOITER,
       SLEEP,
@@ -366,7 +435,10 @@ object TownsfolkDomain : AiDomainCatalogue {
   data class Collaborators(val locomotion: Locomotion, val indoors: IndoorRegistry)
 
   private val TEMPLATE_FACTORIES: Map<String, (Collaborators) -> ActionTemplate> = mapOf(
+    "buyFood" to { _ -> BuyFoodActionTemplate() },
+    "eat" to { _ -> EatActionTemplate() },
     "goHome" to { c -> GoHomeActionTemplate(c.locomotion) },
+    "goToMeal" to { c -> GoToMealActionTemplate(c.locomotion) },
     "goToWork" to { c -> GoToWorkActionTemplate(c.locomotion) },
     "goToShelter" to { c -> GoToShelterActionTemplate(c.locomotion) },
     "loiter" to { c -> LoiterActionTemplate(c.locomotion) },

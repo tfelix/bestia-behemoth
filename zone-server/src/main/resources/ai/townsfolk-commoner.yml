@@ -10,15 +10,20 @@ perception:
 # Tiles from the door. A town square rather than a home range - see TownsfolkDomain.DEFAULT_LOITER_RADIUS.
 wander_radius: 12
 tiredness_threshold: 80
+hunger_threshold: 70
 goals:
   - { name: TakeShelter }
   - { name: Sleep }
+  - { name: Eat }
   - { name: WorkShift }
   - { name: GoHome }
   - { name: Loiter }
 actions:
+  - buyFood
+  - eat
   - enterHome
   - goHome
+  - goToMeal
   - goToShelter
   - goToWork
   - loiter

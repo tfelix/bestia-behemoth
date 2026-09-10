@@ -40,6 +40,7 @@ class TownsfolkRuntime(
     memory.set(TownsfolkDomain.HOME_POSITION, homePosition, Blackboard.PERMANENT)
     memory.set(TownsfolkDomain.WANDER_RADIUS, tuning.wanderRadius, Blackboard.PERMANENT)
     memory.set(TownsfolkDomain.TIREDNESS_THRESHOLD, tuning.tirednessThreshold, Blackboard.PERMANENT)
+    memory.set(TownsfolkDomain.HUNGER_THRESHOLD, tuning.hungerThreshold, Blackboard.PERMANENT)
   }
 
   override fun resolver(profile: AiProfile): ActionResolver {

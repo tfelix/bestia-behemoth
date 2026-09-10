@@ -15,6 +15,8 @@ import net.bestia.zone.ecs.spawn.townsfolk.TownsfolkIdentity
 import net.bestia.zone.ai.perception.ForageSense
 import net.bestia.zone.ai.perception.PerceptionSystem
 import net.bestia.zone.ai.perception.SenseSystem
+import net.bestia.zone.ai.perception.SettlementFood
+import net.bestia.zone.ai.perception.SettlementSense
 import net.bestia.zone.ai.perception.ShelterSense
 import net.bestia.zone.ai.profile.AiProfileRegistry
 import net.bestia.zone.battle.skill.AttackExecutionService
@@ -93,6 +95,14 @@ class AiPipelineFixture(tickRate: Int = 20) {
    */
   val doorsteps = mutableListOf<Vec3L>()
 
+  /**
+   * Where a hungry townsperson can buy a meal, and whether there is one to buy.
+   *
+   * None by default, so a scenario that is not about eating never has anybody set off for a counter -
+   * see [SettlementSense].
+   */
+  var mealStall: SettlementFood.Stall? = null
+
   // Spring collects the domain runtimes in the live server; a test names them.
   val bestia = BestiaRuntime(
     navigation = TestNavigation.service(),
@@ -123,6 +133,7 @@ class AiPipelineFixture(tickRate: Int = 20) {
       listOf(
         ForageSense { grazeableGround },
         ShelterSense(aoi) { at, reach -> doorsteps.filter { it.distance(at) <= reach } },
+        SettlementSense { mealStall },
       ),
       sharedMemory,
       throttle
