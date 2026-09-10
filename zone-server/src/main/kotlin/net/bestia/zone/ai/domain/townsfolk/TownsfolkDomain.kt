@@ -11,14 +11,20 @@ import net.bestia.zone.ai.core.goal.linear
 import net.bestia.zone.ai.core.goal.priority
 import net.bestia.zone.ai.core.precondition.Precondition
 import net.bestia.zone.ai.core.precondition.Preconditions
+import net.bestia.zone.ai.core.state.Blackboard
 import net.bestia.zone.ai.core.state.CommonKeys
 import net.bestia.zone.ai.core.state.Drive
+import net.bestia.zone.ai.core.state.HourWindow
 import net.bestia.zone.ai.core.state.RestingWindow
+import net.bestia.zone.ai.core.state.StateKey
 import net.bestia.zone.ai.core.state.WorldState
+import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.ai.domain.AiDomainCatalogue
 import net.bestia.zone.ai.domain.townsfolk.action.GoHomeActionTemplate
+import net.bestia.zone.ai.domain.townsfolk.action.GoToWorkActionTemplate
 import net.bestia.zone.ai.domain.townsfolk.action.LoiterActionTemplate
 import net.bestia.zone.ai.domain.townsfolk.action.SleepAtHomeActionTemplate
+import net.bestia.zone.ai.domain.townsfolk.action.WorkShiftActionTemplate
 
 /**
  * The people who live in the towns the generator already builds.
@@ -51,16 +57,47 @@ object TownsfolkDomain : AiDomainCatalogue {
   val RESTLESSNESS = CommonKeys.RESTLESSNESS
   val RESTED = CommonKeys.RESTED
   val WANDER_RADIUS = CommonKeys.WANDER_RADIUS
+  val DAY_INDEX = CommonKeys.DAY_INDEX
+
+  // ------------------------------------------------------------------------ this domain
+
+  /**
+   * What this person does with a day, if anything.
+   *
+   * A fact about the individual rather than the archetype: a village's guard and its baker are the same
+   * species running the same profile, and what separates them is written here when they are spawned.
+   */
+  val OCCUPATION = StateKey<Occupation>("occupation", retain = Blackboard.PERMANENT)
+
+  /** Where the post is. Absent for somebody with no workplace, which makes [Goals.WORK_SHIFT] unavailable. */
+  val WORK_POSITION = StateKey<Vec3L>("workPosition", retain = Blackboard.PERMANENT)
+
+  /**
+   * The [DAY_INDEX] on which the shift was last seen through.
+   *
+   * Mostly a *planning* device. [Goals.WORK_SHIFT] needs a desired state some action can actually reach,
+   * or A* finds no plan and the townsperson stands still through their whole shift; "the hour is no longer
+   * my shift" is not reachable, because nothing an agent does moves the clock.
+   *
+   * It is therefore normal for it to be absent even from somebody who worked all day, exactly as
+   * [CommonKeys.RESTED] is absent from a creature that slept the night: the hour leaving the shift makes
+   * the goal unavailable, and whether the behaviour got to report success first is a race with the think
+   * stagger. Nothing reads it expecting a diary - what stops a second shift is the shift's own hours.
+   *
+   * A stamp rather than a flag so that when it *is* written nothing has to clear it: the day moves on and
+   * the comparison stops matching. See [CommonKeys.DAY_INDEX], which exists for this.
+   */
+  val WORKED_ON_DAY = StateKey<Long>("workedOnDay", retain = Blackboard.PERMANENT)
 
   // ------------------------------------------------------------------------------ hours
 
   /**
    * When a commoner turns in and gets up, on the world calendar's own 0..23 hour.
    *
-   * A property of this archetype rather than of the world: full night runs 22:00 to 04:00, and somebody
-   * who rose at four would be about two hours before there is any light. Occupations will each want their
-   * own pair - a baker's day starts well before a shopkeeper's - which is why the goals read these through
-   * [isBedtime] rather than testing the hour themselves.
+   * The default, for somebody with no occupation or one that keeps ordinary hours. Not a property of the
+   * world: full night runs 22:00 to 04:00, and somebody who rose at four would be up about two hours
+   * before there is any light. An occupation may declare its own pair - an innkeeper's night is shorter
+   * and later - which is why every reader goes through [restHoursOf] rather than testing the hour itself.
    */
   const val BEDTIME_HOUR = 22
   const val RISE_HOUR = 6
@@ -99,19 +136,47 @@ object TownsfolkDomain : AiDomainCatalogue {
     Drive(RESTLESSNESS, perGameHour = 1_920f),
   )
 
-  /** Perception clears [RESTED] through the night, which is what keeps [Goals.SLEEP] unsatisfied until dawn. */
-  val RESTING_WINDOW = RestingWindow { hour, _ -> isBedtime(hour) }
+  /**
+   * Perception clears [RESTED] through these hours, which is what keeps [Goals.SLEEP] unsatisfied until
+   * morning. Per person rather than per archetype, because a night watch that had the commoner's window
+   * would be sent to bed in the middle of its own shift.
+   */
+  fun restingWindowFor(occupation: Occupation?): RestingWindow {
+    val rest = restHoursOf(occupation)
+    return RestingWindow { hour, _ -> rest.covers(hour) }
+  }
 
   // ----------------------------------------------------------------------------- helpers
 
-  fun isBedtime(hour: Int): Boolean {
-    return hour >= BEDTIME_HOUR || hour < RISE_HOUR
+  /** When somebody with no reason to keep other hours is in bed. */
+  val DEFAULT_REST = HourWindow(BEDTIME_HOUR, RISE_HOUR)
+
+  fun restHoursOf(occupation: Occupation?): HourWindow {
+    return occupation?.rest ?: DEFAULT_REST
   }
 
   /** False rather than null when the hour is unknown: an agent that has not perceived yet is not in bed. */
   fun isBedtime(state: WorldState): Boolean {
     val hour = state.get(HOUR_OF_DAY) ?: return false
-    return isBedtime(hour)
+    return restHoursOf(state.get(OCCUPATION)).covers(hour)
+  }
+
+  /** Whether the clock is inside this person's shift. False for anybody who has none. */
+  fun isOnShift(state: WorldState): Boolean {
+    val shift = state.get(OCCUPATION)?.shift ?: return false
+    val hour = state.get(HOUR_OF_DAY) ?: return false
+    return shift.covers(hour)
+  }
+
+  /**
+   * Whether today's shift has already been seen through.
+   *
+   * True when the day is unknown, which is the safe direction: an agent that has not perceived yet must
+   * not decide it is late for work.
+   */
+  fun hasWorkedToday(state: WorldState): Boolean {
+    val today = state.get(DAY_INDEX) ?: return true
+    return state.get(WORKED_ON_DAY) == today
   }
 
   fun isAtHome(state: WorldState): Boolean {
@@ -147,6 +212,30 @@ object TownsfolkDomain : AiDomainCatalogue {
       priority = priority(base = 70f),
       availability = Precondition { s -> (homeDistanceOrNull(s) ?: 0L) > loiterRadiusOf(s) },
       desiredState = listOf(Precondition { s -> (homeDistanceOrNull(s) ?: Long.MAX_VALUE) <= loiterRadiusOf(s) }),
+    )
+
+    /**
+     * The post, for as long as the shift lasts.
+     *
+     * Outranks [GO_HOME] on purpose: a post further from home than the loiter radius would otherwise have
+     * the townsperson turned round and walked back the moment it arrived.
+     *
+     * Availability needs a workplace as well as an hour, and that is not defensive. `AiThinkSystem` plans
+     * for the highest-priority available goal *only* - a goal it cannot find a plan for leaves the agent
+     * with no plan at all rather than falling through - so an occupation with nowhere to work would freeze
+     * somebody on the spot for the length of their shift.
+     *
+     * Satisfied by [WORKED_ON_DAY] carrying today, which is there to give the search something reachable
+     * to aim at - see that key. A shift running past midnight would defeat the comparison, and none does;
+     * when one has to, that is what changes.
+     */
+    val WORK_SHIFT = Goal(
+      name = "WorkShift",
+      priority = priority(base = 75f),
+      availability = Precondition { s ->
+        s.get(WORK_POSITION) != null && isOnShift(s) && !hasWorkedToday(s)
+      },
+      desiredState = listOf(Precondition { s -> hasWorkedToday(s) }),
     )
 
     /**
@@ -193,6 +282,7 @@ object TownsfolkDomain : AiDomainCatalogue {
       GO_HOME,
       LOITER,
       SLEEP,
+      WORK_SHIFT,
     )
 
     val BY_NAME = ALL.associateBy { it.name }
@@ -203,8 +293,10 @@ object TownsfolkDomain : AiDomainCatalogue {
 
   private val TEMPLATE_FACTORIES: Map<String, (Collaborators) -> ActionTemplate> = mapOf(
     "goHome" to { c -> GoHomeActionTemplate(c.locomotion) },
+    "goToWork" to { c -> GoToWorkActionTemplate(c.locomotion) },
     "loiter" to { c -> LoiterActionTemplate(c.locomotion) },
     "sleepAtHome" to { _ -> SleepAtHomeActionTemplate() },
+    "workShift" to { _ -> WorkShiftActionTemplate() },
   )
 
   override val actionIds: Set<String> get() = TEMPLATE_FACTORIES.keys

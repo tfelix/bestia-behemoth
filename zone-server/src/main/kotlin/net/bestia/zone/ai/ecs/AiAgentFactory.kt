@@ -66,7 +66,7 @@ class AiAgentFactory(
       memory = memory,
       teamMemory = sharedMemory.teamBoard(profile.faction),
       drives = runtime.drives,
-      restingWindow = runtime.restingWindow(profile),
+      restingWindow = runtime.restingWindow(profile, memory),
     )
   }
 }

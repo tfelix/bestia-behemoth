@@ -42,7 +42,8 @@ class TownsfolkRuntime(navigation: NavigationService) : AiDomainRuntime {
     return TownsfolkDomain.resolver(profile.actionIds, TownsfolkDomain.Collaborators(locomotion))
   }
 
-  override fun restingWindow(profile: AiProfile): RestingWindow {
-    return TownsfolkDomain.RESTING_WINDOW
+  /** The occupation's hours when the caller seeded one, and ordinary hours otherwise. */
+  override fun restingWindow(profile: AiProfile, memory: Blackboard): RestingWindow {
+    return TownsfolkDomain.restingWindowFor(memory.get(TownsfolkDomain.OCCUPATION))
   }
 }

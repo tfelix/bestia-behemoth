@@ -6,6 +6,8 @@ import net.bestia.zone.ai.core.planner.Planner
 import net.bestia.zone.ai.core.state.Blackboard
 import net.bestia.zone.ai.core.state.StateKey
 import net.bestia.zone.ai.domain.bestia.BestiaRuntime
+import net.bestia.zone.ai.domain.townsfolk.Occupation
+import net.bestia.zone.ai.domain.townsfolk.TownsfolkDomain
 import net.bestia.zone.ai.domain.townsfolk.TownsfolkRuntime
 import net.bestia.zone.ai.perception.ForageSense
 import net.bestia.zone.ai.perception.PerceptionSystem
@@ -119,14 +121,33 @@ class AiPipelineFixture(tickRate: Int = 20) {
    * A mob running [profileId], at [pos]. No `KnownSkills`: a basic attack is not a catalogued skill, which is
    * what the real spawner does too.
    */
-  fun spawnMob(profileId: String, pos: Vec3L, health: Int = 10, maxHealth: Int = 10): EntityId =
+  fun spawnMob(
+    profileId: String,
+    pos: Vec3L,
+    health: Int = 10,
+    maxHealth: Int = 10,
+    memory: Blackboard = Blackboard(),
+  ): EntityId =
     world.createEntity { id ->
       world.add(id, Position.fromVec3(pos))
       world.add(id, Health(health, maxHealth))
       world.add(id, Speed())
       world.add(id, Animation())
-      world.add(id, agentFactory.create(profiles.getOrThrow(profileId), homePosition = pos))
+      world.add(id, agentFactory.create(profiles.getOrThrow(profileId), homePosition = pos, memory = memory))
     }
+
+  /**
+   * A townsperson with a trade, which is a fact about the individual rather than about the archetype - so
+   * it goes into the blackboard the agent is built on, exactly as `BestiaEntitySpawner` does it.
+   */
+  fun spawnTownsfolk(occupation: Occupation, home: Vec3L, post: Vec3L? = null): EntityId {
+    val memory = Blackboard().apply {
+      set(TownsfolkDomain.OCCUPATION, occupation, Blackboard.PERMANENT)
+      post?.let { set(TownsfolkDomain.WORK_POSITION, it, Blackboard.PERMANENT) }
+    }
+
+    return spawnMob("townsfolk_commoner", home, memory = memory)
+  }
 
   /** Moves the calendar on by [hours], carrying into the next day, month and year as it goes. */
   fun advanceHours(hours: Int) {

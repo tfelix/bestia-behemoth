@@ -65,7 +65,8 @@ class BestiaRuntime(
     )
   }
 
-  override fun restingWindow(profile: AiProfile): RestingWindow {
+  /** A species sleeps by its own cycle, so there is nothing individual to read out of [memory] here. */
+  override fun restingWindow(profile: AiProfile, memory: Blackboard): RestingWindow {
     return BestiaDomain.restingWindow(profile.tuning.activityCycle)
   }
 }

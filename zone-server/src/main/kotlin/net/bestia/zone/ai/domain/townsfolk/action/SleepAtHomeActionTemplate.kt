@@ -44,7 +44,8 @@ class SleepAtHomeActionTemplate : ActionTemplate {
 
     private fun stillSleeping(context: BtContext): Boolean {
       val hour = context.memory.get(TownsfolkDomain.HOUR_OF_DAY)
-      val stillNight = hour != null && TownsfolkDomain.isBedtime(hour)
+      val rest = TownsfolkDomain.restHoursOf(context.memory.get(TownsfolkDomain.OCCUPATION))
+      val stillNight = hour != null && rest.covers(hour)
 
       return stillNight ||
         (context.memory.get(TownsfolkDomain.TIREDNESS) ?: 0) > TownsfolkDomain.RESTED_TIREDNESS

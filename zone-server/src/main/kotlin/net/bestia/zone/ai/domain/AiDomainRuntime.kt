@@ -28,6 +28,12 @@ interface AiDomainRuntime {
 
   fun resolver(profile: AiProfile): ActionResolver
 
-  /** When perception should clear [net.bestia.zone.ai.core.state.CommonKeys.RESTED] for this profile. */
-  fun restingWindow(profile: AiProfile): RestingWindow
+  /**
+   * When perception should clear [net.bestia.zone.ai.core.state.CommonKeys.RESTED] for this agent.
+   *
+   * Takes the [memory] as well as the profile because sleeping hours can be a property of the individual
+   * rather than of the archetype - a town's night watch and its baker run the same profile. Called after
+   * [attach], so whatever that wrote is already there.
+   */
+  fun restingWindow(profile: AiProfile, memory: Blackboard): RestingWindow
 }

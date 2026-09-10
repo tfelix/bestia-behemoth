@@ -1,7 +1,7 @@
-# An ordinary town-dweller with no trade yet: about the street by day, home in bed at night.
+# A town-dweller: at the post through the shift, about the street otherwise, home in bed at night.
 #
-# Deliberately thin. Occupations, shifts and workplaces are the next piece of work, and this archetype is
-# what they will be measured against - a person who keeps a believable day without one.
+# One archetype for everybody: what separates a guard from a beggar is the occupation written into the
+# individual when it is spawned, not the species. See TownsfolkDomain.OCCUPATION.
 identifier: townsfolk_commoner
 domain: townsfolk
 faction: townsfolk
@@ -12,9 +12,12 @@ wander_radius: 12
 tiredness_threshold: 80
 goals:
   - { name: Sleep }
+  - { name: WorkShift }
   - { name: GoHome }
   - { name: Loiter }
 actions:
   - goHome
+  - goToWork
   - loiter
   - sleepAtHome
+  - workShift
