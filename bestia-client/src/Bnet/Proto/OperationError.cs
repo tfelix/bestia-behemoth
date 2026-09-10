@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSqtCAoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSq3CQoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -50,8 +50,11 @@ namespace Bnet {
             "SUxFRBAjEhwKGEJBU0lDX1NLSUxMX1RSQURFX0xPQ0tFRBAkEh4KGkNIQVRf",
             "Q09NTUFORF9OT19QRVJNSVNTSU9OECUSGAoUQ0hBVF9DT01NQU5EX1VOS05P",
             "V04QJhIXChNDSEFUX0NPTU1BTkRfRkFJTEVEECcSFgoSQlVJTERfT1VUX09G",
-            "X1JBTkdFEChCLAoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQhNPcGVyYXRpb25F",
-            "cnJvclByb3RvYgZwcm90bzM="));
+            "X1JBTkdFECgSEgoOU0hPUF9OT05FX0hFUkUQKRIUChBTSE9QX05PVF9TVE9D",
+            "S0VEECoSFQoRU0hPUF9PVVRfT0ZfU1RPQ0sQKxIWChJTSE9QX0NBTk5PVF9B",
+            "RkZPUkQQLBIXChNTSE9QX1RSRUFTVVJZX0VNUFRZEC0SFgoSU0hPUF9UUkVB",
+            "U1VSWV9GVUxMEC5CLAoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQhNPcGVyYXRp",
+            "b25FcnJvclByb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -207,6 +210,36 @@ namespace Bnet {
     /// nothing, a target that is not a site - an honest client cannot send.
     /// </summary>
     [pbr::OriginalName("BUILD_OUT_OF_RANGE")] BuildOutOfRange = 40,
+    /// <summary>
+    /// Shops. There is no settlement under the player's feet, or the one there has no economy - a ruin, or
+    /// a place history left nobody in.
+    /// </summary>
+    [pbr::OriginalName("SHOP_NONE_HERE")] ShopNoneHere = 41,
+    /// <summary>
+    /// The town does not deal in that at all. Separate from having run out, because the two are answered
+    /// differently: one is "come back tomorrow" and the other is "try somewhere else".
+    /// </summary>
+    [pbr::OriginalName("SHOP_NOT_STOCKED")] ShopNotStocked = 42,
+    /// <summary>
+    /// Fewer units on offer than asked for. What is on offer is the surplus above what the locals keep back
+    /// for themselves, so a town can be full of bread and still refuse to sell it.
+    /// </summary>
+    [pbr::OriginalName("SHOP_OUT_OF_STOCK")] ShopOutOfStock = 43,
+    /// <summary>
+    /// The player has not got the coins. Carries the price in args[0], because the window may have been
+    /// drawn before the last trade moved it.
+    /// </summary>
+    [pbr::OriginalName("SHOP_CANNOT_AFFORD")] ShopCannotAfford = 44,
+    /// <summary>
+    /// The town's treasury cannot cover what it would owe. A poor village genuinely cannot buy a cartload,
+    /// and refusing is honest where a bad price would still transfer money.
+    /// </summary>
+    [pbr::OriginalName("SHOP_TREASURY_EMPTY")] ShopTreasuryEmpty = 45,
+    /// <summary>
+    /// The treasury is at its ceiling, so the town has no room to take on more. What stops a player dumping
+    /// ten thousand apples: a refusal rather than a collapsing price, which would still be an income.
+    /// </summary>
+    [pbr::OriginalName("SHOP_TREASURY_FULL")] ShopTreasuryFull = 46,
   }
 
   #endregion

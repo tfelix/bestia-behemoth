@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "ShopOfferSmsgProto";
+
+// What one settlement will trade right now, and at what price.
+//
+// A snapshot for drawing a window, never a contract: every trade is settled unit by unit against the live
+// price at the moment it is resolved, so a client acting on a stale window pays the current price rather
+// than the one it was shown. Re-sent after every trade, which is how the window stays honest.
+message ShopOfferSMSG {
+  // Dense settlement index, so a client can tell one town's window from another's.
+  int32 settlement = 1;
+  repeated ShopEntry entries = 2;
+}
+
+message ShopEntry {
+  uint64 item_id = 1;
+
+  // Units the town will part with: what is on the shelves less what the locals keep back for themselves.
+  int32 offered = 2;
+
+  // Coins for one unit, buying and selling. The gap between them is the spread, and it is what makes
+  // round-tripping in one town a loss rather than an income.
+  int64 buy_price = 3;
+  int64 sell_price = 4;
+}

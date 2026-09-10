@@ -84,6 +84,9 @@ import "messages/map/chunk_ground_overlay_smsg.proto";
 import "messages/map/static_entity_removed_smsg.proto";
 import "messages/map/collect_prop_cmsg.proto";
 import "messages/map/interact_entity_cmsg.proto";
+import "messages/shop/open_shop_cmsg.proto";
+import "messages/shop/shop_offer_smsg.proto";
+import "messages/shop/shop_trade_cmsg.proto";
 import "messages/map/weather_smsg.proto";
 import "messages/map/world_time_smsg.proto";
 import "messages/trade/request_trade_cmsg.proto";
@@ -221,6 +224,11 @@ message Envelope {
     CancelTradeCMSG cancel_trade = 806;
     TradeRequestSMSG trade_request = 810;
     TradeStateSMSG trade_state = 811;
+
+    // SHOPS 820
+    OpenShopCMSG open_shop = 820;
+    ShopTradeCMSG shop_trade = 821;
+    ShopOfferSMSG shop_offer = 822;
 
     // MISC
   }

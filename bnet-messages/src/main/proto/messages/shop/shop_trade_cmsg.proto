@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "ShopTradeCmsgProto";
+
+// Buys or sells `amount` of one item with the settlement the player is standing in.
+//
+// The price is not on the wire in either direction. A client that could name its own price would be a
+// client that could be wrong about it; what it sends is how much of what, and the server quotes.
+message ShopTradeCMSG {
+  uint64 item_id = 1;
+  int32 amount = 2;
+
+  // True when the player is handing goods over, false when taking them.
+  bool selling = 3;
+}

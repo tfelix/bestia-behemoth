@@ -121,6 +121,24 @@ enum OpError {
   // mid-build, or clicked a site across the room. Everything else a site can refuse - an id that names
   // nothing, a target that is not a site - an honest client cannot send.
   BUILD_OUT_OF_RANGE = 40;
+  // Shops. There is no settlement under the player's feet, or the one there has no economy - a ruin, or
+  // a place history left nobody in.
+  SHOP_NONE_HERE = 41;
+  // The town does not deal in that at all. Separate from having run out, because the two are answered
+  // differently: one is "come back tomorrow" and the other is "try somewhere else".
+  SHOP_NOT_STOCKED = 42;
+  // Fewer units on offer than asked for. What is on offer is the surplus above what the locals keep back
+  // for themselves, so a town can be full of bread and still refuse to sell it.
+  SHOP_OUT_OF_STOCK = 43;
+  // The player has not got the coins. Carries the price in args[0], because the window may have been
+  // drawn before the last trade moved it.
+  SHOP_CANNOT_AFFORD = 44;
+  // The town's treasury cannot cover what it would owe. A poor village genuinely cannot buy a cartload,
+  // and refusing is honest where a bad price would still transfer money.
+  SHOP_TREASURY_EMPTY = 45;
+  // The treasury is at its ceiling, so the town has no room to take on more. What stops a player dumping
+  // ten thousand apples: a refusal rather than a collapsing price, which would still be an income.
+  SHOP_TREASURY_FULL = 46;
 }
 
 message OperationError {
