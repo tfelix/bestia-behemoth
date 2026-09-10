@@ -1,5 +1,8 @@
 package net.bestia.zone.entity
 
+import io.mockk.every
+import io.mockk.mockk
+import net.bestia.zone.ecs.ZoneConfig
 import net.bestia.zone.ecs.battle.skill.CastCancelService
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
@@ -11,9 +14,11 @@ import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.navigation.local.LocalWalkQuery
 import net.bestia.zone.util.EntityId
+import net.bestia.zone.world.stream.InterestRange
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 class MoveActiveEntityHandlerTest {
 
@@ -44,7 +49,12 @@ class MoveActiveEntityHandlerTest {
     override fun isResident(position: Vec3L) = false
   }
 
-  private fun handlerFor(world: World, entityId: EntityId, walkQuery: LocalWalkQuery): MoveActiveEntityHandler {
+  private fun handlerFor(
+    world: World,
+    entityId: EntityId,
+    walkQuery: LocalWalkQuery,
+    rateLimit: MoveRequestRateLimit = MoveRequestRateLimit(ZoneConfig(tickRate = 20))
+  ): MoveActiveEntityHandler {
     val connectionInfoService = ConnectionInfoService()
     connectionInfoService.activateSession(accountId, masterId = 1L, masterEntityId = entityId)
 
@@ -55,6 +65,9 @@ class MoveActiveEntityHandlerTest {
       castCancelService = CastCancelService(world),
       deadActionGuard = DeadActionGuard(world),
       walkQuery = walkQuery,
+      // The real one derives this from the world's chunk size; the number is all this needs.
+      interestRange = mockk { every { cubeEdge } returns VIEW_VOLUME_STEPS.toLong() },
+      rateLimit = rateLimit,
     )
   }
 
@@ -134,5 +147,61 @@ class MoveActiveEntityHandlerTest {
     handler.handle(MoveActiveEntityCMSG(playerId = accountId, path = emptyList()))
 
     assertNull(world.get(id, Path::class))
+  }
+
+  @Test
+  fun `a path longer than the view volume is cut down to it`() {
+    // Nothing a click can produce. Unbounded, one 1 MB frame is some 35000 waypoints, all validated under the
+    // world lock and then broadcast whole to everybody in range.
+    val world = testWorld()
+    val id = world.create()
+    world.add(id, Position(0, 0, 0))
+    val handler = handlerFor(world, id, OpenWalkQuery())
+
+    val marathon = (1..VIEW_VOLUME_STEPS * 3).map { Vec3L(it.toLong(), 0, 0) }
+    handler.handle(MoveActiveEntityCMSG(playerId = accountId, path = marathon))
+
+    assertEquals(VIEW_VOLUME_STEPS, world.get(id, Path::class)?.path?.size)
+  }
+
+  @Test
+  fun `an account over its request rate is ignored rather than served`() {
+    val world = testWorld()
+    val id = world.create()
+    world.add(id, Position(0, 0, 0))
+
+    // Two tokens and no refill, so the assertion does not depend on how long the test itself takes.
+    val exhausted = MoveRequestRateLimit(
+      ZoneConfig(tickRate = 20, moveRequestsPerSecond = 0f, moveRequestBurst = 2f)
+    )
+    val handler = handlerFor(world, id, OpenWalkQuery(), exhausted)
+
+    repeat(2) {
+      handler.handle(MoveActiveEntityCMSG(playerId = accountId, path = listOf(Vec3L(1, 0, 0))))
+    }
+    world.remove(id, Path::class)
+
+    handler.handle(MoveActiveEntityCMSG(playerId = accountId, path = listOf(Vec3L(1, 0, 0))))
+
+    assertNull(world.get(id, Path::class), "the request past the burst never reached the world")
+  }
+
+  @Test
+  fun `a burst of clicking is served, because that is what clicking looks like`() {
+    val world = testWorld()
+    val id = world.create()
+    world.add(id, Position(0, 0, 0))
+    val handler = handlerFor(world, id, OpenWalkQuery())
+
+    repeat(10) {
+      handler.handle(MoveActiveEntityCMSG(playerId = accountId, path = listOf(Vec3L(1, 0, 0))))
+    }
+
+    assertTrue(world.get(id, Path::class) != null, "ten clicks is a person, not an attack")
+  }
+
+  companion object {
+    /** Stands in for InterestRange.cubeEdge, which is 352 at the shipped view radius. */
+    private const val VIEW_VOLUME_STEPS = 352
   }
 }

@@ -11,6 +11,7 @@ import net.bestia.zone.ecs.logout.LogoutCancelService
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.InMessageProcessor
 import net.bestia.zone.navigation.local.LocalWalkQuery
+import net.bestia.zone.world.stream.InterestRange
 import org.springframework.stereotype.Component
 import kotlin.math.abs
 
@@ -27,6 +28,8 @@ class MoveActiveEntityHandler(
   private val castCancelService: CastCancelService,
   private val deadActionGuard: DeadActionGuard,
   private val walkQuery: LocalWalkQuery,
+  private val interestRange: InterestRange,
+  private val rateLimit: MoveRequestRateLimit,
 ) : InMessageProcessor.IncomingMessageHandler<MoveActiveEntityCMSG> {
   override val handles = MoveActiveEntityCMSG::class
 
@@ -51,6 +54,13 @@ class MoveActiveEntityHandler(
     castCancelService.cancelCast(activeEntityId)
     castCancelService.cancelCraft(activeEntityId)
 
+    // After the cancels, so a spammed click still counts as intent and cannot be used to keep a cast alive,
+    // and before the expensive half - the world lock and the broadcast - which is the part worth bounding.
+    if (!rateLimit.spend(msg.playerId)) {
+      LOG.debug { "Dropping move for account ${msg.playerId}: over its request rate" }
+      return true
+    }
+
     world.modify(activeEntityId) { id ->
       if (msg.path.isEmpty()) {
         // An empty path is a stop request: drop any current path.
@@ -58,16 +68,22 @@ class MoveActiveEntityHandler(
         return@modify
       }
 
+      // A click can only land somewhere the player can see, so a path longer than the view volume did not
+      // come from one. Left unbounded, a single 1 MB frame is some 35000 waypoints - every one of them
+      // validated here under the world lock, ground-resolved in one MoveSystem tick, and broadcast to
+      // everybody in range. Truncated rather than refused, on the same reasoning as walkableStepsOf.
+      val requested = msg.path.take(interestRange.cubeEdge.toInt())
+
       val position = get(id, Position::class)
 
       // Without a known position there is nothing to validate a step against, so the path is trusted as it
       // used to be unconditionally. With one, the path is walked and cut at the first step that is not
       // horizontally adjacent or crosses too steep a rise - see walkableStepsOf.
-      val validPath = if (position == null) msg.path else walkableStepsOf(position.toVec3L(), msg.path)
+      val validPath = if (position == null) requested else walkableStepsOf(position.toVec3L(), requested)
 
       if (validPath.isEmpty()) {
         LOG.warn {
-          "Dropping move for entity $id: path start ${msg.path.first()} is not reachable from current " +
+          "Dropping move for entity $id: path start ${requested.first()} is not reachable from current " +
             "position (${position?.x}, ${position?.y}, ${position?.z})"
         }
         return@modify

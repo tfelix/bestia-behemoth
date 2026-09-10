@@ -180,6 +180,11 @@ world:
   tick-rate: 20
   parallel-systems: false
   logout-protection-seconds: 20
+  # Move requests one account may make. Click-to-move produces a handful a second even from somebody clicking
+  # frantically, and every accepted request broadcasts a path to everyone in range - so the burst is sized for
+  # a flurry of clicking and the sustained rate for nothing else.
+  move-requests-per-second: 10
+  move-request-burst: 20
 
 # How much of the generator's den field is actually used, per level band of the *den*.
 #

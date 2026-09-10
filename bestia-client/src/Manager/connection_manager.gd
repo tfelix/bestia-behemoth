@@ -85,6 +85,22 @@ var WorldClockScript = load("res://Game/World/WorldClock.cs")
 
 var _connection_state : ConnectionState = ConnectionState.DISCONNECTED
 
+## Smoothed round trip to the server, in milliseconds, or -1 before the first measurement.
+##
+## Measured without any help from the protocol: Ping and Pong carry nothing, and they do not need to, because
+## the client is the one that knows when it sent the ping. One ping is in flight at a time, so a single send
+## time is enough to attribute the answer - a stale pong with nothing outstanding is ignored rather than
+## timed against the wrong ping.
+##
+## Exponentially smoothed, because a single sample is mostly scheduler noise. [member latency_jitter_msec] is
+## the mean deviation from that average, which is the number that says whether a walk should look smooth.
+var latency_msec: float = -1.0
+var latency_jitter_msec: float = 0.0
+
+const _LATENCY_SMOOTHING: float = 0.2
+
+var _ping_sent_msec: int = -1
+
 ## Client-side terrain streaming: reconciles chunk manifests, decodes payloads, applies patches.
 ##
 ## Created here in code rather than added to ConnectionManager.tscn, because a scene node needs a
@@ -352,6 +368,12 @@ func move_to(destination: Vector3) -> void:
 	msg.Path = path
 	_socket.SendMessage(msg)
 
+	# Walk it now rather than a round trip from now. Waiting for the server's own PathComponentSMSG before
+	# moving put the whole round trip between the click and the first step, which is what made movement feel
+	# unresponsive however well the interpolation behaved. The server remains the authority - see
+	# Entity.predict_path for what happens when it disagrees, or does not answer.
+	owned_entity.predict_path(path)
+
 
 func use_item(item_id: int) -> void:
 	assert(is_ready_to_send())
@@ -577,6 +599,10 @@ func _on_bnet_socket_message_received(message: Object) -> void:
 		assert(_connection_state == ConnectionState.CONNECTED_NOT_AUTHED)
 		_connection_state = ConnectionState.CONNECTED_AUTHED
 		_http_ticket = message.HttpTicket
+		# The timer has no autostart, and nothing ever started it - so the ping had never once fired and the
+		# pong handler had never once run. Started here rather than in the scene so it only runs while there
+		# is a server to ping.
+		$PingTimer.start()
 		SceneManager.unblock_transition()
 		SceneManager.hide_loading()
 	elif message is Pong:
@@ -617,9 +643,25 @@ func _on_bnet_socket_message_received(message: Object) -> void:
 		printerr("ConnectionManager: message was not identified and processed: %s" % message)
 
 
-### If we dont receive a periodically pong from the server after we send out a ping assume a disconnect.
+## Times the round trip against the ping this answers.
+##
+## A pong with nothing outstanding is dropped: it is either a duplicate or the answer to a ping whose send
+## time a reconnect has already discarded, and timing it would report a round trip of however long the client
+## has been running.
 func _on_pong() -> void:
-	print("pong received")
+	if _ping_sent_msec < 0:
+		return
+
+	var sample := float(Time.get_ticks_msec() - _ping_sent_msec)
+	_ping_sent_msec = -1
+
+	if latency_msec < 0.0:
+		latency_msec = sample
+		latency_jitter_msec = 0.0
+		return
+
+	latency_jitter_msec = lerpf(latency_jitter_msec, absf(sample - latency_msec), _LATENCY_SMOOTHING)
+	latency_msec = lerpf(latency_msec, sample, _LATENCY_SMOOTHING)
 
 
 func is_ready_to_send() -> bool:
@@ -642,6 +684,11 @@ func _on_bnet_socket_connection_status_changed(status: int) -> void:
 		# Nothing is going to finish loading now, and the scene change below is to a menu the player has
 		# to be able to use. Covers the sign-in screen too, which this same socket may have raised.
 		world_load.abort()
+		$PingTimer.stop()
+		# A measurement belongs to the connection it was taken on; the next one starts over.
+		_ping_sent_msec = -1
+		latency_msec = -1.0
+		latency_jitter_msec = 0.0
 		if _intentional_disconnect:
 			# Player-initiated logout: go home quietly instead of showing "connection lost".
 			_intentional_disconnect = false
@@ -665,6 +712,10 @@ func _on_bnet_socket_connection_status_changed(status: int) -> void:
 
 
 func _on_ping_timer_timeout() -> void:
-	if _connection_state == ConnectionState.CONNECTED_AUTHED:
-			var ping_msg = Ping.new()
-			_socket.SendMessage(ping_msg)
+	if _connection_state != ConnectionState.CONNECTED_AUTHED:
+		return
+
+	# Overwritten rather than queued: one ping is outstanding at a time, and if the last one never came back
+	# the interesting number is the round trip of this one, not of the one that was lost.
+	_ping_sent_msec = Time.get_ticks_msec()
+	_socket.SendMessage(Ping.new())

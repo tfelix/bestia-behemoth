@@ -10,9 +10,9 @@ import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.annotation.Profile
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
-import java.util.Collections
-import java.util.concurrent.ConcurrentHashMap
 import org.springframework.transaction.annotation.Transactional
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.CopyOnWriteArrayList
 
 @Component
 @Profile("no-socket")
@@ -32,10 +32,13 @@ class GameClientMockFactory(
   class MockConnectionAdapter : OutMessageHandler {
 
     /**
-     * Written by whichever thread the server sent from - the zone tick, or one of `AsyncJobExecutor`'s
-     * workers - and read by the test thread, usually inside an Awaitility poll. So the buffers are
-     * synchronized: an `ArrayList` here throws `ConcurrentModificationException` out of the assertion rather
-     * than out of the code under test, which is a confusing way to learn nothing.
+     * Concurrent throughout, because the real send path is: `ZoneEngine` hands each tick's component updates
+     * to `AsyncJobExecutor`, so [sendMessage] runs on a pool thread while the test thread is reading the same
+     * buffer. A plain list threw [java.util.ConcurrentModificationException] out of whichever scenario
+     * happened to be reading when a tick flushed, which read as an unrelated flake.
+     *
+     * A snapshotting list rather than a synchronized one: readers iterate with `filterIsInstance` and have
+     * nowhere to hold a lock.
      */
     val createdClientBuffer: MutableMap<AccountId, MutableList<SMSG>> = ConcurrentHashMap()
 
@@ -55,8 +58,8 @@ class GameClientMockFactory(
 
     requireNotNull(account) { "Account $accountId was not found" }
 
-    val buffer = connectionAdapter.createdClientBuffer.getOrPut(accountId) {
-      Collections.synchronizedList(mutableListOf())
+    val buffer = connectionAdapter.createdClientBuffer.computeIfAbsent(accountId) {
+      CopyOnWriteArrayList()
     }
 
     return GameClientMock(

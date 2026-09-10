@@ -40,8 +40,7 @@ import kotlin.collections.iterator
  *  - **domain events**: it drains the world outbox ([ZoneEvent]s emitted by systems, e.g. death)
  *    and performs their side effects (loot spawn, vanish broadcast).
  *
- * Network sends and loot spawns are offloaded to a small worker pool so the tick thread never blocks
- * on them, mirroring the previous `queueExternalJob` behaviour.
+ * Sends are offloaded to [sendExecutor] so the tick thread never pays for resolving who is in range.
  */
 @Service
 class ZoneEngine(
@@ -50,10 +49,25 @@ class ZoneEngine(
   private val entityAOIService: EntityAOIService,
   private val playerAOIService: ActivePlayerAOIService,
   private val outMessageProcessor: OutMessageProcessor,
-  private val asyncJobExecutor: AsyncJobExecutor,
   private val entityVisibility: EntityVisibility,
   private val snapshotBuilder: EntitySnapshotBuilder,
 ) {
+
+  /**
+   * The pool outbound client traffic is written from.
+   *
+   * Its own, rather than the shared [AsyncJobExecutor], and that separation is the whole reason it exists:
+   * that pool's four workers are shared with blocking JDBC - inventory persistence, crafting, prop and
+   * scorch writes - so a send landing on the same worker as a slow write waited behind it. Position updates
+   * queueing behind a database round trip is rubberbanding that shows up only under load, and never in a
+   * single-player test.
+   *
+   * Keyed by account id, which the shared pool's KDoc warns against for its own purpose and which is right
+   * here: the key serialises one client's outbound stream, and that stream is exactly what has to stay in
+   * order - a client reconciles an arriving path against the position it was last told. Nothing here
+   * reads-modifies-writes shared state, so the lost-update hazard that warning is about does not apply.
+   */
+  private val sendExecutor = AsyncJobExecutor(workerCount = 4)
 
   private data class RemovedComponentRecord(
     val entityId: EntityId,
@@ -61,7 +75,13 @@ class ZoneEngine(
     val targets: SyncTargets,
   )
 
+  /**
+   * Position leads deliberately: the client reconciles an arriving path against where it believes the entity
+   * is, so it has to be told where the entity *is* before it is told where the entity is *going*. Everything
+   * behind it keeps the scan's own order, which is stable - see [dirtyableComponentTypes].
+   */
   private val syncableComponentTypes = dirtyableComponentTypes
+    .sortedBy { if (it == Position::class) 0 else 1 }
 
   private val tickExecutor = Executors.newSingleThreadExecutor { r -> Thread(r, "zone-tick") }
   private val removedComponentOutbox = ConcurrentLinkedQueue<RemovedComponentRecord>()
@@ -178,11 +198,10 @@ class ZoneEngine(
     } catch (_: InterruptedException) {
       tickExecutor.shutdownNow()
     }
-  }
 
-  /** Runs [action] on the shared [AsyncJobExecutor] pool (network sends, loot spawn, ...). */
-  fun queueExternalJob(action: () -> Unit) {
-    asyncJobExecutor.submit(action)
+    // After the tick loop has drained, so a tick still in flight can hand off its sends rather than have
+    // them rejected.
+    sendExecutor.shutdown()
   }
 
   /**
@@ -276,11 +295,11 @@ class ZoneEngine(
 
       if (broadcastMsgs.isNotEmpty()) {
         publicAudienceOf(entityId).forEach { accountId ->
-          asyncJobExecutor.submit(key = accountId) { outMessageProcessor.sendToPlayer(accountId, broadcastMsgs) }
+          sendExecutor.submit(key = accountId) { outMessageProcessor.sendToPlayer(accountId, broadcastMsgs) }
         }
       }
       byAccountMsgs.forEach { (accountId, msgs) ->
-        asyncJobExecutor.submit(key = accountId) { outMessageProcessor.sendToPlayer(accountId, msgs) }
+        sendExecutor.submit(key = accountId) { outMessageProcessor.sendToPlayer(accountId, msgs) }
       }
     }
 
@@ -328,7 +347,7 @@ class ZoneEngine(
 
       if (withVanishes.isEmpty()) continue
 
-      asyncJobExecutor.submit(key = delivery.accountId) {
+      sendExecutor.submit(key = delivery.accountId) {
         outMessageProcessor.sendToPlayer(delivery.accountId, withVanishes)
       }
     }
@@ -347,16 +366,16 @@ class ZoneEngine(
 
       when (val targets = record.targets) {
         is SyncTargets.PublicInRange -> publicAudienceOf(record.entityId).forEach { accountId ->
-          asyncJobExecutor.submit(key = accountId) { outMessageProcessor.sendToPlayer(accountId, msg) }
+          sendExecutor.submit(key = accountId) { outMessageProcessor.sendToPlayer(accountId, msg) }
         }
 
         is SyncTargets.OwnerOnly -> {
           val owner = world.get(record.entityId, Account::class)?.accountId ?: continue
-          asyncJobExecutor.submit(key = owner) { outMessageProcessor.sendToPlayer(owner, msg) }
+          sendExecutor.submit(key = owner) { outMessageProcessor.sendToPlayer(owner, msg) }
         }
 
         is SyncTargets.Accounts -> targets.accountIds.forEach { accountId ->
-          asyncJobExecutor.submit(key = accountId) { outMessageProcessor.sendToPlayer(accountId, msg) }
+          sendExecutor.submit(key = accountId) { outMessageProcessor.sendToPlayer(accountId, msg) }
         }
       }
     }
@@ -378,11 +397,11 @@ class ZoneEngine(
 
     when (targets) {
       is SyncTargets.PublicInRange -> publicAudienceOf(entityId).forEach { accountId ->
-        asyncJobExecutor.submit(key = accountId) { outMessageProcessor.sendToPlayer(accountId, msg) }
+        sendExecutor.submit(key = accountId) { outMessageProcessor.sendToPlayer(accountId, msg) }
       }
 
       is SyncTargets.Accounts -> targets.accountIds.forEach { accountId ->
-        asyncJobExecutor.submit(key = accountId) { outMessageProcessor.sendToPlayer(accountId, msg) }
+        sendExecutor.submit(key = accountId) { outMessageProcessor.sendToPlayer(accountId, msg) }
       }
 
       is SyncTargets.OwnerOnly -> Unit // never produced by mergeSyncTargets, kept for exhaustiveness
