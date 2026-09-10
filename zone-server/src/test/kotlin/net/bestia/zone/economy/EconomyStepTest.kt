@@ -99,11 +99,11 @@ class EconomyStepTest {
         val price = market.priceOf(commodity.id)
         val reference = commodity.refPrice * village.priceMultiplier
         assertTrue(
-          price >= reference * EconomyStep.PRICE_FLOOR * 0.999,
+          price >= reference * PriceCurve.FLOOR * 0.999,
           "${commodity.id} fell to $price against a reference of $reference"
         )
         assertTrue(
-          price <= reference * EconomyStep.PRICE_CEILING * 1.001,
+          price <= reference * PriceCurve.CEILING * 1.001,
           "${commodity.id} rose to $price against a reference of $reference"
         )
       }

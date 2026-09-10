@@ -3,7 +3,6 @@ package net.bestia.zone.economy
 import org.springframework.stereotype.Service
 import kotlin.math.exp
 import kotlin.math.floor
-import kotlin.math.ln
 import kotlin.math.min
 
 /**
@@ -137,15 +136,7 @@ class EconomyStep(
     rate: Double,
     dayOfYear: Double,
   ): Double {
-    val cover = standing / rate
-    val wanted = commodity.coverDays * commodity.seasonAt(dayOfYear)
-
-    // An empty store is an unbounded logarithm, and the ceiling is where it belongs anyway.
-    val target = if (cover <= 0.0) {
-      LOG_CEILING
-    } else {
-      (PRICE_SENSITIVITY * ln(wanted / cover)).coerceIn(LOG_FLOOR, LOG_CEILING)
-    }
+    val target = PriceCurve.targetFor(commodity, standing, rate, commodity.seasonAt(dayOfYear))
 
     return current + (target - current) * (1.0 - exp(-1.0 / PRICE_TAU_DAYS))
   }
@@ -171,10 +162,6 @@ class EconomyStep(
     /** I15. A town left alone for a year is caught up as a month, not as a year. */
     const val MAX_STEP_DAYS = 30.0
 
-    /** I1, as bounds on the log deviation: half the reference price to four times it. */
-    const val PRICE_FLOOR = 0.5
-    const val PRICE_CEILING = 4.0
-
     /**
      * The floor on how fast trade drains a shortage, per game-day - an isolated hamlet with no road at
      * all. Positive, and I5 leans on that: a commodity that neither spoils nor trades would be an
@@ -182,16 +169,10 @@ class EconomyStep(
      */
     const val MIN_TRADE_RATE = 0.1
 
-    /** How hard a price reacts to being under its cover. One is proportional. */
-    private const val PRICE_SENSITIVITY = 0.8
-
     /** Game-days a price takes to make most of its move, so a shortage is felt over a day or two. */
     private const val PRICE_TAU_DAYS = 2.0
 
     /** Game-days the treasury takes to revert to what a town that size ought to hold. */
     private const val TREASURY_TAU_DAYS = 20.0
-
-    private val LOG_FLOOR = ln(PRICE_FLOOR)
-    private val LOG_CEILING = ln(PRICE_CEILING)
   }
 }

@@ -61,6 +61,7 @@ class EconomyCatalogue {
     unbound = file.unbound.map { Unbound(it.business, it.needs, it.reason) }
 
     checkTradesNameKnownCommodities()
+    checkEverythingIsSellableSomewhere()
     sorted = sortTopologically()
 
     LOG.info {
@@ -114,6 +115,22 @@ class EconomyCatalogue {
     val twice = trades.groupBy { it.produces }.filterValues { it.size > 1 }.keys
     require(twice.isEmpty()) {
       "More than one trade produces $twice, so no settlement's reference throughput is well defined"
+    }
+  }
+
+  /**
+   * A commodity whose cover is under the local reserve is never on sale in any town in the world.
+   *
+   * Two numbers in two files that only interact through a subtraction, which is exactly the shape that
+   * goes wrong silently: the good is *there*, the shelves are full, and every shop refuses. Bread is
+   * how this was found.
+   */
+  private fun checkEverythingIsSellableSomewhere() {
+    for (commodity in byId.values) {
+      require(commodity.coverDays > SettlementMarket.LOCAL_RESERVE_DAYS) {
+        "Commodity '${commodity.id}' holds ${commodity.coverDays} days against a " +
+          "${SettlementMarket.LOCAL_RESERVE_DAYS}-day local reserve, so no town would ever sell it"
+      }
     }
   }
 

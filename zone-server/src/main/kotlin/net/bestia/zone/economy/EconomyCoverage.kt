@@ -27,14 +27,16 @@ class EconomyCoverage(
   private val catalogue: EconomyCatalogue,
   private val recipes: RecipeRegistry,
   private val items: ItemRepository,
+  private val commodityItems: CommodityItems,
 ) {
 
   @EventListener(ApplicationReadyEvent::class)
   fun check() {
-    val priced = pricedByItemId()
+    val priced = commodityItems.priced()
 
     checkEveryTradeIsAccountedFor()
     checkCommodityItemsExist()
+    checkCoinExists()
     checkBlockedItemsAreStillMissing()
     checkNoCraftingLoopPrints(priced)
 
@@ -70,6 +72,13 @@ class EconomyCoverage(
     require(missing.isEmpty()) {
       "These commodities name items the catalogue does not have, so nothing could ever be handed over: " +
         missing.sorted()
+    }
+  }
+
+  /** Nothing can be bought or sold without it, and it is one line in `items.yml` away from being absent. */
+  private fun checkCoinExists() {
+    requireNotNull(commodityItems.coinItemId()) {
+      "There is no '${CommodityItems.COIN}' item, so no shop could take payment for anything"
     }
   }
 
@@ -113,18 +122,12 @@ class EconomyCoverage(
     val sold = priced[output.itemId] ?: return null
     val bought = recipe.inputs.map { priced[it.itemId] ?: return null }
 
-    val revenue = EconomyStep.PRICE_CEILING * sold.refPrice * output.amount * recipe.baseSuccessChance
+    val revenue = PriceCurve.CEILING * sold.refPrice * output.amount * recipe.baseSuccessChance
     val cost = recipe.inputs.zip(bought).sumOf { (stack, commodity) ->
-      EconomyStep.PRICE_FLOOR * commodity.refPrice * stack.amount
+      PriceCurve.FLOOR * commodity.refPrice * stack.amount
     }
 
     return revenue - cost
-  }
-
-  private fun pricedByItemId(): Map<Long, Commodity> {
-    return catalogue.commodities().mapNotNull { commodity ->
-      items.findByIdentifier(commodity.item)?.let { it.id to commodity }
-    }.toMap()
   }
 
   companion object {
