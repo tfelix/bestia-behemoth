@@ -78,10 +78,8 @@ class AiDriveSystem(
     val carried = (memory.get(fractionKey) ?: 0f) + amount
     val whole = carried.toInt()
 
-    // Drives must survive the blackboard's TTL sweep, hence PERMANENT: a hunger that quietly expired would
-    // reset the creature's appetite every ten minutes.
-    memory.set(key, (current + whole).coerceIn(0, MAX_DRIVE), Blackboard.PERMANENT)
-    memory.set(fractionKey, carried - whole, Blackboard.PERMANENT)
+    memory.set(key, (current + whole).coerceIn(0, MAX_DRIVE))
+    memory.set(fractionKey, carried - whole)
   }
 
   companion object {
@@ -108,9 +106,9 @@ class AiDriveSystem(
      * that the utility curves and preconditions can read without knowing about accumulation.
      */
     private val fractionKeys = mapOf(
-      BestiaDomain.HUNGER to StateKey<Float>("hungerFraction"),
-      BestiaDomain.TIREDNESS to StateKey<Float>("tirednessFraction"),
-      BestiaDomain.RESTLESSNESS to StateKey<Float>("restlessnessFraction"),
+      BestiaDomain.HUNGER to StateKey<Float>("hungerFraction", retain = Blackboard.PERMANENT),
+      BestiaDomain.TIREDNESS to StateKey<Float>("tirednessFraction", retain = Blackboard.PERMANENT),
+      BestiaDomain.RESTLESSNESS to StateKey<Float>("restlessnessFraction", retain = Blackboard.PERMANENT),
     )
   }
 }

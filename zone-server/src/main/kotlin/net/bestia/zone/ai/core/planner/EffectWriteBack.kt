@@ -67,7 +67,7 @@ object EffectWriteBack {
     // The cast is safe under `contains`: a key present in the state holds a value of its own type,
     // which may itself legitimately be null.
     for (board in targets) {
-      if (after.contains(key)) board.set(key, afterValue as T) else board.remove(key)
+      if (after.contains(key)) board.set(key, afterValue as T, key.retain) else board.remove(key)
     }
   }
 }

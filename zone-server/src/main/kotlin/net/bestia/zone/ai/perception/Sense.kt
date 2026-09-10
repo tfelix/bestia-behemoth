@@ -76,7 +76,7 @@ class SenseContext(
    * a fact silently stops being shared. This is the same cascade [net.bestia.zone.ai.core.planner.EffectWriteBack]
    * applies to an action's effects, so a fact means the same thing however it was learned.
    */
-  fun <T> remember(key: StateKey<T>, value: T, retain: Float = Blackboard.DEFAULT_RETAIN_TIME_SECONDS) {
+  fun <T> remember(key: StateKey<T>, value: T, retain: Float = key.retain) {
     boardFor(key.scope).set(key, value, retain)
   }
 

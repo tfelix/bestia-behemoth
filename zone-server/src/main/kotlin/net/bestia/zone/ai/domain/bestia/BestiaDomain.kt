@@ -44,7 +44,7 @@ import net.bestia.zone.geometry.Vec3L
  *  - **Beliefs** ([KNOWN_VEGETATION], [ATTACK_EFFECTIVENESS], [TARGET_DEAD], [RESTED], and the drives
  *    [HUNGER]/[TIREDNESS]/[RESTLESSNESS]) are what an action's effects may update, and only once that
  *    action's behaviour tree has actually reported success. Perception may *clear* a belief its observations
- *    contradict — that is how [RESTED] ends — but it never asserts one.
+ *    contradict — that is how [RESTED] and [TARGET_DEAD] end — but it never asserts one.
  *
  * The planner still simulates effects over observation keys during A* — `walkTo(spot)` has to be able
  * to imagine standing on the spot, or no plan involving movement could ever be found. The rule is about
@@ -120,8 +120,8 @@ object BestiaDomain {
 
   // -------------------------------------------------------------------- beliefs
 
-  val HUNGER = StateKey<Int>("hunger")
-  val TIREDNESS = StateKey<Int>("tiredness")
+  val HUNGER = StateKey<Int>("hunger", retain = Blackboard.PERMANENT)
+  val TIREDNESS = StateKey<Int>("tiredness", retain = Blackboard.PERMANENT)
 
   /**
    * Builds up while nothing else is worth doing and is spent by wandering.
@@ -134,7 +134,7 @@ object BestiaDomain {
    * exactly like hunger and tiredness, removes the special case: restlessness rises, the wander goal
    * becomes available and unsatisfied, wandering spends it, and it rises again.
    */
-  val RESTLESSNESS = StateKey<Int>("restlessness")
+  val RESTLESSNESS = StateKey<Int>("restlessness", retain = Blackboard.PERMANENT)
 
   /**
    * Has slept out whatever made it want to. Set by the sleep action, cleared by perception for as long as
@@ -150,7 +150,7 @@ object BestiaDomain {
    * and nothing writes the effect. Absent and false mean the same thing to every reader, and availability is
    * what actually decides — this is a latch against the resting phase, not a diary.
    */
-  val RESTED = StateKey<Boolean>("rested")
+  val RESTED = StateKey<Boolean>("rested", retain = Blackboard.PERMANENT)
 
   /**
    * Whatever this creature was fighting is dead. Written by the attack action's effect - which reports
@@ -158,16 +158,17 @@ object BestiaDomain {
    *
    * The clearer is what makes it usable at all. Both kill goals ask for it to be true and the planner skips
    * a goal whose desired state already holds, so a creature that kept the belief would stand and take a
-   * beating from its next attacker.
+   * beating from its next attacker. Permanent like the beliefs above now that perception is what ends it
+   * rather than a timer.
    */
-  val TARGET_DEAD = StateKey<Boolean>("targetDead")
+  val TARGET_DEAD = StateKey<Boolean>("targetDead", retain = Blackboard.PERMANENT)
 
   /** Shared pack-wide: one bestia's foraging discovery becomes every packmate's knowledge. */
-  val KNOWN_VEGETATION = StateKey<List<VegetationMemory>>("knownVegetation", MemoryScope.TEAM)
+  val KNOWN_VEGETATION = StateKey<List<VegetationMemory>>("knownVegetation", MemoryScope.TEAM, retain = Blackboard.PERMANENT)
 
   /** Shared world-wide: "fire hurts golems" is knowledge the whole species can learn once. */
   val ATTACK_EFFECTIVENESS =
-    StateKey<Map<EffectivenessKey, Double>>("attackEffectiveness", MemoryScope.WORLD)
+    StateKey<Map<EffectivenessKey, Double>>("attackEffectiveness", MemoryScope.WORLD, retain = Blackboard.PERMANENT)
 
   // ------------------------------------------------------------------- helpers
 

@@ -10,8 +10,8 @@ package net.bestia.zone.ai.core.state
  * (Int 0..100) and complex objects (positions, item/location collections).
  *
  * Equality/hash are by [name] only, so two `StateKey<Int>("hunger")` created in
- * different places refer to the same slot. Neither [scope] nor [observed] participates in
- * that equality — both are metadata [net.bestia.zone.ai.core.planner.EffectWriteBack]
+ * different places refer to the same slot. None of [scope], [observed] or [retain] participates in
+ * that equality — they are metadata [net.bestia.zone.ai.core.planner.EffectWriteBack]
  * reads when deciding what to do with a write, not part of the key's identity.
  */
 class StateKey<T>(
@@ -35,6 +35,19 @@ class StateKey<T>(
    * like hunger — which an action legitimately updates once its behaviour has actually succeeded.
    */
   val observed: Boolean = false,
+  /**
+   * How long a write to this key survives, in seconds.
+   *
+   * It belongs to the key because a fact's lifetime is a property of the fact, and only the key is in
+   * scope everywhere it gets written. A belief written by an action's effect has no call site to pass a
+   * retention at — [net.bestia.zone.ai.core.planner.EffectWriteBack] writes every key the same way —
+   * so before this, anything an action concluded quietly expired ten minutes later whatever it meant.
+   *
+   * [Blackboard.PERMANENT] for a fact that ends when something ends it rather than when a timer does:
+   * a drive, a latch a perception clears, a thing learned. The default suits a fact that is refreshed
+   * often enough that its own staleness is the point.
+   */
+  val retain: Float = Blackboard.DEFAULT_RETAIN_TIME_SECONDS,
 ) {
   override fun equals(other: Any?): Boolean = this === other || (other is StateKey<*> && name == other.name)
   override fun hashCode(): Int = name.hashCode()
