@@ -28,6 +28,14 @@ import net.bestia.zone.ai.domain.bestia.BestiaDomain
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
 data class AiProfileDto(
   val identifier: String,
+  /**
+   * Which set of goals and action templates this archetype is written against.
+   *
+   * Defaults to the wild creatures so the shipped archetypes say nothing about it, which is the honest
+   * default while they are the only ones there are. Validated against
+   * [net.bestia.zone.ai.domain.AiDomains], so a typo is a boot failure naming the alternatives.
+   */
+  val domain: String = BestiaDomain.ID,
   /** Pack/faction id; agents sharing one share a team blackboard. */
   val faction: String? = null,
   val perception: PerceptionDto = PerceptionDto(),

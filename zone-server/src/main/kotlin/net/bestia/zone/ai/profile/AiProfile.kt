@@ -10,6 +10,8 @@ import net.bestia.zone.ai.domain.bestia.AttackDefinition
  */
 data class AiProfile(
   val identifier: String,
+  /** See [AiProfileDto.domain]. */
+  val domain: String,
   val faction: String?,
   val perception: Perception,
   val tuning: Tuning,
@@ -47,6 +49,7 @@ data class AiProfile(
   companion object {
     fun fromDto(dto: AiProfileDto): AiProfile = AiProfile(
       identifier = dto.identifier,
+      domain = dto.domain,
       faction = dto.faction,
       perception = Perception(
         sightRadius = dto.perception.sightRadius,

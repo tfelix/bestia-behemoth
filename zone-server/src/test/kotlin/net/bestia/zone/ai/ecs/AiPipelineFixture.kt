@@ -5,6 +5,7 @@ import io.mockk.mockk
 import net.bestia.zone.ai.core.planner.Planner
 import net.bestia.zone.ai.core.state.Blackboard
 import net.bestia.zone.ai.core.state.StateKey
+import net.bestia.zone.ai.domain.bestia.BestiaRuntime
 import net.bestia.zone.ai.perception.ForageSense
 import net.bestia.zone.ai.perception.PerceptionSystem
 import net.bestia.zone.ai.perception.SenseSystem
@@ -79,12 +80,14 @@ class AiPipelineFixture(tickRate: Int = 20) {
    */
   var grazeableGround: Boolean = false
 
-  val agentFactory = AiAgentFactory(
+  /** The one domain there is. Spring collects these; a test names the ones its scenario needs. */
+  val bestia = BestiaRuntime(
     navigation = TestNavigation.service(),
     skills = skills,
     attackExecution = attackExecution,
-    sharedMemory = sharedMemory,
   )
+
+  val agentFactory = AiAgentFactory(runtimes = listOf(bestia), sharedMemory = sharedMemory)
 
   /**
    * Throttling off, so a scenario measures behaviour rather than cadence.

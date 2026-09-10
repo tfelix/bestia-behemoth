@@ -1,38 +1,32 @@
 package net.bestia.zone.ai.ecs
 
-import net.bestia.zone.ai.bt.Locomotion
 import net.bestia.zone.ai.core.state.Blackboard
-import net.bestia.zone.ai.domain.bestia.BestiaDomain
+import net.bestia.zone.ai.domain.AiDomainRuntime
 import net.bestia.zone.ai.profile.AiConfig
 import net.bestia.zone.ai.profile.AiProfile
-import net.bestia.zone.battle.skill.AttackExecutionService
-import net.bestia.zone.battle.skill.SkillExecutionService
 import net.bestia.zone.geometry.Vec3L
-import net.bestia.zone.navigation.NavigationService
 import org.springframework.stereotype.Service
 
 /**
- * Builds the [AiAgent] component for a freshly spawned creature: writes the profile's tuning knobs into its
- * memory as permanent facts, resolves its goal list and action resolver from the ids the profile names, and
- * joins it to its faction's shared blackboard.
+ * Builds the [AiAgent] component for a freshly spawned creature: has the profile's domain write its tuning
+ * knobs into memory as permanent facts, resolves its goal list and action resolver from the ids the profile
+ * names, and joins it to its faction's shared blackboard.
  *
  * Because the knobs go into memory rather than onto fields of the component, goal availability and priority
  * read them the same way they read hunger or position — so a mob's numbers can be retuned from YAML without
  * touching any goal or action code, and there is exactly one place each number lives.
  *
- * A Spring `@Service` rather than the object it replaced, because the action templates it builds now need
- * real collaborators: navigation to move, and both attack pathways to fight with.
+ * What it does *not* know is any particular domain. Which goals exist, which templates a resolver is built
+ * from and what a creature's appetites are all come from the [AiDomainRuntime] the profile names, so a
+ * second kind of inhabitant is a new bean rather than a branch in here.
  */
 @Service
 class AiAgentFactory(
-  navigation: NavigationService,
-  private val skills: SkillExecutionService,
-  private val attackExecution: AttackExecutionService,
+  runtimes: List<AiDomainRuntime>,
   private val sharedMemory: SharedMemoryService,
 ) {
 
-  /** One shared instance: it holds only the navigation service, so there is nothing per-agent about it. */
-  private val locomotion = Locomotion(navigation)
+  private val byDomain = runtimes.associateBy { it.catalogue.id }
 
   /**
    * Builds an agent for [profile]. [config] is the owning player's standing order, for a player-owned bestia;
@@ -44,14 +38,22 @@ class AiAgentFactory(
     config: AiConfig? = null,
     memory: Blackboard = Blackboard(),
   ): AiAgent {
-    writeTuning(memory, profile, homePosition, config)
+    // `AiProfileRegistry` already refused any profile naming a domain that does not exist, so reaching this
+    // means the runtime bean for a known domain is missing from the context rather than that a file is wrong.
+    val runtime = byDomain[profile.domain]
+      ?: throw IllegalStateException(
+        "AI profile '${profile.identifier}' wants domain '${profile.domain}', but no AiDomainRuntime " +
+          "for it is registered; present are ${byDomain.keys.sorted()}"
+      )
+
+    runtime.attach(memory, profile, homePosition, config)
 
     val goals = profile.goals
       // A stance narrows the archetype's goals, never widens them: it can switch off foraging, but it cannot
       // teach a creature to hunt if its species never could.
       .filter { config == null || it.name in config.stance.goalNames }
       .mapNotNull { tuning ->
-        BestiaDomain.Goals.BY_NAME[tuning.name]?.let { goal ->
+        runtime.catalogue.goalsByName[tuning.name]?.let { goal ->
           tuning.basePriority?.let(goal::withBasePriority) ?: goal
         }
       }
@@ -60,37 +62,11 @@ class AiAgentFactory(
       profileId = profile.identifier,
       name = profile.identifier,
       goals = goals,
-      actionResolver = BestiaDomain.resolver(
-        profile.actionIds,
-        BestiaDomain.Collaborators(locomotion, skills, attackExecution, profile.attacks)
-      ),
+      actionResolver = runtime.resolver(profile),
       memory = memory,
       teamMemory = sharedMemory.teamBoard(profile.faction),
-      drives = BestiaDomain.DRIVES,
-      restingWindow = BestiaDomain.restingWindow(profile.tuning.activityCycle),
-    )
-  }
-
-  /**
-   * Tuning facts never decay, hence [Blackboard.PERMANENT]: a melee range that quietly expired after ten
-   * minutes would silently fall back to the domain default and change how the creature fights.
-   */
-  private fun writeTuning(memory: Blackboard, profile: AiProfile, homePosition: Vec3L, config: AiConfig?) {
-    val tuning = profile.tuning
-    memory.set(BestiaDomain.HOME_POSITION, homePosition, Blackboard.PERMANENT)
-    memory.set(BestiaDomain.ACTIVITY_CYCLE, tuning.activityCycle, Blackboard.PERMANENT)
-    memory.set(BestiaDomain.WANDER_RADIUS, tuning.wanderRadius, Blackboard.PERMANENT)
-    memory.set(BestiaDomain.MELEE_RANGE, tuning.meleeRange, Blackboard.PERMANENT)
-    memory.set(BestiaDomain.HUNGER_THRESHOLD, tuning.hungerThreshold, Blackboard.PERMANENT)
-    memory.set(BestiaDomain.TIREDNESS_THRESHOLD, tuning.tirednessThreshold, Blackboard.PERMANENT)
-    memory.set(BestiaDomain.RESTLESS_THRESHOLD, tuning.restlessThreshold, Blackboard.PERMANENT)
-
-    // The player's one numeric knob overrides the archetype's, always clamped. Everything else about the
-    // species is not theirs to change.
-    memory.set(
-      BestiaDomain.AGGRESSION,
-      config?.sanitised()?.aggression ?: tuning.aggression,
-      Blackboard.PERMANENT,
+      drives = runtime.drives,
+      restingWindow = runtime.restingWindow(profile),
     )
   }
 }

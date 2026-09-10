@@ -1,6 +1,6 @@
 package net.bestia.zone.ai.ecs
 
-import net.bestia.zone.ai.domain.bestia.BestiaDomain
+import net.bestia.zone.ai.core.state.CommonKeys
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.spawn.ambient.AmbientSpawnConfig
@@ -46,7 +46,7 @@ class AiThrottle(private val config: AmbientSpawnConfig) {
 
     // Aggro beats distance: something that has been attacked is in a fight, and a fight that walks out of
     // view must not go into slow motion.
-    if (agent.memory.get(BestiaDomain.IS_AGGRO) == true) return 1
+    if (agent.memory.get(CommonKeys.IS_AGGRO) == true) return 1
 
     val position = world.get(id, Position::class)?.toVec3L() ?: return 1
     for (player in players) {

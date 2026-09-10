@@ -6,7 +6,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.kotlinModule
 import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.annotation.PostConstruct
-import net.bestia.zone.ai.domain.bestia.BestiaDomain
+import net.bestia.zone.ai.domain.AiDomains
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver
 import org.springframework.stereotype.Service
 
@@ -15,8 +15,11 @@ import org.springframework.stereotype.Service
  * behaviour configuration (not JPA-persisted), so it is held in a plain in-memory map rather than a
  * database table.
  *
- * On load it fail-fast validates that every referenced goal and action actually exists in [BestiaDomain],
- * so a typo in a YAML archetype surfaces at boot instead of as a mob that mysteriously does nothing.
+ * On load it fail-fast validates that every referenced goal and action actually exists in the domain the
+ * profile names, so a typo in a YAML archetype surfaces at boot instead of as a mob that mysteriously does
+ * nothing. It checks against [AiDomains] rather than against a [net.bestia.zone.ai.domain.AiDomainRuntime]
+ * so that validating a file needs no navigation service and no battle pipeline - this bean has no
+ * constructor arguments and must keep none.
  * Validation used to check four things — goals, actions, consideration inputs and response curves — against
  * four Spring bean registries. Two of those concepts no longer exist in YAML at all now that priority
  * formulas live in Kotlin, and the remaining two resolve against the domain object directly, so there are no
@@ -68,17 +71,22 @@ class AiProfileRegistry {
   fun all(): Collection<AiProfile> = profilesById.values
 
   private fun validate(profile: AiProfile) {
+    val domain = requireNotNull(AiDomains.of(profile.domain)) {
+      "AI profile '${profile.identifier}' references unknown domain '${profile.domain}'; " +
+        "known domains are ${AiDomains.ids.sorted()}"
+    }
+
     profile.actionIds.forEach { actionId ->
-      require(actionId in BestiaDomain.actionIds) {
+      require(actionId in domain.actionIds) {
         "AI profile '${profile.identifier}' references unknown action '$actionId'; " +
-          "known actions are ${BestiaDomain.actionIds.sorted()}"
+          "known actions are ${domain.actionIds.sorted()}"
       }
     }
 
     profile.goals.forEach { goal ->
-      require(goal.name in BestiaDomain.Goals.BY_NAME) {
+      require(goal.name in domain.goalsByName) {
         "AI profile '${profile.identifier}' references unknown goal '${goal.name}'; " +
-          "known goals are ${BestiaDomain.Goals.BY_NAME.keys.sorted()}"
+          "known goals are ${domain.goalsByName.keys.sorted()}"
       }
     }
 
