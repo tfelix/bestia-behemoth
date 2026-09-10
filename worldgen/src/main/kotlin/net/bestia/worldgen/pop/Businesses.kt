@@ -174,7 +174,7 @@ object BusinessCatalogue {
   )
 
   /**
-   * Fingerprint of the roster: thirty-one trades, their ratios, their thresholds and their preconditions.
+   * Fingerprint of the roster: thirty trades, their ratios, their thresholds and their preconditions.
    *
    * Folded by trade **id** rather than by list position, and the position is not folded at all - unlike the
    * culture and tier tables, nothing stores an index into this list. What a settlement stores is its economy

@@ -145,7 +145,7 @@ class ParamsVersionTest {
    * class.
    *
    * Separate from [digested] because they are functions rather than [Params] instances, and there is no
-   * `toString` to check them against - a completeness oracle for a hand-written list of thirty-one business
+   * `toString` to check them against - a completeness oracle for a hand-written list of thirty business
    * types would have to know the list, which is the thing it would be checking. What guards these is the pin
    * alone, so the pin is the only thing standing between a silently retuned catalogue and a shifted world.
    */
