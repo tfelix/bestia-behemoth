@@ -23,6 +23,11 @@ import net.bestia.zone.ecs.spawn.townsfolk.IndoorRegistry
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.ai.domain.AiDomainCatalogue
 import net.bestia.zone.ai.domain.townsfolk.action.BuyFoodActionTemplate
+import net.bestia.zone.ai.domain.townsfolk.action.CollectStockActionTemplate
+import net.bestia.zone.ai.domain.townsfolk.action.DeliverStockActionTemplate
+import net.bestia.zone.ai.domain.townsfolk.action.GoToGatheringActionTemplate
+import net.bestia.zone.ai.domain.townsfolk.action.GoToSupplierActionTemplate
+import net.bestia.zone.ai.domain.townsfolk.action.MingleActionTemplate
 import net.bestia.zone.ai.domain.townsfolk.action.EatActionTemplate
 import net.bestia.zone.ai.domain.townsfolk.action.EnterHomeActionTemplate
 import net.bestia.zone.ai.domain.townsfolk.action.GoHomeActionTemplate
@@ -120,6 +125,29 @@ object TownsfolkDomain : AiDomainCatalogue {
    * a trade the economy does model.
    */
   val WORK_SUPPLIED = StateKey<Boolean>("workSupplied", observed = true, retain = Blackboard.PERMANENT)
+
+  /** Where a shopkeeper fetches their stock, from [net.bestia.zone.ai.perception.SettlementSense]. */
+  val SUPPLIER_POSITION = StateKey<Vec3L>("supplierPosition", observed = true, retain = Blackboard.PERMANENT)
+
+  /** Whether the maker has any to hand over. False is the errand a burnt field cancels. */
+  val SUPPLY_IN_STOCK = StateKey<Boolean>("supplyInStock", observed = true, retain = Blackboard.PERMANENT)
+
+  /** Where off-duty townsfolk gather, from [net.bestia.zone.ai.perception.SettlementSense]. */
+  val SOCIAL_POSITION = StateKey<Vec3L>("socialPosition", observed = true, retain = Blackboard.PERMANENT)
+
+  /**
+   * Carrying goods, collected and not yet put on the shelf.
+   *
+   * A real latch, [HAS_FOOD]'s twin and for [HAS_FOOD]'s reason: collecting and delivering are two actions
+   * with a walk across town between them.
+   */
+  val CARRYING_STOCK = StateKey<Boolean>("carryingStock", retain = Blackboard.PERMANENT)
+
+  /** The [DAY_INDEX] the shop was last restocked on. A planning device, exactly as [WORKED_ON_DAY] is. */
+  val RESTOCKED_ON_DAY = StateKey<Long>("restockedOnDay", retain = Blackboard.PERMANENT)
+
+  /** The [DAY_INDEX] the evening was spent out on. [WORKED_ON_DAY]'s twin, and for the same reason. */
+  val SOCIALISED_ON_DAY = StateKey<Long>("socialisedOnDay", retain = Blackboard.PERMANENT)
 
   /**
    * Carrying a meal, bought and not yet eaten.
@@ -263,7 +291,6 @@ object TownsfolkDomain : AiDomainCatalogue {
     return state.get(WORKED_ON_DAY) == today
   }
 
-  /** Whether this person's job is to stay put while there is fighting. False for anybody with no trade. */
   /**
    * Whether the day's work is possible at all.
    *
@@ -274,8 +301,58 @@ object TownsfolkDomain : AiDomainCatalogue {
     return state.get(WORK_SUPPLIED) != false
   }
 
+  /** Whether this person's job is to stay put while there is fighting. False for anybody with no trade. */
   fun holdsGround(state: WorldState): Boolean {
     return state.get(OCCUPATION)?.holdsGround == true
+  }
+
+  fun hasRestockedToday(state: WorldState): Boolean {
+    val today = state.get(DAY_INDEX) ?: return true
+    return state.get(RESTOCKED_ON_DAY) == today
+  }
+
+  /** An errand with somewhere to go and something to collect when you get there. */
+  fun canRestock(state: WorldState): Boolean {
+    return state.get(SUPPLIER_POSITION) != null && state.get(SUPPLY_IN_STOCK) == true
+  }
+
+  fun isAtSupplier(state: WorldState): Boolean {
+    val supplier = state.get(SUPPLIER_POSITION) ?: return false
+    val position = state.get(POSITION) ?: return false
+    return position.distance(supplier) <= DOORSTEP_RADIUS
+  }
+
+  fun isAtWork(state: WorldState): Boolean {
+    val post = state.get(WORK_POSITION) ?: return false
+    val position = state.get(POSITION) ?: return false
+    return position.distance(post) <= DOORSTEP_RADIUS
+  }
+
+  fun isAtGathering(state: WorldState): Boolean {
+    val spot = state.get(SOCIAL_POSITION) ?: return false
+    val position = state.get(POSITION) ?: return false
+    return position.distance(spot) <= DOORSTEP_RADIUS
+  }
+
+  fun hasSocialisedToday(state: WorldState): Boolean {
+    val today = state.get(DAY_INDEX) ?: return true
+    return state.get(SOCIALISED_ON_DAY) == today
+  }
+
+  /**
+   * The hours between the end of the shift and bed.
+   *
+   * Null for somebody with no shift at all - a child or a beggar has no evening because they have had no
+   * day, and giving them one would park them at the inn door from dawn onwards.
+   */
+  fun eveningOf(occupation: Occupation?): HourWindow? {
+    val shift = occupation?.shift ?: return null
+    return HourWindow(shift.toHour, restHoursOf(occupation).fromHour)
+  }
+
+  fun isEvening(state: WorldState): Boolean {
+    val hour = state.get(HOUR_OF_DAY) ?: return false
+    return eveningOf(state.get(OCCUPATION))?.covers(hour) == true
   }
 
   fun isAtMeal(state: WorldState): Boolean {
@@ -395,6 +472,55 @@ object TownsfolkDomain : AiDomainCatalogue {
     )
 
     /**
+     * Fetching the day's stock from whoever makes it.
+     *
+     * The longest plan the domain has, and the only one the planner has to *chain* rather than pick: it
+     * costs four actions to get from an empty counter to a full one, and no single action reaches the
+     * goal. Nothing enumerates that sequence anywhere - `goToSupplier -> collectStock -> goToWork ->
+     * deliverStock` falls out of the preconditions, which is the whole argument for planning over a
+     * scripted routine.
+     *
+     * Above [WORK_SHIFT], so the errand is run before settling in behind the counter rather than after the
+     * shift has been marked done for the day.
+     *
+     * Availability wants stock at the other end as well as a supplier, and that is the same guard
+     * [WORK_SHIFT] carries: a goal nothing can plan freezes the agent outright, and "the bakery is empty"
+     * is exactly the state a player creates by burning the fields.
+     */
+    val RESTOCK = Goal(
+      name = "Restock",
+      priority = priority(base = 78f),
+      availability = Precondition { s ->
+        s.get(WORK_POSITION) != null && isOnShift(s) && canRestock(s) && !hasRestockedToday(s)
+      },
+      desiredState = listOf(Precondition { s -> hasRestockedToday(s) }),
+    )
+
+    /**
+     * The evening, spent somewhere other than alone at home.
+     *
+     * Above [GO_HOME] for [WORK_SHIFT]'s reason, which is not a preference but a requirement: the inn is
+     * further from a person's door than the loiter radius, so a lower-ranked evening would be overruled
+     * the moment they got there and they would be walked home again a few paces at a time.
+     *
+     * Satisfied by a stamp rather than by arriving, also for [WORK_SHIFT]'s reason. Satisfied on arrival,
+     * the goal would drop the moment it was met, [GO_HOME] would take over, and the evening would become
+     * a shuttle between the door and the inn.
+     *
+     * There is no drive behind it on purpose. Sociability would be a fourth number to tune against three
+     * that already interact, and the hour says the same thing - a square fills up in the evening and
+     * empties at bedtime whether or not anybody is keeping score.
+     */
+    val SOCIALISE = Goal(
+      name = "Socialise",
+      priority = priority(base = 72f),
+      availability = Precondition { s ->
+        isEvening(s) && s.get(SOCIAL_POSITION) != null && !hasSocialisedToday(s)
+      },
+      desiredState = listOf(Precondition { s -> hasSocialisedToday(s) }),
+    )
+
+    /**
      * The floor. Always available, so there is never a moment with no goal at all.
      *
      * That is not decoration: `Planner.selectCurrentGoal` returns null when nothing is both available and
@@ -443,7 +569,9 @@ object TownsfolkDomain : AiDomainCatalogue {
       EAT,
       GO_HOME,
       LOITER,
+      RESTOCK,
       SLEEP,
+      SOCIALISE,
       TAKE_SHELTER,
       WORK_SHIFT,
     )
@@ -466,6 +594,11 @@ object TownsfolkDomain : AiDomainCatalogue {
     "goToMeal" to { c -> GoToMealActionTemplate(c.locomotion) },
     "goToWork" to { c -> GoToWorkActionTemplate(c.locomotion) },
     "goToShelter" to { c -> GoToShelterActionTemplate(c.locomotion) },
+    "goToGathering" to { c -> GoToGatheringActionTemplate(c.locomotion) },
+    "mingle" to { _ -> MingleActionTemplate() },
+    "goToSupplier" to { c -> GoToSupplierActionTemplate(c.locomotion) },
+    "collectStock" to { _ -> CollectStockActionTemplate() },
+    "deliverStock" to { _ -> DeliverStockActionTemplate() },
     "loiter" to { c -> LoiterActionTemplate(c.locomotion) },
     "shelterAtDoor" to { _ -> ShelterAtDoorActionTemplate() },
     "enterHome" to { c -> EnterHomeActionTemplate(c.indoors) },

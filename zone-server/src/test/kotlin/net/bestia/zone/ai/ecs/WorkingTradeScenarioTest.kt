@@ -34,6 +34,7 @@ class WorkingTradeScenarioTest {
     ai.workshops = object : SettlementWork {
       override fun tradeOf(business: String?): Trade? = if (business == "miller") MILLING else null
       override fun canSupply(settlement: Int, trade: Trade): Boolean = stocked
+      override fun supplierNear(at: Vec3L, business: String?): SettlementWork.Supply? = null
     }
   }
 

@@ -100,6 +100,20 @@ class SettlementSiteIndex(
     )
   }
 
+  /**
+   * Somewhere in the open as a place to stand, converting metres to position units.
+   *
+   * Height comes from the terrain rather than from a building's graded floor, which is the difference
+   * from [doorstepOf]: out in a square there is no floor to stand on but the ground itself.
+   */
+  fun standingAt(point: Vec2d): Vec3L {
+    val config = worldService.config
+    val x = Math.round(point.x / config.voxelSize)
+    val y = Math.round(point.y / config.voxelSize)
+
+    return Vec3L(x, y, ChunkCoords.standingZ(config, worldService.generated.base.heightAt(point.x, point.y)))
+  }
+
   private fun build(entry: StandingSettlements.Entry): SettlementSite {
     val area = Aabb(
       entry.x - entry.footprintRadius,

@@ -5,6 +5,7 @@ import io.mockk.mockk
 import net.bestia.zone.economy.EconomyCatalogue
 import net.bestia.zone.economy.SettlementEconomyService
 import net.bestia.zone.economy.SettlementMarket
+import net.bestia.zone.world.settlement.SettlementSiteIndex
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -24,8 +25,9 @@ class SettlementWorkshopsTest {
   private val catalogue = EconomyCatalogue().apply { load() }
   private val economy = mockk<SettlementEconomyService>()
   private val market = mockk<SettlementMarket>()
+  private val sites = mockk<SettlementSiteIndex>()
 
-  private val sut = SettlementWorkshops(catalogue, economy)
+  private val sut = SettlementWorkshops(catalogue, economy, sites)
 
   init {
     every { economy.marketOf(SETTLEMENT) } returns market

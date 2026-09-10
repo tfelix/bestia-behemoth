@@ -5,6 +5,7 @@ import net.bestia.zone.ai.core.action.ActionResolver
 import net.bestia.zone.ai.perception.SettlementWork
 import net.bestia.zone.ecs.spawn.townsfolk.IndoorRegistry
 import net.bestia.zone.economy.Trade
+import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.navigation.TestNavigation
 
 /**
@@ -20,6 +21,7 @@ object TownsfolkDomainFixture {
   val NO_TRADES = object : SettlementWork {
     override fun tradeOf(business: String?): Trade? = null
     override fun canSupply(settlement: Int, trade: Trade): Boolean = true
+    override fun supplierNear(at: Vec3L, business: String?): SettlementWork.Supply? = null
   }
 
   fun resolver(

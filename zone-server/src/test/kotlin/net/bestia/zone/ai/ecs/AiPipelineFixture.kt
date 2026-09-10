@@ -114,6 +114,9 @@ class AiPipelineFixture(tickRate: Int = 20) {
    */
   var workshops: SettlementWork = TownsfolkDomainFixture.NO_TRADES
 
+  /** Where the evening happens. None by default, so an ordinary scenario's people stay in. */
+  var square: Vec3L? = null
+
   // Spring collects the domain runtimes in the live server; a test names them.
   val bestia = BestiaRuntime(
     navigation = TestNavigation.service(),
@@ -133,6 +136,7 @@ class AiPipelineFixture(tickRate: Int = 20) {
     work = object : SettlementWork {
       override fun tradeOf(business: String?) = workshops.tradeOf(business)
       override fun canSupply(settlement: Int, trade: Trade) = workshops.canSupply(settlement, trade)
+      override fun supplierNear(at: Vec3L, business: String?) = workshops.supplierNear(at, business)
     },
     production = production,
   )
@@ -160,7 +164,9 @@ class AiPipelineFixture(tickRate: Int = 20) {
           work = object : SettlementWork {
             override fun tradeOf(business: String?) = workshops.tradeOf(business)
             override fun canSupply(settlement: Int, trade: Trade) = workshops.canSupply(settlement, trade)
+            override fun supplierNear(at: Vec3L, business: String?) = workshops.supplierNear(at, business)
           },
+          gathering = { square },
         ),
       ),
       sharedMemory,

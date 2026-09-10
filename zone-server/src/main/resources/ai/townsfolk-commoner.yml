@@ -15,18 +15,25 @@ goals:
   - { name: TakeShelter }
   - { name: Sleep }
   - { name: Eat }
+  - { name: Restock }
   - { name: WorkShift }
   - { name: GoHome }
+  - { name: Socialise }
   - { name: Loiter }
 actions:
   - buyFood
+  - collectStock
+  - deliverStock
   - eat
   - enterHome
   - goHome
+  - goToGathering
   - goToMeal
   - goToShelter
+  - goToSupplier
   - goToWork
   - loiter
+  - mingle
   - shelterAtDoor
   - sleepAtHome
   - workShift

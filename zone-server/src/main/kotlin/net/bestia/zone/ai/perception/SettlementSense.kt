@@ -7,8 +7,8 @@ import net.bestia.zone.ecs.spawn.townsfolk.TownsfolkIdentity
 import org.springframework.stereotype.Component
 
 /**
- * Notices where a townsperson can buy a meal, whether the town has one to sell, and whether their trade
- * has anything to work with.
+ * Notices what a townsperson's settlement offers them: a meal, stock to fetch, work to do and somewhere
+ * to spend the evening.
  *
  * A [Sense] rather than a system, so it adds no scheduler wave and costs a `has` for everybody it does
  * not concern - which is every creature in the world. `ShelterSense`'s shape.
@@ -27,6 +27,7 @@ import org.springframework.stereotype.Component
 class SettlementSense(
   private val food: SettlementFood,
   private val work: SettlementWork,
+  private val gathering: SettlementGathering,
 ) : Sense {
 
   override val name = "settlement"
@@ -44,6 +45,18 @@ class SettlementSense(
 
     senseMeal(context)
     senseWork(context, TownsfolkIdentity.settlementOf(townsfolk.identity))
+    senseSupplier(context)
+    senseGathering(context)
+  }
+
+  private fun senseGathering(context: SenseContext) {
+    val spot = gathering.spotNear(context.position)
+    if (spot == null) {
+      context.forget(TownsfolkDomain.SOCIAL_POSITION)
+      return
+    }
+
+    context.remember(TownsfolkDomain.SOCIAL_POSITION, spot)
   }
 
   private fun senseMeal(context: SenseContext) {
@@ -63,6 +76,21 @@ class SettlementSense(
    * told they are supplied, because absence is what the goal reads as "nothing is stopping me" - see
    * [TownsfolkDomain.hasSomethingToWorkWith].
    */
+  private fun senseSupplier(context: SenseContext) {
+    val supply = work.supplierNear(
+      context.position,
+      context.recall(TownsfolkDomain.OCCUPATION)?.businessType,
+    )
+    if (supply == null) {
+      context.forget(TownsfolkDomain.SUPPLIER_POSITION)
+      context.forget(TownsfolkDomain.SUPPLY_IN_STOCK)
+      return
+    }
+
+    context.remember(TownsfolkDomain.SUPPLIER_POSITION, supply.doorstep)
+    context.remember(TownsfolkDomain.SUPPLY_IN_STOCK, supply.inStock)
+  }
+
   private fun senseWork(context: SenseContext, settlement: Int) {
     val trade = work.tradeOf(context.recall(TownsfolkDomain.OCCUPATION)?.businessType) ?: return
 
