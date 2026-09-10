@@ -15,7 +15,11 @@ import net.bestia.zone.ecs.spawn.townsfolk.TownsfolkIdentity
 import net.bestia.zone.ai.perception.ForageSense
 import net.bestia.zone.ai.perception.PerceptionSystem
 import net.bestia.zone.ai.perception.SenseSystem
+import net.bestia.zone.ai.domain.townsfolk.TownsfolkDomainFixture
+import net.bestia.zone.ai.domain.townsfolk.TownsfolkProduction
 import net.bestia.zone.ai.perception.SettlementFood
+import net.bestia.zone.ai.perception.SettlementWork
+import net.bestia.zone.economy.Trade
 import net.bestia.zone.ai.perception.SettlementSense
 import net.bestia.zone.ai.perception.ShelterSense
 import net.bestia.zone.ai.profile.AiProfileRegistry
@@ -103,6 +107,13 @@ class AiPipelineFixture(tickRate: Int = 20) {
    */
   var mealStall: SettlementFood.Stall? = null
 
+  /**
+   * What the townsperson's trade is and whether the town can supply it.
+   *
+   * Nobody has a recipe by default, so an ordinary scenario's shift is the plain stand-at-the-post kind.
+   */
+  var workshops: SettlementWork = TownsfolkDomainFixture.NO_TRADES
+
   // Spring collects the domain runtimes in the live server; a test names them.
   val bestia = BestiaRuntime(
     navigation = TestNavigation.service(),
@@ -113,7 +124,18 @@ class AiPipelineFixture(tickRate: Int = 20) {
   /** Where a townsperson goes when they walk through a door. Readable, so a test can assert on it. */
   val indoors = IndoorRegistry()
 
-  val townsfolk = TownsfolkRuntime(navigation = TestNavigation.service(), indoors = indoors)
+  /** What the visible workers have turned out today. Readable, so a scenario can assert on it. */
+  val production = TownsfolkProduction()
+
+  val townsfolk = TownsfolkRuntime(
+    navigation = TestNavigation.service(),
+    indoors = indoors,
+    work = object : SettlementWork {
+      override fun tradeOf(business: String?) = workshops.tradeOf(business)
+      override fun canSupply(settlement: Int, trade: Trade) = workshops.canSupply(settlement, trade)
+    },
+    production = production,
+  )
 
   val agentFactory = AiAgentFactory(runtimes = listOf(bestia, townsfolk), sharedMemory = sharedMemory)
 
@@ -133,7 +155,13 @@ class AiPipelineFixture(tickRate: Int = 20) {
       listOf(
         ForageSense { grazeableGround },
         ShelterSense(aoi) { at, reach -> doorsteps.filter { it.distance(at) <= reach } },
-        SettlementSense { mealStall },
+        SettlementSense(
+          food = { mealStall },
+          work = object : SettlementWork {
+            override fun tradeOf(business: String?) = workshops.tradeOf(business)
+            override fun canSupply(settlement: Int, trade: Trade) = workshops.canSupply(settlement, trade)
+          },
+        ),
       ),
       sharedMemory,
       throttle

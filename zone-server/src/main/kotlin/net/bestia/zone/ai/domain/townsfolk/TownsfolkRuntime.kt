@@ -7,6 +7,7 @@ import net.bestia.zone.ai.core.state.Drive
 import net.bestia.zone.ai.core.state.RestingWindow
 import net.bestia.zone.ai.domain.AiDomainRuntime
 import net.bestia.zone.ai.profile.AiConfig
+import net.bestia.zone.ai.perception.SettlementWork
 import net.bestia.zone.ecs.spawn.townsfolk.IndoorRegistry
 import net.bestia.zone.ai.profile.AiProfile
 import net.bestia.zone.geometry.Vec3L
@@ -23,6 +24,8 @@ import org.springframework.stereotype.Service
 class TownsfolkRuntime(
   navigation: NavigationService,
   private val indoors: IndoorRegistry,
+  private val work: SettlementWork,
+  private val production: TownsfolkProduction,
 ) : AiDomainRuntime {
 
   private val locomotion = Locomotion(navigation)
@@ -44,7 +47,10 @@ class TownsfolkRuntime(
   }
 
   override fun resolver(profile: AiProfile): ActionResolver {
-    return TownsfolkDomain.resolver(profile.actionIds, TownsfolkDomain.Collaborators(locomotion, indoors))
+    return TownsfolkDomain.resolver(
+      profile.actionIds,
+      TownsfolkDomain.Collaborators(locomotion, indoors, work, production),
+    )
   }
 
   /** The occupation's hours when the caller seeded one, and ordinary hours otherwise. */

@@ -18,6 +18,7 @@ import net.bestia.zone.ai.core.state.HourWindow
 import net.bestia.zone.ai.core.state.RestingWindow
 import net.bestia.zone.ai.core.state.StateKey
 import net.bestia.zone.ai.core.state.WorldState
+import net.bestia.zone.ai.perception.SettlementWork
 import net.bestia.zone.ecs.spawn.townsfolk.IndoorRegistry
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.ai.domain.AiDomainCatalogue
@@ -110,6 +111,15 @@ object TownsfolkDomain : AiDomainCatalogue {
 
   /** Whether the town has anything to sell. False is how a burnt field reaches the people in the square. */
   val MEAL_IN_STOCK = StateKey<Boolean>("mealInStock", observed = true, retain = Blackboard.PERMANENT)
+
+  /**
+   * Whether the town can supply what this person's trade consumes.
+   *
+   * Absent for everybody who keeps no shop, which is most people - a guard's shift needs no inputs, and
+   * gating on a belief nobody writes would send the whole town home. Only ever false, never missing, for
+   * a trade the economy does model.
+   */
+  val WORK_SUPPLIED = StateKey<Boolean>("workSupplied", observed = true, retain = Blackboard.PERMANENT)
 
   /**
    * Carrying a meal, bought and not yet eaten.
@@ -254,6 +264,16 @@ object TownsfolkDomain : AiDomainCatalogue {
   }
 
   /** Whether this person's job is to stay put while there is fighting. False for anybody with no trade. */
+  /**
+   * Whether the day's work is possible at all.
+   *
+   * Absence means yes. Almost nobody has a recipe, so a missing belief has to read as "nothing is
+   * stopping me" - the alternative empties every post in the world until a sense gets round to it.
+   */
+  fun hasSomethingToWorkWith(state: WorldState): Boolean {
+    return state.get(WORK_SUPPLIED) != false
+  }
+
   fun holdsGround(state: WorldState): Boolean {
     return state.get(OCCUPATION)?.holdsGround == true
   }
@@ -318,7 +338,7 @@ object TownsfolkDomain : AiDomainCatalogue {
       name = "WorkShift",
       priority = priority(base = 75f),
       availability = Precondition { s ->
-        s.get(WORK_POSITION) != null && isOnShift(s) && !hasWorkedToday(s)
+        s.get(WORK_POSITION) != null && isOnShift(s) && !hasWorkedToday(s) && hasSomethingToWorkWith(s)
       },
       desiredState = listOf(Precondition { s -> hasWorkedToday(s) }),
     )
@@ -432,7 +452,12 @@ object TownsfolkDomain : AiDomainCatalogue {
   }
 
   /** What a template needs beyond the planning contract. */
-  data class Collaborators(val locomotion: Locomotion, val indoors: IndoorRegistry)
+  data class Collaborators(
+    val locomotion: Locomotion,
+    val indoors: IndoorRegistry,
+    val work: SettlementWork,
+    val production: TownsfolkProduction,
+  )
 
   private val TEMPLATE_FACTORIES: Map<String, (Collaborators) -> ActionTemplate> = mapOf(
     "buyFood" to { _ -> BuyFoodActionTemplate() },
@@ -445,7 +470,7 @@ object TownsfolkDomain : AiDomainCatalogue {
     "shelterAtDoor" to { _ -> ShelterAtDoorActionTemplate() },
     "enterHome" to { c -> EnterHomeActionTemplate(c.indoors) },
     "sleepAtHome" to { _ -> SleepAtHomeActionTemplate() },
-    "workShift" to { _ -> WorkShiftActionTemplate() },
+    "workShift" to { c -> WorkShiftActionTemplate(c.work, c.production) },
   )
 
   override val actionIds: Set<String> get() = TEMPLATE_FACTORIES.keys

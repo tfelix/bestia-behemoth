@@ -4,7 +4,9 @@ import net.bestia.account.Authority
 import net.bestia.worldgen.pop.BusinessCatalogue
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
+import net.bestia.zone.ai.domain.townsfolk.TownsfolkProduction
 import net.bestia.zone.economy.EconomyCatalogue
+import net.bestia.zone.environment.time.BestiaClock
 import net.bestia.zone.economy.SettlementEconomyService
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.message.OutMessageProcessor
@@ -27,6 +29,8 @@ class SitesChatCommand(
   private val siteIndex: SettlementSiteIndex,
   private val economy: SettlementEconomyService,
   private val commodities: EconomyCatalogue,
+  private val production: TownsfolkProduction,
+  private val clock: BestiaClock,
   private val worldService: WorldService,
   private val world: WorldView,
   private val out: OutMessageProcessor
@@ -70,20 +74,27 @@ class SitesChatCommand(
   /**
    * What is on the shelves, what it costs, and how much of it a caravan could actually take.
    *
-   * The three numbers are worth printing together because the gap between the second and the third is
-   * the only visible sign of I12 - a town with plenty of bread and none of it for sale is a town whose
+   * The first three are worth printing together because the gap between the second and the third is the
+   * only visible sign of I12 - a town with plenty of bread and none of it for sale is a town whose
    * residents eat first, and that reads as a bug until you can see the reserve.
+   *
+   * The last is separate from all of them on purpose and will not add up against the store: what the
+   * visible workers turn out is a tally of the work being done in front of you, not a fourth way into
+   * the books. See [net.bestia.zone.ai.domain.townsfolk.TownsfolkProduction].
    */
   private fun describePrices(site: SettlementSite): List<String> {
     val market = economy.marketOf(site.index)
       ?: return listOf("  no economy here, so nothing is made or sold.")
 
+    val today = clock.now().absoluteDay.toLong()
+
     return commodities.topological.map { commodity ->
-      "  %s: %.0f in store, %.0f offered, %.2f coins".format(
+      "  %s: %.0f in store, %.0f offered, %.2f coins, %d made by hand today".format(
         commodity.id,
         market.stockOf(commodity.id),
         market.offerableOf(commodity.id),
-        market.priceOf(commodity.id)
+        market.priceOf(commodity.id),
+        production.madeOn(site.index, commodity.id, today)
       )
     }
   }

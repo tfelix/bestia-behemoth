@@ -3,10 +3,12 @@ package net.bestia.zone.ai.perception
 import net.bestia.zone.ai.domain.townsfolk.TownsfolkDomain
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.spawn.townsfolk.Townsfolk
+import net.bestia.zone.ecs.spawn.townsfolk.TownsfolkIdentity
 import org.springframework.stereotype.Component
 
 /**
- * Notices where a townsperson can buy a meal, and whether the town has one to sell.
+ * Notices where a townsperson can buy a meal, whether the town has one to sell, and whether their trade
+ * has anything to work with.
  *
  * A [Sense] rather than a system, so it adds no scheduler wave and costs a `has` for everybody it does
  * not concern - which is every creature in the world. `ShelterSense`'s shape.
@@ -24,6 +26,7 @@ import org.springframework.stereotype.Component
 @Component
 class SettlementSense(
   private val food: SettlementFood,
+  private val work: SettlementWork,
 ) : Sense {
 
   override val name = "settlement"
@@ -37,8 +40,13 @@ class SettlementSense(
   override val reads: ComponentClassSet = setOf(Townsfolk::class)
 
   override fun sense(context: SenseContext) {
-    if (!context.world.has(context.entityId, Townsfolk::class)) return
+    val townsfolk = context.world.get(context.entityId, Townsfolk::class) ?: return
 
+    senseMeal(context)
+    senseWork(context, TownsfolkIdentity.settlementOf(townsfolk.identity))
+  }
+
+  private fun senseMeal(context: SenseContext) {
     val stall = food.stallNear(context.position)
     if (stall == null) {
       context.forget(TownsfolkDomain.MEAL_POSITION)
@@ -48,5 +56,16 @@ class SettlementSense(
 
     context.remember(TownsfolkDomain.MEAL_POSITION, stall.doorstep)
     context.remember(TownsfolkDomain.MEAL_IN_STOCK, stall.inStock)
+  }
+
+  /**
+   * Only ever written for somebody who has a recipe. Everyone else has to be left *absent* rather than
+   * told they are supplied, because absence is what the goal reads as "nothing is stopping me" - see
+   * [TownsfolkDomain.hasSomethingToWorkWith].
+   */
+  private fun senseWork(context: SenseContext, settlement: Int) {
+    val trade = work.tradeOf(context.recall(TownsfolkDomain.OCCUPATION)?.businessType) ?: return
+
+    context.remember(TownsfolkDomain.WORK_SUPPLIED, work.canSupply(settlement, trade))
   }
 }

@@ -87,6 +87,11 @@ class EconomyCatalogue {
     return trades
   }
 
+  /** The trade the holder of [business] runs, or null for a business the economy does not model. */
+  fun tradeOfBusiness(business: String): Trade? {
+    return trades.firstOrNull { it.business == business }
+  }
+
   /** The trade making [commodity], or null for something only trade with the outside world supplies. */
   fun producerOf(commodity: String): Trade? {
     return trades.firstOrNull { it.produces == commodity }
