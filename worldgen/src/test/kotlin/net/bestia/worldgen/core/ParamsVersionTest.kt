@@ -4,6 +4,7 @@ import net.bestia.worldgen.bio.BiomeParams
 import net.bestia.worldgen.bio.Biomes
 import net.bestia.worldgen.civ.Culture
 import net.bestia.worldgen.civ.HabitabilityParams
+import net.bestia.worldgen.civ.NavParams
 import net.bestia.worldgen.civ.SettlementParams
 import net.bestia.worldgen.civ.SettlementTier
 import net.bestia.worldgen.civ.StreetParams
@@ -42,6 +43,7 @@ import net.bestia.worldgen.resource.ResourceParams
 import net.bestia.worldgen.resource.ResourceType
 import net.bestia.worldgen.spawn.SpawnHostility
 import net.bestia.worldgen.spawn.SpawnerParams
+import net.bestia.worldgen.spawn.VegetationStandParams
 import net.bestia.worldgen.voxel.CrystalParams
 import net.bestia.worldgen.voxel.GroundCoverParams
 import net.bestia.worldgen.voxel.StrataParams
@@ -105,10 +107,12 @@ class ParamsVersionTest {
     HistoryParams(),
     CorruptionParams(),
     SpawnerParams(),
+    VegetationStandParams(),
     TownParams(),
     StreetParams(),
     EconomyParams(),
     PoiParams(),
+    NavParams(),
     // The chunk tier, which reaches no version number at all today.
     DetailParams(),
     StrataParams(),
@@ -231,12 +235,14 @@ class ParamsVersionTest {
       "HistoryParams" to 2_362_190_350_999_628_922L,
       "CorruptionParams" to -8_182_278_140_807_375_004L,
       "SpawnerParams" to 9_011_422_239_801_402_374L,
+      "VegetationStandParams" to -259_420_489_769_960_249L,
       // Both moved with the de-circularising of the town: `StreetParams` gained the arc and boundary fields and
       // lost nothing, and `TownParams` holds it.
       "TownParams" to 3_777_996_315_585_783_957L,
       "StreetParams" to 7_767_182_004_335_302_930L,
       "EconomyParams" to 6_863_789_847_631_252_411L,
       "PoiParams" to 9_183_715_732_977_741_057L,
+      "NavParams" to -286_509_641_931_752_055L,
       "DetailParams" to 5_837_136_561_326_550_610L,
       "StrataParams" to 5_360_263_422_566_259_310L,
       "DropletParams" to 8_150_952_456_997_203_313L,
