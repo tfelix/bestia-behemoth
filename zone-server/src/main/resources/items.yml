@@ -284,3 +284,44 @@ items:
       A bundle of planks, pegs and a folded vice, tied with cord.
 
       Set it down somewhere flat and it becomes a workbench - once somebody puts the work in.
+  # --- The economy's first commodities ------------------------------------------------------------
+  # farm -> mill -> bakery -> household, which is the shortest chain that exercises every part of the
+  # settlement ledger at once: several stages, a capacity that player damage can take away at the farm
+  # end, a consumption sink at the household end, and real spoilage on the perishable.
+  - id: 27
+    item-db-name: gold_coin
+    level: 1
+    # Weightless, and that is a design constraint rather than a rounding. There are no smaller
+    # denominations, and a fresh master carries about twenty-five kilos - at any non-zero coin weight
+    # ordinary shopping turns into a logistics puzzle.
+    weight: 0
+    type: ETC
+    description: |
+      A milled coin of soft gold, worn smooth by hands that were glad of it.
+
+  - id: 28
+    item-db-name: grain
+    level: 1
+    weight: 30
+    type: ETC
+    description: |
+      A sack of threshed grain, still smelling of the field it came out of.
+
+  - id: 29
+    item-db-name: flour
+    level: 1
+    weight: 25
+    type: ETC
+    description: |
+      Stone-ground flour, fine enough to take the print of a thumb.
+
+  - id: 30
+    item-db-name: bread
+    level: 1
+    weight: 40
+    type: USABLE
+    script: BreadScript
+    description: |
+      A dark round loaf with a hard crust.
+
+      Filling rather than healing, which is what most people actually want from a meal.
