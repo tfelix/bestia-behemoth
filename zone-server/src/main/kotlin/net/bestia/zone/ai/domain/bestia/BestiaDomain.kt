@@ -18,6 +18,7 @@ import net.bestia.zone.ai.core.state.RestingWindow
 import net.bestia.zone.ai.core.state.MemoryScope
 import net.bestia.zone.ai.core.state.StateKey
 import net.bestia.zone.ai.core.state.WorldState
+import net.bestia.zone.ai.domain.AiDomainCatalogue
 import net.bestia.zone.ai.domain.bestia.action.ApproachTargetActionTemplate
 import net.bestia.zone.ai.domain.bestia.action.AttackActionTemplate
 import net.bestia.zone.ai.domain.bestia.action.EatVegetationActionTemplate
@@ -53,7 +54,12 @@ import net.bestia.zone.geometry.Vec3L
  * to imagine standing on the spot, or no plan involving movement could ever be found. The rule is about
  * what gets *written back* to live memory afterwards, not about what the search may hypothesise.
  */
-object BestiaDomain {
+object BestiaDomain : AiDomainCatalogue {
+
+  /** What a profile's `domain:` names to get this one. See [net.bestia.zone.ai.domain.AiDomains]. */
+  const val ID = "bestia"
+
+  override val id = ID
 
   /** Grid tiles counted as "arrived" — [net.bestia.zone.geometry.Vec3L.distance] is exact tile distance. */
   const val ARRIVAL_RADIUS = 1L
@@ -327,7 +333,7 @@ object BestiaDomain {
    * How to build each template this domain knows, keyed by the id a profile names it with.
    *
    * Templates need real collaborators now that they carry behaviour as well as a planning contract, so this
-   * is a map of *factories* rather than of instances. Keeping it as one map means [ACTION_IDS] and
+   * is a map of *factories* rather than of instances. Keeping it as one map means [actionIds] and
    * [actionTemplates] cannot drift apart, which a hand-maintained second list of ids inevitably would.
    */
   private val TEMPLATE_FACTORIES: Map<String, (Collaborators) -> ActionTemplate> = mapOf(
@@ -341,7 +347,9 @@ object BestiaDomain {
   )
 
   /** Every action id a profile may name, for fail-fast validation at boot without building anything. */
-  val ACTION_IDS: Set<String> get() = TEMPLATE_FACTORIES.keys
+  override val actionIds: Set<String> get() = TEMPLATE_FACTORIES.keys
+
+  override val goalsByName: Map<String, Goal> get() = Goals.BY_NAME
 
   /** Every action template this domain knows, keyed by [ActionTemplate.id] for profile lookups. */
   fun actionTemplates(collaborators: Collaborators): Map<String, ActionTemplate> =

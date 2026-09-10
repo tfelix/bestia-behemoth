@@ -69,9 +69,9 @@ class AiProfileRegistry {
 
   private fun validate(profile: AiProfile) {
     profile.actionIds.forEach { actionId ->
-      require(actionId in BestiaDomain.ACTION_IDS) {
+      require(actionId in BestiaDomain.actionIds) {
         "AI profile '${profile.identifier}' references unknown action '$actionId'; " +
-          "known actions are ${BestiaDomain.ACTION_IDS.sorted()}"
+          "known actions are ${BestiaDomain.actionIds.sorted()}"
       }
     }
 
