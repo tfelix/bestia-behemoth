@@ -529,7 +529,9 @@ func _prediction_grace_msec() -> int:
 	if ConnectionManager.latency_msec < 0.0:
 		return _PREDICTION_GRACE_FLOOR_MSEC
 
-	var budget := 2.0 * (ConnectionManager.latency_msec + ConnectionManager.latency_jitter_msec) + 100.0
+	# Annotated rather than inferred: connection_manager.gd has no class_name, so the analyser sees an
+	# autoload member as Variant and cannot infer a type through the arithmetic.
+	var budget: float = 2.0 * (ConnectionManager.latency_msec + ConnectionManager.latency_jitter_msec) + 100.0
 
 	return maxi(_PREDICTION_GRACE_FLOOR_MSEC, int(budget))
 
