@@ -1,0 +1,6 @@
+# Two trades making the same good, so no settlement's reference throughput is well defined.
+commodities:
+  - { id: bread, item: bread, price: 9.0, spoil: 0.25, cover-days: 3, per-capita: 0.9 }
+trades:
+  - { id: bakery, business: baker, building: CRAFT, produces: bread }
+  - { id: kitchen, business: inn, building: CRAFT, produces: bread }

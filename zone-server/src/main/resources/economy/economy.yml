@@ -1,0 +1,111 @@
+# What a settlement makes, holds and eats.
+#
+# The commodities are real items from `items.yml` - there is no abstract "good". A trade turns some of
+# them into another one at a fixed proportion, and households eat what has a `per-capita`.
+#
+# Every business in `BusinessCatalogue.ALL` must appear exactly once below, as a `trades` entry, in
+# `retail`, or in `unbound` with a reason. A trade with no entry is a shop standing in every town in the
+# world with nobody in it, and that should be found by a build rather than by a player.
+
+commodities:
+  # `price` is the reference price in coins, before a settlement's own wealth and its deviation.
+  #
+  # `spoil` is the fraction lost per game-day. It is what stops a commodity being an unbounded
+  # accumulator, so nothing here may sit at zero unless trade alone can drain it.
+  #
+  # `cover-days` is how many days of throughput a settlement holds. It sets the reference stock, and it is
+  # also what the price reads: below its cover a town charges more, above it charges less.
+  #
+  # `season` moves the *visible* stock and price through the year without moving the ledger at all - that
+  # is the whole point of storing a deviation. `peak-day` is a day of the 120-day year.
+  - id: grain
+    item: grain
+    price: 3.0
+    spoil: 0.01
+    cover-days: 30
+    season: { peak-day: 90, amplitude: 0.45 }
+
+  - id: flour
+    item: flour
+    price: 5.0
+    spoil: 0.015
+    cover-days: 12
+
+  - id: bread
+    item: bread
+    price: 9.0
+    # A loaf is stale in three days, and this is the number that makes a bakery a *daily* trade rather
+    # than one that fills a warehouse once and stops.
+    spoil: 0.25
+    cover-days: 3
+    # Loaves per resident per game-day. The only sink in the chain, and therefore what every reference
+    # throughput above it is derived from - see SettlementReference.
+    per-capita: 0.9
+
+trades:
+  # `per-unit` is input per unit of output, so the chain reads as a recipe: 1.3 sacks of grain make a unit
+  # of flour, and 0.35 of a unit of flour makes a loaf.
+  #
+  # `building` is what player damage will be tested against; see the damage sweep.
+  #
+  # Grain is grown by the farm sector rather than by a business, because that is what the generator
+  # models: farming is what the households left over after the roster do.
+  - id: farm
+    sector: FARM
+    building: FARM
+    produces: grain
+
+  - id: mill
+    business: miller
+    building: CRAFT
+    produces: flour
+    consumes:
+      - { commodity: grain, per-unit: 1.3 }
+
+  - id: bakery
+    business: baker
+    building: CRAFT
+    produces: bread
+    consumes:
+      - { commodity: flour, per-unit: 0.35 }
+
+# Hold stock and sell it without producing any of it.
+retail:
+  - general_store
+  - market_trader
+
+# Everything not producing a commodity yet, each with the reason. `needs` names an item the catalogue does
+# not have; the boot refuses an entry naming one that does exist, so this list prunes itself as items
+# arrive rather than quietly going stale.
+unbound:
+  - { business: temple, reason: "a service, and inventing an abstract one buys an item nobody can hold" }
+  - { business: healer, reason: "a service" }
+  - { business: scribe, reason: "a service" }
+  - { business: banker, reason: "a service" }
+  - { business: barracks, reason: "a service" }
+  - { business: inn, reason: "sells lodging, which is not a good" }
+  - { business: stable, reason: "sells stabling, which is not a good" }
+
+  - { business: butcher, needs: meat, reason: "no meat item" }
+  - { business: brewer, needs: ale, reason: "no ale item" }
+  - { business: vintner, needs: wine, reason: "no wine item" }
+  - { business: fishmonger, needs: raw_fish, reason: "no fish item" }
+  - { business: shipwright, needs: hull_timber, reason: "no shipbuilding materials" }
+  - { business: carpenter, needs: log, reason: "no log item; also what blocks the charcoaler" }
+  - { business: charcoaler, needs: log, reason: "coal exists, the timber it is charred from does not" }
+  - { business: mason, needs: cut_stone, reason: "no cut stone item" }
+  - { business: potter, needs: pottery, reason: "clay exists, nothing to make of it" }
+  - { business: tanner, needs: leather, reason: "no hide or leather item" }
+  - { business: dyer, needs: dye, reason: "no dye item" }
+  - { business: weaver, needs: cloth, reason: "no wool or cloth item" }
+  - { business: tailor, needs: clothing, reason: "no clothing item" }
+  - { business: jeweller, needs: jewellery, reason: "no jewellery item" }
+  - { business: bookbinder, needs: book, reason: "no book item" }
+  - { business: alchemist, needs: reagent, reason: "no alchemical reagent item" }
+  - { business: apothecary, needs: medicine, reason: "potions exist, but nothing an NPC turns herbs into" }
+
+  # The two whose *output* already exists. They are blocked on the input side: iron ore has no producer,
+  # because ore is voxels and there is no mining trade, no prop and no way to exhaust a deposit. Pricing
+  # them before that is what would make the smelting chain a hole rather than a chain.
+  - { business: blacksmith, reason: "iron ore has no producer" }
+  - { business: armourer, reason: "iron ore has no producer" }

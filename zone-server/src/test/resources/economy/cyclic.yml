@@ -1,0 +1,7 @@
+# Flour needs grain and grain needs flour, which is the shape I13 exists to refuse.
+commodities:
+  - { id: grain, item: grain, price: 3.0, spoil: 0.01, cover-days: 30 }
+  - { id: flour, item: flour, price: 5.0, spoil: 0.01, cover-days: 12 }
+trades:
+  - { id: mill, business: miller, building: CRAFT, produces: flour, consumes: [{ commodity: grain, per-unit: 1.3 }] }
+  - { id: farm, sector: FARM, building: FARM, produces: grain, consumes: [{ commodity: flour, per-unit: 0.1 }] }
