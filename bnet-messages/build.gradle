@@ -6,11 +6,11 @@ plugins {
 description = 'bestia-bnet-messages'
 
 dependencies {
-  api 'com.google.protobuf:protobuf-kotlin:4.29.3'
+  api 'com.google.protobuf:protobuf-java:4.36.1'
 }
 
 protobuf {
 	protoc {
-		artifact = "com.google.protobuf:protoc:4.29.3"
+		artifact = "com.google.protobuf:protoc:4.36.1"
 	}
 }

@@ -40,6 +40,21 @@ class TownsfolkEntitySpawner(
     }
   }
 
+  /**
+   * Puts one person back, at [at] rather than at their front door.
+   *
+   * How somebody comes out of a building: the entity that went in was destroyed, so this builds a new one
+   * from the same three indices and the settlement's seed. Nothing was stored in between and nothing has
+   * to be - which is what makes an empty town free.
+   */
+  fun emerge(world: WorldView, identity: Long, at: Vec3L): EntityId? {
+    val settlement = TownsfolkIdentity.settlementOf(identity)
+    val household = TownsfolkIdentity.householdOf(identity)
+    val placed = placement.of(settlement, household) ?: return null
+
+    return spawn(world, placed, TownsfolkIdentity.memberOf(identity), at)
+  }
+
   private fun spawn(
     world: WorldView,
     placed: HouseholdPlacement.Placement,
