@@ -22,4 +22,11 @@ data class Occupation(
   val shift: HourWindow?,
   /** Hours in bed. Its own field rather than "whatever is left", so an odd one can be checked. */
   val rest: HourWindow,
+  /**
+   * Whether this trade stays put while there is fighting nearby.
+   *
+   * Civilian by default, because almost everybody is: standing about during a brawl is the exception a
+   * trade opts into. See [TownsfolkDomain.Goals.TAKE_SHELTER].
+   */
+  val holdsGround: Boolean = false,
 )

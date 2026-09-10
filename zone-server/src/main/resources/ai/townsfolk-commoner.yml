@@ -11,6 +11,7 @@ perception:
 wander_radius: 12
 tiredness_threshold: 80
 goals:
+  - { name: TakeShelter }
   - { name: Sleep }
   - { name: WorkShift }
   - { name: GoHome }
@@ -18,7 +19,9 @@ goals:
 actions:
   - enterHome
   - goHome
+  - goToShelter
   - goToWork
   - loiter
+  - shelterAtDoor
   - sleepAtHome
   - workShift

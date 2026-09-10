@@ -66,7 +66,8 @@ class OccupationCatalogue {
     require(shift == null || !shift.overlaps(rest)) {
       "Occupation '${dto.id}' works $shift and sleeps $rest, which overlap"
     }
-    require(byId.put(dto.id, Occupation(dto.id, dto.label ?: dto.id, dto.business, shift, rest)) == null) {
+    val occupation = Occupation(dto.id, dto.label ?: dto.id, dto.business, shift, rest, dto.holdsGround)
+    require(byId.put(dto.id, occupation) == null) {
       "Occupation '${dto.id}' is declared twice"
     }
   }
@@ -83,6 +84,7 @@ class OccupationCatalogue {
     val business: String? = null,
     val shift: WindowDto? = null,
     val rest: WindowDto? = null,
+    @JsonProperty("holds-ground") val holdsGround: Boolean = false,
   )
 
   private data class WindowDto(

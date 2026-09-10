@@ -64,6 +64,17 @@ class OccupationCatalogueTest {
   }
 
   @Test
+  fun `the watch holds its ground and nobody else does`() {
+    // Stated as a whole-file property rather than as "guard is true": a second trade quietly opting in is
+    // how a square stops emptying, and that is the behaviour, not a config detail.
+    assertEquals(
+      listOf("guard"),
+      catalogue.all().filter { it.holdsGround }.map { it.id },
+      "who stays out in a fight has changed"
+    )
+  }
+
+  @Test
   fun `somebody keeps hours the commoner does not`() {
     // The reason a resting window is per person rather than per archetype. With every occupation on the
     // default this whole seam would be untested and would rot.

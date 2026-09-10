@@ -10,6 +10,8 @@ occupations:
   - id: guard
     business: barracks
     shift: { from: 6, to: 18 }
+    # The only one. Everybody else makes for a doorway when a fight starts - see TownsfolkDomain.TAKE_SHELTER.
+    holds-ground: true
 
   - id: priest
     business: temple

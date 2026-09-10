@@ -23,8 +23,10 @@ import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.ai.domain.AiDomainCatalogue
 import net.bestia.zone.ai.domain.townsfolk.action.EnterHomeActionTemplate
 import net.bestia.zone.ai.domain.townsfolk.action.GoHomeActionTemplate
+import net.bestia.zone.ai.domain.townsfolk.action.GoToShelterActionTemplate
 import net.bestia.zone.ai.domain.townsfolk.action.GoToWorkActionTemplate
 import net.bestia.zone.ai.domain.townsfolk.action.LoiterActionTemplate
+import net.bestia.zone.ai.domain.townsfolk.action.ShelterAtDoorActionTemplate
 import net.bestia.zone.ai.domain.townsfolk.action.SleepAtHomeActionTemplate
 import net.bestia.zone.ai.domain.townsfolk.action.WorkShiftActionTemplate
 
@@ -101,10 +103,10 @@ object TownsfolkDomain : AiDomainCatalogue {
   /**
    * Standing in a doorway out of the way of a fight.
    *
-   * A *planning* device, exactly as [WORKED_ON_DAY] is, and never actually written: a shelter goal needs
-   * a desired state some action can reach, and "the fight is over" is not one - nothing a townsperson
-   * does ends it. Sheltering is a behaviour with no end of its own, so the action never reports success
-   * and the effect stays a prediction. The goal losing its threat is what releases them.
+   * A *planning* device, exactly as [WORKED_ON_DAY] is, and never actually written: [Goals.TAKE_SHELTER]
+   * needs a desired state some action can reach, and "the fight is over" is not one - nothing a
+   * townsperson does ends it. Sheltering is a behaviour with no end of its own, so the action never
+   * reports success and the effect stays a prediction. The goal losing its threat is what releases them.
    */
   val SHELTERED = StateKey<Boolean>("sheltered", retain = Blackboard.PERMANENT)
 
@@ -215,6 +217,11 @@ object TownsfolkDomain : AiDomainCatalogue {
     return state.get(WORKED_ON_DAY) == today
   }
 
+  /** Whether this person's job is to stay put while there is fighting. False for anybody with no trade. */
+  fun holdsGround(state: WorldState): Boolean {
+    return state.get(OCCUPATION)?.holdsGround == true
+  }
+
   fun isAtHome(state: WorldState): Boolean {
     val home = state.get(HOME_POSITION) ?: return false
     val position = state.get(POSITION) ?: return false
@@ -275,6 +282,31 @@ object TownsfolkDomain : AiDomainCatalogue {
     )
 
     /**
+     * A doorway, because there is fighting in the street.
+     *
+     * Above everything including sleep: a brawl outside is what a person reacts to whatever the hour, and
+     * a town that goes on hoeing and hawking through one reads as scenery rather than as people.
+     *
+     * They press into the doorway rather than going through it, which is [Goals.SLEEP]'s trick and is
+     * deliberately *not* reused here. Going inside means being destroyed and remembered by
+     * [IndoorRegistry], and the registry brings people back out on the clock - so shelter would have to
+     * teach it a second kind of deadline, when the thing being waited for is a fight ending. Cowering in
+     * plain sight also tells the player what they did, which vanishing does not.
+     *
+     * Availability wants a door as well as a threat, for [WORK_SHIFT]'s reason: `AiThinkSystem` plans for
+     * the top goal only, so a threatened villager with nowhere to run would freeze on the spot rather
+     * than carry on. See [SHELTERED] for why the desired state is a flag nothing ever sets.
+     */
+    val TAKE_SHELTER = Goal(
+      name = "TakeShelter",
+      priority = priority(base = 100f),
+      availability = Precondition { s ->
+        s.get(THREAT_POSITION) != null && s.get(SHELTER_DOOR) != null && !holdsGround(s)
+      },
+      desiredState = listOf(Preconditions.equalTo(SHELTERED, true)),
+    )
+
+    /**
      * The floor. Always available, so there is never a moment with no goal at all.
      *
      * That is not decoration: `Planner.selectCurrentGoal` returns null when nothing is both available and
@@ -323,6 +355,7 @@ object TownsfolkDomain : AiDomainCatalogue {
       GO_HOME,
       LOITER,
       SLEEP,
+      TAKE_SHELTER,
       WORK_SHIFT,
     )
 
@@ -335,7 +368,9 @@ object TownsfolkDomain : AiDomainCatalogue {
   private val TEMPLATE_FACTORIES: Map<String, (Collaborators) -> ActionTemplate> = mapOf(
     "goHome" to { c -> GoHomeActionTemplate(c.locomotion) },
     "goToWork" to { c -> GoToWorkActionTemplate(c.locomotion) },
+    "goToShelter" to { c -> GoToShelterActionTemplate(c.locomotion) },
     "loiter" to { c -> LoiterActionTemplate(c.locomotion) },
+    "shelterAtDoor" to { _ -> ShelterAtDoorActionTemplate() },
     "enterHome" to { c -> EnterHomeActionTemplate(c.indoors) },
     "sleepAtHome" to { _ -> SleepAtHomeActionTemplate() },
     "workShift" to { _ -> WorkShiftActionTemplate() },
