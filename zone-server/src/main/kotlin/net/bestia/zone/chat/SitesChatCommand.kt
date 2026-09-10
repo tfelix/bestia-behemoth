@@ -4,6 +4,8 @@ import net.bestia.account.Authority
 import net.bestia.worldgen.pop.BusinessCatalogue
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
+import net.bestia.zone.economy.EconomyCatalogue
+import net.bestia.zone.economy.SettlementEconomyService
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.world.WorldService
@@ -23,19 +25,21 @@ import org.springframework.stereotype.Component
 class SitesChatCommand(
   private val connectionInfoService: ConnectionInfoService,
   private val siteIndex: SettlementSiteIndex,
+  private val economy: SettlementEconomyService,
+  private val commodities: EconomyCatalogue,
   private val worldService: WorldService,
   private val world: WorldView,
   private val out: OutMessageProcessor
 ) : ChatCommand() {
 
   override fun getHelpText(): String {
-    return "/sites - Describes the settlement you are standing in: buildings, trades and their doors."
+    return "/sites [prices] - Describes the settlement you are standing in, or what it has on the shelves."
   }
 
   override val requiredAuthority: Authority = Authority.SPAWN
 
   override fun isMatch(cmdText: String): Boolean {
-    return cmdText.trim() == "/sites"
+    return cmdText.trim() in setOf("/sites", "/sites prices")
   }
 
   override fun execute(playerId: Long, cmdText: String): Boolean {
@@ -49,12 +53,39 @@ class SitesChatCommand(
     }
 
     reply(playerId, headline(site))
+
+    if (cmdText.trim().endsWith("prices")) {
+      describePrices(site).forEach { reply(playerId, it) }
+      return true
+    }
+
     for (line in describeBuildings(site)) {
       reply(playerId, line)
     }
     reply(playerId, nearestDoor(site, position.x, position.y))
 
     return true
+  }
+
+  /**
+   * What is on the shelves, what it costs, and how much of it a caravan could actually take.
+   *
+   * The three numbers are worth printing together because the gap between the second and the third is
+   * the only visible sign of I12 - a town with plenty of bread and none of it for sale is a town whose
+   * residents eat first, and that reads as a bug until you can see the reserve.
+   */
+  private fun describePrices(site: SettlementSite): List<String> {
+    val market = economy.marketOf(site.index)
+      ?: return listOf("  no economy here, so nothing is made or sold.")
+
+    return commodities.topological.map { commodity ->
+      "  %s: %.0f in store, %.0f offered, %.2f coins".format(
+        commodity.id,
+        market.stockOf(commodity.id),
+        market.offerableOf(commodity.id),
+        market.priceOf(commodity.id)
+      )
+    }
   }
 
   private fun headline(site: SettlementSite): String {
