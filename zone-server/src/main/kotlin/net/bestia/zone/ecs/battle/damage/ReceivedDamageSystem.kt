@@ -5,6 +5,7 @@ import net.bestia.zone.ecs.battle.skill.Casting
 import net.bestia.zone.ecs.crafting.Crafting
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.battle.status.InCombat
+import net.bestia.zone.ecs.battle.status.Invulnerable
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
@@ -21,7 +22,7 @@ import org.springframework.stereotype.Component as SpringComponent
 @Order(50)
 class ReceivedDamageSystem : System {
 
-  override val reads: ComponentClassSet = setOf(Damage::class)
+  override val reads: ComponentClassSet = setOf(Damage::class, Invulnerable::class)
   override val writes: ComponentClassSet =
     setOf(
       Health::class, TakenDamage::class, Dead::class, LogoutIntent::class, Casting::class, Crafting::class,
@@ -34,6 +35,11 @@ class ReceivedDamageSystem : System {
       val health = get<Health>()
 
       world.remove(id, Damage::class)
+
+      // Consumed and dropped, not skipped before the removal: leaving the component on would have the blow
+      // land again on the next tick, forever. Nothing else follows either - no aggro record, no combat
+      // timer - because none of it means anything to something that cannot be hurt.
+      if (world.has(id, Invulnerable::class)) return@each
 
       val takenDamage = world.get(id, TakenDamage::class) ?: world.add(id, TakenDamage())
       receivedDamage.amounts.forEach { takenDamage.addDamage(it.sourceEntityId, it.amount) }
