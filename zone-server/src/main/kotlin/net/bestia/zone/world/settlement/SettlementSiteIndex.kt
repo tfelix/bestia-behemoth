@@ -67,6 +67,20 @@ class SettlementSiteIndex(
       ?.let { siteOf(it.index) }
   }
 
+  /**
+   * The settlements whose graded footprint comes within [reach] of ([x], [y]), all in **position units**.
+   *
+   * Indices rather than sites, and deliberately: this is the coarse half of a two-phase test, so it must
+   * not build a site for every town it merely rules in. The caller asks [siteOf] for the ones it keeps.
+   */
+  fun coveringWithin(x: Long, y: Long, reach: Long): List<Int> {
+    val metres = worldService.config.voxelSize
+
+    return settlements
+      .coveringWithin(x * metres, y * metres, reach * metres)
+      .map { it.index }
+  }
+
   private fun build(entry: StandingSettlements.Entry): SettlementSite {
     val area = Aabb(
       entry.x - entry.footprintRadius,
