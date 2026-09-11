@@ -6,7 +6,9 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.kotlinModule
 import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.annotation.PostConstruct
+import net.bestia.worldgen.core.EventKind
 import net.bestia.zone.ai.core.state.HourWindow
+import net.bestia.zone.ai.knowledge.KnowledgeProfile
 import org.springframework.core.io.ClassPathResource
 import org.springframework.stereotype.Service
 
@@ -66,7 +68,15 @@ class OccupationCatalogue {
     require(shift == null || !shift.overlaps(rest)) {
       "Occupation '${dto.id}' works $shift and sleeps $rest, which overlap"
     }
-    val occupation = Occupation(dto.id, dto.label ?: dto.id, dto.business, shift, rest, dto.holdsGround)
+    val occupation = Occupation(
+      id = dto.id,
+      label = dto.label ?: dto.id,
+      businessType = dto.business,
+      shift = shift,
+      rest = rest,
+      holdsGround = dto.holdsGround,
+      knowledge = dto.knowledge?.toProfile() ?: KnowledgeProfile.ORDINARY,
+    )
     require(byId.put(dto.id, occupation) == null) {
       "Occupation '${dto.id}' is declared twice"
     }
@@ -85,6 +95,7 @@ class OccupationCatalogue {
     val shift: WindowDto? = null,
     val rest: WindowDto? = null,
     @JsonProperty("holds-ground") val holdsGround: Boolean = false,
+    val knowledge: KnowledgeDto? = null,
   )
 
   private data class WindowDto(
@@ -92,6 +103,22 @@ class OccupationCatalogue {
     @JsonProperty("to") val toHour: Int,
   ) {
     fun toWindow(): HourWindow = HourWindow(fromHour, toHour)
+  }
+
+  /**
+   * An unknown `EventKind` name fails the boot here, through Jackson's own enum binding - which is the
+   * check worth having, since a silently dropped interest reads exactly like a trade nobody weighted.
+   */
+  private data class KnowledgeDto(
+    val curiosity: Double? = null,
+    val interests: List<EventKind> = emptyList(),
+  ) {
+    fun toProfile(): KnowledgeProfile {
+      return KnowledgeProfile(
+        curiosity = curiosity ?: KnowledgeProfile.ORDINARY.curiosity,
+        interests = interests.toSet(),
+      )
+    }
   }
 
   companion object {

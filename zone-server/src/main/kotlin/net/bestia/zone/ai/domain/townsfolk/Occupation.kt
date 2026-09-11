@@ -1,6 +1,7 @@
 package net.bestia.zone.ai.domain.townsfolk
 
 import net.bestia.zone.ai.core.state.HourWindow
+import net.bestia.zone.ai.knowledge.KnowledgeProfile
 
 /**
  * What one townsperson does with a day.
@@ -29,4 +30,12 @@ data class Occupation(
    * trade opts into. See [TownsfolkDomain.Goals.TAKE_SHELTER].
    */
   val holdsGround: Boolean = false,
+
+  /**
+   * Which of the town's news this trade tends to be the one who remembers.
+   *
+   * A tendency and never a guarantee - see [KnowledgeProfile]. Ordinary by default, because most trades
+   * have no particular claim on any of it.
+   */
+  val knowledge: KnowledgeProfile = KnowledgeProfile.ORDINARY,
 )

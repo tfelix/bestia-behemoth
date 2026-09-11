@@ -6,38 +6,65 @@
 # `business` joins an occupation to a BusinessCatalogue trade, which is how the roster the world generator
 # already decides gets people in it. Every trade must appear either as somebody's `business` or in
 # `unstaffed` below; OccupationCoverage fails the boot otherwise.
+#
+# `knowledge` weights the contest for the town's memories - see KnowledgeProfile. It only ever reorders
+# that contest, so an interest is who *usually* remembers a thing and never who does. Leave it out for a
+# trade with no particular claim on any of the news, which is most of them.
 occupations:
   - id: guard
     business: barracks
     shift: { from: 6, to: 18 }
     # The only one. Everybody else makes for a doorway when a fight starts - see TownsfolkDomain.TAKE_SHELTER.
     holds-ground: true
+    knowledge:
+      interests: [WAR_DECLARED, BATTLE, SIEGE, SETTLEMENT_SACKED, SETTLEMENT_RAZED, CONQUEST, FORT_BUILT]
 
   - id: priest
     business: temple
     shift: { from: 8, to: 18 }
+    knowledge:
+      interests: [ORDER_SWORN, ORDER_SCHISM, SHRINE_RAISED, RITE_PERFORMED, MONASTERY_FOUNDED,
+                  SEER_VANISHED, STAR_FELL]
 
   - id: innkeeper
     business: inn
     # Open late, and so up late: an innkeeper on the commoner's bedtime would shut at ten every night.
     shift: { from: 10, to: 23 }
     rest: { from: 0, to: 7 }
+    knowledge:
+      # Travellers talk, so an innkeeper carries more of the town's news than most - but only a little
+      # more. A large number here is a reach gradient, which is the one thing this model refuses to be.
+      curiosity: 1.6
+      interests: [TECHNOLOGY, PEACE, ARTIFACT_TAKEN, TRAVELLER_LOST, FIGURE_ROSE]
 
   # No shop of their own. A town has these whether or not its roster has room for a trade.
   - id: farmer
     # The fields are outside the walls and the light is what decides, so this is the longest day in town.
     shift: { from: 6, to: 19 }
     rest: { from: 21, to: 5 }
+    knowledge:
+      # What the weather did to whom, which is the memory a farm keeps and passes down.
+      interests: [FAMINE, FLOOD, PLAGUE, BLIGHT_SPREAD, ERUPTION]
 
   - id: labourer
     shift: { from: 7, to: 17 }
+    knowledge:
+      # Whoever dug it, hauled it or raised it. A labourer's claim is on what the town built.
+      interests: [MINE_OPENED, MONUMENT_BUILT, SETTLEMENT_WALLED, LIGHTHOUSE_LIT]
 
   - id: beggar
     shift: { from: 9, to: 17 }
+    knowledge:
+      # On the street all day with nothing to do but watch, and nobody minds what they say near him.
+      curiosity: 1.4
 
   # No shift at all, which is the case the WorkShift goal has to survive rather than a placeholder.
   - id: child
     rest: { from: 21, to: 7 }
+    knowledge:
+      # Half of what everyone else has, and the half is the point: asking a child is how a player learns
+      # that who they ask matters at all.
+      curiosity: 0.5
 
 # Trades the generator builds that nobody keeps yet. This list is the release's to-do, and it shrinks as
 # occupations arrive - a name must come off it the day somebody takes the trade on.
