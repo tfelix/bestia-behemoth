@@ -15,6 +15,7 @@ import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.session.NoActiveSessionException
 import net.bestia.zone.ecs.persistence.PersistedEntityDeletionQueue
 import net.bestia.zone.ecs.persistence.Persistent
+import net.bestia.zone.ai.rumour.NotableKillReporter
 import net.bestia.zone.item.loot.LootItemEntitySpawner
 import net.bestia.zone.party.PartyMembership
 import net.bestia.zone.util.EntityId
@@ -28,6 +29,7 @@ class DeathSystem(
   private val lootItemEntitySpawner: LootItemEntitySpawner,
   private val deletionQueue: PersistedEntityDeletionQueue,
   private val connectionInfoService: ConnectionInfoService,
+  private val notableKills: NotableKillReporter,
 ) : System {
 
   override val reads: ComponentClassSet =
@@ -57,6 +59,7 @@ class DeathSystem(
 
       assignExp(world, entityId)
       spawnLoot(world, entityId)
+      reportKill(world, entityId)
 
       // A dead entity is gone for good — drop any persisted row so it is not resurrected on reload.
       // The actual DB delete is batched off the tick thread by the persistence sync. Only for an entity
@@ -67,6 +70,22 @@ class DeathSystem(
       }
 
       world.destroy(entityId)
+    }
+  }
+
+  /**
+   * Tells the towns nearby, if this was worth telling them about.
+   *
+   * The position is read *here* rather than inside the deferred block, because the entity is destroyed
+   * a few lines below and the deferred work runs long after that. Whether it was notable at all is the
+   * reporter's judgement - see [NotableKillReporter], which needs a database row and so defers.
+   */
+  private fun reportKill(world: World, entityId: EntityId) {
+    val species = world.bestiaSpeciesOf(entityId) ?: return
+    val position = world.get(entityId, Position::class)?.toVec3L() ?: return
+
+    world.defer {
+      notableKills.report(species, position.x, position.y)
     }
   }
 
