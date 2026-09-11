@@ -83,16 +83,16 @@ class Rumour(
    * was killed outside the walls on the fourth" as the same kind of option, with one set of rules for
    * who holds them and one for how they are phrased.
    *
-   * [Knowledge.topic] is the **negated** row id. Chronicle event ids are dense from zero and a topic id
-   * is the only thing a conversation stores, so the two vocabularies have to be disjoint - and a
-   * negative id cannot be mistaken for an event on any seed.
+   * [Knowledge.topic] is the row id lifted clear of the chronicle's, because a topic id is the only
+   * thing a conversation stores and the two vocabularies have to be disjoint. See [TOPIC_BASE] for why
+   * it is an offset rather than a negation.
    *
    * Locality is always [Locality.NEARBY], which is what it is by construction: a town holds a row only
    * because the posting reached it, and that is exactly "close enough to have been seen or heard about".
    */
   fun toKnowledge(day: Double, presentYear: Int, variants: Int): Knowledge {
     return Knowledge(
-      topic = -id.toInt(),
+      topic = TOPIC_BASE + id.toInt(),
       key = KEY_PREFIX + kind.name,
       slots = slotMap(),
       importance = importanceOn(day),
@@ -126,6 +126,21 @@ class Rumour(
   companion object {
     /** Matches `HistoryKnowledge.KEY_PREFIX`'s shape, so the two read alike in a translation file. */
     const val KEY_PREFIX = "RUMOUR_"
+
+    /**
+     * Where rumour topic ids start, clear of any chronicle event id.
+     *
+     * Offset rather than negated, and that distinction is the whole of this constant. Negating gives
+     * disjointness just as well, and is wrong for a reason nothing about knowledge would show: a
+     * conversation option is `Topics.KNOWLEDGE + topic`, so a negative topic lands the option in the
+     * *previous* provider's range, where it is claimed by a provider that has never heard of it and
+     * answered with silence. The player clicks and nothing happens.
+     *
+     * Half a `Topics.STRIDE`, which leaves room for fifty thousand events in a world and fifty thousand
+     * live rumours in a town. A pruned thousand-year chronicle keeps a few thousand, and news expires -
+     * `RumourKnowledgeTest` holds both ends against real worlds.
+     */
+    const val TOPIC_BASE = 50_000
   }
 
   /**

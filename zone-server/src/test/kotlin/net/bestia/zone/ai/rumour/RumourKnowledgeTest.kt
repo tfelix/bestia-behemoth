@@ -8,6 +8,7 @@ import net.bestia.zone.ai.knowledge.Knowledge
 import net.bestia.zone.ai.knowledge.KnowledgeProfile
 import net.bestia.zone.ai.knowledge.Locality
 import net.bestia.zone.ai.knowledge.TownKnowledge
+import net.bestia.zone.dialog.conversation.Topics
 import net.bestia.zone.world.GeneratedWorlds
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -32,8 +33,37 @@ class RumourKnowledgeTest {
     for (id in 1L..500L) {
       val topic = rumour(id = id).toKnowledge(DAY, PRESENT_YEAR, 1).topic
 
-      assertTrue(topic < 0, "a rumour topic must be negative, got $topic")
       assertTrue(topic !in eventIds, "rumour $id collides with a chronicle event id")
+    }
+
+    // The other end of the same promise: the offset has to clear the chronicle, not merely miss it on
+    // one seed. A world that logged fifty thousand events would start colliding silently.
+    val highest = eventIds.maxOrNull() ?: 0
+    assertTrue(
+      highest < Rumour.TOPIC_BASE,
+      "seed $SEED logged event id $highest, at or past the ${Rumour.TOPIC_BASE} rumours start from"
+    )
+  }
+
+  /**
+   * The half that disjointness alone does not buy, and the bug this test was written for.
+   *
+   * A conversation option is `Topics.KNOWLEDGE + topic`, and `Topics.owns` is a range check. Negating
+   * the row id gives perfectly disjoint topics and lands every option in the *previous* provider's
+   * range, where it is claimed by a provider that has never heard of it and answered with silence - a
+   * player clicks the news and nothing happens. Nothing about who-knows-what would show it.
+   */
+  @Test
+  fun `a rumour's option id comes back to the provider that offered it`() {
+    for (id in 1L..500L) {
+      val topic = rumour(id = id).toKnowledge(DAY, PRESENT_YEAR, 1).topic
+      val optionId = Topics.KNOWLEDGE + topic
+
+      assertTrue(
+        Topics.owns(Topics.KNOWLEDGE, optionId),
+        "option $optionId for rumour $id is not in the knowledge provider's range"
+      )
+      assertEquals(topic, Topics.localOf(Topics.KNOWLEDGE, optionId))
     }
   }
 
