@@ -3,6 +3,7 @@ package net.bestia.zone.ai.rumour
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.worldgen.vector.Vec2d
 import net.bestia.zone.ai.knowledge.Knowledge
+import net.bestia.zone.ai.knowledge.KnowledgeService
 import net.bestia.zone.environment.time.BestiaClock
 import net.bestia.zone.world.SettlementLoreService
 import net.bestia.zone.world.WorldService
@@ -24,6 +25,7 @@ import kotlin.math.hypot
 @Service
 class RumourService(
   private val registry: RumourRegistry,
+  private val knowledge: KnowledgeService,
   private val worldService: WorldService,
   private val clock: BestiaClock,
 ) {
@@ -65,7 +67,12 @@ class RumourService(
       .keys
       .sorted()
 
-    heard.forEach { registry.add(it, kind, encoded, today, expiry, clamped) }
+    heard.forEach {
+      registry.add(it, kind, encoded, today, expiry, clamped)
+      // What the town knows is memoised, and this is the one thing that can change it inside a day.
+      // Without this a player standing in the village would not hear about it until tomorrow.
+      knowledge.forget(it)
+    }
 
     LOG.debug { "$kind at ($voxelX, $voxelY) strength $clamped reached ${heard.size} settlement(s)" }
 
@@ -83,7 +90,12 @@ class RumourService(
 
     registry.settlementsWithNews().forEach { settlement ->
       val expired = registry.heardBy(settlement).filter { it.hasExpired(today) }
+      if (expired.isEmpty()) {
+        return@forEach
+      }
+
       registry.forget(settlement, expired)
+      knowledge.forget(settlement)
     }
   }
 

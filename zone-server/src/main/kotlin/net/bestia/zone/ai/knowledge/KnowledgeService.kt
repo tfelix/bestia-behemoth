@@ -4,8 +4,11 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.worldgen.pop.Household
 import net.bestia.worldgen.pop.Households
 import net.bestia.worldgen.vector.Vec2d
+import net.bestia.zone.ai.rumour.RumourLineCatalogue
+import net.bestia.zone.ai.rumour.RumourRegistry
 import net.bestia.zone.ecs.spawn.townsfolk.HouseholdPlacement
 import net.bestia.zone.ecs.spawn.townsfolk.TownsfolkIdentity
+import net.bestia.zone.environment.time.BestiaClock
 import net.bestia.zone.world.SettlementLoreService
 import net.bestia.zone.world.WorldRecreatedEvent
 import net.bestia.zone.world.WorldService
@@ -27,9 +30,12 @@ class KnowledgeService(
   private val sites: SettlementSiteIndex,
   private val placement: HouseholdPlacement,
   private val lines: HistoryLineCatalogue,
+  private val rumours: RumourRegistry,
+  private val rumourLines: RumourLineCatalogue,
+  private val clock: BestiaClock,
 ) {
 
-  private val bySettlement = HashMap<Int, TownKnowledge>()
+  private val bySettlement = HashMap<Int, Cached>()
   private var positions: Map<Int, Vec2d>? = null
 
   /** What the person behind a `Townsfolk` component can be told about. */
@@ -39,11 +45,25 @@ class KnowledgeService(
     return town.heldBy(TownsfolkIdentity.householdOf(identity))
   }
 
+  /**
+   * What this town knows today.
+   *
+   * The day matters only where there is news: a chronicle memory is as true this morning as it was a
+   * century ago, but a rumour's importance decays, and its share of the town decays with it. So a town
+   * holding news is rebuilt once a day and every other town is built once ever - which is almost all of
+   * them, almost always.
+   */
   fun of(settlement: Int): TownKnowledge {
-    bySettlement[settlement]?.let { return it }
+    val today = clock.now().absoluteDay.toLong()
+
+    bySettlement[settlement]?.let { cached ->
+      if (!cached.decays || cached.builtOnDay == today) {
+        return cached.knowledge
+      }
+    }
 
     val built = build(settlement)
-    bySettlement[settlement] = built
+    bySettlement[settlement] = Cached(built, today, rumours.heardBy(settlement).isNotEmpty())
 
     return built
   }
@@ -77,9 +97,33 @@ class KnowledgeService(
       householdAt = { index -> Households.one(summary, index) },
       profileOf = { household -> profileOf(household) },
       variantsOf = { kind -> lines.of(kind).variants },
+      rumours = recentNewsIn(settlement),
       positions = positionsOf(),
     )
   }
+
+  /**
+   * What this town has heard lately, as memories.
+   *
+   * Spent news is dropped here rather than only in the sweep: the sweep is what deletes the row, and
+   * nothing guarantees it has run today. A rumour worth nothing would otherwise still take a
+   * conversation slot from something a player might want.
+   */
+  private fun recentNewsIn(settlement: Int): List<Knowledge> {
+    val day = clock.now().absoluteDay
+    val presentYear = worldService.generated.world.chronicle.presentYear
+
+    return rumours.heardBy(settlement)
+      .filterNot { it.hasExpired(day) }
+      .map { it.toKnowledge(day, presentYear, rumourLines.of(it.kind).variants) }
+  }
+
+  private class Cached(
+    val knowledge: TownKnowledge,
+    val builtOnDay: Long,
+    /** Whether anything in here ages. False for a town with no news, which is nearly every town. */
+    val decays: Boolean,
+  )
 
   /**
    * A household's trade, as a weighting.

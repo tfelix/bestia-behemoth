@@ -99,6 +99,9 @@ class TownKnowledge(
     /** Enough to be worth repeating, for something that happened somewhere else. */
     const val NOTABLE = 50
 
+    /** Below this a piece of news is nearly spent, and only whoever saw it still brings it up. */
+    const val FADING = 15
+
     /**
      * Years past which nobody alive saw it and the memory is somebody's grandmother's.
      *
@@ -143,6 +146,7 @@ class TownKnowledge(
       householdAt: (Int) -> Household?,
       profileOf: (Household) -> KnowledgeProfile,
       variantsOf: (EventKind) -> Int = { 1 },
+      rumours: List<Knowledge> = emptyList(),
       nearbyRange: Double = SettlementLoreService.NEARBY_RANGE,
       positions: Map<Int, Vec2d> = SettlementLoreService.settlementPositions(generated),
     ): TownKnowledge {
@@ -152,7 +156,7 @@ class TownKnowledge(
       val occupants = (0 until summary.householdCount).mapNotNull { index ->
         householdAt(index)?.let { Occupant(worldSeed, settlement, index, it, profileOf(it)) }
       }
-      if (candidates.isEmpty() || occupants.isEmpty()) {
+      if (occupants.isEmpty() || (candidates.isEmpty() && rumours.isEmpty())) {
         return TownKnowledge(emptyList(), emptyMap())
       }
 
@@ -180,7 +184,44 @@ class TownKnowledge(
           .forEach { byHousehold.getOrPut(it.index) { ArrayList() }.add(knowledge) }
       }
 
+      // Recent news, through the same occupants and the same draw. A second pass rather than a common
+      // candidate type: everything above is typed on `HistoryEvent` and generalising it would put the
+      // property `TownKnowledgeTest` pins at risk to save a dozen lines.
+      for (rumour in rumours) {
+        val share = shareOfRecent(rumour.importance)
+
+        if (share >= 1.0) {
+          universal.add(rumour)
+          continue
+        }
+
+        val wanted = ceil(share * occupants.size).toInt().coerceIn(1, occupants.size)
+
+        occupants
+          .sortedByDescending { drawKey(it, rumour.topic.toLong(), it.weightForRecent()) }
+          .take(wanted)
+          .forEach { byHousehold.getOrPut(it.index) { ArrayList() }.add(rumour) }
+      }
+
       return TownKnowledge(universal, byHousehold)
+    }
+
+    /**
+     * What share of the town is still repeating one piece of recent news.
+     *
+     * Read off the rumour's *current* importance, which decays, so the arc falls out for free: the whole
+     * town the morning after something large, a handful of people a week later, and finally one
+     * household who happened to see it. That last tier is the same "somebody saw it happen" the bottom
+     * of the chronicle table produces, and it costs nothing extra to get.
+     */
+    private fun shareOfRecent(importance: Int): Double {
+      return when {
+        importance >= FAMOUS -> 1.0
+        importance >= MAJOR -> SHARE_OWN_MAJOR
+        importance >= NOTABLE -> SHARE_NOTABLE
+        importance >= FADING -> SHARE_LESSER
+        else -> SHARE_SOLE
+      }
     }
 
     /**
@@ -242,15 +283,27 @@ class TownKnowledge(
      * competing, which a plain product does not.
      */
     private fun keyOf(occupant: Occupant, event: HistoryEvent, yearsAgo: Int): Double {
+      return drawKey(occupant, event.id.toLong(), occupant.weightFor(event.kind, yearsAgo))
+    }
+
+    /**
+     * The draw itself, with the weight already decided by whoever is asking.
+     *
+     * Shared by the chronicle and by recent news so the two cannot drift into different notions of a
+     * fair contest. [drawId] has to be disjoint between producers or a rumour and an event would draw
+     * the same key for the same household; rumour topic ids are negative and event ids are dense from
+     * zero, which is the same disjointness a conversation option relies on.
+     */
+    private fun drawKey(occupant: Occupant, drawId: Long, weight: Double): Double {
       val unit = GenRng.hashUnit(
         occupant.worldSeed,
         occupant.settlement.toLong(),
-        event.id.toLong(),
+        drawId,
         occupant.index.toLong(),
         HOLDER_SALT,
       )
 
-      return unit.pow(1.0 / occupant.weightFor(event.kind, yearsAgo))
+      return unit.pow(1.0 / weight)
     }
 
     private class Candidate(val event: HistoryEvent, val locality: Locality, val own: Boolean)
@@ -278,6 +331,18 @@ class TownKnowledge(
 
       fun weightFor(kind: EventKind, yearsAgo: Int): Double {
         return profile.weightFor(kind) * ageAffinity(yearsAgo) * jitter
+      }
+
+      /**
+       * The weight for something that happened in play, which is curiosity and character only.
+       *
+       * No interest term, because a trade's interests are `EventKind`s and recent news has no kind in
+       * that vocabulary - a guard is not specially likely to be the one who remembers a beast. No age
+       * term either, and that one is not an omission: `ageAffinity(0)` is exactly 1, because nobody
+       * inherited last night from their grandmother.
+       */
+      fun weightForRecent(): Double {
+        return profile.curiosity * jitter
       }
 
       /**

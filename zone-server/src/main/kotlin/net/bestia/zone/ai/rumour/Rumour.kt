@@ -7,6 +7,7 @@ import jakarta.persistence.Enumerated
 import jakarta.persistence.Id
 import jakarta.persistence.Table
 import net.bestia.zone.ai.knowledge.Knowledge
+import net.bestia.zone.ai.knowledge.Locality
 
 /**
  * One piece of recent news, held by one settlement.
@@ -76,6 +77,32 @@ class Rumour(
   }
 
   /**
+   * This news as a memory, indistinguishable downstream from one the chronicle produced.
+   *
+   * The join the whole design rests on: a conversation offers "the mountain took Karth" and "something
+   * was killed outside the walls on the fourth" as the same kind of option, with one set of rules for
+   * who holds them and one for how they are phrased.
+   *
+   * [Knowledge.topic] is the **negated** row id. Chronicle event ids are dense from zero and a topic id
+   * is the only thing a conversation stores, so the two vocabularies have to be disjoint - and a
+   * negative id cannot be mistaken for an event on any seed.
+   *
+   * Locality is always [Locality.NEARBY], which is what it is by construction: a town holds a row only
+   * because the posting reached it, and that is exactly "close enough to have been seen or heard about".
+   */
+  fun toKnowledge(day: Double, presentYear: Int, variants: Int): Knowledge {
+    return Knowledge(
+      topic = -id.toInt(),
+      key = KEY_PREFIX + kind.name,
+      slots = slotMap(),
+      importance = importanceOn(day),
+      year = presentYear,
+      locality = Locality.NEARBY,
+      variants = variants,
+    )
+  }
+
+  /**
    * How important this is *now*, which is not what it was worth when it happened.
    *
    * Linear decay to nothing at expiry. A week-old kill still ranks above a treaty signed two provinces
@@ -94,6 +121,11 @@ class Rumour(
 
   fun hasExpired(day: Double): Boolean {
     return day >= expiresOnDay
+  }
+
+  companion object {
+    /** Matches `HistoryKnowledge.KEY_PREFIX`'s shape, so the two read alike in a translation file. */
+    const val KEY_PREFIX = "RUMOUR_"
   }
 
   /**
