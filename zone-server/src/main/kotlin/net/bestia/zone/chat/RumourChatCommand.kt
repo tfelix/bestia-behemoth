@@ -1,7 +1,6 @@
 package net.bestia.zone.chat
 
 import net.bestia.account.Authority
-import net.bestia.zone.ai.knowledge.Knowledge
 import net.bestia.zone.ai.rumour.RumourKind
 import net.bestia.zone.ai.rumour.RumourRegistry
 import net.bestia.zone.ai.rumour.RumourService
@@ -61,7 +60,6 @@ class RumourChatCommand(
       voxelX = position.x,
       voxelY = position.y,
       strength = strength,
-      slots = mapOf(SLOT_BEAST to Knowledge.Slot.Token(PLACEHOLDER_BEAST)),
     )
 
     reply(playerId, "Posted a ${RumourKind.BOSS_SLAIN} at strength $strength; ${heard.size} settlement(s) heard it.")
@@ -105,10 +103,5 @@ class RumourChatCommand(
     const val PREFIX = "/rumour"
 
     const val DEFAULT_STRENGTH = 0.6
-
-    const val SLOT_BEAST = "beast"
-
-    /** Until something in play posts a real kill, the beast has no name to give. */
-    const val PLACEHOLDER_BEAST = "BEAST_UNKNOWN"
   }
 }

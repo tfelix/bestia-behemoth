@@ -196,3 +196,6 @@ TALK_SMALL_ELDER_KNEES_ASK,Keeping well?
 TALK_SMALL_ELDER_KNEES,"My knees tell me the weather now. They are more reliable than anyone in this town."
 TALK_SMALL_APPRENTICE_MASTER_ASK,How is the work?
 TALK_SMALL_APPRENTICE_MASTER,"I fetch things. Three years of fetching, I am told, and then I get to hold a tool."
+RUMOUR_BOSS_SLAIN_ASK,Has anything been happening?
+RUMOUR_BOSS_SLAIN_1,"Something big was killed out past the ridge. Folk went to look and came back quiet."
+RUMOUR_BOSS_SLAIN_2,"There was a thing out there. Somebody put it down. I have not been out that way since."

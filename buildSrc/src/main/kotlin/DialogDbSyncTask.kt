@@ -58,6 +58,11 @@ abstract class DialogDbSyncTask : DefaultTask() {
   @get:Optional
   abstract val smallTalkYml: RegularFileProperty
 
+  /** The server's rumour phrasings, `townsfolk/rumours.yml`. Optional for [conversationYml]'s reason. */
+  @get:InputFile
+  @get:Optional
+  abstract val rumoursYml: RegularFileProperty
+
   /** If true, add TODO stubs for missing keys. If false, only report drift and fail the build on any. */
   @get:Input
   abstract val fix: Property<Boolean>
@@ -77,6 +82,8 @@ abstract class DialogDbSyncTask : DefaultTask() {
   private data class SmallTalkLineDto(val key: String = "")
 
   private data class SmallTalkFile(val lines: List<SmallTalkLineDto> = emptyList())
+
+  private data class RumourFile(val rumours: Map<String, HistoryLineDto> = emptyMap())
 
   @TaskAction
   fun run() {
@@ -126,6 +133,7 @@ abstract class DialogDbSyncTask : DefaultTask() {
 
     problems += conversationProblems(mapper, csv)
     problems += smallTalkProblems(mapper, csv)
+    problems += rumourProblems(mapper, csv)
 
     if (shouldFix && csvDirty) {
       dialogsCsv.get().asFile.writeText(csv.render())
@@ -221,6 +229,46 @@ abstract class DialogDbSyncTask : DefaultTask() {
     return problems
   }
 
+  /**
+   * The rumour phrasings, which are keyed by rumour-kind name and shaped exactly like the history ones.
+   *
+   * Same one-directional slot rule and same reason: a phrasing may ignore a slot its kind offers, but
+   * using one no producer sends renders a literal brace at a player.
+   */
+  private fun rumourProblems(mapper: ObjectMapper, csv: LocalizationCsv): List<String> {
+    if (!rumoursYml.isPresent) {
+      return emptyList()
+    }
+
+    val kinds = mapper.readValue(rumoursYml.get().asFile, RumourFile::class.java).rumours
+    val problems = mutableListOf<String>()
+    val expected = HashSet<String>()
+
+    for ((kind, line) in kinds) {
+      val keys = listOf("RUMOUR_${kind}_ASK") + (1..line.variants).map { "RUMOUR_${kind}_$it" }
+      expected += keys
+
+      for (key in keys) {
+        val text = csv.get(key)
+        if (text.isNullOrBlank()) {
+          problems += "dialogs.csv: '$key' is missing, so nobody could mention a $kind"
+          continue
+        }
+
+        val used = PLACEHOLDER_PATTERN.findAll(text).map { it.groupValues[1] }.toSet()
+        (used - line.slots.toSet()).forEach {
+          problems += "dialogs.csv: '$key' uses {$it}, which no producer of a $kind supplies"
+        }
+      }
+    }
+
+    csv.keys()
+      .filter { RUMOUR_KEY_PATTERN.matches(it) && it !in expected }
+      .forEach { problems += "dialogs.csv: '$it' matches no kind or variant in rumours.yml (orphaned row)" }
+
+    return problems
+  }
+
   private fun stubText(dialog: DialogDto): String {
     val placeholders = dialog.args.joinToString(" ") { "{$it}" }
     return "TODO: write the ${dialog.identifier} dialog text. $placeholders".trim()
@@ -239,6 +287,9 @@ abstract class DialogDbSyncTask : DefaultTask() {
 
     /** A translation key owned by a `small-talk.yml` line, e.g. `TALK_SMALL_FARMER_BARLEY_ASK`. */
     private val SMALL_TALK_KEY_PATTERN = Regex("""^TALK_SMALL_[A-Z_]+$""")
+
+    /** A translation key owned by a `rumours.yml` entry, e.g. `RUMOUR_BOSS_SLAIN_1`. */
+    private val RUMOUR_KEY_PATTERN = Regex("""^RUMOUR_[A-Z_]+_(ASK|\d+)$""")
 
     /** Matches Godot's `String.format` placeholders, e.g. `{masterName}`. */
     private val PLACEHOLDER_PATTERN = Regex("""\{(\w+)}""")

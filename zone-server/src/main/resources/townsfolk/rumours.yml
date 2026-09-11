@@ -1,0 +1,19 @@
+# What a townsperson can say about something that happened in play.
+#
+# The twin of dialogue.yml for news the chronicle cannot contain, and it works the same way: `variants`
+# is how many phrasings exist, RUMOUR_<KIND>_1 upward, and `slots` are the placeholders those phrasings
+# may use. Each kind also needs a RUMOUR_<KIND>_ASK row, which is the option a player clicks. Both live
+# in the client's dialogs.csv and are checked by `./gradlew checkDialogDb`.
+#
+# Every RumourKind must appear here or the boot fails, for dialogue.yml's reason: a kind nobody can talk
+# about is news that arrives, ages and expires without a single person ever mentioning it.
+#
+# Unlike a history event, a rumour's slots are supplied by whoever posted it rather than derived from
+# the world. So a slot declared here is a promise about every producer of that kind, and the one-way
+# check in DialogDbSyncTask is what keeps a phrasing from using something no producer sends.
+rumours:
+  # No slots, and that is a decision rather than a gap. Naming the species would need a translated row
+  # per mob, keyed off a database identifier the build check cannot read - and a rumour that says
+  # something large was killed out past the ridge is how one actually sounds. Naming it is a new slot
+  # plus a per-species token scheme, and worth doing deliberately rather than by accident.
+  BOSS_SLAIN: { variants: 2, slots: [] }
