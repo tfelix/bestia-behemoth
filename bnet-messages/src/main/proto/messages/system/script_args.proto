@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+package bnet;
+
+import "messages/vec3.proto";
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "ScriptArgsProto";
+
+/**
+ * One named value a client hands to a server-side script.
+ *
+ * The key is free-form on the wire but not in practice: both sides spell it from a shared constant
+ * (`ScriptArgKeys` on the server, `ScriptArgKeys` in GDScript), which is what a bag of arguments has
+ * instead of a compiler.
+ */
+message ScriptArg {
+  string key = 1;
+
+  oneof value {
+    int64  int_value   = 2;
+    double float_value = 3;
+    string text_value  = 4;
+    Vec3   vec_value   = 5;
+    bool   bool_value  = 6;
+  }
+}
+
+/**
+ * Whatever a client gathered before asking the server to run a script: a placement position, a facing,
+ * something that was clicked.
+ *
+ * ### Why one bag rather than fields on each request
+ *
+ * Every scripted interaction needs its own handful of parameters, and they are decided by the *script*,
+ * not by the message - a workbench kit wants a position and a yaw, a lockpick wants a door. Putting them
+ * on each request would mean growing `UseItemCMSG` once per scripted item forever. So the request says
+ * *what* is being used and this says *with what*.
+ *
+ * ### Embedded only
+ *
+ * Never an `Envelope` member: on its own it names no action. It is a field on the requests that carry it.
+ *
+ * The server treats every key and value here as untrusted input - see `ScriptArgs.fromBnet`, which caps
+ * the count and the string lengths.
+ */
+message ScriptArgs {
+  repeated ScriptArg args = 1;
+}
