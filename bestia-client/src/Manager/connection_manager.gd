@@ -62,6 +62,8 @@ var GetSkillsCMSG = load("res://Bnet/Message/Master/GetSkillsCMSG.cs")
 var ActivateSkillCMSG = load("res://Bnet/Message/Master/ActivateSkillCMSG.cs")
 var InvestSkillPointCMSG = load("res://Bnet/Message/Master/InvestSkillPointCMSG.cs")
 var UseItemCMSG = load("res://Bnet/Message/Inventory/UseItemCMSG.cs")
+## Not a message: the argument bag a scripted item fills before one of the above is sent.
+var ScriptArgsCls = load("res://Bnet/Message/ScriptArgs.cs")
 var DropItemCMSG = load("res://Bnet/Message/Inventory/DropItemCMSG.cs")
 var LootItemCMSG = load("res://Bnet/Message/Inventory/LootItemCMSG.cs")
 var EquipItemCMSG = load("res://Bnet/Message/Inventory/EquipItemCMSG.cs")
@@ -353,10 +355,14 @@ func move_to(destination: Vector3) -> void:
 	_socket.SendMessage(msg)
 
 
-func use_item(item_id: int) -> void:
+## [param args] carries whatever a scripted item gathered first - a placement position, a facing. Null for
+## the ordinary case, where using the item is the whole request. Build one with ScriptArgsCls.new() and the
+## keys in ScriptArgKeys.
+func use_item(item_id: int, args = null) -> void:
 	assert(is_ready_to_send())
 	var msg = UseItemCMSG.new()
 	msg.ItemId = item_id
+	msg.Args = args
 	_socket.SendMessage(msg)
 
 

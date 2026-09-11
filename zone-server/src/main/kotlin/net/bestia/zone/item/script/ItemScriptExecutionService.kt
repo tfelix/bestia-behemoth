@@ -4,6 +4,7 @@ import net.bestia.zone.ecs.item.Inventory
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.item.Item
+import net.bestia.zone.script.ScriptArgs
 import org.springframework.stereotype.Service
 
 @Service
@@ -19,11 +20,11 @@ class ItemScriptExecutionService(
    * DB decrement (this service deliberately stays ECS-only, like the rest of the obtain/consume
    * pipeline).
    */
-  fun useItem(world: World, userId: EntityId, item: Item): Boolean {
+  fun useItem(world: World, userId: EntityId, item: Item, args: ScriptArgs): Boolean {
     val itemScript = itemScriptsById[item.id]
       ?: throw ItemScriptNotFoundException(item)
 
-    val isSuccess = itemScript.execute(world, userId)
+    val isSuccess = itemScript.execute(world, userId, args)
 
     if (isSuccess) {
       val inventory = world.getOrThrow(userId, Inventory::class)

@@ -64,7 +64,7 @@ class UseItemHandler(
       LOG.debug { "Item ${msg.itemId} found in inventory for entity $activeEntityId" }
 
       // `this` is the full World, valid only within this lock-held scope.
-      itemScriptExecutionService.useItem(this, id, item)
+      itemScriptExecutionService.useItem(this, id, item, msg.args)
     }
 
     // Persist the durable DB decrement off the tick thread, mirroring the ECS consumption so the

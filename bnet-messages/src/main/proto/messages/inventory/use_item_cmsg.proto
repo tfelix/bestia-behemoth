@@ -2,12 +2,22 @@ syntax = "proto3";
 
 package bnet;
 
+import "messages/system/script_args.proto";
+
 option java_package = "net.bestia.bnet.proto";
 option java_outer_classname = "UseItemCMSGProto";
 
 /**
- * Requests inventory of the currently selected entity.
+ * Asks to use one item out of the inventory of the currently selected entity.
  */
 message UseItemCMSG {
   uint64 item_id = 1;
+
+  /**
+   * What the client gathered before sending, for items whose script needs more than "use it".
+   *
+   * Empty for the ordinary case - an apple needs no arguments. Which keys a script reads is the
+   * script's own business; see `ScriptArgKeys`.
+   */
+  ScriptArgs args = 2;
 }

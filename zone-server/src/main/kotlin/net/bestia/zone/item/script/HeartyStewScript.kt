@@ -6,6 +6,7 @@ import net.bestia.zone.ecs.battle.status.Stamina
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.message.OutMessageProcessor
+import net.bestia.zone.script.ScriptArgs
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
 
@@ -22,7 +23,7 @@ class HeartyStewScript(
 ) : ItemScript {
   override val itemId = 18L
 
-  override fun execute(world: World, userId: EntityId): Boolean {
+  override fun execute(world: World, userId: EntityId, args: ScriptArgs): Boolean {
     val health = world.get(userId, Health::class)
     val stamina = world.get(userId, Stamina::class)
 
