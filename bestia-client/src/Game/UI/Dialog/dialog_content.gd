@@ -23,6 +23,20 @@ var title_key: String
 ## dialog is static text, which is the whole reason it needs no server round trip.
 var args: Array
 
+## What the player may say next, as [code]ConversationOption[/code] objects. Empty for everything that is
+## not a conversation, which is why the window never has to ask what kind of thing it is holding.
+var options: Array = []
+
+## A window title that is already text rather than a key - a speaker's name, which is invented by the
+## generator and belongs to no language. Empty for every dialog whose title comes from [member title_key].
+var title_override: String = ""
+
+## Called with an option's topic id when the player picks one.
+##
+## Carried here rather than known by the window, so the window stays a window: it renders options and
+## reports which was chosen, and what a choice *means* stays with whoever built the content.
+var on_choice: Callable = Callable()
+
 
 func _init(p_text_key: String, p_title_key: String = "", p_args: Array = []) -> void:
 	text_key = p_text_key
@@ -38,6 +52,19 @@ static func of_message(message) -> DialogContent:
 		DialogText.title_key(message.DialogId),
 		message.Args
 	)
+
+
+## The content of one step of a conversation.
+##
+## The speech becomes the body and the options become buttons. The key is carried outright rather than
+## derived from a catalogue id, because it is computed from an event kind - see [DialogText.resolve_line].
+static func of_conversation(message, choose: Callable) -> DialogContent:
+	var content := DialogContent.new(message.Speech.Key, "", Array(message.Speech.Args))
+	content.options = Array(message.Options)
+	content.title_override = message.SpeakerName
+	content.on_choice = choose
+
+	return content
 
 
 ## A client-only dialog, named by a key rather than by a catalogue id.

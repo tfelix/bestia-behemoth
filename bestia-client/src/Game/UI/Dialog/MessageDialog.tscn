@@ -7,8 +7,18 @@ title = "Message"
 size = Vector2i(460, 200)
 script = ExtResource("1")
 
-[node name="Body" type="RichTextLabel" parent="." unique_id=1545968782]
+[node name="Content" type="VBoxContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Body" type="RichTextLabel" parent="Content" unique_id=1545968782]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(420, 0)
 bbcode_enabled = true
 fit_content = true
+
+[node name="Choices" type="VBoxContainer" parent="Content"]
+unique_name_in_owner = true

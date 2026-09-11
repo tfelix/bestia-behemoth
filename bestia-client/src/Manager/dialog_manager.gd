@@ -80,6 +80,16 @@ func pending_count() -> int:
 	return _queue.size()
 
 
+## Queues an already-built [DialogContent].
+##
+## The way anything that is neither a catalogued dialog nor a local key gets on screen - a conversation
+## step, whose body key is computed rather than looked up. It goes through the same queue as everything
+## else, which is what stops a conversation opening over a dialog the player is still reading.
+func show_content(content: DialogContent) -> void:
+	_queue.push_back(content)
+	_show_next()
+
+
 ## Shows a client-only dialog, named by a key rather than by a server catalogue id.
 ##
 ## The key resolves to [code]DIALOG_<key>_TEXT[/code] and optionally [code]DIALOG_<key>_TITLE[/code] in

@@ -24,6 +24,7 @@ config/icon="uid://dc0oxq2bg1lcb"
 SceneManager="*res://Manager/scene_manager.gd"
 ConnectionManager="*res://Manager/ConnectionManager.tscn"
 DialogManager="*res://Manager/dialog_manager.gd"
+ConversationPresenter="*res://Game/UI/Conversation/conversation_presenter.gd"
 RenderDebug="*res://Dev/RenderDebug/render_debug.gd"
 
 [display]
