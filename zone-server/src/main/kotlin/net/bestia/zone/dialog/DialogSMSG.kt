@@ -35,23 +35,10 @@ data class DialogSMSG(
       .build()
   }
 
-  // No `else` branch on either mapping: a new DialogType or DialogArg variant must fail to compile
-  // here rather than silently serialize as something wrong.
+  // No `else` branch: a new DialogType must fail to compile here rather than silently serialize as
+  // something wrong. The argument mapping makes the same promise, in DialogArgs.
   private fun DialogType.toBnet(): DialogSmsgProto.DialogType = when (this) {
     DialogType.CONFIRM -> DialogSmsgProto.DialogType.CONFIRM
   }
 
-  private fun DialogArg.toBnet(): DialogSmsgProto.DialogArg {
-    val builder = DialogSmsgProto.DialogArg.newBuilder()
-
-    when (this) {
-      is DialogArg.Text -> builder.setText(value)
-      is DialogArg.Number -> builder.setNumber(value)
-      is DialogArg.Entity -> builder.setEntityId(entityId)
-      is DialogArg.Item -> builder.setItemId(itemId)
-      is DialogArg.Skill -> builder.setSkillId(skillId)
-    }
-
-    return builder.build()
-  }
 }

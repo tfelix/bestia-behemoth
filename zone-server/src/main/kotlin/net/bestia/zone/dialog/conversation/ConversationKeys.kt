@@ -1,0 +1,31 @@
+package net.bestia.zone.dialog.conversation
+
+/**
+ * The translation keys conversation itself owns, as opposed to the ones a memory brings with it.
+ *
+ * Named here rather than written at each call site so that the boot check has one list to read and a
+ * misspelling is a compile error rather than a raw key shown to a player.
+ */
+object ConversationKeys {
+
+  const val GREETING = "TALK_GREETING"
+  const val FAREWELL = "TALK_FAREWELL"
+  const val GOODBYE = "TALK_GOODBYE"
+  const val BACK = "TALK_BACK"
+
+  const val ABOUT_TOWN = "TALK_ABOUT_TOWN"
+  const val ABOUT_TOWN_ASK = "TALK_ABOUT_TOWN_ASK"
+
+  const val NEWS_ASK = "TALK_NEWS_ASK"
+  const val NEWS_NONE = "TALK_NEWS_NONE"
+
+  const val SHOP_BUY_ASK = "TALK_SHOP_BUY_ASK"
+  const val SHOP_SELL_ASK = "TALK_SHOP_SELL_ASK"
+
+  /** What a stubbed action answers with. One key, so removing it later is one grep. */
+  const val NOT_YET = "TALK_NOT_YET"
+
+  const val SLOT_NAME = "name"
+  const val SLOT_TOWN = "town"
+  const val SLOT_TRADE = "trade"
+}

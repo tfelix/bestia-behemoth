@@ -1,0 +1,61 @@
+syntax = "proto3";
+
+package bnet;
+
+import "messages/system/dialog_smsg.proto";
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "ConversationSmsgProto";
+
+/**
+ * One thing said, as a translation key and its arguments.
+ *
+ * A string key rather than the numeric id `DialogSMSG` uses, and that is the whole reason conversation
+ * is a separate message rather than a `CHOICE` flavour of the dialog popup. A dialog's id is short
+ * because a human wrote the call site; a conversation line's key is *computed* - from an event kind, an
+ * occupation, a time bucket - and the only numeric mapping available would be an enum ordinal, which
+ * this codebase forbids storing anywhere precisely because a reorder rewrites every reference.
+ */
+message Line {
+  string key = 1;
+  // Keyed by the placeholder name the text uses, e.g. "place" fills {place}.
+  map<string, DialogArg> args = 2;
+}
+
+/** What picking an option does, so the client can render it without understanding the topic. */
+enum OptionKind {
+  // Says something and offers more. The ordinary case.
+  TALK = 0;
+  // Does something other than talk - opening a shop, taking a contract.
+  ACTION = 1;
+  // Returns to the options one level up.
+  BACK = 2;
+  // Ends the conversation.
+  END = 3;
+}
+
+message ConversationOption {
+  /**
+   * What the server is asked for next.
+   *
+   * A topic, not a position in this list. That is what lets the server keep no conversation state at
+   * all: there is no cursor to remember, so a reconnect or a restart costs nothing.
+   */
+  int32 topic_id = 1;
+  Line line = 2;
+  OptionKind kind = 3;
+}
+
+/**
+ * Somebody is talking to you, and these are the things you may say back.
+ *
+ * Account-scoped like `DialogSMSG`, and for the same reason - it must not be routed through the client's
+ * entity handling. `speaker_entity_id` says who is talking so the UI can point at them; `speaker_name`
+ * carries the name outright because entities have no display name on the wire yet.
+ */
+message ConversationSMSG {
+  uint64 speaker_entity_id = 1;
+  string speaker_name = 2;
+  Line speech = 3;
+  repeated ConversationOption options = 4;
+}

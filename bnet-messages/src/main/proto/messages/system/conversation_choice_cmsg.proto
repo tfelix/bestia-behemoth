@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "ConversationChoiceCmsgProto";
+
+/**
+ * The option a player picked.
+ *
+ * Carries the entity rather than a conversation id, because there is no conversation to have an id: a
+ * node is a function of who is speaking and which topic, so the server re-resolves both and re-checks
+ * range on every step. Nothing can go stale because nothing is being kept.
+ */
+message ConversationChoiceCMSG {
+  uint64 entity_id = 1;
+  int32 topic_id = 2;
+}

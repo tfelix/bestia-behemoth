@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "InteractCmsgProto";
+
+/**
+ * "I want to deal with that thing."
+ *
+ * Deliberately says nothing about *how*. The server decides what interacting with an entity means -
+ * talking to a townsperson today, and whatever else later - because the client cannot be trusted to know
+ * and should not have to be taught. It names the target only; who is acting comes from the session.
+ */
+message InteractCMSG {
+  uint64 entity_id = 1;
+}

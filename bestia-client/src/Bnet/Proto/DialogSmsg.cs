@@ -24,21 +24,21 @@ namespace Bnet {
     static DialogSmsgReflection() {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
-            "CiFtZXNzYWdlcy9zeXN0ZW0vZGlhbG9nX3Ntc2cucHJvdG8SBGJuZXQicgoJ",
-            "RGlhbG9nQXJnEg4KBHRleHQYASABKAlIABIQCgZudW1iZXIYAiABKANIABIT",
-            "CgllbnRpdHlfaWQYAyABKARIABIRCgdpdGVtX2lkGAQgASgDSAASEgoIc2tp",
-            "bGxfaWQYBSABKANIAEIHCgV2YWx1ZSLbAQoKRGlhbG9nU01TRxIRCglkaWFs",
-            "b2dfaWQYASABKA0SHgoEdHlwZRgCIAEoDjIQLmJuZXQuRGlhbG9nVHlwZRIo",
-            "CgRhcmdzGAMgAygLMhouYm5ldC5EaWFsb2dTTVNHLkFyZ3NFbnRyeRIdChBz",
-            "b3VyY2VfZW50aXR5X2lkGAQgASgESACIAQEaPAoJQXJnc0VudHJ5EgsKA2tl",
-            "eRgBIAEoCRIeCgV2YWx1ZRgCIAEoCzIPLmJuZXQuRGlhbG9nQXJnOgI4AUIT",
-            "ChFfc291cmNlX2VudGl0eV9pZCoZCgpEaWFsb2dUeXBlEgsKB0NPTkZJUk0Q",
-            "AEIoChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CD0RpYWxvZ1Ntc2dQcm90b2IG",
-            "cHJvdG8z"));
+            "CiFtZXNzYWdlcy9zeXN0ZW0vZGlhbG9nX3Ntc2cucHJvdG8SBGJuZXQikwEK",
+            "CURpYWxvZ0FyZxIOCgR0ZXh0GAEgASgJSAASEAoGbnVtYmVyGAIgASgDSAAS",
+            "EwoJZW50aXR5X2lkGAMgASgESAASEQoHaXRlbV9pZBgEIAEoA0gAEhIKCHNr",
+            "aWxsX2lkGAUgASgDSAASDwoFdG9rZW4YBiABKAlIABIOCgRuYW1lGAcgASgJ",
+            "SABCBwoFdmFsdWUi2wEKCkRpYWxvZ1NNU0cSEQoJZGlhbG9nX2lkGAEgASgN",
+            "Eh4KBHR5cGUYAiABKA4yEC5ibmV0LkRpYWxvZ1R5cGUSKAoEYXJncxgDIAMo",
+            "CzIaLmJuZXQuRGlhbG9nU01TRy5BcmdzRW50cnkSHQoQc291cmNlX2VudGl0",
+            "eV9pZBgEIAEoBEgAiAEBGjwKCUFyZ3NFbnRyeRILCgNrZXkYASABKAkSHgoF",
+            "dmFsdWUYAiABKAsyDy5ibmV0LkRpYWxvZ0FyZzoCOAFCEwoRX3NvdXJjZV9l",
+            "bnRpdHlfaWQqGQoKRGlhbG9nVHlwZRILCgdDT05GSVJNEABCKAoVbmV0LmJl",
+            "c3RpYS5ibmV0LnByb3RvQg9EaWFsb2dTbXNnUHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.DialogType), }, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.DialogArg), global::Bnet.DialogArg.Parser, new[]{ "Text", "Number", "EntityId", "ItemId", "SkillId" }, new[]{ "Value" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.DialogArg), global::Bnet.DialogArg.Parser, new[]{ "Text", "Number", "EntityId", "ItemId", "SkillId", "Token", "Name" }, new[]{ "Value" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.DialogSMSG), global::Bnet.DialogSMSG.Parser, new[]{ "DialogId", "Type", "Args", "SourceEntityId" }, new[]{ "SourceEntityId" }, null, null, new pbr::GeneratedClrTypeInfo[] { null, })
           }));
     }
@@ -116,6 +116,12 @@ namespace Bnet {
           break;
         case ValueOneofCase.SkillId:
           SkillId = other.SkillId;
+          break;
+        case ValueOneofCase.Token:
+          Token = other.Token;
+          break;
+        case ValueOneofCase.Name:
+          Name = other.Name;
           break;
       }
 
@@ -258,6 +264,67 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "token" field.</summary>
+    public const int TokenFieldNumber = 6;
+    /// <summary>
+    /// A translation key the client resolves in turn and substitutes. What lets a template say
+    /// "{who} spoke of {what}" where {what} is itself a localized word rather than an English one.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string Token {
+      get { return HasToken ? (string) value_ : ""; }
+      set {
+        value_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+        valueCase_ = ValueOneofCase.Token;
+      }
+    }
+    /// <summary>Gets whether the "token" field is set</summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool HasToken {
+      get { return valueCase_ == ValueOneofCase.Token; }
+    }
+    /// <summary> Clears the value of the oneof if it's currently set to "token" </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void ClearToken() {
+      if (HasToken) {
+        ClearValue();
+      }
+    }
+
+    /// <summary>Field number for the "name" field.</summary>
+    public const int NameFieldNumber = 7;
+    /// <summary>
+    /// A proper noun, already rendered. Distinct from `text` so a reviewer can see at a glance that a
+    /// server-composed sentence has not been smuggled through: generated names are built from invented
+    /// stems that belong to no language, and there is nothing in one to translate.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string Name {
+      get { return HasName ? (string) value_ : ""; }
+      set {
+        value_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+        valueCase_ = ValueOneofCase.Name;
+      }
+    }
+    /// <summary>Gets whether the "name" field is set</summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool HasName {
+      get { return valueCase_ == ValueOneofCase.Name; }
+    }
+    /// <summary> Clears the value of the oneof if it's currently set to "name" </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void ClearName() {
+      if (HasName) {
+        ClearValue();
+      }
+    }
+
     private object value_;
     /// <summary>Enum of possible cases for the "value" oneof.</summary>
     public enum ValueOneofCase {
@@ -267,6 +334,8 @@ namespace Bnet {
       EntityId = 3,
       ItemId = 4,
       SkillId = 5,
+      Token = 6,
+      Name = 7,
     }
     private ValueOneofCase valueCase_ = ValueOneofCase.None;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -302,6 +371,8 @@ namespace Bnet {
       if (EntityId != other.EntityId) return false;
       if (ItemId != other.ItemId) return false;
       if (SkillId != other.SkillId) return false;
+      if (Token != other.Token) return false;
+      if (Name != other.Name) return false;
       if (ValueCase != other.ValueCase) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
@@ -315,6 +386,8 @@ namespace Bnet {
       if (HasEntityId) hash ^= EntityId.GetHashCode();
       if (HasItemId) hash ^= ItemId.GetHashCode();
       if (HasSkillId) hash ^= SkillId.GetHashCode();
+      if (HasToken) hash ^= Token.GetHashCode();
+      if (HasName) hash ^= Name.GetHashCode();
       hash ^= (int) valueCase_;
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
@@ -354,6 +427,14 @@ namespace Bnet {
         output.WriteRawTag(40);
         output.WriteInt64(SkillId);
       }
+      if (HasToken) {
+        output.WriteRawTag(50);
+        output.WriteString(Token);
+      }
+      if (HasName) {
+        output.WriteRawTag(58);
+        output.WriteString(Name);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -384,6 +465,14 @@ namespace Bnet {
         output.WriteRawTag(40);
         output.WriteInt64(SkillId);
       }
+      if (HasToken) {
+        output.WriteRawTag(50);
+        output.WriteString(Token);
+      }
+      if (HasName) {
+        output.WriteRawTag(58);
+        output.WriteString(Name);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -408,6 +497,12 @@ namespace Bnet {
       }
       if (HasSkillId) {
         size += 1 + pb::CodedOutputStream.ComputeInt64Size(SkillId);
+      }
+      if (HasToken) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Token);
+      }
+      if (HasName) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Name);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -436,6 +531,12 @@ namespace Bnet {
           break;
         case ValueOneofCase.SkillId:
           SkillId = other.SkillId;
+          break;
+        case ValueOneofCase.Token:
+          Token = other.Token;
+          break;
+        case ValueOneofCase.Name:
+          Name = other.Name;
           break;
       }
 
@@ -474,6 +575,14 @@ namespace Bnet {
             SkillId = input.ReadInt64();
             break;
           }
+          case 50: {
+            Token = input.ReadString();
+            break;
+          }
+          case 58: {
+            Name = input.ReadString();
+            break;
+          }
         }
       }
     #endif
@@ -507,6 +616,14 @@ namespace Bnet {
           }
           case 40: {
             SkillId = input.ReadInt64();
+            break;
+          }
+          case 50: {
+            Token = input.ReadString();
+            break;
+          }
+          case 58: {
+            Name = input.ReadString();
             break;
           }
         }

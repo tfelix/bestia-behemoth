@@ -1,5 +1,7 @@
 package net.bestia.zone.message
 
+import net.bestia.zone.dialog.conversation.ConversationChoiceCMSG
+import net.bestia.zone.dialog.conversation.InteractCMSG
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ai.message.SetBestiaAiConfigCMSG
 import net.bestia.zone.account.GetSelfCMSG
@@ -80,6 +82,9 @@ class BnetMessageProcessorAdapter(
       envelope.hasUnequipItem() -> UnequipItemCMSG.Companion.fromBnet(accountId, envelope.unequipItem)
       envelope.hasRequestLogout() -> RequestLogoutCMSG.Companion.fromBnet(accountId, envelope.requestLogout)
       envelope.hasRespawn() -> RespawnCMSG.Companion.fromBnet(accountId, envelope.respawn)
+      envelope.hasInteract() -> InteractCMSG.fromBnet(accountId, envelope.interact)
+      envelope.hasConversationChoice() ->
+        ConversationChoiceCMSG.fromBnet(accountId, envelope.conversationChoice)
       envelope.hasAcceptPartyInvite() -> AcceptPartyInviteCMSG.fromBnet(accountId, envelope.acceptPartyInvite)
       envelope.hasDeclinePartyInvite() -> DeclinePartyInviteCMSG.fromBnet(accountId, envelope.declinePartyInvite)
       envelope.hasChunkRequest() -> ChunkRequestCMSG.fromBnet(accountId, envelope.chunkRequest)

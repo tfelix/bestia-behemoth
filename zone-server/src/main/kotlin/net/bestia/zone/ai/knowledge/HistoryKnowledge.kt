@@ -3,7 +3,6 @@ package net.bestia.zone.ai.knowledge
 import net.bestia.worldgen.core.ActorType
 import net.bestia.worldgen.core.Chronicle
 import net.bestia.worldgen.core.HistoryEvent
-import net.bestia.worldgen.history.Names
 
 /**
  * A logged event, as something a person could say in any language.
@@ -73,47 +72,23 @@ object HistoryKnowledge {
   }
 
   private fun placeName(chronicle: Chronicle, index: Int): Knowledge.Slot {
-    val record = chronicle.settlements.getOrNull(index) ?: return unknown()
-
-    return Knowledge.Slot.Name(Names.place(record.nameSeed, cultureOfSettlement(chronicle, index)))
+    return named(ChronicleNames.placeOf(chronicle, index))
   }
 
   private fun civName(chronicle: Chronicle, index: Int): Knowledge.Slot {
-    val record = chronicle.civs.getOrNull(index) ?: return unknown()
-
-    return Knowledge.Slot.Name(Names.civ(record.nameSeed, record.cultureIndex))
+    return named(ChronicleNames.civOf(chronicle, index))
   }
 
   private fun figureName(chronicle: Chronicle, index: Int): Knowledge.Slot {
-    val record = chronicle.figures.getOrNull(index) ?: return unknown()
-
-    return Knowledge.Slot.Name(Names.person(record.nameSeed, cultureOfCiv(chronicle, record.civ), record.role))
+    return named(ChronicleNames.figureOf(chronicle, index))
   }
 
   private fun artifactName(chronicle: Chronicle, index: Int): Knowledge.Slot {
-    val record = chronicle.artifacts.getOrNull(index) ?: return unknown()
-    val culture = cultureOfCiv(chronicle, chronicle.figures.getOrNull(record.forgedBy)?.civ ?: -1)
-
-    return Knowledge.Slot.Name(
-      Names.artifact(record.nameSeed, culture, record.kind, record.forgedAtNameSeed)
-    )
+    return named(ChronicleNames.artifactOf(chronicle, index))
   }
 
-  /**
-   * Whose idiom names a town: whoever holds it, or whoever founded it once nobody does.
-   *
-   * A ruin keeps the name the people who built it gave it, which is the whole reason `foundingCiv`
-   * outlives `ownerCiv` on the record.
-   */
-  private fun cultureOfSettlement(chronicle: Chronicle, index: Int): Int {
-    val record = chronicle.settlements.getOrNull(index) ?: return -1
-    val civ = record.ownerCiv.takeIf { it >= 0 } ?: record.foundingCiv
-
-    return cultureOfCiv(chronicle, civ)
-  }
-
-  private fun cultureOfCiv(chronicle: Chronicle, civ: Int): Int {
-    return chronicle.civs.getOrNull(civ)?.cultureIndex ?: -1
+  private fun named(name: String?): Knowledge.Slot {
+    return if (name == null) unknown() else Knowledge.Slot.Name(name)
   }
 
   /**

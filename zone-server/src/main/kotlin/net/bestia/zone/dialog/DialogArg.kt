@@ -25,4 +25,23 @@ sealed interface DialogArg {
 
   /** Resolved by the client through its attack DB, so the skill name stays localized. */
   data class Skill(val skillId: Long) : DialogArg
+
+  /**
+   * A translation key the client resolves in turn and substitutes.
+   *
+   * What lets a template say "{who} spoke of {what}" where `{what}` is a localized word rather than an
+   * English one. Without it, any composed phrase has to be either one key per combination or an English
+   * fragment glued together on the server.
+   */
+  data class Token(val key: String) : DialogArg
+
+  /**
+   * A proper noun, already rendered.
+   *
+   * Passing the text is correct here rather than a concession: generated names are built from invented
+   * stems that belong to no language, so a place is called the same thing in every locale. Distinct from
+   * [Text] so that a reviewer can see at a glance that no server-composed sentence has been smuggled in
+   * under a type documented as a last resort.
+   */
+  data class Name(val value: String) : DialogArg
 }

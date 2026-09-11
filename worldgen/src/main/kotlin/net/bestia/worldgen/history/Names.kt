@@ -114,6 +114,22 @@ object Names {
     }
   }
 
+  /**
+   * An ordinary person's name: a given name and nothing else.
+   *
+   * [person]'s bynames are earned - "the Grim", "the Wise" - and belong to the handful of figures a
+   * chronicle names. A village has hundreds of people in it and none of them are notable, so they get
+   * what most people have ever had. Two of them sharing a name is not a collision to avoid either; a pool
+   * of fourteen per culture is how a real village sounds.
+   *
+   * Reuses [Style.givenNames] rather than adding a pool, so this renames nothing that already exists.
+   */
+  fun townsperson(seed: Long, cultureIndex: Int): String {
+    return pick(styleOf(cultureIndex).givenNames, seed, TOWNSPERSON_SALT).replaceFirstChar { it.uppercase() }
+  }
+
+  private const val TOWNSPERSON_SALT = 0x90L
+
   /** A civilisation's name: a people, not a place, so it takes the demonym form. */
   fun civ(seed: Long, cultureIndex: Int): String {
     val style = styleOf(cultureIndex)

@@ -98,6 +98,9 @@ import "messages/trade/confirm_trade_cmsg.proto";
 import "messages/trade/cancel_trade_cmsg.proto";
 import "messages/trade/trade_request_smsg.proto";
 import "messages/trade/trade_state_smsg.proto";
+import "messages/system/interact_cmsg.proto";
+import "messages/system/conversation_smsg.proto";
+import "messages/system/conversation_choice_cmsg.proto";
 
 option java_package = "net.bestia.bnet.proto";
 option java_outer_classname = "EnvelopeProto";
@@ -123,8 +126,13 @@ message Envelope {
     ChatSMSG chat_smsg = 123;
     RequestLogoutCMSG request_logout = 124;
     DialogSMSG dialog = 125;
-    // 126 is reserved for the DialogChoiceCMSG that answers a CHOICE dialog.
+    // 126 was held for a DialogChoiceCMSG answering a CHOICE dialog. Conversation absorbed that rather
+    // than building beside it - one mechanism for asking the player something - so it answers a
+    // ConversationSMSG instead.
+    ConversationChoiceCMSG conversation_choice = 126;
     RespawnCMSG respawn = 127;
+    InteractCMSG interact = 128;
+    ConversationSMSG conversation = 129;
 
     // MAP 200
     WorldInfoSMSG world_info = 200;

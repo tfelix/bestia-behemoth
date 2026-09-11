@@ -139,6 +139,9 @@ enum OpError {
   // The treasury is at its ceiling, so the town has no room to take on more. What stops a player dumping
   // ten thousand apples: a refusal rather than a collapsing price, which would still be an income.
   SHOP_TREASURY_FULL = 46;
+
+  // Walked away from whoever they were talking to.
+  TALK_OUT_OF_RANGE = 47;
 }
 
 message OperationError {

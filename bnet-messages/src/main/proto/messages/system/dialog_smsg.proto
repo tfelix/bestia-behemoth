@@ -26,6 +26,13 @@ message DialogArg {
     uint64 entity_id = 3;
     int64 item_id = 4;
     int64 skill_id = 5;
+    // A translation key the client resolves in turn and substitutes. What lets a template say
+    // "{who} spoke of {what}" where {what} is itself a localized word rather than an English one.
+    string token = 6;
+    // A proper noun, already rendered. Distinct from `text` so a reviewer can see at a glance that a
+    // server-composed sentence has not been smuggled through: generated names are built from invented
+    // stems that belong to no language, and there is nothing in one to translate.
+    string name = 7;
   }
 }
 

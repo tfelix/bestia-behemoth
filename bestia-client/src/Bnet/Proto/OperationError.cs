@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSq3CQoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSrOCQoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -53,8 +53,8 @@ namespace Bnet {
             "X1JBTkdFECgSEgoOU0hPUF9OT05FX0hFUkUQKRIUChBTSE9QX05PVF9TVE9D",
             "S0VEECoSFQoRU0hPUF9PVVRfT0ZfU1RPQ0sQKxIWChJTSE9QX0NBTk5PVF9B",
             "RkZPUkQQLBIXChNTSE9QX1RSRUFTVVJZX0VNUFRZEC0SFgoSU0hPUF9UUkVB",
-            "U1VSWV9GVUxMEC5CLAoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQhNPcGVyYXRp",
-            "b25FcnJvclByb3RvYgZwcm90bzM="));
+            "U1VSWV9GVUxMEC4SFQoRVEFMS19PVVRfT0ZfUkFOR0UQL0IsChVuZXQuYmVz",
+            "dGlhLmJuZXQucHJvdG9CE09wZXJhdGlvbkVycm9yUHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -240,6 +240,10 @@ namespace Bnet {
     /// ten thousand apples: a refusal rather than a collapsing price, which would still be an income.
     /// </summary>
     [pbr::OriginalName("SHOP_TREASURY_FULL")] ShopTreasuryFull = 46,
+    /// <summary>
+    /// Walked away from whoever they were talking to.
+    /// </summary>
+    [pbr::OriginalName("TALK_OUT_OF_RANGE")] TalkOutOfRange = 47,
   }
 
   #endregion
