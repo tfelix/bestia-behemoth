@@ -142,6 +142,7 @@ class TownKnowledge(
       worldSeed: Long,
       householdAt: (Int) -> Household?,
       profileOf: (Household) -> KnowledgeProfile,
+      variantsOf: (EventKind) -> Int = { 1 },
       nearbyRange: Double = SettlementLoreService.NEARBY_RANGE,
       positions: Map<Int, Vec2d> = SettlementLoreService.settlementPositions(generated),
     ): TownKnowledge {
@@ -159,7 +160,8 @@ class TownKnowledge(
       val byHousehold = HashMap<Int, MutableList<Knowledge>>()
 
       for (candidate in candidates) {
-        val knowledge = HistoryKnowledge.of(chronicle, candidate.event, candidate.locality)
+        val knowledge =
+          HistoryKnowledge.of(chronicle, candidate.event, candidate.locality, variantsOf(candidate.event.kind))
         val share = shareOf(candidate, chronicle.presentYear)
 
         if (share >= 1.0) {

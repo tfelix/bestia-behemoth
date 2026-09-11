@@ -89,8 +89,9 @@ class KnowledgeTopicProvider(
    * differently - which costs nothing, because the rows have to exist anyway for the kind.
    */
   private fun lineOf(speaker: Speaker, memory: Knowledge): Line {
-    val variant = GenRng.hashUnit(speaker.seed, memory.topic.toLong(), VARIANT_SALT)
-    val index = (variant * VARIANTS).toInt().coerceIn(0, VARIANTS - 1) + 1
+    val variants = memory.variants
+    val roll = GenRng.hashUnit(speaker.seed, memory.topic.toLong(), VARIANT_SALT)
+    val index = (roll * variants).toInt().coerceIn(0, variants - 1) + 1
 
     return Line("${memory.key}_$index", memory.slots.mapValues { (_, slot) -> slot.toDialogArg() })
   }
@@ -119,14 +120,6 @@ class KnowledgeTopicProvider(
 
     /** Enough to feel like a person with things on their mind, few enough to read at a glance. */
     const val OFFERED = 4
-
-    /**
-     * Phrasings per event kind.
-     *
-     * One today. The catalogue that says how many each kind actually has, and the rows behind them,
-     * arrive with the history lines; until then every kind has exactly its `_1`.
-     */
-    const val VARIANTS = 1
 
     const val ASK_SUFFIX = "_ASK"
     const val VARIANT_SALT = 0x7A15L

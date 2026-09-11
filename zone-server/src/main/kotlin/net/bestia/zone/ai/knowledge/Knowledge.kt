@@ -27,6 +27,14 @@ class Knowledge(
   /** Chronicle year, or the present year for something that happened in play. */
   val year: Int,
   val locality: Locality,
+  /**
+   * How many phrasings exist for this, `<key>_1` upward.
+   *
+   * Carried rather than looked up, so that whoever produced a memory is the one who knows how it can be
+   * said - a rumour posted last Tuesday and a thousand-year-old founding answer that question from
+   * completely different places, and the layer that picks one must not have to know which is which.
+   */
+  val variants: Int = 1,
 ) {
 
   override fun toString(): String {

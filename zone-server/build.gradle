@@ -173,6 +173,7 @@ tasks.register('checkDialogDb', DialogDbSyncTask) {
     description = 'Fails if dialogs.yml and the client dialogs.csv disagree on which dialogs exist or which placeholders their text uses.'
     dialogsYml = layout.projectDirectory.file('src/main/resources/dialogs.yml')
     dialogsCsv = rootProject.layout.projectDirectory.file('bestia-client/src/Localization/dialogs.csv')
+    conversationYml = layout.projectDirectory.file('src/main/resources/townsfolk/dialogue.yml')
     fix = false
 }
 
@@ -181,6 +182,7 @@ tasks.register('syncDialogDb', DialogDbSyncTask) {
     description = 'Adds TODO stub rows to dialogs.csv for dialogs declared in dialogs.yml that have no text yet.'
     dialogsYml = layout.projectDirectory.file('src/main/resources/dialogs.yml')
     dialogsCsv = rootProject.layout.projectDirectory.file('bestia-client/src/Localization/dialogs.csv')
+    conversationYml = layout.projectDirectory.file('src/main/resources/townsfolk/dialogue.yml')
     fix = true
 }
 

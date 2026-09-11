@@ -26,6 +26,7 @@ class KnowledgeService(
   private val worldService: WorldService,
   private val sites: SettlementSiteIndex,
   private val placement: HouseholdPlacement,
+  private val lines: HistoryLineCatalogue,
 ) {
 
   private val bySettlement = HashMap<Int, TownKnowledge>()
@@ -75,6 +76,7 @@ class KnowledgeService(
       worldSeed = worldService.record.seed,
       householdAt = { index -> Households.one(summary, index) },
       profileOf = { household -> profileOf(household) },
+      variantsOf = { kind -> lines.of(kind).variants },
       positions = positionsOf(),
     )
   }

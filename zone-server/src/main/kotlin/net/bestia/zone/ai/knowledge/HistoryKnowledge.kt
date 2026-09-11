@@ -33,7 +33,7 @@ object HistoryKnowledge {
   const val SLOT_ARTIFACT = "artifact"
   const val SLOT_YEAR = "year"
 
-  fun of(chronicle: Chronicle, event: HistoryEvent, locality: Locality): Knowledge {
+  fun of(chronicle: Chronicle, event: HistoryEvent, locality: Locality, variants: Int = 1): Knowledge {
     return Knowledge(
       topic = event.id,
       key = KEY_PREFIX + event.kind.name,
@@ -41,6 +41,7 @@ object HistoryKnowledge {
       importance = event.importance,
       year = event.year,
       locality = locality,
+      variants = variants,
     )
   }
 

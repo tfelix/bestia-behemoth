@@ -8,6 +8,7 @@ import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 
 /**
@@ -38,6 +39,17 @@ abstract class DialogDbSyncTask : DefaultTask() {
   @get:InputFile
   abstract val dialogsCsv: RegularFileProperty
 
+  /**
+   * The server's conversation catalog, `townsfolk/dialogue.yml`.
+   *
+   * Optional so the dialog half of this task stands on its own, but in practice always set: the two
+   * checks answer the same question - does the client's translation file still agree with what the
+   * server thinks it can say - against two catalogs that happen to be separate files.
+   */
+  @get:InputFile
+  @get:Optional
+  abstract val conversationYml: RegularFileProperty
+
   /** If true, add TODO stubs for missing keys. If false, only report drift and fail the build on any. */
   @get:Input
   abstract val fix: Property<Boolean>
@@ -49,6 +61,10 @@ abstract class DialogDbSyncTask : DefaultTask() {
   )
 
   private data class DialogsFile(val dialogs: List<DialogDto> = emptyList())
+
+  private data class HistoryLineDto(val variants: Int = 1, val slots: List<String> = emptyList())
+
+  private data class ConversationFile(val events: Map<String, HistoryLineDto> = emptyMap())
 
   @TaskAction
   fun run() {
@@ -96,6 +112,8 @@ abstract class DialogDbSyncTask : DefaultTask() {
       .filter { CATALOG_KEY_PATTERN.matches(it) && it !in knownKeys }
       .forEach { problems += "dialogs.csv: '$it' has no corresponding entry in dialogs.yml (orphaned row)" }
 
+    problems += conversationProblems(mapper, csv)
+
     if (shouldFix && csvDirty) {
       dialogsCsv.get().asFile.writeText(csv.render())
     }
@@ -107,6 +125,48 @@ abstract class DialogDbSyncTask : DefaultTask() {
           "\nRun './gradlew syncDialogDb' to stub missing keys automatically."
       )
     }
+  }
+
+  /**
+   * The history phrasings, which are keyed by event-kind *name* rather than by a number.
+   *
+   * Not the same check as the one above, in one way that matters: a phrasing is allowed to ignore a
+   * slot its kind offers - not every sentence about a battle wants to name the year - so only the
+   * reverse direction is an error. Using a slot the kind cannot supply renders a literal brace at the
+   * player, in whichever locale and on whichever seed happens to hit it.
+   */
+  private fun conversationProblems(mapper: ObjectMapper, csv: LocalizationCsv): List<String> {
+    if (!conversationYml.isPresent) {
+      return emptyList()
+    }
+
+    val events = mapper.readValue(conversationYml.get().asFile, ConversationFile::class.java).events
+    val problems = mutableListOf<String>()
+    val expected = HashSet<String>()
+
+    for ((kind, line) in events) {
+      val keys = listOf("HISTORY_${kind}_ASK") + (1..line.variants).map { "HISTORY_${kind}_$it" }
+      expected += keys
+
+      for (key in keys) {
+        val text = csv.get(key)
+        if (text.isNullOrBlank()) {
+          problems += "dialogs.csv: '$key' is missing, so nobody can mention a $kind"
+          continue
+        }
+
+        val used = PLACEHOLDER_PATTERN.findAll(text).map { it.groupValues[1] }.toSet()
+        (used - line.slots.toSet()).forEach {
+          problems += "dialogs.csv: '$key' uses {$it}, which a $kind event cannot supply"
+        }
+      }
+    }
+
+    csv.keys()
+      .filter { HISTORY_KEY_PATTERN.matches(it) && it !in expected }
+      .forEach { problems += "dialogs.csv: '$it' matches no event kind or variant in dialogue.yml (orphaned row)" }
+
+    return problems
   }
 
   private fun stubText(dialog: DialogDto): String {
@@ -121,6 +181,9 @@ abstract class DialogDbSyncTask : DefaultTask() {
   companion object {
     /** A translation key owned by a `dialogs.yml` entry, e.g. `DIALOG_1_TEXT`. */
     private val CATALOG_KEY_PATTERN = Regex("""^DIALOG_\d+_(TEXT|TITLE)$""")
+
+    /** A translation key owned by a `dialogue.yml` entry, e.g. `HISTORY_ERUPTION_1`. */
+    private val HISTORY_KEY_PATTERN = Regex("""^HISTORY_[A-Z_]+_(ASK|\d+)$""")
 
     /** Matches Godot's `String.format` placeholders, e.g. `{masterName}`. */
     private val PLACEHOLDER_PATTERN = Regex("""\{(\w+)}""")
