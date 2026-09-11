@@ -80,6 +80,12 @@ func request_collect(picker: PropPicker) -> void:
 	MovementPilot.get_instance().collect(picker)
 
 
+## Walks up to [param target] and interacts with it. Supersedes any pending goal itself, so clicking a second
+## thing simply retargets.
+func request_interact(target: Node3D, entity_id: int) -> void:
+	MovementPilot.get_instance().interact(target, entity_id)
+
+
 ## Abandons whatever the pilot was walking towards. Named for what it does rather than for what asks
 ## for it, because a journey and a walk to a prop end the same way and through the same call.
 func cancel_steering() -> void:

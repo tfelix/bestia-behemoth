@@ -81,6 +81,12 @@ func collect(picker: PropPicker) -> void:
 	_start(CollectGoal.new(picker))
 
 
+## Interacts with [param target], walking to it first if it is out of reach. [param entity_id] is the live
+## server id of the thing, which the node itself does not always carry.
+func interact(target: Node3D, entity_id: int) -> void:
+	_start(InteractGoal.new(target, entity_id))
+
+
 ## Stops steering. Safe to call when idle, which is what lets every manual order call it without
 ## asking first.
 ##
