@@ -1,6 +1,7 @@
-[gd_resource type="Resource" script_class="ItemResource" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="ItemResource" load_steps=3 format=3]
 
-[ext_resource type="Script" path="res://Game/Item/item_resource.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://bn4gvq3ayku4r" path="res://Game/Item/item_resource.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://cgbevjgarenig" path="res://Game/Item/UseScripts/structure_kit_use.gd" id="2_kit_use"]
 
 [resource]
 script = ExtResource("1_script")
@@ -8,3 +9,4 @@ item_id = 26
 name_key = "WORKBENCH_KIT"
 description_key = "WORKBENCH_KIT_DESC"
 weight = 800
+item_script = ExtResource("2_kit_use")

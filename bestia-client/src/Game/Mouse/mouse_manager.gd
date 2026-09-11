@@ -61,6 +61,9 @@ func _process(delta: float) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel"):
 		current_state.handle_cancel(self)
+		return
+
+	current_state.handle_input(self, event)
 
 
 func change_state(new_state: MouseState) -> void:
@@ -87,12 +90,17 @@ func enter_default() -> void:
 	change_state(MouseStateDefault.new())
 
 
-func enter_item_targeting(item: ItemResource, item_use: ItemUse, cursor_texture: Texture2D = null) -> void:
+## [param ghost] is a preview node to hold under the cursor, for an item that is placed rather than simply
+## aimed. The state takes ownership of it, snaps it to tile centres, and lets the player turn it.
+func enter_item_targeting(
+	item: ItemResource, item_use: ItemUse, cursor_texture: Texture2D = null, ghost: Node3D = null
+) -> void:
 	print_debug("MouseManager.enter_item_targeting: %s" % [item.name])
 	var state := MouseStateItemTargeting.new()
 	state.item = item
 	state.item_use = item_use
 	state.cursor_texture = cursor_texture
+	state.ghost = ghost
 	change_state(state)
 
 
@@ -108,6 +116,13 @@ func enter_skill_targeting(skill: AttackResource, skill_level: int, indicator_sc
 
 func is_targeting() -> bool:
 	return current_state is MouseStateItemTargeting or current_state is MouseStateSkillTargeting
+
+
+## Whether the player is holding a placement ghost. The camera skips its wheel zoom while this is true, so
+## that the wheel turns what is being placed - asking here rather than racing for the event, the way the
+## right-click handling already does.
+func is_placing() -> bool:
+	return current_state is MouseStateItemTargeting and current_state.has_ghost()
 
 
 ## Called by camera_spring_arm.gd when RMB is pressed while a targeting mode
