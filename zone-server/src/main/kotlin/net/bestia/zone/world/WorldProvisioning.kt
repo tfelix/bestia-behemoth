@@ -7,6 +7,7 @@ import net.bestia.worldgen.store.PipelineVersion
 import net.bestia.zone.ecs.script.ScriptComponent
 import net.bestia.zone.entity.PersistedEntityRepository
 import net.bestia.zone.cartography.chart.MapChartRepository
+import net.bestia.zone.ai.rumour.RumourRepository
 import net.bestia.zone.economy.SettlementLedgerRepository
 import net.bestia.zone.entity.deleteAllByKind
 import net.bestia.zone.world.prop.WorldObjectDivergenceRepository
@@ -31,6 +32,7 @@ class WorldProvisioning(
   private val mapChartRepository: MapChartRepository,
   private val worldObjectDivergenceRepository: WorldObjectDivergenceRepository,
   private val settlementLedgerRepository: SettlementLedgerRepository,
+  private val rumourRepository: RumourRepository,
   private val config: WorldGenConfig
 ) {
 
@@ -97,6 +99,10 @@ class WorldProvisioning(
     // Settlement indices are dense and re-used, so a surviving ledger would not be orphaned - it would
     // be applied to a different town. The version columns would refuse it, so this is the tidy half.
     settlementLedgerRepository.deleteAll()
+    // News is attached to a settlement index, and those are dense and re-used. The version columns would
+    // refuse a survivor, so this is the tidy half - but a town talking about a battle outside a village
+    // the new world never placed is what it would look like without both.
+    rumourRepository.deleteAll()
     persistedEntityRepository.deleteAllByKind(ScriptComponent.KIND)
 
     // Before the insert, not after the method returns. The name is uniquely indexed and Hibernate is free to
