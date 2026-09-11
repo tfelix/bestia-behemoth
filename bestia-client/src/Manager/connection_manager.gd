@@ -71,6 +71,7 @@ var UnequipItemCMSG = load("res://Bnet/Message/Inventory/UnequipItemCMSG.cs")
 var RequestLogoutCMSG = load("res://Bnet/Message/System/RequestLogoutCMSG.cs")
 var RespawnCMSG = load("res://Bnet/Message/System/RespawnCMSG.cs")
 var CollectPropCMSG = load("res://Bnet/Message/Map/CollectPropCMSG.cs")
+var InteractEntityCMSG = load("res://Bnet/Message/Map/InteractEntityCMSG.cs")
 var CraftItemCMSG = load("res://Bnet/Message/Crafting/CraftItemCMSG.cs")
 var CancelCraftCMSG = load("res://Bnet/Message/Crafting/CancelCraftCMSG.cs")
 var RequestTradeCMSG = load("res://Bnet/Message/Trade/RequestTradeCMSG.cs")
@@ -394,6 +395,18 @@ func collect_prop(entity_id: int) -> void:
 	assert(is_ready_to_send())
 	var msg = CollectPropCMSG.new()
 	msg.EntityId = entity_id
+	_socket.SendMessage(msg)
+
+
+## Clicking on something in the world. What it means is decided by the server from what the target is, so
+## this one call covers starting to build, stopping again, and whatever a prop offers later.
+##
+## [param args] carries anything the interaction needed the player to choose first - see ScriptArgKeys.
+func interact_entity(entity_id: int, args = null) -> void:
+	assert(is_ready_to_send())
+	var msg = InteractEntityCMSG.new()
+	msg.EntityId = entity_id
+	msg.Args = args
 	_socket.SendMessage(msg)
 
 

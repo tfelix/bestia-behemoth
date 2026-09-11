@@ -22,3 +22,9 @@ dialogs:
     identifier: EXAMPLE_NPC_GREETING
     type: CONFIRM
     args: []
+
+  # A stand-in until a workbench has a crafting window of its own to open.
+  - id: 3
+    identifier: WORKBENCH_PLACEHOLDER
+    type: CONFIRM
+    args: []

@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package bnet;
+
+import "messages/system/script_args.proto";
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "InteractEntityCMSGProto";
+
+/**
+ * "I clicked on that."
+ *
+ * The general form of an interaction with something standing in the world, as opposed to the specific ones
+ * either side of it: `AttackEntityCMSG` says how, and `CollectPropCMSG` says what for. This says neither -
+ * what a click means is decided by **what the target is**, server-side, so a new interactable kind costs a
+ * branch in one handler rather than a message of its own.
+ *
+ * ### Why the MAP block
+ *
+ * Same reason `CollectPropCMSG` is here: the id came off something the client learned about from the world,
+ * and putting it in the ENTITY block would invite the next reader to route it through `EntityManager`.
+ */
+message InteractEntityCMSG {
+  /**
+   * Live ECS id. Fixed rather than varint, since a snowflake would spend nine bytes as one.
+   *
+   * Ephemeral, like every entity id a client holds: a stale one names nothing and is refused.
+   */
+  fixed64 entity_id = 1;
+
+  /** Whatever the interaction needed the player to choose first. Empty for a plain click. */
+  ScriptArgs args = 2;
+}

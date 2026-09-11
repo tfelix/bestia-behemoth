@@ -11,7 +11,8 @@ package net.bestia.zone.dialog
  */
 enum class DialogId(val id: Int) {
   MASTER_INTRO(1),
-  EXAMPLE_NPC_GREETING(2);
+  EXAMPLE_NPC_GREETING(2),
+  WORKBENCH_PLACEHOLDER(3);
 
   companion object {
     private val byId = entries.associateBy { it.id }

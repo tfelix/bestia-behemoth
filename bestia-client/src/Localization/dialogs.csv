@@ -23,3 +23,5 @@ When you open your Skills window. The first entry there is [b]Basic Skill[/b].
 [/table]
 
 Every level you gain is one point to put into the skill tree."
+DIALOG_3_TITLE,Workbench
+DIALOG_3_TEXT,"A sturdy workbench, freshly raised. There is nothing to make here yet."
