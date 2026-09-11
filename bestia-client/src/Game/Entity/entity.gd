@@ -13,6 +13,7 @@ class_name Entity extends Node3D
 
 var BestiaModelScn = preload("res://Game/Entity/Visual/BestiaVisual/BestiaVisual.tscn")
 var MasterModelScn = preload("res://Game/Entity/Visual/MasterVisual/MasterVisual.tscn")
+var StructureVisualScn = preload("res://Game/Entity/Visual/StructureVisual/StructureVisual.tscn")
 var Camera = preload("res://Game/SpringArmCamera/SpringArmCamera.tscn")
 
 var entity_id: int = 0
@@ -297,6 +298,10 @@ func _visual_scene_for(msg: VisualComponentSMSG) -> PackedScene:
 				printerr("Entity %s: no item %s in the ItemDB" % [entity_id, msg.VisualId])
 				return null
 			return item_resource.get_item_visual()
+		VisualKind.STRUCTURE:
+			# One scene for every structure, unlike the two above: the kind picks a mesh inside it rather
+			# than a scene here, because the art comes from PropAppearance rather than a per-kind .tscn.
+			return StructureVisualScn
 		VisualKind.EFFECT:
 			var effect_resource = EffectDB.get_instance().get_effect(msg.VisualId)
 			if effect_resource == null or effect_resource.effect_visual == null:

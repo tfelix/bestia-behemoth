@@ -14,11 +14,23 @@ enum class VisualKind {
   ITEM,
 
   /** Spell and ground effects. Short-lived, never persisted. */
-  EFFECT;
+  EFFECT,
+
+  /**
+   * Something built, drawn from the prop catalogue: [EntityVisual.id] is a
+   * [net.bestia.zone.world.prop.StaticEntityKind] ordinal.
+   *
+   * The odd one out, because a finished structure normally reaches a client on the per-chunk static batch
+   * rather than as an entity at all. A construction site cannot: its progress and health change while
+   * somebody watches, and `ZoneEngine` keeps anything carrying `StaticSync` out of the entity channel
+   * entirely. So a site is an ordinary entity that happens to be drawn from the prop catalogue.
+   */
+  STRUCTURE;
 
   fun toBnet(): VisualComponentProto.VisualKind = when (this) {
     BESTIA -> VisualComponentProto.VisualKind.BESTIA
     ITEM -> VisualComponentProto.VisualKind.ITEM
     EFFECT -> VisualComponentProto.VisualKind.EFFECT
+    STRUCTURE -> VisualComponentProto.VisualKind.STRUCTURE
   }
 }

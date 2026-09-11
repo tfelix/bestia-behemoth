@@ -111,6 +111,24 @@ namespace BestiaBehemothClient.Game.World
       /// <summary>Colour of the placeholder box. Unused once this kind has a scene.</summary>
       public Color PlaceholderColour { get; init; }
 
+      /// <summary>
+      /// How tall a prop of this kind stands, in metres, for the kinds that are also drawn as ordinary
+      /// entities.
+      /// </summary>
+      /// <remarks>
+      /// <c>prop-kinds.yml</c>'s collider height, mirrored. Only the kinds a player builds need it: a
+      /// generated prop arrives on the static batch, which carries a measured per-entity height, but a
+      /// construction site arrives on the entity channel, where a <c>VisualComponent</c> is a kind and an id
+      /// and nothing else.
+      ///
+      /// <para>
+      /// Deliberately not <see cref="NaturalHeight"/>, which means something else: that one is the size the
+      /// art happens to be drawn at, and <see cref="StaticEntityRenderer"/> divides the wire height by it to
+      /// get a scale. Setting it on a placeholder kind would rescale every finished station in the world.
+      /// </para>
+      /// </remarks>
+      public float StructureHeight { get; init; }
+
       /// <summary>Whether props of this kind get a click target.</summary>
       /// <remarks>
       /// The one field here that mirrors a <i>server</i> rule rather than stating a client one. The authority
@@ -226,9 +244,11 @@ namespace BestiaBehemothClient.Game.World
       // Not Collectible: a station is taken down by damaging it, not picked up by a passer-by, and
       // prop-kinds.yml gives none of them a `collect` block - so offering the click would only earn a
       // COLLECT_NOT_COLLECTIBLE.
-      new Kind { PlaceholderWidth = 1.2f, PlaceholderColour = new Color(0.55f, 0.40f, 0.24f) }, // WORKBENCH
-      new Kind { PlaceholderWidth = 1.4f, PlaceholderColour = new Color(0.42f, 0.36f, 0.34f) }, // FURNACE
-      new Kind { PlaceholderWidth = 1.8f, PlaceholderColour = new Color(0.36f, 0.30f, 0.30f) }, // FORGE
+      // StructureHeight, unlike every row above, because these are the kinds a player builds - so each is
+      // also drawn as an entity while it is still a construction site, where no wire height is sent.
+      new Kind { PlaceholderWidth = 1.2f, PlaceholderColour = new Color(0.55f, 0.40f, 0.24f), StructureHeight = 1f }, // WORKBENCH
+      new Kind { PlaceholderWidth = 1.4f, PlaceholderColour = new Color(0.42f, 0.36f, 0.34f), StructureHeight = 2f }, // FURNACE
+      new Kind { PlaceholderWidth = 1.8f, PlaceholderColour = new Color(0.36f, 0.30f, 0.30f), StructureHeight = 2f }, // FORGE
 
       // The ground cover: a herb, a shrub and a reed, each with its blighted twin. Collectible - every one of
       // them has a `collect` block in prop-kinds.yml - so all six get a click target.

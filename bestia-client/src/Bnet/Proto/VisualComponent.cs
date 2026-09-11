@@ -26,10 +26,10 @@ namespace Bnet {
           string.Concat(
             "CiltZXNzYWdlcy9jb21wb25lbnQvdmlzdWFsX2NvbXBvbmVudC5wcm90bxIE",
             "Ym5ldCJQCg9WaXN1YWxDb21wb25lbnQSEQoJZW50aXR5X2lkGAEgASgGEh4K",
-            "BGtpbmQYAiABKA4yEC5ibmV0LlZpc3VhbEtpbmQSCgoCaWQYAyABKAQqLgoK",
-            "VmlzdWFsS2luZBIKCgZCRVNUSUEQABIICgRJVEVNEAESCgoGRUZGRUNUEAJC",
-            "LQoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQhRWaXN1YWxDb21wb25lbnRQcm90",
-            "b2IGcHJvdG8z"));
+            "BGtpbmQYAiABKA4yEC5ibmV0LlZpc3VhbEtpbmQSCgoCaWQYAyABKAQqPQoK",
+            "VmlzdWFsS2luZBIKCgZCRVNUSUEQABIICgRJVEVNEAESCgoGRUZGRUNUEAIS",
+            "DQoJU1RSVUNUVVJFEANCLQoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQhRWaXN1",
+            "YWxDb21wb25lbnRQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.VisualKind), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -49,6 +49,10 @@ namespace Bnet {
     [pbr::OriginalName("BESTIA")] Bestia = 0,
     [pbr::OriginalName("ITEM")] Item = 1,
     [pbr::OriginalName("EFFECT")] Effect = 2,
+    /// <summary>
+    /// `id` is a `StaticEntityKind` ordinal - the same value a client already dispatches a prop mesh on.
+    /// </summary>
+    [pbr::OriginalName("STRUCTURE")] Structure = 3,
   }
 
   #endregion

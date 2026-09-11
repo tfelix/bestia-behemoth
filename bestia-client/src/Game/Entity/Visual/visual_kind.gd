@@ -6,3 +6,6 @@ class_name VisualKind
 const BESTIA := 0
 const ITEM := 1
 const EFFECT := 2
+
+## Id is a StaticEntityKind ordinal, resolved through PropAppearance rather than a client DB.
+const STRUCTURE := 3
