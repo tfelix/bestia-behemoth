@@ -538,6 +538,14 @@ func clear_casting() -> void:
 		visual.clear_casting()
 
 
+## Progress on a construction site. Its removal - finished, or knocked down - arrives the same way, and
+## needs nothing here: the entity is destroyed either way, so the visual goes with it.
+func update_construction(msg: ConstructionComponentSMSG) -> void:
+	var visual = _get_visual_for_method("update_construction")
+	if visual != null:
+		visual.update_construction(msg)
+
+
 ## Movement clicks are suppressed while this is true - see ConnectionManager.move_to.
 func is_casting() -> bool:
 	return _casting

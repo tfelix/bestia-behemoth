@@ -186,6 +186,10 @@ func _on_entity_message_received(msg: EntitySMSG) -> void:
 			entity.clear_casting()
 		else:
 			entity.update_casting(msg)
+	elif msg is ConstructionComponentSMSG:
+		# No branch on Removed, unlike the cast above: a site that finishes or is destroyed is destroyed as an
+		# entity too, so VanishEntitySMSG is what ends it.
+		entity.update_construction(msg)
 	elif msg is BuffListSMSG:
 		entity.update_effects(msg)
 	elif msg is DamageEntitySMSG:

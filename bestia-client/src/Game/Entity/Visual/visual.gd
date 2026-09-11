@@ -39,6 +39,11 @@ func clear_casting() -> void:
 	pass
 
 
+## Shows how far along a construction site is. Only StructureVisual does anything with this.
+func update_construction(_msg: ConstructionComponentSMSG) -> void:
+	pass
+
+
 func set_selected(_selected: bool) -> void:
 	pass
 

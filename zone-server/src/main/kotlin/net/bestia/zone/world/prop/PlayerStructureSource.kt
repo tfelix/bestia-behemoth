@@ -31,8 +31,13 @@ class PlayerStructureSource(
     StaticEntityKind.FORGE
   )
 
+  /**
+   * Only what is actually standing. A structure still being built is an ordinary entity instead - see
+   * [net.bestia.zone.ecs.construction.ConstructionSite] - and emitting it here as well would leave a finished
+   * workbench inside its own scaffolding.
+   */
   override fun sitesIn(chunk: ChunkPos): List<WorldObjectSite> =
-    structures.`in`(chunk.x, chunk.y).map { siteOf(it) }
+    structures.`in`(chunk.x, chunk.y).filterNot { it.isUnderConstruction }.map { siteOf(it) }
 
   /**
    * One structure row as a site.

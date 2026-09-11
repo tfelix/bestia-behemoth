@@ -11,8 +11,18 @@ data class StructureEntry(
   val kind: StaticEntityKind,
   val ownerMasterId: Long,
   val position: Vec3L,
-  val yaw: Float
-)
+  val yaw: Float,
+
+  /** See [PlayerStructure.totalBuildSeconds]: 0 for something already standing. */
+  val totalBuildSeconds: Float = 0f,
+  val remainingBuildSeconds: Float = 0f
+) {
+
+  val isUnderConstruction: Boolean
+    get() {
+      return totalBuildSeconds > 0f
+    }
+}
 
 /**
  * Which structures players have built, and where.
@@ -45,6 +55,9 @@ class PlayerStructureRegistry(
 
   private val byId = HashMap<Long, StructureEntry>()
 
+  /** Which column each entry was indexed under, so an update can find its list without scanning them all. */
+  private val columnOf = HashMap<Long, Long>()
+
   val size get() = byId.size
 
   fun `in`(chunkX: Int, chunkY: Int): List<StructureEntry> = byColumn[pack(chunkX, chunkY)] ?: emptyList()
@@ -63,7 +76,10 @@ class PlayerStructureRegistry(
     position: Vec3L,
     yaw: Float,
     chunkX: Int,
-    chunkY: Int
+    chunkY: Int,
+
+    /** Non-zero to record a construction site rather than a finished structure. */
+    buildSeconds: Float = 0f
   ): StructureEntry {
     val saved = repository.save(
       PlayerStructure(
@@ -74,14 +90,55 @@ class PlayerStructureRegistry(
         z = position.z,
         yaw = yaw,
         chunkX = chunkX,
-        chunkY = chunkY
+        chunkY = chunkY,
+        totalBuildSeconds = buildSeconds,
+        remainingBuildSeconds = buildSeconds
       )
     )
 
-    val entry = StructureEntry(saved.id, kind, ownerMasterId, position, yaw)
+    val entry = StructureEntry(saved.id, kind, ownerMasterId, position, yaw, buildSeconds, buildSeconds)
     index(chunkX, chunkY, entry)
 
     return entry
+  }
+
+  /**
+   * Records how much work a site still owes, so a restart resumes rather than restarts it.
+   *
+   * Called on a cadence rather than per tick - see [ConstructionSystem]. The in-memory entry is replaced
+   * synchronously because [PlayerStructureSource] reads it in the same tick a site may finish in.
+   */
+  fun updateProgress(structureId: Long, remainingSeconds: Float) {
+    val current = byId[structureId] ?: return
+    reindex(current.copy(remainingBuildSeconds = remainingSeconds))
+
+    asyncJobExecutor.submit(structureId) {
+      repository.findById(structureId).ifPresent { row ->
+        row.remainingBuildSeconds = remainingSeconds
+        repository.save(row)
+      }
+    }
+  }
+
+  /** Turns a site into a standing structure. Idempotent, and a no-op for one that was never a site. */
+  fun finish(structureId: Long) {
+    val current = byId[structureId] ?: return
+    if (!current.isUnderConstruction) return
+
+    reindex(current.copy(totalBuildSeconds = 0f, remainingBuildSeconds = 0f))
+
+    asyncJobExecutor.submit(structureId) {
+      repository.findById(structureId).ifPresent { row ->
+        row.totalBuildSeconds = 0f
+        row.remainingBuildSeconds = 0f
+        repository.save(row)
+      }
+    }
+  }
+
+  /** Every site still owing work, for the boot path that puts them back into the world. */
+  fun underConstruction(): List<StructureEntry> {
+    return byId.values.filter { it.isUnderConstruction }
   }
 
   /**
@@ -93,6 +150,7 @@ class PlayerStructureRegistry(
     byColumn[column]?.removeIf { it.id == structureId }
     if (byColumn[column]?.isEmpty() == true) byColumn.remove(column)
 
+    columnOf.remove(structureId)
     if (byId.remove(structureId) == null) return
 
     asyncJobExecutor.submit(structureId) { repository.deleteById(structureId) }
@@ -101,16 +159,29 @@ class PlayerStructureRegistry(
   /** Boot-time only, before the tick loop starts - see the class note. */
   fun loadAll() {
     repository.findAll().forEach { row ->
-      val entry = StructureEntry(row.id, row.kind, row.ownerMasterId, Vec3L(row.x, row.y, row.z), row.yaw)
+      val entry = StructureEntry(
+        row.id, row.kind, row.ownerMasterId, Vec3L(row.x, row.y, row.z), row.yaw,
+        row.totalBuildSeconds, row.remainingBuildSeconds
+      )
       index(row.chunkX, row.chunkY, entry)
     }
 
     LOG.info { "Loaded ${byId.size} player structure(s) across ${byColumn.size} chunk column(s)" }
   }
 
-  private fun index(chunkX: Int, chunkY: Int, entry: StructureEntry) {
-    byColumn.getOrPut(pack(chunkX, chunkY)) { mutableListOf() }.add(entry)
+  /** Swaps an entry for an updated copy of itself, in both maps, leaving its column unchanged. */
+  private fun reindex(entry: StructureEntry) {
     byId[entry.id] = entry
+
+    val column = columnOf[entry.id] ?: return
+    byColumn[column]?.replaceAll { if (it.id == entry.id) entry else it }
+  }
+
+  private fun index(chunkX: Int, chunkY: Int, entry: StructureEntry) {
+    val column = pack(chunkX, chunkY)
+    byColumn.getOrPut(column) { mutableListOf() }.add(entry)
+    byId[entry.id] = entry
+    columnOf[entry.id] = column
   }
 
   private companion object {

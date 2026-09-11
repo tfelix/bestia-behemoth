@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "ConstructionComponentSmsgProto";
+
+/**
+ * How far along something being built is, broadcast to everyone in range so the client can fade the finished
+ * art in from the ground up.
+ *
+ * ### Why this is not `CastingComponentSMSG`
+ *
+ * A craft reuses the cast message precisely because a craft and a cast are the same thing to a player: a bar
+ * that fills on its own and then resolves. Construction is not. It advances only while somebody is working on
+ * it, so a client that interpolated `remaining_seconds` the way it does for a cast would run the bar on to
+ * completion every time the builder walked away.
+ *
+ * `active` is what that costs: one bit saying whether to keep animating between corrections. Everything else
+ * here is the same shape as a cast bar, and the removal convention is identical - the component going away
+ * re-sends this with `removed = true`, which covers a site finished and a site destroyed alike, because
+ * visually both are just gone.
+ */
+message ConstructionComponentSMSG {
+  fixed64 entity_id = 1;
+  float remaining_seconds = 2;
+  float total_seconds = 3;
+
+  /** Whether anybody is working on it right now. False means the progress is holding where it is. */
+  bool active = 4;
+
+  bool removed = 5;
+}

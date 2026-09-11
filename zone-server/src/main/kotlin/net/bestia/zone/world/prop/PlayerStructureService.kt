@@ -3,6 +3,7 @@ package net.bestia.zone.world.prop
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.AoiLayer
 import net.bestia.zone.ecs.EntityAOIService
+import net.bestia.zone.ecs.construction.ConstructionSite
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.prop.StaticVisual
 import net.bestia.zone.geometry.Vec3L
@@ -24,6 +25,7 @@ class PlayerStructureService(
   private val structures: PlayerStructureRegistry,
   private val residency: WorldObjectResidencyService,
   private val source: PlayerStructureSource,
+  private val sites: ConstructionSiteSpawner,
   private val aoi: EntityAOIService,
   private val worldService: WorldService
 ) {
@@ -77,6 +79,61 @@ class PlayerStructureService(
     LOG.info { "Master $ownerMasterId placed a $kind at $position (structure ${entry.id})" }
 
     return entry
+  }
+
+  /**
+   * The nearest site of [kind] being built within [RANGE_TILES] of [around], or null.
+   *
+   * The counterpart to [stationNear], which cannot see one: a site is an ordinary entity in the `DYNAMIC`
+   * layer with no `StaticVisual`, so without this a player could stack a second workbench on top of the one
+   * they are halfway through building.
+   */
+  fun siteNear(world: World, around: Vec3L, kind: StaticEntityKind): EntityId? {
+    return aoi.queryEntitiesInCube(around, RANGE_TILES * 2, setOf(AoiLayer.DYNAMIC))
+      .firstOrNull { world.get(it, ConstructionSite::class)?.kind == kind }
+  }
+
+  /**
+   * Starts a structure rather than finishing one: records the row unbuilt and puts a site into the world.
+   *
+   * The mirror of [place] for anything that has to be *worked on* - a kit used out of the inventory - where
+   * that one is for a skill that raises a station outright. Both refuse ground that already holds one of the
+   * same kind, and this also refuses ground that holds a half-built one.
+   *
+   * Unlike [place] there is no residency call: a site is an ordinary entity, so nothing has to be waiting on
+   * that column for it to appear.
+   *
+   * @return the new site's entity id, or null when the ground is taken
+   */
+  fun beginConstruction(
+    world: World,
+    kind: StaticEntityKind,
+    ownerMasterId: Long,
+    position: Vec3L,
+    yaw: Float,
+    buildSeconds: Float
+  ): EntityId? {
+    if (stationNear(world, position, kind) != null || siteNear(world, position, kind) != null) {
+      LOG.debug { "Master $ownerMasterId tried to start a $kind next to one at $position" }
+      return null
+    }
+
+    val chunkSize = worldService.config.chunkSize.toLong()
+    val entry = structures.place(
+      kind = kind,
+      ownerMasterId = ownerMasterId,
+      position = position,
+      yaw = yaw,
+      chunkX = Math.floorDiv(position.x, chunkSize).toInt(),
+      chunkY = Math.floorDiv(position.y, chunkSize).toInt(),
+      buildSeconds = buildSeconds
+    )
+
+    val entityId = sites.spawn(world, entry)
+
+    LOG.info { "Master $ownerMasterId started a $kind at $position (structure ${entry.id})" }
+
+    return entityId
   }
 
   companion object {

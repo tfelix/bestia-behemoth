@@ -13,6 +13,8 @@ import jakarta.persistence.Table
 /**
  * One thing a player put up: a workbench, a furnace, a forge.
  *
+ * Also the record of one still being built: see [totalBuildSeconds].
+ *
  * A row rather than in-memory config, which is the opposite of everything else in this package -
  * `prop-kinds.yml` is configuration and `WorldObjectDivergence` records a *deviation* from what the
  * generator would produce. This is neither: nothing generated it, so there is nothing for it to deviate
@@ -60,7 +62,21 @@ class PlayerStructure(
   val chunkX: Int,
 
   @Column(name = "chunk_y", nullable = false)
-  val chunkY: Int
+  val chunkY: Int,
+
+  /**
+   * How long this structure takes to build in total, or **0 once it is standing**.
+   *
+   * Counting down rather than up, and zero meaning *finished*, because `ddl-auto: update` adds a column to
+   * a live table with its type's default: every structure that existed before construction did must read as
+   * complete, and an ascending "seconds worked" would read every one of them as untouched.
+   */
+  @Column(name = "total_build_seconds", nullable = false)
+  var totalBuildSeconds: Float = 0f,
+
+  /** Work still owed. Only meaningful while [totalBuildSeconds] is non-zero. */
+  @Column(name = "remaining_build_seconds", nullable = false)
+  var remainingBuildSeconds: Float = 0f
 ) {
 
   @Id
