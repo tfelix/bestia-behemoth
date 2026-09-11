@@ -10,7 +10,10 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
   {
     Bestia = 0,
     Item = 1,
-    Effect = 2
+    Effect = 2,
+
+    /// <summary>Id is a <c>StaticEntityKind</c> ordinal, resolved through <c>PropAppearance</c>.</summary>
+    Structure = 3
   }
 
   /// <summary>
@@ -42,6 +45,7 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
         global::Bnet.VisualKind.Bestia => VisualKind.Bestia,
         global::Bnet.VisualKind.Item => VisualKind.Item,
         global::Bnet.VisualKind.Effect => VisualKind.Effect,
+        global::Bnet.VisualKind.Structure => VisualKind.Structure,
         _ => VisualKind.Bestia
       };
     }

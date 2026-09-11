@@ -13,6 +13,9 @@ enum VisualKind {
   BESTIA = 0;
   ITEM = 1;
   EFFECT = 2;
+
+  // `id` is a `StaticEntityKind` ordinal - the same value a client already dispatches a prop mesh on.
+  STRUCTURE = 3;
 }
 
 /**
