@@ -54,9 +54,40 @@ class ConstructionSite(
   // does rather than a cast bar's. The accumulator itself is Countdown's.
   override val syncIntervalSeconds = RESYNC_INTERVAL
 
+  /** Worked seconds since the row was last written. See [isPersistDue]. */
+  private var sinceLastPersist = 0f
+
   init {
     require(totalSeconds > 0f) { "A construction site needs a positive totalSeconds, got $totalSeconds" }
   }
+
+  /**
+   * Puts [deltaTime] seconds of work in.
+   *
+   * Only ever called for a tick somebody actually worked, which is what makes both accumulators measure
+   * *effort* rather than elapsed time - a site nobody is building has nothing new to say and nothing new to
+   * record.
+   */
+  fun work(deltaTime: Float) {
+    countdown(deltaTime)
+    sinceLastPersist += deltaTime
+  }
+
+  /** Whether enough work has gone in to be worth a row write - see [ConstructionSystem]. */
+  val isPersistDue: Boolean
+    get() {
+      return sinceLastPersist >= PERSIST_INTERVAL
+    }
+
+  fun markPersisted() {
+    sinceLastPersist = 0f
+  }
+
+  /** How much of the work is done, 0 to 1. What the client fades the art in by. */
+  val progress: Float
+    get() {
+      return ((totalSeconds - remainingSeconds) / totalSeconds).coerceIn(0f, 1f)
+    }
 
   override fun toEntityMessage(entityId: Long, removed: Boolean): EntitySMSG {
     return ConstructionComponentSMSG(
@@ -69,13 +100,9 @@ class ConstructionSite(
   }
 
   // Everyone nearby sees the scaffolding, the same choice Casting and Crafting make about their bars.
-  override fun syncTargets(world: World, entityId: EntityId): SyncTargets = SyncTargets.PublicInRange
-
-  /** How much of the work is done, 0 to 1. What the client fades the art in by. */
-  val progress: Float
-    get() {
-      return ((totalSeconds - remainingSeconds) / totalSeconds).coerceIn(0f, 1f)
-    }
+  override fun syncTargets(world: World, entityId: EntityId): SyncTargets {
+    return SyncTargets.PublicInRange
+  }
 
   companion object {
     /**
@@ -88,5 +115,13 @@ class ConstructionSite(
     const val START_HP = 1
 
     private const val RESYNC_INTERVAL = 2f
+
+    /**
+     * Worked seconds between two row writes.
+     *
+     * A crash costs at most this much progress, against twenty JPA round trips a second per site if the row
+     * were written whenever the number changed.
+     */
+    private const val PERSIST_INTERVAL = 10f
   }
 }

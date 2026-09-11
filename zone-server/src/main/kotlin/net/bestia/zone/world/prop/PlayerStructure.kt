@@ -44,8 +44,9 @@ class PlayerStructure(
   @Column(name = "pos_y", nullable = false)
   val y: Long,
 
+  /** Settled when a construction site finishes - see [PlayerStructureRegistry.finish]. */
   @Column(name = "pos_z", nullable = false)
-  val z: Long,
+  var z: Long,
 
   /** Radians, so a forge can face the way its builder was facing rather than always north. */
   @Column(nullable = false)

@@ -120,15 +120,22 @@ class PlayerStructureRegistry(
     }
   }
 
-  /** Turns a site into a standing structure. Idempotent, and a no-op for one that was never a site. */
-  fun finish(structureId: Long) {
+  /**
+   * Turns a site into a standing structure. Idempotent, and a no-op for one that was never a site.
+   *
+   * [settledPosition] is where the site actually ended up, which is not always where it was placed: a site is
+   * an ordinary entity, so `ChunkStreamSystem.groundNewcomers` snaps the z the client guessed. Writing it back
+   * is what keeps the finished prop from standing at the guess.
+   */
+  fun finish(structureId: Long, settledPosition: Vec3L) {
     val current = byId[structureId] ?: return
     if (!current.isUnderConstruction) return
 
-    reindex(current.copy(totalBuildSeconds = 0f, remainingBuildSeconds = 0f))
+    reindex(current.copy(position = settledPosition, totalBuildSeconds = 0f, remainingBuildSeconds = 0f))
 
     asyncJobExecutor.submit(structureId) {
       repository.findById(structureId).ifPresent { row ->
+        row.z = settledPosition.z
         row.totalBuildSeconds = 0f
         row.remainingBuildSeconds = 0f
         repository.save(row)
