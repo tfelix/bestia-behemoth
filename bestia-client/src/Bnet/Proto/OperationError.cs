@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSqVCAoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSqtCAoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -49,8 +49,9 @@ namespace Bnet {
             "QU5DRUxMRUQQIRIVChFUUkFERV9XQUxLRURfQVdBWRAiEhAKDFRSQURFX0ZB",
             "SUxFRBAjEhwKGEJBU0lDX1NLSUxMX1RSQURFX0xPQ0tFRBAkEh4KGkNIQVRf",
             "Q09NTUFORF9OT19QRVJNSVNTSU9OECUSGAoUQ0hBVF9DT01NQU5EX1VOS05P",
-            "V04QJhIXChNDSEFUX0NPTU1BTkRfRkFJTEVEECdCLAoVbmV0LmJlc3RpYS5i",
-            "bmV0LnByb3RvQhNPcGVyYXRpb25FcnJvclByb3RvYgZwcm90bzM="));
+            "V04QJhIXChNDSEFUX0NPTU1BTkRfRkFJTEVEECcSFgoSQlVJTERfT1VUX09G",
+            "X1JBTkdFEChCLAoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQhNPcGVyYXRpb25F",
+            "cnJvclByb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -200,6 +201,12 @@ namespace Bnet {
     /// so this means the command itself is broken, and the stack trace is server-side.
     /// </summary>
     [pbr::OriginalName("CHAT_COMMAND_FAILED")] ChatCommandFailed = 39,
+    /// <summary>
+    /// Building. Only the reach, because it is the one refusal a player produces by playing: they walked off
+    /// mid-build, or clicked a site across the room. Everything else a site can refuse - an id that names
+    /// nothing, a target that is not a site - an honest client cannot send.
+    /// </summary>
+    [pbr::OriginalName("BUILD_OUT_OF_RANGE")] BuildOutOfRange = 40,
   }
 
   #endregion

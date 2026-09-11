@@ -116,6 +116,11 @@ enum OpError {
   // The command matched and then threw. Not reachable by typing: the grammar already rejected the bad forms,
   // so this means the command itself is broken, and the stack trace is server-side.
   CHAT_COMMAND_FAILED = 39;
+
+  // Building. Only the reach, because it is the one refusal a player produces by playing: they walked off
+  // mid-build, or clicked a site across the room. Everything else a site can refuse - an id that names
+  // nothing, a target that is not a site - an honest client cannot send.
+  BUILD_OUT_OF_RANGE = 40;
 }
 
 message OperationError {

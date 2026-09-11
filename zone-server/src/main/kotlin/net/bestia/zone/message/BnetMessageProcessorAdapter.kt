@@ -36,6 +36,7 @@ import net.bestia.zone.trade.RetractTradeItemCMSG
 import net.bestia.zone.trade.SetTradeLockCMSG
 import net.bestia.zone.socket.PingCMSG
 import net.bestia.zone.world.prop.collect.CollectPropCMSG
+import net.bestia.zone.world.prop.interact.InteractEntityCMSG
 import net.bestia.zone.world.stream.ChunkRequestCMSG
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
@@ -81,6 +82,7 @@ class BnetMessageProcessorAdapter(
       envelope.hasDeclinePartyInvite() -> DeclinePartyInviteCMSG.fromBnet(accountId, envelope.declinePartyInvite)
       envelope.hasChunkRequest() -> ChunkRequestCMSG.fromBnet(accountId, envelope.chunkRequest)
       envelope.hasCollectProp() -> CollectPropCMSG.fromBnet(accountId, envelope.collectProp)
+      envelope.hasInteractEntity() -> InteractEntityCMSG.fromBnet(accountId, envelope.interactEntity)
       envelope.hasCraftItem() -> CraftItemCMSG.fromBnet(accountId, envelope.craftItem)
       envelope.hasCancelCraft() -> CancelCraftCMSG(accountId)
       envelope.hasRequestTrade() -> RequestTradeCMSG.fromBnet(accountId, envelope.requestTrade)

@@ -44,3 +44,4 @@ MARK_NAME_PROMPT,Name this place
 MARK_DELETE_PROMPT,Remove the mark “%s”?
 MARK_DELETE_CONFIRM,Remove
 MARK_DELETE_KEEP,Keep
+ERROR_BUILD_OUT_OF_RANGE,You are too far away to work on that.
