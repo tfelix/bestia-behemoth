@@ -1,0 +1,119 @@
+# The mundane things townsfolk say, to stop a village reading like a library.
+#
+# `chance` is the entire boredom control: how often a speaker has anything mundane to offer at all. At
+# most one line reaches a conversation whatever the pool grows to, and it competes for a sampled root
+# slot, so raising this displaces the town's news rather than lengthening the list.
+#
+# ## The budget
+#
+# Roughly three lines per occupation plus a dozen shared ones. Worth writing down, because every line
+# here is a hand-written row a translator is later paid for in every language, and a flavour pool with
+# no ceiling is how a localisation bill quietly triples. Each line costs two rows in dialogs.csv - the
+# thing the player clicks and the answer - and `./gradlew checkDialogDb` fails if either is missing.
+#
+# ## Gates
+#
+# Every gate left out does not apply. Those present are ANDed, and the values inside one are ORed. A
+# line must be true of the person saying it: that is what keeps the pool from being filler, and it is
+# also why the pool can stay small - a farmer on the barley needs no variants, because it is only ever
+# offered to a farmer.
+#
+# Every occupation needs at least one line with no place or season gate on it, or it falls silent
+# wherever the conditions happen not to hold. SmallTalkCatalogue fails the boot otherwise.
+chance: 0.45
+
+lines:
+  # --- Guard ---------------------------------------------------------------------------------------
+  - key: TALK_SMALL_GUARD_WATCH
+    occupations: [guard]
+  - key: TALK_SMALL_GUARD_BOOTS
+    occupations: [guard]
+  - key: TALK_SMALL_GUARD_WALLS
+    occupations: [guard]
+    walled: true
+
+  # --- Priest --------------------------------------------------------------------------------------
+  - key: TALK_SMALL_PRIEST_ROOF
+    occupations: [priest]
+  - key: TALK_SMALL_PRIEST_QUIET
+    occupations: [priest]
+  - key: TALK_SMALL_PRIEST_STORM
+    occupations: [priest]
+    weather: [THUNDERSTORM, MANA_STORM]
+
+  # --- Innkeeper -----------------------------------------------------------------------------------
+  - key: TALK_SMALL_INNKEEPER_BREWING
+    occupations: [innkeeper]
+  - key: TALK_SMALL_INNKEEPER_SNORING
+    occupations: [innkeeper]
+  - key: TALK_SMALL_INNKEEPER_TRADE
+    occupations: [innkeeper]
+    minWealth: 0.6
+
+  # --- Farmer --------------------------------------------------------------------------------------
+  - key: TALK_SMALL_FARMER_BARLEY
+    occupations: [farmer]
+  - key: TALK_SMALL_FARMER_FENCE
+    occupations: [farmer]
+  - key: TALK_SMALL_FARMER_RAIN
+    occupations: [farmer]
+    weather: [RAIN, HEAVY_RAIN]
+
+  # --- Labourer ------------------------------------------------------------------------------------
+  - key: TALK_SMALL_LABOURER_BACK
+    occupations: [labourer]
+  - key: TALK_SMALL_LABOURER_STONE
+    occupations: [labourer]
+  - key: TALK_SMALL_LABOURER_WINTER
+    occupations: [labourer]
+    season: [WINTER]
+
+  # --- Beggar --------------------------------------------------------------------------------------
+  - key: TALK_SMALL_BEGGAR_CORNER
+    occupations: [beggar]
+  - key: TALK_SMALL_BEGGAR_DOGS
+    occupations: [beggar]
+  - key: TALK_SMALL_BEGGAR_RICH
+    occupations: [beggar]
+    minWealth: 0.6
+
+  # --- Child ---------------------------------------------------------------------------------------
+  - key: TALK_SMALL_CHILD_GAME
+    occupations: [child]
+  - key: TALK_SMALL_CHILD_LESSONS
+    occupations: [child]
+  - key: TALK_SMALL_CHILD_SNOW
+    occupations: [child]
+    weather: [SNOW]
+
+  # --- Anybody, where the land is like this --------------------------------------------------------
+  - key: TALK_SMALL_COAST_NETS
+    terrain: [COAST]
+  - key: TALK_SMALL_FELLS_PASS
+    terrain: [FELLS]
+  - key: TALK_SMALL_FOREST_WOLVES
+    terrain: [FOREST]
+  - key: TALK_SMALL_VALE_RIVER
+    terrain: [VALE]
+
+  # --- Anybody, this time of year ------------------------------------------------------------------
+  - key: TALK_SMALL_SPRING_MUD
+    season: [SPRING]
+  - key: TALK_SMALL_SUMMER_HEAT
+    season: [SUMMER]
+  - key: TALK_SMALL_FALL_STORES
+    season: [FALL]
+  - key: TALK_SMALL_WINTER_FIREWOOD
+    season: [WINTER]
+
+  # --- Anybody, about the town itself --------------------------------------------------------------
+  - key: TALK_SMALL_TOWN_WALLS
+    walled: true
+  - key: TALK_SMALL_TOWN_SACKED
+    sacked: true
+
+  # --- Anybody, at this point in a life ------------------------------------------------------------
+  - key: TALK_SMALL_ELDER_KNEES
+    minAge: 60
+  - key: TALK_SMALL_APPRENTICE_MASTER
+    kinship: [APPRENTICE]

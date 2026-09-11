@@ -130,3 +130,69 @@ HISTORY_SHRINE_RAISED_ASK,What is the stone circle?
 HISTORY_SHRINE_RAISED_1,"The {civ} raised it in {year}, to work at."
 HISTORY_RITE_PERFORMED_ASK,Do they still hold the rites?
 HISTORY_RITE_PERFORMED_1,"The {civ} kept the rite at {place} in {year}. They keep it still, when it matters."
+TALK_SMALL_GUARD_WATCH_ASK,Quiet shift?
+TALK_SMALL_GUARD_WATCH,"Quiet is the whole job. A shift you remember is a shift that went wrong."
+TALK_SMALL_GUARD_BOOTS_ASK,You look tired.
+TALK_SMALL_GUARD_BOOTS,"New boots. Everyone says they wear in. Nobody says how long that takes."
+TALK_SMALL_GUARD_WALLS_ASK,Do the walls still hold?
+TALK_SMALL_GUARD_WALLS,"They hold. Somebody's grandfather paid for them and I get to stand on them."
+TALK_SMALL_PRIEST_ROOF_ASK,How is the temple?
+TALK_SMALL_PRIEST_ROOF,"The roof leaks over the east aisle. We pray a little further west in wet weather."
+TALK_SMALL_PRIEST_QUIET_ASK,Busy morning?
+TALK_SMALL_PRIEST_QUIET,"Nobody has come in since dawn. That is either very good or very bad and I never learn which."
+TALK_SMALL_PRIEST_STORM_ASK,Is this weather an omen?
+TALK_SMALL_PRIEST_STORM,"Half the town will ask me that today. The honest answer is that it is weather."
+TALK_SMALL_INNKEEPER_BREWING_ASK,What is on today?
+TALK_SMALL_INNKEEPER_BREWING,"Small beer, and it is honest. The good barrel is not ready and I will not rush it."
+TALK_SMALL_INNKEEPER_SNORING_ASK,How are the rooms?
+TALK_SMALL_INNKEEPER_SNORING,"Full. One of them snores like a saw and the other four have all told me so."
+TALK_SMALL_INNKEEPER_TRADE_ASK,Business good?
+TALK_SMALL_INNKEEPER_TRADE,"Good enough that I turned two away last night. I am not used to saying that."
+TALK_SMALL_FARMER_BARLEY_ASK,How is the barley coming?
+TALK_SMALL_FARMER_BARLEY,"Slow. It always looks slow to me and then it is suddenly all at once."
+TALK_SMALL_FARMER_FENCE_ASK,Much to do?
+TALK_SMALL_FARMER_FENCE,"The north fence again. Something keeps going through it and I have never once seen what."
+TALK_SMALL_FARMER_RAIN_ASK,Good weather for it?
+TALK_SMALL_FARMER_RAIN,"This is the rain you want, if it stops. It is the not stopping that ruins you."
+TALK_SMALL_LABOURER_BACK_ASK,Long day?
+TALK_SMALL_LABOURER_BACK,"My back says so. My back has said so since I was twenty."
+TALK_SMALL_LABOURER_STONE_ASK,What are you hauling?
+TALK_SMALL_LABOURER_STONE,"Stone, up the hill, all of it. Whoever drew the plan never carried anything."
+TALK_SMALL_LABOURER_WINTER_ASK,Work in this cold?
+TALK_SMALL_LABOURER_WINTER,"Ground is frozen hard as iron. We dig anyway, just slower and for the same money."
+TALK_SMALL_BEGGAR_CORNER_ASK,Good spot?
+TALK_SMALL_BEGGAR_CORNER,"Best corner in town. Everyone walks past it and nobody looks at it. Suits me."
+TALK_SMALL_BEGGAR_DOGS_ASK,Anyone bother you?
+TALK_SMALL_BEGGAR_DOGS,"Only the dogs, and only because I feed them. My own fault entirely."
+TALK_SMALL_BEGGAR_RICH_ASK,Are people generous here?
+TALK_SMALL_BEGGAR_RICH,"There is money in this town. Some of it even comes down as far as me."
+TALK_SMALL_CHILD_GAME_ASK,What are you playing?
+TALK_SMALL_CHILD_GAME,"You have to get to the well without touching the ground. I am the best at it."
+TALK_SMALL_CHILD_LESSONS_ASK,Shouldn't you be somewhere?
+TALK_SMALL_CHILD_LESSONS,"Letters. I can do most of them. I am not going back until someone makes me."
+TALK_SMALL_CHILD_SNOW_ASK,Cold enough for you?
+TALK_SMALL_CHILD_SNOW,"It snowed! Nobody else is even excited. I do not understand grown people."
+TALK_SMALL_COAST_NETS_ASK,Do people fish here?
+TALK_SMALL_COAST_NETS,"Off the point, when the tide is right. Half the town claims to know when that is."
+TALK_SMALL_FELLS_PASS_ASK,Is the pass open?
+TALK_SMALL_FELLS_PASS,"It is, today. Ask again after the next weather and you may get a different answer."
+TALK_SMALL_FOREST_WOLVES_ASK,Anything in the woods?
+TALK_SMALL_FOREST_WOLVES,"Wolves, they say. I have lived here forty years and heard them twice."
+TALK_SMALL_VALE_RIVER_ASK,Is the river low?
+TALK_SMALL_VALE_RIVER,"Lower than it should be. The mill wheel is turning about half as fast as it likes."
+TALK_SMALL_SPRING_MUD_ASK,Everything is mud.
+TALK_SMALL_SPRING_MUD,"Every year. Every single year, and every year we are all surprised by it."
+TALK_SMALL_SUMMER_HEAT_ASK,Warm today.
+TALK_SMALL_SUMMER_HEAT,"Too warm to do anything and too bright to sleep. I will not complain again until tomorrow."
+TALK_SMALL_FALL_STORES_ASK,Ready for the cold?
+TALK_SMALL_FALL_STORES,"Getting the stores in. It is never quite as much as you remember needing."
+TALK_SMALL_WINTER_FIREWOOD_ASK,Enough firewood?
+TALK_SMALL_WINTER_FIREWOOD,"Enough if it breaks early. It has not broken early in my lifetime."
+TALK_SMALL_TOWN_WALLS_ASK,Who built the walls?
+TALK_SMALL_TOWN_WALLS,"People who are all dead now. We live behind them and mostly forget they are there."
+TALK_SMALL_TOWN_SACKED_ASK,This place has seen trouble.
+TALK_SMALL_TOWN_SACKED,"Once. You can still see where the old stone stops and the new stone starts."
+TALK_SMALL_ELDER_KNEES_ASK,Keeping well?
+TALK_SMALL_ELDER_KNEES,"My knees tell me the weather now. They are more reliable than anyone in this town."
+TALK_SMALL_APPRENTICE_MASTER_ASK,How is the work?
+TALK_SMALL_APPRENTICE_MASTER,"I fetch things. Three years of fetching, I am told, and then I get to hold a tool."

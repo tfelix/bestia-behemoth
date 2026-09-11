@@ -50,6 +50,14 @@ abstract class DialogDbSyncTask : DefaultTask() {
   @get:Optional
   abstract val conversationYml: RegularFileProperty
 
+  /**
+   * The server's small-talk pool, `townsfolk/small-talk.yml`. Optional for the same reason as
+   * [conversationYml].
+   */
+  @get:InputFile
+  @get:Optional
+  abstract val smallTalkYml: RegularFileProperty
+
   /** If true, add TODO stubs for missing keys. If false, only report drift and fail the build on any. */
   @get:Input
   abstract val fix: Property<Boolean>
@@ -65,6 +73,10 @@ abstract class DialogDbSyncTask : DefaultTask() {
   private data class HistoryLineDto(val variants: Int = 1, val slots: List<String> = emptyList())
 
   private data class ConversationFile(val events: Map<String, HistoryLineDto> = emptyMap())
+
+  private data class SmallTalkLineDto(val key: String = "")
+
+  private data class SmallTalkFile(val lines: List<SmallTalkLineDto> = emptyList())
 
   @TaskAction
   fun run() {
@@ -113,6 +125,7 @@ abstract class DialogDbSyncTask : DefaultTask() {
       .forEach { problems += "dialogs.csv: '$it' has no corresponding entry in dialogs.yml (orphaned row)" }
 
     problems += conversationProblems(mapper, csv)
+    problems += smallTalkProblems(mapper, csv)
 
     if (shouldFix && csvDirty) {
       dialogsCsv.get().asFile.writeText(csv.render())
@@ -169,6 +182,45 @@ abstract class DialogDbSyncTask : DefaultTask() {
     return problems
   }
 
+  /**
+   * The small-talk pool, which is two rows per line and no placeholders in either.
+   *
+   * Slotless on purpose: small talk is a leaf with nothing to fill in, so a placeholder in one of these
+   * rows is a translator reaching for an argument the server never sends, and would reach a player as a
+   * literal brace.
+   */
+  private fun smallTalkProblems(mapper: ObjectMapper, csv: LocalizationCsv): List<String> {
+    if (!smallTalkYml.isPresent) {
+      return emptyList()
+    }
+
+    val lines = mapper.readValue(smallTalkYml.get().asFile, SmallTalkFile::class.java).lines
+    val problems = mutableListOf<String>()
+    val expected = HashSet<String>()
+
+    for (line in lines) {
+      for (key in listOf(line.key, line.key + "_ASK")) {
+        expected += key
+
+        val text = csv.get(key)
+        if (text.isNullOrBlank()) {
+          problems += "dialogs.csv: '$key' is missing, so the ${line.key} small talk cannot be said"
+          continue
+        }
+
+        PLACEHOLDER_PATTERN.findAll(text).map { it.groupValues[1] }.toSet().forEach {
+          problems += "dialogs.csv: '$key' uses {$it}, but small talk is sent without arguments"
+        }
+      }
+    }
+
+    csv.keys()
+      .filter { SMALL_TALK_KEY_PATTERN.matches(it) && it !in expected }
+      .forEach { problems += "dialogs.csv: '$it' matches no line in small-talk.yml (orphaned row)" }
+
+    return problems
+  }
+
   private fun stubText(dialog: DialogDto): String {
     val placeholders = dialog.args.joinToString(" ") { "{$it}" }
     return "TODO: write the ${dialog.identifier} dialog text. $placeholders".trim()
@@ -184,6 +236,9 @@ abstract class DialogDbSyncTask : DefaultTask() {
 
     /** A translation key owned by a `dialogue.yml` entry, e.g. `HISTORY_ERUPTION_1`. */
     private val HISTORY_KEY_PATTERN = Regex("""^HISTORY_[A-Z_]+_(ASK|\d+)$""")
+
+    /** A translation key owned by a `small-talk.yml` line, e.g. `TALK_SMALL_FARMER_BARLEY_ASK`. */
+    private val SMALL_TALK_KEY_PATTERN = Regex("""^TALK_SMALL_[A-Z_]+$""")
 
     /** Matches Godot's `String.format` placeholders, e.g. `{masterName}`. */
     private val PLACEHOLDER_PATTERN = Regex("""\{(\w+)}""")
