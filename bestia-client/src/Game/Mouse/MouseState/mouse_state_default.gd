@@ -2,7 +2,8 @@ extends MouseState
 class_name MouseStateDefault
 
 ## Nothing special active: walk on ground click, attack a bestia entity on
-## click, loot an item entity on click, collect a static prop on click,
+## click, loot an item entity on click, collect or interact with a static prop
+## on click, build a construction site on click,
 ## interact with an Interactable if the clicked/hovered object has one,
 ## right-click opens the context menu.
 
@@ -33,9 +34,15 @@ func handle_object_clicked(mgr: MouseManager, object: Node3D, event: InputEvent,
 		mgr.cancel_steering()
 		ConnectionManager.loot_item(object.get_item_entity_id())
 	elif object is PropPicker:
-		# Sends now if we are already close, otherwise walks there first. request_collect supersedes any
-		# pending collect itself, so clicking a second crystal simply retargets.
-		mgr.request_collect(object)
+		# Sends now if we are already close, otherwise walks there first. Both requests supersede any pending
+		# goal themselves, so clicking a second thing simply retargets.
+		if object.collectible:
+			mgr.request_collect(object)
+		else:
+			mgr.request_interact(object, object.entity_id)
+	elif object is StructureVisual:
+		# A construction site: walking up to it and clicking is how you start building, and how you stop.
+		mgr.request_interact(object, object.get_structure_entity_id())
 
 
 func handle_object_hover(mgr: MouseManager, object: Node3D, entered: bool) -> void:

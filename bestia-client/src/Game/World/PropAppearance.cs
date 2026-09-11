@@ -151,6 +151,16 @@ namespace BestiaBehemothClient.Game.World
       /// </remarks>
       public bool Collectible { get; init; }
 
+      /// <summary>Whether props of this kind get a click target without being picked up by it.</summary>
+      /// <remarks>
+      /// Collectible props are clickable because the click takes them. This is for the ones a click does
+      /// something else to - a station opens what can be made at it. Two flags rather than one, because
+      /// <see cref="Collectible"/> mirrors a server rule (<c>prop-kinds.yml</c> gives a kind a
+      /// <c>collect</c> block or it does not) and this one does not mirror anything: it is the client
+      /// deciding what is worth aiming at.
+      /// </remarks>
+      public bool Interactable { get; init; }
+
       public bool HasScene => !string.IsNullOrEmpty(ScenePath);
 
       public bool HasMesh => !string.IsNullOrEmpty(MeshPath);
@@ -241,14 +251,14 @@ namespace BestiaBehemothClient.Game.World
       // Boxes for now, and deliberately small ones: a station is a thing you stand next to rather than a
       // landmark, and drawing it the size of a shed would make a workbench read as a building.
       //
-      // Not Collectible: a station is taken down by damaging it, not picked up by a passer-by, and
-      // prop-kinds.yml gives none of them a `collect` block - so offering the click would only earn a
-      // COLLECT_NOT_COLLECTIBLE.
+      // Not Collectible - a station is taken down by damaging it, not picked up by a passer-by, and
+      // prop-kinds.yml gives none of them a `collect` block - but Interactable, because clicking one is how
+      // you use it. `InteractEntityCMSG` is what that click sends.
       // StructureHeight, unlike every row above, because these are the kinds a player builds - so each is
       // also drawn as an entity while it is still a construction site, where no wire height is sent.
-      new Kind { PlaceholderWidth = 1.2f, PlaceholderColour = new Color(0.55f, 0.40f, 0.24f), StructureHeight = 1f }, // WORKBENCH
-      new Kind { PlaceholderWidth = 1.4f, PlaceholderColour = new Color(0.42f, 0.36f, 0.34f), StructureHeight = 2f }, // FURNACE
-      new Kind { PlaceholderWidth = 1.8f, PlaceholderColour = new Color(0.36f, 0.30f, 0.30f), StructureHeight = 2f }, // FORGE
+      new Kind { PlaceholderWidth = 1.2f, PlaceholderColour = new Color(0.55f, 0.40f, 0.24f), StructureHeight = 1f, Interactable = true }, // WORKBENCH
+      new Kind { PlaceholderWidth = 1.4f, PlaceholderColour = new Color(0.42f, 0.36f, 0.34f), StructureHeight = 2f, Interactable = true }, // FURNACE
+      new Kind { PlaceholderWidth = 1.8f, PlaceholderColour = new Color(0.36f, 0.30f, 0.30f), StructureHeight = 2f, Interactable = true }, // FORGE
 
       // The ground cover: a herb, a shrub and a reed, each with its blighted twin. Collectible - every one of
       // them has a `collect` block in prop-kinds.yml - so all six get a click target.

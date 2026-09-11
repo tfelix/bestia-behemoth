@@ -412,8 +412,8 @@ namespace BestiaBehemothClient.Game.World
 
         multi.SetInstanceTransform(i, new Transform3D(basis, position + new Vector3(0f, lift, 0f)));
 
-        var picker = appearance.Collectible
-          ? AddPicker(container, entry, position, pickWidth)
+        var picker = appearance.Collectible || appearance.Interactable
+          ? AddPicker(container, entry, position, pickWidth, appearance.Collectible)
           : null;
 
         Record(key, entry.EntityId, new Drawn { Node = picker, Batch = multi, Slot = i });
@@ -460,7 +460,7 @@ namespace BestiaBehemothClient.Game.World
     /// </para>
     /// </remarks>
     private Node3D AddPicker(
-      Node3D container, ChunkStaticEntitiesSMSG.Entry entry, Vector3 position, float width)
+      Node3D container, ChunkStaticEntitiesSMSG.Entry entry, Vector3 position, float width, bool collectible)
     {
       var area = new Area3D
       {
@@ -482,6 +482,7 @@ namespace BestiaBehemothClient.Game.World
 
       area.Set("entity_id", entry.EntityId);
       area.Set("kind", entry.Kind);
+      area.Set("collectible", collectible);
 
       // Physics picking is a signal on the collision object, and a node built in code has to wire it itself.
       area.Connect(CollisionObject3D.SignalName.InputEvent, new Callable(area, "_on_input_event"));

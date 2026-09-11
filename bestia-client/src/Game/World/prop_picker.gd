@@ -1,7 +1,8 @@
 extends Area3D
 class_name PropPicker
 
-## The click target of one collectible static prop. Built per prop by StaticEntityRenderer.
+## The click target of one static prop - one a click takes, or one a click interacts with. Built per prop
+## by StaticEntityRenderer.
 ##
 ## [b]An Area3D, and that is the whole safety argument.[/b] MouseManager.get_floor_hit_at_mouse - the
 ## client's only raycast - builds its query with PhysicsRayQueryParameters3D.create(), which leaves
@@ -24,6 +25,10 @@ var entity_id: int = 0
 
 ## StaticEntityKind ordinal, so a caller can tell a crystal from a shard without a second lookup.
 var kind: int = 0
+
+## Whether clicking this takes the prop, as opposed to interacting with it. Set from PropAppearance, which
+## is where the client decides what a click on each kind means.
+var collectible: bool = true
 
 
 func _on_input_event(_camera: Node, event: InputEvent, event_position: Vector3, _normal: Vector3, _shape_idx: int) -> void:
