@@ -4,6 +4,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.AoiLayer
 import net.bestia.zone.ecs.EntityAOIService
 import net.bestia.zone.ecs.construction.ConstructionSite
+import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.prop.StaticVisual
 import net.bestia.zone.geometry.Vec3L
@@ -134,6 +135,38 @@ class PlayerStructureService(
     LOG.info { "Master $ownerMasterId started a $kind at $position (structure ${entry.id})" }
 
     return entityId
+  }
+
+  /**
+   * Turns a finished site into the structure it was going to be: the row stops being a site, the site entity
+   * is destroyed, and the real static prop goes up in its place.
+   *
+   * The swap is deliberate rather than a flag flip. A standing structure belongs on the per-chunk static
+   * channel with every other prop - it never changes again - and only a site needs to be an entity.
+   *
+   * Called from inside a system, where both halves are already safe to interleave: `World.destroy` is
+   * deferred to the end of the tick, and `placeNow` queues its column batch for the same reason.
+   */
+  fun completeConstruction(world: World, siteEntityId: EntityId, site: ConstructionSite) {
+    // Where it actually stands rather than where it was placed - see `PlayerStructureRegistry.finish`.
+    val settled = world.get(siteEntityId, Position::class)?.toVec3L()
+    if (settled == null) {
+      LOG.warn { "Construction site $siteEntityId has no position and cannot be completed" }
+      return
+    }
+
+    structures.finish(site.structureId, settled)
+
+    val entry = structures.of(site.structureId)
+    if (entry == null) {
+      LOG.warn { "Structure ${site.structureId} vanished while its site was being completed" }
+      return
+    }
+
+    world.destroy(siteEntityId)
+    residency.placeNow(world, source.siteOf(entry))
+
+    LOG.info { "Master ${site.ownerMasterId} finished a ${site.kind} at $settled (structure ${entry.id})" }
   }
 
   companion object {
