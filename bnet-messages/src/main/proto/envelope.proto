@@ -65,6 +65,7 @@ import "messages/system/respawn_cmsg.proto";
 import "messages/system/dialog_smsg.proto";
 import "messages/component/logout_intent_smsg.proto";
 import "messages/component/casting_component_smsg.proto";
+import "messages/component/construction_component_smsg.proto";
 import "messages/party/accept_party_invite_cmsg.proto";
 import "messages/party/decline_party_invite_cmsg.proto";
 import "messages/party/party_invitation_smsg.proto";
@@ -191,6 +192,7 @@ message Envelope {
     DeadComponentSMSG comp_dead = 536;
     PlaceComponentSMSG comp_place = 537;
     AreaNameComponentSMSG comp_area_name = 538;
+    ConstructionComponentSMSG comp_construction = 539;
 
     // SOCIAL & PARTY 600
     AcceptPartyInviteCMSG accept_party_invite = 600;
