@@ -1,5 +1,6 @@
 @echo off
 REM Regenerates the C# protobuf classes the Godot client compiles against.
+REM Windows twin of gen-protobuf.sh - keep both in sync when either changes.
 REM
 REM %~dp0 is this script's own directory (bnet-messages\, with a trailing backslash) -
 REM every path below is anchored to it so the script works regardless of the caller's

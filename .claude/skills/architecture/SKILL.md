@@ -45,11 +45,11 @@ with its own `application.yml`.
 **Codegen is two separate pipelines that both must run after editing a `.proto`:**
 - Kotlin (zone-server, login-server): automatic via the Gradle `com.google.protobuf`
   plugin — regenerated on build into `bnet-messages/build/generated/source/proto/...`.
-- C# (bestia-client): **manual** — see the [gen-protobuf](../gen-protobuf.md) skill.
-  Run `bnet-messages/gen-protobuf.bat` from inside `bnet-messages/`; it clears
-  `bestia-client/src/Bnet/Proto/` and calls `protoc.exe` once per `.proto` file. The
-  generated C# is committed to the repo — always regenerate and commit it together
-  with the `.proto` change.
+- C# (bestia-client): **manual** — see the [gen-protobuf](../gen-protobuf/SKILL.md) skill.
+  Run `bnet-messages/gen-protobuf.sh` on Linux/macOS, `bnet-messages/gen-protobuf.bat` on
+  Windows; both clear `bestia-client/src/Bnet/Proto/` and compile every `.proto` with the
+  `protoc` vendored next to them. The generated C# is committed to the repo — always
+  regenerate and commit it together with the `.proto` change.
 
 ## Wire routing: Netty → Envelope → CMSG → handler
 
@@ -144,11 +144,11 @@ Use those files as a template instead of re-deriving the shape from scratch.
    instantiates and sends the CMSG (see `send_attack_entity`/`get_skills`); incoming
    `EntitySMSG` subclasses are already caught generically by the `entity_received`
    signal in `_on_bnet_socket_message_received` — no per-message branch needed there.
-7. **Regenerate + build**: run `bnet-messages/gen-protobuf.bat` (works from any working
-   directory — every path, including `protoc.exe` itself, is anchored to the script's
-   own location via `%~dp0`, so it does **not** depend on `protoc.exe` being on `PATH`)
-   to regenerate the C# proto classes and commit them with the `.proto` change; the
-   Kotlin side regenerates automatically on the next Gradle build, no manual step.
+7. **Regenerate + build**: run `bnet-messages/gen-protobuf.sh` (Linux/macOS) or
+   `bnet-messages/gen-protobuf.bat` (Windows) to regenerate the C# proto classes and commit
+   them with the `.proto` change. Either works from any working directory — every path,
+   including the compiler itself, is anchored to the script's own location. The Kotlin side
+   regenerates automatically on the next Gradle build, no manual step.
 
 ## zone-server ECS (game loop)
 
