@@ -1,15 +1,14 @@
 package net.bestia.zone.ai.knowledge
 
 import net.bestia.worldgen.core.EventKind
-import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.pipeline.GeneratedWorld
-import net.bestia.worldgen.pipeline.StandardWorld
 import net.bestia.worldgen.pop.EconomyProbe
 import net.bestia.worldgen.pop.Household
 import net.bestia.worldgen.pop.Households
 import net.bestia.worldgen.pop.PopulationSummary
 import net.bestia.worldgen.pop.Sector
 import net.bestia.worldgen.vector.Vec2d
+import net.bestia.zone.world.GeneratedWorlds
 import net.bestia.zone.world.SettlementLoreService
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -345,9 +344,7 @@ class TownKnowledgeTest {
   }
 
   private fun build(seed: Long): GeneratedWorld {
-    return WORLDS.getOrPut(seed) {
-      StandardWorld.build(WorldConfig(seed = seed, widthCells = CELLS, heightCells = CELLS))
-    }
+    return GeneratedWorlds.of(seed)
   }
 
   private fun forEachInhabitedTown(world: GeneratedWorld, block: (Int, PopulationSummary) -> Unit) {
@@ -363,20 +360,7 @@ class TownKnowledgeTest {
 
   private companion object {
 
-    /**
-     * The worlds, built once for the whole class.
-     *
-     * JUnit makes a fresh instance per test method, so an instance field would rebuild every world for
-     * every test - six tests times three seeds is fifteen generations of a 256-cell world. That is slow
-     * on its own and, sharing a JVM with the rest of the suite, enough memory pressure to fail a
-     * timing-sensitive scenario test somewhere else entirely. It did.
-     */
-    val WORLDS = HashMap<Long, GeneratedWorld>()
-
     val POSITIONS = HashMap<GeneratedWorld, Map<Int, Vec2d>>()
-
-    /** `SettlementLoreTest`'s size, and for its reason: a smaller world rarely has anything to remember. */
-    const val CELLS = 256
 
     /** Below this a town cannot tell "one household" from "most of them", so the tier tests skip it. */
     const val MEANINGFUL_TOWN = 20
@@ -405,6 +389,6 @@ class TownKnowledgeTest {
     const val FARMER = "farmer"
     const val OTHER = "other"
 
-    val SEEDS = listOf(1L, 3L, 42L)
+    val SEEDS = GeneratedWorlds.SEEDS
   }
 }

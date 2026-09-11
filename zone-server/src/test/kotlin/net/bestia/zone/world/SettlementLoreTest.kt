@@ -1,8 +1,6 @@
 package net.bestia.zone.world
 
 import net.bestia.worldgen.core.EventKind
-import net.bestia.worldgen.core.WorldConfig
-import net.bestia.worldgen.pipeline.StandardWorld
 import org.junit.jupiter.api.Test
 import kotlin.test.assertTrue
 
@@ -33,7 +31,7 @@ class SettlementLoreTest {
     var seedsWithEruption = 0
 
     for (seed in SEEDS) {
-      val world = StandardWorld.build(WorldConfig(seed = seed, widthCells = CELLS, heightCells = CELLS))
+      val world = GeneratedWorlds.of(seed)
       val positions = SettlementLoreService.settlementPositions(world)
       val chronicle = world.world.chronicle
 
@@ -89,7 +87,7 @@ class SettlementLoreTest {
     // `HistoryEvent.detail` is stored pre-rendered so a reader needs no second copy of every name. If it were
     // ever built from actor indices instead, this is what it would look like - and the failure would be invisible
     // until an NPC said "settlement#12 is buried in ash and stands empty" to a player.
-    val world = StandardWorld.build(WorldConfig(seed = SEEDS.first(), widthCells = CELLS, heightCells = CELLS))
+    val world = GeneratedWorlds.of(SEEDS.first())
     val positions = SettlementLoreService.settlementPositions(world)
 
     var checked = 0
@@ -116,7 +114,7 @@ class SettlementLoreTest {
   fun `an unknown settlement asks for nothing and gets nothing`() {
     // The bounds check, which matters because the index comes from outside: a caller holding a stale index from a
     // previous world must get an empty list rather than an exception on a live server.
-    val world = StandardWorld.build(WorldConfig(seed = SEEDS.first(), widthCells = CELLS, heightCells = CELLS))
+    val world = GeneratedWorlds.of(SEEDS.first())
 
     assertTrue(SettlementLoreService.loreOf(world, -1).isEmpty())
     assertTrue(SettlementLoreService.loreOf(world, world.world.chronicle.settlements.size).isEmpty())
@@ -124,9 +122,7 @@ class SettlementLoreTest {
   }
 
   private companion object {
-    /** `VolcanicHistoryTest`'s size, and for its reason: 128 rarely puts a town within ash reach of a vent. */
-    const val CELLS = 256
-
-    val SEEDS = listOf(1L, 3L, 42L)
+    /** Shared with every other suite that wants a real world - see [GeneratedWorlds]. */
+    val SEEDS = GeneratedWorlds.SEEDS
   }
 }
