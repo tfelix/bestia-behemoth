@@ -9,6 +9,7 @@ class_name ContextMenu
 
 ## Ids, not indices: [signal id_pressed] carries the id, and indices shift as the menu is rebuilt per target.
 const _ACTION_TRADE: int = 1
+const _ACTION_TALK: int = 2
 
 var _target_entity_id: int = 0
 
@@ -28,6 +29,14 @@ func open_for(target: Node3D, screen_position: Vector2) -> bool:
 		_target_entity_id = target.get_bestia_entity_id()
 		add_item("Trade with %s" % target.get_master_name(), _ACTION_TRADE)
 
+	# Offered on any creature visual, because the client cannot yet tell a townsperson from a wolf -
+	# there is no NPC visual kind on the wire. The server answers nothing for a target that cannot
+	# talk, so the cost of asking is a wasted message rather than a wrong menu. The proper fix is a
+	# VisualKind.NPC, or a talkable flag the visual exposes.
+	elif target is BestiaVisual:
+		_target_entity_id = target.get_bestia_entity_id()
+		add_item("Talk to", _ACTION_TALK)
+
 	if item_count == 0:
 		return false
 
@@ -43,3 +52,6 @@ func _on_id_pressed(id: int) -> void:
 		_ACTION_TRADE:
 			if _target_entity_id != 0:
 				ConnectionManager.request_trade(_target_entity_id)
+		_ACTION_TALK:
+			if _target_entity_id != 0:
+				ConnectionManager.interact(_target_entity_id)

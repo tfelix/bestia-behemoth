@@ -15,6 +15,10 @@ signal dialog_received(message: DialogSMSG)
 ## Emitted when the server answers a crafting-skill activation with what can be made here. Account-scoped
 ## for the reason [signal dialog_received] is: it opens a window, and a window belongs to a client.
 signal craftable_recipes_received(message: CraftableRecipesSMSG)
+## Emitted when a townsperson says something and offers options back. Account-scoped for the reason
+## [signal dialog_received] is: it opens a window, and a window belongs to a client rather than to an
+## entity - the speaker travels inside the message as metadata.
+signal conversation_received(message: ConversationSMSG)
 signal operation_success(message: OperationSuccess)
 signal operation_error(message: OperationError)
 ## Emitted when another player asks us to trade. Account-scoped for the reason [signal dialog_received] is:
@@ -70,6 +74,8 @@ var EquipItemCMSG = load("res://Bnet/Message/Inventory/EquipItemCMSG.cs")
 var UnequipItemCMSG = load("res://Bnet/Message/Inventory/UnequipItemCMSG.cs")
 var RequestLogoutCMSG = load("res://Bnet/Message/System/RequestLogoutCMSG.cs")
 var RespawnCMSG = load("res://Bnet/Message/System/RespawnCMSG.cs")
+var InteractCMSG = load("res://Bnet/Message/System/InteractCMSG.cs")
+var ConversationChoiceCMSG = load("res://Bnet/Message/System/ConversationChoiceCMSG.cs")
 var CollectPropCMSG = load("res://Bnet/Message/Map/CollectPropCMSG.cs")
 var InteractEntityCMSG = load("res://Bnet/Message/Map/InteractEntityCMSG.cs")
 var CraftItemCMSG = load("res://Bnet/Message/Crafting/CraftItemCMSG.cs")
@@ -459,6 +465,26 @@ func request_trade(target_entity_id: int) -> void:
 	_socket.SendMessage(msg)
 
 
+## Asks the server to deal with [param target_entity_id]. What that means is the server's decision -
+## talking to a townsperson today. Answered with a ConversationSMSG, or with nothing at all when the
+## target is not somebody who can be dealt with.
+func interact(target_entity_id: int) -> void:
+	assert(is_ready_to_send())
+	var msg = InteractCMSG.new()
+	msg.EntityId = target_entity_id
+	_socket.SendMessage(msg)
+
+
+## Picks one of the options a ConversationSMSG offered. Send the option's TopicId, never its position -
+## the server keeps no conversation and cannot resolve "the second one".
+func answer_conversation(target_entity_id: int, topic_id: int) -> void:
+	assert(is_ready_to_send())
+	var msg = ConversationChoiceCMSG.new()
+	msg.EntityId = target_entity_id
+	msg.TopicId = topic_id
+	_socket.SendMessage(msg)
+
+
 ## Answers the prompt a TradeRequestSMSG raised.
 func answer_trade_request(trade_id: int, accept: bool) -> void:
 	assert(is_ready_to_send())
@@ -618,6 +644,8 @@ func _on_bnet_socket_message_received(message: Object) -> void:
 		chat_received.emit(message)
 	elif message is DialogSMSG:
 		dialog_received.emit(message)
+	elif message is ConversationSMSG:
+		conversation_received.emit(message)
 	elif message is CraftableRecipesSMSG:
 		craftable_recipes_received.emit(message)
 	elif message is OperationSuccess:

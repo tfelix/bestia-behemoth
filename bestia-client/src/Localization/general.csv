@@ -45,3 +45,4 @@ MARK_DELETE_PROMPT,Remove the mark “%s”?
 MARK_DELETE_CONFIRM,Remove
 MARK_DELETE_KEEP,Keep
 ERROR_BUILD_OUT_OF_RANGE,You are too far away to work on that.
+ERROR_TALK_OUT_OF_RANGE,They are too far away to hear you.

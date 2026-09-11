@@ -25,3 +25,21 @@ When you open your Skills window. The first entry there is [b]Basic Skill[/b].
 Every level you gain is one point to put into the skill tree."
 DIALOG_3_TITLE,Workbench
 DIALOG_3_TEXT,"A sturdy workbench, freshly raised. There is nothing to make here yet."
+TALK_GREETING,"{name} looks up as you approach."
+TALK_FAREWELL,Nothing for now.
+TALK_GOODBYE,Mind how you go.
+TALK_BACK,Something else.
+TALK_ABOUT_TOWN_ASK,What is this place?
+TALK_ABOUT_TOWN,"You are in {town}. I keep the {trade} here."
+TALK_NEWS_ASK,Heard anything lately?
+TALK_NEWS_NONE,Nothing worth repeating.
+TALK_SHOP_BUY_ASK,Show me your wares.
+TALK_SHOP_SELL_ASK,I have things to sell.
+TALK_NOT_YET,Not today. Come back another time.
+TRADE_GUARD,watch
+TRADE_PRIEST,temple
+TRADE_INNKEEPER,inn
+TRADE_FARMER,fields
+TRADE_LABOURER,work
+TRADE_BEGGAR,corner
+TRADE_CHILD,nothing much

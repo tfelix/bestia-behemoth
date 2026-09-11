@@ -13,6 +13,10 @@ extends Control
 var _history: Array[String] = []
 var _history_index: int = -1
 
+## Prints conversations here until there is a panel for them. Owned by this window because the chat
+## is where it writes and where [code]/pick[/code] is typed; both go together when the panel lands.
+var _conversation: ConversationStub = null
+
 ## Maps ChatMode OptionButton index to Bnet.Mode enum int values (Party=0, Guild=1, Public=3).
 ## Index 0=Public(/s), 1=Party(/p), 2=Guild(/g)
 const BNET_MODE_MAP: Array[int] = [3, 0, 1]
@@ -30,6 +34,10 @@ const _SYSTEM_COLOR := Color(0.95, 0.82, 0.35)
 func _ready() -> void:
 	ConnectionManager.connect("chat_received", _on_chat_received)
 	ConnectionManager.operation_error.connect(_on_operation_error)
+
+	_conversation = ConversationStub.new()
+	add_child(_conversation)
+	_conversation.bind_chat(self)
 
 
 func _input(event):
@@ -90,6 +98,10 @@ func _handle_chat_send() -> void:
 	# Special case handling for internal commands.
 	if chat_text == "/clear":
 		_handle_clear_chat()
+	elif chat_text.begins_with("/pick "):
+		# Answers the conversation the stub last printed here. Local because the option numbers are
+		# this window's own - the wire carries topic ids. Goes when there is a panel with buttons.
+		_handle_pick(chat_text.substr(6))
 	elif chat_text.begins_with("/"):
 		# Mode 7 is the command type as this is a command for the server.
 		ConnectionManager.send_chat(chat_input.text, 7)
@@ -99,6 +111,22 @@ func _handle_chat_send() -> void:
 		ConnectionManager.send_chat(chat_text, bnet_mode)
 	
 	_clear_input()
+
+
+## Answers the nth option the conversation stub printed.
+##
+## Scaffolding, and paired with [code]ConversationStub[/code] - both go the day a conversation has a
+## panel with buttons on it, which is the only reason a player should ever have to type a number.
+func _handle_pick(argument: String) -> void:
+	if not argument.strip_edges().is_valid_int():
+		error_line("Usage: /pick <option number>")
+		return
+
+	if _conversation == null:
+		error_line("Nobody is talking to you.")
+		return
+
+	_conversation.pick(argument.strip_edges().to_int())
 
 
 func _clear_input() -> void:

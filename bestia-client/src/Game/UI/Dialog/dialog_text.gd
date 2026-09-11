@@ -37,6 +37,15 @@ static func resolve_title(content: DialogContent) -> String:
 	return _format(translated, content.args)
 
 
+## Resolves a bare key and its args, for callers that have a line rather than a [DialogContent].
+##
+## A conversation carries its key outright instead of a catalogue id - the key is computed from an
+## event kind, and the only numeric mapping would be an enum ordinal - so it cannot build a
+## [DialogContent] and comes in here instead. Same two steps either way: translate, then fill.
+static func resolve_line(key: String, args: Array) -> String:
+	return _format(_translate(key), args)
+
+
 static func _translate(key: String) -> String:
 	return TranslationServer.translate(key)
 
@@ -82,6 +91,15 @@ static func _resolve_arg(arg) -> String:
 				printerr("DialogText: unknown skill id %d in dialog arg '%s'" % [arg.Number, arg.Name])
 				return "?"
 			return attack.name
+		"name":
+			# A proper noun out of the world generator, deliberately not translated: it is built from
+			# invented stems that belong to no language, and a lookup would replace a real place name
+			# with a missing key.
+			return arg.Text
+		"token":
+			# A key in its own right. This nested lookup is what lets a sentence assembled out of
+			# generated history be translated rather than shipped in English.
+			return _translate(arg.Text)
 		"entity":
 			return _resolve_entity_name(int(arg.Number))
 		_:

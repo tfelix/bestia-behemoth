@@ -13,7 +13,19 @@ namespace BestiaBehemothClient.Bnet.Message.System
     Number = 1,
     Entity = 2,
     Item = 3,
-    Skill = 4
+    Skill = 4,
+
+    /// <summary>
+    /// A translation key to resolve in turn and substitute. What lets a line say
+    /// "{who} spoke of {what}" with {what} localized rather than left in English.
+    /// </summary>
+    Token = 5,
+
+    /// <summary>
+    /// A proper noun, already rendered and deliberately not translated. Generated names are built
+    /// from invented stems that belong to no language, so there is nothing in one to translate.
+    /// </summary>
+    Name = 6
   }
 
   /// <summary>
@@ -46,7 +58,9 @@ namespace BestiaBehemothClient.Bnet.Message.System
     public string KindName { get; set; } = "text";
 
     /// <summary>
-    /// Set only when <see cref="Kind"/> is <see cref="DialogArgKind.Text"/>.
+    /// Set for the three string kinds: <see cref="DialogArgKind.Text"/>,
+    /// <see cref="DialogArgKind.Token"/> and <see cref="DialogArgKind.Name"/>. Only
+    /// <see cref="Kind"/> says whether to print it, look it up, or print it untranslated.
     /// </summary>
     [Export]
     public string Text { get; set; } = string.Empty;
@@ -82,6 +96,14 @@ namespace BestiaBehemothClient.Bnet.Message.System
         case global::Bnet.DialogArg.ValueOneofCase.SkillId:
           arg.SetKind(DialogArgKind.Skill);
           arg.Number = proto.SkillId;
+          break;
+        case global::Bnet.DialogArg.ValueOneofCase.Token:
+          arg.SetKind(DialogArgKind.Token);
+          arg.Text = proto.Token ?? string.Empty;
+          break;
+        case global::Bnet.DialogArg.ValueOneofCase.Name:
+          arg.SetKind(DialogArgKind.Name);
+          arg.Text = proto.Name ?? string.Empty;
           break;
         default:
           // An arg with nothing set at all: keep the name so the placeholder is still replaced
