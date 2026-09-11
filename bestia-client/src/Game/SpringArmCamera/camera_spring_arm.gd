@@ -45,10 +45,17 @@ func _unhandled_input(event: InputEvent) -> void:
 			_rmb_dragged = true
 			Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 
-	if event.is_action_pressed("camera_zoom_in"):
+	# The wheel turns a placement ghost instead of zooming while one is held. Asked rather than raced for:
+	# both nodes take this through _unhandled_input, and neither can rely on running first.
+	var placing := false
+	var mouse_manager := MouseManager.get_instance()
+	if mouse_manager != null:
+		placing = mouse_manager.is_placing()
+
+	if event.is_action_pressed("camera_zoom_in") and not placing:
 		spring_arm.spring_length -= 1
 		spring_arm.spring_length = clamp(spring_arm.spring_length, min_cam_distance, max_cam_distance)
-	if event.is_action_pressed("camera_zoom_out"):
+	if event.is_action_pressed("camera_zoom_out") and not placing:
 		spring_arm.spring_length += 1
 		spring_arm.spring_length = clamp(spring_arm.spring_length, min_cam_distance, max_cam_distance)
 

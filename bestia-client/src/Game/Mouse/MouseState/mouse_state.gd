@@ -49,3 +49,10 @@ func handle_right_click(mgr: MouseManager, screen_position: Vector2) -> void:
 @warning_ignore("unused_parameter")
 func handle_cancel(mgr: MouseManager) -> void:
 	pass
+
+
+## Any other unhandled input, for a mode that reads more than clicks - turning a placement ghost, say.
+## Clicks do not arrive here: those come through the physics-picking path above.
+@warning_ignore("unused_parameter")
+func handle_input(mgr: MouseManager, event: InputEvent) -> void:
+	pass
