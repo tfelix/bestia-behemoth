@@ -127,11 +127,11 @@ namespace BestiaBehemothClient.Game.World
       return HeightOf(PropAppearance.Of(kind));
     }
 
-    private static Mesh MeshFor(PropAppearance.Kind appearance)
+    private static Godot.Mesh MeshFor(PropAppearance.Kind appearance)
     {
       if (appearance.HasMesh)
       {
-        return ResourceLoader.Load<Mesh>(appearance.MeshPath);
+        return ResourceLoader.Load<Godot.Mesh>(appearance.MeshPath);
       }
 
       var height = HeightOf(appearance);
