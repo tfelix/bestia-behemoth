@@ -30,6 +30,13 @@ namespace BestiaBehemothClient.Game.World
     /// <summary>The same shader with its intermediate values exposed. Null if it failed to load.</summary>
     public ShaderMaterial Debug { get; private init; }
 
+    /// <summary>What standing water is drawn with. Null if it failed to load.</summary>
+    /// <remarks>
+    /// Allowed to be missing on its own, for <see cref="Debug"/>'s reason: the renderer keeps a flat translucent
+    /// fallback, so losing this costs the sea its depth and its waves rather than costing the sea.
+    /// </remarks>
+    public ShaderMaterial Water { get; private init; }
+
     /// <summary>Metres per texture tile, per slot, read back from the material so the CPU can snap to it.</summary>
     private float[] _uvScale;
 
@@ -38,11 +45,11 @@ namespace BestiaBehemothClient.Game.World
     private bool _hasOriginAnchor;
 
     /// <summary>
-    /// Loads both materials, or returns null if the shipping one is unusable.
+    /// Loads the terrain, debug and water materials, or returns null if the terrain one is unusable.
     /// </summary>
     /// <remarks>
-    /// The debug material is allowed to be missing on its own - it is a development aid, and losing it should
-    /// cost the key binding rather than the terrain.
+    /// The debug and water materials are allowed to be missing on their own - the first is a development aid, and
+    /// losing it should cost the key binding rather than the terrain; the second has a fallback of its own.
     /// </remarks>
     public static TerrainMaterials Load()
     {
@@ -60,7 +67,8 @@ namespace BestiaBehemothClient.Game.World
       var materials = new TerrainMaterials
       {
         Shipping = shipping,
-        Debug = GD.Load<ShaderMaterial>($"{Directory}terrain_debug.tres")
+        Debug = GD.Load<ShaderMaterial>($"{Directory}terrain_debug.tres"),
+        Water = GD.Load<ShaderMaterial>($"{Directory}water.tres")
       };
 
       materials.BuildSlotTextures();
