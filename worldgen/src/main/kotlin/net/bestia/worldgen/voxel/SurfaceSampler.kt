@@ -9,6 +9,7 @@ import net.bestia.worldgen.core.LayerStore
 import net.bestia.worldgen.core.ScopedLayerStore
 import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.fields.Noise
+import kotlin.math.exp
 
 /**
  * The surface properties a column needs in order to be materialised: biome, soil depth, water level and
@@ -60,6 +61,7 @@ class SurfaceSampler(
   private val jitterSeed = GenRng.mix64(seed xor JITTER_SALT)
   private val ditherSeed = GenRng.mix64(seed xor DITHER_SALT)
   private val blightSeed = GenRng.mix64(seed xor BLIGHT_SALT)
+  private val shoreSeed = GenRng.mix64(seed xor SHORE_SALT)
 
   /**
    * Which biome covers this column.
@@ -167,6 +169,113 @@ class SurfaceSampler(
     return patch < severity
   }
 
+  /**
+   * What the shore puts on this column, or null where the column is not a shore and the ordinary cap answers.
+   *
+   * **This exists because two of the cover rules were isolines of elevation.** `SurfaceCover.cap` changes
+   * material exactly at the waterline and again exactly sixty metres below it, and both of those are a
+   * comparison against a constant on a smooth height field - which draws a clean curve across the ground in a
+   * world where nothing else has one. [isBlightedAt] already names the failure and the cure; this is the same
+   * cure applied to the two places the cure was never applied.
+   *
+   * Three bands, and only the two boundaries are softened. Away from them the ordinary cap is already right,
+   * so this answers null and nothing is duplicated.
+   *
+   * **The dry strand is a rise, not a width, and that is what makes the beach follow the land.** Sand survives
+   * up to [BEACH_RISE] metres *above* the waterline, so on a flat coast that is a couple of hundred metres of
+   * beach and on a steep one a few metres, out of one constant and with no slope term in it at all. A width in
+   * metres would have needed the slope measured, divided by, and clamped - and would still have drawn a beach
+   * of even width around a headland, which is the thing a real one never does.
+   *
+   * @param heightAboveWater metres this column's surface stands above the water over it; negative when submerged
+   * @param steepness the one-voxel surface gradient, which is what decides whether this is a shore at all
+   */
+  fun shoreCoverAt(
+    worldX: Double,
+    worldY: Double,
+    heightAboveWater: Double,
+    steepness: Double,
+    temperature: Double
+  ): BlockType? {
+    // Too steep to hold loose material: this is a cliff, and the materialiser's own bare-rock rule shows the bed
+    // that is exposed there. Sand piled on a sea cliff is the artefact this guard exists to refuse.
+    if (steepness >= CLIFF_GRADIENT) return null
+
+    if (heightAboveWater >= 0.0) {
+      val rise = beachRise(steepness)
+      if (heightAboveWater >= rise) return null
+
+      // The dry strand. Falls away with height rather than stopping at one, so the landward edge is a scatter of
+      // sand into the cover behind it rather than a second line drawn parallel to the first.
+      val share = 1.0 - heightAboveWater / rise
+      if (shorePatchAt(worldX, worldY) >= share) return null
+
+      return if (steepness < SAND_GRADIENT) SurfaceCover.shoreMaterial(temperature) else BlockType.GRAVEL
+    }
+
+    // The bed. Only the band around the deep-water boundary is answered; the shallows either side of it are
+    // already sand or already mud and the cap says so.
+    val fromBoundary = -heightAboveWater - SurfaceCover.DEEP_WATER
+    if (fromBoundary <= -DEEP_BAND || fromBoundary >= DEEP_BAND) return null
+
+    // Half way down the band is an even mix, which is the one exact point in it: the boundary itself is where
+    // neither material has a claim on more of the ground than the other.
+    val muddiness = 0.5 + 0.5 * fromBoundary / DEEP_BAND
+
+    return if (shorePatchAt(worldX, worldY) < muddiness) BlockType.MUD
+    else SurfaceCover.shoreMaterial(temperature)
+  }
+
+  /**
+   * How far above the water the strand reaches on ground of this steepness, in metres.
+   *
+   * The rise is what sets the horizontal width, through the slope it is divided by - so most of the shape comes
+   * out of one constant. The two bounds are what stop that being the whole story:
+   *
+   * - **[MAX_BEACH_WIDTH] caps it**, because this rule keys on height above the *local water surface* and has no
+   *   notion of how far away the water actually is. Without the cap, ground lying a metre above sea level and
+   *   kilometres inland - which this generator does produce, its coastal shelf sits within about twenty metres
+   *   of sea level for two to four kilometres - would come out as beach all the way. Proximity is what a
+   *   coastline in the vector tier would supply; until there is one, the cap is the honest bound.
+   * - **[MIN_BEACH_RISE] floors it**, because on ground with no slope at all a width means nothing and the
+   *   product would be zero. Flat ground gets a strand wherever it is within that of the water, which is what
+   *   a flat shore looks like.
+   */
+  private fun beachRise(steepness: Double): Double {
+    val full = if (steepness < SAND_GRADIENT) BEACH_RISE else BEACH_RISE * SHINGLE_RISE_SHARE
+    return (MAX_BEACH_WIDTH * steepness).coerceIn(MIN_BEACH_RISE, full)
+  }
+
+  /**
+   * The shore's own patch field, as a **rank** between 0 and 1 rather than as the raw noise.
+   *
+   * Its own salt so the strand does not land on the biome dither's patches or the blight's, and a wavelength
+   * between theirs: a strand line is deposited material rather than individual plants winning individual metres,
+   * so it wants a coarser grain than an ecotone, and it is not the ground itself going over, so it wants a finer
+   * one than blight.
+   *
+   * **The rank is the part that makes the dither a dither.** `Noise.fbm` normalises its *bound* to `[-1, 1]`, not
+   * its distribution: gradient noise rarely approaches that bound and summing octaves concentrates it further, so
+   * `(fbm + 1) / 2` is a bell around a half and not a uniform field. Measured over 202 500 samples of this exact
+   * field: mean 0.500, standard deviation 0.113, with the 5th and 95th percentiles at 0.311 and 0.688 - the
+   * middle third of the range and nothing outside it. Compared against a share directly, a threshold of 0.75 then
+   * admits 99% of the ground and 0.25 admits 1%, so the transition collapses back into a line at half the
+   * strand's height. **A dither whose field is not uniform draws the edge it was meant to remove.**
+   *
+   * A logistic at 1.702 standard deviations approximates the normal CDF to about a hundredth, and 1.702 / 0.113
+   * is [PATCH_RANK_SCALE] - so the constant below is the measurement rather than a tuned number. This is the
+   * missing step in the recipe `biomeAt` describes: that one is handed a percentile rank by `BiomeStage` and says
+   * so ("a rank is uniform, so `1 - rank` is already a share"). `isBlightedAt` computes its field the raw way and
+   * has the same sharpening in it, which has not been touched here.
+   */
+  private fun shorePatchAt(worldX: Double, worldY: Double): Double {
+    val raw = (Noise.fbm(
+      shoreSeed, worldX / SHORE_PATCH_WAVELENGTH, worldY / SHORE_PATCH_WAVELENGTH, SHORE_OCTAVES
+    ) + 1.0) / 2.0
+
+    return 1.0 / (1.0 + exp(-PATCH_RANK_SCALE * (raw - 0.5)))
+  }
+
   fun temperatureAt(worldX: Double, worldY: Double): Double =
     temperature.sampleBilinear(worldX, worldY)
 
@@ -260,6 +369,55 @@ class SurfaceSampler(
 
     /** One octave would band visibly at this wavelength; two is enough to look like ground. */
     private const val BLIGHT_OCTAVES = 2
+
+    /** Its own salt, so the strand does not land on the patches the biome dither or the blight already use. */
+    private const val SHORE_SALT = 0x3E90D5B74A2C81L
+
+    /** See [shorePatchAt] for why it sits between the ecotone's grain and the blight's. */
+    private const val SHORE_PATCH_WAVELENGTH = 19.0
+
+    private const val SHORE_OCTAVES = 2
+
+    /** 1.702 standard deviations over the measured 0.113. See [shorePatchAt] for the measurement. */
+    private const val PATCH_RANK_SCALE = 15.0
+
+    /**
+     * Metres of rise over the waterline that a sand beach reaches.
+     *
+     * About a berm crest, which is what it is meant to be. It sets the *horizontal* width through the slope it
+     * is divided by, so a one-percent shore gets two hundred metres of beach and a twenty-percent shore gets
+     * ten - see [shoreCoverAt] for why the rule is stated this way round.
+     */
+    private const val BEACH_RISE = 2.0
+
+    /** Shingle piles steeper and reaches less far. A share rather than its own metre count, so the two move together. */
+    private const val SHINGLE_RISE_SHARE = 0.45
+
+    /** The widest strand any shore gets, in metres. See [beachRise] for what it is bounding and why. */
+    private const val MAX_BEACH_WIDTH = 120.0
+
+    /** The strand on ground with no measurable slope, in metres. See [beachRise]. */
+    private const val MIN_BEACH_RISE = 0.35
+
+    /** Above this the strand is shingle rather than sand: loose sand does not stay on a slope this steep. */
+    private const val SAND_GRADIENT = 0.18
+
+    /**
+     * Above this there is no strand at all, and the materialiser's bare-rock rule shows the exposed bed.
+     *
+     * Deliberately `ChunkMaterializer.BARE_ROCK_GRADIENT`'s own value rather than a lower one, so the three
+     * regimes are continuous: sand, then shingle, then the rock itself, with no band of ground between them
+     * where a coast would come out in turf down to the water.
+     */
+    private const val CLIFF_GRADIENT = 0.7
+
+    /**
+     * Half-width in metres of the band the sand/mud boundary is mixed across.
+     *
+     * Centred on [SurfaceCover.DEEP_WATER] rather than restating it, so the softened boundary and the hard one
+     * it softens cannot drift apart.
+     */
+    private const val DEEP_BAND = 15.0
 
     // There was a DITHER_CUTOFF here, and it is worth knowing why it is gone rather than only that it is.
     //
@@ -390,7 +548,7 @@ object SurfaceCover {
     // Under water before anything else, and not blighted: corruption is zero over lakes and sea by
     // construction, so a blighted lake bed could only ever be a caller passing the wrong flag.
     if (waterDepth > DEEP_WATER) return BlockType.MUD
-    if (waterDepth > 0.0) return if (temperature < 2.0) BlockType.GRAVEL else BlockType.SAND
+    if (waterDepth > 0.0) return shoreMaterial(temperature)
 
     // Materials that outrank a snow cap. Ice already is frozen water, and the three bare-ground biomes are
     // bare because nothing settles on them - which is as true in a blizzard as it is in a drought.
@@ -463,7 +621,7 @@ object SurfaceCover {
    * sixty-material palette that answers for five of them and leaves the rest alone **by construction**, not a
    * dispatch with a hole in it. Snow, ice, gravel, masonry and every rock reach it and are meant to.
    */
-  private fun blight(block: BlockType, blighted: Boolean): BlockType =
+  fun blight(block: BlockType, blighted: Boolean): BlockType =
     if (!blighted) block else when (block) {
       // Dry grass shares grassland's blighted twin rather than getting one of its own: corrupted ground is
       // corrupted ground, and a fifth palette row to distinguish two shades of dead scrub buys nothing.
@@ -475,9 +633,23 @@ object SurfaceCover {
       else -> block
     }
 
+  /**
+   * What a shore is made of at this temperature: sand, or shingle where it is too cold to weather to sand.
+   *
+   * Named rather than inlined into [cap] because the dry strand above the waterline has to be made of the same
+   * thing as the bed below it, and the two are decided in different files. Copying the branch would let a cold
+   * coast come out shingle under the water and sand above it, which is a seam drawn in exactly the place this
+   * whole change exists to remove.
+   */
+  fun shoreMaterial(temperature: Double): BlockType =
+    if (temperature < COLD_SHORE_TEMPERATURE) BlockType.GRAVEL else BlockType.SAND
+
+  /** Mean annual temperature below which a shore weathers to shingle rather than to sand. */
+  private const val COLD_SHORE_TEMPERATURE = 2.0
+
   /** Mean annual temperature below which the surface holds permanent snow. */
   private const val SNOW_TEMPERATURE = -1.5
 
   /** Water depth beyond which the bed is fine mud rather than sand. */
-  private const val DEEP_WATER = 60.0
+  const val DEEP_WATER = 60.0
 }
