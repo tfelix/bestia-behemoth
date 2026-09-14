@@ -315,6 +315,12 @@ class GroundCoverScatter(
         // Nor out of ice or year-round snow, asked of the cap block for the reason a trunk asks it there: the
         // one place deciding what the top of a column is made of also decides what can root in it. This is
         // ahead of the reed test on purpose - a frozen shore has no reeds either.
+        //
+        // It is the biome's cap and not always the materialiser's: a dry strand caps in sand, and this asks a
+        // question the strand cannot change the answer to - sand is neither ice nor snow. The consequence is
+        // that the upper beach scatters at its biome's density rather than a beach's, which reads as dune
+        // vegetation and has been left alone. Closing it wants the strand's own steepness, which this scatter
+        // is not given; see `SurfaceSampler.shoreCoverAt`.
         val cap = SurfaceCover.cap(biome, surface.temperatureAt(plant.x, plant.y), 0.0, blighted)
         if (cap == BlockType.ICE || cap == BlockType.SNOW) continue
 

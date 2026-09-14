@@ -134,7 +134,9 @@ class GroundCoverScatterTest {
    *
    * Recomputed at each emitted plant rather than trusted, because that veto is the one place this scatter can
    * disagree with the block the voxel pass puts under the plant - both call `SurfaceCover.cap`, so a
-   * disagreement is a bug in one of them.
+   * disagreement about *this* question is a bug in one of them. They can differ about the block itself on a
+   * shore, where the voxel pass lays a strand over the biome's cap; sand is neither ice nor snow, so the veto
+   * is unaffected. See `GroundCoverScatter` for what that costs.
    */
   @Test
   fun `no plant stands on ice or snow, and none in standing water`() {

@@ -563,10 +563,23 @@ class ChunkMaterializer(
     // One dither draw for both the soil and the cap, so a column cannot come out with blighted turf over
     // clean earth. Under water it is always false - corruption is zero over lakes and sea by construction.
     val blighted = !flooded && surface.isBlightedAt(worldX, worldY)
-    val soilBlock = SurfaceCover.soil(biome, blighted).id.toByte()
+
+    // The shore, where this column is near enough to the waterline to have one. Null everywhere else, and on
+    // lava, which has a shoreline of its own and wants no sand on it.
+    val shore =
+      if (moltenDepth > 0.0) null
+      else surface.shoreCoverAt(worldX, worldY, top - water, steepness, temperature)
+
+    // A dry strand is its own material all the way down, so digging one turns up more sand rather than the turf
+    // the biome would otherwise have put under it. Only the dry strand: under water the bed's soil is buried and
+    // changing it would move every submerged column for nothing visible.
+    val strandSoil = if (flooded) null else shore
+    val soilBlock =
+      (strandSoil?.let { SurfaceCover.blight(it, blighted) } ?: SurfaceCover.soil(biome, blighted)).id.toByte()
     // A paved street replaces the surface cap rather than sitting on it - the paving *is* the ground here.
     // Never under water, because a ford is a ford and a cobbled riverbed is not a thing.
     val paving = if (spans != null && !flooded) structures.pavingAt(worldX, worldY) else null
+
 
     val height = config.chunkHeight
     val rock = strata.columnAt(worldX, worldY)
@@ -581,8 +594,12 @@ class ChunkMaterializer(
     // so a limestone crag is white and the stone around it grey, from the stratigraphy, with no table for it.
     val bare =
       if (!steep) null else SurfaceCover.bareCover(biome) ?: rock.rockAt(top - config.voxelSize * 0.5)
+    // Lava floor, then bare rock, then paving, then the shore, then the biome. Bare rock above the shore is what
+    // gives a sea cliff its own bed rather than a strand of sand up its face; paving above it because a harbour
+    // quay is still a quay where it meets the water.
     val capBlock =
-      (bed ?: bare ?: paving ?: SurfaceCover.cap(biome, temperature, waterDepth, blighted)).id.toByte()
+      (bed ?: bare ?: paving ?: shore?.let { SurfaceCover.blight(it, blighted) }
+        ?: SurfaceCover.cap(biome, temperature, waterDepth, blighted)).id.toByte()
 
     /*
      * Two rules for two different kinds of boundary, and the distinction is the whole of the occupancy
@@ -901,7 +918,9 @@ class ChunkMaterializer(
     // Both change what a column materialises into, which is exactly what this number is for.
     // 3: trees stopped growing in yards and were thinned inside settlements, so a chunk over a town emits a
     // different set of props than it did. Props are not in the chunk blob, but they are chunk-tier output.
-    const val VERSION = 3
+    // 4: the shore got a dithered strand above the waterline and a dithered bed below the deep-water boundary,
+    // so every coastal column in every world caps in something it did not cap in before.
+    const val VERSION = 4
 
     /**
      * Margin added to a chunk's bounds when querying features, in metres.
