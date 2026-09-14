@@ -21,6 +21,9 @@ namespace BestiaBehemothClient.Tests
   /// </remarks>
   public class TerrainSeamTest
   {
+    /// <summary>The fixture palette, which is where WATER gets a surface of its own.</summary>
+    private static readonly BlockAppearance Appearance = TerrainFixtures.Appearance();
+
     private const int Across = 4;
     private const int LastColumn = Across - 1;
 
@@ -48,7 +51,7 @@ namespace BestiaBehemothClient.Tests
     [Fact]
     public void The_chunk_across_the_seam_is_not_reported_missing()
     {
-      var patch = TerrainPatch.Gather(AtTheSeam(), new ChunkKey(LastColumn, 0, 0), Wrap);
+      var patch = TerrainPatch.Gather(AtTheSeam(), new ChunkKey(LastColumn, 0, 0), Wrap, Appearance);
 
       Assert.NotNull(patch);
       Assert.DoesNotContain(new ChunkKey(0, 0, 0), patch.MissingNeighbours);
@@ -65,7 +68,7 @@ namespace BestiaBehemothClient.Tests
     [Fact]
     public void Every_recorded_neighbour_is_inside_the_world()
     {
-      var patch = TerrainPatch.Gather(AtTheSeam(), new ChunkKey(LastColumn, 0, 0), Wrap);
+      var patch = TerrainPatch.Gather(AtTheSeam(), new ChunkKey(LastColumn, 0, 0), Wrap, Appearance);
 
       Assert.NotNull(patch);
       Assert.All(patch.MissingNeighbours, key =>
@@ -85,7 +88,7 @@ namespace BestiaBehemothClient.Tests
     [Fact]
     public void Without_a_wrap_the_neighbour_past_the_edge_is_named_off_the_world()
     {
-      var patch = TerrainPatch.Gather(AtTheSeam(), new ChunkKey(LastColumn, 0, 0), ChunkWrap.None);
+      var patch = TerrainPatch.Gather(AtTheSeam(), new ChunkKey(LastColumn, 0, 0), ChunkWrap.None, Appearance);
 
       Assert.NotNull(patch);
       Assert.Contains(patch.MissingNeighbours, key => key.X == Across);
@@ -106,8 +109,8 @@ namespace BestiaBehemothClient.Tests
         }
       }
 
-      var wrapped = TerrainPatch.Gather(source, new ChunkKey(1, 1, 0), Wrap);
-      var plain = TerrainPatch.Gather(source, new ChunkKey(1, 1, 0), ChunkWrap.None);
+      var wrapped = TerrainPatch.Gather(source, new ChunkKey(1, 1, 0), Wrap, Appearance);
+      var plain = TerrainPatch.Gather(source, new ChunkKey(1, 1, 0), ChunkWrap.None, Appearance);
 
       Assert.NotNull(wrapped);
       Assert.NotNull(plain);

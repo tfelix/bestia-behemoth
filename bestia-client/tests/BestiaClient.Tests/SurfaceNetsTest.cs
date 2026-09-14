@@ -472,15 +472,63 @@ namespace BestiaBehemothClient.Tests
       Assert.InRange(lava.Max(v => v.Y), lavaTop - 0.0001, lavaTop + 0.0001);
       Assert.InRange(water.Max(v => v.Y), waterTop - 0.0001, waterTop + 0.0001);
 
-      // The crater floor is NOT drawn under the lava, and this test used to assert that it was. See the remarks
-      // above: a bed-to-fluid boundary changes the material and not the occupancy, ChunkBands is built from
-      // occupancy alone, so the cell is never visited. Asserting the opposite made the test fail on a fixture
-      // that is faithful to what the materialiser writes.
-      //
-      // It is a real limitation rather than a tidy one, and it is recorded rather than hidden: making it false
-      // means teaching ChunkBands to see a solid/fluid change as well as an occupancy change, which would mesh
-      // the bed of every lake and sea in the world. That is a cost and a decision, not a bug fix.
-      Assert.Null(mesh.Terrain);
+      // The crater floor IS drawn under the lava, and for two versions of this test it was not: a bed-to-fluid
+      // boundary changes the material and not the occupancy, and ChunkBands was built from occupancy alone, so
+      // the cell was never visited. Teaching it to see the material change was the decision that fixed it - the
+      // same one that put a bed under every lake and sea in the world.
+      Assert.NotNull(mesh.Terrain);
+      Assert.False(mesh.Terrain.IsEmpty);
+
+      // And the floor stands below the lava it holds, rather than being the pool's own underside drawn twice.
+      var floor = Interior(mesh.Terrain);
+      Assert.NotEmpty(floor);
+      Assert.True(
+        floor.Min(v => v.Y) < lavaTop,
+        "the crater floor should lie below the lava surface");
+    }
+
+    /// <summary>
+    /// A sea bed is drawn under standing water, and the water is not given an underside on top of it.
+    /// </summary>
+    /// <remarks>
+    /// The end-to-end form of the change: the fixture is faithful to what the materialiser writes for a submerged
+    /// column - ground full to the brim, the fluid holding the only partial voxel - so the sand/water interface is
+    /// a change of material and nothing else. Every sea floor and lake bed in the world used to be missing here,
+    /// which left the sea a transparent sheet over empty space and nothing for a depth-graded shader to read.
+    ///
+    /// <para>
+    /// The second half is what keeps the first from costing more than it buys. The interface bounds the ground and
+    /// the water both, so drawing it from both passes would put a water underside exactly where the bed is - two
+    /// coincident sheets, which is a doubly blended sea and, under an opaque pool, z-fighting. Every water vertex
+    /// standing at the waterline is the assertion that it is drawn once.
+    /// </para>
+    /// </remarks>
+    [Fact]
+    public void ASeaBedIsDrawnUnderStandingWaterAndTheWaterKeepsNoUnderside()
+    {
+      const int bed = 20;
+      const double waterline = 40.5;
+
+      var source = Surrounded((x, y) => TerrainFixtures.Submerged(x, y, 0, bed, waterline), radius: 2);
+      var mesh = Mesh(source);
+
+      Assert.NotNull(mesh?.Terrain);
+      Assert.NotNull(mesh.Water);
+
+      var floor = Interior(mesh.Terrain);
+      var surface = Interior(mesh.Water);
+
+      Assert.NotEmpty(floor);
+      Assert.NotEmpty(surface);
+
+      // The bed stands where it was written, not at the waterline.
+      Assert.All(floor, v => Assert.InRange(v.Y, bed - 0.5001f, bed + 0.5001f));
+
+      // And the water is its own top sheet only.
+      var top = (float)TerrainFixtures.Quantised(waterline);
+      Assert.All(
+        surface, v => Assert.True(v.Y > bed + 1.0f, $"water vertex at {v.Y} is down at the bed, not the surface"));
+      Assert.InRange(surface.Max(v => v.Y), top - 0.0001, top + 0.0001);
     }
 
     /// <summary>The lava surface is flat and faces up, like any other standing fluid.</summary>

@@ -25,6 +25,9 @@ namespace BestiaBehemothClient.Tests
   [Trait("Category", "Benchmark")]
   public class MeshThroughputTest
   {
+    /// <summary>The fixture palette, which is where WATER gets a surface of its own.</summary>
+    private static readonly BlockAppearance Appearance = TerrainFixtures.Appearance();
+
     private readonly ITestOutputHelper _output;
 
     public MeshThroughputTest(ITestOutputHelper output)
@@ -100,14 +103,14 @@ namespace BestiaBehemothClient.Tests
     {
       var chunk = TerrainFixtures.Rolling(0, 0);
 
-      ChunkBands.Of(chunk);
+      ChunkBands.Of(chunk, Appearance);
 
       var watch = Stopwatch.StartNew();
 
       const int runs = 200;
       for (var i = 0; i < runs; i++)
       {
-        ChunkBands.Of(chunk);
+        ChunkBands.Of(chunk, Appearance);
       }
 
       watch.Stop();

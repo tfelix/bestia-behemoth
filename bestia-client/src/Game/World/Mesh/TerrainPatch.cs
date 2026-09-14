@@ -55,6 +55,16 @@ namespace BestiaBehemothClient.Game.World.Mesh
     private readonly byte[] _occupancy;
     private readonly ulong[] _active;
 
+    /// <summary>
+    /// <see cref="_active"/> with the solid/fluid boundaries folded in, which only the terrain pass draws.
+    /// </summary>
+    /// <remarks>
+    /// Merged once here rather than per column in the mesher's own loop, and aliased to <see cref="_active"/>
+    /// outright on a patch with no such boundary - which is most of them. See
+    /// <see cref="ChunkBands.MaterialColumnMask"/> for why the two are kept apart at all.
+    /// </remarks>
+    private readonly ulong[] _activeTerrain;
+
     /// <summary>Cells per horizontal axis, apron included.</summary>
     public int Width { get; }
 
@@ -86,7 +96,8 @@ namespace BestiaBehemothClient.Game.World.Mesh
     private TerrainPatch(
       ChunkKey key, int size, int height, int width, int depth, int words,
       int quadZLo, int quadZHi,
-      byte[] blocks, byte[] occupancy, ulong[] active, ChunkKey[] missingNeighbours)
+      byte[] blocks, byte[] occupancy, ulong[] active, ulong[] activeTerrain,
+      ChunkKey[] missingNeighbours)
     {
       Key = key;
       Size = size;
@@ -99,6 +110,7 @@ namespace BestiaBehemothClient.Game.World.Mesh
       _blocks = blocks;
       _occupancy = occupancy;
       _active = active;
+      _activeTerrain = activeTerrain;
       MissingNeighbours = missingNeighbours;
     }
 
@@ -144,8 +156,13 @@ namespace BestiaBehemothClient.Game.World.Mesh
     }
 
     /// <summary>The active bits of one padded column, indexed by patch z.</summary>
-    public ReadOnlySpan<ulong> ActiveMask(int localX, int localY) =>
-      _active.AsSpan(((localY + ApronLow) * Width + (localX + ApronLow)) * Words, Words);
+    /// <param name="withMaterialBoundaries">
+    /// Whether the solid/fluid interface counts as active. True for the terrain pass, which is the one that draws
+    /// it, and false for the fluid passes, which would otherwise emit an underside coincident with it.
+    /// </param>
+    public ReadOnlySpan<ulong> ActiveMask(int localX, int localY, bool withMaterialBoundaries) =>
+      (withMaterialBoundaries ? _activeTerrain : _active)
+        .AsSpan(((localY + ApronLow) * Width + (localX + ApronLow)) * Words, Words);
 
     /// <summary>Converts a patch-z bit index back to a chunk-local cell index.</summary>
     public int LocalZOf(int patchZ) => patchZ + QuadZLo - ApronLow;
@@ -165,7 +182,8 @@ namespace BestiaBehemothClient.Game.World.Mesh
     /// the emptiness as settled - see <see cref="SurfaceNets.Build"/>, which is where that debt is raised.
     /// </para>
     /// </remarks>
-    public static TerrainPatch Gather(IChunkSource source, ChunkKey key, ChunkWrap wrap)
+    public static TerrainPatch Gather(
+      IChunkSource source, ChunkKey key, ChunkWrap wrap, BlockAppearance appearance)
     {
       var chunk = source.Get(key);
       var bands = source.BandsOf(key);
@@ -179,7 +197,7 @@ namespace BestiaBehemothClient.Game.World.Mesh
       var height = chunk.Height;
 
       var below = source.Get(new ChunkKey(key.X, key.Y, key.Z - 1));
-      var seamAtFloor = ChunkBands.SeamAtFloor(chunk, below);
+      var seamAtFloor = ChunkBands.SeamAtFloor(chunk, below, appearance);
 
       var lo = bands.IsUniform ? int.MaxValue : bands.MinActiveZ;
       var hi = bands.IsUniform ? -1 : bands.MaxActiveZ;
@@ -243,6 +261,7 @@ namespace BestiaBehemothClient.Game.World.Mesh
       var blocks = new byte[width * width * depth];
       var occupancy = new byte[width * width * depth];
       var raw = new ulong[width * width * words];
+      var rawMaterial = new ulong[width * width * words];
 
       // Global voxel z of patch z zero.
       var baseVoxelZ = (long)key.Z * height + quadZLo - ApronLow;
@@ -293,15 +312,18 @@ namespace BestiaBehemothClient.Game.World.Mesh
 
           GatherMask(
             source, chunkX, chunkY, localX, localY, key.Z, height,
-            quadZLo, depth, seamAtFloor, raw.AsSpan((py * width + px) * words, words));
+            quadZLo, depth, seamAtFloor,
+            raw.AsSpan((py * width + px) * words, words),
+            rawMaterial.AsSpan((py * width + px) * words, words));
         }
       }
 
       var active = Dilate(raw, width, words);
+      var activeTerrain = MergeMaterial(active, rawMaterial, width, words);
 
       return new TerrainPatch(
         key, size, height, width, depth, words, quadZLo, quadZHi,
-        blocks, occupancy, active, missing.ToArray());
+        blocks, occupancy, active, activeTerrain, missing.ToArray());
     }
 
     /// <summary>
@@ -397,24 +419,34 @@ namespace BestiaBehemothClient.Game.World.Mesh
     /// </remarks>
     private static void GatherMask(
       IChunkSource source, int chunkX, int chunkY, int localX, int localY,
-      int chunkZ, int height, int quadZLo, int depth, bool seamAtFloor, Span<ulong> mask)
+      int chunkZ, int height, int quadZLo, int depth, bool seamAtFloor,
+      Span<ulong> mask, Span<ulong> material)
     {
       var bands = source.BandsOf(new ChunkKey(chunkX, chunkY, chunkZ));
       var columnMask = bands == null ? default : bands.ColumnMask(localX, localY);
+      var materialMask = bands == null ? default : bands.MaterialColumnMask(localX, localY);
 
       for (var patchZ = 0; patchZ < depth; patchZ++)
       {
         var localZ = patchZ + quadZLo - ApronLow;
 
-        var active = localZ < 0
-                     || localZ >= height
-                     || bands == null
+        // Outside the chunk, or with nothing held, every cell is active: the patch cannot rule a crossing out
+        // where it has no scan to consult.
+        var unknown = localZ < 0 || localZ >= height || bands == null;
+
+        var active = unknown
                      || (seamAtFloor && localZ == 0)
                      || (columnMask[localZ >> 6] & (1UL << (localZ & 63))) != 0;
 
         if (active)
         {
           mask[patchZ >> 6] |= 1UL << (patchZ & 63);
+        }
+
+        if (!unknown && !materialMask.IsEmpty
+                     && (materialMask[localZ >> 6] & (1UL << (localZ & 63))) != 0)
+        {
+          material[patchZ >> 6] |= 1UL << (patchZ & 63);
         }
       }
     }
@@ -427,6 +459,39 @@ namespace BestiaBehemothClient.Game.World.Mesh
     /// occupancy never changes - which is exactly what a cliff face is. Without this the vertical faces of every
     /// step in the terrain would be missing.
     /// </remarks>
+    /// <summary>
+    /// <paramref name="active"/> with the dilated solid/fluid boundaries folded in, or itself where there are none.
+    /// </summary>
+    private static ulong[] MergeMaterial(ulong[] active, ulong[] rawMaterial, int width, int words)
+    {
+      var any = false;
+      foreach (var word in rawMaterial)
+      {
+        if (word == 0)
+        {
+          continue;
+        }
+
+        any = true;
+        break;
+      }
+
+      if (!any)
+      {
+        return active;
+      }
+
+      var dilated = Dilate(rawMaterial, width, words);
+      var merged = new ulong[active.Length];
+
+      for (var i = 0; i < merged.Length; i++)
+      {
+        merged[i] = active[i] | dilated[i];
+      }
+
+      return merged;
+    }
+
     private static ulong[] Dilate(ulong[] raw, int width, int words)
     {
       var dilated = new ulong[raw.Length];
