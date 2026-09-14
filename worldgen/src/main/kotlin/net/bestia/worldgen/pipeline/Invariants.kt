@@ -6,6 +6,7 @@ import net.bestia.worldgen.civ.DistrictChannels
 import net.bestia.worldgen.civ.GateChannels
 import net.bestia.worldgen.civ.SettlementChannels
 import net.bestia.worldgen.civ.SettlementTier
+import net.bestia.worldgen.civ.TownMetrics
 import net.bestia.worldgen.civ.WallChannels
 import net.bestia.worldgen.climate.SeasonalPrecipitation
 import net.bestia.worldgen.core.Actor
@@ -276,6 +277,7 @@ object Invariants {
     checkPropsAreWellPlaced(generated, ::fail)
     checkPoisBecomeProps(generated, ::fail)
     checkDistrictsHoldTheirBuildings(generated, ::fail)
+    checkBuiltTownsHaveStreets(generated, ::fail)
 
     // Place names. Not a stage, so nothing above has touched it - see `place/PlaceRegions`.
     checkEveryCornerOfTheWorldIsNamed(generated, ::fail)
@@ -337,6 +339,31 @@ object Invariants {
       checked++
     }
     require(checked == districts.size)
+  }
+
+  /**
+   * A town with buildings has streets.
+   *
+   * Habit 6, aimed at the one way the layout can fail without failing anything else: every plot in `TownStage`
+   * is cut from a street, so a town whose streets vanished should have no buildings either - unless the
+   * buildings came from somewhere the street network no longer backs, which is a layout that has quietly
+   * stopped being a layout. Nothing else here would notice: the buildings are in their settlement, inside
+   * their districts, out of the water, and standing on ground.
+   *
+   * Length rather than count, and a floor rather than zero, because a single stub is the same failure as none.
+   */
+  private fun checkBuiltTownsHaveStreets(generated: GeneratedWorld, fail: (String, String) -> Unit) {
+    for (town in TownMetrics.of(generated)) {
+      if (town.buildings < MIN_BUILDINGS_FOR_STREETS) continue
+      if (town.streetMetres >= MIN_STREET_METRES) continue
+
+      fail(
+        "built towns have streets",
+        "settlement ${town.settlement}, a ${town.tier}, has ${town.buildings} buildings and " +
+            "${town.streetMetres.toInt()} m of street"
+      )
+      return
+    }
   }
 
   private fun checkPondsHoldWaterWithoutAWall(
@@ -1095,6 +1122,12 @@ object Invariants {
    * hundred and sixty.
    */
   private const val ROAD_OFF_GRADE_TOLERANCE = 12.0
+
+  /** Buildings a town needs before its streets are worth asserting. Below this it is a farmstead cluster. */
+  private const val MIN_BUILDINGS_FOR_STREETS = 20
+
+  /** Metres of street such a town must have. One `StreetParams.segmentLength` is 34 m, so this is a few. */
+  private const val MIN_STREET_METRES = 120.0
 
   /** Kinds that cut or fill the ground and are emitted after the ponds are placed. See the shore check. */
   private val RESHAPES_THE_GROUND = setOf(

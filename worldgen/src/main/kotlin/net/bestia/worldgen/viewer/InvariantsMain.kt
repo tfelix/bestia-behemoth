@@ -1,6 +1,7 @@
 package net.bestia.worldgen.viewer
 
 import net.bestia.worldgen.bio.Biome
+import net.bestia.worldgen.civ.TownMetrics
 import net.bestia.worldgen.core.LayerId
 import net.bestia.worldgen.core.Timings
 import net.bestia.worldgen.spawn.VegetationStandChannels
@@ -106,6 +107,10 @@ object InvariantsMain {
     val lobes = ArrayList<Int>(seeds)
     val deltas = ArrayList<Int>(seeds)
     val districts = ArrayList<Int>(seeds)
+    // The wheel, per seed. Counted rather than asserted for the reason the corruption share is: the number
+    // worth seeing is the distribution moving, and any threshold tight enough to catch that would fail on the
+    // seeds that legitimately sit outside it.
+    val tangential = ArrayList<Double>(seeds)
     val corrupted = ArrayList<Double>(seeds)
     val dens = ArrayList<IntArray>(seeds)
     val manaLog = ArrayList<IntArray>(seeds)
@@ -155,6 +160,10 @@ object InvariantsMain {
         lobes.add(generated.world.features.all().count { it.kind == FeatureKind.ALLUVIAL_FAN })
         deltas.add(generated.world.features.all().count { it.kind == FeatureKind.DELTA })
         districts.add(generated.world.features.all().count { it.kind == FeatureKind.DISTRICT })
+        TownMetrics.of(generated).filter { it.buildings > 0 }
+          .map { it.tangentialShare }
+          .sorted()
+          .let { if (it.isNotEmpty()) tangential.add(it[it.size / 2]) }
         vents.add(generated.world.features.all().count { it.kind == FeatureKind.VOLCANIC_VENT })
         pools.add(generated.world.features.all().count { it.kind == FeatureKind.LAVA_POOL })
         volcanic.add(Invariants.landShareOfBiomes(generated, Biome.VOLCANIC_FIELD, Biome.GEOTHERMAL_BASIN))
@@ -310,6 +319,16 @@ object InvariantsMain {
             "${quarters.last()}, ${quarters.count { it == 0 }} of ${quarters.size} worlds with none, " +
             "${districts.sum()} in all"
       )
+      if (tangential.isNotEmpty()) {
+        val crosswise = tangential.sorted()
+        println(
+          "town streets: tangential share median " +
+              "${"%.2f".format(Locale.ROOT, crosswise[crosswise.size / 2])}, range " +
+              "${"%.2f".format(Locale.ROOT, crosswise.first())} .. " +
+              "${"%.2f".format(Locale.ROOT, crosswise.last())}, against " +
+              "${"%.2f".format(Locale.ROOT, TownMetrics.ISOTROPIC)} for a network with no preferred direction"
+        )
+      }
       val bows = oxbows.sorted()
       println(
         "oxbow lakes: median ${bows[bows.size / 2]}, range ${bows.first()} .. ${bows.last()}" +

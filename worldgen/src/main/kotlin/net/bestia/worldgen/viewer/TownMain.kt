@@ -7,6 +7,7 @@ import net.bestia.worldgen.civ.DistrictChannels
 import net.bestia.worldgen.civ.DistrictKind
 import net.bestia.worldgen.civ.SettlementChannels
 import net.bestia.worldgen.civ.SettlementTier
+import net.bestia.worldgen.civ.TownMetrics
 import net.bestia.worldgen.civ.TownParams
 import net.bestia.worldgen.civ.WallMaterial
 import net.bestia.worldgen.core.Actor
@@ -140,6 +141,11 @@ object TownMain {
      * there is no copy to drift.
      */
     private val town: TownParams get() = generated.params.town
+
+    /** Every town measured, by settlement index. Lazy so the run that never asks does not pay for it. */
+    private val metrics: Map<Int, TownMetrics.Measured> by lazy {
+      TownMetrics.of(generated).associateBy { it.settlement }
+    }
 
     private val places: List<Place> = build()
 
@@ -306,7 +312,29 @@ object TownMain {
       line("mean storeys", fixed(storeys.average()))
       line("stone walled", "$stone of $built (${percent(stone, built)})")
       footprints(place)
+      shape(place)
       quarters(place)
+    }
+
+    /**
+     * The layout as numbers rather than as a picture.
+     *
+     * Here because "does this look like a town" is the question every layout change is judged on, and a PNG
+     * answers it for one town on one seed and for nobody reading a diff.
+     * [TownMetrics.Measured.tangentialShare] is the one to watch: it is what says whether a town reads as a
+     * wheel.
+     */
+    private fun shape(place: Place) {
+      val measured = metrics[place.index] ?: return
+
+      println()
+      println("shape")
+      line("street length", "${measured.streetMetres.toInt()} m")
+      line("widest class", "${percent0(measured.wideShare)} of it")
+      line("tangential", "${fixed(measured.tangentialShare)} vs ${fixed(TownMetrics.ISOTROPIC)} isotropic")
+      line("built share", percent0(measured.builtShare) + " of district area")
+      line("to a wide street", "${measured.metresToWideStreet.toInt()} m, median")
+      line("footprint spread", "${fixed(measured.footprintSpread)}x, p90 over p10")
     }
 
     /**
@@ -551,6 +579,8 @@ object TownMain {
       line("businesses", "${places.sumOf { it.businesses.size }}")
       line("walled", "${places.count { it.record.wallYear != 0 }}")
 
+      shapeOfTheWorld()
+
       val missing = places.filter { it.standing && it.buildings.isEmpty() }
       if (missing.isNotEmpty()) {
         println()
@@ -559,6 +589,31 @@ object TownMain {
               missing.take(8).joinToString(", ") { "${it.index} (${it.record.population})" }
         )
       }
+    }
+
+    /**
+     * The layout metrics across every town, as medians.
+     *
+     * The sweep half of [shape]: one town's numbers say whether that town came out well, and these say whether
+     * a change moved the world. Medians rather than means because a single city with ten times the streets of
+     * a hamlet would otherwise be the only settlement in the average.
+     */
+    private fun shapeOfTheWorld() {
+      val all = metrics.values.filter { it.buildings > 0 }
+      if (all.isEmpty()) return
+
+      fun median(of: (TownMetrics.Measured) -> Double): Double {
+        val sorted = all.map(of).sorted()
+        return sorted[sorted.size / 2]
+      }
+
+      println()
+      println("  layout, median over ${all.size} towns")
+      line("  tangential", "${fixed(median { it.tangentialShare })} vs ${fixed(TownMetrics.ISOTROPIC)} isotropic")
+      line("  widest class", percent0(median { it.wideShare }) + " of street length")
+      line("  built share", percent0(median { it.builtShare }) + " of district area")
+      line("  to a wide street", "${median { it.metresToWideStreet }.toInt()} m")
+      line("  footprint spread", "${fixed(median { it.footprintSpread })}x")
     }
 
     // --- The map --------------------------------------------------------------------------------------
@@ -614,6 +669,8 @@ object TownMain {
     private fun line(label: String, value: String) = println("  ${label.padEnd(18)} $value")
 
     private fun fixed(value: Double) = "%.2f".format(Locale.ROOT, value)
+
+    private fun percent0(share: Double) = "%.0f%%".format(Locale.ROOT, 100.0 * share)
 
     private fun percent(n: Int, total: Int) =
       if (total == 0) "0%" else "%.1f%%".format(Locale.ROOT, 100.0 * n / total)
