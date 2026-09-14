@@ -95,7 +95,7 @@ class WorldParamsTest {
     // was green, which is only possible for an input that test did not cover - and `NavParams` and
     // `VegetationStandParams` were the two it did not. Both are pinned there now, so whatever moves next
     // names the class that moved instead of leaving this number to report that something did.
-    assertEquals(-3_264_135_427_915_998_225L, WorldParams.DEFAULT.version, "re-pin: the world tuning moved")
+    assertEquals(8_025_803_952_368_619_412L, WorldParams.DEFAULT.version, "re-pin: the world tuning moved")
     // Pinned as a pair so each half stays checkable: a world-tier retune has to move the number above and
     // leave this one alone, and a chunk-tier one the reverse. This is the half the chunk cache is keyed on.
     assertEquals(6_652_399_870_248_238_818L, WorldParams.DEFAULT.chunkTierVersion, "re-pin: the chunk tier moved")

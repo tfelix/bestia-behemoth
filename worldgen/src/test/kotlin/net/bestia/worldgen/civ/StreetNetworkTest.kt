@@ -138,6 +138,24 @@ class StreetNetworkTest {
    * the layout can hold them. The first version of this produced ninety plots for that city and the shortfall
    * was invisible on a map - which is what the `town` tool's "wanted versus built" line was added to surface,
    * and what this pins so it cannot come back.
+   *
+   * ### Why the bar came down from four hundred
+   *
+   * It was 400 while cross streets were arcs on a circle, and this frame yields **305** now that they run
+   * between main streets instead. That is a real cost and it is the one the change was made knowing: an arc is
+   * the longest chain a town has, and a long chain is the most plot-efficient shape there is, because
+   * `LotPlanner` wastes the frontage at each end of one. Concentric long chains are also exactly what made
+   * every town read as a wheel. A 128 km world goes from 2455 buildings to 2135 - thirteen per cent - and from
+   * 0.84 to 0.55 on `TownMetrics.tangentialShare`, against 0.64 for a network with no preferred direction.
+   *
+   * This frame is the worst case rather than the typical one: `flatFrame` has no approach roads, so the town
+   * gets the minimum three main streets and therefore the fewest cross streets. A town on a road has more.
+   *
+   * Four levers were measured against the loss and none of them paid: more cross streets per main street
+   * (plots peak at three and fall away - extra streets cut blocks below plot size), more branching, a lower
+   * `peoplePerHectare` (inert, because `builtRadiusFor` is already capped by `SettlementTier.footprintRadius`),
+   * and the chord bow (299 to 312 across its whole useful range). The bar is now 280: still three times the
+   * ninety-plot collapse it was written to catch, with room for tuning above it.
    */
   @Test
   fun `a city-sized town yields plots enough for its population`() {
@@ -146,7 +164,7 @@ class StreetNetworkTest {
     val lots = LotPlanner.subdivide(graph, frame, frontage = 9.0, depth = 16.0, setback = 3.5)
 
     assertTrue(
-      lots.size >= 400,
+      lots.size >= 280,
       "a 330 m town should hold hundreds of plots, got ${lots.size} from ${graph.edges.size} street edges"
     )
   }

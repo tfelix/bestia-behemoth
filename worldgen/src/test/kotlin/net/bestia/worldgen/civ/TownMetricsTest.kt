@@ -46,24 +46,26 @@ class TownMetricsTest {
   }
 
   @Test
-  fun `the wheel detector reads the arcs that make the wheel`() {
+  fun `the wheel detector reads the cross streets that make the wheel`() {
     // The claim the metric is built on, asserted rather than assumed: one world, one seed, one number changed.
-    // `arcSpan` is what makes a cross street cross, so cutting it to a stub must show up here and nowhere is it
-    // written down that it does - which is how a metric quietly stops reading the world it is pointed at.
+    // A cross street is the crosswise part of a town - the radials are spokes - so a town built without any
+    // must measure lower, and nowhere else is it written down that the metric notices. That is how a metric
+    // quietly stops reading the world it is pointed at.
     //
-    // Relative, not absolute: the level depends on how much of a town is core, so the assertion is that arcs
-    // move it, not that it sits anywhere in particular. See `TownMetrics.Measured.tangentialShare`.
-    val stubbed = StandardWorld.build(
+    // Relative, not absolute: the level depends on how much of a town is core, so the assertion is that cross
+    // streets move it, not that it sits anywhere in particular. See `TownMetrics.Measured.tangentialShare`.
+    val spokesOnly = StandardWorld.build(
       StandardWorld.demoConfig(seed = 909L).copy(widthCells = 160, heightCells = 160),
-      params = WorldParams(town = TownParams(streets = StreetParams(arcSpan = 0.06, arcJitter = 0.05)))
+      params = WorldParams(town = TownParams(streets = StreetParams(crossStreetsPerMainStreet = 0)))
     )
 
-    val withArcs = median(measured)
-    val without = median(TownMetrics.of(stubbed))
+    val withCrossStreets = median(measured)
+    val without = median(TownMetrics.of(spokesOnly))
 
     assertTrue(
-      withArcs > without,
-      "arcs measured $withArcs tangential and stubs measured $without - the metric did not see the arcs"
+      withCrossStreets > without,
+      "cross streets measured $withCrossStreets tangential and spokes alone measured $without - " +
+          "the metric did not see them"
     )
   }
 
