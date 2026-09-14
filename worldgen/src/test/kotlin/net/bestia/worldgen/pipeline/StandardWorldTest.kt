@@ -2,6 +2,7 @@ package net.bestia.worldgen.pipeline
 
 import net.bestia.worldgen.bio.Biome
 import net.bestia.worldgen.bio.BiomeStage
+import net.bestia.worldgen.coast.CoastStage
 import net.bestia.worldgen.climate.ClimateStage
 import net.bestia.worldgen.core.ChunkPos
 import net.bestia.worldgen.core.ChunkSeamCheck
@@ -88,6 +89,11 @@ class StandardWorldTest {
         // expiring, and the move is the whole reason the rest of this list shifted.
         VolcanismStage.ID,
         BiomeStage.ID,
+        // The coast needs the final surface and the sediment lobes, so it cannot sort above glacial or
+        // alluvium; everything between them and here is a name tie-break it lost. Nothing reads it back -
+        // the biomes above still classify BEACH from their own kilometre rule - so where exactly it lands in
+        // this band is free, and pinning it here is what makes that statement checkable.
+        CoastStage.ID,
         // Ponds come after the fans on a real edge rather than a tie-break: the rim search that decides how
         // high a tarn fills walks the finished ground, and a fan across a valley floor is a dam in it.
         PondStage.ID,

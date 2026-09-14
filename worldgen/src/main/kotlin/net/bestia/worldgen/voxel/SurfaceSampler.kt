@@ -1,6 +1,7 @@
 package net.bestia.worldgen.voxel
 
 import net.bestia.worldgen.bio.Biome
+import net.bestia.worldgen.coast.ShoreKind
 import net.bestia.worldgen.core.FloatLayer
 import net.bestia.worldgen.core.GenRng
 import net.bestia.worldgen.core.IntLayer
@@ -632,6 +633,38 @@ object SurfaceCover {
       BlockType.SAND -> BlockType.BLIGHTED_SAND
       else -> block
     }
+
+  /**
+   * What a coastline segment puts on a column, or null where the column is outside its strand.
+   *
+   * The counterpart of [SurfaceSampler.shoreCoverAt] and the reason that one stays: this answers where a traced
+   * coastline claims the column and knows the shore's *kind*, and that one answers everywhere else - a lake
+   * edge, a river bank, and any coast the trace did not reach. The two agree about the materials because both
+   * end at [shoreMaterial].
+   *
+   * A cliff and a rocky shore return null rather than a block: their strand is nothing, and null is what lets
+   * the materialiser's own bare-rock rule show the bed that is actually exposed there - a granite headland in
+   * granite and a limestone one white, from the stratigraphy and with no table to keep consistent.
+   *
+   * Exhaustive with no `else`, for the reason at the top of this object.
+   */
+  fun shoreCover(
+    shore: CoastShoreSampler.Shore,
+    heightAboveWater: Double,
+    temperature: Double
+  ): BlockType? {
+    // Outside the strand, or above the berm the waves built. Both bounds, because a wide strand on ground that
+    // climbs steeply would otherwise run up the hillside behind it.
+    if (shore.distance > shore.beachWidth) return null
+    if (heightAboveWater > shore.bermHeight) return null
+
+    return when (shore.kind) {
+      ShoreKind.SAND_BEACH -> shoreMaterial(temperature)
+      ShoreKind.SHINGLE_BEACH -> BlockType.GRAVEL
+      ShoreKind.DELTA_FLAT, ShoreKind.SALT_MARSH -> BlockType.MUD
+      ShoreKind.ROCKY_SHORE, ShoreKind.SEA_CLIFF -> null
+    }
+  }
 
   /**
    * What a shore is made of at this temperature: sand, or shingle where it is too cold to weather to sand.

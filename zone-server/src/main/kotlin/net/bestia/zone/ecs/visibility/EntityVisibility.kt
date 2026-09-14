@@ -11,7 +11,8 @@ import net.bestia.zone.util.EntityId
  * subscription a client holds for its terrain, which lives in `world.stream`, and `ZoneEngine` is the only
  * place that knows when an entity moved. This lets it say so without pointing `ecs/` at `world/stream/`.
  *
- * **Only safe to call from the tick thread** - the implementation reads the streaming layer.
+ * **Only safe to call from the tick thread** - the implementation reads the streaming layer. [reannounce] is
+ * the one exception, and says so.
  */
 interface EntityVisibility {
 
@@ -37,6 +38,21 @@ interface EntityVisibility {
    * away than an interest radius reaches, so a radius audience leaves the outer holders drawing stale state.
    */
   fun observersOf(entityId: EntityId): Set<AccountId>
+
+  /**
+   * Asks for [accountId] to be told again about every entity it can already see, as if each had just come
+   * into view.
+   *
+   * A client only becomes able to receive entity messages once its game scene is built, which is seconds
+   * after `SelectMasterCMSG` starts the world streaming to it - and the arrivals in between are announced
+   * exactly once and never repeated. That includes the player's own master, so without this the body the
+   * camera follows never gets a position or a visual and the world looks empty. `GetSelfHandler` is where
+   * the client says it is listening, and this is how that becomes an answer.
+   *
+   * **Safe to call from any thread**, unlike the rest of this interface: it only records the request, which
+   * is served by the next [drain] on the tick thread.
+   */
+  fun reannounce(accountId: AccountId)
 
   /**
    * Takes the visibility changes accumulated since the last call, and clears them.

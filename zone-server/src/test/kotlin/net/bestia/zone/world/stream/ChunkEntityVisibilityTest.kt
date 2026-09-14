@@ -156,6 +156,63 @@ class ChunkEntityVisibilityTest {
   }
 
   @Test
+  fun `a reannounce hands back everything the account already holds`() {
+    // The login race this exists for: the master and whatever stands beside it were announced while the
+    // client was still building its game scene, and nothing ever says so again.
+    hold(observer, ChunkPos(0, 0, 0))
+    hold(observer, ChunkPos(1, 0, 0))
+    visibility.moved(1L, Vec3L(5, 5, 0))
+    visibility.moved(2L, Vec3L(35, 5, 0))
+    visibility.drain()
+
+    visibility.reannounce(observer)
+
+    val delivery = visibility.drain().single()
+    assertEquals(observer, delivery.accountId)
+    // A set: the two stand in different chunks, and which of those the held-chunk scan reaches first is
+    // nobody's business.
+    assertEquals(setOf(1L, 2L), delivery.appeared.toSet())
+    assertEquals(emptyList(), delivery.vanished)
+  }
+
+  @Test
+  fun `a reannounce says nothing about a chunk the account does not hold`() {
+    hold(observer, ChunkPos(0, 0, 0))
+    visibility.moved(1L, Vec3L(5, 5, 0))
+    visibility.moved(2L, Vec3L(35, 5, 0))
+    visibility.drain()
+
+    visibility.reannounce(observer)
+
+    assertEquals(
+      listOf(EntityVisibility.Delivery(observer, appeared = listOf(1L), vanished = emptyList())),
+      visibility.drain(),
+      "entity 2 stands in a chunk this account was never sent"
+    )
+  }
+
+  @Test
+  fun `a reannounce is served once`() {
+    hold(observer, ChunkPos(0, 0, 0))
+    visibility.moved(1L, Vec3L(5, 5, 0))
+    visibility.drain()
+
+    visibility.reannounce(observer)
+    visibility.drain()
+
+    assertEquals(emptyList(), visibility.drain())
+  }
+
+  @Test
+  fun `a reannounce by an account holding nothing is not a delivery`() {
+    visibility.moved(1L, Vec3L(5, 5, 0))
+
+    visibility.reannounce(observer)
+
+    assertEquals(emptyList(), visibility.drain())
+  }
+
+  @Test
   fun `drain clears what it handed out`() {
     hold(observer, ChunkPos(0, 0, 0))
     visibility.moved(1L, Vec3L(5, 5, 0))
