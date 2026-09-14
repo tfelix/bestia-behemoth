@@ -18,6 +18,7 @@ import net.bestia.worldgen.core.GenRng
 import net.bestia.worldgen.core.LayerId
 import net.bestia.worldgen.core.Params
 import net.bestia.worldgen.core.ParamsDigest
+import net.bestia.worldgen.core.ParamsText
 import net.bestia.worldgen.core.Resolution
 import net.bestia.worldgen.core.Stage
 import net.bestia.worldgen.core.StageId
@@ -123,6 +124,25 @@ data class EconomyParams(
     require(innSpacing > 0.0) { "innSpacing must be positive, was $innSpacing" }
     require(innClearance >= 0.0) { "innClearance must not be negative, was $innClearance" }
   }
+
+  /** This, with any of [source]'s keys applied. Every field is a plain number, so all of them are reachable. */
+  fun overriddenBy(source: ParamsText.ParamsSource) = copy(
+    residentsPerSquareKilometre = source.double("residentsPerSquareKilometre", residentsPerSquareKilometre),
+    residentsPerSquareKilometreOfWater = source.double(
+      "residentsPerSquareKilometreOfWater",
+      residentsPerSquareKilometreOfWater
+    ),
+    cityCatchment = source.double("cityCatchment", cityCatchment),
+    townCatchment = source.double("townCatchment", townCatchment),
+    villageCatchment = source.double("villageCatchment", villageCatchment),
+    hamletCatchment = source.double("hamletCatchment", hamletCatchment),
+    resourceRange = source.double("resourceRange", resourceRange),
+    roadReach = source.double("roadReach", roadReach),
+    peoplePerHousehold = source.double("peoplePerHousehold", peoplePerHousehold),
+    peoplePerBusiness = source.double("peoplePerBusiness", peoplePerBusiness),
+    innSpacing = source.double("innSpacing", innSpacing),
+    innClearance = source.double("innClearance", innClearance)
+  )
 
   override fun digest() = ParamsDigest()
     .put("residentsPerSquareKilometre", residentsPerSquareKilometre)

@@ -311,13 +311,15 @@ data class WorldParams(
      * exist, and so a file that sets one of these gets "cannot be set from a file yet" instead of a suggestion
      * that it meant something else entirely. The idiom is `WorldGenSettings.IGNORED`.
      *
-     * The first tranche is what a designer reaches for first and what the sweep already measures - land
-     * fraction and lake counts come straight out of tectonics, erosion and its basins - so a tuning run is
-     * verifiable on the day the format lands rather than after all seventeen classes are wired.
+     * What is left is the middle of the terrain pipeline and the chunk tier. Both are wired the same way when
+     * their turn comes; they are last because the questions a designer asks of them ("why is this valley
+     * shaped like that") are answered by looking at one world, where the classes already wired answer
+     * questions asked of a *sweep* - land fraction, lake counts, ore coverage, how a town reads - which is a
+     * loop that needs a file to be worth running at all.
      */
     val NOT_YET_LOADABLE = setOf(
-      "glacial", "hydrology", "pond", "alluvium", "biome", "vegetation", "habitability", "settlement",
-      "town", "economy", "detail", "strata", "crystal", "aetherite", "vegetationStand", "groundCover"
+      "glacial", "hydrology", "pond", "alluvium", "biome", "vegetation", "detail", "strata", "crystal",
+      "aetherite", "vegetationStand", "groundCover"
     )
 
     /**
@@ -353,7 +355,15 @@ data class WorldParams(
         // number found by measurement. Note this reaches the offline tooling only: zone-server's
         // `WorldGenConfig.baseParams` is still hard-coded to `DEFAULT`.
         spawner = base.spawner.overriddenBy(text.scope("spawner")),
-        nav = base.nav.overriddenBy(text.scope("nav"))
+        nav = base.nav.overriddenBy(text.scope("nav")),
+        // The four civilisation classes together, because a town's look is not decided by any one of them:
+        // `town.streets.rings` lays the cross streets out, `settlement.maxCut` decides the ground they sit on,
+        // `habitability.harbourRange` decides where the town is at all, and `economy.peoplePerHousehold`
+        // decides how many buildings it wants. Tuning one without the others is not a loop anybody runs.
+        habitability = base.habitability.overriddenBy(text.scope("habitability")),
+        settlement = base.settlement.overriddenBy(text.scope("settlement")),
+        town = base.town.overriddenBy(text.scope("town")),
+        economy = base.economy.overriddenBy(text.scope("economy"))
       )
       text.checkAllConsumed(NOT_YET_LOADABLE)
       return loaded

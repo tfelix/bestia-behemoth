@@ -129,6 +129,18 @@ object TownMain {
     private val chronicle: Chronicle get() = generated.world.chronicle
     private val features = generated.world.features.all()
 
+    /**
+     * The layout parameters this tool has to agree with, taken from the world it is describing.
+     *
+     * They were three constants here once, with a comment saying they must match `TownParams`; the moment the
+     * plot dimensions changed they did not, which turns the "wanted versus built" line this view exists for
+     * into a confident lie. Reading `TownParams()` fixed that only while the defaults *were* what the stage
+     * ran with - now that a params file can set `town.*`, the defaults are one guess among many and the same
+     * lie comes back. [GeneratedWorld.params] is the resolved tuning the world was actually built with, so
+     * there is no copy to drift.
+     */
+    private val town: TownParams get() = generated.params.town
+
     private val places: List<Place> = build()
 
     private fun build(): List<Place> {
@@ -196,11 +208,11 @@ object TownMain {
       // number this tool exists to report is measured against it.
       val housed = minOf(
         record.population.toDouble(),
-        TOWN.maxBuildingsPerSettlement * TOWN.peoplePerBuilding
+        town.maxBuildingsPerSettlement * town.peoplePerBuilding
       )
-      val hectares = housed / TOWN.peoplePerHectare
+      val hectares = housed / town.peoplePerHectare
       return minOf(
-        Math.sqrt(maxOf(hectares, 0.05) * 10_000.0 / Math.PI) * TOWN.streets.boundaryReachFactor,
+        Math.sqrt(maxOf(hectares, 0.05) * 10_000.0 / Math.PI) * town.streets.boundaryReachFactor,
         tier.footprintRadius * 0.95
       ).coerceAtLeast(30.0)
     }
@@ -258,7 +270,7 @@ object TownMain {
      * or the per-settlement cap bound. Printing both makes them one glance apart.
      */
     fun layout(place: Place) {
-      val wanted = maxOf(1, (place.record.population / TOWN.peoplePerBuilding).toInt())
+      val wanted = maxOf(1, (place.record.population / town.peoplePerBuilding).toInt())
       val built = place.buildings.size
 
       println()
@@ -269,7 +281,7 @@ object TownMain {
       line(
         "buildings", "$built built, $wanted wanted" + when {
           built >= wanted -> ""
-          built >= TOWN.maxBuildingsPerSettlement -> " - the per-settlement cap bound"
+          built >= town.maxBuildingsPerSettlement -> " - the per-settlement cap bound"
           else -> " - the street layout had room for only $built plots"
         }
       )
@@ -609,16 +621,6 @@ object TownMain {
 
   /** Households sampled for the text view. Enough to see a spread, few enough to read. */
   private const val HOUSEHOLD_SAMPLE = 10
-
-  /**
-   * The layout parameters this tool has to agree with, read from the source rather than copied.
-   *
-   * They used to be three constants here with a comment saying they must match `TownParams` - and the moment
-   * the plot dimensions changed they did not, which turns the "wanted versus built" line this view exists for
-   * into a confident lie. `TownParams` has no state and its defaults *are* what `StandardWorld` builds the
-   * stage with, so reading them is both correct and free.
-   */
-  private val TOWN = TownParams()
 
   /** How much beyond the built radius the map shows, so the edge of town is visible. */
   private const val MAP_MARGIN = 1.35

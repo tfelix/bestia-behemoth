@@ -11,6 +11,7 @@ import net.bestia.worldgen.core.GenRng
 import net.bestia.worldgen.core.LayerId
 import net.bestia.worldgen.core.Params
 import net.bestia.worldgen.core.ParamsDigest
+import net.bestia.worldgen.core.ParamsText
 import net.bestia.worldgen.core.Resolution
 import net.bestia.worldgen.core.Stage
 import net.bestia.worldgen.core.StageId
@@ -168,6 +169,31 @@ data class SettlementParams(
       "roadWidthWavelength must be positive, was $roadWidthWavelength"
     }
   }
+
+  /**
+   * This, with any of [source]'s keys applied.
+   *
+   * [habitability] and [detail] are absent because `WorldParams.resolved` forwards them from the classes that
+   * own them - letting a file set them here would create the second copy that forwarding exists to prevent.
+   * Set `habitability.*` and `detail.*` instead.
+   */
+  fun overriddenBy(source: ParamsText.ParamsSource) = copy(
+    areaPerCity = source.double("areaPerCity", areaPerCity),
+    townsPerCity = source.double("townsPerCity", townsPerCity),
+    villagesPerTown = source.double("villagesPerTown", villagesPerTown),
+    hamletsPerVillage = source.double("hamletsPerVillage", hamletsPerVillage),
+    minHabitability = source.double("minHabitability", minHabitability),
+    networkBonus = source.double("networkBonus", networkBonus),
+    roadSpacing = source.double("roadSpacing", roadSpacing),
+    maxCut = source.double("maxCut", maxCut),
+    maxFill = source.double("maxFill", maxFill),
+    maxBridgeSpan = source.double("maxBridgeSpan", maxBridgeSpan),
+    roadRulingGrade = source.double("roadRulingGrade", roadRulingGrade),
+    roadGradePenalty = source.double("roadGradePenalty", roadGradePenalty),
+    roadMaxGradeFactor = source.double("roadMaxGradeFactor", roadMaxGradeFactor),
+    roadWidthVariation = source.double("roadWidthVariation", roadWidthVariation),
+    roadWidthWavelength = source.double("roadWidthWavelength", roadWidthWavelength)
+  )
 
   override fun digest() = ParamsDigest()
     .nested("habitability", habitability.digest().value)

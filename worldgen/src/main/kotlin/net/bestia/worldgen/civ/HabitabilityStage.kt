@@ -8,6 +8,7 @@ import net.bestia.worldgen.core.GenRng
 import net.bestia.worldgen.core.LayerId
 import net.bestia.worldgen.core.Params
 import net.bestia.worldgen.core.ParamsDigest
+import net.bestia.worldgen.core.ParamsText
 import net.bestia.worldgen.core.Resolution
 import net.bestia.worldgen.core.Stage
 import net.bestia.worldgen.core.StageId
@@ -62,6 +63,26 @@ data class HabitabilityParams(
     require(arableSlope > 0.0) { "arableSlope must be positive, was $arableSlope" }
     require(riverCrossingCost >= 0.0) { "riverCrossingCost must not be negative, was $riverCrossingCost" }
   }
+
+  /**
+   * This, with any of [source]'s keys applied.
+   *
+   * [culture] is absent, and for its own reason rather than the usual one: the other omissions in this module
+   * are *forwarded* fields, which `WorldParams.resolved` would overwrite anyway, whereas a culture is simply
+   * not a number. It is a named bundle of two dozen weights, so reaching it from a flat key list needs a
+   * catalogue lookup no accessor does yet. Setting `habitability.culture` therefore reports an unknown key,
+   * which is the honest answer rather than a silently ignored one.
+   */
+  fun overriddenBy(source: ParamsText.ParamsSource) = copy(
+    waterRange = source.double("waterRange", waterRange),
+    waterDischarge = source.double("waterDischarge", waterDischarge),
+    harbourRange = source.double("harbourRange", harbourRange),
+    prominenceRadius = source.int("prominenceRadius", prominenceRadius),
+    comfortTemperature = source.double("comfortTemperature", comfortTemperature),
+    comfortTolerance = source.double("comfortTolerance", comfortTolerance),
+    arableSlope = source.double("arableSlope", arableSlope),
+    riverCrossingCost = source.double("riverCrossingCost", riverCrossingCost)
+  )
 
   override fun digest() = ParamsDigest()
     .nested("culture", culture.digest().value)

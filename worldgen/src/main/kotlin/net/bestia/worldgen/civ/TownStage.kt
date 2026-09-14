@@ -11,6 +11,7 @@ import net.bestia.worldgen.core.LayerId
 import net.bestia.worldgen.core.Parallel
 import net.bestia.worldgen.core.Params
 import net.bestia.worldgen.core.ParamsDigest
+import net.bestia.worldgen.core.ParamsText
 import net.bestia.worldgen.core.Resolution
 import net.bestia.worldgen.core.Stage
 import net.bestia.worldgen.core.StageId
@@ -198,6 +199,32 @@ data class TownParams(
     // first street, which shows up as a hang rather than as a wrong town.
     require(streetSpacing > 0.0) { "streetSpacing must be positive, was $streetSpacing" }
   }
+
+  /**
+   * This, with any of [source]'s keys applied.
+   *
+   * [streets] is nested rather than flattened, so a cross street's radius is `town.streets.rings`. [grading]
+   * and [detail] are absent because `WorldParams.resolved` forwards them from the classes that own them; set
+   * `settlement.*` and `detail.*` instead.
+   */
+  fun overriddenBy(source: ParamsText.ParamsSource) = copy(
+    streets = streets.overriddenBy(source.scope("streets")),
+    peoplePerHectare = source.double("peoplePerHectare", peoplePerHectare),
+    peoplePerBuilding = source.double("peoplePerBuilding", peoplePerBuilding),
+    lotFrontage = source.double("lotFrontage", lotFrontage),
+    lotDepth = source.double("lotDepth", lotDepth),
+    setback = source.double("setback", setback),
+    lotStep = source.double("lotStep", lotStep),
+    minBuildingWidth = source.double("minBuildingWidth", minBuildingWidth),
+    minBuildingDepth = source.double("minBuildingDepth", minBuildingDepth),
+    maxBuildingsPerSettlement = source.int("maxBuildingsPerSettlement", maxBuildingsPerSettlement),
+    maxBuildableSlope = source.double("maxBuildableSlope", maxBuildableSlope),
+    riverClearance = source.double("riverClearance", riverClearance),
+    wallHeight = source.double("wallHeight", wallHeight),
+    wallThickness = source.double("wallThickness", wallThickness),
+    gateWidth = source.double("gateWidth", gateWidth),
+    streetSpacing = source.double("streetSpacing", streetSpacing)
+  )
 
   override fun digest() = ParamsDigest()
     .nested("grading", grading.digest().value)

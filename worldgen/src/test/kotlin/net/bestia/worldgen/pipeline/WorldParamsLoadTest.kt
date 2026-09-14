@@ -3,6 +3,10 @@ package net.bestia.worldgen.pipeline
 import net.bestia.worldgen.core.Params
 import net.bestia.worldgen.core.ParamsText
 import net.bestia.worldgen.core.ParamsTextException
+import net.bestia.worldgen.civ.HabitabilityParams
+import net.bestia.worldgen.civ.SettlementParams
+import net.bestia.worldgen.civ.StreetParams
+import net.bestia.worldgen.civ.TownParams
 import net.bestia.worldgen.climate.ClimateParams
 import net.bestia.worldgen.geo.ClosedBasinParams
 import net.bestia.worldgen.geo.DropletParams
@@ -12,6 +16,7 @@ import net.bestia.worldgen.karst.CaveParams
 import net.bestia.worldgen.mana.CorruptionParams
 import net.bestia.worldgen.climate.WeatherParams
 import net.bestia.worldgen.mana.ManaParams
+import net.bestia.worldgen.pop.EconomyParams
 import net.bestia.worldgen.resource.GradeMix
 import net.bestia.worldgen.resource.OreTuning
 import net.bestia.worldgen.resource.ResourceParams
@@ -37,11 +42,16 @@ import kotlin.test.assertTrue
 class WorldParamsLoadTest {
 
   /**
-   * The classes whose loaders are written, each with the fields `resolved` forwards rather than reads.
+   * The classes whose loaders are written, each with the fields that deliberately have no file key.
    *
-   * A forwarded field is deliberately absent from the loader: `WorldParams.resolved` overwrites it from the
-   * field that owns it, so a file key would be applied and then discarded. It stays in the *digest* because the
-   * value still decides terrain - it is simply decided elsewhere.
+   * Two reasons a field is on that third list, and both leave it in the *digest*, because the value still
+   * decides terrain - it is simply not set from here:
+   *
+   * - **Forwarded.** `WorldParams.resolved` overwrites it from the class that owns it, so a file key would be
+   *   applied and then discarded.
+   * - **Not expressible.** The format reads numbers, and a few fields are not one. `habitability.culture` is
+   *   a named bundle of two dozen weights; reaching it from a flat key list needs a catalogue lookup no
+   *   accessor does yet.
    */
   private val loadable: List<Triple<String, Params, Set<String>>> = listOf(
     Triple("tectonics", TectonicsParams(), emptySet()),
@@ -64,7 +74,17 @@ class WorldParamsLoadTest {
     Triple("droplets", DropletParams(), emptySet()),
     // Loadable because `candidateSpacing` is quadratic in the den count and the only way to know the right
     // value is to generate a world and count - which is what `:worldgen:invariants -Pparams=...` is for.
-    Triple("spawner", SpawnerParams(), emptySet())
+    Triple("spawner", SpawnerParams(), emptySet()),
+    // The civilisation classes. `culture` is the one field here that is not a number; the rest of this scope
+    // is, and `harbourRange` and friends are what move a town before it is ever laid out.
+    Triple("habitability", HabitabilityParams(), setOf("culture")),
+    // Both forwarded: `habitability` from the class above, `detail` from the chunk tier.
+    Triple("settlement", SettlementParams(), setOf("habitability", "detail")),
+    // `grading` is the settlement class forwarded under another name, `detail` the chunk tier's. `streets` is
+    // neither - it is owned here, and has its own row below.
+    Triple("town", TownParams(), setOf("grading", "detail")),
+    Triple("town.streets", StreetParams(), emptySet()),
+    Triple("economy", EconomyParams(), emptySet())
   )
 
   @Test
@@ -75,7 +95,7 @@ class WorldParamsLoadTest {
 
     val prefixes = loadable.map { it.first }.toSet()
 
-    for ((prefix, params, forwarded) in loadable) {
+    for ((prefix, params, withoutFileKey) in loadable) {
       val digested = params.digest().names.toSet()
       // Every key under this prefix that no *deeper* row has claimed. Deliberately not "the remainder holds no
       // dot", which was the same thing until `resource.ore` arrived: its keys are `<ore name>.<field>`, so it
@@ -93,7 +113,7 @@ class WorldParamsLoadTest {
       // covered by its own row above rather than by a flat key here. Recognised by that row existing - so a
       // nested object nobody listed stays in `expected`, matches no loader key, and fails.
       val nested = digested.filter { "$prefix.$it" in prefixes }.toSet()
-      val expected = digested - forwarded - nested
+      val expected = digested - withoutFileKey - nested
 
       assertEquals(
         expected,
@@ -145,6 +165,30 @@ class WorldParamsLoadTest {
       StandardWorld.pipeline(config, loaded).pipelineVersion,
       "...and it has to reach pipelineVersion, which is the number the server stores"
     )
+  }
+
+  @Test
+  fun `a loaded civilisation value survives resolve, and a forwarded one still arrives`() {
+    // `resolved` rebuilds `town` and `settlement` to forward the values they must not hold their own copy of,
+    // and a `copy` that named the wrong field would drop everything a file had just set into it. Asserted on a
+    // nested key (`town.streets`) because that is the one `resolved` rewrites around.
+    val text = ParamsText.parse(
+      """
+      params-format = 1
+      town.lotFrontage = 20
+      town.streets.minRadials = 5
+      settlement.maxCut = 4
+      """.trimIndent(),
+      "test.params"
+    )
+
+    val resolved = WorldParams.load(text).resolved
+
+    assertEquals(20.0, resolved.town.lotFrontage, "a town key was dropped by resolve")
+    assertEquals(5, resolved.town.streets.minRadials, "a nested street key was dropped by resolve")
+    // The other direction: the town stage predicts the grading, so the settlement's loaded number has to be
+    // what it predicts against. This is the copy that would silently hand it the defaults instead.
+    assertEquals(4.0, resolved.town.grading.maxCut, "the loaded settlement grading never reached the town")
   }
 
   @Test

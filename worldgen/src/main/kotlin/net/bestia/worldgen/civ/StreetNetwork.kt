@@ -3,6 +3,7 @@ package net.bestia.worldgen.civ
 import net.bestia.worldgen.core.GenRng
 import net.bestia.worldgen.core.Params
 import net.bestia.worldgen.core.ParamsDigest
+import net.bestia.worldgen.core.ParamsText
 import net.bestia.worldgen.fields.DoubleIntHeap
 import net.bestia.worldgen.vector.Intersections
 import net.bestia.worldgen.vector.Polyline
@@ -585,6 +586,26 @@ data class StreetParams(
    */
   val boundaryReachFactor: Double
     get() = sqrt(boundaryAspect * (1.0 + boundaryAspectJitter)) * (1.0 + boundaryRoughness)
+
+  /** This, with any of [source]'s keys applied. Reached as `town.streets.*`, since [TownParams] owns it. */
+  fun overriddenBy(source: ParamsText.ParamsSource) = copy(
+    segmentLength = source.double("segmentLength", segmentLength),
+    angleJitter = source.double("angleJitter", angleJitter),
+    branchChance = source.double("branchChance", branchChance),
+    snapRadius = source.double("snapRadius", snapRadius),
+    minRadials = source.int("minRadials", minRadials),
+    maxRadials = source.int("maxRadials", maxRadials),
+    rings = source.doubleList("rings", rings),
+    ringVertices = source.int("ringVertices", ringVertices),
+    arcSpan = source.double("arcSpan", arcSpan),
+    arcJitter = source.double("arcJitter", arcJitter),
+    boundaryVertices = source.int("boundaryVertices", boundaryVertices),
+    boundaryRoughness = source.double("boundaryRoughness", boundaryRoughness),
+    boundaryLobes = source.double("boundaryLobes", boundaryLobes),
+    boundaryAspect = source.double("boundaryAspect", boundaryAspect),
+    boundaryAspectJitter = source.double("boundaryAspectJitter", boundaryAspectJitter),
+    maxDepth = source.int("maxDepth", maxDepth)
+  )
 
   override fun digest() = ParamsDigest()
     .put("segmentLength", segmentLength)
