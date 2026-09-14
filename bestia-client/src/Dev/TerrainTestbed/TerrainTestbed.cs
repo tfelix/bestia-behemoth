@@ -297,7 +297,7 @@ namespace BestiaBehemothClient.Dev
       AddChild(generated);
 
       var appearance = BuildAppearance();
-      var source = BuildChunks();
+      var source = BuildChunks(appearance);
       var material = ApplyTextures(ShowDebugView ? DebugMaterial : TerrainMaterial);
 
       // Centred on the origin so the camera in the scene frames it whatever the patch size is, and so the
@@ -539,9 +539,9 @@ namespace BestiaBehemothClient.Dev
     }
 
     /// <summary>The whole field as chunks, with the band scan the mesher needs alongside.</summary>
-    private Field BuildChunks()
+    private Field BuildChunks(BlockAppearance appearance)
     {
-      var field = new Field();
+      var field = new Field(appearance);
 
       for (var chunkY = 0; chunkY < ChunksAcross(Rows); chunkY++)
       {
@@ -725,13 +725,19 @@ namespace BestiaBehemothClient.Dev
     {
       private readonly Dictionary<ChunkKey, VoxelChunk> _chunks = new();
       private readonly Dictionary<ChunkKey, ChunkBands> _bands = new();
+      private readonly BlockAppearance _appearance;
+
+      public Field(BlockAppearance appearance)
+      {
+        _appearance = appearance;
+      }
 
       public void Put(VoxelChunk chunk)
       {
         var key = new ChunkKey(chunk.ChunkX, chunk.ChunkY, chunk.ChunkZ);
 
         _chunks[key] = chunk;
-        _bands[key] = ChunkBands.Of(chunk);
+        _bands[key] = ChunkBands.Of(chunk, _appearance);
       }
 
       public VoxelChunk Get(ChunkKey key) => _chunks.TryGetValue(key, out var chunk) ? chunk : null;

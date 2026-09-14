@@ -46,6 +46,20 @@ namespace BestiaBehemothClient.Game.World
   /// </remarks>
   public sealed class ClientChunkStore : IChunkSource
   {
+    /// <summary>
+    /// The palette the band scan reads surface membership from.
+    /// </summary>
+    /// <remarks>
+    /// Injected rather than reached for, so a test can drive the store over invented materials the way it
+    /// already drives the mesher. Production has one palette and it is <see cref="BlockAppearance.Current"/>.
+    /// </remarks>
+    private readonly BlockAppearance _appearance;
+
+    public ClientChunkStore(BlockAppearance appearance = null)
+    {
+      _appearance = appearance ?? BlockAppearance.Current;
+    }
+
     private readonly System.Collections.Concurrent.ConcurrentDictionary<ChunkKey, Held> _held = new();
 
     /// <summary>Announced by the most recent manifest, whether held yet or not.</summary>
@@ -180,7 +194,7 @@ namespace BestiaBehemothClient.Game.World
     /// <summary>Stores a decoded chunk. Replaces whatever was held at that position.</summary>
     public void Put(ChunkKey key, VoxelChunk chunk, uint revision)
     {
-      _held[key] = new Held { Chunk = chunk, Revision = revision, Bands = ChunkBands.Of(chunk) };
+      _held[key] = new Held { Chunk = chunk, Revision = revision, Bands = ChunkBands.Of(chunk, _appearance) };
     }
 
     /// <summary>
@@ -241,7 +255,7 @@ namespace BestiaBehemothClient.Game.World
       // Rescanning the whole chunk is a few dozen microseconds and cannot be subtly incorrect, which patching
       // the mask in place could easily be. Removal-only does not make an incremental update safe either: a
       // carve can destroy the last boundary in a column as easily as create one.
-      held.Bands = ChunkBands.Of(held.Chunk);
+      held.Bands = ChunkBands.Of(held.Chunk, _appearance);
 
       return true;
     }

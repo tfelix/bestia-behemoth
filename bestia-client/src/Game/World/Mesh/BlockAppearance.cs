@@ -436,12 +436,12 @@ namespace BestiaBehemothClient.Game.World.Mesh
     /// continuous sheet, with water's alpha and no glow.
     ///
     /// <para>
-    /// <b>Drawn opaque on purpose, and that is load bearing rather than aesthetic.</b> <c>ChunkBands</c> marks active
-    /// cells from the occupancy byte alone, and the materialiser fills everything below the air interface to
-    /// full - rock and the fluid above it alike - so a rock/fluid interface is not an occupancy change and the
-    /// bed under a fluid is never meshed. (The same is already true of every lake bed in the world.) An alpha
-    /// here would therefore show a hole where the pool's basin should be. Molten rock is not transparent
-    /// either, so there is no tension between the two reasons.
+    /// <b>Drawn opaque because molten rock is opaque</b>, and for one reason now rather than two. The second used
+    /// to be that the basin under a pool was never meshed at all - <c>ChunkBands</c> marked cells from the
+    /// occupancy byte alone, and the materialiser fills everything below the air interface to full, rock and
+    /// fluid alike, so a rock/fluid interface was not an occupancy change. An alpha would have shown a hole where
+    /// the crater floor should be. <see cref="ChunkBands.Of"/> reads the material change too now, so the floor is
+    /// there; the pool is opaque on its own merits.
     /// </para>
     ///
     /// <para>
@@ -483,6 +483,23 @@ namespace BestiaBehemothClient.Game.World.Mesh
     /// </remarks>
     private readonly SurfaceSlot[] _slot = BuildSlots();
 
+    /// <summary>
+    /// Which surface each id belongs to, for every id rather than every declared one.
+    /// </summary>
+    /// <remarks>
+    /// The same table <see cref="_mask"/> holds transposed, and it exists because <see cref="ChunkBands"/> asks
+    /// a different question of it: not "is this id mine" for one known surface, but "do these two ids belong to
+    /// the same surface" for two ids it has just found either side of a run boundary. Answering that from the
+    /// masks would be a loop over every kind per boundary.
+    ///
+    /// <para>
+    /// An undeclared id - air included - reads as <see cref="SurfaceKind.Terrain"/>. Air needs no entry of its
+    /// own because occupancy is zero exactly where the block is air, so every boundary against it is already a
+    /// run boundary in the occupancy walk.
+    /// </para>
+    /// </remarks>
+    private readonly SurfaceKind[] _surface = new SurfaceKind[Ids];
+
     private readonly string[] _name = new string[Ids];
 
     /// <summary>The mesher's mask for one surface.</summary>
@@ -495,6 +512,9 @@ namespace BestiaBehemothClient.Game.World.Mesh
 
     /// <summary>The texture layer a material draws from. Grey for one this palette does not know.</summary>
     public SurfaceSlot SlotOf(byte blockId) => _slot[blockId];
+
+    /// <summary>Which surface a material is drawn into. Terrain for one this palette does not know.</summary>
+    public SurfaceKind SurfaceOf(byte blockId) => _surface[blockId];
 
     /// <summary>The material's name, or a bare <c>#id</c> for one this palette does not know. For logging.</summary>
     public string NameOf(int blockId) =>
@@ -523,6 +543,7 @@ namespace BestiaBehemothClient.Game.World.Mesh
 
         appearance._colour[block.Id] = block.Colour;
         appearance._slot[block.Id] = block.Slot;
+        appearance._surface[block.Id] = block.Surface;
         appearance._name[block.Id] = block.Name;
       }
 

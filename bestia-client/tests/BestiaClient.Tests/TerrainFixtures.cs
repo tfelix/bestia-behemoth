@@ -19,12 +19,15 @@ namespace BestiaBehemothClient.Tests
     private readonly Dictionary<ChunkKey, VoxelChunk> _chunks = new();
     private readonly Dictionary<ChunkKey, ChunkBands> _bands = new();
 
+    /// <summary>The palette the band scan reads surface membership from; the fixture's, not the shipping one.</summary>
+    private readonly BlockAppearance _appearance = TerrainFixtures.Appearance();
+
     internal void Put(VoxelChunk chunk)
     {
       var key = new ChunkKey(chunk.ChunkX, chunk.ChunkY, chunk.ChunkZ);
 
       _chunks[key] = chunk;
-      _bands[key] = ChunkBands.Of(chunk);
+      _bands[key] = ChunkBands.Of(chunk, _appearance);
     }
 
     public VoxelChunk Get(ChunkKey key) => _chunks.TryGetValue(key, out var chunk) ? chunk : null;
@@ -144,6 +147,50 @@ namespace BestiaBehemothClient.Tests
         if (fraction > 0.0)
         {
           blocks[offset + top] = Grass;
+          occupancy[offset + top] = Quantise(fraction);
+        }
+      }
+
+      return new VoxelChunk(chunkX, chunkY, chunkZ, Size, Height, blocks, occupancy);
+    }
+
+    /// <summary>
+    /// A flat sea bed under a flat sheet of standing water: sand to <paramref name="bed"/>, water to
+    /// <paramref name="waterline"/>, air above.
+    /// </summary>
+    /// <remarks>
+    /// The shape <c>ChunkMaterializer</c> writes for a submerged column, and the one the band scan used to be
+    /// blind to. Both runs are filled to 255 - the materialiser fills everything below the air interface, ground
+    /// and fluid alike - so the only boundary occupancy can see is the one at the waterline. The bed is a change
+    /// of block with no change of occupancy at all.
+    /// </remarks>
+    internal static VoxelChunk Submerged(int chunkX, int chunkY, int chunkZ, int bed, double waterline)
+    {
+      var blocks = new byte[Size * Size * Height];
+      var occupancy = new byte[Size * Size * Height];
+
+      var top = (int)Math.Floor(waterline);
+      var fraction = waterline - top;
+
+      for (var column = 0; column < Size * Size; column++)
+      {
+        var offset = column * Height;
+
+        for (var z = 0; z < bed; z++)
+        {
+          blocks[offset + z] = Sand;
+          occupancy[offset + z] = 255;
+        }
+
+        for (var z = bed; z < top; z++)
+        {
+          blocks[offset + z] = Water;
+          occupancy[offset + z] = 255;
+        }
+
+        if (fraction > 0.0)
+        {
+          blocks[offset + top] = Water;
           occupancy[offset + top] = Quantise(fraction);
         }
       }
@@ -370,6 +417,15 @@ namespace BestiaBehemothClient.Tests
     /// <paramref name="waterLevel"/> is separate from <paramref name="baseElevation"/> on purpose. Folding them
     /// into one parameter makes raising the waterline raise the terrain with it, which leaves the water permanently
     /// lapping at the mean surface and almost nothing genuinely submerged.
+    /// </para>
+    ///
+    /// <para>
+    /// <b>Its submerged columns are lenient, and that is worth knowing before writing a test against them.</b> The
+    /// ground keeps its partial top voxel under water here, where <c>ChunkMaterializer</c> fills it and gives the
+    /// only fraction to the fluid - so a bed in this fixture is an occupancy boundary and every scan finds it.
+    /// That is why the sea beds missing from the whole world went unnoticed for as long as they did.
+    /// <see cref="Submerged"/> is the faithful shape; use it for anything that turns on what the bed is made of or
+    /// whether it is drawn at all.
     /// </para>
     /// </remarks>
     internal static VoxelChunk Rolling(int chunkX, int chunkY, int baseElevation = 40, int? waterLevel = null)

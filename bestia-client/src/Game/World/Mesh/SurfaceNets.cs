@@ -93,9 +93,16 @@ namespace BestiaBehemothClient.Game.World.Mesh
     /// occupancy rather than the block id is what makes water and terrain two runs of the same code.</param>
     /// <param name="appearance">Vertex colours.</param>
     /// <param name="voxelSize">Metres per voxel, from the world info.</param>
+    /// <param name="kind">
+    /// Which surface this pass is drawing. It decides only whether the solid/fluid interface is reachable: that
+    /// boundary bounds the ground and the fluid both, and the terrain pass is the one that draws it.
+    /// </param>
     public static ChunkSurface Build(
-      TerrainPatch patch, byte[] includeMask, BlockAppearance appearance, float voxelSize)
+      TerrainPatch patch, byte[] includeMask, BlockAppearance appearance, float voxelSize,
+      BlockAppearance.SurfaceKind kind)
     {
+      var drawsTheBed = kind == BlockAppearance.SurfaceKind.Terrain;
+
       var width = patch.Width;
       var depth = patch.Depth;
 
@@ -130,7 +137,7 @@ namespace BestiaBehemothClient.Game.World.Mesh
       {
         for (var px = 1; px <= width - 2; px++)
         {
-          var mask = patch.ActiveMask(px - TerrainPatch.ApronLow, py - TerrainPatch.ApronLow);
+          var mask = patch.ActiveMask(px - TerrainPatch.ApronLow, py - TerrainPatch.ApronLow, drawsTheBed);
 
           for (var pz = 1; pz <= depth - 2; pz++)
           {
@@ -752,7 +759,7 @@ namespace BestiaBehemothClient.Game.World.Mesh
     public static ChunkMesh Build(
       IChunkSource source, ChunkKey key, BlockAppearance appearance, float voxelSize, ChunkWrap wrap)
     {
-      var patch = TerrainPatch.Gather(source, key, wrap);
+      var patch = TerrainPatch.Gather(source, key, wrap, appearance);
       if (patch == null)
       {
         // Nothing to draw here - but if the slab below is not held, that is a provisional verdict rather than a
@@ -781,7 +788,9 @@ namespace BestiaBehemothClient.Game.World.Mesh
           continue;
         }
 
-        surfaces[kind] = Build(patch, appearance.MaskOf((BlockAppearance.SurfaceKind)kind), appearance, voxelSize);
+        surfaces[kind] = Build(
+          patch, appearance.MaskOf((BlockAppearance.SurfaceKind)kind), appearance, voxelSize,
+          (BlockAppearance.SurfaceKind)kind);
         any |= surfaces[kind] != null;
       }
 
