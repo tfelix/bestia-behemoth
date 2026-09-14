@@ -29,6 +29,7 @@ import net.bestia.worldgen.voxel.VegetationParams
 import net.bestia.worldgen.history.Names
 import net.bestia.worldgen.hydro.HydrologyParams
 import net.bestia.worldgen.hydro.AlluviumParams
+import net.bestia.worldgen.coast.CoastParams
 import net.bestia.worldgen.hydro.PondParams
 import net.bestia.worldgen.hydro.HydrologyStage
 import net.bestia.worldgen.pipeline.StandardWorld
@@ -94,6 +95,7 @@ class ParamsVersionTest {
     HydrologyParams(),
     PondParams(),
     AlluviumParams(),
+    CoastParams(),
     VolcanismParams(),
     BiomeParams(),
     VegetationParams(),
@@ -213,6 +215,7 @@ class ParamsVersionTest {
       "HydrologyParams" to -5_783_982_653_209_774_790L,
       "PondParams" to 8_297_690_367_138_694_458L,
       "AlluviumParams" to -2_759_034_807_589_268_237L,
+      "CoastParams" to 991_316_927_533_791_172L,
       "VolcanismParams" to -2_979_846_723_859_093_814L,
       "BiomeParams" to 2_575_683_307_830_781_540L,
       // Moved by entityShare and clumpWavelength, then by buildingYard, townRetention and townEdgeShare -

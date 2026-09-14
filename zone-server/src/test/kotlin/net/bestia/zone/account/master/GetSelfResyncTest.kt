@@ -16,9 +16,15 @@ import net.bestia.zone.ecs.core.Dirtyable
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.testWorld
+import net.bestia.zone.ecs.RecordingEntityVisibility
 import net.bestia.zone.ecs.item.CarryCapacity
+import net.bestia.zone.ecs.item.Equipment
+import net.bestia.zone.ecs.place.Place
+import net.bestia.zone.ecs.place.PlaceRef
+import net.bestia.zone.item.equip.EquipmentSlots
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.util.EntityId
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -43,18 +49,21 @@ class GetSelfResyncTest {
   private val connectionInfoService = mockk<ConnectionInfoService>()
   private val bestiaInfoFactory = mockk<BestiaInfoFactory>()
   private val outMessageProcessor = mockk<OutMessageProcessor>(relaxed = true)
+  private val entityVisibility = RecordingEntityVisibility()
 
   private val handler = GetSelfHandler(
     outMessageProcessor = outMessageProcessor,
     connectionInfoService = connectionInfoService,
     bestiaInfoFactory = bestiaInfoFactory,
-    world = world
+    world = world,
+    entityVisibility = entityVisibility
   )
 
-  /** Every owner-only component a selected master carries that the HUD and status window read. */
+  /** Every owner-only component a selected master carries that its own windows read. */
   private val resyncedComponents: List<KClass<out net.bestia.zone.ecs.core.Component>> = listOf(
     Health::class, Mana::class, Stamina::class, CarryCapacity::class, Exp::class, Level::class,
-    StatusValues::class, BaseStatusValues::class, StatusPoints::class, SkillPoints::class
+    StatusValues::class, BaseStatusValues::class, StatusPoints::class, SkillPoints::class,
+    Equipment::class, Place::class
   )
 
   private fun givenSelectedMaster(): EntityId {
@@ -69,6 +78,8 @@ class GetSelfResyncTest {
       add(id, BaseStatusValues(9, 9, 9, 9, 9, 9))
       add(id, StatusPoints(0))
       add(id, SkillPoints(0))
+      add(id, Equipment(availableSlotMask = EquipmentSlots.ALL))
+      add(id, Place(PlaceRef("Ironcrag Wood")))
     }
 
     every { connectionInfoService.getMasterId(accountId) } returns masterId
@@ -102,6 +113,18 @@ class GetSelfResyncTest {
     world.dirtyFlags(entityId).forEach { (name, dirty) ->
       assertTrue(dirty, "$name must be re-dirtied so the client receives it after SelfSMSG")
     }
+  }
+
+  @Test
+  fun `getting self also asks for everything in view to be announced again`() {
+    // The other half of the same race, and the half that made the world look empty. Position, visual and
+    // speed are public rather than owner-only, so they travel by snapshot when an entity comes into view -
+    // once, while the client was still building its game scene, and never again.
+    givenSelectedMaster()
+
+    handler.handle(GetSelfCMSG(playerId = accountId))
+
+    assertEquals(listOf(accountId), entityVisibility.reannounced)
   }
 
   @Test

@@ -183,6 +183,7 @@ class ChunkMaterializer(
     val rivers = RiverWaterSampler(nearby)
     val ponds = PondWaterSampler(nearby)
     val lava = LavaSampler(nearby)
+    val shores = CoastShoreSampler(nearby)
     val ore = OreVeins(nearby, config.seed, grades, corruption, aetheriteCorruption)
     val bridges = BridgeDecks(nearby)
     val structures = TownStructures(nearby, config.seed)
@@ -206,7 +207,7 @@ class ChunkMaterializer(
         fillColumn(
           out, out.columnOffset(localX, localY), baseZ, worldX, worldY,
           heights[localX, localY], gradientAt(heights, localX, localY),
-          rivers, ponds, lava, ore, bridges, structures, caves, spans
+          rivers, ponds, lava, shores, ore, bridges, structures, caves, spans
         )
       }
     }
@@ -502,6 +503,7 @@ class ChunkMaterializer(
     rivers: RiverWaterSampler,
     ponds: PondWaterSampler,
     lava: LavaSampler,
+    shores: CoastShoreSampler,
     ore: OreVeins,
     bridges: BridgeDecks,
     structures: TownStructures,
@@ -566,9 +568,14 @@ class ChunkMaterializer(
 
     // The shore, where this column is near enough to the waterline to have one. Null everywhere else, and on
     // lava, which has a shoreline of its own and wants no sand on it.
+    // The coastline answers first where one claims this column: it knows how wide the strand is here and what
+    // the shore is made of, which is a fact about this stretch of coast rather than about this one column's
+    // slope. `shoreCoverAt` remains the answer inland, on a lake edge, and anywhere the trace found no line.
     val shore =
       if (moltenDepth > 0.0) null
-      else surface.shoreCoverAt(worldX, worldY, top - water, steepness, temperature)
+      else shores.shoreAt(worldX, worldY)
+        ?.let { SurfaceCover.shoreCover(it, top - water, temperature) }
+        ?: surface.shoreCoverAt(worldX, worldY, top - water, steepness, temperature)
 
     // A dry strand is its own material all the way down, so digging one turns up more sand rather than the turf
     // the biome would otherwise have put under it. Only the dry strand: under water the bed's soil is buried and

@@ -2,6 +2,7 @@ package net.bestia.worldgen.pipeline
 
 import net.bestia.worldgen.bio.BiomeParams
 import net.bestia.worldgen.civ.HabitabilityParams
+import net.bestia.worldgen.coast.CoastParams
 import net.bestia.worldgen.civ.NavParams
 import net.bestia.worldgen.civ.SettlementParams
 import net.bestia.worldgen.civ.TownParams
@@ -79,6 +80,9 @@ data class WorldParams(
 
   /** The sediment lobes rivers build: fans where they leave confinement, deltas where they meet the sea. */
   val alluvium: AlluviumParams = AlluviumParams(),
+
+  /** Where the water meets the land, and what the shore is made of where it does. */
+  val coast: CoastParams = CoastParams(),
 
   /**
    * Where the craters are and how volcanic each province is.
@@ -223,6 +227,10 @@ data class WorldParams(
       // The pond stage walks outward from a valley axis until the ground rises above the water, so it has to
       // walk the surface a chunk will build. Its own detail noise would put every shoreline somewhere else.
       pond = pond.copy(detail = detail),
+      // The coast stage traces the waterline against the finished surface, for the pond stage's reason and
+      // with more at stake: the coastal shelf is flat enough that a couple of metres of detail noise moves the
+      // line hundreds of metres sideways, so its own copy of that noise would put every beach somewhere else.
+      coast = coast.copy(detail = detail),
       // The town stage predicts the grading feature's cut and fill in order to pick a building's floor, and
       // samples the same detail noise the chunks will. Both are the settlement stage's and the chunk tier's
       // numbers respectively, not its own.
@@ -250,6 +258,7 @@ data class WorldParams(
       r.hydrology.digest().value,
       r.pond.digest().value,
       r.alluvium.digest().value,
+      r.coast.digest().value,
       r.volcanism.digest().value,
       r.biome.digest().value,
       r.vegetation.digest().value,

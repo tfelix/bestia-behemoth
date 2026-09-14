@@ -1,6 +1,12 @@
 package net.bestia.zone.scenarios
 
+import net.bestia.zone.account.GetSelfCMSG
+import net.bestia.zone.ecs.account.MasterVisualComponentSMSG
 import net.bestia.zone.ecs.core.WorldView
+import net.bestia.zone.ecs.item.EquipmentComponentSMSG
+import net.bestia.zone.ecs.movement.SpeedSMSG
+import net.bestia.zone.ecs.place.PlaceComponentSMSG
+import net.bestia.zone.message.SelfSMSG
 import net.bestia.zone.mocks.GameClientMock
 import net.bestia.zone.world.stream.ChunkCoords
 import net.bestia.zone.world.stream.ChunkManifestSMSG
@@ -30,6 +36,9 @@ import kotlin.test.assertTrue
  * orders the components. This proves the chain: an entity that nothing has marked dirty still reaches a client
  * whose chunk subscription covers it, which is the whole point and is exactly what a radius broadcast over
  * dirty components could never do.
+ *
+ * The second test covers the same delivery driven by `GetSelfCMSG` rather than by an arrival, which is how a
+ * client that was still loading its game scene during the first announcement gets told again.
  */
 class EntityVisibilityScenario : BestiaNoSocketScenario(clearMessagesBetweenTests = false) {
 
@@ -139,6 +148,56 @@ class EntityVisibilityScenario : BestiaNoSocketScenario(clearMessagesBetweenTest
       assertTrue(
         clientPlayer1.receivedAny(PositionSMSG::class) { it.entityId == wanderer }
       )
+    }
+  }
+
+  /**
+   * The login race, replayed: everything a master is made of is announced once, in the seconds between
+   * `SelectMasterCMSG` and the client's game scene being built, and the client is not listening for any of it
+   * yet. [clearMessages] is that client - it stands for a scene that had not loaded when the burst went out.
+   *
+   * `GetSelfCMSG` is the moment it starts listening, so it has to answer with the whole body and not only the
+   * half of it the HUD reads. Without the position and the visual the camera follows a node at the world
+   * origin with nothing drawn on it, which is a login into an empty grey world.
+   */
+  @Test
+  @Order(2)
+  fun `asking for self re-announces the whole master, not only its HUD components`() {
+    val client = clientPlayer2
+    val masterEntityId = connectionInfoService.getActiveEntityId(client.connectedPlayerId)
+
+    // The public half travels by snapshot, and a snapshot is keyed on the ground the client holds - so the
+    // client has to be holding its own chunk before asking, exactly as it is by the time its scene is up.
+    holdTerrain(client)
+    val masterChunk = ChunkCoords.chunkOf(
+      chunkService.config,
+      assertNotNull(world.read { get(masterEntityId, Position::class)?.toVec3L() })
+    )
+    await { assertTrue(masterChunk in subscriptions.sentTo(client.connectedPlayerId)) }
+
+    client.clearMessages()
+    client.sendMessage(GetSelfCMSG(client.connectedPlayerId))
+
+    await {
+      assertNotNull(client.tryGetLastReceived(SelfSMSG::class), "the reply the rest is an answer to")
+
+      // Public, and so the snapshot's half. These are the ones that were missing: nothing re-dirties the
+      // position or the visual of a master that is standing still, so the announcement at spawn was the only
+      // one it ever got.
+      assertTrue(
+        client.receivedAny(MasterVisualComponentSMSG::class) { it.entityId == masterEntityId },
+        "without this the player has no body to draw"
+      )
+      assertTrue(
+        client.receivedAny(PositionSMSG::class) { it.entityId == masterEntityId },
+        "without this the body stays at the world origin and the camera looks at nothing"
+      )
+      assertTrue(client.receivedAny(SpeedSMSG::class) { it.entityId == masterEntityId })
+
+      // Owner-only, and so the resync's half - deliberately left out of a snapshot, which is why both halves
+      // have to answer this message.
+      assertTrue(client.receivedAny(PlaceComponentSMSG::class) { it.entityId == masterEntityId })
+      assertTrue(client.receivedAny(EquipmentComponentSMSG::class) { it.entityId == masterEntityId })
     }
   }
 }

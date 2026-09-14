@@ -6,6 +6,7 @@ import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.AccountId
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
+import java.util.concurrent.ConcurrentLinkedQueue
 
 /**
  * Which dynamic entities stand in which chunk, so "who can see this entity" is answered from the subscription
@@ -15,7 +16,7 @@ import org.springframework.stereotype.Component
  * Chunks are stored **normalised**, because that is how [ChunkSubscriptionService] keys the subscription - on
  * a wrapping world an un-normalised key matches no holder.
  *
- * Tick thread only, like the rest of the streaming layer.
+ * Tick thread only, like the rest of the streaming layer - except [reannounce], which only enqueues.
  */
 @Component
 class ChunkEntityVisibility(
@@ -43,6 +44,13 @@ class ChunkEntityVisibility(
    */
   private val pendingAppear = HashMap<AccountId, MutableSet<EntityId>>()
   private val pendingVanish = HashMap<AccountId, MutableSet<EntityId>>()
+
+  /**
+   * Accounts owed a fresh look at everything they hold. A concurrent queue rather than a third
+   * [pendingAppear]-shaped map, because this is the only thing here written from off the tick thread - see
+   * [EntityVisibility.reannounce].
+   */
+  private val pendingReannounce = ConcurrentLinkedQueue<AccountId>()
 
   override fun moved(entityId: EntityId, position: Vec3L) {
     val move = reindex(entityId, position) ?: return
@@ -72,7 +80,13 @@ class ChunkEntityVisibility(
     return subscriptions.subscribersOf(chunk)
   }
 
+  override fun reannounce(accountId: AccountId) {
+    pendingReannounce.add(accountId)
+  }
+
   override fun drain(): List<EntityVisibility.Delivery> {
+    takeReannouncements()
+
     if (pendingAppear.isEmpty() && pendingVanish.isEmpty()) return emptyList()
 
     val deliveries = (pendingAppear.keys + pendingVanish.keys).mapNotNull { accountId ->
@@ -87,6 +101,25 @@ class ChunkEntityVisibility(
     pendingVanish.clear()
 
     return deliveries
+  }
+
+  /**
+   * Folds the requests made since the last tick into this one's arrivals: everything standing in a chunk the
+   * account still holds counts as appearing again.
+   *
+   * Nothing queued to vanish can be resurrected by this. An account stops seeing an entity either because the
+   * entity left for a chunk it does not hold, which takes it out of [residents] for every chunk it does, or
+   * because the chunk itself was unsent, which takes it out of [ChunkSubscriptionService.sentTo] - so neither
+   * survives the scan below.
+   */
+  private fun takeReannouncements() {
+    while (true) {
+      val accountId = pendingReannounce.poll() ?: break
+
+      subscriptions.sentTo(accountId).forEach { chunk ->
+        residents[chunk]?.forEach { entityId -> appear(accountId, entityId) }
+      }
+    }
   }
 
   private fun appear(accountId: AccountId, entityId: EntityId) {

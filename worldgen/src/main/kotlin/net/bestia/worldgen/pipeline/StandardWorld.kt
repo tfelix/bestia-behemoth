@@ -17,6 +17,7 @@ import net.bestia.worldgen.core.World
 import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.core.WorldGenPipeline
 import net.bestia.worldgen.civ.HabitabilityStage
+import net.bestia.worldgen.coast.CoastStage
 import net.bestia.worldgen.civ.NavGraphStage
 import net.bestia.worldgen.civ.SettlementStage
 import net.bestia.worldgen.civ.TownStage
@@ -218,6 +219,11 @@ object StandardWorld {
       // The sediment half of the same idea: sub-kilometre shapes on the floodplain that the raster cannot
       // hold. Fed from the erosion stage's budget rather than replacing it - see `hydro/AlluviumStage.kt`.
       AlluviumStage(base, p.alluvium),
+      // After alluvium, because a delta is the one shore whose kind is decided by a feature rather than by a
+      // threshold. Nothing in the pipeline reads it back - `BiomeStage` still classifies BEACH from its own
+      // kilometre rule, and gating that rung on the shore kind would reseed the biomes and everything below
+      // them for a cosmetic gain. The chunk tier is the only consumer. See `coast/CoastStage.kt`.
+      CoastStage(base, p.coast),
       // The kilometre summary of the chunk tier's own scatter, built from the same tuning object the
       // materialiser gets - so "how wooded is this cell" and "is there a tree at this position" are two
       // views of one function rather than two models of one thing.

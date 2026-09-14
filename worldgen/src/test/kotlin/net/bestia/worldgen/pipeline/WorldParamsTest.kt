@@ -97,12 +97,13 @@ class WorldParamsTest {
     // names the class that moved instead of leaving this number to report that something did.
     //
     // Both halves moved together when the streets were widened and the trees were kept out of yards, and
-    // that is the expected shape: `TownParams` is world tier, `VegetationParams` is folded into both, and
-    // `ChunkMaterializer.VERSION` went to 3. A change that moved only one of them would be the surprise.
-    assertEquals(-2_446_861_619_251_729_615L, WorldParams.DEFAULT.version, "re-pin: the world tuning moved")
+    // again when the shore was given a width and then a traced coastline: `TownParams` is world tier,
+    // `ShoreParams` reaches both, and `ChunkMaterializer.VERSION` went to 4. A change that moved only one
+    // of them would be the surprise.
+    assertEquals(-5_762_055_766_498_439_789L, WorldParams.DEFAULT.version, "re-pin: the world tuning moved")
     // Pinned as a pair so each half stays checkable: a world-tier retune has to move the number above and
     // leave this one alone, and a chunk-tier one the reverse. This is the half the chunk cache is keyed on.
-    assertEquals(6_085_531_705_398_771_436L, WorldParams.DEFAULT.chunkTierVersion, "re-pin: the chunk tier moved")
+    assertEquals(690_848_464_108_215_249L, WorldParams.DEFAULT.chunkTierVersion, "re-pin: the chunk tier moved")
   }
 
   private fun config() = StandardWorld.demoConfig().copy(widthCells = 64, heightCells = 64)

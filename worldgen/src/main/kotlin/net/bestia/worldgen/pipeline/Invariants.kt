@@ -44,6 +44,7 @@ import net.bestia.worldgen.vector.FeatureEvaluator
 import net.bestia.worldgen.vector.FeatureId
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.FootprintFeature
+import net.bestia.worldgen.coast.CoastChannels
 import net.bestia.worldgen.vector.MarkerFeature
 import net.bestia.worldgen.vector.PointFeature
 import net.bestia.worldgen.vector.PointMarker
@@ -61,6 +62,8 @@ import net.bestia.worldgen.spawn.VegetationStandChannels
 import kotlin.math.abs
 import kotlin.math.floor
 import kotlin.math.hypot
+import kotlin.math.sqrt
+import kotlin.math.min
 
 /**
  * The regression harness: properties every generated world must have, checked over as many seeds as you
@@ -264,6 +267,11 @@ object Invariants {
     checkWoundsAreInCorruptedGround(generated, ::fail)
 
     // Bestia spawners.
+    checkTheWorldHasACoastline(generated, ::fail)
+    checkCoastlineLengthIsPlausible(generated, ::fail)
+    checkCoastlineIsAtTheWaterline(generated, ::fail)
+    checkNoCoastlineAroundALake(generated, ::fail)
+
     checkTheWorldHasSpawners(generated, ::fail)
     checkSpawnersAreOnDryLand(generated, ::fail)
     checkSpawnersAreWellFormed(generated, ::fail)
@@ -2659,6 +2667,27 @@ object Invariants {
   private const val INN_SETTLEMENT_CLEARANCE = 500.0
 
   /**
+   * Metres a coastline station may stand from sea level before the trace is judged to be on the wrong surface.
+   *
+   * Loose enough for the sub-cell interpolation and the resampling to move a vertex, tight enough that a trace
+   * run against the kilometre raster cannot pass: on the coastal shelf's own gradient of about a hundredth,
+   * two metres of vertical error is two hundred metres of horizontal error.
+   */
+  private const val WATERLINE_TOLERANCE = 2.0
+
+  /** How far around a segment to gather the features that shaped the ground under it. */
+  private const val WATERLINE_PROBE = 500.0
+
+  /**
+   * How many stations may stand off the waterline before the trace is judged to be on the wrong surface.
+   *
+   * Two percent. A trace against the kilometre raster would put nearly all of them out, so anything short of a
+   * large share is not that failure - and the steep ground that produces the legitimate outliers is a small
+   * fraction of any world's shore.
+   */
+  private const val WATERLINE_STRAY_SHARE = 0.02
+
+  /**
    * The corrupted share of the land is the share the designer asked for.
    *
    * The claim `CorruptionStage`'s quantile solve makes, and the only thing that can falsify it. A fixed
@@ -2803,6 +2832,174 @@ object Invariants {
       val ran = generated.world.pipelineVersion != 0L &&
           generated.world.layers[LayerId.CORRUPTION] != null
       if (ran) fail("the world has spawners", "the spawner stage ran and produced no dens at all")
+    }
+  }
+
+  /**
+   * The world has a coastline at all.
+   *
+   * `checkLandFraction` already guarantees every world has both land and sea, so the antecedent is
+   * unconditional and there is no seed this passes vacuously on.
+   */
+  private fun checkTheWorldHasACoastline(generated: GeneratedWorld, fail: (String, String) -> Unit) {
+    if (generated.world.features.all().any { it.kind == FeatureKind.COASTLINE }) return
+    if (generated.world.pipelineVersion == 0L || generated.world.layers[LayerId.ELEVATION] == null) return
+
+    val elevation = generated.world.layers[LayerId.ELEVATION] as? FloatLayer ?: return
+    val seaLevel = generated.config.seaLevel
+    val land = elevation.data.count { it > seaLevel }
+
+    fail(
+      "the world has a coastline",
+      "the coast stage ran and traced nothing, on a world of $land land cells " +
+          "out of ${elevation.data.size}"
+    )
+  }
+
+  /**
+   * The coastline is about as long as a coastline should be.
+   *
+   * **The check that actually matters**, because a trace that emits three segments passes the existence check
+   * above and looks exactly like one that works. The floor is the perimeter of a square continent of the same
+   * area, which every real coastline exceeds because no real one is a square; the ceiling catches the opposite
+   * failure, a trace that has come apart into fractal noise and is emitting the grid rather than the shore.
+   */
+  private fun checkCoastlineLengthIsPlausible(generated: GeneratedWorld, fail: (String, String) -> Unit) {
+    val segments = generated.world.features.all().filter { it.kind == FeatureKind.COASTLINE }
+    if (segments.isEmpty()) return
+
+    val elevation = generated.world.layers[LayerId.ELEVATION] as? FloatLayer ?: return
+    val config = generated.config
+    val metres = config.baseResolution.metresPerCell
+    val seaLevel = config.seaLevel
+
+    val landCells = elevation.data.count { it > seaLevel }
+    if (landCells == 0) return
+
+    // Segments overlap by a few stations by construction, so measure the claims rather than the geometry -
+    // the claims tile each loop exactly once and the geometry does not.
+    var length = 0.0
+    for (segment in segments) {
+      val marker = segment as? MarkerFeature ?: continue
+      val stations = marker.stations ?: continue
+      val start = stations.valueAt(stations.channel(CoastChannels.CLAIM_START), 0)
+      val end = stations.valueAt(stations.channel(CoastChannels.CLAIM_END), 0)
+      length += if (end == Double.MAX_VALUE) marker.centerline.length - start else end - start
+    }
+
+    val floor = 2.0 * sqrt(landCells.toDouble()) * metres
+    val ceiling = 40.0 * min(config.widthMetres, config.heightMetres)
+
+    if (length < floor) {
+      fail(
+        "the coastline is a plausible length",
+        "${(length / 1000).toInt()} km of shore on a world with $landCells land cells, " +
+            "which cannot enclose them - the trace is losing most of the coast"
+      )
+      return
+    }
+
+    if (length > ceiling) {
+      fail(
+        "the coastline is a plausible length",
+        "${(length / 1000).toInt()} km of shore, past the ${(ceiling / 1000).toInt()} km ceiling - " +
+            "the trace has come apart into noise"
+      )
+    }
+  }
+
+  /**
+   * The coastline stands at the waterline.
+   *
+   * The check that catches a trace run against the kilometre raster instead of the finished surface. That
+   * mistake is invisible in a feature count and in a length, and shows up here as vertical error - which on the
+   * coastal shelf's own gradient is hundreds of metres of horizontal error.
+   *
+   * **A share of the stations rather than every one of them**, and the distinction is what makes it a useful
+   * check rather than a flaky one. The failure being hunted is systematic: a line traced on the wrong surface
+   * is in the wrong place along its whole length, and would put nearly every station out. A handful out is
+   * something else - the ocean margin's shelf step drops twelve metres over a short distance, and where the
+   * ground is that steep the sub-cell interpolation and the resampling between them can move a station a couple
+   * of metres vertically while barely moving it at all horizontally. Failing on one such station would be
+   * asserting the grid resolution, not the surface.
+   */
+  private fun checkCoastlineIsAtTheWaterline(generated: GeneratedWorld, fail: (String, String) -> Unit) {
+    val segments = generated.world.features.all().filter { it.kind == FeatureKind.COASTLINE }
+    if (segments.isEmpty()) return
+
+    val seaLevel = generated.config.seaLevel
+    val base = generated.base
+
+    var sampled = 0
+    var stray = 0
+    var worst = 0.0
+    var worstAt: Vec2d? = null
+
+    for (segment in segments) {
+      val marker = segment as? MarkerFeature ?: continue
+      val points = marker.centerline.points
+
+      // The same surface the trace was run against, which is the base *plus* every feature that cuts or piles
+      // onto it. Reading the bare field instead would flag a station beside a river mouth or on a delta lobe
+      // for standing where the feature that shaped it says it should - an error in the check, not the trace.
+      val evaluator = FeatureEvaluator(
+        generated.world.features.query(marker.bbox.expanded(WATERLINE_PROBE)).filter { it.affectsHeight }
+      )
+
+      for (i in points.indices step 10) {
+        val at = points[i]
+        val error = evaluator.heightAt(at.x, at.y, base.heightAt(at.x, at.y)) - seaLevel
+
+        sampled++
+        if (abs(error) > WATERLINE_TOLERANCE) stray++
+        if (abs(error) > abs(worst)) {
+          worst = error
+          worstAt = at
+        }
+      }
+    }
+
+    if (sampled == 0) return
+
+    val share = stray.toDouble() / sampled
+    if (share > WATERLINE_STRAY_SHARE) {
+      fail(
+        "the coastline stands at the waterline",
+        "$stray of $sampled stations stand more than ${WATERLINE_TOLERANCE.toInt()} m from sea level " +
+            "(${(share * 100).toInt()}%), worst ${"%.1f".format(worst)} m at $worstAt - " +
+            "the trace is on the wrong surface"
+      )
+    }
+  }
+
+  /**
+   * No coastline around a lake.
+   *
+   * The most likely extraction bug and the quietest: `FlowRouting.oceanMask` exists because water below sea
+   * level is not the same question as water joined to the sea, and a trace that forgot the distinction would
+   * simply grow sandy shores around every inland lake, with nothing failing anywhere.
+   */
+  private fun checkNoCoastlineAroundALake(generated: GeneratedWorld, fail: (String, String) -> Unit) {
+    val segments = generated.world.features.all().filter { it.kind == FeatureKind.COASTLINE }
+    if (segments.isEmpty()) return
+
+    val lakeId = generated.world.layers[LayerId.LAKE_ID] as? IntLayer ?: return
+    val metres = generated.config.baseResolution.metresPerCell
+
+    for (segment in segments) {
+      val marker = segment as? MarkerFeature ?: continue
+      val points = marker.centerline.points
+
+      for (i in points.indices step 10) {
+        val at = points[i]
+        val x = (at.x / metres).toInt().coerceIn(0, lakeId.region.width - 1)
+        val y = (at.y / metres).toInt().coerceIn(0, lakeId.region.height - 1)
+
+        if (lakeId[x, y] != 0) {
+          fail("no coastline around a lake", "a station at $at stands in lake ${lakeId[x, y]}")
+          return
+        }
+      }
     }
   }
 
