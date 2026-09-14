@@ -475,6 +475,18 @@ class ChunkStreamingScenario : BestiaNoSocketScenario(
       "the player has to be in the world to be dug out from under"
     )
 
+    // The premise, stated rather than assumed, because the failure it produces is indistinguishable from the
+    // bug this test is about. `ChunkCoords.standingZ` clamps to `maxOf(elevation, seaLevel)` and *both* of
+    // `ChunkGroundHeight`'s sources funnel through it, so no re-grounding can ever report a z below sea
+    // level - it floats a player over water rather than drowning them on the seabed. A player standing at
+    // sea level therefore cannot be dropped by any carve, and the assertion below would report "0 -> 0" as
+    // though re-grounding were broken. Masters spawn onto a settlement, which is dry land; anything at zero
+    // here is an entity that never got a real position, which is a different bug and should say so.
+    assertTrue(
+      before.z > 0,
+      "this test needs a player standing above sea level to have anything to fall into, but it is at $before"
+    )
+
     // Wide enough that the bore is deeper than one step, or the drop would be inside the walkable rise and
     // there would be nothing to see.
     val radius = CarveBrush.MIN_RADIUS + 1.5
@@ -490,9 +502,12 @@ class ChunkStreamingScenario : BestiaNoSocketScenario(
     await {
       val now = assertNotNull(world.read { get(entityId, Position::class)?.toVec3L() })
 
+      // The whole vector, not just the two z values: where the player was standing is the first thing worth
+      // knowing when this fails, and a bare "519 -> 519" does not say whether the re-grounding missed or the
+      // player was never where the test assumed.
       assertTrue(
         now.z < before.z,
-        "the player should have been put on the floor of the hole under them: ${before.z} -> ${now.z}"
+        "the player should have been put on the floor of the hole under them: $before -> $now"
       )
       assertEquals(before.x, now.x, "re-grounding moves the vertical only")
       assertEquals(before.y, now.y, "re-grounding moves the vertical only")

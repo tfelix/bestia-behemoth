@@ -96,12 +96,15 @@ class ChunkStreamSystem(
   private val tokens = HashMap<Long, Int>()
 
   /**
-   * Packed `(x, y)` chunk columns an edit has touched and whose occupants have not been put back on the ground.
+   * Chunks an edit has touched and whose occupants have not been put back on the ground.
    *
    * Survives a tick, because the tile a re-grounding has to read is rebuilt out of a budget: a carve that
    * spans more chunks than the budget covers leaves the rest here until their turn comes.
+   *
+   * Whole [ChunkPos]es rather than packed `(x, y)` columns, because the slab is exactly what the readiness
+   * check needs and packing it away made that check vacuous - see [regroundCarvedColumns].
    */
-  private val carvedColumns = LinkedHashSet<Long>()
+  private val carvedChunks = LinkedHashSet<ChunkPos>()
 
   override fun update(world: World, deltaTime: Float) {
     if (!chunkService.isReady) return
@@ -147,7 +150,7 @@ class ChunkStreamSystem(
       )
 
       val result = chunkService.carve(brush)
-      result.chunks.forEach { carvedColumns.add(columnOf(it)) }
+      carvedChunks.addAll(result.chunks)
 
       LOG.debug {
         "Account ${carve.accountId} carved r=${carve.radius} at (${carve.x},${carve.y},${carve.z}): " +
@@ -620,17 +623,37 @@ class ChunkStreamSystem(
    * why the two components are separate at all. What happens to a prop whose ground has gone is decided in
    * `world/prop/`, and snapping it into the hole first would only be undone there.
    *
-   * A column whose chunks are still queued for a rebuild is left for the next tick rather than answered from a
-   * stale tile. That is the same trade the rebuild budget itself makes: pathing briefly wrong beats a hitch.
+   * A column with any of its edited slabs still queued for a rebuild is left for the next tick rather than
+   * answered from a stale tile. That is the same trade the rebuild budget itself makes: pathing briefly wrong
+   * beats a hitch.
+   *
+   * ### The readiness check has to name the slabs the edit touched
+   *
+   * It used to ask about slab **zero** of the column, on the reasoning that staleness is per chunk and any
+   * chunk the edit queued would answer "has the budget caught up yet". The premise was wrong: `isStale` is
+   * membership of the rebuild queue by exact [ChunkPos], and a carve queues only the slabs it actually
+   * reached. A player standing at z=519 is in slab 2, whose carve never touches slab 0 - and nothing else
+   * tracks slab 0 either, because a subscription offers the anchor slab plus one. So the check answered
+   * "not stale" on the very tick of the carve, every time, and the column was consumed whether or not its
+   * tile had been rebuilt. When the budget happened to cover the chunk in the same tick the re-grounding was
+   * right; when it did not, the entity was measured against the terrain as it was *before* the hole, found
+   * to need no correction, and dropped - permanently, the column having already been removed. That is a
+   * player left hovering over a hole they cannot walk out of, and it got likelier the busier the queue was.
    */
   private fun regroundCarvedColumns(world: World) {
-    if (carvedColumns.isEmpty()) return
+    if (carvedChunks.isEmpty()) return
 
     val derived = chunkService.derived()
-    val ready = carvedColumns.filterTo(HashSet()) { column -> !derived.isStale(anySlabOf(column)) }
+
+    // Grouped by column, because where an entity stands is a question about a column - which slab the brush
+    // happened to land in is the rebuild's business. A column is answerable once *every* slab the edit
+    // touched in it has been rebuilt: a bore through a slab boundary leaves the new floor in the lower one,
+    // so answering off the upper one alone reports the ceiling of a hole that is still being dug.
+    val byColumn = carvedChunks.groupBy { columnOf(it) }
+    val ready = byColumn.filterValues { chunks -> chunks.none { derived.isStale(it) } }
     if (ready.isEmpty()) return
 
-    carvedColumns.removeAll(ready)
+    for (chunks in ready.values) carvedChunks.removeAll(chunks.toSet())
 
     val size = chunkService.config.chunkSize.toLong()
     val standing = ArrayList<EntityId>()
@@ -656,31 +679,12 @@ class ChunkStreamSystem(
     }
   }
 
-  /**
-   * A slab of [column] to ask [net.bestia.worldgen.derived.DerivedStore.isStale] about.
-   *
-   * Slab zero, because staleness is per chunk and the question being asked is only "has the rebuild budget
-   * caught up with this column yet" - and every chunk an edit touched was queued by the same edit, so any of
-   * them answers it. Naming one keeps this from walking a column's whole vertical extent to learn nothing more.
-   */
-  private fun anySlabOf(column: Long): ChunkPos {
-    return ChunkPos(unpackX(column), unpackY(column), 0)
-  }
-
   private companion object {
     private val LOG = KotlinLogging.logger { }
 
     /** Two signed chunk coordinates in one long, so a column can be a `HashSet` member without allocating. */
     private fun pack(x: Int, y: Int): Long {
       return (x.toLong() shl 32) or (y.toLong() and 0xFFFFFFFFL)
-    }
-
-    private fun unpackX(column: Long): Int {
-      return (column shr 32).toInt()
-    }
-
-    private fun unpackY(column: Long): Int {
-      return column.toInt()
     }
 
     private fun columnOf(chunk: ChunkPos): Long {
