@@ -5,6 +5,7 @@ import net.bestia.worldgen.civ.BuildingFunction
 import net.bestia.worldgen.civ.Culture
 import net.bestia.worldgen.civ.DistrictChannels
 import net.bestia.worldgen.civ.DistrictKind
+import net.bestia.worldgen.civ.FoundingCause
 import net.bestia.worldgen.civ.SettlementChannels
 import net.bestia.worldgen.civ.SettlementTier
 import net.bestia.worldgen.civ.TownMetrics
@@ -110,6 +111,7 @@ object TownMain {
     val position: Vec2d,
     val tier: SettlementTier,
     val culture: Culture,
+    val foundingCause: FoundingCause,
     val record: SettlementRecord,
     val buildings: List<FootprintFeature>,
     val businesses: List<PointMarker>,
@@ -140,7 +142,10 @@ object TownMain {
      * lie comes back. [GeneratedWorld.params] is the resolved tuning the world was actually built with, so
      * there is no copy to drift.
      */
-    private val town: TownParams get() = generated.params.town
+    private val town: TownParams
+      get() {
+        return generated.params.town
+      }
 
     /** Every town measured, by settlement index. Lazy so the run that never asks does not pay for it. */
     private val metrics: Map<Int, TownMetrics.Measured> by lazy {
@@ -179,6 +184,7 @@ object TownMain {
           position = site.position,
           tier = SettlementTier.entries[site.attribute(SettlementChannels.TIER).toInt()],
           culture = Culture.byIndex(site.attribute(SettlementChannels.CULTURE).toInt()),
+          foundingCause = FoundingCause.entries[site.attribute(SettlementChannels.FOUNDING_CAUSE).toInt()],
           record = record,
           buildings = buildings[record.index].orEmpty(),
           businesses = businesses[record.index].orEmpty(),
@@ -246,7 +252,11 @@ object TownMain {
       line("index", "${place.index}")
       line("at", "(${place.position.x.toInt()}, ${place.position.y.toInt()})")
       line("tier / culture", "${place.tier.label} / ${place.culture.name} (${place.culture.layout})")
-      line("founded", if (record.wasFounded) "year ${record.foundedYear}" else "never settled")
+      line(
+        "founded",
+        if (record.wasFounded) "year ${record.foundedYear}, on ${place.foundingCause.label}"
+        else "never settled"
+      )
       if (record.isRuin) {
         line("abandoned", "year ${record.abandonedYear} - ${record.ruinCause?.name?.lowercase()}")
       }
@@ -579,6 +589,12 @@ object TownMain {
       line("businesses", "${places.sumOf { it.businesses.size }}")
       line("walled", "${places.count { it.record.wallYear != 0 }}")
 
+      println()
+      println("  founded on")
+      places.groupingBy { it.foundingCause }.eachCount()
+        .entries.sortedByDescending { it.value }
+        .forEach { (cause, count) -> line("  ${cause.label}", "$count") }
+
       shapeOfTheWorld()
 
       val missing = places.filter { it.standing && it.buildings.isEmpty() }
@@ -670,7 +686,9 @@ object TownMain {
 
     private fun fixed(value: Double) = "%.2f".format(Locale.ROOT, value)
 
-    private fun percent0(share: Double) = "%.0f%%".format(Locale.ROOT, 100.0 * share)
+    private fun percent0(share: Double): String {
+      return "%.0f%%".format(Locale.ROOT, 100.0 * share)
+    }
 
     private fun percent(n: Int, total: Int) =
       if (total == 0) "0%" else "%.1f%%".format(Locale.ROOT, 100.0 * n / total)

@@ -380,4 +380,34 @@ class CivilisationStageTest {
       }
     }
   }
+
+  @Test
+  fun `every settlement records why it is where it is`() {
+    val settlements = world.world.features.all()
+      .filter { it.kind == FeatureKind.SETTLEMENT }
+      .filterIsInstance<PointMarker>()
+    assertTrue(settlements.isNotEmpty(), "no settlements to ask")
+
+    val causes = settlements.map {
+      val ordinal = it.attribute(SettlementChannels.FOUNDING_CAUSE).toInt()
+      assertTrue(
+        ordinal in FoundingCause.entries.indices,
+        "settlement carries founding cause $ordinal, which is not one"
+      )
+      FoundingCause.entries[ordinal]
+    }
+
+    // Habit six, and the failure it guards is specific: an ordinal channel that is never written reads back as
+    // zero everywhere, and zero is a legitimate value here - so "every settlement has a valid cause" passes
+    // just as happily on a channel nobody filled in.
+    assertTrue(
+      causes.any { it != FoundingCause.LAND },
+      "every settlement in the world was founded on good land and nothing else, which means the four " +
+          "geographic bonuses either never fired or never reached the marker"
+    )
+    assertTrue(
+      causes.toSet().size >= 3,
+      "only ${causes.toSet()} across ${causes.size} settlements"
+    )
+  }
 }

@@ -353,4 +353,7 @@ object SettlementChannels {
 
   /** Ground elevation at the site, in metres. */
   const val ELEVATION = "elevation"
+
+  /** [FoundingCause] ordinal: which of the network bonuses won this site. Read with `toInt()`. */
+  const val FOUNDING_CAUSE = "foundingCause"
 }

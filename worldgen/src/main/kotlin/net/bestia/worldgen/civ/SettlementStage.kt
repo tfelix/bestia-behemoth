@@ -266,7 +266,8 @@ class SettlementStage(
     val culture: Culture,
     val habitability: Double,
     val elevation: Double,
-    val population: Int
+    val population: Int,
+    val foundingCause: FoundingCause
   ) {
     /** Filled in once placement order is final; see [SettlementChannels.INDEX]. */
     var index: Int = -1
@@ -283,11 +284,12 @@ class SettlementStage(
       .filterIsInstance<PolylineFeature>()
       .filter { it.kind == FeatureKind.RIVER_CHANNEL }
 
+    val foundingCause = IntArray(region.width * region.height)
     val siteScore = Timings.measure("settle.scoreSites") {
-      scoreSites(ctx, region, habitability, terms)
+      scoreSites(ctx, region, habitability, terms, foundingCause)
     }
     val sites = Timings.measure("settle.place") {
-      place(ctx, region, siteScore, terms, elevation, metres)
+      place(ctx, region, siteScore, terms, elevation, metres, foundingCause)
     }
     // Numbered after placement, so the index is the placement order - largest tier first, then by score.
     // Every downstream stage joins on this, so it has to be assigned in exactly one place.
@@ -343,7 +345,9 @@ class SettlementStage(
     ctx: GenContext,
     region: CellRegion,
     habitability: Grid,
-    terms: Terms
+    terms: Terms,
+    /** Filled with the [FoundingCause] ordinal that won each cell. Same indexing as the returned grid. */
+    cause: IntArray
   ): Grid {
     val metres = region.resolution.metresPerCell
     val discharge = Grid.from(ctx.layers.float(LayerId.DISCHARGE))
@@ -356,14 +360,17 @@ class SettlementStage(
     // are explicit features, so there is nothing to detect.
     for (feature in ctx.features.query(region.toWorld())) {
       when (feature.kind) {
-        FeatureKind.RIVER_CONFLUENCE -> stamp(network, region, feature.bbox.centerX, feature.bbox.centerY, CONFLUENCE_RANGE, 1.0)
+        FeatureKind.RIVER_CONFLUENCE -> stamp(
+          network, region, feature.bbox.centerX, feature.bbox.centerY, CONFLUENCE_RANGE, 1.0,
+          cause, FoundingCause.CONFLUENCE
+        )
         FeatureKind.RIVER_CHANNEL -> {
           val river = feature as? PolylineFeature ?: continue
           // The mouth is the downstream end of a reach that finishes at the sea.
           val mouth = river.centerline.points.last()
           val cell = cellOf(region, mouth, metres) ?: continue
           if (!terms.submerged[cell] && discharge.data[cell] >= MOUTH_DISCHARGE) {
-            stamp(network, region, mouth.x, mouth.y, MOUTH_RANGE, 0.9)
+            stamp(network, region, mouth.x, mouth.y, MOUTH_RANGE, 0.9, cause, FoundingCause.RIVER_MOUTH)
           }
         }
         else -> Unit
@@ -377,15 +384,15 @@ class SettlementStage(
 
         // A harbour is already a term of habitability; here it counts again as a *trade* position, which is
         // a different thing - a port with poor land is still worth founding.
-        network.data[i] = max(network.data[i], terms.harbour.data[i])
+        raise(network, cause, i, terms.harbour.data[i], FoundingCause.HARBOUR)
 
         // A pass: low ground with high ground on two opposing sides. The only way through a range, which is
         // why a fort or a market ends up on it.
-        network.data[i] = max(network.data[i], passQuality(elevation, x, y, metres))
+        raise(network, cause, i, passQuality(elevation, x, y, metres), FoundingCause.PASS)
 
         // A biome boundary means two different products within a day's walk.
         if (isBiomeBoundary(biome, region, x, y)) {
-          network.data[i] = max(network.data[i], BIOME_EDGE_BONUS)
+          raise(network, cause, i, BIOME_EDGE_BONUS, FoundingCause.BIOME_EDGE)
         }
       }
     }
@@ -412,7 +419,8 @@ class SettlementStage(
     score: Grid,
     terms: Terms,
     elevation: Grid,
-    metres: Double
+    metres: Double,
+    foundingCause: IntArray
   ): List<Site> {
     val bounds = region.toWorld()
     val areaSquareKm = bounds.width * bounds.height / 1_000_000.0
@@ -465,7 +473,8 @@ class SettlementStage(
             culture = culture,
             habitability = quality,
             elevation = elevation.data[cell],
-            population = populationFor(tier, quality, rng)
+            population = populationFor(tier, quality, rng),
+            foundingCause = FoundingCause.entries[foundingCause[cell]]
           )
         )
         index.add(position)
@@ -540,6 +549,7 @@ class SettlementStage(
       .channel(SettlementChannels.POPULATION) { site.population.toDouble() }
       .channel(SettlementChannels.HABITABILITY) { site.habitability }
       .channel(SettlementChannels.ELEVATION) { site.elevation }
+      .channel(SettlementChannels.FOUNDING_CAUSE) { site.foundingCause.ordinal.toDouble() }
       .build()
   )
 
@@ -1272,8 +1282,30 @@ class SettlementStage(
     (region.minY + cell / region.width + 0.5) * metres
   )
 
-  /** Adds [value] to every cell within [radius] of a world position, keeping the maximum. */
-  private fun stamp(grid: Grid, region: CellRegion, worldX: Double, worldY: Double, radius: Double, value: Double) {
+  /**
+   * Takes [value] for cell [i] if it beats what is there, and records [reason] when it does.
+   *
+   * One function rather than a `max` and an assignment at each of the five bonuses, because the two have to
+   * move together: a cell whose value came from the harbour and whose reason says "pass" is worse than no
+   * reason at all, and nothing downstream could detect it.
+   */
+  private fun raise(network: Grid, cause: IntArray, i: Int, value: Double, reason: FoundingCause) {
+    if (value <= network.data[i]) return
+    network.data[i] = value
+    cause[i] = reason.ordinal
+  }
+
+  /** Raises every cell within [radius] of a world position, falling off to nothing at the edge. */
+  private fun stamp(
+    grid: Grid,
+    region: CellRegion,
+    worldX: Double,
+    worldY: Double,
+    radius: Double,
+    value: Double,
+    cause: IntArray,
+    reason: FoundingCause
+  ) {
     val metres = region.resolution.metresPerCell
     val cells = (radius / metres).toInt() + 1
     val cx = (worldX / metres).toInt() - region.minX
@@ -1287,7 +1319,7 @@ class SettlementStage(
         if (distance > radius) continue
 
         val i = y * region.width + x
-        grid.data[i] = max(grid.data[i], value * (1.0 - distance / radius))
+        raise(grid, cause, i, value * (1.0 - distance / radius), reason)
       }
     }
   }

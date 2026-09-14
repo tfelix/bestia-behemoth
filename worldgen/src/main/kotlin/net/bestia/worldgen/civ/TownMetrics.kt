@@ -216,13 +216,20 @@ object TownMetrics {
     return street.stations.valueAt(channel, 0) * 2.0
   }
 
-  private fun distanceTo(line: Polyline, at: Vec2d): Double = line.project(at).distance
+  private fun distanceTo(line: Polyline, at: Vec2d): Double {
+    return line.project(at).distance
+  }
 
-  private fun percentile(sorted: List<Double>, at: Double): Double =
-    if (sorted.isEmpty()) 0.0 else sorted[((sorted.size - 1) * at).toInt()]
+  private fun percentile(sorted: List<Double>, at: Double): Double {
+    if (sorted.isEmpty()) return 0.0
+    return sorted[((sorted.size - 1) * at).toInt()]
+  }
 
   /** Guards every ratio here, so a town with no streets or no districts reports zero rather than a NaN. */
-  private fun share(of: Double, total: Double): Double = if (total <= 0.0) 0.0 else of / total
+  private fun share(of: Double, total: Double): Double {
+    if (total <= 0.0) return 0.0
+    return of / total
+  }
 
   /**
    * What [Measured.tangentialShare] reads as "no preferred orientation": the mean of `|sin|` over a uniform
