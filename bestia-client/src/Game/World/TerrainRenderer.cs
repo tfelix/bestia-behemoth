@@ -127,13 +127,19 @@ namespace BestiaBehemothClient.Game.World
     };
 
     /// <summary>
-    /// Water: vertex colour again, but transparent and visible from underneath.
+    /// The water fallback: vertex colour again, but transparent and visible from underneath.
     /// </summary>
     /// <remarks>
+    /// No longer what water is normally drawn with - <c>water.tres</c> is - and kept for the reason
+    /// <see cref="DefaultTerrainMaterial"/> is kept: a shader that will not compile should cost the sea its
+    /// depth and its waves, not leave the sea invisible.
+    ///
+    /// <para>
     /// Back-face culling is off because the surface of a lake is a single sheet with no underside of its own,
     /// and a swimming player looking up at it would otherwise see straight through into the sky. The alpha comes
     /// from the palette's own colour for <c>WATER</c>, so the depth of the tint is a data question rather than a
     /// shader one.
+    /// </para>
     /// </remarks>
     private static Material DefaultWaterMaterial() => new StandardMaterial3D
     {
@@ -141,9 +147,9 @@ namespace BestiaBehemothClient.Game.World
       Transparency = BaseMaterial3D.TransparencyEnum.Alpha,
       CullMode = BaseMaterial3D.CullModeEnum.Disabled,
 
-      // Matte for now, for the same reason as the terrain. A shiny sheet of water is the right look eventually,
-      // but it belongs to a shader that controls its own reflection rather than to a StandardMaterial3D mirroring
-      // a placeholder procedural sky - which turns the sea white and hides whether anything else is wrong.
+      // Matte, because a StandardMaterial3D mirroring a placeholder procedural sky turns the sea white and hides
+      // whether anything else is wrong. water.gdshader is where the sheen belongs, and it keeps it low for the
+      // same reason until there is a real sky to reflect.
       Roughness = 1.0f,
       MetallicSpecular = 0.0f,
       SpecularMode = BaseMaterial3D.SpecularModeEnum.Disabled
@@ -272,7 +278,7 @@ namespace BestiaBehemothClient.Game.World
       // Null when the shader would not compile, which deliberately leaves the flat vertex-colour material in
       // place rather than an unassigned one - see TerrainMaterials.
       TerrainMaterial ??= _materials?.Shipping ?? DefaultTerrainMaterial();
-      WaterMaterial ??= DefaultWaterMaterial();
+      WaterMaterial ??= _materials?.Water ?? DefaultWaterMaterial();
       LavaMaterial ??= DefaultLavaMaterial();
 
       if (worldInfo != null)

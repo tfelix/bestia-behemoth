@@ -1,0 +1,31 @@
+[gd_resource type="ShaderMaterial" load_steps=4 format=3]
+
+[ext_resource type="Shader" path="res://Game/World/Shader/water.gdshader" id="1_water"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_wave"]
+noise_type = 2
+frequency = 0.012
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_wave"]
+seamless = true
+noise = SubResource("FastNoiseLite_wave")
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_water")
+shader_parameter/shallow_colour = Color(0.32, 0.61, 0.62, 1)
+shader_parameter/deep_colour = Color(0.04, 0.13, 0.22, 1)
+shader_parameter/absorption_distance = 7.0
+shader_parameter/opacity_distance = 3.5
+shader_parameter/max_opacity = 0.88
+shader_parameter/foam_distance = 0.8
+shader_parameter/foam_colour = Color(0.92, 0.95, 0.96, 1)
+shader_parameter/foam_opacity = 0.75
+shader_parameter/wave_noise = SubResource("NoiseTexture2D_wave")
+shader_parameter/wave_scale = 26.0
+shader_parameter/wave_speed = 0.045
+shader_parameter/wave_strength = 0.28
+shader_parameter/rain_chop = 0.45
+shader_parameter/water_roughness = 0.06
+shader_parameter/sheen_strength = 0.35
+shader_parameter/fresnel_power = 4.0
