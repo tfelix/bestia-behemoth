@@ -12,6 +12,7 @@ import net.bestia.zone.navigation.TestNavigation
 import net.bestia.zone.util.EntityId
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import kotlin.random.Random
 
 /**
  * What a wandering creature's territory actually is.
@@ -25,7 +26,9 @@ import org.junit.jupiter.api.Test
  */
 class LocomotionWanderTest {
 
-  private val sut = Locomotion(TestNavigation.service())
+  // Seeded rather than left to `Random.Default`: these assertions already run over many bouts to catch a
+  // broken clamp, and a seed means a run that *does* catch one can be replayed instead of described.
+  private val sut = Locomotion(TestNavigation.service(), Random(20260914L))
 
   @Test
   fun `wanderStep never walks further than the stride, whatever the territory`() {

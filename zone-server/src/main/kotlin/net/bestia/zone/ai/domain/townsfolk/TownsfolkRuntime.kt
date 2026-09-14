@@ -13,6 +13,7 @@ import net.bestia.zone.ai.profile.AiProfile
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.navigation.NavigationService
 import org.springframework.stereotype.Service
+import kotlin.random.Random
 
 /**
  * Builds townspeople out of [TownsfolkDomain].
@@ -26,9 +27,11 @@ class TownsfolkRuntime(
   private val indoors: IndoorRegistry,
   private val work: SettlementWork,
   private val production: TownsfolkProduction,
+  /** Where wandering draws from. Defaulted for the server; a test passes a seed to pin a walk. */
+  random: Random = Random.Default,
 ) : AiDomainRuntime {
 
-  private val locomotion = Locomotion(navigation)
+  private val locomotion = Locomotion(navigation, random)
 
   override val catalogue = TownsfolkDomain
 

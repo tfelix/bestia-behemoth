@@ -32,8 +32,19 @@ import kotlin.random.Random
  * Holds its [navigation] dependency rather than reading it off the tick context, so a movement leaf declares
  * what it needs and can be handed a fake in a test. The action template that grounds a movement action owns
  * one of these and passes it to the leaves it builds.
+ *
+ * [random] is held for the same reason, and it is not a nicety. [wanderStep] used to reach for
+ * `Random.Default`, which is process-global and seeded from the environment, so where a wandering creature
+ * went was not merely unpredictable but *unreachable* from a test - a scenario could pin the world, the
+ * clock and the navigation and still not say where the mob would be two seconds later. `AiLifecycleE2ETest`
+ * failed roughly one run in twelve on exactly that: the mob drifted out of its own sight radius before it
+ * could acquire the player it was meant to hunt. A test that wants a reproducible walk passes a seeded
+ * [Random]; the server passes nothing and gets the global one as before.
  */
-class Locomotion(private val navigation: NavigationService) {
+class Locomotion(
+  private val navigation: NavigationService,
+  private val random: Random = Random.Default
+) {
 
   fun position(world: World, entityId: EntityId): Vec3L = world.getOrThrow(entityId, Position::class).toVec3L()
 
@@ -105,8 +116,8 @@ class Locomotion(private val navigation: NavigationService) {
 
     // Shuffled and then tried in order: a wander target can land in a rock face, and trying only one
     // candidate per tick makes a creature in broken country look stuck rather than idle.
-    val candidates = DIRECTIONS.shuffled(Random.Default).map { direction ->
-      val distance = Random.nextLong(1, reach)
+    val candidates = DIRECTIONS.shuffled(random).map { direction ->
+      val distance = random.nextLong(1, reach)
       Vec3L(
         from.x + direction.x * distance,
         from.y + direction.y * distance,

@@ -7,6 +7,7 @@ import net.bestia.zone.ecs.spawn.townsfolk.IndoorRegistry
 import net.bestia.zone.economy.Trade
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.navigation.TestNavigation
+import kotlin.random.Random
 
 /**
  * Collaborators the townsfolk action templates need in order to be built.
@@ -24,6 +25,9 @@ object TownsfolkDomainFixture {
     override fun supplierNear(at: Vec3L, business: String?): SettlementWork.Supply? = null
   }
 
+  /** Arbitrary and fixed; see `AiPipelineFixture.DEFAULT_SEED` for why arbitrary is the point. */
+  private const val SEED = 20260914L
+
   fun resolver(
     actionIds: List<String> = TownsfolkDomain.actionIds.toList(),
     indoors: IndoorRegistry = IndoorRegistry(),
@@ -31,7 +35,9 @@ object TownsfolkDomainFixture {
   ): ActionResolver {
     return TownsfolkDomain.resolver(
       actionIds,
-      TownsfolkDomain.Collaborators(Locomotion(TestNavigation.service()), indoors, work, TownsfolkProduction())
+      TownsfolkDomain.Collaborators(
+        Locomotion(TestNavigation.service(), Random(SEED)), indoors, work, TownsfolkProduction()
+      )
     )
   }
 }

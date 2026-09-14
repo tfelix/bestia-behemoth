@@ -6,6 +6,7 @@ import net.bestia.zone.ai.core.action.ActionResolver
 import net.bestia.zone.battle.skill.AttackExecutionService
 import net.bestia.zone.battle.skill.SkillExecutionService
 import net.bestia.zone.navigation.TestNavigation
+import kotlin.random.Random
 
 /**
  * Collaborators the bestia action templates need in order to be built.
@@ -18,7 +19,11 @@ import net.bestia.zone.navigation.TestNavigation
  */
 object BestiaDomainFixture {
 
-  fun locomotion(): Locomotion = Locomotion(TestNavigation.service())
+  /** Seeded, so a planning test that does tick a movement leaf replays rather than re-rolls. */
+  fun locomotion(): Locomotion = Locomotion(TestNavigation.service(), Random(SEED))
+
+  /** Arbitrary and fixed; see `AiPipelineFixture.DEFAULT_SEED` for why arbitrary is the point. */
+  private const val SEED = 20260914L
 
   fun skills(): SkillExecutionService = mockk(relaxed = true)
 

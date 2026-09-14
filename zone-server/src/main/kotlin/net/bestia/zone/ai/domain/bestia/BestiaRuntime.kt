@@ -13,6 +13,7 @@ import net.bestia.zone.battle.skill.SkillExecutionService
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.navigation.NavigationService
 import org.springframework.stereotype.Service
+import kotlin.random.Random
 
 /**
  * Builds live creatures out of [BestiaDomain].
@@ -26,10 +27,12 @@ class BestiaRuntime(
   navigation: NavigationService,
   private val skills: SkillExecutionService,
   private val attackExecution: AttackExecutionService,
+  /** Where wandering draws from. Defaulted for the server; a test passes a seed to pin a walk. */
+  random: Random = Random.Default,
 ) : AiDomainRuntime {
 
-  /** One shared instance: it holds only the navigation service, so there is nothing per-agent about it. */
-  private val locomotion = Locomotion(navigation)
+  /** One shared instance: it holds only stateless collaborators, so there is nothing per-agent about it. */
+  private val locomotion = Locomotion(navigation, random)
 
   override val catalogue = BestiaDomain
 

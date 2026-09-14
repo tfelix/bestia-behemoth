@@ -43,6 +43,7 @@ import net.bestia.zone.environment.time.BestiaDateTime
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.navigation.TestNavigation
 import net.bestia.zone.util.EntityId
+import kotlin.random.Random
 
 /**
  * The whole AI pipeline wired for a test, without a Spring context and without a generated world.
@@ -53,7 +54,23 @@ import net.bestia.zone.util.EntityId
  * right target by the right route, and a mock records exactly that. Damage arithmetic is the battle system's
  * business and is tested there.
  */
-class AiPipelineFixture(tickRate: Int = 20) {
+class AiPipelineFixture(tickRate: Int = 20, randomSeed: Long = DEFAULT_SEED) {
+
+  /**
+   * The generator every wandering creature in this fixture draws from, seeded so a scenario is reproducible.
+   *
+   * Wandering used to come off `Random.Default`, which meant a scenario could pin the world, the clock and
+   * the navigation and still not say where a mob would be a second later. That is not a theoretical
+   * complaint: `AiLifecycleE2ETest`'s melee scenario spawns the player 6 tiles from a mob whose sight
+   * reaches 8, and a single unlucky wander leg of 3 tiles or more carried the mob out of its own sight
+   * radius before it could acquire the target - about one run in twelve, measured, in a fresh JVM. Once the
+   * quarry is out of sight `PerceptionSystem` drops it and the mob falls back to its ordinary idle cadence,
+   * which is one six-second amble every couple of minutes and will not find anybody again inside a test's
+   * tick budget.
+   *
+   * Pass a different [randomSeed] to explore other draws; the point is that a given seed always replays.
+   */
+  private val random = Random(randomSeed)
 
   val aoi = EntityAOIService()
   val skills: SkillExecutionService = mockk(relaxed = true)
@@ -122,6 +139,7 @@ class AiPipelineFixture(tickRate: Int = 20) {
     navigation = TestNavigation.service(),
     skills = skills,
     attackExecution = attackExecution,
+    random = random,
   )
 
   /** Where a townsperson goes when they walk through a door. Readable, so a test can assert on it. */
@@ -139,6 +157,7 @@ class AiPipelineFixture(tickRate: Int = 20) {
       override fun supplierNear(at: Vec3L, business: String?) = workshops.supplierNear(at, business)
     },
     production = production,
+    random = random,
   )
 
   val agentFactory = AiAgentFactory(runtimes = listOf(bestia, townsfolk), sharedMemory = sharedMemory)
@@ -347,6 +366,14 @@ class AiPipelineFixture(tickRate: Int = 20) {
   }
 
   companion object {
+    /**
+     * An arbitrary but fixed seed, so every scenario that does not care replays identically anyway.
+     *
+     * Arbitrary is the point: it is not tuned to make any particular assertion pass, so a scenario that only
+     * holds for this one draw is a scenario that was never really testing what it claimed.
+     */
+    const val DEFAULT_SEED = 20260914L
+
     /** Comfortably inside full day, which runs from dawn's end to dusk's start. */
     private const val NOON = 12
 
