@@ -64,13 +64,14 @@ func get_entity(entity_id: int) -> Entity:
 	return _entities.get(entity_id)
 
 
-## Client-side friend/enemy heuristic. Currently: "owned by the local player" = friendly,
-## everything else = enemy. TODO(party/guild): once bestias carry a party/guild flag,
-## fold that check in here (e.g. matching party/guild id against the local player's).
+## Client-side friend/enemy heuristic: the local player's own entity, and anything of a species
+## nothing may damage - a townsperson is somebody to talk to, not a target to snap onto.
+## TODO(party/guild): once bestias carry a party/guild flag, fold that check in here (e.g. matching
+## party/guild id against the local player's).
 ## This is the ONLY place disposition should be decided - no other code should inline
 ## its own friend/enemy check.
 func is_entity_friendly(entity: Entity) -> bool:
-	return entity == get_owned_entity()
+	return entity == get_owned_entity() or entity.is_non_combatant()
 
 
 ## DEPRECATED We need to come up with a better solution this can not work and scale. We need certain

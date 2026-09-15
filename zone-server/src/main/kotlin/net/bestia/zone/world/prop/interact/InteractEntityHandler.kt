@@ -4,6 +4,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.dialog.DialogId
 import net.bestia.zone.dialog.DialogService
+import net.bestia.zone.dialog.conversation.TalkService
 import net.bestia.zone.ecs.account.Account
 import net.bestia.zone.ecs.battle.damage.DeadActionGuard
 import net.bestia.zone.ecs.construction.Building
@@ -13,6 +14,7 @@ import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.prop.PlayerStructureIdentity
+import net.bestia.zone.ecs.spawn.townsfolk.Townsfolk
 import net.bestia.zone.message.InMessageProcessor
 import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OutMessageProcessor
@@ -36,6 +38,7 @@ class InteractEntityHandler(
   private val connectionInfoService: ConnectionInfoService,
   private val deadActionGuard: DeadActionGuard,
   private val dialogService: DialogService,
+  private val talkService: TalkService,
   private val outMessageProcessor: OutMessageProcessor,
   private val world: WorldView
 ) : InMessageProcessor.IncomingMessageHandler<InteractEntityCMSG> {
@@ -76,6 +79,15 @@ class InteractEntityHandler(
       // eventually gets, so that clicking one answers rather than doing nothing at all.
       world.get(actorId, Account::class)?.accountId?.let { accountId ->
         dialogService.send(accountId, DialogId.WORKBENCH_PLACEHOLDER, sourceEntityId = targetId)
+      }
+      return null
+    }
+
+    // A townsperson: clicking one is how you speak to them. `TalkService` owns the range check and the
+    // refusal it sends, so this is the dispatch and nothing more.
+    if (world.has(targetId, Townsfolk::class)) {
+      world.get(actorId, Account::class)?.accountId?.let { accountId ->
+        talkService.open(accountId, actorId, targetId)
       }
       return null
     }
