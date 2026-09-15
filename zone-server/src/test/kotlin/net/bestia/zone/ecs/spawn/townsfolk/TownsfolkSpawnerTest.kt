@@ -3,6 +3,7 @@ package net.bestia.zone.ecs.spawn.townsfolk
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
+import io.mockk.verify
 import net.bestia.worldgen.pop.Household
 import net.bestia.worldgen.pop.Kinship
 import net.bestia.worldgen.pop.Member
@@ -14,7 +15,6 @@ import net.bestia.zone.ai.ecs.AiThrottleable
 import net.bestia.zone.bestia.Bestia
 import net.bestia.zone.bestia.BestiaCatalogue
 import net.bestia.zone.bestia.BestiaEntitySpawner
-import net.bestia.zone.ecs.battle.status.Invulnerable
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.ecs.persistence.Persistent
 import net.bestia.zone.geometry.Vec3L
@@ -94,13 +94,23 @@ class TownsfolkSpawnerTest {
   }
 
   @Test
-  fun `a townsperson cannot be hurt, and may be thought about less often`() {
+  fun `a townsperson may be thought about less often`() {
     val spawned = sut.spawnHousehold(world, settlement = 12, household = 3)
 
     for (id in spawned) {
-      assertTrue(world.has(id, Invulnerable::class), "entity $id is killable")
       assertTrue(world.has(id, AiThrottleable::class), "entity $id would think at full cadence forever")
     }
+  }
+
+  /**
+   * Not being hittable is the species' doing, so all this layer owes is asking for the right one -
+   * `InvulnerabilityTest` covers what the flag then does, and `checkBestiaDb` pins the YML that sets it.
+   */
+  @Test
+  fun `a townsperson is spawned as a commoner`() {
+    sut.spawnHousehold(world, settlement = 12, household = 3)
+
+    verify { catalogue.byIdentifier("townsfolk_commoner") }
   }
 
   @Test

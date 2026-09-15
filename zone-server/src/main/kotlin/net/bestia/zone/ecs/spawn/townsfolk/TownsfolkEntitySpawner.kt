@@ -6,7 +6,6 @@ import net.bestia.zone.ai.domain.townsfolk.TownsfolkDomain
 import net.bestia.zone.ai.ecs.AiThrottleable
 import net.bestia.zone.bestia.BestiaCatalogue
 import net.bestia.zone.bestia.BestiaEntitySpawner
-import net.bestia.zone.ecs.battle.status.Invulnerable
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
@@ -17,7 +16,10 @@ import org.springframework.stereotype.Service
  *
  * A thin wrapper over [BestiaEntitySpawner] rather than a spawner of its own: a townsperson is an ordinary
  * mob with an ordinary AI agent, and everything that makes one different is either a fact in its memory or
- * one of three markers. Duplicating the spawn path to add three markers is how two spawners drift apart.
+ * one of two markers. Duplicating the spawn path to add two markers is how two spawners drift apart.
+ *
+ * Being unhittable is not one of them. That comes from `non-combatant` on the species, so the client can
+ * read the same fact out of its own bestia DB and know a click here means talking rather than swinging.
  *
  * `persistent = false` is the point of the whole layer, for `AmbientSpawnerSystem`'s reason: a town's
  * population is regenerated from its seed whenever somebody comes near, so a database row per villager
@@ -84,12 +86,10 @@ class TownsfolkEntitySpawner(
 
     // Applied at the end of the tick when this runs inside a system, exactly as `AmbientSpawnerSystem`
     // adds its own markers and for the same reason - `World.tick` holds `iterating` for the scheduler
-    // pass. Harmless here: nothing has had a chance to swing at a villager in the tick it was born, and
-    // teardown is driven from the residency record rather than from the marker.
+    // pass. Harmless here: teardown is driven from the residency record rather than from the marker.
     world.modify(id) {
       add(id, Townsfolk(identity))
       add(id, AiThrottleable)
-      add(id, Invulnerable)
     }
 
     LOG.trace { "Spawned ${occupation.id} ${TownsfolkIdentity.describe(identity)} as entity $id" }

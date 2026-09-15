@@ -100,6 +100,16 @@ class Bestia(
   var eventOnly: Boolean = false,
 
   /**
+   * True when nothing may take this species' health: it is spawned `Invulnerable`.
+   *
+   * A property of the species rather than a marker each caller remembers to add, because the *client* needs
+   * the same answer. Whether a click means "swing at this" or "talk to this" is decided before anything is
+   * sent, and the only static per-species data the client has is the bestia DB `syncBestiaDb` writes.
+   */
+  @Column(name = "non_combatant", nullable = false)
+  var nonCombatant: Boolean = false,
+
+  /**
    * Mean annual air temperature in degrees Celsius this species prefers, or null for no preference. Both
    * bounds are set or neither - the importer refuses a one-sided window.
    *

@@ -9,6 +9,7 @@ import net.bestia.zone.navigation.MovementCapability
 import net.bestia.zone.navigation.profile.MovementProfileRegistry
 import net.bestia.zone.ecs.battle.status.BaseStatusValues
 import net.bestia.zone.ecs.battle.status.Health
+import net.bestia.zone.ecs.battle.status.Invulnerable
 import net.bestia.zone.ecs.battle.status.Stamina
 import net.bestia.zone.ecs.battle.status.StatusValues
 import net.bestia.zone.ecs.movement.Position
@@ -96,6 +97,7 @@ class BestiaEntitySpawner(
         )
       )
       if (persistent) add(id, Persistent)
+      if (bestia.nonCombatant) add(id, Invulnerable)
       // Only when a den made it. Absence is what marks a creature nothing owns; see DenMember.
       den?.let { add(id, it) }
 

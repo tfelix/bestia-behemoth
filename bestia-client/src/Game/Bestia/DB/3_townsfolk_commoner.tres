@@ -4,6 +4,6 @@
 
 [resource]
 script = ExtResource("1_script")
-bestia_id = 1
-equip_slots = 24
-non_combatant = false
+bestia_id = 3
+equip_slots = 57
+non_combatant = true
