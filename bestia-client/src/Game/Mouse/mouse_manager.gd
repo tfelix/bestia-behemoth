@@ -13,6 +13,7 @@ class_name MouseManager
 
 const _FLOOR_GROUP: String = "floor"
 const _GROUP: String = "mouse_manager"
+const _UI_PANEL_GROUP: String = "world_blocking_ui"
 const _ContextMenuScene := preload("res://Game/UI/ContextMenu/ContextMenu.tscn")
 
 ## Emitted whenever the selected entity changes, carrying the newly selected entity's
@@ -131,6 +132,28 @@ func is_placing() -> bool:
 	return current_state is MouseStateItemTargeting and current_state.has_ghost()
 
 
+## Whether the cursor sits on a panel - something the player is reading, rather than ground they are
+## pointing at. Panels join [code]world_blocking_ui[/code] themselves; what is merely drawn over the world
+## (clock, buffs) stays out of it, because the ground behind those is still the player's to click.
+##
+## Rect-tested rather than asked of [method Viewport.gui_get_hovered_control]: the HUD sits in a full-screen
+## Control that passes input on, so the viewport names a hovered control wherever the mouse is.
+func is_pointer_over_ui() -> bool:
+	# A captured mouse is not over anything: its reported position sticks near the screen centre, which is
+	# where the windows open - so an open window would otherwise freeze the zoom for a whole camera drag.
+	if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
+		return false
+
+	for node in get_tree().get_nodes_in_group(_UI_PANEL_GROUP):
+		var panel := node as Control
+		if panel == null or not panel.is_visible_in_tree():
+			continue
+		if panel.get_global_rect().has_point(panel.get_global_mouse_position()):
+			return true
+
+	return false
+
+
 ## Called by camera_spring_arm.gd when RMB is pressed while a targeting mode
 ## is active, instead of the usual camera-drag/context-menu handling.
 func cancel_targeting() -> void:
@@ -217,6 +240,11 @@ func get_floor_hit_at_mouse() -> Variant:
 	# to the character. Every floor-tracking indicator shares this function,
 	# so suppressing it here hides them all instead of patching each caller.
 	if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
+		return null
+
+	# A panel under the cursor is what is being pointed at, not the ground behind it. Same argument as
+	# above: every floor-tracking indicator comes through here, so one return hides them all.
+	if is_pointer_over_ui():
 		return null
 
 	var viewport := get_viewport()
