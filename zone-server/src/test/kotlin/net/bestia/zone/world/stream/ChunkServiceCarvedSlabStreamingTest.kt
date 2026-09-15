@@ -30,11 +30,6 @@ import kotlin.test.assertTrue
  */
 class ChunkServiceCarvedSlabStreamingTest {
 
-  private val world =
-    StandardWorld.build(WorldConfig(seed = SEED, widthCells = WORLD_CELLS, heightCells = WORLD_CELLS))
-
-  private val config = world.config
-
   private fun newService(): ChunkService {
     val worldService: WorldService = mockk {
       every { generated } returns world
@@ -209,5 +204,10 @@ class ChunkServiceCarvedSlabStreamingTest {
 
     /** Voxels above a slab floor to carve at when the brush must *not* cross it. Exceeds [CARVE_RADIUS]. */
     const val FLOOR_CLEARANCE = 5
+
+    // In the companion rather than in a property: JUnit builds a fresh test instance per method, so a world
+    // held per-instance is generated again for every test in the class. Read-only here, as everywhere.
+    val world = StandardWorld.build(WorldConfig(seed = SEED, widthCells = WORLD_CELLS, heightCells = WORLD_CELLS))
+    val config = world.config
   }
 }
