@@ -18,6 +18,10 @@ var _dragging: bool = false
 
 
 func _ready() -> void:
+	# Once here rather than in each of the six windows built from this scene: what they have in common is
+	# that the player is reading them, so the world behind them is not theirs to point at.
+	add_to_group("world_blocking_ui")
+
 	_title_label.text = window_title
 	_title_bar.mouse_default_cursor_shape = Control.CURSOR_MOVE
 	_title_bar.gui_input.connect(_on_title_bar_gui_input)
