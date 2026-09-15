@@ -7,6 +7,7 @@ import net.bestia.zone.battle.damage.Heal
 import net.bestia.zone.battle.damage.Miss
 import net.bestia.zone.ecs.battle.damage.Dead
 import net.bestia.zone.ecs.battle.status.Health
+import net.bestia.zone.ecs.battle.status.Invulnerable
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.message.OutMessageProcessor
@@ -98,6 +99,11 @@ class AttackExecutionService(
 
         // ReceivedDamageSystem drains this into Health, and handles death, threat and cast interruption.
         else -> {
+          // This branch only - see Invulnerable: a miss and a heal stay true of a target that cannot be hurt.
+          if (world.has(targetId, Invulnerable::class)) {
+            return@defer
+          }
+
           val staged = world.get(targetId, DamageComponent::class) ?: world.add(targetId, DamageComponent())
           staged.add(result.amount, attackerId)
         }
