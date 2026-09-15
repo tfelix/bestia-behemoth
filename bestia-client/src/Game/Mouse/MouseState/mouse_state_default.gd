@@ -1,9 +1,9 @@
 extends MouseState
 class_name MouseStateDefault
 
-## Nothing special active: walk on ground click, attack a bestia entity on
-## click, loot an item entity on click, collect or interact with a static prop
-## on click, build a construction site on click,
+## Nothing special active: walk on ground click, attack a hostile bestia entity
+## or talk to a friendly one on click, loot an item entity on click, collect or
+## interact with a static prop on click, build a construction site on click,
 ## interact with an Interactable if the clicked/hovered object has one,
 ## right-click opens the context menu.
 
@@ -22,10 +22,8 @@ func handle_object_clicked(mgr: MouseManager, object: Node3D, event: InputEvent,
 		return
 
 	if object is BestiaVisual:
-		# Attacking or looting is a new order and supersedes whatever we were walking towards.
-		mgr.cancel_steering()
 		mgr.select_entity(object)
-		ConnectionManager.send_attack_entity(object.get_bestia_entity_id())
+		_act_on_bestia(mgr, object as BestiaVisual)
 	elif object is MasterVisual:
 		# Selecting only. Clicking another player is how you look at them, not how you hit them - what you can
 		# do to them lives in the right-click menu.
@@ -43,6 +41,23 @@ func handle_object_clicked(mgr: MouseManager, object: Node3D, event: InputEvent,
 	elif object is StructureVisual:
 		# A construction site: walking up to it and clicking is how you start building, and how you stop.
 		mgr.request_interact(object, object.get_structure_entity_id())
+
+
+## Whether clicking a creature means hitting it or speaking to it, from the one place that decides
+## disposition. A townsperson is walked up to first, the way a prop is - you have to be in earshot -
+## while a swing is sent from where you stand and simply fizzles if it does not reach.
+func _act_on_bestia(mgr: MouseManager, visual: BestiaVisual) -> void:
+	var entity_id: int = visual.get_bestia_entity_id()
+	var entity_manager := EntityManager.get_instance()
+	var entity := entity_manager.get_entity(entity_id)
+
+	if entity != null and entity_manager.is_entity_friendly(entity):
+		mgr.request_interact(visual, entity_id)
+		return
+
+	# Attacking is a new order and supersedes whatever we were walking towards.
+	mgr.cancel_steering()
+	ConnectionManager.send_attack_entity(entity_id)
 
 
 func handle_object_hover(mgr: MouseManager, object: Node3D, entered: bool) -> void:

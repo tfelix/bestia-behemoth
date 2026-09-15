@@ -17,6 +17,10 @@ var Camera = preload("res://Game/SpringArmCamera/SpringArmCamera.tscn")
 
 var entity_id: int = 0
 
+# Species id of this entity's body, 0 for anything that is not a bestia. Kept because disposition is
+# decided from it - see EntityManager.is_entity_friendly.
+var _bestia_id: int = 0
+
 # Latest state pushed by the server, cached because the window or HUD showing it may be closed.
 #
 # Buffs and debuffs (BuffListEntry).
@@ -272,6 +276,8 @@ func show_chat(msg: ChatSMSG) -> void:
 
 ## Builds the visual from a kind plus a catalogue id. Masters go through update_master_visual.
 func update_visual(msg: VisualComponentSMSG) -> void:
+	_bestia_id = msg.VisualId if msg.Kind == VisualKind.BESTIA else 0
+
 	var scene: PackedScene = _visual_scene_for(msg)
 	if scene == null:
 		return
@@ -284,6 +290,13 @@ func update_visual(msg: VisualComponentSMSG) -> void:
 	visual.name = _VISUAL_NODE_NAME
 	add_child(visual)
 	_seed_visual(visual)
+
+
+## True when nothing may damage this entity's species - a townsperson. Anything that is not a bestia
+## answers false: a master is not a non-combatant, it is simply not one of these.
+func is_non_combatant() -> bool:
+	var bestia := BestiaDB.get_instance().get_bestia(_bestia_id)
+	return bestia != null and bestia.non_combatant
 
 
 func _visual_scene_for(msg: VisualComponentSMSG) -> PackedScene:

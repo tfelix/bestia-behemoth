@@ -6,6 +6,7 @@ import io.mockk.verify
 import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.dialog.DialogId
 import net.bestia.zone.dialog.DialogService
+import net.bestia.zone.dialog.conversation.TalkService
 import net.bestia.zone.ecs.account.Account
 import net.bestia.zone.ecs.battle.damage.DeadActionGuard
 import net.bestia.zone.ecs.construction.Building
@@ -15,6 +16,7 @@ import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.prop.PlayerStructureIdentity
+import net.bestia.zone.ecs.spawn.townsfolk.Townsfolk
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OutMessageProcessor
@@ -38,6 +40,7 @@ class InteractEntityHandlerTest {
   private lateinit var world: World
   private lateinit var messages: OutMessageProcessor
   private lateinit var dialogs: DialogService
+  private lateinit var talk: TalkService
   private lateinit var handler: InteractEntityHandler
   private var actor: EntityId = 0L
 
@@ -46,6 +49,7 @@ class InteractEntityHandlerTest {
     world = testWorld()
     messages = mockk(relaxed = true)
     dialogs = mockk(relaxed = true)
+    talk = mockk(relaxed = true)
 
     actor = world.createEntity { id ->
       add(id, Position.fromVec3(standingAt))
@@ -59,9 +63,32 @@ class InteractEntityHandlerTest {
       connectionInfoService = connectionInfoService,
       deadActionGuard = DeadActionGuard(world),
       dialogService = dialogs,
+      talkService = talk,
       outMessageProcessor = messages,
       world = world
     )
+  }
+
+  /** `TalkService` decides whether they can hear you and what they say; all the handler owes is the call. */
+  @Test
+  fun `clicking a townsperson speaks to them`() {
+    val villager = world.createEntity { id ->
+      add(id, Position.fromVec3(standingAt))
+      add(id, Townsfolk(identity = 1L))
+    }
+
+    handler.handle(interactWith(villager))
+
+    verify { talk.open(accountId, actor, villager) }
+  }
+
+  @Test
+  fun `and clicking something that is nobody does not`() {
+    val scenery = world.createEntity { id -> add(id, Position.fromVec3(standingAt)) }
+
+    handler.handle(interactWith(scenery))
+
+    verify(exactly = 0) { talk.open(any(), any(), any()) }
   }
 
   @Test
