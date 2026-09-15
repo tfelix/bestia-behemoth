@@ -10,6 +10,7 @@ import net.bestia.zone.ecs.account.Master
 import net.bestia.zone.ecs.battle.effects.AreaEffect
 import net.bestia.zone.ecs.battle.effects.StatusEffects
 import net.bestia.zone.ecs.battle.status.Health
+import net.bestia.zone.ecs.battle.status.Invulnerable
 import net.bestia.zone.ecs.battle.status.Mana
 import net.bestia.zone.ecs.core.Component
 import net.bestia.zone.ecs.core.WorldView
@@ -134,6 +135,11 @@ class BudgetedSkillWorld(
         is Heal -> get(target, Health::class)?.let { it.current += damage.amount }
 
         else -> {
+          // This branch only - see Invulnerable: a miss and a heal stay true of a target that cannot be hurt.
+          if (has(target, Invulnerable::class)) {
+            return@modify false
+          }
+
           val staged = get(target, DamageComponent::class) ?: add(target, DamageComponent())
           staged.add(damage.amount, casterId)
         }
@@ -142,7 +148,8 @@ class BudgetedSkillWorld(
       true
     } == true
 
-    // False means the target died between the snapshot and now, which off-thread resolution makes possible.
+    // False means the blow never landed: the target died between the snapshot and now, which off-thread
+    // resolution makes possible, or it cannot be hurt at all.
     if (landed) {
       broadcastDamage(targetEntityId, damage)
     }

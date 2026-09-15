@@ -7,6 +7,7 @@ import net.bestia.zone.ecs.EntityAOIService
 import net.bestia.zone.ecs.battle.damage.Damage
 import net.bestia.zone.ecs.battle.damage.Dead
 import net.bestia.zone.ecs.battle.status.Health
+import net.bestia.zone.ecs.battle.status.Invulnerable
 import net.bestia.zone.ecs.battle.status.StatusValues
 import net.bestia.zone.ecs.movement.Grounded
 import net.bestia.zone.ecs.core.ComponentClassSet
@@ -44,7 +45,8 @@ class AreaEffectSystem(
 
   override val schedule: Schedule = Schedule.EveryTick
 
-  override val reads: ComponentClassSet = setOf(Position::class, Health::class, Dead::class)
+  override val reads: ComponentClassSet =
+    setOf(Position::class, Health::class, Dead::class, Invulnerable::class)
   /**
    * Includes what `PropPromotionService` adds to a *victim*, not just what this touches on the effect.
    *
@@ -115,6 +117,8 @@ class AreaEffectSystem(
         // an ordinary system body it would be queued and this would still see nothing.
         if (!propPromotionService.promoteIfNeeded(world, victimId)) continue
         if (!world.has(victimId, Health::class)) continue
+        // See Invulnerable: staging a burn ReceivedDamageSystem drops would only report it to the client.
+        if (world.has(victimId, Invulnerable::class)) continue
 
         val damage = world.get(victimId, Damage::class) ?: world.add(victimId, Damage())
         damage.add(effect.damagePerTick, effect.casterId)
