@@ -24,22 +24,6 @@ import kotlin.math.sin
  */
 class TownClearanceTest {
 
-  private val settings = WorldGenConfig()
-  private val config = WorldConfig(
-    seed = DEV_SEED,
-    widthCells = settings.widthCells,
-    heightCells = settings.heightCells,
-    baseResolution = Resolution(settings.cellSizeMetres),
-    seaLevel = settings.seaLevelMetres,
-    chunkSize = settings.chunkSize,
-    chunkHeight = settings.chunkHeight,
-    voxelSize = settings.voxelSizeMetres,
-    wrapX = settings.wrapX,
-    wrapY = settings.wrapY
-  )
-
-  private val generated = StandardWorld.build(config)
-  private val settlements = StandingSettlements.of(generated)
   private val sut = TownClearance(generated, settlements, CLEARANCE_TILES)
 
   /** The largest standing settlement, so there is a real street plan to follow rather than a few huts. */
@@ -144,5 +128,25 @@ class TownClearanceTest {
 
     /** Coarse enough to sweep a 128 km world quickly, fine enough to land inside a village's footprint. */
     const val PROBE_METRES = 250.0
+
+    private val settings = WorldGenConfig()
+
+    val config = WorldConfig(
+      seed = DEV_SEED,
+      widthCells = settings.widthCells,
+      heightCells = settings.heightCells,
+      baseResolution = Resolution(settings.cellSizeMetres),
+      seaLevel = settings.seaLevelMetres,
+      chunkSize = settings.chunkSize,
+      chunkHeight = settings.chunkHeight,
+      voxelSize = settings.voxelSizeMetres,
+      wrapX = settings.wrapX,
+      wrapY = settings.wrapY
+    )
+
+    // In the companion rather than in a property: JUnit builds a fresh test instance per method, so a world
+    // held per-instance is generated again for every test in the class. Read-only here, as everywhere.
+    val generated = StandardWorld.build(config)
+    val settlements = StandingSettlements.of(generated)
   }
 }

@@ -32,11 +32,6 @@ import kotlin.test.assertTrue
  */
 class ChunkWalkQueryTest {
 
-  private val world =
-    StandardWorld.build(WorldConfig(seed = SEED, widthCells = WORLD_CELLS, heightCells = WORLD_CELLS))
-
-  private val config = world.config
-
   private fun newService(): ChunkService {
     val worldService: WorldService = mockk {
       every { generated } returns world
@@ -277,5 +272,10 @@ class ChunkWalkQueryTest {
      * off by whole slabs.
      */
     const val TOLERANCE_VOXELS = 1L
+
+    // In the companion rather than in a property: JUnit builds a fresh test instance per method, so a world
+    // held per-instance is generated again for every test in the class. Read-only here, as everywhere.
+    val world = StandardWorld.build(WorldConfig(seed = SEED, widthCells = WORLD_CELLS, heightCells = WORLD_CELLS))
+    val config = world.config
   }
 }

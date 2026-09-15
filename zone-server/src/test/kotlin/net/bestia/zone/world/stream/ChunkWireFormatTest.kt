@@ -30,17 +30,21 @@ import kotlin.test.assertTrue
  */
 class ChunkWireFormatTest {
 
-  private val world by lazy {
-    StandardWorld.build(StandardWorld.demoConfig().copy(widthCells = 160, heightCells = 160))
-  }
+  private companion object {
+    // In the companion rather than in a property: JUnit builds a fresh test instance per method, so a world
+    // held per-instance is generated again for every test in the class. Read-only here, as everywhere.
+    val world by lazy {
+      StandardWorld.build(StandardWorld.demoConfig().copy(widthCells = 160, heightCells = 160))
+    }
 
-  /** A chunk with terrain in it. Column 1600 of a 160 km world is well inside the land, past the ocean margin. */
-  private val surfaceChunk: VoxelChunk by lazy {
-    val config = world.config
-    val heights = world.columns.heights(ChunkPos(1600, 1600, 0), 0)
-    val z = config.chunkZOf(heights[16, 16])
+    /** A chunk with terrain in it. Column 1600 of a 160 km world is well inside the land, past the ocean margin. */
+    val surfaceChunk: VoxelChunk by lazy {
+      val config = world.config
+      val heights = world.columns.heights(ChunkPos(1600, 1600, 0), 0)
+      val z = config.chunkZOf(heights[16, 16])
 
-    world.materializer.materialize(ChunkPos(1600, 1600, z))
+      world.materializer.materialize(ChunkPos(1600, 1600, z))
+    }
   }
 
   private fun deflate(blob: ByteArray): ByteArray {
