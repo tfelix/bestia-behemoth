@@ -50,7 +50,7 @@ data class AreaEffect(
     require(radiusTiles >= 0) { "radiusTiles must be >= 0" }
     require(tickIntervalSeconds > 0f) { "tickIntervalSeconds must be > 0" }
     require(remainingTicks > 0) { "an area effect with no ticks left would never do anything" }
-    require(damagePerTick >= 0) { "damagePerTick must be >= 0" }
+    require(damagePerTick >= 1) { "damagePerTick must be at least 1" }
   }
 
   companion object {
