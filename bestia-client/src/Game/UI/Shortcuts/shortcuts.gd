@@ -21,6 +21,7 @@ var _all_shortcuts: Dictionary = {}
 
 
 func _ready() -> void:
+	add_to_group("world_blocking_ui")
 	_collect_shortcut_containers()
 	_connect_signals()
 	load_shortcuts()

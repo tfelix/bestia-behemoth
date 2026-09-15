@@ -28,6 +28,7 @@ const _SYSTEM_COLOR := Color(0.95, 0.82, 0.35)
 
 
 func _ready() -> void:
+	add_to_group("world_blocking_ui")
 	ConnectionManager.connect("chat_received", _on_chat_received)
 	ConnectionManager.operation_error.connect(_on_operation_error)
 

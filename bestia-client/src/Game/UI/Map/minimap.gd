@@ -32,6 +32,7 @@ func set_has_chart(has_chart: bool) -> void:
 
 
 func _ready() -> void:
+	add_to_group("world_blocking_ui")
 	visible = false
 	_hint.text = "M"
 
