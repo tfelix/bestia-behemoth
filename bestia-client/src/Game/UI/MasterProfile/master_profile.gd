@@ -24,6 +24,7 @@ signal equipment_win_toggled
 signal status_win_toggled
 
 func _ready() -> void:
+	add_to_group("world_blocking_ui")
 	ConnectionManager.connect("self_received", _on_self_received)
 	ConnectionManager.connect("entity_received", _on_entity_received)
 	_master_info = ConnectionManager.selected_master_info

@@ -23,6 +23,9 @@ var _remaining_seconds: float = -1.0
 
 
 func _ready() -> void:
+	# The scrim rather than us: our own root spans the screen whether the menu is open or not, and a
+	# permanent screen-sized claim would leave the world unpointable.
+	_menu.add_to_group("world_blocking_ui")
 	_menu.visible = false
 	_countdown.visible = false
 

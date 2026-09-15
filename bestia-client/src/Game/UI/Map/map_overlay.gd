@@ -48,6 +48,7 @@ func setup(source: MapSource, entities: Node) -> void:
 
 
 func _ready() -> void:
+	add_to_group("world_blocking_ui")
 	visible = false
 
 

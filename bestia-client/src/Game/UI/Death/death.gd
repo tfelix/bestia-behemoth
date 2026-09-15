@@ -20,6 +20,9 @@ var _is_dead: bool = false
 
 
 func _ready() -> void:
+	# The scrim rather than us, for the reason the options menu documents: our root spans the screen
+	# whether the player is dead or not.
+	_panel.add_to_group("world_blocking_ui")
 	_panel.visible = false
 
 	$Panel/CenterContainer/PanelContainer/VBoxContainer/RespawnButton.pressed.connect(_on_respawn_pressed)
