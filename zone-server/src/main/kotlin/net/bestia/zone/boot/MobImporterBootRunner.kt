@@ -51,6 +51,10 @@ class MobImporterBootRunner(
     @JsonProperty("event-only")
     val eventOnly: Boolean = false,
 
+    /** True for a species nothing may damage - see `Bestia.nonCombatant`. */
+    @JsonProperty("non-combatant")
+    val nonCombatant: Boolean = false,
+
     /** Mean annual temperature window in degrees Celsius, or neither for no preference. */
     @JsonProperty("temperature-min")
     val temperatureMin: Double? = null,
@@ -81,6 +85,7 @@ class MobImporterBootRunner(
       boss = dto.boss,
       spawnWeight = dto.spawnWeight,
       eventOnly = dto.eventOnly,
+      nonCombatant = dto.nonCombatant,
       temperatureMinCelsius = dto.temperatureMin,
       temperatureMaxCelsius = dto.temperatureMax
     )
@@ -129,6 +134,7 @@ class MobImporterBootRunner(
         entity.boss != dto.boss ||
         entity.spawnWeight != dto.spawnWeight ||
         entity.eventOnly != dto.eventOnly ||
+        entity.nonCombatant != dto.nonCombatant ||
         entity.temperatureMinCelsius != dto.temperatureMin ||
         entity.temperatureMaxCelsius != dto.temperatureMax
 
@@ -147,6 +153,7 @@ class MobImporterBootRunner(
     entity.boss = dto.boss
     entity.spawnWeight = dto.spawnWeight
     entity.eventOnly = dto.eventOnly
+    entity.nonCombatant = dto.nonCombatant
     entity.temperatureMinCelsius = dto.temperatureMin
     entity.temperatureMaxCelsius = dto.temperatureMax
 

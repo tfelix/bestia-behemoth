@@ -13,23 +13,23 @@ import org.gradle.api.tasks.TaskAction
 import java.io.File
 
 /**
- * Exports each mob's **equipment slot mask** from the server's mob config
- * (the YML files under `zone-server/src/main/resources/mob/`) into the Godot client's static bestia
- * DB (the `.tres` files under `bestia-client/src/Game/Bestia/DB/`), the same check/sync split as
+ * Exports the **per-species facts the client decides things with** from the server's mob config (the
+ * YML files under `zone-server/src/main/resources/mob/`) into the Godot client's static bestia DB (the
+ * `.tres` files under `bestia-client/src/Game/Bestia/DB/`), the same check/sync split as
  * [SkillDbSyncTask].
  *
- * Which slots a bestia species even has is static content, not per-player state, so it is never
- * streamed over the wire - the client reads it from these resources and greys out the slots a
- * species does not have, while the server independently enforces the same mask from the `bestia`
- * table.
+ * These are static content, not per-player state, so they are never streamed over the wire - the client
+ * reads them from these resources while the server independently enforces the same values from the
+ * `bestia` table. Today that is which equipment slots a species has, so the UI can grey out the rest,
+ * and whether it is a non-combatant, so a click can mean talking rather than swinging.
  *
  * The mask bit order is `EquipmentSlot`'s declaration order in
  * `zone-server/src/main/kotlin/net/bestia/zone/item/equip/EquipmentSlot.kt`; [SLOT_ORDER] below
  * must stay identical to it, and both must stay identical to `Game/Item/equipment_slot.gd` on the
  * client.
  *
- * Only `bestia_id` and `equip_slots` are touched. Every other field on a `BestiaResource` is
- * hand-authored client presentation with no server equivalent and is left alone.
+ * Only `bestia_id` and the fields [exportedFields] names are touched. Every other field on a
+ * `BestiaResource` is hand-authored client presentation with no server equivalent and is left alone.
  */
 abstract class BestiaDbSyncTask : DefaultTask() {
 
@@ -47,7 +47,20 @@ abstract class BestiaDbSyncTask : DefaultTask() {
     val id: Long,
     val identifier: String,
     @JsonProperty("equip-slots")
-    val equipSlots: List<String> = emptyList()
+    val equipSlots: List<String> = emptyList(),
+    @JsonProperty("non-combatant")
+    val nonCombatant: Boolean = false
+  )
+
+  /**
+   * What this task owns in a `.tres`, keyed by the name Godot spells it with.
+   *
+   * Written even when the value matches `BestiaResource`'s own default, so "absent" is always drift
+   * rather than sometimes meaning agreement.
+   */
+  private fun exportedFields(mob: MobDto): Map<String, String> = mapOf(
+    "equip_slots" to maskOf(mob).toString(),
+    "non_combatant" to mob.nonCombatant.toString()
   )
 
   @TaskAction
@@ -58,7 +71,7 @@ abstract class BestiaDbSyncTask : DefaultTask() {
     val ymlFiles = mobYmlDir.get().asFile.listFiles { f -> f.isFile && f.extension == "yml" }?.toList() ?: emptyList()
     val mobs = ymlFiles.map { mapper.readValue(it, MobDto::class.java) }
 
-    val expectedMaskById = mobs.associate { mob -> mob.id to (mob.identifier to maskOf(mob)) }
+    val mobById = mobs.associateBy { it.id }
 
     val dbDir = clientDbDir.get().asFile
     if (!dbDir.exists()) {
@@ -71,7 +84,6 @@ abstract class BestiaDbSyncTask : DefaultTask() {
     val tresFiles = dbDir.listFiles { f -> f.isFile && f.extension == "tres" }?.toList() ?: emptyList()
 
     val bestiaIdPattern = Regex("""^bestia_id\s*=\s*(\d+)""", RegexOption.MULTILINE)
-    val equipSlotsPattern = Regex("""^equip_slots\s*=\s*(\d+)""", RegexOption.MULTILINE)
 
     val fileByBestiaId = mutableMapOf<Long, File>()
     for (file in tresFiles) {
@@ -84,40 +96,51 @@ abstract class BestiaDbSyncTask : DefaultTask() {
     val problems = mutableListOf<String>()
     val shouldFix = fix.get()
 
-    for ((id, expected) in expectedMaskById) {
-      val (identifier, mask) = expected
+    for ((id, mob) in mobById) {
+      val expected = exportedFields(mob)
       val file = fileByBestiaId[id]
 
       if (file == null) {
         if (shouldFix) {
-          val newFile = File(dbDir, "${id}_${identifier.lowercase()}.tres")
-          newFile.writeText(stubTres(id, mask))
-          logger.lifecycle("BestiaDbSync: created ${newFile.name} (equip_slots = $mask)")
+          val newFile = File(dbDir, "${id}_${mob.identifier.lowercase()}.tres")
+          newFile.writeText(stubTres(id, expected))
+          logger.lifecycle("BestiaDbSync: created ${newFile.name}")
         } else {
-          problems += "bestia id=$id ($identifier) has no matching bestia-client/.../Bestia/DB/*.tres file"
+          problems += "bestia id=$id (${mob.identifier}) has no matching bestia-client/.../Bestia/DB/*.tres file"
         }
         continue
       }
 
-      val text = file.readText()
-      val currentMask = equipSlotsPattern.find(text)?.groupValues?.get(1)?.toIntOrNull()
+      var text = file.readText()
+      var patched = false
 
-      if (currentMask != mask) {
-        if (shouldFix) {
-          val newText = if (equipSlotsPattern.containsMatchIn(text)) {
-            equipSlotsPattern.replace(text) { "equip_slots = $mask" }
-          } else {
-            text.trimEnd('\n') + "\nequip_slots = $mask\n"
-          }
-          file.writeText(newText)
-          logger.lifecycle("BestiaDbSync: patched ${file.name}: equip_slots ${currentMask ?: "<missing>"} -> $mask")
-        } else {
-          problems += "${file.name}: equip_slots=${currentMask ?: "<missing>"} but the mob YML expects $mask (id=$id)"
+      for ((field, want) in expected) {
+        val pattern = fieldPattern(field)
+        val current = pattern.find(text)?.groupValues?.get(1)
+
+        if (current == want) {
+          continue
         }
+
+        if (shouldFix) {
+          text = if (pattern.containsMatchIn(text)) {
+            pattern.replace(text) { "$field = $want" }
+          } else {
+            text.trimEnd('\n') + "\n$field = $want\n"
+          }
+          patched = true
+          logger.lifecycle("BestiaDbSync: patched ${file.name}: $field ${current ?: "<missing>"} -> $want")
+        } else {
+          problems += "${file.name}: $field=${current ?: "<missing>"} but the mob YML expects $want (id=$id)"
+        }
+      }
+
+      if (patched) {
+        file.writeText(text)
       }
     }
 
-    val knownIds = expectedMaskById.keys
+    val knownIds = mobById.keys
     for ((id, file) in fileByBestiaId) {
       if (id !in knownIds) {
         problems += "${file.name}: bestia_id=$id has no corresponding mob YML (orphaned client resource)"
@@ -143,8 +166,10 @@ abstract class BestiaDbSyncTask : DefaultTask() {
     }
   }
 
-  private fun stubTres(id: Long, mask: Int): String {
-    return """
+  private fun fieldPattern(field: String) = Regex("""^$field\s*=\s*(\S+)""", RegexOption.MULTILINE)
+
+  private fun stubTres(id: Long, fields: Map<String, String>): String {
+    val header = """
     [gd_resource type="Resource" script_class="BestiaResource" load_steps=2 format=3]
 
     [ext_resource type="Script" path="res://Game/Bestia/bestia_resource.gd" id="1_script"]
@@ -152,8 +177,9 @@ abstract class BestiaDbSyncTask : DefaultTask() {
     [resource]
     script = ExtResource("1_script")
     bestia_id = $id
-    equip_slots = $mask
-    """.trimIndent() + "\n"
+    """.trimIndent()
+
+    return header + "\n" + fields.entries.joinToString("\n") { "${it.key} = ${it.value}" } + "\n"
   }
 
   companion object {

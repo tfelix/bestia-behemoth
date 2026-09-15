@@ -142,21 +142,23 @@ tasks.register('syncItemDb', ItemDbSyncTask) {
 }
 
 /**
- * Exports each bestia species' equipment slot mask into the client's static bestia DB - the client
- * needs it to grey out slots a species does not have, and it is static content that is deliberately
+ * Exports the per-species facts the client decides things with - its equipment slot mask, and whether
+ * it may be fought at all - into the client's static bestia DB. Static content that is deliberately
  * never sent over the wire. See buildSrc/src/main/kotlin/BestiaDbSyncTask.kt.
  */
 tasks.register('checkBestiaDb', BestiaDbSyncTask) {
     group = 'verification'
-    description = 'Fails if the mob YMLs and the client bestia DB (.tres) disagree on equipment slot masks.'
+    description = 'Fails if the mob YMLs and the client bestia DB (.tres) disagree.'
     mobYmlDir = layout.projectDirectory.dir('src/main/resources/mob')
     clientDbDir = rootProject.layout.projectDirectory.dir('bestia-client/src/Game/Bestia/DB')
     fix = false
 }
 
+tasks.named('check') { dependsOn 'checkBestiaDb' }
+
 tasks.register('syncBestiaDb', BestiaDbSyncTask) {
     group = 'other'
-    description = 'Patches equip_slots in existing client bestia .tres files and creates stubs for missing bestias, from the mob YMLs.'
+    description = 'Patches the exported fields in existing client bestia .tres files and creates stubs for missing bestias, from the mob YMLs.'
     mobYmlDir = layout.projectDirectory.dir('src/main/resources/mob')
     clientDbDir = rootProject.layout.projectDirectory.dir('bestia-client/src/Game/Bestia/DB')
     fix = true
