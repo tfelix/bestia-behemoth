@@ -7,6 +7,7 @@ const _APPEAR_ANIM = "appear"
 
 var _bestia_id: int = 0
 var _bestia_entity_id: int = 0
+var _species_name: String = ""
 var _hovered: bool = false
 var _selected: bool = false
 
@@ -18,17 +19,26 @@ var _selected: bool = false
 
 
 func _ready() -> void:
+	_apply_name_tag()
 	_anim_player.play(_APPEAR_ANIM)
 
 
 func setup_visual(msg: VisualComponentSMSG) -> void:
 	_bestia_entity_id = msg.EntityId
 	_bestia_id = msg.VisualId
-	# Load bestia data on-demand
-	# TODO its not yet clear what path we go, either we load recources, we could also think
-	# about a sperate scene for every bestia and just enter the values there and move around the different
-	# items for a easier and more visual approach in handling data. Then this can be removed again.
-	#_bestia_data = BestiaResourceManager.get_bestia_data(_bestia_id)
+
+	var bestia_resource := BestiaDB.get_instance().get_bestia(_bestia_id)
+	if bestia_resource != null and not bestia_resource.name_key.is_empty():
+		_species_name = tr(bestia_resource.name_key)
+	_apply_name_tag()
+
+
+## [Entity] calls setup_visual before the visual is in the tree, so the @onready children are still null
+## there. The name is kept and written again from here, which is the first moment $NameTag exists.
+func _apply_name_tag() -> void:
+	if _name_tag == null:
+		return
+	_name_tag.text = _species_name
 
 
 func show_damage(msg: DamageEntitySMSG) -> void:
