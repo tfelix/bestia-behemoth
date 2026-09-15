@@ -2,6 +2,11 @@ using Godot;
 
 namespace BestiaBehemothClient.Bnet.Message.Entity
 {
+  /// <summary>
+  /// How a damage tag should read. Mirrored in GDScript by
+  /// Game/Entity/Visual/DamageTag/damage_type.gd, since an exported C# enum reaches GDScript as a
+  /// plain int. Ordinals match <c>bnet.DamageType</c>.
+  /// </summary>
   public enum DamageType
   {
     Miss = 0,
@@ -61,7 +66,9 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
         global::Bnet.DamageType.Crit => DamageType.Crit,
         global::Bnet.DamageType.Dodge => DamageType.Dodge,
         global::Bnet.DamageType.Heal => DamageType.Heal,
-        _ => DamageType.Miss
+        // An unmapped future value is an ordinary hit, not a miss: Miss now renders as the word
+        // "Miss", and claiming the attack missed is worse than showing its number.
+        _ => DamageType.Normal
       };
     }
 
