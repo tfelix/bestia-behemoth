@@ -35,6 +35,22 @@ subprojects {
 	}
 }
 
+/**
+ * Where the test suite spends its time - per module, per class, per test - so that making it
+ * faster starts from numbers. Reads the JUnit XML of the last run; see
+ * buildSrc/src/main/kotlin/TestTimingReportTask.kt for what it reports and why.
+ */
+tasks.register('testTiming', TestTimingReportTask) {
+	group = 'verification'
+	description = 'Reports the slowest tests and classes of the last test run. Run the tests first.'
+
+	resultsRoot = layout.projectDirectory
+	// `findProperty` rather than `hasProperty`, and a name no Gradle getter can shadow - see the
+	// note on `cli()` in worldgen/build.gradle for the bug that rule exists to prevent.
+	timingRows = (project.findProperty('timingRows') ?: '25') as Integer
+	csv = layout.buildDirectory.file('reports/test-timing.csv')
+}
+
 // --- Godot client -----------------------------------------------------------------------------------------
 //
 // bestia-client is not a Gradle subproject: it is a Godot .NET project, built by the dotnet SDK. These tasks
