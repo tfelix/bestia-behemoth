@@ -11,7 +11,6 @@ class_name Entity extends Node3D
 # get_logical_position() outside this file - rounding `position` back can land a tile away.
 
 
-var BestiaModelScn = preload("res://Game/Entity/Visual/BestiaVisual/BestiaVisual.tscn")
 var MasterModelScn = preload("res://Game/Entity/Visual/MasterVisual/MasterVisual.tscn")
 var StructureVisualScn = preload("res://Game/Entity/Visual/StructureVisual/StructureVisual.tscn")
 var Camera = preload("res://Game/SpringArmCamera/SpringArmCamera.tscn")
@@ -290,7 +289,12 @@ func update_visual(msg: VisualComponentSMSG) -> void:
 func _visual_scene_for(msg: VisualComponentSMSG) -> PackedScene:
 	match msg.Kind:
 		VisualKind.BESTIA:
-			return BestiaModelScn
+			var bestia_resource = BestiaDB.get_instance().get_bestia(msg.VisualId)
+			# An unknown id is a real desync; a known species without a body gets the placeholder instead.
+			if bestia_resource == null:
+				printerr("Entity %s: no bestia %s in the BestiaDB" % [entity_id, msg.VisualId])
+				return null
+			return bestia_resource.get_bestia_visual()
 		VisualKind.ITEM:
 			var item_resource = ItemDB.get_instance().get_item(msg.VisualId)
 			# An unknown id is a real desync; a known item without a mesh gets a placeholder instead.

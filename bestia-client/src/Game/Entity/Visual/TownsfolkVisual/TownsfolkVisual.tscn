@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3 uid="uid://dq2qxxr0sgm43"]
+[gd_scene load_steps=16 format=3]
 
 [ext_resource type="Script" uid="uid://8nkwmodo4q61" path="res://Game/Entity/Visual/BestiaVisual/bestia_visual.gd" id="1_n7t7g"]
 [ext_resource type="PackedScene" uid="uid://doxvjridoygcr" path="res://Game/VFX/HealthBar/HealthBar.tscn" id="2_wtcd1"]
@@ -7,17 +7,20 @@
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_x0ia3"]
 resource_local_to_scene = true
-albedo_color = Color(0.8156863, 0.54509807, 0.101960786, 0)
+albedo_color = Color(0.36078432, 0.44313726, 0.5803922, 0)
 stencil_flags = 2
 stencil_color = Color(0.86025685, 0.5340028, 0.82494587, 1)
 stencil_outline_thickness = 0.096
 
-[sub_resource type="SphereMesh" id="SphereMesh_h56g7"]
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_town"]
 resource_local_to_scene = true
 material = SubResource("StandardMaterial3D_x0ia3")
+radius = 0.25
+height = 1.1
 
-[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_j45w2"]
-points = PackedVector3Array(0.4578707, 0.19807906, 0.01578243, -0.48873997, -0.09168735, -0.04518683, -0.47150937, -0.1370268, -0.090701535, 0.07635914, -0.33327514, 0.36417928, 0.13656896, -0.33242497, -0.3469059, -0.15161654, 0.47198188, -0.060245913, -0.10534735, 0.21193622, 0.43966028, -0.045016855, 0.19809827, -0.4564163, 0.4090765, -0.15116782, 0.2425159, -0.27137637, -0.37776056, 0.18187061, 0.41147974, -0.07598096, -0.27324012, 0.19819722, -0.4561612, -0.04493101, -0.24064063, -0.33167413, -0.2857683, 0.22713655, 0.2567203, 0.36304116, 0.22752243, 0.42360392, -0.13548777, -0.37899047, 0.060702223, 0.31946206, -0.40674683, 0.18104935, -0.22569102, -0.014631338, -0.09176946, 0.49022886, -0.37785473, 0.30279276, 0.121712334, 0.046232317, 0.45601088, 0.19818504, -0.22746402, -0.060786348, -0.44034815, 0.22845526, 0.06072284, -0.43988743, -0.09113759, -0.48924586, -0.045174047, 0.44186506, -0.22821625, -0.044958085, 0.31717873, 0.24121423, -0.30081153, -0.044848714, 0.39473665, -0.30295488, -0.316348, -0.19622163, 0.33255145, 0.19844188, -0.03042933, 0.45723665, 0.061471395, -0.1522456, -0.47130713, 0.36308852, 0.25670764, 0.22707908, 0.15213433, -0.43948856, 0.18237916, -0.21072462, 0.36227608, 0.2722302)
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_town"]
+radius = 0.25
+height = 1.1
 
 [sub_resource type="ViewportTexture" id="ViewportTexture_b5q2y"]
 viewport_path = NodePath("SubViewport")
@@ -37,7 +40,7 @@ tracks/0/keys = {
 "times": PackedFloat32Array(0, 0.0009999999),
 "transitions": PackedFloat32Array(1, 1),
 "update": 0,
-"values": [Color(0.8156863, 0.54509807, 0.101960786, 0), Color(0.8156863, 0.54509807, 0.101960786, 1)]
+"values": [Color(0.36078432, 0.44313726, 0.5803922, 0), Color(0.36078432, 0.44313726, 0.5803922, 1)]
 }
 tracks/1/type = "value"
 tracks/1/imported = false
@@ -64,7 +67,7 @@ tracks/0/keys = {
 "times": PackedFloat32Array(0, 1),
 "transitions": PackedFloat32Array(1, 1),
 "update": 0,
-"values": [Color(0.8156863, 0.54509807, 0.101960786, 0), Color(0.8156863, 0.54509807, 0.101960786, 1)]
+"values": [Color(0.36078432, 0.44313726, 0.5803922, 0), Color(0.36078432, 0.44313726, 0.5803922, 1)]
 }
 tracks/1/type = "value"
 tracks/1/imported = false
@@ -92,7 +95,7 @@ tracks/0/keys = {
 "times": PackedFloat32Array(0, 1.4, 2),
 "transitions": PackedFloat32Array(1, 1, 1),
 "update": 0,
-"values": [Color(0.8156863, 0.54509807, 0.101960786, 1), Color(0.93766236, 0.00039705462, 0.12404562, 1), Color(0, 0, 0, 0)]
+"values": [Color(0.36078432, 0.44313726, 0.5803922, 1), Color(0.93766236, 0.00039705462, 0.12404562, 1), Color(0, 0, 0, 0)]
 }
 tracks/1/type = "value"
 tracks/1/imported = false
@@ -174,17 +177,17 @@ _data = {
 &"death": SubResource("Animation_h56g7")
 }
 
-[node name="BestiaVisual" type="Node3D"]
+[node name="TownsfolkVisual" type="Node3D"]
 script = ExtResource("1_n7t7g")
 
 [node name="Model" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.37640834, 0)
-mesh = SubResource("SphereMesh_h56g7")
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.55, 0)
+mesh = SubResource("CapsuleMesh_town")
 
 [node name="Area3D" type="Area3D" parent="Model"]
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Model/Area3D"]
-shape = SubResource("ConvexPolygonShape3D_j45w2")
+shape = SubResource("CapsuleShape3D_town")
 
 [node name="HealthBar" parent="." instance=ExtResource("2_wtcd1")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.6437862, 0)
