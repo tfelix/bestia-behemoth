@@ -56,7 +56,6 @@ func _on_self_received(msg: SelfSMSG) -> void:
 func _on_entity_received(msg: EntitySMSG) -> void:
 	# Skip when it is not adressing our own entity.
 	if msg is InventoryComponentSMSG:
-		print("Inventory: Received update for entity %s" % [msg.EntityId])
 		var selected_entity_items = _items.get_or_add(msg.EntityId, [])
 		selected_entity_items.clear()
 		var item_db = ItemDB.get_instance()
