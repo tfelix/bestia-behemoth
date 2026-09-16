@@ -140,6 +140,11 @@ data class VegetationParams(
    * is that the market square and the green keep a few and the streets between the houses keep none, which
    * together is what a town looks like from inside.
    *
+   * A quarter is a **judgement, and the only one here that has not been looked at in the client**. What is
+   * measured is that it does what it says: over the inner half of the reference world's city it leaves 1159
+   * trees where the unthinned lattice puts 4368. Whether that reads as a town or as a park is the question
+   * a render answers, and this number is the one to move when it is asked.
+   *
    * Like [entityShare] and [clumpWavelength] this gates entity retention only. It cannot reach
    * `CANOPY_COVER`, and not only by choice: `VegetationStage` runs at step 10 and settlements are placed at
    * 15, with `ResourceStage` reading the canopy in between, so a dependency the other way is a cycle the
