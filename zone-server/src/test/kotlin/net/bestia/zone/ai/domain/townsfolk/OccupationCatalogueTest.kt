@@ -64,6 +64,20 @@ class OccupationCatalogueTest {
   }
 
   @Test
+  fun `everybody with a shift has an evening between it and bed`() {
+    // TownsfolkDomain.eveningOf builds the gap per call rather than at boot, and a zero-length window is
+    // refused - so a trade going straight from its post to its bed would throw mid-tick, not at startup.
+    for (occupation in catalogue.all()) {
+      val shift = occupation.shift ?: continue
+
+      assertNotNull(
+        TownsfolkDomain.eveningOf(occupation),
+        "${occupation.id} works $shift and sleeps ${occupation.rest}, leaving no evening"
+      )
+    }
+  }
+
+  @Test
   fun `the watch holds its ground and nobody else does`() {
     // Stated as a whole-file property rather than as "guard is true": a second trade quietly opting in is
     // how a square stops emptying, and that is the behaviour, not a config detail.

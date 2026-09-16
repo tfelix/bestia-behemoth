@@ -68,6 +68,11 @@ class OccupationCatalogue {
     require(shift == null || !shift.overlaps(rest)) {
       "Occupation '${dto.id}' works $shift and sleeps $rest, which overlap"
     }
+    // An evening is the gap between the two, and TownsfolkDomain builds one per call rather than at boot -
+    // so a trade that went straight from its post to its bed would throw in the middle of a tick instead.
+    require(shift == null || shift.toHour != rest.fromHour) {
+      "Occupation '${dto.id}' goes straight from $shift to $rest, so it has no evening to spend"
+    }
     val occupation = Occupation(
       id = dto.id,
       label = dto.label ?: dto.id,
