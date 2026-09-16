@@ -365,6 +365,20 @@ class TownStructures(features: List<VectorFeature>, private val seed: Long) {
    * ground - it *is* the ground, worked. Only the carriageway is paved and not the shoulder, so the kerb is
    * where the material changes, which is what makes a street read as a street from above.
    */
+  /**
+   * Whether a building stands within [margin] metres of this position.
+   *
+   * **Not [columnAt]'s footprint test widened.** That one decides where masonry goes and keeps the bare
+   * rectangle; this one answers a question about the ground *beside* a building - the yard, the verge, the
+   * gap between two neighbours - which no feature describes because nothing is built on it.
+   */
+  fun nearBuilding(worldX: Double, worldY: Double, margin: Double): Boolean {
+    for (structure in buildings) {
+      if (structure.footprint.within(worldX, worldY, margin)) return true
+    }
+    return false
+  }
+
   fun pavingAt(worldX: Double, worldY: Double): BlockType? {
     if (streets.isEmpty()) return null
 
