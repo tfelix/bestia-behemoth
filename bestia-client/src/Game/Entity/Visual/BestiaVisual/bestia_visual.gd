@@ -8,6 +8,9 @@ const _APPEAR_ANIM = "appear"
 var _bestia_id: int = 0
 var _bestia_entity_id: int = 0
 var _species_name: String = ""
+## An individual's name, which wins over the species when there is one. Only townsfolk have one; a
+## wolf is a Wolf.
+var _display_name: String = ""
 var _hovered: bool = false
 var _selected: bool = false
 
@@ -33,12 +36,17 @@ func setup_visual(msg: VisualComponentSMSG) -> void:
 	_apply_name_tag()
 
 
+func set_display_name(display_name: String) -> void:
+	_display_name = display_name
+	_apply_name_tag()
+
+
 ## [Entity] calls setup_visual before the visual is in the tree, so the @onready children are still null
 ## there. The name is kept and written again from here, which is the first moment $NameTag exists.
 func _apply_name_tag() -> void:
 	if _name_tag == null:
 		return
-	_name_tag.text = _species_name
+	_name_tag.text = _display_name if not _display_name.is_empty() else _species_name
 
 
 func show_damage(msg: DamageEntitySMSG) -> void:

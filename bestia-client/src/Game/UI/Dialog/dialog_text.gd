@@ -107,12 +107,17 @@ static func _resolve_arg(arg) -> String:
 			return "?"
 
 
-## Entities have no display name on the client yet - [Entity] carries no name and [NameTag] is a
-## bare sprite - so this can only confirm the entity is known and otherwise degrade visibly. Once
-## entities do carry a name, this is the single place that needs to change.
+## Only entities the server names individually carry one - a townsperson and a master do, a wolf is a
+## species. Anything unnamed still degrades visibly rather than silently.
 static func _resolve_entity_name(entity_id: int) -> String:
 	var manager := EntityManager.get_instance()
-	if manager == null or manager.get_entity(entity_id) == null:
-		printerr("DialogText: dialog referenced unknown entity %d" % entity_id)
+	if manager == null:
+		return "???"
 
-	return "???"
+	var entity := manager.get_entity(entity_id)
+	if entity == null:
+		printerr("DialogText: dialog referenced unknown entity %d" % entity_id)
+		return "???"
+
+	var display_name := entity.get_display_name()
+	return display_name if not display_name.is_empty() else "???"

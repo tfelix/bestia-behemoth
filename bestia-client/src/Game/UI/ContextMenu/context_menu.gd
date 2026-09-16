@@ -29,13 +29,12 @@ func open_for(target: Node3D, screen_position: Vector2) -> bool:
 		_target_entity_id = target.get_bestia_entity_id()
 		add_item("Trade with %s" % target.get_master_name(), _ACTION_TRADE)
 
-	# Offered on any creature visual, because the client cannot yet tell a townsperson from a wolf -
-	# there is no NPC visual kind on the wire. The server answers nothing for a target that cannot
-	# talk, so the cost of asking is a wasted message rather than a wrong menu. The proper fix is a
-	# VisualKind.NPC, or a talkable flag the visual exposes.
+	# Offered on any creature visual, not just a townsperson: the server answers nothing for a target
+	# that cannot talk, so the cost of asking a wolf is a wasted message rather than a wrong menu.
+	# Only somebody the server has named can be named here; everything else is still just "Talk to".
 	elif target is BestiaVisual:
 		_target_entity_id = target.get_bestia_entity_id()
-		add_item("Talk to", _ACTION_TALK)
+		add_item(_talk_label(_target_entity_id), _ACTION_TALK)
 
 	if item_count == 0:
 		return false
@@ -45,6 +44,22 @@ func open_for(target: Node3D, screen_position: Vector2) -> bool:
 	popup()
 
 	return true
+
+
+func _talk_label(entity_id: int) -> String:
+	var manager := EntityManager.get_instance()
+	if manager == null:
+		return "Talk to"
+
+	var entity := manager.get_entity(entity_id)
+	if entity == null:
+		return "Talk to"
+
+	var display_name := entity.get_display_name()
+	if display_name.is_empty():
+		return "Talk to"
+
+	return "Talk to %s" % display_name
 
 
 func _on_id_pressed(id: int) -> void:

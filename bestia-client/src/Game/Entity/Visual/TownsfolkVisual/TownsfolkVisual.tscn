@@ -1,6 +1,6 @@
 [gd_scene load_steps=16 format=3]
 
-[ext_resource type="Script" uid="uid://8nkwmodo4q61" path="res://Game/Entity/Visual/BestiaVisual/bestia_visual.gd" id="1_n7t7g"]
+[ext_resource type="Script" uid="uid://23p53v7tuqby" path="res://Game/Entity/Visual/TownsfolkVisual/townsfolk_visual.gd" id="1_n7t7g"]
 [ext_resource type="PackedScene" uid="uid://doxvjridoygcr" path="res://Game/VFX/HealthBar/HealthBar.tscn" id="2_wtcd1"]
 [ext_resource type="PackedScene" uid="uid://g1nu1oan0ehe" path="res://Game/Entity/NameTag/NameTag.tscn" id="3_358an"]
 [ext_resource type="PackedScene" uid="uid://bq7cst1bar0ck" path="res://Game/VFX/CastBar/CastBar.tscn" id="4_castb"]

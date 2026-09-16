@@ -1,6 +1,8 @@
 package net.bestia.zone.ecs.spawn.townsfolk
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.worldgen.pop.Kinship
+import net.bestia.worldgen.pop.Member
 import net.bestia.zone.ai.core.state.Blackboard
 import net.bestia.zone.ai.domain.townsfolk.TownsfolkDomain
 import net.bestia.zone.ai.ecs.AiThrottleable
@@ -31,6 +33,7 @@ class TownsfolkEntitySpawner(
   private val placement: HouseholdPlacement,
   private val bestiaCatalogue: BestiaCatalogue,
   private val spawner: BestiaEntitySpawner,
+  private val naming: TownsfolkNaming,
 ) {
 
   /** @return the entities put down, or empty when the settlement has no such household to expand */
@@ -89,6 +92,9 @@ class TownsfolkEntitySpawner(
       persistent = false,
       aiMemory = memory,
       homePosition = placed.home,
+      // In place of the species body every other mob gets: one commoner archetype stands in for the whole
+      // town, so without this they would all be drawn and labelled as the same anonymous townsperson.
+      visual = TownsfolkVisual(naming.nameOf(identity), bodyOf(person)),
     )
 
     // Applied at the end of the tick when this runs inside a system, exactly as `AmbientSpawnerSystem`
@@ -101,6 +107,11 @@ class TownsfolkEntitySpawner(
 
     LOG.trace { "Spawned ${occupation.id} ${TownsfolkIdentity.describe(identity)} as entity $id" }
     return id
+  }
+
+  /** The same test the rest of this package decides a child by - see `HouseholdPlacement.occupationFor`. */
+  private fun bodyOf(person: Member): TownsfolkBody {
+    return if (person.kinship == Kinship.CHILD) TownsfolkBody.CHILD else TownsfolkBody.ADULT
   }
 
   private companion object {

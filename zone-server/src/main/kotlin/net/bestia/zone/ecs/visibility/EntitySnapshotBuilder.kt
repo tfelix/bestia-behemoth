@@ -9,6 +9,7 @@ import net.bestia.zone.ecs.entity.EntityVisual
 import net.bestia.zone.ecs.movement.Path
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.movement.Speed
+import net.bestia.zone.ecs.spawn.townsfolk.TownsfolkVisual
 import net.bestia.zone.message.EntitySMSG
 import net.bestia.zone.util.AccountId
 import net.bestia.zone.util.EntityId
@@ -37,6 +38,7 @@ class EntitySnapshotBuilder {
   private val sendFirst: List<KClass<*>> = listOf(
     EntityVisual::class,
     MasterVisual::class,
+    TownsfolkVisual::class,
     Position::class,
     Speed::class,
     Path::class

@@ -20,12 +20,13 @@ import net.bestia.zone.ecs.entity.Animation
 import net.bestia.zone.ecs.persistence.Persistent
 import net.bestia.zone.ecs.spawn.DenMember
 import net.bestia.zone.util.EntityId
+import net.bestia.zone.ecs.core.Component
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.geometry.Vec3L
-import org.springframework.stereotype.Component
+import org.springframework.stereotype.Component as SpringComponent
 
-@Component
+@SpringComponent
 class BestiaEntitySpawner(
   private val bestiaCatalogue: BestiaCatalogue,
   private val aiProfileRegistry: AiProfileRegistry,
@@ -51,6 +52,10 @@ class BestiaEntitySpawner(
    *   the archetype cannot carry - which occupation a townsperson holds, where their post is. Given here
    *   rather than written afterwards because `World.add` is deferred mid-tick, so the component may not be
    *   readable when this returns, and because the agent's resting window is decided from it at construction.
+   * @param visual what the client is told to draw, or null for the species body [bestiaId] names. A
+   *   townsperson overrides it: they share this archetype's behaviour but not its appearance, which is an
+   *   individual's. Taken here for [aiMemory]'s reason - a component swapped in afterwards is deferred to
+   *   the end of the tick, so a watching client would see the species body and then a correction.
    */
   fun spawnMob(
     world: WorldView,
@@ -61,6 +66,7 @@ class BestiaEntitySpawner(
     persistent: Boolean = true,
     aiMemory: Blackboard? = null,
     homePosition: Vec3L? = null,
+    visual: Component? = null,
   ): EntityId {
     LOG.debug { "Spawning mob bestia $bestiaId on $pos" }
 
@@ -68,7 +74,7 @@ class BestiaEntitySpawner(
 
     val configure: World.(EntityId) -> Unit = { id ->
       add(id, Position.fromVec3(pos))
-      add(id, EntityVisual(VisualKind.BESTIA, bestiaId))
+      add(id, visual ?: EntityVisual(VisualKind.BESTIA, bestiaId))
       add(id, Health(bestia.health, bestia.health))
       add(id, Stamina(current = 10, max = 10))
       add(id, Speed())

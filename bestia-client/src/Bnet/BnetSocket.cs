@@ -212,6 +212,11 @@ namespace BestiaBehemothClient.Bnet.Message
           var msg = Entity.MasterVisualComponentSMSG.FromProto(envelope.CompMasterVisual);
           EmitSignal(SignalName.MessageReceived, msg);
         }
+        else if (envelope.CompTownsfolkVisual != null)
+        {
+          var msg = Entity.TownsfolkVisualComponentSMSG.FromProto(envelope.CompTownsfolkVisual);
+          EmitSignal(SignalName.MessageReceived, msg);
+        }
         else if (envelope.VanishEntity != null)
         {
           var msg = Entity.VanishEntitySMSG.FromProto(envelope.VanishEntity);

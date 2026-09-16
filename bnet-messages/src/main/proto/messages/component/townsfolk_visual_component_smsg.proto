@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "TownsfolkVisualComponentSMSGProto";
+
+/** Which body a townsperson is drawn with. One branch per model the client knows. */
+enum TownsfolkBody {
+  ADULT = 0;
+  CHILD = 1;
+}
+
+/**
+ * Who an inhabitant of a settlement is, as the client needs to draw them.
+ *
+ * Takes the place of `VisualComponent` for townsfolk rather than joining it. They share the commoner
+ * archetype's behaviour, but what a person looks like and what they are called are an individual's, and
+ * a catalogue id can only say "a townsperson" - which is what every one of them used to be labelled.
+ *
+ * `name` rides here rather than on a component of its own for `MasterVisualComponentSMSG`'s reason: it is
+ * public, it never changes while the entity lives, and every viewer needs it exactly when the body arrives.
+ */
+message TownsfolkVisualComponentSMSG {
+  fixed64 entity_id = 1;
+  string name = 2;
+  TownsfolkBody body = 3;
+}
