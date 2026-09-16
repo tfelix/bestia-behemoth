@@ -96,6 +96,19 @@ data class TownParams(
    * the `town` view's "wanted versus built" line exists to show. Eighty-five was the measured answer for nine
    * metres of frontage; fifty-eight is the measured answer for the twelve and a half below, which fits fewer
    * plots on the same length of street.
+   *
+   * ### It is no longer the number that decides how big most towns are
+   *
+   * Re-measured over the reference world when the carriageways were widened, and the answer was to leave it
+   * alone - not because nothing changed, but because this constant can no longer reach what changed. It feeds
+   * [builtRadiusFor]'s `radius`, and `radius` loses to `usable` for twenty-one of that world's twenty-eight
+   * settlements: every village, every town but one, and most hamlets are held by [SettlementTier
+   * .footprintRadius] rather than by their own population. The city is held by [maxBuildingsPerSettlement].
+   * Six settlements are actually governed by this number, and they build exactly what they want.
+   *
+   * So a town short of buildings is now evidence about the footprint radius, and moving this would only make
+   * the six that are already right too sparse. That tier is where the decision has gone; see its own KDoc,
+   * which already records that the graded disc is bigger than the town standing on it.
    */
   val peoplePerHectare: Double = 58.0,
 
