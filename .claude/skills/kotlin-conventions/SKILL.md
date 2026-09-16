@@ -1,6 +1,6 @@
 ---
 name: kotlin-conventions
-description: Kotlin code conventions - file/class organization and function bodies (comment style lives in the code-comments skill). Read this BEFORE creating a new Kotlin class, exception, or DTO, before adding a second top-level type to an existing file, or before writing a function. Triggers on: new .kt file, top-level class, nested class, inner class, sealed class subtypes, exception hierarchy, DTO class, one class per file, multiple classes in one file, expression body, single-expression function, one-liner.
+description: Kotlin code conventions - file/class organization and function bodies (comment style lives in the code-comments skill). Read this BEFORE doing any change to a Kotlin codebase. Triggers on: new .kt file, top-level class, nested class, inner class, sealed class subtypes, exception hierarchy, DTO class, one class per file, multiple classes in one file, expression body, single-expression function, one-liner.
 ---
 
 # Kotlin file & class organization
