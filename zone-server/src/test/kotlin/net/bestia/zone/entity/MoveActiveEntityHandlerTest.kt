@@ -14,6 +14,7 @@ import net.bestia.zone.util.EntityId
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 class MoveActiveEntityHandlerTest {
 
@@ -121,6 +122,28 @@ class MoveActiveEntityHandlerTest {
     handler.handle(MoveActiveEntityCMSG(playerId = accountId, path = path))
 
     assertNull(world.get(id, Path::class))
+  }
+
+  @Test
+  fun `a dropped path publishes the position, so the client stops asking from the wrong tile`() {
+    // The refusal above is only half the job. The client drew that path from where it believes the entity
+    // stands, so a silent drop leaves it believing the same thing and the next click produces the same
+    // unreachable path: the player is stuck for good rather than for one click. A late tick is enough to open
+    // the gap - `MoveSystem` steps several tiles on one overrunning delta, and neither the step nor the
+    // waypoint it consumed goes on the wire.
+    val world = testWorld()
+    val id = world.create()
+    val position = Position(0, 0, 0)
+    world.add(id, position)
+
+    // Fresh components are born dirty, so the flag has to be cleared to mean anything here.
+    position.clearDirty()
+
+    val handler = handlerFor(world, id, OpenWalkQuery())
+    handler.handle(MoveActiveEntityCMSG(playerId = accountId, path = listOf(Vec3L(5, 5, 0))))
+
+    assertNull(world.get(id, Path::class))
+    assertTrue(position.isDirty(), "the entity's real position has to go out, or the next click fails too")
   }
 
   @Test

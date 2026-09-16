@@ -68,6 +68,18 @@ class MoveActiveEntityHandler(
           "Dropping move for entity $id: path start ${msg.path.first()} is not reachable from current " +
             "position (${position?.x}, ${position?.y}, ${position?.z})"
         }
+
+        // The client drew that path from where *it* believes the entity stands, so a refusal that says
+        // nothing leaves it believing exactly that: the next click produces the same unreachable path from
+        // the same wrong tile, and the player is stuck for good rather than for one click. A dropped move is
+        // therefore always evidence of a disagreement about the position, and this is the side that is right
+        // - so it publishes. One authoritative push, the client snaps, and its next click is drawn from a
+        // tile this can accept.
+        //
+        // Not a denial message: there is nothing for the player to do differently, and see walkableStepsOf on
+        // why a toast for an ordinary misjudged click is noise. The gap is the server's to close.
+        position?.markDirty()
+
         return@modify
       }
 
