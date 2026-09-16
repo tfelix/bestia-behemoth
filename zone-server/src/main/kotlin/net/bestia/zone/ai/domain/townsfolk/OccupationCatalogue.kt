@@ -28,13 +28,20 @@ class OccupationCatalogue {
   /** Trades deliberately without anybody to keep them yet. See [OccupationCoverage]. */
   private var unstaffed: Set<String> = emptySet()
 
+  private var jitterMinutes: Int = DEFAULT_DAY_JITTER_MINUTES
+
   @PostConstruct
   fun load() {
     val mapper = JsonMapper.builder(YAMLFactory()).addModule(kotlinModule()).build()
     val file = mapper.readValue(ClassPathResource(RESOURCE).inputStream, OccupationsYmlDto::class.java)
 
+    require(file.dayJitterMinutes in 0..MAX_DAY_JITTER_MINUTES) {
+      "day-jitter-minutes must be in 0..$MAX_DAY_JITTER_MINUTES, was ${file.dayJitterMinutes}"
+    }
+
     file.occupations.forEach { register(it) }
     unstaffed = file.unstaffed.toSet()
+    jitterMinutes = file.dayJitterMinutes
 
     LOG.info { "Loaded ${byId.size} occupations, ${unstaffed.size} trades deliberately unstaffed" }
   }
@@ -57,6 +64,17 @@ class OccupationCatalogue {
 
   fun unstaffedTrades(): Set<String> {
     return unstaffed
+  }
+
+  /**
+   * Minutes either side of the stated hours that one person's whole day may sit. Zero switches it off.
+   *
+   * Asked of the town rather than of the trade: what it prevents is a whole street acting in one step,
+   * which is not something any one occupation can know about. See
+   * [net.bestia.zone.ecs.spawn.townsfolk.HouseholdPlacement.dayOffsetOf].
+   */
+  fun dayJitterMinutes(): Int {
+    return jitterMinutes
   }
 
   private fun register(dto: OccupationDto) {
@@ -90,6 +108,7 @@ class OccupationCatalogue {
   private data class OccupationsYmlDto(
     val occupations: List<OccupationDto> = emptyList(),
     val unstaffed: List<String> = emptyList(),
+    @JsonProperty("day-jitter-minutes") val dayJitterMinutes: Int = DEFAULT_DAY_JITTER_MINUTES,
   )
 
   private data class OccupationDto(
@@ -131,6 +150,12 @@ class OccupationCatalogue {
 
     /** What somebody with no reason to keep other hours does. Matches the commoner archetype. */
     val DEFAULT_REST = HourWindow(TownsfolkDomain.BEDTIME_HOUR, TownsfolkDomain.RISE_HOUR)
+
+    /** A Bestia hour is twenty real minutes, so this is a ten-real-minute spread on when a street empties. */
+    const val DEFAULT_DAY_JITTER_MINUTES = 30
+
+    /** Beyond two hours a "morning" shift starts before the night it was written after has ended. */
+    const val MAX_DAY_JITTER_MINUTES = 120
 
     private val LOG = KotlinLogging.logger { }
   }

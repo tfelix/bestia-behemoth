@@ -96,3 +96,13 @@ unstaffed:
   - tanner
   - vintner
   - weaver
+
+# Minutes either side of the stated hours that one person's whole day is allowed to sit.
+#
+# One offset per person, applied to their shift *and* their bed rather than one draw per boundary: a
+# translation keeps a shift its own length and keeps a post out of its own bedtime. The guard is why -
+# his watch ends at exactly the minute his night begins, so independent draws would have him at his post
+# in bed.
+#
+# A Bestia hour is twenty real minutes, so 30 is a ten-real-minute spread on when a street empties. 0 is off.
+day-jitter-minutes: 30

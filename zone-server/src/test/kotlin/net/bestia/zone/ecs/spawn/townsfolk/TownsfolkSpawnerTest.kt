@@ -71,6 +71,7 @@ class TownsfolkSpawnerTest {
       val member = secondArg<Member>()
       occupations.getOrThrow(if (member.kinship == Kinship.CHILD) "child" else "farmer")
     }
+    every { placement.dayOffsetOf(any(), any(), any()) } returns 0
 
     every {
       bestiaSpawner.spawnMob(any(), any(), any(), any(), any(), capture(persistent), capture(seeded), any())
