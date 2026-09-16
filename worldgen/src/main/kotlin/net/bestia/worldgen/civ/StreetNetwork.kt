@@ -221,15 +221,17 @@ internal class StreetGraph(
    * What [LotPlanner] tests a candidate plot against, so that a plot laid from one street cannot reach across
    * a parallel street behind it.
    */
-  fun segmentsNear(around: Vec2d, radius: Double): List<Pair<Vec2d, Vec2d>> {
-    val out = ArrayList<Pair<Vec2d, Vec2d>>()
+  fun segmentsNear(around: Vec2d, radius: Double): List<Triple<Vec2d, Vec2d, Int>> {
+    val out = ArrayList<Triple<Vec2d, Vec2d, Int>>()
     for (edge in edges) {
       val a = nodes[edge.a]
       val b = nodes[edge.b]
       // Cheap reject on the segment's own extent before the point-to-segment distance.
       if (min(a.x, b.x) - radius > around.x || max(a.x, b.x) + radius < around.x) continue
       if (min(a.y, b.y) - radius > around.y || max(a.y, b.y) + radius < around.y) continue
-      out.add(a to b)
+      // The rank travels with the segment: a caller asking what a street covers needs its width, and the
+      // rank is the only thing that says how wide it is.
+      out.add(Triple(a, b, edge.rank))
     }
     return out
   }
@@ -1262,6 +1264,8 @@ internal object LotPlanner {
      * ground the lane never disturbed. See `TownParams.setbackFor`, which is what a town passes here.
      */
     setbackFor: (rank: Int) -> Double,
+    /** Half the carriageway of a street of this rank, so a plot is not laid over ground a street paves. */
+    halfWidthOf: (rank: Int) -> Double,
     distance: StreetDistance = StreetDistance(graph, frame.centre),
     already: List<Lot> = emptyList(),
     /**
@@ -1322,7 +1326,7 @@ internal object LotPlanner {
           if (placed.overlaps(lot)) continue
           // A plot must not reach over the street behind it. Without this, two streets fifteen metres apart
           // would each grow plots through the other, and a building would sit in the middle of a road.
-          if (crossesAStreet(lot, graph, at, reach)) continue
+          if (crossesAStreet(lot, graph, at, reach, halfWidthOf)) continue
 
           placed.add(lot)
           out.add(lot)
@@ -1344,9 +1348,9 @@ internal object LotPlanner {
    * The plot's own fronting street is excluded the same way it is for a street-laid plot: by construction, since
    * the block was set back from the patch edge before being cut.
    */
-  fun blockedByStreet(lot: Lot, graph: StreetGraph): Boolean {
+  fun blockedByStreet(lot: Lot, graph: StreetGraph, halfWidthOf: (rank: Int) -> Double): Boolean {
     val front = lot.centre - lot.inwards * lot.halfDepth
-    return crossesAStreet(lot, graph, front, lot.halfDepth * 2.0)
+    return crossesAStreet(lot, graph, front, lot.halfDepth * 2.0, halfWidthOf)
   }
 
   /**
@@ -1356,9 +1360,18 @@ internal object LotPlanner {
    * street's carriageway half-width back from that street's centreline, so its own street cannot intersect it,
    * and any segment that does is a different one.
    */
-  private fun crossesAStreet(lot: Lot, graph: StreetGraph, front: Vec2d, reach: Double): Boolean {
-    for ((a, b) in graph.segmentsNear(front, reach + lot.halfFrontage)) {
-      if (segmentHitsLot(lot, a, b)) return true
+  private fun crossesAStreet(
+    lot: Lot,
+    graph: StreetGraph,
+    front: Vec2d,
+    reach: Double,
+    halfWidthOf: (rank: Int) -> Double
+  ): Boolean {
+    // Widened by the widest carriageway in town, because a street whose centreline falls outside the search
+    // still paves ground inside it.
+    val search = reach + lot.halfFrontage + halfWidthOf(0)
+    for ((a, b, rank) in graph.segmentsNear(front, search)) {
+      if (segmentHitsLot(lot, a, b, halfWidthOf(rank))) return true
     }
     return false
   }
@@ -1370,7 +1383,7 @@ internal object LotPlanner {
    * the standard slab clip and about ten lines. Doing it the other way - rotating the rectangle into world
    * axes - is not possible, which is the whole reason oriented boxes are tested this way.
    */
-  private fun segmentHitsLot(lot: Lot, a: Vec2d, b: Vec2d): Boolean {
+  private fun segmentHitsLot(lot: Lot, a: Vec2d, b: Vec2d, halfWidth: Double): Boolean {
     val along = lot.inwards.perpendicular()
 
     fun local(p: Vec2d): Vec2d {
@@ -1380,8 +1393,10 @@ internal object LotPlanner {
 
     val p = local(a)
     val q = local(b)
-    val hx = lot.halfFrontage
-    val hy = lot.halfDepth
+    // The plot grown by the street's half-width, rather than the street given a width of its own: a
+    // zero-width line against a fattened box is the same test and stays the slab clip below.
+    val hx = lot.halfFrontage + halfWidth
+    val hy = lot.halfDepth + halfWidth
 
     // Both ends on the same outside of a slab: separated, so no hit.
     if (p.x < -hx && q.x < -hx) return false

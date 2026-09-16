@@ -7,6 +7,8 @@ import net.bestia.worldgen.pipeline.StandardWorld
 import net.bestia.worldgen.vector.BlendMode
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.FootprintFeature
+import net.bestia.worldgen.vector.PolylineFeature
+import net.bestia.worldgen.vector.Profiles
 import net.bestia.worldgen.vector.PointMarker
 import net.bestia.worldgen.vector.Vec2d
 import net.bestia.worldgen.voxel.BlockType
@@ -313,13 +315,22 @@ class TownStageTest {
     val streets = generated.world.features.all().filter { it.kind == FeatureKind.STREET }
     assertTrue(streets.isNotEmpty(), "no streets were laid")
 
-    // No building footprint may contain the centreline of a street: the setback is what guarantees it, and
-    // without it a house sits in the road.
-    for (street in streets.take(20)) {
-      for (line in street.outline()) {
-        for (point in line.points) {
-          val on = buildings.firstOrNull { it.contains(point.x, point.y) }
-          assertTrue(on == null, "building ${on?.id} stands on a street at $point")
+    // No building may stand within a street's own carriageway. Asked against the half-width the feature was
+    // actually stamped with rather than against the centreline, because a centreline test gets *easier* the
+    // wider a street is - the one property a test of this has to not have.
+    for (street in streets.filterIsInstance<PolylineFeature>().take(20)) {
+      val channel = runCatching { street.stations.channel(Profiles.CHANNEL_HALF_WIDTH) }.getOrNull() ?: continue
+      for (building in buildings) {
+        // Corners as well as the centre: a house whose middle clears the kerb can still have a room in the road.
+        for (point in building.corners() + building.center) {
+          val projection = street.centerline.project(point)
+          if (projection.beyondEnd) continue
+          val half = street.stations.sample(channel, projection.u)
+          assertTrue(
+            projection.distance > half,
+            "building ${building.id} reaches ${projection.distance} m from the centreline of a street " +
+                "whose carriageway reaches $half m"
+          )
         }
       }
     }
