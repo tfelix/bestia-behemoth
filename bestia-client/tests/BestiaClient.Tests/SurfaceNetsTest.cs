@@ -531,6 +531,52 @@ namespace BestiaBehemothClient.Tests
       Assert.InRange(surface.Max(v => v.Y), top - 0.0001, top + 0.0001);
     }
 
+    /// <summary>
+    /// Water a voxel deep - which is what a shoreline is - is a top sheet and nothing else.
+    /// </summary>
+    /// <remarks>
+    /// <see cref="ASeaBedIsDrawnUnderStandingWaterAndTheWaterKeepsNoUnderside"/> asks the same question of a bed
+    /// twenty metres down, and passed throughout while every beach in the world was drawn wrong. That is the
+    /// whole reason this one exists: down there the bed cells are nowhere near the waterline, so the occupancy
+    /// mask never reaches them and the fluid pass never visits them. <see cref="TerrainFixtures.Shore"/> puts
+    /// the bed one cell under the surface, where a beach puts it, and the mask reaches it on its own - through
+    /// <c>ChunkBands</c>'s one-cell reach and its horizontal-face pass both.
+    ///
+    /// <para>
+    /// The fluid pass then found the crossing there, because the ground is masked out of its field and the bed
+    /// is therefore a genuine sign change for it, and gave the water an underside exactly on top of the sea
+    /// floor with a rim joining the two. A closed shell, coincident with an opaque surface, triangulated
+    /// differently because it was built from a different cell: a doubly blended sea z-fighting its own bed,
+    /// which is what put a band of dark triangles along the water's edge. Every vertex standing at the waterline
+    /// is the assertion that the shell is gone - an underside would sit down on the bed and a rim half way
+    /// between.
+    /// </para>
+    /// </remarks>
+    [Fact]
+    public void WaterAVoxelDeepOverAShoreIsATopSheetAndNothingElse()
+    {
+      const double waterline = 40.0;
+
+      // One in ten, so a single chunk holds water two voxels deep, the one-voxel band, and dry sand above it.
+      var source = Surrounded(
+        (x, y) => TerrainFixtures.Shore(x, y, (worldX, _) => waterline + (worldX - 20) * 0.1, waterline),
+        radius: 2);
+
+      var mesh = Mesh(source);
+
+      Assert.NotNull(mesh?.Water);
+      Assert.NotNull(mesh.Terrain);
+
+      var surface = Interior(mesh.Water);
+      var ground = Interior(mesh.Terrain);
+
+      Assert.NotEmpty(surface);
+      Assert.All(surface, v => Assert.InRange(v.Y, waterline - 0.0001, waterline + 0.0001));
+
+      // And the bed under it is still drawn - by the pass that owns it, which is the other half of the bargain.
+      Assert.Contains(ground, v => v.Y < waterline - 0.5);
+    }
+
     /// <summary>The lava surface is flat and faces up, like any other standing fluid.</summary>
     /// <remarks>
     /// Cheap, and it is the assertion that catches lava being meshed with the winding or the normals of a
