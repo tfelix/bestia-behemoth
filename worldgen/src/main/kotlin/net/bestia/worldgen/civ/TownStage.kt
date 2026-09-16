@@ -245,6 +245,27 @@ data class TownParams(
     .put("wallThickness", wallThickness)
     .put("gateWidth", gateWidth)
     .put("streetSpacing", streetSpacing)
+
+  /**
+   * Metres from a street's centreline to the front of the plots along it, for a street of this rank.
+   *
+   * The **setback**, not the carriageway's half-width, when the setback is the larger. A block whose edge sat
+   * at the kerb instead would give a town a wall of housefronts along the carriageway while the plots grown
+   * off the street kept their verge, and the two halves of one town would not agree what a street looks like.
+   */
+  fun setbackFor(rank: Int): Double = max(streets.halfWidthOfRank(rank) * KERB_TO_SETBACK, setback)
+
+  companion object {
+
+    /**
+     * Carriageway half-width to kerb-to-plot distance, as a multiple.
+     *
+     * `LinearFeatures.road` gives a street a shoulder of half its half-width on each side, so the ground a
+     * street actually disturbs reaches one and a half times its half-width. A block set back by less than
+     * that sits on its own street's embankment.
+     */
+    private const val KERB_TO_SETBACK = 1.5
+  }
 }
 
 /**
@@ -455,13 +476,7 @@ class TownStage(
           patch = patch,
           grain = Quarters.grainOf(quarters[index], town.culture.layout),
           frame = frame,
-          // The **setback**, not the carriageway's half-width, when the setback is the larger. A street plot sits
-          // `setback` metres back from its centreline; a block whose edge sat at the kerb instead would give the
-          // core a wall of housefronts along the carriageway while the suburbs kept their verge, and the two halves
-          // of one town would not agree about what a street looks like.
-          streetWidthFor = { edge ->
-            max(streetHalfWidth(rankOfEdge(patch, quarters, index, edge)) * KERB_TO_SETBACK, params.setback)
-          },
+          streetWidthFor = { edge -> params.setbackFor(rankOfEdge(patch, quarters, index, edge)) },
           rankFor = { edge -> rankOfEdge(patch, quarters, index, edge) },
           distanceAt = { distance.at(it) },
           lotStep = params.lotStep,
@@ -700,20 +715,6 @@ class TownStage(
     return if (arterial) 0 else 1
   }
 
-  /**
-   * Half the carriageway width for a street of this rank, in metres.
-   *
-   * Extracted from [streetFeature] because the block subdivider needs the same number: a block is set back from
-   * each of its edges by the width of the street on that edge, and if the two disagreed then either the blocks
-   * would overlap the carriageway or a gap would open along every artery in the town.
-   */
-  private fun streetHalfWidth(rank: Int): Double = when (rank) {
-    0 -> 3.2
-    1 -> 2.4
-    2 -> 1.7
-    else -> 1.3
-  }
-
   // --- Features -------------------------------------------------------------------------------------
 
   /**
@@ -772,7 +773,7 @@ class TownStage(
   ): PolylineFeature? {
     if (chain.length < params.streetSpacing * 2.0) return null
 
-    val half = streetHalfWidth(rank)
+    val half = params.streets.halfWidthOfRank(rank)
 
     return runCatching {
       LinearFeatures.road(
@@ -1010,7 +1011,7 @@ class TownStage(
       )
     )
 
-    val keepPlan = ConvexPolygons.inset(patch.polygon) { streetHalfWidth(0) * KEEP_INSET }
+    val keepPlan = ConvexPolygons.inset(patch.polygon) { params.streets.halfWidthOfRank(0) * KEEP_INSET }
     val keep = ConvexPolygons.orientedExtent(keepPlan)
     if (keep != null && frame.encloses(keep.centre)) {
       val floor = grading.groundAt(keep.centre)
@@ -1364,16 +1365,6 @@ class TownStage(
      * swallow - which on a footprint this size are at the edges and along the diagonals.
      */
     private val CORNER_SAMPLES = doubleArrayOf(1.0, 0.66)
-
-    /**
-     * Carriageway half-width to kerb-to-plot distance, as a multiple.
-     *
-     * `LinearFeatures.road` gives a street a shoulder of half its half-width on each side, so the ground a street
-     * actually disturbs reaches one and a half times its half-width. A block set back by less than that sits on
-     * its own street's embankment.
-     */
-    private const val KERB_TO_SETBACK = 1.5
-
 
     /** Metres of slack between the built extent at walling time and the circuit itself. */
     private const val WALL_MARGIN = 1.18
