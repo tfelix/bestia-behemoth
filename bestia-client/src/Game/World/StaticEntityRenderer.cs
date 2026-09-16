@@ -412,8 +412,8 @@ namespace BestiaBehemothClient.Game.World
 
         multi.SetInstanceTransform(i, new Transform3D(basis, position + new Vector3(0f, lift, 0f)));
 
-        var picker = appearance.Collectible || appearance.Interactable
-          ? AddPicker(container, entry, position, pickWidth, appearance.Collectible)
+        var picker = appearance.Collectible || appearance.Action != PropAppearance.PropAction.None
+          ? AddPicker(container, entry, position, pickWidth, appearance)
           : null;
 
         Record(key, entry.EntityId, new Drawn { Node = picker, Batch = multi, Slot = i });
@@ -460,7 +460,8 @@ namespace BestiaBehemothClient.Game.World
     /// </para>
     /// </remarks>
     private Node3D AddPicker(
-      Node3D container, ChunkStaticEntitiesSMSG.Entry entry, Vector3 position, float width, bool collectible)
+      Node3D container, ChunkStaticEntitiesSMSG.Entry entry, Vector3 position, float width,
+      PropAppearance.Kind appearance)
     {
       var area = new Area3D
       {
@@ -482,10 +483,15 @@ namespace BestiaBehemothClient.Game.World
 
       area.Set("entity_id", entry.EntityId);
       area.Set("kind", entry.Kind);
-      area.Set("collectible", collectible);
+      area.Set("collectible", appearance.Collectible);
+      area.Set("action", PropAppearance.ActionName(appearance.Action));
 
       // Physics picking is a signal on the collision object, and a node built in code has to wire it itself.
+      // Enter and exit as well as the click, because the cursor has to name what a click here would do before
+      // the player commits to one - see MouseStateDefault.
       area.Connect(CollisionObject3D.SignalName.InputEvent, new Callable(area, "_on_input_event"));
+      area.Connect(CollisionObject3D.SignalName.MouseEntered, new Callable(area, "_on_mouse_entered"));
+      area.Connect(CollisionObject3D.SignalName.MouseExited, new Callable(area, "_on_mouse_exited"));
 
       container.AddChild(area);
 

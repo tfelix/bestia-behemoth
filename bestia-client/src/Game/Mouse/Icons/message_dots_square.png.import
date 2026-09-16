@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://brxsfoi2scs8d"
-path="res://.godot/imported/tool_pickaxe.png-5635a9f5a892c196912df7e40306fbb1.ctex"
+uid="uid://b5rco5rtcm5ko"
+path="res://.godot/imported/message_dots_square.png-cb4ae89542614f450b3d02026eb31bf1.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Game/Mouse/Icons/tool_pickaxe.png"
-dest_files=["res://.godot/imported/tool_pickaxe.png-5635a9f5a892c196912df7e40306fbb1.ctex"]
+source_file="res://Game/Mouse/Icons/message_dots_square.png"
+dest_files=["res://.godot/imported/message_dots_square.png-cb4ae89542614f450b3d02026eb31bf1.ctex"]
 
 [params]
 

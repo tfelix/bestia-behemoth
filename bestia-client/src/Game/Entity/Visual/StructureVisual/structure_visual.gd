@@ -91,3 +91,11 @@ func _apply_progress() -> void:
 
 func _on_area_3d_input_event(_camera: Node, event: InputEvent, event_position: Vector3, _normal: Vector3, _shape_idx: int) -> void:
 	MouseManager.get_instance().object_clicked(self, event, event_position)
+
+
+func _on_area_3d_mouse_entered() -> void:
+	MouseManager.get_instance().on_object_hover(self, true)
+
+
+func _on_area_3d_mouse_exited() -> void:
+	MouseManager.get_instance().on_object_hover(self, false)

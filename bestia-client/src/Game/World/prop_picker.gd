@@ -30,6 +30,17 @@ var kind: int = 0
 ## is where the client decides what a click on each kind means.
 var collectible: bool = true
 
+## What a click here is for, as a PropAppearance.PropAction name - see DefaultAction.from_prop_name.
+var action: StringName = &"none"
+
 
 func _on_input_event(_camera: Node, event: InputEvent, event_position: Vector3, _normal: Vector3, _shape_idx: int) -> void:
 	MouseManager.get_instance().object_clicked(self, event, event_position)
+
+
+func _on_mouse_entered() -> void:
+	MouseManager.get_instance().on_object_hover(self, true)
+
+
+func _on_mouse_exited() -> void:
+	MouseManager.get_instance().on_object_hover(self, false)

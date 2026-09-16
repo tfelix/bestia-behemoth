@@ -28,6 +28,10 @@ func _is_entity_target() -> bool:
 
 
 func enter(mgr: MouseManager) -> void:
+	# Aiming is done with the 3D indicator below, so the pointer stays the plain one rather than keeping
+	# whatever the target under it asked for before the cast began.
+	mgr.set_cursor_for_action(DefaultAction.Kind.NONE)
+
 	if _is_entity_target():
 		_indicator = _ENTITY_SNAP_INDICATOR_SCENE.instantiate()
 	else:

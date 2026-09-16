@@ -35,6 +35,7 @@
   -->
   <ItemGroup>
     <None Include="..\..\src\Localization\general.csv" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\..\src\Game\Mouse\default_action.gd" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>
