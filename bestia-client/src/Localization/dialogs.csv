@@ -55,54 +55,74 @@ TRADE_CHILD,nothing much
 HISTORY_SETTLEMENT_FOUNDED_ASK,How old is {place}?
 HISTORY_SETTLEMENT_FOUNDED_1,"The {civ} laid the first stones of {place} {era}, around the year {year}. We have been here ever since."
 HISTORY_SETTLEMENT_FOUNDED_2,"{place} goes back {era} - {year} or near enough - when the {civ} came up the valley and stopped."
+HISTORY_SETTLEMENT_FOUNDED_3,"Somebody had to be first. The {civ}, {era}, and {place} has been here since."
 HISTORY_SETTLEMENT_WALLED_ASK,Why the walls?
 HISTORY_SETTLEMENT_WALLED_1,"{place} put its walls up {era}. Around {year}, and nobody builds walls for the first fright."
+HISTORY_SETTLEMENT_WALLED_2,"Somebody frightened {place} badly enough to pay for stone. {era}, and they have never taken them down."
 HISTORY_SETTLEMENT_SACKED_ASK,Has {place} ever been taken?
 HISTORY_SETTLEMENT_SACKED_1,"The {civ} came through {place} {era} and took what they liked. The {foe} could not hold it."
 HISTORY_SETTLEMENT_SACKED_2,"Around {year}. The {civ} in the streets of {place}, and whatever the {foe} promised, no help coming."
+HISTORY_SETTLEMENT_SACKED_3,"{place} has been taken once, {era}. People here have long memories about the {civ}."
 HISTORY_SETTLEMENT_RAZED_ASK,What became of {place}?
 HISTORY_SETTLEMENT_RAZED_1,"They pulled {place} down {era}, somewhere around {year}. Nothing was rebuilt."
+HISTORY_SETTLEMENT_RAZED_2,"There is nothing at {place} now. {era} somebody made sure of it, and nobody argued afterwards."
 HISTORY_SETTLEMENT_ABANDONED_ASK,Why did {place} empty out?
 HISTORY_SETTLEMENT_ABANDONED_1,"{place} emptied {era}. People left one household at a time, and then there was nobody."
+HISTORY_SETTLEMENT_ABANDONED_2,"Nobody drove them out of {place}. They just stopped seeing a reason to stay, {era}."
 HISTORY_SETTLEMENT_FORSAKEN_ASK,What happened at {place}?
 HISTORY_SETTLEMENT_FORSAKEN_1,"The blight took the fields at {place}, and {era} - about {year} - there was no reason left to stay."
 HISTORY_SETTLEMENT_BURIED_ASK,What happened to {place}?
 HISTORY_SETTLEMENT_BURIED_1,"The mountain took {place} {era}, around {year}. You can still walk into what is left of it."
 HISTORY_SETTLEMENT_BURIED_2,"Ash. All of it, in one night, {era}. {place} is under there somewhere."
+HISTORY_SETTLEMENT_BURIED_3,"{place} is down there. Everything above it is what the mountain put there {era}."
 HISTORY_CIV_FOUNDED_ASK,Who are the {civ}?
 HISTORY_CIV_FOUNDED_1,"The {civ} count their beginning from about {year}, at {place}. {era}, if that means more to you."
+HISTORY_CIV_FOUNDED_2,"Ask the {civ} and they will start at {place}, {era}. They will take a while about it."
 HISTORY_CIV_FELL_ASK,Whatever happened to the {civ}?
 HISTORY_CIV_FELL_1,"The {civ} came apart {era}, around {year}. There is nobody left to answer for them."
+HISTORY_CIV_FELL_2,"You will not find the {civ} to ask. They were gone {era} and took their records with them."
 HISTORY_WAR_DECLARED_ASK,Has there been war?
 HISTORY_WAR_DECLARED_1,"The {civ} declared on the {foe} {era}, near enough {year}. It went on longer than anyone promised."
+HISTORY_WAR_DECLARED_2,"The {civ} and the {foe} stopped pretending {era}. Everyone saw it coming and nobody stopped it."
 HISTORY_BATTLE_ASK,Any fighting near here?
 HISTORY_BATTLE_1,"The {civ} and the {foe} fought here {era}. The ground still turns up iron if you dig."
 HISTORY_BATTLE_2,"Around {year}, {era}. A bad day for the {foe}, a good one for the {civ}, and a worse one for whoever was farming it."
+HISTORY_BATTLE_3,"Do not plough the far field. The {civ} and the {foe} left things in it {era}."
 HISTORY_SIEGE_ASK,Was {place} ever besieged?
 HISTORY_SIEGE_1,"The {civ} sat outside {place} for the best part of a year, {era}, waiting for hunger to do the work."
+HISTORY_SIEGE_2,"{place} was shut up for the best part of a year, {era}. The {civ} only had to wait."
 HISTORY_CONQUEST_ASK,Who holds {place} now?
 HISTORY_CONQUEST_1,"The {civ} took {place} {era} - about {year} - and kept it."
+HISTORY_CONQUEST_2,"{place} belongs to the {civ} now. It has {era}, whatever the old people call it."
 HISTORY_PEACE_ASK,Is there peace?
 HISTORY_PEACE_1,"The {civ} and the {foe} signed {era}, around {year}. It has held, more or less."
+HISTORY_PEACE_2,"There has been no fighting since {era}. The {civ} and the {foe} both say they won."
 HISTORY_PLAGUE_ASK,Has sickness come through?
 HISTORY_PLAGUE_1,"Plague in {place}, {era}. They burned the clothes and it went on spreading anyway."
 HISTORY_PLAGUE_2,"Around {year} was the sickness. Ask anybody old enough and they will tell you who they lost."
+HISTORY_PLAGUE_3,"Nobody can give you a clean year. Around {year}, and {place} lost a third of itself."
 HISTORY_FAMINE_ASK,Have the harvests ever failed?
 HISTORY_FAMINE_1,"{place} went hungry {era}, about {year}. Two bad harvests together is all it takes."
+HISTORY_FAMINE_2,"{era} there was nothing in {place} to eat. People remember who shared and who did not."
 HISTORY_FLOOD_ASK,Does the water ever come up?
 HISTORY_FLOOD_1,"The water came into {place} {era}, around {year}. It has come close since, but not like that."
+HISTORY_FLOOD_2,"The river had {place} {era}. You can still see the line on the walls if you know to look."
 HISTORY_ERUPTION_ASK,Is that mountain safe?
 HISTORY_ERUPTION_1,"The mountain woke {era}, somewhere around {year}. Ash on everything for a season."
 HISTORY_ERUPTION_2,"{era}. You could read by the light of it at midnight, and nobody slept."
+HISTORY_ERUPTION_3,"The air was wrong for a whole season, {era}. Everything we grew that year tasted of it."
 HISTORY_FIGURE_ROSE_ASK,Who leads the {civ}?
 HISTORY_FIGURE_ROSE_1,"{figure} came up among the {civ} {era}, around the year {year}."
+HISTORY_FIGURE_ROSE_2,"Everything you hear about the {civ} {era} comes back to {figure} sooner or later."
 HISTORY_FIGURE_DIED_ASK,What became of {figure}?
 HISTORY_FIGURE_DIED_1,"{figure} of the {civ} died {era}, in bed, which is more than most get."
 HISTORY_FIGURE_SLAIN_ASK,How did {figure} die?
 HISTORY_FIGURE_SLAIN_1,"{figure} of the {civ} fell in battle {era}. About {year}, if you want it written down."
+HISTORY_FIGURE_SLAIN_2,"{figure} did not come home. The {civ} lost them {era} and have not stopped saying so."
 HISTORY_TRAVELLER_LOST_ASK,Is the road safe?
 HISTORY_TRAVELLER_LOST_1,"{figure} of the {civ} went out into the waste {era} and never came back."
 HISTORY_TRAVELLER_LOST_2,"Around {year}. {figure} took the short way across and is buried wherever they fell."
+HISTORY_TRAVELLER_LOST_3,"{figure} of the {civ} is out there somewhere, {era}. People still say they saw a light."
 HISTORY_SEER_VANISHED_ASK,Did anyone go and look?
 HISTORY_SEER_VANISHED_1,"{figure} walked out to the wound {era}. No grave, no word, nothing."
 HISTORY_ARTIFACT_FORGED_ASK,Is anything famous made near here?
@@ -125,6 +145,7 @@ HISTORY_MONUMENT_BUILT_ASK,What is that stone for?
 HISTORY_MONUMENT_BUILT_1,"The {civ} raised it over {place} {era}, about {year}. Everybody argues about what it means."
 HISTORY_TECHNOLOGY_ASK,Has anything changed in your lifetime?
 HISTORY_TECHNOLOGY_1,"The {civ} worked something new out {era}, around {year}, and the work has been easier since."
+HISTORY_TECHNOLOGY_2,"Work here is not what it was. Something the {civ} worked out {era}, and nobody went back."
 HISTORY_STAR_FELL_ASK,Where did the mana come from?
 HISTORY_STAR_FELL_1,"Something came down {era} - {year}, they reckon. Everything strange in this world starts there."
 HISTORY_BLIGHT_SPREAD_ASK,What is wrong with the land?
