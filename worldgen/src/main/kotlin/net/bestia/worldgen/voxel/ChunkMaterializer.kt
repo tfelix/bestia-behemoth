@@ -111,7 +111,7 @@ class ChunkMaterializer(
    */
   private val caveParams: CaveParams = CaveParams(),
 
-  vegetationParams: VegetationParams = VegetationParams(),
+  private val vegetationParams: VegetationParams = VegetationParams(),
 
   /**
    * How ore splits between the three grades, forwarded from the stage that sized the deposits.
@@ -271,7 +271,14 @@ class ChunkMaterializer(
     val site = trunkSite(chunk, heights, structures, caves, bridges)
     val into = PropInstances()
 
-    vegetation.propsIn(chunk, site, into)
+    // How many trees civilisation leaves, which is a different question from whether one may stand here -
+    // and asked of the trees alone. A herb in a yard is a herb garden, and a landmark must not be deleted
+    // for standing in a town at all. See `TreeRetention`.
+    val cover = SettlementCover(
+      nearby, structures, vegetationParams.buildingYard, vegetationParams.townRetention,
+      vegetationParams.townEdgeShare
+    )
+    vegetation.propsIn(chunk, site, into, if (cover.isEmpty) TreeRetention.EVERYTHING else cover)
     // Shares the trees' `site`, which is what keeps a herb off a paved road, out of a building's footprint
     // and off a cave mouth without asking any of those questions again.
     groundCover.propsIn(chunk, site, into)
@@ -892,7 +899,9 @@ class ChunkMaterializer(
      */
     // 2: buildings stopped being voxels and became props, and the strata draw collapsed to STONE/LIMESTONE.
     // Both change what a column materialises into, which is exactly what this number is for.
-    const val VERSION = 2
+    // 3: trees stopped growing in yards and were thinned inside settlements, so a chunk over a town emits a
+    // different set of props than it did. Props are not in the chunk blob, but they are chunk-tier output.
+    const val VERSION = 3
 
     /**
      * Margin added to a chunk's bounds when querying features, in metres.
