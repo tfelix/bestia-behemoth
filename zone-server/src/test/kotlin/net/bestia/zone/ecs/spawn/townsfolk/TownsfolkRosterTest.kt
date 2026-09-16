@@ -22,7 +22,7 @@ import kotlin.test.assertEquals
  * Who lives in a town, and the one question residency asks of each of them: where would you be right now.
  *
  * The anchor is the whole reason this type exists. It has to be answerable without building anybody -
- * that is what makes deciding cheap - so it is a pure function of an occupation and the hour, and these
+ * that is what makes deciding cheap - so it is a pure function of an occupation and the clock, and these
  * are the four shapes it takes.
  */
 class TownsfolkRosterTest {
@@ -90,15 +90,15 @@ class TownsfolkRosterTest {
 
   @Test
   fun `on shift, somebody is at their post`() {
-    assertEquals(FIELD, sut.of(SETTLEMENT).first().anchorAt(12))
+    assertEquals(FIELD, sut.of(SETTLEMENT).first().anchorAt(at(12)))
   }
 
   @Test
   fun `off shift, they are at home`() {
     val worker = sut.of(SETTLEMENT).first()
 
-    assertEquals(HOME, worker.anchorAt(22), "the field is shut at ten at night")
-    assertEquals(HOME, worker.anchorAt(5), "and before dawn")
+    assertEquals(HOME, worker.anchorAt(at(22)), "the field is shut at ten at night")
+    assertEquals(HOME, worker.anchorAt(at(5)), "and before dawn")
   }
 
   @Test
@@ -106,7 +106,7 @@ class TownsfolkRosterTest {
     val idler = sut.of(SETTLEMENT)[1]
 
     for (hour in 0 until 24) {
-      assertEquals(HOME, idler.anchorAt(hour), "a child was somewhere else at $hour:00")
+      assertEquals(HOME, idler.anchorAt(at(hour)), "a child was somewhere else at $hour:00")
     }
   }
 
@@ -122,7 +122,7 @@ class TownsfolkRosterTest {
       workplace = null,
     )
 
-    assertEquals(HOME, sut.of(SETTLEMENT).first().anchorAt(12))
+    assertEquals(HOME, sut.of(SETTLEMENT).first().anchorAt(at(12)))
   }
 
   @Test
@@ -140,6 +140,10 @@ class TownsfolkRosterTest {
     every { sites.siteOf(EMPTY) } returns null
 
     assertEquals(emptyList(), sut.of(EMPTY))
+  }
+
+  private fun at(hour: Int): Int {
+    return hour * HourWindow.MINUTES_PER_HOUR
   }
 
   private fun site(households: Int) = SettlementSite(

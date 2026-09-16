@@ -69,8 +69,9 @@ class GoIndoors(
 
   override fun tick(context: BtContext): Status {
     val who = context.world.get(context.entityId, Townsfolk::class) ?: return Status.FAILURE
+    val offset = context.memory.get(TownsfolkDomain.DAY_OFFSET_MINUTES) ?: 0
 
-    indoors.enter(who.identity, door, until)
+    indoors.enter(who.identity, door, until, offset)
     context.world.destroy(context.entityId)
 
     return Status.SUCCESS

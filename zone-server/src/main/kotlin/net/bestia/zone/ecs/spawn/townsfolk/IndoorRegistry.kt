@@ -26,11 +26,14 @@ class IndoorRegistry {
   /**
    * @param door where they will step back out, in position units
    * @param until the hours they stay in for - a rest window, or a shift. They emerge when the clock leaves it.
+   * @param offsetMinutes how far this person's own day sits off the stated hours, so a street does not
+   *   refill in a single step. Carried here because the sweep has a record and no person to ask.
    */
   class Indoors(
     val identity: Long,
     val door: Vec3L,
     val until: HourWindow,
+    val offsetMinutes: Int,
   )
 
   // Concurrent because chat commands and tooling read it off the tick thread while systems write it.
@@ -38,8 +41,8 @@ class IndoorRegistry {
 
   val size: Int get() = byIdentity.size
 
-  fun enter(identity: Long, door: Vec3L, until: HourWindow) {
-    byIdentity[identity] = Indoors(identity, door, until)
+  fun enter(identity: Long, door: Vec3L, until: HourWindow, offsetMinutes: Int) {
+    byIdentity[identity] = Indoors(identity, door, until, offsetMinutes)
   }
 
   fun isIndoors(identity: Long): Boolean {
@@ -53,8 +56,8 @@ class IndoorRegistry {
    * about an indoor record is ticked, so a duration would have to be counted by somebody, and the somebody
    * would have to still be running while the town is empty.
    */
-  fun dueOut(hour: Int): List<Indoors> {
-    return byIdentity.values.filterNot { it.until.covers(hour) }
+  fun dueOut(minuteOfDay: Int): List<Indoors> {
+    return byIdentity.values.filterNot { it.until.coversMinute(minuteOfDay, it.offsetMinutes) }
   }
 
   fun leave(identity: Long): Indoors? {

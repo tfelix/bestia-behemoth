@@ -27,7 +27,7 @@ class IndoorRegistryTest {
 
   @Test
   fun `somebody who has gone in is in`() {
-    sut.enter(villager, DOOR, night)
+    sut.enter(villager, DOOR, night, ON_TIME)
 
     assertTrue(sut.isIndoors(villager))
     assertFalse(sut.isIndoors(shopkeeper))
@@ -36,25 +36,36 @@ class IndoorRegistryTest {
 
   @Test
   fun `they come out when the clock leaves their window, not before`() {
-    sut.enter(villager, DOOR, night)
+    sut.enter(villager, DOOR, night, ON_TIME)
 
-    assertEquals(emptyList(), sut.dueOut(23).map { it.identity }, "it is still the middle of their night")
-    assertEquals(emptyList(), sut.dueOut(0).map { it.identity }, "and midnight is inside it")
-    assertEquals(listOf(villager), sut.dueOut(6).map { it.identity })
+    assertEquals(emptyList(), sut.dueOut(at(23)).map { it.identity }, "it is still the middle of their night")
+    assertEquals(emptyList(), sut.dueOut(at(0)).map { it.identity }, "and midnight is inside it")
+    assertEquals(listOf(villager), sut.dueOut(at(6)).map { it.identity })
   }
 
   @Test
   fun `two people on different hours come out at different times`() {
-    sut.enter(villager, DOOR, night)
-    sut.enter(shopkeeper, DOOR, shift)
+    sut.enter(villager, DOOR, night, ON_TIME)
+    sut.enter(shopkeeper, DOOR, shift, ON_TIME)
 
-    assertEquals(listOf(shopkeeper), sut.dueOut(2).map { it.identity }, "the shop is shut in the small hours")
-    assertEquals(listOf(villager), sut.dueOut(12).map { it.identity }, "and open at noon")
+    assertEquals(listOf(shopkeeper), sut.dueOut(at(2)).map { it.identity }, "the shop is shut in the small hours")
+    assertEquals(listOf(villager), sut.dueOut(at(12)).map { it.identity }, "and open at noon")
+  }
+
+  @Test
+  fun `somebody whose day sits late comes out late`() {
+    // The record carries the offset because the sweep has a record and nobody to ask. Without it a street
+    // refills in one step, which is the thing the offset exists to stop.
+    sut.enter(villager, DOOR, night, ON_TIME)
+    sut.enter(shopkeeper, DOOR, night, LATE)
+
+    assertEquals(listOf(villager), sut.dueOut(at(6)).map { it.identity }, "one is up and one is not")
+    assertEquals(setOf(villager, shopkeeper), sut.dueOut(at(7)).map { it.identity }.toSet())
   }
 
   @Test
   fun `leaving hands back where they went in`() {
-    sut.enter(villager, DOOR, night)
+    sut.enter(villager, DOOR, night, ON_TIME)
 
     assertEquals(DOOR, sut.leave(villager)?.door)
     assertFalse(sut.isIndoors(villager))
@@ -63,9 +74,9 @@ class IndoorRegistryTest {
 
   @Test
   fun `a town can be forgotten whole`() {
-    sut.enter(villager, DOOR, night)
-    sut.enter(shopkeeper, DOOR, night)
-    sut.enter(TownsfolkIdentity.of(settlement = 9, household = 0, member = 0), DOOR, night)
+    sut.enter(villager, DOOR, night, ON_TIME)
+    sut.enter(shopkeeper, DOOR, night, ON_TIME)
+    sut.enter(TownsfolkIdentity.of(settlement = 9, household = 0, member = 0), DOOR, night, ON_TIME)
 
     sut.forgetSettlement(3)
 
@@ -73,7 +84,14 @@ class IndoorRegistryTest {
     assertFalse(sut.isIndoors(villager))
   }
 
+  private fun at(hour: Int): Int {
+    return hour * HourWindow.MINUTES_PER_HOUR
+  }
+
   private companion object {
     val DOOR = Vec3L(120, 340, 5)
+
+    const val ON_TIME = 0
+    const val LATE = 30
   }
 }

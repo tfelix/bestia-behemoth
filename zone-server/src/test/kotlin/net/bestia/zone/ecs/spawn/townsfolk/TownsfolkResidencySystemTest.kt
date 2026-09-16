@@ -46,6 +46,7 @@ class TownsfolkResidencySystemTest {
     home = HOME,
     homeBuilding = 1L,
     workplace = FIELD,
+    dayOffsetMinutes = 0,
   )
 
   private val child = TownsfolkRoster.Resident(
@@ -54,6 +55,7 @@ class TownsfolkResidencySystemTest {
     home = HOME,
     homeBuilding = 1L,
     workplace = null,
+    dayOffsetMinutes = 0,
   )
 
   private val sut = TownsfolkResidencySystem(roster, sites, indoors, spawner, clock, config)
@@ -116,7 +118,7 @@ class TownsfolkResidencySystemTest {
   @Test
   fun `somebody behind a door is left behind it`() {
     hour = 22
-    indoors.enter(child.identity, HOME, HourWindow(21, 7))
+    indoors.enter(child.identity, HOME, HourWindow(21, 7), 0)
     player(HOME)
 
     sut.update(world, DT)
@@ -133,6 +135,7 @@ class TownsfolkResidencySystemTest {
         home = HOME,
         homeBuilding = 1L,
         workplace = null,
+        dayOffsetMinutes = 0,
       )
     }
     every { roster.of(SETTLEMENT) } returns crowd
@@ -169,7 +172,7 @@ class TownsfolkResidencySystemTest {
     val requests = built.size
 
     val gone = built.getValue(child.identity)
-    indoors.enter(child.identity, HOME, HourWindow(21, 7))
+    indoors.enter(child.identity, HOME, HourWindow(21, 7), 0)
     world.destroy(gone)
     world.tick(DT)
 

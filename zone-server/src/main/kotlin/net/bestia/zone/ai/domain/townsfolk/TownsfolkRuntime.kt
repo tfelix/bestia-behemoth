@@ -58,6 +58,9 @@ class TownsfolkRuntime(
 
   /** The occupation's hours when the caller seeded one, and ordinary hours otherwise. */
   override fun restingWindow(profile: AiProfile, memory: Blackboard): RestingWindow {
-    return TownsfolkDomain.restingWindowFor(memory.get(TownsfolkDomain.OCCUPATION))
+    return TownsfolkDomain.restingWindowFor(
+      memory.get(TownsfolkDomain.OCCUPATION),
+      memory.get(TownsfolkDomain.DAY_OFFSET_MINUTES) ?: 0,
+    )
   }
 }

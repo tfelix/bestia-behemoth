@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component as SpringComponent
  * record is dropped, no entity is created, and the first player to walk in gets a street full of people
  * from the residency sweep.
  *
- * Coarse on purpose. A door opens on the hour rather than the tick.
+ * Coarse on purpose. A door opens on the minute rather than the tick.
  */
 @SpringComponent
 @Order(83)
@@ -29,20 +29,20 @@ class IndoorEmergenceSystem(
   private val clock: BestiaClock,
 ) : System {
 
-  /** Nothing here is time-critical to a tick, and the answer only changes on the hour. */
+  /** Nothing here is time-critical to a tick, and the answer only changes on the minute. */
   override val schedule: Schedule get() = Schedule.EverySeconds(SWEEP_SECONDS)
 
   override fun update(world: World, deltaTime: Float) {
-    val hour = clock.now().hour
+    val minuteOfDay = clock.now().minuteOfDay
 
-    for (record in indoors.dueOut(hour)) {
+    for (record in indoors.dueOut(minuteOfDay)) {
       indoors.leave(record.identity)
       LOG.trace { "${TownsfolkIdentity.describe(record.identity)} may come out" }
     }
   }
 
   private companion object {
-    /** A Bestia hour is twenty real minutes, so this is several sweeps to the hour and still nothing. */
+    /** A Bestia minute is twenty real seconds, so this is one sweep a Bestia minute and still nothing. */
     const val SWEEP_SECONDS = 20f
 
     val LOG = KotlinLogging.logger { }

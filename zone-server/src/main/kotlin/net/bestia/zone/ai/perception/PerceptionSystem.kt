@@ -98,14 +98,14 @@ class PerceptionSystem(
       memory.set(CommonKeys.POSITION, selfPos)
       memory.set(CommonKeys.HEALTH_PCT, healthPct(world, id))
       memory.set(CommonKeys.IS_NIGHT, now.isNight)
-      memory.set(CommonKeys.HOUR_OF_DAY, now.hour)
+      memory.set(CommonKeys.MINUTE_OF_DAY, now.minuteOfDay)
       memory.set(CommonKeys.DAY_INDEX, now.absoluteDay.toLong())
 
       // Being off duty is what "has not slept it out yet" means, and clearing the belief here is what lets
       // the sleep goal become unsatisfied again at every dusk — the reason a rested animal still goes to bed
       // when its night comes round. Asked of the agent rather than its profile because a night watchman
       // rests through exactly the hours a diurnal animal is awake.
-      if (agent.restingWindow.isRestingAt(now.hour, now.isNight)) {
+      if (agent.restingWindow.isRestingAt(now.minuteOfDay, now.isNight)) {
         memory.remove(CommonKeys.RESTED)
       }
 

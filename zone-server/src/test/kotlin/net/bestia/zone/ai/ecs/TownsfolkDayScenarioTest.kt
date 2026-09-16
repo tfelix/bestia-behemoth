@@ -182,11 +182,11 @@ class TownsfolkDayScenarioTest {
     val commoner = ai.spawnMob("townsfolk_commoner", home)
     ai.advanceTo(9)
 
-    ai.tickUntil(describe = { "perception never wrote the hour" }) {
-      ai.agentOf(commoner).memory.get(TownsfolkDomain.HOUR_OF_DAY) != null
+    ai.tickUntil(describe = { "perception never wrote the clock" }) {
+      ai.agentOf(commoner).memory.get(TownsfolkDomain.MINUTE_OF_DAY) != null
     }
 
-    assertEquals(9, ai.agentOf(commoner).memory.get(TownsfolkDomain.HOUR_OF_DAY))
+    assertEquals(9 * 60, ai.agentOf(commoner).memory.get(TownsfolkDomain.MINUTE_OF_DAY))
   }
 
   private companion object {
