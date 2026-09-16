@@ -167,6 +167,38 @@ class MoveSystemTest {
   }
 
   @Test
+  fun `a late tick with more movement in it than the path has left stops at the last waypoint`() {
+    // `ZoneEngine` hands this system the wall-clock delta of the *previous* tick, so a single overrunning tick
+    // - a 1 642 ms one against a 50 ms budget was what found this - arrives here as a delta worth several
+    // tiles. The step loop was bounded only by `fraction > 1`, so on the tile that emptied the path it went
+    // round once more and took `removeFirst` off an empty list.
+    //
+    // That is worth a test rather than a null check because of where it threw: out of `Query.each`, out of
+    // `World.tick`, past `applyDeferred` and past the component sync - so every system ordered after this one
+    // lost its turn, and the client was never told the walk had ended. It then kept predicting from where it
+    // thought the entity was, and the next click produced a path `MoveActiveEntityHandler` had to refuse.
+    val world = testWorld(systems = listOf(MoveSystem(flat)))
+    val id = world.create()
+
+    val position = Position(0, 0, 100)
+    world.add(id, position)
+    world.add(id, Speed(4.0f))
+    world.add(id, Path(straightPath(3)))
+
+    // Resolves the ground; the first tick never steps.
+    world.tick(0.05f)
+
+    // 4.8 tiles of movement for the three waypoints that are left, so the path runs out with the fraction
+    // still above one - the case that used to throw.
+    world.tick(1.2f)
+
+    assertEquals(3, position.x, "the walk ends at the last waypoint, not past it")
+    assertEquals(100, position.z)
+    assertFalse(world.has(id, Path::class), "and the path comes off, which is what tells observers it stopped")
+    assertEquals(0f, position.fraction, "the leftover belongs to a finished walk and must not fund the next")
+  }
+
+  @Test
   fun `a column with no height falls back to the waypoint rather than dropping the entity`() {
     // Off the grid, or before the world is generated. Refusing to move would be worse than trusting the
     // waypoint, and answering zero would drop the entity to sea level from wherever it was.

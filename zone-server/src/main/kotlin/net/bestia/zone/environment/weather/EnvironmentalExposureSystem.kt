@@ -13,6 +13,7 @@ import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.skill.SkillId
 import net.bestia.zone.skill.SkillRepository
 import net.bestia.zone.skill.findByIdentifier
+import net.bestia.zone.world.stream.ChunkCoords
 import net.bestia.zone.world.stream.ChunkService
 import org.springframework.core.annotation.Order
 import kotlin.math.abs
@@ -54,6 +55,12 @@ class EnvironmentalExposureSystem(
   override fun update(world: World, deltaTime: Float) {
     if (!config.enabled) return
 
+    // Before anything touches the world: reading the config is what forces it to load, and generating a world
+    // inside one tick is not a thing this system should be able to cause.
+    if (!chunkService.isReady) return
+
+    val worldConfig = chunkService.config
+
     world.query(Position::class, Stamina::class).each { entityId ->
       // The weather is the second way health is lost, so it is the second place invulnerability is honoured.
       // Skipped whole rather than only at the health line: draining the stamina of something that cannot be
@@ -63,9 +70,19 @@ class EnvironmentalExposureSystem(
       val position = get<Position>()
       val stamina = get<Stamina>()
 
-      // Off the grid is a different bug from being at the wrong height, and inventing a surface here would
-      // hide it. Skip.
-      val ground = chunkService.surfaceElevationAt(position.x, position.y) ?: return@each
+      // The entity's own altitude, not the terrain's under it, and the difference is the whole tick budget.
+      // `GroundHeight` already put this entity on the ground, so asking `ChunkService.surfaceElevationAt` for
+      // that ground again re-derives an answer the position already holds - and re-derives it the expensive
+      // way: that call computes all 1 024 columns of a chunk on a cache miss, while this sweep visits every
+      // entity with a position in whatever order the store holds them, so the hot-chunk cache thrashes and a
+      // few hundred entities become a few hundred chunk-height computations back to back on `zone-tick`.
+      // Measured at 1 634 ms against a 50 ms budget, which then reaches `MoveSystem` as a delta worth six
+      // tiles and desyncs every walk in the zone. `ChunkNavWorldSource.place` dropped the same lookup for the
+      // same reason.
+      //
+      // It is also the better number. What exposure wants is how high up the *entity* is, and for one on an
+      // upper floor or down a shaft that is its own z rather than the column's surface.
+      val ground = ChunkCoords.elevationOf(worldConfig, position.z)
 
       val air = weatherService.at(position.x, position.y, ground).temperature.airCelsius
 

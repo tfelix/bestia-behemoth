@@ -50,6 +50,15 @@ data class Path(
   val path: List<Vec3L>
     get() = _path.toList()
 
+  /**
+   * Whether every waypoint has been consumed.
+   *
+   * Not `path.isEmpty()`: that getter copies the whole list, and [MoveSystem] asks this once per tick per
+   * walking entity and again after every tile it steps.
+   */
+  val isEmpty: Boolean
+    get() = _path.isEmpty()
+
   /** Hands out the next waypoint. Deliberately does not dirty the component - see the class note. */
   fun removeFirst(): Vec3L = _path.removeFirst()
 

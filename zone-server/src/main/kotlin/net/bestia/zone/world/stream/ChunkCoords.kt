@@ -64,6 +64,18 @@ object ChunkCoords {
   }
 
   /**
+   * The elevation in metres a `z` stands at - [standingZ] read backwards.
+   *
+   * Lossy by exactly the half voxel [standingZ] rounds away, and not injective at all below the waterline,
+   * which that one clamps. So this is for a caller that wants the *entity's* altitude rather than the
+   * column's: how high up the entity is, for a lapse rate or a pressure, where half a metre is nothing and a
+   * chunk-height computation per asker is not. Anything that has to agree with the terrain asks
+   * [ChunkService.surfaceElevationAt] or [net.bestia.zone.ecs.movement.GroundHeight] instead.
+   */
+  fun elevationOf(config: WorldConfig, z: Long): Double =
+    (z * VOXELS_PER_POSITION_UNIT) * config.voxelSize
+
+  /**
    * The vertical chunks the sea surface straddles, so a subscriber can be offered the ones with the sea in them.
    *
    * ### Not `chunkZOf(seaLevel)`, which is wrong by a slab
