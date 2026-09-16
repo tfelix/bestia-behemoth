@@ -18,4 +18,8 @@ class ClientMessageHandlerContext(
   val httpTicketService: HttpTicketService,
   @Value("\${zone.version}")
   val version: String,
-)
+) {
+
+  /** Shared with the outbound side, so one setting governs the log in both directions. */
+  val logFilter = EnvelopeLogFilter(socketConfig.filterLogMessages)
+}
