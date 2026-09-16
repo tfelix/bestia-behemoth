@@ -63,6 +63,17 @@ abstract class DialogDbSyncTask : DefaultTask() {
   @get:Optional
   abstract val rumoursYml: RegularFileProperty
 
+  /**
+   * The server's occupations, `townsfolk/occupations.yml`. Optional for [conversationYml]'s reason.
+   *
+   * It is the right source for the trade nouns even though it is a file about *people*, because its own
+   * contract - enforced at boot by `OccupationCoverage` - is that every trade the generator builds
+   * appears in it exactly once, either as somebody's `business` or in `unstaffed`.
+   */
+  @get:InputFile
+  @get:Optional
+  abstract val occupationsYml: RegularFileProperty
+
   /** If true, add TODO stubs for missing keys. If false, only report drift and fail the build on any. */
   @get:Input
   abstract val fix: Property<Boolean>
@@ -87,6 +98,13 @@ abstract class DialogDbSyncTask : DefaultTask() {
   private data class SmallTalkFile(val lines: List<SmallTalkLineDto> = emptyList())
 
   private data class RumourFile(val rumours: Map<String, HistoryLineDto> = emptyMap())
+
+  private data class OccupationDto(val id: String = "", val business: String? = null)
+
+  private data class OccupationsFile(
+    val occupations: List<OccupationDto> = emptyList(),
+    val unstaffed: List<String> = emptyList(),
+  )
 
   @TaskAction
   fun run() {
@@ -138,6 +156,7 @@ abstract class DialogDbSyncTask : DefaultTask() {
     problems += smallTalkProblems(mapper, csv)
     problems += rumourProblems(mapper, csv)
     problems += eraProblems(mapper, csv)
+    problems += tradeProblems(mapper, csv)
 
     if (shouldFix && csvDirty) {
       dialogsCsv.get().asFile.writeText(csv.render())
@@ -302,6 +321,48 @@ abstract class DialogDbSyncTask : DefaultTask() {
     return problems
   }
 
+  /**
+   * The trade nouns, one per trade a townsperson could keep.
+   *
+   * A townsperson names their trade in the one sentence everybody gets asked - "I keep the {trade}
+   * here" - and the noun is a token so the sentence stays translatable. A missing row renders as the
+   * key itself, which is how `NAME_UNKNOWN` reached players unnoticed; nothing else in this task
+   * matches a bare token key.
+   *
+   * Slotless, for the small-talk rule's reason: a trade noun is one word, not a sentence.
+   */
+  private fun tradeProblems(mapper: ObjectMapper, csv: LocalizationCsv): List<String> {
+    if (!occupationsYml.isPresent) {
+      return emptyList()
+    }
+
+    val file = mapper.readValue(occupationsYml.get().asFile, OccupationsFile::class.java)
+    val problems = mutableListOf<String>()
+
+    // A household's own trade where it keeps one, and the occupation's id where it keeps none.
+    val trades = file.occupations.mapNotNull { it.business } + file.unstaffed
+    val tradeless = file.occupations.filter { it.business == null }.map { it.id }
+    val expected = (trades + tradeless).map { "TRADE_" + it.uppercase() }.toSet()
+
+    for (key in expected) {
+      val text = csv.get(key)
+      if (text.isNullOrBlank()) {
+        problems += "dialogs.csv: '$key' is missing, so nobody keeping that trade can name it"
+        continue
+      }
+
+      PLACEHOLDER_PATTERN.findAll(text).map { it.groupValues[1] }.toSet().forEach {
+        problems += "dialogs.csv: '$key' uses {$it}, but a trade noun is sent without arguments"
+      }
+    }
+
+    csv.keys()
+      .filter { TRADE_KEY_PATTERN.matches(it) && it !in expected }
+      .forEach { problems += "dialogs.csv: '$it' matches no trade in occupations.yml (orphaned row)" }
+
+    return problems
+  }
+
   private fun stubText(dialog: DialogDto): String {
     val placeholders = dialog.args.joinToString(" ") { "{$it}" }
     return "TODO: write the ${dialog.identifier} dialog text. $placeholders".trim()
@@ -326,6 +387,9 @@ abstract class DialogDbSyncTask : DefaultTask() {
 
     /** A translation key owned by a `rumours.yml` entry, e.g. `RUMOUR_BOSS_SLAIN_1`. */
     private val RUMOUR_KEY_PATTERN = Regex("""^RUMOUR_[A-Z_]+_(ASK|\d+)$""")
+
+    /** A trade noun owned by an `occupations.yml` trade, e.g. `TRADE_BAKER`. */
+    private val TRADE_KEY_PATTERN = Regex("""^TRADE_[A-Z_]+$""")
 
     /** Matches Godot's `String.format` placeholders, e.g. `{masterName}`. */
     private val PLACEHOLDER_PATTERN = Regex("""\{(\w+)}""")

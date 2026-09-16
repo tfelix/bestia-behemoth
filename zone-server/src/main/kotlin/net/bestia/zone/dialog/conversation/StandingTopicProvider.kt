@@ -55,9 +55,12 @@ class StandingTopicProvider(
    *
    * `Occupation.label` is an English word out of a yml file, and putting one into a line would make the
    * sentence around it untranslatable for the sake of one noun.
+   *
+   * The household's own trade first, and the occupation only as a fallback: thirty trades collapse into
+   * six occupations, so a baker, a mason and a tanner were all saying "I keep the work here".
    */
   private fun tradeTokenOf(speaker: Speaker): String {
-    return TRADE_PREFIX + speaker.occupation.id.uppercase()
+    return TRADE_PREFIX + (speaker.business ?: speaker.occupation.id).uppercase()
   }
 
   private companion object {

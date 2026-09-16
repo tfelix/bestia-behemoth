@@ -178,6 +178,7 @@ tasks.register('checkDialogDb', DialogDbSyncTask) {
     conversationYml = layout.projectDirectory.file('src/main/resources/townsfolk/dialogue.yml')
     smallTalkYml = layout.projectDirectory.file('src/main/resources/townsfolk/small-talk.yml')
     rumoursYml = layout.projectDirectory.file('src/main/resources/townsfolk/rumours.yml')
+    occupationsYml = layout.projectDirectory.file('src/main/resources/townsfolk/occupations.yml')
     fix = false
 }
 
@@ -189,6 +190,7 @@ tasks.register('syncDialogDb', DialogDbSyncTask) {
     conversationYml = layout.projectDirectory.file('src/main/resources/townsfolk/dialogue.yml')
     smallTalkYml = layout.projectDirectory.file('src/main/resources/townsfolk/small-talk.yml')
     rumoursYml = layout.projectDirectory.file('src/main/resources/townsfolk/rumours.yml')
+    occupationsYml = layout.projectDirectory.file('src/main/resources/townsfolk/occupations.yml')
     fix = true
 }
 

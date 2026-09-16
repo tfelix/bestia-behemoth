@@ -168,6 +168,7 @@ class SmallTalkTopicProviderTest {
       household = 4,
       name = "Alden",
       occupation = Occupation(occupation, occupation, null, HourWindow(6, 18), HourWindow(22, 6)),
+      business = null,
       member = Member(30, Kinship.HEAD),
       seed = seed,
     )

@@ -173,6 +173,7 @@ class ConversationServiceTest {
       household = 4,
       name = "Alden",
       occupation = Occupation("farmer", "farmer", null, HourWindow(6, 18), HourWindow(22, 6)),
+      business = null,
       member = Member(40, Kinship.HEAD),
       seed = seed,
     )
