@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component
 @Component
 class StandingTopicProvider(
   private val worldService: WorldService,
+  private val lines: ConversationLineCatalogue,
 ) : DialogTopicProvider {
 
   override val pinned = true
@@ -41,7 +42,8 @@ class StandingTopicProvider(
     val chronicle = worldService.generated.world.chronicle
     val town = ChronicleNames.placeOf(chronicle, speaker.settlement)
 
-    return Line(
+    return lines.lineFor(
+      speaker,
       ConversationKeys.ABOUT_TOWN,
       mapOf(
         ConversationKeys.SLOT_TOWN to DialogArg.Name(town.orEmpty()),

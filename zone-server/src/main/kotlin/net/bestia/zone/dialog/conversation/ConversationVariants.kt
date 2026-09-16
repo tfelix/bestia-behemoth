@@ -30,5 +30,18 @@ object ConversationVariants {
   const val GREETING = 1_000_001L
   const val TRADE = 1_000_002L
 
+  /**
+   * The band the conversation's own fixed lines draw from, offset by the line's position in the
+   * catalogue: `FIXED_LINE + 0` is the first of them, and so on.
+   *
+   * A band rather than a constant each, because those lines are listed in a file and adding one there
+   * must not also mean editing this object. Reordering that file reshuffles which phrasing somebody
+   * uses, which is the same harmless outcome `SmallTalkCatalogue.at` already accepts.
+   */
+  const val FIXED_LINE = 1_100_000L
+
+  /** The same again for the mundane pool: `SMALL_TALK +` the line's index in `SmallTalkCatalogue`. */
+  const val SMALL_TALK = 1_200_000L
+
   private const val VARIANT_SALT = 0x7A15L
 }

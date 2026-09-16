@@ -91,9 +91,10 @@ abstract class DialogDbSyncTask : DefaultTask() {
   private data class ConversationFile(
     val events: Map<String, HistoryLineDto> = emptyMap(),
     val eras: List<String> = emptyList(),
+    val conversation: Map<String, HistoryLineDto> = emptyMap(),
   )
 
-  private data class SmallTalkLineDto(val key: String = "")
+  private data class SmallTalkLineDto(val key: String = "", val variants: Int = 1)
 
   private data class SmallTalkFile(val lines: List<SmallTalkLineDto> = emptyList())
 
@@ -159,6 +160,7 @@ abstract class DialogDbSyncTask : DefaultTask() {
       .forEach { problems += "dialogs.csv: '$it' has no corresponding entry in dialogs.yml (orphaned row)" }
 
     problems += conversationProblems(mapper, csv)
+    problems += fixedLineProblems(mapper, csv)
     problems += smallTalkProblems(mapper, csv)
     problems += rumourProblems(mapper, csv)
     problems += eraProblems(mapper, csv)
@@ -220,11 +222,15 @@ abstract class DialogDbSyncTask : DefaultTask() {
   }
 
   /**
-   * The small-talk pool, which is two rows per line and no placeholders in either.
+   * The small-talk pool: one row a player clicks, one per phrasing of the reply, and no placeholders
+   * in any of them.
    *
    * Slotless on purpose: small talk is a leaf with nothing to fill in, so a placeholder in one of these
    * rows is a translator reaching for an argument the server never sends, and would reach a player as a
    * literal brace.
+   *
+   * Only the reply is counted. The ask has no variants by design - see `SmallTalk.askKey` - so a
+   * `TALK_SMALL_<LINE>_ASK_2` row is caught below as the orphan it is.
    */
   private fun smallTalkProblems(mapper: ObjectMapper, csv: LocalizationCsv): List<String> {
     if (!smallTalkYml.isPresent) {
@@ -236,7 +242,9 @@ abstract class DialogDbSyncTask : DefaultTask() {
     val expected = HashSet<String>()
 
     for (line in lines) {
-      for (key in listOf(line.key, line.key + "_ASK")) {
+      val keys = listOf(line.key + "_ASK") + (1..line.variants).map { "${line.key}_$it" }
+
+      for (key in keys) {
         expected += key
 
         val text = csv.get(key)
@@ -248,6 +256,13 @@ abstract class DialogDbSyncTask : DefaultTask() {
         PLACEHOLDER_PATTERN.findAll(text).map { it.groupValues[1] }.toSet().forEach {
           problems += "dialogs.csv: '$key' uses {$it}, but small talk is sent without arguments"
         }
+      }
+
+      // Not caught by the sweep below: the un-suffixed row a line leaves behind when it grows
+      // variants is the one shape SMALL_TALK_KEY_PATTERN deliberately does not match.
+      if (csv.get(line.key) != null) {
+        problems += "dialogs.csv: '${line.key}' is a leftover from before the line had variants - " +
+          "the rows are '${line.key}_1' upward now (orphaned row)"
       }
     }
 
@@ -294,6 +309,60 @@ abstract class DialogDbSyncTask : DefaultTask() {
     csv.keys()
       .filter { RUMOUR_KEY_PATTERN.matches(it) && it !in expected }
       .forEach { problems += "dialogs.csv: '$it' matches no kind or variant in rumours.yml (orphaned row)" }
+
+    return problems
+  }
+
+  /**
+   * The lines a conversation owns itself - the goodbye, "what is this place", the empty-handed shrug.
+   *
+   * Shaped exactly like a history phrasing and checked the same way round, because it is the same
+   * mistake: a declared variant with no row renders as the key itself, and a phrasing reaching for a
+   * slot nobody sends renders a literal brace.
+   *
+   * The orphan sweep is per declared key rather than by a pattern over the whole file, because these
+   * keys have no prefix of their own to match on - `TALK_GOODBYE_2` and `TALK_SMALL_GUARD_BOOTS_2` are
+   * the same shape. Lowering a count and leaving the rows behind is the drift worth catching, and so is
+   * the un-suffixed row a key leaves when it grows variants.
+   */
+  private fun fixedLineProblems(mapper: ObjectMapper, csv: LocalizationCsv): List<String> {
+    if (!conversationYml.isPresent) {
+      return emptyList()
+    }
+
+    val lines = mapper.readValue(conversationYml.get().asFile, ConversationFile::class.java).conversation
+    val problems = mutableListOf<String>()
+
+    for ((key, line) in lines) {
+      for (variant in 1..line.variants) {
+        val row = "${key}_$variant"
+        val text = csv.get(row)
+
+        if (text.isNullOrBlank()) {
+          problems += "dialogs.csv: '$row' is missing, so a speaker drawing that phrasing says nothing"
+          continue
+        }
+
+        val used = PLACEHOLDER_PATTERN.findAll(text).map { it.groupValues[1] }.toSet()
+        (used - line.slots.toSet()).forEach {
+          problems += "dialogs.csv: '$row' uses {$it}, which is not sent with that line"
+        }
+      }
+
+      if (csv.get(key) != null) {
+        problems += "dialogs.csv: '$key' is a leftover from before it had variants - the rows are " +
+          "'${key}_1' upward now (orphaned row)"
+      }
+
+      val extra = Regex(Regex.escape(key) + """_(\d+)""")
+      csv.keys()
+        .mapNotNull { row -> extra.matchEntire(row)?.let { row to it.groupValues[1].toInt() } }
+        .filter { (_, variant) -> variant > line.variants }
+        .forEach { (row, _) ->
+          problems += "dialogs.csv: '$row' is past the ${line.variants} phrasings dialogue.yml " +
+            "declares for $key (orphaned row)"
+        }
+    }
 
     return problems
   }
@@ -430,7 +499,7 @@ abstract class DialogDbSyncTask : DefaultTask() {
     private val HISTORY_KEY_PATTERN = Regex("""^HISTORY_[A-Z_]+_(ASK|\d+)$""")
 
     /** A translation key owned by a `small-talk.yml` line, e.g. `TALK_SMALL_FARMER_BARLEY_ASK`. */
-    private val SMALL_TALK_KEY_PATTERN = Regex("""^TALK_SMALL_[A-Z_]+$""")
+    private val SMALL_TALK_KEY_PATTERN = Regex("""^TALK_SMALL_[A-Z_]+_(ASK|\d+)$""")
 
     /** An era band owned by `dialogue.yml`, e.g. `ERA_LIVING`. */
     private val ERA_KEY_PATTERN = Regex("""^ERA_[A-Z_]+$""")

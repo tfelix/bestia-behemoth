@@ -15,6 +15,8 @@ import net.bestia.zone.environment.time.Season
  */
 data class SmallTalk(
   val key: String,
+  /** How many phrasings of the reply the client carries, keyed `<key>_1` upward. */
+  val variants: Int = 1,
   val occupations: Set<String> = emptySet(),
   val kinship: Set<Kinship> = emptySet(),
   val terrain: Set<RegionKind> = emptySet(),
@@ -28,11 +30,26 @@ data class SmallTalk(
   val maxWealth: Double? = null,
 ) {
 
-  /** The row a player clicks. The reply is [key] itself, so one line is one pair of translations. */
+  init {
+    require(variants >= 1) { "$key is declared with $variants phrasings, so it can never be said" }
+  }
+
+  /**
+   * The row a player clicks, which has no variants.
+   *
+   * Only the reply does - `ConversationKeys` gives the argument in full, and it is the same one here: a
+   * question worded differently by each person you meet is one a player stops recognising, while
+   * hearing the same answer from the fourth farmer running is exactly what this pool exists to stop.
+   */
   val askKey: String
     get() {
       return key + ASK_SUFFIX
     }
+
+  /** The reply, in one of its [variants] phrasings. 1-based, as every other variant index here is. */
+  fun replyKey(variant: Int): String {
+    return key + "_" + variant
+  }
 
   /**
    * Whether the only thing this line asks about its speaker is their trade.

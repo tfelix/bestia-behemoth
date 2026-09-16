@@ -113,14 +113,41 @@ class SmallTalkCatalogueTest {
     assertTrue(elder.holdsFor(circumstance(age = 60)))
   }
 
-  /** Every line costs two translated rows, so the ceiling is worth a failing test rather than a comment. */
+  /**
+   * Every line costs a translated row per phrasing plus one for the ask, so the ceiling is worth a
+   * failing test rather than a comment.
+   */
   @Test
   fun `the pool stays a garnish`() {
     assertTrue(
       catalogue.all().size <= BUDGET,
       "${catalogue.all().size} small-talk lines is past the ${BUDGET} the design budgeted for; " +
-        "each one is two rows in every language the game ships"
+        "each one is ${catalogue.all().first().variants} phrasings plus an ask, in every language " +
+        "the game ships"
     )
+  }
+
+  /**
+   * That a line the pool ships can actually be said more than one way.
+   *
+   * A line left at the default of one is not a bug, but a pool where *every* line is at the default is
+   * this feature quietly not being on - and nothing else would notice, because a count of one builds a
+   * `_1` key that exists and renders fine.
+   */
+  @Test
+  fun `the pool is written in more than one voice`() {
+    assertTrue(
+      catalogue.all().all { it.variants >= 1 } && catalogue.all().any { it.variants > 1 },
+      "every line in the pool has exactly one phrasing, so nobody ever hears a second"
+    )
+  }
+
+  @Test
+  fun `a reply key is the line's key and the number of the phrasing`() {
+    val line = catalogue.all().first { it.variants > 1 }
+
+    assertEquals(line.key + "_" + line.variants, line.replyKey(line.variants))
+    assertEquals(line.key + ASK_SUFFIX, line.askKey)
   }
 
   @Test
@@ -160,5 +187,7 @@ class SmallTalkCatalogueTest {
   private companion object {
     /** Three per occupation plus a dozen shared, with room for one more trade before a rethink. */
     const val BUDGET = 40
+
+    const val ASK_SUFFIX = "_ASK"
   }
 }

@@ -42,14 +42,26 @@ class SmallTalkTopicProvider(
    * that matters - nobody says a line that is not true of them - while letting a late click land.
    */
   override fun nodeFor(speaker: Speaker, topicId: Int): ConversationNode? {
-    val line = catalogue.at(Topics.localOf(Topics.SMALL_TALK, topicId)) ?: return null
+    val index = Topics.localOf(Topics.SMALL_TALK, topicId)
+    val line = catalogue.at(index) ?: return null
     val circumstance = circumstances.of(speaker) ?: return null
 
     if (!line.holdsFor(circumstance)) {
       return null
     }
 
-    return ConversationNode(Line(line.key), emptyList())
+    return ConversationNode(Line(line.replyKey(variantFor(speaker, index, line))), emptyList())
+  }
+
+  /**
+   * Which phrasing of the reply this person uses, off their own seed rather than the day's.
+   *
+   * Not the day's, because the line survives midnight on purpose - see [nodeFor] - and a reply that
+   * changed wording between the click and the answer would undo the reason it does. Keyed on the
+   * line's position so that somebody's barley is not drawn with the same number as their fence.
+   */
+  private fun variantFor(speaker: Speaker, index: Int, line: SmallTalk): Int {
+    return ConversationVariants.of(speaker, ConversationVariants.SMALL_TALK + index, line.variants)
   }
 
   /**

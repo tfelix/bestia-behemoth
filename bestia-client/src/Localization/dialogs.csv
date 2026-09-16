@@ -26,15 +26,27 @@ Every level you gain is one point to put into the skill tree."
 DIALOG_3_TITLE,Workbench
 DIALOG_3_TEXT,"A sturdy workbench, freshly raised. There is nothing to make here yet."
 TALK_FAREWELL,Nothing for now.
-TALK_GOODBYE,Mind how you go.
+TALK_GOODBYE_1,Mind how you go.
+TALK_GOODBYE_2,Aye. Watch the road out.
+TALK_GOODBYE_3,Right. I have things to be doing.
+TALK_GOODBYE_4,"Good day to you, then."
 TALK_BACK,Something else.
 TALK_ABOUT_TOWN_ASK,What is this place?
-TALK_ABOUT_TOWN,"You are in {town}. I keep the {trade} here."
+TALK_ABOUT_TOWN_1,"You are in {town}. I keep the {trade} here."
+TALK_ABOUT_TOWN_2,"{town}. I keep the {trade}, and I have never been anywhere else."
+TALK_ABOUT_TOWN_3,"This is {town}. You want the {trade}, you want me."
+TALK_ABOUT_TOWN_4,"{town}, and glad of it most days. The {trade} is mine."
 TALK_NEWS_ASK,Heard anything lately?
-TALK_NEWS_NONE,Nothing worth repeating.
+TALK_NEWS_NONE_1,Nothing worth repeating.
+TALK_NEWS_NONE_2,Not a thing. It has been that sort of month.
+TALK_NEWS_NONE_3,You would be the first to hear it if there were.
+TALK_NEWS_NONE_4,Nothing. Ask me again when somebody does something.
 TALK_SHOP_BUY_ASK,Show me your wares.
 TALK_SHOP_SELL_ASK,I have things to sell.
-TALK_NOT_YET,Not today. Come back another time.
+TALK_NOT_YET_1,Not today. Come back another time.
+TALK_NOT_YET_2,Not yet. Ask me again when I have something to show you.
+TALK_NOT_YET_3,I have nothing ready. Another day.
+TALK_NOT_YET_4,Not just now. There will be more here before long.
 ERA_RECENT,only a few years back
 ERA_LIVING,within living memory
 ERA_GENERATIONS,a few generations back
@@ -46,33 +58,75 @@ NAME_UNKNOWN_FIGURE,somebody nobody named
 NAME_UNKNOWN_ARTIFACT,a thing nobody named
 TALK_GREETING_GUARD_1,"{name} watches you come the whole way in."
 TALK_GREETING_GUARD_2,"{name} looks you over and does not move."
+TALK_GREETING_GUARD_3,"{name} shifts a hand off the spear, then puts it back."
+TALK_GREETING_GUARD_4,{name} has been standing here long enough to have noticed you twice.
+TALK_GREETING_GUARD_5,{name} lets you get close before saying anything at all.
 TALK_GREETING_PRIEST_1,"{name} sets something down and turns to you."
 TALK_GREETING_PRIEST_2,"{name} waits, as though there were all day."
+TALK_GREETING_PRIEST_3,{name} finishes what they were saying under their breath first.
+TALK_GREETING_PRIEST_4,{name} looks up from the step they were sweeping.
+TALK_GREETING_PRIEST_5,"{name} greets you by no name at all, and means it kindly."
 TALK_GREETING_INNKEEPER_1,"{name} wipes both hands and looks up. 'What will it be?'"
 TALK_GREETING_INNKEEPER_2,"{name} is already talking before you reach the counter."
+TALK_GREETING_INNKEEPER_3,{name} finds you a place at the end of the bench without being asked.
+TALK_GREETING_INNKEEPER_4,"{name} counts something twice, loses it, and turns to you anyway."
+TALK_GREETING_INNKEEPER_5,{name} has a look at your boots before your face.
 TALK_GREETING_FARMER_1,"{name} straightens up slowly and squints at you."
 TALK_GREETING_FARMER_2,"{name} keeps one eye on the weather while you speak."
+TALK_GREETING_FARMER_3,{name} finishes the row before coming over.
+TALK_GREETING_FARMER_4,{name} leans on the gate as though it were the plan all along.
+TALK_GREETING_FARMER_5,{name} wipes both hands on the same patch of trouser.
 TALK_GREETING_LABOURER_1,"{name} puts the load down. It looks like a relief."
 TALK_GREETING_LABOURER_2,"{name} nods at you without stopping work."
+TALK_GREETING_LABOURER_3,"{name} straightens up, hears something click, and ignores it."
+TALK_GREETING_LABOURER_4,{name} looks glad of any reason to stop.
+TALK_GREETING_LABOURER_5,"{name} shouts something to somebody else first, then turns round."
 TALK_GREETING_BEGGAR_1,"{name} looks up quickly, then looks less hopeful."
 TALK_GREETING_BEGGAR_2,"{name} has been watching you since the corner."
+TALK_GREETING_BEGGAR_3,{name} makes room on the step without being asked.
+TALK_GREETING_BEGGAR_4,{name} says nothing and waits to see what you are.
+TALK_GREETING_BEGGAR_5,{name} has a greeting ready and has clearly used it all morning.
 TALK_GREETING_CHILD_1,"{name} stares at you without blinking."
 TALK_GREETING_CHILD_2,"{name} appears at your elbow from nowhere."
+TALK_GREETING_CHILD_3,"{name} runs up, stops short, and thinks better of it."
+TALK_GREETING_CHILD_4,{name} asks you three things before you get one in.
+TALK_GREETING_CHILD_5,{name} is walking backwards in front of you now.
 TALK_TRADE_ASK,What is it you do here?
 TALK_TRADE_GUARD_1,"The {trade}. Walk it, stand in it, walk it again."
 TALK_TRADE_GUARD_2,"I keep the {trade}. Most days that means being seen and nothing else."
+TALK_TRADE_GUARD_3,"The {trade}. It is standing still for money, and I am good at it."
+TALK_TRADE_GUARD_4,I am on the {trade}. Nobody thanks you for the nights nothing happens.
+TALK_TRADE_GUARD_5,"The {trade}, since I was old enough to carry the spear."
 TALK_TRADE_PRIEST_1,"The {trade} is mine to keep. People come when they need to."
 TALK_TRADE_PRIEST_2,"I keep the {trade}. Somebody has to, and nobody else offered."
+TALK_TRADE_PRIEST_3,"The {trade}, and everything that comes with it. Mostly it is listening."
+TALK_TRADE_PRIEST_4,I have the {trade}. It was here before me and it will outlast me.
+TALK_TRADE_PRIEST_5,The {trade}. People think that means quiet. It means sweeping.
 TALK_TRADE_INNKEEPER_1,"The {trade}. Beds, beer, and listening to people who have had both."
 TALK_TRADE_INNKEEPER_2,"I keep the {trade}. You hear everything twice and half of it is true."
+TALK_TRADE_INNKEEPER_3,The {trade}. I am up before the bakers and down after the drunks.
+TALK_TRADE_INNKEEPER_4,I have the {trade} off my mother. She had it off hers.
+TALK_TRADE_INNKEEPER_5,The {trade}. Everyone brings their business through it and none of it is mine.
 TALK_TRADE_FARMER_1,"The {trade}, same as my father. The work does not change much."
 TALK_TRADE_FARMER_2,"I work the {trade}. Ask me again after harvest and I may be happier."
+TALK_TRADE_FARMER_3,The {trade}. It is the same year over and over and never the same twice.
+TALK_TRADE_FARMER_4,I have the {trade} out past the wall. They are enough to keep me tired.
+TALK_TRADE_FARMER_5,The {trade}. My grandfather cleared them and I have not improved on it.
 TALK_TRADE_LABOURER_1,"The {trade}, mostly. Some weeks that is stone, some weeks it is sacks."
 TALK_TRADE_LABOURER_2,"Whatever the {trade} wants doing. I am not fussy and it does not ask."
+TALK_TRADE_LABOURER_3,The {trade} pays me and I do not ask it many questions.
+TALK_TRADE_LABOURER_4,I am at the {trade}. It is not skilled and it is not light.
+TALK_TRADE_LABOURER_5,"The {trade}, since I was fourteen. It is honest and it is heavy."
 TALK_TRADE_BEGGAR_1,"The {trade} is what I have. It is not much of a trade."
 TALK_TRADE_BEGGAR_2,"I sit. People walk past. That is the whole of it."
+TALK_TRADE_BEGGAR_3,I keep the {trade} and the {trade} keeps me. Barely.
+TALK_TRADE_BEGGAR_4,The {trade}. Nobody is queueing to take it off me.
+TALK_TRADE_BEGGAR_5,This. What you are looking at. There is no second part to it.
 TALK_TRADE_CHILD_1,"{trade}. That is what they tell me when I ask, anyway."
 TALK_TRADE_CHILD_2,"Nothing yet. I am meant to be helping but I am not."
+TALK_TRADE_CHILD_3,"{trade}, yet. When I am bigger I am going to be the one with the horses."
+TALK_TRADE_CHILD_4,I help. Sometimes. When somebody is watching.
+TALK_TRADE_CHILD_5,{trade}. It is very important and I am very busy.
 TRADE_ALCHEMIST,alchemy workshop
 TRADE_APOTHECARY,apothecary
 TRADE_ARMOURER,armoury
@@ -216,71 +270,170 @@ HISTORY_SHRINE_RAISED_1,"The {civ} raised it above {place} {era}, around {year},
 HISTORY_RITE_PERFORMED_ASK,Do they still hold the rites?
 HISTORY_RITE_PERFORMED_1,"The {civ} kept the rite {era}, about {year}. They keep it still, when it matters."
 TALK_SMALL_GUARD_WATCH_ASK,Quiet shift?
-TALK_SMALL_GUARD_WATCH,"Quiet is the whole job. A shift you remember is a shift that went wrong."
+TALK_SMALL_GUARD_WATCH_1,"Quiet is the whole job. A shift you remember is a shift that went wrong."
+TALK_SMALL_GUARD_WATCH_2,So far. I have learned not to say it out loud before sundown.
+TALK_SMALL_GUARD_WATCH_3,"Quiet. Four hours of it, and four more after that."
+TALK_SMALL_GUARD_WATCH_4,"Nothing yet. That is not luck, that is two of us standing here."
 TALK_SMALL_GUARD_BOOTS_ASK,You look tired.
-TALK_SMALL_GUARD_BOOTS,"New boots. Everyone says they wear in. Nobody says how long that takes."
+TALK_SMALL_GUARD_BOOTS_1,"New boots. Everyone says they wear in. Nobody says how long that takes."
+TALK_SMALL_GUARD_BOOTS_2,Third night running. I will sleep when somebody else is awake.
+TALK_SMALL_GUARD_BOOTS_3,I am on my feet more than I am off them. It shows by the end.
+TALK_SMALL_GUARD_BOOTS_4,Tired is the uniform. Nobody issued me a better one.
 TALK_SMALL_GUARD_WALLS_ASK,Do the walls still hold?
-TALK_SMALL_GUARD_WALLS,"They hold. Somebody's grandfather paid for them and I get to stand on them."
+TALK_SMALL_GUARD_WALLS_1,"They hold. Somebody's grandfather paid for them and I get to stand on them."
+TALK_SMALL_GUARD_WALLS_2,They hold. The gate is the soft part and everybody knows it.
+TALK_SMALL_GUARD_WALLS_3,Stone does not ask much of you. That is more than I can say for the roster.
+TALK_SMALL_GUARD_WALLS_4,They have held longer than anyone alive. I would not be the one to test them.
 TALK_SMALL_PRIEST_ROOF_ASK,How is the temple?
-TALK_SMALL_PRIEST_ROOF,"The roof leaks over the east aisle. We pray a little further west in wet weather."
+TALK_SMALL_PRIEST_ROOF_1,"The roof leaks over the east aisle. We pray a little further west in wet weather."
+TALK_SMALL_PRIEST_ROOF_2,Standing. Cold. Half of it needs money nobody here has.
+TALK_SMALL_PRIEST_ROOF_3,"The building is older than the town remembers, and it is starting to show."
+TALK_SMALL_PRIEST_ROOF_4,Well enough. The lead wants replacing and the answer is always next year.
 TALK_SMALL_PRIEST_QUIET_ASK,Busy morning?
-TALK_SMALL_PRIEST_QUIET,"Nobody has come in since dawn. That is either very good or very bad and I never learn which."
+TALK_SMALL_PRIEST_QUIET_1,"Nobody has come in since dawn. That is either very good or very bad and I never learn which."
+TALK_SMALL_PRIEST_QUIET_2,"Two this morning, and both only wanted to sit. I let them."
+TALK_SMALL_PRIEST_QUIET_3,"Quiet. People come when something has gone wrong, so quiet is a kind of news."
+TALK_SMALL_PRIEST_QUIET_4,Not busy. I have swept the same floor twice and I am considering a third.
 TALK_SMALL_PRIEST_STORM_ASK,Is this weather an omen?
-TALK_SMALL_PRIEST_STORM,"Half the town will ask me that today. The honest answer is that it is weather."
+TALK_SMALL_PRIEST_STORM_1,"Half the town will ask me that today. The honest answer is that it is weather."
+TALK_SMALL_PRIEST_STORM_2,Three have asked me already. I gave three answers and meant none of them.
+TALK_SMALL_PRIEST_STORM_3,"If it is a sign, it is a poorly written one. Come inside out of it."
+TALK_SMALL_PRIEST_STORM_4,"It is loud, and loud makes people religious. I take what I am given."
 TALK_SMALL_INNKEEPER_BREWING_ASK,What is on today?
-TALK_SMALL_INNKEEPER_BREWING,"Small beer, and it is honest. The good barrel is not ready and I will not rush it."
+TALK_SMALL_INNKEEPER_BREWING_1,"Small beer, and it is honest. The good barrel is not ready and I will not rush it."
+TALK_SMALL_INNKEEPER_BREWING_2,"Bread, broth, and whatever the pot has decided to become."
+TALK_SMALL_INNKEEPER_BREWING_3,There is a stew. Do not ask me what week it started in.
+TALK_SMALL_INNKEEPER_BREWING_4,Ale and a bed. If you want more than that you have come a long way for nothing.
 TALK_SMALL_INNKEEPER_SNORING_ASK,How are the rooms?
-TALK_SMALL_INNKEEPER_SNORING,"Full. One of them snores like a saw and the other four have all told me so."
+TALK_SMALL_INNKEEPER_SNORING_1,"Full. One of them snores like a saw and the other four have all told me so."
+TALK_SMALL_INNKEEPER_SNORING_2,"Clean, which is more than the last place you slept, I would guess."
+TALK_SMALL_INNKEEPER_SNORING_3,"There is one at the back. Small and quiet, and the better of the two."
+TALK_SMALL_INNKEEPER_SNORING_4,Dry and warm. I make no promises about who is in the next bed.
 TALK_SMALL_INNKEEPER_TRADE_ASK,Business good?
-TALK_SMALL_INNKEEPER_TRADE,"Good enough that I turned two away last night. I am not used to saying that."
+TALK_SMALL_INNKEEPER_TRADE_1,"Good enough that I turned two away last night. I am not used to saying that."
+TALK_SMALL_INNKEEPER_TRADE_2,Better than it has been. Money in the town means money over the bar.
+TALK_SMALL_INNKEEPER_TRADE_3,I have stopped watering the beer. That is how you know.
+TALK_SMALL_INNKEEPER_TRADE_4,"Good. I keep waiting for it to stop, and it keeps not stopping."
 TALK_SMALL_FARMER_BARLEY_ASK,How is the barley coming?
-TALK_SMALL_FARMER_BARLEY,"Slow. It always looks slow to me and then it is suddenly all at once."
+TALK_SMALL_FARMER_BARLEY_1,"Slow. It always looks slow to me and then it is suddenly all at once."
+TALK_SMALL_FARMER_BARLEY_2,Coming. Ask me in three weeks and I will have an opinion worth having.
+TALK_SMALL_FARMER_BARLEY_3,"Better than last year, which is not saying a great deal."
+TALK_SMALL_FARMER_BARLEY_4,It is in the ground and it is up. Everything after that is weather.
 TALK_SMALL_FARMER_FENCE_ASK,Much to do?
-TALK_SMALL_FARMER_FENCE,"The north fence again. Something keeps going through it and I have never once seen what."
+TALK_SMALL_FARMER_FENCE_1,"The north fence again. Something keeps going through it and I have never once seen what."
+TALK_SMALL_FARMER_FENCE_2,"There is always something. The day there is not, I will have died in the night."
+TALK_SMALL_FARMER_FENCE_3,"Ditch wants clearing, gate wants hanging, and I want an hour sitting down."
+TALK_SMALL_FARMER_FENCE_4,Enough that I am talking to you instead of doing it.
 TALK_SMALL_FARMER_RAIN_ASK,Good weather for it?
-TALK_SMALL_FARMER_RAIN,"This is the rain you want, if it stops. It is the not stopping that ruins you."
+TALK_SMALL_FARMER_RAIN_1,"This is the rain you want, if it stops. It is the not stopping that ruins you."
+TALK_SMALL_FARMER_RAIN_2,"Good for the ground, bad for the back. That is most weather."
+TALK_SMALL_FARMER_RAIN_3,I asked for this a fortnight ago. I am not going to complain about getting it.
+TALK_SMALL_FARMER_RAIN_4,Rain now is worth more than sun in a month. Wet is fine.
 TALK_SMALL_LABOURER_BACK_ASK,Long day?
-TALK_SMALL_LABOURER_BACK,"My back says so. My back has said so since I was twenty."
+TALK_SMALL_LABOURER_BACK_1,"My back says so. My back has said so since I was twenty."
+TALK_SMALL_LABOURER_BACK_2,"Started before light. I will finish after it, and be paid for neither end."
+TALK_SMALL_LABOURER_BACK_3,Long enough that I have stopped counting the loads.
+TALK_SMALL_LABOURER_BACK_4,"Same as yesterday. Same as tomorrow, I should think."
 TALK_SMALL_LABOURER_STONE_ASK,What are you hauling?
-TALK_SMALL_LABOURER_STONE,"Stone, up the hill, all of it. Whoever drew the plan never carried anything."
+TALK_SMALL_LABOURER_STONE_1,"Stone, up the hill, all of it. Whoever drew the plan never carried anything."
+TALK_SMALL_LABOURER_STONE_2,Timber today. Heavier than it looks and it looks heavy.
+TALK_SMALL_LABOURER_STONE_3,"Sacks. Do not ask what is in them, I have stopped wondering."
+TALK_SMALL_LABOURER_STONE_4,Whatever is at the bottom of the cart when I get there.
 TALK_SMALL_LABOURER_WINTER_ASK,Work in this cold?
-TALK_SMALL_LABOURER_WINTER,"Ground is frozen hard as iron. We dig anyway, just slower and for the same money."
+TALK_SMALL_LABOURER_WINTER_1,"Ground is frozen hard as iron. We dig anyway, just slower and for the same money."
+TALK_SMALL_LABOURER_WINTER_2,"Cold does not stop the work, it only stops the hands."
+TALK_SMALL_LABOURER_WINTER_3,You warm up after the first hour. It is the first hour that is the trouble.
+TALK_SMALL_LABOURER_WINTER_4,I would rather this than the heat. You can put more on in winter.
 TALK_SMALL_BEGGAR_CORNER_ASK,Good spot?
-TALK_SMALL_BEGGAR_CORNER,"Best corner in town. Everyone walks past it and nobody looks at it. Suits me."
+TALK_SMALL_BEGGAR_CORNER_1,"Best corner in town. Everyone walks past it and nobody looks at it. Suits me."
+TALK_SMALL_BEGGAR_CORNER_2,"It is out of the wind, and that is most of what a spot is."
+TALK_SMALL_BEGGAR_CORNER_3,"Good until the market moves. Then I move too, and quickly."
+TALK_SMALL_BEGGAR_CORNER_4,I have had worse. I have been moved off better.
 TALK_SMALL_BEGGAR_DOGS_ASK,Anyone bother you?
-TALK_SMALL_BEGGAR_DOGS,"Only the dogs, and only because I feed them. My own fault entirely."
+TALK_SMALL_BEGGAR_DOGS_1,"Only the dogs, and only because I feed them. My own fault entirely."
+TALK_SMALL_BEGGAR_DOGS_2,"The watch, once a week, and never with any real heart in it."
+TALK_SMALL_BEGGAR_DOGS_3,"Nobody. You have to be seen first, and I am not."
+TALK_SMALL_BEGGAR_DOGS_4,"The children, mostly, and they are not the worst company I have had."
 TALK_SMALL_BEGGAR_RICH_ASK,Are people generous here?
-TALK_SMALL_BEGGAR_RICH,"There is money in this town. Some of it even comes down as far as me."
+TALK_SMALL_BEGGAR_RICH_1,"There is money in this town. Some of it even comes down as far as me."
+TALK_SMALL_BEGGAR_RICH_2,Generous enough. It is easier to give when it does not cost you anything.
+TALK_SMALL_BEGGAR_RICH_3,The well off give coin and the poor give bread. I know which I would rather have.
+TALK_SMALL_BEGGAR_RICH_4,"Some are. The ones with the least are the quickest, which I have never understood."
 TALK_SMALL_CHILD_GAME_ASK,What are you playing?
-TALK_SMALL_CHILD_GAME,"You have to get to the well without touching the ground. I am the best at it."
+TALK_SMALL_CHILD_GAME_1,"You have to get to the well without touching the ground. I am the best at it."
+TALK_SMALL_CHILD_GAME_2,"We are hiding, but they are very bad at looking so I came out."
+TALK_SMALL_CHILD_GAME_3,It does not have a name. You just have to do what I say.
+TALK_SMALL_CHILD_GAME_4,I am counting. I have got to a hundred twice and nobody has come back.
 TALK_SMALL_CHILD_LESSONS_ASK,Shouldn't you be somewhere?
-TALK_SMALL_CHILD_LESSONS,"Letters. I can do most of them. I am not going back until someone makes me."
+TALK_SMALL_CHILD_LESSONS_1,"Letters. I can do most of them. I am not going back until someone makes me."
+TALK_SMALL_CHILD_LESSONS_2,Probably. Nobody has come looking yet.
+TALK_SMALL_CHILD_LESSONS_3,I am supposed to be fetching water. I have been supposed to for a while now.
+TALK_SMALL_CHILD_LESSONS_4,Do not tell anyone you saw me. That is the whole thing I am asking.
 TALK_SMALL_CHILD_SNOW_ASK,Cold enough for you?
-TALK_SMALL_CHILD_SNOW,"It snowed! Nobody else is even excited. I do not understand grown people."
+TALK_SMALL_CHILD_SNOW_1,"It snowed! Nobody else is even excited. I do not understand grown people."
+TALK_SMALL_CHILD_SNOW_2,My hands do not work but I am not going in. They cannot make me.
+TALK_SMALL_CHILD_SNOW_3,I have been out since it started. I am going to be out until it stops.
+TALK_SMALL_CHILD_SNOW_4,It is the best thing that has happened all year and it is only the morning.
 TALK_SMALL_COAST_NETS_ASK,Do people fish here?
-TALK_SMALL_COAST_NETS,"Off the point, when the tide is right. Half the town claims to know when that is."
+TALK_SMALL_COAST_NETS_1,"Off the point, when the tide is right. Half the town claims to know when that is."
+TALK_SMALL_COAST_NETS_2,"Everybody does, and nobody admits how little they catch."
+TALK_SMALL_COAST_NETS_3,The boats go out before light. You can hear them from the walls if you are awake.
+TALK_SMALL_COAST_NETS_4,"Enough to eat. Not enough to sell, most weeks."
 TALK_SMALL_FELLS_PASS_ASK,Is the pass open?
-TALK_SMALL_FELLS_PASS,"It is, today. Ask again after the next weather and you may get a different answer."
+TALK_SMALL_FELLS_PASS_1,"It is, today. Ask again after the next weather and you may get a different answer."
+TALK_SMALL_FELLS_PASS_2,Open. Whether it is passable is a different question and a longer one.
+TALK_SMALL_FELLS_PASS_3,"It is. Take the lower track anyway, whatever anyone tells you."
+TALK_SMALL_FELLS_PASS_4,Open since the thaw. It will shut again and it never gives warning.
 TALK_SMALL_FOREST_WOLVES_ASK,Anything in the woods?
-TALK_SMALL_FOREST_WOLVES,"Wolves, they say. I have lived here forty years and heard them twice."
+TALK_SMALL_FOREST_WOLVES_1,"Wolves, they say. I have lived here forty years and heard them twice."
+TALK_SMALL_FOREST_WOLVES_2,"Deer, mostly. Whatever else is in there has the sense to stay in there."
+TALK_SMALL_FOREST_WOLVES_3,Something takes the lambs. Everyone has a name for it and no one has seen it.
+TALK_SMALL_FOREST_WOLVES_4,Nothing that troubles you on the path. Off the path is your own business.
 TALK_SMALL_VALE_RIVER_ASK,Is the river low?
-TALK_SMALL_VALE_RIVER,"Lower than it should be. The mill wheel is turning about half as fast as it likes."
+TALK_SMALL_VALE_RIVER_1,"Lower than it should be. The mill wheel is turning about half as fast as it likes."
+TALK_SMALL_VALE_RIVER_2,"Low. You can walk the ford without wetting your knees, which is wrong for the season."
+TALK_SMALL_VALE_RIVER_3,"Lower every year, and nobody upstream will admit to a thing."
+TALK_SMALL_VALE_RIVER_4,It is low now and it will be over the bank by spring. It always does both.
 TALK_SMALL_SPRING_MUD_ASK,Everything is mud.
-TALK_SMALL_SPRING_MUD,"Every year. Every single year, and every year we are all surprised by it."
+TALK_SMALL_SPRING_MUD_1,"Every year. Every single year, and every year we are all surprised by it."
+TALK_SMALL_SPRING_MUD_2,Give it a fortnight. It goes from mud to dust and neither is any use.
+TALK_SMALL_SPRING_MUD_3,Mud is the price of the thaw. I will take it over the frost.
+TALK_SMALL_SPRING_MUD_4,"Wipe your feet or do not, it makes no difference by noon."
 TALK_SMALL_SUMMER_HEAT_ASK,Warm today.
-TALK_SMALL_SUMMER_HEAT,"Too warm to do anything and too bright to sleep. I will not complain again until tomorrow."
+TALK_SMALL_SUMMER_HEAT_1,"Too warm to do anything and too bright to sleep. I will not complain again until tomorrow."
+TALK_SMALL_SUMMER_HEAT_2,Warm. We were praying for this in the wet and now look at us.
+TALK_SMALL_SUMMER_HEAT_3,Everyone is indoors till the shadows come round. You should be too.
+TALK_SMALL_SUMMER_HEAT_4,Warm enough that the dogs have stopped moving. That is my measure.
 TALK_SMALL_FALL_STORES_ASK,Ready for the cold?
-TALK_SMALL_FALL_STORES,"Getting the stores in. It is never quite as much as you remember needing."
+TALK_SMALL_FALL_STORES_1,"Getting the stores in. It is never quite as much as you remember needing."
+TALK_SMALL_FALL_STORES_2,Nearly. There is always one more thing that should have been done in summer.
+TALK_SMALL_FALL_STORES_3,Ready as we get. You find out in the second month whether you were right.
+TALK_SMALL_FALL_STORES_4,The roof is seen to and the wood is stacked. The rest is luck.
 TALK_SMALL_WINTER_FIREWOOD_ASK,Enough firewood?
-TALK_SMALL_WINTER_FIREWOOD,"Enough if it breaks early. It has not broken early in my lifetime."
+TALK_SMALL_WINTER_FIREWOOD_1,"Enough if it breaks early. It has not broken early in my lifetime."
+TALK_SMALL_WINTER_FIREWOOD_2,"Enough. I said that last year too, and I was burning the fence by the end."
+TALK_SMALL_WINTER_FIREWOOD_3,For now. Ask me again when the pile stops looking like a pile.
+TALK_SMALL_WINTER_FIREWOOD_4,We have wood. What we do not have is anyone keen to go and cut more.
 TALK_SMALL_TOWN_WALLS_ASK,Who built the walls?
-TALK_SMALL_TOWN_WALLS,"People who are all dead now. We live behind them and mostly forget they are there."
+TALK_SMALL_TOWN_WALLS_1,"People who are all dead now. We live behind them and mostly forget they are there."
+TALK_SMALL_TOWN_WALLS_2,Whoever was frightened at the time. That is who builds a wall.
+TALK_SMALL_TOWN_WALLS_3,"Nobody agrees. Everyone agrees it was not them, and that is as far as it goes."
+TALK_SMALL_TOWN_WALLS_4,They went up in a bad year. We have had good ones since and kept them anyway.
 TALK_SMALL_TOWN_SACKED_ASK,This place has seen trouble.
-TALK_SMALL_TOWN_SACKED,"Once. You can still see where the old stone stops and the new stone starts."
+TALK_SMALL_TOWN_SACKED_1,"Once. You can still see where the old stone stops and the new stone starts."
+TALK_SMALL_TOWN_SACKED_2,"It has. Nobody here brings it up, and nobody here has forgotten it either."
+TALK_SMALL_TOWN_SACKED_3,My grandmother was a girl for it. She would not speak of it and never stopped hinting.
+TALK_SMALL_TOWN_SACKED_4,Once was enough. We built back narrower and we built back higher.
 TALK_SMALL_ELDER_KNEES_ASK,Keeping well?
-TALK_SMALL_ELDER_KNEES,"My knees tell me the weather now. They are more reliable than anyone in this town."
+TALK_SMALL_ELDER_KNEES_1,"My knees tell me the weather now. They are more reliable than anyone in this town."
+TALK_SMALL_ELDER_KNEES_2,"Well enough. Everything works, and everything complains about it."
+TALK_SMALL_ELDER_KNEES_3,I am upright and I am talking to you. That is a good day at my age.
+TALK_SMALL_ELDER_KNEES_4,Better than some. I have outlived two people who asked me that last winter.
 TALK_SMALL_APPRENTICE_MASTER_ASK,How is the work?
-TALK_SMALL_APPRENTICE_MASTER,"I fetch things. Three years of fetching, I am told, and then I get to hold a tool."
+TALK_SMALL_APPRENTICE_MASTER_1,"I fetch things. Three years of fetching, I am told, and then I get to hold a tool."
+TALK_SMALL_APPRENTICE_MASTER_2,I am learning. Mostly I am learning how much there is that I do not do yet.
+TALK_SMALL_APPRENTICE_MASTER_3,Long days and not much of it mine. That is the arrangement and I signed it.
+TALK_SMALL_APPRENTICE_MASTER_4,"Good, when I am let near anything. I sweep a great deal."
 RUMOUR_BOSS_SLAIN_ASK,Has anything been happening?
 RUMOUR_BOSS_SLAIN_1,"Something big was killed out past the ridge. Folk went to look and came back quiet."
 RUMOUR_BOSS_SLAIN_2,"There was a thing out there. Somebody put it down. I have not been out that way since."

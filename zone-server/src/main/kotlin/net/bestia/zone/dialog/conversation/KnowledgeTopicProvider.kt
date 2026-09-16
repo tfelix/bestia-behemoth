@@ -22,6 +22,7 @@ import org.springframework.stereotype.Component
 @Component
 class KnowledgeTopicProvider(
   private val knowledge: KnowledgeService,
+  private val lines: ConversationLineCatalogue,
 ) : DialogTopicProvider {
 
   override fun owns(topicId: Int): Boolean {
@@ -59,7 +60,7 @@ class KnowledgeTopicProvider(
   private fun newsMenu(speaker: Speaker): ConversationNode {
     val held = knowledge.knownBy(speaker.identity)
     if (held.isEmpty()) {
-      return ConversationNode(Line(ConversationKeys.NEWS_NONE), listOf(back()))
+      return ConversationNode(lines.lineFor(speaker, ConversationKeys.NEWS_NONE), listOf(back()))
     }
 
     val offered = held

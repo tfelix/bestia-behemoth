@@ -83,6 +83,22 @@ events:
   SHRINE_RAISED: { variants: 1, slots: [civ, place, year, era] }
   RITE_PERFORMED: { variants: 1, slots: [civ, year, era] }
 
+# The lines a conversation owns itself, rather than getting from a memory or from a trade: how somebody
+# signs off, how they answer "what is this place", what they say when they have no news, and what a
+# half-built action answers with.
+#
+# `variants` and `slots` mean what they mean above - TALK_GOODBYE_1 upward, picked off the speaker's own
+# seed - except that a slot here is filled by the provider that sends the line rather than by an event.
+# The keys are ConversationKeys', which is what keeps a misspelling a compile error; this file owns only
+# how many phrasings each has, and ConversationLineCatalogue refuses a boot that leaves one out.
+#
+# There is deliberately no entry for the rows a *player* clicks. See ConversationKeys.
+conversation:
+  TALK_GOODBYE: { variants: 4, slots: [] }
+  TALK_ABOUT_TOWN: { variants: 4, slots: [town, trade] }
+  TALK_NEWS_NONE: { variants: 4, slots: [] }
+  TALK_NOT_YET: { variants: 4, slots: [] }
+
 # How long ago something was, in words - see the Era enum for the bands these name.
 eras:
   - ERA_RECENT

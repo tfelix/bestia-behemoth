@@ -48,7 +48,10 @@ class SmallTalkCatalogue(
 
     requireEveryTradeIsCovered()
 
-    LOG.info { "Loaded ${lines.size} small-talk lines, offered with chance $chance" }
+    LOG.info {
+      "Loaded ${lines.size} small-talk lines in ${lines.sumOf { it.variants }} phrasings, " +
+        "offered with chance $chance"
+    }
   }
 
   /** The lines true of this speaker right now, in catalogue order. */
@@ -86,6 +89,7 @@ class SmallTalkCatalogue(
 
     lines += SmallTalk(
       key = dto.key,
+      variants = dto.variants,
       occupations = dto.occupations.toSet(),
       kinship = dto.kinship.map { Kinship.valueOf(it) }.toSet(),
       terrain = dto.terrain.map { RegionKind.valueOf(it) }.toSet(),
@@ -128,6 +132,7 @@ class SmallTalkCatalogue(
 
   private data class LineDto(
     val key: String,
+    val variants: Int = 1,
     val occupations: List<String> = emptyList(),
     val kinship: List<String> = emptyList(),
     val terrain: List<String> = emptyList(),

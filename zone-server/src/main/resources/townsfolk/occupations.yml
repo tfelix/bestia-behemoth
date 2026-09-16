@@ -15,7 +15,7 @@
 # trade with no particular claim on any of the news, which is most of them.
 occupations:
   - id: guard
-    dialog: { greetings: 2, trade: 2 }
+    dialog: { greetings: 5, trade: 5 }
     business: barracks
     shift: { from: 6, to: 18 }
     # The only one. Everybody else makes for a doorway when a fight starts - see TownsfolkDomain.TAKE_SHELTER.
@@ -24,7 +24,7 @@ occupations:
       interests: [WAR_DECLARED, BATTLE, SIEGE, SETTLEMENT_SACKED, SETTLEMENT_RAZED, CONQUEST, FORT_BUILT]
 
   - id: priest
-    dialog: { greetings: 2, trade: 2 }
+    dialog: { greetings: 5, trade: 5 }
     business: temple
     shift: { from: 8, to: 18 }
     knowledge:
@@ -32,7 +32,7 @@ occupations:
                   SEER_VANISHED, STAR_FELL]
 
   - id: innkeeper
-    dialog: { greetings: 2, trade: 2 }
+    dialog: { greetings: 5, trade: 5 }
     business: inn
     # Open late, and so up late: an innkeeper on the commoner's bedtime would shut at ten every night.
     shift: { from: 10, to: 23 }
@@ -45,7 +45,7 @@ occupations:
 
   # No shop of their own. A town has these whether or not its roster has room for a trade.
   - id: farmer
-    dialog: { greetings: 2, trade: 2 }
+    dialog: { greetings: 5, trade: 5 }
     # The fields are outside the walls and the light is what decides, so this is the longest day in town.
     shift: { from: 6, to: 19 }
     rest: { from: 21, to: 5 }
@@ -54,14 +54,14 @@ occupations:
       interests: [FAMINE, FLOOD, PLAGUE, BLIGHT_SPREAD, ERUPTION]
 
   - id: labourer
-    dialog: { greetings: 2, trade: 2 }
+    dialog: { greetings: 5, trade: 5 }
     shift: { from: 7, to: 17 }
     knowledge:
       # Whoever dug it, hauled it or raised it. A labourer's claim is on what the town built.
       interests: [MINE_OPENED, MONUMENT_BUILT, SETTLEMENT_WALLED, LIGHTHOUSE_LIT]
 
   - id: beggar
-    dialog: { greetings: 2, trade: 2 }
+    dialog: { greetings: 5, trade: 5 }
     shift: { from: 9, to: 17 }
     knowledge:
       # On the street all day with nothing to do but watch, and nobody minds what they say near him.
@@ -69,7 +69,7 @@ occupations:
 
   # No shift at all, which is the case the WorkShift goal has to survive rather than a placeholder.
   - id: child
-    dialog: { greetings: 2, trade: 2 }
+    dialog: { greetings: 5, trade: 5 }
     rest: { from: 21, to: 7 }
     knowledge:
       # Half of what everyone else has, and the half is the point: asking a child is how a player learns
