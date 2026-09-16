@@ -66,10 +66,12 @@ namespace BestiaBehemothClient.Bnet.Message
 
     public override void _Process(double delta)
     {
+      NetLog.Tick();
+
       // Process any complete messages from the queue
       while (_messageQueue.TryDequeue(out Envelope envelope))
       {
-        GD.Print("BnetSocket RX: ", Describe(envelope));
+        NetLog.TraceRx(envelope);
 
         if (envelope.Disconnected != null)
         {
@@ -337,66 +339,6 @@ namespace BestiaBehemothClient.Bnet.Message
       }
     }
 
-    /// <summary>
-    /// A loggable description of an envelope.
-    /// </summary>
-    /// <remarks>
-    /// Protobuf's own <c>ToString</c> escapes every byte of a <c>bytes</c> field, so printing a chunk payload
-    /// that way turns three kilobytes of terrain into some fifteen kilobytes of log - per chunk, and a login
-    /// streams over a hundred of them. That is enough to stall the frame that prints it. Chunk-carrying
-    /// envelopes therefore get a summary, and the authentication token gets one for an unrelated reason;
-    /// everything else keeps the full dump it always had.
-    /// </remarks>
-    private static string Describe(Envelope envelope)
-    {
-      if (envelope.Authentication != null)
-      {
-        // A signed JWT that grants the whole account, and a log outlives the session it came from.
-        return $"Authentication(token {envelope.Authentication.Token.Length} chars, " +
-               $"client {envelope.Authentication.ClientVersion})";
-      }
-
-      if (envelope.ChunkData != null)
-      {
-        var chunk = envelope.ChunkData;
-        return $"ChunkData({chunk.Pos.X},{chunk.Pos.Y},{chunk.Pos.Z}) rev {chunk.Revision}, " +
-               $"{chunk.Payload.Length} B {chunk.Compression}";
-      }
-
-      if (envelope.ChunkPatch != null)
-      {
-        var patch = envelope.ChunkPatch;
-        return $"ChunkPatch({patch.Pos.X},{patch.Pos.Y},{patch.Pos.Z}) " +
-               $"rev {patch.FromRevision}->{patch.ToRevision}, {patch.Removals.Length} B";
-      }
-
-      if (envelope.ChunkManifest != null)
-      {
-        var manifest = envelope.ChunkManifest;
-        return $"ChunkManifest(reset={manifest.Reset}, +{manifest.Added.Count}, -{manifest.Removed.Count})";
-      }
-
-      if (envelope.ChunkGroundOverlay != null)
-      {
-        // 256 bytes of bitmask, and protobuf's own ToString escapes every byte of it - so over a kilobyte of
-        // log per send, several times a second per column for the length of a fire.
-        var overlay = envelope.ChunkGroundOverlay;
-        return $"ChunkGroundOverlay({overlay.Pos.X},{overlay.Pos.Y}) " +
-               $"{overlay.Scorched.Length}B scorched, {overlay.Burning.Length}B burning";
-      }
-
-      if (envelope.ChunkStaticEntities != null)
-      {
-        // A few hundred entries per chunk and one of these behind every chunk payload, so the default dump
-        // would put more log on the wire than the message carries. The same trap ChunkData already hit.
-        var statics = envelope.ChunkStaticEntities;
-        return $"ChunkStaticEntities({statics.Pos.X},{statics.Pos.Y},{statics.Pos.Z}) " +
-               $"{statics.Entries.Count} entries";
-      }
-
-      return envelope.ToString();
-    }
-
     public void SendMessage(ICMSG message)
     {
       var envelope = message.ToEnvelope();
@@ -628,12 +570,9 @@ namespace BestiaBehemothClient.Bnet.Message
         {
           // Decode the protobuf message
           Envelope envelope = Envelope.Parser.ParseFrom(messageBytes);
+          NetLog.CountRx(envelope.MessageCase, messageLength);
           _messageQueue.Enqueue(envelope);
-
-          if (_messageQueue.Count > 10)
-          {
-            GD.Print($"BnetSocket: Warning queue size is {_messageQueue.Count}");
-          }
+          NetLog.NoteQueueDepth(_messageQueue.Count);
         }
         catch (Exception ex)
         {
@@ -673,7 +612,8 @@ namespace BestiaBehemothClient.Bnet.Message
             _networkStream.Write(buffer, 0, buffer.Length);
             _networkStream.Flush();
 
-            GD.Print("BnetSocket TX: ", Describe(envelope));
+            NetLog.CountTx(envelope.MessageCase, messageBytes.Length);
+            NetLog.TraceTx(envelope);
           }
         }
         catch (Exception ex)
