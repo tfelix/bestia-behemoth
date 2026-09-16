@@ -122,7 +122,38 @@ data class VegetationParams(
    * canopy raster, the TIMBER resource and the biome-agreement invariant. This one gates entity
    * retention only and never reaches `VegetationStage`.
    */
-  val clumpWavelength: Double = 30.0
+  val clumpWavelength: Double = 30.0,
+
+  /**
+   * Metres of clear ground kept around every building.
+   *
+   * Six, because a house is about ten metres wide on a twelve-and-a-half-metre frontage, so six closes the
+   * gap to the neighbour on either side and the verge in front of the door, and leaves the middle of a
+   * market square open. This is what stops a tree growing between two houses.
+   */
+  val buildingYard: Double = 6.0,
+
+  /**
+   * Share of the trees kept on the open ground inside a settlement.
+   *
+   * Not zero: a town with no tree in it reads as a clearing with houses in it. What a quarter of them buys
+   * is that the market square and the green keep a few and the streets between the houses keep none, which
+   * together is what a town looks like from inside.
+   *
+   * Like [entityShare] and [clumpWavelength] this gates entity retention only. It cannot reach
+   * `CANOPY_COVER`, and not only by choice: `VegetationStage` runs at step 10 and settlements are placed at
+   * 15, with `ResourceStage` reading the canopy in between, so a dependency the other way is a cycle the
+   * pipeline would refuse to construct. The raster therefore keeps reporting the wood a town was built in,
+   * which is the honest kilometre-scale answer.
+   */
+  val townRetention: Double = 0.25,
+
+  /**
+   * Fraction of a settlement's graded radius over which [townRetention] eases in from the rim.
+   *
+   * A hard edge would print the grading disc into the forest around every town.
+   */
+  val townEdgeShare: Double = 0.45
 ) : Params {
 
   init {
@@ -144,6 +175,11 @@ data class VegetationParams(
     }
     require(crownAspect > 0.0) { "crownAspect must be positive, was $crownAspect" }
     require(entityShare > 0.0 && entityShare <= 1.0) { "entityShare must be in (0,1], was $entityShare" }
+    require(buildingYard >= 0.0) { "buildingYard must not be negative, was $buildingYard" }
+    require(townRetention in 0.0..1.0) { "townRetention must be in [0,1], was $townRetention" }
+    require(townEdgeShare > 0.0 && townEdgeShare <= 1.0) {
+      "townEdgeShare must be in (0,1], was $townEdgeShare"
+    }
     require(clumpWavelength > 0.0) { "clumpWavelength must be positive, was $clumpWavelength" }
   }
 
@@ -203,6 +239,9 @@ data class VegetationParams(
     .put("crownAspect", crownAspect)
     .put("entityShare", entityShare)
     .put("clumpWavelength", clumpWavelength)
+    .put("buildingYard", buildingYard)
+    .put("townRetention", townRetention)
+    .put("townEdgeShare", townEdgeShare)
 }
 
 /**
@@ -400,7 +439,7 @@ class VegetationScatter(
    * This briefly took a `thinToEntities` flag, while the voxel path still wanted the unthinned set. There is
    * one path now.
    */
-  private fun treeAt(cellX: Long, cellY: Long): Tree? {
+  private fun treeAt(cellX: Long, cellY: Long, retention: TreeRetention): Tree? {
     val key = GenRng.hash(treeSeed, cellX, cellY)
     val roll = GenRng.unit(key)
     // Cheap reject before the density field, sound only because densityAt is capped at the same value.
@@ -414,7 +453,11 @@ class VegetationScatter(
     // Judged where the trunk stands rather than at the cell centre: a tree jittered onto a river bank is on
     // the river bank.
     val density = densityAt(x, y)
-    val threshold = (density * params.entityShare * clumpAt(x, y)).coerceAtMost(density)
+    // Civilisation multiplies the retention rather than gating it separately, and against the *same* roll -
+    // so the trees a town keeps are a subset of the trees it would have had, and thinning one never moves
+    // the rest. See `TreeRetention`.
+    val threshold = (density * params.entityShare * clumpAt(x, y) * retention.retentionAt(x, y))
+      .coerceAtMost(density)
     if (roll >= threshold) return null
 
     val size = GenRng.unit(GenRng.mix64(key + 3))
@@ -456,7 +499,12 @@ class VegetationScatter(
    *   claimed the spot. The same set of questions [TrunkSite] answers for the voxel path, plus the ones
    *   only an entity needs - see `ChunkMaterializer.propSite`.
    */
-  fun propsIn(chunk: ChunkPos, site: PropSite, into: PropInstances) {
+  fun propsIn(
+    chunk: ChunkPos,
+    site: PropSite,
+    into: PropInstances,
+    retention: TreeRetention = TreeRetention.EVERYTHING
+  ) {
     val bounds = config.chunkBounds(chunk)
     val fromX = cellOf(bounds.minX)
     val untilX = cellOf(bounds.maxX) + 1
@@ -467,7 +515,7 @@ class VegetationScatter(
 
     for (cellY in fromY until untilY) {
       for (cellX in fromX until untilX) {
-        val tree = treeAt(cellX, cellY) ?: continue
+        val tree = treeAt(cellX, cellY, retention) ?: continue
 
         if (config.chunkOf(tree.x) != chunk.x) continue
         if (config.chunkOf(tree.y) != chunk.y) continue

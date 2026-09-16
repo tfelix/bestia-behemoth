@@ -372,6 +372,8 @@ class TownStructures(features: List<VectorFeature>, private val seed: Long) {
    * rectangle; this one answers a question about the ground *beside* a building - the yard, the verge, the
    * gap between two neighbours - which no feature describes because nothing is built on it.
    */
+  val hasBuildings: Boolean get() = buildings.isNotEmpty()
+
   fun nearBuilding(worldX: Double, worldY: Double, margin: Double): Boolean {
     for (structure in buildings) {
       if (structure.footprint.within(worldX, worldY, margin)) return true

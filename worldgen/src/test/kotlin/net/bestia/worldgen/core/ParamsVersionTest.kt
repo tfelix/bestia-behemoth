@@ -215,10 +215,11 @@ class ParamsVersionTest {
       "AlluviumParams" to -2_759_034_807_589_268_237L,
       "VolcanismParams" to -2_979_846_723_859_093_814L,
       "BiomeParams" to 2_575_683_307_830_781_540L,
-      // Moved by entityShare and clumpWavelength, which decide which trees become entities and change
-      // nothing the voxels or CANOPY_COVER see. Folded into the digest anyway, because VegetationParams
-      // reaches both tiers and a knob invisible to one of them is how they drift apart.
-      "VegetationParams" to -3_903_118_992_586_938_283L,
+      // Moved by entityShare and clumpWavelength, then by buildingYard, townRetention and townEdgeShare -
+      // all of them knobs on which trees become entities, none of them visible to the voxels or to
+      // CANOPY_COVER. Folded into the digest anyway, because VegetationParams reaches both tiers and a knob
+      // invisible to one of them is how they drift apart.
+      "VegetationParams" to 8_363_179_414_766_416_842L,
       "GradeMix" to -7_184_838_964_596_318_845L,
       // Moved when `ResourceParams.ore` arrived: per-ore abundance and candidate spacing are settable from a
       // params file now, and the digest folds the effective numbers so a file that changes one changes the
