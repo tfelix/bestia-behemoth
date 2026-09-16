@@ -69,8 +69,17 @@ class TownMetricsTest {
     )
   }
 
+  /**
+   * Median tangential share over the settlements that actually have suburbs.
+   *
+   * Hamlets are excluded, and they are two thirds of this world. `tangentialShare` only looks at street
+   * beyond `CORE_SHARE` of the tier's footprint radius - which is what makes it a statement about suburbs
+   * rather than about the core - and a hamlet's streets do not reach that far, so it reads zero for them by
+   * construction. Taking the median over all settlements therefore measured the hamlets, and returned 0.06:
+   * a number one rounding away from saying nothing at all, which is what it eventually said.
+   */
   private fun median(towns: List<TownMetrics.Measured>): Double {
-    val sorted = towns.map { it.tangentialShare }.sorted()
+    val sorted = towns.filter { it.tier <= SettlementTier.VILLAGE }.map { it.tangentialShare }.sorted()
     return sorted[sorted.size / 2]
   }
 }

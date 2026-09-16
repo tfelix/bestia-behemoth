@@ -16,6 +16,7 @@ import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.math.pow
 import kotlin.math.sin
 import kotlin.math.sqrt
 
@@ -525,10 +526,29 @@ data class StreetParams(
   /** Fraction of [boundaryAspect] the aspect is rolled either side of, per settlement. */
   val boundaryAspectJitter: Double = 0.21,
   /** Deepest a grown street may go, in segments. */
-  val maxDepth: Int = 9
+  val maxDepth: Int = 9,
+
+  /** Full carriageway of a rank-0 street - the arteries out of the market - in metres. */
+  val arterialWidth: Double = 12.0,
+
+  /**
+   * Full carriageway of a rank-[RANK_SPAN] street, in metres.
+   *
+   * **No street a town emits today has rank 3.** Growth stops branching at rank 2, cross streets are rank 1,
+   * the grid emits 0 to 2 and a patch outline is 2. So this sets where the ratio between the three ranks that
+   * do exist is anchored, rather than a width anything is stamped with. `StreetNetworkTest` pins both halves
+   * of that claim, so it stays a fact rather than a comment.
+   */
+  val laneWidth: Double = 5.2
 ) : Params {
 
   init {
+    require(laneWidth > 0.0) { "laneWidth must be positive, was $laneWidth" }
+    // An artery narrower than a lane inverts the interpolation, so the widest street in a town would be the
+    // one nobody uses. A params file will try it.
+    require(arterialWidth >= laneWidth) {
+      "arterialWidth $arterialWidth must be at least laneWidth $laneWidth"
+    }
     require(segmentLength > 0.0) { "segmentLength must be positive, was $segmentLength" }
     require(angleJitter >= 0.0) { "angleJitter must not be negative, was $angleJitter" }
     require(branchChance in 0.0..1.0) { "branchChance must be in [0,1], was $branchChance" }
@@ -584,11 +604,19 @@ data class StreetParams(
    * carriageway, and the subdivision that sets a plot back from the kerb. When those disagreed, a block
    * either overlapped the carriageway or left a gap along every artery in the town.
    */
-  fun halfWidthOfRank(rank: Int): Double = when (rank) {
-    0 -> 3.2
-    1 -> 2.4
-    2 -> 1.7
-    else -> 1.3
+  fun halfWidthOfRank(rank: Int): Double = widthOfRank(rank) * 0.5
+
+  /**
+   * Full carriageway of a street of this rank, in metres.
+   *
+   * Geometric between [arterialWidth] and [laneWidth] rather than a table of four numbers, because what a
+   * reader needs to choose is how grand the high street is and how tight a lane may get; the ranks between
+   * them are a consequence, not a decision. Geometric rather than linear so each step down is the same
+   * *proportion*, which is how the hierarchy reads from above.
+   */
+  fun widthOfRank(rank: Int): Double {
+    val step = rank.coerceIn(0, RANK_SPAN).toDouble() / RANK_SPAN
+    return arterialWidth * (laneWidth / arterialWidth).pow(step)
   }
 
   /** This, with any of [source]'s keys applied. Reached as `town.streets.*`, since [TownParams] owns it. */
@@ -607,7 +635,9 @@ data class StreetParams(
     boundaryLobes = source.double("boundaryLobes", boundaryLobes),
     boundaryAspect = source.double("boundaryAspect", boundaryAspect),
     boundaryAspectJitter = source.double("boundaryAspectJitter", boundaryAspectJitter),
-    maxDepth = source.int("maxDepth", maxDepth)
+    maxDepth = source.int("maxDepth", maxDepth),
+    arterialWidth = source.double("arterialWidth", arterialWidth),
+    laneWidth = source.double("laneWidth", laneWidth)
   )
 
   override fun digest() = ParamsDigest()
@@ -626,6 +656,13 @@ data class StreetParams(
     .put("boundaryAspect", boundaryAspect)
     .put("boundaryAspectJitter", boundaryAspectJitter)
     .put("maxDepth", maxDepth)
+    .put("arterialWidth", arterialWidth)
+    .put("laneWidth", laneWidth)
+
+  companion object {
+    /** Rank at which [laneWidth] is reached. See that field: nothing a town emits actually reaches it. */
+    const val RANK_SPAN = 3
+  }
 }
 
 /**

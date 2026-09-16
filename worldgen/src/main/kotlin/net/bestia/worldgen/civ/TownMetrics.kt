@@ -246,7 +246,7 @@ object TownMetrics {
    */
   private const val CORE_SHARE = 0.55
 
-  /** Metres of width two streets may differ by and still count as the same class. Widths differ by 0.7 m. */
+  /** Metres of width two streets may differ by and still count as the same class. Ranks differ by 1.67 m or more. */
   private const val WIDTH_TOLERANCE = 0.2
 
 }
