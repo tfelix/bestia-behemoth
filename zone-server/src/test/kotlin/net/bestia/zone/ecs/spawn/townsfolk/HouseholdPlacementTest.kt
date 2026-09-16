@@ -46,6 +46,9 @@ class HouseholdPlacementTest {
       building(propId = 50, BuildingFunction.CRAFT, at = 500.0, businessType = potter),
       building(propId = 60, BuildingFunction.CRAFT, at = 600.0, businessType = potter),
       building(propId = 70, BuildingFunction.FARM, at = 700.0),
+      building(propId = 80, BuildingFunction.RESIDENCE, at = 800.0),
+      building(propId = 90, BuildingFunction.RESIDENCE, at = 900.0),
+      building(propId = 100, BuildingFunction.RESIDENCE, at = 1000.0),
     )
   )
 
@@ -65,13 +68,13 @@ class HouseholdPlacementTest {
   }
 
   @Test
-  fun `houses are handed out in a fixed order, and the list wraps`() {
-    // Residence doors are at x=100, 200 and 300, and the site sorts by propId - which is 10, 20, 30 - so
-    // the order is by door. That order is what makes household 0 come home to the same house tomorrow.
+  fun `houses are handed out in a fixed order, and run out`() {
+    // Residence doors are at x=100..300 and 800..1000, and the site sorts by propId - which is ascending
+    // with x - so the order is by door. That is what makes household 0 come home to the same house tomorrow.
     assertEquals(100L, homeX(household = 0))
     assertEquals(200L, homeX(household = 1))
-    assertEquals(300L, homeX(household = 2))
-    assertEquals(100L, homeX(household = 3), "with three houses and twelve households, house one takes lodgers")
+    assertEquals(1000L, homeX(household = 5))
+    assertNull(sut.of(SETTLEMENT, 6), "with six houses and twelve households, the seventh lives nowhere")
   }
 
   @Test
