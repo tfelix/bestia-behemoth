@@ -61,7 +61,9 @@ class ClientMessageHandler(
       val messageRx = MessageEnvelopeReceivedEvent(this, currentAccountId, msg)
       handlerCtx.applicationEventPublisher.publishEvent(messageRx)
     } else {
-      LOG.debug { "RX client $connectionUuid - ${ctx.channel().remoteAddress()}: $msg" }
+      // The only message expected before authentication is the authentication itself, and it carries the
+      // login token - so this names the type and leaves the payload alone.
+      LOG.debug { "RX client $connectionUuid - ${ctx.channel().remoteAddress()}: ${msg.messageCase}" }
       authenticateChannel(ctx, msg)
     }
   }
