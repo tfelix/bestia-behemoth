@@ -2,7 +2,9 @@ package net.bestia.zone.dialog.conversation
 
 import net.bestia.worldgen.core.GenRng
 import net.bestia.worldgen.history.Names
+import net.bestia.worldgen.pop.BusinessCatalogue
 import net.bestia.worldgen.pop.Households
+import net.bestia.worldgen.pop.Kinship
 import net.bestia.zone.ai.knowledge.ChronicleNames
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.spawn.townsfolk.HouseholdPlacement
@@ -53,6 +55,10 @@ class SpeakerResolver(
       household = household,
       name = Names.townsperson(seed, culture),
       occupation = placement.occupationFor(expanded, person),
+      // A child keeps no trade whatever the household does, exactly as `occupationFor` decides.
+      business = expanded.business
+        .takeIf { it >= 0 && person.kinship != Kinship.CHILD }
+        ?.let { BusinessCatalogue.ALL[it].id },
       member = person,
       seed = seed,
     )

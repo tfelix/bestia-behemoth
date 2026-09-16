@@ -45,9 +45,36 @@ NAME_UNKNOWN_PLACE,a place nobody named
 NAME_UNKNOWN_CIV,old ones nobody named
 NAME_UNKNOWN_FIGURE,somebody nobody named
 NAME_UNKNOWN_ARTIFACT,a thing nobody named
-TRADE_GUARD,watch
-TRADE_PRIEST,temple
-TRADE_INNKEEPER,inn
+TRADE_ALCHEMIST,alchemy workshop
+TRADE_APOTHECARY,apothecary
+TRADE_ARMOURER,armoury
+TRADE_BAKER,bakery
+TRADE_BANKER,counting house
+TRADE_BARRACKS,watch
+TRADE_BLACKSMITH,forge
+TRADE_BOOKBINDER,book bindery
+TRADE_BREWER,brewery
+TRADE_BUTCHER,butchery
+TRADE_CARPENTER,carpenter's workshop
+TRADE_CHARCOALER,charcoal pits
+TRADE_DYER,dye works
+TRADE_FISHMONGER,fish stall
+TRADE_GENERAL_STORE,general store
+TRADE_HEALER,healer's house
+TRADE_INN,inn
+TRADE_JEWELLER,jeweller's workshop
+TRADE_MARKET_TRADER,market stall
+TRADE_MASON,stone yard
+TRADE_MILLER,mill
+TRADE_POTTER,pottery
+TRADE_SCRIBE,writing room
+TRADE_SHIPWRIGHT,shipyard
+TRADE_STABLE,stable
+TRADE_TAILOR,tailor's shop
+TRADE_TANNER,tannery
+TRADE_TEMPLE,temple
+TRADE_VINTNER,wine press
+TRADE_WEAVER,weaving shed
 TRADE_FARMER,fields
 TRADE_LABOURER,work
 TRADE_BEGGAR,corner

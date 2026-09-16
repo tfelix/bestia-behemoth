@@ -22,6 +22,14 @@ class Speaker(
   val household: Int,
   val name: String,
   val occupation: Occupation,
+  /**
+   * The household's trade, as a `BusinessType.id`, or null for a household that keeps none.
+   *
+   * Beside [occupation] rather than folded into it, because the two are different questions and only
+   * six occupations exist: a baker, a mason and a tanner are all the `labourer` occupation, and without
+   * this they would all tell the player the same thing about what they do.
+   */
+  val business: String?,
   val member: Member,
   val seed: Long,
 )
