@@ -57,7 +57,10 @@ class ClientMessageHandler(
   override fun channelRead0(ctx: ChannelHandlerContext, msg: EnvelopeProto.Envelope) {
     val currentAccountId = accountId
     if (currentAccountId != null) {
-      LOG.debug { "RX player $currentAccountId: $msg" }
+      if (LOG.isTraceEnabled() && handlerCtx.logFilter.allows(msg)) {
+        LOG.trace { "RX player $currentAccountId: $msg" }
+      }
+
       val messageRx = MessageEnvelopeReceivedEvent(this, currentAccountId, msg)
       handlerCtx.applicationEventPublisher.publishEvent(messageRx)
     } else {
