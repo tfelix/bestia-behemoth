@@ -114,9 +114,18 @@ namespace BestiaBehemothClient.Game.World.Mesh
     /// </summary>
     /// <remarks>
     /// Separate from <see cref="ColumnMask"/> because <b>the interface between ground and a fluid is drawn once,
-    /// by the terrain pass.</b> It bounds both volumes, so marking it for every pass would have the water and the
-    /// lava each emit an underside exactly where the bed they stand on is already being drawn - two coincident
-    /// sheets, which reads as a double-blended sheet of water and as z-fighting under an opaque pool.
+    /// by the terrain pass.</b> It bounds both volumes, so drawing it from every pass would have the water and
+    /// the lava each emit an underside exactly where the bed they stand on is already being drawn - two
+    /// coincident sheets, which reads as a double-blended sheet of water and as z-fighting under an opaque pool.
+    ///
+    /// <para>
+    /// <b>Both sides are material, never air</b>, and that is what lets a fluid pass <i>subtract</i> this rather
+    /// than merely not add it - see <see cref="TerrainPatch.ActiveMask"/>, which has to subtract, and
+    /// <c>TerrainPatch._activeFluid</c> for why. A fluid/air boundary is the fluid's own top sheet; marking it
+    /// here as well would be harmless to a reader that only ever ORs the two masks together and fatal to one
+    /// that does not, because the shallows are exactly where the two boundaries fall within a cell of each
+    /// other.
+    /// </para>
     /// </remarks>
     public ReadOnlySpan<ulong> MaterialColumnMask(int localX, int localY) =>
       _material == null ? default : _material.AsSpan((localY * Size + localX) * Words, Words);
@@ -187,7 +196,13 @@ namespace BestiaBehemothClient.Game.World.Mesh
           var rest = blockStrip.Slice(z).IndexOfAnyExcept(blockStrip[z]);
           var next = rest < 0 ? height : z + rest;
 
-          if (next < height && appearance.SurfaceOf(blockStrip[z]) != appearance.SurfaceOf(blockStrip[next]))
+          // Air is excluded by the occupancy test rather than by an id comparison, and the two are the same
+          // test: occupancy is zero exactly where the block is air. An undeclared id reads as Terrain, so air
+          // over water would otherwise enter this mask as a ground/fluid boundary and take the sea's own top
+          // sheet out with it.
+          if (next < height
+              && occupancyStrip[z] != 0 && occupancyStrip[next] != 0
+              && appearance.SurfaceOf(blockStrip[z]) != appearance.SurfaceOf(blockStrip[next]))
           {
             material ??= new ulong[size * size * words];
             Mark(material, wordBase, height, next);

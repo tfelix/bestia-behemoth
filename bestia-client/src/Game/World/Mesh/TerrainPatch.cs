@@ -53,17 +53,32 @@ namespace BestiaBehemothClient.Game.World.Mesh
 
     private readonly byte[] _blocks;
     private readonly byte[] _occupancy;
-    private readonly ulong[] _active;
 
     /// <summary>
-    /// <see cref="_active"/> with the solid/fluid boundaries folded in, which only the terrain pass draws.
+    /// The occupancy boundaries with the solid/fluid ones folded in, which only the terrain pass draws.
     /// </summary>
     /// <remarks>
-    /// Merged once here rather than per column in the mesher's own loop, and aliased to <see cref="_active"/>
-    /// outright on a patch with no such boundary - which is most of them. See
-    /// <see cref="ChunkBands.MaterialColumnMask"/> for why the two are kept apart at all.
+    /// Merged once here rather than per column in the mesher's own loop, and aliased to the plain occupancy
+    /// mask outright on a patch with no such boundary - which is most of them. See
+    /// <see cref="ChunkBands.MaterialColumnMask"/> for why the two kinds are kept apart at all.
     /// </remarks>
     private readonly ulong[] _activeTerrain;
+
+    /// <summary>
+    /// The same occupancy boundaries with the solid/fluid ones taken back <i>out</i>, for the fluid passes.
+    /// </summary>
+    /// <remarks>
+    /// <b>Subtracted, not merely left unadded, and the difference is every shoreline in the world.</b> A mask
+    /// decides which cells a pass <i>visits</i>; it has never decided which crossings a pass may draw. The
+    /// ground is masked out of the fluid field, so the bed under a fluid is a genuine sign change <i>for the
+    /// fluid pass too</i> - and the bed cell is reachable from the occupancy mask alone wherever the water
+    /// above it is about a voxel deep, because <see cref="ChunkBands"/> reaches one cell either side of a
+    /// boundary and its horizontal-face pass reaches one cell below an occupancy step. Which is to say: on
+    /// every beach. The water was given an underside exactly on top of the sea floor the terrain pass had just
+    /// drawn - two coincident sheets, so a doubly blended sea z-fighting the opaque bed, drawn from different
+    /// cells and therefore triangulated differently. That is what the triangles along a shoreline were.
+    /// </remarks>
+    private readonly ulong[] _activeFluid;
 
     /// <summary>Cells per horizontal axis, apron included.</summary>
     public int Width { get; }
@@ -96,7 +111,7 @@ namespace BestiaBehemothClient.Game.World.Mesh
     private TerrainPatch(
       ChunkKey key, int size, int height, int width, int depth, int words,
       int quadZLo, int quadZHi,
-      byte[] blocks, byte[] occupancy, ulong[] active, ulong[] activeTerrain,
+      byte[] blocks, byte[] occupancy, ulong[] activeTerrain, ulong[] activeFluid,
       ChunkKey[] missingNeighbours)
     {
       Key = key;
@@ -109,8 +124,8 @@ namespace BestiaBehemothClient.Game.World.Mesh
       QuadZHi = quadZHi;
       _blocks = blocks;
       _occupancy = occupancy;
-      _active = active;
       _activeTerrain = activeTerrain;
+      _activeFluid = activeFluid;
       MissingNeighbours = missingNeighbours;
     }
 
@@ -146,7 +161,7 @@ namespace BestiaBehemothClient.Game.World.Mesh
 
       for (var word = 0; word < Words; word++)
       {
-        if (_active[column + word] != 0)
+        if (_activeTerrain[column + word] != 0)
         {
           return true;
         }
@@ -156,12 +171,13 @@ namespace BestiaBehemothClient.Game.World.Mesh
     }
 
     /// <summary>The active bits of one padded column, indexed by patch z.</summary>
-    /// <param name="withMaterialBoundaries">
-    /// Whether the solid/fluid interface counts as active. True for the terrain pass, which is the one that draws
-    /// it, and false for the fluid passes, which would otherwise emit an underside coincident with it.
+    /// <param name="drawsTheBed">
+    /// Whether this pass is the one that draws the solid/fluid interface. True for the terrain pass, which has
+    /// those cells added; false for the fluid passes, which have them removed - see <see cref="_activeFluid"/>
+    /// for why removing them is not the same as never adding them.
     /// </param>
-    public ReadOnlySpan<ulong> ActiveMask(int localX, int localY, bool withMaterialBoundaries) =>
-      (withMaterialBoundaries ? _activeTerrain : _active)
+    public ReadOnlySpan<ulong> ActiveMask(int localX, int localY, bool drawsTheBed) =>
+      (drawsTheBed ? _activeTerrain : _activeFluid)
         .AsSpan(((localY + ApronLow) * Width + (localX + ApronLow)) * Words, Words);
 
     /// <summary>Converts a patch-z bit index back to a chunk-local cell index.</summary>
@@ -319,11 +335,11 @@ namespace BestiaBehemothClient.Game.World.Mesh
       }
 
       var active = Dilate(raw, width, words);
-      var activeTerrain = MergeMaterial(active, rawMaterial, width, words);
+      var (activeTerrain, activeFluid) = SplitMaterial(active, rawMaterial, width, words);
 
       return new TerrainPatch(
         key, size, height, width, depth, words, quadZLo, quadZHi,
-        blocks, occupancy, active, activeTerrain, missing.ToArray());
+        blocks, occupancy, activeTerrain, activeFluid, missing.ToArray());
     }
 
     /// <summary>
@@ -452,17 +468,15 @@ namespace BestiaBehemothClient.Game.World.Mesh
     }
 
     /// <summary>
-    /// Spreads each column's active bits into its eight horizontal neighbours.
+    /// <paramref name="active"/> with the dilated solid/fluid boundaries added, and with them removed.
     /// </summary>
     /// <remarks>
-    /// A cell's corners average in the cells diagonally beside it, so a crossing can appear in a column whose own
-    /// occupancy never changes - which is exactly what a cliff face is. Without this the vertical faces of every
-    /// step in the terrain would be missing.
+    /// Dilated once and spent twice, because the two kinds of pass want the same cells with opposite signs. The
+    /// aliasing when a patch holds no such boundary is worth keeping rather than tidying into the loop: most of
+    /// the world is dry, and a dry patch then allocates nothing here at all.
     /// </remarks>
-    /// <summary>
-    /// <paramref name="active"/> with the dilated solid/fluid boundaries folded in, or itself where there are none.
-    /// </summary>
-    private static ulong[] MergeMaterial(ulong[] active, ulong[] rawMaterial, int width, int words)
+    private static (ulong[] Terrain, ulong[] Fluid) SplitMaterial(
+      ulong[] active, ulong[] rawMaterial, int width, int words)
     {
       var any = false;
       foreach (var word in rawMaterial)
@@ -478,20 +492,30 @@ namespace BestiaBehemothClient.Game.World.Mesh
 
       if (!any)
       {
-        return active;
+        return (active, active);
       }
 
       var dilated = Dilate(rawMaterial, width, words);
-      var merged = new ulong[active.Length];
+      var terrain = new ulong[active.Length];
+      var fluid = new ulong[active.Length];
 
-      for (var i = 0; i < merged.Length; i++)
+      for (var i = 0; i < terrain.Length; i++)
       {
-        merged[i] = active[i] | dilated[i];
+        terrain[i] = active[i] | dilated[i];
+        fluid[i] = active[i] & ~dilated[i];
       }
 
-      return merged;
+      return (terrain, fluid);
     }
 
+    /// <summary>
+    /// Spreads each column's active bits into its eight horizontal neighbours.
+    /// </summary>
+    /// <remarks>
+    /// A cell's corners average in the cells diagonally beside it, so a crossing can appear in a column whose own
+    /// occupancy never changes - which is exactly what a cliff face is. Without this the vertical faces of every
+    /// step in the terrain would be missing.
+    /// </remarks>
     private static ulong[] Dilate(ulong[] raw, int width, int words)
     {
       var dilated = new ulong[raw.Length];

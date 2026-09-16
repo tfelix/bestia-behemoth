@@ -199,6 +199,68 @@ namespace BestiaBehemothClient.Tests
     }
 
     /// <summary>
+    /// A beach: ground crossing a level waterline, written the way <c>ChunkMaterializer</c> writes one.
+    /// </summary>
+    /// <remarks>
+    /// <see cref="Submerged"/> is a flat sea bed, and a flat sea bed is the easy half of this. The hard half is
+    /// the strip where the materialiser's two fill rules meet. Ground under a fluid is quantised to whole voxels
+    /// by the centre rule, and ground under air carries its fraction by the fill rule, so between the two lies a
+    /// band - a couple of metres of beach wide - where the water stands exactly one full voxel deep. That band
+    /// is every shoreline in the world, and it is the only place a fluid's top sheet and the bed under it come
+    /// within a cell of each other.
+    ///
+    /// <para>
+    /// Faithful down to the rounding, which is the point of writing it out rather than approximating it. A
+    /// column whose water would be thinner than a voxel gets no fluid voxel at all, and then its topmost ground
+    /// voxel is filled to the ground rather than to the waterline - otherwise a player would be walking on the
+    /// surface of a puddle.
+    /// </para>
+    /// </remarks>
+    internal static VoxelChunk Shore(int chunkX, int chunkY, Func<int, int, double> ground, double waterline)
+    {
+      var blocks = new byte[Size * Size * Height];
+      var occupancy = new byte[Size * Size * Height];
+
+      for (var localY = 0; localY < Size; localY++)
+      {
+        for (var localX = 0; localX < Size; localX++)
+        {
+          var offset = (localY * Size + localX) * Height;
+          var top = ground(chunkX * Size + localX, chunkY * Size + localY);
+          var submerged = waterline > top;
+
+          // The materialiser's two rules, under their own names there: highestVoxelAtOrBelow for a boundary
+          // inside the ground, topFilledVoxel for the one against air.
+          var capTop = submerged ? (int)Math.Floor(top - 0.5) : (int)Math.Ceiling(top) - 1;
+          var fluidTop = submerged ? (int)Math.Ceiling(waterline) - 1 : (int)Math.Floor(waterline - 0.5);
+
+          for (var z = 0; z <= capTop; z++)
+          {
+            blocks[offset + z] = Sand;
+          }
+
+          for (var z = capTop + 1; z <= fluidTop; z++)
+          {
+            blocks[offset + z] = Water;
+          }
+
+          var cursor = Math.Max(capTop, fluidTop) + 1;
+
+          for (var z = 0; z < cursor; z++)
+          {
+            occupancy[offset + z] = 255;
+          }
+
+          // Whichever elevation actually bounds the topmost voxel written: the waterline where a fluid voxel was
+          // written at all, and the ground itself where the water rounded away.
+          occupancy[offset + cursor - 1] = Quantise((fluidTop > capTop ? waterline : top) - (cursor - 1));
+        }
+      }
+
+      return new VoxelChunk(chunkX, chunkY, 0, Size, Height, blocks, occupancy);
+    }
+
+    /// <summary>
     /// How deep the surface cover goes in <see cref="Capped"/>, in whole voxels below the partial one.
     /// </summary>
     /// <remarks>
