@@ -143,11 +143,23 @@ class FootprintFeature(
   }
 
   /** True when the world position lies inside the rectangle proper, ignoring the skirt. */
-  fun contains(x: Double, y: Double): Boolean {
+  fun contains(x: Double, y: Double): Boolean = within(x, y, 0.0)
+
+  /**
+   * True within [margin] metres of the rectangle, measured along its own axes.
+   *
+   * For asking about **clearance around** a building rather than about the building - the ground a yard or a
+   * verge occupies, which no feature describes because nothing builds on it. [contains] is this with a margin
+   * of zero.
+   *
+   * Nothing that writes blocks may use this. Where masonry goes is decided by the rectangle itself, and a
+   * caller that widened the footprint to leave a tree room would move the wall instead.
+   */
+  fun within(x: Double, y: Double, margin: Double): Boolean {
     val dx = x - center.x
     val dy = y - center.y
-    return abs(dx * bearing.x + dy * bearing.y) <= halfLength &&
-        abs(dx * normal.x + dy * normal.y) <= halfWidth
+    return abs(dx * bearing.x + dy * bearing.y) <= halfLength + margin &&
+        abs(dx * normal.x + dy * normal.y) <= halfWidth + margin
   }
 
   fun channel(name: String): Int = table().channel(name)
