@@ -44,6 +44,7 @@ import net.bestia.worldgen.vector.FeatureId
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.FootprintFeature
 import net.bestia.worldgen.vector.MarkerFeature
+import net.bestia.worldgen.vector.PointFeature
 import net.bestia.worldgen.vector.PointMarker
 import net.bestia.worldgen.voxel.PropKind
 import net.bestia.worldgen.vector.PolylineFeature
@@ -275,6 +276,7 @@ object Invariants {
     checkVegetationStandsAreWooded(generated, ::fail)
     checkVegetationStandsAdvertiseFillableCapacity(generated, ::fail)
     checkPropsAreWellPlaced(generated, ::fail)
+    checkTownsAreNotForests(generated, ::fail)
     checkPoisBecomeProps(generated, ::fail)
     checkDistrictsHoldTheirBuildings(generated, ::fail)
     checkBuiltTownsHaveStreets(generated, ::fail)
@@ -1096,6 +1098,15 @@ object Invariants {
   private const val CAPACITY_MAX_RATIO = 2.5
 
   /** Chunks sampled per axis when checking prop placement. Each one is a full column-heights build. */
+  /**
+   * Trees per chunk a town may hold, as a share of the open country beside it.
+   *
+   * Loose on purpose. The ground a town was built on is habitable, which correlates with being wooded, so
+   * the two samples are not like for like and the tuning is not what is being asserted. `townRetention` is
+   * a quarter, so anything near one means the thinning is not running at all.
+   */
+  private const val TOWN_TREE_SHARE = 0.8
+
   private const val PROP_PLACEMENT_SAMPLES = 6
 
   /**
@@ -3059,6 +3070,74 @@ object Invariants {
    * and worse: the symptom was a millimetre-scale height difference reported under a message accusing the
    * heightfield, which is the wrong place to go looking.
    */
+  /**
+   * A town is thinner of trees than the country around it.
+   *
+   * The tripwire for the whole of `SettlementCover`, every part of which is easy to leave switched off
+   * without a test noticing: the grading discs are looked up by kind, the yard is a margin that could be
+   * zero, and the work is skipped outright for a chunk with no settlement near it. A chunk tier that
+   * quietly stopped thinning would look exactly like one that never started.
+   *
+   * Measured against the **largest settlement in the world** rather than a sampled one, because a hamlet
+   * covers a few chunks and the counts would be noise. Compared with a wide margin: what is asserted is
+   * that civilisation is visible in the tree count at all, not where the tuning sits.
+   */
+  private fun checkTownsAreNotForests(generated: GeneratedWorld, fail: (String, String) -> Unit) {
+    if (generated.world.layers[LayerId.CANOPY_COVER] == null) return
+
+    val town = generated.world.features.all()
+      .filterIsInstance<PointFeature>()
+      .filter { it.kind == FeatureKind.SETTLEMENT_GRADING }
+      .maxByOrNull { it.radius } ?: return
+
+    val extent = generated.config.chunkExtent
+    val centreX = (town.center.x / extent).toInt()
+    val centreY = (town.center.y / extent).toInt()
+    // The inner half, so the ramp at the rim is not counted as town.
+    val span = ((town.radius * 0.5) / extent).toInt()
+    if (span <= 0) return
+
+    var inside = 0
+    var insideChunks = 0
+    for (chunkY in centreY - span..centreY + span) {
+      for (chunkX in centreX - span..centreX + span) {
+        inside += treesIn(generated, chunkX, chunkY)
+        insideChunks++
+      }
+    }
+
+    // The same area of ground, well clear of the graded disc.
+    val away = ((town.radius * 1.6) / extent).toInt() + 1
+    var outside = 0
+    var outsideChunks = 0
+    for (chunkY in centreY - span..centreY + span) {
+      for (chunkX in centreX + away..centreX + away + 2 * span) {
+        outside += treesIn(generated, chunkX, chunkY)
+        outsideChunks++
+      }
+    }
+
+    // No trees outside either means this town stands in open country, and the comparison says nothing.
+    if (insideChunks == 0 || outsideChunks == 0 || outside == 0) return
+
+    val insidePer = inside.toDouble() / insideChunks
+    val outsidePer = outside.toDouble() / outsideChunks
+    if (insidePer > outsidePer * TOWN_TREE_SHARE) {
+      fail(
+        "a town is thinner of trees than the country around it",
+        "the largest settlement holds %.1f trees per chunk against %.1f outside it - the chunk tier is not "
+            .format(insidePer, outsidePer) + "thinning the ground a town stands on"
+      )
+    }
+  }
+
+  private fun treesIn(generated: GeneratedWorld, chunkX: Int, chunkY: Int): Int {
+    val props = generated.propsIn(chunkX, chunkY)
+    var trees = 0
+    for (i in props.indices) if (props.kindAt(i) == PropKind.TREE) trees++
+    return trees
+  }
+
   private fun checkPropsAreWellPlaced(generated: GeneratedWorld, fail: (String, String) -> Unit) {
     if (generated.world.layers[LayerId.CANOPY_COVER] == null) return
 
