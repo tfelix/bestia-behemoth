@@ -89,7 +89,8 @@ class ConversationService(
    */
   private fun greeting(speaker: Speaker): Line {
     return Line(
-      ConversationKeys.GREETING,
+      ConversationKeys.GREETING_PREFIX + speaker.occupation.id.uppercase() + "_" +
+        ConversationVariants.of(speaker, ConversationVariants.GREETING, speaker.occupation.dialog.greetings),
       mapOf(ConversationKeys.SLOT_NAME to DialogArg.Name(speaker.name))
     )
   }

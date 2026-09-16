@@ -25,7 +25,6 @@ When you open your Skills window. The first entry there is [b]Basic Skill[/b].
 Every level you gain is one point to put into the skill tree."
 DIALOG_3_TITLE,Workbench
 DIALOG_3_TEXT,"A sturdy workbench, freshly raised. There is nothing to make here yet."
-TALK_GREETING,"{name} looks up as you approach."
 TALK_FAREWELL,Nothing for now.
 TALK_GOODBYE,Mind how you go.
 TALK_BACK,Something else.
@@ -45,6 +44,35 @@ NAME_UNKNOWN_PLACE,a place nobody named
 NAME_UNKNOWN_CIV,old ones nobody named
 NAME_UNKNOWN_FIGURE,somebody nobody named
 NAME_UNKNOWN_ARTIFACT,a thing nobody named
+TALK_GREETING_GUARD_1,"{name} watches you come the whole way in."
+TALK_GREETING_GUARD_2,"{name} looks you over and does not move."
+TALK_GREETING_PRIEST_1,"{name} sets something down and turns to you."
+TALK_GREETING_PRIEST_2,"{name} waits, as though there were all day."
+TALK_GREETING_INNKEEPER_1,"{name} wipes both hands and looks up. 'What will it be?'"
+TALK_GREETING_INNKEEPER_2,"{name} is already talking before you reach the counter."
+TALK_GREETING_FARMER_1,"{name} straightens up slowly and squints at you."
+TALK_GREETING_FARMER_2,"{name} keeps one eye on the weather while you speak."
+TALK_GREETING_LABOURER_1,"{name} puts the load down. It looks like a relief."
+TALK_GREETING_LABOURER_2,"{name} nods at you without stopping work."
+TALK_GREETING_BEGGAR_1,"{name} looks up quickly, then looks less hopeful."
+TALK_GREETING_BEGGAR_2,"{name} has been watching you since the corner."
+TALK_GREETING_CHILD_1,"{name} stares at you without blinking."
+TALK_GREETING_CHILD_2,"{name} appears at your elbow from nowhere."
+TALK_TRADE_ASK,What is it you do here?
+TALK_TRADE_GUARD_1,"The {trade}. Walk it, stand in it, walk it again."
+TALK_TRADE_GUARD_2,"I keep the {trade}. Most days that means being seen and nothing else."
+TALK_TRADE_PRIEST_1,"The {trade} is mine to keep. People come when they need to."
+TALK_TRADE_PRIEST_2,"I keep the {trade}. Somebody has to, and nobody else offered."
+TALK_TRADE_INNKEEPER_1,"The {trade}. Beds, beer, and listening to people who have had both."
+TALK_TRADE_INNKEEPER_2,"I keep the {trade}. You hear everything twice and half of it is true."
+TALK_TRADE_FARMER_1,"The {trade}, same as my father. The work does not change much."
+TALK_TRADE_FARMER_2,"I work the {trade}. Ask me again after harvest and I may be happier."
+TALK_TRADE_LABOURER_1,"The {trade}, mostly. Some weeks that is stone, some weeks it is sacks."
+TALK_TRADE_LABOURER_2,"Whatever the {trade} wants doing. I am not fussy and it does not ask."
+TALK_TRADE_BEGGAR_1,"The {trade} is what I have. It is not much of a trade."
+TALK_TRADE_BEGGAR_2,"I sit. People walk past. That is the whole of it."
+TALK_TRADE_CHILD_1,"{trade}. That is what they tell me when I ask, anyway."
+TALK_TRADE_CHILD_2,"Nothing yet. I am meant to be helping but I am not."
 TRADE_ALCHEMIST,alchemy workshop
 TRADE_APOTHECARY,apothecary
 TRADE_ARMOURER,armoury

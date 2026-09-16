@@ -8,7 +8,14 @@ package net.bestia.zone.dialog.conversation
  */
 object ConversationKeys {
 
-  const val GREETING = "TALK_GREETING"
+  /**
+   * A prefix, not a key: the occupation and the variant follow, as `TALK_GREETING_GUARD_2`.
+   *
+   * Per trade because the opening line is the one every conversation shows, so it is where sameness is
+   * felt first - and per variant because two guards in one town greeting a player identically is the
+   * same complaint one step further in.
+   */
+  const val GREETING_PREFIX = "TALK_GREETING_"
   const val FAREWELL = "TALK_FAREWELL"
   const val GOODBYE = "TALK_GOODBYE"
   const val BACK = "TALK_BACK"
@@ -18,6 +25,11 @@ object ConversationKeys {
 
   const val NEWS_ASK = "TALK_NEWS_ASK"
   const val NEWS_NONE = "TALK_NEWS_NONE"
+
+  const val TRADE_ASK = "TALK_TRADE_ASK"
+
+  /** A prefix, as [GREETING_PREFIX] is: `TALK_TRADE_LABOURER_1`. */
+  const val TRADE_LINE_PREFIX = "TALK_TRADE_"
 
   const val SHOP_BUY_ASK = "TALK_SHOP_BUY_ASK"
   const val SHOP_SELL_ASK = "TALK_SHOP_SELL_ASK"

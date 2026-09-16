@@ -99,7 +99,13 @@ abstract class DialogDbSyncTask : DefaultTask() {
 
   private data class RumourFile(val rumours: Map<String, HistoryLineDto> = emptyMap())
 
-  private data class OccupationDto(val id: String = "", val business: String? = null)
+  private data class OccupationDialogDto(val greetings: Int = 1, val trade: Int = 1)
+
+  private data class OccupationDto(
+    val id: String = "",
+    val business: String? = null,
+    val dialog: OccupationDialogDto? = null,
+  )
 
   private data class OccupationsFile(
     val occupations: List<OccupationDto> = emptyList(),
@@ -360,6 +366,50 @@ abstract class DialogDbSyncTask : DefaultTask() {
       .filter { TRADE_KEY_PATTERN.matches(it) && it !in expected }
       .forEach { problems += "dialogs.csv: '$it' matches no trade in occupations.yml (orphaned row)" }
 
+    problems += occupationLineProblems(file, csv)
+
+    return problems
+  }
+
+  /**
+   * The lines an occupation has of its own: how it greets somebody, and what it says about its work.
+   *
+   * Counted per occupation in `occupations.yml`, exactly as a history phrasing is counted per event
+   * kind, and checked the same way round: a declared variant with no row renders as the key itself.
+   *
+   * The trade lines may use `{trade}` and nothing else - that token is what makes one labourer's
+   * phrasing read differently for a baker and for a tanner. A greeting may use `{name}`.
+   */
+  private fun occupationLineProblems(file: OccupationsFile, csv: LocalizationCsv): List<String> {
+    val problems = mutableListOf<String>()
+    val expected = HashSet<String>()
+
+    for (occupation in file.occupations) {
+      val dialog = occupation.dialog ?: OccupationDialogDto()
+      val id = occupation.id.uppercase()
+      val keys = (1..dialog.greetings).map { "TALK_GREETING_${id}_$it" to setOf("name") } +
+        (1..dialog.trade).map { "TALK_TRADE_${id}_$it" to setOf("trade") }
+
+      for ((key, allowed) in keys) {
+        expected += key
+
+        val text = csv.get(key)
+        if (text.isNullOrBlank()) {
+          problems += "dialogs.csv: '$key' is missing, so a ${occupation.id} has nothing to say there"
+          continue
+        }
+
+        val used = PLACEHOLDER_PATTERN.findAll(text).map { it.groupValues[1] }.toSet()
+        (used - allowed).forEach {
+          problems += "dialogs.csv: '$key' uses {$it}, which is not sent with that line"
+        }
+      }
+    }
+
+    csv.keys()
+      .filter { OCCUPATION_LINE_PATTERN.matches(it) && it !in expected }
+      .forEach { problems += "dialogs.csv: '$it' matches no occupation in occupations.yml (orphaned row)" }
+
     return problems
   }
 
@@ -390,6 +440,9 @@ abstract class DialogDbSyncTask : DefaultTask() {
 
     /** A trade noun owned by an `occupations.yml` trade, e.g. `TRADE_BAKER`. */
     private val TRADE_KEY_PATTERN = Regex("""^TRADE_[A-Z_]+$""")
+
+    /** A line owned by an `occupations.yml` occupation, e.g. `TALK_GREETING_GUARD_2`. */
+    private val OCCUPATION_LINE_PATTERN = Regex("""^TALK_(GREETING|TRADE)_[A-Z_]+_\d+$""")
 
     /** Matches Godot's `String.format` placeholders, e.g. `{masterName}`. */
     private val PLACEHOLDER_PATTERN = Regex("""\{(\w+)}""")

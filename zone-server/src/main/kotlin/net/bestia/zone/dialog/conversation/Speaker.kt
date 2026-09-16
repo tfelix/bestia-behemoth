@@ -32,4 +32,20 @@ class Speaker(
   val business: String?,
   val member: Member,
   val seed: Long,
-)
+) {
+
+  /**
+   * The noun this person uses for their own trade, as a translation key.
+   *
+   * A key rather than `Occupation.label`, which is an English word out of a yml file - putting one into
+   * a line would make the sentence around it untranslatable for the sake of one noun.
+   *
+   * The household's trade first and the occupation only as a fallback: thirty trades collapse into six
+   * occupations, so otherwise a baker, a mason and a tanner all keep "the work".
+   */
+  val tradeToken: String get() = TRADE_PREFIX + (business ?: occupation.id).uppercase()
+
+  private companion object {
+    const val TRADE_PREFIX = "TRADE_"
+  }
+}
