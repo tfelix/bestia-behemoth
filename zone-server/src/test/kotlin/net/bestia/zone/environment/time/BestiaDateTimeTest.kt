@@ -92,6 +92,13 @@ class BestiaDateTimeTest {
   }
 
   @Test
+  fun `minuteOfDay counts whole minutes from midnight`() {
+    assertEquals(0, BestiaDateTime(1, 1, 1, 0, 0, 0).minuteOfDay)
+    assertEquals(17 * 60 + 30, BestiaDateTime(1, 1, 1, 17, 30, 0).minuteOfDay)
+    assertEquals(1_439, BestiaDateTime(1, 1, 1, 23, 59, 59).minuteOfDay, "the last minute of the day")
+  }
+
+  @Test
   fun `full night straddles midnight`() {
     assertTrue(at(0).isNight)
     assertTrue(at(23).isNight)
