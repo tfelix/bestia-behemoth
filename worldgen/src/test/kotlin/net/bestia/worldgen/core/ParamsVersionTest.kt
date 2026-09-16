@@ -236,11 +236,10 @@ class ParamsVersionTest {
       "CorruptionParams" to -8_182_278_140_807_375_004L,
       "SpawnerParams" to 9_011_422_239_801_402_374L,
       "VegetationStandParams" to -259_420_489_769_960_249L,
-      // Both moved when cross streets stopped being arcs on a circle: `StreetParams` traded `rings`,
-      // `ringVertices`, `arcSpan` and `arcJitter` for the three fields that describe a street between two main
-      // streets, and `TownParams` holds it.
-      "TownParams" to -4_606_362_726_765_686_710L,
-      "StreetParams" to -5_531_603_957_270_622_805L,
+      // Both moved when a street's carriageway became a tunable: `StreetParams` gained `arterialWidth` and
+      // `laneWidth`, which widened every street in every town, and `TownParams` holds it.
+      "TownParams" to 8_715_367_366_677_520_001L,
+      "StreetParams" to 38_255_955_856_683_110L,
       "EconomyParams" to 6_863_789_847_631_252_411L,
       "PoiParams" to 9_183_715_732_977_741_057L,
       "NavParams" to -286_509_641_931_752_055L,

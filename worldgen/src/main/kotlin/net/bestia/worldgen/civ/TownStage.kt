@@ -655,7 +655,9 @@ class TownStage(
         params.streets.boundaryReachFactor
 
     // Floored above zero so a hamlet on a tight footprint still gets one ring of streets rather than none.
-    val usable = (tier.footprintRadius * FOOTPRINT_SHARE - (params.setback + params.lotDepth))
+    // The *widest* street's setback, because the claim this reservation makes is about every lot, not the
+    // average one - and the lots on an artery reach furthest.
+    val usable = (tier.footprintRadius * FOOTPRINT_SHARE - (params.setbackFor(0) + params.lotDepth))
       .coerceAtLeast(tier.footprintRadius * MIN_BUILT_SHARE)
 
     return min(radius, usable)
@@ -975,7 +977,7 @@ class TownStage(
    *
    * The wall follows the patch's own edges rather than a shape of its own, so the citadel sits inside the street
    * network instead of across it: the patch's boundary is already a set of streets, and a wall laid along them
-   * encloses exactly the block those streets bound. The keep is the patch inset by two main streets' width, which
+   * encloses exactly the block those streets bound. The keep is the patch inset by one main street's width, which
    * leaves a bailey between the keep and the wall - and a bailey is most of what a castle is.
    *
    * No gate marker. A castle's gate opens onto the town rather than onto the country, so it is not a way *into* the
@@ -1011,7 +1013,7 @@ class TownStage(
       )
     )
 
-    val keepPlan = ConvexPolygons.inset(patch.polygon) { params.streets.halfWidthOfRank(0) * KEEP_INSET }
+    val keepPlan = ConvexPolygons.inset(patch.polygon) { params.streets.widthOfRank(0) * KEEP_INSET }
     val keep = ConvexPolygons.orientedExtent(keepPlan)
     if (keep != null && frame.encloses(keep.centre)) {
       val floor = grading.groundAt(keep.centre)
@@ -1425,8 +1427,14 @@ class TownStage(
     /** How much thicker a citadel's wall is than the town's. A castle was built to outlast the town around it. */
     private const val CITADEL_THICKNESS = 1.4
 
-    /** Multiples of an arterial street's half-width that the keep is set back inside the citadel's wall. */
-    private const val KEEP_INSET = 4.0
+    /**
+     * Widths of an arterial street that the keep is set back inside the citadel's wall.
+     *
+     * A distance, stated in the one unit a town has. It matters that it stays a distance: `ConvexPolygons.inset`
+     * returns nothing at all once the half-planes cross, and a patch is only a hundred metres or so across, so
+     * an inset that grew with the artery would delete the keep on some patches with no error and no log.
+     */
+    private const val KEEP_INSET = 1.0
 
     /** Cap on a keep's half-extent, as a multiple of a plot's depth. Above it a keep is a curtain wall with a roof. */
     private const val KEEP_MAX_HALF = 1.4
