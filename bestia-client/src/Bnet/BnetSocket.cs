@@ -344,10 +344,18 @@ namespace BestiaBehemothClient.Bnet.Message
     /// Protobuf's own <c>ToString</c> escapes every byte of a <c>bytes</c> field, so printing a chunk payload
     /// that way turns three kilobytes of terrain into some fifteen kilobytes of log - per chunk, and a login
     /// streams over a hundred of them. That is enough to stall the frame that prints it. Chunk-carrying
-    /// envelopes therefore get a summary; everything else keeps the full dump it always had.
+    /// envelopes therefore get a summary, and the authentication token gets one for an unrelated reason;
+    /// everything else keeps the full dump it always had.
     /// </remarks>
     private static string Describe(Envelope envelope)
     {
+      if (envelope.Authentication != null)
+      {
+        // A signed JWT that grants the whole account, and a log outlives the session it came from.
+        return $"Authentication(token {envelope.Authentication.Token.Length} chars, " +
+               $"client {envelope.Authentication.ClientVersion})";
+      }
+
       if (envelope.ChunkData != null)
       {
         var chunk = envelope.ChunkData;
@@ -665,8 +673,7 @@ namespace BestiaBehemothClient.Bnet.Message
             _networkStream.Write(buffer, 0, buffer.Length);
             _networkStream.Flush();
 
-            GD.Print("BnetSocket TX: ", envelope.ToString());
-            // GD.Print($"Sent envelope message of {messageBytes.Length} bytes");
+            GD.Print("BnetSocket TX: ", Describe(envelope));
           }
         }
         catch (Exception ex)
