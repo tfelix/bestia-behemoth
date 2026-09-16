@@ -169,6 +169,14 @@ toggle_terrain_debug={
 
 locale/translations=PackedStringArray("res://Localization/items.en.translation", "res://Localization/skills.en.translation", "res://Localization/dialogs.en.translation", "res://Localization/general.en.translation")
 
+[network]
+
+; Godot's stock budget is 32768 chars and 2048 queued messages per second; past either it drops
+; output and reports the overrun as an error. A busy town pushes enough network traffic to hit that
+; on its own, so the headroom here keeps an ordinary play session from looking like a fault.
+limits/debugger/max_chars_per_second=2097152
+limits/debugger/max_queued_messages=8192
+
 [rendering]
 
 lights_and_shadows/directional_shadow/size=8192
