@@ -36,6 +36,30 @@ const FORMAT_VERSION := 1
 
 @export var game_server_port: int = 8090
 
+## How much the game socket reports about its traffic: "off", "summary" for one line per second per
+## direction, or "detail" to add a line per message for whatever [member net_log_filter] allows.
+##
+## Summary is the shipped value rather than a debug-only one: one line a second is cheap, and it is
+## what turns "it stutters near town" into a figure somebody can read.
+@export var net_log_mode: String = "summary"
+
+## Which message types "detail" prints, in the same syntax as zone-server's
+## `socket.filter-log-messages`: a bare name allows, a "!" prefix denies, and an empty list allows
+## everything. The names are the protobuf field names, so `comp_position` means the same on both
+## sides.
+##
+## The shipped list denies what the server denies, plus the chunk payloads - the traffic that is
+## either per-tick or kilobytes at a time, and so worth asking for by name rather than receiving by
+## default.
+@export var net_log_filter: PackedStringArray = PackedStringArray([
+	"!comp_position",
+	"!comp_path",
+	"!chunk_data",
+	"!chunk_patch",
+	"!chunk_static_entities",
+	"!chunk_ground_overlay",
+])
+
 ## Distance (world units) within which the mouse's ground position must be from an entity for
 ## entity-target skills (AttackResource.target_type ENEMY/FRIENDLY) to visually snap onto it. See
 ## MouseStateSkillTargeting._update_entity_snap.

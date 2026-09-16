@@ -31,6 +31,15 @@ namespace BestiaBehemothClient.Bnet.Message
     [Export]
     public int Port { get; set; } = 8090;
 
+    /// How much the network log says: <c>off</c>, <c>summary</c> or <c>detail</c>. See
+    /// <see cref="NetLog"/>.
+    [Export]
+    public string NetLogMode { get; set; } = "summary";
+
+    /// Which message types <c>detail</c> covers. See <see cref="MessageFilter"/>.
+    [Export]
+    public string[] NetLogFilter { get; set; } = Array.Empty<string>();
+
     /// <summary>
     /// Largest inbound frame accepted, matching <c>SocketServer.MAX_FRAME_LENGTH</c> on the server.
     /// </summary>
@@ -350,6 +359,9 @@ namespace BestiaBehemothClient.Bnet.Message
     /// </summary>
     public Error ConnectToServer()
     {
+      NetLog.SetMode(NetLogMode);
+      NetLog.SetFilter(NetLogFilter);
+
       lock (_connectionLock)
       {
         if (_currentStatus == ConnectionStatus.Connected)

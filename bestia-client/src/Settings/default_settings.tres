@@ -8,4 +8,6 @@ login_server_url = "http://localhost:8080"
 map_server_url = "http://127.0.0.1:8091"
 game_server_host = "localhost"
 game_server_port = 8090
+net_log_mode = "summary"
+net_log_filter = PackedStringArray("!comp_position", "!comp_path", "!chunk_data", "!chunk_patch", "!chunk_static_entities", "!chunk_ground_overlay")
 skill_target_snap_distance = 1.5

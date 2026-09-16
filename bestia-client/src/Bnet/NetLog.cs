@@ -110,6 +110,32 @@ namespace BestiaBehemothClient.Bnet.Message
     /// Which message types the detail lines cover. See <see cref="MessageFilter"/>.
     public static void SetFilter(IEnumerable<string> entries) => _filter = MessageFilter.Parse(entries);
 
+    /// <summary>
+    /// Sets <see cref="Mode"/> from the spelling used in the settings file.
+    /// </summary>
+    /// <remarks>
+    /// An unrecognised value says so and falls back to the summary. Falling back to silence would
+    /// make a typo look like a client that has nothing to report.
+    /// </remarks>
+    public static void SetMode(string mode)
+    {
+      switch (mode?.Trim().ToLowerInvariant())
+      {
+        case "off":
+          Mode = NetLogMode.Off;
+          return;
+        case "summary":
+          Mode = NetLogMode.Summary;
+          return;
+        case "detail":
+          Mode = NetLogMode.Detail;
+          return;
+      }
+
+      Mode = NetLogMode.Summary;
+      Sink($"NET: '{mode}' is not a net_log_mode, using summary");
+    }
+
     public static void TraceRx(Envelope envelope) => Trace("RX", envelope);
 
     public static void TraceTx(Envelope envelope) => Trace("TX", envelope);
