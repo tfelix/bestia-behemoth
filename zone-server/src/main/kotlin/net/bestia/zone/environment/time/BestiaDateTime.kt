@@ -54,6 +54,15 @@ data class BestiaDateTime(
     get() = (hour * SECONDS_PER_HOUR + minute * 60 + second) / SECONDS_PER_DAY.toDouble()
 
   /**
+   * Whole Bestia-minutes since midnight, `0..1439`.
+   *
+   * What anything keeping a *schedule* compares against, as against [timeOfDay] for anything drawing the
+   * world. Minutes rather than hours because a town whose shifts all end on the hour empties in one step.
+   */
+  val minuteOfDay: Int
+    get() = hour * 60 + minute
+
+  /**
    * True during full night - hours `[NIGHT_START_HOUR, HOURS_PER_DAY)` and `[0, NIGHT_END_HOUR)`.
    *
    * The dark middle, deliberately, not "anything darker than noon". This is what the AI's activity cycle
