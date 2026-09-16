@@ -24,8 +24,6 @@ class CreatePartyHandler(
   override val handles = CreatePartyCMSG::class
 
   override fun handle(msg: CreatePartyCMSG): Boolean {
-    LOG.trace { "RX: $msg" }
-
     // Parties are Basic Skill rank 5. Refused through the shared OperationError rather than a PartyErrorCode:
     // the reason has nothing to do with parties, and the same denial has to read the same whether it comes
     // from here or from an invite.

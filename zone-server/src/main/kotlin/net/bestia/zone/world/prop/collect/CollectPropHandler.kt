@@ -1,6 +1,5 @@
 package net.bestia.zone.world.prop.collect
 
-import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.battle.damage.DeadActionGuard
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
@@ -28,8 +27,6 @@ class CollectPropHandler(
   override val handles = CollectPropCMSG::class
 
   override fun handle(msg: CollectPropCMSG): Boolean {
-    LOG.trace { "RX: $msg" }
-
     val activeEntityId = connectionInfoService.getActiveEntityId(msg.playerId)
 
     if (deadActionGuard.refuses(activeEntityId, "collect a prop")) {
@@ -41,9 +38,5 @@ class CollectPropHandler(
     }
 
     return true
-  }
-
-  companion object {
-    private val LOG = KotlinLogging.logger { }
   }
 }

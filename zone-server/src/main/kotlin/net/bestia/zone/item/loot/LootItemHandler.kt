@@ -1,6 +1,5 @@
 package net.bestia.zone.item.loot
 
-import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.item.ObtainItemIntent
@@ -20,8 +19,6 @@ class LootItemHandler(
   override val handles = LootItemCMSG::class
 
   override fun handle(msg: LootItemCMSG): Boolean {
-    LOG.trace { "RX: $msg" }
-
     val activeEntityId = connectionInfoService.getActiveEntityId(msg.playerId)
 
     world.modify(activeEntityId) { id ->
@@ -29,9 +26,5 @@ class LootItemHandler(
     }
 
     return true
-  }
-
-  companion object {
-    private val LOG = KotlinLogging.logger { }
   }
 }

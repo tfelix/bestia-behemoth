@@ -1,6 +1,5 @@
 package net.bestia.zone.ecs.logout
 
-import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.ZoneConfig
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
@@ -20,8 +19,6 @@ class RequestLogoutHandler(
   override val handles = RequestLogoutCMSG::class
 
   override fun handle(msg: RequestLogoutCMSG): Boolean {
-    LOG.trace { "RX: $msg" }
-
     val activeEntityId = connectionInfoService.getActiveEntityId(msg.playerId)
 
     world.modify(activeEntityId) { id ->
@@ -31,9 +28,5 @@ class RequestLogoutHandler(
     }
 
     return true
-  }
-
-  companion object {
-    private val LOG = KotlinLogging.logger { }
   }
 }

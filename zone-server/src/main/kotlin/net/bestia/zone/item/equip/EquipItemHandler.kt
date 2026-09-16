@@ -39,8 +39,6 @@ class EquipItemHandler(
   override val handles = EquipItemCMSG::class
 
   override fun handle(msg: EquipItemCMSG): Boolean {
-    LOG.trace { "RX: $msg" }
-
     val item = itemRepository.findByIdOrNull(msg.itemId)
     if (item == null) {
       LOG.warn { "Item ${msg.itemId} was not found in the database" }

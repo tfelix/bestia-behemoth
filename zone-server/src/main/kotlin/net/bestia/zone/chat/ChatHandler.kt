@@ -25,8 +25,6 @@ class ChatHandler(
   override val handles = ChatCMSG::class
 
   override fun handle(msg: ChatCMSG): Boolean {
-    LOG.trace { "RX: $msg" }
-
     // Some sanity checks.
     if (msg.text.isEmpty()) {
       return true

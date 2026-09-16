@@ -28,8 +28,6 @@ class UnequipItemHandler(
   override val handles = UnequipItemCMSG::class
 
   override fun handle(msg: UnequipItemCMSG): Boolean {
-    LOG.trace { "RX: $msg" }
-
     val activeEntityId = connectionInfoService.getActiveEntityId(msg.playerId)
 
     val removed = world.modify(activeEntityId) { id ->

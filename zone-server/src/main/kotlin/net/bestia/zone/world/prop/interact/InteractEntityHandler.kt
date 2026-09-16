@@ -46,8 +46,6 @@ class InteractEntityHandler(
   override val handles = InteractEntityCMSG::class
 
   override fun handle(msg: InteractEntityCMSG): Boolean {
-    LOG.trace { "RX: $msg" }
-
     val actorId = connectionInfoService.getActiveEntityId(msg.playerId)
 
     if (deadActionGuard.refuses(actorId, "interact")) {

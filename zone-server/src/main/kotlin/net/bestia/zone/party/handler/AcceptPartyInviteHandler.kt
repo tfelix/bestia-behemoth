@@ -22,7 +22,6 @@ class AcceptPartyInviteHandler(
   override val handles = AcceptPartyInviteCMSG::class
 
   override fun handle(msg: AcceptPartyInviteCMSG): Boolean {
-    LOG.trace { "RX: $msg" }
     try {
       partyService.acceptInvitation(msg.playerId, msg.invitationId)
 

@@ -1,6 +1,5 @@
 package net.bestia.zone.economy.shop
 
-import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.OperationErrorProto
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
@@ -29,8 +28,6 @@ class OpenShopHandler(
   override val handles = OpenShopCMSG::class
 
   override fun handle(msg: OpenShopCMSG): Boolean {
-    LOG.trace { "RX: $msg" }
-
     val activeEntityId = connectionInfoService.getActiveEntityId(msg.playerId)
 
     val shop = world.read {
@@ -49,9 +46,5 @@ class OpenShopHandler(
     offers.publishTo(msg.playerId, shop.first, shop.second)
 
     return true
-  }
-
-  companion object {
-    private val LOG = KotlinLogging.logger { }
   }
 }

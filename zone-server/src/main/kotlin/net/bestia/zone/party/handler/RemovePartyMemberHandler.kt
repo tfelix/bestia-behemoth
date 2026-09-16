@@ -25,7 +25,6 @@ class RemovePartyMemberHandler(
   override val handles = RemovePartyMemberCMSG::class
 
   override fun handle(msg: RemovePartyMemberCMSG): Boolean {
-    LOG.trace { "RX: $msg" }
     try {
       val removedAccountId = partyService.removeMember(msg.playerId, msg.partyId, msg.memberAccountId)
 

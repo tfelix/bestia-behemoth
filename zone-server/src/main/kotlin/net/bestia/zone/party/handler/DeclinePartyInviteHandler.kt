@@ -20,7 +20,6 @@ class DeclinePartyInviteHandler(
   override val handles = DeclinePartyInviteCMSG::class
 
   override fun handle(msg: DeclinePartyInviteCMSG): Boolean {
-    LOG.trace { "RX: $msg" }
     try {
       val inviterAccountId = partyService.declineInvitation(msg.playerId, msg.invitationId)
 

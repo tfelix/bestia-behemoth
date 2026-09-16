@@ -17,7 +17,6 @@ class RequestPartyInfoHandler(
   override val handles = RequestPartyInfoCMSG::class
 
   override fun handle(msg: RequestPartyInfoCMSG): Boolean {
-    LOG.trace { "RX: $msg" }
     try {
       val partyInfo = partyService.getPartyInfoForAccount(msg.playerId)
 

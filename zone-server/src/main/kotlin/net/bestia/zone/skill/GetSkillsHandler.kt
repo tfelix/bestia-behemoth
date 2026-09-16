@@ -1,6 +1,5 @@
 package net.bestia.zone.skill
 
-import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.account.master.skill.MasterSkillListBuilder
 import net.bestia.zone.bestia.PlayerBestiaRepository
 import net.bestia.zone.bestia.findByIdOrThrow
@@ -30,8 +29,6 @@ class GetSkillsHandler(
 
   @Transactional(readOnly = true)
   override fun handle(msg: GetSkillsCMSG): Boolean {
-    LOG.trace { "RX: $msg" }
-
     val activeEntityId = connectionInfoService.getActiveEntityId(msg.playerId)
     val masterEntityId = connectionInfoService.getSelectedMasterEntityId(msg.playerId)
     val masterId = connectionInfoService.getMasterId(msg.playerId)
@@ -84,9 +81,5 @@ class GetSkillsHandler(
       }
 
     return fixedEntries + customEntries
-  }
-
-  companion object {
-    private val LOG = KotlinLogging.logger { }
   }
 }

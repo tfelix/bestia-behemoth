@@ -22,8 +22,6 @@ class RespawnHandler(
   override val handles = RespawnCMSG::class
 
   override fun handle(msg: RespawnCMSG): Boolean {
-    LOG.trace { "RX: $msg" }
-
     val activeEntityId = connectionInfoService.getActiveEntityId(msg.playerId)
 
     // No error code: an honest client only offers the button while the death window is up, so this

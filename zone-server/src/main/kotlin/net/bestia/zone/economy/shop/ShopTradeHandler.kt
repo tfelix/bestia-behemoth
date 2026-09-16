@@ -1,6 +1,5 @@
 package net.bestia.zone.economy.shop
 
-import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.battle.damage.DeadActionGuard
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
@@ -21,8 +20,6 @@ class ShopTradeHandler(
   override val handles = ShopTradeCMSG::class
 
   override fun handle(msg: ShopTradeCMSG): Boolean {
-    LOG.trace { "RX: $msg" }
-
     val activeEntityId = connectionInfoService.getActiveEntityId(msg.playerId)
 
     if (deadActionGuard.refuses(activeEntityId, "trade with a shop")) {
@@ -34,9 +31,5 @@ class ShopTradeHandler(
     }
 
     return true
-  }
-
-  companion object {
-    private val LOG = KotlinLogging.logger { }
   }
 }

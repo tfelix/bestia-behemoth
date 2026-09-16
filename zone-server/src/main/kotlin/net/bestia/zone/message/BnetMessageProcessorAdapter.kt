@@ -113,8 +113,6 @@ class BnetMessageProcessorAdapter(
       return
     }
 
-    LOG.trace { "handleMessageEnvelopeReceived: Received internal message $internalMessage" }
-
     inMessageProcessor.process(internalMessage)
   }
 

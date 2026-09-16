@@ -1,6 +1,5 @@
 package net.bestia.zone.dialog.conversation
 
-import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.battle.damage.DeadActionGuard
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.message.InMessageProcessor
@@ -17,8 +16,6 @@ class ConversationChoiceHandler(
   override val handles = ConversationChoiceCMSG::class
 
   override fun handle(msg: ConversationChoiceCMSG): Boolean {
-    LOG.trace { "RX: $msg" }
-
     val actor = connectionInfoService.getActiveEntityId(msg.playerId)
     if (deadActionGuard.refuses(actor, "talk")) {
       return true
@@ -27,9 +24,5 @@ class ConversationChoiceHandler(
     talk.choose(msg.playerId, actor, msg.targetEntityId, msg.topicId)
 
     return true
-  }
-
-  private companion object {
-    private val LOG = KotlinLogging.logger { }
   }
 }

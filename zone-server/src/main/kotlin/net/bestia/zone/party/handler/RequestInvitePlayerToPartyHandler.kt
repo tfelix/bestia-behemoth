@@ -27,8 +27,6 @@ class RequestInvitePlayerToPartyHandler(
   override val handles = RequestPartyInvitationCMSG::class
 
   override fun handle(msg: RequestPartyInvitationCMSG): Boolean {
-    LOG.trace { "RX: $msg" }
-
     // The inviter's rank, not the invitee's: joining a party is not what Basic Skill rank 5 unlocks, growing
     // one is - and refusing an invitation because the person invited has not bought a novice skill would make
     // the gate somebody else's problem.
