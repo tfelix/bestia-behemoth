@@ -13,68 +13,80 @@
 # Where the generator adds an actor conditionally - the abandon family attaches a civ only when one
 # still held the place - the slot is left out rather than declared and hoped for.
 #
+# `eras` repeats the band names the Era enum declares, in its order. The bands themselves are Kotlin's -
+# what the list is for is letting `./gradlew checkDialogDb` see which ERA_* rows the client owes, and the
+# boot refuses a file where the two have drifted apart.
+#
 # `variants` is how many phrasings exist, HISTORY_<KIND>_1 upward. The speaker picks one off their own
 # seed, so two people in a town tell you the same thing differently. Each kind also needs a
 # HISTORY_<KIND>_ASK row, which is the option a player clicks. Both live in the client's dialogs.csv and
 # are checked by `./gradlew checkDialogDb`.
 events:
   # --- Settlements ------------------------------------------------------------------------------
-  SETTLEMENT_FOUNDED: { variants: 2, slots: [civ, place, year] }
-  SETTLEMENT_WALLED: { variants: 1, slots: [place, year] }
-  SETTLEMENT_SACKED: { variants: 2, slots: [civ, place, year] }
+  SETTLEMENT_FOUNDED: { variants: 2, slots: [civ, place, year, era] }
+  SETTLEMENT_WALLED: { variants: 1, slots: [place, year, era] }
+  SETTLEMENT_SACKED: { variants: 2, slots: [civ, place, year, era] }
   # No civ: `abandon` attaches one only where somebody still held the place.
-  SETTLEMENT_RAZED: { variants: 1, slots: [place, year] }
-  SETTLEMENT_ABANDONED: { variants: 1, slots: [place, year] }
-  SETTLEMENT_FORSAKEN: { variants: 1, slots: [place, year] }
-  SETTLEMENT_BURIED: { variants: 2, slots: [place, year] }
+  SETTLEMENT_RAZED: { variants: 1, slots: [place, year, era] }
+  SETTLEMENT_ABANDONED: { variants: 1, slots: [place, year, era] }
+  SETTLEMENT_FORSAKEN: { variants: 1, slots: [place, year, era] }
+  SETTLEMENT_BURIED: { variants: 2, slots: [place, year, era] }
 
   # --- Civilisations and war --------------------------------------------------------------------
-  CIV_FOUNDED: { variants: 1, slots: [civ, place, year] }
-  CIV_FELL: { variants: 1, slots: [civ, year] }
-  WAR_DECLARED: { variants: 1, slots: [civ, year] }
-  BATTLE: { variants: 2, slots: [civ, year] }
-  SIEGE: { variants: 1, slots: [civ, place, year] }
-  CONQUEST: { variants: 1, slots: [civ, place, year] }
-  PEACE: { variants: 1, slots: [civ, year] }
+  CIV_FOUNDED: { variants: 1, slots: [civ, place, year, era] }
+  CIV_FELL: { variants: 1, slots: [civ, year, era] }
+  WAR_DECLARED: { variants: 1, slots: [civ, year, era] }
+  BATTLE: { variants: 2, slots: [civ, year, era] }
+  SIEGE: { variants: 1, slots: [civ, place, year, era] }
+  CONQUEST: { variants: 1, slots: [civ, place, year, era] }
+  PEACE: { variants: 1, slots: [civ, year, era] }
 
   # --- What the land did ------------------------------------------------------------------------
-  PLAGUE: { variants: 2, slots: [place, year] }
-  FAMINE: { variants: 1, slots: [place, year] }
-  FLOOD: { variants: 1, slots: [place, year] }
+  PLAGUE: { variants: 2, slots: [place, year, era] }
+  FAMINE: { variants: 1, slots: [place, year, era] }
+  FLOOD: { variants: 1, slots: [place, year, era] }
   # A mountain waking names nobody and nowhere - the event carries no actors at all.
-  ERUPTION: { variants: 2, slots: [year] }
+  ERUPTION: { variants: 2, slots: [year, era] }
 
   # --- People -----------------------------------------------------------------------------------
-  FIGURE_ROSE: { variants: 1, slots: [civ, figure, year] }
-  FIGURE_DIED: { variants: 1, slots: [civ, figure, year] }
-  FIGURE_SLAIN: { variants: 1, slots: [civ, figure, year] }
-  TRAVELLER_LOST: { variants: 2, slots: [civ, figure, year] }
-  SEER_VANISHED: { variants: 1, slots: [figure, year] }
+  FIGURE_ROSE: { variants: 1, slots: [civ, figure, year, era] }
+  FIGURE_DIED: { variants: 1, slots: [civ, figure, year, era] }
+  FIGURE_SLAIN: { variants: 1, slots: [civ, figure, year, era] }
+  TRAVELLER_LOST: { variants: 2, slots: [civ, figure, year, era] }
+  SEER_VANISHED: { variants: 1, slots: [figure, year, era] }
 
   # --- Things -----------------------------------------------------------------------------------
-  ARTIFACT_FORGED: { variants: 1, slots: [artifact, figure, year] }
-  ARTIFACT_TAKEN: { variants: 1, slots: [artifact, figure, year] }
-  ARTIFACT_LOST: { variants: 1, slots: [year] }
-  ARTIFACT_ENTOMBED: { variants: 1, slots: [artifact, figure, year] }
+  ARTIFACT_FORGED: { variants: 1, slots: [artifact, figure, year, era] }
+  ARTIFACT_TAKEN: { variants: 1, slots: [artifact, figure, year, era] }
+  ARTIFACT_LOST: { variants: 1, slots: [year, era] }
+  ARTIFACT_ENTOMBED: { variants: 1, slots: [artifact, figure, year, era] }
 
   # --- What was built ---------------------------------------------------------------------------
-  MINE_OPENED: { variants: 1, slots: [civ, year] }
-  MONASTERY_FOUNDED: { variants: 1, slots: [civ, year] }
-  FORT_BUILT: { variants: 1, slots: [civ, year] }
-  LIGHTHOUSE_LIT: { variants: 1, slots: [civ, year] }
-  MONUMENT_BUILT: { variants: 1, slots: [civ, year] }
-  TECHNOLOGY: { variants: 1, slots: [civ, year] }
+  MINE_OPENED: { variants: 1, slots: [civ, year, era] }
+  MONASTERY_FOUNDED: { variants: 1, slots: [civ, year, era] }
+  FORT_BUILT: { variants: 1, slots: [civ, year, era] }
+  LIGHTHOUSE_LIT: { variants: 1, slots: [civ, year, era] }
+  MONUMENT_BUILT: { variants: 1, slots: [civ, year, era] }
+  TECHNOLOGY: { variants: 1, slots: [civ, year, era] }
 
   # --- The mana -----------------------------------------------------------------------------------
-  STAR_FELL: { variants: 1, slots: [year] }
-  BLIGHT_SPREAD: { variants: 1, slots: [place, year] }
-  WARD_RAISED: { variants: 1, slots: [civ, place, year] }
+  STAR_FELL: { variants: 1, slots: [year, era] }
+  BLIGHT_SPREAD: { variants: 1, slots: [place, year, era] }
+  WARD_RAISED: { variants: 1, slots: [civ, place, year, era] }
 
   # --- The Orders ---------------------------------------------------------------------------------
   #
   # Absent from a first world's history entirely - they are logged only where a previous incarnation
   # had a victor. Voiced anyway, because "never on the default config" is not "never".
-  ORDER_SWORN: { variants: 1, slots: [civ, place, year] }
-  ORDER_SCHISM: { variants: 1, slots: [civ, place, year] }
-  SHRINE_RAISED: { variants: 1, slots: [civ, year] }
-  RITE_PERFORMED: { variants: 1, slots: [civ, year] }
+  ORDER_SWORN: { variants: 1, slots: [civ, place, year, era] }
+  ORDER_SCHISM: { variants: 1, slots: [civ, place, year, era] }
+  SHRINE_RAISED: { variants: 1, slots: [civ, year, era] }
+  RITE_PERFORMED: { variants: 1, slots: [civ, year, era] }
+
+# How long ago something was, in words - see the Era enum for the bands these name.
+eras:
+  - ERA_RECENT
+  - ERA_LIVING
+  - ERA_GENERATIONS
+  - ERA_DISTANT
+  - ERA_ANCIENT

@@ -77,7 +77,10 @@ abstract class DialogDbSyncTask : DefaultTask() {
 
   private data class HistoryLineDto(val variants: Int = 1, val slots: List<String> = emptyList())
 
-  private data class ConversationFile(val events: Map<String, HistoryLineDto> = emptyMap())
+  private data class ConversationFile(
+    val events: Map<String, HistoryLineDto> = emptyMap(),
+    val eras: List<String> = emptyList(),
+  )
 
   private data class SmallTalkLineDto(val key: String = "")
 
@@ -134,6 +137,7 @@ abstract class DialogDbSyncTask : DefaultTask() {
     problems += conversationProblems(mapper, csv)
     problems += smallTalkProblems(mapper, csv)
     problems += rumourProblems(mapper, csv)
+    problems += eraProblems(mapper, csv)
 
     if (shouldFix && csvDirty) {
       dialogsCsv.get().asFile.writeText(csv.render())
@@ -269,6 +273,35 @@ abstract class DialogDbSyncTask : DefaultTask() {
     return problems
   }
 
+  /**
+   * The era bands, which a history phrasing reaches for as `{era}`.
+   *
+   * A band is a token in its own right - the nested lookup is what keeps a sentence built out of
+   * generated history translatable - and a token with no row renders as the key itself. `dialogue.yml`
+   * repeats the band names for exactly this check; the server refuses a boot where its list and the
+   * `Era` enum disagree, so checking one checks both.
+   */
+  private fun eraProblems(mapper: ObjectMapper, csv: LocalizationCsv): List<String> {
+    if (!conversationYml.isPresent) {
+      return emptyList()
+    }
+
+    val expected = mapper.readValue(conversationYml.get().asFile, ConversationFile::class.java).eras
+    val problems = mutableListOf<String>()
+
+    for (key in expected) {
+      if (csv.get(key).isNullOrBlank()) {
+        problems += "dialogs.csv: '$key' is missing, so no memory can say how long ago it was"
+      }
+    }
+
+    csv.keys()
+      .filter { ERA_KEY_PATTERN.matches(it) && it !in expected }
+      .forEach { problems += "dialogs.csv: '$it' matches no era in dialogue.yml (orphaned row)" }
+
+    return problems
+  }
+
   private fun stubText(dialog: DialogDto): String {
     val placeholders = dialog.args.joinToString(" ") { "{$it}" }
     return "TODO: write the ${dialog.identifier} dialog text. $placeholders".trim()
@@ -287,6 +320,9 @@ abstract class DialogDbSyncTask : DefaultTask() {
 
     /** A translation key owned by a `small-talk.yml` line, e.g. `TALK_SMALL_FARMER_BARLEY_ASK`. */
     private val SMALL_TALK_KEY_PATTERN = Regex("""^TALK_SMALL_[A-Z_]+$""")
+
+    /** An era band owned by `dialogue.yml`, e.g. `ERA_LIVING`. */
+    private val ERA_KEY_PATTERN = Regex("""^ERA_[A-Z_]+$""")
 
     /** A translation key owned by a `rumours.yml` entry, e.g. `RUMOUR_BOSS_SLAIN_1`. */
     private val RUMOUR_KEY_PATTERN = Regex("""^RUMOUR_[A-Z_]+_(ASK|\d+)$""")
