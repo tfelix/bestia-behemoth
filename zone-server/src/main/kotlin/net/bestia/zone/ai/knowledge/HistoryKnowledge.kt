@@ -33,6 +33,17 @@ object HistoryKnowledge {
   const val SLOT_ARTIFACT = "artifact"
   const val SLOT_YEAR = "year"
 
+  /**
+   * What fills a slot whose actor the chronicle has no name for.
+   *
+   * One per slot rather than one between them, because each stands in a different grammatical position -
+   * a civ follows "The", a place follows "at" - and a single filler reads wrong in three of the four.
+   */
+  const val UNKNOWN_PLACE = "NAME_UNKNOWN_PLACE"
+  const val UNKNOWN_CIV = "NAME_UNKNOWN_CIV"
+  const val UNKNOWN_FIGURE = "NAME_UNKNOWN_FIGURE"
+  const val UNKNOWN_ARTIFACT = "NAME_UNKNOWN_ARTIFACT"
+
   fun of(chronicle: Chronicle, event: HistoryEvent, locality: Locality, variants: Int = 1): Knowledge {
     return Knowledge(
       topic = event.id,
@@ -73,32 +84,28 @@ object HistoryKnowledge {
   }
 
   private fun placeName(chronicle: Chronicle, index: Int): Knowledge.Slot {
-    return named(ChronicleNames.placeOf(chronicle, index))
+    return named(ChronicleNames.placeOf(chronicle, index), UNKNOWN_PLACE)
   }
 
   private fun civName(chronicle: Chronicle, index: Int): Knowledge.Slot {
-    return named(ChronicleNames.civOf(chronicle, index))
+    return named(ChronicleNames.civOf(chronicle, index), UNKNOWN_CIV)
   }
 
   private fun figureName(chronicle: Chronicle, index: Int): Knowledge.Slot {
-    return named(ChronicleNames.figureOf(chronicle, index))
+    return named(ChronicleNames.figureOf(chronicle, index), UNKNOWN_FIGURE)
   }
 
   private fun artifactName(chronicle: Chronicle, index: Int): Knowledge.Slot {
-    return named(ChronicleNames.artifactOf(chronicle, index))
-  }
-
-  private fun named(name: String?): Knowledge.Slot {
-    return if (name == null) unknown() else Knowledge.Slot.Name(name)
+    return named(ChronicleNames.artifactOf(chronicle, index), UNKNOWN_ARTIFACT)
   }
 
   /**
-   * A slot for an actor the chronicle does not have.
+   * A name, or a token standing in for one the chronicle does not have.
    *
-   * A token rather than a name, because the one thing that must not happen is an English word reaching a
-   * player through a slot that is documented as untranslatable.
+   * A token rather than an English word, because the one thing that must not happen is an English word
+   * reaching a player through a slot that is documented as untranslatable.
    */
-  private fun unknown(): Knowledge.Slot {
-    return Knowledge.Slot.Token("NAME_UNKNOWN")
+  private fun named(name: String?, unknownKey: String): Knowledge.Slot {
+    return if (name == null) Knowledge.Slot.Token(unknownKey) else Knowledge.Slot.Name(name)
   }
 }

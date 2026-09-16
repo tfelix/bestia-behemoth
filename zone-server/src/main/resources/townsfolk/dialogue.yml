@@ -54,7 +54,7 @@ events:
   # --- Things -----------------------------------------------------------------------------------
   ARTIFACT_FORGED: { variants: 1, slots: [artifact, figure, year] }
   ARTIFACT_TAKEN: { variants: 1, slots: [artifact, figure, year] }
-  ARTIFACT_LOST: { variants: 1, slots: [place, year] }
+  ARTIFACT_LOST: { variants: 1, slots: [year] }
   ARTIFACT_ENTOMBED: { variants: 1, slots: [artifact, figure, year] }
 
   # --- What was built ---------------------------------------------------------------------------
@@ -77,4 +77,4 @@ events:
   ORDER_SWORN: { variants: 1, slots: [civ, place, year] }
   ORDER_SCHISM: { variants: 1, slots: [civ, place, year] }
   SHRINE_RAISED: { variants: 1, slots: [civ, year] }
-  RITE_PERFORMED: { variants: 1, slots: [civ, place, year] }
+  RITE_PERFORMED: { variants: 1, slots: [civ, year] }
