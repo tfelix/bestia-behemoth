@@ -4,12 +4,20 @@
 # most one line reaches a conversation whatever the pool grows to, and it competes for a sampled root
 # slot, so raising this displaces the town's news rather than lengthening the list.
 #
+# ## Variants
+#
+# `variants` is how many phrasings of the reply the client carries, keyed TALK_SMALL_<LINE>_1 upward -
+# the same meaning the word has in dialogue.yml and rumours.yml. The speaker picks one off their own
+# seed, so the third farmer you ask about the barley does not answer in the first one's words. The row
+# a player clicks has no variants: see SmallTalk.askKey for why.
+#
 # ## The budget
 #
-# Roughly three lines per occupation plus a dozen shared ones. Worth writing down, because every line
-# here is a hand-written row a translator is later paid for in every language, and a flavour pool with
-# no ceiling is how a localisation bill quietly triples. Each line costs two rows in dialogs.csv - the
-# thing the player clicks and the answer - and `./gradlew checkDialogDb` fails if either is missing.
+# Roughly three lines per occupation plus a dozen shared ones, in four phrasings each. Worth writing
+# down, because every phrasing here is a hand-written row a translator is later paid for in every
+# language, and a flavour pool with no ceiling is how a localisation bill quietly triples. Each line
+# costs its `variants` rows in dialogs.csv plus one for the thing the player clicks, and
+# `./gradlew checkDialogDb` fails if any is missing.
 #
 # ## Gates
 #
@@ -25,95 +33,128 @@ chance: 0.45
 lines:
   # --- Guard ---------------------------------------------------------------------------------------
   - key: TALK_SMALL_GUARD_WATCH
+    variants: 4
     occupations: [guard]
   - key: TALK_SMALL_GUARD_BOOTS
+    variants: 4
     occupations: [guard]
   - key: TALK_SMALL_GUARD_WALLS
+    variants: 4
     occupations: [guard]
     walled: true
 
   # --- Priest --------------------------------------------------------------------------------------
   - key: TALK_SMALL_PRIEST_ROOF
+    variants: 4
     occupations: [priest]
   - key: TALK_SMALL_PRIEST_QUIET
+    variants: 4
     occupations: [priest]
   - key: TALK_SMALL_PRIEST_STORM
+    variants: 4
     occupations: [priest]
     weather: [THUNDERSTORM, MANA_STORM]
 
   # --- Innkeeper -----------------------------------------------------------------------------------
   - key: TALK_SMALL_INNKEEPER_BREWING
+    variants: 4
     occupations: [innkeeper]
   - key: TALK_SMALL_INNKEEPER_SNORING
+    variants: 4
     occupations: [innkeeper]
   - key: TALK_SMALL_INNKEEPER_TRADE
+    variants: 4
     occupations: [innkeeper]
     minWealth: 0.6
 
   # --- Farmer --------------------------------------------------------------------------------------
   - key: TALK_SMALL_FARMER_BARLEY
+    variants: 4
     occupations: [farmer]
   - key: TALK_SMALL_FARMER_FENCE
+    variants: 4
     occupations: [farmer]
   - key: TALK_SMALL_FARMER_RAIN
+    variants: 4
     occupations: [farmer]
     weather: [RAIN, HEAVY_RAIN]
 
   # --- Labourer ------------------------------------------------------------------------------------
   - key: TALK_SMALL_LABOURER_BACK
+    variants: 4
     occupations: [labourer]
   - key: TALK_SMALL_LABOURER_STONE
+    variants: 4
     occupations: [labourer]
   - key: TALK_SMALL_LABOURER_WINTER
+    variants: 4
     occupations: [labourer]
     season: [WINTER]
 
   # --- Beggar --------------------------------------------------------------------------------------
   - key: TALK_SMALL_BEGGAR_CORNER
+    variants: 4
     occupations: [beggar]
   - key: TALK_SMALL_BEGGAR_DOGS
+    variants: 4
     occupations: [beggar]
   - key: TALK_SMALL_BEGGAR_RICH
+    variants: 4
     occupations: [beggar]
     minWealth: 0.6
 
   # --- Child ---------------------------------------------------------------------------------------
   - key: TALK_SMALL_CHILD_GAME
+    variants: 4
     occupations: [child]
   - key: TALK_SMALL_CHILD_LESSONS
+    variants: 4
     occupations: [child]
   - key: TALK_SMALL_CHILD_SNOW
+    variants: 4
     occupations: [child]
     weather: [SNOW]
 
   # --- Anybody, where the land is like this --------------------------------------------------------
   - key: TALK_SMALL_COAST_NETS
+    variants: 4
     terrain: [COAST]
   - key: TALK_SMALL_FELLS_PASS
+    variants: 4
     terrain: [FELLS]
   - key: TALK_SMALL_FOREST_WOLVES
+    variants: 4
     terrain: [FOREST]
   - key: TALK_SMALL_VALE_RIVER
+    variants: 4
     terrain: [VALE]
 
   # --- Anybody, this time of year ------------------------------------------------------------------
   - key: TALK_SMALL_SPRING_MUD
+    variants: 4
     season: [SPRING]
   - key: TALK_SMALL_SUMMER_HEAT
+    variants: 4
     season: [SUMMER]
   - key: TALK_SMALL_FALL_STORES
+    variants: 4
     season: [FALL]
   - key: TALK_SMALL_WINTER_FIREWOOD
+    variants: 4
     season: [WINTER]
 
   # --- Anybody, about the town itself --------------------------------------------------------------
   - key: TALK_SMALL_TOWN_WALLS
+    variants: 4
     walled: true
   - key: TALK_SMALL_TOWN_SACKED
+    variants: 4
     sacked: true
 
   # --- Anybody, at this point in a life ------------------------------------------------------------
   - key: TALK_SMALL_ELDER_KNEES
+    variants: 4
     minAge: 60
   - key: TALK_SMALL_APPRENTICE_MASTER
+    variants: 4
     kinship: [APPRENTICE]

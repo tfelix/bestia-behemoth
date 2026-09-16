@@ -21,7 +21,9 @@ import org.springframework.stereotype.Component
  * - a child and a labourer have an answer to that even though they have nothing to sell.
  */
 @Component
-class OccupationTopicProvider : DialogTopicProvider {
+class OccupationTopicProvider(
+  private val lines: ConversationLineCatalogue,
+) : DialogTopicProvider {
 
   override val pinned = true
   override val order = 0
@@ -46,7 +48,7 @@ class OccupationTopicProvider : DialogTopicProvider {
   override fun nodeFor(speaker: Speaker, topicId: Int): ConversationNode? {
     return when (Topics.localOf(Topics.OCCUPATION, topicId)) {
       TRADE -> ConversationNode(tradeLine(speaker), emptyList())
-      BUY, SELL -> ConversationNode(Line(ConversationKeys.NOT_YET), emptyList())
+      BUY, SELL -> ConversationNode(lines.lineFor(speaker, ConversationKeys.NOT_YET), emptyList())
       else -> null
     }
   }

@@ -12,6 +12,7 @@ import net.bestia.zone.dialog.DialogArg
 import net.bestia.zone.world.WorldService
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 /**
  * What a townsperson says their trade is.
@@ -24,7 +25,9 @@ class StandingTopicProviderTest {
 
   private val worldService = mockk<WorldService>()
 
-  private val sut = StandingTopicProvider(worldService)
+  // The real one, off the real dialogue.yml: what a phrasing count is worth is that the key it builds
+  // exists, and a mock would assert that against itself.
+  private val sut = StandingTopicProvider(worldService, ConversationLineCatalogue().apply { load() })
 
   init {
     // The town's name comes from the chronicle and is not what is under test here; an empty one keeps
@@ -44,6 +47,16 @@ class StandingTopicProviderTest {
   fun `somebody who keeps none falls back to their occupation`() {
     assertEquals("TRADE_FARMER", tradeTokenOf(business = null, occupation = "farmer"))
     assertEquals("TRADE_CHILD", tradeTokenOf(business = null, occupation = "child"))
+  }
+
+  @Test
+  fun `the answer is one of the phrasings the client carries`() {
+    val node = sut.nodeFor(speaker(business = "baker", occupation = "labourer"), Topics.STANDING + 1)
+
+    assertTrue(
+      node!!.speech.key.matches(Regex(ConversationKeys.ABOUT_TOWN + "_[1-9]")),
+      "expected a numbered phrasing of ${ConversationKeys.ABOUT_TOWN}, was ${node.speech.key}"
+    )
   }
 
   private fun tradeTokenOf(business: String?, occupation: String): String {

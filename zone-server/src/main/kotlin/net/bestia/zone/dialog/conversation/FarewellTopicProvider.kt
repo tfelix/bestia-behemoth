@@ -8,9 +8,14 @@ import org.springframework.stereotype.Component
  * Its own provider rather than a special case in the service, because "how a conversation ends" is a
  * thing that will grow - a farewell that differs by how the talk went, or by whether the speaker liked
  * you - and the service should not be where that lives.
+ *
+ * The first step of that growth is here already: which of the goodbyes somebody uses is theirs, so a
+ * town does not sign off with one voice.
  */
 @Component
-class FarewellTopicProvider : DialogTopicProvider {
+class FarewellTopicProvider(
+  private val lines: ConversationLineCatalogue,
+) : DialogTopicProvider {
 
   override val pinned = true
 
@@ -28,6 +33,6 @@ class FarewellTopicProvider : DialogTopicProvider {
   }
 
   override fun nodeFor(speaker: Speaker, topicId: Int): ConversationNode? {
-    return ConversationNode(Line(ConversationKeys.GOODBYE), emptyList())
+    return ConversationNode(lines.lineFor(speaker, ConversationKeys.GOODBYE), emptyList())
   }
 }

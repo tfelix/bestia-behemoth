@@ -69,6 +69,12 @@ class HistoryLineCatalogue {
   private data class DialogueYmlDto(
     val events: Map<EventKind, LineDto> = emptyMap(),
     val eras: List<String> = emptyList(),
+    /**
+     * Not read here - `ConversationLineCatalogue` owns that section - but named so that this stays the
+     * strict reader of the file. Unknown top-level keys still fail, which is how a typo'd section name
+     * is caught rather than silently ignored by both readers.
+     */
+    val conversation: Map<String, LineDto> = emptyMap(),
   )
 
   private data class LineDto(
