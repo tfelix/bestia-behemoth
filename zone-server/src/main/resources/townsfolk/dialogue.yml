@@ -23,36 +23,36 @@
 # are checked by `./gradlew checkDialogDb`.
 events:
   # --- Settlements ------------------------------------------------------------------------------
-  SETTLEMENT_FOUNDED: { variants: 2, slots: [civ, place, year, era] }
-  SETTLEMENT_WALLED: { variants: 1, slots: [place, year, era] }
-  SETTLEMENT_SACKED: { variants: 2, slots: [civ, place, year, era, foe] }
+  SETTLEMENT_FOUNDED: { variants: 3, slots: [civ, place, year, era] }
+  SETTLEMENT_WALLED: { variants: 2, slots: [place, year, era] }
+  SETTLEMENT_SACKED: { variants: 3, slots: [civ, place, year, era, foe] }
   # No civ: `abandon` attaches one only where somebody still held the place.
-  SETTLEMENT_RAZED: { variants: 1, slots: [place, year, era] }
-  SETTLEMENT_ABANDONED: { variants: 1, slots: [place, year, era] }
+  SETTLEMENT_RAZED: { variants: 2, slots: [place, year, era] }
+  SETTLEMENT_ABANDONED: { variants: 2, slots: [place, year, era] }
   SETTLEMENT_FORSAKEN: { variants: 1, slots: [place, year, era] }
-  SETTLEMENT_BURIED: { variants: 2, slots: [place, year, era] }
+  SETTLEMENT_BURIED: { variants: 3, slots: [place, year, era] }
 
   # --- Civilisations and war --------------------------------------------------------------------
-  CIV_FOUNDED: { variants: 1, slots: [civ, place, year, era] }
-  CIV_FELL: { variants: 1, slots: [civ, year, era] }
-  WAR_DECLARED: { variants: 1, slots: [civ, year, era, foe] }
-  BATTLE: { variants: 2, slots: [civ, year, era, foe] }
-  SIEGE: { variants: 1, slots: [civ, place, year, era] }
-  CONQUEST: { variants: 1, slots: [civ, place, year, era] }
-  PEACE: { variants: 1, slots: [civ, year, era, foe] }
+  CIV_FOUNDED: { variants: 2, slots: [civ, place, year, era] }
+  CIV_FELL: { variants: 2, slots: [civ, year, era] }
+  WAR_DECLARED: { variants: 2, slots: [civ, year, era, foe] }
+  BATTLE: { variants: 3, slots: [civ, year, era, foe] }
+  SIEGE: { variants: 2, slots: [civ, place, year, era] }
+  CONQUEST: { variants: 2, slots: [civ, place, year, era] }
+  PEACE: { variants: 2, slots: [civ, year, era, foe] }
 
   # --- What the land did ------------------------------------------------------------------------
-  PLAGUE: { variants: 2, slots: [place, year, era] }
-  FAMINE: { variants: 1, slots: [place, year, era] }
-  FLOOD: { variants: 1, slots: [place, year, era] }
+  PLAGUE: { variants: 3, slots: [place, year, era] }
+  FAMINE: { variants: 2, slots: [place, year, era] }
+  FLOOD: { variants: 2, slots: [place, year, era] }
   # A mountain waking names nobody and nowhere - the event carries no actors at all.
-  ERUPTION: { variants: 2, slots: [year, era] }
+  ERUPTION: { variants: 3, slots: [year, era] }
 
   # --- People -----------------------------------------------------------------------------------
-  FIGURE_ROSE: { variants: 1, slots: [civ, figure, year, era] }
+  FIGURE_ROSE: { variants: 2, slots: [civ, figure, year, era] }
   FIGURE_DIED: { variants: 1, slots: [civ, figure, year, era] }
-  FIGURE_SLAIN: { variants: 1, slots: [civ, figure, year, era] }
-  TRAVELLER_LOST: { variants: 2, slots: [civ, figure, year, era] }
+  FIGURE_SLAIN: { variants: 2, slots: [civ, figure, year, era] }
+  TRAVELLER_LOST: { variants: 3, slots: [civ, figure, year, era] }
   SEER_VANISHED: { variants: 1, slots: [figure, year, era] }
 
   # --- Things -----------------------------------------------------------------------------------
@@ -67,7 +67,7 @@ events:
   FORT_BUILT: { variants: 1, slots: [civ, place, year, era] }
   LIGHTHOUSE_LIT: { variants: 1, slots: [civ, place, year, era] }
   MONUMENT_BUILT: { variants: 1, slots: [civ, place, year, era] }
-  TECHNOLOGY: { variants: 1, slots: [civ, year, era] }
+  TECHNOLOGY: { variants: 2, slots: [civ, year, era] }
 
   # --- The mana -----------------------------------------------------------------------------------
   STAR_FELL: { variants: 1, slots: [year, era] }
