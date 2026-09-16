@@ -285,4 +285,61 @@ class StreetNetworkTest {
     }
     assertTrue(eastward, "no rank-0 street runs east towards the approach road")
   }
+
+  @Test
+  fun `a street's width falls by the same proportion at every rank`() {
+    val params = StreetParams()
+
+    // Pinned, because these are the numbers a reader of a town sees and the interpolation is the only place
+    // they exist - there is no table to read them off any more.
+    assertEquals(12.0000, params.widthOfRank(0), 1e-4)
+    assertEquals(9.0808, params.widthOfRank(1), 1e-4)
+    assertEquals(6.8717, params.widthOfRank(2), 1e-4)
+    assertEquals(5.2000, params.widthOfRank(3), 1e-4)
+
+    for (rank in 0 until StreetParams.RANK_SPAN) {
+      assertTrue(
+        params.widthOfRank(rank) > params.widthOfRank(rank + 1),
+        "rank $rank is not wider than rank ${rank + 1}"
+      )
+    }
+
+    // A rank past the span cannot come out narrower than a lane, which is what the clamp is for.
+    assertEquals(params.widthOfRank(StreetParams.RANK_SPAN), params.widthOfRank(9), 1e-9)
+  }
+
+  @Test
+  fun `no town emits a rank-3 street`() {
+    // `StreetParams.laneWidth` claims in prose that nothing reaches rank 3 - growth stops branching at 2,
+    // cross streets are rank 1, and a patch outline is 2 - so it anchors the interpolation rather than
+    // describing a street. A claim about what a generator never produces is exactly the kind that rots
+    // silently, so it is asserted here instead of trusted.
+    val seen = sortedSetOf<Int>()
+    for (seed in 1..40L) {
+      for (layout in TownLayout.entries) {
+        val graph = StreetPlanner.plan(flatFrame(330.0), layout, roll(seed))
+        graph.chains().forEach { seen.add(it.second) }
+      }
+    }
+
+    assertTrue(seen.isNotEmpty(), "no street was planned at all")
+    assertTrue(
+      seen.all { it < StreetParams.RANK_SPAN },
+      "a planned town emitted ranks $seen - laneWidth now describes a real street and its KDoc is wrong"
+    )
+  }
+
+  @Test
+  fun `a plot never stands in the carriageway it fronts`() {
+    // The property that makes the whole width change safe. Checked on the params rather than on a laid-out
+    // town, because it has to hold for every rank including the ones a given seed happens not to emit.
+    val params = TownParams()
+    for (rank in 0..StreetParams.RANK_SPAN) {
+      assertTrue(
+        params.setbackFor(rank) >= params.streets.halfWidthOfRank(rank),
+        "rank $rank sets a plot back ${params.setbackFor(rank)} m from a centreline whose carriageway " +
+            "reaches ${params.streets.halfWidthOfRank(rank)} m"
+      )
+    }
+  }
 }
