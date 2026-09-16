@@ -25,8 +25,6 @@ class DeleteMasterHandler(
   override val handles = DeleteMasterCMSG::class
 
   override fun handle(msg: DeleteMasterCMSG): Boolean {
-    LOG.trace { "RX: $msg" }
-
     val result = try {
       masterDeletionService.delete(msg.playerId, msg.masterId, msg.confirmationName)
     } catch (e: Exception) {

@@ -15,8 +15,6 @@ class GetInventoryHandler(
   override val handles = GetInventoryCMSG::class
 
   override fun handle(msg: GetInventoryCMSG): Boolean {
-    LOG.trace { "RX: $msg" }
-
     // Get the currently selected entity for this player
     val activeEntityId = connectionInfoService.getActiveEntityId(msg.playerId)
 

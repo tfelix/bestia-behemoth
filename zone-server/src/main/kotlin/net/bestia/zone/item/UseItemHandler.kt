@@ -25,8 +25,6 @@ class UseItemHandler(
   override val handles = UseItemCMSG::class
 
   override fun handle(msg: UseItemCMSG): Boolean {
-    LOG.trace { "RX: $msg" }
-
     val item = itemRepository.findByIdOrNull(msg.itemId)
 
     if (item == null) {

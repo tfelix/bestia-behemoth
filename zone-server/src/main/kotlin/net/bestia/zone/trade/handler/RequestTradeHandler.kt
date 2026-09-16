@@ -1,6 +1,5 @@
 package net.bestia.zone.trade.handler
 
-import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.message.InMessageProcessor
 import net.bestia.zone.trade.RequestTradeCMSG
 import net.bestia.zone.trade.TradeService
@@ -18,14 +17,8 @@ class RequestTradeHandler(
   override val handles = RequestTradeCMSG::class
 
   override fun handle(msg: RequestTradeCMSG): Boolean {
-    LOG.trace { "RX: $msg" }
-
     tradeService.requestTrade(msg.playerId, msg.targetEntityId)
 
     return true
-  }
-
-  private companion object {
-    private val LOG = KotlinLogging.logger { }
   }
 }

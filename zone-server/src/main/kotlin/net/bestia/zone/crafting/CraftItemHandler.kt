@@ -29,8 +29,6 @@ class CraftItemHandler(
   override val handles = CraftItemCMSG::class
 
   override fun handle(msg: CraftItemCMSG): Boolean {
-    LOG.trace { "RX: $msg" }
-
     val activeEntityId = connectionInfoService.getActiveEntityId(msg.playerId)
 
     if (deadActionGuard.refuses(activeEntityId, "craft")) {

@@ -1,6 +1,5 @@
 package net.bestia.zone.trade.handler
 
-import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.message.InMessageProcessor
 import net.bestia.zone.trade.RetractTradeItemCMSG
 import net.bestia.zone.trade.TradeService
@@ -18,14 +17,8 @@ class RetractTradeItemHandler(
   override val handles = RetractTradeItemCMSG::class
 
   override fun handle(msg: RetractTradeItemCMSG): Boolean {
-    LOG.trace { "RX: $msg" }
-
     tradeService.retractItem(msg.playerId, msg.tradeId, msg.offerSlotId)
 
     return true
-  }
-
-  private companion object {
-    private val LOG = KotlinLogging.logger { }
   }
 }

@@ -24,8 +24,6 @@ class DropItemHandler(
   override val handles = DropItemCMSG::class
 
   override fun handle(msg: DropItemCMSG): Boolean {
-    LOG.trace { "RX: $msg" }
-
     if (msg.amount <= 0) {
       LOG.warn { "Invalid drop amount ${msg.amount} from player ${msg.playerId}" }
       return true

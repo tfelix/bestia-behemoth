@@ -19,7 +19,6 @@ class RequestDisbandPartyHandler(
   override val handles = RequestDisbandPartyCMSG::class
 
   override fun handle(msg: RequestDisbandPartyCMSG): Boolean {
-    LOG.trace { "RX: $msg" }
     try {
       val oldPartyMemberAccountIds = partyService.disbandParty(msg.playerId, msg.partyId)
       val disbandMsg = DisbandPartySMSG(msg.partyId)

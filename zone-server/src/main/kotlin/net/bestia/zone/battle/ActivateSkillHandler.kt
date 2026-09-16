@@ -47,8 +47,6 @@ class ActivateSkillHandler(
   override val handles = ActivateSkillCMSG::class
 
   override fun handle(msg: ActivateSkillCMSG): Boolean {
-    LOG.trace { "RX: $msg" }
-
     val activeEntityId = connectionInfoService.getActiveEntityId(msg.playerId)
 
     if (deadActionGuard.refuses(activeEntityId, "activate a skill")) {

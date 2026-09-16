@@ -18,8 +18,6 @@ class SelectMasterHandler(
   override val handles = SelectMasterCMSG::class
 
   override fun handle(msg: SelectMasterCMSG): Boolean {
-    LOG.trace { "RX: $msg" }
-
     val masterEntityId = masterEntitySpawner.spawnMaster(msg.selectedMasterId)
 
     LOG.debug { "Selecting master ${msg.selectedMasterId} with entity id: $masterEntityId for account: ${msg.playerId}" }

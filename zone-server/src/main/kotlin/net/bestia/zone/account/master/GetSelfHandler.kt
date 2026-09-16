@@ -40,8 +40,6 @@ class GetSelfHandler(
    */
   @Transactional(readOnly = true)
   override fun handle(msg: GetSelfCMSG): Boolean {
-    LOG.trace { "RX: $msg" }
-
     val selfInfo = getSelfInfo(msg.playerId)
 
     outMessageProcessor.sendToPlayer(msg.playerId, selfInfo)

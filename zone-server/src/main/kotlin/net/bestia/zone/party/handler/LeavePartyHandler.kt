@@ -19,7 +19,6 @@ class LeavePartyHandler(
   override val handles = LeavePartyCMSG::class
 
   override fun handle(msg: LeavePartyCMSG): Boolean {
-    LOG.trace { "RX: $msg" }
     try {
       when (val result = partyService.leaveParty(msg.playerId)) {
         is PartyService.LeavePartyResult.Disbanded -> {

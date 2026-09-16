@@ -31,8 +31,6 @@ class MoveActiveEntityHandler(
   override val handles = MoveActiveEntityCMSG::class
 
   override fun handle(msg: MoveActiveEntityCMSG): Boolean {
-    LOG.trace { "RX: $msg" }
-
     val activeEntityId = connectionInfoService.getActiveEntityId(msg.playerId)
 
     // Before the cancel calls: a corpse expresses no intent, so it must not even abort its own logout.

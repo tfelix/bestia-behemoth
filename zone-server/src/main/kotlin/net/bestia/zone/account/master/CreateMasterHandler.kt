@@ -1,6 +1,5 @@
 package net.bestia.zone.account.master
 
-import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.message.InMessageProcessor
 import net.bestia.zone.message.OutMessageProcessor
 import org.springframework.stereotype.Component
@@ -19,7 +18,6 @@ class CreateMasterHandler(
    */
   @Transactional
   override fun handle(msg: CreateMasterCMSG): Boolean {
-    LOG.trace { "RX: $msg" }
     try {
       // Create MasterCreateData from the message
       val masterCreateData = MasterFactory.CreateMasterData(
@@ -45,9 +43,5 @@ class CreateMasterHandler(
     }
 
     return true
-  }
-
-  companion object {
-    private val LOG = KotlinLogging.logger { }
   }
 }

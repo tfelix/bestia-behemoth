@@ -21,8 +21,6 @@ class SelectEntityHandler(
   override val handles = SelectEntityCMSG::class
 
   override fun handle(msg: SelectEntityCMSG): Boolean {
-    LOG.trace { "RX: $msg" }
-
     // Read before switching: this is the entity that is about to stop being driven and start looking after
     // itself again.
     val previous = runCatching { connectionInfoService.getActiveEntityId(msg.playerId) }.getOrNull()

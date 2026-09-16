@@ -21,8 +21,6 @@ class InvestStatusPointHandler(
   override val handles = InvestStatusPointCMSG::class
 
   override fun handle(msg: InvestStatusPointCMSG): Boolean {
-    LOG.trace { "RX: $msg" }
-
     val master = masterResolver.getSelectedMasterByAccountId(msg.playerId)
     val investments = msg.investedPoints.map { StatusPointInvestment(it.attribute, it.amount) }
 

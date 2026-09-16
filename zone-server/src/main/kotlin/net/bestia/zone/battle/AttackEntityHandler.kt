@@ -1,6 +1,5 @@
 package net.bestia.zone.battle
 
-import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.battle.skill.AttackExecutionService
 import net.bestia.zone.battle.skill.BattleAttack
 import net.bestia.zone.ecs.battle.damage.DeadActionGuard
@@ -30,8 +29,6 @@ class AttackEntityHandler(
   override val handles = AttackEntityCMSG::class
 
   override fun handle(msg: AttackEntityCMSG): Boolean {
-    LOG.trace { "RX: $msg" }
-
     val attackerId = connectionInfoService.getActiveEntityId(msg.playerId)
 
     // AttackExecutionService refuses a dead attacker anyway; caught here too so a corpse does not
@@ -54,9 +51,5 @@ class AttackEntityHandler(
     }
 
     return true
-  }
-
-  companion object {
-    private val LOG = KotlinLogging.logger { }
   }
 }

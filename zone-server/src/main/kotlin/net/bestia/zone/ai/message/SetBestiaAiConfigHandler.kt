@@ -35,8 +35,6 @@ class SetBestiaAiConfigHandler(
 
   @Transactional
   override fun handle(msg: SetBestiaAiConfigCMSG): Boolean {
-    LOG.trace { "RX: $msg" }
-
     val stance = msg.stance ?: return deny(msg.playerId, AiConfigErrorSMSG.AiConfigErrorCode.INVALID_STANCE)
 
     if (!ownsBestia(msg.playerId, msg.playerBestiaId)) {

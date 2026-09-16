@@ -1,6 +1,5 @@
 package net.bestia.zone.trade.handler
 
-import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.message.InMessageProcessor
 import net.bestia.zone.trade.ConfirmTradeCMSG
 import net.bestia.zone.trade.TradeService
@@ -18,14 +17,8 @@ class ConfirmTradeHandler(
   override val handles = ConfirmTradeCMSG::class
 
   override fun handle(msg: ConfirmTradeCMSG): Boolean {
-    LOG.trace { "RX: $msg" }
-
     tradeService.confirm(msg.playerId, msg.tradeId)
 
     return true
-  }
-
-  private companion object {
-    private val LOG = KotlinLogging.logger { }
   }
 }

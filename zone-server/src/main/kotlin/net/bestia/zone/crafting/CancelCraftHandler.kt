@@ -1,6 +1,5 @@
 package net.bestia.zone.crafting
 
-import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.battle.skill.CastCancelService
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.message.InMessageProcessor
@@ -18,14 +17,8 @@ class CancelCraftHandler(
   override val handles = CancelCraftCMSG::class
 
   override fun handle(msg: CancelCraftCMSG): Boolean {
-    LOG.trace { "RX: $msg" }
-
     castCancelService.cancelCraft(connectionInfoService.getActiveEntityId(msg.playerId))
 
     return true
-  }
-
-  companion object {
-    private val LOG = KotlinLogging.logger { }
   }
 }

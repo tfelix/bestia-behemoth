@@ -1,6 +1,5 @@
 package net.bestia.zone.account.master.skill
 
-import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.account.master.MasterResolver
 import net.bestia.zone.skill.SkillListSMSG
 import net.bestia.zone.message.InMessageProcessor
@@ -21,8 +20,6 @@ class InvestSkillPointHandler(
   override val handles = InvestSkillPointCMSG::class
 
   override fun handle(msg: InvestSkillPointCMSG): Boolean {
-    LOG.trace { "RX: $msg" }
-
     val master = masterResolver.getSelectedMasterByAccountId(msg.playerId)
     val investments = msg.investedPoints.map { SkillPointInvestment(it.attackId, it.amount) }
     masterSkillTreeService.investSkillPoints(master.id, investments)
@@ -37,9 +34,5 @@ class InvestSkillPointHandler(
     }
 
     return true
-  }
-
-  companion object {
-    private val LOG = KotlinLogging.logger { }
   }
 }
