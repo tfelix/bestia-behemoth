@@ -43,9 +43,10 @@ class SleepAtHomeActionTemplate : ActionTemplate {
     private const val MIN_SLEEP_SECONDS = 3f
 
     private fun stillSleeping(context: BtContext): Boolean {
-      val hour = context.memory.get(TownsfolkDomain.HOUR_OF_DAY)
+      val minuteOfDay = context.memory.get(TownsfolkDomain.MINUTE_OF_DAY)
       val rest = TownsfolkDomain.restHoursOf(context.memory.get(TownsfolkDomain.OCCUPATION))
-      val stillNight = hour != null && rest.covers(hour)
+      val offset = context.memory.get(TownsfolkDomain.DAY_OFFSET_MINUTES) ?: 0
+      val stillNight = minuteOfDay != null && rest.coversMinute(minuteOfDay, offset)
 
       return stillNight ||
         (context.memory.get(TownsfolkDomain.TIREDNESS) ?: 0) > TownsfolkDomain.RESTED_TIREDNESS

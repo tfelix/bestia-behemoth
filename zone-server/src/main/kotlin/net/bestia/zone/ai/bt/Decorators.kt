@@ -113,14 +113,15 @@ class Cooldown(private val child: BtNode, private val seconds: Float) : BtNode {
  * The child completing does **not** end the span: a shift is a length of time, and the work inside it
  * repeats. Child FAILURE does end it, because a shift whose work cannot be done is over.
  *
- * FAILURE when the hour is unknown. Nothing has perceived yet, and standing somewhere until an unknown
+ * FAILURE when the clock is unknown. Nothing has perceived yet, and standing somewhere until an unknown
  * clock says otherwise is indistinguishable from standing there forever.
  */
 class UntilHour(private val window: HourWindow, private val child: BtNode) : BtNode {
 
   override fun tick(context: BtContext): Status {
-    val hour = context.memory.get(CommonKeys.HOUR_OF_DAY) ?: return Status.FAILURE
-    if (!window.covers(hour)) return Status.SUCCESS
+    val minuteOfDay = context.memory.get(CommonKeys.MINUTE_OF_DAY) ?: return Status.FAILURE
+    val offset = context.memory.get(CommonKeys.DAY_OFFSET_MINUTES) ?: 0
+    if (!window.coversMinute(minuteOfDay, offset)) return Status.SUCCESS
 
     return if (child.tick(context) == Status.FAILURE) Status.FAILURE else Status.RUNNING
   }

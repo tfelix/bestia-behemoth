@@ -40,19 +40,21 @@ class TownsfolkRoster(
     val home: Vec3L,
     val homeBuilding: Long,
     val workplace: Vec3L?,
+    /** How far this person's own day sits off the hours their occupation states. */
+    val dayOffsetMinutes: Int,
   ) {
 
     /**
-     * Where this person would be at [hour].
+     * Where this person would be at [minuteOfDay].
      *
      * A pure function of the occupation and the clock, which is what lets residency ask the question
      * without materialising anybody. It is deliberately coarse - the post through the shift, the house
      * otherwise, and nothing about the walk between them - because it decides whether somebody is worth
      * building, not where to draw them.
      */
-    fun anchorAt(hour: Int): Vec3L {
+    fun anchorAt(minuteOfDay: Int): Vec3L {
       val shift = occupation.shift ?: return home
-      return if (shift.covers(hour) && workplace != null) workplace else home
+      return if (shift.coversMinute(minuteOfDay, dayOffsetMinutes) && workplace != null) workplace else home
     }
 
     /** The hours they are indoors at home. See [IndoorRegistry]. */
@@ -90,6 +92,7 @@ class TownsfolkRoster(
             home = placed.home,
             homeBuilding = placed.homeBuilding,
             workplace = placed.workplace,
+            dayOffsetMinutes = 0,
           )
         )
       }

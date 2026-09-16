@@ -93,7 +93,7 @@ class TownsfolkShelterTest {
       set(TownsfolkDomain.POSITION, at, Blackboard.PERMANENT)
       set(TownsfolkDomain.HOME_POSITION, home, Blackboard.PERMANENT)
       set(TownsfolkDomain.WORK_POSITION, post, Blackboard.PERMANENT)
-      set(TownsfolkDomain.HOUR_OF_DAY, WORKING_HOUR, Blackboard.PERMANENT)
+      set(TownsfolkDomain.MINUTE_OF_DAY, WORKING_HOUR * HourWindow.MINUTES_PER_HOUR, Blackboard.PERMANENT)
       set(TownsfolkDomain.DAY_INDEX, TODAY, Blackboard.PERMANENT)
       set(TownsfolkDomain.WANDER_RADIUS, TownsfolkDomain.DEFAULT_LOITER_RADIUS, Blackboard.PERMANENT)
       set(TownsfolkDomain.TIREDNESS, 30, Blackboard.PERMANENT)

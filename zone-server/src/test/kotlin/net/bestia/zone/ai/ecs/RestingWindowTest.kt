@@ -83,13 +83,13 @@ class RestingWindowTest {
   }
 
   @Test
-  fun `perception publishes the hour and the day`() {
+  fun `perception publishes the minute and the day`() {
     ai.now = ai.now.copy(hour = 7)
     val mob = ai.spawnMob(DIURNAL, Vec3L(0, 0, 0))
 
     ai.tick(TICKS_PER_SWEEP)
 
-    assertEquals(7, ai.beliefOf(mob, CommonKeys.HOUR_OF_DAY))
+    assertEquals(7 * 60, ai.beliefOf(mob, CommonKeys.MINUTE_OF_DAY))
     assertEquals(ai.now.absoluteDay.toLong(), ai.beliefOf(mob, CommonKeys.DAY_INDEX))
   }
 
@@ -107,7 +107,7 @@ class RestingWindowTest {
 
   /** Awake 18:00 to 06:00, so the resting window is the daylight either side of it. */
   private fun nightShift(): RestingWindow {
-    return RestingWindow { hour, _ -> hour in 6 until 18 }
+    return RestingWindow { minuteOfDay, _ -> minuteOfDay in 6 * 60 until 18 * 60 }
   }
 
   private fun spawnWithWindow(window: RestingWindow): EntityId {

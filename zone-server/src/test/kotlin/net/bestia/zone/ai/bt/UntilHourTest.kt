@@ -35,7 +35,7 @@ class UntilHourTest {
 
   @Test
   fun `it runs while the clock is inside the span`() {
-    memory.set(CommonKeys.HOUR_OF_DAY, 9, Blackboard.PERMANENT)
+    memory.set(CommonKeys.MINUTE_OF_DAY, 540, Blackboard.PERMANENT)
 
     assertEquals(Status.RUNNING, UntilHour(shift, child).tick(context()))
   }
@@ -43,7 +43,7 @@ class UntilHourTest {
   @Test
   fun `the child finishing does not finish the span`() {
     // A shift is a length of time and the work inside it repeats, so a child that succeeds is asked again.
-    memory.set(CommonKeys.HOUR_OF_DAY, 9, Blackboard.PERMANENT)
+    memory.set(CommonKeys.MINUTE_OF_DAY, 540, Blackboard.PERMANENT)
     val sut = UntilHour(shift, child)
     val context = context()
 
@@ -53,25 +53,25 @@ class UntilHourTest {
 
   @Test
   fun `it succeeds once the clock leaves the span`() {
-    memory.set(CommonKeys.HOUR_OF_DAY, 18, Blackboard.PERMANENT)
+    memory.set(CommonKeys.MINUTE_OF_DAY, 1080, Blackboard.PERMANENT)
 
     assertEquals(Status.SUCCESS, UntilHour(shift, child).tick(context()))
     assertEquals(0, childTicks, "the shift was over before it started, so there was nothing to do")
   }
 
   @Test
-  fun `an unknown hour fails rather than waiting forever`() {
+  fun `an unknown clock fails rather than waiting forever`() {
     assertEquals(Status.FAILURE, UntilHour(shift, child).tick(context()))
   }
 
   @Test
   fun `a fresh tree does not restart the span`() {
     // Two separate adoptions of the same action, the second late in the shift. A countdown would give the
-    // second one the full twelve hours; the hour gives it the twenty minutes actually left.
-    memory.set(CommonKeys.HOUR_OF_DAY, 9, Blackboard.PERMANENT)
+    // second one the full twelve hours; the clock gives it the twenty minutes actually left.
+    memory.set(CommonKeys.MINUTE_OF_DAY, 540, Blackboard.PERMANENT)
     assertEquals(Status.RUNNING, UntilHour(shift, child).tick(context()))
 
-    memory.set(CommonKeys.HOUR_OF_DAY, 18, Blackboard.PERMANENT)
+    memory.set(CommonKeys.MINUTE_OF_DAY, 1080, Blackboard.PERMANENT)
     assertEquals(Status.SUCCESS, UntilHour(shift, child).tick(context()), "a rebuilt tree still knows the time")
   }
 

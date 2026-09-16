@@ -10,7 +10,7 @@ package net.bestia.zone.ai.core.state
  */
 fun interface RestingWindow {
 
-  fun isRestingAt(hour: Int, isNight: Boolean): Boolean
+  fun isRestingAt(minuteOfDay: Int, isNight: Boolean): Boolean
 
   companion object {
     /** For an agent that has no bedtime of its own; nothing will clear its latch. */

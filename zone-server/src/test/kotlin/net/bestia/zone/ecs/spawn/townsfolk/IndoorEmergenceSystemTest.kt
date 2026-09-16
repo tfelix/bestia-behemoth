@@ -36,7 +36,7 @@ class IndoorEmergenceSystemTest {
 
   @Test
   fun `nobody comes out while it is still their night`() {
-    registry.enter(sleeper, DOOR, HourWindow(22, 6))
+    registry.enter(sleeper, DOOR, HourWindow(22, 6), 0)
 
     sut.update(world, DELTA)
 
@@ -45,7 +45,7 @@ class IndoorEmergenceSystemTest {
 
   @Test
   fun `and the record goes when it is over`() {
-    registry.enter(sleeper, DOOR, HourWindow(22, 6))
+    registry.enter(sleeper, DOOR, HourWindow(22, 6), 0)
     hour = 6
 
     sut.update(world, DELTA)
@@ -55,7 +55,7 @@ class IndoorEmergenceSystemTest {
 
   @Test
   fun `an empty town wakes up for nothing`() {
-    registry.enter(sleeper, DOOR, HourWindow(22, 6))
+    registry.enter(sleeper, DOOR, HourWindow(22, 6), 0)
     hour = 6
 
     sut.update(world, DELTA)
@@ -67,8 +67,8 @@ class IndoorEmergenceSystemTest {
   fun `each person keeps their own hours`() {
     // The reason the window is stored per record rather than read off a global bedtime: a night watch is
     // indoors during the day, and one rule would turn the whole town out together.
-    registry.enter(sleeper, DOOR, HourWindow(22, 6))
-    registry.enter(nightWatch, DOOR, HourWindow(6, 14))
+    registry.enter(sleeper, DOOR, HourWindow(22, 6), 0)
+    registry.enter(nightWatch, DOOR, HourWindow(6, 14), 0)
     hour = 23
 
     sut.update(world, DELTA)

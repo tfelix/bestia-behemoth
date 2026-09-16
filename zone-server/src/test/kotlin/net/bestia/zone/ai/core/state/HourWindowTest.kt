@@ -8,7 +8,8 @@ import kotlin.test.assertTrue
 
 /**
  * The midnight wrap, which is the only thing in here that is easy to get wrong and the reason the type
- * exists at all rather than a pair of Ints being passed about.
+ * exists at all rather than a pair of Ints being passed about - and the per-person offset, which is the
+ * second thing that is easy to get wrong for exactly the same reason.
  */
 class HourWindowTest {
 
@@ -16,23 +17,52 @@ class HourWindowTest {
   fun `an ordinary daytime span covers its own hours and no others`() {
     val shift = HourWindow(6, 18)
 
-    assertTrue(shift.covers(6), "the span starts at its first hour")
-    assertTrue(shift.covers(17))
-    assertFalse(shift.covers(18), "and ends before its last, or two adjoining shifts would share an hour")
-    assertFalse(shift.covers(5))
-    assertFalse(shift.covers(0))
+    assertTrue(shift.coversMinute(at(6), ON_TIME), "the span starts at its first hour")
+    assertTrue(shift.coversMinute(at(17), ON_TIME))
+    assertFalse(shift.coversMinute(at(18), ON_TIME), "and ends before its last, or two shifts share an hour")
+    assertFalse(shift.coversMinute(at(5), ON_TIME))
+    assertFalse(shift.coversMinute(at(0), ON_TIME))
   }
 
   @Test
   fun `a span that wraps midnight covers both sides of it`() {
     val night = HourWindow(22, 6)
 
-    assertTrue(night.covers(22))
-    assertTrue(night.covers(23))
-    assertTrue(night.covers(0), "midnight is inside a night, which is the whole difficulty")
-    assertTrue(night.covers(5))
-    assertFalse(night.covers(6))
-    assertFalse(night.covers(12))
+    assertTrue(night.coversMinute(at(22), ON_TIME))
+    assertTrue(night.coversMinute(at(23), ON_TIME))
+    assertTrue(night.coversMinute(at(0), ON_TIME), "midnight is inside a night, which is the whole difficulty")
+    assertTrue(night.coversMinute(at(5), ON_TIME))
+    assertFalse(night.coversMinute(at(6), ON_TIME))
+    assertFalse(night.coversMinute(at(12), ON_TIME))
+  }
+
+  @Test
+  fun `a span is asked to the minute, not to the hour`() {
+    val shift = HourWindow(7, 17)
+
+    assertTrue(shift.coversMinute(at(16, 59), ON_TIME))
+    assertFalse(shift.coversMinute(at(17, 1), ON_TIME))
+  }
+
+  @Test
+  fun `an offset moves the person, so the span keeps its length`() {
+    val shift = HourWindow(7, 17)
+
+    // Half an hour late to the post and half an hour late leaving it. Ten hours either way.
+    assertFalse(shift.coversMinute(at(7), LATE))
+    assertTrue(shift.coversMinute(at(7, 31), LATE))
+    assertTrue(shift.coversMinute(at(17, 29), LATE), "they are still at work")
+    assertFalse(shift.coversMinute(at(17, 31), LATE))
+  }
+
+  @Test
+  fun `an offset wraps rather than falling off either end of the day`() {
+    val night = HourWindow(22, 6)
+
+    // Early to bed, from the far side of midnight. The subtraction goes negative and has to come back round.
+    assertTrue(night.coversMinute(at(21, 31), EARLY))
+    assertFalse(night.coversMinute(at(5, 31), EARLY), "they were up half an hour ago")
+    assertTrue(night.coversMinute(at(0), EARLY))
   }
 
   @Test
@@ -57,5 +87,15 @@ class HourWindowTest {
   @Test
   fun `it prints as hours`() {
     assertEquals("06:00-18:00", HourWindow(6, 18).toString())
+  }
+
+  private fun at(hour: Int, minute: Int = 0): Int {
+    return hour * HourWindow.MINUTES_PER_HOUR + minute
+  }
+
+  private companion object {
+    const val ON_TIME = 0
+    const val LATE = 30
+    const val EARLY = -30
   }
 }

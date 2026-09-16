@@ -64,7 +64,8 @@ object TownsfolkDomain : AiDomainCatalogue {
 
   val POSITION = CommonKeys.POSITION
   val HOME_POSITION = CommonKeys.HOME_POSITION
-  val HOUR_OF_DAY = CommonKeys.HOUR_OF_DAY
+  val MINUTE_OF_DAY = CommonKeys.MINUTE_OF_DAY
+  val DAY_OFFSET_MINUTES = CommonKeys.DAY_OFFSET_MINUTES
   val HUNGER = CommonKeys.HUNGER
   val HUNGER_THRESHOLD = CommonKeys.HUNGER_THRESHOLD
   val TIREDNESS = CommonKeys.TIREDNESS
@@ -246,9 +247,9 @@ object TownsfolkDomain : AiDomainCatalogue {
    * morning. Per person rather than per archetype, because a night watch that had the commoner's window
    * would be sent to bed in the middle of its own shift.
    */
-  fun restingWindowFor(occupation: Occupation?): RestingWindow {
+  fun restingWindowFor(occupation: Occupation?, offsetMinutes: Int): RestingWindow {
     val rest = restHoursOf(occupation)
-    return RestingWindow { hour, _ -> rest.covers(hour) }
+    return RestingWindow { minuteOfDay, _ -> rest.coversMinute(minuteOfDay, offsetMinutes) }
   }
 
   // ----------------------------------------------------------------------------- helpers
@@ -267,17 +268,22 @@ object TownsfolkDomain : AiDomainCatalogue {
     return state.get(MEAL_POSITION) != null && state.get(MEAL_IN_STOCK) == true
   }
 
-  /** False rather than null when the hour is unknown: an agent that has not perceived yet is not in bed. */
+  /** How far this person's own day sits off the stated hours. Zero for anybody who keeps them. */
+  fun dayOffsetOf(state: WorldState): Int {
+    return state.get(DAY_OFFSET_MINUTES) ?: 0
+  }
+
+  /** False rather than null when the clock is unknown: an agent that has not perceived yet is not in bed. */
   fun isBedtime(state: WorldState): Boolean {
-    val hour = state.get(HOUR_OF_DAY) ?: return false
-    return restHoursOf(state.get(OCCUPATION)).covers(hour)
+    val minuteOfDay = state.get(MINUTE_OF_DAY) ?: return false
+    return restHoursOf(state.get(OCCUPATION)).coversMinute(minuteOfDay, dayOffsetOf(state))
   }
 
   /** Whether the clock is inside this person's shift. False for anybody who has none. */
   fun isOnShift(state: WorldState): Boolean {
     val shift = state.get(OCCUPATION)?.shift ?: return false
-    val hour = state.get(HOUR_OF_DAY) ?: return false
-    return shift.covers(hour)
+    val minuteOfDay = state.get(MINUTE_OF_DAY) ?: return false
+    return shift.coversMinute(minuteOfDay, dayOffsetOf(state))
   }
 
   /**
@@ -351,8 +357,8 @@ object TownsfolkDomain : AiDomainCatalogue {
   }
 
   fun isEvening(state: WorldState): Boolean {
-    val hour = state.get(HOUR_OF_DAY) ?: return false
-    return eveningOf(state.get(OCCUPATION))?.covers(hour) == true
+    val minuteOfDay = state.get(MINUTE_OF_DAY) ?: return false
+    return eveningOf(state.get(OCCUPATION))?.coversMinute(minuteOfDay, dayOffsetOf(state)) == true
   }
 
   fun isAtMeal(state: WorldState): Boolean {

@@ -36,12 +36,22 @@ object CommonKeys {
   val IS_NIGHT = StateKey<Boolean>("isNight", observed = true, retain = Blackboard.PERMANENT)
 
   /**
-   * The world calendar's hour, 0..23.
+   * The world calendar's minute of the day, 0..1439.
    *
    * [IS_NIGHT] is too coarse for anything with a timetable: full night runs 22:00 to 04:00, while a baker
-   * opens at five and a guard's watch ends at six.
+   * opens at five and a guard's watch ends at six. Minutes rather than hours because a timetable everybody
+   * keeps to the hour is one a whole town acts on in the same step - see [DAY_OFFSET_MINUTES].
    */
-  val HOUR_OF_DAY = StateKey<Int>("hourOfDay", observed = true, retain = Blackboard.PERMANENT)
+  val MINUTE_OF_DAY = StateKey<Int>("minuteOfDay", observed = true, retain = Blackboard.PERMANENT)
+
+  /**
+   * How far this individual's own day sits off the hours their occupation states, in minutes.
+   *
+   * Absent for anybody who keeps the stated hours, which is every creature and every agent a GM puts
+   * down by hand. See [net.bestia.zone.ai.core.state.HourWindow.coversMinute] for why one number covers
+   * the whole day rather than one per boundary.
+   */
+  val DAY_OFFSET_MINUTES = StateKey<Int>("dayOffsetMinutes", retain = Blackboard.PERMANENT)
 
   /**
    * Days since the world began, whole.

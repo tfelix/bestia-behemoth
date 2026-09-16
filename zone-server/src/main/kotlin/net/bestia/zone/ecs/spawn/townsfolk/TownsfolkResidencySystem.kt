@@ -97,7 +97,7 @@ class TownsfolkResidencySystem(
 
   /** Everybody whose anchor is inside some player's ring, and who is not already behind a door. */
   private fun wantedNear(players: List<Vec3L>): Map<Long, Vec3L> {
-    val hour = clock.now().hour
+    val minuteOfDay = clock.now().minuteOfDay
     val radius = config.activationRadiusTiles
     val wanted = HashMap<Long, Vec3L>()
 
@@ -105,7 +105,7 @@ class TownsfolkResidencySystem(
       for (resident in roster.of(settlement)) {
         if (indoors.isIndoors(resident.identity)) continue
 
-        val anchor = resident.anchorAt(hour)
+        val anchor = resident.anchorAt(minuteOfDay)
         if (players.any { within(anchor, it, radius) }) wanted[resident.identity] = anchor
       }
     }
