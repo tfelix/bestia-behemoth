@@ -498,10 +498,11 @@ class TownStage(
     // A grown street that crosses a patch's middle is invisible to the block subdivision, which only knows the
     // streets on the patch's own edges. Dropped here, once the whole planar graph exists, rather than threaded into
     // the subdivider - the cut has no business knowing about the suburbs.
-    coreLots.retainAll { !LotPlanner.blockedByStreet(it, graph) }
+    coreLots.retainAll { !LotPlanner.blockedByStreet(it, graph, params.streets::halfWidthOfRank) }
 
     val lots = coreLots + LotPlanner.subdivide(
       graph, frame, params.lotFrontage, params.lotDepth, params::setbackFor,
+      params.streets::halfWidthOfRank,
       distance = distance, already = coreLots,
       // The core belongs to the blocks. Tested against the patches themselves rather than against the core outline,
       // so that ground a patch lost to a river or to a slope is still available to the suburbs.
