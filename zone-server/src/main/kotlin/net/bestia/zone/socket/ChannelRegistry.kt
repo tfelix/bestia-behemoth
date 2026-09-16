@@ -13,13 +13,7 @@ class ChannelRegistry(
   config: SocketServerConfig
 ) : OutMessageHandler {
 
-  private val logMessages = config.filterLogMessages.filter {
-    !it.startsWith("!")
-  }.toSet()
-
-  private val notLogMessages = config.filterLogMessages.filter {
-    it.startsWith("!")
-  }.map { it.substring(1) }.toSet()
+  private val logFilter = EnvelopeLogFilter(config.filterLogMessages)
 
   private val channelsByAccountId = ConcurrentHashMap<Long, Channel>()
 
@@ -102,16 +96,8 @@ class ChannelRegistry(
     val envelope = outMessage.toBnetEnvelope()
     channel.write(envelope)
 
-    // Quite some complex log filtering if trace is enabled
-    if (LOG.isTraceEnabled()) {
-      val envelopeTxt = envelope.toString()
-      val isLogMessage = logMessages.isEmpty() || logMessages.any { envelopeTxt.contains(it) }
-      val isNotLogMessage = notLogMessages.isEmpty() || notLogMessages.none { envelopeTxt.contains(it) }
-      if (isLogMessage && isNotLogMessage) {
-        LOG.trace {
-          "TX player: $playerId - ${channel.remoteAddress()}: $envelope"
-        }
-      }
+    if (LOG.isTraceEnabled() && logFilter.allows(envelope)) {
+      LOG.trace { "TX player: $playerId - ${channel.remoteAddress()}: $envelope" }
     }
   }
 
