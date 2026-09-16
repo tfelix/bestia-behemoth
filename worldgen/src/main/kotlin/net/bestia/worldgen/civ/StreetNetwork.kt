@@ -577,6 +577,20 @@ data class StreetParams(
   val boundaryReachFactor: Double
     get() = sqrt(boundaryAspect * (1.0 + boundaryAspectJitter)) * (1.0 + boundaryRoughness)
 
+  /**
+   * Half the carriageway of a street of this rank, in metres.
+   *
+   * Here rather than on the stage because two producers must agree on it: the feature that stamps the
+   * carriageway, and the subdivision that sets a plot back from the kerb. When those disagreed, a block
+   * either overlapped the carriageway or left a gap along every artery in the town.
+   */
+  fun halfWidthOfRank(rank: Int): Double = when (rank) {
+    0 -> 3.2
+    1 -> 2.4
+    2 -> 1.7
+    else -> 1.3
+  }
+
   /** This, with any of [source]'s keys applied. Reached as `town.streets.*`, since [TownParams] owns it. */
   fun overriddenBy(source: ParamsText.ParamsSource) = copy(
     segmentLength = source.double("segmentLength", segmentLength),
