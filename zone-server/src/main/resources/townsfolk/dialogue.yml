@@ -25,7 +25,7 @@ events:
   # --- Settlements ------------------------------------------------------------------------------
   SETTLEMENT_FOUNDED: { variants: 2, slots: [civ, place, year, era] }
   SETTLEMENT_WALLED: { variants: 1, slots: [place, year, era] }
-  SETTLEMENT_SACKED: { variants: 2, slots: [civ, place, year, era] }
+  SETTLEMENT_SACKED: { variants: 2, slots: [civ, place, year, era, foe] }
   # No civ: `abandon` attaches one only where somebody still held the place.
   SETTLEMENT_RAZED: { variants: 1, slots: [place, year, era] }
   SETTLEMENT_ABANDONED: { variants: 1, slots: [place, year, era] }
@@ -35,11 +35,11 @@ events:
   # --- Civilisations and war --------------------------------------------------------------------
   CIV_FOUNDED: { variants: 1, slots: [civ, place, year, era] }
   CIV_FELL: { variants: 1, slots: [civ, year, era] }
-  WAR_DECLARED: { variants: 1, slots: [civ, year, era] }
-  BATTLE: { variants: 2, slots: [civ, year, era] }
+  WAR_DECLARED: { variants: 1, slots: [civ, year, era, foe] }
+  BATTLE: { variants: 2, slots: [civ, year, era, foe] }
   SIEGE: { variants: 1, slots: [civ, place, year, era] }
   CONQUEST: { variants: 1, slots: [civ, place, year, era] }
-  PEACE: { variants: 1, slots: [civ, year, era] }
+  PEACE: { variants: 1, slots: [civ, year, era, foe] }
 
   # --- What the land did ------------------------------------------------------------------------
   PLAGUE: { variants: 2, slots: [place, year, era] }
@@ -62,11 +62,11 @@ events:
   ARTIFACT_ENTOMBED: { variants: 1, slots: [artifact, figure, year, era] }
 
   # --- What was built ---------------------------------------------------------------------------
-  MINE_OPENED: { variants: 1, slots: [civ, year, era] }
-  MONASTERY_FOUNDED: { variants: 1, slots: [civ, year, era] }
-  FORT_BUILT: { variants: 1, slots: [civ, year, era] }
-  LIGHTHOUSE_LIT: { variants: 1, slots: [civ, year, era] }
-  MONUMENT_BUILT: { variants: 1, slots: [civ, year, era] }
+  MINE_OPENED: { variants: 1, slots: [civ, place, year, era] }
+  MONASTERY_FOUNDED: { variants: 1, slots: [civ, place, year, era] }
+  FORT_BUILT: { variants: 1, slots: [civ, place, year, era] }
+  LIGHTHOUSE_LIT: { variants: 1, slots: [civ, place, year, era] }
+  MONUMENT_BUILT: { variants: 1, slots: [civ, place, year, era] }
   TECHNOLOGY: { variants: 1, slots: [civ, year, era] }
 
   # --- The mana -----------------------------------------------------------------------------------
@@ -80,7 +80,7 @@ events:
   # had a victor. Voiced anyway, because "never on the default config" is not "never".
   ORDER_SWORN: { variants: 1, slots: [civ, place, year, era] }
   ORDER_SCHISM: { variants: 1, slots: [civ, place, year, era] }
-  SHRINE_RAISED: { variants: 1, slots: [civ, year, era] }
+  SHRINE_RAISED: { variants: 1, slots: [civ, place, year, era] }
   RITE_PERFORMED: { variants: 1, slots: [civ, year, era] }
 
 # How long ago something was, in words - see the Era enum for the bands these name.

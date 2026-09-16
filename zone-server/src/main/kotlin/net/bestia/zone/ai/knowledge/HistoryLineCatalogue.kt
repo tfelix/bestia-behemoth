@@ -87,6 +87,7 @@ class HistoryLineCatalogue {
       HistoryKnowledge.SLOT_ARTIFACT,
       HistoryKnowledge.SLOT_YEAR,
       HistoryKnowledge.SLOT_ERA,
+      HistoryKnowledge.SLOT_FOE,
     )
 
     private val LOG = KotlinLogging.logger { }
