@@ -36,6 +36,10 @@ TALK_NEWS_NONE,Nothing worth repeating.
 TALK_SHOP_BUY_ASK,Show me your wares.
 TALK_SHOP_SELL_ASK,I have things to sell.
 TALK_NOT_YET,Not today. Come back another time.
+NAME_UNKNOWN_PLACE,a place nobody named
+NAME_UNKNOWN_CIV,old ones nobody named
+NAME_UNKNOWN_FIGURE,somebody nobody named
+NAME_UNKNOWN_ARTIFACT,a thing nobody named
 TRADE_GUARD,watch
 TRADE_PRIEST,temple
 TRADE_INNKEEPER,inn
@@ -100,8 +104,8 @@ HISTORY_ARTIFACT_FORGED_ASK,Is anything famous made near here?
 HISTORY_ARTIFACT_FORGED_1,"{figure} made {artifact} in {year}."
 HISTORY_ARTIFACT_TAKEN_ASK,Who carries {artifact}?
 HISTORY_ARTIFACT_TAKEN_1,"{artifact} passed to {figure} in {year}. Not everyone thought it should have."
-HISTORY_ARTIFACT_LOST_ASK,Was anything ever lost near {place}?
-HISTORY_ARTIFACT_LOST_1,"Something went missing at {place} in {year} that people still come asking after."
+HISTORY_ARTIFACT_LOST_ASK,Was anything ever lost around here?
+HISTORY_ARTIFACT_LOST_1,"Something went missing in {year} that people still come asking after. Nobody agrees where."
 HISTORY_ARTIFACT_ENTOMBED_ASK,Where did {artifact} end up?
 HISTORY_ARTIFACT_ENTOMBED_1,"{artifact} went into the ground with {figure} in {year}."
 HISTORY_MINE_OPENED_ASK,Is there anything worth digging for?
@@ -129,7 +133,7 @@ HISTORY_ORDER_SCHISM_1,"The {civ} broke with what they had sworn, at {place}, in
 HISTORY_SHRINE_RAISED_ASK,What is the stone circle?
 HISTORY_SHRINE_RAISED_1,"The {civ} raised it in {year}, to work at."
 HISTORY_RITE_PERFORMED_ASK,Do they still hold the rites?
-HISTORY_RITE_PERFORMED_1,"The {civ} kept the rite at {place} in {year}. They keep it still, when it matters."
+HISTORY_RITE_PERFORMED_1,"The {civ} kept the rite in {year}. They keep it still, when it matters."
 TALK_SMALL_GUARD_WATCH_ASK,Quiet shift?
 TALK_SMALL_GUARD_WATCH,"Quiet is the whole job. A shift you remember is a shift that went wrong."
 TALK_SMALL_GUARD_BOOTS_ASK,You look tired.
