@@ -14,7 +14,15 @@ import net.bestia.worldgen.core.Resolution
 import net.bestia.worldgen.core.StageId
 import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.history.SiteChannels
+import net.bestia.worldgen.civ.BuildingChannels
+import net.bestia.worldgen.civ.BuildingFunction
+import net.bestia.worldgen.civ.RoofShape
+import net.bestia.worldgen.vector.BlendMode
 import net.bestia.worldgen.vector.FeatureId
+import net.bestia.worldgen.vector.FootprintFeature
+import net.bestia.worldgen.vector.PointFeature
+import net.bestia.worldgen.vector.RadialProfiles
+import net.bestia.worldgen.vector.VectorFeature
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.PointMarker
 import net.bestia.worldgen.vector.StationTable
@@ -327,6 +335,143 @@ class VegetationTest {
     assertEquals(0, drowned, "$drowned props stand under water")
   }
 
+  @Test
+  fun `nothing grows in a yard`() {
+    val centre = forestCentre()
+    val building = buildingAt(centre)
+    val yard = VegetationParams().buildingYard
+    val trees = propsOver(PropKind.TREE, listOf(building))
+
+    // Both halves. Without the second this would pass just as well on a materialiser that emitted nothing.
+    assertEquals(
+      0, trees.count { building.within(it.second, it.third, yard) },
+      "a tree stands within the yard of a building"
+    )
+    assertTrue(trees.isNotEmpty(), "the building cleared the whole forest block, not just its yard")
+  }
+
+  @Test
+  fun `a town keeps fewer trees than the same ground without one`() {
+    val grading = gradingAt(forestCentre(), TOWN_RADIUS)
+
+    val withTown = propsOver(PropKind.TREE, listOf(grading))
+    val withoutTown = propsOver(PropKind.TREE, listOf(grading), NO_CIVILISATION)
+
+    assertTrue(withTown.size < withoutTown.size, "a settlement did not thin the wood it stands in")
+
+    // A subset by durable name, not merely a smaller count: the thinning multiplies the same roll, so a tree
+    // the town keeps is one it would have had anyway, standing exactly where it would have stood.
+    val kept = withoutTown.associate { it.first to (it.second to it.third) }
+    for ((id, x, y) in withTown) {
+      assertEquals(kept[id], x to y, "tree $id is not one this ground would have grown without the town")
+    }
+  }
+
+  @Test
+  fun `thinning stops at the settlement edge`() {
+    val centre = forestCentre()
+    val grading = gradingAt(centre, TOWN_RADIUS)
+
+    val withTown = propsOver(PropKind.TREE, listOf(grading))
+    val withoutTown = propsOver(PropKind.TREE, listOf(grading), NO_CIVILISATION)
+
+    fun outside(prop: Triple<Long, Double, Double>): Boolean {
+      val dx = prop.second - centre.x
+      val dy = prop.third - centre.y
+      return dx * dx + dy * dy > TOWN_RADIUS * TOWN_RADIUS
+    }
+
+    assertTrue(withoutTown.any(::outside), "the settlement covers the whole block, so there is no outside")
+    assertEquals(
+      withoutTown.count(::outside), withTown.count(::outside),
+      "the settlement thinned ground outside its own graded radius"
+    )
+  }
+
+  @Test
+  fun `a town does not thin anything but its trees`() {
+    val grading = gradingAt(forestCentre(), TOWN_RADIUS)
+
+    // The assertion that says the retention never leaked onto `PropSite`. The ground cover shares the trees'
+    // site - that is how a herb inherits the street and building vetoes for free - so it is what would drop
+    // if the thinning were ever handed to the wrong producer.
+    //
+    // Only the two kinds this ground actually grows. A crystal, a reed and a landmark need a mana field, a
+    // shore and a POI marker that this fixture does not have, so listing them would assert nothing.
+    for (kind in listOf(PropKind.HERB, PropKind.SHRUB)) {
+      val standing = propsOver(kind, listOf(grading))
+      assertTrue(standing.isNotEmpty(), "this ground grows no $kind, so the comparison below is empty")
+      assertEquals(
+        propsOver(kind, listOf(grading), NO_CIVILISATION).size, standing.size,
+        "$kind was thinned by a settlement"
+      )
+    }
+  }
+
+  // --- Civilisation ------------------------------------------------------------------------------------
+
+  /** A building on the forest block, big enough that its yard covers whole lattice cells. */
+  private fun buildingAt(centre: Vec2d) = FootprintFeature(
+    id = FeatureId(77L),
+    kind = FeatureKind.BUILDING,
+    center = centre,
+    bearing = Vec2d(1.0, 0.0),
+    halfLength = 6.0,
+    halfWidth = 4.0,
+    profile = RadialProfiles.terrace(groundAt(centre.x), 4.0, 4.0),
+    attributes = StationTable.Builder(1)
+      .channel(BuildingChannels.SETTLEMENT) { 0.0 }
+      .channel(BuildingChannels.FUNCTION) { BuildingFunction.RESIDENCE.ordinal.toDouble() }
+      .channel(BuildingChannels.STOREYS) { 1.0 }
+      .channel(BuildingChannels.FLOOR_ELEVATION) { groundAt(centre.x) }
+      .channel(BuildingChannels.WALL_MATERIAL) { 0.0 }
+      .channel(BuildingChannels.ROOF_MATERIAL) { 0.0 }
+      .channel(BuildingChannels.ROOF_SHAPE) { RoofShape.FLAT.ordinal.toDouble() }
+      .channel(BuildingChannels.DOOR_X) { 1.0 }
+      .channel(BuildingChannels.DOOR_Y) { 0.0 }
+      .channel(BuildingChannels.GRAMMAR_SEED) { 0.0 }
+      .build()
+  )
+
+  private fun gradingAt(centre: Vec2d, radius: Double) = PointFeature(
+    id = FeatureId(78L),
+    kind = FeatureKind.SETTLEMENT_GRADING,
+    center = centre,
+    radius = radius,
+    profile = RadialProfiles.terrace(groundAt(centre.x), 2.0, 2.0),
+    edgeFraction = 0.6,
+    blend = BlendMode.REPLACE
+  )
+
+  /** Props of one kind over the forest block, as `(durable name, x, y)`. */
+  private fun propsOver(
+    kind: PropKind,
+    extra: List<VectorFeature>,
+    vegetation: VegetationParams = VegetationParams()
+  ): List<Triple<Long, Double, Double>> {
+    val materializer = materializerOf(Double.NaN, extra, vegetation)
+    val out = mutableListOf<Triple<Long, Double, Double>>()
+
+    for (offsetY in 0 until FOREST_BLOCK) {
+      for (offsetX in 0 until FOREST_BLOCK) {
+        val props = materializer.propsIn(FOREST_CHUNK + offsetX, FOREST_CHUNK + offsetY)
+        for (i in props.indices) {
+          if (props.kindAt(i) != kind) continue
+          out.add(Triple(props.identityAt(i), props.xAt(i), props.yAt(i)))
+        }
+      }
+    }
+
+    return out
+  }
+
+  /** The middle of the forest block, in world metres. */
+  private fun forestCentre(): Vec2d {
+    val extent = CHUNK_SIZE * VOXEL
+    val middle = (FOREST_CHUNK + FOREST_BLOCK / 2) * extent + extent * 0.5
+    return Vec2d(middle, middle)
+  }
+
   /** Mean length of a `true` run, in samples. Zero when there are none. */
   private fun meanRunLength(strip: BooleanArray): Double {
     var runs = 0
@@ -446,7 +591,11 @@ class VegetationTest {
     )
   }
 
-  private fun materializerOf(waterLevel: Double): ChunkMaterializer {
+  private fun materializerOf(
+    waterLevel: Double,
+    extra: List<VectorFeature> = emptyList(),
+    vegetation: VegetationParams = VegetationParams()
+  ): ChunkMaterializer {
     val cells = region.cellCount.toInt()
 
     return ChunkMaterializer(
@@ -460,9 +609,10 @@ class VegetationTest {
       ),
       surface = surfaceOf(waterLevel),
       features = FeatureStore().apply {
-        add(StageId("test-history"), listOf(mineMarker()))
+        add(StageId("test-history"), listOf(mineMarker()) + extra)
         freeze()
-      }
+      },
+      vegetationParams = vegetation
     )
   }
 
@@ -559,6 +709,12 @@ class VegetationTest {
     const val MINE_RADIUS = 34.0
 
     /** Well clear of the mine: 6 km against `ChunkMaterializer.MARKER_MARGIN`'s 320 m. */
+    /** A settlement disc that covers part of the forest block, so there is ground inside it and out. */
+    const val TOWN_RADIUS = 40.0
+
+    /** The shipped tuning with civilisation switched off, for the half of a comparison that has no town. */
+    val NO_CIVILISATION = VegetationParams(buildingYard = 0.0, townRetention = 1.0)
+
     const val FOREST_CHUNK = 375
 
     /** Chunks per side of the forest block. Six squared is a hundred metres, most of a patch wavelength. */
