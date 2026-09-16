@@ -137,6 +137,9 @@ func _ready() -> void:
 	chunk_stream.name = "ChunkStreamManager"
 	add_child(chunk_stream)
 	chunk_stream.Attach(_socket)
+	# Terrain streaming is network traffic, so it answers to the same setting the socket does rather
+	# than to a switch of its own.
+	chunk_stream.VerboseChunkLog = SettingsManager.get_instance().net_log_mode == "detail"
 
 	weather = WeatherStateScript.new()
 	weather.name = "WeatherState"
@@ -666,9 +669,10 @@ func _on_bnet_socket_message_received(message: Object) -> void:
 		printerr("ConnectionManager: message was not identified and processed: %s" % message)
 
 
-### If we dont receive a periodically pong from the server after we send out a ping assume a disconnect.
+## Nothing acts on a pong yet. The handler stays because the ping needs somewhere to land, and a
+## round-trip figure belongs here once there is one to report.
 func _on_pong() -> void:
-	print("pong received")
+	pass
 
 
 func is_ready_to_send() -> bool:

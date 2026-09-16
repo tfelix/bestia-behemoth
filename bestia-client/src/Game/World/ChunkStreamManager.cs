@@ -583,9 +583,12 @@ namespace BestiaBehemothClient.Game.World
         StaticEntities?.Remove(column);
       }
 
-      GD.Print(
-        $"[manifest] reset={manifest.Reset} +{manifest.Added.Count} -{manifest.Removed.Count}: " +
-        $"holding {Store.HeldCount}, requesting {wanted.Count}");
+      if (VerboseChunkLog)
+      {
+        GD.Print(
+          $"[manifest] reset={manifest.Reset} +{manifest.Added.Count} -{manifest.Removed.Count}: " +
+          $"holding {Store.HeldCount}, requesting {wanted.Count}");
+      }
 
       if (wanted.Count == 0 || _socket == null)
       {
