@@ -212,6 +212,31 @@ namespace BestiaBehemothClient.Tests
     }
 
     [Fact]
+    public void The_mode_is_read_from_the_spelling_the_settings_file_uses()
+    {
+      NetLog.SetMode("off");
+      Assert.Equal(NetLogMode.Off, NetLog.Mode);
+
+      NetLog.SetMode("  Detail  ");
+      Assert.Equal(NetLogMode.Detail, NetLog.Mode);
+
+      NetLog.SetMode("summary");
+      Assert.Equal(NetLogMode.Summary, NetLog.Mode);
+    }
+
+    /// <summary>A typo must not read as a client that has nothing to report.</summary>
+    [Fact]
+    public void An_unrecognised_mode_says_so_rather_than_falling_silent()
+    {
+      var lines = Collect();
+
+      NetLog.SetMode("verbose");
+
+      Assert.Equal(NetLogMode.Summary, NetLog.Mode);
+      Assert.Contains(lines, line => line.Contains("'verbose' is not a net_log_mode"));
+    }
+
+    [Fact]
     public void The_authentication_token_is_never_spelled_out()
     {
       var envelope = new Envelope

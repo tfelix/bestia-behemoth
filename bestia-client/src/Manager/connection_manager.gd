@@ -214,6 +214,8 @@ func _accept_login_token(token: String) -> void:
 	var settings := SettingsManager.get_instance()
 	_socket.ServerName = settings.game_server_host
 	_socket.Port = settings.game_server_port
+	_socket.NetLogMode = settings.net_log_mode
+	_socket.NetLogFilter = settings.net_log_filter
 	_socket.ConnectToServer()
 
 
