@@ -27,6 +27,7 @@ import "messages/master/select_master_cmsg.proto";
 import "messages/master/create_master_cmsg.proto";
 import "messages/master/delete_master_cmsg.proto";
 import "messages/component/master_visual_component_smsg.proto";
+import "messages/component/townsfolk_visual_component_smsg.proto";
 import "messages/component/path_component_smsg.proto";
 import "messages/component/speed_component_smsg.proto";
 import "messages/component/health_component_smsg.proto";
@@ -206,6 +207,7 @@ message Envelope {
     PlaceComponentSMSG comp_place = 537;
     AreaNameComponentSMSG comp_area_name = 538;
     ConstructionComponentSMSG comp_construction = 539;
+    TownsfolkVisualComponentSMSG comp_townsfolk_visual = 540;
 
     // SOCIAL & PARTY 600
     AcceptPartyInviteCMSG accept_party_invite = 600;

@@ -142,6 +142,8 @@ func _on_entity_message_received(msg: EntitySMSG) -> void:
 		entity.update_visual(msg)
 	elif msg is MasterVisualComponentSMSG:
 		entity.update_master_visual(msg)
+	elif msg is TownsfolkVisualComponentSMSG:
+		entity.update_townsfolk_visual(msg)
 	elif msg is PathComponentSMSG:
 		entity.update_path(msg)
 	elif msg is SpeedComponentSMSG:

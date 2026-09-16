@@ -18,8 +18,8 @@ const MISSING_VISUAL: PackedScene = preload("res://Game/Entity/Visual/BestiaVisu
 ## The scene instantiated as this species' body.
 @export var bestia_visual: PackedScene
 
-## Translation key for the name shown on hover. A species name, not an individual's - the server sends no
-## per-entity name yet.
+## Translation key for the name shown on hover. A species name: the only individuals the server names are
+## townsfolk and masters, and both carry it on their own visual instead.
 @export var name_key: String
 
 ## Bitmask of the [enum EquipmentSlot.Slot]s this species physically has. Test it with

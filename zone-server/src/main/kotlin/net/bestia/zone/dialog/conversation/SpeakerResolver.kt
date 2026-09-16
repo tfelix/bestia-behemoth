@@ -1,17 +1,14 @@
 package net.bestia.zone.dialog.conversation
 
-import net.bestia.worldgen.core.GenRng
-import net.bestia.worldgen.history.Names
 import net.bestia.worldgen.pop.BusinessCatalogue
 import net.bestia.worldgen.pop.Households
 import net.bestia.worldgen.pop.Kinship
-import net.bestia.zone.ai.knowledge.ChronicleNames
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.spawn.townsfolk.HouseholdPlacement
 import net.bestia.zone.ecs.spawn.townsfolk.Townsfolk
 import net.bestia.zone.ecs.spawn.townsfolk.TownsfolkIdentity
+import net.bestia.zone.ecs.spawn.townsfolk.TownsfolkNaming
 import net.bestia.zone.util.EntityId
-import net.bestia.zone.world.WorldService
 import net.bestia.zone.world.settlement.SettlementSiteIndex
 import org.springframework.stereotype.Service
 
@@ -26,9 +23,9 @@ import org.springframework.stereotype.Service
 @Service
 class SpeakerResolver(
   private val world: WorldView,
-  private val worldService: WorldService,
   private val sites: SettlementSiteIndex,
   private val placement: HouseholdPlacement,
+  private val naming: TownsfolkNaming,
 ) {
 
   /** @return null for anything that is not a townsperson, which is most entities. */
@@ -45,15 +42,14 @@ class SpeakerResolver(
     val expanded = Households.one(summary, household)
     val person = expanded.members.getOrNull(member) ?: return null
 
-    val seed = GenRng.hash(worldService.record.seed, identity, DIALOG_SALT)
-    val culture = ChronicleNames.cultureOfSettlement(worldService.generated.world.chronicle, settlement)
+    val seed = naming.seedOf(identity)
 
     return Speaker(
       entityId = entityId,
       identity = identity,
       settlement = settlement,
       household = household,
-      name = Names.townsperson(seed, culture),
+      name = naming.nameOf(identity),
       occupation = placement.occupationFor(expanded, person),
       // A child keeps no trade whatever the household does, exactly as `occupationFor` decides.
       business = expanded.business
@@ -62,10 +58,5 @@ class SpeakerResolver(
       member = person,
       seed = seed,
     )
-  }
-
-  private companion object {
-    /** One salt for everything a conversation derives, so a townsperson's voice is not their AI's. */
-    const val DIALOG_SALT = 0xD1A706L
   }
 }

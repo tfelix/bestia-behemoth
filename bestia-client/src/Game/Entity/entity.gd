@@ -12,6 +12,7 @@ class_name Entity extends Node3D
 
 
 var MasterModelScn = preload("res://Game/Entity/Visual/MasterVisual/MasterVisual.tscn")
+var TownsfolkModelScn = preload("res://Game/Entity/Visual/TownsfolkVisual/TownsfolkVisual.tscn")
 var StructureVisualScn = preload("res://Game/Entity/Visual/StructureVisual/StructureVisual.tscn")
 var Camera = preload("res://Game/SpringArmCamera/SpringArmCamera.tscn")
 
@@ -20,6 +21,13 @@ var entity_id: int = 0
 # Species id of this entity's body, 0 for anything that is not a bestia. Kept because disposition is
 # decided from it - see EntityManager.is_entity_friendly.
 var _bestia_id: int = 0
+
+# True once a TownsfolkVisual has arrived. Townsfolk carry no species id, so this is what answers
+# is_non_combatant for them - see there.
+var _is_townsfolk: bool = false
+
+# This entity's own name, for anything that labels it. Empty for a mob, which has only a species.
+var _display_name: String = ""
 
 # Latest state pushed by the server, cached because the window or HUD showing it may be closed.
 #
@@ -292,9 +300,16 @@ func update_visual(msg: VisualComponentSMSG) -> void:
 	_seed_visual(visual)
 
 
-## True when nothing may damage this entity's species - a townsperson. Anything that is not a bestia
-## answers false: a master is not a non-combatant, it is simply not one of these.
+## True when nothing may damage this entity - a townsperson. Anything that is not a bestia answers
+## false: a master is not a non-combatant, it is simply not one of these.
+##
+## Townsfolk are answered from the flag rather than the bestia DB because they send no species id at
+## all. Only a UI hint either way - the server enforces invulnerability - so being wrong here costs a
+## cursor, not a rule.
 func is_non_combatant() -> bool:
+	if _is_townsfolk:
+		return true
+
 	var bestia := BestiaDB.get_instance().get_bestia(_bestia_id)
 	return bestia != null and bestia.non_combatant
 
@@ -331,12 +346,33 @@ func _visual_scene_for(msg: VisualComponentSMSG) -> PackedScene:
 
 
 func update_master_visual(msg: MasterVisualComponentSMSG) -> void:
+	_display_name = msg.Name
+
 	_release_visual()
 	var visual = MasterModelScn.instantiate() as MasterVisual
 	visual.setup_visual(msg)
 	visual.name = _VISUAL_NODE_NAME
 	add_child(visual)
 	_seed_visual(visual)
+
+
+## Townsfolk arrive here instead of through update_visual: one commoner archetype stands in for a whole
+## town, so a species id could only say "a townsperson" - which is what they all used to be labelled.
+func update_townsfolk_visual(msg: TownsfolkVisualComponentSMSG) -> void:
+	_is_townsfolk = true
+	_display_name = msg.Name
+
+	_release_visual()
+	var visual = TownsfolkModelScn.instantiate() as TownsfolkVisual
+	visual.setup_townsfolk(msg)
+	visual.name = _VISUAL_NODE_NAME
+	add_child(visual)
+	_seed_visual(visual)
+
+
+## Empty for anything the server has not named individually, which is every mob.
+func get_display_name() -> String:
+	return _display_name
 
 
 ## Frees the attached visual, giving up its name first.

@@ -15,12 +15,14 @@ import net.bestia.zone.ai.ecs.AiThrottleable
 import net.bestia.zone.bestia.Bestia
 import net.bestia.zone.bestia.BestiaCatalogue
 import net.bestia.zone.bestia.BestiaEntitySpawner
+import net.bestia.zone.ecs.core.Component
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.ecs.persistence.Persistent
 import net.bestia.zone.geometry.Vec3L
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertIs
 import kotlin.test.assertTrue
 
 /**
@@ -38,8 +40,12 @@ class TownsfolkSpawnerTest {
   private val catalogue = mockk<BestiaCatalogue>()
   private val bestiaSpawner = mockk<BestiaEntitySpawner>()
   private val occupations = OccupationCatalogue().apply { load() }
+  private val naming = mockk<TownsfolkNaming>()
 
   private val persistent = slot<Boolean>()
+
+  /** Every visual handed to the mob spawner, in the order the household was walked. */
+  private val visuals = mutableListOf<Component?>()
 
   /** Every blackboard handed to the mob spawner, in the order the household was walked. */
   private val seeded = mutableListOf<Blackboard>()
@@ -73,11 +79,16 @@ class TownsfolkSpawnerTest {
     }
     every { placement.dayOffsetOf(any(), any(), any()) } returns 0
 
+    // Keyed on the identity so a name can only be right if it was asked for with the right person's id.
+    every { naming.nameOf(any()) } answers { "person-${firstArg<Long>()}" }
+
     every {
-      bestiaSpawner.spawnMob(any(), any(), any(), any(), any(), capture(persistent), capture(seeded), any())
+      bestiaSpawner.spawnMob(
+        any(), any(), any(), any(), any(), capture(persistent), capture(seeded), any(), captureNullable(visuals)
+      )
     } answers { world.createEntity { } }
 
-    sut = TownsfolkEntitySpawner(placement, catalogue, bestiaSpawner)
+    sut = TownsfolkEntitySpawner(placement, catalogue, bestiaSpawner, naming)
   }
 
   @Test
@@ -128,6 +139,29 @@ class TownsfolkSpawnerTest {
       assertEquals(3, TownsfolkIdentity.householdOf(identity))
       assertEquals(member, TownsfolkIdentity.memberOf(identity), "the member index is not the one placed")
     }
+  }
+
+  @Test
+  fun `each of them is drawn as themselves, not as the commoner archetype`() {
+    val spawned = sut.spawnHousehold(world, settlement = 12, household = 3)
+    val identities = spawned.map { world.get(it, Townsfolk::class)!!.identity }
+
+    // Paired against the identity rather than checked for non-emptiness: filling every visual from the
+    // same person's id would pass any assertion that only looked at one of them.
+    assertEquals(
+      identities.map { "person-$it" },
+      visuals.map { assertIs<TownsfolkVisual>(it).name }
+    )
+  }
+
+  @Test
+  fun `a child is given a child's body`() {
+    sut.spawnHousehold(world, settlement = 12, household = 3)
+
+    assertEquals(
+      listOf(TownsfolkBody.ADULT, TownsfolkBody.CHILD),
+      visuals.map { assertIs<TownsfolkVisual>(it).body }
+    )
   }
 
   @Test
