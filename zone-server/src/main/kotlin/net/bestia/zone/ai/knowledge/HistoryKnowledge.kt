@@ -36,6 +36,9 @@ object HistoryKnowledge {
   /** How long ago it was, in words. Always produced, so any phrasing may reach for it. See [Era]. */
   const val SLOT_ERA = "era"
 
+  /** The other side, where an event has two of one kind of actor. Only ever a second civilisation. */
+  const val SLOT_FOE = "foe"
+
   /**
    * What fills a slot whose actor the chronicle has no name for.
    *
@@ -62,9 +65,9 @@ object HistoryKnowledge {
   /**
    * The first actor of each type, by the log's own convention that the first actor is the subject.
    *
-   * A siege naming two civilisations offers the attacker, because that is the one a sentence about a
-   * siege wants. Naming both would need a second slot per type and a phrasing that knows which way round
-   * they are, and no line has yet wanted it.
+   * A second civilisation is the one exception, because a war has two sides and a line about one that
+   * can only name the winner is half a sentence. Only civs: no other type is ever logged twice with
+   * both worth saying.
    */
   private fun slotsOf(chronicle: Chronicle, event: HistoryEvent): Map<String, Knowledge.Slot> {
     val slots = LinkedHashMap<String, Knowledge.Slot>()
@@ -74,17 +77,27 @@ object HistoryKnowledge {
     for (actor in event.actors) {
       when (actor.type) {
         ActorType.SETTLEMENT -> slots.putIfAbsent(SLOT_PLACE, placeName(chronicle, actor.index))
-        ActorType.CIV -> slots.putIfAbsent(SLOT_CIV, civName(chronicle, actor.index))
+        ActorType.CIV -> if (slots.putIfAbsent(SLOT_CIV, civName(chronicle, actor.index)) != null) {
+          slots.putIfAbsent(SLOT_FOE, civName(chronicle, actor.index))
+        }
         ActorType.FIGURE -> slots.putIfAbsent(SLOT_FIGURE, figureName(chronicle, actor.index))
         ActorType.ARTIFACT -> slots.putIfAbsent(SLOT_ARTIFACT, artifactName(chronicle, actor.index))
 
-        // A site's name is "the barrow of X" - the form word is English, so it cannot be handed over as a
-        // proper noun the way the others can. Left out until the form is a token beside the name.
-        ActorType.SITE -> Unit
+        // Not the site's own name - "the barrow of X" carries an English form word that cannot be handed
+        // over as a proper noun. What is worth having is the town it was built by, which every raised
+        // site has and which is the thing a player actually asked: where is it. A wound in the world
+        // belongs to no town and still says nothing.
+        ActorType.SITE -> hostOf(chronicle, actor.index)
+          ?.let { slots.putIfAbsent(SLOT_PLACE, placeName(chronicle, it)) }
       }
     }
 
     return slots
+  }
+
+  /** The settlement a site was raised by, or null for one that belongs to nobody. */
+  private fun hostOf(chronicle: Chronicle, site: Int): Int? {
+    return chronicle.sites.getOrNull(site)?.settlement?.takeIf { it >= 0 }
   }
 
   private fun placeName(chronicle: Chronicle, index: Int): Knowledge.Slot {
