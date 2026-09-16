@@ -33,6 +33,9 @@ object HistoryKnowledge {
   const val SLOT_ARTIFACT = "artifact"
   const val SLOT_YEAR = "year"
 
+  /** How long ago it was, in words. Always produced, so any phrasing may reach for it. See [Era]. */
+  const val SLOT_ERA = "era"
+
   /**
    * What fills a slot whose actor the chronicle has no name for.
    *
@@ -66,6 +69,7 @@ object HistoryKnowledge {
   private fun slotsOf(chronicle: Chronicle, event: HistoryEvent): Map<String, Knowledge.Slot> {
     val slots = LinkedHashMap<String, Knowledge.Slot>()
     slots[SLOT_YEAR] = Knowledge.Slot.Number(event.year.toLong())
+    slots[SLOT_ERA] = Knowledge.Slot.Token(Era.of(chronicle.presentYear - event.year).key)
 
     for (actor in event.actors) {
       when (actor.type) {

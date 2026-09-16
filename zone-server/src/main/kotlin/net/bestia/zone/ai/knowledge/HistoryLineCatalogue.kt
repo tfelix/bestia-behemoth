@@ -30,6 +30,12 @@ class HistoryLineCatalogue {
     val mapper = JsonMapper.builder(YAMLFactory()).addModule(kotlinModule()).build()
     val file = mapper.readValue(ClassPathResource(RESOURCE).inputStream, DialogueYmlDto::class.java)
 
+    // Names only; the bands themselves are Era's. Repeating them in the file is what lets the build
+    // check the client has a row for each, and this is what stops the two lists drifting apart.
+    require(file.eras == Era.entries.map { it.key }) {
+      "$RESOURCE lists eras ${file.eras}, but Era declares ${Era.entries.map { it.key }}"
+    }
+
     file.events.forEach { (kind, dto) -> register(kind, dto) }
 
     val unvoiced = EventKind.entries - byKind.keys
@@ -60,7 +66,10 @@ class HistoryLineCatalogue {
     byKind[kind] = HistoryLine(dto.variants, dto.slots.toSet())
   }
 
-  private data class DialogueYmlDto(val events: Map<EventKind, LineDto> = emptyMap())
+  private data class DialogueYmlDto(
+    val events: Map<EventKind, LineDto> = emptyMap(),
+    val eras: List<String> = emptyList(),
+  )
 
   private data class LineDto(
     val variants: Int = 1,
@@ -77,6 +86,7 @@ class HistoryLineCatalogue {
       HistoryKnowledge.SLOT_FIGURE,
       HistoryKnowledge.SLOT_ARTIFACT,
       HistoryKnowledge.SLOT_YEAR,
+      HistoryKnowledge.SLOT_ERA,
     )
 
     private val LOG = KotlinLogging.logger { }
