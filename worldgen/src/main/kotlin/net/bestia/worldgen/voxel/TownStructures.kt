@@ -370,7 +370,9 @@ class TownStructures(features: List<VectorFeature>, private val seed: Long) {
 
     val at = Vec2d(worldX, worldY)
     for ((street, channel) in streets) {
-      if (!street.centerline.bbox.expanded(MAX_STREET_HALF_WIDTH).contains(worldX, worldY)) continue
+      // The feature's own bbox, which `PolylineFeature` already expanded by its corridor: a street's
+      // corridor is carriageway plus shoulder, so this is always wider than the carriageway test below needs.
+      if (!street.bbox.contains(worldX, worldY)) continue
 
       val projection = street.centerline.project(at)
       if (projection.beyondEnd) continue
@@ -1147,9 +1149,6 @@ class TownStructures(features: List<VectorFeature>, private val seed: Long) {
      * every extremum.
      */
     const val MAX_WALL_HALF_THICKNESS = 4.0
-
-    /** Widest carriageway a street can have, for the same bounding-box reason as the wall above. */
-    const val MAX_STREET_HALF_WIDTH = 6.0
 
     const val SCATTER_QUANTISE = 100.0
 
