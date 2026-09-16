@@ -6,6 +6,7 @@ import net.bestia.worldgen.pop.Kinship
 import net.bestia.worldgen.pop.Member
 import net.bestia.zone.ai.core.state.HourWindow
 import net.bestia.zone.ai.domain.townsfolk.Occupation
+import net.bestia.zone.ai.domain.townsfolk.OccupationDialog
 import net.bestia.zone.environment.time.BestiaClock
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -106,7 +107,23 @@ class ConversationServiceTest {
     val node = service.nodeFor(speaker(), Topics.ROOT)
 
     assertNotNull(node)
-    assertEquals(ConversationKeys.GREETING, node.speech.key)
+    assertTrue(
+      node.speech.key.startsWith(ConversationKeys.GREETING_PREFIX),
+      "the root greeting is now one of a trade's own, but was '${node.speech.key}'"
+    )
+  }
+
+  @Test
+  fun `two people of one trade do not greet you identically`() {
+    // The seed is the individual, so the variant has to hang off it rather than off the occupation -
+    // otherwise every guard in the world opens with the same sentence and the trade lines above are wasted.
+    val service = ConversationService(listOf(provider(Topics.STANDING, pinned = true, offers = 1)), clock())
+
+    val greetings = (1L..40L)
+      .map { assertNotNull(service.nodeFor(speaker(seed = it), Topics.ROOT)).speech.key }
+      .toSet()
+
+    assertTrue(greetings.size > 1, "every farmer in the world says $greetings")
   }
 
   /** A stale click or a hand-built message. Answering it with an empty node would look like a bug. */
@@ -172,7 +189,10 @@ class ConversationServiceTest {
       settlement = 3,
       household = 4,
       name = "Alden",
-      occupation = Occupation("farmer", "farmer", null, HourWindow(6, 18), HourWindow(22, 6)),
+      occupation = Occupation(
+        "farmer", "farmer", null, HourWindow(6, 18), HourWindow(22, 6),
+        dialog = OccupationDialog(greetings = 2, trade = 2),
+      ),
       business = null,
       member = Member(40, Kinship.HEAD),
       seed = seed,

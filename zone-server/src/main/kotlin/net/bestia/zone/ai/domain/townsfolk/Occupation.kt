@@ -38,4 +38,7 @@ data class Occupation(
    * have no particular claim on any of it.
    */
   val knowledge: KnowledgeProfile = KnowledgeProfile.ORDINARY,
+
+  /** How many ways this trade has of greeting somebody and of describing itself. */
+  val dialog: OccupationDialog = OccupationDialog.ORDINARY,
 )

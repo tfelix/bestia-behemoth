@@ -89,9 +89,7 @@ class KnowledgeTopicProvider(
    * differently - which costs nothing, because the rows have to exist anyway for the kind.
    */
   private fun lineOf(speaker: Speaker, memory: Knowledge): Line {
-    val variants = memory.variants
-    val roll = GenRng.hashUnit(speaker.seed, memory.topic.toLong(), VARIANT_SALT)
-    val index = (roll * variants).toInt().coerceIn(0, variants - 1) + 1
+    val index = ConversationVariants.of(speaker, memory.topic.toLong(), memory.variants)
 
     return Line("${memory.key}_$index", memory.slots.mapValues { (_, slot) -> slot.toDialogArg() })
   }
@@ -122,6 +120,5 @@ class KnowledgeTopicProvider(
     const val OFFERED = 4
 
     const val ASK_SUFFIX = "_ASK"
-    const val VARIANT_SALT = 0x7A15L
   }
 }

@@ -99,6 +99,7 @@ class OccupationCatalogue {
       rest = rest,
       holdsGround = dto.holdsGround,
       knowledge = dto.knowledge?.toProfile() ?: KnowledgeProfile.ORDINARY,
+      dialog = dto.dialog?.toDialog() ?: OccupationDialog.ORDINARY,
     )
     require(byId.put(dto.id, occupation) == null) {
       "Occupation '${dto.id}' is declared twice"
@@ -120,6 +121,7 @@ class OccupationCatalogue {
     val rest: WindowDto? = null,
     @JsonProperty("holds-ground") val holdsGround: Boolean = false,
     val knowledge: KnowledgeDto? = null,
+    val dialog: DialogDto? = null,
   )
 
   private data class WindowDto(
@@ -127,6 +129,16 @@ class OccupationCatalogue {
     @JsonProperty("to") val toHour: Int,
   ) {
     fun toWindow(): HourWindow = HourWindow(fromHour, toHour)
+  }
+
+  /** Counts are refused below one by [OccupationDialog] itself - a mute trade is unspeakable-to. */
+  private data class DialogDto(
+    val greetings: Int = 1,
+    val trade: Int = 1,
+  ) {
+    fun toDialog(): OccupationDialog {
+      return OccupationDialog(greetings = greetings, trade = trade)
+    }
   }
 
   /**
