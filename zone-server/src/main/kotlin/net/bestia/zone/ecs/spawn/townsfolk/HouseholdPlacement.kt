@@ -1,6 +1,7 @@
 package net.bestia.zone.ecs.spawn.townsfolk
 
 import net.bestia.worldgen.civ.BuildingFunction
+import net.bestia.worldgen.core.GenRng
 import net.bestia.worldgen.pop.BusinessCatalogue
 import net.bestia.worldgen.pop.Household
 import net.bestia.worldgen.pop.Households
@@ -26,16 +27,19 @@ import org.springframework.stereotype.Service
 class HouseholdPlacement(
   private val sites: SettlementSiteIndex,
   private val occupations: OccupationCatalogue,
+  private val config: TownsfolkResidencyConfig,
 ) {
 
   /**
    * @param household the expansion of the settlement's seed at this index
+   * @param residents indices into [Household.members] of the people who are out of doors
    * @param workplace null for somebody with nowhere in particular to be - a town with no barn for its
    *   farmers, or a trade whose shop this settlement does not have
    */
   class Placement(
     val settlement: Int,
     val household: Household,
+    val residents: List<Int>,
     val home: Vec3L,
     /** The house's prop id. What tells somebody with a door from somebody standing in a field. */
     val homeBuilding: Long,
@@ -59,10 +63,31 @@ class HouseholdPlacement(
     return Placement(
       settlement = settlement,
       household = expanded,
+      residents = residentsOf(summary.seed, expanded),
       home = sites.doorstepOf(house),
       homeBuilding = house.propId,
       workplace = workplaceOf(site, expanded, household)?.let { sites.doorstepOf(it) },
     )
+  }
+
+  /**
+   * Which of a household is out in the town, and which is only ever a number in the census.
+   *
+   * The head always, because a household's trade is the head's and a town staffed by its children keeps
+   * no shops. The rest by draw rather than by kinship rank: at one or two people a house a rank order
+   * would seat the spouse every time and leave no child standing anywhere in the world, and a child is
+   * somebody the player can talk to.
+   */
+  private fun residentsOf(seed: Long, household: Household): List<Int> {
+    val spread = config.maxPerHome - config.minPerHome + 1
+    val drawn = GenRng.hashUnit(seed, household.index.toLong(), HOME_SIZE_SALT)
+    val wanted = (config.minPerHome + (drawn * spread).toInt()).coerceAtMost(household.members.size)
+
+    val rest = (1 until household.members.size)
+      .sortedBy { GenRng.hashUnit(seed, household.index.toLong(), it.toLong(), RESIDENT_SALT) }
+      .take(wanted - 1)
+
+    return (listOf(HEAD) + rest).sorted()
   }
 
   /**
@@ -105,5 +130,12 @@ class HouseholdPlacement(
     const val CHILD = "child"
     const val FARMER = "farmer"
     const val LABOURER = "labourer"
+
+    /** `Households.membersOf` puts the head first, and `Household.head` reads it back that way. */
+    const val HEAD = 0
+
+    // One salt per question, as the lattice and the town's memories already do.
+    const val HOME_SIZE_SALT = 0xD00_1L
+    const val RESIDENT_SALT = 0xD00_2L
   }
 }

@@ -41,4 +41,22 @@ data class TownsfolkResidencyConfig(
 
   /** Matches the ambient layer: stepping away and back must not empty a street and refill it. */
   val unloadDelaySeconds: Float = 60f,
-)
+
+  /**
+   * People a house puts out of doors, drawn per household in `minPerHome..maxPerHome`.
+   *
+   * A household averages 4.6 people, so putting all of one outside gave a street four or five bodies per
+   * front door. The rest of the household is simply never built - not indoors, which would only mean the
+   * emergence sweep releasing them all again the next morning.
+   *
+   * Raising the ceiling past a household's size gives the old behaviour back.
+   */
+  val minPerHome: Int = 1,
+  val maxPerHome: Int = 2,
+) {
+
+  init {
+    require(minPerHome >= 1) { "min-per-home must be at least 1, was $minPerHome" }
+    require(maxPerHome >= minPerHome) { "max-per-home must not be below min-per-home, was $maxPerHome" }
+  }
+}

@@ -76,16 +76,17 @@ class TownsfolkRoster(
 
   private fun build(settlement: Int): List<Resident> {
     val summary = sites.siteOf(settlement)?.population ?: return emptyList()
-    val residents = ArrayList<Resident>(summary.population)
+    // A housed household puts at least one person out, so this is the floor rather than the census.
+    val residents = ArrayList<Resident>(summary.householdCount)
 
     for (household in 0 until summary.householdCount) {
       val placed = placement.of(settlement, household) ?: continue
 
-      placed.household.members.forEachIndexed { member, person ->
+      for (member in placed.residents) {
         residents.add(
           Resident(
             identity = TownsfolkIdentity.of(settlement, household, member),
-            occupation = placement.occupationFor(placed.household, person),
+            occupation = placement.occupationFor(placed.household, placed.household.members[member]),
             home = placed.home,
             homeBuilding = placed.homeBuilding,
             workplace = placed.workplace,

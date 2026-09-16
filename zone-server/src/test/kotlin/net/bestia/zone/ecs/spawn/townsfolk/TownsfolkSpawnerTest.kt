@@ -62,6 +62,7 @@ class TownsfolkSpawnerTest {
     every { placement.of(any(), any()) } returns HouseholdPlacement.Placement(
       settlement = 12,
       household = household,
+      residents = RESIDENTS,
       home = Vec3L(100, 100, 0),
       homeBuilding = 7_777L,
       workplace = Vec3L(140, 100, 0),
@@ -79,8 +80,10 @@ class TownsfolkSpawnerTest {
   }
 
   @Test
-  fun `everybody in the household is put down`() {
-    assertEquals(household.members.size, sut.spawnHousehold(world, settlement = 12, household = 3).size)
+  fun `the household's residents are put down, and nobody else`() {
+    // The head and the child, not the spouse: a house puts one or two people out and who they are is the
+    // placement's draw, so the spawner must walk that list rather than the whole family.
+    assertEquals(RESIDENTS.size, sut.spawnHousehold(world, settlement = 12, household = 3).size)
   }
 
   @Test
@@ -119,31 +122,31 @@ class TownsfolkSpawnerTest {
     val identities = spawned.map { world.get(it, Townsfolk::class)?.identity }
 
     assertEquals(spawned.size, identities.filterNotNull().toSet().size, "two of them are the same person")
-    for ((member, identity) in identities.filterNotNull().withIndex()) {
+    for ((member, identity) in RESIDENTS.zip(identities.filterNotNull())) {
       assertEquals(12, TownsfolkIdentity.settlementOf(identity))
       assertEquals(3, TownsfolkIdentity.householdOf(identity))
-      assertEquals(member, TownsfolkIdentity.memberOf(identity))
+      assertEquals(member, TownsfolkIdentity.memberOf(identity), "the member index is not the one placed")
     }
   }
 
   @Test
   fun `the child is a child and the adults farm`() {
     // Asserted on what is handed to the mob spawner, because that is the only route an occupation has: the
-    // archetype is the same for all three of them, and the agent is built from this blackboard.
+    // archetype is the same for both of them, and the agent is built from this blackboard.
     sut.spawnHousehold(world, settlement = 12, household = 3)
 
     assertEquals(
-      listOf("farmer", "farmer", "child"),
+      listOf("farmer", "child"),
       seeded.map { it.get(TownsfolkDomain.OCCUPATION)?.id }
     )
   }
 
   @Test
-  fun `the whole household is sent to the same workplace`() {
+  fun `everybody put out of doors is sent to the same workplace`() {
     sut.spawnHousehold(world, settlement = 12, household = 3)
 
     assertEquals(
-      List(household.members.size) { Vec3L(140, 100, 0) },
+      List(RESIDENTS.size) { Vec3L(140, 100, 0) },
       seeded.map { it.get(TownsfolkDomain.WORK_POSITION) }
     )
   }
@@ -155,4 +158,8 @@ class TownsfolkSpawnerTest {
     assertEquals(emptyList(), sut.spawnHousehold(world, settlement = 12, household = 3))
   }
 
+  private companion object {
+    /** The head and the child. Deliberately not contiguous, so a member index cannot pass as a position. */
+    val RESIDENTS = listOf(0, 2)
+  }
 }

@@ -19,6 +19,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 /**
  * Where a household ends up, and what its people do when they get there.
@@ -64,7 +65,7 @@ class HouseholdPlacementTest {
     // door coordinate passing through unchanged is what makes the assertions below readable.
     every { sites.doorstepOf(any()) } answers { firstArg<SettlementSite.Building>().door.let { Vec3L(it.x.toLong(), it.y.toLong(), 0) } }
 
-    sut = HouseholdPlacement(sites, occupations)
+    sut = HouseholdPlacement(sites, occupations, TownsfolkResidencyConfig())
   }
 
   @Test
@@ -78,6 +79,29 @@ class HouseholdPlacementTest {
   }
 
   @Test
+  fun `a house puts out no more people than it is allowed`() {
+    // The whole point of the change: a household averages 4.6 people and a town has nothing like that
+    // many doors, so what stands in the street is a draw from the household rather than all of it.
+    for (household in 0 until 6) {
+      val placed = assertNotNull(sut.of(SETTLEMENT, household))
+
+      assertTrue(
+        placed.residents.size in 1..2,
+        "household $household put ${placed.residents.size} people out of one door"
+      )
+      assertTrue(placed.residents.all { it in placed.household.members.indices }, "a resident is nobody")
+    }
+  }
+
+  @Test
+  fun `the head is always one of them`() {
+    // A town staffed by its children keeps no shops - the household's trade is the head's.
+    for (household in 0 until 6) {
+      assertEquals(0, assertNotNull(sut.of(SETTLEMENT, household)).residents.first())
+    }
+  }
+
+  @Test
   fun `asking twice gives the same answer`() {
     val first = assertNotNull(sut.of(SETTLEMENT, 5))
     val second = assertNotNull(sut.of(SETTLEMENT, 5))
@@ -85,6 +109,7 @@ class HouseholdPlacementTest {
     assertEquals(first.home, second.home)
     assertEquals(first.workplace, second.workplace)
     assertEquals(first.household.members.size, second.household.members.size)
+    assertEquals(first.residents, second.residents, "who is out of doors was re-rolled")
   }
 
   @Test
