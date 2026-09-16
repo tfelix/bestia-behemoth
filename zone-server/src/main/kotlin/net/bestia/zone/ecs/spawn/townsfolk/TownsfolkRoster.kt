@@ -92,7 +92,7 @@ class TownsfolkRoster(
             home = placed.home,
             homeBuilding = placed.homeBuilding,
             workplace = placed.workplace,
-            dayOffsetMinutes = 0,
+            dayOffsetMinutes = placement.dayOffsetOf(settlement, household, member),
           )
         )
       }

@@ -70,6 +70,13 @@ class TownsfolkEntitySpawner(
     val memory = Blackboard().apply {
       set(TownsfolkDomain.OCCUPATION, occupation, Blackboard.PERMANENT)
       set(TownsfolkDomain.HOME_BUILDING, placed.homeBuilding, Blackboard.PERMANENT)
+      // Re-derived rather than carried, so somebody who walks out of a door keeps the timetable they
+      // walked in with. See `HouseholdPlacement.dayOffsetOf`.
+      set(
+        TownsfolkDomain.DAY_OFFSET_MINUTES,
+        placement.dayOffsetOf(placed.settlement, placed.household.index, member),
+        Blackboard.PERMANENT,
+      )
       placed.workplace?.let { set(TownsfolkDomain.WORK_POSITION, it, Blackboard.PERMANENT) }
     }
 

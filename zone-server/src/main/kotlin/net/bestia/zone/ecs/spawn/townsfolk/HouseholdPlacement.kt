@@ -91,6 +91,27 @@ class HouseholdPlacement(
   }
 
   /**
+   * How far this person's own day sits off the hours their occupation states, in minutes.
+   *
+   * Drawn from the three indices that *are* a person, so it survives the destroy and rebuild that walking
+   * through a door costs them - an entity id would give them a new timetable every time they came out.
+   * Zero when the town keeps punctual hours.
+   *
+   * One number for the whole day rather than one per boundary; see
+   * [net.bestia.zone.ai.core.state.HourWindow.coversMinute].
+   */
+  fun dayOffsetOf(settlement: Int, household: Int, member: Int): Int {
+    val spread = occupations.dayJitterMinutes()
+    if (spread == 0) return 0
+
+    val drawn = GenRng.hashUnit(
+      settlement.toLong(), household.toLong(), member.toLong(), DAY_OFFSET_SALT
+    )
+
+    return (drawn * (2 * spread + 1)).toInt() - spread
+  }
+
+  /**
    * What one member of a household does.
    *
    * Children are children whatever the household keeps, and everybody else takes the household's trade -
@@ -137,5 +158,6 @@ class HouseholdPlacement(
     // One salt per question, as the lattice and the town's memories already do.
     const val HOME_SIZE_SALT = 0xD00_1L
     const val RESIDENT_SALT = 0xD00_2L
+    const val DAY_OFFSET_SALT = 0xD00_3L
   }
 }

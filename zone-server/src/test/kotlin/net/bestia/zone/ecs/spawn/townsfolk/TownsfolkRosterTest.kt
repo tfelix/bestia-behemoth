@@ -56,6 +56,7 @@ class TownsfolkRosterTest {
     every { placement.occupationFor(any(), any()) } answers {
       if (secondArg<Member>().kinship == Kinship.CHILD) child else farmer
     }
+    every { placement.dayOffsetOf(any(), any(), any()) } returns 0
 
     sut = TownsfolkRoster(sites, placement)
   }
