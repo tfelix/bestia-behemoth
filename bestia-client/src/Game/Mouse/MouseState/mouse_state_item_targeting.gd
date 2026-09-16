@@ -31,14 +31,20 @@ func has_ghost() -> bool:
 
 
 func enter(mgr: MouseManager) -> void:
-	mgr.set_os_cursor(cursor_texture)
+	# An item that wants its own art gets it; the rest aim with the plain pointer.
+	if cursor_texture:
+		mgr.set_os_cursor(cursor_texture)
+	else:
+		mgr.set_cursor_for_action(DefaultAction.Kind.NONE)
+
 	if ghost:
 		mgr.add_child(ghost)
 		ghost.visible = false
 
 
-func exit(mgr: MouseManager) -> void:
-	mgr.reset_os_cursor()
+func exit(_mgr: MouseManager) -> void:
+	# The cursor is not cleared here: every state sets its own in enter(), and change_state runs that
+	# straight after this - so clearing would only be a flicker of the OS arrow in between.
 	if ghost:
 		ghost.queue_free()
 		ghost = null

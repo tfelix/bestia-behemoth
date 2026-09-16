@@ -10,3 +10,5 @@ script = ExtResource("1_strv0")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D"]
 
 [connection signal="input_event" from="Area3D" to="." method="_on_area_3d_input_event"]
+[connection signal="mouse_entered" from="Area3D" to="." method="_on_area_3d_mouse_entered"]
+[connection signal="mouse_exited" from="Area3D" to="." method="_on_area_3d_mouse_exited"]

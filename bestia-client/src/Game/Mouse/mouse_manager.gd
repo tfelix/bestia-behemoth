@@ -35,6 +35,18 @@ var own_entity_id: int = 0
 
 var _context_menu: ContextMenu = null
 
+## What the cursor currently names, and whether the button is down - the two inputs to _apply_cursor.
+var _hover_action: int = DefaultAction.Kind.NONE
+var _pressed: bool = false
+
+## Whether the cursor is the hovered target's, as opposed to art a targeting state set for itself. Only
+## the first kind follows the button; the second would otherwise be swapped out on the next press.
+var _cursor_follows_action: bool = true
+
+## What is actually on the OS cursor, so that _set_os_cursor can skip a repeat.
+var _applied_texture: Texture2D = null
+var _applied_hotspot := Vector2.ZERO
+
 
 ## The one in the current scene, or null before [code]Game.tscn[/code] exists, so guard the result.
 static func get_instance() -> MouseManager:
@@ -49,6 +61,12 @@ func _enter_tree() -> void:
 	add_to_group(_GROUP)
 
 
+## The cursor is the OS's again once the world is gone: MouseManager dies with Game.tscn, and Godot does
+## not put a custom cursor back by itself - the menus would inherit whatever was last hovered.
+func _exit_tree() -> void:
+	reset_os_cursor()
+
+
 func _ready() -> void:
 	current_state = MouseStateDefault.new()
 	current_state.enter(self)
@@ -57,6 +75,15 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	current_state.process_state(self, delta)
+
+	# Polled rather than read off an event: physics picking delivers the press through input_event, but a
+	# release after the mouse has slid off the collider is not promised to come back to the same node - and
+	# a cursor stuck closed is worse than a frame of latency. _apply_cursor no-ops unless the art changed.
+	var pressed := Input.is_action_pressed("normal_action")
+	if pressed != _pressed:
+		_pressed = pressed
+		if _cursor_follows_action:
+			_apply_cursor()
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -221,12 +248,40 @@ func _get_selected_entity_id() -> int:
 	return 0
 
 
+## Puts art of the caller's choosing on the cursor and leaves it there - for a targeting state that aims
+## with its own icon. A hovered target's cursor goes through [method set_cursor_for_action] instead.
 func set_os_cursor(texture: Texture2D, hotspot: Vector2 = Vector2.ZERO) -> void:
-	Input.set_custom_mouse_cursor(texture, Input.CURSOR_ARROW, hotspot)
+	_cursor_follows_action = false
+	_set_os_cursor(texture, hotspot)
 
 
+## Hands the pointer back to the OS. For leaving the world - a menu, a loading screen - not for leaving
+## a target: in game the cursor over nothing in particular is DefaultAction.Kind.NONE, a finger.
 func reset_os_cursor() -> void:
-	Input.set_custom_mouse_cursor(null)
+	set_os_cursor(null)
+
+
+## Shows what a left-click on the hovered target would do. See DefaultAction.
+func set_cursor_for_action(action: int) -> void:
+	_hover_action = action
+	_cursor_follows_action = true
+	_apply_cursor()
+
+
+func _apply_cursor() -> void:
+	var cursor := MouseCursor.resolve(_hover_action, _pressed)
+	_set_os_cursor(cursor[&"texture"], cursor[&"hotspot"])
+
+
+## Skipped when nothing changed: Input.set_custom_mouse_cursor rebuilds the cursor on every call, which
+## is not something to do at frame rate.
+func _set_os_cursor(texture: Texture2D, hotspot: Vector2) -> void:
+	if texture == _applied_texture and hotspot == _applied_hotspot:
+		return
+
+	_applied_texture = texture
+	_applied_hotspot = hotspot
+	Input.set_custom_mouse_cursor(texture, Input.CURSOR_ARROW, hotspot)
 
 
 ## Per-frame camera ray against the "floor" group, used by targeting states

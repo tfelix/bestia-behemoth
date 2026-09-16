@@ -115,7 +115,15 @@ class KnowledgeTopicProvider(
   }
 
   private companion object {
-    const val NEWS = 0
+
+    /**
+     * The menu's own node, at the top of the range so that no memory can share its id.
+     *
+     * A memory's topic is its own id and chronicle event ids start at 0, so a menu at 0 would answer
+     * to the same topic as the oldest event in the world: asking about that event would silently reopen
+     * the list. Memories keep `Topics.KNOWLEDGE + topic` exactly - see `Rumour.TOPIC_BASE`.
+     */
+    const val NEWS = Topics.STRIDE - 1
 
     /** Enough to feel like a person with things on their mind, few enough to read at a glance. */
     const val OFFERED = 4

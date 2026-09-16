@@ -1,3 +1,6 @@
+using System;
+using System.Linq;
+using BestiaBehemothClient.Bnet.Message;
 using Godot;
 
 namespace BestiaBehemothClient.Game.World
@@ -41,6 +44,49 @@ namespace BestiaBehemothClient.Game.World
   public static class PropAppearance
   {
     /// <summary>How one kind is drawn.</summary>
+    /// <summary>What a click on a prop of some kind is for.</summary>
+    /// <remarks>
+    /// Crossed into GDScript by name rather than as an ordinal, on the bridge <see cref="EnumName"/>
+    /// documents: nothing anchors this enum's numbering to <c>DefaultAction.Kind</c>'s, and a name that side
+    /// does not know costs a plain pointer, where a stale ordinal would confidently show the wrong tool.
+    /// </remarks>
+    public enum PropAction
+    {
+      None,
+
+      /// <summary>Picked up whole - a herb, a shrub. Sends <c>CollectPropCMSG</c>.</summary>
+      Collect,
+
+      /// <summary>Also collected, but read as ore: the crystals and the aetherite shards.</summary>
+      Mine,
+
+      /// <summary>
+      /// Felled by damaging it. <c>PropPromotionService</c> gives the prop <c>Health</c> off its
+      /// <c>prop-kinds.yml</c> max-hp the first time something names it, so the click sends an ordinary
+      /// <c>AttackEntityCMSG</c>.
+      /// </summary>
+      Chop,
+
+      /// <summary>A station a click uses. Sends <c>InteractEntityCMSG</c>.</summary>
+      Use,
+    }
+
+    /// <summary>The name <see cref="PropAction"/> travels to <c>PropPicker.action</c> under.</summary>
+    /// <remarks>
+    /// Built once and indexed by the enum, which is sound only because the values are contiguous from zero:
+    /// a chunk asks for these by the hundred and <see cref="EnumName.Of"/> allocates on every call.
+    ///
+    /// <para>
+    /// Plain strings rather than <c>StringName</c>s, so that touching this class still needs no Godot
+    /// runtime - see the note in <c>BestiaClient.Tests.csproj</c>. GDScript converts at the typed boundary
+    /// anyway, both on <c>PropPicker.action</c> and on <c>DefaultAction.from_prop_name</c>'s parameter.
+    /// </para>
+    /// </remarks>
+    private static readonly string[] ActionNames =
+      Enum.GetValues<PropAction>().Select(action => EnumName.Of(action)).ToArray();
+
+    public static string ActionName(PropAction action) => ActionNames[(int)action];
+
     public readonly struct Kind
     {
       /// <summary>The scene to instantiate per prop, or null while this kind has no art.</summary>
@@ -151,15 +197,13 @@ namespace BestiaBehemothClient.Game.World
       /// </remarks>
       public bool Collectible { get; init; }
 
-      /// <summary>Whether props of this kind get a click target without being picked up by it.</summary>
+      /// <summary>What a click on props of this kind is for, and so which cursor names it.</summary>
       /// <remarks>
-      /// Collectible props are clickable because the click takes them. This is for the ones a click does
-      /// something else to - a station opens what can be made at it. Two flags rather than one, because
-      /// <see cref="Collectible"/> mirrors a server rule (<c>prop-kinds.yml</c> gives a kind a
-      /// <c>collect</c> block or it does not) and this one does not mirror anything: it is the client
-      /// deciding what is worth aiming at.
+      /// Purely the client's opinion, unlike <see cref="Collectible"/>: it is what the player is told the
+      /// click will do, and <c>MouseStateDefault</c> is what sends the matching request. A kind with
+      /// <see cref="PropAction.None"/> is scenery and gets no click target at all.
       /// </remarks>
-      public bool Interactable { get; init; }
+      public PropAction Action { get; init; }
 
       public bool HasScene => !string.IsNullOrEmpty(ScenePath);
 
@@ -198,23 +242,47 @@ namespace BestiaBehemothClient.Game.World
       // length, because the server's height for a tree is "clear bole plus crown centre" - see
       // VegetationParams.minTrunkHeight. Dividing by the trunk length instead would grow every tree by about
       // a tenth and put its crown where the generator did not.
-      new Kind { ScenePath = "res://Game/Entity/Visual/TreeVisual/TreeVisual.tscn", NaturalHeight = 7.4878f },
+      new Kind
+      {
+        ScenePath = "res://Game/Entity/Visual/TreeVisual/TreeVisual.tscn", NaturalHeight = 7.4878f,
+        Action = PropAction.Chop
+      },
 
       // BLIGHTED_TREE. Deliberately still a box rather than the tree scene above: a corrupted tree drawn
       // identically to a healthy one is worse than one that is obviously unfinished, because the corruption
       // boundary is a thing the player is meant to read off the landscape.
-      new Kind { PlaceholderWidth = 0.6f, PlaceholderColour = new Color(0.30f, 0.26f, 0.20f) },
+      new Kind
+      {
+        PlaceholderWidth = 0.6f, PlaceholderColour = new Color(0.30f, 0.26f, 0.20f), Action = PropAction.Chop
+      },
 
-      // MANA_CRYSTAL_SMALL / _LARGE. Collectible: picked up with a click rather than felled.
-      new Kind { PlaceholderWidth = 0.3f, PlaceholderColour = new Color(0.35f, 0.55f, 0.85f), Collectible = true },
-      new Kind { PlaceholderWidth = 0.5f, PlaceholderColour = new Color(0.45f, 0.35f, 0.85f), Collectible = true },
+      // MANA_CRYSTAL_SMALL / _LARGE. Collectible: picked up with a click rather than felled. Mine rather
+      // than Collect only so that the cursor reads as ore - the request the click sends is the same one.
+      new Kind
+      {
+        PlaceholderWidth = 0.3f, PlaceholderColour = new Color(0.35f, 0.55f, 0.85f), Collectible = true,
+        Action = PropAction.Mine
+      },
+      new Kind
+      {
+        PlaceholderWidth = 0.5f, PlaceholderColour = new Color(0.45f, 0.35f, 0.85f), Collectible = true,
+        Action = PropAction.Mine
+      },
 
       // WOUND_SPIRE.
       new Kind { PlaceholderWidth = 0.4f, PlaceholderColour = new Color(0.75f, 0.20f, 0.70f) },
 
       // AETHERITE_SHARD_SMALL / _LARGE. Squat and wide, unlike a crystal. Also collectible.
-      new Kind { PlaceholderWidth = 0.7f, PlaceholderColour = new Color(0.42f, 0.33f, 0.52f), Collectible = true },
-      new Kind { PlaceholderWidth = 0.9f, PlaceholderColour = new Color(0.58f, 0.40f, 0.78f), Collectible = true },
+      new Kind
+      {
+        PlaceholderWidth = 0.7f, PlaceholderColour = new Color(0.42f, 0.33f, 0.52f), Collectible = true,
+        Action = PropAction.Mine
+      },
+      new Kind
+      {
+        PlaceholderWidth = 0.9f, PlaceholderColour = new Color(0.58f, 0.40f, 0.78f), Collectible = true,
+        Action = PropAction.Mine
+      },
 
       // The six points of interest, each a distinct width: at most one of each per world, so they have to be
       // told apart on sight rather than by comparison.
@@ -252,13 +320,25 @@ namespace BestiaBehemothClient.Game.World
       // landmark, and drawing it the size of a shed would make a workbench read as a building.
       //
       // Not Collectible - a station is taken down by damaging it, not picked up by a passer-by, and
-      // prop-kinds.yml gives none of them a `collect` block - but Interactable, because clicking one is how
+      // prop-kinds.yml gives none of them a `collect` block - but PropAction.Use, because clicking one is how
       // you use it. `InteractEntityCMSG` is what that click sends.
       // StructureHeight, unlike every row above, because these are the kinds a player builds - so each is
       // also drawn as an entity while it is still a construction site, where no wire height is sent.
-      new Kind { PlaceholderWidth = 1.2f, PlaceholderColour = new Color(0.55f, 0.40f, 0.24f), StructureHeight = 1f, Interactable = true }, // WORKBENCH
-      new Kind { PlaceholderWidth = 1.4f, PlaceholderColour = new Color(0.42f, 0.36f, 0.34f), StructureHeight = 2f, Interactable = true }, // FURNACE
-      new Kind { PlaceholderWidth = 1.8f, PlaceholderColour = new Color(0.36f, 0.30f, 0.30f), StructureHeight = 2f, Interactable = true }, // FORGE
+      new Kind
+      {
+        PlaceholderWidth = 1.2f, PlaceholderColour = new Color(0.55f, 0.40f, 0.24f), StructureHeight = 1f,
+        Action = PropAction.Use
+      }, // WORKBENCH
+      new Kind
+      {
+        PlaceholderWidth = 1.4f, PlaceholderColour = new Color(0.42f, 0.36f, 0.34f), StructureHeight = 2f,
+        Action = PropAction.Use
+      }, // FURNACE
+      new Kind
+      {
+        PlaceholderWidth = 1.8f, PlaceholderColour = new Color(0.36f, 0.30f, 0.30f), StructureHeight = 2f,
+        Action = PropAction.Use
+      }, // FORGE
 
       // The ground cover: a herb, a shrub and a reed, each with its blighted twin. Collectible - every one of
       // them has a `collect` block in prop-kinds.yml - so all six get a click target.
@@ -288,33 +368,39 @@ namespace BestiaBehemothClient.Game.World
       // to boxes until they have a model of their own.
       new Kind
       {
-        PlaceholderWidth = 0.3f, PlaceholderColour = new Color(0.42f, 0.62f, 0.28f), Collectible = true
+        PlaceholderWidth = 0.3f, PlaceholderColour = new Color(0.42f, 0.62f, 0.28f), Collectible = true,
+        Action = PropAction.Collect
       }, // HERB
       new Kind
       {
-        PlaceholderWidth = 0.3f, PlaceholderColour = new Color(0.44f, 0.44f, 0.26f), Collectible = true
+        PlaceholderWidth = 0.3f, PlaceholderColour = new Color(0.44f, 0.44f, 0.26f), Collectible = true,
+        Action = PropAction.Collect
       }, // BLIGHTED_HERB
       new Kind
       {
         MeshPath = GrassClump, MaterialPath = GrassMaterial, NaturalHeight = 2.2391f,
-        PlaceholderWidth = 0.6f, PlaceholderColour = new Color(0.28f, 0.46f, 0.24f), Collectible = true
+        PlaceholderWidth = 0.6f, PlaceholderColour = new Color(0.28f, 0.46f, 0.24f), Collectible = true,
+        Action = PropAction.Collect
       }, // SHRUB
       new Kind
       {
         MeshPath = GrassClump, MaterialPath = GrassMaterial, NaturalHeight = 2.2391f,
         BladeTip = new Color(0.34f, 0.32f, 0.22f), BladeBase = new Color(0.22f, 0.19f, 0.11f),
-        PlaceholderWidth = 0.6f, PlaceholderColour = new Color(0.34f, 0.32f, 0.22f), Collectible = true
+        PlaceholderWidth = 0.6f, PlaceholderColour = new Color(0.34f, 0.32f, 0.22f), Collectible = true,
+        Action = PropAction.Collect
       }, // BLIGHTED_SHRUB
       new Kind
       {
         MeshPath = GrassClump, MaterialPath = GrassMaterial, NaturalHeight = 2.2391f,
-        PlaceholderWidth = 0.4f, PlaceholderColour = new Color(0.56f, 0.60f, 0.34f), Collectible = true
+        PlaceholderWidth = 0.4f, PlaceholderColour = new Color(0.56f, 0.60f, 0.34f), Collectible = true,
+        Action = PropAction.Collect
       }, // REED
       new Kind
       {
         MeshPath = GrassClump, MaterialPath = GrassMaterial, NaturalHeight = 2.2391f,
         BladeTip = new Color(0.46f, 0.44f, 0.30f), BladeBase = new Color(0.28f, 0.24f, 0.13f),
-        PlaceholderWidth = 0.4f, PlaceholderColour = new Color(0.46f, 0.44f, 0.30f), Collectible = true
+        PlaceholderWidth = 0.4f, PlaceholderColour = new Color(0.46f, 0.44f, 0.30f), Collectible = true,
+        Action = PropAction.Collect
       }  // BLIGHTED_REED
     };
 

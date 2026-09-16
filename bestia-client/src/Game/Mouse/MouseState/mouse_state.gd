@@ -8,6 +8,8 @@ extends RefCounted
 ## setup and cleanup (cursor texture, 3D indicators) can't leak into the
 ## others - see MouseManager.change_state().
 
+## Every state sets the cursor here, so none has to clear it on the way out - change_state runs exit()
+## then enter(), and a state that cleared would only flash the OS arrow in between.
 @warning_ignore("unused_parameter")
 func enter(mgr: MouseManager) -> void:
 	pass
