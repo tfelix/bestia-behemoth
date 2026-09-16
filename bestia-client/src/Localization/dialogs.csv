@@ -58,8 +58,8 @@ HISTORY_SETTLEMENT_FOUNDED_2,"{place} goes back {era} - {year} or near enough - 
 HISTORY_SETTLEMENT_WALLED_ASK,Why the walls?
 HISTORY_SETTLEMENT_WALLED_1,"{place} put its walls up {era}. Around {year}, and nobody builds walls for the first fright."
 HISTORY_SETTLEMENT_SACKED_ASK,Has {place} ever been taken?
-HISTORY_SETTLEMENT_SACKED_1,"The {civ} came through {place} {era} and took what they liked. Around the year {year}."
-HISTORY_SETTLEMENT_SACKED_2,"Around {year}. The {civ} in the streets of {place}, and no help coming."
+HISTORY_SETTLEMENT_SACKED_1,"The {civ} came through {place} {era} and took what they liked. The {foe} could not hold it."
+HISTORY_SETTLEMENT_SACKED_2,"Around {year}. The {civ} in the streets of {place}, and whatever the {foe} promised, no help coming."
 HISTORY_SETTLEMENT_RAZED_ASK,What became of {place}?
 HISTORY_SETTLEMENT_RAZED_1,"They pulled {place} down {era}, somewhere around {year}. Nothing was rebuilt."
 HISTORY_SETTLEMENT_ABANDONED_ASK,Why did {place} empty out?
@@ -74,16 +74,16 @@ HISTORY_CIV_FOUNDED_1,"The {civ} count their beginning from about {year}, at {pl
 HISTORY_CIV_FELL_ASK,Whatever happened to the {civ}?
 HISTORY_CIV_FELL_1,"The {civ} came apart {era}, around {year}. There is nobody left to answer for them."
 HISTORY_WAR_DECLARED_ASK,Has there been war?
-HISTORY_WAR_DECLARED_1,"The {civ} declared for war {era}, near enough {year}. It went on longer than anyone promised."
+HISTORY_WAR_DECLARED_1,"The {civ} declared on the {foe} {era}, near enough {year}. It went on longer than anyone promised."
 HISTORY_BATTLE_ASK,Any fighting near here?
-HISTORY_BATTLE_1,"The {civ} fought here {era}. The ground still turns up iron if you dig."
-HISTORY_BATTLE_2,"Around {year}, {era}. A bad day for the {civ}, and a worse one for whoever was farming it."
+HISTORY_BATTLE_1,"The {civ} and the {foe} fought here {era}. The ground still turns up iron if you dig."
+HISTORY_BATTLE_2,"Around {year}, {era}. A bad day for the {foe}, a good one for the {civ}, and a worse one for whoever was farming it."
 HISTORY_SIEGE_ASK,Was {place} ever besieged?
 HISTORY_SIEGE_1,"The {civ} sat outside {place} for the best part of a year, {era}, waiting for hunger to do the work."
 HISTORY_CONQUEST_ASK,Who holds {place} now?
 HISTORY_CONQUEST_1,"The {civ} took {place} {era} - about {year} - and kept it."
 HISTORY_PEACE_ASK,Is there peace?
-HISTORY_PEACE_1,"The {civ} signed {era}, around {year}. It has held, more or less."
+HISTORY_PEACE_1,"The {civ} and the {foe} signed {era}, around {year}. It has held, more or less."
 HISTORY_PLAGUE_ASK,Has sickness come through?
 HISTORY_PLAGUE_1,"Plague in {place}, {era}. They burned the clothes and it went on spreading anyway."
 HISTORY_PLAGUE_2,"Around {year} was the sickness. Ask anybody old enough and they will tell you who they lost."
@@ -114,15 +114,15 @@ HISTORY_ARTIFACT_LOST_1,"Something went missing {era} that people still come ask
 HISTORY_ARTIFACT_ENTOMBED_ASK,Where did {artifact} end up?
 HISTORY_ARTIFACT_ENTOMBED_1,"{artifact} went into the ground with {figure} {era}, around {year}."
 HISTORY_MINE_OPENED_ASK,Is there anything worth digging for?
-HISTORY_MINE_OPENED_1,"The {civ} opened the workings {era}, around {year}. It changed what this country is for."
+HISTORY_MINE_OPENED_1,"The {civ} opened the workings above {place} {era}, around {year}. It changed what this country is for."
 HISTORY_MONASTERY_FOUNDED_ASK,Is there a house of the faith nearby?
-HISTORY_MONASTERY_FOUNDED_1,"The {civ} founded the house {era}, somewhere poor and hard to reach, as they do."
+HISTORY_MONASTERY_FOUNDED_1,"The {civ} founded the house out past {place} {era} - somewhere poor and hard to reach, as they do."
 HISTORY_FORT_BUILT_ASK,Who watches the frontier?
-HISTORY_FORT_BUILT_1,"The {civ} put a fort on the high ground {era}. About {year}, and it has been watched ever since."
+HISTORY_FORT_BUILT_1,"There is a fort on the high ground above {place}. The {civ} put it there {era}, around {year}."
 HISTORY_LIGHTHOUSE_LIT_ASK,What is the light on the headland?
-HISTORY_LIGHTHOUSE_LIT_1,"The {civ} first lit it {era}, around {year}. It has not been dark since."
+HISTORY_LIGHTHOUSE_LIT_1,"The light stands off {place}. The {civ} first lit it {era} and it has not been dark since."
 HISTORY_MONUMENT_BUILT_ASK,What is that stone for?
-HISTORY_MONUMENT_BUILT_1,"The {civ} raised it {era}, about {year}. Everybody argues about what it means."
+HISTORY_MONUMENT_BUILT_1,"The {civ} raised it over {place} {era}, about {year}. Everybody argues about what it means."
 HISTORY_TECHNOLOGY_ASK,Has anything changed in your lifetime?
 HISTORY_TECHNOLOGY_1,"The {civ} worked something new out {era}, around {year}, and the work has been easier since."
 HISTORY_STAR_FELL_ASK,Where did the mana come from?
@@ -136,7 +136,7 @@ HISTORY_ORDER_SWORN_1,"The {civ} swore themselves at {place} {era}, around {year
 HISTORY_ORDER_SCHISM_ASK,Was there ever a falling out over it?
 HISTORY_ORDER_SCHISM_1,"The {civ} broke with what they had sworn, at {place}, {era}. It is still not forgiven."
 HISTORY_SHRINE_RAISED_ASK,What is the stone circle?
-HISTORY_SHRINE_RAISED_1,"The {civ} raised it {era}, around {year}, to work at."
+HISTORY_SHRINE_RAISED_1,"The {civ} raised it above {place} {era}, around {year}, to work at."
 HISTORY_RITE_PERFORMED_ASK,Do they still hold the rites?
 HISTORY_RITE_PERFORMED_1,"The {civ} kept the rite {era}, about {year}. They keep it still, when it matters."
 TALK_SMALL_GUARD_WATCH_ASK,Quiet shift?
