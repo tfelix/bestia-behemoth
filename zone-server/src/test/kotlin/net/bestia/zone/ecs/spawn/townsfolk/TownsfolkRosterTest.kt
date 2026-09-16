@@ -48,6 +48,7 @@ class TownsfolkRosterTest {
     every { placement.of(SETTLEMENT, 0) } returns HouseholdPlacement.Placement(
       settlement = SETTLEMENT,
       household = household,
+      residents = listOf(0, 1),
       home = HOME,
       homeBuilding = 11L,
       workplace = FIELD,
@@ -60,7 +61,7 @@ class TownsfolkRosterTest {
   }
 
   @Test
-  fun `everybody in every household is on it`() {
+  fun `the people a household puts out of doors are on it`() {
     val roster = sut.of(SETTLEMENT)
 
     assertEquals(2, roster.size)
@@ -71,6 +72,20 @@ class TownsfolkRosterTest {
       ),
       roster.map { it.identity }
     )
+  }
+
+  @Test
+  fun `a member the household keeps at home is not on it`() {
+    every { placement.of(SETTLEMENT, 0) } returns HouseholdPlacement.Placement(
+      settlement = SETTLEMENT,
+      household = household,
+      residents = listOf(0),
+      home = HOME,
+      homeBuilding = 11L,
+      workplace = FIELD,
+    )
+
+    assertEquals(listOf(TownsfolkIdentity.of(SETTLEMENT, 0, 0)), sut.of(SETTLEMENT).map { it.identity })
   }
 
   @Test
@@ -101,6 +116,7 @@ class TownsfolkRosterTest {
     every { placement.of(SETTLEMENT, 0) } returns HouseholdPlacement.Placement(
       settlement = SETTLEMENT,
       household = household,
+      residents = listOf(0, 1),
       home = HOME,
       homeBuilding = 11L,
       workplace = null,

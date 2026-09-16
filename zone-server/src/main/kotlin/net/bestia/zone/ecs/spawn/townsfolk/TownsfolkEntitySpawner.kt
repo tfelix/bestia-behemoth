@@ -37,7 +37,7 @@ class TownsfolkEntitySpawner(
   fun spawnHousehold(world: WorldView, settlement: Int, household: Int): List<EntityId> {
     val placed = placement.of(settlement, household) ?: return emptyList()
 
-    return placed.household.members.indices.mapNotNull { member ->
+    return placed.residents.mapNotNull { member ->
       spawn(world, placed, member, placed.home)
     }
   }

@@ -263,6 +263,12 @@ townsfolk:
   spawns-per-pass: 12
   # Matches the ambient layer: stepping away and back must not empty a street and refill it.
   unload-delay-seconds: 60
+  # People a house puts out of doors, drawn per household in this range. A household averages 4.6 people
+  # and a town has about one residence per ten inhabitants, so the whole household outside every door was
+  # four or five times more bodies than the town has front doors. Raise the ceiling past a household's
+  # size to get that back.
+  min-per-home: 1
+  max-per-home: 2
   # No throttle knob: townsfolk carry AiThrottleable and AiThrottle reads one cadence for everything that
   # opts in, which is ambient-spawn.throttle-factor below.
 

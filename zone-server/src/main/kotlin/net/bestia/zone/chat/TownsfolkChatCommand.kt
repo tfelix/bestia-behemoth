@@ -116,7 +116,7 @@ class TownsfolkChatCommand(
       return true
     }
 
-    reply(playerId, "Household $nearest of settlement ${site.index}: ${spawned.size} people at home.")
+    reply(playerId, "Household $nearest of settlement ${site.index}: ${spawned.size} people out of doors.")
     return true
   }
 
