@@ -99,7 +99,7 @@ class StreetNetworkTest {
   fun `a grid town lays plots along every street`() {
     val frame = flatFrame(330.0, listOf(Vec2d(1.0, 0.0)))
     val graph = StreetPlanner.plan(frame, TownLayout.GRID, roll(2))
-    val lots = LotPlanner.subdivide(graph, frame, frontage = 9.0, depth = 16.0, setback = 3.5)
+    val lots = LotPlanner.subdivide(graph, frame, frontage = 9.0, depth = 16.0, setbackFor = { 3.5 })
 
     assertTrue(lots.size >= 200, "a 660 m grid should hold hundreds of plots, got ${lots.size}")
   }
@@ -108,7 +108,7 @@ class StreetNetworkTest {
   fun `no two plots overlap`() {
     val frame = flatFrame(300.0)
     val graph = StreetPlanner.plan(frame, TownLayout.ORGANIC, roll(9))
-    val lots = LotPlanner.subdivide(graph, frame, frontage = 9.0, depth = 16.0, setback = 3.5)
+    val lots = LotPlanner.subdivide(graph, frame, frontage = 9.0, depth = 16.0, setbackFor = { 3.5 })
 
     // Quadratic, but this is the property the whole rejection pass exists to guarantee and the counts here
     // are a few hundred. Two overlapping plots are two buildings inside each other.
@@ -161,7 +161,7 @@ class StreetNetworkTest {
   fun `a city-sized town yields plots enough for its population`() {
     val frame = flatFrame(330.0)
     val graph = StreetPlanner.plan(frame, TownLayout.ORGANIC, roll(3))
-    val lots = LotPlanner.subdivide(graph, frame, frontage = 9.0, depth = 16.0, setback = 3.5)
+    val lots = LotPlanner.subdivide(graph, frame, frontage = 9.0, depth = 16.0, setbackFor = { 3.5 })
 
     assertTrue(
       lots.size >= 280,
@@ -174,7 +174,7 @@ class StreetNetworkTest {
     val setback = 3.5
     val frame = flatFrame(240.0)
     val graph = StreetPlanner.plan(frame, TownLayout.GRID, roll(4))
-    val lots = LotPlanner.subdivide(graph, frame, frontage = 9.0, depth = 16.0, setback = setback)
+    val lots = LotPlanner.subdivide(graph, frame, frontage = 9.0, depth = 16.0, setbackFor = { setback })
 
     assertTrue(lots.isNotEmpty(), "the grid produced no plots at all")
 
@@ -223,7 +223,7 @@ class StreetNetworkTest {
     val clear = flatFrame(330.0)
     val unobstructed = LotPlanner.subdivide(
       StreetPlanner.plan(clear, TownLayout.ORGANIC, roll(8)), clear,
-      frontage = 9.0, depth = 16.0, setback = 3.5
+      frontage = 9.0, depth = 16.0, setbackFor = { 3.5 }
     ).size
 
     // A 24 m channel across the town, which is a big river at this scale. Same boundary as `clear`, so the only
@@ -231,7 +231,7 @@ class StreetNetworkTest {
     val split = flatFrame(330.0, buildable = { kotlin.math.abs(it.y - 1_000.0) > 12.0 })
     val obstructed = LotPlanner.subdivide(
       StreetPlanner.plan(split, TownLayout.ORGANIC, roll(8)), split,
-      frontage = 9.0, depth = 16.0, setback = 3.5
+      frontage = 9.0, depth = 16.0, setbackFor = { 3.5 }
     ).size
 
     assertTrue(

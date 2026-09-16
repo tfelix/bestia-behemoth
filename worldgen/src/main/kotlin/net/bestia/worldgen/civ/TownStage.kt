@@ -501,7 +501,7 @@ class TownStage(
     coreLots.retainAll { !LotPlanner.blockedByStreet(it, graph) }
 
     val lots = coreLots + LotPlanner.subdivide(
-      graph, frame, params.lotFrontage, params.lotDepth, params.setback,
+      graph, frame, params.lotFrontage, params.lotDepth, params::setbackFor,
       distance = distance, already = coreLots,
       // The core belongs to the blocks. Tested against the patches themselves rather than against the core outline,
       // so that ground a patch lost to a river or to a slope is still available to the suburbs.

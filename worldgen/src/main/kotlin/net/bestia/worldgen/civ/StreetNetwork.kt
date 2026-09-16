@@ -1217,7 +1217,14 @@ internal object LotPlanner {
     frame: TownFrame,
     frontage: Double,
     depth: Double,
-    setback: Double,
+    /**
+     * Metres from a street's centreline to the front of its plots, per street rank.
+     *
+     * Per rank rather than flat, because a plot set back by less than the carriageway's own half-width stands
+     * *in* the road. One flat number big enough for the widest street would push every lane's plots out into
+     * ground the lane never disturbed. See `TownParams.setbackFor`, which is what a town passes here.
+     */
+    setbackFor: (rank: Int) -> Double,
     distance: StreetDistance = StreetDistance(graph, frame.centre),
     already: List<Lot> = emptyList(),
     /**
@@ -1243,11 +1250,14 @@ internal object LotPlanner {
     )
     val placed = LotIndex(cell)
     for (lot in already) placed.add(lot)
-    val reach = setback + depth
 
     // Highest-rank streets first, so the high street gets its frontage before a lane can take a bite out of
     // it. Without the ordering a rank-3 back lane laid earlier would block the plots on the main street.
     for ((chain, rank) in graph.chains().sortedBy { it.second }) {
+      val setback = setbackFor(rank)
+      // Inside the loop, because the reach is what stops a plot growing over the street behind it and both
+      // terms of it are now this street's own.
+      val reach = setback + depth
       var s = 0.0
       while (s + frontage <= chain.length) {
         val middle = s + frontage * 0.5
@@ -1305,9 +1315,9 @@ internal object LotPlanner {
   /**
    * Whether any street segment other than the one this plot fronts passes through it.
    *
-   * The fronting street is excluded by construction rather than by identity: the plot starts [setback] metres
-   * back from its own centreline, so its own street cannot intersect it, and any segment that does is a
-   * different one.
+   * The fronting street is excluded by construction rather than by identity: the plot starts at least its own
+   * street's carriageway half-width back from that street's centreline, so its own street cannot intersect it,
+   * and any segment that does is a different one.
    */
   private fun crossesAStreet(lot: Lot, graph: StreetGraph, front: Vec2d, reach: Double): Boolean {
     for ((a, b) in graph.segmentsNear(front, reach + lot.halfFrontage)) {
