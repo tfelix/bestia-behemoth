@@ -90,9 +90,8 @@ class TownsfolkChatCommand(
    * The household that lives in the house the caller is standing by.
    *
    * The inverse of how [net.bestia.zone.ecs.spawn.townsfolk.HouseholdPlacement] houses people: household
-   * `h` lives in residence `h % residences`, so residence `k` is home to household `k` and to every
-   * `residences` after it. The first is the one spawned - a town with more households than houses has
-   * lodgers, and which of them turns up is not a question this command needs to answer.
+   * `h` lives in residence `h`, one family to a door. A town has more households than houses, so the
+   * ones past the end of the list live nowhere and a house near the end of it may stand empty.
    */
   private fun spawnHouseholdHere(playerId: Long): Boolean {
     val entityId = connectionInfoService.getActiveEntityId(playerId)

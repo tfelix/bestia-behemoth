@@ -42,7 +42,7 @@ class HouseholdPlacement(
     val workplace: Vec3L?,
   )
 
-  /** @return null when the settlement has no people, or no houses to put them in */
+  /** @return null when the settlement has no people, no houses to put them in, or no house left for this one */
   fun of(settlement: Int, household: Int): Placement? {
     val site = sites.siteOf(settlement) ?: return null
     val summary = site.population ?: return null
@@ -52,7 +52,9 @@ class HouseholdPlacement(
     if (homes.isEmpty()) return null
 
     val expanded = Households.one(summary, household)
-    val house = homes[household % homes.size]
+    // One household per house. A town has about one residence per ten inhabitants but one household per
+    // five, so wrapping the list gave every front door two families and put the second one on the street.
+    val house = homes.getOrNull(household) ?: return null
 
     return Placement(
       settlement = settlement,
