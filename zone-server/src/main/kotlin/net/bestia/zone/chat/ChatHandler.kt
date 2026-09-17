@@ -72,22 +72,37 @@ class ChatHandler(
     }
   }
 
+  /**
+   * A whisper is a one-off: unlike component state, nothing will send it again, so the sender has to be told
+   * when it went nowhere. Both ways it can go nowhere give the same answer - see
+   * [OpError.CHAT_WHISPER_TARGET_UNAVAILABLE].
+   */
   private fun handleWhisperChat(msg: ChatCMSG) {
-    requireNotNull(msg.targetUsername)
+    val targetUsername = requireNotNull(msg.targetUsername)
 
-    val chatSMSG = ChatSMSG(
-      text = msg.text,
-      type = ChatCMSG.Type.WHISPER,
-      senderUsername = masterOperations.getSelectedMasterByAccountId(msg.playerId).name
-    )
-
-    try {
-      val targetAccountId = masterOperations.getAccountIdByMasterName(msg.targetUsername)
-
-      outMessageProcessor.sendToPlayer(targetAccountId, chatSMSG)
+    val targetAccountId = try {
+      masterOperations.getAccountIdByMasterName(targetUsername)
     } catch (e: MasterNotFoundException) {
-      outMessageProcessor.sendToPlayer(msg.playerId, ChatSMSG.ERROR_UNKNOWN_USER)
+      null
     }
+
+    if (targetAccountId == null || !outMessageProcessor.isPlayerConnected(targetAccountId)) {
+      outMessageProcessor.sendToPlayer(
+        msg.playerId,
+        OperationErrorSMSG(OpError.CHAT_WHISPER_TARGET_UNAVAILABLE, listOf(targetUsername))
+      )
+
+      return
+    }
+
+    outMessageProcessor.sendToPlayer(
+      targetAccountId,
+      ChatSMSG(
+        text = msg.text,
+        type = ChatCMSG.Type.WHISPER,
+        senderUsername = masterOperations.getSelectedMasterByAccountId(msg.playerId).name
+      )
+    )
   }
 
   private fun handleChatCommand(msg: ChatCMSG) {

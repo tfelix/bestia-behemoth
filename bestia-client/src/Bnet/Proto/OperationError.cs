@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSrOCQoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSrzCQoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -53,8 +53,9 @@ namespace Bnet {
             "X1JBTkdFECgSEgoOU0hPUF9OT05FX0hFUkUQKRIUChBTSE9QX05PVF9TVE9D",
             "S0VEECoSFQoRU0hPUF9PVVRfT0ZfU1RPQ0sQKxIWChJTSE9QX0NBTk5PVF9B",
             "RkZPUkQQLBIXChNTSE9QX1RSRUFTVVJZX0VNUFRZEC0SFgoSU0hPUF9UUkVB",
-            "U1VSWV9GVUxMEC4SFQoRVEFMS19PVVRfT0ZfUkFOR0UQL0IsChVuZXQuYmVz",
-            "dGlhLmJuZXQucHJvdG9CE09wZXJhdGlvbkVycm9yUHJvdG9iBnByb3RvMw=="));
+            "U1VSWV9GVUxMEC4SFQoRVEFMS19PVVRfT0ZfUkFOR0UQLxIjCh9DSEFUX1dI",
+            "SVNQRVJfVEFSR0VUX1VOQVZBSUxBQkxFEDBCLAoVbmV0LmJlc3RpYS5ibmV0",
+            "LnByb3RvQhNPcGVyYXRpb25FcnJvclByb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -244,6 +245,13 @@ namespace Bnet {
     /// Walked away from whoever they were talking to.
     /// </summary>
     [pbr::OriginalName("TALK_OUT_OF_RANGE")] TalkOutOfRange = 47,
+    /// <summary>
+    /// The whisper had nowhere to go. Deliberately one code for "no master of that name" and "that master
+    /// is not connected", on the same reasoning TRADE_TARGET_UNAVAILABLE gives: telling the two apart turns
+    /// whispering into a way to ask who is online. Carries the name that was typed in args[0], because the
+    /// sender is owed the spelling back and already knows it.
+    /// </summary>
+    [pbr::OriginalName("CHAT_WHISPER_TARGET_UNAVAILABLE")] ChatWhisperTargetUnavailable = 48,
   }
 
   #endregion

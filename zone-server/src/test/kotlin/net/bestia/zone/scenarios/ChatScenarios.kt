@@ -42,7 +42,7 @@ class ChatScenarios : BestiaNoSocketScenario() {
   }
 
   @Test
-  fun `send whisper chat to not connected player echos with error`() {
+  fun `send whisper chat to unknown player echos with error`() {
     clientPlayer1.sendMessage(
       ChatCMSG(
         playerId = clientPlayer1.connectedPlayerId,
@@ -55,11 +55,10 @@ class ChatScenarios : BestiaNoSocketScenario() {
     val whisperChatRx = clientPlayer2.tryGetLastReceived(ChatSMSG::class)
     assertNull(whisperChatRx)
 
-    val whisperChatErrorRx = clientPlayer1.getLastReceived(ChatSMSG::class)
+    val error = clientPlayer1.getLastReceived(OperationErrorSMSG::class)
 
-    assertEquals("error.player_not_found", whisperChatErrorRx.text)
-    assertNull(whisperChatErrorRx.senderUsername)
-    assertEquals(ChatCMSG.Type.ERROR, whisperChatErrorRx.type)
+    assertEquals(OpError.CHAT_WHISPER_TARGET_UNAVAILABLE, error.code)
+    assertEquals(listOf("playerUnknown"), error.args)
   }
 
   @Test

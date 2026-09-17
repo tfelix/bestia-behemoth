@@ -39,6 +39,9 @@ class GameClientMockFactory(
      */
     val createdClientBuffer: MutableMap<AccountId, MutableList<SMSG>> = ConcurrentHashMap()
 
+    /** A mock client exists exactly when [getGameClient] gave it a buffer, which is what "connected" means here. */
+    override val connectedAccountIds: Set<Long> get() = createdClientBuffer.keys.toSet()
+
     override fun sendMessage(playerId: Long, outMessage: SMSG) {
       // add message to the according clients buffer.
       LOG.trace { "RX accountId: $playerId, msg: $outMessage" }

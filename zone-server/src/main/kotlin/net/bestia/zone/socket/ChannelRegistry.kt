@@ -63,6 +63,9 @@ class ChannelRegistry(
    */
   override val connectedAccountIds: Set<Long> get() = channelsByAccountId.keys.toSet()
 
+  /** The same test [sendMessage] makes before giving up, without copying the whole key set to make it. */
+  override fun isConnected(playerId: Long): Boolean = getChannel(playerId)?.isActive == true
+
   override fun sendMessage(playerId: Long, outMessage: SMSG) {
     val channel = getChannel(playerId)
     if (channel == null || !channel.isActive) {
