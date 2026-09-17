@@ -30,4 +30,16 @@ interface OutMessageHandler {
    * nobody is the correct answer, not a gap.
    */
   val connectedAccountIds: Set<Long> get() = emptySet()
+
+  /**
+   * Whether [playerId] can be reached from here at all.
+   *
+   * Sending to an absent account is already a silent drop, which is the right behaviour for state the
+   * client will be told again anyway. It is the wrong answer for a one-off a player is waiting on - a
+   * whisper is gone for good - so those callers ask first and say so.
+   *
+   * Defaulted off [connectedAccountIds] rather than left abstract, so a test double that answers one
+   * answers both.
+   */
+  fun isConnected(playerId: Long): Boolean = playerId in connectedAccountIds
 }

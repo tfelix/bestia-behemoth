@@ -142,6 +142,12 @@ enum OpError {
 
   // Walked away from whoever they were talking to.
   TALK_OUT_OF_RANGE = 47;
+
+  // The whisper had nowhere to go. Deliberately one code for "no master of that name" and "that master
+  // is not connected", on the same reasoning TRADE_TARGET_UNAVAILABLE gives: telling the two apart turns
+  // whispering into a way to ask who is online. Carries the name that was typed in args[0], because the
+  // sender is owed the spelling back and already knows it.
+  CHAT_WHISPER_TARGET_UNAVAILABLE = 48;
 }
 
 message OperationError {

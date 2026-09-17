@@ -57,11 +57,6 @@ data class ChatSMSG(
       ChatCMSG.Type.GM
     )
 
-    val ERROR_UNKNOWN_USER = ChatSMSG(
-      text = "error.player_not_found",
-      type = ChatCMSG.Type.ERROR,
-    )
-
     val ERROR_NO_PARTY = ChatSMSG(
       text = "error.no_party",
       type = ChatCMSG.Type.ERROR,

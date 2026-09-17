@@ -54,4 +54,7 @@ class OutMessageProcessor(
   fun sendToPlayer(playerId: Long, msgs: Collection<SMSG>) {
     outMessageHandler.sendMessages(playerId, msgs)
   }
+
+  /** Whether [playerId] would receive a message sent now; see [OutMessageHandler.isConnected]. */
+  fun isPlayerConnected(playerId: Long): Boolean = outMessageHandler.isConnected(playerId)
 }
