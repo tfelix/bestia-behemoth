@@ -251,8 +251,6 @@ class ZoneEngine(
     // Build the outbound component update messages outside the world lock: resolving sync
     // targets (e.g. party membership) may hit the database and must not block the tick thread.
     for ((entityId, comps) in perEntity) {
-      val pos = world.get(entityId, Position::class)?.toVec3L() ?: continue
-
       val broadcastMsgs = mutableListOf<SMSG>()
       val byAccountMsgs = LinkedHashMap<Long, MutableList<SMSG>>()
 

@@ -9,6 +9,7 @@ import net.bestia.zone.ecs.core.AsyncJobExecutor
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.ecs.item.CarryCapacity
+import net.bestia.zone.ecs.item.CarryCapacityComponentSMSG
 import net.bestia.zone.ecs.entity.EntityVisual
 import net.bestia.zone.ecs.entity.VisualKind
 import net.bestia.zone.ecs.movement.Path
@@ -27,8 +28,9 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
 /**
- * Covers the two things [ZoneEngine] announces on its own rather than on a component's say-so:
+ * Covers what [ZoneEngine] does between ticks, rather than what any one system does:
  *
+ *  - the dirty-component flush, which decides who each change is addressed to;
  *  - vanish-on-destroy ([ZoneEngine.notifyVanishOnDestroy]) - an entity that was never synced to a
  *    client needs no vanish, one that was gets broadcast to the superset of its synced components'
  *    [SyncTargets];
@@ -273,6 +275,29 @@ class ZoneEngineTest {
 
     verify(timeout = 1000) {
       outMessageProcessor.sendToPlayer(accountId, VanishEntitySMSG(entity, VanishEntitySMSG.VanishKind.GONE))
+    }
+  }
+
+  /**
+   * A position is not what makes a component deliverable. An `OwnerOnly` component is addressed to an
+   * account, and an entity may legitimately have no place in the world at all - so the flush must not
+   * quietly require one.
+   */
+  @Test
+  fun `an entity with no position still syncs its owner-only components`() {
+    val accountId = 43L
+    val entity = world.createEntity { id ->
+      add(id, Account(accountId))
+      add(id, CarryCapacity(current = 0, max = 100))
+    }
+
+    zoneEngine.tickOnce(0.05f)
+
+    verify(timeout = 1000) {
+      outMessageProcessor.sendToPlayer(
+        accountId,
+        listOf(CarryCapacityComponentSMSG(entity, current = 0, max = 100))
+      )
     }
   }
 }
