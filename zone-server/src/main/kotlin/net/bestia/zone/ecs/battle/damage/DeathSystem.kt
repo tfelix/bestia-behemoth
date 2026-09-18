@@ -30,11 +30,11 @@ class DeathSystem(
   private val deletionQueue: PersistedEntityDeletionQueue,
   private val connectionInfoService: ConnectionInfoService,
   private val notableKills: NotableKillReporter,
+  private val spill: GroundSpill,
 ) : System {
 
   override val reads: ComponentClassSet =
     setOf(
-      Dead::class,
       TakenDamage::class,
       EntityVisual::class,
       Position::class,
@@ -43,10 +43,19 @@ class DeathSystem(
       Persistent::class
     )
 
-  override val writes: ComponentClassSet = setOf(Exp::class)
+  // `Dead` is written rather than read: `bled` is set here, the same way PlayerDeathSystem sets `resolved`.
+  override val writes: ComponentClassSet = setOf(Dead::class, Exp::class)
 
   override fun update(world: World, deltaTime: Float) {
     world.query(Dead::class).each { entityId ->
+      // Before the early return below, because a player bleeds too - and once, because a body lies there for
+      // as long as its owner leaves it and this would otherwise deepen every tick.
+      val dead = get<Dead>()
+      if (!dead.bled) {
+        dead.bled = true
+        world.get(entityId, Position::class)?.let { spill.bledAt(it.x, it.y) }
+      }
+
       // A player-owned body is not gone for good: it stays where it fell until its owner respawns it,
       // driven by PlayerDeathSystem (@68) and RespawnSystem (@44). Skipping it here also stops an
       // owned bestia paying out species EXP and loot when another player kills it - it carries

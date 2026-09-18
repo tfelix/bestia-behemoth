@@ -32,12 +32,16 @@ class DeathSystemTest {
   private val lootSpawner = mockk<LootItemEntitySpawner>(relaxed = true)
   private val deletionQueue = PersistedEntityDeletionQueue()
 
+  /** Where blood was spilled, so the once-per-death rule can be asserted rather than assumed. */
+  private val spilledAt = mutableListOf<Pair<Long, Long>>()
+
   private val sut = DeathSystem(
     experienceGainCalculator = mockk<ExperienceGainCalculator>(relaxed = true),
     lootItemEntitySpawner = lootSpawner,
     deletionQueue = deletionQueue,
     connectionInfoService = ConnectionInfoService(),
     notableKills = mockk<NotableKillReporter>(relaxed = true),
+    spill = { x, y -> spilledAt += x to y },
   )
 
   private fun net.bestia.zone.ecs.core.World.deadBestia(
@@ -105,5 +109,40 @@ class DeathSystemTest {
     sut.update(world, 0f)
 
     verify(exactly = 0) { lootSpawner.spawnLoot(any(), any(), any()) }
+  }
+
+  @Test
+  fun `a death leaves blood where it fell`() {
+    val world = testWorld()
+    world.deadBestia(owner = null)
+
+    sut.update(world, 0f)
+
+    assertEquals(listOf(1L to 2L), spilledAt)
+  }
+
+  /** Ahead of the early return for an owned body, because a player bleeds too. */
+  @Test
+  fun `a player-owned body bleeds as well`() {
+    val world = testWorld()
+    world.deadBestia(owner = 42L)
+
+    sut.update(world, 0f)
+
+    assertEquals(listOf(1L to 2L), spilledAt)
+  }
+
+  /**
+   * **The reason `Dead.bled` exists.** A body lies where it fell for as long as its owner leaves it, and this
+   * system runs over it every tick - so without the flag the ground under a corpse would soak deeper for ever.
+   */
+  @Test
+  fun `a body lying there does not bleed again every tick`() {
+    val world = testWorld()
+    world.deadBestia(owner = 42L)
+
+    repeat(5) { sut.update(world, 0f) }
+
+    assertEquals(1, spilledAt.size)
   }
 }
