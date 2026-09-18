@@ -17,6 +17,11 @@ class SurfaceTrampleableGroundTest {
     return ground.wearAt(0, 0)
   }
 
+  private fun printOn(block: BlockType?): Double {
+    every { surface.blockAt(any(), any()) } returns block
+    return ground.impressionAt(0, 0)
+  }
+
   @Test
   fun `meadow wears bare`() {
     assertTrue(wearOn(BlockType.GRASS) > 0.0)
@@ -43,6 +48,30 @@ class SurfaceTrampleableGroundTest {
     // would give a beach permanent brown paths.
     assertEquals(0.0, wearOn(BlockType.SAND))
     assertEquals(0.0, wearOn(BlockType.SNOW))
+  }
+
+  @Test
+  fun `the ground that wears and the ground that holds a print are not the same ground`() {
+    // The reason there are two maps rather than one number. Getting this backwards gives beaches permanent
+    // brown paths and snowfields no tracks at all.
+    assertEquals(0.0, wearOn(BlockType.SNOW))
+    assertTrue(printOn(BlockType.SNOW) > 0.0)
+  }
+
+  @Test
+  fun `snow and mud hold a track that a meadow only bends`() {
+    assertTrue(printOn(BlockType.SNOW) > printOn(BlockType.GRASS))
+    assertTrue(printOn(BlockType.MUD) > printOn(BlockType.GRASS))
+  }
+
+  @Test
+  fun `stone and paving hold no tracks`() {
+    assertEquals(0.0, printOn(BlockType.GRANITE))
+    assertEquals(0.0, printOn(BlockType.COBBLESTONE))
+    assertEquals(0.0, printOn(BlockType.MASONRY))
+    assertEquals(0.0, printOn(BlockType.ICE))
+    assertEquals(0.0, printOn(BlockType.WATER))
+    assertEquals(0.0, printOn(null))
   }
 
   @Test
