@@ -1,5 +1,6 @@
 package net.bestia.zone.world.fire
 
+import net.bestia.zone.world.ground.ColumnKey
 import net.bestia.worldgen.voxel.BlockType
 import net.bestia.worldgen.voxel.SurfaceColumns
 import net.bestia.zone.world.WorldService
@@ -78,7 +79,7 @@ class SurfaceBurnableGround(
     val chunkX = Math.floorDiv(voxelX, chunkSize).toInt()
     val chunkY = Math.floorDiv(voxelY, chunkSize).toInt()
 
-    val columns = surfaceCache.getOrPut(ScorchRegistry.columnKeyOf(chunkX, chunkY)) {
+    val columns = surfaceCache.getOrPut(ColumnKey.of(chunkX, chunkY)) {
       worldService.generated.materializer.surfaceColumns(chunkX, chunkY)
     }
 

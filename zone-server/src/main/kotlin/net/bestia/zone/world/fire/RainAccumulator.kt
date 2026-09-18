@@ -1,5 +1,6 @@
 package net.bestia.zone.world.fire
 
+import net.bestia.zone.world.ground.ColumnKey
 import net.bestia.worldgen.climate.WeatherKind
 import net.bestia.zone.environment.time.BestiaClock
 import net.bestia.zone.environment.time.BestiaDateTime
@@ -53,8 +54,8 @@ class RainAccumulator(
     // The middle of the column. A chunk is 32 m against a 16 km weather region, so which cell is asked cannot
     // matter - taking the centre rather than a corner just stops a column near a region boundary being
     // attributed differently on different passes.
-    val voxelX = ScorchRegistry.chunkXOf(columnKey).toLong() * chunkSize + chunkSize / 2
-    val voxelY = ScorchRegistry.chunkYOf(columnKey).toLong() * chunkSize + chunkSize / 2
+    val voxelX = ColumnKey.chunkXOf(columnKey).toLong() * chunkSize + chunkSize / 2
+    val voxelY = ColumnKey.chunkYOf(columnKey).toLong() * chunkSize + chunkSize / 2
 
     val nowSecond = clock.now().absoluteSecond
     var cursor = maxOf(scar.integratedThroughSecond, nowSecond - CATCH_UP_SECONDS)

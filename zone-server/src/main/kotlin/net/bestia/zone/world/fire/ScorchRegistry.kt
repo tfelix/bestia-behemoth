@@ -184,12 +184,5 @@ class ScorchRegistry(
 
   companion object {
     private val LOG = KotlinLogging.logger { }
-
-    fun columnKeyOf(chunkX: Int, chunkY: Int): Long =
-      (chunkX.toLong() shl 32) or (chunkY.toLong() and 0xFFFFFFFFL)
-
-    fun chunkXOf(columnKey: Long): Int = (columnKey shr 32).toInt()
-
-    fun chunkYOf(columnKey: Long): Int = columnKey.toInt()
   }
 }

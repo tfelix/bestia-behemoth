@@ -1,5 +1,6 @@
 package net.bestia.zone.world.fire
 
+import net.bestia.zone.world.ground.ColumnKey
 import io.mockk.every
 import io.mockk.mockk
 import net.bestia.worldgen.climate.WeatherKind
@@ -294,8 +295,8 @@ class GroundFireServiceTest {
   private fun burntCells(): Set<Pair<Long, Long>> {
     val out = HashSet<Pair<Long, Long>>()
     for (column in scorch.scarredKeys()) {
-      val originX = ScorchRegistry.chunkXOf(column).toLong() * chunkSize
-      val originY = ScorchRegistry.chunkYOf(column).toLong() * chunkSize
+      val originX = ColumnKey.chunkXOf(column).toLong() * chunkSize
+      val originY = ColumnKey.chunkYOf(column).toLong() * chunkSize
       scorch.scarOf(column)?.mask?.forEachSet { x, y -> out.add(originX + x to originY + y) }
     }
     return out
