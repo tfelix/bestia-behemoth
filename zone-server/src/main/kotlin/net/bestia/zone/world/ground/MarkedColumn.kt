@@ -1,7 +1,7 @@
 package net.bestia.zone.world.ground
 
 /**
- * One chunk column's wear: how bare each square metre is, and when it was last aged.
+ * One chunk column of one graded layer: how strongly each square metre is marked, and when it was last aged.
  *
  * ### Decay is derived, not ticked
  *
@@ -12,12 +12,12 @@ package net.bestia.zone.world.ground
  *
  * ### The remainder is kept, or nothing ever fades
  *
- * A fully worn cell fading over three Bestia days moves about a quarter of a level a minute, and an integer
- * subtraction of a quarter is nothing at all - so a naive per-pass decay would leave every path permanent.
+ * A full cell fading over three Bestia days moves about a quarter of a level a minute, and an integer
+ * subtraction of a quarter is nothing at all - so a naive per-pass decay would leave every mark permanent.
  * [ageTo] therefore advances [lastDecayedSecond] only by the time the levels it actually removed account for,
  * and the leftover seconds are still owed on the next pass.
  */
-class WornColumn(
+class MarkedColumn(
   val levels: ColumnLevels,
   var lastDecayedSecond: Long,
 ) {

@@ -81,7 +81,7 @@ class GroundWearRegistryTest {
     // Ambient creatures spawn further out than the chunk stream reaches, so this really happens. Wear nobody
     // can be told about is wear that should not be stored.
     assertFalse(registry.wear(voxelX = 5, voxelY = 5, amount = 100, nowSecond = 0))
-    assertEquals(0, registry.wornColumns)
+    assertEquals(0, registry.markedColumns)
   }
 
   @Test
@@ -91,7 +91,7 @@ class GroundWearRegistryTest {
 
     registry.wear(5, 5, 100, 0)
 
-    assertEquals(100, registry.wearOf(ColumnKey.of(0, 0))!!.levels[5, 5])
+    assertEquals(100, registry.columnAt(ColumnKey.of(0, 0))!!.levels[5, 5])
   }
 
   @Test
@@ -123,7 +123,7 @@ class GroundWearRegistryTest {
     registry.release(ColumnKey.of(0, 0))
 
     verify { repository.save(any<GroundLayerMark>()) }
-    assertEquals(0, registry.wornColumns)
+    assertEquals(0, registry.markedColumns)
   }
 
   @Test
@@ -145,7 +145,7 @@ class GroundWearRegistryTest {
     registry.track(key)
     registry.drainLoaded(0)
 
-    assertEquals(200, registry.wearOf(key)!!.levels[0, 0])
+    assertEquals(200, registry.columnAt(key)!!.levels[0, 0])
   }
 
   @Test
@@ -158,8 +158,8 @@ class GroundWearRegistryTest {
     registry.wear(1, 0, 100, 0)
     registry.drainLoaded(0)
 
-    assertEquals(200, registry.wearOf(key)!!.levels[0, 0], "what was stored")
-    assertEquals(100, registry.wearOf(key)!!.levels[1, 0], "and what happened while it was being read")
+    assertEquals(200, registry.columnAt(key)!!.levels[0, 0], "what was stored")
+    assertEquals(100, registry.columnAt(key)!!.levels[1, 0], "and what happened while it was being read")
   }
 
   @Test
@@ -170,7 +170,7 @@ class GroundWearRegistryTest {
     registry.track(key)
     registry.drainLoaded(0)
 
-    assertEquals(0, registry.wearOf(key)!!.levels[0, 0])
+    assertEquals(0, registry.columnAt(key)!!.levels[0, 0])
     verify { repository.delete(any<GroundLayerMark>()) }
   }
 

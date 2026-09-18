@@ -27,13 +27,13 @@ import org.springframework.boot.context.properties.ConfigurationProperties
  */
 @ConfigurationProperties(prefix = "ground-wear")
 data class GroundWearConfig(
-  val fadeSeconds: Long = 259_200,
+  override val fadeSeconds: Long = 259_200,
   val stepWeight: Int = 6,
   val neighbourWeight: Int = 2,
-  val visibleThreshold: Int = 32,
-  val flushIntervalSeconds: Float = 120f,
-  val maxResidentColumns: Int = 8_192,
-) {
+  override val visibleThreshold: Int = 32,
+  override val flushIntervalSeconds: Float = 120f,
+  override val maxResidentColumns: Int = 8_192,
+) : GroundLevelConfig {
 
   init {
     require(fadeSeconds > 0) { "fadeSeconds must be positive, was $fadeSeconds" }

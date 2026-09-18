@@ -5,17 +5,17 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-class WornColumnTest {
+class MarkedColumnTest {
 
   private val size = 32
 
   /** Three Bestia days, the shipped default, so these numbers are the ones a player would actually see. */
   private val fadeSeconds = 259_200L
 
-  private fun worn(level: Int, at: Long = 0): WornColumn {
+  private fun worn(level: Int, at: Long = 0): MarkedColumn {
     val levels = ColumnLevels(size)
     levels.add(0, 0, level)
-    return WornColumn(levels, at)
+    return MarkedColumn(levels, at)
   }
 
   @Test
@@ -89,7 +89,7 @@ class WornColumnTest {
     val levels = ColumnLevels(size)
     levels.add(0, 0, ColumnLevels.MAX_LEVEL)
     levels.add(1, 0, 40)
-    val column = WornColumn(levels, 0)
+    val column = MarkedColumn(levels, 0)
 
     column.ageTo(fadeSeconds / 2, fadeSeconds)
 
