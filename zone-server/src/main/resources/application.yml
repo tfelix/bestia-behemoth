@@ -129,6 +129,31 @@ chunk-stream:
   # Whether the /carve chat command is honoured. It also needs the TERRAIN authority.
   allow-debug-edits: true
 
+# Ground wearing down under traffic. Runtime settings in `chunk-stream`'s sense: none decides what the terrain
+# is, and what is stored is a level rather than a rate, so retuning these reshapes how existing paths fade
+# rather than invalidating them.
+ground-wear:
+  # Bestia seconds for a fully worn cell to close over completely with nobody walking on it. Three Bestia days,
+  # which at SPEED_FACTOR 3 is about one real day. The knob most likely to want changing, and a duration rather
+  # than a rate because "a path lasts three days" is a sentence somebody can disagree with.
+  fade-seconds: 259200
+  # Added per footfall, out of the 255 a cell holds. Against `visible-threshold` below this decides how many
+  # passes a route needs before it shows at all - roughly six here - independently of how fast it then fades.
+  step-weight: 6
+  # Added to the four cells beside the one stepped on. Without it an eight-connected walk leaves a one metre
+  # staircase, which reads as a scratch rather than as a trail.
+  neighbour-weight: 2
+  # The level below which nothing is sent to clients. Load bearing rather than cosmetic: creatures wandering at
+  # random spread their wear thinly over a wide area, and this is what keeps that below notice so only
+  # genuinely repeated routes ever show. Raise it if an idling player grows a faint halo.
+  visible-threshold: 32
+  # How often changed columns are written. Wear is touched far too often to persist per step the way a burn
+  # scar is, so writes are coalesced and a crash costs a few minutes of footfalls.
+  flush-interval-seconds: 120
+  # Worn columns held in memory at once. One is a kilobyte, so this is about eight megabytes. A column evicted
+  # while still worn is written out first and read back when somebody returns to it.
+  max-resident-columns: 8192
+
 navigation:
   # Local (tile-accurate) pathfinding searches allowed per tick, across all NPCs. One bounded search is well
   # under a millisecond against a 50 ms tick, so this is generous; what it stops is a whole pack running out of

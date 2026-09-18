@@ -28,26 +28,21 @@ namespace Bnet {
             "EgRibmV0GhhtZXNzYWdlcy9tYXAvY2h1bmsucHJvdG8idwoQR3JvdW5kTGF5",
             "ZXJDZWxscxIiCgVsYXllchgBIAEoDjITLmJuZXQuR3JvdW5kTGF5ZXJJZBIw",
             "CghlbmNvZGluZxgCIAEoDjIeLmJuZXQuQ2h1bmtHcm91bmRMYXllckVuY29k",
-            "aW5nEg0KBWNlbGxzGAMgASgMIokBCgtHcm91bmRTdGFtcBIJCgF4GAEgASgS",
-            "EgkKAXkYAiABKBISIgoFbGF5ZXIYAyABKA4yEy5ibmV0Lkdyb3VuZExheWVy",
-            "SWQSDQoFYnJ1c2gYBCABKA0SEAoIcm90YXRpb24YBSABKA0SDAoEc2VlZBgG",
-            "IAEoDRIRCglhdF9zZWNvbmQYByABKAMifwoVQ2h1bmtHcm91bmRMYXllcnNT",
-            "TVNHEhsKA3BvcxgBIAEoCzIOLmJuZXQuQ2h1bmtQb3MSJgoGbGF5ZXJzGAIg",
-            "AygLMhYuYm5ldC5Hcm91bmRMYXllckNlbGxzEiEKBnN0YW1wcxgDIAMoCzIR",
-            "LmJuZXQuR3JvdW5kU3RhbXAqcgoYQ2h1bmtHcm91bmRMYXllckVuY29kaW5n",
-            "EisKJ0NIVU5LX0dST1VORF9MQVlFUl9FTkNPRElOR19VTlNQRUNJRklFRBAA",
-            "EikKJUNIVU5LX0dST1VORF9MQVlFUl9FTkNPRElOR19OSUJCTEVfVjEQASqW",
-            "AQoNR3JvdW5kTGF5ZXJJZBIcChhHUk9VTkRfTEFZRVJfVU5TUEVDSUZJRUQQ",
-            "ABIZChVHUk9VTkRfTEFZRVJfU0NPUkNIRUQQARIVChFHUk9VTkRfTEFZRVJf",
-            "V09SThACEhkKFUdST1VORF9MQVlFUl9CTE9PRElFRBADEhoKFkdST1VORF9M",
-            "QVlFUl9ESVNUVVJCRUQQBEIzChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CGkNo",
-            "dW5rR3JvdW5kTGF5ZXJzU01TR1Byb3RvYgZwcm90bzM="));
+            "aW5nEg0KBWNlbGxzGAMgASgMImIKFUNodW5rR3JvdW5kTGF5ZXJzU01TRxIb",
+            "CgNwb3MYASABKAsyDi5ibmV0LkNodW5rUG9zEiYKBmxheWVycxgCIAMoCzIW",
+            "LmJuZXQuR3JvdW5kTGF5ZXJDZWxsc0oECAMQBCpyChhDaHVua0dyb3VuZExh",
+            "eWVyRW5jb2RpbmcSKwonQ0hVTktfR1JPVU5EX0xBWUVSX0VOQ09ESU5HX1VO",
+            "U1BFQ0lGSUVEEAASKQolQ0hVTktfR1JPVU5EX0xBWUVSX0VOQ09ESU5HX05J",
+            "QkJMRV9WMRABKpYBCg1Hcm91bmRMYXllcklkEhwKGEdST1VORF9MQVlFUl9V",
+            "TlNQRUNJRklFRBAAEhkKFUdST1VORF9MQVlFUl9TQ09SQ0hFRBABEhUKEUdS",
+            "T1VORF9MQVlFUl9XT1JOEAISGQoVR1JPVU5EX0xBWUVSX0JMT09ESUVEEAMS",
+            "GgoWR1JPVU5EX0xBWUVSX0RJU1RVUkJFRBAEQjMKFW5ldC5iZXN0aWEuYm5l",
+            "dC5wcm90b0IaQ2h1bmtHcm91bmRMYXllcnNTTVNHUHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Bnet.ChunkReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.ChunkGroundLayerEncoding), typeof(global::Bnet.GroundLayerId), }, null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.GroundLayerCells), global::Bnet.GroundLayerCells.Parser, new[]{ "Layer", "Encoding", "Cells" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.GroundStamp), global::Bnet.GroundStamp.Parser, new[]{ "X", "Y", "Layer", "Brush", "Rotation", "Seed", "AtSecond" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.ChunkGroundLayersSMSG), global::Bnet.ChunkGroundLayersSMSG.Parser, new[]{ "Pos", "Layers", "Stamps" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.ChunkGroundLayersSMSG), global::Bnet.ChunkGroundLayersSMSG.Parser, new[]{ "Pos", "Layers" }, null, null, null, null)
           }));
     }
     #endregion
@@ -371,452 +366,6 @@ namespace Bnet {
 
   /// <summary>
   ///*
-  /// One mark left on the ground at a point, rather than spread over a grid.
-  ///
-  /// A footprint has a *shape* and a *heading*, and a grid of levels can express neither - a print is about
-  /// thirty centimetres across against a one metre cell. So the wire carries the event and the client draws it,
-  /// which also means how good it looks is a client decision the protocol never has to hear about: the same
-  /// record renders as a darkened patch, a normal-mapped dent, or displaced geometry.
-  ///
-  /// Roughly a dozen bytes, against the ~512 a whole layer's cells cost, so a busy column is still cheap.
-  /// </summary>
-  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
-  public sealed partial class GroundStamp : pb::IMessage<GroundStamp>
-  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      , pb::IBufferMessage
-  #endif
-  {
-    private static readonly pb::MessageParser<GroundStamp> _parser = new pb::MessageParser<GroundStamp>(() => new GroundStamp());
-    private pb::UnknownFieldSet _unknownFields;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pb::MessageParser<GroundStamp> Parser { get { return _parser; } }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pbr::MessageDescriptor Descriptor {
-      get { return global::Bnet.ChunkGroundLayersSmsgReflection.Descriptor.MessageTypes[1]; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    pbr::MessageDescriptor pb::IMessage.Descriptor {
-      get { return Descriptor; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public GroundStamp() {
-      OnConstruction();
-    }
-
-    partial void OnConstruction();
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public GroundStamp(GroundStamp other) : this() {
-      x_ = other.x_;
-      y_ = other.y_;
-      layer_ = other.layer_;
-      brush_ = other.brush_;
-      rotation_ = other.rotation_;
-      seed_ = other.seed_;
-      atSecond_ = other.atSecond_;
-      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public GroundStamp Clone() {
-      return new GroundStamp(this);
-    }
-
-    /// <summary>Field number for the "x" field.</summary>
-    public const int XFieldNumber = 1;
-    private long x_;
-    /// <summary>
-    ///* World voxel position. Absolute, not column-local: a stamp near an edge legitimately overlaps a neighbour. 
-    /// </summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public long X {
-      get { return x_; }
-      set {
-        x_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "y" field.</summary>
-    public const int YFieldNumber = 2;
-    private long y_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public long Y {
-      get { return y_; }
-      set {
-        y_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "layer" field.</summary>
-    public const int LayerFieldNumber = 3;
-    private global::Bnet.GroundLayerId layer_ = global::Bnet.GroundLayerId.GroundLayerUnspecified;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Bnet.GroundLayerId Layer {
-      get { return layer_; }
-      set {
-        layer_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "brush" field.</summary>
-    public const int BrushFieldNumber = 4;
-    private uint brush_;
-    /// <summary>
-    ///* Which brush to draw - a left foot, a right foot, a splatter. The client owns the art for each. 
-    /// </summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public uint Brush {
-      get { return brush_; }
-      set {
-        brush_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "rotation" field.</summary>
-    public const int RotationFieldNumber = 5;
-    private uint rotation_;
-    /// <summary>
-    ///* Heading in 256ths of a turn. Movement is eight-connected, so only eight values occur today. 
-    /// </summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public uint Rotation {
-      get { return rotation_; }
-      set {
-        rotation_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "seed" field.</summary>
-    public const int SeedFieldNumber = 6;
-    private uint seed_;
-    /// <summary>
-    ///* Picks a variant so a hundred prints are not one print a hundred times. 
-    /// </summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public uint Seed {
-      get { return seed_; }
-      set {
-        seed_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "at_second" field.</summary>
-    public const int AtSecondFieldNumber = 7;
-    private long atSecond_;
-    /// <summary>
-    ///* Bestia second it was made, so the client can fade it on its own without being told again. 
-    /// </summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public long AtSecond {
-      get { return atSecond_; }
-      set {
-        atSecond_ = value;
-      }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override bool Equals(object other) {
-      return Equals(other as GroundStamp);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool Equals(GroundStamp other) {
-      if (ReferenceEquals(other, null)) {
-        return false;
-      }
-      if (ReferenceEquals(other, this)) {
-        return true;
-      }
-      if (X != other.X) return false;
-      if (Y != other.Y) return false;
-      if (Layer != other.Layer) return false;
-      if (Brush != other.Brush) return false;
-      if (Rotation != other.Rotation) return false;
-      if (Seed != other.Seed) return false;
-      if (AtSecond != other.AtSecond) return false;
-      return Equals(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override int GetHashCode() {
-      int hash = 1;
-      if (X != 0L) hash ^= X.GetHashCode();
-      if (Y != 0L) hash ^= Y.GetHashCode();
-      if (Layer != global::Bnet.GroundLayerId.GroundLayerUnspecified) hash ^= Layer.GetHashCode();
-      if (Brush != 0) hash ^= Brush.GetHashCode();
-      if (Rotation != 0) hash ^= Rotation.GetHashCode();
-      if (Seed != 0) hash ^= Seed.GetHashCode();
-      if (AtSecond != 0L) hash ^= AtSecond.GetHashCode();
-      if (_unknownFields != null) {
-        hash ^= _unknownFields.GetHashCode();
-      }
-      return hash;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override string ToString() {
-      return pb::JsonFormatter.ToDiagnosticString(this);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void WriteTo(pb::CodedOutputStream output) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      output.WriteRawMessage(this);
-    #else
-      if (X != 0L) {
-        output.WriteRawTag(8);
-        output.WriteSInt64(X);
-      }
-      if (Y != 0L) {
-        output.WriteRawTag(16);
-        output.WriteSInt64(Y);
-      }
-      if (Layer != global::Bnet.GroundLayerId.GroundLayerUnspecified) {
-        output.WriteRawTag(24);
-        output.WriteEnum((int) Layer);
-      }
-      if (Brush != 0) {
-        output.WriteRawTag(32);
-        output.WriteUInt32(Brush);
-      }
-      if (Rotation != 0) {
-        output.WriteRawTag(40);
-        output.WriteUInt32(Rotation);
-      }
-      if (Seed != 0) {
-        output.WriteRawTag(48);
-        output.WriteUInt32(Seed);
-      }
-      if (AtSecond != 0L) {
-        output.WriteRawTag(56);
-        output.WriteInt64(AtSecond);
-      }
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(output);
-      }
-    #endif
-    }
-
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (X != 0L) {
-        output.WriteRawTag(8);
-        output.WriteSInt64(X);
-      }
-      if (Y != 0L) {
-        output.WriteRawTag(16);
-        output.WriteSInt64(Y);
-      }
-      if (Layer != global::Bnet.GroundLayerId.GroundLayerUnspecified) {
-        output.WriteRawTag(24);
-        output.WriteEnum((int) Layer);
-      }
-      if (Brush != 0) {
-        output.WriteRawTag(32);
-        output.WriteUInt32(Brush);
-      }
-      if (Rotation != 0) {
-        output.WriteRawTag(40);
-        output.WriteUInt32(Rotation);
-      }
-      if (Seed != 0) {
-        output.WriteRawTag(48);
-        output.WriteUInt32(Seed);
-      }
-      if (AtSecond != 0L) {
-        output.WriteRawTag(56);
-        output.WriteInt64(AtSecond);
-      }
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(ref output);
-      }
-    }
-    #endif
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int CalculateSize() {
-      int size = 0;
-      if (X != 0L) {
-        size += 1 + pb::CodedOutputStream.ComputeSInt64Size(X);
-      }
-      if (Y != 0L) {
-        size += 1 + pb::CodedOutputStream.ComputeSInt64Size(Y);
-      }
-      if (Layer != global::Bnet.GroundLayerId.GroundLayerUnspecified) {
-        size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) Layer);
-      }
-      if (Brush != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Brush);
-      }
-      if (Rotation != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Rotation);
-      }
-      if (Seed != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Seed);
-      }
-      if (AtSecond != 0L) {
-        size += 1 + pb::CodedOutputStream.ComputeInt64Size(AtSecond);
-      }
-      if (_unknownFields != null) {
-        size += _unknownFields.CalculateSize();
-      }
-      return size;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(GroundStamp other) {
-      if (other == null) {
-        return;
-      }
-      if (other.X != 0L) {
-        X = other.X;
-      }
-      if (other.Y != 0L) {
-        Y = other.Y;
-      }
-      if (other.Layer != global::Bnet.GroundLayerId.GroundLayerUnspecified) {
-        Layer = other.Layer;
-      }
-      if (other.Brush != 0) {
-        Brush = other.Brush;
-      }
-      if (other.Rotation != 0) {
-        Rotation = other.Rotation;
-      }
-      if (other.Seed != 0) {
-        Seed = other.Seed;
-      }
-      if (other.AtSecond != 0L) {
-        AtSecond = other.AtSecond;
-      }
-      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(pb::CodedInputStream input) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      input.ReadRawMessage(this);
-    #else
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
-          default:
-            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
-            break;
-          case 8: {
-            X = input.ReadSInt64();
-            break;
-          }
-          case 16: {
-            Y = input.ReadSInt64();
-            break;
-          }
-          case 24: {
-            Layer = (global::Bnet.GroundLayerId) input.ReadEnum();
-            break;
-          }
-          case 32: {
-            Brush = input.ReadUInt32();
-            break;
-          }
-          case 40: {
-            Rotation = input.ReadUInt32();
-            break;
-          }
-          case 48: {
-            Seed = input.ReadUInt32();
-            break;
-          }
-          case 56: {
-            AtSecond = input.ReadInt64();
-            break;
-          }
-        }
-      }
-    #endif
-    }
-
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
-          default:
-            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
-            break;
-          case 8: {
-            X = input.ReadSInt64();
-            break;
-          }
-          case 16: {
-            Y = input.ReadSInt64();
-            break;
-          }
-          case 24: {
-            Layer = (global::Bnet.GroundLayerId) input.ReadEnum();
-            break;
-          }
-          case 32: {
-            Brush = input.ReadUInt32();
-            break;
-          }
-          case 40: {
-            Rotation = input.ReadUInt32();
-            break;
-          }
-          case 48: {
-            Seed = input.ReadUInt32();
-            break;
-          }
-          case 56: {
-            AtSecond = input.ReadInt64();
-            break;
-          }
-        }
-      }
-    }
-    #endif
-
-  }
-
-  /// <summary>
-  ///*
   /// Everything lasting that has happened to the ground of one chunk column.
   ///
   /// ### Why this is not part of the chunk, and not `ChunkGroundOverlaySMSG` either
@@ -858,7 +407,7 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Bnet.ChunkGroundLayersSmsgReflection.Descriptor.MessageTypes[2]; }
+      get { return global::Bnet.ChunkGroundLayersSmsgReflection.Descriptor.MessageTypes[1]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -880,7 +429,6 @@ namespace Bnet {
     public ChunkGroundLayersSMSG(ChunkGroundLayersSMSG other) : this() {
       pos_ = other.pos_ != null ? other.pos_.Clone() : null;
       layers_ = other.layers_.Clone();
-      stamps_ = other.stamps_.Clone();
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -921,17 +469,6 @@ namespace Bnet {
       get { return layers_; }
     }
 
-    /// <summary>Field number for the "stamps" field.</summary>
-    public const int StampsFieldNumber = 3;
-    private static readonly pb::FieldCodec<global::Bnet.GroundStamp> _repeated_stamps_codec
-        = pb::FieldCodec.ForMessage(26, global::Bnet.GroundStamp.Parser);
-    private readonly pbc::RepeatedField<global::Bnet.GroundStamp> stamps_ = new pbc::RepeatedField<global::Bnet.GroundStamp>();
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public pbc::RepeatedField<global::Bnet.GroundStamp> Stamps {
-      get { return stamps_; }
-    }
-
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -949,7 +486,6 @@ namespace Bnet {
       }
       if (!object.Equals(Pos, other.Pos)) return false;
       if(!layers_.Equals(other.layers_)) return false;
-      if(!stamps_.Equals(other.stamps_)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -959,7 +495,6 @@ namespace Bnet {
       int hash = 1;
       if (pos_ != null) hash ^= Pos.GetHashCode();
       hash ^= layers_.GetHashCode();
-      hash ^= stamps_.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -983,7 +518,6 @@ namespace Bnet {
         output.WriteMessage(Pos);
       }
       layers_.WriteTo(output, _repeated_layers_codec);
-      stamps_.WriteTo(output, _repeated_stamps_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -999,7 +533,6 @@ namespace Bnet {
         output.WriteMessage(Pos);
       }
       layers_.WriteTo(ref output, _repeated_layers_codec);
-      stamps_.WriteTo(ref output, _repeated_stamps_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -1014,7 +547,6 @@ namespace Bnet {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(Pos);
       }
       size += layers_.CalculateSize(_repeated_layers_codec);
-      size += stamps_.CalculateSize(_repeated_stamps_codec);
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -1034,7 +566,6 @@ namespace Bnet {
         Pos.MergeFrom(other.Pos);
       }
       layers_.Add(other.layers_);
-      stamps_.Add(other.stamps_);
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -1065,10 +596,6 @@ namespace Bnet {
             layers_.AddEntriesFrom(input, _repeated_layers_codec);
             break;
           }
-          case 26: {
-            stamps_.AddEntriesFrom(input, _repeated_stamps_codec);
-            break;
-          }
         }
       }
     #endif
@@ -1097,10 +624,6 @@ namespace Bnet {
           }
           case 18: {
             layers_.AddEntriesFrom(ref input, _repeated_layers_codec);
-            break;
-          }
-          case 26: {
-            stamps_.AddEntriesFrom(ref input, _repeated_stamps_codec);
             break;
           }
         }

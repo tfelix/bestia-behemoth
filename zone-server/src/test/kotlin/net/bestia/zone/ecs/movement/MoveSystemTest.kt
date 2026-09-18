@@ -20,7 +20,7 @@ class MoveSystemTest {
 
   /** Walks the whole path and returns where the entity ended up. */
   private fun walk(path: List<Vec3L>, ground: GroundHeight): Position {
-    val world = testWorld(systems = listOf(MoveSystem(ground)))
+    val world = testWorld(systems = listOf(MoveSystem(ground, GroundTrample.NONE)))
     val id = world.create()
 
     val position = Position(0, 0, 100)
@@ -59,7 +59,7 @@ class MoveSystemTest {
     // Path is synced to every client in range and entity.gd interpolates along it between position updates, so a
     // path left at the client's straight line makes observers draw the walk through the hill even though the
     // authoritative position is right.
-    val world = testWorld(systems = listOf(MoveSystem(ridge)))
+    val world = testWorld(systems = listOf(MoveSystem(ridge, GroundTrample.NONE)))
     val id = world.create()
 
     world.add(id, Position(0, 0, 100))
@@ -78,7 +78,7 @@ class MoveSystemTest {
     // Both used to go out on every tile step - four a second per moving entity per observer - and both
     // said only what the client can already work out from the waypoints it has and the speed. See the
     // notes on Path and Position for what that cost and what it broke.
-    val world = testWorld(systems = listOf(MoveSystem(flat)))
+    val world = testWorld(systems = listOf(MoveSystem(flat, GroundTrample.NONE)))
     val id = world.create()
 
     val position = Position(0, 0, 100)
@@ -104,7 +104,7 @@ class MoveSystemTest {
   fun `a step is indexed even when it is not published`() {
     // The area-of-interest index is not the wire: it answers who receives a broadcast, who an area
     // effect hits and what a skill can target, so it has to follow every step. See Position.moved.
-    val world = testWorld(systems = listOf(MoveSystem(flat)))
+    val world = testWorld(systems = listOf(MoveSystem(flat, GroundTrample.NONE)))
     val id = world.create()
 
     val position = Position(0, 0, 100)
@@ -124,7 +124,7 @@ class MoveSystemTest {
 
   @Test
   fun `one step in POSITION_RESYNC_STEPS is published as a resync`() {
-    val world = testWorld(systems = listOf(MoveSystem(flat)))
+    val world = testWorld(systems = listOf(MoveSystem(flat, GroundTrample.NONE)))
     val id = world.create()
 
     val tiles = MoveSystem.POSITION_RESYNC_STEPS + 2
@@ -151,7 +151,7 @@ class MoveSystemTest {
   fun `the path carries how far past its last tile the entity stands`() {
     // Without it a client told about a walk already under way starts it a whole tile behind, because the
     // waypoints say where the walk goes and the position says only which tile was last reached.
-    val world = testWorld(systems = listOf(MoveSystem(flat)))
+    val world = testWorld(systems = listOf(MoveSystem(flat, GroundTrample.NONE)))
     val id = world.create()
 
     val position = Position(0, 0, 100)
@@ -177,7 +177,7 @@ class MoveSystemTest {
     // `World.tick`, past `applyDeferred` and past the component sync - so every system ordered after this one
     // lost its turn, and the client was never told the walk had ended. It then kept predicting from where it
     // thought the entity was, and the next click produced a path `MoveActiveEntityHandler` had to refuse.
-    val world = testWorld(systems = listOf(MoveSystem(flat)))
+    val world = testWorld(systems = listOf(MoveSystem(flat, GroundTrample.NONE)))
     val id = world.create()
 
     val position = Position(0, 0, 100)

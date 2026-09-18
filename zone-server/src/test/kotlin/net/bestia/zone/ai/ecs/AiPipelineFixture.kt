@@ -1,5 +1,6 @@
 package net.bestia.zone.ai.ecs
 
+import net.bestia.zone.ecs.movement.GroundTrample
 import io.mockk.every
 import io.mockk.mockk
 import net.bestia.zone.ai.core.planner.Planner
@@ -196,7 +197,7 @@ class AiPipelineFixture(tickRate: Int = 20, randomSeed: Long = DEFAULT_SEED) {
     AiActSystem(sharedMemory, ZoneConfig(tickRate = tickRate)),
     // No terrain in these scenarios, so no ground to snap to; null keeps the waypoint's own z, which is what
     // the flat test navigation produces anyway.
-    MoveSystem { null },
+    MoveSystem({ null }, GroundTrample.NONE),
   )
 
   val world: World = testWorld(systems = systems)

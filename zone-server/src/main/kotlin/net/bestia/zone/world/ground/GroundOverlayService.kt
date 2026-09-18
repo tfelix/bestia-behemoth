@@ -74,7 +74,6 @@ class GroundOverlayService(
    * means - see [GroundLayerSource]. Empty is legal and means nothing lasting is modelled yet.
    */
   private val layerSources: List<GroundLayerSource>,
-  private val stampSources: List<GroundStampSource>,
 ) {
 
   /** Column -> the accounts holding its terrain. This service's own record; see the class note. */
@@ -185,8 +184,7 @@ class GroundOverlayService(
   }
 
   private fun hasMarks(column: Long): Boolean {
-    if (layerSources.any { it.nibblesAt(column) != null }) return true
-    return stampSources.any { it.stampsAt(column).isNotEmpty() }
+    return layerSources.any { it.nibblesAt(column) != null }
   }
 
   /**
@@ -208,8 +206,8 @@ class GroundOverlayService(
   /**
    * Every lasting mark on one column, never a diff.
    *
-   * May come back with no layers and no stamps at all, and that message is not wasted either: it is how a
-   * healed scar or a path that has finally faded is retired.
+   * May come back with no layers at all, and that message is not wasted either: it is how a healed scar or a
+   * path that has finally faded is retired.
    */
   private fun layersMessageFor(column: Long): ChunkGroundLayersSMSG {
     val cells = layerSources.mapNotNull { source ->
@@ -218,8 +216,7 @@ class GroundOverlayService(
 
     return ChunkGroundLayersSMSG(
       chunk = ChunkPos(ColumnKey.chunkXOf(column), ColumnKey.chunkYOf(column), 0),
-      cells = cells,
-      stamps = stampSources.flatMap { it.stampsAt(column) }
+      cells = cells
     )
   }
 }
