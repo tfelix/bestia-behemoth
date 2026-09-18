@@ -1,8 +1,7 @@
 package net.bestia.zone.world.fire
 
-import net.bestia.zone.world.ground.ColumnKey
 import net.bestia.worldgen.voxel.BlockType
-import net.bestia.worldgen.voxel.SurfaceColumns
+import net.bestia.zone.world.ground.SurfaceBlockLookup
 import net.bestia.zone.world.WorldService
 import org.springframework.stereotype.Service
 
@@ -56,43 +55,17 @@ fun interface BurnableGround {
 @Service
 class SurfaceBurnableGround(
   private val worldService: WorldService,
+  private val surface: SurfaceBlockLookup,
 ) : BurnableGround {
-
-  /**
-   * Chunk column -> the block at the top of each of its columns.
-   *
-   * **Never invalidated**, on `ChunkStreamConfig.slabCacheCapacity`'s argument: this is a pure function of the
-   * generated world. A player carving terrain could in principle change it, and the consequence is a fire
-   * treating a freshly-dug pit as whatever used to be on top - which is not worth an invalidation path for a
-   * mechanic about grass.
-   */
-  private val surfaceCache = object : LinkedHashMap<Long, SurfaceColumns>(CACHE_CAPACITY, 0.75f, true) {
-    override fun removeEldestEntry(eldest: Map.Entry<Long, SurfaceColumns>) = size > CACHE_CAPACITY
-  }
 
   override fun fuelAt(voxelX: Long, voxelY: Long): Double {
     if (!worldService.isLoaded) return 0.0
 
     val config = worldService.config
-    val chunkSize = config.chunkSize.toLong()
-
-    val chunkX = Math.floorDiv(voxelX, chunkSize).toInt()
-    val chunkY = Math.floorDiv(voxelY, chunkSize).toInt()
-
-    val columns = surfaceCache.getOrPut(ColumnKey.of(chunkX, chunkY)) {
-      worldService.generated.materializer.surfaceColumns(chunkX, chunkY)
-    }
-
-    val block = columns.blockAt(
-      Math.floorMod(voxelX, chunkSize).toInt(),
-      Math.floorMod(voxelY, chunkSize).toInt()
-    )
 
     // Everything not in the table is zero - water, sand, snow, ice, mud, every rock, and the cobblestone and
     // masonry a road or a bridge is made of. Unburnable by construction rather than by an exclusion list.
-    // `ofOrNull`, not `of`: the throwing variant means "written by another version", which is the right
-    // reaction when decoding a stored chunk and the wrong one on the tick thread inside a grass fire.
-    val blockFuel = BlockType.ofOrNull(block)?.let { CAP_FUEL[it] } ?: return 0.0
+    val blockFuel = surface.blockAt(voxelX, voxelY)?.let { CAP_FUEL[it] } ?: return 0.0
 
     val worldX = voxelX * config.voxelSize
     val worldY = voxelY * config.voxelSize
@@ -105,9 +78,6 @@ class SurfaceBurnableGround(
   }
 
   private companion object {
-
-    /** Chunk columns held at once. A fire spans a handful; a view volume is 121. */
-    const val CACHE_CAPACITY = 512
 
     /**
      * The only surface blocks that carry a fire, and what each is worth.
