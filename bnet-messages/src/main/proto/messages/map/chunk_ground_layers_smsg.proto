@@ -47,36 +47,6 @@ message GroundLayerCells {
 }
 
 /**
- * One mark left on the ground at a point, rather than spread over a grid.
- *
- * A footprint has a *shape* and a *heading*, and a grid of levels can express neither - a print is about
- * thirty centimetres across against a one metre cell. So the wire carries the event and the client draws it,
- * which also means how good it looks is a client decision the protocol never has to hear about: the same
- * record renders as a darkened patch, a normal-mapped dent, or displaced geometry.
- *
- * Roughly a dozen bytes, against the ~512 a whole layer's cells cost, so a busy column is still cheap.
- */
-message GroundStamp {
-  /** World voxel position. Absolute, not column-local: a stamp near an edge legitimately overlaps a neighbour. */
-  sint64 x = 1;
-  sint64 y = 2;
-
-  GroundLayerId layer = 3;
-
-  /** Which brush to draw - a left foot, a right foot, a splatter. The client owns the art for each. */
-  uint32 brush = 4;
-
-  /** Heading in 256ths of a turn. Movement is eight-connected, so only eight values occur today. */
-  uint32 rotation = 5;
-
-  /** Picks a variant so a hundred prints are not one print a hundred times. */
-  uint32 seed = 6;
-
-  /** Bestia second it was made, so the client can fade it on its own without being told again. */
-  int64 at_second = 7;
-}
-
-/**
  * Everything lasting that has happened to the ground of one chunk column.
  *
  * ### Why this is not part of the chunk, and not `ChunkGroundOverlaySMSG` either
@@ -113,5 +83,6 @@ message ChunkGroundLayersSMSG {
   /** Absent for a layer this column has nothing of, which is almost every layer almost always. */
   repeated GroundLayerCells layers = 2;
 
-  repeated GroundStamp stamps = 3;
+  /** Held for marks with a shape and a heading - footprints - which a grid of levels cannot express. */
+  reserved 3;
 }

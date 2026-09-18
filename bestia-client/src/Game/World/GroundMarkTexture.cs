@@ -26,9 +26,10 @@ namespace BestiaBehemothClient.Game.World
   /// </para>
   ///
   /// <para>
-  /// <b>One upload per frame at most.</b> Godot re-uploads the whole image on <c>Update</c>, so writes are
-  /// batched and <see cref="Flush"/> is called once per frame by the renderer. At this size that is a
-  /// megabyte, and only on a frame where something actually changed.
+  /// <b>One upload per frame at most, and one marshalled call with it.</b> The pixels live in a plain
+  /// <c>byte[]</c> and only become an <c>Image</c> on <see cref="Flush"/>, which the renderer calls once a
+  /// frame. Writing through <c>Image.SetPixel</c> instead would be a marshalled call per texel - a thousand
+  /// of them per column - to build something Godot re-uploads whole anyway.
   /// </para>
   /// </remarks>
   public sealed class GroundMarkTexture
@@ -48,15 +49,16 @@ namespace BestiaBehemothClient.Game.World
 
     public const float ExtentMetres = Size * MetresPerTexel;
 
-    private readonly Image _image;
+    /// <summary>One <c>RGBA8</c> texel per square metre, a channel per layer. See the class note.</summary>
+    private readonly byte[] _pixels = new byte[Size * Size * 4];
+
     private readonly ImageTexture _texture;
     private bool _dirty;
 
     public GroundMarkTexture()
     {
-      _image = Image.CreateEmpty(Size, Size, false, Image.Format.Rgba8);
-      _image.Fill(new Color(0, 0, 0, 0));
-      _texture = ImageTexture.CreateFromImage(_image);
+      _texture = ImageTexture.CreateFromImage(
+        Image.CreateFromData(Size, Size, false, Image.Format.Rgba8, _pixels));
     }
 
     public Texture2D Texture => _texture;
@@ -80,13 +82,14 @@ namespace BestiaBehemothClient.Game.World
       {
         for (var localX = 0; localX < chunkSize; localX++)
         {
-          var colour = new Color(
-            LevelOf(cells, 0, chunkSize, localX, localY),
-            LevelOf(cells, 1, chunkSize, localX, localY),
-            LevelOf(cells, 2, chunkSize, localX, localY),
-            LevelOf(cells, 3, chunkSize, localX, localY));
+          var at = TexelAt(
+            (long)chunkX * chunkSize + localX,
+            (long)chunkY * chunkSize + localY);
 
-          SetTexel(chunkX * chunkSize + localX, chunkY * chunkSize + localY, colour);
+          for (var channel = 0; channel < GroundLayers.Channels; channel++)
+          {
+            _pixels[at + channel] = LevelOf(cells, channel, chunkSize, localX, localY);
+          }
         }
       }
 
@@ -106,7 +109,14 @@ namespace BestiaBehemothClient.Game.World
       {
         for (var localX = 0; localX < chunkSize; localX++)
         {
-          SetTexel(chunkX * chunkSize + localX, chunkY * chunkSize + localY, new Color(0, 0, 0, 0));
+          var at = TexelAt(
+            (long)chunkX * chunkSize + localX,
+            (long)chunkY * chunkSize + localY);
+
+          for (var channel = 0; channel < GroundLayers.Channels; channel++)
+          {
+            _pixels[at + channel] = 0;
+          }
         }
       }
 
@@ -122,7 +132,7 @@ namespace BestiaBehemothClient.Game.World
         return false;
       }
 
-      _texture.Update(_image);
+      _texture.Update(Image.CreateFromData(Size, Size, false, Image.Format.Rgba8, _pixels));
       _dirty = false;
 
       return true;
@@ -130,29 +140,35 @@ namespace BestiaBehemothClient.Game.World
 
     public void Clear()
     {
-      _image.Fill(new Color(0, 0, 0, 0));
+      System.Array.Clear(_pixels);
       _dirty = true;
     }
 
-    private void SetTexel(long worldX, long worldY, Color colour)
+    /// <summary>Where one square metre of the world lives in <see cref="_pixels"/>.</summary>
+    /// <remarks>
+    /// Modulo rather than an offset, because the addressing is toroidal - see the class note. Kept positive by
+    /// hand: C# <c>%</c> keeps the sign of the dividend, and half this world has negative coordinates.
+    /// </remarks>
+    private static int TexelAt(long worldX, long worldY)
     {
-      // Modulo rather than an offset, because the addressing is toroidal - see the class note. Kept positive
-      // by hand: C# `%` keeps the sign of the dividend, and half this world has negative coordinates.
       var x = (int)(((worldX % Size) + Size) % Size);
       var y = (int)(((worldY % Size) + Size) % Size);
 
-      _image.SetPixel(x, y, colour);
+      return (y * Size + x) * 4;
     }
 
-    /// <summary>One channel's level at a cell, as the 0..1 the shader wants.</summary>
-    private static float LevelOf(byte[][] cells, int channel, int chunkSize, int localX, int localY)
+    /// <summary>One channel's level at a cell, as the 0..255 a texel holds.</summary>
+    private static byte LevelOf(byte[][] cells, int channel, int chunkSize, int localX, int localY)
     {
       if (channel >= cells.Length)
       {
-        return 0f;
+        return 0;
       }
 
-      return GroundLayerCells.UnitAt(cells[channel], chunkSize, localX, localY);
+      // Scaled so the strongest level is a full byte: 15 becomes 255, not 15/256th of the way up. The shader
+      // reads this as 0..1 and a mark that never exceeded 6% would be invisible.
+      return (byte)(GroundLayerCells.LevelAt(cells[channel], chunkSize, localX, localY) * 255
+        / GroundLayerCells.MaxLevel);
     }
   }
 }

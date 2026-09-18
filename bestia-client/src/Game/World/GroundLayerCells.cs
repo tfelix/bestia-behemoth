@@ -44,9 +44,5 @@ namespace BestiaBehemothClient.Game.World
 
       return (index & 1) == 0 ? packed & 0x0F : packed >> 4 & 0x0F;
     }
-
-    /// <summary>The same level as the 0..1 a shader wants.</summary>
-    public static float UnitAt(byte[] cells, int chunkSize, int localX, int localY) =>
-      LevelAt(cells, chunkSize, localX, localY) / (float)MaxLevel;
   }
 }

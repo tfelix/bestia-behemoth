@@ -49,16 +49,15 @@ namespace BestiaBehemothClient.Tests
     public void AnAbsentLayerReadsAsUnmarkedRatherThanThrowing()
     {
       Assert.Equal(0, GroundLayerCells.LevelAt(null, ChunkSize, 5, 5));
-      Assert.Equal(0f, GroundLayerCells.UnitAt(null, ChunkSize, 5, 5));
     }
 
     [Fact]
-    public void TheStrongestLevelIsFullyMarked()
+    public void TheStrongestLevelIsEveryBitOfTheNibble()
     {
       var cells = new byte[GroundLayerCells.ByteLength(ChunkSize)];
       cells[0] = 0x0F;
 
-      Assert.Equal(1f, GroundLayerCells.UnitAt(cells, ChunkSize, 0, 0));
+      Assert.Equal(GroundLayerCells.MaxLevel, GroundLayerCells.LevelAt(cells, ChunkSize, 0, 0));
     }
 
     [Fact]

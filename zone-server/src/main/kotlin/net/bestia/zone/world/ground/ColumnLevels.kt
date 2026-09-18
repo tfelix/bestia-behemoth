@@ -131,6 +131,9 @@ class ColumnLevels(val size: Int) {
 
   companion object {
 
+    /** The strongest a cell can be marked, being every bit of the byte it is stored in. */
+    const val MAX_LEVEL = 255
+
     fun nibbleLength(size: Int): Int {
       return (size * size + 1) / 2
     }

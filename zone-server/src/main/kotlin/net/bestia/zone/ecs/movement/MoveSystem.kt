@@ -22,7 +22,10 @@ import org.springframework.stereotype.Component as SpringComponent
  */
 @SpringComponent
 @Order(40)
-class MoveSystem(private val ground: GroundHeight) : System {
+class MoveSystem(
+  private val ground: GroundHeight,
+  private val trample: GroundTrample,
+) : System {
 
   override val reads: ComponentClassSet = setOf(Speed::class, Dead::class)
   override val writes: ComponentClassSet = setOf(Position::class, Path::class)
@@ -72,6 +75,11 @@ class MoveSystem(private val ground: GroundHeight) : System {
         // Not the x/y/z setters: a step is not published, see Position.stepTo.
         position.stepTo(nextPoint.x, nextPoint.y, z)
         stepped++
+
+        // Per stepped tile rather than per tick, and inside the loop for the reason the loop exists: an
+        // overrunning tick arrives here as several tiles at once, and a trail that skipped them would be
+        // dotted exactly when the server was struggling.
+        trample.steppedOn(nextPoint.x, nextPoint.y)
 
         LOG.trace { "Entity $id on $nextPoint" }
 

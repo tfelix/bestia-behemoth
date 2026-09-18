@@ -221,7 +221,12 @@ group_uniforms GroundMarks;
 // `repeat_enable` is what makes the addressing toroidal. The texture covers a fixed span of world and wraps,
 // so walking scrolls through it instead of reuploading it; the span is wider than the view, so two columns
 // on screen can never land on the same texel.
-uniform sampler2D ground_marks : filter_linear, repeat_enable;
+//
+// `hint_default_transparent` is load bearing, not tidiness. An unset `sampler2D` in Godot reads as **white**,
+// which here means every channel at full strength - the whole world burnt, trodden and bloodied at once, and
+// every metre of snow cut open. Anything that draws terrain without a mark texture (the testbed, a shader
+// that loaded before the renderer ran) has to get clean ground instead.
+uniform sampler2D ground_marks : filter_linear, repeat_enable, hint_default_transparent;
 
 // Metres the whole texture spans before it repeats. Must exceed the view diameter - see above.
 uniform float ground_marks_extent = 512.0;
@@ -231,6 +236,14 @@ uniform float ground_marks_strength : hint_range(0.0, 1.0) = 1.0;
 
 // How much a disturbed metre cuts into lying snow. Snow is the one thing a print shows in without any art.
 uniform float ground_marks_disturb_snow : hint_range(0.0, 1.0) = 0.85;
+
+// What each mark is coloured, corrected exactly as `snow_colour` corrects snow: divided by what the slot's
+// texture already is, so the number here is the colour that lands rather than a tint over whatever art
+// arrives. Slots 8 to 10 have none yet and load as generated grey, so without this a worn path is a grey
+// path - visible, and wrong in a way that reads as a bug rather than as unfinished art.
+uniform vec3 mark_scorched_colour : source_color = vec3(0.07, 0.06, 0.06);
+uniform vec3 mark_trodden_colour : source_color = vec3(0.34, 0.26, 0.18);
+uniform vec3 mark_bloodied_colour : source_color = vec3(0.29, 0.05, 0.05);
 
 group_uniforms;
 
@@ -664,6 +677,7 @@ TerrainSurface terrain_surface(vec3 tint) {
 
 	float mark_levels[3] = { marks.r, marks.g, marks.b };
 	int mark_slots[3] = { TERRAIN_SLOT_SCORCHED, TERRAIN_SLOT_TRODDEN, TERRAIN_SLOT_BLOODIED };
+	vec3 mark_colours[3] = { mark_scorched_colour, mark_trodden_colour, mark_bloodied_colour };
 
 	if (max(mark_levels[0], max(mark_levels[1], mark_levels[2])) > TERRAIN_WEIGHT_EPSILON) {
 		float remaining = 1.0;
@@ -691,7 +705,12 @@ TerrainSurface terrain_surface(vec3 tint) {
 
 			SlotSample mark = terrain_sample_slot(mark_slots[strongest], normal, ddx, ddy, blend);
 
-			albedo = mix(albedo, mark.albedo, share);
+			// Corrected the way weather snow is: the texture's own colour divided out, so what lands is the
+			// colour named above and not that colour multiplied by whatever grey the slot happens to be.
+			vec3 mark_albedo = mark.albedo
+				* (mark_colours[strongest] / max(slot_reference_tint[mark_slots[strongest]], vec3(0.0001)));
+
+			albedo = mix(albedo, mark_albedo, share);
 			world_normal = normalize(mix(world_normal, mark.normal, share));
 			roughness = mix(roughness, mark.roughness, share);
 			ao = mix(ao, mark.ao, share);

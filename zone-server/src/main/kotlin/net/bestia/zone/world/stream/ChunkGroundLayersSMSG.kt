@@ -6,7 +6,6 @@ import net.bestia.bnet.proto.EnvelopeProto
 import net.bestia.worldgen.core.ChunkPos
 import net.bestia.zone.message.SMSG
 import net.bestia.zone.world.ground.GroundLayer
-import net.bestia.zone.world.ground.GroundStamp
 
 /**
  * Everything lasting that has happened to the ground of one chunk column.
@@ -15,12 +14,10 @@ import net.bestia.zone.world.ground.GroundStamp
  * proto for why the layers share one message and why none of this can be a block type.
  *
  * @property cells one entry per layer this column has anything of, each `chunkSize²` nibbles
- * @property stamps marks with a shape and a heading, which a grid of levels cannot express
  */
 data class ChunkGroundLayersSMSG(
   val chunk: ChunkPos,
-  val cells: Map<GroundLayer, ByteArray>,
-  val stamps: List<GroundStamp>
+  val cells: Map<GroundLayer, ByteArray>
 ) : SMSG {
 
   override fun toBnetEnvelope(): EnvelopeProto.Envelope {
@@ -40,18 +37,6 @@ data class ChunkGroundLayersSMSG(
       )
     }
 
-    stamps.forEach { stamp ->
-      layers.addStamps(
-        ChunkGroundLayersSMSGProto.GroundStamp.newBuilder()
-          .setX(stamp.x)
-          .setY(stamp.y)
-          .setLayer(layerIdOf(stamp.layer))
-          .setBrush(stamp.brush.wireId)
-          .setRotation(stamp.rotation)
-          .setSeed(stamp.seed)
-          .setAtSecond(stamp.atSecond)
-      )
-    }
 
     return EnvelopeProto.Envelope.newBuilder()
       .setChunkGroundLayers(layers.build())
@@ -64,22 +49,20 @@ data class ChunkGroundLayersSMSG(
    * This message also belongs in `socket.filter-log-messages`.
    */
   override fun toString() =
-    "ChunkGroundLayersSMSG($chunk, ${cells.size} layer(s), ${cells.values.sumOf { it.size }}B, " +
-        "${stamps.size} stamp(s))"
+    "ChunkGroundLayersSMSG($chunk, ${cells.size} layer(s), ${cells.values.sumOf { it.size }}B)"
 
   // `ByteArray` gives data classes reference equality, which would make two identical payloads compare
   // unequal. See ChunkGroundOverlaySMSG: a message type whose equals lies is a trap for whoever trusts it.
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (other !is ChunkGroundLayersSMSG) return false
-    if (chunk != other.chunk || stamps != other.stamps) return false
+    if (chunk != other.chunk) return false
     if (cells.keys != other.cells.keys) return false
     return cells.all { (layer, nibbles) -> nibbles.contentEquals(other.cells[layer]) }
   }
 
   override fun hashCode(): Int {
     var result = chunk.hashCode()
-    result = 31 * result + stamps.hashCode()
     cells.entries.sortedBy { it.key.wireId }.forEach { (layer, nibbles) ->
       result = 31 * result + layer.hashCode()
       result = 31 * result + nibbles.contentHashCode()

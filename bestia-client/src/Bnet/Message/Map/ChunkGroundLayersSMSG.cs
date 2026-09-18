@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.IO;
 using BestiaBehemothClient.Game.World;
 using Godot;
@@ -38,8 +37,6 @@ namespace BestiaBehemothClient.Bnet.Message.Map
     /// the time. Indexed by <see cref="GroundLayers.ChannelOf"/>, not by wire id.
     /// </summary>
     public byte[][] Cells { get; private set; }
-
-    public IReadOnlyList<GroundStamp> Stamps { get; private set; }
 
     /// <summary>
     /// Decodes one column's layers, or throws if this build cannot read them.
@@ -87,20 +84,11 @@ namespace BestiaBehemothClient.Bnet.Message.Map
         cells[channel] = payload;
       }
 
-      var stamps = new List<GroundStamp>(proto.Stamps.Count);
-      foreach (var stamp in proto.Stamps)
+      return new ChunkGroundLayersSMSG
       {
-        var channel = GroundLayers.ChannelOf((GroundLayers.Id)stamp.Layer);
-        if (channel < 0)
-        {
-          continue;
-        }
-
-        stamps.Add(new GroundStamp(
-          stamp.X, stamp.Y, channel, (int)stamp.Brush, (int)stamp.Rotation, (int)stamp.Seed, stamp.AtSecond));
-      }
-
-      return new ChunkGroundLayersSMSG { Key = new ChunkKey(proto.Pos.X, proto.Pos.Y, proto.Pos.Z), Cells = cells, Stamps = stamps };
+        Key = new ChunkKey(proto.Pos.X, proto.Pos.Y, proto.Pos.Z),
+        Cells = cells
+      };
     }
 
     /// <summary>Whether this column has nothing on it, which is the retire signal rather than a no-op.</summary>
@@ -108,11 +96,6 @@ namespace BestiaBehemothClient.Bnet.Message.Map
     {
       get
       {
-        if (Stamps.Count > 0)
-        {
-          return false;
-        }
-
         foreach (var channel in Cells)
         {
           if (channel != null)
@@ -140,7 +123,7 @@ namespace BestiaBehemothClient.Bnet.Message.Map
         bytes += channel.Length;
       }
 
-      return $"ChunkGroundLayersSMSG({Key}) {layers} layer(s), {bytes}B, {Stamps.Count} stamp(s)";
+      return $"ChunkGroundLayersSMSG({Key}) {layers} layer(s), {bytes}B";
     }
   }
 }
