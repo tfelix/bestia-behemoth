@@ -7,6 +7,7 @@ import net.bestia.zone.ecs.core.Component
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.world.prop.StaticEntityKind
+import net.bestia.zone.world.spoor.TrackReading
 import kotlin.reflect.KClass
 
 /**
@@ -124,6 +125,17 @@ class RecordingSkillWorld(
     surveys += Survey(masterId, accountId, centre, radiusMetres)
   }
 
+  /** What the next [readTracks] answers with. Null - clean ground - is the useful default. */
+  var tracks: TrackReading? = null
+
+  val trackReads = mutableListOf<TrackRead>()
+
+  override fun readTracks(centre: Vec3L, radiusTiles: Long): TrackReading? {
+    trackReads += TrackRead(centre, radiusTiles)
+
+    return tracks
+  }
+
   data class SpawnedAreaEffect(val centre: Vec3L, val visualId: Long, val effect: AreaEffect)
 
   data class PlacedStation(val kind: StaticEntityKind, val masterId: Long, val at: Vec3L)
@@ -131,4 +143,6 @@ class RecordingSkillWorld(
   data class AppliedEffect(val targetEntityId: EntityId, val effectId: Long, val level: Int)
 
   data class Survey(val masterId: Long, val accountId: Long?, val centre: Vec3L, val radiusMetres: Double)
+
+  data class TrackRead(val centre: Vec3L, val radiusTiles: Long)
 }

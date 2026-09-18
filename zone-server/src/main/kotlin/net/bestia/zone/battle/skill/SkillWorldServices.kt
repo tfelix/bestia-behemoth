@@ -7,6 +7,7 @@ import net.bestia.zone.ecs.EntityAOIService
 import net.bestia.zone.ecs.battle.effects.AreaEffectSpawner
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.world.prop.PlayerStructureService
+import net.bestia.zone.world.spoor.SpoorService
 import org.springframework.stereotype.Component
 
 /**
@@ -30,4 +31,5 @@ class SkillWorldServices(
   val messages: OutMessageProcessor,
   val crafting: CraftingService,
   val survey: SurveyService,
+  val spoor: SpoorService,
 )

@@ -18,6 +18,7 @@ import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.world.prop.StaticEntityKind
+import net.bestia.zone.world.spoor.TrackReading
 import net.bestia.zone.ecs.battle.damage.Damage as DamageComponent
 import kotlin.reflect.KClass
 
@@ -205,6 +206,16 @@ class BudgetedSkillWorld(
     budget.charge()
 
     world.read { services.crafting.offerRecipes(this, casterId, skillId) }
+  }
+
+  /**
+   * One op, and the scope is for the lock rather than for a component: the print store is tick-thread state
+   * and a cast resolves on a worker.
+   */
+  override fun readTracks(centre: Vec3L, radiusTiles: Long): TrackReading? {
+    budget.charge()
+
+    return world.read { services.spoor.read(centre, radiusTiles) }
   }
 
   override fun survey(masterId: Long, accountId: Long?, centre: Vec3L, radiusMetres: Double) {
