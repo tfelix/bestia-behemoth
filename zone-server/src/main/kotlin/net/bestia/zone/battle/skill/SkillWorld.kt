@@ -9,6 +9,7 @@ import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.world.prop.StaticEntityKind
+import net.bestia.zone.world.spoor.TrackReading
 import kotlin.reflect.KClass
 
 /**
@@ -118,6 +119,17 @@ interface SkillWorld {
 
   /** Sends the caster the list of what they can make where they are standing with [skillId]. */
   fun offerRecipes(skillId: Long)
+
+  // ------------------------------------------------------------------ spoor
+
+  /**
+   * The heaviest traffic within [radiusTiles] of [centre], or null when the ground holds no tracks.
+   *
+   * A read rather than a message, so a script decides what a player is told and how much of it their skill
+   * level has earned. Reaching the print store needs a world scope even though no component is involved -
+   * see `SpoorService`.
+   */
+  fun readTracks(centre: Vec3L, radiusTiles: Long): TrackReading?
 
   // ------------------------------------------------------------- cartography
 
