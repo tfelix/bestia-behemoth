@@ -29,8 +29,7 @@ enum ChunkGroundOverlayEncoding {
 }
 
 /**
- * What has happened to the ground of one chunk column that its voxels cannot say: which square metres are
- * burnt, and which are alight right now.
+ * What is happening to the ground of one chunk column right now: which square metres are alight.
  *
  * ### Why this is not part of the chunk
  *
@@ -43,11 +42,11 @@ enum ChunkGroundOverlayEncoding {
  * slot substitution, which is why scorch blends and slopes like any other material rather than sitting on top
  * as a decal.
  *
- * ### One message, both masks
+ * ### Scorch used to ride here, and moved
  *
- * They come out of the same cellular-automaton step over the same lattice and a cell is nearly always in at
- * most one of them. Sending them separately would mean two arrival orders and a frame in which a cell is
- * neither burning nor burnt, which is the state a viewer cannot draw.
+ * A burn *scar* is what the ground **is** and belongs with wear and blood in `ChunkGroundLayersSMSG`, which
+ * the client composites as one set. What is **alight** belongs here: it changes several times a second while
+ * a fire runs, and bundling it with the slow layers would re-send every worn cell on every step of the fire.
  *
  * ### Not in the manifest, not requested, and not a delta
  *
@@ -62,8 +61,8 @@ enum ChunkGroundOverlayEncoding {
  *
  * ### Size
  *
- * `ceil(chunk_size² / 8)` bytes per mask - 128 at a chunk size of 32, so 256 plus framing at the very worst,
- * against roughly three kilobytes of deflated chunk payload for the same ground. proto3 does not encode an
+ * `ceil(chunk_size² / 8)` bytes - 128 at a chunk size of 32, plus framing, against roughly three kilobytes of
+ * deflated chunk payload for the same ground. proto3 does not encode an
  * empty `bytes`, so a column with nothing on it is about twelve bytes; that message is worth sending, because
  * "this ground is clean" and "the overlay has not arrived" are different states to anything deciding whether
  * it can start drawing. It is also how a healed scar is retired - there is no removal message and none is
@@ -78,8 +77,8 @@ message ChunkGroundOverlaySMSG {
 
   ChunkGroundOverlayEncoding encoding = 2;
 
-  /** Ground a fire has been through. Absent when none of this column is burnt. */
-  bytes scorched = 3;
+  /** Held by `scorched` until burn scars moved to `ChunkGroundLayersSMSG`. */
+  reserved 3;
 
   /** Ground alight right now. Absent when nothing here is burning, which is almost always. */
   bytes burning = 4;

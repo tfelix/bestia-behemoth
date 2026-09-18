@@ -1,9 +1,10 @@
 package net.bestia.zone.world.ground
 
 import net.bestia.worldgen.core.ChunkPos
+import net.bestia.zone.message.SMSG
 import net.bestia.zone.socket.ChunkFanOut
 import net.bestia.zone.world.fire.GroundFireService
-import net.bestia.zone.world.fire.ScorchRegistry
+import net.bestia.zone.world.stream.ChunkGroundLayersSMSG
 import net.bestia.zone.world.stream.ChunkGroundOverlaySMSG
 import net.bestia.zone.world.stream.ChunkSubscriptionService
 import org.springframework.context.annotation.Lazy
@@ -60,7 +61,6 @@ import java.util.concurrent.ConcurrentHashMap
  */
 @Service
 class GroundOverlayService(
-  private val scorch: ScorchRegistry,
   private val fanOut: ChunkFanOut,
   private val subscriptions: ChunkSubscriptionService,
   /**
@@ -69,13 +69,29 @@ class GroundOverlayService(
    * who has been told about it.
    */
   @Lazy private val fire: GroundFireService,
+  /**
+   * Every layer that can mark the ground, collected by Spring. This service never learns what any of them
+   * means - see [GroundLayerSource]. Empty is legal and means nothing lasting is modelled yet.
+   */
+  private val layerSources: List<GroundLayerSource>,
+  private val stampSources: List<GroundStampSource>,
 ) {
 
   /** Column -> the accounts holding its terrain. This service's own record; see the class note. */
   private val holders = ConcurrentHashMap<Long, MutableSet<Long>>()
 
-  /** Column -> the accounts owed a message about it. */
+  /** Column -> the accounts owed a message about what is alight there. */
   private val owed = ConcurrentHashMap<Long, MutableSet<Long>>()
+
+  /**
+   * Column -> the accounts owed a message about its lasting marks.
+   *
+   * A second set rather than a second service, because [holders] is the hard-won part and one copy of it is
+   * the point. Separate from [owed] because the two messages move at different speeds: a fire re-sends what
+   * is alight several times a second, and re-sending half a kilobyte of worn cells at that rate for the whole
+   * length of a burn is the cost this split exists to avoid.
+   */
+  private val owedLayers = ConcurrentHashMap<Long, MutableSet<Long>>()
 
   init {
     subscriptions.onChunkSent { accountId, chunk ->
@@ -83,8 +99,11 @@ class GroundOverlayService(
       holders.computeIfAbsent(column) { ConcurrentHashMap.newKeySet() }.add(accountId)
 
       // Told about the ground only if there is something to say about it - see the class note.
-      if (hasAnything(chunk.x, chunk.y, column)) {
+      if (isBurning(chunk.x, chunk.y)) {
         owed.computeIfAbsent(column) { ConcurrentHashMap.newKeySet() }.add(accountId)
+      }
+      if (hasMarks(column)) {
+        owedLayers.computeIfAbsent(column) { ConcurrentHashMap.newKeySet() }.add(accountId)
       }
     }
 
@@ -98,14 +117,16 @@ class GroundOverlayService(
         // burning in a region every player has walked out of.
         holders.remove(column)
         owed.remove(column)
+        owedLayers.remove(column)
       } else {
         holders[column]?.retainAll(remaining)
         owed[column]?.retainAll(remaining)
+        owedLayers[column]?.retainAll(remaining)
       }
     }
   }
 
-  val pending get() = owed.size
+  val pending get() = owed.size + owedLayers.size
 
   /**
    * Marks a column's overlay stale for everyone currently holding it.
@@ -121,35 +142,58 @@ class GroundOverlayService(
   }
 
   /**
+   * Marks a column's lasting marks stale for everyone currently holding it.
+   *
+   * [markDirty]'s twin, and safe from any wave for the same reason. Per column rather than per layer: the
+   * message carries every layer anyway, so knowing which one moved would buy nothing and cost a second index.
+   */
+  fun markLayersDirty(columnKey: Long) {
+    val watchers = holders[columnKey] ?: return
+    if (watchers.isEmpty()) return
+
+    owedLayers.computeIfAbsent(columnKey) { ConcurrentHashMap.newKeySet() }.addAll(watchers)
+  }
+
+  /**
    * Sends what is owed. Touches no shared state but the fan-out itself.
    *
    * @return how many messages were encoded, which is one per column however many recipients it had
    */
   fun flush(): Int {
-    if (owed.isEmpty()) return 0
+    var sent = 0
+    sent += drain(owed) { messageFor(it) }
+    sent += drain(owedLayers) { layersMessageFor(it) }
+    return sent
+  }
+
+  private fun drain(queue: ConcurrentHashMap<Long, MutableSet<Long>>, message: (Long) -> SMSG): Int {
+    if (queue.isEmpty()) return 0
 
     var sent = 0
-    for ((column, accounts) in owed) {
+    for ((column, accounts) in queue) {
       if (accounts.isEmpty()) continue
-      fanOut.fanOut(accounts, messageFor(column))
+      fanOut.fanOut(accounts, message(column))
       sent++
     }
-    owed.clear()
+    queue.clear()
 
     return sent
   }
 
-  /** Whether this column has anything worth a message: a scar, or something alight. */
-  private fun hasAnything(chunkX: Int, chunkY: Int, column: Long): Boolean {
-    if (scorch.scarOf(column)?.visible?.isEmpty == false) return true
+  private fun isBurning(chunkX: Int, chunkY: Int): Boolean {
     return fire.burningIn(chunkX, chunkY)?.isEmpty == false
   }
 
+  private fun hasMarks(column: Long): Boolean {
+    if (layerSources.any { it.nibblesAt(column) != null }) return true
+    return stampSources.any { it.stampsAt(column).isNotEmpty() }
+  }
+
   /**
-   * The whole truth about one column, never a diff - see the proto.
+   * What is alight in one column, never a diff - see the proto.
    *
-   * Both masks may come back null, and that message is not wasted: it is how a healed scar is retired, since
-   * the client replaces a column's overlay outright and an empty one means "clean now".
+   * The mask may come back null, and that message is not wasted: it is how a fire that has gone out is
+   * retired, since the client replaces a column's overlay outright and an empty one means "nothing here now".
    */
   private fun messageFor(column: Long): ChunkGroundOverlaySMSG {
     val chunkX = ColumnKey.chunkXOf(column)
@@ -157,9 +201,25 @@ class GroundOverlayService(
 
     return ChunkGroundOverlaySMSG(
       chunk = ChunkPos(chunkX, chunkY, 0),
-      // `visible`, not `mask`: the stored mask is the original burn and a healing scar is smaller than it.
-      scorched = scorch.scarOf(column)?.visible?.takeIf { !it.isEmpty }?.toBytes(),
       burning = fire.burningIn(chunkX, chunkY)?.takeIf { !it.isEmpty }?.toBytes()
+    )
+  }
+
+  /**
+   * Every lasting mark on one column, never a diff.
+   *
+   * May come back with no layers and no stamps at all, and that message is not wasted either: it is how a
+   * healed scar or a path that has finally faded is retired.
+   */
+  private fun layersMessageFor(column: Long): ChunkGroundLayersSMSG {
+    val cells = layerSources.mapNotNull { source ->
+      source.nibblesAt(column)?.let { source.layer to it }
+    }.toMap()
+
+    return ChunkGroundLayersSMSG(
+      chunk = ChunkPos(ColumnKey.chunkXOf(column), ColumnKey.chunkYOf(column), 0),
+      cells = cells,
+      stamps = stampSources.flatMap { it.stampsAt(column) }
     )
   }
 }

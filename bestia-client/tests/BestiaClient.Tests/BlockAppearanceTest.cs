@@ -85,10 +85,13 @@ namespace BestiaBehemothClient.Tests
       // darker tint. See SurfaceSlot.Wetland.
       Assert.Equal(1, Count(BlockAppearance.SurfaceSlot.Wetland));
 
-      // None. Scorched ground is not a block and cannot be one - the chunk wire format can only remove a voxel
-      // - so it reaches the mesher as a per-chunk mask and no palette row maps to it. A row appearing here
-      // means somebody tried to make burnt ground a BlockType, which cannot be delivered.
+      // None, and none for the two below either. A ground layer is not a block and cannot be one - the chunk
+      // wire format can only remove a voxel - so each reaches the shader through the mark texture and no
+      // palette row maps to it. A row appearing here means somebody tried to make a lasting mark a BlockType,
+      // which cannot be delivered.
       Assert.Equal(0, Count(BlockAppearance.SurfaceSlot.Scorched));
+      Assert.Equal(0, Count(BlockAppearance.SurfaceSlot.Trodden));
+      Assert.Equal(0, Count(BlockAppearance.SurfaceSlot.Bloodied));
 
       int Count(BlockAppearance.SurfaceSlot slot) => census.GetValueOrDefault(slot, 0);
     }

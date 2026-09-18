@@ -25,19 +25,18 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CixtZXNzYWdlcy9tYXAvY2h1bmtfZ3JvdW5kX292ZXJsYXlfc21zZy5wcm90",
-            "bxIEYm5ldBoYbWVzc2FnZXMvbWFwL2NodW5rLnByb3RvIowBChZDaHVua0dy",
+            "bxIEYm5ldBoYbWVzc2FnZXMvbWFwL2NodW5rLnByb3RvIoABChZDaHVua0dy",
             "b3VuZE92ZXJsYXlTTVNHEhsKA3BvcxgBIAEoCzIOLmJuZXQuQ2h1bmtQb3MS",
             "MgoIZW5jb2RpbmcYAiABKA4yIC5ibmV0LkNodW5rR3JvdW5kT3ZlcmxheUVu",
-            "Y29kaW5nEhAKCHNjb3JjaGVkGAMgASgMEg8KB2J1cm5pbmcYBCABKAwqeQoa",
-            "Q2h1bmtHcm91bmRPdmVybGF5RW5jb2RpbmcSLQopQ0hVTktfR1JPVU5EX09W",
-            "RVJMQVlfRU5DT0RJTkdfVU5TUEVDSUZJRUQQABIsCihDSFVOS19HUk9VTkRf",
-            "T1ZFUkxBWV9FTkNPRElOR19CSVRNQVNLX1YxEAFCNAoVbmV0LmJlc3RpYS5i",
-            "bmV0LnByb3RvQhtDaHVua0dyb3VuZE92ZXJsYXlTTVNHUHJvdG9iBnByb3Rv",
-            "Mw=="));
+            "Y29kaW5nEg8KB2J1cm5pbmcYBCABKAxKBAgDEAQqeQoaQ2h1bmtHcm91bmRP",
+            "dmVybGF5RW5jb2RpbmcSLQopQ0hVTktfR1JPVU5EX09WRVJMQVlfRU5DT0RJ",
+            "TkdfVU5TUEVDSUZJRUQQABIsCihDSFVOS19HUk9VTkRfT1ZFUkxBWV9FTkNP",
+            "RElOR19CSVRNQVNLX1YxEAFCNAoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQhtD",
+            "aHVua0dyb3VuZE92ZXJsYXlTTVNHUHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Bnet.ChunkReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.ChunkGroundOverlayEncoding), }, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.ChunkGroundOverlaySMSG), global::Bnet.ChunkGroundOverlaySMSG.Parser, new[]{ "Pos", "Encoding", "Scorched", "Burning" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.ChunkGroundOverlaySMSG), global::Bnet.ChunkGroundOverlaySMSG.Parser, new[]{ "Pos", "Encoding", "Burning" }, null, null, null, null)
           }));
     }
     #endregion
@@ -73,8 +72,7 @@ namespace Bnet {
   #region Messages
   /// <summary>
   ///*
-  /// What has happened to the ground of one chunk column that its voxels cannot say: which square metres are
-  /// burnt, and which are alight right now.
+  /// What is happening to the ground of one chunk column right now: which square metres are alight.
   ///
   /// ### Why this is not part of the chunk
   ///
@@ -87,11 +85,11 @@ namespace Bnet {
   /// slot substitution, which is why scorch blends and slopes like any other material rather than sitting on top
   /// as a decal.
   ///
-  /// ### One message, both masks
+  /// ### Scorch used to ride here, and moved
   ///
-  /// They come out of the same cellular-automaton step over the same lattice and a cell is nearly always in at
-  /// most one of them. Sending them separately would mean two arrival orders and a frame in which a cell is
-  /// neither burning nor burnt, which is the state a viewer cannot draw.
+  /// A burn *scar* is what the ground **is** and belongs with wear and blood in `ChunkGroundLayersSMSG`, which
+  /// the client composites as one set. What is **alight** belongs here: it changes several times a second while
+  /// a fire runs, and bundling it with the slow layers would re-send every worn cell on every step of the fire.
   ///
   /// ### Not in the manifest, not requested, and not a delta
   ///
@@ -106,8 +104,8 @@ namespace Bnet {
   ///
   /// ### Size
   ///
-  /// `ceil(chunk_size² / 8)` bytes per mask - 128 at a chunk size of 32, so 256 plus framing at the very worst,
-  /// against roughly three kilobytes of deflated chunk payload for the same ground. proto3 does not encode an
+  /// `ceil(chunk_size² / 8)` bytes - 128 at a chunk size of 32, plus framing, against roughly three kilobytes of
+  /// deflated chunk payload for the same ground. proto3 does not encode an
   /// empty `bytes`, so a column with nothing on it is about twelve bytes; that message is worth sending, because
   /// "this ground is clean" and "the overlay has not arrived" are different states to anything deciding whether
   /// it can start drawing. It is also how a healed scar is retired - there is no removal message and none is
@@ -150,7 +148,6 @@ namespace Bnet {
     public ChunkGroundOverlaySMSG(ChunkGroundOverlaySMSG other) : this() {
       pos_ = other.pos_ != null ? other.pos_.Clone() : null;
       encoding_ = other.encoding_;
-      scorched_ = other.scorched_;
       burning_ = other.burning_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
@@ -190,21 +187,6 @@ namespace Bnet {
       }
     }
 
-    /// <summary>Field number for the "scorched" field.</summary>
-    public const int ScorchedFieldNumber = 3;
-    private pb::ByteString scorched_ = pb::ByteString.Empty;
-    /// <summary>
-    ///* Ground a fire has been through. Absent when none of this column is burnt. 
-    /// </summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public pb::ByteString Scorched {
-      get { return scorched_; }
-      set {
-        scorched_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
-      }
-    }
-
     /// <summary>Field number for the "burning" field.</summary>
     public const int BurningFieldNumber = 4;
     private pb::ByteString burning_ = pb::ByteString.Empty;
@@ -237,7 +219,6 @@ namespace Bnet {
       }
       if (!object.Equals(Pos, other.Pos)) return false;
       if (Encoding != other.Encoding) return false;
-      if (Scorched != other.Scorched) return false;
       if (Burning != other.Burning) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
@@ -248,7 +229,6 @@ namespace Bnet {
       int hash = 1;
       if (pos_ != null) hash ^= Pos.GetHashCode();
       if (Encoding != global::Bnet.ChunkGroundOverlayEncoding.Unspecified) hash ^= Encoding.GetHashCode();
-      if (Scorched.Length != 0) hash ^= Scorched.GetHashCode();
       if (Burning.Length != 0) hash ^= Burning.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
@@ -276,10 +256,6 @@ namespace Bnet {
         output.WriteRawTag(16);
         output.WriteEnum((int) Encoding);
       }
-      if (Scorched.Length != 0) {
-        output.WriteRawTag(26);
-        output.WriteBytes(Scorched);
-      }
       if (Burning.Length != 0) {
         output.WriteRawTag(34);
         output.WriteBytes(Burning);
@@ -302,10 +278,6 @@ namespace Bnet {
         output.WriteRawTag(16);
         output.WriteEnum((int) Encoding);
       }
-      if (Scorched.Length != 0) {
-        output.WriteRawTag(26);
-        output.WriteBytes(Scorched);
-      }
       if (Burning.Length != 0) {
         output.WriteRawTag(34);
         output.WriteBytes(Burning);
@@ -325,9 +297,6 @@ namespace Bnet {
       }
       if (Encoding != global::Bnet.ChunkGroundOverlayEncoding.Unspecified) {
         size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) Encoding);
-      }
-      if (Scorched.Length != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeBytesSize(Scorched);
       }
       if (Burning.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeBytesSize(Burning);
@@ -352,9 +321,6 @@ namespace Bnet {
       }
       if (other.Encoding != global::Bnet.ChunkGroundOverlayEncoding.Unspecified) {
         Encoding = other.Encoding;
-      }
-      if (other.Scorched.Length != 0) {
-        Scorched = other.Scorched;
       }
       if (other.Burning.Length != 0) {
         Burning = other.Burning;
@@ -389,10 +355,6 @@ namespace Bnet {
             Encoding = (global::Bnet.ChunkGroundOverlayEncoding) input.ReadEnum();
             break;
           }
-          case 26: {
-            Scorched = input.ReadBytes();
-            break;
-          }
           case 34: {
             Burning = input.ReadBytes();
             break;
@@ -425,10 +387,6 @@ namespace Bnet {
           }
           case 16: {
             Encoding = (global::Bnet.ChunkGroundOverlayEncoding) input.ReadEnum();
-            break;
-          }
-          case 26: {
-            Scorched = input.ReadBytes();
             break;
           }
           case 34: {

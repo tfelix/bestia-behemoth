@@ -114,6 +114,28 @@ namespace BestiaBehemothClient.Game.World
       Debug?.SetShaderParameter(CliffEnd, end);
     }
 
+    /// <summary>
+    /// Hands the shader the mark texture and the span it covers.
+    /// </summary>
+    /// <remarks>
+    /// Set once, when the texture is built: the addressing is toroidal and keyed on world position, so nothing
+    /// here moves as the player does. That is the point of the modulo - see <see cref="GroundMarkTexture"/>.
+    ///
+    /// <para>
+    /// The debug material gets it too, or pressing the debug key shows ground that has never been walked on.
+    /// </para>
+    /// </remarks>
+    public void SetGroundMarks(Texture2D marks)
+    {
+      Shipping?.SetShaderParameter(GroundMarks, marks);
+      Shipping?.SetShaderParameter(GroundMarksExtent, GroundMarkTexture.ExtentMetres);
+
+      Debug?.SetShaderParameter(GroundMarks, marks);
+      Debug?.SetShaderParameter(GroundMarksExtent, GroundMarkTexture.ExtentMetres);
+    }
+
+    private static readonly StringName GroundMarks = "ground_marks";
+    private static readonly StringName GroundMarksExtent = "ground_marks_extent";
     private static readonly StringName AlbedoHeight = "albedo_height";
     private static readonly StringName NormalRoughAo = "normal_rough_ao";
     private static readonly StringName SlotReferenceTint = "slot_reference_tint";

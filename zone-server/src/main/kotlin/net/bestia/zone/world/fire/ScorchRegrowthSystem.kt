@@ -70,8 +70,8 @@ class ScorchRegrowthSystem(
       if (scar.visible.count == before) continue
 
       // Re-announce it either way: a client holding this column is drawing a scar that just got smaller, and
-      // the overlay carries the whole mask so one message settles it.
-      overlay.markDirty(columnKey)
+      // the message carries the whole column so one settles it.
+      overlay.markLayersDirty(columnKey)
 
       if (scar.visible.isEmpty) {
         registry.forget(columnKey)

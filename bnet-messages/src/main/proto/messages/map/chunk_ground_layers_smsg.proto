@@ -1,0 +1,117 @@
+syntax = "proto3";
+
+package bnet;
+
+import "messages/map/chunk.proto";
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "ChunkGroundLayersSMSGProto";
+
+/**
+ * How one layer's cells are laid out.
+ *
+ * A discriminator for `ChunkGroundOverlayEncoding`'s reason, and the same hazard: **any** byte string is a
+ * legal payload. A decoder that disagrees about the layout does not fail - it draws a plausible pattern of
+ * wear in the wrong places, which is indistinguishable from ground people happen to have walked oddly. So the
+ * format is named on the wire and pinned by a fixture test on both sides.
+ */
+enum ChunkGroundLayerEncoding {
+  /** Refuse. Zero is "nobody said", which is a different thing from the first format. */
+  CHUNK_GROUND_LAYER_ENCODING_UNSPECIFIED = 0;
+
+  /**
+   * `chunk_size * chunk_size` nibbles, cell `(localX, localY)` at index `localY * chunk_size + localX`, that
+   * index's nibble in byte `index / 2` - **low nibble for an even index, high for an odd one**.
+   *
+   * The same cell order `ColumnMask` and `ColumnSummary` use, so a reader who knows one knows the others.
+   * Sixteen levels because that is what is worth drawing; the server accumulates in a byte and quantises here,
+   * since one footfall has to be worth far less than one visible step.
+   */
+  CHUNK_GROUND_LAYER_ENCODING_NIBBLE_V1 = 1;
+}
+
+/** Which kind of mark a set of cells describes. Mirrors the server's `GroundLayer`; never renumbered. */
+enum GroundLayerId {
+  GROUND_LAYER_UNSPECIFIED = 0;
+  GROUND_LAYER_SCORCHED = 1;
+  GROUND_LAYER_WORN = 2;
+  GROUND_LAYER_BLOODIED = 3;
+  GROUND_LAYER_DISTURBED = 4;
+}
+
+/** One layer's worth of cells for one column. */
+message GroundLayerCells {
+  GroundLayerId layer = 1;
+  ChunkGroundLayerEncoding encoding = 2;
+  bytes cells = 3;
+}
+
+/**
+ * One mark left on the ground at a point, rather than spread over a grid.
+ *
+ * A footprint has a *shape* and a *heading*, and a grid of levels can express neither - a print is about
+ * thirty centimetres across against a one metre cell. So the wire carries the event and the client draws it,
+ * which also means how good it looks is a client decision the protocol never has to hear about: the same
+ * record renders as a darkened patch, a normal-mapped dent, or displaced geometry.
+ *
+ * Roughly a dozen bytes, against the ~512 a whole layer's cells cost, so a busy column is still cheap.
+ */
+message GroundStamp {
+  /** World voxel position. Absolute, not column-local: a stamp near an edge legitimately overlaps a neighbour. */
+  sint64 x = 1;
+  sint64 y = 2;
+
+  GroundLayerId layer = 3;
+
+  /** Which brush to draw - a left foot, a right foot, a splatter. The client owns the art for each. */
+  uint32 brush = 4;
+
+  /** Heading in 256ths of a turn. Movement is eight-connected, so only eight values occur today. */
+  uint32 rotation = 5;
+
+  /** Picks a variant so a hundred prints are not one print a hundred times. */
+  uint32 seed = 6;
+
+  /** Bestia second it was made, so the client can fade it on its own without being told again. */
+  int64 at_second = 7;
+}
+
+/**
+ * Everything lasting that has happened to the ground of one chunk column.
+ *
+ * ### Why this is not part of the chunk, and not `ChunkGroundOverlaySMSG` either
+ *
+ * Not part of the chunk, for the reason `ChunkGroundOverlaySMSG` gives: `ChunkPatchEncoding` has exactly one
+ * value, `CHUNK_PATCH_ENCODING_REMOVAL_V1`, and a client derives a patched voxel's material locally - so no
+ * message in this protocol can change a voxel's material. Ground history travels beside the ground.
+ *
+ * Not `ChunkGroundOverlaySMSG`, because that message carries what is **happening** to a column - fire, which
+ * moves several times a second - and this carries what the column **is**, which changes rarely. Sharing one
+ * message would re-send every worn cell on every step of a grass fire.
+ *
+ * ### Every layer in one message, deliberately
+ *
+ * The client composites the layers together against a single remaining budget, so it needs a consistent set.
+ * Split across messages, a column would spend a frame showing blood with no path beneath it.
+ *
+ * ### Not in the manifest, not requested, and not a delta
+ *
+ * Pushed behind the terrain and dropped when the manifest withdraws the column, exactly as
+ * `ChunkStaticEntitiesSMSG` and `ChunkGroundOverlaySMSG` are.
+ *
+ * **Each message carries the whole column, never a diff.** A lost one self-heals on the next send, applying
+ * the same one twice changes nothing, and an empty one is how a path that has finally faded is retired -
+ * there is no removal message and none is needed.
+ */
+message ChunkGroundLayersSMSG {
+  /**
+   * The column. `z` is meaningless and must be ignored, as in `ChunkGroundOverlaySMSG`: what happened to the
+   * ground happened to the surface, which belongs to a column rather than to a slab.
+   */
+  ChunkPos pos = 1;
+
+  /** Absent for a layer this column has nothing of, which is almost every layer almost always. */
+  repeated GroundLayerCells layers = 2;
+
+  repeated GroundStamp stamps = 3;
+}
