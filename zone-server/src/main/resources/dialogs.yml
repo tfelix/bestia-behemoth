@@ -28,3 +28,21 @@ dialogs:
     identifier: WORKBENCH_PLACEHOLDER
     type: CONFIRM
     args: []
+
+  # What a tracker reads off the ground. Three entries rather than one with optional placeholders, because a
+  # sentence with a hole where the creature should be does not translate - see ReadTracks for the level gates.
+  - id: 4
+    identifier: TRACKS_READING
+    type: CONFIRM
+    args: [what, level, heading, age, passages, walkers]
+
+  # The same reading, by a tracker who cannot say what made them.
+  - id: 5
+    identifier: TRACKS_FAINT
+    type: CONFIRM
+    args: [heading, age, passages, walkers]
+
+  - id: 6
+    identifier: TRACKS_NONE
+    type: CONFIRM
+    args: []

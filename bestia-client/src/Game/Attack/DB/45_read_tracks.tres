@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="AttackResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Attack/attack_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+skill_id = 45
+name = "Read Tracks"
+description_key = "SKILL_45_DESC"
+mana_cost = 8
+cooldown = 0.0
+max_level = 4
+target_type = "GROUND"
+tree = "SURVIVAL"
+sub_tree = "PROSPECTOR"

@@ -437,3 +437,17 @@ TALK_SMALL_APPRENTICE_MASTER_4,"Good, when I am let near anything. I sweep a gre
 RUMOUR_BOSS_SLAIN_ASK,Has anything been happening?
 RUMOUR_BOSS_SLAIN_1,"Something big was killed out past the ridge. Folk went to look and came back quiet."
 RUMOUR_BOSS_SLAIN_2,"There was a thing out there. Somebody put it down. I have not been out that way since."
+DIALOG_4_TITLE,Tracks
+DIALOG_4_TEXT,"{what}, level {level}.
+{passages} prints, heading {heading}.
+{age}
+
+Distinct trails here: {walkers}"
+DIALOG_5_TITLE,Tracks
+DIALOG_5_TEXT,"Prints you cannot place.
+{passages} of them, heading {heading}.
+{age}
+
+Distinct trails here: {walkers}"
+DIALOG_6_TITLE,Tracks
+DIALOG_6_TEXT,"Nothing has been over this ground."

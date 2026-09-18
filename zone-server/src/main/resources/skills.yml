@@ -488,6 +488,23 @@ skills:
 
       Weaponry Research raises the odds; Master Smith raises them further.
 
+  - id: 45
+    identifier: READ_TRACKS
+    script: ReadTracks
+    targetType: GROUND
+    range: 4
+    manaCost: 8
+    # Deliberately no cast time: reading the ground is a look, not a working, and the answer is already
+    # in memory. Cartography channels because it produces a thing; this produces a sentence.
+    description: |
+      Reads what has walked over a patch of ground, from the prints it left. Ground that takes
+      no print - rock, paving, ice - keeps no tracks at all, at any rank.
+
+      `+3 tiles/lv` how far around the read point you can search
+      Level 2 reads which way the trail led
+      Level 3 names what made it, and how strong it was
+      Level 4 names another master by name
+
 # BESTIA SKILLS (reserved 1000+, see master_skill_tree.yml / skill-system SKILL.md)
   - id: 1000
     identifier: ember
