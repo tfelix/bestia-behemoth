@@ -107,7 +107,8 @@ namespace BestiaBehemothClient.Game.World
     private static readonly string[] Names =
     {
       "neutral", "grass", "dry_grass", "sand", "soil", "rock", "snow", "wetland", "scorched",
-      "slot09", "slot10", "slot11", "slot12", "slot13", "slot14", "slot15"
+      "trodden", "bloodied",
+      "slot11", "slot12", "slot13", "slot14", "slot15"
     };
 
     /// <summary>The two arrays, and the mean colour of each albedo layer.</summary>

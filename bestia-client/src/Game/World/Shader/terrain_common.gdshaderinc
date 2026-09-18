@@ -49,6 +49,9 @@
 const int TERRAIN_SLOT_GRASS = 1;
 const int TERRAIN_SLOT_ROCK = 5;
 const int TERRAIN_SLOT_SNOW = 6;
+const int TERRAIN_SLOT_SCORCHED = 8;
+const int TERRAIN_SLOT_TRODDEN = 9;
+const int TERRAIN_SLOT_BLOODIED = 10;
 
 // Below this a slot contributes less than half a byte of weight and is not worth a texture fetch.
 const float TERRAIN_WEIGHT_EPSILON = 0.002;
@@ -202,6 +205,32 @@ group_uniforms Slope;
 // server will refuse. The values below are what the editor shows with no server attached.
 uniform float cliff_start : hint_range(0.0, 1.0) = 0.35;
 uniform float cliff_end : hint_range(0.0, 1.0) = 0.62;
+
+group_uniforms;
+
+group_uniforms GroundMarks;
+
+// What has lasted on the ground: burnt, walked bare, bled on, broken open. One texel per square metre, one
+// mark per channel, in the order `GroundLayer` declares.
+//
+// **Not a vertex attribute, and that is the whole point.** All four CUSTOM channels are already spent on the
+// material splat, and a per-vertex weight could never draw a footprint anyway - terrain vertices are a metre
+// apart. Sampling by world position also means a mark costs no remesh: the ground changes the frame the
+// texture does.
+//
+// `repeat_enable` is what makes the addressing toroidal. The texture covers a fixed span of world and wraps,
+// so walking scrolls through it instead of reuploading it; the span is wider than the view, so two columns
+// on screen can never land on the same texel.
+uniform sampler2D ground_marks : filter_linear, repeat_enable;
+
+// Metres the whole texture spans before it repeats. Must exceed the view diameter - see above.
+uniform float ground_marks_extent = 512.0;
+
+// Global fade, for turning the whole system down without touching what the server stores.
+uniform float ground_marks_strength : hint_range(0.0, 1.0) = 1.0;
+
+// How much a disturbed metre cuts into lying snow. Snow is the one thing a print shows in without any art.
+uniform float ground_marks_disturb_snow : hint_range(0.0, 1.0) = 0.85;
 
 group_uniforms;
 
@@ -619,6 +648,56 @@ TerrainSurface terrain_surface(vec3 tint) {
 	// than the zero it would otherwise read as. The material's own map narrows it from there.
 	float roughness = clamp(share0 * sample0.roughness + share1 * sample1.roughness, 0.04, 1.0);
 
+	// GROUND MARKS: what has lasted on this ground, as opposed to what it is made of.
+	//
+	// Sampled once for every channel at once, then composited against a remaining budget lowest channel first
+	// - so two marks on one square metre share the surface rather than the louder one winning outright, and
+	// the natural ground is what gives way first. That is the right thing to lose: a metre that is both burnt
+	// and walked bare is not meaningfully grass any more.
+	//
+	// **Only the two strongest are drawn**, which is the same bargain the base blend already makes a few lines
+	// up and for the same reason: a weight-culled loop over all of them would be cheaper on a typical pixel
+	// and unbounded on the worst one. Clean ground - very nearly all of it - pays one texture fetch and
+	// branches out before any of the rest.
+	vec4 marks = texture(ground_marks, v_world_pos.xz / max(ground_marks_extent, 0.001))
+		* ground_marks_strength;
+
+	float mark_levels[3] = { marks.r, marks.g, marks.b };
+	int mark_slots[3] = { TERRAIN_SLOT_SCORCHED, TERRAIN_SLOT_TRODDEN, TERRAIN_SLOT_BLOODIED };
+
+	if (max(mark_levels[0], max(mark_levels[1], mark_levels[2])) > TERRAIN_WEIGHT_EPSILON) {
+		float remaining = 1.0;
+
+		for (int drawn = 0; drawn < 2; drawn++) {
+			int strongest = -1;
+			float strength = TERRAIN_WEIGHT_EPSILON;
+
+			for (int i = 0; i < 3; i++) {
+				if (mark_levels[i] > strength) {
+					strongest = i;
+					strength = mark_levels[i];
+				}
+			}
+
+			if (strongest < 0) {
+				break;
+			}
+
+			// Taken out of the budget rather than off the ground, so the second mark shares what the first left
+			// and the three can never sum past one however heavily a metre is marked.
+			float share = remaining * strength;
+			remaining -= share;
+			mark_levels[strongest] = 0.0;
+
+			SlotSample mark = terrain_sample_slot(mark_slots[strongest], normal, ddx, ddy, blend);
+
+			albedo = mix(albedo, mark.albedo, share);
+			world_normal = normalize(mix(world_normal, mark.normal, share));
+			roughness = mix(roughness, mark.roughness, share);
+			ao = mix(ao, mark.ao, share);
+		}
+	}
+
 	// SNOW: a layer on top, and deliberately not the same thing as slot 6.
 	//
 	// Slot 6 is snowpack the generator placed - it is what the ground there is made of, and it is there in
@@ -636,6 +715,11 @@ TerrainSurface terrain_surface(vec3 tint) {
 
 	// Deepening snow reaches the ridges last, so the mask leads in the crevices and catches up at full depth.
 	snow = clamp(snow * (1.0 + (1.0 - surface.height)) - (1.0 - snow) * surface.height * 0.5, 0.0, 1.0);
+
+	// Something walked through it. The disturbance channel does not paint a material like the three above - it
+	// takes lying snow away, which is what a track in snow physically is. So it shows only where there is snow
+	// to break, and costs nothing at all in summer.
+	snow *= 1.0 - marks.a * ground_marks_disturb_snow;
 
 	if (snow > TERRAIN_WEIGHT_EPSILON) {
 		SlotSample fresh = terrain_sample_slot(TERRAIN_SLOT_SNOW, normal, ddx, ddy, blend);

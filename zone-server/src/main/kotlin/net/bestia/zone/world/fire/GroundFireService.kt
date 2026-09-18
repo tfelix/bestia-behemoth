@@ -311,6 +311,9 @@ class GroundFireService(
 
     byColumn.forEach { (column, mask) ->
       scorch.burn(column, mask, fire.startedAtSecond)
+      // A scar is a lasting mark, not something alight, so it rides the slow queue.
+      overlay.markLayersDirty(column)
+      // The same cells just stopped burning, and that is the fast queue's business.
       overlay.markDirty(column)
     }
   }

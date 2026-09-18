@@ -229,6 +229,9 @@ namespace BestiaBehemothClient.Game.World
 
     private TerrainMaterials _materials;
 
+    /// <summary>What has lasted on the ground nearby. Null until <see cref="Configure"/> has run.</summary>
+    private GroundMarkTexture _groundMarks;
+
     /// <summary>Whether the debug shader is currently the one terrain is drawn with.</summary>
     private bool _debugShading;
 
@@ -275,6 +278,12 @@ namespace BestiaBehemothClient.Game.World
 
       _materials ??= TerrainMaterials.Load();
 
+      if (_groundMarks == null)
+      {
+        _groundMarks = new GroundMarkTexture();
+        _materials?.SetGroundMarks(_groundMarks.Texture);
+      }
+
       // Null when the shader would not compile, which deliberately leaves the flat vertex-colour material in
       // place rather than an unassigned one - see TerrainMaterials.
       TerrainMaterial ??= _materials?.Shipping ?? DefaultTerrainMaterial();
@@ -298,6 +307,10 @@ namespace BestiaBehemothClient.Game.World
       }
 
       Grass?.Clear();
+
+      // Or a new view inherits the last world's scars: the addressing is keyed on world position, so stale
+      // marks do not merely linger, they land on whatever ground now has those coordinates.
+      _groundMarks?.Clear();
 
       _tiles.Clear();
       _pending.Clear();
@@ -406,6 +419,26 @@ namespace BestiaBehemothClient.Game.World
 
       StartJobs();
       Install();
+
+      // Once per frame, after everything that could have written to it. Godot re-uploads the whole image, so
+      // batching a frame's worth of columns into one upload is the difference between a megabyte and a
+      // megabyte per column.
+      _groundMarks?.Flush();
+    }
+
+    /// <summary>Records what has lasted on one column's ground, for the shader to sample by world position.</summary>
+    /// <remarks>
+    /// No remesh, deliberately - see <see cref="GroundMarkTexture"/>. A path deepening under a player's feet
+    /// costs one texel write and one upload, where a vertex attribute would cost rebuilding the chunk.
+    /// </remarks>
+    public void WriteGroundMarks(int chunkX, int chunkY, byte[][] cells)
+    {
+      _groundMarks?.WriteColumn(chunkX, chunkY, WorldLayout.ChunkSize, cells);
+    }
+
+    public void ClearGroundMarks(int chunkX, int chunkY)
+    {
+      _groundMarks?.ClearColumn(chunkX, chunkY, WorldLayout.ChunkSize);
     }
 
     private static readonly StringName ToggleDebugShading = "toggle_terrain_debug";

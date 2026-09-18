@@ -605,7 +605,8 @@ namespace Bnet {
   ///
   /// Account-scoped like `DialogSMSG`, and for the same reason - it must not be routed through the client's
   /// entity handling. `speaker_entity_id` says who is talking so the UI can point at them; `speaker_name`
-  /// carries the name outright because entities have no display name on the wire yet.
+  /// carries the name outright so a conversation reads the same whether or not the speaker's body is in
+  /// view - `TownsfolkVisualComponentSMSG` only reaches a client that can see them.
   /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class ConversationSMSG : pb::IMessage<ConversationSMSG>

@@ -78,6 +78,13 @@ namespace BestiaBehemothClient.Game.World
         {
           value.Invalidate(key);
         }
+
+        // Same argument, and the marks need it more: the server re-sends a column's layers only when its
+        // ground changes again, which for a burn scar left years ago in world time is never.
+        foreach (var (column, layers) in _groundLayers)
+        {
+          value.WriteGroundMarks(column.X, column.Y, layers.Cells);
+        }
       }
     }
 
@@ -152,17 +159,26 @@ namespace BestiaBehemothClient.Game.World
     private readonly Dictionary<ChunkKey, int> _appliedStatics = new();
 
     /// <summary>
-    /// The scorch and fire masks for the columns this client holds.
+    /// The fire masks for the columns this client holds.
     /// </summary>
     /// <remarks>
-    /// Sparse and usually empty: the server sends nothing for ground that has never burnt, so an entry here
-    /// means something actually happened to that column. A clean message removes its entry rather than storing
-    /// an empty one, which is how a healed scar retires.
+    /// Sparse and usually empty: the server sends nothing for ground where nothing is alight. A clean message
+    /// removes its entry rather than storing an empty one, which is how a fire that went out retires.
     /// </remarks>
     private readonly Dictionary<ChunkKey, ChunkGroundOverlaySMSG> _burnMasks = new();
 
     /// <summary>
-    /// The overlay for one column, or null when that ground is clean.
+    /// The lasting marks for the columns this client holds.
+    /// </summary>
+    /// <remarks>
+    /// Retained as well as written into the mark texture, because the renderer may attach long after the
+    /// message arrived and the server sends no more until the ground changes again. Without this a player who
+    /// logged in looking at a burnt field would see it clean until something set fire to it a second time.
+    /// </remarks>
+    private readonly Dictionary<ChunkKey, ChunkGroundLayersSMSG> _groundLayers = new();
+
+    /// <summary>
+    /// What is alight in one column, or null when nothing is.
     /// </summary>
     /// <remarks>
     /// Takes any chunk of the column and reduces it, so a caller holding a slab address - which is what a
@@ -170,6 +186,10 @@ namespace BestiaBehemothClient.Game.World
     /// </remarks>
     public ChunkGroundOverlaySMSG BurnMaskOf(ChunkKey key) =>
       _burnMasks.TryGetValue(key.Column, out var mask) ? mask : null;
+
+    /// <summary>What has lasted on one column's ground, or null when nothing has.</summary>
+    public ChunkGroundLayersSMSG GroundLayersOf(ChunkKey key) =>
+      _groundLayers.TryGetValue(key.Column, out var layers) ? layers : null;
 
     /// <summary>The world's chunk grid, for the addresses this class derives rather than receives.</summary>
     private ChunkWrap _wrap = ChunkWrap.None;
@@ -379,6 +399,23 @@ namespace BestiaBehemothClient.Game.World
           }
           break;
 
+        case ChunkGroundLayersSMSG layers:
+          // Written to the mark texture immediately and kept for a renderer that attaches later. Unlike a
+          // static batch this does not wait for the chunk to decode: the cells are a grid over a lattice this
+          // client already knows the shape of, and the shader samples the texture by world position rather
+          // than off the mesh - so a mark needs no geometry and costs no remesh.
+          if (layers.IsClean)
+          {
+            _groundLayers.Remove(layers.Key.Column);
+            Renderer?.ClearGroundMarks(layers.Key.Column.X, layers.Key.Column.Y);
+          }
+          else
+          {
+            _groundLayers[layers.Key.Column] = layers;
+            Renderer?.WriteGroundMarks(layers.Key.Column.X, layers.Key.Column.Y, layers.Cells);
+          }
+          break;
+
         case ChunkStaticEntitiesSMSG statics:
           // Applied straight away rather than queued: a batch is a few hundred transforms and, for the kinds
           // that have art, a scene instance each - not a decode and a mesh build, so it does not need the
@@ -539,6 +576,7 @@ namespace BestiaBehemothClient.Game.World
       _staticBatches.Clear();
       _appliedStatics.Clear();
       _burnMasks.Clear();
+      _groundLayers.Clear();
       StaticEntities?.Clear();
     }
 
@@ -581,6 +619,13 @@ namespace BestiaBehemothClient.Game.World
         _burnMasks.Remove(column);
         _appliedStatics.Remove(column);
         StaticEntities?.Remove(column);
+
+        // The mark texture wraps, so a column left set would show its marks again on ground half a kilometre
+        // away that nothing has ever happened to. Dropping the entry is not enough; the texels have to go.
+        if (_groundLayers.Remove(column))
+        {
+          Renderer?.ClearGroundMarks(column.X, column.Y);
+        }
       }
 
       if (VerboseChunkLog)

@@ -146,7 +146,20 @@ namespace BestiaBehemothClient.Game.World.Mesh
       /// the only encoding there is), so no message can change a voxel's material. Scorch arrives as its own
       /// per-chunk mask and is substituted into the weights by the mesher.
       /// </remarks>
-      Scorched = 8
+      Scorched = 8,
+
+      /// <summary>
+      /// Ground walked bare: packed earth with the grain of a path rather than of a ploughed field.
+      /// </summary>
+      /// <remarks>
+      /// No <c>BlockType</c> maps here, and none ever will - like <see cref="Scorched"/> this is a ground
+      /// layer, substituted by the mark texture rather than by a voxel. It is its own slot for
+      /// <see cref="Wetland"/>'s reason: trodden earth is its own grain, not a browner <see cref="Soil"/>.
+      /// </remarks>
+      Trodden = 9,
+
+      /// <summary>Spilled where something died. A ground layer, like <see cref="Trodden"/>.</summary>
+      Bloodied = 10
     }
 
     /// <summary>

@@ -5,7 +5,7 @@ using Godot;
 namespace BestiaBehemothClient.Bnet.Message.Map
 {
   /// <summary>
-  /// Which square metres of one chunk column are burnt, and which are alight.
+  /// Which square metres of one chunk column are alight.
   /// </summary>
   /// <remarks>
   /// Arrives behind the chunk payload and is dropped with it, exactly as <see cref="ChunkStaticEntitiesSMSG"/>
@@ -14,9 +14,15 @@ namespace BestiaBehemothClient.Bnet.Message.Map
   /// change a voxel's material.
   ///
   /// <para>
+  /// The burn <i>scar</i> a fire leaves behind is not here - it is a ground layer, in
+  /// <see cref="ChunkGroundLayersSMSG"/>. What the ground <i>is</i> and what is <i>happening</i> to it travel
+  /// separately because they move at completely different speeds.
+  /// </para>
+  ///
+  /// <para>
   /// <b>Each message is the whole truth about its column, never a diff.</b> So applying one twice changes
   /// nothing, a lost one self-heals on the next send, and there is no sequence number to keep. A message with
-  /// both masks absent means "this ground is clean now", which is how a healed scar retires.
+  /// the mask absent means "nothing is alight here now", which is how a fire that went out retires.
   /// </para>
   /// </remarks>
   [GlobalClass]
@@ -26,9 +32,6 @@ namespace BestiaBehemothClient.Bnet.Message.Map
     private const uint BitmaskV1 = 1;
 
     public ChunkKey Key { get; private set; }
-
-    /// <summary>Ground a fire has been through, or null when none of this column is burnt.</summary>
-    public byte[] Scorched { get; private set; }
 
     /// <summary>Ground alight right now, or null when nothing here is burning - which is almost always.</summary>
     public byte[] Burning { get; private set; }
@@ -44,7 +47,7 @@ namespace BestiaBehemothClient.Bnet.Message.Map
     /// </remarks>
     /// <exception cref="InvalidDataException">
     /// on an encoding this build does not know, or a mask that is not the length <paramref name="chunkSize"/>
-    /// implies. A short mask would read as a column whose tail is simply unburnt.
+    /// implies. A short mask would read as a column whose tail is simply not alight.
     /// </exception>
     public static ChunkGroundOverlaySMSG FromProto(global::Bnet.ChunkGroundOverlaySMSG proto, int chunkSize)
     {
@@ -59,7 +62,6 @@ namespace BestiaBehemothClient.Bnet.Message.Map
       return new ChunkGroundOverlaySMSG
       {
         Key = new ChunkKey(proto.Pos.X, proto.Pos.Y, proto.Pos.Z),
-        Scorched = MaskOrNull(proto.Scorched.ToByteArray(), expected, "scorched"),
         Burning = MaskOrNull(proto.Burning.ToByteArray(), expected, "burning")
       };
     }
@@ -80,8 +82,8 @@ namespace BestiaBehemothClient.Bnet.Message.Map
       return mask;
     }
 
-    /// <summary>Whether this column has nothing on it, which is the retire signal rather than a no-op.</summary>
-    public bool IsClean => Scorched == null && Burning == null;
+    /// <summary>Whether nothing here is alight, which is the retire signal rather than a no-op.</summary>
+    public bool IsClean => Burning == null;
 
     /// <summary>
     /// Whether cell <c>(localX, localY)</c> is set in <paramref name="mask"/>.
@@ -104,6 +106,6 @@ namespace BestiaBehemothClient.Bnet.Message.Map
     }
 
     public override string ToString() =>
-      $"ChunkGroundOverlaySMSG({Key}) {Scorched?.Length ?? 0}B scorched, {Burning?.Length ?? 0}B burning";
+      $"ChunkGroundOverlaySMSG({Key}) {Burning?.Length ?? 0}B burning";
   }
 }

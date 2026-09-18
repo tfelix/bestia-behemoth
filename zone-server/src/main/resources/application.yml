@@ -321,9 +321,11 @@ socket:
     # A few hundred entries per chunk, and one of these follows every chunk payload. It carries its own terse
     # toString, but the filter is what keeps it off the path entirely.
     - "!chunk_static_entities"
-    # 256 bytes of bitmask, and protobuf's own toString escapes every byte of it - so over a kilobyte of log
-    # per send, several times a second per column for the length of a fire.
+    # 128 bytes of bitmask, and protobuf's own toString escapes every byte of it - so a kilobyte of log per
+    # send, several times a second per column for the length of a fire.
     - "!chunk_ground_overlay"
+    # Half a kilobyte per layer, and one of these follows every chunk that has ever been burnt or walked on.
+    - "!chunk_ground_layers"
 
 logging:
   level:
