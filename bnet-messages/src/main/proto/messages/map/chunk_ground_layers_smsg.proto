@@ -83,6 +83,9 @@ message ChunkGroundLayersSMSG {
   /** Absent for a layer this column has nothing of, which is almost every layer almost always. */
   repeated GroundLayerCells layers = 2;
 
-  /** Held for marks with a shape and a heading - footprints - which a grid of levels cannot express. */
+  /**
+   * Marks with a shape and a heading - footprints - went to `ChunkGroundStampsSMSG` instead: they arrive
+   * several times a second, and carrying them here would re-send every worn cell behind every footstep.
+   */
   reserved 3;
 }

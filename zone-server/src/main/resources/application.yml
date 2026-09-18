@@ -368,6 +368,8 @@ socket:
     - "!chunk_ground_overlay"
     # Half a kilobyte per layer, and one of these follows every chunk that has ever been burnt or walked on.
     - "!chunk_ground_layers"
+    # One per walked column per second, for as long as anything is moving on it.
+    - "!chunk_ground_stamps"
 
 logging:
   level:
