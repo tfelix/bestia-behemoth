@@ -83,6 +83,7 @@ import "messages/map/chunk_patch_smsg.proto";
 import "messages/map/chunk_static_entities_smsg.proto";
 import "messages/map/chunk_ground_overlay_smsg.proto";
 import "messages/map/chunk_ground_layers_smsg.proto";
+import "messages/map/chunk_ground_stamps_smsg.proto";
 import "messages/map/static_entity_removed_smsg.proto";
 import "messages/map/collect_prop_cmsg.proto";
 import "messages/map/interact_entity_cmsg.proto";
@@ -150,6 +151,7 @@ message Envelope {
     ChunkGroundOverlaySMSG chunk_ground_overlay = 210;
     InteractEntityCMSG interact_entity = 211;
     ChunkGroundLayersSMSG chunk_ground_layers = 212;
+    ChunkGroundStampsSMSG chunk_ground_stamps = 213;
 
     // INVENTORY 300
     GetInventoryCMSG get_inventory = 301;
