@@ -93,11 +93,7 @@ class MarkingGroundTrample(
   private fun wear(voxelX: Long, voxelY: Long, amount: Double, nowSecond: Long) {
     if (!registry.wear(voxelX, voxelY, amount.toInt(), nowSecond)) return
 
-    overlay.markLayersDirty(ColumnKey.of(chunkOf(voxelX), chunkOf(voxelY)))
-  }
-
-  private fun chunkOf(voxel: Long): Int {
-    return Math.floorDiv(voxel, registry.chunkExtent).toInt()
+    overlay.markLayersDirty(registry.columnKeyOf(voxelX, voxelY))
   }
 
   companion object {
