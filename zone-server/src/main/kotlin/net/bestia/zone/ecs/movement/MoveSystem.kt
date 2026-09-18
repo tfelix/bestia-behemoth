@@ -68,6 +68,10 @@ class MoveSystem(
       while (position.fraction > 1 && !movementPath.isEmpty) {
         val nextPoint = movementPath.removeFirst()
 
+        // Read before the step, because the tile being left is what gives the footfall below its heading.
+        val fromX = position.x
+        val fromY = position.y
+
         // The waypoint's z is the fallback, reached only for a column with no height - off the grid, or a
         // world not generated yet.
         val z = ground.standingZAt(nextPoint) ?: nextPoint.z
@@ -79,7 +83,7 @@ class MoveSystem(
         // Per stepped tile rather than per tick, and inside the loop for the reason the loop exists: an
         // overrunning tick arrives here as several tiles at once, and a trail that skipped them would be
         // dotted exactly when the server was struggling.
-        trample.steppedOn(nextPoint.x, nextPoint.y)
+        trample.steppedOn(id, fromX, fromY, nextPoint.x, nextPoint.y)
 
         LOG.trace { "Entity $id on $nextPoint" }
 
