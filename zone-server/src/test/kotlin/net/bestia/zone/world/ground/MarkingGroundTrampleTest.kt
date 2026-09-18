@@ -42,7 +42,7 @@ class MarkingGroundTrampleTest {
     trample.steppedOn(entityId = 1, fromX = 0, fromY = 0, toX = 1, toY = 0)
 
     verify(exactly = 0) { wear.wear(any(), any(), any(), any()) }
-    verify(exactly = 1) { stamps.stamp(1, 0, GroundStampKind.FOOTPRINT, any(), any(), 500L) }
+    verify(exactly = 1) { stamps.stamp(1, 0, GroundStampKind.FOOTPRINT, any(), any(), 1L, 500L) }
   }
 
   @Test
@@ -52,7 +52,7 @@ class MarkingGroundTrampleTest {
     trample.steppedOn(entityId = 1, fromX = 0, fromY = 0, toX = 1, toY = 0)
 
     verify(exactly = 0) { wear.wear(any(), any(), any(), any()) }
-    verify(exactly = 0) { stamps.stamp(any(), any(), any(), any(), any(), any()) }
+    verify(exactly = 0) { stamps.stamp(any(), any(), any(), any(), any(), any(), any()) }
   }
 
   /** A print landing in five places at once is not a print, so only wear gets the smear. */
@@ -63,7 +63,7 @@ class MarkingGroundTrampleTest {
     trample.steppedOn(entityId = 1, fromX = 0, fromY = 0, toX = 10, toY = 10)
 
     verify(exactly = 5) { wear.wear(any(), any(), any(), 500L) }
-    verify(exactly = 1) { stamps.stamp(any(), any(), any(), any(), any(), any()) }
+    verify(exactly = 1) { stamps.stamp(any(), any(), any(), any(), any(), any(), any()) }
   }
 
   @Test
