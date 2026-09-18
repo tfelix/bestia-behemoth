@@ -1,7 +1,9 @@
-package net.bestia.zone.world.fire
+package net.bestia.zone.world.ground
 
 import net.bestia.worldgen.core.ChunkPos
 import net.bestia.zone.socket.ChunkFanOut
+import net.bestia.zone.world.fire.GroundFireService
+import net.bestia.zone.world.fire.ScorchRegistry
 import net.bestia.zone.world.stream.ChunkGroundOverlaySMSG
 import net.bestia.zone.world.stream.ChunkSubscriptionService
 import org.springframework.context.annotation.Lazy

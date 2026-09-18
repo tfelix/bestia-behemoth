@@ -1,4 +1,4 @@
-package net.bestia.zone.world.fire
+package net.bestia.zone.world.ground
 
 /**
  * One bit per voxel column of one chunk: which square metres of this chunk's ground are marked.

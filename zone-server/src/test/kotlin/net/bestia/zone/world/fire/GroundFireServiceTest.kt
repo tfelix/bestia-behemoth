@@ -10,6 +10,8 @@ import net.bestia.zone.environment.time.BestiaClock
 import net.bestia.zone.environment.weather.WeatherAt
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.world.WorldService
+import net.bestia.zone.world.ground.ColumnMask
+import net.bestia.zone.world.ground.GroundOverlayService
 import org.junit.jupiter.api.Test
 import kotlin.math.PI
 import kotlin.test.assertEquals

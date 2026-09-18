@@ -8,6 +8,8 @@ import net.bestia.zone.environment.weather.WeatherService
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.world.WorldService
+import net.bestia.zone.world.ground.ColumnMask
+import net.bestia.zone.world.ground.GroundOverlayService
 import org.springframework.stereotype.Service
 import kotlin.math.cos
 import kotlin.math.sin

@@ -1,4 +1,4 @@
-package net.bestia.zone.world.fire
+package net.bestia.zone.world.ground
 
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Schedule

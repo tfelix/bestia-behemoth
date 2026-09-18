@@ -15,9 +15,9 @@ import net.bestia.zone.environment.time.BestiaDateTime
 import net.bestia.zone.world.PersistedWorld
 import net.bestia.zone.world.WorldGenConfig
 import net.bestia.zone.world.WorldService
-import net.bestia.zone.world.fire.ColumnMask
 import net.bestia.zone.world.fire.Scar
 import net.bestia.zone.world.fire.ScorchRegistry
+import net.bestia.zone.world.ground.ColumnMask
 import net.bestia.zone.world.prop.WorldObjectDivergenceRegistry
 import net.bestia.zone.world.settlement.SettlementSite
 import net.bestia.zone.world.settlement.SettlementSiteIndex

@@ -3,6 +3,7 @@ package net.bestia.zone.world.fire
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.core.AsyncJobExecutor
 import net.bestia.zone.world.WorldService
+import net.bestia.zone.world.ground.ColumnMask
 import org.springframework.stereotype.Service
 
 /**
