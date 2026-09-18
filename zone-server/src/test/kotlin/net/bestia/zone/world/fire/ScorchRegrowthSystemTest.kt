@@ -1,5 +1,6 @@
 package net.bestia.zone.world.fire
 
+import net.bestia.zone.world.ground.ColumnKey
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -72,7 +73,7 @@ class ScorchRegrowthSystemTest {
   @Test
   fun `a dry region keeps its scar and costs no further writes`() {
     val registry = registry()
-    val key = ScorchRegistry.columnKeyOf(1, 1)
+    val key = ColumnKey.of(1, 1)
     val burnt = burn(registry, key)
 
     val sut = ScorchRegrowthSystem(registry = registry, rain = rain(mmPerSweep = 0.0), overlay = overlay())
@@ -87,7 +88,7 @@ class ScorchRegrowthSystemTest {
   @Test
   fun `rain shrinks a scar from its edges without writing`() {
     val registry = registry()
-    val key = ScorchRegistry.columnKeyOf(1, 1)
+    val key = ColumnKey.of(1, 1)
     val burnt = burn(registry, key)
 
     // A sixth of the heal amount per sweep, so the first sweep is worth exactly one erosion step.
@@ -105,7 +106,7 @@ class ScorchRegrowthSystemTest {
   @Test
   fun `enough rain heals a scar away and deletes its row`() {
     val registry = registry()
-    val key = ScorchRegistry.columnKeyOf(1, 1)
+    val key = ColumnKey.of(1, 1)
     burn(registry, key)
 
     val sut = ScorchRegrowthSystem(registry = registry, rain = rain(mmPerSweep = healRainMm), overlay = overlay())
@@ -123,8 +124,8 @@ class ScorchRegrowthSystemTest {
   @Test
   fun `a wide scar takes more rain than a narrow one`() {
     val registry = registry()
-    val narrow = ScorchRegistry.columnKeyOf(1, 1)
-    val wide = ScorchRegistry.columnKeyOf(2, 2)
+    val narrow = ColumnKey.of(1, 1)
+    val wide = ColumnKey.of(2, 2)
     burn(registry, narrow, half = 2)
     burn(registry, wide, half = 12)
 

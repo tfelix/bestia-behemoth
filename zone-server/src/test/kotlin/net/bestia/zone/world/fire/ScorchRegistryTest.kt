@@ -1,5 +1,6 @@
 package net.bestia.zone.world.fire
 
+import net.bestia.zone.world.ground.ColumnKey
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
@@ -71,7 +72,7 @@ class ScorchRegistryTest {
   @Test
   fun `burning a column records it and writes one row`() {
     val sut = registry()
-    val key = ScorchRegistry.columnKeyOf(3, -4)
+    val key = ColumnKey.of(3, -4)
 
     assertTrue(sut.burn(key, cells(1 to 1, 2 to 2), burnedAtSecond = 500L))
 
@@ -84,7 +85,7 @@ class ScorchRegistryTest {
   @Test
   fun `burning cells already burnt is not a change and writes nothing further`() {
     val sut = registry()
-    val key = ScorchRegistry.columnKeyOf(0, 0)
+    val key = ColumnKey.of(0, 0)
     sut.burn(key, cells(1 to 1), burnedAtSecond = 500L)
 
     assertTrue(!sut.burn(key, cells(1 to 1), burnedAtSecond = 500L), "a no-op burn reported a change")
@@ -95,7 +96,7 @@ class ScorchRegistryTest {
   @Test
   fun `a later fire over the same column resets its clock`() {
     val sut = registry()
-    val key = ScorchRegistry.columnKeyOf(0, 0)
+    val key = ColumnKey.of(0, 0)
     sut.burn(key, cells(1 to 1), burnedAtSecond = 500L)
 
     val scar = assertNotNull(sut.scarOf(key))
@@ -111,7 +112,7 @@ class ScorchRegistryTest {
   @Test
   fun `an earlier fire does not pull a scar's clock backwards`() {
     val sut = registry()
-    val key = ScorchRegistry.columnKeyOf(0, 0)
+    val key = ColumnKey.of(0, 0)
     sut.burn(key, cells(1 to 1), burnedAtSecond = 900L)
     sut.burn(key, cells(5 to 5), burnedAtSecond = 500L)
 
@@ -125,7 +126,7 @@ class ScorchRegistryTest {
   @Test
   fun `a shrinking scar writes nothing`() {
     val sut = registry()
-    val key = ScorchRegistry.columnKeyOf(0, 0)
+    val key = ColumnKey.of(0, 0)
     val wide = ColumnMask(chunkSize)
     for (y in 8..16) for (x in 8..16) wide.set(x, y)
     sut.burn(key, wide, burnedAtSecond = 500L)
@@ -147,7 +148,7 @@ class ScorchRegistryTest {
   @Test
   fun `eroding to the same depth twice is idempotent`() {
     val sut = registry()
-    val key = ScorchRegistry.columnKeyOf(0, 0)
+    val key = ColumnKey.of(0, 0)
     val wide = ColumnMask(chunkSize)
     for (y in 8..16) for (x in 8..16) wide.set(x, y)
     sut.burn(key, wide, burnedAtSecond = 500L)
@@ -163,7 +164,7 @@ class ScorchRegistryTest {
   @Test
   fun `forgetting a healed scar removes it and deletes its row exactly once`() {
     val sut = registry()
-    val key = ScorchRegistry.columnKeyOf(0, 0)
+    val key = ColumnKey.of(0, 0)
     sut.burn(key, cells(1 to 1), burnedAtSecond = 500L)
 
     sut.forget(key)
@@ -175,7 +176,7 @@ class ScorchRegistryTest {
 
   @Test
   fun `a row belonging to this world is loaded`() {
-    val key = ScorchRegistry.columnKeyOf(7, 7)
+    val key = ColumnKey.of(7, 7)
     val sut = registry(rows = listOf(row(key, cells(2 to 3))))
 
     sut.loadAll()
@@ -187,7 +188,7 @@ class ScorchRegistryTest {
 
   @Test
   fun `a row from a reseeded world is discarded`() {
-    val key = ScorchRegistry.columnKeyOf(7, 7)
+    val key = ColumnKey.of(7, 7)
     val sut = registry(rows = listOf(row(key, shape = thisShape - 1)))
 
     sut.loadAll()
@@ -198,7 +199,7 @@ class ScorchRegistryTest {
 
   @Test
   fun `a row from a rebuilt pipeline is discarded`() {
-    val key = ScorchRegistry.columnKeyOf(7, 7)
+    val key = ColumnKey.of(7, 7)
     val sut = registry(rows = listOf(row(key, pipeline = thisPipeline - 1)))
 
     sut.loadAll()
@@ -210,7 +211,7 @@ class ScorchRegistryTest {
   /** A wrong-width mask that somehow matched both versions is skipped, not allowed to kill the boot. */
   @Test
   fun `a mask of the wrong width is skipped rather than thrown`() {
-    val key = ScorchRegistry.columnKeyOf(7, 7)
+    val key = ColumnKey.of(7, 7)
     val wrong = ScorchMark(key, ByteArray(3), 1_000L, thisShape, thisPipeline)
     val sut = registry(rows = listOf(wrong))
 
@@ -226,7 +227,7 @@ class ScorchRegistryTest {
     val saved = slot<ScorchMark>()
     every { repository.save(capture(saved)) } answers { saved.captured }
 
-    sut.burn(ScorchRegistry.columnKeyOf(1, 2), cells(1 to 1), burnedAtSecond = 500L)
+    sut.burn(ColumnKey.of(1, 2), cells(1 to 1), burnedAtSecond = 500L)
 
     assertEquals(thisShape, saved.captured.worldShapeVersion)
     assertEquals(thisPipeline, saved.captured.pipelineVersion)
@@ -237,9 +238,9 @@ class ScorchRegistryTest {
   fun `a column key round trips through its chunk coordinates`() {
     for (x in listOf(0, 1, -1, 5000, -5000)) {
       for (y in listOf(0, 1, -1, 5000, -5000)) {
-        val key = ScorchRegistry.columnKeyOf(x, y)
-        assertEquals(x, ScorchRegistry.chunkXOf(key), "x lost for ($x, $y)")
-        assertEquals(y, ScorchRegistry.chunkYOf(key), "y lost for ($x, $y)")
+        val key = ColumnKey.of(x, y)
+        assertEquals(x, ColumnKey.chunkXOf(key), "x lost for ($x, $y)")
+        assertEquals(y, ColumnKey.chunkYOf(key), "y lost for ($x, $y)")
       }
     }
   }

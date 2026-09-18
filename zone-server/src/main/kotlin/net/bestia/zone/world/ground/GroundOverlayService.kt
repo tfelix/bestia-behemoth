@@ -79,7 +79,7 @@ class GroundOverlayService(
 
   init {
     subscriptions.onChunkSent { accountId, chunk ->
-      val column = ScorchRegistry.columnKeyOf(chunk.x, chunk.y)
+      val column = ColumnKey.of(chunk.x, chunk.y)
       holders.computeIfAbsent(column) { ConcurrentHashMap.newKeySet() }.add(accountId)
 
       // Told about the ground only if there is something to say about it - see the class note.
@@ -90,7 +90,7 @@ class GroundOverlayService(
 
     // Safe here: a callback runs on the tick thread inside `ChunkStreamSystem`, which is the only writer.
     subscriptions.onLastSubscriber { chunk ->
-      val column = ScorchRegistry.columnKeyOf(chunk.x, chunk.y)
+      val column = ColumnKey.of(chunk.x, chunk.y)
       val remaining = subscriptions.subscribersOfColumn(chunk.x, chunk.y)
 
       if (remaining.isEmpty()) {
@@ -152,8 +152,8 @@ class GroundOverlayService(
    * the client replaces a column's overlay outright and an empty one means "clean now".
    */
   private fun messageFor(column: Long): ChunkGroundOverlaySMSG {
-    val chunkX = ScorchRegistry.chunkXOf(column)
-    val chunkY = ScorchRegistry.chunkYOf(column)
+    val chunkX = ColumnKey.chunkXOf(column)
+    val chunkY = ColumnKey.chunkYOf(column)
 
     return ChunkGroundOverlaySMSG(
       chunk = ChunkPos(chunkX, chunkY, 0),

@@ -1,5 +1,6 @@
 package net.bestia.zone.world.fire
 
+import net.bestia.zone.world.ground.ColumnKey
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.worldgen.core.GenRng
 import net.bestia.zone.ecs.core.World
@@ -300,7 +301,7 @@ class GroundFireService(
       val y = GroundFire.unpackY(cell)
       val chunkX = Math.floorDiv(x, chunkSize.toLong()).toInt()
       val chunkY = Math.floorDiv(y, chunkSize.toLong()).toInt()
-      val column = ScorchRegistry.columnKeyOf(chunkX, chunkY)
+      val column = ColumnKey.of(chunkX, chunkY)
 
       byColumn.getOrPut(column) { ColumnMask(chunkSize) }.set(
         Math.floorMod(x, chunkSize.toLong()).toInt(),
@@ -322,8 +323,8 @@ class GroundFireService(
     for (cell in fire.burning.keys) {
       val chunkX = Math.floorDiv(GroundFire.unpackX(cell), chunkSize.toLong()).toInt()
       val chunkY = Math.floorDiv(GroundFire.unpackY(cell), chunkSize.toLong()).toInt()
-      if (seen.add(ScorchRegistry.columnKeyOf(chunkX, chunkY))) {
-        overlay.markDirty(ScorchRegistry.columnKeyOf(chunkX, chunkY))
+      if (seen.add(ColumnKey.of(chunkX, chunkY))) {
+        overlay.markDirty(ColumnKey.of(chunkX, chunkY))
       }
     }
   }
@@ -355,7 +356,7 @@ class GroundFireService(
     val chunkX = Math.floorDiv(voxelX, chunkSize.toLong()).toInt()
     val chunkY = Math.floorDiv(voxelY, chunkSize.toLong()).toInt()
 
-    val scar = scorch.scarOf(ScorchRegistry.columnKeyOf(chunkX, chunkY)) ?: return false
+    val scar = scorch.scarOf(ColumnKey.of(chunkX, chunkY)) ?: return false
 
     // `visible`, not `mask`: ground that has healed may burn again, which is what makes a scar temporary
     // rather than a permanent firebreak.
