@@ -211,3 +211,10 @@ SKILL_44_DESC,"Adapt and improvise weapons and armor to better suit your needs a
 attempt can fail, and a failed attempt can destroy the equipment outright.
 
 Weaponry Research raises the odds; Master Smith raises them further."
+SKILL_45_DESC,"Reads what has walked over a patch of ground, from the prints it left. Ground that takes
+no print - rock, paving, ice - keeps no tracks at all, at any rank.
+
+`+3 tiles/lv` how far around the read point you can search
+Level 2 reads which way the trail led
+Level 3 names what made it, and how strong it was
+Level 4 names another master by name"

@@ -242,6 +242,14 @@ skills:
     subTree: PROSPECTOR
     maxLevel: 3
 
+  - skill: READ_TRACKS
+    tree: SURVIVAL
+    subTree: PROSPECTOR
+    maxLevel: 4
+    prerequisites:
+      - skill: WILDERNESS_SURVIVAL
+        level: 2
+
   # Miner (unlocked at 5+ pts in Survival Tree)
   - skill: MINING
     tree: SURVIVAL

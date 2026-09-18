@@ -49,3 +49,16 @@ ERROR_TALK_OUT_OF_RANGE,They are too far away to hear you.
 BESTIA_BLOB,Blob
 BESTIA_DOOM_MASTER_OF_DOOM,Doom Master of Doom
 BESTIA_TOWNSFOLK_COMMONER,Townsperson
+DIRECTION_EAST,east
+DIRECTION_NORTHEAST,north-east
+DIRECTION_NORTH,north
+DIRECTION_NORTHWEST,north-west
+DIRECTION_WEST,west
+DIRECTION_SOUTHWEST,south-west
+DIRECTION_SOUTH,south
+DIRECTION_SOUTHEAST,south-east
+DIRECTION_UNKNOWN,somewhere you cannot make out
+TRACK_SUBJECT_TRAVELLER,A traveller
+TRACK_AGE_FRESH,The trail is fresh.
+TRACK_AGE_RECENT,The trail is going cold.
+TRACK_AGE_COLD,The trail is cold.
