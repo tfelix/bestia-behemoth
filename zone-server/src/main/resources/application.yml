@@ -171,6 +171,27 @@ ground-stamps:
   # column's whole set, so without this a walked column would re-send all of it on every footfall.
   announce-interval-seconds: 3
 
+# Reading tracks: what the world remembers about the things that left prints, and how much of it a rank
+# earns. None of this changes what is stored, so all of it may be retuned on a restart.
+spoor:
+  # Bestia seconds a walker's description is kept after it was last seen walking. Longer than a print's life
+  # on purpose - the print is what expires, and this only has to outlive it.
+  signature-ttl-seconds: 7200
+  # Walkers described at once. Bounds the index on a busy shard.
+  max-signatures: 8192
+  # How often a walking creature's description is rebuilt from its components. A track records what walked at
+  # the time, so a level-up reaching the index late costs nothing.
+  refresh-seconds: 300
+  # How far around the read point each skill level searches, in tiles.
+  read-radius-per-level-tiles: 3
+  # The ranks at which a reading says which way the trail led, what made it, and who by name.
+  heading-level: 2
+  identity-level: 3
+  name-level: 4
+  # A trail younger than the first reads as fresh, older than the second as cold, between them as going cold.
+  fresh-seconds: 300
+  cold-seconds: 2400
+
 navigation:
   # Local (tile-accurate) pathfinding searches allowed per tick, across all NPCs. One bounded search is well
   # under a millisecond against a 50 ms tick, so this is generous; what it stops is a whole pack running out of
