@@ -85,6 +85,11 @@ namespace BestiaBehemothClient.Game.World
         {
           value.WriteGroundMarks(column.X, column.Y, layers.Cells);
         }
+
+        foreach (var (column, stamps) in _groundStamps)
+        {
+          value.WriteGroundStamps(column.X, column.Y, stamps.Stamps);
+        }
       }
     }
 
@@ -178,6 +183,16 @@ namespace BestiaBehemothClient.Game.World
     private readonly Dictionary<ChunkKey, ChunkGroundLayersSMSG> _groundLayers = new();
 
     /// <summary>
+    /// What has passed over the columns this client holds.
+    /// </summary>
+    /// <remarks>
+    /// Retained for <see cref="_groundLayers"/>'s reason - a renderer attaching later gets no re-send - and for
+    /// one of its own: the server paces these, so the next message about a column somebody stopped walking on
+    /// may be minutes away.
+    /// </remarks>
+    private readonly Dictionary<ChunkKey, ChunkGroundStampsSMSG> _groundStamps = new();
+
+    /// <summary>
     /// What is alight in one column, or null when nothing is.
     /// </summary>
     /// <remarks>
@@ -190,6 +205,10 @@ namespace BestiaBehemothClient.Game.World
     /// <summary>What has lasted on one column's ground, or null when nothing has.</summary>
     public ChunkGroundLayersSMSG GroundLayersOf(ChunkKey key) =>
       _groundLayers.TryGetValue(key.Column, out var layers) ? layers : null;
+
+    /// <summary>What has passed over one column, or null when nothing has.</summary>
+    public ChunkGroundStampsSMSG GroundStampsOf(ChunkKey key) =>
+      _groundStamps.TryGetValue(key.Column, out var stamps) ? stamps : null;
 
     /// <summary>The world's chunk grid, for the addresses this class derives rather than receives.</summary>
     private ChunkWrap _wrap = ChunkWrap.None;
@@ -416,6 +435,22 @@ namespace BestiaBehemothClient.Game.World
           }
           break;
 
+        case ChunkGroundStampsSMSG stamps:
+          // The same shape as the layers above, and for the same reasons. The difference is upstream: the
+          // server sends these no faster than once a second per column, so what arrives here is a batch of
+          // footfalls rather than one.
+          if (stamps.IsClean)
+          {
+            _groundStamps.Remove(stamps.Key.Column);
+            Renderer?.ClearGroundStamps(stamps.Key.Column.X, stamps.Key.Column.Y);
+          }
+          else
+          {
+            _groundStamps[stamps.Key.Column] = stamps;
+            Renderer?.WriteGroundStamps(stamps.Key.Column.X, stamps.Key.Column.Y, stamps.Stamps);
+          }
+          break;
+
         case ChunkStaticEntitiesSMSG statics:
           // Applied straight away rather than queued: a batch is a few hundred transforms and, for the kinds
           // that have art, a scene instance each - not a decode and a mesh build, so it does not need the
@@ -577,6 +612,7 @@ namespace BestiaBehemothClient.Game.World
       _appliedStatics.Clear();
       _burnMasks.Clear();
       _groundLayers.Clear();
+      _groundStamps.Clear();
       StaticEntities?.Clear();
     }
 
@@ -625,6 +661,11 @@ namespace BestiaBehemothClient.Game.World
         if (_groundLayers.Remove(column))
         {
           Renderer?.ClearGroundMarks(column.X, column.Y);
+        }
+
+        if (_groundStamps.Remove(column))
+        {
+          Renderer?.ClearGroundStamps(column.X, column.Y);
         }
       }
 

@@ -134,8 +134,51 @@ namespace BestiaBehemothClient.Game.World
       Debug?.SetShaderParameter(GroundMarksExtent, GroundMarkTexture.ExtentMetres);
     }
 
+    /// <summary>
+    /// Hands the shader the near-camera height field, and the numbers it has to read it with.
+    /// </summary>
+    /// <remarks>
+    /// Unlike <see cref="SetGroundMarks"/> this one does move as the player does - the window is smaller than
+    /// the view, so where it sits is what tells the shader how far out it may still be trusted. That part goes
+    /// through <see cref="SetGroundDisturbanceCentre"/> whenever it changes; everything here is fixed.
+    /// </remarks>
+    public void SetGroundDisturbance(Texture2D field)
+    {
+      Apply(Shipping);
+      Apply(Debug);
+
+      static void Apply(ShaderMaterial material)
+      {
+        material?.SetShaderParameter(GroundDisturb, field);
+        material?.SetShaderParameter(GroundDisturbExtent, GroundDisturbanceTexture.ExtentMetres);
+        material?.SetShaderParameter(GroundDisturbTexel, GroundDisturbanceTexture.MetresPerTexel);
+        material?.SetShaderParameter(GroundDisturbRadius, GroundDisturbanceTexture.RadiusMetres);
+      }
+    }
+
+    /// <summary>Where the disturbance window currently sits, in world metres on the ground plane.</summary>
+    /// <remarks>
+    /// <paramref name="origin"/> is not a second copy of the centre: it is the float-precision rebasing the
+    /// shader measures world position from, and it moves in whole window spans rather than with the camera.
+    /// See <see cref="GroundDisturbanceTexture.Origin"/>.
+    /// </remarks>
+    public void SetGroundDisturbanceWindow(Vector2 centre, Vector2 origin)
+    {
+      Shipping?.SetShaderParameter(GroundDisturbCentre, centre);
+      Shipping?.SetShaderParameter(GroundDisturbOrigin, origin);
+
+      Debug?.SetShaderParameter(GroundDisturbCentre, centre);
+      Debug?.SetShaderParameter(GroundDisturbOrigin, origin);
+    }
+
     private static readonly StringName GroundMarks = "ground_marks";
     private static readonly StringName GroundMarksExtent = "ground_marks_extent";
+    private static readonly StringName GroundDisturb = "ground_disturb";
+    private static readonly StringName GroundDisturbExtent = "ground_disturb_extent";
+    private static readonly StringName GroundDisturbTexel = "ground_disturb_texel";
+    private static readonly StringName GroundDisturbRadius = "ground_disturb_radius";
+    private static readonly StringName GroundDisturbCentre = "ground_disturb_centre";
+    private static readonly StringName GroundDisturbOrigin = "ground_disturb_origin";
     private static readonly StringName AlbedoHeight = "albedo_height";
     private static readonly StringName NormalRoughAo = "normal_rough_ao";
     private static readonly StringName SlotReferenceTint = "slot_reference_tint";
