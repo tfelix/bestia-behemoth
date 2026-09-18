@@ -154,6 +154,22 @@ ground-wear:
   # while still worn is written out first and read back when somebody returns to it.
   max-resident-columns: 8192
 
+# Blood soaking into the ground where something died. Written once and only ever dries, which is why the
+# weight is most of a full cell where a footfall above is a few parts in a hundred.
+ground-blood:
+  # Bestia seconds for a full cell to dry out. Five Bestia days, about forty real hours at SPEED_FACTOR 3 -
+  # long enough that a battle site still reads as one the next day, which is the whole point of it lasting.
+  fade-seconds: 432000
+  # What lands on the tile something died on, out of the 255 a cell holds.
+  spill-weight: 220
+  # How far the pool reaches, with a falloff to nothing just past its edge.
+  spill-radius-tiles: 2
+  # The level below which nothing is sent. Lower than wear's: there is no diffuse background of blood to keep
+  # under notice - a stain is either there or it is not.
+  visible-threshold: 16
+  flush-interval-seconds: 120
+  max-resident-columns: 4096
+
 # Footprints and the other marks that have a shape and a heading rather than a level. Never persisted, so
 # unlike the wear above there is nothing stored for a retune to disagree with.
 ground-stamps:

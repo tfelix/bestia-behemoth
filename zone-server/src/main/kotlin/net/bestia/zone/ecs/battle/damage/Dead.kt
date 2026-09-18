@@ -31,6 +31,15 @@ class Dead : DirtyableComponent(), Removable {
    */
   var resolved: Boolean = false
 
+  /**
+   * Whether [DeathSystem] has already spilled this death's blood.
+   *
+   * Separate from [resolved], which `PlayerDeathSystem` sets an order earlier - so by the time [DeathSystem]
+   * runs it is already true and cannot tell a first tick from a hundredth. Without a flag of its own a body
+   * lying where it fell would soak the ground a little deeper every tick for as long as nobody respawned it.
+   */
+  var bled: Boolean = false
+
   override fun toEntityMessage(entityId: Long, removed: Boolean): EntitySMSG {
     return DeadComponentSMSG(entityId = entityId, removed = removed)
   }
