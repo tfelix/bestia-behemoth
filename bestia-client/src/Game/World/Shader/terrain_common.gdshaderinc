@@ -245,6 +245,50 @@ uniform vec3 mark_scorched_colour : source_color = vec3(0.07, 0.06, 0.06);
 uniform vec3 mark_trodden_colour : source_color = vec3(0.34, 0.26, 0.18);
 uniform vec3 mark_bloodied_colour : source_color = vec3(0.29, 0.05, 0.05);
 
+// How much a hard-worn path thins the snow lying on it. Lower than a fresh track cuts, because this is snow
+// settling less on packed ground rather than snow being pushed aside - but it is what makes a used route
+// legible across a white field from further than any print can be resolved.
+uniform float ground_marks_worn_snow : hint_range(0.0, 1.0) = 0.6;
+
+group_uniforms;
+
+group_uniforms GroundTracks;
+
+// How deeply the ground near the camera has been pressed in: sixteen texels to the metre, over 64 m.
+//
+// **A second texture because a print needs a shape.** `ground_marks` above is one texel per square metre,
+// which is right for "how worn is this ground" and cannot express an outline at all. Print shape is legible
+// from a few metres and gone by thirty, so this covers only what is near rather than the whole streamed view -
+// which is what keeps a sixteenth-metre grid down to one megabyte.
+//
+// Toroidal like `ground_marks`, but with a consequence that one does not have: the window is *smaller* than
+// the view, so ground outside it aliases onto ground inside it. `ground_disturb_radius` is what stops that
+// being visible, and it is the distance ramp the detail deserves anyway.
+//
+// `hint_default_transparent` for the reason `ground_marks` gives, and here it matters more: white would be
+// every metre of ground pressed to its deepest, everywhere, for ever.
+uniform sampler2D ground_disturb : filter_linear, repeat_enable, hint_default_transparent;
+
+// Where the window sits on the ground plane, in world metres.
+uniform vec2 ground_disturb_centre = vec2(0.0);
+
+// What world position is measured from before it is turned into a UV. Purely a floating-point measure, with
+// no visual intent - the same problem `slot_uv_origin` exists for, one step further along. `world / 64`
+// reaches 2000 at the edge of a 128 km world, where a float holds about four values per texel of this grid
+// and a print bands. This moves in whole spans, so it lands on exactly the same texels.
+uniform vec2 ground_disturb_origin = vec2(0.0);
+
+// Metres the window spans before it repeats, and metres per texel of it.
+uniform float ground_disturb_extent = 64.0;
+uniform float ground_disturb_texel = 0.0625;
+
+// How far from the centre this may be trusted. Past it the wrap would show through, so it fades out first.
+uniform float ground_disturb_radius = 26.0;
+
+// How deep a full-strength print is, in metres. Read as a slope rather than drawn, so it is the depth the
+// lighting implies rather than a displacement of anything - see `GroundDisturbanceTexture`.
+uniform float ground_disturb_relief : hint_range(0.0, 0.3) = 0.06;
+
 group_uniforms;
 
 group_uniforms Weather;
@@ -717,6 +761,23 @@ TerrainSurface terrain_surface(vec3 tint) {
 		}
 	}
 
+	// TRACKS: what walked here, pressed into the ground.
+	//
+	// Read here so the snow mask below can be broken by it, and applied to the normal after the snow has been
+	// mixed in - a print in fresh snow is a dent in the snow, not a dent the snow then fills.
+	//
+	// Everything past `ground_disturb_radius` is the window wrapping rather than this ground's own history, so
+	// the fade is correctness and not only a budget. It is also what bounds the cost: ground beyond that
+	// radius - nearly all of what is drawn, since terrain reaches 176 m - pays a distance test and no fetch.
+	float track_reach = max(ground_disturb_radius, 0.001);
+	float track_near = 1.0 - smoothstep(
+		track_reach * 0.7, track_reach, distance(v_world_pos.xz, ground_disturb_centre));
+
+	vec2 track_uv = (v_world_pos.xz - ground_disturb_origin) / max(ground_disturb_extent, 0.001);
+	float track = track_near > TERRAIN_WEIGHT_EPSILON
+		? texture(ground_disturb, track_uv).r * track_near
+		: 0.0;
+
 	// SNOW: a layer on top, and deliberately not the same thing as slot 6.
 	//
 	// Slot 6 is snowpack the generator placed - it is what the ground there is made of, and it is there in
@@ -735,10 +796,17 @@ TerrainSurface terrain_surface(vec3 tint) {
 	// Deepening snow reaches the ridges last, so the mask leads in the crevices and catches up at full depth.
 	snow = clamp(snow * (1.0 + (1.0 - surface.height)) - (1.0 - snow) * surface.height * 0.5, 0.0, 1.0);
 
-	// Something walked through it. The disturbance channel does not paint a material like the three above - it
-	// takes lying snow away, which is what a track in snow physically is. So it shows only where there is snow
-	// to break, and costs nothing at all in summer.
-	snow *= 1.0 - marks.a * ground_marks_disturb_snow;
+	// Something went through it. None of these paints a material like the three marks above - they take lying
+	// snow *away*, which is what a track in snow physically is. So they show only where there is snow to break
+	// and cost nothing at all in summer.
+	//
+	// The strongest wins rather than the three summing, because they are three measurements of one thing:
+	// ground the server recorded as broken open, a print pressed in near the camera, and a path worn hard
+	// enough that less settles on it in the first place. That last one is what carries a route across a white
+	// field from further away than any print can be resolved.
+	float broken = max(marks.a, max(track, marks.g * ground_marks_worn_snow));
+
+	snow *= 1.0 - broken * ground_marks_disturb_snow;
 
 	if (snow > TERRAIN_WEIGHT_EPSILON) {
 		SlotSample fresh = terrain_sample_slot(TERRAIN_SLOT_SNOW, normal, ddx, ddy, blend);
@@ -752,6 +820,32 @@ TerrainSurface terrain_surface(vec3 tint) {
 
 		// Snow buries small occlusion along with everything else.
 		ao = mix(ao, 1.0, snow);
+	}
+
+	// The print itself, as a slope rather than as a displacement.
+	//
+	// Surface nets puts terrain vertices about a metre apart and Godot 4 exposes no tessellation, so moving
+	// this mesh by a 25 cm print would move the wrong vertices. The gradient of the height field is the normal
+	// of the surface it describes, and at the distance any of this is seen from that is what reads as pressed
+	// in. The field is the same one a parallax march or a displaced shell would later read, so going further
+	// costs nothing here and nothing at all on the server.
+	if (track > TERRAIN_WEIGHT_EPSILON) {
+		vec2 step_uv = vec2(ground_disturb_texel / max(ground_disturb_extent, 0.001), 0.0);
+
+		float slope_x = texture(ground_disturb, track_uv + step_uv.xy).r
+			- texture(ground_disturb, track_uv - step_uv.xy).r;
+		float slope_z = texture(ground_disturb, track_uv + step_uv.yx).r
+			- texture(ground_disturb, track_uv - step_uv.yx).r;
+
+		// Metres of depth over metres of ground: the difference is in units of the full relief, across two
+		// texels. A dip tilts its normal towards the rim, which is why this adds rather than subtracts.
+		float run = 2.0 * max(ground_disturb_texel, 0.001);
+		float rise = ground_disturb_relief * track_near;
+
+		world_normal = normalize(world_normal + vec3(slope_x, 0.0, slope_z) * (rise / run));
+
+		// A dent holds shadow, and that is most of what makes it read as one.
+		ao = mix(ao, ao * 0.55, track);
 	}
 
 	// WETNESS: no extra samples, only different constants.

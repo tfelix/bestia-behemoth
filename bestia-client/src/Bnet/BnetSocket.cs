@@ -337,6 +337,12 @@ namespace BestiaBehemothClient.Bnet.Message
             envelope.ChunkGroundLayers, WorldLayout.ChunkSize);
           EmitSignal(SignalName.MessageReceived, msg);
         }
+        else if (envelope.ChunkGroundStamps != null)
+        {
+          // Also a MapSMSG: what walked over the ground, not an entity.
+          var msg = Map.ChunkGroundStampsSMSG.FromProto(envelope.ChunkGroundStamps);
+          EmitSignal(SignalName.MessageReceived, msg);
+        }
         else if (envelope.StaticEntityRemoved != null)
         {
           // Also a MapSMSG, and for the same reason: it names a prop, not an entity the client ever spawned.

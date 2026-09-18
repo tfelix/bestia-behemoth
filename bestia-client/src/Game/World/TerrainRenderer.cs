@@ -232,6 +232,30 @@ namespace BestiaBehemothClient.Game.World
     /// <summary>What has lasted on the ground nearby. Null until <see cref="Configure"/> has run.</summary>
     private GroundMarkTexture _groundMarks;
 
+    /// <summary>How deeply the ground near the camera has been pressed in. Null until <see cref="Configure"/>.</summary>
+    private GroundDisturbanceTexture _groundDisturbance;
+
+    /// <summary>
+    /// The stamps held per column, kept as records rather than only as pixels.
+    /// </summary>
+    /// <remarks>
+    /// <see cref="GroundDisturbanceTexture"/> covers only the ground near the camera and is cleared whenever
+    /// that moves, so the records are what it is rebuilt from. Marks need no equivalent: that texture spans
+    /// more than the whole view and nothing ever scrolls out of it.
+    /// </remarks>
+    private readonly Dictionary<ChunkKey, GroundStamp[]> _groundStamps = new();
+
+    /// <summary>
+    /// Whether the disturbance field no longer matches <see cref="_groundStamps"/>.
+    /// </summary>
+    /// <remarks>
+    /// A flag rather than rebuilding where the change arrives, because changes arrive in bursts:
+    /// <c>BnetSocket</c> drains its whole receive queue in one frame, so a walk past a chunk corner can land
+    /// several columns at once. Coalescing them is the difference between one rebuild a frame and one per
+    /// column.
+    /// </remarks>
+    private bool _disturbanceStale;
+
     /// <summary>Whether the debug shader is currently the one terrain is drawn with.</summary>
     private bool _debugShading;
 
@@ -284,6 +308,12 @@ namespace BestiaBehemothClient.Game.World
         _materials?.SetGroundMarks(_groundMarks.Texture);
       }
 
+      if (_groundDisturbance == null)
+      {
+        _groundDisturbance = new GroundDisturbanceTexture();
+        _materials?.SetGroundDisturbance(_groundDisturbance.Texture);
+      }
+
       // Null when the shader would not compile, which deliberately leaves the flat vertex-colour material in
       // place rather than an unassigned one - see TerrainMaterials.
       TerrainMaterial ??= _materials?.Shipping ?? DefaultTerrainMaterial();
@@ -311,6 +341,10 @@ namespace BestiaBehemothClient.Game.World
       // Or a new view inherits the last world's scars: the addressing is keyed on world position, so stale
       // marks do not merely linger, they land on whatever ground now has those coordinates.
       _groundMarks?.Clear();
+
+      _groundStamps.Clear();
+      _groundDisturbance?.Clear();
+      _disturbanceStale = false;
 
       _tiles.Clear();
       _pending.Clear();
@@ -420,10 +454,51 @@ namespace BestiaBehemothClient.Game.World
       StartJobs();
       Install();
 
-      // Once per frame, after everything that could have written to it. Godot re-uploads the whole image, so
+      FollowCameraWithDisturbance();
+
+      if (_disturbanceStale)
+      {
+        RebuildDisturbance();
+      }
+
+      // Once per frame, after everything that could have written to them. Godot re-uploads the whole image, so
       // batching a frame's worth of columns into one upload is the difference between a megabyte and a
       // megabyte per column.
       _groundMarks?.Flush();
+      _groundDisturbance?.Flush();
+    }
+
+    /// <summary>
+    /// Keeps the disturbance window under the camera, rebuilding it from the stamp records when it moves.
+    /// </summary>
+    /// <remarks>
+    /// Off the camera rather than off the collision anchor, which moves in whole chunks: the window is 64 m
+    /// across and a chunk is 32, so following it in chunk steps would leave the camera near an edge half the
+    /// time. Null in a headless test, which is the same state the renderer already tolerates everywhere else.
+    /// </remarks>
+    private void FollowCameraWithDisturbance()
+    {
+      if (_groundDisturbance == null)
+      {
+        return;
+      }
+
+      var camera = GetViewport()?.GetCamera3D();
+      if (camera == null)
+      {
+        return;
+      }
+
+      var at = camera.GlobalPosition;
+      if (!_groundDisturbance.Recentre(at.X, at.Z))
+      {
+        return;
+      }
+
+      // The window moved, so what it held was cleared with it and every record in reach has to go back in.
+      _disturbanceStale = true;
+
+      _materials?.SetGroundDisturbanceWindow(_groundDisturbance.Centre, _groundDisturbance.Origin);
     }
 
     /// <summary>Records what has lasted on one column's ground, for the shader to sample by world position.</summary>
@@ -439,6 +514,64 @@ namespace BestiaBehemothClient.Game.World
     public void ClearGroundMarks(int chunkX, int chunkY)
     {
       _groundMarks?.ClearColumn(chunkX, chunkY, WorldLayout.ChunkSize);
+    }
+
+    /// <summary>Records what has passed over one column, for the next rebuild to press in.</summary>
+    /// <remarks>
+    /// The whole column every time, never a diff - so the records are replaced rather than merged, and the
+    /// field is rebuilt rather than patched: a stamp that has expired has to stop being drawn, and a height
+    /// field cannot have one print taken back out of it.
+    /// </remarks>
+    public void WriteGroundStamps(int chunkX, int chunkY, GroundStamp[] stamps)
+    {
+      _groundStamps[new ChunkKey(chunkX, chunkY, 0)] = stamps;
+      _disturbanceStale = true;
+    }
+
+    public void ClearGroundStamps(int chunkX, int chunkY)
+    {
+      _disturbanceStale |= _groundStamps.Remove(new ChunkKey(chunkX, chunkY, 0));
+    }
+
+    /// <summary>
+    /// Presses every held stamp that is in reach back into a cleared field.
+    /// </summary>
+    /// <remarks>
+    /// A memset and a few hundred small brushes, which is cheaper than it sounds and much simpler than
+    /// unpressing one print - see <see cref="GroundDisturbanceTexture"/>.
+    /// </remarks>
+    private void RebuildDisturbance()
+    {
+      if (_groundDisturbance == null)
+      {
+        return;
+      }
+
+      _disturbanceStale = false;
+      _groundDisturbance.Clear();
+
+      foreach (var (column, stamps) in _groundStamps)
+      {
+        PressStamps(column, stamps);
+      }
+    }
+
+    private void PressStamps(ChunkKey column, GroundStamp[] stamps)
+    {
+      var size = WorldLayout.ChunkSize;
+
+      foreach (var stamp in stamps)
+      {
+        var worldX = (long)column.X * size + stamp.LocalX(size);
+        var worldY = (long)column.Y * size + stamp.LocalY(size);
+
+        if (!_groundDisturbance.Covers(worldX, worldY))
+        {
+          continue;
+        }
+
+        _groundDisturbance.Stamp(worldX, worldY, stamp.Octant, stamp.Seed, stamp.Strength);
+      }
     }
 
     private static readonly StringName ToggleDebugShading = "toggle_terrain_debug";
