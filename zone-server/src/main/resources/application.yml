@@ -154,6 +154,23 @@ ground-wear:
   # while still worn is written out first and read back when somebody returns to it.
   max-resident-columns: 8192
 
+# Footprints and the other marks that have a shape and a heading rather than a level. Never persisted, so
+# unlike the wear above there is nothing stored for a retune to disagree with.
+ground-stamps:
+  # Bestia seconds a print lasts. Twenty real minutes at SPEED_FACTOR 3 - long enough to follow something that
+  # has walked out of sight, short enough that a crossroads does not silt up. What a tracking skill is worth is
+  # set here.
+  footprint-ttl-seconds: 3600
+  # Prints held for one 32 m column, oldest dropped first. Roughly one and a half crossings, so a busy column
+  # shows the most recent tracks rather than every track. Allocated up front, at twelve bytes each.
+  max-stamps-per-column: 48
+  # Columns holding prints at once. Unlike wear this is not tied to what players hold - creatures leave tracks
+  # where nobody is watching, and finding those later is the point of tracking at all.
+  max-columns: 8192
+  # Bestia seconds between putting one column's prints on the wire. Load bearing: each message carries the
+  # column's whole set, so without this a walked column would re-send all of it on every footfall.
+  announce-interval-seconds: 3
+
 navigation:
   # Local (tile-accurate) pathfinding searches allowed per tick, across all NPCs. One bounded search is well
   # under a millisecond against a 50 ms tick, so this is generous; what it stops is a whole pack running out of
