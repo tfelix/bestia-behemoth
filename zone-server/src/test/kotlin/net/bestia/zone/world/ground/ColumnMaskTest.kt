@@ -1,4 +1,4 @@
-package net.bestia.zone.world.fire
+package net.bestia.zone.world.ground
 
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals

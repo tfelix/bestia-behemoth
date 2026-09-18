@@ -13,9 +13,9 @@ import net.bestia.worldgen.vector.Vec2d
 import net.bestia.zone.world.PersistedWorld
 import net.bestia.zone.world.WorldGenConfig
 import net.bestia.zone.world.WorldService
-import net.bestia.zone.world.fire.ColumnMask
 import net.bestia.zone.world.fire.Scar
 import net.bestia.zone.world.fire.ScorchRegistry
+import net.bestia.zone.world.ground.ColumnMask
 import net.bestia.zone.world.prop.DivergenceEntry
 import net.bestia.zone.world.prop.DivergenceState
 import net.bestia.zone.world.prop.StaticEntityKind
