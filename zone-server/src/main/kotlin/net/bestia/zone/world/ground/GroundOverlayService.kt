@@ -6,6 +6,7 @@ import net.bestia.zone.socket.ChunkFanOut
 import net.bestia.zone.world.fire.GroundFireService
 import net.bestia.zone.world.stream.ChunkGroundLayersSMSG
 import net.bestia.zone.world.stream.ChunkGroundOverlaySMSG
+import net.bestia.zone.world.stream.ChunkGroundStampsSMSG
 import net.bestia.zone.world.stream.ChunkSubscriptionService
 import org.springframework.context.annotation.Lazy
 import org.springframework.stereotype.Service
@@ -74,6 +75,11 @@ class GroundOverlayService(
    * means - see [GroundLayerSource]. Empty is legal and means nothing lasting is modelled yet.
    */
   private val layerSources: List<GroundLayerSource>,
+  /**
+   * Every store of marks that have a shape and a heading. Separate from [layerSources] because they travel in
+   * a different message at a different rate - see `ChunkGroundStampsSMSG`.
+   */
+  private val stampSources: List<GroundStampSource>,
 ) {
 
   /** Column -> the accounts holding its terrain. This service's own record; see the class note. */
@@ -92,6 +98,14 @@ class GroundOverlayService(
    */
   private val owedLayers = ConcurrentHashMap<Long, MutableSet<Long>>()
 
+  /**
+   * Column -> the accounts owed a message about what has passed over it.
+   *
+   * A third set for the same reason there is a second: prints arrive several times a second while anything is
+   * walking, and dragging half a kilobyte of worn cells along behind each footstep is what this avoids.
+   */
+  private val owedStamps = ConcurrentHashMap<Long, MutableSet<Long>>()
+
   init {
     subscriptions.onChunkSent { accountId, chunk ->
       val column = ColumnKey.of(chunk.x, chunk.y)
@@ -103,6 +117,9 @@ class GroundOverlayService(
       }
       if (hasMarks(column)) {
         owedLayers.computeIfAbsent(column) { ConcurrentHashMap.newKeySet() }.add(accountId)
+      }
+      if (hasStamps(column)) {
+        owedStamps.computeIfAbsent(column) { ConcurrentHashMap.newKeySet() }.add(accountId)
       }
     }
 
@@ -117,15 +134,17 @@ class GroundOverlayService(
         holders.remove(column)
         owed.remove(column)
         owedLayers.remove(column)
+        owedStamps.remove(column)
       } else {
         holders[column]?.retainAll(remaining)
         owed[column]?.retainAll(remaining)
         owedLayers[column]?.retainAll(remaining)
+        owedStamps[column]?.retainAll(remaining)
       }
     }
   }
 
-  val pending get() = owed.size + owedLayers.size
+  val pending get() = owed.size + owedLayers.size + owedStamps.size
 
   /**
    * Marks a column's overlay stale for everyone currently holding it.
@@ -154,6 +173,19 @@ class GroundOverlayService(
   }
 
   /**
+   * Marks what has passed over a column stale for everyone currently holding it.
+   *
+   * [markDirty]'s twin, and safe from any wave for the same reason. Paced by the caller rather than here - see
+   * `GroundStampRegistry.sweep`, which is what keeps one walker from announcing a column twenty times a second.
+   */
+  fun markStampsDirty(columnKey: Long) {
+    val watchers = holders[columnKey] ?: return
+    if (watchers.isEmpty()) return
+
+    owedStamps.computeIfAbsent(columnKey) { ConcurrentHashMap.newKeySet() }.addAll(watchers)
+  }
+
+  /**
    * Sends what is owed. Touches no shared state but the fan-out itself.
    *
    * @return how many messages were encoded, which is one per column however many recipients it had
@@ -162,6 +194,7 @@ class GroundOverlayService(
     var sent = 0
     sent += drain(owed) { messageFor(it) }
     sent += drain(owedLayers) { layersMessageFor(it) }
+    sent += drain(owedStamps) { stampsMessageFor(it) }
     return sent
   }
 
@@ -185,6 +218,10 @@ class GroundOverlayService(
 
   private fun hasMarks(column: Long): Boolean {
     return layerSources.any { it.nibblesAt(column) != null }
+  }
+
+  private fun hasStamps(column: Long): Boolean {
+    return stampSources.any { it.stampsAt(column) != null }
   }
 
   /**
@@ -217,6 +254,19 @@ class GroundOverlayService(
     return ChunkGroundLayersSMSG(
       chunk = ChunkPos(ColumnKey.chunkXOf(column), ColumnKey.chunkYOf(column), 0),
       cells = cells
+    )
+  }
+
+  /**
+   * What has passed over one column, never a diff.
+   *
+   * May come back empty, and that message is not wasted either: it is the only way tracks that have faded are
+   * retired, since the client replaces a column's stamps outright.
+   */
+  private fun stampsMessageFor(column: Long): ChunkGroundStampsSMSG {
+    return ChunkGroundStampsSMSG(
+      chunk = ChunkPos(ColumnKey.chunkXOf(column), ColumnKey.chunkYOf(column), 0),
+      stamps = stampSources.firstNotNullOfOrNull { it.stampsAt(column) }
     )
   }
 }
