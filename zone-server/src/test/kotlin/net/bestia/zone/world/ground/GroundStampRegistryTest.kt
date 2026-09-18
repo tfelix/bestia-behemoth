@@ -38,8 +38,13 @@ class GroundStampRegistryTest {
     return GroundStampRegistry(config, worldService, clock)
   }
 
-  private fun GroundStampRegistry.walk(voxelX: Long, voxelY: Long, atSecond: Long = clockSecond) {
-    stamp(voxelX, voxelY, GroundStampKind.FOOTPRINT, octant = 2, seed = 7, nowSecond = atSecond)
+  private fun GroundStampRegistry.walk(
+    voxelX: Long,
+    voxelY: Long,
+    atSecond: Long = clockSecond,
+    actorId: Long = 1,
+  ) {
+    stamp(voxelX, voxelY, GroundStampKind.FOOTPRINT, octant = 2, seed = 7, actorId = actorId, nowSecond = atSecond)
   }
 
   @Test

@@ -2,6 +2,7 @@ package net.bestia.zone.world.ground
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.environment.time.BestiaClock
+import net.bestia.zone.util.EntityId
 import net.bestia.zone.world.WorldService
 import org.springframework.stereotype.Service
 
@@ -50,9 +51,18 @@ class GroundStampRegistry(
    * Records that something passed over one tile.
    *
    * @param octant the eight-connected heading, 0 towards +x and counting towards +y
-   * @param seed a shape variant; see `WearingGroundTrample` for what makes one walk differ from the next
+   * @param seed a shape variant; see [MarkingGroundTrample] for what makes one walk differ from the next
+   * @param actorId who left it, which is what a tracker asks about afterwards
    */
-  fun stamp(voxelX: Long, voxelY: Long, kind: GroundStampKind, octant: Int, seed: Int, nowSecond: Long) {
+  fun stamp(
+    voxelX: Long,
+    voxelY: Long,
+    kind: GroundStampKind,
+    octant: Int,
+    seed: Int,
+    actorId: EntityId,
+    nowSecond: Long
+  ) {
     val size = chunkSize.toLong()
     val columnKey = ColumnKey.of(
       Math.floorDiv(voxelX, size).toInt(),
@@ -64,7 +74,7 @@ class GroundStampRegistry(
     val localX = Math.floorMod(voxelX, size).toInt()
     val localY = Math.floorMod(voxelY, size).toInt()
 
-    column.add(localY * chunkSize + localX, kind, octant, seed, nowSecond)
+    column.add(localY * chunkSize + localX, kind, octant, seed, actorId, nowSecond)
   }
 
   /**

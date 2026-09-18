@@ -10,11 +10,21 @@ package net.bestia.zone.world.ground
  * arrives, which is exactly what should be lost: the freshest tracks are the ones anybody is looking at. It
  * also makes expiry a walk from one end rather than a scan, since ages only ever increase along it.
  *
- * ### Two primitive arrays rather than objects
+ * ### Primitive arrays rather than objects
  *
- * Twelve bytes a stamp against thirty-odd for an object with a header, and no garbage at all on a path being
+ * Twenty bytes a stamp against forty-odd for an object with a header, and no garbage at all on a path being
  * walked - which is the allocation-per-footfall this would otherwise be. `GroundStampConfig` does the
  * arithmetic on what that costs a shard.
+ *
+ * ### Who left a print is kept, and never sent
+ *
+ * A client is told the shape and the heading, because that is what it draws. What made it is a fact about the
+ * world that a tracking skill asks the server for - see `SpoorService` - so it stays here.
+ *
+ * It is kept as an entity id rather than as a description, which is the interning that makes richer identity
+ * affordable: a boar crossing two hundred cells costs two hundred longs and **one** `ActorSignature`, held
+ * once in `ActorSignatures`. Putting species, level and name in every record instead would cost more per
+ * print than the print does.
  *
  * ### The byte layout is a wire contract
  *
@@ -29,6 +39,9 @@ class ColumnStamps(private val capacity: Int) {
 
   /** When each stamp was laid, in absolute Bestia seconds, ascending from [oldest]. */
   private val laidAt = LongArray(capacity)
+
+  /** Who left each one. A reference into `ActorSignatures`, never put on the wire - see the class note. */
+  private val actors = LongArray(capacity)
 
   /** Where the ring starts. Entries run from here, wrapping, for [count] of them. */
   private var oldest = 0
@@ -55,14 +68,16 @@ class ColumnStamps(private val capacity: Int) {
    * @param cellIndex `localY * chunkSize + localX`, the cell order every ground message uses
    * @param octant the eight-connected heading it was left facing, 0 towards +x and counting towards +y
    * @param seed a shape variant, which is what keeps a hundred prints from being one print repeated
+   * @param actorId who left it, for a tracker to ask about later
    */
-  fun add(cellIndex: Int, kind: GroundStampKind, octant: Int, seed: Int, atSecond: Long) {
+  fun add(cellIndex: Int, kind: GroundStampKind, octant: Int, seed: Int, actorId: Long, atSecond: Long) {
     require(cellIndex in 0..MAX_CELL_INDEX) { "cell index $cellIndex does not fit the wire's two bytes" }
 
     val at = (oldest + count) % capacity
 
     packed[at] = pack(cellIndex, kind, octant, seed)
     laidAt[at] = atSecond
+    actors[at] = actorId
 
     if (count < capacity) {
       count++
@@ -95,6 +110,21 @@ class ColumnStamps(private val capacity: Int) {
     pending = true
 
     return true
+  }
+
+  /**
+   * Visits every stamp, oldest first.
+   *
+   * Hands over the fields rather than an object, so reading a column costs no allocation at all - the same
+   * reason the ring is primitive arrays. A tracker sweeping a disc walks several columns of these.
+   */
+  fun forEachStamp(action: (cellIndex: Int, octant: Int, actorId: Long, laidAtSecond: Long) -> Unit) {
+    for (n in 0 until count) {
+      val at = (oldest + n) % capacity
+      val stamp = packed[at]
+
+      action(stamp and 0xFFFF, (stamp ushr 20) and 0x7, actors[at], laidAt[at])
+    }
   }
 
   /**

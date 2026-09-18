@@ -22,8 +22,8 @@ class ColumnStampsTest {
   fun `a stamp comes back in the order it was laid`() {
     val stamps = ColumnStamps(capacity = 4)
 
-    stamps.add(cellIndex = 1, kind = GroundStampKind.FOOTPRINT, octant = 0, seed = 0, atSecond = 100)
-    stamps.add(cellIndex = 2, kind = GroundStampKind.FOOTPRINT, octant = 0, seed = 0, atSecond = 200)
+    stamps.add(cellIndex = 1, kind = GroundStampKind.FOOTPRINT, octant = 0, seed = 0, actorId = 1, atSecond = 100)
+    stamps.add(cellIndex = 2, kind = GroundStampKind.FOOTPRINT, octant = 0, seed = 0, actorId = 1, atSecond = 200)
 
     val bytes = stamps.toBytes(nowSecond = 200, ttlSeconds = ttl)!!
 
@@ -38,7 +38,14 @@ class ColumnStampsTest {
     val stamps = ColumnStamps(capacity = 3)
 
     for (cell in 1..5) {
-      stamps.add(cellIndex = cell, kind = GroundStampKind.FOOTPRINT, octant = 0, seed = 0, atSecond = cell.toLong())
+      stamps.add(
+        cellIndex = cell,
+        kind = GroundStampKind.FOOTPRINT,
+        octant = 0,
+        seed = 0,
+        actorId = 1,
+        atSecond = cell.toLong()
+      )
     }
 
     val bytes = stamps.toBytes(nowSecond = 5, ttlSeconds = ttl)!!
@@ -52,8 +59,8 @@ class ColumnStampsTest {
   fun `expiry takes the old end and leaves the rest`() {
     val stamps = ColumnStamps(capacity = 8)
 
-    stamps.add(cellIndex = 1, kind = GroundStampKind.FOOTPRINT, octant = 0, seed = 0, atSecond = 100)
-    stamps.add(cellIndex = 2, kind = GroundStampKind.FOOTPRINT, octant = 0, seed = 0, atSecond = 500)
+    stamps.add(cellIndex = 1, kind = GroundStampKind.FOOTPRINT, octant = 0, seed = 0, actorId = 1, atSecond = 100)
+    stamps.add(cellIndex = 2, kind = GroundStampKind.FOOTPRINT, octant = 0, seed = 0, actorId = 1, atSecond = 500)
 
     assertTrue(stamps.expire(nowSecond = 100 + ttl, ttlSeconds = ttl))
 
@@ -64,7 +71,7 @@ class ColumnStampsTest {
   @Test
   fun `expiring nothing is not a change`() {
     val stamps = ColumnStamps(capacity = 8)
-    stamps.add(cellIndex = 1, kind = GroundStampKind.FOOTPRINT, octant = 0, seed = 0, atSecond = 100)
+    stamps.add(cellIndex = 1, kind = GroundStampKind.FOOTPRINT, octant = 0, seed = 0, actorId = 1, atSecond = 100)
     stamps.pending = false
 
     assertFalse(stamps.expire(nowSecond = 200, ttlSeconds = ttl))
@@ -90,6 +97,7 @@ class ColumnStampsTest {
         kind = GroundStampKind.FOOTPRINT,
         octant = 0,
         seed = 0,
+        actorId = 1,
         atSecond = cell * 100L
       )
     }
@@ -99,6 +107,46 @@ class ColumnStampsTest {
 
     assertEquals(1, stamps.count)
     assertEquals(5, stamps.toBytes(nowSecond = 400 + ttl, ttlSeconds = ttl)!![0].toInt())
+  }
+
+  /** The tracker's half of the record, which never reaches a client. */
+  @Test
+  fun `a stamp remembers who left it`() {
+    val stamps = ColumnStamps(capacity = 4)
+
+    stamps.add(cellIndex = 7, kind = GroundStampKind.FOOTPRINT, octant = 3, seed = 0, actorId = 99, atSecond = 100)
+
+    var seen = 0
+    stamps.forEachStamp { cellIndex, octant, actorId, laidAtSecond ->
+      seen++
+      assertEquals(7, cellIndex)
+      assertEquals(3, octant)
+      assertEquals(99L, actorId)
+      assertEquals(100L, laidAtSecond)
+    }
+
+    assertEquals(1, seen)
+  }
+
+  @Test
+  fun `walking the ring visits every print in the order it was laid`() {
+    val stamps = ColumnStamps(capacity = 3)
+
+    for (cell in 1..5) {
+      stamps.add(
+        cellIndex = cell,
+        kind = GroundStampKind.FOOTPRINT,
+        octant = 0,
+        seed = 0,
+        actorId = cell.toLong(),
+        atSecond = cell * 100L
+      )
+    }
+
+    val walkers = mutableListOf<Long>()
+    stamps.forEachStamp { _, _, actorId, _ -> walkers.add(actorId) }
+
+    assertEquals(listOf(3L, 4L, 5L), walkers)
   }
 
   @Test
@@ -138,9 +186,16 @@ class ColumnStampsTest {
     val stamps = ColumnStamps(capacity = 4)
 
     // Half a life old, so it encodes at half strength.
-    stamps.add(cellIndex = 0, kind = GroundStampKind.FOOTPRINT, octant = 0, seed = 1, atSecond = 600)
+    stamps.add(cellIndex = 0, kind = GroundStampKind.FOOTPRINT, octant = 0, seed = 1, actorId = 1, atSecond = 600)
     // localX 3, localY 5 in a 32-wide column.
-    stamps.add(cellIndex = 5 * 32 + 3, kind = GroundStampKind.FOOTPRINT, octant = 6, seed = 200, atSecond = 1_000)
+    stamps.add(
+      cellIndex = 5 * 32 + 3,
+      kind = GroundStampKind.FOOTPRINT,
+      octant = 6,
+      seed = 200,
+      actorId = 1,
+      atSecond = 1_000
+    )
 
     val bytes = stamps.toBytes(nowSecond = 1_000, ttlSeconds = ttl)!!
 

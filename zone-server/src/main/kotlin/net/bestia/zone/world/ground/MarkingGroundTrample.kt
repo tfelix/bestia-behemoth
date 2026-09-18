@@ -78,6 +78,7 @@ class MarkingGroundTrample(
       GroundStampKind.FOOTPRINT,
       octantOf(toX - fromX, toY - fromY),
       seedOf(entityId, toX, toY),
+      entityId,
       nowSecond
     )
   }
