@@ -77,12 +77,12 @@ Declared construction order, with the load-bearing reason from each stage's own 
 | 12 | `CaveStage` | `karst/` | — | `CAVE_SYSTEM`, `CAVE_PASSAGE`, `CAVE_ENTRANCE` | reads the chunk tier's own rock tuning (`StrataParams`), not a copy of it |
 | 13 | `ManaStage` | `mana/` | `MANA_DENSITY` | — | must precede history (history reacts to it); corruption must *follow* history, which is why mana/corruption are two stages, not one |
 | 14 | `HabitabilityStage` | `civ/` | `HABITABILITY`, `MOVEMENT_COST` | — | scores settleability |
-| 15 | `SettlementStage` | `civ/` | — | `SETTLEMENT`, `SETTLEMENT_GRADING`, `ROAD`, `BRIDGE`, `SEA_LANE` | places settlements/roads before history judges them |
+| 15 | `SettlementStage` | `civ/` | — | `SETTLEMENT`, `SETTLEMENT_GRADING`, `ROAD`, `BRIDGE`, `SEA_LANE` | places settlements/roads before history judges them. Only cities and towns join the trunk network; `buildTracks` then gives each village one spur to the nearest way, which is what `TownStage` lays it along |
 | 16 | `HistoryStage` | `history/` | — | `SETTLEMENT_HISTORY`, `RUIN`, `ASH_RUIN`, `BATTLEFIELD`, `TOMB`, `MONUMENT`, `MINE`, `MONASTERY`, `FORT`, `LIGHTHOUSE`, `CAVE_HOARD`, `WOUND`, `SHRINE` | dates/holds/burns settlements already placed — **does not place them** |
 | 17 | `CorruptionStage` | `mana/` | `CORRUPTION`, `CIVILISATION_DISTANCE` | — | the settlements it suppresses by are the ones history left standing |
 | 18 | `SpawnerStage` | `spawn/` | — | `BESTIA_SPAWN` | last in dependency terms: reads corruption + settlements + what history left standing |
 | 19 | `VegetationStandStage` | `spawn/` | — | `VEGETATION_STAND` | lives in `spawn/`, not `bio/`, specifically because it reads `CORRUPTION`, which doesn't exist yet when `bio/VegetationStage` runs |
-| 20 | `TownStage` | `civ/` | — | `STREET`, `BUILDING`, `DISTRICT`, `TOWN_WALL`, `GATE` | street/building/district layout |
+| 20 | `TownStage` | `civ/` | — | `STREET`, `BUILDING`, `DISTRICT`, `TOWN_WALL`, `GATE`, `FIELD` | street/building/district layout, plus the fields the settlement works |
 | 21 | `EconomyStage` | `pop/` | — | `SETTLEMENT_ECONOMY`, `BUSINESS`, `ROADSIDE_INN` | businesses/households |
 | 22 | `PoiStage` | `poi/` | — | `POI` | the only stage whose output is a coin toss per catalogue entry rather than derived from the land; reads settlements/sites/cave mouths to stay clear of them |
 | 23 | `NavGraphStage` | `civ/` | — | — (`StageOutput.Navigation`) | last: routes are read off roads/bridges/gates/cave mouths everything above placed; nothing reads it back |
@@ -110,6 +110,29 @@ even though they're constructed before it. `PondStage` depends on `AlluviumStage
 `AlluviumStage` is constructed three lines *after* it. `TownStage` runs before `VegetationStandStage`
 purely because `"towns" < "vegetation_stands"` alphabetically. **Reordering the list in
 `StandardWorld.stages()` changes nothing; only editing a `dependencies` list moves a stage.**
+
+### How a settlement is laid out (`civ/`)
+
+Three layouts, and which one a settlement gets is decided before its `TownFrame` exists, because the layout
+decides the frame's own boundary:
+
+- **`RoadsideVillage`** — villages and hamlets. The high street is a *way that already existed*: a `ROAD`
+  passing near, else the track `SettlementStage.buildTracks` routed to it. `VillageForm` picks LINEAR,
+  CROSSROADS or GREEN, the ways outranking the culture. The built edge is the offset hull of the streets, not
+  a circle. It **returns null** for a settlement it cannot house — above about seventy buildings — and that
+  falls back to the grown layout.
+- **`StreetPlanner.organic` / `.grid`** — towns and cities, chosen by `Culture.layout`, plus every village too
+  big for the roadside model. A `TownPatches` core is added at `TOWN` and above.
+
+Two things are decided *after* the whole graph exists, because neither is knowable to the producer that drew a
+street: `StreetTraffic.ranked` re-derives every rank from through traffic (so a rank is not "when was this
+drawn"), and `LotPlanner.subdivide` lays plots along the chains. `TownFields` then cuts the worked ground
+outside the built edge from the same Voronoi the core uses.
+
+Two measured dead ends are recorded in the code rather than left to be rediscovered: extending the patched
+core to villages **loses** buildings (their grown streets cross the patches, so `blockedByStreet` drops the
+core's plots), and raising `segmentLength` to widen blocks improves plots-per-metre while collapsing total
+street length — net worse.
 
 ### The glacial lesson
 
