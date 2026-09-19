@@ -331,7 +331,8 @@ class TownStage(
   // 5: a plot station that places nothing slides on rather than stepping a whole frontage past the blockage.
   // 6: a settlement emits the fields it works - see `TownFields`.
   // 7: a farmstead is a house at the road and a barn across the yard, not one building.
-  override val version = 7
+  // 8: a street's rank comes from the traffic it carries, not from when it was drawn - see `StreetTraffic`.
+  override val version = 8
 
   override val paramsVersion get() = GenRng.hash(params.digest().value, Culture.catalogueDigest(), SettlementTier.catalogueDigest())
   /**

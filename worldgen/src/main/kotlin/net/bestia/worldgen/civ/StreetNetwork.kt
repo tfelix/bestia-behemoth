@@ -179,6 +179,18 @@ internal class StreetGraph(
 
   fun degreeOf(node: Int): Int = incident[node].size
 
+  /** Edge indices leaving a node. What [StreetTraffic] walks, since it needs the edge and not the neighbour. */
+  fun edgesAt(node: Int): IntArray = incident[node]
+
+  /** The node at the other end of an edge from [from]. */
+  fun across(edge: Int, from: Int): Int {
+    return if (edges[edge].a == from) edges[edge].b else edges[edge].a
+  }
+
+  fun lengthOf(edge: Int): Double {
+    return nodes[edges[edge].a].distanceTo(nodes[edges[edge].b])
+  }
+
   /**
    * Every node one edge away, with the length of the edge that reaches it. What [StreetDistance] walks.
    *
@@ -729,7 +741,11 @@ internal object StreetPlanner {
       else -> organic(frame, roll, params)
     }
 
-    return planarise((raw + extra).filter { inside(frame, it) && passable(frame, it) })
+    val planar = planarise((raw + extra).filter { inside(frame, it) && passable(frame, it) })
+
+    // Re-ranked once the whole network exists, because how wide a street is depends on what crosses it and
+    // that is not knowable to whichever producer drew it. See [StreetTraffic].
+    return StreetTraffic.ranked(planar, frame)
   }
 
   /**
