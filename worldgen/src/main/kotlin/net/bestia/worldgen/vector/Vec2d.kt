@@ -1,5 +1,7 @@
 package net.bestia.worldgen.vector
 
+import kotlin.math.cos
+import kotlin.math.sin
 import kotlin.math.sqrt
 
 /**
@@ -34,6 +36,13 @@ data class Vec2d(
 
   /** Rotated 90 degrees counter-clockwise. The left-hand normal of a tangent. */
   fun perpendicular() = Vec2d(-y, x)
+
+  /** Rotated counter-clockwise by [radians]. */
+  fun rotated(radians: Double): Vec2d {
+    val c = cos(radians)
+    val s = sin(radians)
+    return Vec2d(x * c - y * s, x * s + y * c)
+  }
 
   fun distanceTo(p: Vec2d): Double {
     val dx = x - p.x

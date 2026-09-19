@@ -100,7 +100,7 @@ class WorldParamsTest {
     // again when the shore was given a width and then a traced coastline: `TownParams` is world tier,
     // `ShoreParams` reaches both, and `ChunkMaterializer.VERSION` went to 4. A change that moved only one
     // of them would be the surprise.
-    assertEquals(-5_762_055_766_498_439_789L, WorldParams.DEFAULT.version, "re-pin: the world tuning moved")
+    assertEquals(4_945_067_453_346_623_498L, WorldParams.DEFAULT.version, "re-pin: the world tuning moved")
     // Pinned as a pair so each half stays checkable: a world-tier retune has to move the number above and
     // leave this one alone, and a chunk-tier one the reverse. This is the half the chunk cache is keyed on.
     assertEquals(690_848_464_108_215_249L, WorldParams.DEFAULT.chunkTierVersion, "re-pin: the chunk tier moved")

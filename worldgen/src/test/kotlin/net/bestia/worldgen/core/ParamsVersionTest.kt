@@ -172,7 +172,7 @@ class ParamsVersionTest {
   fun `every catalogue digest is pinned`() {
     val pinned = listOf(
       "Biomes" to 8_864_784_301_847_352_802L,
-      "Culture" to -8_768_142_304_179_570_668L,
+      "Culture" to -8_209_338_368_902_614_911L,
       // Moved when `footprintRadius` was raised by `StreetParams.boundaryReachFactor`, so that a town could be a
       // shape rather than a disc without also becoming a smaller one. See `SettlementTier.footprintRadius`.
       "SettlementTier" to 4_668_433_068_619_246_677L,
@@ -230,11 +230,11 @@ class ParamsVersionTest {
       "ResourceParams" to -3_082_852_477_049_862_381L,
       "CaveParams" to -4_263_381_643_348_589_984L,
       "ManaParams" to -7_122_319_974_616_012_373L,
-      "HabitabilityParams" to -8_568_146_273_010_455_127L,
+      "HabitabilityParams" to 3_602_572_268_469_044_617L,
       // Moved when roads stopped being stamped against the kilometre raster: the stage now carries the
       // chunk tier's `detail` so it can decide a running surface against the ground a chunk builds, plus the
       // router's grade tunables and the road width variation. See `SettlementStage.sampleElevation`.
-      "SettlementParams" to -2_448_817_072_905_495_878L,
+      "SettlementParams" to -5_669_658_683_158_239_120L,
       "OrderInfluence" to 2_558_661_069_677_437_569L,
       "HistoryParams" to 2_362_190_350_999_628_922L,
       "CorruptionParams" to -8_182_278_140_807_375_004L,
@@ -242,11 +242,11 @@ class ParamsVersionTest {
       "VegetationStandParams" to -259_420_489_769_960_249L,
       // Both moved when a street's carriageway became a tunable: `StreetParams` gained `arterialWidth` and
       // `laneWidth`, which widened every street in every town, and `TownParams` holds it.
-      "TownParams" to 8_715_367_366_677_520_001L,
-      "StreetParams" to 38_255_955_856_683_110L,
+      "TownParams" to -4_837_098_585_527_303_003L,
+      "StreetParams" to -9_042_130_427_711_242_681L,
       "EconomyParams" to 6_863_789_847_631_252_411L,
       "PoiParams" to 9_183_715_732_977_741_057L,
-      "NavParams" to -286_509_641_931_752_055L,
+      "NavParams" to -3_747_794_165_664_176_836L,
       "DetailParams" to 5_837_136_561_326_550_610L,
       "StrataParams" to 5_360_263_422_566_259_310L,
       "DropletParams" to 8_150_952_456_997_203_313L,
@@ -255,7 +255,7 @@ class ParamsVersionTest {
       "GroundCoverParams" to 9_016_082_839_178_701_101L,
       // Re-pinned when `windVeerRadians` was added, so a region's wind could back and veer over time.
       "WeatherParams" to 874_725_757_913_884_383L,
-      "Culture" to 9_142_772_940_960_129_542L
+      "Culture" to -8_541_605_725_367_154_968L
     )
 
     assertEquals(

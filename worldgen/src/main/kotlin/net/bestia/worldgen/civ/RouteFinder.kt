@@ -109,24 +109,53 @@ class RouteFinder(
    */
   fun route(start: Int, goal: Int): Route? {
     if (start == goal) return Route(intArrayOf(start), 0.0)
-    if (start !in 0 until size || goal !in 0 until size) return null
+    if (goal !in 0 until size) return null
+
+    val goalX = goal % width
+    val goalY = goal / width
+    return search(start, { it == goal }) { x, y -> heuristic(x, y, goalX, goalY) }
+  }
+
+  /**
+   * The cheapest route from [start] to whichever of [goals] is nearest, or null when none is reachable.
+   *
+   * What a village's track needs: it joins the way that serves it wherever that way happens to pass, not at
+   * some town further along it.
+   *
+   * Searched without a heuristic - Dijkstra rather than A* - because an admissible estimate over a set of
+   * goals is the minimum over all of them, and evaluating that per expansion costs more than the guidance
+   * buys on searches this short. A village sits beside the way that serves it.
+   */
+  fun routeToAny(start: Int, goals: Set<Int>): Route? {
+    if (goals.isEmpty()) return null
+    if (start in goals) return Route(intArrayOf(start), 0.0)
+    return search(start, { it in goals }) { _, _ -> 0.0 }
+  }
+
+  /**
+   * The shared expansion. [estimate] must never over-estimate the remaining cost, or the route stops being
+   * the cheapest one.
+   */
+  private inline fun search(
+    start: Int,
+    isGoal: (Int) -> Boolean,
+    estimate: (x: Int, y: Int) -> Double
+  ): Route? {
+    if (start !in 0 until size) return null
 
     val best = DoubleArray(size) { Double.MAX_VALUE }
     val cameFrom = IntArray(size) { -1 }
     val closed = BooleanArray(size)
     val open = DoubleIntHeap(1024)
 
-    val goalX = goal % width
-    val goalY = goal / width
-
     best[start] = 0.0
-    open.push(heuristic(start % width, start / width, goalX, goalY), start)
+    open.push(estimate(start % width, start / width), start)
 
     var expanded = 0
     while (!open.isEmpty) {
       val current = open.pop()
       if (closed[current]) continue
-      if (current == goal) return reconstruct(cameFrom, start, goal, best[goal])
+      if (isGoal(current)) return reconstruct(cameFrom, start, current, best[current])
 
       closed[current] = true
       if (++expanded > expansionLimit) return null
@@ -153,7 +182,7 @@ class RouteFinder(
 
         best[neighbour] = tentative
         cameFrom[neighbour] = current
-        open.push(tentative + heuristic(nx, ny, goalX, goalY), neighbour)
+        open.push(tentative + estimate(nx, ny), neighbour)
       }
     }
 

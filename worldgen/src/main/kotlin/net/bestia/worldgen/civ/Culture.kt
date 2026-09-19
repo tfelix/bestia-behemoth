@@ -33,6 +33,15 @@ data class Culture(
   val layout: TownLayout = TownLayout.ORGANIC,
 
   /**
+   * The village form this culture builds where the ways leave it a choice.
+   *
+   * Separate from [layout] because the two answer different questions: a town's streets are laid out, and a
+   * village's are what was already there. A culture that charters its towns on a grid still builds whatever
+   * village its fields want.
+   */
+  val villageForm: VillageForm = VillageForm.LINEAR,
+
+  /**
    * Share of buildings walled in stone rather than timber, before wealth is taken into account.
    *
    * The single cheapest way to make two cultures' towns distinguishable from a hundred metres away,
@@ -86,6 +95,7 @@ data class Culture(
     .put("hazardAversion", hazardAversion)
     .put("citySeparation", citySeparation)
     .put("layout", layout)
+    .put("villageForm", villageForm)
     .put("stoneShare", stoneShare)
     .put("storeys", storeys)
     .put("craftBias", craftBias)
@@ -114,6 +124,8 @@ data class Culture(
       grazing = 0.2,
       hazardAversion = 0.7,
       layout = TownLayout.ORGANIC,
+      // Open-field farmers with stock to pen overnight, which is what a green is for.
+      villageForm = VillageForm.GREEN,
       stoneShare = 0.25,
       storeys = 1.4,
       craftBias = 1.0,
@@ -173,6 +185,8 @@ data class Culture(
       hazardAversion = 0.4,
       citySeparation = 90_000.0,
       layout = TownLayout.ORGANIC,
+      // Herders need somewhere to hold a flock before it moves on, and a green is that somewhere.
+      villageForm = VillageForm.GREEN,
       stoneShare = 0.10,
       storeys = 1.1,
       craftBias = 0.7,
@@ -201,6 +215,8 @@ data class Culture(
       hazardAversion = 0.3,
       citySeparation = 45_000.0,
       layout = TownLayout.ORGANIC,
+      // A valley village has one line of ground level enough to build on, and the way is already on it.
+      villageForm = VillageForm.LINEAR,
       stoneShare = 0.80,
       storeys = 1.7,
       craftBias = 2.0,

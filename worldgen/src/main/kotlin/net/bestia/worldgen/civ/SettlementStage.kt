@@ -576,9 +576,13 @@ class SettlementStage(
   /**
    * The trade network: which settlements are connected, by what route, and how busy it is.
    *
-   * Only cities and towns take part. Villages and hamlets are agricultural fill around them and are reached
-   * by tracks nobody surveys; connecting every hamlet would produce a road network with more mileage than
-   * the terrain, and none of it meaning anything.
+   * Only cities and towns take part in the *network*. Connecting every hamlet to every other would give a
+   * world more road mileage than terrain, and none of it meaning anything - the Gabriel graph is quadratic in
+   * what it is handed.
+   *
+   * A village still has to be reachable, so [buildTracks] adds one spur each afterwards: a lane from the
+   * village to the nearest way already laid. That is linear rather than quadratic, it is what a village
+   * actually had, and it is what `TownStage` lays the village's own street along.
    */
   private fun buildRoads(
     ctx: GenContext,
@@ -667,9 +671,14 @@ class SettlementStage(
       )
     }
 
+    // Cells the trunk network occupies, so a village's spur can aim at the nearest way rather than at a town.
+    val onTheWay = HashSet<Int>()
+
     for ((pair, route) in routes) {
       if (pair in lanes) continue
       if (route.length < 3) continue
+
+      for (cell in route.cells) onTheWay.add(cell)
 
       val points = route.cells.map { centreOf(region, it, metres) }
       val raw = runCatching { Polyline(points) }.getOrNull() ?: continue
@@ -683,6 +692,59 @@ class SettlementStage(
       for (crossing in crossings) {
         if (!crossing.bridgeable) continue
         out.add(bridgeMarker(nextId(), centerline, crossing, tier, ground))
+      }
+    }
+
+    out.addAll(buildTracks(region, sites, onTheWay, finder, submerged, rivers, ground, nextId))
+
+    return out
+  }
+
+  /**
+   * One track per village: a lane from it to the nearest way already laid.
+   *
+   * Aimed at the nearest *cell* of the network rather than at the nearest town, which is both what a village
+   * lane did and far the cheaper search - a village sits close to the way that serves it, so each of these is
+   * a short A* beside the trunk routes' long ones.
+   *
+   * Emitted at [RoadTier.TRACK] and through the same [roadFeature] as a highway, so a track is a way the
+   * chunk tier stamps, the nav graph routes over and `TownStage` can lay a village along. A village whose
+   * track cannot be found is left unconnected rather than given a straight line through a mountain.
+   */
+  private fun buildTracks(
+    region: CellRegion,
+    sites: List<Site>,
+    onTheWay: Set<Int>,
+    finder: RouteFinder,
+    submerged: BooleanArray,
+    rivers: List<PolylineFeature>,
+    ground: BaseHeightField,
+    nextId: () -> FeatureId
+  ): List<VectorFeature> {
+    if (onTheWay.isEmpty()) return emptyList()
+
+    val metres = region.resolution.metresPerCell
+    val offNetwork = sites.filter { it.tier == SettlementTier.VILLAGE || it.tier == SettlementTier.HAMLET }
+    if (offNetwork.isEmpty()) return emptyList()
+
+    val found = Parallel.map(offNetwork.size) { i ->
+      finder.routeToAny(offNetwork[i].cell, onTheWay)
+    }
+
+    val out = ArrayList<VectorFeature>()
+    for (route in found) {
+      if (route == null || route.length < 3) continue
+      if (route.cells.any { submerged[it] }) continue
+
+      val points = route.cells.map { centreOf(region, it, metres) }
+      val raw = runCatching { Polyline(points) }.getOrNull() ?: continue
+      val centerline = raw.chaikin(ROAD_SMOOTHING).resample(params.roadSpacing)
+
+      val crossings = riverCrossings(centerline, rivers)
+      out.add(roadFeature(nextId(), centerline, RoadTier.TRACK, ground, crossings))
+      for (crossing in crossings) {
+        if (!crossing.bridgeable) continue
+        out.add(bridgeMarker(nextId(), centerline, crossing, RoadTier.TRACK, ground))
       }
     }
 

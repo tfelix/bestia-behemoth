@@ -530,6 +530,17 @@ data class StreetParams(
   /** Deepest a grown street may go, in segments. */
   val maxDepth: Int = 9,
 
+  /**
+   * Share of a roadside village's street length that becomes building frontage.
+   *
+   * What decides how strung out a village is: the rest of the length goes to the gaps between houses, to the
+   * yards, and to the stretches a slope or a channel took. See [RoadsideVillage].
+   */
+  val roadsidePacking: Double = 0.45,
+
+  /** Share of a roadside village's street length that is the road through it rather than a lane off it. */
+  val roadsideSpineShare: Double = 0.68,
+
   /** Full carriageway of a rank-0 street - the arteries out of the market - in metres. */
   val arterialWidth: Double = 12.0,
 
@@ -579,6 +590,14 @@ data class StreetParams(
       "boundaryAspectJitter $boundaryAspectJitter must keep aspect $boundaryAspect above 1 at its low end"
     }
     require(maxDepth >= 1) { "maxDepth must be at least 1, was $maxDepth" }
+    // At or above one every metre of street is frontage, which leaves no gap between two houses.
+    require(roadsidePacking > 0.0 && roadsidePacking < 1.0) {
+      "roadsidePacking must be in (0,1), was $roadsidePacking"
+    }
+    // At one a village is a single street with no lane off it, which is what the spine already is.
+    require(roadsideSpineShare > 0.0 && roadsideSpineShare < 1.0) {
+      "roadsideSpineShare must be in (0,1), was $roadsideSpineShare"
+    }
   }
 
   /**
@@ -638,6 +657,8 @@ data class StreetParams(
     boundaryAspect = source.double("boundaryAspect", boundaryAspect),
     boundaryAspectJitter = source.double("boundaryAspectJitter", boundaryAspectJitter),
     maxDepth = source.int("maxDepth", maxDepth),
+    roadsidePacking = source.double("roadsidePacking", roadsidePacking),
+    roadsideSpineShare = source.double("roadsideSpineShare", roadsideSpineShare),
     arterialWidth = source.double("arterialWidth", arterialWidth),
     laneWidth = source.double("laneWidth", laneWidth)
   )
@@ -658,6 +679,8 @@ data class StreetParams(
     .put("boundaryAspect", boundaryAspect)
     .put("boundaryAspectJitter", boundaryAspectJitter)
     .put("maxDepth", maxDepth)
+    .put("roadsidePacking", roadsidePacking)
+    .put("roadsideSpineShare", roadsideSpineShare)
     .put("arterialWidth", arterialWidth)
     .put("laneWidth", laneWidth)
 
@@ -689,11 +712,21 @@ internal object StreetPlanner {
     /** Keyed roll, `(salt...) -> [0,1)`. Never a stream: see [net.bestia.worldgen.history.HistorySim]. */
     roll: (Long, Long) -> Double,
     params: StreetParams = StreetParams(),
-    extra: List<StreetSegment> = emptyList()
+    extra: List<StreetSegment> = emptyList(),
+    /**
+     * Whether to grow a network for [layout] at all.
+     *
+     * False for a settlement whose streets are entirely [extra] - a [RoadsideVillage], whose spine is the
+     * region's own road and so cannot be grown from a centre. It still comes through here rather than being
+     * planarised on its own, because the filters and the welding below are what every other producer's
+     * segments get and a second path would be a second set of rules.
+     */
+    grow: Boolean = true
   ): StreetGraph {
-    val raw = when (layout) {
-      TownLayout.ORGANIC -> organic(frame, roll, params)
-      TownLayout.GRID -> grid(frame, roll, params)
+    val raw = when {
+      !grow -> emptyList()
+      layout == TownLayout.GRID -> grid(frame, roll, params)
+      else -> organic(frame, roll, params)
     }
 
     return planarise((raw + extra).filter { inside(frame, it) && passable(frame, it) })
@@ -763,7 +796,7 @@ internal object StreetPlanner {
 
       val salt = growth.salt * 31 + stepCounter++
       val wander = (roll(salt, WANDER_SALT) - 0.5) * 2.0 * params.angleJitter
-      val heading = rotate(growth.heading, wander * (1 + growth.rank))
+      val heading = growth.heading.rotated(wander * (1 + growth.rank))
       val step = params.segmentLength * (if (growth.rank == 0) 1.0 else 0.8)
       var end = growth.from + heading * step
 
@@ -785,7 +818,7 @@ internal object StreetPlanner {
 
       if (roll(salt, BRANCH_SALT) < params.branchChance && growth.rank < 2) {
         val side = if (roll(salt, SIDE_SALT) < 0.5) 1.0 else -1.0
-        val turned = rotate(heading, side * (PI / 2 + (roll(salt, TURN_SALT) - 0.5) * 0.5))
+        val turned = heading.rotated(side * (PI / 2 + (roll(salt, TURN_SALT) - 0.5) * 0.5))
         frontier.addLast(Growth(end, turned, growth.rank + 1, growth.depth + 2, salt))
       }
     }
@@ -1180,11 +1213,6 @@ internal object StreetPlanner {
 
 
 
-  private fun rotate(v: Vec2d, radians: Double): Vec2d {
-    val c = cos(radians)
-    val s = sin(radians)
-    return Vec2d(v.x * c - v.y * s, v.x * s + v.y * c)
-  }
 }
 
 /**
@@ -1277,7 +1305,10 @@ internal object LotPlanner {
      * the core: a quarter laid out as a park, with eighty per cent of its plots deliberately left as green, came
      * back with fifty buildings in it and every quarter's grain was overwritten by an even row of street frontage.
      */
-    skip: (Vec2d) -> Boolean = { false }
+    skip: (Vec2d) -> Boolean = { false },
+    rhythm: LotRhythm = LotRhythm.SURVEYED,
+    /** Keyed roll for [rhythm]. The constant default is exactly the unjittered layout, whatever the rhythm. */
+    roll: (Long, Long) -> Double = { _, _ -> 0.0 }
   ): List<Lot> {
     val out = ArrayList<Lot>()
 
@@ -1294,19 +1325,21 @@ internal object LotPlanner {
 
     // Highest-rank streets first, so the high street gets its frontage before a lane can take a bite out of
     // it. Without the ordering a rank-3 back lane laid earlier would block the plots on the main street.
+    var plot = 0L
     for ((chain, rank) in graph.chains().sortedBy { it.second }) {
-      val setback = setbackFor(rank)
+      val kerb = setbackFor(rank)
       // Inside the loop, because the reach is what stops a plot growing over the street behind it and both
-      // terms of it are now this street's own.
-      val reach = setback + depth
+      // terms of it are now this street's own. Taken at the furthest a jittered setback can put a plot.
+      val reach = kerb * (1.0 + rhythm.setbackJitter) + depth
       var s = 0.0
       while (s + frontage <= chain.length) {
         val middle = s + frontage * 0.5
         val at = chain.pointAt(middle)
         val along = chain.tangentAt(middle)
-        s += frontage
+        s += frontage * (1.0 + roll(plot, SPACING_SALT) * rhythm.spacingJitter)
 
         for (side in SIDES) {
+          val setback = kerb * (1.0 + roll(plot++, SETBACK_SALT) * rhythm.setbackJitter)
           val inwards = along.perpendicular() * side
           val centre = at + inwards * (setback + depth * 0.5)
 
@@ -1424,6 +1457,9 @@ internal object LotPlanner {
 
   private val SIDES = doubleArrayOf(1.0, -1.0)
   private val SIGNS = doubleArrayOf(-1.0, 1.0)
+
+  private const val SPACING_SALT = 0x65L
+  private const val SETBACK_SALT = 0x66L
 
   /**
    * Fraction of its frontage a plot's building actually occupies, leaving a gap between neighbours.

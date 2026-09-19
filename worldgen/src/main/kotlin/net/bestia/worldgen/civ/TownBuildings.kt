@@ -4,6 +4,8 @@ import net.bestia.worldgen.vector.Vec2d
 import net.bestia.worldgen.voxel.BlockType
 import kotlin.math.abs
 import kotlin.math.atan2
+import kotlin.math.cos
+import kotlin.math.sin
 
 /**
  * What a building is for.
@@ -118,7 +120,8 @@ internal class Zoning(
   private val downwind: Vec2d,
   /** Direction water flows. Tanning and dyeing go this way, so the mess leaves too. */
   private val downstream: Vec2d,
-  private val roll: (Long, Long) -> Double
+  private val roll: (Long, Long) -> Double,
+  private val rhythm: LotRhythm = LotRhythm.SURVEYED
 ) {
 
   fun valueOf(lot: Lot): Double {
@@ -268,7 +271,10 @@ internal class Zoning(
         function == BuildingFunction.CIVIC || function == BuildingFunction.WAREHOUSE
 
     val alongStreet = lot.inwards.perpendicular()
-    val bearing = if (broadFront) alongStreet else lot.inwards
+    // Off square by the settlement's own rhythm. A civic front is not: the one building in a village that was
+    // set out with a line is the one everybody had to agree on.
+    val skew = if (broadFront) 0.0 else (roll(index.toLong(), SKEW_SALT) - 0.5) * 2.0 * rhythm.bearingJitter
+    val bearing = (if (broadFront) alongStreet else lot.inwards).rotated(skew)
 
     // Applied to the plot's own axes, *before* the broad-front swap below. Getting that order wrong puts a
     // temple's along-the-street multiplier onto its depth, which is the one direction it does not want.
@@ -386,6 +392,7 @@ internal class Zoning(
     const val STONE_SALT = 0x42L
     const val ROOF_SALT = 0x43L
     const val GRAMMAR_SALT = 0x44L
+    const val SKEW_SALT = 0x45L
   }
 }
 

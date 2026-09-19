@@ -327,7 +327,8 @@ class TownStage(
   // and `RoofMaterial` ordinals, because the building itself stopped being blocks.
   // 3: block-cut plots go through the plot-overlap index and a minimum size, so a core plot can no longer be
   // laid on top of its neighbour or come out too small to build on.
-  override val version = 3
+  // 4: a village is laid along the way through it rather than grown from its middle - see `RoadsideVillage`.
+  override val version = 4
 
   override val paramsVersion get() = GenRng.hash(params.digest().value, Culture.catalogueDigest(), SettlementTier.catalogueDigest())
   /**
@@ -374,7 +375,7 @@ class TownStage(
      */
     val perTown = Timings.measure("towns.layOut") {
       Parallel.map(towns.size) { i ->
-        layOut(towns[i], world, ctx.config, streamBase, FeatureIds.blockAllocator(id, i))
+        layOut(towns[i], towns, world, ctx.config, streamBase, FeatureIds.blockAllocator(id, i))
       }
     }
 
@@ -388,31 +389,66 @@ class TownStage(
   /** Everything one settlement contributes: its streets, its buildings, and its walls if it has any. */
   private fun layOut(
     town: TownReader.Town,
+    /** Every settlement in the world, so a village can aim its track at the nearest place worth walking to. */
+    towns: List<TownReader.Town>,
     world: WorldGround,
     config: WorldConfig,
     streamBase: Long,
     nextId: () -> FeatureId
   ): List<VectorFeature> {
     val roll = townRoll(streamBase, town.index)
-    val builtRadius = builtRadiusFor(town.population, town.tier)
-    if (builtRadius < params.streets.segmentLength) return emptyList()
+    val discRadius = builtRadiusFor(town.population, town.tier)
+    if (discRadius < params.streets.segmentLength) return emptyList()
 
-    // One per town, because a FeatureEvaluator is not thread-safe and this runs on every core.
-    val grading = world.around(town, builtRadius)
+    // The population the layout is actually sized for; the same clamp `builtRadiusFor` applies, and the input to
+    // how many patches the core wants.
+    val housedBuildings = min(
+      params.maxBuildingsPerSettlement,
+      max(1, (town.population / params.peoplePerBuilding).toInt())
+    )
 
-    val approaches = world.approachesTo(town, builtRadius)
+    // Sized from the disc radius rather than from the village's own, which does not exist yet. The two are
+    // equal for every settlement that is not a village, and a village's grown layout never runs.
+    val approaches = world.approachesTo(town, discRadius)
 
     // What the town is strung out along, in the order a place actually grows: the water it crosses, then the
     // road it grew beside, then - for the settlement that has neither - a rolled bearing, because a town with no
     // reason to face one way still has no reason to be a circle.
-    val axis = world.riverAxisAt(town.position, builtRadius)
+    val axis = world.riverAxisAt(town.position, discRadius)
       ?: approaches.firstOrNull()
       ?: (roll(0L, AXIS_SALT) * PI).let { Vec2d(cos(it), sin(it)) }
+
+    // A village is laid along the way through it rather than grown from its middle, and that layout decides
+    // its own extent - so it has to be built before the frame the rest of the stage hangs off.
+    val village = if (town.tier >= SettlementTier.VILLAGE) {
+      val bound = usableRadiusFor(town.tier)
+      RoadsideVillage.of(
+        centre = town.position,
+        bound = bound,
+        buildings = housedBuildings,
+        roads = world.roadsNear(town.position, bound),
+        track = trackThrough(town, towns, bound, axis),
+        wanted = town.culture.villageForm,
+        buildable = { world.buildable(it) },
+        roll = roll,
+        params = params
+      )
+    } else {
+      null
+    }
+
+    val builtRadius = village?.reach ?: discRadius
+
+    // A village's frontage grew and a town's was surveyed, so only the roadside layout gets the ragged one.
+    val rhythm = if (village != null) LotRhythm.RURAL else LotRhythm.SURVEYED
+
+    // One per town, because a FeatureEvaluator is not thread-safe and this runs on every core.
+    val grading = world.around(town, builtRadius)
 
     val frame = TownFrame(
       centre = town.position,
       builtRadius = builtRadius,
-      boundary = TownBoundary.of(
+      boundary = village?.boundary ?: TownBoundary.of(
         centre = town.position,
         builtRadius = builtRadius,
         axis = axis,
@@ -425,16 +461,13 @@ class TownStage(
       approaches = approaches
     )
 
-    // The population the layout is actually sized for; the same clamp `builtRadiusFor` applies, and the input to
-    // how many patches the core wants.
-    val housedBuildings = min(
-      params.maxBuildingsPerSettlement,
-      max(1, (town.population / params.peoplePerBuilding).toInt())
-    )
-
     // A patched core, for the settlements big enough to have quarters. Below `TOWN` a settlement is one to three
     // patches across, so a partition of it is a partition of nothing - and the grown streets it already had are
     // what a village looks like anyway.
+    //
+    // Extending this to villages was measured and is not a gate flip: their grown streets cross the patches, so
+    // `blockedByStreet` drops most of the core's plots and three villages went from 81/105/83 buildings to
+    // 75/70/75 on more street. The core has to be laid where the grown streets are not before it can come down.
     val patches = if (town.tier <= SettlementTier.TOWN) {
       TownPatches.of(
         frame = frame,
@@ -467,7 +500,8 @@ class TownStage(
     // two graphs would let a suburb plot grow through a core street.
     val graph = StreetPlanner.plan(
       frame, town.culture.layout, roll, params.streets,
-      extra = coreStreets(patches, quarters)
+      extra = coreStreets(patches, quarters) + (village?.segments ?: emptyList()),
+      grow = village == null
     )
     if (graph.edges.isEmpty()) return emptyList()
 
@@ -517,9 +551,14 @@ class TownStage(
       graph, frame, params.lotFrontage, params.lotDepth, params::setbackFor,
       params.streets::halfWidthOfRank,
       distance = distance, already = coreLots,
-      // The core belongs to the blocks. Tested against the patches themselves rather than against the core outline,
-      // so that ground a patch lost to a river or to a slope is still available to the suburbs.
-      skip = { at -> patches.any { ConvexPolygons.contains(it.polygon, at) } }
+      // The core belongs to the blocks, and a green belongs to nobody. Tested against the patches themselves
+      // rather than against the core outline, so that ground a patch lost to a river or to a slope is still
+      // available to the suburbs.
+      skip = { at ->
+        patches.any { ConvexPolygons.contains(it.polygon, at) } || village?.onTheGreen(at) == true
+      },
+      rhythm = rhythm,
+      roll = roll
     )
     if (lots.isEmpty()) return emptyList()
 
@@ -531,7 +570,8 @@ class TownStage(
       coastal = town.coastal,
       downwind = world.downwindAt(town.position, config),
       downstream = world.downstreamAt(town.position),
-      roll = roll
+      roll = roll,
+      rhythm = rhythm
     )
 
     // Wanted, then capped. Descending land value, so what a cap drops is the outer residential ring and
@@ -577,6 +617,10 @@ class TownStage(
       out.addAll(
         Districts.ofPatches(patches, quarters, placed, town.index, town.nameSeed, town.cultureIndex, nextId)
       )
+    }
+
+    village?.green?.let { green ->
+      Districts.ofGreen(green, town.index, town.nameSeed, town.cultureIndex, nextId)?.let { out.add(it) }
     }
 
     if (town.wallYear != 0) {
@@ -668,13 +712,48 @@ class TownStage(
     val radius = sqrt(max(hectares, 0.05) * SQUARE_METRES_PER_HECTARE / PI) *
         params.streets.boundaryReachFactor
 
-    // Floored above zero so a hamlet on a tight footprint still gets one ring of streets rather than none.
-    // The *widest* street's setback, because the claim this reservation makes is about every lot, not the
-    // average one - and the lots on an artery reach furthest.
-    val usable = (tier.footprintRadius * FOOTPRINT_SHARE - (params.setbackFor(0) + params.lotDepth))
-      .coerceAtLeast(tier.footprintRadius * MIN_BUILT_SHARE)
+    return min(radius, usableRadiusFor(tier))
+  }
 
-    return min(radius, usable)
+  /**
+   * The way through a settlement no road reaches.
+   *
+   * `SettlementStage.buildRoads` puts only cities and towns on the road network, because a village is
+   * "reached by tracks nobody surveys" - so a village's high street is one of those tracks, and the bearing it
+   * runs on is the bearing of the market it feeds. Straight through rather than stopping at the settlement,
+   * because a place people pass through is what puts houses on both sides of a way.
+   */
+  private fun trackThrough(
+    town: TownReader.Town,
+    towns: List<TownReader.Town>,
+    reach: Double,
+    /** Where the track runs when this is the only settlement there is. */
+    fallback: Vec2d
+  ): Polyline {
+    // The nearest larger place, not the largest: a village feeds the market it can walk to. A lower tier
+    // ordinal is a larger place. Where there is none, any neighbour will do - a track to the next village is
+    // still a track to somewhere.
+    val others = towns.filter { it.index != town.index }
+    val target = others.filter { it.tier < town.tier }.ifEmpty { others }
+      .minByOrNull { it.position.distanceSquaredTo(town.position) }
+
+    val axis = target?.let { (it.position - town.position).normalized() }
+      ?.takeIf { it.lengthSquared > 0.5 }
+      ?: fallback
+
+    return Polyline(listOf(town.position - axis * reach, town.position + axis * reach))
+  }
+
+  /**
+   * Furthest from its centre a settlement may put a street, so every lot stays inside the graded footprint.
+   *
+   * Floored above zero so a hamlet on a tight footprint still gets one ring of streets rather than none. The
+   * *widest* street's setback, because the claim this reservation makes is about every lot, not the average
+   * one - and the lots on an artery reach furthest.
+   */
+  private fun usableRadiusFor(tier: SettlementTier): Double {
+    return (tier.footprintRadius * FOOTPRINT_SHARE - (params.setbackFor(0) + params.lotDepth))
+      .coerceAtLeast(tier.footprintRadius * MIN_BUILT_SHARE)
   }
 
   // --- The patched core ------------------------------------------------------------------------------
@@ -1774,6 +1853,16 @@ internal class WorldGround(
    * plot and not enough for a block: a patch that straddles the water is one quarter on paper and two on the
    * ground. See `TownPatches.cutAtChannels`.
    */
+  /**
+   * Road centrelines passing near a settlement, so a village can be laid along one.
+   *
+   * The geometry rather than [approachesTo]'s bearings: a village's high street *is* the road, and a bearing
+   * cannot say where the road bends.
+   */
+  fun roadsNear(at: Vec2d, reach: Double): List<Polyline> = roads
+    .filter { it.bbox.expanded(reach).contains(at.x, at.y) && it.centerline.project(at).distance <= reach }
+    .map { it.centerline }
+
   fun channelsNear(at: Vec2d, reach: Double): List<Polyline> = rivers
     .filter { it.bbox.expanded(reach).contains(at.x, at.y) && it.centerline.project(at).distance <= reach }
     .map { it.centerline }

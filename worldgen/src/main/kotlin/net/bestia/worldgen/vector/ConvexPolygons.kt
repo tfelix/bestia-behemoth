@@ -312,6 +312,41 @@ internal object ConvexPolygons {
     polygon.maxOfOrNull { it.distanceTo(centre) } ?: 0.0
 
   /**
+   * The counter-clockwise convex hull of [points], by Andrew's monotone chain.
+   *
+   * Fewer than three distinct points have no hull and come back as the empty list, which every consumer here
+   * already treats as "no polygon" - the same answer [inset] gives when it clips everything away.
+   */
+  fun hullOf(points: List<Vec2d>): List<Vec2d> {
+    val sorted = points.distinctBy { Quantize.toFixed(it.x) to Quantize.toFixed(it.y) }
+      .sortedWith(compareBy({ it.x }, { it.y }))
+    if (sorted.size < 3) return emptyList()
+
+    // A point is on the hull while it keeps the chain turning left; the lower chain then the upper one, each
+    // dropping the points a new arrival makes concave.
+    fun chain(source: List<Vec2d>): MutableList<Vec2d> {
+      val out = ArrayList<Vec2d>(source.size)
+      for (p in source) {
+        while (out.size >= 2) {
+          val b = out[out.size - 1]
+          val a = out[out.size - 2]
+          if ((b - a) cross (p - a) > 0.0) break
+          out.removeAt(out.size - 1)
+        }
+        out.add(p)
+      }
+      return out
+    }
+
+    val lower = chain(sorted)
+    val upper = chain(sorted.asReversed())
+    // Both chains repeat the two extreme points, so each drops its last.
+    val hull = lower.subList(0, lower.size - 1) + upper.subList(0, upper.size - 1)
+
+    return if (hull.size >= 3) hull else emptyList()
+  }
+
+  /**
    * Whether a point is inside a counter-clockwise convex polygon.
    *
    * Every edge cross product on the same side, which is O(n) with no ray casting and no parity. [Ring.contains]

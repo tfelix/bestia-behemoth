@@ -204,6 +204,39 @@ internal object Districts {
     return out
   }
 
+  /**
+   * A village's common, as a district.
+   *
+   * Emitted so the green is a place the world can see rather than a hole the lot planner was told to skip:
+   * the viewer draws it, and anything asking what is at a position gets an answer other than "nothing".
+   * [DistrictKind.PARK] rather than a kind of its own - its own KDoc already describes exactly this.
+   */
+  fun ofGreen(
+    green: List<Vec2d>,
+    settlement: Int,
+    settlementNameSeed: Long,
+    cultureIndex: Int,
+    nextId: () -> FeatureId
+  ): VectorFeature? {
+    if (green.size < 3) return null
+    val ring = runCatching { Ring(simplify(green, Ring.MAX_VERTICES)) }.getOrNull() ?: return null
+
+    return AreaFeature(
+      id = nextId(),
+      kind = FeatureKind.DISTRICT,
+      ring = ring,
+      profile = null,
+      perimeter = StationTable.Builder(ring.vertexCount, periodic = true)
+        .channel(DistrictChannels.SETTLEMENT) { settlement.toDouble() }
+        .channel(DistrictChannels.KIND) { DistrictKind.PARK.ordinal.toDouble() }
+        .channel(DistrictChannels.BUILDINGS) { 0.0 }
+        .channel(DistrictChannels.NAME_SEED) {
+          distinctNameSeed(settlementNameSeed, 0, DistrictKind.PARK, cultureIndex, HashSet()).toDouble()
+        }
+        .build()
+    )
+  }
+
   fun of(
     buildings: List<Building>,
     settlement: Int,
