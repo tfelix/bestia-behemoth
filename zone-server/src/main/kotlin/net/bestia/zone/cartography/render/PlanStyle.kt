@@ -61,6 +61,9 @@ class PlanStyle(
 
       val features = inputs.featuresIn(view.bounds.expanded(view.metresPerPixel * MARGIN_PIXELS))
 
+      // Under everything: worked ground is what a settlement sits in, so anything drawn over it - a road
+      // through the fields, a district that reaches into them - stays legible.
+      fields(g, view, features)
       districts(g, view, features)
       WaterInk.draw(g, view, inputs, palette.water, palette.waterEdge)
       streets(g, view, features)
@@ -85,6 +88,32 @@ class PlanStyle(
           terrain.shore[t] > 0.0 -> palette.water
           else -> Colors.mix(palette.ground, terrain.landTone[t], GROUND_BIOME_SHARE)
         }
+      }
+    }
+  }
+
+  /**
+   * Worked ground, filled and hedged.
+   *
+   * The furrow bearing each field carries is deliberately not drawn: at the zoom a plan shows a settlement at,
+   * a furrow is well under a pixel, and hatching one in would be texture standing for a direction rather than
+   * the direction itself. The bearing is there for the chunk tier, which draws the ground a player walks on.
+   */
+  private fun fields(g: Graphics2D, view: Viewport, features: List<VectorFeature>) {
+    val hedge = (HEDGE_METRES / view.metresPerPixel).toFloat()
+
+    for (feature in features) {
+      if (feature.kind != FeatureKind.FIELD || feature !is AreaFeature) continue
+      if (!MapVisibility.draws(feature.kind, view.metresPerPixel)) continue
+
+      val path = ringPath(view, feature)
+      g.color = WaterInk.rgba(palette.field, FIELD_ALPHA)
+      g.fill(path)
+
+      if (hedge >= MIN_HEDGE_PIXELS) {
+        g.color = WaterInk.rgba(palette.fieldEdge, FIELD_EDGE_ALPHA)
+        g.stroke = BasicStroke(hedge, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND)
+        g.draw(path)
       }
     }
   }
@@ -235,6 +264,14 @@ class PlanStyle(
 
     /** How much of the biome tint reaches a plan's open ground. Low: a plan is not a land-cover map. */
     private const val GROUND_BIOME_SHARE = 0.45
+
+    /** Softer than a district, so a field reads as ground rather than as another quarter. */
+    private const val FIELD_ALPHA = 0.62
+    private const val FIELD_EDGE_ALPHA = 0.5
+
+    /** A hedge is a real width on the ground, so it thins out with the zoom rather than holding a pixel. */
+    private const val HEDGE_METRES = 2.5
+    private const val MIN_HEDGE_PIXELS = 0.6f
 
     private const val DISTRICT_ALPHA = 0.85
     private const val ROOF_ALPHA = 0.95

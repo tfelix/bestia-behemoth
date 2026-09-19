@@ -629,6 +629,9 @@ class MapRenderer(
       FeatureKind.SEA_LANE -> Color(255, 225, 175)
       FeatureKind.BRIDGE -> Color(255, 130, 60)
       FeatureKind.SETTLEMENT_GRADING -> Color(255, 140, 140)
+      // Ploughed earth, and dull on purpose: fields cover more of a settlement's ground than anything else
+      // here, so a bright one would be all a reader could see of the town standing in it.
+      FeatureKind.FIELD -> Color(150, 122, 96)
       FeatureKind.SETTLEMENT -> Color(255, 60, 60)
       FeatureKind.SETTLEMENT_HISTORY -> Color(190, 80, 80)
       FeatureKind.SETTLEMENT_ECONOMY -> Color(90, 200, 180)

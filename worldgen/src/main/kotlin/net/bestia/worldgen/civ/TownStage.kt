@@ -329,7 +329,8 @@ class TownStage(
   // laid on top of its neighbour or come out too small to build on.
   // 4: a village is laid along the way through it rather than grown from its middle - see `RoadsideVillage`.
   // 5: a plot station that places nothing slides on rather than stepping a whole frontage past the blockage.
-  override val version = 5
+  // 6: a settlement emits the fields it works - see `TownFields`.
+  override val version = 6
 
   override val paramsVersion get() = GenRng.hash(params.digest().value, Culture.catalogueDigest(), SettlementTier.catalogueDigest())
   /**
@@ -351,7 +352,8 @@ class TownStage(
     StageOutput.Vector(FeatureKind.BUILDING),
     StageOutput.Vector(FeatureKind.DISTRICT),
     StageOutput.Vector(FeatureKind.TOWN_WALL),
-    StageOutput.Vector(FeatureKind.GATE)
+    StageOutput.Vector(FeatureKind.GATE),
+    StageOutput.Vector(FeatureKind.FIELD)
   )
 
   override fun generate(ctx: GenContext, region: CellRegion): StageResult {
@@ -623,6 +625,22 @@ class TownStage(
     village?.green?.let { green ->
       Districts.ofGreen(green, town.index, town.nameSeed, town.cultureIndex, nextId)?.let { out.add(it) }
     }
+
+    // The ground the settlement eats off, which covers several times what it stands on. Last, because it is
+    // the only thing here laid *outside* the built edge and it wants the finished outline to stay clear of.
+    val fieldReach = TownFields.reachFor(builtRadius)
+    out.addAll(
+      TownFields.of(
+        frame = frame,
+        built = frame.boundary,
+        reach = fieldReach,
+        wanted = TownFields.countFor(placed.size),
+        channels = world.channelsNear(town.position, fieldReach),
+        settlement = town.index,
+        roll = roll,
+        nextId = nextId
+      )
+    )
 
     if (town.wallYear != 0) {
       out.addAll(fortify(town, frame, graph, world, grading, streamBase, nextId))

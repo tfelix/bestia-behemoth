@@ -102,6 +102,10 @@ enum class MapVisibility(
       FeatureKind.MINE -> PLACE
       FeatureKind.ROADSIDE_INN -> LANDMARK
 
+      // Coarser than the streets it surrounds: a field is hectares, so it is legible - and worth drawing -
+      // at a zoom where a house is under a pixel.
+      FeatureKind.FIELD -> PLACE
+
       FeatureKind.STREET -> TOWN_DETAIL
       FeatureKind.BUILDING -> TOWN_DETAIL
       FeatureKind.DISTRICT -> TOWN_DETAIL

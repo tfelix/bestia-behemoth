@@ -166,6 +166,20 @@ enum class FeatureKind(val defaultPriority: Int) {
   SETTLEMENT_GRADING(600),
 
   /**
+   * One worked field: the ground a settlement feeds itself off, and which way it is ploughed.
+   *
+   * Geometry and attributes only - a field is a *use* of ground rather than a shape of it, so nothing here
+   * moves the surface and the priority is inert. What it carries that the ground cannot is the furrow
+   * bearing, which is the difference between a green patch and a field anybody would recognise.
+   *
+   * Outside the built edge by construction, and it may reach well past its settlement's footprint: a village
+   * of ninety people works far more ground than it stands on, which is the whole reason a village is where it
+   * is. That is safe where a site marker's radius is not, because an [AreaFeature] carries a real ring and is
+   * found by its own bounds rather than by a margin around a point.
+   */
+  FIELD(610),
+
+  /**
    * The settlement itself: where it is, how big, what tier. Carries no terrain effect - the grading that
    * flattens the ground under it is a separate feature, so that "there is a town here" and "the ground
    * here is level" can be reasoned about, cached and versioned independently.

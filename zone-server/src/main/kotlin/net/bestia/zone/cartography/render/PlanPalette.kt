@@ -38,6 +38,10 @@ class PlanPalette(
   /** Woodland and parks. */
   val green: Int,
 
+  /** Worked ground: ploughland, and the hedge line around it. */
+  val field: Int,
+  val fieldEdge: Int,
+
   /** Label ink. */
   val ink: Int
 ) {
@@ -74,6 +78,10 @@ class PlanPalette(
       outline = Colors.rgb(54, 58, 70),
       wall = Colors.rgb(44, 46, 54),
       green = Colors.rgb(126, 148, 112),
+      // Between the open-country tone and the built quarters, because that is what worked ground is: a
+      // field has to read as used without competing with the town standing in the middle of it.
+      field = Colors.rgb(196, 186, 156),
+      fieldEdge = Colors.rgb(158, 152, 126),
       ink = Colors.rgb(124, 40, 40)
     )
   }
