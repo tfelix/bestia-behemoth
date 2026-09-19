@@ -1336,10 +1336,11 @@ internal object LotPlanner {
         val middle = s + frontage * 0.5
         val at = chain.pointAt(middle)
         val along = chain.tangentAt(middle)
-        s += frontage * (1.0 + roll(plot, SPACING_SALT) * rhythm.spacingJitter)
+        var took = false
 
-        for (side in SIDES) {
-          val setback = kerb * (1.0 + roll(plot++, SETBACK_SALT) * rhythm.setbackJitter)
+        for ((face, side) in SIDES.withIndex()) {
+          // Per side, so the two rows along a street are not each other's mirror image.
+          val setback = kerb * (1.0 + roll(plot, SETBACK_SALT + face) * rhythm.setbackJitter)
           val inwards = along.perpendicular() * side
           val centre = at + inwards * (setback + depth * 0.5)
 
@@ -1363,7 +1364,18 @@ internal object LotPlanner {
 
           placed.add(lot)
           out.add(lot)
+          took = true
         }
+
+        // A station that placed nothing has not used any frontage, so stepping a whole plot past it throws
+        // away street that was only blocked at that exact point - a junction, a channel, the corner of a
+        // block plot. Sliding on instead is what lets the gap either side of an obstacle still be built on.
+        s += if (took) {
+          frontage * (1.0 + roll(plot, SPACING_SALT) * rhythm.spacingJitter)
+        } else {
+          frontage * RETRY_STEP
+        }
+        plot++
       }
     }
 
@@ -1459,7 +1471,16 @@ internal object LotPlanner {
   private val SIGNS = doubleArrayOf(-1.0, 1.0)
 
   private const val SPACING_SALT = 0x65L
-  private const val SETBACK_SALT = 0x66L
+
+  /** Takes the next id too, one per side of the street. */
+  private const val SETBACK_SALT = 0x68L
+
+  /**
+   * How far along the street a station that placed nothing slides before trying again, as a share of a
+   * frontage. Small enough to find the gap beside an obstacle, large enough that a blocked chain is walked
+   * in a bounded number of steps rather than crawled.
+   */
+  private const val RETRY_STEP = 0.34
 
   /**
    * Fraction of its frontage a plot's building actually occupies, leaving a gap between neighbours.

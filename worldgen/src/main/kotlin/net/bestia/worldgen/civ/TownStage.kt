@@ -328,7 +328,8 @@ class TownStage(
   // 3: block-cut plots go through the plot-overlap index and a minimum size, so a core plot can no longer be
   // laid on top of its neighbour or come out too small to build on.
   // 4: a village is laid along the way through it rather than grown from its middle - see `RoadsideVillage`.
-  override val version = 4
+  // 5: a plot station that places nothing slides on rather than stepping a whole frontage past the blockage.
+  override val version = 5
 
   override val paramsVersion get() = GenRng.hash(params.digest().value, Culture.catalogueDigest(), SettlementTier.catalogueDigest())
   /**

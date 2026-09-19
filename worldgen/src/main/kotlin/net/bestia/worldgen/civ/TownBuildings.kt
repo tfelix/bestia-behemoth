@@ -241,6 +241,27 @@ internal class Zoning(
    * separates *plots*, and nothing downstream would catch a building that had grown out of its own. Anything
    * genuinely larger has to get a larger plot instead - see the grand-plot pass in `TownStage`.
    */
+  /**
+   * How much a building has to give up to stand off square and still fit its plot.
+   *
+   * One when it is square to the street, which is every building in a surveyed town - so this costs nothing
+   * where nothing is skewed.
+   */
+  private fun skewFit(lot: Lot, size: Pair<Double, Double>, skew: Double): Double {
+    if (skew == 0.0) return 1.0
+
+    val along = lot.halfFrontage * Building.FOOTPRINT_FILL * size.first
+    val into = lot.halfDepth * Building.FOOTPRINT_FILL * size.second
+    val c = abs(cos(skew))
+    val s = abs(sin(skew))
+
+    return minOf(
+      lot.halfFrontage / (along * c + into * s),
+      lot.halfDepth / (along * s + into * c),
+      1.0
+    )
+  }
+
   private fun footprintFor(function: BuildingFunction): Pair<Double, Double> = when (function) {
     // A cottage is the reference: full plot, ordinary yard behind it.
     BuildingFunction.RESIDENCE -> 1.0 to 1.0
@@ -279,8 +300,12 @@ internal class Zoning(
     // Applied to the plot's own axes, *before* the broad-front swap below. Getting that order wrong puts a
     // temple's along-the-street multiplier onto its depth, which is the one direction it does not want.
     val size = footprintFor(function)
-    val frontage = lot.halfFrontage * Building.FOOTPRINT_FILL * size.first
-    val depth = lot.halfDepth * Building.FOOTPRINT_FILL * size.second
+    // Shrunk to what still fits the plot once turned. A rotated rectangle projects wider than the box it was
+    // cut from, and the plot index only ever promised that the *plots* do not overlap - so without this a
+    // skewed building stands in its neighbour wherever the frontage is fully taken up.
+    val fit = skewFit(lot, size, skew)
+    val frontage = lot.halfFrontage * Building.FOOTPRINT_FILL * size.first * fit
+    val depth = lot.halfDepth * Building.FOOTPRINT_FILL * size.second * fit
     val halfLength = if (broadFront) frontage else depth
     val halfWidth = if (broadFront) depth else frontage
 
