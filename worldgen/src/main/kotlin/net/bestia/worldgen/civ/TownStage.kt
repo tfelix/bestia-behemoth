@@ -330,7 +330,8 @@ class TownStage(
   // 4: a village is laid along the way through it rather than grown from its middle - see `RoadsideVillage`.
   // 5: a plot station that places nothing slides on rather than stepping a whole frontage past the blockage.
   // 6: a settlement emits the fields it works - see `TownFields`.
-  override val version = 6
+  // 7: a farmstead is a house at the road and a barn across the yard, not one building.
+  override val version = 7
 
   override val paramsVersion get() = GenRng.hash(params.digest().value, Culture.catalogueDigest(), SettlementTier.catalogueDigest())
   /**
@@ -574,7 +575,9 @@ class TownStage(
       downwind = world.downwindAt(town.position, config),
       downstream = world.downstreamAt(town.position),
       roll = roll,
-      rhythm = rhythm
+      rhythm = rhythm,
+      minBuildingWidth = params.minBuildingWidth,
+      minBuildingDepth = params.minBuildingDepth
     )
 
     // Wanted, then capped. Descending land value, so what a cap drops is the outer residential ring and
@@ -589,14 +592,23 @@ class TownStage(
     // costs the town a worse lot rather than a building. Slicing first and filtering after would shrink every
     // town by however many bad sites its best lots happened to contain.
     val placed = ArrayList<Building>(limit)
+    val outbuildings = ArrayList<Building>()
     for (index in lots.indices.sortedWith(compareByDescending<Int> { zoning.valueOf(lots[it]) }.thenBy { it })) {
       if (placed.size >= limit) break
 
       // `index` is also the RNG salt for storeys, materials and roof, so it has to stay the lot's own index
       // and not a running count - renumbering here would change every building in the town.
       val building = zoning.buildingFor(lots[index], functions[index], index)
-      if (standsLevel(building, grading)) placed.add(building)
+      if (!standsLevel(building, grading)) continue
+      placed.add(building)
+
+      // The barn across the yard. Outside the limit because that counts the households a settlement houses and
+      // a barn is not one, and after the house because a farmstead with no farmhouse is a shed in a field.
+      zoning.outbuildingFor(lots[index], functions[index], index)
+        ?.takeIf { standsLevel(it, grading) }
+        ?.let { outbuildings.add(it) }
     }
+    placed.addAll(outbuildings)
 
     val out = ArrayList<VectorFeature>(placed.size + graph.edges.size / 4 + 8)
 

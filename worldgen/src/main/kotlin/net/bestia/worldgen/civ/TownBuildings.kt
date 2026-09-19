@@ -121,8 +121,31 @@ internal class Zoning(
   /** Direction water flows. Tanning and dyeing go this way, so the mess leaves too. */
   private val downstream: Vec2d,
   private val roll: (Long, Long) -> Double,
-  private val rhythm: LotRhythm = LotRhythm.SURVEYED
+  private val rhythm: LotRhythm = LotRhythm.SURVEYED,
+  /** The smallest building the settlement allows, which is what decides whether a farm can have a yard. */
+  private val minBuildingWidth: Double = TownParams().minBuildingWidth,
+  private val minBuildingDepth: Double = TownParams().minBuildingDepth
 ) {
+
+  /**
+   * Whether this plot can hold a farmhouse and a barn either side of a yard.
+   *
+   * Asked by both halves so they cannot disagree: a plot that fails this gets one building filling it, which
+   * is what a farm on a plot too small to work from is.
+   */
+  private fun hasYard(lot: Lot): Boolean {
+    fun buildable(frontage: Double, depth: Double): Boolean {
+      return minOf(frontage, depth) >= minBuildingWidth && maxOf(frontage, depth) >= minBuildingDepth
+    }
+
+    return buildable(
+      lot.halfFrontage * Building.FOOTPRINT_FILL * MAX_PLOT_FILL * 2.0,
+      lot.halfDepth * Building.FOOTPRINT_FILL * FARMHOUSE_DEPTH * 2.0
+    ) && buildable(
+      lot.halfFrontage * BARN_HALF_FRONTAGE * 2.0,
+      lot.halfDepth * BARN_HALF_DEPTH * 2.0
+    )
+  }
 
   fun valueOf(lot: Lot): Double {
     // Already normalised, and normalised against the street network rather than against a radius - so this is
@@ -242,10 +265,10 @@ internal class Zoning(
    * genuinely larger has to get a larger plot instead - see the grand-plot pass in `TownStage`.
    */
   /**
-   * How much a building has to give up to stand off square and still fit its plot.
+   * How much of itself a building would have to give up to stand off square and still fit its plot.
    *
-   * One when it is square to the street, which is every building in a surveyed town - so this costs nothing
-   * where nothing is skewed.
+   * One where it already fits, which is every building in a surveyed town and every one on a plot with room
+   * to spare. Below one the lean is dropped rather than paid for; see [buildingFor].
    */
   private fun skewFit(lot: Lot, size: Pair<Double, Double>, skew: Double): Double {
     if (skew == 0.0) return 1.0
@@ -273,9 +296,50 @@ internal class Zoning(
     BuildingFunction.SHOP -> 1.02 to MAX_PLOT_FILL
     BuildingFunction.INN -> 1.06 to MAX_PLOT_FILL
 
-    // Everything public or agricultural takes what it can get, and gets the rest from a grand plot.
+    // A farmhouse keeps the front of its plot and gives the back to the yard and the barn. See [outbuildingFor].
+    BuildingFunction.FARM -> MAX_PLOT_FILL to FARMHOUSE_DEPTH
+
+    // Everything public takes what it can get, and gets the rest from a grand plot.
     BuildingFunction.MARKET, BuildingFunction.TEMPLE, BuildingFunction.CIVIC, BuildingFunction.WAREHOUSE,
-    BuildingFunction.FARM, BuildingFunction.FORTIFICATION -> MAX_PLOT_FILL to MAX_PLOT_FILL
+    BuildingFunction.FORTIFICATION -> MAX_PLOT_FILL to MAX_PLOT_FILL
+  }
+
+  /**
+   * The barn across the yard from a farmhouse, or null for a building that is not a farm.
+   *
+   * A farmstead is not one building. It is a house at the road and a barn behind it with a yard between, and
+   * the yard is the whole point - it is where the work happens and it is what tells a farm from a cottage at a
+   * glance. Both stand inside the one plot, so neither can reach a neighbour that the plot index already kept
+   * clear.
+   *
+   * Broadside to the yard rather than gable-on, which is the one orientation a barn has: it is entered from
+   * the long side, by a cart.
+   */
+  fun outbuildingFor(lot: Lot, function: BuildingFunction, index: Int): Building? {
+    if (function != BuildingFunction.FARM || !hasYard(lot)) return null
+
+    val along = lot.inwards.perpendicular()
+    val side = if (roll(index.toLong(), BARN_SIDE_SALT) < 0.5) 1.0 else -1.0
+    val centre = lot.centre +
+        lot.inwards * (lot.halfDepth * BARN_BACK) +
+        along * (lot.halfFrontage * BARN_ASIDE * side)
+
+    return Building(
+      centre = centre,
+      bearing = along,
+      halfLength = lot.halfFrontage * BARN_HALF_FRONTAGE,
+      halfWidth = lot.halfDepth * BARN_HALF_DEPTH,
+      function = BuildingFunction.FARM,
+      storeys = 1,
+      // The cheapest thing anybody builds, whatever the farmhouse beside it is made of.
+      wall = WallMaterial.TIMBER,
+      roof = RoofMaterial.THATCH,
+      roofShape = RoofShape.GABLE,
+      floorElevation = frame.groundAt(centre),
+      grammarSeed = (roll(index.toLong(), BARN_GRAMMAR_SALT) * (1L shl 40)).toLong(),
+      // Onto the yard, which is the side a barn is worked from.
+      doorBearing = -lot.inwards
+    )
   }
 
   /**
@@ -291,21 +355,29 @@ internal class Zoning(
     val broadFront = function == BuildingFunction.TEMPLE || function == BuildingFunction.MARKET ||
         function == BuildingFunction.CIVIC || function == BuildingFunction.WAREHOUSE
 
-    val alongStreet = lot.inwards.perpendicular()
-    // Off square by the settlement's own rhythm. A civic front is not: the one building in a village that was
-    // set out with a line is the one everybody had to agree on.
-    val skew = if (broadFront) 0.0 else (roll(index.toLong(), SKEW_SALT) - 0.5) * 2.0 * rhythm.bearingJitter
-    val bearing = (if (broadFront) alongStreet else lot.inwards).rotated(skew)
-
     // Applied to the plot's own axes, *before* the broad-front swap below. Getting that order wrong puts a
     // temple's along-the-street multiplier onto its depth, which is the one direction it does not want.
-    val size = footprintFor(function)
-    // Shrunk to what still fits the plot once turned. A rotated rectangle projects wider than the box it was
-    // cut from, and the plot index only ever promised that the *plots* do not overlap - so without this a
-    // skewed building stands in its neighbour wherever the frontage is fully taken up.
-    val fit = skewFit(lot, size, skew)
-    val frontage = lot.halfFrontage * Building.FOOTPRINT_FILL * size.first * fit
-    val depth = lot.halfDepth * Building.FOOTPRINT_FILL * size.second * fit
+    val size = if (function == BuildingFunction.FARM && !hasYard(lot)) {
+      MAX_PLOT_FILL to MAX_PLOT_FILL
+    } else {
+      footprintFor(function)
+    }
+
+    // Off square by the settlement's own rhythm. A civic front is not: the one building in a village that was
+    // set out with a line is the one everybody had to agree on.
+    //
+    // Dropped where the plot has no slack for it, rather than shrinking the building to make room. A rotated
+    // rectangle projects wider than the box it was cut from, and shrinking to fit takes a building that is
+    // already at the smallest the settlement allows below it - so a plot that is full stands its building
+    // square, which is also what a tight frontage looks like.
+    val rolled = if (broadFront) 0.0 else (roll(index.toLong(), SKEW_SALT) - 0.5) * 2.0 * rhythm.bearingJitter
+    val skew = if (skewFit(lot, size, rolled) < 1.0) 0.0 else rolled
+
+    val alongStreet = lot.inwards.perpendicular()
+    val bearing = (if (broadFront) alongStreet else lot.inwards).rotated(skew)
+
+    val frontage = lot.halfFrontage * Building.FOOTPRINT_FILL * size.first
+    val depth = lot.halfDepth * Building.FOOTPRINT_FILL * size.second
     val halfLength = if (broadFront) frontage else depth
     val halfWidth = if (broadFront) depth else frontage
 
@@ -361,8 +433,16 @@ internal class Zoning(
     val front = lot.centre - lot.inwards * lot.halfDepth
     val floor = frame.groundAt(front)
 
+    // A farmhouse sits at the road and leaves the back of its plot to the yard; everything else is centred on
+    // the plot it was cut. Pulled forward by exactly the depth it gave up, so it still meets the building line.
+    val forward = if (function == BuildingFunction.FARM) {
+      lot.inwards * -(lot.halfDepth - depth)
+    } else {
+      Vec2d.ZERO
+    }
+
     return Building(
-      centre = lot.centre,
+      centre = lot.centre + forward,
       bearing = bearing,
       halfLength = halfLength,
       halfWidth = halfWidth,
@@ -418,6 +498,21 @@ internal class Zoning(
     const val ROOF_SALT = 0x43L
     const val GRAMMAR_SALT = 0x44L
     const val SKEW_SALT = 0x45L
+    const val BARN_SIDE_SALT = 0x46L
+    const val BARN_GRAMMAR_SALT = 0x47L
+
+    /**
+     * The farmstead, as shares of its plot: how deep the house is, and where the barn stands behind it.
+     *
+     * Chosen so the two cannot touch - the house reaches to 0.38 of the plot's depth from the front and the
+     * barn starts at 0.24 past the middle - and so the barn stays inside the plot on the side it is offset
+     * to. Both being inside the plot is what keeps a farmstead off its neighbours.
+     */
+    const val FARMHOUSE_DEPTH = 0.42
+    const val BARN_BACK = 0.58
+    const val BARN_ASIDE = 0.32
+    const val BARN_HALF_FRONTAGE = 0.55
+    const val BARN_HALF_DEPTH = 0.34
   }
 }
 
