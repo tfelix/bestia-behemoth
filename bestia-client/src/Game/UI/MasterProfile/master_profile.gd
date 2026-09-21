@@ -5,6 +5,10 @@ const WEIGHT_UNITS_PER_KG := 100.0
 var _master_info: MasterInfo
 var _master_entity_id: int = 0
 
+# Last tile written to the position label, and whether anything has been written yet.
+var _shown_tile: Vector3i = Vector3i.ZERO
+var _has_shown_tile: bool = false
+
 @onready var _master_name: Label = %MasterName
 @onready var _level: Label = %Level
 @onready var _position: Label = %Position
@@ -71,8 +75,6 @@ func _on_entity_received(msg: EntitySMSG) -> void:
 	# Skip when it is not adressing our own entity.
 	if msg.EntityId != _master_entity_id:
 		return
-	if msg is PositionComponent:
-		_update_position(msg.Position)
 	if msg is LevelComponentSMSG:
 		_update_level(msg.Level)
 	if msg is HealthComponentSMSG:
@@ -99,8 +101,25 @@ func _update_position(pos: Vector3) -> void:
 	# vector verbatim called the height "Y", and a triple copied out of here aimed a carve kilometres
 	# into the sky. Whole numbers for the same reason: a position is a voxel index, and /carve's
 	# parser accepts integers only.
-	var shown := TileSpace.to_server_axes(pos)
-	_position.text = "X: %s, Y: %s, Z: %s" % [int(shown.x), int(shown.y), int(shown.z)]
+	var tile := Vector3i(TileSpace.to_server_axes(pos))
+	if _has_shown_tile and tile == _shown_tile:
+		return
+
+	_shown_tile = tile
+	_has_shown_tile = true
+	_position.text = "X: %s, Y: %s, Z: %s" % [tile.x, tile.y, tile.z]
+
+
+## Reads the position off our own entity rather than waiting for a PositionComponent: the server
+## sends one on a spawn or teleport and then only every MoveSystem.POSITION_RESYNC_STEPS tiles, so
+## a walk shorter than that delivers none and the readout would sit on where it started.
+func _poll_position() -> void:
+	var entity_manager := EntityManager.get_instance()
+	var entity: Entity = entity_manager.get_owned_entity() if entity_manager else null
+	if entity == null:
+		return
+
+	_update_position(entity.get_logical_position())
 
 
 func _update_bar(bar: ProgressBar, value_label: Label, current: int, max_value: int) -> void:
@@ -125,11 +144,12 @@ func _update_exp(exp: int, required_exp_next_level: int) -> void:
 	_exp_bar.value = exp
 
 
-## Polls the global Input state instead of overriding _shortcut_input: the Skills window is a
-## separate Window (its own viewport), so once it has OS focus, input events are delivered to
-## its viewport and never reach this node - Input.is_action_just_pressed reflects key state
-## application-wide regardless of which window/viewport currently has focus.
 func _process(_delta: float) -> void:
+	_poll_position()
+
+	# The global Input state rather than _shortcut_input: the Skills window is a separate Window
+	# (its own viewport), so once it has OS focus its events never reach this node, while
+	# is_action_just_pressed reflects key state application-wide.
 	if Input.is_action_just_pressed("toggle_inventory"):
 		_toggle_inventory()
 	if Input.is_action_just_pressed("toggle_skills"):
