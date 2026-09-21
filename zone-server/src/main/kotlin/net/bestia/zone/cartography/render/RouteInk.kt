@@ -1,12 +1,17 @@
 package net.bestia.zone.cartography.render
 
+import net.bestia.worldgen.civ.BridgeChannels
 import net.bestia.worldgen.render.Viewport
+import net.bestia.worldgen.render.optionalAttribute
 import net.bestia.worldgen.vector.FeatureKind
+import net.bestia.worldgen.vector.PointMarker
 import net.bestia.worldgen.vector.PolylineFeature
 import net.bestia.worldgen.vector.Profiles
 import java.awt.BasicStroke
 import java.awt.Graphics2D
+import java.awt.geom.Line2D
 import java.awt.geom.Path2D
+import kotlin.math.max
 
 /**
  * Roads, bridges and sea lanes: the dashed lines that turn a terrain map into a map of a settled country.
@@ -31,12 +36,17 @@ object RouteInk {
     val features = inputs.featuresIn(view.bounds.expanded(view.metresPerPixel * MARGIN_PIXELS))
 
     for (feature in features) {
-      if (feature !is PolylineFeature) continue
+      when (feature) {
+        // Two arms because a bridge is the one route that is not a centreline: the generator stores a
+        // deck as a centre, a bearing and a span, so it arrives as a point marker.
+        is PointMarker -> if (feature.kind == FeatureKind.BRIDGE) bridge(g, view, feature, palette)
 
-      when (feature.kind) {
-        FeatureKind.ROAD -> road(g, view, feature, palette)
-        FeatureKind.BRIDGE -> bridge(g, view, feature, palette)
-        FeatureKind.SEA_LANE -> seaLane(g, view, feature, palette)
+        is PolylineFeature -> when (feature.kind) {
+          FeatureKind.ROAD -> road(g, view, feature, palette)
+          FeatureKind.SEA_LANE -> seaLane(g, view, feature, palette)
+          else -> Unit
+        }
+
         else -> Unit
       }
     }
@@ -61,11 +71,30 @@ object RouteInk {
     g.draw(pathOf(view, feature))
   }
 
-  /** A bridge is the one part of a route drawn solid and heavier: it is a structure, not a way. */
-  private fun bridge(g: Graphics2D, view: Viewport, feature: PolylineFeature, palette: AtlasPalette) {
+  /**
+   * A bridge is the one part of a route drawn solid and heavier: it is a structure, not a way.
+   *
+   * The deck is struck along the road's own bearing, so it reads as a short bar across the water rather
+   * than as a mark beside it. [MIN_BRIDGE_PIXELS] is what keeps it legible once a span of tens of metres
+   * is under a pixel - without it a bridge would be drawn at every zoom this band allows and visible at
+   * almost none of them.
+   */
+  private fun bridge(g: Graphics2D, view: Viewport, marker: PointMarker, palette: AtlasPalette) {
+    val bearingX = marker.optionalAttribute(BridgeChannels.BEARING_X) ?: return
+    val bearingY = marker.optionalAttribute(BridgeChannels.BEARING_Y) ?: return
+    val span = marker.optionalAttribute(BridgeChannels.SPAN) ?: return
+    val half = max(span * 0.5, MIN_BRIDGE_PIXELS * 0.5 * view.metresPerPixel)
+
     g.color = WaterInk.rgba(palette.ink, BRIDGE_ALPHA)
     g.stroke = BasicStroke(BRIDGE_PIXELS, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND)
-    g.draw(pathOf(view, feature))
+    g.draw(
+      Line2D.Double(
+        view.screenX(marker.position.x - bearingX * half),
+        view.screenY(marker.position.y - bearingY * half),
+        view.screenX(marker.position.x + bearingX * half),
+        view.screenY(marker.position.y + bearingY * half)
+      )
+    )
   }
 
   /** Dotted, and in the water ink, because it is a route over water rather than a thing built on the ground. */
@@ -114,6 +143,9 @@ object RouteInk {
 
   private const val BRIDGE_PIXELS = 1.9f
   private const val BRIDGE_ALPHA = 0.85
+
+  /** Shortest a deck may be drawn, so a real span of 30 m is still a bar and not a dot. */
+  private const val MIN_BRIDGE_PIXELS = 5.0
 
   private const val SEA_LANE_PIXELS = 0.7f
   private const val SEA_LANE_ALPHA = 0.4

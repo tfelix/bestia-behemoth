@@ -64,6 +64,16 @@ enum class MapVisibility(
    */
   OMITTED(0.0);
 
+  /**
+   * Whether this band is a *place*: something that stands somewhere and has a name of its own.
+   *
+   * Separate from [draws] because they answer different questions. `draws` is disclosure - may a player
+   * learn this is here - and a road, a river and a street all pass it. A place is what [PlaceInk] marks
+   * with a symbol and what `MapTileService.places` lists for the client to label; the ways and the water
+   * are drawn as themselves by [RouteInk] and [WaterInk], and naming them is not the same act.
+   */
+  val isPlace: Boolean get() = this == PLACE || this == LANDMARK
+
   companion object {
 
     fun of(kind: FeatureKind): MapVisibility = when (kind) {

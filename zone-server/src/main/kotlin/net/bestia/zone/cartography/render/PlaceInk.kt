@@ -47,6 +47,7 @@ object PlaceInk {
     for (feature in features) {
       if (feature !is PointMarker) continue
       if (!MapVisibility.draws(feature.kind, view.metresPerPixel)) continue
+      if (!MapVisibility.of(feature.kind).isPlace) continue
 
       val x = view.screenX(feature.position.x)
       val y = view.screenY(feature.position.y)
@@ -54,6 +55,7 @@ object PlaceInk {
       if (feature.kind == FeatureKind.SETTLEMENT) {
         val tier = PlaceNames.tierOf(feature) ?: continue
         if (view.metresPerPixel > tier.visibleTo) continue
+        if (!PlaceNames.wasFounded(inputs.chronicle, feature)) continue
 
         settlement(g, x, y, tier, palette)
         PlaceNames.nameOf(inputs.chronicle, feature)?.let { labels += Label(it, x, y, tier) }

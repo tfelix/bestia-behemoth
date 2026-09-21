@@ -285,13 +285,16 @@ class MapTileService(
   /**
    * Every place in the tile the asker may know about, at this zoom.
    *
-   * Two gates, and they are not interchangeable. [MapVisibility.draws] is the **disclosure** rule - its
+   * Three gates, and they are not interchangeable. [MapVisibility.draws] is the **disclosure** rule - its
    * exhaustive `when` with no `else` is what stops an ore body or a creature den reaching a client because
    * somebody added a feature kind and the drawing code had a sensible default - and the coverage test is the
-   * **fog** rule. A place has to pass both.
+   * **fog** rule. [MapVisibility.isPlace] is the third: a bridge and a street are drawn by `RouteInk` and
+   * `PlanStyle` as parts of a way, and a way is not something with a name, so listing one here asks the
+   * client to label a thing that has nothing to be called. A place has to pass all three.
    *
    * The zoom gates are `PlaceInk`'s own, so a label is drawn exactly where its symbol is and never floats
-   * over ground with no mark under it.
+   * over ground with no mark under it. [PlaceNames.wasFounded] is there for the same reason: `PlaceInk`
+   * stopped marking a site nobody settled, so listing one would put a name over bare ground.
    */
   private fun placesIn(id: TileId, coverage: Coverage, shared: Boolean): List<Place> {
     val places = ArrayList<Place>()
@@ -300,13 +303,14 @@ class MapTileService(
     for (feature in resources.inputs.featuresIn(id.bounds)) {
       if (feature !is PointMarker) continue
       if (!MapVisibility.draws(feature.kind, id.metresPerPixel)) continue
+      if (!MapVisibility.of(feature.kind).isPlace) continue
 
       val position = feature.position
       // Skipped for a wholly charted tile: the answer is known, and `contains` is a lattice lookup per place.
       if (!shared && !coverage.contains(position.x, position.y)) continue
 
       val tier = if (feature.kind == FeatureKind.SETTLEMENT) {
-        PlaceNames.tierOf(feature) ?: continue
+        PlaceNames.tierOf(feature)?.takeIf { PlaceNames.wasFounded(chronicle, feature) } ?: continue
       } else {
         null
       }

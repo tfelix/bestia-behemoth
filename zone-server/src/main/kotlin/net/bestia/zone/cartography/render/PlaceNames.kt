@@ -51,6 +51,19 @@ object PlaceNames {
     return SettlementTier.entries.getOrNull(ordinal)
   }
 
+  /**
+   * Whether history ever founded the settlement this marker stands on.
+   *
+   * A `SETTLEMENT` marker means "somebody would live here"; whether anybody did is the chronicle's answer.
+   * `TownStage.read` calls itself the one place that distinction is acted on, and the map is the second:
+   * an unfounded site has no streets, no buildings and no name seed, so a symbol there marks bare ground
+   * and the label beside it has nothing to say.
+   */
+  fun wasFounded(chronicle: Chronicle, marker: PointMarker): Boolean {
+    val index = marker.optionalAttribute(SettlementChannels.INDEX)?.toInt() ?: return false
+    return chronicle.settlements.getOrNull(index)?.wasFounded == true
+  }
+
   /** [PoiKind] of a `POI` marker, or null for anything else. */
   fun poiKindOf(marker: PointMarker): PoiKind? {
     val ordinal = marker.optionalAttribute(PoiChannels.KIND)?.toInt() ?: return null
