@@ -47,16 +47,22 @@ class TownMetricsTest {
 
   @Test
   fun `the wheel detector reads the cross streets that make the wheel`() {
-    // The claim the metric is built on, asserted rather than assumed: one world, one seed, one number changed.
-    // A cross street is the crosswise part of a town - the radials are spokes - so a town built without any
+    // The claim the metric is built on, asserted rather than assumed: a world with nothing crosswise in it
     // must measure lower, and nowhere else is it written down that the metric notices. That is how a metric
     // quietly stops reading the world it is pointed at.
     //
-    // Relative, not absolute: the level depends on how much of a town is core, so the assertion is that cross
-    // streets move it, not that it sits anywhere in particular. See `TownMetrics.Measured.tangentialShare`.
+    // The control removes the **branches** as well as the cross streets, because a branch leaves its parent at
+    // a right angle and is therefore just as crosswise. Removing only the cross streets does not isolate what
+    // this metric reads: measured per settlement it moved five up and three down, and the two medians landed
+    // on the same settlement.
+    //
+    // Relative, not absolute: the level depends on how much of a town is core, so the assertion is that
+    // crosswise streets move it, not that it sits anywhere in particular.
     val spokesOnly = StandardWorld.build(
       StandardWorld.demoConfig(seed = 909L).copy(widthCells = 160, heightCells = 160),
-      params = WorldParams(town = TownParams(streets = StreetParams(crossStreetsPerMainStreet = 0)))
+      params = WorldParams(
+        town = TownParams(streets = StreetParams(crossStreetsPerMainStreet = 0, branchChance = 0.0))
+      )
     )
 
     val withCrossStreets = median(measured)

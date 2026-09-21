@@ -83,6 +83,14 @@ object TownMetrics {
      * Radial concentration - how much street length piles up at a few radii - was measured here first and
      * dropped: the core carries far more street per hectare than the suburbs, so the statistic reported that
      * the middle of a town is busy, which is true of every town and moved by 5% when the rings moved by half.
+     *
+     * ### It cannot see a settlement laid along one way
+     *
+     * A `RoadsideVillage`'s spine runs through its own centre, so every segment of it points away from that
+     * centre and reads as a perfect spoke: every hamlet in the reference world measures exactly zero. That is
+     * arithmetic rather than a fault - there is nothing crosswise in a street village - but it means the
+     * world's median is set by the settlements this cannot see. Read it per settlement, or over the grown
+     * layouts only.
      */
     val tangentialShare: Double,
 
