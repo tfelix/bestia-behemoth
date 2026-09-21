@@ -187,6 +187,41 @@ internal class StreetGraph(
     return if (edges[edge].a == from) edges[edge].b else edges[edge].a
   }
 
+  /**
+   * The rank actually built along a segment, or null where no street was.
+   *
+   * A producer knows what rank it *drew* an edge at; only the finished graph knows what rank it ended up
+   * with, because [StreetTraffic] re-derives every one of them from the traffic it carries. Anything setting
+   * a plot back from a street has to ask this rather than its own record, or it sets back from a carriageway
+   * the street no longer has.
+   *
+   * The **minimum** over the edges lying along it: planarisation splits one drawn segment into several where
+   * other streets cross it, and what a plot has to clear is the widest of them.
+   */
+  fun rankAlong(a: Vec2d, b: Vec2d): Int? {
+    val span = b - a
+    val length = span.length
+    if (length < 1e-6) return null
+
+    val along = span * (1.0 / length)
+    var best: Int? = null
+
+    for (edge in edges) {
+      if (!lies(nodes[edge.a], a, along, length) || !lies(nodes[edge.b], a, along, length)) continue
+      best = if (best == null) edge.rank else min(best, edge.rank)
+    }
+
+    return best
+  }
+
+  /** Whether a node sits on the segment from [from] along [along] for [length] metres, within [ON_LINE]. */
+  private fun lies(node: Vec2d, from: Vec2d, along: Vec2d, length: Double): Boolean {
+    val offset = node - from
+    val s = offset dot along
+    if (s < -ON_LINE || s > length + ON_LINE) return false
+    return abs(offset cross along) <= ON_LINE
+  }
+
   fun lengthOf(edge: Int): Double {
     return nodes[edges[edge].a].distanceTo(nodes[edges[edge].b])
   }
@@ -326,6 +361,15 @@ internal class StreetGraph(
      * street bending through a town without letting it turn a corner.
      */
     const val STRAIGHT_ENOUGH = 0.5
+
+    /**
+     * How far off a drawn segment a node may sit and still count as lying on it, in metres.
+     *
+     * Planarisation welds to a ten-centimetre grid, so a node that was meant to be on the line can be half
+     * a cell off it and a chain of them can drift further. A metre is far below any street width and far
+     * above that error.
+     */
+    const val ON_LINE = 1.0
   }
 }
 

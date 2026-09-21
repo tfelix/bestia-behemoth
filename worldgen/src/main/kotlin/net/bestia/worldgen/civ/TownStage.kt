@@ -332,7 +332,8 @@ class TownStage(
   // 6: a settlement emits the fields it works - see `TownFields`.
   // 7: a farmstead is a house at the road and a barn across the yard, not one building.
   // 8: a street's rank comes from the traffic it carries, not from when it was drawn - see `StreetTraffic`.
-  override val version = 8
+  // 9: a block is set back from the rank the street was built at, not the rank its patch asked for.
+  override val version = 9
 
   override val paramsVersion get() = GenRng.hash(params.digest().value, Culture.catalogueDigest(), SettlementTier.catalogueDigest())
   /**
@@ -528,8 +529,12 @@ class TownStage(
           patch = patch,
           grain = Quarters.grainOf(quarters[index], town.culture.layout),
           frame = frame,
-          streetWidthFor = { edge -> params.setbackFor(rankOfEdge(patch, quarters, index, edge)) },
-          rankFor = { edge -> rankOfEdge(patch, quarters, index, edge) },
+          // The rank the street was *built* at, not the one this patch asked for: `StreetTraffic` re-derives
+          // every rank from the traffic it carries, and a block set back from the rank it drew sits inside
+          // the carriageway of any edge that was promoted. `rankOfEdge` is the fallback for an edge the
+          // planner dropped for water or slope, where there is no built street to measure.
+          streetWidthFor = { edge -> params.setbackFor(builtRankOf(graph, patch, quarters, index, edge)) },
+          rankFor = { edge -> builtRankOf(graph, patch, quarters, index, edge) },
           distanceAt = { distance.at(it) },
           lotStep = params.lotStep,
           // A block plot may be up to half again the standard street plot in each direction, which is what a
@@ -824,6 +829,24 @@ class TownStage(
    * citadel. That produces a network of main streets radiating from the market to the gates without routing
    * anything, because the quarters were already placed at the market and at the gates.
    */
+  /**
+   * The rank of the street along one edge of a patch, as the graph ended up with it.
+   *
+   * See [rankOfEdge] for the rank a patch *wants* along an edge. The two differ wherever traffic promoted or
+   * demoted a street, and it is this one a plot has to be set back from.
+   */
+  private fun builtRankOf(
+    graph: StreetGraph,
+    patch: TownPatch,
+    quarters: List<DistrictKind>,
+    index: Int,
+    edge: Int
+  ): Int {
+    val polygon = patch.polygon
+    return graph.rankAlong(polygon[edge], polygon[(edge + 1) % polygon.size])
+      ?: rankOfEdge(patch, quarters, index, edge)
+  }
+
   private fun rankOfEdge(
     patch: TownPatch,
     quarters: List<DistrictKind>,
