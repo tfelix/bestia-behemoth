@@ -6,6 +6,7 @@ import net.bestia.zone.ai.core.behavior.BtNode
 import net.bestia.zone.ai.core.behavior.Status
 import net.bestia.zone.ecs.movement.Path
 import net.bestia.zone.geometry.Vec3L
+import kotlin.random.Random
 
 /**
  * Walks to a *concrete* [target], succeeding once within [arrivalRadius] tiles of it.
@@ -38,25 +39,69 @@ class MoveTo(
 }
 
 /**
- * Ambles about within [radius] of [home]. Always RUNNING, even when penned in by terrain: wandering is
- * what a creature does while nothing better applies, and reporting FAILURE would make the think stage
- * replan on every single tick for as long as it stayed hemmed in.
+ * Ambles about within [radius] of [home]: one navigated leg of a few tiles, then [pauseSeconds] standing
+ * still, repeated.
  *
- * The action that owns this tree is the one that decides when wandering is *done* — see the
- * restlessness key in the bestia domain — so this leaf never has to.
+ * The pause is what makes roaming cheap rather than a nicety of how it looks. Each leg costs every observer
+ * two broadcasts - the `Path` and the stop that its removal is - so a creature that set off again the moment
+ * it arrived would broadcast continuously, and a whole zone of them would drain the tick's pathfinding
+ * budget between them.
+ *
+ * Always RUNNING, even when penned in by terrain: wandering is what a creature does while nothing better
+ * applies, and reporting FAILURE would make the think stage replan on every single tick for as long as it
+ * stayed hemmed in. The action that owns this tree is the one that decides when wandering is *done* — see
+ * the restlessness key in the bestia domain — so this leaf never has to.
  */
 class Wander(
   private val home: Vec3L,
   private val locomotion: Locomotion,
   private val radius: Long,
+  private val pauseSeconds: ClosedFloatingPointRange<Float> = DEFAULT_PAUSE_SECONDS,
+  private val random: Random = Random.Default,
 ) : BtNode {
 
+  init {
+    require(pauseSeconds.start > 0f) { "Wander requires a positive pause, got $pauseSeconds" }
+  }
+
+  private var walkingLeg = false
+  private var pauseRemaining = 0f
+
   override fun tick(context: BtContext): Status {
-    locomotion.wanderStep(context, home, radius)
+    if (walkingLeg) {
+      if (locomotion.isMoving(context.world, context.entityId)) return Status.RUNNING
+
+      // Arrived, or something else took the path away. Either way this leg is over.
+      walkingLeg = false
+      pauseRemaining = drawPause()
+
+      return Status.RUNNING
+    }
+
+    if (pauseRemaining > 0f) {
+      pauseRemaining -= context.deltaTime
+
+      return Status.RUNNING
+    }
+
+    // A leg nothing could path to is paused over as though it had been walked, rather than asked for again
+    // on the next tick: the ground has not changed since, and the search is not free.
+    walkingLeg = locomotion.wanderLeg(context, home, radius)
+    if (!walkingLeg) pauseRemaining = drawPause()
+
     return Status.RUNNING
   }
 
+  private fun drawPause(): Float {
+    return pauseSeconds.start + random.nextFloat() * (pauseSeconds.endInclusive - pauseSeconds.start)
+  }
+
   override fun toString(): String = "Wander(around $home, r=$radius)"
+
+  companion object {
+    /** How long a creature stands about between legs. */
+    val DEFAULT_PAUSE_SECONDS = 3f..5f
+  }
 }
 
 /**

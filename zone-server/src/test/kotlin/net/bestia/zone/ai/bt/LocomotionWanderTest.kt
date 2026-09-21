@@ -17,40 +17,41 @@ import kotlin.random.Random
 /**
  * What a wandering creature's territory actually is.
  *
- * These pin the two properties that used to be entangled: how far a creature strays from home (the leash)
- * and how far it walks in one go (the stride). The draw used to come off the leash, so a home range worth
- * the name produced strides far longer than local pathfinding is sized for.
+ * These pin the two properties that must stay separate: how far a creature strays from home (the leash) and
+ * how far it walks in one go (the leg). A draw taken off the leash would ask local pathfinding for searches
+ * far longer than it is sized for.
  *
- * Every assertion runs over many bouts because the target is drawn at random - a single sample would pass
+ * Every assertion runs over many legs because the target is drawn at random - a single sample would pass
  * against a broken clamp roughly seven times in eight.
  */
 class LocomotionWanderTest {
 
-  // Seeded rather than left to `Random.Default`: these assertions already run over many bouts to catch a
+  // Seeded rather than left to `Random.Default`: these assertions already run over many legs to catch a
   // broken clamp, and a seed means a run that *does* catch one can be replayed instead of described.
   private val sut = Locomotion(TestNavigation.service(), Random(20260914L))
 
   @Test
-  fun `wanderStep never walks further than the stride, whatever the territory`() {
+  fun `wanderLeg walks a whole leg and no further, whatever the territory`() {
     val home = Vec3L(0, 0, 0)
 
-    // Per axis, which is what the code guarantees and what a path actually costs: a diagonal bout of five
-    // tiles is five steps, though Euclid calls it seven.
-    forEachBout(home, radius = 400L) { from, to ->
+    // Per axis, which is what the code guarantees and what a path actually costs: a diagonal leg of four
+    // tiles is four steps, though Euclid calls it five and a half.
+    forEachLeg(home, radius = 400L) { from, to ->
       val steps = maxOf(kotlin.math.abs(to.x - from.x), kotlin.math.abs(to.y - from.y))
       assertTrue(
-        steps <= Locomotion.WANDER_STEP_TILES,
-        "a bout from $from to $to is $steps steps, past ${Locomotion.WANDER_STEP_TILES}"
+        steps in Locomotion.WANDER_LEG_MIN_TILES..Locomotion.WANDER_LEG_MAX_TILES,
+        "a leg from $from to $to is $steps steps, outside " +
+            "${Locomotion.WANDER_LEG_MIN_TILES}..${Locomotion.WANDER_LEG_MAX_TILES}"
       )
     }
   }
 
   @Test
-  fun `wanderStep keeps the creature inside its radius`() {
+  fun `wanderLeg keeps the creature inside its radius`() {
     val home = Vec3L(0, 0, 0)
     val radius = 30L
 
-    forEachBout(home, radius) { _, to ->
+    forEachLeg(home, radius) { _, to ->
       assertTrue(to.distance(home) <= radius, "$to is ${to.distance(home)} tiles from home, past $radius")
     }
   }
@@ -63,12 +64,12 @@ class LocomotionWanderTest {
    * radius small enough that a box corner is reachable is what makes the difference visible.
    */
   @Test
-  fun `wanderStep never places the creature at a box corner`() {
+  fun `wanderLeg never places the creature at a box corner`() {
     val home = Vec3L(0, 0, 0)
     val radius = 12L
 
     var sawFar = false
-    forEachBout(home, radius, bouts = 4_000) { _, to ->
+    forEachLeg(home, radius, legs = 4_000) { _, to ->
       if (to.distance(home) > radius) sawFar = true
     }
 
@@ -76,15 +77,15 @@ class LocomotionWanderTest {
   }
 
   @Test
-  fun `wanderStep brings a creature that starts outside its radius back towards home`() {
+  fun `wanderLeg brings a creature that starts outside its radius back towards home`() {
     val home = Vec3L(0, 0, 0)
     val radius = 20L
     val world = testWorld()
     val id = spawnAt(world, Vec3L(60, 60, 0))
 
-    // Only the candidates that land inside the disc survive, so the one step it takes must close the gap.
+    // Only the candidates that land inside the disc survive, so the one leg it takes must close the gap.
     val before = position(world, id).distance(home)
-    sut.wanderStep(context(world, id), home, radius)
+    sut.wanderLeg(context(world, id), home, radius)
     arrive(world, id)
 
     assertTrue(
@@ -94,18 +95,18 @@ class LocomotionWanderTest {
   }
 
   /**
-   * Drives [bouts] complete wander bouts and hands each leg to [assertion].
+   * Drives [legs] complete wander legs and hands each one to [assertion].
    *
-   * A bout is only started when the creature is standing still, so the path from the previous one is
-   * consumed first - `wanderStep` returns early while a `Path` is present.
+   * A leg is only started when the creature is standing still, so the path from the previous one is
+   * consumed first - `wanderLeg` returns early while a `Path` is present.
    */
-  private fun forEachBout(home: Vec3L, radius: Long, bouts: Int = 2_000, assertion: (Vec3L, Vec3L) -> Unit) {
+  private fun forEachLeg(home: Vec3L, radius: Long, legs: Int = 2_000, assertion: (Vec3L, Vec3L) -> Unit) {
     val world = testWorld()
     val id = spawnAt(world, home)
 
-    repeat(bouts) {
+    repeat(legs) {
       val from = position(world, id)
-      if (!sut.wanderStep(context(world, id), home, radius)) return@repeat
+      if (!sut.wanderLeg(context(world, id), home, radius)) return@repeat
       arrive(world, id)
       assertion(from, position(world, id))
     }

@@ -233,13 +233,14 @@ object TownsfolkDomain : AiDomainCatalogue {
    * mean anything - at the creatures' rate a townsperson was ready for bed every five real minutes and
    * only the shortness of the tests hid it. Hunger runs about three times a day.
    *
-   * Restlessness is deliberately the fast one. It is the floor goal's fuel, so a townsperson who has
-   * nothing else to do should always have a few paces in them.
+   * Restlessness is against the wall rather than the world clock, because it is the floor goal's fuel and
+   * decides how long somebody stands in a street doing nothing: at 6 a second it passes
+   * [SETTLED_RESTLESSNESS] about four seconds after loitering settled it.
    */
   val DRIVES = listOf(
-    Drive(HUNGER, perGameHour = 10f),
-    Drive(TIREDNESS, perGameHour = 5f, whileSleepingPerGameHour = -14f),
-    Drive(RESTLESSNESS, perGameHour = 1_920f),
+    Drive.perGameHour(HUNGER, 10f),
+    Drive.perGameHour(TIREDNESS, 5f, whileSleeping = -14f),
+    Drive.perRealSecond(RESTLESSNESS, 6f),
   )
 
   /**

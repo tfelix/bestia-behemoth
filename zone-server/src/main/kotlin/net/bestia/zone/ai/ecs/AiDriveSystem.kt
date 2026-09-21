@@ -36,9 +36,9 @@ class AiDriveSystem(
   override fun update(world: World, deltaTime: Float) {
     sharedMemory.tick(deltaTime)
 
-    // Rates are authored per in-game hour, so how much of one a real second is depends on the world clock.
-    // `speedFactor` is safe to ask for here where `now()` is not: it reads configuration, while the calendar
-    // is anchored to the persisted world row and throws before that row is loaded.
+    // How much of an in-game hour a real second is, for the drives paced by the world clock rather than the
+    // wall - see `Drive.Pace`. `speedFactor` is safe to ask for here where `now()` is not: it reads
+    // configuration, while the calendar is anchored to the persisted world row and throws before it is loaded.
     val gameHoursPerSecond = clock.speedFactor.toFloat() / SECONDS_PER_GAME_HOUR
 
     world.query(AiAgent::class).each { _ ->
@@ -50,8 +50,7 @@ class AiDriveSystem(
       val elapsedGameHours = gameHoursPerSecond * deltaTime
 
       for (drive in agent.drives) {
-        val rate = if (asleep) drive.whileSleepingPerGameHour else drive.perGameHour
-        adjust(memory, drive, rate * elapsedGameHours)
+        adjust(memory, drive, drive.amountOver(elapsedGameHours, deltaTime, asleep))
       }
     }
   }

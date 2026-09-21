@@ -49,7 +49,13 @@ class WanderActionTemplate(private val locomotion: Locomotion) : ActionTemplate 
   }
 
   companion object {
-    /** How long one bout of ambling lasts before the bestia reconsiders what to do. */
-    private const val WANDER_SECONDS = 6f
+    /**
+     * How long one bout of ambling lasts before the bestia reconsiders what to do.
+     *
+     * Several of [Wander]'s legs and the pauses between them, so the amble reads as a rhythm rather than a
+     * single walk. It is not what keeps a creature reactive - a goal worth more than wandering replaces the
+     * plan at the next think, whatever this says.
+     */
+    private const val WANDER_SECONDS = 20f
   }
 }

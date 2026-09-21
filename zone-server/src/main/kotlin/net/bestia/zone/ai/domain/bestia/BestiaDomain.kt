@@ -131,16 +131,19 @@ object BestiaDomain : AiDomainCatalogue {
   /**
    * What a creature's body does to it while nothing else is happening.
    *
-   * Per in-game hour. These are the long-standing per-real-second rates - peckish in about three real
-   * minutes, sleepy in seven, bored in one - restated in the unit a day is measured in, at the shipped
-   * speed factor of three. Tiredness runs backwards while asleep, and twenty times as fast, so a full
-   * night is slept off well before dawn; an interrupted night therefore means something, because the
-   * recovery is continuous rather than a jump when the sleeping finishes.
+   * Peckish in about three real minutes and sleepy in seven, against the world clock. Tiredness runs
+   * backwards while asleep, and twenty times as fast, so a full night is slept off well before dawn; an
+   * interrupted night therefore means something, because the recovery is continuous rather than a jump when
+   * the sleeping finishes.
+   *
+   * Restlessness is against the wall instead, because it decides how long a creature stands about between
+   * roams and that is something a player watches: at 15 a second it crosses [DEFAULT_RESTLESS_THRESHOLD]
+   * four seconds after a roam spent it, which is the pause `Wander` already leaves between the legs of one.
    */
   val DRIVES = listOf(
-    Drive(HUNGER, perGameHour = 660f),
-    Drive(TIREDNESS, perGameHour = 300f, whileSleepingPerGameHour = -6_000f),
-    Drive(RESTLESSNESS, perGameHour = 1_920f),
+    Drive.perGameHour(HUNGER, 660f),
+    Drive.perGameHour(TIREDNESS, 300f, whileSleeping = -6_000f),
+    Drive.perRealSecond(RESTLESSNESS, 15f),
   )
 
   /** A species sleeps by the sun, so its window is whatever its [ActivityCycle] calls resting. */

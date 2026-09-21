@@ -21,10 +21,11 @@ import kotlin.random.Random
  *
  * ### Two tiers, chosen by distance
  *
- * [stepToward] and friends are the *local* tier: a considered path over nearby ground, falling back to a
- * single checked step when the tick's search budget is spent. [travelTo] is the *macro* tier, for a
- * destination too far away to search column by column - it plans over the world's node graph and refines one
- * leg at a time as the traveller arrives.
+ * [stepToward] and [wanderLeg] are the *local* tier: a considered path over nearby ground. Only [stepToward]
+ * falls back to a single checked step when the tick's search budget is spent, because only a chase is worth
+ * that step's cost - see [wanderLeg]. [travelTo] is the *macro* tier, for a destination too far away to
+ * search column by column - it plans over the world's node graph and refines one leg at a time as the
+ * traveller arrives.
  *
  * A leaf that cannot move gets `false` and decides for itself what that means; nothing here fails silently by
  * leaving an entity standing still with no way to tell.
@@ -33,13 +34,10 @@ import kotlin.random.Random
  * what it needs and can be handed a fake in a test. The action template that grounds a movement action owns
  * one of these and passes it to the leaves it builds.
  *
- * [random] is held for the same reason, and it is not a nicety. [wanderStep] used to reach for
- * `Random.Default`, which is process-global and seeded from the environment, so where a wandering creature
- * went was not merely unpredictable but *unreachable* from a test - a scenario could pin the world, the
- * clock and the navigation and still not say where the mob would be two seconds later. `AiLifecycleE2ETest`
- * failed roughly one run in twelve on exactly that: the mob drifted out of its own sight radius before it
- * could acquire the player it was meant to hunt. A test that wants a reproducible walk passes a seeded
- * [Random]; the server passes nothing and gets the global one as before.
+ * [random] is held for the same reason, and it is not a nicety: where a wandering creature goes has to be
+ * reachable from a test, so a scenario that pins the world, the clock and the navigation can also say where
+ * the mob will be two seconds later. A test that wants a reproducible walk passes a seeded [Random]; the
+ * server passes nothing and gets the process-global one.
  */
 class Locomotion(
   private val navigation: NavigationService,
@@ -73,68 +71,55 @@ class Locomotion(
   }
 
   /**
-   * Wanders within [radius] of [home], one amble of at most [stepTiles] at a time.
+   * Starts one roaming leg: a navigated path to a spot a few tiles off that keeps the creature within
+   * [radius] of [home].
    *
-   * Picks a destination a few tiles off and paths to it, rather than one adjacent tile per call. Both are
-   * random walks, but this one produces a creature that ambles somewhere and then somewhere else, instead of
-   * one that jitters between neighbouring tiles - and it costs fewer searches, not more, because one path
-   * lasts several tiles.
+   * No greedy fallback, unlike [stepToward]. A leg that cannot be pathed is no leg at all, because a
+   * one-tile walk costs every observer the same `Path` message and stop message as a real one and is spent
+   * again a quarter of a second later. The caller pauses and asks again - see
+   * [net.bestia.zone.ai.bt.leaves.Wander].
    *
-   * ### Why the step length is not the radius
+   * [radius] has no default so that `BestiaDomain` stays the one place a territory size is decided; this
+   * package knows nothing about the bestia domain.
    *
-   * It used to be: the draw was `nextLong(1, radius)`, so widening a creature's territory also widened its
-   * stride. At a radius worth calling a home range that asks [NavigationService] for a local path dozens of
-   * tiles long, which is past what the local tier is sized for - the budget fallback then fires on almost
-   * every attempt and the creature crawls one checked tile at a time, slower and dearer than with a small
-   * radius. Territory size and stride are separate questions, so they are separate parameters, and per-search
-   * cost no longer scales with the leash.
-   *
-   * ### Why the clamp is radial
-   *
-   * A per-axis `coerceIn` keeps a creature inside a *square*, which at 5 tiles is invisible and at 40 reads
-   * as a fenced plot. A disc is what a home range looks like, and [Vec3L.distance] is deliberately the same
-   * horizontal measure `Goals.RETURN_HOME` tests - a target this accepted but that goal considered out of
-   * range would put the creature in a loop. [radius] has no default so that `BestiaDomain` stays the one
-   * place a territory size is decided; this package deliberately knows nothing about the bestia domain.
-   *
-   * The draw is capped by the radius as well, so from anywhere inside the disc at least the inward directions
-   * land inside it and there is always something to pick. A creature that starts *outside* its range - one
-   * that has just fled - would otherwise have no legal candidate at all and stand still, so a target that is
-   * merely closer to home than it already is counts as well. `Goals.RETURN_HOME` outranks wandering and will
-   * normally have walked it back first; this only keeps the leaf from being a dead end when it has not.
+   * @return whether the entity is now walking a leg
    */
-  fun wanderStep(
-    context: BtContext,
-    home: Vec3L,
-    radius: Long,
-    stepTiles: Long = WANDER_STEP_TILES
-  ): Boolean {
+  fun wanderLeg(context: BtContext, home: Vec3L, radius: Long): Boolean {
     if (isMoving(context.world, context.entityId)) return true
 
     val from = position(context.world, context.entityId)
-    val reach = minOf(stepTiles, radius).coerceAtLeast(2)
+    var searches = 0
 
-    // Shuffled and then tried in order: a wander target can land in a rock face, and trying only one
-    // candidate per tick makes a creature in broken country look stuck rather than idle.
-    val candidates = DIRECTIONS.shuffled(random).map { direction ->
-      val distance = random.nextLong(1, reach)
-      Vec3L(
-        from.x + direction.x * distance,
-        from.y + direction.y * distance,
-        from.z
-      )
-    }
+    // Shuffled and then tried in order: a leg can land in a rock face, and one candidate per attempt would
+    // make a creature in broken country look stuck rather than idle. Bounded because each search that is
+    // actually run charges the tick's global pathfinding budget.
+    for (direction in DIRECTIONS.shuffled(random)) {
+      if (searches >= MAX_LEG_SEARCHES) break
 
-    for (target in candidates) {
+      val target = legTarget(from, direction, radius)
       if (target.x == from.x && target.y == from.y) continue
       if (!keepsTerritory(target, from, home, radius)) continue
-      val path = navigation.pathTo(from, target)
-        ?: navigation.stepToward(from, target)?.let { listOf(it) }
-        ?: continue
+
+      searches++
+      val path = navigation.pathTo(from, target) ?: continue
+
       return apply(context.world, context.entityId, path)
     }
 
     return false
+  }
+
+  /** A spot [WANDER_LEG_MIN_TILES]..[WANDER_LEG_MAX_TILES] along [direction], never further than [radius]. */
+  private fun legTarget(from: Vec3L, direction: Vec3L, radius: Long): Vec3L {
+    val longest = minOf(WANDER_LEG_MAX_TILES, radius)
+    val shortest = minOf(WANDER_LEG_MIN_TILES, longest)
+    val tiles = random.nextLong(shortest, longest + 1)
+
+    return Vec3L(
+      from.x + direction.x * tiles,
+      from.y + direction.y * tiles,
+      from.z
+    )
   }
 
   /**
@@ -191,7 +176,13 @@ class Locomotion(
     return true
   }
 
-  /** Whether [target] leaves the creature inside its home range, or at least nearer to it. */
+  /**
+   * Whether [target] leaves the creature inside its home range, or at least nearer to it.
+   *
+   * A disc rather than a box, because [Vec3L.distance] is the same horizontal measure `Goals.RETURN_HOME`
+   * tests: a target this accepted but that goal considered out of range would put the creature in a loop.
+   * "Nearer to it" is what keeps a creature that starts outside its range from having no legal candidate.
+   */
   private fun keepsTerritory(target: Vec3L, from: Vec3L, home: Vec3L, radius: Long): Boolean {
     val reach = target.distance(home)
     return reach <= radius || reach < from.distance(home)
@@ -199,12 +190,17 @@ class Locomotion(
 
   companion object {
     /**
-     * Tiles a creature covers in one wander bout, whatever its territory.
+     * Shortest and longest roaming leg, in tiles, whatever the creature's territory.
      *
      * Sized for the local pathfinding tier rather than for looks: short enough that `pathTo` answers from
-     * its budget instead of falling back to a single checked step. See [wanderStep].
+     * its per-tick budget. Territory size and stride are separate questions, so the draw is not taken off
+     * the radius - it is only capped by it.
      */
-    const val WANDER_STEP_TILES = 6L
+    const val WANDER_LEG_MIN_TILES = 3L
+    const val WANDER_LEG_MAX_TILES = 4L
+
+    /** Searches one leg may cost, so a hemmed-in creature cannot spend the whole tick's budget by itself. */
+    private const val MAX_LEG_SEARCHES = 3
 
     /** The eight walkable neighbours of a tile. Shared, so one per class rather than one per instance. */
     private val DIRECTIONS = listOf(
