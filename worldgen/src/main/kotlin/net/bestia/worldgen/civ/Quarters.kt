@@ -3,6 +3,7 @@ package net.bestia.worldgen.civ
 import net.bestia.worldgen.vector.Vec2d
 import kotlin.math.abs
 import kotlin.math.atan2
+import kotlin.math.max
 
 /**
  * How closely built and how regularly a quarter is laid out.
@@ -88,10 +89,24 @@ internal object Quarters {
         ?.let { out[it] = DistrictKind.CITADEL }
     }
 
+    // Ground held back for housing before anything else is placed.
+    //
+    // Housing is what a settlement is mostly made of, and every other kind here is either unconditional or
+    // floored at one - so on a small settlement the specials take every patch there is. Six patches with four
+    // roads arriving came back as a market, four gates and a workshop yard, with **nowhere to live**. The
+    // reserve is what the rest have to leave alone, and it binds only where the settlement is small enough for
+    // the floors to reach it.
+    val reserved = max(1, (patches.size * RESIDENTIAL_SHARE).toInt())
+    fun free(): Int = out.count { it == null }
+
     // The quarters at the gates, one per road that arrives. A gate quarter is where a town's strangers arrive and
     // is the reason "Egggate" is a place name: it is named for the way in, not for what is made there.
+    //
+    // Bounded by the patches as well as by the roads: a settlement of six cannot spend four of them on gates
+    // and still be a settlement.
+    val gates = minOf(MAX_GATE_QUARTERS, patches.size / PATCHES_PER_GATE)
     for ((i, approach) in frame.approaches.withIndex()) {
-      if (i >= MAX_GATE_QUARTERS) break
+      if (i >= gates || free() <= reserved) break
       patches.indices
         .filter { out[it] == null && patches[it].onOutline }
         .minByOrNull { angleBetween((patches[it].site - frame.centre).normalized(), approach) }
@@ -104,6 +119,7 @@ internal object Quarters {
       if (wanted.count(patches.size) <= 0) continue
 
       repeat(wanted.count(patches.size)) {
+        if (free() <= reserved) return@repeat
         val best = patches.indices
           .filter { out[it] == null }
           .maxByOrNull {
@@ -254,6 +270,12 @@ internal object Quarters {
 
   /** Most gate quarters a town gets, however many roads arrive. Beyond this a town is all gates. */
   private const val MAX_GATE_QUARTERS = 4
+
+  /** Patches a settlement needs per gate quarter, so a small one does not spend itself on its own entrances. */
+  private const val PATCHES_PER_GATE = 5
+
+  /** Share of a settlement's patches that stay residential whatever else wants them. */
+  private const val RESIDENTIAL_SHARE = 0.34
 
   /** Range of the tie-breaking noise added to a score. Small: it separates ties, it does not overrule a score. */
   private const val SCORE_JITTER = 0.08

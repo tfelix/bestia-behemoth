@@ -333,7 +333,8 @@ class TownStage(
   // 7: a farmstead is a house at the road and a barn across the yard, not one building.
   // 8: a street's rank comes from the traffic it carries, not from when it was drawn - see `StreetTraffic`.
   // 9: a block is set back from the rank the street was built at, not the rank its patch asked for.
-  override val version = 9
+  // 10: a settlement holds a share of its patches back for housing, so a small one is not all gates.
+  override val version = 10
 
   override val paramsVersion get() = GenRng.hash(params.digest().value, Culture.catalogueDigest(), SettlementTier.catalogueDigest())
   /**
