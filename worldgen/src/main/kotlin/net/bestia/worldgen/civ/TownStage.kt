@@ -334,7 +334,8 @@ class TownStage(
   // 8: a street's rank comes from the traffic it carries, not from when it was drawn - see `StreetTraffic`.
   // 9: a block is set back from the rank the street was built at, not the rank its patch asked for.
   // 10: a settlement holds a share of its patches back for housing, so a small one is not all gates.
-  override val version = 10
+  // 11: a settlement whose patches are all too small for a district falls back to inferring them.
+  override val version = 11
 
   override val paramsVersion get() = GenRng.hash(params.digest().value, Culture.catalogueDigest(), SettlementTier.catalogueDigest())
   /**
@@ -636,9 +637,13 @@ class TownStage(
     if (patches.isEmpty()) {
       out.addAll(Districts.of(placed, town.index, params.lotFrontage, nextId))
     } else {
-      out.addAll(
+      // Falling back where every patch came out under the floor a district needs. A quarter laid out as a park
+      // or a market is mostly empty by design, so a small core can leave `ofPatches` with nothing to emit - and
+      // a settlement with no district at all does not merely lose its names, it reports a built share of zero
+      // and makes every measurement taken after it a lie.
+      val designed =
         Districts.ofPatches(patches, quarters, placed, town.index, town.nameSeed, town.cultureIndex, nextId)
-      )
+      out.addAll(designed.ifEmpty { Districts.of(placed, town.index, params.lotFrontage, nextId) })
     }
 
     village?.green?.let { green ->

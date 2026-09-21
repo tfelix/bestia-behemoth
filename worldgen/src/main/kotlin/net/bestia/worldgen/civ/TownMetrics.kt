@@ -109,6 +109,10 @@ object TownMetrics {
      * Only the buildings inside one, because a district does not have to cover its settlement - a patch
      * holding too few buildings gets none, and the inferred path clusters rather than partitions. Divided
      * against every building in the town it stopped being a share at all: one village reported 148%.
+     *
+     * Zero therefore carries two meanings and the reader has to tell them apart: a settlement whose districts
+     * were never built on, and a settlement that has no district to measure against. A hamlet is usually the
+     * second - sixteen houses strung along one way cluster into no group large enough to name.
      */
     val builtShare: Double,
 
