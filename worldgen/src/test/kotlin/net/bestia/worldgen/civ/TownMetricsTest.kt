@@ -38,6 +38,9 @@ class TownMetricsTest {
       assertTrue(town.streetMetres > 0.0, "settlement ${town.settlement} has buildings and no street")
       assertTrue(town.wideShare in 0.0..1.0, "wideShare ${town.wideShare} is not a share")
       assertTrue(town.tangentialShare in 0.0..1.0, "tangentialShare ${town.tangentialShare} is not a share")
+      // Unasserted until a village reported 148%: the footprints were every building's and the area was only
+      // the districts', so a settlement its districts did not cover came back over one.
+      assertTrue(town.builtShare in 0.0..1.0, "builtShare ${town.builtShare} is not a share")
       assertTrue(town.medianFootprint > 0.0, "settlement ${town.settlement} has a zero median footprint")
       // p90 over p10, so below one means the percentiles came back the wrong way round.
       assertTrue(town.footprintSpread >= 1.0, "footprintSpread ${town.footprintSpread} is inverted")

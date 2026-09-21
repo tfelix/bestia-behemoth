@@ -101,10 +101,14 @@ object TownMetrics {
     val footprintSpread: Double,
 
     /**
-     * Building footprint over district area.
+     * Building footprint over district area, counting only the buildings that stand in a district.
      *
      * The open-space question the features can answer. Near 1 is a town with no yards, gardens or squares;
      * near 0 is a district that was claimed and never built on.
+     *
+     * Only the buildings inside one, because a district does not have to cover its settlement - a patch
+     * holding too few buildings gets none, and the inferred path clusters rather than partitions. Divided
+     * against every building in the town it stopped being a share at all: one village reported 148%.
      */
     val builtShare: Double,
 
@@ -161,6 +165,11 @@ object TownMetrics {
   ): Measured {
     val footprints = buildings.map { it.halfLength * it.halfWidth * 4.0 }.sorted()
     val districtArea = districts.sumOf { it.ring.area }
+    // Measured by containment for `Districts.ofPatches`' reason: which buildings ended up in a district is not
+    // the same question as which plots were cut there.
+    val housedFootprint = buildings
+      .filter { building -> districts.any { it.ring.contains(building.center) } }
+      .sumOf { it.halfLength * it.halfWidth * 4.0 }
 
     val widths = streets.associateWith { widthOf(it) }
     val widest = widths.values.maxOrNull() ?: 0.0
@@ -176,7 +185,7 @@ object TownMetrics {
       tangentialShare = tangentialShare(streets, centre, reach),
       medianFootprint = percentile(footprints, 0.5),
       footprintSpread = share(percentile(footprints, 0.9), percentile(footprints, 0.1)),
-      builtShare = share(footprints.sum(), districtArea),
+      builtShare = share(housedFootprint, districtArea),
       metresToWideStreet = percentile(
         buildings.map { building -> arteries.minOfOrNull { distanceTo(it.centerline, building.center) } ?: reach }
           .sorted(),
