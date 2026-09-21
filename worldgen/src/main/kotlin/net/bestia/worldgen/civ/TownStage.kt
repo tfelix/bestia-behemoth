@@ -336,7 +336,8 @@ class TownStage(
   // 10: a settlement holds a share of its patches back for housing, so a small one is not all gates.
   // 11: a settlement whose patches are all too small for a district falls back to inferring them.
   // 12: a settlement whose streets all sit inside its own boundary still gets a way in - see `StreetTraffic`.
-  override val version = 12
+  // 13: streets are grown by a Parish-Muller expansion rather than a random walk - see `StreetPlanner`.
+  override val version = 13
 
   override val paramsVersion get() = GenRng.hash(params.digest().value, Culture.catalogueDigest(), SettlementTier.catalogueDigest())
   /**

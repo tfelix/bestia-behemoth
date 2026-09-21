@@ -820,12 +820,44 @@ internal object StreetPlanner {
   // --- Organic --------------------------------------------------------------------------------------
 
   /**
-   * Radials out of the market square, side streets branching off them, and a few cross streets.
+   * Streets grown the way Parish and Müller grow them: a queue of proposals, each one aimed by what the town
+   * wants and then accepted, cut short or thrown away by what is already standing there.
    *
-   * The cross streets are not decoration. A pure branching growth is a *tree*, and a tree has no cycles, so
-   * nothing closes a block; snapping produces some cycles opportunistically and cannot be relied on to. That
-   * failure is worth naming because it does not look like a missing street - it looks like a town with streets
-   * and nothing on them. See [crossStreets] for what they are and why they stopped being rings.
+   * ### The three pieces, and which one was missing
+   *
+   * The paper's loop has three parts. *Global goals* decide where a street would like to go; *local
+   * constraints* decide what it is allowed to do when it gets there; and a *priority queue* decides what
+   * order that happens in, so the streets a town is organised around are finished before the lanes fill in
+   * behind them.
+   *
+   * What stood here had the shape of the loop and none of the three. The frontier was a FIFO, so an arterial
+   * and a lane two ranks below it were drawn in whatever order they happened to be pushed. There were no
+   * global goals at all: each step rolled a wander angle and turned by it, which is a random walk, and a
+   * random walk of [StreetParams.angleJitter] times `(1 + rank)` is **half a radian per step for a side
+   * street**. A street that turns thirty degrees every thirty metres does not get anywhere - which is why
+   * side streets never reached the next main street, why nothing closed, and why `crossStreets` had to be
+   * invented to put the cycles back by hand. And the local constraints were one rule of the three: snap to a
+   * nearby node.
+   *
+   * ### What it does now
+   *
+   * [goalFor] fans a few candidate bearings around the current heading, scores each by [Suitability] - how
+   * much town there is out that way, how steeply the ground rises along the way, whether it is dry - and
+   * takes the best. The jitter survives as a rotation of the whole fan rather than as the heading itself, so
+   * a street on featureless flat ground still runs roughly straight and only bends where the ground gives it
+   * a reason to. [fitted] applies the three canonical constraints: a candidate that crosses an existing
+   * street is cut at the crossing and stops growing, a candidate ending near an existing junction ends *at*
+   * it and stops growing, and a candidate running alongside a street it is not joining is refused.
+   *
+   * **The cut and the snap are the whole point.** Each one closes a face, and a face is a block; a growth
+   * that only ever branches is a tree, and a tree encloses nothing. They are also why a side street is now
+   * given a step budget measured as the arc to its neighbouring main street ([spanFor]) rather than the
+   * parent's remaining depth: a side street exists to reach the next main street, and one that stops short
+   * of it has done nothing.
+   *
+   * Seeds are the arterials out of the market, one per bearing [radialDirections] returns, plus one growing
+   * *inward* from the built edge on each bearing between them - the gaps the arterials leave. Those run
+   * after every arterial is finished, so what they meet is a network rather than empty ground.
    */
   private fun organic(
     frame: TownFrame,
@@ -837,49 +869,67 @@ internal object StreetPlanner {
     nodes.add(frame.centre)
 
     val directions = radialDirections(frame, roll, params)
+    val wanted = Suitability(frame, directions)
 
-    // Radials first, rank 0: these are the streets the town is organised around.
-    val frontier = ArrayDeque<Growth>()
-    for ((i, direction) in directions.withIndex()) {
-      frontier.addLast(Growth(frame.centre, direction, rank = 0, depth = 0, salt = i.toLong()))
+    // The queue holds indices into `pending`, keyed by delay. `DoubleIntHeap` breaks ties on the value, so
+    // two proposals at the same delay pop in the order they were offered and the layout stays a pure
+    // function of the seed - the property `the layout is a pure function of the seed` pins.
+    val pending = ArrayList<Proposal>()
+    val queue = DoubleIntHeap()
+
+    fun offer(proposal: Proposal) {
+      queue.push(proposal.delay, pending.size)
+      pending.add(proposal)
     }
 
-    // Far enough for a radial to reach the outermost ring, whatever the town's size. A fixed depth left the
-    // outer cross streets of a large town unconnected to its centre, which is visible from above as a set of
-    // terraces with no way between them.
-    val maxDepth = max(params.maxDepth, (frame.builtRadius / params.segmentLength).toInt() + 2)
+    // Far enough for an arterial to reach the outermost ring, whatever the town's size. A fixed depth left
+    // the edge of a large town unconnected to its centre, which reads from above as a set of terraces with
+    // no way between them.
+    val depth = max(params.maxDepth, (frame.builtRadius / params.segmentLength).toInt() + 2)
 
-    var stepCounter = 0L
-    while (frontier.isNotEmpty()) {
-      val growth = frontier.removeFirst()
-      if (growth.depth >= maxDepth) continue
+    for ((i, direction) in directions.withIndex()) {
+      offer(Proposal(frame.centre, direction, rank = 0, steps = depth, delay = 0.0, salt = i.toLong()))
+    }
 
-      val salt = growth.salt * 31 + stepCounter++
-      val wander = (roll(salt, WANDER_SALT) - 0.5) * 2.0 * params.angleJitter
-      val heading = growth.heading.rotated(wander * (1 + growth.rank))
-      val step = params.segmentLength * (if (growth.rank == 0) 1.0 else 0.8)
-      var end = growth.from + heading * step
+    // Delayed past the longest an arterial can run, so the ground these grow into is already committed.
+    for ((i, direction) in betweenBearings(directions).withIndex()) {
+      val edge = edgeAlong(frame, direction) ?: continue
+      offer(Proposal(edge, -direction, rank = 1, steps = depth, delay = depth + 1.0, salt = INWARD_SALT + i))
+    }
 
-      if (!frame.encloses(end)) continue
+    val budget = ((frame.builtRadius / params.segmentLength).pow(2.0) * SEGMENT_DENSITY).toInt()
+    var taken = 0L
 
-      // Snap to a node already there rather than run past it a metre away, which is what turns a grown
-      // network into a connected one - and every snap is a new cycle, hence a new block.
-      nodes.minByOrNull { it.distanceTo(end) }?.let { nearest ->
-        if (nearest.distanceTo(end) < params.snapRadius && nearest.distanceTo(growth.from) > 1.0) {
-          end = nearest
-        }
-      }
-      if (end.distanceTo(growth.from) < 1.0) continue
+    while (!queue.isEmpty && out.size < budget) {
+      val growth = pending[queue.pop()]
+      if (growth.steps <= 0) continue
 
-      out.add(StreetSegment(growth.from, end, growth.rank))
-      if (nodes.none { it.distanceTo(end) < 0.5 }) nodes.add(end)
+      val salt = growth.salt * 31 + taken++
+      val step = params.segmentLength * (if (growth.rank == 0) 1.0 else SIDE_STREET_STEP)
+      val heading = goalFor(frame, wanted, growth, step, params, roll, salt) ?: continue
+      val fit = fitted(frame, out, nodes, growth.from, growth.from + heading * step, params) ?: continue
 
-      frontier.addLast(Growth(end, heading, growth.rank, growth.depth + 1, salt))
+      out.add(StreetSegment(growth.from, fit.end, growth.rank))
+      if (nodes.none { it.distanceTo(fit.end) < JOINT }) nodes.add(fit.end)
+      // Cut short at a crossing or run onto an existing junction: the street has arrived, and pushing it on
+      // through what it just joined is how a network grows a second street down the middle of a block.
+      if (!fit.open) continue
 
-      if (roll(salt, BRANCH_SALT) < params.branchChance && growth.rank < 2) {
+      offer(Proposal(fit.end, heading, growth.rank, growth.steps - 1, growth.delay + 1.0, salt))
+
+      if (roll(salt, BRANCH_SALT) < params.branchChance && growth.rank < MAX_GROWN_RANK) {
         val side = if (roll(salt, SIDE_SALT) < 0.5) 1.0 else -1.0
         val turned = heading.rotated(side * (PI / 2 + (roll(salt, TURN_SALT) - 0.5) * 0.5))
-        frontier.addLast(Growth(end, turned, growth.rank + 1, growth.depth + 2, salt))
+        offer(
+          Proposal(
+            fit.end,
+            turned,
+            growth.rank + 1,
+            spanFor(frame, fit.end, directions.size, step, depth),
+            growth.delay + 1.0 + BRANCH_DELAY,
+            salt
+          )
+        )
       }
     }
 
@@ -887,13 +937,288 @@ internal object StreetPlanner {
     return out
   }
 
-  private class Growth(
+  /**
+   * One street waiting to be drawn: where from, which way, how much further it may go, and when its turn is.
+   *
+   * [steps] is a budget rather than a depth counter, because the two chains that use it want different
+   * lengths for different reasons - an arterial runs until it leaves the town, a side street runs until it
+   * reaches the next arterial. Counting down one number says that without the caller having to know which
+   * kind it is holding.
+   */
+  private class Proposal(
     val from: Vec2d,
     val heading: Vec2d,
     val rank: Int,
-    val depth: Int,
+    val steps: Int,
+    /** Queue key. Smaller is sooner; see [organic] for what the ordering buys. */
+    val delay: Double,
     val salt: Long
   )
+
+  /**
+   * How much town there is at a point: the global goal, as a field rather than as a rule.
+   *
+   * Parish and Müller steer their growth by a population density map. This is the same idea with the map the
+   * settlement already has - it thins towards the edge, thickens along the roads that arrive, and stops at
+   * the built boundary - so a street points itself at where the houses are going to be instead of rolling a
+   * direction and hoping.
+   *
+   * The approach term is deliberately mild. It is what puts the high street on the line between the gate and
+   * the market, which is how a town reads from above and how it worked; turned up, it becomes the starburst
+   * this rewrite exists to get rid of, because every street then wants to point at the middle.
+   */
+  private class Suitability(
+    private val frame: TownFrame,
+    private val approaches: List<Vec2d>
+  ) {
+
+    fun at(point: Vec2d): Double {
+      if (!frame.encloses(point)) return 0.0
+
+      val out = point - frame.centre
+      val radius = out.length
+      val reach = (radius / max(frame.builtRadius, 1.0)).coerceIn(0.0, 1.0)
+      // Quadratic rather than linear: flat across the middle of the town, falling away sharply only near the
+      // edge, which is where a street should start preferring to turn back rather than run out.
+      var value = 1.0 - reach * reach
+
+      if (radius > 1.0 && approaches.isNotEmpty()) {
+        val unit = out * (1.0 / radius)
+        val aligned = approaches.maxOf { it dot unit }.coerceAtLeast(0.0)
+        value += aligned.pow(APPROACH_FOCUS) * APPROACH_WEIGHT
+      }
+
+      return value
+    }
+  }
+
+  /**
+   * Which way this street goes next: the best of a fan of candidate bearings, not a rolled one.
+   *
+   * The fan is centred on the current heading and spans [StreetParams.angleJitter] either side, widened by
+   * rank exactly as the old wander was - so the parameter still means what its KDoc says. What changed is
+   * that the roll now *rotates the fan* instead of being the answer, and the candidates are scored. On
+   * ground with nothing to say the straightness term wins and the street runs on; where the field or the
+   * slope disagrees, it bends by as much as it is allowed to and no more.
+   */
+  private fun goalFor(
+    frame: TownFrame,
+    wanted: Suitability,
+    growth: Proposal,
+    step: Double,
+    params: StreetParams,
+    roll: (Long, Long) -> Double,
+    salt: Long
+  ): Vec2d? {
+    val spread = params.angleJitter * (1 + growth.rank)
+    val jitter = (roll(salt, WANDER_SALT) - 0.5) * 2.0 * spread * FAN_JITTER
+    val here = frame.groundAt(growth.from)
+
+    var best: Vec2d? = null
+    var bestScore = 0.0
+
+    for (k in 0 until GOAL_FAN) {
+      val offset = (k.toDouble() / (GOAL_FAN - 1) - 0.5) * 2.0 * spread
+      val turn = offset + jitter
+      val heading = growth.heading.rotated(turn)
+      val end = growth.from + heading * step
+
+      val score = wanted.at(end) * groundFactor(frame, here, growth.from, end, step) *
+          (1.0 - STRAIGHT_COST * (abs(turn) / spread).coerceAtMost(1.0))
+
+      if (score > bestScore) {
+        bestScore = score
+        best = heading
+      }
+    }
+
+    return best
+  }
+
+  /**
+   * How much the ground discourages a candidate: rise along it, and how much of it is dry.
+   *
+   * Water is a discount and not a veto, and that is load-bearing. A town on a river has streets on both
+   * banks, and growth that refuses to cross water never reaches the far one - the `a river through the
+   * middle costs the plots it covers and no more` case. [WET_FLOOR] leaves a wet candidate worth taking when
+   * every dry one is worse, so a street crosses where the channel is narrowest and `plan` then drops the
+   * span itself.
+   */
+  private fun groundFactor(
+    frame: TownFrame,
+    here: Double,
+    from: Vec2d,
+    to: Vec2d,
+    step: Double
+  ): Double {
+    val rise = abs(frame.groundAt(to) - here) / max(step, 1e-6)
+    val ease = 1.0 / (1.0 + rise * SLOPE_COST)
+
+    var dry = 0
+    for (i in 1..WET_PROBES) {
+      if (frame.buildable(from.lerp(to, i.toDouble() / WET_PROBES))) dry++
+    }
+
+    return ease * (WET_FLOOR + (1.0 - WET_FLOOR) * dry.toDouble() / WET_PROBES)
+  }
+
+  /** A candidate that survived [fitted]: where it actually ends, and whether it may grow on from there. */
+  private class Fit(val end: Vec2d, val open: Boolean)
+
+  /**
+   * The local constraints, in the paper's order: cut at a crossing, snap to a junction, refuse a duplicate.
+   *
+   * Cutting at the *first* crossing rather than any of them, because a candidate that reaches over two
+   * streets should end on the near one - carrying it to the far one would draw a street straight across the
+   * block between them.
+   *
+   * Streets meeting at [from] are exempt from all three rules. They are the candidate's own parent and
+   * siblings: a continuation is collinear with its parent and would refuse itself as a duplicate, and a
+   * junction it is growing out of is by definition within the snap radius of where it starts.
+   */
+  private fun fitted(
+    frame: TownFrame,
+    built: List<StreetSegment>,
+    nodes: List<Vec2d>,
+    from: Vec2d,
+    proposed: Vec2d,
+    params: StreetParams
+  ): Fit? {
+    if (!frame.encloses(proposed)) return null
+
+    var end = proposed
+    var open = true
+    var nearest = Double.MAX_VALUE
+
+    for (segment in built) {
+      if (joins(segment, from)) continue
+      val hit = Intersections.segmentCrossing(from, proposed, segment.a, segment.b) ?: continue
+      if (hit.second !in 0.0..1.0 || hit.third !in 0.0..1.0) continue
+      if (hit.second >= nearest) continue
+      nearest = hit.second
+      end = hit.first
+      open = false
+    }
+
+    var closest = params.snapRadius
+    for (node in nodes) {
+      if (node.distanceTo(from) < JOINT) continue
+      val reach = node.distanceTo(end)
+      if (reach >= closest) continue
+      closest = reach
+      end = node
+      open = false
+    }
+
+    if (end.distanceTo(from) < params.segmentLength * MIN_SEGMENT_SHARE) return null
+    if (crowds(built, from, end, params)) return null
+
+    return Fit(end, open)
+  }
+
+  /**
+   * Whether a candidate runs alongside a street it is not joining.
+   *
+   * Two streets a carriageway's width apart are one street drawn twice, and the block between them is too
+   * thin for `LotPlanner` to cut a plot out of. Measured off the candidate's midpoint against any street it
+   * shares neither end with, and only where the two are within [PARALLEL_COS] of parallel - a side street
+   * leaving at a right angle passes within metres of its parent and must not be refused for it.
+   */
+  private fun crowds(
+    built: List<StreetSegment>,
+    from: Vec2d,
+    end: Vec2d,
+    params: StreetParams
+  ): Boolean {
+    val along = end - from
+    val length = along.length
+    if (length < 1e-6) return true
+
+    val unit = along * (1.0 / length)
+    val middle = (from + end) * 0.5
+    val reach = params.snapRadius * PARALLEL_REACH
+
+    for (segment in built) {
+      if (joins(segment, from) || joins(segment, end)) continue
+
+      val span = segment.b - segment.a
+      val spanLength = span.length
+      if (spanLength < 1e-6) continue
+      if (abs(unit dot (span * (1.0 / spanLength))) < PARALLEL_COS) continue
+      if (distanceToSegment(middle, segment.a, segment.b) < reach) return true
+    }
+
+    return false
+  }
+
+  /** Whether a street has an end at a point, within the tolerance two welded nodes can differ by. */
+  private fun joins(segment: StreetSegment, at: Vec2d): Boolean =
+    segment.a.distanceTo(at) < JOINT || segment.b.distanceTo(at) < JOINT
+
+  private fun distanceToSegment(point: Vec2d, a: Vec2d, b: Vec2d): Double {
+    val span = b - a
+    val lengthSquared = span.lengthSquared
+    if (lengthSquared < 1e-12) return point.distanceTo(a)
+    val t = (((point - a) dot span) / lengthSquared).coerceIn(0.0, 1.0)
+    return point.distanceTo(a + span * t)
+  }
+
+  /**
+   * How many steps a side street gets: the arc from the main street it left to the next one round.
+   *
+   * A side street is worth drawing because it connects two main streets - that is what closes a block, and
+   * a side street that stops halfway has drawn a dead end instead. So its budget is the distance it has to
+   * cover, which at radius `r` with `n` main streets is `2 pi r / n`, plus slack for the bending it does on
+   * the way. Bounded below so a branch close to the market still gets a street, and above by the town's own
+   * depth so this cannot outlive an arterial.
+   */
+  private fun spanFor(frame: TownFrame, at: Vec2d, mains: Int, step: Double, depth: Int): Int {
+    val radius = at.distanceTo(frame.centre)
+    val arc = 2.0 * PI * radius / max(mains, 2)
+    return ((arc / max(step, 1e-6)).toInt() + SPAN_SLACK).coerceIn(MIN_SPAN, max(MIN_SPAN, depth))
+  }
+
+  /**
+   * The bearings between the main streets - where a town has an edge but no artery pointing at it.
+   *
+   * Growth seeded here runs *inward*, which is the half of the network the old growth could not produce:
+   * everything it drew was descended from a segment leaving the market, so every street was ultimately
+   * radial and the town read as a starburst however much the individual streets wandered.
+   */
+  private fun betweenBearings(directions: List<Vec2d>): List<Vec2d> {
+    if (directions.size < 2) return emptyList()
+
+    val sorted = directions.sortedBy { atan2(it.y, it.x) }
+    return sorted.indices.map { i ->
+      val from = atan2(sorted[i].y, sorted[i].x)
+      val next = sorted[(i + 1) % sorted.size]
+      val toRaw = atan2(next.y, next.x)
+      val to = if (toRaw <= from) toRaw + 2.0 * PI else toRaw
+      val middle = (from + to) * 0.5
+      Vec2d(cos(middle), sin(middle))
+    }
+  }
+
+  /**
+   * The furthest point out along a bearing that is still inside the town, or null if nothing along it is.
+   *
+   * Walked rather than solved, because the boundary is a warped ring and the closed form for where a ray
+   * leaves it is a search over its edges for no better answer. The walk costs a few dozen `contains` calls
+   * per settlement, once.
+   */
+  private fun edgeAlong(frame: TownFrame, direction: Vec2d): Vec2d? {
+    var found: Vec2d? = null
+    var travelled = EDGE_STEP
+
+    while (travelled <= frame.builtRadius) {
+      val at = frame.centre + direction * travelled
+      if (!frame.encloses(at)) break
+      found = at
+      travelled += EDGE_STEP
+    }
+
+    return found
+  }
 
   /**
    * Which way the main streets run: towards the roads that arrive, plus enough invented ones to make a
@@ -1270,6 +1595,130 @@ internal object StreetPlanner {
   private const val GRID_SALT = 0x36L
 
   // 0x38 is TownBoundary.ASPECT_SALT. The salts in this file share one keyed roll, so they share one space.
+
+  // --- Growth ---------------------------------------------------------------------------------------
+
+  /**
+   * Salt base for the seeds growing inward from the built edge.
+   *
+   * Offset well past the arterial seeds, which are salted by their own index. Two seeds sharing a salt would
+   * roll the same fan rotation at the same step count and grow into each other's mirror image.
+   */
+  private const val INWARD_SALT = 1_000L
+
+  /**
+   * Segments a town may grow, per unit of built radius squared over segment length squared.
+   *
+   * A cap rather than a target - growth normally stops because every chain has spent its budget or run into
+   * something. It exists because the queue can push two proposals per accepted segment, so a settlement whose
+   * constraints happen never to bite could otherwise fill its boundary at the resolution of the snap radius.
+   * Six is roughly four times what a town actually draws.
+   */
+  private const val SEGMENT_DENSITY = 6.0
+
+  /** How long a side street's step is against an arterial's. Unchanged from the growth this replaced. */
+  private const val SIDE_STREET_STEP = 0.8
+
+  /**
+   * Highest rank growth will branch to.
+   *
+   * Two, so nothing grown reaches rank 3 - which `StreetParams.laneWidth` claims in prose and
+   * `no town emits a rank-3 street` asserts.
+   */
+  private const val MAX_GROWN_RANK = 2
+
+  /**
+   * Queue delay a side street is pushed back by, in steps.
+   *
+   * This is the priority queue earning its place: eight is longer than any arterial chain, so **every**
+   * arterial in the town is drawn before the first side street is. That ordering is what makes the local
+   * constraints mean something - a side street then meets a finished skeleton and stops on it, where under
+   * the old FIFO it was drawn into empty ground and the arterial arrived later to cross it.
+   */
+  private const val BRANCH_DELAY = 8.0
+
+  /**
+   * Candidate bearings weighed per step.
+   *
+   * Odd, so one candidate is dead ahead and a street with nothing to steer for runs straight rather than
+   * picking whichever side of straight scored a hair higher. Five spans the fan at fourteen degrees a step at
+   * rank 0, which is finer than the geometry it is sampling.
+   */
+  private const val GOAL_FAN = 5
+
+  /**
+   * How much of the fan's own width the roll may rotate the whole fan by.
+   *
+   * What is left of the wander: a street still does not know exactly where it is going, but the uncertainty
+   * is now in *where it is looking* rather than in where it ends up. At 0.4 a street on flat, featureless
+   * ground still comes out straight, because [STRAIGHT_COST] charges the rotation and nothing pays for it.
+   */
+  private const val FAN_JITTER = 0.4
+
+  /**
+   * What turning the full width of the fan costs, as a share of the candidate's score.
+   *
+   * The term that makes a street a street. Without it the fan is decided entirely by a suitability field that
+   * is nearly flat across the middle of a town, so the winner is noise and the result is the random walk this
+   * replaced. A third is enough that a straight run beats a turn on level ground, and little enough that a
+   * slope or a boundary still turns the street.
+   */
+  private const val STRAIGHT_COST = 0.35
+
+  /** How sharply the approach bonus falls away off the bearing. Higher is a narrower lobe. */
+  private const val APPROACH_FOCUS = 4.0
+
+  /** How much a bearing a road arrives on is favoured, against a base field of 1 at the market. */
+  private const val APPROACH_WEIGHT = 0.35
+
+  /**
+   * What rise along a candidate costs it, per unit of gradient.
+   *
+   * Six puts a one-in-ten slope at 0.63 of level ground, and a one-in-four at 0.4 - discouraging rather than
+   * forbidding, because a town on a hillside has to climb it somehow. `TownFrame.groundAt` is already
+   * terraced the way the settlement's grading will terrace it, so this reads the slope the streets will
+   * actually be laid on and not the one the hill had.
+   */
+  private const val SLOPE_COST = 6.0
+
+  /** Points along a candidate tested for dry ground. */
+  private const val WET_PROBES = 3
+
+  /** What a wholly submerged candidate still scores, so a river can be crossed. See `groundFactor`. */
+  private const val WET_FLOOR = 0.12
+
+  /**
+   * Metres within which two street ends are the same junction.
+   *
+   * Half a metre, matching what the growth has always used to decide a node already exists, and well under
+   * `WELD_UNITS` so anything this calls one junction the planariser will too.
+   */
+  private const val JOINT = 0.5
+
+  /** Shortest a segment may be after the constraints have cut it, as a share of the step it asked for. */
+  private const val MIN_SEGMENT_SHARE = 0.3
+
+  /**
+   * How far from an existing street a near-parallel candidate is refused, in snap radii.
+   *
+   * One and a half is 16.5 m at the default, against a 12 m arterial carriageway - so the rule refuses a
+   * street that would leave no room for even one plot between the two, and allows one that leaves a thin
+   * block. Tighter and true duplicates survive; wider and a town cannot have two streets in sight of each
+   * other, which every town does.
+   */
+  private const val PARALLEL_REACH = 1.5
+
+  /** How aligned two streets must be to count as parallel: 0.94 is within twenty degrees. */
+  private const val PARALLEL_COS = 0.94
+
+  /** Steps a side street gets beyond the straight-line arc, to pay for the bending it does on the way. */
+  private const val SPAN_SLACK = 2
+
+  /** Fewest steps a side street gets, so a branch thrown close to the market is still a street. */
+  private const val MIN_SPAN = 3
+
+  /** Metres per step when walking out along a bearing to find the built edge. */
+  private const val EDGE_STEP = 8.0
 
 
 

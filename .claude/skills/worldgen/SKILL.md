@@ -122,7 +122,10 @@ decides the frame's own boundary:
   a circle. It **returns null** for a settlement it cannot house — above about seventy buildings — and that
   falls back to the grown layout.
 - **`StreetPlanner.organic` / `.grid`** — towns and cities, chosen by `Culture.layout`, plus every village too
-  big for the roadside model. A `TownPatches` core is added at `TOWN` and above.
+  big for the roadside model. A `TownPatches` core is added at `TOWN` and above. `organic` is a
+  Parish-Müller expansion: a priority queue of proposals, each aimed by a `Suitability` field and then
+  cut, snapped or refused by the three local constraints. **The cut and the snap are what close a block** —
+  a growth that only branches is a tree and encloses nothing.
 
 Two things are decided *after* the whole graph exists, because neither is knowable to the producer that drew a
 street: `StreetTraffic.ranked` re-derives every rank from through traffic (so a rank is not "when was this
