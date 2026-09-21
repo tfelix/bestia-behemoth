@@ -335,7 +335,8 @@ class TownStage(
   // 9: a block is set back from the rank the street was built at, not the rank its patch asked for.
   // 10: a settlement holds a share of its patches back for housing, so a small one is not all gates.
   // 11: a settlement whose patches are all too small for a district falls back to inferring them.
-  override val version = 11
+  // 12: a settlement whose streets all sit inside its own boundary still gets a way in - see `StreetTraffic`.
+  override val version = 12
 
   override val paramsVersion get() = GenRng.hash(params.digest().value, Culture.catalogueDigest(), SettlementTier.catalogueDigest())
   /**

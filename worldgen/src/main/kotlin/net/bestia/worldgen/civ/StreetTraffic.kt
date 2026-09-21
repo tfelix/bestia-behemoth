@@ -98,7 +98,16 @@ internal object StreetTraffic {
       best[sector] = node
     }
 
-    return best.filter { it >= 0 }
+    val bySector = best.filter { it >= 0 }
+    if (bySector.size >= 2) return bySector
+
+    // A settlement whose streets all sit inside the threshold - a core laid well within its own boundary - has
+    // no way in by the sector test, and returning none leaves every rank untouched. The two furthest junctions
+    // are the ends of the longest way through it, which is the least this can honestly call a through route.
+    return graph.nodes.indices
+      .filter { graph.degreeOf(it) > 0 }
+      .sortedByDescending { graph.nodes[it].distanceSquaredTo(frame.centre) }
+      .take(2)
   }
 
   /** Dijkstra from one node, returning the edge each node was reached by, or -1. */
