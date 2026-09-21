@@ -1,12 +1,13 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene format=3 uid="uid://di17won21kyqc"]
 
-[ext_resource type="Script" path="res://Game/UI/Map/map_overlay.gd" id="1_overlay"]
-[ext_resource type="Script" path="res://Game/UI/Map/map_view.gd" id="2_mapview"]
+[ext_resource type="Script" uid="uid://bcvqse2g4dnhl" path="res://Game/UI/Map/map_overlay.gd" id="1_overlay"]
+[ext_resource type="Script" uid="uid://d2afck03i4iyo" path="res://Game/UI/Map/map_view.gd" id="2_mapview"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_mappanel"]
 bg_color = Color(0.075, 0.065, 0.055, 1)
 
-[node name="MapOverlay" type="Control"]
+[node name="MapOverlay" type="Control" unique_id=856916513]
+layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -14,16 +15,16 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_overlay")
 
-[node name="Dim" type="ColorRect" parent="."]
-anchors_preset = 15
+[node name="Dim" type="ColorRect" parent="." unique_id=1155729829]
+layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 color = Color(0, 0, 0, 0.58)
 
-[node name="Panel" type="PanelContainer" parent="."]
-anchors_preset = 8
+[node name="Panel" type="PanelContainer" parent="." unique_id=2112606484]
+layout_mode = 0
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
@@ -36,51 +37,56 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_mappanel")
 
-[node name="Margin" type="MarginContainer" parent="Panel"]
+[node name="Margin" type="MarginContainer" parent="Panel" unique_id=169901864]
 layout_mode = 2
 theme_override_constants/margin_left = 10
 theme_override_constants/margin_top = 8
 theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 8
 
-[node name="Rows" type="VBoxContainer" parent="Panel/Margin"]
+[node name="Rows" type="VBoxContainer" parent="Panel/Margin" unique_id=116954642]
 layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="Header" type="HBoxContainer" parent="Panel/Margin/Rows"]
+[node name="Header" type="HBoxContainer" parent="Panel/Margin/Rows" unique_id=758852342]
 layout_mode = 2
 
-[node name="Title" type="Label" parent="Panel/Margin/Rows/Header"]
+[node name="Title" type="Label" parent="Panel/Margin/Rows/Header" unique_id=619361106]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 20
 text = "Map"
 vertical_alignment = 1
 
-[node name="Close" type="Label" parent="Panel/Margin/Rows/Header"]
+[node name="Close" type="Label" parent="Panel/Margin/Rows/Header" unique_id=1021612620]
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
 text = "M or Esc to close"
 horizontal_alignment = 2
 vertical_alignment = 2
 
-[node name="View" type="Control" parent="Panel/Margin/Rows"]
+[node name="View" type="Control" parent="Panel/Margin/Rows" unique_id=923263590]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 script = ExtResource("2_mapview")
+interactive = true
+follow_player = true
+show_north = true
+can_travel = true
+marker_scale = 2.0
 
-[node name="Footer" type="HBoxContainer" parent="Panel/Margin/Rows"]
+[node name="Footer" type="HBoxContainer" parent="Panel/Margin/Rows" unique_id=1106611452]
 layout_mode = 2
 
-[node name="Scale" type="Label" parent="Panel/Margin/Rows/Footer"]
+[node name="Scale" type="Label" parent="Panel/Margin/Rows/Footer" unique_id=1690953978]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 12
 text = "—"
 vertical_alignment = 2
 
-[node name="Help" type="Label" parent="Panel/Margin/Rows/Footer"]
+[node name="Help" type="Label" parent="Panel/Margin/Rows/Footer" unique_id=742261708]
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
 text = "drag to pan, wheel to zoom"

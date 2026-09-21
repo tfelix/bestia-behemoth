@@ -359,7 +359,7 @@ func _draw_places() -> void:
 		if not bounds.has_point(at):
 			continue
 
-		var tier := str(place.get("tier", ""))
+		var tier := _text_of(place, "tier")
 		var points: int = _LABEL_SIZES.get(tier, _LABEL_SIZE_DEFAULT)
 		var lift: float = _LABEL_OFFSETS.get(tier, _LABEL_OFFSET)
 		var width := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, points).x
@@ -446,15 +446,15 @@ func _on_right_click(at: Vector2) -> void:
 ## [code]kind[/code] arrive as enum names rather than as the server's English labels: the landmark kinds are a
 ## closed set, so they can live in [code]general.csv[/code] like every other fixed string.
 func label_of(place: Dictionary) -> String:
-	var name_of := str(place.get("name", ""))
+	var name_of := _text_of(place, "name")
 	if not name_of.is_empty():
 		return name_of
 
-	var poi := str(place.get("poi", ""))
+	var poi := _text_of(place, "poi")
 	if not poi.is_empty():
 		return tr("POI_" + poi)
 
-	var kind := str(place.get("kind", ""))
+	var kind := _text_of(place, "kind")
 	if kind.is_empty():
 		return ""
 
@@ -463,6 +463,17 @@ func label_of(place: Dictionary) -> String:
 	var key := "FEATURE_" + kind
 	var text := tr(key)
 	return "" if text == key else text
+
+
+## One of a place's optional string fields, or "" when it has none.
+##
+## A place carries every field it could have and sends JSON null for the ones it has not - an unnamed
+## landmark still arrives with a [code]name[/code] key. [method Dictionary.get]'s default only covers a
+## key that is absent, and [method @GlobalScope.str] of null is the literal "<null>", so reading one
+## straight puts that on the map in place of the fallback the caller meant to reach.
+static func _text_of(place: Dictionary, key: String) -> String:
+	var value: Variant = place.get(key)
+	return "" if value == null else str(value)
 
 
 ## The place under [param at], or an empty [Dictionary]. Nearest wins, so overlapping labels are reachable.
