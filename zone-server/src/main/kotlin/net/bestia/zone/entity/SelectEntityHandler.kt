@@ -2,6 +2,7 @@ package net.bestia.zone.entity
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ai.ecs.PlayerControlled
+import net.bestia.zone.ecs.battle.attack.AttackCancelService
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.session.EntityNotOwnedSessionException
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Component
 class SelectEntityHandler(
   private val connectionInfoService: ConnectionInfoService,
   private val world: WorldView,
+  private val attackCancelService: AttackCancelService,
 ) : InMessageProcessor.IncomingMessageHandler<SelectEntityCMSG> {
   override val handles = SelectEntityCMSG::class
 
@@ -50,6 +52,9 @@ class SelectEntityHandler(
 
     from?.let { previous ->
       world.modify(previous) { id -> remove(id, PlayerControlled::class) }
+      // Its standing attack order was the player's, not its own, and AiActSystem will not be looking after
+      // it either - AttackSystem does not care whether an entity is player-controlled.
+      attackCancelService.cancelAttack(previous)
     }
     world.modify(to) { id -> add(id, PlayerControlled) }
   }

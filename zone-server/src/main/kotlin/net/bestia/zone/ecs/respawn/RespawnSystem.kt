@@ -1,6 +1,7 @@
 package net.bestia.zone.ecs.respawn
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.zone.ecs.battle.attack.AttackTarget
 import net.bestia.zone.ecs.battle.damage.Dead
 import net.bestia.zone.ecs.battle.damage.TakenDamage
 import net.bestia.zone.ecs.battle.status.Health
@@ -47,7 +48,7 @@ class RespawnSystem(
 
   override val writes: ComponentClassSet = setOf(
     Position::class, Grounded::class, Path::class, Health::class,
-    Dead::class, TakenDamage::class, InCombat::class
+    Dead::class, TakenDamage::class, InCombat::class, AttackTarget::class
   )
 
   override fun update(world: World, deltaTime: Float) {
@@ -77,6 +78,7 @@ class RespawnSystem(
       world.remove(id, Dead::class)
       world.remove(id, TakenDamage::class)
       world.remove(id, InCombat::class)
+      world.remove(id, AttackTarget::class)
       world.remove(id, Respawn::class)
 
       LOG.debug { "Respawned entity $id at (${position.x},${position.y},${position.z})" }

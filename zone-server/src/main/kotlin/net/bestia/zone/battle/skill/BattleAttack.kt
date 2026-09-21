@@ -2,6 +2,7 @@ package net.bestia.zone.battle.skill
 
 import net.bestia.zone.battle.Element
 import net.bestia.zone.battle.ElementModifier
+import net.bestia.zone.battle.status.AttackSpeed
 import net.bestia.zone.skill.Skill
 
 /**
@@ -25,6 +26,12 @@ data class BattleAttack(
   val attackType: AttackType,
 
   val needsLineOfSight: Boolean,
+
+  /**
+   * The swing's own motion time, half the interval between two swings - see [AttackSpeed]. Belongs to the
+   * basic attack alone; a skill's cadence is its cast time and the skill pathway never reads this.
+   */
+  val baseAttackMotionMs: Int = AttackSpeed.BARE_HANDED_MOTION_MS,
 
   /**
    * Tiles in every direction from the aimed-at point, for an `AOE_GROUND` skill; null for every other
@@ -51,12 +58,16 @@ data class BattleAttack(
   companion object {
 
     /** The swing an entity with no weapon still has. Every mob attacks with this until equipment exists. */
-    fun getBasicMeleeAttack(element: Element = Element.NORMAL): BattleAttack = BattleAttack(
+    fun getBasicMeleeAttack(
+      element: Element = Element.NORMAL,
+      baseAttackMotionMs: Int = AttackSpeed.BARE_HANDED_MOTION_MS
+    ): BattleAttack = BattleAttack(
       strength = 5,
       manaCost = 0,
       range = 1,
       attackType = AttackType.MELEE_PHYSICAL,
       needsLineOfSight = false,
+      baseAttackMotionMs = baseAttackMotionMs,
       aoeRadius = null,
       attackElement = element,
       script = null,

@@ -35,6 +35,9 @@ var action: StringName = &"none"
 
 
 func _on_input_event(_camera: Node, event: InputEvent, event_position: Vector3, _normal: Vector3, _shape_idx: int) -> void:
+	if not MouseManager.is_click_event(event):
+		return
+
 	MouseManager.get_instance().object_clicked(self, event, event_position)
 
 

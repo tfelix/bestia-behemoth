@@ -1,5 +1,6 @@
 package net.bestia.zone.entity
 
+import net.bestia.zone.ecs.battle.attack.AttackCancelService
 import net.bestia.zone.ecs.battle.skill.CastCancelService
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
@@ -54,6 +55,7 @@ class MoveActiveEntityHandlerTest {
       world = world,
       logoutCancelService = LogoutCancelService(world),
       castCancelService = CastCancelService(world),
+      attackCancelService = AttackCancelService(world),
       deadActionGuard = DeadActionGuard(world),
       walkQuery = walkQuery,
     )

@@ -22,10 +22,9 @@ func handle_object_clicked(mgr: MouseManager, object: Node3D, event: InputEvent,
 
 	match _action_for(object):
 		DefaultAction.Kind.ATTACK:
-			# A swing is a new order and supersedes whatever we were walking towards. It is sent from
-			# where we stand and simply fizzles if it does not reach.
-			mgr.cancel_steering()
-			ConnectionManager.send_attack_entity(object.get_bestia_entity_id())
+			# Walked into reach first, then committed to: the server keeps swinging at it until one of them
+			# dies or we walk away. The request supersedes any pending goal itself.
+			mgr.request_attack(object, object.get_bestia_entity_id())
 
 		DefaultAction.Kind.TALK:
 			# Walked up to first, unlike a swing: you have to be in earshot.
@@ -42,9 +41,9 @@ func handle_object_clicked(mgr: MouseManager, object: Node3D, event: InputEvent,
 
 		DefaultAction.Kind.CHOP:
 			# Felling is damage: PropPromotionService gives the prop Health off its prop-kinds.yml max-hp
-			# the first time something names it as a target, so this is the same order as a swing.
-			mgr.cancel_steering()
-			ConnectionManager.send_attack_entity(object.entity_id)
+			# the first time something names it as a target, so this is the same order as a swing, and keeps
+			# going by itself until the tree is down.
+			mgr.request_attack(object, object.entity_id)
 
 		DefaultAction.Kind.USE_STATION:
 			mgr.request_interact(object, object.entity_id)

@@ -5,6 +5,8 @@ import net.bestia.zone.battle.BattleContextFactory
 import net.bestia.zone.battle.damage.DamageEntitySMSG
 import net.bestia.zone.battle.damage.Heal
 import net.bestia.zone.battle.damage.Miss
+import net.bestia.zone.battle.status.AttackSpeed
+import net.bestia.zone.ecs.battle.attack.AttackDelay
 import net.bestia.zone.ecs.battle.damage.Dead
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.battle.status.Invulnerable
@@ -40,28 +42,50 @@ class AttackExecutionService(
    * inside a system (the `BasicAttack` behaviour-tree leaf), or a `WorldView.modify` scope on the message
    * thread (`AttackEntityHandler`, when a player clicks something). A player's swing and a mob's bite are
    * the same swing, which is the point.
+   *
+   * Being the one place both reach, this is also where [AttackDelay] is enforced and armed - there is no
+   * second cadence anywhere, and no caller can swing faster by asking more often.
    */
-  fun attack(world: World, attackerId: EntityId, targetId: EntityId, attack: BattleAttack) {
+  fun attack(world: World, attackerId: EntityId, targetId: EntityId, attack: BattleAttack): AttackOutcome {
     // A player-owned body stays in the world after it dies, so "still alive" is no longer the same
     // question as "still a valid combatant". Neither end of a swing may be a corpse.
     if (world.has(attackerId, Dead::class) || world.has(targetId, Dead::class)) {
       LOG.debug { "Basic attack by $attackerId at $targetId fizzled: one of them is dead" }
-      return
+      return AttackOutcome.IMPOSSIBLE
+    }
+
+    // Before the context is built, and silently: with a standing attack order this is the answer on almost
+    // every tick, so it must cost one lookup and must not reach the log.
+    val delay = world.get(attackerId, AttackDelay::class)
+    if (delay != null && delay.remainingSeconds > 0f) {
+      return AttackOutcome.NOT_READY
     }
 
     val ctx = battleContextFactory.create(world, attackerId, attack, targetId, targetPosition = null)
     if (ctx == null) {
       LOG.debug { "Basic attack by $attackerId fizzled: attacker or target no longer resolvable" }
-      return
+      return AttackOutcome.IMPOSSIBLE
     }
 
     val strategy = attackStrategyFactory.getAttackStrategy(ctx)
     if (!strategy.isAttackPossible(ctx)) {
-      LOG.debug { "Basic attack by $attackerId fizzled: out of range or no line of sight" }
-      return
+      // Trace, not debug: a standing order against a target that has stepped away asks again every tick, and
+      // nothing arms the attack delay to slow it down - a swing that did not happen must not cost one.
+      LOG.trace { "Basic attack by $attackerId fizzled: out of range or no line of sight" }
+      return AttackOutcome.OUT_OF_RANGE
     }
 
-    apply(world, attackerId, targetId, strategy.execute(ctx))
+    val result = strategy.execute(ctx)
+
+    // Armed only once the swing is real, so stepping out of reach neither costs the attacker its delay nor
+    // offers a way to sidestep it.
+    world.update(attackerId, { AttackDelay() }) {
+      it.remainingSeconds = AttackSpeed.delaySeconds(attack.baseAttackMotionMs, ctx.attacker.statusValues)
+    }
+
+    apply(world, attackerId, targetId, result)
+
+    return AttackOutcome.SWUNG
   }
 
   private fun apply(world: World, attackerId: EntityId, targetId: EntityId, result: DamageResult) {

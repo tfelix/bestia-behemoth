@@ -45,6 +45,7 @@ class AttackEntityHandlerTest {
       ),
       logoutCancelService = LogoutCancelService(world),
       deadActionGuard = DeadActionGuard(world),
+      propPromotion = PropPromotionService(mockk(relaxed = true)),
     )
   }
 

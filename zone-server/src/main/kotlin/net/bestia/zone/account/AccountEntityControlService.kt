@@ -2,6 +2,7 @@ package net.bestia.zone.account
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.account.master.MasterResolver
+import net.bestia.zone.ecs.battle.attack.AttackCancelService
 import net.bestia.zone.ecs.battle.damage.Dead
 import net.bestia.zone.ecs.persistence.PersistAndRemove
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
@@ -25,6 +26,7 @@ class AccountEntityControlService(
   private val connectionInfoService: ConnectionInfoService,
   private val masterResolver: MasterResolver,
   private val savePointService: SavePointService,
+  private val attackCancelService: AttackCancelService,
   private val world: WorldView
 ) {
 
@@ -54,7 +56,7 @@ class AccountEntityControlService(
       ?: return
 
     // Before deactivateSession, which is what makes the session's owned entities unreachable.
-    respawnDeadOwnedBestias(event.accountId)
+    settleOwnedBestias(event.accountId)
 
     world.modify(masterEntity) { id ->
       add(id, PersistAndRemove)
@@ -66,15 +68,16 @@ class AccountEntityControlService(
   }
 
   /**
-   * Puts any owned bestia that died back on its feet as its owner leaves.
+   * Leaves every owned bestia in a state its owner can come back to: standing orders dropped, and any corpse
+   * put back on its feet.
    *
-   * The master's own dead-and-logged-out case is handled where it despawns, in
-   * [net.bestia.zone.ecs.persistence.persisters.MasterEntityPersister]. A bestia has no equivalent
-   * because it is never despawned on disconnect at all - it simply stays in the live world - so
-   * without this its corpse would still be lying there when the owner comes back, with no way to
-   * revive it.
+   * A bestia is never despawned on disconnect - it simply stays in the live world - so anything left on it
+   * outlives the session. A corpse would still be lying there with no way to revive it, and a standing attack
+   * order would have it fighting on with nobody driving it. The master needs neither: it despawns, and its own
+   * dead-and-logged-out case is handled in
+   * [net.bestia.zone.ecs.persistence.persisters.MasterEntityPersister].
    */
-  private fun respawnDeadOwnedBestias(accountId: Long) {
+  private fun settleOwnedBestias(accountId: Long) {
     val masterId = try {
       connectionInfoService.getMasterId(accountId)
     } catch (_: NoActiveSessionException) {
@@ -82,8 +85,13 @@ class AccountEntityControlService(
     }
 
     connectionInfoService.getOwnedEntitiesByMaster(accountId, masterId)
-      .filter { world.has(it.entityId, Dead::class) }
       .forEach { owned ->
+        attackCancelService.cancelAttack(owned.entityId)
+
+        if (!world.has(owned.entityId, Dead::class)) {
+          return@forEach
+        }
+
         val savePoint = savePointService.forPlayerBestia(owned.playerBestiaId)
         world.modify(owned.entityId) { id ->
           add(id, Respawn(savePoint))

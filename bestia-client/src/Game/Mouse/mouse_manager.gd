@@ -114,6 +114,12 @@ func request_interact(target: Node3D, entity_id: int) -> void:
 	MovementPilot.get_instance().interact(target, entity_id)
 
 
+## Commits to attacking [param target], walking into reach first if need be. Supersedes any pending goal
+## itself, so clicking a second thing simply retargets.
+func request_attack(target: Node3D, entity_id: int) -> void:
+	MovementPilot.get_instance().attack(target, entity_id)
+
+
 ## Abandons whatever the pilot was walking towards. Named for what it does rather than for what asks
 ## for it, because a journey and a walk to a prop end the same way and through the same call.
 func cancel_steering() -> void:
@@ -188,6 +194,15 @@ func cancel_targeting() -> void:
 		current_state.handle_cancel(self)
 
 
+## Whether a physics-picking event is a click at all. [signal CollisionObject3D.input_event] also fires
+## for mouse *motion* over the collider, once per frame, so every emitter filters with this before
+## calling [method object_clicked] - hovering a prop would otherwise run the click path at frame rate.
+static func is_click_event(event: InputEvent) -> bool:
+	return event is InputEventMouseButton
+
+
+## Routes a click on [param object] into the current state. Only ever reached with a button event, so a
+## state only has to decide *which* button it cares about.
 func object_clicked(object: Node3D, event: InputEvent, click_position: Vector3) -> void:
 	print_debug("object_clicked: object: %s" % [object.name])
 	current_state.handle_object_clicked(self, object, event, click_position)
@@ -243,7 +258,9 @@ func select_entity(entity: Node3D) -> void:
 ## to via get_bestia_entity_id() - see BestiaVisual.get_bestia_entity_id(). Falls
 ## back to 0 ("no entity"), the same sentinel used across entity_manager.gd.
 func _get_selected_entity_id() -> int:
-	if selected_entity and selected_entity.has_method("get_bestia_entity_id"):
+	# Guarded, unlike the has_method() alone: nothing clears the selection when its entity vanishes, so a
+	# killed target leaves a freed node here until something else is picked.
+	if is_instance_valid(selected_entity) and selected_entity.has_method("get_bestia_entity_id"):
 		return selected_entity.get_bestia_entity_id()
 	return 0
 

@@ -5,6 +5,7 @@ import net.bestia.zone.ai.core.behavior.BtNode
 import net.bestia.zone.ai.core.behavior.Status
 import net.bestia.zone.battle.Element
 import net.bestia.zone.battle.skill.AttackExecutionService
+import net.bestia.zone.battle.skill.AttackOutcome
 import net.bestia.zone.battle.skill.BattleAttack
 import net.bestia.zone.battle.skill.SkillExecutionService
 import net.bestia.zone.ecs.battle.skill.KnownSkills
@@ -59,21 +60,30 @@ class UseSkill(
  * which is why nothing seeds them a skill id any more — the old arrangement had them casting id 0, a row that
  * is not in `skills.yml` and never was.
  *
+ * Rate limiting is *not* the tree's job here, unlike [UseSkill]: the attack delay lives on the entity, so
+ * wrapping this in a `cooldown { }` would add a second cadence that reset every time the agent replanned.
+ *
  * Resolves inline rather than off-thread: a swing does no world manipulation beyond staging the damage.
  */
 class BasicAttack(
   private val targetId: EntityId,
   private val attacks: AttackExecutionService,
+  baseAttackMotionMs: Int,
 ) : BtNode {
+
+  // TODO Take the weapon and its element off the attacker once an equipment system exists.
+  private val attack = BattleAttack.getBasicMeleeAttack(Element.NORMAL, baseAttackMotionMs)
 
   override fun tick(context: BtContext): Status {
     val world = context.world
     if (!world.isAlive(targetId)) return Status.FAILURE
 
-    // TODO Take the weapon and its element off the attacker once an equipment system exists.
-    attacks.attack(world, context.entityId, targetId, BattleAttack.getBasicMeleeAttack(Element.NORMAL))
-
-    return Status.SUCCESS
+    return when (attacks.attack(world, context.entityId, targetId, attack)) {
+      AttackOutcome.SWUNG -> Status.SUCCESS
+      // Neither is a reason to replan, and FAILURE would be one: AiActSystem clears the plan on it.
+      AttackOutcome.NOT_READY, AttackOutcome.OUT_OF_RANGE -> Status.RUNNING
+      AttackOutcome.IMPOSSIBLE -> Status.FAILURE
+    }
   }
 
   override fun toString(): String = "BasicAttack(target=$targetId)"

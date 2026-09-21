@@ -4,7 +4,7 @@ package net.bestia.zone.ai.domain.bestia
  * One attack a bestia can throw at a target, in whatever detail the planner needs to reason about it:
  * how close it has to be ([range]), how expensive it nominally is ([baseCost]) before remembered
  * [EffectivenessKey] effectiveness adjusts that cost up or down, and how often it may be repeated
- * ([cooldownSeconds]).
+ * ([cooldownSeconds], before the creature's own AGI and DEX shorten it).
  *
  * [id] is the authoring name a profile and a log line use. [skillId] is the catalogue row
  * `SkillExecutionService` resolves - **null means the basic attack**, which is not in the catalogue at all
@@ -19,4 +19,14 @@ data class AttackDefinition(
   val baseCost: Float = 5f,
   val skillId: Long? = null,
   val cooldownSeconds: Float = 1.5f,
-)
+) {
+
+  /**
+   * [cooldownSeconds] expressed as an attack motion, which is half the interval between swings - see
+   * `AttackSpeed`. This is what feeds the one attack-delay gate, so the authored cadence stays the creature's
+   * baseline rather than becoming a second, competing floor.
+   */
+  fun attackMotionMs(): Int {
+    return (cooldownSeconds * 500f).toInt()
+  }
+}

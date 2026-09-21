@@ -87,6 +87,12 @@ func interact(target: Node3D, entity_id: int) -> void:
 	_start(InteractGoal.new(target, entity_id))
 
 
+## Swings at [param target], walking to it first if it is out of reach. One message is sent on arrival and the
+## server keeps swinging from there, so the goal is done the moment it lands.
+func attack(target: Node3D, entity_id: int) -> void:
+	_start(AttackGoal.new(target, entity_id))
+
+
 ## Stops steering. Safe to call when idle, which is what lets every manual order call it without
 ## asking first.
 ##

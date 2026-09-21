@@ -5,6 +5,7 @@ import net.bestia.zone.ecs.movement.Path
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.WorldView
+import net.bestia.zone.ecs.battle.attack.AttackCancelService
 import net.bestia.zone.ecs.battle.damage.DeadActionGuard
 import net.bestia.zone.ecs.battle.skill.CastCancelService
 import net.bestia.zone.ecs.logout.LogoutCancelService
@@ -25,6 +26,7 @@ class MoveActiveEntityHandler(
   private val world: WorldView,
   private val logoutCancelService: LogoutCancelService,
   private val castCancelService: CastCancelService,
+  private val attackCancelService: AttackCancelService,
   private val deadActionGuard: DeadActionGuard,
   private val walkQuery: LocalWalkQuery,
 ) : InMessageProcessor.IncomingMessageHandler<MoveActiveEntityCMSG> {
@@ -48,6 +50,9 @@ class MoveActiveEntityHandler(
     // backstop.
     castCancelService.cancelCast(activeEntityId)
     castCancelService.cancelCraft(activeEntityId)
+
+    // Walking away is how a player calls off a fight - there is no other message for it.
+    attackCancelService.cancelAttack(activeEntityId)
 
     world.modify(activeEntityId) { id ->
       if (msg.path.isEmpty()) {

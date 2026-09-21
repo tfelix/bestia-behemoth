@@ -59,13 +59,14 @@ class AttackActionTemplate(
    * it had killed something that is still hitting it. Succeeding only on a real death keeps the belief
    * honest, and the whole fight is one plan step rather than a replan per swing.
    *
-   * The selector reads in priority order: if the target is gone we are done; otherwise swing when off
-   * cooldown (`optional`, because being mid-cooldown is not a failure) and report RUNNING.
+   * The selector reads in priority order: if the target is gone we are done; otherwise swing (`optional`,
+   * because being mid-attack-delay is not a failure) and report RUNNING. The cadence is the swing's own
+   * attack delay, not a `cooldown { }` around it, so it survives a replan instead of resetting with the tree.
    */
   private fun fightUntilDead(targetId: Long, attack: AttackDefinition) = selector {
     condition("target is dead") { ctx -> !ctx.world.isAlive(targetId) }
     sequence {
-      optional { cooldown(attack.cooldownSeconds) { node(swing(targetId, attack)) } }
+      optional { node(swing(targetId, attack)) }
       run("still fighting") { Status.RUNNING }
     }
   }
@@ -76,7 +77,7 @@ class AttackActionTemplate(
    */
   private fun swing(targetId: Long, attack: AttackDefinition) = attack.skillId
     ?.let { UseSkill(targetId, it, skills) }
-    ?: BasicAttack(targetId, attackExecution)
+    ?: BasicAttack(targetId, attackExecution, attack.attackMotionMs())
 
   companion object {
     private const val UNKNOWN_ARCHETYPE = "unknown"
