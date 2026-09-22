@@ -50,3 +50,5 @@ ERROR_TALK_OUT_OF_RANGE,They are too far away to hear you.
 BESTIA_BLOB,Blob
 BESTIA_DOOM_MASTER_OF_DOOM,Doom Master of Doom
 BESTIA_TOWNSFOLK_COMMONER,Townsperson
+ITEM_OBTAINED_AMOUNT,%dx %s
+ITEM_OBTAINED,Obtained %s

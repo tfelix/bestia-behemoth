@@ -20,6 +20,7 @@ const _BASIC_SKILL_PRIMER := "BASIC_SKILL_PRIMER"
 @onready var _map_marks: MapMarks = $MapMarks
 @onready var _mark_name_popup: MarkNamePopup = $MarkNamePopup
 @onready var _mark_delete_popup: MarkDeletePopup = $MarkDeletePopup
+@onready var _obtained_items: ObtainedItems = $ObtainedItems
 
 ## Item ids of the map charts, from items.yml. The minimap exists exactly while one of these is carried.
 const _CHART_ENABLING_ITEM_IDS := [21]
@@ -127,6 +128,8 @@ func _ready() -> void:
 	# with the inventory it was already being sent. No map channel message, no coverage-changed push.
 	inventory.inventory_updated.connect(_on_inventory_updated.bind(inventory))
 	_on_inventory_updated(inventory)
+
+	inventory.items_gained.connect(_obtained_items.show_gains)
 
 	DialogManager.show_local_once(_BASIC_SKILL_PRIMER)
 

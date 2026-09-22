@@ -25,6 +25,7 @@
 [ext_resource type="Script" uid="uid://t7ftdjhb107i" path="res://Game/UI/Map/map_marks.gd" id="23_mapmarks"]
 [ext_resource type="PackedScene" path="res://Game/UI/Map/MarkNamePopup.tscn" id="24_markpopup"]
 [ext_resource type="PackedScene" path="res://Game/UI/Map/MarkDeletePopup.tscn" id="25_markdelpopup"]
+[ext_resource type="PackedScene" path="res://Game/UI/ObtainedItems/ObtainedItems.tscn" id="26_obtained"]
 
 [node name="UI" type="Control" unique_id=549600065]
 layout_mode = 3
@@ -100,6 +101,9 @@ layout_mode = 1
 layout_mode = 1
 
 [node name="Location" parent="." unique_id=1390602605 instance=ExtResource("22_location")]
+layout_mode = 1
+
+[node name="ObtainedItems" parent="." unique_id=1390602606 instance=ExtResource("26_obtained")]
 layout_mode = 1
 
 [node name="BuffList" parent="." unique_id=1824369573 instance=ExtResource("9_74y3c")]
