@@ -1,6 +1,11 @@
 class_name Chat
 extends Control
 
+## The cursor came to rest on an item named in a line. Which window shows its details is [code]ui.gd[/code]'s
+## to decide, the same way it owns the map popups.
+signal item_hovered(item: ItemResource)
+signal item_hover_ended()
+
 @onready var chat_input: LineEdit = %ChatInput
 @onready var lines_container: VBoxContainer = %Lines
 @onready var scroll_container: ScrollContainer = %Scroll
@@ -12,6 +17,11 @@ extends Control
 
 var _history: Array[String] = []
 var _history_index: int = -1
+
+## The line the cursor is currently over an item in. Kept because a line freed under the cursor never fires
+## [signal RichTextLabel.meta_hover_ended], and two things free one: /clear and the [member max_chat_lines]
+## trim - either of which would otherwise leave the details showing for the rest of the session.
+var _hovered_line: RichTextLabel = null
 
 ## Maps ChatMode OptionButton index to Bnet.Mode enum int values (Party=0, Guild=1, Public=3).
 ## Index 0=Public(/s), 1=Party(/p), 2=Guild(/g)
@@ -25,6 +35,10 @@ const _ERROR_COLOR := Color(0.90, 0.35, 0.35)
 ## Distinct from [constant _ERROR_COLOR] because the two read differently at a glance, which is the whole
 ## value of colouring them at all: red is "that did not happen", yellow is "here is something you need".
 const _SYSTEM_COLOR := Color(0.95, 0.82, 0.35)
+
+## Blue, for something of the player's own that can be looked at more closely - the ink the map already draws
+## their own marks in.
+const _ITEM_COLOR := Color(0.62, 0.85, 1.0)
 
 
 func _ready() -> void:
@@ -136,35 +150,93 @@ func error_line(text: String) -> void:
 	_add_chat_line(text, _ERROR_COLOR)
 
 
-## Adds a new chat line in any colour, and makes sure not more than the allowed lines are added.
-## If the chat was scrolled down it should scroll down too.
+## The player came into possession of something. The item is named in its own colour and answers to a hover.
+##
+## Takes the item rather than a finished line for the reason the colour is not a parameter either: this is
+## the only line rendered as markup, and a caller free to pass markup is free to pass anything.
+func obtained_line(item: ItemResource, amount: int) -> void:
+	# The count is inside the link as well as the name. At chat font size a bare item name is a small thing
+	# to have to hit with the cursor.
+	var named := tr("ITEM_OBTAINED_AMOUNT") % [amount, tr(item.name_key)]
+	var link := "[url=%d][color=#%s]%s[/color][/url]" % [item.item_id, _ITEM_COLOR.to_html(false), named]
+
+	var line := _add_rich_chat_line(tr("CHAT_ITEM_OBTAINED") % link)
+	line.meta_hover_started.connect(_begin_item_hover.bind(line))
+	line.meta_hover_ended.connect(func(_meta: Variant) -> void: _end_item_hover(line))
+	line.tree_exiting.connect(func() -> void: _end_item_hover(line))
+
+
+func _begin_item_hover(meta: Variant, line: RichTextLabel) -> void:
+	# An item can leave the catalogue between a line being written and that line being hovered.
+	var item := ItemDB.get_instance().get_item(int(meta))
+	if item == null:
+		return
+
+	_hovered_line = line
+	item_hovered.emit(item)
+
+
+## Ends the hover only for the line that owns it, so a line trimmed off the top does not put out the details
+## the player is reading about a different one.
+func _end_item_hover(line: RichTextLabel) -> void:
+	if _hovered_line != line:
+		return
+
+	_hovered_line = null
+	item_hover_ended.emit()
+
+
+## Adds a new chat line in any colour.
 ##
 ## Private: callers outside pick a *kind* of line - [method system_line] or [method error_line] - and the
 ## colour follows from that, so the palette stays in one place.
 func _add_chat_line(text: String, color: Color = Color.WHITE) -> void:
-	# Check if the scroll container is scrolled to the bottom
-	var was_at_bottom = scroll_container.scroll_vertical >= scroll_container.get_v_scroll_bar().max_value - scroll_container.get_v_scroll_bar().page
-
-	# Create new chat line label
-	var new_line = Label.new()
+	var new_line := Label.new()
 	new_line.text = text
-	new_line.layout_mode = 2
 	new_line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	if color != Color.WHITE:
 		new_line.add_theme_color_override("font_color", color)
 
-	# Add the new line to the container
-	lines_container.add_child(new_line)
+	_append_line(new_line)
 
-	# Remove old lines if we exceed max_chat_lines
+
+## A line that carries markup, for the only kind of line this window writes itself.
+##
+## Deliberately not offered to callers outside, and deliberately not what [method _add_chat_line] became:
+## every other line holds text a player or the server typed, and with BBCode enabled markup in that is markup
+## they wrote - a [code][img][/code] in a public message would draw on everyone else's screen.
+func _add_rich_chat_line(bbcode: String) -> RichTextLabel:
+	var new_line := RichTextLabel.new()
+	new_line.bbcode_enabled = true
+	# Without both of these a RichTextLabel scrolls its own text inside a fixed height instead of growing to
+	# fit the line, which in this container means a one-line-tall window.
+	new_line.fit_content = true
+	new_line.scroll_active = false
+	new_line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	# An underlined meta reads as a web link rather than as a thing in the world.
+	new_line.meta_underlined = false
+	new_line.text = bbcode
+
+	_append_line(new_line)
+
+	return new_line
+
+
+## Hangs a line at the bottom, keeps the window inside [member max_chat_lines], and keeps a chat that was
+## scrolled to the bottom at the bottom.
+func _append_line(line: Control) -> void:
+	var was_at_bottom = scroll_container.scroll_vertical >= scroll_container.get_v_scroll_bar().max_value - scroll_container.get_v_scroll_bar().page
+
+	line.layout_mode = 2
+	lines_container.add_child(line)
+
 	while lines_container.get_child_count() > max_chat_lines:
 		var oldest_line = lines_container.get_child(0)
 		lines_container.remove_child(oldest_line)
 		oldest_line.queue_free()
 
-	# Scroll to bottom if we were at bottom before adding the line
 	if was_at_bottom:
-		# Use call_deferred to ensure the scroll happens after the UI updates
+		# Deferred so the scroll runs after the layout has taken the new line into account.
 		call_deferred("_scroll_to_bottom")
 
 

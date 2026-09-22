@@ -129,7 +129,7 @@ func _ready() -> void:
 	inventory.inventory_updated.connect(_on_inventory_updated.bind(inventory))
 	_on_inventory_updated(inventory)
 
-	inventory.items_gained.connect(_obtained_items.show_gains)
+	inventory.items_gained.connect(_on_items_gained)
 
 	DialogManager.show_local_once(_BASIC_SKILL_PRIMER)
 
@@ -317,6 +317,15 @@ func _on_inventory_updated(inventory: Inventory) -> void:
 
 func _on_map_unavailable() -> void:
 	_chat.system_line(_MAP_UNAVAILABLE_TEXT)
+
+
+## Said twice on purpose: the banner is for the player who is looking at the world and will not read the
+## chat, the chat line is the record they can scroll back to and ask what the thing actually was.
+func _on_items_gained(gains: Array) -> void:
+	_obtained_items.show_gains(gains)
+
+	for gain in gains:
+		_chat.obtained_line(gain["item"], gain["amount"])
 
 
 func _on_master_profile_inventory_win_toggled() -> void:
