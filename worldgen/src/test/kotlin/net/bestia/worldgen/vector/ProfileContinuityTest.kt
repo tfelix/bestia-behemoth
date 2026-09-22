@@ -24,7 +24,8 @@ class ProfileContinuityTest {
     bedElevation = { flatTerrain },
     width = { 20.0 },
     depth = { 4.0 },
-    shoulder = { 30.0 }
+    shoulder = { 30.0 },
+    waterElevation = { flatTerrain - 1.0 }
   )
 
   private fun heightAcross(

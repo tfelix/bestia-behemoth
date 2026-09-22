@@ -23,6 +23,24 @@ import kotlin.test.assertNotEquals
  */
 class WorldParamsTest {
 
+  /**
+   * The defaults survive their own `require`s.
+   *
+   * Trivial-looking, and it earned its place the hard way: a params field was added whose default sat
+   * outside the bound the same commit asserted on it, so [WorldParams.DEFAULT] threw from its own static
+   * initialiser. Every one of the two hundred-odd tests that builds a world then failed with
+   * `NoClassDefFoundError: Could not initialize class WorldParams` - fifty-two unrelated red classes, not
+   * one of which named the field or the bound.
+   *
+   * `DEFAULT` being constructible is the precondition for most of this suite and nothing asserted it
+   * directly. Reading a single field forces the initialiser, so this fails as itself rather than as a
+   * cascade.
+   */
+  @Test
+  fun `the default params satisfy their own validation`() {
+    assertNotEquals(0L, WorldParams.DEFAULT.resolved.version)
+  }
+
   @Test
   fun `erosion reapplies the ocean margin tectonics carved`() {
     val params = WorldParams(tectonics = TectonicsParams(oceanBorderDepth = 900.0, oceanBorderWobble = 1_500.0))
@@ -100,10 +118,17 @@ class WorldParamsTest {
     // again when the shore was given a width and then a traced coastline: `TownParams` is world tier,
     // `ShoreParams` reaches both, and `ChunkMaterializer.VERSION` went to 4. A change that moved only one
     // of them would be the surprise.
-    assertEquals(4_945_067_453_346_623_498L, WorldParams.DEFAULT.version, "re-pin: the world tuning moved")
+    //
+    // Both moved again when the rivers were rebuilt: `HydrologyParams` gained the corridor probe, the
+    // pool-riffle terms and a forwarded `detail`, which is world tier, and `ChunkMaterializer.VERSION`
+    // went to 5 for the river bed material, which is chunk tier. The world-tier half also carries the
+    // cross-street removal from `StreetParams` landing in the same tree - an aggregate over every params
+    // class cannot separate two changes that are both in it, which is the one thing this number is worse
+    // at than `ParamsVersionTest`'s per-class pins. Re-derive it rather than adjust it if either moves.
+    assertEquals(1_365_366_339_911_597_912L, WorldParams.DEFAULT.version, "re-pin: the world tuning moved")
     // Pinned as a pair so each half stays checkable: a world-tier retune has to move the number above and
     // leave this one alone, and a chunk-tier one the reverse. This is the half the chunk cache is keyed on.
-    assertEquals(690_848_464_108_215_249L, WorldParams.DEFAULT.chunkTierVersion, "re-pin: the chunk tier moved")
+    assertEquals(-6_999_444_330_786_159_475L, WorldParams.DEFAULT.chunkTierVersion, "re-pin: the chunk tier moved")
   }
 
   private fun config() = StandardWorld.demoConfig().copy(widthCells = 64, heightCells = 64)

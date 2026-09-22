@@ -536,31 +536,6 @@ data class StreetParams(
   /** Fewest radial streets, however few roads arrive. A town with one road still has a crossroads. */
   val minRadials: Int = 3,
   val maxRadials: Int = 7,
-  /**
-   * Cross streets off each main street, run to the next but one.
-   *
-   * ### Why these are not radii any more
-   *
-   * They were three closed rings at surveyed fractions of the built radius, then three arcs at the same
-   * fractions, and both are why a town read as a wheel from above: every cross street in the town stood at one
-   * of three distances from the middle, so every house fronted onto one of three circles. Making them arcs
-   * stopped the eye closing the circle and left the circle there.
-   *
-   * A cross street now runs **from one main street to the next but one**, which is the reason one exists: to
-   * get between them without walking in to the market and out again. Each end is rolled independently inside
-   * its own band of [crossStreetNear] to [crossStreetFar], so two cross streets in a town share no radius, and
-   * a single one is not even at a constant radius along its own length. See `StreetPlanner.crossStreets` for
-   * why it reaches past its neighbour rather than stopping at it.
-   *
-   * Two per main street rather than three rings for the whole town, and a town has three to seven main
-   * streets - so this is six to fourteen cross streets where there were three arcs. They are what closes a cycle,
-   * and a cycle is what makes a block: see [StreetPlanner.organic].
-   */
-  val crossStreetsPerMainStreet: Int = 2,
-  /** Closest a cross street's end may sit to the middle, as a fraction of the built radius. */
-  val crossStreetNear: Double = 0.22,
-  /** Furthest out a cross street's end may sit, as a fraction of the built radius. */
-  val crossStreetFar: Double = 0.88,
   /** Vertices around the town's own edge. Capped by `Ring.MAX_VERTICES`. */
   val boundaryVertices: Int = 28,
   /**
@@ -603,8 +578,8 @@ data class StreetParams(
   /**
    * Full carriageway of a rank-[RANK_SPAN] street, in metres.
    *
-   * **No street a town emits today has rank 3.** Growth stops branching at rank 2, cross streets are rank 1,
-   * the grid emits 0 to 2 and a patch outline is 2. So this sets where the ratio between the three ranks that
+   * **No street a town emits today has rank 3.** Growth stops branching at rank 2, the grid emits 0 to 2 and
+   * a patch outline is 2. So this sets where the ratio between the three ranks that
    * do exist is anchored, rather than a width anything is stamped with. `StreetNetworkTest` pins both halves
    * of that claim, so it stays a fact rather than a comment.
    */
@@ -625,12 +600,6 @@ data class StreetParams(
     require(minRadials in 1..maxRadials) {
       "minRadials $minRadials must be in [1, maxRadials $maxRadials]; a town with no radial has no streets"
     }
-    require(crossStreetsPerMainStreet >= 0) { "crossStreetsPerMainStreet must not be negative, was $crossStreetsPerMainStreet" }
-    // Fractions of the built radius, near inside far, both inside the town they cross.
-    require(crossStreetNear > 0.0 && crossStreetNear < crossStreetFar) {
-      "crossStreetNear $crossStreetNear must be positive and below crossStreetFar $crossStreetFar"
-    }
-    require(crossStreetFar < 1.0) { "crossStreetFar must be inside the built radius, was $crossStreetFar" }
     require(boundaryVertices in 3..Ring.MAX_VERTICES) {
       "boundaryVertices must be in [3, ${Ring.MAX_VERTICES}], was $boundaryVertices"
     }
@@ -704,9 +673,6 @@ data class StreetParams(
     snapRadius = source.double("snapRadius", snapRadius),
     minRadials = source.int("minRadials", minRadials),
     maxRadials = source.int("maxRadials", maxRadials),
-    crossStreetsPerMainStreet = source.int("crossStreetsPerMainStreet", crossStreetsPerMainStreet),
-    crossStreetNear = source.double("crossStreetNear", crossStreetNear),
-    crossStreetFar = source.double("crossStreetFar", crossStreetFar),
     boundaryVertices = source.int("boundaryVertices", boundaryVertices),
     boundaryRoughness = source.double("boundaryRoughness", boundaryRoughness),
     boundaryLobes = source.double("boundaryLobes", boundaryLobes),
@@ -726,9 +692,6 @@ data class StreetParams(
     .put("snapRadius", snapRadius)
     .put("minRadials", minRadials)
     .put("maxRadials", maxRadials)
-    .put("crossStreetsPerMainStreet", crossStreetsPerMainStreet)
-    .put("crossStreetNear", crossStreetNear)
-    .put("crossStreetFar", crossStreetFar)
     .put("boundaryVertices", boundaryVertices)
     .put("boundaryRoughness", boundaryRoughness)
     .put("boundaryLobes", boundaryLobes)
@@ -835,9 +798,9 @@ internal object StreetPlanner {
    * global goals at all: each step rolled a wander angle and turned by it, which is a random walk, and a
    * random walk of [StreetParams.angleJitter] times `(1 + rank)` is **half a radian per step for a side
    * street**. A street that turns thirty degrees every thirty metres does not get anywhere - which is why
-   * side streets never reached the next main street, why nothing closed, and why `crossStreets` had to be
-   * invented to put the cycles back by hand. And the local constraints were one rule of the three: snap to a
-   * nearby node.
+   * side streets never reached the next main street, why nothing closed, and why a set of surveyed cross
+   * streets had to be invented to put the cycles back by hand. And the local constraints were one rule of the
+   * three: snap to a nearby node.
    *
    * ### What it does now
    *
@@ -858,6 +821,17 @@ internal object StreetPlanner {
    * Seeds are the arterials out of the market, one per bearing [radialDirections] returns, plus one growing
    * *inward* from the built edge on each bearing between them - the gaps the arterials leave. Those run
    * after every arterial is finished, so what they meet is a network rather than empty ground.
+   *
+   * ### The cross streets this used to need
+   *
+   * There was a `crossStreets` pass here that surveyed chords between the main streets, and its own KDoc said
+   * plainly why: a growth that only branches is a tree, so something had to close the cycles by hand. That
+   * reason is gone - the cut and the snap close them - and the pass turned out to be **costing** buildings
+   * rather than buying them. Measured on the same world with it and without it: 3167 buildings against 3320,
+   * and one village went from 137 of the 151 plots it wanted on 3594 m of street to all 151 on 2630 m. A
+   * surveyed chord is street laid where the growth did not ask for any, and `LotPlanner` wastes the frontage
+   * at each end of every chain it adds. It was deleted along with `StreetParams.crossStreetsPerMainStreet`
+   * and the two band fractions.
    */
   private fun organic(
     frame: TownFrame,
@@ -933,7 +907,6 @@ internal object StreetPlanner {
       }
     }
 
-    out.addAll(crossStreets(frame, directions, params, rank = 1, roll = roll))
     return out
   }
 
@@ -1246,143 +1219,6 @@ internal object StreetPlanner {
     return out.take(params.maxRadials)
   }
 
-  /**
-   * Cross streets: from each main street to the next but one, at a distance rolled for each end.
-   *
-   * ### What this replaced, and why
-   *
-   * Cross streets used to be drawn on circles about the town centre - closed rings first, then arcs of them -
-   * at [StreetParams] fractions of the built radius shared by the whole town. A cross street is far the longest
-   * chain in the network, so most of a town's plots front onto one; putting every cross street at one of three
-   * radii therefore put nearly every house in the town on one of three circles. Cutting the rings into arcs
-   * stopped the eye closing the circle. It did not move a single house off one.
-   *
-   * The circle was never the reason a cross street exists. **The reason is that the main streets need
-   * connecting to each other**, so that getting from one to the next does not mean walking in to the market and
-   * out again - and that reason says nothing about a radius. Drawing it as what it is gives each cross street
-   * its own distance from the middle, and gives its two ends different distances, so a town has no radius that
-   * anything is lined up on.
-   *
-   * ### Why it reaches past its neighbour
-   *
-   * Each one runs to the next main street **but one**, crossing the one between. Joining neighbours was tried
-   * first and is the shorter street: `LotPlanner` lays plots along a chain and wastes the frontage at each end,
-   * so a town of short chords filled 38 per cent of its district area where this reach fills 49, for the same
-   * number of buildings. The crossing in the middle costs nothing either - it is one more cycle, so one more
-   * block.
-   *
-   * ### The property that must survive
-   *
-   * Cycles. A pure branching growth is a tree, a tree encloses nothing, and `BlockSubdivider` needs enclosed
-   * ground - this is why ring streets were introduced in the first place, and losing it would not look like a
-   * missing street, it would look like a town with streets and nothing on them. A cross street between two
-   * main streets closes a loop with them and the centre, exactly as an arc crossing them did, and there are now
-   * more of them: two per main street over three to seven of them, against three arcs for the whole town.
-   *
-   * The ends sit *on* the radial bearings rather than on the grown streets themselves, which have wandered by
-   * [StreetParams.angleJitter] by the time they get out here. `planarise` welds the crossing wherever it
-   * actually falls, so the cycle closes on the real geometry rather than on the bearing it was aimed at.
-   */
-  private fun crossStreets(
-    frame: TownFrame,
-    directions: List<Vec2d>,
-    params: StreetParams,
-    rank: Int,
-    roll: (Long, Long) -> Double
-  ): List<StreetSegment> {
-    if (directions.size < 2 || params.crossStreetsPerMainStreet <= 0) return emptyList()
-
-    val out = ArrayList<StreetSegment>()
-    // Sorted so that "the next but one" is the next but one *round the town*, rather than whichever bearing the
-    // growth happened to be seeded with next. Unsorted, the reach would skip an arbitrary number of them.
-    val sorted = directions.sortedBy { atan2(it.y, it.x) }
-    // Two main streets have no "next but one" - it wraps back to the street itself, and a cross street from a
-    // bearing to that same bearing is a piece of the main street. Such a town joins its two instead.
-    val reachPast = if (sorted.size >= 3) 2 else 1
-
-    for (main in sorted.indices) {
-      val from = sorted[main]
-      val to = sorted[(main + reachPast) % sorted.size]
-
-      for (n in 0 until params.crossStreetsPerMainStreet) {
-        val salt = main.toLong() * 31 + n
-        val a = frame.centre + from * (frame.builtRadius * reach(params, roll, salt, n, CROSS_NEAR_SALT))
-        val b = frame.centre + to * (frame.builtRadius * reach(params, roll, salt, n, CROSS_FAR_SALT))
-        if (a.distanceTo(b) < params.segmentLength) continue
-
-        out.addAll(chord(frame, a, b, rank, params, roll, salt))
-      }
-    }
-
-    return out
-  }
-
-  /**
-   * Where one end of the [n]th cross street off one main street sits, as a fraction of the built radius.
-   *
-   * Rolled inside that street's own band rather than across the whole range, and the reason is measured: two
-   * ends rolled freely can land a few metres apart, and the strip between two cross streets that close is too
-   * thin for `BlockSubdivider` to cut a plot from. Free rolls cost a 128 km world 400 plots and made *more*
-   * cross streets produce *fewer* buildings, which is the signature of the strip being the problem rather than
-   * the count.
-   *
-   * Bands do not put the streets back on shared radii: the band is a share of *this town's* built radius, the
-   * roll inside it is per main street, and the two ends roll separately - so no two cross streets in a town
-   * stand at one distance, and neither does one street along its own length.
-   */
-  private fun reach(
-    params: StreetParams,
-    roll: (Long, Long) -> Double,
-    salt: Long,
-    n: Int,
-    channel: Long
-  ): Double {
-    val width = (params.crossStreetFar - params.crossStreetNear) / params.crossStreetsPerMainStreet
-    val floor = params.crossStreetNear + width * n
-    return floor + roll(salt, channel) * width
-  }
-
-  /**
-   * One cross street, as a run of segments bowed away from the straight line between its ends.
-   *
-   * Bowed because a straight line between two main streets is a chord, and a town of straight chords reads as a
-   * polygon as plainly as a town of arcs reads as a circle. The bow is a single half-sine with a rolled depth
-   * and sign, which keeps the street smooth - per-vertex noise gives a corner every forty metres, which is a
-   * worse artefact than the shape it fixes.
-   */
-  private fun chord(
-    frame: TownFrame,
-    a: Vec2d,
-    b: Vec2d,
-    rank: Int,
-    params: StreetParams,
-    roll: (Long, Long) -> Double,
-    salt: Long
-  ): List<StreetSegment> {
-    val out = ArrayList<StreetSegment>()
-    val span = a.distanceTo(b)
-    val steps = max(2, (span / params.segmentLength).toInt())
-
-    val across = Vec2d(-(b.y - a.y), b.x - a.x).normalized()
-    val bow = span * CHORD_BOW * (roll(salt, CHORD_BOW_SALT) - 0.5) * 2.0
-
-    val point = { i: Int ->
-      val t = i.toDouble() / steps
-      a.lerp(b, t) + across * (bow * sin(t * PI))
-    }
-
-    for (i in 0 until steps) {
-      val p = point(i)
-      val q = point(i + 1)
-      // Dropped rather than deflected: `plan` filters the whole set for passable ground anyway, and a cross
-      // street that loses its middle to a river still contributes the two stubs either side.
-      if (!frame.encloses(p) || !frame.encloses(q)) continue
-      out.add(StreetSegment(p, q, rank))
-    }
-
-    return out
-  }
-
   // --- Grid -----------------------------------------------------------------------------------------
 
   /**
@@ -1580,18 +1416,7 @@ internal object StreetPlanner {
   private const val SIDE_SALT = 0x33L
   private const val TURN_SALT = 0x34L
   private const val RADIAL_SALT = 0x35L
-  private const val CROSS_NEAR_SALT = 0x37L
-  private const val CROSS_FAR_SALT = 0x39L
-  private const val CHORD_BOW_SALT = 0x3AL
 
-  /**
-   * How far a cross street bows off the straight line between its ends, as a share of its own length.
-   *
-   * A tenth is plainly a curve at a hundred metres and never doubles the street's length. Bigger and a cross
-   * street starts to reach past the radial it was aimed at, which `planarise` then welds into a junction
-   * nobody meant.
-   */
-  private const val CHORD_BOW = 0.10
   private const val GRID_SALT = 0x36L
 
   // 0x38 is TownBoundary.ASPECT_SALT. The salts in this file share one keyed roll, so they share one space.

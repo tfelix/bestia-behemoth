@@ -11,6 +11,8 @@ import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.pipeline.GeneratedWorld
 import net.bestia.worldgen.pipeline.StandardWorld
 import net.bestia.worldgen.vector.AreaFeature
+import net.bestia.worldgen.vector.FeatureEvaluator
+import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.MarkerFeature
 import net.bestia.worldgen.vector.PolylineFeature
 import net.bestia.worldgen.vector.Profiles
@@ -398,6 +400,28 @@ object ProbeMain {
       // asymmetric cross-section is visible or is a sub-voxel rounding error - see Profiles.ChannelShape.
       val bends = ArrayList<Double>()
 
+      // Path length over straight-line distance, per reach. The one number that says whether a river
+      // *looks* like a river, and it was missing while every river in the world came out at about 1.01 -
+      // which is a drawn line. Tightness cannot stand in for it: tightness is `curvature * width`, so
+      // lengthening the meander wavelength lowers it while making the river visibly more sinuous. Per
+      // reach rather than per station, because it is a property of a whole reach.
+      val sinuosity = ArrayList<Double>()
+
+      // Metres the bed sits below the ground the river found, over the centreline.
+      //
+      // Measured against everything *except* the rivers themselves, and that distinction is the whole of
+      // the number. Against the bare `BaseHeightField` it reads 160 m deep and means nothing: by the time
+      // hydrology runs, the glacial stage has cut troughs tens of metres into that field, and a river lying
+      // correctly on a trough floor scores the trough's depth as if it had dug it. What is wanted is the
+      // river's own cut - how deep a slot it makes in the ground it was routed over - so the evaluator
+      // below is built from every feature that is not a channel or a junction.
+      val incision = ArrayList<Double>()
+      val preRiver = FeatureEvaluator(
+        generated.world.features.all().filter {
+          it.kind != FeatureKind.RIVER_CHANNEL && it.kind != FeatureKind.RIVER_CONFLUENCE
+        }
+      )
+
       generated.world.features.all().filterIsInstance<PolylineFeature>()
         .filter { it.kind.name == "RIVER_CHANNEL" }
         .forEach { river ->
@@ -420,6 +444,17 @@ object ProbeMain {
           }
 
           val line = river.centerline
+          for (station in 0 until river.stations.stationCount) {
+            val at = line.pointAt(line.arcLengthAt(station))
+            val found = preRiver.heightAt(at.x, at.y, generated.base.heightAt(at.x, at.y))
+            incision.add(found - river.stations.valueAt(bedChannel, station))
+          }
+
+          val span = line.points.first().distanceTo(line.points.last())
+          if (span > 0.0 && line.length > 0.0) {
+            sinuosity.add(line.length / span)
+          }
+
           for (station in 0 until river.stations.stationCount - 1) {
             val run = line.arcLengthAt(station + 1) - line.arcLengthAt(station)
             if (run <= 0.0) continue
@@ -452,6 +487,28 @@ object ProbeMain {
       println("                   min      p25      p50      p75      max")
       println("  width m     ${quantiles(widths)}")
       println("  depth m     ${quantiles(depths)}")
+
+      if (incision.isNotEmpty()) {
+        incision.sort()
+        println()
+        println("incision over ${incision.size} stations, bed below the ground the river was routed over")
+        println("                   min      p25      p50      p75      max")
+        println("  metres      ${quantiles(incision)}")
+        println("  deeper than 25 m (reads as a gorge)  " +
+            percent(incision.count { it > 25.0 }, incision.size))
+      }
+
+      if (sinuosity.isNotEmpty()) {
+        sinuosity.sort()
+        println()
+        println("sinuosity over ${sinuosity.size} reaches, path length over straight-line distance")
+        println("                   min      p25      p50      p75      max")
+        println("  sinuosity   ${quantiles(sinuosity)}")
+        // A straight ditch is 1.00; an ordinary lowland river runs 1.2 to 1.5; past about 1.7 it is
+        // actively meandering. A median under 1.05 means the meander is not reaching the geometry.
+        println("  reaches under 1.05 (reads as a drawn line)  " +
+            percent(sinuosity.count { it < 1.05 }, sinuosity.size))
+      }
 
       val thin = widths.count { it < voxel }
       val shallow = depths.count { it < voxel }

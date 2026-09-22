@@ -553,7 +553,8 @@ namespace BestiaBehemothClient.Game.World
         var surfaceKind = (BlockAppearance.SurfaceKind)kind;
         tile.Surfaces[kind] = Apply(
           tile.Surfaces[kind], mesh.Surfaces[kind], MaterialFor(surfaceKind),
-          $"{surfaceKind.ToString().ToLowerInvariant()} {mesh.Key}"
+          $"{surfaceKind.ToString().ToLowerInvariant()} {mesh.Key}",
+          surfaceKind != BlockAppearance.SurfaceKind.Terrain
         );
       }
 
@@ -638,7 +639,12 @@ namespace BestiaBehemothClient.Game.World
         (Rgba8 << (int)Godot.Mesh.ArrayFormat.FormatCustom3Shift));
     }
 
-    private MeshInstance3D Apply(MeshInstance3D instance, ChunkSurface surface, Material material, string name)
+    /// <param name="transparent">
+    /// Whether this surface is drawn with a blended material, which decides how Godot sorts it against the
+    /// neighbouring chunks' copies of the same surface.
+    /// </param>
+    private MeshInstance3D Apply(
+      MeshInstance3D instance, ChunkSurface surface, Material material, string name, bool transparent = false)
     {
       if (surface == null || surface.IsEmpty)
       {
@@ -662,6 +668,28 @@ namespace BestiaBehemothClient.Game.World
       {
         instance = new MeshInstance3D { Name = name };
         AddChild(instance);
+
+        if (transparent)
+        {
+          // Sort a transparent chunk by the centre of its bounding box rather than by the corner of it
+          // nearest the camera, which is Godot's default.
+          //
+          // A chunk's water is a thin sheet inside a box 32 m across and up to 256 m tall, so for two
+          // neighbouring chunks the nearest corner of each is very nearly the same distance away, and which
+          // one wins flips under sub-metre camera movement. That flip is per chunk and lands exactly on the
+          // chunk grid, which is what draws a hard seam along a river every 32 m.
+          //
+          // Centre distance is the worse rule in general - the centre of a box need not be anywhere near the
+          // water inside it - and the better one here, because the chunks are a regular grid of equal boxes,
+          // so centre distance is monotone in camera distance across that grid and yields one stable order.
+          // If it still flips down a long river at a grazing angle, the next step is smaller sub-meshes, not
+          // a different sort key.
+          instance.SortingUseAabbCenter = true;
+
+          // A translucent sheet has no business casting an opaque shadow onto the very bed its depth fade is
+          // read against - it darkens the water in proportion to how much water there is.
+          instance.CastShadow = GeometryInstance3D.ShadowCastingSetting.Off;
+        }
       }
 
       instance.Mesh = arrayMesh;

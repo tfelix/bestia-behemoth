@@ -76,10 +76,8 @@ class ParamsValidationTest {
   }
 
   @Test
-  fun `a town with no radial street, or a ring outside the town, is refused`() {
+  fun `a town with no radial street is refused`() {
     assertFailsWith<IllegalArgumentException> { StreetParams(minRadials = 9, maxRadials = 7) }
-    assertFailsWith<IllegalArgumentException> { StreetParams(crossStreetNear = 0.9, crossStreetFar = 0.5) }
-    assertFailsWith<IllegalArgumentException> { StreetParams(crossStreetFar = 1.4) }
   }
 
   @Test

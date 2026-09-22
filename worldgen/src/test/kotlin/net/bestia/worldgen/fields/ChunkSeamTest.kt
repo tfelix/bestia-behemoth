@@ -103,7 +103,8 @@ class ChunkSeamTest {
       bedElevation = { s -> course.pointAt(s).let { terrain.heightAt(it.x, it.y) } },
       width = { 11.0 },
       depth = { 3.5 },
-      shoulder = { 18.0 }
+      shoulder = { 18.0 },
+      waterElevation = { s -> course.pointAt(s).let { terrain.heightAt(it.x, it.y) } - 0.9 }
     )
 
     val store = storeWith("hydrology", listOf(river))
@@ -139,7 +140,8 @@ class ChunkSeamTest {
       bedElevation = { 96.0 },
       width = { 7.0 },
       depth = { 2.5 },
-      shoulder = { 9.0 }
+      shoulder = { 9.0 },
+      waterElevation = { 95.4 }
     )
     val track = LinearFeatures.road(
       id = FeatureId(12),
@@ -209,7 +211,8 @@ class ChunkSeamTest {
         bedElevation = { 130.0 },
         width = { 11.0 },
         depth = { 3.5 },
-        shoulder = { 18.0 }
+        shoulder = { 18.0 },
+        waterElevation = { 129.1 }
       )
       val store = FeatureStore().apply { add(StageId("bad-hydrology"), listOf(river)); freeze() }
 

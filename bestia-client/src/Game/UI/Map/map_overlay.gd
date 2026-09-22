@@ -8,7 +8,8 @@ extends Control
 ## pausing: the world carries on, and the player marker keeps moving while the map is open.
 ##
 ## Opens centred on the player and then stops following, so panning away stays where it was put. Re-opening
-## re-centres, which is the behaviour that needs no button.
+## re-centres, which is the behaviour that needs no button - but re-opening keeps the zoom, because a player
+## who went out to look at the next valley wants it there again, and the centre is the part that goes stale.
 ##
 ## Only openable while a chart is carried, for the reason [Minimap] is only visible then: charts are the only
 ## source of map knowledge, so a player holding none would get a full screen of fog. A whole screen of it is
@@ -25,7 +26,8 @@ signal place_selected(place: Dictionary)
 @onready var _title: Label = $Panel/Margin/Rows/Header/Title
 @onready var _scale_label: Label = $Panel/Margin/Rows/Footer/Scale
 
-## Level the map opens at. Level 4 is 16 m to the pixel, so the panel shows about 16 km of ground across.
+## Level the map opens at [i]the first time[/i]; after that the view keeps whatever the wheel left it on.
+## Level 4 is 16 m to the pixel, so the panel shows about 16 km of ground across.
 ##
 ## Deliberately not the whole world, which was the first answer and the wrong one. Charts are the only source
 ## of map knowledge, so the whole world at a glance is almost entirely fog: the widest single survey is 5 km,
@@ -75,7 +77,8 @@ func open() -> void:
 		return
 
 	visible = true
-	_view.go_to_level(_OPEN_LEVEL)
+	# The zoom is deliberately left alone - see [constant _OPEN_LEVEL]. It is set once in [method setup] and
+	# is the view's own from then on.
 	_view.centre_on_player()
 	# Deliberately after centring: it follows for exactly one frame, so a player who opens the map while
 	# running gets it centred on where they are rather than where they were when the scene loaded.

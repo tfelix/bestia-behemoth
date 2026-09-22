@@ -505,6 +505,44 @@ namespace BestiaBehemothClient.Game.World.Mesh
     /// <summary>The mesher's mask for one surface.</summary>
     public byte[] MaskOf(SurfaceKind kind) => _mask[(int)kind];
 
+    /// <summary>
+    /// One surface plus the terrain, for deciding whether a fluid crossing is a free surface or a bank.
+    /// </summary>
+    /// <remarks>
+    /// A crossing in a fluid's own field is that fluid's free surface only if the empty side is genuinely
+    /// empty - not merely empty <i>of this fluid</i>. Against a bank the empty side is full of rock, and the
+    /// face belongs to the terrain pass, which draws it opaque; drawing it in the fluid pass as well puts a
+    /// translucent wall over an opaque one.
+    ///
+    /// <para>
+    /// Deliberately the terrain and not "everything that is not me". Water meeting lava would otherwise be
+    /// suppressed from both sides at once and leave a hole between the two, and
+    /// <c>LavaIsItsOwnSurfaceAndDoesNotMergeWithWater</c> says that pair must keep drawing.
+    /// </para>
+    /// </remarks>
+    public byte[] BackedMaskOf(SurfaceKind kind)
+    {
+      var backed = _backed[(int)kind];
+      if (backed != null)
+      {
+        return backed;
+      }
+
+      var mine = _mask[(int)kind];
+      var ground = _mask[(int)SurfaceKind.Terrain];
+      backed = new byte[mine.Length];
+      for (var i = 0; i < backed.Length; i++)
+      {
+        backed[i] = (byte)(mine[i] | ground[i]);
+      }
+
+      _backed[(int)kind] = backed;
+      return backed;
+    }
+
+    /// <summary>Built on demand and kept, because a pass asks for one per chunk. See <see cref="BackedMaskOf"/>.</summary>
+    private readonly byte[][] _backed = new byte[SurfaceKinds][];
+
     /// <summary>Whether any block belongs to this surface, so an empty pass can be skipped.</summary>
     public bool Occupies(SurfaceKind kind) => _present[(int)kind];
 

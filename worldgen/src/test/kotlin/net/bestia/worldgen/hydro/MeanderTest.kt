@@ -110,20 +110,44 @@ class MeanderTest {
   }
 
   @Test
-  fun `amplitude grows with channel width and is suppressed by slope`() {
-    val flat = Meander.amplitudeFor(width = 10.0, slope = 0.0, widthFactor = 3.0, cap = 1_000.0)
-    val wider = Meander.amplitudeFor(width = 20.0, slope = 0.0, widthFactor = 3.0, cap = 1_000.0)
-    assertTrue(wider > flat, "a wider channel should meander further on flat ground")
+  fun `amplitude grows with wavelength and is suppressed by slope`() {
+    val flat = Meander.amplitudeFor(
+      wavelength = 300.0, slope = 0.0, ratio = 0.2, confinement = 50.0, cap = 10_000.0
+    )
+    val longer = Meander.amplitudeFor(
+      wavelength = 600.0, slope = 0.0, ratio = 0.2, confinement = 50.0, cap = 10_000.0
+    )
+    assertTrue(longer > flat, "a longer meander should swing further on flat ground")
 
-    // The class's own stated calibration: at slope 0.02 the confinement term is exactly one half
-    // (1 / (1 + 0.02 * 50) == 1 / 2), so amplitude at that slope must be exactly half of the flat-ground value.
-    val onASlope = Meander.amplitudeFor(width = 10.0, slope = 0.02, widthFactor = 3.0, cap = 1_000.0)
+    // The stated calibration: the confinement term is exactly one half at a slope of `1/confinement`
+    // (1 / (1 + 0.02 * 50) == 1 / 2), so amplitude there must be exactly half the flat-ground value.
+    val onASlope = Meander.amplitudeFor(
+      wavelength = 300.0, slope = 0.02, ratio = 0.2, confinement = 50.0, cap = 10_000.0
+    )
     assertEquals(flat / 2.0, onASlope, 1e-9)
   }
 
   @Test
-  fun `amplitude never exceeds the cap regardless of width`() {
-    val huge = Meander.amplitudeFor(width = 10_000.0, slope = 0.0, widthFactor = 3.0, cap = 50.0)
+  fun `amplitude never exceeds the cap regardless of wavelength`() {
+    val huge = Meander.amplitudeFor(
+      wavelength = 1_000_000.0, slope = 0.0, ratio = 0.2, confinement = 50.0, cap = 50.0
+    )
     assertEquals(50.0, huge)
+  }
+
+  /**
+   * Amplitude is a fraction of the wavelength and nothing else, which is the property that makes
+   * sinuosity a thing a caller can set. It was previously a multiple of the *channel width*, and since
+   * `ChannelGauge`'s floor pins most of the network to exactly three voxels wide, that gave every river
+   * in the world the same gentle wiggle whatever its size. A test that only checked "grows with X" would
+   * have passed then too, so this pins the ratio itself.
+   */
+  @Test
+  fun `amplitude is exactly the ratio of the wavelength on flat ground`() {
+    assertEquals(
+      90.0,
+      Meander.amplitudeFor(wavelength = 300.0, slope = 0.0, ratio = 0.3, confinement = 110.0, cap = 1e9),
+      1e-9
+    )
   }
 }

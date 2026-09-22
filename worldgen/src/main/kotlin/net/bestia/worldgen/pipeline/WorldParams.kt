@@ -224,6 +224,11 @@ data class WorldParams(
       // Settlement scores sites against the habitability terms; scoring against different weights than the
       // layer was built with would place towns by one rule and rate them by another.
       settlement = settlementResolved,
+      // The hydrology stage cuts every channel into the surface a chunk will build, probing it across the
+      // corridor to find a bed the banks can actually hold. Its own copy of the noise would put the bed on
+      // a different surface from the one the water then stands in - which is the whole defect that probe
+      // was added to remove, reintroduced one level down.
+      hydrology = hydrology.copy(detail = detail),
       // The pond stage walks outward from a valley axis until the ground rises above the water, so it has to
       // walk the surface a chunk will build. Its own detail noise would put every shoreline somewhere else.
       pond = pond.copy(detail = detail),
@@ -366,7 +371,7 @@ data class WorldParams(
         spawner = base.spawner.overriddenBy(text.scope("spawner")),
         nav = base.nav.overriddenBy(text.scope("nav")),
         // The four civilisation classes together, because a town's look is not decided by any one of them:
-        // `town.streets.rings` lays the cross streets out, `settlement.maxCut` decides the ground they sit on,
+        // `town.streets.segmentLength` lays the streets out, `settlement.maxCut` decides the ground they sit on,
         // `habitability.harbourRange` decides where the town is at all, and `economy.peoplePerHousehold`
         // decides how many buildings it wants. Tuning one without the others is not a loop anybody runs.
         habitability = base.habitability.overriddenBy(text.scope("habitability")),

@@ -180,7 +180,7 @@ class ChunkMaterializer(
     // radius, so the chunk's own bounds are enough - a miss genuinely cannot reach any column here. Point
     // markers have zero-extent bounds, so they need the widest orebody's radius as a margin.
     val nearby = features.query(config.chunkBounds(chunk).expanded(MARKER_MARGIN))
-    val rivers = RiverWaterSampler(nearby)
+    val rivers = RiverWaterSampler(nearby, config.voxelSize)
     val ponds = PondWaterSampler(nearby)
     val lava = LavaSampler(nearby)
     val shores = CoastShoreSampler(nearby)
@@ -601,11 +601,24 @@ class ChunkMaterializer(
     // so a limestone crag is white and the stone around it grey, from the stratigraphy, with no table for it.
     val bare =
       if (!steep) null else SurfaceCover.bareCover(biome) ?: rock.rockAt(top - config.voxelSize * 0.5)
-    // Lava floor, then bare rock, then paving, then the shore, then the biome. Bare rock above the shore is what
-    // gives a sea cliff its own bed rather than a strand of sand up its face; paving above it because a harbour
-    // quay is still a quay where it meets the water.
+
+    // What the river lays on its own floor, where one is flowing over this column. Guarded on the column
+    // already being wet *and* the wet coming from a channel, so the extra projection is paid only where
+    // there is a river - and never on a lake or the sea, which keep the shelf rule that is right for them.
+    //
+    // Without this the bed took `SurfaceCover.cap`'s shallow-marine arm and came out bright sand, which is
+    // what put a beach down the middle of every river in the world. See `SurfaceCover.riverBed`.
+    val riverBed =
+      if (waterDepth <= 0.0 || flowing.isNaN()) null
+      else rivers.powerAt(worldX, worldY).takeIf { !it.isNaN() }
+        ?.let { SurfaceCover.riverBed(it, temperature) }
+
+    // Lava floor, then bare rock, then the river bed, then paving, then the shore, then the biome. Bare rock
+    // above the shore is what gives a sea cliff its own bed rather than a strand of sand up its face; paving
+    // above that because a harbour quay is still a quay where it meets the water. The river bed sits under
+    // both of those and over the shore, because a gorge cut in rock should still show the rock.
     val capBlock =
-      (bed ?: bare ?: paving ?: shore?.let { SurfaceCover.blight(it, blighted) }
+      (bed ?: bare ?: riverBed ?: paving ?: shore?.let { SurfaceCover.blight(it, blighted) }
         ?: SurfaceCover.cap(biome, temperature, waterDepth, blighted)).id.toByte()
 
     /*
@@ -927,7 +940,10 @@ class ChunkMaterializer(
     // different set of props than it did. Props are not in the chunk blob, but they are chunk-tier output.
     // 4: the shore got a dithered strand above the waterline and a dithered bed below the deep-water boundary,
     // so every coastal column in every world caps in something it did not cap in before.
-    const val VERSION = 4
+    // 5: a river bed caps in its own material by stream power instead of taking the sea's shallow-shelf
+    // arm, and the water surface is read from the channel's own station rather than rebuilt from bed and
+    // depth. Every submerged river column in every world caps in something it did not cap in before.
+    const val VERSION = 5
 
     /**
      * Margin added to a chunk's bounds when querying features, in metres.

@@ -25,6 +25,12 @@ uniform vec3 deep_colour : source_color = vec3(0.04, 0.13, 0.22);
 // exponential, so this is a scale length rather than a limit.
 uniform float absorption_distance : hint_range(0.5, 40.0) = 7.0;
 
+// Ceiling on the measured water column in metres, for the case where nothing opaque has streamed in behind the
+// fragment and the depth buffer hands back the far plane. A bound rather than a look: at the absorption
+// distances below, anything past about 14 m is already saturated, so this changes nothing a player sees on real
+// water and only stops an unstreamed background reading as a kilometre of ocean.
+uniform float max_depth : hint_range(1.0, 200.0) = 30.0;
+
 // The same thing for opacity, and shorter: water hides the bed sooner than it finishes changing colour.
 uniform float opacity_distance : hint_range(0.2, 20.0) = 3.5;
 
@@ -101,15 +107,32 @@ float wave_height(vec2 world_xz, float time, float chop) {
 }
 
 void fragment() {
-	// How far the view ray travels through water before it hits something opaque. The bed is meshed now, so on a
-	// shore there is something to hit; where nothing has streamed in yet the depth buffer holds the far plane and
-	// the water simply reads as deep, which is the safe way for this to be wrong.
+	// How much water stands between this fragment and whatever is behind it, measured straight **down**
+	// rather than along the view ray.
+	//
+	// It used to be the slant distance, and that is wrong in the one case that shows worst. The slant
+	// distance is how far the *ray* travels, so a fragment seen edge on - the side of a sheet, a waterfall
+	// face - reports a huge distance and saturates to deep_colour at max_opacity: a hard dark slab standing
+	// in the air, which is exactly what a river rendered before the banks were meshed. A vertical face has
+	// no water below it and should read clear.
+	//
+	// Measuring the column also makes the fade a fact about the **bed** rather than about the viewing angle,
+	// which is what max_opacity's note below is asking for, and it fixes the foam for free: a beach seen at a
+	// grazing angle had a large slant distance and so lost its foam exactly where you were standing in it.
+	//
+	// The cost, stated rather than hidden: a real sea does absorb more light along a longer optical path, so
+	// this loses the darkening toward the horizon. The Fresnel term below already exists to hold the horizon
+	// up - raise sheen_strength if the far sea reads thin.
+	//
+	// Where nothing has streamed in yet the depth buffer holds the far plane, the column comes out huge and
+	// clamps to max_depth, so the water simply reads as deep. That is the safe way for this to be wrong.
 	float raw_depth = texture(depth_texture, SCREEN_UV).x;
 	vec3 ndc = vec3(SCREEN_UV * 2.0 - 1.0, raw_depth);
 	vec4 behind = INV_PROJECTION_MATRIX * vec4(ndc, 1.0);
 	behind.xyz /= behind.w;
+	vec3 behind_world = (INV_VIEW_MATRIX * vec4(behind.xyz, 1.0)).xyz;
 
-	float water_depth = max(0.0, -behind.z - (-VERTEX.z));
+	float water_depth = clamp(v_world_pos.y - behind_world.y, 0.0, max_depth);
 
 	float chop = mix(0.35, 0.35 + rain_chop, clamp(weather_wetness, 0.0, 1.0));
 	float texel = wave_scale * 0.02;

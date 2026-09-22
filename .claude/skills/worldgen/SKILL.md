@@ -137,6 +137,71 @@ core to villages **loses** buildings (their grown streets cross the patches, so 
 core's plots), and raising `segmentLength` to widen blocks improves plots-per-metre while collapsing total
 street length — net worse.
 
+### How a river gets its bed, and the two things that made it look wrong
+
+A `RIVER_CHANNEL` is a `PolylineFeature` blended `MIN`, cut by `Profiles.riverChannel`. Two of its inputs
+were wrong for a long time in ways that no test could see, and both are worth knowing before touching
+`hydro/`.
+
+**The bed is probed, not read.** It used to be a running minimum of `network.filled`, the depression-filled
+**kilometre** raster. The chunk tier lifts that raster *plus* `WorldHeightField`'s analytic detail — 15 m of
+broad noise and 24 m of ridge noise — against a channel two metres deep. Wherever the detail put the real
+ground below the coarse bed there was nothing holding the water in, and the river materialised as a slab of
+water standing above its own banks with sheer sides. `HydrologyStage.corridorFloor` now samples the *detailed*
+surface across the channel corridor and takes the lower envelope, so the bed is cut into ground that is
+actually there. Two traps inside that:
+
+- it must sample **through a `FeatureEvaluator` over `ctx.features`**, not the bare `BaseHeightField`. By the
+  time hydrology runs, glacial has cut troughs and fjords tens of metres into the base field, and probing the
+  bare surface reproduces the same defect from the other side. `ctx.features` is scoped to the stage's
+  dependency closure, so what it returns is exactly what hydrology is allowed to see;
+- a plain running minimum satisfies "the bed descends" and **holds flat across every rise**, which put 38% of
+  all channel length under 0.01 m/km — what `ProbeMain` calls *reads as a canal*. `descendingBed` keeps the
+  envelope and interpolates between the stations where it genuinely touches the floor.
+
+**Meander amplitude is a fraction of the wavelength, not a multiple of the width.** `ChannelGauge`'s floor
+pins most of the network to exactly three voxels wide, so an amplitude tied to width gave every river the
+same gentle wiggle whatever its size — and the wavelength floor beside it gave them all an identical 360 m.
+Measured sinuosity was **1.023**, which is a drawn line.
+
+The measurement is the point here. Bend tightness is `curvature * width` and is **not** a proxy for sinuosity:
+lengthening the wavelength lowers tightness while making the river visibly more sinuous, so a model change
+that fixed nothing could look fine on it. `ProbeMain --channels` now prints sinuosity per reach and the share
+of reaches under 1.05. Note also that `Meander.offset` blends two octaves of *gradient* noise, which realises
+only about **0.17** of the stated amplitude — `meanderAmplitudeRatio` is a scale factor on a noise field, not
+a literal ratio, and the only honest way to set it is to move it and read the probe back.
+
+**A residual that is measured rather than fixed**: `--channels` also prints incision, the depth of the bed
+below the ground the river was routed over, and 13.8% of stations sit more than 25 m down with a worst of
+161 m. That is *not* the meander swinging onto a hillside - constraining the belt to the valley floor was
+tried, cost a fifth of the sinuosity and moved incision by 1.2 points, and was reverted. Nor is it the
+running minimum inheriting a dip it merely crossed: clamping the bed to within 45 m of the coarse surface
+did not touch the deep cases and put the bed *above* the ground in others. The cause is that flow is routed
+on the kilometre raster while vector moraines and trough rims add relief that raster never had, so a reach
+genuinely crosses ground standing a hundred metres over its own routed path. It is the glacial lesson's
+shape again - a stage deciding against a surface a later one changes - and it predates the corridor probe,
+because the old raster-derived bed had the same mismatch and simply expressed it as floating water instead.
+Do not re-try the two fixes above without reading this paragraph.
+
+`Invariants.checkRiverBanksHoldTheirWater` is what now holds the first of these. It probes just outside the
+wetted edge against the **finished** heightfield, and skips ground that belongs to something else: later
+earthworks, post-hydrology features (oxbows, deltas, fans) the stage could not have seen, other channels'
+corridors — at a confluence the ground beside one river is inside another, which is a junction rather than a
+wall — and stations where a moraine has stood the ground up under the channel.
+
+Writing that check was most of the work, and every one of its skips was bought by a false positive it found
+first. Worth knowing before adding one: a bbox test is useless for a long linear feature (a road's box spans
+the world, and using one silently skipped **every** probe on every river while the check stayed green — the
+habit-6 counter beside it caught that, not a test); the corridor probe has to be at least as wide as the
+invariant's, which a flat 4 m was not once channels passed 30 m on a 600 km world; and the probe has to be
+outside the profile's own bank wobble or it samples the carved bed and calls it bank.
+
+Its tolerance is **6 m, not the half-metre the construction guarantees**, and the gap is a named residual:
+on `WorldSizeSanityTest`'s 600 km world a reach still steps about five metres down within two metres of its
+edge, because the probe reads the carved surface and something stands the ground up under that channel and
+not beside it. Tighten the constant to 1 m and the sweep goes red there. It is recorded in the constant's
+own KDoc rather than left for the next reader to rediscover.
+
 ### The glacial lesson
 
 For most of this module's life `GlacialStage` was an undeclared sibling of `HydrologyStage`, and the two
@@ -353,7 +418,7 @@ Trees, crystals, and aetherite are **not written into the voxel grid** — `Vege
 there's no per-tree storage anywhere; `trunkSite` still vetoes placement against streets/bridges/
 buildings/caves so nothing spawns inside a wall.
 
-`ChunkMaterializer.VERSION` (currently **1**) is a hand-incremented tier version — separate from any
+`ChunkMaterializer.VERSION` (currently **5**) is a hand-incremented tier version — separate from any
 `Stage.version` — folded into `WorldParams.chunkTierVersion`. It climbed to 10 across the branch that
 built subtraction, vegetation, blighted cover, wounds, bare rock, lava, props and points of interest, and
 was reset to 1 in this cleanup pass alongside every `Stage.version` (see Cross-cutting mechanisms above)
@@ -450,10 +515,11 @@ edits) is stored as deltas over that regenerated base.
   world until `WorldProvisioning.recreate` clears the table.
 
 The client (`bestia-client/src/Game/World/ChunkEngine.cs`) mirrors the server's decode/palette/patch
-version as `ChunkEngine.VERSION` — currently **1** on both sides, the same reset as `ChunkMaterializer
-.VERSION` above but a *different* number in principle: one is wire/decode compatibility, the other is
-terrain-generation compatibility, and they will diverge again the moment either changes without the
-other. `Mesh/BlockAppearance.cs` mirrors the block palette by hand (not transmitted over the
+version as `ChunkEngine.Version` — **2** on the client against `ChunkMaterializer.VERSION`'s **5** on the
+server. They were both reset to 1 together and have since diverged, exactly as this paragraph used to
+predict they would: one is wire/decode compatibility and the other terrain-generation compatibility, so a
+change to what a column materialises into moves the server's and leaves the client's alone. Do not read
+them as a pair that should match. `Mesh/BlockAppearance.cs` mirrors the block palette by hand (not transmitted over the
 wire) and meshes via surface-nets, sampling `Occupancy` at cell corners for exact partial-voxel
 reconstruction. `StaticEntityRenderer.cs` renders `ChunkStaticEntitiesSMSG` batches with placeholder
 meshes — functional, no art yet.

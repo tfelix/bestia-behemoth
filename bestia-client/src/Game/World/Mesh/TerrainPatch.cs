@@ -64,19 +64,24 @@ namespace BestiaBehemothClient.Game.World.Mesh
     /// </remarks>
     private readonly ulong[] _activeTerrain;
 
-    /// <summary>
-    /// The same occupancy boundaries with the solid/fluid ones taken back <i>out</i>, for the fluid passes.
-    /// </summary>
+    /// <summary>The plain occupancy boundaries, for the fluid passes.</summary>
     /// <remarks>
-    /// <b>Subtracted, not merely left unadded, and the difference is every shoreline in the world.</b> A mask
-    /// decides which cells a pass <i>visits</i>; it has never decided which crossings a pass may draw. The
-    /// ground is masked out of the fluid field, so the bed under a fluid is a genuine sign change <i>for the
-    /// fluid pass too</i> - and the bed cell is reachable from the occupancy mask alone wherever the water
-    /// above it is about a voxel deep, because <see cref="ChunkBands"/> reaches one cell either side of a
-    /// boundary and its horizontal-face pass reaches one cell below an occupancy step. Which is to say: on
-    /// every beach. The water was given an underside exactly on top of the sea floor the terrain pass had just
-    /// drawn - two coincident sheets, so a doubly blended sea z-fighting the opaque bed, drawn from different
-    /// cells and therefore triangulated differently. That is what the triangles along a shoreline were.
+    /// <b>This used to be the occupancy mask with the dilated solid/fluid boundaries subtracted, and the
+    /// history is worth keeping because the reasoning was half right.</b> The problem it attacked is real: the
+    /// ground is masked out of the fluid field, so the bed under a fluid is a genuine sign change for the fluid
+    /// pass too, and the water was given an underside exactly on top of the sea floor the terrain pass had just
+    /// drawn - two coincident sheets, a doubly blended sea z-fighting the opaque bed, triangulated differently
+    /// because they came from different cells. That is what the triangles along a shoreline were.
+    ///
+    /// <para>
+    /// But a mask decides which cells a pass <i>visits</i>, and that is a blunter instrument than the question
+    /// being asked. Where the water is a voxel or two deep the cell carrying its own top sheet <i>is</i> the
+    /// cell carrying the bed, so subtracting the bed removed the surface as well and the waterline receded in a
+    /// ragged one-voxel step - and <see cref="SurfaceNets"/> silently drops any quad with a missing corner, so
+    /// it did so without complaint. The question belongs on the lattice edge rather than on the cell, and that
+    /// is where it is now asked: a crossing is a free surface only if the empty side is empty of the ground
+    /// too. See <see cref="BlockAppearance.BackedMaskOf"/>.
+    /// </para>
     /// </remarks>
     private readonly ulong[] _activeFluid;
 
@@ -263,11 +268,11 @@ namespace BestiaBehemothClient.Game.World.Mesh
         return null;
       }
 
-      return Build(source, key, wrap, size, height, quadZLo, quadZHi, seamAtFloor);
+      return Build(source, key, wrap, appearance, size, height, quadZLo, quadZHi, seamAtFloor);
     }
 
     private static TerrainPatch Build(
-      IChunkSource source, ChunkKey key, ChunkWrap wrap,
+      IChunkSource source, ChunkKey key, ChunkWrap wrap, BlockAppearance appearance,
       int size, int height, int quadZLo, int quadZHi, bool seamAtFloor)
     {
       var width = size + ApronLow + ApronHigh;
@@ -333,6 +338,8 @@ namespace BestiaBehemothClient.Game.World.Mesh
             rawMaterial.AsSpan((py * width + px) * words, words));
         }
       }
+
+      MarkLateralMaterialFaces(blocks, occupancy, rawMaterial, appearance, width, depth, words);
 
       var active = Dilate(raw, width, words);
       var (activeTerrain, activeFluid) = SplitMaterial(active, rawMaterial, width, words);
@@ -468,6 +475,112 @@ namespace BestiaBehemothClient.Game.World.Mesh
     }
 
     /// <summary>
+    /// Records every cell that meets a different surface kind sideways, so the terrain pass can reach it.
+    /// </summary>
+    /// <remarks>
+    /// <b>The submerged bank was never meshed at all, and this is where that is fixed.</b>
+    /// <see cref="ChunkBands"/> finds material boundaries by walking each column vertically, so for a river it
+    /// records the bed and the waterline and nothing in between; its horizontal pass compares <i>occupancy</i>,
+    /// and the materialiser fills ground and fluid alike to 255, so two columns either side of a bank agree
+    /// over the whole submerged span and disagree only above the waterline. The cells between therefore
+    /// entered neither mask, the terrain pass never visited them, and the only geometry standing at a river's
+    /// edge was the water's own side wall - with nothing opaque behind it, which is why the depth fade read it
+    /// as a hard dark slab hanging in the air.
+    ///
+    /// <para>
+    /// Done here rather than in <see cref="ChunkBands"/>, which is where it would otherwise belong. Bands see
+    /// one chunk: their loops stop at <c>x + 1 &lt; size</c> and the class says outright that only boundaries
+    /// inside the chunk are recorded. A lateral interface falling on a chunk's own edge - water in one, rock in
+    /// the next - would be recorded by neither, and unlike the occupancy case there is no vertical run boundary
+    /// at those z to cover for it. That is a one-cell gap in the bank every 32 m. A patch has already gathered
+    /// its neighbours into its apron by the time this runs, so here the interface is simply visible.
+    /// </para>
+    ///
+    /// <para>
+    /// A missing neighbour invents nothing: the gather clamps the apron column to this chunk's own edge column
+    /// and extends the outermost known cell vertically, so an apron cell holds the same block id as the cell it
+    /// mirrors and the comparison finds no difference. The same argument the occupancy mask already rests on.
+    /// </para>
+    ///
+    /// <para>
+    /// Only the near cell of each pair is marked, and only <c>pz ± 1</c> around it: <see cref="Dilate"/> spreads
+    /// every column's bits into its whole 3x3 horizontal neighbourhood afterwards, which covers the far cell and
+    /// the perpendicular row for free.
+    /// </para>
+    /// </remarks>
+    private static void MarkLateralMaterialFaces(
+      byte[] blocks, byte[] occupancy, ulong[] material, BlockAppearance appearance,
+      int width, int depth, int words)
+    {
+      for (var py = 0; py < width; py++)
+      {
+        for (var px = 0; px < width; px++)
+        {
+          var column = py * width + px;
+          var cellBase = column * depth;
+          var wordBase = column * words;
+          var east = px + 1 < width ? (column + 1) * depth : -1;
+          var north = py + 1 < width ? (column + width) * depth : -1;
+
+          if (east < 0 && north < 0)
+          {
+            continue;
+          }
+
+          for (var pz = 0; pz < depth; pz++)
+          {
+            var here = cellBase + pz;
+            if (occupancy[here] == 0)
+            {
+              continue;
+            }
+
+            var mine = appearance.SurfaceOf(blocks[here]);
+
+            if (Differs(blocks, occupancy, appearance, east, pz, mine)
+                || Differs(blocks, occupancy, appearance, north, pz, mine))
+            {
+              MarkAround(material, wordBase, depth, pz);
+            }
+          }
+        }
+      }
+    }
+
+    /// <summary>
+    /// Whether the cell at <paramref name="stripBase"/> holds material of a different surface from
+    /// <paramref name="mine"/>.
+    /// </summary>
+    /// <remarks>
+    /// Both sides must hold material. A material/air step is the fluid's own free face and belongs in the
+    /// occupancy mask, which already carries it; folding it in here would take the sea's own top sheet out.
+    /// </remarks>
+    private static bool Differs(
+      byte[] blocks, byte[] occupancy, BlockAppearance appearance,
+      int stripBase, int pz, BlockAppearance.SurfaceKind mine)
+    {
+      if (stripBase < 0)
+      {
+        return false;
+      }
+
+      var there = stripBase + pz;
+      return occupancy[there] != 0 && appearance.SurfaceOf(blocks[there]) != mine;
+    }
+
+    /// <summary>Sets a column's bit and the one either side of it, mirroring <c>ChunkBands.Reach</c>.</summary>
+    private static void MarkAround(ulong[] material, int wordBase, int depth, int pz)
+    {
+      var lo = Math.Max(0, pz - 1);
+      var hi = Math.Min(depth - 1, pz + 1);
+
+      for (var z = lo; z <= hi; z++)
+      {
+        material[wordBase + (z >> 6)] |= 1UL << (z & 63);
+      }
+    }
+
+    /// <summary>
     /// <paramref name="active"/> with the dilated solid/fluid boundaries added, and with them removed.
     /// </summary>
     /// <remarks>
@@ -497,15 +610,19 @@ namespace BestiaBehemothClient.Game.World.Mesh
 
       var dilated = Dilate(rawMaterial, width, words);
       var terrain = new ulong[active.Length];
-      var fluid = new ulong[active.Length];
 
       for (var i = 0; i < terrain.Length; i++)
       {
         terrain[i] = active[i] | dilated[i];
-        fluid[i] = active[i] & ~dilated[i];
       }
 
-      return (terrain, fluid);
+      // The fluid pass keeps the plain occupancy mask. The subtraction that used to happen here is gone: it
+      // was a 3x3x3-granular stand-in for "this crossing is not a free surface", and a mask cannot express
+      // that, because at a shoreline the cell carrying the water's own top sheet is the *same cell* as the one
+      // carrying the bed - so removing the bed took the sheet with it and the waterline receded in a ragged
+      // one-voxel step. `SurfaceNets` now asks the question exactly, per lattice edge, against a field that
+      // holds this fluid plus the ground. See `BlockAppearance.BackedMaskOf`.
+      return (terrain, active);
     }
 
     /// <summary>

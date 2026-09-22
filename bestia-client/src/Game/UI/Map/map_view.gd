@@ -164,6 +164,12 @@ var _tile_pixels: int = 256
 var _world_width: float = 0.0
 var _world_height: float = 0.0
 
+## Where the player was the last time this view redrew on their account, and which way they faced. Null
+## until the first frame that sees them. Only [method _process] reads or writes them - see there for why a
+## view that does not follow the player still has to watch them.
+var _marker_at: Variant = null
+var _marker_forward := Vector2.ZERO
+
 var _dragging := false
 
 ## Whether the pointer moved between press and release. What separates a click from the end of a pan.
@@ -231,8 +237,27 @@ func centre_on_player() -> void:
 func _process(_delta: float) -> void:
 	# In the tree, not merely this control's own flag: the minimap's panel hides itself when the player holds
 	# no chart, and its view underneath stays `visible` - so following would redraw a widget nobody can see.
-	if follow_player and is_visible_in_tree():
+	if not is_visible_in_tree():
+		return
+
+	if follow_player:
 		centre_on_player()
+		return
+
+	# A view that has stopped following still has the player's marker in it, and the player under it keeps
+	# walking. Nothing else here redraws on their account - tiles arrive once and then sit in the cache - so
+	# without this the arrow stays where it was when the map opened while the ground under it is live.
+	#
+	# Compared rather than redrawn every frame: a map left open on a standing character, which is most of the
+	# time one is open, then costs nothing.
+	var at: Variant = player_metres()
+	var forward := _player_forward()
+	if at == _marker_at and forward == _marker_forward:
+		return
+
+	_marker_at = at
+	_marker_forward = forward
+	queue_redraw()
 
 
 func _draw() -> void:

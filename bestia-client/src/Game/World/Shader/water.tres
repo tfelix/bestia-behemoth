@@ -16,6 +16,7 @@ shader = ExtResource("1_water")
 shader_parameter/shallow_colour = Color(0.32, 0.61, 0.62, 1)
 shader_parameter/deep_colour = Color(0.04, 0.13, 0.22, 1)
 shader_parameter/absorption_distance = 7.0
+shader_parameter/max_depth = 30.0
 shader_parameter/opacity_distance = 3.5
 shader_parameter/max_opacity = 0.88
 shader_parameter/foam_distance = 0.8

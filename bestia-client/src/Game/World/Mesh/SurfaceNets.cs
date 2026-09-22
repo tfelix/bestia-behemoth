@@ -106,11 +106,26 @@ namespace BestiaBehemothClient.Game.World.Mesh
       var width = patch.Width;
       var depth = patch.Depth;
 
-      var field = BuildField(patch, includeMask);
+      var field = BuildField(patch, includeMask, RentField(patch.CellCount));
       if (field == null)
       {
         return null;
       }
+
+      // For a fluid pass, the same field with the ground folded in.
+      //
+      // A crossing in the fluid's own field is that fluid's free surface only if the empty side is
+      // genuinely empty - not merely empty <i>of this fluid</i>. Against a bank the empty side is full of
+      // rock, and that face belongs to the terrain pass, which draws it opaque; drawing it here as well
+      // puts a translucent wall over an opaque one, and before the bank was meshed at all it put a
+      // translucent wall over nothing, which is what the dark slabs standing in the air were.
+      //
+      // Asked per lattice edge rather than per cell, because a mask cannot express it: at a shoreline the
+      // cell carrying the water's own top sheet is the same cell as the one carrying the bed. That is the
+      // mistake the subtraction in <see cref="TerrainPatch"/> used to make.
+      var backing = drawsTheBed
+        ? null
+        : BuildField(patch, appearance.BackedMaskOf(kind), RentBacking(patch.CellCount));
 
       // -1 for a cell with no vertex. Indexed exactly like the cell arrays, so the quad pass can look up its four
       // corners-of-the-dual with no search.
@@ -130,6 +145,7 @@ namespace BestiaBehemothClient.Game.World.Mesh
       }
 
       var corner = new float[8];
+      var backingCorner = backing == null ? null : new float[8];
 
       // Vertices for cells [1, Width-2] on each horizontal axis and [1, Depth-2] vertically: this chunk's own
       // cells plus the one just below each low edge, which the quads on that edge are built from.
@@ -149,8 +165,14 @@ namespace BestiaBehemothClient.Game.World.Mesh
             var inside = 0;
             for (var c = 0; c < 8; c++)
             {
-              var value = field[Lattice(width, depth, px + OffsetX[c], py + OffsetY[c], pz + OffsetZ[c])];
+              var lattice = Lattice(width, depth, px + OffsetX[c], py + OffsetY[c], pz + OffsetZ[c]);
+              var value = field[lattice];
               corner[c] = value;
+
+              if (backingCorner != null)
+              {
+                backingCorner[c] = backing[lattice];
+              }
 
               if (value >= Iso)
               {
@@ -163,11 +185,12 @@ namespace BestiaBehemothClient.Game.World.Mesh
               continue;
             }
 
-            EmitVertex(
-              patch, field, corner, px, py, pz, includeMask, appearance, voxelSize,
-              vertices, normals, colours, slotWeights);
-
-            vertexAt[(py * width + px) * depth + pz] = vertices.Count - 1;
+            if (EmitVertex(
+                patch, field, corner, backingCorner, px, py, pz, includeMask, appearance, voxelSize,
+                vertices, normals, colours, slotWeights))
+            {
+              vertexAt[(py * width + px) * depth + pz] = vertices.Count - 1;
+            }
           }
         }
       }
@@ -177,7 +200,7 @@ namespace BestiaBehemothClient.Game.World.Mesh
         return null;
       }
 
-      var indices = BuildQuads(patch, field, vertexAt);
+      var indices = BuildQuads(patch, field, backing, vertexAt);
 
       if (indices.Count == 0)
       {
@@ -224,7 +247,7 @@ namespace BestiaBehemothClient.Game.World.Mesh
     /// the common case, since most chunks are dry.
     /// </para>
     /// </remarks>
-    private static float[] BuildField(TerrainPatch patch, byte[] includeMask)
+    private static float[] BuildField(TerrainPatch patch, byte[] includeMask, float[] destination)
     {
       var width = patch.Width;
       var depth = patch.Depth;
@@ -286,7 +309,7 @@ namespace BestiaBehemothClient.Game.World.Mesh
       Array.Clear(accumulator, 0, width * depth);
 
       // Pair along x, into the field itself. A separate destination, so the order does not matter here.
-      var field = RentField(cells);
+      var field = destination;
       Array.Clear(field, 0, cells);
 
       const float scale = 1.0f / (8.0f * 255.0f);
@@ -321,6 +344,9 @@ namespace BestiaBehemothClient.Game.World.Mesh
 
     [ThreadStatic] private static float[] _field;
 
+    /// <summary>The second field a fluid pass builds: itself plus the ground. See <see cref="Build"/>.</summary>
+    [ThreadStatic] private static float[] _backing;
+
     [ThreadStatic] private static int[] _vertexAt;
 
     /// <summary>
@@ -354,6 +380,16 @@ namespace BestiaBehemothClient.Game.World.Mesh
       return _field;
     }
 
+    private static float[] RentBacking(int cells)
+    {
+      if (_backing == null || _backing.Length < cells)
+      {
+        _backing = new float[cells];
+      }
+
+      return _backing;
+    }
+
     private static int[] RentVertexIndex(int cells)
     {
       if (_vertexAt == null || _vertexAt.Length < cells)
@@ -375,8 +411,12 @@ namespace BestiaBehemothClient.Game.World.Mesh
       return _slotWeight;
     }
 
-    private static void EmitVertex(
-      TerrainPatch patch, float[] field, float[] corner,
+    /// <returns>
+    /// Whether a vertex was emitted. False when every crossing this cell had was backed by the ground, which
+    /// leaves the cell with no free surface to put a vertex on.
+    /// </returns>
+    private static bool EmitVertex(
+      TerrainPatch patch, float[] field, float[] corner, float[] backingCorner,
       int px, int py, int pz,
       byte[] includeMask, BlockAppearance appearance, float voxelSize,
       List<Vector3> vertices, List<Vector3> normals, List<Color> colours,
@@ -398,12 +438,26 @@ namespace BestiaBehemothClient.Game.World.Mesh
           continue;
         }
 
+        // The empty side of this crossing, and whether it is actually empty. Suppressed here as well as in
+        // BuildQuads, and not as polish: a suppressed crossing left in the average drags the vertex sideways
+        // and down toward a face that is never drawn, which is what made a shoreline read as a staircase.
+        if (backingCorner != null && backingCorner[fa >= Iso ? b : a] >= Iso)
+        {
+          continue;
+        }
+
         var t = (fa - Iso) / (fa - fb);
 
         sumX += OffsetX[a] + t * (OffsetX[b] - OffsetX[a]);
         sumY += OffsetY[a] + t * (OffsetY[b] - OffsetY[a]);
         sumZ += OffsetZ[a] + t * (OffsetZ[b] - OffsetZ[a]);
         crossings++;
+      }
+
+      // Every crossing was against the ground, so this cell carries no free surface of its own.
+      if (crossings == 0)
+      {
+        return false;
       }
 
       var inverse = 1.0f / crossings;
@@ -437,6 +491,8 @@ namespace BestiaBehemothClient.Game.World.Mesh
 
       colours.Add(appearance.ColourOf(dominant));
       PackWeights(weights, appearance.SlotOf(dominant), slotWeights);
+
+      return true;
     }
 
     /// <summary>
@@ -657,7 +713,7 @@ namespace BestiaBehemothClient.Game.World.Mesh
     /// backfaces, this comment and a reversal here are the place to look.
     /// </para>
     /// </remarks>
-    private static List<int> BuildQuads(TerrainPatch patch, float[] field, int[] vertexAt)
+    private static List<int> BuildQuads(TerrainPatch patch, float[] field, float[] backing, int[] vertexAt)
     {
       var width = patch.Width;
       var depth = patch.Depth;
@@ -681,7 +737,8 @@ namespace BestiaBehemothClient.Game.World.Mesh
 
             // An edge along x. Its four cells are at cell x = px, straddling y and z - and the counter-clockwise
             // order for a face whose normal is +x runs (y-,z-), (y+,z-), (y+,z+), (y-,z+).
-            if (insideHere != field[Lattice(width, depth, px + 1, py, pz)] >= Iso)
+            if (insideHere != field[Lattice(width, depth, px + 1, py, pz)] >= Iso
+                && !Backed(backing, width, depth, insideHere, px, py, pz, px + 1, py, pz))
             {
               quad[0] = vertexAt[((py - 1) * width + px) * depth + pz - 1];
               quad[1] = vertexAt[(py * width + px) * depth + pz - 1];
@@ -692,7 +749,8 @@ namespace BestiaBehemothClient.Game.World.Mesh
             }
 
             // Along y: normal +y, so the cyclic pair is (z, x).
-            if (insideHere != field[Lattice(width, depth, px, py + 1, pz)] >= Iso)
+            if (insideHere != field[Lattice(width, depth, px, py + 1, pz)] >= Iso
+                && !Backed(backing, width, depth, insideHere, px, py, pz, px, py + 1, pz))
             {
               quad[0] = vertexAt[(py * width + px - 1) * depth + pz - 1];
               quad[1] = vertexAt[(py * width + px - 1) * depth + pz];
@@ -703,7 +761,8 @@ namespace BestiaBehemothClient.Game.World.Mesh
             }
 
             // Along z: normal +z, so the cyclic pair is (x, y).
-            if (insideHere != field[Lattice(width, depth, px, py, pz + 1)] >= Iso)
+            if (insideHere != field[Lattice(width, depth, px, py, pz + 1)] >= Iso
+                && !Backed(backing, width, depth, insideHere, px, py, pz, px, py, pz + 1))
             {
               quad[0] = vertexAt[((py - 1) * width + px - 1) * depth + pz];
               quad[1] = vertexAt[((py - 1) * width + px) * depth + pz];
@@ -717,6 +776,32 @@ namespace BestiaBehemothClient.Game.World.Mesh
       }
 
       return indices;
+    }
+
+    /// <summary>
+    /// Whether the empty side of a crossing is filled by something else, so this face is not a free surface.
+    /// </summary>
+    /// <remarks>
+    /// The same decision <see cref="EmitVertex"/> makes, and it has to be: the two agree by construction
+    /// because both read the same lattice edge out of the same two fields. Every one of the four cells around
+    /// a kept edge has that edge among its own twelve and computes this identically, so a kept edge always
+    /// has its four vertices - which is the invariant <see cref="Add"/> relies on.
+    /// </remarks>
+    private static bool Backed(
+      float[] backing, int width, int depth, bool insideHere,
+      int ax, int ay, int az, int bx, int by, int bz)
+    {
+      if (backing == null)
+      {
+        return false;
+      }
+
+      // Whichever end is below the isosurface is the empty one.
+      var lattice = insideHere
+        ? Lattice(width, depth, bx, by, bz)
+        : Lattice(width, depth, ax, ay, az);
+
+      return backing[lattice] >= Iso;
     }
 
     private static void Add(List<int> indices, int[] quad, bool forward)

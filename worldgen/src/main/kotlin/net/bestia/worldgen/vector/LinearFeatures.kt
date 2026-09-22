@@ -26,6 +26,19 @@ object LinearFeatures {
    * @param shape how far the channel departs from a symmetric extruded parabola - see
    *   [Profiles.ChannelShape]. The default is the plain parabola, so callers that do not care are
    *   unaffected.
+   * @param waterElevation the water surface at `s`, as its own channel rather than something the chunk
+   *   tier re-derives from [bedElevation] and [depth]. Three reasons it is stored: the pool-and-riffle
+   *   term varies [depth] along the reach and a pool must deepen the bed under a level surface rather
+   *   than dip the surface itself; the freeboard is a hydrological decision and belongs in the tier that
+   *   knows the hydrology; and the containment invariant can then read the water line straight off the
+   *   station table instead of reconstructing it.
+   * @param streamPower unit stream power at `s` in W/m2, or null where nothing will read it. Written
+   *   conditionally for [Profiles.CHANNEL_CURVATURE]'s reason - one double per station on every river in
+   *   the world is not free.
+   * @param preResampled set when [centerline] has already been resampled at [stationSpacing] and must be
+   *   used exactly as given. Resampling is not idempotent (see [road]), and a caller that measured the
+   *   bed along its own line needs the feature to carry *that* line - otherwise the corridor it probed
+   *   and the corridor it cut are a shade apart, which is the whole of what the probe was for.
    */
   fun river(
     id: FeatureId,
@@ -35,15 +48,19 @@ object LinearFeatures {
     bedElevation: (s: Double) -> Double,
     width: (s: Double) -> Double,
     depth: (s: Double) -> Double,
-    shoulder: (s: Double) -> Double = { width(it) }
+    shoulder: (s: Double) -> Double = { width(it) },
+    waterElevation: (s: Double) -> Double,
+    streamPower: ((s: Double) -> Double)? = null,
+    preResampled: Boolean = false
   ): PolylineFeature {
-    val line = centerline.resample(stationSpacing)
+    val line = if (preResampled) centerline else centerline.resample(stationSpacing)
 
     val builder = StationTable.Builder(line.vertexCount)
       .channel(Profiles.CHANNEL_BED_ELEVATION) { bedElevation(line.arcLengthAt(it)) }
       .channel(Profiles.CHANNEL_WIDTH) { width(line.arcLengthAt(it)) }
       .channel(Profiles.CHANNEL_DEPTH) { depth(line.arcLengthAt(it)) }
       .channel(Profiles.CHANNEL_SHOULDER) { shoulder(line.arcLengthAt(it)) }
+      .channel(Profiles.CHANNEL_WATER_ELEVATION) { waterElevation(line.arcLengthAt(it)) }
       .channel(PolylineFeature.CORRIDOR_CHANNEL) {
         val s = line.arcLengthAt(it)
         width(s) * 0.5 + shoulder(s)
@@ -54,6 +71,10 @@ object LinearFeatures {
     if (shape.thalwegOffset > 0.0) {
       val smoothed = smoothedCurvature(line)
       builder.channel(Profiles.CHANNEL_CURVATURE) { smoothed[it] }
+    }
+
+    if (streamPower != null) {
+      builder.channel(Profiles.CHANNEL_STREAM_POWER) { streamPower(line.arcLengthAt(it)) }
     }
 
     val stations = builder.build()

@@ -216,7 +216,7 @@ data class TownParams(
   /**
    * This, with any of [source]'s keys applied.
    *
-   * [streets] is nested rather than flattened, so a cross street's radius is `town.streets.rings`. [grading]
+   * [streets] is nested rather than flattened, so a grown street's step is `town.streets.segmentLength`. [grading]
    * and [detail] are absent because `WorldParams.resolved` forwards them from the classes that own them; set
    * `settlement.*` and `detail.*` instead.
    */
@@ -337,7 +337,8 @@ class TownStage(
   // 11: a settlement whose patches are all too small for a district falls back to inferring them.
   // 12: a settlement whose streets all sit inside its own boundary still gets a way in - see `StreetTraffic`.
   // 13: streets are grown by a Parish-Muller expansion rather than a random walk - see `StreetPlanner`.
-  override val version = 13
+  // 14: the surveyed cross streets are gone - the expansion closes its own cycles and they cost plots.
+  override val version = 14
 
   override val paramsVersion get() = GenRng.hash(params.digest().value, Culture.catalogueDigest(), SettlementTier.catalogueDigest())
   /**

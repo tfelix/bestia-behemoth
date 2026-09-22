@@ -25,6 +25,8 @@ object Profiles {
   const val CHANNEL_WALL_HEIGHT = "wall_height"
   const val CHANNEL_WALL_EXPONENT = "wall_exponent"
   const val CHANNEL_SURFACE_ELEVATION = "surface_elevation"
+  const val CHANNEL_WATER_ELEVATION = "water_elevation"
+  const val CHANNEL_STREAM_POWER = "stream_power"
   const val CHANNEL_HALF_WIDTH = "half_width"
   const val CHANNEL_SHOULDER = "shoulder"
   const val CHANNEL_RIDGE_HEIGHT = "ridge_height"
@@ -45,10 +47,18 @@ object Profiles {
    *   bend in the world down in the flat foot of the response and moved the thalweg by 0.7 m - less than a
    *   voxel, and invisible. 0.1 puts this pipeline's real bends near the half-response point.
    *
-   *   The honest reading is that the *meanders* are too gentle rather than the response too weak; see
-   *   [net.bestia.worldgen.hydro.HydrologyParams.meanderWidthFactor]. This makes the asymmetry visible at
-   *   the curvature that exists today, and should be raised back towards 0.3 if the meanders are ever
-   *   tightened.
+   *   The honest reading was that the *meanders* were too gentle rather than the response too weak, and
+   *   that has since been fixed - see
+   *   [net.bestia.worldgen.hydro.HydrologyParams.meanderAmplitudeRatio], which anchors amplitude to the
+   *   wavelength instead of to the channel width.
+   *
+   *   **It did not follow that this should go back to 0.3, and it must not.** Tightness is
+   *   `curvature * width`, and only the curvature moved: peak curvature of an amplitude-`A`,
+   *   wavelength-`L` sinusoid is `A (2 pi / L)^2`, which took the reference 14 m channel from 0.085 to
+   *   about 0.10-0.12 - not to 0.3. Setting 0.3 would put every bend back down in the flat foot of the
+   *   response and weaken the offset it was meant to strengthen. The live value is
+   *   [net.bestia.worldgen.hydro.HydrologyParams.meanderBendScale], which is where it is now tuned and
+   *   digested; this default is only what a caller that passes nothing gets.
    * @param roughness metres the bank and bed wander in or out. Zero disables the noise entirely.
    * @param roughnessWavelength metres between wobbles, along the river and across it.
    * @param seed the roughness field; per feature, so two rivers do not share a bank pattern.

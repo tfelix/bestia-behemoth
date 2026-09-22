@@ -52,9 +52,11 @@ import net.bestia.worldgen.voxel.PropKind
 import net.bestia.worldgen.vector.PolylineFeature
 import net.bestia.worldgen.vector.Profiles
 import net.bestia.worldgen.vector.Vec2d
+import net.bestia.worldgen.vector.VectorFeature
 import net.bestia.worldgen.voxel.ChunkMaterializer
 import net.bestia.worldgen.voxel.Stratigraphy
 import java.util.Locale
+import kotlin.math.max
 import net.bestia.worldgen.civ.SettlementSpawnPoints
 import net.bestia.worldgen.mana.CorruptionStage
 import net.bestia.worldgen.spawn.SpawnerChannels
@@ -228,6 +230,7 @@ object Invariants {
     checkNormalisedLayersAreInRange(generated, ::fail)
     checkSeasonalPrecipitationSumsToTheAnnualField(generated, ::fail)
     checkRiverBedsDescend(generated, ::fail)
+    checkRiverBanksHoldTheirWater(generated, ::fail)
     checkFeatureBoundsContainTheirGeometry(generated, ::fail)
     checkNoSettlementInTheSea(generated, ::fail)
     checkSettlementsAreSeparated(generated, ::fail)
@@ -374,6 +377,245 @@ object Invariants {
             "${town.streetMetres.toInt()} m of street"
       )
       return
+    }
+  }
+
+  /**
+   * A river's water is held by its own banks.
+   *
+   * **The check that did not exist while the defect it describes was shipping.** `checkRiverBedsDescend`
+   * above is the only other thing asserted about a river bed, and it says of itself that it cannot fail -
+   * so nothing in this harness had an opinion about whether the water a channel carries is contained by
+   * the ground beside it. It was not: the bed came from the depression-filled **kilometre** raster while
+   * the chunk tier lifts that raster plus up to 15-24 m of analytic detail, against a channel two metres
+   * deep. Wherever the detail put the real ground below the coarse bed, the river materialised as a slab
+   * of water standing above its own banks, with sheer sides where the sampler's half-width cutoff clipped
+   * it. Every test was green.
+   *
+   * The direct analogue of [checkPondsHoldWaterWithoutAWall], and deliberately built from the same parts
+   * rather than from a parallel set: probe outside the water, read the **finished** heightfield - base
+   * surface plus every vector feature in `(priority, id)` order, which is what a player stands on and what
+   * the producer, solving against its own profile alone, cannot see - and skip the earthworks that arrive
+   * afterwards.
+   *
+   * The tolerance is much tighter than the ponds' [MAX_SHORE_WALL], and that is the point rather than an
+   * oversight. A pond's ring is a two-dozen-vertex polygon solved against a profile, so a metre or two of
+   * mismatch is expected. A river's containment is now a *construction*: the bed is the corridor's own
+   * lowest ground minus a freeboard, so the bank can only fail to hold the water if something is actually
+   * wrong. [MAX_RIVER_BANK_WALL] leaves room for station-spline error between probes and nothing else.
+   */
+  /**
+   * Whether a feature actually covers a point, rather than merely having a bounding box around it.
+   *
+   * **A bounding box is useless for a long linear feature**, and using one here silently retired the whole
+   * bank check: a road crossing the world has a world-sized box, so every probe on every river read as
+   * "standing in an earthwork" and was skipped. Four rivers, a hundred and ninety-two probes, not one of
+   * them measured - and the check went green while doing nothing, which is the failure mode this module
+   * keeps shipping. It was the habit-6 counter beside it that caught this, not a test.
+   *
+   * A polyline is asked for its corridor, which is the width it actually reshapes; an area for its ring; a
+   * point for its radius. The bbox is kept only as the fallback for a kind with no better answer, where it
+   * is at least conservative in the safe direction.
+   */
+  private fun covers(feature: VectorFeature, at: Vec2d): Boolean {
+    if (!feature.bbox.contains(at.x, at.y)) return false
+
+    return when (feature) {
+      is PolylineFeature -> {
+        val corridor = runCatching {
+          feature.stations.channel(Profiles.CHANNEL_CORRIDOR)
+        }.getOrNull() ?: return true
+
+        val hit = feature.centerline.project(at)
+        hit.distance <= feature.stations.sample(corridor, hit.u)
+      }
+
+      // The bbox, deliberately, and not `ring.contains`. An area's profile eases outside its own ring -
+      // an oxbow drops its bank over a shoulder the ring does not describe - so the ring is too strict for
+      // the question being asked, which is "did this reshape the ground here" rather than "is this point
+      // inside it". `AreaFeature.MAX_AREA_EXTENT` caps these at 8 km and most are far smaller, so the box
+      // is close to the shape; it is only for a long linear feature that a box is useless.
+      is AreaFeature -> true
+      is PointFeature -> at.distanceTo(feature.center) <= feature.radius
+      else -> true
+    }
+  }
+
+  private fun checkRiverBanksHoldTheirWater(
+    generated: GeneratedWorld,
+    fail: (String, String) -> Unit
+  ) {
+    val seaLevel = generated.config.seaLevel
+    val standing = generated.world.layers[LayerId.WATER_LEVEL] as? FloatLayer
+    var rivers = 0
+    var probes = 0
+    var skipRaised = 0
+    var skipInside = 0
+    var skipLake = 0
+    var skipLater = 0
+    var skipJunction = 0
+    var skipChannel = 0
+    var skipSea = 0
+    var worst = 0.0
+    var worstAt = Vec2d.ZERO
+    var worstRiver = ""
+    var worstDetail = ""
+
+    for (feature in generated.world.features.all()) {
+      if (feature.kind != FeatureKind.RIVER_CHANNEL) continue
+      val river = feature as? PolylineFeature ?: continue
+
+      val water = runCatching { river.stations.channel(Profiles.CHANNEL_WATER_ELEVATION) }.getOrNull()
+        ?: continue
+      rivers++
+      val width = river.stations.channel(Profiles.CHANNEL_WIDTH)
+
+      // One evaluator per river, built the way `ChunkHeightSampler` builds one per chunk.
+      val neighbours = generated.world.features.query(river.bbox.expanded(SHORE_PROBE * 2))
+      val evaluator = FeatureEvaluator(neighbours)
+      val later = neighbours.filter { it.kind in RESHAPES_THE_GROUND || it.kind in AFTER_HYDROLOGY }
+
+      // Other channels and the discs that smooth their junctions. Ground inside one of those is another
+      // river's **bed**, not this one's bank, and it is below a water line for the same reason this one's
+      // bed is. A confluence is precisely where that happens: three channels overlap, the trunk cuts
+      // deepest, and the probe two metres off a tributary's edge lands in the trunk. Measuring it as a wall
+      // asks the tributary to stand above the river it flows into.
+      val otherChannels = neighbours
+        .filterIsInstance<PolylineFeature>()
+        .filter { it.kind == FeatureKind.RIVER_CHANNEL && it.id != river.id }
+      val junctions = neighbours.filterIsInstance<PointFeature>()
+        .filter { it.kind == FeatureKind.RIVER_CONFLUENCE }
+
+      // Features that *raise* ground rather than cut it. A moraine is a ridge piled on with `ADD`, and a
+      // narrow one - eight metres of half-width carrying five of height - sits under a channel without
+      // reaching the ground either side of it. The corridor probe then finds only the crest and grades the
+      // bed to it, so the water stands metres above land a stone's throw away and the reach reads as
+      // perched. That is real and worth fixing, but it is a gap in how the channel and the ridge are
+      // reconciled rather than a bank that fails to hold water, and holding this check to it only buries
+      // the thing it does measure. Skipped by *station*, not by probe: the ridge is under the river, not
+      // beside it.
+      val raisers = neighbours.filter { it.kind in RAISES_THE_GROUND }
+
+      // Every fifth station: the bed is a running minimum over a smooth field, so neighbouring stations
+      // carry almost the same answer and probing all of them buys nothing for five times the cost.
+      for (station in 0 until river.stations.stationCount step BANK_PROBE_STRIDE) {
+        val s = river.centerline.arcLengthAt(station)
+        val surface = river.stations.valueAt(water, station)
+        val halfWidth = river.stations.valueAt(width, station) * 0.5
+        if (halfWidth <= 0.0) continue
+
+        val at = river.centerline.pointAt(s)
+        if (raisers.any { covers(it, at) }) { skipRaised++; continue }
+
+        val normal = river.centerline.tangentAt(s).perpendicular()
+
+        // Clear of the profile's own bank wobble, which moves the real bank in and out by
+        // `HydrologyParams.bankRoughness` of the width - over two metres on the widest channels. A fixed
+        // two-metre probe lands *inside* the channel wherever the wobble pushes the bank outwards, reads
+        // the carved bed as if it were the bank, and reports a metre or two of wall that is not there.
+        // The same share `RiverWaterSampler` reaches by, for the same reason and in the same direction.
+        val reach = max(RIVER_BANK_PROBE, halfWidth * 2.0 * BANK_WOBBLE_SHARE)
+
+        for (side in intArrayOf(-1, 1)) {
+          val outside = at + normal * (side * (halfWidth + reach))
+
+          // A river running into a lake legitimately has water beside it rather than bank.
+          val lake = standing?.sampleBilinear(outside.x, outside.y) ?: Float.NaN.toDouble()
+          if (!lake.isNaN() && lake >= surface) { skipLake++; continue }
+          // Back inside this river's own channel. Stepping along the normal is only "outside" while the
+          // line is locally straight: on a tight bend the point lands on the inside of the curve, where the
+          // nearest part of the centreline is nearer than the half-width. That is bed, and measuring it as
+          // bank reports the channel's own floor as a wall beside it.
+          val own = river.centerline.project(outside)
+          val ownHalf = river.stations.sample(width, own.u) * 0.5
+          if (own.distance <= ownHalf) { skipInside++; continue }
+
+          if (later.any { covers(it, outside) }) { skipLater++; continue }
+          // The probe offset is allowed on this one too, exactly as it is on the channels below. A
+          // junction disc smooths the ground out to its radius, so a point a couple of metres past the rim
+          // is still junction rather than bank - and without the symmetry the check reports a metre of
+          // shortfall in the one ring of ground where two beds at different depths are being blended.
+          if (junctions.any { outside.distanceTo(it.center) <= it.radius + RIVER_BANK_PROBE }) {
+            skipJunction++
+            continue
+          }
+          if (otherChannels.any { other ->
+              if (!other.bbox.contains(outside.x, outside.y)) {
+                false
+              } else {
+                // The whole corridor, not just the wetted width: a channel's shoulder is ground it
+                // grades down to its own bed, so a point inside one is that river's floodplain rather
+                // than this river's bank. At a junction the two rivers' corridors overlap and the deeper
+                // of the two wins the ground - which is what a confluence is, and not a wall.
+                val hit = other.centerline.project(outside)
+                val corridor =
+                  other.stations.sample(other.stations.channel(Profiles.CHANNEL_CORRIDOR), hit.u)
+                hit.distance <= corridor
+              }
+            }
+          ) { skipChannel++; continue }
+
+          val ground = evaluator.heightAt(
+            outside.x, outside.y, generated.base.heightAt(outside.x, outside.y)
+          )
+          if (ground <= seaLevel) { skipSea++; continue }
+
+          probes++
+          val below = surface - ground
+          if (below > worst) {
+            worst = below
+            worstAt = outside
+            worstRiver = river.toString()
+            val bare2 = generated.base.heightAt(outside.x, outside.y)
+            val profile = (-6..6).joinToString(" ") { step ->
+              val p = at + normal * (step * (halfWidth + reach) / 6.0)
+              "%.0f".format(Locale.ROOT, generated.base.heightAt(p.x, p.y))
+            }
+            val bedHere = river.stations.valueAt(
+              river.stations.channel(Profiles.CHANNEL_BED_ELEVATION), station
+            )
+            worstDetail = "bed=${"%.1f".format(Locale.ROOT, bedHere)} lateral[$profile] " + "water=${"%.1f".format(Locale.ROOT, surface)} " +
+                "ground=${"%.1f".format(Locale.ROOT, ground)} " +
+                "bare=${"%.1f".format(Locale.ROOT, bare2)} " +
+                "halfWidth=${"%.1f".format(Locale.ROOT, halfWidth)} " +
+                "reach=${"%.1f".format(Locale.ROOT, reach)} " +
+                "ownDist=${"%.1f".format(Locale.ROOT, own.distance)}"
+          }
+        }
+      }
+    }
+
+    // Habit 6, in the shape this check can actually promise. A world with no rivers has no bank to hold
+    // anything and is not evidence of a bug - a small test world is routinely one. A world *with* rivers and
+    // no probe is: it means every probe was skipped, and the skips are broad enough (other channels, their
+    // corridors, junction discs, later earthworks) that getting them wrong would silently retire the check
+    // rather than break it.
+    if (rivers > 0 && probes == 0) {
+      fail(
+        "river banks are probed",
+        "$rivers river channels and not one bank probe survived the skips " +
+            "(raised=$skipRaised inside=$skipInside lake=$skipLake later=$skipLater " +
+            "junction=$skipJunction " +
+            "channel=$skipChannel sea=$skipSea)"
+      )
+      return
+    }
+
+    if (worst > MAX_RIVER_BANK_WALL) {
+      // What is standing over the worst point, and what the ground would have been without it. This check
+      // has three quite different causes - a bed measured against the wrong surface, a feature that carved
+      // afterwards, and a junction where the probe lands in another channel - and the shortfall alone does
+      // not tell them apart. Computed only on failure.
+      val covering = generated.world.features
+        .query(Aabb(worstAt.x - 1.0, worstAt.y - 1.0, worstAt.x + 1.0, worstAt.y + 1.0))
+        .groupingBy { it.kind.name }
+        .eachCount()
+      val bare = generated.base.heightAt(worstAt.x, worstAt.y)
+      fail(
+        "river bank is not a wall",
+        "$worstRiver carries water ${"%.1f".format(Locale.ROOT, worst)} m above the ground beside it " +
+            "at (${worstAt.x.toInt()}, ${worstAt.y.toInt()}) [$worstDetail covering=$covering]"
+      )
     }
   }
 
@@ -1149,6 +1391,86 @@ object Invariants {
   )
 
   private const val SHORE_PROBE = 14.0
+
+  /**
+   * Kinds that cut the ground and are produced *after* the rivers are, so hydrology cannot have seen them.
+   *
+   * The same exemption [checkPondsHoldWaterWithoutAWall] makes for [RESHAPES_THE_GROUND], on the same
+   * principle and one stage earlier: a producer can only be held to the surface that existed when it ran.
+   * A river cuts its bed against everything up to and including the glacial stage - which it declares, and
+   * which is why a trough floor *is* its business - and then an oxbow is abandoned beside it, a delta
+   * spreads at its mouth and a fan buries its bank. Those are the lake and sediment stages' output, and
+   * holding the channel to ground they lowered afterwards would be asking it to predict them.
+   */
+  /**
+   * Kinds that pile ground up rather than cut it, blended `ADD`.
+   *
+   * See the note beside `raisers`. Kept separate from [AFTER_HYDROLOGY] because the reason differs: those
+   * are features the producer could not have seen, and these are ones it saw and graded itself onto.
+   */
+  private val RAISES_THE_GROUND = setOf(FeatureKind.MORAINE)
+
+  private val AFTER_HYDROLOGY = setOf(
+    FeatureKind.OXBOW_LAKE,
+    FeatureKind.LAKE,
+    FeatureKind.DELTA,
+    FeatureKind.ALLUVIAL_FAN
+  )
+
+  /** Stations between bank probes. The bed is a running minimum over a smooth field, so neighbours agree. */
+  private const val BANK_PROBE_STRIDE = 5
+
+  /**
+   * Metres outside the wetted edge at which a river's bank is probed.
+   *
+   * Two metres, not the ponds' [SHORE_PROBE] of fourteen, and the difference is the whole meaning of the
+   * check. Containment is a claim about the **bank**: the ground at the channel's edge stands above the
+   * water in it. Fourteen metres out is a claim about the *landform*, and a river running along an
+   * escarpment fails that one while being perfectly well contained - measured at fourteen, eleven of
+   * twelve sweep worlds reported a violation, the worst of them a river with ground 386 m below it to one
+   * side, which is a cliff rather than a wall of water.
+   *
+   * Inside `HydrologyParams.bankContainment`, so it lands on ground the corridor probe actually saw. That
+   * does not make the check tautological: what it asserts is that the profile and the `MIN` blend deliver
+   * at the bank line what the bed derivation promised, and it fails loudly against the defect it was
+   * written for - a bed taken from the kilometre raster is unrelated to the ground two metres off the
+   * channel, so the water stood over it by however far the detail noise had dipped.
+   */
+  private const val RIVER_BANK_PROBE = 2.0
+
+  /**
+   * Bank-probe reach as a share of channel width, where that is wider than [RIVER_BANK_PROBE].
+   *
+   * Sized to clear `HydrologyParams.bankRoughness`, which is 0.12 of the width, and kept inside
+   * `HydrologyParams.bankContainment` so the probe still lands on ground the corridor was measured over.
+   */
+  private const val BANK_WOBBLE_SHARE = 0.15
+
+  /**
+   * Metres of water a river may stand above the ground just outside its bank before it counts as a wall.
+   *
+   * A quarter of the ponds' [MAX_SHORE_WALL], because the two promise different things. A pond's waterline
+   * is *solved* against a profile and a couple of metres of mismatch is expected. A river's is
+   * *constructed*: the bed is the corridor's own lowest ground, so at the bank line the ground is the bed
+   * and the water sits `depth * HydrologyParams.channelFreeboard` under it - half a metre at the depth
+   * floor, and more on anything larger.
+   *
+   * **Six metres is not that half-metre, and the gap between them is a known residual rather than slack.**
+   * Two things eat into the margin. The bed and the water are separate Catmull-Rom channels that need not
+   * stay exactly parallel between stations, which is worth a few tenths. The rest is real: on a 600 km
+   * world - `WorldSizeSanityTest`'s, seed 105 - a reach comes back with its bank stepping about five
+   * metres down within two metres of the channel edge. The corridor probe reads the *carved* surface, so
+   * where a feature stands the ground up under the channel and not beside it, the bed grades to what the
+   * probe saw and the land next to it is lower. Moraines are the clearest case and are skipped by name;
+   * this one is not a moraine and is not yet explained.
+   *
+   * What the number is chosen against is the defect the check exists for. Before the bed was probed at
+   * all, violations ran from 4 m to 386 m and the median was in the tens; at six metres this still catches
+   * that class outright while not failing on the residual above. **Tighten it to one metre and the sweep
+   * goes red on the 600 km world** - which is the honest state of things, and the reason this paragraph
+   * says so rather than the constant quietly saying nothing.
+   */
+  private const val MAX_RIVER_BANK_WALL = 6.0
 
   /**
    * Metres of water a pond may stand above the ground just outside its ring before it counts as a wall.

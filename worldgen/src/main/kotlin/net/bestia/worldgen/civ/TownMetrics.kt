@@ -73,8 +73,8 @@ object TownMetrics {
      * [ISOTROPIC] is a landmark rather than a pass mark.
      *
      * [ISOTROPIC] is where a network with no preferred orientation sits: 0.64, because the mean of `|sin|`
-     * over a uniform angle is `2/pi` rather than the half it looks like it should be. Cross streets surveyed at
-     * fractions of the built radius are tangential by construction and pull above it; a spoke pulls below.
+     * over a uniform angle is `2/pi` rather than the half it looks like it should be. A side street running
+     * between two arteries pulls above it; a spoke pulls below.
      *
      * Measured outside [CORE_SHARE] of the built radius, to keep the `TownPatches` edges out of it - their
      * orientation is whatever the Voronoi partition left. The cut is approximate, and is why a city, which has
@@ -262,8 +262,8 @@ object TownMetrics {
    * Share of the built radius treated as the core, and skipped by [tangentialShare].
    *
    * `TownPatches.CORE_SHARE` is the same fraction of the town's *outline*; this is the radial version of it,
-   * and it does not have to be exact - it only has to keep the patch edges out of a measurement about
-   * surveyed cross streets.
+   * and it does not have to be exact - it only has to keep the patch edges out of a measurement about the
+   * streets the town grew.
    */
   private const val CORE_SHARE = 0.55
 

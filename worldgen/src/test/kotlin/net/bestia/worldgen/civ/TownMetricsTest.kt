@@ -49,31 +49,34 @@ class TownMetricsTest {
   }
 
   @Test
-  fun `the wheel detector reads the cross streets that make the wheel`() {
+  fun `the wheel detector reads the side streets that make the wheel`() {
     // The claim the metric is built on, asserted rather than assumed: a world with nothing crosswise in it
     // must measure lower, and nowhere else is it written down that the metric notices. That is how a metric
     // quietly stops reading the world it is pointed at.
     //
-    // The control removes the **branches** as well as the cross streets, because a branch leaves its parent at
-    // a right angle and is therefore just as crosswise. Removing only the cross streets does not isolate what
-    // this metric reads: measured per settlement it moved five up and three down, and the two medians landed
-    // on the same settlement.
+    // The control is `branchChance = 0`, which is now the whole of it. It used to also set
+    // `crossStreetsPerMainStreet = 0`, because removing only the cross streets did not isolate what this
+    // metric reads - a branch leaves its parent at a right angle and is just as crosswise, and with the
+    // chords alone removed the measurement moved five settlements up and three down. The cross streets have
+    // since been deleted outright, so what is left to remove is the branches, which were the crosswise half
+    // all along.
+    //
+    // With no branches a town is its arteries out of the market and the seeds growing in on the bearings
+    // between them - all radial, and the metric should say so.
     //
     // Relative, not absolute: the level depends on how much of a town is core, so the assertion is that
     // crosswise streets move it, not that it sits anywhere in particular.
     val spokesOnly = StandardWorld.build(
       StandardWorld.demoConfig(seed = 909L).copy(widthCells = 160, heightCells = 160),
-      params = WorldParams(
-        town = TownParams(streets = StreetParams(crossStreetsPerMainStreet = 0, branchChance = 0.0))
-      )
+      params = WorldParams(town = TownParams(streets = StreetParams(branchChance = 0.0)))
     )
 
-    val withCrossStreets = median(measured)
+    val withSideStreets = median(measured)
     val without = median(TownMetrics.of(spokesOnly))
 
     assertTrue(
-      withCrossStreets > without,
-      "cross streets measured $withCrossStreets tangential and spokes alone measured $without - " +
+      withSideStreets > without,
+      "side streets measured $withSideStreets tangential and spokes alone measured $without - " +
           "the metric did not see them"
     )
   }

@@ -611,6 +611,32 @@ object SurfaceCover {
   }
 
   /**
+   * What a river lays on its own bed, from unit stream power in W/m2.
+   *
+   * **This exists because the bed was running the sea's rule.** [cap] answers any submerged column
+   * shallower than [DEEP_WATER] with [shoreMaterial] - which is right for a shallow marine shelf and
+   * wrong for a channel a metre and a half deep, and it put a bright sand beach down the middle of every
+   * river in the world. Depth cannot tell the two apart: a river is *always* shallow by that rule.
+   *
+   * Stream power can, and it is the quantity that physically decides the answer. `omega = gamma Q S / w`
+   * is the rate the flow does work on its own bed per unit area: above a few hundred W/m2 it strips
+   * everything loose and runs on rock, in the tens it holds a gravel or cobble bed, below that it can
+   * carry sand but not gravel, and in a sluggish lowland reach it drops silt. That is the real
+   * downstream sequence, and it comes out of the reach's own slope and discharge rather than a table.
+   *
+   * No new [BlockType]: every material here already exists, so the block palette - and with it
+   * `blockPaletteVersion` - does not move for this.
+   */
+  fun riverBed(unitStreamPower: Double, temperature: Double): BlockType = when {
+    unitStreamPower >= BEDROCK_POWER -> BlockType.STONE
+    unitStreamPower >= GRAVEL_POWER -> BlockType.GRAVEL
+    // Sand, or shingle where it is too cold to weather to sand - the same call the shore makes, because
+    // a cold river sorts its bed by the same physics a cold beach does.
+    unitStreamPower >= SAND_POWER -> shoreMaterial(temperature)
+    else -> BlockType.MUD
+  }
+
+  /**
    * The blighted twin of a cover material, or the material itself.
    *
    * **Wrapped around the two tables rather than branched inside them**, and that is the point: corruption is
@@ -685,4 +711,26 @@ object SurfaceCover {
 
   /** Water depth beyond which the bed is fine mud rather than sand. */
   const val DEEP_WATER = 60.0
+
+  /**
+   * Unit stream power in W/m2 at which a channel runs on bare rock.
+   *
+   * The three thresholds below are the literature's rough bands for bedrock-channel onset and the
+   * gravel/sand transition, and they are **starting values that have to be earned**. Worked against the
+   * channels this pipeline actually produces: a steep mountain creek (Q 0.3, S 0.08, w 3) gives 78 and
+   * comes out gravel; a mid reach (Q 2, S 0.01, w 6) gives 327 and comes out gravel; a lowland trunk
+   * (Q 5, S 0.0008, w 9) gives 4.4 and comes out silt.
+   *
+   * A classifier with a dead arm - a rock band no world ever reaches, or a silt band that swallows
+   * everything - is a subsystem that ships complete, tested and never reached, which is this module's
+   * most-repeated failure. `RiverBedTest` histograms all four over a real world and requires each to
+   * hold a share of the stations rather than trusting these numbers.
+   */
+  const val BEDROCK_POWER = 1_200.0
+
+  /** Unit stream power in W/m2 above which the flow can move gravel. See [BEDROCK_POWER]. */
+  const val GRAVEL_POWER = 45.0
+
+  /** Unit stream power in W/m2 above which the flow can carry sand but not gravel. See [BEDROCK_POWER]. */
+  const val SAND_POWER = 8.0
 }

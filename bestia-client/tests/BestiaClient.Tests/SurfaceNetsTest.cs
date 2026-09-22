@@ -46,8 +46,144 @@ namespace BestiaBehemothClient.Tests
       SurfaceNets.Build(source, new ChunkKey(chunkX, chunkY, chunkZ), TerrainFixtures.Appearance(), 1.0f, ChunkWrap.None);
 
     /// <summary>Vertices away from the chunk's own edges, where the neighbourhood is genuine.</summary>
+    /// <remarks>
+    /// <b>Worth knowing what this hides.</b> Its justification - a missing neighbour is extended flat - applies
+    /// to a chunk meshed alone, and every caller below builds a <see cref="Surrounded"/> fixture where the ring
+    /// is held and the apron falls inside a genuine neighbour. So on those it excludes a two-cell band that is
+    /// exact, and that band is where seam bugs live: the submerged bank that was never meshed, and the water
+    /// wall standing in front of it, were both invisible to every assertion in this file for exactly that
+    /// reason. Prefer asserting over the whole vertex set on a surrounded fixture, and reach for this only
+    /// where a chunk is genuinely meshed without neighbours.
+    /// </remarks>
     private static List<Vector3> Interior(ChunkSurface surface) =>
       surface.Vertices.Where(v => v.X > 2 && v.X < Size - 2 && v.Z > 2 && v.Z < Size - 2).ToList();
+
+
+    /// <summary>
+    /// A river bank is meshed, and the water draws no wall against it.
+    /// </summary>
+    /// <remarks>
+    /// <b>The case no fixture in this file used to produce, and the one the client rendered worst.</b> The
+    /// shore fixture is normally driven with a gentle ramp, where the bed boundary sits within a cell or two
+    /// of the waterline everywhere - so the dilated bed subtraction blanketed the whole shallow band and no
+    /// wall survived to be noticed. A river is the opposite shape: a steep bank with several voxels of water
+    /// against it, whose middle no vertical run boundary reaches.
+    ///
+    /// <para>
+    /// <c>ChunkBands</c> records material boundaries by walking columns vertically, so it finds the bed and
+    /// the waterline and nothing between; its horizontal pass compares occupancy, which is 255 on both sides
+    /// of a submerged bank. The cells between entered neither mask and <b>the terrain pass never drew the
+    /// bank at all</b> - measured on this fixture, zero vertices in the whole submerged band.
+    /// </para>
+    ///
+    /// <para>
+    /// Worth recording what this does <i>not</i> show, because it was the original theory. The water's own
+    /// side wall is not emitted here either way: the fluid pass never visits those cells, for the same
+    /// reason the terrain pass did not. The translucent slabs seen in game came from water standing
+    /// genuinely above the surrounding ground - a server-side defect in how the bed was derived - and once
+    /// the water sits in its channel the lateral faces are against rock, where occupancy does not change.
+    /// The wall assertions below are kept as a guard on a property that should stay true, not as evidence:
+    /// they pass with the fix reverted, and only the bank count below discriminates.
+    /// </para>
+    ///
+    /// <para>
+    /// Asserted over the full vertex set rather than through <see cref="Interior"/>, deliberately: the
+    /// bank here is placed on the chunk seam, which is exactly where a fix applied inside <c>ChunkBands</c>
+    /// would leave a one-cell gap every 32 m.
+    /// </para>
+    /// </remarks>
+    [Fact]
+    public void ARiverBankIsMeshedAndTheWaterDrawsNoWallAgainstIt()
+    {
+      const double bed = 20.0;
+      const double bank = 48.3;
+      const double waterline = 40.0;
+
+      // Centre 32, half-width 8: the channel runs x 24..40, so both its banks fall on a chunk seam.
+      var source = Surrounded((cx, cy) => TerrainFixtures.Shore(
+        cx, cy, (worldX, _) => Math.Abs(worldX - 32) <= 8 ? bed : bank, waterline));
+
+      var mesh = Mesh(source);
+
+      Assert.NotNull(mesh.Water);
+      Assert.NotEmpty(mesh.Water.Vertices);
+
+      // Every water vertex sits at the waterline. A side wall puts them all the way down to the bed, and
+      // this is the assertion that fails without the backing test in SurfaceNets.
+      Assert.All(
+        mesh.Water.Vertices,
+        v => Assert.True(
+          v.Y > waterline - 1.5f && v.Y < waterline + 1.5f,
+          $"water vertex at y={v.Y} is not on the waterline of {waterline}"));
+
+      // The geometric statement of the same thing, independent of where the fixture put its banks: no water
+      // triangle may face sideways.
+      foreach (var (a, b, c) in Triangles(mesh.Water))
+      {
+        var normal = (b - a).Cross(c - a);
+        if (normal.LengthSquared() < 1e-12f)
+        {
+          continue;
+        }
+
+        normal = normal.Normalized();
+        Assert.True(
+          Math.Abs(normal.Y) > 0.7f,
+          $"a water triangle faces sideways (normal {normal}), which is a wall rather than a surface");
+      }
+
+      // **The assertion that discriminates**, and the reason this test exists. Without
+      // `TerrainPatch.MarkLateralMaterialFaces` this count is exactly zero: the band between the bed and
+      // the waterline is in neither mask, so the terrain pass never visits it and the submerged bank is
+      // not drawn at all. With it, this fixture yields several hundred. Measured both ways rather than
+      // asserted as "not empty", because "not empty" would also pass on a single stray vertex.
+      var bankVertices = mesh.Terrain.Vertices.Count(v => v.Y > bed + 1.0f && v.Y < waterline - 1.0f);
+
+      Assert.True(
+        bankVertices > 100,
+        $"only {bankVertices} terrain vertices between the bed at {bed} and the waterline at {waterline}; " +
+        "the submerged bank is not being meshed");
+    }
+
+    /// <summary>
+    /// The water sheet reaches the shore rather than stopping a voxel short of it.
+    /// </summary>
+    /// <remarks>
+    /// The regression guard for the dilated bed subtraction that used to run in <c>TerrainPatch</c>. Where the
+    /// water was a voxel or two deep, the cell carrying its own top sheet was the same cell as the one
+    /// carrying the bed, so subtracting the bed took the surface with it - and <c>BuildQuads</c> drops any
+    /// quad with a missing corner without complaining. The waterline receded in a ragged one-voxel step.
+    /// </remarks>
+    [Fact]
+    public void TheWaterSheetReachesTheShoreRatherThanStoppingShortOfIt()
+    {
+      const double waterline = 40.0;
+
+      // A gentle ramp crossing the waterline at world x = 20.
+      var source = Surrounded((cx, cy) => TerrainFixtures.Shore(
+        cx, cy, (worldX, _) => 39.0 + (worldX - 20) * 0.25, waterline));
+
+      var mesh = Mesh(source);
+
+      Assert.NotNull(mesh.Water);
+      var furthest = mesh.Water.Vertices.Max(v => v.X);
+
+      Assert.True(
+        furthest > 19.0f,
+        $"the water sheet stops at x={furthest}, short of the shoreline at 20");
+    }
+
+    /// <summary>Triangles of a surface, as vertex triples.</summary>
+    private static IEnumerable<(Vector3 A, Vector3 B, Vector3 C)> Triangles(ChunkSurface surface)
+    {
+      for (var i = 0; i + 2 < surface.Indices.Length; i += 3)
+      {
+        yield return (
+          surface.Vertices[surface.Indices[i]],
+          surface.Vertices[surface.Indices[i + 1]],
+          surface.Vertices[surface.Indices[i + 2]]);
+      }
+    }
 
     /// <summary>
     /// The central claim: a surface written at a fractional elevation is drawn at that elevation.

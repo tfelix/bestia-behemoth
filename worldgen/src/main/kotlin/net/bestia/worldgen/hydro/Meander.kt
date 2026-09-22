@@ -54,16 +54,26 @@ object Meander {
   }
 
   /**
-   * Meander amplitude for a channel of a given width on a given slope.
+   * Meander amplitude for a given wavelength on a given slope.
    *
-   * Amplitude grows with width - a big river swings further - and collapses on steep ground, because a
-   * mountain stream is confined by the valley it has cut and has nowhere to wander. That second term is
-   * what makes headwaters straight and lowland trunks sinuous, which is the difference between a river
-   * network that reads as a landscape and one that reads as noise applied to lines.
+   * Amplitude is a fraction of the **wavelength**, not a multiple of the channel width, and that is the
+   * whole of why rivers used to come out straight. Sinuosity is a ratio of two lengths along the same
+   * curve, so the only amplitude that sets it is one measured against that curve's own wavelength. Width
+   * cannot: [ChannelGauge]'s floor pins most of the network to exactly three voxels, so an amplitude
+   * tied to width gave every river in the world the same gentle wiggle at every size, and the wavelength
+   * floor beside it gave them all the same 360 m besides.
+   *
+   * It still collapses on steep ground, because a mountain stream is confined by the valley it has cut
+   * and has nowhere to wander. That term is what makes headwaters straight and lowland trunks sinuous,
+   * which is the difference between a river network that reads as a landscape and one that reads as
+   * noise applied to lines.
+   *
+   * @param confinement slope at whose reciprocal the amplitude is halved; larger confines harder
    */
-  fun amplitudeFor(width: Double, slope: Double, widthFactor: Double, cap: Double): Double {
-    val confinement = 1.0 / (1.0 + slope * SLOPE_CONFINEMENT)
-    return min(width * widthFactor * confinement, cap)
+  fun amplitudeFor(wavelength: Double, slope: Double, ratio: Double, confinement: Double, cap: Double)
+      : Double {
+    val confined = 1.0 / (1.0 + slope * confinement)
+    return min(wavelength * ratio * confined, cap)
   }
 
   /** Arbitrary but fixed second coordinate, so the 2D field reads as one dimensional. */
@@ -71,7 +81,4 @@ object Meander {
 
   private const val SECONDARY_FACTOR = 0.41
   private const val SECONDARY_WEIGHT = 0.45
-
-  /** How strongly slope suppresses wandering. At a slope of 0.02 the amplitude is already halved. */
-  private const val SLOPE_CONFINEMENT = 50.0
 }

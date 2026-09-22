@@ -212,7 +212,7 @@ class ParamsVersionTest {
       "ErosionParams" to 454_983_928_578_723_392L,
       "ClosedBasinParams" to 5_389_246_153_518_852_453L,
       "GlacialParams" to -1_266_272_442_885_291_278L,
-      "HydrologyParams" to -5_783_982_653_209_774_790L,
+      "HydrologyParams" to 7_583_445_510_351_446_770L,
       "PondParams" to 8_297_690_367_138_694_458L,
       "AlluviumParams" to -2_759_034_807_589_268_237L,
       "CoastParams" to 991_316_927_533_791_172L,
@@ -240,10 +240,12 @@ class ParamsVersionTest {
       "CorruptionParams" to -8_182_278_140_807_375_004L,
       "SpawnerParams" to 9_011_422_239_801_402_374L,
       "VegetationStandParams" to -259_420_489_769_960_249L,
-      // Both moved when a street's carriageway became a tunable: `StreetParams` gained `arterialWidth` and
-      // `laneWidth`, which widened every street in every town, and `TownParams` holds it.
-      "TownParams" to -4_837_098_585_527_303_003L,
-      "StreetParams" to -9_042_130_427_711_242_681L,
+      // Both moved when `StreetPlanner.organic` became a real Parish-Muller expansion and the surveyed cross
+      // streets it had needed were deleted: `StreetParams` lost `crossStreetsPerMainStreet`, `crossStreetNear`
+      // and `crossStreetFar`, and `TownParams` holds `StreetParams`. Before that they moved together when a
+      // street's carriageway became a tunable (`arterialWidth` and `laneWidth`).
+      "TownParams" to -2_406_716_677_409_335_478L,
+      "StreetParams" to 4_882_094_518_502_737_137L,
       "EconomyParams" to 6_863_789_847_631_252_411L,
       "PoiParams" to 9_183_715_732_977_741_057L,
       "NavParams" to -3_747_794_165_664_176_836L,

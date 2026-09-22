@@ -156,6 +156,15 @@ class StreetNetworkTest {
    * `peoplePerHectare` (inert, because `builtRadiusFor` is already capped by `SettlementTier.footprintRadius`),
    * and the chord bow (299 to 312 across its whole useful range). The bar is now 280: still three times the
    * ninety-plot collapse it was written to catch, with room for tuning above it.
+   *
+   * ### And then the cross streets went entirely
+   *
+   * Once `StreetPlanner.organic` became a real Parish-Müller expansion its own cut-and-snap closed the cycles,
+   * and the surveyed chords were measured to be **costing** plots rather than buying them - so they were
+   * deleted, along with the three parameters above that tuned them. Everything in this note before this
+   * paragraph is therefore history: it is kept because it is the record of what a long tangential chain is
+   * worth, which is the reason the bar stayed at 280 rather than being raised to whatever the day's number
+   * happened to be.
    */
   @Test
   fun `a city-sized town yields plots enough for its population`() {
@@ -310,8 +319,8 @@ class StreetNetworkTest {
 
   @Test
   fun `no town emits a rank-3 street`() {
-    // `StreetParams.laneWidth` claims in prose that nothing reaches rank 3 - growth stops branching at 2,
-    // cross streets are rank 1, and a patch outline is 2 - so it anchors the interpolation rather than
+    // `StreetParams.laneWidth` claims in prose that nothing reaches rank 3 - growth stops branching at 2
+    // and a patch outline is 2 - so it anchors the interpolation rather than
     // describing a street. A claim about what a generator never produces is exactly the kind that rots
     // silently, so it is asserted here instead of trusted.
     val seen = sortedSetOf<Int>()
