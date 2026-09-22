@@ -57,7 +57,7 @@ func _ready() -> void:
 	_count.text = str(amount)
 	_icon.texture = item.get_icon()
 	_update_wear()
-	tooltip_text = _build_tooltip()
+	tooltip_text = ItemDetail.as_bbcode(item, upgrade_level, durability, max_durability, slots)
 
 
 func _update_wear() -> void:
@@ -83,28 +83,21 @@ func _wear_color() -> Color:
 	return _WEAR_FINE
 
 
-## Plain text rather than the BBCode skill descriptions use: a Control tooltip is a plain Label unless
-## the whole tooltip scene is replaced, and one line of wear does not justify that.
-func _build_tooltip() -> String:
-	var title := tr(item.name_key)
-	if upgrade_level > 0:
-		title += " +%d" % upgrade_level
+## The text is BBCode from [ItemDetail], so the default Label-based tooltip would render the markup
+## literally - swap in a RichTextLabel, the way [code]skill_row.gd[/code] does for skill descriptions.
+##
+## No empty-text guard, unlike that one: an item always has at least a name.
+func _make_custom_tooltip(for_text: String) -> Object:
+	var label := RichTextLabel.new()
+	label.bbcode_enabled = true
+	label.fit_content = true
+	label.scroll_active = false
+	label.custom_minimum_size = Vector2(320, 0)
+	label.text = for_text
 
-	var lines: Array[String] = [title]
-
-	# Tier 1 is the floor and says nothing about an item, so it is left off rather than shown as "Lv. 1".
-	if item.level > 1:
-		lines.append("Lv. %d" % item.level)
-
-	if max_durability > 0:
-		var broken := " (broken)" if durability <= 0 else ""
-		lines.append("Durability %d/%d%s" % [durability, max_durability, broken])
-
-	if slots > 0:
-		lines.append("%d rune slot(s)" % slots)
-
-	return "
-".join(lines)
+	var panel := PanelContainer.new()
+	panel.add_child(label)
+	return panel
 
 
 func _get_drag_data(_at_position: Vector2) -> Variant:
