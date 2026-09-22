@@ -26,6 +26,7 @@
 [ext_resource type="PackedScene" path="res://Game/UI/Map/MarkNamePopup.tscn" id="24_markpopup"]
 [ext_resource type="PackedScene" path="res://Game/UI/Map/MarkDeletePopup.tscn" id="25_markdelpopup"]
 [ext_resource type="PackedScene" path="res://Game/UI/ObtainedItems/ObtainedItems.tscn" id="26_obtained"]
+[ext_resource type="PackedScene" path="res://Game/UI/Chat/ItemInfoPopup.tscn" id="27_iteminfo"]
 
 [node name="UI" type="Control" unique_id=549600065]
 layout_mode = 3
@@ -137,6 +138,9 @@ layout_mode = 1
 
 [node name="MapOverlay" parent="." unique_id=28217583 instance=ExtResource("17_mapovl")]
 visible = false
+layout_mode = 1
+
+[node name="ItemInfoPopup" parent="." unique_id=1390602607 instance=ExtResource("27_iteminfo")]
 layout_mode = 1
 
 [node name="MessageDialog" parent="." unique_id=1957725178 instance=ExtResource("13_dialog")]

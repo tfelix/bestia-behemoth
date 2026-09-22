@@ -21,6 +21,7 @@ const _BASIC_SKILL_PRIMER := "BASIC_SKILL_PRIMER"
 @onready var _mark_name_popup: MarkNamePopup = $MarkNamePopup
 @onready var _mark_delete_popup: MarkDeletePopup = $MarkDeletePopup
 @onready var _obtained_items: ObtainedItems = $ObtainedItems
+@onready var _item_info_popup: ItemInfoPopup = $ItemInfoPopup
 
 ## Item ids of the map charts, from items.yml. The minimap exists exactly while one of these is carried.
 const _CHART_ENABLING_ITEM_IDS := [21]
@@ -130,6 +131,10 @@ func _ready() -> void:
 	_on_inventory_updated(inventory)
 
 	inventory.items_gained.connect(_on_items_gained)
+
+	# The chat reports a hover and does not word or place anything itself, the same split the map popups use.
+	_chat.item_hovered.connect(_item_info_popup.show_for)
+	_chat.item_hover_ended.connect(_item_info_popup.hide)
 
 	DialogManager.show_local_once(_BASIC_SKILL_PRIMER)
 
