@@ -3,6 +3,12 @@ class_name Inventory
 
 signal inventory_updated()
 
+## Item kinds the bag gained since the last snapshot, as [code]{item: ItemResource, amount: int}[/code].
+##
+## Separate from [signal inventory_updated], which also fires with no snapshot behind it - on the login
+## re-emit and from the local mutators - and so cannot say what changed.
+signal items_gained(gains: Array[Dictionary])
+
 var InventoryItem = preload("res://Game/UI/Inventory/InventoryItem/InventoryItem.tscn")
 
 ## This is only for testing. In reality you will receive the items from the server.
@@ -56,6 +62,14 @@ func _on_self_received(msg: SelfSMSG) -> void:
 func _on_entity_received(msg: EntitySMSG) -> void:
 	# Skip when it is not adressing our own entity.
 	if msg is InventoryComponentSMSG:
+		# A bag arriving for the first time is what the player already owns rather than news, so it seeds and
+		# says nothing - the same distinction health_bar.gd draws. _items.has() is that flag already; the only
+		# thing that could lie to it is add_item creating the key early, and nothing calls add_item.
+		var seeded := _items.has(msg.EntityId)
+
+		# Counted here rather than further down because the rebuild clears this very array in place.
+		var held_before := _count_by_item(_items.get(msg.EntityId, []))
+
 		var selected_entity_items = _items.get_or_add(msg.EntityId, [])
 		selected_entity_items.clear()
 		var item_db = ItemDB.get_instance()
@@ -79,6 +93,46 @@ func _on_entity_received(msg: EntitySMSG) -> void:
 			selected_entity_items.append(inv_item)
 		_render_items()
 		inventory_updated.emit()
+
+		# Gated on the player's own entity: an Inventory is synced to whoever owns it, not to the master, so
+		# a player bestia's bag arrives here too and is not what "you obtained something" means.
+		if seeded and msg.EntityId == selected_entity_id:
+			_announce_gains(held_before, _count_by_item(selected_entity_items))
+
+
+## How many of each item kind are held, worn or not.
+##
+## Worn gear counts. The server keeps it in this same list and only flags it, so leaving it out would make
+## taking a piece off read as finding one. [method _render_items] skips it for an unrelated reason - so the
+## same physical item cannot be dragged out of two windows.
+##
+## Summed per kind rather than per instance, which is what makes a second sword - its own row, its own
+## [member InventoryItemResource.player_item_id] - come out as one more sword.
+func _count_by_item(items: Array) -> Dictionary[int, int]:
+	var counts: Dictionary[int, int] = {}
+	for inv_item in items:
+		var item_id: int = inv_item.item.item_id
+		counts[item_id] = counts.get(item_id, 0) + inv_item.amount
+
+	return counts
+
+
+## Reports what the bag gained between two snapshots.
+##
+## Gains only: a bag that lost something lost it to the player spending, dropping or trading it, which they
+## do not need telling. Equipping changes neither side, since worn items are counted.
+func _announce_gains(before: Dictionary[int, int], after: Dictionary[int, int]) -> void:
+	var item_db = ItemDB.get_instance()
+	var gains: Array[Dictionary] = []
+
+	for item_id in after:
+		var gained: int = after[item_id] - before.get(item_id, 0)
+		if gained > 0:
+			# Certain to resolve: an item the catalogue does not carry never got into the list to be counted.
+			gains.append({"item": item_db.get_item(item_id), "amount": gained})
+
+	if not gains.is_empty():
+		items_gained.emit(gains)
 
 
 ## Re-renders from the last known server state. Also connected to Equipment.equipment_updated, since
