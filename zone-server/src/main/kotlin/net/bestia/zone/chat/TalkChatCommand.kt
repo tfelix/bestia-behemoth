@@ -2,6 +2,7 @@ package net.bestia.zone.chat
 
 import net.bestia.account.Authority
 import net.bestia.zone.dialog.DialogArg
+import net.bestia.zone.dialog.conversation.Asker
 import net.bestia.zone.dialog.conversation.ConversationNode
 import net.bestia.zone.dialog.conversation.ConversationService
 import net.bestia.zone.dialog.conversation.Line
@@ -63,7 +64,7 @@ class TalkChatCommand(
     }
 
     val choice = CMD_REGEX.find(cmdText.trim())?.groupValues?.get(1)?.takeIf { it.isNotEmpty() }?.toInt()
-    val node = nodeFor(speaker, choice)
+    val node = nodeFor(Asker(playerId, nearest), speaker, choice)
     if (node == null) {
       reply(playerId, "That option is not one of theirs. Run /talk to see what is.")
       return true
@@ -81,14 +82,14 @@ class TalkChatCommand(
    * The real client sends the id; this is scaffolding, and being usable matters more than mirroring the
    * wire exactly.
    */
-  private fun nodeFor(speaker: Speaker, choice: Int?): ConversationNode? {
+  private fun nodeFor(asker: Asker, speaker: Speaker, choice: Int?): ConversationNode? {
     if (choice == null) {
       return conversation.open(speaker)
     }
 
     val option = conversation.open(speaker).options.getOrNull(choice - 1) ?: return null
 
-    return conversation.nodeFor(speaker, option.topicId)
+    return conversation.nodeFor(asker, speaker, option.topicId)
   }
 
   /**

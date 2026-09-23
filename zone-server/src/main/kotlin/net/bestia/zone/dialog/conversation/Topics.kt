@@ -32,6 +32,7 @@ object Topics {
   const val SMALL_TALK = 4 * STRIDE
   const val RUMOUR = 5 * STRIDE
   const val FAREWELL = 6 * STRIDE
+  const val SHOP = 7 * STRIDE
 
   fun owns(base: Int, topicId: Int): Boolean {
     return topicId >= base && topicId < base + STRIDE

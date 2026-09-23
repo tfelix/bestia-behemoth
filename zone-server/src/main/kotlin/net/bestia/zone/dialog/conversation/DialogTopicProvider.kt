@@ -29,7 +29,7 @@ interface DialogTopicProvider {
   fun rootOptions(speaker: Speaker): List<ConversationOption>
 
   /** The node for a topic [owns] claimed, or null if the speaker cannot in fact talk about it. */
-  fun nodeFor(speaker: Speaker, topicId: Int): ConversationNode?
+  fun nodeFor(asker: Asker, speaker: Speaker, topicId: Int): ConversationNode?
 
   /**
    * Whether these options are offered whatever else is competing.

@@ -93,7 +93,7 @@ class ConversationServiceTest {
   fun `a leaf is given a way back to the root`() {
     val service = ConversationService(listOf(provider(Topics.STANDING, pinned = true, offers = 1)), clock())
 
-    val node = service.nodeFor(speaker(), Topics.STANDING)
+    val node = service.nodeFor(Asker(accountId = 1L, entityId = 1L), speaker(), Topics.STANDING)
 
     assertNotNull(node)
     assertEquals(OptionKind.BACK, node.options.single().kind)
@@ -104,7 +104,7 @@ class ConversationServiceTest {
   fun `the root topic reopens the conversation`() {
     val service = ConversationService(listOf(provider(Topics.STANDING, pinned = true, offers = 1)), clock())
 
-    val node = service.nodeFor(speaker(), Topics.ROOT)
+    val node = service.nodeFor(Asker(accountId = 1L, entityId = 1L), speaker(), Topics.ROOT)
 
     assertNotNull(node)
     assertTrue(
@@ -120,7 +120,7 @@ class ConversationServiceTest {
     val service = ConversationService(listOf(provider(Topics.STANDING, pinned = true, offers = 1)), clock())
 
     val greetings = (1L..40L)
-      .map { assertNotNull(service.nodeFor(speaker(seed = it), Topics.ROOT)).speech.key }
+      .map { assertNotNull(service.nodeFor(Asker(accountId = 1L, entityId = 1L), speaker(seed = it), Topics.ROOT)).speech.key }
       .toSet()
 
     assertTrue(greetings.size > 1, "every farmer in the world says $greetings")
@@ -131,7 +131,7 @@ class ConversationServiceTest {
   fun `a topic nobody owns is refused rather than answered`() {
     val service = ConversationService(listOf(provider(Topics.STANDING, pinned = true, offers = 1)), clock())
 
-    assertNull(service.nodeFor(speaker(), Topics.RUMOUR + 7))
+    assertNull(service.nodeFor(Asker(accountId = 1L, entityId = 1L), speaker(), Topics.RUMOUR + 7))
   }
 
   private fun provider(base: Int, pinned: Boolean, order: Int = 0, offers: Int): DialogTopicProvider {
@@ -150,7 +150,7 @@ class ConversationServiceTest {
         return (0 until offers).map { ConversationOption(base + it, Line("ASK_$it")) }
       }
 
-      override fun nodeFor(speaker: Speaker, topicId: Int): ConversationNode? {
+      override fun nodeFor(asker: Asker, speaker: Speaker, topicId: Int): ConversationNode? {
         return ConversationNode(Line("SAID_$topicId"), emptyList())
       }
     }
@@ -169,7 +169,7 @@ class ConversationServiceTest {
         return listOf(ConversationOption(Topics.FAREWELL, Line(ConversationKeys.FAREWELL), OptionKind.END))
       }
 
-      override fun nodeFor(speaker: Speaker, topicId: Int): ConversationNode {
+      override fun nodeFor(asker: Asker, speaker: Speaker, topicId: Int): ConversationNode {
         return ConversationNode(Line(ConversationKeys.GOODBYE), emptyList())
       }
     }

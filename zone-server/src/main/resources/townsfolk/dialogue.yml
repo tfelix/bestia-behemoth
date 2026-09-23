@@ -98,6 +98,8 @@ conversation:
   TALK_ABOUT_TOWN: { variants: 4, slots: [town, trade] }
   TALK_NEWS_NONE: { variants: 4, slots: [] }
   TALK_NOT_YET: { variants: 4, slots: [] }
+  # Said as the counter opens, so an action does not leave the conversation looking broken.
+  TALK_SHOP_OPENED: { variants: 4, slots: [] }
 
 # How long ago something was, in words - see the Era enum for the bands these name.
 eras:

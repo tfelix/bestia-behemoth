@@ -41,7 +41,7 @@ class SmallTalkTopicProvider(
    * stale is a clock rather than anything the player did. Re-checking the *gates* keeps the promise
    * that matters - nobody says a line that is not true of them - while letting a late click land.
    */
-  override fun nodeFor(speaker: Speaker, topicId: Int): ConversationNode? {
+  override fun nodeFor(asker: Asker, speaker: Speaker, topicId: Int): ConversationNode? {
     val index = Topics.localOf(Topics.SMALL_TALK, topicId)
     val line = catalogue.at(index) ?: return null
     val circumstance = circumstances.of(speaker) ?: return null

@@ -31,7 +31,7 @@ class StandingTopicProvider(
     )
   }
 
-  override fun nodeFor(speaker: Speaker, topicId: Int): ConversationNode? {
+  override fun nodeFor(asker: Asker, speaker: Speaker, topicId: Int): ConversationNode? {
     return when (Topics.localOf(Topics.STANDING, topicId)) {
       ABOUT_TOWN -> ConversationNode(aboutTown(speaker), emptyList())
       else -> null

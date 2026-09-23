@@ -32,7 +32,7 @@ class KnowledgeTopicProviderTest {
   fun `the first event the chronicle ever logged is a memory and not the menu`() {
     holds(memory(topic = FIRST_EVENT))
 
-    val node = assertNotNull(sut.nodeFor(speaker(), Topics.KNOWLEDGE + FIRST_EVENT))
+    val node = assertNotNull(sut.nodeFor(Asker(accountId = 1L, entityId = 1L), speaker(), Topics.KNOWLEDGE + FIRST_EVENT))
 
     assertTrue(
       node.speech.key.startsWith(KEY),
@@ -45,10 +45,10 @@ class KnowledgeTopicProviderTest {
     val held = listOf(memory(topic = FIRST_EVENT), memory(topic = 1), memory(topic = 50_000))
     holds(*held.toTypedArray())
 
-    val menu = assertNotNull(sut.nodeFor(speaker(), menuTopic()))
+    val menu = assertNotNull(sut.nodeFor(Asker(accountId = 1L, entityId = 1L), speaker(), menuTopic()))
     val asked = menu.options
       .filter { it.kind == OptionKind.TALK }
-      .map { assertNotNull(sut.nodeFor(speaker(), it.topicId)).speech.key }
+      .map { assertNotNull(sut.nodeFor(Asker(accountId = 1L, entityId = 1L), speaker(), it.topicId)).speech.key }
 
     assertEquals(held.size, asked.size, "menu offered ${menu.options} for ${held.size} memories")
     assertTrue(asked.all { it.startsWith(KEY) }, "one option answered with something else: $asked")

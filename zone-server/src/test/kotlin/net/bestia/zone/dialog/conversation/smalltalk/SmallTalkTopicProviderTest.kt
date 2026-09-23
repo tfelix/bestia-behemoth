@@ -9,6 +9,7 @@ import net.bestia.worldgen.pop.Member
 import net.bestia.zone.ai.core.state.HourWindow
 import net.bestia.zone.ai.domain.townsfolk.Occupation
 import net.bestia.zone.ai.domain.townsfolk.OccupationCatalogue
+import net.bestia.zone.dialog.conversation.Asker
 import net.bestia.zone.dialog.conversation.SmallTalkTopicProvider
 import net.bestia.zone.dialog.conversation.Speaker
 import net.bestia.zone.dialog.conversation.Topics
@@ -94,17 +95,17 @@ class SmallTalkTopicProviderTest {
     val speaker = speaker(1L)
     val topicId = provider.rootOptions(speaker).first().topicId
 
-    assertNotNull(provider.nodeFor(speaker, topicId))
+    assertNotNull(provider.nodeFor(Asker(accountId = 1L, entityId = 1L), speaker, topicId))
 
     // The same click from someone the line was never about. Small talk that a guard can inherit from a
     // farmer is exactly the generic filler the gates exist to prevent.
     val elsewhere = provider(chance = 1.0, occupation = "guard")
-    assertNull(elsewhere.nodeFor(speaker(1L, occupation = "guard"), topicId))
+    assertNull(elsewhere.nodeFor(Asker(accountId = 1L, entityId = 1L), speaker(1L, occupation = "guard"), topicId))
   }
 
   @Test
   fun `an unknown topic in range is refused rather than guessed at`() {
-    assertNull(provider().nodeFor(speaker(1L), Topics.SMALL_TALK + 9_999))
+    assertNull(provider().nodeFor(Asker(accountId = 1L, entityId = 1L), speaker(1L), Topics.SMALL_TALK + 9_999))
   }
 
   private fun provider(

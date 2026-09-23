@@ -48,6 +48,9 @@ object ConversationKeys {
   const val SHOP_BUY_ASK = "TALK_SHOP_BUY_ASK"
   const val SHOP_SELL_ASK = "TALK_SHOP_SELL_ASK"
 
+  /** Said as the window opens, so the conversation does not simply stop dead on an action. */
+  const val SHOP_OPENED = "TALK_SHOP_OPENED"
+
   /** What a stubbed action answers with. One key, so removing it later is one grep. */
   const val NOT_YET = "TALK_NOT_YET"
 
@@ -57,7 +60,7 @@ object ConversationKeys {
    * A list rather than a convention over the constants above, because half of them are deliberately
    * single - a key added here with no count fails the boot, and a count with no key does too.
    */
-  val VARIED = setOf(GOODBYE, ABOUT_TOWN, NEWS_NONE, NOT_YET)
+  val VARIED = setOf(GOODBYE, ABOUT_TOWN, NEWS_NONE, NOT_YET, SHOP_OPENED)
 
   const val SLOT_NAME = "name"
   const val SLOT_TOWN = "town"

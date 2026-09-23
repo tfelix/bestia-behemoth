@@ -32,7 +32,7 @@ class FarewellTopicProvider(
     )
   }
 
-  override fun nodeFor(speaker: Speaker, topicId: Int): ConversationNode? {
+  override fun nodeFor(asker: Asker, speaker: Speaker, topicId: Int): ConversationNode? {
     return ConversationNode(lines.lineFor(speaker, ConversationKeys.GOODBYE), emptyList())
   }
 }

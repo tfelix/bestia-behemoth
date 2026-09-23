@@ -40,7 +40,7 @@ class KnowledgeTopicProvider(
     )
   }
 
-  override fun nodeFor(speaker: Speaker, topicId: Int): ConversationNode? {
+  override fun nodeFor(asker: Asker, speaker: Speaker, topicId: Int): ConversationNode? {
     val local = Topics.localOf(Topics.KNOWLEDGE, topicId)
     if (local == NEWS) {
       return newsMenu(speaker)

@@ -30,7 +30,7 @@ class TalkService(
   }
 
   fun choose(accountId: AccountId, actor: EntityId, target: EntityId, topicId: Int) {
-    send(accountId, actor, target) { conversation.nodeFor(it, topicId) }
+    send(accountId, actor, target) { conversation.nodeFor(Asker(accountId, actor), it, topicId) }
   }
 
   /**

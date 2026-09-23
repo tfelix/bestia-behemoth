@@ -39,7 +39,7 @@ class ConversationService(
    * Null rather than an empty node: a topic that does not belong to this speaker is a stale click or a
    * hand-built message, and answering it with silence would be indistinguishable from a bug.
    */
-  fun nodeFor(speaker: Speaker, topicId: Int): ConversationNode? {
+  fun nodeFor(asker: Asker, speaker: Speaker, topicId: Int): ConversationNode? {
     if (topicId == Topics.ROOT) {
       return open(speaker)
     }
@@ -50,7 +50,7 @@ class ConversationService(
       return null
     }
 
-    val node = provider.nodeFor(speaker, topicId) ?: return null
+    val node = provider.nodeFor(asker, speaker, topicId) ?: return null
 
     // Every leaf needs a way back to the root, or a player who asks one question is stuck with the
     // window open and nothing but the close button. Providers that already offer one keep theirs.

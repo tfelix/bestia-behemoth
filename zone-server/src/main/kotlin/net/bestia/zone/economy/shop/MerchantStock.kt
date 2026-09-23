@@ -21,7 +21,12 @@ class MerchantStock(
 
   /** Commodity ids this entity trades in, or null when they keep no shop at all. */
   fun of(entityId: EntityId): Set<String>? {
-    val business = speakers.of(entityId)?.business ?: return null
+    return forBusiness(speakers.of(entityId)?.business)
+  }
+
+  /** The same question for a caller that has already resolved the person, and so takes no world lock. */
+  fun forBusiness(business: String?): Set<String>? {
+    if (business == null) return null
 
     // A general store holds stock without producing any of it, which is what makes it the one counter a
     // player can rely on finding the ordinary things behind.

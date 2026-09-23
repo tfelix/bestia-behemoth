@@ -51,7 +51,7 @@ class StandingTopicProviderTest {
 
   @Test
   fun `the answer is one of the phrasings the client carries`() {
-    val node = sut.nodeFor(speaker(business = "baker", occupation = "labourer"), Topics.STANDING + 1)
+    val node = sut.nodeFor(Asker(accountId = 1L, entityId = 1L), speaker(business = "baker", occupation = "labourer"), Topics.STANDING + 1)
 
     assertTrue(
       node!!.speech.key.matches(Regex(ConversationKeys.ABOUT_TOWN + "_[1-9]")),
@@ -60,7 +60,7 @@ class StandingTopicProviderTest {
   }
 
   private fun tradeTokenOf(business: String?, occupation: String): String {
-    val node = sut.nodeFor(speaker(business, occupation), Topics.STANDING + 1)
+    val node = sut.nodeFor(Asker(accountId = 1L, entityId = 1L), speaker(business, occupation), Topics.STANDING + 1)
     val arg = node!!.speech.args.getValue(ConversationKeys.SLOT_TRADE)
 
     return (arg as DialogArg.Token).key
