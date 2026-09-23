@@ -90,7 +90,7 @@ class BnetMessageProcessorAdapter(
       envelope.hasChunkRequest() -> ChunkRequestCMSG.fromBnet(accountId, envelope.chunkRequest)
       envelope.hasCollectProp() -> CollectPropCMSG.fromBnet(accountId, envelope.collectProp)
       envelope.hasInteractEntity() -> InteractEntityCMSG.fromBnet(accountId, envelope.interactEntity)
-      envelope.hasOpenShop() -> OpenShopCMSG(accountId)
+      envelope.hasOpenShop() -> OpenShopCMSG.fromBnet(accountId, envelope.openShop)
       envelope.hasShopTrade() -> ShopTradeCMSG.fromBnet(accountId, envelope.shopTrade)
       envelope.hasCraftItem() -> CraftItemCMSG.fromBnet(accountId, envelope.craftItem)
       envelope.hasCancelCraft() -> CancelCraftCMSG(accountId)

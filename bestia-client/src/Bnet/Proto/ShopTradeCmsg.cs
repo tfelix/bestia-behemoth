@@ -24,14 +24,15 @@ namespace Bnet {
     static ShopTradeCmsgReflection() {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
-            "CiNtZXNzYWdlcy9zaG9wL3Nob3BfdHJhZGVfY21zZy5wcm90bxIEYm5ldCJB",
+            "CiNtZXNzYWdlcy9zaG9wL3Nob3BfdHJhZGVfY21zZy5wcm90bxIEYm5ldCJd",
             "Cg1TaG9wVHJhZGVDTVNHEg8KB2l0ZW1faWQYASABKAQSDgoGYW1vdW50GAIg",
-            "ASgFEg8KB3NlbGxpbmcYAyABKAhCKwoVbmV0LmJlc3RpYS5ibmV0LnByb3Rv",
-            "QhJTaG9wVHJhZGVDbXNnUHJvdG9iBnByb3RvMw=="));
+            "ASgFEg8KB3NlbGxpbmcYAyABKAgSGgoSbWVyY2hhbnRfZW50aXR5X2lkGAQg",
+            "ASgEQisKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0ISU2hvcFRyYWRlQ21zZ1By",
+            "b3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.ShopTradeCMSG), global::Bnet.ShopTradeCMSG.Parser, new[]{ "ItemId", "Amount", "Selling" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.ShopTradeCMSG), global::Bnet.ShopTradeCMSG.Parser, new[]{ "ItemId", "Amount", "Selling", "MerchantEntityId" }, null, null, null, null)
           }));
     }
     #endregion
@@ -82,6 +83,7 @@ namespace Bnet {
       itemId_ = other.itemId_;
       amount_ = other.amount_;
       selling_ = other.selling_;
+      merchantEntityId_ = other.merchantEntityId_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -130,6 +132,22 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "merchant_entity_id" field.</summary>
+    public const int MerchantEntityIdFieldNumber = 4;
+    private ulong merchantEntityId_;
+    /// <summary>
+    /// Who is being traded with. The prices are still the settlement's; this decides what they will deal in
+    /// at all, so a smith does not sell bread.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ulong MerchantEntityId {
+      get { return merchantEntityId_; }
+      set {
+        merchantEntityId_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -148,6 +166,7 @@ namespace Bnet {
       if (ItemId != other.ItemId) return false;
       if (Amount != other.Amount) return false;
       if (Selling != other.Selling) return false;
+      if (MerchantEntityId != other.MerchantEntityId) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -158,6 +177,7 @@ namespace Bnet {
       if (ItemId != 0UL) hash ^= ItemId.GetHashCode();
       if (Amount != 0) hash ^= Amount.GetHashCode();
       if (Selling != false) hash ^= Selling.GetHashCode();
+      if (MerchantEntityId != 0UL) hash ^= MerchantEntityId.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -188,6 +208,10 @@ namespace Bnet {
         output.WriteRawTag(24);
         output.WriteBool(Selling);
       }
+      if (MerchantEntityId != 0UL) {
+        output.WriteRawTag(32);
+        output.WriteUInt64(MerchantEntityId);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -210,6 +234,10 @@ namespace Bnet {
         output.WriteRawTag(24);
         output.WriteBool(Selling);
       }
+      if (MerchantEntityId != 0UL) {
+        output.WriteRawTag(32);
+        output.WriteUInt64(MerchantEntityId);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -228,6 +256,9 @@ namespace Bnet {
       }
       if (Selling != false) {
         size += 1 + 1;
+      }
+      if (MerchantEntityId != 0UL) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(MerchantEntityId);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -249,6 +280,9 @@ namespace Bnet {
       }
       if (other.Selling != false) {
         Selling = other.Selling;
+      }
+      if (other.MerchantEntityId != 0UL) {
+        MerchantEntityId = other.MerchantEntityId;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -281,6 +315,10 @@ namespace Bnet {
             Selling = input.ReadBool();
             break;
           }
+          case 32: {
+            MerchantEntityId = input.ReadUInt64();
+            break;
+          }
         }
       }
     #endif
@@ -310,6 +348,10 @@ namespace Bnet {
           }
           case 24: {
             Selling = input.ReadBool();
+            break;
+          }
+          case 32: {
+            MerchantEntityId = input.ReadUInt64();
             break;
           }
         }

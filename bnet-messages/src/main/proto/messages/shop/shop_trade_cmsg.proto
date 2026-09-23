@@ -15,4 +15,8 @@ message ShopTradeCMSG {
 
   // True when the player is handing goods over, false when taking them.
   bool selling = 3;
+
+  // Who is being traded with. The prices are still the settlement's; this decides what they will deal in
+  // at all, so a smith does not sell bread.
+  uint64 merchant_entity_id = 4;
 }

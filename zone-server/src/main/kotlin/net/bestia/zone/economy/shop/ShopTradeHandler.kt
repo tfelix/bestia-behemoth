@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component
 class ShopTradeHandler(
   private val connectionInfoService: ConnectionInfoService,
   private val deadActionGuard: DeadActionGuard,
+  private val merchants: MerchantStock,
   private val world: WorldView
 ) : InMessageProcessor.IncomingMessageHandler<ShopTradeCMSG> {
   override val handles = ShopTradeCMSG::class
@@ -26,8 +27,20 @@ class ShopTradeHandler(
       return true
     }
 
+    // Resolved here because `SpeakerResolver` takes the world lock, and the system that reads this runs
+    // holding it. An empty set is a refusal the system reports, rather than a silent no-op here.
+    val stocked = merchants.of(msg.merchantEntityId).orEmpty()
+
     world.modify(activeEntityId) { id ->
-      add(id, ShopTradeIntent(itemId = msg.itemId, amount = msg.amount, selling = msg.selling))
+      add(
+        id,
+        ShopTradeIntent(
+          itemId = msg.itemId,
+          amount = msg.amount,
+          selling = msg.selling,
+          stocked = stocked,
+        )
+      )
     }
 
     return true

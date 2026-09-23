@@ -24,13 +24,14 @@ namespace Bnet {
     static OpenShopCmsgReflection() {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
-            "CiJtZXNzYWdlcy9zaG9wL29wZW5fc2hvcF9jbXNnLnByb3RvEgRibmV0Ig4K",
-            "DE9wZW5TaG9wQ01TR0IqChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CEU9wZW5T",
-            "aG9wQ21zZ1Byb3RvYgZwcm90bzM="));
+            "CiJtZXNzYWdlcy9zaG9wL29wZW5fc2hvcF9jbXNnLnByb3RvEgRibmV0IioK",
+            "DE9wZW5TaG9wQ01TRxIaChJtZXJjaGFudF9lbnRpdHlfaWQYASABKARCKgoV",
+            "bmV0LmJlc3RpYS5ibmV0LnByb3RvQhFPcGVuU2hvcENtc2dQcm90b2IGcHJv",
+            "dG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.OpenShopCMSG), global::Bnet.OpenShopCMSG.Parser, null, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.OpenShopCMSG), global::Bnet.OpenShopCMSG.Parser, new[]{ "MerchantEntityId" }, null, null, null, null)
           }));
     }
     #endregion
@@ -38,11 +39,13 @@ namespace Bnet {
   }
   #region Messages
   /// <summary>
-  /// Asks what the settlement the player is standing in has on its shelves. Answered by a ShopOfferSMSG, or
-  /// by an OperationError when there is no town underfoot.
+  /// Asks what one merchant has on their shelves. Answered by a ShopOfferSMSG, or by an OperationError when
+  /// there is no town underfoot and when the merchant is not one.
   ///
-  /// Deliberately carries no target. A client only ever learns the prices of the place it is standing in,
-  /// because a world where every price is visible at once turns the merchant profession into a spreadsheet.
+  /// The merchant selects *whose* stock is shown and never which town's prices. Those come from where the
+  /// sender is standing, because a world where every price is visible at once turns the merchant profession
+  /// into a spreadsheet - so naming a shopkeeper three valleys away buys nothing, and is refused anyway
+  /// because the server re-checks that they are within speaking distance.
   /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class OpenShopCMSG : pb::IMessage<OpenShopCMSG>
@@ -79,6 +82,7 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public OpenShopCMSG(OpenShopCMSG other) : this() {
+      merchantEntityId_ = other.merchantEntityId_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -86,6 +90,18 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public OpenShopCMSG Clone() {
       return new OpenShopCMSG(this);
+    }
+
+    /// <summary>Field number for the "merchant_entity_id" field.</summary>
+    public const int MerchantEntityIdFieldNumber = 1;
+    private ulong merchantEntityId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ulong MerchantEntityId {
+      get { return merchantEntityId_; }
+      set {
+        merchantEntityId_ = value;
+      }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -103,6 +119,7 @@ namespace Bnet {
       if (ReferenceEquals(other, this)) {
         return true;
       }
+      if (MerchantEntityId != other.MerchantEntityId) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -110,6 +127,7 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
+      if (MerchantEntityId != 0UL) hash ^= MerchantEntityId.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -128,6 +146,10 @@ namespace Bnet {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
+      if (MerchantEntityId != 0UL) {
+        output.WriteRawTag(8);
+        output.WriteUInt64(MerchantEntityId);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -138,6 +160,10 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (MerchantEntityId != 0UL) {
+        output.WriteRawTag(8);
+        output.WriteUInt64(MerchantEntityId);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -148,6 +174,9 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
+      if (MerchantEntityId != 0UL) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(MerchantEntityId);
+      }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -159,6 +188,9 @@ namespace Bnet {
     public void MergeFrom(OpenShopCMSG other) {
       if (other == null) {
         return;
+      }
+      if (other.MerchantEntityId != 0UL) {
+        MerchantEntityId = other.MerchantEntityId;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -179,6 +211,10 @@ namespace Bnet {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
+          case 8: {
+            MerchantEntityId = input.ReadUInt64();
+            break;
+          }
         }
       }
     #endif
@@ -198,6 +234,10 @@ namespace Bnet {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
+          case 8: {
+            MerchantEntityId = input.ReadUInt64();
+            break;
+          }
         }
       }
     }

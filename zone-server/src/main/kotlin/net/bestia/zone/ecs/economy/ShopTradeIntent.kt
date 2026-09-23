@@ -21,4 +21,11 @@ data class ShopTradeIntent(
   val itemId: Long,
   val amount: Int,
   val selling: Boolean,
+
+  /**
+   * The commodities the merchant deals in, resolved off the tick where the household expansion is safe
+   * to do. Carried rather than looked up here because `SpeakerResolver` takes the world lock, and this
+   * runs inside it.
+   */
+  val stocked: Set<String>,
 ) : Component

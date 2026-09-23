@@ -5,10 +5,13 @@ package bnet;
 option java_package = "net.bestia.bnet.proto";
 option java_outer_classname = "OpenShopCmsgProto";
 
-// Asks what the settlement the player is standing in has on its shelves. Answered by a ShopOfferSMSG, or
-// by an OperationError when there is no town underfoot.
+// Asks what one merchant has on their shelves. Answered by a ShopOfferSMSG, or by an OperationError when
+// there is no town underfoot and when the merchant is not one.
 //
-// Deliberately carries no target. A client only ever learns the prices of the place it is standing in,
-// because a world where every price is visible at once turns the merchant profession into a spreadsheet.
+// The merchant selects *whose* stock is shown and never which town's prices. Those come from where the
+// sender is standing, because a world where every price is visible at once turns the merchant profession
+// into a spreadsheet - so naming a shopkeeper three valleys away buys nothing, and is refused anyway
+// because the server re-checks that they are within speaking distance.
 message OpenShopCMSG {
+  uint64 merchant_entity_id = 1;
 }

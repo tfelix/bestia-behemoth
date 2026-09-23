@@ -84,6 +84,7 @@ class ShopTradeIntentSystem(
       ?: return deny(world, traderId, OperationErrorProto.OpError.SHOP_NONE_HERE)
 
     val commodity = commodities.commodityOf(intent.itemId)
+      ?.takeIf { it.id in intent.stocked }
     val quote = if (intent.selling) {
       shop.quoteSell(commodity, intent.amount)
     } else {
@@ -102,7 +103,7 @@ class ShopTradeIntentSystem(
     if (!moved) return deny(world, traderId, OperationErrorProto.OpError.SHOP_CANNOT_AFFORD)
 
     economy.settle(settlement, good.id, intent.amount, quote.coins, intent.selling)
-    offers.publish(world, traderId, settlement, shop)
+    offers.publish(world, traderId, settlement, shop, intent.stocked)
 
     LOG.debug {
       "Entity $traderId ${if (intent.selling) "sold" else "bought"} ${intent.amount} ${good.id} " +
