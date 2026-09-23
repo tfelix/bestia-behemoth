@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ItemResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Item/item_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+item_id = 61
+name_key = "GOLD_RING"
+description_key = "GOLD_RING_DESC"
+weight = 10
+level = 25
+type = 1
+equip_slot = 9

@@ -80,21 +80,141 @@ WORKBENCH_KIT,Workbench Kit
 WORKBENCH_KIT_DESC,"A bundle of planks, pegs and a folded vice, tied with cord.
 
 Set it down somewhere flat and it becomes a workbench - once somebody puts the work in."
-GOLD_COIN,gold coin
+GOLD_COIN,Gold Coin
 GOLD_COIN_DESC,"A milled coin of soft gold, worn smooth by hands that were glad of it."
-GRAIN,grain
+GRAIN,Grain
 GRAIN_DESC,"A sack of threshed grain, still smelling of the field it came out of."
-FLOUR,flour
+FLOUR,Flour
 FLOUR_DESC,"Stone-ground flour, fine enough to take the print of a thumb."
-BREAD,bread
+BREAD,Bread
 BREAD_DESC,"A dark round loaf with a hard crust.
 
 Filling rather than healing, which is what most people actually want from a meal."
-GOLD_ORE,gold ore
+GOLD_ORE,Gold Ore
 GOLD_ORE_DESC,"A lump of quartz shot through with soft yellow metal.
 
 Heavy for its size, and worth nothing at all until a furnace has separated the two."
-GOLD_BAR,gold bar
+GOLD_BAR,Gold Bar
 GOLD_BAR_DESC,"A finger of refined gold, still dull from the mould.
 
 Every coin in the world started as one of these."
+SMALL_MANA_POTION,Small Mana Potion
+SMALL_MANA_POTION_DESC,"A small vial of cold blue liquid.
+
+Restores a modest amount of mana when consumed."
+BANDAGE,Bandage
+BANDAGE_DESC,"A rolled strip of clean linen.
+
+Closes a wound a little, and costs little enough to buy by the handful."
+TORCH,Torch
+TORCH_DESC,"A reed stalk bound with pitch-soaked cloth.
+
+Burns long enough to get down a shaft and back up again."
+SALT,Salt
+SALT_DESC,"A sack of coarse grey salt.
+
+Keeps meat from turning, which is why it is worth carrying a long way."
+RAW_MEAT,Raw Meat
+RAW_MEAT_DESC,"A thick cut of meat on the bone, marbled with fat.
+
+Spoils faster than anything but fish."
+SALTED_MEAT,Salted Meat
+SALTED_MEAT_DESC,"A slab of meat packed hard in salt.
+
+Keeps for a season, which is what a traveller is really buying."
+ALE,Ale
+ALE_DESC,"A jug of thin barley beer.
+
+Safer than most water, and a great deal cheaper than wine."
+WINE,Wine
+WINE_DESC,"A stoppered bottle of dark red wine.
+
+Worth more the further it is carried from the vines that made it."
+RAW_FISH,Raw Fish
+RAW_FISH_DESC,"A silver-scaled fish, caught this morning.
+
+Worthless by tomorrow."
+CHEESE,Cheese
+CHEESE_DESC,"A hard wheel of cheese off pasture country.
+
+Heavy and slow to spoil, which is more than can be said for the milk."
+LOG,Log
+LOG_DESC,"A felled trunk cut to length, bark still on.
+
+The heaviest thing anybody carries by choice."
+PLANK,Plank
+PLANK_DESC,"A sawn board, planed on one face.
+
+Every building, cart and workbench starts as a stack of these."
+HULL_TIMBER,Hull Timber
+HULL_TIMBER_DESC,"A long beam of seasoned oak, steamed and bent to a curve.
+
+Shaped for one hull and no other, which is why nobody else wants it."
+QUARRIED_STONE,Quarried Stone
+QUARRIED_STONE_DESC,"A rough block of limestone straight off the quarry face.
+
+Undressed, and no use to a wall until it is."
+CUT_STONE,Cut Stone
+CUT_STONE_DESC,"A block dressed square, its faces worked smooth.
+
+What walls and towers are actually built of."
+BRICK,Brick
+BRICK_DESC,"A fired clay brick, sanded and slightly uneven.
+
+Cheaper than stone, and worse in a siege."
+CLAY_POT,Clay Pot
+CLAY_POT_DESC,"A fired storage jar with a narrow neck and two small handles.
+
+Unremarkable, and in every house in the world."
+RAW_HIDE,Raw Hide
+RAW_HIDE_DESC,"A green hide, hair still on and heavy with fat.
+
+Nobody who has carried one in summer carries a second."
+LEATHER,Leather
+LEATHER_DESC,"A rolled sheet of cured leather, supple and evenly cut."
+WOOL,Wool
+WOOL_DESC,"A shorn fleece, greasy and full of burrs."
+FLAX,Flax
+FLAX_DESC,"A sheaf of retted flax stems, ready for the wheel."
+CLOTH,Cloth
+CLOTH_DESC,"A bolt of plain woven cloth, sold by the length."
+DYE,Dye
+DYE_DESC,"A stoppered pot of deep colour, ground from roadside plants.
+
+It stains everything except the cloth it was meant for."
+LINEN_TUNIC,Linen Tunic
+LINEN_TUNIC_DESC,"A plain linen tunic worn with a narrow belt.
+
+Warm, and stops nothing at all."
+PICKAXE,Pickaxe
+PICKAXE_DESC,"A miner's pick, iron-headed on a straight ash haft.
+
+Nothing comes out of rock without one, and no pick comes back out unblunted."
+HATCHET,Hatchet
+HATCHET_DESC,"A felling axe with a wide iron blade.
+
+Turns standing trees into logs, and blunts itself doing it."
+NAILS,Nails
+NAILS_DESC,"A twist of hand-forged iron nails, no two quite alike.
+
+Dull work to make, and it holds everything else together."
+ROUGH_GEM,Rough Gem
+ROUGH_GEM_DESC,"An uncut stone still held in the rock it came out of.
+
+Worth guessing about until a jeweller says otherwise."
+GOLD_RING,Gold Ring
+GOLD_RING_DESC,"A plain gold band set with a small red stone.
+
+Worked gold that will never be a coin again, and looks the better for it."
+MEDICINE,Medicine
+MEDICINE_DESC,"A small bottle of bitter herbal draught.
+
+Sets a man on his feet again, which is not quite the same as healing him."
+CATALYST,Catalyst
+CATALYST_DESC,"A shard of violet crystal clasped in brass, lit faintly from within.
+
+Spent by work that would otherwise go wrong."
+BOOK,Book
+BOOK_DESC,"A leather-bound volume with brass corners and a clasp.
+
+Somebody's collected notes, bound well enough to outlive them."
