@@ -43,6 +43,29 @@ occupations:
       curiosity: 1.6
       interests: [TECHNOLOGY, PEACE, ARTIFACT_TAKEN, TRAVELLER_LOST, FIGURE_ROSE]
 
+  # The counters a player can actually walk up to. A general store holds stock without producing any of
+  # it, which is what makes it the one shop that has the ordinary things behind it in every town.
+  - id: shopkeeper
+    dialog: { greetings: 5, trade: 5 }
+    business: general_store
+    shift: { from: 7, to: 19 }
+    knowledge:
+      # Everybody comes through a general store eventually, and they talk while they are counting out.
+      curiosity: 1.3
+      interests: [TECHNOLOGY, FAMINE, TRAVELLER_LOST]
+
+  - id: baker
+    dialog: { greetings: 5, trade: 5 }
+    business: baker
+    # Bread is wanted at breakfast, so the oven is lit long before the town is up.
+    shift: { from: 4, to: 14 }
+    rest: { from: 20, to: 3 }
+
+  - id: miller
+    dialog: { greetings: 5, trade: 5 }
+    business: miller
+    shift: { from: 6, to: 18 }
+
   # No shop of their own. A town has these whether or not its roster has room for a trade.
   - id: farmer
     dialog: { greetings: 5, trade: 5 }
@@ -82,7 +105,6 @@ unstaffed:
   - alchemist
   - apothecary
   - armourer
-  - baker
   - banker
   - blacksmith
   - bookbinder
@@ -92,12 +114,10 @@ unstaffed:
   - charcoaler
   - dyer
   - fishmonger
-  - general_store
   - healer
   - jeweller
   - market_trader
   - mason
-  - miller
   - potter
   - scribe
   - shipwright

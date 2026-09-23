@@ -55,6 +55,30 @@ lines:
     occupations: [priest]
     weather: [THUNDERSTORM, MANA_STORM]
 
+  # --- Shopkeeper ----------------------------------------------------------------------------------
+  - key: TALK_SMALL_SHOPKEEPER_STOCK
+    variants: 4
+    occupations: [shopkeeper]
+  - key: TALK_SMALL_SHOPKEEPER_CREDIT
+    variants: 4
+    occupations: [shopkeeper]
+
+  # --- Baker ---------------------------------------------------------------------------------------
+  - key: TALK_SMALL_BAKER_OVEN
+    variants: 4
+    occupations: [baker]
+  - key: TALK_SMALL_BAKER_EARLY
+    variants: 4
+    occupations: [baker]
+
+  # --- Miller --------------------------------------------------------------------------------------
+  - key: TALK_SMALL_MILLER_WHEEL
+    variants: 4
+    occupations: [miller]
+  - key: TALK_SMALL_MILLER_DUST
+    variants: 4
+    occupations: [miller]
+
   # --- Innkeeper -----------------------------------------------------------------------------------
   - key: TALK_SMALL_INNKEEPER_BREWING
     variants: 4

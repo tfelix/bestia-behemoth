@@ -91,6 +91,21 @@ TALK_GREETING_CHILD_2,"{name} appears at your elbow from nowhere."
 TALK_GREETING_CHILD_3,"{name} runs up, stops short, and thinks better of it."
 TALK_GREETING_CHILD_4,{name} asks you three things before you get one in.
 TALK_GREETING_CHILD_5,{name} is walking backwards in front of you now.
+TALK_GREETING_SHOPKEEPER_1,{name} looks up from a ledger and leaves a finger on the line.
+TALK_GREETING_SHOPKEEPER_2,{name} sets down what they were counting and gives you the counter.
+TALK_GREETING_SHOPKEEPER_3,{name} moves a crate off the counter with their knee.
+TALK_GREETING_SHOPKEEPER_4,{name} has already decided you are buying something.
+TALK_GREETING_SHOPKEEPER_5,{name} greets you like somebody who greets everybody.
+TALK_GREETING_BAKER_1,{name} wipes flour off both hands before anything else.
+TALK_GREETING_BAKER_2,{name} pushes the shutter wider to see you properly.
+TALK_GREETING_BAKER_3,{name} is already halfway through the day and shows it.
+TALK_GREETING_BAKER_4,{name} turns from the oven with the door still open behind them.
+TALK_GREETING_BAKER_5,{name} smells of the morning and has the arms for it.
+TALK_GREETING_MILLER_1,{name} steps out of the noise to hear you.
+TALK_GREETING_MILLER_2,{name} is grey to the elbow and does not seem to mind.
+TALK_GREETING_MILLER_3,{name} waves you back from the running stone first.
+TALK_GREETING_MILLER_4,"{name} listens with their head tilted, out of habit."
+TALK_GREETING_MILLER_5,"{name} shouts a greeting, then remembers you are close enough."
 TALK_TRADE_ASK,What is it you do here?
 TALK_TRADE_GUARD_1,"The {trade}. Walk it, stand in it, walk it again."
 TALK_TRADE_GUARD_2,"I keep the {trade}. Most days that means being seen and nothing else."
@@ -127,6 +142,21 @@ TALK_TRADE_CHILD_2,"Nothing yet. I am meant to be helping but I am not."
 TALK_TRADE_CHILD_3,"{trade}, yet. When I am bigger I am going to be the one with the horses."
 TALK_TRADE_CHILD_4,I help. Sometimes. When somebody is watching.
 TALK_TRADE_CHILD_5,{trade}. It is very important and I am very busy.
+TALK_TRADE_SHOPKEEPER_1,"The {trade}. A bit of everything, and never enough of whatever you came for."
+TALK_TRADE_SHOPKEEPER_2,I keep the {trade}. What I have is what came up the road.
+TALK_TRADE_SHOPKEEPER_3,"The {trade}. I make nothing, which is why I have some of all of it."
+TALK_TRADE_SHOPKEEPER_4,"The {trade}, and the ledger that goes with it."
+TALK_TRADE_SHOPKEEPER_5,"I run the {trade}. Ask, and if it is not on the shelf I will tell you plainly."
+TALK_TRADE_BAKER_1,"The {trade}. Up before the town, done before the afternoon."
+TALK_TRADE_BAKER_2,"I keep the {trade}. One day of bread a day, and no more than that."
+TALK_TRADE_BAKER_3,The {trade}. It is hot work that nobody thinks about until it stops.
+TALK_TRADE_BAKER_4,I am the {trade} here. The flour comes to me and the town comes after it.
+TALK_TRADE_BAKER_5,"The {trade}. Bread does not keep, so I am never ahead and never behind."
+TALK_TRADE_MILLER_1,"The {trade}. Grain in at one end, flour out at the other."
+TALK_TRADE_MILLER_2,I keep the {trade}. Everything the town eats comes past this stone first.
+TALK_TRADE_MILLER_3,"The {trade}. Loud, dusty, and the only one of me for some way."
+TALK_TRADE_MILLER_4,"I work the {trade}. The wheel decides the hours, not I."
+TALK_TRADE_MILLER_5,"The {trade}. I take a share of what I grind, which is how a mill lives."
 TRADE_ALCHEMIST,alchemy workshop
 TRADE_APOTHECARY,apothecary
 TRADE_ARMOURER,armoury
@@ -434,6 +464,36 @@ TALK_SMALL_APPRENTICE_MASTER_1,"I fetch things. Three years of fetching, I am to
 TALK_SMALL_APPRENTICE_MASTER_2,I am learning. Mostly I am learning how much there is that I do not do yet.
 TALK_SMALL_APPRENTICE_MASTER_3,Long days and not much of it mine. That is the arrangement and I signed it.
 TALK_SMALL_APPRENTICE_MASTER_4,"Good, when I am let near anything. I sweep a great deal."
+TALK_SMALL_SHOPKEEPER_STOCK_ASK,Anything new in?
+TALK_SMALL_SHOPKEEPER_STOCK_1,"A little. It goes as fast as it lands, so ask early."
+TALK_SMALL_SHOPKEEPER_STOCK_2,"Whatever the last cart carried. I do not choose it, I only shelve it."
+TALK_SMALL_SHOPKEEPER_STOCK_3,Less than I would like. The road has been slow this month.
+TALK_SMALL_SHOPKEEPER_STOCK_4,"Some. I put the good things at the back, out of honesty rather than cunning."
+TALK_SMALL_SHOPKEEPER_CREDIT_ASK,Do you give credit?
+TALK_SMALL_SHOPKEEPER_CREDIT_1,To people I have known longer than you. No offence in it.
+TALK_SMALL_SHOPKEEPER_CREDIT_2,I did once. I keep the list to remind myself not to.
+TALK_SMALL_SHOPKEEPER_CREDIT_3,"Coin today, friendship tomorrow. It works better that way round."
+TALK_SMALL_SHOPKEEPER_CREDIT_4,"For a neighbour, sometimes. For a traveller, never - you leave and the debt stays."
+TALK_SMALL_BAKER_OVEN_ASK,How is the oven?
+TALK_SMALL_BAKER_OVEN_1,Hot and staying that way. It takes half the night to get there.
+TALK_SMALL_BAKER_OVEN_2,"Even, today. Some days one side takes against me."
+TALK_SMALL_BAKER_OVEN_3,"Old. Older than the house round it, and better built."
+TALK_SMALL_BAKER_OVEN_4,Hungry. It eats more wood than the town thinks it does.
+TALK_SMALL_BAKER_EARLY_ASK,Up early?
+TALK_SMALL_BAKER_EARLY_1,"Before the birds, most days. Bread will not wait for daylight."
+TALK_SMALL_BAKER_EARLY_2,Always. The town wakes to it and never wonders when it started.
+TALK_SMALL_BAKER_EARLY_3,I have forgotten what the morning looks like from the other side of it.
+TALK_SMALL_BAKER_EARLY_4,Early enough that I am ready for bed when you are ready for lunch.
+TALK_SMALL_MILLER_WHEEL_ASK,How is the wheel running?
+TALK_SMALL_MILLER_WHEEL_1,"True, this week. Ask me again after the rain."
+TALK_SMALL_MILLER_WHEEL_2,Well enough. A wheel tells you long before it stops.
+TALK_SMALL_MILLER_WHEEL_3,Slow. The water is low and there is nothing to be done about it.
+TALK_SMALL_MILLER_WHEEL_4,Sweetly. There is no sound like it when it is right.
+TALK_SMALL_MILLER_DUST_ASK,Does the dust bother you?
+TALK_SMALL_MILLER_DUST_1,Not any more. That is either habit or something worse.
+TALK_SMALL_MILLER_DUST_2,It gets in everything. My wife knows me by the grey.
+TALK_SMALL_MILLER_DUST_3,You stop seeing it. You never stop tasting it.
+TALK_SMALL_MILLER_DUST_4,"Less than fire does. Flour dust and a spark do not mix, and everyone forgets that."
 RUMOUR_BOSS_SLAIN_ASK,Has anything been happening?
 RUMOUR_BOSS_SLAIN_1,"Something big was killed out past the ridge. Folk went to look and came back quiet."
 RUMOUR_BOSS_SLAIN_2,"There was a thing out there. Somebody put it down. I have not been out that way since."
