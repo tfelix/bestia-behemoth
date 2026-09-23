@@ -40,8 +40,10 @@ object MapRenderMain {
   private const val OUT = "--out"
   private const val NO_LABELS = "--no-labels"
   private const val STYLE = "--style"
+  private const val BARE_GROUND = "--bare-ground"
 
-  private val FLAGS = setOf(LEVEL, X, Y, WIDTH, HEIGHT, PALETTE, PAPER, OUT, NO_LABELS, STYLE)
+  private val FLAGS =
+    setOf(LEVEL, X, Y, WIDTH, HEIGHT, PALETTE, PAPER, OUT, NO_LABELS, STYLE, BARE_GROUND)
 
   @JvmStatic
   fun main(argv: Array<String>) {
@@ -106,8 +108,9 @@ object MapRenderMain {
    */
   private fun styleFor(args: MapToolArgs, metresPerPixel: Double): MapStyle {
     val atlas = AtlasStyle(
-      palette = AtlasPalette.byName(args.string(PALETTE) ?: "parchment"),
-      paperStrength = args.double(PAPER, 1.0)
+      palette = AtlasPalette.byName(args.string(PALETTE) ?: "vivid"),
+      paperStrength = args.double(PAPER, 1.0),
+      openGround = !args.has(BARE_GROUND)
     )
 
     return when (args.string(STYLE) ?: if (metresPerPixel <= PlanStyle.MAX_METRES_PER_PIXEL) "plan" else "atlas") {

@@ -6,6 +6,7 @@ import java.awt.Graphics2D
 import java.awt.RenderingHints
 import java.awt.image.BufferedImage
 import java.awt.image.DataBufferInt
+import kotlin.math.pow
 
 /**
  * The world drawn as a fantasy atlas: parchment, banded relief, hatched coasts, symbols for country.
@@ -21,16 +22,26 @@ import java.awt.image.DataBufferInt
  * ```
  * 1  ground      biome-stained land, depth-graded water            per pixel
  * 2  parchment   paper mottling and fibre, over land and sea alike per pixel, paper space
- * 3  relief      banded shade plus hatching, land only             per pixel
- * 4  coast       shore stroke and the ruled lines outside it       per pixel
- * 5  glyphs      hills, woods, wetlands, dunes                     vector, world-seeded
- * 6  water       rivers and lake edges                             vector
- * 7  routes      roads, bridges, sea lanes                         vector
- * 8  places      settlements and sites, then names                 vector
+ * 3  coast       shore stroke and the ruled lines outside it       per pixel
+ * 4  glyphs      ranges, woods, wetlands, dunes                    vector, world-seeded
+ * 5  water       rivers and lake edges                             vector
+ * 6  routes      roads, bridges, sea lanes                         vector
+ * 7  places      settlements and sites, then names                 vector
  * ```
  *
- * Every per-pixel pass runs before every vector pass, so ink is never mottled by paper laid over it and
- * relief is never hatched across a river.
+ * Every per-pixel pass runs before every vector pass, so ink is never mottled by paper laid over it.
+ *
+ * ### Relief is drawn, never shaded
+ *
+ * There was a fourth per-pixel pass between the paper and the coast: a quantised hillshade with hatching in
+ * its darkest band. It is gone, and the reason is the same claim the rest of the style rests on. A shaded
+ * slope is a *photograph* of terrain no matter how few steps it is quantised to, and next to a drawn peak it
+ * reads as a smudge the peak is standing on. Worse, its band edges sit close together, so a broad gentle
+ * hillside lands wholly inside one band and comes out as a shape with no internal structure at all.
+ *
+ * Steep ground now earns a **symbol** instead, whether or not it is a crest - see `GlyphScatter.reliefKind`.
+ * That is the reference plates' own answer: they carry no shading anywhere, and everything the reader learns
+ * about the shape of the land is carried by drawn marks.
  *
  * Within the vector passes the order is a hierarchy of what a reader is looking for. Glyphs are scenery and go
  * underneath; a river or a road is something you trace with a finger, so it must not be interrupted by a wood
@@ -38,8 +49,11 @@ import java.awt.image.DataBufferInt
  * because a settlement is the thing a road leads to, and its name is the last mark of all.
  */
 class AtlasStyle(
-  private val palette: AtlasPalette = AtlasPalette.PARCHMENT,
-  private val paperStrength: Double = 1.0
+  private val palette: AtlasPalette = AtlasPalette.VIVID,
+  private val paperStrength: Double = 1.0,
+
+  /** Whether grassland, steppe and scree carry marks of their own. See `GlyphScatter.scatter`. */
+  private val openGround: Boolean = true
 ) : MapStyle {
 
   override val version: Int = VERSION
@@ -52,7 +66,6 @@ class AtlasStyle(
 
     ground(pixels, view, terrain)
     Parchment.apply(pixels, view, inputs.seed, paperStrength)
-    InkRelief.apply(pixels, view, terrain, palette, inputs.seed, DetailRelief.of(view, inputs, terrain))
     Coastline.apply(pixels, view, terrain, palette)
 
     // Everything above wrote pixels directly; everything below is drawn. Taking the Graphics2D only now is
@@ -81,18 +94,46 @@ class AtlasStyle(
    * goes first so a tree stands in front of the slope it grows on.
    */
   private fun glyphs(g: Graphics2D, view: Viewport, inputs: TileInputs) {
-    for (glyph in GlyphScatter.scatter(
-      view, inputs, GlyphKind.Family.RELIEF, RELIEF_SPACING_PIXELS, RELIEF_SIZE_PIXELS
-    )) {
+    val spread = reliefSpread(view)
+
+    val relief = GlyphScatter.scatter(
+      view, inputs, GlyphKind.Family.RELIEF,
+      RELIEF_SPACING_PIXELS * spread, RELIEF_SIZE_PIXELS * spread.pow(RELIEF_SIZE_GAIN)
+    )
+
+    for (glyph in relief) {
       Glyphs.draw(g, glyph, palette)
     }
 
+    // The ranges are handed to the cover pass as ground already taken. Drawing relief first no longer keeps a
+    // tree behind the slope it grows on now that both are opaque - it puts the wood squarely over the peaks -
+    // so the separation has to happen in the placement rather than in the order.
+    val taken = relief.map {
+      doubleArrayOf(it.worldX, it.worldY, it.size * RELIEF_CLEARANCE * view.metresPerPixel)
+    }
+
     for (glyph in GlyphScatter.scatter(
-      view, inputs, GlyphKind.Family.COVER, COVER_SPACING_PIXELS, COVER_SIZE_PIXELS
+      view, inputs, GlyphKind.Family.COVER, COVER_SPACING_PIXELS, COVER_SIZE_PIXELS, openGround, taken
     )) {
       Glyphs.draw(g, glyph, palette)
     }
   }
+
+  /**
+   * How much further apart relief symbols stand than at [REFERENCE_METRES_PER_PIXEL], as you zoom in.
+   *
+   * The lattice is pitched in pixels so that density stays constant across zooms, which is right for cover and
+   * wrong for relief. A hillside is one landform however close you stand to it, so holding the pitch constant
+   * means drawing it with four peaks at country scale and forty at approach scale - and forty peaks on one
+   * hillside is the rash that buries the roads and woods under it.
+   *
+   * Widening the pitch instead is what map generalisation does in the other direction: fewer, larger symbols
+   * for the same ground as the scale grows. Clamped at one below the reference, because a world view wants the
+   * density it already has, and at [MAX_RELIEF_SPREAD] above it, because past that a range stops being a chain.
+   */
+  private fun reliefSpread(view: Viewport): Double =
+    (REFERENCE_METRES_PER_PIXEL / view.metresPerPixel).pow(RELIEF_SPREAD_EXPONENT)
+      .coerceIn(1.0, MAX_RELIEF_SPREAD)
 
   /** Land tone where dry, water graded by depth where wet, void outside the world. */
   private fun ground(pixels: IntArray, view: Viewport, terrain: TerrainRaster) {
@@ -123,7 +164,7 @@ class AtlasStyle(
      * Part of the tile cache key. Without it a change in here serves whatever was baked under the previous
      * look, and a half-restyled map is indistinguishable from a rendering bug.
      */
-    const val VERSION = 3
+    const val VERSION = 4
 
     /**
      * Lattice pitch and symbol size in pixels, per family.
@@ -133,9 +174,24 @@ class AtlasStyle(
      * few large ones, and reversing that reads as scrub on flat ground.
      */
     private const val RELIEF_SPACING_PIXELS = 25.0
-    private const val RELIEF_SIZE_PIXELS = 6.0
-    private const val COVER_SPACING_PIXELS = 15.0
-    private const val COVER_SIZE_PIXELS = 2.7
+    private const val RELIEF_SIZE_PIXELS = 7.5
+
+    /**
+     * The zoom [reliefSpread] measures from, and how fast it opens out.
+     *
+     * The exponent is well under one: a full power would double the spacing every level and empty the map two
+     * levels in. A symbol grows as the lattice opens, by [RELIEF_SIZE_GAIN], so the ground keeps roughly the
+     * same weight of ink while the count of marks falls.
+     */
+    private const val REFERENCE_METRES_PER_PIXEL = 128.0
+    private const val RELIEF_SPREAD_EXPONENT = 0.35
+    private const val MAX_RELIEF_SPREAD = 3.0
+    private const val RELIEF_SIZE_GAIN = 0.55
+    private const val COVER_SPACING_PIXELS = 6.5
+    private const val COVER_SIZE_PIXELS = 3.8
+
+    /** How much ground a drawn range keeps clear of trees, as a multiple of each peak's own half-width. */
+    private const val RELIEF_CLEARANCE = 1.15
 
     /** Water depth at which the tone stops darkening. Shelf and abyss should differ; 4 km of it need not. */
     private const val FULL_DEPTH_TONE_METRES = 400.0

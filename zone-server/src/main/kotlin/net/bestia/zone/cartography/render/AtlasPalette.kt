@@ -46,8 +46,38 @@ class AtlasPalette(
   /** Glacier and permanent snow, washed over whatever it covers. */
   val ice: Int,
 
+  /**
+   * Closed canopy, mixed towards by cover so a wood reads as a darker ground before a single tree is drawn.
+   *
+   * The biome tone cannot do this job. Cover varies continuously *inside* one biome - a temperate forest cell
+   * is anywhere from half open to closed - and it is that variation, not the classification, that a reader
+   * sees as the shape of a wood. Staining by biome alone paints the whole class one green and the forest has
+   * no edge.
+   */
+  val forest: Int,
+
+  /**
+   * A single tree's crown: a darker, greener green than the [forest] ground it stands on.
+   *
+   * Darker than its ground, which is the opposite of how it started. A crown lighter than the wood it sits in
+   * disappears into it - the outline is doing all the work and a hundred rings of outline is a texture, not a
+   * forest. Inverting the two makes each crown a shape, and the ground was lightened at the same time so the
+   * contrast comes from the pair rather than from driving either one to an extreme.
+   */
+  val crown: Int,
+
   /** How far a biome stain may pull the land tone, 0 = no stain, 1 = full [biomeTone]. */
   val biomeStain: Double,
+
+  /**
+   * How far a biome tone is pushed away from its own grey, before [biomeStain] decides how much of it lands.
+   *
+   * One leaves the table as written. Above one the tones are *extrapolated* away from neutral, which widens
+   * the hue separation between biomes without editing twenty constants or touching their relative lightness -
+   * so a second, more colourful palette is one number rather than a second table that would drift from this
+   * one. Ignored when [coloured] is false, where the point is to have no hue at all.
+   */
+  private val chroma: Double = 1.0,
 
   /** Whether hues are kept. False collapses every tone onto its own luminance. */
   private val coloured: Boolean
@@ -60,12 +90,20 @@ class AtlasPalette(
    * `viewer/WorldMapField` gives, and the reason the biome classifier's own `ICE_SHEET` is not enough:
    * this also catches ice lying over ground called tundra or alpine.
    */
-  fun landTone(biomeTone: Int, iceThicknessMetres: Double): Int {
+  fun landTone(biomeTone: Int, canopyCover: Double, iceThicknessMetres: Double): Int {
     val stained = Colors.mix(land, biomeTone, biomeStain)
-    if (iceThicknessMetres <= 0.0) return stained
+
+    val shaded = if (canopyCover <= 0.0) {
+      stained
+    } else {
+      Colors.mix(stained, forest, MAX_CANOPY_SHADE * (canopyCover / FULL_CANOPY_COVER).coerceAtMost(1.0))
+    }
+
+    // Ice last, so a glacier covers the wood it overran rather than being tinted by it.
+    if (iceThicknessMetres <= 0.0) return shaded
 
     val wash = MAX_ICE_WASH * (iceThicknessMetres / FULL_WASH_ICE_METRES).coerceAtMost(1.0)
-    return Colors.mix(stained, ice, wash)
+    return Colors.mix(shaded, ice, wash)
   }
 
   /** The tone a biome stains its ground with, before [biomeStain] scales how much of it lands. */
@@ -76,10 +114,12 @@ class AtlasPalette(
       Biome.OCEAN, Biome.LAKE -> water
 
       Biome.ICE_SHEET -> ice
-      Biome.TUNDRA -> rgb(214, 214, 205)
+      // Cool rather than warm, and the same for ALPINE below. Both were a hair to the red side of neutral,
+      // which is invisible in the restrained palette and comes out as pink once VIVID extrapolates it.
+      Biome.TUNDRA -> rgb(206, 212, 210)
       Biome.TAIGA -> rgb(178, 194, 172)
       Biome.COLD_DESERT -> rgb(216, 210, 194)
-      Biome.ALPINE -> rgb(208, 204, 198)
+      Biome.ALPINE -> rgb(196, 204, 214)
 
       Biome.TEMPERATE_FOREST -> rgb(180, 196, 166)
       Biome.TEMPERATE_RAINFOREST -> rgb(170, 192, 164)
@@ -92,21 +132,37 @@ class AtlasPalette(
       Biome.TROPICAL_SEASONAL_FOREST -> rgb(190, 198, 158)
       Biome.TROPICAL_RAINFOREST -> rgb(166, 190, 156)
 
-      Biome.BOG -> rgb(190, 196, 178)
-      Biome.SWAMP -> rgb(182, 194, 172)
+      // A wetland is the darkest, dullest green on the map, and a bog the browner of the two. They used to
+      // sit a shade off grassland, which made the one kind of ground a traveller most wants warning of the
+      // hardest to see.
+      Biome.BOG -> rgb(166, 166, 126)
+      Biome.SWAMP -> rgb(140, 162, 114)
       Biome.RIPARIAN -> rgb(186, 200, 172)
       Biome.BEACH -> rgb(232, 222, 194)
 
-      Biome.VOLCANIC_FIELD -> rgb(198, 188, 184)
-      Biome.GEOTHERMAL_BASIN -> rgb(206, 196, 186)
+      // Basalt: clearly the darkest ground on the map, but not black. Volcanism is what raises most of this
+      // world's mountains, so a volcanic field is not a rarity tucked in a corner - it runs along whole
+      // ranges, and at near-black it stopped being a tone and became a blot with a visible edge.
+      Biome.VOLCANIC_FIELD -> rgb(138, 128, 124)
+      Biome.GEOTHERMAL_BASIN -> rgb(180, 162, 148)
     }
 
-    return if (coloured) tone else desaturate(tone)
+    return if (coloured) saturate(tone, chroma) else desaturate(tone)
   }
 
   private fun rgb(r: Int, g: Int, b: Int): Int = Colors.rgb(r, g, b)
 
   companion object {
+
+    /**
+     * Cover at which the wood is as dark as it gets, and how far it may pull the ground.
+     *
+     * Well under a full canopy, because cover rarely approaches its own maximum - the densest rainforest cell
+     * in a world sits near 0.9 and ordinary woodland is 0.4 to 0.6, so scaling against 1.0 leaves every
+     * temperate wood looking half cleared. The same reasoning as `GlyphScatter.CANOPY_GAIN`, applied to tone.
+     */
+    private const val FULL_CANOPY_COVER = 0.72
+    private const val MAX_CANOPY_SHADE = 0.62
 
     /** Ice thickness at which the wash is at its strongest. */
     private const val FULL_WASH_ICE_METRES = 120.0
@@ -118,8 +174,28 @@ class AtlasPalette(
      * Rec. 709 luma. Perceptual rather than a flat average, so [MONOCHROME] keeps the *relative* lightness
      * of the coloured table: a plain mean turns desert and taiga into the same grey.
      */
+    /**
+     * Pushes a tone away from the grey of the same luminance, keeping that luminance.
+     *
+     * Extrapolation rather than a mix, so a factor above one is meaningful. Clamped per channel, which is
+     * what stops a strong factor from wrapping a near-saturated tone round to its opposite.
+     */
+    private fun saturate(rgb: Int, amount: Double): Int {
+      if (amount == 1.0) return rgb
+
+      val grey = luma(rgb)
+      return Colors.rgb(
+        (grey + (Colors.red(rgb) - grey) * amount).toInt(),
+        (grey + (Colors.green(rgb) - grey) * amount).toInt(),
+        (grey + (Colors.blue(rgb) - grey) * amount).toInt()
+      )
+    }
+
+    private fun luma(rgb: Int): Int =
+      (0.2126 * Colors.red(rgb) + 0.7152 * Colors.green(rgb) + 0.0722 * Colors.blue(rgb)).toInt()
+
     private fun desaturate(rgb: Int): Int {
-      val y = (0.2126 * Colors.red(rgb) + 0.7152 * Colors.green(rgb) + 0.0722 * Colors.blue(rgb)).toInt()
+      val y = luma(rgb)
       return Colors.rgb(y, y, y)
     }
 
@@ -133,6 +209,8 @@ class AtlasPalette(
       waterInk = Colors.rgb(92, 104, 112),
       roadInk = Colors.rgb(120, 96, 66),
       ice = Colors.rgb(244, 246, 246),
+      forest = Colors.rgb(150, 170, 128),
+      crown = Colors.rgb(118, 148, 90),
       biomeStain = 0.55,
       coloured = true
     )
@@ -147,14 +225,41 @@ class AtlasPalette(
       waterInk = Colors.rgb(72, 72, 72),
       roadInk = Colors.rgb(96, 96, 96),
       ice = Colors.rgb(252, 252, 252),
+      forest = Colors.rgb(186, 186, 184),
+      crown = Colors.rgb(150, 150, 148),
       biomeStain = 0.35,
       coloured = false
     )
 
+    /**
+     * The same tones pushed well away from neutral, and stained harder into the ground.
+     *
+     * For the question "which biome am I looking at", which the restrained palette answers only for a reader
+     * who already knows the map. It is the deliberate opposite of [PARCHMENT]'s first rule - here the ground
+     * does carry information rather than leaving all of it to the ink - so the two are kept as alternatives
+     * rather than one being retuned into the other.
+     */
+    val VIVID = AtlasPalette(
+      paper = Colors.rgb(240, 232, 212),
+      ink = Colors.rgb(52, 42, 30),
+      water = Colors.rgb(198, 216, 226),
+      waterDeep = Colors.rgb(150, 180, 200),
+      land = Colors.rgb(222, 214, 190),
+      waterInk = Colors.rgb(74, 96, 116),
+      roadInk = Colors.rgb(118, 92, 60),
+      ice = Colors.rgb(246, 248, 250),
+      forest = Colors.rgb(138, 168, 112),
+      crown = Colors.rgb(96, 134, 66),
+      biomeStain = 0.85,
+      chroma = 2.1,
+      coloured = true
+    )
+
     fun byName(name: String): AtlasPalette = when (name.lowercase()) {
       "parchment" -> PARCHMENT
+      "vivid" -> VIVID
       "mono", "monochrome" -> MONOCHROME
-      else -> throw IllegalArgumentException("Unknown atlas palette '$name', expected parchment or mono")
+      else -> throw IllegalArgumentException("Unknown atlas palette '$name', expected parchment, vivid or mono")
     }
   }
 }

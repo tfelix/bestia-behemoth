@@ -12,6 +12,15 @@ data class Glyph(
   val x: Double,
   val y: Double,
 
+  /**
+   * Where the symbol stands in the world, which is the only frame two tiles can agree in.
+   *
+   * Carried alongside the pixel position so one scatter can be fed to the next as ground that is already
+   * taken - a wood is not drawn over a range - without the second scatter having to invert the projection.
+   */
+  val worldX: Double,
+  val worldY: Double,
+
   /** Half-width in pixels. Height follows from the kind's own proportions. */
   val size: Double,
 

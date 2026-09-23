@@ -111,6 +111,7 @@ class TerrainRaster private constructor(
 
           landTone[i] = palette.landTone(
             blendedBiomeTone(inputs, palette, worldX, worldY),
+            sampleOrZero(inputs.canopyCover, worldX, worldY),
             sampleOrZero(inputs.iceThickness, worldX, worldY)
           )
         }

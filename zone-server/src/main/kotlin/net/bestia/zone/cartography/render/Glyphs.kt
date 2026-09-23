@@ -1,6 +1,7 @@
 package net.bestia.zone.cartography.render
 
 import net.bestia.worldgen.core.GenRng
+import net.bestia.worldgen.render.Colors
 import java.awt.BasicStroke
 import java.awt.Color
 import java.awt.Graphics2D
@@ -20,9 +21,12 @@ import kotlin.math.sin
  * ### Two marks and nothing else
  *
  * A stroked outline and a hatched flank. No gradients, no soft shadows, no alpha ramps beyond what a fading
- * line needs, because the whole point of the atlas style is that every mark on it is one a nib could make -
- * see [InkRelief] for the same argument applied to relief. It is also why the shapes are built from a handful
- * of line segments: a glyph that needs a bezier mesh to read has stopped being a symbol.
+ * line needs, because the whole point of the atlas style is that every mark on it is one a nib could make.
+ * It is also why the shapes are built from a handful of line segments: a glyph that needs a bezier mesh to
+ * read has stopped being a symbol.
+ *
+ * Since the hillshade was removed these symbols are the *only* thing carrying the shape of the land, which is
+ * why they are drawn at the weight they are - see [AtlasStyle].
  */
 object Glyphs {
 
@@ -41,6 +45,10 @@ object Glyphs {
       GlyphKind.MARSH -> marsh(g, glyph, palette)
       GlyphKind.DUNE -> dune(g, glyph, palette)
       GlyphKind.ICE -> ice(g, glyph, palette)
+      GlyphKind.GRASS -> grass(g, glyph, palette)
+      GlyphKind.SCRUB -> scrub(g, glyph, palette)
+      GlyphKind.ROCK -> rock(g, glyph, palette)
+      GlyphKind.HUMMOCK -> hummock(g, glyph, palette)
     }
 
     g.transform = saved
@@ -69,11 +77,19 @@ object Glyphs {
     right.lineTo(w * shoulder + skew * 0.4, -h * shoulder * SHOULDER_DROP)
     right.lineTo(w, 0.0)
 
-    // The shaded flank is filled first so the outline is drawn over its edge, not beside it.
+    // The lit face first, so the peak sits on the paper as a shape rather than as two strokes over the ground
+    // behind it, and the shaded face over it. Filled before either outline, so a stroke covers the seam
+    // between them instead of running beside it.
+    val lit = Path2D.Double(left)
+    lit.lineTo(skew, 0.0)
+    lit.closePath()
+    g.color = Color(Colors.mix(palette.paper, palette.land, LIT_FACE_TINT))
+    g.fill(lit)
+
     val flank = Path2D.Double(right)
     flank.lineTo(skew, 0.0)
     flank.closePath()
-    g.color = color(palette.ink, FLANK_FILL_ALPHA)
+    g.color = Color(Colors.mix(palette.ink, palette.land, SHADED_FACE_LIFT))
     g.fill(flank)
 
     g.color = color(palette.ink, OUTLINE_ALPHA)
@@ -163,7 +179,15 @@ object Glyphs {
     g.fill(crown)
   }
 
-  /** A round wood: a lobed silhouette on a short trunk. Filled, for the reason [conifer] gives. */
+  /**
+   * A round wood: a lobed crown on a short trunk.
+   *
+   * Outlined and filled pale once there are pixels for it, solid below that. The outlined form is what makes a
+   * wood read as a wood on the reference plates: packed tightly, a field of ringed crowns reads as canopy seen
+   * from above, where the same shapes filled solid read as a dark stain with no texture in it. Below
+   * [BUBBLE_MIN_PIXELS] the ring and its interior are the same pixel, so the silhouette has to carry it - the
+   * argument [conifer] gives at length.
+   */
   private fun broadleaf(g: Graphics2D, glyph: Glyph, palette: AtlasPalette) {
     val w = glyph.size
     val crown = w * BROADLEAF_CROWN
@@ -184,8 +208,19 @@ object Glyphs {
     }
     lobes.closePath()
 
-    g.color = color(palette.ink, TREE_FILL_ALPHA)
+    if (w < BUBBLE_MIN_PIXELS) {
+      g.color = color(palette.ink, TREE_FILL_ALPHA)
+      g.fill(lobes)
+      return
+    }
+
+    // Opaque, for the reason [LIT_FACE_TINT] gives: packed this tightly, crowns overlap constantly, and a
+    // translucent crown shows every ring behind it as a mesh instead of a canopy.
+    g.color = Color(palette.crown)
     g.fill(lobes)
+    g.color = color(palette.ink, OUTLINE_ALPHA)
+    g.stroke = pen(w * TREE_WEIGHT * BUBBLE_OUTLINE_GAIN)
+    g.draw(lobes)
   }
 
   private fun palm(g: Graphics2D, glyph: Glyph, palette: AtlasPalette) {
@@ -251,6 +286,83 @@ object Glyphs {
     g.draw(Line2D.Double(w * 0.2, -w * 0.3, w, -w * 0.3))
   }
 
+  /** A tussock: three blades springing from one root, the shortest mark that reads as grass. */
+  private fun grass(g: Graphics2D, glyph: Glyph, palette: AtlasPalette) {
+    val w = glyph.size
+    val h = w * GlyphKind.GRASS.aspect
+
+    g.color = color(palette.ink, OPEN_GROUND_ALPHA)
+    g.stroke = pen(w * TREE_WEIGHT)
+
+    for (i in 0 until GRASS_BLADES) {
+      val lean = (i.toDouble() / (GRASS_BLADES - 1) - 0.5) * 2.0
+      val tall = h * (0.7 + 0.3 * unit(glyph.variant, 10 + i))
+
+      val blade = Path2D.Double()
+      blade.moveTo(0.0, 0.0)
+      blade.quadTo(lean * w * 0.3, -tall * 0.6, lean * w * 0.9, -tall)
+      g.draw(blade)
+    }
+  }
+
+  /** A low bush: a lobed clump with no trunk, so it is not read as a small tree. */
+  private fun scrub(g: Graphics2D, glyph: Glyph, palette: AtlasPalette) {
+    val w = glyph.size
+    val h = w * GlyphKind.SCRUB.aspect
+
+    val clump = Path2D.Double()
+    clump.moveTo(-w, 0.0)
+    clump.quadTo(-w * 0.8, -h * 1.3, -w * 0.25, -h * 0.9)
+    clump.quadTo(0.0, -h * 1.6, w * 0.3, -h * 0.9)
+    clump.quadTo(w * 0.85, -h * 1.25, w, 0.0)
+    clump.closePath()
+
+    g.color = color(palette.crown, SCRUB_FILL_ALPHA)
+    g.fill(clump)
+    g.color = color(palette.ink, OPEN_GROUND_ALPHA)
+    g.stroke = pen(w * TREE_WEIGHT)
+    g.draw(clump)
+  }
+
+  /** A boulder: an angular silhouette, which is what tells scree from a bush at this size. */
+  private fun rock(g: Graphics2D, glyph: Glyph, palette: AtlasPalette) {
+    val w = glyph.size
+    val h = w * GlyphKind.ROCK.aspect
+
+    val stone = Path2D.Double()
+    stone.moveTo(-w, 0.0)
+    stone.lineTo(-w * 0.62, -h * 1.25)
+    stone.lineTo(w * 0.1 + (unit(glyph.variant, 13) - 0.5) * w * 0.4, -h * 1.6)
+    stone.lineTo(w * 0.75, -h * 0.9)
+    stone.lineTo(w, 0.0)
+    stone.closePath()
+
+    g.color = Color(Colors.mix(palette.paper, palette.land, ROCK_FACE_TINT))
+    g.fill(stone)
+    g.color = color(palette.ink, OPEN_GROUND_ALPHA)
+    g.stroke = pen(w * TREE_WEIGHT)
+    g.draw(stone)
+  }
+
+  /** Two low mounds: the ground itself, where nothing grows tall enough to draw. */
+  private fun hummock(g: Graphics2D, glyph: Glyph, palette: AtlasPalette) {
+    val w = glyph.size
+    val h = w * GlyphKind.HUMMOCK.aspect
+
+    g.color = color(palette.ink, OPEN_GROUND_ALPHA * 0.85)
+    g.stroke = pen(w * HATCH_WEIGHT * 1.3)
+
+    val left = Path2D.Double()
+    left.moveTo(-w, 0.0)
+    left.quadTo(-w * 0.5, -h * 2.0, 0.0, 0.0)
+    g.draw(left)
+
+    val right = Path2D.Double()
+    right.moveTo(w * 0.15, 0.0)
+    right.quadTo(w * 0.6, -h * 1.5, w, 0.0)
+    g.draw(right)
+  }
+
   private fun pen(width: Double) =
     BasicStroke(width.toFloat().coerceAtLeast(MIN_PEN), BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND)
 
@@ -267,19 +379,42 @@ object Glyphs {
   private const val MIN_PEN = 0.55f
 
   private const val MOUNTAIN_ASPECT = 1.15
-  private const val SUMMIT_SKEW = 0.45
-  private const val SHOULDER_MIN = 0.30
-  private const val SHOULDER_MAX = 0.52
+
+  /**
+   * How far the summit may sit off centre, and where the flanks kink.
+   *
+   * The skew was nearly half the half-width, which gave one flank a long shallow tail and made a peak read as
+   * a tick rather than as a mountain. Kept small, and with the kink higher up, the silhouette stays a triangle
+   * while still differing from its neighbour.
+   */
+  private const val SUMMIT_SKEW = 0.26
+  private const val SHOULDER_MIN = 0.38
+  private const val SHOULDER_MAX = 0.58
 
   /** The lit flank's shoulder sits lower than the shaded one's, which is what gives a peak a facing. */
   private const val SHOULDER_DROP = 0.72
 
-  private const val OUTLINE_WEIGHT = 0.16
-  private const val OUTLINE_ALPHA = 0.88
-  private const val HATCH_WEIGHT = 0.10
-  private const val HATCH_ALPHA = 0.42
-  private const val FLANK_FILL_ALPHA = 0.10
-  private const val FLANK_HATCHES = 3
+  private const val OUTLINE_WEIGHT = 0.20
+  private const val OUTLINE_ALPHA = 0.90
+  private const val HATCH_WEIGHT = 0.11
+  private const val HATCH_ALPHA = 0.50
+
+  /**
+   * The two faces of a peak, and why they are **opaque**.
+   *
+   * The faces began as tints over the ground, which left a peak as an open caret reading more like a bird mark
+   * than a mountain, and left overlapping peaks drawn *through* each other: two transparent triangles show
+   * both sets of edges, so a close-packed range came out as a tangle of crossing lines rather than as a row of
+   * summits. Opaque fills plus the north-to-south draw order give the range its depth instead - the nearer
+   * peak simply covers the shoulder of the one behind it, which is what the reference plates do and what no
+   * amount of alpha can imitate.
+   *
+   * Neither face is pure paper or pure ink. A little of the land tone in each keeps the symbol part of the
+   * sheet rather than a sticker on it.
+   */
+  private const val LIT_FACE_TINT = 0.35
+  private const val SHADED_FACE_LIFT = 0.12
+  private const val FLANK_HATCHES = 4
   private const val HATCH_RUN = 0.55
 
   private const val HILL_ASPECT = 0.52
@@ -290,9 +425,15 @@ object Glyphs {
 
   /** How far a tier steps back in before the next one flares out. Under one, or the profile is convex. */
   private const val CONIFER_NOTCH = 0.62
-  private const val BROADLEAF_CROWN = 0.72
-  private const val BROADLEAF_TRUNK = 0.55
+  private const val BROADLEAF_CROWN = 0.82
+  private const val BROADLEAF_TRUNK = 0.34
   private const val BROADLEAF_LOBES = 8
+
+  /** Half-width below which a crown is drawn solid, because its outline would be its interior. */
+  private const val BUBBLE_MIN_PIXELS = 2.6
+
+  /** Crowns are packed close, so their rings have to be heavier than a trunk tick to stay separate. */
+  private const val BUBBLE_OUTLINE_GAIN = 1.5
   /** Trees are silhouettes, so the fill carries the shape; the trunk tick is fainter than the crown. */
   private const val TREE_FILL_ALPHA = 0.55
   private const val TRUNK_ALPHA = 0.5
@@ -308,4 +449,19 @@ object Glyphs {
   private const val DUNE_ALPHA = 0.45
 
   private const val ICE_ALPHA = 0.5
+
+  /**
+   * How dark the open-ground marks are drawn.
+   *
+   * Lighter than a tree, and deliberately. There are far more of these - grassland is the commonest cover a
+   * temperate world has - so at a tree's weight they would out-ink the woods and the ranges together, and the
+   * map would say "grass" louder than it says anything else.
+   */
+  private const val OPEN_GROUND_ALPHA = 0.55
+
+  private const val GRASS_BLADES = 3
+  private const val SCRUB_FILL_ALPHA = 0.7
+
+  /** A stone face is paper pulled towards the land tone: lit, but not as white as a peak's lit flank. */
+  private const val ROCK_FACE_TINT = 0.45
 }

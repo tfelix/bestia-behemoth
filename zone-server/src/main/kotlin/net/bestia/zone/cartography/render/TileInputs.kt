@@ -33,12 +33,11 @@ class TileInputs(
   val chronicle: Chronicle,
 
   /**
-   * The continuous heightfield, for relief texture at close zoom only.
+   * The continuous heightfield, carrying metre-scale detail the kilometre raster cannot.
    *
    * Never for the land-water boundary: that comes off [elevation] at every level, so a coastline traced at
-   * one zoom lands on the coastline traced at another. This carries metre-scale detail the kilometre raster
-   * cannot, which is worth having at 16 m per pixel and is pure noise at 512, where a single sample per
-   * pixel of a metre-scale field aliases into speckle. See [DetailRelief.MAX_METRES_PER_PIXEL].
+   * one zoom lands on the coastline traced at another. Unread since the hillshade was removed, and kept
+   * because close-zoom ground texture is the next thing that will want it.
    */
   val baseHeight: BaseHeightField,
 

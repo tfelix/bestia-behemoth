@@ -288,7 +288,7 @@ tasks.register('mapRender', JavaExec) {
     cartographyTool(it,
             [level: '--level', x: '--x', y: '--y', width: '--width', height: '--height',
              palette: '--palette', paper: '--paper', style: '--style', out: '--out'],
-            [noLabels: '--no-labels'])
+            [noLabels: '--no-labels', bareGround: '--bare-ground'])
 }
 
 /**

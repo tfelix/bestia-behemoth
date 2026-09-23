@@ -39,7 +39,7 @@ import java.awt.geom.Path2D
  */
 class PlanStyle(
   private val palette: PlanPalette = PlanPalette.SLATE,
-  private val atlas: AtlasPalette = AtlasPalette.PARCHMENT
+  private val atlas: AtlasPalette = AtlasPalette.VIVID
 ) : MapStyle {
 
   override val version: Int = VERSION
@@ -51,7 +51,6 @@ class PlanStyle(
     val terrain = TerrainRaster.sample(view, inputs, atlas)
 
     ground(pixels, view, terrain)
-    InkRelief.apply(pixels, view, terrain, atlas, inputs.seed, DetailRelief.of(view, inputs, terrain), hatch = false)
     Coastline.apply(pixels, view, terrain, atlas)
 
     val g = image.createGraphics()
@@ -250,7 +249,7 @@ class PlanStyle(
   companion object {
 
     /** Bumped whenever any pass changes what it draws. Part of the tile cache key; see [AtlasStyle.VERSION]. */
-    const val VERSION = 1
+    const val VERSION = 2
 
     /**
      * Coarsest zoom the plan style is used at. Above this the atlas draws instead.
