@@ -385,6 +385,14 @@ ambient-spawn:
   # AI profiles this layer refuses to throttle, for a species that must stay sharp at any distance.
   never-throttled-profiles: []
 
+economy:
+  # Every coin the world can ever hold. Derived, not chosen: it is what the gold the generator places on a
+  # 128 km world mints at 10,000 coins per ore voxel, which is sized for ~300 concurrent players.
+  # See docs/server/money-supply in bestia-docs before changing it.
+  coin-supply: 300000000
+  # Share of that sitting in settlement treasuries the day a world opens. The rest is still in the ground.
+  npc-share: 0.5
+
 world-time:
   # Left unset: defaults to this server instance's boot time (a new world timeline each restart).
   # world-epoch: 2026-01-01T00:00:00Z

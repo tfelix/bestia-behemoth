@@ -61,6 +61,7 @@ class SettlementReference(
       population: Int,
       wealth: Double,
       traffic: Double,
+      treasury: Double = PerResidentTreasury.DEFAULT.treasuryFor(population, wealth),
     ): SettlementReference {
       val throughput = HashMap<String, Double>()
 
@@ -84,7 +85,7 @@ class SettlementReference(
         stock = stock,
         priceMultiplier = priceMultiplierFor(wealth),
         kappa = kappaFor(traffic),
-        treasury = treasuryFor(population, wealth),
+        treasury = treasury,
       )
     }
 
@@ -112,13 +113,7 @@ class SettlementReference(
       return EconomyStep.MIN_TRADE_RATE + TRADE_RATE_PER_TRAFFIC * traffic
     }
 
-    /** What a town of this size and wealth keeps in the strongbox, and what the treasury reverts to. */
-    private fun treasuryFor(population: Int, wealth: Double): Double {
-      return population * TREASURY_PER_RESIDENT * (0.5 + wealth)
-    }
-
     private const val TRADE_RATE_PER_TRAFFIC = 0.09
 
-    private const val TREASURY_PER_RESIDENT = 12.0
   }
 }

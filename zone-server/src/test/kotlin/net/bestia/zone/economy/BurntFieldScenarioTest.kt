@@ -70,6 +70,7 @@ class BurntFieldScenarioTest {
     step = EconomyStep(catalogue, damage, UnclaimedProduction()),
     damage = damage,
     sites = sites,
+    money = PerResidentTreasury(),
     repository = repository,
     asyncJobExecutor = asyncJobExecutor,
     worldService = worldService,

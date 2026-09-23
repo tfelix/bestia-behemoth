@@ -33,6 +33,7 @@ class SettlementEconomyService(
   private val step: EconomyStep,
   private val damage: SettlementCapacity,
   private val sites: SettlementSiteIndex,
+  private val money: MoneySupply,
   private val repository: SettlementLedgerRepository,
   private val asyncJobExecutor: AsyncJobExecutor,
   private val worldService: WorldService,
@@ -115,6 +116,7 @@ class SettlementEconomyService(
       population = summary.population,
       wealth = summary.wealth,
       traffic = summary.traffic,
+      treasury = money.treasuryFor(summary.population, summary.wealth),
     ).also { references[settlement] = it }
   }
 

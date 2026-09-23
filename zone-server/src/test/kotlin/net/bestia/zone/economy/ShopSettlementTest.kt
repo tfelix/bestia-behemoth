@@ -40,6 +40,7 @@ class ShopSettlementTest {
     step = EconomyStep(catalogue, UndamagedCapacity(), UnclaimedProduction()),
     damage = UndamagedCapacity(),
     sites = sites,
+    money = PerResidentTreasury(),
     repository = repository,
     asyncJobExecutor = mockk<AsyncJobExecutor>().also {
       every { it.submit(any(), any()) } answers { secondArg<() -> Unit>().invoke() }
