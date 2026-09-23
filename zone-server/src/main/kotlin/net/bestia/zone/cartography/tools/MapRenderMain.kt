@@ -40,10 +40,11 @@ object MapRenderMain {
   private const val OUT = "--out"
   private const val NO_LABELS = "--no-labels"
   private const val STYLE = "--style"
+  private const val REGIONS = "--regions"
   private const val BARE_GROUND = "--bare-ground"
 
   private val FLAGS =
-    setOf(LEVEL, X, Y, WIDTH, HEIGHT, PALETTE, PAPER, OUT, NO_LABELS, STYLE, BARE_GROUND)
+    setOf(LEVEL, X, Y, WIDTH, HEIGHT, PALETTE, PAPER, OUT, NO_LABELS, STYLE, REGIONS, BARE_GROUND)
 
   @JvmStatic
   fun main(argv: Array<String>) {
@@ -75,7 +76,11 @@ object MapRenderMain {
 
     val style: MapStyle = styleFor(args, metresPerPixel)
 
-    val inputs = TileInputs.of(generated, labels = !args.has(NO_LABELS))
+    val inputs = TileInputs.of(
+      generated,
+      labels = !args.has(NO_LABELS),
+      regions = args.has(REGIONS)
+    )
     val image = style.render(view, inputs)
     val renderedAt = System.nanoTime()
 

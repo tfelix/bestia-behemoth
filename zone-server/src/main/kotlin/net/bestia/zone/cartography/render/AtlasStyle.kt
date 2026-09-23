@@ -27,6 +27,7 @@ import kotlin.math.pow
  * 5  water       rivers and lake edges                             vector
  * 6  routes      roads, bridges, sea lanes                         vector
  * 7  places      settlements and sites, then names                 vector
+ * 8  regions      the names of the country itself                   vector
  * ```
  *
  * Every per-pixel pass runs before every vector pass, so ink is never mottled by paper laid over it.
@@ -80,6 +81,7 @@ class AtlasStyle(
       WaterInk.draw(g, view, inputs, palette.water, palette.waterInk)
       RouteInk.draw(g, view, inputs, palette)
       PlaceInk.draw(g, view, inputs, palette)
+      RegionInk.draw(g, view, inputs)
     } finally {
       g.dispose()
     }

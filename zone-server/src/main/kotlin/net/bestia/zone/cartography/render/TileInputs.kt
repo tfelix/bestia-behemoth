@@ -7,6 +7,7 @@ import net.bestia.worldgen.core.IntLayer
 import net.bestia.worldgen.core.LayerId
 import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.pipeline.GeneratedWorld
+import net.bestia.worldgen.place.PlaceRegions
 import net.bestia.worldgen.vector.Aabb
 import net.bestia.worldgen.vector.VectorFeature
 
@@ -51,7 +52,16 @@ class TileInputs(
   val featuresIn: (Aabb) -> List<VectorFeature>,
 
   /** Draw place names into the tile. Off for served tiles, which leave labels to the client. */
-  val labels: Boolean = false
+  val labels: Boolean = false,
+
+  /**
+   * The world's named areas, or null to leave them off the map.
+   *
+   * Null for a served tile, for [labels]' reason and one of its own: `PlaceRegions.of` walks the whole world
+   * and the tile service has no use for the result, so paying for it per world to draw nothing would be a
+   * cost with no counterparty. The offline plate asks for it explicitly.
+   */
+  val regions: PlaceRegions? = null
 ) {
 
   val seed: Long get() = config.seed
@@ -59,7 +69,7 @@ class TileInputs(
 
   companion object {
 
-    fun of(generated: GeneratedWorld, labels: Boolean = false): TileInputs {
+    fun of(generated: GeneratedWorld, labels: Boolean = false, regions: Boolean = false): TileInputs {
       val layers = generated.world.layers
 
       return TileInputs(
@@ -73,7 +83,8 @@ class TileInputs(
         chronicle = generated.world.chronicle,
         baseHeight = generated.base,
         featuresIn = { generated.world.features.query(it) },
-        labels = labels
+        labels = labels,
+        regions = if (regions) PlaceRegions.of(generated.world) else null
       )
     }
   }
