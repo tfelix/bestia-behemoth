@@ -41,6 +41,7 @@ class ShopSettlementTest {
     damage = UndamagedCapacity(),
     sites = sites,
     money = PerResidentTreasury(),
+    reserve = UnlimitedReserve(),
     repository = repository,
     asyncJobExecutor = mockk<AsyncJobExecutor>().also {
       every { it.submit(any(), any()) } answers { secondArg<() -> Unit>().invoke() }

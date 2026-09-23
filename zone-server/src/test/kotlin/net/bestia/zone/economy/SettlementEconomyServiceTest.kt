@@ -43,6 +43,7 @@ class SettlementEconomyServiceTest {
     damage = UndamagedCapacity(),
     sites = sites,
     money = PerResidentTreasury(),
+    reserve = UnlimitedReserve(),
     repository = repository,
     // Runs the durable write on the calling thread, so a test can assert on it without waiting.
     asyncJobExecutor = mockk<AsyncJobExecutor>().also {

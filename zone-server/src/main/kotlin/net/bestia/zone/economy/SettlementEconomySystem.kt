@@ -24,6 +24,7 @@ import org.springframework.stereotype.Component
 @Order(87)
 class SettlementEconomySystem(
   private val economy: SettlementEconomyService,
+  private val reserve: WorldReserve,
 ) : System {
 
   /**
@@ -38,5 +39,6 @@ class SettlementEconomySystem(
 
   override fun update(world: World, deltaTime: Float) {
     economy.catchUpAll()
+    reserve.flush()
   }
 }

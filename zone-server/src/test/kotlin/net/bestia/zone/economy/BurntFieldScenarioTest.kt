@@ -71,6 +71,7 @@ class BurntFieldScenarioTest {
     damage = damage,
     sites = sites,
     money = PerResidentTreasury(),
+    reserve = UnlimitedReserve(),
     repository = repository,
     asyncJobExecutor = asyncJobExecutor,
     worldService = worldService,

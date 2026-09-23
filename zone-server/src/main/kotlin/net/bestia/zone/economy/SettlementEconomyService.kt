@@ -34,6 +34,7 @@ class SettlementEconomyService(
   private val damage: SettlementCapacity,
   private val sites: SettlementSiteIndex,
   private val money: MoneySupply,
+  private val reserve: CoinReserve,
   private val repository: SettlementLedgerRepository,
   private val asyncJobExecutor: AsyncJobExecutor,
   private val worldService: WorldService,
@@ -162,8 +163,11 @@ class SettlementEconomyService(
 
   private fun advance(settlement: Int, reference: SettlementReference, today: Double): LedgerState {
     val current = live[settlement] ?: atReference(reference, today)
-    val moved = step.advance(reference, current, today)
+    val moved = step.advance(reference, current, today, reserve.available())
 
+    // The other half of every coin the step moved. Nothing here came out of a player's purse - it is
+    // reversion and trade beyond the map - so the reserve is what it came out of.
+    reserve.charge(moved.treasury - current.treasury)
     rememberIfWorthIt(settlement, reference, moved)
 
     return moved

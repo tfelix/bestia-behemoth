@@ -1,6 +1,7 @@
 package net.bestia.zone.boot
 
 import net.bestia.zone.economy.SettlementEconomyService
+import net.bestia.zone.economy.WorldReserve
 import net.bestia.zone.world.WorldService
 import org.springframework.boot.CommandLineRunner
 import org.springframework.core.annotation.Order
@@ -17,9 +18,12 @@ import org.springframework.stereotype.Component
 @Order(6)
 class SettlementEconomyBootRunner(
   private val economy: SettlementEconomyService,
+  private val reserve: WorldReserve,
 ) : CommandLineRunner {
 
   override fun run(vararg args: String?) {
+    // The reserve first: it is what the settlements' own catch-up is paid out of.
+    reserve.load()
     economy.loadAll()
   }
 }

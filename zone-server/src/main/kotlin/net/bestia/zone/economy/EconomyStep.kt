@@ -47,15 +47,23 @@ class EconomyStep(
    * be: I18 says a player standing in a town changes nothing, and a read path able to create a row would
    * break that however carefully this is written.
    */
-  fun advance(reference: SettlementReference, state: LedgerState, toDay: Double): LedgerState {
+  fun advance(
+    reference: SettlementReference,
+    state: LedgerState,
+    toDay: Double,
+    reserve: Double = Double.POSITIVE_INFINITY,
+  ): LedgerState {
     val elapsed = toDay - state.lastStepDay
     if (elapsed <= 0.0) return state
 
     val days = floor(min(elapsed, MAX_STEP_DAYS)).toInt()
 
     var moved = state
+    var reserveLeft = reserve
     for (day in 0 until days) {
-      moved = oneDay(reference, moved, moved.lastStepDay + 1.0)
+      val next = oneDay(reference, moved, moved.lastStepDay + 1.0, reserveLeft)
+      reserveLeft -= next.treasury - moved.treasury
+      moved = next
     }
 
     // A jump past the ceiling loses the excess rather than deferring it. Advancing only thirty would have
@@ -63,7 +71,12 @@ class EconomyStep(
     return if (elapsed > MAX_STEP_DAYS) moved.copy(lastStepDay = toDay) else moved
   }
 
-  private fun oneDay(reference: SettlementReference, state: LedgerState, day: Double): LedgerState {
+  private fun oneDay(
+    reference: SettlementReference,
+    state: LedgerState,
+    day: Double,
+    reserveLeft: Double,
+  ): LedgerState {
     val dayOfYear = day.mod(Commodity.DAYS_PER_YEAR.toDouble())
 
     val stock = HashMap(state.deltaStock)
@@ -107,7 +120,11 @@ class EconomyStep(
     return LedgerState(
       deltaStock = stock,
       deltaLogPrice = price,
-      treasury = revertTreasury(purse, reference.treasury * livelihood(earned, earnable)),
+      treasury = withinReserve(
+        state.treasury,
+        revertTreasury(purse, reference.treasury * livelihood(earned, earnable)),
+        reserveLeft,
+      ),
       lastStepDay = day,
     )
   }
@@ -130,6 +147,19 @@ class EconomyStep(
 
   private fun revertTreasury(purse: Double, target: Double): Double {
     return target + (purse - target) * exp(-1.0 / TREASURY_TAU_DAYS)
+  }
+
+  /**
+   * A settlement cannot end a day holding coin the world has not got left to give it.
+   *
+   * Only a gain is rationed. Coin moving the other way is being handed back, and refusing a repayment
+   * would leave the world short of its own supply.
+   */
+  private fun withinReserve(before: Double, after: Double, reserveLeft: Double): Double {
+    val gain = after - before
+    if (gain <= reserveLeft) return after
+
+    return before + max(0.0, reserveLeft)
   }
 
   /** What the outside world moved, and what the settlement's purse gained or lost by it. */

@@ -9,6 +9,7 @@ import net.bestia.zone.entity.PersistedEntityRepository
 import net.bestia.zone.cartography.chart.MapChartRepository
 import net.bestia.zone.ai.rumour.RumourRepository
 import net.bestia.zone.economy.SettlementLedgerRepository
+import net.bestia.zone.economy.WorldTreasuryRepository
 import net.bestia.zone.entity.deleteAllByKind
 import net.bestia.zone.world.prop.WorldObjectDivergenceRepository
 import org.springframework.stereotype.Service
@@ -32,6 +33,7 @@ class WorldProvisioning(
   private val mapChartRepository: MapChartRepository,
   private val worldObjectDivergenceRepository: WorldObjectDivergenceRepository,
   private val settlementLedgerRepository: SettlementLedgerRepository,
+  private val worldTreasuryRepository: WorldTreasuryRepository,
   private val rumourRepository: RumourRepository,
   private val config: WorldGenConfig
 ) {
@@ -99,6 +101,9 @@ class WorldProvisioning(
     // Settlement indices are dense and re-used, so a surviving ledger would not be orphaned - it would
     // be applied to a different town. The version columns would refuse it, so this is the tidy half.
     settlementLedgerRepository.deleteAll()
+    // The reserve counts against those treasuries, so a survivor would be a number about a world that no
+    // longer exists rather than a slightly wrong one. The version columns would refuse it either way.
+    worldTreasuryRepository.deleteAll()
     // News is attached to a settlement index, and those are dense and re-used. The version columns would
     // refuse a survivor, so this is the tidy half - but a town talking about a battle outside a village
     // the new world never placed is what it would look like without both.
