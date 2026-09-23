@@ -80,3 +80,13 @@ WORKBENCH_KIT,Workbench Kit
 WORKBENCH_KIT_DESC,"A bundle of planks, pegs and a folded vice, tied with cord.
 
 Set it down somewhere flat and it becomes a workbench - once somebody puts the work in."
+GOLD_COIN,gold coin
+GOLD_COIN_DESC,"A milled coin of soft gold, worn smooth by hands that were glad of it."
+GRAIN,grain
+GRAIN_DESC,"A sack of threshed grain, still smelling of the field it came out of."
+FLOUR,flour
+FLOUR_DESC,"Stone-ground flour, fine enough to take the print of a thumb."
+BREAD,bread
+BREAD_DESC,"A dark round loaf with a hard crust.
+
+Filling rather than healing, which is what most people actually want from a meal."
