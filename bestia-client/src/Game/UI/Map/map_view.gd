@@ -78,19 +78,19 @@ const _LABEL_SIZE_DEFAULT := 10
 
 ## Pixels above the symbol the name sits, per tier, so a name clears the mark it belongs to.
 ##
-## Mirrors the radii `PlaceInk` draws server-side - a city's double ring is the widest mark on the map, and a
-## flat offset that cleared it would leave a hamlet's name floating. Kept in step by hand rather than sent
-## with the place: the numbers are a drawing decision on each side, and shipping them per tile would put the
-## atlas's pen sizes on the wire for every town.
+## Mirrors the radii `PlaceInk` draws server-side - a city is a walled block under three towers and the widest
+## mark on the map, and a flat offset that cleared it would leave a hamlet's name floating. Kept in step by
+## hand rather than sent with the place: the numbers are a drawing decision on each side, and shipping them
+## per tile would put the atlas's pen sizes on the wire for every town.
 const _LABEL_OFFSETS := {
-	"CITY": 10.0,
-	"TOWN": 7.5,
-	"VILLAGE": 6.0,
-	"HAMLET": 6.0,
+	"CITY": 15.0,
+	"TOWN": 12.4,
+	"VILLAGE": 10.7,
+	"HAMLET": 8.3,
 }
 
 ## For everything that is not a settlement: the site marks are all about the same size.
-const _LABEL_OFFSET := 7.0
+const _LABEL_OFFSET := 11.3
 
 ## How near a click has to land to count as hitting a place. Generous next to the symbols, which are a few
 ## pixels across: this is a click on a name, and the name is what the player is aiming at.

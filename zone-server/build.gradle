@@ -292,6 +292,18 @@ tasks.register('mapRender', JavaExec) {
 }
 
 /**
+ * Every place symbol on one sheet: `./gradlew :zone-server:mapLegend -Pscale=3`.
+ *
+ * Builds no world, so it answers "does this set of marks read as a set" in about a second. `-Pscale` magnifies
+ * the finished sheet rather than the symbols, so what it shows is the mark the map actually makes.
+ */
+tasks.register('mapLegend', JavaExec) {
+    description = 'Draws every place symbol on one sheet, at map size'
+    mainClass = 'net.bestia.zone.cartography.tools.MapLegendMain'
+    cartographyTool(it, [scale: '--scale', palette: '--palette', out: '--out'], [:])
+}
+
+/**
  * What the map is drawing from, as text: `./gradlew :zone-server:mapInspect -Pgenesis -Pcoast`.
  *
  * The other half of `mapRender`. A wrong-looking map is either a wrong picture or wrong data, and only this can
