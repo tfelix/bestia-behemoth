@@ -347,3 +347,351 @@ items:
       A finger of refined gold, still dull from the mould.
 
       Every coin in the world started as one of these.
+
+  # --- What a town's trades deal in ---------------------------------------------------------------
+  # One item per blocked trade in `economy/economy.yml`'s `unbound` list, so that the day a trade is
+  # priced there is something for it to hand over. None of these is a commodity yet: a commodity needs a
+  # price, a spoil rate and a chain, and those are authored together or a town sells what it never made.
+  #
+  # Weights sit on the same scale as the ore above - a fresh master carries 2475 - and the heavy end is
+  # deliberate. A log at 900 means two of them and nothing else, which is what makes a carpenter's
+  # supply a haulage problem rather than a formality.
+
+  # Behind every general store counter, whatever else the town does. `MerchantStock` gives a retail
+  # trade the whole commodity list, so these are the goods a player can count on finding anywhere.
+  - id: 33
+    item-db-name: small_mana_potion
+    level: 3
+    weight: 25
+    type: USABLE
+    script: SmallManaPotionScript
+    description: |
+      A small vial of cold blue liquid.
+
+      Restores a modest amount of mana when consumed.
+
+  - id: 34
+    item-db-name: bandage
+    level: 1
+    weight: 5
+    type: USABLE
+    script: BandageScript
+    description: |
+      A rolled strip of clean linen.
+
+      Closes a wound a little, and costs little enough to buy by the handful.
+
+  - id: 35
+    item-db-name: torch
+    level: 1
+    weight: 30
+    type: ETC
+    description: |
+      A reed stalk bound with pitch-soaked cloth.
+
+      Burns long enough to get down a shaft and back up again.
+
+  - id: 36
+    item-db-name: salt
+    level: 1
+    weight: 40
+    type: ETC
+    description: |
+      A sack of coarse grey salt.
+
+      Keeps meat from turning, which is why it is worth carrying a long way.
+
+  # Food and drink: butcher, brewer, vintner and fishmonger.
+  - id: 37
+    item-db-name: raw_meat
+    level: 1
+    weight: 120
+    type: ETC
+    description: |
+      A thick cut of meat on the bone, marbled with fat.
+
+      Spoils faster than anything but fish.
+
+  - id: 38
+    item-db-name: salted_meat
+    level: 1
+    weight: 90
+    type: USABLE
+    script: SaltedMeatScript
+    description: |
+      A slab of meat packed hard in salt.
+
+      Keeps for a season, which is what a traveller is really buying.
+
+  - id: 39
+    item-db-name: ale
+    level: 1
+    weight: 60
+    type: USABLE
+    script: AleScript
+    description: |
+      A jug of thin barley beer.
+
+      Safer than most water, and a great deal cheaper than wine.
+
+  - id: 40
+    item-db-name: wine
+    level: 5
+    weight: 90
+    type: USABLE
+    script: WineScript
+    description: |
+      A stoppered bottle of dark red wine.
+
+      Worth more the further it is carried from the vines that made it.
+
+  - id: 41
+    item-db-name: raw_fish
+    level: 1
+    weight: 100
+    type: ETC
+    description: |
+      A silver-scaled fish, caught this morning.
+
+      Worthless by tomorrow.
+
+  - id: 42
+    item-db-name: cheese
+    level: 1
+    weight: 150
+    type: USABLE
+    script: CheeseScript
+    description: |
+      A hard wheel of cheese off pasture country.
+
+      Heavy and slow to spoil, which is more than can be said for the milk.
+
+  # Timber: carpenter, charcoaler and shipwright. The charcoaler needs no item of its own - `coal` is
+  # already in the catalogue and a log is the thing it was missing to char.
+  - id: 43
+    item-db-name: log
+    level: 1
+    weight: 900
+    type: ETC
+    description: |
+      A felled trunk cut to length, bark still on.
+
+      The heaviest thing anybody carries by choice.
+
+  - id: 44
+    item-db-name: plank
+    level: 5
+    weight: 150
+    type: ETC
+    description: |
+      A sawn board, planed on one face.
+
+      Every building, cart and workbench starts as a stack of these.
+
+  - id: 45
+    item-db-name: hull_timber
+    level: 15
+    weight: 700
+    type: ETC
+    description: |
+      A long beam of seasoned oak, steamed and bent to a curve.
+
+      Shaped for one hull and no other, which is why nobody else wants it.
+
+  # Stone and clay: mason and potter.
+  - id: 46
+    item-db-name: quarried_stone
+    level: 5
+    weight: 800
+    type: ETC
+    description: |
+      A rough block of limestone straight off the quarry face.
+
+      Undressed, and no use to a wall until it is.
+
+  - id: 47
+    item-db-name: cut_stone
+    level: 10
+    weight: 700
+    type: ETC
+    description: |
+      A block dressed square, its faces worked smooth.
+
+      What walls and towers are actually built of.
+
+  - id: 48
+    item-db-name: brick
+    level: 5
+    weight: 250
+    type: ETC
+    description: |
+      A fired clay brick, sanded and slightly uneven.
+
+      Cheaper than stone, and worse in a siege.
+
+  - id: 49
+    item-db-name: clay_pot
+    level: 1
+    weight: 120
+    type: ETC
+    description: |
+      A fired storage jar with a narrow neck and two small handles.
+
+      Unremarkable, and in every house in the world.
+
+  # Hide and cloth: tanner, weaver, dyer and tailor. A hide has no producer on purpose - it comes off
+  # something a player killed, which is where player supply enters an NPC chain.
+  - id: 50
+    item-db-name: raw_hide
+    level: 1
+    weight: 200
+    type: ETC
+    description: |
+      A green hide, hair still on and heavy with fat.
+
+      Nobody who has carried one in summer carries a second.
+
+  - id: 51
+    item-db-name: leather
+    level: 5
+    weight: 120
+    type: ETC
+    description: |
+      A rolled sheet of cured leather, supple and evenly cut.
+
+  - id: 52
+    item-db-name: wool
+    level: 1
+    weight: 80
+    type: ETC
+    description: |
+      A shorn fleece, greasy and full of burrs.
+
+  - id: 53
+    item-db-name: flax
+    level: 1
+    weight: 40
+    type: ETC
+    description: |
+      A sheaf of retted flax stems, ready for the wheel.
+
+  - id: 54
+    item-db-name: cloth
+    level: 5
+    weight: 60
+    type: ETC
+    description: |
+      A bolt of plain woven cloth, sold by the length.
+
+  - id: 55
+    item-db-name: dye
+    level: 10
+    weight: 40
+    type: ETC
+    description: |
+      A stoppered pot of deep colour, ground from roadside plants.
+
+      It stains everything except the cloth it was meant for.
+
+  - id: 56
+    item-db-name: linen_tunic
+    level: 5
+    weight: 120
+    type: EQUIP
+    equip-slot: ARMOR
+    max-durability: 100
+    description: |
+      A plain linen tunic worn with a narrow belt.
+
+      Warm, and stops nothing at all.
+
+  # Metal and luxury: blacksmith and jeweller. The two tools are what makes a smith a shop a player
+  # needs rather than one they walk past - ore and timber both come out of the world through them.
+  - id: 57
+    item-db-name: pickaxe
+    level: 10
+    weight: 350
+    type: EQUIP
+    equip-slot: RIGHT_HAND
+    max-durability: 180
+    description: |
+      A miner's pick, iron-headed on a straight ash haft.
+
+      Nothing comes out of rock without one, and no pick comes back out unblunted.
+
+  - id: 58
+    item-db-name: hatchet
+    level: 5
+    weight: 250
+    type: EQUIP
+    equip-slot: RIGHT_HAND
+    max-durability: 150
+    description: |
+      A felling axe with a wide iron blade.
+
+      Turns standing trees into logs, and blunts itself doing it.
+
+  - id: 59
+    item-db-name: nails
+    level: 5
+    weight: 60
+    type: ETC
+    description: |
+      A twist of hand-forged iron nails, no two quite alike.
+
+      Dull work to make, and it holds everything else together.
+
+  - id: 60
+    item-db-name: rough_gem
+    level: 20
+    weight: 20
+    type: ETC
+    description: |
+      An uncut stone still held in the rock it came out of.
+
+      Worth guessing about until a jeweller says otherwise.
+
+  # Gold that will never be a coin again - see `server/money-supply.md`. Minting is one-way, and so is
+  # this: coin metal worked into a ring is coin metal out of the supply for good.
+  - id: 61
+    item-db-name: gold_ring
+    level: 25
+    weight: 10
+    type: EQUIP
+    equip-slot: ACCESSORY_1
+    description: |
+      A plain gold band set with a small red stone.
+
+      Worked gold that will never be a coin again, and looks the better for it.
+
+  # Letters and medicine: apothecary, alchemist and bookbinder.
+  - id: 62
+    item-db-name: medicine
+    level: 10
+    weight: 20
+    type: USABLE
+    script: MedicineScript
+    description: |
+      A small bottle of bitter herbal draught.
+
+      Sets a man on his feet again, which is not quite the same as healing him.
+
+  - id: 63
+    item-db-name: catalyst
+    level: 25
+    weight: 15
+    type: ETC
+    description: |
+      A shard of violet crystal clasped in brass, lit faintly from within.
+
+      Spent by work that would otherwise go wrong.
+
+  - id: 64
+    item-db-name: book
+    level: 20
+    weight: 80
+    type: ETC
+    description: |
+      A leather-bound volume with brass corners and a clasp.
+
+      Somebody's collected notes, bound well enough to outlive them.

@@ -86,26 +86,28 @@ unbound:
   - { business: inn, reason: "sells lodging, which is not a good" }
   - { business: stable, reason: "sells stabling, which is not a good" }
 
-  - { business: butcher, needs: meat, reason: "no meat item" }
-  - { business: brewer, needs: ale, reason: "no ale item" }
-  - { business: vintner, needs: wine, reason: "no wine item" }
-  - { business: fishmonger, needs: raw_fish, reason: "no fish item" }
-  - { business: shipwright, needs: hull_timber, reason: "no shipbuilding materials" }
-  - { business: carpenter, needs: log, reason: "no log item; also what blocks the charcoaler" }
-  - { business: charcoaler, needs: log, reason: "coal exists, the timber it is charred from does not" }
-  - { business: mason, needs: cut_stone, reason: "no cut stone item" }
-  - { business: potter, needs: pottery, reason: "clay exists, nothing to make of it" }
-  - { business: tanner, needs: leather, reason: "no hide or leather item" }
-  - { business: dyer, needs: dye, reason: "no dye item" }
-  - { business: weaver, needs: cloth, reason: "no wool or cloth item" }
-  - { business: tailor, needs: clothing, reason: "no clothing item" }
-  - { business: jeweller, needs: jewellery, reason: "no jewellery item" }
-  - { business: bookbinder, needs: book, reason: "no book item" }
-  - { business: alchemist, needs: reagent, reason: "no alchemical reagent item" }
-  - { business: apothecary, needs: medicine, reason: "potions exist, but nothing an NPC turns herbs into" }
+  # The goods these trades deal in are items now. What is still missing is the price, the spoil rate and
+  # the chain that would make each one a commodity, and those are authored together or a town sells what
+  # it never made. So `needs` no longer holds any of them back - the catalogue above does.
+  - { business: butcher, reason: "raw_meat is not priced as a commodity yet" }
+  - { business: brewer, reason: "ale is not priced as a commodity yet" }
+  - { business: vintner, reason: "wine is not priced as a commodity yet" }
+  - { business: fishmonger, reason: "raw_fish is not priced as a commodity yet" }
+  - { business: shipwright, reason: "hull_timber is not priced as a commodity yet" }
+  - { business: carpenter, reason: "log and plank are not priced as commodities yet" }
+  - { business: charcoaler, reason: "coal and the log it is charred from are not priced as commodities yet" }
+  - { business: mason, reason: "quarried_stone and cut_stone are not priced as commodities yet" }
+  - { business: potter, reason: "clay_pot and brick are not priced as commodities yet" }
+  - { business: tanner, reason: "leather is not priced as a commodity yet" }
+  - { business: dyer, reason: "dye is not priced as a commodity yet" }
+  - { business: weaver, reason: "cloth is not priced as a commodity yet" }
+  - { business: tailor, reason: "linen_tunic is not priced as a commodity yet" }
+  - { business: jeweller, reason: "gold_ring is not priced as a commodity yet" }
+  - { business: bookbinder, reason: "book is not priced as a commodity yet" }
+  - { business: alchemist, reason: "catalyst is not priced as a commodity yet" }
+  - { business: apothecary, reason: "medicine is not priced as a commodity yet" }
 
-  # The two whose *output* already exists. They are blocked on the input side: iron ore has no producer,
-  # because ore is voxels and there is no mining trade, no prop and no way to exhaust a deposit. Pricing
-  # them before that is what would make the smelting chain a hole rather than a chain.
-  - { business: blacksmith, reason: "iron ore has no producer" }
-  - { business: armourer, reason: "iron ore has no producer" }
+  # The two whose *output* already exists, blocked on the input side instead: a player mines iron ore, but
+  # no settlement trade produces any, so a smith's reference throughput would have nothing to derive from.
+  - { business: blacksmith, reason: "iron_ore has no settlement producer" }
+  - { business: armourer, reason: "iron_ore has no settlement producer" }

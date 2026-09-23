@@ -57,12 +57,13 @@ class EconomyCoverageTest {
 
   @Test
   fun `an unbound trade waiting for an item that now exists has to be bound`() {
-    // What makes the blocked list prune itself. Ale does not exist, so pretending it does is the same
-    // thing that happens the day somebody adds it.
+    // What makes the blocked list prune itself, and it has nothing live to act on: every blocked trade's
+    // goods are in items.yml now, so no entry names an item any more. This is the shape of the next one
+    // somebody blocks.
     every { items.findByIdentifier("ale") } returns Item(id = 900, identifier = "ale", weight = 1, type = Item.ItemType.ETC)
     recipes.load(emptyList())
 
-    val error = assertFailsWith<IllegalArgumentException> { coverage().check() }
+    val error = assertFailsWith<IllegalArgumentException> { coverage(stillWaitingFor("brewer", "ale")).check() }
 
     assertTrue(error.message!!.contains("brewer"), "the message does not name the trade: ${error.message}")
   }
@@ -97,7 +98,26 @@ class EconomyCoverageTest {
     coverage().check()
   }
 
-  private fun coverage() = EconomyCoverage(catalogue, recipes, items, CommodityItems(catalogue, items))
+  private fun coverage(catalogue: EconomyCatalogue = this.catalogue) =
+    EconomyCoverage(catalogue, recipes, items, CommodityItems(catalogue, items))
+
+  /**
+   * The shipped catalogue with one trade put back to waiting for an item.
+   *
+   * Only the entry changes: a hand-built catalogue would have to name all thirty trades to get past I22
+   * first, and would then be testing a roster nobody ships.
+   */
+  private fun stillWaitingFor(business: String, item: String): EconomyCatalogue {
+    val spy = mockk<EconomyCatalogue>()
+    every { spy.commodities() } returns catalogue.commodities()
+    every { spy.trades() } returns catalogue.trades()
+    every { spy.retailTrades() } returns catalogue.retailTrades()
+    every { spy.unboundTrades() } returns catalogue.unboundTrades().map {
+      if (it.business == business) EconomyCatalogue.Unbound(business, item, it.reason) else it
+    }
+
+    return spy
+  }
 
   private fun bake(grainPerLoaf: Int, chance: Float) = Recipe(
     id = 1,
