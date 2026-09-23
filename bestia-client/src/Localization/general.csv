@@ -66,3 +66,4 @@ TRACK_SUBJECT_TRAVELLER,A traveller
 TRACK_AGE_FRESH,The trail is fresh.
 TRACK_AGE_RECENT,The trail is going cold.
 TRACK_AGE_COLD,The trail is cold.
+ERROR_CRAFT_WORLD_OUT_OF_GOLD,There is no gold left in the world to mint. Somebody has to dig some up.

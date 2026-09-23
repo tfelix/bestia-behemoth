@@ -11,6 +11,8 @@ import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.crafting.Crafting
 import net.bestia.zone.ecs.item.Inventory
 import net.bestia.zone.ecs.item.ItemTemplateRegistry
+import net.bestia.zone.economy.CoinReserve
+import net.bestia.zone.economy.CommodityItems
 import net.bestia.zone.ecs.item.ObtainItemIntent
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.item.container.InventoryService
@@ -54,6 +56,8 @@ class CraftingService(
   private val outMessageProcessor: OutMessageProcessor,
   private val asyncJobExecutor: AsyncJobExecutor,
   private val itemTemplates: ItemTemplateRegistry,
+  private val commodities: CommodityItems,
+  private val reserve: CoinReserve,
 ) {
 
   /**
@@ -177,6 +181,13 @@ class CraftingService(
       return refuse(accountId, OpError.CRAFT_ITEM_TOO_ADVANCED)
     }
 
+    // Before the inputs are spent, because they are never returned: a mint refused after the bar is gone
+    // would take the gold out of the world without putting it back in the reserve.
+    val minted = mintedBy(recipe)
+    if (minted > 0 && reserve.available() < minted) {
+      return refuse(accountId, OpError.CRAFT_WORLD_OUT_OF_GOLD)
+    }
+
     if (!consumeInputs(recipe, inventory, masterId)) {
       return refuse(accountId, OpError.CRAFT_MISSING_MATERIALS)
     }
@@ -192,6 +203,10 @@ class CraftingService(
         // Through the intent rather than written here, so the grant goes through the one path that checks carry
         // capacity and persists - see the class note.
         world.add(entityId, ObtainItemIntent.CreateItemIntent(itemId = output.itemId, amount = output.amount))
+
+        // Charged even if the grant overflows onto the ground: the coin exists in the world either way,
+        // and the reserve is a count of the world's coin rather than of anybody's pack.
+        if (minted > 0) reserve.charge(minted.toDouble())
       }
 
       RecipeEffect.ADD_SLOT -> applyToTarget(inventory, masterId, target!!.copy(slots = target.slots + 1))
@@ -310,6 +325,20 @@ class CraftingService(
   /** The tier of what [recipe] makes, or null when it makes nothing or names an unknown item. */
   private fun outputLevelOf(recipe: Recipe): Int? =
     recipe.output?.let { itemTemplates.levelOf(it.itemId) }
+
+  /**
+   * Coin this recipe would strike, or zero for the ones that make things rather than money.
+   *
+   * Recognised by the output being the coin item rather than by naming the recipe, so a second mint - a
+   * different denomination, a faction's own coin - is drawn from the reserve without anybody remembering
+   * to add it here.
+   */
+  private fun mintedBy(recipe: Recipe): Int {
+    val output = recipe.output ?: return 0
+    val coin = commodities.coinItemId() ?: return 0
+
+    return if (output.itemId == coin) output.amount else 0
+  }
 
   private fun holdsInputs(recipe: Recipe, inventory: Inventory): Boolean =
     required(recipe).all { (itemId, amount) -> heldAmount(inventory, itemId) >= amount }

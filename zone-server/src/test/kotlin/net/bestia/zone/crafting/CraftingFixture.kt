@@ -10,6 +10,9 @@ import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.ecs.item.Inventory
 import net.bestia.zone.ecs.item.ItemTemplateRegistry
+import net.bestia.zone.economy.CoinReserve
+import net.bestia.zone.economy.CommodityItems
+import net.bestia.zone.economy.UnlimitedReserve
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.message.OutMessageProcessor
@@ -38,7 +41,10 @@ class CraftingFixture(
    * Empty means every item is tier 1, which is what most tests want: an unspecified item should not accidentally
    * be beyond a crafter and turn a test about materials into a test about reach.
    */
-  itemLevels: Map<Long, Int> = emptyMap()
+  itemLevels: Map<Long, Int> = emptyMap(),
+
+  /** Bottomless unless a test says otherwise, so only the mint's own tests think about the reserve. */
+  val reserve: CoinReserve = UnlimitedReserve(),
 ) {
 
   val world: World = testWorld()
@@ -49,6 +55,8 @@ class CraftingFixture(
   val inventoryService = mockk<InventoryService>(relaxed = true)
   val structures = mockk<PlayerStructureService>()
   val outMessageProcessor = mockk<OutMessageProcessor>(relaxed = true)
+
+  val commodities = mockk<CommodityItems>().also { every { it.coinItemId() } returns COIN_ITEM_ID }
 
   val itemTemplates = mockk<ItemTemplateRegistry>().also { templates ->
     every { templates.levelOf(any()) } answers { itemLevels[firstArg<Long>()] ?: DEFAULT_ITEM_LEVEL }
@@ -83,7 +91,9 @@ class CraftingFixture(
       structures = structures,
       outMessageProcessor = outMessageProcessor,
       asyncJobExecutor = asyncJobExecutor,
-      itemTemplates = itemTemplates
+      itemTemplates = itemTemplates,
+      commodities = commodities,
+      reserve = reserve,
     )
   }
 
@@ -173,5 +183,8 @@ class CraftingFixture(
     const val INPUT_ITEM = 8L
     const val OUTPUT_ITEM = 9L
     const val TARGET_ITEM = 19L
+
+    /** Distinct from [OUTPUT_ITEM], so a plain craft is never mistaken for a mint. */
+    const val COIN_ITEM_ID = 27L
   }
 }

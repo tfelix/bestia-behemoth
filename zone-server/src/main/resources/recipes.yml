@@ -117,6 +117,22 @@ recipes:
     craftSeconds: 14.0
     baseSuccessChance: 0.4
 
+  # The mint. Every coin in the world is struck here and nowhere else, out of the world reserve - so this
+  # is the one recipe whose output is money, and the one that can be refused because the world has run out.
+  #
+  # It cannot fail. Inputs are spent before the roll and never returned, so a failed mint would destroy the
+  # bar's gold outside the reserve and the supply would quietly shrink every time somebody was unlucky.
+  - id: 26
+    identifier: GOLD_COIN
+    effect: PRODUCE
+    output: { item: gold_coin, amount: 10000 }
+    inputs:
+      - { item: gold_bar, amount: 1 }
+    skill: { skill: ORE_REFINEMENT, level: 1 }
+    station: WORKBENCH
+    craftSeconds: 20.0
+    baseSuccessChance: 1.0
+
   - id: 21
     identifier: IRON_SWORD
     effect: PRODUCE

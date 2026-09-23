@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSrzCQoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSqQCgoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -54,8 +54,9 @@ namespace Bnet {
             "S0VEECoSFQoRU0hPUF9PVVRfT0ZfU1RPQ0sQKxIWChJTSE9QX0NBTk5PVF9B",
             "RkZPUkQQLBIXChNTSE9QX1RSRUFTVVJZX0VNUFRZEC0SFgoSU0hPUF9UUkVB",
             "U1VSWV9GVUxMEC4SFQoRVEFMS19PVVRfT0ZfUkFOR0UQLxIjCh9DSEFUX1dI",
-            "SVNQRVJfVEFSR0VUX1VOQVZBSUxBQkxFEDBCLAoVbmV0LmJlc3RpYS5ibmV0",
-            "LnByb3RvQhNPcGVyYXRpb25FcnJvclByb3RvYgZwcm90bzM="));
+            "SVNQRVJfVEFSR0VUX1VOQVZBSUxBQkxFEDASGwoXQ1JBRlRfV09STERfT1VU",
+            "X09GX0dPTEQQMUIsChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CE09wZXJhdGlv",
+            "bkVycm9yUHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -252,6 +253,14 @@ namespace Bnet {
     /// sender is owed the spelling back and already knows it.
     /// </summary>
     [pbr::OriginalName("CHAT_WHISPER_TARGET_UNAVAILABLE")] ChatWhisperTargetUnavailable = 48,
+    /// <summary>
+    /// The mint has nothing to strike coins out of. Every coin in the world comes from the world reserve,
+    /// and when that is empty no amount of gold will make more - which is the pressure that makes mining
+    /// worth doing rather than a fault the player can fix by trying again. Its own code rather than
+    /// CRAFT_NOT_POSSIBLE because the two ask for opposite things: one says learn more, this one says the
+    /// world is short and somebody has to go and dig.
+    /// </summary>
+    [pbr::OriginalName("CRAFT_WORLD_OUT_OF_GOLD")] CraftWorldOutOfGold = 49,
   }
 
   #endregion

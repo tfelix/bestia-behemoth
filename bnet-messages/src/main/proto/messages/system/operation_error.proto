@@ -148,6 +148,13 @@ enum OpError {
   // whispering into a way to ask who is online. Carries the name that was typed in args[0], because the
   // sender is owed the spelling back and already knows it.
   CHAT_WHISPER_TARGET_UNAVAILABLE = 48;
+
+  // The mint has nothing to strike coins out of. Every coin in the world comes from the world reserve,
+  // and when that is empty no amount of gold will make more - which is the pressure that makes mining
+  // worth doing rather than a fault the player can fix by trying again. Its own code rather than
+  // CRAFT_NOT_POSSIBLE because the two ask for opposite things: one says learn more, this one says the
+  // world is short and somebody has to go and dig.
+  CRAFT_WORLD_OUT_OF_GOLD = 49;
 }
 
 message OperationError {
