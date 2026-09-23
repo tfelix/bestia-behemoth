@@ -103,6 +103,20 @@ recipes:
     craftSeconds: 10.0
     baseSuccessChance: 0.4
 
+  # Gold refines like iron and for the same reason a furnace is worth placing. What the bar is *for* is
+  # minting, which is the only way coin enters the world - see the money supply design.
+  - id: 25
+    identifier: GOLD_BAR
+    effect: PRODUCE
+    output: { item: gold_bar, amount: 1 }
+    inputs:
+      - { item: gold_ore, amount: 2 }
+      - { item: coal, amount: 1 }
+    skill: { skill: ORE_REFINEMENT, level: 1 }
+    station: FURNACE
+    craftSeconds: 14.0
+    baseSuccessChance: 0.4
+
   - id: 21
     identifier: IRON_SWORD
     effect: PRODUCE

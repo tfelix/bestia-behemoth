@@ -8,6 +8,8 @@ import net.bestia.zone.ecs.account.ActivePlayer
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
+import net.bestia.zone.ecs.core.session.ConnectionInfoService
+import net.bestia.zone.ecs.item.ObtainItemIntent
 import net.bestia.zone.ecs.movement.GroundHeight
 import net.bestia.zone.ecs.movement.Grounded
 import net.bestia.zone.ecs.movement.Path
@@ -15,6 +17,7 @@ import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.prop.PropPose
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.socket.ChunkFanOut
+import net.bestia.zone.world.mining.OreYield
 import net.bestia.zone.util.EntityId
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component as SpringComponent
@@ -52,8 +55,19 @@ class ChunkStreamSystem(
   private val inbox: ChunkStreamInbox,
   private val fanOut: ChunkFanOut,
   private val settings: ChunkStreamConfig,
-  private val groundHeight: GroundHeight
+  private val groundHeight: GroundHeight,
+  private val oreYield: OreYield,
+  private val connections: ConnectionInfoService,
 ) : System {
+
+  /**
+   * Ore a carve broke that its owner has not been handed yet.
+   *
+   * Only ever holds a second stack for a tick: a brush is metres wide and ore bodies are kilometres
+   * apart, so one carve is one resource. It exists because the intent is a component and a second one
+   * would overwrite the first, not because a queue was wanted.
+   */
+  private val unclaimed = HashMap<EntityId, MutableMap<Long, Int>>()
 
   override val reads: ComponentClassSet = setOf(Account::class, ActivePlayer::class, PropPose::class)
 
@@ -64,7 +78,8 @@ class ChunkStreamSystem(
    * sets conflict, so leaving `Position` in `reads` alone would let this run concurrently with `MoveSystem`,
    * which writes it. `@Order` fixes the sequence only among systems that already conflict.
    */
-  override val writes: ComponentClassSet = setOf(Position::class, Path::class, Grounded::class)
+  override val writes: ComponentClassSet =
+    setOf(Position::class, Path::class, Grounded::class, ObtainItemIntent.CreateItemIntent::class)
 
   /**
    * Gives the derived structures their residency, which nothing used to.
@@ -109,7 +124,7 @@ class ChunkStreamSystem(
   override fun update(world: World, deltaTime: Float) {
     if (!chunkService.isReady) return
 
-    applyCarves()
+    applyCarves(world)
 
     // Before the subscriptions, so a teleport and the manifest that answers it happen in the same tick. The
     // other order would offer the player a view volume around where they used to be and correct it one tick
@@ -126,7 +141,7 @@ class ChunkStreamSystem(
 
   // ---------------------------------------------------------------- step 1
 
-  private fun applyCarves() {
+  private fun applyCarves(world: World) {
     val carves = inbox.drainCarves()
     if (carves.isEmpty()) return
 
@@ -152,10 +167,54 @@ class ChunkStreamSystem(
       val result = chunkService.carve(brush)
       carvedChunks.addAll(result.chunks)
 
+      bank(result, carve.accountId)
+
       LOG.debug {
         "Account ${carve.accountId} carved r=${carve.radius} at (${carve.x},${carve.y},${carve.z}): " +
             "${result.voxels.size} voxels across ${result.chunks.size} chunks"
       }
+    }
+
+    handOut(world)
+  }
+
+  /**
+   * Puts what a carve broke aside for whoever swung the pick.
+   *
+   * A voxel pays only once it is gone. A brush that shaves a third off an ore block has not got the ore
+   * out of it, and paying per fraction would turn one deposit into as many lumps as a player cares to
+   * click - which, since this is where the world's money comes from, is the difference between mining
+   * and printing.
+   */
+  private fun bank(result: ChunkService.CarveResult, accountId: Long) {
+    val entityId = runCatching { connections.getActiveEntityId(accountId) }.getOrNull() ?: return
+
+    for (voxel in result.voxels) {
+      if (!voxel.exhausted) continue
+
+      val stack = oreYield.of(voxel.priorBlock) ?: continue
+      val owed = unclaimed.getOrPut(entityId) { HashMap() }
+      owed[stack.itemId] = (owed[stack.itemId] ?: 0) + stack.amount
+    }
+  }
+
+  /** One stack per entity per tick; `ObtainItemIntentSystem` at 59 picks them up in the same pass. */
+  private fun handOut(world: World) {
+    val entries = unclaimed.entries.iterator()
+
+    while (entries.hasNext()) {
+      val (entityId, owed) = entries.next()
+      val next = owed.entries.firstOrNull()
+
+      if (next == null) {
+        entries.remove()
+        continue
+      }
+      if (world.get(entityId, ObtainItemIntent.CreateItemIntent::class) != null) continue
+
+      world.add(entityId, ObtainItemIntent.CreateItemIntent(next.key, next.value))
+      owed.remove(next.key)
+      if (owed.isEmpty()) entries.remove()
     }
   }
 

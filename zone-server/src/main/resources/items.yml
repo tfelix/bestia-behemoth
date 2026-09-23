@@ -325,3 +325,25 @@ items:
       A dark round loaf with a hard crust.
 
       Filling rather than healing, which is what most people actually want from a meal.
+
+  # Gold is what the world's money is made of, so these two weigh in the same shape iron does: two ore plus
+  # coal (800) come out as a bar (300), and refining is a gain worth walking to a furnace for.
+  - id: 31
+    item-db-name: gold_ore
+    level: 15
+    weight: 350
+    type: ETC
+    description: |
+      A lump of quartz shot through with soft yellow metal.
+
+      Heavy for its size, and worth nothing at all until a furnace has separated the two.
+
+  - id: 32
+    item-db-name: gold_bar
+    level: 17
+    weight: 300
+    type: ETC
+    description: |
+      A finger of refined gold, still dull from the mould.
+
+      Every coin in the world started as one of these.

@@ -90,3 +90,11 @@ BREAD,bread
 BREAD_DESC,"A dark round loaf with a hard crust.
 
 Filling rather than healing, which is what most people actually want from a meal."
+GOLD_ORE,gold ore
+GOLD_ORE_DESC,"A lump of quartz shot through with soft yellow metal.
+
+Heavy for its size, and worth nothing at all until a furnace has separated the two."
+GOLD_BAR,gold bar
+GOLD_BAR_DESC,"A finger of refined gold, still dull from the mould.
+
+Every coin in the world started as one of these."
