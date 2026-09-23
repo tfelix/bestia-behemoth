@@ -39,6 +39,7 @@ class ShopTradeHandler(
           amount = msg.amount,
           selling = msg.selling,
           stocked = stocked,
+          merchantEntityId = msg.merchantEntityId,
         )
       )
     }

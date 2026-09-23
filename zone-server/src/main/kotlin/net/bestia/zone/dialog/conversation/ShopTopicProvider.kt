@@ -60,7 +60,7 @@ class ShopTopicProvider(
       get(asker.entityId, Position::class)?.toVec3L()?.let { economy.shopAt(it.x, it.y) }
     } ?: return null
 
-    offers.publishTo(asker.accountId, shop.first, shop.second, stocked)
+    offers.publishTo(asker.accountId, speaker.entityId, shop.first, shop.second, stocked)
 
     return ConversationNode(lines.lineFor(speaker, ConversationKeys.SHOP_OPENED), emptyList())
   }

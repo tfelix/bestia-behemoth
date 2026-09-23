@@ -1,6 +1,7 @@
 package net.bestia.zone.ecs.economy
 
 import net.bestia.zone.ecs.core.Component
+import net.bestia.zone.util.EntityId
 
 /**
  * Intent to buy or sell [amount] of [itemId] with the settlement this entity is standing in.
@@ -28,4 +29,7 @@ data class ShopTradeIntent(
    * runs inside it.
    */
   val stocked: Set<String>,
+
+  /** Whose counter, so the window that follows the trade says whose it is. */
+  val merchantEntityId: EntityId,
 ) : Component

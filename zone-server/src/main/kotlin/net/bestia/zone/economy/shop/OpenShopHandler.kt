@@ -61,7 +61,7 @@ class OpenShopHandler(
       return true
     }
 
-    offers.publishTo(msg.playerId, shop.first, shop.second, stocked)
+    offers.publishTo(msg.playerId, msg.merchantEntityId, shop.first, shop.second, stocked)
 
     return true
   }

@@ -103,7 +103,7 @@ class ShopTradeIntentSystem(
     if (!moved) return deny(world, traderId, OperationErrorProto.OpError.SHOP_CANNOT_AFFORD)
 
     economy.settle(settlement, good.id, intent.amount, quote.coins, intent.selling)
-    offers.publish(world, traderId, settlement, shop, intent.stocked)
+    offers.publish(world, traderId, intent.merchantEntityId, settlement, shop, intent.stocked)
 
     LOG.debug {
       "Entity $traderId ${if (intent.selling) "sold" else "bought"} ${intent.amount} ${good.id} " +

@@ -3,6 +3,7 @@ package net.bestia.zone.economy.shop
 import net.bestia.bnet.proto.EnvelopeProto
 import net.bestia.bnet.proto.ShopOfferSmsgProto
 import net.bestia.zone.message.SMSG
+import net.bestia.zone.util.EntityId
 
 /**
  * One settlement's shelves as a client draws them.
@@ -13,6 +14,7 @@ import net.bestia.zone.message.SMSG
  */
 data class ShopOfferSMSG(
   val settlement: Int,
+  val merchantEntityId: EntityId,
   val entries: List<Entry>,
 ) : SMSG {
 
@@ -22,6 +24,7 @@ data class ShopOfferSMSG(
   override fun toBnetEnvelope(): EnvelopeProto.Envelope {
     val offer = ShopOfferSmsgProto.ShopOfferSMSG.newBuilder()
       .setSettlement(settlement)
+      .setMerchantEntityId(merchantEntityId)
       .addAllEntries(entries.map { entry ->
         ShopOfferSmsgProto.ShopEntry.newBuilder()
           .setItemId(entry.itemId)

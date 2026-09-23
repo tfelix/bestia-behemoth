@@ -24,16 +24,17 @@ namespace Bnet {
     static ShopOfferSmsgReflection() {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
-            "CiNtZXNzYWdlcy9zaG9wL3Nob3Bfb2ZmZXJfc21zZy5wcm90bxIEYm5ldCJF",
+            "CiNtZXNzYWdlcy9zaG9wL3Nob3Bfb2ZmZXJfc21zZy5wcm90bxIEYm5ldCJh",
             "Cg1TaG9wT2ZmZXJTTVNHEhIKCnNldHRsZW1lbnQYASABKAUSIAoHZW50cmll",
-            "cxgCIAMoCzIPLmJuZXQuU2hvcEVudHJ5IlQKCVNob3BFbnRyeRIPCgdpdGVt",
-            "X2lkGAEgASgEEg8KB29mZmVyZWQYAiABKAUSEQoJYnV5X3ByaWNlGAMgASgD",
-            "EhIKCnNlbGxfcHJpY2UYBCABKANCKwoVbmV0LmJlc3RpYS5ibmV0LnByb3Rv",
-            "QhJTaG9wT2ZmZXJTbXNnUHJvdG9iBnByb3RvMw=="));
+            "cxgCIAMoCzIPLmJuZXQuU2hvcEVudHJ5EhoKEm1lcmNoYW50X2VudGl0eV9p",
+            "ZBgDIAEoBCJUCglTaG9wRW50cnkSDwoHaXRlbV9pZBgBIAEoBBIPCgdvZmZl",
+            "cmVkGAIgASgFEhEKCWJ1eV9wcmljZRgDIAEoAxISCgpzZWxsX3ByaWNlGAQg",
+            "ASgDQisKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0ISU2hvcE9mZmVyU21zZ1By",
+            "b3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.ShopOfferSMSG), global::Bnet.ShopOfferSMSG.Parser, new[]{ "Settlement", "Entries" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.ShopOfferSMSG), global::Bnet.ShopOfferSMSG.Parser, new[]{ "Settlement", "Entries", "MerchantEntityId" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.ShopEntry), global::Bnet.ShopEntry.Parser, new[]{ "ItemId", "Offered", "BuyPrice", "SellPrice" }, null, null, null, null)
           }));
     }
@@ -85,6 +86,7 @@ namespace Bnet {
     public ShopOfferSMSG(ShopOfferSMSG other) : this() {
       settlement_ = other.settlement_;
       entries_ = other.entries_.Clone();
+      merchantEntityId_ = other.merchantEntityId_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -120,6 +122,22 @@ namespace Bnet {
       get { return entries_; }
     }
 
+    /// <summary>Field number for the "merchant_entity_id" field.</summary>
+    public const int MerchantEntityIdFieldNumber = 3;
+    private ulong merchantEntityId_;
+    /// <summary>
+    /// Whose counter this is. Carried rather than remembered by the client, because the window is not always
+    /// something the client asked for - asking a merchant for their wares in conversation pushes one.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ulong MerchantEntityId {
+      get { return merchantEntityId_; }
+      set {
+        merchantEntityId_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -137,6 +155,7 @@ namespace Bnet {
       }
       if (Settlement != other.Settlement) return false;
       if(!entries_.Equals(other.entries_)) return false;
+      if (MerchantEntityId != other.MerchantEntityId) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -146,6 +165,7 @@ namespace Bnet {
       int hash = 1;
       if (Settlement != 0) hash ^= Settlement.GetHashCode();
       hash ^= entries_.GetHashCode();
+      if (MerchantEntityId != 0UL) hash ^= MerchantEntityId.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -169,6 +189,10 @@ namespace Bnet {
         output.WriteInt32(Settlement);
       }
       entries_.WriteTo(output, _repeated_entries_codec);
+      if (MerchantEntityId != 0UL) {
+        output.WriteRawTag(24);
+        output.WriteUInt64(MerchantEntityId);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -184,6 +208,10 @@ namespace Bnet {
         output.WriteInt32(Settlement);
       }
       entries_.WriteTo(ref output, _repeated_entries_codec);
+      if (MerchantEntityId != 0UL) {
+        output.WriteRawTag(24);
+        output.WriteUInt64(MerchantEntityId);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -198,6 +226,9 @@ namespace Bnet {
         size += 1 + pb::CodedOutputStream.ComputeInt32Size(Settlement);
       }
       size += entries_.CalculateSize(_repeated_entries_codec);
+      if (MerchantEntityId != 0UL) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(MerchantEntityId);
+      }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -214,6 +245,9 @@ namespace Bnet {
         Settlement = other.Settlement;
       }
       entries_.Add(other.entries_);
+      if (other.MerchantEntityId != 0UL) {
+        MerchantEntityId = other.MerchantEntityId;
+      }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -241,6 +275,10 @@ namespace Bnet {
             entries_.AddEntriesFrom(input, _repeated_entries_codec);
             break;
           }
+          case 24: {
+            MerchantEntityId = input.ReadUInt64();
+            break;
+          }
         }
       }
     #endif
@@ -266,6 +304,10 @@ namespace Bnet {
           }
           case 18: {
             entries_.AddEntriesFrom(ref input, _repeated_entries_codec);
+            break;
+          }
+          case 24: {
+            MerchantEntityId = input.ReadUInt64();
             break;
           }
         }

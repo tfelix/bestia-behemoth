@@ -14,6 +14,10 @@ message ShopOfferSMSG {
   // Dense settlement index, so a client can tell one town's window from another's.
   int32 settlement = 1;
   repeated ShopEntry entries = 2;
+
+  // Whose counter this is. Carried rather than remembered by the client, because the window is not always
+  // something the client asked for - asking a merchant for their wares in conversation pushes one.
+  uint64 merchant_entity_id = 3;
 }
 
 message ShopEntry {
