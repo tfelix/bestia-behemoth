@@ -884,7 +884,7 @@ class ResourceStage(
      * The one place the density model is allowed to be overruled - see `sized`. About seven thousand ore
      * voxels, which is a mining site rather than an afternoon.
      */
-    private const val MIN_DEPOSIT_TONS = 8.0
+    const val MIN_DEPOSIT_TONS = 8.0
 
     /** Floor under a site's share of its ore's world total, so no deposit is drawn as empty. */
     private const val MIN_SHARE = 0.35

@@ -64,6 +64,11 @@ object OreBody {
   }
 
   /** Tons of ore in a body of this size and concentration, given the yield of an average ore voxel. */
+  /** Ore voxels holding [tons] of metal at [meanYieldKg] a voxel - the inverse of what a body reports. */
+  fun voxelsInTons(tons: Double, meanYieldKg: Double): Double {
+    return tons * KG_PER_TON / meanYieldKg
+  }
+
   fun tonsOf(radius: Double, richness: Double, voxelSize: Double, meanYieldKg: Double): Double =
     expectedVoxels(radius, richness, voxelSize) * meanYieldKg / KG_PER_TON
 
