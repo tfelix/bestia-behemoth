@@ -359,6 +359,11 @@ namespace BestiaBehemothClient.Bnet.Message
           var msg = Trade.TradeStateSMSG.FromProto(envelope.TradeState);
           EmitSignal(SignalName.MessageReceived, msg);
         }
+        else if (envelope.ShopOffer != null)
+        {
+          var msg = Shop.ShopOfferSMSG.FromProto(envelope.ShopOffer);
+          EmitSignal(SignalName.MessageReceived, msg);
+        }
         else
         {
           GD.PrintErr($"BnetSocket: Envelope message '{envelope.MessageCase}' was not handled! Please add handling and type conversion.");

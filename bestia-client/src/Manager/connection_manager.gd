@@ -27,6 +27,9 @@ signal trade_request_received(message: TradeRequestSMSG)
 ## Emitted on every change to an open trade. A full snapshot each time - it opens the window, updates it and
 ## closes it, so the trade window never has to reconstruct state from a sequence.
 signal trade_state_received(message: TradeStateSMSG)
+## Emitted whenever a merchant's counter is (re)drawn. A full snapshot each time - it opens the window and
+## updates it, and it arrives again after every trade so the price shown is the price that was just moved.
+signal shop_offer_received(message: ShopOfferSMSG)
 ## Emitted whenever the server re-syncs the pending logout countdown (seconds until despawn).
 signal logout_countdown_received(remaining_seconds: float)
 ## Emitted when the server aborts a pending logout (player moved / used a skill / took damage).
@@ -87,6 +90,8 @@ var RetractTradeItemCMSG = load("res://Bnet/Message/Trade/RetractTradeItemCMSG.c
 var SetTradeLockCMSG = load("res://Bnet/Message/Trade/SetTradeLockCMSG.cs")
 var ConfirmTradeCMSG = load("res://Bnet/Message/Trade/ConfirmTradeCMSG.cs")
 var CancelTradeCMSG = load("res://Bnet/Message/Trade/CancelTradeCMSG.cs")
+var OpenShopCMSG = load("res://Bnet/Message/Shop/OpenShopCMSG.cs")
+var ShopTradeCMSG = load("res://Bnet/Message/Shop/ShopTradeCMSG.cs")
 var Ping = load("res://Bnet/Message/Ping.cs")
 var ChunkStreamManagerScript = load("res://Game/World/ChunkStreamManager.cs")
 var WeatherStateScript = load("res://Game/World/WeatherState.cs")
@@ -521,6 +526,32 @@ func retract_trade_item(trade_id: int, offer_slot_id: int) -> void:
 	_socket.SendMessage(msg)
 
 
+## Asks [param merchant_entity_id] what they have. Answered by a ShopOfferSMSG, or by an OperationError when
+## there is no settlement underfoot, the merchant keeps no shop, or they are too far off to speak to.
+##
+## The merchant chooses whose counter, never whose prices: those are the town we are standing in.
+func open_shop(merchant_entity_id: int) -> void:
+	assert(is_ready_to_send())
+	var msg = OpenShopCMSG.new()
+	msg.MerchantEntityId = merchant_entity_id
+	_socket.SendMessage(msg)
+
+
+## Buys or sells [param amount] of one item. Nothing is applied locally - the answering ShopOfferSMSG
+## redraws the counter, which is also how a refusal corrects itself.
+##
+## No price is sent. What was shown is a snapshot; the server quotes against the live one, so a stale
+## window pays today's price rather than the one on it.
+func shop_trade(merchant_entity_id: int, item_id: int, amount: int, selling: bool) -> void:
+	assert(is_ready_to_send())
+	var msg = ShopTradeCMSG.new()
+	msg.MerchantEntityId = merchant_entity_id
+	msg.ItemId = item_id
+	msg.Amount = amount
+	msg.Selling = selling
+	_socket.SendMessage(msg)
+
+
 ## Locks or unlocks our side. Any change to either offer clears both locks again.
 func set_trade_lock(trade_id: int, locked: bool) -> void:
 	assert(is_ready_to_send())
@@ -661,6 +692,8 @@ func _on_bnet_socket_message_received(message: Object) -> void:
 		trade_request_received.emit(message)
 	elif message is TradeStateSMSG:
 		trade_state_received.emit(message)
+	elif message is ShopOfferSMSG:
+		shop_offer_received.emit(message)
 	elif message is MapSMSG:
 		# Terrain traffic. ChunkStreamManager subscribes to MessageReceived itself, and a signal fans out to
 		# every listener, so these reach this handler too and have to be ignored rather than reported.

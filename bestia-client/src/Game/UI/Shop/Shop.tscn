@@ -1,0 +1,57 @@
+[gd_scene load_steps=3 format=3 uid="uid://bshopwin00001"]
+
+[ext_resource type="Script" path="res://Game/UI/Shop/shop.gd" id="1_shop"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bg"]
+bg_color = Color(0.11, 0.11, 0.13, 1)
+
+[node name="Shop" type="PanelContainer"]
+custom_minimum_size = Vector2(420, 300)
+offset_right = 420.0
+offset_bottom = 320.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_bg")
+script = ExtResource("1_shop")
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="Body" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Controls" type="HBoxContainer" parent="Margin/Body"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="AmountLabel" type="Label" parent="Margin/Body/Controls"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Amount"
+
+[node name="Amount" type="SpinBox" parent="Margin/Body/Controls"]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = 1.0
+max_value = 500.0
+value = 1.0
+
+[node name="Scroll" type="ScrollContainer" parent="Margin/Body"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Rows" type="VBoxContainer" parent="Margin/Body/Scroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="Empty" type="Label" parent="Margin/Body"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Nothing to spare today."

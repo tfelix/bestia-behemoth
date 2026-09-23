@@ -20,6 +20,7 @@
 [ext_resource type="Script" uid="uid://chthlxaerqb0t" path="res://Game/UI/Map/map_source.gd" id="18_mapsrc"]
 [ext_resource type="PackedScene" uid="uid://btradewin0001" path="res://Game/UI/Trade/Trade.tscn" id="19_trade"]
 [ext_resource type="PackedScene" uid="uid://cdeath0scrn01" path="res://Game/UI/Death/Death.tscn" id="20_death"]
+[ext_resource type="PackedScene" uid="uid://bshopwin00001" path="res://Game/UI/Shop/Shop.tscn" id="23_shop"]
 [ext_resource type="PackedScene" path="res://Game/UI/Weather/Weather.tscn" id="21_weather"]
 [ext_resource type="PackedScene" path="res://Game/UI/Location/Location.tscn" id="22_location"]
 [ext_resource type="Script" uid="uid://t7ftdjhb107i" path="res://Game/UI/Map/map_marks.gd" id="23_mapmarks"]
@@ -107,6 +108,12 @@ visible = false
 layout_mode = 1
 content = ExtResource("19_trade")
 window_title = "Trade"
+
+[node name="ShopWin" parent="." unique_id=1772041883 instance=ExtResource("8_wdgtw")]
+visible = false
+layout_mode = 1
+content = ExtResource("23_shop")
+window_title = "Shop"
 
 [node name="ObtainedItems" parent="." unique_id=1390602606 instance=ExtResource("26_obtained")]
 layout_mode = 1

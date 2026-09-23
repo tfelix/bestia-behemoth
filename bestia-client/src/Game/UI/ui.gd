@@ -10,6 +10,7 @@ const _BASIC_SKILL_PRIMER := "BASIC_SKILL_PRIMER"
 @onready var _status_win: WidgetWindow = $StatusWin
 @onready var _crafting_win: WidgetWindow = $CraftingWin
 @onready var _trade_win: WidgetWindow = $TradeWin
+@onready var _shop_win: WidgetWindow = $ShopWin
 @onready var _ground_drop_zone: GroundDropZone = $GroundDropZone
 @onready var _shortcuts: Shortcuts = $Shortcuts
 @onready var _map_source: MapSource = $MapSource
@@ -94,6 +95,13 @@ func _ready() -> void:
 	trade.inventory = inventory
 	trade.trade_opened.connect(_on_trade_opened)
 	trade.trade_closed.connect(_on_trade_closed)
+
+	# And the shop, for the same reason again: asking a merchant for their wares is what opens it. It needs
+	# the inventory to know whether the player is holding anything a merchant would take.
+	var shop := _shop_win.get_content() as Shop
+	shop.inventory = inventory
+	shop.shop_opened.connect(_on_shop_opened)
+	shop.shop_closed.connect(_on_shop_closed)
 
 	# The map lives beside the game rather than inside it: both views draw from one MapSource, so panning
 	# the overlay warms the minimap. EntityManager is a sibling of this node under Game and is what the
@@ -372,6 +380,18 @@ func _on_trade_opened() -> void:
 
 func _on_trade_closed() -> void:
 	_trade_win.visible = false
+
+
+## Opened by the server like the trade window, and the inventory comes up with it for the same reason: half
+## of a shop is selling, and a player who cannot see what they are carrying can only buy.
+func _on_shop_opened() -> void:
+	_shop_win.visible = true
+	_inventory_win.visible = true
+	_skills.visible = false
+
+
+func _on_shop_closed() -> void:
+	_shop_win.visible = false
 
 
 func _on_master_profile_status_win_toggled() -> void:

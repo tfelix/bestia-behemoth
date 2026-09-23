@@ -67,3 +67,11 @@ TRACK_AGE_FRESH,The trail is fresh.
 TRACK_AGE_RECENT,The trail is going cold.
 TRACK_AGE_COLD,The trail is cold.
 ERROR_CRAFT_WORLD_OUT_OF_GOLD,There is no gold left in the world to mint. Somebody has to dig some up.
+ERROR_SHOP_NONE_HERE,There is nobody here keeping a shop.
+ERROR_SHOP_NOT_STOCKED,They do not deal in that.
+ERROR_SHOP_OUT_OF_STOCK,"They have none left to sell, or no room to take more."
+ERROR_SHOP_CANNOT_AFFORD,You cannot pay for that.
+ERROR_SHOP_TREASURY_EMPTY,The town has run out of coin. Try somewhere richer.
+ERROR_SHOP_TREASURY_FULL,The town has more coin than it knows what to do with.
+SHOP_BUY_TOOLTIP,Each one costs a little more than the last.
+SHOP_SELL_TOOLTIP,Each one fetches a little less than the last.
