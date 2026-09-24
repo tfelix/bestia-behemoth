@@ -144,10 +144,12 @@ namespace BestiaBehemothClient.Game.World
     /// </remarks>
     public void SetGroundDisturbance(Texture2D field)
     {
-      Apply(Shipping);
-      Apply(Debug);
+      Apply(Shipping, field);
+      Apply(Debug, field);
 
-      static void Apply(ShaderMaterial material)
+      // `field` is passed in rather than captured: the local function is static, and a static one cannot
+      // reach the enclosing method's parameters.
+      static void Apply(ShaderMaterial material, Texture2D field)
       {
         material?.SetShaderParameter(GroundDisturb, field);
         material?.SetShaderParameter(GroundDisturbExtent, GroundDisturbanceTexture.ExtentMetres);

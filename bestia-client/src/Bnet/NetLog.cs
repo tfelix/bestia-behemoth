@@ -290,11 +290,34 @@ namespace BestiaBehemothClient.Bnet.Message
 
       if (envelope.ChunkGroundOverlay != null)
       {
-        // 256 bytes of bitmask, and protobuf's own ToString escapes every byte of it - so over a kilobyte of
-        // log per send, several times a second per column for the length of a fire.
+        // 128 bytes of bitmask, and protobuf's own ToString escapes every byte of it - so most of a kilobyte
+        // of log per send, several times a second per column for the length of a fire.
         var overlay = envelope.ChunkGroundOverlay;
-        return $"ChunkGroundOverlay({overlay.Pos.X},{overlay.Pos.Y}) " +
-               $"{overlay.Scorched.Length}B scorched, {overlay.Burning.Length}B burning";
+        return $"ChunkGroundOverlay({overlay.Pos.X},{overlay.Pos.Y}) {overlay.Burning.Length}B burning";
+      }
+
+      if (envelope.ChunkGroundLayers != null)
+      {
+        // One mask per layer the column has anything of, so the dump grows with the number of layers rather
+        // than being merely large once.
+        var layers = envelope.ChunkGroundLayers;
+        var cells = 0;
+        foreach (var layer in layers.Layers)
+        {
+          cells += layer.Cells.Length;
+        }
+
+        return $"ChunkGroundLayers({layers.Pos.X},{layers.Pos.Y}) " +
+               $"{layers.Layers.Count} layers, {cells}B";
+      }
+
+      if (envelope.ChunkGroundStamps != null)
+      {
+        // The busiest of the three: footprints land several times a second per column while anything is
+        // walking near the player.
+        var stamps = envelope.ChunkGroundStamps;
+        return $"ChunkGroundStamps({stamps.Pos.X},{stamps.Pos.Y}) " +
+               $"{stamps.Stamps.Length}B {stamps.Encoding}";
       }
 
       if (envelope.ChunkStaticEntities != null)
