@@ -78,9 +78,13 @@ var _error: float = 0.0              # outstanding server correction, in tile st
 var _is_moving: bool = false
 var _faced_seg: int = -1
 
-# Visual facing rotation
-var _visual_rotation_start_basis: Basis = Basis.IDENTITY
-var _visual_rotation_target_basis: Basis = Basis.IDENTITY
+# Visual facing rotation, held as quaternions rather than as bases. The visual carries a scale of its
+# own - a child townsperson is drawn at 0.72 - and interpolating whole bases drags that scale along:
+# Basis.slerp lerps the row lengths towards the target's, which is a bare looking_at and so always 1.
+# A child therefore grew to adult size over its first few tiles of walking, and every frame of that
+# fed Godot a basis that is not a rotation, which it refuses to read a quaternion out of.
+var _visual_rotation_start: Quaternion = Quaternion.IDENTITY
+var _visual_rotation_target: Quaternion = Quaternion.IDENTITY
 var _visual_rotation_start_time: float = 0.0
 var _visual_rotating: bool = false
 # Guards against resetting the walk animation twice, which could cancel a server animation.
@@ -243,14 +247,13 @@ func _face_direction(direction: Vector3) -> void:
 	if flat_direction.length_squared() < 0.0001:
 		return
 
-	var visual = get_node_or_null(_VISUAL_NODE_NAME)
+	var visual = get_node_or_null(_VISUAL_NODE_NAME) as Node3D
 	if visual == null:
 		return
 
 	# use_model_front = true since the model's forward axis is +Z, not Godot's default -Z.
-	var target_basis = Basis.looking_at(flat_direction, Vector3.UP, true)
-	_visual_rotation_start_basis = visual.transform.basis
-	_visual_rotation_target_basis = target_basis
+	_visual_rotation_start = visual.quaternion
+	_visual_rotation_target = Basis.looking_at(flat_direction, Vector3.UP, true).get_rotation_quaternion()
 	_visual_rotation_start_time = Time.get_ticks_msec() / 1000.0
 	_visual_rotating = true
 
@@ -259,7 +262,7 @@ func _update_visual_rotation() -> void:
 	if not _visual_rotating:
 		return
 
-	var visual = get_node_or_null(_VISUAL_NODE_NAME)
+	var visual = get_node_or_null(_VISUAL_NODE_NAME) as Node3D
 	if visual == null:
 		_visual_rotating = false
 		return
@@ -267,11 +270,12 @@ func _update_visual_rotation() -> void:
 	var current_time = Time.get_ticks_msec() / 1000.0
 	var progress = (current_time - _visual_rotation_start_time) / _ROTATION_DURATION
 
+	# Node3D.quaternion writes the rotation and leaves the scale alone, which is the whole point.
 	if progress >= 1.0:
-		visual.transform.basis = _visual_rotation_target_basis
+		visual.quaternion = _visual_rotation_target
 		_visual_rotating = false
 	else:
-		visual.transform.basis = _visual_rotation_start_basis.slerp(_visual_rotation_target_basis, _ease_out_cubic(progress))
+		visual.quaternion = _visual_rotation_start.slerp(_visual_rotation_target, _ease_out_cubic(progress))
 
 
 func show_chat(msg: ChatSMSG) -> void:

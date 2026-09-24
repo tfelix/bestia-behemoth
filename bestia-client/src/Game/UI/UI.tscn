@@ -15,8 +15,8 @@
 [ext_resource type="PackedScene" uid="uid://bgk82i8fwg1a2" path="res://Game/UI/Dialog/MessageDialog.tscn" id="13_dialog"]
 [ext_resource type="PackedScene" path="res://Game/UI/Clock/Clock.tscn" id="14_clock"]
 [ext_resource type="PackedScene" uid="uid://bcrafting0win" path="res://Game/UI/Crafting/Crafting.tscn" id="15_craft"]
-[ext_resource type="PackedScene" uid="uid://0qpytwvenfl2" path="res://Game/UI/Map/Minimap.tscn" id="16_minimap"]
-[ext_resource type="PackedScene" path="res://Game/UI/Map/MapOverlay.tscn" id="17_mapovl"]
+[ext_resource type="PackedScene" path="res://Game/UI/Map/Minimap.tscn" id="16_minimap"]
+[ext_resource type="PackedScene" uid="uid://di17won21kyqc" path="res://Game/UI/Map/MapOverlay.tscn" id="17_mapovl"]
 [ext_resource type="Script" uid="uid://chthlxaerqb0t" path="res://Game/UI/Map/map_source.gd" id="18_mapsrc"]
 [ext_resource type="PackedScene" uid="uid://btradewin0001" path="res://Game/UI/Trade/Trade.tscn" id="19_trade"]
 [ext_resource type="PackedScene" uid="uid://cdeath0scrn01" path="res://Game/UI/Death/Death.tscn" id="20_death"]
@@ -38,7 +38,20 @@ grow_vertical = 2
 mouse_filter = 1
 script = ExtResource("1_ob0eg")
 
+[node name="Minimap" parent="." unique_id=1254805221 instance=ExtResource("16_minimap")]
+visible = false
+layout_mode = 1
+
+[node name="Location" parent="." unique_id=1390602605 instance=ExtResource("22_location")]
+layout_mode = 1
+
+[node name="Clock" parent="." unique_id=1359698401 instance=ExtResource("14_clock")]
+layout_mode = 1
+
 [node name="GroundDropZone" parent="." unique_id=1787018619 instance=ExtResource("7_gdz01")]
+layout_mode = 1
+
+[node name="Weather" parent="." unique_id=2140555537 instance=ExtResource("21_weather")]
 layout_mode = 1
 
 [node name="InventoryWin" parent="." unique_id=1285057893 instance=ExtResource("8_wdgtw")]
@@ -95,15 +108,6 @@ layout_mode = 1
 content = ExtResource("19_trade")
 window_title = "Trade"
 
-[node name="Clock" parent="." unique_id=1359698401 instance=ExtResource("14_clock")]
-layout_mode = 1
-
-[node name="Weather" parent="." unique_id=2140555537 instance=ExtResource("21_weather")]
-layout_mode = 1
-
-[node name="Location" parent="." unique_id=1390602605 instance=ExtResource("22_location")]
-layout_mode = 1
-
 [node name="ObtainedItems" parent="." unique_id=1390602606 instance=ExtResource("26_obtained")]
 layout_mode = 1
 
@@ -131,10 +135,6 @@ oversampling_override = 1.0
 
 [node name="MarkDeletePopup" parent="." unique_id=38783233 instance=ExtResource("25_markdelpopup")]
 oversampling_override = 1.0
-
-[node name="Minimap" parent="." unique_id=1254805221 instance=ExtResource("16_minimap")]
-visible = false
-layout_mode = 1
 
 [node name="MapOverlay" parent="." unique_id=28217583 instance=ExtResource("17_mapovl")]
 visible = false
