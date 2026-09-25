@@ -39,14 +39,14 @@ class MagicDamageCalculator(
     return max(0f, defender.defense.magicDefense + defender.statusValues.willpower / 4f)
   }
 
-  /** Reads [DamageVariables.magicDefenseMod]; there is no equipment MDEF to reduce a spell by yet. */
+  /** Worn MDEF, times whatever [DamageVariables.magicDefenseMod] a script or effect has set. */
   override fun getHardDefenseModifier(battleCtx: EntityBattleContext): Float =
-    magicDefenseModifier(battleCtx)
+    magicDefenseModifier(battleCtx) * hardDefenseFactor(battleCtx.defender.defense.hardMagicDefense)
 
   override fun getAttackModifier(battleCtx: EntityBattleContext): Float =
     max(0f, battleCtx.damageVariables.attackMagicMod)
 
-  /** A spell's power is its own; a staff held while casting adds nothing until equipment exists. */
+  /** A spell's power is its own, plus whatever the staff in hand contributes. */
   override fun calculateWeaponAtk(battleCtx: EntityBattleContext): Float =
     battleCtx.weapon.matk.toFloat()
 }

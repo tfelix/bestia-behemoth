@@ -7,8 +7,10 @@ package net.bestia.zone.battle.status
  * without any stored/synced component of its own.
  *
  * Formulas follow the game docs (https://docs.bestia-game.net/docs/mechanics/statusvalues/),
- * simplified to the parts expressible today: no equipment/skill modifiers, so the docs' additive
- * `Mod`/multiplicative `ModPerc` terms are omitted (`ModSum = 0`, `ModPerc = 1`).
+ * simplified to the parts expressible today: the docs' additive `Mod`/multiplicative `ModPerc` terms are
+ * omitted here (`ModSum = 0`, `ModPerc = 1`). That is not the same as saying equipment does nothing - gear
+ * reaches the damage formula through [net.bestia.zone.ecs.battle.status.CombatBonus] and through the
+ * primary attributes these are derived from, just not as a modifier on the derived value itself.
  */
 data class DerivedStatusValues(
   val atk: Int,

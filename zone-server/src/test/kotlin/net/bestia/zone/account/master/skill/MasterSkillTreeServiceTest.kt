@@ -11,6 +11,7 @@ import net.bestia.zone.account.master.MasterRepository
 import net.bestia.zone.account.master.MasterResolver
 import net.bestia.zone.battle.skill.SkillTargetType
 import net.bestia.zone.ecs.account.Account as EcsAccount
+import net.bestia.zone.ecs.battle.skill.KnownSkills
 import net.bestia.zone.ecs.battle.status.SkillPoints
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld
@@ -23,8 +24,10 @@ import net.bestia.zone.skill.SkillSubTreeNotUnlockedException
 import net.bestia.zone.util.EntityId
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import org.springframework.context.ApplicationEventPublisher
 import java.awt.Color
 import java.util.Optional
 
@@ -42,6 +45,21 @@ class MasterSkillTreeServiceTest {
   private val learnedSkills = mutableListOf<LearnedSkill>()
   private val learnedSkillRepository = mockk<LearnedSkillRepository>()
   private val masterSkillTreeRegistry = MasterSkillTreeRegistry()
+  private val publishedEvents = mutableListOf<Any>()
+
+  /**
+   * Records what the entity already knew at the moment each event went out, which is the only way to tell
+   * this event apart from one published a moment too early - see the ordering test below.
+   */
+  private val carpentryWhenPublished = mutableListOf<Int>()
+  private val events = ApplicationEventPublisher { event ->
+    publishedEvents.add(event)
+    if (event is MasterSkillsChangedEvent) {
+      carpentryWhenPublished.add(
+        world.read { get(event.entityId, KnownSkills::class)?.levelOf(CARPENTRY_ID) ?: 0 }
+      )
+    }
+  }
 
   private val service = MasterSkillTreeService(
     masterRepository = masterRepository,
@@ -49,7 +67,8 @@ class MasterSkillTreeServiceTest {
     masterSkillTreeRegistry = masterSkillTreeRegistry,
     learnedSkillRepository = learnedSkillRepository,
     world = world,
-    masterResolver = masterResolver
+    masterResolver = masterResolver,
+    events = events
   )
 
   private val skills = listOf(
@@ -103,6 +122,7 @@ class MasterSkillTreeServiceTest {
 
     val entityId = world.createEntity { id ->
       add(id, SkillPoints(skillPoints))
+      add(id, KnownSkills(mutableMapOf()))
       add(id, EcsAccount(accountId = 1L))
     }
 
@@ -117,6 +137,39 @@ class MasterSkillTreeServiceTest {
     service.investSkillPoints(masterId, listOf(SkillPointInvestment(skillId, amount)))
 
   private fun learnedLevelOf(skillId: Long): Int? = learnedSkills.find { it.skill.id == skillId }?.level
+
+  /**
+   * The event exists so that gear which is only a novice's can be taken back off, and a listener answers that
+   * by asking the entity what it now knows. Published from the wrong place - beside the ECS sync rather than
+   * at the end of it - the listener would be handed the skills from *before* the investment and would
+   * conclude that nothing had changed. So what is asserted here is not that an event went out, but that the
+   * world had already moved when it did.
+   */
+  @Test
+  fun `the skills-changed event goes out only once the entity knows the new skill`() {
+    val (master, _) = givenMaster()
+    invest(master.id, BASIC_SKILL_ID, amount = 5)
+    publishedEvents.clear()
+    carpentryWhenPublished.clear()
+
+    invest(master.id, CARPENTRY_ID)
+
+    assertEquals(1, publishedEvents.filterIsInstance<MasterSkillsChangedEvent>().size)
+    assertEquals(listOf(1), carpentryWhenPublished, "KnownSkills must already carry the investment")
+  }
+
+  /** Nothing was learned, so there is nothing for a listener to re-examine. */
+  @Test
+  fun `a refused investment publishes nothing`() {
+    val (master, _) = givenMaster()
+    publishedEvents.clear()
+
+    assertThrows<BasicSkillTooLowForTreeException> {
+      invest(master.id, CARPENTRY_ID)
+    }
+
+    assertTrue(publishedEvents.filterIsInstance<MasterSkillsChangedEvent>().isEmpty())
+  }
 
   @Test
   fun `a master with no Basic Skill at all cannot invest outside the Novice tree`() {

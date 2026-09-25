@@ -8,8 +8,8 @@ import net.bestia.zone.message.EntitySMSG
 import net.bestia.zone.util.EntityId
 
 /**
- * An entity's current, effective status values - [BaseStatusValues] with every active status
- * effect (and later, equipment) applied. Written only by
+ * An entity's current, effective status values - [BaseStatusValues] with every learned passive, worn item
+ * and active status effect applied. Written only by
  * `net.bestia.zone.ecs.battle.effects.StatusValueRecalcSystem`; everything else (regen systems,
  * [net.bestia.zone.battle.BattleContextFactory]) only ever reads it.
  */

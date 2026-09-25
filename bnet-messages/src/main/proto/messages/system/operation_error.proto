@@ -155,6 +155,11 @@ enum OpError {
   // CRAFT_NOT_POSSIBLE because the two ask for opposite things: one says learn more, this one says the
   // world is short and somebody has to go and dig.
   CRAFT_WORLD_OUT_OF_GOLD = 49;
+
+  // Novice-only gear on a master who has invested a skill point outside the Novice tree. Sent both when one
+  // is refused and when one the wearer already had is taken back off, which is why the wording has to read
+  // for both - see `EquipmentRevalidationService`.
+  EQUIP_NOVICE_ONLY = 50;
 }
 
 message OperationError {

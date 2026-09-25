@@ -78,17 +78,15 @@ class BestiaEntitySpawner(
       add(id, Health(bestia.health, bestia.health))
       add(id, Stamina(current = 10, max = 10))
       add(id, Speed())
-      // Placeholder primary attributes (no per-species table yet) so a mob can be projected into a
-      // BattleEntity - BattleContextFactory returns null without StatusValues. Deliberately no
-      // FormulaDrivenVitals marker, which is what keeps the authored Bestia.health above from being
-      // overwritten by the player pool formula on the next StatusValueRecalcSystem pass.
+      // Deliberately no FormulaDrivenVitals marker, which is what keeps the authored Bestia.health above
+      // from being overwritten by the player pool formula on the next StatusValueRecalcSystem pass.
       val baseStatusValues = BaseStatusValues(
-        strength = 10,
-        intelligence = 10,
-        vitality = 10,
-        dexterity = 10,
-        willpower = 10,
-        agility = 10
+        strength = bestia.strength,
+        intelligence = bestia.intelligence,
+        vitality = bestia.vitality,
+        dexterity = bestia.dexterity,
+        willpower = bestia.willpower,
+        agility = bestia.agility
       )
       add(id, baseStatusValues)
       add(

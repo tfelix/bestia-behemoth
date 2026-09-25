@@ -47,7 +47,8 @@ class RangedPhysicalDamageCalculator(
     return max(0f, defender.defense.defense + surcharge)
   }
 
-  override fun getHardDefenseModifier(battleCtx: EntityBattleContext): Float = physicalDefenseModifier(battleCtx)
+  override fun getHardDefenseModifier(battleCtx: EntityBattleContext): Float =
+    physicalDefenseModifier(battleCtx) * hardDefenseFactor(battleCtx.defender.defense.hardDefense)
 
   override fun getAttackModifier(battleCtx: EntityBattleContext): Float {
     val vars = battleCtx.damageVariables

@@ -21,6 +21,7 @@ import net.bestia.zone.ecs.battle.status.IsStatusValueDirty
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.battle.status.SkillPoints
 import net.bestia.zone.util.EntityId
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.transaction.support.TransactionSynchronization
@@ -38,7 +39,8 @@ class MasterSkillTreeService(
   private val masterSkillTreeRegistry: MasterSkillTreeRegistry,
   private val learnedSkillRepository: LearnedSkillRepository,
   private val world: WorldView,
-  private val masterResolver: MasterResolver
+  private val masterResolver: MasterResolver,
+  private val events: ApplicationEventPublisher
 ) {
 
   /** Resolved by identifier, because the id in `skills.yml` is content and this is code. */
@@ -90,7 +92,7 @@ class MasterSkillTreeService(
 
     // Only touch the (non-transactional) ECS world once the DB spend is durably committed, so a
     // rollback can never leave the in-memory component ahead of the persisted balance.
-    afterCommit { syncToEcs(entityId, updatedSkills.values, spentSkillPoints) }
+    afterCommit { syncToEcs(master.id, entityId, updatedSkills.values, spentSkillPoints) }
 
     return updatedSkills.values.toList()
   }
@@ -121,7 +123,7 @@ class MasterSkillTreeService(
     // Read per level rather than hoisted out of the batch, so one request can take Basic Skill to 5
     // and then spend into another tree - the same way an earlier entry can already satisfy a later
     // entry's prerequisite.
-    if (node.tree != NOVICE_TREE) {
+    if (node.tree != MasterSkillTreeRegistry.NOVICE_TREE) {
       val basicSkillLevel = levelOf(master.id, basicSkillId)
       if (basicSkillLevel < TREE_UNLOCK_BASIC_SKILL_LEVEL) {
         throw BasicSkillTooLowForTreeException(
@@ -200,7 +202,12 @@ class MasterSkillTreeService(
     masterSkillTreeRegistry.all().any { it.tree == tree && it.subTree == null }
 
   /** The single place [investSkillPoints] mutates the ECS world, once per batch. */
-  private fun syncToEcs(entityId: EntityId, updatedSkills: Collection<LearnedSkill>, spentSkillPoints: Int) {
+  private fun syncToEcs(
+    masterId: Long,
+    entityId: EntityId,
+    updatedSkills: Collection<LearnedSkill>,
+    spentSkillPoints: Int
+  ) {
     if (updatedSkills.isEmpty()) return
 
     world.modify(entityId) { id ->
@@ -216,10 +223,14 @@ class MasterSkillTreeService(
       // happens to dirty the entity - equipping an item, taking a buff, levelling up.
       add(id, IsStatusValueDirty)
     }
+
+    // Announced from here, at the end, rather than from investSkillPoints' own after-commit hook: this is
+    // where KnownSkills actually moves, and a listener that asked the entity what it knows from a sibling
+    // callback could just as easily be answered with the skills from before the investment.
+    events.publishEvent(MasterSkillsChangedEvent(this, masterId, entityId))
   }
 
   companion object {
-    private const val NOVICE_TREE = "NOVICE"
 
     /**
      * How far Basic Skill must be taken before any tree but Novice opens. Deliberately its own

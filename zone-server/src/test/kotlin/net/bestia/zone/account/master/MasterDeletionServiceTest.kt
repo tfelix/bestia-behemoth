@@ -99,8 +99,9 @@ class MasterDeletionServiceTest {
 
   @Test
   fun `deletes the unique items the master was carrying`() {
-    // Measured before the master exists, so the baseline includes neither the shoes nor the starter map chart
-    // every new master is created holding - both of which the delete has to take with it.
+    // Measured before the master exists, so the baseline includes none of what a new master is created
+    // holding - the starter map chart and the three pieces of novice kit - all of which the delete has to
+    // take with it.
     val instancesBefore = itemInstanceRepository.count()
     val master = createThrowawayMaster()
 
@@ -108,7 +109,11 @@ class MasterDeletionServiceTest {
     // growing a stack. That is the case the delete order has to get right: the container slot pointing at
     // the instance must be gone before the instance itself can be removed.
     inventoryService.addItem(master, "shoes", 1)
-    assertEquals(instancesBefore + 2, itemInstanceRepository.count(), "the chart and the shoes")
+    assertEquals(
+      instancesBefore + CREATION_INSTANCES + 1,
+      itemInstanceRepository.count(),
+      "what a new master is created holding, plus the shoes"
+    )
 
     masterDeletionService.delete(ACCOUNT_ID, master.id, master.name)
 
@@ -185,6 +190,14 @@ class MasterDeletionServiceTest {
   private companion object {
     /** Account 3 of the fixture: it starts with a single master, so there are free slots to create into. */
     const val ACCOUNT_ID = 3L
+
+    /**
+     * How many `ItemInstance` rows `MasterFactory.create` mints: the starter map chart, plus the three pieces
+     * of novice kit. Named rather than inlined because this test is about the *delete* order, and a change to
+     * what a master starts with should read as a new number here rather than as a broken cascade.
+     */
+    const val CREATION_INSTANCES = 4
+
     val NEXT_NAME = AtomicInteger(1)
   }
 }

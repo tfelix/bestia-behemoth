@@ -37,6 +37,8 @@ class ItemImporterBootRunner(
     val level: Int = 1,
     @JsonProperty("max-durability")
     val maxDurability: Int = 0,
+    @JsonProperty("novice-only")
+    val noviceOnly: Boolean = false,
     val description: String? = null,
 
     /**
@@ -86,6 +88,7 @@ class ItemImporterBootRunner(
       || entity.equipSlot != equipSlot
       || entity.level != dto.level
       || entity.maxDurability != dto.maxDurability
+      || entity.noviceOnly != dto.noviceOnly
       || entity.description != dto.description
       || entity.stackable != stackableOf(dto, type)
 
@@ -99,6 +102,7 @@ class ItemImporterBootRunner(
     entity.equipSlot = equipSlot
     entity.level = dto.level
     entity.maxDurability = dto.maxDurability
+    entity.noviceOnly = dto.noviceOnly
     entity.description = dto.description
     // Follows the type unless the yml overrides it - an item changed from EQUIP to ETC that kept
     // `stackable = false` would silently stop merging in the inventory.
@@ -130,6 +134,7 @@ class ItemImporterBootRunner(
       equipSlot = getEquipSlot(dto),
       level = dto.level,
       maxDurability = dto.maxDurability,
+      noviceOnly = dto.noviceOnly,
       description = dto.description,
       stackable = stackableOf(dto, getType(dto))
     )

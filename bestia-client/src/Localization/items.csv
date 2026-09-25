@@ -218,3 +218,15 @@ BOOK,Book
 BOOK_DESC,"A leather-bound volume with brass corners and a clasp.
 
 Somebody's collected notes, bound well enough to outlive them."
+NOVICE_KNIFE,Novice Knife
+NOVICE_KNIFE_DESC,"A short blade with a wrapped handle, more tool than weapon.
+
+Someone kept it sharp for years before it was handed on."
+NOVICE_SHIRT,Novice Shirt
+NOVICE_SHIRT_DESC,"A plain quilted shirt, mended at one shoulder.
+
+It will turn a blow that was never going to land well anyway."
+NOVICE_BOOTS,Novice Boots
+NOVICE_BOOTS_DESC,"Soft leather boots, worn pale at the toes.
+
+They have walked further than you have."

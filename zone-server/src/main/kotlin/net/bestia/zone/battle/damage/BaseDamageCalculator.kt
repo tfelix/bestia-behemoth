@@ -24,10 +24,10 @@ import kotlin.math.max
  * follows - `DefenseValues`, `DerivedStatusValues` and [ElementModifier] are all shaped after it. Three of its
  * rules matter more than the arithmetic:
  *
- * - **Defence comes in two kinds.** Equipment DEF is a *percentage* reduction ([getHardDefenseModifier]);
- *   attribute DEF is a *flat* subtraction applied last ([getSoftDefense]). Only the flat one exists here so
- *   far, because no equipment system does - so `hardDefMod` currently carries nothing but the
- *   [DamageVariables.physicalDefenseMod] a script or a status effect may have set.
+ * - **Defence comes in two kinds.** Equipment DEF is a *percentage* reduction ([getHardDefenseModifier],
+ *   via [hardDefenseFactor]); attribute DEF is a *flat* subtraction applied last ([getSoftDefense]). The
+ *   percentage one also carries whatever [DamageVariables.physicalDefenseMod] a script or a status effect
+ *   has set, so the two multiply.
  * - **A critical hit ignores defence entirely**, both kinds, on top of its damage bonus. That is what makes a
  *   crit worth building for against an armoured target rather than just 40% more of a small number.
  * - **A connected hit always costs at least [MIN_DAMAGE].** Whether it connected at all is not decided here -
@@ -35,9 +35,8 @@ import kotlin.math.max
  *
  * ### What is missing, and why it is missing rather than approximated
  *
- * - **Weapon and ammunition attack** are read but always zero: nothing equips anything yet
- *   (`BattleContextFactory.equippedWeapon`). The terms are wired so a weapon starts mattering the day one can
- *   be held, rather than needing this formula reopened.
+ * - **Ammunition attack** is read but always zero: nothing is shot yet. The term is wired so ammunition
+ *   starts mattering the day a quiver exists, rather than needing this formula reopened.
  * - **The size modifier.** `SizeModifier` exists and is exactly RO's table, but neither `Weapon` nor
  *   `BattleEntity` carries a [net.bestia.zone.battle.Size], so there is nothing to look up. Left out rather
  *   than defaulted to a guess.
@@ -133,11 +132,13 @@ abstract class BaseDamageCalculator(
   private fun varMod(variance: Float = ATTACK_VARIANCE): Float = 1 - random.nextFloat() * variance
 
   /**
-   * Attack from the weapon itself, refinement included. Zero until something can be equipped.
+   * Attack from the weapon itself, refinement included. Zero for anything holding nothing.
+   *
+   * **This is the only place refinement is priced.** An equipment script contributes its un-refined attack
+   * through `StatusValueRecalcContext.addAttack`, so the curve lives here rather than once per weapon.
    *
    * Refinement is linear rather than the quadratic over-refine curve RO uses: without weapon levels there is
-   * nothing to scale the per-refine step by, and inventing a curve for a term that is always zero today would
-   * be a balance decision made blind.
+   * nothing to scale the per-refine step by, and inventing a curve would be a balance decision made blind.
    */
   protected open fun calculateWeaponAtk(battleCtx: EntityBattleContext): Float {
     val weapon = battleCtx.weapon
@@ -162,12 +163,14 @@ abstract class BaseDamageCalculator(
   protected abstract fun getAttackModifier(battleCtx: EntityBattleContext): Float
 
   /**
-   * Shared by both calculators: there is no equipment DEF to reduce damage by, so the only thing that can move
-   * this is a script or status effect having set [DamageVariables.physicalDefenseMod] away from 1.
+   * The share of the damage a script or status effect lets through, from [DamageVariables.physicalDefenseMod].
    *
    * Above 1 it shields (a mod of 2 halves the damage), below 1 it exposes (a mod of 0.5 doubles it), which is
    * what a defence-piercing effect would set. Bounded at both ends: no stack of shields makes an entity immune,
    * and no amount of piercing turns a swing into a one-shot.
+   *
+   * Multiplied by [hardDefenseFactor] in each calculator rather than folded in here, because the two answer
+   * different questions - this one is temporary and that one is worn.
    */
   protected fun physicalDefenseModifier(battleCtx: EntityBattleContext): Float =
     defenseModifier(battleCtx.damageVariables.physicalDefenseMod)
@@ -175,6 +178,17 @@ abstract class BaseDamageCalculator(
   /** The magic counterpart of [physicalDefenseModifier], off [DamageVariables.magicDefenseMod]. */
   protected fun magicDefenseModifier(battleCtx: EntityBattleContext): Float =
     defenseModifier(battleCtx.damageVariables.magicDefenseMod)
+
+  /**
+   * The share of the damage worn armour lets through: RO pre-renewal's `(100 - DEF) / 100`, so a DEF of 3
+   * removes 3%.
+   *
+   * Shares [MIN_HARD_DEFENSE_MULTIPLIER] and [MAX_HARD_DEFENSE_MULTIPLIER] with [defenseModifier] and for the
+   * same reasons - no amount of armour makes an entity immune, and cursed gear (a negative DEF, which nothing
+   * grants yet) exposes its wearer rather than being quietly ignored.
+   */
+  protected fun hardDefenseFactor(hardDefense: Int): Float =
+    ((100 - hardDefense) / 100f).clamp(MIN_HARD_DEFENSE_MULTIPLIER, MAX_HARD_DEFENSE_MULTIPLIER)
 
   private fun defenseModifier(mod: Float): Float {
     if (mod <= 0f) {

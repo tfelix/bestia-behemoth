@@ -79,6 +79,16 @@ class Item(
   var maxDurability: Int = 0,
 
   /**
+   * True for gear only a novice may wear - one that has invested no skill point outside the Novice tree.
+   *
+   * Checked on the way on by [net.bestia.zone.item.equip.EquipmentService.checkStillWearable] and taken back
+   * off by `EquipmentRevalidationService` once the wearer stops qualifying, which is what makes the starter
+   * kit something to outgrow rather than a permanent floor under every build.
+   */
+  @Column(name = "novice_only", nullable = false)
+  var noviceOnly: Boolean = false,
+
+  /**
    * Long-form flavor text, English only.
    */
   @Column(columnDefinition = "TEXT", nullable = true)
@@ -121,6 +131,12 @@ class Item(
       require(equipSlot == null) {
         "Item $identifier is $type and must not declare an equipSlot"
       }
+    }
+
+    // The rule is about what may be *worn*, so there is nothing for it to mean on a consumable or a
+    // material - and a flag that silently does nothing is worse than a boot that says so.
+    require(!noviceOnly || type == ItemType.EQUIP) {
+      "Item $identifier is $type and must not declare novice-only"
     }
   }
 

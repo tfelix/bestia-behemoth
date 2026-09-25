@@ -6,6 +6,18 @@ ai: passive_wanderer
 health: 10
 mana: 8
 experience: 5
+# The weakest thing in the world, and the first one a fresh master meets. Strength is most of a creature's
+# ATK, so it is the number that decides whether a blob is a lesson or an ambush; willpower is low because it
+# feeds ATK as well (`WIL/3`). It does *not* buy freedom from criticals - `PhysicalAttackStrategy` floors the
+# crit chance at 1% whatever the attributes say, and a critical ignores armour - so about one swing in a
+# hundred still spikes. `BlobBalanceTest` pins how far.
+attributes:
+  strength: 6
+  intelligence: 2
+  vitality: 6
+  dexterity: 5
+  willpower: 3
+  agility: 5
 # Where the wild spawners are allowed to place it. Empty `habitat` means "anywhere on land".
 habitat:
   - GRASSLAND

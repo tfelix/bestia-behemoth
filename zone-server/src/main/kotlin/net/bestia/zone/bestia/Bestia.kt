@@ -20,6 +20,27 @@ class Bestia(
   var experienceReward: Int,
   var health: Int,
   var mana: Int,
+
+  /**
+   * The species' primary attributes - the mob counterpart of a master's six, seeded into
+   * [net.bestia.zone.ecs.battle.status.BaseStatusValues] by `BestiaEntitySpawner` and from there into every
+   * derived combat value (`DerivedStatusValues`, `DefenseValues`).
+   *
+   * [health] and [mana] stay authored beside them rather than being derived from `vitality`/`intelligence`:
+   * a mob carries no `FormulaDrivenVitals` marker, which is what keeps `StatusValueRecalcSystem` from
+   * recomputing its pools. So these six decide how hard a creature hits and how much of a hit it shrugs
+   * off, and nothing else.
+   *
+   * The default of 10 is the flat placeholder every mob shared before this table existed, kept so that a
+   * species which says nothing keeps behaving exactly as it did.
+   */
+  var strength: Int = 10,
+  var intelligence: Int = 10,
+  var vitality: Int = 10,
+  var dexterity: Int = 10,
+  var willpower: Int = 10,
+  var agility: Int = 10,
+
   /**
    * Identifier of the AI archetype (`resources/ai/<name>.yml`) that drives this mob, or null for a
    * mob without AI.

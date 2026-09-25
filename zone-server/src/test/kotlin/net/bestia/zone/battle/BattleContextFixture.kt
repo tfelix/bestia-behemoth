@@ -77,6 +77,8 @@ object BattleContextFixture {
     willpower: Int = 10,
     defense: Int? = null,
     magicDefense: Int? = null,
+    hardDefense: Int = 0,
+    hardMagicDefense: Int = 0,
     element: Element = Element.NORMAL,
     maxHealth: Int = 0,
     activeEffectIds: Set<Long> = emptySet(),
@@ -99,7 +101,9 @@ object BattleContextFixture {
       level = level,
       defense = DefenseValues(
         defense = defense ?: derivedDefense.defense,
-        magicDefense = magicDefense ?: derivedDefense.magicDefense
+        magicDefense = magicDefense ?: derivedDefense.magicDefense,
+        hardDefense = hardDefense,
+        hardMagicDefense = hardMagicDefense
       ),
       statusValues = statusValues,
       derivedStatusValues = DerivedStatusValues.fromStatusValues(level, statusValues),

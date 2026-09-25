@@ -6,10 +6,13 @@ import net.bestia.zone.battle.status.DerivedStatusValues
 import net.bestia.zone.battle.damage.DamageVariables
 import net.bestia.zone.ecs.battle.effects.StatusEffects
 import net.bestia.zone.ecs.battle.level.Level
+import net.bestia.zone.ecs.battle.status.CombatBonus
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.battle.status.StatusValues
 import net.bestia.zone.ecs.core.World
+import net.bestia.zone.ecs.item.Equipment
 import net.bestia.zone.ecs.movement.Position
+import net.bestia.zone.item.equip.EquipmentSlot
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.world.prop.PropPromotionService
@@ -48,7 +51,7 @@ class BattleContextFactory(
       return EntityBattleContext(
         usedAttack = usedAttack,
         attacker = attacker,
-        weapon = equippedWeapon(),
+        weapon = equippedWeapon(world, attackerId),
         damageVariables = DamageVariables(),
         defender = defender
       )
@@ -57,7 +60,7 @@ class BattleContextFactory(
     return GroundBattleContext(
       usedAttack = usedAttack,
       attacker = attacker,
-      weapon = equippedWeapon(),
+      weapon = equippedWeapon(world, attackerId),
       damageVariables = DamageVariables(),
       targetPosition = targetPosition ?: return null
     )
@@ -86,13 +89,20 @@ class BattleContextFactory(
       dexterity = attributes.dexterity
     )
 
+    val combatBonus = world.get(entityId, CombatBonus::class)
+
     return BattleEntity(
       id = entityId,
       position = position,
       level = level,
-      // Soft defense per the docs' SoftDEF/SoftMDEF formulas. Hard (equipment) defense is a
-      // separate term still missing until an armour system lands.
-      defense = DefenseValues.fromStatusValues(level, statusValues),
+      // Soft defense per the docs' SoftDEF/SoftMDEF formulas, plus whatever the entity is wearing. A
+      // null CombatBonus - every mob, every promoted prop - means it wears nothing.
+      defense = DefenseValues.fromStatusValues(
+        lv = level,
+        sv = statusValues,
+        hardDefense = combatBonus?.hardDefense ?: 0,
+        hardMagicDefense = combatBonus?.hardMagicDefense ?: 0
+      ),
       statusValues = statusValues,
       derivedStatusValues = DerivedStatusValues.fromStatusValues(level, statusValues),
       // TODO No element component exists yet; everything is NORMAL until elements are modelled.
@@ -105,6 +115,26 @@ class BattleContextFactory(
     )
   }
 
-  // TODO There is no equipment system yet, so every entity fights bare-handed.
-  private fun equippedWeapon() = Weapon(atk = 0, matk = 0, upgradeLevel = 0)
+  /**
+   * What the attacker is swinging, as the damage formula wants it.
+   *
+   * The attack comes off [CombatBonus] rather than off [Equipment] directly, because by the time it reaches
+   * here it is already resolved: `StatusValueRecalcSystem` has run every worn item's script into one number,
+   * so a two-handed weapon, a shield that bites, or a ring that adds flat attack all arrive the same way and
+   * this does not have to know which slots can carry power.
+   *
+   * The refinement level cannot come from there - it scales the weapon term specifically, not the total - so
+   * it is read off the right hand, which is the only slot the damage formula prices refinement for.
+   * Absent anything, a bare-handed fighter, which is every mob.
+   */
+  private fun equippedWeapon(world: World, entityId: EntityId): Weapon {
+    val bonus = world.get(entityId, CombatBonus::class)
+    val upgradeLevel = world.get(entityId, Equipment::class)?.get(EquipmentSlot.RIGHT_HAND)?.upgradeLevel ?: 0
+
+    return Weapon(
+      atk = bonus?.atk ?: 0,
+      matk = bonus?.matk ?: 0,
+      upgradeLevel = upgradeLevel
+    )
+  }
 }

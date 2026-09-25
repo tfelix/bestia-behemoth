@@ -7,6 +7,7 @@ import net.bestia.zone.battle.status.StatusEffectScriptRegistry
 import net.bestia.zone.battle.status.StatusValueRecalcContext
 import net.bestia.zone.ecs.battle.level.Level
 import net.bestia.zone.ecs.battle.skill.KnownSkills
+import net.bestia.zone.ecs.battle.status.CombatBonus
 import net.bestia.zone.ecs.battle.status.RegenerationModifiers
 import net.bestia.zone.ecs.battle.status.BaseStatusValues
 import net.bestia.zone.ecs.battle.status.FormulaDrivenVitals
@@ -73,7 +74,8 @@ class StatusValueRecalcSystem(
     Health::class,
     Mana::class,
     Stamina::class,
-    RegenerationModifiers::class
+    RegenerationModifiers::class,
+    CombatBonus::class
   )
 
   override fun update(world: World, deltaTime: Float) {
@@ -120,6 +122,9 @@ class StatusValueRecalcSystem(
       // tick on which the component becomes queryable. Invisible against a 6-10s regen cadence,
       // which is why the spawners deliberately do not pre-seed it.
       world.update(id, default = { RegenerationModifiers() }) { it.copyFrom(context) }
+
+      // Same contract as the line above, and for the same reasons - see CombatBonus.
+      world.update(id, default = { CombatBonus() }) { it.copyFrom(context) }
 
       recomputeConditionMaxima(world, id, context)
 

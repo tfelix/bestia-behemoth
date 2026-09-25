@@ -695,3 +695,53 @@ items:
       A leather-bound volume with brass corners and a clasp.
 
       Somebody's collected notes, bound well enough to outlive them.
+
+  # --- Novice starter kit -------------------------------------------------------------------------
+  # What a master is created holding and wearing. `novice-only` is the whole point of the set: it comes off
+  # by itself the moment its wearer invests a skill point outside the Novice tree, so the kit is something
+  # to be outgrown rather than a permanent floor under every build. See `EquipmentService.checkStillWearable`
+  # for the rule and `EquipmentRevalidationService` for what takes it off.
+  #
+  # Level 1 throughout, because a fresh master is level 1 and gear they cannot wear on their first login
+  # would be a cruel joke rather than a tutorial.
+  - id: 65
+    item-db-name: novice_knife
+    level: 1
+    weight: 60
+    type: EQUIP
+    equip-slot: RIGHT_HAND
+    max-durability: 80
+    novice-only: true
+    script: NoviceKnifeScript
+    description: |
+      A short blade with a wrapped handle, more tool than weapon.
+
+      Someone kept it sharp for years before it was handed on.
+
+  - id: 66
+    item-db-name: novice_shirt
+    level: 1
+    weight: 120
+    type: EQUIP
+    equip-slot: ARMOR
+    max-durability: 100
+    novice-only: true
+    script: NoviceShirtScript
+    description: |
+      A plain quilted shirt, mended at one shoulder.
+
+      It will turn a blow that was never going to land well anyway.
+
+  - id: 67
+    item-db-name: novice_boots
+    level: 1
+    weight: 60
+    type: EQUIP
+    equip-slot: FOOTGEAR
+    max-durability: 80
+    novice-only: true
+    script: NoviceBootsScript
+    description: |
+      Soft leather boots, worn pale at the toes.
+
+      They have walked further than you have.

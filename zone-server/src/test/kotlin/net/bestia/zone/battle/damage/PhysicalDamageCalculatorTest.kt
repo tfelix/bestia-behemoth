@@ -30,6 +30,47 @@ class PhysicalDamageCalculatorTest {
     assertEquals(34 - 16, damage)
   }
 
+  /**
+   * The weapon term, which was wired but always zero until equipment could carry attack. Narrower variance
+   * than the attribute term by design - see [BaseDamageCalculator].
+   */
+  @Test
+  fun `a weapon adds its attack on top of the unarmed swing`() {
+    val barehanded = melee.calculateDamage(ctx(), isCritical = false)
+    val armed = melee.calculateDamage(ctx(weaponAtk = 10), isCritical = false)
+
+    assertEquals(34 - 16, barehanded)
+    assertEquals(44 - 16, armed)
+  }
+
+  /** Worn DEF is RO's percentage kind: 25 removes a quarter of the attack before soft defence is subtracted. */
+  @Test
+  fun `worn defence takes a percentage off before soft defence is subtracted`() {
+    val unarmoured = melee.calculateDamage(ctx(weaponAtk = 10), isCritical = false)
+    val armoured = melee.calculateDamage(ctx(weaponAtk = 10, defenderHardDefense = 25), isCritical = false)
+
+    assertEquals(44 - 16, unarmoured)
+    // floor(44 * 0.75) - 16
+    assertEquals(33 - 16, armoured)
+  }
+
+  /** A critical ignores both kinds of defence, which is what makes one worth building for against armour. */
+  @Test
+  fun `a critical ignores worn defence as well as soft defence`() {
+    val armoured = melee.calculateDamage(ctx(weaponAtk = 10, defenderHardDefense = 25), isCritical = true)
+
+    // floor(44 * 1.0 * 1.4), no soft defence subtracted
+    assertEquals(61, armoured)
+  }
+
+  /** Nothing becomes unkillable: the factor bottoms out where the script/effect modifier already did. */
+  @Test
+  fun `absurd worn defence still lets a hit through`() {
+    val damage = melee.calculateDamage(ctx(weaponAtk = 10, defenderHardDefense = 400), isCritical = false)
+
+    assertTrue(damage >= BaseDamageCalculator.MIN_DAMAGE, "a connected hit always costs something")
+  }
+
   @Test
   fun `strength drives a melee swing`() {
     val weak = melee.calculateDamage(ctx(attackerStrength = 10), isCritical = false)
@@ -200,9 +241,11 @@ class PhysicalDamageCalculatorTest {
     attackerStrength: Int = 10,
     attackerDexterity: Int = 10,
     defenderDefense: Int? = null,
+    defenderHardDefense: Int = 0,
     defenderElement: Element = Element.NORMAL,
     attackElement: Element = Element.NORMAL,
     physicalDefenseMod: Float = 1f,
+    weaponAtk: Int = 0,
   ): EntityBattleContext {
     val ctx = BattleContextFixture.entityCtx(
       attack = BattleContextFixture.attack(element = attackElement),
@@ -213,15 +256,16 @@ class PhysicalDamageCalculatorTest {
       ),
       defenderEntity = BattleContextFixture.battleEntity(
         defense = defenderDefense,
+        hardDefense = defenderHardDefense,
         element = defenderElement,
         id = BattleContextFixture.DEFENDER_ID
       )
     ) as EntityBattleContext
 
-    // Bare-handed on purpose: the fixture arms its attacker with a 10-ATK weapon, and there is no equipment
-    // system, so a weapon term here would be testing a number no real fight can produce yet.
+    // Bare-handed unless a case says otherwise, overriding the fixture's 10-ATK weapon: most of these cases
+    // are about the attribute-derived term, and a weapon in every one of them would be noise in the sum.
     return ctx.copy(
-      weapon = ctx.weapon.copy(atk = 0),
+      weapon = ctx.weapon.copy(atk = weaponAtk),
       damageVariables = ctx.damageVariables.copy(physicalDefenseMod = physicalDefenseMod)
     )
   }

@@ -12,6 +12,9 @@ import net.bestia.zone.cartography.CartographyConfig
 import net.bestia.zone.cartography.chart.ChartService
 import net.bestia.zone.ecs.core.EntityIdGenerator
 import net.bestia.zone.ecs.persistence.StatusEffectPersistenceService
+import net.bestia.zone.item.ItemRepository
+import net.bestia.zone.item.container.InventoryService
+import net.bestia.zone.item.equip.EquipmentSlot
 import net.bestia.zone.util.AccountId
 import net.bestia.zone.world.MasterSpawnPoint
 import net.bestia.zone.world.MasterSpawnPointService
@@ -44,6 +47,8 @@ class MasterFactory(
   private val chartService: ChartService,
   private val cartographyConfig: CartographyConfig,
   private val worldService: WorldService,
+  private val itemRepository: ItemRepository,
+  private val inventoryService: InventoryService,
 ) {
 
   class CreateMasterData(
@@ -135,8 +140,40 @@ class MasterFactory(
     // after firing, so the second login finds nothing to replay.
     statusEffectPersistenceService.seed(savedMaster.entityId, StatusEffectId.MASTER_INTRO_MARKER)
     grantStarterChart(savedMaster, spawnPoint)
+    grantStarterGear(savedMaster)
 
     return savedMaster
+  }
+
+  /**
+   * Dresses a new master in the novice kit, worn rather than merely carried.
+   *
+   * Equipped straight into the container without asking [net.bestia.zone.item.equip.EquipmentService]: a
+   * master at creation is level 1 with no skills, which is the definition of everything the kit requires, and
+   * there is no entity to consult yet anyway. `SelectMasterHandler` re-asks the question on every login, so a
+   * later edit to what these items demand still takes them off rather than grandfathering them in.
+   *
+   * An instance per piece rather than [InventoryService.addItem], because equipping needs the instance id -
+   * the same reason the chart above is minted rather than granted.
+   *
+   * Failure is logged and swallowed, for the reason [grantStarterChart] gives: a missing item template is a
+   * broken deployment, and refusing to create the master over it turns bad content into an unplayable account.
+   */
+  private fun grantStarterGear(master: Master) {
+    STARTER_GEAR.forEach { (identifier, slot) ->
+      val item = itemRepository.findByIdentifier(identifier)
+
+      if (item == null) {
+        LOG.error { "Starter gear item '$identifier' is not in the catalogue; master ${master.id} goes without" }
+        return@forEach
+      }
+
+      val instance = inventoryService.mintInstanceForMaster(master.id, item)
+
+      if (!inventoryService.equip(master.id, playerBestiaId = null, item.id, instance.id, slot)) {
+        LOG.warn { "Master ${master.id} could not wear starter '$identifier'; it stays in their pack" }
+      }
+    }
   }
 
   /**
@@ -205,6 +242,19 @@ class MasterFactory(
 
   companion object {
     private val LOG = KotlinLogging.logger { }
+
+    /**
+     * What a new master is created wearing, by `items.yml` identifier and the slot it goes in.
+     *
+     * The slot is named here rather than read off [net.bestia.zone.item.Item.equipSlot] so that a piece
+     * which is re-homed in the catalogue shows up as a mismatch instead of silently being worn somewhere
+     * else - a starter kit is a specific set of three places on a body, not three arbitrary items.
+     */
+    private val STARTER_GEAR = listOf(
+      "novice_knife" to EquipmentSlot.RIGHT_HAND,
+      "novice_shirt" to EquipmentSlot.ARMOR,
+      "novice_boots" to EquipmentSlot.FOOTGEAR
+    )
 
     /**
      * Every attribute at [EffortValueCostCalculator.BALANCED_EFFORT_VALUE], which costs exactly

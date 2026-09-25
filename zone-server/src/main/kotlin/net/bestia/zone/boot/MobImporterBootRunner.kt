@@ -35,6 +35,13 @@ class MobImporterBootRunner(
     val mana: Int,
     val experience: Int,
     val loot: List<Loot>,
+
+    /**
+     * The species' primary attributes. Omit the block and every one of them stays at the flat 10 that was
+     * hardcoded in `BestiaEntitySpawner` before this table existed, so an untouched mob keeps behaving
+     * exactly as it did.
+     */
+    val attributes: Attributes = Attributes(),
     val ai: String? = null,
     @JsonProperty("equip-slots")
     val equipSlots: List<String> = emptyList(),
@@ -66,6 +73,16 @@ class MobImporterBootRunner(
       val itemIdentifier: String,
       val chance: Int
     )
+
+    /** What each of these does, and why the health/mana pools are not derived from them, is [Bestia.strength]. */
+    data class Attributes(
+      val strength: Int = 10,
+      val intelligence: Int = 10,
+      val vitality: Int = 10,
+      val dexterity: Int = 10,
+      val willpower: Int = 10,
+      val agility: Int = 10
+    )
   }
 
   override fun newEntity(dto: MobYmlDto): Bestia {
@@ -77,6 +94,12 @@ class MobImporterBootRunner(
       level = dto.level,
       mana = dto.mana,
       health = dto.health,
+      strength = dto.attributes.strength,
+      intelligence = dto.attributes.intelligence,
+      vitality = dto.attributes.vitality,
+      dexterity = dto.attributes.dexterity,
+      willpower = dto.attributes.willpower,
+      agility = dto.attributes.agility,
       experienceReward = dto.experience,
       aiProfile = dto.ai,
       equipSlotMask = parseEquipSlotMask(dto),
@@ -126,6 +149,12 @@ class MobImporterBootRunner(
     val changed = entity.level != dto.level ||
         entity.health != dto.health ||
         entity.mana != dto.mana ||
+        entity.strength != dto.attributes.strength ||
+        entity.intelligence != dto.attributes.intelligence ||
+        entity.vitality != dto.attributes.vitality ||
+        entity.dexterity != dto.attributes.dexterity ||
+        entity.willpower != dto.attributes.willpower ||
+        entity.agility != dto.attributes.agility ||
         entity.experienceReward != dto.experience ||
         entity.aiProfile != dto.ai ||
         entity.equipSlotMask != equipSlotMask ||
@@ -145,6 +174,12 @@ class MobImporterBootRunner(
     entity.level = dto.level
     entity.health = dto.health
     entity.mana = dto.mana
+    entity.strength = dto.attributes.strength
+    entity.intelligence = dto.attributes.intelligence
+    entity.vitality = dto.attributes.vitality
+    entity.dexterity = dto.attributes.dexterity
+    entity.willpower = dto.attributes.willpower
+    entity.agility = dto.attributes.agility
     entity.experienceReward = dto.experience
     entity.aiProfile = dto.ai
     entity.equipSlotMask = equipSlotMask

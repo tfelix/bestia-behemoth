@@ -3,6 +3,7 @@ ERROR_BASIC_SKILL_CHAT_LOCKED,You cannot speak yet. Raise Basic Skill to Lv. 2 i
 ERROR_BASIC_SKILL_PARTY_LOCKED,Parties need Basic Skill Lv. 5.
 ERROR_BASIC_SKILL_TRADE_LOCKED,Trading needs Basic Skill Lv. 1.
 ERROR_EQUIP_LEVEL_TOO_LOW,You are not high enough level to wear that yet.
+ERROR_EQUIP_NOVICE_ONLY,Only a novice may wear that. Your training has taken you past it.
 ERROR_CHART_NEEDS_BLANK,You have no blank vellum to draw on.
 ERROR_CHART_NOT_FOUND,You are not carrying that chart.
 ERROR_CHART_MERGE_SAME,A chart cannot be joined with itself.

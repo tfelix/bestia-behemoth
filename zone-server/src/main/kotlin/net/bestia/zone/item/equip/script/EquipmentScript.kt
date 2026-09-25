@@ -4,7 +4,9 @@ import net.bestia.zone.battle.status.StatusValueRecalcContext
 import net.bestia.zone.item.equip.EquipmentSlot
 
 /**
- * What wearing one item does to its wearer's status values. Registered under its simple class name
+ * What wearing one item does to its wearer: primary attributes, speed and regeneration, and the flat attack
+ * and worn ("hard") defence that reach the damage formula through
+ * [net.bestia.zone.ecs.battle.status.CombatBonus]. Registered under its simple class name
  * (see [EquipmentScriptRegistry]) and referenced by `Item.script` for
  * [net.bestia.zone.item.Item.ItemType.EQUIP] items - the same script-name-to-bean pattern as
  * [net.bestia.zone.battle.status.StatusEffectScript] / [net.bestia.zone.battle.status.StatusEffectScriptRegistry].

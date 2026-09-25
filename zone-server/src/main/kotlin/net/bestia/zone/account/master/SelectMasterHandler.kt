@@ -5,6 +5,7 @@ import net.bestia.zone.ecs.battle.skill.KnownSkills
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.environment.weather.WeatherPublisher
+import net.bestia.zone.item.equip.EquipmentRevalidationService
 import net.bestia.zone.message.InMessageProcessor
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
@@ -14,6 +15,7 @@ class SelectMasterHandler(
   private val masterEntitySpawner: MasterEntitySpawner,
   private val world: WorldView,
   private val weatherPublisher: WeatherPublisher,
+  private val equipmentRevalidationService: EquipmentRevalidationService,
 ) : InMessageProcessor.IncomingMessageHandler<SelectMasterCMSG> {
   override val handles = SelectMasterCMSG::class
 
@@ -23,6 +25,11 @@ class SelectMasterHandler(
     LOG.debug { "Selecting master ${msg.selectedMasterId} with entity id: $masterEntityId for account: ${msg.playerId}" }
 
     publishWeather(msg.playerId, masterEntityId)
+
+    // The safety net for everything that is not a skill investment: gear that became illegal while its owner
+    // was offline, or before the rule that refuses it existed. MasterEntitySpawner replays whatever the
+    // container says is worn without consulting EquipmentService, so this is the only thing that re-asks.
+    equipmentRevalidationService.revalidate(msg.selectedMasterId, masterEntityId)
 
     return true
   }

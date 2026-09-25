@@ -1,8 +1,9 @@
 package net.bestia.zone.item.equip
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.bnet.proto.OperationErrorProto
+import net.bestia.zone.account.master.skill.NoviceGate
 import net.bestia.zone.ecs.battle.level.Level
+import net.bestia.zone.ecs.battle.skill.KnownSkills
 import net.bestia.zone.ecs.battle.status.IsStatusValueDirty
 import net.bestia.zone.ecs.core.AsyncJobExecutor
 import net.bestia.zone.ecs.core.WorldView
@@ -30,6 +31,7 @@ import org.springframework.stereotype.Component
 class EquipItemHandler(
   private val itemRepository: ItemRepository,
   private val equipmentService: EquipmentService,
+  private val noviceGate: NoviceGate,
   private val connectionInfoService: ConnectionInfoService,
   private val inventoryService: InventoryService,
   private val asyncJobExecutor: AsyncJobExecutor,
@@ -71,7 +73,8 @@ class EquipItemHandler(
         heldUniqueId = held?.uniqueId ?: msg.uniqueId,
         // Zero for an entity with no Level component at all, which the service reads as unqualified rather
         // than as exempt.
-        wearerLevel = get(id, Level::class)?.level ?: 0
+        wearerLevel = get(id, Level::class)?.level ?: 0,
+        wearerIsNovice = noviceGate.isNovice(get(id, KnownSkills::class))
       )
 
       if (denial != null) {
@@ -142,14 +145,7 @@ class EquipItemHandler(
   }
 
   private fun sendDenial(playerId: Long, denial: EquipmentService.Denial) {
-    val code = when (denial) {
-      EquipmentService.Denial.SLOT_NOT_AVAILABLE -> OperationErrorProto.OpError.EQUIP_SLOT_NOT_AVAILABLE
-      EquipmentService.Denial.ITEM_NOT_FOUND -> OperationErrorProto.OpError.EQUIP_ITEM_NOT_FOUND
-      EquipmentService.Denial.NOT_ALLOWED -> OperationErrorProto.OpError.EQUIP_NOT_ALLOWED
-      EquipmentService.Denial.LEVEL_TOO_LOW -> OperationErrorProto.OpError.EQUIP_LEVEL_TOO_LOW
-    }
-
-    outMessageProcessor.sendToPlayer(playerId, OperationErrorSMSG(code))
+    outMessageProcessor.sendToPlayer(playerId, OperationErrorSMSG(denial.toOpError()))
   }
 
   private data class Applied(

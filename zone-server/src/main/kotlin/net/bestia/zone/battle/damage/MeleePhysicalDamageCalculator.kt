@@ -36,7 +36,8 @@ class MeleePhysicalDamageCalculator(
   override fun getSoftDefense(battleCtx: EntityBattleContext): Float =
     max(0f, battleCtx.defender.defense.defense.toFloat())
 
-  override fun getHardDefenseModifier(battleCtx: EntityBattleContext): Float = physicalDefenseModifier(battleCtx)
+  override fun getHardDefenseModifier(battleCtx: EntityBattleContext): Float =
+    physicalDefenseModifier(battleCtx) * hardDefenseFactor(battleCtx.defender.defense.hardDefense)
 
   override fun getAttackModifier(battleCtx: EntityBattleContext): Float {
     val vars = battleCtx.damageVariables
