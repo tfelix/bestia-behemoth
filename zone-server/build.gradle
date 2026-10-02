@@ -134,7 +134,7 @@ tasks.register('checkItemDb', ItemDbSyncTask) {
 
 tasks.register('syncItemDb', ItemDbSyncTask) {
     group = 'other'
-    description = 'Patches type/weight/equip_slot in existing client item .tres files, syncs English descriptions into items.csv, and creates stubs for missing items, from items.yml.'
+    description = 'Patches type/weight/equip_slot/armor_type in existing client item .tres files, syncs English descriptions into items.csv, and creates stubs for missing items, from items.yml.'
     itemsYml = layout.projectDirectory.file('src/main/resources/items.yml')
     clientDbDir = rootProject.layout.projectDirectory.dir('bestia-client/src/Game/Item/DB')
     itemsCsv = rootProject.layout.projectDirectory.file('bestia-client/src/Localization/items.csv')
@@ -142,8 +142,8 @@ tasks.register('syncItemDb', ItemDbSyncTask) {
 }
 
 /**
- * Exports the per-species facts the client decides things with - its equipment slot mask, and whether
- * it may be fought at all - into the client's static bestia DB. Static content that is deliberately
+ * Exports the per-species facts the client decides things with - its equipment slot and armor type masks,
+ * and whether it may be fought at all - into the client's static bestia DB. Static content that is deliberately
  * never sent over the wire. See buildSrc/src/main/kotlin/BestiaDbSyncTask.kt.
  */
 tasks.register('checkBestiaDb', BestiaDbSyncTask) {

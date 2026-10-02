@@ -22,8 +22,8 @@ import java.io.File
  *
  * These are static content, not per-player state, so they are never streamed over the wire - the client
  * reads them from these resources while the server independently enforces the same values from the
- * `bestia` table. Today that is which equipment slots a species has, so the UI can grey out the rest,
- * whether it is a non-combatant, so a click can mean talking rather than swinging, and its kind.
+ * `bestia` table. Today that is which equipment slots and armor types a species has, so the UI can grey
+ * out the rest, whether it is a non-combatant, so a click can mean talking rather than swinging, and its kind.
  *
  * A species' **text** lives in the client, because that is where it is translated. The mob YML holds the
  * English source (`name`, `description`) beside the stats, and this task writes it into the `en` column of
@@ -59,6 +59,8 @@ abstract class BestiaDbSyncTask : DefaultTask() {
     val identifier: String,
     @JsonProperty("equip-slots")
     val equipSlots: List<String> = emptyList(),
+    @JsonProperty("armor-types")
+    val armorTypes: List<String> = emptyList(),
     @JsonProperty("non-combatant")
     val nonCombatant: Boolean = false,
     val kind: String,
@@ -87,6 +89,7 @@ abstract class BestiaDbSyncTask : DefaultTask() {
     "description_key" to quoted(mob.descriptionKey),
     "kind" to quoted(mob.kind.uppercase()),
     "equip_slots" to maskOf(mob).toString(),
+    "armor_types" to armorTypeMaskOf(mob).toString(),
     "non_combatant" to mob.nonCombatant.toString()
   )
 
@@ -220,6 +223,12 @@ abstract class BestiaDbSyncTask : DefaultTask() {
         throw GradleException("Unknown equip slot '$name' for mob '${mob.identifier}'. Known: $SLOT_ORDER")
       }
       mask or (1 shl index)
+    }
+  }
+
+  private fun armorTypeMaskOf(mob: MobDto): Int {
+    return mob.armorTypes.fold(0) { mask, name ->
+      mask or (1 shl ArmorTypeOrder.ordinalOf(name, "mob '${mob.identifier}'"))
     }
   }
 

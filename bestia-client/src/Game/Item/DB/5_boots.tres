@@ -13,3 +13,4 @@ weight = 200
 type = 1
 equip_slot = 6
 level = 10
+armor_type = 3

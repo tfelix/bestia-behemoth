@@ -10,3 +10,4 @@ equip_slots = 249
 non_combatant = false
 description_key = "BESTIA_DOOM_MASTER_OF_DOOM_DESC"
 kind = "DEMON"
+armor_types = 15

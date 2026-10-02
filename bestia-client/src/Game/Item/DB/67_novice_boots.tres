@@ -10,3 +10,4 @@ description_key = "NOVICE_BOOTS_DESC"
 weight = 60
 type = 1
 equip_slot = 6
+armor_type = 2
