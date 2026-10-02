@@ -74,6 +74,21 @@ data class BattleAttack(
       level = 1
     )
 
+    /** The shot of a species whose default attack is ranged. Like the melee swing it needs no weapon. */
+    fun getBasicRangedAttack(element: Element = Element.NORMAL): BattleAttack = BattleAttack(
+      strength = 5,
+      manaCost = 0,
+      range = BASIC_RANGED_REACH,
+      attackType = AttackType.RANGED_PHYSICAL,
+      needsLineOfSight = true,
+      aoeRadius = null,
+      attackElement = element,
+      script = null,
+      level = 1
+    )
+
+    const val BASIC_RANGED_REACH = 6L
+
     /**
      * Projects a catalogue row for a cast at [level]. [attackType] is filled in rather than derived: the
      * catalogue no longer carries one, because a skill's damage is its script's business.

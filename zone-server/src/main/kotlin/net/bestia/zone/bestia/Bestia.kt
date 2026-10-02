@@ -36,6 +36,10 @@ class Bestia(
   @Column(nullable = false, length = 32)
   var size: Size = Size.MEDIUM,
 
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false, length = 16)
+  var defaultAttack: DefaultAttack = DefaultAttack.MELEE,
+
   /**
    * The species' primary attributes - the mob counterpart of a master's six, seeded into
    * [net.bestia.zone.ecs.battle.status.BaseStatusValues] by `BestiaEntitySpawner` and from there into every
