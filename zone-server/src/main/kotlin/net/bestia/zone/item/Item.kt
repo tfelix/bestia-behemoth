@@ -1,6 +1,7 @@
 package net.bestia.zone.item
 
 import jakarta.persistence.*
+import net.bestia.zone.item.equip.ArmorType
 import net.bestia.zone.item.equip.EquipmentSlot
 import net.bestia.zone.util.requireValidIdentifier
 
@@ -89,6 +90,14 @@ class Item(
   var noviceOnly: Boolean = false,
 
   /**
+   * How heavy this armor is, checked against the species of a bestia that puts it on. Null for gear that is
+   * not armor, such as weapons and accessories: anyone with the slot may wear it.
+   */
+  @Enumerated(EnumType.STRING)
+  @Column(name = "armor_type", nullable = true, length = 16)
+  var armorType: ArmorType? = null,
+
+  /**
    * Long-form flavor text, English only.
    */
   @Column(columnDefinition = "TEXT", nullable = true)
@@ -137,6 +146,10 @@ class Item(
     // material - and a flag that silently does nothing is worse than a boot that says so.
     require(!noviceOnly || type == ItemType.EQUIP) {
       "Item $identifier is $type and must not declare novice-only"
+    }
+
+    require(armorType == null || type == ItemType.EQUIP) {
+      "Item $identifier is $type and must not declare an armor-type"
     }
   }
 
