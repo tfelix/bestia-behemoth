@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service
  *
  * ### Why a plain map is enough
  *
- * The catalogue is immutable for the life of the process: `MobImporterBootRunner` writes it at `@Order(101)`
+ * The catalogue is immutable for the life of the process: `MobImporterBootRunner` writes it at `@Order(102)`
  * and nothing edits a `bestia` row afterwards. So there is no invalidation to get wrong, and none of the
  * per-entry expiry a cache would bring.
  *
