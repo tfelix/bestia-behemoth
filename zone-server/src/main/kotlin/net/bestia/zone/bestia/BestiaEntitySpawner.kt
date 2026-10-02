@@ -13,6 +13,7 @@ import net.bestia.zone.ecs.battle.level.Level
 import net.bestia.zone.ecs.battle.status.Invulnerable
 import net.bestia.zone.ecs.battle.status.Mana
 import net.bestia.zone.ecs.battle.status.Nature
+import net.bestia.zone.ecs.battle.skill.KnownSkills
 import net.bestia.zone.ecs.battle.status.Stamina
 import net.bestia.zone.ecs.battle.status.StatusValues
 import net.bestia.zone.ecs.movement.Position
@@ -88,6 +89,8 @@ class BestiaEntitySpawner(
       add(id, Stamina(current = 10, max = 10))
       add(id, Speed())
       add(id, Nature(bestia.element, bestia.size))
+      val skills = learnedSkills(bestia)
+      if (skills.isNotEmpty()) add(id, KnownSkills(skills))
       // Deliberately no FormulaDrivenVitals marker, which is what keeps the authored Bestia.health above
       // from being overwritten by the player pool formula on the next StatusValueRecalcSystem pass.
       val baseStatusValues = BaseStatusValues(
@@ -132,13 +135,21 @@ class BestiaEntitySpawner(
   }
 
   /**
+   * Like an owned bestia, a wild one knows its learnset up to its level, each skill at level 1. See
+   * `PlayerBestiaEntitySpawner`.
+   */
+  private fun learnedSkills(bestia: Bestia): MutableMap<Long, Int> = bestiaCatalogue.learnset(bestia.id)
+    .filter { it.requiredLevel <= bestia.level }
+    .associate { it.skillId to 1 }
+    .toMutableMap()
+
+  /**
    * Attaches AI to a freshly spawned mob when its bestia declares an AI archetype. The [AiAgent] does not
    * implement `Dirtyable`, which is what keeps AI internals off the wire. [spawnPosition] becomes the home
    * position it wanders around and returns to.
    *
-   * No [net.bestia.zone.ecs.battle.skill.KnownSkills] is seeded: a mob's basic attack is not a catalogued
-   * skill and needs no entry (it used to be seeded as skill id 0, a row `skills.yml` never had). A mob that
-   * should also *cast* something gets a real skill id from its AI profile's attack list.
+   * Its default attack is not a catalogued skill and needs no [KnownSkills] entry. The attack skills its AI
+   * profile lists are cast only if they are in its learnset, see [learnedSkills].
    */
   private fun World.attachAi(id: EntityId, bestia: Bestia, spawnPosition: Vec3L, memory: Blackboard?) {
     val profileId = bestia.aiProfile ?: return

@@ -16,6 +16,9 @@ class BestiaCatalogueTest {
   @MockK
   private lateinit var bestiaRepository: BestiaRepository
 
+  @MockK
+  private lateinit var bestiaSkillRepository: BestiaSkillRepository
+
   private lateinit var sut: BestiaCatalogue
 
   @BeforeEach
@@ -23,12 +26,20 @@ class BestiaCatalogueTest {
     // Deliberately not in id order: the catalogue's promise is that it sorts, not that the row order happens
     // to be right.
     every { bestiaRepository.findAll() } returns listOf(bestia(2, "goblin"), bestia(1, "blob"))
-    sut = BestiaCatalogue(bestiaRepository)
+    sut = BestiaCatalogue(bestiaRepository, bestiaSkillRepository)
   }
 
   @Test
   fun `all returns every species ordered by id`() {
     assertEquals(listOf(1L, 2L), sut.all().map { it.id })
+  }
+
+  @Test
+  fun `learnset returns a species' own learnset rows, and none for a species without one`() {
+    every { bestiaSkillRepository.findAllLearned() } returns listOf(LearnedSkill(1, 1000, 3), LearnedSkill(2, 1001, 5))
+
+    assertEquals(listOf(LearnedSkill(1, 1000, 3)), sut.learnset(1))
+    assertEquals(emptyList<LearnedSkill>(), sut.learnset(3))
   }
 
   @Test

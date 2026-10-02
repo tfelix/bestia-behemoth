@@ -37,6 +37,7 @@ class BestiaEntitySpawnerVisualTest {
   )
 
   init {
+    every { catalogue.learnset(any()) } returns emptyList()
     every { catalogue.byId(1L) } returns Bestia(
       id = 1,
       identifier = "blob",

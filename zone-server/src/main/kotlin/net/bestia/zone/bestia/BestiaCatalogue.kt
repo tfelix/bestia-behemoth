@@ -27,13 +27,14 @@ import org.springframework.stereotype.Service
  * ### Holding detached entities is safe here, and would not always be
  *
  * These [Bestia] instances outlive their session, so touching a lazy `@OneToMany` on one throws. That is
- * fine because nothing on any runtime path does: `lootTable` and `skills` are written by the importer and
- * read by nobody - loot goes through `LootItemEntitySpawner`'s own `findAllByBestiaId` query. **A new field
- * that is a collection must not be read through this catalogue.**
+ * fine because nothing on any runtime path does: loot goes through `LootItemEntitySpawner`'s own
+ * `findAllByBestiaId` query, and the learnset through [learnset]. **A new field that is a collection must not be
+ * read through this catalogue.**
  */
 @Service
 class BestiaCatalogue(
-  private val bestiaRepository: BestiaRepository
+  private val bestiaRepository: BestiaRepository,
+  private val bestiaSkillRepository: BestiaSkillRepository,
 ) {
 
   /**
@@ -58,6 +59,15 @@ class BestiaCatalogue(
 
   fun byId(id: Long): Bestia {
     return byId[id] ?: throw BestiaNotFoundException(id)
+  }
+
+  // Loaded as plain values, because the cached species cannot load its own `skills`.
+  private val learnsets: Map<Long, List<LearnedSkill>> by lazy {
+    bestiaSkillRepository.findAllLearned().groupBy { it.bestiaId }
+  }
+
+  fun learnset(bestiaId: Long): List<LearnedSkill> {
+    return learnsets[bestiaId] ?: emptyList()
   }
 
   fun byIdentifier(identifier: String): Bestia {
