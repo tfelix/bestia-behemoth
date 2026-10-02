@@ -9,6 +9,7 @@ import net.bestia.zone.bestia.BestiaKind
 import net.bestia.zone.bestia.BestiaRepository
 import net.bestia.zone.bestia.BestiaSkill
 import net.bestia.zone.bestia.BestiaSkillRepository
+import net.bestia.zone.bestia.DefaultAttack
 import net.bestia.zone.item.ItemRepository
 import net.bestia.zone.item.equip.EquipmentSlot
 import net.bestia.zone.item.equip.EquipmentSlots
@@ -61,6 +62,9 @@ class MobImporterBootRunner(
     /** An element with its level, `EARTH` or `EARTH_2` for instance. */
     val element: Element = Element.NORMAL,
     val size: Size = Size.MEDIUM,
+
+    @JsonProperty("default-attack")
+    val defaultAttack: DefaultAttack = DefaultAttack.MELEE,
 
     /**
      * The species' primary attributes. Omit the block and every one of them stays at the flat 10 that was
@@ -128,6 +132,7 @@ class MobImporterBootRunner(
       kind = dto.kind,
       element = dto.element,
       size = dto.size,
+      defaultAttack = dto.defaultAttack,
       strength = dto.attributes.strength,
       intelligence = dto.attributes.intelligence,
       vitality = dto.attributes.vitality,
@@ -186,6 +191,7 @@ class MobImporterBootRunner(
         entity.kind != dto.kind ||
         entity.element != dto.element ||
         entity.size != dto.size ||
+        entity.defaultAttack != dto.defaultAttack ||
         entity.strength != dto.attributes.strength ||
         entity.intelligence != dto.attributes.intelligence ||
         entity.vitality != dto.attributes.vitality ||
@@ -214,6 +220,7 @@ class MobImporterBootRunner(
     entity.kind = dto.kind
     entity.element = dto.element
     entity.size = dto.size
+    entity.defaultAttack = dto.defaultAttack
     entity.strength = dto.attributes.strength
     entity.intelligence = dto.attributes.intelligence
     entity.vitality = dto.attributes.vitality

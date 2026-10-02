@@ -86,6 +86,18 @@ class AttackExecutionServiceTest {
   }
 
   @Test
+  fun `a ranged default attack reaches six tiles and no further`() {
+    val shooter = world.spawnFighter(at = Vec3L(0, 0, 0))
+    val inReach = world.spawnFighter(at = Vec3L(6, 0, 0))
+    val tooFar = world.spawnFighter(at = Vec3L(7, 0, 0))
+    val shot = BattleAttack.getBasicRangedAttack()
+
+    assertEquals(AttackOutcome.OUT_OF_RANGE, sut.attack(world, shooter, tooFar, shot))
+    assertEquals(AttackOutcome.SWUNG, sut.attack(world, shooter, inReach, shot))
+    assertTrue(world.has(inReach, DamageComponent::class))
+  }
+
+  @Test
   fun `an attacker with no status values cannot fight, and is refused rather than throwing`() {
     // What a prop or a freshly created entity looks like: BattleContextFactory returns null for it.
     val attacker = world.createEntity { id -> world.add(id, Position.fromVec3(Vec3L(0, 0, 0))) }
