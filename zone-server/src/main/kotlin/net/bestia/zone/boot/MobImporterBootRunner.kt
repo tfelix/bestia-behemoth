@@ -3,6 +3,7 @@ package net.bestia.zone.boot
 import com.fasterxml.jackson.annotation.JsonProperty
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.bestia.Bestia
+import net.bestia.zone.bestia.BestiaKind
 import net.bestia.zone.bestia.BestiaRepository
 import net.bestia.zone.item.ItemRepository
 import net.bestia.zone.item.equip.EquipmentSlot
@@ -35,6 +36,7 @@ class MobImporterBootRunner(
     val mana: Int,
     val experience: Int,
     val loot: List<Loot>,
+    val kind: BestiaKind,
 
     /**
      * The species' primary attributes. Omit the block and every one of them stays at the flat 10 that was
@@ -94,6 +96,7 @@ class MobImporterBootRunner(
       level = dto.level,
       mana = dto.mana,
       health = dto.health,
+      kind = dto.kind,
       strength = dto.attributes.strength,
       intelligence = dto.attributes.intelligence,
       vitality = dto.attributes.vitality,
@@ -149,6 +152,7 @@ class MobImporterBootRunner(
     val changed = entity.level != dto.level ||
         entity.health != dto.health ||
         entity.mana != dto.mana ||
+        entity.kind != dto.kind ||
         entity.strength != dto.attributes.strength ||
         entity.intelligence != dto.attributes.intelligence ||
         entity.vitality != dto.attributes.vitality ||
@@ -174,6 +178,7 @@ class MobImporterBootRunner(
     entity.level = dto.level
     entity.health = dto.health
     entity.mana = dto.mana
+    entity.kind = dto.kind
     entity.strength = dto.attributes.strength
     entity.intelligence = dto.attributes.intelligence
     entity.vitality = dto.attributes.vitality
