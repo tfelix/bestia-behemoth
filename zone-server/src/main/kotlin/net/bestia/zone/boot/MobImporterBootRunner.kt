@@ -53,7 +53,6 @@ class MobImporterBootRunner(
      * it is declared only so a mob file with text still imports. See `BestiaDbSyncTask`.
      */
     val name: String,
-    val epithet: String? = null,
     val description: String? = null,
 
     /** The attacks the species learns as it levels, by `skills.yml` identifier. */

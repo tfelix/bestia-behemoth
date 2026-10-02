@@ -10,6 +10,5 @@ bestia_visual = ExtResource("2_visual")
 name_key = "BESTIA_TOWNSFOLK_COMMONER"
 equip_slots = 57
 non_combatant = true
-epithet_key = ""
 description_key = "BESTIA_TOWNSFOLK_COMMONER_DESC"
 kind = "HUMANOID"
