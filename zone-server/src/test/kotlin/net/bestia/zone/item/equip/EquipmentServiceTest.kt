@@ -19,6 +19,10 @@ class EquipmentServiceTest {
     id = 33L, identifier = "novice_boots", weight = 8, type = Item.ItemType.EQUIP,
     equipSlot = EquipmentSlot.FOOTGEAR, level = 1, noviceOnly = true
   )
+  private val ironCuirass = Item(
+    id = 20L, identifier = "iron_cuirass", weight = 650, type = Item.ItemType.EQUIP,
+    equipSlot = EquipmentSlot.ARMOR, level = 1, armorType = ArmorType.HEAVY
+  )
   private val apple = Item(id = 1L, identifier = "apple", weight = 1, type = Item.ItemType.ETC)
 
   private fun inventoryOf(vararg items: Inventory.Item) = Inventory(items.toMutableList())
@@ -49,13 +53,31 @@ class EquipmentServiceTest {
 
   @Test
   fun `a slot outside the wearer's mask is refused`() {
-    // A blob-like species: armor and garment only, no footgear.
+    // A species with armor and garment only, no footgear.
     val equipment = Equipment(EquipmentSlots.maskOf(EquipmentSlot.ARMOR, EquipmentSlot.GARMENT))
 
     assertEquals(
       EquipmentService.Denial.SLOT_NOT_AVAILABLE,
       check(boots, EquipmentSlot.FOOTGEAR, equipment = equipment)
     )
+  }
+
+  @Test
+  fun `armor heavier than the wearer's species can carry is refused`() {
+    val equipment = Equipment(EquipmentSlots.ALL, wearableArmorTypeMask = ArmorType.maskOf(listOf(ArmorType.CLOTH)))
+
+    assertEquals(
+      EquipmentService.Denial.ARMOR_TYPE_NOT_WEARABLE,
+      check(ironCuirass, EquipmentSlot.ARMOR, equipment = equipment)
+    )
+  }
+
+  /** Boots here carry no armor type, so they stand for every piece of gear that is not armor. */
+  @Test
+  fun `gear without an armor type is accepted on a species that wears no armor`() {
+    val equipment = Equipment(EquipmentSlots.ALL, wearableArmorTypeMask = 0)
+
+    assertNull(check(boots, EquipmentSlot.FOOTGEAR, equipment = equipment))
   }
 
   @Test
