@@ -159,7 +159,7 @@ tasks.named('check') { dependsOn 'checkBestiaDb' }
 
 tasks.register('syncBestiaDb', BestiaDbSyncTask) {
     group = 'other'
-    description = 'Patches the exported fields in existing client bestia .tres files, syncs English names, epithets and descriptions into bestias.csv, and creates stubs for missing bestias, from the mob YMLs.'
+    description = 'Patches the exported fields in existing client bestia .tres files, syncs English names and descriptions into bestias.csv, and creates stubs for missing bestias, from the mob YMLs.'
     mobYmlDir = layout.projectDirectory.dir('src/main/resources/mob')
     clientDbDir = rootProject.layout.projectDirectory.dir('bestia-client/src/Game/Bestia/DB')
     bestiasCsv = rootProject.layout.projectDirectory.file('bestia-client/src/Localization/bestias.csv')

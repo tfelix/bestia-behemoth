@@ -26,10 +26,10 @@ import java.io.File
  * whether it is a non-combatant, so a click can mean talking rather than swinging, and its kind.
  *
  * A species' **text** lives in the client, because that is where it is translated. The mob YML holds the
- * English source (`name`, `epithet`, `description`) beside the stats, and this task writes it into the `en`
- * column of `bestias.csv` under `BESTIA_<IDENT>`, `BESTIA_<IDENT>_EPITHET` and `BESTIA_<IDENT>_DESC`, the
- * same way [SkillDbSyncTask] feeds `skills.csv`. Other languages are columns added to that CSV by hand and
- * are never touched. The server never reads the text.
+ * English source (`name`, `description`) beside the stats, and this task writes it into the `en` column of
+ * `bestias.csv` under `BESTIA_<IDENT>` and `BESTIA_<IDENT>_DESC`, the same way [SkillDbSyncTask] feeds
+ * `skills.csv`. Other languages are columns added to that CSV by hand and are never touched. The server
+ * never reads the text.
  *
  * The mask bit order is `EquipmentSlot`'s declaration order in
  * `zone-server/src/main/kotlin/net/bestia/zone/item/equip/EquipmentSlot.kt`; [SLOT_ORDER] below
@@ -63,18 +63,15 @@ abstract class BestiaDbSyncTask : DefaultTask() {
     val nonCombatant: Boolean = false,
     val kind: String,
     val name: String,
-    val epithet: String? = null,
     val description: String? = null
   ) {
     val nameKey get() = "BESTIA_${identifier.uppercase()}"
-    val epithetKey get() = if (epithet == null) "" else "${nameKey}_EPITHET"
     val descriptionKey get() = "${nameKey}_DESC"
     val kindKey get() = "BESTIA_KIND_${kind.uppercase()}"
 
     /** The English text this mob owns in `bestias.csv`, by key. */
     fun texts(): Map<String, String> = buildMap {
       put(nameKey, name)
-      if (epithet != null) put(epithetKey, epithet)
       put(descriptionKey, description?.trim() ?: "TODO: describe $identifier")
     }
   }
@@ -87,7 +84,6 @@ abstract class BestiaDbSyncTask : DefaultTask() {
    */
   private fun exportedFields(mob: MobDto): Map<String, String> = mapOf(
     "name_key" to quoted(mob.nameKey),
-    "epithet_key" to quoted(mob.epithetKey),
     "description_key" to quoted(mob.descriptionKey),
     "kind" to quoted(mob.kind.uppercase()),
     "equip_slots" to maskOf(mob).toString(),

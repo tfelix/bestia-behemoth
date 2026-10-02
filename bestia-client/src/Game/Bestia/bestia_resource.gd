@@ -4,7 +4,7 @@ class_name BestiaResource
 ## Static, per-species bestia data the client keeps locally instead of receiving it from the server.
 ##
 ## Generated/kept in sync from zone-server's mob YMLs by './gradlew syncBestiaDb', which owns [member
-## bestia_id], the three text keys, [member kind], [member equip_slots] and [member non_combatant]. The
+## bestia_id], the two text keys, [member kind], [member equip_slots] and [member non_combatant]. The
 ## English text behind the keys is synced into Localization/bestias.csv, where it is translated. Anything
 ## else here is pure presentation with no server equivalent and is hand-authored.
 
@@ -22,10 +22,6 @@ const MISSING_VISUAL: PackedScene = preload("res://Game/Entity/Visual/BestiaVisu
 ## Translation key for the name shown on hover. A species name: the only individuals the server names are
 ## townsfolk and masters, and both carry it on their own visual instead.
 @export var name_key: String
-
-## Translation key for the title shown after the name ("Blob, the wobbling nuisance"). Empty for a species
-## without one.
-@export var epithet_key: String
 
 ## Translation key for the species' flavour text in the Bestia Compendium.
 @export var description_key: String

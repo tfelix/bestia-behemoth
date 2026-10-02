@@ -8,6 +8,5 @@ bestia_id = 2
 name_key = "BESTIA_DOOM_MASTER_OF_DOOM"
 equip_slots = 249
 non_combatant = false
-epithet_key = "BESTIA_DOOM_MASTER_OF_DOOM_EPITHET"
 description_key = "BESTIA_DOOM_MASTER_OF_DOOM_DESC"
 kind = "DEMON"
