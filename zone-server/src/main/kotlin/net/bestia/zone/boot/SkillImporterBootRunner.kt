@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component
  * Imports the items from the YML resources into the database.
  */
 @Component
-@Order(102)
+@Order(101)
 class SkillImporterBootRunner(
   skillRepository: SkillRepository,
 ) : CommandLineRunner,

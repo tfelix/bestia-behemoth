@@ -7,21 +7,28 @@ import net.bestia.zone.battle.Size
 import net.bestia.zone.bestia.Bestia
 import net.bestia.zone.bestia.BestiaKind
 import net.bestia.zone.bestia.BestiaRepository
+import net.bestia.zone.bestia.BestiaSkill
+import net.bestia.zone.bestia.BestiaSkillRepository
 import net.bestia.zone.item.ItemRepository
 import net.bestia.zone.item.equip.EquipmentSlot
 import net.bestia.zone.item.equip.EquipmentSlots
 import net.bestia.zone.item.loot.LootItem
+import net.bestia.zone.skill.SkillRepository
 import org.springframework.boot.CommandLineRunner
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
 
 /**
  * Imports the mobs from the YML resources into the database.
+ *
+ * Runs after [SkillImporterBootRunner], because a species' learnset names skills by identifier.
  */
 @Component
-@Order(101)
+@Order(102)
 class MobImporterBootRunner(
   private val itemRepository: ItemRepository,
+  private val skillRepository: SkillRepository,
+  private val bestiaSkillRepository: BestiaSkillRepository,
   bestiaRepository: BestiaRepository,
 ) : CommandLineRunner,
   YmlImporterBootRunner<MobImporterBootRunner.MobYmlDto, Bestia>(
@@ -39,6 +46,9 @@ class MobImporterBootRunner(
     val experience: Int,
     val loot: List<Loot>,
     val kind: BestiaKind,
+
+    /** The attacks the species learns as it levels, by `skills.yml` identifier. */
+    val learnset: List<LearnedAttack> = emptyList(),
 
     /** An element with its level, `EARTH` or `EARTH_2` for instance. */
     val element: Element = Element.NORMAL,
@@ -76,6 +86,11 @@ class MobImporterBootRunner(
     @JsonProperty("temperature-max")
     val temperatureMax: Double? = null
   ) {
+    data class LearnedAttack(
+      val skill: String,
+      val level: Int
+    )
+
     data class Loot(
       @JsonProperty("item")
       val itemIdentifier: String,
@@ -282,6 +297,41 @@ class MobImporterBootRunner(
       }
       lootItemDto.itemIdentifier
     }
+  }
+
+  private var loaded: List<MobYmlDto> = emptyList()
+
+  override fun loadYmlItems(): List<MobYmlDto> = super.loadYmlItems().also { loaded = it }
+
+  /**
+   * Writes each species' learnset once the species rows exist.
+   *
+   * Through its own repository rather than through `Bestia.skills`: the entities here are detached, and
+   * touching that lazy collection outside a session throws. Doing it here also covers an edited learnset on
+   * an existing database, which `tryUpdate` cannot.
+   */
+  override fun postImport(entities: List<Bestia>) {
+    val learnsetByIdentifier = loaded.associate { it.identifier to it.learnset }
+    entities.forEach { bestia -> syncLearnset(bestia, learnsetByIdentifier[bestia.identifier].orEmpty()) }
+  }
+
+  /** Replaces the stored learnset of [bestia] when it differs from [wanted]. An unknown skill fails the boot. */
+  fun syncLearnset(bestia: Bestia, wanted: List<MobYmlDto.LearnedAttack>) {
+    val skills = wanted.map { attack ->
+      val skill = skillRepository.findByIdentifier(attack.skill)
+        ?: throw IllegalArgumentException("Mob '${bestia.identifier}' learns unknown skill '${attack.skill}'")
+      skill to attack.level
+    }
+
+    val stored = bestiaSkillRepository.findAllByBestiaId(bestia.id)
+    val storedPairs = stored.map { it.skill.id to it.requiredLevel }.toSet()
+    val wantedPairs = skills.map { (skill, level) -> skill.id to level }.toSet()
+    if (storedPairs == wantedPairs) {
+      return
+    }
+
+    bestiaSkillRepository.deleteAll(stored)
+    bestiaSkillRepository.saveAll(skills.map { (skill, level) -> BestiaSkill(bestia, skill, level) })
   }
 
   override fun getEntityIdentifier(entity: Bestia): String {

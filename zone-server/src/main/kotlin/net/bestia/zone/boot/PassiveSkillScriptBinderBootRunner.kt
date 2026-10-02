@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component
  * names, once the skill import has run, so the per-recalc lookup in `StatusValueRecalcSystem` never
  * has to touch the database. The passive counterpart of [EquipmentScriptBinderBootRunner], and
  * ordered right after it for the same reason: it needs the catalogue its importer
- * ([SkillImporterBootRunner], order 102) has just written.
+ * ([SkillImporterBootRunner], order 101) has just written.
  *
  * ### Why a CommandLineRunner rather than an ApplicationReadyEvent listener
  *

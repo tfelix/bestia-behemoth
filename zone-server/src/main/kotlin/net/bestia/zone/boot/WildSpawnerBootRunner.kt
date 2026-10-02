@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component
 /**
  * Places every wild den the generator produced into the ECS world.
  *
- * Ordered after the mob importer (`@Order(101)`) because [WildSpawnerService] joins each den against the
+ * Ordered after the mob importer (`@Order(102)`) because [WildSpawnerService] joins each den against the
  * bestia catalogue, and after the world loader for the obvious reason. Before
  * [EntityLoaderBootRunner] (`@Order(110)`) so a den is never mistaken for a persisted entity.
  *
