@@ -36,6 +36,10 @@ const MISSING_VISUAL: PackedScene = preload("res://Game/Entity/Visual/ItemVisual
 ## [method EquipmentSlot.from_item_value] to turn it into a real slot.
 @export var equip_slot: int = 0
 
+## How heavy this armor is, as the server's ArmorType ordinal [b]+ 1[/b] (CLOTH = 1 to HEAVY = 4) - 0 means
+## "not armor", which anyone with the slot may wear. Kept in sync with items.yml by './gradlew syncItemDb'.
+@export var armor_type: int = 0
+
 ## Cache for instantiated ItemUse objects. Key: GDScript path, Value: ItemUse instance
 static var _script_instance_cache: Dictionary = {}
 

@@ -10,3 +10,4 @@ equip_slots = 16
 non_combatant = false
 description_key = "BESTIA_BLOB_DESC"
 kind = "FORMLESS"
+armor_types = 3

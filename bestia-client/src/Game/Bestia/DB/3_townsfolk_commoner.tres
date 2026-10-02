@@ -12,3 +12,4 @@ equip_slots = 57
 non_combatant = true
 description_key = "BESTIA_TOWNSFOLK_COMMONER_DESC"
 kind = "HUMANOID"
+armor_types = 15

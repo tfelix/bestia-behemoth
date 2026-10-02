@@ -19,10 +19,10 @@ import java.io.File
  * against the Godot client's Item DB (the `.tres` files under `bestia-client/src/Game/Item/DB/`),
  * the exact check/sync split [SkillDbSyncTask] uses for skills.
  *
- * `item_id`, `type`, `weight`, `level`, `equip_slot`, `name_key` and `description_key` are touched - every
- * other field (`icon`, `item_script`, `item_visual`) is hand-authored client presentation with no
- * server equivalent and is left alone. `equip_slot` is only checked/patched for `EQUIP` items;
- * anything else is fine relying on the resource default of 0 ("not equipment").
+ * `item_id`, `type`, `weight`, `level`, `equip_slot`, `armor_type`, `name_key` and `description_key` are
+ * touched - every other field (`icon`, `item_script`, `item_visual`) is hand-authored client presentation
+ * with no server equivalent and is left alone. `equip_slot` and `armor_type` are only checked/patched when
+ * set; anything else is fine relying on the resource default of 0 ("not equipment", "not armor").
  *
  * A `.tres` saved from the Godot inspector - which is how `icon` gets authored - is rewritten whole,
  * and every property still equal to its script default is dropped. A missing line therefore reads as
@@ -39,7 +39,8 @@ import java.io.File
  * when missing and are then hand-authored, since the server has no display name for an item.
  *
  * `equip_slot` values are `EquipmentSlot` **ordinals + 1** (0 means "none"), matching
- * `Game/Item/equipment_slot.gd`. See [SLOT_ORDER].
+ * `Game/Item/equipment_slot.gd`. See [SLOT_ORDER]. `armor_type` values are `ArmorType` ordinals + 1 the
+ * same way, see [ArmorTypeOrder].
  */
 abstract class ItemDbSyncTask : DefaultTask() {
 
@@ -65,6 +66,8 @@ abstract class ItemDbSyncTask : DefaultTask() {
     val type: String,
     @JsonProperty("equip-slot")
     val equipSlot: String? = null,
+    @JsonProperty("armor-type")
+    val armorType: String? = null,
     val description: String? = null
   )
 
@@ -76,6 +79,7 @@ abstract class ItemDbSyncTask : DefaultTask() {
     val level: Int,
     val type: Int,
     val equipSlot: Int,
+    val armorType: Int,
     val description: String?
   )
 
@@ -93,6 +97,7 @@ abstract class ItemDbSyncTask : DefaultTask() {
         level = item.level,
         type = typeOrdinalOf(item),
         equipSlot = equipSlotValueOf(item),
+        armorType = armorTypeValueOf(item),
         description = item.description?.trim()?.takeIf { it.isNotEmpty() }
       )
     }
@@ -107,6 +112,7 @@ abstract class ItemDbSyncTask : DefaultTask() {
     val levelPattern = Regex("""^level\s*=\s*(\d+)""", RegexOption.MULTILINE)
     val typePattern = Regex("""^type\s*=\s*(\d+)""", RegexOption.MULTILINE)
     val equipSlotPattern = Regex("""^equip_slot\s*=\s*(\d+)""", RegexOption.MULTILINE)
+    val armorTypePattern = Regex("""^armor_type\s*=\s*(\d+)""", RegexOption.MULTILINE)
     val nameKeyPattern = Regex("""^name_key\s*=\s*"([^"]*)"""", RegexOption.MULTILINE)
     val descriptionKeyPattern = Regex("""^description_key\s*=\s*"([^"]*)"""", RegexOption.MULTILINE)
 
@@ -153,6 +159,11 @@ abstract class ItemDbSyncTask : DefaultTask() {
       if (expected.equipSlot != DEFAULT_EQUIP_SLOT) {
         patchNumericField(
           file, "equip_slot", equipSlotPattern, expected.equipSlot, DEFAULT_EQUIP_SLOT, id, shouldFix, problems
+        )
+      }
+      if (expected.armorType != DEFAULT_ARMOR_TYPE) {
+        patchNumericField(
+          file, "armor_type", armorTypePattern, expected.armorType, DEFAULT_ARMOR_TYPE, id, shouldFix, problems
         )
       }
 
@@ -276,6 +287,12 @@ abstract class ItemDbSyncTask : DefaultTask() {
     return index + 1
   }
 
+  /** 0 means "not armor"; everything else is the [ArmorTypeOrder] ordinal + 1. */
+  private fun armorTypeValueOf(item: ItemDto): Int {
+    val name = item.armorType ?: return DEFAULT_ARMOR_TYPE
+    return ArmorTypeOrder.ordinalOf(name, "item '${item.identifier}'") + 1
+  }
+
   private fun stubTres(id: Long, expected: Expected, nameKey: String, descriptionKey: String): String {
     // Omitted when they equal the resource default, both to match what a Godot save leaves behind and
     // because the checks above read a missing line as that default.
@@ -284,6 +301,8 @@ abstract class ItemDbSyncTask : DefaultTask() {
     val typeLine = if (expected.type != DEFAULT_TYPE) "\ntype = ${expected.type}" else ""
     val equipSlotLine =
       if (expected.equipSlot != DEFAULT_EQUIP_SLOT) "\nequip_slot = ${expected.equipSlot}" else ""
+    val armorTypeLine =
+      if (expected.armorType != DEFAULT_ARMOR_TYPE) "\narmor_type = ${expected.armorType}" else ""
     return """
     [gd_resource type="Resource" script_class="ItemResource" load_steps=2 format=3]
 
@@ -294,7 +313,7 @@ abstract class ItemDbSyncTask : DefaultTask() {
     item_id = $id
     name_key = "$nameKey"
     description_key = "$descriptionKey"
-    """.trimIndent() + weightLine + levelLine + typeLine + equipSlotLine + "\n"
+    """.trimIndent() + weightLine + levelLine + typeLine + equipSlotLine + armorTypeLine + "\n"
   }
 
   companion object {
@@ -303,6 +322,7 @@ abstract class ItemDbSyncTask : DefaultTask() {
     private const val DEFAULT_LEVEL = 1
     private const val DEFAULT_TYPE = 0
     private const val DEFAULT_EQUIP_SLOT = 0
+    private const val DEFAULT_ARMOR_TYPE = 0
 
     /** Must mirror `net.bestia.zone.item.Item.ItemType` and `ItemResource.ItemType`. */
     private val TYPE_ORDER = listOf("USABLE", "EQUIP", "ETC")
