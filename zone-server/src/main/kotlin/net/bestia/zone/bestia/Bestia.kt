@@ -21,6 +21,10 @@ class Bestia(
   var health: Int,
   var mana: Int,
 
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false, length = 32)
+  var kind: BestiaKind = BestiaKind.BEAST,
+
   /**
    * The species' primary attributes - the mob counterpart of a master's six, seeded into
    * [net.bestia.zone.ecs.battle.status.BaseStatusValues] by `BestiaEntitySpawner` and from there into every

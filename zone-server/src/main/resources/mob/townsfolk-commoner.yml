@@ -1,6 +1,7 @@
 id: 3
 identifier: townsfolk_commoner
 level: 1
+kind: HUMANOID
 ai: townsfolk_commoner
 health: 20
 mana: 0
