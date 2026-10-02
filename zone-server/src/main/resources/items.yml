@@ -9,6 +9,9 @@
 #
 # An instance's effective level is this plus its upgrade level, so a `+6` sword is harder to repair than a
 # plain one. Item.effectiveLevel is the only place that arithmetic lives.
+#
+# `armor-type` (CLOTH, LIGHT, MEDIUM or HEAVY) makes gear armor. A bestia only wears the types its mob YML
+# lists under `armor-types`. Weapons and accessories have none, so anyone with the slot can wear them.
 items:
   - id: 1
     item-db-name: apple
@@ -46,6 +49,7 @@ items:
     weight: 80
     type: EQUIP
     equip-slot: FOOTGEAR
+    armor-type: LIGHT
     max-durability: 120
     script: ShoesScript
     description: |
@@ -59,6 +63,7 @@ items:
     weight: 200
     type: EQUIP
     equip-slot: FOOTGEAR
+    armor-type: MEDIUM
     max-durability: 260
     script: BootsScript
     description: |
@@ -207,6 +212,7 @@ items:
     weight: 650
     type: EQUIP
     equip-slot: ARMOR
+    armor-type: HEAVY
     max-durability: 300
     script: IronCuirassScript
     description: |
@@ -599,6 +605,7 @@ items:
     weight: 120
     type: EQUIP
     equip-slot: ARMOR
+    armor-type: CLOTH
     max-durability: 100
     description: |
       A plain linen tunic worn with a narrow belt.
@@ -724,6 +731,7 @@ items:
     weight: 120
     type: EQUIP
     equip-slot: ARMOR
+    armor-type: CLOTH
     max-durability: 100
     novice-only: true
     script: NoviceShirtScript
@@ -738,6 +746,7 @@ items:
     weight: 60
     type: EQUIP
     equip-slot: FOOTGEAR
+    armor-type: LIGHT
     max-durability: 80
     novice-only: true
     script: NoviceBootsScript

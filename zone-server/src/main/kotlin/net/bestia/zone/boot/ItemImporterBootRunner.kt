@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.item.Item
 import net.bestia.zone.item.ItemRepository
+import net.bestia.zone.item.equip.ArmorType
 import net.bestia.zone.item.equip.EquipmentSlot
 import org.springframework.boot.CommandLineRunner
 import org.springframework.core.annotation.Order
@@ -39,6 +40,8 @@ class ItemImporterBootRunner(
     val maxDurability: Int = 0,
     @JsonProperty("novice-only")
     val noviceOnly: Boolean = false,
+    @JsonProperty("armor-type")
+    val armorType: ArmorType? = null,
     val description: String? = null,
 
     /**
@@ -89,6 +92,7 @@ class ItemImporterBootRunner(
       || entity.level != dto.level
       || entity.maxDurability != dto.maxDurability
       || entity.noviceOnly != dto.noviceOnly
+      || entity.armorType != dto.armorType
       || entity.description != dto.description
       || entity.stackable != stackableOf(dto, type)
 
@@ -103,6 +107,7 @@ class ItemImporterBootRunner(
     entity.level = dto.level
     entity.maxDurability = dto.maxDurability
     entity.noviceOnly = dto.noviceOnly
+    entity.armorType = dto.armorType
     entity.description = dto.description
     // Follows the type unless the yml overrides it - an item changed from EQUIP to ETC that kept
     // `stackable = false` would silently stop merging in the inventory.
@@ -135,6 +140,7 @@ class ItemImporterBootRunner(
       level = dto.level,
       maxDurability = dto.maxDurability,
       noviceOnly = dto.noviceOnly,
+      armorType = dto.armorType,
       description = dto.description,
       stackable = stackableOf(dto, getType(dto))
     )

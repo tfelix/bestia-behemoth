@@ -1,5 +1,6 @@
 package net.bestia.zone.item
 
+import net.bestia.zone.item.equip.ArmorType
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -56,5 +57,18 @@ class ItemTest {
     )
 
     assertEquals("Heals a small amount of health.", item.description)
+  }
+
+  @Test
+  fun `an armor type on an item that is not equipment throws`() {
+    assertThrows<IllegalArgumentException> {
+      Item(
+        id = 2,
+        identifier = "jelly",
+        weight = 1,
+        type = Item.ItemType.ETC,
+        armorType = ArmorType.CLOTH
+      )
+    }
   }
 }
