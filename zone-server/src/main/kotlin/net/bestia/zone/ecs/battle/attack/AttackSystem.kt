@@ -9,6 +9,7 @@ import net.bestia.zone.ecs.battle.effects.StatusEffects
 import net.bestia.zone.ecs.battle.level.Level
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.battle.status.Invulnerable
+import net.bestia.zone.ecs.battle.status.Nature
 import net.bestia.zone.ecs.battle.status.StatusValues
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Schedule
@@ -46,7 +47,7 @@ class AttackSystem(
    * `PropSupportSystem`, `WorldObjectResidencySystem` and `ConstructionSystem` all write them.
    */
   override val reads: ComponentClassSet = setOf(
-    Dead::class, Level::class, StatusEffects::class, Invulnerable::class,
+    Dead::class, Level::class, Nature::class, StatusEffects::class, Invulnerable::class,
     WorldObjectIdentity::class, PropPose::class, PropVitality::class
   )
 

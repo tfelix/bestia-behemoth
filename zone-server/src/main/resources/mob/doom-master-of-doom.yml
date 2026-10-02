@@ -2,6 +2,9 @@ id: 2
 identifier: doom_master_of_doom
 level: 100
 kind: DEMON
+# A level 100 boss of the corrupted land: shadow at its strongest, so only holy weapons cut deep.
+element: SHADOW_4
+size: BIG
 # Statuswerte
 health: 4000
 mana: 900

@@ -2,6 +2,7 @@ id: 1
 identifier: blob
 level: 3
 kind: FORMLESS
+size: SMALL
 # Statuswerte
 ai: passive_wanderer
 health: 10

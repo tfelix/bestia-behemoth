@@ -1,6 +1,7 @@
 package net.bestia.zone.battle
 
 import io.mockk.mockk
+import net.bestia.zone.ecs.battle.status.Nature
 import net.bestia.zone.ecs.battle.status.StatusValues
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld
@@ -8,6 +9,7 @@ import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.world.prop.PropPromotionService
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
 
@@ -42,7 +44,31 @@ class BattleContextFactoryTest {
     assertNotNull(ctx, "a mob with StatusValues must produce a battle context")
   }
 
-  private fun World.spawnMobLike(): EntityId = createEntity { id ->
+  @Test
+  fun `a defender is hit as its species' element, and as NORMAL without one`() {
+    val world = testWorld()
+
+    val attacker = world.spawnMobLike()
+    val fiery = world.spawnMobLike(Nature(Element.FIRE_2, Size.SMALL))
+    val plain = world.spawnMobLike()
+
+    fun defenderElement(defender: EntityId) = world.locked {
+      val ctx = factory.create(
+        world = world,
+        attackerId = attacker,
+        usedAttack = BattleContextFixture.attack(),
+        targetEntityId = defender,
+        targetPosition = null
+      ) as EntityBattleContext
+      ctx.defender.assumedElement
+    }
+
+    assertEquals(Element.FIRE_2, defenderElement(fiery))
+    assertEquals(Element.NORMAL, defenderElement(plain))
+  }
+
+  private fun World.spawnMobLike(nature: Nature? = null): EntityId = createEntity { id ->
+    nature?.let { add(id, it) }
     add(id, Position.fromVec3(Vec3L(1L, 0L, 0L)))
     add(id, StatusValues(strength = 10, intelligence = 10, vitality = 10, dexterity = 10, willpower = 10, agility = 10))
   }
