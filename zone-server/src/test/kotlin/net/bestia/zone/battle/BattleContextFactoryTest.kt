@@ -20,8 +20,8 @@ class BattleContextFactoryTest {
   private val factory = BattleContextFactory(PropPromotionService(mockk(relaxed = true)))
 
   /**
-   * Regression for the mob-seeding fix: a mob now carries [StatusValues] (but no Level component),
-   * so it must be projectable into a [BattleEntity] as both attacker and defender. Before the fix
+   * Regression for the mob-seeding fix: an entity with [StatusValues] but no Level component must be
+   * projectable into a [BattleEntity] as both attacker and defender, read as level 1. Before the fix
    * `battleEntity` returned null on the missing StatusValues, so no mob could ever fight.
    */
   @Test

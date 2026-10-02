@@ -114,8 +114,7 @@ class BlobBalanceTest {
   }
 
   private fun blobEntity() = BattleContextFixture.battleEntity(
-    // Mobs carry no Level component, so a fight reads them at 1 whatever the catalogue says.
-    level = 1,
+    level = blob.level,
     strength = blob.attributes.strength,
     intelligence = blob.attributes.intelligence,
     vitality = blob.attributes.vitality,

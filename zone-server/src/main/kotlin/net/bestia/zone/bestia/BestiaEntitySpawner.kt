@@ -9,7 +9,9 @@ import net.bestia.zone.navigation.MovementCapability
 import net.bestia.zone.navigation.profile.MovementProfileRegistry
 import net.bestia.zone.ecs.battle.status.BaseStatusValues
 import net.bestia.zone.ecs.battle.status.Health
+import net.bestia.zone.ecs.battle.level.Level
 import net.bestia.zone.ecs.battle.status.Invulnerable
+import net.bestia.zone.ecs.battle.status.Mana
 import net.bestia.zone.ecs.battle.status.Nature
 import net.bestia.zone.ecs.battle.status.Stamina
 import net.bestia.zone.ecs.battle.status.StatusValues
@@ -77,6 +79,12 @@ class BestiaEntitySpawner(
       add(id, Position.fromVec3(pos))
       add(id, visual ?: EntityVisual(VisualKind.BESTIA, bestiaId))
       add(id, Health(bestia.health, bestia.health))
+      // The authored pool, like health. Without one a cast costs nothing, because the mana check lets an
+      // entity with no Mana through.
+      add(id, Mana(bestia.mana, bestia.mana))
+      // Its species level, which ATK, MATK, HIT, FLEE and the defences all read. Without it a fight reads a
+      // mob as level 1. No Exp goes with it, so a mob never levels up.
+      add(id, Level(bestia.level))
       add(id, Stamina(current = 10, max = 10))
       add(id, Speed())
       add(id, Nature(bestia.element, bestia.size))

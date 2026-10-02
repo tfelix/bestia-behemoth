@@ -100,7 +100,7 @@ class ActorSignatureSystem(
     return ActorSignature(
       kind = ActorKind.BESTIA,
       speciesId = species.id,
-      // A wild mob carries no Level component at all, so the species row is the only answer there is.
+      // A wild mob carries its species level; the species row covers a body spawned without one.
       level = world.get(entityId, Level::class)?.level ?: species.level,
       identifier = species.identifier,
       masterName = null,
