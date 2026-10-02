@@ -160,6 +160,10 @@ enum OpError {
   // is refused and when one the wearer already had is taken back off, which is why the wording has to read
   // for both - see `EquipmentRevalidationService`.
   EQUIP_NOVICE_ONLY = 50;
+
+  // The bestia's species cannot wear armor of that weight, such as plate on a blob. The client does not grey
+  // these out yet, so a player can ask for one.
+  EQUIP_ARMOR_TYPE_NOT_WEARABLE = 51;
 }
 
 message OperationError {

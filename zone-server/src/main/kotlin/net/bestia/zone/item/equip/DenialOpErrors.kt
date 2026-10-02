@@ -11,6 +11,7 @@ import net.bestia.bnet.proto.OperationErrorProto
 fun EquipmentService.Denial.toOpError(): OperationErrorProto.OpError {
   return when (this) {
     EquipmentService.Denial.SLOT_NOT_AVAILABLE -> OperationErrorProto.OpError.EQUIP_SLOT_NOT_AVAILABLE
+    EquipmentService.Denial.ARMOR_TYPE_NOT_WEARABLE -> OperationErrorProto.OpError.EQUIP_ARMOR_TYPE_NOT_WEARABLE
     EquipmentService.Denial.ITEM_NOT_FOUND -> OperationErrorProto.OpError.EQUIP_ITEM_NOT_FOUND
     EquipmentService.Denial.NOT_ALLOWED -> OperationErrorProto.OpError.EQUIP_NOT_ALLOWED
     EquipmentService.Denial.LEVEL_TOO_LOW -> OperationErrorProto.OpError.EQUIP_LEVEL_TOO_LOW

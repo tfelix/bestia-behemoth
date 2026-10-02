@@ -38,10 +38,13 @@ habitat:
 temperature-min: -5
 temperature-max: 32
 spawn-weight: 100
-# A blob has no head, hands or accessories - only these two slots exist for it.
+# A blob has no head, hands, accessories or a body to strap armor to. A cape is all it can wear, and only one
+# light enough not to slide off.
 equip-slots:
-  - ARMOR
   - GARMENT
+armor-types:
+  - CLOTH
+  - LIGHT
 loot:
   - item: jelly
     chance: 1000

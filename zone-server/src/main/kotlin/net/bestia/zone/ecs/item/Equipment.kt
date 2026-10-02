@@ -4,6 +4,7 @@ import net.bestia.zone.ecs.core.Dirtyable
 import net.bestia.zone.ecs.SyncTargets
 import net.bestia.zone.ecs.core.Component
 import net.bestia.zone.ecs.core.World
+import net.bestia.zone.item.equip.ArmorType
 import net.bestia.zone.item.equip.EquipmentSlot
 import net.bestia.zone.item.equip.hasEquipSlot
 import net.bestia.zone.message.EntitySMSG
@@ -14,12 +15,13 @@ import net.bestia.zone.util.EntityId
  * markers on its durable [net.bestia.zone.item.container.ItemContainer] slots the same way
  * [Inventory] mirrors the container's stacks.
  *
- * [availableSlotMask] is the entity's *physical* slot set (all slots for a master, the species mask
- * for a bestia). It stays server-side: the client derives the same information from its own static
- * bestia DB, so it is never part of [toEntityMessage].
+ * [availableSlotMask] and [wearableArmorTypeMask] are what the entity's *body* allows (everything for a
+ * master, the species masks for a bestia). They stay server-side: the client derives the same information
+ * from its own static bestia DB, so they are never part of [toEntityMessage].
  */
 data class Equipment(
   val availableSlotMask: Int,
+  val wearableArmorTypeMask: Int = ArmorType.ALL,
   private val worn: MutableMap<EquipmentSlot, EquippedItem> = mutableMapOf()
 ) : Component, Dirtyable {
 
@@ -45,6 +47,11 @@ data class Equipment(
   )
 
   fun isSlotAvailable(slot: EquipmentSlot): Boolean = availableSlotMask.hasEquipSlot(slot)
+
+  /** Gear without an armor type is not armor, so every body can wear it. */
+  fun canWearArmorType(type: ArmorType?): Boolean {
+    return type == null || (wearableArmorTypeMask and type.bit) != 0
+  }
 
   fun get(slot: EquipmentSlot): EquippedItem? = worn[slot]
 

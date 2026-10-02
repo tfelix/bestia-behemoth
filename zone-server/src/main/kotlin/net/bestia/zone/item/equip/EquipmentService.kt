@@ -28,6 +28,9 @@ class EquipmentService {
     /** The wearer physically has no such slot (bestia species mask). */
     SLOT_NOT_AVAILABLE,
 
+    /** The wearer's body cannot carry armor of this weight (bestia species mask). */
+    ARMOR_TYPE_NOT_WEARABLE,
+
     /** The item is not held by the wearer at all. */
     ITEM_NOT_FOUND,
 
@@ -65,6 +68,10 @@ class EquipmentService {
 
     if (!equipment.isSlotAvailable(slot)) {
       return Denial.SLOT_NOT_AVAILABLE
+    }
+
+    if (!equipment.canWearArmorType(item.armorType)) {
+      return Denial.ARMOR_TYPE_NOT_WEARABLE
     }
 
     val isHeld = inventory.getItems().any {

@@ -87,6 +87,13 @@ class Bestia(
   var equipSlotMask: Int = 0,
 
   /**
+   * Which [net.bestia.zone.item.equip.ArmorType]s this species can wear, as a bitmask over `ArmorType.bit`.
+   * Authored and mirrored into the client like [equipSlotMask].
+   */
+  @Column(name = "armor_type_mask", nullable = false)
+  var armorTypeMask: Int = 0,
+
+  /**
    * Biomes a wild spawner may place this species in, as a comma-separated list of
    * `net.bestia.worldgen.bio.Biome` **names**, or empty for "any biome the den's own rules allow".
    *

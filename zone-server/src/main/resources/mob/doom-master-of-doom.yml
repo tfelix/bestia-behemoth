@@ -25,6 +25,11 @@ equip-slots:
   - FOOTGEAR
   - RIGHT_HAND
   - LEFT_HAND
+armor-types:
+  - CLOTH
+  - LIGHT
+  - MEDIUM
+  - HEAVY
 loot:
   - item: jelly
     chance: 2000

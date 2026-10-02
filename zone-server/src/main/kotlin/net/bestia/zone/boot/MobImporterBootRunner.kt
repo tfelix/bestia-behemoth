@@ -11,6 +11,7 @@ import net.bestia.zone.bestia.BestiaSkill
 import net.bestia.zone.bestia.BestiaSkillRepository
 import net.bestia.zone.bestia.DefaultAttack
 import net.bestia.zone.item.ItemRepository
+import net.bestia.zone.item.equip.ArmorType
 import net.bestia.zone.item.equip.EquipmentSlot
 import net.bestia.zone.item.equip.EquipmentSlots
 import net.bestia.zone.item.loot.LootItem
@@ -74,6 +75,8 @@ class MobImporterBootRunner(
     val ai: String? = null,
     @JsonProperty("equip-slots")
     val equipSlots: List<String> = emptyList(),
+    @JsonProperty("armor-types")
+    val armorTypes: List<ArmorType> = emptyList(),
 
     /** Biome names a wild spawner may place this in; empty means the den's own rules decide alone. */
     val habitat: List<String> = emptyList(),
@@ -141,6 +144,7 @@ class MobImporterBootRunner(
       experienceReward = dto.experience,
       aiProfile = dto.ai,
       equipSlotMask = parseEquipSlotMask(dto),
+      armorTypeMask = ArmorType.maskOf(dto.armorTypes),
       habitat = parseHabitat(dto),
       corruptedOnly = dto.corruptedOnly,
       boss = dto.boss,
@@ -183,6 +187,7 @@ class MobImporterBootRunner(
 
     val habitat = parseHabitat(dto)
     val equipSlotMask = parseEquipSlotMask(dto)
+    val armorTypeMask = ArmorType.maskOf(dto.armorTypes)
 
     val changed = entity.level != dto.level ||
         entity.health != dto.health ||
@@ -200,6 +205,7 @@ class MobImporterBootRunner(
         entity.experienceReward != dto.experience ||
         entity.aiProfile != dto.ai ||
         entity.equipSlotMask != equipSlotMask ||
+        entity.armorTypeMask != armorTypeMask ||
         entity.habitat != habitat ||
         entity.corruptedOnly != dto.corruptedOnly ||
         entity.boss != dto.boss ||
@@ -229,6 +235,7 @@ class MobImporterBootRunner(
     entity.experienceReward = dto.experience
     entity.aiProfile = dto.ai
     entity.equipSlotMask = equipSlotMask
+    entity.armorTypeMask = armorTypeMask
     entity.habitat = habitat
     entity.corruptedOnly = dto.corruptedOnly
     entity.boss = dto.boss

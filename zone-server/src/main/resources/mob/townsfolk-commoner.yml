@@ -22,5 +22,10 @@ equip-slots:
   - ARMOR
   - GARMENT
   - FOOTGEAR
+armor-types:
+  - CLOTH
+  - LIGHT
+  - MEDIUM
+  - HEAVY
 # Nothing. Townsfolk are not killable in this release, so there is no body to loot.
 loot: []

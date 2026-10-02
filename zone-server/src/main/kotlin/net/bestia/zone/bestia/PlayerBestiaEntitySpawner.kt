@@ -178,13 +178,14 @@ class PlayerBestiaEntitySpawner(
   }
 
   /**
-   * Unlike a master, a bestia only has the slots its species declares (`equip-slots` in the mob
-   * YML). The client knows the same mask from its static bestia DB and greys the rest out; this is
-   * the server-side half of that rule.
+   * Unlike a master, a bestia only has the slots and armor types its species declares (`equip-slots` and
+   * `armor-types` in the mob YML). The client knows the same masks from its static bestia DB; this is the
+   * server-side half of that rule.
    */
   private fun buildEquipment(playerBestia: PlayerBestia): Equipment {
     return Equipment(
       availableSlotMask = playerBestia.bestia.equipSlotMask,
+      wearableArmorTypeMask = playerBestia.bestia.armorTypeMask,
       worn = playerBestia.container.equipped().mapValues { (_, slot) ->
         Equipment.EquippedItem(
           itemId = slot.template.id,
