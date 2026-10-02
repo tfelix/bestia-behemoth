@@ -1,6 +1,8 @@
 package net.bestia.zone.bestia
 
 import jakarta.persistence.*
+import net.bestia.zone.battle.Element
+import net.bestia.zone.battle.Size
 import net.bestia.zone.item.loot.LootItem
 import net.bestia.zone.util.requireValidIdentifier
 
@@ -24,6 +26,15 @@ class Bestia(
   @Enumerated(EnumType.STRING)
   @Column(nullable = false, length = 32)
   var kind: BestiaKind = BestiaKind.BEAST,
+
+  /** The element and its level every hit on this species is weighed against, see `ElementModifier`. */
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false, length = 32)
+  var element: Element = Element.NORMAL,
+
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false, length = 32)
+  var size: Size = Size.MEDIUM,
 
   /**
    * The species' primary attributes - the mob counterpart of a master's six, seeded into

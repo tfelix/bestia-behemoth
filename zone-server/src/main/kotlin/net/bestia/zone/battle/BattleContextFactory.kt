@@ -8,6 +8,7 @@ import net.bestia.zone.ecs.battle.effects.StatusEffects
 import net.bestia.zone.ecs.battle.level.Level
 import net.bestia.zone.ecs.battle.status.CombatBonus
 import net.bestia.zone.ecs.battle.status.Health
+import net.bestia.zone.ecs.battle.status.Nature
 import net.bestia.zone.ecs.battle.status.StatusValues
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.item.Equipment
@@ -105,8 +106,8 @@ class BattleContextFactory(
       ),
       statusValues = statusValues,
       derivedStatusValues = DerivedStatusValues.fromStatusValues(level, statusValues),
-      // TODO No element component exists yet; everything is NORMAL until elements are modelled.
-      assumedElement = Element.NORMAL,
+      // Armour and buffs that change it do not exist yet, so the species' own element is the whole answer.
+      assumedElement = world.get(entityId, Nature::class)?.element ?: Element.NORMAL,
       maxHealth = world.get(entityId, Health::class)?.max ?: 0,
       activeEffectIds = world.get(entityId, StatusEffects::class)
         ?.activeEffects

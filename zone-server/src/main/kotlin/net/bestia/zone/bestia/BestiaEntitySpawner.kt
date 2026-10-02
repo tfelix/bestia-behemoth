@@ -10,6 +10,7 @@ import net.bestia.zone.navigation.profile.MovementProfileRegistry
 import net.bestia.zone.ecs.battle.status.BaseStatusValues
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.battle.status.Invulnerable
+import net.bestia.zone.ecs.battle.status.Nature
 import net.bestia.zone.ecs.battle.status.Stamina
 import net.bestia.zone.ecs.battle.status.StatusValues
 import net.bestia.zone.ecs.movement.Position
@@ -78,6 +79,7 @@ class BestiaEntitySpawner(
       add(id, Health(bestia.health, bestia.health))
       add(id, Stamina(current = 10, max = 10))
       add(id, Speed())
+      add(id, Nature(bestia.element, bestia.size))
       // Deliberately no FormulaDrivenVitals marker, which is what keeps the authored Bestia.health above
       // from being overwritten by the player pool formula on the next StatusValueRecalcSystem pass.
       val baseStatusValues = BaseStatusValues(

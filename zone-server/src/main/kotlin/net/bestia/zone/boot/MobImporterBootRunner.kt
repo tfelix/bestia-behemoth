@@ -2,6 +2,8 @@ package net.bestia.zone.boot
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.zone.battle.Element
+import net.bestia.zone.battle.Size
 import net.bestia.zone.bestia.Bestia
 import net.bestia.zone.bestia.BestiaKind
 import net.bestia.zone.bestia.BestiaRepository
@@ -37,6 +39,10 @@ class MobImporterBootRunner(
     val experience: Int,
     val loot: List<Loot>,
     val kind: BestiaKind,
+
+    /** An element with its level, `EARTH` or `EARTH_2` for instance. */
+    val element: Element = Element.NORMAL,
+    val size: Size = Size.MEDIUM,
 
     /**
      * The species' primary attributes. Omit the block and every one of them stays at the flat 10 that was
@@ -97,6 +103,8 @@ class MobImporterBootRunner(
       mana = dto.mana,
       health = dto.health,
       kind = dto.kind,
+      element = dto.element,
+      size = dto.size,
       strength = dto.attributes.strength,
       intelligence = dto.attributes.intelligence,
       vitality = dto.attributes.vitality,
@@ -153,6 +161,8 @@ class MobImporterBootRunner(
         entity.health != dto.health ||
         entity.mana != dto.mana ||
         entity.kind != dto.kind ||
+        entity.element != dto.element ||
+        entity.size != dto.size ||
         entity.strength != dto.attributes.strength ||
         entity.intelligence != dto.attributes.intelligence ||
         entity.vitality != dto.attributes.vitality ||
@@ -179,6 +189,8 @@ class MobImporterBootRunner(
     entity.health = dto.health
     entity.mana = dto.mana
     entity.kind = dto.kind
+    entity.element = dto.element
+    entity.size = dto.size
     entity.strength = dto.attributes.strength
     entity.intelligence = dto.attributes.intelligence
     entity.vitality = dto.attributes.vitality
