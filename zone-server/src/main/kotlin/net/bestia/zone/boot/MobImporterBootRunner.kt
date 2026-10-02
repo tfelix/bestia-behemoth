@@ -47,6 +47,14 @@ class MobImporterBootRunner(
     val loot: List<Loot>,
     val kind: BestiaKind,
 
+    /**
+     * English source text for the client's `bestias.csv`, where it is translated. The server never reads it;
+     * it is declared only so a mob file with text still imports. See `BestiaDbSyncTask`.
+     */
+    val name: String,
+    val epithet: String? = null,
+    val description: String? = null,
+
     /** The attacks the species learns as it levels, by `skills.yml` identifier. */
     val learnset: List<LearnedAttack> = emptyList(),
 

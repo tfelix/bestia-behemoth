@@ -1,6 +1,12 @@
 id: 1
 identifier: blob
 level: 3
+# English source text for the client. syncBestiaDb copies it into bestias.csv, where it is translated.
+name: Blob
+epithet: the wobbling nuisance
+description: >-
+  A quivering lump of jelly that rolls through grass and dunes. It is harmless unless provoked, and
+  leaves sticky jelly behind when it bursts.
 kind: FORMLESS
 size: SMALL
 # Statuswerte
