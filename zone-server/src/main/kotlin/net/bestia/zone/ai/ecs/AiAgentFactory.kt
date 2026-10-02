@@ -4,6 +4,7 @@ import net.bestia.zone.ai.core.state.Blackboard
 import net.bestia.zone.ai.domain.AiDomainRuntime
 import net.bestia.zone.ai.profile.AiConfig
 import net.bestia.zone.ai.profile.AiProfile
+import net.bestia.zone.bestia.DefaultAttack
 import net.bestia.zone.geometry.Vec3L
 import org.springframework.stereotype.Service
 
@@ -29,15 +30,18 @@ class AiAgentFactory(
   private val byDomain = runtimes.associateBy { it.catalogue.id }
 
   /**
-   * Builds an agent for [profile]. [config] is the owning player's standing order, for a player-owned bestia;
-   * a wild mob passes null and simply runs its archetype as authored.
+   * Builds an agent for [profile], armed with the species' [defaultAttack]. [config] is the owning player's
+   * standing order, for a player-owned bestia; a wild mob passes null and simply runs its archetype as authored.
    */
   fun create(
-    profile: AiProfile,
+    archetype: AiProfile,
+    defaultAttack: DefaultAttack,
     homePosition: Vec3L,
     config: AiConfig? = null,
     memory: Blackboard = Blackboard(),
   ): AiAgent {
+    val profile = archetype.armedWith(defaultAttack)
+
     // `AiProfileRegistry` already refused any profile naming a domain that does not exist, so reaching this
     // means the runtime bean for a known domain is missing from the context rather than that a file is wrong.
     val runtime = byDomain[profile.domain]

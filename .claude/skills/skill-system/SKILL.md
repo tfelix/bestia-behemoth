@@ -118,9 +118,10 @@ numbers now, because there is no id to send. Casting a skill is `ActivateSkillCM
 message down a different pathway.
 
 The old `tackle` row (id 1001) was exactly this mistake and has been removed, along with the
-`0`-valued `skillId` mobs used to be seeded with — an id `skills.yml` never had. An AI profile's
-`attacks:` entry leaves `skill_id` unset for a basic attack, and names a real catalogue id only when
-the creature should genuinely *cast* something (it must then know that skill via `KnownSkills`).
+`0`-valued `skillId` mobs used to be seeded with — an id `skills.yml` never had. A mob's basic attack
+is its species' `default-attack` (`MELEE`, `RANGED` or `BOTH` in the mob YAML), never an AI profile
+entry. A profile's `attacks:` lists attack skills only, each with a `skill_id`; the creature must know
+that skill via `KnownSkills`, and falls back to its default attack when it cannot use it.
 
 **How hard it hits** is `battle/damage/BaseDamageCalculator.kt`, whose KDoc carries the formula and
 what is still missing from it. Don't restate it anywhere else — it is one template with three

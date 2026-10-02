@@ -14,7 +14,6 @@ faction: critters
 perception:
   sight_radius: 6
 wander_radius: 32
-melee_range: 1
 hunger_threshold: 70
 tiredness_threshold: 75
 restless_threshold: 40
@@ -35,5 +34,3 @@ actions:
   - sleep
   - returnHome
   - wander
-attacks:
-  - { id: nip, range: 1, base_cost: 8, cooldown_seconds: 2.0 }

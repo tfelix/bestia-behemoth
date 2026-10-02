@@ -3,7 +3,6 @@ package net.bestia.zone.ai.bt.leaves
 import net.bestia.zone.ai.core.behavior.BtContext
 import net.bestia.zone.ai.core.behavior.BtNode
 import net.bestia.zone.ai.core.behavior.Status
-import net.bestia.zone.battle.Element
 import net.bestia.zone.battle.skill.AttackExecutionService
 import net.bestia.zone.battle.skill.AttackOutcome
 import net.bestia.zone.battle.skill.BattleAttack
@@ -53,8 +52,8 @@ class UseSkill(
 }
 
 /**
- * Swings at [targetId] with the attack an entity has when it has nothing else: no catalogue row, no script,
- * no mana, no cast bar.
+ * Swings or shoots at [targetId] with the attack an entity has when it has nothing else: no catalogue row,
+ * no script, no mana, no cast bar. For a bestia that is its species' default attack.
  *
  * Separate from [UseSkill] because the two share nothing but the word "attack". This is also what mobs use,
  * which is why nothing seeds them a skill id any more — the old arrangement had them casting id 0, a row that
@@ -68,11 +67,9 @@ class UseSkill(
 class BasicAttack(
   private val targetId: EntityId,
   private val attacks: AttackExecutionService,
-  baseAttackMotionMs: Int,
-) : BtNode {
-
   // TODO Take the weapon and its element off the attacker once an equipment system exists.
-  private val attack = BattleAttack.getBasicMeleeAttack(Element.NORMAL, baseAttackMotionMs)
+  private val attack: BattleAttack,
+) : BtNode {
 
   override fun tick(context: BtContext): Status {
     val world = context.world
