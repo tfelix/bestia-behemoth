@@ -2,6 +2,9 @@ package net.bestia.zone.ai.ecs
 
 import io.mockk.verify
 import net.bestia.zone.ai.domain.bestia.BestiaDomain
+import net.bestia.zone.ai.profile.AiProfileDto
+import net.bestia.zone.battle.skill.AttackType
+import net.bestia.zone.bestia.DefaultAttack
 import net.bestia.zone.ecs.movement.Path
 import net.bestia.zone.geometry.Vec3L
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -41,7 +44,7 @@ class AiBehaviorScenarioTest {
     assertEquals(player, agent.memory.get(BestiaDomain.TARGET_ID))
     assertEquals(true, agent.memory.get(BestiaDomain.ENEMY_IN_SIGHT))
     assertEquals(
-      listOf("approachTarget", "attack(claw)"),
+      listOf("approachTarget", "attack(melee)"),
       agent.currentPlan?.actions?.map { it.name },
     )
   }
@@ -61,7 +64,7 @@ class AiBehaviorScenarioTest {
   }
 
   @Test
-  fun `the mob swings its basic attack once in melee range`() {
+  fun `the mob swings its default attack once in melee range`() {
     val mob = ai.spawnMob("aggressive_melee", Vec3L(0, 0, 0))
     val player = ai.spawnPlayer(Vec3L(1, 0, 0))
 
@@ -70,12 +73,46 @@ class AiBehaviorScenarioTest {
 
     // Going through the attack service rather than stacking a Damage component directly is the point: a mob
     // swings by the same route a player does, so range and the damage formula both apply. It is deliberately
-    // *not* the skill service - a bite is not a catalogue row, which is what the profile saying no skillId
-    // means.
+    // *not* the skill service - a default attack is not a catalogue row.
     verify(atLeast = 1) {
       ai.attackExecution.attack(ai.world, mob, player, any())
     }
     verify(exactly = 0) { ai.skills.execute(any(), any(), any(), any(), any(), any()) }
+  }
+
+  @Test
+  fun `a ranged mob shoots from a distance`() {
+    val mob = ai.spawnMob("aggressive_melee", Vec3L(0, 0, 0), defaultAttack = DefaultAttack.RANGED)
+    val player = ai.spawnPlayer(Vec3L(4, 0, 0))
+
+    ai.tickUntilGoal(mob, "KillEnemy")
+    assertEquals(listOf("attack(ranged)"), ai.agentOf(mob).currentPlan?.actions?.map { it.name }, "no need to walk closer")
+    ai.tick(times = 20)
+
+    verify(atLeast = 1) {
+      ai.attackExecution.attack(ai.world, mob, player, match { it.attackType == AttackType.RANGED_PHYSICAL })
+    }
+  }
+
+  @Test
+  fun `a mob that cannot use its attack skill attacks with its default attack instead`() {
+    ai.profiles.register(
+      AiProfileDto(
+        identifier = "ember_caster",
+        goals = listOf(AiProfileDto.GoalDto(BestiaDomain.Goals.KILL_ENEMY.name)),
+        actions = listOf("approachTarget", "attack"),
+        attacks = listOf(AiProfileDto.AttackDto(id = "ember", range = 6, skillId = 1000)),
+      )
+    )
+    // No KnownSkills, so Ember is refused every time it is tried.
+    val mob = ai.spawnMob("ember_caster", Vec3L(0, 0, 0))
+    val player = ai.spawnPlayer(Vec3L(1, 0, 0))
+
+    ai.tickUntilGoal(mob, "KillEnemy")
+    assertEquals(listOf("attack(ember)"), ai.agentOf(mob).currentPlan?.actions?.map { it.name })
+    ai.tick(times = 20)
+
+    verify(atLeast = 1) { ai.attackExecution.attack(ai.world, mob, player, any()) }
   }
 
   @Test

@@ -74,7 +74,7 @@ object BestiaDomain : AiDomainCatalogue {
    * Stride is a separate question - see [net.bestia.zone.ai.bt.Locomotion.WANDER_STEP_TILES].
    */
   const val DEFAULT_WANDER_RADIUS = 24L
-  const val DEFAULT_MELEE_RANGE = 1L
+  const val DEFAULT_ATTACK_RANGE = 1L
   const val DEFAULT_RESTLESS_THRESHOLD = 60
 
   /**
@@ -111,7 +111,8 @@ object BestiaDomain : AiDomainCatalogue {
 
   // ------------------------------------------------------------------ this domain
 
-  val MELEE_RANGE = StateKey<Long>("meleeRange", retain = Blackboard.PERMANENT)
+  /** How close it gets before it attacks: the reach of its longest default attack. */
+  val ATTACK_RANGE = StateKey<Long>("attackRange", retain = Blackboard.PERMANENT)
 
   /** 0..100 temperament knob; scales how strongly the kill goals are wanted. */
   val AGGRESSION = StateKey<Int>("aggression", retain = Blackboard.PERMANENT)

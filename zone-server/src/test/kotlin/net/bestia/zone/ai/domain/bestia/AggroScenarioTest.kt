@@ -4,15 +4,16 @@ import net.bestia.zone.ai.core.agent.SimpleAgent
 import net.bestia.zone.ai.core.planner.PlanExecutor
 import net.bestia.zone.ai.core.planner.Planner
 import net.bestia.zone.ai.core.state.Blackboard
+import net.bestia.zone.bestia.DefaultAttack
 import net.bestia.zone.geometry.Vec3L
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
 /**
- * Exercises the combat goals: closing to melee range before attacking, preferring whichever
- * remembered-effective attack is cheapest once several are in range, and standing and fighting however badly
- * hurt the bestia is.
+ * Exercises the combat goals: closing to attack range before attacking, preferring whichever
+ * remembered-effective attack is cheapest once several are in range, falling back to the species' default
+ * attack, and standing and fighting however badly hurt the bestia is.
  *
  * That last one used to be the opposite assertion — a wounded creature was expected to break off and run.
  * There is no flee goal any more, so the cases that asserted it now assert that being hurt changes nothing
@@ -32,10 +33,11 @@ class AggroScenarioTest {
     targetPosition: Vec3L,
     archetype: String = "human",
     healthPct: Int = 100,
+    attackRange: Long = 1L,
   ): Blackboard = Blackboard().apply {
     set(BestiaDomain.POSITION, Vec3L(0, 0, 0))
     set(BestiaDomain.HOME_POSITION, Vec3L(0, 0, 0), Blackboard.PERMANENT)
-    set(BestiaDomain.MELEE_RANGE, 1L, Blackboard.PERMANENT)
+    set(BestiaDomain.ATTACK_RANGE, attackRange, Blackboard.PERMANENT)
     set(BestiaDomain.AGGRESSION, 80, Blackboard.PERMANENT)
     set(BestiaDomain.HEALTH_PCT, healthPct)
     set(BestiaDomain.IS_AGGRO, true)
@@ -48,7 +50,7 @@ class AggroScenarioTest {
   @Test
   fun `walks into melee range before attacking when the attacker is far away`() {
     val memory = aggroMemory(targetPosition = Vec3L(5, 0, 0))
-    val attacks = listOf(AttackDefinition(id = "claw", range = 1))
+    val attacks = listOf(DefaultAttackDefinition.MELEE)
     val agent = SimpleAgent(
       name = "wolf",
       goals = combatGoals,
@@ -58,7 +60,7 @@ class AggroScenarioTest {
     val world = Blackboard()
 
     val plan = planner.makePlanForAgent(agent, world)
-    assertEquals(listOf("approachTarget", "attack(claw)"), plan?.actions?.map { it.name })
+    assertEquals(listOf("approachTarget", "attack(melee)"), plan?.actions?.map { it.name })
 
     executor.execute(plan!!, agent, world)
     assertEquals(true, memory.get(BestiaDomain.TARGET_DEAD))
@@ -71,8 +73,8 @@ class AggroScenarioTest {
     AttackEffectiveness.record(memory, EffectivenessKey("golem", "fireBolt"), observed = 0.9)
 
     val attacks = listOf(
-      AttackDefinition(id = "slash", range = 1, baseCost = 5f),
-      AttackDefinition(id = "fireBolt", range = 4, baseCost = 5f),
+      SkillAttack(id = "slash", range = 1, skillId = 1001),
+      SkillAttack(id = "fireBolt", range = 4, skillId = 1002),
     )
     val agent = SimpleAgent(
       name = "golem-hunter",
@@ -87,6 +89,41 @@ class AggroScenarioTest {
   }
 
   @Test
+  fun `uses a skill in range before the default attack`() {
+    val memory = aggroMemory(targetPosition = Vec3L(1, 0, 0))
+    val attacks = listOf(SkillAttack(id = "ember", range = 6, skillId = 1000), DefaultAttackDefinition.MELEE)
+
+    val plan = planner.makePlanForAgent(wolf(memory, attacks), Blackboard())
+    assertEquals(listOf("attack(ember)"), plan?.actions?.map { it.name })
+  }
+
+  @Test
+  fun `a ranged species shoots from where it stands`() {
+    val memory = aggroMemory(targetPosition = Vec3L(5, 0, 0), attackRange = 6L)
+
+    val plan = planner.makePlanForAgent(wolf(memory, DefaultAttackDefinition.of(DefaultAttack.RANGED)), Blackboard())
+    assertEquals(listOf("attack(ranged)"), plan?.actions?.map { it.name })
+  }
+
+  @Test
+  fun `a species that bites and shoots bites a target next to it and shoots one further away`() {
+    val both = DefaultAttackDefinition.of(DefaultAttack.BOTH)
+
+    val adjacent = planner.makePlanForAgent(wolf(aggroMemory(Vec3L(1, 0, 0), attackRange = 6L), both), Blackboard())
+    val away = planner.makePlanForAgent(wolf(aggroMemory(Vec3L(4, 0, 0), attackRange = 6L), both), Blackboard())
+
+    assertEquals(listOf("attack(melee)"), adjacent?.actions?.map { it.name })
+    assertEquals(listOf("attack(ranged)"), away?.actions?.map { it.name })
+  }
+
+  private fun wolf(memory: Blackboard, attacks: List<AttackDefinition>) = SimpleAgent(
+    name = "wolf",
+    goals = combatGoals,
+    memory = memory,
+    actionResolver = BestiaDomainFixture.resolver(listOf("approachTarget", "attack"), attacks),
+  )
+
+  @Test
   fun `fights while healthy`() {
     val memory = aggroMemory(targetPosition = Vec3L(1, 0, 0), healthPct = 100)
     val agent = SimpleAgent(
@@ -95,7 +132,7 @@ class AggroScenarioTest {
       memory = memory,
       actionResolver = BestiaDomainFixture.resolver(
         listOf("approachTarget", "attack"),
-        listOf(AttackDefinition(id = "claw", range = 1)),
+        listOf(DefaultAttackDefinition.MELEE),
       ),
     )
 
@@ -112,7 +149,7 @@ class AggroScenarioTest {
       memory = memory,
       actionResolver = BestiaDomainFixture.resolver(
         listOf("approachTarget", "attack"),
-        listOf(AttackDefinition(id = "claw", range = 1)),
+        listOf(DefaultAttackDefinition.MELEE),
       ),
     )
     val world = Blackboard()
@@ -122,7 +159,7 @@ class AggroScenarioTest {
     // mechanic: a mob that bolts on the first hit cannot be fought.
     val plan = planner.makePlanForAgent(agent, world)
     assertEquals("KillAttacker", plan?.goal?.name)
-    assertEquals(listOf("attack(claw)"), plan?.actions?.map { it.name })
+    assertEquals(listOf("attack(melee)"), plan?.actions?.map { it.name })
 
     executor.execute(plan!!, agent, world)
     assertEquals(true, memory.get(BestiaDomain.TARGET_DEAD))
@@ -143,7 +180,7 @@ class AggroScenarioTest {
       memory = memory,
       actionResolver = BestiaDomainFixture.resolver(
         listOf("approachTarget", "attack", "sleep"),
-        listOf(AttackDefinition(id = "claw", range = 1)),
+        listOf(DefaultAttackDefinition.MELEE),
       ),
     )
 
@@ -165,7 +202,7 @@ class AggroScenarioTest {
       memory = memory,
       actionResolver = BestiaDomainFixture.resolver(
         listOf("approachTarget", "attack"),
-        listOf(AttackDefinition(id = "claw", range = 1)),
+        listOf(DefaultAttackDefinition.MELEE),
       ),
     )
 
@@ -174,6 +211,6 @@ class AggroScenarioTest {
     // target in plain sight and no goal at all — so it is gone, and health only scales the priority now.
     val plan = planner.makePlanForAgent(agent, Blackboard())
     assertEquals("KillEnemy", plan?.goal?.name)
-    assertEquals(listOf("approachTarget", "attack(claw)"), plan?.actions?.map { it.name })
+    assertEquals(listOf("approachTarget", "attack(melee)"), plan?.actions?.map { it.name })
   }
 }

@@ -2,6 +2,9 @@ package net.bestia.zone.ai.profile
 
 import net.bestia.zone.ai.domain.bestia.ActivityCycle
 import net.bestia.zone.ai.domain.bestia.AttackDefinition
+import net.bestia.zone.ai.domain.bestia.DefaultAttackDefinition
+import net.bestia.zone.ai.domain.bestia.SkillAttack
+import net.bestia.zone.bestia.DefaultAttack
 
 /**
  * Immutable, validated runtime representation of an AI archetype, parsed from a `resources/ai/<name>.yml`
@@ -20,6 +23,13 @@ data class AiProfile(
   val attacks: List<AttackDefinition>,
 ) {
 
+  /**
+   * This profile for one species: its attack skills plus the species' default attack, which the profile
+   * never lists because it belongs to the species, not to the behaviour.
+   */
+  fun armedWith(defaultAttack: DefaultAttack): AiProfile =
+    copy(attacks = attacks + DefaultAttackDefinition.of(defaultAttack))
+
   data class Perception(
     val sightRadius: Int,
     /** See [AiProfileDto.PerceptionDto.aggroMemorySeconds]. Exposed in millis, which is what the ledger uses. */
@@ -33,7 +43,6 @@ data class AiProfile(
   data class Tuning(
     val activityCycle: ActivityCycle,
     val wanderRadius: Long,
-    val meleeRange: Long,
     val hungerThreshold: Int,
     val tirednessThreshold: Int,
     val restlessThreshold: Int,
@@ -58,7 +67,6 @@ data class AiProfile(
       tuning = Tuning(
         activityCycle = dto.activityCycle,
         wanderRadius = dto.wanderRadius,
-        meleeRange = dto.meleeRange,
         hungerThreshold = dto.hungerThreshold,
         tirednessThreshold = dto.tirednessThreshold,
         restlessThreshold = dto.restlessThreshold,
@@ -66,15 +74,7 @@ data class AiProfile(
       ),
       goals = dto.goals.map { GoalTuning(it.name, it.basePriority) },
       actionIds = dto.actions,
-      attacks = dto.attacks.map {
-        AttackDefinition(
-          id = it.id,
-          range = it.range,
-          baseCost = it.baseCost,
-          skillId = it.skillId,
-          cooldownSeconds = it.cooldownSeconds,
-        )
-      },
+      attacks = dto.attacks.map { SkillAttack(id = it.id, range = it.range, baseCost = it.baseCost, skillId = it.skillId) },
     )
   }
 }

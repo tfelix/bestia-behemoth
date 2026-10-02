@@ -17,7 +17,6 @@ perception:
   # hit it keeps chasing, so a player who lands one blow and runs is followed rather than shrugged off.
   aggro_memory_seconds: 30
 wander_radius: 40
-melee_range: 1
 # Peckish sooner than the default archetypes: foraging is meant to be a visible part of its day, not a rare
 # errand.
 hunger_threshold: 60
@@ -38,5 +37,3 @@ actions:
   - sleep
   - returnHome
   - wander
-attacks:
-  - { id: bite, range: 1, base_cost: 5, cooldown_seconds: 2.0 }

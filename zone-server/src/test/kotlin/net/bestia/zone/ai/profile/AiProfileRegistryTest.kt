@@ -1,5 +1,6 @@
 package net.bestia.zone.ai.profile
 
+import net.bestia.zone.bestia.DefaultAttack
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -23,13 +24,19 @@ class AiProfileRegistryTest {
   }
 
   @Test
-  fun `parses tuning knobs and attacks`() {
+  fun `parses tuning knobs`() {
     val profile = loadedRegistry().getOrThrow("aggressive_melee")
 
     assertEquals(8, profile.perception.sightRadius)
     assertEquals(80, profile.tuning.aggression)
-    assertEquals(listOf("claw"), profile.attacks.map { it.id })
-    assertEquals(1L, profile.attacks.single().range)
+  }
+
+  @Test
+  fun `a profile lists no default attack, the species brings its own`() {
+    val profile = loadedRegistry().getOrThrow("aggressive_melee")
+
+    assertEquals(emptyList<String>(), profile.attacks.map { it.id })
+    assertEquals(listOf("ranged"), profile.armedWith(DefaultAttack.RANGED).attacks.map { it.id })
   }
 
   @Test

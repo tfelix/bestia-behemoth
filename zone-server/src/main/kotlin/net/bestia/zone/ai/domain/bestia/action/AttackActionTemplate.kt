@@ -1,5 +1,6 @@
 package net.bestia.zone.ai.domain.bestia.action
 
+import net.bestia.zone.ai.core.behavior.BtNode
 import net.bestia.zone.ai.bt.selector
 import net.bestia.zone.ai.core.action.Action
 import net.bestia.zone.ai.core.action.ActionTemplate
@@ -11,7 +12,9 @@ import net.bestia.zone.ai.bt.leaves.UseSkill
 import net.bestia.zone.ai.domain.bestia.AttackDefinition
 import net.bestia.zone.ai.domain.bestia.AttackEffectiveness
 import net.bestia.zone.ai.domain.bestia.BestiaDomain
+import net.bestia.zone.ai.domain.bestia.DefaultAttackDefinition
 import net.bestia.zone.ai.domain.bestia.EffectivenessKey
+import net.bestia.zone.ai.domain.bestia.SkillAttack
 import net.bestia.zone.battle.skill.AttackExecutionService
 import net.bestia.zone.battle.skill.SkillExecutionService
 
@@ -38,15 +41,18 @@ class AttackActionTemplate(
     val distance = position.distance(targetPosition)
     val effectiveness = state.get(BestiaDomain.ATTACK_EFFECTIVENESS) ?: emptyMap()
 
-    return attacks
-      .filter { distance <= it.range }
+    val inRange = attacks.filter { distance <= it.range }
+    val defaultAttack = closestDefaultAttack(inRange)
+
+    return inRange
+      .filter { it !is DefaultAttackDefinition || it == defaultAttack }
       .map { attack ->
         val estimate = effectiveness[EffectivenessKey(archetype, attack.id)] ?: AttackEffectiveness.UNKNOWN_ESTIMATE
         Action(
           name = "attack(${attack.id})",
           effects = listOf(Effects.set(BestiaDomain.TARGET_DEAD, true)),
           cost = { attack.baseCost * (1.5f - estimate.toFloat()) },
-          behavior = { fightUntilDead(targetId, attack) },
+          behavior = { fightUntilDead(targetId, attack, defaultAttack) },
         )
       }
   }
@@ -63,21 +69,33 @@ class AttackActionTemplate(
    * because being mid-attack-delay is not a failure) and report RUNNING. The cadence is the swing's own
    * attack delay, not a `cooldown { }` around it, so it survives a replan instead of resetting with the tree.
    */
-  private fun fightUntilDead(targetId: Long, attack: AttackDefinition) = selector {
+  private fun fightUntilDead(targetId: Long, attack: AttackDefinition, defaultAttack: DefaultAttackDefinition?) = selector {
     condition("target is dead") { ctx -> !ctx.world.isAlive(targetId) }
     sequence {
-      optional { node(swing(targetId, attack)) }
+      optional { node(swing(targetId, attack, defaultAttack)) }
       run("still fighting") { Status.RUNNING }
     }
   }
 
   /**
-   * A named skill goes through the skill pipeline; everything else is a plain swing. Most mobs only ever take
-   * this second branch, which is the point of keeping the two apart.
+   * A skill goes through the skill pipeline. When the bestia cannot use it, it attacks with its default
+   * attack instead of standing still.
    */
-  private fun swing(targetId: Long, attack: AttackDefinition) = attack.skillId
-    ?.let { UseSkill(targetId, it, skills) }
-    ?: BasicAttack(targetId, attackExecution, attack.attackMotionMs())
+  private fun swing(targetId: Long, attack: AttackDefinition, defaultAttack: DefaultAttackDefinition?): BtNode =
+    when (attack) {
+      is DefaultAttackDefinition -> BasicAttack(targetId, attackExecution, attack.attack)
+      is SkillAttack -> selector {
+        node(UseSkill(targetId, attack.skillId, skills))
+        defaultAttack?.let { node(BasicAttack(targetId, attackExecution, it.attack)) }
+      }
+    }
+
+  /**
+   * The default attack with the shortest reach that still reaches. A species that bites and shoots bites
+   * whoever stands next to it.
+   */
+  private fun closestDefaultAttack(inRange: List<AttackDefinition>) =
+    inRange.filterIsInstance<DefaultAttackDefinition>().minByOrNull { it.range }
 
   companion object {
     private const val UNKNOWN_ARCHETYPE = "unknown"

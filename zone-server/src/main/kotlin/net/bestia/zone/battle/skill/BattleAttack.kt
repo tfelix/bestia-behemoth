@@ -57,17 +57,13 @@ data class BattleAttack(
 
   companion object {
 
-    /** The swing an entity with no weapon still has. Every mob attacks with this until equipment exists. */
-    fun getBasicMeleeAttack(
-      element: Element = Element.NORMAL,
-      baseAttackMotionMs: Int = AttackSpeed.BARE_HANDED_MOTION_MS
-    ): BattleAttack = BattleAttack(
+    /** The swing an entity with no weapon still has: a melee species' default attack, and every player's. */
+    fun getBasicMeleeAttack(element: Element = Element.NORMAL): BattleAttack = BattleAttack(
       strength = 5,
       manaCost = 0,
       range = 1,
       attackType = AttackType.MELEE_PHYSICAL,
       needsLineOfSight = false,
-      baseAttackMotionMs = baseAttackMotionMs,
       aoeRadius = null,
       attackElement = element,
       script = null,

@@ -4,6 +4,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ai.ecs.AiAgent
 import net.bestia.zone.ai.ecs.AiAgentFactory
 import net.bestia.zone.ai.profile.AiProfileRegistry
+import net.bestia.zone.bestia.Bestia
 import net.bestia.zone.bestia.PlayerBestiaRepository
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
@@ -49,7 +50,7 @@ class SetBestiaAiConfigHandler(
     playerBestia.aiConfig = config
     playerBestiaRepository.save(playerBestia)
 
-    reapplyToLiveEntity(msg.playerId, msg.playerBestiaId, playerBestia.bestia.aiProfile)
+    reapplyToLiveEntity(msg.playerId, msg.playerBestiaId, playerBestia.bestia)
 
     // The stored config, not the requested one — the numbers may have been clamped.
     outMessageProcessor.sendToPlayer(msg.playerId, BestiaAiConfigSMSG(msg.playerBestiaId, config))
@@ -77,9 +78,8 @@ class SetBestiaAiConfigHandler(
    * Its home is taken from where the creature currently stands, matching what the spawner does — told to hold or
    * patrol, it should do so here, not back where it was first summoned.
    */
-  private fun reapplyToLiveEntity(accountId: Long, playerBestiaId: PlayerBestiaId, profileId: String?) {
-    if (profileId == null) return
-    val profile = aiProfileRegistry.get(profileId) ?: return
+  private fun reapplyToLiveEntity(accountId: Long, playerBestiaId: PlayerBestiaId, species: Bestia) {
+    val profile = species.aiProfile?.let(aiProfileRegistry::get) ?: return
 
     val masterId = runCatching { connectionInfoService.getMasterId(accountId) }.getOrNull() ?: return
     val entityId = connectionInfoService.getOwnedEntitiesByMaster(accountId, masterId)
@@ -91,7 +91,7 @@ class SetBestiaAiConfigHandler(
 
     world.modify(entityId) { id ->
       val home = get(id, Position::class)?.toVec3L() ?: return@modify
-      add(id, aiAgentFactory.create(profile, homePosition = home, config = stored))
+      add(id, aiAgentFactory.create(profile, species.defaultAttack, homePosition = home, config = stored))
     }
   }
 

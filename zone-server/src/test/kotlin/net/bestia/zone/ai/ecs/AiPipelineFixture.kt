@@ -41,6 +41,7 @@ import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.movement.Speed
 import net.bestia.zone.environment.time.BestiaClock
 import net.bestia.zone.environment.time.BestiaDateTime
+import net.bestia.zone.bestia.DefaultAttack
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.navigation.TestNavigation
 import net.bestia.zone.util.EntityId
@@ -203,8 +204,7 @@ class AiPipelineFixture(tickRate: Int = 20, randomSeed: Long = DEFAULT_SEED) {
   val world: World = testWorld(systems = systems)
 
   /**
-   * A mob running [profileId], at [pos]. No `KnownSkills`: a basic attack is not a catalogued skill, which is
-   * what the real spawner does too.
+   * A mob running [profileId], at [pos]. No `KnownSkills`: a default attack is not a catalogued skill.
    */
   fun spawnMob(
     profileId: String,
@@ -212,13 +212,14 @@ class AiPipelineFixture(tickRate: Int = 20, randomSeed: Long = DEFAULT_SEED) {
     health: Int = 10,
     maxHealth: Int = 10,
     memory: Blackboard = Blackboard(),
+    defaultAttack: DefaultAttack = DefaultAttack.MELEE,
   ): EntityId =
     world.createEntity { id ->
       world.add(id, Position.fromVec3(pos))
       world.add(id, Health(health, maxHealth))
       world.add(id, Speed())
       world.add(id, Animation())
-      world.add(id, agentFactory.create(profiles.getOrThrow(profileId), homePosition = pos, memory = memory))
+      world.add(id, agentFactory.create(profiles.getOrThrow(profileId), defaultAttack, homePosition = pos, memory = memory))
     }
 
   /**

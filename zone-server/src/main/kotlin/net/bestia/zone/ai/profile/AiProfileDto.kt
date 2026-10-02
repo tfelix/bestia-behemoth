@@ -46,7 +46,6 @@ data class AiProfileDto(
    */
   val activityCycle: ActivityCycle = ActivityCycle.CATHEMERAL,
   val wanderRadius: Long = BestiaDomain.DEFAULT_WANDER_RADIUS,
-  val meleeRange: Long = 1,
   val hungerThreshold: Int = 85,
   val tirednessThreshold: Int = 80,
   val restlessThreshold: Int = 60,
@@ -85,12 +84,9 @@ data class AiProfileDto(
     val baseCost: Float = 5f,
 
     /**
-     * Left unset for a plain bite or swing, which is what most profiles want - see
-     * [net.bestia.zone.ai.domain.bestia.AttackDefinition.skillId]. Naming a `skills.yml` id here makes the
-     * creature *cast* instead, and it must then know that skill.
+     * The `skills.yml` row the creature casts; it must know that skill. A plain swing or shot is not listed:
+     * it is the species' default attack, see [AiProfile.armedWith].
      */
-    val skillId: Long? = null,
-
-    val cooldownSeconds: Float = 1.5f,
+    val skillId: Long,
   )
 }

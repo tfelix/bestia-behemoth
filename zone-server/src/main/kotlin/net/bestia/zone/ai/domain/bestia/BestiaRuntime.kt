@@ -39,7 +39,7 @@ class BestiaRuntime(
   override val drives: List<Drive> = BestiaDomain.DRIVES
 
   /**
-   * Tuning facts never decay, hence [Blackboard.PERMANENT]: a melee range that quietly expired after ten
+   * Tuning facts never decay, hence [Blackboard.PERMANENT]: an attack range that quietly expired after ten
    * minutes would silently fall back to the domain default and change how the creature fights.
    */
   override fun attach(memory: Blackboard, profile: AiProfile, homePosition: Vec3L, config: AiConfig?) {
@@ -47,7 +47,7 @@ class BestiaRuntime(
     memory.set(BestiaDomain.HOME_POSITION, homePosition, Blackboard.PERMANENT)
     memory.set(BestiaDomain.ACTIVITY_CYCLE, tuning.activityCycle, Blackboard.PERMANENT)
     memory.set(BestiaDomain.WANDER_RADIUS, tuning.wanderRadius, Blackboard.PERMANENT)
-    memory.set(BestiaDomain.MELEE_RANGE, tuning.meleeRange, Blackboard.PERMANENT)
+    memory.set(BestiaDomain.ATTACK_RANGE, attackRangeOf(profile), Blackboard.PERMANENT)
     memory.set(BestiaDomain.HUNGER_THRESHOLD, tuning.hungerThreshold, Blackboard.PERMANENT)
     memory.set(BestiaDomain.TIREDNESS_THRESHOLD, tuning.tirednessThreshold, Blackboard.PERMANENT)
     memory.set(BestiaDomain.RESTLESS_THRESHOLD, tuning.restlessThreshold, Blackboard.PERMANENT)
@@ -60,6 +60,11 @@ class BestiaRuntime(
       Blackboard.PERMANENT,
     )
   }
+
+  // A ranged species stops at shooting distance; one that also bites lets the target come to it.
+  private fun attackRangeOf(profile: AiProfile): Long =
+    profile.attacks.filterIsInstance<DefaultAttackDefinition>().maxOfOrNull { it.range }
+      ?: BestiaDomain.DEFAULT_ATTACK_RANGE
 
   override fun resolver(profile: AiProfile): ActionResolver {
     return BestiaDomain.resolver(
