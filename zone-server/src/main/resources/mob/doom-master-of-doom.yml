@@ -1,6 +1,10 @@
 id: 2
 identifier: doom_master_of_doom
 level: 100
+name: Doom Master of Doom
+epithet: lord of the corrupted lands
+description: >-
+  A towering shadow that rules the heart of the corruption. Light hurts it more than any blade.
 kind: DEMON
 # A level 100 boss of the corrupted land: shadow at its strongest, so only holy weapons cut deep.
 element: SHADOW_4

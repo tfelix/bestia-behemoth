@@ -148,9 +148,10 @@ tasks.register('syncItemDb', ItemDbSyncTask) {
  */
 tasks.register('checkBestiaDb', BestiaDbSyncTask) {
     group = 'verification'
-    description = 'Fails if the mob YMLs and the client bestia DB (.tres) disagree.'
+    description = 'Fails if the mob YMLs and the client bestia DB (.tres + bestias.csv) disagree.'
     mobYmlDir = layout.projectDirectory.dir('src/main/resources/mob')
     clientDbDir = rootProject.layout.projectDirectory.dir('bestia-client/src/Game/Bestia/DB')
+    bestiasCsv = rootProject.layout.projectDirectory.file('bestia-client/src/Localization/bestias.csv')
     fix = false
 }
 
@@ -158,9 +159,10 @@ tasks.named('check') { dependsOn 'checkBestiaDb' }
 
 tasks.register('syncBestiaDb', BestiaDbSyncTask) {
     group = 'other'
-    description = 'Patches the exported fields in existing client bestia .tres files and creates stubs for missing bestias, from the mob YMLs.'
+    description = 'Patches the exported fields in existing client bestia .tres files, syncs English names, epithets and descriptions into bestias.csv, and creates stubs for missing bestias, from the mob YMLs.'
     mobYmlDir = layout.projectDirectory.dir('src/main/resources/mob')
     clientDbDir = rootProject.layout.projectDirectory.dir('bestia-client/src/Game/Bestia/DB')
+    bestiasCsv = rootProject.layout.projectDirectory.file('bestia-client/src/Localization/bestias.csv')
     fix = true
 }
 

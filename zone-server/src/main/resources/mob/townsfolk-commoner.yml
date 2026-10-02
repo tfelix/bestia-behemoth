@@ -1,6 +1,9 @@
 id: 3
 identifier: townsfolk_commoner
 level: 1
+name: Townsperson
+description: >-
+  An ordinary resident of a settlement, going about their day.
 kind: HUMANOID
 ai: townsfolk_commoner
 health: 20

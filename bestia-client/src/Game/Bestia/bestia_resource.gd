@@ -4,8 +4,9 @@ class_name BestiaResource
 ## Static, per-species bestia data the client keeps locally instead of receiving it from the server.
 ##
 ## Generated/kept in sync from zone-server's mob YMLs by './gradlew syncBestiaDb', which owns [member
-## bestia_id], [member equip_slots] and [member non_combatant]. Anything else here is pure presentation
-## with no server equivalent and is hand-authored.
+## bestia_id], the three text keys, [member kind], [member equip_slots] and [member non_combatant]. The
+## English text behind the keys is synced into Localization/bestias.csv, where it is translated. Anything
+## else here is pure presentation with no server equivalent and is hand-authored.
 
 ## The body to spawn for a species whose art is not authored yet - the orange placeholder every mob used
 ## to get. Read it through [method get_bestia_visual] rather than [member bestia_visual] directly, so the
@@ -21,6 +22,16 @@ const MISSING_VISUAL: PackedScene = preload("res://Game/Entity/Visual/BestiaVisu
 ## Translation key for the name shown on hover. A species name: the only individuals the server names are
 ## townsfolk and masters, and both carry it on their own visual instead.
 @export var name_key: String
+
+## Translation key for the title shown after the name ("Blob, the wobbling nuisance"). Empty for a species
+## without one.
+@export var epithet_key: String
+
+## Translation key for the species' flavour text in the Bestia Compendium.
+@export var description_key: String
+
+## What the species is, such as "BEAST". Its display name is the translation key "BESTIA_KIND_<kind>".
+@export var kind: String
 
 ## Bitmask of the [enum EquipmentSlot.Slot]s this species physically has. Test it with
 ## [method EquipmentSlot.has_slot]. The server enforces the same mask independently - this copy only

@@ -6,9 +6,11 @@ import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
+import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.TaskAction
 import java.io.File
 
@@ -21,7 +23,13 @@ import java.io.File
  * These are static content, not per-player state, so they are never streamed over the wire - the client
  * reads them from these resources while the server independently enforces the same values from the
  * `bestia` table. Today that is which equipment slots a species has, so the UI can grey out the rest,
- * and whether it is a non-combatant, so a click can mean talking rather than swinging.
+ * whether it is a non-combatant, so a click can mean talking rather than swinging, and its kind.
+ *
+ * A species' **text** lives in the client, because that is where it is translated. The mob YML holds the
+ * English source (`name`, `epithet`, `description`) beside the stats, and this task writes it into the `en`
+ * column of `bestias.csv` under `BESTIA_<IDENT>`, `BESTIA_<IDENT>_EPITHET` and `BESTIA_<IDENT>_DESC`, the
+ * same way [SkillDbSyncTask] feeds `skills.csv`. Other languages are columns added to that CSV by hand and
+ * are never touched. The server never reads the text.
  *
  * The mask bit order is `EquipmentSlot`'s declaration order in
  * `zone-server/src/main/kotlin/net/bestia/zone/item/equip/EquipmentSlot.kt`; [SLOT_ORDER] below
@@ -39,6 +47,9 @@ abstract class BestiaDbSyncTask : DefaultTask() {
   @get:InputDirectory
   abstract val clientDbDir: DirectoryProperty
 
+  @get:InputFile
+  abstract val bestiasCsv: RegularFileProperty
+
   /** If true, patch/create files. If false, only report drift and fail the build on any. */
   @get:Input
   abstract val fix: Property<Boolean>
@@ -49,8 +60,24 @@ abstract class BestiaDbSyncTask : DefaultTask() {
     @JsonProperty("equip-slots")
     val equipSlots: List<String> = emptyList(),
     @JsonProperty("non-combatant")
-    val nonCombatant: Boolean = false
-  )
+    val nonCombatant: Boolean = false,
+    val kind: String,
+    val name: String,
+    val epithet: String? = null,
+    val description: String? = null
+  ) {
+    val nameKey get() = "BESTIA_${identifier.uppercase()}"
+    val epithetKey get() = if (epithet == null) "" else "${nameKey}_EPITHET"
+    val descriptionKey get() = "${nameKey}_DESC"
+    val kindKey get() = "BESTIA_KIND_${kind.uppercase()}"
+
+    /** The English text this mob owns in `bestias.csv`, by key. */
+    fun texts(): Map<String, String> = buildMap {
+      put(nameKey, name)
+      if (epithet != null) put(epithetKey, epithet)
+      put(descriptionKey, description?.trim() ?: "TODO: describe $identifier")
+    }
+  }
 
   /**
    * What this task owns in a `.tres`, keyed by the name Godot spells it with.
@@ -59,9 +86,15 @@ abstract class BestiaDbSyncTask : DefaultTask() {
    * rather than sometimes meaning agreement.
    */
   private fun exportedFields(mob: MobDto): Map<String, String> = mapOf(
+    "name_key" to quoted(mob.nameKey),
+    "epithet_key" to quoted(mob.epithetKey),
+    "description_key" to quoted(mob.descriptionKey),
+    "kind" to quoted(mob.kind.uppercase()),
     "equip_slots" to maskOf(mob).toString(),
     "non_combatant" to mob.nonCombatant.toString()
   )
+
+  private fun quoted(value: String) = "\"$value\""
 
   @TaskAction
   fun run() {
@@ -95,6 +128,30 @@ abstract class BestiaDbSyncTask : DefaultTask() {
 
     val problems = mutableListOf<String>()
     val shouldFix = fix.get()
+    val csvFile = bestiasCsv.get().asFile
+    val csv = LocalizationCsv.load(csvFile)
+    var csvDirty = false
+
+    for (mob in mobs.sortedBy { it.id }) {
+      for ((key, en) in mob.texts()) {
+        if (csv.get(key) == en) continue
+        if (shouldFix) {
+          csvDirty = csv.upsert(key, en) || csvDirty
+          logger.lifecycle("BestiaDbSync: synced $key into ${csvFile.name}")
+        } else {
+          problems += "${csvFile.name}: '$key' en text is missing or stale vs the mob YML (${mob.identifier})"
+        }
+      }
+      // A kind's display name is written once and then belongs to the CSV, like any other translation.
+      val kindName = mob.kind.lowercase().replaceFirstChar { it.uppercase() }
+      if (csv.get(mob.kindKey) == null) {
+        if (shouldFix) {
+          csvDirty = csv.upsert(mob.kindKey, kindName) || csvDirty
+        } else {
+          problems += "${csvFile.name}: kind '${mob.kindKey}' has no row"
+        }
+      }
+    }
 
     for ((id, mob) in mobById) {
       val expected = exportedFields(mob)
@@ -145,6 +202,10 @@ abstract class BestiaDbSyncTask : DefaultTask() {
       if (id !in knownIds) {
         problems += "${file.name}: bestia_id=$id has no corresponding mob YML (orphaned client resource)"
       }
+    }
+
+    if (shouldFix && csvDirty) {
+      csvFile.writeText(csv.render())
     }
 
     if (!shouldFix && problems.isNotEmpty()) {

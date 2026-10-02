@@ -8,3 +8,6 @@ bestia_id = 1
 name_key = "BESTIA_BLOB"
 equip_slots = 24
 non_combatant = false
+epithet_key = "BESTIA_BLOB_EPITHET"
+description_key = "BESTIA_BLOB_DESC"
+kind = "FORMLESS"
