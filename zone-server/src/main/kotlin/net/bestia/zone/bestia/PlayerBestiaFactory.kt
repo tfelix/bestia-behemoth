@@ -18,7 +18,8 @@ class PlayerBestiaFactory(
 
   class PlayerBestiaCreateData(
     val bestiaIdentifier: String,
-    val spawnPosition: Vec3L
+    val spawnPosition: Vec3L,
+    val level: Int = 1
   )
 
   /**
@@ -45,6 +46,7 @@ class PlayerBestiaFactory(
     val pb = master.addPlayerBestia(bestia, playerBestiaPolicy)
     pb.position = playerBestiaCreateData.spawnPosition
     pb.spawnPosition = playerBestiaCreateData.spawnPosition
+    pb.level = playerBestiaCreateData.level
 
     return playerBestiaRepository.save(pb)
   }

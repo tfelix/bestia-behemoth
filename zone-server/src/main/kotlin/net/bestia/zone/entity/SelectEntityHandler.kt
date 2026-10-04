@@ -2,23 +2,33 @@ package net.bestia.zone.entity
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ai.ecs.PlayerControlled
+import net.bestia.zone.ecs.ActivePlayerAOIService
+import net.bestia.zone.ecs.account.ActivePlayer
 import net.bestia.zone.ecs.battle.attack.AttackCancelService
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.session.EntityNotOwnedSessionException
+import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.message.InMessageProcessor
+import net.bestia.zone.message.OutMessageProcessor
+import net.bestia.zone.util.AccountId
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
 
 /**
- * Selects the entity the player wants to focus on. This means this entity will
- * be used as reference point for the player updates.
+ * Hands the player's control to another entity they own - one of their bestia, or their master again.
+ *
+ * Three things move together: the session's active entity (what every handler acts on), [PlayerControlled]
+ * (what the AI leaves alone) and [ActivePlayer] (what chunk streaming, visibility and spawning follow). The
+ * client only switches once [ActiveEntitySMSG] arrives.
  */
 @Component
 class SelectEntityHandler(
   private val connectionInfoService: ConnectionInfoService,
   private val world: WorldView,
   private val attackCancelService: AttackCancelService,
+  private val playerAOIService: ActivePlayerAOIService,
+  private val outMessageProcessor: OutMessageProcessor,
 ) : InMessageProcessor.IncomingMessageHandler<SelectEntityCMSG> {
   override val handles = SelectEntityCMSG::class
 
@@ -34,7 +44,12 @@ class SelectEntityHandler(
       return false
     }
 
-    moveControlMarker(from = previous, to = msg.entityId)
+    if (previous != msg.entityId) {
+      moveControlMarker(from = previous, to = msg.entityId)
+      moveViewAnchor(msg.playerId, from = previous, to = msg.entityId)
+    }
+
+    outMessageProcessor.sendToPlayer(msg.playerId, ActiveEntitySMSG(msg.entityId))
 
     return true
   }
@@ -48,8 +63,6 @@ class SelectEntityHandler(
    * notion of "active" and this handler is the seam that already knows about both.
    */
   private fun moveControlMarker(from: EntityId?, to: EntityId) {
-    if (from == to) return
-
     from?.let { previous ->
       world.modify(previous) { id -> remove(id, PlayerControlled::class) }
       // Its standing attack order was the player's, not its own, and AiActSystem will not be looking after
@@ -57,6 +70,20 @@ class SelectEntityHandler(
       attackCancelService.cancelAttack(previous)
     }
     world.modify(to) { id -> add(id, PlayerControlled) }
+  }
+
+  /**
+   * The player index is re-seated here because `ZoneEngine` only updates it when the anchor's position
+   * changes, and the new one may be standing still.
+   */
+  private fun moveViewAnchor(accountId: AccountId, from: EntityId?, to: EntityId) {
+    from?.let { previous -> world.modify(previous) { id -> remove(id, ActivePlayer::class) } }
+
+    val at = world.modify(to) { id ->
+      add(id, ActivePlayer)
+      get(id, Position::class)?.toVec3L()
+    }
+    at?.let { playerAOIService.setEntityPosition(accountId, it) }
   }
 
   companion object {

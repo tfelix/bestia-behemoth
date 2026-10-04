@@ -207,5 +207,5 @@ func _owned_entity() -> Entity:
 	var entity_manager := EntityManager.get_instance()
 	if entity_manager == null:
 		return null
-	var entity = entity_manager.get_owned_entity()
+	var entity = entity_manager.get_controlled_entity()
 	return entity if is_instance_valid(entity) else null

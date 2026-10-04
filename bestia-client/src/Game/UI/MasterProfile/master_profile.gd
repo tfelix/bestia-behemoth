@@ -115,7 +115,7 @@ func _update_position(pos: Vector3) -> void:
 ## a walk shorter than that delivers none and the readout would sit on where it started.
 func _poll_position() -> void:
 	var entity_manager := EntityManager.get_instance()
-	var entity: Entity = entity_manager.get_owned_entity() if entity_manager else null
+	var entity: Entity = entity_manager.get_master_entity() if entity_manager else null
 	if entity == null:
 		return
 

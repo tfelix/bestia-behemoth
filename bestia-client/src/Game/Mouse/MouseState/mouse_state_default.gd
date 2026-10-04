@@ -73,8 +73,11 @@ func handle_right_click(mgr: MouseManager, screen_position: Vector2) -> void:
 	if not is_instance_valid(target):
 		return
 
-	# Our own body is under the cursor as often as anyone else's, and there is nothing to do to it.
-	if target.has_method("get_bestia_entity_id") and target.get_bestia_entity_id() == mgr.own_entity_id:
+	# Our own bodies are under the cursor as often as anyone else's, and there is nothing to do to them.
+	var entity_manager := EntityManager.get_instance()
+	var is_ours: bool = entity_manager != null and target.has_method("get_bestia_entity_id") \
+			and entity_manager.is_owned_entity_id(target.get_bestia_entity_id())
+	if is_ours:
 		return
 
 	mgr.open_context_menu_for(target, screen_position)
@@ -117,6 +120,10 @@ func _action_for(object: Node3D) -> int:
 func _action_for_bestia(visual: BestiaVisual) -> int:
 	var entity_manager := EntityManager.get_instance()
 	var entity := entity_manager.get_entity(visual.get_bestia_entity_id())
+
+	# One of our own bestia: switching to it is the party panel's job, so a click only selects it.
+	if entity_manager.is_owned_entity_id(visual.get_bestia_entity_id()):
+		return DefaultAction.Kind.SELECT
 
 	if entity != null and entity_manager.is_entity_friendly(entity):
 		return DefaultAction.Kind.TALK

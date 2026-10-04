@@ -121,7 +121,7 @@ func _input(event: InputEvent) -> void:
 ## [code]location_panel.gd[/code] stays hidden rather than showing "Unknown".
 func _update_title() -> void:
 	var entity_manager := EntityManager.get_instance()
-	var player: Entity = entity_manager.get_owned_entity() if entity_manager else null
+	var player: Entity = entity_manager.get_controlled_entity() if entity_manager else null
 	if player == null:
 		return
 

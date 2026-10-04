@@ -160,6 +160,16 @@ enum OpError {
   // is refused and when one the wearer already had is taken back off, which is why the wording has to read
   // for both - see `EquipmentRevalidationService`.
   EQUIP_NOVICE_ONLY = 50;
+
+  // Bestia traps. Too far away to set: the client only offers a tile in reach, so this is the player having
+  // walked while aiming.
+  TRAP_OUT_OF_RANGE = 51;
+  // No ground to set it on, or a trap is already there.
+  TRAP_NO_ROOM = 52;
+  // Every trap the master may have out at once is already set. Carries the limit in args[0].
+  TRAP_LIMIT_REACHED = 53;
+  // A trap caught a bestia and the master had no free bestia slot to keep it in, so it went free again.
+  BESTIA_SLOTS_FULL = 54;
 }
 
 message OperationError {

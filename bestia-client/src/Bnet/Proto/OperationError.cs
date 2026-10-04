@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSqnCgoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSr/CgoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -55,8 +55,10 @@ namespace Bnet {
             "RkZPUkQQLBIXChNTSE9QX1RSRUFTVVJZX0VNUFRZEC0SFgoSU0hPUF9UUkVB",
             "U1VSWV9GVUxMEC4SFQoRVEFMS19PVVRfT0ZfUkFOR0UQLxIjCh9DSEFUX1dI",
             "SVNQRVJfVEFSR0VUX1VOQVZBSUxBQkxFEDASGwoXQ1JBRlRfV09STERfT1VU",
-            "X09GX0dPTEQQMRIVChFFUVVJUF9OT1ZJQ0VfT05MWRAyQiwKFW5ldC5iZXN0",
-            "aWEuYm5ldC5wcm90b0ITT3BlcmF0aW9uRXJyb3JQcm90b2IGcHJvdG8z"));
+            "X09GX0dPTEQQMRIVChFFUVVJUF9OT1ZJQ0VfT05MWRAyEhUKEVRSQVBfT1VU",
+            "X09GX1JBTkdFEDMSEAoMVFJBUF9OT19ST09NEDQSFgoSVFJBUF9MSU1JVF9S",
+            "RUFDSEVEEDUSFQoRQkVTVElBX1NMT1RTX0ZVTEwQNkIsChVuZXQuYmVzdGlh",
+            "LmJuZXQucHJvdG9CE09wZXJhdGlvbkVycm9yUHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -267,6 +269,23 @@ namespace Bnet {
     /// for both - see `EquipmentRevalidationService`.
     /// </summary>
     [pbr::OriginalName("EQUIP_NOVICE_ONLY")] EquipNoviceOnly = 50,
+    /// <summary>
+    /// Bestia traps. Too far away to set: the client only offers a tile in reach, so this is the player having
+    /// walked while aiming.
+    /// </summary>
+    [pbr::OriginalName("TRAP_OUT_OF_RANGE")] TrapOutOfRange = 51,
+    /// <summary>
+    /// No ground to set it on, or a trap is already there.
+    /// </summary>
+    [pbr::OriginalName("TRAP_NO_ROOM")] TrapNoRoom = 52,
+    /// <summary>
+    /// Every trap the master may have out at once is already set. Carries the limit in args[0].
+    /// </summary>
+    [pbr::OriginalName("TRAP_LIMIT_REACHED")] TrapLimitReached = 53,
+    /// <summary>
+    /// A trap caught a bestia and the master had no free bestia slot to keep it in, so it went free again.
+    /// </summary>
+    [pbr::OriginalName("BESTIA_SLOTS_FULL")] BestiaSlotsFull = 54,
   }
 
   #endregion

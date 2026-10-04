@@ -77,8 +77,11 @@ class ZoneEngine(
       entityAOIService.removeEntityPosition(entityId)
 
       // Keyed by account rather than by entity - and EntityId is a typealias for Long, so nothing
-      // catches the difference but the index.
-      world.get(entityId, Account::class)?.accountId?.let { playerAOIService.removeEntityPosition(it) }
+      // catches the difference but the index. Only the anchor clears it: an account owns several entities,
+      // and losing one it is not looking through must not blind it.
+      if (world.has(entityId, ActivePlayer::class)) {
+        world.get(entityId, Account::class)?.accountId?.let { playerAOIService.removeEntityPosition(it) }
+      }
       // Before forgetting it: notifyVanishOnDestroy asks who was watching, and that answer lives in the
       // index this drops.
       notifyVanishOnDestroy(entityId)

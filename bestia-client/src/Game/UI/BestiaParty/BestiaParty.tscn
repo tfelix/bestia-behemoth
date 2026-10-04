@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/UI/BestiaParty/bestia_party.gd" id="1_party"]
+
+[node name="BestiaParty" type="VBoxContainer"]
+offset_right = 180.0
+theme_override_constants/separation = 4
+mouse_filter = 2
+script = ExtResource("1_party")

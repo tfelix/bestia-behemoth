@@ -83,7 +83,7 @@ func _process(_delta: float) -> void:
 	# Collision follows the player rather than covering the whole streamed disc, so only the chunks
 	# they can actually click on or bump into carry a shape. Cheap to call every frame: the renderer
 	# compares chunk coordinates and does nothing unless one changed.
-	var player: Entity = $EntityManager.get_owned_entity()
+	var player: Entity = $EntityManager.get_controlled_entity()
 	if player != null:
 		_terrain.SetCollisionAnchorAt(player.global_position)
 

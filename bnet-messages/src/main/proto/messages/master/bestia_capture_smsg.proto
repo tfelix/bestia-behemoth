@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "BestiaCaptureSmsgProto";
+
+/**
+ * A wild bestia stepped onto a trap and the capture roll was made. Sent to everyone in range; the trap itself
+ * vanishes through the ordinary entity removal.
+ */
+message BestiaCaptureSMSG {
+  uint64 trap_entity_id = 1;
+  uint64 target_entity_id = 2;
+  uint64 trapper_entity_id = 3;
+  bool success = 4;
+}

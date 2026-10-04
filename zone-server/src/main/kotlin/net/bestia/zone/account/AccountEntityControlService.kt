@@ -2,6 +2,9 @@ package net.bestia.zone.account
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.account.master.MasterResolver
+import net.bestia.zone.ai.ecs.PlayerControlled
+import net.bestia.zone.ecs.ActivePlayerAOIService
+import net.bestia.zone.ecs.account.ActivePlayer
 import net.bestia.zone.ecs.battle.attack.AttackCancelService
 import net.bestia.zone.ecs.battle.damage.Dead
 import net.bestia.zone.ecs.persistence.PersistAndRemove
@@ -27,6 +30,7 @@ class AccountEntityControlService(
   private val masterResolver: MasterResolver,
   private val savePointService: SavePointService,
   private val attackCancelService: AttackCancelService,
+  private val playerAOIService: ActivePlayerAOIService,
   private val world: WorldView
 ) {
 
@@ -57,6 +61,8 @@ class AccountEntityControlService(
 
     // Before deactivateSession, which is what makes the session's owned entities unreachable.
     settleOwnedBestias(event.accountId)
+    // The destroy hook only clears this for an anchor, and a driven bestia is not destroyed.
+    playerAOIService.removeEntityPosition(event.accountId)
 
     world.modify(masterEntity) { id ->
       add(id, PersistAndRemove)
@@ -68,8 +74,9 @@ class AccountEntityControlService(
   }
 
   /**
-   * Leaves every owned bestia in a state its owner can come back to: standing orders dropped, and any corpse
-   * put back on its feet.
+   * Leaves every owned bestia in a state its owner can come back to: standing orders dropped, the player's
+   * control and view anchor handed back, and any corpse put back on its feet. The master picks the anchor up
+   * again when it next spawns.
    *
    * A bestia is never despawned on disconnect - it simply stays in the live world - so anything left on it
    * outlives the session. A corpse would still be lying there with no way to revive it, and a standing attack
@@ -87,6 +94,10 @@ class AccountEntityControlService(
     connectionInfoService.getOwnedEntitiesByMaster(accountId, masterId)
       .forEach { owned ->
         attackCancelService.cancelAttack(owned.entityId)
+        world.modify(owned.entityId) { id ->
+          remove(id, PlayerControlled::class)
+          remove(id, ActivePlayer::class)
+        }
 
         if (!world.has(owned.entityId, Dead::class)) {
           return@forEach

@@ -29,10 +29,6 @@ var selected_entity: Node3D = null
 ## picking about which of two overlapping bodies won, and it would not always.
 var hovered_object: Node3D = null
 
-## Our own master's entity id, so the menu never offers to trade with ourselves. Cached off SelfSMSG, the
-## same way BuffList, Inventory and Equipment cache it.
-var own_entity_id: int = 0
-
 var _context_menu: ContextMenu = null
 
 ## What the cursor currently names, and whether the button is down - the two inputs to _apply_cursor.
@@ -70,7 +66,6 @@ func _exit_tree() -> void:
 func _ready() -> void:
 	current_state = MouseStateDefault.new()
 	current_state.enter(self)
-	ConnectionManager.self_received.connect(_on_self_received)
 
 
 func _process(delta: float) -> void:
@@ -239,10 +234,6 @@ func open_context_menu_for(target: Node3D, screen_position: Vector2) -> void:
 		add_child(_context_menu)
 
 	_context_menu.open_for(target, screen_position)
-
-
-func _on_self_received(msg: SelfSMSG) -> void:
-	own_entity_id = msg.MasterEntityId
 
 
 func select_entity(entity: Node3D) -> void:

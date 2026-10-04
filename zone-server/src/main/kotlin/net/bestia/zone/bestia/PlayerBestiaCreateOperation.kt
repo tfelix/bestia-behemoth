@@ -16,7 +16,8 @@ class PlayerBestiaCreateOperation(
 
   class PlayerBestiaCreateData(
     val bestiaIdentifier: String,
-    val spawnPosition: Vec3L
+    val spawnPosition: Vec3L,
+    val level: Int = 1
   )
 
   /**
@@ -32,7 +33,8 @@ class PlayerBestiaCreateOperation(
       masterId = masterId,
       playerBestiaCreateData = PlayerBestiaFactory.PlayerBestiaCreateData(
         bestiaIdentifier = playerBestiaCreateData.bestiaIdentifier,
-        spawnPosition = playerBestiaCreateData.spawnPosition
+        spawnPosition = playerBestiaCreateData.spawnPosition,
+        level = playerBestiaCreateData.level
       )
     )
 

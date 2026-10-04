@@ -745,3 +745,16 @@ items:
       Soft leather boots, worn pale at the toes.
 
       They have walked further than you have.
+
+  # --- Capture --------------------------------------------------------------------------------------
+  # Set on a tile within reach; the first wild bestia to step on it springs it - see BestiaTrapSystem.
+  - id: 68
+    item-db-name: bestia_trap
+    level: 1
+    weight: 150
+    type: USABLE
+    script: BestiaTrapScript
+    description: |
+      A cage of bent willow with a mana-dusted trigger plate.
+
+      Reliable against young Bestia, and hopeless against anything grown.

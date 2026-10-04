@@ -1,6 +1,8 @@
 package net.bestia.zone.account.master
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.zone.bestia.OwnedBestiaSpawnService
+import net.bestia.zone.bestia.OwnedBestiasPublisher
 import net.bestia.zone.ecs.battle.skill.KnownSkills
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.movement.Position
@@ -16,6 +18,8 @@ class SelectMasterHandler(
   private val world: WorldView,
   private val weatherPublisher: WeatherPublisher,
   private val equipmentRevalidationService: EquipmentRevalidationService,
+  private val ownedBestiaSpawnService: OwnedBestiaSpawnService,
+  private val ownedBestiasPublisher: OwnedBestiasPublisher,
 ) : InMessageProcessor.IncomingMessageHandler<SelectMasterCMSG> {
   override val handles = SelectMasterCMSG::class
 
@@ -30,6 +34,9 @@ class SelectMasterHandler(
     // was offline, or before the rule that refuses it existed. MasterEntitySpawner replays whatever the
     // container says is worn without consulting EquipmentService, so this is the only thing that re-asks.
     equipmentRevalidationService.revalidate(msg.selectedMasterId, masterEntityId)
+
+    ownedBestiaSpawnService.bringBack(msg.playerId, msg.selectedMasterId)
+    ownedBestiasPublisher.publish(msg.playerId)
 
     return true
   }
