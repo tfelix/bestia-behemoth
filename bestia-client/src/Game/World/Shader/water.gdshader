@@ -92,9 +92,11 @@ group_uniforms;
 global uniform float weather_wetness;
 
 varying vec3 v_world_pos;
+varying vec3 v_world_normal;
 
 void vertex() {
 	v_world_pos = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
+	v_world_normal = (MODEL_MATRIX * vec4(NORMAL, 0.0)).xyz;
 }
 
 // The wave height field: two layers of the same noise at different scales, drifting in different directions so
@@ -150,6 +152,16 @@ void fragment() {
 		(back - front) * wave_strength
 	));
 
+	// Everything above assumes a level sheet, and a side face is not one: a step where a river drops into a
+	// confluence pool, or the edge of water standing over lower ground. Lit with the wave normal it caught
+	// the sky like a level surface seen edge-on, and with the grass a metre behind it the depth term below
+	// read it as shoreline and covered it in foam, so it drew as a pale grey sheet rather than as water.
+	// `level_face` is 1 on the surface and 0 on a wall; the wall gets the mesh's own normal and, further
+	// down, neither foam nor the Fresnel boost.
+	vec3 mesh_normal = normalize(v_world_normal);
+	float level_face = smoothstep(0.35, 0.75, abs(mesh_normal.y));
+	world_normal = normalize(mix(mesh_normal, world_normal, level_face));
+
 	// A back face is the underside seen by a submerged camera, and its normal points the other way.
 	if (!FRONT_FACING) {
 		world_normal = -world_normal;
@@ -169,13 +181,13 @@ void fragment() {
 	vec3 view_normal = normalize((VIEW_MATRIX * vec4(world_normal, 0.0)).xyz);
 	float fresnel = pow(1.0 - clamp(dot(view_normal, view_direction), 0.0, 1.0), fresnel_power);
 
-	alpha = clamp(alpha + fresnel * (1.0 - alpha) * sheen_strength, 0.0, 1.0);
+	alpha = clamp(alpha + fresnel * level_face * (1.0 - alpha) * sheen_strength, 0.0, 1.0);
 
 	// Foam, broken up by the same noise the waves use so the line it draws is ragged rather than a contour of the
 	// depth it is computed from.
 	float shore = smoothstep(foam_distance, 0.0, water_depth);
 	float crest = texture(wave_noise, v_world_pos.xz / (wave_scale * 0.18) + vec2(TIME * wave_speed * 2.0, 0.0)).r;
-	float foam = shore * smoothstep(0.25, 0.75, crest * 0.6 + shore * 0.5);
+	float foam = shore * smoothstep(0.25, 0.75, crest * 0.6 + shore * 0.5) * level_face;
 
 	albedo = mix(albedo, foam_colour, foam);
 	alpha = max(alpha, foam * foam_opacity);
