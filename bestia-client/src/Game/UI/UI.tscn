@@ -28,6 +28,7 @@
 [ext_resource type="PackedScene" path="res://Game/UI/Map/MarkDeletePopup.tscn" id="25_markdelpopup"]
 [ext_resource type="PackedScene" path="res://Game/UI/ObtainedItems/ObtainedItems.tscn" id="26_obtained"]
 [ext_resource type="PackedScene" path="res://Game/UI/Chat/ItemInfoPopup.tscn" id="27_iteminfo"]
+[ext_resource type="PackedScene" path="res://Game/UI/BestiaParty/BestiaParty.tscn" id="28_party"]
 
 [node name="UI" type="Control" unique_id=549600065]
 layout_mode = 3
@@ -73,6 +74,13 @@ offset_left = 8.0
 offset_top = 7.0
 offset_right = 375.0
 offset_bottom = 169.0
+
+[node name="BestiaParty" parent="." instance=ExtResource("28_party")]
+layout_mode = 1
+offset_left = 8.0
+offset_top = 176.0
+offset_right = 188.0
+offset_bottom = 176.0
 
 [node name="Chat" parent="." unique_id=2020462949 instance=ExtResource("3_owqpw")]
 layout_mode = 1

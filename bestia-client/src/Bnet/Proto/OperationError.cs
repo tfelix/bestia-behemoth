@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSrgCgoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSq4CwoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -57,8 +57,10 @@ namespace Bnet {
             "SVNQRVJfVEFSR0VUX1VOQVZBSUxBQkxFEDASGwoXQ1JBRlRfV09STERfT1VU",
             "X09GX0dPTEQQMRIVChFFUVVJUF9OT1ZJQ0VfT05MWRAyEiEKHUVRVUlQX0FS",
             "TU9SX1RZUEVfTk9UX1dFQVJBQkxFEDMSFAoQVFJBREVfT0ZGRVJfRlVMTBA0",
-            "QiwKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0ITT3BlcmF0aW9uRXJyb3JQcm90",
-            "b2IGcHJvdG8z"));
+            "EhUKEVRSQVBfT1VUX09GX1JBTkdFEDUSEAoMVFJBUF9OT19ST09NEDYSFgoS",
+            "VFJBUF9MSU1JVF9SRUFDSEVEEDcSFQoRQkVTVElBX1NMT1RTX0ZVTEwQOEIs",
+            "ChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CE09wZXJhdGlvbkVycm9yUHJvdG9i",
+            "BnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -279,6 +281,23 @@ namespace Bnet {
     /// item after item, so it gets a code; the limit keeps the trade window and its database rows small.
     /// </summary>
     [pbr::OriginalName("TRADE_OFFER_FULL")] TradeOfferFull = 52,
+    /// <summary>
+    /// Bestia traps. Too far away to set: the client only offers a tile in reach, so this is the player having
+    /// walked while aiming.
+    /// </summary>
+    [pbr::OriginalName("TRAP_OUT_OF_RANGE")] TrapOutOfRange = 53,
+    /// <summary>
+    /// No ground to set it on, or a trap is already there.
+    /// </summary>
+    [pbr::OriginalName("TRAP_NO_ROOM")] TrapNoRoom = 54,
+    /// <summary>
+    /// Every trap the master may have out at once is already set. Carries the limit in args[0].
+    /// </summary>
+    [pbr::OriginalName("TRAP_LIMIT_REACHED")] TrapLimitReached = 55,
+    /// <summary>
+    /// A trap caught a bestia and the master had no free bestia slot to keep it in, so it went free again.
+    /// </summary>
+    [pbr::OriginalName("BESTIA_SLOTS_FULL")] BestiaSlotsFull = 56,
   }
 
   #endregion

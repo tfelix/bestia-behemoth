@@ -45,6 +45,7 @@ func _ready() -> void:
 	add_to_group("world_blocking_ui")
 	ConnectionManager.connect("chat_received", _on_chat_received)
 	ConnectionManager.operation_error.connect(_on_operation_error)
+	ConnectionManager.bestia_capture_received.connect(_on_bestia_capture)
 
 
 func _input(event):
@@ -280,6 +281,15 @@ func _on_operation_error(message) -> void:
 		text = template % Array(message.Args)
 
 	error_line(text)
+
+
+## Only our own traps are worth a line; a stranger's catch is seen, not announced.
+func _on_bestia_capture(message: BestiaCaptureSMSG) -> void:
+	var entity_manager := EntityManager.get_instance()
+	if entity_manager == null or not entity_manager.is_owned_entity_id(message.TrapperEntityId):
+		return
+
+	system_line(tr("CAPTURE_SUCCESS") if message.Success else tr("CAPTURE_FAILED"))
 
 
 func _on_chat_received(message: ChatSMSG) -> void:

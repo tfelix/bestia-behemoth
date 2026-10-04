@@ -185,8 +185,9 @@ class ConnectionInfoService {
 
     val activeMasterId = session.master.masterId
     val ownedEntities = session.playerEntitiesByMaster[activeMasterId] ?: emptySet()
+    val isMaster = selectedEntityId == session.master.entityId
 
-    if (ownedEntities.none { it.entityId == selectedEntityId }) {
+    if (!isMaster && ownedEntities.none { it.entityId == selectedEntityId }) {
       throw EntityNotOwnedSessionException(accountId, selectedEntityId)
     }
 

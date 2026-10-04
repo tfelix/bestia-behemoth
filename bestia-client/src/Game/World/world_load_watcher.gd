@@ -57,6 +57,7 @@ func _ready() -> void:
 func attach(connection: Node) -> void:
 	_connection = connection
 	connection.self_received.connect(_on_self_received)
+	connection.active_entity_received.connect(_on_active_entity_received)
 	connection.entity_received.connect(_on_entity_received)
 	SceneManager.scene_changed.connect(_on_scene_changed)
 
@@ -129,7 +130,7 @@ func _is_world_ready(stream: Node) -> bool:
 	if entities == null:
 		return false
 
-	var player: Entity = entities.get_owned_entity()
+	var player: Entity = entities.get_controlled_entity()
 	if player == null:
 		return false
 
@@ -141,8 +142,7 @@ func _is_world_ready(stream: Node) -> bool:
 	return not is_nan(ground)
 
 
-## A different body means a different view. Today only the first self message moves this; a
-## master-to-bestia switch will too.
+## A different body means a different view.
 func _on_self_received(msg: SelfSMSG) -> void:
 	if msg.MasterEntityId == _owned_entity_id:
 		return
@@ -150,6 +150,25 @@ func _on_self_received(msg: SelfSMSG) -> void:
 	_owned_entity_id = msg.MasterEntityId
 	_has_server_position = false
 	begin()
+
+
+## Taking control of another of our entities moves the view onto it. One standing nearby already has its
+## ground streamed, so only a switch as far as a jump raises the screen.
+func _on_active_entity_received(msg: ActiveEntitySMSG) -> void:
+	if msg.EntityId == _owned_entity_id:
+		return
+
+	var entities := EntityManager.get_instance()
+	var from: Entity = entities.get_entity(_owned_entity_id) if entities else null
+	var to: Entity = entities.get_entity(msg.EntityId) if entities else null
+
+	_owned_entity_id = msg.EntityId
+	_has_server_position = false
+
+	if from == null or to == null:
+		begin()
+	elif from.get_logical_position().distance_to(to.get_logical_position()) > _jump_distance():
+		begin()
 
 
 func _on_entity_received(msg: EntitySMSG) -> void:

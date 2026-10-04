@@ -197,6 +197,21 @@ namespace BestiaBehemothClient.Bnet.Message
           var msg = Master.SelfSMSG.FromProto(envelope.Self);
           EmitSignal(SignalName.MessageReceived, msg);
         }
+        else if (envelope.OwnedBestias != null)
+        {
+          var msg = Master.OwnedBestiasSMSG.FromProto(envelope.OwnedBestias);
+          EmitSignal(SignalName.MessageReceived, msg);
+        }
+        else if (envelope.ActiveEntity != null)
+        {
+          var msg = Master.ActiveEntitySMSG.FromProto(envelope.ActiveEntity);
+          EmitSignal(SignalName.MessageReceived, msg);
+        }
+        else if (envelope.BestiaCapture != null)
+        {
+          var msg = Master.BestiaCaptureSMSG.FromProto(envelope.BestiaCapture);
+          EmitSignal(SignalName.MessageReceived, msg);
+        }
         else if (envelope.CompLevel != null)
         {
           var msg = Entity.LevelComponentSMSG.FromBnet(envelope.CompLevel);

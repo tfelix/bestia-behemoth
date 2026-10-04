@@ -30,6 +30,7 @@ class AccountEntityControlServiceTest {
     masterResolver = mockk<MasterResolver> { every { getSelectedMasterEntityIdByAccountId(ACCOUNT) } returns master },
     savePointService = mockk(relaxed = true),
     attackCancelService = AttackCancelService(world),
+    playerAOIService = mockk(relaxed = true),
     world = world,
     zoneConfig = ZoneConfig(tickRate = 20)
   )

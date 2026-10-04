@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "ActiveEntitySmsgProto";
+
+/**
+ * The entity the player now controls - the answer to SelectActiveEntity. The client switches camera and input
+ * only on this, never on its own request.
+ */
+message ActiveEntitySMSG {
+  uint64 entity_id = 1;
+}

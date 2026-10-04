@@ -608,7 +608,7 @@ func _player_forward() -> Vector2:
 	if entity_manager == null:
 		return Vector2.ZERO
 
-	var player = entity_manager.get_owned_entity()
+	var player = entity_manager.get_controlled_entity()
 	if player == null:
 		return Vector2.ZERO
 
@@ -741,7 +741,7 @@ func player_metres() -> Variant:
 	if entity_manager == null:
 		return null
 
-	var player = entity_manager.get_owned_entity()
+	var player = entity_manager.get_controlled_entity()
 	if player == null:
 		return null
 

@@ -8,6 +8,12 @@ extends Node
 signal master_info_received(master: MasterSMSG)
 signal entity_received(message: EntitySMSG)
 signal self_received(message: SelfSMSG)
+## Every bestia the selected master owns, whole, whenever that set changes.
+signal owned_bestias_received(message: OwnedBestiasSMSG)
+## The server confirmed which entity the player now controls.
+signal active_entity_received(message: ActiveEntitySMSG)
+## A trap was sprung near us and the catch was rolled.
+signal bestia_capture_received(message: BestiaCaptureSMSG)
 signal chat_received(message: ChatSMSG)
 ## Emitted when the server wants a dialog shown. Account-scoped, not tied to an entity, so it is
 ## deliberately kept out of [signal entity_received]. Consumed by the DialogManager autoload.
@@ -64,6 +70,7 @@ var CreateMasterCMSG = load("res://Bnet/Message/Master/CreateMasterCMSG.cs")
 var DeleteMasterCMSG = load("res://Bnet/Message/Master/DeleteMasterCMSG.cs")
 var AttackEntityCMSG = load("res://Bnet/Message/Entity/AttackEntityCMSG.cs")
 var MoveActiveEntityCMSG = load("res://Bnet/Message/Entity/MoveActiveEntityCMSG.cs")
+var SelectActiveEntityCMSG = load("res://Bnet/Message/Entity/SelectActiveEntityCMSG.cs")
 var GetInventoryCMSG = load("res://Bnet/Message/Inventory/GetInventoryCMSG.cs")
 var GetSkillsCMSG = load("res://Bnet/Message/Master/GetSkillsCMSG.cs")
 var ActivateSkillCMSG = load("res://Bnet/Message/Master/ActivateSkillCMSG.cs")
@@ -349,7 +356,7 @@ func move_to(destination: Vector3) -> void:
 	assert(is_ready_to_send())
 
 	var entity_manager := EntityManager.get_instance()
-	var owned_entity = entity_manager.get_owned_entity() if entity_manager else null
+	var owned_entity = entity_manager.get_controlled_entity() if entity_manager else null
 	if owned_entity == null:
 		printerr("ConnectionManager: cannot move, no owned entity yet")
 		return
@@ -596,6 +603,14 @@ func send_attack_entity(entity_id: int) -> void:
 	_socket.SendMessage(msg)
 
 
+## Asks to drive another of our own entities. Nothing changes here until [signal active_entity_received].
+func select_active_entity(entity_id: int) -> void:
+	assert(is_ready_to_send())
+	var msg = SelectActiveEntityCMSG.new()
+	msg.EntityId = entity_id
+	_socket.SendMessage(msg)
+
+
 ## Requests the server to create a new master (character) for the current account.
 ## The result arrives asynchronously via the operation_success / operation_error signals.
 ## [param body], [param face] and [param hair] are the proto enum values. [param spawn_point_id] is
@@ -676,6 +691,12 @@ func _on_bnet_socket_message_received(message: Object) -> void:
 		entity_received.emit(message)
 	elif message is SelfSMSG:
 		self_received.emit(message)
+	elif message is OwnedBestiasSMSG:
+		owned_bestias_received.emit(message)
+	elif message is ActiveEntitySMSG:
+		active_entity_received.emit(message)
+	elif message is BestiaCaptureSMSG:
+		bestia_capture_received.emit(message)
 	elif message is ChatSMSG:
 		chat_received.emit(message)
 	elif message is DialogSMSG:

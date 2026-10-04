@@ -75,3 +75,10 @@ ERROR_SHOP_TREASURY_EMPTY,The town has run out of coin. Try somewhere richer.
 ERROR_SHOP_TREASURY_FULL,The town has more coin than it knows what to do with.
 SHOP_BUY_TOOLTIP,Each one costs a little more than the last.
 SHOP_SELL_TOOLTIP,Each one fetches a little less than the last.
+ERROR_TRAP_OUT_OF_RANGE,That is too far away to set a trap.
+ERROR_TRAP_NO_ROOM,You cannot set a trap there.
+ERROR_TRAP_LIMIT_REACHED,You already have %s traps set.
+ERROR_BESTIA_SLOTS_FULL,"Your trap caught a Bestia, but you have no room for another. It got away."
+CAPTURE_SUCCESS,Your trap snapped shut. The Bestia is yours!
+CAPTURE_FAILED,A Bestia broke free of your trap.
+BESTIA_PARTY_MASTER,Master

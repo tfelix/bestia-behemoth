@@ -13,6 +13,15 @@ var EntityScn = preload("res://Game/Entity/Entity.tscn")
 var _entities: Dictionary[int, Entity] = {}
 var _owned_master_id: int = 0
 var _owned_master_entity_id: int = 0
+## What the player drives right now: the master, or one of [member _owned_bestias] once the server confirmed it.
+var _controlled_entity_id: int = 0
+## The master's bestia, as the last SelfSMSG or OwnedBestiasSMSG listed them.
+var _owned_bestias: Array[BestiaInfo] = []
+
+## The player took control of another of their entities. [param previous_id] is 0 on the first one.
+signal controlled_entity_changed(previous_id: int, entity_id: int)
+## The list of bestia the master owns was replaced.
+signal owned_bestias_changed(bestias: Array[BestiaInfo])
 
 
 ## EntityManager isn't an autoload (see the TODO above - its lifecycle is tied to the
@@ -41,14 +50,41 @@ func _ready() -> void:
 	ConnectionManager.connect("entity_received", _on_entity_message_received)
 	ConnectionManager.connect("chat_received", _on_chat_message_received)
 	ConnectionManager.connect("self_received", _on_self_message_received)
+	ConnectionManager.connect("owned_bestias_received", _on_owned_bestias_received)
+	ConnectionManager.connect("active_entity_received", _on_active_entity_received)
 	# Information about ourself; the entities around us arrive with the ground they stand on.
 	ConnectionManager.get_self()
 
 
-## Returns the Entity node the player currently controls (their bestia master), or
-## null before the initial self/entity sync has arrived.
-func get_owned_entity() -> Entity:
+## The Entity node the player currently controls - their master or one of their bestia - or null before the
+## initial self/entity sync has arrived.
+func get_controlled_entity() -> Entity:
+	return _entities.get(_controlled_entity_id)
+
+
+func get_controlled_entity_id() -> int:
+	return _controlled_entity_id
+
+
+## The player's master, whichever entity they are driving.
+func get_master_entity() -> Entity:
 	return _entities.get(_owned_master_entity_id)
+
+
+func get_owned_bestias() -> Array[BestiaInfo]:
+	return _owned_bestias
+
+
+## True for the master and for every bestia it owns.
+func is_owned_entity_id(entity_id: int) -> bool:
+	if entity_id == 0:
+		return false
+	if entity_id == _owned_master_entity_id:
+		return true
+	for bestia in _owned_bestias:
+		if bestia.EntityId == entity_id:
+			return true
+	return false
 
 
 ## The entity id of the player's own master, or 0 before the initial self sync. Kept accessible so
@@ -64,14 +100,14 @@ func get_entity(entity_id: int) -> Entity:
 	return _entities.get(entity_id)
 
 
-## Client-side friend/enemy heuristic: the local player's own entity, and anything of a species
+## Client-side friend/enemy heuristic: the local player's own entities, and anything of a species
 ## nothing may damage - a townsperson is somebody to talk to, not a target to snap onto.
 ## TODO(party/guild): once bestias carry a party/guild flag, fold that check in here (e.g. matching
 ## party/guild id against the local player's).
 ## This is the ONLY place disposition should be decided - no other code should inline
 ## its own friend/enemy check.
 func is_entity_friendly(entity: Entity) -> bool:
-	return entity == get_owned_entity() or entity.is_non_combatant()
+	return is_owned_entity_id(entity.entity_id) or entity.is_non_combatant()
 
 
 ## DEPRECATED We need to come up with a better solution this can not work and scale. We need certain
@@ -99,17 +135,11 @@ func get_closest_entity(world_position: Vector3, max_distance: float, filter: St
 	return best
 
 
-## Checks if we have proper controll attached to the entity we currently control.
+## Attaches the camera and input to the entity we control, once it exists here.
 func _check_player_controllable_entity() -> void:
-	# In the future this must not only checked for master entity id but rather
-	# the entity we currently have selected.
-	var hasOwnedEntity = _entities.has(_owned_master_entity_id)
-	
-	if not hasOwnedEntity:
-		return
-	
-	var entity = _entities[_owned_master_entity_id]
-	entity.select_for_active()
+	var entity: Entity = _entities.get(_controlled_entity_id)
+	if entity != null:
+		entity.select_for_active()
 
 
 func _get_or_create_entity(entity_id: int) -> Entity:
@@ -128,9 +158,37 @@ func _get_or_create_entity(entity_id: int) -> Entity:
 func _on_self_message_received(msg: SelfSMSG) -> void:
 	_owned_master_entity_id = msg.MasterEntityId
 	_owned_master_id = msg.MasterId
+	# A fresh self message means a fresh session, which the server always starts on the master.
+	_set_controlled_entity(msg.MasterEntityId)
+	_replace_owned_bestias(msg.AvailableBestias)
+
+
+func _on_owned_bestias_received(msg: OwnedBestiasSMSG) -> void:
+	_replace_owned_bestias(msg.Bestias)
+
+
+func _on_active_entity_received(msg: ActiveEntitySMSG) -> void:
+	_set_controlled_entity(msg.EntityId)
+
+
+func _replace_owned_bestias(bestias: Array[BestiaInfo]) -> void:
+	_owned_bestias = bestias.duplicate()
+	owned_bestias_changed.emit(_owned_bestias)
+
+
+func _set_controlled_entity(entity_id: int) -> void:
+	var previous_id := _controlled_entity_id
+	if previous_id == entity_id:
+		_check_player_controllable_entity()
+		return
+
+	var previous: Entity = _entities.get(previous_id)
+	if previous != null:
+		previous.remove_as_active()
+
+	_controlled_entity_id = entity_id
 	_check_player_controllable_entity()
-	# for now we dont process the owned bestia but this probably also makes
-	# most sense to have a sperate component for this which tracks it.
+	controlled_entity_changed.emit(previous_id, entity_id)
 
 
 func _on_entity_message_received(msg: EntitySMSG) -> void:

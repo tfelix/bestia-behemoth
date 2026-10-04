@@ -168,6 +168,16 @@ enum OpError {
   // One side of a trade already offers as many lines as a trade holds. A player can reach this by offering
   // item after item, so it gets a code; the limit keeps the trade window and its database rows small.
   TRADE_OFFER_FULL = 52;
+
+  // Bestia traps. Too far away to set: the client only offers a tile in reach, so this is the player having
+  // walked while aiming.
+  TRAP_OUT_OF_RANGE = 53;
+  // No ground to set it on, or a trap is already there.
+  TRAP_NO_ROOM = 54;
+  // Every trap the master may have out at once is already set. Carries the limit in args[0].
+  TRAP_LIMIT_REACHED = 55;
+  // A trap caught a bestia and the master had no free bestia slot to keep it in, so it went free again.
+  BESTIA_SLOTS_FULL = 56;
 }
 
 message OperationError {

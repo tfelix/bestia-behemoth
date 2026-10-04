@@ -22,7 +22,25 @@ data class SelfSMSG(
     val name: String?,
     val level: Int,
     val position: Vec3L
-  )
+  ) {
+
+    fun toBnet(): BestiaInfoProto.BestiaInfo {
+      val position = Vec3OuterClass.Vec3.newBuilder()
+        .setX(position.x)
+        .setY(position.y)
+        .setZ(position.z)
+        .build()
+
+      // Proto3 strings have no null: the empty string is the "no name" the client falls back from.
+      return BestiaInfoProto.BestiaInfo.newBuilder()
+        .setEntityId(entityId)
+        .setMobId(mobId)
+        .setName(name ?: "")
+        .setLevel(level)
+        .setPosition(position)
+        .build()
+    }
+  }
 
   override fun toBnetEnvelope(): EnvelopeProto.Envelope {
     val selfBuilder = SelfSMSGProto.SelfSMSG.newBuilder()
@@ -30,21 +48,7 @@ data class SelfSMSG(
       .setMasterEntityId(masterEntityId)
 
     availableBestias.forEach { bestia ->
-      val position = Vec3OuterClass.Vec3.newBuilder()
-        .setX(bestia.position.x)
-        .setY(bestia.position.y)
-        .setZ(bestia.position.z)
-        .build()
-
-      val protoBestiaInfo = BestiaInfoProto.BestiaInfo.newBuilder()
-        .setEntityId(bestia.entityId)
-        .setMobId(bestia.mobId)
-        .setName(bestia.name)
-        .setLevel(bestia.level)
-        .setPosition(position)
-        .build()
-
-      selfBuilder.addAvailableBestias(protoBestiaInfo)
+      selfBuilder.addAvailableBestias(bestia.toBnet())
     }
 
     return EnvelopeProto.Envelope.newBuilder()

@@ -47,6 +47,9 @@ import "messages/master/set_bestia_ai_config_cmsg.proto";
 import "messages/master/bestia_ai_config_smsg.proto";
 import "messages/master/get_skills_cmsg.proto";
 import "messages/master/activate_skill_cmsg.proto";
+import "messages/master/bestia_capture_smsg.proto";
+import "messages/master/owned_bestias_smsg.proto";
+import "messages/master/active_entity_smsg.proto";
 import "messages/entity/attack_entity_cmsg.proto";
 import "messages/entity/vanish_entity_smsg.proto";
 import "messages/entity/damage_entity_smsg.proto";
@@ -175,6 +178,9 @@ message Envelope {
     SetBestiaAiConfigCMSG set_bestia_ai_config = 411;
     BestiaAiConfigSMSG bestia_ai_config = 412;
     DeleteMasterCMSG delete_master = 413;
+    BestiaCaptureSMSG bestia_capture = 414;
+    OwnedBestiasSMSG owned_bestias = 415;
+    ActiveEntitySMSG active_entity = 416;
 
     // ENTITY & COMPONENTS 500
     SelectActiveEntity select_active_entity = 500;

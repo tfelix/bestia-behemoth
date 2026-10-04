@@ -682,7 +682,10 @@ func get_status_points() -> int:
 	return _status_points
 
 
+## Safe to repeat: EntityManager re-asks whenever an entity arrives.
 func select_for_active() -> void:
+	if _camera != null:
+		return
 	_camera = Camera.instantiate()
 	add_child(_camera)
 

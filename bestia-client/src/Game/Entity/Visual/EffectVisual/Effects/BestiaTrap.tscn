@@ -1,0 +1,39 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://Game/Entity/Visual/EffectVisual/Effects/bestia_trap.gd" id="1_script"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_plate"]
+top_radius = 0.4
+bottom_radius = 0.4
+height = 0.05
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_plate"]
+resource_local_to_scene = true
+albedo_color = Color(0.35, 0.6, 0.9, 1)
+emission_enabled = true
+emission = Color(0.3, 0.6, 1, 1)
+emission_energy_multiplier = 1.5
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_cage"]
+top_radius = 0.1
+bottom_radius = 0.45
+height = 0.5
+radial_segments = 6
+rings = 1
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_cage"]
+transparency = 1
+albedo_color = Color(0.55, 0.4, 0.22, 0.55)
+
+[node name="BestiaTrap" type="Node3D"]
+script = ExtResource("1_script")
+
+[node name="Plate" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.03, 0)
+mesh = SubResource("CylinderMesh_plate")
+material_override = SubResource("StandardMaterial3D_plate")
+
+[node name="Cage" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.3, 0)
+mesh = SubResource("CylinderMesh_cage")
+material_override = SubResource("StandardMaterial3D_cage")
