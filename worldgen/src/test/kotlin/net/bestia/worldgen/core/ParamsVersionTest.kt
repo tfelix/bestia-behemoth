@@ -234,7 +234,7 @@ class ParamsVersionTest {
       // Moved when roads stopped being stamped against the kilometre raster: the stage now carries the
       // chunk tier's `detail` so it can decide a running surface against the ground a chunk builds, plus the
       // router's grade tunables and the road width variation. See `SettlementStage.sampleElevation`.
-      "SettlementParams" to -5_669_658_683_158_239_120L,
+      "SettlementParams" to -4_952_664_331_358_582_183L,
       "OrderInfluence" to 2_558_661_069_677_437_569L,
       "HistoryParams" to 2_362_190_350_999_628_922L,
       "CorruptionParams" to -8_182_278_140_807_375_004L,
@@ -244,7 +244,7 @@ class ParamsVersionTest {
       // streets it had needed were deleted: `StreetParams` lost `crossStreetsPerMainStreet`, `crossStreetNear`
       // and `crossStreetFar`, and `TownParams` holds `StreetParams`. Before that they moved together when a
       // street's carriageway became a tunable (`arterialWidth` and `laneWidth`).
-      "TownParams" to -2_406_716_677_409_335_478L,
+      "TownParams" to 7_827_515_135_201_136_336L,
       "StreetParams" to 4_882_094_518_502_737_137L,
       "EconomyParams" to 6_863_789_847_631_252_411L,
       "PoiParams" to 9_183_715_732_977_741_057L,

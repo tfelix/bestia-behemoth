@@ -125,7 +125,7 @@ class WorldParamsTest {
     // cross-street removal from `StreetParams` landing in the same tree - an aggregate over every params
     // class cannot separate two changes that are both in it, which is the one thing this number is worse
     // at than `ParamsVersionTest`'s per-class pins. Re-derive it rather than adjust it if either moves.
-    assertEquals(1_365_366_339_911_597_912L, WorldParams.DEFAULT.version, "re-pin: the world tuning moved")
+    assertEquals(-8_635_386_947_799_670_163L, WorldParams.DEFAULT.version, "re-pin: the world tuning moved")
     // Pinned as a pair so each half stays checkable: a world-tier retune has to move the number above and
     // leave this one alone, and a chunk-tier one the reverse. This is the half the chunk cache is keyed on.
     assertEquals(-6_999_444_330_786_159_475L, WorldParams.DEFAULT.chunkTierVersion, "re-pin: the chunk tier moved")

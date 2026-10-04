@@ -137,7 +137,7 @@ core to villages **loses** buildings (their grown streets cross the patches, so 
 core's plots), and raising `segmentLength` to widen blocks improves plots-per-metre while collapsing total
 street length — net worse.
 
-### How a river gets its bed, and the two things that made it look wrong
+### How a river gets its bed, and the three things that made it look wrong
 
 A `RIVER_CHANNEL` is a `PolylineFeature` blended `MIN`, cut by `Profiles.riverChannel`. Two of its inputs
 were wrong for a long time in ways that no test could see, and both are worth knowing before touching
@@ -183,7 +183,22 @@ shape again - a stage deciding against a surface a later one changes - and it pr
 because the old raster-derived bed had the same mismatch and simply expressed it as floating water instead.
 Do not re-try the two fixes above without reading this paragraph.
 
-`Invariants.checkRiverBanksHoldTheirWater` is what now holds the first of these. It probes just outside the
+**A town's grading cut the banks out from under the water.** `SETTLEMENT_GRADING` is a `REPLACE` terrace
+stamped after the river (priority 600 against 200), aimed at `Site.elevation` - the *kilometre* raster at the
+centre cell, which routinely sits below the detailed ground a river crossing the disc was cut into. Its KDoc only
+guarded the opposite case (the 2.5 m fill limit, so a town above its river cannot dam it); a town *below* its
+river had both banks cut by up to 9 m, and the river stood over it as a slab with sheer sides - Grimhold's by
+8.4 m, right at the server world's spawn town, and 9 of 25 sweep worlds had one. `RadialProfiles.terrace` now
+takes a `cutFloor` (highest river water inside the disc + `SettlementParams.riverFreeboard`) below which the cut
+never lowers ground. Two traps: the floor must be `max(cut, min(base, cutFloor))`, not "apply when `base >=
+cutFloor`" - the river's own shoulder leaves the bank top centimetres under the floor and the first attempt let
+exactly that fall through to the full cut; and `RiverWaterSampler` deliberately over-reaches past the wetted
+edge on the premise that ground there stands at or above the bank, so anything that lowers ground beside a river
+after hydrology breaks it the same way.
+
+`Invariants.checkRiverBanksHoldTheirWater` is what now holds the first and third of these. It used to skip every
+probe inside a `SETTLEMENT_GRADING` disc (as "later earthworks"), which is why the town slab was invisible to it;
+it now uses `RECUTS_A_RIVER_BANK` (roads, streets, bridges) rather than `RESHAPES_THE_GROUND`. It probes just outside the
 wetted edge against the **finished** heightfield, and skips ground that belongs to something else: later
 earthworks, post-hydrology features (oxbows, deltas, fans) the stage could not have seen, other channels'
 corridors — at a confluence the ground beside one river is inside another, which is a junction rather than a

@@ -81,6 +81,14 @@ data class SettlementParams(
   val maxCut: Double = 9.0,
   val maxFill: Double = 2.5,
 
+  /**
+   * Metres above a river's water line below which a settlement's grading may not cut the ground beside it.
+   *
+   * See `RadialProfiles.terrace`'s `cutFloor`. Half a metre is enough to keep a bank between the water and
+   * the town's ground, and small enough not to read as a levee.
+   */
+  val riverFreeboard: Double = 0.5,
+
   /** Widest river a road will bridge. Anything wider needs a ferry, which is not a vector feature. */
   val maxBridgeSpan: Double = 260.0,
 
@@ -158,6 +166,7 @@ data class SettlementParams(
     require(roadSpacing > 0.0) { "roadSpacing must be positive, was $roadSpacing" }
     require(maxCut >= 0.0) { "maxCut must not be negative, was $maxCut" }
     require(maxFill >= 0.0) { "maxFill must not be negative, was $maxFill" }
+    require(riverFreeboard >= 0.0) { "riverFreeboard must not be negative, was $riverFreeboard" }
     require(maxBridgeSpan >= 0.0) { "maxBridgeSpan must not be negative, was $maxBridgeSpan" }
     require(roadRulingGrade > 0.0) { "roadRulingGrade must be positive, was $roadRulingGrade" }
     require(roadGradePenalty >= 0.0) { "roadGradePenalty must not be negative, was $roadGradePenalty" }
@@ -187,6 +196,7 @@ data class SettlementParams(
     roadSpacing = source.double("roadSpacing", roadSpacing),
     maxCut = source.double("maxCut", maxCut),
     maxFill = source.double("maxFill", maxFill),
+    riverFreeboard = source.double("riverFreeboard", riverFreeboard),
     maxBridgeSpan = source.double("maxBridgeSpan", maxBridgeSpan),
     roadRulingGrade = source.double("roadRulingGrade", roadRulingGrade),
     roadGradePenalty = source.double("roadGradePenalty", roadGradePenalty),
@@ -206,6 +216,7 @@ data class SettlementParams(
     .put("roadSpacing", roadSpacing)
     .put("maxCut", maxCut)
     .put("maxFill", maxFill)
+    .put("riverFreeboard", riverFreeboard)
     .put("maxBridgeSpan", maxBridgeSpan)
     .put("roadRulingGrade", roadRulingGrade)
     .put("roadGradePenalty", roadGradePenalty)
@@ -300,7 +311,7 @@ class SettlementStage(
 
     for (site in sites) {
       features.add(settlementMarker(nextId(), site))
-      features.add(gradingFor(nextId(), site))
+      features.add(gradingFor(nextId(), site, rivers))
     }
 
     val waterCost = Timings.measure("settle.waterCost") { waterCostField(ctx, region, terms) }
@@ -560,16 +571,63 @@ class SettlementStage(
    * fill, and more importantly a generous fill limit would let a riverside town raise the channel running
    * through it to street level, because grading is stamped after the river. Limiting fill to a couple of
    * metres leaves the channel intact while still levelling the ground the buildings stand on.
+   *
+   * The opposite case needs its own guard. [Site.elevation] is the kilometre raster at the centre cell, not
+   * the detailed ground a river's bed was cut into, so it routinely sits *below* the water of a river crossing
+   * the disc - Grimhold's by eight metres. The cut then lowered both banks under the water line and the river
+   * materialised as a slab standing above the town. The cut floor is the highest water any river carries
+   * inside the disc, plus [SettlementParams.riverFreeboard]: one number per disc rather than a local one, which
+   * keeps the terrace continuous, and the price - a town below its river is levelled at bank height instead -
+   * is the honest one.
    */
-  private fun gradingFor(id: FeatureId, site: Site) = PointFeature(
-    id = id,
-    kind = FeatureKind.SETTLEMENT_GRADING,
-    center = site.position,
-    radius = site.tier.footprintRadius,
-    profile = RadialProfiles.terrace(site.elevation, params.maxCut, params.maxFill),
-    edgeFraction = 0.6,
-    blend = BlendMode.REPLACE
-  )
+  private fun gradingFor(id: FeatureId, site: Site, rivers: List<PolylineFeature>): PointFeature {
+    val radius = site.tier.footprintRadius
+    val water = highestRiverWater(site.position, radius, rivers)
+    return PointFeature(
+      id = id,
+      kind = FeatureKind.SETTLEMENT_GRADING,
+      center = site.position,
+      radius = radius,
+      profile = RadialProfiles.terrace(
+        site.elevation, params.maxCut, params.maxFill,
+        cutFloor = if (water.isNaN()) Double.NEGATIVE_INFINITY else water + params.riverFreeboard
+      ),
+      edgeFraction = 0.6,
+      blend = BlendMode.REPLACE
+    )
+  }
+
+  /**
+   * The highest river water surface whose channel reaches inside a disc, or NaN where none does.
+   *
+   * Every station inside the disc, plus the centreline's nearest point to the centre: stations are sixty
+   * metres apart and a hamlet's disc is a hundred and thirty across, so a river can cross one between two
+   * stations and the nearest point is what catches it. Reach is the radius plus the channel's width, because
+   * the grading cuts the bank beside the water as well as the ground the water stands on.
+   */
+  private fun highestRiverWater(center: Vec2d, radius: Double, rivers: List<PolylineFeature>): Double {
+    var highest = Double.NaN
+    for (river in rivers) {
+      val stations = river.stations
+      val water = runCatching { stations.channel(Profiles.CHANNEL_WATER_ELEVATION) }.getOrNull() ?: continue
+      val width = stations.channel(Profiles.CHANNEL_WIDTH)
+      val reach = radius + (0 until stations.stationCount).maxOf { stations.valueAt(width, it) }
+      if (!river.bbox.expanded(reach).contains(center.x, center.y)) continue
+
+      val nearest = river.centerline.project(center)
+      if (nearest.distance <= radius + stations.sample(width, nearest.u)) {
+        val surface = stations.sample(water, nearest.u)
+        if (highest.isNaN() || surface > highest) highest = surface
+      }
+      for (station in 0 until stations.stationCount) {
+        val at = river.centerline.pointAt(river.centerline.arcLengthAt(station))
+        if (at.distanceTo(center) > radius + stations.valueAt(width, station)) continue
+        val surface = stations.valueAt(water, station)
+        if (highest.isNaN() || surface > highest) highest = surface
+      }
+    }
+    return highest
+  }
 
   // --- Roads ---------------------------------------------------------------------------------------
 

@@ -473,7 +473,7 @@ object Invariants {
       // One evaluator per river, built the way `ChunkHeightSampler` builds one per chunk.
       val neighbours = generated.world.features.query(river.bbox.expanded(SHORE_PROBE * 2))
       val evaluator = FeatureEvaluator(neighbours)
-      val later = neighbours.filter { it.kind in RESHAPES_THE_GROUND || it.kind in AFTER_HYDROLOGY }
+      val later = neighbours.filter { it.kind in RECUTS_A_RIVER_BANK || it.kind in AFTER_HYDROLOGY }
 
       // Other channels and the discs that smooth their junctions. Ground inside one of those is another
       // river's **bed**, not this one's bank, and it is below a water line for the same reason this one's
@@ -1387,6 +1387,21 @@ object Invariants {
     FeatureKind.ROAD,
     FeatureKind.STREET,
     FeatureKind.SETTLEMENT_GRADING,
+    FeatureKind.BRIDGE
+  )
+
+  /**
+   * [RESHAPES_THE_GROUND] less `SETTLEMENT_GRADING`, for the river bank check only.
+   *
+   * Roads ford a channel and streets are kept off one, so where either lands beside a river it is a narrow
+   * strip that genuinely re-cuts the bank. A grading disc is not: it is up to 1.3 km across, and skipping it
+   * skipped every bank in every town - which is exactly where a terrace cut below the water line stood the
+   * river up as a slab with sheer sides. The grading now holds itself to the rivers it contains (see
+   * `SettlementStage.gradingFor`), so the check holds it to that too.
+   */
+  private val RECUTS_A_RIVER_BANK = setOf(
+    FeatureKind.ROAD,
+    FeatureKind.STREET,
     FeatureKind.BRIDGE
   )
 

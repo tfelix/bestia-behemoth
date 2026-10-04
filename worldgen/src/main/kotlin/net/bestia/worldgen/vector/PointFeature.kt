@@ -144,13 +144,29 @@ object RadialProfiles {
    * - which would dam every river that passes through a settlement. A couple of metres of fill levels the
    * building plots and leaves the channel alone.
    *
+   * [cutFloor] is the other half of that, for a town whose target sits *below* the river running through
+   * it. The cut never lowers ground below the floor: ground above it is cut down to it at most, and ground
+   * already below it - the channel and the bank top just beside the water - is not cut at all. So a bank
+   * that held the water before the town was graded still holds it after. Without it the cut lowered both
+   * banks by up to [maxCut] and left the river's water standing above them as a slab with sheer sides. It
+   * only ever withholds a cut, never adds fill, so it cannot raise a bed either.
+   *
+   * The floor is not tested as `base >= cutFloor`. That was the first attempt, and a bank top a few
+   * centimetres under the floor - which is where the river's own shoulder leaves it - fell through to the
+   * full cut and reproduced the slab on nine worlds in twenty-five.
+   *
    * Continuous in [base], so the edge of the graded area has no step in it.
    */
-  fun terrace(target: Double, maxCut: Double, maxFill: Double): RadialProfile {
+  fun terrace(
+    target: Double,
+    maxCut: Double,
+    maxFill: Double,
+    cutFloor: Double = Double.NEGATIVE_INFINITY
+  ): RadialProfile {
     require(maxCut >= 0.0 && maxFill >= 0.0) { "cut and fill limits must not be negative" }
     return RadialProfile { _, base ->
       when {
-        base > target -> max(target, base - maxCut)
+        base > target -> maxOf(target, base - maxCut, min(base, cutFloor))
         base < target -> min(target, base + maxFill)
         else -> target
       }
