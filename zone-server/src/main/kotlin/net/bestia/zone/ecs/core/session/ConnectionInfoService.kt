@@ -122,6 +122,10 @@ class ConnectionInfoService {
     }
   }
 
+  fun hasActiveSession(accountId: AccountId): Boolean {
+    return getSession(accountId) is ActiveConnection
+  }
+
   fun deactivateSession(accountId: Long) {
     LOG.info { "Deactivated session for account: $accountId" }
 

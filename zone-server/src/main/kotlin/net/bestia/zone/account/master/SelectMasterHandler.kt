@@ -3,6 +3,7 @@ package net.bestia.zone.account.master
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.battle.skill.KnownSkills
 import net.bestia.zone.ecs.core.WorldView
+import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.environment.weather.WeatherPublisher
 import net.bestia.zone.item.equip.EquipmentRevalidationService
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Component
 @Component
 class SelectMasterHandler(
   private val masterEntitySpawner: MasterEntitySpawner,
+  private val connectionInfoService: ConnectionInfoService,
   private val world: WorldView,
   private val weatherPublisher: WeatherPublisher,
   private val equipmentRevalidationService: EquipmentRevalidationService,
@@ -20,6 +22,12 @@ class SelectMasterHandler(
   override val handles = SelectMasterCMSG::class
 
   override fun handle(msg: SelectMasterCMSG): Boolean {
+    // A second master next to the active one would be orphaned in the world: the session tracks only one.
+    if (connectionInfoService.hasActiveSession(msg.playerId)) {
+      LOG.warn { "Account ${msg.playerId} selected master ${msg.selectedMasterId} while one is already active" }
+      return true
+    }
+
     val masterEntityId = masterEntitySpawner.spawnMaster(msg.playerId, msg.selectedMasterId) ?: return true
 
     LOG.debug { "Selecting master ${msg.selectedMasterId} with entity id: $masterEntityId for account: ${msg.playerId}" }

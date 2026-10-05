@@ -6,6 +6,7 @@ import net.bestia.zone.account.master.findByIdOrThrow
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.session.NoActiveSessionException
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
@@ -39,5 +40,19 @@ class SelectMasterScenario : BestiaNoSocketScenario(autoClientConnect = false) {
     assertThrows<NoActiveSessionException> {
       connectionInfoService.getMasterId(clientPlayer1.connectedPlayerId)
     }
+  }
+
+  @Test
+  @Order(2)
+  fun `a second master cannot be selected while one is active`() {
+    val activeMasterId = testData.account1.masterIds[0]
+    val otherMasterId = testData.account1.masterIds[1]
+    val otherEntityId = masterRepository.findByIdOrThrow(otherMasterId).entityId
+
+    clientPlayer1.connect(activeMasterId)
+    clientPlayer1.sendMessage(SelectMasterCMSG(clientPlayer1.connectedPlayerId, otherMasterId))
+
+    assertFalse(world.isAlive(otherEntityId), "a second master must not be spawned next to the active one")
+    assertEquals(activeMasterId, connectionInfoService.getMasterId(clientPlayer1.connectedPlayerId))
   }
 }
