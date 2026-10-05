@@ -252,9 +252,14 @@ class ZoneEngine(
       component.clearDirty()
     }
 
+    // Drained before the changes go out: a snapshot already carries every public component of an entity in the
+    // order a client needs, so its receivers must not also get the changes, unordered and ahead of it.
+    val deliveries = entityVisibility.drain()
+    val snapshotReceivers = snapshotReceiversByEntity(deliveries)
+
     for ((entityId, comps) in perEntity) {
       try {
-        sendChanges(entityId, comps)
+        sendChanges(entityId, comps, snapshotReceivers[entityId].orEmpty())
       } catch (e: Exception) {
         // One component that cannot describe itself must not cost every other entity its update.
         syncFailureLog.emit { held -> LOG.error(e) { "Could not sync entity $entityId (+$held more)" } }
@@ -262,7 +267,17 @@ class ZoneEngine(
     }
 
     flushRemovedComponents()
-    flushVisibilityChanges()
+    flushVisibilityChanges(deliveries)
+  }
+
+  private fun snapshotReceiversByEntity(deliveries: List<EntityVisibility.Delivery>): Map<EntityId, Set<AccountId>> {
+    val receivers = HashMap<EntityId, MutableSet<AccountId>>()
+
+    for (delivery in deliveries) {
+      delivery.appeared.forEach { entityId -> receivers.getOrPut(entityId) { HashSet() }.add(delivery.accountId) }
+    }
+
+    return receivers
   }
 
   /**
@@ -298,7 +313,7 @@ class ZoneEngine(
 
   private val syncFailureLog = RateLimitedLog()
 
-  private fun sendChanges(entityId: EntityId, comps: List<Dirtyable>) {
+  private fun sendChanges(entityId: EntityId, comps: List<Dirtyable>, gettingSnapshot: Set<AccountId>) {
     val broadcastMsgs = mutableListOf<SMSG>()
     val byAccountMsgs = LinkedHashMap<Long, MutableList<SMSG>>()
 
@@ -321,7 +336,7 @@ class ZoneEngine(
     }
 
     if (broadcastMsgs.isNotEmpty()) {
-      publicAudienceOf(entityId).forEach { accountId ->
+      publicAudienceOf(entityId).filterNot { it in gettingSnapshot }.forEach { accountId ->
         outMessageProcessor.sendToPlayer(accountId, broadcastMsgs)
       }
     }
@@ -345,11 +360,11 @@ class ZoneEngine(
    * No budget of its own: arrivals are driven by chunks going out, which `ChunkStreamSystem` already meters
    * at `chunksPerTickPerPlayer`, so a login spreads over the same second or two the terrain does.
    */
-  private fun flushVisibilityChanges() {
+  private fun flushVisibilityChanges(deliveries: List<EntityVisibility.Delivery>) {
     // One snapshot per entity per tick, however many accounts it appears to.
     val snapshots = HashMap<EntityId, EntitySnapshotBuilder.Snapshot>()
 
-    for (delivery in entityVisibility.drain()) {
+    for (delivery in deliveries) {
       val msgs = delivery.appeared.flatMap { entityId ->
         snapshots.getOrPut(entityId) { snapshotBuilder.snapshotOf(world, entityId) }.visibleTo(delivery.accountId)
       }

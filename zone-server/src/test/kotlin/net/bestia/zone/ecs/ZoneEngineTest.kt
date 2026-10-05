@@ -11,6 +11,7 @@ import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.ecs.item.CarryCapacity
 import net.bestia.zone.ecs.item.CarryCapacityComponentSMSG
 import net.bestia.zone.ecs.entity.EntityVisual
+import net.bestia.zone.ecs.entity.VisualComponentSMSG
 import net.bestia.zone.ecs.entity.VisualKind
 import net.bestia.zone.ecs.movement.Path
 import net.bestia.zone.ecs.movement.PathSMSG
@@ -182,6 +183,25 @@ class ZoneEngineTest {
         watcher,
         listOf(VanishEntitySMSG(entity, VanishEntitySMSG.VanishKind.OUT_OF_SIGHT))
       )
+    }
+  }
+
+  @Test
+  fun `an entity coming into view is sent once, as its snapshot`() {
+    val entity = watched(world.createEntity { id ->
+      add(id, Position(1, 2, 0))
+      add(id, EntityVisual(VisualKind.ITEM, 1L))
+    })
+    entityVisibility.queued = listOf(
+      EntityVisibility.Delivery(accountId = watcher, appeared = listOf(entity), vanished = emptyList())
+    )
+
+    zoneEngine.tickOnce(0.05f)
+
+    // The snapshot goes out ordered visual first; the same components dirty from the spawn must not go too.
+    verify(timeout = 1000, exactly = 1) { outMessageProcessor.sendToPlayer(watcher, any<Collection<SMSG>>()) }
+    verify(timeout = 1000) {
+      outMessageProcessor.sendToPlayer(watcher, match<Collection<SMSG>> { it.first() is VisualComponentSMSG })
     }
   }
 
