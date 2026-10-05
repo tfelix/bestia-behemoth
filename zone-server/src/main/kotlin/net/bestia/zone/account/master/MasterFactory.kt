@@ -231,6 +231,14 @@ class MasterFactory(
       throw GeneralMasterException("Effort values $tooLow are below the minimum of $floor")
     }
 
+    // Every point costs at least one, so no single value can exceed the budget. Refused before pricing: the
+    // price is summed point by point in Int, and a value near Int.MAX_VALUE wraps around to a legal total.
+    val ceiling = EffortValueCostCalculator.CREATION_EFFORT_POINTS
+    val tooHigh = effortValues.filterValues { it > ceiling }
+    if (tooHigh.isNotEmpty()) {
+      throw GeneralMasterException("Effort values $tooHigh are above the creation budget of $ceiling")
+    }
+
     val spent = effortValues.values.sumOf { effortValueCostCalculator.cumulativeCost(it) }
     if (spent != EffortValueCostCalculator.CREATION_EFFORT_POINTS) {
       throw GeneralMasterException(
