@@ -25,5 +25,8 @@ data class WebAuthnConfig(
    */
   val allowOriginPort: Boolean = false,
 
-  val ceremonyTtlSeconds: Long = 300
+  val ceremonyTtlSeconds: Long = 300,
+
+  /** How long after the sign-in a further passkey may still be enrolled on the session. */
+  val credentialEnrolmentSeconds: Long = 120
 )

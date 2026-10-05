@@ -163,22 +163,6 @@ class LoginSessionService(
     return SecureTokens.base64Url(SecureTokens.sha256(sessionId))
   }
 
-  /**
-   * The bound, authenticated session a further passkey may be enrolled on. Only shortly after the sign-in:
-   * a credential survives every later revocation, so it needs a fresh proof of the existing one.
-   */
-  fun requireEnrolable(session: LoginSession, browserBinding: String?) {
-    requireBoundTo(session, browserBinding)
-
-    val authenticatedAt = session.authenticatedAt
-    val fresh = authenticatedAt != null &&
-      authenticatedAt.plusSeconds(config.credentialEnrolmentSeconds).isAfter(LocalDateTime.now())
-
-    if (session.status != LoginSessionStatus.AUTHENTICATED || session.accountId == null || !fresh) {
-      throw GameLoginException(GameLoginError.INVALID_GRANT, "login session may not enrol a passkey now")
-    }
-  }
-
   fun requireBoundTo(session: LoginSession, browserBinding: String?) {
     if (browserBinding == null || !isBoundTo(session, browserBinding)) {
       throw GameLoginException(GameLoginError.INVALID_GRANT, "login session is not bound to this browser")
