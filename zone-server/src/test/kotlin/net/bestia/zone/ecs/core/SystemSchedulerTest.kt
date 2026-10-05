@@ -14,6 +14,7 @@ private class CountingSystem(
   override val reads: Set<kotlin.reflect.KClass<out Component>> = emptySet(),
   override val writes: Set<kotlin.reflect.KClass<out Component>> = emptySet(),
 ) : System {
+  override val phase = Phase.UPKEEP
   var runs = 0
 
   /** Every delta this system was handed, summed - the quantity a decay or countdown integrates over. */
@@ -173,6 +174,8 @@ class SystemSchedulerTest {
   fun `systems of a parallel wave may use the world's accessors while it is owned`() {
     val reads = AtomicInteger()
     val reader = object : System {
+      override val phase = Phase.UPKEEP
+      override val reads = setOf(CompA::class)
       override val writes = setOf(CompB::class)
       override fun update(world: World, deltaTime: Float) {
         world.query(CompA::class).each { id -> if (world.has(id, CompA::class)) reads.incrementAndGet() }
@@ -199,6 +202,7 @@ private class FailingSystem(
   override val writes: Set<kotlin.reflect.KClass<out Component>> = emptySet(),
   private val body: () -> Unit,
 ) : System {
+  override val phase = Phase.UPKEEP
   var attempts = 0
 
   override fun update(world: World, deltaTime: Float) {

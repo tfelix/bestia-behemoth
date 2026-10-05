@@ -1,6 +1,7 @@
 package net.bestia.zone.ai.perception
 
 import net.bestia.zone.ai.ecs.AiAgent
+import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ai.ecs.AiThrottle
 import net.bestia.zone.ai.ecs.SharedMemoryService
 import net.bestia.zone.ecs.ZoneConfig
@@ -10,7 +11,6 @@ import net.bestia.zone.ecs.core.TickBuckets
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.movement.Position
-import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component as SpringComponent
 
 /**
@@ -38,13 +38,14 @@ import org.springframework.stereotype.Component as SpringComponent
  * interval, its own declared reads.
  */
 @SpringComponent
-@Order(11)
 class SenseSystem(
   private val senses: List<Sense>,
   private val sharedMemory: SharedMemoryService,
   private val throttle: AiThrottle,
   zoneConfig: ZoneConfig,
 ) : System {
+  override val phase = Phase.AI
+  override val after = setOf(PerceptionSystem::class)
 
   /** Every tick, but each sense runs for an agent only on that agent's own bucket, so no tick takes them all. */
   override val schedule: Schedule = Schedule.EveryTick

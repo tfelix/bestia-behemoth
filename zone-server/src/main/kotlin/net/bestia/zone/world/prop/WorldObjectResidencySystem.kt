@@ -2,6 +2,7 @@ package net.bestia.zone.world.prop
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.core.ComponentClassSet
+import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.prop.PropPose
@@ -10,7 +11,7 @@ import net.bestia.zone.ecs.prop.StaticSync
 import net.bestia.zone.ecs.prop.StaticVisual
 import net.bestia.zone.ecs.prop.WorldObjectIdentity
 import net.bestia.zone.world.stream.ChunkStreamConfig
-import org.springframework.core.annotation.Order
+import net.bestia.zone.world.stream.ChunkStreamSystem
 import org.springframework.stereotype.Component
 import net.bestia.zone.ecs.core.System as EcsSystem
 
@@ -25,23 +26,22 @@ import net.bestia.zone.ecs.core.System as EcsSystem
  * is `ChunkService.onChunkChanged`'s: *"the listener runs on the tick thread inside the edit, so it must be
  * cheap and must not itself edit: mark something stale and return."*
  *
- * ### Order 46
+ * ### After the chunk stream
  *
- * Immediately after `ChunkStreamSystem` (45), so the terrain a prop stands on goes out first and the props
- * follow in the same tick. Declaring the prop component types as `writes` also places it after `MoveSystem`
- * (40) in the wave computation, which matters only because `reads` names `PropPose` and a future mover might
- * touch it.
+ * After `ChunkStreamSystem`, so the terrain a prop stands on goes out first and the props follow in the same
+ * tick.
  *
- * Deliberately **before** `PersistAndRemoveSystem` (90), which is irrelevant while props carry no `Persistent`
- * - and they must not: `EntityPersistenceService`'s ninety-second sweep would snapshot every resident prop
+ * Deliberately **before** `PersistAndRemoveSystem` (a later phase), which is irrelevant while props carry no
+ * `Persistent` - and they must not: `EntityPersistenceService`'s ninety-second sweep would snapshot every resident prop
  * and write a row for each, 99.99% of which are pristine.
  */
 @Component
-@Order(46)
 class WorldObjectResidencySystem(
   private val residency: WorldObjectResidencyService,
   private val settings: ChunkStreamConfig
 ) : EcsSystem {
+  override val phase = Phase.WORLD
+  override val after = setOf(ChunkStreamSystem::class)
 
   override val schedule: Schedule = Schedule.EveryTick
 

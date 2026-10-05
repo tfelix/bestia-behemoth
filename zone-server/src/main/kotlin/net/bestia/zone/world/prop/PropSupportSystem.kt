@@ -3,6 +3,7 @@ package net.bestia.zone.world.prop
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.worldgen.core.ChunkPos
 import net.bestia.zone.ecs.core.ComponentClassSet
+import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.movement.GroundHeight
@@ -12,7 +13,6 @@ import net.bestia.zone.ecs.prop.StaticSync
 import net.bestia.zone.ecs.prop.StaticVisual
 import net.bestia.zone.ecs.prop.WorldObjectIdentity
 import net.bestia.zone.world.stream.ChunkService
-import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
 import net.bestia.zone.ecs.core.System as EcsSystem
 
@@ -29,22 +29,22 @@ import net.bestia.zone.ecs.core.System as EcsSystem
  * `recordDepletion` is given a null `resumeAt` even for a tree with a `regrowSeconds`, because the ground it
  * would grow back onto is not there. A regrown tree over an open shaft is the same bug with a delay on it.
  *
- * ### Order 47
+ * ### After the chunk stream and the residency
  *
- * After `ChunkStreamSystem` (45), whose last step rebuilds the walkability tiles this reads - before them the
- * ground still reads as it was, and no prop looks unsupported. After `WorldObjectResidencySystem` (46), so a
+ * After `ChunkStreamSystem`, whose last step rebuilds the walkability tiles this reads - before them the
+ * ground still reads as it was, and no prop looks unsupported. After `WorldObjectResidencySystem`, so a
  * column materialised this tick is judged this tick rather than next. The prop component types are declared as
- * `writes` because `WorldObjectResidencyService.remove` destroys the entity carrying them, which is also what
- * places this in a later wave than both.
+ * `writes` because `WorldObjectResidencyService.remove` destroys the entity carrying them.
  */
 @Component
-@Order(47)
 class PropSupportSystem(
   private val residency: WorldObjectResidencyService,
   private val divergence: WorldObjectDivergenceRegistry,
   private val ground: GroundHeight,
   private val chunkService: ChunkService
 ) : EcsSystem {
+  override val phase = Phase.WORLD
+  override val after = setOf(WorldObjectResidencySystem::class)
 
   override val schedule: Schedule = Schedule.EveryTick
 

@@ -2,6 +2,7 @@ package net.bestia.zone.world.ground
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.core.ComponentClassSet
+import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
@@ -44,6 +45,7 @@ class GroundLevelDecaySystem(
   private val overlay: GroundOverlayService,
   private val clock: BestiaClock,
 ) : System {
+  override val phase = Phase.UPKEEP
 
   override val schedule: Schedule = Schedule.EveryTick
 

@@ -2,6 +2,7 @@ package net.bestia.zone.ecs.battle.exp
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.core.ComponentClassSet
+import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.account.Master
@@ -11,22 +12,20 @@ import net.bestia.zone.ecs.battle.status.IsStatusValueDirty
 import net.bestia.zone.ecs.battle.status.SkillPoints
 import net.bestia.zone.ecs.battle.status.StatusPoints
 import net.bestia.zone.ecs.persistence.EntityWriteBehind
-import net.bestia.zone.ecs.persistence.persisters.MasterEntityPersister
 import net.bestia.zone.util.EntityId
-import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component as SpringComponent
 
 @SpringComponent
-@Order(60)
 class GainExpSystem(
   private val levelUpExpCalc: LevelUpExperienceCalculator,
   private val writeBehind: EntityWriteBehind,
 ) : System {
+  override val phase = Phase.ITEMS
 
   override val reads: ComponentClassSet = setOf(
     Master::class,
     GainExp::class
-  ) + MasterEntityPersister.SNAPSHOT_READS
+  ) + EntityWriteBehind.READS
 
   override val writes: ComponentClassSet = setOf(
     Exp::class,

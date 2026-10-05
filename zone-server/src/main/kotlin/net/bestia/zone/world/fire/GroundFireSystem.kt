@@ -1,28 +1,27 @@
 package net.bestia.zone.world.fire
 
 import net.bestia.zone.ecs.core.ComponentClassSet
+import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.battle.effects.AreaEffect
-import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
 
 /**
  * Steps every burning fire once a tick.
  *
- * ### `@Order(46)`
+ * ### Before the overlay and before combat
  *
- * Before `GroundOverlaySystem` (47), which is what matters: a fire marks columns dirty as it spreads and the
- * overlay flushes them after, so the mask a client receives is the one this tick produced rather than last
- * tick's. Also before `AreaEffectSystem` (48), so an effect this resizes is ticked at its new size in the same
- * tick, and before `ReceivedDamageSystem` (50), which drains the `Damage` that effect stages.
+ * Before `GroundOverlaySystem` (its `after`), which is what matters: a fire marks columns dirty as it spreads and
+ * the overlay flushes them after, so the mask a client receives is the one this tick produced rather than last
+ * tick's. Also before `AreaEffectSystem` (a later phase), so an effect this resizes is ticked at its new size in
+ * the same tick, and before `ReceivedDamageSystem`, which drains the `Damage` that effect stages.
  *
  * ### It declares `AreaEffect` and nothing else, deliberately
  *
  * The fire holds its own state, so the only component it touches on an entity that already existed is the
- * `AreaEffect` it resizes - which conflicts with `AreaEffectSystem` and gets the ordering above enforced
- * rather than merely requested.
+ * `AreaEffect` it resizes.
  *
  * It does **not** declare what promotion writes. `PropPromotionService` is called from inside
  * `AreaEffectSystem`, which declares them itself; and the effect entity this *creates* needs nothing declared
@@ -33,10 +32,10 @@ import org.springframework.stereotype.Component
  * `Health` cannot share a wave with most of the engine, which flattens the scheduling for everything.
  */
 @Component
-@Order(46)
 class GroundFireSystem(
   private val fire: GroundFireService,
 ) : System {
+  override val phase = Phase.WORLD
 
   override val schedule: Schedule = Schedule.EveryTick
 

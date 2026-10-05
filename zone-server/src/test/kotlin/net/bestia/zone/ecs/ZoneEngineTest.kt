@@ -6,6 +6,7 @@ import io.mockk.slot
 import io.mockk.verify
 import net.bestia.zone.ecs.account.Account
 import net.bestia.zone.ecs.battle.damage.Dead
+import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld
@@ -313,6 +314,7 @@ class ZoneEngineTest {
   @Test
   fun `a throwing system does not keep dirty components from syncing`() {
     val failing = object : System {
+      override val phase = Phase.UPKEEP
       override fun update(world: World, deltaTime: Float) {
         error("boom")
       }
@@ -336,6 +338,7 @@ class ZoneEngineTest {
   fun `the tick loop survives an Error thrown by a system`() {
     val runs = AtomicInteger()
     val failsOnce = object : System {
+      override val phase = Phase.UPKEEP
       override fun update(world: World, deltaTime: Float) {
         if (runs.incrementAndGet() == 1) TODO("not built yet")
       }
@@ -354,6 +357,7 @@ class ZoneEngineTest {
   fun `a running engine hands every system the same fixed step`() {
     val deltas = ConcurrentLinkedQueue<Float>()
     val recorder = object : System {
+      override val phase = Phase.UPKEEP
       override fun update(world: World, deltaTime: Float) {
         deltas.add(deltaTime)
       }

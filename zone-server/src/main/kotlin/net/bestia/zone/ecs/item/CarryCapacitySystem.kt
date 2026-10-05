@@ -1,12 +1,13 @@
 package net.bestia.zone.ecs.item
 
+import net.bestia.zone.ecs.battle.exp.GainExpSystem
 import net.bestia.zone.ecs.battle.level.Level
 import net.bestia.zone.ecs.battle.status.StatusValues
 import net.bestia.zone.ecs.core.ComponentClassSet
+import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.util.EntityId
-import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component as SpringComponent
 
 /**
@@ -18,17 +19,16 @@ import org.springframework.stereotype.Component as SpringComponent
  * `current` was the weight they had when they entered the world, which is what the pickup gate compared
  * against. A session had no carry limit at all.
  *
- * `@Order(61)` is load-bearing. [net.bestia.zone.ecs.core.SystemScheduler] places a system strictly later
- * than any earlier-registered system it conflicts with, so 61 lands after [ObtainItemIntentSystem] (59,
- * writes [Inventory]), after `GainExpSystem` (60, writes [Level]) and after `StatusValueRecalcSystem`
- * (47, writes [StatusValues]) - a pickup, a level-up and an equipment recalc are each reflected in the
- * component the owner is sent on the same tick they happen.
+ * It runs after [ObtainItemIntentSystem] (writes [Inventory]) and `GainExpSystem` (writes [Level]), and in a
+ * later phase than `StatusValueRecalcSystem` (writes [StatusValues]) - so a pickup, a level-up and an equipment
+ * recalc are each reflected in the component the owner is sent on the same tick they happen.
  */
 @SpringComponent
-@Order(61)
 class CarryCapacitySystem(
   private val weightLimitCalculator: WeightLimitCalculator
 ) : System {
+  override val phase = Phase.ITEMS
+  override val after = setOf(ObtainItemIntentSystem::class, GainExpSystem::class)
 
   override val reads: ComponentClassSet = setOf(
     Inventory::class,

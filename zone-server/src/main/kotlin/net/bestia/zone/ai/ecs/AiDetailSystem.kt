@@ -2,13 +2,13 @@ package net.bestia.zone.ai.ecs
 
 import net.bestia.zone.ecs.ZoneConfig
 import net.bestia.zone.ecs.core.ComponentClassSet
+import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.TickBuckets
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.movement.CoarseMovement
 import net.bestia.zone.ecs.movement.Position
-import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component as SpringComponent
 
 /**
@@ -18,11 +18,11 @@ import org.springframework.stereotype.Component as SpringComponent
  * by reading the tier themselves.
  */
 @SpringComponent
-@Order(9)
 class AiDetailSystem(
   private val throttle: AiThrottle,
   private val zoneConfig: ZoneConfig,
 ) : System {
+  override val phase = Phase.AI
 
   override val schedule: Schedule = Schedule.EveryTick
 

@@ -6,9 +6,11 @@ import net.bestia.zone.ecs.account.Account
 import net.bestia.zone.ecs.account.Master
 import net.bestia.zone.ecs.core.AsyncJobExecutor
 import net.bestia.zone.ecs.core.ComponentClassSet
+import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.economy.ShopTradeIntent
+import net.bestia.zone.ecs.item.CarryCapacitySystem
 import net.bestia.zone.ecs.item.Inventory
 import net.bestia.zone.ecs.item.ObtainItemIntent
 import net.bestia.zone.ecs.movement.Position
@@ -21,7 +23,6 @@ import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.util.EntityId
-import org.springframework.core.annotation.Order
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component as SpringComponent
 
@@ -29,10 +30,10 @@ import org.springframework.stereotype.Component as SpringComponent
  * Resolves a [ShopTradeIntent]: quotes the trade against the town the player is standing in, moves the
  * coin and the goods, and sends the window back so the new price is visible.
  *
- * ### @Order(63)
+ * ### In the items phase, before death
  *
- * Immediately before `CollectPropIntentSystem` at 64, which it mirrors, and for that system's reasons:
- * before `DeathSystem` (@70) and `PersistAndRemoveSystem` (@90), because `World.addNow` requires its
+ * Immediately before `CollectPropIntentSystem`, which it mirrors, and for that system's reasons: before
+ * `DeathSystem` and `PersistAndRemoveSystem` (later phases), because `World.addNow` requires its
  * target alive and the deferred queue is FIFO - running later would let a player who dies in the same
  * tick they buy blow up `applyDeferred` on the tick thread.
  *
@@ -45,7 +46,6 @@ import org.springframework.stereotype.Component as SpringComponent
  * though they had not happened - invisible, and self-correcting, because prices reconverge.
  */
 @SpringComponent
-@Order(63)
 class ShopTradeIntentSystem(
   private val economy: SettlementEconomyService,
   private val commodities: CommodityItems,
@@ -55,6 +55,8 @@ class ShopTradeIntentSystem(
   private val outMessageProcessor: OutMessageProcessor,
   private val itemRepository: ItemRepository,
 ) : System {
+  override val phase = Phase.ITEMS
+  override val after = setOf(CarryCapacitySystem::class)
 
   override val reads: ComponentClassSet = setOf(Account::class, Master::class, Position::class)
 

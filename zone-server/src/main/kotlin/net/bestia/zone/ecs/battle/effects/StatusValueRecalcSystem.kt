@@ -5,6 +5,8 @@ import net.bestia.zone.battle.status.ConditionValueCalculator
 import net.bestia.zone.battle.status.StatusEffectDefinitionRegistry
 import net.bestia.zone.battle.status.StatusEffectScriptRegistry
 import net.bestia.zone.battle.status.StatusValueRecalcContext
+import net.bestia.zone.ecs.account.Account
+import net.bestia.zone.ecs.account.Master
 import net.bestia.zone.ecs.battle.level.Level
 import net.bestia.zone.ecs.battle.skill.KnownSkills
 import net.bestia.zone.ecs.battle.status.CombatBonus
@@ -17,13 +19,13 @@ import net.bestia.zone.ecs.battle.status.Mana
 import net.bestia.zone.ecs.battle.status.Stamina
 import net.bestia.zone.ecs.battle.status.StatusValues
 import net.bestia.zone.ecs.core.ComponentClassSet
+import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.item.Equipment
 import net.bestia.zone.ecs.movement.Speed
 import net.bestia.zone.item.equip.script.EquipmentScriptRegistry
 import net.bestia.zone.util.EntityId
-import org.springframework.core.annotation.Order
 import kotlin.collections.component1
 import kotlin.collections.component2
 import kotlin.collections.iterator
@@ -46,11 +48,10 @@ import net.bestia.zone.ecs.core.update
  * would describe it. Note the regeneration modifiers are order-independent by construction: they
  * accumulate as a flat and a percentage sum resolved once, at regen time.
  *
- * Runs after [StatusEffectDurationSystem] (46) so an effect that expired this tick is already
+ * Runs after [StatusEffectDurationSystem] so an effect that expired this tick is already
  * gone before values are rebuilt.
  */
 @SpringComponent
-@Order(47)
 class StatusValueRecalcSystem(
   private val statusEffectDefinitionRegistry: StatusEffectDefinitionRegistry,
   private val statusEffectScriptRegistry: StatusEffectScriptRegistry,
@@ -58,6 +59,8 @@ class StatusValueRecalcSystem(
   private val passiveSkillScriptRegistry: PassiveSkillScriptRegistry,
   private val conditionValueCalculator: ConditionValueCalculator
 ) : System {
+  override val phase = Phase.STATUS
+  override val after = setOf(StatusEffectDurationSystem::class)
 
   override val reads: ComponentClassSet = setOf(
     BaseStatusValues::class,
@@ -66,7 +69,10 @@ class StatusValueRecalcSystem(
     IsStatusValueDirty::class,
     Level::class,
     FormulaDrivenVitals::class,
-    KnownSkills::class
+    KnownSkills::class,
+    // A status effect script may address the entity's owner (MasterIntroMarker greets them).
+    Account::class,
+    Master::class
   )
   override val writes: ComponentClassSet = setOf(
     StatusValues::class,

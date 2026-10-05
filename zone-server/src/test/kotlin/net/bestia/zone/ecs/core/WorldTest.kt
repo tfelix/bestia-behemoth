@@ -69,6 +69,7 @@ class WorldTest {
   fun `structural changes requested inside a system are deferred`() {
     // a system that "kills" entities at 0 hp by removing Health mid-iteration
     val hpKiller = object : System {
+      override val phase = Phase.UPKEEP
       override val writes = setOf(Health::class)
       override fun update(world: World, deltaTime: Float) {
         world.query(Health::class).each { id ->
@@ -90,12 +91,14 @@ class WorldTest {
   @Test
   fun `deferred changes still apply when a later system throws`() {
     val remover = object : System {
+      override val phase = Phase.UPKEEP
       override val writes = setOf(Health::class)
       override fun update(world: World, deltaTime: Float) {
         world.query(Health::class).each { id -> world.remove(id, Health::class) }
       }
     }
     val failing = object : System {
+      override val phase = Phase.UPKEEP
       override fun update(world: World, deltaTime: Float) {
         error("boom")
       }
@@ -114,6 +117,9 @@ class WorldTest {
     val visited = mutableListOf<EntityId>()
     var bad = -1L
     val system = object : System {
+      override val phase = Phase.UPKEEP
+      override val reads = setOf(Health::class)
+
       override fun update(world: World, deltaTime: Float) {
         world.query(Health::class).each { id ->
           if (id == bad) error("bad entity")

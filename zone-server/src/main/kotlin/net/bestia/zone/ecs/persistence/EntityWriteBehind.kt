@@ -1,8 +1,16 @@
 package net.bestia.zone.ecs.persistence
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.zone.ecs.account.Account
+import net.bestia.zone.ecs.battle.effects.StatusEffects
 import net.bestia.zone.ecs.core.AsyncJobExecutor
+import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.World
+import net.bestia.zone.ecs.entity.EntityVisual
+import net.bestia.zone.ecs.item.GroundItemStack
+import net.bestia.zone.ecs.persistence.persisters.MasterEntityPersister
+import net.bestia.zone.ecs.script.ScriptComponent
+import net.bestia.zone.ecs.spawn.DenMember
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Service
 import java.util.concurrent.ConcurrentHashMap
@@ -99,5 +107,11 @@ class EntityWriteBehind(
 
   companion object {
     private val LOG = KotlinLogging.logger { }
+
+    /** What [persist] reads: every persister's `supports` check and snapshot, and the status effects. */
+    val READS: ComponentClassSet = setOf(
+      Account::class, EntityVisual::class, GroundItemStack::class, ScriptComponent::class, DenMember::class,
+      StatusEffects::class,
+    ) + MasterEntityPersister.SNAPSHOT_READS
   }
 }

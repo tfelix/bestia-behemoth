@@ -1,6 +1,7 @@
 package net.bestia.zone.ecs.core.scenario
 
 import net.bestia.zone.ecs.core.ComponentClassSet
+import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.World
@@ -13,6 +14,8 @@ import org.springframework.stereotype.Component as SpringComponent
  */
 @SpringComponent
 class HealthRegenSystem : System {
+  override val phase = Phase.RECOVERY
+
   override val schedule = Schedule.EverySeconds(0.1f)
   override val writes: ComponentClassSet = setOf(Health::class)
 

@@ -3,13 +3,13 @@ package net.bestia.zone.world.prop
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.battle.damage.Dead
 import net.bestia.zone.ecs.core.ComponentClassSet
+import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.prop.PlayerStructureIdentity
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.prop.PropPose
 import net.bestia.zone.world.WorldService
-import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component as SpringComponent
 
 /**
@@ -22,16 +22,16 @@ import org.springframework.stereotype.Component as SpringComponent
  * A felled tree writes a *divergence* row saying the generator's output no longer applies here; a broken forge
  * has no generator output to diverge from, so its own row is simply deleted and there is nothing left to say.
  *
- * `@Order(66)`: after `ReceivedDamageSystem` (50) has added [Dead] and before `DeathSystem` (70) destroys the
- * entity, alongside the divergence system at 65. Nothing about the two conflicts, so their relative order does
- * not matter - only that both run inside that window.
+ * In the death phase: after `ReceivedDamageSystem` has added [Dead] and before `DeathSystem` destroys the
+ * entity, alongside the divergence system. Nothing about the two conflicts, so their relative order does not
+ * matter - only that both run inside that window.
  */
 @SpringComponent
-@Order(66)
 class PlayerStructureDeathSystem(
   private val structures: PlayerStructureRegistry,
   private val worldService: WorldService
 ) : System {
+  override val phase = Phase.DEATH
 
   override val reads: ComponentClassSet =
     setOf(Dead::class, PlayerStructureIdentity::class, PropPose::class, Position::class)

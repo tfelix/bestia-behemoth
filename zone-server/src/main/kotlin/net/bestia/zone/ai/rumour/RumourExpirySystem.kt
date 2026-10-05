@@ -1,5 +1,6 @@
 package net.bestia.zone.ai.rumour
 
+import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
@@ -24,6 +25,7 @@ import org.springframework.stereotype.Component as SpringComponent
 class RumourExpirySystem(
   private val rumours: RumourService,
 ) : System {
+  override val phase = Phase.UPKEEP
 
   override val schedule: Schedule = Schedule.EverySeconds(SWEEP_SECONDS)
 

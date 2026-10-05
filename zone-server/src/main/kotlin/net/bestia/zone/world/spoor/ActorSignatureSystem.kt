@@ -5,6 +5,7 @@ import net.bestia.zone.bestia.BestiaCatalogue
 import net.bestia.zone.ecs.account.Master
 import net.bestia.zone.ecs.battle.level.Level
 import net.bestia.zone.ecs.core.ComponentClassSet
+import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
@@ -13,15 +14,14 @@ import net.bestia.zone.ecs.entity.VisualKind
 import net.bestia.zone.ecs.movement.Path
 import net.bestia.zone.environment.time.BestiaClock
 import net.bestia.zone.util.EntityId
-import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
 
 /**
  * Writes down what everything that is walking *is*, while it is still there to ask.
  *
- * ### `@Order(39)`, immediately ahead of `MoveSystem`
+ * ### Immediately ahead of `MoveSystem`
  *
- * Load bearing rather than tidy. `MoveSystem` (40) takes a `Path` off an entity the moment it arrives, and a
+ * Load bearing rather than tidy. `MoveSystem` takes a `Path` off an entity the moment it arrives, and a
  * removal made while a query is iterating is applied at the next sync point - which can be before anything
  * later in the tick runs. Signing before the movement means even a single-tile walk, begun and finished inside
  * one tick, is signed before the print it leaves.
@@ -38,12 +38,12 @@ import org.springframework.stereotype.Component
  * declarations only conflict with writers, and the only writer of any of these is a level-up.
  */
 @Component
-@Order(39)
 class ActorSignatureSystem(
   private val signatures: ActorSignatures,
   private val catalogue: BestiaCatalogue,
   private val clock: BestiaClock,
 ) : System {
+  override val phase = Phase.MOVEMENT
 
   override val schedule: Schedule = Schedule.EveryTick
 

@@ -36,8 +36,8 @@ class AiSchedulingTest {
 
   @Test
   fun `the AI stages still conflict when registered in any order`() {
-    // Order-independence matters because Spring supplies these beans by @Order, and a future reordering must
-    // not be able to collapse them into one wave.
+    // Order-independence matters because the tick order comes from phases and `after`, not from the order
+    // Spring supplies the beans in, and a future reordering must not be able to collapse them into one wave.
     val ai = AiPipelineFixture()
     val reversed = testWorld(systems = ai.systems.reversed())
 

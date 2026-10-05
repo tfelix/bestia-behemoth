@@ -3,9 +3,9 @@ package net.bestia.zone.ecs.battle.skill
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.battle.skill.SkillExecutionService
 import net.bestia.zone.ecs.core.ComponentClassSet
+import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
-import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component as SpringComponent
 
 /**
@@ -19,10 +19,10 @@ import org.springframework.stereotype.Component as SpringComponent
  * [net.bestia.zone.ecs.battle.damage.ReceivedDamageSystem] for damage).
  */
 @SpringComponent
-@Order(44)
 class CastingSystem(
   private val skillExecutionService: SkillExecutionService,
 ) : System {
+  override val phase = Phase.ACTIONS
 
   override val writes: ComponentClassSet = setOf(Casting::class)
 

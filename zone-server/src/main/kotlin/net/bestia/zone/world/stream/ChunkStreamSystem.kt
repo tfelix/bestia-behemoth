@@ -6,6 +6,7 @@ import net.bestia.worldgen.voxel.CarveBrush
 import net.bestia.zone.ecs.account.Account
 import net.bestia.zone.ecs.account.ActivePlayer
 import net.bestia.zone.ecs.core.ComponentClassSet
+import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
@@ -17,9 +18,9 @@ import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.prop.PropPose
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.socket.ChunkFanOut
+import net.bestia.zone.world.ground.GroundStampSystem
 import net.bestia.zone.world.mining.OreYield
 import net.bestia.zone.util.EntityId
-import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component as SpringComponent
 
 /**
@@ -48,7 +49,6 @@ import org.springframework.stereotype.Component as SpringComponent
  * reads the ground as it was before the hole and settles the entity back onto it.
  */
 @SpringComponent
-@Order(45)
 class ChunkStreamSystem(
   private val chunkService: ChunkService,
   private val subscriptions: ChunkSubscriptionService,
@@ -60,6 +60,8 @@ class ChunkStreamSystem(
   private val connections: ConnectionInfoService,
   private val workers: ChunkWorkers,
 ) : System {
+  override val phase = Phase.WORLD
+  override val after = setOf(GroundStampSystem::class)
 
   /**
    * Ore a carve broke that its owner has not been handed yet.
@@ -77,7 +79,7 @@ class ChunkStreamSystem(
    *
    * Declaring them matters beyond documentation: the scheduler runs systems in parallel unless their read/write
    * sets conflict, so leaving `Position` in `reads` alone would let this run concurrently with `MoveSystem`,
-   * which writes it. `@Order` fixes the sequence only among systems that already conflict.
+   * which writes it.
    */
   override val writes: ComponentClassSet =
     setOf(Position::class, Path::class, Grounded::class, ObtainItemIntent.CreateItemIntent::class)

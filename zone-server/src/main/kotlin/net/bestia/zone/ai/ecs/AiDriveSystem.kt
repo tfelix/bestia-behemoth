@@ -3,13 +3,14 @@ package net.bestia.zone.ai.ecs
 import net.bestia.zone.ai.core.action.Posture
 import net.bestia.zone.ai.core.state.Blackboard
 import net.bestia.zone.ai.core.state.Drive
+import net.bestia.zone.ai.perception.SenseSystem
 import net.bestia.zone.ecs.core.ComponentClassSet
+import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.TickBuckets
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.environment.time.BestiaClock
-import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component as SpringComponent
 
 /**
@@ -24,12 +25,13 @@ import org.springframework.stereotype.Component as SpringComponent
  * day rather than a frame, and integrates over the real time the scheduler hands it.
  */
 @SpringComponent
-@Order(15)
 class AiDriveSystem(
   private val sharedMemory: SharedMemoryService,
   private val clock: BestiaClock,
   private val throttle: AiThrottle,
 ) : System {
+  override val phase = Phase.AI
+  override val after = setOf(SenseSystem::class)
 
   override val schedule: Schedule = Schedule.EverySeconds(1f)
 

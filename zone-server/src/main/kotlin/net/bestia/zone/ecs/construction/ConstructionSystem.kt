@@ -4,6 +4,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.battle.damage.Dead
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.core.ComponentClassSet
+import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.movement.Position
@@ -13,19 +14,19 @@ import net.bestia.zone.ecs.prop.PropVitality
 import net.bestia.zone.ecs.prop.StaticSync
 import net.bestia.zone.ecs.prop.StaticVisual
 import net.bestia.zone.ecs.prop.WorldObjectIdentity
+import net.bestia.zone.ecs.respawn.RespawnSystem
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.world.prop.PlayerStructureRegistry
 import net.bestia.zone.world.prop.PlayerStructureService
 import net.bestia.zone.world.prop.PropKindRegistry
-import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component as SpringComponent
 import kotlin.math.roundToInt
 
 /**
  * Puts work into every construction site somebody is standing at, and finishes the ones that are done.
  *
- * `@Order(45)`, beside [net.bestia.zone.ecs.crafting.CraftingSystem] because it is the same kind of thing, and
- * **before** `WorldObjectResidencySystem` (46) because finishing a site raises a static prop: the residency
+ * In the actions phase, beside [net.bestia.zone.ecs.crafting.CraftingSystem] because it is the same kind of
+ * thing, and so **before** `WorldObjectResidencySystem` because finishing a site raises a static prop: the residency
  * drain is what announces the new column, and it has to run after this in the same tick rather than a tick
  * later.
  *
@@ -37,12 +38,13 @@ import kotlin.math.roundToInt
  * animating.
  */
 @SpringComponent
-@Order(45)
 class ConstructionSystem(
   private val structures: PlayerStructureService,
   private val registry: PlayerStructureRegistry,
   private val propKinds: PropKindRegistry
 ) : System {
+  override val phase = Phase.ACTIONS
+  override val after = setOf(RespawnSystem::class)
 
   override val reads: ComponentClassSet = setOf(Position::class, Dead::class)
 

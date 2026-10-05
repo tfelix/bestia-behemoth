@@ -4,6 +4,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.bestia.BestiaEntitySpawner
 import net.bestia.zone.ecs.account.ActivePlayer
 import net.bestia.zone.ecs.core.ComponentClassSet
+import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
@@ -11,7 +12,6 @@ import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.persistence.PersistedEntityDeletionQueue
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
-import org.springframework.core.annotation.Order
 import kotlin.random.Random
 import org.springframework.stereotype.Component as SpringComponent
 
@@ -80,12 +80,12 @@ import org.springframework.stereotype.Component as SpringComponent
  * `Invariants.checkSpawnersAreOnDryLand` checks the den's own centre.
  */
 @SpringComponent
-@Order(80)
 class SpawnerSystem(
   private val bestiaEntitySpawner: BestiaEntitySpawner,
   private val cellIndex: SpawnerCellIndex,
   private val deletionQueue: PersistedEntityDeletionQueue,
 ) : System {
+  override val phase = Phase.SPAWN
 
   /**
    * Activation is a coarse gate, and [Spawner.activationRange] is deliberately wider than a player's view

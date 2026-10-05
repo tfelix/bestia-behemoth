@@ -4,13 +4,13 @@ import net.bestia.zone.ai.ecs.AiThrottleable
 import net.bestia.zone.bestia.BestiaEntitySpawner
 import net.bestia.zone.ecs.account.ActivePlayer
 import net.bestia.zone.ecs.core.ComponentClassSet
+import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
-import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component as SpringComponent
 
 /**
@@ -42,12 +42,12 @@ import org.springframework.stereotype.Component as SpringComponent
  * `SpawnerSystem.despawnPack` genuinely differ and a later reader would otherwise "fix" it.
  */
 @SpringComponent
-@Order(81)
 class AmbientSpawnerSystem(
   private val bestiaEntitySpawner: BestiaEntitySpawner,
   private val resolver: AmbientSiteResolver,
   private val config: AmbientSpawnConfig
 ) : System {
+  override val phase = Phase.SPAWN
 
   /** Matches `SpawnerSystem`: activation is a coarse gate and a quarter second disappears into the margin. */
   override val schedule: Schedule = Schedule.EverySeconds(0.25f)

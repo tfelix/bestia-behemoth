@@ -1,11 +1,11 @@
 package net.bestia.zone.ecs.spawn.townsfolk
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.environment.time.BestiaClock
-import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component as SpringComponent
 
 /**
@@ -23,11 +23,12 @@ import org.springframework.stereotype.Component as SpringComponent
  * Coarse on purpose. A door opens on the minute rather than the tick.
  */
 @SpringComponent
-@Order(83)
 class IndoorEmergenceSystem(
   private val indoors: IndoorRegistry,
   private val clock: BestiaClock,
 ) : System {
+  override val phase = Phase.SPAWN
+  override val after = setOf(TownsfolkResidencySystem::class)
 
   /** Nothing here is time-critical to a tick, and the answer only changes on the minute. */
   override val schedule: Schedule get() = Schedule.EverySeconds(SWEEP_SECONDS)

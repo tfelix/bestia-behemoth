@@ -8,10 +8,21 @@ import net.bestia.zone.battle.damage.Miss
 import net.bestia.zone.battle.status.AttackSpeed
 import net.bestia.zone.ecs.battle.attack.AttackDelay
 import net.bestia.zone.ecs.battle.damage.Dead
+import net.bestia.zone.ecs.battle.effects.StatusEffects
+import net.bestia.zone.ecs.battle.level.Level
+import net.bestia.zone.ecs.battle.status.CombatBonus
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.battle.status.Invulnerable
+import net.bestia.zone.ecs.battle.status.Nature
+import net.bestia.zone.ecs.battle.status.StatusValues
+import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.World
+import net.bestia.zone.ecs.item.Equipment
+import net.bestia.zone.ecs.movement.Grounded
 import net.bestia.zone.ecs.movement.Position
+import net.bestia.zone.ecs.prop.PropPose
+import net.bestia.zone.ecs.prop.PropVitality
+import net.bestia.zone.ecs.prop.WorldObjectIdentity
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Service
@@ -140,5 +151,18 @@ class AttackExecutionService(
 
   companion object {
     private val LOG = KotlinLogging.logger { }
+
+    /** What [attack] reads on both sides, through the battle context and a prop's first promotion. */
+    val READS: ComponentClassSet = setOf(
+      Position::class, Dead::class, Level::class, Nature::class, StatusEffects::class, StatusValues::class,
+      CombatBonus::class, Equipment::class, Invulnerable::class, Health::class, AttackDelay::class,
+      WorldObjectIdentity::class, PropPose::class, PropVitality::class,
+    )
+
+    /** What [attack] writes: the staged damage, the attacker's delay, and a prop promoted on its first hit. */
+    val WRITES: ComponentClassSet = setOf(
+      DamageComponent::class, AttackDelay::class, Position::class, Grounded::class, Health::class,
+      StatusValues::class,
+    )
   }
 }

@@ -2,12 +2,12 @@ package net.bestia.zone.navigation.graph
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.core.ComponentClassSet
+import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.navigation.NavigationConfig
 import net.bestia.zone.navigation.local.LocalPathfindingService
-import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component as SpringComponent
 
 /**
@@ -27,12 +27,12 @@ import org.springframework.stereotype.Component as SpringComponent
  * Ordered after chunk streaming, so an edit made this tick is queued before this looks at the queue.
  */
 @SpringComponent
-@Order(46)
 class MacroGraphMaintenanceSystem(
   private val macroGraph: MacroGraphService,
   private val localPathfinding: LocalPathfindingService,
   private val config: NavigationConfig
 ) : System {
+  override val phase = Phase.WORLD
 
   override val reads: ComponentClassSet = emptySet()
   override val writes: ComponentClassSet = emptySet()

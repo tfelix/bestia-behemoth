@@ -6,29 +6,30 @@ import net.bestia.zone.ecs.account.Account
 import net.bestia.zone.ecs.battle.attack.AttackTarget
 import net.bestia.zone.ecs.battle.exp.Exp
 import net.bestia.zone.ecs.core.ComponentClassSet
+import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.movement.Path
-import org.springframework.core.annotation.Order
+import net.bestia.zone.world.prop.PlayerStructureDeathSystem
+import net.bestia.zone.world.prop.PropDeathDivergenceSystem
 import org.springframework.stereotype.Component as SpringComponent
 import kotlin.math.floor
 
 /**
  * Charges a player-owned entity for its own death, once, and leaves the body lying there.
  *
- * `@Order(68)`: after `ReceivedDamageSystem` (@50) has added [Dead], and before [DeathSystem] (@70),
- * which skips player-owned entities entirely. That ordering is only honoured because both systems
- * declare [Exp] as written and therefore conflict - `SystemScheduler` places non-conflicting systems
- * in the same wave, where `@Order` buys nothing.
+ * In the death phase, after `ReceivedDamageSystem` has added [Dead], and before [DeathSystem], which skips
+ * player-owned entities entirely.
  *
  * [TakenDamage] and `InCombat` are deliberately left alone: the damage ledger stays readable while
  * the body is on the ground, and clearing it belongs to the respawn.
  */
 @SpringComponent
-@Order(68)
 class PlayerDeathSystem(
   private val zoneConfig: ZoneConfig,
 ) : System {
+  override val phase = Phase.DEATH
+  override val after = setOf(PropDeathDivergenceSystem::class, PlayerStructureDeathSystem::class)
 
   override val reads: ComponentClassSet = setOf(Account::class)
   override val writes: ComponentClassSet = setOf(Dead::class, Exp::class, Path::class, AttackTarget::class)

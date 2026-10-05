@@ -7,6 +7,7 @@ import net.bestia.zone.ecs.battle.status.Invulnerable
 import net.bestia.zone.ecs.battle.status.Stamina
 import net.bestia.zone.ecs.ZoneConfig
 import net.bestia.zone.ecs.core.ComponentClassSet
+import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.TickBuckets
@@ -17,7 +18,6 @@ import net.bestia.zone.skill.SkillRepository
 import net.bestia.zone.skill.findByIdentifier
 import net.bestia.zone.world.stream.ChunkCoords
 import net.bestia.zone.world.stream.ChunkService
-import org.springframework.core.annotation.Order
 import kotlin.math.abs
 import kotlin.math.roundToInt
 import org.springframework.stereotype.Component as SpringComponent
@@ -34,7 +34,6 @@ import org.springframework.stereotype.Component as SpringComponent
  * damping at the source, which is what gives a roof a limit and `WEATHER_RESISTANCE` something to be for.
  */
 @SpringComponent
-@Order(85)
 class EnvironmentalExposureSystem(
   private val weatherService: WeatherService,
   private val chunkService: ChunkService,
@@ -42,6 +41,7 @@ class EnvironmentalExposureSystem(
   private val skills: SkillRepository,
   zoneConfig: ZoneConfig,
 ) : System {
+  override val phase = Phase.UPKEEP
 
   /** Each entity is weighed once per interval, on a tick of its own, so the population never lands on one tick. */
   val periodTicks: Long = (config.intervalSeconds * zoneConfig.tickRate).toLong().coerceAtLeast(1)
@@ -56,7 +56,7 @@ class EnvironmentalExposureSystem(
 
   override val schedule: Schedule get() = Schedule.EveryTick
 
-  override val reads: ComponentClassSet = setOf(Invulnerable::class)
+  override val reads: ComponentClassSet = setOf(Invulnerable::class, Position::class, KnownSkills::class)
 
   override val writes: ComponentClassSet = setOf(Stamina::class, Health::class)
 

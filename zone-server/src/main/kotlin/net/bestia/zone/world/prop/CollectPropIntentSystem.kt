@@ -2,8 +2,10 @@ package net.bestia.zone.world.prop
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.OperationErrorProto
+import net.bestia.zone.economy.shop.ShopTradeIntentSystem
 import net.bestia.zone.ecs.account.Account
 import net.bestia.zone.ecs.core.ComponentClassSet
+import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.item.ObtainItemIntent
@@ -15,7 +17,6 @@ import net.bestia.zone.ecs.prop.WorldObjectIdentity
 import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.util.EntityId
-import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component as SpringComponent
 import java.time.Instant
 
@@ -40,30 +41,30 @@ import java.time.Instant
  * component would have granted the item twice. The divergence map is the only state here that changes the
  * instant it is written.
  *
- * ### @Order(64)
+ * ### In the items phase, before death
  *
- * Before [PropDeathDivergenceSystem] at 65, so a prop collected and felled in the same tick yields once -
- * that system carries the matching guard. Before `DeathSystem` (@70) and `PersistAndRemoveSystem` (@90),
- * because `World.addNow` requires its target alive and the deferred queue is FIFO: running later would let a
+ * Before [PropDeathDivergenceSystem] (the death phase), so a prop collected and felled in the same tick yields
+ * once - that system carries the matching guard. Before `DeathSystem` and `PersistAndRemoveSystem`, because `World.addNow` requires its target alive and the deferred queue is FIFO: running later would let a
  * player who dies in the same tick they collect blow up `applyDeferred` on the tick thread.
  *
  * ### One tick of latency, deliberately
  *
  * The [ObtainItemIntent.CreateItemIntent] added below is deferred like every other add, and
- * `ObtainItemIntentSystem` (@59) has already run. So the item lands on the next tick - 50 ms, invisible, and
+ * `ObtainItemIntentSystem` has already run. So the item lands on the next tick - 50 ms, invisible, and
  * the same shape `LootItemHandler` already has. `CreateItemIntent` is worth that: it brings the carry-weight
  * check, the async persistence, the automatic `InventoryComponentSMSG`, and - the reason it is not worth
  * hand-rolling - the drop-at-your-feet fallback when the item does not fit. A collected crystal can never be
  * destroyed without yielding something, which is why there is no "inventory full" refusal.
  */
 @SpringComponent
-@Order(64)
 class CollectPropIntentSystem(
   private val kinds: PropKindRegistry,
   private val divergence: WorldObjectDivergenceRegistry,
   private val residency: WorldObjectResidencyService,
   private val outMessageProcessor: OutMessageProcessor,
 ) : System {
+  override val phase = Phase.ITEMS
+  override val after = setOf(ShopTradeIntentSystem::class)
 
   override val reads: ComponentClassSet = setOf(
     Account::class, Position::class, PropPose::class, StaticVisual::class, WorldObjectIdentity::class

@@ -21,4 +21,5 @@ fun testWorld(
   parallelSystems = parallelSystems,
   idGenerator = SequentialEntityIdGenerator(),
   systems = systems,
+  undeclaredAccess = UndeclaredAccess.FAIL,
 )

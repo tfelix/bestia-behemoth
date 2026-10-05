@@ -3,10 +3,10 @@ package net.bestia.zone.ecs.battle.status
 import net.bestia.zone.battle.status.RegenerationCalculator
 import net.bestia.zone.ecs.battle.damage.Dead
 import net.bestia.zone.ecs.core.ComponentClassSet
+import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
-import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component as SpringComponent
 
 /**
@@ -16,10 +16,10 @@ import org.springframework.stereotype.Component as SpringComponent
  * https://docs.bestia-game.net/docs/mechanics/statusvalues/
  */
 @SpringComponent
-@Order(57)
 class ManaRegenSystem(
   private val regenerationCalculator: RegenerationCalculator
 ) : System {
+  override val phase = Phase.RECOVERY
 
   override val schedule: Schedule = Schedule.EverySeconds(8f)
   override val reads: ComponentClassSet = setOf(
