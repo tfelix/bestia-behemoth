@@ -2,6 +2,7 @@ package net.bestia.zone.ecs
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan
+import java.time.Duration
 
 @ConfigurationProperties(prefix = "world")
 @ConfigurationPropertiesScan
@@ -13,6 +14,6 @@ data class ZoneConfig(
   val deathExpLossFraction: Float = 0.01f,
   /** Longest path one move message may carry. The client sends legs of at most 24 tiles. */
   val maxMovePathSteps: Int = 64,
-  /** How long a dropped plain item lies on the ground before it is gone. */
-  val groundItemDespawnSeconds: Float = 600f,
+  /** How long a dropped plain item lies on the ground before it is gone. Real time, not Bestia time. */
+  val groundItemDespawnAfter: Duration = Duration.ofDays(7),
 )

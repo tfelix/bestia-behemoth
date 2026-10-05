@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.core.World
+import net.bestia.zone.ecs.item.GroundItemDecay
 import net.bestia.zone.ecs.item.GroundItemStack
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.persistence.EntityPersister
@@ -45,6 +46,7 @@ class LootItemEntityPersister(
       amount = stack.amount,
       uniqueId = stack.uniqueId,
       x = pos.x, y = pos.y, z = pos.z,
+      despawnAt = world.get(id, GroundItemDecay::class)?.despawnAt,
     )
   }
 
@@ -79,6 +81,7 @@ class LootItemEntityPersister(
         pos = Vec3L(snap.x, snap.y, snap.z),
         uniqueId = snap.uniqueId,
         entityId = snap.entityId,
+        despawnAt = snap.despawnAt,
       )
       loaded++
     }
