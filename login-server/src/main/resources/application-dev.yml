@@ -14,6 +14,11 @@ jwt:
   # zone-server's dev `zone.jwt-auth-secret-key`.
   secret: "your-secret-key-here-change-in-production"
 
+zone-directory:
+  zones:
+    - name: dev
+      base-url: "http://127.0.0.1:8091"
+
 webauthn:
   rp-id: "localhost"
   origins:
