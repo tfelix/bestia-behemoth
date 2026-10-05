@@ -25,15 +25,15 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CittZXNzYWdlcy9jb21wb25lbnQvc3RhdHVzX3ZhbHVlc19zbXNnLnByb3Rv",
-            "EgRibmV0IpYBChBTdGF0dXNWYWx1ZXNTTVNHEhEKCWVudGl0eV9pZBgBIAEo",
-            "BhIQCghzdHJlbmd0aBgCIAEoDRIQCgh2aXRhbGl0eRgDIAEoDRIUCgxpbnRl",
-            "bGxpZ2VuY2UYBCABKA0SEQoJZGV4dGVyaXR5GAUgASgNEhEKCXdpbGxwb3dl",
-            "chgGIAEoDRIPCgdhZ2lsaXR5GAcgASgNQi4KFW5ldC5iZXN0aWEuYm5ldC5w",
-            "cm90b0IVU3RhdHVzVmFsdWVzU01TR1Byb3RvYgZwcm90bzM="));
+            "EgRibmV0IokBChBTdGF0dXNWYWx1ZXNTTVNHEhAKCHN0cmVuZ3RoGAIgASgN",
+            "EhAKCHZpdGFsaXR5GAMgASgNEhQKDGludGVsbGlnZW5jZRgEIAEoDRIRCglk",
+            "ZXh0ZXJpdHkYBSABKA0SEQoJd2lsbHBvd2VyGAYgASgNEg8KB2FnaWxpdHkY",
+            "ByABKA1KBAgBEAJCLgoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQhVTdGF0dXNW",
+            "YWx1ZXNTTVNHUHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.StatusValuesSMSG), global::Bnet.StatusValuesSMSG.Parser, new[]{ "EntityId", "Strength", "Vitality", "Intelligence", "Dexterity", "Willpower", "Agility" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.StatusValuesSMSG), global::Bnet.StatusValuesSMSG.Parser, new[]{ "Strength", "Vitality", "Intelligence", "Dexterity", "Willpower", "Agility" }, null, null, null, null)
           }));
     }
     #endregion
@@ -80,7 +80,6 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public StatusValuesSMSG(StatusValuesSMSG other) : this() {
-      entityId_ = other.entityId_;
       strength_ = other.strength_;
       vitality_ = other.vitality_;
       intelligence_ = other.intelligence_;
@@ -94,18 +93,6 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public StatusValuesSMSG Clone() {
       return new StatusValuesSMSG(this);
-    }
-
-    /// <summary>Field number for the "entity_id" field.</summary>
-    public const int EntityIdFieldNumber = 1;
-    private ulong entityId_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public ulong EntityId {
-      get { return entityId_; }
-      set {
-        entityId_ = value;
-      }
     }
 
     /// <summary>Field number for the "strength" field.</summary>
@@ -195,7 +182,6 @@ namespace Bnet {
       if (ReferenceEquals(other, this)) {
         return true;
       }
-      if (EntityId != other.EntityId) return false;
       if (Strength != other.Strength) return false;
       if (Vitality != other.Vitality) return false;
       if (Intelligence != other.Intelligence) return false;
@@ -209,7 +195,6 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
-      if (EntityId != 0UL) hash ^= EntityId.GetHashCode();
       if (Strength != 0) hash ^= Strength.GetHashCode();
       if (Vitality != 0) hash ^= Vitality.GetHashCode();
       if (Intelligence != 0) hash ^= Intelligence.GetHashCode();
@@ -234,10 +219,6 @@ namespace Bnet {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
-      if (EntityId != 0UL) {
-        output.WriteRawTag(9);
-        output.WriteFixed64(EntityId);
-      }
       if (Strength != 0) {
         output.WriteRawTag(16);
         output.WriteUInt32(Strength);
@@ -272,10 +253,6 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (EntityId != 0UL) {
-        output.WriteRawTag(9);
-        output.WriteFixed64(EntityId);
-      }
       if (Strength != 0) {
         output.WriteRawTag(16);
         output.WriteUInt32(Strength);
@@ -310,9 +287,6 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
-      if (EntityId != 0UL) {
-        size += 1 + 8;
-      }
       if (Strength != 0) {
         size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Strength);
       }
@@ -342,9 +316,6 @@ namespace Bnet {
     public void MergeFrom(StatusValuesSMSG other) {
       if (other == null) {
         return;
-      }
-      if (other.EntityId != 0UL) {
-        EntityId = other.EntityId;
       }
       if (other.Strength != 0) {
         Strength = other.Strength;
@@ -383,10 +354,6 @@ namespace Bnet {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 9: {
-            EntityId = input.ReadFixed64();
-            break;
-          }
           case 16: {
             Strength = input.ReadUInt32();
             break;
@@ -430,10 +397,6 @@ namespace Bnet {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 9: {
-            EntityId = input.ReadFixed64();
-            break;
-          }
           case 16: {
             Strength = input.ReadUInt32();
             break;

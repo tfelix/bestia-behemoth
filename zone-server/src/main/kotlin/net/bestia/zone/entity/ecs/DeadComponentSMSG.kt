@@ -1,7 +1,7 @@
 package net.bestia.zone.entity.ecs
 
 import net.bestia.bnet.proto.DeadComponentSmsgProto
-import net.bestia.bnet.proto.EnvelopeProto
+import net.bestia.bnet.proto.StateBatchSmsgProto
 import net.bestia.zone.message.EntitySMSG
 
 /**
@@ -13,14 +13,11 @@ data class DeadComponentSMSG(
   val removed: Boolean = false
 ) : EntitySMSG {
 
-  override fun toBnetEnvelope(): EnvelopeProto.Envelope {
+  override fun writeTo(update: StateBatchSmsgProto.EntityUpdate.Builder) {
     val proto = DeadComponentSmsgProto.DeadComponentSMSG.newBuilder()
-      .setEntityId(entityId)
       .setRemoved(removed)
       .build()
 
-    return EnvelopeProto.Envelope.newBuilder()
-      .setCompDead(proto)
-      .build()
+    update.addComponents(StateBatchSmsgProto.ComponentDelta.newBuilder().setDead(proto))
   }
 }

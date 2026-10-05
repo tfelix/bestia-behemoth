@@ -1,20 +1,17 @@
 package net.bestia.zone.battle.ecs.level
 
-import net.bestia.bnet.proto.EnvelopeProto
 import net.bestia.bnet.proto.LevelComponentSMSGProto
+import net.bestia.bnet.proto.StateBatchSmsgProto
 import net.bestia.zone.message.EntitySMSG
 
 data class LevelComponentSMSG(
   override val entityId: Long,
   val level: Int,
 ) : EntitySMSG {
-  override fun toBnetEnvelope(): EnvelopeProto.Envelope {
+  override fun writeTo(update: StateBatchSmsgProto.EntityUpdate.Builder) {
     val levelComponent = LevelComponentSMSGProto.LevelComponentSMSG.newBuilder()
-      .setEntityId(entityId)
       .setLevel(level)
 
-    return EnvelopeProto.Envelope.newBuilder()
-      .setCompLevel(levelComponent)
-      .build()
+    update.addComponents(StateBatchSmsgProto.ComponentDelta.newBuilder().setLevel(levelComponent))
   }
 }

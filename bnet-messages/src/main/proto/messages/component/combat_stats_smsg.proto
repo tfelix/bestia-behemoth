@@ -15,7 +15,7 @@ option java_outer_classname = "CombatStatsSMSGProto";
  * comes from attributes, [hard_defense] is the worn kind, percentage points of damage removed.
  */
 message CombatStatsSMSG {
-  fixed64 entity_id = 1;
+  reserved 1; // entity_id, now on EntityUpdate
 
   int32 atk = 2;
   int32 weapon_atk = 3;

@@ -1,7 +1,7 @@
 package net.bestia.zone.item.ecs
 
-import net.bestia.bnet.proto.EnvelopeProto
 import net.bestia.bnet.proto.EquipmentComponentSMSGProto
+import net.bestia.bnet.proto.StateBatchSmsgProto
 import net.bestia.zone.message.EntitySMSG
 
 data class EquipmentComponentSMSG(
@@ -9,7 +9,7 @@ data class EquipmentComponentSMSG(
   val items: List<EquippedItem>
 ) : EntitySMSG {
 
-  override fun toBnetEnvelope(): EnvelopeProto.Envelope {
+  override fun writeTo(update: StateBatchSmsgProto.EntityUpdate.Builder) {
     val protoItems = items.map { item ->
       EquipmentComponentSMSGProto.EquippedItem.newBuilder()
         .setSlot(item.slot)
@@ -23,13 +23,10 @@ data class EquipmentComponentSMSG(
     }
 
     val equipmentComponent = EquipmentComponentSMSGProto.EquipmentComponentSMSG.newBuilder()
-      .setEntityId(entityId)
       .addAllItems(protoItems)
       .build()
 
-    return EnvelopeProto.Envelope.newBuilder()
-      .setCompEquipment(equipmentComponent)
-      .build()
+    update.addComponents(StateBatchSmsgProto.ComponentDelta.newBuilder().setEquipment(equipmentComponent))
   }
 
   /** [slot] is an [net.bestia.zone.item.equip.EquipmentSlot] ordinal. */

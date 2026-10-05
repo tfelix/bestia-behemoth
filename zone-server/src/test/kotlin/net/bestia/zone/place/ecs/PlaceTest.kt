@@ -39,9 +39,10 @@ class PlaceTest {
   fun `a place survives a round trip through the envelope`() {
     val sent = PlaceComponentSMSG(entityId = 42, name = "Elm Vale")
 
-    val decoded = sent.toBnetEnvelope().compPlace
+    val update = sent.toBnetEnvelope().stateBatch.updatesList.single()
+    val decoded = update.componentsList.single().place
 
-    assertEquals(42L, decoded.entityId)
+    assertEquals(42L, update.entityId)
     assertEquals("Elm Vale", decoded.name)
   }
 
@@ -49,9 +50,10 @@ class PlaceTest {
   fun `an area name survives a round trip through the envelope`() {
     val sent = AreaNameComponentSMSG(entityId = 7, name = "Ashford", radius = 610)
 
-    val decoded = sent.toBnetEnvelope().compAreaName
+    val update = sent.toBnetEnvelope().stateBatch.updatesList.single()
+    val decoded = update.componentsList.single().areaName
 
-    assertEquals(7L, decoded.entityId)
+    assertEquals(7L, update.entityId)
     assertEquals("Ashford", decoded.name)
     assertEquals(610L, decoded.radius)
   }

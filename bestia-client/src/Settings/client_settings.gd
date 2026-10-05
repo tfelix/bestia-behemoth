@@ -45,15 +45,14 @@ const FORMAT_VERSION := 1
 
 ## Which message types "detail" prints, in the same syntax as zone-server's
 ## `socket.filter-log-messages`: a bare name allows, a "!" prefix denies, and an empty list allows
-## everything. The names are the protobuf field names, so `comp_position` means the same on both
+## everything. The names are the protobuf field names, so `state_batch` means the same on both
 ## sides.
 ##
 ## The shipped list denies what the server denies, plus the chunk payloads - the traffic that is
 ## either per-tick or kilobytes at a time, and so worth asking for by name rather than receiving by
 ## default.
 @export var net_log_filter: PackedStringArray = PackedStringArray([
-	"!comp_position",
-	"!comp_path",
+	"!state_batch",
 	"!chunk_data",
 	"!chunk_patch",
 	"!chunk_static_entities",

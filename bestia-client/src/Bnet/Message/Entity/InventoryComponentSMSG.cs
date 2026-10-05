@@ -20,11 +20,11 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
     /// </summary>
     /// <param name="protoInventory">The protobuf InventoryComponentSMSG message from the server</param>
     /// <returns>A new InventoryComponentSMSG instance</returns>
-    public static InventoryComponentSMSG FromProto(global::Bnet.InventoryComponentSMSG protoInventory)
+    public static InventoryComponentSMSG FromProto(ulong entityId, global::Bnet.InventoryComponentSMSG protoInventory)
     {
       var inventory = new InventoryComponentSMSG()
       {
-        EntityId = protoInventory.EntityId
+        EntityId = entityId
       };
 
       // Convert protobuf InventoryItem list to Godot array

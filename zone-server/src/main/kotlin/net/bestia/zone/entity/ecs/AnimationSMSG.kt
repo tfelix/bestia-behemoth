@@ -1,21 +1,18 @@
 package net.bestia.zone.entity.ecs
 
 import net.bestia.bnet.proto.AnimationComponentSMSGProto
-import net.bestia.bnet.proto.EnvelopeProto
+import net.bestia.bnet.proto.StateBatchSmsgProto
 import net.bestia.zone.message.EntitySMSG
 
 data class AnimationSMSG(
   override val entityId: Long,
   val currentAnimation: Animation.AnimationKind,
 ) : EntitySMSG {
-  override fun toBnetEnvelope(): EnvelopeProto.Envelope {
+  override fun writeTo(update: StateBatchSmsgProto.EntityUpdate.Builder) {
     val animationComp = AnimationComponentSMSGProto.AnimationComponentSMSG.newBuilder()
-      .setEntityId(entityId)
       .setKind(currentAnimation.toProto())
 
-    return EnvelopeProto.Envelope.newBuilder()
-      .setCompAnimation(animationComp)
-      .build()
+    update.addComponents(StateBatchSmsgProto.ComponentDelta.newBuilder().setAnimation(animationComp))
   }
 
   companion object {

@@ -25,13 +25,13 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CiptZXNzYWdlcy9jb21wb25lbnQvc2tpbGxfcG9pbnRzX3Ntc2cucHJvdG8S",
-            "BGJuZXQiNAoPU2tpbGxQb2ludHNTTVNHEhEKCWVudGl0eV9pZBgBIAEoBhIO",
-            "CgZwb2ludHMYAiABKA1CLQoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQhRTa2ls",
-            "bFBvaW50c1NNU0dQcm90b2IGcHJvdG8z"));
+            "BGJuZXQiJwoPU2tpbGxQb2ludHNTTVNHEg4KBnBvaW50cxgCIAEoDUoECAEQ",
+            "AkItChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CFFNraWxsUG9pbnRzU01TR1By",
+            "b3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.SkillPointsSMSG), global::Bnet.SkillPointsSMSG.Parser, new[]{ "EntityId", "Points" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.SkillPointsSMSG), global::Bnet.SkillPointsSMSG.Parser, new[]{ "Points" }, null, null, null, null)
           }));
     }
     #endregion
@@ -78,7 +78,6 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public SkillPointsSMSG(SkillPointsSMSG other) : this() {
-      entityId_ = other.entityId_;
       points_ = other.points_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
@@ -87,18 +86,6 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public SkillPointsSMSG Clone() {
       return new SkillPointsSMSG(this);
-    }
-
-    /// <summary>Field number for the "entity_id" field.</summary>
-    public const int EntityIdFieldNumber = 1;
-    private ulong entityId_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public ulong EntityId {
-      get { return entityId_; }
-      set {
-        entityId_ = value;
-      }
     }
 
     /// <summary>Field number for the "points" field.</summary>
@@ -128,7 +115,6 @@ namespace Bnet {
       if (ReferenceEquals(other, this)) {
         return true;
       }
-      if (EntityId != other.EntityId) return false;
       if (Points != other.Points) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
@@ -137,7 +123,6 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
-      if (EntityId != 0UL) hash ^= EntityId.GetHashCode();
       if (Points != 0) hash ^= Points.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
@@ -157,10 +142,6 @@ namespace Bnet {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
-      if (EntityId != 0UL) {
-        output.WriteRawTag(9);
-        output.WriteFixed64(EntityId);
-      }
       if (Points != 0) {
         output.WriteRawTag(16);
         output.WriteUInt32(Points);
@@ -175,10 +156,6 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (EntityId != 0UL) {
-        output.WriteRawTag(9);
-        output.WriteFixed64(EntityId);
-      }
       if (Points != 0) {
         output.WriteRawTag(16);
         output.WriteUInt32(Points);
@@ -193,9 +170,6 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
-      if (EntityId != 0UL) {
-        size += 1 + 8;
-      }
       if (Points != 0) {
         size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Points);
       }
@@ -210,9 +184,6 @@ namespace Bnet {
     public void MergeFrom(SkillPointsSMSG other) {
       if (other == null) {
         return;
-      }
-      if (other.EntityId != 0UL) {
-        EntityId = other.EntityId;
       }
       if (other.Points != 0) {
         Points = other.Points;
@@ -236,10 +207,6 @@ namespace Bnet {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 9: {
-            EntityId = input.ReadFixed64();
-            break;
-          }
           case 16: {
             Points = input.ReadUInt32();
             break;
@@ -263,10 +230,6 @@ namespace Bnet {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 9: {
-            EntityId = input.ReadFixed64();
-            break;
-          }
           case 16: {
             Points = input.ReadUInt32();
             break;

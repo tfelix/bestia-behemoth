@@ -10,7 +10,7 @@ option java_outer_classname = "StatusEffectListSMSGProto";
  * in the server's `status_effects.yml` are filtered out before this message is built, so they never appear here.
  */
 message StatusEffectListSMSG {
-  fixed64 entity_id = 1;
+  reserved 1; // entity_id, now on EntityUpdate
   repeated StatusEffectEntry effects = 2;
 }
 

@@ -1,7 +1,7 @@
 package net.bestia.zone.place.ecs
 
 import net.bestia.bnet.proto.AreaNameComponentSMSGProto
-import net.bestia.bnet.proto.EnvelopeProto
+import net.bestia.bnet.proto.StateBatchSmsgProto
 import net.bestia.zone.message.EntitySMSG
 
 data class AreaNameComponentSMSG(
@@ -10,15 +10,12 @@ data class AreaNameComponentSMSG(
   val radius: Long
 ) : EntitySMSG {
 
-  override fun toBnetEnvelope(): EnvelopeProto.Envelope {
+  override fun writeTo(update: StateBatchSmsgProto.EntityUpdate.Builder) {
     val component = AreaNameComponentSMSGProto.AreaNameComponentSMSG.newBuilder()
-      .setEntityId(entityId)
       .setName(name)
       .setRadius(radius)
       .build()
 
-    return EnvelopeProto.Envelope.newBuilder()
-      .setCompAreaName(component)
-      .build()
+    update.addComponents(StateBatchSmsgProto.ComponentDelta.newBuilder().setAreaName(component))
   }
 }

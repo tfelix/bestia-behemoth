@@ -22,11 +22,11 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
     /// </summary>
     /// <param name="protoEquipment">The protobuf EquipmentComponentSMSG message from the server</param>
     /// <returns>A new EquipmentComponentSMSG instance</returns>
-    public static EquipmentComponentSMSG FromProto(global::Bnet.EquipmentComponentSMSG protoEquipment)
+    public static EquipmentComponentSMSG FromProto(ulong entityId, global::Bnet.EquipmentComponentSMSG protoEquipment)
     {
       var equipment = new EquipmentComponentSMSG()
       {
-        EntityId = protoEquipment.EntityId
+        EntityId = entityId
       };
 
       foreach (var protoItem in protoEquipment.Items)

@@ -7,7 +7,7 @@ option java_outer_classname = "ManaComponentSMSGProto";
 
 
 message ManaComponentSMSG {
-  fixed64 entity_id = 1;
+  reserved 1; // entity_id, now on EntityUpdate
   uint32 current = 2;
   uint32 max = 3;
 }

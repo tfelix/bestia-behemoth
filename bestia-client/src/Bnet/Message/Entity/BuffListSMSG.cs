@@ -20,11 +20,11 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
     /// </summary>
     /// <param name="protoBuffList">The protobuf BuffListSMSG message from the server</param>
     /// <returns>A new BuffListSMSG instance</returns>
-    public static BuffListSMSG FromProto(StatusEffectListSMSG protoBuffList)
+    public static BuffListSMSG FromProto(ulong entityId, StatusEffectListSMSG protoBuffList)
     {
       var buffList = new BuffListSMSG()
       {
-        EntityId = protoBuffList.EntityId
+        EntityId = entityId
       };
 
       foreach (var protoBuff in protoBuffList.Effects)

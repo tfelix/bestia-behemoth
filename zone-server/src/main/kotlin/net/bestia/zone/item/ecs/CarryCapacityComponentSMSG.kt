@@ -1,7 +1,7 @@
 package net.bestia.zone.item.ecs
 
-import net.bestia.bnet.proto.EnvelopeProto
 import net.bestia.bnet.proto.CarryCapacityComponentSMSGProto
+import net.bestia.bnet.proto.StateBatchSmsgProto
 import net.bestia.zone.message.EntitySMSG
 
 data class CarryCapacityComponentSMSG(
@@ -10,15 +10,12 @@ data class CarryCapacityComponentSMSG(
   val max: Int
 ) : EntitySMSG {
 
-  override fun toBnetEnvelope(): EnvelopeProto.Envelope {
+  override fun writeTo(update: StateBatchSmsgProto.EntityUpdate.Builder) {
     val carryCapacityComponent = CarryCapacityComponentSMSGProto.CarryCapacityComponentSMSG.newBuilder()
-      .setEntityId(entityId)
       .setCurrent(current)
       .setMax(max)
       .build()
 
-    return EnvelopeProto.Envelope.newBuilder()
-      .setCompCarryCapacity(carryCapacityComponent)
-      .build()
+    update.addComponents(StateBatchSmsgProto.ComponentDelta.newBuilder().setCarryCapacity(carryCapacityComponent))
   }
 }

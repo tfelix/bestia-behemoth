@@ -26,11 +26,11 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
     /// </summary>
     /// <param name="protoStatusValues">The protobuf StatusValuesSMSG message from the server</param>
     /// <returns>A new StatusValuesComponentSMSG instance</returns>
-    public static StatusValuesComponentSMSG FromProto(global::Bnet.StatusValuesSMSG protoStatusValues)
+    public static StatusValuesComponentSMSG FromProto(ulong entityId, global::Bnet.StatusValuesSMSG protoStatusValues)
     {
       return new StatusValuesComponentSMSG()
       {
-        EntityId = protoStatusValues.EntityId,
+        EntityId = entityId,
         Strength = protoStatusValues.Strength,
         Vitality = protoStatusValues.Vitality,
         Intelligence = protoStatusValues.Intelligence,

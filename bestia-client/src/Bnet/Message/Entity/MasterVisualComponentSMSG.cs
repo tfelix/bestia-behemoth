@@ -35,7 +35,7 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
     [Export]
     public int Hair { get; set; } = 0; // Maps to Hairstyle enum
 
-    public static MasterVisualComponentSMSG FromProto(global::Bnet.MasterVisualComponentSMSG protoMasterVisual)
+    public static MasterVisualComponentSMSG FromProto(ulong entityId, global::Bnet.MasterVisualComponentSMSG protoMasterVisual)
     {
       // Convert protobuf Color to Godot Color
       var skinColor = new Godot.Color(
@@ -52,7 +52,7 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
 
       return new MasterVisualComponentSMSG
       {
-        EntityId = protoMasterVisual.EntityId,
+        EntityId = entityId,
         Name = protoMasterVisual.Name,
         SkinColor = skinColor,
         HairColor = hairColor,

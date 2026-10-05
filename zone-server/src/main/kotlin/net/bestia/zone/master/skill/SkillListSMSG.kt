@@ -1,7 +1,7 @@
 package net.bestia.zone.master.skill
 
-import net.bestia.bnet.proto.EnvelopeProto
 import net.bestia.bnet.proto.SkillListSMSGProto
+import net.bestia.bnet.proto.StateBatchSmsgProto
 import net.bestia.zone.message.EntitySMSG
 
 data class SkillListSMSG(
@@ -9,7 +9,7 @@ data class SkillListSMSG(
   val skills: List<SkillListEntry>
 ) : EntitySMSG {
 
-  override fun toBnetEnvelope(): EnvelopeProto.Envelope {
+  override fun writeTo(update: StateBatchSmsgProto.EntityUpdate.Builder) {
     val protoSkills = skills.map { skill ->
       SkillListSMSGProto.SkillListEntry.newBuilder()
         .setSkillId(skill.skillId)
@@ -18,13 +18,10 @@ data class SkillListSMSG(
     }
 
     val skillListComponent = SkillListSMSGProto.SkillListSMSG.newBuilder()
-      .setEntityId(entityId)
       .addAllSkills(protoSkills)
       .build()
 
-    return EnvelopeProto.Envelope.newBuilder()
-      .setCompSkillList(skillListComponent)
-      .build()
+    update.addComponents(StateBatchSmsgProto.ComponentDelta.newBuilder().setSkillList(skillListComponent))
   }
 
   data class SkillListEntry(

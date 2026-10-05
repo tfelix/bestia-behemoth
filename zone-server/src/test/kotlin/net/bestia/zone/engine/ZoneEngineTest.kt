@@ -2,6 +2,7 @@ package net.bestia.zone.engine
 
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import io.mockk.clearMocks
+import io.mockk.MockKMatcherScope
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
@@ -31,6 +32,8 @@ import net.bestia.zone.message.TickOutbox
 import net.bestia.zone.message.SMSG
 import net.bestia.zone.metrics.TickMetrics
 import org.awaitility.Awaitility.await
+import net.bestia.zone.message.EntitySMSG
+import net.bestia.zone.message.StateBatchSMSG
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.Duration
@@ -118,9 +121,10 @@ class ZoneEngineTest {
     watched(entity)
 
     world.destroy(entity)
+    zoneEngine.tickOnce(0.05f)
 
     verify(timeout = 1000) {
-      outMessageProcessor.sendToPlayer(watcher, VanishEntitySMSG(entity, VanishEntitySMSG.VanishKind.GONE))
+      outMessageProcessor.sendToPlayer(watcher, batchWith(VanishEntitySMSG(entity, VanishEntitySMSG.VanishKind.GONE)))
     }
   }
 
@@ -136,9 +140,10 @@ class ZoneEngineTest {
     watched(entity)
 
     world.destroy(entity)
+    zoneEngine.tickOnce(0.05f)
 
     verify(timeout = 1000) {
-      outMessageProcessor.sendToPlayer(watcher, VanishEntitySMSG(entity, VanishEntitySMSG.VanishKind.DEATH))
+      outMessageProcessor.sendToPlayer(watcher, batchWith(VanishEntitySMSG(entity, VanishEntitySMSG.VanishKind.DEATH)))
     }
   }
 
@@ -149,6 +154,7 @@ class ZoneEngineTest {
     val entity = world.createEntity { }
 
     world.destroy(entity)
+    zoneEngine.tickOnce(0.05f)
 
     verify(exactly = 0) { outMessageProcessor.sendToPlayer(any<Long>(), any<SMSG>()) }
   }
@@ -199,11 +205,7 @@ class ZoneEngineTest {
     zoneEngine.tickOnce(0.05f)
 
     verify(timeout = 1000) {
-      // A collection, because arrivals and departures for one account go out as a single flush.
-      outMessageProcessor.sendToPlayer(
-        watcher,
-        listOf(VanishEntitySMSG(entity, VanishEntitySMSG.VanishKind.OUT_OF_SIGHT))
-      )
+      outMessageProcessor.sendToPlayer(watcher, batchWith(VanishEntitySMSG(entity, VanishEntitySMSG.VanishKind.OUT_OF_SIGHT)))
     }
   }
 
@@ -220,9 +222,11 @@ class ZoneEngineTest {
     zoneEngine.tickOnce(0.05f)
 
     // The snapshot goes out ordered visual first; the same components dirty from the spawn must not go too.
-    verify(timeout = 1000, exactly = 1) { outMessageProcessor.sendToPlayer(watcher, any<Collection<SMSG>>()) }
     verify(timeout = 1000) {
-      outMessageProcessor.sendToPlayer(watcher, match<Collection<SMSG>> { it.first() is VisualComponentSMSG })
+      outMessageProcessor.sendToPlayer(watcher, match<SMSG> { sent ->
+        val messages = (sent as StateBatchSMSG).messages
+        messages.first() is VisualComponentSMSG && messages.count { it is VisualComponentSMSG } == 1
+      })
     }
   }
 
@@ -244,7 +248,7 @@ class ZoneEngineTest {
     zoneEngine.tickOnce(0.05f)
 
     verify(timeout = 1000) {
-      outMessageProcessor.sendToPlayer(watcher, PathSMSG(entity, emptyList(), pos))
+      outMessageProcessor.sendToPlayer(watcher, batchWith(PathSMSG(entity, emptyList(), pos)))
     }
   }
 
@@ -269,7 +273,7 @@ class ZoneEngineTest {
 
     val respawn = Vec3L(100, 200, 6)
     verify(timeout = 1000) {
-      outMessageProcessor.sendToPlayer(watcher, PathSMSG(entity, emptyList(), respawn))
+      outMessageProcessor.sendToPlayer(watcher, batchWith(PathSMSG(entity, emptyList(), respawn)))
     }
   }
 
@@ -299,9 +303,10 @@ class ZoneEngineTest {
     }
 
     world.destroy(entity)
+    zoneEngine.tickOnce(0.05f)
 
     verify(timeout = 1000) {
-      outMessageProcessor.sendToPlayer(accountId, VanishEntitySMSG(entity, VanishEntitySMSG.VanishKind.GONE))
+      outMessageProcessor.sendToPlayer(accountId, batchWith(VanishEntitySMSG(entity, VanishEntitySMSG.VanishKind.GONE)))
     }
   }
 
@@ -321,11 +326,13 @@ class ZoneEngineTest {
     zoneEngine.tickOnce(0.05f)
 
     verify(timeout = 1000) {
-      outMessageProcessor.sendToPlayer(
-        accountId,
-        listOf(CarryCapacityComponentSMSG(entity, current = 0, max = 100))
-      )
+      outMessageProcessor.sendToPlayer(accountId, batchWith(CarryCapacityComponentSMSG(entity, current = 0, max = 100)))
     }
+  }
+
+  /** A state batch that carries [expected]; entity state only ever leaves in one. */
+  private fun MockKMatcherScope.batchWith(expected: EntitySMSG): SMSG {
+    return match { it is StateBatchSMSG && expected in it.messages }
   }
 
   @Test
@@ -347,7 +354,7 @@ class ZoneEngineTest {
     engine.tickOnce(0.05f)
 
     verify(timeout = 1000) {
-      outMessageProcessor.sendToPlayer(accountId, listOf(CarryCapacityComponentSMSG(entity, current = 0, max = 100)))
+      outMessageProcessor.sendToPlayer(accountId, batchWith(CarryCapacityComponentSMSG(entity, current = 0, max = 100)))
     }
   }
 
@@ -403,7 +410,7 @@ class ZoneEngineTest {
 
     zoneEngine.tickOnce(0.05f)
 
-    verify(exactly = 0) { outMessageProcessor.sendToPlayer(any<Long>(), any<Collection<SMSG>>()) }
+    verify(exactly = 0) { outMessageProcessor.sendToPlayer(any<Long>(), any<SMSG>()) }
   }
 
   @Test
@@ -420,7 +427,7 @@ class ZoneEngineTest {
     zoneEngine.tickOnce(0.05f)
 
     verify {
-      outMessageProcessor.sendToPlayer(accountId, listOf(CarryCapacityComponentSMSG(entity, current = 7, max = 100)))
+      outMessageProcessor.sendToPlayer(accountId, batchWith(CarryCapacityComponentSMSG(entity, current = 7, max = 100)))
     }
   }
 

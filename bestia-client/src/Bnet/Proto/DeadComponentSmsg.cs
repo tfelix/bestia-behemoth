@@ -25,13 +25,13 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CixtZXNzYWdlcy9jb21wb25lbnQvZGVhZF9jb21wb25lbnRfc21zZy5wcm90",
-            "bxIEYm5ldCI3ChFEZWFkQ29tcG9uZW50U01TRxIRCgllbnRpdHlfaWQYASAB",
-            "KAYSDwoHcmVtb3ZlZBgCIAEoCEIvChVuZXQuYmVzdGlhLmJuZXQucHJvdG9C",
-            "FkRlYWRDb21wb25lbnRTbXNnUHJvdG9iBnByb3RvMw=="));
+            "bxIEYm5ldCIqChFEZWFkQ29tcG9uZW50U01TRxIPCgdyZW1vdmVkGAIgASgI",
+            "SgQIARACQi8KFW5ldC5iZXN0aWEuYm5ldC5wcm90b0IWRGVhZENvbXBvbmVu",
+            "dFNtc2dQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.DeadComponentSMSG), global::Bnet.DeadComponentSMSG.Parser, new[]{ "EntityId", "Removed" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.DeadComponentSMSG), global::Bnet.DeadComponentSMSG.Parser, new[]{ "Removed" }, null, null, null, null)
           }));
     }
     #endregion
@@ -80,7 +80,6 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public DeadComponentSMSG(DeadComponentSMSG other) : this() {
-      entityId_ = other.entityId_;
       removed_ = other.removed_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
@@ -89,18 +88,6 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public DeadComponentSMSG Clone() {
       return new DeadComponentSMSG(this);
-    }
-
-    /// <summary>Field number for the "entity_id" field.</summary>
-    public const int EntityIdFieldNumber = 1;
-    private ulong entityId_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public ulong EntityId {
-      get { return entityId_; }
-      set {
-        entityId_ = value;
-      }
     }
 
     /// <summary>Field number for the "removed" field.</summary>
@@ -130,7 +117,6 @@ namespace Bnet {
       if (ReferenceEquals(other, this)) {
         return true;
       }
-      if (EntityId != other.EntityId) return false;
       if (Removed != other.Removed) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
@@ -139,7 +125,6 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
-      if (EntityId != 0UL) hash ^= EntityId.GetHashCode();
       if (Removed != false) hash ^= Removed.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
@@ -159,10 +144,6 @@ namespace Bnet {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
-      if (EntityId != 0UL) {
-        output.WriteRawTag(9);
-        output.WriteFixed64(EntityId);
-      }
       if (Removed != false) {
         output.WriteRawTag(16);
         output.WriteBool(Removed);
@@ -177,10 +158,6 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (EntityId != 0UL) {
-        output.WriteRawTag(9);
-        output.WriteFixed64(EntityId);
-      }
       if (Removed != false) {
         output.WriteRawTag(16);
         output.WriteBool(Removed);
@@ -195,9 +172,6 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
-      if (EntityId != 0UL) {
-        size += 1 + 8;
-      }
       if (Removed != false) {
         size += 1 + 1;
       }
@@ -212,9 +186,6 @@ namespace Bnet {
     public void MergeFrom(DeadComponentSMSG other) {
       if (other == null) {
         return;
-      }
-      if (other.EntityId != 0UL) {
-        EntityId = other.EntityId;
       }
       if (other.Removed != false) {
         Removed = other.Removed;
@@ -238,10 +209,6 @@ namespace Bnet {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 9: {
-            EntityId = input.ReadFixed64();
-            break;
-          }
           case 16: {
             Removed = input.ReadBool();
             break;
@@ -265,10 +232,6 @@ namespace Bnet {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 9: {
-            EntityId = input.ReadFixed64();
-            break;
-          }
           case 16: {
             Removed = input.ReadBool();
             break;

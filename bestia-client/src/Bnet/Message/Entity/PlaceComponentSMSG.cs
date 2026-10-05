@@ -24,11 +24,11 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
     {
     }
 
-    public static PlaceComponentSMSG FromProto(global::Bnet.PlaceComponentSMSG protoPlace)
+    public static PlaceComponentSMSG FromProto(ulong entityId, global::Bnet.PlaceComponentSMSG protoPlace)
     {
       return new PlaceComponentSMSG()
       {
-        EntityId = protoPlace.EntityId,
+        EntityId = entityId,
         Name = protoPlace.Name
       };
     }

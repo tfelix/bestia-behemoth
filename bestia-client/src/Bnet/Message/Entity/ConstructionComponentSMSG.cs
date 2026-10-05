@@ -23,11 +23,11 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
     public float Progress =>
       TotalSeconds > 0f ? Mathf.Clamp((TotalSeconds - RemainingSeconds) / TotalSeconds, 0f, 1f) : 1f;
 
-    public static ConstructionComponentSMSG FromProto(global::Bnet.ConstructionComponentSMSG proto)
+    public static ConstructionComponentSMSG FromProto(ulong entityId, global::Bnet.ConstructionComponentSMSG proto)
     {
       return new ConstructionComponentSMSG()
       {
-        EntityId = proto.EntityId,
+        EntityId = entityId,
         RemainingSeconds = proto.RemainingSeconds,
         TotalSeconds = proto.TotalSeconds,
         Active = proto.Active,

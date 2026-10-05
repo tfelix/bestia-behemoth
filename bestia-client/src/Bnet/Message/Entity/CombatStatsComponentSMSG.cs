@@ -39,11 +39,11 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
     /// </summary>
     /// <param name="protoCombatStats">The protobuf CombatStatsSMSG message from the server</param>
     /// <returns>A new CombatStatsComponentSMSG instance</returns>
-    public static CombatStatsComponentSMSG FromProto(global::Bnet.CombatStatsSMSG protoCombatStats)
+    public static CombatStatsComponentSMSG FromProto(ulong entityId, global::Bnet.CombatStatsSMSG protoCombatStats)
     {
       return new CombatStatsComponentSMSG()
       {
-        EntityId = protoCombatStats.EntityId,
+        EntityId = entityId,
         Atk = protoCombatStats.Atk,
         WeaponAtk = protoCombatStats.WeaponAtk,
         Matk = protoCombatStats.Matk,

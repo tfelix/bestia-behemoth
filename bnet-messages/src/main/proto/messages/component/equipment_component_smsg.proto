@@ -13,7 +13,7 @@ option java_outer_classname = "EquipmentComponentSMSGProto";
  * Gradle task), so it is never streamed online.
  */
 message EquipmentComponentSMSG {
-  fixed64 entity_id = 1;
+  reserved 1; // entity_id, now on EntityUpdate
   repeated EquippedItem items = 2;
 }
 

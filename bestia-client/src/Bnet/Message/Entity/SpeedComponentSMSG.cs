@@ -13,11 +13,11 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
     [Export]
     public float Speed { get; set; } = 1.0f;
 
-    public static SpeedComponentSMSG FromProto(global::Bnet.SpeedComponentSMSG protoSpeed)
+    public static SpeedComponentSMSG FromProto(ulong entityId, global::Bnet.SpeedComponentSMSG protoSpeed)
     {
       return new SpeedComponentSMSG
       {
-        EntityId = protoSpeed.EntityId,
+        EntityId = entityId,
         Speed = protoSpeed.Speed
       };
     }

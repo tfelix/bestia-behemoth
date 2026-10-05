@@ -15,11 +15,11 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
     [Export] public float TotalSeconds { get; set; }
     [Export] public bool Removed { get; set; }
 
-    public static CastingComponentSMSG FromProto(global::Bnet.CastingComponentSMSG proto)
+    public static CastingComponentSMSG FromProto(ulong entityId, global::Bnet.CastingComponentSMSG proto)
     {
       return new CastingComponentSMSG()
       {
-        EntityId = proto.EntityId,
+        EntityId = entityId,
         RemainingSeconds = proto.RemainingSeconds,
         TotalSeconds = proto.TotalSeconds,
         Removed = proto.Removed

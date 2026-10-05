@@ -34,7 +34,11 @@ with its own `application.yml`.
 - `envelope.proto` defines one `Envelope` message with a big `oneof`, importing every
   leaf message. Field numbers are grouped into manually-maintained ranges per domain
   (`SYSTEM & ACCOUNT 100`, `MAP 200`, `INVENTORY 300`, `MASTER & BESTIA 400`,
-  `ENTITY & COMPONENTS 500`) — when adding a message, follow the existing range.
+  `ENTITY & COMPONENTS 500`) — when adding a message, follow the existing range. Tags 3 and 4
+  are `state_batch` and `damage_entity`, the most frequent messages. **Entity component state is
+  not an Envelope field**: each component message is a field of `ComponentDelta`
+  (`messages/entity/state_batch_smsg.proto`) and has no `entity_id`; one `StateBatchSMSG` per
+  account per tick carries `EntityUpdate { entity_id; components; vanish }` for every entity.
 - `messages/` is organized by domain: `component/`, `entity/`, `inventory/`, `master/`,
   `system/`, plus loose files (`account.proto`, `entity.proto`, `vec3.proto`).
 - Naming convention: client→server messages end `*_cmsg.proto` → generated
@@ -102,6 +106,10 @@ Outbound flow: an `SMSG` implementation (`message/SMSG.kt`) provides
 the Netty `Channel` by `accountId`. A send made on the tick thread is first collected in
 `message/TickOutbox.kt` and leaves as one batch (one flush) per account when the tick ends; a
 send from any other thread goes out at once. `AsyncJobExecutor` carries database work only.
+Entity state is different: an `EntitySMSG` implements
+`writeTo(update)` instead, and `ZoneEngine` puts each sync's changes into one `StateBatchSMSG`
+per account (`message/StateBatchSMSG.kt`). An `EntityUpdate` shared by many accounts is serialised
+once and spliced into each batch (`EnvelopeFraming.frame(alloc, batch)`).
 
 `ChannelRegistry` (accountId → Netty `Channel`) and
 `ConnectionInfoService` (`session/ConnectionInfoService.kt`, accountId → `Session`
@@ -143,14 +151,16 @@ Use those files as a template instead of re-deriving the shape from scratch.
    entity's component state, `aoi/EntityAudience.kt`), or persistent entity-state
    sync (`battle/ecs/status/SkillPointsComponentSMSG.kt`'s owning component implements `Dirtyable` +
    `toEntityMessage()` and is auto-pushed on change — only use this shape for actual
-   entity state, not one-off events).
+   entity state, not one-off events). A state message is an `EntitySMSG` that implements
+   `writeTo(update)` and gets a field in `ComponentDelta`, not in `Envelope`.
 5. **C# client wrappers**: outgoing message is an `ICMSG` subclass under
    `bestia-client/src/Bnet/Message/<Domain>/XyzCMSG.cs` (template:
    `Message/Entity/AttackEntityCMSG.cs`) implementing `ToEnvelope()`. Incoming message
    is an `EntitySMSG`/`ISMSG` subclass (template: `Message/Entity/DamageEntitySMSG.cs`)
    with a static `FromProto(...)`, plus one entry in `Bnet/Message/EnvelopeDecoder.cs`.
    `EnvelopeDecoderTest` fails for a server case with no entry; one the client deliberately
-   ignores goes into `EnvelopeCases.NotUsedYet`.
+   ignores goes into `EnvelopeCases.NotUsedYet`. A component wrapper instead takes
+   `FromProto(entityId, proto)` and gets a `case` in `Message/Entity/StateBatchMessages.cs`.
    GDScript side: add a thin wrapper method to `connection_manager.gd` that
    instantiates and sends the CMSG (see `send_attack_entity`/`get_skills`); incoming
    `EntitySMSG` subclasses are already caught generically by the `entity_received`

@@ -25,13 +25,13 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CixtZXNzYWdlcy9jb21wb25lbnQvbWFuYV9jb21wb25lbnRfc21zZy5wcm90",
-            "bxIEYm5ldCJEChFNYW5hQ29tcG9uZW50U01TRxIRCgllbnRpdHlfaWQYASAB",
-            "KAYSDwoHY3VycmVudBgCIAEoDRILCgNtYXgYAyABKA1CLwoVbmV0LmJlc3Rp",
-            "YS5ibmV0LnByb3RvQhZNYW5hQ29tcG9uZW50U01TR1Byb3RvYgZwcm90bzM="));
+            "bxIEYm5ldCI3ChFNYW5hQ29tcG9uZW50U01TRxIPCgdjdXJyZW50GAIgASgN",
+            "EgsKA21heBgDIAEoDUoECAEQAkIvChVuZXQuYmVzdGlhLmJuZXQucHJvdG9C",
+            "Fk1hbmFDb21wb25lbnRTTVNHUHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.ManaComponentSMSG), global::Bnet.ManaComponentSMSG.Parser, new[]{ "EntityId", "Current", "Max" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.ManaComponentSMSG), global::Bnet.ManaComponentSMSG.Parser, new[]{ "Current", "Max" }, null, null, null, null)
           }));
     }
     #endregion
@@ -73,7 +73,6 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public ManaComponentSMSG(ManaComponentSMSG other) : this() {
-      entityId_ = other.entityId_;
       current_ = other.current_;
       max_ = other.max_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
@@ -83,18 +82,6 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public ManaComponentSMSG Clone() {
       return new ManaComponentSMSG(this);
-    }
-
-    /// <summary>Field number for the "entity_id" field.</summary>
-    public const int EntityIdFieldNumber = 1;
-    private ulong entityId_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public ulong EntityId {
-      get { return entityId_; }
-      set {
-        entityId_ = value;
-      }
     }
 
     /// <summary>Field number for the "current" field.</summary>
@@ -136,7 +123,6 @@ namespace Bnet {
       if (ReferenceEquals(other, this)) {
         return true;
       }
-      if (EntityId != other.EntityId) return false;
       if (Current != other.Current) return false;
       if (Max != other.Max) return false;
       return Equals(_unknownFields, other._unknownFields);
@@ -146,7 +132,6 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
-      if (EntityId != 0UL) hash ^= EntityId.GetHashCode();
       if (Current != 0) hash ^= Current.GetHashCode();
       if (Max != 0) hash ^= Max.GetHashCode();
       if (_unknownFields != null) {
@@ -167,10 +152,6 @@ namespace Bnet {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
-      if (EntityId != 0UL) {
-        output.WriteRawTag(9);
-        output.WriteFixed64(EntityId);
-      }
       if (Current != 0) {
         output.WriteRawTag(16);
         output.WriteUInt32(Current);
@@ -189,10 +170,6 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (EntityId != 0UL) {
-        output.WriteRawTag(9);
-        output.WriteFixed64(EntityId);
-      }
       if (Current != 0) {
         output.WriteRawTag(16);
         output.WriteUInt32(Current);
@@ -211,9 +188,6 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
-      if (EntityId != 0UL) {
-        size += 1 + 8;
-      }
       if (Current != 0) {
         size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Current);
       }
@@ -231,9 +205,6 @@ namespace Bnet {
     public void MergeFrom(ManaComponentSMSG other) {
       if (other == null) {
         return;
-      }
-      if (other.EntityId != 0UL) {
-        EntityId = other.EntityId;
       }
       if (other.Current != 0) {
         Current = other.Current;
@@ -260,10 +231,6 @@ namespace Bnet {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 9: {
-            EntityId = input.ReadFixed64();
-            break;
-          }
           case 16: {
             Current = input.ReadUInt32();
             break;
@@ -291,10 +258,6 @@ namespace Bnet {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 9: {
-            EntityId = input.ReadFixed64();
-            break;
-          }
           case 16: {
             Current = input.ReadUInt32();
             break;

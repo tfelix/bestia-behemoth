@@ -22,11 +22,11 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
     {
     }
 
-    public static TownsfolkVisualComponentSMSG FromProto(global::Bnet.TownsfolkVisualComponentSMSG protoTownsfolkVisual)
+    public static TownsfolkVisualComponentSMSG FromProto(ulong entityId, global::Bnet.TownsfolkVisualComponentSMSG protoTownsfolkVisual)
     {
       return new TownsfolkVisualComponentSMSG()
       {
-        EntityId = protoTownsfolkVisual.EntityId,
+        EntityId = entityId,
         Name = protoTownsfolkVisual.Name,
         Body = (int)protoTownsfolkVisual.Body
       };

@@ -22,6 +22,6 @@ option java_outer_classname = "PlaceComponentSMSGProto";
 // and closed - and adding those fields later is a non-breaking proto3 change, so nothing here forecloses
 // it.
 message PlaceComponentSMSG {
-  fixed64 entity_id = 1;
+  reserved 1; // entity_id, now on EntityUpdate
   string name = 2;
 }

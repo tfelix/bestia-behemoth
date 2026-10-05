@@ -1,7 +1,7 @@
 package net.bestia.zone.battle.ecs.status
 
 import net.bestia.bnet.proto.CombatStatsSMSGProto
-import net.bestia.bnet.proto.EnvelopeProto
+import net.bestia.bnet.proto.StateBatchSmsgProto
 import net.bestia.zone.message.EntitySMSG
 
 data class CombatStatsComponentSMSG(
@@ -18,9 +18,8 @@ data class CombatStatsComponentSMSG(
   val aspd: Int
 ) : EntitySMSG {
 
-  override fun toBnetEnvelope(): EnvelopeProto.Envelope {
+  override fun writeTo(update: StateBatchSmsgProto.EntityUpdate.Builder) {
     val combatStats = CombatStatsSMSGProto.CombatStatsSMSG.newBuilder()
-      .setEntityId(entityId)
       .setAtk(atk)
       .setWeaponAtk(weaponAtk)
       .setMatk(matk)
@@ -32,8 +31,6 @@ data class CombatStatsComponentSMSG(
       .setHardDefense(hardDefense)
       .setAspd(aspd)
 
-    return EnvelopeProto.Envelope.newBuilder()
-      .setCompCombatStats(combatStats)
-      .build()
+    update.addComponents(StateBatchSmsgProto.ComponentDelta.newBuilder().setCombatStats(combatStats))
   }
 }

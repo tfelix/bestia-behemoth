@@ -32,11 +32,11 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
       return Kind == VanishKind.OutOfSight;
     }
 
-    public static VanishEntitySMSG FromProto(global::Bnet.VanishEntitySMSG protoVanish)
+    public static VanishEntitySMSG FromProto(ulong entityId, global::Bnet.VanishEntitySMSG protoVanish)
     {
       return new VanishEntitySMSG
       {
-        EntityId = protoVanish.EntityId,
+        EntityId = entityId,
         Kind = protoVanish.Kind
       };
     }

@@ -25,14 +25,13 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CittZXNzYWdlcy9jb21wb25lbnQvbG9nb3V0X2ludGVudF9zbXNnLnByb3Rv",
-            "EgRibmV0IlEKEExvZ291dEludGVudFNNU0cSEQoJZW50aXR5X2lkGAEgASgG",
-            "EhkKEXJlbWFpbmluZ19zZWNvbmRzGAIgASgCEg8KB3JlbW92ZWQYAyABKAhC",
-            "LgoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQhVMb2dvdXRJbnRlbnRTbXNnUHJv",
-            "dG9iBnByb3RvMw=="));
+            "EgRibmV0IkQKEExvZ291dEludGVudFNNU0cSGQoRcmVtYWluaW5nX3NlY29u",
+            "ZHMYAiABKAISDwoHcmVtb3ZlZBgDIAEoCEoECAEQAkIuChVuZXQuYmVzdGlh",
+            "LmJuZXQucHJvdG9CFUxvZ291dEludGVudFNtc2dQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.LogoutIntentSMSG), global::Bnet.LogoutIntentSMSG.Parser, new[]{ "EntityId", "RemainingSeconds", "Removed" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.LogoutIntentSMSG), global::Bnet.LogoutIntentSMSG.Parser, new[]{ "RemainingSeconds", "Removed" }, null, null, null, null)
           }));
     }
     #endregion
@@ -80,7 +79,6 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public LogoutIntentSMSG(LogoutIntentSMSG other) : this() {
-      entityId_ = other.entityId_;
       remainingSeconds_ = other.remainingSeconds_;
       removed_ = other.removed_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
@@ -90,18 +88,6 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public LogoutIntentSMSG Clone() {
       return new LogoutIntentSMSG(this);
-    }
-
-    /// <summary>Field number for the "entity_id" field.</summary>
-    public const int EntityIdFieldNumber = 1;
-    private ulong entityId_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public ulong EntityId {
-      get { return entityId_; }
-      set {
-        entityId_ = value;
-      }
     }
 
     /// <summary>Field number for the "remaining_seconds" field.</summary>
@@ -143,7 +129,6 @@ namespace Bnet {
       if (ReferenceEquals(other, this)) {
         return true;
       }
-      if (EntityId != other.EntityId) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(RemainingSeconds, other.RemainingSeconds)) return false;
       if (Removed != other.Removed) return false;
       return Equals(_unknownFields, other._unknownFields);
@@ -153,7 +138,6 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
-      if (EntityId != 0UL) hash ^= EntityId.GetHashCode();
       if (RemainingSeconds != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(RemainingSeconds);
       if (Removed != false) hash ^= Removed.GetHashCode();
       if (_unknownFields != null) {
@@ -174,10 +158,6 @@ namespace Bnet {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
-      if (EntityId != 0UL) {
-        output.WriteRawTag(9);
-        output.WriteFixed64(EntityId);
-      }
       if (RemainingSeconds != 0F) {
         output.WriteRawTag(21);
         output.WriteFloat(RemainingSeconds);
@@ -196,10 +176,6 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (EntityId != 0UL) {
-        output.WriteRawTag(9);
-        output.WriteFixed64(EntityId);
-      }
       if (RemainingSeconds != 0F) {
         output.WriteRawTag(21);
         output.WriteFloat(RemainingSeconds);
@@ -218,9 +194,6 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
-      if (EntityId != 0UL) {
-        size += 1 + 8;
-      }
       if (RemainingSeconds != 0F) {
         size += 1 + 4;
       }
@@ -238,9 +211,6 @@ namespace Bnet {
     public void MergeFrom(LogoutIntentSMSG other) {
       if (other == null) {
         return;
-      }
-      if (other.EntityId != 0UL) {
-        EntityId = other.EntityId;
       }
       if (other.RemainingSeconds != 0F) {
         RemainingSeconds = other.RemainingSeconds;
@@ -267,10 +237,6 @@ namespace Bnet {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 9: {
-            EntityId = input.ReadFixed64();
-            break;
-          }
           case 21: {
             RemainingSeconds = input.ReadFloat();
             break;
@@ -298,10 +264,6 @@ namespace Bnet {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 9: {
-            EntityId = input.ReadFixed64();
-            break;
-          }
           case 21: {
             RemainingSeconds = input.ReadFloat();
             break;

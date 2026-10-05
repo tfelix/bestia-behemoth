@@ -25,15 +25,15 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CiltZXNzYWdlcy9jb21wb25lbnQvdmlzdWFsX2NvbXBvbmVudC5wcm90bxIE",
-            "Ym5ldCJQCg9WaXN1YWxDb21wb25lbnQSEQoJZW50aXR5X2lkGAEgASgGEh4K",
-            "BGtpbmQYAiABKA4yEC5ibmV0LlZpc3VhbEtpbmQSCgoCaWQYAyABKAQqPQoK",
-            "VmlzdWFsS2luZBIKCgZCRVNUSUEQABIICgRJVEVNEAESCgoGRUZGRUNUEAIS",
-            "DQoJU1RSVUNUVVJFEANCLQoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQhRWaXN1",
-            "YWxDb21wb25lbnRQcm90b2IGcHJvdG8z"));
+            "Ym5ldCJDCg9WaXN1YWxDb21wb25lbnQSHgoEa2luZBgCIAEoDjIQLmJuZXQu",
+            "VmlzdWFsS2luZBIKCgJpZBgDIAEoBEoECAEQAio9CgpWaXN1YWxLaW5kEgoK",
+            "BkJFU1RJQRAAEggKBElURU0QARIKCgZFRkZFQ1QQAhINCglTVFJVQ1RVUkUQ",
+            "A0ItChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CFFZpc3VhbENvbXBvbmVudFBy",
+            "b3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.VisualKind), }, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.VisualComponent), global::Bnet.VisualComponent.Parser, new[]{ "EntityId", "Kind", "Id" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.VisualComponent), global::Bnet.VisualComponent.Parser, new[]{ "Kind", "Id" }, null, null, null, null)
           }));
     }
     #endregion
@@ -100,7 +100,6 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public VisualComponent(VisualComponent other) : this() {
-      entityId_ = other.entityId_;
       kind_ = other.kind_;
       id_ = other.id_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
@@ -110,18 +109,6 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public VisualComponent Clone() {
       return new VisualComponent(this);
-    }
-
-    /// <summary>Field number for the "entity_id" field.</summary>
-    public const int EntityIdFieldNumber = 1;
-    private ulong entityId_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public ulong EntityId {
-      get { return entityId_; }
-      set {
-        entityId_ = value;
-      }
     }
 
     /// <summary>Field number for the "kind" field.</summary>
@@ -163,7 +150,6 @@ namespace Bnet {
       if (ReferenceEquals(other, this)) {
         return true;
       }
-      if (EntityId != other.EntityId) return false;
       if (Kind != other.Kind) return false;
       if (Id != other.Id) return false;
       return Equals(_unknownFields, other._unknownFields);
@@ -173,7 +159,6 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
-      if (EntityId != 0UL) hash ^= EntityId.GetHashCode();
       if (Kind != global::Bnet.VisualKind.Bestia) hash ^= Kind.GetHashCode();
       if (Id != 0UL) hash ^= Id.GetHashCode();
       if (_unknownFields != null) {
@@ -194,10 +179,6 @@ namespace Bnet {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
-      if (EntityId != 0UL) {
-        output.WriteRawTag(9);
-        output.WriteFixed64(EntityId);
-      }
       if (Kind != global::Bnet.VisualKind.Bestia) {
         output.WriteRawTag(16);
         output.WriteEnum((int) Kind);
@@ -216,10 +197,6 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (EntityId != 0UL) {
-        output.WriteRawTag(9);
-        output.WriteFixed64(EntityId);
-      }
       if (Kind != global::Bnet.VisualKind.Bestia) {
         output.WriteRawTag(16);
         output.WriteEnum((int) Kind);
@@ -238,9 +215,6 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
-      if (EntityId != 0UL) {
-        size += 1 + 8;
-      }
       if (Kind != global::Bnet.VisualKind.Bestia) {
         size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) Kind);
       }
@@ -258,9 +232,6 @@ namespace Bnet {
     public void MergeFrom(VisualComponent other) {
       if (other == null) {
         return;
-      }
-      if (other.EntityId != 0UL) {
-        EntityId = other.EntityId;
       }
       if (other.Kind != global::Bnet.VisualKind.Bestia) {
         Kind = other.Kind;
@@ -287,10 +258,6 @@ namespace Bnet {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 9: {
-            EntityId = input.ReadFixed64();
-            break;
-          }
           case 16: {
             Kind = (global::Bnet.VisualKind) input.ReadEnum();
             break;
@@ -318,10 +285,6 @@ namespace Bnet {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 9: {
-            EntityId = input.ReadFixed64();
-            break;
-          }
           case 16: {
             Kind = (global::Bnet.VisualKind) input.ReadEnum();
             break;

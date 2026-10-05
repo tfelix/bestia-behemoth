@@ -21,11 +21,11 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
     {
     }
 
-    public static AreaNameComponentSMSG FromProto(global::Bnet.AreaNameComponentSMSG protoAreaName)
+    public static AreaNameComponentSMSG FromProto(ulong entityId, global::Bnet.AreaNameComponentSMSG protoAreaName)
     {
       return new AreaNameComponentSMSG()
       {
-        EntityId = protoAreaName.EntityId,
+        EntityId = entityId,
         Name = protoAreaName.Name,
         Radius = protoAreaName.Radius
       };

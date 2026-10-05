@@ -13,11 +13,11 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
     [Export]
     public Vector3 Position { get; set; } = Vector3.Zero;
 
-    public static PositionComponent FromProto(global::Bnet.PositionComponent protoPosition)
+    public static PositionComponent FromProto(ulong entityId, global::Bnet.PositionComponent protoPosition)
     {
       return new PositionComponent
       {
-        EntityId = protoPosition.EntityId,
+        EntityId = entityId,
         Position = new Vector3(
           protoPosition.Position.X,
           protoPosition.Position.Z,

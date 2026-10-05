@@ -25,17 +25,17 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CjFtZXNzYWdlcy9jb21wb25lbnQvZXF1aXBtZW50X2NvbXBvbmVudF9zbXNn",
-            "LnByb3RvEgRibmV0Ik4KFkVxdWlwbWVudENvbXBvbmVudFNNU0cSEQoJZW50",
-            "aXR5X2lkGAEgASgGEiEKBWl0ZW1zGAIgAygLMhIuYm5ldC5FcXVpcHBlZEl0",
-            "ZW0ikgEKDEVxdWlwcGVkSXRlbRIMCgRzbG90GAEgASgNEg8KB2l0ZW1faWQY",
-            "AiABKA0SEQoJdW5pcXVlX2lkGAMgASgEEhIKCmR1cmFiaWxpdHkYBCABKA0S",
-            "FgoObWF4X2R1cmFiaWxpdHkYBSABKA0SDQoFc2xvdHMYBiABKA0SFQoNdXBn",
-            "cmFkZV9sZXZlbBgHIAEoDUI0ChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CG0Vx",
-            "dWlwbWVudENvbXBvbmVudFNNU0dQcm90b2IGcHJvdG8z"));
+            "LnByb3RvEgRibmV0IkEKFkVxdWlwbWVudENvbXBvbmVudFNNU0cSIQoFaXRl",
+            "bXMYAiADKAsyEi5ibmV0LkVxdWlwcGVkSXRlbUoECAEQAiKSAQoMRXF1aXBw",
+            "ZWRJdGVtEgwKBHNsb3QYASABKA0SDwoHaXRlbV9pZBgCIAEoDRIRCgl1bmlx",
+            "dWVfaWQYAyABKAQSEgoKZHVyYWJpbGl0eRgEIAEoDRIWCg5tYXhfZHVyYWJp",
+            "bGl0eRgFIAEoDRINCgVzbG90cxgGIAEoDRIVCg11cGdyYWRlX2xldmVsGAcg",
+            "ASgNQjQKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0IbRXF1aXBtZW50Q29tcG9u",
+            "ZW50U01TR1Byb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.EquipmentComponentSMSG), global::Bnet.EquipmentComponentSMSG.Parser, new[]{ "EntityId", "Items" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.EquipmentComponentSMSG), global::Bnet.EquipmentComponentSMSG.Parser, new[]{ "Items" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.EquippedItem), global::Bnet.EquippedItem.Parser, new[]{ "Slot", "ItemId", "UniqueId", "Durability", "MaxDurability", "Slots", "UpgradeLevel" }, null, null, null, null)
           }));
     }
@@ -86,7 +86,6 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public EquipmentComponentSMSG(EquipmentComponentSMSG other) : this() {
-      entityId_ = other.entityId_;
       items_ = other.items_.Clone();
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
@@ -95,18 +94,6 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public EquipmentComponentSMSG Clone() {
       return new EquipmentComponentSMSG(this);
-    }
-
-    /// <summary>Field number for the "entity_id" field.</summary>
-    public const int EntityIdFieldNumber = 1;
-    private ulong entityId_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public ulong EntityId {
-      get { return entityId_; }
-      set {
-        entityId_ = value;
-      }
     }
 
     /// <summary>Field number for the "items" field.</summary>
@@ -135,7 +122,6 @@ namespace Bnet {
       if (ReferenceEquals(other, this)) {
         return true;
       }
-      if (EntityId != other.EntityId) return false;
       if(!items_.Equals(other.items_)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
@@ -144,7 +130,6 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
-      if (EntityId != 0UL) hash ^= EntityId.GetHashCode();
       hash ^= items_.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
@@ -164,10 +149,6 @@ namespace Bnet {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
-      if (EntityId != 0UL) {
-        output.WriteRawTag(9);
-        output.WriteFixed64(EntityId);
-      }
       items_.WriteTo(output, _repeated_items_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -179,10 +160,6 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (EntityId != 0UL) {
-        output.WriteRawTag(9);
-        output.WriteFixed64(EntityId);
-      }
       items_.WriteTo(ref output, _repeated_items_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
@@ -194,9 +171,6 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
-      if (EntityId != 0UL) {
-        size += 1 + 8;
-      }
       size += items_.CalculateSize(_repeated_items_codec);
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -209,9 +183,6 @@ namespace Bnet {
     public void MergeFrom(EquipmentComponentSMSG other) {
       if (other == null) {
         return;
-      }
-      if (other.EntityId != 0UL) {
-        EntityId = other.EntityId;
       }
       items_.Add(other.items_);
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
@@ -233,10 +204,6 @@ namespace Bnet {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 9: {
-            EntityId = input.ReadFixed64();
-            break;
-          }
           case 18: {
             items_.AddEntriesFrom(input, _repeated_items_codec);
             break;
@@ -260,10 +227,6 @@ namespace Bnet {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 9: {
-            EntityId = input.ReadFixed64();
-            break;
-          }
           case 18: {
             items_.AddEntriesFrom(ref input, _repeated_items_codec);
             break;

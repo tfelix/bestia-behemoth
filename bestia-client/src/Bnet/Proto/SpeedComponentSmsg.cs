@@ -25,13 +25,13 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "Ci1tZXNzYWdlcy9jb21wb25lbnQvc3BlZWRfY29tcG9uZW50X3Ntc2cucHJv",
-            "dG8SBGJuZXQiNgoSU3BlZWRDb21wb25lbnRTTVNHEhEKCWVudGl0eV9pZBgB",
-            "IAEoBhINCgVzcGVlZBgCIAEoAkIwChVuZXQuYmVzdGlhLmJuZXQucHJvdG9C",
-            "F1NwZWVkQ29tcG9uZW50U01TR1Byb3RvYgZwcm90bzM="));
+            "dG8SBGJuZXQiKQoSU3BlZWRDb21wb25lbnRTTVNHEg0KBXNwZWVkGAIgASgC",
+            "SgQIARACQjAKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0IXU3BlZWRDb21wb25l",
+            "bnRTTVNHUHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.SpeedComponentSMSG), global::Bnet.SpeedComponentSMSG.Parser, new[]{ "EntityId", "Speed" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.SpeedComponentSMSG), global::Bnet.SpeedComponentSMSG.Parser, new[]{ "Speed" }, null, null, null, null)
           }));
     }
     #endregion
@@ -73,7 +73,6 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public SpeedComponentSMSG(SpeedComponentSMSG other) : this() {
-      entityId_ = other.entityId_;
       speed_ = other.speed_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
@@ -82,18 +81,6 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public SpeedComponentSMSG Clone() {
       return new SpeedComponentSMSG(this);
-    }
-
-    /// <summary>Field number for the "entity_id" field.</summary>
-    public const int EntityIdFieldNumber = 1;
-    private ulong entityId_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public ulong EntityId {
-      get { return entityId_; }
-      set {
-        entityId_ = value;
-      }
     }
 
     /// <summary>Field number for the "speed" field.</summary>
@@ -123,7 +110,6 @@ namespace Bnet {
       if (ReferenceEquals(other, this)) {
         return true;
       }
-      if (EntityId != other.EntityId) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(Speed, other.Speed)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
@@ -132,7 +118,6 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
-      if (EntityId != 0UL) hash ^= EntityId.GetHashCode();
       if (Speed != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(Speed);
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
@@ -152,10 +137,6 @@ namespace Bnet {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
-      if (EntityId != 0UL) {
-        output.WriteRawTag(9);
-        output.WriteFixed64(EntityId);
-      }
       if (Speed != 0F) {
         output.WriteRawTag(21);
         output.WriteFloat(Speed);
@@ -170,10 +151,6 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (EntityId != 0UL) {
-        output.WriteRawTag(9);
-        output.WriteFixed64(EntityId);
-      }
       if (Speed != 0F) {
         output.WriteRawTag(21);
         output.WriteFloat(Speed);
@@ -188,9 +165,6 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
-      if (EntityId != 0UL) {
-        size += 1 + 8;
-      }
       if (Speed != 0F) {
         size += 1 + 4;
       }
@@ -205,9 +179,6 @@ namespace Bnet {
     public void MergeFrom(SpeedComponentSMSG other) {
       if (other == null) {
         return;
-      }
-      if (other.EntityId != 0UL) {
-        EntityId = other.EntityId;
       }
       if (other.Speed != 0F) {
         Speed = other.Speed;
@@ -231,10 +202,6 @@ namespace Bnet {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 9: {
-            EntityId = input.ReadFixed64();
-            break;
-          }
           case 21: {
             Speed = input.ReadFloat();
             break;
@@ -258,10 +225,6 @@ namespace Bnet {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 9: {
-            EntityId = input.ReadFixed64();
-            break;
-          }
           case 21: {
             Speed = input.ReadFloat();
             break;

@@ -25,7 +25,7 @@ enum VisualKind {
  * parameters (hair colour and the like) rather than a single catalogue id.
  */
 message VisualComponent {
-  fixed64 entity_id = 1;
+  reserved 1; // entity_id, now on EntityUpdate
   VisualKind kind = 2;
   uint64 id = 3;
 }

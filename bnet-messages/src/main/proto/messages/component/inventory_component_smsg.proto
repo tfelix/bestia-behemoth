@@ -9,7 +9,7 @@ option java_outer_classname = "InventoryComponentSMSGProto";
  * Inventory component containing items for an entity/bestia.
  */
 message InventoryComponentSMSG {
-  fixed64 entity_id = 1;
+  reserved 1; // entity_id, now on EntityUpdate
   repeated InventoryItem items = 2;
 }
 

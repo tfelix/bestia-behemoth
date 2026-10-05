@@ -65,6 +65,8 @@ namespace BestiaBehemothClient.Bnet.Message
     /// <summary>What the server named when it last closed this connection, or empty if it named nothing.</summary>
     public string LastDisconnectReason { get; private set; } = "";
 
+    /// <summary>The server tick of the newest entity state received; see <c>StateBatchSMSG.server_tick</c>.</summary>
+    public ulong LastServerTick { get; private set; }
 
     public override void _Ready()
     {
@@ -88,6 +90,18 @@ namespace BestiaBehemothClient.Bnet.Message
         {
           GD.Print($"Disconnected by server: {envelope.Disconnected.Reason}");
           DisconnectFromServer();
+        }
+        else if (envelope.StateBatch != null)
+        {
+          if (envelope.StateBatch.ServerTick != 0)
+          {
+            LastServerTick = envelope.StateBatch.ServerTick;
+          }
+
+          foreach (var msg in Entity.StateBatchMessages.Unpack(envelope.StateBatch))
+          {
+            EmitSignal(SignalName.MessageReceived, msg);
+          }
         }
         else
         {
@@ -134,6 +148,7 @@ namespace BestiaBehemothClient.Bnet.Message
         GD.Print($"Starting connection to {ServerName}:{Port}");
         _shouldStop = false;
         LastDisconnectReason = "";
+        LastServerTick = 0;
 
         SetConnectionStatus(ConnectionStatus.Connecting);
 

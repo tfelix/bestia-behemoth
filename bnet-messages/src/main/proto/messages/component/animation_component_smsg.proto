@@ -24,6 +24,6 @@ enum AnimationKind {
 }
 
 message AnimationComponentSMSG {
-  fixed64 entity_id = 1;
+  reserved 1; // entity_id, now on EntityUpdate
   AnimationKind kind = 2;
 }

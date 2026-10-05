@@ -4,6 +4,7 @@ import com.google.protobuf.CodedOutputStream
 import io.netty.buffer.ByteBuf
 import io.netty.buffer.ByteBufAllocator
 import net.bestia.bnet.proto.EnvelopeProto
+import net.bestia.zone.message.StateBatchSMSG
 
 /**
  * The outbound frame: a big-endian four-byte length followed by the serialised envelope.
@@ -19,6 +20,20 @@ object EnvelopeFraming {
   fun frame(alloc: ByteBufAllocator, envelope: EnvelopeProto.Envelope): ByteBuf {
     val buffer = alloc.buffer(frameSize(envelope))
     writeFrame(envelope, buffer)
+
+    return buffer
+  }
+
+  /** Frames [batch] from its updates' cached bytes, so an update shared by many batches is serialised once. */
+  fun frame(alloc: ByteBufAllocator, batch: StateBatchSMSG): ByteBuf {
+    val bodySize = batch.envelopeSize()
+    val buffer = alloc.buffer(LENGTH_FIELD_BYTES + bodySize)
+    buffer.writeInt(bodySize)
+
+    val body = CodedOutputStream.newInstance(buffer.nioBuffer(buffer.writerIndex(), bodySize))
+    batch.writeEnvelope(body)
+    body.checkNoSpaceLeft()
+    buffer.writerIndex(buffer.writerIndex() + bodySize)
 
     return buffer
   }

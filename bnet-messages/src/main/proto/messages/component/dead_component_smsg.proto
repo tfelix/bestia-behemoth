@@ -11,6 +11,6 @@ option java_outer_classname = "DeadComponentSmsgProto";
 // is synced to everyone in range. Removal of the underlying component re-sends this same message with
 // removed = true (= respawned).
 message DeadComponentSMSG {
-  fixed64 entity_id = 1;
+  reserved 1; // entity_id, now on EntityUpdate
   bool removed = 2;
 }

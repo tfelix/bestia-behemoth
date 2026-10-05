@@ -19,8 +19,6 @@ namespace BestiaBehemothClient.Bnet.Message
       Envelope.MessageOneofCase.AuthenticationSuccess,
       Envelope.MessageOneofCase.Pong,
       Envelope.MessageOneofCase.Master,
-      Envelope.MessageOneofCase.CompPosition,
-      Envelope.MessageOneofCase.CompVisual,
     };
 
     /// <summary>Sent by the server, and deliberately not acted on by this client yet.</summary>
@@ -36,14 +34,14 @@ namespace BestiaBehemothClient.Bnet.Message
 
     /// <summary>
     /// What the server sends that neither <paramref name="routed"/> nor <see cref="NotUsedYet"/> covers.
-    /// <c>Disconnected</c> never needs a route: <c>BnetSocket</c> acts on it itself.
+    /// <c>Disconnected</c> and <c>StateBatch</c> never need a route: <c>BnetSocket</c> acts on them itself.
     /// </summary>
     public static IEnumerable<Envelope.MessageOneofCase> Unrouted(IEnumerable<Envelope.MessageOneofCase> routed)
     {
       return SentByServer()
         .Except(routed)
         .Except(NotUsedYet)
-        .Where(c => c != Envelope.MessageOneofCase.Disconnected);
+        .Where(c => c != Envelope.MessageOneofCase.Disconnected && c != Envelope.MessageOneofCase.StateBatch);
     }
   }
 }

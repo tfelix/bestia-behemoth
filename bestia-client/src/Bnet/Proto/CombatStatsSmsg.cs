@@ -25,16 +25,16 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CiptZXNzYWdlcy9jb21wb25lbnQvY29tYmF0X3N0YXRzX3Ntc2cucHJvdG8S",
-            "BGJuZXQiywEKD0NvbWJhdFN0YXRzU01TRxIRCgllbnRpdHlfaWQYASABKAYS",
-            "CwoDYXRrGAIgASgFEhIKCndlYXBvbl9hdGsYAyABKAUSDAoEbWF0axgEIAEo",
-            "BRITCgt3ZWFwb25fbWF0axgFIAEoBRILCgNoaXQYBiABKAUSDAoEZmxlZRgH",
-            "IAEoBRIMCgRjcml0GAggASgFEhQKDHNvZnRfZGVmZW5zZRgJIAEoBRIUCgxo",
-            "YXJkX2RlZmVuc2UYCiABKAUSDAoEYXNwZBgLIAEoBUItChVuZXQuYmVzdGlh",
-            "LmJuZXQucHJvdG9CFENvbWJhdFN0YXRzU01TR1Byb3RvYgZwcm90bzM="));
+            "BGJuZXQivgEKD0NvbWJhdFN0YXRzU01TRxILCgNhdGsYAiABKAUSEgoKd2Vh",
+            "cG9uX2F0axgDIAEoBRIMCgRtYXRrGAQgASgFEhMKC3dlYXBvbl9tYXRrGAUg",
+            "ASgFEgsKA2hpdBgGIAEoBRIMCgRmbGVlGAcgASgFEgwKBGNyaXQYCCABKAUS",
+            "FAoMc29mdF9kZWZlbnNlGAkgASgFEhQKDGhhcmRfZGVmZW5zZRgKIAEoBRIM",
+            "CgRhc3BkGAsgASgFSgQIARACQi0KFW5ldC5iZXN0aWEuYm5ldC5wcm90b0IU",
+            "Q29tYmF0U3RhdHNTTVNHUHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.CombatStatsSMSG), global::Bnet.CombatStatsSMSG.Parser, new[]{ "EntityId", "Atk", "WeaponAtk", "Matk", "WeaponMatk", "Hit", "Flee", "Crit", "SoftDefense", "HardDefense", "Aspd" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.CombatStatsSMSG), global::Bnet.CombatStatsSMSG.Parser, new[]{ "Atk", "WeaponAtk", "Matk", "WeaponMatk", "Hit", "Flee", "Crit", "SoftDefense", "HardDefense", "Aspd" }, null, null, null, null)
           }));
     }
     #endregion
@@ -86,7 +86,6 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public CombatStatsSMSG(CombatStatsSMSG other) : this() {
-      entityId_ = other.entityId_;
       atk_ = other.atk_;
       weaponAtk_ = other.weaponAtk_;
       matk_ = other.matk_;
@@ -104,18 +103,6 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public CombatStatsSMSG Clone() {
       return new CombatStatsSMSG(this);
-    }
-
-    /// <summary>Field number for the "entity_id" field.</summary>
-    public const int EntityIdFieldNumber = 1;
-    private ulong entityId_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public ulong EntityId {
-      get { return entityId_; }
-      set {
-        entityId_ = value;
-      }
     }
 
     /// <summary>Field number for the "atk" field.</summary>
@@ -259,7 +246,6 @@ namespace Bnet {
       if (ReferenceEquals(other, this)) {
         return true;
       }
-      if (EntityId != other.EntityId) return false;
       if (Atk != other.Atk) return false;
       if (WeaponAtk != other.WeaponAtk) return false;
       if (Matk != other.Matk) return false;
@@ -277,7 +263,6 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
-      if (EntityId != 0UL) hash ^= EntityId.GetHashCode();
       if (Atk != 0) hash ^= Atk.GetHashCode();
       if (WeaponAtk != 0) hash ^= WeaponAtk.GetHashCode();
       if (Matk != 0) hash ^= Matk.GetHashCode();
@@ -306,10 +291,6 @@ namespace Bnet {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
-      if (EntityId != 0UL) {
-        output.WriteRawTag(9);
-        output.WriteFixed64(EntityId);
-      }
       if (Atk != 0) {
         output.WriteRawTag(16);
         output.WriteInt32(Atk);
@@ -360,10 +341,6 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (EntityId != 0UL) {
-        output.WriteRawTag(9);
-        output.WriteFixed64(EntityId);
-      }
       if (Atk != 0) {
         output.WriteRawTag(16);
         output.WriteInt32(Atk);
@@ -414,9 +391,6 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
-      if (EntityId != 0UL) {
-        size += 1 + 8;
-      }
       if (Atk != 0) {
         size += 1 + pb::CodedOutputStream.ComputeInt32Size(Atk);
       }
@@ -458,9 +432,6 @@ namespace Bnet {
     public void MergeFrom(CombatStatsSMSG other) {
       if (other == null) {
         return;
-      }
-      if (other.EntityId != 0UL) {
-        EntityId = other.EntityId;
       }
       if (other.Atk != 0) {
         Atk = other.Atk;
@@ -511,10 +482,6 @@ namespace Bnet {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 9: {
-            EntityId = input.ReadFixed64();
-            break;
-          }
           case 16: {
             Atk = input.ReadInt32();
             break;
@@ -574,10 +541,6 @@ namespace Bnet {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 9: {
-            EntityId = input.ReadFixed64();
-            break;
-          }
           case 16: {
             Atk = input.ReadInt32();
             break;

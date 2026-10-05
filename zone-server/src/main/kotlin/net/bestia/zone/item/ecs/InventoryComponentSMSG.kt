@@ -1,7 +1,7 @@
 package net.bestia.zone.item.ecs
 
-import net.bestia.bnet.proto.EnvelopeProto
 import net.bestia.bnet.proto.InventoryComponentSMSGProto
+import net.bestia.bnet.proto.StateBatchSmsgProto
 import net.bestia.zone.message.EntitySMSG
 
 data class InventoryComponentSMSG(
@@ -9,7 +9,7 @@ data class InventoryComponentSMSG(
   val items: List<InventoryItem>
 ) : EntitySMSG {
 
-  override fun toBnetEnvelope(): EnvelopeProto.Envelope {
+  override fun writeTo(update: StateBatchSmsgProto.EntityUpdate.Builder) {
     val protoItems = items.map { item ->
       InventoryComponentSMSGProto.InventoryItem.newBuilder()
         .setItemId(item.itemId)
@@ -24,13 +24,10 @@ data class InventoryComponentSMSG(
     }
 
     val inventoryComponent = InventoryComponentSMSGProto.InventoryComponentSMSG.newBuilder()
-      .setEntityId(entityId)
       .addAllItems(protoItems)
       .build()
 
-    return EnvelopeProto.Envelope.newBuilder()
-      .setCompInventory(inventoryComponent)
-      .build()
+    update.addComponents(StateBatchSmsgProto.ComponentDelta.newBuilder().setInventory(inventoryComponent))
   }
 
   data class InventoryItem(

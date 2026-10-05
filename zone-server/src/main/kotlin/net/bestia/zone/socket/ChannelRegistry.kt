@@ -5,6 +5,7 @@ import io.netty.buffer.ByteBuf
 import io.netty.buffer.ByteBufAllocator
 import io.netty.channel.Channel
 import net.bestia.zone.message.SMSG
+import net.bestia.zone.message.StateBatchSMSG
 import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Component
 import java.util.concurrent.ConcurrentHashMap
@@ -162,11 +163,17 @@ class ChannelRegistry(
   }
 
   private fun write(playerId: Long, channel: Channel, outMessage: SMSG) {
-    val envelope = outMessage.toBnetEnvelope()
-    channel.write(envelope)
+    if (outMessage is StateBatchSMSG) {
+      channel.write(EnvelopeFraming.frame(channel.alloc(), outMessage))
+    } else {
+      channel.write(outMessage.toBnetEnvelope())
+    }
 
-    if (LOG.isTraceEnabled() && logFilter.allows(envelope)) {
-      LOG.trace { "TX player: $playerId - ${channel.remoteAddress()}: $envelope" }
+    if (LOG.isTraceEnabled()) {
+      val envelope = outMessage.toBnetEnvelope()
+      if (logFilter.allows(envelope)) {
+        LOG.trace { "TX player: $playerId - ${channel.remoteAddress()}: $envelope" }
+      }
     }
   }
 

@@ -51,8 +51,7 @@ class BnetMessageProcessorAdapter(
     /** Cases only the server sends, whose message type does not say so with an `SMSG` suffix. */
     private val SERVER_TO_CLIENT = setOf(
       MessageCase.OPERATION_SUCCESS, MessageCase.OPERATION_ERROR, MessageCase.DISCONNECTED,
-      MessageCase.AUTHENTICATION_SUCCESS, MessageCase.PONG, MessageCase.MASTER, MessageCase.COMP_POSITION,
-      MessageCase.COMP_VISUAL,
+      MessageCase.AUTHENTICATION_SUCCESS, MessageCase.PONG, MessageCase.MASTER,
     )
 
     /** Every case a client may send once logged in. `AUTHENTICATION` is the handshake's. */

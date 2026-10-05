@@ -22,7 +22,7 @@ namespace BestiaBehemothClient.Tests
       var sent = EnvelopeCases.SentByServer();
 
       Assert.Contains(Envelope.MessageOneofCase.PartyInfo, sent);
-      Assert.Contains(Envelope.MessageOneofCase.CompPosition, sent);
+      Assert.Contains(Envelope.MessageOneofCase.StateBatch, sent);
       Assert.DoesNotContain(Envelope.MessageOneofCase.CreateParty, sent);
       Assert.DoesNotContain(Envelope.MessageOneofCase.Authentication, sent);
     }

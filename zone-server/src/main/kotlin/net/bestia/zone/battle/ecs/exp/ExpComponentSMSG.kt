@@ -1,7 +1,7 @@
 package net.bestia.zone.battle.ecs.exp
 
-import net.bestia.bnet.proto.EnvelopeProto
 import net.bestia.bnet.proto.ExpComponentSMSGProto
+import net.bestia.bnet.proto.StateBatchSmsgProto
 import net.bestia.zone.message.EntitySMSG
 
 data class ExpComponentSMSG(
@@ -10,14 +10,11 @@ data class ExpComponentSMSG(
   val requiredExpNextLevel: Int
 ) : EntitySMSG {
 
-  override fun toBnetEnvelope(): EnvelopeProto.Envelope {
+  override fun writeTo(update: StateBatchSmsgProto.EntityUpdate.Builder) {
     val expComponent = ExpComponentSMSGProto.ExpComponentSMSG.newBuilder()
-      .setEntityId(entityId)
       .setExp(exp)
       .setRequiredExpNextLevel(requiredExpNextLevel)
 
-    return EnvelopeProto.Envelope.newBuilder()
-      .setCompExp(expComponent)
-      .build()
+    update.addComponents(StateBatchSmsgProto.ComponentDelta.newBuilder().setExp(expComponent))
   }
 }

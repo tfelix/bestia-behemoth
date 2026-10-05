@@ -11,7 +11,7 @@ option java_outer_classname = "CastingComponentSmsgProto";
 // this same message with removed = true - covering both a completed and an interrupted cast, since
 // either way the bar simply goes away.
 message CastingComponentSMSG {
-  fixed64 entity_id = 1;
+  reserved 1; // entity_id, now on EntityUpdate
   float remaining_seconds = 2;
   float total_seconds = 3;
   bool removed = 4;

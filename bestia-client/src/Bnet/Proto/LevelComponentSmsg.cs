@@ -25,13 +25,13 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "Ci1tZXNzYWdlcy9jb21wb25lbnQvbGV2ZWxfY29tcG9uZW50X3Ntc2cucHJv",
-            "dG8SBGJuZXQiNgoSTGV2ZWxDb21wb25lbnRTTVNHEhEKCWVudGl0eV9pZBgB",
-            "IAEoBhINCgVsZXZlbBgCIAEoB0IwChVuZXQuYmVzdGlhLmJuZXQucHJvdG9C",
-            "F0xldmVsQ29tcG9uZW50U01TR1Byb3RvYgZwcm90bzM="));
+            "dG8SBGJuZXQiKQoSTGV2ZWxDb21wb25lbnRTTVNHEg0KBWxldmVsGAIgASgH",
+            "SgQIARACQjAKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0IXTGV2ZWxDb21wb25l",
+            "bnRTTVNHUHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.LevelComponentSMSG), global::Bnet.LevelComponentSMSG.Parser, new[]{ "EntityId", "Level" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.LevelComponentSMSG), global::Bnet.LevelComponentSMSG.Parser, new[]{ "Level" }, null, null, null, null)
           }));
     }
     #endregion
@@ -73,7 +73,6 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public LevelComponentSMSG(LevelComponentSMSG other) : this() {
-      entityId_ = other.entityId_;
       level_ = other.level_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
@@ -82,18 +81,6 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public LevelComponentSMSG Clone() {
       return new LevelComponentSMSG(this);
-    }
-
-    /// <summary>Field number for the "entity_id" field.</summary>
-    public const int EntityIdFieldNumber = 1;
-    private ulong entityId_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public ulong EntityId {
-      get { return entityId_; }
-      set {
-        entityId_ = value;
-      }
     }
 
     /// <summary>Field number for the "level" field.</summary>
@@ -123,7 +110,6 @@ namespace Bnet {
       if (ReferenceEquals(other, this)) {
         return true;
       }
-      if (EntityId != other.EntityId) return false;
       if (Level != other.Level) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
@@ -132,7 +118,6 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
-      if (EntityId != 0UL) hash ^= EntityId.GetHashCode();
       if (Level != 0) hash ^= Level.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
@@ -152,10 +137,6 @@ namespace Bnet {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
-      if (EntityId != 0UL) {
-        output.WriteRawTag(9);
-        output.WriteFixed64(EntityId);
-      }
       if (Level != 0) {
         output.WriteRawTag(21);
         output.WriteFixed32(Level);
@@ -170,10 +151,6 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (EntityId != 0UL) {
-        output.WriteRawTag(9);
-        output.WriteFixed64(EntityId);
-      }
       if (Level != 0) {
         output.WriteRawTag(21);
         output.WriteFixed32(Level);
@@ -188,9 +165,6 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
-      if (EntityId != 0UL) {
-        size += 1 + 8;
-      }
       if (Level != 0) {
         size += 1 + 4;
       }
@@ -205,9 +179,6 @@ namespace Bnet {
     public void MergeFrom(LevelComponentSMSG other) {
       if (other == null) {
         return;
-      }
-      if (other.EntityId != 0UL) {
-        EntityId = other.EntityId;
       }
       if (other.Level != 0) {
         Level = other.Level;
@@ -231,10 +202,6 @@ namespace Bnet {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 9: {
-            EntityId = input.ReadFixed64();
-            break;
-          }
           case 21: {
             Level = input.ReadFixed32();
             break;
@@ -258,10 +225,6 @@ namespace Bnet {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 9: {
-            EntityId = input.ReadFixed64();
-            break;
-          }
           case 21: {
             Level = input.ReadFixed32();
             break;

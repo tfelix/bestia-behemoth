@@ -149,7 +149,7 @@ namespace BestiaBehemothClient.Tests
       var lines = Collect();
       NetLog.Mode = NetLogMode.Summary;
 
-      NetLog.TraceRx(new Envelope { CompPath = new PathComponentSMSG { EntityId = 7 } });
+      NetLog.TraceRx(new Envelope { StateBatch = new StateBatchSMSG { ServerTick = 7 } });
 
       Assert.Empty(lines);
     }
@@ -159,13 +159,13 @@ namespace BestiaBehemothClient.Tests
     {
       var lines = Collect();
       NetLog.Mode = NetLogMode.Detail;
-      NetLog.SetFilter(new[] { "comp_path" });
+      NetLog.SetFilter(new[] { "state_batch" });
 
-      NetLog.TraceRx(new Envelope { CompPath = new PathComponentSMSG { EntityId = 7 } });
-      NetLog.TraceRx(new Envelope { CompPosition = new PositionComponent { EntityId = 7 } });
+      NetLog.TraceRx(new Envelope { StateBatch = new StateBatchSMSG { ServerTick = 7 } });
+      NetLog.TraceRx(new Envelope { DamageEntity = new DamageEntitySMSG { EntityId = 7 } });
 
       Assert.Single(lines);
-      Assert.StartsWith("NET RX comp_path ", lines[0]);
+      Assert.StartsWith("NET RX state_batch ", lines[0]);
     }
 
     /// <summary>
@@ -178,7 +178,7 @@ namespace BestiaBehemothClient.Tests
       var lines = Collect();
       NetLog.Mode = NetLogMode.Detail;
 
-      var position = new Envelope { CompPosition = new PositionComponent { EntityId = 7 } };
+      var position = new Envelope { StateBatch = new StateBatchSMSG { ServerTick = 7 } };
       for (var i = 0; i < 500; i++)
       {
         NetLog.TraceRx(position);
@@ -198,7 +198,7 @@ namespace BestiaBehemothClient.Tests
       var lines = Collect();
       NetLog.Mode = NetLogMode.Detail;
 
-      var position = new Envelope { CompPosition = new PositionComponent { EntityId = 7 } };
+      var position = new Envelope { StateBatch = new StateBatchSMSG { ServerTick = 7 } };
       for (var i = 0; i < 500; i++)
       {
         NetLog.TraceRx(position);

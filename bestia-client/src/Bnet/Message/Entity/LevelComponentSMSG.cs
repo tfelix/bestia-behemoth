@@ -7,11 +7,11 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
   {
     public uint Level { get; set; }
 
-    public static LevelComponentSMSG FromBnet(global::Bnet.LevelComponentSMSG msg)
+    public static LevelComponentSMSG FromBnet(ulong entityId, global::Bnet.LevelComponentSMSG msg)
     {
       return new LevelComponentSMSG
       {
-        EntityId = msg.EntityId,
+        EntityId = entityId,
         Level = msg.Level
       };
     }

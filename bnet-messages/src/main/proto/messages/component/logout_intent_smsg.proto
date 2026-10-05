@@ -10,7 +10,7 @@ option java_outer_classname = "LogoutIntentSmsgProto";
 // interpolates locally between updates. Removal of the underlying component re-sends this same
 // message with removed = true (= logout cancelled).
 message LogoutIntentSMSG {
-  fixed64 entity_id = 1;
+  reserved 1; // entity_id, now on EntityUpdate
   float remaining_seconds = 2;
   bool removed = 3;
 }
