@@ -59,7 +59,8 @@ class SitesChatCommand(
     reply(playerId, headline(site))
 
     if (cmdText.trim().endsWith("prices")) {
-      describePrices(site).forEach { reply(playerId, it) }
+      // Inside a world scope: the economy's books are tick-only state.
+      world.read { describePrices(site) }.forEach { reply(playerId, it) }
       return true
     }
 
