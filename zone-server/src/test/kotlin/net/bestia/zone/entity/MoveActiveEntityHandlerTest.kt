@@ -12,6 +12,7 @@ import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.navigation.local.LocalWalkQuery
 import net.bestia.zone.util.EntityId
+import kotlin.math.abs
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -44,6 +45,16 @@ class MoveActiveEntityHandlerTest {
     override fun canStep(from: Vec3L, to: Vec3L) = false
     override fun surfaceAt(position: Vec3L) = null
     override fun isResident(position: Vec3L) = false
+  }
+
+  /**
+   * Ground at z = 0 everywhere and a wall at [wallX]. Only the slab near the ground is loaded, so asking about a
+   * step at a made-up height finds nothing loaded there - which used to be read as "nothing to check".
+   */
+  private class GroundLevelWalkQuery(private val wallX: Long) : LocalWalkQuery {
+    override fun canStep(from: Vec3L, to: Vec3L) = to.x != wallX
+    override fun surfaceAt(position: Vec3L): Long = 0
+    override fun isResident(position: Vec3L) = abs(position.z) < 10
   }
 
   private fun handlerFor(world: World, entityId: EntityId, walkQuery: LocalWalkQuery): MoveActiveEntityHandler {
@@ -82,6 +93,19 @@ class MoveActiveEntityHandlerTest {
     val handler = handlerFor(world, id, WalledWalkQuery(blockedTo = Vec3L(2, 0, 0)))
 
     val path = listOf(Vec3L(1, 0, 0), Vec3L(2, 0, 0), Vec3L(3, 0, 0))
+    handler.handle(MoveActiveEntityCMSG(playerId = accountId, path = path))
+
+    assertEquals(listOf(Vec3L(1, 0, 0)), world.get(id, Path::class)?.path)
+  }
+
+  @Test
+  fun `a made-up step height does not get a path through a wall`() {
+    val world = testWorld()
+    val id = world.create()
+    world.add(id, Position(0, 0, 0))
+    val handler = handlerFor(world, id, GroundLevelWalkQuery(wallX = 2))
+
+    val path = listOf(Vec3L(1, 0, 0), Vec3L(2, 0, 9999), Vec3L(3, 0, 0))
     handler.handle(MoveActiveEntityCMSG(playerId = accountId, path = path))
 
     assertEquals(listOf(Vec3L(1, 0, 0)), world.get(id, Path::class)?.path)

@@ -125,8 +125,12 @@ class MoveActiveEntityHandler(
     val walkable = ArrayList<Vec3L>(path.size)
     var from = start
 
-    for (step in path) {
-      if (!isAdjacent(from, step)) break
+    for (requested in path) {
+      if (!isAdjacent(from, requested)) break
+      // The client's z is ignored: it chose which slab residency was looked up in, so a made-up height made
+      // every step "not loaded" and skipped the walkability check. The height follows on from the last step.
+      val ground = walkQuery.surfaceAt(Vec3L(requested.x, requested.y, from.z)) ?: from.z
+      val step = Vec3L(requested.x, requested.y, ground)
       if (walkQuery.isResident(from) && walkQuery.isResident(step) && !walkQuery.canStep(from, step)) break
       walkable.add(step)
       from = step
