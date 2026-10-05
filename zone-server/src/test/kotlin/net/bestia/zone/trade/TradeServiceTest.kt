@@ -7,6 +7,8 @@ import net.bestia.zone.account.master.Master
 import net.bestia.zone.account.master.MasterRepository
 import net.bestia.zone.account.master.skill.BasicSkillGate
 import net.bestia.zone.ecs.account.Account
+import net.bestia.zone.ecs.battle.damage.Dead
+import net.bestia.zone.ecs.battle.damage.DeadActionGuard
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.ecs.item.Inventory
@@ -40,6 +42,7 @@ class TradeServiceTest {
     outMessageProcessor = mockk(relaxed = true),
     basicSkillGate = mockk<BasicSkillGate> { every { mayTrade(any()) } returns true },
     asyncJobExecutor = mockk(relaxed = true),
+    deadActionGuard = DeadActionGuard(world),
   )
 
   @Test
@@ -59,6 +62,32 @@ class TradeServiceTest {
 
     verify(exactly = 1) { inventoryService.releaseTradeReservation(OFFERER_MASTER, TRADE, RESERVED_APPLE.offerSlotId) }
     assertEquals(5, world.get(offerer, Inventory::class)!!.getItems().sumOf { it.amount })
+  }
+
+  @Test
+  fun `a dead master offers nothing`() {
+    val offerer = player(OFFERER, OFFERER_MASTER, x = 0)
+    val partner = player(PARTNER, PARTNER_MASTER, x = 1)
+    service.requestTrade(OFFERER, partner)
+    service.answerRequest(PARTNER, TRADE, accept = true)
+    world.add(offerer, Dead())
+
+    service.offerItem(OFFERER, TRADE, APPLE, uniqueId = 0L, amount = 1)
+
+    verify(exactly = 0) { inventoryService.reserveForTrade(any(), any(), any(), any(), any()) }
+  }
+
+  @Test
+  fun `a dead master cannot ask anyone to trade`() {
+    val asker = player(OFFERER, OFFERER_MASTER, x = 0)
+    val partner = player(PARTNER, PARTNER_MASTER, x = 1)
+    world.add(asker, Dead())
+
+    service.requestTrade(OFFERER, partner)
+    service.answerRequest(PARTNER, TRADE, accept = true)
+    service.offerItem(OFFERER, TRADE, APPLE, uniqueId = 0L, amount = 1)
+
+    verify(exactly = 0) { inventoryService.reserveForTrade(any(), any(), any(), any(), any()) }
   }
 
   private fun player(accountId: Long, masterId: Long, x: Long): EntityId {

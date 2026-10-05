@@ -7,6 +7,7 @@ import net.bestia.zone.account.master.MasterRepository
 import net.bestia.zone.account.master.findByIdOrThrow
 import net.bestia.zone.account.master.skill.BasicSkillGate
 import net.bestia.zone.ecs.account.Account
+import net.bestia.zone.ecs.battle.damage.DeadActionGuard
 import net.bestia.zone.ecs.core.AsyncJobExecutor
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
@@ -63,6 +64,7 @@ class TradeService(
   private val outMessageProcessor: OutMessageProcessor,
   private val basicSkillGate: BasicSkillGate,
   private val asyncJobExecutor: AsyncJobExecutor,
+  private val deadActionGuard: DeadActionGuard,
 ) {
 
   private val sessions = ConcurrentHashMap<Long, TradeSession>()
@@ -102,6 +104,10 @@ class TradeService(
 
     if (requesterEntityId == targetEntityId) {
       LOG.warn { "Account $accountId asked to trade with itself" }
+      return
+    }
+
+    if (deadActionGuard.refuses(requesterEntityId, "ask for a trade")) {
       return
     }
 
@@ -165,6 +171,11 @@ class TradeService(
   fun answerRequest(accountId: AccountId, tradeId: Long, accept: Boolean) {
     val session = sessions[tradeId] ?: return
 
+    // Outside the session monitor: the guard takes the world lock.
+    if (accept && deadActionGuard.refuses(session.target.entityId, "accept a trade")) {
+      return
+    }
+
     val opened = synchronized(session) {
       if (session.status != TradeStatus.PENDING || accountId != session.target.accountId) {
         return
@@ -212,7 +223,7 @@ class TradeService(
 
     // An honest client offers nothing while locked and nothing it does not hold, so re-sending the truth is
     // both the correction and the whole answer - no code of its own for a state only a broken client reaches.
-    if (side == null || amount <= 0) {
+    if (side == null || amount <= 0 || deadActionGuard.refuses(side.entityId, "offer an item")) {
       resendTo(session, accountId)
       return
     }
@@ -354,6 +365,12 @@ class TradeService(
   /** The final commitment. Runs the exchange once both sides have given it. */
   fun confirm(accountId: AccountId, tradeId: Long) {
     val session = sessions[tradeId] ?: return
+
+    // Outside the session monitor: the guard takes the world lock.
+    val confirmer = session.sideOf(accountId) ?: return
+    if (deadActionGuard.refuses(confirmer.entityId, "confirm a trade")) {
+      return
+    }
 
     val readyToSettle = synchronized(session) {
       val side = session.sideOf(accountId) ?: return

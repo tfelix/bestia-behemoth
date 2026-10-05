@@ -3,6 +3,8 @@ package net.bestia.zone.item
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import net.bestia.zone.ecs.battle.damage.Dead
+import net.bestia.zone.ecs.battle.damage.DeadActionGuard
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.testWorld
@@ -65,6 +67,16 @@ class DropItemHandlerTest {
     verify(exactly = 0) { inventoryService.removeOneFromMaster(any(), any(), any(), any()) }
   }
 
+  @Test
+  fun `a dead master drops nothing`() {
+    val dropper = dropper(Inventory.Item(APPLE.id, amount = 3))
+    world.add(dropper, Dead())
+
+    handler(dropper).handle(DropItemCMSG(ACCOUNT_ID, APPLE.id, amount = 1))
+
+    verify(exactly = 0) { inventoryService.removeOneFromMaster(any(), any(), any(), any()) }
+  }
+
   private fun dropper(vararg held: Inventory.Item): EntityId {
     return world.createEntity { id ->
       add(id, Position(0, 0, 0))
@@ -77,7 +89,9 @@ class DropItemHandlerTest {
     val connectionInfoService = ConnectionInfoService()
     connectionInfoService.activateSession(ACCOUNT_ID, masterId = MASTER_ID, masterEntityId = dropper)
 
-    return DropItemHandler(itemRepository, inventoryService, mockk(relaxed = true), connectionInfoService, world)
+    return DropItemHandler(
+      itemRepository, inventoryService, mockk(relaxed = true), connectionInfoService, DeadActionGuard(world), world
+    )
   }
 
   private companion object {
