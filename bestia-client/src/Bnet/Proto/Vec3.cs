@@ -25,7 +25,7 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "ChNtZXNzYWdlcy92ZWMzLnByb3RvEgRibmV0IicKBFZlYzMSCQoBeBgBIAEo",
-            "AxIJCgF5GAIgASgDEgkKAXoYAyABKANCFwoVbmV0LmJlc3RpYS5ibmV0LnBy",
+            "EhIJCgF5GAIgASgSEgkKAXoYAyABKBJCFwoVbmV0LmJlc3RpYS5ibmV0LnBy",
             "b3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
@@ -37,6 +37,9 @@ namespace Bnet {
 
   }
   #region Messages
+  /// <summary>
+  /// sint64 so a negative coordinate, such as a level below sea level, stays small on the wire.
+  /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class Vec3 : pb::IMessage<Vec3>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
@@ -168,15 +171,15 @@ namespace Bnet {
     #else
       if (X != 0L) {
         output.WriteRawTag(8);
-        output.WriteInt64(X);
+        output.WriteSInt64(X);
       }
       if (Y != 0L) {
         output.WriteRawTag(16);
-        output.WriteInt64(Y);
+        output.WriteSInt64(Y);
       }
       if (Z != 0L) {
         output.WriteRawTag(24);
-        output.WriteInt64(Z);
+        output.WriteSInt64(Z);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -190,15 +193,15 @@ namespace Bnet {
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
       if (X != 0L) {
         output.WriteRawTag(8);
-        output.WriteInt64(X);
+        output.WriteSInt64(X);
       }
       if (Y != 0L) {
         output.WriteRawTag(16);
-        output.WriteInt64(Y);
+        output.WriteSInt64(Y);
       }
       if (Z != 0L) {
         output.WriteRawTag(24);
-        output.WriteInt64(Z);
+        output.WriteSInt64(Z);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
@@ -211,13 +214,13 @@ namespace Bnet {
     public int CalculateSize() {
       int size = 0;
       if (X != 0L) {
-        size += 1 + pb::CodedOutputStream.ComputeInt64Size(X);
+        size += 1 + pb::CodedOutputStream.ComputeSInt64Size(X);
       }
       if (Y != 0L) {
-        size += 1 + pb::CodedOutputStream.ComputeInt64Size(Y);
+        size += 1 + pb::CodedOutputStream.ComputeSInt64Size(Y);
       }
       if (Z != 0L) {
-        size += 1 + pb::CodedOutputStream.ComputeInt64Size(Z);
+        size += 1 + pb::CodedOutputStream.ComputeSInt64Size(Z);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -260,15 +263,15 @@ namespace Bnet {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
           case 8: {
-            X = input.ReadInt64();
+            X = input.ReadSInt64();
             break;
           }
           case 16: {
-            Y = input.ReadInt64();
+            Y = input.ReadSInt64();
             break;
           }
           case 24: {
-            Z = input.ReadInt64();
+            Z = input.ReadSInt64();
             break;
           }
         }
@@ -291,15 +294,15 @@ namespace Bnet {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
           case 8: {
-            X = input.ReadInt64();
+            X = input.ReadSInt64();
             break;
           }
           case 16: {
-            Y = input.ReadInt64();
+            Y = input.ReadSInt64();
             break;
           }
           case 24: {
-            Z = input.ReadInt64();
+            Z = input.ReadSInt64();
             break;
           }
         }
