@@ -175,7 +175,8 @@ class PartyService(
     val player = masterResolver.getSelectedMasterByAccountId(playerId)
     val openInvitation = takeInvitation(player.account.id, invitationId)
 
-    val party = partyRepository.findByIdOrNull(openInvitation.invitation.partyId)
+    // Locked, or two players accepting into the last free seat both find the party not full.
+    val party = partyRepository.findByIdForUpdate(openInvitation.invitation.partyId)
 
     if (party == null) {
       LOG.warn {
