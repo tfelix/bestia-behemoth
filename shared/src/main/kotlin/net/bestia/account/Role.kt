@@ -5,7 +5,7 @@ package net.bestia.account
  * claim) and translated into the concrete authorities when the token is validated on the zone.
  */
 enum class Role(val authorities: Set<Authority>) {
-  USER(setOf(Authority.ITEM, Authority.MAP_MOVE)),
+  USER(emptySet()),
   GM(
     setOf(
       Authority.ITEM,

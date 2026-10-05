@@ -27,11 +27,6 @@ class MapMoveChatCommand(
   private val inbox: ChunkStreamInbox
 ) : ChatCommand() {
 
-  /**
-   * Note that [Authority.MAP_MOVE] is currently granted to `Role.USER`, so this is open to every player.
-   * That matches how `ITEM` is granted today and is fine while nothing is live, but moving it to the GM roles
-   * is a one-line change in `Role` when it stops being fine.
-   */
   override val requiredAuthority: Authority = Authority.MAP_MOVE
 
   override fun getHelpText() =
