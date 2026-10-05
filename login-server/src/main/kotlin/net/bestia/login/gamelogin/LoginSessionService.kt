@@ -131,11 +131,15 @@ class LoginSessionService(
     return sessions.findById(idHash).orElse(null)
   }
 
+  /**
+   * Only from PENDING: several ceremonies can be open on one session, and a late one must neither revive a
+   * consumed session nor rebind an authenticated one to another account.
+   */
   @Transactional
   fun markAuthenticated(session: LoginSession, accountId: Long) {
-    session.status = LoginSessionStatus.AUTHENTICATED
-    session.accountId = accountId
-    sessions.save(session)
+    if (sessions.authenticate(session.idHash, accountId, LocalDateTime.now()) != 1) {
+      throw GameLoginException(GameLoginError.INVALID_GRANT, "login session is ${session.status}, not PENDING")
+    }
   }
 
   /** One ceremony, one code: a second call for the same session is refused. */
