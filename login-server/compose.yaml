@@ -9,7 +9,8 @@ services:
     ports:
       # 3307 on the host: zone-server/compose.yaml already claims 3306 and the two servers
       # deliberately share no database, so both containers have to be able to run at once.
-      - '3307:3306'
+      # Loopback only: the credentials above are public, and Docker bypasses host firewalls.
+      - '127.0.0.1:3307:3306'
     volumes:
       - 'login-mariadb-data:/var/lib/mysql'
 

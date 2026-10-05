@@ -7,7 +7,8 @@ services:
       - 'MARIADB_PASSWORD=bestia'
       - 'MARIADB_ROOT_PASSWORD=bestia-root'
     ports:
-      - '3306:3306'
+      # Loopback only: the credentials above are public, and Docker bypasses host firewalls.
+      - '127.0.0.1:3306:3306'
     volumes:
       - 'zone-mariadb-data:/var/lib/mysql'
 
