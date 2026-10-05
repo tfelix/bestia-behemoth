@@ -20,7 +20,7 @@ class WorldTest {
   @Test
   fun `entities and components lifecycle`() {
     val world = testWorld()
-    val e = world.create()
+    val e = world.createEntity { }
     assertTrue(world.isAlive(e))
 
     world.add(e, Position(1f, 2f))
@@ -38,7 +38,7 @@ class WorldTest {
     val world = testWorld()
     // 100 entities with Position, only 3 also have Velocity
     repeat(100) {
-      val e = world.create()
+      val e = world.createEntity { }
       world.add(e, Position(it.toFloat(), 0f))
       if (it < 3) world.add(e, Velocity(1f, 0f))
     }
@@ -50,26 +50,10 @@ class WorldTest {
   }
 
   @Test
-  fun `commands are applied at the next tick, not immediately`() {
-    val world = testWorld()
-    val e = world.create()
-    world.add(e, Velocity(0f, 0f))
-
-    world.onCommand<SetVelocity> { w, c -> w.get(c.entity, Velocity::class)?.apply { dx = c.dx; dy = c.dy } }
-
-    world.send(SetVelocity(e, 5f, 0f))
-    // not drained yet
-    assertEquals(0f, world.get(e, Velocity::class)!!.dx)
-
-    world.tick(0.1f)
-    assertEquals(5f, world.get(e, Velocity::class)!!.dx)
-  }
-
-  @Test
   fun `each visits every stored component of a type`() {
     val world = testWorld()
-    val e1 = world.create()
-    val e2 = world.create()
+    val e1 = world.createEntity { }
+    val e2 = world.createEntity { }
     world.add(e1, Position(1f, 2f))
     world.add(e2, Position(3f, 4f))
 
@@ -95,7 +79,7 @@ class WorldTest {
       }
     }
     val world = testWorld(systems = listOf(hpKiller))
-    val e = world.create()
+    val e = world.createEntity { }
     world.add(e, Health(1))
 
     world.tick(0.1f)
@@ -117,7 +101,7 @@ class WorldTest {
       }
     }
     val world = testWorld(systems = listOf(remover, failing))
-    val e = world.create()
+    val e = world.createEntity { }
     world.add(e, Health(1))
 
     world.tick(0.05f)
@@ -138,9 +122,9 @@ class WorldTest {
       }
     }
     val world = testWorld(systems = listOf(system))
-    val first = world.create().also { world.add(it, Health()) }
-    bad = world.create().also { world.add(it, Health()) }
-    val last = world.create().also { world.add(it, Health()) }
+    val first = world.createEntity { }.also { world.add(it, Health()) }
+    bad = world.createEntity { }.also { world.add(it, Health()) }
+    val last = world.createEntity { }.also { world.add(it, Health()) }
 
     world.tick(0.05f)
 
@@ -148,26 +132,39 @@ class WorldTest {
   }
 
   @Test
-  fun `a failing command does not stop the commands after it`() {
+  fun `a failing posted task does not stop the tasks after it`() {
     val world = testWorld()
-    val e = world.create()
+    val e = world.createEntity { }
     world.add(e, Velocity(0f, 0f))
-    world.onCommand<SetVelocity> { w, c ->
-      check(c.dx >= 0f) { "negative speed" }
-      w.get(c.entity, Velocity::class)?.apply { dx = c.dx }
-    }
 
-    world.send(SetVelocity(e, -1f, 0f))
-    world.send(SetVelocity(e, 5f, 0f))
+    world.post { error("broken task") }
+    world.post { get(e, Velocity::class)!!.dx = 5f }
     world.tick(0.05f)
 
     assertEquals(5f, world.get(e, Velocity::class)!!.dx)
   }
 
   @Test
+  fun `an accessor from another thread throws instead of borrowing the world`() {
+    val world = testWorld()
+    val e = world.createEntity { }
+    world.add(e, Health(5))
+    val failure = AtomicReference<Throwable>()
+    val tick = TickThread(world)
+
+    try {
+      thread { failure.set(runCatching { world.get(e, Health::class) }.exceptionOrNull()) }.join(5_000)
+
+      assertTrue(failure.get() is IllegalStateException, "a lone accessor must not take its own lease")
+    } finally {
+      tick.stop()
+    }
+  }
+
+  @Test
   fun `a scope from another thread runs on that thread while the tick thread waits`() {
     val world = testWorld()
-    val e = world.create()
+    val e = world.createEntity { }
     world.add(e, Health(5))
     val ranOn = AtomicReference<Thread>()
     val tick = TickThread(world)
@@ -185,7 +182,7 @@ class WorldTest {
   @Test
   fun `a scope inside a lent scope runs inline`() {
     val world = testWorld()
-    val e = world.create()
+    val e = world.createEntity { }
     world.add(e, Health(5))
     val tick = TickThread(world)
     val nested = AtomicReference<Int>()
@@ -232,6 +229,4 @@ class WorldTest {
       thread.join(5_000)
     }
   }
-
-  private class SetVelocity(val entity: EntityId, val dx: Float, val dy: Float) : Command
 }

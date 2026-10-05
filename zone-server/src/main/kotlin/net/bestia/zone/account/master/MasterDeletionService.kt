@@ -142,11 +142,9 @@ class MasterDeletionService(
    * found.
    */
   private fun isStillInTheWorld(master: Master): Boolean {
-    if (world.hasEntity(master.entityId)) {
-      return true
+    return world.read {
+      isAlive(master.entityId) || OwnedBestia.ownedBy(this, master.id).isNotEmpty()
     }
-
-    return world.read { OwnedBestia.ownedBy(this, master.id) }.isNotEmpty()
   }
 
   companion object {

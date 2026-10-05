@@ -39,7 +39,7 @@ class RegenSystemsTest {
    * the documented 2 HP / 2 mana / 3 stamina per tick.
    */
   private fun World.woundedEntity(): EntityId {
-    val id = create()
+    val id = createEntity { }
     add(id, StatusValues(strength = 9, intelligence = 9, vitality = 9, dexterity = 9, willpower = 9, agility = 9))
     add(id, Health(current = 1, max = 18))
     add(id, Mana(current = 1, max = 28))
@@ -89,7 +89,7 @@ class RegenSystemsTest {
   @Test
   fun `regen resumes once the combat timer expires`() {
     val world = testWorld(systems = listOf(InCombatSystem(), HpRegenSystem(calculator)))
-    val entity = world.create()
+    val entity = world.createEntity { }
     world.add(entity, StatusValues(9, 9, 9, 9, 9, 9))
     world.add(entity, Health(current = 1, max = 18))
     world.add(entity, InCombat())
@@ -111,7 +111,7 @@ class RegenSystemsTest {
   @Test
   fun `a full pool is left alone`() {
     val world = newWorld()
-    val entity = world.create()
+    val entity = world.createEntity { }
     world.add(entity, StatusValues(9, 9, 9, 9, 9, 9))
     world.add(entity, Health(current = 18, max = 18))
 
@@ -123,7 +123,7 @@ class RegenSystemsTest {
   @Test
   fun `regen never overshoots the maximum`() {
     val world = newWorld()
-    val entity = world.create()
+    val entity = world.createEntity { }
     world.add(entity, StatusValues(9, 9, 9, 9, 9, 9))
     // One point missing, two points of regen due.
     world.add(entity, Health(current = 17, max = 18))
@@ -178,7 +178,7 @@ class RegenSystemsTest {
     // A pool with no attributes behind it has no vitality to regenerate from. Worth pinning: the
     // formula has a floor of 1, so a defaulted attribute of 0 would silently heal it anyway.
     val world = newWorld()
-    val entity = world.create()
+    val entity = world.createEntity { }
     world.add(entity, Health(current = 1, max = 18))
 
     world.tick(allDue)

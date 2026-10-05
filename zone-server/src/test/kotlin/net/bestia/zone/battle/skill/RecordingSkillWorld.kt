@@ -3,12 +3,10 @@ package net.bestia.zone.battle.skill
 import net.bestia.zone.battle.damage.Damage
 import net.bestia.zone.ecs.AoiLayer
 import net.bestia.zone.ecs.battle.effects.AreaEffect
-import net.bestia.zone.ecs.core.Component
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.world.prop.StaticEntityKind
 import net.bestia.zone.world.spoor.TrackReading
-import kotlin.reflect.KClass
 
 /**
  * A [SkillWorld] that records what a script did to it instead of doing it.
@@ -51,8 +49,6 @@ class RecordingSkillWorld(
   fun putStation(kind: StaticEntityKind, entityId: EntityId) = apply { stations[kind] = entityId }
 
   override fun isAlive(entityId: EntityId): Boolean = true
-
-  override fun <T : Component> component(entityId: EntityId, type: KClass<T>): T? = null
 
   override fun positionOf(entityId: EntityId): Vec3L? = positions[entityId]
 

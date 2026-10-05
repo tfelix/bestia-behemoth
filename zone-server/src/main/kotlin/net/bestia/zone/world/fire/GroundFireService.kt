@@ -30,9 +30,7 @@ import kotlin.math.sqrt
  * the answer straight away to know whether anything caught.
  *
  * [requestIgnition] is for a caller with **no world at all** - a chat command on an IO thread - and is
- * drained at the top of the next [step]. `Command`/`CommandQueue` would be the framework answer, and this is
- * not it for one reason: that queue has no production implementations yet, and a debug command is a poor place
- * to be the first exercise of an untested mechanism.
+ * drained at the top of the next [step].
  *
  * ### Determinism
  *

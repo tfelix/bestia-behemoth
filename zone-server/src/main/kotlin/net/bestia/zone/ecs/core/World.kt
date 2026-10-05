@@ -9,23 +9,21 @@ import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.reflect.KClass
 
 /**
- * The central ECS facade. Owns entities, component stores, the system scheduler,
- * and the inbound/outbound messaging queues. Everything gameplay-related flows
- * through here.
+ * The central ECS facade. Owns entities, component stores and the system scheduler. Everything
+ * gameplay-related flows through here.
  *
  * ### Tick pipeline (deterministic, single tick thread)
  * ```
  * tick(dt):
  *   1. run posted work          -> tick-lane messages, leases, skill resolutions
- *   2. drain external commands  -> onCommand handlers
- *   3. run due systems          -> scheduler (parallel waves)
- *   4. apply deferred structural changes emitted by systems
+ *   2. run due systems          -> scheduler (parallel waves)
+ *   3. apply deferred structural changes emitted by systems
  * ```
  *
  * ### Threading
- * The tick thread owns the world and uses it without a lock. Other threads [post] work for it, or get
- * the world on a lease between two ticks; see [WorldOwnership]. Structural changes requested while
- * systems are iterating are deferred to a safe sync point.
+ * The tick thread owns the world and uses its accessors directly. Every other thread goes through a
+ * [WorldView] scope, which borrows the world between two ticks, or [post]s work; see [WorldOwnership].
+ * Structural changes requested while systems are iterating are deferred to a safe sync point.
  *
  * ### Outbound sync
  * A component knows whether it needs re-sending (see [Dirtyable]). Mutating it through its own setters
@@ -42,7 +40,6 @@ class World(
   private val entities = EntityRegistry(idGenerator)
   private val stores = ConcurrentHashMap<KClass<out Component>, ComponentStore<out Component>>()
   private val scheduler = SystemScheduler(parallelSystems)
-  private val commands = CommandQueue()
   private val deferred = ConcurrentLinkedQueue<() -> Unit>()
 
   init {
@@ -56,11 +53,11 @@ class World(
   @Volatile
   private var iterating = false
 
-  /**
-   * [WorldView] read scope: runs [block] with the world to itself. Intended for pure reads from off-tick
-   * threads; return values/DTOs rather than leaking components out.
-   */
-  override fun <T> read(block: World.() -> T): T = owner.guarded { this.block() }
+  override fun <T> read(block: World.() -> T): T = owner.withWorld { this.block() }
+
+  override fun <T> modify(id: EntityId, block: World.(EntityId) -> T): T? = owner.withWorld {
+    if (!entities.isAlive(id)) null else this.block(id)
+  }
 
   /** Makes the calling thread the tick thread, which from now on owns the world. */
   fun bindTickThread() {
@@ -96,7 +93,7 @@ class World(
     componentRemovedListeners.add(handler)
   }
 
-  override val entityCount: Int get() = entities.count
+  val entityCount: Int get() = entities.count
   val systemCount: Int get() = scheduler.systemCount
   val waveCount: Int get() = scheduler.waveCount
 
@@ -104,45 +101,21 @@ class World(
   fun lastTickBreakdown(limit: Int = 5): String = scheduler.lastTickBreakdown(limit)
 
   // ---------------------------------------------------------------- entities
-  fun create(): EntityId = owner.guarded { entities.create() }
+  fun isAlive(id: EntityId): Boolean = owner.requireOwned { entities.isAlive(id) }
 
-  fun create(id: EntityId): EntityId = owner.guarded { entities.create(id) }
-
-  override fun isAlive(id: EntityId): Boolean = owner.guarded { entities.isAlive(id) }
-
-  /** Alias for [isAlive] preserving the previous `ZoneServer.hasEntity` naming. */
-  override fun hasEntity(id: EntityId): Boolean = isAlive(id)
-
-  /**
-   * Atomically creates an entity and runs [configure] on it (typically a batch of [add]s) while
-   * with the world to itself, then returns the new id. Replaces `ZoneServer.addEntityWithWriteLock`.
-   */
-  override fun createEntity(configure: World.(EntityId) -> Unit): EntityId = owner.guarded {
+  override fun createEntity(configure: World.(EntityId) -> Unit): EntityId = owner.withWorld {
     val id = entities.create()
     this.configure(id)
     id
   }
 
-  override fun createEntity(id: EntityId, configure: World.(EntityId) -> Unit): EntityId = owner.guarded {
+  override fun createEntity(id: EntityId, configure: World.(EntityId) -> Unit): EntityId = owner.withWorld {
     entities.create(id)
     this.configure(id)
     id
   }
 
-  /**
-   * Runs [block] against [id] with the world to itself, or returns null if the entity is not
-   * alive. Replaces `ZoneServer.withEntityWriteLock` / `withEntityReadLock` (a single tick thread
-   * makes read/write locks unnecessary).
-   */
-  override fun <T> modify(id: EntityId, block: World.(EntityId) -> T): T? = owner.guarded {
-    if (!entities.isAlive(id)) null else this.block(id)
-  }
-
-  /** Like [modify] but throws [EntityNotAliveException] if [id] is not alive. */
-  override fun <T> modifyOrThrow(id: EntityId, block: World.(EntityId) -> T): T =
-    modify(id, block) ?: throw EntityNotAliveException(id)
-
-  fun destroy(id: EntityId) = owner.guarded {
+  fun destroy(id: EntityId) = owner.requireOwned {
     if (iterating) deferred.add { destroyNow(id) } else destroyNow(id)
   }
 
@@ -166,17 +139,11 @@ class World(
   fun <T : Component> store(type: KClass<T>): ComponentStore<T> =
     stores.computeIfAbsent(type) { ComponentStore(type, dirtyLog = dirtyLog) } as ComponentStore<T>
 
-  /** Enables object pooling (see [ComponentType]) for a component type. */
-  fun <T : Component> registerPooled(componentType: ComponentType<T>) {
-    stores[componentType.type] =
-      ComponentStore(componentType.type, componentType.factory, componentType.reset, dirtyLog = dirtyLog)
-  }
-
   /**
    * Adds a component to [id]. Deferred if called mid-tick. A freshly created component starts
    * dirty (see [Dirtyable]), so adding one already queues it for sync.
    */
-  fun <T : Component> add(id: EntityId, component: T): T = owner.guarded {
+  fun <T : Component> add(id: EntityId, component: T): T = owner.requireOwned {
     if (iterating) {
       deferred.add {
         addNow(id, component)
@@ -193,11 +160,11 @@ class World(
     store(component::class as KClass<T>).set(id, component)
   }
 
-  fun <T : Component> get(id: EntityId, type: KClass<T>): T? = owner.guarded { store(type).get(id) }
+  fun <T : Component> get(id: EntityId, type: KClass<T>): T? = owner.requireOwned { store(type).get(id) }
 
-  override fun <T : Component> has(id: EntityId, type: KClass<T>): Boolean = owner.guarded { store(type).has(id) }
+  fun <T : Component> has(id: EntityId, type: KClass<T>): Boolean = owner.requireOwned { store(type).has(id) }
 
-  fun <T : Component> remove(id: EntityId, type: KClass<T>): T? = owner.guarded {
+  fun <T : Component> remove(id: EntityId, type: KClass<T>): T? = owner.requireOwned {
     if (iterating) {
       deferred.add { removeNow(id, type) }
       null
@@ -228,28 +195,6 @@ class World(
     block(component)
   }
 
-  inline fun <reified T : Component> updateOrThrow(id: EntityId, block: (T) -> Unit) {
-    if (!isAlive(id)) {
-      return
-    }
-
-    val component = get(id, T::class)
-      ?: throw ComponentNotFoundException(id, T::class)
-
-    block(component)
-  }
-
-  inline fun <reified T : Component> updateOrIgnore(id: EntityId, block: (T) -> Unit) {
-    if (!isAlive(id)) {
-      return
-    }
-
-    val component = get(id, T::class)
-      ?: return
-
-    block(component)
-  }
-
   private fun <T : Component> removeNow(id: EntityId, type: KClass<T>): T? {
     val removed = store(type).remove(id) ?: return null
     if (entities.isAlive(id)) {
@@ -259,14 +204,14 @@ class World(
   }
 
   // ------------------------------------------------------------------ queries
-  fun query(vararg types: KClass<out Component>): Query {
+  fun query(vararg types: KClass<out Component>): Query = owner.requireOwned {
     val byType = LinkedHashMap<KClass<out Component>, ComponentStore<out Component>>(types.size)
     for (type in types) byType[type] = storeErased(type)
-    return Query(byType, isolateFailures = iterating)
+    Query(byType, isolateFailures = iterating)
   }
 
   /** Visits every `(entity, component)` pair currently stored for [type]. */
-  fun <T : Component> each(type: KClass<T>, action: (EntityId, T) -> Unit) = owner.guarded {
+  fun <T : Component> each(type: KClass<T>, action: (EntityId, T) -> Unit) = owner.requireOwned {
     store(type).each(action)
   }
 
@@ -278,20 +223,6 @@ class World(
   @Suppress("UNCHECKED_CAST")
   private fun storeErased(type: KClass<out Component>): ComponentStore<out Component> =
     store(type as KClass<Component>)
-
-  // ------------------------------------------------------------- messaging in
-  /** Enqueue external intent from any thread. Applied at the start of next tick. */
-  override fun send(command: Command) {
-    commands.enqueue(command)
-  }
-
-  fun <T : Command> onCommand(type: KClass<T>, handler: (World, T) -> Unit) {
-    commands.on(type, handler)
-  }
-
-  inline fun <reified T : Command> onCommand(noinline handler: (World, T) -> Unit) {
-    onCommand(T::class, handler)
-  }
 
   // --------------------------------------------------- deferred structural ops
   /** Run [block] now, or defer it to the next safe sync point if mid-tick. */
@@ -330,10 +261,9 @@ class World(
     private set
 
   // -------------------------------------------------------------- tick pipeline
-  fun tick(deltaTime: Float) = owner.guarded {
+  fun tick(deltaTime: Float) = owner.withWorld {
     owner.runQueued()        // posted work: tick-lane messages, leases, skill resolutions
     tickCount++
-    commands.drain(this)     // external intent -> handlers
     iterating = true
     try {
       scheduler.tick(this, deltaTime) // due systems (parallel waves)

@@ -30,7 +30,7 @@ class SpeakerResolver(
 
   /** @return null for anything that is not a townsperson, which is most entities. */
   fun of(entityId: EntityId): Speaker? {
-    val identity = world.read { get(entityId, Townsfolk::class) }?.identity ?: return null
+    val identity = world.read { get(entityId, Townsfolk::class)?.identity } ?: return null
 
     val settlement = TownsfolkIdentity.settlementOf(identity)
     val household = TownsfolkIdentity.householdOf(identity)

@@ -23,7 +23,7 @@ class DirtyLogTest {
 
   @Test
   fun `a fresh component is logged once when it is added`() {
-    val e = world.create()
+    val e = world.createEntity { }
     world.add(e, Tracked())
 
     assertEquals(listOf(e to Tracked::class), drained())
@@ -32,7 +32,7 @@ class DirtyLogTest {
 
   @Test
   fun `dirtying an already dirty component logs nothing more`() {
-    val e = world.create()
+    val e = world.createEntity { }
     val c = world.add(e, Tracked())
     drained()
 
@@ -43,7 +43,7 @@ class DirtyLogTest {
 
   @Test
   fun `a cleared component is logged again on its next change`() {
-    val e = world.create()
+    val e = world.createEntity { }
     val c = world.add(e, Tracked())
     drained()
     c.clearDirty()
@@ -56,7 +56,7 @@ class DirtyLogTest {
 
   @Test
   fun `a removed component no longer reports`() {
-    val e = world.create()
+    val e = world.createEntity { }
     val c = world.add(e, Tracked())
     drained()
     c.clearDirty()
@@ -69,8 +69,8 @@ class DirtyLogTest {
 
   @Test
   fun `an instance moved to another entity reports for the new one`() {
-    val from = world.create()
-    val to = world.create()
+    val from = world.createEntity { }
+    val to = world.createEntity { }
     val c = world.add(from, Tracked())
     drained()
     c.clearDirty()
@@ -84,7 +84,7 @@ class DirtyLogTest {
 
   @Test
   fun `a replaced component stops reporting, its replacement starts`() {
-    val e = world.create()
+    val e = world.createEntity { }
     val old = world.add(e, Tracked())
     drained()
     old.clearDirty()

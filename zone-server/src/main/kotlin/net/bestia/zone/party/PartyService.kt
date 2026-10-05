@@ -360,7 +360,8 @@ class PartyService(
               // transactional service. Blank only for a member whose first resolve has not run yet.
               areaName = get(id, Place::class)?.place?.name ?: "",
               position = position.toVec3L(),
-              hp = health
+              // A copy, because the message is serialised after the scope has ended.
+              hp = Health(current = health.current, max = health.max)
             )
           )
         } ?: PartyInfoSMSG.PartyMember(masterName = partyMemberMaster.name, onlineData = null)

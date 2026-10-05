@@ -49,7 +49,7 @@ class TalkChatCommand(
 
   override fun execute(playerId: Long, cmdText: String): Boolean {
     val actor = connectionInfoService.getActiveEntityId(playerId)
-    val at = world.read { get(actor, Position::class) }?.toVec3L() ?: return false
+    val at = world.read { get(actor, Position::class)?.toVec3L() } ?: return false
 
     val nearest = nearestTownsperson(at.x, at.y)
     if (nearest == null) {

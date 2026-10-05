@@ -159,7 +159,7 @@ class TownsfolkDayScenarioTest {
 
     // The whole point of a door: a town asleep costs a map entry per person, not an entity apiece.
     ai.tick(times = 2)
-    assertFalse(ai.world.hasEntity(villager), "the entity is still standing about after going indoors")
+    assertFalse(ai.world.isAlive(villager), "the entity is still standing about after going indoors")
   }
 
   @Test

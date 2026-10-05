@@ -45,7 +45,7 @@ class AmbientChatCommand(
     }
 
     val entityId = connectionInfoService.getActiveEntityId(playerId)
-    val position = world.read { get(entityId, Position::class) }?.toVec3L() ?: return false
+    val position = world.read { get(entityId, Position::class)?.toVec3L() } ?: return false
 
     val tally = AmbientSiteResolver.Tally()
     val sites = resolver.tallyAround(position.x, position.y, WINDOW_TILES, tally)

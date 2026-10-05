@@ -168,8 +168,8 @@ ECS library):
 
 - **`ecs/core/`** — the engine itself. Centered on `ecs/core/World.kt`: `ComponentStore`
   (sparse set, one per concrete component class — there are no archetypes), `SystemScheduler`
-  ("wave" scheduling from declared read/write component sets), `CommandQueue`,
-  `EntityRegistry`, `AsyncJobExecutor`. Spring wiring is `ecs/EcsConfiguration.kt`, which
+  ("wave" scheduling from declared read/write component sets), `EntityRegistry`,
+  `AsyncJobExecutor`. Spring wiring is `ecs/EcsConfiguration.kt`, which
   collects every `System` bean into one `World`; `ecs/EcsRunner.kt` is an optional standalone
   tick driver and `ecs/ZoneEngine.kt` is the real one (thread `zone-tick`).
 - Game logic implements `ecs/core/System.kt` — `update(world, deltaTime)` plus a `schedule`
@@ -194,13 +194,15 @@ Three things that bite:
   thread (bound by `ZoneEngine`) and a parallel wave's `WaveWorker` threads touch the world inline;
   any other thread gets it on a *lease* between two tasks of the tick thread, its block running on
   its own thread while the tick waits; before binding (boot, unit tests) everyone shares a monitor.
+  Only a scope takes a lease: a `World` accessor called from any other thread throws.
   `parallel-systems` stays off by default, but no longer deadlocks.
 - **Structural changes are deferred.** `add`/`remove`/`destroy` inside `update()` queue until the
   end of the tick, so a component added mid-tick is not visible later in the same tick. Use
   `World.defer { }` when it must apply immediately.
 
-Off-tick code must go through `WorldView` (a `read`/`modify` scope, which leases the world, or
-`post {}`, which runs a block on the tick thread), never `World` directly. Never wait for another thread
+Off-tick code must go through `WorldView` (a `read`/`modify`/`createEntity` scope, which leases the
+world, or `post {}`, which runs a block on the tick thread), never `World` directly. Do the whole
+check-then-act inside one scope, and return values, not components, from it. Never wait for another thread
 inside a scope: the tick thread is waiting for you. Never block on I/O on the tick thread: snapshot
 the entity and hand the write to `EntityWriteBehind` (`ecs/persistence/`), which queues it on
 `AsyncJobExecutor` under the owner's key, and read static content from the in-memory catalogues

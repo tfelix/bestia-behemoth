@@ -93,7 +93,7 @@ class SpawnerSystemTest {
     player.z = position.z
   }
 
-  private fun livingPackOf(den: Spawner) = den.spawnedEntities.filter { world.hasEntity(it) }
+  private fun livingPackOf(den: Spawner) = den.spawnedEntities.filter { world.isAlive(it) }
 
   @Test
   fun `a den with no player near it never spawns anything`() {
@@ -163,7 +163,7 @@ class SpawnerSystemTest {
     tick(SpawnerSystem.UNLOAD_DELAY_SECONDS + 5f)
 
     assertTrue(den.spawnedEntities.isEmpty(), "spawnedEntities must be cleared so the den restocks fresh")
-    original.forEach { assertFalse(world.hasEntity(it), "entity $it survived the despawn") }
+    original.forEach { assertFalse(world.isAlive(it), "entity $it survived the despawn") }
 
     // Long past expiry the den must stay quiet. A den that stayed in `stocked` would keep being handed to
     // spawnMissingEntities, and one whose idle stamp was refreshed every pass would never have expired at all.
@@ -230,7 +230,7 @@ class SpawnerSystemTest {
     tick(SpawnerSystem.UNLOAD_DELAY_SECONDS + 5f)
 
     assertTrue(den.spawner.spawnedEntities.isEmpty())
-    restored.forEach { assertFalse(world.hasEntity(it), "restored creature $it outlived its den") }
+    restored.forEach { assertFalse(world.isAlive(it), "restored creature $it outlived its den") }
     assertEquals(restored.toSet(), deletionQueue.drainAll().toSet())
   }
 

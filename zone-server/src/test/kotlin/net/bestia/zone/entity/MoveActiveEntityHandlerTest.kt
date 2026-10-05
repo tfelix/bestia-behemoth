@@ -83,7 +83,7 @@ class MoveActiveEntityHandlerTest {
   @Test
   fun `a fully walkable path is attached in full`() {
     val world = testWorld()
-    val id = world.create()
+    val id = world.createEntity { }
     world.add(id, Position(0, 0, 0))
     val handler = handlerFor(world, id, OpenWalkQuery())
 
@@ -141,7 +141,7 @@ class MoveActiveEntityHandlerTest {
   @Test
   fun `a path is truncated at the first step a wall or slope refuses, not rejected outright`() {
     val world = testWorld()
-    val id = world.create()
+    val id = world.createEntity { }
     world.add(id, Position(0, 0, 0))
     val handler = handlerFor(world, id, WalledWalkQuery(blockedTo = Vec3L(2, 0, 0)))
 
@@ -181,7 +181,7 @@ class MoveActiveEntityHandlerTest {
   @Test
   fun `a path is dropped entirely when even its first step is refused`() {
     val world = testWorld()
-    val id = world.create()
+    val id = world.createEntity { }
     world.add(id, Position(0, 0, 0))
     val handler = handlerFor(world, id, WalledWalkQuery(blockedTo = Vec3L(1, 0, 0)))
 
@@ -194,7 +194,7 @@ class MoveActiveEntityHandlerTest {
   @Test
   fun `a step is not blocked by a wall or slope verdict from a column nothing has vouched for yet`() {
     val world = testWorld()
-    val id = world.create()
+    val id = world.createEntity { }
     world.add(id, Position(0, 0, 0))
     val handler = handlerFor(world, id, NeverResidentWalkQuery())
 
@@ -207,7 +207,7 @@ class MoveActiveEntityHandlerTest {
   @Test
   fun `a path is dropped entirely when its first step is not horizontally adjacent`() {
     val world = testWorld()
-    val id = world.create()
+    val id = world.createEntity { }
     world.add(id, Position(0, 0, 0))
     val handler = handlerFor(world, id, OpenWalkQuery())
 
@@ -225,7 +225,7 @@ class MoveActiveEntityHandlerTest {
     // the gap - `MoveSystem` steps several tiles on one overrunning delta, and neither the step nor the
     // waypoint it consumed goes on the wire.
     val world = testWorld()
-    val id = world.create()
+    val id = world.createEntity { }
     val position = Position(0, 0, 0)
     world.add(id, position)
 
@@ -242,7 +242,7 @@ class MoveActiveEntityHandlerTest {
   @Test
   fun `an empty path stops the entity by removing any current path`() {
     val world = testWorld()
-    val id = world.create()
+    val id = world.createEntity { }
     world.add(id, Position(0, 0, 0))
     world.add(id, Path(mutableListOf(Vec3L(1, 0, 0))))
     val handler = handlerFor(world, id, OpenWalkQuery())

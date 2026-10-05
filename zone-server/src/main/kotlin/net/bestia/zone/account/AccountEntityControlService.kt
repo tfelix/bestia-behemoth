@@ -112,7 +112,7 @@ class AccountEntityControlService(
           remove(id, ActivePlayer::class)
         }
 
-        if (!world.has(owned.entityId, Dead::class)) {
+        if (!world.read { has(owned.entityId, Dead::class) }) {
           return@forEach
         }
 

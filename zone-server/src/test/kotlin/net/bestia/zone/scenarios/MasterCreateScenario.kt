@@ -165,9 +165,11 @@ class MasterCreateScenario : BestiaNoSocketScenario(autoClientConnect = false) {
     }
 
     val masterEntityId = connectionInfoService.getSelectedMasterEntityId(clientPlayerNoMaster.connectedPlayerId)
-    val marker = world.get(masterEntityId, StatusEffects::class)
-      ?.activeEffects
-      ?.firstOrNull { it.definitionId == StatusEffectId.MASTER_INTRO_MARKER.id }
+    val marker = world.read {
+      get(masterEntityId, StatusEffects::class)
+        ?.activeEffects
+        ?.firstOrNull { it.definitionId == StatusEffectId.MASTER_INTRO_MARKER.id }
+    }
 
     assertNull(marker, "the marker removes itself once it has greeted, so it can never greet twice")
   }

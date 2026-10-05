@@ -15,8 +15,7 @@ import kotlin.reflect.KClass
  *
  * Iteration walks the contiguous [components]/[entities] arrays for cache
  * efficiency. Removal is a swap-remove (move the last element into the hole) so
- * the dense range stays packed and add/remove stay O(1). When a pool is
- * configured, removed instances are recycled to spare the GC.
+ * the dense range stays packed and add/remove stay O(1).
  *
  * Not thread-safe for structural changes. Within a scheduler wave a given
  * component type is written by at most one system (see [SystemScheduler]), so
@@ -24,8 +23,6 @@ import kotlin.reflect.KClass
  */
 class ComponentStore<T : Component>(
   val type: KClass<T>,
-  private val factory: (() -> T)? = null,
-  private val reset: ((T) -> Unit)? = null,
   initialCapacity: Int = 64,
   private val dirtyLog: DirtyLog? = null,
 ) {
@@ -45,7 +42,6 @@ class ComponentStore<T : Component>(
   private var components = arrayOfNulls<Component>(initialCapacity) as Array<T?>
 
   private var count = 0
-  private val pool: ArrayDeque<T>? = if (factory != null) ArrayDeque() else null
 
   val size: Int get() = count
 
@@ -91,20 +87,7 @@ class ComponentStore<T : Component>(
     if (component is SpatiallyIndexed) component.movedFlag.detachFrom(entity)
   }
 
-  /**
-   * Obtains a (possibly recycled) instance, attaches it to [entity] and returns
-   * it for in-place mutation. Requires the store to have been created with a
-   * [factory].
-   */
-  fun obtain(entity: EntityId): T {
-    val f = factory ?: error("ComponentStore<${type.simpleName}> has no factory; use set() instead")
-    val instance = pool?.removeLastOrNull() ?: f()
-    set(entity, instance)
-
-    return instance
-  }
-
-  /** Removes the component via swap-remove; recycles the instance if pooled. */
+  /** Removes the component via swap-remove. */
   fun remove(entity: EntityId): T? {
     val i = sparse.get(entity)
     if (i == Long2IntOpenHashMap.ABSENT) return null
@@ -122,10 +105,6 @@ class ComponentStore<T : Component>(
     count--
 
     removed?.let { untrack(entity, it) }
-    if (removed != null && pool != null) {
-      reset?.invoke(removed)
-      pool.addLast(removed)
-    }
 
     // A crowd that left (a town emptied at night, a battle over) would otherwise pin its arrays forever.
     if (entities.size > minCapacity && count < entities.size / 4) shrink()
@@ -139,7 +118,7 @@ class ComponentStore<T : Component>(
     }
   }
 
-  // --- dense accessors used by Query for join iteration / parallel partitioning
+  // --- dense accessors used by Query for join iteration
   fun entityAt(index: Int): EntityId = entities[index]
 
   @Suppress("UNCHECKED_CAST")

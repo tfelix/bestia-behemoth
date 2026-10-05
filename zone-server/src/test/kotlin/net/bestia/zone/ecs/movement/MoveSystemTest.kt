@@ -25,7 +25,7 @@ class MoveSystemTest {
   /** Walks the whole path and returns where the entity ended up. */
   private fun walk(path: List<Vec3L>, ground: GroundHeight): Position {
     val world = testWorld(systems = listOf(MoveSystem(ground, GroundTrample.NONE, TestNavigation.flatGround())))
-    val id = world.create()
+    val id = world.createEntity { }
 
     val position = Position(0, 0, 100)
     world.add(id, position)
@@ -63,7 +63,7 @@ class MoveSystemTest {
     // path left at the client's straight line makes observers draw the walk through the hill even though the
     // authoritative position is right.
     val world = testWorld(systems = listOf(MoveSystem(ridge, GroundTrample.NONE, TestNavigation.flatGround())))
-    val id = world.create()
+    val id = world.createEntity { }
 
     world.add(id, Position(0, 0, 100))
     world.add(id, Speed(1.0f))
@@ -82,7 +82,7 @@ class MoveSystemTest {
     // said only what the client can already work out from the waypoints it has and the speed. See the
     // notes on Path and Position for what that cost and what it broke.
     val world = testWorld(systems = listOf(MoveSystem(flat, GroundTrample.NONE, TestNavigation.flatGround())))
-    val id = world.create()
+    val id = world.createEntity { }
 
     val position = Position(0, 0, 100)
     val path = Path(straightPath(4))
@@ -108,7 +108,7 @@ class MoveSystemTest {
     // The area-of-interest index is not the wire: it answers who receives a broadcast, who an area
     // effect hits and what a skill can target, so it has to follow every step. See Position.moved.
     val world = testWorld(systems = listOf(MoveSystem(flat, GroundTrample.NONE, TestNavigation.flatGround())))
-    val id = world.create()
+    val id = world.createEntity { }
 
     val position = Position(0, 0, 100)
     world.add(id, position)
@@ -128,7 +128,7 @@ class MoveSystemTest {
   @Test
   fun `one step in POSITION_RESYNC_STEPS is published as a resync`() {
     val world = testWorld(systems = listOf(MoveSystem(flat, GroundTrample.NONE, TestNavigation.flatGround())))
-    val id = world.create()
+    val id = world.createEntity { }
 
     val tiles = MoveSystem.POSITION_RESYNC_STEPS + 2
     val position = Position(0, 0, 100)
@@ -155,7 +155,7 @@ class MoveSystemTest {
     // Without it a client told about a walk already under way starts it a whole tile behind, because the
     // waypoints say where the walk goes and the position says only which tile was last reached.
     val world = testWorld(systems = listOf(MoveSystem(flat, GroundTrample.NONE, TestNavigation.flatGround())))
-    val id = world.create()
+    val id = world.createEntity { }
 
     val position = Position(0, 0, 100)
     val path = Path(straightPath(4))
@@ -179,7 +179,7 @@ class MoveSystemTest {
     // told it had ended, kept predicting from where it thought the entity was, and the next click produced a
     // path `MoveActiveEntityHandler` had to refuse.
     val world = testWorld(systems = listOf(MoveSystem(flat, GroundTrample.NONE, TestNavigation.flatGround())))
-    val id = world.create()
+    val id = world.createEntity { }
 
     val position = Position(0, 0, 100)
     world.add(id, position)
@@ -238,7 +238,7 @@ class MoveSystemTest {
 
     fun walker(coarseMovement: CoarseMovement? = null): Position {
       val position = Position(0, 0, 100)
-      val id = world.create()
+      val id = world.createEntity { }
       world.add(id, position)
       world.add(id, Speed(4.0f))
       world.add(id, Path(straightPath(6)))

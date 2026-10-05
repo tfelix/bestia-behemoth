@@ -28,7 +28,7 @@ class RespawnHandler(
 
     // No error code: an honest client only offers the button while the death window is up, so this
     // is a client bug or a hand-crafted packet, not something a player is meant to read about.
-    if (!world.has(activeEntityId, Dead::class)) {
+    if (!world.read { has(activeEntityId, Dead::class) }) {
       LOG.warn { "Account ${msg.playerId} asked to respawn entity $activeEntityId, which is not dead" }
 
       return true

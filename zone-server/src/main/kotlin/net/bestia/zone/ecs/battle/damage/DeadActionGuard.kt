@@ -24,7 +24,7 @@ class DeadActionGuard(
 
   /** True when [entityId] is dead, in which case the caller must abandon [action]. */
   fun refuses(entityId: EntityId, action: String): Boolean {
-    if (!world.has(entityId, Dead::class)) {
+    if (!world.read { has(entityId, Dead::class) }) {
       return false
     }
 

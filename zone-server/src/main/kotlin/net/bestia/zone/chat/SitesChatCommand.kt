@@ -48,7 +48,7 @@ class SitesChatCommand(
 
   override fun execute(playerId: Long, cmdText: String): Boolean {
     val entityId = connectionInfoService.getActiveEntityId(playerId)
-    val position = world.read { get(entityId, Position::class) }?.toVec3L() ?: return false
+    val position = world.read { get(entityId, Position::class)?.toVec3L() } ?: return false
 
     val site = siteIndex.siteCovering(position.x, position.y)
     if (site == null) {

@@ -53,7 +53,7 @@ class RumourChatCommand(
 
   private fun post(playerId: Long, strength: Double): Boolean {
     val entityId = connectionInfoService.getActiveEntityId(playerId)
-    val position = world.read { get(entityId, Position::class) }?.toVec3L() ?: return false
+    val position = world.read { get(entityId, Position::class)?.toVec3L() } ?: return false
 
     val heard = rumours.post(
       kind = RumourKind.BOSS_SLAIN,
