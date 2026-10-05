@@ -88,7 +88,8 @@ class PasskeyLoginScenario : BasePasskeyScenario() {
         "session_id" to session.sessionId,
         "display_name" to displayName,
         "recovery_code" to registration.recoveryCodes[1]
-      )
+      ),
+      session.cookie
     )
 
     assertEquals(400, response.statusCode.value())
@@ -105,7 +106,8 @@ class PasskeyLoginScenario : BasePasskeyScenario() {
     val session = start()
     val response = rawPost(
       "/api/v1/webauthn/recover/options",
-      mapOf("session_id" to session.sessionId, "display_name" to displayName, "recovery_code" to code)
+      mapOf("session_id" to session.sessionId, "display_name" to displayName, "recovery_code" to code),
+      session.cookie
     )
 
     assertEquals(400, response.statusCode.value())
@@ -132,7 +134,7 @@ class PasskeyLoginScenario : BasePasskeyScenario() {
     val registration = register(authenticator)
     val session = start()
 
-    val options = post("/api/v1/webauthn/assert/options", mapOf("session_id" to session.sessionId))
+    val options = post("/api/v1/webauthn/assert/options", mapOf("session_id" to session.sessionId), session.cookie)
     val credential = authenticator.get(
       webAuthnConfig.rpId,
       options.get("public_key").get("challenge").asText(),
@@ -144,11 +146,11 @@ class PasskeyLoginScenario : BasePasskeyScenario() {
       "credential" to mapper.readTree(credential)
     )
 
-    assertEquals(200, rawPost("/api/v1/webauthn/assert/verify", body).statusCode.value())
+    assertEquals(200, rawPost("/api/v1/webauthn/assert/verify", body, session.cookie).statusCode.value())
 
     // The challenge is destroyed when it is spent, so the identical response is worthless a second
     // time even though the signature over it is still perfectly valid.
-    assertEquals(400, rawPost("/api/v1/webauthn/assert/verify", body).statusCode.value())
+    assertEquals(400, rawPost("/api/v1/webauthn/assert/verify", body, session.cookie).statusCode.value())
   }
 
   @Test
@@ -207,7 +209,7 @@ class PasskeyLoginScenario : BasePasskeyScenario() {
   fun `a session that has not authenticated cannot be completed`() {
     val session = start()
 
-    val response = rawPost("/api/v1/auth/session/complete", mapOf("session_id" to session.sessionId))
+    val response = rawPost("/api/v1/auth/session/complete", mapOf("session_id" to session.sessionId), session.cookie)
 
     assertEquals(400, response.statusCode.value())
   }
@@ -238,7 +240,7 @@ class PasskeyLoginScenario : BasePasskeyScenario() {
     val registration = register(authenticator)
     val session = start()
 
-    val options = post("/api/v1/webauthn/assert/options", mapOf("session_id" to session.sessionId))
+    val options = post("/api/v1/webauthn/assert/options", mapOf("session_id" to session.sessionId), session.cookie)
 
     val credential = authenticator.get(
       rpId ?: webAuthnConfig.rpId,
@@ -249,7 +251,8 @@ class PasskeyLoginScenario : BasePasskeyScenario() {
 
     val response = rawPost(
       "/api/v1/webauthn/assert/verify",
-      mapOf("ceremony_id" to options.get("ceremony_id").asText(), "credential" to mapper.readTree(credential))
+      mapOf("ceremony_id" to options.get("ceremony_id").asText(), "credential" to mapper.readTree(credential)),
+      session.cookie
     )
 
     assertEquals(400, response.statusCode.value())

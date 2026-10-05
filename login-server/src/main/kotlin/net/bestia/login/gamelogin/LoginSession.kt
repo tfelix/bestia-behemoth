@@ -63,6 +63,10 @@ class LoginSession(
   @Column(nullable = true)
   var accountId: Long? = null
 
+  /** Digest of the cookie set on the first page load; see [LoginSessionService.claimForBrowser]. */
+  @Column(name = "browser_binding_hash", nullable = true, length = 64)
+  var browserBindingHash: String? = null
+
   fun isUsable(now: LocalDateTime): Boolean {
     return status == LoginSessionStatus.PENDING && expiresAt.isAfter(now)
   }
