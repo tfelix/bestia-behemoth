@@ -8,6 +8,7 @@ import net.bestia.zone.account.master.findByIdOrThrow
 import net.bestia.zone.bestia.PlayerBestiaRepository
 import net.bestia.zone.bestia.findByIdOrThrow
 import net.bestia.zone.item.Item
+import net.bestia.zone.item.ItemNotFoundException
 import net.bestia.zone.item.ItemRepository
 import net.bestia.zone.item.equip.EquipmentSlot
 import net.bestia.zone.item.findByIdentifierOrThrow
@@ -66,8 +67,9 @@ class InventoryService(
    * is decided from the item template.
    */
   @Transactional
-  fun grantToMaster(masterId: Long, item: Item, amount: Int, uniqueId: Long = 0L) {
+  fun grantToMaster(masterId: Long, itemId: Long, amount: Int, uniqueId: Long = 0L) {
     val master = lockedMaster(masterId)
+    val item = itemRepository.findByIdOrNull(itemId) ?: throw ItemNotFoundException(itemId.toString())
     grant(master.container, item, amount, uniqueId)
     masterRepository.save(master)
   }
@@ -192,7 +194,7 @@ class InventoryService(
   fun heldInstance(masterId: Long, uniqueId: Long): ItemInstance? {
     if (uniqueId == 0L) return null
 
-    val master = masterRepository.findByIdOrThrow(masterId)
+    val master = lockedMaster(masterId)
 
     return master.container.slots
       .firstOrNull { it.uniqueId == uniqueId && it.isFree }

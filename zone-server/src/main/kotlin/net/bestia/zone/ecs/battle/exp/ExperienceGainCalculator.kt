@@ -1,9 +1,8 @@
 package net.bestia.zone.ecs.battle.exp
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.bestia.BestiaRepository
+import net.bestia.zone.bestia.BestiaCatalogue
 import net.bestia.zone.util.EntityId
-import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
 import kotlin.math.floor
 import kotlin.math.max
@@ -15,7 +14,7 @@ import kotlin.math.max
  */
 @Component
 class ExperienceGainCalculator(
-  private val bestiaRepository: BestiaRepository
+  private val bestiaCatalogue: BestiaCatalogue
 ) {
 
   fun calculate(
@@ -23,7 +22,7 @@ class ExperienceGainCalculator(
     damagePercentages: Map<EntityId, Float>,
     attackingPlayerCount: Int,
   ): Map<EntityId, Int> {
-    val killedBestia = bestiaRepository.findByIdOrNull(killedBestiaId)
+    val killedBestia = bestiaCatalogue.find(killedBestiaId)
 
     if (killedBestia == null) {
       LOG.warn { "Bestia $killedBestiaId not found, can not determine earned EXP" }

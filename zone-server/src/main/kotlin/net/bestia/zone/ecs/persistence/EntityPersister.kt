@@ -10,6 +10,19 @@ import net.bestia.zone.util.EntityId
  */
 interface EntitySnapshot {
   val entityId: EntityId
+
+  /**
+   * Writes sharing a key run in the order they were taken, see [EntityWriteBehind]. Rows of the shared
+   * entity table share one key, so a delete can never overtake a write queued before it.
+   */
+  val writeKey: Any
+    get() {
+      return SHARED_WRITE_KEY
+    }
+
+  companion object {
+    const val SHARED_WRITE_KEY = "persisted-entity-rows"
+  }
 }
 
 /**

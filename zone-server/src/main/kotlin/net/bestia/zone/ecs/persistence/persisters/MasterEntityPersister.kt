@@ -4,18 +4,19 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.account.master.MasterRepository
 import net.bestia.zone.ecs.account.Master as MasterComponent
 import net.bestia.zone.ecs.battle.damage.Dead
+import net.bestia.zone.ecs.battle.exp.Exp
 import net.bestia.zone.ecs.battle.level.Level
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.battle.status.BaseStatusValues
 import net.bestia.zone.ecs.battle.status.SkillPoints
 import net.bestia.zone.ecs.battle.status.StatusPoints
+import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.persistence.EntityPersister
 import net.bestia.zone.ecs.persistence.EntitySnapshot
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
-import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
@@ -27,6 +28,7 @@ data class MasterSnapshot(
   val y: Long,
   val z: Long,
   val level: Int,
+  val exp: Int,
   val skillPoints: Int,
   val statusPoints: Int,
   val strength: Int,
@@ -38,7 +40,14 @@ data class MasterSnapshot(
   val currentHealth: Int?,
   /** Left the world dead, so the write-back resolves the respawn instead of storing where it fell. */
   val died: Boolean,
-) : EntitySnapshot
+) : EntitySnapshot {
+
+  /** Keyed like every other write about this master, inventory included, so they land in order. */
+  override val writeKey: Any
+    get() {
+      return masterId
+    }
+}
 
 /**
  * Persists online player masters back into their dedicated `master` table (the same fields the old
@@ -60,6 +69,7 @@ class MasterEntityPersister(
     val master = world.get(id, MasterComponent::class) ?: return null
     val pos = world.get(id, Position::class) ?: return null
     val level = world.get(id, Level::class)?.level ?: 1
+    val exp = world.get(id, Exp::class)?.value ?: 0
     val skillPoints = world.get(id, SkillPoints::class)?.value ?: 0
     val statusPoints = world.get(id, StatusPoints::class)?.value ?: 0
     val baseStatusValues = world.get(id, BaseStatusValues::class)
@@ -68,6 +78,7 @@ class MasterEntityPersister(
       masterId = master.masterId,
       x = pos.x, y = pos.y, z = pos.z,
       level = level,
+      exp = exp,
       skillPoints = skillPoints,
       statusPoints = statusPoints,
       strength = baseStatusValues?.strength ?: 10,
@@ -85,7 +96,8 @@ class MasterEntityPersister(
   override fun persist(snapshots: List<EntitySnapshot>) {
     // Updated in id order: the rows stay locked until commit, and trade settlement locks masters in id order too.
     for (snap in snapshots.map { it as MasterSnapshot }.sortedBy { it.masterId }) {
-      val master = masterRepository.findByIdOrNull(snap.masterId)
+      // Locked: a few writers outside the write-behind still touch the same row.
+      val master = masterRepository.findByIdForUpdate(snap.masterId)
       if (master == null) {
         LOG.warn { "Master ${snap.masterId} was not found, cannot persist it" }
         continue
@@ -100,6 +112,7 @@ class MasterEntityPersister(
         master.currentHealth = snap.currentHealth
       }
       master.level = snap.level
+      master.exp = snap.exp
       master.skillPoints = snap.skillPoints
       master.statusPoints = snap.statusPoints
       master.strength = snap.strength
@@ -118,5 +131,11 @@ class MasterEntityPersister(
 
   companion object {
     private val LOG = KotlinLogging.logger { }
+
+    /** What [snapshot] reads; a system that snapshots a master must declare these. */
+    val SNAPSHOT_READS: ComponentClassSet = setOf(
+      MasterComponent::class, Position::class, Level::class, Exp::class, SkillPoints::class,
+      StatusPoints::class, BaseStatusValues::class, Health::class, Dead::class,
+    )
   }
 }

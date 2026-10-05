@@ -85,4 +85,33 @@ class AsyncJobExecutorTest {
 
     sut.shutdown()
   }
+
+  @Test
+  fun `awaitPending returns only after the jobs queued on its key have run`() {
+    val sut = AsyncJobExecutor(workerCount = 2)
+    val done = AtomicInteger()
+
+    sut.submit(key = 7L) {
+      Thread.sleep(200)
+      done.incrementAndGet()
+    }
+    sut.awaitPending(7L)
+
+    assertEquals(1, done.get())
+    sut.shutdown()
+  }
+
+  @Test
+  fun `awaitPending on a worker does not wait for itself`() {
+    val sut = AsyncJobExecutor(workerCount = 1)
+    val latch = CountDownLatch(1)
+
+    sut.submit(key = 7L) {
+      sut.awaitPending(7L)
+      latch.countDown()
+    }
+
+    assertTrue(latch.await(2, TimeUnit.SECONDS), "a worker waiting on its own queue would never finish")
+    sut.shutdown()
+  }
 }

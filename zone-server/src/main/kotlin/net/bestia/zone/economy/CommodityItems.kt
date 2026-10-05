@@ -40,9 +40,19 @@ class CommodityItems(
     return byItemId
   }
 
+  private val coinItemId: Long? by lazy {
+    items.findByIdentifier(COIN)?.id
+  }
+
   /** What a player pays with. Absent only from a catalogue that has not imported `items.yml` yet. */
   fun coinItemId(): Long? {
-    return items.findByIdentifier(COIN)?.id
+    return coinItemId
+  }
+
+  /** Resolves the joins now, at boot, so the first trade on the tick does not reach the database. */
+  fun warmUp() {
+    byItemId.size
+    coinItemId
   }
 
   companion object {

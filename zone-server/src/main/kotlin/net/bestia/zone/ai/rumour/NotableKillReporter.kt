@@ -1,7 +1,7 @@
 package net.bestia.zone.ai.rumour
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.bestia.BestiaRepository
+import net.bestia.zone.bestia.BestiaCatalogue
 import org.springframework.stereotype.Service
 
 /**
@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service
 @Service
 class NotableKillReporter(
   private val rumours: RumourService,
-  private val bestiaRepository: BestiaRepository,
+  private val bestiaCatalogue: BestiaCatalogue,
 ) {
 
   /**
@@ -28,7 +28,7 @@ class NotableKillReporter(
    * being destroyed, and a caller that handed over a live reference would be racing its own tick.
    */
   fun report(speciesId: Long, voxelX: Long, voxelY: Long) {
-    val species = bestiaRepository.findById(speciesId).orElse(null) ?: return
+    val species = bestiaCatalogue.find(speciesId) ?: return
 
     if (species.level < NOTABLE_LEVEL) {
       return

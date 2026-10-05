@@ -16,19 +16,35 @@ import org.springframework.stereotype.Component
  */
 @Component
 class ItemTemplateRegistry(
-  itemRepository: ItemRepository
+  private val itemRepository: ItemRepository
 ) {
 
-  private data class Template(val level: Int, val weight: Int)
+  data class Template(
+    val id: Long,
+    val level: Int,
+    val weight: Int,
+    val stackable: Boolean,
+    val maxDurability: Int,
+  )
 
-  private val byItemId: Map<Long, Template>
+  // Lazy: the importer writes the table after this bean exists, so an eager read finds a fresh database empty.
+  private val byItemId: Map<Long, Template> by lazy {
+    itemRepository.findAll().associate { it.id to Template(it.id, it.level, it.weight, it.stackable, it.maxDurability) }
+  }
 
-  private val idByIdentifier: Map<String, Long>
+  private val idByIdentifier: Map<String, Long> by lazy {
+    itemRepository.findAll().associate { it.identifier to it.id }
+  }
 
-  init {
-    val all = itemRepository.findAll()
-    byItemId = all.associate { it.id to Template(it.level, it.weight) }
-    idByIdentifier = all.associate { it.identifier to it.id }
+  /** Null for an id the catalogue does not know. */
+  fun templateOf(itemId: Long): Template? {
+    return byItemId[itemId]
+  }
+
+  /** Loads the catalogue now, at boot, so the first lookup on the tick does not reach the database. */
+  fun warmUp() {
+    byItemId.size
+    idByIdentifier.size
   }
 
   /**

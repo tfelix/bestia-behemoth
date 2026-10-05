@@ -66,7 +66,7 @@ class ZoneEngine(
 
   private val syncableComponentTypes = dirtyableComponentTypes
 
-  private val tickExecutor = Executors.newSingleThreadExecutor { r -> Thread(r, "zone-tick") }
+  private val tickExecutor = Executors.newSingleThreadExecutor { r -> Thread(r, TICK_THREAD_NAME) }
   private val removedComponentOutbox = ConcurrentLinkedQueue<RemovedComponentRecord>()
 
   @Volatile
@@ -450,6 +450,8 @@ class ZoneEngine(
 
   companion object {
     private val LOG = KotlinLogging.logger { }
+
+    const val TICK_THREAD_NAME = "zone-tick"
 
     /** Shortest gap between two slow-tick warnings. See [reportSlowTick]. */
     private val SLOW_TICK_REPORT_INTERVAL_NANOS = TimeUnit.SECONDS.toNanos(1)

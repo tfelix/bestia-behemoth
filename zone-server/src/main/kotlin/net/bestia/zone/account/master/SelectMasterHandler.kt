@@ -4,6 +4,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.bestia.OwnedBestiaSpawnService
 import net.bestia.zone.bestia.OwnedBestiasPublisher
 import net.bestia.zone.ecs.battle.skill.KnownSkills
+import net.bestia.zone.ecs.core.AsyncJobExecutor
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.movement.Position
@@ -22,6 +23,7 @@ class SelectMasterHandler(
   private val equipmentRevalidationService: EquipmentRevalidationService,
   private val ownedBestiaSpawnService: OwnedBestiaSpawnService,
   private val ownedBestiasPublisher: OwnedBestiasPublisher,
+  private val asyncJobExecutor: AsyncJobExecutor,
 ) : InMessageProcessor.IncomingMessageHandler<SelectMasterCMSG> {
   override val handles = SelectMasterCMSG::class
 
@@ -32,6 +34,8 @@ class SelectMasterHandler(
       return true
     }
 
+    // The row is read below; a logout or a grant for this master may still be on its way to it.
+    asyncJobExecutor.awaitPending(msg.selectedMasterId)
     val masterEntityId = masterEntitySpawner.spawnMaster(msg.playerId, msg.selectedMasterId) ?: return true
 
     LOG.debug { "Selecting master ${msg.selectedMasterId} with entity id: $masterEntityId for account: ${msg.playerId}" }

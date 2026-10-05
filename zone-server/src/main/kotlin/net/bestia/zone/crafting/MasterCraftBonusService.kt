@@ -48,6 +48,14 @@ class MasterCraftBonusService(
   private val forgeArmorId: Long? by lazy { skills.findByIdentifier(SkillId.FORGE_ARMOR)?.id }
   private val upgradeEquipmentId: Long? by lazy { skills.findByIdentifier(SkillId.UPGRADE_EQUIPMENT)?.id }
 
+  /** Resolves the skill ids now, at boot, so the first craft on the tick does not reach the database. */
+  fun warmUp() {
+    listOf(
+      carpentryId, tinkererId, itemCustomizationId, oreRefinementId, weaponryResearchId, masterSmithId,
+      cookingId, weaponRepairId, forgeWeaponId, forgeArmorId, upgradeEquipmentId,
+    )
+  }
+
   /**
    * The chance [recipe] succeeds for this crafter, clamped to 0..1.
    *

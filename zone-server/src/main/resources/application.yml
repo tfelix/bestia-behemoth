@@ -15,6 +15,8 @@ zone:
   # A kicked account's login tokens issued before the kick stay refused this long. Must outlast login-server's
   # `jwt.login-token-minutes`.
   kick-memory-seconds: 300
+  # What to do when the tick thread runs SQL: `log` warns once per statement, `fail` throws (tests).
+  sql-on-tick: log
 
 persistence:
   initial-delay-ms: 90000

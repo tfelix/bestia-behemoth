@@ -1,6 +1,7 @@
 package net.bestia.zone.item
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.zone.ecs.core.AsyncJobExecutor
 import net.bestia.zone.ecs.item.Equipment
 import net.bestia.zone.ecs.item.Inventory
 import net.bestia.zone.ecs.movement.Position
@@ -9,19 +10,24 @@ import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.battle.damage.DeadActionGuard
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.item.container.InventoryService
+import net.bestia.zone.item.container.ItemContainer
 import net.bestia.zone.item.loot.LootItemEntitySpawner
 import net.bestia.zone.message.InMessageProcessor
-import org.springframework.data.repository.findByIdOrNull
+import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
 import kotlin.random.Random
 
+/**
+ * Drops an item to the ground. The durable removal comes first and gates everything else, so a ground
+ * item always stands for an item the database no longer holds: a drop can lose an item, never copy one.
+ */
 @Component
 class DropItemHandler(
-  private val itemRepository: ItemRepository,
   private val inventoryService: InventoryService,
   private val lootItemEntitySpawner: LootItemEntitySpawner,
   private val connectionInfoService: ConnectionInfoService,
   private val deadActionGuard: DeadActionGuard,
+  private val asyncJobExecutor: AsyncJobExecutor,
   private val world: WorldView
 ) : InMessageProcessor.IncomingMessageHandler<DropItemCMSG> {
   override val handles = DropItemCMSG::class
@@ -32,83 +38,55 @@ class DropItemHandler(
       return true
     }
 
-    val item = itemRepository.findByIdOrNull(msg.itemId)
-
-    if (item == null) {
-      LOG.warn { "Item ${msg.itemId} was not found in the database" }
-      return true
-    }
-
     val activeEntityId = connectionInfoService.getActiveEntityId(msg.playerId)
     if (deadActionGuard.refuses(activeEntityId, "drop an item")) {
       return true
     }
     val masterId = connectionInfoService.getMasterId(msg.playerId)
 
-    // Access the entity, verify preconditions from ECS info and persist the removal to the
-    // database immediately (critical item transaction - must not risk duplication).
-    val dropped: Dropped? = world.modify(activeEntityId) { id ->
-      val inventory = get(id, Inventory::class)
-
-      if (inventory == null) {
-        LOG.warn { "Entity $activeEntityId had no Inventory component but tried to drop an item" }
-        return@modify null
-      }
-
-      if (!holdsDroppable(inventory, get(id, Equipment::class), msg)) {
-        LOG.warn { "Entity $activeEntityId does not hold ${msg.amount}x item ${msg.itemId} (uniqueId ${msg.uniqueId})" }
-        return@modify null
-      }
-
-      // 1. Persist the removal to the DB first - this is the durable, crash-safe commit. The DB is
-      //    the source of truth for which physical item leaves the inventory: it prefers a unique
-      //    instance and hands back its uniqueId so the dropped item keeps its identity.
-      val removed = inventoryService.removeOneFromMaster(masterId, item.id, msg.amount, msg.uniqueId)
-
-      if (removed == null) {
-        LOG.warn {
-          "Could not remove ${msg.amount} of item ${item.identifier} (uniqueId ${msg.uniqueId}) " +
-            "from master $masterId in DB"
-        }
-        return@modify null
-      }
-
-      // 2. Mirror the removal in the ECS inventory; it marks itself dirty and syncs back to the owner. A copy
-      //    looted this session still reads uniqueId 0 here, because its instance was minted after the mirror.
-      val groundAmount = if (removed.uniqueId != 0L) 1 else msg.amount
-      val mirrored = if (removed.uniqueId != 0L) {
-        inventory.removeByUniqueId(removed.uniqueId) || inventory.removeInstanceOf(msg.itemId)
-      } else {
-        inventory.removeFromStack(msg.itemId, msg.amount)
-      }
-      if (!mirrored) {
-        LOG.error { "Master $masterId dropped item ${msg.itemId} durably, but its live inventory held no such copy" }
-      }
-
-      val pos = getOrThrow(id, Position::class).toVec3L()
-      Dropped(
-        uniqueId = removed.uniqueId,
-        amount = groundAmount,
-        pos = Vec3L(
-          pos.x + Random.nextLong(-1, 2),
-          pos.y + Random.nextLong(-1, 2),
-          pos.z
-        )
-      )
+    val holdsIt = world.read {
+      val inventory = get(activeEntityId, Inventory::class) ?: return@read false
+      holdsDroppable(inventory, get(activeEntityId, Equipment::class), msg)
+    }
+    if (!holdsIt) {
+      LOG.warn { "Entity $activeEntityId does not hold ${msg.amount}x item ${msg.itemId} (uniqueId ${msg.uniqueId})" }
+      return true
     }
 
-    // 3. Spawn the ground item entity outside of the entity access block.
-    if (dropped != null) {
-      lootItemEntitySpawner.spawnLootItem(
-        world,
-        itemId = item.id,
-        amount = dropped.amount,
-        pos = dropped.pos,
-        uniqueId = dropped.uniqueId
-      )
-    }
+    // Keyed by the master like every other write to its container, so a concurrent use or trade of the same
+    // item queues behind this one and finds it gone.
+    asyncJobExecutor.submit(masterId) { dropDurably(msg, masterId, activeEntityId) }
 
     return true
+  }
+
+  private fun dropDurably(msg: DropItemCMSG, masterId: Long, activeEntityId: EntityId) {
+    val removed = inventoryService.removeOneFromMaster(masterId, msg.itemId, msg.amount, msg.uniqueId)
+    if (removed == null) {
+      LOG.warn { "Could not remove ${msg.amount} of item ${msg.itemId} (uniqueId ${msg.uniqueId}) from master $masterId in DB" }
+      return
+    }
+
+    val dropped = world.modify(activeEntityId) { id ->
+      val inventory = get(id, Inventory::class) ?: return@modify null
+      val amount = inventory.mirrorRemoval(msg, removed) ?: return@modify null
+      val pos = get(id, Position::class)?.toVec3L() ?: return@modify null
+
+      Dropped(amount, Vec3L(pos.x + Random.nextLong(-1, 2), pos.y + Random.nextLong(-1, 2), pos.z))
+    }
+
+    if (dropped == null) {
+      LOG.warn { "Item ${msg.itemId} left master $masterId in DB but not its live inventory; nothing is dropped" }
+      return
+    }
+
+    lootItemEntitySpawner.spawnLootItem(
+      world,
+      itemId = msg.itemId,
+      amount = dropped.amount,
+      pos = dropped.pos,
+      uniqueId = removed.uniqueId
+    )
   }
 
   /**
@@ -129,8 +107,19 @@ class DropItemHandler(
     return copies.any { !it.isStackable } || copies.filter { it.isStackable }.sumOf { it.amount } >= msg.amount
   }
 
+  /** Takes off the live inventory what the database just removed; the amount that left, or null if it was not there. */
+  private fun Inventory.mirrorRemoval(msg: DropItemCMSG, removed: ItemContainer.RemovedItem): Int? {
+    if (removed.uniqueId == 0L) {
+      return if (removeFromStack(msg.itemId, msg.amount)) msg.amount else null
+    }
+
+    // An instance minted this session is still 0 in the live mirror, so it can only be found by template.
+    val mirrored = removeByUniqueId(removed.uniqueId) || removeInstanceOf(msg.itemId)
+
+    return if (mirrored) 1 else null
+  }
+
   private data class Dropped(
-    val uniqueId: Long,
     val amount: Int,
     val pos: Vec3L,
   )

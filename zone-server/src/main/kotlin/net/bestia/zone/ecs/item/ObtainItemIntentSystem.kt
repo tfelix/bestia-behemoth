@@ -11,13 +11,10 @@ import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.session.NoActiveSessionException
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.persistence.PersistedEntityDeletionQueue
-import net.bestia.zone.item.Item
-import net.bestia.zone.item.ItemRepository
 import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.item.loot.LootItemEntitySpawner
 import net.bestia.zone.util.EntityId
 import org.springframework.core.annotation.Order
-import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
 
 /**
@@ -31,7 +28,7 @@ import org.springframework.stereotype.Component
 @Component
 @Order(59)
 class ObtainItemIntentSystem(
-  private val itemRepository: ItemRepository,
+  private val itemTemplates: ItemTemplateRegistry,
   private val lootItemEntitySpawner: LootItemEntitySpawner,
   private val inventoryService: InventoryService,
   private val asyncJobExecutor: AsyncJobExecutor,
@@ -40,7 +37,7 @@ class ObtainItemIntentSystem(
 ) : System {
 
   private data class ClaimedLoot(
-    val item: Item,
+    val item: ItemTemplateRegistry.Template,
     val amount: Int,
     val uniqueId: Long,
   )
@@ -93,7 +90,7 @@ class ObtainItemIntentSystem(
         return@modify null
       }
 
-      val item = itemRepository.findByIdOrNull(stack.itemId)
+      val item = itemTemplates.templateOf(stack.itemId)
       if (item == null) {
         LOG.error { "Ground item $itemStackEntityId references unknown item ${stack.itemId}; destroying it" }
         removeGroundStack(itemStackEntityId)
@@ -126,7 +123,7 @@ class ObtainItemIntentSystem(
   }
 
   private fun tryCreateItem(world: World, entityId: EntityId, intent: ObtainItemIntent.CreateItemIntent) {
-    val item = itemRepository.findByIdOrNull(intent.itemId)
+    val item = itemTemplates.templateOf(intent.itemId)
     if (item == null) {
       LOG.warn { "CreateItemIntent for entity $entityId references unknown item ${intent.itemId}, ignoring" }
       return
@@ -171,7 +168,13 @@ class ObtainItemIntentSystem(
   }
 
   /** Adds [item] to [entityId]'s live ECS inventory and schedules the durable DB write. */
-  private fun grantItem(world: World, entityId: EntityId, item: Item, amount: Int, uniqueId: Long = 0L) {
+  private fun grantItem(
+    world: World,
+    entityId: EntityId,
+    item: ItemTemplateRegistry.Template,
+    amount: Int,
+    uniqueId: Long = 0L,
+  ) {
     val inventory = world.get(entityId, Inventory::class)
     if (inventory == null) {
       LOG.warn { "Entity $entityId lost its Inventory component before the grant could be applied, item ${item.id} lost" }
@@ -193,22 +196,22 @@ class ObtainItemIntentSystem(
       )
     )
 
-    schedulePersist(world, entityId, item, amount, uniqueId)
+    schedulePersist(world, entityId, item.id, amount, uniqueId)
   }
 
   /**
    * The master is resolved here on the tick: a job asking the session later finds none after a logout and the
    * wrong master after a switch. Keyed by master so the grant is ordered against that master's other writes.
    */
-  private fun schedulePersist(world: World, entityId: EntityId, item: Item, amount: Int, uniqueId: Long) {
+  private fun schedulePersist(world: World, entityId: EntityId, itemId: Long, amount: Int, uniqueId: Long) {
     val masterId = masterIdOf(world, entityId)
     if (masterId == null) {
-      LOG.warn { "Entity $entityId belongs to no master, granted item ${item.id} will not be persisted" }
+      LOG.warn { "Entity $entityId belongs to no master, granted item $itemId will not be persisted" }
       return
     }
 
     asyncJobExecutor.submit(key = masterId) {
-      inventoryService.grantToMaster(masterId, item, amount, uniqueId)
+      inventoryService.grantToMaster(masterId, itemId, amount, uniqueId)
     }
   }
 

@@ -25,12 +25,14 @@ import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import java.util.Optional
 
 @ExtendWith(MockKExtension::class)
 class ObtainItemIntentSystemTest {
 
   private val itemRepository = mockk<ItemRepository>()
+
+  /** What the catalogue will find; read lazily, so a test stubs before its first tick. */
+  private val catalogue = mutableListOf<Item>()
   private val lootItemEntitySpawner = mockk<LootItemEntitySpawner>(relaxed = true)
   private val inventoryService = mockk<InventoryService>(relaxed = true)
   private val connectionInfoService = mockk<ConnectionInfoService>()
@@ -45,7 +47,7 @@ class ObtainItemIntentSystemTest {
   private lateinit var world: World
 
   private fun newSystem() = ObtainItemIntentSystem(
-    itemRepository = itemRepository,
+    itemTemplates = ItemTemplateRegistry(itemRepository),
     lootItemEntitySpawner = lootItemEntitySpawner,
     inventoryService = inventoryService,
     asyncJobExecutor = asyncJobExecutor,
@@ -56,10 +58,11 @@ class ObtainItemIntentSystemTest {
   private fun setUp() {
     world = testWorld(systems = listOf(newSystem()))
     every { connectionInfoService.getMasterId(any()) } returns MASTER_ID
+    every { itemRepository.findAll() } answers { catalogue.toList() }
   }
 
   private fun stub(item: Item) {
-    every { itemRepository.findById(item.id) } returns Optional.of(item)
+    catalogue.add(item)
   }
 
   private fun verifyNoItemGranted() {
@@ -94,7 +97,7 @@ class ObtainItemIntentSystemTest {
     assertEquals(3, granted?.amount)
     assertFalse(world.has(entity, ObtainItemIntent.CreateItemIntent::class))
 
-    verify(timeout = 1000) { inventoryService.grantToMaster(MASTER_ID, sword, 3, 0L) }
+    verify(timeout = 1000) { inventoryService.grantToMaster(MASTER_ID, sword.id, 3, 0L) }
     verifyNoGroundDrop()
   }
 
@@ -157,7 +160,6 @@ class ObtainItemIntentSystemTest {
   @Test
   fun `create item intent for an unknown item is ignored without touching the inventory`() {
     setUp()
-    every { itemRepository.findById(999L) } returns Optional.empty()
     val entity = createCarrier(capacityMax = 2475)
 
     world.modify(entity) { id -> add(id, ObtainItemIntent.CreateItemIntent(itemId = 999L, amount = 1)) }
@@ -188,7 +190,7 @@ class ObtainItemIntentSystemTest {
     assertEquals(2, world.get(looter, Inventory::class)!!.getItem(sword.id.toInt())?.amount)
     assertFalse(world.has(looter, ObtainItemIntent.LootItemIntent::class))
 
-    verify(timeout = 1000) { inventoryService.grantToMaster(MASTER_ID, sword, 2, 0L) }
+    verify(timeout = 1000) { inventoryService.grantToMaster(MASTER_ID, sword.id, 2, 0L) }
   }
 
   @Test
@@ -206,7 +208,7 @@ class ObtainItemIntentSystemTest {
 
     val granted = world.get(looter, Inventory::class)!!.getItem(sword.id.toInt())
     assertEquals(77L, granted?.uniqueId)
-    verify(timeout = 1000) { inventoryService.grantToMaster(MASTER_ID, sword, 1, 77L) }
+    verify(timeout = 1000) { inventoryService.grantToMaster(MASTER_ID, sword.id, 1, 77L) }
   }
 
   @Test

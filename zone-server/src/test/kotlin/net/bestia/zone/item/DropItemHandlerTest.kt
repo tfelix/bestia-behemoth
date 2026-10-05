@@ -5,7 +5,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import net.bestia.zone.ecs.battle.damage.Dead
 import net.bestia.zone.ecs.battle.damage.DeadActionGuard
-import net.bestia.zone.ecs.core.World
+import net.bestia.zone.ecs.core.AsyncJobExecutor
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.ecs.item.Equipment
@@ -15,89 +15,133 @@ import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.item.container.ItemContainer
 import net.bestia.zone.item.equip.EquipmentSlot
 import net.bestia.zone.item.equip.EquipmentSlots
-import net.bestia.zone.util.EntityId
+import net.bestia.zone.item.loot.LootItemEntitySpawner
 import org.junit.jupiter.api.Test
-import java.util.Optional
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 /**
- * A drop removes the item durably first and then mirrors it on the live inventory. Both halves have to take the
- * same thing, or the item ends up on the ground and in the bag at once.
+ * The database removal comes first and gates the ground item, so a drop can never copy an item. Both halves have
+ * to take the same thing, or the item ends up on the ground and in the bag at once.
  */
 class DropItemHandlerTest {
 
-  private val world: World = testWorld()
+  private val world = testWorld()
   private val inventoryService = mockk<InventoryService>()
+  private val spawner = mockk<LootItemEntitySpawner>(relaxed = true)
 
-  private val itemRepository = mockk<ItemRepository> {
-    every { findById(APPLE.id) } returns Optional.of(APPLE)
-    every { findById(SWORD.id) } returns Optional.of(SWORD)
+  /** Holds the submitted job instead of running it, so the test decides when the database answers. */
+  private var pending: (() -> Unit)? = null
+  private val executor = mockk<AsyncJobExecutor>().also {
+    every { it.submit(MASTER_ID, any()) } answers { pending = secondArg() }
+  }
+
+  private val entity = world.createEntity { id ->
+    add(id, Position(5, 5, 0))
+    add(id, Inventory(mutableListOf(Inventory.Item(itemId = ARROW, amount = 10))))
+    add(id, Equipment(availableSlotMask = EquipmentSlots.ALL))
+  }
+
+  private val connections = ConnectionInfoService().also {
+    it.activateSession(ACCOUNT_ID, masterId = MASTER_ID, masterEntityId = entity)
+  }
+
+  private val sut = DropItemHandler(inventoryService, spawner, connections, DeadActionGuard(world), executor, world)
+
+  private val drop = DropItemCMSG(playerId = ACCOUNT_ID, itemId = ARROW, amount = 4)
+
+  @Test
+  fun `the handler only queues the drop, the database is not touched on its thread`() {
+    sut.handle(drop)
+
+    assertNotNull(pending)
+    verify(exactly = 0) { inventoryService.removeOneFromMaster(any(), any(), any(), any()) }
+    verify(exactly = 0) { spawner.spawnLootItem(any(), any(), any(), any(), any(), any()) }
   }
 
   @Test
-  fun `dropping more than the live stack holds never reaches the database`() {
-    val dropper = dropper(Inventory.Item(APPLE.id, amount = 3))
+  fun `a removal the database refuses spawns nothing and leaves the bag alone`() {
+    every { inventoryService.removeOneFromMaster(MASTER_ID, ARROW, 4, 0L) } returns null
 
-    handler(dropper).handle(DropItemCMSG(ACCOUNT_ID, APPLE.id, amount = 5))
+    sut.handle(drop)
+    pending!!.invoke()
 
-    verify(exactly = 0) { inventoryService.removeOneFromMaster(any(), any(), any(), any()) }
+    verify(exactly = 0) { spawner.spawnLootItem(any(), any(), any(), any(), any(), any()) }
+    assertEquals(10, world.get(entity, Inventory::class)!!.getItem(ARROW.toInt())?.amount)
+  }
+
+  @Test
+  fun `a removal the live bag cannot mirror spawns nothing`() {
+    every { inventoryService.removeOneFromMaster(MASTER_ID, ARROW, 4, 0L) } returns
+      ItemContainer.RemovedItem(uniqueId = 0L, instance = null)
+
+    sut.handle(drop)
+    // Used up in between, by a job that ran first.
+    world.get(entity, Inventory::class)!!.clearItems()
+    pending!!.invoke()
+
+    verify(exactly = 0) { spawner.spawnLootItem(any(), any(), any(), any(), any(), any()) }
+  }
+
+  @Test
+  fun `a confirmed removal leaves the bag and lands on the ground`() {
+    every { inventoryService.removeOneFromMaster(MASTER_ID, ARROW, 4, 0L) } returns
+      ItemContainer.RemovedItem(uniqueId = 0L, instance = null)
+
+    sut.handle(drop)
+    pending!!.invoke()
+
+    assertEquals(6, world.get(entity, Inventory::class)!!.getItem(ARROW.toInt())?.amount)
+    verify { spawner.spawnLootItem(world, itemId = ARROW, amount = 4, pos = any(), uniqueId = 0L) }
+  }
+
+  @Test
+  fun `more than the bag holds is refused before anything is queued`() {
+    sut.handle(drop.copy(amount = 11))
+
+    assertNull(pending)
   }
 
   /** A looted instance is minted in the database after the live copy was added, which still reads uniqueId 0. */
   @Test
   fun `a freshly looted item leaves the bag when it is dropped`() {
-    every { inventoryService.removeOneFromMaster(MASTER_ID, SWORD.id, 1, 0L) } returns
+    every { inventoryService.removeOneFromMaster(MASTER_ID, SWORD, 1, 0L) } returns
       ItemContainer.RemovedItem(uniqueId = 77L, instance = null)
-    val dropper = dropper(Inventory.Item(SWORD.id, amount = 1, uniqueId = 0L, stackable = false))
+    world.get(entity, Inventory::class)!!.addItem(Inventory.Item(SWORD, amount = 1, uniqueId = 0L, stackable = false))
 
-    handler(dropper).handle(DropItemCMSG(ACCOUNT_ID, SWORD.id, amount = 1))
+    sut.handle(DropItemCMSG(ACCOUNT_ID, SWORD, amount = 1))
+    pending!!.invoke()
 
-    assertTrue(world.get(dropper, Inventory::class)!!.getItems().none { it.itemId == SWORD.id })
+    assertTrue(world.get(entity, Inventory::class)!!.getItems().none { it.itemId == SWORD })
   }
 
   /** Worn a moment ago, so the database still has it free: only the live Equipment knows it is worn. */
   @Test
   fun `worn gear is never dropped`() {
-    val dropper = dropper(Inventory.Item(SWORD.id, amount = 1, uniqueId = 0L, stackable = false))
-    world.get(dropper, Equipment::class)!!
-      .equip(EquipmentSlot.RIGHT_HAND, Equipment.EquippedItem(itemId = SWORD.id, uniqueId = 0L))
+    world.get(entity, Inventory::class)!!.addItem(Inventory.Item(SWORD, amount = 1, uniqueId = 0L, stackable = false))
+    world.get(entity, Equipment::class)!!
+      .equip(EquipmentSlot.RIGHT_HAND, Equipment.EquippedItem(itemId = SWORD, uniqueId = 0L))
 
-    handler(dropper).handle(DropItemCMSG(ACCOUNT_ID, SWORD.id, amount = 1))
+    sut.handle(DropItemCMSG(ACCOUNT_ID, SWORD, amount = 1))
 
-    verify(exactly = 0) { inventoryService.removeOneFromMaster(any(), any(), any(), any()) }
+    assertNull(pending)
   }
 
   @Test
   fun `a dead master drops nothing`() {
-    val dropper = dropper(Inventory.Item(APPLE.id, amount = 3))
-    world.add(dropper, Dead())
+    world.add(entity, Dead())
 
-    handler(dropper).handle(DropItemCMSG(ACCOUNT_ID, APPLE.id, amount = 1))
+    sut.handle(drop)
 
-    verify(exactly = 0) { inventoryService.removeOneFromMaster(any(), any(), any(), any()) }
-  }
-
-  private fun dropper(vararg held: Inventory.Item): EntityId {
-    return world.createEntity { id ->
-      add(id, Position(0, 0, 0))
-      add(id, Inventory(held.toMutableList()))
-      add(id, Equipment(availableSlotMask = EquipmentSlots.ALL))
-    }
-  }
-
-  private fun handler(dropper: EntityId): DropItemHandler {
-    val connectionInfoService = ConnectionInfoService()
-    connectionInfoService.activateSession(ACCOUNT_ID, masterId = MASTER_ID, masterEntityId = dropper)
-
-    return DropItemHandler(
-      itemRepository, inventoryService, mockk(relaxed = true), connectionInfoService, DeadActionGuard(world), world
-    )
+    assertNull(pending)
   }
 
   private companion object {
     const val ACCOUNT_ID = 1L
-    const val MASTER_ID = 2L
-    val APPLE = Item(id = 10L, identifier = "apple", weight = 1, type = Item.ItemType.ETC)
-    val SWORD = Item(id = 11L, identifier = "sword", weight = 10, type = Item.ItemType.ETC, stackable = false)
+    const val MASTER_ID = 9L
+    const val ARROW = 40L
+    const val SWORD = 11L
   }
 }

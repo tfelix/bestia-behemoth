@@ -1,7 +1,6 @@
 package net.bestia.zone.ecs.battle.exp
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.account.master.persistence.MasterEntityPersistenceService
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
@@ -11,6 +10,9 @@ import net.bestia.zone.ecs.battle.level.LevelUpExperienceCalculator
 import net.bestia.zone.ecs.battle.status.IsStatusValueDirty
 import net.bestia.zone.ecs.battle.status.SkillPoints
 import net.bestia.zone.ecs.battle.status.StatusPoints
+import net.bestia.zone.ecs.persistence.EntityWriteBehind
+import net.bestia.zone.ecs.persistence.persisters.MasterEntityPersister
+import net.bestia.zone.util.EntityId
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component as SpringComponent
 
@@ -18,13 +20,13 @@ import org.springframework.stereotype.Component as SpringComponent
 @Order(60)
 class GainExpSystem(
   private val levelUpExpCalc: LevelUpExperienceCalculator,
-  private val masterEntityPersistenceService: MasterEntityPersistenceService,
+  private val writeBehind: EntityWriteBehind,
 ) : System {
 
   override val reads: ComponentClassSet = setOf(
     Master::class,
     GainExp::class
-  )
+  ) + MasterEntityPersister.SNAPSHOT_READS
 
   override val writes: ComponentClassSet = setOf(
     Exp::class,
@@ -35,6 +37,8 @@ class GainExpSystem(
   )
 
   override fun update(world: World, deltaTime: Float) {
+    val gainedMasters = mutableListOf<EntityId>()
+
     world.query(GainExp::class, Exp::class, Level::class).each { entityId ->
       val gainExpComp = get<GainExp>()
       val expComp = get<Exp>()
@@ -74,15 +78,13 @@ class GainExpSystem(
       }
 
       if (isMaster) {
-        val masterId = world.get(entityId, Master::class)?.masterId
-        if (masterId == null) {
-          LOG.warn { "Entity $entityId has no Master component, cannot persist its level/exp" }
-        } else {
-          // Runs synchronously on the tick thread (blocking DB write) until this gets a
-          // centralized async dispatch mechanism.
-          masterEntityPersistenceService.persistEntity(world, entityId, masterId)
-        }
+        gainedMasters.add(entityId)
       }
+    }
+
+    // Every gain is made durable, but off the tick: at most one write per master per tick.
+    if (gainedMasters.isNotEmpty()) {
+      writeBehind.persist(world, gainedMasters, withStatusEffects = false)
     }
   }
 
