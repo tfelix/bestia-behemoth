@@ -21,4 +21,8 @@ class SocketServerConfig(
   /** A channel turns unwritable once this many outbound bytes queue up, and writable again below the low mark. */
   val writeBufferHighBytes: Int = 256 * 1024,
   val writeBufferLowBytes: Int = 64 * 1024,
+  /** How long a client may stay unwritable before [SlowConsumerGuard] drops it. */
+  val unwritableTimeoutSeconds: Long = 10L,
+  /** Unsent bytes past which a client is dropped at once, however short it has been busy. */
+  val maxWriteBacklogBytes: Long = 4L * 1024 * 1024,
 )

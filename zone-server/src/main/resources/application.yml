@@ -431,6 +431,9 @@ socket:
   # A channel holding more unsent bytes than the high mark counts as busy until it drains below the low mark.
   write-buffer-high-bytes: 262144
   write-buffer-low-bytes: 65536
+  # A client that stops reading is dropped after this long busy, or at once past this many unsent bytes.
+  unwritable-timeout-seconds: 10
+  max-write-backlog-bytes: 4194304
   filter-log-messages:
     - "!comp_path"
     - "!comp_position"
