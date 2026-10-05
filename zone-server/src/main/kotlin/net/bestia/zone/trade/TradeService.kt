@@ -217,6 +217,11 @@ class TradeService(
       return
     }
 
+    if (synchronized(session) { side.offer.size } >= MAX_OFFER_LINES) {
+      deny(accountId, OpError.TRADE_OFFER_FULL)
+      return
+    }
+
     val reserved = world.modify(side.entityId) { id ->
       val inventory = get(id, Inventory::class) ?: return@modify null
 
@@ -674,6 +679,12 @@ class TradeService(
      * consistent with every other range check in the codebase.
      */
     const val MAX_TRADE_RANGE = 10L
+
+    /**
+     * Lines one side may offer. Every line is a reservation row and part of every state sent to both sides, so
+     * the limit keeps both small; twelve fills the trade window.
+     */
+    const val MAX_OFFER_LINES = 12
 
     private val LOG = KotlinLogging.logger { }
   }

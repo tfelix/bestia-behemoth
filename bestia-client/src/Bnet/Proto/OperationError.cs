@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSrKCgoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSrgCgoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -56,8 +56,9 @@ namespace Bnet {
             "U1VSWV9GVUxMEC4SFQoRVEFMS19PVVRfT0ZfUkFOR0UQLxIjCh9DSEFUX1dI",
             "SVNQRVJfVEFSR0VUX1VOQVZBSUxBQkxFEDASGwoXQ1JBRlRfV09STERfT1VU",
             "X09GX0dPTEQQMRIVChFFUVVJUF9OT1ZJQ0VfT05MWRAyEiEKHUVRVUlQX0FS",
-            "TU9SX1RZUEVfTk9UX1dFQVJBQkxFEDNCLAoVbmV0LmJlc3RpYS5ibmV0LnBy",
-            "b3RvQhNPcGVyYXRpb25FcnJvclByb3RvYgZwcm90bzM="));
+            "TU9SX1RZUEVfTk9UX1dFQVJBQkxFEDMSFAoQVFJBREVfT0ZGRVJfRlVMTBA0",
+            "QiwKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0ITT3BlcmF0aW9uRXJyb3JQcm90",
+            "b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -273,6 +274,11 @@ namespace Bnet {
     /// these out yet, so a player can ask for one.
     /// </summary>
     [pbr::OriginalName("EQUIP_ARMOR_TYPE_NOT_WEARABLE")] EquipArmorTypeNotWearable = 51,
+    /// <summary>
+    /// One side of a trade already offers as many lines as a trade holds. A player can reach this by offering
+    /// item after item, so it gets a code; the limit keeps the trade window and its database rows small.
+    /// </summary>
+    [pbr::OriginalName("TRADE_OFFER_FULL")] TradeOfferFull = 52,
   }
 
   #endregion
