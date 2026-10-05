@@ -213,9 +213,14 @@ class LoginSessionService(
       throw GameLoginException(GameLoginError.INVALID_REQUEST, "$field has invalid length ${value.length}")
     }
 
-    if (!value.all { it.isLetterOrDigit() || it == '-' || it == '_' }) {
+    if (!value.all(::isBase64Url)) {
       throw GameLoginException(GameLoginError.INVALID_REQUEST, "$field is not base64url")
     }
+  }
+
+  /** Not `isLetterOrDigit`, which takes any Unicode letter or digit, too. */
+  private fun isBase64Url(c: Char): Boolean {
+    return c in 'A'..'Z' || c in 'a'..'z' || c in '0'..'9' || c == '-' || c == '_'
   }
 
   data class StartedSession(
