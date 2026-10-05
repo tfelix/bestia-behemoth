@@ -55,11 +55,10 @@ class ActivateSkillHandlerTest {
     return ActivateSkillHandler(
       connectionInfoService = connectionInfoService,
       skillCheckService = SkillCheckService(world),
-      world = world,
       skillStrategyFactory = SkillStrategyFactory(listOf(TestScript())),
       skillExecutionService = skillExecution,
-      logoutCancelService = LogoutCancelService(world),
-      deadActionGuard = DeadActionGuard(world),
+      logoutCancelService = LogoutCancelService(),
+      deadActionGuard = DeadActionGuard(),
       propPromotion = PropPromotionService(mockk(relaxed = true)),
       outMessageProcessor = mockk(relaxed = true),
     )
@@ -68,7 +67,7 @@ class ActivateSkillHandlerTest {
   @Test
   fun `an instant skill resolves at once and puts up no cast bar`() {
     val caster = world.spawnCaster()
-    handlerFor(caster, skill(castTime = 0f)).handle(activate(caster))
+    handlerFor(caster, skill(castTime = 0f)).handle(world, activate(caster))
 
     assertFalse(world.has(caster, Casting::class), "a skill with no cast time must not attach a cast bar")
     verify(exactly = 1) {
@@ -79,7 +78,7 @@ class ActivateSkillHandlerTest {
   @Test
   fun `a channelled skill puts up a cast bar and resolves nothing yet`() {
     val caster = world.spawnCaster()
-    handlerFor(caster, skill(castTime = 2f)).handle(activate(caster))
+    handlerFor(caster, skill(castTime = 2f)).handle(world, activate(caster))
 
     assertTrue(world.has(caster, Casting::class), "a skill with a cast time is resolved by CastingSystem later")
     verify(exactly = 0) { skillExecution.execute(any(), any(), any(), any(), any(), any()) }
@@ -90,7 +89,7 @@ class ActivateSkillHandlerTest {
     val caster = world.spawnCaster()
     world.add(caster, LogoutIntent())
 
-    handlerFor(caster, skill(castTime = 0f)).handle(activate(caster))
+    handlerFor(caster, skill(castTime = 0f)).handle(world, activate(caster))
 
     assertFalse(world.has(caster, LogoutIntent::class), "casting is player activity and cancels a logout")
   }
@@ -98,7 +97,7 @@ class ActivateSkillHandlerTest {
   @Test
   fun `a skill the caster has not learned is refused`() {
     val caster = world.spawnCaster(knownLevel = 0)
-    handlerFor(caster, skill(castTime = 0f)).handle(activate(caster))
+    handlerFor(caster, skill(castTime = 0f)).handle(world, activate(caster))
 
     assertFalse(world.has(caster, Casting::class))
     verify(exactly = 0) { skillExecution.execute(any(), any(), any(), any(), any(), any()) }

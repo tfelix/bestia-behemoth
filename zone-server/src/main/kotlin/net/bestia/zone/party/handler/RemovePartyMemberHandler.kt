@@ -1,8 +1,7 @@
 package net.bestia.zone.party.handler
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.message.HandlerLane
-import net.bestia.zone.message.InMessageProcessor
+import net.bestia.zone.message.IoMessageHandler
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.party.DisbandPartySMSG
 import net.bestia.zone.party.NotPartyMemberException
@@ -21,11 +20,10 @@ import org.springframework.stereotype.Component
 class RemovePartyMemberHandler(
   private val partyService: PartyService,
   private val outMessageProcessor: OutMessageProcessor
-) : InMessageProcessor.IncomingMessageHandler<RemovePartyMemberCMSG> {
+) : IoMessageHandler<RemovePartyMemberCMSG> {
 
   override val handles = RemovePartyMemberCMSG::class
 
-  override val lane = HandlerLane.IO
 
   override fun handle(msg: RemovePartyMemberCMSG): Boolean {
     try {

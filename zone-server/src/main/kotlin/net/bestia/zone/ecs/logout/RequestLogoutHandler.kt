@@ -1,9 +1,10 @@
 package net.bestia.zone.ecs.logout
 
 import net.bestia.zone.ecs.ZoneConfig
-import net.bestia.zone.ecs.core.WorldView
+import net.bestia.zone.ecs.core.World
+import net.bestia.zone.ecs.core.modify
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
-import net.bestia.zone.message.InMessageProcessor
+import net.bestia.zone.message.TickMessageHandler
 import org.springframework.stereotype.Component
 
 /**
@@ -16,12 +17,11 @@ import org.springframework.stereotype.Component
 @Component
 class RequestLogoutHandler(
   private val connectionInfoService: ConnectionInfoService,
-  private val world: WorldView,
   private val zoneConfig: ZoneConfig,
-) : InMessageProcessor.IncomingMessageHandler<RequestLogoutCMSG> {
+) : TickMessageHandler<RequestLogoutCMSG> {
   override val handles = RequestLogoutCMSG::class
 
-  override fun handle(msg: RequestLogoutCMSG): Boolean {
+  override fun handle(world: World, msg: RequestLogoutCMSG): Boolean {
     val masterEntityId = connectionInfoService.getSelectedMasterEntityId(msg.playerId)
 
     world.modify(masterEntityId) { id ->

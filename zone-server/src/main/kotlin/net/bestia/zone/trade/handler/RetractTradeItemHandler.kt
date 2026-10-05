@@ -1,7 +1,6 @@
 package net.bestia.zone.trade.handler
 
-import net.bestia.zone.message.HandlerLane
-import net.bestia.zone.message.InMessageProcessor
+import net.bestia.zone.message.IoMessageHandler
 import net.bestia.zone.trade.RetractTradeItemCMSG
 import net.bestia.zone.trade.TradeService
 import org.springframework.stereotype.Component
@@ -13,11 +12,10 @@ import org.springframework.stereotype.Component
 @Component
 class RetractTradeItemHandler(
   private val tradeService: TradeService,
-) : InMessageProcessor.IncomingMessageHandler<RetractTradeItemCMSG> {
+) : IoMessageHandler<RetractTradeItemCMSG> {
 
   override val handles = RetractTradeItemCMSG::class
 
-  override val lane = HandlerLane.IO
 
   override fun handle(msg: RetractTradeItemCMSG): Boolean {
     tradeService.retractItem(msg.playerId, msg.tradeId, msg.offerSlotId)

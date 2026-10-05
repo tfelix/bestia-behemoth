@@ -1,7 +1,6 @@
 package net.bestia.zone.account.master
 
-import net.bestia.zone.message.HandlerLane
-import net.bestia.zone.message.InMessageProcessor
+import net.bestia.zone.message.IoMessageHandler
 import net.bestia.zone.message.OutMessageProcessor
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
@@ -10,9 +9,8 @@ import org.springframework.transaction.annotation.Transactional
 class CreateMasterHandler(
   private val masterFactory: MasterFactory,
   private val outMessageProcessor: OutMessageProcessor
-) : InMessageProcessor.IncomingMessageHandler<CreateMasterCMSG> {
+) : IoMessageHandler<CreateMasterCMSG> {
   override val handles = CreateMasterCMSG::class
-  override val lane = HandlerLane.IO
 
   /**
    * Safe to report a rejection from inside this transaction only because [MasterCreateOperation] runs the

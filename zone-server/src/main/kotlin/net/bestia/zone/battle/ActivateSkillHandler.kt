@@ -8,14 +8,15 @@ import net.bestia.zone.battle.skill.SkillStrategyFactory
 import net.bestia.zone.battle.skill.SkillTargetType
 import net.bestia.zone.ecs.battle.damage.DeadActionGuard
 import net.bestia.zone.ecs.battle.skill.Casting
-import net.bestia.zone.ecs.core.WorldView
+import net.bestia.zone.ecs.core.World
+import net.bestia.zone.ecs.core.modify
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.logout.LogoutCancelService
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.geometry.Vec3L
-import net.bestia.zone.message.InMessageProcessor
 import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OutMessageProcessor
+import net.bestia.zone.message.TickMessageHandler
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.world.prop.PropPromotionService
 import org.springframework.stereotype.Component
@@ -36,25 +37,24 @@ import org.springframework.stereotype.Component
 class ActivateSkillHandler(
   private val connectionInfoService: ConnectionInfoService,
   private val skillCheckService: SkillCheckService,
-  private val world: WorldView,
   private val skillStrategyFactory: SkillStrategyFactory,
   private val skillExecutionService: SkillExecutionService,
   private val logoutCancelService: LogoutCancelService,
   private val deadActionGuard: DeadActionGuard,
   private val propPromotion: PropPromotionService,
   private val outMessageProcessor: OutMessageProcessor,
-) : InMessageProcessor.IncomingMessageHandler<ActivateSkillCMSG> {
+) : TickMessageHandler<ActivateSkillCMSG> {
   override val handles = ActivateSkillCMSG::class
 
-  override fun handle(msg: ActivateSkillCMSG): Boolean {
+  override fun handle(world: World, msg: ActivateSkillCMSG): Boolean {
     val activeEntityId = connectionInfoService.getActiveEntityId(msg.playerId)
 
-    if (deadActionGuard.refuses(activeEntityId, "activate a skill")) {
+    if (deadActionGuard.refuses(world, activeEntityId, "activate a skill")) {
       return true
     }
 
     // Using a skill is player activity - abort any pending logout.
-    logoutCancelService.cancelLogout(activeEntityId)
+    logoutCancelService.cancelLogout(world, activeEntityId)
 
     val knowsSkill = skillCheckService.knowsSkill(activeEntityId, msg.attackId, msg.skillLevel)
 
@@ -82,7 +82,7 @@ class ActivateSkillHandler(
 
     LOG.info { "Skill activated: ${skill.identifier} Lv. ${msg.skillLevel} at ${msg.targetPosition}" }
 
-    // Before the cast starts and in its own scope, so a skill whose reagent is missing is refused while the
+    // Before the cast starts, so a skill whose reagent is missing is refused while the
     // player is still looking at the button rather than after channelling for it. Nothing is spent here - see
     // SkillStrategy.checkCastStart.
     val denial = world.modify(activeEntityId) { id -> strategy.checkCastStart(this, id, msg.skillLevel) }
@@ -119,8 +119,8 @@ class ActivateSkillHandler(
     }
 
     val started = world.modify(activeEntityId) { id ->
-      // Before the cast-time branch, deliberately: a message-handler context never runs nested inside
-      // scheduler.tick(), so this add() applies immediately - unlike promoting only from
+      // Before the cast-time branch, deliberately: a tick handler runs between two ticks, so this add()
+      // applies immediately - unlike promoting only from
       // BattleContextFactory, which a channelled cast reaches from inside CastingSystem.update() and would
       // silently fizzle its first hit against a pristine prop. See PropPromotionService's own KDoc.
       val caster = get(id, Position::class)?.toVec3L()
@@ -145,16 +145,14 @@ class ActivateSkillHandler(
     } ?: return true
 
     if (skill.castTime <= 0f) {
-      world.read {
-        skillExecutionService.execute(
-          world = this,
-          casterId = started,
-          skillId = skill.id,
-          skillLevel = msg.skillLevel,
-          targetEntityId = targetEntityId,
-          targetPosition = targetPosition
-        )
-      }
+      skillExecutionService.execute(
+        world = world,
+        casterId = started,
+        skillId = skill.id,
+        skillLevel = msg.skillLevel,
+        targetEntityId = targetEntityId,
+        targetPosition = targetPosition
+      )
     }
 
     return true

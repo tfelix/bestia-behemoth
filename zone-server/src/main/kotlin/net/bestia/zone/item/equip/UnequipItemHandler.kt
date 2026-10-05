@@ -3,13 +3,14 @@ package net.bestia.zone.item.equip
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.battle.status.IsStatusValueDirty
 import net.bestia.zone.ecs.core.AsyncJobExecutor
-import net.bestia.zone.ecs.core.WorldView
+import net.bestia.zone.ecs.core.World
+import net.bestia.zone.ecs.core.modify
 import net.bestia.zone.ecs.battle.damage.DeadActionGuard
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.item.Equipment
 import net.bestia.zone.ecs.item.Inventory
 import net.bestia.zone.item.container.InventoryService
-import net.bestia.zone.message.InMessageProcessor
+import net.bestia.zone.message.TickMessageHandler
 import org.springframework.stereotype.Component
 
 /**
@@ -25,11 +26,10 @@ class UnequipItemHandler(
   private val inventoryService: InventoryService,
   private val asyncJobExecutor: AsyncJobExecutor,
   private val deadActionGuard: DeadActionGuard,
-  private val world: WorldView
-) : InMessageProcessor.IncomingMessageHandler<UnequipItemCMSG> {
+) : TickMessageHandler<UnequipItemCMSG> {
   override val handles = UnequipItemCMSG::class
 
-  override fun handle(msg: UnequipItemCMSG): Boolean {
+  override fun handle(world: World, msg: UnequipItemCMSG): Boolean {
     val activeEntityId = connectionInfoService.getActiveEntityId(msg.playerId)
     if (deadActionGuard.refuses(activeEntityId, "unequip an item")) {
       return true

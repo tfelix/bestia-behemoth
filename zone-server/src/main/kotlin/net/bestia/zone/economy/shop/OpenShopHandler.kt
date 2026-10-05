@@ -1,21 +1,20 @@
 package net.bestia.zone.economy.shop
 
 import net.bestia.bnet.proto.OperationErrorProto
-import net.bestia.zone.ecs.core.WorldView
+import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.economy.SettlementEconomyService
-import net.bestia.zone.message.InMessageProcessor
 import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OutMessageProcessor
+import net.bestia.zone.message.TickMessageHandler
 import org.springframework.stereotype.Component
 
 /**
  * Answers with what one merchant has, at the prices of wherever the sender is standing.
  *
  * Unlike [ShopTradeHandler] this needs no intent, because it changes nothing: opening a window is a
- * read, and a read cannot create a settlement's ledger row - see `SettlementEconomyService`. The world
- * lock is taken for the position and the catch-up, which is what a `WorldView.read` gives.
+ * read, and a read cannot create a settlement's ledger row - see `SettlementEconomyService`.
  *
  * The merchant is re-checked for distance rather than trusted. A conversation has already established
  * they are in earshot, but a hand-made packet has had no conversation.
@@ -27,20 +26,18 @@ class OpenShopHandler(
   private val merchants: MerchantStock,
   private val offers: ShopOfferPublisher,
   private val outMessageProcessor: OutMessageProcessor,
-  private val world: WorldView
-) : InMessageProcessor.IncomingMessageHandler<OpenShopCMSG> {
+) : TickMessageHandler<OpenShopCMSG> {
   override val handles = OpenShopCMSG::class
 
-  override fun handle(msg: OpenShopCMSG): Boolean {
+  override fun handle(world: World, msg: OpenShopCMSG): Boolean {
     val activeEntityId = connectionInfoService.getActiveEntityId(msg.playerId)
 
-    // Outside the read below rather than inside it: resolving a townsperson opens a world scope itself.
     val stocked = merchants.of(msg.merchantEntityId)
 
     val shop = if (stocked == null) {
       null
     } else {
-      world.read {
+      with(world) {
         val position = get(activeEntityId, Position::class)?.toVec3L()
         val counter = get(msg.merchantEntityId, Position::class)?.toVec3L()
 

@@ -1,7 +1,8 @@
 package net.bestia.zone.world.stream
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.message.InMessageProcessor
+import net.bestia.zone.ecs.core.World
+import net.bestia.zone.message.TickMessageHandler
 import org.springframework.stereotype.Component
 
 /**
@@ -15,11 +16,11 @@ import org.springframework.stereotype.Component
 @Component
 class ChunkRequestHandler(
   private val inbox: ChunkStreamInbox
-) : InMessageProcessor.IncomingMessageHandler<ChunkRequestCMSG> {
+) : TickMessageHandler<ChunkRequestCMSG> {
 
   override val handles = ChunkRequestCMSG::class
 
-  override fun handle(msg: ChunkRequestCMSG): Boolean {
+  override fun handle(world: World, msg: ChunkRequestCMSG): Boolean {
     LOG.trace { "Account ${msg.playerId} requested ${msg.chunks.size} chunks" }
 
     inbox.offerRequest(ChunkStreamInbox.Request(msg.playerId, msg.chunks))

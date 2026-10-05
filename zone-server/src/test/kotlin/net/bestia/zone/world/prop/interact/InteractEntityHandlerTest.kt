@@ -61,11 +61,10 @@ class InteractEntityHandlerTest {
 
     handler = InteractEntityHandler(
       connectionInfoService = connectionInfoService,
-      deadActionGuard = DeadActionGuard(world),
+      deadActionGuard = DeadActionGuard(),
       dialogService = dialogs,
       talkService = talk,
       outMessageProcessor = messages,
-      world = world
     )
   }
 
@@ -77,7 +76,7 @@ class InteractEntityHandlerTest {
       add(id, Townsfolk(identity = 1L))
     }
 
-    handler.handle(interactWith(villager))
+    handler.handle(world, interactWith(villager))
 
     verify { talk.open(accountId, actor, villager) }
   }
@@ -86,7 +85,7 @@ class InteractEntityHandlerTest {
   fun `and clicking something that is nobody does not`() {
     val scenery = world.createEntity { id -> add(id, Position.fromVec3(standingAt)) }
 
-    handler.handle(interactWith(scenery))
+    handler.handle(world, interactWith(scenery))
 
     verify(exactly = 0) { talk.open(any(), any(), any()) }
   }
@@ -95,7 +94,7 @@ class InteractEntityHandlerTest {
   fun `clicking a site in reach starts building it`() {
     val site = spawnSite(at = standingAt)
 
-    handler.handle(interactWith(site))
+    handler.handle(world, interactWith(site))
 
     assertEquals(site, world.get(actor, Building::class)?.siteEntityId)
   }
@@ -104,8 +103,8 @@ class InteractEntityHandlerTest {
   fun `clicking the site being built stops`() {
     val site = spawnSite(at = standingAt)
 
-    handler.handle(interactWith(site))
-    handler.handle(interactWith(site))
+    handler.handle(world, interactWith(site))
+    handler.handle(world, interactWith(site))
 
     assertNull(world.get(actor, Building::class), "a second click is how you stop")
   }
@@ -115,8 +114,8 @@ class InteractEntityHandlerTest {
     val first = spawnSite(at = standingAt)
     val second = spawnSite(at = standingAt)
 
-    handler.handle(interactWith(first))
-    handler.handle(interactWith(second))
+    handler.handle(world, interactWith(first))
+    handler.handle(world, interactWith(second))
 
     assertEquals(second, world.get(actor, Building::class)?.siteEntityId)
   }
@@ -125,7 +124,7 @@ class InteractEntityHandlerTest {
   fun `a site out of reach is refused with something the player can read`() {
     val site = spawnSite(at = Vec3L(standingAt.x + 20, standingAt.y, standingAt.z))
 
-    handler.handle(interactWith(site))
+    handler.handle(world, interactWith(site))
 
     assertNull(world.get(actor, Building::class))
 
@@ -141,14 +140,14 @@ class InteractEntityHandlerTest {
       add(id, PlayerStructureIdentity(7L))
     }
 
-    handler.handle(interactWith(workbench))
+    handler.handle(world, interactWith(workbench))
 
     verify { dialogs.send(accountId, DialogId.WORKBENCH_PLACEHOLDER, any(), workbench) }
   }
 
   @Test
   fun `an id that names nothing is ignored rather than answered`() {
-    handler.handle(interactWith(999_999L))
+    handler.handle(world, interactWith(999_999L))
 
     verify(exactly = 0) { messages.sendToPlayer(any(), any<SMSG>()) }
   }

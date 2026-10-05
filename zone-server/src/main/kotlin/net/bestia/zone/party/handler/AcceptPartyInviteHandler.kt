@@ -1,8 +1,7 @@
 package net.bestia.zone.party.handler
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.message.HandlerLane
-import net.bestia.zone.message.InMessageProcessor
+import net.bestia.zone.message.IoMessageHandler
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.party.AcceptPartyInviteCMSG
 import net.bestia.zone.party.AlreadyInPartyException
@@ -18,11 +17,10 @@ import org.springframework.stereotype.Component
 class AcceptPartyInviteHandler(
   private val partyService: PartyService,
   private val outMessageProcessor: OutMessageProcessor
-) : InMessageProcessor.IncomingMessageHandler<AcceptPartyInviteCMSG> {
+) : IoMessageHandler<AcceptPartyInviteCMSG> {
 
   override val handles = AcceptPartyInviteCMSG::class
 
-  override val lane = HandlerLane.IO
 
   override fun handle(msg: AcceptPartyInviteCMSG): Boolean {
     try {

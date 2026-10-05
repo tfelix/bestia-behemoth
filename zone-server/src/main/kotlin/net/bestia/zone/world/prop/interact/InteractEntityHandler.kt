@@ -10,14 +10,14 @@ import net.bestia.zone.ecs.battle.damage.DeadActionGuard
 import net.bestia.zone.ecs.construction.Building
 import net.bestia.zone.ecs.construction.ConstructionSite
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.ecs.core.WorldView
+import net.bestia.zone.ecs.core.modify
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.prop.PlayerStructureIdentity
 import net.bestia.zone.ecs.spawn.townsfolk.Townsfolk
-import net.bestia.zone.message.InMessageProcessor
 import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OutMessageProcessor
+import net.bestia.zone.message.TickMessageHandler
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.world.prop.PlayerStructureService
 import org.springframework.stereotype.Component
@@ -40,15 +40,14 @@ class InteractEntityHandler(
   private val dialogService: DialogService,
   private val talkService: TalkService,
   private val outMessageProcessor: OutMessageProcessor,
-  private val world: WorldView
-) : InMessageProcessor.IncomingMessageHandler<InteractEntityCMSG> {
+) : TickMessageHandler<InteractEntityCMSG> {
 
   override val handles = InteractEntityCMSG::class
 
-  override fun handle(msg: InteractEntityCMSG): Boolean {
+  override fun handle(world: World, msg: InteractEntityCMSG): Boolean {
     val actorId = connectionInfoService.getActiveEntityId(msg.playerId)
 
-    if (deadActionGuard.refuses(actorId, "interact")) {
+    if (deadActionGuard.refuses(world, actorId, "interact")) {
       return true
     }
 

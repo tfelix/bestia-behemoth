@@ -1,7 +1,7 @@
 package net.bestia.zone.ecs.battle.damage
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.ecs.core.WorldView
+import net.bestia.zone.ecs.core.World
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Service
 
@@ -18,13 +18,11 @@ import org.springframework.stereotype.Service
  * value nobody legitimate will ever see.
  */
 @Service
-class DeadActionGuard(
-  private val world: WorldView,
-) {
+class DeadActionGuard {
 
   /** True when [entityId] is dead, in which case the caller must abandon [action]. */
-  fun refuses(entityId: EntityId, action: String): Boolean {
-    if (!world.read { has(entityId, Dead::class) }) {
+  fun refuses(world: World, entityId: EntityId, action: String): Boolean {
+    if (!world.has(entityId, Dead::class)) {
       return false
     }
 

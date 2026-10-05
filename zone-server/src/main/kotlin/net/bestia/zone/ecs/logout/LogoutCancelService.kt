@@ -1,6 +1,6 @@
 package net.bestia.zone.ecs.logout
 
-import net.bestia.zone.ecs.core.WorldView
+import net.bestia.zone.ecs.core.World
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Service
 
@@ -10,15 +10,9 @@ import org.springframework.stereotype.Service
  * every "the player did something" cancel path funnels through here. No-op when nothing is pending.
  */
 @Service
-class LogoutCancelService(
-  private val world: WorldView,
-) {
+class LogoutCancelService {
 
-  fun cancelLogout(entityId: EntityId) {
-    world.modify(entityId) { id ->
-      if (get(id, LogoutIntent::class) != null) {
-        remove(id, LogoutIntent::class)
-      }
-    }
+  fun cancelLogout(world: World, entityId: EntityId) {
+    world.remove(entityId, LogoutIntent::class)
   }
 }

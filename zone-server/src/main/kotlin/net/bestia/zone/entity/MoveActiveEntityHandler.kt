@@ -2,16 +2,17 @@ package net.bestia.zone.entity
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.ZoneConfig
+import net.bestia.zone.ecs.core.World
+import net.bestia.zone.ecs.core.modify
 import net.bestia.zone.ecs.movement.Path
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
-import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.battle.attack.AttackCancelService
 import net.bestia.zone.ecs.battle.damage.DeadActionGuard
 import net.bestia.zone.ecs.battle.skill.CastCancelService
 import net.bestia.zone.ecs.logout.LogoutCancelService
 import net.bestia.zone.geometry.Vec3L
-import net.bestia.zone.message.InMessageProcessor
+import net.bestia.zone.message.TickMessageHandler
 import net.bestia.zone.navigation.local.LocalWalkQuery
 import org.springframework.stereotype.Component
 import kotlin.math.abs
@@ -24,7 +25,6 @@ import kotlin.math.abs
 @Component
 class MoveActiveEntityHandler(
   private val connectionInfoService: ConnectionInfoService,
-  private val world: WorldView,
   private val logoutCancelService: LogoutCancelService,
   private val castCancelService: CastCancelService,
   private val attackCancelService: AttackCancelService,
@@ -32,30 +32,30 @@ class MoveActiveEntityHandler(
   private val walkQuery: LocalWalkQuery,
   private val zoneConfig: ZoneConfig,
   private val rateLimit: MoveRequestRateLimit,
-) : InMessageProcessor.IncomingMessageHandler<MoveActiveEntityCMSG> {
+) : TickMessageHandler<MoveActiveEntityCMSG> {
   override val handles = MoveActiveEntityCMSG::class
 
-  override fun handle(msg: MoveActiveEntityCMSG): Boolean {
+  override fun handle(world: World, msg: MoveActiveEntityCMSG): Boolean {
     val activeEntityId = connectionInfoService.getActiveEntityId(msg.playerId)
 
     // Before the cancel calls: a corpse expresses no intent, so it must not even abort its own logout.
-    if (deadActionGuard.refuses(activeEntityId, "move")) {
+    if (deadActionGuard.refuses(world, activeEntityId, "move")) {
       return true
     }
 
     // Any movement command (including an empty-path "stop", which the client's logout Cancel button
     // sends) counts as player activity and aborts a pending logout.
-    logoutCancelService.cancelLogout(activeEntityId)
+    logoutCancelService.cancelLogout(world, activeEntityId)
 
     // Casting and crafting are both stationary: any movement command interrupts either. Deliberately done
     // before the path is validated - the player expressed intent to move, so the channel dies even if the
     // path is rejected below. The client blocks movement clicks while casting, so this is the authoritative
     // backstop.
-    castCancelService.cancelCast(activeEntityId)
-    castCancelService.cancelCraft(activeEntityId)
+    castCancelService.cancelCast(world, activeEntityId)
+    castCancelService.cancelCraft(world, activeEntityId)
 
     // Walking away is how a player calls off a fight - there is no other message for it.
-    attackCancelService.cancelAttack(activeEntityId)
+    attackCancelService.cancelAttack(world, activeEntityId)
     // After the cancels, so a spammed click still counts as intent and cannot be used to keep a cast alive,
     // and before the expensive half - the world lock and the broadcast - which is the part worth bounding.
     if (!rateLimit.spend(msg.playerId)) {

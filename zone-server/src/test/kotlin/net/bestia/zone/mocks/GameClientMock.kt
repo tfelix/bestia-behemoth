@@ -7,7 +7,6 @@ import net.bestia.zone.message.CMSG
 import net.bestia.zone.message.SMSG
 import net.bestia.zone.account.master.SelectMasterCMSG
 import net.bestia.zone.message.AccountTaskExecutor
-import net.bestia.zone.message.HandlerLane
 import net.bestia.zone.message.InMessageProcessor
 import org.springframework.context.ApplicationEventPublisher
 import java.lang.IllegalStateException
@@ -53,7 +52,7 @@ class GameClientMock(
 
   /** What [net.bestia.zone.socket.ClientMessageHandler] does with a connection event. */
   private fun publishInOrder(event: Any) {
-    inbox.execute(connectedPlayerId, HandlerLane.IO) { applicationEventPublisher.publishEvent(event) }
+    inbox.onIo(connectedPlayerId) { applicationEventPublisher.publishEvent(event) }
       .get(5, TimeUnit.SECONDS)
   }
 

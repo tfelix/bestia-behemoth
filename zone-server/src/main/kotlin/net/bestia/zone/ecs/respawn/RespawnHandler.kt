@@ -4,8 +4,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.battle.damage.Dead
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
-import net.bestia.zone.message.HandlerLane
-import net.bestia.zone.message.InMessageProcessor
+import net.bestia.zone.message.IoMessageHandler
 import org.springframework.stereotype.Component
 
 /**
@@ -19,9 +18,8 @@ class RespawnHandler(
   private val connectionInfoService: ConnectionInfoService,
   private val savePointService: SavePointService,
   private val world: WorldView,
-) : InMessageProcessor.IncomingMessageHandler<RespawnCMSG> {
+) : IoMessageHandler<RespawnCMSG> {
   override val handles = RespawnCMSG::class
-  override val lane = HandlerLane.IO
 
   override fun handle(msg: RespawnCMSG): Boolean {
     val activeEntityId = connectionInfoService.getActiveEntityId(msg.playerId)

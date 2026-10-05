@@ -13,8 +13,7 @@ import net.bestia.zone.ecs.item.Equipment
 import net.bestia.zone.ecs.item.Inventory
 import net.bestia.zone.item.ItemRepository
 import net.bestia.zone.item.container.InventoryService
-import net.bestia.zone.message.HandlerLane
-import net.bestia.zone.message.InMessageProcessor
+import net.bestia.zone.message.IoMessageHandler
 import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OutMessageProcessor
 import org.springframework.data.repository.findByIdOrNull
@@ -40,9 +39,8 @@ class EquipItemHandler(
   private val outMessageProcessor: OutMessageProcessor,
   private val deadActionGuard: DeadActionGuard,
   private val world: WorldView
-) : InMessageProcessor.IncomingMessageHandler<EquipItemCMSG> {
+) : IoMessageHandler<EquipItemCMSG> {
   override val handles = EquipItemCMSG::class
-  override val lane = HandlerLane.IO
 
   override fun handle(msg: EquipItemCMSG): Boolean {
     val item = itemRepository.findByIdOrNull(msg.itemId)

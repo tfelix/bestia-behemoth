@@ -7,8 +7,7 @@ import net.bestia.zone.account.master.MasterResolver
 import net.bestia.zone.account.master.skill.BasicSkillGate
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.WorldView
-import net.bestia.zone.message.HandlerLane
-import net.bestia.zone.message.InMessageProcessor
+import net.bestia.zone.message.IoMessageHandler
 import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OutMessageProcessor
 import org.springframework.stereotype.Component
@@ -21,9 +20,8 @@ class ChatHandler(
   private val world: WorldView,
   private val chatCommandHandler: ChatCommandHandler,
   private val basicSkillGate: BasicSkillGate
-) : InMessageProcessor.IncomingMessageHandler<ChatCMSG> {
+) : IoMessageHandler<ChatCMSG> {
   override val handles = ChatCMSG::class
-  override val lane = HandlerLane.IO
 
   override fun handle(msg: ChatCMSG): Boolean {
     val text = withoutControlCharacters(msg.text)

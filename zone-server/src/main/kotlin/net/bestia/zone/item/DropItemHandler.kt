@@ -2,20 +2,21 @@ package net.bestia.zone.item
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.core.AsyncJobExecutor
+import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.item.Equipment
 import net.bestia.zone.ecs.item.Inventory
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
-import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.battle.damage.DeadActionGuard
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.item.container.ItemContainer
 import net.bestia.zone.item.loot.LootItemEntitySpawner
-import net.bestia.zone.message.InMessageProcessor
+import net.bestia.zone.message.TickMessageHandler
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
 import kotlin.random.Random
+import net.bestia.zone.ecs.core.WorldView
 
 /**
  * Drops an item to the ground. The durable removal comes first and gates everything else, so a ground
@@ -28,11 +29,11 @@ class DropItemHandler(
   private val connectionInfoService: ConnectionInfoService,
   private val deadActionGuard: DeadActionGuard,
   private val asyncJobExecutor: AsyncJobExecutor,
-  private val world: WorldView
-) : InMessageProcessor.IncomingMessageHandler<DropItemCMSG> {
+  private val worldView: WorldView,
+) : TickMessageHandler<DropItemCMSG> {
   override val handles = DropItemCMSG::class
 
-  override fun handle(msg: DropItemCMSG): Boolean {
+  override fun handle(world: World, msg: DropItemCMSG): Boolean {
     if (msg.amount <= 0) {
       LOG.warn { "Invalid drop amount ${msg.amount} from player ${msg.playerId}" }
       return true
@@ -44,10 +45,8 @@ class DropItemHandler(
     }
     val masterId = connectionInfoService.getMasterId(msg.playerId)
 
-    val holdsIt = world.read {
-      val inventory = get(activeEntityId, Inventory::class) ?: return@read false
-      holdsDroppable(inventory, get(activeEntityId, Equipment::class), msg)
-    }
+    val inventory = world.get(activeEntityId, Inventory::class)
+    val holdsIt = inventory != null && holdsDroppable(inventory, world.get(activeEntityId, Equipment::class), msg)
     if (!holdsIt) {
       LOG.warn { "Entity $activeEntityId does not hold ${msg.amount}x item ${msg.itemId} (uniqueId ${msg.uniqueId})" }
       return true
@@ -67,7 +66,7 @@ class DropItemHandler(
       return
     }
 
-    val dropped = world.modify(activeEntityId) { id ->
+    val dropped = worldView.modify(activeEntityId) { id ->
       val inventory = get(id, Inventory::class) ?: return@modify null
       val amount = inventory.mirrorRemoval(msg, removed) ?: return@modify null
       val pos = get(id, Position::class)?.toVec3L() ?: return@modify null
@@ -80,7 +79,7 @@ class DropItemHandler(
       return
     }
 
-    world.read {
+    worldView.read {
       lootItemEntitySpawner.spawnLootItem(
         this,
         itemId = msg.itemId,

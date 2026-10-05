@@ -2,8 +2,7 @@ package net.bestia.zone.account.master
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.OperationErrorProto
-import net.bestia.zone.message.HandlerLane
-import net.bestia.zone.message.InMessageProcessor
+import net.bestia.zone.message.IoMessageHandler
 import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.party.DisbandPartySMSG
@@ -22,9 +21,8 @@ class DeleteMasterHandler(
   private val masterDeletionService: MasterDeletionService,
   private val partyService: PartyService,
   private val outMessageProcessor: OutMessageProcessor
-) : InMessageProcessor.IncomingMessageHandler<DeleteMasterCMSG> {
+) : IoMessageHandler<DeleteMasterCMSG> {
   override val handles = DeleteMasterCMSG::class
-  override val lane = HandlerLane.IO
 
   override fun handle(msg: DeleteMasterCMSG): Boolean {
     val result = try {

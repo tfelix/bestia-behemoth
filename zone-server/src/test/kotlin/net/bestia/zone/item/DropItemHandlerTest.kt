@@ -54,7 +54,7 @@ class DropItemHandlerTest {
 
   @Test
   fun `the handler only queues the drop, the database is not touched on its thread`() {
-    sut.handle(drop)
+    sut.handle(world, drop)
 
     assertNotNull(pending)
     verify(exactly = 0) { inventoryService.removeOneFromMaster(any(), any(), any(), any()) }
@@ -65,7 +65,7 @@ class DropItemHandlerTest {
   fun `a removal the database refuses spawns nothing and leaves the bag alone`() {
     every { inventoryService.removeOneFromMaster(MASTER_ID, ARROW, 4, 0L) } returns null
 
-    sut.handle(drop)
+    sut.handle(world, drop)
     pending!!.invoke()
 
     verify(exactly = 0) { spawner.spawnLootItem(any(), any(), any(), any(), any(), any()) }
@@ -77,7 +77,7 @@ class DropItemHandlerTest {
     every { inventoryService.removeOneFromMaster(MASTER_ID, ARROW, 4, 0L) } returns
       ItemContainer.RemovedItem(uniqueId = 0L, instance = null)
 
-    sut.handle(drop)
+    sut.handle(world, drop)
     // Used up in between, by a job that ran first.
     world.get(entity, Inventory::class)!!.clearItems()
     pending!!.invoke()
@@ -90,7 +90,7 @@ class DropItemHandlerTest {
     every { inventoryService.removeOneFromMaster(MASTER_ID, ARROW, 4, 0L) } returns
       ItemContainer.RemovedItem(uniqueId = 0L, instance = null)
 
-    sut.handle(drop)
+    sut.handle(world, drop)
     pending!!.invoke()
 
     assertEquals(6, world.get(entity, Inventory::class)!!.getItem(ARROW.toInt())?.amount)
@@ -99,7 +99,7 @@ class DropItemHandlerTest {
 
   @Test
   fun `more than the bag holds is refused before anything is queued`() {
-    sut.handle(drop.copy(amount = 11))
+    sut.handle(world, drop.copy(amount = 11))
 
     assertNull(pending)
   }

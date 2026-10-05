@@ -5,12 +5,13 @@ import net.bestia.zone.ai.ecs.PlayerControlled
 import net.bestia.zone.ecs.ActivePlayerAOIService
 import net.bestia.zone.ecs.account.ActivePlayer
 import net.bestia.zone.ecs.battle.attack.AttackCancelService
-import net.bestia.zone.ecs.core.WorldView
+import net.bestia.zone.ecs.core.World
+import net.bestia.zone.ecs.core.modify
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.session.EntityNotOwnedSessionException
 import net.bestia.zone.ecs.movement.Position
-import net.bestia.zone.message.InMessageProcessor
 import net.bestia.zone.message.OutMessageProcessor
+import net.bestia.zone.message.TickMessageHandler
 import net.bestia.zone.util.AccountId
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
@@ -25,14 +26,13 @@ import org.springframework.stereotype.Component
 @Component
 class SelectEntityHandler(
   private val connectionInfoService: ConnectionInfoService,
-  private val world: WorldView,
   private val attackCancelService: AttackCancelService,
   private val playerAOIService: ActivePlayerAOIService,
   private val outMessageProcessor: OutMessageProcessor,
-) : InMessageProcessor.IncomingMessageHandler<SelectEntityCMSG> {
+) : TickMessageHandler<SelectEntityCMSG> {
   override val handles = SelectEntityCMSG::class
 
-  override fun handle(msg: SelectEntityCMSG): Boolean {
+  override fun handle(world: World, msg: SelectEntityCMSG): Boolean {
     // Read before switching: this is the entity that is about to stop being driven and start looking after
     // itself again.
     val previous = runCatching { connectionInfoService.getActiveEntityId(msg.playerId) }.getOrNull()
@@ -45,8 +45,8 @@ class SelectEntityHandler(
     }
 
     if (previous != msg.entityId) {
-      moveControlMarker(from = previous, to = msg.entityId)
-      moveViewAnchor(msg.playerId, from = previous, to = msg.entityId)
+      moveControlMarker(world, from = previous, to = msg.entityId)
+      moveViewAnchor(world, msg.playerId, from = previous, to = msg.entityId)
     }
 
     outMessageProcessor.sendToPlayer(msg.playerId, ActiveEntitySMSG(msg.entityId))
@@ -62,12 +62,12 @@ class SelectEntityHandler(
    * access to the world, and giving it one would couple session bookkeeping to the ECS. Each side keeps its own
    * notion of "active" and this handler is the seam that already knows about both.
    */
-  private fun moveControlMarker(from: EntityId?, to: EntityId) {
+  private fun moveControlMarker(world: World, from: EntityId?, to: EntityId) {
     from?.let { previous ->
       world.modify(previous) { id -> remove(id, PlayerControlled::class) }
       // Its standing attack order was the player's, not its own, and AiActSystem will not be looking after
       // it either - AttackSystem does not care whether an entity is player-controlled.
-      attackCancelService.cancelAttack(previous)
+      attackCancelService.cancelAttack(world, previous)
     }
     world.modify(to) { id -> add(id, PlayerControlled) }
   }
@@ -76,7 +76,7 @@ class SelectEntityHandler(
    * The player index is re-seated here because `ZoneEngine` only updates it when the anchor's position
    * changes, and the new one may be standing still.
    */
-  private fun moveViewAnchor(accountId: AccountId, from: EntityId?, to: EntityId) {
+  private fun moveViewAnchor(world: World, accountId: AccountId, from: EntityId?, to: EntityId) {
     from?.let { previous -> world.modify(previous) { id -> remove(id, ActivePlayer::class) } }
 
     val at = world.modify(to) { id ->

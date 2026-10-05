@@ -39,9 +39,9 @@ class AccountInboxTest {
   fun `one account's work runs in order across both lanes`() {
     val order = CopyOnWriteArrayList<String>()
 
-    val a = sut.execute(1L, HandlerLane.TICK) { order.add("tick 1") }
-    val b = sut.execute(1L, HandlerLane.IO) { order.add("io") }
-    val c = sut.execute(1L, HandlerLane.TICK) { order.add("tick 2") }
+    val a = sut.onTick(1L) { order.add("tick 1") }
+    val b = sut.onIo(1L) { order.add("io") }
+    val c = sut.onTick(1L) { order.add("tick 2") }
     tickUntilDone(a, b, c)
 
     assertEquals(listOf("tick 1", "io", "tick 2"), order)
@@ -50,9 +50,9 @@ class AccountInboxTest {
   @Test
   fun `a blocked IO task of one account does not hold up another account`() {
     val release = CountDownLatch(1)
-    sut.execute(1L, HandlerLane.IO) { release.await() }
+    sut.onIo(1L) { release.await() }
 
-    val other = sut.execute(2L, HandlerLane.IO) { }
+    val other = sut.onIo(2L) { }
 
     other.get(2, TimeUnit.SECONDS)
     release.countDown()
@@ -61,9 +61,9 @@ class AccountInboxTest {
   @Test
   fun `a full inbox closes the connection`() {
     val release = CountDownLatch(1)
-    sut.execute(1L, HandlerLane.IO) { release.await() }
+    sut.onIo(1L) { release.await() }
 
-    repeat(AccountInbox.CAPACITY + 1) { sut.execute(1L, HandlerLane.IO) { } }
+    repeat(AccountInbox.CAPACITY + 1) { sut.onIo(1L) { } }
 
     verify { registry.disconnect(1L, "INBOX_OVERFLOW") }
     release.countDown()
@@ -71,8 +71,8 @@ class AccountInboxTest {
 
   @Test
   fun `a failing task closes the connection and the next task still runs`() {
-    sut.execute(1L, HandlerLane.IO) { error("boom") }
-    val next = sut.execute(1L, HandlerLane.IO) { }
+    sut.onIo(1L) { error("boom") }
+    val next = sut.onIo(1L) { }
 
     next.get(2, TimeUnit.SECONDS)
 
