@@ -5,6 +5,7 @@ import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
 import net.bestia.account.Authority
+import net.bestia.account.Role
 import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.message.OperationErrorSMSG
@@ -56,6 +57,19 @@ class ChatCommandHandlerTest {
 
     assertFalse(exp.executed)
     assertEquals(OperationErrorSMSG(OpError.CHAT_COMMAND_NO_PERMISSION), answer())
+  }
+
+  @Test
+  fun `a plain player may not create items or move across the map`() {
+    val item = FakeChatCommand("/item", requiredAuthority = Authority.ITEM)
+    val mapMove = FakeChatCommand("/mm", requiredAuthority = Authority.MAP_MOVE)
+
+    handle("/item 1 100", Role.USER.authorities, item, mapMove)
+    handle("/mm 10 10", Role.USER.authorities, item, mapMove)
+
+    assertFalse(item.executed)
+    assertFalse(mapMove.executed)
+    verify(exactly = 2) { out.sendToPlayer(PLAYER, OperationErrorSMSG(OpError.CHAT_COMMAND_NO_PERMISSION)) }
   }
 
   /**
