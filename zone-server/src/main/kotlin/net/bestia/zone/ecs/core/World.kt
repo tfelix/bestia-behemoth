@@ -1,5 +1,6 @@
 package net.bestia.zone.ecs.core
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.util.EntityId
 
 import java.util.concurrent.ConcurrentHashMap
@@ -251,7 +252,7 @@ class World(
   fun query(vararg types: KClass<out Component>): Query {
     val byType = LinkedHashMap<KClass<out Component>, ComponentStore<out Component>>(types.size)
     for (type in types) byType[type] = storeErased(type)
-    return Query(byType)
+    return Query(byType, isolateFailures = iterating)
   }
 
   /** Visits every `(entity, component)` pair currently stored for [type]. */
@@ -295,9 +296,17 @@ class World(
   private fun applyDeferred() {
     while (true) {
       val job = deferred.poll() ?: break
-      job()
+
+      try {
+        job()
+      } catch (e: Throwable) {
+        if (e.isFatal()) throw e
+        deferredFailureLog.emit { held -> LOG.error(e) { "A deferred change failed, the rest still apply (+$held more)" } }
+      }
     }
   }
+
+  private val deferredFailureLog = RateLimitedLog()
 
   /**
    * Ticks executed since this world was created.
@@ -321,5 +330,9 @@ class World(
       iterating = false
     }
     applyDeferred()          // structural changes emitted by systems
+  }
+
+  companion object {
+    private val LOG = KotlinLogging.logger { }
   }
 }

@@ -1,5 +1,6 @@
 package net.bestia.zone.ecs.core
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import java.util.concurrent.ConcurrentLinkedQueue
 import kotlin.reflect.KClass
 
@@ -29,7 +30,17 @@ class CommandQueue {
   fun drain(world: World) {
     while (true) {
       val command = queue.poll() ?: break
-      handlers[command::class]?.forEach { it(world, command) }
+
+      try {
+        handlers[command::class]?.forEach { it(world, command) }
+      } catch (e: Throwable) {
+        if (e.isFatal()) throw e
+        LOG.error(e) { "Command ${command::class.simpleName} failed, the rest still apply" }
+      }
     }
+  }
+
+  companion object {
+    private val LOG = KotlinLogging.logger { }
   }
 }

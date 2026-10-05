@@ -1,7 +1,9 @@
 package net.bestia.zone.ecs.core
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.util.EntityId
 
+import java.util.concurrent.atomic.AtomicInteger
 import java.util.stream.IntStream
 import kotlin.reflect.KClass
 
@@ -24,9 +26,13 @@ import kotlin.reflect.KClass
  * fork-join pool. It must only be used by systems that do not perform structural
  * changes on the involved stores during iteration (mutating existing component
  * fields, which also flips their own dirty flag, is safe).
+ *
+ * With [isolateFailures] (set while a tick runs) an entity whose action throws is logged and
+ * skipped, so one bad entity does not end its system's whole update.
  */
 class Query internal constructor(
   private val stores: Map<KClass<out Component>, ComponentStore<out Component>>,
+  private val isolateFailures: Boolean = false,
 ) {
   init {
     require(stores.isNotEmpty()) { "World.query() requires at least one component type" }
@@ -45,24 +51,51 @@ class Query internal constructor(
   fun each(action: Row.(EntityId) -> Unit) {
     val driver = driver()
     val row = Row(stores)
+    val failures = AtomicInteger()
     for (i in 0 until driver.size) {
       val id = driver.entityAt(i)
       if (!matchesAll(driver, id)) continue
       row.currentId = id
-      row.action(id)
+      runIsolated(id, failures) { row.action(id) }
     }
   }
 
   fun parallelEach(action: Row.(EntityId) -> Unit) {
     val driver = driver()
     val threadRow = ThreadLocal.withInitial { Row(stores) }
+    val failures = AtomicInteger()
     IntStream.range(0, driver.size).parallel().forEach { i ->
       val id = driver.entityAt(i)
       if (!matchesAll(driver, id)) return@forEach
       val row = threadRow.get()
       row.currentId = id
-      row.action(id)
+      runIsolated(id, failures) { row.action(id) }
     }
+  }
+
+  /**
+   * More than [MAX_FAILURES_PER_PASS] failures in one pass is a bug in the system rather than in one
+   * entity, so the failure is rethrown and the scheduler counts it against the system.
+   */
+  private inline fun runIsolated(id: EntityId, failures: AtomicInteger, action: () -> Unit) {
+    if (!isolateFailures) {
+      action()
+      return
+    }
+
+    try {
+      action()
+    } catch (e: Throwable) {
+      if (e.isFatal() || failures.incrementAndGet() > MAX_FAILURES_PER_PASS) throw e
+      FAILURE_LOG.emit { held -> LOG.error(e) { "Entity $id failed in a query and was skipped (+$held more)" } }
+    }
+  }
+
+  companion object {
+    private val LOG = KotlinLogging.logger { }
+    private val FAILURE_LOG = RateLimitedLog()
+
+    const val MAX_FAILURES_PER_PASS = 8
   }
 }
 

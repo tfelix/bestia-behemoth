@@ -112,4 +112,71 @@ class SystemSchedulerTest {
     assertEquals(10, b.runs)
     assertTrue(world.waveCount == 1)
   }
+
+  @Test
+  fun `a throwing system does not stop the systems after it`() {
+    val failing = FailingSystem { error("boom") }
+    val after = CountingSystem(Schedule.EveryTick)
+    val world = testWorld(systems = listOf(failing, after))
+
+    world.tick(0.05f)
+
+    assertEquals(1, after.runs)
+  }
+
+  @Test
+  fun `an Error such as TODO is contained like an exception`() {
+    val failing = FailingSystem { TODO("not built yet") }
+    val after = CountingSystem(Schedule.EveryTick)
+    val world = testWorld(systems = listOf(failing, after))
+
+    world.tick(0.05f)
+
+    assertEquals(1, after.runs)
+  }
+
+  @Test
+  fun `a system that keeps failing is switched off`() {
+    val failing = FailingSystem { error("boom") }
+    val world = testWorld(systems = listOf(failing))
+
+    repeat(SystemScheduler.MAX_CONSECUTIVE_FAILURES + 3) { world.tick(0.05f) }
+
+    assertEquals(SystemScheduler.MAX_CONSECUTIVE_FAILURES, failing.attempts)
+  }
+
+  @Test
+  fun `one success resets the failure count`() {
+    var tick = 0
+    // Fails on every tick but every fourth, so it never reaches five failures in a row.
+    val flaky = FailingSystem { if (++tick % 4 != 0) error("flaky") }
+    val world = testWorld(systems = listOf(flaky))
+
+    repeat(20) { world.tick(0.05f) }
+
+    assertEquals(20, flaky.attempts)
+  }
+
+  @Test
+  fun `a failure inside a parallel wave is contained`() {
+    val failing = FailingSystem(writes = setOf(CompA::class)) { error("boom") }
+    val sibling = CountingSystem(Schedule.EveryTick, writes = setOf(CompB::class))
+    val world = testWorld(parallelSystems = true, systems = listOf(failing, sibling))
+
+    repeat(3) { world.tick(0.05f) }
+
+    assertEquals(3, sibling.runs)
+  }
+}
+
+private class FailingSystem(
+  override val writes: Set<kotlin.reflect.KClass<out Component>> = emptySet(),
+  private val body: () -> Unit,
+) : System {
+  var attempts = 0
+
+  override fun update(world: World, deltaTime: Float) {
+    attempts++
+    body()
+  }
 }

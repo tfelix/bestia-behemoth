@@ -8,11 +8,13 @@ import net.bestia.zone.ecs.account.ActivePlayer
 import net.bestia.zone.ecs.battle.damage.Dead
 import net.bestia.zone.ecs.core.AsyncJobExecutor
 import net.bestia.zone.ecs.core.Dirtyable
+import net.bestia.zone.ecs.core.RateLimitedLog
 import net.bestia.zone.ecs.core.Removable
 import net.bestia.zone.util.AccountId
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.dirtyableComponentTypes
+import net.bestia.zone.ecs.core.isFatal
 import net.bestia.zone.ecs.prop.StaticSync
 import net.bestia.zone.ecs.prop.WorldObjectIdentity
 import net.bestia.zone.ecs.visibility.EntitySnapshotBuilder
@@ -108,27 +110,38 @@ class ZoneEngine(
     running = true
     lastTickTime = System.currentTimeMillis()
 
-    tickExecutor.submit {
-      LOG.info { "Zone ECS engine started @ ${config.tickRate}Hz" }
-      while (running) {
-        val now = System.currentTimeMillis()
-        val deltaTime = (now - lastTickTime) / 1000f
-        lastTickTime = now
-
-        try {
-          tickOnce(deltaTime)
-        } catch (e: Exception) {
-          LOG.error(e) { "Error in zone tick: ${e.message}" }
-        }
-
-        val budget = 1000L / config.tickRate
-        val elapsed = System.currentTimeMillis() - now
-
-        if (elapsed > budget) reportSlowTick(elapsed, budget)
-
-        val sleep = budget - elapsed
-        if (sleep > 0) Thread.sleep(sleep)
+    // execute, not submit: a Future nobody reads would swallow the error that ends the loop.
+    tickExecutor.execute {
+      try {
+        runTickLoop()
+      } catch (e: Throwable) {
+        LOG.error(e) { "Zone tick loop died, the world no longer advances" }
+        throw e
       }
+    }
+  }
+
+  private fun runTickLoop() {
+    LOG.info { "Zone ECS engine started @ ${config.tickRate}Hz" }
+    while (running) {
+      val now = System.currentTimeMillis()
+      val deltaTime = (now - lastTickTime) / 1000f
+      lastTickTime = now
+
+      try {
+        tickOnce(deltaTime)
+      } catch (e: Throwable) {
+        if (e.isFatal()) throw e
+        LOG.error(e) { "Error in zone tick: ${e.message}" }
+      }
+
+      val budget = 1000L / config.tickRate
+      val elapsed = System.currentTimeMillis() - now
+
+      if (elapsed > budget) reportSlowTick(elapsed, budget)
+
+      val sleep = budget - elapsed
+      if (sleep > 0) Thread.sleep(sleep)
     }
   }
 
@@ -251,39 +264,50 @@ class ZoneEngine(
     // Build the outbound component update messages outside the world lock: resolving sync
     // targets (e.g. party membership) may hit the database and must not block the tick thread.
     for ((entityId, comps) in perEntity) {
-      val broadcastMsgs = mutableListOf<SMSG>()
-      val byAccountMsgs = LinkedHashMap<Long, MutableList<SMSG>>()
-
-      for (c in comps) {
-        val msg = c.toEntityMessage(entityId)
-
-        when (val target = c.syncTargets(world, entityId)) {
-          is SyncTargets.PublicInRange -> broadcastMsgs.add(msg)
-          is SyncTargets.OwnerOnly -> {
-            val ownerAccountId = world.get(entityId, Account::class)
-              ?.accountId
-              ?: continue
-            byAccountMsgs.getOrPut(ownerAccountId) { mutableListOf() }.add(msg)
-          }
-
-          is SyncTargets.Accounts -> target.accountIds.forEach { accountId ->
-            byAccountMsgs.getOrPut(accountId) { ArrayList() }.add(msg)
-          }
-        }
-      }
-
-      if (broadcastMsgs.isNotEmpty()) {
-        publicAudienceOf(entityId).forEach { accountId ->
-          asyncJobExecutor.submit(key = accountId) { outMessageProcessor.sendToPlayer(accountId, broadcastMsgs) }
-        }
-      }
-      byAccountMsgs.forEach { (accountId, msgs) ->
-        asyncJobExecutor.submit(key = accountId) { outMessageProcessor.sendToPlayer(accountId, msgs) }
+      try {
+        sendChanges(entityId, comps)
+      } catch (e: Exception) {
+        // One component that cannot describe itself must not cost every other entity its update.
+        syncFailureLog.emit { held -> LOG.error(e) { "Could not sync entity $entityId (+$held more)" } }
       }
     }
 
     flushRemovedComponents()
     flushVisibilityChanges()
+  }
+
+  private val syncFailureLog = RateLimitedLog()
+
+  private fun sendChanges(entityId: EntityId, comps: List<Dirtyable>) {
+    val broadcastMsgs = mutableListOf<SMSG>()
+    val byAccountMsgs = LinkedHashMap<Long, MutableList<SMSG>>()
+
+    for (c in comps) {
+      val msg = c.toEntityMessage(entityId)
+
+      when (val target = c.syncTargets(world, entityId)) {
+        is SyncTargets.PublicInRange -> broadcastMsgs.add(msg)
+        is SyncTargets.OwnerOnly -> {
+          val ownerAccountId = world.get(entityId, Account::class)
+            ?.accountId
+            ?: continue
+          byAccountMsgs.getOrPut(ownerAccountId) { mutableListOf() }.add(msg)
+        }
+
+        is SyncTargets.Accounts -> target.accountIds.forEach { accountId ->
+          byAccountMsgs.getOrPut(accountId) { ArrayList() }.add(msg)
+        }
+      }
+    }
+
+    if (broadcastMsgs.isNotEmpty()) {
+      publicAudienceOf(entityId).forEach { accountId ->
+        asyncJobExecutor.submit(key = accountId) { outMessageProcessor.sendToPlayer(accountId, broadcastMsgs) }
+      }
+    }
+    byAccountMsgs.forEach { (accountId, msgs) ->
+      asyncJobExecutor.submit(key = accountId) { outMessageProcessor.sendToPlayer(accountId, msgs) }
+    }
   }
 
   /**

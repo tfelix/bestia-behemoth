@@ -100,5 +100,66 @@ class WorldTest {
     assertFalse(world.has(e, Health::class))
   }
 
+  @Test
+  fun `deferred changes still apply when a later system throws`() {
+    val remover = object : System {
+      override val writes = setOf(Health::class)
+      override fun update(world: World, deltaTime: Float) {
+        world.query(Health::class).each { id -> world.remove(id, Health::class) }
+      }
+    }
+    val failing = object : System {
+      override fun update(world: World, deltaTime: Float) {
+        error("boom")
+      }
+    }
+    val world = testWorld(systems = listOf(remover, failing))
+    val e = world.create()
+    world.add(e, Health(1))
+
+    world.tick(0.05f)
+
+    assertFalse(world.has(e, Health::class))
+  }
+
+  @Test
+  fun `one entity that throws inside a tick does not stop the others`() {
+    val visited = mutableListOf<EntityId>()
+    var bad = -1L
+    val system = object : System {
+      override fun update(world: World, deltaTime: Float) {
+        world.query(Health::class).each { id ->
+          if (id == bad) error("bad entity")
+          visited.add(id)
+        }
+      }
+    }
+    val world = testWorld(systems = listOf(system))
+    val first = world.create().also { world.add(it, Health()) }
+    bad = world.create().also { world.add(it, Health()) }
+    val last = world.create().also { world.add(it, Health()) }
+
+    world.tick(0.05f)
+
+    assertEquals(listOf(first, last), visited)
+  }
+
+  @Test
+  fun `a failing command does not stop the commands after it`() {
+    val world = testWorld()
+    val e = world.create()
+    world.add(e, Velocity(0f, 0f))
+    world.onCommand<SetVelocity> { w, c ->
+      check(c.dx >= 0f) { "negative speed" }
+      w.get(c.entity, Velocity::class)?.apply { dx = c.dx }
+    }
+
+    world.send(SetVelocity(e, -1f, 0f))
+    world.send(SetVelocity(e, 5f, 0f))
+    world.tick(0.05f)
+
+    assertEquals(5f, world.get(e, Velocity::class)!!.dx)
+  }
+
   private class SetVelocity(val entity: EntityId, val dx: Float, val dy: Float) : Command
 }

@@ -6,6 +6,7 @@ import net.bestia.zone.ecs.account.Account
 import net.bestia.zone.ecs.account.ActivePlayer
 import net.bestia.zone.ecs.battle.damage.Dead
 import net.bestia.zone.ecs.core.AsyncJobExecutor
+import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.ecs.item.CarryCapacity
@@ -23,8 +24,11 @@ import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.message.SMSG
+import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import java.time.Duration
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.test.assertEquals
 
 /**
@@ -63,7 +67,11 @@ class ZoneEngineTest {
   @BeforeEach
   fun setUp() {
     world = testWorld()
-    zoneEngine = ZoneEngine(
+    zoneEngine = engineFor(world)
+  }
+
+  private fun engineFor(world: World): ZoneEngine {
+    return ZoneEngine(
       world = world,
       config = ZoneConfig(tickRate = 20),
       entityAOIService = entityAOIService,
@@ -298,6 +306,46 @@ class ZoneEngineTest {
         accountId,
         listOf(CarryCapacityComponentSMSG(entity, current = 0, max = 100))
       )
+    }
+  }
+
+  @Test
+  fun `a throwing system does not keep dirty components from syncing`() {
+    val failing = object : System {
+      override fun update(world: World, deltaTime: Float) {
+        error("boom")
+      }
+    }
+    val world = testWorld(systems = listOf(failing))
+    val engine = engineFor(world)
+    val accountId = 44L
+    val entity = world.createEntity { id ->
+      add(id, Account(accountId))
+      add(id, CarryCapacity(current = 0, max = 100))
+    }
+
+    engine.tickOnce(0.05f)
+
+    verify(timeout = 1000) {
+      outMessageProcessor.sendToPlayer(accountId, listOf(CarryCapacityComponentSMSG(entity, current = 0, max = 100)))
+    }
+  }
+
+  @Test
+  fun `the tick loop survives an Error thrown by a system`() {
+    val runs = AtomicInteger()
+    val failsOnce = object : System {
+      override fun update(world: World, deltaTime: Float) {
+        if (runs.incrementAndGet() == 1) TODO("not built yet")
+      }
+    }
+    val engine = engineFor(testWorld(systems = listOf(failsOnce)))
+
+    engine.start()
+    try {
+      await().atMost(Duration.ofSeconds(5)).until { runs.get() >= 3 }
+    } finally {
+      engine.stop()
     }
   }
 }
