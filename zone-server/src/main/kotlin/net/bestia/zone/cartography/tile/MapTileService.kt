@@ -22,9 +22,7 @@ import java.io.ByteArrayInputStream
 import java.io.File
 import java.io.IOException
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.TimeoutException
 import javax.imageio.ImageIO
 
 /**
@@ -43,7 +41,7 @@ import javax.imageio.ImageIO
  *
  * ### Rendering is bounded and never on the tick thread
  *
- * Tiles are rendered on a small pool of its own rather than on whichever servlet thread asked, so a burst of
+ * Tiles are rendered on a small [TileRenderPool] rather than on whichever servlet thread asked, so a burst of
  * requests cannot turn into a burst of concurrent renders - each of which holds a sampled raster and its own
  * chunk-height caches, making the ceiling memory rather than cores. Nothing here touches the ECS: the layers are
  * plain arrays, the feature store is frozen after generation, and `ChunkHeightSampler` documents itself as
@@ -104,18 +102,12 @@ class MapTileService(
   /** The places in one tile, and how the client is allowed to cache them. Mirrors [Tile]. */
   data class Places(val places: List<Place>, val etag: String, val shared: Boolean)
 
-  /**
-   * The render pool did not answer in time.
-   *
-   * Its own type rather than an `IllegalStateException`, so the controller can tell a saturated pool from a
-   * genuine bug. The difference reaches the player: a tile refused as 500 is one the client has no reason to
-   * ask for again, and a cold zoom level that fails once then stays fog for the whole session.
-   */
-  class RenderTimedOut(message: String, cause: Throwable) : RuntimeException(message, cause)
-
-  private val workers = Executors.newFixedThreadPool(RENDER_THREADS) { runnable ->
-    Thread(runnable, "map-render").apply { isDaemon = true }
-  }
+  private val pool = TileRenderPool(
+    threads = RENDER_THREADS,
+    queueCapacity = RENDER_QUEUE_CAPACITY,
+    rendersPerMaster = RENDERS_PER_MASTER,
+    timeoutMillis = TimeUnit.SECONDS.toMillis(RENDER_TIMEOUT_SECONDS)
+  )
 
   private val renderers = ThreadLocal.withInitial { TileRenderer(resources.inputs) }
 
@@ -200,7 +192,7 @@ class MapTileService(
     val coverage = coverageFor(masterId)
 
     if (coverage.coverageOf(FogMask.clearingArea(id)) == AreaCoverage.Full) {
-      return Tile(base(id), etag = "\"${resources.key}-${id.path()}\"", shared = true)
+      return Tile(base(masterId, id), etag = "\"${resources.key}-${id.path()}\"", shared = true)
     }
 
     if (coverage.coverageOf(id.bounds) == AreaCoverage.None) return null
@@ -227,7 +219,7 @@ class MapTileService(
     // fringe swallowing a lone charted cell after quantisation.
     if (mask.isFullyHidden) return null
 
-    val bytes = render { renderers.get().encode(baseImage(id), mask) }
+    val bytes = pool.render(masterId) { renderers.get().encode(baseImage(id), mask) }
     if (masked.size < MAX_MASKED_TILES) masked[cacheKey] = bytes
 
     return Tile(bytes, etag = "\"${resources.key}-$cacheKey\"", shared = false)
@@ -347,10 +339,10 @@ class MapTileService(
         id.ty in 0 until TileId.tilesAcross(resources.heightMetres, id.level)
 
   /** Base bytes from the on-disk cache, rendering into it on a miss. */
-  private fun base(id: TileId): ByteArray {
+  private fun base(masterId: Long, id: TileId): ByteArray {
     resources.store.read(id)?.let { return it }
 
-    val bytes = render { renderers.get().encode(id) }
+    val bytes = pool.render(masterId) { renderers.get().encode(id) }
     resources.store.write(id, bytes)
     return bytes
   }
@@ -420,19 +412,9 @@ class MapTileService(
     coverageCache.remove(event.masterId)
   }
 
-  private fun render(work: () -> ByteArray): ByteArray {
-    val future = workers.submit(work)
-    return try {
-      future.get(RENDER_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-    } catch (e: TimeoutException) {
-      future.cancel(true)
-      throw RenderTimedOut("Rendering a tile took longer than $RENDER_TIMEOUT_SECONDS s", e)
-    }
-  }
-
   @PreDestroy
   fun shutdown() {
-    workers.shutdownNow()
+    pool.close()
   }
 
   private companion object {
@@ -441,6 +423,12 @@ class MapTileService(
 
     /** Memory rather than cores is the ceiling: every worker holds its own raster and chunk-height caches. */
     val RENDER_THREADS = (Runtime.getRuntime().availableProcessors() / 2).coerceIn(1, 4)
+
+    /** A few screens of tiles waiting. Beyond that a request is refused rather than held on a servlet thread. */
+    const val RENDER_QUEUE_CAPACITY = 32
+
+    /** About one screen's row of tiles at once, so one client cannot fill the queue on its own. */
+    const val RENDERS_PER_MASTER = 6
 
     /**
      * How long a master's charted area is reused for.
