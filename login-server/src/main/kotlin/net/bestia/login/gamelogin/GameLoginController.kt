@@ -4,8 +4,10 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import com.fasterxml.jackson.databind.annotation.JsonNaming
 import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.servlet.http.HttpServletRequest
+import net.bestia.account.KickReason
 import net.bestia.login.account.AccountLoginGuard
 import net.bestia.login.account.AccountRepository
+import net.bestia.login.account.AccountSessionTerminator
 import net.bestia.login.jwt.JwtService
 import net.bestia.login.ratelimit.RateLimiter
 import org.springframework.http.HttpStatus
@@ -33,6 +35,7 @@ class GameLoginController(
   private val accounts: AccountRepository,
   private val accountLoginGuard: AccountLoginGuard,
   private val refreshTokenService: RefreshTokenService,
+  private val accountSessionTerminator: AccountSessionTerminator,
   private val jwtService: JwtService,
   private val rateLimiter: RateLimiter
 ) {
@@ -199,7 +202,7 @@ class GameLoginController(
       accountLoginGuard.denialReason(account)?.let { reason ->
         // The successor minted a moment ago goes too. An account that may not log in has no business
         // holding a standing invitation to do so on any of its devices.
-        refreshTokenService.revokeAllForAccount(account.id)
+        accountSessionTerminator.terminate(account.id, KickReason.BANNED)
 
         throw GameLoginException(GameLoginError.ACCOUNT_UNAVAILABLE, reason)
       }
