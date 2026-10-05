@@ -4,7 +4,6 @@ import net.bestia.bnet.proto.OperationErrorProto
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.movement.Position
-import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.economy.SettlementEconomyService
 import net.bestia.zone.message.InMessageProcessor
 import net.bestia.zone.message.OperationErrorSMSG
@@ -45,7 +44,7 @@ class OpenShopHandler(
         val position = get(activeEntityId, Position::class)?.toVec3L()
         val counter = get(msg.merchantEntityId, Position::class)?.toVec3L()
 
-        if (position == null || counter == null || !withinReach(position, counter)) {
+        if (position == null || counter == null || !ShopReach.withinReach(position, counter)) {
           null
         } else {
           economy.shopAt(position.x, position.y)
@@ -64,17 +63,5 @@ class OpenShopHandler(
     offers.publishTo(msg.playerId, msg.merchantEntityId, shop.first, shop.second, stocked)
 
     return true
-  }
-
-  private fun withinReach(player: Vec3L, merchant: Vec3L): Boolean {
-    return player.distance(merchant) <= MAX_SHOP_RANGE
-  }
-
-  private companion object {
-    /**
-     * `TalkService.MAX_TALK_RANGE`, and not shared with it for that constant's own reason: the two are
-     * allowed to diverge, and a counter is something you stand at rather than shout across.
-     */
-    const val MAX_SHOP_RANGE = 10L
   }
 }
