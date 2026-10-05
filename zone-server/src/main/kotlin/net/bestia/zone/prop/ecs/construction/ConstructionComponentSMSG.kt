@@ -1,7 +1,7 @@
 package net.bestia.zone.prop.ecs.construction
 
 import net.bestia.bnet.proto.ConstructionComponentSmsgProto
-import net.bestia.bnet.proto.EnvelopeProto
+import net.bestia.bnet.proto.StateBatchSmsgProto
 import net.bestia.zone.message.EntitySMSG
 
 /**
@@ -18,17 +18,14 @@ data class ConstructionComponentSMSG(
   val removed: Boolean = false
 ) : EntitySMSG {
 
-  override fun toBnetEnvelope(): EnvelopeProto.Envelope {
+  override fun writeTo(update: StateBatchSmsgProto.EntityUpdate.Builder) {
     val proto = ConstructionComponentSmsgProto.ConstructionComponentSMSG.newBuilder()
-      .setEntityId(entityId)
       .setRemainingSeconds(remainingSeconds)
       .setTotalSeconds(totalSeconds)
       .setActive(active)
       .setRemoved(removed)
       .build()
 
-    return EnvelopeProto.Envelope.newBuilder()
-      .setCompConstruction(proto)
-      .build()
+    update.addComponents(StateBatchSmsgProto.ComponentDelta.newBuilder().setConstruction(proto))
   }
 }

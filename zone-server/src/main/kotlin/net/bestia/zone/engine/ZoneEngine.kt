@@ -21,7 +21,8 @@ import net.bestia.zone.aoi.EntityAudience
 import net.bestia.zone.aoi.EntityVisibility
 import net.bestia.zone.entity.VanishEntitySMSG
 import net.bestia.zone.message.EntitySMSG
-import net.bestia.zone.message.SMSG
+import net.bestia.zone.message.EntityUpdate
+import net.bestia.zone.message.StateBatchSMSG
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.message.TickOutbox
 import net.bestia.zone.metrics.TickMetrics
@@ -69,6 +70,25 @@ class ZoneEngine(
 
   private val tickExecutor = Executors.newSingleThreadExecutor { r -> Thread(r, TICK_THREAD_NAME) }
   private val removedComponentOutbox = ConcurrentLinkedQueue<RemovedComponentRecord>()
+
+  /** A destroyed entity's vanish, with its audience taken while the entity could still be read. */
+  private class VanishRecord(val update: EntityUpdate, val accountIds: List<AccountId>)
+
+  /** Filled whenever an entity is destroyed, possibly off the tick; sent with the next sync's batches. */
+  private val vanishOutbox = ConcurrentLinkedQueue<VanishRecord>()
+
+  /** Each account's entity updates from one sync, sent as one [StateBatchSMSG] per account. */
+  private class StateBatches {
+    private val byAccount = LinkedHashMap<AccountId, MutableList<EntityUpdate>>()
+
+    fun add(accountId: AccountId, update: EntityUpdate) {
+      byAccount.getOrPut(accountId) { ArrayList() }.add(update)
+    }
+
+    fun forEach(action: (AccountId, List<EntityUpdate>) -> Unit) {
+      byAccount.forEach(action)
+    }
+  }
 
   @Volatile
   private var running = false
@@ -264,17 +284,30 @@ class ZoneEngine(
     val deliveries = entityVisibility.drain()
     val snapshotReceivers = snapshotReceiversByEntity(deliveries)
 
+    val batches = StateBatches()
+
     for ((entityId, comps) in perEntity) {
       try {
-        sendChanges(entityId, comps, snapshotReceivers[entityId].orEmpty())
+        sendChanges(entityId, comps, snapshotReceivers[entityId].orEmpty(), batches)
       } catch (e: Exception) {
         // One component that cannot describe itself must not cost every other entity its update.
         syncFailureLog.emit { held -> LOG.error(e) { "Could not sync entity $entityId (+$held more)" } }
       }
     }
 
-    flushRemovedComponents()
-    flushVisibilityChanges(deliveries)
+    addRemovedComponents(batches)
+    addVanishes(batches)
+    addVisibilityChanges(deliveries, batches)
+    send(batches)
+  }
+
+  private fun send(batches: StateBatches) {
+    val tick = world.tickCount
+
+    batches.forEach { accountId, updates ->
+      val batch = StateBatchSMSG(tick, updates)
+      outMessageProcessor.sendToPlayer(accountId, batch)
+    }
   }
 
   private fun snapshotReceiversByEntity(deliveries: List<EntityVisibility.Delivery>): Map<EntityId, Set<AccountId>> {
@@ -320,9 +353,14 @@ class ZoneEngine(
 
   private val syncFailureLog = RateLimitedLog()
 
-  private fun sendChanges(entityId: EntityId, comps: List<Dirtyable>, gettingSnapshot: Set<AccountId>) {
-    val broadcastMsgs = mutableListOf<SMSG>()
-    val byAccountMsgs = LinkedHashMap<Long, MutableList<SMSG>>()
+  private fun sendChanges(
+    entityId: EntityId,
+    comps: List<Dirtyable>,
+    gettingSnapshot: Set<AccountId>,
+    batches: StateBatches,
+  ) {
+    val broadcastMsgs = mutableListOf<EntitySMSG>()
+    val byAccountMsgs = LinkedHashMap<Long, MutableList<EntitySMSG>>()
 
     // Position leads deliberately: the client reconciles an arriving path against where it believes the entity
     // is, so it has to be told where the entity *is* before it is told where it is *going*. The dirty log is in
@@ -347,13 +385,12 @@ class ZoneEngine(
     }
 
     if (broadcastMsgs.isNotEmpty()) {
-      publicAudienceOf(entityId).filterNot { it in gettingSnapshot }.forEach { accountId ->
-        outMessageProcessor.sendToPlayer(accountId, broadcastMsgs)
-      }
+      // One instance in every viewer's batch, so it is serialised once for all of them.
+      val publicUpdate = EntityUpdate(entityId, broadcastMsgs)
+
+      publicAudienceOf(entityId).filterNot { it in gettingSnapshot }.forEach { batches.add(it, publicUpdate) }
     }
-    byAccountMsgs.forEach { (accountId, msgs) ->
-      outMessageProcessor.sendToPlayer(accountId, msgs)
-    }
+    byAccountMsgs.forEach { (accountId, msgs) -> batches.add(accountId, EntityUpdate(entityId, msgs)) }
   }
 
   /** Who is told about a [SyncTargets.PublicInRange] change to [entityId]; see [EntityAudience]. */
@@ -371,22 +408,21 @@ class ZoneEngine(
    * No budget of its own: arrivals are driven by chunks going out, which `ChunkStreamSystem` already meters
    * at `chunksPerTickPerPlayer`, so a login spreads over the same second or two the terrain does.
    */
-  private fun flushVisibilityChanges(deliveries: List<EntityVisibility.Delivery>) {
+  private fun addVisibilityChanges(deliveries: List<EntityVisibility.Delivery>, batches: StateBatches) {
     // One snapshot per entity per tick, however many accounts it appears to.
     val snapshots = HashMap<EntityId, EntitySnapshotBuilder.Snapshot>()
 
     for (delivery in deliveries) {
-      val msgs = delivery.appeared.flatMap { entityId ->
-        snapshots.getOrPut(entityId) { snapshotBuilder.snapshotOf(world, entityId) }.visibleTo(delivery.accountId)
+      for (entityId in delivery.appeared) {
+        val snapshot = snapshots.getOrPut(entityId) { snapshotBuilder.snapshotOf(world, entityId) }
+          .visibleTo(delivery.accountId)
+        if (snapshot.isNotEmpty()) batches.add(delivery.accountId, EntityUpdate(entityId, snapshot))
       }
 
-      val withVanishes = msgs + delivery.vanished.map {
-        VanishEntitySMSG(it, VanishEntitySMSG.VanishKind.OUT_OF_SIGHT)
+      for (entityId in delivery.vanished) {
+        val vanish = VanishEntitySMSG(entityId, VanishEntitySMSG.VanishKind.OUT_OF_SIGHT)
+        batches.add(delivery.accountId, EntityUpdate(entityId, listOf(vanish)))
       }
-
-      if (withVanishes.isEmpty()) continue
-
-      outMessageProcessor.sendToPlayer(delivery.accountId, withVanishes)
     }
   }
 
@@ -395,34 +431,37 @@ class ZoneEngine(
    * still alive here (only a single component was removed), so owner resolution for [SyncTargets]
    * that need it works exactly as in the dirty flush.
    */
-  private fun flushRemovedComponents() {
-    // TODO isnt there a nicer pattern in kotlin? maybe foreach() ?
+  private fun addRemovedComponents(batches: StateBatches) {
     while (true) {
       val record = removedComponentOutbox.poll() ?: break
-      val msg = record.msg
+      val update = EntityUpdate(record.entityId, listOf(record.msg))
 
       when (val targets = record.targets) {
-        is SyncTargets.PublicInRange -> publicAudienceOf(record.entityId).forEach { accountId ->
-          outMessageProcessor.sendToPlayer(accountId, msg)
-        }
+        is SyncTargets.PublicInRange -> publicAudienceOf(record.entityId).forEach { batches.add(it, update) }
 
         is SyncTargets.OwnerOnly -> {
           val owner = world.get(record.entityId, Account::class)?.accountId ?: continue
-          outMessageProcessor.sendToPlayer(owner, msg)
+          batches.add(owner, update)
         }
 
-        is SyncTargets.Accounts -> targets.accountIds.forEach { accountId ->
-          outMessageProcessor.sendToPlayer(accountId, msg)
-        }
+        is SyncTargets.Accounts -> targets.accountIds.forEach { batches.add(it, update) }
       }
+    }
+  }
+
+  private fun addVanishes(batches: StateBatches) {
+    while (true) {
+      val record = vanishOutbox.poll() ?: break
+      record.accountIds.forEach { batches.add(it, record.update) }
     }
   }
 
   /**
    * An entity that was never synced to any client (no [Dirtyable] component) never told a client it
-   * existed either, so it needs no vanish. One that was gets a [VanishEntitySMSG] broadcast to the
-   * superset of every synced component's [SyncTargets] - called from [EcsWorld.onDestroy] while the
-   * entity's components are still readable (see the ordering note on [EcsWorld.destroyNow]).
+   * existed either, so it needs no vanish. One that was gets a [VanishEntitySMSG] in the next sync's batches,
+   * addressed to the superset of every synced component's [SyncTargets] - resolved here, from
+   * [EcsWorld.onDestroy], while the entity's components are still readable (see the ordering note on
+   * [EcsWorld.destroyNow]).
    */
   private fun notifyVanishOnDestroy(entityId: EntityId) {
     val syncedComponents = syncableComponentTypes.mapNotNull { type -> world.get(entityId, type) as? Dirtyable }
@@ -430,19 +469,15 @@ class ZoneEngine(
 
     val targets = mergeSyncTargets(entityId, syncedComponents.map { it.syncTargets(world, entityId) }) ?: return
     val kind = if (world.has(entityId, Dead::class)) VanishEntitySMSG.VanishKind.DEATH else VanishEntitySMSG.VanishKind.GONE
-    val msg = VanishEntitySMSG(entityId, kind)
+    val update = EntityUpdate(entityId, listOf(VanishEntitySMSG(entityId, kind)))
 
-    when (targets) {
-      is SyncTargets.PublicInRange -> publicAudienceOf(entityId).forEach { accountId ->
-        outMessageProcessor.sendToPlayer(accountId, msg)
-      }
-
-      is SyncTargets.Accounts -> targets.accountIds.forEach { accountId ->
-        outMessageProcessor.sendToPlayer(accountId, msg)
-      }
-
-      is SyncTargets.OwnerOnly -> Unit // never produced by mergeSyncTargets, kept for exhaustiveness
+    val accountIds = when (targets) {
+      is SyncTargets.PublicInRange -> publicAudienceOf(entityId).toList()
+      is SyncTargets.Accounts -> targets.accountIds.toList()
+      is SyncTargets.OwnerOnly -> emptyList() // never produced by mergeSyncTargets, kept for exhaustiveness
     }
+
+    vanishOutbox.add(VanishRecord(update, accountIds))
   }
 
   /**

@@ -28,11 +28,11 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
 
     [Export] public ulong VisualId { get; set; } = 0;
 
-    public static VisualComponentSMSG FromProto(global::Bnet.VisualComponent protoVisual)
+    public static VisualComponentSMSG FromProto(ulong entityId, global::Bnet.VisualComponent protoVisual)
     {
       return new VisualComponentSMSG
       {
-        EntityId = protoVisual.EntityId,
+        EntityId = entityId,
         Kind = MapKindFromProto(protoVisual.Kind),
         VisualId = protoVisual.Id
       };

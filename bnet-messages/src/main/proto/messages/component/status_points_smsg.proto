@@ -10,6 +10,6 @@ option java_outer_classname = "StatusPointsSMSGProto";
  * their base status values.
  */
 message StatusPointsSMSG {
-  fixed64 entity_id = 1;
+  reserved 1; // entity_id, now on EntityUpdate
   uint32 points = 2;
 }

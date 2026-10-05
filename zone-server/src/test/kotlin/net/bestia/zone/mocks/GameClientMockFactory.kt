@@ -4,6 +4,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.account.persistence.AccountRepository
 import net.bestia.zone.message.SMSG
 import net.bestia.zone.message.AccountTaskExecutor
+import net.bestia.zone.message.StateBatchSMSG
 import net.bestia.zone.message.InMessageProcessor
 import net.bestia.zone.message.ConnectionTerminator
 import net.bestia.zone.message.OutMessageHandler
@@ -59,13 +60,14 @@ class GameClientMockFactory(
     }
 
     override fun sendMessage(playerId: Long, outMessage: SMSG) {
-      // add message to the according clients buffer.
-      LOG.trace { "RX accountId: $playerId, msg: $outMessage" }
+      // A batch is unrolled, so a scenario asserts on the entity messages in it like on any other message.
+      val received = if (outMessage is StateBatchSMSG) outMessage.messages else listOf(outMessage)
+      LOG.trace { "RX accountId: $playerId, msg: $received" }
 
       // Encoded and dropped, so a message that cannot be put on the wire fails here as it would on a socket.
       outMessage.toBnetEnvelope()
 
-      createdClientBuffer[playerId]?.add(outMessage)
+      createdClientBuffer[playerId]?.addAll(received)
     }
   }
 

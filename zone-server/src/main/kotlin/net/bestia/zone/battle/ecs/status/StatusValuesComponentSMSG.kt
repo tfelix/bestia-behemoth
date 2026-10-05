@@ -1,7 +1,7 @@
 package net.bestia.zone.battle.ecs.status
 
-import net.bestia.bnet.proto.EnvelopeProto
 import net.bestia.bnet.proto.StatusValuesSMSGProto
+import net.bestia.bnet.proto.StateBatchSmsgProto
 import net.bestia.zone.message.EntitySMSG
 
 data class StatusValuesComponentSMSG(
@@ -14,9 +14,8 @@ data class StatusValuesComponentSMSG(
   val agility: Int
 ) : EntitySMSG {
 
-  override fun toBnetEnvelope(): EnvelopeProto.Envelope {
+  override fun writeTo(update: StateBatchSmsgProto.EntityUpdate.Builder) {
     val statusValues = StatusValuesSMSGProto.StatusValuesSMSG.newBuilder()
-      .setEntityId(entityId)
       .setStrength(strength)
       .setIntelligence(intelligence)
       .setVitality(vitality)
@@ -24,8 +23,6 @@ data class StatusValuesComponentSMSG(
       .setWillpower(willpower)
       .setAgility(agility)
 
-    return EnvelopeProto.Envelope.newBuilder()
-      .setCompStatusValues(statusValues)
-      .build()
+    update.addComponents(StateBatchSmsgProto.ComponentDelta.newBuilder().setStatusValues(statusValues))
   }
 }

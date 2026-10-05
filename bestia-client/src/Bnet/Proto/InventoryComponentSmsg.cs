@@ -25,18 +25,17 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CjFtZXNzYWdlcy9jb21wb25lbnQvaW52ZW50b3J5X2NvbXBvbmVudF9zbXNn",
-            "LnByb3RvEgRibmV0Ik8KFkludmVudG9yeUNvbXBvbmVudFNNU0cSEQoJZW50",
-            "aXR5X2lkGAEgASgGEiIKBWl0ZW1zGAIgAygLMhMuYm5ldC5JbnZlbnRvcnlJ",
-            "dGVtIqcBCg1JbnZlbnRvcnlJdGVtEg8KB2l0ZW1faWQYASABKA0SEQoJdW5p",
-            "cXVlX2lkGAIgASgEEg4KBmFtb3VudBgDIAEoDRIQCghlcXVpcHBlZBgEIAEo",
-            "CBISCgpkdXJhYmlsaXR5GAUgASgNEhYKDm1heF9kdXJhYmlsaXR5GAYgASgN",
-            "Eg0KBXNsb3RzGAcgASgNEhUKDXVwZ3JhZGVfbGV2ZWwYCCABKA1CNAoVbmV0",
-            "LmJlc3RpYS5ibmV0LnByb3RvQhtJbnZlbnRvcnlDb21wb25lbnRTTVNHUHJv",
-            "dG9iBnByb3RvMw=="));
+            "LnByb3RvEgRibmV0IkIKFkludmVudG9yeUNvbXBvbmVudFNNU0cSIgoFaXRl",
+            "bXMYAiADKAsyEy5ibmV0LkludmVudG9yeUl0ZW1KBAgBEAIipwEKDUludmVu",
+            "dG9yeUl0ZW0SDwoHaXRlbV9pZBgBIAEoDRIRCgl1bmlxdWVfaWQYAiABKAQS",
+            "DgoGYW1vdW50GAMgASgNEhAKCGVxdWlwcGVkGAQgASgIEhIKCmR1cmFiaWxp",
+            "dHkYBSABKA0SFgoObWF4X2R1cmFiaWxpdHkYBiABKA0SDQoFc2xvdHMYByAB",
+            "KA0SFQoNdXBncmFkZV9sZXZlbBgIIAEoDUI0ChVuZXQuYmVzdGlhLmJuZXQu",
+            "cHJvdG9CG0ludmVudG9yeUNvbXBvbmVudFNNU0dQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.InventoryComponentSMSG), global::Bnet.InventoryComponentSMSG.Parser, new[]{ "EntityId", "Items" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.InventoryComponentSMSG), global::Bnet.InventoryComponentSMSG.Parser, new[]{ "Items" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.InventoryItem), global::Bnet.InventoryItem.Parser, new[]{ "ItemId", "UniqueId", "Amount", "Equipped", "Durability", "MaxDurability", "Slots", "UpgradeLevel" }, null, null, null, null)
           }));
     }
@@ -83,7 +82,6 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public InventoryComponentSMSG(InventoryComponentSMSG other) : this() {
-      entityId_ = other.entityId_;
       items_ = other.items_.Clone();
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
@@ -92,18 +90,6 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public InventoryComponentSMSG Clone() {
       return new InventoryComponentSMSG(this);
-    }
-
-    /// <summary>Field number for the "entity_id" field.</summary>
-    public const int EntityIdFieldNumber = 1;
-    private ulong entityId_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public ulong EntityId {
-      get { return entityId_; }
-      set {
-        entityId_ = value;
-      }
     }
 
     /// <summary>Field number for the "items" field.</summary>
@@ -132,7 +118,6 @@ namespace Bnet {
       if (ReferenceEquals(other, this)) {
         return true;
       }
-      if (EntityId != other.EntityId) return false;
       if(!items_.Equals(other.items_)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
@@ -141,7 +126,6 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
-      if (EntityId != 0UL) hash ^= EntityId.GetHashCode();
       hash ^= items_.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
@@ -161,10 +145,6 @@ namespace Bnet {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
-      if (EntityId != 0UL) {
-        output.WriteRawTag(9);
-        output.WriteFixed64(EntityId);
-      }
       items_.WriteTo(output, _repeated_items_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -176,10 +156,6 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (EntityId != 0UL) {
-        output.WriteRawTag(9);
-        output.WriteFixed64(EntityId);
-      }
       items_.WriteTo(ref output, _repeated_items_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
@@ -191,9 +167,6 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
-      if (EntityId != 0UL) {
-        size += 1 + 8;
-      }
       size += items_.CalculateSize(_repeated_items_codec);
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -206,9 +179,6 @@ namespace Bnet {
     public void MergeFrom(InventoryComponentSMSG other) {
       if (other == null) {
         return;
-      }
-      if (other.EntityId != 0UL) {
-        EntityId = other.EntityId;
       }
       items_.Add(other.items_);
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
@@ -230,10 +200,6 @@ namespace Bnet {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 9: {
-            EntityId = input.ReadFixed64();
-            break;
-          }
           case 18: {
             items_.AddEntriesFrom(input, _repeated_items_codec);
             break;
@@ -257,10 +223,6 @@ namespace Bnet {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 9: {
-            EntityId = input.ReadFixed64();
-            break;
-          }
           case 18: {
             items_.AddEntriesFrom(ref input, _repeated_items_codec);
             break;

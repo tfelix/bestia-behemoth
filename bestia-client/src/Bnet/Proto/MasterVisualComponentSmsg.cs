@@ -26,17 +26,16 @@ namespace Bnet {
           string.Concat(
             "CjVtZXNzYWdlcy9jb21wb25lbnQvbWFzdGVyX3Zpc3VhbF9jb21wb25lbnRf",
             "c21zZy5wcm90bxIEYm5ldBocbWVzc2FnZXMvbWFzdGVyL21hc3Rlci5wcm90",
-            "byLVAQoZTWFzdGVyVmlzdWFsQ29tcG9uZW50U01TRxIRCgllbnRpdHlfaWQY",
-            "ASABKAYSHwoKc2tpbl9jb2xvchgDIAEoCzILLmJuZXQuQ29sb3ISHwoKaGFp",
-            "cl9jb2xvchgEIAEoCzILLmJuZXQuQ29sb3ISGAoEZmFjZRgFIAEoDjIKLmJu",
-            "ZXQuRmFjZRIcCgRib2R5GAYgASgOMg4uYm5ldC5Cb2R5VHlwZRIdCgRoYWly",
-            "GAcgASgOMg8uYm5ldC5IYWlyc3R5bGUSDAoEbmFtZRgIIAEoCUI3ChVuZXQu",
-            "YmVzdGlhLmJuZXQucHJvdG9CHk1hc3RlclZpc3VhbENvbXBvbmVudFNNU0dQ",
-            "cm90b2IGcHJvdG8z"));
+            "byLIAQoZTWFzdGVyVmlzdWFsQ29tcG9uZW50U01TRxIfCgpza2luX2NvbG9y",
+            "GAMgASgLMgsuYm5ldC5Db2xvchIfCgpoYWlyX2NvbG9yGAQgASgLMgsuYm5l",
+            "dC5Db2xvchIYCgRmYWNlGAUgASgOMgouYm5ldC5GYWNlEhwKBGJvZHkYBiAB",
+            "KA4yDi5ibmV0LkJvZHlUeXBlEh0KBGhhaXIYByABKA4yDy5ibmV0LkhhaXJz",
+            "dHlsZRIMCgRuYW1lGAggASgJSgQIARACQjcKFW5ldC5iZXN0aWEuYm5ldC5w",
+            "cm90b0IeTWFzdGVyVmlzdWFsQ29tcG9uZW50U01TR1Byb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Bnet.MasterReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.MasterVisualComponentSMSG), global::Bnet.MasterVisualComponentSMSG.Parser, new[]{ "EntityId", "SkinColor", "HairColor", "Face", "Body", "Hair", "Name" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.MasterVisualComponentSMSG), global::Bnet.MasterVisualComponentSMSG.Parser, new[]{ "SkinColor", "HairColor", "Face", "Body", "Hair", "Name" }, null, null, null, null)
           }));
     }
     #endregion
@@ -78,7 +77,6 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public MasterVisualComponentSMSG(MasterVisualComponentSMSG other) : this() {
-      entityId_ = other.entityId_;
       skinColor_ = other.skinColor_ != null ? other.skinColor_.Clone() : null;
       hairColor_ = other.hairColor_ != null ? other.hairColor_.Clone() : null;
       face_ = other.face_;
@@ -92,18 +90,6 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public MasterVisualComponentSMSG Clone() {
       return new MasterVisualComponentSMSG(this);
-    }
-
-    /// <summary>Field number for the "entity_id" field.</summary>
-    public const int EntityIdFieldNumber = 1;
-    private ulong entityId_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public ulong EntityId {
-      get { return entityId_; }
-      set {
-        entityId_ = value;
-      }
     }
 
     /// <summary>Field number for the "skin_color" field.</summary>
@@ -198,7 +184,6 @@ namespace Bnet {
       if (ReferenceEquals(other, this)) {
         return true;
       }
-      if (EntityId != other.EntityId) return false;
       if (!object.Equals(SkinColor, other.SkinColor)) return false;
       if (!object.Equals(HairColor, other.HairColor)) return false;
       if (Face != other.Face) return false;
@@ -212,7 +197,6 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
-      if (EntityId != 0UL) hash ^= EntityId.GetHashCode();
       if (skinColor_ != null) hash ^= SkinColor.GetHashCode();
       if (hairColor_ != null) hash ^= HairColor.GetHashCode();
       if (Face != global::Bnet.Face._1) hash ^= Face.GetHashCode();
@@ -237,10 +221,6 @@ namespace Bnet {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
-      if (EntityId != 0UL) {
-        output.WriteRawTag(9);
-        output.WriteFixed64(EntityId);
-      }
       if (skinColor_ != null) {
         output.WriteRawTag(26);
         output.WriteMessage(SkinColor);
@@ -275,10 +255,6 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (EntityId != 0UL) {
-        output.WriteRawTag(9);
-        output.WriteFixed64(EntityId);
-      }
       if (skinColor_ != null) {
         output.WriteRawTag(26);
         output.WriteMessage(SkinColor);
@@ -313,9 +289,6 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
-      if (EntityId != 0UL) {
-        size += 1 + 8;
-      }
       if (skinColor_ != null) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(SkinColor);
       }
@@ -345,9 +318,6 @@ namespace Bnet {
     public void MergeFrom(MasterVisualComponentSMSG other) {
       if (other == null) {
         return;
-      }
-      if (other.EntityId != 0UL) {
-        EntityId = other.EntityId;
       }
       if (other.skinColor_ != null) {
         if (skinColor_ == null) {
@@ -392,10 +362,6 @@ namespace Bnet {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 9: {
-            EntityId = input.ReadFixed64();
-            break;
-          }
           case 26: {
             if (skinColor_ == null) {
               SkinColor = new global::Bnet.Color();
@@ -445,10 +411,6 @@ namespace Bnet {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 9: {
-            EntityId = input.ReadFixed64();
-            break;
-          }
           case 26: {
             if (skinColor_ == null) {
               SkinColor = new global::Bnet.Color();

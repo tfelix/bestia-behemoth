@@ -25,15 +25,14 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CihtZXNzYWdlcy9jb21wb25lbnQvc2tpbGxfbGlzdF9zbXNnLnByb3RvEgRi",
-            "bmV0IkgKDVNraWxsTGlzdFNNU0cSEQoJZW50aXR5X2lkGAEgASgGEiQKBnNr",
-            "aWxscxgCIAMoCzIULmJuZXQuU2tpbGxMaXN0RW50cnkiMQoOU2tpbGxMaXN0",
-            "RW50cnkSEAoIc2tpbGxfaWQYASABKAQSDQoFbGV2ZWwYAiABKA1CKwoVbmV0",
-            "LmJlc3RpYS5ibmV0LnByb3RvQhJTa2lsbExpc3RTTVNHUHJvdG9iBnByb3Rv",
-            "Mw=="));
+            "bmV0IjsKDVNraWxsTGlzdFNNU0cSJAoGc2tpbGxzGAIgAygLMhQuYm5ldC5T",
+            "a2lsbExpc3RFbnRyeUoECAEQAiIxCg5Ta2lsbExpc3RFbnRyeRIQCghza2ls",
+            "bF9pZBgBIAEoBBINCgVsZXZlbBgCIAEoDUIrChVuZXQuYmVzdGlhLmJuZXQu",
+            "cHJvdG9CElNraWxsTGlzdFNNU0dQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.SkillListSMSG), global::Bnet.SkillListSMSG.Parser, new[]{ "EntityId", "Skills" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.SkillListSMSG), global::Bnet.SkillListSMSG.Parser, new[]{ "Skills" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.SkillListEntry), global::Bnet.SkillListEntry.Parser, new[]{ "SkillId", "Level" }, null, null, null, null)
           }));
     }
@@ -84,7 +83,6 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public SkillListSMSG(SkillListSMSG other) : this() {
-      entityId_ = other.entityId_;
       skills_ = other.skills_.Clone();
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
@@ -93,18 +91,6 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public SkillListSMSG Clone() {
       return new SkillListSMSG(this);
-    }
-
-    /// <summary>Field number for the "entity_id" field.</summary>
-    public const int EntityIdFieldNumber = 1;
-    private ulong entityId_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public ulong EntityId {
-      get { return entityId_; }
-      set {
-        entityId_ = value;
-      }
     }
 
     /// <summary>Field number for the "skills" field.</summary>
@@ -133,7 +119,6 @@ namespace Bnet {
       if (ReferenceEquals(other, this)) {
         return true;
       }
-      if (EntityId != other.EntityId) return false;
       if(!skills_.Equals(other.skills_)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
@@ -142,7 +127,6 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
-      if (EntityId != 0UL) hash ^= EntityId.GetHashCode();
       hash ^= skills_.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
@@ -162,10 +146,6 @@ namespace Bnet {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
-      if (EntityId != 0UL) {
-        output.WriteRawTag(9);
-        output.WriteFixed64(EntityId);
-      }
       skills_.WriteTo(output, _repeated_skills_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -177,10 +157,6 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (EntityId != 0UL) {
-        output.WriteRawTag(9);
-        output.WriteFixed64(EntityId);
-      }
       skills_.WriteTo(ref output, _repeated_skills_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
@@ -192,9 +168,6 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
-      if (EntityId != 0UL) {
-        size += 1 + 8;
-      }
       size += skills_.CalculateSize(_repeated_skills_codec);
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -207,9 +180,6 @@ namespace Bnet {
     public void MergeFrom(SkillListSMSG other) {
       if (other == null) {
         return;
-      }
-      if (other.EntityId != 0UL) {
-        EntityId = other.EntityId;
       }
       skills_.Add(other.skills_);
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
@@ -231,10 +201,6 @@ namespace Bnet {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 9: {
-            EntityId = input.ReadFixed64();
-            break;
-          }
           case 18: {
             skills_.AddEntriesFrom(input, _repeated_skills_codec);
             break;
@@ -258,10 +224,6 @@ namespace Bnet {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 9: {
-            EntityId = input.ReadFixed64();
-            break;
-          }
           case 18: {
             skills_.AddEntriesFrom(ref input, _repeated_skills_codec);
             break;

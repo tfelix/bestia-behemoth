@@ -22,7 +22,7 @@ option java_outer_classname = "ConstructionComponentSmsgProto";
  * visually both are just gone.
  */
 message ConstructionComponentSMSG {
-  fixed64 entity_id = 1;
+  reserved 1; // entity_id, now on EntityUpdate
   float remaining_seconds = 2;
   float total_seconds = 3;
 

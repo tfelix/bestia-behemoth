@@ -1,8 +1,8 @@
 package net.bestia.zone.master.ecs
 
-import net.bestia.bnet.proto.EnvelopeProto
 import net.bestia.bnet.proto.MasterProto
 import net.bestia.bnet.proto.MasterVisualComponentSMSGProto
+import net.bestia.bnet.proto.StateBatchSmsgProto
 import net.bestia.zone.account.BodyType
 import net.bestia.zone.account.Face
 import net.bestia.zone.account.Hairstyle
@@ -19,7 +19,7 @@ data class MasterVisualComponentSMSG(
   val hair: Hairstyle
 ) : EntitySMSG {
 
-  override fun toBnetEnvelope(): EnvelopeProto.Envelope {
+  override fun writeTo(update: StateBatchSmsgProto.EntityUpdate.Builder) {
     val skinColorProto = MasterProto.Color.newBuilder()
       .setR(skinColor.red)
       .setG(skinColor.green)
@@ -33,7 +33,6 @@ data class MasterVisualComponentSMSG(
       .build()
 
     val masterVisualComponent = MasterVisualComponentSMSGProto.MasterVisualComponentSMSG.newBuilder()
-      .setEntityId(entityId)
       .setName(name)
       .setSkinColor(skinColorProto)
       .setHairColor(hairColorProto)
@@ -42,9 +41,7 @@ data class MasterVisualComponentSMSG(
       .setHair(mapHairstyle(hair))
       .build()
 
-    return EnvelopeProto.Envelope.newBuilder()
-      .setCompMasterVisual(masterVisualComponent)
-      .build()
+    update.addComponents(StateBatchSmsgProto.ComponentDelta.newBuilder().setMasterVisual(masterVisualComponent))
   }
 
   private fun mapBodyType(bodyType: BodyType): MasterProto.BodyType {

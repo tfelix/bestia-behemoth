@@ -21,11 +21,11 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
     /// </summary>
     /// <param name="protoHealthComponent">The protobuf HealthComponentSMSG message from the server</param>
     /// <returns>A new HealthComponentSMSG instance</returns>
-    public static HealthComponentSMSG FromProto(global::Bnet.HealthComponentSMSG protoHealthComponent)
+    public static HealthComponentSMSG FromProto(ulong entityId, global::Bnet.HealthComponentSMSG protoHealthComponent)
     {
       return new HealthComponentSMSG()
       {
-        EntityId = protoHealthComponent.EntityId,
+        EntityId = entityId,
         Current = protoHealthComponent.Current,
         Max = protoHealthComponent.Max
       };

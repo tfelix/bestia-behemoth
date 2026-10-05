@@ -25,15 +25,15 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CixtZXNzYWdlcy9jb21wb25lbnQvcGF0aF9jb21wb25lbnRfc21zZy5wcm90",
-            "bxIEYm5ldBoTbWVzc2FnZXMvdmVjMy5wcm90byJ5ChFQYXRoQ29tcG9uZW50",
-            "U01TRxIRCgllbnRpdHlfaWQYASABKAYSGAoEcGF0aBgCIAMoCzIKLmJuZXQu",
-            "VmVjMxIhCg1zdG9wX3Bvc2l0aW9uGAMgASgLMgouYm5ldC5WZWMzEhQKDHN0",
-            "YXJ0X29mZnNldBgEIAEoAkIvChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CFlBh",
-            "dGhDb21wb25lbnRTTVNHUHJvdG9iBnByb3RvMw=="));
+            "bxIEYm5ldBoTbWVzc2FnZXMvdmVjMy5wcm90byJsChFQYXRoQ29tcG9uZW50",
+            "U01TRxIYCgRwYXRoGAIgAygLMgouYm5ldC5WZWMzEiEKDXN0b3BfcG9zaXRp",
+            "b24YAyABKAsyCi5ibmV0LlZlYzMSFAoMc3RhcnRfb2Zmc2V0GAQgASgCSgQI",
+            "ARACQi8KFW5ldC5iZXN0aWEuYm5ldC5wcm90b0IWUGF0aENvbXBvbmVudFNN",
+            "U0dQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Bnet.Vec3Reflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.PathComponentSMSG), global::Bnet.PathComponentSMSG.Parser, new[]{ "EntityId", "Path", "StopPosition", "StartOffset" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.PathComponentSMSG), global::Bnet.PathComponentSMSG.Parser, new[]{ "Path", "StopPosition", "StartOffset" }, null, null, null, null)
           }));
     }
     #endregion
@@ -87,7 +87,6 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public PathComponentSMSG(PathComponentSMSG other) : this() {
-      entityId_ = other.entityId_;
       path_ = other.path_.Clone();
       stopPosition_ = other.stopPosition_ != null ? other.stopPosition_.Clone() : null;
       startOffset_ = other.startOffset_;
@@ -98,18 +97,6 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public PathComponentSMSG Clone() {
       return new PathComponentSMSG(this);
-    }
-
-    /// <summary>Field number for the "entity_id" field.</summary>
-    public const int EntityIdFieldNumber = 1;
-    private ulong entityId_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public ulong EntityId {
-      get { return entityId_; }
-      set {
-        entityId_ = value;
-      }
     }
 
     /// <summary>Field number for the "path" field.</summary>
@@ -176,7 +163,6 @@ namespace Bnet {
       if (ReferenceEquals(other, this)) {
         return true;
       }
-      if (EntityId != other.EntityId) return false;
       if(!path_.Equals(other.path_)) return false;
       if (!object.Equals(StopPosition, other.StopPosition)) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(StartOffset, other.StartOffset)) return false;
@@ -187,7 +173,6 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
-      if (EntityId != 0UL) hash ^= EntityId.GetHashCode();
       hash ^= path_.GetHashCode();
       if (stopPosition_ != null) hash ^= StopPosition.GetHashCode();
       if (StartOffset != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(StartOffset);
@@ -209,10 +194,6 @@ namespace Bnet {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
-      if (EntityId != 0UL) {
-        output.WriteRawTag(9);
-        output.WriteFixed64(EntityId);
-      }
       path_.WriteTo(output, _repeated_path_codec);
       if (stopPosition_ != null) {
         output.WriteRawTag(26);
@@ -232,10 +213,6 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (EntityId != 0UL) {
-        output.WriteRawTag(9);
-        output.WriteFixed64(EntityId);
-      }
       path_.WriteTo(ref output, _repeated_path_codec);
       if (stopPosition_ != null) {
         output.WriteRawTag(26);
@@ -255,9 +232,6 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
-      if (EntityId != 0UL) {
-        size += 1 + 8;
-      }
       size += path_.CalculateSize(_repeated_path_codec);
       if (stopPosition_ != null) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(StopPosition);
@@ -276,9 +250,6 @@ namespace Bnet {
     public void MergeFrom(PathComponentSMSG other) {
       if (other == null) {
         return;
-      }
-      if (other.EntityId != 0UL) {
-        EntityId = other.EntityId;
       }
       path_.Add(other.path_);
       if (other.stopPosition_ != null) {
@@ -309,10 +280,6 @@ namespace Bnet {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 9: {
-            EntityId = input.ReadFixed64();
-            break;
-          }
           case 18: {
             path_.AddEntriesFrom(input, _repeated_path_codec);
             break;
@@ -347,10 +314,6 @@ namespace Bnet {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 9: {
-            EntityId = input.ReadFixed64();
-            break;
-          }
           case 18: {
             path_.AddEntriesFrom(ref input, _repeated_path_codec);
             break;

@@ -25,16 +25,16 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CjBtZXNzYWdlcy9jb21wb25lbnQvc3RhdHVzX2VmZmVjdF9saXN0X3Ntc2cu",
-            "cHJvdG8SBGJuZXQiUwoUU3RhdHVzRWZmZWN0TGlzdFNNU0cSEQoJZW50aXR5",
-            "X2lkGAEgASgGEigKB2VmZmVjdHMYAiADKAsyFy5ibmV0LlN0YXR1c0VmZmVj",
-            "dEVudHJ5ImAKEVN0YXR1c0VmZmVjdEVudHJ5EhEKCWVmZmVjdF9pZBgBIAEo",
-            "DRINCgVsZXZlbBgCIAEoDRIZChFyZW1haW5pbmdfc2Vjb25kcxgDIAEoAhIO",
-            "CgZkZWJ1ZmYYBCABKAhCMgoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQhlTdGF0",
-            "dXNFZmZlY3RMaXN0U01TR1Byb3RvYgZwcm90bzM="));
+            "cHJvdG8SBGJuZXQiRgoUU3RhdHVzRWZmZWN0TGlzdFNNU0cSKAoHZWZmZWN0",
+            "cxgCIAMoCzIXLmJuZXQuU3RhdHVzRWZmZWN0RW50cnlKBAgBEAIiYAoRU3Rh",
+            "dHVzRWZmZWN0RW50cnkSEQoJZWZmZWN0X2lkGAEgASgNEg0KBWxldmVsGAIg",
+            "ASgNEhkKEXJlbWFpbmluZ19zZWNvbmRzGAMgASgCEg4KBmRlYnVmZhgEIAEo",
+            "CEIyChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CGVN0YXR1c0VmZmVjdExpc3RT",
+            "TVNHUHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.StatusEffectListSMSG), global::Bnet.StatusEffectListSMSG.Parser, new[]{ "EntityId", "Effects" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.StatusEffectListSMSG), global::Bnet.StatusEffectListSMSG.Parser, new[]{ "Effects" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.StatusEffectEntry), global::Bnet.StatusEffectEntry.Parser, new[]{ "EffectId", "Level", "RemainingSeconds", "Debuff" }, null, null, null, null)
           }));
     }
@@ -83,7 +83,6 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public StatusEffectListSMSG(StatusEffectListSMSG other) : this() {
-      entityId_ = other.entityId_;
       effects_ = other.effects_.Clone();
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
@@ -92,18 +91,6 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public StatusEffectListSMSG Clone() {
       return new StatusEffectListSMSG(this);
-    }
-
-    /// <summary>Field number for the "entity_id" field.</summary>
-    public const int EntityIdFieldNumber = 1;
-    private ulong entityId_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public ulong EntityId {
-      get { return entityId_; }
-      set {
-        entityId_ = value;
-      }
     }
 
     /// <summary>Field number for the "effects" field.</summary>
@@ -132,7 +119,6 @@ namespace Bnet {
       if (ReferenceEquals(other, this)) {
         return true;
       }
-      if (EntityId != other.EntityId) return false;
       if(!effects_.Equals(other.effects_)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
@@ -141,7 +127,6 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
-      if (EntityId != 0UL) hash ^= EntityId.GetHashCode();
       hash ^= effects_.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
@@ -161,10 +146,6 @@ namespace Bnet {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
-      if (EntityId != 0UL) {
-        output.WriteRawTag(9);
-        output.WriteFixed64(EntityId);
-      }
       effects_.WriteTo(output, _repeated_effects_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -176,10 +157,6 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (EntityId != 0UL) {
-        output.WriteRawTag(9);
-        output.WriteFixed64(EntityId);
-      }
       effects_.WriteTo(ref output, _repeated_effects_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
@@ -191,9 +168,6 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
-      if (EntityId != 0UL) {
-        size += 1 + 8;
-      }
       size += effects_.CalculateSize(_repeated_effects_codec);
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -206,9 +180,6 @@ namespace Bnet {
     public void MergeFrom(StatusEffectListSMSG other) {
       if (other == null) {
         return;
-      }
-      if (other.EntityId != 0UL) {
-        EntityId = other.EntityId;
       }
       effects_.Add(other.effects_);
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
@@ -230,10 +201,6 @@ namespace Bnet {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 9: {
-            EntityId = input.ReadFixed64();
-            break;
-          }
           case 18: {
             effects_.AddEntriesFrom(input, _repeated_effects_codec);
             break;
@@ -257,10 +224,6 @@ namespace Bnet {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 9: {
-            EntityId = input.ReadFixed64();
-            break;
-          }
           case 18: {
             effects_.AddEntriesFrom(ref input, _repeated_effects_codec);
             break;

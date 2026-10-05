@@ -25,14 +25,13 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CittZXNzYWdlcy9jb21wb25lbnQvZXhwX2NvbXBvbmVudF9zbXNnLnByb3Rv",
-            "EgRibmV0IlMKEEV4cENvbXBvbmVudFNNU0cSEQoJZW50aXR5X2lkGAEgASgG",
-            "EgsKA2V4cBgCIAEoBxIfChdyZXF1aXJlZF9leHBfbmV4dF9sZXZlbBgDIAEo",
-            "B0IuChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CFUV4cENvbXBvbmVudFNNU0dQ",
-            "cm90b2IGcHJvdG8z"));
+            "EgRibmV0IkYKEEV4cENvbXBvbmVudFNNU0cSCwoDZXhwGAIgASgHEh8KF3Jl",
+            "cXVpcmVkX2V4cF9uZXh0X2xldmVsGAMgASgHSgQIARACQi4KFW5ldC5iZXN0",
+            "aWEuYm5ldC5wcm90b0IVRXhwQ29tcG9uZW50U01TR1Byb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.ExpComponentSMSG), global::Bnet.ExpComponentSMSG.Parser, new[]{ "EntityId", "Exp", "RequiredExpNextLevel" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.ExpComponentSMSG), global::Bnet.ExpComponentSMSG.Parser, new[]{ "Exp", "RequiredExpNextLevel" }, null, null, null, null)
           }));
     }
     #endregion
@@ -74,7 +73,6 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public ExpComponentSMSG(ExpComponentSMSG other) : this() {
-      entityId_ = other.entityId_;
       exp_ = other.exp_;
       requiredExpNextLevel_ = other.requiredExpNextLevel_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
@@ -84,18 +82,6 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public ExpComponentSMSG Clone() {
       return new ExpComponentSMSG(this);
-    }
-
-    /// <summary>Field number for the "entity_id" field.</summary>
-    public const int EntityIdFieldNumber = 1;
-    private ulong entityId_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public ulong EntityId {
-      get { return entityId_; }
-      set {
-        entityId_ = value;
-      }
     }
 
     /// <summary>Field number for the "exp" field.</summary>
@@ -137,7 +123,6 @@ namespace Bnet {
       if (ReferenceEquals(other, this)) {
         return true;
       }
-      if (EntityId != other.EntityId) return false;
       if (Exp != other.Exp) return false;
       if (RequiredExpNextLevel != other.RequiredExpNextLevel) return false;
       return Equals(_unknownFields, other._unknownFields);
@@ -147,7 +132,6 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
-      if (EntityId != 0UL) hash ^= EntityId.GetHashCode();
       if (Exp != 0) hash ^= Exp.GetHashCode();
       if (RequiredExpNextLevel != 0) hash ^= RequiredExpNextLevel.GetHashCode();
       if (_unknownFields != null) {
@@ -168,10 +152,6 @@ namespace Bnet {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
-      if (EntityId != 0UL) {
-        output.WriteRawTag(9);
-        output.WriteFixed64(EntityId);
-      }
       if (Exp != 0) {
         output.WriteRawTag(21);
         output.WriteFixed32(Exp);
@@ -190,10 +170,6 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (EntityId != 0UL) {
-        output.WriteRawTag(9);
-        output.WriteFixed64(EntityId);
-      }
       if (Exp != 0) {
         output.WriteRawTag(21);
         output.WriteFixed32(Exp);
@@ -212,9 +188,6 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
-      if (EntityId != 0UL) {
-        size += 1 + 8;
-      }
       if (Exp != 0) {
         size += 1 + 4;
       }
@@ -232,9 +205,6 @@ namespace Bnet {
     public void MergeFrom(ExpComponentSMSG other) {
       if (other == null) {
         return;
-      }
-      if (other.EntityId != 0UL) {
-        EntityId = other.EntityId;
       }
       if (other.Exp != 0) {
         Exp = other.Exp;
@@ -261,10 +231,6 @@ namespace Bnet {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 9: {
-            EntityId = input.ReadFixed64();
-            break;
-          }
           case 21: {
             Exp = input.ReadFixed32();
             break;
@@ -292,10 +258,6 @@ namespace Bnet {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 9: {
-            EntityId = input.ReadFixed64();
-            break;
-          }
           case 21: {
             Exp = input.ReadFixed32();
             break;

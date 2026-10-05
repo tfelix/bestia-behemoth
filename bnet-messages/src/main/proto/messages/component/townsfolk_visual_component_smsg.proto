@@ -22,7 +22,7 @@ enum TownsfolkBody {
  * public, it never changes while the entity lives, and every viewer needs it exactly when the body arrives.
  */
 message TownsfolkVisualComponentSMSG {
-  fixed64 entity_id = 1;
+  reserved 1; // entity_id, now on EntityUpdate
   string name = 2;
   TownsfolkBody body = 3;
 }

@@ -19,7 +19,7 @@ option java_outer_classname = "PathComponentSMSGProto";
  * *would* have been, not where the server halted it. This is eAthena's ZC_STOPMOVE.
  */
 message PathComponentSMSG {
-  fixed64 entity_id = 1;
+  reserved 1; // entity_id, now on EntityUpdate
   repeated Vec3 path = 2;
   /**
    * Where the entity actually stands, set only on a stop (empty `path`) and only once it has taken

@@ -25,14 +25,13 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CjFtZXNzYWdlcy9jb21wb25lbnQvYXJlYV9uYW1lX2NvbXBvbmVudF9zbXNn",
-            "LnByb3RvEgRibmV0IkgKFUFyZWFOYW1lQ29tcG9uZW50U01TRxIRCgllbnRp",
-            "dHlfaWQYASABKAYSDAoEbmFtZRgCIAEoCRIOCgZyYWRpdXMYAyABKARCMwoV",
-            "bmV0LmJlc3RpYS5ibmV0LnByb3RvQhpBcmVhTmFtZUNvbXBvbmVudFNNU0dQ",
-            "cm90b2IGcHJvdG8z"));
+            "LnByb3RvEgRibmV0IjsKFUFyZWFOYW1lQ29tcG9uZW50U01TRxIMCgRuYW1l",
+            "GAIgASgJEg4KBnJhZGl1cxgDIAEoBEoECAEQAkIzChVuZXQuYmVzdGlhLmJu",
+            "ZXQucHJvdG9CGkFyZWFOYW1lQ29tcG9uZW50U01TR1Byb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.AreaNameComponentSMSG), global::Bnet.AreaNameComponentSMSG.Parser, new[]{ "EntityId", "Name", "Radius" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.AreaNameComponentSMSG), global::Bnet.AreaNameComponentSMSG.Parser, new[]{ "Name", "Radius" }, null, null, null, null)
           }));
     }
     #endregion
@@ -81,7 +80,6 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public AreaNameComponentSMSG(AreaNameComponentSMSG other) : this() {
-      entityId_ = other.entityId_;
       name_ = other.name_;
       radius_ = other.radius_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
@@ -91,18 +89,6 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public AreaNameComponentSMSG Clone() {
       return new AreaNameComponentSMSG(this);
-    }
-
-    /// <summary>Field number for the "entity_id" field.</summary>
-    public const int EntityIdFieldNumber = 1;
-    private ulong entityId_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public ulong EntityId {
-      get { return entityId_; }
-      set {
-        entityId_ = value;
-      }
     }
 
     /// <summary>Field number for the "name" field.</summary>
@@ -147,7 +133,6 @@ namespace Bnet {
       if (ReferenceEquals(other, this)) {
         return true;
       }
-      if (EntityId != other.EntityId) return false;
       if (Name != other.Name) return false;
       if (Radius != other.Radius) return false;
       return Equals(_unknownFields, other._unknownFields);
@@ -157,7 +142,6 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
-      if (EntityId != 0UL) hash ^= EntityId.GetHashCode();
       if (Name.Length != 0) hash ^= Name.GetHashCode();
       if (Radius != 0UL) hash ^= Radius.GetHashCode();
       if (_unknownFields != null) {
@@ -178,10 +162,6 @@ namespace Bnet {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
-      if (EntityId != 0UL) {
-        output.WriteRawTag(9);
-        output.WriteFixed64(EntityId);
-      }
       if (Name.Length != 0) {
         output.WriteRawTag(18);
         output.WriteString(Name);
@@ -200,10 +180,6 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (EntityId != 0UL) {
-        output.WriteRawTag(9);
-        output.WriteFixed64(EntityId);
-      }
       if (Name.Length != 0) {
         output.WriteRawTag(18);
         output.WriteString(Name);
@@ -222,9 +198,6 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
-      if (EntityId != 0UL) {
-        size += 1 + 8;
-      }
       if (Name.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(Name);
       }
@@ -242,9 +215,6 @@ namespace Bnet {
     public void MergeFrom(AreaNameComponentSMSG other) {
       if (other == null) {
         return;
-      }
-      if (other.EntityId != 0UL) {
-        EntityId = other.EntityId;
       }
       if (other.Name.Length != 0) {
         Name = other.Name;
@@ -271,10 +241,6 @@ namespace Bnet {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 9: {
-            EntityId = input.ReadFixed64();
-            break;
-          }
           case 18: {
             Name = input.ReadString();
             break;
@@ -302,10 +268,6 @@ namespace Bnet {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 9: {
-            EntityId = input.ReadFixed64();
-            break;
-          }
           case 18: {
             Name = input.ReadString();
             break;

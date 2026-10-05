@@ -1,7 +1,7 @@
 package net.bestia.zone.entity.ecs
 
-import net.bestia.bnet.proto.EnvelopeProto
 import net.bestia.bnet.proto.VisualComponentProto
+import net.bestia.bnet.proto.StateBatchSmsgProto
 import net.bestia.zone.message.EntitySMSG
 
 data class VisualComponentSMSG(
@@ -10,15 +10,12 @@ data class VisualComponentSMSG(
   val visualId: Long
 ) : EntitySMSG {
 
-  override fun toBnetEnvelope(): EnvelopeProto.Envelope {
+  override fun writeTo(update: StateBatchSmsgProto.EntityUpdate.Builder) {
     val visual = VisualComponentProto.VisualComponent.newBuilder()
-      .setEntityId(entityId)
       .setKind(kind.toBnet())
       .setId(visualId)
       .build()
 
-    return EnvelopeProto.Envelope.newBuilder()
-      .setCompVisual(visual)
-      .build()
+    update.addComponents(StateBatchSmsgProto.ComponentDelta.newBuilder().setVisual(visual))
   }
 }

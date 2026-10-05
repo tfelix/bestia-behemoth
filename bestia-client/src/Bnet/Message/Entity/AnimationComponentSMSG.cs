@@ -16,11 +16,11 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
     [Export]
     public string Kind { get; set; } = "Idle";
 
-    public static AnimationComponentSMSG FromProto(global::Bnet.AnimationComponentSMSG protoAnimation)
+    public static AnimationComponentSMSG FromProto(ulong entityId, global::Bnet.AnimationComponentSMSG protoAnimation)
     {
       return new AnimationComponentSMSG
       {
-        EntityId = protoAnimation.EntityId,
+        EntityId = entityId,
         Kind = protoAnimation.Kind switch
         {
           global::Bnet.AnimationKind.Sleep => "Sleep",
