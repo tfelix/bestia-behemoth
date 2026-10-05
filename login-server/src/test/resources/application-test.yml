@@ -1,2 +1,14 @@
 server:
   port: 8080
+
+jwt:
+  secret: "login-test-secret-that-is-long-enough-for-hmac"
+
+webauthn:
+  rp-id: "localhost"
+  origins:
+    - "http://localhost:8080"
+  allow-origin-port: true
+
+game-login:
+  public-base-url: "http://localhost:8080"

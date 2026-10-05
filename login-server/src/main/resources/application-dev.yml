@@ -1,9 +1,22 @@
-# Only loaded under the `dev` profile, which application.yml activates by default. A dev host is
+# Only loaded under the `dev` profile, which `./gradlew :login-server:bootRun` activates. A dev host is
 # expected to be reachable only by the person developing on it, so the passkey registered there is
 # trusted with everything and no separate admin account is needed.
 account:
   sign-up-role: SUPER_GM
 
 game-login:
+  public-base-url: "http://localhost:8080"
   # A dev host serves the login page over plain http, where a browser refuses to store a Secure cookie.
   binding-cookie-secure: false
+
+jwt:
+  # Public and committed; LoginDeploymentGuard refuses it outside the dev and test profiles. Must equal
+  # zone-server's dev `zone.jwt-auth-secret-key`.
+  secret: "your-secret-key-here-change-in-production"
+
+webauthn:
+  rp-id: "localhost"
+  origins:
+    - "http://localhost:8080"
+  # The page is on http://localhost:8080 rather than the implicit https://<rp-id>:443.
+  allow-origin-port: true
