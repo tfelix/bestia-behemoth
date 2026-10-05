@@ -8,6 +8,7 @@ import java.nio.charset.StandardCharsets
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.Date
+import java.util.UUID
 import javax.crypto.SecretKey
 
 @Service
@@ -26,6 +27,8 @@ class JwtService(
     )
 
     val jwt = Jwts.builder()
+      // The zone accepts each token once, by this id.
+      .id(UUID.randomUUID().toString())
       .subject(accountId.toString())
       .issuer("login")
       .audience().add("zone").and()

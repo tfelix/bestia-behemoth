@@ -75,4 +75,16 @@ class JwtServiceTest {
 
         assertNotEquals(loginToken1, loginToken2)
     }
+
+    /** The zone accepts each token once, by its id. */
+    @Test
+    fun `every login token carries its own id`() {
+        val ids = (1..2).map {
+            Jwts.parser().verifyWith(Keys.hmacShaKeyFor(secret.toByteArray(StandardCharsets.UTF_8))).build()
+                .parseSignedClaims(jwtService.createLoginToken(1L, Role.USER)).payload.id
+        }
+
+        assertTrue(ids.all { !it.isNullOrBlank() })
+        assertNotEquals(ids[0], ids[1])
+    }
 }
