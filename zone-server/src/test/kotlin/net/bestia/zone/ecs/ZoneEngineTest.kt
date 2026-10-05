@@ -1,5 +1,6 @@
 package net.bestia.zone.ecs
 
+import io.mockk.clearMocks
 import io.mockk.mockk
 import io.mockk.verify
 import net.bestia.zone.ecs.account.Account
@@ -368,5 +369,38 @@ class ZoneEngineTest {
     }
 
     assertEquals(setOf(0.05f), deltas.toSet())
+  }
+
+  @Test
+  fun `an entity nothing changed on sends nothing on the next tick`() {
+    val accountId = 45L
+    world.createEntity { id ->
+      add(id, Account(accountId))
+      add(id, CarryCapacity(current = 0, max = 100))
+    }
+    zoneEngine.tickOnce(0.05f)
+    clearMocks(outMessageProcessor, answers = false)
+
+    zoneEngine.tickOnce(0.05f)
+
+    verify(exactly = 0) { outMessageProcessor.sendToPlayer(any<Long>(), any<Collection<SMSG>>()) }
+  }
+
+  @Test
+  fun `a component added back after a removal is sent again`() {
+    val accountId = 46L
+    val entity = world.createEntity { id ->
+      add(id, Account(accountId))
+      add(id, CarryCapacity(current = 0, max = 100))
+    }
+    zoneEngine.tickOnce(0.05f)
+
+    world.remove(entity, CarryCapacity::class)
+    world.add(entity, CarryCapacity(current = 7, max = 100))
+    zoneEngine.tickOnce(0.05f)
+
+    verify {
+      outMessageProcessor.sendToPlayer(accountId, listOf(CarryCapacityComponentSMSG(entity, current = 7, max = 100)))
+    }
   }
 }

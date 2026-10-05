@@ -238,51 +238,16 @@ class ZoneEngine(
   }
 
   private fun syncDirtyComponents() {
+    reindexMoved()
+
     val perEntity = LinkedHashMap<EntityId, MutableList<Dirtyable>>()
+    world.dirtyLog.drainDirtied { id, type ->
+      // A stale entry is normal: the component may since have been removed, replaced or already sent.
+      val component = world.get(id, type) as? Dirtyable ?: return@drainDirtied
+      if (!component.isDirty()) return@drainDirtied
 
-    run {
-      val positionChanged = HashSet<EntityId>()
-
-      for (syncableComponentType in syncableComponentTypes) {
-        world.each(syncableComponentType) { id, comp ->
-          val dirtyable = comp as Dirtyable
-
-          // Re-indexing is driven by Position.moved, not by the sync flag, because the two are no
-          // longer the same question: a walking entity publishes one step in
-          // MoveSystem.POSITION_RESYNC_STEPS but has to be indexed on every one of them. See
-          // Position.moved for what reads the index.
-          if (comp is Position && comp.moved) {
-            positionChanged.add(id)
-            comp.clearMoved()
-          }
-
-          if (!dirtyable.isDirty()) return@each
-          perEntity.getOrPut(id) { mutableListOf() }.add(dirtyable)
-          dirtyable.clearDirty()
-        }
-      }
-
-      // Keep the area-of-interest services in sync with any moved entity.
-      // TODO i dont see the advantage to do this here vs doing this from the inside from the movement system
-      //   where we could just update this AOI service (ideally with a queued job)
-      for (id in positionChanged) {
-        val pos = world.get(id, Position::class)?.toVec3L() ?: continue
-        // A promoted prop (world/prop/PropPromotionService) has just gained a real, dirty Position, and the
-        // bare default below would silently re-home it from AoiLayer.STATIC to DYNAMIC - PerceptionSystem
-        // queries DYNAMIC_ONLY, so a promoted prop must stay STATIC even while it can move through combat's
-        // HP tracking.
-        val layer = if (world.has(id, WorldObjectIdentity::class)) AoiLayer.STATIC else AoiLayer.DYNAMIC
-        entityAOIService.setEntityPosition(id, pos, layer)
-
-        // StaticSync rather than the layer above: the layer buckets the spatial index, this asks the one
-        // question visibility cares about - whether the entity already reaches clients on the static batch.
-        if (!world.has(id, StaticSync::class)) entityVisibility.moved(id, pos)
-
-        if (world.has(id, ActivePlayer::class)) {
-          val accountId = world.get(id, Account::class)?.accountId
-          if (accountId != null) playerAOIService.setEntityPosition(accountId, pos)
-        }
-      }
+      perEntity.getOrPut(id) { mutableListOf() }.add(component)
+      component.clearDirty()
     }
 
     for ((entityId, comps) in perEntity) {
@@ -296,6 +261,37 @@ class ZoneEngine(
 
     flushRemovedComponents()
     flushVisibilityChanges()
+  }
+
+  /**
+   * Keeps the area-of-interest services in step with every moved entity. Driven by [Position.moved] rather than
+   * by the sync flag: a walking entity publishes one step in `MoveSystem.POSITION_RESYNC_STEPS` but has to be
+   * indexed on every one of them.
+   */
+  private fun reindexMoved() {
+    world.dirtyLog.drainMoved { id ->
+      val position = world.get(id, Position::class) ?: return@drainMoved
+      if (!position.moved) return@drainMoved
+
+      position.clearMoved()
+      val pos = position.toVec3L()
+
+      // A promoted prop (world/prop/PropPromotionService) has just gained a real, dirty Position, and the
+      // bare default below would silently re-home it from AoiLayer.STATIC to DYNAMIC - PerceptionSystem
+      // queries DYNAMIC_ONLY, so a promoted prop must stay STATIC even while it can move through combat's
+      // HP tracking.
+      val layer = if (world.has(id, WorldObjectIdentity::class)) AoiLayer.STATIC else AoiLayer.DYNAMIC
+      entityAOIService.setEntityPosition(id, pos, layer)
+
+      // StaticSync rather than the layer above: the layer buckets the spatial index, this asks the one
+      // question visibility cares about - whether the entity already reaches clients on the static batch.
+      if (!world.has(id, StaticSync::class)) entityVisibility.moved(id, pos)
+
+      if (world.has(id, ActivePlayer::class)) {
+        val accountId = world.get(id, Account::class)?.accountId
+        if (accountId != null) playerAOIService.setEntityPosition(accountId, pos)
+      }
+    }
   }
 
   private val syncFailureLog = RateLimitedLog()

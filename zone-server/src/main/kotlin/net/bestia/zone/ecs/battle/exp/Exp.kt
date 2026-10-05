@@ -3,6 +3,7 @@ package net.bestia.zone.ecs.battle.exp
 import net.bestia.zone.ecs.core.Component
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.ecs.core.World
+import net.bestia.zone.ecs.core.DirtyFlag
 import net.bestia.zone.ecs.core.Dirtyable
 import net.bestia.zone.ecs.SyncTargets
 import net.bestia.zone.message.EntitySMSG
@@ -11,13 +12,14 @@ data class Exp(
   private var _value: Int = 0,
   private var _requiredExpNextLevel: Int = 0
 ) : Component, Dirtyable {
+  override val dirtyFlag = DirtyFlag()
 
   var value: Int
     get() = _value
     set(newValue) {
       if (_value != newValue) {
         _value = newValue
-        dirty = true
+        markDirty()
       }
     }
 
@@ -26,21 +28,9 @@ data class Exp(
     set(newValue) {
       if (_requiredExpNextLevel != newValue) {
         _requiredExpNextLevel = newValue
-        dirty = true
+        markDirty()
       }
     }
-
-  private var dirty = true
-
-  override fun isDirty(): Boolean = dirty
-
-  override fun markDirty() {
-    dirty = true
-  }
-
-  override fun clearDirty() {
-    dirty = false
-  }
 
   override fun toEntityMessage(entityId: Long, removed: Boolean): EntitySMSG {
     return ExpComponentSMSG(entityId = entityId, exp = value, requiredExpNextLevel = requiredExpNextLevel)

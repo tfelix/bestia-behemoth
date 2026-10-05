@@ -27,7 +27,10 @@ class ComponentStore<T : Component>(
   private val factory: (() -> T)? = null,
   private val reset: ((T) -> Unit)? = null,
   initialCapacity: Int = 64,
+  private val dirtyLog: DirtyLog? = null,
 ) {
+  private val dirtySink: DirtyFlag.Sink? = dirtyLog?.sinkFor(type)
+
   private val sparse = Long2IntOpenHashMap(initialCapacity)
   private var entities = LongArray(initialCapacity)
 
@@ -52,7 +55,9 @@ class ComponentStore<T : Component>(
   fun set(entity: EntityId, component: T) {
     val existing = sparse.get(entity)
     if (existing != Long2IntOpenHashMap.ABSENT) {
+      components[existing]?.let { untrack(entity, it) }
       components[existing] = component
+      track(entity, component)
       return
     }
 
@@ -64,6 +69,17 @@ class ComponentStore<T : Component>(
     components[count] = component
     sparse.put(entity, count)
     count++
+    track(entity, component)
+  }
+
+  private fun track(entity: EntityId, component: T) {
+    if (component is Dirtyable && dirtySink != null) component.dirtyFlag.attach(entity, dirtySink)
+    if (component is SpatiallyIndexed && dirtyLog != null) component.movedFlag.attach(entity, dirtyLog.movedSink)
+  }
+
+  private fun untrack(entity: EntityId, component: T) {
+    if (component is Dirtyable) component.dirtyFlag.detachFrom(entity)
+    if (component is SpatiallyIndexed) component.movedFlag.detachFrom(entity)
   }
 
   /**
@@ -96,6 +112,7 @@ class ComponentStore<T : Component>(
     sparse.remove(entity)
     count--
 
+    removed?.let { untrack(entity, it) }
     if (removed != null && pool != null) {
       reset?.invoke(removed)
       pool.addLast(removed)

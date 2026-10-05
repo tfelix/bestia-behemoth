@@ -2,6 +2,7 @@ package net.bestia.zone.ecs.battle.status
 
 import net.bestia.zone.ecs.SyncTargets
 import net.bestia.zone.ecs.core.Component
+import net.bestia.zone.ecs.core.DirtyFlag
 import net.bestia.zone.ecs.core.Dirtyable
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.message.EntitySMSG
@@ -26,18 +27,7 @@ data class BaseStatusValues(
   var willpower: Int,
   var agility: Int
 ) : Component, Dirtyable {
-
-  private var dirty: Boolean = true
-
-  override fun isDirty(): Boolean = dirty
-
-  override fun markDirty() {
-    dirty = true
-  }
-
-  override fun clearDirty() {
-    dirty = false
-  }
+  override val dirtyFlag = DirtyFlag()
 
   override fun toEntityMessage(entityId: Long, removed: Boolean): EntitySMSG {
     return BaseStatusValuesComponentSMSG(

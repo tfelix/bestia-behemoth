@@ -3,7 +3,9 @@ package net.bestia.zone.ecs.movement
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.ecs.core.Component
 import net.bestia.zone.util.EntityId
+import net.bestia.zone.ecs.core.DirtyFlag
 import net.bestia.zone.ecs.core.Dirtyable
+import net.bestia.zone.ecs.core.SpatiallyIndexed
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.SyncTargets
 import net.bestia.zone.message.EntitySMSG
@@ -25,17 +27,17 @@ data class Position(
   private var _y: Long,
   private var _z: Long,
   var fraction: Float = 0f
-) : Component, Dirtyable {
-
-  private var dirty: Boolean = true
+) : Component, Dirtyable, SpatiallyIndexed {
+  override val dirtyFlag = DirtyFlag()
+  override val movedFlag = DirtyFlag()
 
   var x: Long
     get() = _x
     set(value) {
       if (_x != value) {
         _x = value
-        dirty = true
-        moved = true
+        markDirty()
+        movedFlag.set()
       }
     }
 
@@ -44,8 +46,8 @@ data class Position(
     set(value) {
       if (_y != value) {
         _y = value
-        dirty = true
-        moved = true
+        markDirty()
+        movedFlag.set()
       }
     }
 
@@ -54,8 +56,8 @@ data class Position(
     set(value) {
       if (_z != value) {
         _z = value
-        dirty = true
-        moved = true
+        markDirty()
+        movedFlag.set()
       }
     }
 
@@ -70,11 +72,11 @@ data class Position(
    * `AreaOfInterestService` answers what an area effect hits, what a creature can see and what a skill can
    * target. Cleared by [net.bestia.zone.ecs.ZoneEngine] once it has re-indexed the entity.
    */
-  var moved: Boolean = true
-    private set
+  val moved: Boolean
+    get() = movedFlag.isSet
 
   fun clearMoved() {
-    moved = false
+    movedFlag.clear()
   }
 
   /** Moves the entity one tile along its path **without** marking it for sync; [MoveSystem] only. */
@@ -84,23 +86,11 @@ data class Position(
     _x = x
     _y = y
     _z = z
-    moved = true
+    movedFlag.set()
   }
 
   fun toVec3L(): Vec3L {
     return Vec3L(x, y, z)
-  }
-
-  override fun isDirty(): Boolean {
-    return dirty
-  }
-
-  override fun markDirty() {
-    dirty = true
-  }
-
-  override fun clearDirty() {
-    dirty = false
   }
 
   override fun toEntityMessage(entityId: Long, removed: Boolean): EntitySMSG {

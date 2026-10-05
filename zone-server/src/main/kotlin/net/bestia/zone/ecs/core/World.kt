@@ -28,16 +28,17 @@ import kotlin.reflect.KClass
  * systems are iterating are deferred to a safe sync point.
  *
  * ### Outbound sync
- * The world keeps no separate "changed" bookkeeping: a component is the single source of
- * truth for whether it needs re-sending (see [Dirtyable]). Mutating a
- * component through its own setters marks it dirty; the flush scans stores via [each] and
- * sends whatever reports dirty.
+ * A component knows whether it needs re-sending (see [Dirtyable]). Mutating it through its own setters
+ * marks it dirty, which also enters it into [dirtyLog]; the flush visits only those entries.
  */
 class World(
   parallelSystems: Boolean = false,
   idGenerator: EntityIdGenerator,
   systems: Iterable<System>
 ) : WorldView {
+  /** What changed since the last sync; see [Dirtyable] and [SpatiallyIndexed]. */
+  val dirtyLog = DirtyLog()
+
   private val entities = EntityRegistry(idGenerator)
   private val stores = ConcurrentHashMap<KClass<out Component>, ComponentStore<out Component>>()
   private val scheduler = SystemScheduler(parallelSystems)
@@ -161,11 +162,12 @@ class World(
   // -------------------------------------------------------------- components
   @Suppress("UNCHECKED_CAST")
   fun <T : Component> store(type: KClass<T>): ComponentStore<T> =
-    stores.computeIfAbsent(type) { ComponentStore(type) } as ComponentStore<T>
+    stores.computeIfAbsent(type) { ComponentStore(type, dirtyLog = dirtyLog) } as ComponentStore<T>
 
   /** Enables object pooling (see [ComponentType]) for a component type. */
   fun <T : Component> registerPooled(componentType: ComponentType<T>) {
-    stores[componentType.type] = ComponentStore(componentType.type, componentType.factory, componentType.reset)
+    stores[componentType.type] =
+      ComponentStore(componentType.type, componentType.factory, componentType.reset, dirtyLog = dirtyLog)
   }
 
   /**

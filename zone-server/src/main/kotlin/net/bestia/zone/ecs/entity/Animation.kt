@@ -2,6 +2,7 @@ package net.bestia.zone.ecs.entity
 
 import net.bestia.zone.ecs.core.Component
 import net.bestia.zone.util.EntityId
+import net.bestia.zone.ecs.core.DirtyFlag
 import net.bestia.zone.ecs.core.Dirtyable
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.SyncTargets
@@ -17,15 +18,14 @@ import net.bestia.zone.message.EntitySMSG
 data class Animation(
   private var _currentAnimation: AnimationKind = AnimationKind.IDLE
 ) : Component, Dirtyable {
-
-  private var dirty: Boolean = true
+  override val dirtyFlag = DirtyFlag()
 
   var currentAnimation: AnimationKind
     get() = _currentAnimation
     set(value) {
       if (_currentAnimation != value) {
         _currentAnimation = value
-        dirty = true
+        markDirty()
       }
     }
 
@@ -35,18 +35,6 @@ data class Animation(
 
     /** Lying down asleep. */
     SLEEP
-  }
-
-  override fun isDirty(): Boolean {
-    return dirty
-  }
-
-  override fun markDirty() {
-    dirty = true
-  }
-
-  override fun clearDirty() {
-    dirty = false
   }
 
   override fun toEntityMessage(entityId: Long, removed: Boolean): EntitySMSG {

@@ -2,6 +2,7 @@ package net.bestia.zone.ecs.core
 
 import org.reflections.Reflections
 import org.reflections.scanners.Scanners
+import java.lang.reflect.Modifier
 import kotlin.reflect.KClass
 
 /**
@@ -22,7 +23,7 @@ fun scanDirtyableComponentTypes(): List<KClass<out Component>> {
   return Reflections("net.bestia.zone", Scanners.SubTypes)
     .getSubTypesOf(Dirtyable::class.java)
     .asSequence()
-    .filter { Component::class.java.isAssignableFrom(it) && !it.isInterface }
+    .filter { Component::class.java.isAssignableFrom(it) && !Modifier.isAbstract(it.modifiers) }
     .map {
       @Suppress("UNCHECKED_CAST")
       it.kotlin as KClass<out Component>

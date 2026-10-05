@@ -2,6 +2,7 @@ package net.bestia.zone.ecs.entity
 
 import net.bestia.zone.ecs.SyncTargets
 import net.bestia.zone.ecs.core.Component
+import net.bestia.zone.ecs.core.DirtyFlag
 import net.bestia.zone.ecs.core.Dirtyable
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.message.EntitySMSG
@@ -21,20 +22,7 @@ data class EntityVisual(
   val kind: VisualKind,
   val id: Long
 ) : Component, Dirtyable {
-
-  private var dirty = true
-
-  override fun isDirty(): Boolean {
-    return dirty
-  }
-
-  override fun markDirty() {
-    dirty = true
-  }
-
-  override fun clearDirty() {
-    dirty = false
-  }
+  override val dirtyFlag = DirtyFlag()
 
   override fun toEntityMessage(entityId: Long, removed: Boolean): EntitySMSG {
     return VisualComponentSMSG(entityId, kind, id)

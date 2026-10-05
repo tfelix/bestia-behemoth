@@ -5,6 +5,7 @@ import net.bestia.zone.account.master.Face
 import net.bestia.zone.account.master.Hairstyle
 import net.bestia.zone.ecs.core.Component
 import net.bestia.zone.util.EntityId
+import net.bestia.zone.ecs.core.DirtyFlag
 import net.bestia.zone.ecs.core.Dirtyable
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.SyncTargets
@@ -26,20 +27,7 @@ data class MasterVisual(
   val body: BodyType,
   val hair: Hairstyle
 ) : Component, Dirtyable {
-
-  private var dirty = true
-
-  override fun isDirty(): Boolean {
-    return dirty
-  }
-
-  override fun markDirty() {
-    dirty = true
-  }
-
-  override fun clearDirty() {
-    dirty = false
-  }
+  override val dirtyFlag = DirtyFlag()
 
   override fun toEntityMessage(entityId: Long, removed: Boolean): EntitySMSG {
     return MasterVisualComponentSMSG(entityId, name, skinColor, hairColor, face, body, hair)

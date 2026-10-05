@@ -9,16 +9,10 @@ import net.bestia.zone.world.prop.StaticEntityKind
  *
  * ### Why this is not [net.bestia.zone.ecs.movement.Position]
  *
- * `Position` is `Dirtyable`, and `ZoneEngine.syncDirtyComponents` walks every `Dirtyable` store on every one
- * of the twenty ticks a second - so a resident population of tens of thousands of things that never move would
- * be scanned two hundred thousand times a second to discover that none of them changed. There is no mechanism
- * to opt out: a `Dirtyable` sets its own flag from inside its own setters with no reference to the world or its
- * own id, so it cannot enqueue itself onto a dirty list, and the only way out of the scan is not to be in the
- * store.
- *
- * Being out of the `Position` store buys three more things, each of which would otherwise be a per-tick cost
- * for no benefit: `ChunkStreamSystem.groundNewcomers` scans the whole `Position` store every tick looking for
- * ungrounded entities, `MoveSystem` queries it, and the area-of-interest index is fed from its dirty flag.
+ * Being out of the `Position` store spares a resident population of tens of thousands of things that never
+ * move from several per-tick costs: `ChunkStreamSystem.groundNewcomers` scans the whole `Position` store every
+ * tick looking for ungrounded entities, `MoveSystem` queries it, and a fresh `Position` is reported to the sync
+ * and the area-of-interest index the moment it is added.
  *
  * A static entity **is** in the interest octree - an area-of-effect spell has to find a tree - but it is put
  * there directly by the residency service rather than through the dirty-position path. Those two things looked
