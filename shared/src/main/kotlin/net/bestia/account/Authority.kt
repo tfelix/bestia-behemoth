@@ -26,5 +26,11 @@ enum class Authority {
    * every other player's sky. Separate from [TERRAIN] because the two are wrong in different directions - a
    * carve is a local, persistent edit, while this is a global, in-memory one that vanishes on restart.
    */
-  WORLD_TIME
+  WORLD_TIME,
+
+  /** Ending another account's game session. It may sign in again. */
+  KICK,
+
+  /** Keeping another account from signing in, for a while or for good. */
+  BAN
 }
