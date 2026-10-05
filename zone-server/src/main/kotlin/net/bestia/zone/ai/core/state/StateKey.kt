@@ -1,5 +1,8 @@
 package net.bestia.zone.ai.core.state
 
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicInteger
+
 /**
  * A typed handle into a [WorldState] / [Blackboard].
  *
@@ -49,7 +52,20 @@ class StateKey<T>(
    */
   val retain: Float = Blackboard.DEFAULT_RETAIN_TIME_SECONDS,
 ) {
+
+  /** Small and shared by every key of one name, so [WorldState] can keep its keys in a sorted array. */
+  val id: Int = idOf(name)
+
   override fun equals(other: Any?): Boolean = this === other || (other is StateKey<*> && name == other.name)
   override fun hashCode(): Int = name.hashCode()
   override fun toString(): String = name
+
+  private companion object {
+    private val ids = ConcurrentHashMap<String, Int>()
+    private val nextId = AtomicInteger()
+
+    fun idOf(name: String): Int {
+      return ids.computeIfAbsent(name) { nextId.getAndIncrement() }
+    }
+  }
 }

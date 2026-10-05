@@ -52,10 +52,10 @@ class Planner(
    * running at all. Going through [makePlanForAgent] would select the goal a second time and, worse,
    * search on every tick regardless.
    */
-  fun planFor(agent: Agent, goal: Goal, start: WorldState): Plan? {
+  fun planFor(agent: Agent, goal: Goal, start: WorldState, budget: PlanningBudget? = null): Plan? {
     log.trace("[{}] planning for goal '{}' from state {}", agent.name, goal.name, start)
 
-    val plan = search(start, goal, agent.actionResolver)
+    val plan = search(start, goal, agent.actionResolver, budget)
     if (plan != null) {
       log.trace("[{}] found plan: {}", agent.name, plan)
     } else {
@@ -64,8 +64,8 @@ class Planner(
     return plan
   }
 
-  /** Highest-priority goal that is both available and not already satisfied. */
-  fun selectCurrentGoal(agent: Agent, state: WorldState): Goal? {
+  /** Highest-priority goal that is available, not already satisfied and not [excluded]. */
+  fun selectCurrentGoal(agent: Agent, state: WorldState, excluded: (Goal) -> Boolean = { false }): Goal? {
     if (log.isDebugEnabled) {
       agent.goals.forEach { goal ->
         log.debug(
@@ -76,7 +76,7 @@ class Planner(
     }
 
     val selected = agent.goals
-      .filter { it.isAvailable(state) && !it.isSatisfiedBy(state) }
+      .filter { !excluded(it) && it.isAvailable(state) && !it.isSatisfiedBy(state) }
       .maxByOrNull { it.evaluatePriority(state) }
 
     if (selected != null) {
@@ -93,7 +93,7 @@ class Planner(
     val parent: Node?,
   )
 
-  private fun search(start: WorldState, goal: Goal, resolver: ActionResolver): Plan? {
+  private fun search(start: WorldState, goal: Goal, resolver: ActionResolver, budget: PlanningBudget?): Plan? {
     if (goal.isSatisfiedBy(start)) return Plan(goal, emptyList(), 0f)
 
     val open = PriorityQueue<Node>(compareBy { it.fCost })
@@ -105,6 +105,7 @@ class Planner(
 
     var iterations = 0
     while (open.isNotEmpty() && iterations++ < maxIterations) {
+      budget?.spend()
       val current = open.poll()
 
       if (goal.isSatisfiedBy(current.state)) {

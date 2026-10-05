@@ -106,6 +106,22 @@ class AiAgent(
   /** Seconds the drive stage owes this agent since it last ran for it. */
   var pendingDriveSeconds: Float = 0f
 
+  /** Goals no plan was found for, by name, with the tick they may be tried again. Usually empty. */
+  private val blockedGoals = HashMap<String, Long>()
+
+  /** Sets [goalName] aside until [untilTick], so the next think tries another goal instead. */
+  fun blockGoal(goalName: String, untilTick: Long) {
+    blockedGoals[goalName] = untilTick
+  }
+
+  fun isGoalBlocked(goalName: String, tick: Long): Boolean {
+    val until = blockedGoals[goalName] ?: return false
+    if (tick < until) return true
+
+    blockedGoals.remove(goalName)
+    return false
+  }
+
   fun currentAction(): Action? = currentPlan?.actions?.getOrNull(planCursor)
 
   fun hasActivePlan(): Boolean = currentActionNode != null

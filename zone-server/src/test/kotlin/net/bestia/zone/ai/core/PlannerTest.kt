@@ -7,6 +7,7 @@ import net.bestia.zone.ai.core.effect.Effects
 import net.bestia.zone.ai.core.goal.Goal
 import net.bestia.zone.ai.core.goal.priority
 import net.bestia.zone.ai.core.planner.Planner
+import net.bestia.zone.ai.core.planner.PlanningBudget
 import net.bestia.zone.ai.core.precondition.Precondition
 import net.bestia.zone.ai.core.precondition.Preconditions
 import net.bestia.zone.ai.core.state.Blackboard
@@ -191,5 +192,33 @@ class PlannerTest {
 
     assertNotNull(plan)
     assertTrue(plan.totalCost > 0f)
+  }
+
+  @Test
+  fun `goal selection skips an excluded goal for the next best one`() {
+    val urgent = escapeGoal(base = 90f)
+    val calm = Goal(
+      name = "GetRich",
+      priority = priority(base = 10f),
+      availability = Precondition { true },
+      desiredState = listOf(Preconditions.atLeast(gold, 1)),
+    )
+    val agent = agent(listOf(urgent, calm), emptyList())
+
+    val selected = planner.selectCurrentGoal(agent, Blackboard().snapshot()) { it.name == "Escape" }
+
+    assertEquals("GetRich", selected?.name)
+  }
+
+  @Test
+  fun `a search spends the budget it is given, and still finishes past it`() {
+    val agent = agent(listOf(escapeGoal()), listOf(walkOut, openDoor, takeKey))
+    val budget = PlanningBudget(1)
+
+    val plan = planner.planFor(agent, escapeGoal(), Blackboard().snapshot(), budget)
+
+    assertNotNull(plan, "a started search is not cut off")
+    assertTrue(budget.isSpent)
+    assertTrue(budget.remaining < 0, "it counted every iteration, ${budget.remaining} left")
   }
 }
