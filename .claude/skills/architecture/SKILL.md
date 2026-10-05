@@ -213,6 +213,10 @@ the entity and hand the write to `EntityWriteBehind` (`ecs/persistence/`), which
 (`ItemTemplateRegistry`, `BestiaCatalogue`, `CommodityItems`). `TickSqlGuard` reports any SQL that
 runs on the tick thread or inside a lease, and fails it in tests (`zone.sql-on-tick: fail`).
 
+Do not start threads or executors: `ThreadingRulesTest` lists the classes that may. A timer is a
+`@Scheduled` sweep that hands due work to a DB job, an account's inbox or `world.post` (trade request
+expiry), or state that expires when it is next touched (party invitations).
+
 ## AI module
 
 `net.bestia.zone.ai`, built on `ecs/core/`: **GOAP chooses and sequences goals, behaviour trees carry

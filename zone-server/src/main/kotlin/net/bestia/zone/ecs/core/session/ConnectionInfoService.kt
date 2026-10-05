@@ -15,6 +15,9 @@ import kotlin.contracts.contract
  * This service keeps track of the current master and its entity id and selected entity
  * ID of a player.
  *
+ * Read and changed from the tick, the IO lane and HTTP threads, so every change to a session is one atomic
+ * `compute` and its collections are concurrent.
+ *
  * TODO this should later probably also be in the Redis service?
  */
 @Service
@@ -32,7 +35,7 @@ class ConnectionInfoService {
      * The entity the player currently has focused and which is used as the base for
      * getting client updates of all of its surroundings.
      */
-    var currentActiveEntity: EntityId,
+    @Volatile var currentActiveEntity: EntityId,
   ) : Session() {
 
     fun deactivate(): InactiveConnection {
@@ -44,7 +47,7 @@ class ConnectionInfoService {
   }
 
   private data class InactiveConnection(
-    override val playerEntitiesByMaster: MutableMap<MasterEntityId, MutableSet<PlayerEntity>> = mutableMapOf(),
+    override val playerEntitiesByMaster: MutableMap<MasterEntityId, MutableSet<PlayerEntity>> = ConcurrentHashMap(),
     /**
      * Authorities granted to the account, established when the connection authenticates
      * (derived from the JWT role) and carried into the active session on master selection.
@@ -94,9 +97,12 @@ class ConnectionInfoService {
   ) {
     LOG.info { "Register authenticated connection for account: $accountId with authorities: $authorities" }
 
-    sessions[accountId] = when (val session = getOrCreateSession(accountId)) {
-      is InactiveConnection -> session.copy(authorities = authorities)
-      is ActiveConnection -> session.copy(authorities = authorities)
+    sessions.compute(accountId) { _, session ->
+      when (session) {
+        null -> InactiveConnection(authorities = authorities)
+        is InactiveConnection -> session.copy(authorities = authorities)
+        is ActiveConnection -> session.copy(authorities = authorities)
+      }
     }
   }
 
@@ -113,21 +119,17 @@ class ConnectionInfoService {
   ) {
     LOG.info { "Activate session for account: $accountId with master entity id: $masterEntityId" }
 
-    when (val session = getOrCreateSession(accountId)) {
-      is InactiveConnection -> {
-        sessions[accountId] = session.activate(masterId, masterEntityId)
-      }
-
-      is ActiveConnection -> {
-        if (session.master.entityId != masterEntityId) {
-          deactivateSession(accountId)
-          val newInactiveConnection = getOrCreateSession(accountId) as InactiveConnection
-          sessions[accountId] = newInactiveConnection.activate(masterId, masterEntityId)
-        }
+    sessions.compute(accountId) { _, session ->
+      when (session) {
+        null -> InactiveConnection().activate(masterId, masterEntityId)
+        is InactiveConnection -> session.activate(masterId, masterEntityId)
+        is ActiveConnection ->
+          if (session.master.entityId == masterEntityId) session else session.deactivate().activate(masterId, masterEntityId)
       }
     }
 
-    sessions[accountId]?.playerEntitiesByMaster?.set(masterId, ownedBestias.toMutableSet())
+    val owned = ConcurrentHashMap.newKeySet<PlayerEntity>().apply { addAll(ownedBestias) }
+    sessions[accountId]?.playerEntitiesByMaster?.set(masterId, owned)
   }
 
   fun hasActiveSession(accountId: AccountId): Boolean {
@@ -137,10 +139,8 @@ class ConnectionInfoService {
   fun deactivateSession(accountId: Long) {
     LOG.info { "Deactivated session for account: $accountId" }
 
-    val session = sessions[accountId]
-
-    if (session is ActiveConnection) {
-      sessions[accountId] = session.deactivate()
+    sessions.computeIfPresent(accountId) { _, session ->
+      if (session is ActiveConnection) session.deactivate() else session
     }
   }
 
@@ -157,9 +157,9 @@ class ConnectionInfoService {
     playerBestiaId: PlayerBestiaId,
     playerBestiaEntityId: EntityId
   ) {
-    val session = getOrCreateSession(accountId)
+    val session = sessions.computeIfAbsent(accountId) { InactiveConnection() }
 
-    val store = session.playerEntitiesByMaster.getOrPut(masterId) { mutableSetOf() }
+    val store = session.playerEntitiesByMaster.computeIfAbsent(masterId) { ConcurrentHashMap.newKeySet() }
     store.add(PlayerEntity(playerBestiaId, playerBestiaEntityId))
   }
 
@@ -185,7 +185,7 @@ class ConnectionInfoService {
   ): Set<PlayerEntity> {
     val session = sessions[accountId] ?: return emptySet()
 
-    return session.playerEntitiesByMaster[masterId] ?: emptySet()
+    return session.playerEntitiesByMaster[masterId]?.toSet() ?: emptySet()
   }
 
   fun activateEntity(
@@ -244,11 +244,6 @@ class ConnectionInfoService {
       is ActiveConnection -> session.authorities
       is InactiveConnection, null -> emptySet()
     }
-  }
-
-  /** For the writers only: a lookup must not leave a session behind for an account that never connected. */
-  private fun getOrCreateSession(accountId: AccountId): Session {
-    return sessions.getOrPut(accountId) { InactiveConnection() }
   }
 
   @OptIn(ExperimentalContracts::class)

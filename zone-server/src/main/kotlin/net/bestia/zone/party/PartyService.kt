@@ -16,8 +16,6 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.Executors
-import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicLong
 
@@ -33,6 +31,7 @@ class PartyService(
   companion object {
     const val MAX_PARTY_SIZE = 12
     const val INVITATION_TIMEOUT_SECONDS = 60L
+    const val MAX_INVITATIONS_IN_FLIGHT = 100
     private val LOG = KotlinLogging.logger { }
   }
 
@@ -46,12 +45,17 @@ class PartyService(
   private class OpenPartyInvitation(
     val inviterAccountId: Long,
     val invitedAccountId: Long,
-    val invitation: PartyInvitationSMSG
-  )
+    val invitation: PartyInvitationSMSG,
+    private val createdAtNanos: Long = java.lang.System.nanoTime(),
+  ) {
+    fun isExpired(): Boolean {
+      return java.lang.System.nanoTime() - createdAtNanos > TimeUnit.SECONDS.toNanos(INVITATION_TIMEOUT_SECONDS)
+    }
+  }
 
+  /** Expired invitations are dropped when they are next touched, so no thread has to watch the clock. */
   private val pendingInvitations = ConcurrentHashMap<Long, OpenPartyInvitation>()
-  private val scheduler: ScheduledExecutorService = Executors.newScheduledThreadPool(1)
-  private val nextInvitationId = AtomicLong(1)
+  private val nextInvitationId = AtomicLong(1L)
 
   @Transactional
   fun createParty(ownerId: Long, partyName: String): Party {
@@ -103,6 +107,11 @@ class PartyService(
 
   @Transactional(readOnly = true)
   fun invitePlayerToParty(inviterAccountId: Long, invitedAccountId: Long): PartyInvitationSMSG {
+    pendingInvitations.values.removeIf { it.isExpired() }
+    if (pendingInvitations.size > MAX_INVITATIONS_IN_FLIGHT) {
+      throw TooManyPartyInvitationsInFlightException()
+    }
+
     val inviter = masterResolver.getSelectedMasterByAccountId(inviterAccountId)
 
     val party = partyRepository.findByOwner(inviter)
@@ -119,24 +128,6 @@ class PartyService(
       throw AlreadyInPartyException()
     }
 
-    return synchronized(pendingInvitations) {
-      openInvitationTo(party.id, invited.account.id)?.invitation
-        ?: openInvitation(party, inviter, invited)
-    }
-  }
-
-  private fun openInvitationTo(partyId: Long, invitedAccountId: Long): OpenPartyInvitation? {
-    return pendingInvitations.values.firstOrNull {
-      it.invitation.partyId == partyId && it.invitedAccountId == invitedAccountId
-    }
-  }
-
-  /** Open invitations take a seat each, so no party can crowd the server with more than it could seat. */
-  private fun openInvitation(party: Party, inviter: Master, invited: Master): PartyInvitationSMSG {
-    val openInvitations = pendingInvitations.values.count { it.invitation.partyId == party.id }
-    if (party.size + openInvitations >= MAX_PARTY_SIZE) {
-      throw PartyFullException()
-    }
 
     val invitationId = nextInvitationId.getAndIncrement()
 
@@ -152,11 +143,6 @@ class PartyService(
       inviterAccountId = inviter.account.id,
       invitation = invitation
     )
-
-    // Schedule expiration
-    scheduler.schedule({
-      pendingInvitations.remove(invitationId)
-    }, INVITATION_TIMEOUT_SECONDS, TimeUnit.SECONDS)
 
     LOG.debug {
       "Created party invite $invitationId (${invitation.partyName}) for player" +
@@ -206,7 +192,7 @@ class PartyService(
 
   /** Checks before removing: the ids are guessable, so anyone else could otherwise burn the invitation. */
   private fun takeInvitation(accountId: AccountId, invitationId: Long): OpenPartyInvitation {
-    val invitation = pendingInvitations[invitationId]
+    val invitation = pendingInvitations[invitationId]?.takeUnless { it.isExpired() }
       ?: throw PartyInvitationExpired()
 
     if (invitation.invitedAccountId != accountId) {

@@ -22,10 +22,9 @@ import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.util.AccountId
 import net.bestia.zone.util.EntityId
 import org.springframework.context.event.EventListener
+import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.Executors
-import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicLong
 
@@ -74,9 +73,6 @@ class TradeService(
    * two people asking the same player at the same moment resolve to one trade rather than two.
    */
   private val tradeByAccount = ConcurrentHashMap<AccountId, Long>()
-
-  private val scheduler: ScheduledExecutorService =
-    Executors.newSingleThreadScheduledExecutor { r -> Thread(r, "trade-expiry") }
 
   private val nextTradeId = AtomicLong(1L)
 
@@ -156,8 +152,6 @@ class TradeService(
     }
 
     sessions[tradeId] = session
-
-    scheduler.schedule({ expire(tradeId) }, REQUEST_TIMEOUT_SECONDS, TimeUnit.SECONDS)
 
     outMessageProcessor.sendToPlayer(
       targetAccountId,
@@ -540,15 +534,23 @@ class TradeService(
     }
   }
 
-  private fun expire(tradeId: Long) {
-    val session = sessions[tradeId] ?: return
+  /** Ends the requests nobody answered in time; the ending itself is a DB job, as a cancel's is. */
+  @Scheduled(fixedDelay = 1_000)
+  fun expireUnanswered() {
+    val deadline = System.nanoTime() - TimeUnit.SECONDS.toNanos(REQUEST_TIMEOUT_SECONDS)
 
-    synchronized(session) {
-      if (session.status != TradeStatus.PENDING) return
-      session.status = TradeStatus.CLOSED
+    for (session in sessions.values) {
+      if (session.requestedAtNanos > deadline) continue
+
+      val claimed = synchronized(session) {
+        val pending = session.status == TradeStatus.PENDING
+        if (pending) session.status = TradeStatus.CLOSED
+        pending
+      }
+      if (!claimed) continue
+
+      asyncJobExecutor.submit(session.tradeId) { finish(session, TradeEndReason.EXPIRED, byAccountId = null) }
     }
-
-    finish(session, TradeEndReason.EXPIRED, byAccountId = null)
   }
 
   private fun sideFor(accountId: AccountId, entityId: EntityId): TradeSession.Side {
