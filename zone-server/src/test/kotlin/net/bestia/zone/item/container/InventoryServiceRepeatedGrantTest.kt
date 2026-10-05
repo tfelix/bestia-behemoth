@@ -51,10 +51,11 @@ class InventoryServiceRepeatedGrantTest {
     // Each call below is its own top-level transaction (this test method itself is not
     // @Transactional), matching how DevDataBootstrapRunner invokes them - `master` becomes
     // detached after every commit, which is what makes the merge-duplication bug reproducible.
-    // Counted rather than assumed empty: a fixture master is created holding a starter map chart, and this
-    // test is about whether *these three* grants duplicate, not about what else is in the bag.
-    val slotsBefore = transactionTemplate.execute {
-      masterRepository.findByIdOrThrow(masterId).container.slots.size
+    // Counted rather than assumed empty: the fixture master is shared with other tests in the same
+    // database, and this test is about whether *these three* grants duplicate, not about what else is in the bag.
+    val before = transactionTemplate.execute {
+      masterRepository.findByIdOrThrow(masterId).container.slots
+        .map { it.template.identifier to it.amount }
     }!!
 
     inventoryService.addItem(master, "apple", 12)
@@ -66,9 +67,15 @@ class InventoryServiceRepeatedGrantTest {
         .map { it.template.identifier to it.amount }
     }!!
 
-    assertEquals(slotsBefore + 3, slots.size, "expected exactly one slot per granted item, got: $slots")
-    assertEquals(12, slots.first { it.first == "apple" }.second)
-    assertEquals(1, slots.count { it.first == "shoes" })
-    assertEquals(1, slots.count { it.first == "boots" })
+    // Apples stack onto an apple stack that is already there; shoes and boots never stack.
+    val newAppleSlots = if (before.any { it.first == "apple" }) 0 else 1
+    assertEquals(before.size + newAppleSlots + 2, slots.size, "expected exactly one slot per granted item, got: $slots")
+    assertEquals(before.amountOf("apple") + 12, slots.amountOf("apple"))
+    assertEquals(before.count { it.first == "shoes" } + 1, slots.count { it.first == "shoes" })
+    assertEquals(before.count { it.first == "boots" } + 1, slots.count { it.first == "boots" })
+  }
+
+  private fun List<Pair<String, Int>>.amountOf(identifier: String): Int {
+    return filter { it.first == identifier }.sumOf { it.second }
   }
 }

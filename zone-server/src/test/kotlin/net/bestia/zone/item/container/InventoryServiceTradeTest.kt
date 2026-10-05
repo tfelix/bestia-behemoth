@@ -130,6 +130,7 @@ class InventoryServiceTradeTest {
     }
 
     val applesBefore = heldAmount(a, "apple")
+    val applesBeforeB = heldAmount(b, "apple")
 
     val offeredApples = inventoryService.reserveForTrade(a, tradeId, appleId(), 0L, 4)!!
     val offeredSword = inventoryService.reserveForTrade(b, tradeId, sword.item.id, sword.id, 1)!!
@@ -146,7 +147,7 @@ class InventoryServiceTradeTest {
     assertEquals(1, settlement.toMasterB.size)
 
     assertEquals(applesBefore - 4, heldAmount(a, "apple"), "the four offered apples left")
-    assertEquals(4, heldAmount(b, "apple"), "and arrived")
+    assertEquals(applesBeforeB + 4, heldAmount(b, "apple"), "and arrived")
 
     assertTrue(heldInstanceIds(b, "iron_sword").none { it == sword.id }, "the sword left its old owner")
     assertTrue(heldInstanceIds(a, "iron_sword").contains(sword.id), "as the same row, not a copy")
