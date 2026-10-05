@@ -15,7 +15,7 @@ import java.time.Instant
   indexes = [Index(name = "idx_entity_entity_id", columnList = "entityId", unique = true)]
 )
 class PersistedEntity(
-  /** The live ECS entity id (Snowflake). Reused via `world.create(id)` on reload so references stay stable. */
+  /** The live ECS entity id (Snowflake). Reused via `world.createEntity(id)` on reload so references stay stable. */
   @Column(nullable = false)
   var entityId: Long = 0,
 

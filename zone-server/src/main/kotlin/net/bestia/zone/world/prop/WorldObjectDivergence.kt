@@ -24,7 +24,7 @@ enum class DivergenceState { DEPLETED }
  *
  * ### Why this cannot be a [net.bestia.zone.entity.PersistedEntity] row
  *
- * `PersistedEntity` is keyed on the *live* entity id, reused via `world.create(id)` on reload - correct for
+ * `PersistedEntity` is keyed on the *live* entity id, reused via `world.createEntity(id)` on reload - correct for
  * a mob or a dropped item, whose id is stable across a save/load cycle. A generated prop's entity id is
  * deliberately re-minted every time its chunk column is re-materialised
  * ([WorldObjectResidencyService.materialise]), so nothing keyed on it can survive a column leaving every

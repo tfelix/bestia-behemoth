@@ -254,7 +254,7 @@ class SpawnerSystem(
     LOG.debug { "Den at ${spawner.position} went dormant; despawning ${spawner.spawnedEntities.size}" }
     for (entityId in spawner.spawnedEntities) {
       deletionQueue.enqueue(entityId)
-      if (world.hasEntity(entityId)) world.destroy(entityId)
+      if (world.isAlive(entityId)) world.destroy(entityId)
     }
     spawner.spawnedEntities.clear()
   }
@@ -285,7 +285,7 @@ class SpawnerSystem(
   }
 
   private fun removeDeadEntities(spawner: Spawner, world: World) {
-    spawner.spawnedEntities.removeIf { entityId -> !world.hasEntity(entityId) }
+    spawner.spawnedEntities.removeIf { entityId -> !world.isAlive(entityId) }
   }
 
   fun randomBetween(x: Long, y: Long): Long {

@@ -6,8 +6,6 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import java.util.Collections
-import java.util.concurrent.ConcurrentHashMap
 
 class QueryTest {
 
@@ -22,7 +20,7 @@ class QueryTest {
     val fullEntities = mutableSetOf<EntityId>()
 
     repeat(200) { i ->
-      val e = world.create()
+      val e = world.createEntity { }
       world.add(e, QPosition(i.toFloat()))
       if (i % 2 == 0) world.add(e, QVelocity(1f))
       if (i % 3 == 0) world.add(e, QHealth(100))
@@ -43,7 +41,7 @@ class QueryTest {
   @Test
   fun `Row get for a type outside the query throws`() {
     val world = testWorld()
-    val e = world.create()
+    val e = world.createEntity { }
     world.add(e, QPosition(1f))
 
     val ex = assertThrows(IllegalStateException::class.java) {
@@ -52,34 +50,5 @@ class QueryTest {
       }
     }
     assertTrue(ex.message!!.contains("QVelocity"))
-  }
-
-  @Test
-  fun `parallelEach gives each entity a consistent row across worker threads`() {
-    val world = testWorld()
-    val expectedX = ConcurrentHashMap<EntityId, Float>()
-
-    repeat(5000) { i ->
-      val e = world.create()
-      val x = i.toFloat()
-      world.add(e, QPosition(x))
-      world.add(e, QVelocity(x * 2))
-      expectedX[e] = x
-    }
-
-    val visited = Collections.synchronizedList(mutableListOf<EntityId>())
-    val mismatches = Collections.synchronizedList(mutableListOf<EntityId>())
-
-    world.query(QPosition::class, QVelocity::class).parallelEach { id ->
-      val pos = get<QPosition>()
-      val vel = get<QVelocity>()
-      visited.add(id)
-      if (pos.x != expectedX[id] || vel.dx != pos.x * 2) {
-        mismatches.add(id)
-      }
-    }
-
-    assertEquals(5000, visited.size)
-    assertTrue(mismatches.isEmpty())
   }
 }

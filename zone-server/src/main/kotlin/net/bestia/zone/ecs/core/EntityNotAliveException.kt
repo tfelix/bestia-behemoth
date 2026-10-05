@@ -4,10 +4,7 @@ import net.bestia.zone.util.EntityId
 
 import net.bestia.zone.BestiaException
 
-/**
- * Thrown by [World.modifyOrThrow]/[World.getOrThrow] paths when an entity is expected to exist but
- * is not alive. Replaces the previous `net.bestia.zone.ecs.NoReadLockForEntityException`.
- */
+/** Thrown when an entity is expected to exist but is not alive. */
 class EntityNotAliveException(entityId: EntityId) : BestiaException(
   code = "ENTITY_NOT_ALIVE",
   message = "Entity $entityId is not alive",

@@ -74,7 +74,7 @@ class TownsfolkResidencySystem(
     // Anybody whose entity is gone walked through a door. Dropping them here rather than treating it as a
     // death is the whole difference from the ambient layer: the registry already knows when they are due
     // back, and re-materialising them now would put them straight back on the doorstep they just left.
-    live.entries.removeIf { !world.hasEntity(it.value) }
+    live.entries.removeIf { !world.isAlive(it.value) }
 
     val players = activePlayerPositions(world)
     if (players.isEmpty()) {
@@ -152,7 +152,7 @@ class TownsfolkResidencySystem(
       val id = live.remove(identity) ?: continue
 
       // No deletion queued: a townsperson was never persisted, and nothing about them is written down.
-      if (world.hasEntity(id)) world.destroy(id)
+      if (world.isAlive(id)) world.destroy(id)
       LOG.trace { "Unloaded ${TownsfolkIdentity.describe(identity)}" }
     }
   }

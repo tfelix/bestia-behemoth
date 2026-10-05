@@ -137,7 +137,7 @@ class AmbientSpawnerSystem(
    * as recently emptied would hold a respawn delay against ground nobody is near.
    */
   private fun reapDead(world: World, wanted: Set<Long>) {
-    val gone = live.entries.filter { !world.hasEntity(it.value) }
+    val gone = live.entries.filter { !world.isAlive(it.value) }
     for ((cell, _) in gone) {
       live.remove(cell)
       idleSince.remove(cell)
@@ -202,7 +202,7 @@ class AmbientSpawnerSystem(
       val id = live.remove(cell) ?: continue
 
       // No deletion-queue entry: an ambient creature was never persisted. See the class KDoc.
-      if (world.hasEntity(id)) world.destroy(id)
+      if (world.isAlive(id)) world.destroy(id)
     }
   }
 

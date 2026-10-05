@@ -180,7 +180,7 @@ class SystemSchedulerTest {
     }
     val sibling = CountingSystem(Schedule.EveryTick, writes = setOf(CompC::class))
     val world = testWorld(parallelSystems = true, systems = listOf(reader, sibling))
-    world.add(world.create(), CompA())
+    world.add(world.createEntity { }, CompA())
 
     // Owned, as it is once the engine runs; a wave's threads must not need a lease from the waiting owner.
     world.bindTickThread()

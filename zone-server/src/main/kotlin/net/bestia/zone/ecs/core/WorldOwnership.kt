@@ -31,10 +31,12 @@ class WorldOwnership {
   private val posted = LinkedBlockingQueue<() -> Unit>()
   private val failureLog = RateLimitedLog()
 
-  /** Runs [block] with the world to itself: inline for its owner, under the monitor while unbound, else on a lease. */
-  inline fun <T> guarded(crossinline block: () -> T): T {
-    val me = Thread.currentThread()
-    if (me === tickThread || me === lentTo || me is WaveWorker) {
+  /**
+   * Runs a scope's [block] with the world to itself: inline for its owner, under the monitor while unbound,
+   * else on a lease. Only scopes borrow; a single accessor never does, see [requireOwned].
+   */
+  inline fun <T> withWorld(crossinline block: () -> T): T {
+    if (isOwnedByCurrentThread()) {
       return block()
     }
 
@@ -46,6 +48,32 @@ class WorldOwnership {
     }
 
     return borrow { block() }
+  }
+
+  /**
+   * Runs an accessor's [block] if the calling thread has the world, and throws otherwise. A lease per
+   * accessor would make two calls in a row two separate leases, with the tick running in between.
+   */
+  inline fun <T> requireOwned(crossinline block: () -> T): T {
+    if (isOwnedByCurrentThread()) {
+      return block()
+    }
+
+    if (tickThread == null) {
+      synchronized(unboundMonitor) {
+        if (tickThread == null) return block()
+      }
+    }
+
+    throw IllegalStateException(
+      "${Thread.currentThread().name} touched the world outside a scope; use WorldView.read, modify or post"
+    )
+  }
+
+  @PublishedApi
+  internal fun isOwnedByCurrentThread(): Boolean {
+    val me = Thread.currentThread()
+    return me === tickThread || me === lentTo || me is WaveWorker
   }
 
   /** Makes the calling thread the world's owner. Waits for whoever still holds the monitor. */
@@ -115,6 +143,9 @@ class WorldOwnership {
       return block()
     } finally {
       insideLease.set(false)
+      // Cleared here, not only by the lender: until it is, this thread's next scope would think it still
+      // holds the world and run without a lease.
+      lentTo = null
       lease.returned.countDown()
     }
   }

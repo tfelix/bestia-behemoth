@@ -168,7 +168,7 @@ class DenPackRestoreService(
 
   private fun discard(world: World, creatureId: EntityId) {
     deletionQueue.enqueue(creatureId)
-    if (world.hasEntity(creatureId)) {
+    if (world.isAlive(creatureId)) {
       world.destroy(creatureId)
     }
   }

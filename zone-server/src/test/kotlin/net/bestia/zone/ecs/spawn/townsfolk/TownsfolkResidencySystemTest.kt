@@ -179,7 +179,7 @@ class TownsfolkResidencySystemTest {
     sut.update(world, DT)
 
     assertEquals(requests, built.size, "somebody was rebuilt after walking through their own front door")
-    assertFalse(world.hasEntity(gone))
+    assertFalse(world.isAlive(gone))
   }
 
   private fun player(at: Vec3L): EntityId = world.createEntity { id ->

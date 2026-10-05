@@ -200,7 +200,7 @@ class StatusEffectSystemsIntegrationTest {
   @Test
   fun `a speed effect raises effective speed and reverts once it expires`() {
     val (world, registry) = newWorld(SpeedBuffScript(speedMultiplier = 1.5f, duration = 1.0))
-    val entity = world.create()
+    val entity = world.createEntity { }
     world.add(entity, Speed(2.0f))
     world.seedStatusValues(entity)
 
@@ -220,7 +220,7 @@ class StatusEffectSystemsIntegrationTest {
   @Test
   fun `a vitality buff raises formula-driven max HP and reverts once it expires`() {
     val (world, registry) = newWorld(VitalityBuffScript(vitalityBonus = 20, duration = 1.0))
-    val entity = world.create()
+    val entity = world.createEntity { }
     world.seedStatusValues(entity)
     // Opts this entity into formula-derived pool maxima, the way both player spawners do. Without
     // it the recalc leaves Health.max alone - see the mob test below.
@@ -253,7 +253,7 @@ class StatusEffectSystemsIntegrationTest {
     equipmentScriptRegistry.bind(listOf(ringItem))
 
     val (world, registry) = newWorld(RegenBuffScript(), equipmentScriptRegistry, boundPassiveRegistry())
-    val entity = world.create()
+    val entity = world.createEntity { }
     world.seedStatusValues(entity)
     world.add(entity, KnownSkills(mutableMapOf(PASSIVE_SKILL_ID to 2)))
     val equipment = Equipment(EquipmentSlots.ALL)
@@ -279,7 +279,7 @@ class StatusEffectSystemsIntegrationTest {
     // The CarryCapacity regression guard: this fails loudly if the write-back ever becomes `+=`
     // instead of an overwrite, or if the recalc starts from the previous result instead of base.
     val (world, registry) = newWorld(RegenBuffScript(duration = 1.0), passiveSkillScriptRegistry = boundPassiveRegistry())
-    val entity = world.create()
+    val entity = world.createEntity { }
     world.seedStatusValues(entity)
     world.add(entity, KnownSkills(mutableMapOf(PASSIVE_SKILL_ID to 1)))
 
@@ -304,7 +304,7 @@ class StatusEffectSystemsIntegrationTest {
   @Test
   fun `a mob without KnownSkills gets no passive contribution`() {
     val (world, _) = newWorld(SpeedBuffScript(), passiveSkillScriptRegistry = boundPassiveRegistry())
-    val mob = world.create()
+    val mob = world.createEntity { }
     world.seedStatusValues(mob)
 
     world.add(mob, IsStatusValueDirty)
@@ -321,7 +321,7 @@ class StatusEffectSystemsIntegrationTest {
     // anything applied a status effect to it, permanently, because CurMax.max clamps current down
     // with it.
     val (world, registry) = newWorld(VitalityBuffScript(vitalityBonus = 20, duration = 1.0))
-    val mob = world.create()
+    val mob = world.createEntity { }
     world.seedStatusValues(mob)
     world.add(mob, Health(current = 500, max = 500))
 
@@ -347,7 +347,7 @@ class StatusEffectSystemsIntegrationTest {
     equipmentScriptRegistry.bind(listOf(bootsItem))
 
     val (world, _) = newWorld(SpeedBuffScript(), equipmentScriptRegistry)
-    val entity = world.create()
+    val entity = world.createEntity { }
     world.seedStatusValues(entity)
     val equipment = Equipment(EquipmentSlots.ALL)
     world.add(entity, equipment)
@@ -373,7 +373,7 @@ class StatusEffectSystemsIntegrationTest {
     equipmentScriptRegistry.bind(listOf(bootsItem))
 
     val (world, registry) = newWorld(VitalityBuffScript(vitalityBonus = 20), equipmentScriptRegistry)
-    val entity = world.create()
+    val entity = world.createEntity { }
     world.seedStatusValues(entity)
     val equipment = Equipment(EquipmentSlots.ALL)
     world.add(entity, equipment)
@@ -391,7 +391,7 @@ class StatusEffectSystemsIntegrationTest {
   @Test
   fun `re-applying a REFRESH_DURATION effect resets its remaining time instead of stacking`() {
     val (world, registry) = newWorld(SpeedBuffScript(duration = 1.0))
-    val entity = world.create()
+    val entity = world.createEntity { }
     world.add(entity, Speed(2.0f))
     world.seedStatusValues(entity)
     val service = StatusEffectService(registry, StatusEffectScriptRegistry(listOf(SpeedBuffScript(duration = 1.0))))

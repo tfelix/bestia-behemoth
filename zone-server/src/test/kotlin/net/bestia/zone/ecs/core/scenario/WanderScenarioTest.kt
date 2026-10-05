@@ -51,10 +51,6 @@ class WanderScenarioTest {
   fun setUp() {
     ctx = AnnotationConfigApplicationContext(ScenarioConfig::class.java)
     world = ctx.getBean(World::class.java)
-    // Register the command handler that turns external intent into ECS state.
-    world.onCommand<MoveCommand> { w, cmd ->
-      w.get(cmd.entity, Velocity::class)?.apply { dx = cmd.dx; dy = cmd.dy }
-    }
   }
 
   @AfterEach
@@ -63,7 +59,7 @@ class WanderScenarioTest {
   }
 
   private fun spawnCritter(): EntityId {
-    val e = world.create()
+    val e = world.createEntity { }
     world.add(e, Position(0f, 0f))
     world.add(e, Velocity(0f, 0f))
     world.add(e, Wander())
@@ -97,24 +93,24 @@ class WanderScenarioTest {
   }
 
   @Test
-  fun `an external thread steers an entity via a command applied on the next tick`() {
-    // a plain "player" entity: only the command drives it (no Wander overwrites velocity)
-    val player = world.create()
+  fun `an external thread steers an entity via work posted for the next tick`() {
+    // a plain "player" entity: only the posted work drives it (no Wander overwrites velocity)
+    val player = world.createEntity { }
     world.add(player, Position(0f, 0f))
     world.add(player, Velocity(0f, 0f))
 
     // send from a different thread, like the network layer would
     val net = Executors.newSingleThreadExecutor()
-    net.submit { world.send(MoveCommand(player, dx = 10f, dy = 0f)) }.get()
+    net.submit { world.post { get(player, Velocity::class)?.dx = 10f } }.get()
     net.shutdown()
 
-    // not applied until the tick drains the queue
+    // not applied until the tick runs the posted work
     assertEquals(0f, world.get(player, Velocity::class)!!.dx)
 
     world.tick(0.1f)
 
     assertEquals(10f, world.get(player, Velocity::class)!!.dx)
-    assertTrue(world.get(player, Position::class)!!.x > 0f, "player should have moved after the command")
+    assertTrue(world.get(player, Position::class)!!.x > 0f, "player should have moved after the posted work")
   }
 
   @Test

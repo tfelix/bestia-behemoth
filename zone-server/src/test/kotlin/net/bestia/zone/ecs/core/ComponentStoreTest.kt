@@ -49,18 +49,6 @@ class ComponentStoreTest {
   }
 
   @Test
-  fun `pooled store recycles instances via obtain`() {
-    val store = ComponentStore(Pos::class, factory = { Pos() }, reset = { it.x = 0; it.y = 0 })
-    val first = store.obtain(1L)
-    first.x = 99
-    store.remove(1L) // recycles `first` back into the pool (and resets it)
-
-    val second = store.obtain(2L)
-    assertSame(first, second, "obtain should hand back the pooled instance")
-    assertEquals(0, second.x, "reset should have cleared the recycled instance")
-  }
-
-  @Test
   fun `removing an absent entity returns null`() {
     val store = ComponentStore(Pos::class)
     assertNull(store.remove(123L))

@@ -4,7 +4,6 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.util.EntityId
 
 import java.util.concurrent.atomic.AtomicInteger
-import java.util.stream.IntStream
 import kotlin.reflect.KClass
 
 /**
@@ -14,18 +13,11 @@ import kotlin.reflect.KClass
  * do not have all of them. This keeps iteration proportional to the rarest
  * component rather than the whole world.
  *
- * Component values inside [each]/[parallelEach] are read via [Row.get], e.g.
+ * Component values inside [each] are read via [Row.get], e.g.
  * `world.query(Position::class, Speed::class).each { id -> val p = get<Position>() }`.
  *
  * [each] allocates a single [Row] for the whole call (not per entity), mutated
- * in place per matching entity. [parallelEach] allocates one [Row] per
- * fork-join worker thread touched by the call (via a call-scoped
- * `ThreadLocal`), since a single shared `Row` would race across threads.
- *
- * [parallelEach] splits the driving store's dense range across the common
- * fork-join pool. It must only be used by systems that do not perform structural
- * changes on the involved stores during iteration (mutating existing component
- * fields, which also flips their own dirty flag, is safe).
+ * in place per matching entity.
  *
  * With [isolateFailures] (set while a tick runs) an entity whose action throws is logged and
  * skipped, so one bad entity does not end its system's whole update.
@@ -61,19 +53,6 @@ class Query internal constructor(
     }
   }
 
-  fun parallelEach(action: Row.(EntityId) -> Unit) {
-    val driver = driver()
-    val threadRow = ThreadLocal.withInitial { Row(storeArray) }
-    val failures = AtomicInteger()
-    IntStream.range(0, driver.size).parallel().forEach { i ->
-      val id = driver.entityAt(i)
-      if (!matchesAll(driver, id)) return@forEach
-      val row = threadRow.get()
-      row.currentId = id
-      runIsolated(id, failures) { row.action(id) }
-    }
-  }
-
   /**
    * More than [MAX_FAILURES_PER_PASS] failures in one pass is a bug in the system rather than in one
    * entity, so the failure is rethrown and the scheduler counts it against the system.
@@ -101,10 +80,8 @@ class Query internal constructor(
 }
 
 /**
- * Scoped accessor for the "current" joined entity inside a [Query.each] /
- * [Query.parallelEach] callback. A `Row` instance is reused across entities
- * (and, for [Query.parallelEach], shared only within one worker thread) — never
- * store `this` or a `Row` reference outside the lambda body.
+ * Scoped accessor for the "current" joined entity inside a [Query.each] callback. A `Row` instance is
+ * reused across entities — never store `this` or a `Row` reference outside the lambda body.
  */
 class Row internal constructor(
   @PublishedApi internal val stores: Array<ComponentStore<out Component>>,

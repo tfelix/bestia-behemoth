@@ -124,8 +124,8 @@ class AmbientSpawnerSystemTest {
     tick(config.unloadDelaySeconds / 2f)
 
     assertTrue(
-      cohort.all { world.hasEntity(it) },
-      "${cohort.count { !world.hasEntity(it) }} creature(s) were torn down inside the unload delay"
+      cohort.all { world.isAlive(it) },
+      "${cohort.count { !world.isAlive(it) }} creature(s) were torn down inside the unload delay"
     )
   }
 
@@ -139,8 +139,8 @@ class AmbientSpawnerSystemTest {
     tick(config.unloadDelaySeconds + 1f)
 
     assertTrue(
-      cohort.none { world.hasEntity(it) },
-      "${cohort.count { world.hasEntity(it) }} creature(s) outlived the unload delay"
+      cohort.none { world.isAlive(it) },
+      "${cohort.count { world.isAlive(it) }} creature(s) outlived the unload delay"
     )
   }
 
@@ -192,7 +192,7 @@ class AmbientSpawnerSystemTest {
 
     tick(5f)
     assertFalse(
-      spawnedAt.filterKeys { world.hasEntity(it) }.any { it.value == position && it.key != killed },
+      spawnedAt.filterKeys { world.isAlive(it) }.any { it.value == position && it.key != killed },
       "the killed site was restocked inside the respawn delay"
     )
 

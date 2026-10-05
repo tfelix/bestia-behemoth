@@ -19,7 +19,7 @@ class ParallelDeterminismTest {
       systems = listOf(WanderSystem(), MovementSystem(), HealthRegenSystem()),
     )
 
-    val ids = (1..64).map { world.create(it.toLong()) }
+    val ids = (1..64).map { world.createEntity(it.toLong()) { } }
     ids.forEach { id ->
       world.add(id, Position())
       world.add(id, Velocity())

@@ -12,7 +12,6 @@ import net.bestia.zone.ecs.battle.effects.StatusEffects
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.battle.status.Invulnerable
 import net.bestia.zone.ecs.battle.status.Mana
-import net.bestia.zone.ecs.core.Component
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.geometry.Vec3L
@@ -20,7 +19,6 @@ import net.bestia.zone.util.EntityId
 import net.bestia.zone.world.prop.StaticEntityKind
 import net.bestia.zone.world.spoor.TrackReading
 import net.bestia.zone.ecs.battle.damage.Damage as DamageComponent
-import kotlin.reflect.KClass
 
 /**
  * The real [SkillWorld]: one world scope per operation, each charged against the cast's [SkillBudget].
@@ -41,13 +39,7 @@ class BudgetedSkillWorld(
   override fun isAlive(entityId: EntityId): Boolean {
     budget.charge()
 
-    return world.isAlive(entityId)
-  }
-
-  override fun <T : Component> component(entityId: EntityId, type: KClass<T>): T? {
-    budget.charge()
-
-    return world.read { get(entityId, type) }
+    return world.read { isAlive(entityId) }
   }
 
   override fun positionOf(entityId: EntityId): Vec3L? {

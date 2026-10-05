@@ -4,13 +4,11 @@ import net.bestia.zone.battle.damage.Damage
 import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.ecs.AoiLayer
 import net.bestia.zone.ecs.battle.effects.AreaEffect
-import net.bestia.zone.ecs.core.Component
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.world.prop.StaticEntityKind
 import net.bestia.zone.world.spoor.TrackReading
-import kotlin.reflect.KClass
 
 /**
  * Everything a [SkillStrategy] may do to the world, and nothing else.
@@ -43,13 +41,6 @@ interface SkillWorld {
   // ------------------------------------------------------------------- reads
 
   fun isAlive(entityId: EntityId): Boolean
-
-  /**
-   * The live component, for the cases the named accessors below do not cover. Read what you need off it and
-   * do not hold on to it: a change made outside an operation is not charged against the budget, which is
-   * the whole reason [WorldView] hides `get`.
-   */
-  fun <T : Component> component(entityId: EntityId, type: KClass<T>): T?
 
   fun positionOf(entityId: EntityId): Vec3L?
 
