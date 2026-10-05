@@ -53,18 +53,18 @@ class AccountEntityControlService(
     LOG.debug { "handleAccountDisconnected account: ${event.accountId}" }
 
     val masterEntity = masterResolver.getSelectedMasterEntityIdByAccountId(event.accountId)
-      ?: return
+    if (masterEntity != null) {
+      // Before the session goes, which is what makes the session's owned entities unreachable.
+      settleOwnedBestias(event.accountId)
 
-    // Before deactivateSession, which is what makes the session's owned entities unreachable.
-    settleOwnedBestias(event.accountId)
-
-    world.modify(masterEntity) { id ->
-      add(id, PersistAndRemove)
+      world.modify(masterEntity) { id ->
+        add(id, PersistAndRemove)
+      }
     }
 
-    // Technically I guess it would be better if the session only gets deactivated if the entity was confirmed removed
-    // from the ecs...
-    connectionInfoService.deactivateSession(event.accountId)
+    // Always, or every account that ever connected keeps a session. Its bestias stay in the world and are
+    // found again through their OwnedBestia when the master is next selected.
+    connectionInfoService.removeSession(event.accountId)
   }
 
   /**

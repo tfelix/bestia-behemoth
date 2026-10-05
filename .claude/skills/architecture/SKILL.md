@@ -333,7 +333,9 @@ Auth success on the socket triggers `AccountConnectedEvent` →
 once the client picks a master (`SelectMasterCMSG` → `ConnectionInfoService.activateSession`).
 On disconnect, the master's entity gets a `PersistAndRemove` component
 (`ecs/persistence/PersistAndRemoveSystem.kt`) for async persist-then-remove, rather
-than being removed synchronously.
+than being removed synchronously, and the account's session is removed. Player bestias stay in the
+world; their `OwnedBestia` component (`ecs/account/`) is the source of truth for ownership, and
+`activateSession` rebuilds the session's owned entities from it.
 
 ## Database
 

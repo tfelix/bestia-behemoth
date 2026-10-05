@@ -3,7 +3,8 @@ package net.bestia.zone.account.master
 import net.bestia.zone.account.Account
 import net.bestia.zone.account.AccountRepository
 import net.bestia.zone.account.findByIdOrThrow
-import net.bestia.zone.ecs.core.session.ConnectionInfoService
+import net.bestia.zone.ecs.account.OwnedBestia
+import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.util.AccountId
 import net.bestia.zone.world.MasterSpawnPointService
 import org.springframework.stereotype.Component
@@ -11,7 +12,7 @@ import org.springframework.stereotype.Component
 @Component
 class AvailableMasterResolver(
   private val accountRepository: AccountRepository,
-  private val connectionInfoService: ConnectionInfoService,
+  private val world: WorldView,
   private val bestiaInfoFactory: BestiaInfoFactory,
   private val masterSpawnPointService: MasterSpawnPointService
 ) {
@@ -19,11 +20,9 @@ class AvailableMasterResolver(
   fun getAvailableMaster(accountId: AccountId): AvailableMasterSMSG {
     val account = accountRepository.findByIdOrThrow(accountId)
 
-    // Group bestias by master ID (we need to get master ID from the connection info or bestia entities)
-    // For now, we'll get bestias for each master individually
     val masterInfos = account.master.map { master ->
-      // Get bestias specifically for this master
-      val masterBestiaEntities = connectionInfoService.getOwnedEntitiesByMaster(accountId, master.id)
+      // From the world: this runs before a master is selected, when the session knows no bestias.
+      val masterBestiaEntities = world.read { OwnedBestia.ownedBy(this, master.id) }
       val masterBestiaInfos = bestiaInfoFactory.getBestiaInfo(masterBestiaEntities)
 
       AvailableMasterSMSG.MasterInfo(
