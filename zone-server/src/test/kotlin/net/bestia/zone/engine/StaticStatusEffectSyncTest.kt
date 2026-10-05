@@ -22,6 +22,7 @@ import net.bestia.zone.entity.ecs.StaticSync
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.message.SMSG
+import net.bestia.zone.message.StateBatchSMSG
 import net.bestia.zone.message.TickOutbox
 import net.bestia.zone.metrics.TickMetrics
 import net.bestia.zone.movement.ecs.Position
@@ -88,7 +89,10 @@ class StaticStatusEffectSyncTest {
     engine.tickOnce(0.05f)
 
     verify {
-      outMessageProcessor.sendToPlayer(watcher, match<Collection<SMSG>> { sent -> sent.any { it is StatusEffectsComponentSMSG } })
+      outMessageProcessor.sendToPlayer(
+        watcher,
+        match<SMSG> { sent -> sent is StateBatchSMSG && sent.messages.any { it is StatusEffectsComponentSMSG } }
+      )
     }
   }
 
