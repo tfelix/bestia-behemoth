@@ -13,7 +13,7 @@ import java.time.LocalDateTime
  * Server side storage for in-flight ceremonies.
  *
  * Reads are destructive: [takeRegistration] and [takeAssertion] delete the row they return, so a
- * challenge can be spent exactly once. Without that, a captured response could be replayed against
+ * challenge can be spent exactly once, even by two requests at the same moment. Without that, a captured response could be replayed against
  * the same stored challenge until it expired.
  */
 @Service
@@ -87,11 +87,14 @@ class CeremonyStore(
     )
   }
 
-  private fun take(ceremonyId: String, accepted: Set<CeremonyType>): WebAuthnCeremony {
+  internal fun take(ceremonyId: String, accepted: Set<CeremonyType>): WebAuthnCeremony {
     val ceremony = ceremonies.findById(ceremonyId).orElse(null)
       ?: throw WebAuthnException("No such ceremony")
 
-    ceremonies.delete(ceremony)
+    // Not `delete(entity)`: that is flushed only at commit, after both racing requests have used the challenge.
+    if (ceremonies.deleteTaken(ceremonyId) != 1) {
+      throw WebAuthnException("Ceremony $ceremonyId was already taken")
+    }
 
     if (ceremony.ceremonyType !in accepted) {
       throw WebAuthnException("Ceremony $ceremonyId is a ${ceremony.ceremonyType}, not one of $accepted")
