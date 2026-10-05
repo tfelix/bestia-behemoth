@@ -160,7 +160,7 @@ class BestiaEntitySpawner(
       return
     }
 
-    add(id, aiAgentFactory.create(profile, bestia.defaultAttack, homePosition = spawnPosition, memory = memory ?: Blackboard()))
+    add(id, aiAgentFactory.create(profile, bestia.defaultAttack, bestia.aspd, homePosition = spawnPosition, memory = memory ?: Blackboard()))
   }
 
   fun spawnMob(

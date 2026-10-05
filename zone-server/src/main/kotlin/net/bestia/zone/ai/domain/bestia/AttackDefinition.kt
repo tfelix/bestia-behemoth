@@ -1,6 +1,7 @@
 package net.bestia.zone.ai.domain.bestia
 
 import net.bestia.zone.battle.skill.BattleAttack
+import net.bestia.zone.battle.status.AttackSpeed
 import net.bestia.zone.bestia.DefaultAttack
 
 /**
@@ -27,8 +28,8 @@ data class SkillAttack(
 ) : AttackDefinition
 
 /**
- * What a bestia attacks with when it uses no skill: the species' [DefaultAttack], never authored in a
- * profile. It costs a little more than a skill, so a skill that can be used is preferred.
+ * What a bestia attacks with when it uses no skill: the species' [DefaultAttack] at the species' ASPD, never
+ * authored in a profile. It costs a little more than a skill, so a skill that can be used is preferred.
  */
 data class DefaultAttackDefinition(
   override val id: String,
@@ -40,10 +41,12 @@ data class DefaultAttackDefinition(
   companion object {
     private const val COST = 6f
 
-    val MELEE = DefaultAttackDefinition("melee", BattleAttack.getBasicMeleeAttack())
-    val RANGED = DefaultAttackDefinition("ranged", BattleAttack.getBasicRangedAttack())
+    fun of(defaultAttack: DefaultAttack, aspd: Int): List<DefaultAttackDefinition> {
+      val motionMs = AttackSpeed.baseMotionMs(aspd)
+      val melee = DefaultAttackDefinition("melee", BattleAttack.getBasicMeleeAttack(baseAttackMotionMs = motionMs))
+      val ranged = DefaultAttackDefinition("ranged", BattleAttack.getBasicRangedAttack(baseAttackMotionMs = motionMs))
 
-    fun of(defaultAttack: DefaultAttack): List<DefaultAttackDefinition> =
-      listOfNotNull(MELEE.takeIf { defaultAttack.melee }, RANGED.takeIf { defaultAttack.ranged })
+      return listOfNotNull(melee.takeIf { defaultAttack.melee }, ranged.takeIf { defaultAttack.ranged })
+    }
   }
 }

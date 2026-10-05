@@ -3,6 +3,7 @@ package net.bestia.zone.ai.ecs
 import net.bestia.zone.ai.domain.bestia.BestiaDomain
 import net.bestia.zone.ai.profile.AiConfig
 import net.bestia.zone.ai.profile.IdleStance
+import net.bestia.zone.battle.status.AttackSpeed
 import net.bestia.zone.bestia.DefaultAttack
 import net.bestia.zone.geometry.Vec3L
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -26,7 +27,7 @@ class PlayerIdleAiTest {
   }
 
   private fun agentWith(profileId: String, config: AiConfig?) =
-    ai.agentFactory.create(ai.profiles.getOrThrow(profileId), DefaultAttack.MELEE, homePosition = Vec3L.ZERO, config = config)
+    ai.agentFactory.create(ai.profiles.getOrThrow(profileId), DefaultAttack.MELEE, AttackSpeed.DEFAULT_SPECIES_ASPD, homePosition = Vec3L.ZERO, config = config)
 
   // ------------------------------------------------------------- stance narrows
 

@@ -6,6 +6,7 @@ import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.entity.Animation
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.movement.Speed
+import net.bestia.zone.battle.status.AttackSpeed
 import net.bestia.zone.bestia.DefaultAttack
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
@@ -113,7 +114,7 @@ class RestingWindowTest {
 
   private fun spawnWithWindow(window: RestingWindow): EntityId {
     val profile = ai.profiles.getOrThrow(DIURNAL)
-    val built = ai.agentFactory.create(profile, DefaultAttack.MELEE, homePosition = Vec3L(0, 0, 0))
+    val built = ai.agentFactory.create(profile, DefaultAttack.MELEE, AttackSpeed.DEFAULT_SPECIES_ASPD, homePosition = Vec3L(0, 0, 0))
 
     return ai.world.createEntity { id ->
       ai.world.add(id, Position.fromVec3(Vec3L(0, 0, 0)))

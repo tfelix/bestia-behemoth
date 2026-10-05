@@ -58,12 +58,16 @@ data class BattleAttack(
   companion object {
 
     /** The swing an entity with no weapon still has: a melee species' default attack, and every player's. */
-    fun getBasicMeleeAttack(element: Element = Element.NORMAL): BattleAttack = BattleAttack(
+    fun getBasicMeleeAttack(
+      element: Element = Element.NORMAL,
+      baseAttackMotionMs: Int = AttackSpeed.BARE_HANDED_MOTION_MS,
+    ): BattleAttack = BattleAttack(
       strength = 5,
       manaCost = 0,
       range = 1,
       attackType = AttackType.MELEE_PHYSICAL,
       needsLineOfSight = false,
+      baseAttackMotionMs = baseAttackMotionMs,
       aoeRadius = null,
       attackElement = element,
       script = null,
@@ -71,12 +75,16 @@ data class BattleAttack(
     )
 
     /** The shot of a species whose default attack is ranged. Like the melee swing it needs no weapon. */
-    fun getBasicRangedAttack(element: Element = Element.NORMAL): BattleAttack = BattleAttack(
+    fun getBasicRangedAttack(
+      element: Element = Element.NORMAL,
+      baseAttackMotionMs: Int = AttackSpeed.BARE_HANDED_MOTION_MS,
+    ): BattleAttack = BattleAttack(
       strength = 5,
       manaCost = 0,
       range = BASIC_RANGED_REACH,
       attackType = AttackType.RANGED_PHYSICAL,
       needsLineOfSight = true,
+      baseAttackMotionMs = baseAttackMotionMs,
       aoeRadius = null,
       attackElement = element,
       script = null,

@@ -3,6 +3,7 @@ package net.bestia.zone.bestia
 import jakarta.persistence.*
 import net.bestia.zone.battle.Element
 import net.bestia.zone.battle.Size
+import net.bestia.zone.battle.status.AttackSpeed
 import net.bestia.zone.item.loot.LootItem
 import net.bestia.zone.util.requireValidIdentifier
 
@@ -39,6 +40,10 @@ class Bestia(
   @Enumerated(EnumType.STRING)
   @Column(nullable = false, length = 16)
   var defaultAttack: DefaultAttack = DefaultAttack.MELEE,
+
+  /** How fast its default attack is before AGI and DEX, see `AttackSpeed.baseMotionMs`. */
+  @Column(nullable = false)
+  var aspd: Int = AttackSpeed.DEFAULT_SPECIES_ASPD,
 
   /**
    * The species' primary attributes - the mob counterpart of a master's six, seeded into

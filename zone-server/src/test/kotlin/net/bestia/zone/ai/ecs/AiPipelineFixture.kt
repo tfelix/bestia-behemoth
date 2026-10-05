@@ -41,6 +41,7 @@ import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.movement.Speed
 import net.bestia.zone.environment.time.BestiaClock
 import net.bestia.zone.environment.time.BestiaDateTime
+import net.bestia.zone.battle.status.AttackSpeed
 import net.bestia.zone.bestia.DefaultAttack
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.navigation.TestNavigation
@@ -219,7 +220,7 @@ class AiPipelineFixture(tickRate: Int = 20, randomSeed: Long = DEFAULT_SEED) {
       world.add(id, Health(health, maxHealth))
       world.add(id, Speed())
       world.add(id, Animation())
-      world.add(id, agentFactory.create(profiles.getOrThrow(profileId), defaultAttack, homePosition = pos, memory = memory))
+      world.add(id, agentFactory.create(profiles.getOrThrow(profileId), defaultAttack, AttackSpeed.DEFAULT_SPECIES_ASPD, homePosition = pos, memory = memory))
     }
 
   /**
