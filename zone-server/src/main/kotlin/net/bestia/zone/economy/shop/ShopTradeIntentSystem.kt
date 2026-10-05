@@ -16,11 +16,13 @@ import net.bestia.zone.economy.Commodity
 import net.bestia.zone.economy.CommodityItems
 import net.bestia.zone.economy.SettlementEconomyService
 import net.bestia.zone.economy.Shop
+import net.bestia.zone.item.ItemRepository
 import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.util.EntityId
 import org.springframework.core.annotation.Order
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component as SpringComponent
 
 /**
@@ -36,14 +38,11 @@ import org.springframework.stereotype.Component as SpringComponent
  *
  * ### Which side of a crash a failure falls on
  *
- * The goods are granted through [ObtainItemIntent.CreateItemIntent], which is durable, and the coin is
- * taken through the same durable path a craft takes its materials through. Only the *ledger* rides the
+ * What the trader gives is taken off the live inventory on the tick and then durably, and what they receive
+ * is paid only once the durable take has committed. Paying first would mint goods or coin whenever the two
+ * inventories disagree; a take the database refuses is given back instead. Only the *ledger* rides the
  * periodic save. So the worst a crash can cost is under a minute of one settlement's trades replayed as
  * though they had not happened - invisible, and self-correcting, because prices reconverge.
- *
- * The ordering within a sale is deliberate: the goods leave the player before the coin arrives. A crash
- * in that window costs the seller their goods, which is bad; the other order would mint coin, which is
- * the one duplication that actually matters.
  */
 @SpringComponent
 @Order(63)
@@ -54,6 +53,7 @@ class ShopTradeIntentSystem(
   private val asyncJobExecutor: AsyncJobExecutor,
   private val offers: ShopOfferPublisher,
   private val outMessageProcessor: OutMessageProcessor,
+  private val itemRepository: ItemRepository,
 ) : System {
 
   override val reads: ComponentClassSet = setOf(Account::class, Master::class, Position::class)
@@ -95,10 +95,14 @@ class ShopTradeIntentSystem(
     // Only ever null when the quote was refused, and the line above returned.
     val good = commodity ?: return
 
+    // Prices are summed in Long, but coins are counted in Int.
+    if (quote.coins > Int.MAX_VALUE) return deny(world, traderId, OperationErrorProto.OpError.SHOP_CANNOT_AFFORD)
+    val coins = quote.coins.toInt()
+
     val moved = if (intent.selling) {
-      sell(world, traderId, good, intent.amount, quote.coins)
+      sell(world, traderId, good, intent.amount, coins)
     } else {
-      buy(world, traderId, good, intent.amount, quote.coins)
+      buy(world, traderId, good, intent.amount, coins)
     }
     if (!moved) return deny(world, traderId, OperationErrorProto.OpError.SHOP_CANNOT_AFFORD)
 
@@ -111,46 +115,76 @@ class ShopTradeIntentSystem(
     }
   }
 
-  private fun buy(world: World, buyerId: EntityId, good: Commodity, units: Int, coins: Long): Boolean {
+  private fun buy(world: World, buyerId: EntityId, good: Commodity, units: Int, coins: Int): Boolean {
     val coinItem = commodities.coinItemId() ?: return false
-    if (!takeFromInventory(world, buyerId, coinItem, coins.toInt())) return false
+    val goodsItem = itemIdOf(good) ?: return false
 
-    world.add(buyerId, ObtainItemIntent.CreateItemIntent(itemIdOf(good) ?: return false, units))
-
-    return true
+    return exchange(world, buyerId, give = coinItem to coins, receive = goodsItem to units)
   }
 
-  private fun sell(world: World, sellerId: EntityId, good: Commodity, units: Int, coins: Long): Boolean {
-    val itemId = itemIdOf(good) ?: return false
-    if (!takeFromInventory(world, sellerId, itemId, units)) return false
-
+  private fun sell(world: World, sellerId: EntityId, good: Commodity, units: Int, coins: Int): Boolean {
+    val goodsItem = itemIdOf(good) ?: return false
     val coinItem = commodities.coinItemId() ?: return false
-    world.add(sellerId, ObtainItemIntent.CreateItemIntent(coinItem, coins.toInt()))
 
-    return true
+    return exchange(world, sellerId, give = goodsItem to units, receive = coinItem to coins)
   }
 
   /**
-   * Takes a pile off the live inventory and schedules the durable removal - `CraftingService`'s shape.
+   * Takes [give] off the live inventory now and pays [receive] once the durable take has committed.
    *
    * The in-memory half is synchronous so that the second of two players buying in the same tick is
    * checked against what the first has already spent.
    */
-  private fun takeFromInventory(world: World, entityId: EntityId, itemId: Long, amount: Int): Boolean {
-    if (amount == 0) return true
+  private fun exchange(world: World, traderId: EntityId, give: Pair<Long, Int>, receive: Pair<Long, Int>): Boolean {
+    val (giveItem, giveAmount) = give
+    val inventory = world.get(traderId, Inventory::class) ?: return false
+    val masterId = world.get(traderId, Master::class)?.masterId ?: return false
+    val weight = inventory.getItems().firstOrNull { it.itemId == giveItem }?.weight ?: 0
 
-    val inventory = world.get(entityId, Inventory::class) ?: return false
-    val masterId = world.get(entityId, Master::class)?.masterId ?: return false
+    if (giveAmount > 0 && !inventory.removeFromStack(giveItem, giveAmount)) return false
 
-    val held = inventory.getItems().filter { it.itemId == itemId && it.isStackable }.sumOf { it.amount }
-    if (held < amount) return false
-
-    inventory.removeAmount(itemId.toInt(), amount)
     asyncJobExecutor.submit(masterId) {
-      inventoryService.consumeAll(masterId, listOf(itemId to amount))
+      val taken = giveAmount == 0 || inventoryService.consumeAll(masterId, listOf(giveItem to giveAmount))
+
+      if (taken) {
+        pay(world, traderId, masterId, receive)
+      } else {
+        LOG.warn { "Master $masterId lost ${giveAmount}x $giveItem in the database before a shop trade; giving it back" }
+        giveBack(world, traderId, Inventory.Item(giveItem, giveAmount, weight))
+      }
     }
 
     return true
+  }
+
+  private fun pay(world: World, traderId: EntityId, masterId: Long, receive: Pair<Long, Int>) {
+    val (itemId, amount) = receive
+    if (amount == 0) return
+
+    // One intent per entity: overwriting a pending grant would lose it.
+    val queued = world.modify(traderId) { id ->
+      if (has(id, ObtainItemIntent.CreateItemIntent::class)) {
+        false
+      } else {
+        add(id, ObtainItemIntent.CreateItemIntent(itemId, amount))
+        true
+      }
+    }
+
+    if (queued != true) {
+      // The live inventory catches up on the next login; the trade itself is already paid for.
+      val item = itemRepository.findByIdOrNull(itemId) ?: return
+      inventoryService.grantToMaster(masterId, item, amount)
+    }
+  }
+
+  private fun giveBack(world: World, traderId: EntityId, taken: Inventory.Item) {
+    val accountId = world.modify(traderId) { id ->
+      get(id, Inventory::class)?.addItem(taken)
+      get(id, Account::class)?.accountId
+    } ?: return
+
+    outMessageProcessor.sendToPlayer(accountId, OperationErrorSMSG(OperationErrorProto.OpError.SHOP_CANNOT_AFFORD))
   }
 
   private fun itemIdOf(good: Commodity): Long? {
