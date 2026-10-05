@@ -351,4 +351,20 @@ class InventoryTest {
 
     assertTrue(inventory.isDirty())
   }
+
+  @Test
+  fun `removeFromStack takes across every pile of the template`() {
+    val twoPiles = Inventory(mutableListOf(Inventory.Item(itemId = 1, amount = 6), Inventory.Item(itemId = 1, amount = 4)))
+
+    assertTrue(twoPiles.removeFromStack(1, 8))
+    assertEquals(2, twoPiles.getItems().sumOf { it.amount })
+  }
+
+  @Test
+  fun `removeFromStack takes nothing when all piles together hold too little`() {
+    val twoPiles = Inventory(mutableListOf(Inventory.Item(itemId = 1, amount = 6), Inventory.Item(itemId = 1, amount = 4)))
+
+    assertFalse(twoPiles.removeFromStack(1, 11))
+    assertEquals(10, twoPiles.getItems().sumOf { it.amount })
+  }
 }

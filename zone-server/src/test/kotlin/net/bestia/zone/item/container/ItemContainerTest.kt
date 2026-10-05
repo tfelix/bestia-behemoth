@@ -41,6 +41,25 @@ class ItemContainerTest {
     assertEquals(12, container.slots.single().amount)
   }
 
+  /** The boot cleanup frees trade reservations in place, which leaves one template in two free piles. */
+  @Test
+  fun `removeStackable takes across every free pile of the template`() {
+    container.addStackable(apple, 10)
+    container.reserveStackable(apple.id, 4, tradeId = 1L)!!.reservedByTradeId = null
+
+    assertTrue(container.removeStackable(apple.id, 8))
+    assertEquals(2, container.slots.sumOf { it.amount })
+  }
+
+  @Test
+  fun `removeStackable takes nothing when all free piles together hold too little`() {
+    container.addStackable(apple, 10)
+    container.reserveStackable(apple.id, 4, tradeId = 1L)!!.reservedByTradeId = null
+
+    assertFalse(container.removeStackable(apple.id, 11))
+    assertEquals(10, container.slots.sumOf { it.amount })
+  }
+
   @Test
   fun `stackable items of different templates get their own slots`() {
     container.addStackable(apple, 5)
