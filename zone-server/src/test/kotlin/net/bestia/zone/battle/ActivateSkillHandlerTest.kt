@@ -108,10 +108,29 @@ class ActivateSkillHandlerTest {
     verify(exactly = 0) { skillExecution.execute(any(), any(), any(), any(), any(), any()) }
   }
 
-  private fun activate(target: EntityId) = ActivateSkillCMSG(
+  /** An unlearned skill counts as level 0, so asking for level 0 used to pass the "known at this level" check. */
+  @Test
+  fun `an unlearned skill cast at level zero is refused`() {
+    val caster = world.spawnCaster(knownLevel = 0)
+
+    handlerFor(caster, skill(castTime = 0f)).handle(activate(caster, skillLevel = 0))
+
+    verify(exactly = 0) { skillExecution.execute(any(), any(), any(), any(), any(), any()) }
+  }
+
+  @Test
+  fun `a negative skill level is refused`() {
+    val caster = world.spawnCaster(knownLevel = 1)
+
+    handlerFor(caster, skill(castTime = 0f)).handle(activate(caster, skillLevel = -1))
+
+    verify(exactly = 0) { skillExecution.execute(any(), any(), any(), any(), any(), any()) }
+  }
+
+  private fun activate(target: EntityId, skillLevel: Int = 1) = ActivateSkillCMSG(
     playerId = ACCOUNT_ID,
     attackId = SKILL_ID,
-    skillLevel = 1,
+    skillLevel = skillLevel,
     targetPosition = Vec3L.ZERO,
     targetEntityId = target
   )
