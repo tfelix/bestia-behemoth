@@ -6,8 +6,11 @@ server:
   forward-headers-strategy: native
 
 spring:
-  # No profile here: `./gradlew :login-server:bootRun` activates `dev`, a packaged jar runs without it.
-  # LoginDeploymentGuard refuses to boot with any of the dev-only settings outside that profile.
+  # `dev` when no profile is set, so a local start needs no setup. To change before production: a server started
+  # without a profile is a dev server, with the public secret and every sign-up a SUPER_GM. Any profile a
+  # deployment sets replaces `dev` and drops all of that; LoginDeploymentGuard then refuses the dev-only settings.
+  profiles:
+    default: dev
   datasource:
     # Matches login-server/compose.yaml. `./gradlew :login-server:bootRun` starts that container via
     # spring-boot-docker-compose and rewires the datasource to it, so these values only apply when

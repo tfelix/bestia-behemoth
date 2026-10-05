@@ -293,10 +293,11 @@ in `LoginTokenValidator.validateLoginToken`
 (`zone-server/src/main/kotlin/net/bestia/zone/jwt/LoginTokenValidator.kt`), checking
 issuer/audience against a **shared secret string** configured separately in each
 server (`jwt.secret` in login-server, `zone.jwt-auth-secret-key` in zone-server). The shipped
-`application.yml`s carry no value, so a deployment without one does not boot; the public placeholder
-`"your-secret-key-here-change-in-production"` lives in each server's `application-dev.yml`, which `bootRun`
-activates, and a startup guard refuses it under any other profile. The shared HMAC secret is meant to move to an
-asymmetric key pair before production.
+`application.yml`s carry no value; the public placeholder `"your-secret-key-here-change-in-production"` lives in
+each server's `application-dev.yml`. `dev` is the default profile (`spring.profiles.default`), so a start without a
+profile runs on it. Any other profile drops it, and then a deployment without its own secret does not boot, and a
+startup guard refuses the placeholder. The shared HMAC secret is meant to move to an asymmetric key pair before
+production.
 There is no DB call between the two servers; trust is entirely in the JWT signature.
 
 Four tokens, all signed with that one secret, each with an audience matched exactly so none stands in for another:
