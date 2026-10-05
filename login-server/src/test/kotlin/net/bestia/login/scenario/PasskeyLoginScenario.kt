@@ -205,6 +205,17 @@ class PasskeyLoginScenario : BasePasskeyScenario() {
     assertEquals(400, response.statusCode.value())
   }
 
+  /** The state is echoed into the redirect URL, so it holds only the base64url alphabet, not any letter or digit. */
+  @Test
+  fun `the start call refuses a state outside the base64url alphabet`() {
+    val response = rawPost(
+      "/api/v1/auth/game/start",
+      startBody("http://127.0.0.1:$LOOPBACK_PORT/callback", "été" + SecureTokens.randomToken())
+    )
+
+    assertEquals(400, response.statusCode.value())
+  }
+
   @Test
   fun `a session that has not authenticated cannot be completed`() {
     val session = start()
