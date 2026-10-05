@@ -9,7 +9,7 @@ option java_outer_classname = "AuthenticationProto";
 // client whose version differs, so both sides read this one value.
 enum ProtocolVersion {
     PROTOCOL_VERSION_UNSPECIFIED = 0;
-    PROTOCOL_VERSION_CURRENT = 1;
+    PROTOCOL_VERSION_CURRENT = 2;
 }
 
 message Authentication {
