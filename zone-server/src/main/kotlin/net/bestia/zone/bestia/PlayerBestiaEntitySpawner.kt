@@ -27,8 +27,10 @@ import net.bestia.zone.ecs.battle.level.LevelUpExperienceCalculator
 import net.bestia.zone.ecs.entity.EntityVisual
 import net.bestia.zone.ecs.entity.VisualKind
 import net.bestia.zone.ecs.entity.Animation
+import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.persistence.Persistent
+import net.bestia.zone.util.EntityId
 import net.bestia.zone.util.PlayerBestiaId
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
@@ -46,9 +48,16 @@ class PlayerBestiaEntitySpawner(
 ) {
 
   /**
-   * Spawns the given player bestia into the world.
-   * It makes sure the same bestia can never be spawned twice.
+   * A [PlayerBestia] with its lazy relations already read, so it can be spawned inside a world scope, which
+   * must not query the database.
    */
+  class LoadedBestia(
+    val row: PlayerBestia,
+    val knownSkills: KnownSkills,
+    val inventory: Inventory,
+    val equipment: Equipment,
+  )
+
   @Transactional(readOnly = true)
   fun spawnPlayerBestia(
     playerBestiaId: PlayerBestiaId,
@@ -58,88 +67,14 @@ class PlayerBestiaEntitySpawner(
     spawnPlayerBestia(playerBestia)
   }
 
+  /** Spawns a bestia that was just created. One that already existed comes back through [respawnMissing]. */
   fun spawnPlayerBestia(
     playerBestia: PlayerBestia,
   ) {
+    val loaded = load(playerBestia)
+    val entityId = world.createEntity { id -> addComponents(id, loaded) }
+
     val accountId = playerBestia.master.account.id
-
-    val fixedAttackIds = playerBestia.bestia.skills
-      .filter { it.requiredLevel <= playerBestia.level }
-      .associate { it.skill.id to 1 }
-    val customAttackIds = playerBestia.learnedSkills.associate { it.skill.id to it.level }
-
-    // spawn the entity into the world
-    val entityId = world.createEntity { id ->
-      add(id, Position.fromVec3(playerBestia.position))
-      add(id, Level(playerBestia.level))
-      add(id, Exp(0, levelUpExpCalculator.getRequiredExperience(playerBestia.level)))
-      add(id, Speed())
-      add(id, EntityVisual(VisualKind.BESTIA, playerBestia.bestia.id))
-      // Rendered by the same visual as a wild mob, so it gets the same posture channel: an owned bestia left
-      // on a FORAGE stance sleeps, and its owner should be able to see that it is asleep.
-      add(id, Animation())
-      add(id, Account(accountId))
-      add(id, KnownSkills((fixedAttackIds + customAttackIds).toMutableMap()))
-
-      val inventory = buildInventory(playerBestia)
-      add(id, inventory)
-      add(id, buildEquipment(playerBestia))
-
-      val baseStatusValues = BaseStatusValues(
-        strength = 10,
-        intelligence = 10,
-        vitality = 10,
-        dexterity = 10,
-        willpower = 10,
-        agility = 10
-      )
-      add(id, baseStatusValues)
-      add(
-        id,
-        StatusValues(
-          strength = baseStatusValues.strength,
-          intelligence = baseStatusValues.intelligence,
-          vitality = baseStatusValues.vitality,
-          dexterity = baseStatusValues.dexterity,
-          willpower = baseStatusValues.willpower,
-          agility = baseStatusValues.agility
-        )
-      )
-
-      // Formula-driven pools, kept fresh by StatusValueRecalcSystem - which is what the
-      // FormulaDrivenVitals marker below opts this entity into.
-      val maxHp = conditionValueCalculator.computeMaxHp(playerBestia.level, baseStatusValues.vitality)
-      val maxMana = conditionValueCalculator.computeMaxMana(playerBestia.level, baseStatusValues.intelligence)
-      val maxStamina = conditionValueCalculator.computeMaxStamina(
-        playerBestia.level, baseStatusValues.vitality, baseStatusValues.strength, baseStatusValues.willpower
-      )
-      add(id, Health(current = maxHp, max = maxHp))
-      add(id, Mana(current = maxMana, max = maxMana))
-      add(id, Stamina(current = maxStamina, max = maxStamina))
-      add(id, FormulaDrivenVitals)
-
-      // Recalc on the first tick so passives and worn equipment are folded in - see the same call
-      // in MasterEntitySpawner for the (minor, self-healing) effect this has on starting pools.
-      add(id, IsStatusValueDirty)
-
-      add(
-        id,
-        CarryCapacity(
-          current = inventory.totalWeight,
-          max = weightLimitCalculator.computeWeightLimit(
-            strength = baseStatusValues.strength,
-            vitality = baseStatusValues.vitality,
-            level = playerBestia.level
-          )
-        )
-      )
-
-      add(id, Persistent)
-      add(id, OwnedBestia(masterId = playerBestia.master.id, playerBestiaId = playerBestia.id))
-
-      attachIdleAi(id, playerBestia)
-    }
-
     val playerBestiaId = playerBestia.id
     val masterId = playerBestia.master.id
 
@@ -151,6 +86,113 @@ class PlayerBestiaEntitySpawner(
       playerBestiaId = playerBestiaId,
       playerBestiaEntityId = entityId
     )
+  }
+
+  @Transactional(readOnly = true)
+  fun loadOwnedBy(masterId: Long): List<LoadedBestia> {
+    return playerBestiaRepository.findAllByMasterId(masterId).map(::load)
+  }
+
+  /**
+   * Spawns each of [bestias] that is not in [world]. A bestia stays in the world when its owner leaves, but a
+   * restart loses it. Checked in the same world scope that spawns, so a bestia still in the world is never doubled.
+   */
+  fun respawnMissing(world: World, masterId: Long, bestias: List<LoadedBestia>) {
+    val inWorld = OwnedBestia.ownedBy(world, masterId).mapTo(HashSet()) { it.playerBestiaId }
+
+    for (bestia in bestias) {
+      if (bestia.row.id in inWorld) {
+        continue
+      }
+
+      val entityId = world.createEntity { id -> addComponents(id, bestia) }
+      LOG.info { "Respawned player bestia ${bestia.row.id} of master $masterId with entity id: $entityId" }
+    }
+  }
+
+  private fun load(playerBestia: PlayerBestia): LoadedBestia {
+    val fixedAttackIds = playerBestia.bestia.skills
+      .filter { it.requiredLevel <= playerBestia.level }
+      .associate { it.skill.id to 1 }
+    val customAttackIds = playerBestia.learnedSkills.associate { it.skill.id to it.level }
+
+    return LoadedBestia(
+      row = playerBestia,
+      knownSkills = KnownSkills((fixedAttackIds + customAttackIds).toMutableMap()),
+      inventory = buildInventory(playerBestia),
+      equipment = buildEquipment(playerBestia),
+    )
+  }
+
+  private fun World.addComponents(id: EntityId, loaded: LoadedBestia) {
+    val playerBestia = loaded.row
+
+    add(id, Position.fromVec3(playerBestia.position))
+    add(id, Level(playerBestia.level))
+    add(id, Exp(0, levelUpExpCalculator.getRequiredExperience(playerBestia.level)))
+    add(id, Speed())
+    add(id, EntityVisual(VisualKind.BESTIA, playerBestia.bestia.id))
+    // Rendered by the same visual as a wild mob, so it gets the same posture channel: an owned bestia left
+    // on a FORAGE stance sleeps, and its owner should be able to see that it is asleep.
+    add(id, Animation())
+    add(id, Account(playerBestia.master.account.id))
+    add(id, loaded.knownSkills)
+    add(id, loaded.inventory)
+    add(id, loaded.equipment)
+
+    val baseStatusValues = BaseStatusValues(
+      strength = 10,
+      intelligence = 10,
+      vitality = 10,
+      dexterity = 10,
+      willpower = 10,
+      agility = 10
+    )
+    add(id, baseStatusValues)
+    add(
+      id,
+      StatusValues(
+        strength = baseStatusValues.strength,
+        intelligence = baseStatusValues.intelligence,
+        vitality = baseStatusValues.vitality,
+        dexterity = baseStatusValues.dexterity,
+        willpower = baseStatusValues.willpower,
+        agility = baseStatusValues.agility
+      )
+    )
+
+    // Formula-driven pools, kept fresh by StatusValueRecalcSystem - which is what the
+    // FormulaDrivenVitals marker below opts this entity into.
+    val maxHp = conditionValueCalculator.computeMaxHp(playerBestia.level, baseStatusValues.vitality)
+    val maxMana = conditionValueCalculator.computeMaxMana(playerBestia.level, baseStatusValues.intelligence)
+    val maxStamina = conditionValueCalculator.computeMaxStamina(
+      playerBestia.level, baseStatusValues.vitality, baseStatusValues.strength, baseStatusValues.willpower
+    )
+    add(id, Health(current = maxHp, max = maxHp))
+    add(id, Mana(current = maxMana, max = maxMana))
+    add(id, Stamina(current = maxStamina, max = maxStamina))
+    add(id, FormulaDrivenVitals)
+
+    // Recalc on the first tick so passives and worn equipment are folded in - see the same call
+    // in MasterEntitySpawner for the (minor, self-healing) effect this has on starting pools.
+    add(id, IsStatusValueDirty)
+
+    add(
+      id,
+      CarryCapacity(
+        current = loaded.inventory.totalWeight,
+        max = weightLimitCalculator.computeWeightLimit(
+          strength = baseStatusValues.strength,
+          vitality = baseStatusValues.vitality,
+          level = playerBestia.level
+        )
+      )
+    )
+
+    add(id, Persistent)
+    add(id, OwnedBestia(masterId = playerBestia.master.id, playerBestiaId = playerBestia.id))
+
+    attachIdleAi(id, playerBestia)
   }
 
   /**
