@@ -33,7 +33,7 @@ class AccountSessionTerminator(
 
     refreshTokenService.revokeAllForAccount(accountId)
     val signedIn = loginSessions.deleteSignedInForAccount(accountId)
-    val codes = authorizationCodes.burnAllForAccount(accountId, now)
+    val codes = authorizationCodes.consumeAllForAccount(accountId, now)
     val enrolments = ceremonies.deleteAllForAccount(accountId)
 
     LOG.info {
