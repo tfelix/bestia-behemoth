@@ -24,6 +24,10 @@ interface AuthorizationCodeRepository : JpaRepository<AuthorizationCode, String>
   fun consume(@Param("codeHash") codeHash: String, @Param("now") now: LocalDateTime): Int
 
   @Modifying
+  @Query("UPDATE AuthorizationCode c SET c.consumedAt = :now WHERE c.accountId = :accountId AND c.consumedAt IS NULL")
+  fun burnAllForAccount(@Param("accountId") accountId: Long, @Param("now") now: LocalDateTime): Int
+
+  @Modifying
   @Query("DELETE FROM AuthorizationCode c WHERE c.expiresAt < :cutoff")
   fun deleteExpired(@Param("cutoff") cutoff: LocalDateTime): Int
 }

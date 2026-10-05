@@ -67,11 +67,7 @@ class RefreshTokenService(
     )
   }
 
-  /**
-   * Ends every session the account has. Used when the account may no longer log in at all, and when
-   * a recovery code has been spent - a player recovering has lost control of their passkeys, so any
-   * client still holding a token for this account is as likely to be the thief as the owner.
-   */
+  /** Ends every standing session the account has. Part of [net.bestia.login.account.AccountSessionTerminator]. */
   @Transactional
   fun revokeAllForAccount(accountId: Long): Int {
     val revoked = tokens.revokeAllForAccount(accountId, LocalDateTime.now())

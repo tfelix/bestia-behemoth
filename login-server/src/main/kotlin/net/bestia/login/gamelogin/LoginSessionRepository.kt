@@ -12,6 +12,15 @@ interface LoginSessionRepository : JpaRepository<LoginSession, String> {
   @Query("DELETE FROM LoginSession s WHERE s.expiresAt < :cutoff")
   fun deleteExpired(@Param("cutoff") cutoff: LocalDateTime): Int
 
+  /** The sessions that passed their ceremony and could still hand out or redeem a code. */
+  @Modifying
+  @Query(
+    "DELETE FROM LoginSession s WHERE s.accountId = :accountId AND s.status IN (" +
+      "net.bestia.login.gamelogin.LoginSessionStatus.AUTHENTICATED, " +
+      "net.bestia.login.gamelogin.LoginSessionStatus.CODE_ISSUED)"
+  )
+  fun deleteSignedInForAccount(@Param("accountId") accountId: Long): Int
+
   /** Binds a pending session to the account a ceremony authenticated; answers how many rows moved. */
   @Modifying
   @Query(
