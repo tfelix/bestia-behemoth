@@ -1,11 +1,14 @@
 package net.bestia.zone.ecs.movement
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.zone.ecs.account.Account
 import net.bestia.zone.ecs.battle.damage.Dead
 import net.bestia.zone.ecs.core.Component
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
+import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.navigation.local.LocalWalkQuery
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component as SpringComponent
 
@@ -25,9 +28,10 @@ import org.springframework.stereotype.Component as SpringComponent
 class MoveSystem(
   private val ground: GroundHeight,
   private val trample: GroundTrample,
+  private val walkQuery: LocalWalkQuery,
 ) : System {
 
-  override val reads: ComponentClassSet = setOf(Speed::class, Dead::class)
+  override val reads: ComponentClassSet = setOf(Speed::class, Dead::class, Account::class)
   override val writes: ComponentClassSet = setOf(Position::class, Path::class)
 
   override fun update(world: World, deltaTime: Float) {
@@ -64,9 +68,18 @@ class MoveSystem(
       // overrunning tick arrives here as a delta worth several tiles - and a walk that ran out of waypoints
       // with the fraction still above one used to go round again and take `removeFirst` off an empty list,
       // which threw out of the whole tick and cost every system after this one its turn.
+      // A player's path was only checked where the ground was loaded when it arrived; NPC paths come from the
+      // local pathfinder, which already checks every step.
+      val checkSteps = world.has(id, Account::class)
+      var refused = false
       var stepped = 0
       while (position.fraction > 1 && !movementPath.isEmpty) {
         val nextPoint = movementPath.removeFirst()
+
+        if (checkSteps && refusesStep(position.toVec3L(), nextPoint)) {
+          refused = true
+          break
+        }
 
         // Read before the step, because the tile being left is what gives the footfall below its heading.
         val fromX = position.x
@@ -90,6 +103,14 @@ class MoveSystem(
         position.fraction -= 1
       }
 
+      // The client drew the walk through, so it is told where the entity really stopped.
+      if (refused) {
+        world.remove(id, Path::class)
+        position.fraction = 0f
+        position.markDirty()
+        return@each
+      }
+
       // Arrival, checked after the loop rather than inside it so that the removal and the loop's exit are the
       // same decision. The removal is the stop notification and reads this position off the entity, so the
       // arrival needs no position sync of its own - see Path.toRemovedMessage. The fraction goes with it:
@@ -111,6 +132,10 @@ class MoveSystem(
         position.markDirty()
       }
     }
+  }
+
+  private fun refusesStep(from: Vec3L, to: Vec3L): Boolean {
+    return walkQuery.isResident(from) && walkQuery.isResident(to) && !walkQuery.canStep(from, to)
   }
 
   companion object {
