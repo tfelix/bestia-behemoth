@@ -25,26 +25,35 @@ class ChatHandler(
   override val handles = ChatCMSG::class
 
   override fun handle(msg: ChatCMSG): Boolean {
-    // Some sanity checks.
-    if (msg.text.isEmpty()) {
+    val text = withoutControlCharacters(msg.text)
+
+    // The client caps its input at the same length, so a longer line is a forged one.
+    if (text.codePointCount(0, text.length) > MAX_TEXT_LENGTH) {
+      LOG.debug { "Dropping chat line of ${text.length} characters from player ${msg.playerId}" }
       return true
     }
+
+    if (text.isEmpty()) {
+      return true
+    }
+
+    val line = msg.copy(text = text)
 
     // Talking to other players needs Basic Skill rank 2; commands deliberately do not, since a GM command
     // and a chat message only share a transport, and locking `/spawn` behind a novice skill would be absurd.
-    if (msg.type != ChatCMSG.Type.COMMAND && !basicSkillGate.mayChat(msg.playerId)) {
-      outMessageProcessor.sendToPlayer(msg.playerId, OperationErrorSMSG(OpError.BASIC_SKILL_CHAT_LOCKED))
+    if (line.type != ChatCMSG.Type.COMMAND && !basicSkillGate.mayChat(line.playerId)) {
+      outMessageProcessor.sendToPlayer(line.playerId, OperationErrorSMSG(OpError.BASIC_SKILL_CHAT_LOCKED))
       return true
     }
 
-    when (msg.type) {
-      ChatCMSG.Type.PUBLIC -> handlePublicChat(msg)
-      ChatCMSG.Type.WHISPER -> handleWhisperChat(msg)
-      ChatCMSG.Type.PARTY -> sendNotYetSupported(msg.playerId)
-      ChatCMSG.Type.GUILD -> sendNotYetSupported(msg.playerId)
-      ChatCMSG.Type.COMMAND -> handleChatCommand(msg)
+    when (line.type) {
+      ChatCMSG.Type.PUBLIC -> handlePublicChat(line)
+      ChatCMSG.Type.WHISPER -> handleWhisperChat(line)
+      ChatCMSG.Type.PARTY -> sendNotYetSupported(line.playerId)
+      ChatCMSG.Type.GUILD -> sendNotYetSupported(line.playerId)
+      ChatCMSG.Type.COMMAND -> handleChatCommand(line)
       else -> {
-        LOG.warn { "Received unsupported chat type: ${msg.type} from player ${msg.playerId}" }
+        LOG.warn { "Received unsupported chat type: ${line.type} from player ${line.playerId}" }
       }
     }
 
@@ -113,7 +122,18 @@ class ChatHandler(
     outMessageProcessor.sendToPlayer(playerId, ChatSMSG.ERROR_NOT_SUPPORTED)
   }
 
+  /** Control and direction-override characters only ever garble, or disguise, someone else's chat window. */
+  private fun withoutControlCharacters(text: String): String {
+    return text.filterNot { Character.isISOControl(it) || it in INVISIBLE_FORMATTING }
+  }
+
   companion object {
     private val LOG = KotlinLogging.logger { }
+
+    /** Must match `max_length` of the ChatInput in the client's Chat.tscn. */
+    const val MAX_TEXT_LENGTH = 200
+
+    private val INVISIBLE_FORMATTING =
+      ('\u200B'..'\u200F') + ('\u202A'..'\u202E') + ('\u2066'..'\u2069') + '\uFEFF'
   }
 }
