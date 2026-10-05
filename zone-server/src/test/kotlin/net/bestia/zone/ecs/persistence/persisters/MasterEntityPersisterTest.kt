@@ -9,6 +9,7 @@ import net.bestia.zone.account.master.Master
 import net.bestia.zone.account.master.MasterRepository
 import net.bestia.zone.ecs.account.Master as MasterComponent
 import net.bestia.zone.ecs.battle.damage.Dead
+import net.bestia.zone.ecs.battle.exp.Exp
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld
@@ -16,7 +17,6 @@ import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.geometry.Vec3L
 import org.junit.jupiter.api.Test
 import java.awt.Color
-import java.util.Optional
 import kotlin.test.assertEquals
 
 /**
@@ -39,7 +39,7 @@ class MasterEntityPersisterTest {
   ).also { it.spawnPosition = savePoint }
 
   private val repository = mockk<MasterRepository> {
-    every { findById(any()) } returns Optional.of(row)
+    every { findByIdForUpdate(any()) } returns row
     every { save(any()) } returns row
   }
 
@@ -72,5 +72,24 @@ class MasterEntityPersisterTest {
 
     assertEquals(savePoint, row.currentPosition)
     assertEquals(1, row.currentHealth)
+  }
+
+  @Test
+  fun `the exp towards the next level is stored with the master`() {
+    val world = testWorld()
+    val id = world.master(dead = false)
+    world.add(id, Exp(345))
+
+    sut.persist(listOfNotNull(sut.snapshot(world, id)))
+
+    assertEquals(345, row.exp)
+  }
+
+  @Test
+  fun `a master's writes are keyed by the master, not by the shared entity rows`() {
+    val world = testWorld()
+    val id = world.master(dead = false)
+
+    assertEquals(masterId, sut.snapshot(world, id)?.writeKey)
   }
 }

@@ -87,7 +87,7 @@ class DeathSystem(
    *
    * The position is read *here* rather than inside the deferred block, because the entity is destroyed
    * a few lines below and the deferred work runs long after that. Whether it was notable at all is the
-   * reporter's judgement - see [NotableKillReporter], which needs a database row and so defers.
+   * reporter's judgement - see [NotableKillReporter].
    */
   private fun reportKill(world: World, entityId: EntityId) {
     val species = world.bestiaSpeciesOf(entityId) ?: return
@@ -114,7 +114,7 @@ class DeathSystem(
       .distinct()
       .size
 
-    // the experience calculator requires a DB lookup so we defer the call.
+    // Deferred so that several kills in one tick add up into one GainExp per recipient.
     world.defer {
       val earnedExp = experienceGainCalculator.calculate(
         species,

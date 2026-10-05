@@ -3,14 +3,15 @@ package net.bestia.zone.ecs.battle
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import io.mockk.mockk
 import net.bestia.zone.bestia.Bestia
+import net.bestia.zone.bestia.BestiaCatalogue
 import net.bestia.zone.bestia.BestiaRepository
 import net.bestia.zone.ecs.battle.exp.ExperienceGainCalculator
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import java.util.Optional
 
 @ExtendWith(MockKExtension::class)
 class ExperienceCalculatorTest {
@@ -24,12 +25,11 @@ class ExperienceCalculatorTest {
 
   @BeforeEach
   fun setUp() {
-    calculator = ExperienceGainCalculator(bestiaRepository)
+    calculator = ExperienceGainCalculator(BestiaCatalogue(bestiaRepository, mockk(relaxed = true)))
   }
 
   private fun givenBestiaExpReward(exp: Int) {
-    // findByIdOrNull is a Kotlin extension over findById(id): Optional<T> — stub the real member.
-    every { bestiaRepository.findById(bestiaId) } returns Optional.of(
+    every { bestiaRepository.findAll() } returns listOf(
       Bestia(
         id = bestiaId,
         identifier = "test_bestia",
@@ -125,7 +125,7 @@ class ExperienceCalculatorTest {
 
   @Test
   fun `unknown bestia yields no exp`() {
-    every { bestiaRepository.findById(bestiaId) } returns Optional.empty()
+    every { bestiaRepository.findAll() } returns emptyList()
 
     val result = calculator.calculate(
       killedBestiaId = bestiaId,

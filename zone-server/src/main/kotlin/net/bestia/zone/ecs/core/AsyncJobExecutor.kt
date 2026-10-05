@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
 import java.util.concurrent.atomic.AtomicInteger
 
 /**
@@ -35,7 +36,12 @@ class AsyncJobExecutor(
   workerCount: Int = 4,
 ) {
   private val workers: List<ExecutorService> = List(workerCount) { i ->
-    Executors.newSingleThreadExecutor { r -> Thread(r, "zone-async-job-$i") }
+    Executors.newSingleThreadExecutor { r ->
+      Thread({
+        ON_WORKER.set(true)
+        r.run()
+      }, "zone-async-job-$i")
+    }
   }
 
   private val roundRobin = AtomicInteger(0)
@@ -48,6 +54,20 @@ class AsyncJobExecutor(
   /** Runs [job] on a background worker with no ordering guarantee against any other job. */
   fun submit(job: () -> Unit) {
     workerFor(roundRobin.getAndIncrement()).submit { runSafely(job) }
+  }
+
+  /**
+   * Blocks until every job queued on [key] so far has run, so the caller reads what they wrote. Never waits
+   * on a worker thread: two workers waiting on each other would never finish.
+   */
+  fun awaitPending(key: Any, timeoutSeconds: Long = 10L) {
+    if (ON_WORKER.get() == true) return
+
+    try {
+      workerFor(key.hashCode()).submit {}.get(timeoutSeconds, TimeUnit.SECONDS)
+    } catch (_: TimeoutException) {
+      LOG.warn { "Jobs for $key did not finish within $timeoutSeconds s; going on without them" }
+    }
   }
 
   private fun workerFor(hash: Int): ExecutorService = workers[(hash and Int.MAX_VALUE) % workers.size]
@@ -74,5 +94,6 @@ class AsyncJobExecutor(
 
   companion object {
     private val LOG = KotlinLogging.logger { }
+    private val ON_WORKER = ThreadLocal.withInitial { false }
   }
 }

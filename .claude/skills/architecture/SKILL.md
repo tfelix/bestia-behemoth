@@ -189,7 +189,10 @@ Three things that bite:
   `World.defer { }` when it must apply immediately.
 
 Off-tick code must go through `WorldView` (a lock-holding `read`/`modify` scope, or `send(command)`),
-never `World` directly. Never block on I/O on the tick thread — use `AsyncJobExecutor`.
+never `World` directly. Never block on I/O on the tick thread: snapshot the entity and hand the write to
+`EntityWriteBehind` (`ecs/persistence/`), which queues it on `AsyncJobExecutor` under the owner's key, and
+read static content from the in-memory catalogues (`ItemTemplateRegistry`, `BestiaCatalogue`,
+`CommodityItems`). `TickSqlGuard` reports any SQL that still runs on the tick thread.
 
 ## AI module
 

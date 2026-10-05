@@ -11,7 +11,6 @@ import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.persistence.Persistent
 import net.bestia.zone.geometry.Vec3L
 import org.springframework.stereotype.Component
-import org.springframework.transaction.annotation.Transactional
 import kotlin.random.Random
 
 /**
@@ -22,9 +21,18 @@ class LootItemEntitySpawner(
   private val lootItemRepository: LootItemRepository
 ) {
 
-  @Transactional(readOnly = true)
+  // Read once: drops are imported at boot and never change, and every kill on the tick reads them.
+  private val dropsBySpecies: Map<Long, List<LootDrop>> by lazy {
+    lootItemRepository.findAllDrops().groupBy { it.bestiaId }
+  }
+
+  /** Loads the drop table now, at boot, so the first kill on the tick does not reach the database. */
+  fun warmUp() {
+    dropsBySpecies.size
+  }
+
   fun spawnLoot(world: WorldView, bestiaId: Long, pos: Vec3L): List<EntityId> {
-    val lootItems = lootItemRepository.findAllByBestiaId(bestiaId)
+    val lootItems = dropsBySpecies[bestiaId] ?: emptyList()
 
     val spawnItems = lootItems.filter { lootItem ->
       val roll = Random.nextInt(1, 1_0001) // 1 to 10000 inclusive
@@ -35,7 +43,7 @@ class LootItemEntitySpawner(
     LOG.debug { "Spawning loot $spawnItems from bestia $bestiaId ($lootItems) on pos $pos" }
 
     return spawnItems.map { spawnItem ->
-      spawnLootItem(world, itemId = spawnItem.item.id, amount = 1, pos = pos)
+      spawnLootItem(world, itemId = spawnItem.itemId, amount = 1, pos = pos)
     }
   }
 

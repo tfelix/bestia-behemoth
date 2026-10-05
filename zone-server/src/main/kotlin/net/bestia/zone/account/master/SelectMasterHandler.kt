@@ -2,6 +2,7 @@ package net.bestia.zone.account.master
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.battle.skill.KnownSkills
+import net.bestia.zone.ecs.core.AsyncJobExecutor
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.environment.weather.WeatherPublisher
@@ -16,10 +17,13 @@ class SelectMasterHandler(
   private val world: WorldView,
   private val weatherPublisher: WeatherPublisher,
   private val equipmentRevalidationService: EquipmentRevalidationService,
+  private val asyncJobExecutor: AsyncJobExecutor,
 ) : InMessageProcessor.IncomingMessageHandler<SelectMasterCMSG> {
   override val handles = SelectMasterCMSG::class
 
   override fun handle(msg: SelectMasterCMSG): Boolean {
+    // The row is read below; a logout or a grant for this master may still be on its way to it.
+    asyncJobExecutor.awaitPending(msg.selectedMasterId)
     val masterEntityId = masterEntitySpawner.spawnMaster(msg.selectedMasterId)
 
     LOG.debug { "Selecting master ${msg.selectedMasterId} with entity id: $masterEntityId for account: ${msg.playerId}" }

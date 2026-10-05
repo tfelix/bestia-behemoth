@@ -28,7 +28,7 @@ import org.springframework.stereotype.Service
  *
  * These [Bestia] instances outlive their session, so touching a lazy `@OneToMany` on one throws. That is
  * fine because nothing on any runtime path does: loot goes through `LootItemEntitySpawner`'s own
- * `findAllByBestiaId` query, and the learnset through [learnset]. **A new field that is a collection must not be
+ * drop table, and the learnset through [learnset]. **A new field that is a collection must not be
  * read through this catalogue.**
  */
 @Service
@@ -59,6 +59,11 @@ class BestiaCatalogue(
 
   fun byId(id: Long): Bestia {
     return byId[id] ?: throw BestiaNotFoundException(id)
+  }
+
+  /** Like [byId], for a caller that has its own answer for an unknown species. */
+  fun find(id: Long): Bestia? {
+    return byId[id]
   }
 
   // Loaded as plain values, because the cached species cannot load its own `skills`.

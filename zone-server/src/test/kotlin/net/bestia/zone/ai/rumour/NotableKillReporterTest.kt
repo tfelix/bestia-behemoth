@@ -5,9 +5,9 @@ import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
 import net.bestia.zone.bestia.Bestia
+import net.bestia.zone.bestia.BestiaCatalogue
 import net.bestia.zone.bestia.BestiaRepository
 import org.junit.jupiter.api.Test
-import java.util.Optional
 import kotlin.test.assertTrue
 
 /**
@@ -22,7 +22,14 @@ class NotableKillReporterTest {
   private val rumours = mockk<RumourService>(relaxed = true)
   private val repository = mockk<BestiaRepository>()
 
-  private val sut = NotableKillReporter(rumours, repository)
+  /** Rebuilt by [given], because the catalogue reads the species table once. */
+  private var sut = reporterOver(emptyList())
+
+  private fun reporterOver(species: List<Bestia>): NotableKillReporter {
+    every { repository.findAll() } returns species
+
+    return NotableKillReporter(rumours, BestiaCatalogue(repository, mockk(relaxed = true)))
+  }
 
   @Test
   fun `vermin is not news`() {
@@ -65,8 +72,6 @@ class NotableKillReporterTest {
   /** A species row that has gone since the entity spawned is a missing row, not a level-zero beast. */
   @Test
   fun `an unknown species is not news`() {
-    every { repository.findById(SPECIES) } returns Optional.empty()
-
     sut.report(SPECIES, 100, 200)
 
     verify(exactly = 0) { rumours.post(any(), any(), any(), any(), any()) }
@@ -82,7 +87,7 @@ class NotableKillReporterTest {
       mana = 10,
     )
 
-    every { repository.findById(SPECIES) } returns Optional.of(bestia)
+    sut = reporterOver(listOf(bestia))
   }
 
   private companion object {

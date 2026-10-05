@@ -1,6 +1,7 @@
 package net.bestia.zone.ecs.persistence
 
 import net.bestia.zone.bestia.BestiaEntitySpawner
+import net.bestia.zone.ecs.core.AsyncJobExecutor
 import net.bestia.zone.ecs.core.SnowflakeEntityIdGenerator
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.persistence.persisters.MobEntityPersister
@@ -55,6 +56,15 @@ class PersistedEntityDeletionTest {
   @Autowired
   private lateinit var entityPersistenceService: EntityPersistenceService
 
+  @Autowired
+  private lateinit var asyncJobExecutor: AsyncJobExecutor
+
+  /** Runs a cycle and waits for its writes, which go to the DB executor. */
+  private fun syncAndWait() {
+    entityPersistenceService.syncOnce()
+    asyncJobExecutor.awaitPending(EntitySnapshot.SHARED_WRITE_KEY)
+  }
+
   @BeforeEach
   fun clean() {
     persistedEntityRepository.deleteAll()
@@ -69,7 +79,7 @@ class PersistedEntityDeletionTest {
     assertEquals(1, persistedEntityRepository.findAllByEntityIdIn(listOf(doomed)).size)
 
     deletionQueue.enqueue(doomed)
-    entityPersistenceService.syncOnce()
+    syncAndWait()
 
     assertTrue(
       persistedEntityRepository.findAllByEntityIdIn(listOf(doomed)).isEmpty(),
@@ -86,7 +96,7 @@ class PersistedEntityDeletionTest {
     assertEquals(4, persistedEntityRepository.findAllByEntityIdIn(pack).size)
 
     pack.forEach(deletionQueue::enqueue)
-    entityPersistenceService.syncOnce()
+    syncAndWait()
 
     assertTrue(persistedEntityRepository.findAllByEntityIdIn(pack).isEmpty(), "part of the pack survived")
   }
@@ -102,7 +112,7 @@ class PersistedEntityDeletionTest {
 
     deletionQueue.enqueue(doomed)
     deletionQueue.enqueue(NEVER_PERSISTED)
-    entityPersistenceService.syncOnce()
+    syncAndWait()
 
     assertTrue(persistedEntityRepository.findAllByEntityIdIn(listOf(doomed)).isEmpty())
   }
@@ -116,7 +126,7 @@ class PersistedEntityDeletionTest {
     persist(world, keeper)
 
     deletionQueue.enqueue(doomed)
-    entityPersistenceService.syncOnce()
+    syncAndWait()
 
     assertEquals(
       1,

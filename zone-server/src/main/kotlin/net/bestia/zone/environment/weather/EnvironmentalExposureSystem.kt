@@ -43,6 +43,11 @@ class EnvironmentalExposureSystem(
   /** Resolved by identifier, because the id in `skills.yml` is content and this is code. */
   private val resistanceId: Long? by lazy { skills.findByIdentifier(SkillId.WEATHER_RESISTANCE)?.id }
 
+  /** Resolves the skill id now, at boot, so the first sweep on the tick does not reach the database. */
+  fun warmUp() {
+    resistanceId
+  }
+
   override val schedule: Schedule get() = Schedule.EverySeconds(config.intervalSeconds)
 
   override val reads: ComponentClassSet = setOf(Invulnerable::class)

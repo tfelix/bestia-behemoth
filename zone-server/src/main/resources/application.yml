@@ -9,6 +9,8 @@ zone:
   # during deployment. This hard coded value is for development purposes.
   shard-id: 1
   party-name-max-length: 20
+  # What to do when the tick thread runs SQL: `log` warns once per statement, `fail` throws (tests).
+  sql-on-tick: log
 
 persistence:
   initial-delay-ms: 90000

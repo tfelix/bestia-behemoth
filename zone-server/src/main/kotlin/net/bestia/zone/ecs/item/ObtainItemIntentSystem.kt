@@ -8,13 +8,10 @@ import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.movement.Position
-import net.bestia.zone.item.Item
-import net.bestia.zone.item.ItemRepository
 import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.item.loot.LootItemEntitySpawner
 import net.bestia.zone.util.EntityId
 import org.springframework.core.annotation.Order
-import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
 
 /**
@@ -28,7 +25,7 @@ import org.springframework.stereotype.Component
 @Component
 @Order(59)
 class ObtainItemIntentSystem(
-  private val itemRepository: ItemRepository,
+  private val itemTemplates: ItemTemplateRegistry,
   private val lootItemEntitySpawner: LootItemEntitySpawner,
   private val inventoryService: InventoryService,
   private val asyncJobExecutor: AsyncJobExecutor,
@@ -36,7 +33,7 @@ class ObtainItemIntentSystem(
 ) : System {
 
   private data class ClaimedLoot(
-    val item: Item,
+    val item: ItemTemplateRegistry.Template,
     val amount: Int,
     val uniqueId: Long,
   )
@@ -89,7 +86,7 @@ class ObtainItemIntentSystem(
         return@modify null
       }
 
-      val item = itemRepository.findByIdOrNull(stack.itemId)
+      val item = itemTemplates.templateOf(stack.itemId)
       if (item == null) {
         LOG.error { "Ground item $itemStackEntityId references unknown item ${stack.itemId}; destroying it" }
         destroy(itemStackEntityId)
@@ -116,7 +113,7 @@ class ObtainItemIntentSystem(
   }
 
   private fun tryCreateItem(world: World, entityId: EntityId, intent: ObtainItemIntent.CreateItemIntent) {
-    val item = itemRepository.findByIdOrNull(intent.itemId)
+    val item = itemTemplates.templateOf(intent.itemId)
     if (item == null) {
       LOG.warn { "CreateItemIntent for entity $entityId references unknown item ${intent.itemId}, ignoring" }
       return
@@ -161,7 +158,13 @@ class ObtainItemIntentSystem(
   }
 
   /** Adds [item] to [entityId]'s live ECS inventory and schedules the durable DB write. */
-  private fun grantItem(world: World, entityId: EntityId, item: Item, amount: Int, uniqueId: Long = 0L) {
+  private fun grantItem(
+    world: World,
+    entityId: EntityId,
+    item: ItemTemplateRegistry.Template,
+    amount: Int,
+    uniqueId: Long = 0L,
+  ) {
     val inventory = world.get(entityId, Inventory::class)
     if (inventory == null) {
       LOG.warn { "Entity $entityId lost its Inventory component before the grant could be applied, item ${item.id} lost" }
@@ -183,26 +186,25 @@ class ObtainItemIntentSystem(
       )
     )
 
-    schedulePersist(world, entityId, item, amount, uniqueId)
+    schedulePersist(world, entityId, item.id, amount, uniqueId)
   }
 
-  private fun schedulePersist(world: World, entityId: EntityId, item: Item, amount: Int, uniqueId: Long) {
+  private fun schedulePersist(world: World, entityId: EntityId, itemId: Long, amount: Int, uniqueId: Long) {
     val accountId = world.get(entityId, Account::class)?.accountId
     if (accountId == null) {
-      LOG.warn { "Entity $entityId has no Account component, granted item ${item.id} will not be persisted" }
+      LOG.warn { "Entity $entityId has no Account component, granted item $itemId will not be persisted" }
       return
     }
 
-    asyncJobExecutor.submit {
-      val masterId = try {
-        connectionInfoService.getMasterId(accountId)
-      } catch (e: Exception) {
-        LOG.warn(e) { "Could not resolve master for account $accountId, granted item ${item.id} will not be persisted" }
-        return@submit
-      }
-
-      inventoryService.grantToMaster(masterId, item, amount, uniqueId)
+    val masterId = try {
+      connectionInfoService.getMasterId(accountId)
+    } catch (e: Exception) {
+      LOG.warn(e) { "Could not resolve master for account $accountId, granted item $itemId will not be persisted" }
+      return
     }
+
+    // Keyed by the master, so it is ordered against every other write to the same container.
+    asyncJobExecutor.submit(masterId) { inventoryService.grantToMaster(masterId, itemId, amount, uniqueId) }
   }
 
   companion object {
