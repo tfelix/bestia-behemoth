@@ -6,6 +6,7 @@ import net.bestia.zone.ai.core.state.Drive
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.System
+import net.bestia.zone.ecs.core.TickBuckets
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.environment.time.BestiaClock
 import org.springframework.core.annotation.Order
@@ -27,6 +28,7 @@ import org.springframework.stereotype.Component as SpringComponent
 class AiDriveSystem(
   private val sharedMemory: SharedMemoryService,
   private val clock: BestiaClock,
+  private val throttle: AiThrottle,
 ) : System {
 
   override val schedule: Schedule = Schedule.EverySeconds(1f)
@@ -41,19 +43,31 @@ class AiDriveSystem(
     // configuration, while the calendar is anchored to the persisted world row and throws before it is loaded.
     val gameHoursPerSecond = clock.speedFactor.toFloat() / SECONDS_PER_GAME_HOUR
 
-    world.query(AiAgent::class).each { _ ->
+    sweeps++
+
+    world.query(AiAgent::class).each { id ->
       val agent = get<AiAgent>()
+
+      // A lower tier is moved less often, by everything that passed meanwhile, so it gets just as hungry.
+      agent.pendingDriveSeconds += deltaTime
+      if (!TickBuckets.isDue(sweeps, id, throttle.factorOf(agent).toLong())) return@each
+
+      val elapsed = agent.pendingDriveSeconds
+      agent.pendingDriveSeconds = 0f
+
       val memory = agent.memory
-      memory.tick(deltaTime)
+      memory.tick(elapsed)
 
       val asleep = agent.currentAction()?.posture == Posture.SLEEPING
-      val elapsedGameHours = gameHoursPerSecond * deltaTime
+      val elapsedGameHours = gameHoursPerSecond * elapsed
 
       for (drive in agent.drives) {
-        adjust(memory, drive, drive.amountOver(elapsedGameHours, deltaTime, asleep))
+        adjust(memory, drive, drive.amountOver(elapsedGameHours, elapsed, asleep))
       }
     }
   }
+
+  private var sweeps = 0L
 
   /**
    * Moves a 0..100 drive by [amount], in either direction, carrying the fractional part so a rate slower

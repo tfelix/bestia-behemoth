@@ -103,7 +103,10 @@ class Wait(private val seconds: Float) : BtNode {
 
   override fun tick(context: BtContext): Status {
     elapsed += context.deltaTime
-    return if (elapsed >= seconds) Status.SUCCESS else Status.RUNNING
+    if (elapsed >= seconds) return Status.SUCCESS
+
+    context.requestWake(context.currentTick + context.ticksFor(seconds - elapsed))
+    return Status.RUNNING
   }
 
   override fun toString(): String = "Wait(${seconds}s)"

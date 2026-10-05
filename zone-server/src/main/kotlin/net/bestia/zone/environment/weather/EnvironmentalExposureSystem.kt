@@ -5,9 +5,11 @@ import net.bestia.zone.ecs.battle.skill.KnownSkills
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.battle.status.Invulnerable
 import net.bestia.zone.ecs.battle.status.Stamina
+import net.bestia.zone.ecs.ZoneConfig
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.System
+import net.bestia.zone.ecs.core.TickBuckets
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.skill.SkillId
@@ -37,8 +39,12 @@ class EnvironmentalExposureSystem(
   private val weatherService: WeatherService,
   private val chunkService: ChunkService,
   private val config: ExposureConfig,
-  private val skills: SkillRepository
+  private val skills: SkillRepository,
+  zoneConfig: ZoneConfig,
 ) : System {
+
+  /** Each entity is weighed once per interval, on a tick of its own, so the population never lands on one tick. */
+  val periodTicks: Long = (config.intervalSeconds * zoneConfig.tickRate).toLong().coerceAtLeast(1)
 
   /** Resolved by identifier, because the id in `skills.yml` is content and this is code. */
   private val resistanceId: Long? by lazy { skills.findByIdentifier(SkillId.WEATHER_RESISTANCE)?.id }
@@ -48,7 +54,7 @@ class EnvironmentalExposureSystem(
     resistanceId
   }
 
-  override val schedule: Schedule get() = Schedule.EverySeconds(config.intervalSeconds)
+  override val schedule: Schedule get() = Schedule.EveryTick
 
   override val reads: ComponentClassSet = setOf(Invulnerable::class)
 
@@ -67,6 +73,8 @@ class EnvironmentalExposureSystem(
     val worldConfig = chunkService.config
 
     world.query(Position::class, Stamina::class).each { entityId ->
+      if (!TickBuckets.isDue(world.tickCount, entityId, periodTicks)) return@each
+
       // The weather is the second way health is lost, so it is the second place invulnerability is honoured.
       // Skipped whole rather than only at the health line: draining the stamina of something that cannot be
       // worn down is work with no reader.

@@ -43,8 +43,23 @@ class Sleep(
 
     elapsed += context.deltaTime
 
-    return if (elapsed < minSeconds || stayAsleep(context)) Status.RUNNING else Status.SUCCESS
+    if (elapsed < minSeconds) {
+      context.requestWake(context.currentTick + context.ticksFor(minSeconds - elapsed))
+      return Status.RUNNING
+    }
+
+    if (stayAsleep(context)) {
+      // Whatever keeps it asleep is a fact perception refreshes; looking again sooner learns nothing.
+      context.requestWake(context.currentTick + context.ticksFor(STAY_ASLEEP_RECHECK_SECONDS))
+      return Status.RUNNING
+    }
+
+    return Status.SUCCESS
   }
 
   override fun toString(): String = "Sleep(min=${minSeconds}s)"
+
+  private companion object {
+    const val STAY_ASLEEP_RECHECK_SECONDS = 0.5f
+  }
 }

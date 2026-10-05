@@ -14,6 +14,7 @@ import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.battle.status.Mana
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.System
+import net.bestia.zone.ecs.core.TickBuckets
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.movement.Path
 import net.bestia.zone.ecs.movement.Position
@@ -49,6 +50,7 @@ import org.springframework.stereotype.Component as SpringComponent
 class AiActSystem(
   private val sharedMemory: SharedMemoryService,
   private val zoneConfig: ZoneConfig,
+  private val throttle: AiThrottle,
 ) : System {
 
   override val reads: ComponentClassSet = setOf(Position::class, PlayerControlled::class, Dead::class)
@@ -78,8 +80,13 @@ class AiActSystem(
   override fun update(world: World, deltaTime: Float) {
     val worldBoard = sharedMemory.worldBoard()
 
+    val tick = world.tickCount
+
     world.query(AiAgent::class, Position::class).each { id ->
       val agent = get<AiAgent>()
+
+      // First: an agent with nothing due - a waiting leaf, or a lower tier between its turns - costs a compare.
+      if (tick < agent.nextActTick) return@each
 
       // Same belt-and-braces pairing with the think stage as the PlayerControlled check below, for the
       // same reason: a step adopted on the tick before the creature died must not still be carried out
@@ -92,24 +99,36 @@ class AiActSystem(
       if (world.has(id, PlayerControlled::class)) return@each
 
       val action = agent.currentAction()
-      // Deliberately before the two early returns: an agent that has just run out of plan is standing about
-      // doing nothing, and that is exactly when its posture has to stop saying otherwise.
-      updatePosture(world, id, action)
+      // Before the two early returns: an agent that has just run out of plan is standing about doing nothing,
+      // and that is exactly when its posture has to stop saying otherwise. Only a plan change can change it.
+      if (agent.postureStale) {
+        updatePosture(world, id, action)
+        agent.postureStale = false
+      }
 
-      val node = agent.currentActionNode ?: return@each
-      if (action == null) return@each
+      // Nothing to carry out until the think stage adopts a plan, which resets the act tick.
+      val node = agent.currentActionNode
+      if (node == null || action == null) {
+        agent.nextActTick = Long.MAX_VALUE
+        return@each
+      }
+
+      // The time since the step was last ticked, so a timer counts what passed while it was left alone.
+      val elapsed = if (agent.lastActTick < 0) deltaTime else (tick - agent.lastActTick) * deltaTime
+      agent.lastActTick = tick
 
       val context = BtContext(
         world = world,
         entityId = id,
         memory = agent.memory,
         state = agent.planState,
-        deltaTime = deltaTime,
-        currentTick = world.tickCount,
+        deltaTime = elapsed,
+        currentTick = tick,
         tickRate = zoneConfig.tickRate,
       )
 
-      when (node.tick(context)) {
+      val status = node.tick(context)
+      when (status) {
         Status.SUCCESS -> {
           // The step really happened, so now — and only now — its effects become beliefs.
           EffectWriteBack.apply(
@@ -132,8 +151,14 @@ class AiActSystem(
         }
 
         Status.RUNNING -> {
-          // keep executing the current action next tick
+          // keep executing the current action on its next turn
         }
+      }
+
+      // A finished or failed step has already reset the agent for the next one; a running one waits its turn.
+      if (status == Status.RUNNING) {
+        val nextTurn = TickBuckets.nextDue(tick, id, throttle.factorOf(agent).toLong())
+        agent.nextActTick = maxOf(nextTurn, context.wakeAt ?: nextTurn)
       }
     }
   }

@@ -6,9 +6,11 @@ import net.bestia.zone.ecs.battle.damage.Dead
 import net.bestia.zone.ecs.core.Component
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.System
+import net.bestia.zone.ecs.core.TickBuckets
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.navigation.local.LocalWalkQuery
+import net.bestia.zone.util.EntityId
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component as SpringComponent
 
@@ -32,7 +34,7 @@ class MoveSystem(
 ) : System {
 
   override val reads: ComponentClassSet = setOf(Speed::class, Dead::class, Account::class)
-  override val writes: ComponentClassSet = setOf(Position::class, Path::class)
+  override val writes: ComponentClassSet = setOf(Position::class, Path::class, CoarseMovement::class)
 
   override fun update(world: World, deltaTime: Float) {
     world.query(Position::class, Speed::class, Path::class).each { id ->
@@ -60,7 +62,8 @@ class MoveSystem(
       }
 
       // calculate the movement advances of the entity since the last call.
-      position.fraction += speed.speed * deltaTime
+      val elapsed = coarseElapsed(world, id, deltaTime) ?: return@each
+      position.fraction += speed.speed * elapsed
 
       // entity has moved more than one tile so its position can be updated.
       // `!isEmpty` is a real condition rather than belt and braces: an entity faster than one tile per tick
@@ -134,6 +137,22 @@ class MoveSystem(
 
   private fun refusesStep(from: Vec3L, to: Vec3L): Boolean {
     return walkQuery.isResident(from) && walkQuery.isResident(to) && !walkQuery.canStep(from, to)
+  }
+
+  /**
+   * The time this entity is moved by now: one tick, or for a [CoarseMovement] walker everything since its last
+   * turn - or null when this is not its turn.
+   */
+  private fun coarseElapsed(world: World, id: EntityId, deltaTime: Float): Float? {
+    val coarse = world.get(id, CoarseMovement::class) ?: return deltaTime
+    val tick = world.tickCount
+
+    if (!TickBuckets.isDue(tick, id, coarse.everyTicks)) return null
+
+    val ticks = if (coarse.lastTick < 0) 1L else tick - coarse.lastTick
+    coarse.lastTick = tick
+
+    return ticks * deltaTime
   }
 
   companion object {

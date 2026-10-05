@@ -52,7 +52,7 @@ class AmbientSpawnerBootRunner(
     LOG.info {
       "Ambient spawn: one site per ${config.spacingTiles} tiles, stocked within " +
           "${config.activationRadiusTiles} of a player (needs >= $required), " +
-          "${config.spawnsPerPass}/pass, throttle x${config.throttleFactor}"
+          "${config.spawnsPerPass}/pass, throttle x${config.throttleFactor} seen, x${config.backgroundFactor} unseen"
     }
   }
 

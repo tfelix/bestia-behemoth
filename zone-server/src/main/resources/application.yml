@@ -362,8 +362,8 @@ townsfolk:
   # size to get that back.
   min-per-home: 1
   max-per-home: 2
-  # No throttle knob: townsfolk carry AiThrottleable and AiThrottle reads one cadence for everything that
-  # opts in, which is ambient-spawn.throttle-factor below.
+  # No throttle knob: townsfolk carry AiThrottleable, so they use ambient-spawn.throttle-factor and
+  # background-factor below, like every other creature that opts in.
 
 ambient-spawn:
   # Off leaves exactly the den-only world. The first knob to reach for if the wilderness misbehaves.
@@ -393,10 +393,13 @@ ambient-spawn:
   town-clearance-tiles: 100
   # Resolved cells kept in memory. A site cannot change, so this is a memo with nothing to invalidate.
   site-cache-size: 200000
-  # Ambient creatures perceive, sense and think at 1/factor the usual rate when no player is near. 1 turns
-  # the mechanism off. Never applies to a den mob, a boss, a /spawn'ed mob or a player's own bestia.
+  # A creature someone can see, but with no player near, runs its AI at 1/factor the usual rate. 1 turns
+  # this off. Den mobs, bosses, /spawn'ed mobs and a player's own bestia never drop below this tier; an AI
+  # profile's min_detail: full keeps one at full rate.
   throttle-factor: 4
-  # AI profiles this layer refuses to throttle, for a species that must stay sharp at any distance.
+  # For an ambient creature nobody can see at all. It still eats, sleeps and walks, only less often.
+  background-factor: 20
+  # AI profiles this layer never puts in the background tier.
   never-throttled-profiles: []
 
 economy:

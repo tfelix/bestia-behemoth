@@ -42,7 +42,12 @@ class AiAgent(
   val drives: List<Drive> = emptyList(),
   /** When perception should clear [net.bestia.zone.ai.core.state.CommonKeys.RESTED]. */
   val restingWindow: RestingWindow = RestingWindow.NEVER,
+  /** The least processing this agent gets, however unseen; from its profile. */
+  val minDetail: AiDetail = AiDetail.BACKGROUND,
 ) : Component, Agent {
+
+  /** How much processing it gets right now; set by [AiDetailSystem], read by every AI stage. */
+  var detail: AiDetail = AiDetail.FULL
 
   var currentGoal: Goal? = null
     private set
@@ -89,14 +94,17 @@ class AiAgent(
    */
   var nextThinkTick: Long = 0L
 
-  /**
-   * Earliest tick this agent may perceive again.
-   *
-   * Beside [nextThinkTick] rather than folded into it because the two cadences differ: perception runs on a
-   * half-second sweep and planning on its own stagger, and a throttled agent has to slow both or the saving
-   * is spent on the cheaper half. See `AiThrottle`.
-   */
-  var nextPerceiveTick: Long = 0L
+  /** Earliest tick the act stage visits this agent again: its next turn, or a waiting leaf's wake tick. */
+  var nextActTick: Long = 0L
+
+  /** The tick the act stage last ticked the current step on, so a skipped stretch is handed its time; -1 if never. */
+  var lastActTick: Long = -1L
+
+  /** True until the act stage has shown the current step's posture; only a plan change can change it. */
+  var postureStale: Boolean = true
+
+  /** Seconds the drive stage owes this agent since it last ran for it. */
+  var pendingDriveSeconds: Float = 0f
 
   fun currentAction(): Action? = currentPlan?.actions?.getOrNull(planCursor)
 
@@ -109,6 +117,7 @@ class AiAgent(
     planState = state
     planCursor = 0
     currentActionNode = plan.actions.firstOrNull()?.behavior?.invoke()
+    stepChanged()
   }
 
   /** Advances to the next step; returns its fresh behaviour tree, or null when the plan is finished. */
@@ -116,6 +125,7 @@ class AiAgent(
     planCursor++
     val next = currentAction()
     currentActionNode = next?.behavior?.invoke()
+    stepChanged()
     return currentActionNode
   }
 
@@ -125,5 +135,13 @@ class AiAgent(
     planCursor = 0
     currentActionNode = null
     planState = WorldState.EMPTY
+    stepChanged()
+  }
+
+  /** A new step starts at once, with a fresh tree and its own posture. */
+  private fun stepChanged() {
+    nextActTick = 0L
+    lastActTick = -1L
+    postureStale = true
   }
 }

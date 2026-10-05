@@ -24,7 +24,7 @@ class AiSchedulingTest {
   fun `each AI stage gets its own wave, in pipeline order`() {
     val ai = AiPipelineFixture()
 
-    // Perception, drives, think, act and movement each conflict with the previous one, so the scheduler is
+    // Detail, perception, drives, think, act and movement each conflict with the previous one, so the scheduler is
     // forced to serialise them rather than being free to interleave.
     assertEquals(
       ai.systems.size,
@@ -56,8 +56,8 @@ class AiSchedulingTest {
   fun `the throttle marker is read by the AI stages and written by none`() {
     val ai = AiPipelineFixture()
 
-    val readers = ai.systems.count { AiThrottleable::class in it.reads }
-    assertEquals(3, readers, "perception, senses and think should all read the throttle marker")
+    val readers = ai.systems.filter { AiThrottleable::class in it.reads }.map { it::class }
+    assertEquals(listOf(AiDetailSystem::class), readers, "only the detail system should read the throttle marker")
 
     for (system in ai.systems) {
       assertEquals(

@@ -123,8 +123,17 @@ class UntilHour(private val window: HourWindow, private val child: BtNode) : BtN
     val offset = context.memory.get(CommonKeys.DAY_OFFSET_MINUTES) ?: 0
     if (!window.coversMinute(minuteOfDay, offset)) return Status.SUCCESS
 
-    return if (child.tick(context) == Status.FAILURE) Status.FAILURE else Status.RUNNING
+    val status = child.tick(context)
+    // The hour is only checked when ticked, so a waiting child must not sleep past the next perception.
+    context.wakeAt?.let { context.wakeAt = minOf(it, context.currentTick + context.ticksFor(HOUR_RECHECK_SECONDS)) }
+
+    return if (status == Status.FAILURE) Status.FAILURE else Status.RUNNING
   }
 
   override fun toString(): String = "UntilHour($window)"
+
+  private companion object {
+    /** As often as perception refreshes the hour this reads. */
+    const val HOUR_RECHECK_SECONDS = 0.5f
+  }
 }

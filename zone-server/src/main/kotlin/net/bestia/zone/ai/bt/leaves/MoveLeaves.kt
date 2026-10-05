@@ -80,6 +80,7 @@ class Wander(
 
     if (pauseRemaining > 0f) {
       pauseRemaining -= context.deltaTime
+      if (pauseRemaining > 0f) context.requestWake(context.currentTick + context.ticksFor(pauseRemaining))
 
       return Status.RUNNING
     }

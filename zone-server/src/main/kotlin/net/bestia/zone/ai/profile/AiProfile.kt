@@ -4,6 +4,7 @@ import net.bestia.zone.ai.domain.bestia.ActivityCycle
 import net.bestia.zone.ai.domain.bestia.AttackDefinition
 import net.bestia.zone.ai.domain.bestia.DefaultAttackDefinition
 import net.bestia.zone.ai.domain.bestia.SkillAttack
+import net.bestia.zone.ai.ecs.AiDetail
 import net.bestia.zone.bestia.DefaultAttack
 
 /**
@@ -21,6 +22,8 @@ data class AiProfile(
   val goals: List<GoalTuning>,
   val actionIds: List<String>,
   val attacks: List<AttackDefinition>,
+  /** See [AiProfileDto.minDetail]. */
+  val minDetail: AiDetail = AiDetail.BACKGROUND,
 ) {
 
   /**
@@ -75,6 +78,7 @@ data class AiProfile(
       goals = dto.goals.map { GoalTuning(it.name, it.basePriority) },
       actionIds = dto.actions,
       attacks = dto.attacks.map { SkillAttack(id = it.id, range = it.range, baseCost = it.baseCost, skillId = it.skillId) },
+      minDetail = dto.minDetail,
     )
   }
 }
