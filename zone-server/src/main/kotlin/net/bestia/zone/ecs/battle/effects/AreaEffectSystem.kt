@@ -17,6 +17,7 @@ import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.OutMessageProcessor
+import net.bestia.zone.message.SMSG
 import net.bestia.zone.world.prop.PropPromotionService
 import net.bestia.zone.util.EntityId
 import org.springframework.core.annotation.Order
@@ -101,6 +102,8 @@ class AreaEffectSystem(
     // in the same tick each create their own Damage component and lose one of them. Inside a deferred
     // block structural changes apply immediately, making the get-or-create below sound.
     world.defer {
+      val hits = mutableListOf<SMSG>()
+
       for (victimId in inside) {
         if (victimId == effectEntityId) continue
         if (!effect.hitsCaster && victimId == effect.casterId) continue
@@ -124,19 +127,19 @@ class AreaEffectSystem(
         val damage = world.get(victimId, Damage::class) ?: world.add(victimId, Damage())
         damage.add(effect.damagePerTick, effect.casterId)
 
-        outMessageProcessor.sendToAllPlayersInRange(
-          center,
-          DamageEntitySMSG(
-            entityId = victimId,
-            sourceEntityId = effect.casterId,
-            attackId = effect.skillId.toInt(),
-            div = 1,
-            damage = effect.damagePerTick,
-            skillLevel = effect.skillLevel,
-            type = DamageEntitySMSG.DamageType.NORMAL
-          )
+        hits += DamageEntitySMSG(
+          entityId = victimId,
+          sourceEntityId = effect.casterId,
+          attackId = effect.skillId.toInt(),
+          div = 1,
+          damage = effect.damagePerTick,
+          skillLevel = effect.skillLevel,
+          type = DamageEntitySMSG.DamageType.NORMAL
         )
       }
+
+      // One audience lookup for the whole effect, not one per victim: they all share the centre.
+      if (hits.isNotEmpty()) outMessageProcessor.sendToAllPlayersInRange(center, hits)
     }
   }
 

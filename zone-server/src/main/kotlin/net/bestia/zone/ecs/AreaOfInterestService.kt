@@ -1,290 +1,249 @@
 package net.bestia.zone.ecs
 
-import net.bestia.zone.geometry.Cube
+import net.bestia.zone.ecs.core.Long2IntOpenHashMap
 import net.bestia.zone.geometry.Vec3L
-import java.util.concurrent.locks.ReentrantReadWriteLock
-import kotlin.concurrent.read
-import kotlin.concurrent.write
 
 /**
- * Spatial index over entity positions: an octree answering "what is inside this volume".
+ * Spatial index over entity positions, answering "what is inside this box".
  *
- * ### Threading
+ * A uniform grid of [CELL_SIZE]-column cells rather than a tree: a step inside one cell is three array
+ * writes, a step into the next cell is two list splices, and a query visits the cells it overlaps without
+ * allocating. One grid per [AoiLayer], so a question about moving things never walks the static ones.
  *
- * Writes come from the tick thread only ([ZoneEngine][net.bestia.zone.ecs.ZoneEngine]'s dirty-position
- * pass, and world-object residency). Reads come from anywhere: the tick thread via
- * `PerceptionSystem`, and `AsyncJobExecutor` workers via `OutMessageProcessor`. Those reads used to run
- * against plain `LinkedHashMap`s being mutated
- * concurrently, which is a data race that can hang a reader inside `HashMap.get` on a resize - so
- * everything now goes through a [ReentrantReadWriteLock]. Reads are frequent and concurrent, writes
- * are brief and single-threaded, which is exactly what that lock is shaped for.
- *
- * No public method takes more than one lock, and none calls another, so there is no upgrade path to
- * deadlock on.
- *
- * ### Why entries carry a layer
- *
- * See [AoiLayer]. The index holds a handful of moving things and potentially tens of thousands of
- * still ones, and most questions are about one or the other.
- *
- * ### What was wrong with the previous implementation
- *
- * Worth recording, because two of the three were silent and would have stayed silent:
- *
- * 1. **`merge` dropped grandchildren.** It copied entries up from children that were leaves and then
- *    discarded the child array wholesale, so anything one level further down vanished from the index
- *    without vanishing from the world. Reachable as soon as any node subdivided twice, which needs
- *    only forty-one entities in one cube.
- * 2. **Removal was O(subtree).** `entityNodeMap` claimed to record an entity's node but stored the
- *    root ("For simplicity, always point to root"), so every removal searched the whole tree; and the
- *    merge check recomputed a full recursive `totalEntities()` at every level as the recursion
- *    unwound. Subtree sizes are now maintained incrementally and an entity's leaf is recorded, so a
- *    removal is a hash lookup plus a walk up the parent chain.
- * 3. **Entities at one position were dropped.** Subdivision recursed while a node was over the
- *    threshold, and entries sharing a position never separate, so it split until the cube reached zero
- *    size and then failed every insert. Splitting now stops when a cube can no longer be halved, and a
- *    leaf simply holds however many coincident entries it has.
- *
- * A fourth was harmless but confusing: the leaf branch of `remove` guarded on `children != null`
- * inside a branch conditioned on `children == null`, so that merge could never fire.
+ * Touched only with the world to itself - the tick thread, or a world scope - so it takes no lock.
  */
-open class AreaOfInterestService<T> {
+open class AreaOfInterestService {
 
-  private class Entry(val pos: Vec3L, val layer: AoiLayer)
+  private val dynamic = Grid()
+  private val static = Grid()
 
-  private inner class Node(val bounds: Cube, val parent: Node?) {
-
-    /**
-     * Entries held directly by this node.
-     *
-     * Normally empty once the node has children. Not *guaranteed* empty: if a position somehow falls
-     * in no child - which exact power-of-two partitioning should make impossible, but which is one
-     * arithmetic slip away - the entry stays here rather than being discarded, and [collect] and the
-     * query both look here on every node so it stays reachable.
-     */
-    val entries = HashMap<T, Entry>()
-
-    /** Eight children once subdivided, none of them null. */
-    var children: Array<Node>? = null
-
-    /** Entries in this whole subtree. Maintained incrementally; never recomputed. */
-    var count = 0
-
-    /**
-     * Upper bounds exclusive, unlike [Cube.collide].
-     *
-     * That difference is deliberate and load bearing: this decides *ownership*, so a position on a
-     * boundary must belong to exactly one of the two cubes that share it. `collide` decides
-     * *overlap*, where being generous by one unit costs nothing.
-     */
-    fun contains(pos: Vec3L) =
-      pos.x >= bounds.x && pos.x < bounds.x + bounds.width &&
-          pos.y >= bounds.y && pos.y < bounds.y + bounds.height &&
-          pos.z >= bounds.z && pos.z < bounds.z + bounds.depth
-
-    fun childContaining(pos: Vec3L): Node? = children?.firstOrNull { it.contains(pos) }
-  }
-
-  private val lock = ReentrantReadWriteLock()
-
-  private var root = Node(
-    Cube(-ROOT_SIZE / 2, -ROOT_SIZE / 2, -ROOT_SIZE / 2, ROOT_SIZE, ROOT_SIZE, ROOT_SIZE),
-    parent = null
-  )
-
-  /** The leaf actually holding each entity, so removal does not have to search for it. */
-  private val entityLeaf = HashMap<T, Node>()
-
-  fun setEntityPosition(entity: T, pos: Vec3L, layer: AoiLayer = AoiLayer.DYNAMIC) {
-    lock.write {
-      detach(entity)
-      growRootToContain(pos)
-      attach(entity, Entry(pos, layer))
+  /** How often an entity crossed into another cell; for tests that check a step stays cheap. */
+  val cellChanges: Long
+    get() {
+      return dynamic.cellChanges + static.cellChanges
     }
+
+  fun setEntityPosition(entity: Long, pos: Vec3L, layer: AoiLayer = AoiLayer.DYNAMIC) {
+    setEntityPosition(entity, pos.x, pos.y, pos.z, layer)
   }
 
-  fun removeEntityPosition(entityId: T) {
-    lock.write { detach(entityId) }
+  fun setEntityPosition(entity: Long, x: Long, y: Long, z: Long, layer: AoiLayer = AoiLayer.DYNAMIC) {
+    gridOf(layer).set(entity, x, y, z)
+    // An entity lives in one layer: a promoted prop that turns dynamic must leave the static grid.
+    gridOf(otherThan(layer)).remove(entity)
+  }
+
+  fun removeEntityPosition(entity: Long) {
+    dynamic.remove(entity)
+    static.remove(entity)
   }
 
   /**
-   * Entities inside an axis-aligned cube of [size] centred on [center].
+   * Entities inside an axis-aligned cube of [size] centred on [center], bounds inclusive.
    *
    * [size] is the cube's **edge**, not its radius - this halves it. Callers wanting the range to line
    * up with the terrain a player has should not compute it themselves; see
    * [InterestRange][net.bestia.zone.world.stream.InterestRange].
    */
-  fun queryEntitiesInCube(center: Vec3L, size: Long, layers: Set<AoiLayer> = AoiLayer.ALL): Set<T> {
-    val half = size / 2
-    val cube = Cube(center.x - half, center.y - half, center.z - half, size, size, size)
-    val result = mutableSetOf<T>()
-
-    lock.read { query(root, cube, layers, result) }
+  fun queryEntitiesInCube(center: Vec3L, size: Long, layers: Set<AoiLayer> = AoiLayer.ALL): Set<Long> {
+    val result = LinkedHashSet<Long>()
+    forEachInCube(center, size, layers) { id, _, _, _ -> result.add(id) }
 
     return result
   }
 
-  fun getTotalEntityCount(): Int = lock.read { entityLeaf.size }
-
-  private fun query(node: Node, cube: Cube, layers: Set<AoiLayer>, result: MutableSet<T>) {
-    if (!node.bounds.intersects(cube)) return
-
-    for ((id, entry) in node.entries) {
-      if (entry.layer in layers && cube.collide(entry.pos)) result.add(id)
-    }
-
-    node.children?.forEach { query(it, cube, layers, result) }
+  /** Like [queryEntitiesInCube], without building a set; [action] gets each entity and its position. */
+  fun forEachInCube(center: Vec3L, size: Long, layers: Set<AoiLayer>, action: (Long, Long, Long, Long) -> Unit) {
+    val minX = center.x - size / 2
+    val minY = center.y - size / 2
+    val minZ = center.z - size / 2
+    forEachInBox(minX, minY, minZ, minX + size, minY + size, minZ + size, layers, action)
   }
 
-  /** Places an entry in the leaf that owns its position, splitting that leaf if it grows too full. */
-  private fun attach(entity: T, entry: Entry) {
-    if (!root.contains(entry.pos)) return
-
-    var node = root
-    while (true) {
-      node.count++
-      val child = node.childContaining(entry.pos) ?: break
-      node = child
-    }
-
-    node.entries[entity] = entry
-    entityLeaf[entity] = node
-
-    if (node.entries.size > SUBDIVIDE_THRESHOLD) subdivide(node)
+  /** Every entity with a position inside the box, bounds inclusive. */
+  fun forEachInBox(
+    minX: Long, minY: Long, minZ: Long,
+    maxX: Long, maxY: Long, maxZ: Long,
+    layers: Set<AoiLayer>,
+    action: (Long, Long, Long, Long) -> Unit,
+  ) {
+    if (AoiLayer.DYNAMIC in layers) dynamic.forEachInBox(minX, minY, minZ, maxX, maxY, maxZ, action)
+    if (AoiLayer.STATIC in layers) static.forEachInBox(minX, minY, minZ, maxX, maxY, maxZ, action)
   }
 
-  /**
-   * Removes an entity, decrements the subtree counts above it, and collapses the largest ancestor
-   * that has become sparse enough to hold its whole subtree itself.
-   */
-  private fun detach(entity: T) {
-    val leaf = entityLeaf.remove(entity) ?: return
-    if (leaf.entries.remove(entity) == null) return
+  /** Whether any dynamic entity stands within [radius] of ([x], [y]) on the ground plane, height ignored. */
+  fun anyWithinHorizontal(x: Long, y: Long, radius: Long): Boolean {
+    return dynamic.anyWithinHorizontal(x, y, radius)
+  }
 
-    var node: Node? = leaf
-    while (node != null) {
-      node.count--
-      node = node.parent
-    }
+  fun getTotalEntityCount(): Int {
+    return dynamic.size + static.size
+  }
 
-    // The highest qualifying ancestor, because merging it subsumes every merge below it.
-    var candidate: Node? = leaf.parent
-    var mergeAt: Node? = null
-    while (candidate != null) {
-      if (candidate.count < MERGE_THRESHOLD) mergeAt = candidate
-      candidate = candidate.parent
-    }
+  private fun gridOf(layer: AoiLayer): Grid {
+    return if (layer == AoiLayer.STATIC) static else dynamic
+  }
 
-    mergeAt?.let { merge(it) }
+  private fun otherThan(layer: AoiLayer): AoiLayer {
+    return if (layer == AoiLayer.STATIC) AoiLayer.DYNAMIC else AoiLayer.STATIC
   }
 
   /**
-   * Splits a leaf into eight and re-homes its entries.
-   *
-   * Stops when a cube can no longer be halved, which is what keeps coincident entries from splitting
-   * forever. Recurses into children that are themselves over the threshold, so a lopsided
-   * distribution settles in one pass rather than waiting for the next insert.
+   * Entities in slots of parallel arrays, each slot linked into the list of the cell it stands in. Slots
+   * are reused, so the arrays only grow to the largest population there ever was.
    */
-  private fun subdivide(node: Node) {
-    val halfW = node.bounds.width / 2
-    val halfH = node.bounds.height / 2
-    val halfD = node.bounds.depth / 2
+  private class Grid {
+    private val slotOf = Long2IntOpenHashMap()
+    private val headOf = Long2IntOpenHashMap()
 
-    if (halfW < 1 || halfH < 1 || halfD < 1) return
+    private var ids = LongArray(INITIAL_SLOTS)
+    private var xs = LongArray(INITIAL_SLOTS)
+    private var ys = LongArray(INITIAL_SLOTS)
+    private var zs = LongArray(INITIAL_SLOTS)
+    private var cells = LongArray(INITIAL_SLOTS)
+    private var next = IntArray(INITIAL_SLOTS)
+    private var prev = IntArray(INITIAL_SLOTS)
 
-    val ox = node.bounds.x
-    val oy = node.bounds.y
-    val oz = node.bounds.z
+    private var freeSlots = IntArray(INITIAL_SLOTS)
+    private var freeCount = 0
+    private var highWater = 0
 
-    node.children = Array(8) { i ->
-      val dx = if (i and 1 == 0) 0 else halfW
-      val dy = if (i and 2 == 0) 0 else halfH
-      val dz = if (i and 4 == 0) 0 else halfD
-      Node(Cube(ox + dx, oy + dy, oz + dz, halfW, halfH, halfD), parent = node)
-    }
+    var cellChanges = 0L
+      private set
 
-    val moved = node.entries.toList()
-    node.entries.clear()
-
-    for ((id, entry) in moved) {
-      val child = node.childContaining(entry.pos)
-
-      if (child == null) {
-        // Cannot happen while the root is a power of two, and not worth losing an entity over.
-        node.entries[id] = entry
-        continue
+    val size: Int
+      get() {
+        return slotOf.size
       }
 
-      child.entries[id] = entry
-      child.count++
-      entityLeaf[id] = child
+    fun set(id: Long, x: Long, y: Long, z: Long) {
+      val cell = cellKey(x, y)
+      var slot = slotOf.get(id)
+
+      if (slot == Long2IntOpenHashMap.ABSENT) {
+        slot = allocate()
+        slotOf.put(id, slot)
+        ids[slot] = id
+        link(slot, cell)
+      } else if (cells[slot] != cell) {
+        unlink(slot)
+        link(slot, cell)
+        cellChanges++
+      }
+
+      xs[slot] = x
+      ys[slot] = y
+      zs[slot] = z
     }
 
-    node.children?.forEach { if (it.entries.size > SUBDIVIDE_THRESHOLD) subdivide(it) }
-  }
+    fun remove(id: Long) {
+      val slot = slotOf.remove(id)
+      if (slot == Long2IntOpenHashMap.ABSENT) return
 
-  /** Pulls a whole subtree's entries - at any depth - onto [node] and drops its children. */
-  private fun merge(node: Node) {
-    if (node.children == null) return
-
-    val collected = HashMap<T, Entry>()
-    collect(node, collected)
-
-    node.children = null
-    node.entries.clear()
-    node.entries.putAll(collected)
-
-    for (id in collected.keys) entityLeaf[id] = node
-  }
-
-  private fun collect(node: Node, into: MutableMap<T, Entry>) {
-    into.putAll(node.entries)
-    node.children?.forEach { collect(it, into) }
-  }
-
-  /**
-   * Doubles the root until it contains [pos], re-inserting everything already indexed.
-   *
-   * The root has to stay a power of two and centred on the origin, because that is what makes every
-   * subdivision partition its parent exactly - an odd extent leaves a one-unit sliver in no child at
-   * all.
-   */
-  private fun growRootToContain(pos: Vec3L) {
-    if (root.contains(pos)) return
-
-    val all = HashMap<T, Entry>()
-    collect(root, all)
-
-    var size = root.bounds.width
-    var bounds = root.bounds
-
-    while (!containsIn(bounds, pos)) {
-      require(size <= MAX_ROOT_SIZE / 2) { "Position $pos is too far from the origin to index" }
-      size *= 2
-      bounds = Cube(-size / 2, -size / 2, -size / 2, size, size, size)
+      unlink(slot)
+      if (freeCount == freeSlots.size) freeSlots = freeSlots.copyOf(freeCount * 2)
+      freeSlots[freeCount++] = slot
     }
 
-    root = Node(bounds, parent = null)
-    entityLeaf.clear()
+    fun forEachInBox(
+      minX: Long, minY: Long, minZ: Long,
+      maxX: Long, maxY: Long, maxZ: Long,
+      action: (Long, Long, Long, Long) -> Unit,
+    ) {
+      for (cx in cellOf(minX)..cellOf(maxX)) {
+        for (cy in cellOf(minY)..cellOf(maxY)) {
+          var slot = headOf.get(cellKeyOfCell(cx, cy))
+          while (slot != NONE && slot != Long2IntOpenHashMap.ABSENT) {
+            val x = xs[slot]
+            val y = ys[slot]
+            val z = zs[slot]
+            if (x in minX..maxX && y in minY..maxY && z in minZ..maxZ) action(ids[slot], x, y, z)
+            slot = next[slot]
+          }
+        }
+      }
+    }
 
-    for ((id, entry) in all) attach(id, entry)
+    fun anyWithinHorizontal(x: Long, y: Long, radius: Long): Boolean {
+      val radiusSquared = radius * radius
+      for (cx in cellOf(x - radius)..cellOf(x + radius)) {
+        for (cy in cellOf(y - radius)..cellOf(y + radius)) {
+          var slot = headOf.get(cellKeyOfCell(cx, cy))
+          while (slot != NONE && slot != Long2IntOpenHashMap.ABSENT) {
+            val dx = xs[slot] - x
+            val dy = ys[slot] - y
+            if (dx * dx + dy * dy <= radiusSquared) return true
+            slot = next[slot]
+          }
+        }
+      }
+
+      return false
+    }
+
+    private fun allocate(): Int {
+      if (freeCount > 0) return freeSlots[--freeCount]
+
+      if (highWater == ids.size) grow()
+      return highWater++
+    }
+
+    private fun link(slot: Int, cell: Long) {
+      val head = headOf.get(cell)
+      val oldHead = if (head == Long2IntOpenHashMap.ABSENT) NONE else head
+
+      cells[slot] = cell
+      prev[slot] = NONE
+      next[slot] = oldHead
+      if (oldHead != NONE) prev[oldHead] = slot
+      headOf.put(cell, slot)
+    }
+
+    private fun unlink(slot: Int) {
+      val before = prev[slot]
+      val after = next[slot]
+
+      if (after != NONE) prev[after] = before
+      if (before != NONE) {
+        next[before] = after
+      } else if (after != NONE) {
+        headOf.put(cells[slot], after)
+      } else {
+        headOf.remove(cells[slot])
+      }
+    }
+
+    private fun grow() {
+      val capacity = ids.size * 2
+      ids = ids.copyOf(capacity)
+      xs = xs.copyOf(capacity)
+      ys = ys.copyOf(capacity)
+      zs = zs.copyOf(capacity)
+      cells = cells.copyOf(capacity)
+      next = next.copyOf(capacity)
+      prev = prev.copyOf(capacity)
+    }
   }
-
-  private fun containsIn(bounds: Cube, pos: Vec3L) =
-    pos.x >= bounds.x && pos.x < bounds.x + bounds.width &&
-        pos.y >= bounds.y && pos.y < bounds.y + bounds.height &&
-        pos.z >= bounds.z && pos.z < bounds.z + bounds.depth
 
   companion object {
-    private const val SUBDIVIDE_THRESHOLD = 40
-    private const val MERGE_THRESHOLD = 15
-    private const val ROOT_SIZE = 1024L
+    /** Columns per cell edge: a chunk column, so a cell lines up with the ground a client holds. */
+    const val CELL_SIZE = 32L
 
-    /**
-     * Ceiling on root growth, so a nonsense position fails loudly instead of doubling until the
-     * extent overflows to negative and the loop never ends. Far beyond any world: a 128 km world
-     * needs 2^18.
-     */
-    private const val MAX_ROOT_SIZE = 1L shl 40
+    private const val CELL_SHIFT = 5
+    private const val NONE = -1
+    private const val INITIAL_SLOTS = 64
+
+    /** Floors, so -1 lands in the cell left of the origin rather than sharing cell 0. */
+    private fun cellOf(coordinate: Long): Long {
+      return coordinate shr CELL_SHIFT
+    }
+
+    private fun cellKey(x: Long, y: Long): Long {
+      return cellKeyOfCell(cellOf(x), cellOf(y))
+    }
+
+    private fun cellKeyOfCell(cellX: Long, cellY: Long): Long {
+      return (cellX shl 32) or (cellY and 0xFFFFFFFFL)
+    }
   }
 }

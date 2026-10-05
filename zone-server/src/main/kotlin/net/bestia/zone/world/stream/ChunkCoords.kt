@@ -133,6 +133,13 @@ object ChunkCoords {
     z = Math.floorDiv(pos.z * VOXELS_PER_POSITION_UNIT, config.chunkHeight.toLong()).toInt()
   )
 
+  /** Whether [pos] lies in [chunk], answered without building a [ChunkPos]. */
+  fun isInChunk(config: WorldConfig, pos: Vec3L, chunk: ChunkPos): Boolean {
+    return Math.floorDiv(pos.x * VOXELS_PER_POSITION_UNIT, config.chunkSize.toLong()) == chunk.x.toLong() &&
+      Math.floorDiv(pos.y * VOXELS_PER_POSITION_UNIT, config.chunkSize.toLong()) == chunk.y.toLong() &&
+      Math.floorDiv(pos.z * VOXELS_PER_POSITION_UNIT, config.chunkHeight.toLong()) == chunk.z.toLong()
+  }
+
   /** Global voxel indices of a position. */
   fun voxelOf(pos: Vec3L): Triple<Long, Long, Long> = Triple(
     pos.x * VOXELS_PER_POSITION_UNIT,

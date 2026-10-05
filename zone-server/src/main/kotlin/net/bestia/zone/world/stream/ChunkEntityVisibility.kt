@@ -147,6 +147,10 @@ class ChunkEntityVisibility(
    *   is the common case, since crossing a chunk edge takes `chunkSize` tiles of walking.
    */
   fun reindex(entityId: EntityId, position: Vec3L): Transition? {
+    // Checked before building a chunk position, because staying put is what nearly every step does.
+    val held = chunkOfEntity[entityId]
+    if (held != null && ChunkCoords.isInChunk(chunkService.config, position, held)) return null
+
     val to = chunkAt(position)
     val from = chunkOfEntity.put(entityId, to)
 
