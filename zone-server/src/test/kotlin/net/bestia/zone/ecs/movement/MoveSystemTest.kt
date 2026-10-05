@@ -168,15 +168,13 @@ class MoveSystemTest {
 
   @Test
   fun `a late tick with more movement in it than the path has left stops at the last waypoint`() {
-    // `ZoneEngine` hands this system the wall-clock delta of the *previous* tick, so a single overrunning tick
-    // - a 1 642 ms one against a 50 ms budget was what found this - arrives here as a delta worth several
-    // tiles. The step loop was bounded only by `fraction > 1`, so on the tile that emptied the path it went
-    // round once more and took `removeFirst` off an empty list.
+    // A delta worth several tiles - a fast entity, or a coarse step like the one below - once met a step loop
+    // bounded only by `fraction > 1`, so on the tile that emptied the path it went round once more and took
+    // `removeFirst` off an empty list.
     //
-    // That is worth a test rather than a null check because of where it threw: out of `Query.each`, out of
-    // `World.tick`, past `applyDeferred` and past the component sync - so every system ordered after this one
-    // lost its turn, and the client was never told the walk had ended. It then kept predicting from where it
-    // thought the entity was, and the next click produced a path `MoveActiveEntityHandler` had to refuse.
+    // Worth a test rather than a null check because the throw left the walk unfinished: the client was never
+    // told it had ended, kept predicting from where it thought the entity was, and the next click produced a
+    // path `MoveActiveEntityHandler` had to refuse.
     val world = testWorld(systems = listOf(MoveSystem(flat, GroundTrample.NONE)))
     val id = world.create()
 

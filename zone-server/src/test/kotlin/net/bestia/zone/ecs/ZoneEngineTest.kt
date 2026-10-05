@@ -28,6 +28,7 @@ import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.Duration
+import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.test.assertEquals
 
@@ -347,5 +348,25 @@ class ZoneEngineTest {
     } finally {
       engine.stop()
     }
+  }
+
+  @Test
+  fun `a running engine hands every system the same fixed step`() {
+    val deltas = ConcurrentLinkedQueue<Float>()
+    val recorder = object : System {
+      override fun update(world: World, deltaTime: Float) {
+        deltas.add(deltaTime)
+      }
+    }
+    val engine = engineFor(testWorld(systems = listOf(recorder)))
+
+    engine.start()
+    try {
+      await().atMost(Duration.ofSeconds(5)).until { deltas.size >= 5 }
+    } finally {
+      engine.stop()
+    }
+
+    assertEquals(setOf(0.05f), deltas.toSet())
   }
 }
