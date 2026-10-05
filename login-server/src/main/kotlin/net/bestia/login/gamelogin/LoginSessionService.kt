@@ -9,6 +9,10 @@ import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import java.time.LocalDateTime
 
+/**
+ * A game login from the game's side: started with PKCE, authenticated by whichever method the player uses, and
+ * redeemed for one authorization code. [BrowserLoginService] holds the browser half.
+ */
 @Service
 class LoginSessionService(
   private val sessions: LoginSessionRepository,
@@ -60,35 +64,6 @@ class LoginSessionService(
     )
   }
 
-  /**
-   * Binds the browser half of the login to the browser that opens the link first, and answers the cookie value
-   * that proves it. The same browser loading the page again keeps its value; any other browser gets null.
-   *
-   * Always minted here and never taken from the request, so a cookie planted in the victim's browser cannot
-   * pre-claim a session.
-   */
-  @Transactional
-  fun claimForBrowser(sessionId: String, presentedBinding: String?): String? {
-    val session = requireUsable(sessionId)
-
-    if (session.browserBindingHash != null) {
-      return presentedBinding?.takeIf { isBoundTo(session, it) }
-    }
-
-    val binding = SecureTokens.randomToken()
-    val claimed = sessions.claimBrowser(session.idHash, hash(binding), LocalDateTime.now())
-
-    return if (claimed == 1) binding else null
-  }
-
-  @Transactional(readOnly = true)
-  fun requireUsable(sessionId: String, browserBinding: String?): LoginSession {
-    val session = requireUsable(sessionId)
-    requireBoundTo(session, browserBinding)
-
-    return session
-  }
-
   @Transactional(readOnly = true)
   fun requireUsable(sessionId: String): LoginSession {
     val session = sessions.findById(hash(sessionId)).orElse(null)
@@ -99,28 +74,6 @@ class LoginSessionService(
         GameLoginError.INVALID_GRANT,
         "login session is ${session.status} and expires at ${session.expiresAt}"
       )
-    }
-
-    return session
-  }
-
-  /**
-   * A session that has passed WebAuthn but has not yet been redeemed, presented by the browser it is bound to.
-   * This is what authorizes the "add another passkey" step and the return to the game.
-   */
-  @Transactional(readOnly = true)
-  fun requireAuthenticated(sessionId: String, browserBinding: String?): LoginSession {
-    val session = sessions.findById(hash(sessionId)).orElse(null)
-      ?: throw GameLoginException(GameLoginError.INVALID_GRANT, "no such login session")
-
-    requireBoundTo(session, browserBinding)
-
-    if (session.status != LoginSessionStatus.AUTHENTICATED || session.accountId == null) {
-      throw GameLoginException(GameLoginError.INVALID_GRANT, "login session is ${session.status}")
-    }
-
-    if (session.expiresAt.isBefore(LocalDateTime.now())) {
-      throw GameLoginException(GameLoginError.INVALID_GRANT, "login session expired at ${session.expiresAt}")
     }
 
     return session
@@ -163,21 +116,6 @@ class LoginSessionService(
     return SecureTokens.base64Url(SecureTokens.sha256(sessionId))
   }
 
-  fun requireBoundTo(session: LoginSession, browserBinding: String?) {
-    if (browserBinding == null || !isBoundTo(session, browserBinding)) {
-      throw GameLoginException(GameLoginError.INVALID_GRANT, "login session is not bound to this browser")
-    }
-  }
-
-  private fun isBoundTo(session: LoginSession, browserBinding: String): Boolean {
-    val expected = session.browserBindingHash ?: return false
-
-    return SecureTokens.constantTimeEquals(
-      expected.toByteArray(StandardCharsets.UTF_8),
-      hash(browserBinding).toByteArray(StandardCharsets.UTF_8)
-    )
-  }
-
   @Scheduled(fixedDelayString = "PT5M")
   @Transactional
   fun sweepExpired() {
@@ -215,9 +153,6 @@ class LoginSessionService(
 
   companion object {
     private val LOG = KotlinLogging.logger { }
-
-    /** Set by the login page and sent back by its scripts; see [claimForBrowser]. */
-    const val BINDING_COOKIE = "bestia_login_binding"
 
     /** SHA-256 rendered as unpadded base64url is always 43 characters. */
     private val CHALLENGE_LENGTH = 43..43

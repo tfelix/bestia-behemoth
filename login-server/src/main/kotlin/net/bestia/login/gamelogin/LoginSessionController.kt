@@ -30,6 +30,7 @@ import java.time.Duration
 @RequestMapping("/api/v1/auth/session")
 class LoginSessionController(
   private val loginSessionService: LoginSessionService,
+  private val browserLogin: BrowserLoginService,
   private val authorizationCodeService: AuthorizationCodeService,
   private val accounts: AccountRepository,
   private val accountLoginGuard: AccountLoginGuard,
@@ -53,7 +54,7 @@ class LoginSessionController(
   @PostMapping("/complete")
   fun complete(
     @RequestBody request: CompleteRequest,
-    @CookieValue(name = LoginSessionService.BINDING_COOKIE, required = false) browserBinding: String?,
+    @CookieValue(name = BrowserLoginService.BINDING_COOKIE, required = false) browserBinding: String?,
     servletRequest: HttpServletRequest
   ): ResponseEntity<*> {
     if (!rateLimiter.tryAcquire("session-complete:${servletRequest.remoteAddr}", REQUESTS_PER_WINDOW, WINDOW)) {
@@ -61,7 +62,7 @@ class LoginSessionController(
     }
 
     return try {
-      val session = loginSessionService.requireAuthenticated(request.sessionId, browserBinding)
+      val session = browserLogin.requireAuthenticated(request.sessionId, browserBinding)
       val accountId = session.accountId!!
 
       val account = accounts.findById(accountId).orElseThrow {

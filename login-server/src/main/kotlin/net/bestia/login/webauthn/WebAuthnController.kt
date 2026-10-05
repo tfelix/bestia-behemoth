@@ -9,10 +9,9 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.servlet.http.HttpServletRequest
 import net.bestia.login.account.AccountLoginGuard
 import net.bestia.login.account.AccountRepository
+import net.bestia.login.gamelogin.BrowserLoginService
 import net.bestia.login.gamelogin.GameLoginException
 import net.bestia.login.gamelogin.LoginSession
-import net.bestia.login.gamelogin.LoginSessionService
-import net.bestia.login.gamelogin.LoginSessionStatus
 import net.bestia.login.recovery.AccountRecoveryService
 import net.bestia.login.ratelimit.RateLimiter
 import org.springframework.http.HttpStatus
@@ -36,7 +35,7 @@ import java.time.LocalDateTime
 class WebAuthnController(
   private val registrationService: WebAuthnRegistrationService,
   private val assertionService: WebAuthnAssertionService,
-  private val loginSessionService: LoginSessionService,
+  private val browserLogin: BrowserLoginService,
   private val recoveryService: AccountRecoveryService,
   private val accounts: AccountRepository,
   private val accountLoginGuard: AccountLoginGuard,
@@ -104,7 +103,7 @@ class WebAuthnController(
   @PostMapping("/assert/options")
   fun assertOptions(
     @RequestBody request: AssertOptionsRequest,
-    @CookieValue(name = LoginSessionService.BINDING_COOKIE, required = false) browserBinding: String?,
+    @CookieValue(name = BrowserLoginService.BINDING_COOKIE, required = false) browserBinding: String?,
     servletRequest: HttpServletRequest
   ): ResponseEntity<*> {
     if (!allow(servletRequest, "assert-options")) {
@@ -112,7 +111,7 @@ class WebAuthnController(
     }
 
     return handle {
-      val session = loginSessionService.requireUsable(request.sessionId, browserBinding)
+      val session = browserLogin.requireUsable(request.sessionId, browserBinding)
       val started = assertionService.start(session.idHash)
 
       OptionsResponse(
@@ -125,7 +124,7 @@ class WebAuthnController(
   @PostMapping("/assert/verify")
   fun assertVerify(
     @RequestBody request: VerifyRequest,
-    @CookieValue(name = LoginSessionService.BINDING_COOKIE, required = false) browserBinding: String?,
+    @CookieValue(name = BrowserLoginService.BINDING_COOKIE, required = false) browserBinding: String?,
     servletRequest: HttpServletRequest
   ): ResponseEntity<*> {
     if (!allow(servletRequest, "assert-verify")) {
@@ -147,7 +146,7 @@ class WebAuthnController(
   @PostMapping("/register/options")
   fun registerOptions(
     @RequestBody request: RegisterOptionsRequest,
-    @CookieValue(name = LoginSessionService.BINDING_COOKIE, required = false) browserBinding: String?,
+    @CookieValue(name = BrowserLoginService.BINDING_COOKIE, required = false) browserBinding: String?,
     servletRequest: HttpServletRequest
   ): ResponseEntity<*> {
     if (!allow(servletRequest, "register-options")) {
@@ -155,7 +154,7 @@ class WebAuthnController(
     }
 
     return handle {
-      val session = loginSessionService.requireUsable(request.sessionId, browserBinding)
+      val session = browserLogin.requireUsable(request.sessionId, browserBinding)
       val started = registrationService.startAccountRegistration(request.displayName, session.idHash)
 
       OptionsResponse(
@@ -168,7 +167,7 @@ class WebAuthnController(
   @PostMapping("/register/verify")
   fun registerVerify(
     @RequestBody request: VerifyRequest,
-    @CookieValue(name = LoginSessionService.BINDING_COOKIE, required = false) browserBinding: String?,
+    @CookieValue(name = BrowserLoginService.BINDING_COOKIE, required = false) browserBinding: String?,
     servletRequest: HttpServletRequest
   ): ResponseEntity<*> {
     if (!allow(servletRequest, "register-verify")) {
@@ -198,7 +197,7 @@ class WebAuthnController(
   @PostMapping("/credentials/options")
   fun addCredentialOptions(
     @RequestBody request: AddCredentialRequest,
-    @CookieValue(name = LoginSessionService.BINDING_COOKIE, required = false) browserBinding: String?,
+    @CookieValue(name = BrowserLoginService.BINDING_COOKIE, required = false) browserBinding: String?,
     servletRequest: HttpServletRequest
   ): ResponseEntity<*> {
     if (!allow(servletRequest, "credential-options")) {
@@ -206,8 +205,8 @@ class WebAuthnController(
     }
 
     return handle {
-      val session = loginSessionService.requireAuthenticated(request.sessionId, browserBinding)
-      requireEnrolable(session, browserBinding)
+      val session = browserLogin.requireAuthenticated(request.sessionId, browserBinding)
+      requireEnrolmentWindow(session)
 
       val started = registrationService.startCredentialRegistration(
         accountId = requireAccount(session.accountId),
@@ -224,7 +223,7 @@ class WebAuthnController(
   @PostMapping("/credentials/verify")
   fun addCredentialVerify(
     @RequestBody request: VerifyRequest,
-    @CookieValue(name = LoginSessionService.BINDING_COOKIE, required = false) browserBinding: String?,
+    @CookieValue(name = BrowserLoginService.BINDING_COOKIE, required = false) browserBinding: String?,
     servletRequest: HttpServletRequest
   ): ResponseEntity<*> {
     if (!allow(servletRequest, "credential-verify")) {
@@ -252,7 +251,7 @@ class WebAuthnController(
   @PostMapping("/recover/options")
   fun recoverOptions(
     @RequestBody request: RecoverOptionsRequest,
-    @CookieValue(name = LoginSessionService.BINDING_COOKIE, required = false) browserBinding: String?,
+    @CookieValue(name = BrowserLoginService.BINDING_COOKIE, required = false) browserBinding: String?,
     servletRequest: HttpServletRequest
   ): ResponseEntity<*> {
     if (!allow(servletRequest, "recover", RECOVERY_ATTEMPTS_PER_WINDOW, RECOVERY_WINDOW)) {
@@ -260,7 +259,7 @@ class WebAuthnController(
     }
 
     return handle {
-      val session = loginSessionService.requireUsable(request.sessionId, browserBinding)
+      val session = browserLogin.requireUsable(request.sessionId, browserBinding)
 
       val started = recoveryService.startRecovery(
         displayName = request.displayName,
@@ -275,41 +274,20 @@ class WebAuthnController(
     }
   }
 
-  /**
-   * Marks the login session as belonging to the account that has just authenticated.
-   *
-   * The session comes from the ceremony row rather than from anything sent alongside the
-   * credential. If the browser could name the session, an assertion obtained during one login
-   * attempt could be attached to a different one.
-   */
+  /** An account-management ceremony has no login session waiting on it. */
   private fun bindLoginSession(loginSessionIdHash: String?, accountId: Long, browserBinding: String?) {
-    if (loginSessionIdHash == null) {
-      return
+    if (loginSessionIdHash != null) {
+      browserLogin.authenticate(loginSessionIdHash, accountId, browserBinding)
     }
-
-    val session = loginSessionService.findByHash(loginSessionIdHash)
-      ?: throw WebAuthnException("Ceremony refers to a login session that no longer exists")
-
-    loginSessionService.requireBoundTo(session, browserBinding)
-
-    val account = accounts.findById(accountId).orElseThrow {
-      WebAuthnException("Authenticated account no longer exists")
-    }
-
-    accountLoginGuard.denialReason(account)?.let { reason ->
-      LOG.info { "Refusing to bind login session: $reason" }
-      throw WebAuthnException("Account may not log in")
-    }
-
-    loginSessionService.markAuthenticated(session, accountId)
   }
 
   /** Everything the options call checked, again: the session may have moved on or the account been banned since. */
   private fun authorizeEnrolment(ceremony: WebAuthnCeremony, browserBinding: String?) {
-    val session = ceremony.loginSessionIdHash?.let { loginSessionService.findByHash(it) }
+    val sessionIdHash = ceremony.loginSessionIdHash
       ?: throw WebAuthnException("Credential ceremony has no login session")
 
-    requireEnrolable(session, browserBinding)
+    val session = browserLogin.requireAuthenticatedByHash(sessionIdHash, browserBinding)
+    requireEnrolmentWindow(session)
 
     if (session.accountId != ceremony.accountId) {
       throw WebAuthnException("Credential ceremony and login session name different accounts")
@@ -325,18 +303,13 @@ class WebAuthnController(
     }
   }
 
-  /**
-   * The bound, authenticated session a further passkey may be enrolled on. Only shortly after the sign-in:
-   * a credential survives every later revocation, so it needs a fresh proof of the existing one.
-   */
-  private fun requireEnrolable(session: LoginSession, browserBinding: String?) {
-    loginSessionService.requireBoundTo(session, browserBinding)
-
+  /** Only shortly after the sign-in: a credential survives every later revocation, so it needs a fresh proof. */
+  private fun requireEnrolmentWindow(session: LoginSession) {
     val authenticatedAt = session.authenticatedAt
     val fresh = authenticatedAt != null &&
       authenticatedAt.plusSeconds(webAuthnConfig.credentialEnrolmentSeconds).isAfter(LocalDateTime.now())
 
-    if (session.status != LoginSessionStatus.AUTHENTICATED || session.accountId == null || !fresh) {
+    if (!fresh) {
       throw WebAuthnException("Login session may not enrol a passkey now")
     }
   }
