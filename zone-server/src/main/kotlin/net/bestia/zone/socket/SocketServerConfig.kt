@@ -18,4 +18,7 @@ class SocketServerConfig(
   val maxFrameBytes: Int = 65536,
   /** Concurrent connections from one IP address. Players behind one NAT share it, so not too tight. */
   val maxConnectionsPerAddress: Int = 10,
+  /** A channel turns unwritable once this many outbound bytes queue up, and writable again below the low mark. */
+  val writeBufferHighBytes: Int = 256 * 1024,
+  val writeBufferLowBytes: Int = 64 * 1024,
 )
