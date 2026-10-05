@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import com.fasterxml.jackson.databind.annotation.JsonNaming
 import net.bestia.zone.ai.domain.bestia.ActivityCycle
 import net.bestia.zone.ai.domain.bestia.BestiaDomain
+import net.bestia.zone.ai.ecs.AiDetail
 
 /**
  * Jackson mirror of a `resources/ai/<name>.yml` archetype — the one AI profile format, replacing the two
@@ -56,6 +57,8 @@ data class AiProfileDto(
    * mean: nothing gives up a fight, so how readily it would have is not a property any archetype has.
    */
   val aggression: Int = 50,
+  /** The least processing this kind of agent gets even when nobody can see it; see `AiDetail`. */
+  val minDetail: AiDetail = AiDetail.BACKGROUND,
   val goals: List<GoalDto> = emptyList(),
   val actions: List<String> = emptyList(),
   val attacks: List<AttackDto> = emptyList(),

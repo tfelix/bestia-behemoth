@@ -27,10 +27,11 @@ class SequenceNode(private val children: List<BtNode>) : BtNode {
   constructor(vararg children: BtNode) : this(children.toList())
 
   override fun tick(context: BtContext): Status {
-    for (child in children) {
+    for ((index, child) in children.withIndex()) {
+      context.wakeAt = null
       when (val status = child.tick(context)) {
         Status.SUCCESS -> Unit // this child is done; fall through to the next one
-        Status.RUNNING, Status.FAILURE -> return status
+        Status.RUNNING, Status.FAILURE -> return status.withWakeOnlyIfFirst(context, index)
       }
     }
     return Status.SUCCESS
@@ -50,10 +51,11 @@ class SelectorNode(private val children: List<BtNode>) : BtNode {
   constructor(vararg children: BtNode) : this(children.toList())
 
   override fun tick(context: BtContext): Status {
-    for (child in children) {
+    for ((index, child) in children.withIndex()) {
+      context.wakeAt = null
       when (val status = child.tick(context)) {
         Status.FAILURE -> Unit // this child declined; try the next one
-        Status.SUCCESS, Status.RUNNING -> return status
+        Status.SUCCESS, Status.RUNNING -> return status.withWakeOnlyIfFirst(context, index)
       }
     }
     return Status.FAILURE
@@ -86,15 +88,24 @@ class ParallelNode(
     var succeeded = 0
     var failed = 0
 
+    // The tree may only be left alone if every child still running asked to be.
+    var wake: Long? = null
+    var allRunningWait = true
+
     // Every child is ticked even once the outcome is decided, so side effects stay symmetric
     // between ticks rather than depending on child order.
     for (child in children) {
+      context.wakeAt = null
       when (child.tick(context)) {
         Status.SUCCESS -> succeeded++
         Status.FAILURE -> failed++
-        Status.RUNNING -> Unit
+        Status.RUNNING -> {
+          val asked = context.wakeAt
+          if (asked == null) allRunningWait = false else wake = minOf(wake ?: asked, asked)
+        }
       }
     }
+    context.wakeAt = if (allRunningWait) wake else null
 
     return when (policy) {
       ParallelPolicy.REQUIRE_ALL -> when {
@@ -110,4 +121,13 @@ class ParallelNode(
       }
     }
   }
+}
+
+/**
+ * Sequences and selectors re-check their earlier children every tick, so they may only be left alone when the
+ * deciding child is the first one: otherwise a target walking away would go unnoticed until the wake.
+ */
+private fun Status.withWakeOnlyIfFirst(context: BtContext, index: Int): Status {
+  if (index > 0) context.wakeAt = null
+  return this
 }

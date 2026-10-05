@@ -3,12 +3,10 @@ package net.bestia.zone.ai.perception
 import net.bestia.zone.ai.core.state.CommonKeys
 import net.bestia.zone.ai.ecs.AiAgent
 import net.bestia.zone.ai.ecs.AiThrottle
-import net.bestia.zone.ai.ecs.AiThrottleable
-import net.bestia.zone.ai.ecs.PlayerControlled
 import net.bestia.zone.ai.profile.AiProfileRegistry
-import net.bestia.zone.ecs.account.ActivePlayer
 import net.bestia.zone.ecs.AoiLayer
 import net.bestia.zone.ecs.EntityAOIService
+import net.bestia.zone.ecs.ZoneConfig
 import net.bestia.zone.ecs.account.Master
 import net.bestia.zone.ecs.battle.damage.TakenDamage
 import net.bestia.zone.battle.status.StatusEffectId
@@ -16,6 +14,7 @@ import net.bestia.zone.ecs.battle.effects.StatusEffects
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Schedule
+import net.bestia.zone.ecs.core.TickBuckets
 import net.bestia.zone.ecs.core.System as EcsSystem
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.movement.Position
@@ -35,7 +34,7 @@ import org.springframework.stereotype.Component as SpringComponent
  * memory, so an agent's beliefs about the world always come from having looked at it. See
  * `StateKey.observed`, which makes the rule mechanical rather than a convention.
  *
- * Runs periodically (~0.5s); this is the perception refresh rate for all NPCs.
+ * Each agent perceives every half second at full detail, on a tick of its own; see `AiThrottle`.
  */
 @SpringComponent
 @Order(10)
@@ -44,9 +43,11 @@ class PerceptionSystem(
   private val aoiService: EntityAOIService,
   private val clock: BestiaClock,
   private val throttle: AiThrottle,
+  private val zoneConfig: ZoneConfig,
 ) : EcsSystem {
 
-  override val schedule: Schedule = Schedule.EverySeconds(0.5f)
+  /** Every tick, but each agent only on its own bucket: the work is spread out rather than all in one tick. */
+  override val schedule: Schedule = Schedule.EveryTick
 
   override val reads: ComponentClassSet = setOf(
     Position::class,
@@ -54,9 +55,6 @@ class PerceptionSystem(
     Master::class,
     TakenDamage::class,
     StatusEffects::class,
-    ActivePlayer::class,
-    AiThrottleable::class,
-    PlayerControlled::class
   )
 
   /**
@@ -73,22 +71,14 @@ class PerceptionSystem(
     // has finished loading throws — and a zone with no AI in it has no reason to ask at all.
     var time: BestiaDateTime? = null
 
-    // Gathered once per sweep rather than per agent: the throttle asks how far the nearest player is, and
-    // there are a handful of players against a hundred and forty creatures each.
-    val players = if (throttle.isActive) activePlayerPositions(world) else emptyList()
+    // Half a second at full detail; a lower tier waits a multiple of that. See AiThrottle.
+    val period = zoneConfig.tickRate / 2L
 
     world.query(AiAgent::class, Position::class).each { id ->
       val agent = get<AiAgent>()
-      val position = get<Position>()
+      if (!TickBuckets.isDue(world.tickCount, id, period * throttle.factorOf(agent))) return@each
 
-      // Scenery nobody is near perceives less often. Never a den mob, a boss or a player's bestia - see
-      // AiThrottle. The gate is inside the loop rather than in the query because `reads`/`writes` decide
-      // scheduling waves, and this system already conflicts with every other AI stage on `AiAgent`.
-      val factor = throttle.factorFor(world, id, agent, players)
-      if (factor > 1) {
-        if (world.tickCount < agent.nextPerceiveTick) return@each
-        agent.nextPerceiveTick = world.tickCount + factor * PERCEIVE_PERIOD_TICKS + (id % factor)
-      }
+      val position = get<Position>()
 
       val profile = profileRegistry.get(agent.profileId) ?: return@each
       val selfPos = position.toVec3L()
@@ -195,17 +185,4 @@ class PerceptionSystem(
     return (health.current * 100 / health.max).coerceIn(0, 100)
   }
 
-  /** The same anchor set `SpawnerSystem` and `ChunkStreamSystem` use: only a player who picked a master. */
-  private fun activePlayerPositions(world: World): List<Vec3L> {
-    val positions = ArrayList<Vec3L>()
-    world.query(Position::class, ActivePlayer::class).each {
-      positions.add(get<Position>().toVec3L())
-    }
-    return positions
-  }
-
-  private companion object {
-    /** Ticks in one ordinary perception sweep, so a throttle factor multiplies a real period. */
-    const val PERCEIVE_PERIOD_TICKS = 10L
-  }
 }

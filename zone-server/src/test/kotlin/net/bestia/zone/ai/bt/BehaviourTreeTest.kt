@@ -8,6 +8,7 @@ import net.bestia.zone.ai.core.state.Blackboard
 import net.bestia.zone.ai.core.state.WorldState
 import net.bestia.zone.ecs.core.testWorld
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
 
 /**
@@ -34,6 +35,14 @@ class BehaviourTreeTest {
     override fun tick(context: BtContext): Status {
       seen++
       return if (seen > failFor) Status.SUCCESS else Status.FAILURE
+    }
+  }
+
+  /** A leaf that reports [status] and asks to be left alone until [wakeAt]. */
+  private class Asks(private val status: Status, private val wakeAt: Long) : BtNode {
+    override fun tick(context: BtContext): Status {
+      context.requestWake(wakeAt)
+      return status
     }
   }
 
@@ -149,6 +158,47 @@ class BehaviourTreeTest {
 
     val allFailed = listOf(Stub(Status.FAILURE), Stub(Status.FAILURE))
     assertEquals(Status.FAILURE, ParallelNode(allFailed, ParallelPolicy.REQUIRE_ONE).tick(context()))
+  }
+
+  // ----------------------------------------------------------------- wake ticks
+
+  @Test
+  fun `a sequence passes on the wake of its only running child`() {
+    val ctx = context()
+
+    SequenceNode(Asks(Status.RUNNING, 40), Stub(Status.SUCCESS)).tick(ctx)
+
+    assertEquals(40L, ctx.wakeAt)
+  }
+
+  /** The reactive re-check above: the condition in front of a wait must still be asked every tick. */
+  @Test
+  fun `a sequence does not sleep while an earlier child needs re-checking`() {
+    val ctx = context()
+
+    SequenceNode(Stub(Status.SUCCESS), Asks(Status.RUNNING, 40)).tick(ctx)
+
+    assertNull(ctx.wakeAt)
+  }
+
+  @Test
+  fun `a selector does not sleep on a fallback`() {
+    val ctx = context()
+
+    SelectorNode(Asks(Status.FAILURE, 5), Asks(Status.RUNNING, 40)).tick(ctx)
+
+    assertNull(ctx.wakeAt, "the higher-priority child has to be able to preempt it on any tick")
+  }
+
+  @Test
+  fun `a parallel waits for the earliest wake, but only if every running child asked`() {
+    val allAsked = context()
+    ParallelNode(listOf(Asks(Status.RUNNING, 40), Asks(Status.RUNNING, 25)), ParallelPolicy.REQUIRE_ONE).tick(allAsked)
+    assertEquals(25L, allAsked.wakeAt)
+
+    val oneBusy = context()
+    ParallelNode(listOf(Asks(Status.RUNNING, 40), Stub(Status.RUNNING)), ParallelPolicy.REQUIRE_ONE).tick(oneBusy)
+    assertNull(oneBusy.wakeAt, "a walking leg next to a timer still needs every tick")
   }
 
   // ----------------------------------------------------------------- decorators

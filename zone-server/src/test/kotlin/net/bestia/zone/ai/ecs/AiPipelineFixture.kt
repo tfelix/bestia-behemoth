@@ -26,6 +26,7 @@ import net.bestia.zone.ai.perception.ShelterSense
 import net.bestia.zone.ai.profile.AiProfileRegistry
 import net.bestia.zone.battle.skill.AttackExecutionService
 import net.bestia.zone.battle.skill.SkillExecutionService
+import net.bestia.zone.ecs.ActivePlayerAOIService
 import net.bestia.zone.ecs.EntityAOIService
 import net.bestia.zone.ecs.ZoneConfig
 import net.bestia.zone.ecs.account.Master
@@ -44,6 +45,8 @@ import net.bestia.zone.environment.time.BestiaDateTime
 import net.bestia.zone.bestia.DefaultAttack
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.navigation.TestNavigation
+import net.bestia.zone.ecs.visibility.EntityVisibility
+import net.bestia.zone.util.AccountId
 import net.bestia.zone.util.EntityId
 import kotlin.random.Random
 
@@ -56,7 +59,15 @@ import kotlin.random.Random
  * right target by the right route, and a mock records exactly that. Damage arithmetic is the battle system's
  * business and is tested there.
  */
-class AiPipelineFixture(tickRate: Int = 20, randomSeed: Long = DEFAULT_SEED) {
+class AiPipelineFixture(
+  tickRate: Int = 20,
+  randomSeed: Long = DEFAULT_SEED,
+  /**
+   * Every detail tier at full rate by default, so a scenario measures behaviour rather than cadence.
+   * `AiLodCadenceTest` passes the shipped factors.
+   */
+  throttleConfig: AmbientSpawnConfig = AmbientSpawnConfig(throttleFactor = 1, backgroundFactor = 1),
+) {
 
   /**
    * The generator every wandering creature in this fixture draws from, seeded so a scenario is reproducible.
@@ -75,6 +86,13 @@ class AiPipelineFixture(tickRate: Int = 20, randomSeed: Long = DEFAULT_SEED) {
   private val random = Random(randomSeed)
 
   val aoi = EntityAOIService()
+  val playerAoi = ActivePlayerAOIService()
+
+  /** Accounts that hold each entity's chunk. Nobody by default, so an agent away from players is unseen. */
+  val observers = mutableMapOf<EntityId, Set<AccountId>>()
+  private val visibility: EntityVisibility = mockk<EntityVisibility>().also {
+    every { it.observersOf(any()) } answers { observers[firstArg()] ?: emptySet() }
+  }
   val skills: SkillExecutionService = mockk(relaxed = true)
   val attackExecution: AttackExecutionService = mockk(relaxed = true)
   val sharedMemory = SharedMemoryService()
@@ -164,17 +182,14 @@ class AiPipelineFixture(tickRate: Int = 20, randomSeed: Long = DEFAULT_SEED) {
 
   val agentFactory = AiAgentFactory(runtimes = listOf(bestia, townsfolk), sharedMemory = sharedMemory)
 
-  /**
-   * Throttling off, so a scenario measures behaviour rather than cadence.
-   *
-   * `factor = 1` is the documented off switch, and it means these tests exercise exactly the code path a
-   * den mob takes on the live server. `AiThrottleTest` covers the throttled path on its own.
-   */
-  val throttle = AiThrottle(AmbientSpawnConfig(throttleFactor = 1))
+  val throttle = AiThrottle(throttleConfig, playerAoi, visibility)
+
+  private val zoneConfig = ZoneConfig(tickRate = tickRate)
 
   /** The AI stages in pipeline order, plus movement so a decision to walk actually moves something. */
   val systems: List<System> = listOf(
-    PerceptionSystem(profiles, aoi, clock, throttle),
+    AiDetailSystem(throttle, zoneConfig),
+    PerceptionSystem(profiles, aoi, clock, throttle, zoneConfig),
     // Spring collects the Sense beans in the live server; a test names the ones its scenario cares about.
     SenseSystem(
       listOf(
@@ -191,11 +206,12 @@ class AiPipelineFixture(tickRate: Int = 20, randomSeed: Long = DEFAULT_SEED) {
         ),
       ),
       sharedMemory,
-      throttle
+      throttle,
+      zoneConfig,
     ),
-    AiDriveSystem(sharedMemory, clock),
+    AiDriveSystem(sharedMemory, clock, throttle),
     AiThinkSystem(Planner(), sharedMemory, throttle),
-    AiActSystem(sharedMemory, ZoneConfig(tickRate = tickRate)),
+    AiActSystem(sharedMemory, zoneConfig, throttle),
     // No terrain in these scenarios, so no ground to snap to; null keeps the waypoint's own z, which is what
     // the flat test navigation produces anyway.
     MoveSystem({ null }, GroundTrample.NONE),
@@ -287,6 +303,7 @@ class AiPipelineFixture(tickRate: Int = 20, randomSeed: Long = DEFAULT_SEED) {
       world.add(eid, Master(1L))
     }
     aoi.setEntityPosition(id, pos)
+    playerAoi.setEntityPosition(id, pos)
     return id
   }
 
@@ -298,6 +315,7 @@ class AiPipelineFixture(tickRate: Int = 20, randomSeed: Long = DEFAULT_SEED) {
       z = to.z
     }
     aoi.setEntityPosition(id, to)
+    if (world.has(id, Master::class)) playerAoi.setEntityPosition(id, to)
   }
 
   /** Records [attacker] having hit [victim], the signal retaliation is gated on. */

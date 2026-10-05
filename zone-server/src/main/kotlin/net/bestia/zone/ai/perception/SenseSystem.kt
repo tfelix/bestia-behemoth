@@ -1,14 +1,12 @@
 package net.bestia.zone.ai.perception
 
 import net.bestia.zone.ai.ecs.AiAgent
-import net.bestia.zone.geometry.Vec3L
-import net.bestia.zone.ecs.account.ActivePlayer
-import net.bestia.zone.ai.ecs.PlayerControlled
-import net.bestia.zone.ai.ecs.AiThrottleable
 import net.bestia.zone.ai.ecs.AiThrottle
 import net.bestia.zone.ai.ecs.SharedMemoryService
+import net.bestia.zone.ecs.ZoneConfig
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Schedule
+import net.bestia.zone.ecs.core.TickBuckets
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.movement.Position
@@ -26,15 +24,9 @@ import org.springframework.stereotype.Component as SpringComponent
  *
  * ### Cadence
  *
- * The system itself ticks at [BASE_INTERVAL_SECONDS] and each sense is run only when its own
- * [Sense.intervalSeconds] has elapsed, so the base rate is a floor on how often a sense *can* refresh
- * rather than the rate they all pay for. When nothing is due the sweep returns before touching the ECS
- * query at all, which is the common case once senses with different periods coexist.
- *
- * All agents are swept together rather than staggered across ticks the way `AiThinkSystem` staggers
- * planning. That is a deliberate difference of degree: a sense is a lookup and a couple of comparisons,
- * where planning is an A\* search, so the spike a hundred agents make here is not the one worth spreading.
- * If a genuinely expensive sense ever arrives, this is where to spread it.
+ * Each sense runs for an agent once per [Sense.intervalSeconds], on a tick bucket of its own (see
+ * [TickBuckets]), and a lower [net.bestia.zone.ai.ecs.AiDetail] stretches that by its factor. So the cost is
+ * flat across ticks instead of a spike every time a period comes round.
  *
  * ### Relationship to [PerceptionSystem]
  *
@@ -51,9 +43,11 @@ class SenseSystem(
   private val senses: List<Sense>,
   private val sharedMemory: SharedMemoryService,
   private val throttle: AiThrottle,
+  zoneConfig: ZoneConfig,
 ) : System {
 
-  override val schedule: Schedule = Schedule.EverySeconds(BASE_INTERVAL_SECONDS)
+  /** Every tick, but each sense runs for an agent only on that agent's own bucket, so no tick takes them all. */
+  override val schedule: Schedule = Schedule.EveryTick
 
   /**
    * Position, plus whatever each sense declares.
@@ -62,95 +56,41 @@ class SenseSystem(
    * that reads `Health` makes this system conflict with whatever writes `Health`, without anyone having to
    * remember to widen a set in this file.
    */
-  override val reads: ComponentClassSet = setOf(
-    Position::class,
-    ActivePlayer::class,
-    AiThrottleable::class,
-    PlayerControlled::class
-  ) + senses.flatMap { it.reads }
+  override val reads: ComponentClassSet = setOf(Position::class) + senses.flatMap { it.reads }
 
   /** Writes the agents' (and their packs') blackboards, so it conflicts with the AI stages by declaration. */
   override val writes: ComponentClassSet = setOf(AiAgent::class)
 
-  /** Seconds since each sense last ran, parallel to [senses]. */
-  private val sinceLastRun = FloatArray(senses.size)
-
-  /**
-   * Sweeps run so far, the rotation a throttled agent is staggered against.
-   *
-   * A counter here rather than another field on `AiAgent`: the senses already keep their own timers, so all
-   * a throttled agent needs is to be skipped on a predictable share of the sweeps - and spreading that by
-   * entity id keeps the cost flat instead of bunching every ambient creature onto the same sweep.
-   */
-  private var sweep = 0L
+  /** Each sense's interval in ticks, parallel to [senses]. */
+  private val periods = LongArray(senses.size) { (senses[it].intervalSeconds * zoneConfig.tickRate).toLong() }
 
   override fun update(world: World, deltaTime: Float) {
-    val due = takeDueSenses(deltaTime)
-    if (due.isEmpty()) return
-
-    sweep++
+    val tick = world.tickCount
     val worldMemory = sharedMemory.worldBoard()
-    val players = if (throttle.isActive) activePlayerPositions(world) else emptyList()
 
     world.query(AiAgent::class, Position::class).each { id ->
       val agent = get<AiAgent>()
+      val factor = throttle.factorOf(agent)
+      var context: SenseContext? = null
 
-      // Scenery nobody is near senses less often. `ForageSense` costs a biome sample per agent, which is
-      // affordable for a den's pack and not for a hundred and forty creatures per player.
-      val factor = throttle.factorFor(world, id, agent, players)
-      if (factor > 1 && (sweep + id) % factor != 0L) return@each
+      senses.forEachIndexed { index, sense ->
+        // Offset per sense, so one agent's senses do not all fall on the same tick either.
+        if (!TickBuckets.isDue(tick, id + index * SENSE_OFFSET, periods[index] * factor)) return@forEachIndexed
 
-      val context = SenseContext(
-        world = world,
-        entityId = id,
-        agent = agent,
-        position = get<Position>().toVec3L(),
-        worldMemory = worldMemory,
-      )
+        val senseContext = context ?: SenseContext(
+          world = world,
+          entityId = id,
+          agent = agent,
+          position = get<Position>().toVec3L(),
+          worldMemory = worldMemory,
+        ).also { context = it }
 
-      due.forEach { it.sense(context) }
-    }
-  }
-
-  /** The same anchor set `PerceptionSystem` uses: only a player who has picked a master. */
-  private fun activePlayerPositions(world: World): List<Vec3L> {
-    val positions = ArrayList<Vec3L>()
-    world.query(Position::class, ActivePlayer::class).each {
-      positions.add(get<Position>().toVec3L())
-    }
-    return positions
-  }
-
-  /**
-   * Advances every sense's timer and returns those that have come due, resetting their timers.
-   *
-   * The remainder is carried rather than zeroed, so a sense whose interval is not a multiple of the base
-   * rate keeps its average period instead of drifting slower with every run.
-   */
-  private fun takeDueSenses(deltaTime: Float): List<Sense> {
-    var due: MutableList<Sense>? = null
-
-    senses.forEachIndexed { index, sense ->
-      val elapsed = sinceLastRun[index] + deltaTime
-      if (elapsed < sense.intervalSeconds) {
-        sinceLastRun[index] = elapsed
-        return@forEachIndexed
+        sense.sense(senseContext)
       }
-
-      sinceLastRun[index] = elapsed - sense.intervalSeconds
-      (due ?: mutableListOf<Sense>().also { due = it }).add(sense)
     }
-
-    return due ?: emptyList()
   }
 
-  companion object {
-    /**
-     * How often the host wakes up, and therefore the finest interval a sense can ask for.
-     *
-     * Matched to [PerceptionSystem]'s own rate: a sense that needs to be as quick as sight should be able to
-     * be, and nothing needs to be quicker without becoming a system of its own.
-     */
-    private const val BASE_INTERVAL_SECONDS = 0.5f
+  private companion object {
+    const val SENSE_OFFSET = 7_919L
   }
 }

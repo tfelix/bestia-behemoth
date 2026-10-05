@@ -44,7 +44,10 @@ class Labour(
     }
 
     elapsed += context.deltaTime
-    if (elapsed < secondsPerUnit) return Status.RUNNING
+    if (elapsed < secondsPerUnit) {
+      context.requestWake(context.currentTick + context.ticksFor(secondsPerUnit - elapsed))
+      return Status.RUNNING
+    }
 
     elapsed -= secondsPerUnit
     begun = false

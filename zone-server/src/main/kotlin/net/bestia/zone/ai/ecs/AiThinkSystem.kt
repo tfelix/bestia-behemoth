@@ -6,9 +6,8 @@ import net.bestia.zone.ecs.battle.damage.Dead
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.System
+import net.bestia.zone.ecs.core.TickBuckets
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.geometry.Vec3L
-import net.bestia.zone.ecs.account.ActivePlayer
 import net.bestia.zone.ecs.movement.Position
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component as SpringComponent
@@ -25,10 +24,10 @@ import org.springframework.stereotype.Component as SpringComponent
  * re-plans an identical plan several times a second.
  *
  * *Spread the agents out.* This runs [Schedule.EveryTick] but each agent only thinks every
- * [THINK_PERIOD_TICKS], offset by its own entity id. That matters because the alternative — scheduling
- * the whole system every half second — makes every mob in the zone think on the *same* tick, so a hundred
- * mobs seeing a player all run A* inside one tick and the frame stalls. Staggering turns that spike into a
- * flat cost. `World.tickCount` exists for exactly this and previously had no user.
+ * [THINK_PERIOD_TICKS] (times its tier's factor, see [AiThrottle]), on a tick bucket of its own. That matters
+ * because the alternative — scheduling the whole system every half second — makes every mob in the zone
+ * think on the *same* tick, so a hundred mobs seeing a player all run A* inside one tick and the frame
+ * stalls. Staggering turns that spike into a flat cost.
  */
 @SpringComponent
 @Order(20)
@@ -44,8 +43,6 @@ class AiThinkSystem(
     Position::class,
     PlayerControlled::class,
     Dead::class,
-    ActivePlayer::class,
-    AiThrottleable::class
   )
 
   /** Written: the goal/plan/behaviour-tree fields and the agent's memory snapshot. */
@@ -53,10 +50,12 @@ class AiThinkSystem(
 
   override fun update(world: World, deltaTime: Float) {
     val worldBoard = sharedMemory.worldBoard()
-    val players = if (throttle.isActive) activePlayerPositions(world) else emptyList()
 
     world.query(AiAgent::class, Position::class).each { id ->
       val agent = get<AiAgent>()
+
+      // First, because nine visits in ten end here and the checks below each cost a lookup.
+      if (world.tickCount < agent.nextThinkTick) return@each
 
       // An owned bestia keeps its body - and its agent - after it dies, so without this it would go
       // on planning and walk its own corpse away. The plan is dropped rather than frozen, for the
@@ -74,16 +73,11 @@ class AiThinkSystem(
         return@each
       }
 
-      // Never reason from a memory nothing has been observed into — see AiAgent.hasPerceived. Deliberately
-      // before the stagger gate, so the first real think happens as soon as perception lands rather than a
-      // period later.
+      // Never reason from a memory nothing has been observed into — see AiAgent.hasPerceived. The think tick
+      // has not moved yet, so the first real think happens as soon as perception lands.
       if (!agent.hasPerceived) return@each
 
-      if (world.tickCount < agent.nextThinkTick) return@each
-      // Offset by id so agents created on the same tick still land on different ticks from here on.
-      // Scenery nobody is near replans on a multiple of the period; see AiThrottle.
-      val period = THINK_PERIOD_TICKS * throttle.factorFor(world, id, agent, players)
-      agent.nextThinkTick = world.tickCount + period + (id % period)
+      agent.nextThinkTick = TickBuckets.nextDue(world.tickCount, id, THINK_PERIOD_TICKS * throttle.factorOf(agent))
 
       val state = agent.snapshotState(worldBoard)
       val goal = planner.selectCurrentGoal(agent, state)
@@ -109,15 +103,6 @@ class AiThinkSystem(
       agent.adopt(goal, plan, state)
       LOG.trace { "Entity $id adopts goal '${goal.name}' with plan ${plan.actions.map { it.name }}" }
     }
-  }
-
-  /** The same anchor set `PerceptionSystem` uses: only a player who has picked a master. */
-  private fun activePlayerPositions(world: World): List<Vec3L> {
-    val positions = ArrayList<Vec3L>()
-    world.query(Position::class, ActivePlayer::class).each {
-      positions.add(get<Position>().toVec3L())
-    }
-    return positions
   }
 
   companion object {

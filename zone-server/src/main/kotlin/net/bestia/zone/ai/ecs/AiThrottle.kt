@@ -1,71 +1,70 @@
 package net.bestia.zone.ai.ecs
 
 import net.bestia.zone.ai.core.state.CommonKeys
+import net.bestia.zone.ecs.ActivePlayerAOIService
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.spawn.ambient.AmbientSpawnConfig
-import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.ecs.visibility.EntityVisibility
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Service
 
 /**
- * Whether an agent may skip this round of thinking.
+ * How much processing an agent gets: its [AiDetail], and how many times less often that tier is run.
  *
- * ### Why the baseline population needs this at all
+ * Most of a zone's creatures are ones no player is looking at - an interest cube holds around a hundred and
+ * forty, the camera shows about sixty tiles - so running them all at full rate spends the tick on scenery.
+ * Nothing is ever stopped, though: an unseen creature still eats, sleeps and walks, only less often.
  *
- * At one creature every thirty tiles a single player's interest cube holds around a hundred and forty
- * agents, against the two or three a den layer produced. Perception is the expensive part - an area-of-
- * interest cube query plus component reads for every agent, twice a second - and almost all of that work is
- * spent on creatures the player cannot see: the cube reaches 176 tiles and the camera shows about sixty.
- *
- * ### What is never throttled
- *
- * Anything without an [AiThrottleable] marker, which is every den mob, every boss, every `/spawn`ed
- * creature and every player-owned bestia. Beyond that, a throttleable creature is still run at full rate
- * when a player is close enough to see it, and whenever it is angry - a creature that has been hit must
- * fight back at full speed however far from home the fight has wandered.
- *
- * Returns a *cadence* rather than a yes/no so a factor of 1 disables the whole mechanism without a code
- * change, which is what makes it safe to leave the knob in a config file.
+ * Anything without an [AiThrottleable] marker - den mobs, bosses, `/spawn`ed creatures, player bestias - never
+ * drops below [AiDetail.REDUCED], and an AI profile may raise the floor further (`min_detail`).
  */
 @Service
-class AiThrottle(private val config: AmbientSpawnConfig) {
+class AiThrottle(
+  private val config: AmbientSpawnConfig,
+  private val players: ActivePlayerAOIService,
+  private val visibility: EntityVisibility,
+) {
 
-  /** False when the throttle is switched off, so a caller can skip gathering what it would need. */
-  val isActive: Boolean get() = config.throttleFactor > 1
+  fun detailOf(world: World, id: EntityId, agent: AiAgent): AiDetail {
+    if (world.has(id, PlayerControlled::class)) return AiDetail.FULL
 
-  /**
-   * How many times longer than usual this agent may wait before thinking again.
-   *
-   * 1 means "no different from anything else".
-   */
-  fun factorFor(world: World, id: EntityId, agent: AiAgent, players: List<Vec3L>): Int {
-    if (config.throttleFactor == 1) return 1
-    if (!world.has(id, AiThrottleable::class)) return 1
-    if (world.has(id, PlayerControlled::class)) return 1
+    // Aggro beats distance: a fight that walks out of view must not go into slow motion.
+    if (agent.memory.get(CommonKeys.IS_AGGRO) == true) return AiDetail.FULL
 
-    // Aggro beats distance: something that has been attacked is in a fight, and a fight that walks out of
-    // view must not go into slow motion.
-    if (agent.memory.get(CommonKeys.IS_AGGRO) == true) return 1
-
-    val position = world.get(id, Position::class)?.toVec3L() ?: return 1
-    for (player in players) {
-      val dx = player.x - position.x
-      val dy = player.y - position.y
-      if (dx * dx + dy * dy <= FULL_FIDELITY_TILES * FULL_FIDELITY_TILES) return 1
+    val position = world.get(id, Position::class) ?: return AiDetail.FULL
+    val seen = when {
+      players.anyWithinHorizontal(position.x, position.y, FULL_DETAIL_TILES) -> AiDetail.FULL
+      visibility.observersOf(id).isNotEmpty() -> AiDetail.REDUCED
+      else -> AiDetail.BACKGROUND
     }
 
-    return config.throttleFactor
+    val floor = if (world.has(id, AiThrottleable::class)) {
+      agent.minDetail
+    } else {
+      agent.minDetail.atLeast(AiDetail.REDUCED)
+    }
+
+    return seen.atLeast(floor)
+  }
+
+  /** How many times less often [agent]'s tier runs than full detail; 1 at full detail. */
+  fun factorOf(agent: AiAgent): Int {
+    return when (agent.detail) {
+      AiDetail.FULL -> 1
+      AiDetail.REDUCED -> config.throttleFactor
+      AiDetail.BACKGROUND -> config.backgroundFactor
+    }
   }
 
   private companion object {
     /**
-     * Tiles within which a throttleable creature still runs at full rate.
+     * Tiles within which a creature runs at full rate.
      *
      * Comfortably past what the camera shows - the spring arm reaches 36 m and the visible ground is on the
      * order of sixty tiles across - so a creature is already thinking normally before it can be looked at,
      * and the throttle is never something a player can see happening.
      */
-    const val FULL_FIDELITY_TILES = 96L
+    const val FULL_DETAIL_TILES = 96L
   }
 }

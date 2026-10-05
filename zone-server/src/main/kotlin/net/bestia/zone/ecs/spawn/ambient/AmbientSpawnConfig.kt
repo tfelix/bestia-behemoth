@@ -113,14 +113,17 @@ data class AmbientSpawnConfig(
   val siteCacheSize: Int = 200_000,
 
   /**
-   * How much less often an ambient creature perceives, senses and thinks.
+   * How many times less often an agent at `AiDetail.REDUCED` is processed: seen, but with no player near.
    *
-   * 1 disables throttling without a code change. Only ever applied to creatures this layer created: a den's
-   * pack, a boss, a `/spawn`ed mob and anything a player controls are never throttled, whatever this says.
+   * 1 disables it without a code change. Creatures this layer did not create - a den's pack, a boss, a
+   * `/spawn`ed mob - never drop below this tier, and anything a player controls is never slowed at all.
    */
   val throttleFactor: Int = 4,
 
-  /** AI profiles this layer refuses to throttle, for a species that needs full fidelity at any distance. */
+  /** How many times less often an agent nobody can see is processed; see `AiDetail.BACKGROUND`. */
+  val backgroundFactor: Int = 20,
+
+  /** AI profiles this layer never puts in the background tier, for a species that must stay sharp. */
   val neverThrottledProfiles: List<String> = emptyList()
 ) {
 
@@ -139,5 +142,6 @@ data class AmbientSpawnConfig(
     require(townClearanceTiles >= 0) { "town-clearance-tiles must not be negative" }
     require(siteCacheSize >= 1) { "site-cache-size must be at least 1, was $siteCacheSize" }
     require(throttleFactor >= 1) { "throttle-factor must be at least 1, was $throttleFactor" }
+    require(backgroundFactor >= 1) { "background-factor must be at least 1, was $backgroundFactor" }
   }
 }

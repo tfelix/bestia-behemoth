@@ -9,7 +9,7 @@ import net.bestia.zone.ecs.core.Component
  * client has no use for it.
  *
  * Absence is meaningful, exactly as with `DenMember`: a creature without this came from a den, a script, a
- * GM command or a player, and none of those may be torn down by [AmbientSpawnerSystem] or throttled by
- * `AiThrottle`. That is what makes the level-of-detail opt-in rather than a rule about distance.
+ * GM command or a player, and none of those may be torn down by [AmbientSpawnerSystem] or put in the
+ * background by `AiThrottle`. That is what makes the level of detail opt-in rather than a rule about distance.
  */
 data class Ambient(val cell: Long) : Component

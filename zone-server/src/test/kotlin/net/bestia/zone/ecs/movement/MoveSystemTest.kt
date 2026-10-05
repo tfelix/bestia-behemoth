@@ -207,4 +207,33 @@ class MoveSystemTest {
     assertEquals(1, position.x)
     assertEquals(137, position.z)
   }
+
+  @Test
+  fun `a coarse walker moves only on its turns, but gets just as far`() {
+    val world = testWorld(systems = listOf(MoveSystem(flat, GroundTrample.NONE)))
+
+    fun walker(coarseMovement: CoarseMovement? = null): Position {
+      val position = Position(0, 0, 100)
+      val id = world.create()
+      world.add(id, position)
+      world.add(id, Speed(4.0f))
+      world.add(id, Path(straightPath(6)))
+      coarseMovement?.let { world.add(id, it) }
+      return position
+    }
+
+    val fine = walker()
+    val coarse = walker(CoarseMovement(4))
+
+    var coarseMoves = 0
+    repeat(60) {
+      val before = coarse.x
+      world.tick(0.05f)
+      if (coarse.x != before) coarseMoves++
+    }
+
+    assertEquals(6L, fine.x)
+    assertEquals(6L, coarse.x, "the time between its turns is not lost")
+    assertTrue(coarseMoves <= 60 / 4 + 1, "it stepped on $coarseMoves ticks")
+  }
 }

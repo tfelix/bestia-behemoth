@@ -10,8 +10,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties
  * restart and none of them can cost a world.
  *
  * There is deliberately no throttle knob here. Townsfolk carry `AiThrottleable` from birth, and `AiThrottle`
- * reads one cadence for everything that opts in - `ambient-spawn.throttle-factor`. A second number would be
- * one this class could not actually apply.
+ * reads one set of factors for everything that opts in - `ambient-spawn.throttle-factor` and
+ * `background-factor`. A second set would be one this class could not actually apply.
  */
 @ConfigurationProperties(prefix = "townsfolk")
 data class TownsfolkResidencyConfig(

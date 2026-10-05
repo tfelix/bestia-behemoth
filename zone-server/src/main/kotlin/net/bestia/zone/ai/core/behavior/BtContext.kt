@@ -10,8 +10,8 @@ import net.bestia.zone.util.EntityId
  * [entityId], its live [memory] and the [state] snapshot the current plan was made from, plus the
  * frame [deltaTime] and where we are in the tick sequence.
  *
- * Leaves read/write ECS state directly through [world], which is already locked by the act system
- * running on the tick thread.
+ * Leaves read/write ECS state directly through [world]: the act system ticks them on the tick thread,
+ * which owns the world.
  *
  * ### Tick facts only — services arrive through the leaf
  *
@@ -35,4 +35,21 @@ class BtContext(
   val deltaTime: Float,
   val currentTick: Long,
   val tickRate: Int,
-)
+) {
+
+  /**
+   * The tick a waiting leaf may be left alone until; null when the running path needs every tick. Only the
+   * leaf that decided the tree's status counts, which is what the composites make sure of.
+   */
+  var wakeAt: Long? = null
+
+  /** Called by a leaf that is only waiting: nothing changes for it before [tick] unless its plan does. */
+  fun requestWake(tick: Long) {
+    wakeAt = minOf(wakeAt ?: tick, tick)
+  }
+
+  /** Ticks from now until [seconds] have passed, at least one. */
+  fun ticksFor(seconds: Float): Long {
+    return kotlin.math.ceil(seconds * tickRate).toLong().coerceAtLeast(1L)
+  }
+}
