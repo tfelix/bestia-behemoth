@@ -1,18 +1,15 @@
 package net.bestia.zone.socket
 
-import io.github.oshai.kotlinlogging.KotlinLogging
 import io.netty.buffer.ByteBufAllocator
 import net.bestia.zone.message.SMSG
 import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Component
 
 /**
- * Frames the envelope once and writes a retained duplicate of it to each channel.
+ * Frames the envelope once and writes it to each channel through [ChannelRegistry.writeFramed].
  *
- * A duplicate shares the parent's memory and carries its own reader index, so the fan-out is a refcount
- * increment per recipient rather than a copy - and the last write to complete releases the buffer. Nothing
- * downstream needs to know: the pipeline's outbound encoders both match on specific types, so a raw
- * `ByteBuf` passes through them and reaches the socket exactly as framed.
+ * Nothing downstream needs to know: the pipeline's outbound encoder matches on `Envelope`, so a raw `ByteBuf`
+ * passes through it and reaches the socket exactly as framed.
  */
 @Component
 @Profile("!no-socket")
@@ -37,34 +34,6 @@ class NettyChunkFanOut(
 
     val framed = EnvelopeFraming.frame(ByteBufAllocator.DEFAULT, message.toBnetEnvelope())
 
-    var written = 0
-    try {
-      for (accountId in accountIds) {
-        val channel = channelRegistry.getChannel(accountId)
-
-        if (channel == null || !channel.isActive) {
-          LOG.debug { "No active channel for account $accountId; skipping $message" }
-          continue
-        }
-
-        if (skipBusy && !channel.isWritable) {
-          LOG.debug { "Channel for account $accountId is not writable; skipping $message" }
-          continue
-        }
-
-        channel.writeAndFlush(framed.retainedDuplicate())
-        written++
-      }
-    } finally {
-      // Release the buffer this method owns. Each duplicate holds its own reference until its write
-      // completes, so the memory outlives this call exactly as long as it needs to.
-      framed.release()
-    }
-
-    return written
-  }
-
-  private companion object {
-    private val LOG = KotlinLogging.logger { }
+    return channelRegistry.writeFramed(accountIds, framed, skipBusy)
   }
 }
