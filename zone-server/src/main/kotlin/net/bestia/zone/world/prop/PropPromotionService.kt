@@ -8,6 +8,7 @@ import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.prop.PropPose
 import net.bestia.zone.ecs.prop.PropVitality
 import net.bestia.zone.ecs.prop.WorldObjectIdentity
+import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
 
@@ -39,11 +40,16 @@ class PropPromotionService(
   /**
    * Idempotent: an already-promoted entity (or an entity that was never a prop at all) is a cheap no-op.
    *
+   * A prop further than [reach] from [from] - where its actor stands - stays a prop. Its entity id is all a client
+   * has to send, and each promotion makes a full entity, so without this one player could promote every prop in
+   * the world.
+   *
    * @return true if [entityId] is now (or already was) a combat-capable entity; false if it is a static prop
-   *   that refuses promotion because its divergence is terminal (a claimed POI, a mined-out crystal) or not
-   *   yet regrown - in which case the caller proceeds exactly as it does for any other unresolvable target.
+   *   that refuses promotion because it is out of reach, or its divergence is terminal (a claimed POI, a
+   *   mined-out crystal) or not yet regrown - in which case the caller proceeds exactly as it does for any
+   *   other unresolvable target.
    */
-  fun promoteIfNeeded(world: World, entityId: EntityId): Boolean {
+  fun promoteIfNeeded(world: World, entityId: EntityId, from: Vec3L, reach: Long): Boolean {
     if (world.has(entityId, Position::class)) return true
 
     val identity = world.get(entityId, WorldObjectIdentity::class) ?: return true
@@ -51,6 +57,7 @@ class PropPromotionService(
 
     val pose = world.get(entityId, PropPose::class) ?: return false
     val vitality = world.get(entityId, PropVitality::class) ?: return false
+    if (pose.position.distance(from) > reach) return false
 
     world.add(entityId, Position.fromVec3(pose.position))
     world.add(entityId, Grounded)
@@ -67,7 +74,13 @@ class PropPromotionService(
     return true
   }
 
-  private companion object {
-    const val BASELINE_STAT = 1
+  companion object {
+    private const val BASELINE_STAT = 1
+
+    /**
+     * How far from its actor a prop may be named as a target: about the draw distance that
+     * `ChunkStreamConfig.viewRadiusChunks` is sized against, so a player can target whatever they see.
+     */
+    const val TARGETING_REACH = 200L
   }
 }
