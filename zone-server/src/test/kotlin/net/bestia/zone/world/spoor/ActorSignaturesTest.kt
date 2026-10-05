@@ -110,4 +110,14 @@ class ActorSignaturesTest {
 
     assertNull(master.nameToken)
   }
+
+  /** A spell effect drifting on a path is nothing a tracker names; asking again every tick would cost a lookup each. */
+  @Test
+  fun `something that is nothing is not asked about again until its refresh`() {
+    sut.remember(7, null, nowSecond = 0)
+
+    assertNull(sut.of(7))
+    assertFalse(sut.needsRefresh(7, nowSecond = 50))
+    assertTrue(sut.needsRefresh(7, nowSecond = config.refreshSeconds))
+  }
 }

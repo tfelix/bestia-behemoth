@@ -31,6 +31,13 @@ class ComponentStore<T : Component>(
 ) {
   private val dirtySink: DirtyFlag.Sink? = dirtyLog?.sinkFor(type)
 
+  /** For [Row.get], which finds its store by comparing these. */
+  @PublishedApi
+  internal val javaType: Class<T> = type.java
+
+  /** The store never shrinks below where it started, so a small store does not churn. */
+  private val minCapacity = initialCapacity
+
   private val sparse = Long2IntOpenHashMap(initialCapacity)
   private var entities = LongArray(initialCapacity)
 
@@ -41,6 +48,8 @@ class ComponentStore<T : Component>(
   private val pool: ArrayDeque<T>? = if (factory != null) ArrayDeque() else null
 
   val size: Int get() = count
+
+  internal val capacity: Int get() = entities.size
 
   fun has(entity: EntityId): Boolean {
     return sparse.containsKey(entity)
@@ -117,6 +126,9 @@ class ComponentStore<T : Component>(
       reset?.invoke(removed)
       pool.addLast(removed)
     }
+
+    // A crowd that left (a town emptied at night, a battle over) would otherwise pin its arrays forever.
+    if (entities.size > minCapacity && count < entities.size / 4) shrink()
     return removed
   }
 
@@ -135,6 +147,13 @@ class ComponentStore<T : Component>(
 
   private fun grow() {
     val newCap = entities.size * 2
+    entities = entities.copyOf(newCap)
+    components = components.copyOf(newCap)
+  }
+
+  /** Halves the arrays; at a quarter full there is room for the store to double again before it grows. */
+  private fun shrink() {
+    val newCap = maxOf(entities.size / 2, minCapacity)
     entities = entities.copyOf(newCap)
     components = components.copyOf(newCap)
   }

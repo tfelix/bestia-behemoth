@@ -54,4 +54,17 @@ class Long2IntOpenHashMapTest {
     }
     assertEquals(keys.size - toRemove.size, map.size)
   }
+
+  @Test
+  fun `a map that empties out shrinks and keeps the rest`() {
+    val map = Long2IntOpenHashMap(initialCapacity = 16)
+    (0L until 4_000L).forEach { map.put(it, it.toInt()) }
+    val peak = map.tableSize
+
+    (0L until 3_990L).forEach { map.remove(it) }
+
+    assertTrue(map.tableSize < peak / 4, "table stayed at ${map.tableSize}")
+    (3_990L until 4_000L).forEach { assertEquals(it.toInt(), map.get(it)) }
+    assertEquals(10, map.size)
+  }
 }

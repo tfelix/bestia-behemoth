@@ -16,6 +16,7 @@ import net.bestia.zone.ecs.movement.Speed
 import net.bestia.zone.geometry.Vec3L
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
 class EntitySnapshotBuilderTest {
@@ -89,5 +90,20 @@ class EntitySnapshotBuilderTest {
 
     assertEquals(3, snapshot.size, "visual, position and health - and nothing invented")
     assertTrue(snapshot.all { it.entityId == entity })
+  }
+
+  /** A crowd arriving in one chunk is seen by everyone holding it; the messages are built for the first. */
+  @Test
+  fun `one snapshot serves every viewer`() {
+    val world = testWorld()
+    val entity = world.createEntity { id ->
+      add(id, Position(1, 0, 0))
+      add(id, EntityVisual(VisualKind.BESTIA, 1L))
+    }
+
+    val snapshot = world.read { builder.snapshotOf(this, entity) }
+
+    assertEquals(world.read { builder.build(this, entity, observer) }.map { it::class }, snapshot.visibleTo(observer).map { it::class })
+    assertSame(snapshot.visibleTo(observer).first(), snapshot.visibleTo(99L).first())
   }
 }

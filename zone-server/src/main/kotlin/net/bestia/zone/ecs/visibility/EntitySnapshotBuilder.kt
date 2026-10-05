@@ -52,30 +52,42 @@ class EntitySnapshotBuilder {
    * @param accountId who is being told. Decides which components are included: this is the whole of the
    *   filtering, so a snapshot cannot leak another player's inventory.
    */
-  fun build(world: World, entityId: EntityId, accountId: AccountId): List<EntitySMSG> =
-    orderedTypes.mapNotNull { type ->
-      val component = world.get(entityId, type) as? Dirtyable ?: return@mapNotNull null
-
-      if (!isVisibleTo(world, entityId, accountId, component)) return@mapNotNull null
-
-      component.toEntityMessage(entityId)
-    }
+  fun build(world: World, entityId: EntityId, accountId: AccountId): List<EntitySMSG> {
+    return snapshotOf(world, entityId).visibleTo(accountId)
+  }
 
   /**
-   * [SyncTargets.OwnerOnly] is excluded even for the owner's own entity.
+   * Every message an entity's snapshot can contain, with who may see each. Built once and filtered per
+   * viewer, because a crowd arriving in one chunk is seen by everyone who holds it.
    *
-   * The observer holds their own chunk from login onwards and re-holds it after every teleport, so an
-   * owner-only component here would be re-delivered on each of those - and a re-delivered `LogoutIntent`
-   * restarts the client's logout countdown. `GetSelfHandler.resyncOwnerComponents` owns that channel.
+   * [SyncTargets.OwnerOnly] is left out even for the owner's own entity. The observer holds their own chunk
+   * from login onwards and re-holds it after every teleport, so an owner-only component here would be
+   * re-delivered on each of those - and a re-delivered `LogoutIntent` restarts the client's logout
+   * countdown. `GetSelfHandler.resyncOwnerComponents` owns that channel.
    */
-  private fun isVisibleTo(
-    world: World,
-    entityId: EntityId,
-    accountId: AccountId,
-    component: Dirtyable
-  ): Boolean = when (val targets = component.syncTargets(world, entityId)) {
-    is SyncTargets.PublicInRange -> true
-    is SyncTargets.Accounts -> accountId in targets.accountIds
-    is SyncTargets.OwnerOnly -> false
+  fun snapshotOf(world: World, entityId: EntityId): Snapshot {
+    val entries = orderedTypes.mapNotNull { type ->
+      val component = world.get(entityId, type) as? Dirtyable ?: return@mapNotNull null
+
+      val targets = component.syncTargets(world, entityId)
+      if (targets is SyncTargets.OwnerOnly) return@mapNotNull null
+
+      targets to component.toEntityMessage(entityId)
+    }
+    return Snapshot(entries)
+  }
+
+  class Snapshot internal constructor(private val entries: List<Pair<SyncTargets, EntitySMSG>>) {
+
+    fun visibleTo(accountId: AccountId): List<EntitySMSG> {
+      return entries.mapNotNull { (targets, message) ->
+        val visible = when (targets) {
+          is SyncTargets.PublicInRange -> true
+          is SyncTargets.Accounts -> accountId in targets.accountIds
+          is SyncTargets.OwnerOnly -> false
+        }
+        if (visible) message else null
+      }
+    }
   }
 }

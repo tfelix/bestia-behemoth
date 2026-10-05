@@ -15,7 +15,8 @@ class Long2IntOpenHashMap(
   initialCapacity: Int = 16,
   private val loadFactor: Float = 0.7f,
 ) {
-  private var keys = LongArray(tableSizeFor(initialCapacity))
+  private val minTableSize = tableSizeFor(initialCapacity)
+  private var keys = LongArray(minTableSize)
   private var values = IntArray(keys.size)
   private var used = BooleanArray(keys.size)
   private var mask = keys.size - 1
@@ -23,6 +24,8 @@ class Long2IntOpenHashMap(
 
   var size: Int = 0
     private set
+
+  internal val tableSize: Int get() = keys.size
 
   private fun slotFor(key: Long): Int {
     var i = spread(key) and mask
@@ -49,7 +52,7 @@ class Long2IntOpenHashMap(
     keys[i] = key
     values[i] = value
     size++
-    if (size >= threshold) resize()
+    if (size >= threshold) resize(keys.size shl 1)
     return ABSENT
   }
 
@@ -75,6 +78,9 @@ class Long2IntOpenHashMap(
     }
     used[last] = false
     size--
+
+    // Shrinks well below the grow threshold, so a size hovering near one boundary does not rehash each time.
+    if (keys.size > minTableSize && size < keys.size / 8) resize(keys.size shr 1)
     return old
   }
 
@@ -83,11 +89,10 @@ class Long2IntOpenHashMap(
     size = 0
   }
 
-  private fun resize() {
+  private fun resize(newSize: Int) {
     val oldKeys = keys
     val oldValues = values
     val oldUsed = used
-    val newSize = keys.size shl 1
     keys = LongArray(newSize)
     values = IntArray(newSize)
     used = BooleanArray(newSize)

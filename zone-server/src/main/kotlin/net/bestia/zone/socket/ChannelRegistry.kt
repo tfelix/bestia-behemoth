@@ -78,7 +78,8 @@ class ChannelRegistry(
   override fun sendMessage(playerId: Long, outMessage: SMSG) {
     val channel = getChannel(playerId)
     if (channel == null || !channel.isActive) {
-      LOG.warn { "No active channel for player $playerId found" }
+      // Routine for an account that just left: whatever the tick was sending it still arrives here.
+      LOG.debug { "No active channel for player $playerId found" }
       return
     }
 
@@ -96,7 +97,7 @@ class ChannelRegistry(
 
     val channel = getChannel(playerId)
     if (channel == null || !channel.isActive) {
-      LOG.warn { "No active channel for player $playerId found" }
+      LOG.debug { "No active channel for player $playerId found" }
       return
     }
 

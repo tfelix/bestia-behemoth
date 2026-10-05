@@ -333,11 +333,26 @@ class ChunkStreamSystem(
       val previous = subscriptions.anchorOf(accountId)
       subscriptions.setAnchor(accountId, anchor)
 
-      // Run every tick, not only when the anchor moves. The desired set can grow while a player stands still,
-      // because the slab budget may not have been able to afford the whole view volume yet.
-      sendManifest(accountId, anchor, reset = previous == null, budget = budget)
+      // Considered every tick, not only when the anchor moves: the desired set can grow while a player stands
+      // still, because the slab budget may not have afforded the whole view volume yet, or somebody dug. When
+      // neither can have happened since a manifest that settled everything, there is nothing to recompute.
+      val basis = ManifestBasis(anchor, chunkService.slabEpoch)
+      if (previous != null && settledManifests[accountId] == basis) continue
+
+      val settled = sendManifest(accountId, anchor, reset = previous == null, budget = budget)
+      if (settled) settledManifests[accountId] = basis else settledManifests.remove(accountId)
     }
   }
+
+  /** What an account's last manifest was computed from, when it left nothing outstanding. */
+  private data class ManifestBasis(val anchor: ChunkPos, val slabEpoch: Long)
+
+  private val settledManifests = HashMap<Long, ManifestBasis>()
+
+  /** Desired sets computed so far; flat while every player stands still, which a test pins. */
+  val manifestComputations: Long get() = manifestsComputed
+
+  private var manifestsComputed = 0L
 
   /** A tick's allowance of expensive slab computations. Mutable on purpose; one instance, shared. */
   private class Budget(var remaining: Int) {
@@ -355,9 +370,12 @@ class ChunkStreamSystem(
    *   session and only then. A teleport gets an amendment: the old view's columns fall outside the radius and
    *   are withdrawn by the ordinary rule, whereas a replacement is bounded by this tick's slab budget and would
    *   have the client discard terrain the manifest had no room to re-list.
+   * @return true when the client now holds the whole desired set: every column was costed and the manifest,
+   *   if one was needed, went out.
    */
-  private fun sendManifest(accountId: Long, anchor: ChunkPos, reset: Boolean, budget: Budget) {
-    val desired = desiredChunks(anchor, budget)
+  private fun sendManifest(accountId: Long, anchor: ChunkPos, reset: Boolean, budget: Budget): Boolean {
+    manifestsComputed++
+    val (desired, complete) = desiredChunks(anchor, budget)
     val held = subscriptions.announcedTo(accountId)
 
     val added = if (reset) desired.toList() else desired.filterNot { it in held }
@@ -373,7 +391,7 @@ class ChunkStreamSystem(
       held.filterNot { it in desired || (it.x to it.y) in viewColumns }
     }
 
-    if (added.isEmpty() && removed.isEmpty() && !reset) return
+    if (added.isEmpty() && removed.isEmpty() && !reset) return complete
 
     val refs = added.map { ChunkManifestSMSG.Ref(it, chunkService.revisionOf(it)) }
 
@@ -382,7 +400,7 @@ class ChunkStreamSystem(
     // again and the client holds a hole for the rest of the session.
     if (!fanOut.sendTo(accountId, ChunkManifestSMSG(reset = reset, added = refs, removed = removed))) {
       LOG.debug { "Manifest for $accountId could not be written; leaving its subscription untouched" }
-      return
+      return false
     }
 
     subscriptions.applyManifest(accountId, added, removed, reset)
@@ -409,6 +427,7 @@ class ChunkStreamSystem(
     LOG.debug {
       "Manifest for $accountId at $anchor: ${added.size} added, ${removed.size} removed, reset=$reset"
     }
+    return complete
   }
 
   /**
@@ -449,17 +468,12 @@ class ChunkStreamSystem(
    * against was clipped away offers something that draws nothing, and insertion order here becomes send order,
    * so a floor has to go out before what draws against it.
    */
-  private fun desiredChunks(anchor: ChunkPos, budget: Budget): Set<ChunkPos> {
-    val radius = settings.viewRadiusChunks
+  private fun desiredChunks(anchor: ChunkPos, budget: Budget): Desired {
     val vertical = settings.viewRadiusChunksVertical
     val desired = LinkedHashSet<ChunkPos>()
+    var complete = true
 
-    // Nearest first, so the send queue is already in the order a player wants it - and so a budget that runs
-    // out spends what it had on the ground closest to them.
-    val offsets = (-radius..radius).flatMap { dy -> (-radius..radius).map { dx -> dx to dy } }
-      .sortedBy { (dx, dy) -> dx * dx + dy * dy }
-
-    for ((dx, dy) in offsets) {
+    for ((dx, dy) in viewOffsets) {
       val column = ChunkPos(anchor.x + dx, anchor.y + dy, anchor.z)
       val isAnchorColumn = dx == 0 && dy == 0
 
@@ -468,13 +482,29 @@ class ChunkStreamSystem(
       val slabs = chunkService.cachedSlabsOf(column)
         ?: if (isAnchorColumn || budget.trySpend()) chunkService.surfaceSlabsOf(column) else null
 
-      if (slabs == null) continue
+      if (slabs == null) {
+        complete = false
+        continue
+      }
 
       ChunkCoords.offeredSlabs(slabs, anchor.z, vertical)
         .forEach { desired.add(chunkService.normalise(ChunkPos(column.x, column.y, it))) }
     }
 
-    return desired
+    return Desired(desired, complete)
+  }
+
+  /** [complete] is false when the budget left a column of the view uncosted. */
+  private data class Desired(val chunks: Set<ChunkPos>, val complete: Boolean)
+
+  /**
+   * The view's column offsets, nearest first, so the send queue is already in the order a player wants it -
+   * and so a budget that runs out spends what it had on the ground closest to them. The same for every player.
+   */
+  private val viewOffsets: List<Pair<Int, Int>> = run {
+    val radius = settings.viewRadiusChunks
+    (-radius..radius).flatMap { dy -> (-radius..radius).map { dx -> dx to dy } }
+      .sortedBy { (dx, dy) -> dx * dx + dy * dy }
   }
 
   /**
@@ -673,6 +703,8 @@ class ChunkStreamSystem(
     subscriptions.forget(accountId)
     inbox.forget(accountId)
     queued.remove(accountId)
+    tokens.remove(accountId)
+    settledManifests.remove(accountId)
   }
 
   // ---------------------------------------------------------------- step 6
