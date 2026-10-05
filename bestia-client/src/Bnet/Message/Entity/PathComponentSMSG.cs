@@ -45,7 +45,7 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
         StartOffset = protoPath.StartOffset
       };
 
-      foreach (var pathPoint in protoPath.Path)
+      foreach (var pathPoint in DeltaPathConvert.Decode(protoPath.Path))
       {
         pathComponent.Path.Add(ToGodot(pathPoint));
       }

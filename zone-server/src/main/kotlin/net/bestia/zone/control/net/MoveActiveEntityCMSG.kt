@@ -1,6 +1,7 @@
 package net.bestia.zone.control.net
 
 import net.bestia.bnet.proto.MoveActiveEntityProto
+import net.bestia.zone.geometry.DeltaPaths
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.CMSG
 
@@ -17,7 +18,7 @@ data class MoveActiveEntityCMSG(
     ): MoveActiveEntityCMSG {
       return MoveActiveEntityCMSG(
         accountId,
-        moveActiveEntity.pathList.map { Vec3L(it.x, it.y, it.z) },
+        DeltaPaths.decode(moveActiveEntity.path),
         moveActiveEntity.append
       )
     }

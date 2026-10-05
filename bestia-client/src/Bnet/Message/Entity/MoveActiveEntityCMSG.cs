@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Bnet;
 using Godot;
 
@@ -20,11 +21,17 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
 
     public override Envelope ToEnvelope()
     {
-      var moveActiveEntity = new global::Bnet.MoveActiveEntity { Append = Append };
+      var steps = new List<global::Bnet.Vec3>();
       foreach (var point in Path)
       {
-        moveActiveEntity.Path.Add(Vec3Convert.ToProto(point));
+        steps.Add(Vec3Convert.ToProto(point));
       }
+
+      var moveActiveEntity = new global::Bnet.MoveActiveEntity
+      {
+        Path = DeltaPathConvert.Encode(steps),
+        Append = Append
+      };
 
       return new Envelope
       {

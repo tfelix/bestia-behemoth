@@ -3,6 +3,7 @@ package net.bestia.zone.movement.ecs
 import net.bestia.bnet.proto.PathComponentSMSGProto
 import net.bestia.bnet.proto.Vec3OuterClass
 import net.bestia.bnet.proto.StateBatchSmsgProto
+import net.bestia.zone.geometry.DeltaPaths
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.EntitySMSG
 
@@ -23,8 +24,11 @@ data class PathSMSG(
 ) : EntitySMSG {
   override fun writeTo(update: StateBatchSmsgProto.EntityUpdate.Builder) {
     val pathComp = PathComponentSMSGProto.PathComponentSMSG.newBuilder()
-      .addAllPath(path.map { it.toProto() })
       .setStartOffset(startOffset)
+
+    if (path.isNotEmpty()) {
+      pathComp.setPath(DeltaPaths.encode(path))
+    }
 
     stopPosition?.let { pathComp.setStopPosition(it.toProto()) }
 

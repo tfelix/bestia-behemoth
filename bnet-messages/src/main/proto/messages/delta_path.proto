@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package bnet;
+
+import "messages/vec3.proto";
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "DeltaPathProto";
+
+/**
+ * A path of tile steps. Each step is next to the one before it, so after the first waypoint it is sent as the
+ * difference to the previous one, three small numbers instead of three coordinates.
+ */
+message DeltaPath {
+  Vec3 first = 1;
+  // dx, dy, dz of each following waypoint, in that order.
+  repeated sint32 deltas = 2;
+}

@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package bnet;
 
+import "messages/delta_path.proto";
 import "messages/vec3.proto";
 
 option java_package = "net.bestia.bnet.proto";
@@ -20,7 +21,8 @@ option java_outer_classname = "PathComponentSMSGProto";
  */
 message PathComponentSMSG {
   reserved 1; // entity_id, now on EntityUpdate
-  repeated Vec3 path = 2;
+  reserved 2; // the path as absolute waypoints, now `path` below
+  DeltaPath path = 5;
   /**
    * Where the entity actually stands, set only on a stop (empty `path`) and only once it has taken
    * at least one step - a path removed before the first step leaves the entity where the client
