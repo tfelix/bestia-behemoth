@@ -12,6 +12,9 @@ zone:
   # during deployment. This hard coded value is for development purposes.
   shard-id: 1
   party-name-max-length: 20
+  # A kicked account's login tokens issued before the kick stay refused this long. Must outlast login-server's
+  # `jwt.login-token-minutes`.
+  kick-memory-seconds: 300
 
 persistence:
   initial-delay-ms: 90000

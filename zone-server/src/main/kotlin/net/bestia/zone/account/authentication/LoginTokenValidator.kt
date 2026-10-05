@@ -8,6 +8,7 @@ import net.bestia.zone.ZoneConfig
 import net.bestia.zone.account.authentication.JwtLoginException
 import org.springframework.stereotype.Component
 import java.nio.charset.StandardCharsets
+import java.util.Date
 import javax.crypto.SecretKey
 
 @Component
@@ -27,7 +28,8 @@ class LoginTokenValidator(
   data class LoginTokenClaims(
     val accountId: Long,
     val role: Role,
-    val authorities: Set<Authority>
+    val authorities: Set<Authority>,
+    val issuedAt: Date
   )
 
   fun validateLoginToken(token: String): LoginTokenClaims {
@@ -57,6 +59,7 @@ class LoginTokenValidator(
 
       val tokenId = claims.id ?: throw JwtLoginException("Missing token id")
       val expiresAt = claims.expiration ?: throw JwtLoginException("Missing expiry")
+      val issuedAt = claims.issuedAt ?: throw JwtLoginException("Missing issue time")
       if (!usedTokenIds.acceptOnce(tokenId, expiresAt)) {
         throw JwtLoginException("Token already used")
       }
@@ -64,7 +67,8 @@ class LoginTokenValidator(
       return LoginTokenClaims(
         accountId = claims.subject.toLong(),
         role = role,
-        authorities = role.authorities
+        authorities = role.authorities,
+        issuedAt = issuedAt
       )
     } catch (e: JwtLoginException) {
       throw e
