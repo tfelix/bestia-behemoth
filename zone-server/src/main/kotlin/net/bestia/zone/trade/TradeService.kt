@@ -253,12 +253,29 @@ class TradeService(
       return
     }
 
-    synchronized(session) {
-      side.offer += reserved
-      session.clearReadiness()
+    val recorded = synchronized(session) {
+      if (session.status == TradeStatus.OPEN) {
+        side.offer += reserved
+        session.clearReadiness()
+        true
+      } else {
+        false
+      }
+    }
+
+    if (!recorded) {
+      // A cancel ended the trade while the item was being reserved, and gave back only the lines it could see.
+      giveBack(side, session.tradeId, reserved)
+      return
     }
 
     pushState(session)
+  }
+
+  /** Null from the release means the cancel got to this line after all, and gave it back itself. */
+  private fun giveBack(side: TradeSession.Side, tradeId: Long, reserved: ReservedItem) {
+    val released = inventoryService.releaseTradeReservation(side.masterId, tradeId, reserved.offerSlotId) ?: return
+    grantToLive(side.entityId, listOf(released))
   }
 
   /** Takes one line back out of the caller's own offer. */
