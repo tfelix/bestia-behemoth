@@ -59,9 +59,8 @@ class SkillExecutionService(
    * a handler's scope is as long as the handler makes it; `ActivateSkillHandler` calls this outside its
    * `modify` block for that reason.
    *
-   * A waiting worker is one of four in a pool shared with `ZoneEngine`'s outbound broadcasts, so a cast
-   * queued mid-tick does cost the pool a worker for the rest of that tick. It cannot deadlock: nothing ever
-   * waits on a submitted job.
+   * A waiting worker is one of four in the DB pool, so a cast queued mid-tick holds that worker for the rest
+   * of the tick. It cannot deadlock: nothing ever waits on a submitted job.
    */
   fun execute(
     world: WorldView,

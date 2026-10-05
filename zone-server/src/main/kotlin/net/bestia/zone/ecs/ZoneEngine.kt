@@ -6,7 +6,6 @@ import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.account.Account
 import net.bestia.zone.ecs.account.ActivePlayer
 import net.bestia.zone.ecs.battle.damage.Dead
-import net.bestia.zone.ecs.core.AsyncJobExecutor
 import net.bestia.zone.ecs.core.Dirtyable
 import net.bestia.zone.ecs.core.RateLimitedLog
 import net.bestia.zone.ecs.core.Removable
@@ -23,6 +22,7 @@ import net.bestia.zone.entity.VanishEntitySMSG
 import net.bestia.zone.message.EntitySMSG
 import net.bestia.zone.message.SMSG
 import net.bestia.zone.message.OutMessageProcessor
+import net.bestia.zone.message.TickOutbox
 import org.springframework.stereotype.Service
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.Executors
@@ -43,8 +43,8 @@ import kotlin.collections.iterator
  *  - **domain events**: it drains the world outbox ([ZoneEvent]s emitted by systems, e.g. death)
  *    and performs their side effects (loot spawn, vanish broadcast).
  *
- * Network sends and loot spawns are offloaded to a small worker pool so the tick thread never blocks
- * on them, mirroring the previous `queueExternalJob` behaviour.
+ * Everything a tick sends is collected in the [TickOutbox] and leaves as one batch per account when the
+ * tick ends; `channel.write` does not block, so the tick never waits on the network.
  */
 @Service
 class ZoneEngine(
@@ -53,7 +53,7 @@ class ZoneEngine(
   private val entityAOIService: EntityAOIService,
   private val playerAOIService: ActivePlayerAOIService,
   private val outMessageProcessor: OutMessageProcessor,
-  private val asyncJobExecutor: AsyncJobExecutor,
+  private val outbox: TickOutbox,
   private val entityVisibility: EntityVisibility,
   private val snapshotBuilder: EntitySnapshotBuilder,
 ) {
@@ -209,24 +209,21 @@ class ZoneEngine(
     }
   }
 
-  /** Runs [action] on the shared [AsyncJobExecutor] pool (network sends, loot spawn, ...). */
-  fun queueExternalJob(action: () -> Unit) {
-    asyncJobExecutor.submit(action)
-  }
-
   /**
    * Ticks the world once and flushes; exposed for manual/in-process driving (e.g. tests) without
    * the background loop.
    */
   fun tickOnce(deltaTime: Float) {
-    val started = System.nanoTime()
-    world.tick(deltaTime)
+    outbox.collect {
+      val started = System.nanoTime()
+      world.tick(deltaTime)
 
-    val ticked = System.nanoTime()
-    syncDirtyComponents()
+      val ticked = System.nanoTime()
+      syncDirtyComponents()
 
-    lastWorldTickMs = (ticked - started) / 1_000_000
-    lastSyncMs = (System.nanoTime() - ticked) / 1_000_000
+      lastWorldTickMs = (ticked - started) / 1_000_000
+      lastSyncMs = (System.nanoTime() - ticked) / 1_000_000
+    }
   }
 
   private fun syncDirtyComponents() {
@@ -318,11 +315,11 @@ class ZoneEngine(
 
     if (broadcastMsgs.isNotEmpty()) {
       publicAudienceOf(entityId).forEach { accountId ->
-        asyncJobExecutor.submit(key = accountId) { outMessageProcessor.sendToPlayer(accountId, broadcastMsgs) }
+        outMessageProcessor.sendToPlayer(accountId, broadcastMsgs)
       }
     }
     byAccountMsgs.forEach { (accountId, msgs) ->
-      asyncJobExecutor.submit(key = accountId) { outMessageProcessor.sendToPlayer(accountId, msgs) }
+      outMessageProcessor.sendToPlayer(accountId, msgs)
     }
   }
 
@@ -366,9 +363,7 @@ class ZoneEngine(
 
       if (withVanishes.isEmpty()) continue
 
-      asyncJobExecutor.submit(key = delivery.accountId) {
-        outMessageProcessor.sendToPlayer(delivery.accountId, withVanishes)
-      }
+      outMessageProcessor.sendToPlayer(delivery.accountId, withVanishes)
     }
   }
 
@@ -385,16 +380,16 @@ class ZoneEngine(
 
       when (val targets = record.targets) {
         is SyncTargets.PublicInRange -> publicAudienceOf(record.entityId).forEach { accountId ->
-          asyncJobExecutor.submit(key = accountId) { outMessageProcessor.sendToPlayer(accountId, msg) }
+          outMessageProcessor.sendToPlayer(accountId, msg)
         }
 
         is SyncTargets.OwnerOnly -> {
           val owner = world.get(record.entityId, Account::class)?.accountId ?: continue
-          asyncJobExecutor.submit(key = owner) { outMessageProcessor.sendToPlayer(owner, msg) }
+          outMessageProcessor.sendToPlayer(owner, msg)
         }
 
         is SyncTargets.Accounts -> targets.accountIds.forEach { accountId ->
-          asyncJobExecutor.submit(key = accountId) { outMessageProcessor.sendToPlayer(accountId, msg) }
+          outMessageProcessor.sendToPlayer(accountId, msg)
         }
       }
     }
@@ -416,11 +411,11 @@ class ZoneEngine(
 
     when (targets) {
       is SyncTargets.PublicInRange -> publicAudienceOf(entityId).forEach { accountId ->
-        asyncJobExecutor.submit(key = accountId) { outMessageProcessor.sendToPlayer(accountId, msg) }
+        outMessageProcessor.sendToPlayer(accountId, msg)
       }
 
       is SyncTargets.Accounts -> targets.accountIds.forEach { accountId ->
-        asyncJobExecutor.submit(key = accountId) { outMessageProcessor.sendToPlayer(accountId, msg) }
+        outMessageProcessor.sendToPlayer(accountId, msg)
       }
 
       is SyncTargets.OwnerOnly -> Unit // never produced by mergeSyncTargets, kept for exhaustiveness

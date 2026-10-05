@@ -68,7 +68,6 @@ class CraftingFixture(
   /** Runs submitted jobs immediately, so a test can assert the durable side without waiting on a thread. */
   val asyncJobExecutor = mockk<AsyncJobExecutor>().also { executor ->
     every { executor.submit(any<Long>(), any()) } answers { secondArg<() -> Unit>().invoke() }
-    every { executor.submit(any()) } answers { firstArg<() -> Unit>().invoke() }
   }
 
   val bonuses: MasterCraftBonusService

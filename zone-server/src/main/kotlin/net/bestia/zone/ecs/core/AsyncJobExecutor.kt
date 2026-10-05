@@ -3,23 +3,16 @@ package net.bestia.zone.ecs.core
 import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.annotation.PreDestroy
 import org.springframework.stereotype.Service
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
+import java.util.concurrent.ArrayBlockingQueue
+import java.util.concurrent.RejectedExecutionException
+import java.util.concurrent.ThreadPoolExecutor
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
-import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicLong
 
 /**
- * Generic off-tick-thread job runner for [System]s that need to kick off fast, immediate work
- * (typically a DB write) without blocking the ECS tick thread and without waiting for a
- * periodic sync cycle (see [net.bestia.zone.ecs.persistence.EntityPersistenceService], which is
- * fine for routine snapshotting but too slow for "this must be durable right away" writes like
- * granting a looted item). Inject this directly into a system, the same way systems already
- * inject other Spring services (e.g. `ItemRepository`).
- *
- * This is the same pool [net.bestia.zone.ecs.ZoneEngine] uses for its own fire-and-forget work
- * (network sends, ...) - there is a single shared "do this now, off-thread" pool for all of
- * zone-server rather than one per subsystem.
+ * Runs database and other blocking work off the tick thread. Network sends never come here: they leave
+ * through the tick's outbox, so a slow query cannot delay anybody's packets.
  *
  * ### Ordering
  * A job submitted with a [submit] `key` is guaranteed to never run concurrently with another job
@@ -28,32 +21,57 @@ import java.util.concurrent.atomic.AtomicInteger
  * shared state - e.g. two loots racing to persist the same master's DB inventory row would
  * otherwise be able to interleave into a lost update. Jobs with different keys may run fully in
  * parallel. Always key by a stable domain id (e.g. a masterId or accountId), never by a transient
- * ECS entity id. Use the keyless [submit] overload only for jobs with no ordering requirement
- * against anything else.
+ * ECS entity id.
+ *
+ * ### Bounded
+ * Each worker queues at most [queueCapacity] jobs. A job that does not fit is dropped and counted rather
+ * than run on the caller, because the caller is usually the tick, and the tick must never wait on the DB.
  */
 @Service
 class AsyncJobExecutor(
   workerCount: Int = 4,
+  private val queueCapacity: Int = 2048,
 ) {
-  private val workers: List<ExecutorService> = List(workerCount) { i ->
-    Executors.newSingleThreadExecutor { r ->
+  private val workers: List<ThreadPoolExecutor> = List(workerCount) { i ->
+    ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, ArrayBlockingQueue(queueCapacity)) { r ->
       Thread({
         ON_WORKER.set(true)
         r.run()
-      }, "zone-async-job-$i")
+      }, "zone-db-job-$i")
     }
   }
 
-  private val roundRobin = AtomicInteger(0)
+  private val rejected = AtomicLong()
+  private val rejectionLog = RateLimitedLog()
+  private val backlogLog = RateLimitedLog(intervalMillis = 10_000L)
+
+  /** Jobs waiting on all workers right now. */
+  val pendingJobs: Int
+    get() {
+      return workers.sumOf { it.queue.size }
+    }
+
+  /** Jobs dropped since start because their worker's queue was full. */
+  val rejectedJobs: Long
+    get() {
+      return rejected.get()
+    }
 
   /** Runs [job] on a background worker, keeping jobs sharing [key] strictly ordered. */
   fun submit(key: Any, job: () -> Unit) {
-    workerFor(key.hashCode()).submit { runSafely(job) }
-  }
+    val worker = workerFor(key.hashCode())
 
-  /** Runs [job] on a background worker with no ordering guarantee against any other job. */
-  fun submit(job: () -> Unit) {
-    workerFor(roundRobin.getAndIncrement()).submit { runSafely(job) }
+    try {
+      worker.execute { runSafely(job) }
+    } catch (_: RejectedExecutionException) {
+      val total = rejected.incrementAndGet()
+      rejectionLog.emit { held -> LOG.error { "DB job for $key dropped, its queue is full ($total dropped so far, +$held)" } }
+      return
+    }
+
+    if (worker.queue.size > queueCapacity / 2) {
+      backlogLog.emit { _ -> LOG.warn { "DB jobs are backing up: $pendingJobs waiting" } }
+    }
   }
 
   /**
@@ -67,15 +85,20 @@ class AsyncJobExecutor(
       workerFor(key.hashCode()).submit {}.get(timeoutSeconds, TimeUnit.SECONDS)
     } catch (_: TimeoutException) {
       LOG.warn { "Jobs for $key did not finish within $timeoutSeconds s; going on without them" }
+    } catch (_: RejectedExecutionException) {
+      LOG.warn { "Could not wait for the jobs of $key, the queue is full; going on without them" }
     }
   }
 
-  private fun workerFor(hash: Int): ExecutorService = workers[(hash and Int.MAX_VALUE) % workers.size]
+  private fun workerFor(hash: Int): ThreadPoolExecutor {
+    return workers[(hash and Int.MAX_VALUE) % workers.size]
+  }
 
   private fun runSafely(job: () -> Unit) {
     try {
       job()
-    } catch (e: Exception) {
+    } catch (e: Throwable) {
+      if (e.isFatal()) throw e
       LOG.error(e) { "Async job failed: ${e.message}" }
     }
   }
