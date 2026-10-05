@@ -60,6 +60,21 @@ data class Equipment(
   fun isWorn(uniqueId: Long): Boolean = uniqueId != 0L && worn.values.any { it.uniqueId == uniqueId }
 
   /**
+   * Whether a copy of [itemId] - the one named by [uniqueId], or any when that is 0 - can leave [inventory]
+   * without taking worn gear along. Equipping writes the database later, so only this component knows a piece
+   * was just put on. Worn copies are counted per template, because one worn since its loot still reads id 0.
+   */
+  fun leavesUnwornCopy(inventory: Inventory, itemId: Long, uniqueId: Long): Boolean {
+    val copies = inventory.getItems().filter { it.itemId == itemId }
+
+    if (uniqueId != 0L) {
+      return copies.any { it.uniqueId == uniqueId && !it.equipped } && !isWorn(uniqueId)
+    }
+
+    return copies.any { it.isStackable } || copies.size > worn.values.count { it.itemId == itemId }
+  }
+
+  /**
    * Puts [item] into [slot]. Returns false without changing anything if the entity has no such slot
    * or it is already occupied - the caller is expected to have asked
    * [net.bestia.zone.item.equip.EquipmentService] first, this is only the last structural guard.

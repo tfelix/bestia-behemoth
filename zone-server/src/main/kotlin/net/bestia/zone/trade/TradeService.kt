@@ -10,6 +10,7 @@ import net.bestia.zone.ecs.account.Account
 import net.bestia.zone.ecs.core.AsyncJobExecutor
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
+import net.bestia.zone.ecs.item.Equipment
 import net.bestia.zone.ecs.item.Inventory
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.trade.Trading
@@ -218,6 +219,11 @@ class TradeService(
 
     val reserved = world.modify(side.entityId) { id ->
       val inventory = get(id, Inventory::class) ?: return@modify null
+
+      if (get(id, Equipment::class)?.leavesUnwornCopy(inventory, itemId, uniqueId) == false) {
+        LOG.warn { "Trade $tradeId: master ${side.masterId} offered item $itemId it is wearing" }
+        return@modify null
+      }
 
       val reserved = inventoryService.reserveForTrade(side.masterId, tradeId, itemId, uniqueId, amount)
         ?: return@modify null

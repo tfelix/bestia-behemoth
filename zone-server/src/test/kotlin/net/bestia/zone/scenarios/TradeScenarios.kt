@@ -5,10 +5,12 @@ import net.bestia.zone.account.master.MasterRepository
 import net.bestia.zone.account.master.findByIdOrThrow
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
+import net.bestia.zone.ecs.item.Equipment
 import net.bestia.zone.ecs.item.Inventory
 import net.bestia.zone.ecs.item.ObtainItemIntent
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.item.ItemRepository
+import net.bestia.zone.item.equip.EquipmentSlot
 import net.bestia.zone.item.findByIdentifierOrThrow
 import net.bestia.zone.mocks.GameClientMock
 import net.bestia.zone.message.OperationErrorSMSG
@@ -358,5 +360,37 @@ class TradeScenarios : BestiaNoSocketScenario() {
     // Put them back so a later test in this shared context still finds them next to each other.
     world.modify(entityOf(player2)) { id -> get(id, Position::class)!!.x = hereBefore.x }
     assertNull(clientPlayer1.tryGetLastReceived(TradeRequestSMSG::class))
+  }
+
+  /**
+   * Equipping changes the live Equipment first and writes the database later, so a piece worn a moment ago is
+   * still free in the container. Offering it would hand it over while its stats stay on the wearer.
+   */
+  @Test
+  @Order(9)
+  fun `worn gear cannot be offered`() {
+    val boots = itemRepository.findByIdentifierOrThrow("boots").id
+    grant(player1, boots, 1)
+    val uniqueId = TransactionTemplate(transactionManager).execute {
+      masterRepository.findByIdOrThrow(connectionInfoService.getMasterId(player1)).container.slots
+        .first { it.isFree && it.template.id == boots }.uniqueId
+    }!!
+    // What the live inventory looks like after a relog, then what EquipItemHandler does live before its write.
+    world.modify(entityOf(player1)) { id ->
+      val inventory = get(id, Inventory::class)!!
+      inventory.removeInstanceOf(boots)
+      inventory.addItem(Inventory.Item(boots, amount = 1, uniqueId = uniqueId, stackable = false))
+      get(id, Equipment::class)!!.equip(EquipmentSlot.ACCESSORY_1, Equipment.EquippedItem(boots, uniqueId))
+      inventory.setEquipped(uniqueId, true)
+    }
+    val held = liveAmount(player1, boots)
+    val tradeId = openTrade()
+
+    clientPlayer1.sendMessage(OfferTradeItemCMSG(player1, tradeId, boots, uniqueId = uniqueId, amount = 1))
+
+    assertEquals(held, liveAmount(player1, boots), "worn boots stay in the bag rather than going into the offer")
+
+    endTrade(clientPlayer1, tradeId)
+    world.modify(entityOf(player1)) { id -> get(id, Equipment::class)!!.unequip(EquipmentSlot.ACCESSORY_1) }
   }
 }
