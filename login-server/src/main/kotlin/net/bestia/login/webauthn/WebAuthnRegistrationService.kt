@@ -54,6 +54,7 @@ class WebAuthnRegistrationService(
     val request = buildRequest(name, userHandle)
 
     val ceremonyId = ceremonyStore.startRegistration(
+      type = CeremonyType.REGISTRATION,
       request = request,
       loginSessionIdHash = loginSessionIdHash,
       pendingName = name,
@@ -87,12 +88,12 @@ class WebAuthnRegistrationService(
     val request = buildRequest(account.displayName ?: FALLBACK_DISPLAY_NAME, user.userHandle)
 
     val ceremonyId = ceremonyStore.startRegistration(
+      type = if (reissueRecoveryCodes) CeremonyType.RECOVERY else CeremonyType.ADD_CREDENTIAL,
       request = request,
       loginSessionIdHash = loginSessionIdHash,
       pendingName = null,
       pendingHandle = null,
-      accountId = accountId,
-      reissueRecoveryCodes = reissueRecoveryCodes
+      accountId = accountId
     )
 
     return StartedCeremony(ceremonyId, request)
@@ -102,10 +103,19 @@ class WebAuthnRegistrationService(
    * Verifies the authenticator's response and only then materializes whatever the ceremony was
    * for. Account creation and credential storage share one transaction, so a half-created account
    * cannot survive a failure partway through.
+   *
+   * Only a ceremony of an [accepted] type is finished, and [authorize] may refuse it before anything is
+   * written: each endpoint finishes only what it started.
    */
   @Transactional
-  fun finishRegistration(ceremonyId: String, credentialJson: String): FinishedRegistration {
-    val taken = ceremonyStore.takeRegistration(ceremonyId)
+  fun finishRegistration(
+    ceremonyId: String,
+    credentialJson: String,
+    accepted: Set<CeremonyType>,
+    authorize: (WebAuthnCeremony) -> Unit = {}
+  ): FinishedRegistration {
+    val taken = ceremonyStore.takeRegistration(ceremonyId, accepted)
+    authorize(taken.ceremony)
 
     val response = try {
       PublicKeyCredential.parseRegistrationResponseJson(credentialJson)

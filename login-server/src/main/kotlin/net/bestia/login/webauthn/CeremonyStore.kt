@@ -24,25 +24,25 @@ class CeremonyStore(
 
   @Transactional
   fun startRegistration(
+    type: CeremonyType,
     request: PublicKeyCredentialCreationOptions,
     loginSessionIdHash: String?,
     pendingName: String?,
     pendingHandle: ByteArray?,
-    accountId: Long?,
-    reissueRecoveryCodes: Boolean = false
+    accountId: Long?
   ): String {
     val id = SecureTokens.randomToken()
 
     ceremonies.save(
       WebAuthnCeremony(
         id = id,
-        ceremonyType = CeremonyType.REGISTRATION,
+        ceremonyType = type,
         requestJson = request.toJson(),
         loginSessionIdHash = loginSessionIdHash,
         pendingName = pendingName,
         pendingHandle = pendingHandle,
         accountId = accountId,
-        reissueRecoveryCodes = reissueRecoveryCodes,
+        reissueRecoveryCodes = type == CeremonyType.RECOVERY,
         expiresAt = LocalDateTime.now().plusSeconds(config.ceremonyTtlSeconds)
       )
     )
@@ -68,8 +68,8 @@ class CeremonyStore(
   }
 
   @Transactional
-  fun takeRegistration(ceremonyId: String): Taken<PublicKeyCredentialCreationOptions> {
-    val ceremony = take(ceremonyId, CeremonyType.REGISTRATION)
+  fun takeRegistration(ceremonyId: String, accepted: Set<CeremonyType>): Taken<PublicKeyCredentialCreationOptions> {
+    val ceremony = take(ceremonyId, accepted)
 
     return Taken(
       ceremony = ceremony,
@@ -79,7 +79,7 @@ class CeremonyStore(
 
   @Transactional
   fun takeAssertion(ceremonyId: String): Taken<AssertionRequest> {
-    val ceremony = take(ceremonyId, CeremonyType.ASSERTION)
+    val ceremony = take(ceremonyId, setOf(CeremonyType.ASSERTION))
 
     return Taken(
       ceremony = ceremony,
@@ -87,14 +87,14 @@ class CeremonyStore(
     )
   }
 
-  private fun take(ceremonyId: String, expectedType: CeremonyType): WebAuthnCeremony {
+  private fun take(ceremonyId: String, accepted: Set<CeremonyType>): WebAuthnCeremony {
     val ceremony = ceremonies.findById(ceremonyId).orElse(null)
       ?: throw WebAuthnException("No such ceremony")
 
     ceremonies.delete(ceremony)
 
-    if (ceremony.ceremonyType != expectedType) {
-      throw WebAuthnException("Ceremony $ceremonyId is a ${ceremony.ceremonyType}, not $expectedType")
+    if (ceremony.ceremonyType !in accepted) {
+      throw WebAuthnException("Ceremony $ceremonyId is a ${ceremony.ceremonyType}, not one of $accepted")
     }
 
     if (ceremony.expiresAt.isBefore(LocalDateTime.now())) {
