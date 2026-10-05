@@ -3,6 +3,8 @@ package net.bestia.zone.socket
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.netty.channel.ChannelHandlerContext
 import io.netty.channel.SimpleChannelInboundHandler
+import io.netty.handler.timeout.IdleState
+import io.netty.handler.timeout.IdleStateEvent
 import net.bestia.zone.account.AccountConnectedEvent
 import net.bestia.zone.account.AccountDisconnectedEvent
 import net.bestia.zone.account.authentication.AuthenticationProcessor
@@ -92,6 +94,16 @@ class ClientMessageHandler(
       LOG.debug { "RX client $connectionUuid - ${ctx.channel().remoteAddress()}: ${msg.messageCase}" }
       authenticateChannel(ctx, msg)
     }
+  }
+
+  override fun userEventTriggered(ctx: ChannelHandlerContext, evt: Any) {
+    if (evt is IdleStateEvent && evt.state() == IdleState.READER_IDLE) {
+      LOG.info { "Client $connectionUuid - ${ctx.channel().remoteAddress()} (player: $accountId) went silent, closing" }
+      sendDisconnectMessageAndClose(ctx.channel(), reason = "IDLE_TIMEOUT")
+      return
+    }
+
+    super.userEventTriggered(ctx, evt)
   }
 
   @Deprecated("Deprecated in Java")

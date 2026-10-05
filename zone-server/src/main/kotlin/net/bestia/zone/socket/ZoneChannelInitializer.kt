@@ -4,7 +4,9 @@ import io.netty.channel.Channel
 import io.netty.channel.ChannelInitializer
 import io.netty.handler.codec.protobuf.ProtobufDecoder
 import io.netty.handler.codec.protobuf.ProtobufEncoder
+import io.netty.handler.timeout.IdleStateHandler
 import net.bestia.bnet.proto.EnvelopeProto
+import java.util.concurrent.TimeUnit
 
 /** The pipeline of one game connection. A plain [Channel] rather than a socket one, so tests can embed it. */
 class ZoneChannelInitializer(
@@ -16,6 +18,10 @@ class ZoneChannelInitializer(
 
   override fun initChannel(ch: Channel) {
     ch.pipeline().addLast(
+      // At the head, so it sees the encoded bytes that actually queue up.
+      SlowConsumerGuard(config.unwritableTimeoutSeconds, config.maxWriteBacklogBytes),
+      // ClientMessageHandler closes the connection on the idle event.
+      IdleStateHandler(config.readIdleTimeoutSeconds, 0, 0, TimeUnit.SECONDS),
       connectionLimit,
       EnvelopeFrameDecoder(config.maxFrameBytesBeforeAuth, config.maxFrameBytes),
       // Decoder for protobuf messages

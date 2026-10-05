@@ -12,6 +12,7 @@ import jakarta.annotation.PreDestroy
 import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Service
 import java.net.InetSocketAddress
+import java.util.concurrent.TimeUnit
 
 @Service
 @Profile("!no-socket")

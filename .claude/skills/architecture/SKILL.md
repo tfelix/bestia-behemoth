@@ -62,6 +62,7 @@ Pipeline, built in `zone-server/src/main/kotlin/net/bestia/zone/socket/SocketSer
 
 ```
 SlowConsumerGuard                   (drops a client that stops reading)
+  → IdleStateHandler                (30 s silence → ClientMessageHandler closes with IDLE_TIMEOUT)
   → LengthFieldBasedFrameDecoder (4-byte length prefix, 1 MB max frame)
   → ProtobufDecoder(EnvelopeProto.Envelope)
   → ProtobufEncoder
