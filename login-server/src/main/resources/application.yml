@@ -33,6 +33,9 @@ jwt:
   # the socket judges it once at the handshake and the map endpoint uses its own ticket
   # (zone-server HttpTicketService), so it only has to survive the walk from login to connect.
   login-token-minutes: 2
+  # Validity (minutes) of the token a game client calls this server's REST API with. Renewed on every refresh,
+  # so a stolen one is useful only briefly.
+  api-token-minutes: 15
 
 zone-directory:
   # The zones a ban or a recovery kicks the account from: every one of them, because the login server cannot see
