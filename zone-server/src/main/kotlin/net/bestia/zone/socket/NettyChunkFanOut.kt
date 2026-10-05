@@ -13,14 +13,6 @@ import org.springframework.stereotype.Component
  * increment per recipient rather than a copy - and the last write to complete releases the buffer. Nothing
  * downstream needs to know: the pipeline's outbound encoders both match on specific types, so a raw
  * `ByteBuf` passes through them and reaches the socket exactly as framed.
- *
- * ### Unwritable channels are skipped, not queued
- *
- * A chunk stream is the first thing here that can outrun a socket, and Netty's outbound buffer is not a
- * place to put backpressure - an unbounded queue of three-kilobyte payloads behind a slow client is how a
- * server runs out of heap because somebody is on hotel wifi. Skipped is not lost, but it is the caller's to
- * recover: it stays un-`markSent` and in `ChunkStreamSystem`'s own send queue, which retries it. The manifest
- * will not, because it offers what was never announced rather than what never arrived.
  */
 @Component
 @Profile("!no-socket")
@@ -29,6 +21,18 @@ class NettyChunkFanOut(
 ) : ChunkFanOut {
 
   override fun fanOut(accountIds: Collection<Long>, message: SMSG): Int {
+    return write(accountIds, message, skipBusy = false)
+  }
+
+  /**
+   * A chunk payload is three kilobytes, and queuing them behind a slow client is how its backlog grows. Skipped
+   * is not lost: the chunk stays un-`markSent` and in `ChunkStreamSystem`'s send queue, which retries it.
+   */
+  override fun sendToIfWritable(accountId: Long, message: SMSG): Boolean {
+    return write(listOf(accountId), message, skipBusy = true) == 1
+  }
+
+  private fun write(accountIds: Collection<Long>, message: SMSG, skipBusy: Boolean): Int {
     if (accountIds.isEmpty()) return 0
 
     val framed = EnvelopeFraming.frame(ByteBufAllocator.DEFAULT, message.toBnetEnvelope())
@@ -43,7 +47,7 @@ class NettyChunkFanOut(
           continue
         }
 
-        if (!channel.isWritable) {
+        if (skipBusy && !channel.isWritable) {
           LOG.debug { "Channel for account $accountId is not writable; skipping $message" }
           continue
         }

@@ -398,7 +398,7 @@ class ChunkStreamSystem(
     // Recorded only once the bytes are away. An account credited with an offer it never received asks for
     // nothing, and the diff above is computed against what was announced - so those chunks are never mentioned
     // again and the client holds a hole for the rest of the session.
-    if (!fanOut.sendTo(accountId, ChunkManifestSMSG(reset = reset, added = refs, removed = removed))) {
+    if (!fanOut.sendToIfWritable(accountId, ChunkManifestSMSG(reset = reset, added = refs, removed = removed))) {
       LOG.debug { "Manifest for $accountId could not be written; leaving its subscription untouched" }
       return false
     }
@@ -687,7 +687,7 @@ class ChunkStreamSystem(
    * tick. The manifest will not, because it offers what was never announced rather than what never arrived.
    */
   private fun push(accountId: Long, chunk: ChunkPos, message: ChunkDataSMSG): Boolean {
-    if (!fanOut.sendTo(accountId, message)) return false
+    if (!fanOut.sendToIfWritable(accountId, message)) return false
 
     subscriptions.markSent(accountId, chunk)
     return true

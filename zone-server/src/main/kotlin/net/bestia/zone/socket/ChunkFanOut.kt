@@ -20,10 +20,15 @@ import net.bestia.zone.message.SMSG
 interface ChunkFanOut {
 
   /**
-   * @return how many accounts the bytes were actually written to; recipients with no live, writable channel
-   *   are skipped rather than queued
+   * Writes to every account with a live channel, busy or not, because most callers never send the message
+   * again; [SlowConsumerGuard] bounds what a busy channel may queue.
+   *
+   * @return how many accounts the bytes were written to
    */
   fun fanOut(accountIds: Collection<Long>, message: SMSG): Int
 
-  fun sendTo(accountId: Long, message: SMSG): Boolean = fanOut(listOf(accountId), message) == 1
+  /** For a caller that retries later: a busy channel is skipped and reported as not written. */
+  fun sendToIfWritable(accountId: Long, message: SMSG): Boolean {
+    return fanOut(listOf(accountId), message) == 1
+  }
 }
