@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import net.bestia.zone.ecs.core.EcsWorld
 
 /**
  * Drives [HpRegenSystem], [ManaRegenSystem] and [StaminaRegenSystem] against a real [World], the
@@ -26,7 +27,7 @@ class RegenSystemsTest {
   /** Everything past the longest schedule (10 s), so one call makes all three systems due. */
   private val allDue = 10.1f
 
-  private fun newWorld(): World = testWorld(
+  private fun newWorld(): EcsWorld = testWorld(
     systems = listOf(
       HpRegenSystem(calculator),
       ManaRegenSystem(calculator),

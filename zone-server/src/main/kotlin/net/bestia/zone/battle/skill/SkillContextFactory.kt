@@ -1,7 +1,7 @@
 package net.bestia.zone.battle.skill
 
 import net.bestia.zone.battle.BattleContextFactory
-import net.bestia.zone.ecs.core.WorldView
+import net.bestia.zone.ecs.core.World
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.skill.Skill
 import net.bestia.zone.util.EntityId
@@ -27,7 +27,7 @@ class SkillContextFactory(
    * or a ground cast with no position.
    */
   fun create(
-    world: WorldView,
+    world: World,
     casterId: EntityId,
     skill: Skill,
     skillLevel: Int,
@@ -36,9 +36,8 @@ class SkillContextFactory(
   ): SkillContext? {
     val usedAttack = BattleAttack.of(skill, skillLevel)
 
-    val battle = world.read {
-      battleContextFactory.create(this, casterId, usedAttack, targetEntityId, targetPosition)
-    } ?: return null
+    val battle = battleContextFactory.create(world, casterId, usedAttack, targetEntityId, targetPosition)
+      ?: return null
 
     val budget = SkillBudget(
       maxOps = config.worldOpsPerCast,

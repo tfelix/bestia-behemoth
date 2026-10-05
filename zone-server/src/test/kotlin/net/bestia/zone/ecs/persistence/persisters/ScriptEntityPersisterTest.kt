@@ -1,6 +1,7 @@
 package net.bestia.zone.ecs.persistence.persisters
 
 import net.bestia.zone.ecs.core.SnowflakeEntityIdGenerator
+import net.bestia.zone.ecs.core.EcsWorld
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.script.ScriptComponent
 import net.bestia.zone.entity.PersistedEntityRepository
@@ -76,5 +77,5 @@ class ScriptEntityPersisterTest {
    */
   private val idGenerator = SnowflakeEntityIdGenerator()
 
-  private fun newWorld() = World(idGenerator = idGenerator, systems = emptyList())
+  private fun newWorld() = EcsWorld(idGenerator = idGenerator, systems = emptyList())
 }

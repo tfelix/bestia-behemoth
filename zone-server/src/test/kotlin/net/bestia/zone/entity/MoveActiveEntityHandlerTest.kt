@@ -3,7 +3,6 @@ package net.bestia.zone.entity
 import net.bestia.zone.ecs.battle.attack.AttackCancelService
 import net.bestia.zone.ecs.battle.skill.CastCancelService
 import net.bestia.zone.ecs.ZoneConfig
-import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.ecs.battle.damage.DeadActionGuard
@@ -18,6 +17,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import net.bestia.zone.ecs.core.EcsWorld
 
 class MoveActiveEntityHandlerTest {
 
@@ -59,7 +59,7 @@ class MoveActiveEntityHandlerTest {
   }
 
   private fun handlerFor(
-    world: World,
+    world: EcsWorld,
     entityId: EntityId,
     walkQuery: LocalWalkQuery,
     rateLimit: MoveRequestRateLimit = MoveRequestRateLimit(ZoneConfig(tickRate = 20)),

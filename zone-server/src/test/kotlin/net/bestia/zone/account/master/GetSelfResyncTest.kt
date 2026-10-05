@@ -29,6 +29,7 @@ import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import kotlin.reflect.KClass
+import net.bestia.zone.ecs.core.EcsWorld
 
 /**
  * Pins the resync half of [GetSelfHandler] against a real (system-less) [World], mocking only the
@@ -45,7 +46,7 @@ class GetSelfResyncTest {
   private val accountId = 1L
   private val masterId = 7L
 
-  private val world: World = testWorld()
+  private val world: EcsWorld = testWorld()
   private val connectionInfoService = mockk<ConnectionInfoService>()
   private val bestiaInfoFactory = mockk<BestiaInfoFactory>()
   private val outMessageProcessor = mockk<OutMessageProcessor>(relaxed = true)
@@ -90,13 +91,13 @@ class GetSelfResyncTest {
     return entityId
   }
 
-  private fun World.dirtyFlags(id: EntityId): Map<String, Boolean> = read {
+  private fun World.dirtyFlags(id: EntityId): Map<String, Boolean> = run {
     resyncedComponents.associate { type ->
       type.simpleName!! to (get(id, type) as Dirtyable).isDirty()
     }
   }
 
-  private fun World.clearAllDirty(id: EntityId) = read {
+  private fun World.clearAllDirty(id: EntityId) = run {
     resyncedComponents.forEach { type -> (get(id, type) as Dirtyable).clearDirty() }
   }
 

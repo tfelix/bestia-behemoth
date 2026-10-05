@@ -235,12 +235,10 @@ class WorldObjectResidencyTest {
 
     assertEquals(60, residency.residentEntities)
 
-    world.read {
-      assertEquals(0, store(Position::class).size, "props are in the Position store and will be synced per tick")
-      assertEquals(0, store(Health::class).size, "props are in the Health store and will be regenerated")
-      assertEquals(60, store(PropPose::class).size)
-      assertEquals(60, store(StaticVisual::class).size)
-    }
+    assertEquals(0, world.store(Position::class).size, "props are in the Position store and will be synced per tick")
+    assertEquals(0, world.store(Health::class).size, "props are in the Health store and will be regenerated")
+    assertEquals(60, world.store(PropPose::class).size)
+    assertEquals(60, world.store(StaticVisual::class).size)
   }
 
   /**

@@ -4,6 +4,7 @@ import io.mockk.mockk
 import net.bestia.zone.bestia.BestiaEntitySpawner
 import net.bestia.zone.ecs.entity.EntityVisual
 import net.bestia.zone.ecs.core.SnowflakeEntityIdGenerator
+import net.bestia.zone.ecs.core.EcsWorld
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.persistence.PersistedEntityDeletionQueue
 import net.bestia.zone.ecs.persistence.persisters.MobEntityPersister
@@ -221,7 +222,7 @@ class DenPackRestoreTest {
   }
 
   private fun persist(world: World, creatureId: EntityId) {
-    val snapshot = world.read { mobEntityPersister.snapshot(this, creatureId) }
+    val snapshot = mobEntityPersister.snapshot(world, creatureId)
     assertNotNull(snapshot)
     mobEntityPersister.persist(listOf(snapshot))
   }
@@ -252,7 +253,7 @@ class DenPackRestoreTest {
    */
   private val idGenerator = SnowflakeEntityIdGenerator()
 
-  private fun newWorld() = World(idGenerator = idGenerator, systems = emptyList())
+  private fun newWorld() = EcsWorld(idGenerator = idGenerator, systems = emptyList())
 
   private companion object {
     // Seeded from mob/blob.yml by the mob importer in the test profile.

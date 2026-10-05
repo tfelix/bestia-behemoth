@@ -5,7 +5,6 @@ import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.battle.status.StatusValues
 import net.bestia.zone.ecs.construction.ConstructionSite
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.entity.EntityVisual
 import net.bestia.zone.ecs.entity.VisualKind
 import net.bestia.zone.ecs.movement.Position
@@ -27,7 +26,7 @@ import org.springframework.stereotype.Component
 @Component
 class ConstructionSiteSpawner {
 
-  fun spawn(world: WorldView, entry: StructureEntry): EntityId {
+  fun spawn(world: World, entry: StructureEntry): EntityId {
     require(entry.isUnderConstruction) { "Structure ${entry.id} is finished and has no site to spawn" }
 
     val configure: World.(EntityId) -> Unit = { id ->

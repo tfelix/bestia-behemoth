@@ -6,7 +6,6 @@ import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.cartography.chart.ChartService
 import net.bestia.zone.ecs.account.Master
 import net.bestia.zone.ecs.core.AsyncJobExecutor
-import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.ecs.item.Inventory
 import net.bestia.zone.ecs.item.ItemTemplateRegistry
@@ -16,6 +15,7 @@ import net.bestia.zone.world.WorldService
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
+import net.bestia.zone.ecs.core.EcsWorld
 
 /**
  * The gate a survey passes before its cast bar goes up.
@@ -26,7 +26,7 @@ import kotlin.test.assertNull
  */
 class SurveyServiceTest {
 
-  private val world: World = testWorld()
+  private val world: EcsWorld = testWorld()
 
   private val chartService = mockk<ChartService>(relaxed = true)
   private val worldService = mockk<WorldService>(relaxed = true)

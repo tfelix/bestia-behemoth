@@ -13,7 +13,6 @@ import net.bestia.zone.ecs.battle.level.Level
 import net.bestia.zone.ecs.battle.skill.KnownSkills
 import net.bestia.zone.ecs.battle.status.IsStatusValueDirty
 import net.bestia.zone.ecs.core.AsyncJobExecutor
-import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.ecs.item.Equipment
 import net.bestia.zone.ecs.item.Inventory
@@ -30,6 +29,7 @@ import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import net.bestia.zone.ecs.core.EcsWorld
 
 /**
  * The sweep that takes off gear its wearer no longer qualifies for - Ragnarok Online's `pc_checkitem`.
@@ -41,7 +41,7 @@ import org.junit.jupiter.api.Test
  */
 class EquipmentRevalidationServiceTest {
 
-  private val world: World = testWorld()
+  private val world: EcsWorld = testWorld()
   private val itemRepository = mockk<ItemRepository>()
   private val inventoryService = mockk<InventoryService>(relaxed = true)
   private val outMessageProcessor = mockk<OutMessageProcessor>(relaxed = true)

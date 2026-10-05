@@ -166,7 +166,9 @@ Use those files as a template instead of re-deriving the shape from scratch.
 `zone-server/src/main/kotlin/net/bestia/zone/ecs/` is the hand-rolled ECS (no external
 ECS library):
 
-- **`ecs/core/`** — the engine itself. Centered on `ecs/core/World.kt`: `ComponentStore`
+- **`ecs/core/`** — the engine itself. Gameplay code sees the `World` interface (`ecs/core/World.kt`:
+  entities, components, queries); `EcsWorld` implements it and adds the engine side (tick, thread
+  binding, listeners) for `ZoneEngine`, boot runners and tests. Around it: `ComponentStore`
   (sparse set, one per concrete component class — there are no archetypes), `SystemScheduler`
   ("wave" scheduling from declared read/write component sets), `EntityRegistry`,
   `AsyncJobExecutor`. Spring wiring is `ecs/EcsConfiguration.kt`, which builds the

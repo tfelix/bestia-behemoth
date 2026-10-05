@@ -4,7 +4,6 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.ecs.ZoneConfig
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.entity.EntityVisual
 import net.bestia.zone.ecs.entity.VisualKind
 import net.bestia.zone.ecs.item.GroundItemDecay
@@ -37,7 +36,7 @@ class LootItemEntitySpawner(
     dropsBySpecies.size
   }
 
-  fun spawnLoot(world: WorldView, bestiaId: Long, pos: Vec3L): List<EntityId> {
+  fun spawnLoot(world: World, bestiaId: Long, pos: Vec3L): List<EntityId> {
     val lootItems = dropsBySpecies[bestiaId] ?: emptyList()
 
     val spawnItems = lootItems.filter { lootItem ->
@@ -58,7 +57,7 @@ class LootItemEntitySpawner(
    * passes the [despawnAt] it was persisted with; a fresh drop gets the full time.
    */
   fun spawnLootItem(
-    world: WorldView,
+    world: World,
     itemId: Long,
     amount: Int,
     pos: Vec3L,

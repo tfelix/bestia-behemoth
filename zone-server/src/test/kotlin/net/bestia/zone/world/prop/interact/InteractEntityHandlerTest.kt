@@ -11,7 +11,6 @@ import net.bestia.zone.ecs.account.Account
 import net.bestia.zone.ecs.battle.damage.DeadActionGuard
 import net.bestia.zone.ecs.construction.Building
 import net.bestia.zone.ecs.construction.ConstructionSite
-import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.ecs.movement.Position
@@ -28,6 +27,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
+import net.bestia.zone.ecs.core.EcsWorld
 
 /**
  * What a click means is decided by what was clicked, so these are the branches rather than the message.
@@ -37,7 +37,7 @@ class InteractEntityHandlerTest {
   private val accountId = 1L
   private val standingAt = Vec3L(50, 50, 32)
 
-  private lateinit var world: World
+  private lateinit var world: EcsWorld
   private lateinit var messages: OutMessageProcessor
   private lateinit var dialogs: DialogService
   private lateinit var talk: TalkService

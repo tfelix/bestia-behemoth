@@ -3,7 +3,6 @@ package net.bestia.zone.ai.bt
 import net.bestia.zone.ai.core.behavior.BtContext
 import net.bestia.zone.ai.core.state.Blackboard
 import net.bestia.zone.ai.core.state.WorldState
-import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.ecs.movement.Path
 import net.bestia.zone.ecs.movement.Position
@@ -13,6 +12,7 @@ import net.bestia.zone.util.EntityId
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import kotlin.random.Random
+import net.bestia.zone.ecs.core.EcsWorld
 
 /**
  * What a wandering creature's territory actually is.
@@ -113,7 +113,7 @@ class LocomotionWanderTest {
   }
 
   /** Teleports the entity to the end of its path, standing in for `MoveSystem` walking it there. */
-  private fun arrive(world: World, id: EntityId) {
+  private fun arrive(world: EcsWorld, id: EntityId) {
     val path = world.get(id, Path::class) ?: return
     val destination = path.path.last()
     val position = world.getOrThrow(id, Position::class)
@@ -124,15 +124,15 @@ class LocomotionWanderTest {
     world.tick(0.05f)
   }
 
-  private fun spawnAt(world: World, at: Vec3L): EntityId {
+  private fun spawnAt(world: EcsWorld, at: Vec3L): EntityId {
     return world.createEntity { id -> add(id, Position.fromVec3(at)) }
   }
 
-  private fun position(world: World, id: EntityId): Vec3L {
+  private fun position(world: EcsWorld, id: EntityId): Vec3L {
     return world.getOrThrow(id, Position::class).toVec3L()
   }
 
-  private fun context(world: World, id: EntityId): BtContext {
+  private fun context(world: EcsWorld, id: EntityId): BtContext {
     return BtContext(
       world = world,
       entityId = id,

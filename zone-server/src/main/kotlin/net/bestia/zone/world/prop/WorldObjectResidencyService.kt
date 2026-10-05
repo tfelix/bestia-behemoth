@@ -208,7 +208,7 @@ class WorldObjectResidencyService(
       // anything that wants to know whether it can start drawing.
       val entries = ArrayList<ChunkStaticEntitiesSMSG.Entry>(ids.size)
 
-      world.read {
+      with(world) {
         for (id in ids) {
           val pose = get(id, PropPose::class) ?: continue
           val visual = get(id, StaticVisual::class) ?: continue

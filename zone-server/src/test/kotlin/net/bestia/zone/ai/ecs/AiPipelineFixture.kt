@@ -33,7 +33,6 @@ import net.bestia.zone.ecs.account.Master
 import net.bestia.zone.ecs.battle.damage.TakenDamage
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.core.System
-import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.spawn.ambient.AmbientSpawnConfig
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.ecs.entity.Animation
@@ -50,6 +49,7 @@ import net.bestia.zone.ecs.visibility.EntityVisibility
 import net.bestia.zone.util.AccountId
 import net.bestia.zone.util.EntityId
 import kotlin.random.Random
+import net.bestia.zone.ecs.core.EcsWorld
 
 /**
  * The whole AI pipeline wired for a test, without a Spring context and without a generated world.
@@ -218,7 +218,7 @@ class AiPipelineFixture(
     MoveSystem({ null }, GroundTrample.NONE, TestNavigation.flatGround()),
   )
 
-  val world: World = testWorld(systems = systems)
+  val world: EcsWorld = testWorld(systems = systems)
 
   /**
    * A mob running [profileId], at [pos]. No `KnownSkills`: a default attack is not a catalogued skill.

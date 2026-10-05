@@ -3,6 +3,7 @@ package net.bestia.zone.ecs.persistence
 import net.bestia.zone.bestia.BestiaEntitySpawner
 import net.bestia.zone.ecs.core.AsyncJobExecutor
 import net.bestia.zone.ecs.core.SnowflakeEntityIdGenerator
+import net.bestia.zone.ecs.core.EcsWorld
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.item.CarryCapacity
 import net.bestia.zone.ecs.item.Inventory
@@ -185,7 +186,7 @@ class PersistedEntityDeletionTest {
     bestiaEntitySpawner.spawnMob(world, bestiaId = BLOB_BESTIA_ID, pos = Vec3L(1, 2, 3))
 
   private fun persist(world: World, entityId: EntityId) {
-    val snapshot = world.read { mobEntityPersister.snapshot(this, entityId) }
+    val snapshot = mobEntityPersister.snapshot(world, entityId)
     assertNotNull(snapshot)
     mobEntityPersister.persist(listOf(snapshot))
   }
@@ -198,7 +199,7 @@ class PersistedEntityDeletionTest {
    */
   private val idGenerator = SnowflakeEntityIdGenerator()
 
-  private fun newWorld() = World(idGenerator = idGenerator, systems = emptyList())
+  private fun newWorld() = EcsWorld(idGenerator = idGenerator, systems = emptyList())
 
   private companion object {
     // Seeded from mob/blob.yml by the mob importer in the test profile.

@@ -2,12 +2,12 @@ package net.bestia.zone.ecs.item
 
 import net.bestia.zone.ecs.battle.level.Level
 import net.bestia.zone.ecs.battle.status.StatusValues
-import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.util.EntityId
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Test
+import net.bestia.zone.ecs.core.EcsWorld
 
 /**
  * The behaviour that was missing entirely: for a long time `CarryCapacity` was written once at spawn and
@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test
  */
 class CarryCapacitySystemTest {
 
-  private val world: World = testWorld(systems = listOf(CarryCapacitySystem(WeightLimitCalculator())))
+  private val world: EcsWorld = testWorld(systems = listOf(CarryCapacitySystem(WeightLimitCalculator())))
 
   /**
    * Effective attributes, not base ones - otherwise a strength buff or a piece of gear that grants strength

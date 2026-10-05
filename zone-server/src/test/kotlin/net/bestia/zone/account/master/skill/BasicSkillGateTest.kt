@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import net.bestia.zone.ecs.core.EcsWorld
 
 /**
  * The two Basic Skill ranks the game actually enforces, and what happens at the edges of them.
@@ -24,7 +25,7 @@ import org.junit.jupiter.api.Test
  */
 class BasicSkillGateTest {
 
-  private val world: World = testWorld()
+  private val world: EcsWorld = testWorld()
   private val skillRepository = mockk<SkillRepository>()
   private val connectionInfoService = mockk<ConnectionInfoService>()
 

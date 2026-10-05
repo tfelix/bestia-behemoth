@@ -80,13 +80,15 @@ class DropItemHandler(
       return
     }
 
-    lootItemEntitySpawner.spawnLootItem(
-      world,
-      itemId = msg.itemId,
-      amount = dropped.amount,
-      pos = dropped.pos,
-      uniqueId = removed.uniqueId
-    )
+    world.read {
+      lootItemEntitySpawner.spawnLootItem(
+        this,
+        itemId = msg.itemId,
+        amount = dropped.amount,
+        pos = dropped.pos,
+        uniqueId = removed.uniqueId
+      )
+    }
   }
 
   /**

@@ -13,7 +13,6 @@ import net.bestia.zone.battle.skill.SkillTargetType
 import net.bestia.zone.ecs.account.Account as EcsAccount
 import net.bestia.zone.ecs.battle.skill.KnownSkills
 import net.bestia.zone.ecs.battle.status.SkillPoints
-import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.skill.BasicSkillTooLowForTreeException
 import net.bestia.zone.skill.LearnedSkill
@@ -30,6 +29,7 @@ import org.junit.jupiter.api.assertThrows
 import org.springframework.context.ApplicationEventPublisher
 import java.awt.Color
 import java.util.Optional
+import net.bestia.zone.ecs.core.EcsWorld
 
 /**
  * A small test tree standing in for `master_skill_tree.yml`: BASIC_SKILL in Novice, a Craftsman
@@ -38,7 +38,7 @@ import java.util.Optional
  */
 class MasterSkillTreeServiceTest {
 
-  private val world: World = testWorld()
+  private val world: EcsWorld = testWorld()
   private val masterRepository = mockk<MasterRepository>(relaxed = true)
   private val masterResolver = mockk<MasterResolver>()
   private val skillRepository = mockk<SkillRepository>()

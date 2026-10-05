@@ -8,7 +8,7 @@ import net.bestia.zone.ai.domain.townsfolk.TownsfolkDomain
 import net.bestia.zone.ai.ecs.AiThrottleable
 import net.bestia.zone.bestia.BestiaCatalogue
 import net.bestia.zone.bestia.BestiaEntitySpawner
-import net.bestia.zone.ecs.core.WorldView
+import net.bestia.zone.ecs.core.World
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Service
@@ -37,7 +37,7 @@ class TownsfolkEntitySpawner(
 ) {
 
   /** @return the entities put down, or empty when the settlement has no such household to expand */
-  fun spawnHousehold(world: WorldView, settlement: Int, household: Int): List<EntityId> {
+  fun spawnHousehold(world: World, settlement: Int, household: Int): List<EntityId> {
     val placed = placement.of(settlement, household) ?: return emptyList()
 
     return placed.residents.mapNotNull { member ->
@@ -52,7 +52,7 @@ class TownsfolkEntitySpawner(
    * from the same three indices and the settlement's seed. Nothing was stored in between and nothing has
    * to be - which is what makes an empty town free.
    */
-  fun emerge(world: WorldView, identity: Long, at: Vec3L): EntityId? {
+  fun emerge(world: World, identity: Long, at: Vec3L): EntityId? {
     val settlement = TownsfolkIdentity.settlementOf(identity)
     val household = TownsfolkIdentity.householdOf(identity)
     val placed = placement.of(settlement, household) ?: return null
@@ -61,7 +61,7 @@ class TownsfolkEntitySpawner(
   }
 
   private fun spawn(
-    world: WorldView,
+    world: World,
     placed: HouseholdPlacement.Placement,
     member: Int,
     at: Vec3L,
@@ -100,10 +100,8 @@ class TownsfolkEntitySpawner(
     // Applied at the end of the tick when this runs inside a system, exactly as `AmbientSpawnerSystem`
     // adds its own markers and for the same reason - `World.tick` holds `iterating` for the scheduler
     // pass. Harmless here: teardown is driven from the residency record rather than from the marker.
-    world.modify(id) {
-      add(id, Townsfolk(identity))
-      add(id, AiThrottleable)
-    }
+    world.add(id, Townsfolk(identity))
+    world.add(id, AiThrottleable)
 
     LOG.trace { "Spawned ${occupation.id} ${TownsfolkIdentity.describe(identity)} as entity $id" }
     return id

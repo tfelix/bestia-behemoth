@@ -11,6 +11,7 @@ import net.bestia.zone.ecs.core.RateLimitedLog
 import net.bestia.zone.ecs.core.Removable
 import net.bestia.zone.util.AccountId
 import net.bestia.zone.util.EntityId
+import net.bestia.zone.ecs.core.EcsWorld
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.dirtyableComponentTypes
 import net.bestia.zone.ecs.core.isFatal
@@ -48,7 +49,7 @@ import kotlin.collections.iterator
  */
 @Service
 class ZoneEngine(
-  private val world: World,
+  private val world: EcsWorld,
   private val config: ZoneConfig,
   private val entityAOIService: EntityAOIService,
   private val playerAOIService: ActivePlayerAOIService,
@@ -414,8 +415,8 @@ class ZoneEngine(
   /**
    * An entity that was never synced to any client (no [Dirtyable] component) never told a client it
    * existed either, so it needs no vanish. One that was gets a [VanishEntitySMSG] broadcast to the
-   * superset of every synced component's [SyncTargets] - called from [World.onDestroy] while the
-   * entity's components are still readable (see the ordering note on [World.destroyNow]).
+   * superset of every synced component's [SyncTargets] - called from [EcsWorld.onDestroy] while the
+   * entity's components are still readable (see the ordering note on [EcsWorld.destroyNow]).
    */
   private fun notifyVanishOnDestroy(entityId: EntityId) {
     val syncedComponents = syncableComponentTypes.mapNotNull { type -> world.get(entityId, type) as? Dirtyable }

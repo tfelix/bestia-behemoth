@@ -209,7 +209,7 @@ class WorldTest {
   }
 
   /** Binds a thread as the world's owner and runs posted work on it, the way `ZoneEngine` does. */
-  private class TickThread(world: World) {
+  private class TickThread(world: EcsWorld) {
     @Volatile
     private var running = true
     private val bound = CountDownLatch(1)

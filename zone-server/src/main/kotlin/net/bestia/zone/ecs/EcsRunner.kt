@@ -1,7 +1,7 @@
 package net.bestia.zone.ecs
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.ecs.core.World
+import net.bestia.zone.ecs.core.EcsWorld
 import java.lang.System
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit
  * [start] it explicitly when you want it to run.
  */
 class EcsRunner(
-  private val world: World,
+  private val world: EcsWorld,
   private val tickRate: Int = 20,
 ) {
   private val executor = Executors.newSingleThreadExecutor { r -> Thread(r, "ecs-tick") }

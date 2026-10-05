@@ -26,7 +26,6 @@ import net.bestia.zone.ecs.spawn.DenMember
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.ecs.core.Component
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.geometry.Vec3L
 import org.springframework.stereotype.Component as SpringComponent
 
@@ -61,7 +60,7 @@ class BestiaEntitySpawner(
    *   the end of the tick, so a watching client would see the species body and then a correction.
    */
   fun spawnMob(
-    world: WorldView,
+    world: World,
     bestiaId: Long,
     pos: Vec3L,
     entityId: EntityId? = null,
@@ -163,7 +162,7 @@ class BestiaEntitySpawner(
   }
 
   fun spawnMob(
-    world: WorldView,
+    world: World,
     identifier: String,
     pos: Vec3L,
   ): EntityId {

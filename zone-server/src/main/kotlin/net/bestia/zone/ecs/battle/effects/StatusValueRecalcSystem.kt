@@ -29,6 +29,7 @@ import kotlin.collections.component2
 import kotlin.collections.iterator
 import kotlin.collections.orEmpty
 import org.springframework.stereotype.Component as SpringComponent
+import net.bestia.zone.ecs.core.update
 
 /**
  * Rebuilds [StatusValues] (and [Speed.speed], and [RegenerationModifiers]) from scratch for every

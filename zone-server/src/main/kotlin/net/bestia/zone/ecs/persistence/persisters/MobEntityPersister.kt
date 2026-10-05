@@ -23,6 +23,7 @@ import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
+import net.bestia.zone.ecs.core.modify
 
 /** Minimal mutable state of a world mob; static stats are re-derived from the bestia template on load. */
 data class MobSnapshot(

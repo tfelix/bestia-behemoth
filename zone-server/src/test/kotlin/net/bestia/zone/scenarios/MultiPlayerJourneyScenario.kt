@@ -510,12 +510,14 @@ class MultiPlayerJourneyScenario : BestiaNoSocketScenario(autoClientConnect = fa
     val activeEntityId = connectionInfoService.getActiveEntityId(clientPlayer1.connectedPlayerId)
     val currentPos = world.read { get(activeEntityId, Position::class)?.toVec3L() } ?: Vec3L.ZERO
 
-    groundItemEntityId = lootItemEntitySpawner.spawnLootItem(
-      world = world,
-      itemId = APPLE_ITEM_ID,
-      amount = 1,
-      pos = currentPos
-    )
+    groundItemEntityId = world.read {
+      lootItemEntitySpawner.spawnLootItem(
+        world = this,
+        itemId = APPLE_ITEM_ID,
+        amount = 1,
+        pos = currentPos
+      )
+    }
 
     clientPlayer1.sendMessage(LootItemCMSG(clientPlayer1.connectedPlayerId, targetEntityId = groundItemEntityId))
 

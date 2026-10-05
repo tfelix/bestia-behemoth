@@ -6,7 +6,6 @@ import io.mockk.mockk
 import io.mockk.verify
 import net.bestia.zone.ecs.battle.damage.Dead
 import net.bestia.zone.ecs.battle.status.Health
-import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.geometry.Vec3L
@@ -23,6 +22,8 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import net.bestia.zone.ecs.core.getOrThrow
+import net.bestia.zone.ecs.core.EcsWorld
 
 /**
  * A site only advances while somebody is standing at it, which is the whole difference between this and the
@@ -34,7 +35,7 @@ class ConstructionSystemTest {
 
   private val finalHp = 150
 
-  private lateinit var world: World
+  private lateinit var world: EcsWorld
   private lateinit var structures: PlayerStructureService
   private lateinit var registry: PlayerStructureRegistry
   private lateinit var system: ConstructionSystem

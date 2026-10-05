@@ -21,6 +21,7 @@ import net.bestia.zone.party.PartyMembership
 import net.bestia.zone.util.EntityId
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component as SpringComponent
+import net.bestia.zone.ecs.core.update
 
 @SpringComponent
 @Order(70)

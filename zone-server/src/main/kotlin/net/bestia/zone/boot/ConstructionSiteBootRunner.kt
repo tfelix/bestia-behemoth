@@ -1,7 +1,7 @@
 package net.bestia.zone.boot
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.ecs.core.WorldView
+import net.bestia.zone.ecs.core.World
 import net.bestia.zone.world.prop.ConstructionSiteSpawner
 import net.bestia.zone.world.prop.PlayerStructureRegistry
 import org.springframework.boot.CommandLineRunner
@@ -23,7 +23,7 @@ import org.springframework.stereotype.Component
 class ConstructionSiteBootRunner(
   private val structures: PlayerStructureRegistry,
   private val sites: ConstructionSiteSpawner,
-  private val world: WorldView
+  private val world: World
 ) : CommandLineRunner {
 
   override fun run(vararg args: String?) {

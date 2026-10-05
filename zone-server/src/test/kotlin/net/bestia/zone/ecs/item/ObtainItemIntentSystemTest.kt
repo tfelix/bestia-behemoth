@@ -7,7 +7,6 @@ import io.mockk.verify
 import net.bestia.zone.ecs.account.Account
 import net.bestia.zone.ecs.account.Master
 import net.bestia.zone.ecs.core.AsyncJobExecutor
-import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.session.NoActiveSessionException
 import net.bestia.zone.ecs.core.testWorld
@@ -25,6 +24,7 @@ import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import net.bestia.zone.ecs.core.EcsWorld
 
 @ExtendWith(MockKExtension::class)
 class ObtainItemIntentSystemTest {
@@ -44,7 +44,7 @@ class ObtainItemIntentSystemTest {
   private val sword = Item(id = 1L, identifier = "sword", weight = 120, type = Item.ItemType.ETC)
   private val boulder = Item(id = 2L, identifier = "boulder", weight = 5000, type = Item.ItemType.ETC)
 
-  private lateinit var world: World
+  private lateinit var world: EcsWorld
 
   private fun newSystem() = ObtainItemIntentSystem(
     itemTemplates = ItemTemplateRegistry(itemRepository),

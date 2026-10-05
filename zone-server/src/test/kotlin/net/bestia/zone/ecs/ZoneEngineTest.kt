@@ -35,6 +35,7 @@ import java.time.Duration
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.test.assertEquals
+import net.bestia.zone.ecs.core.EcsWorld
 
 /**
  * Covers what [ZoneEngine] does between ticks, rather than what any one system does:
@@ -65,7 +66,7 @@ class ZoneEngineTest {
     return entityId
   }
 
-  private lateinit var world: World
+  private lateinit var world: EcsWorld
   private lateinit var zoneEngine: ZoneEngine
 
   @BeforeEach
@@ -74,7 +75,7 @@ class ZoneEngineTest {
     zoneEngine = engineFor(world)
   }
 
-  private fun engineFor(world: World): ZoneEngine {
+  private fun engineFor(world: EcsWorld): ZoneEngine {
     return ZoneEngine(
       world = world,
       config = ZoneConfig(tickRate = 20),

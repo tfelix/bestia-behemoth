@@ -4,7 +4,6 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import net.bestia.zone.ecs.account.Master
-import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.geometry.Vec3L
@@ -17,6 +16,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import net.bestia.zone.ecs.core.EcsWorld
 
 /**
  * A kit is only consumed when it actually became a site, so every refusal here has to return false - see the
@@ -26,7 +26,7 @@ class StructureKitScriptTest {
 
   private val standingAt = Vec3L(100, 100, 64)
 
-  private lateinit var world: World
+  private lateinit var world: EcsWorld
   private lateinit var structures: PlayerStructureService
   private lateinit var script: StructureKitScript
 
