@@ -3,6 +3,7 @@ package net.bestia.zone.cartography.web
 import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.servlet.http.HttpServletRequest
 import net.bestia.zone.cartography.tile.MapTileService
+import net.bestia.zone.cartography.tile.TileRenderPool
 import net.bestia.zone.cartography.tile.TileId
 import org.springframework.http.CacheControl
 import org.springframework.http.HttpHeaders
@@ -75,10 +76,11 @@ class MapTileController(
       tiles.tile(masterId, id)
     } catch (e: IllegalArgumentException) {
       throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
-    } catch (e: MapTileService.RenderTimedOut) {
+    } catch (e: TileRenderPool.Unavailable) {
       // Transient, and saying so is the whole point. The pool was busy, not the request malformed - so this
       // names a moment to come back on rather than reporting a fault a client would be right to give up on.
-      LOG.warn(e) { "Tile $id timed out; asking the client back in $RETRY_AFTER_SECONDS s" }
+      // Debug only: a client scrolling fast meets its own cap in normal play, and a flood must not flood the log.
+      LOG.debug { "Tile $id not rendered (${e.message}); asking the client back in $RETRY_AFTER_SECONDS s" }
       return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
         .header(HttpHeaders.RETRY_AFTER, RETRY_AFTER_SECONDS.toString())
         .build()
@@ -161,7 +163,7 @@ class MapTileController(
     const val IMMUTABLE_DAYS = 365L
 
     /**
-     * How long a client is asked to wait after a render timed out.
+     * How long a client is asked to wait when the pool could not render a tile: it was full, or the render timed out.
      *
      * Comfortably longer than the render that just failed to finish, so the retry meets a pool with room in
      * it rather than rejoining the queue that caused the timeout.
