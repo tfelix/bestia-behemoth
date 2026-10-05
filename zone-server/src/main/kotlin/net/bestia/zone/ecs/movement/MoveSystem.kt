@@ -63,11 +63,9 @@ class MoveSystem(
       position.fraction += speed.speed * deltaTime
 
       // entity has moved more than one tile so its position can be updated.
-      // `!isEmpty` is a real condition rather than belt and braces: one tile a tick is only true while the
-      // ticks are on time. `ZoneEngine` hands this system the wall-clock delta of the *previous* tick, so one
-      // overrunning tick arrives here as a delta worth several tiles - and a walk that ran out of waypoints
-      // with the fraction still above one used to go round again and take `removeFirst` off an empty list,
-      // which threw out of the whole tick and cost every system after this one its turn.
+      // `!isEmpty` is a real condition rather than belt and braces: an entity faster than one tile per tick
+      // crosses several tiles in one update, and a walk that ran out of waypoints with the fraction still
+      // above one would go round again and take `removeFirst` off an empty list.
       // A player's path was only checked where the ground was loaded when it arrived; NPC paths come from the
       // local pathfinder, which already checks every step.
       val checkSteps = world.has(id, Account::class)

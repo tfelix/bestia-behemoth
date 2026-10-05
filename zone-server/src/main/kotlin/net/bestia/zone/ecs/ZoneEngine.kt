@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.locks.LockSupport
 import kotlin.collections.iterator
 
 /**
@@ -70,7 +71,10 @@ class ZoneEngine(
 
   @Volatile
   private var running = false
-  private var lastTickTime = System.currentTimeMillis()
+
+  private val stepNanos = TimeUnit.SECONDS.toNanos(1) / config.tickRate
+  private val stepSeconds = 1f / config.tickRate
+  private var clock = FixedStepClock(stepNanos, MAX_CATCH_UP_STEPS, System.nanoTime())
 
   init {
     // Clean the area-of-interest services when an entity leaves the world, and broadcast a vanish
@@ -111,7 +115,7 @@ class ZoneEngine(
   fun start() {
     if (running) return
     running = true
-    lastTickTime = System.currentTimeMillis()
+    clock = FixedStepClock(stepNanos, MAX_CATCH_UP_STEPS, System.nanoTime())
 
     // execute, not submit: a Future nobody reads would swallow the error that ends the loop.
     tickExecutor.execute {
@@ -124,28 +128,32 @@ class ZoneEngine(
     }
   }
 
+  /** Every step hands the systems the same delta; time lost to a long pause is dropped, see [FixedStepClock]. */
   private fun runTickLoop() {
     LOG.info { "Zone ECS engine started @ ${config.tickRate}Hz" }
     while (running) {
-      val now = System.currentTimeMillis()
-      val deltaTime = (now - lastTickTime) / 1000f
-      lastTickTime = now
-
-      try {
-        tickOnce(deltaTime)
-      } catch (e: Throwable) {
-        if (e.isFatal()) throw e
-        LOG.error(e) { "Error in zone tick: ${e.message}" }
-      }
-
-      val budget = 1000L / config.tickRate
-      val elapsed = System.currentTimeMillis() - now
-
-      if (elapsed > budget) reportSlowTick(elapsed, budget)
-
-      val sleep = budget - elapsed
-      if (sleep > 0) Thread.sleep(sleep)
+      repeat(clock.dueSteps(System.nanoTime())) { tickSafely() }
+      awaitNextStep()
     }
+  }
+
+  private fun tickSafely() {
+    val started = System.nanoTime()
+
+    try {
+      tickOnce(stepSeconds)
+    } catch (e: Throwable) {
+      if (e.isFatal()) throw e
+      LOG.error(e) { "Error in zone tick: ${e.message}" }
+    }
+
+    val elapsed = System.nanoTime() - started
+    if (elapsed > stepNanos) reportSlowTick(elapsed)
+  }
+
+  private fun awaitNextStep() {
+    val wait = clock.nextStepAt - System.nanoTime()
+    if (wait > 0) LockSupport.parkNanos(wait)
   }
 
   /**
@@ -161,25 +169,30 @@ class ZoneEngine(
    * overruns for tens of consecutive ticks, and one warning per tick would bury the breakdown it is for while
    * a single warning would understate a sustained problem as a blip.
    */
-  private fun reportSlowTick(elapsedMs: Long, budgetMs: Long) {
+  private fun reportSlowTick(elapsedNanos: Long) {
     slowTicks++
 
-    val now = System.currentTimeMillis()
-    if (now - lastSlowTickReport < SLOW_TICK_REPORT_INTERVAL_MS) return
+    val now = System.nanoTime()
+    val last = lastSlowTickReport
+    if (last != null && now - last < SLOW_TICK_REPORT_INTERVAL_NANOS) return
 
     val suppressed = slowTicks - 1
+    val dropped = clock.droppedSteps - droppedStepsReported
     lastSlowTickReport = now
     slowTicks = 0
+    droppedStepsReported = clock.droppedSteps
 
     LOG.warn {
-      "Zone tick took $elapsedMs ms against a $budgetMs ms budget " +
+      "Zone tick took ${elapsedNanos / 1_000_000} ms against a ${stepNanos / 1_000_000} ms budget " +
           "(systems $lastWorldTickMs ms, component sync $lastSyncMs ms): ${world.lastTickBreakdown()}" +
-          if (suppressed > 0) "; $suppressed more late ticks since the last of these" else ""
+          (if (suppressed > 0) "; $suppressed more late ticks since the last of these" else "") +
+          if (dropped > 0) "; $dropped steps dropped to catch up" else ""
     }
   }
 
-  private var lastSlowTickReport = 0L
+  private var lastSlowTickReport: Long? = null
   private var slowTicks = 0
+  private var droppedStepsReported = 0L
 
   /** The tick's two halves, split so the breakdown cannot be misread as the whole cost. */
   private var lastWorldTickMs = 0L
@@ -439,6 +452,9 @@ class ZoneEngine(
     private val LOG = KotlinLogging.logger { }
 
     /** Shortest gap between two slow-tick warnings. See [reportSlowTick]. */
-    private const val SLOW_TICK_REPORT_INTERVAL_MS = 1_000L
+    private val SLOW_TICK_REPORT_INTERVAL_NANOS = TimeUnit.SECONDS.toNanos(1)
+
+    /** Steps a late loop may run back to back before it gives up on the rest of the backlog. */
+    private const val MAX_CATCH_UP_STEPS = 3
   }
 }
