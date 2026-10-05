@@ -55,7 +55,7 @@ class GmActionService(
   }
 
   /** The actor is checked before the target is looked up, so nobody without the authority can probe for ids. */
-  private fun authorize(actorId: Long, targetId: Long, authority: Authority): Pair<Account, Account> {
+  private fun authorize(actorId: Long, targetId: Long, authority: Authority): AuthorizedParties {
     val actor = accounts.findById(actorId).orElse(null)
       ?: throw GmActionRefusedException(Refusal.NOT_ALLOWED, "acting account $actorId does not exist")
 
@@ -77,8 +77,13 @@ class GmActionService(
       )
     }
 
-    return actor to target
+    return AuthorizedParties(actor, target)
   }
+
+  private data class AuthorizedParties(
+    val actor: Account,
+    val target: Account
+  )
 
   companion object {
     private val LOG = KotlinLogging.logger { }
