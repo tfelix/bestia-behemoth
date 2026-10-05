@@ -157,9 +157,10 @@ class ChatScenarios : BestiaNoSocketScenario() {
   }
 
   /**
-   * The other half of the same contract, and the part no test covered: a command that *is* recognised must be
-   * consumed silently. Only the chat layer is under test here - `/mm` queues the move and answers nothing, so
-   * this passes or fails on whether the command was matched at all, not on whether the player ends up anywhere.
+   * The other half of the same contract: a command that *is* recognised must not be answered with an error.
+   *
+   * Bare `/date` because it only reads the clock. Scenario classes share one Spring context and database, so a
+   * command with a side effect, like moving master 1, leaks into whichever class runs next.
    */
   @Test
   fun `a recognised chat command is consumed without an error reply`() {
@@ -167,12 +168,12 @@ class ChatScenarios : BestiaNoSocketScenario() {
       ChatCMSG(
         playerId = clientPlayer1.connectedPlayerId,
         type = ChatCMSG.Type.COMMAND,
-        text = "/mm 10 10",
+        text = "/date",
       )
     )
 
-    assertNull(clientPlayer1.tryGetLastReceived(ChatSMSG::class))
     assertNull(clientPlayer1.tryGetLastReceived(OperationErrorSMSG::class))
+    assertEquals(ChatCMSG.Type.COMMAND, clientPlayer1.getLastReceived(ChatSMSG::class).type)
   }
 }
 
