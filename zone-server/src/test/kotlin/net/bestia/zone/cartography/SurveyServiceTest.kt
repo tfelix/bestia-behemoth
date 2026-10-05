@@ -42,6 +42,7 @@ class SurveyServiceTest {
     asyncJobExecutor = asyncJobExecutor,
     worldService = worldService,
     outMessageProcessor = outMessageProcessor,
+    world = world,
     itemTemplates = itemTemplates
   )
 

@@ -429,17 +429,6 @@ class TradeService(
     asyncJobExecutor.submit(tradeId) { finish(session, reason, byAccountId = null) }
   }
 
-  /**
-   * The world ended it - they walked apart, or an entity went away.
-   *
-   * Reached by event rather than by [TradeRangeSystem] calling in, because a system holding this service
-   * would close a construction cycle back through the ECS world. Returns at once: the work is a worker's.
-   */
-  @EventListener
-  fun handleTradeInterrupted(event: TradeInterruptedEvent) {
-    cancelAsync(event.tradeId, event.reason)
-  }
-
   @EventListener
   fun handleAccountDisconnected(event: AccountDisconnectedEvent) {
     val tradeId = tradeByAccount[event.accountId] ?: return

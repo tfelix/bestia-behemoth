@@ -169,8 +169,9 @@ ECS library):
 - **`ecs/core/`** — the engine itself. Centered on `ecs/core/World.kt`: `ComponentStore`
   (sparse set, one per concrete component class — there are no archetypes), `SystemScheduler`
   ("wave" scheduling from declared read/write component sets), `EntityRegistry`,
-  `AsyncJobExecutor`. Spring wiring is `ecs/EcsConfiguration.kt`, which
-  collects every `System` bean into one `World`; `ecs/EcsRunner.kt` is an optional standalone
+  `AsyncJobExecutor`. Spring wiring is `ecs/EcsConfiguration.kt`, which builds the
+  `World` empty and registers every `System` bean once all singletons exist, so any service may inject
+  the `World` or `WorldView`; `ecs/EcsRunner.kt` is an optional standalone
   tick driver and `ecs/ZoneEngine.kt` is the real one (thread `zone-tick`).
 - Game logic implements `ecs/core/System.kt` — `update(world, deltaTime)` plus a `schedule`
   (`EveryTick` / `EveryTicks(n)` / `EverySeconds(s)`) and `reads`/`writes` sets — and registers

@@ -28,10 +28,8 @@ import net.bestia.zone.world.spoor.TrackReading
  *
  * ### Why the world is not injected
  *
- * A script is a Spring bean collected into [SkillStrategyFactory], which [SkillExecutionService] depends
- * on, which `CastingSystem` depends on, which the `World` bean is assembled from. A script that injected
- * `World` or [WorldView] would close that cycle and the context would fail at boot - the same cycle
- * `SurveyService` documents. The world reaches a script on its [SkillContext] and nowhere else.
+ * A script that injected `World` or [WorldView] would reach the world without being charged against its
+ * budget. The world reaches a script on its [SkillContext] and nowhere else.
  */
 interface SkillWorld {
 
