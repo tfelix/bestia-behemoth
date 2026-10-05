@@ -16,6 +16,7 @@ import net.bestia.zone.ecs.core.System
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.persistence.persisters.MasterEntityPersister
+import net.bestia.zone.ecs.persistence.persisters.PlayerBestiaEntityPersister
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component as SpringComponent
 
@@ -47,6 +48,6 @@ class PersistAndRemoveSystem(
       Master::class, Account::class, Position::class,
       Level::class, SkillPoints::class, StatusPoints::class, BaseStatusValues::class,
       Health::class, EntityVisual::class, GroundItemStack::class, StatusEffects::class,
-    ) + MasterEntityPersister.SNAPSHOT_READS
+    ) + MasterEntityPersister.SNAPSHOT_READS + PlayerBestiaEntityPersister.SNAPSHOT_READS
   }
 }
