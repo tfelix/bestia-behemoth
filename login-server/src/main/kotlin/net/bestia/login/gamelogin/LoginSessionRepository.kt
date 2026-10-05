@@ -12,6 +12,20 @@ interface LoginSessionRepository : JpaRepository<LoginSession, String> {
   @Query("DELETE FROM LoginSession s WHERE s.expiresAt < :cutoff")
   fun deleteExpired(@Param("cutoff") cutoff: LocalDateTime): Int
 
+  /** Binds a pending session to the account a ceremony authenticated; answers how many rows moved. */
+  @Modifying
+  @Query(
+    "UPDATE LoginSession s SET s.status = net.bestia.login.gamelogin.LoginSessionStatus.AUTHENTICATED, " +
+      "s.accountId = :accountId " +
+      "WHERE s.idHash = :idHash AND s.status = net.bestia.login.gamelogin.LoginSessionStatus.PENDING " +
+      "AND s.expiresAt > :now"
+  )
+  fun authenticate(
+    @Param("idHash") idHash: String,
+    @Param("accountId") accountId: Long,
+    @Param("now") now: LocalDateTime
+  ): Int
+
   /** Moves a session one step forward, and only from [from]; answers how many rows moved. */
   @Modifying
   @Query(
