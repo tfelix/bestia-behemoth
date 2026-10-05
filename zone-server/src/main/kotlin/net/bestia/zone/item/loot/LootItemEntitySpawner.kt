@@ -2,10 +2,12 @@ package net.bestia.zone.item.loot
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.util.EntityId
+import net.bestia.zone.ecs.ZoneConfig
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.entity.EntityVisual
 import net.bestia.zone.ecs.entity.VisualKind
+import net.bestia.zone.ecs.item.GroundItemDecay
 import net.bestia.zone.ecs.item.GroundItemStack
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.persistence.Persistent
@@ -19,7 +21,8 @@ import kotlin.random.Random
  */
 @Component
 class LootItemEntitySpawner(
-  private val lootItemRepository: LootItemRepository
+  private val lootItemRepository: LootItemRepository,
+  private val zoneConfig: ZoneConfig
 ) {
 
   @Transactional(readOnly = true)
@@ -62,6 +65,10 @@ class LootItemEntitySpawner(
         )
       )
       add(id, Persistent)
+      // A unique item is one of a kind, and its instance would be lost with it, so only plain items decay.
+      if (uniqueId == 0L) {
+        add(id, GroundItemDecay(zoneConfig.groundItemDespawnSeconds))
+      }
     }
 
     // Rehydrated ground items keep their persisted id; freshly dropped ones get a new one.
