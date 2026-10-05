@@ -1,5 +1,7 @@
 zone:
   jwt-auth-secret-key: "zone-test-secret-that-is-long-enough-for-hmac"
+  # A statement on the tick thread, or inside a world lease, stalls the whole world; in tests it is an error.
+  sql-on-tick: fail
 
 spring:
   # Pinned back to `none`: eleven test classes use a bare `@SpringBootTest`, which defaults to a MOCK web
@@ -59,10 +61,6 @@ ambient-spawn:
 # itself without needing a context.
 worldgen:
   enforce-client-layout: false
-
-# A statement on the tick thread, or inside a world lease, stalls the whole world; in tests it is an error.
-zone:
-  sql-on-tick: fail
 
 # Chunks are encoded at once on the tick, so a scenario sees them in the tick it asked.
 chunk-stream:
