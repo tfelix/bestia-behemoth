@@ -25,4 +25,6 @@ class SocketServerConfig(
   val unwritableTimeoutSeconds: Long = 10L,
   /** Unsent bytes past which a client is dropped at once, however short it has been busy. */
   val maxWriteBacklogBytes: Long = 4L * 1024 * 1024,
+  /** A connection that sends nothing for this long counts as dead; a live client pings every 10 s. */
+  val readIdleTimeoutSeconds: Long = 30L,
 )

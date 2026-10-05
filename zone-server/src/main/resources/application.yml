@@ -434,6 +434,8 @@ socket:
   # A client that stops reading is dropped after this long busy, or at once past this many unsent bytes.
   unwritable-timeout-seconds: 10
   max-write-backlog-bytes: 4194304
+  # The client pings every 10 s, so this is three missed pings.
+  read-idle-timeout-seconds: 30
   filter-log-messages:
     - "!comp_path"
     - "!comp_position"
