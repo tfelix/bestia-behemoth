@@ -4,8 +4,9 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.battle.GroundBattleContext
 import net.bestia.zone.battle.damage.Damage
+import net.bestia.zone.battle.LineOfSightService
+import net.bestia.zone.battle.skill.BasicMagicSkillStrategy
 import net.bestia.zone.battle.skill.SkillContext
-import net.bestia.zone.battle.skill.SkillStrategy
 import net.bestia.zone.cartography.CartographyConfig
 import net.bestia.zone.cartography.SurveyService
 import net.bestia.zone.ecs.core.World
@@ -15,8 +16,8 @@ import org.springframework.stereotype.Component
 /**
  * Charts the land around a point: the only way a new chart comes into the world.
  *
- * No range or line-of-sight gate - a survey is of the ground the surveyor is standing on, and the aimed-at
- * point only decides where the disc is centred.
+ * The aimed-at point decides where the disc is centred, so it is held to the catalogued range and line of
+ * sight: a chart reveals terrain and settlements and can be traded.
  *
  * [CartographyConfig] and [SurveyService] are injected directly rather than reached through the context:
  * neither needs a world of its own - the one method here that touches the world is handed it - so neither
@@ -27,7 +28,8 @@ import org.springframework.stereotype.Component
 class Cartography(
   private val config: CartographyConfig,
   private val surveyService: SurveyService,
-) : SkillStrategy {
+  losService: LineOfSightService,
+) : BasicMagicSkillStrategy(losService) {
 
   /**
    * A survey needs a sheet of blank vellum, and channels for five seconds before it uses one.
@@ -39,7 +41,9 @@ class Cartography(
   override fun checkCastStart(world: World, casterId: EntityId, skillLevel: Int): OpError? =
     surveyService.checkBlank(world, casterId)
 
-  override fun isCastPossible(ctx: SkillContext): Boolean = ctx.battle is GroundBattleContext
+  override fun isCastPossible(ctx: SkillContext): Boolean {
+    return ctx.battle is GroundBattleContext && super.isCastPossible(ctx)
+  }
 
   override fun execute(ctx: SkillContext): Damage? {
     ctx.requireGroundContext()
