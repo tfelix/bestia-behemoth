@@ -1,5 +1,9 @@
 server:
   port: 8080
+  # Production runs behind a TLS proxy, so every request arrives from the proxy's address. `native` lets Tomcat
+  # read the client's address from X-Forwarded-For, trusted only from private and loopback addresses - so a
+  # client talking to this server directly cannot pick its own address with the header.
+  forward-headers-strategy: native
 
 spring:
   # No profile here: `./gradlew :login-server:bootRun` activates `dev`, a packaged jar runs without it.

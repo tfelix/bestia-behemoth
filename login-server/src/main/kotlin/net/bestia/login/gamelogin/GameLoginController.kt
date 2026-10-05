@@ -248,9 +248,9 @@ class GameLoginController(
   }
 
   /**
-   * Keyed on the socket address rather than a forwarded header: there is no reverse proxy in front
-   * of this server today, and trusting X-Forwarded-For without one lets any caller pick its own
-   * bucket.
+   * Keyed on the client's address. Behind the TLS proxy that is the forwarded one, which Tomcat takes from
+   * X-Forwarded-For only when the proxy sent it (`server.forward-headers-strategy`), so a caller cannot pick
+   * its own bucket.
    */
   private fun allow(request: HttpServletRequest, bucket: String): Boolean {
     return rateLimiter.tryAcquire("$bucket:${request.remoteAddr}", REQUESTS_PER_WINDOW, WINDOW)
