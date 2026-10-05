@@ -54,6 +54,7 @@ enum ConnectionError {NO_ERROR, ZONE_CONNECTION_LOST}
 
 @onready var _socket = $BnetSocket
 @onready var _passkey_login = $PasskeyLogin
+@onready var _ping_timer: Timer = $PingTimer
 
 ## Watches the terrain stream and drives SceneManager's loading screen while the world arrives.
 ##
@@ -137,6 +138,11 @@ var _login_token: String = ""
 var _http_ticket: String = ""
 
 var last_connection_error: ConnectionError = ConnectionError.NO_ERROR
+
+## Round trip of the last answered ping, or -1 before the first pong.
+var rtt_ms: int = -1
+var _ping_sent_at_ms: int = 0
+
 var selected_master_info: MasterInfo = null
 
 # Set while we deliberately drop the connection (logout to main menu) so the socket-closed handler
@@ -673,6 +679,8 @@ func _on_bnet_socket_message_received(message: Object) -> void:
 		assert(_connection_state == ConnectionState.CONNECTED_NOT_AUTHED)
 		_connection_state = ConnectionState.CONNECTED_AUTHED
 		_http_ticket = message.HttpTicket
+		# The zone closes a connection that is silent for 30 s, so an idle player must still ping.
+		_ping_timer.start()
 		SceneManager.unblock_transition()
 		SceneManager.hide_loading()
 	elif message is Pong:
@@ -723,10 +731,8 @@ func _on_bnet_socket_message_received(message: Object) -> void:
 		printerr("ConnectionManager: message was not identified and processed: %s" % message)
 
 
-## Nothing acts on a pong yet. The handler stays because the ping needs somewhere to land, and a
-## round-trip figure belongs here once there is one to report.
 func _on_pong() -> void:
-	pass
+	rtt_ms = Time.get_ticks_msec() - _ping_sent_at_ms
 
 
 func is_ready_to_send() -> bool:
@@ -743,6 +749,8 @@ func _on_bnet_socket_connection_status_changed(status: int) -> void:
 	if status == 0:
 		# connection was closed, perform cleanup and inform the user.
 		_connection_state = ConnectionState.DISCONNECTED
+		_ping_timer.stop()
+		rtt_ms = -1
 		# The zone forgot this ticket the moment the socket died, so holding on to it would only let the map
 		# present a credential that is already refused.
 		_http_ticket = ""
@@ -773,5 +781,5 @@ func _on_bnet_socket_connection_status_changed(status: int) -> void:
 
 func _on_ping_timer_timeout() -> void:
 	if _connection_state == ConnectionState.CONNECTED_AUTHED:
-			var ping_msg = Ping.new()
-			_socket.SendMessage(ping_msg)
+		_ping_sent_at_ms = Time.get_ticks_msec()
+		_socket.SendMessage(Ping.new())
