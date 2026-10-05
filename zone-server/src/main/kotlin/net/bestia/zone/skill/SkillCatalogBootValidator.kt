@@ -1,7 +1,6 @@
 package net.bestia.zone.skill
 
-import org.springframework.boot.context.event.ApplicationReadyEvent
-import org.springframework.context.event.EventListener
+import net.bestia.zone.boot.CatalogValidator
 import org.springframework.stereotype.Component
 
 /**
@@ -24,18 +23,17 @@ import org.springframework.stereotype.Component
  * [net.bestia.zone.battle.skill.passive.PassiveSkillScriptRegistry] draws the same line for the same
  * reason.
  *
- * Runs on [ApplicationReadyEvent] because the catalogue is filled by
- * [net.bestia.zone.boot.SkillImporterBootRunner], a `CommandLineRunner`. At `@PostConstruct` time
- * the import has not run, so a fresh database would fail every check and an existing one would be
- * checked against the *previous* boot's content - which is the drift this is here to catch.
+ * Runs from [net.bestia.zone.boot.ContentValidationBootRunner], after
+ * [net.bestia.zone.boot.SkillImporterBootRunner] has filled the catalogue: at `@PostConstruct` time a
+ * fresh database would fail every check and an existing one would be checked against the *previous*
+ * boot's content.
  */
 @Component
 class SkillCatalogBootValidator(
   private val skillRepository: SkillRepository
-) {
+) : CatalogValidator {
 
-  @EventListener(ApplicationReadyEvent::class)
-  fun validateSkillCatalog() {
+  override fun validate() {
     val catalogued = skillRepository.findAll().mapTo(mutableSetOf()) { it.identifier }
 
     val problems = SkillId.entries

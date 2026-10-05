@@ -2,8 +2,7 @@ package net.bestia.zone.ai.domain.townsfolk
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.worldgen.pop.BusinessCatalogue
-import org.springframework.boot.context.event.ApplicationReadyEvent
-import org.springframework.context.event.EventListener
+import net.bestia.zone.boot.CatalogValidator
 import org.springframework.stereotype.Component
 
 /**
@@ -20,15 +19,13 @@ import org.springframework.stereotype.Component
  * a name off it, and a new trade added to `BusinessCatalogue` fails the boot until somebody decides which
  * side it is on.
  *
- * On [ApplicationReadyEvent] rather than at construction because it needs a catalogue the boot fills in
- * later - the item, recipe and mob importers are `CommandLineRunner`s, and this will grow to check against
- * them as occupations gain recipes.
+ * Runs from [net.bestia.zone.boot.ContentValidationBootRunner] rather than at construction because it will
+ * grow to check against the item, recipe and mob catalogues, which the boot fills in later.
  */
 @Component
-class OccupationCoverage(private val occupations: OccupationCatalogue) {
+class OccupationCoverage(private val occupations: OccupationCatalogue) : CatalogValidator {
 
-  @EventListener(ApplicationReadyEvent::class)
-  fun check() {
+  override fun validate() {
     val trades = BusinessCatalogue.ALL.map { it.id }.toSet()
     val unstaffed = occupations.unstaffedTrades()
 

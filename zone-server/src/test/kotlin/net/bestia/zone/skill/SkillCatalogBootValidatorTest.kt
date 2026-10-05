@@ -25,7 +25,7 @@ class SkillCatalogBootValidatorTest {
     val shipped = shippedIdentifiers()
     assertTrue(shipped.isNotEmpty(), "skills.yml should not be empty")
 
-    assertDoesNotThrow { validatorOver(shipped).validateSkillCatalog() }
+    assertDoesNotThrow { validatorOver(shipped).validate() }
   }
 
   @Test
@@ -33,7 +33,7 @@ class SkillCatalogBootValidatorTest {
     val withoutCarpentry = shippedIdentifiers() - SkillId.CARPENTRY.name
 
     val e = assertThrows<SkillCatalogMismatchException> {
-      validatorOver(withoutCarpentry).validateSkillCatalog()
+      validatorOver(withoutCarpentry).validate()
     }
 
     assertTrue(e.message!!.contains("SkillId.CARPENTRY"), "should name the orphaned constant: ${e.message}")
@@ -42,7 +42,7 @@ class SkillCatalogBootValidatorTest {
   /** Every constant is named, not only the first one to miss - one boot should report all the drift. */
   @Test
   fun `an empty catalogue names every constant`() {
-    val e = assertThrows<SkillCatalogMismatchException> { validatorOver(emptySet()).validateSkillCatalog() }
+    val e = assertThrows<SkillCatalogMismatchException> { validatorOver(emptySet()).validate() }
 
     SkillId.entries.forEach { skill ->
       assertTrue(e.message!!.contains("SkillId.${skill.name}"), "should name ${skill.name}: ${e.message}")
@@ -58,7 +58,7 @@ class SkillCatalogBootValidatorTest {
   fun `a catalogued skill with no SkillId constant is not an error`() {
     val withNewContent = SkillId.entries.mapTo(mutableSetOf()) { it.name } + "SOME_NEW_CONTENT_SKILL"
 
-    assertDoesNotThrow { validatorOver(withNewContent).validateSkillCatalog() }
+    assertDoesNotThrow { validatorOver(withNewContent).validate() }
   }
 
   private fun validatorOver(identifiers: Set<String>): SkillCatalogBootValidator {

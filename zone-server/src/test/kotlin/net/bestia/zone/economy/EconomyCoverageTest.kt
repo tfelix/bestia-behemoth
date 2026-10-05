@@ -40,7 +40,7 @@ class EconomyCoverageTest {
   fun `I22 - every trade the generator builds has an economy entry`() {
     recipes.load(emptyList())
 
-    coverage().check()
+    coverage().validate()
   }
 
   @Test
@@ -63,7 +63,7 @@ class EconomyCoverageTest {
     every { items.findByIdentifier("ale") } returns Item(id = 900, identifier = "ale", weight = 1, type = Item.ItemType.ETC)
     recipes.load(emptyList())
 
-    val error = assertFailsWith<IllegalArgumentException> { coverage(stillWaitingFor("brewer", "ale")).check() }
+    val error = assertFailsWith<IllegalArgumentException> { coverage(stillWaitingFor("brewer", "ale")).validate() }
 
     assertTrue(error.message!!.contains("brewer"), "the message does not name the trade: ${error.message}")
   }
@@ -74,7 +74,7 @@ class EconomyCoverageTest {
     // times the price of grain and the band between the floor and the ceiling is eight times wide.
     recipes.load(listOf(bake(grainPerLoaf = 3, chance = 1.0f)))
 
-    val error = assertFailsWith<IllegalArgumentException> { coverage().check() }
+    val error = assertFailsWith<IllegalArgumentException> { coverage().validate() }
 
     assertTrue(error.message!!.contains("BAKE"), "the message does not name the recipe: ${error.message}")
   }
@@ -86,7 +86,7 @@ class EconomyCoverageTest {
     // is break-even to the penny and is refused too, because "not profitable" is the wrong bar.
     recipes.load(listOf(bake(grainPerLoaf = 25, chance = 1.0f)))
 
-    coverage().check()
+    coverage().validate()
   }
 
   @Test
@@ -95,7 +95,7 @@ class EconomyCoverageTest {
     // one attempt in ten.
     recipes.load(listOf(bake(grainPerLoaf = 3, chance = 0.1f)))
 
-    coverage().check()
+    coverage().validate()
   }
 
   private fun coverage(catalogue: EconomyCatalogue = this.catalogue) =

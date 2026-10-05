@@ -19,7 +19,7 @@ class DialogCatalogBootValidatorTest {
     DialogImporterBootRunner(registry).run()
 
     assertEquals(DialogId.entries.size, registry.all().size, "one dialogs.yml entry per DialogId constant")
-    assertDoesNotThrow { DialogCatalogBootValidator(registry).validateDialogCatalog() }
+    assertDoesNotThrow { DialogCatalogBootValidator(registry).validate() }
   }
 
   @Test
@@ -41,7 +41,7 @@ class DialogCatalogBootValidatorTest {
     val registry = DialogDefinitionRegistry().apply { load(emptyList()) }
 
     val e = assertThrows<DialogCatalogMismatchException> {
-      DialogCatalogBootValidator(registry).validateDialogCatalog()
+      DialogCatalogBootValidator(registry).validate()
     }
 
     assertTrue(e.message!!.contains("MASTER_INTRO"), "should name the orphaned constant: ${e.message}")
@@ -57,7 +57,7 @@ class DialogCatalogBootValidatorTest {
     }
 
     val e = assertThrows<DialogCatalogMismatchException> {
-      DialogCatalogBootValidator(registry).validateDialogCatalog()
+      DialogCatalogBootValidator(registry).validate()
     }
 
     assertTrue(e.message!!.contains("GHOST"), "should name the unsendable dialog: ${e.message}")
@@ -79,7 +79,7 @@ class DialogCatalogBootValidatorTest {
     }
 
     val e = assertThrows<DialogCatalogMismatchException> {
-      DialogCatalogBootValidator(registry).validateDialogCatalog()
+      DialogCatalogBootValidator(registry).validate()
     }
 
     assertTrue(e.message!!.contains("RENAMED_INTRO"), "should name the mismatch: ${e.message}")

@@ -1,11 +1,10 @@
 package net.bestia.zone.item.script
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.zone.boot.CatalogValidator
 import net.bestia.zone.item.Item
 import net.bestia.zone.item.ItemRepository
 import net.bestia.zone.item.equip.script.EquipmentScriptRegistry
-import org.springframework.boot.CommandLineRunner
-import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
 
 /**
@@ -15,14 +14,13 @@ import org.springframework.stereotype.Component
  * typo would otherwise just silently grant no bonus at all.
  */
 @Component
-@Order(200) // Run after item imports (order 100) and the EquipmentScriptRegistry binding (order 150)
 class ItemScriptValidator(
   private val itemRepository: ItemRepository,
   private val itemScripts: List<ItemScript>,
   private val equipmentScriptRegistry: EquipmentScriptRegistry,
-) : CommandLineRunner {
+) : CatalogValidator {
 
-  override fun run(vararg args: String?) {
+  override fun validate() {
     LOG.info { "Validating ${itemScripts.size} item script(s)..." }
 
     // Check for duplicate scripts (multiple scripts with the same itemId)

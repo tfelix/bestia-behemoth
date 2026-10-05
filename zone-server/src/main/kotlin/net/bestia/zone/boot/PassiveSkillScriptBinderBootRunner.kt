@@ -13,15 +13,11 @@ import org.springframework.stereotype.Component
  * ordered right after it for the same reason: it needs the catalogue its importer
  * ([SkillImporterBootRunner], order 101) has just written.
  *
- * ### Why a CommandLineRunner rather than an ApplicationReadyEvent listener
+ * ### Why a CommandLineRunner
  *
- * The neighbouring script *validators* listen for `ApplicationReadyEvent`, because the tables they
- * check are only filled by `CommandLineRunner`s. Binding cannot follow them: every
- * `CommandLineRunner` completes before that event fires, and `WorldBootRunner` starts the tick loop
- * from one of them - so a listener-based binder would publish its mapping after the world had
- * already ticked, leaving the first recalcs (including entities dirtied by
- * [StatusEffectRestoreBootRunner], order 111) looking at an empty registry. Late *validation* is
- * harmless; late *binding* is a silently wrong result.
+ * `WorldBootRunner` starts the tick loop from a runner, so a binder that ran any later would publish its
+ * mapping after the world had already ticked, leaving the first recalcs (including entities dirtied by
+ * [StatusEffectRestoreBootRunner], order 111) looking at an empty registry.
  */
 @Component
 @Order(151)
