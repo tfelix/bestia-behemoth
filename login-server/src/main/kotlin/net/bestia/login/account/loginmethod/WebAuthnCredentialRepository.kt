@@ -10,4 +10,6 @@ interface WebAuthnCredentialRepository : JpaRepository<WebAuthnCredential, Long>
   fun existsByCredentialId(credentialId: ByteArray): Boolean
 
   fun countByAccountId(accountId: Long): Long
+
+  fun deleteAllByAccountIdAndIdNot(accountId: Long, id: Long): Long
 }

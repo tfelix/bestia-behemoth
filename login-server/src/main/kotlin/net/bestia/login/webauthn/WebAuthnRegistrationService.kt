@@ -200,6 +200,12 @@ class WebAuthnRegistrationService(
         "(backupEligible=${stored.backupEligible}, discoverable=${stored.discoverable})"
     }
 
+    // A recovery means the owner lost the old passkeys, and whoever has them now must not keep a way in.
+    if (ceremony.ceremonyType == CeremonyType.RECOVERY) {
+      val removed = credentials.deleteAllByAccountIdAndIdNot(account.id, stored.id)
+      LOG.warn { "Recovery of account ${account.id} removed its $removed other credential(s)" }
+    }
+
     return FinishedRegistration(
       accountId = account.id,
       credentialRowId = stored.id,
