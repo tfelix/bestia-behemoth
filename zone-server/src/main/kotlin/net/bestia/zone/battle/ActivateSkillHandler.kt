@@ -5,6 +5,7 @@ import net.bestia.zone.battle.skill.NoSkillScriptException
 import net.bestia.zone.battle.skill.SkillCheckService
 import net.bestia.zone.battle.skill.SkillExecutionService
 import net.bestia.zone.battle.skill.SkillStrategyFactory
+import net.bestia.zone.battle.skill.SkillTargetType
 import net.bestia.zone.ecs.battle.damage.DeadActionGuard
 import net.bestia.zone.ecs.battle.skill.Casting
 import net.bestia.zone.ecs.core.WorldView
@@ -15,6 +16,7 @@ import net.bestia.zone.message.InMessageProcessor
 import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.skill.SkillRepository
+import net.bestia.zone.util.EntityId
 import net.bestia.zone.world.prop.PropPromotionService
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
@@ -92,10 +94,31 @@ class ActivateSkillHandler(
       return true
     }
 
-    // An entity-targeted skill carries a target id (the client sends 0 when nothing was picked); a
-    // ground-targeted one falls back to the position, which is always present on the wire.
-    val targetEntityId = msg.targetEntityId.takeIf { it != 0L }
-    val targetPosition: Vec3L? = if (targetEntityId == null) msg.targetPosition else null
+    // The kind of target comes from the catalogue, not from what the client filled in. The client sends 0 when
+    // nothing was picked, and the position is always present on the wire.
+    val pickedEntityId = msg.targetEntityId.takeIf { it != 0L }
+    val targetEntityId: EntityId?
+    val targetPosition: Vec3L?
+    when (skill.targetType) {
+      SkillTargetType.GROUND, SkillTargetType.AOE_GROUND -> {
+        targetEntityId = null
+        targetPosition = msg.targetPosition
+      }
+
+      SkillTargetType.ENEMY -> {
+        if (pickedEntityId == null) {
+          LOG.debug { "Activation of ${skill.identifier} by $activeEntityId refused: no target picked" }
+          return true
+        }
+        targetEntityId = pickedEntityId
+        targetPosition = null
+      }
+
+      SkillTargetType.FRIENDLY -> {
+        targetEntityId = pickedEntityId ?: activeEntityId
+        targetPosition = null
+      }
+    }
 
     val started = world.modify(activeEntityId) { id ->
       // Before the cast-time branch, deliberately: a message-handler context never runs nested inside

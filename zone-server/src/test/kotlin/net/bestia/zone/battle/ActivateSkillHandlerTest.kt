@@ -127,6 +127,34 @@ class ActivateSkillHandlerTest {
     verify(exactly = 0) { skillExecution.execute(any(), any(), any(), any(), any(), any()) }
   }
 
+  @Test
+  fun `a ground skill is cast at the position even when an entity was sent`() {
+    val caster = world.spawnCaster()
+
+    handlerFor(caster, skill(castTime = 0f, targetType = SkillTargetType.GROUND)).handle(activate(caster))
+
+    verify(exactly = 1) { skillExecution.execute(any(), caster, SKILL_ID, 1, null, Vec3L.ZERO) }
+  }
+
+  @Test
+  fun `an enemy skill without a target is refused`() {
+    val caster = world.spawnCaster()
+
+    handlerFor(caster, skill(castTime = 0f, targetType = SkillTargetType.ENEMY)).handle(activate(NO_TARGET))
+
+    verify(exactly = 0) { skillExecution.execute(any(), any(), any(), any(), any(), any()) }
+  }
+
+  /** The Skills window's "Use" button sends no target, and a friendly skill used that way means the caster. */
+  @Test
+  fun `a friendly skill without a target is cast on the caster`() {
+    val caster = world.spawnCaster()
+
+    handlerFor(caster, skill(castTime = 0f, targetType = SkillTargetType.FRIENDLY)).handle(activate(NO_TARGET))
+
+    verify(exactly = 1) { skillExecution.execute(any(), caster, SKILL_ID, 1, caster, null) }
+  }
+
   private fun activate(target: EntityId, skillLevel: Int = 1) = ActivateSkillCMSG(
     playerId = ACCOUNT_ID,
     attackId = SKILL_ID,
@@ -136,14 +164,14 @@ class ActivateSkillHandlerTest {
   )
 
   /** [script] names `TestScript`, the simple name a `SkillStrategyFactory` keys the test script under. */
-  private fun skill(castTime: Float) = Skill(
+  private fun skill(castTime: Float, targetType: SkillTargetType = SkillTargetType.ENEMY) = Skill(
     id = SKILL_ID,
     identifier = "TEST_SKILL",
     strength = null,
     script = "TestScript",
     manaCost = 0,
     range = 100,
-    targetType = SkillTargetType.ENEMY,
+    targetType = targetType,
     needsLineOfSight = false,
     castTime = castTime,
     requiredLevel = 0
@@ -157,5 +185,6 @@ class ActivateSkillHandlerTest {
   private companion object {
     const val ACCOUNT_ID = 1L
     const val SKILL_ID = 1L
+    const val NO_TARGET = 0L
   }
 }
