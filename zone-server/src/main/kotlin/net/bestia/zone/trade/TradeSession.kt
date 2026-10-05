@@ -17,6 +17,7 @@ internal class TradeSession(
   val tradeId: Long,
   val requester: Side,
   val target: Side,
+  val requestedAtNanos: Long = System.nanoTime(),
 ) {
 
   var status: TradeStatus = TradeStatus.PENDING
