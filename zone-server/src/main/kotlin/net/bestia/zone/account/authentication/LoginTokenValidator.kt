@@ -8,8 +8,6 @@ import net.bestia.zone.ZoneConfig
 import net.bestia.zone.account.authentication.JwtLoginException
 import org.springframework.stereotype.Component
 import java.nio.charset.StandardCharsets
-import java.util.Date
-import java.util.concurrent.ConcurrentHashMap
 import javax.crypto.SecretKey
 
 @Component
@@ -23,8 +21,8 @@ class LoginTokenValidator(
     config.jwtAuthSecretKey.toByteArray(StandardCharsets.UTF_8)
   )
 
-  /** Ids of tokens already used, until the token expires: a token is good for exactly one handshake. */
-  private val usedTokenIds = ConcurrentHashMap<String, Long>()
+  /** A token is good for exactly one handshake, so a sniffed token cannot take over the session. */
+  private val usedTokenIds = SingleUseTokenIds()
 
   data class LoginTokenClaims(
     val accountId: Long,
@@ -59,7 +57,9 @@ class LoginTokenValidator(
 
       val tokenId = claims.id ?: throw JwtLoginException("Missing token id")
       val expiresAt = claims.expiration ?: throw JwtLoginException("Missing expiry")
-      acceptOnce(tokenId, expiresAt)
+      if (!usedTokenIds.acceptOnce(tokenId, expiresAt)) {
+        throw JwtLoginException("Token already used")
+      }
 
       return LoginTokenClaims(
         accountId = claims.subject.toLong(),
@@ -70,16 +70,6 @@ class LoginTokenValidator(
       throw e
     } catch (e: Exception) {
       throw JwtLoginException("Token validation failed: ${e.message}")
-    }
-  }
-
-  /** A token seen once and then replayed is refused, so a sniffed token cannot take over the session. */
-  private fun acceptOnce(tokenId: String, expiresAt: Date) {
-    val now = System.currentTimeMillis()
-    usedTokenIds.values.removeIf { it < now }
-
-    if (usedTokenIds.putIfAbsent(tokenId, expiresAt.time) != null) {
-      throw JwtLoginException("Token already used")
     }
   }
 }

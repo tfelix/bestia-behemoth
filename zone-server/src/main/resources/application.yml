@@ -457,7 +457,8 @@ spring:
     # these are two ports on one process, not one protocol carrying both.
     web-application-type: servlet
 
-# The map tile endpoint. Nothing else is served over HTTP.
+# The map tile endpoint, and the internal API the login server calls (`/internal/`). A proxy in front of the
+# tiles must never route `/internal/` from the outside: the service token is then the only thing guarding it.
 #
 # A different port from `socket.port` above so the two can be firewalled and load-balanced apart: tiles are
 # cacheable public-ish assets that a CDN could reasonably sit in front of, and the game socket is neither.

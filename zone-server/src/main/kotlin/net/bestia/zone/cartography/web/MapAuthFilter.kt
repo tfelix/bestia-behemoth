@@ -38,7 +38,7 @@ class MapAuthFilter(
   private val connectionInfoService: ConnectionInfoService,
 ) : OncePerRequestFilter() {
 
-  /** Only the map is behind this. Nothing else is served over HTTP, but that is not this filter's business. */
+  /** Only the map is behind this. The internal API has its own filter. */
   override fun shouldNotFilter(request: HttpServletRequest): Boolean {
     return !request.requestURI.startsWith(PREFIX)
   }
