@@ -3,11 +3,10 @@ package net.bestia.zone.economy
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.worldgen.resource.GradeMix
 import net.bestia.worldgen.resource.OreGrade
+import net.bestia.zone.boot.CatalogValidator
 import net.bestia.zone.crafting.RecipeRegistry
 import net.bestia.zone.item.ItemRepository
 import net.bestia.zone.world.mining.OreYield
-import org.springframework.boot.context.event.ApplicationReadyEvent
-import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
 import kotlin.math.abs
 
@@ -25,10 +24,9 @@ class MintChainValidator(
   private val recipes: RecipeRegistry,
   private val items: ItemRepository,
   private val config: EconomyConfig,
-) {
+) : CatalogValidator {
 
-  @EventListener(ApplicationReadyEvent::class)
-  fun check() {
+  override fun validate() {
     val mint = recipes.all().firstOrNull { it.identifier == MINT_RECIPE }
     if (mint == null) {
       LOG.info { "No $MINT_RECIPE recipe, so no coin can be minted; the supply is whatever NPCs were given" }

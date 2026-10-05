@@ -1,8 +1,7 @@
 package net.bestia.zone.dialog
 
 import net.bestia.zone.BestiaException
-import org.springframework.boot.context.event.ApplicationReadyEvent
-import org.springframework.context.event.EventListener
+import net.bestia.zone.boot.CatalogValidator
 import org.springframework.stereotype.Component
 
 /**
@@ -16,17 +15,15 @@ import org.springframework.stereotype.Component
  * mistakes with no legitimate in-between state, so failing immediately is cheaper than a warning
  * nobody reads.
  *
- * Runs on [ApplicationReadyEvent] because the catalog is filled by
- * [net.bestia.zone.boot.DialogImporterBootRunner], a `CommandLineRunner` - at `@PostConstruct` time
- * the registry is still empty and every check would trivially pass.
+ * Runs from [net.bestia.zone.boot.ContentValidationBootRunner], after
+ * [net.bestia.zone.boot.DialogImporterBootRunner] has filled the catalog.
  */
 @Component
 class DialogCatalogBootValidator(
   private val dialogDefinitionRegistry: DialogDefinitionRegistry
-) {
+) : CatalogValidator {
 
-  @EventListener(ApplicationReadyEvent::class)
-  fun validateDialogCatalog() {
+  override fun validate() {
     val problems = mutableListOf<String>()
 
     DialogId.entries.forEach { dialog ->

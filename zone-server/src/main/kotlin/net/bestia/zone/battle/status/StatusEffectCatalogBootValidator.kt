@@ -1,8 +1,7 @@
 package net.bestia.zone.battle.status
 
 import net.bestia.zone.BestiaException
-import org.springframework.boot.context.event.ApplicationReadyEvent
-import org.springframework.context.event.EventListener
+import net.bestia.zone.boot.CatalogValidator
 import org.springframework.stereotype.Component
 
 /**
@@ -11,21 +10,23 @@ import org.springframework.stereotype.Component
  * the enum gives call sites a compiler-checked symbol - and this is what stops that duplication from
  * rotting. Mirrors [net.bestia.zone.dialog.DialogCatalogBootValidator].
  *
- * Throws instead of logging: a [StatusEffectId] with no catalog entry throws at the moment someone
- * tries to apply it, and a catalog entry with no enum constant is an effect nothing can ever apply.
- * Both are authoring mistakes with no legitimate in-between state.
+ * Also checks that every entry's `script` names a [StatusEffectScript] bean.
  *
- * Runs on [ApplicationReadyEvent] because the catalog is filled by
- * [net.bestia.zone.boot.StatusEffectImporterBootRunner], a `CommandLineRunner` - at
- * `@PostConstruct` time the registry is still empty and every check would trivially pass.
+ * Throws instead of logging: a [StatusEffectId] with no catalog entry throws at the moment someone
+ * tries to apply it, a catalog entry with no enum constant is an effect nothing can ever apply, and an
+ * unknown script throws when the effect is applied. All are authoring mistakes with no legitimate
+ * in-between state.
+ *
+ * Runs from [net.bestia.zone.boot.ContentValidationBootRunner], after
+ * [net.bestia.zone.boot.StatusEffectImporterBootRunner] has filled the catalog.
  */
 @Component
 class StatusEffectCatalogBootValidator(
-  private val statusEffectDefinitionRegistry: StatusEffectDefinitionRegistry
-) {
+  private val statusEffectDefinitionRegistry: StatusEffectDefinitionRegistry,
+  private val statusEffectScriptRegistry: StatusEffectScriptRegistry,
+) : CatalogValidator {
 
-  @EventListener(ApplicationReadyEvent::class)
-  fun validateStatusEffectCatalog() {
+  override fun validate() {
     val problems = mutableListOf<String>()
 
     StatusEffectId.entries.forEach { effect ->
@@ -46,6 +47,13 @@ class StatusEffectCatalogBootValidator(
       .forEach { definition ->
         problems += "status_effects.yml '${definition.identifier}' (id=${definition.id}) has no " +
           "StatusEffectId constant, so nothing can apply it"
+      }
+
+    statusEffectDefinitionRegistry.all()
+      .filter { statusEffectScriptRegistry.get(it.script) == null }
+      .forEach { definition ->
+        problems += "status_effects.yml '${definition.identifier}' names script '${definition.script}', " +
+          "which no StatusEffectScript bean implements"
       }
 
     if (problems.isNotEmpty()) {

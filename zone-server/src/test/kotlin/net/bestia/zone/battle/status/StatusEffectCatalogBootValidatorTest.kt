@@ -1,5 +1,7 @@
 package net.bestia.zone.battle.status
 
+import io.mockk.every
+import io.mockk.mockk
 import net.bestia.zone.boot.StatusEffectImporterBootRunner
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -9,6 +11,9 @@ import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
 
 class StatusEffectCatalogBootValidatorTest {
+
+  /** Knows every script name; whether the shipped scripts exist as beans is checked at Spring boot. */
+  private val everyScript = mockk<StatusEffectScriptRegistry>().also { every { it.get(any()) } returns mockk() }
 
   /**
    * Runs the real importer over the real `status_effects.yml`, so adding an effect to one side and
@@ -23,7 +28,7 @@ class StatusEffectCatalogBootValidatorTest {
       registry.all().size,
       "one status_effects.yml entry per StatusEffectId constant"
     )
-    assertDoesNotThrow { StatusEffectCatalogBootValidator(registry).validateStatusEffectCatalog() }
+    assertDoesNotThrow { StatusEffectCatalogBootValidator(registry, everyScript).validate() }
   }
 
   /**
@@ -50,7 +55,7 @@ class StatusEffectCatalogBootValidatorTest {
     val registry = StatusEffectDefinitionRegistry().apply { load(emptyList()) }
 
     val e = assertThrows<StatusEffectCatalogMismatchException> {
-      StatusEffectCatalogBootValidator(registry).validateStatusEffectCatalog()
+      StatusEffectCatalogBootValidator(registry, everyScript).validate()
     }
 
     assertTrue(e.message!!.contains("SWIFTNESS"), "should name the orphaned constant: ${e.message}")
@@ -66,7 +71,7 @@ class StatusEffectCatalogBootValidatorTest {
     }
 
     val e = assertThrows<StatusEffectCatalogMismatchException> {
-      StatusEffectCatalogBootValidator(registry).validateStatusEffectCatalog()
+      StatusEffectCatalogBootValidator(registry, everyScript).validate()
     }
 
     assertTrue(e.message!!.contains("GHOST"), "should name the unapplicable effect: ${e.message}")
@@ -88,7 +93,7 @@ class StatusEffectCatalogBootValidatorTest {
     }
 
     val e = assertThrows<StatusEffectCatalogMismatchException> {
-      StatusEffectCatalogBootValidator(registry).validateStatusEffectCatalog()
+      StatusEffectCatalogBootValidator(registry, everyScript).validate()
     }
 
     assertTrue(e.message!!.contains("RENAMED_HASTE"), "should name the mismatch: ${e.message}")
@@ -107,4 +112,16 @@ class StatusEffectCatalogBootValidatorTest {
     isSyncedToClient = true,
     script = "Swiftness"
   )
+
+  @Test
+  fun `a script no bean implements fails the boot`() {
+    val registry = loadShippedCatalog()
+    val noScripts = mockk<StatusEffectScriptRegistry>().also { every { it.get(any()) } returns null }
+
+    val e = assertThrows<StatusEffectCatalogMismatchException> {
+      StatusEffectCatalogBootValidator(registry, noScripts).validate()
+    }
+
+    assertTrue(e.message!!.contains("BlessingStatusEffect"), "should name the missing script: ${e.message}")
+  }
 }

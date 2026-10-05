@@ -2,9 +2,8 @@ package net.bestia.zone.battle.skill.scripts
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.battle.skill.SkillStrategyFactory
+import net.bestia.zone.boot.CatalogValidator
 import net.bestia.zone.skill.SkillRepository
-import org.springframework.boot.context.event.ApplicationReadyEvent
-import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
 
 /**
@@ -18,8 +17,8 @@ import org.springframework.stereotype.Component
  * client's `is_passive` from it. A `script` naming a passive bean therefore shows up in this warning, which
  * is the intended way to notice the mistake.
  *
- * Runs on [ApplicationReadyEvent] rather than `@PostConstruct` because the `skill` table is only populated by
- * `SkillImporterBootRunner` (a `CommandLineRunner`), which runs *after* bean construction.
+ * Runs from [net.bestia.zone.boot.ContentValidationBootRunner], after `SkillImporterBootRunner` has filled the
+ * `skill` table.
  *
  * This logs instead of throwing: the Survival, Scholar and Warrior trees are catalogued against a design that
  * is not refined yet, so most of their scripts do not exist, and a hard failure would make the server
@@ -30,10 +29,9 @@ import org.springframework.stereotype.Component
 class SkillScriptBootValidator(
   private val skillRepository: SkillRepository,
   private val skillStrategyFactory: SkillStrategyFactory,
-) {
+) : CatalogValidator {
 
-  @EventListener(ApplicationReadyEvent::class)
-  fun validateSkillScripts() {
+  override fun validate() {
     val missing = skillRepository.findAll()
       .mapNotNull { skill -> skill.script?.let { skill.identifier to it } }
       .filterNot { (_, script) -> skillStrategyFactory.has(script) }

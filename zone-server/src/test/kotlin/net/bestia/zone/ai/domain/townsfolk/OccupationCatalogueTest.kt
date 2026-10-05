@@ -34,7 +34,7 @@ class OccupationCatalogueTest {
 
   @Test
   fun `every trade is either kept by somebody or listed as deliberately empty`() {
-    OccupationCoverage(catalogue).check()
+    OccupationCoverage(catalogue).validate()
   }
 
   @Test

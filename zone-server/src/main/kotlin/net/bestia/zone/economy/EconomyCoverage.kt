@@ -2,17 +2,16 @@ package net.bestia.zone.economy
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.worldgen.pop.BusinessCatalogue
+import net.bestia.zone.boot.CatalogValidator
 import net.bestia.zone.crafting.Recipe
 import net.bestia.zone.crafting.RecipeEffect
 import net.bestia.zone.crafting.RecipeRegistry
 import net.bestia.zone.item.ItemRepository
-import org.springframework.boot.context.event.ApplicationReadyEvent
-import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
 
 /**
  * The economy checks that need catalogues the boot fills in later - the items and the recipes are written
- * by `CommandLineRunner`s, so none of this can run at construction. `OccupationCoverage`'s shape.
+ * by `CommandLineRunner`s, so this runs from [net.bestia.zone.boot.ContentValidationBootRunner].
  *
  * Three failures, all of them silent without a boot check:
  *
@@ -28,10 +27,9 @@ class EconomyCoverage(
   private val recipes: RecipeRegistry,
   private val items: ItemRepository,
   private val commodityItems: CommodityItems,
-) {
+) : CatalogValidator {
 
-  @EventListener(ApplicationReadyEvent::class)
-  fun check() {
+  override fun validate() {
     val priced = commodityItems.priced()
 
     checkEveryTradeIsAccountedFor()

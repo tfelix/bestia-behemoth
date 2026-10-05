@@ -14,10 +14,8 @@ import org.springframework.stereotype.Component
  * The mapping runs identifier -> id rather than the other way round, because a script names its own
  * skill (see [PassiveSkillScript.skill]); the id itself is content owned by `skills.yml`.
  * It is injected once at boot by
- * [net.bestia.zone.boot.PassiveSkillScriptBinderBootRunner], which must be a `CommandLineRunner`
- * rather than an `ApplicationReadyEvent` listener like the neighbouring *validators* - the tick loop
- * is already running by the time that event fires, so a late binding would leave the first recalcs
- * looking at an empty registry.
+ * [net.bestia.zone.boot.PassiveSkillScriptBinderBootRunner], a `CommandLineRunner` that runs before the
+ * tick loop starts, so the first recalcs never look at an empty registry.
  */
 @Component
 class PassiveSkillScriptRegistry(
