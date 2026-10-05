@@ -1,11 +1,14 @@
 package net.bestia.zone.ecs.persistence
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import net.bestia.zone.bestia.BestiaEntitySpawner
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.core.SnowflakeEntityIdGenerator
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.persistence.persisters.MobEntityPersister
+import net.bestia.zone.ecs.spawn.DenIdentity
+import net.bestia.zone.ecs.spawn.DenMember
 import net.bestia.zone.entity.PersistedEntityRepository
 import net.bestia.zone.geometry.Vec3L
 import org.junit.jupiter.api.BeforeEach
@@ -14,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
@@ -34,6 +38,9 @@ class EntityPersistenceRoundTripTest {
 
   @Autowired
   private lateinit var persistedEntityRepository: PersistedEntityRepository
+
+  @Autowired
+  private lateinit var objectMapper: ObjectMapper
 
   @BeforeEach
   fun clean() {
@@ -65,6 +72,24 @@ class EntityPersistenceRoundTripTest {
       assertEquals(pos, getOrThrow(entityId, Position::class).toVec3L())
       assertEquals(3, getOrThrow(entityId, Health::class).current)
     }
+  }
+
+  @Test
+  fun `a saved den creature comes back once, unsaved, and its row is queued for deletion`() {
+    val spawnWorld = newWorld()
+    val den = DenMember(DenIdentity(featureId = 7L, worldId = 1L, worldVersion = 1L))
+    val entityId = bestiaEntitySpawner.spawnMob(spawnWorld, bestiaId = BLOB_BESTIA_ID, pos = Vec3L(1, 2, 3), den = den)
+    val snapshot = spawnWorld.read { mobEntityPersister.snapshot(this, entityId) }
+    mobEntityPersister.persist(listOf(assertNotNull(snapshot)))
+
+    // Its own queue, because the running zone drains the shared one every second.
+    val deletionQueue = PersistedEntityDeletionQueue()
+    val reloadWorld = newWorld()
+    MobEntityPersister(persistedEntityRepository, bestiaEntitySpawner, objectMapper, deletionQueue).loadAll(reloadWorld)
+
+    assertTrue(reloadWorld.isAlive(entityId))
+    assertFalse(reloadWorld.read { has(entityId, Persistent::class) }, "it would be saved again")
+    assertEquals(listOf(entityId), deletionQueue.drainAll())
   }
 
   /** An isolated, non-ticking world so systems (the blob wanders) can't perturb the assertions. */

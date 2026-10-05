@@ -8,7 +8,6 @@ import net.bestia.zone.ecs.item.GroundItemStack
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.persistence.EntityPersister
 import net.bestia.zone.ecs.persistence.EntitySnapshot
-import net.bestia.zone.entity.PersistedComponent
 import net.bestia.zone.entity.PersistedEntity
 import net.bestia.zone.entity.PersistedEntityRepository
 import net.bestia.zone.geometry.Vec3L
@@ -56,9 +55,7 @@ class LootItemEntityPersister(
     val rows = snapshots.map { snap ->
       val row = existing[snap.entityId] ?: PersistedEntity(entityId = snap.entityId, kind = kind)
       row.updatedAt = Instant.now()
-      row.replaceComponents(
-        listOf(PersistedComponent(type = kind, data = objectMapper.writeValueAsString(snap)))
-      )
+      row.writeComponent(kind, objectMapper.writeValueAsString(snap))
       row
     }
     repository.saveAll(rows)

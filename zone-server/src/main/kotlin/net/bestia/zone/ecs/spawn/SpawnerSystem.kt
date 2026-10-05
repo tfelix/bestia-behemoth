@@ -49,7 +49,8 @@ import org.springframework.stereotype.Component as SpringComponent
  *
  * ### Where a rehydrated pack comes in
  *
- * A den's creatures are `Persistent`, so a pack alive at shutdown comes back at the next boot. It comes back
+ * A den's creatures are not saved: a den restocks a fresh pack when a player comes near, so a saved pack was
+ * only rows to write. Packs saved before that come back once, at the next boot. They come back
  * *before* this system has ever seen the den, though, and a den nobody is standing near never reaches the
  * broad phase - so a restored pack would belong to no den and never be torn down. [adoptRehydratedPack] is
  * the second, boot-only producer of [stocked] that closes this: `DenPackRestoreService` hands the den over
@@ -229,7 +230,8 @@ class SpawnerSystem(
       world,
       spawner.bestiaId,
       Vec3L(x, y, spawner.position.z),
-      den = DenMember(spawner.identity)
+      den = DenMember(spawner.identity),
+      persistent = false,
     )
 
     spawner.spawnedEntities.add(spawnedEntityId)
@@ -238,10 +240,10 @@ class SpawnerSystem(
   /**
    * Takes the pack back out of the world, so the den restocks fresh rather than resuming half full.
    *
-   * The queue entry is the half that used to be missing. A creature carries `Persistent`, so it has a row
-   * in `entity` the moment the persistence sweep next runs; destroying it without saying so left that row
-   * behind to be rehydrated at the next boot as a creature the den had already forgotten. The den restocks
-   * on top of it, and the population grows every restart.
+   * The queue entry is the half that used to be missing. A creature rehydrated from a saved pack still has
+   * a row in `entity`; destroying it without saying so left that row behind to be rehydrated at the next
+   * boot as a creature the den had already forgotten. The den restocks on top of it, and the population
+   * grows every restart.
    *
    * Enqueued **unconditionally**, outside the liveness guard: a member `DeathSystem` destroyed earlier this
    * tick is already gone from the world and still has a row, and a delete for an id that has none is a

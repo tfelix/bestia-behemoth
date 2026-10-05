@@ -204,9 +204,9 @@ class SpawnerSystemTest {
 
   @Test
   fun `a despawned pack has its persisted rows queued for deletion`() {
-    // The regression for the leak this whole area was built around: a creature is `Persistent`, so
-    // destroying it without telling the queue leaves a row to be rehydrated at the next boot as a creature
-    // the den has already forgotten - on top of the fresh pack the den then makes.
+    // The regression for the leak this whole area was built around: a creature rehydrated from a saved pack
+    // has a row, so destroying it without telling the queue leaves it to be rehydrated at the next boot as a
+    // creature the den has already forgotten - on top of the fresh pack the den then makes.
     val den = placeDen(Vec3L(0, 0, 0), pack = 2).spawner
     val player = placePlayer(Vec3L(50, 0, 0))
     tick(5f)
@@ -257,6 +257,17 @@ class SpawnerSystemTest {
 
     assertEquals(3, den.spawner.spawnedEntities.size)
     verify(exactly = 1) { bestiaSpawner.spawnMob(any(), any<Long>(), any(), any(), any(), any()) }
+  }
+
+  /** A den restocks when a player comes near, so a saved pack would only be rows to write. */
+  @Test
+  fun `a den's creatures are not saved`() {
+    placeDen(Vec3L(0, 0, 0), pack = 1)
+    placePlayer(Vec3L(50, 0, 0))
+
+    tick(2f)
+
+    verify { bestiaSpawner.spawnMob(any(), any<Long>(), any(), any(), any(), persistent = false) }
   }
 
   @Test

@@ -2,60 +2,52 @@ package net.bestia.zone.ecs.persistence
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.core.AsyncJobExecutor
-import net.bestia.zone.ecs.core.WorldView
+import net.bestia.zone.ecs.core.TickBuckets
+import net.bestia.zone.ecs.core.World
 import net.bestia.zone.entity.PersistedEntityRepository
 import net.bestia.zone.entity.deleteAllByEntityIdIn
 import net.bestia.zone.util.EntityId
-import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 
 /**
- * Periodically snapshots every live [Persistent] entity to durable storage in bounded batches.
+ * Saves every live [Persistent] entity once per interval, and deletes the rows of the ones that are gone.
  *
- * Runs off the tick thread (driven by `@Scheduled`). For each batch it takes a world scope only long
- * enough to copy component state into [EntitySnapshot]s; [EntityWriteBehind] then writes them on the
- * DB executor. Batching keeps a single world scope short even with thousands of entities.
+ * Runs where the world may be read - on the tick from [EntityPersistenceSystem], or at shutdown. Snapshots
+ * are taken there; [EntityWriteBehind] writes them on the DB executor and skips what has not changed.
  *
- * TODO we should benchmark this with ~1m entities
+ * Takes the [World] per call rather than injecting it, so the system can use this without a bean cycle.
  */
 @Service
 class EntityPersistenceService(
-  private val world: WorldView,
   private val writeBehind: EntityWriteBehind,
   private val asyncJobExecutor: AsyncJobExecutor,
-  private val config: EntityPersistenceConfig,
   private val deletionQueue: PersistedEntityDeletionQueue,
   private val persistedEntityRepository: PersistedEntityRepository,
   private val statusEffectPersistenceService: StatusEffectPersistenceService,
 ) {
 
-  @Scheduled(
-    initialDelayString = "\${persistence.initial-delay-ms}",
-    fixedDelayString = "\${persistence.interval-ms}"
-  )
-  fun scheduledSync() {
-    try {
-      syncOnce()
-    } catch (e: Exception) {
-      LOG.error(e) { "Periodic entity persistence sync failed: ${e.message}" }
+  /** Saves the share of entities due on this [sweep], so one interval spreads the whole population over its sweeps. */
+  fun syncDue(world: World, sweep: Long, sweepsPerInterval: Long) {
+    pruneRemovedEntities()
+
+    val due = ArrayList<EntityId>()
+    world.query(Persistent::class).each { id ->
+      if (TickBuckets.isDue(sweep, id, sweepsPerInterval)) due.add(id)
+    }
+
+    if (due.isNotEmpty()) {
+      writeBehind.persist(world, due, onlyChanged = true)
     }
   }
 
-  /** Runs one full sync cycle: snapshots now, writes queued. Exposed for tests and boot-time flushing. */
-  fun syncOnce() {
+  /** Saves every entity that changed since it was last saved. At shutdown, and for tests. */
+  fun syncAll(world: World) {
     pruneRemovedEntities()
 
-    val ids = mutableListOf<EntityId>()
-    world.read { query(Persistent::class).each { id -> ids.add(id) } }
-    if (ids.isEmpty()) {
-      return
-    }
+    val ids = ArrayList<EntityId>()
+    world.query(Persistent::class).each { id -> ids.add(id) }
 
-    for (batch in ids.chunked(config.batchSize)) {
-      world.read { writeBehind.persist(this, batch.filter { isAlive(it) }) }
-      Thread.yield() // give the tick thread room between batches
-    }
-
+    writeBehind.persist(world, ids, onlyChanged = true)
     LOG.debug { "Entity persistence sync queued ${ids.size} entities" }
   }
 
@@ -65,6 +57,7 @@ class EntityPersistenceService(
     if (removed.isEmpty()) {
       return
     }
+    writeBehind.forget(removed)
 
     // On the shared row key, so the delete lands after any write of the same rows queued before it.
     asyncJobExecutor.submit(EntitySnapshot.SHARED_WRITE_KEY) {

@@ -44,11 +44,10 @@ class BestiaEntitySpawner(
    *   afterwards because `SpawnerSystem` calls this mid-tick, where `World.add` is *deferred* to the end of
    *   the tick; going through `configure` puts it on inside the same `createEntity` lock, atomically, and
    *   gives rehydration the identical entry point.
-   * @param persistent whether this creature should survive a restart. Defaults to true because that is what
-   *   a den's pack needs and what every caller wanted when there was no choice; the wrong default here would
-   *   silently stop persisting packs and grow the population on every restart, which is a bug this file has
-   *   shipped once already. False is for a population dense enough that rows would be a liability - see
-   *   `Persistent`, and `AreaEffectSpawner` for the same decision made about spell effects.
+   * @param persistent whether this creature should survive a restart. Defaults to true for a `/spawn`ed or
+   *   rehydrated creature, which nothing would bring back otherwise. False is for a population something
+   *   rebuilds anyway, or one dense enough that rows would be a liability - a den's pack, see `Persistent`,
+   *   and `AreaEffectSpawner` for the same decision made about spell effects.
    * @param homePosition where this creature's AI should consider home, when that is not where it is being
    *   put. A townsperson stepping out of a shop at noon lives in a house on the other side of town, and its
    *   home-range goals are about the house. Defaults to [pos], which is what a den's pack wants.

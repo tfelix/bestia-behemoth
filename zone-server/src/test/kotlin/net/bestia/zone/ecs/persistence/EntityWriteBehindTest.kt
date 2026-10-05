@@ -17,11 +17,17 @@ class EntityWriteBehindTest {
   private val executor = mockk<AsyncJobExecutor>().also {
     every { it.submit(any(), any()) } answers {
       keys.add(firstArg())
-      secondArg<() -> Unit>().invoke()
+      // Like the executor: a failed job is logged, not thrown at the caller.
+      runCatching { secondArg<() -> Unit>().invoke() }
     }
   }
 
   private val written = mutableListOf<List<EntitySnapshot>>()
+
+  /** What each entity's state is at, so a test can change it; and how many writes should still fail. */
+  private val versions = mutableMapOf<EntityId, Int>()
+  private var failingWrites = 0
+
   private val persister = object : EntityPersister {
     override val kind = "test"
     override val loadsAtStartup = false
@@ -30,10 +36,14 @@ class EntityWriteBehindTest {
     }
 
     override fun snapshot(world: World, id: EntityId): EntitySnapshot {
-      return Snapshot(id, ownerKey = if (id % 2 == 0L) "owner-$id" else null)
+      return Snapshot(id, ownerKey = if (id % 2 == 0L) "owner-$id" else null, version = versions[id] ?: 0)
     }
 
     override fun persist(snapshots: List<EntitySnapshot>) {
+      if (failingWrites > 0) {
+        failingWrites--
+        error("database unavailable")
+      }
       written.add(snapshots)
     }
 
@@ -66,7 +76,56 @@ class EntityWriteBehindTest {
     verify(exactly = 0) { statusEffects.snapshot(any(), any()) }
   }
 
-  private data class Snapshot(override val entityId: EntityId, val ownerKey: String?) : EntitySnapshot {
+  @Test
+  fun `a periodic save skips an entity that has not changed`() {
+    val world = testWorld()
+
+    sut.persist(world, listOf(1L), onlyChanged = true)
+    sut.persist(world, listOf(1L), onlyChanged = true)
+    versions[1L] = 1
+    sut.persist(world, listOf(1L), onlyChanged = true)
+
+    assertEquals(listOf(0, 1), written.flatten().map { (it as Snapshot).version })
+  }
+
+  /** A logout or an exp gain is written whatever the periodic save last saw. */
+  @Test
+  fun `a save that is not periodic always writes`() {
+    val world = testWorld()
+
+    sut.persist(world, listOf(1L))
+    sut.persist(world, listOf(1L))
+
+    assertEquals(2, written.size)
+  }
+
+  @Test
+  fun `a failed write is retried by the next periodic save`() {
+    val world = testWorld()
+    failingWrites = 1
+
+    sut.persist(world, listOf(1L), onlyChanged = true)
+    sut.persist(world, listOf(1L), onlyChanged = true)
+
+    assertEquals(1, written.size, "the unchanged entity was written again because the first write failed")
+  }
+
+  @Test
+  fun `a forgotten entity counts as changed`() {
+    val world = testWorld()
+    sut.persist(world, listOf(1L), onlyChanged = true)
+
+    sut.forget(listOf(1L))
+    sut.persist(world, listOf(1L), onlyChanged = true)
+
+    assertEquals(2, written.size)
+  }
+
+  private data class Snapshot(
+    override val entityId: EntityId,
+    val ownerKey: String?,
+    val version: Int = 0,
+  ) : EntitySnapshot {
     override val writeKey: Any
       get() {
         return ownerKey ?: EntitySnapshot.SHARED_WRITE_KEY

@@ -4,6 +4,7 @@ import net.bestia.zone.bestia.BestiaEntitySpawner
 import net.bestia.zone.ecs.core.AsyncJobExecutor
 import net.bestia.zone.ecs.core.SnowflakeEntityIdGenerator
 import net.bestia.zone.ecs.core.World
+import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.persistence.persisters.MobEntityPersister
 import net.bestia.zone.entity.PersistedEntityRepository
 import net.bestia.zone.geometry.Vec3L
@@ -29,11 +30,11 @@ import kotlin.test.assertTrue
  * same time - the warning sat on the neighbouring function.
  *
  * What made it expensive rather than merely wrong is where it sat. `pruneRemovedEntities` runs *first* in a
- * sync cycle, `drainAll` has already emptied the queue by then, and `scheduledSync` swallows the exception -
+ * sync cycle, `drainAll` has already emptied the queue by then, and the scheduled sync swallowed the exception -
  * so from the first mob death onward every persistence sync aborted before writing anything, silently, and
  * the ids it meant to prune were gone with it.
  *
- * These cases all go through [EntityPersistenceService.syncOnce] rather than the repository, because the
+ * These cases all go through [EntityPersistenceService.syncAll] rather than the repository, because the
  * ordering is the subject: the prune runs before the snapshot phase, and the failure was that breaking there
  * took the rest of the cycle with it.
  */
@@ -59,9 +60,12 @@ class PersistedEntityDeletionTest {
   @Autowired
   private lateinit var asyncJobExecutor: AsyncJobExecutor
 
-  /** Runs a cycle and waits for its writes, which go to the DB executor. */
+  @Autowired
+  private lateinit var liveWorld: WorldView
+
+  /** Runs a cycle over the live world, which holds none of these entities, and waits for its writes. */
   private fun syncAndWait() {
-    entityPersistenceService.syncOnce()
+    liveWorld.read { entityPersistenceService.syncAll(this) }
     asyncJobExecutor.awaitPending(EntitySnapshot.SHARED_WRITE_KEY)
   }
 
