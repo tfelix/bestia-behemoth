@@ -63,3 +63,7 @@ worldgen:
 # A statement on the tick thread, or inside a world lease, stalls the whole world; in tests it is an error.
 zone:
   sql-on-tick: fail
+
+# Chunks are encoded at once on the tick, so a scenario sees them in the tick it asked.
+chunk-stream:
+  encode-workers: 0

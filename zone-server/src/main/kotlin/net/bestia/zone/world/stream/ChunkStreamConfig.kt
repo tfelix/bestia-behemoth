@@ -47,10 +47,20 @@ data class ChunkStreamConfig(
    * Deflate level for chunk payloads, 0..9.
    *
    * The full setting despite this being a socket rather than a disk, because a payload is compressed once
-   * per revision and then served to every player who asks - so the cost is amortised over every recipient
-   * and every re-send, while the saving is paid on each of them.
+   * per revision, on a [encodeWorkers] thread, and then served to every player who asks. Measured over 121
+   * surface chunks (`ChunkDeflateCalibrationTest`): level 9 is 26 KiB at 80 us a chunk, level 6 is 11% more
+   * bytes at 35 us, level 3 70% more at 17 us.
    */
   val deflateLevel: Int = 9,
+
+  /**
+   * Threads that generate, encode and compress chunk payloads off the tick. Zero, the default here and in
+   * tests, does that work at once on the caller; `application.yml` turns the workers on.
+   */
+  val encodeWorkers: Int = 0,
+
+  /** Chunk payloads started per tick, across all players, so a crowd logging in cannot bury the workers. */
+  val encodesPerTick: Int = 16,
 
   /**
    * Decoded chunks held for the server's own voxel queries. Half a megabyte each, so this is the setting

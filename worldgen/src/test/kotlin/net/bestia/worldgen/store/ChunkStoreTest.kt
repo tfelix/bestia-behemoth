@@ -68,6 +68,31 @@ class ChunkStoreTest {
   }
 
   @Test
+  fun `peek never generates and adopt makes the next read a hit`() {
+    val cache = ChunkCache(config.seed, pipelineVersion = 7L, generate = ::generate)
+    val chunk = ChunkPos(2, 3)
+
+    assertEquals(null, cache.peek(chunk))
+
+    val elsewhere = generate(chunk)
+    cache.adopt(chunk, elsewhere)
+
+    assertTrue(cache.peek(chunk) === elsewhere)
+    assertTrue(cache.base(chunk) === elsewhere)
+    assertEquals(0, cache.generated, "an adopted base is not generated again")
+  }
+
+  @Test
+  fun `an adopted base is written through to the tiers too`() {
+    val cold = MemoryBlobStore()
+    val cache = ChunkCache(config.seed, 7L, ::generate, tiers = listOf(cold))
+
+    cache.adopt(ChunkPos(1, 1), generate(ChunkPos(1, 1)))
+
+    assertEquals(1, cold.size)
+  }
+
+  @Test
   fun `a cold tier is written on generation and read on a cold start`() {
     val cold = MemoryBlobStore()
 

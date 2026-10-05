@@ -460,7 +460,9 @@ has shipped to make the bumps so far mean anything.
   merged-run format was measured (−24.5% bytes) and **declined** — the KDoc records the numbers rather
   than the aspiration.
 - **`store/ChunkCache`** (`store/ChunkCache.kt:63`) — in-process LRU (`hot`, default 512) → chained
-  `ChunkBlobStore` tiers → `generate` fallback. `ChunkKey` folds `(seed, pipelineVersion, chunk)`.
+  `ChunkBlobStore` tiers → `generate` fallback. `ChunkKey` folds `(seed, pipelineVersion, chunk)`. Encodes
+  a fresh chunk only when it has tiers to write it to. `peek` never generates; `adopt` takes a base
+  generated on another thread, which is how zone-server's chunk workers fill it.
 - **`store/ChunkStore`** (`store/ChunkStore.kt:51`) — `merged()` (base ⊕ delta, or a baked blob) is the
   *only* read path, enforcing server-authoritative geometry. `carve()` is batch-only and enforces
   occupancy-never-rises. **`bakedKeyOf` (`:288-289`) now folds in `pipelineVersion`** — a reversal of an
@@ -506,7 +508,9 @@ edits) is stored as deltas over that regenerated base.
   acted on only by `REGENERATE`, since a running world quietly keeping its own dimensions is correct
   behaviour, not a bug).
 - **Chunk streaming is fully wired** — `zone-server/.../world/stream/` (`ChunkService`,
-  `ChunkStreamSystem`) runs `ChunkCache → ChunkStore → DerivedStore` on the tick thread. Protocol is
+  `ChunkStreamSystem`) runs `ChunkCache → ChunkStore → DerivedStore` on the tick thread, except that an
+  unedited chunk's materialise + RLE + deflate runs on `ChunkWorkers` threads (`chunk-stream.encode-workers`,
+  0 = inline, which tests use) under a global `encodes-per-tick` budget. Protocol is
   announce-then-serve: `ChunkManifestSMSG` lists `(position, revision)` pairs for the view volume, the
   client requests only what it's missing (`ChunkRequestCMSG` → `ChunkDataSMSG`), edits fan out as
   `ChunkPatchSMSG`. `ChunkStaticEntitiesSMSG` streams the props from `propsIn()` above (trees, crystals,
