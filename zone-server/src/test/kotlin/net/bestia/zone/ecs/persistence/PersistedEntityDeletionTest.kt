@@ -3,9 +3,16 @@ package net.bestia.zone.ecs.persistence
 import net.bestia.zone.bestia.BestiaEntitySpawner
 import net.bestia.zone.ecs.core.SnowflakeEntityIdGenerator
 import net.bestia.zone.ecs.core.World
+import net.bestia.zone.ecs.item.CarryCapacity
+import net.bestia.zone.ecs.item.Inventory
+import net.bestia.zone.ecs.item.ObtainItemIntent
+import net.bestia.zone.ecs.item.ObtainItemIntentSystem
+import net.bestia.zone.ecs.movement.Position
+import net.bestia.zone.ecs.persistence.persisters.LootItemEntityPersister
 import net.bestia.zone.ecs.persistence.persisters.MobEntityPersister
 import net.bestia.zone.entity.PersistedEntityRepository
 import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.item.loot.LootItemEntitySpawner
 import net.bestia.zone.util.EntityId
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -54,6 +61,15 @@ class PersistedEntityDeletionTest {
 
   @Autowired
   private lateinit var entityPersistenceService: EntityPersistenceService
+
+  @Autowired
+  private lateinit var lootItemEntitySpawner: LootItemEntitySpawner
+
+  @Autowired
+  private lateinit var lootItemEntityPersister: LootItemEntityPersister
+
+  @Autowired
+  private lateinit var obtainItemIntentSystem: ObtainItemIntentSystem
 
   @BeforeEach
   fun clean() {
@@ -125,6 +141,32 @@ class PersistedEntityDeletionTest {
     )
   }
 
+  @Test
+  fun `a picked-up ground item's row is pruned`() {
+    // A surviving row is rehydrated at the next boot, so the item could be picked up a second time.
+    val world = World(idGenerator = idGenerator, systems = listOf(obtainItemIntentSystem))
+    val groundItem = lootItemEntitySpawner.spawnLootItem(world, itemId = APPLE_ITEM_ID, amount = 1, pos = Vec3L(1, 2, 3))
+    val snapshot = world.read { lootItemEntityPersister.snapshot(this, groundItem) }
+    assertNotNull(snapshot)
+    lootItemEntityPersister.persist(listOf(snapshot))
+
+    val looter = world.createEntity { id ->
+      add(id, Inventory(mutableListOf()))
+      add(id, CarryCapacity(current = 0, max = 1000))
+      add(id, Position.fromVec3(Vec3L(1, 2, 3)))
+      add(id, ObtainItemIntent.LootItemIntent(sourceEntityItemStackId = groundItem))
+    }
+    world.tick(0.1f)
+    assertNotNull(world.get(looter, Inventory::class)?.getItem(APPLE_ITEM_ID.toInt()), "the pickup itself failed")
+
+    entityPersistenceService.syncOnce()
+
+    assertTrue(
+      persistedEntityRepository.findAllByEntityIdIn(listOf(groundItem)).isEmpty(),
+      "the picked-up item's row survived and would be rehydrated at the next boot"
+    )
+  }
+
   private fun spawn(world: World) =
     bestiaEntitySpawner.spawnMob(world, bestiaId = BLOB_BESTIA_ID, pos = Vec3L(1, 2, 3))
 
@@ -147,6 +189,9 @@ class PersistedEntityDeletionTest {
   private companion object {
     // Seeded from mob/blob.yml by the mob importer in the test profile.
     const val BLOB_BESTIA_ID = 1L
+
+    // Seeded from items.yml.
+    const val APPLE_ITEM_ID = 1L
 
     /** An id no row was ever written for. */
     const val NEVER_PERSISTED = 123_456_789L
