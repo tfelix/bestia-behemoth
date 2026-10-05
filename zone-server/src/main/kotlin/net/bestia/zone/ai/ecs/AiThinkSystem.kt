@@ -2,6 +2,7 @@ package net.bestia.zone.ai.ecs
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ai.core.planner.Planner
+import net.bestia.zone.ai.core.planner.PlanningBudget
 import net.bestia.zone.ecs.battle.damage.Dead
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Schedule
@@ -16,7 +17,7 @@ import org.springframework.stereotype.Component as SpringComponent
  * Second stage of the AI pipeline: pick a goal and, when necessary, plan for it. It only produces plans;
  * [AiActSystem] carries them out.
  *
- * ### Two guards, because A* is the expensive half
+ * ### Three guards, because A* is the expensive half
  *
  * *Replan only when it matters.* Selecting a goal is a handful of predicate evaluations; searching for a
  * plan is A* over a grounded action space. So the goal is selected every time this runs, but the search
@@ -28,6 +29,8 @@ import org.springframework.stereotype.Component as SpringComponent
  * because the alternative — scheduling the whole system every half second — makes every mob in the zone
  * think on the *same* tick, so a hundred mobs seeing a player all run A* inside one tick and the frame
  * stalls. Staggering turns that spike into a flat cost.
+ *
+ * *Cap a tick's searches.* [PLANNING_BUDGET_PER_TICK] iterations are shared by everyone thinking on a tick.
  */
 @SpringComponent
 @Order(20)
@@ -50,12 +53,14 @@ class AiThinkSystem(
 
   override fun update(world: World, deltaTime: Float) {
     val worldBoard = sharedMemory.worldBoard()
+    val tick = world.tickCount
+    val budget = PlanningBudget(PLANNING_BUDGET_PER_TICK)
 
     world.query(AiAgent::class, Position::class).each { id ->
       val agent = get<AiAgent>()
 
       // First, because nine visits in ten end here and the checks below each cost a lookup.
-      if (world.tickCount < agent.nextThinkTick) return@each
+      if (tick < agent.nextThinkTick) return@each
 
       // An owned bestia keeps its body - and its agent - after it dies, so without this it would go
       // on planning and walk its own corpse away. The plan is dropped rather than frozen, for the
@@ -77,31 +82,43 @@ class AiThinkSystem(
       // has not moved yet, so the first real think happens as soon as perception lands.
       if (!agent.hasPerceived) return@each
 
-      agent.nextThinkTick = TickBuckets.nextDue(world.tickCount, id, THINK_PERIOD_TICKS * throttle.factorOf(agent))
+      agent.nextThinkTick = TickBuckets.nextDue(tick, id, THINK_PERIOD_TICKS * throttle.factorOf(agent))
 
       val state = agent.snapshotState(worldBoard)
-      val goal = planner.selectCurrentGoal(agent, state)
 
-      if (goal == null) {
-        // Nothing worth doing. Dropping the plan is right: holding a stale one would have the act stage
-        // keep executing a goal the agent no longer has any reason to pursue.
-        if (agent.hasActivePlan()) agent.clearPlan()
-        return@each
+      // A goal no plan was found for is set aside for a while and the next one is tried, rather than the agent
+      // standing still and failing the same search on every think.
+      repeat(MAX_GOALS_PER_THINK) {
+        val goal = planner.selectCurrentGoal(agent, state) { agent.isGoalBlocked(it.name, tick) }
+
+        if (goal == null) {
+          // Nothing worth doing. Dropping the plan is right: holding a stale one would have the act stage
+          // keep executing a goal the agent no longer has any reason to pursue.
+          if (agent.hasActivePlan()) agent.clearPlan()
+          return@each
+        }
+
+        val goalUnchanged = agent.currentGoal?.name == goal.name
+        if (goalUnchanged && agent.hasActivePlan()) return@each
+
+        // The search is the expensive part, so one tick only gets so much of it; whoever is left thinks next tick.
+        if (budget.isSpent) {
+          agent.nextThinkTick = tick + 1
+          return@each
+        }
+
+        val plan = planner.planFor(agent, goal, state, budget)
+        if (plan != null && !plan.isEmpty) {
+          agent.adopt(goal, plan, state)
+          LOG.trace { "Entity $id adopts goal '${goal.name}' with plan ${plan.actions.map { it.name }}" }
+          return@each
+        }
+
+        agent.blockGoal(goal.name, untilTick = tick + GOAL_RETRY_TICKS)
       }
 
-      val goalUnchanged = agent.currentGoal?.name == goal.name
-      if (goalUnchanged && agent.hasActivePlan()) return@each
-
-      val plan = planner.planFor(agent, goal, state)
-      if (plan == null || plan.isEmpty) {
-        // Goal unreachable, or already satisfied so there is nothing to do for it. Either way there is no
-        // plan to hold; the next think will reconsider.
-        agent.clearPlan()
-        return@each
-      }
-
-      agent.adopt(goal, plan, state)
-      LOG.trace { "Entity $id adopts goal '${goal.name}' with plan ${plan.actions.map { it.name }}" }
+      // Out of attempts. The next think goes on down the list, with these goals set aside.
+      agent.clearPlan()
     }
   }
 
@@ -110,5 +127,14 @@ class AiThinkSystem(
 
     /** ~0.5s at the default 20 tps, and the width of the window agents are spread across. */
     private const val THINK_PERIOD_TICKS = 10L
+
+    /** Goals tried in one think before the agent gives up until its next one. */
+    private const val MAX_GOALS_PER_THINK = 3
+
+    /** How long a goal no plan was found for is set aside: 5 s at 20 tps, long enough for the world to change. */
+    const val GOAL_RETRY_TICKS = 100L
+
+    /** Search iterations for all agents in one tick. A search already started still runs to its end. */
+    const val PLANNING_BUDGET_PER_TICK = 5_000
   }
 }
