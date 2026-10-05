@@ -95,7 +95,11 @@ class DualConnectionTakeoverTest {
   }
 
   private fun authEnvelope(): EnvelopeProto.Envelope = EnvelopeProto.Envelope.newBuilder()
-    .setAuthentication(AuthenticationProto.Authentication.newBuilder().setToken("irrelevant-the-processor-is-faked"))
+    .setAuthentication(
+      AuthenticationProto.Authentication.newBuilder()
+        .setToken("irrelevant-the-processor-is-faked")
+        .setProtocolVersion(AuthenticationProto.ProtocolVersion.PROTOCOL_VERSION_CURRENT.number)
+    )
     .build()
 
   /** Drains a channel's outbound queue looking for the disconnect notice. */

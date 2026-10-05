@@ -63,6 +63,9 @@ namespace BestiaBehemothClient.Bnet.Message
     private readonly object _connectionLock = new();
     private ConnectionStatus _currentStatus = ConnectionStatus.Disconnected;
 
+    /// <summary>What the server named when it last closed this connection, or empty if it named nothing.</summary>
+    public string LastDisconnectReason { get; private set; } = "";
+
     // Buffer for reading network data
     private MemoryStream _receiveBuffer;
     private readonly object _bufferLock = new();
@@ -416,6 +419,7 @@ namespace BestiaBehemothClient.Bnet.Message
 
         GD.Print($"Starting connection to {ServerName}:{Port}");
         _shouldStop = false;
+        LastDisconnectReason = "";
 
         SetConnectionStatus(ConnectionStatus.Connecting);
 
@@ -621,6 +625,11 @@ namespace BestiaBehemothClient.Bnet.Message
           // Decode the protobuf message
           Envelope envelope = Envelope.Parser.ParseFrom(messageBytes);
           NetLog.CountRx(envelope.MessageCase, messageLength);
+          // Taken here on the socket thread: the close right behind this frame can reach the main thread first.
+          if (envelope.Disconnected != null)
+          {
+            LastDisconnectReason = envelope.Disconnected.Reason;
+          }
           _messageQueue.Enqueue(envelope);
           NetLog.NoteQueueDepth(_messageQueue.Count);
         }

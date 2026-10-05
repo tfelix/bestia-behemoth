@@ -17,7 +17,8 @@ namespace BestiaBehemothClient.Bnet.Message
       var authentication = new global::Bnet.Authentication
       {
         Token = Token,
-        ClientVersion = ClientVersion
+        ClientVersion = ClientVersion,
+        ProtocolVersion = (uint)global::Bnet.ProtocolVersion.Current
       };
 
       return new Envelope

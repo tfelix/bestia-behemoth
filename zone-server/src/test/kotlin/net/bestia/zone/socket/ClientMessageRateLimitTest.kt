@@ -61,7 +61,7 @@ class ClientMessageRateLimitTest {
 
   private fun authentication(): EnvelopeProto.Envelope {
     return EnvelopeProto.Envelope.newBuilder()
-      .setAuthentication(AuthenticationProto.Authentication.newBuilder().setToken("faked"))
+      .setAuthentication(AuthenticationProto.Authentication.newBuilder().setToken("faked").setProtocolVersion(AuthenticationProto.ProtocolVersion.PROTOCOL_VERSION_CURRENT.number))
       .build()
   }
 

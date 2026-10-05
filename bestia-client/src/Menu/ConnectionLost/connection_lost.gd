@@ -16,3 +16,5 @@ func _ready() -> void:
 	var last_error := ConnectionManager.last_connection_error
 	if last_error == ConnectionManager.ConnectionError.ZONE_CONNECTION_LOST:
 		_error_label.text = "Connection to server was lost..."
+	elif last_error == ConnectionManager.ConnectionError.PROTOCOL_MISMATCH:
+		_error_label.text = "This client is outdated. Please update it to play."

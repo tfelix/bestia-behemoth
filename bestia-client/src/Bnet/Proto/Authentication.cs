@@ -25,18 +25,32 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CiRtZXNzYWdlcy9zeXN0ZW0vYXV0aGVudGljYXRpb24ucHJvdG8SBGJuZXQi",
-            "NwoOQXV0aGVudGljYXRpb24SDQoFdG9rZW4YASABKAkSFgoOY2xpZW50X3Zl",
-            "cnNpb24YAiABKAlCLAoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQhNBdXRoZW50",
-            "aWNhdGlvblByb3RvYgZwcm90bzM="));
+            "UQoOQXV0aGVudGljYXRpb24SDQoFdG9rZW4YASABKAkSFgoOY2xpZW50X3Zl",
+            "cnNpb24YAiABKAkSGAoQcHJvdG9jb2xfdmVyc2lvbhgDIAEoDSpRCg9Qcm90",
+            "b2NvbFZlcnNpb24SIAocUFJPVE9DT0xfVkVSU0lPTl9VTlNQRUNJRklFRBAA",
+            "EhwKGFBST1RPQ09MX1ZFUlNJT05fQ1VSUkVOVBABQiwKFW5ldC5iZXN0aWEu",
+            "Ym5ldC5wcm90b0ITQXV0aGVudGljYXRpb25Qcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
-          new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.Authentication), global::Bnet.Authentication.Parser, new[]{ "Token", "ClientVersion" }, null, null, null, null)
+          new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.ProtocolVersion), }, null, new pbr::GeneratedClrTypeInfo[] {
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.Authentication), global::Bnet.Authentication.Parser, new[]{ "Token", "ClientVersion", "ProtocolVersion" }, null, null, null, null)
           }));
     }
     #endregion
 
   }
+  #region Enums
+  /// <summary>
+  /// Raise CURRENT with every change that an older client or server would read wrongly. The zone refuses a
+  /// client whose version differs, so both sides read this one value.
+  /// </summary>
+  public enum ProtocolVersion {
+    [pbr::OriginalName("PROTOCOL_VERSION_UNSPECIFIED")] Unspecified = 0,
+    [pbr::OriginalName("PROTOCOL_VERSION_CURRENT")] Current = 1,
+  }
+
+  #endregion
+
   #region Messages
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class Authentication : pb::IMessage<Authentication>
@@ -75,6 +89,7 @@ namespace Bnet {
     public Authentication(Authentication other) : this() {
       token_ = other.token_;
       clientVersion_ = other.clientVersion_;
+      protocolVersion_ = other.protocolVersion_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -108,6 +123,18 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "protocol_version" field.</summary>
+    public const int ProtocolVersionFieldNumber = 3;
+    private uint protocolVersion_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint ProtocolVersion {
+      get { return protocolVersion_; }
+      set {
+        protocolVersion_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -125,6 +152,7 @@ namespace Bnet {
       }
       if (Token != other.Token) return false;
       if (ClientVersion != other.ClientVersion) return false;
+      if (ProtocolVersion != other.ProtocolVersion) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -134,6 +162,7 @@ namespace Bnet {
       int hash = 1;
       if (Token.Length != 0) hash ^= Token.GetHashCode();
       if (ClientVersion.Length != 0) hash ^= ClientVersion.GetHashCode();
+      if (ProtocolVersion != 0) hash ^= ProtocolVersion.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -160,6 +189,10 @@ namespace Bnet {
         output.WriteRawTag(18);
         output.WriteString(ClientVersion);
       }
+      if (ProtocolVersion != 0) {
+        output.WriteRawTag(24);
+        output.WriteUInt32(ProtocolVersion);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -178,6 +211,10 @@ namespace Bnet {
         output.WriteRawTag(18);
         output.WriteString(ClientVersion);
       }
+      if (ProtocolVersion != 0) {
+        output.WriteRawTag(24);
+        output.WriteUInt32(ProtocolVersion);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -193,6 +230,9 @@ namespace Bnet {
       }
       if (ClientVersion.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(ClientVersion);
+      }
+      if (ProtocolVersion != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(ProtocolVersion);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -211,6 +251,9 @@ namespace Bnet {
       }
       if (other.ClientVersion.Length != 0) {
         ClientVersion = other.ClientVersion;
+      }
+      if (other.ProtocolVersion != 0) {
+        ProtocolVersion = other.ProtocolVersion;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -239,6 +282,10 @@ namespace Bnet {
             ClientVersion = input.ReadString();
             break;
           }
+          case 24: {
+            ProtocolVersion = input.ReadUInt32();
+            break;
+          }
         }
       }
     #endif
@@ -264,6 +311,10 @@ namespace Bnet {
           }
           case 18: {
             ClientVersion = input.ReadString();
+            break;
+          }
+          case 24: {
+            ProtocolVersion = input.ReadUInt32();
             break;
           }
         }

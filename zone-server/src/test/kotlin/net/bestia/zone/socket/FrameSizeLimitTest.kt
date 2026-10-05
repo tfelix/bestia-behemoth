@@ -74,7 +74,7 @@ class FrameSizeLimitTest {
 
   private fun authentication(token: String): EnvelopeProto.Envelope {
     return EnvelopeProto.Envelope.newBuilder()
-      .setAuthentication(AuthenticationProto.Authentication.newBuilder().setToken(token))
+      .setAuthentication(AuthenticationProto.Authentication.newBuilder().setToken(token).setProtocolVersion(AuthenticationProto.ProtocolVersion.PROTOCOL_VERSION_CURRENT.number))
       .build()
   }
 
