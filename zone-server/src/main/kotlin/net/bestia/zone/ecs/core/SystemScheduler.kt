@@ -1,5 +1,6 @@
 package net.bestia.zone.ecs.core
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import java.util.Locale
 import java.util.concurrent.ForkJoinPool
 
@@ -33,6 +34,11 @@ class SystemScheduler(private val parallel: Boolean = false) {
 
     /** How long this entry's last run took, or 0 if it did not run on the most recent tick. */
     var lastNanos = 0L
+
+    var consecutiveFailures = 0
+
+    /** Set once the system has failed [MAX_CONSECUTIVE_FAILURES] ticks in a row; it never runs again. */
+    var disabled = false
   }
 
   private val entries = ArrayList<Entry>()
@@ -63,7 +69,7 @@ class SystemScheduler(private val parallel: Boolean = false) {
     // Evaluate due-ness exactly once per entry (this mutates cadence counters).
     val due = HashSet<Entry>()
     for (e in entries) {
-      if (isDue(e, deltaTime)) due.add(e)
+      if (!e.disabled && isDue(e, deltaTime)) due.add(e)
     }
     if (due.isEmpty()) return
 
@@ -84,7 +90,8 @@ class SystemScheduler(private val parallel: Boolean = false) {
   }
 
   /**
-   * Runs one system and records what it cost.
+   * Runs one system and records what it cost. A failure is contained here, so the systems after it, the
+   * deferred changes and the client sync still happen on this tick.
    *
    * `java.lang.System` spelled out because [System] in this package is the ECS one, and the shorter spelling
    * silently resolves to it.
@@ -94,9 +101,26 @@ class SystemScheduler(private val parallel: Boolean = false) {
 
     try {
       system.update(world, effectiveDelta)
+      consecutiveFailures = 0
+    } catch (e: Throwable) {
+      if (e.isFatal()) throw e
+      recordFailure(e)
     } finally {
       lastNanos = java.lang.System.nanoTime() - started
     }
+  }
+
+  /** A system that keeps failing would fill the log every tick and still do nothing useful, so it is switched off. */
+  private fun Entry.recordFailure(e: Throwable) {
+    consecutiveFailures++
+
+    if (consecutiveFailures < MAX_CONSECUTIVE_FAILURES) {
+      LOG.error(e) { "System ${system.name} failed; the tick goes on without it" }
+      return
+    }
+
+    disabled = true
+    LOG.error(e) { "System ${system.name} failed $consecutiveFailures ticks in a row and is switched off" }
   }
 
   /**
@@ -184,4 +208,10 @@ class SystemScheduler(private val parallel: Boolean = false) {
   private fun conflicts(a: System, b: System): Boolean =
     a.writes.any { it in b.reads || it in b.writes } ||
       b.writes.any { it in a.reads || it in a.writes }
+
+  companion object {
+    private val LOG = KotlinLogging.logger { }
+
+    const val MAX_CONSECUTIVE_FAILURES = 5
+  }
 }
