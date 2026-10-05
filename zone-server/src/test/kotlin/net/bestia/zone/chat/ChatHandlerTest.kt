@@ -33,7 +33,7 @@ class ChatHandlerTest {
     basicSkillGate = skillGate
   )
 
-  private fun whisper(target: String) {
+  private fun whisper(target: String, text: String = "helloworld") {
     every { skillGate.mayChat(SENDER) } returns true
     every { masters.getSelectedMasterByAccountId(SENDER) } returns mockk<Master> {
       every { name } returns "sender"
@@ -43,7 +43,7 @@ class ChatHandlerTest {
       ChatCMSG(
         playerId = SENDER,
         type = ChatCMSG.Type.WHISPER,
-        text = "helloworld",
+        text = text,
         targetUsername = target
       )
     )
@@ -89,6 +89,30 @@ class ChatHandlerTest {
 
     verify { out.sendToPlayer(SENDER, unavailable("target")) }
     verify(exactly = 0) { out.sendToPlayer(TARGET, any<ChatSMSG>()) }
+  }
+
+  /** Relayed to every client in range, so the length a client may send is the length every reader is shown. */
+  @Test
+  fun `an over-long line is not relayed`() {
+    every { masters.getAccountIdByMasterName("target") } returns TARGET
+    every { out.isPlayerConnected(TARGET) } returns true
+
+    whisper("target", text = "x".repeat(201))
+
+    verify(exactly = 0) { out.sendToPlayer(TARGET, any<ChatSMSG>()) }
+  }
+
+  /** A bell or a right-to-left override in someone else's chat window is never something the reader asked for. */
+  @Test
+  fun `control characters are stripped before relaying`() {
+    every { masters.getAccountIdByMasterName("target") } returns TARGET
+    every { out.isPlayerConnected(TARGET) } returns true
+
+    whisper("target", text = "hello\u0007\u202Eworld")
+
+    verify {
+      out.sendToPlayer(TARGET, ChatSMSG(type = ChatCMSG.Type.WHISPER, text = "helloworld", senderUsername = "sender"))
+    }
   }
 
   companion object {

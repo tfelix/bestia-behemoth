@@ -58,6 +58,7 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(300, 0)
 layout_mode = 2
 size_flags_horizontal = 3
+max_length = 200
 
 [node name="Chat" type="Control" parent="."]
 layout_mode = 2
