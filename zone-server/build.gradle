@@ -67,6 +67,11 @@ springBoot {
 	mainClass = 'net.bestia.zone.ZoneServerApplicationKt'
 }
 
+// Local play runs with the dev profile; a packaged jar does not, so it never inherits dev-only settings.
+tasks.named('bootRun') {
+	environment 'SPRING_PROFILES_ACTIVE', System.getenv('SPRING_PROFILES_ACTIVE') ?: 'dev'
+}
+
 allOpen {
 	annotation 'jakarta.persistence.Entity'
 	annotation 'jakarta.persistence.MappedSuperclass'

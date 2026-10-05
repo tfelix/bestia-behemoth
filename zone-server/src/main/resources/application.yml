@@ -419,9 +419,8 @@ socket:
 logging:
   level:
     root: INFO
-    net.bestia.zone: TRACE
-    net.bestia.zone.ai: INFO
-    net.bestia.zone.ecs.movement.MoveSystem: INFO # disable movement, too spammy
+    # TRACE stringifies every message in both directions; application-dev.yml turns it on for local play.
+    net.bestia.zone: INFO
 
 spring:
   datasource:

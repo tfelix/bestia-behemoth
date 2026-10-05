@@ -1,0 +1,7 @@
+# Only loaded under the `dev` profile, which `./gradlew :zone-server:bootRun` activates. A packaged server
+# runs without it.
+logging:
+  level:
+    net.bestia.zone: TRACE
+    net.bestia.zone.ai: INFO
+    net.bestia.zone.ecs.movement.MoveSystem: INFO # disable movement, too spammy
