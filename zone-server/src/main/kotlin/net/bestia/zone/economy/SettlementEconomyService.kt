@@ -19,13 +19,13 @@ import org.springframework.stereotype.Service
  * ### Reading cannot create a row
  *
  * I18. Not by care at the call sites but structurally: a settlement with no row is at its reference,
- * stepping a state that is at its reference leaves it there, and [rememberIfWorthIt] only writes what is
+ * stepping a state that is at its reference leaves it there, and [rememberIfWorthIt] only keeps what is
  * outside the tolerance. Nothing a reader can do produces the first non-zero deviation - only a trade or
  * player damage does.
  *
- * Tick-thread only, like the registries it sits beside; the map is plain and unsynchronised, and the
- * durable write goes to [AsyncJobExecutor] keyed on the settlement so two updates cannot land out of
- * order.
+ * Tick-thread only, like the registries it sits beside; the maps are plain and unsynchronised. A change
+ * only marks the settlement; [flush] writes it later through [AsyncJobExecutor], keyed on the settlement
+ * so two writes cannot land out of order.
  */
 @Service
 class SettlementEconomyService(
@@ -45,6 +45,12 @@ class SettlementEconomyService(
   private val live = HashMap<Int, LedgerState>()
 
   private val references = HashMap<Int, SettlementReference>()
+
+  /** Settlements whose ledger changed since the last [flush]. */
+  private val dirty = HashSet<Int>()
+
+  /** Settlements that have a row, so returning to the reference knows whether there is one to delete. */
+  private val stored = HashSet<Int>()
 
   val trackedSettlements: Int get() = live.size
 
@@ -149,7 +155,10 @@ class SettlementEconomyService(
       it.worldShapeVersion == shapeVersion && it.pipelineVersion == pipelineVersion
     }
 
-    valid.forEach { live[it.settlement] = it.toState() }
+    valid.forEach {
+      live[it.settlement] = it.toState()
+      stored.add(it.settlement)
+    }
 
     if (orphaned.isNotEmpty()) {
       // Discarded rather than skipped, on `WorldObjectDivergence`'s reasoning and more sharply: indices
@@ -161,9 +170,34 @@ class SettlementEconomyService(
     LOG.info { "Loaded ${live.size} settlement ledger(s)" }
   }
 
+  /** Writes every ledger that changed since the last flush: a save while off its reference, a delete once back. */
+  fun flush() {
+    if (dirty.isEmpty()) return
+
+    val shapeVersion = worldService.record.shapeVersion
+    val pipelineVersion = worldService.record.pipelineVersion
+
+    for (settlement in dirty) {
+      val state = live[settlement]
+
+      if (state != null) {
+        val row = SettlementLedger.of(settlement, state, shapeVersion, pipelineVersion)
+        stored.add(settlement)
+        asyncJobExecutor.submit(settlement.toLong()) { repository.save(row) }
+      } else if (stored.remove(settlement)) {
+        asyncJobExecutor.submit(settlement.toLong()) { repository.deleteById(settlement) }
+      }
+    }
+
+    dirty.clear()
+  }
+
   private fun advance(settlement: Int, reference: SettlementReference, today: Double): LedgerState {
     val current = live[settlement] ?: atReference(reference, today)
     val moved = step.advance(reference, current, today, reserve.available())
+
+    // Less than a day since the last step: nothing moved, and nothing needs remembering.
+    if (moved === current) return current
 
     // The other half of every coin the step moved. Nothing here came out of a player's purse - it is
     // reversion and trade beyond the map - so the reserve is what it came out of.
@@ -179,12 +213,12 @@ class SettlementEconomyService(
 
     if (worthKeeping) {
       live[settlement] = state
-      save(settlement, state)
+      dirty.add(settlement)
       return
     }
 
     if (live.remove(settlement) != null) {
-      asyncJobExecutor.submit(settlement.toLong()) { repository.deleteById(settlement) }
+      dirty.add(settlement)
       LOG.debug { "Settlement $settlement is back at its reference; ledger dropped" }
     }
   }
@@ -202,15 +236,6 @@ class SettlementEconomyService(
    */
   private fun atReference(reference: SettlementReference, today: Double): LedgerState {
     return LedgerState(treasury = reference.treasury, lastStepDay = today - FIRST_STEP_DAYS)
-  }
-
-  private fun save(settlement: Int, state: LedgerState) {
-    val shapeVersion = worldService.record.shapeVersion
-    val pipelineVersion = worldService.record.pipelineVersion
-
-    asyncJobExecutor.submit(settlement.toLong()) {
-      repository.save(SettlementLedger.of(settlement, state, shapeVersion, pipelineVersion))
-    }
   }
 
   companion object {

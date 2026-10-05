@@ -8,7 +8,8 @@ import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
 
 /**
- * Lets the settlements a player has disturbed decay back, and deletes their rows when they have.
+ * Lets the settlements a player has disturbed decay back, and writes every ledger that changed since the
+ * last pass - including deleting the rows of those that are back at their reference.
  *
  * ### It reads and writes nothing
  *
@@ -39,6 +40,7 @@ class SettlementEconomySystem(
 
   override fun update(world: World, deltaTime: Float) {
     economy.catchUpAll()
+    economy.flush()
     reserve.flush()
   }
 }

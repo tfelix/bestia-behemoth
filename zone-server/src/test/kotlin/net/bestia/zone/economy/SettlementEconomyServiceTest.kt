@@ -1,5 +1,6 @@
 package net.bestia.zone.economy
 
+import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
@@ -123,10 +124,50 @@ class SettlementEconomyServiceTest {
     repeat(9) {
       advanceOneMonth()
       service.catchUpAll()
+      service.flush()
     }
 
     assertEquals(0, service.trackedSettlements, "the village recovered and its row was never deleted")
     verify { repository.deleteById(VILLAGE) }
+  }
+
+  @Test
+  fun `looking at a disturbed town again on the same day writes nothing`() {
+    service.settle(VILLAGE, "bread", units = 50, coins = 100, selling = false)
+    service.flush()
+    clearMocks(repository, answers = false)
+
+    repeat(3) { service.marketOf(VILLAGE) }
+    service.flush()
+
+    verify(exactly = 0) { repository.save(any()) }
+  }
+
+  @Test
+  fun `trades are written once per flush, not once per trade`() {
+    service.settle(VILLAGE, "bread", units = 50, coins = 100, selling = false)
+    service.settle(VILLAGE, "bread", units = 20, coins = 40, selling = false)
+
+    verify(exactly = 0) { repository.save(any()) }
+
+    service.flush()
+    service.flush()
+
+    verify(exactly = 1) { repository.save(any()) }
+  }
+
+  @Test
+  fun `a town that recovers before its first flush is never written or deleted`() {
+    service.settle(VILLAGE, "bread", units = 50, coins = 100, selling = false)
+
+    repeat(9) {
+      advanceOneMonth()
+      service.catchUpAll()
+    }
+    service.flush()
+
+    verify(exactly = 0) { repository.save(any()) }
+    verify(exactly = 0) { repository.deleteById(any()) }
   }
 
   @Test
