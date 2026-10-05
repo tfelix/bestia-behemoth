@@ -16,10 +16,14 @@ import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.test.context.TestPropertySource
 
 /**
  * A master is only ever selected by the account that owns it, and only into a session that has none yet.
+ *
+ * The logout window is short because an earlier scenario can leave account 1's master protected in the world.
  */
+@TestPropertySource(properties = ["world.logout-protection-seconds=1.5"])
 class SelectMasterScenario : BestiaNoSocketScenario(autoClientConnect = false) {
 
   @Autowired
@@ -36,6 +40,7 @@ class SelectMasterScenario : BestiaNoSocketScenario(autoClientConnect = false) {
   fun `another account's master cannot be selected`() {
     val foreignMasterId = testData.account1.masterIds.first()
     val foreignEntityId = masterRepository.findByIdOrThrow(foreignMasterId).entityId
+    await { assertFalse(world.isAlive(foreignEntityId), "left over from an earlier scenario") }
 
     clientPlayer2.connect()
     clientPlayer2.sendMessage(SelectMasterCMSG(clientPlayer2.connectedPlayerId, foreignMasterId))
