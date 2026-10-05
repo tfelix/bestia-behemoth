@@ -11,4 +11,6 @@ data class ZoneConfig(
   val logoutProtectionSeconds: Float = 20f,
   /** Share of its current EXP an entity forfeits when it dies. */
   val deathExpLossFraction: Float = 0.01f,
+  /** Longest path one move message may carry. The client sends legs of at most 24 tiles. */
+  val maxMovePathSteps: Int = 64,
 )

@@ -2,6 +2,7 @@ package net.bestia.zone.entity
 
 import net.bestia.zone.ecs.battle.attack.AttackCancelService
 import net.bestia.zone.ecs.battle.skill.CastCancelService
+import net.bestia.zone.ecs.ZoneConfig
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.testWorld
@@ -69,6 +70,7 @@ class MoveActiveEntityHandlerTest {
       attackCancelService = AttackCancelService(world),
       deadActionGuard = DeadActionGuard(world),
       walkQuery = walkQuery,
+      zoneConfig = ZoneConfig(tickRate = 20),
     )
   }
 
@@ -96,6 +98,20 @@ class MoveActiveEntityHandlerTest {
     handler.handle(MoveActiveEntityCMSG(playerId = accountId, path = path))
 
     assertEquals(listOf(Vec3L(1, 0, 0)), world.get(id, Path::class)?.path)
+  }
+
+  /** Every step is checked under the world lock and the whole path is sent to every viewer. */
+  @Test
+  fun `a path longer than the cap is cut to the cap`() {
+    val world = testWorld()
+    val id = world.create()
+    world.add(id, Position(0, 0, 0))
+    val handler = handlerFor(world, id, OpenWalkQuery())
+
+    val path = (1L..100L).map { Vec3L(it, 0, 0) }
+    handler.handle(MoveActiveEntityCMSG(playerId = accountId, path = path))
+
+    assertEquals(path.take(ZoneConfig(tickRate = 20).maxMovePathSteps), world.get(id, Path::class)?.path)
   }
 
   @Test

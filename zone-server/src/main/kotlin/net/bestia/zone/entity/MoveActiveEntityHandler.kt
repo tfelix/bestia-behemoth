@@ -1,6 +1,7 @@
 package net.bestia.zone.entity
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.zone.ecs.ZoneConfig
 import net.bestia.zone.ecs.movement.Path
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
@@ -29,6 +30,7 @@ class MoveActiveEntityHandler(
   private val attackCancelService: AttackCancelService,
   private val deadActionGuard: DeadActionGuard,
   private val walkQuery: LocalWalkQuery,
+  private val zoneConfig: ZoneConfig,
 ) : InMessageProcessor.IncomingMessageHandler<MoveActiveEntityCMSG> {
   override val handles = MoveActiveEntityCMSG::class
 
@@ -66,7 +68,9 @@ class MoveActiveEntityHandler(
       // Without a known position there is nothing to validate a step against, so the path is trusted as it
       // used to be unconditionally. With one, the path is walked and cut at the first step that is not
       // horizontally adjacent or crosses too steep a rise - see walkableStepsOf.
-      val validPath = if (position == null) msg.path else walkableStepsOf(position.toVec3L(), msg.path)
+      // Capped before anything is checked: every step costs a check under the world lock and goes to every viewer.
+      val requested = msg.path.take(zoneConfig.maxMovePathSteps)
+      val validPath = if (position == null) requested else walkableStepsOf(position.toVec3L(), requested)
 
       if (validPath.isEmpty()) {
         LOG.warn {
