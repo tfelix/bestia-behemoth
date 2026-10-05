@@ -44,35 +44,33 @@ class UseItemHandler(
       return true
     }
 
-    // Access the entity and verify inventory ownership
-    val consumed = world.modify(activeEntityId) { id ->
-      val inventory = get(id, Inventory::class)
-
-      if (inventory == null) {
-        LOG.warn { "Entity $activeEntityId had no Inventory component but tried to use item" }
-        return@modify false
-      }
-
-      // Verify that the inventory contains the item at least once
-      if (!inventory.hasItem(msg.itemId.toInt())) {
-        LOG.warn { "Entity $activeEntityId owned no item ${msg.itemId}" }
-        return@modify false
-      }
-
-      LOG.debug { "Item ${msg.itemId} found in inventory for entity $activeEntityId" }
-
-      // `this` is the full World, valid only within this lock-held scope.
-      itemScriptExecutionService.useItem(this, id, item, msg.args)
+    val holdsItem = world.read { get(activeEntityId, Inventory::class)?.hasItem(msg.itemId.toInt()) == true }
+    if (!holdsItem) {
+      LOG.warn { "Entity $activeEntityId owned no item ${msg.itemId}" }
+      return true
     }
 
-    // Persist the durable DB decrement off the tick thread, mirroring the ECS consumption so the
-    // two do not drift.
-    if (consumed == true) {
-      val masterId = connectionInfoService.getMasterId(msg.playerId)
+    // Durable first and outside the world lock: an effect cannot be taken back, so it only happens once the
+    // database has given the item up. Taking it from the live inventory alone let a copy the database no longer
+    // held be used again and again.
+    val masterId = connectionInfoService.getMasterId(msg.playerId)
+    val removed = inventoryService.removeOneFromMaster(masterId, item.id, 1)
+    if (removed == null) {
+      LOG.warn { "Master $masterId holds no ${item.identifier} in the database, refusing to use it" }
+      return true
+    }
+
+    // `this` is the full World, valid only within this lock-held scope.
+    val consumed = runCatching {
+      world.modify(activeEntityId) { id -> itemScriptExecutionService.useItem(this, id, item, msg.args) }
+    }
+
+    if (consumed.getOrNull() != true) {
       asyncJobExecutor.submit(key = masterId) {
-        inventoryService.removeOneFromMaster(masterId, item.id, 1)
+        inventoryService.grantToMaster(masterId, item, 1, removed.uniqueId)
       }
     }
+    consumed.getOrThrow()
 
     return true
   }

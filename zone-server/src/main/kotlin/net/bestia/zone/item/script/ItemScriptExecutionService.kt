@@ -28,7 +28,7 @@ class ItemScriptExecutionService(
 
     if (isSuccess) {
       val inventory = world.getOrThrow(userId, Inventory::class)
-      inventory.decItem(item.id.toInt())
+      inventory.removeFromStack(item.id, 1) || inventory.removeInstanceOf(item.id)
     }
 
     return isSuccess
