@@ -6,7 +6,6 @@ import io.netty.channel.WriteBufferWaterMark
 import io.netty.channel.embedded.EmbeddedChannel
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder
 import io.netty.handler.codec.protobuf.ProtobufDecoder
-import io.netty.handler.codec.protobuf.ProtobufEncoder
 import net.bestia.bnet.proto.EnvelopeProto
 import net.bestia.worldgen.core.ChunkPos
 import net.bestia.worldgen.derived.ChunkDelta
@@ -47,18 +46,16 @@ class NettyChunkFanOutTest {
   }
 
   /**
-   * The real outbound pipeline, in the order `SocketServer` builds it.
+   * The real codec part of the pipeline, in the order `SocketServer` builds it.
    *
-   * Included on purpose. The reason a pre-framed buffer can be written at all is that neither outbound
-   * encoder matches a raw `ByteBuf` - `BigEndianLengthFieldPrepender` takes an `Envelope` and
-   * `ProtobufEncoder` a `MessageLite` - so it passes through both untouched. That is a property of two
-   * third-party base classes, not of any code here, and a test that skipped the pipeline would not be
-   * testing the thing that could break.
+   * Included on purpose. The reason a pre-framed buffer can be written at all is that the outbound encoder
+   * does not match a raw `ByteBuf` - `BigEndianLengthFieldPrepender` takes an `Envelope` - so it passes
+   * through untouched. That is a property of a third-party base class, not of any code here, and a test that
+   * skipped the pipeline would not be testing the thing that could break.
    */
   private fun pipelineChannel() = EmbeddedChannel(
     LengthFieldBasedFrameDecoder(1_048_576, 0, 4, 0, 4),
     ProtobufDecoder(EnvelopeProto.Envelope.getDefaultInstance()),
-    ProtobufEncoder(),
     BigEndianLengthFieldPrepender()
   )
 

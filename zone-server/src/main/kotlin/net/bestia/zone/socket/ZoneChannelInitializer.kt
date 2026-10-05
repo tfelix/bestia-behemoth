@@ -3,7 +3,6 @@ package net.bestia.zone.socket
 import io.netty.channel.Channel
 import io.netty.channel.ChannelInitializer
 import io.netty.handler.codec.protobuf.ProtobufDecoder
-import io.netty.handler.codec.protobuf.ProtobufEncoder
 import io.netty.handler.timeout.IdleStateHandler
 import net.bestia.bnet.proto.EnvelopeProto
 import java.util.concurrent.TimeUnit
@@ -26,9 +25,7 @@ class ZoneChannelInitializer(
       EnvelopeFrameDecoder(config.maxFrameBytesBeforeAuth, config.maxFrameBytes),
       // Decoder for protobuf messages
       ProtobufDecoder(EnvelopeProto.Envelope.getDefaultInstance()),
-      // Encoder for protobuf messages
-      ProtobufEncoder(),
-      // Custom encoder for adding big-endian length prefix
+      // Serialises an Envelope and adds the big-endian length prefix
       BigEndianLengthFieldPrepender(),
       // Create new handler instance for each connection
       ClientMessageHandler(handlerContext)

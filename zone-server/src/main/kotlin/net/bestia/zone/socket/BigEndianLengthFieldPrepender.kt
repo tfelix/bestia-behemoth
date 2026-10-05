@@ -15,12 +15,12 @@ import net.bestia.bnet.proto.EnvelopeProto
  */
 class BigEndianLengthFieldPrepender : MessageToByteEncoder<EnvelopeProto.Envelope>() {
 
+  /** Sized to the frame, so the envelope is written once into the buffer that goes to the socket. */
+  override fun allocateBuffer(ctx: ChannelHandlerContext, msg: EnvelopeProto.Envelope, preferDirect: Boolean): ByteBuf {
+    return ctx.alloc().ioBuffer(EnvelopeFraming.frameSize(msg))
+  }
+
   override fun encode(ctx: ChannelHandlerContext, msg: EnvelopeProto.Envelope, out: ByteBuf) {
-    val framed = EnvelopeFraming.frame(ctx.alloc(), msg)
-    try {
-      out.writeBytes(framed)
-    } finally {
-      framed.release()
-    }
+    EnvelopeFraming.writeFrame(msg, out)
   }
 }
