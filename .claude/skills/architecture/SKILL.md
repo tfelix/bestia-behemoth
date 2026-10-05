@@ -21,7 +21,7 @@ architecture questions, this file and the source are more authoritative than the
 | `bestia-client` | Godot game client (C#) |
 | `bnet-messages` | protobuf message contracts — the wire format shared by client & server |
 | `login-server` | Spring Boot REST auth service, issues JWTs |
-| `shared` | small Kotlin types shared by both servers: `Role`/`Authority` (`shared/src/main/kotlin/net/bestia/account/`), EIP712 auth DTOs. **Not** shared DB entities — each server defines its own JPA `Account` |
+| `shared` | small Kotlin types shared by both servers: `Role`/`Authority` (`shared/src/main/kotlin/net/bestia/account/`). **Not** shared DB entities — each server defines its own JPA `Account` |
 | `zone-server` | Spring Boot game server: Netty TCP socket, message dispatch, ECS game loop, AI |
 
 Gradle multi-module build (`settings.gradle`); each server is its own Spring Boot app
@@ -273,9 +273,8 @@ graze (80) or sleep (90), so do not tune it down per-profile.
 login-server is a plain Spring Boot REST service (`spring-boot-starter-web`, no
 sockets) — authentication only, it never touches the game world. Key packages under
 `login-server/src/main/kotlin/net/bestia/login/`: `account/loginmethod`
-(`NftLoginMethod`, `WebAuthnCredential`), `eip712` (wallet-signature auth), `ethereum`
-(web3j NFT-ownership checks), `webauthn` (passkeys), `gamelogin` (browser-mediated
-login sessions), `recovery`, `jwt`.
+(`WebAuthnCredential`), `webauthn` (passkeys), `gamelogin` (browser-mediated login sessions),
+`recovery`, `jwt`.
 
 `account.sign-up-role` (`AccountConfig`) is the role every passkey registration is
 created with — `USER` in `application.yml`, raised to `SUPER_GM` by
@@ -285,7 +284,7 @@ Storage is MariaDB (`login-server/compose.yaml`, port 3307) with Flyway owning t
 schema (`src/main/resources/db/migration/`) and `ddl-auto: validate` checking it. This
 is the only module with migrations.
 
-`LoginController` (`POST /api/v1/login`) returns a signed JWT from
+`GameLoginController` (`/api/v1/auth/game/exchange` and `/refresh`) returns a signed JWT from
 `JwtService.createLoginToken(accountId, role)` — `issuer("login")`,
 `audience("zone")`, `claim("role", role.name)`. The client sends that token as the
 socket's `Authentication` message payload; zone-server independently re-validates it
@@ -296,19 +295,15 @@ server's `application.yml` (`jwt.secret` in login-server, `zone.jwt-auth-secret-
 in zone-server — currently both the placeholder `"your-secret-key-here-change-in-production"`).
 There is no DB call between the two servers; trust is entirely in the JWT signature.
 
-Two login methods now converge on that same `createLoginToken` call, so nothing
-downstream of the socket handshake can tell them apart:
-
-- `POST /api/v1/auth/eip712sig` → `POST /api/v1/login` — wallet signature, refresh token.
-- **Passkeys / WebAuthn**, which never touch the game client. The client calls
-  `POST /api/v1/auth/game/start` with a loopback `redirect_uri` and a PKCE challenge,
-  opens the returned URL with `OS.ShellOpen`, and waits on a `TcpListener` bound to
-  `127.0.0.1:0` (`bestia-client/src/Auth/`). The system browser runs the ceremony
-  against `/api/v1/webauthn/**`, `POST /api/v1/auth/session/complete` mints a 60-second
-  single-use code, and the game trades it at `POST /api/v1/auth/game/exchange` for the
-  same zone JWT. WebAuthn itself is entirely the browser's problem — there is no native
-  passkey code on any platform, and no `bestia://` URI scheme (RFC 8252 §7.3; Safari and
-  Firefox refuse custom-scheme redirects anyway).
+Passkeys / WebAuthn are the only login method, and they never touch the game client. The client calls
+`POST /api/v1/auth/game/start` with a loopback `redirect_uri` and a PKCE challenge,
+opens the returned URL with `OS.ShellOpen`, and waits on a `TcpListener` bound to
+`127.0.0.1:0` (`bestia-client/src/Auth/`). The system browser runs the ceremony
+against `/api/v1/webauthn/**`, `POST /api/v1/auth/session/complete` mints a 60-second
+single-use code, and the game trades it at `POST /api/v1/auth/game/exchange` for the
+zone JWT. WebAuthn itself is entirely the browser's problem — there is no native
+passkey code on any platform, and no `bestia://` URI scheme (RFC 8252 §7.3; Safari and
+Firefox refuse custom-scheme redirects anyway).
 
 An account may hold any number of `WebAuthn Credential` rows. They are joined to it by
 one `webauthn_user.user_handle`, which is what makes a synced passkey created on one
