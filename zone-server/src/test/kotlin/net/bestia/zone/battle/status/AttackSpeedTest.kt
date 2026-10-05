@@ -43,6 +43,21 @@ class AttackSpeedTest {
     assertEquals(1.33f, delay)
   }
 
+  @Test
+  fun `a species is authored in ASPD`() {
+    assertEquals(500, AttackSpeed.baseMotionMs(150))
+    assertEquals(150, AttackSpeed.aspd(AttackSpeed.baseMotionMs(150)))
+  }
+
+  @Test
+  fun `a blob at the default species ASPD attacks every two to three seconds, like a Poring`() {
+    val blob = stats(agility = 5, dexterity = 5)
+
+    val delay = AttackSpeed.delaySeconds(AttackSpeed.baseMotionMs(AttackSpeed.DEFAULT_SPECIES_ASPD), blob)
+
+    assertEquals(2.34f, delay)
+  }
+
   private fun stats(agility: Int, dexterity: Int): StatusValues {
     return StatusValues(
       strength = 10, vitality = 10, intelligence = 10, willpower = 10,

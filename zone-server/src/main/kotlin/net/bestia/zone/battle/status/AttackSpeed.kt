@@ -5,8 +5,8 @@ package net.bestia.zone.battle.status
  * well-understood reference.
  *
  * The authored number is a *motion*, and the interval between two swings is twice it (rAthena's
- * `AMOTION_DIVIDER_PC 2`). ASPD is only ever the displayed reading of the motion, which is why nothing here
- * stores one: at ASPD 150 an entity swings once a second, at the 190 cap five times.
+ * `AMOTION_DIVIDER_PC 2`). ASPD is the displayed reading of the motion: at ASPD 150 an entity swings once a
+ * second, at the 190 cap five times. Only a species is authored in ASPD, see [baseMotionMs].
  */
 object AttackSpeed {
 
@@ -19,6 +19,17 @@ object AttackSpeed {
 
   /** The swing an entity with no weapon has; a weapon row replaces this once equipment exists. */
   const val BARE_HANDED_MOTION_MS = 700
+
+  /**
+   * ASPD of a species that sets none. Slower than an unarmed player's 130: a critter like Ragnarok's Poring
+   * attacks every two to three seconds.
+   */
+  const val DEFAULT_SPECIES_ASPD = 80
+
+  /** The base motion a species' authored ASPD stands for, before its AGI and DEX shorten it. */
+  fun baseMotionMs(aspd: Int): Int {
+    return ZERO_ASPD_MOTION_MS - aspd * MS_PER_ASPD_POINT
+  }
 
   /** [baseMotionMs] reduced by AGI and DEX, per rAthena's pre-renewal `status_base_amotion_pc`. */
   fun motionMs(baseMotionMs: Int, sv: StatusValues): Int {

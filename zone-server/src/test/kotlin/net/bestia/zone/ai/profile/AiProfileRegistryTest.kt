@@ -1,5 +1,6 @@
 package net.bestia.zone.ai.profile
 
+import net.bestia.zone.battle.status.AttackSpeed
 import net.bestia.zone.bestia.DefaultAttack
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -36,7 +37,7 @@ class AiProfileRegistryTest {
     val profile = loadedRegistry().getOrThrow("aggressive_melee")
 
     assertEquals(emptyList<String>(), profile.attacks.map { it.id })
-    assertEquals(listOf("ranged"), profile.armedWith(DefaultAttack.RANGED).attacks.map { it.id })
+    assertEquals(listOf("ranged"), profile.armedWith(DefaultAttack.RANGED, AttackSpeed.DEFAULT_SPECIES_ASPD).attacks.map { it.id })
   }
 
   @Test

@@ -119,8 +119,8 @@ message down a different pathway.
 
 The old `tackle` row (id 1001) was exactly this mistake and has been removed, along with the
 `0`-valued `skillId` mobs used to be seeded with — an id `skills.yml` never had. A mob's basic attack
-is its species' `default-attack` (`MELEE`, `RANGED` or `BOTH` in the mob YAML), never an AI profile
-entry. A profile's `attacks:` lists attack skills only, each with a `skill_id`; the creature must know
+is its species' `default-attack` (`MELEE`, `RANGED` or `BOTH` in the mob YAML) at the species' `aspd`,
+never an AI profile entry. A profile's `attacks:` lists attack skills only, each with a `skill_id`; the creature must know
 that skill via `KnownSkills`, and falls back to its default attack when it cannot use it.
 
 **How hard it hits** is `battle/damage/BaseDamageCalculator.kt`, whose KDoc carries the formula and

@@ -4,6 +4,7 @@ import net.bestia.zone.ai.core.agent.SimpleAgent
 import net.bestia.zone.ai.core.planner.PlanExecutor
 import net.bestia.zone.ai.core.planner.Planner
 import net.bestia.zone.ai.core.state.Blackboard
+import net.bestia.zone.battle.status.AttackSpeed
 import net.bestia.zone.bestia.DefaultAttack
 import net.bestia.zone.geometry.Vec3L
 import kotlin.test.Test
@@ -22,6 +23,9 @@ import kotlin.test.assertNotNull
 class AggroScenarioTest {
 
   private val planner = Planner()
+
+  private fun defaultAttacks(kind: DefaultAttack) = DefaultAttackDefinition.of(kind, AttackSpeed.DEFAULT_SPECIES_ASPD)
+  private val melee = defaultAttacks(DefaultAttack.MELEE).single()
   private val executor = PlanExecutor()
 
   private val combatGoals = listOf(
@@ -50,7 +54,7 @@ class AggroScenarioTest {
   @Test
   fun `walks into melee range before attacking when the attacker is far away`() {
     val memory = aggroMemory(targetPosition = Vec3L(5, 0, 0))
-    val attacks = listOf(DefaultAttackDefinition.MELEE)
+    val attacks = listOf(melee)
     val agent = SimpleAgent(
       name = "wolf",
       goals = combatGoals,
@@ -91,7 +95,7 @@ class AggroScenarioTest {
   @Test
   fun `uses a skill in range before the default attack`() {
     val memory = aggroMemory(targetPosition = Vec3L(1, 0, 0))
-    val attacks = listOf(SkillAttack(id = "ember", range = 6, skillId = 1000), DefaultAttackDefinition.MELEE)
+    val attacks = listOf(SkillAttack(id = "ember", range = 6, skillId = 1000), melee)
 
     val plan = planner.makePlanForAgent(wolf(memory, attacks), Blackboard())
     assertEquals(listOf("attack(ember)"), plan?.actions?.map { it.name })
@@ -101,13 +105,13 @@ class AggroScenarioTest {
   fun `a ranged species shoots from where it stands`() {
     val memory = aggroMemory(targetPosition = Vec3L(5, 0, 0), attackRange = 6L)
 
-    val plan = planner.makePlanForAgent(wolf(memory, DefaultAttackDefinition.of(DefaultAttack.RANGED)), Blackboard())
+    val plan = planner.makePlanForAgent(wolf(memory, defaultAttacks(DefaultAttack.RANGED)), Blackboard())
     assertEquals(listOf("attack(ranged)"), plan?.actions?.map { it.name })
   }
 
   @Test
   fun `a species that bites and shoots bites a target next to it and shoots one further away`() {
-    val both = DefaultAttackDefinition.of(DefaultAttack.BOTH)
+    val both = defaultAttacks(DefaultAttack.BOTH)
 
     val adjacent = planner.makePlanForAgent(wolf(aggroMemory(Vec3L(1, 0, 0), attackRange = 6L), both), Blackboard())
     val away = planner.makePlanForAgent(wolf(aggroMemory(Vec3L(4, 0, 0), attackRange = 6L), both), Blackboard())
@@ -132,7 +136,7 @@ class AggroScenarioTest {
       memory = memory,
       actionResolver = BestiaDomainFixture.resolver(
         listOf("approachTarget", "attack"),
-        listOf(DefaultAttackDefinition.MELEE),
+        listOf(melee),
       ),
     )
 
@@ -149,7 +153,7 @@ class AggroScenarioTest {
       memory = memory,
       actionResolver = BestiaDomainFixture.resolver(
         listOf("approachTarget", "attack"),
-        listOf(DefaultAttackDefinition.MELEE),
+        listOf(melee),
       ),
     )
     val world = Blackboard()
@@ -180,7 +184,7 @@ class AggroScenarioTest {
       memory = memory,
       actionResolver = BestiaDomainFixture.resolver(
         listOf("approachTarget", "attack", "sleep"),
-        listOf(DefaultAttackDefinition.MELEE),
+        listOf(melee),
       ),
     )
 
@@ -202,7 +206,7 @@ class AggroScenarioTest {
       memory = memory,
       actionResolver = BestiaDomainFixture.resolver(
         listOf("approachTarget", "attack"),
-        listOf(DefaultAttackDefinition.MELEE),
+        listOf(melee),
       ),
     )
 

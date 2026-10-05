@@ -24,11 +24,11 @@ data class AiProfile(
 ) {
 
   /**
-   * This profile for one species: its attack skills plus the species' default attack, which the profile
-   * never lists because it belongs to the species, not to the behaviour.
+   * This profile for one species: its attack skills plus the species' default attack at the species' [aspd],
+   * which the profile never lists because it belongs to the species, not to the behaviour.
    */
-  fun armedWith(defaultAttack: DefaultAttack): AiProfile =
-    copy(attacks = attacks + DefaultAttackDefinition.of(defaultAttack))
+  fun armedWith(defaultAttack: DefaultAttack, aspd: Int): AiProfile =
+    copy(attacks = attacks + DefaultAttackDefinition.of(defaultAttack, aspd))
 
   data class Perception(
     val sightRadius: Int,

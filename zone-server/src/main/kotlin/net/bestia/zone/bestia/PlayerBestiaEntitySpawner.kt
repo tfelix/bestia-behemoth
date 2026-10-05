@@ -174,7 +174,7 @@ class PlayerBestiaEntitySpawner(
 
     // Home is where it stands now, not a species spawn point: a bestia told to patrol should patrol where its
     // owner left it.
-    add(id, aiAgentFactory.create(profile, playerBestia.bestia.defaultAttack, homePosition = playerBestia.position, config = playerBestia.aiConfig))
+    add(id, aiAgentFactory.create(profile, playerBestia.bestia.defaultAttack, playerBestia.bestia.aspd, homePosition = playerBestia.position, config = playerBestia.aiConfig))
   }
 
   /**

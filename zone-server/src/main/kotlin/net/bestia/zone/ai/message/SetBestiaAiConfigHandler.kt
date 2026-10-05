@@ -91,7 +91,7 @@ class SetBestiaAiConfigHandler(
 
     world.modify(entityId) { id ->
       val home = get(id, Position::class)?.toVec3L() ?: return@modify
-      add(id, aiAgentFactory.create(profile, species.defaultAttack, homePosition = home, config = stored))
+      add(id, aiAgentFactory.create(profile, species.defaultAttack, species.aspd, homePosition = home, config = stored))
     }
   }
 
