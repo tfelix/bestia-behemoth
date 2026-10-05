@@ -30,6 +30,7 @@ import net.bestia.zone.ecs.battle.status.StatusPoints
 import net.bestia.zone.ecs.account.MasterVisual
 import net.bestia.zone.ecs.battle.exp.Exp
 import net.bestia.zone.ecs.battle.level.LevelUpExperienceCalculator
+import net.bestia.zone.ecs.logout.DisconnectProtection
 import net.bestia.zone.ecs.logout.LogoutIntent
 import net.bestia.zone.ecs.persistence.PersistAndRemove
 import net.bestia.zone.ecs.persistence.Persistent
@@ -83,6 +84,7 @@ class MasterEntitySpawner(
     val reattached = world.modify(master.entityId) { id ->
       connectionInfoService.activateSession(accountId = accountId, masterId = masterId, masterEntityId = id)
       remove(id, LogoutIntent::class)
+      remove(id, DisconnectProtection::class)
       remove(id, PersistAndRemove::class)
       id
     }
