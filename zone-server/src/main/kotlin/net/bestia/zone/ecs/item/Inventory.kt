@@ -105,19 +105,26 @@ data class Inventory(
   }
 
   /**
-   * Takes [amount] off the first plain stack of [itemId] that holds at least that much.
+   * Takes [amount] of [itemId] across every plain stack of it, or nothing at all.
    *
    * Exists alongside [removeAmount] because that one uses `singleOrNull` and therefore silently does nothing
-   * the moment a template is held both as a stack and as an instance - which is exactly the situation a trade
-   * or a drop is most likely to meet.
+   * the moment a template is held both as a stack and as an instance, or in two piles - which is exactly the
+   * situation a trade or a drop is most likely to meet.
    */
   fun removeFromStack(itemId: Long, amount: Int): Boolean {
     require(amount > 0) { "amount > 0 required, was $amount" }
-    val item = items.firstOrNull { it.itemId == itemId && it.isStackable && it.amount >= amount } ?: return false
+    val piles = items.filter { it.itemId == itemId && it.isStackable }
+    if (piles.sumOf { it.amount } < amount) return false
 
-    item.amount -= amount
-    if (item.amount <= 0) {
-      items.remove(item)
+    var remaining = amount
+    for (pile in piles) {
+      val taken = minOf(pile.amount, remaining)
+      pile.amount -= taken
+      remaining -= taken
+      if (pile.amount <= 0) {
+        items.remove(pile)
+      }
+      if (remaining == 0) break
     }
     markDirty()
 

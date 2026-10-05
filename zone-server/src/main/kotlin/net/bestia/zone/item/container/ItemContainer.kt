@@ -114,17 +114,23 @@ class ItemContainer(
     _slots.mapNotNull { slot -> slot.equippedIn?.let { it to slot } }.toMap()
 
   /**
-   * Removes [amount] of a plain stackable item identified by its template id. Returns false if not
-   * enough is present. Does not touch instance slots.
+   * Removes [amount] of a plain stackable item identified by its template id, across every free pile of it,
+   * or nothing at all. Returns false if not enough is present. Does not touch instance slots.
    */
   fun removeStackable(itemId: Long, amount: Int): Boolean {
     require(amount > 0) { "amount > 0 required, was $amount" }
-    val slot = _slots.firstOrNull { it.isStackable && it.isFree && it.item?.id == itemId } ?: return false
-    if (slot.amount < amount) return false
+    val piles = _slots.filter { it.isStackable && it.isFree && it.item?.id == itemId }
+    if (piles.sumOf { it.amount } < amount) return false
 
-    slot.amount -= amount
-    if (slot.amount <= 0) {
-      _slots.remove(slot)
+    var remaining = amount
+    for (pile in piles) {
+      val taken = minOf(pile.amount, remaining)
+      pile.amount -= taken
+      remaining -= taken
+      if (pile.amount <= 0) {
+        _slots.remove(pile)
+      }
+      if (remaining == 0) break
     }
     return true
   }
