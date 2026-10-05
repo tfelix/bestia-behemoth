@@ -443,12 +443,12 @@ class ZoneEngineTest {
 
     zoneEngine.tickOnce(0.05f)
 
-    val sent = slot<Collection<SMSG>>()
+    val sent = slot<SMSG>()
     verify(timeout = 1000) { outMessageProcessor.sendToPlayer(watcher, capture(sent)) }
 
     assertEquals(
       listOf(PositionSMSG::class, PathSMSG::class),
-      sent.captured.map { it::class },
+      (sent.captured as StateBatchSMSG).messages.map { it::class },
       "entity.gd reconciles an arriving path against where it thinks the entity is"
     )
   }
