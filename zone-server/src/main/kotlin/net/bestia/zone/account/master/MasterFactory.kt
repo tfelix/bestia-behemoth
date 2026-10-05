@@ -16,6 +16,7 @@ import net.bestia.zone.item.ItemRepository
 import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.item.equip.EquipmentSlot
 import net.bestia.zone.util.AccountId
+import net.bestia.zone.util.DisplayName
 import net.bestia.zone.world.MasterSpawnPoint
 import net.bestia.zone.world.MasterSpawnPointService
 import net.bestia.zone.world.WorldService
@@ -77,10 +78,8 @@ class MasterFactory(
   ): Master {
     val account = accountRepository.findByIdOrThrow(accountId)
 
-    // Validate name length
-    if (createMasterData.name.isBlank() || createMasterData.name.length > 20) {
-      throw InvalidMasterNameException()
-    }
+    val name = DisplayName.normalizeOrNull(createMasterData.name, MAX_NAME_LENGTH)
+      ?: throw InvalidMasterNameException()
 
     // Check master count limit
     val maxSlots = Account.DEFAULT_MASTER_SLOT_COUNT + account.additionalMasterSlots
@@ -92,7 +91,7 @@ class MasterFactory(
 
     val newMaster = Master(
       account = account,
-      name = createMasterData.name,
+      name = name,
       hairColor = createMasterData.hairColor,
       skinColor = createMasterData.skinColor,
       hair = createMasterData.hair,
@@ -250,6 +249,9 @@ class MasterFactory(
 
   companion object {
     private val LOG = KotlinLogging.logger { }
+
+    /** The length of the `master.name` column. */
+    private const val MAX_NAME_LENGTH = 20
 
     /**
      * What a new master is created wearing, by `items.yml` identifier and the slot it goes in.
