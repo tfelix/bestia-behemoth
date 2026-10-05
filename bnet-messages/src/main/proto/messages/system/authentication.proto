@@ -5,7 +5,15 @@ package bnet;
 option java_package = "net.bestia.bnet.proto";
 option java_outer_classname = "AuthenticationProto";
 
+// Raise CURRENT with every change that an older client or server would read wrongly. The zone refuses a
+// client whose version differs, so both sides read this one value.
+enum ProtocolVersion {
+    PROTOCOL_VERSION_UNSPECIFIED = 0;
+    PROTOCOL_VERSION_CURRENT = 1;
+}
+
 message Authentication {
     string token = 1;
     string client_version = 2;
+    uint32 protocol_version = 3;
 }

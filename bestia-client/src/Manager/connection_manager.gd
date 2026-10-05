@@ -50,7 +50,7 @@ signal passkey_login_failed(reason: String)
 signal session_resume_unavailable()
 
 enum ConnectionState {DISCONNECTED, CONNECTED_NOT_AUTHED, CONNECTED_AUTHED}
-enum ConnectionError {NO_ERROR, ZONE_CONNECTION_LOST}
+enum ConnectionError {NO_ERROR, ZONE_CONNECTION_LOST, PROTOCOL_MISMATCH}
 
 @onready var _socket = $BnetSocket
 @onready var _passkey_login = $PasskeyLogin
@@ -761,12 +761,15 @@ func _on_bnet_socket_connection_status_changed(status: int) -> void:
 			# Player-initiated logout: go home quietly instead of showing "connection lost".
 			_intentional_disconnect = false
 			SceneManager.goto_scene("res://Menu/Main/Main.tscn")
+		elif _socket.LastDisconnectReason == "PROTOCOL_MISMATCH":
+			_goto_connection_lost(ConnectionError.PROTOCOL_MISMATCH)
 		else:
 			_goto_connection_lost(ConnectionError.ZONE_CONNECTION_LOST)
 	elif status == 1:
 		if _connection_state == ConnectionState.DISCONNECTED:
 			# we are initially connected now send auth, please handle this better.
 			_connection_state = ConnectionState.CONNECTED_NOT_AUTHED
+			# Authentication also carries the protocol version; the zone refuses any other.
 			var auth_msg = Authentication.new(
 				_login_token,
 				SettingsManager.VERSION

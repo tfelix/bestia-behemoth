@@ -11,6 +11,8 @@ import net.bestia.zone.account.authentication.AuthenticationProcessor
 import net.bestia.zone.message.HandlerLane
 import net.bestia.zone.message.MessageEnvelopeReceivedEvent
 import net.bestia.zone.message.MessageHandlingFailedException
+import net.bestia.zone.message.UnknownBnetMessageException
+import net.bestia.bnet.proto.AuthenticationProto
 import net.bestia.bnet.proto.AuthenticationSuccessProto
 import net.bestia.bnet.proto.EnvelopeProto
 import java.util.UUID
@@ -108,26 +110,43 @@ class ClientMessageHandler(
 
   @Deprecated("Deprecated in Java")
   override fun exceptionCaught(ctx: ChannelHandlerContext, cause: Throwable) {
-    // MessageHandlingFailedException already logged the original exception with this same code;
-    // anything else reaching here (codec errors, raw IO failures, ...) hasn't been logged yet, so
-    // mint a fresh code to still give the client-facing error something to reference in a report.
-    val errorCode = (cause as? MessageHandlingFailedException)?.errorCode ?: UUID.randomUUID().toString()
-    LOG.error(cause) { "Connection error [errorCode=$errorCode], closing connection" }
+    val reason = if (cause is UnknownBnetMessageException) {
+      // The handshake already matched the protocol version, so this is a client bug or a forged message.
+      LOG.warn { "Client $connectionUuid (player: $accountId) sent a message this zone cannot read: ${cause.message}" }
+      "UNKNOWN_MESSAGE"
+    } else {
+      // MessageHandlingFailedException already logged the original exception with this same code;
+      // anything else reaching here (codec errors, raw IO failures, ...) hasn't been logged yet, so
+      // mint a fresh code to still give the client-facing error something to reference in a report.
+      val errorCode = (cause as? MessageHandlingFailedException)?.errorCode ?: UUID.randomUUID().toString()
+      LOG.error(cause) { "Connection error [errorCode=$errorCode], closing connection" }
+
+      // This is the connection's HTTP-500 equivalent: don't leak internals to the client, but keep
+      // the errorCode traceable back to the server log entry above for debugging.
+      "INTERNAL_SERVER_ERROR:$errorCode"
+    }
 
     // Cancel auth timeout task
     authTimeoutTask?.cancel(false)
 
     releaseAccount(ctx)
 
-    // This is the connection's HTTP-500 equivalent: don't leak internals to the client, but keep
-    // the errorCode traceable back to the server log entry above for debugging.
-    sendDisconnectMessageAndClose(ctx.channel(), reason = "INTERNAL_SERVER_ERROR:$errorCode")
+    sendDisconnectMessageAndClose(ctx.channel(), reason = reason)
   }
 
   private fun authenticateChannel(
     ctx: ChannelHandlerContext,
     msg: EnvelopeProto.Envelope,
   ) {
+    if (msg.hasAuthentication() && msg.authentication.protocolVersion != CURRENT_PROTOCOL_VERSION) {
+      LOG.info {
+        "Client $connectionUuid - ${ctx.channel().remoteAddress()} speaks protocol " +
+          "${msg.authentication.protocolVersion}, this zone speaks $CURRENT_PROTOCOL_VERSION"
+      }
+      sendDisconnectMessageAndClose(ctx.channel(), reason = "PROTOCOL_MISMATCH")
+      return
+    }
+
     when (val result = handlerCtx.authProcessor.authenticate(msg)) {
       is AuthenticationProcessor.AuthenticationFailed -> handleAuthenticationFailed(ctx)
       is AuthenticationProcessor.AuthenticationSuccess -> handleAuthenticationSuccess(ctx, result)
@@ -243,5 +262,6 @@ class ClientMessageHandler(
 
   companion object {
     private val LOG = KotlinLogging.logger { }
+    private val CURRENT_PROTOCOL_VERSION = AuthenticationProto.ProtocolVersion.PROTOCOL_VERSION_CURRENT.number
   }
 }

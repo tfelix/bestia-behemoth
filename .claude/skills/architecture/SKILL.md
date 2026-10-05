@@ -81,8 +81,8 @@ Inbound flow:
    pattern-matches the `oneof` via `when { envelope.hasXxx() -> ... }` and converts the
    raw protobuf into an internal `CMSG` object (e.g.
    `envelope.hasAttackEntity() -> AttackEntityCMSG.fromBnet(accountId, envelope.attackEntity)`).
-   Unmatched envelopes throw `UnknownBnetMessageException`. **Adding a new incoming
-   message type means adding a branch here.**
+   Unmatched envelopes throw `UnknownBnetMessageException`, which closes the connection with
+   `UNKNOWN_MESSAGE`. **Adding a new incoming message type means adding a branch here.**
 3. `InMessageProcessor.submit()` puts the message into the sender's `AccountInbox`
    (`message/AccountInbox.kt`): one mailbox per account, run strictly in order, each item on its
    handler's `HandlerLane` - `TICK` (default, on the tick thread) or `IO` (an IO thread, for
@@ -299,6 +299,11 @@ secret and relaxed WebAuthn origins outside the `dev` and `test` profiles.
 Storage is MariaDB (`login-server/compose.yaml`, port 3307) with Flyway owning the
 schema (`src/main/resources/db/migration/`) and `ddl-auto: validate` checking it. This
 is the only module with migrations.
+The socket's `Authentication` message also carries `protocol_version`. `ClientMessageHandler`
+refuses any value other than `ProtocolVersion.PROTOCOL_VERSION_CURRENT` (`authentication.proto`)
+with `PROTOCOL_MISMATCH`, before it looks at the token. **Raise that value with every wire change
+an older client would read wrongly.**
+
 
 `GameLoginController` (`/api/v1/auth/game/exchange` and `/refresh`) returns a signed JWT from
 `JwtService.createLoginToken(accountId, role)` — `issuer("login")`,
