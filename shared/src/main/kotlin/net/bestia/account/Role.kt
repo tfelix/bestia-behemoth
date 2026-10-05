@@ -15,8 +15,18 @@ enum class Role(val authorities: Set<Authority>) {
       Authority.SPAWN,
       Authority.TERRAIN,
       Authority.DIALOG,
-      Authority.WORLD_TIME
+      Authority.WORLD_TIME,
+      Authority.KICK,
+      Authority.BAN
     )
   ),
-  SUPER_GM(Authority.entries.toSet())
+  SUPER_GM(Authority.entries.toSet());
+
+  /**
+   * Whether an action of this role may target an account of [other] role. Only a lower rank, so GMs cannot act
+   * against each other. The declaration order above is the rank.
+   */
+  fun outranks(other: Role): Boolean {
+    return ordinal > other.ordinal
+  }
 }

@@ -274,7 +274,7 @@ login-server is a plain Spring Boot REST service (`spring-boot-starter-web`, no
 sockets) — authentication only, it never touches the game world. Key packages under
 `login-server/src/main/kotlin/net/bestia/login/`: `account/loginmethod`
 (`WebAuthnCredential`), `webauthn` (passkeys), `gamelogin` (browser-mediated login sessions),
-`recovery`, `jwt`.
+`recovery`, `jwt`, `admin` (GM bans and kicks), `zone` (which zones to call, and the kick call).
 
 `account.sign-up-role` (`AccountConfig`) is the role every passkey registration is
 created with — `USER` in `application.yml`, raised to `SUPER_GM` by
@@ -299,6 +299,28 @@ activates, and a startup guard refuses it under any other profile. The shared HM
 asymmetric key pair before production.
 There is no DB call between the two servers; trust is entirely in the JWT signature.
 
+Four tokens, all signed with that one secret, each with an audience matched exactly so none stands in for another:
+
+| Token | Audience | Lifetime | Used for |
+|---|---|---|---|
+| zone login token | `zone` | `jwt.login-token-minutes` (2) | the socket handshake, once (`jti`) |
+| refresh token | - (opaque, stored as a digest) | `game-login.refresh-token-days` | `/refresh`, rotated on every use |
+| api token | `login-api` | `jwt.api-token-minutes` (15) | the client's calls to `/api/v1/admin/**` |
+| service token | `zone-internal` | 30 s (`ServiceTokens` in `shared`) | login → zone calls, once, one account and scope |
+
+The one call between the servers goes login → zone. `AccountSessionTerminator` ends every way into an account
+(refresh tokens, signed-in login sessions, open codes, passkey enrolments) on a recovery, a ban or a GM kick, and
+after the commit `ZoneKickListener` posts `ServiceTokens.KICK_PATH` to every zone `ZoneDirectory` names - today
+all of `zone-directory.zones`, because the login server cannot see which zone a player is on. On the zone,
+`InternalApiFilter` checks the service token, `InternalAccountController` disconnects the account through
+`ConnectionTerminator`, and `KickedAccounts` refuses its login tokens issued before the kick. The internal API
+shares the map tile port, so a proxy in front of the tiles must never route `/internal/`.
+
+A GM action from the client is `POST /api/v1/admin/accounts/{id}/ban|kick` with the api token. `GmActionService`
+re-reads the actor on every call, needs the action's `Authority`, needs the actor to outrank the target
+(`Role.outranks`), and writes a `gm_action` row. A new GM action is a new `Authority` and a new endpoint there;
+if it acts inside the game, also a new service token scope and `/internal/v1/...` endpoint on the zone.
+
 Passkeys / WebAuthn are the only login method, and they never touch the game client. The client calls
 `POST /api/v1/auth/game/start` with a loopback `redirect_uri` and a PKCE challenge,
 opens the returned URL with `OS.ShellOpen`, and waits on a `TcpListener` bound to
@@ -319,7 +341,9 @@ Auth success on the socket triggers `AccountConnectedEvent` →
 once the client picks a master (`SelectMasterCMSG` → `ConnectionInfoService.activateSession`).
 On disconnect, the master's entity gets a `PersistAndRemove` component
 (`ecs/persistence/PersistAndRemoveSystem.kt`) for async persist-then-remove, rather
-than being removed synchronously.
+than being removed synchronously - unless it is `InCombat`: then it gets `DisconnectProtection` and stays in the
+world for `world.logout-protection-seconds`, so disconnecting is no escape from a fight. Selecting the master
+again in that time re-attaches to the live entity.
 
 ## Database
 

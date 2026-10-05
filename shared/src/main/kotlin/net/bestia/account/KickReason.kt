@@ -7,4 +7,7 @@ enum class KickReason {
 
   /** The account may no longer log in. */
   BANNED,
+
+  /** A GM ended the session. The player may sign in again. */
+  GM_KICK,
 }
