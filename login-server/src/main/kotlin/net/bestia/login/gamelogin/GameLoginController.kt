@@ -139,6 +139,10 @@ class GameLoginController(
         throw GameLoginException(GameLoginError.INVALID_GRANT, "PKCE verifier does not match")
       }
 
+      if (session.accountId != code.accountId) {
+        throw GameLoginException(GameLoginError.INVALID_GRANT, "code and login session name different accounts")
+      }
+
       val account = accounts.findById(code.accountId).orElseThrow {
         GameLoginException(GameLoginError.INVALID_GRANT, "code refers to a missing account")
       }

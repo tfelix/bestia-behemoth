@@ -12,6 +12,19 @@ interface LoginSessionRepository : JpaRepository<LoginSession, String> {
   @Query("DELETE FROM LoginSession s WHERE s.expiresAt < :cutoff")
   fun deleteExpired(@Param("cutoff") cutoff: LocalDateTime): Int
 
+  /** Moves a session one step forward, and only from [from]; answers how many rows moved. */
+  @Modifying
+  @Query(
+    "UPDATE LoginSession s SET s.status = :to " +
+      "WHERE s.idHash = :idHash AND s.status = :from AND s.expiresAt > :now"
+  )
+  fun advance(
+    @Param("idHash") idHash: String,
+    @Param("from") from: LoginSessionStatus,
+    @Param("to") to: LoginSessionStatus,
+    @Param("now") now: LocalDateTime
+  ): Int
+
   /** Conditional, so two browsers opening the same link at once cannot both claim it. */
   @Modifying
   @Query(
