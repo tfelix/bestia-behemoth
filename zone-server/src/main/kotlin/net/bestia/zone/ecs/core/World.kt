@@ -32,7 +32,7 @@ import kotlin.reflect.KClass
 class World(
   parallelSystems: Boolean = false,
   idGenerator: EntityIdGenerator,
-  systems: Iterable<System>
+  systems: Iterable<System> = emptyList(),
 ) : WorldView {
   /** What changed since the last sync; see [Dirtyable] and [SpatiallyIndexed]. */
   val dirtyLog = DirtyLog()
@@ -91,6 +91,11 @@ class World(
    */
   fun onComponentRemoved(handler: (EntityId, Component) -> Unit) {
     componentRemovedListeners.add(handler)
+  }
+
+  /** Adds [systems] after the ones already registered; the order among them is the order they run in. */
+  fun registerSystems(systems: Iterable<System>) {
+    scheduler.registerAll(systems)
   }
 
   val entityCount: Int get() = entities.count

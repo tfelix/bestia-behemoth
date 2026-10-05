@@ -132,23 +132,20 @@ bites, and it follows Ragnarok Online pre-renewal, as `DefenseValues`, `DerivedS
 
 ### How a cast is resolved, and the execution budget
 
-`SkillExecutionService.execute` **enqueues** and returns; the script runs on an `AsyncJobExecutor`
-worker, keyed on the caster so two casts by one entity resolve in order. This is what lets a script
-do its own world manipulation — spawn a patch, place a station, mint a chart — instead of returning
-a spec for a service to enact.
+`SkillExecutionService.execute` **posts** the resolution to the tick thread and returns; casts resolve
+between two ticks, in the order they were posted. This is what lets a script do its own world
+manipulation — spawn a patch, place a station, mint a chart — instead of returning a spec for a
+service to enact.
 
-It is safe because `World.tick` holds the world lock for its whole duration and every scope a script
-opens takes the same lock, so a cast can never interleave with a tick. What it *can* do is make the
-tick wait, so a script reaches the world only through `SkillContext.world` (a `SkillWorld`), whose
+A cast holds the tick while it resolves, so a script reaches the world only through
+`SkillContext.world` (a `SkillWorld`), whose
 every operation is charged against a per-cast `SkillBudget`. Overrunning it fizzles the cast and logs
 at ERROR. The ceilings are the `skill:` block in `application.yml`.
 
-**A script must never inject `World` or `WorldView`.** Scripts are collected into
-`SkillStrategyFactory`, which `CastingSystem` transitively depends on, and the `World` bean is
-assembled from every system — injecting one closes a cycle Spring refuses to build and the context
-fails at boot with nothing pointing at the script. A service whose methods take a world goes behind
-`SkillWorld` (`offerRecipes`, `survey`); a service that needs none (a config, a calculator) a script
-may inject itself.
+**A script must never inject `World` or `WorldView`.** It would reach the world without being charged,
+and the budget is what keeps one cast from holding the tick. A service that touches the world goes
+behind `SkillWorld` (`offerRecipes`, `survey`); a service that needs none (a config, a calculator) a
+script may inject itself.
 
 ### What a cast costs, and when
 

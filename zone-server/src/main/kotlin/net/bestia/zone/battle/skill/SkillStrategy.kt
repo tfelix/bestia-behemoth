@@ -17,10 +17,8 @@ import net.bestia.zone.util.EntityId
  *
  * Everything it does to the world goes through [SkillContext.world], which charges a per-cast budget -
  * spawning an effect, querying what is standing nearby, placing a station, handing relational work to a
- * background worker. A script must **never** inject `World` or `WorldView`: it is collected into
- * [SkillStrategyFactory], which `CastingSystem` transitively depends on, and the `World` bean is
- * assembled from every system - so injecting one closes a cycle Spring refuses to build and the whole
- * context fails at boot.
+ * background worker. A script must **never** inject `World` or `WorldView`: it would reach the world
+ * without being charged, and the budget is what keeps one cast from holding the tick.
  *
  * Implementations are singletons and must be stateless; several casts resolve concurrently on different
  * workers.

@@ -212,7 +212,6 @@ class BudgetedSkillWorld(
     budget.charge()
 
     services.survey.survey(
-      world = world,
       masterId = masterId,
       accountId = accountId,
       entityId = casterId,

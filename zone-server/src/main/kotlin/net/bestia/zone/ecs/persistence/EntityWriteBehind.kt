@@ -10,8 +10,6 @@ import java.util.concurrent.ConcurrentHashMap
 /**
  * Takes entity snapshots where the world may be read, and writes them off the tick. All writes about
  * one owner share its [EntitySnapshot.writeKey], so they land in the order they were taken.
- *
- * Takes the [World] per call rather than injecting it, so systems can use this without a bean cycle.
  */
 @Service
 class EntityWriteBehind(

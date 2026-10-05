@@ -6,9 +6,7 @@ import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.trade.TradeEndReason
-import net.bestia.zone.trade.TradeInterruptedEvent
 import net.bestia.zone.trade.TradeService
-import org.springframework.context.ApplicationEventPublisher
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component as SpringComponent
 
@@ -25,7 +23,7 @@ import org.springframework.stereotype.Component as SpringComponent
 @SpringComponent
 @Order(86)
 class TradeRangeSystem(
-  private val events: ApplicationEventPublisher,
+  private val tradeService: TradeService,
 ) : System {
 
   override val schedule: Schedule = Schedule.EverySeconds(0.5f)
@@ -55,12 +53,12 @@ class TradeRangeSystem(
       val partner = world.get(trading.partnerEntityId, Position::class)?.toVec3L()
 
       if (own == null || partner == null) {
-        events.publishEvent(TradeInterruptedEvent(this@TradeRangeSystem, trading.tradeId, TradeEndReason.PARTNER_GONE))
+        tradeService.cancelAsync(trading.tradeId, TradeEndReason.PARTNER_GONE)
         return@each
       }
 
       if (own.distance(partner) > MAX_TRADE_RANGE) {
-        events.publishEvent(TradeInterruptedEvent(this@TradeRangeSystem, trading.tradeId, TradeEndReason.WALKED_AWAY))
+        tradeService.cancelAsync(trading.tradeId, TradeEndReason.WALKED_AWAY)
       }
     }
   }

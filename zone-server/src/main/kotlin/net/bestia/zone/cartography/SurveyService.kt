@@ -41,16 +41,6 @@ import org.springframework.stereotype.Service
  * immediately instead of a placeholder zero it would have to see corrected on the next full send. A chart is
  * addressed by that id when it is merged or copied, so a placeholder would be a chart the player could hold but
  * not use.
- *
- * ### The world is a parameter, not an injected field
- *
- * `SkillExecutionService` depends on this bean, and the ECS world bean is assembled from every `System` -
- * including `CastingSystem`, which depends on `SkillExecutionService`. Injecting [WorldView] here therefore
- * closes a cycle Spring refuses to build, and the context fails at boot with nothing pointing at cartography.
- * `CraftingService` takes its world the same way for the same structural reason.
- *
- * A [WorldView] passed in is the same singleton an injected one would be - `World` implements the interface - so
- * nothing is lost but the constructor argument.
  */
 @Service
 class SurveyService(
@@ -58,6 +48,7 @@ class SurveyService(
   private val asyncJobExecutor: AsyncJobExecutor,
   private val worldService: WorldService,
   private val outMessageProcessor: OutMessageProcessor,
+  private val world: WorldView,
   private val itemTemplates: ItemTemplateRegistry,
 ) {
 
@@ -104,7 +95,6 @@ class SurveyService(
    * @param centre the aimed-at point in **voxels**, as a skill target position always is
    */
   fun survey(
-    world: WorldView,
     masterId: Long,
     accountId: Long?,
     entityId: EntityId,
@@ -126,7 +116,7 @@ class SurveyService(
           LOG.debug {
             "Master $masterId charted ${result.cells} cells around $centreX, $centreY as instance ${result.uniqueId}"
           }
-          applyToLiveInventory(world, entityId, result)
+          applyToLiveInventory(entityId, result)
           accountId?.let { outMessageProcessor.sendToPlayer(it, OperationSuccessSMSG(OpSuccess.CHART_WRITTEN)) }
         }
       }
@@ -144,7 +134,6 @@ class SurveyService(
    * tick itself.
    */
   fun applyToLiveInventory(
-    world: WorldView,
     entityId: EntityId,
     result: ChartService.Result.Ok,
     removedUniqueIds: List<Long> = emptyList()
