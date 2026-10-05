@@ -1,6 +1,7 @@
 package net.bestia.zone.account.master
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.zone.ecs.battle.exp.Exp
 import net.bestia.zone.ecs.battle.level.Level
 import net.bestia.zone.ecs.battle.status.BaseStatusValues
@@ -20,6 +21,7 @@ import net.bestia.zone.account.GetSelfCMSG
 import net.bestia.zone.message.IoMessageHandler
 import net.bestia.zone.message.SelfSMSG
 import net.bestia.zone.message.OutMessageProcessor
+import net.bestia.zone.message.decoder
 import net.bestia.zone.util.AccountId
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
@@ -34,7 +36,7 @@ class GetSelfHandler(
   private val world: WorldView,
   private val entityVisibility: EntityVisibility
 ) : IoMessageHandler<GetSelfCMSG> {
-  override val handles = GetSelfCMSG::class
+  override val wire = decoder(MessageCase.GET_SELF) { accountId, _ -> GetSelfCMSG(accountId) }
 
   /**
    * Note this runs `readOnly = true` and also briefly waits for a world scope inside that transaction

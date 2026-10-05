@@ -1,8 +1,10 @@
 package net.bestia.zone.party.handler
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.zone.message.IoMessageHandler
 import net.bestia.zone.message.OutMessageProcessor
+import net.bestia.zone.message.decoder
 import net.bestia.zone.party.PartyErrorSMSG
 import net.bestia.zone.party.PartyService
 import net.bestia.zone.party.RequestPartyInfoCMSG
@@ -14,7 +16,9 @@ class RequestPartyInfoHandler(
   private val outMessageProcessor: OutMessageProcessor
 ) : IoMessageHandler<RequestPartyInfoCMSG> {
 
-  override val handles = RequestPartyInfoCMSG::class
+  override val wire = decoder(MessageCase.REQUEST_PARTY_INFO) { accountId, envelope ->
+    RequestPartyInfoCMSG.fromBnet(accountId, envelope.requestPartyInfo)
+  }
 
 
   override fun handle(msg: RequestPartyInfoCMSG): Boolean {

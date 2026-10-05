@@ -1,5 +1,6 @@
 package net.bestia.zone.battle
 
+import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.zone.battle.skill.AttackExecutionService
 import net.bestia.zone.battle.skill.BattleAttack
 import net.bestia.zone.ecs.battle.attack.AttackTarget
@@ -10,6 +11,7 @@ import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.logout.LogoutCancelService
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.message.TickMessageHandler
+import net.bestia.zone.message.decoder
 import net.bestia.zone.world.prop.PropPromotionService
 import org.springframework.stereotype.Component
 import net.bestia.zone.ecs.core.update
@@ -33,7 +35,9 @@ class AttackEntityHandler(
   private val deadActionGuard: DeadActionGuard,
   private val propPromotion: PropPromotionService,
 ) : TickMessageHandler<AttackEntityCMSG> {
-  override val handles = AttackEntityCMSG::class
+  override val wire = decoder(MessageCase.ATTACK_ENTITY) { accountId, envelope ->
+    AttackEntityCMSG.fromBnet(accountId, envelope.attackEntity)
+  }
 
   override fun handle(world: World, msg: AttackEntityCMSG): Boolean {
     val attackerId = connectionInfoService.getActiveEntityId(msg.playerId)

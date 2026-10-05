@@ -62,6 +62,9 @@ class GameClientMockFactory(
       // add message to the according clients buffer.
       LOG.trace { "RX accountId: $playerId, msg: $outMessage" }
 
+      // Encoded and dropped, so a message that cannot be put on the wire fails here as it would on a socket.
+      outMessage.toBnetEnvelope()
+
       createdClientBuffer[playerId]?.add(outMessage)
     }
   }

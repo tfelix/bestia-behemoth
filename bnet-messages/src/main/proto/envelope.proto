@@ -78,6 +78,12 @@ import "messages/party/party_invite_declined_smsg.proto";
 import "messages/party/party_info_smsg.proto";
 import "messages/party/party_error_smsg.proto";
 import "messages/party/disband_party_smsg.proto";
+import "messages/party/create_party_cmsg.proto";
+import "messages/party/leave_party_cmsg.proto";
+import "messages/party/remove_party_member_cmsg.proto";
+import "messages/party/request_disband_party_cmsg.proto";
+import "messages/party/request_party_invitation_cmsg.proto";
+import "messages/party/request_party_info_cmsg.proto";
 import "messages/map/world_info_smsg.proto";
 import "messages/map/chunk_manifest_smsg.proto";
 import "messages/map/chunk_request_cmsg.proto";
@@ -228,6 +234,12 @@ message Envelope {
     PartyInfoSMSG party_info = 605;
     PartyErrorSMSG party_error = 606;
     DisbandPartySMSG disband_party = 607;
+    CreatePartyCMSG create_party = 608;
+    LeavePartyCMSG leave_party = 609;
+    RemovePartyMemberCMSG remove_party_member = 610;
+    RequestDisbandPartyCMSG request_disband_party = 611;
+    RequestPartyInvitationCMSG request_party_invitation = 612;
+    RequestPartyInfoCMSG request_party_info = 613;
 
     // CRAFTING & BUILDING 700
     CraftableRecipesSMSG craftable_recipes = 700;

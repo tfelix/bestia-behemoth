@@ -1,6 +1,7 @@
 package net.bestia.zone.chat
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.account.master.MasterNotFoundException
 import net.bestia.zone.account.master.MasterResolver
@@ -10,6 +11,7 @@ import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.message.IoMessageHandler
 import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OutMessageProcessor
+import net.bestia.zone.message.decoder
 import org.springframework.stereotype.Component
 
 @Component
@@ -21,7 +23,9 @@ class ChatHandler(
   private val chatCommandHandler: ChatCommandHandler,
   private val basicSkillGate: BasicSkillGate
 ) : IoMessageHandler<ChatCMSG> {
-  override val handles = ChatCMSG::class
+  override val wire = decoder(MessageCase.CHAT_CMSG) { accountId, envelope ->
+    ChatCMSG.fromBnet(accountId, envelope.chatCmsg)
+  }
 
   override fun handle(msg: ChatCMSG): Boolean {
     val text = withoutControlCharacters(msg.text)

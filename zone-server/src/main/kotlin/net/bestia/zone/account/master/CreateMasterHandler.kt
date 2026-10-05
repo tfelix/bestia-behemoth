@@ -1,7 +1,9 @@
 package net.bestia.zone.account.master
 
+import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.zone.message.IoMessageHandler
 import net.bestia.zone.message.OutMessageProcessor
+import net.bestia.zone.message.decoder
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
@@ -10,7 +12,9 @@ class CreateMasterHandler(
   private val masterFactory: MasterFactory,
   private val outMessageProcessor: OutMessageProcessor
 ) : IoMessageHandler<CreateMasterCMSG> {
-  override val handles = CreateMasterCMSG::class
+  override val wire = decoder(MessageCase.CREATE_MASTER) { accountId, envelope ->
+    CreateMasterCMSG.fromBnet(accountId, envelope.createMaster)
+  }
 
   /**
    * Safe to report a rejection from inside this transaction only because [MasterCreateOperation] runs the

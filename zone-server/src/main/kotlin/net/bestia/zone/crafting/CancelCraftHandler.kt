@@ -1,9 +1,11 @@
 package net.bestia.zone.crafting
 
+import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.zone.ecs.battle.skill.CastCancelService
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.message.TickMessageHandler
+import net.bestia.zone.message.decoder
 import org.springframework.stereotype.Component
 
 /**
@@ -15,7 +17,7 @@ class CancelCraftHandler(
   private val connectionInfoService: ConnectionInfoService,
   private val castCancelService: CastCancelService,
 ) : TickMessageHandler<CancelCraftCMSG> {
-  override val handles = CancelCraftCMSG::class
+  override val wire = decoder(MessageCase.CANCEL_CRAFT) { accountId, _ -> CancelCraftCMSG(accountId) }
 
   override fun handle(world: World, msg: CancelCraftCMSG): Boolean {
     castCancelService.cancelCraft(world, connectionInfoService.getActiveEntityId(msg.playerId))

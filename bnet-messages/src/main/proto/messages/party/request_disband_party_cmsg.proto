@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "RequestDisbandPartyCmsgProto";
+
+// The party owner disbands the party.
+message RequestDisbandPartyCMSG {
+  uint64 party_id = 1;
+}

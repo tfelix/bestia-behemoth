@@ -77,12 +77,13 @@ Inbound flow:
    the raw `Envelope` in `MessageEnvelopeReceivedEvent(this, accountId, msg)` and
    publishes it as a Spring `ApplicationEvent`.
 2. `BnetMessageProcessorAdapter.handleMessageEnvelopeReceived`
-   (`message/BnetMessageProcessorAdapter.kt:32`), an `@EventListener`,
-   pattern-matches the `oneof` via `when { envelope.hasXxx() -> ... }` and converts the
-   raw protobuf into an internal `CMSG` object (e.g.
-   `envelope.hasAttackEntity() -> AttackEntityCMSG.fromBnet(accountId, envelope.attackEntity)`).
-   Unmatched envelopes throw `UnknownBnetMessageException`, which closes the connection with
-   `UNKNOWN_MESSAGE`. **Adding a new incoming message type means adding a branch here.**
+   (`message/BnetMessageProcessorAdapter.kt`), an `@EventListener`, looks up the handler for
+   `envelope.messageCase` and reads the raw protobuf into an internal `CMSG` object with the
+   handler's `WireDecoder` (`message/WireDecoder.kt`). Unmatched envelopes throw
+   `UnknownBnetMessageException`, which closes the connection with `UNKNOWN_MESSAGE`. The adapter
+   refuses to start when a case a client sends has no
+   handler (`inboundCases()`: every case except `AUTHENTICATION`, those whose message type ends in
+   `SMSG`, and a short list the server sends under another name).
 3. `InMessageProcessor.submit()` (`message/InMessageProcessor.kt`) finds the one handler for
    `msg::class` among every Spring-injected `IncomingMessageHandler<*>` bean — dispatch is by
    Kotlin class, not a string/int tag — and puts the message into the sender's `AccountInbox`
@@ -121,11 +122,10 @@ Use those files as a template instead of re-deriving the shape from scratch.
 2. **Kotlin CMSG** (incoming): `data class XyzCMSG(override val playerId: Long, ...) : CMSG`
    with `companion object fun fromBnet(accountId: Long, proto: XyzCmsgProto.XyzCMSG): XyzCMSG`.
    Template: `battle/attack/AttackEntityCMSG.kt`.
-3. **Dispatch branch**: add `envelope.hasXyz() -> XyzCMSG.fromBnet(accountId, envelope.xyz)`
-   to the `when` in `BnetMessageProcessorAdapter.kt` (line 37+) plus an import — this is
-   the one manual registration point, everything downstream auto-wires via Spring.
-4. **Handler**: `@Component class XyzHandler(...) : TickMessageHandler<XyzCMSG>` with
-   `override val handles = XyzCMSG::class` and `handle(world, msg)` — auto-discovered by
+3. **Handler**: `@Component class XyzHandler(...) : TickMessageHandler<XyzCMSG>` with
+   `override val wire = decoder(MessageCase.XYZ) { accountId, envelope -> XyzCMSG.fromBnet(accountId, envelope.xyz) }`
+   and `handle(world, msg)` — the decoder is the handler's registration for its envelope case,
+   and the handler is auto-discovered by
    `InMessageProcessor` through Spring's injected `List<IncomingMessageHandler<*>>`, no
    manual registry entry needed. Implement `IoMessageHandler<XyzCMSG>` instead as soon as anything
    it calls reaches the database; `TickMessageHandlerTest` and `TickSqlGuard` catch a tick handler
@@ -135,7 +135,7 @@ Use those files as a template instead of re-deriving the shape from scratch.
    whichever entity is currently selected" (`GetSkillsHandler`, `ChatHandler`,
    `UseItemHandler`, `MoveActiveEntityHandler`, ...); it already resolves
    master-vs-owned-bestia and needs no separate ownership check.
-5. **Kotlin SMSG** (outgoing), if a reply/broadcast is needed: `data class XyzSMSG(...) : SMSG`
+4. **Kotlin SMSG** (outgoing), if a reply/broadcast is needed: `data class XyzSMSG(...) : SMSG`
    implementing `toBnetEnvelope()`. Two templates depending on shape: a one-off
    broadcast event (`battle/damage/DamageEntitySMSG.kt`, sent via
    `OutMessageProcessor.sendToObserversOf(world, entityId, msg)` to the same audience as the
@@ -143,18 +143,18 @@ Use those files as a template instead of re-deriving the shape from scratch.
    sync (`ecs/status/SkillPointsSMSG.kt`'s owning component implements `Dirtyable` +
    `toEntityMessage()` and is auto-pushed on change — only use this shape for actual
    entity state, not one-off events).
-6. **C# client wrappers**: outgoing message is an `ICMSG` subclass under
+5. **C# client wrappers**: outgoing message is an `ICMSG` subclass under
    `bestia-client/src/Bnet/Message/<Domain>/XyzCMSG.cs` (template:
    `Message/Entity/AttackEntityCMSG.cs`) implementing `ToEnvelope()`. Incoming message
    is an `EntitySMSG`/`ISMSG` subclass (template: `Message/Entity/DamageEntitySMSG.cs`)
-   with a static `FromProto(...)`, plus a new `else if (envelope.Xyz != null) { ... }`
-   branch in `BnetSocket.cs`'s dispatch chain (`_Process`, ~line 60-183) — messages not
-   handled there just print an unhandled-envelope warning instead of failing loudly.
+   with a static `FromProto(...)`, plus one entry in `Bnet/Message/EnvelopeDecoder.cs`.
+   `EnvelopeDecoderTest` fails for a server case with no entry; one the client deliberately
+   ignores goes into `EnvelopeCases.NotUsedYet`.
    GDScript side: add a thin wrapper method to `connection_manager.gd` that
    instantiates and sends the CMSG (see `send_attack_entity`/`get_skills`); incoming
    `EntitySMSG` subclasses are already caught generically by the `entity_received`
    signal in `_on_bnet_socket_message_received` — no per-message branch needed there.
-7. **Regenerate + build**: run `bnet-messages/gen-protobuf.sh` (Linux/macOS) or
+6. **Regenerate + build**: run `bnet-messages/gen-protobuf.sh` (Linux/macOS) or
    `bnet-messages/gen-protobuf.bat` (Windows) to regenerate the C# proto classes and commit
    them with the `.proto` change. Either works from any working directory — every path,
    including the compiler itself, is anchored to the script's own location. The Kotlin side

@@ -1,7 +1,7 @@
 package net.bestia.zone.scenarios
 
+import net.bestia.zone.account.GetSelfCMSG
 import net.bestia.zone.bestia.PlayerBestiaRepository
-import net.bestia.zone.bestia.GetBestiasCMSG
 import net.bestia.zone.socket.PingCMSG
 import net.bestia.zone.socket.PongSMSG
 import net.bestia.zone.ecs.core.WorldView
@@ -71,7 +71,7 @@ class BehemothE2EScenarios : BestiaNoSocketScenario(
       .map { it.id }
     val expectedMasterEntityId = connectionInfoService.getSelectedMasterEntityId(clientPlayer1.connectedPlayerId)
 
-    clientPlayer1.sendMessage(GetBestiasCMSG(clientPlayer1.connectedPlayerId))
+    clientPlayer1.sendMessage(GetSelfCMSG(clientPlayer1.connectedPlayerId))
 
     // TODO this must be replaced with the GetSelf message
     /*

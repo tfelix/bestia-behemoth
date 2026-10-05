@@ -1,5 +1,6 @@
 package net.bestia.zone.party
 
+import net.bestia.bnet.proto.LeavePartyCmsgProto
 import net.bestia.zone.message.CMSG
 
 /**
@@ -8,4 +9,10 @@ import net.bestia.zone.message.CMSG
  */
 data class LeavePartyCMSG(
   override val playerId: Long
-) : CMSG
+) : CMSG {
+  companion object {
+    fun fromBnet(accountId: Long, proto: LeavePartyCmsgProto.LeavePartyCMSG): LeavePartyCMSG {
+      return LeavePartyCMSG(playerId = accountId)
+    }
+  }
+}

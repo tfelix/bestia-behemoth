@@ -1,6 +1,6 @@
 package net.bestia.zone.scenarios
 
-import net.bestia.zone.bestia.GetBestiasCMSG
+import net.bestia.zone.account.GetSelfCMSG
 import net.bestia.zone.entity.SelectEntityCMSG
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.entity.MoveActiveEntityCMSG
@@ -30,7 +30,7 @@ class ListAvailableBestiaScenarios : BestiaNoSocketScenario() {
   }
 
   private fun listAvailableBestias() {
-    clientPlayer1.sendMessage(GetBestiasCMSG(clientPlayer1.connectedPlayerId))
+    clientPlayer1.sendMessage(GetSelfCMSG(clientPlayer1.connectedPlayerId))
 
     // TODO this must be replaced with the getself message
     /*

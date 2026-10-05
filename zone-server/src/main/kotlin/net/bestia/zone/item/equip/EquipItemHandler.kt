@@ -1,6 +1,7 @@
 package net.bestia.zone.item.equip
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.zone.account.master.skill.NoviceGate
 import net.bestia.zone.ecs.battle.level.Level
 import net.bestia.zone.ecs.battle.skill.KnownSkills
@@ -16,6 +17,7 @@ import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.message.IoMessageHandler
 import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OutMessageProcessor
+import net.bestia.zone.message.decoder
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
 
@@ -40,7 +42,9 @@ class EquipItemHandler(
   private val deadActionGuard: DeadActionGuard,
   private val world: WorldView
 ) : IoMessageHandler<EquipItemCMSG> {
-  override val handles = EquipItemCMSG::class
+  override val wire = decoder(MessageCase.EQUIP_ITEM) { accountId, envelope ->
+    EquipItemCMSG.fromBnet(accountId, envelope.equipItem)
+  }
 
   override fun handle(msg: EquipItemCMSG): Boolean {
     val item = itemRepository.findByIdOrNull(msg.itemId)

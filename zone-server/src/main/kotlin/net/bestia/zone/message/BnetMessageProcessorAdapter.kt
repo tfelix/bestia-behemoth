@@ -1,113 +1,42 @@
 package net.bestia.zone.message
 
-import net.bestia.zone.dialog.conversation.ConversationChoiceCMSG
-import net.bestia.zone.dialog.conversation.InteractCMSG
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.ai.message.SetBestiaAiConfigCMSG
-import net.bestia.zone.account.GetSelfCMSG
-import net.bestia.zone.account.master.CreateMasterCMSG
-import net.bestia.zone.account.master.DeleteMasterCMSG
-import net.bestia.zone.account.master.GetMasterCMSG
-import net.bestia.zone.account.master.skill.InvestSkillPointCMSG
-import net.bestia.zone.account.master.status.InvestStatusPointCMSG
-import net.bestia.zone.account.master.SelectMasterCMSG
-import net.bestia.zone.battle.ActivateSkillCMSG
-import net.bestia.zone.battle.AttackEntityCMSG
-import net.bestia.zone.skill.GetSkillsCMSG
-import net.bestia.zone.chat.ChatCMSG
-import net.bestia.zone.crafting.CancelCraftCMSG
-import net.bestia.zone.crafting.CraftItemCMSG
-import net.bestia.zone.entity.MoveActiveEntityCMSG
-import net.bestia.zone.entity.SelectEntityCMSG
-import net.bestia.zone.item.DropItemCMSG
-import net.bestia.zone.item.equip.EquipItemCMSG
-import net.bestia.zone.item.equip.UnequipItemCMSG
-import net.bestia.zone.item.inventory.GetInventoryCMSG
-import net.bestia.zone.item.loot.LootItemCMSG
-import net.bestia.zone.item.UseItemCMSG
-import net.bestia.zone.ecs.logout.RequestLogoutCMSG
-import net.bestia.zone.ecs.respawn.RespawnCMSG
-import net.bestia.zone.party.AcceptPartyInviteCMSG
-import net.bestia.zone.party.DeclinePartyInviteCMSG
-import net.bestia.zone.trade.AnswerTradeRequestCMSG
-import net.bestia.zone.trade.CancelTradeCMSG
-import net.bestia.zone.trade.ConfirmTradeCMSG
-import net.bestia.zone.trade.OfferTradeItemCMSG
-import net.bestia.zone.trade.RequestTradeCMSG
-import net.bestia.zone.trade.RetractTradeItemCMSG
-import net.bestia.zone.trade.SetTradeLockCMSG
-import net.bestia.zone.socket.PingCMSG
-import net.bestia.zone.economy.shop.OpenShopCMSG
-import net.bestia.zone.economy.shop.ShopTradeCMSG
-import net.bestia.zone.world.prop.collect.CollectPropCMSG
-import net.bestia.zone.world.prop.interact.InteractEntityCMSG
-import net.bestia.zone.world.stream.ChunkRequestCMSG
+import net.bestia.bnet.proto.EnvelopeProto.Envelope
+import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
 
 /**
- * Receives Bnet protobuf messages, converts them into the local message format and hands over the messages
- * to the regular message processing event system.
+ * Receives Bnet protobuf messages, reads each with its handler's [WireDecoder] and hands it to the
+ * [InMessageProcessor].
+ *
+ * Refuses to start when a client-to-server case has no handler, so a message added to the envelope cannot
+ * silently go unanswered.
  */
 @Component
 class BnetMessageProcessorAdapter(
-  private val inMessageProcessor: InMessageProcessor
+  handlers: List<IncomingMessageHandler<*>>,
+  private val inMessageProcessor: InMessageProcessor,
 ) {
+
+  private val decoders: Map<MessageCase, WireDecoder<*>> = handlers.associate { it.wire.case to it.wire }
+
+  init {
+    val shared = handlers.groupBy { it.wire.case }.filterValues { it.size > 1 }.keys
+    require(shared.isEmpty()) { "Envelope cases with more than one handler: $shared" }
+
+    val unhandled = inboundCases() - decoders.keys
+    require(unhandled.isEmpty()) { "Envelope cases a client sends that no handler takes: $unhandled" }
+  }
+
   @EventListener
   fun handleMessageEnvelopeReceived(event: MessageEnvelopeReceivedEvent) {
     val accountId = event.senderAccountId
     val envelope = event.envelope
 
-    val internalMessage = when {
-      envelope.hasGetMaster() -> GetMasterCMSG(accountId)
-      envelope.hasGetSelf() -> GetSelfCMSG(accountId)
-      envelope.hasPing() -> PingCMSG(accountId)
-      envelope.hasChatCmsg() -> ChatCMSG.Companion.fromBnet(accountId, envelope.chatCmsg)
-      envelope.hasSelectMaster() -> SelectMasterCMSG(accountId, envelope.selectMaster.masterId)
-      envelope.hasCreateMaster() -> CreateMasterCMSG.fromBnet(accountId, envelope.createMaster)
-      envelope.hasDeleteMaster() -> DeleteMasterCMSG.fromBnet(accountId, envelope.deleteMaster)
-      envelope.hasInvestSkillPoint() -> InvestSkillPointCMSG.Companion.fromBnet(accountId, envelope.investSkillPoint)
-      envelope.hasInvestStatusPoint() -> InvestStatusPointCMSG.Companion.fromBnet(accountId, envelope.investStatusPoint)
-      envelope.hasSetBestiaAiConfig() -> SetBestiaAiConfigCMSG.fromBnet(accountId, envelope.setBestiaAiConfig)
-      envelope.hasGetSkills() -> GetSkillsCMSG(accountId)
-      envelope.hasActivateSkill() -> ActivateSkillCMSG.Companion.fromBnet(accountId, envelope.activateSkill)
-      envelope.hasSelectActiveEntity() -> SelectEntityCMSG(accountId, envelope.selectActiveEntity.entityId)
-      envelope.hasMoveActiveEntity() -> MoveActiveEntityCMSG.Companion.fromBnet(accountId, envelope.moveActiveEntity)
-      envelope.hasAttackEntity() -> AttackEntityCMSG.Companion.fromBnet(accountId, envelope.attackEntity)
-      envelope.hasGetInventory() -> GetInventoryCMSG(accountId)
-      envelope.hasUseItem() -> UseItemCMSG.Companion.fromBnet(accountId, envelope.useItem)
-      envelope.hasDropItem() -> DropItemCMSG.Companion.fromBnet(accountId, envelope.dropItem)
-      envelope.hasLootItem() -> LootItemCMSG.Companion.fromBnet(accountId, envelope.lootItem)
-      envelope.hasEquipItem() -> EquipItemCMSG.Companion.fromBnet(accountId, envelope.equipItem)
-      envelope.hasUnequipItem() -> UnequipItemCMSG.Companion.fromBnet(accountId, envelope.unequipItem)
-      envelope.hasRequestLogout() -> RequestLogoutCMSG.Companion.fromBnet(accountId, envelope.requestLogout)
-      envelope.hasRespawn() -> RespawnCMSG.Companion.fromBnet(accountId, envelope.respawn)
-      envelope.hasInteract() -> InteractCMSG.fromBnet(accountId, envelope.interact)
-      envelope.hasConversationChoice() ->
-        ConversationChoiceCMSG.fromBnet(accountId, envelope.conversationChoice)
-      envelope.hasAcceptPartyInvite() -> AcceptPartyInviteCMSG.fromBnet(accountId, envelope.acceptPartyInvite)
-      envelope.hasDeclinePartyInvite() -> DeclinePartyInviteCMSG.fromBnet(accountId, envelope.declinePartyInvite)
-      envelope.hasChunkRequest() -> ChunkRequestCMSG.fromBnet(accountId, envelope.chunkRequest)
-      envelope.hasCollectProp() -> CollectPropCMSG.fromBnet(accountId, envelope.collectProp)
-      envelope.hasInteractEntity() -> InteractEntityCMSG.fromBnet(accountId, envelope.interactEntity)
-      envelope.hasOpenShop() -> OpenShopCMSG.fromBnet(accountId, envelope.openShop)
-      envelope.hasShopTrade() -> ShopTradeCMSG.fromBnet(accountId, envelope.shopTrade)
-      envelope.hasCraftItem() -> CraftItemCMSG.fromBnet(accountId, envelope.craftItem)
-      envelope.hasCancelCraft() -> CancelCraftCMSG(accountId)
-      envelope.hasRequestTrade() -> RequestTradeCMSG.fromBnet(accountId, envelope.requestTrade)
-      envelope.hasAnswerTradeRequest() -> AnswerTradeRequestCMSG.fromBnet(accountId, envelope.answerTradeRequest)
-      envelope.hasOfferTradeItem() -> OfferTradeItemCMSG.fromBnet(accountId, envelope.offerTradeItem)
-      envelope.hasRetractTradeItem() -> RetractTradeItemCMSG.fromBnet(accountId, envelope.retractTradeItem)
-      envelope.hasSetTradeLock() -> SetTradeLockCMSG.fromBnet(accountId, envelope.setTradeLock)
-      envelope.hasConfirmTrade() -> ConfirmTradeCMSG.fromBnet(accountId, envelope.confirmTrade)
-      envelope.hasCancelTrade() -> CancelTradeCMSG.fromBnet(accountId, envelope.cancelTrade)
+    val decoder = decoders[envelope.messageCase] ?: throw UnknownBnetMessageException(envelope)
+    val internalMessage = decoder.decode(accountId, envelope)
 
-      else -> throw UnknownBnetMessageException(envelope)
-    }
-
-    // A `fromBnet` may return null when the payload is well-formed protobuf but semantically
-    // invalid (e.g. an equip slot ordinal this server version does not know). That is a misbehaving
-    // client, not a server bug - drop the message instead of tearing the connection down.
     if (internalMessage == null) {
       LOG.warn { "handleMessageEnvelopeReceived: dropping unparsable message from account $accountId" }
       return
@@ -118,5 +47,21 @@ class BnetMessageProcessorAdapter(
 
   companion object {
     private val LOG = KotlinLogging.logger { }
+
+    /** Cases only the server sends, whose message type does not say so with an `SMSG` suffix. */
+    private val SERVER_TO_CLIENT = setOf(
+      MessageCase.OPERATION_SUCCESS, MessageCase.OPERATION_ERROR, MessageCase.DISCONNECTED,
+      MessageCase.AUTHENTICATION_SUCCESS, MessageCase.PONG, MessageCase.MASTER, MessageCase.COMP_POSITION,
+      MessageCase.COMP_VISUAL,
+    )
+
+    /** Every case a client may send once logged in. `AUTHENTICATION` is the handshake's. */
+    fun inboundCases(): Set<MessageCase> {
+      return MessageCase.values()
+        .filter { it != MessageCase.MESSAGE_NOT_SET && it != MessageCase.AUTHENTICATION }
+        .filter { it !in SERVER_TO_CLIENT }
+        .filterNot { Envelope.getDescriptor().findFieldByNumber(it.number).messageType.name.endsWith("SMSG") }
+        .toSet()
+    }
   }
 }

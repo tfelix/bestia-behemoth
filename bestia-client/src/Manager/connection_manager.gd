@@ -36,6 +36,8 @@ signal trade_state_received(message: TradeStateSMSG)
 ## Emitted whenever a merchant's counter is (re)drawn. A full snapshot each time - it opens the window and
 ## updates it, and it arrives again after every trade so the price shown is the price that was just moved.
 signal shop_offer_received(message: ShopOfferSMSG)
+## Every party message. Nothing listens yet; a party window will.
+signal party_message_received(message: PartySMSG)
 ## Emitted whenever the server re-syncs the pending logout countdown (seconds until despawn).
 signal logout_countdown_received(remaining_seconds: float)
 ## Emitted when the server aborts a pending logout (player moved / used a skill / took damage).
@@ -758,6 +760,8 @@ func _on_bnet_socket_message_received(message: Object) -> void:
 		trade_state_received.emit(message)
 	elif message is ShopOfferSMSG:
 		shop_offer_received.emit(message)
+	elif message is PartySMSG:
+		party_message_received.emit(message)
 	elif message is MapSMSG:
 		# Terrain traffic. ChunkStreamManager subscribes to MessageReceived itself, and a signal fans out to
 		# every listener, so these reach this handler too and have to be ignored rather than reported.

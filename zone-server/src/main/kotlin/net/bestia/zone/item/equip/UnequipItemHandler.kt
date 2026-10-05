@@ -1,6 +1,7 @@
 package net.bestia.zone.item.equip
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.zone.ecs.battle.status.IsStatusValueDirty
 import net.bestia.zone.ecs.core.AsyncJobExecutor
 import net.bestia.zone.ecs.core.World
@@ -11,6 +12,7 @@ import net.bestia.zone.ecs.item.Equipment
 import net.bestia.zone.ecs.item.Inventory
 import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.message.TickMessageHandler
+import net.bestia.zone.message.decoder
 import org.springframework.stereotype.Component
 
 /**
@@ -27,7 +29,9 @@ class UnequipItemHandler(
   private val asyncJobExecutor: AsyncJobExecutor,
   private val deadActionGuard: DeadActionGuard,
 ) : TickMessageHandler<UnequipItemCMSG> {
-  override val handles = UnequipItemCMSG::class
+  override val wire = decoder(MessageCase.UNEQUIP_ITEM) { accountId, envelope ->
+    UnequipItemCMSG.fromBnet(accountId, envelope.unequipItem)
+  }
 
   override fun handle(world: World, msg: UnequipItemCMSG): Boolean {
     val activeEntityId = connectionInfoService.getActiveEntityId(msg.playerId)

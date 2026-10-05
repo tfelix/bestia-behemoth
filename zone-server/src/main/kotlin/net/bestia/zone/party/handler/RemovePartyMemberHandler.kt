@@ -1,8 +1,10 @@
 package net.bestia.zone.party.handler
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.zone.message.IoMessageHandler
 import net.bestia.zone.message.OutMessageProcessor
+import net.bestia.zone.message.decoder
 import net.bestia.zone.party.DisbandPartySMSG
 import net.bestia.zone.party.NotPartyMemberException
 import net.bestia.zone.party.NotPartyOwnerException
@@ -22,7 +24,9 @@ class RemovePartyMemberHandler(
   private val outMessageProcessor: OutMessageProcessor
 ) : IoMessageHandler<RemovePartyMemberCMSG> {
 
-  override val handles = RemovePartyMemberCMSG::class
+  override val wire = decoder(MessageCase.REMOVE_PARTY_MEMBER) { accountId, envelope ->
+    RemovePartyMemberCMSG.fromBnet(accountId, envelope.removePartyMember)
+  }
 
 
   override fun handle(msg: RemovePartyMemberCMSG): Boolean {
