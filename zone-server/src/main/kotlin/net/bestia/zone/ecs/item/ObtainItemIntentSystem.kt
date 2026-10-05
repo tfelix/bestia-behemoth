@@ -2,11 +2,13 @@ package net.bestia.zone.ecs.item
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.account.Account
+import net.bestia.zone.ecs.account.Master
 import net.bestia.zone.ecs.core.AsyncJobExecutor
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
+import net.bestia.zone.ecs.core.session.NoActiveSessionException
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.persistence.PersistedEntityDeletionQueue
 import net.bestia.zone.item.Item
@@ -45,7 +47,7 @@ class ObtainItemIntentSystem(
 
   override val reads: ComponentClassSet = setOf(
     ObtainItemIntent.LootItemIntent::class, ObtainItemIntent.CreateItemIntent::class,
-    Position::class, Account::class, GroundItemStack::class, CarryCapacity::class,
+    Position::class, Account::class, Master::class, GroundItemStack::class, CarryCapacity::class,
     Inventory::class
   )
   override val writes: ComponentClassSet = setOf(
@@ -194,22 +196,32 @@ class ObtainItemIntentSystem(
     schedulePersist(world, entityId, item, amount, uniqueId)
   }
 
+  /**
+   * The master is resolved here on the tick: a job asking the session later finds none after a logout and the
+   * wrong master after a switch. Keyed by master so the grant is ordered against that master's other writes.
+   */
   private fun schedulePersist(world: World, entityId: EntityId, item: Item, amount: Int, uniqueId: Long) {
-    val accountId = world.get(entityId, Account::class)?.accountId
-    if (accountId == null) {
-      LOG.warn { "Entity $entityId has no Account component, granted item ${item.id} will not be persisted" }
+    val masterId = masterIdOf(world, entityId)
+    if (masterId == null) {
+      LOG.warn { "Entity $entityId belongs to no master, granted item ${item.id} will not be persisted" }
       return
     }
 
-    asyncJobExecutor.submit {
-      val masterId = try {
-        connectionInfoService.getMasterId(accountId)
-      } catch (e: Exception) {
-        LOG.warn(e) { "Could not resolve master for account $accountId, granted item ${item.id} will not be persisted" }
-        return@submit
-      }
-
+    asyncJobExecutor.submit(key = masterId) {
       inventoryService.grantToMaster(masterId, item, amount, uniqueId)
+    }
+  }
+
+  /** A master carries its own id; an owned bestia persists into its owner's container. */
+  private fun masterIdOf(world: World, entityId: EntityId): Long? {
+    world.get(entityId, Master::class)?.let { return it.masterId }
+
+    val accountId = world.get(entityId, Account::class)?.accountId ?: return null
+
+    return try {
+      connectionInfoService.getMasterId(accountId)
+    } catch (_: NoActiveSessionException) {
+      null
     }
   }
 
