@@ -1,6 +1,7 @@
 package net.bestia.zone.item
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.zone.ecs.item.Equipment
 import net.bestia.zone.ecs.item.Inventory
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
@@ -49,7 +50,7 @@ class DropItemHandler(
         return@modify null
       }
 
-      if (!holdsDroppable(inventory, msg)) {
+      if (!holdsDroppable(inventory, get(id, Equipment::class), msg)) {
         LOG.warn { "Entity $activeEntityId does not hold ${msg.amount}x item ${msg.itemId} (uniqueId ${msg.uniqueId})" }
         return@modify null
       }
@@ -109,7 +110,11 @@ class DropItemHandler(
    * Checked before the durable removal, which cannot be taken back: the database prefers an instance over a pile,
    * so any instance of the template can be dropped, and a pile only for the full amount.
    */
-  private fun holdsDroppable(inventory: Inventory, msg: DropItemCMSG): Boolean {
+  private fun holdsDroppable(inventory: Inventory, equipment: Equipment?, msg: DropItemCMSG): Boolean {
+    if (equipment != null && !equipment.leavesUnwornCopy(inventory, msg.itemId, msg.uniqueId)) {
+      return false
+    }
+
     val copies = inventory.getItems().filter { it.itemId == msg.itemId }
 
     if (msg.uniqueId != 0L) {

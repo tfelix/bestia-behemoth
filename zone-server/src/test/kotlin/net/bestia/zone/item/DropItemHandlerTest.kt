@@ -6,10 +6,13 @@ import io.mockk.verify
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.testWorld
+import net.bestia.zone.ecs.item.Equipment
 import net.bestia.zone.ecs.item.Inventory
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.item.container.ItemContainer
+import net.bestia.zone.item.equip.EquipmentSlot
+import net.bestia.zone.item.equip.EquipmentSlots
 import net.bestia.zone.util.EntityId
 import org.junit.jupiter.api.Test
 import java.util.Optional
@@ -50,10 +53,23 @@ class DropItemHandlerTest {
     assertTrue(world.get(dropper, Inventory::class)!!.getItems().none { it.itemId == SWORD.id })
   }
 
+  /** Worn a moment ago, so the database still has it free: only the live Equipment knows it is worn. */
+  @Test
+  fun `worn gear is never dropped`() {
+    val dropper = dropper(Inventory.Item(SWORD.id, amount = 1, uniqueId = 0L, stackable = false))
+    world.get(dropper, Equipment::class)!!
+      .equip(EquipmentSlot.RIGHT_HAND, Equipment.EquippedItem(itemId = SWORD.id, uniqueId = 0L))
+
+    handler(dropper).handle(DropItemCMSG(ACCOUNT_ID, SWORD.id, amount = 1))
+
+    verify(exactly = 0) { inventoryService.removeOneFromMaster(any(), any(), any(), any()) }
+  }
+
   private fun dropper(vararg held: Inventory.Item): EntityId {
     return world.createEntity { id ->
       add(id, Position(0, 0, 0))
       add(id, Inventory(held.toMutableList()))
+      add(id, Equipment(availableSlotMask = EquipmentSlots.ALL))
     }
   }
 
