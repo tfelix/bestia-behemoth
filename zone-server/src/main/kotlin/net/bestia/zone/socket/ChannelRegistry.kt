@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap
 @Profile("!no-socket")
 class ChannelRegistry(
   config: SocketServerConfig
-) : OutMessageHandler {
+) : OutMessageHandler, ConnectionTerminator {
 
   private val logFilter = EnvelopeLogFilter(config.filterLogMessages)
 
@@ -56,6 +56,17 @@ class ChannelRegistry(
   }
 
   fun getChannel(accountId: Long): Channel? = channelsByAccountId[accountId]
+
+  override fun disconnect(accountId: Long, reason: String): Boolean {
+    val channel = getChannel(accountId) ?: return false
+
+    // The close waits for the notice to be written. Until then the client must not act any more.
+    channel.config().isAutoRead = false
+    DisconnectNotice.sendAndClose(channel, reason)
+    LOG.info { "Disconnected account $accountId: $reason" }
+
+    return true
+  }
 
   /**
    * A snapshot, deliberately: the keys of a [ConcurrentHashMap] are a live view, and a caller iterating one

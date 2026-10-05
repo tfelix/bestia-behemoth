@@ -4,6 +4,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.account.AccountRepository
 import net.bestia.zone.message.SMSG
 import net.bestia.zone.message.InMessageProcessor
+import net.bestia.zone.socket.ConnectionTerminator
 import net.bestia.zone.socket.OutMessageHandler
 import net.bestia.zone.util.AccountId
 import org.springframework.context.ApplicationEventPublisher
@@ -29,7 +30,7 @@ class GameClientMockFactory(
    */
   @Component
   @Profile("no-socket")
-  class MockConnectionAdapter : OutMessageHandler {
+  class MockConnectionAdapter : OutMessageHandler, ConnectionTerminator {
 
     /**
      * Written by whichever thread the server sent from - the zone tick, or one of `AsyncJobExecutor`'s
@@ -41,6 +42,15 @@ class GameClientMockFactory(
 
     /** A mock client exists exactly when [getGameClient] gave it a buffer, which is what "connected" means here. */
     override val connectedAccountIds: Set<Long> get() = createdClientBuffer.keys.toSet()
+
+    /** The reason of the last server-side disconnect per account, for tests of kicks. */
+    val disconnectReasons: MutableMap<AccountId, String> = ConcurrentHashMap()
+
+    override fun disconnect(accountId: Long, reason: String): Boolean {
+      disconnectReasons[accountId] = reason
+
+      return accountId in createdClientBuffer
+    }
 
     override fun sendMessage(playerId: Long, outMessage: SMSG) {
       // add message to the according clients buffer.
