@@ -161,16 +161,8 @@ class PartyService(
 
   @Transactional
   fun acceptInvitation(playerId: AccountId, invitationId: Long) {
-    val openInvitation = pendingInvitations.remove(invitationId)
-      ?: throw PartyInvitationExpired()
-
     val player = masterResolver.getSelectedMasterByAccountId(playerId)
-
-    if (openInvitation.invitedAccountId != player.account.id) {
-      LOG.warn { "Invitation $openInvitation was attempted to be accepted by player $player" }
-
-      throw PartyInviteForbiddenException(playerId, invitationId)
-    }
+    val openInvitation = takeInvitation(player.account.id, invitationId)
 
     val party = partyRepository.findByIdOrNull(openInvitation.invitation.partyId)
 
@@ -201,14 +193,26 @@ class PartyService(
   }
 
   fun declineInvitation(playerId: Long, invitationId: Long): Long {
-    val invitation = pendingInvitations.remove(invitationId)
+    return takeInvitation(playerId, invitationId).inviterAccountId
+  }
+
+  /** Checks before removing: the ids are guessable, so anyone else could otherwise burn the invitation. */
+  private fun takeInvitation(accountId: AccountId, invitationId: Long): OpenPartyInvitation {
+    val invitation = pendingInvitations[invitationId]
       ?: throw PartyInvitationExpired()
 
-    if (invitation.invitedAccountId != playerId) {
-      throw PartyInviteForbiddenException(playerId, invitationId)
+    if (invitation.invitedAccountId != accountId) {
+      LOG.warn { "Account $accountId tried to answer invitation $invitationId, which is not addressed to it" }
+
+      throw PartyInviteForbiddenException(accountId, invitationId)
     }
 
-    return invitation.inviterAccountId
+    // Two answers racing each other: only one of them takes it.
+    if (!pendingInvitations.remove(invitationId, invitation)) {
+      throw PartyInvitationExpired()
+    }
+
+    return invitation
   }
 
   /** Owner-initiated removal of a party member. The owner cannot remove themself this way - use
