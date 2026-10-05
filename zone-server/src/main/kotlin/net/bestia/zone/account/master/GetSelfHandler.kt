@@ -17,9 +17,8 @@ import net.bestia.zone.ecs.item.Equipment
 import net.bestia.zone.ecs.place.Place
 import net.bestia.zone.ecs.visibility.EntityVisibility
 import net.bestia.zone.account.GetSelfCMSG
-import net.bestia.zone.message.HandlerLane
+import net.bestia.zone.message.IoMessageHandler
 import net.bestia.zone.message.SelfSMSG
-import net.bestia.zone.message.InMessageProcessor
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.util.AccountId
 import net.bestia.zone.util.EntityId
@@ -34,9 +33,8 @@ class GetSelfHandler(
   private val bestiaInfoFactory: BestiaInfoFactory,
   private val world: WorldView,
   private val entityVisibility: EntityVisibility
-) : InMessageProcessor.IncomingMessageHandler<GetSelfCMSG> {
+) : IoMessageHandler<GetSelfCMSG> {
   override val handles = GetSelfCMSG::class
-  override val lane = HandlerLane.IO
 
   /**
    * Note this runs `readOnly = true` and also briefly waits for a world scope inside that transaction

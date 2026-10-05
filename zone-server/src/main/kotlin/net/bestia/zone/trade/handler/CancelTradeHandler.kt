@@ -1,7 +1,6 @@
 package net.bestia.zone.trade.handler
 
-import net.bestia.zone.message.HandlerLane
-import net.bestia.zone.message.InMessageProcessor
+import net.bestia.zone.message.IoMessageHandler
 import net.bestia.zone.trade.CancelTradeCMSG
 import net.bestia.zone.trade.TradeService
 import org.springframework.stereotype.Component
@@ -13,11 +12,10 @@ import org.springframework.stereotype.Component
 @Component
 class CancelTradeHandler(
   private val tradeService: TradeService,
-) : InMessageProcessor.IncomingMessageHandler<CancelTradeCMSG> {
+) : IoMessageHandler<CancelTradeCMSG> {
 
   override val handles = CancelTradeCMSG::class
 
-  override val lane = HandlerLane.IO
 
   override fun handle(msg: CancelTradeCMSG): Boolean {
     tradeService.cancel(msg.playerId, msg.tradeId)

@@ -1,9 +1,8 @@
 package net.bestia.zone.account.master.skill
 
 import net.bestia.zone.account.master.MasterResolver
-import net.bestia.zone.message.HandlerLane
+import net.bestia.zone.message.IoMessageHandler
 import net.bestia.zone.skill.SkillListSMSG
-import net.bestia.zone.message.InMessageProcessor
 import net.bestia.zone.message.OutMessageProcessor
 import org.springframework.stereotype.Component
 
@@ -17,9 +16,8 @@ class InvestSkillPointHandler(
   private val masterResolver: MasterResolver,
   private val masterSkillListBuilder: MasterSkillListBuilder,
   private val outMessageProcessor: OutMessageProcessor
-) : InMessageProcessor.IncomingMessageHandler<InvestSkillPointCMSG> {
+) : IoMessageHandler<InvestSkillPointCMSG> {
   override val handles = InvestSkillPointCMSG::class
-  override val lane = HandlerLane.IO
 
   override fun handle(msg: InvestSkillPointCMSG): Boolean {
     val master = masterResolver.getSelectedMasterByAccountId(msg.playerId)

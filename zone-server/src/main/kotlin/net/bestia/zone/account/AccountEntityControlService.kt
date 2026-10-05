@@ -106,13 +106,14 @@ class AccountEntityControlService(
 
     connectionInfoService.getOwnedEntitiesByMaster(accountId, masterId)
       .forEach { owned ->
-        attackCancelService.cancelAttack(owned.entityId)
-        world.modify(owned.entityId) { id ->
+        val isDead = world.modify(owned.entityId) { id ->
+          attackCancelService.cancelAttack(this, id)
           remove(id, PlayerControlled::class)
           remove(id, ActivePlayer::class)
+          has(id, Dead::class)
         }
 
-        if (!world.read { has(owned.entityId, Dead::class) }) {
+        if (!isDead) {
           return@forEach
         }
 

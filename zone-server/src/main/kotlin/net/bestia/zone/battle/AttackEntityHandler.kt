@@ -4,11 +4,12 @@ import net.bestia.zone.battle.skill.AttackExecutionService
 import net.bestia.zone.battle.skill.BattleAttack
 import net.bestia.zone.ecs.battle.attack.AttackTarget
 import net.bestia.zone.ecs.battle.damage.DeadActionGuard
-import net.bestia.zone.ecs.core.WorldView
+import net.bestia.zone.ecs.core.World
+import net.bestia.zone.ecs.core.modify
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.logout.LogoutCancelService
-import net.bestia.zone.message.InMessageProcessor
 import net.bestia.zone.ecs.movement.Position
+import net.bestia.zone.message.TickMessageHandler
 import net.bestia.zone.world.prop.PropPromotionService
 import org.springframework.stereotype.Component
 import net.bestia.zone.ecs.core.update
@@ -27,30 +28,27 @@ import net.bestia.zone.ecs.core.update
 @Component
 class AttackEntityHandler(
   private val connectionInfoService: ConnectionInfoService,
-  private val world: WorldView,
   private val attackExecutionService: AttackExecutionService,
   private val logoutCancelService: LogoutCancelService,
   private val deadActionGuard: DeadActionGuard,
   private val propPromotion: PropPromotionService,
-) : InMessageProcessor.IncomingMessageHandler<AttackEntityCMSG> {
+) : TickMessageHandler<AttackEntityCMSG> {
   override val handles = AttackEntityCMSG::class
 
-  override fun handle(msg: AttackEntityCMSG): Boolean {
+  override fun handle(world: World, msg: AttackEntityCMSG): Boolean {
     val attackerId = connectionInfoService.getActiveEntityId(msg.playerId)
 
     // AttackExecutionService refuses a dead attacker anyway; caught here too so a corpse does not
     // cancel its own pending logout on the way to being refused.
-    if (deadActionGuard.refuses(attackerId, "attack")) {
+    if (deadActionGuard.refuses(world, attackerId, "attack")) {
       return true
     }
 
     // Swinging at something is player activity - abort any pending logout.
-    logoutCancelService.cancelLogout(attackerId)
+    logoutCancelService.cancelLogout(world, attackerId)
 
-    // Inside the caster's own scope because AttackExecutionService resolves inline against the live World:
-    // it stages the damage and broadcasts, which both need the world to itself. A handler never runs nested
-    // inside a tick, so the staging applies immediately rather than being deferred.
-    // Returns null - and so does nothing - when the attacker is no longer alive.
+    // A tick handler runs between two ticks, so the damage AttackExecutionService stages applies at once
+    // rather than being deferred. Does nothing when the attacker is no longer alive.
     world.modify(attackerId) { id ->
       // Here rather than only in BattleContextFactory: from a handler the adds apply immediately and the
       // swing below reads them straight back, whereas AttackSystem would see nothing yet and fizzle the

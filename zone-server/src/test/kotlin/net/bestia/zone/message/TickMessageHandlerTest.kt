@@ -10,20 +10,19 @@ import org.springframework.transaction.annotation.Transactional
 import kotlin.test.assertEquals
 
 /**
- * A handler on the tick lane runs on the tick thread, where a database round trip stalls the world.
+ * A [TickMessageHandler] runs on the tick thread, where a database round trip stalls the world.
  * This catches the direct case at build time; `TickSqlGuard` catches the indirect ones at run time.
  */
 @SpringBootTest
 @ActiveProfiles("no-socket", "test")
-class HandlerLaneTest {
+class TickMessageHandlerTest {
 
   @Autowired
-  private lateinit var handlers: List<InMessageProcessor.IncomingMessageHandler<*>>
+  private lateinit var handlers: List<TickMessageHandler<*>>
 
   @Test
-  fun `no handler on the tick lane takes a repository or opens a transaction`() {
+  fun `no tick handler takes a repository or opens a transaction`() {
     val offenders = handlers
-      .filter { it.lane == HandlerLane.TICK }
       .map { AopUtils.getTargetClass(it) }
       .filter { type ->
         val takesRepository = type.constructors.any { c ->

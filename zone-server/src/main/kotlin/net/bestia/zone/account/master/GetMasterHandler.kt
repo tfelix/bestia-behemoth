@@ -1,8 +1,7 @@
 package net.bestia.zone.account.master
 
 import net.bestia.zone.account.master.GetMasterCMSG
-import net.bestia.zone.message.HandlerLane
-import net.bestia.zone.message.InMessageProcessor
+import net.bestia.zone.message.IoMessageHandler
 import net.bestia.zone.message.OutMessageProcessor
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
@@ -11,9 +10,8 @@ import org.springframework.transaction.annotation.Transactional
 class GetMasterHandler(
   private val outMessageProcessor: OutMessageProcessor,
   private val availableMasterResolver: AvailableMasterResolver
-) : InMessageProcessor.IncomingMessageHandler<GetMasterCMSG> {
+) : IoMessageHandler<GetMasterCMSG> {
   override val handles = GetMasterCMSG::class
-  override val lane = HandlerLane.IO
 
   @Transactional(readOnly = true)
   override fun handle(msg: GetMasterCMSG): Boolean {

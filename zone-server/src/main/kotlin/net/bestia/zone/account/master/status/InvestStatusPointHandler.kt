@@ -3,8 +3,7 @@ package net.bestia.zone.account.master.status
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.OperationErrorProto
 import net.bestia.zone.account.master.MasterResolver
-import net.bestia.zone.message.HandlerLane
-import net.bestia.zone.message.InMessageProcessor
+import net.bestia.zone.message.IoMessageHandler
 import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OutMessageProcessor
 import org.springframework.stereotype.Component
@@ -18,9 +17,8 @@ class InvestStatusPointHandler(
   private val investStatusPointService: InvestStatusPointService,
   private val masterResolver: MasterResolver,
   private val outMessageProcessor: OutMessageProcessor
-) : InMessageProcessor.IncomingMessageHandler<InvestStatusPointCMSG> {
+) : IoMessageHandler<InvestStatusPointCMSG> {
   override val handles = InvestStatusPointCMSG::class
-  override val lane = HandlerLane.IO
 
   override fun handle(msg: InvestStatusPointCMSG): Boolean {
     val master = masterResolver.getSelectedMasterByAccountId(msg.playerId)

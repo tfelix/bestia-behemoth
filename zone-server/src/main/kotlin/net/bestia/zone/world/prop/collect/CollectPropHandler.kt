@@ -1,10 +1,11 @@
 package net.bestia.zone.world.prop.collect
 
 import net.bestia.zone.ecs.battle.damage.DeadActionGuard
-import net.bestia.zone.ecs.core.WorldView
+import net.bestia.zone.ecs.core.World
+import net.bestia.zone.ecs.core.modify
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.prop.CollectPropIntent
-import net.bestia.zone.message.InMessageProcessor
+import net.bestia.zone.message.TickMessageHandler
 import org.springframework.stereotype.Component
 
 /**
@@ -22,14 +23,13 @@ import org.springframework.stereotype.Component
 class CollectPropHandler(
   private val connectionInfoService: ConnectionInfoService,
   private val deadActionGuard: DeadActionGuard,
-  private val world: WorldView
-) : InMessageProcessor.IncomingMessageHandler<CollectPropCMSG> {
+) : TickMessageHandler<CollectPropCMSG> {
   override val handles = CollectPropCMSG::class
 
-  override fun handle(msg: CollectPropCMSG): Boolean {
+  override fun handle(world: World, msg: CollectPropCMSG): Boolean {
     val activeEntityId = connectionInfoService.getActiveEntityId(msg.playerId)
 
-    if (deadActionGuard.refuses(activeEntityId, "collect a prop")) {
+    if (deadActionGuard.refuses(world, activeEntityId, "collect a prop")) {
       return true
     }
 

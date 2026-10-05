@@ -8,7 +8,6 @@ import io.netty.handler.timeout.IdleStateEvent
 import net.bestia.zone.account.AccountConnectedEvent
 import net.bestia.zone.account.AccountDisconnectedEvent
 import net.bestia.zone.account.authentication.AuthenticationProcessor
-import net.bestia.zone.message.HandlerLane
 import net.bestia.zone.message.MessageEnvelopeReceivedEvent
 import net.bestia.zone.message.MessageHandlingFailedException
 import net.bestia.zone.message.UnknownBnetMessageException
@@ -203,7 +202,7 @@ class ClientMessageHandler(
    * and its listeners (which reach the database) run on an IO thread rather than this event loop.
    */
   private fun publishInOrder(accountId: Long, event: Any) {
-    handlerCtx.inbox.execute(accountId, HandlerLane.IO) { handlerCtx.applicationEventPublisher.publishEvent(event) }
+    handlerCtx.inbox.onIo(accountId) { handlerCtx.applicationEventPublisher.publishEvent(event) }
   }
 
   /**

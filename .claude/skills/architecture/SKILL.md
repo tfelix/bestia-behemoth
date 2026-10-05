@@ -83,15 +83,14 @@ Inbound flow:
    `envelope.hasAttackEntity() -> AttackEntityCMSG.fromBnet(accountId, envelope.attackEntity)`).
    Unmatched envelopes throw `UnknownBnetMessageException`, which closes the connection with
    `UNKNOWN_MESSAGE`. **Adding a new incoming message type means adding a branch here.**
-3. `InMessageProcessor.submit()` puts the message into the sender's `AccountInbox`
-   (`message/AccountInbox.kt`): one mailbox per account, run strictly in order, each item on its
-   handler's `HandlerLane` - `TICK` (default, on the tick thread) or `IO` (an IO thread, for
-   handlers that touch the database). Netty threads only decode. Connection events go through the
-   same inbox on the IO lane. A full inbox or a failing handler closes the connection.
-4. `InMessageProcessor.process()` (`message/InMessageProcessor.kt`) looks
-   up handlers by `msg::class` from a `Map<KClass<*>, List<IncomingMessageHandler<*>>>`
-   built from every Spring-injected `IncomingMessageHandler<*>` bean — dispatch is by
-   Kotlin class, not a string/int tag. See
+3. `InMessageProcessor.submit()` (`message/InMessageProcessor.kt`) finds the one handler for
+   `msg::class` among every Spring-injected `IncomingMessageHandler<*>` bean — dispatch is by
+   Kotlin class, not a string/int tag — and puts the message into the sender's `AccountInbox`
+   (`message/AccountInbox.kt`): one mailbox per account, run strictly in order. A
+   `TickMessageHandler` runs on the tick thread and gets the `World` as a parameter; an
+   `IoMessageHandler` runs on an IO thread, for handlers that touch the database. Netty threads
+   only decode. Connection events go through the same inbox on the IO lane. A full inbox or a
+   failing handler closes the connection. See
    `entity/SelectEntityHandler.kt` for the pattern to follow when
    adding a handler.
 
@@ -125,12 +124,12 @@ Use those files as a template instead of re-deriving the shape from scratch.
 3. **Dispatch branch**: add `envelope.hasXyz() -> XyzCMSG.fromBnet(accountId, envelope.xyz)`
    to the `when` in `BnetMessageProcessorAdapter.kt` (line 37+) plus an import — this is
    the one manual registration point, everything downstream auto-wires via Spring.
-4. **Handler**: `@Component class XyzHandler(...) : InMessageProcessor.IncomingMessageHandler<XyzCMSG>`
-   with `override val handles = XyzCMSG::class` — auto-discovered by
+4. **Handler**: `@Component class XyzHandler(...) : TickMessageHandler<XyzCMSG>` with
+   `override val handles = XyzCMSG::class` and `handle(world, msg)` — auto-discovered by
    `InMessageProcessor` through Spring's injected `List<IncomingMessageHandler<*>>`, no
-   manual registry entry needed. Declare `override val lane = HandlerLane.IO` as soon as anything
-   it calls reaches the database; `HandlerLaneTest` and `TickSqlGuard` catch a tick-lane handler that
-   does. **Resolve the acting entity via
+   manual registry entry needed. Implement `IoMessageHandler<XyzCMSG>` instead as soon as anything
+   it calls reaches the database; `TickMessageHandlerTest` and `TickSqlGuard` catch a tick handler
+   that does. **Resolve the acting entity via
    `ConnectionInfoService.getActiveEntityId(msg.playerId)`**, never a client-supplied
    entity ID — this is the pattern used by every handler that acts "on behalf of
    whichever entity is currently selected" (`GetSkillsHandler`, `ChatHandler`,

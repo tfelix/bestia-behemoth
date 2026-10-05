@@ -69,11 +69,10 @@ class MoveActiveEntityHandlerTest {
 
     return MoveActiveEntityHandler(
       connectionInfoService = connectionInfoService,
-      world = world,
-      logoutCancelService = LogoutCancelService(world),
-      castCancelService = CastCancelService(world),
-      attackCancelService = AttackCancelService(world),
-      deadActionGuard = DeadActionGuard(world),
+      logoutCancelService = LogoutCancelService(),
+      castCancelService = CastCancelService(),
+      attackCancelService = AttackCancelService(),
+      deadActionGuard = DeadActionGuard(),
       walkQuery = walkQuery,
       zoneConfig = ZoneConfig(tickRate = 20),
       rateLimit = rateLimit,
@@ -88,7 +87,7 @@ class MoveActiveEntityHandlerTest {
     val handler = handlerFor(world, id, OpenWalkQuery())
 
     val path = listOf(Vec3L(1, 0, 0), Vec3L(2, 0, 0), Vec3L(3, 0, 0))
-    handler.handle(MoveActiveEntityCMSG(playerId = accountId, path = path))
+    handler.handle(world, MoveActiveEntityCMSG(playerId = accountId, path = path))
 
     assertEquals(path, world.get(id, Path::class)?.path)
   }
@@ -146,7 +145,7 @@ class MoveActiveEntityHandlerTest {
     val handler = handlerFor(world, id, WalledWalkQuery(blockedTo = Vec3L(2, 0, 0)))
 
     val path = listOf(Vec3L(1, 0, 0), Vec3L(2, 0, 0), Vec3L(3, 0, 0))
-    handler.handle(MoveActiveEntityCMSG(playerId = accountId, path = path))
+    handler.handle(world, MoveActiveEntityCMSG(playerId = accountId, path = path))
 
     assertEquals(listOf(Vec3L(1, 0, 0)), world.get(id, Path::class)?.path)
   }
@@ -186,7 +185,7 @@ class MoveActiveEntityHandlerTest {
     val handler = handlerFor(world, id, WalledWalkQuery(blockedTo = Vec3L(1, 0, 0)))
 
     val path = listOf(Vec3L(1, 0, 0), Vec3L(2, 0, 0))
-    handler.handle(MoveActiveEntityCMSG(playerId = accountId, path = path))
+    handler.handle(world, MoveActiveEntityCMSG(playerId = accountId, path = path))
 
     assertNull(world.get(id, Path::class))
   }
@@ -199,7 +198,7 @@ class MoveActiveEntityHandlerTest {
     val handler = handlerFor(world, id, NeverResidentWalkQuery())
 
     val path = listOf(Vec3L(1, 0, 0), Vec3L(2, 0, 0))
-    handler.handle(MoveActiveEntityCMSG(playerId = accountId, path = path))
+    handler.handle(world, MoveActiveEntityCMSG(playerId = accountId, path = path))
 
     assertEquals(path, world.get(id, Path::class)?.path)
   }
@@ -212,7 +211,7 @@ class MoveActiveEntityHandlerTest {
     val handler = handlerFor(world, id, OpenWalkQuery())
 
     val path = listOf(Vec3L(5, 5, 0))
-    handler.handle(MoveActiveEntityCMSG(playerId = accountId, path = path))
+    handler.handle(world, MoveActiveEntityCMSG(playerId = accountId, path = path))
 
     assertNull(world.get(id, Path::class))
   }
@@ -233,7 +232,7 @@ class MoveActiveEntityHandlerTest {
     position.clearDirty()
 
     val handler = handlerFor(world, id, OpenWalkQuery())
-    handler.handle(MoveActiveEntityCMSG(playerId = accountId, path = listOf(Vec3L(5, 5, 0))))
+    handler.handle(world, MoveActiveEntityCMSG(playerId = accountId, path = listOf(Vec3L(5, 5, 0))))
 
     assertNull(world.get(id, Path::class))
     assertTrue(position.isDirty(), "the entity's real position has to go out, or the next click fails too")
@@ -247,7 +246,7 @@ class MoveActiveEntityHandlerTest {
     world.add(id, Path(mutableListOf(Vec3L(1, 0, 0))))
     val handler = handlerFor(world, id, OpenWalkQuery())
 
-    handler.handle(MoveActiveEntityCMSG(playerId = accountId, path = emptyList()))
+    handler.handle(world, MoveActiveEntityCMSG(playerId = accountId, path = emptyList()))
 
     assertNull(world.get(id, Path::class))
   }

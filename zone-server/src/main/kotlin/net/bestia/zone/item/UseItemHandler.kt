@@ -8,8 +8,7 @@ import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.item.script.ItemScriptExecutionService
-import net.bestia.zone.message.HandlerLane
-import net.bestia.zone.message.InMessageProcessor
+import net.bestia.zone.message.IoMessageHandler
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
 
@@ -22,9 +21,8 @@ class UseItemHandler(
   private val asyncJobExecutor: AsyncJobExecutor,
   private val deadActionGuard: DeadActionGuard,
   private val world: WorldView
-) : InMessageProcessor.IncomingMessageHandler<UseItemCMSG> {
+) : IoMessageHandler<UseItemCMSG> {
   override val handles = UseItemCMSG::class
-  override val lane = HandlerLane.IO
 
   override fun handle(msg: UseItemCMSG): Boolean {
     val item = itemRepository.findByIdOrNull(msg.itemId)
@@ -42,7 +40,7 @@ class UseItemHandler(
     // Get the currently selected entity for this player
     val activeEntityId = connectionInfoService.getActiveEntityId(msg.playerId)
 
-    if (deadActionGuard.refuses(activeEntityId, "use an item")) {
+    if (world.read { deadActionGuard.refuses(this, activeEntityId, "use an item") }) {
       return true
     }
 

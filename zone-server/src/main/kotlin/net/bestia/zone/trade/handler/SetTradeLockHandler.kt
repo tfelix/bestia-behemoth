@@ -1,7 +1,6 @@
 package net.bestia.zone.trade.handler
 
-import net.bestia.zone.message.HandlerLane
-import net.bestia.zone.message.InMessageProcessor
+import net.bestia.zone.message.IoMessageHandler
 import net.bestia.zone.trade.SetTradeLockCMSG
 import net.bestia.zone.trade.TradeService
 import org.springframework.stereotype.Component
@@ -13,11 +12,10 @@ import org.springframework.stereotype.Component
 @Component
 class SetTradeLockHandler(
   private val tradeService: TradeService,
-) : InMessageProcessor.IncomingMessageHandler<SetTradeLockCMSG> {
+) : IoMessageHandler<SetTradeLockCMSG> {
 
   override val handles = SetTradeLockCMSG::class
 
-  override val lane = HandlerLane.IO
 
   override fun handle(msg: SetTradeLockCMSG): Boolean {
     tradeService.setLock(msg.playerId, msg.tradeId, msg.locked)

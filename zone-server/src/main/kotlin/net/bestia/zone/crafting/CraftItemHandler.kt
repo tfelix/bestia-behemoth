@@ -3,12 +3,13 @@ package net.bestia.zone.crafting
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.battle.damage.DeadActionGuard
 import net.bestia.zone.ecs.battle.skill.CastCancelService
-import net.bestia.zone.ecs.core.WorldView
+import net.bestia.zone.ecs.core.World
+import net.bestia.zone.ecs.core.modify
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.logout.LogoutCancelService
-import net.bestia.zone.message.InMessageProcessor
 import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OutMessageProcessor
+import net.bestia.zone.message.TickMessageHandler
 import org.springframework.stereotype.Component
 
 /**
@@ -20,24 +21,23 @@ import org.springframework.stereotype.Component
 @Component
 class CraftItemHandler(
   private val connectionInfoService: ConnectionInfoService,
-  private val world: WorldView,
   private val craftingService: CraftingService,
   private val castCancelService: CastCancelService,
   private val deadActionGuard: DeadActionGuard,
   private val outMessageProcessor: OutMessageProcessor,
-) : InMessageProcessor.IncomingMessageHandler<CraftItemCMSG> {
+) : TickMessageHandler<CraftItemCMSG> {
   override val handles = CraftItemCMSG::class
 
-  override fun handle(msg: CraftItemCMSG): Boolean {
+  override fun handle(world: World, msg: CraftItemCMSG): Boolean {
     val activeEntityId = connectionInfoService.getActiveEntityId(msg.playerId)
 
-    if (deadActionGuard.refuses(activeEntityId, "craft")) {
+    if (deadActionGuard.refuses(world, activeEntityId, "craft")) {
       return true
     }
 
     // A craft and a cast share one progress bar on the client, so starting one has to end the other - see
     // Crafting's own note on why it reuses CastingComponentSMSG.
-    castCancelService.cancelCast(activeEntityId)
+    castCancelService.cancelCast(world, activeEntityId)
 
     val denial = world.modify(activeEntityId) { id ->
       craftingService.start(world = this, entityId = id, recipeId = msg.recipeId, targetUniqueId = msg.targetUniqueId)

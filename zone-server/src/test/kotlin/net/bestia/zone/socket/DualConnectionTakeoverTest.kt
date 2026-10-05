@@ -11,7 +11,10 @@ import net.bestia.bnet.proto.PingOuterClass
 import net.bestia.zone.account.AccountDisconnectedEvent
 import net.bestia.zone.account.authentication.AuthenticationProcessor
 import net.bestia.zone.account.authentication.HttpTicketService
+import net.bestia.zone.ecs.core.World
+import net.bestia.zone.message.AccountTaskExecutor
 import net.bestia.zone.message.MessageEnvelopeReceivedEvent
+import net.bestia.zone.util.AccountId
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CompletableFuture
 import org.springframework.context.ApplicationEventPublisher
@@ -66,7 +69,11 @@ class DualConnectionTakeoverTest {
       zoneReadinessService = readiness,
       httpTicketService = HttpTicketService(),
       // Runs connection events inline, so the test sees them in the order the inbox would run them.
-      inbox = { _, _, task -> CompletableFuture.completedFuture(task()) },
+      inbox = object : AccountTaskExecutor {
+        override fun onTick(accountId: AccountId, task: World.() -> Unit) = error("connection events run on IO")
+
+        override fun onIo(accountId: AccountId, task: () -> Unit) = CompletableFuture.completedFuture(task())
+      },
       version = "test"
     )
   }

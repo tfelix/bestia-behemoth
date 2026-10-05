@@ -37,14 +37,13 @@ class AttackEntityHandlerTest {
 
     return AttackEntityHandler(
       connectionInfoService = connectionInfoService,
-      world = world,
       attackExecutionService = AttackExecutionService(
         BattleContextFactory(PropPromotionService(mockk(relaxed = true))),
         AttackStrategyFactory(LineOfSightService(), alwaysLands),
         mockk(relaxed = true)
       ),
-      logoutCancelService = LogoutCancelService(world),
-      deadActionGuard = DeadActionGuard(world),
+      logoutCancelService = LogoutCancelService(),
+      deadActionGuard = DeadActionGuard(),
       propPromotion = PropPromotionService(mockk(relaxed = true)),
     )
   }
@@ -54,7 +53,7 @@ class AttackEntityHandlerTest {
     val attacker = world.spawnFighter(at = Vec3L(0, 0, 0))
     val target = world.spawnFighter(at = Vec3L(1, 0, 0))
 
-    handlerFor(attacker).handle(AttackEntityCMSG(playerId = ACCOUNT_ID, targetEntityId = target))
+    handlerFor(attacker).handle(world, AttackEntityCMSG(playerId = ACCOUNT_ID, targetEntityId = target))
 
     assertTrue(world.has(target, DamageComponent::class), "a swing in reach must resolve onto the target")
   }
@@ -64,7 +63,7 @@ class AttackEntityHandlerTest {
     val attacker = world.spawnFighter(at = Vec3L(0, 0, 0))
     val target = world.spawnFighter(at = Vec3L(50, 0, 0))
 
-    handlerFor(attacker).handle(AttackEntityCMSG(playerId = ACCOUNT_ID, targetEntityId = target))
+    handlerFor(attacker).handle(world, AttackEntityCMSG(playerId = ACCOUNT_ID, targetEntityId = target))
 
     assertFalse(
       world.has(target, DamageComponent::class),
@@ -78,7 +77,7 @@ class AttackEntityHandlerTest {
     val target = world.spawnFighter(at = Vec3L(1, 0, 0))
     world.add(attacker, LogoutIntent())
 
-    handlerFor(attacker).handle(AttackEntityCMSG(playerId = ACCOUNT_ID, targetEntityId = target))
+    handlerFor(attacker).handle(world, AttackEntityCMSG(playerId = ACCOUNT_ID, targetEntityId = target))
 
     assertFalse(world.has(attacker, LogoutIntent::class))
   }

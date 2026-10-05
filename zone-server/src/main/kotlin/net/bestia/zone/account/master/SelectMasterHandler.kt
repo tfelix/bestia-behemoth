@@ -10,8 +10,7 @@ import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.environment.weather.WeatherPublisher
 import net.bestia.zone.item.equip.EquipmentRevalidationService
-import net.bestia.zone.message.HandlerLane
-import net.bestia.zone.message.InMessageProcessor
+import net.bestia.zone.message.IoMessageHandler
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
 
@@ -25,9 +24,8 @@ class SelectMasterHandler(
   private val ownedBestiaSpawnService: OwnedBestiaSpawnService,
   private val ownedBestiasPublisher: OwnedBestiasPublisher,
   private val asyncJobExecutor: AsyncJobExecutor,
-) : InMessageProcessor.IncomingMessageHandler<SelectMasterCMSG> {
+) : IoMessageHandler<SelectMasterCMSG> {
   override val handles = SelectMasterCMSG::class
-  override val lane = HandlerLane.IO
 
   override fun handle(msg: SelectMasterCMSG): Boolean {
     // A second master next to the active one would be orphaned in the world: the session tracks only one.

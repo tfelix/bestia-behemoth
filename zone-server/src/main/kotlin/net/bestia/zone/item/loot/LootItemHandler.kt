@@ -1,9 +1,10 @@
 package net.bestia.zone.item.loot
 
+import net.bestia.zone.ecs.core.World
+import net.bestia.zone.ecs.core.modify
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
-import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.item.ObtainItemIntent
-import net.bestia.zone.message.InMessageProcessor
+import net.bestia.zone.message.TickMessageHandler
 import org.springframework.stereotype.Component
 
 /**
@@ -14,11 +15,10 @@ import org.springframework.stereotype.Component
 @Component
 class LootItemHandler(
   private val connectionInfoService: ConnectionInfoService,
-  private val world: WorldView
-) : InMessageProcessor.IncomingMessageHandler<LootItemCMSG> {
+) : TickMessageHandler<LootItemCMSG> {
   override val handles = LootItemCMSG::class
 
-  override fun handle(msg: LootItemCMSG): Boolean {
+  override fun handle(world: World, msg: LootItemCMSG): Boolean {
     val activeEntityId = connectionInfoService.getActiveEntityId(msg.playerId)
 
     world.modify(activeEntityId) { id ->
