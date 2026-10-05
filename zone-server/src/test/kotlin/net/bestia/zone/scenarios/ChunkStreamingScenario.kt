@@ -532,9 +532,8 @@ class ChunkStreamingScenario : BestiaNoSocketScenario(
 
     clientPlayer1.clearMessages()
 
-    // Duplicates of one legitimate offer, because the gate refuses un-announced positions without charging for
-    // them - so junk cannot empty the bucket, only real asking can. A duplicate still costs a token, which
-    // makes this the cheapest way to reach the limit without disturbing anything else.
+    // Duplicates of one legitimate offer: every position costs a token, so this is the cheapest way to reach the
+    // limit without disturbing anything else.
     val barrier = fresh.first()
     clientPlayer1.sendMessage(ChunkRequestCMSG(account, List(settings.requestBurst) { barrier }))
 
