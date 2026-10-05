@@ -3,11 +3,14 @@ package net.bestia.zone.scenarios
 import net.bestia.zone.account.master.MasterRepository
 import net.bestia.zone.account.master.SelectMasterCMSG
 import net.bestia.zone.account.master.findByIdOrThrow
+import net.bestia.zone.ecs.core.Component
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.session.NoActiveSessionException
+import net.bestia.zone.ecs.logout.LogoutIntent
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -55,4 +58,31 @@ class SelectMasterScenario : BestiaNoSocketScenario(autoClientConnect = false) {
     assertFalse(world.isAlive(otherEntityId), "a second master must not be spawned next to the active one")
     assertEquals(activeMasterId, connectionInfoService.getMasterId(clientPlayer1.connectedPlayerId))
   }
+
+  /**
+   * A reload from the database would roll the master back to its last save and revive it if it died since,
+   * so a master that is still in the world is picked up again as it is.
+   */
+  @Test
+  @Order(3)
+  fun `re-selecting a master that is still in the world re-attaches to it`() {
+    val masterId = testData.account3.masterIds.first()
+    val accountId = clientPlayer3.connectedPlayerId
+
+    clientPlayer3.connect(masterId)
+    val entityId = connectionInfoService.getSelectedMasterEntityId(accountId)
+    world.modify(entityId) { id ->
+      add(id, NeverPersisted)
+      add(id, LogoutIntent())
+    }
+    connectionInfoService.deactivateSession(accountId)
+
+    clientPlayer3.sendMessage(SelectMasterCMSG(accountId, masterId))
+
+    assertTrue(world.has(entityId, NeverPersisted::class), "the live entity must be kept, not reloaded")
+    assertFalse(world.has(entityId, LogoutIntent::class), "picking the master back up ends its logout")
+    assertEquals(entityId, connectionInfoService.getSelectedMasterEntityId(accountId))
+  }
+
+  private object NeverPersisted : Component
 }
