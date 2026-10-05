@@ -13,6 +13,8 @@ import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.client.TestRestTemplate
@@ -21,6 +23,7 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.test.context.ActiveProfiles
+import java.net.URI
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
@@ -99,6 +102,15 @@ class MapTileControllerTest {
   @Test
   fun `a request without a ticket is refused`() {
     assertEquals(HttpStatus.UNAUTHORIZED, rest.getForEntity(url(6, 0, 0), String::class.java).statusCode)
+  }
+
+  /** The container decodes and normalises a path before routing it, so the filter has to judge that form too. */
+  @ParameterizedTest
+  @ValueSource(strings = ["/map;x/v1/meta", "/%6Dap/v1/meta", "//map/v1/meta"])
+  fun `a request without a ticket is refused however its path is spelled`(path: String) {
+    val response = rest.getForEntity(URI.create(rest.rootUri + path), String::class.java)
+
+    assertEquals(HttpStatus.UNAUTHORIZED, response.statusCode)
   }
 
   @Test

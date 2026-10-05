@@ -38,9 +38,14 @@ class MapAuthFilter(
   private val connectionInfoService: ConnectionInfoService,
 ) : OncePerRequestFilter() {
 
-  /** Only the map is behind this. The internal API has its own filter. */
+  /**
+   * Only the map is behind this. The internal API has its own filter.
+   *
+   * Judged on the servlet path, which the container has decoded and normalised the way it routes the request.
+   * The raw URI of `/%6Dap/...` or `/map;x/...` does not start with the prefix, yet both reach the controller.
+   */
   override fun shouldNotFilter(request: HttpServletRequest): Boolean {
-    return !request.requestURI.startsWith(PREFIX)
+    return !request.servletPath.startsWith(PREFIX)
   }
 
   override fun doFilterInternal(
