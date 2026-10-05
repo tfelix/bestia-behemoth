@@ -30,9 +30,9 @@ import org.springframework.stereotype.Service
  * two mistakes to make - entities popping in over terrain that arrived long ago, or updates spent on
  * entities standing on ground the client cannot draw.
  *
- * So there is deliberately no margin. If hysteresis is ever wanted - so an entity leaving the view
- * keeps updating for a moment rather than stopping at the boundary - the honest unit is one chunk of
- * slack added here, once, rather than a second constant somewhere that drifts.
+ * So there is deliberately no margin here. The hysteresis lives in the chunk subscription instead
+ * ([ChunkStreamConfig.releaseMarginChunks]): a held chunk is kept one chunk past the view, and the
+ * entities on it keep updating, because who sees an entity is decided by who holds its chunk.
  *
  * Computed on each read rather than cached: `chunkSize` is a per-world birth setting, and
  * `WorldProvisioning.recreate` can replace the world under a running server.

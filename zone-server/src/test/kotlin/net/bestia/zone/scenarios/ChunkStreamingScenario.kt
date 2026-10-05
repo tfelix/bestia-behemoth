@@ -28,6 +28,7 @@ import java.io.ByteArrayOutputStream
 import java.time.Duration
 import java.util.zip.Inflater
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
@@ -572,5 +573,27 @@ class ChunkStreamingScenario : BestiaNoSocketScenario(
         "every chunk asked for past the budget must still arrive as the bucket refills; never got $missing"
       )
     }
+  }
+
+  @Test
+  @Order(12)
+  fun `stepping over the view edge and back withdraws nothing`() {
+    val account = clientPlayer1.connectedPlayerId
+    val entityId = connectionInfoService.getActiveEntityId(account)
+    val home = assertNotNull(subscriptions.anchorOf(account))
+    val chunkWidth = chunkService.config.chunkSize / ChunkCoords.VOXELS_PER_POSITION_UNIT
+
+    clientPlayer1.clearMessages()
+
+    world.modify(entityId) { id -> get(id, Position::class)!!.x += chunkWidth }
+    await { assertEquals(home.x + 1, subscriptions.anchorOf(account)?.x) }
+
+    world.modify(entityId) { id -> get(id, Position::class)!!.x -= chunkWidth }
+    await { assertEquals(home.x, subscriptions.anchorOf(account)?.x) }
+
+    assertFalse(
+      clientPlayer1.receivedAny(ChunkManifestSMSG::class) { it.removed.isNotEmpty() },
+      "a chunk one step past the view must be kept, or every step back and forth re-sends a whole row"
+    )
   }
 }
