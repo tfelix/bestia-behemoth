@@ -5,9 +5,11 @@ import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import io.mockk.verify
 import net.bestia.zone.ecs.account.Account
+import net.bestia.zone.ecs.account.Master
 import net.bestia.zone.ecs.core.AsyncJobExecutor
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
+import net.bestia.zone.ecs.core.session.NoActiveSessionException
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.geometry.Vec3L
@@ -92,6 +94,24 @@ class ObtainItemIntentSystemTest {
 
     verify(timeout = 1000) { inventoryService.grantToMaster(MASTER_ID, sword, 3, 0L) }
     verifyNoGroundDrop()
+  }
+
+  /**
+   * Resolved at grant time on the tick: a job that asks the session later finds none after a logout, and the
+   * wrong master after a switch.
+   */
+  @Test
+  fun `a granted item is persisted to the carrier's master even when the session is gone`() {
+    setUp()
+    stub(sword)
+    every { connectionInfoService.getMasterId(any()) } throws NoActiveSessionException(ACCOUNT_ID)
+    val entity = createCarrier(capacityMax = 2475)
+    world.add(entity, Master(MASTER_ID, "carrier"))
+
+    world.modify(entity) { id -> add(id, ObtainItemIntent.CreateItemIntent(itemId = sword.id, amount = 3)) }
+    world.tick(0.1f)
+
+    verify(timeout = 1000) { inventoryService.grantToMaster(MASTER_ID, sword, 3, 0L) }
   }
 
   @Test
