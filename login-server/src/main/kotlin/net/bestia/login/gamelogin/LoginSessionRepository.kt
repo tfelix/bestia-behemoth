@@ -16,7 +16,7 @@ interface LoginSessionRepository : JpaRepository<LoginSession, String> {
   @Modifying
   @Query(
     "UPDATE LoginSession s SET s.status = net.bestia.login.gamelogin.LoginSessionStatus.AUTHENTICATED, " +
-      "s.accountId = :accountId " +
+      "s.accountId = :accountId, s.authenticatedAt = :now " +
       "WHERE s.idHash = :idHash AND s.status = net.bestia.login.gamelogin.LoginSessionStatus.PENDING " +
       "AND s.expiresAt > :now"
   )

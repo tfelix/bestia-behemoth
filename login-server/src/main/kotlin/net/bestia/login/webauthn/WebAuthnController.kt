@@ -174,7 +174,8 @@ class WebAuthnController(
     return handle {
       val finished = registrationService.finishRegistration(
         request.ceremonyId,
-        objectMapper.writeValueAsString(request.credential)
+        objectMapper.writeValueAsString(request.credential),
+        accepted = setOf(CeremonyType.REGISTRATION, CeremonyType.RECOVERY)
       )
 
       bindLoginSession(finished.loginSessionIdHash, finished.accountId, browserBinding)
@@ -202,6 +203,7 @@ class WebAuthnController(
 
     return handle {
       val session = loginSessionService.requireAuthenticated(request.sessionId, browserBinding)
+      loginSessionService.requireEnrolable(session, browserBinding)
 
       val started = registrationService.startCredentialRegistration(
         accountId = requireAccount(session.accountId),
@@ -218,6 +220,7 @@ class WebAuthnController(
   @PostMapping("/credentials/verify")
   fun addCredentialVerify(
     @RequestBody request: VerifyRequest,
+    @CookieValue(name = LoginSessionService.BINDING_COOKIE, required = false) browserBinding: String?,
     servletRequest: HttpServletRequest
   ): ResponseEntity<*> {
     if (!allow(servletRequest, "credential-verify")) {
@@ -227,8 +230,9 @@ class WebAuthnController(
     return handle {
       registrationService.finishRegistration(
         request.ceremonyId,
-        objectMapper.writeValueAsString(request.credential)
-      )
+        objectMapper.writeValueAsString(request.credential),
+        accepted = setOf(CeremonyType.ADD_CREDENTIAL)
+      ) { ceremony -> authorizeEnrolment(ceremony, browserBinding) }
 
       VerifyResponse(authenticated = true)
     }
@@ -294,6 +298,27 @@ class WebAuthnController(
     }
 
     loginSessionService.markAuthenticated(session, accountId)
+  }
+
+  /** Everything the options call checked, again: the session may have moved on or the account been banned since. */
+  private fun authorizeEnrolment(ceremony: WebAuthnCeremony, browserBinding: String?) {
+    val session = ceremony.loginSessionIdHash?.let { loginSessionService.findByHash(it) }
+      ?: throw WebAuthnException("Credential ceremony has no login session")
+
+    loginSessionService.requireEnrolable(session, browserBinding)
+
+    if (session.accountId != ceremony.accountId) {
+      throw WebAuthnException("Credential ceremony and login session name different accounts")
+    }
+
+    val account = accounts.findById(requireAccount(ceremony.accountId)).orElseThrow {
+      WebAuthnException("Account no longer exists")
+    }
+
+    accountLoginGuard.denialReason(account)?.let { reason ->
+      LOG.info { "Refusing to add a passkey: $reason" }
+      throw WebAuthnException("Account may not log in")
+    }
   }
 
   private fun requireAccount(accountId: Long?): Long {
