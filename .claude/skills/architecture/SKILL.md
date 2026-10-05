@@ -57,11 +57,12 @@ zone-server owns a raw TCP socket (not WebSocket) via Netty, listening on
 `socket.ip-address`/`socket.port` (`127.0.0.1:8090` in dev,
 `zone-server/src/main/resources/application.yml`).
 
-Pipeline, built in `zone-server/src/main/kotlin/net/bestia/zone/socket/SocketServer.kt:41-52`
+Pipeline, built in `zone-server/src/main/kotlin/net/bestia/zone/socket/SocketServer.kt`
 (one `ClientMessageHandler` instance per connection):
 
 ```
-LengthFieldBasedFrameDecoder (4-byte length prefix, 1 MB max frame)
+SlowConsumerGuard                   (drops a client that stops reading)
+  → LengthFieldBasedFrameDecoder (4-byte length prefix, 1 MB max frame)
   → ProtobufDecoder(EnvelopeProto.Envelope)
   → ProtobufEncoder
   → BigEndianLengthFieldPrepender   (outbound length prefix)
