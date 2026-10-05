@@ -703,7 +703,6 @@ class ChunkStreamSystem(
     subscriptions.forget(accountId)
     inbox.forget(accountId)
     queued.remove(accountId)
-    tokens.remove(accountId)
     settledManifests.remove(accountId)
   }
 
