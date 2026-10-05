@@ -83,8 +83,8 @@ class MasterEntityPersister(
 
   @Transactional
   override fun persist(snapshots: List<EntitySnapshot>) {
-    for (snapshot in snapshots) {
-      val snap = snapshot as MasterSnapshot
+    // Updated in id order: the rows stay locked until commit, and trade settlement locks masters in id order too.
+    for (snap in snapshots.map { it as MasterSnapshot }.sortedBy { it.masterId }) {
       val master = masterRepository.findByIdOrNull(snap.masterId)
       if (master == null) {
         LOG.warn { "Master ${snap.masterId} was not found, cannot persist it" }
