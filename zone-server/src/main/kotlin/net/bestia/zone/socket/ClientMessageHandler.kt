@@ -74,6 +74,11 @@ class ClientMessageHandler(
 
     val currentAccountId = accountId
     if (currentAccountId != null) {
+      // A newer login took the account over. Until this connection is closed, it must not act for the account.
+      if (handlerCtx.channelRegistry.getChannel(currentAccountId) !== ctx.channel()) {
+        return
+      }
+
       if (LOG.isTraceEnabled() && handlerCtx.logFilter.allows(msg)) {
         LOG.trace { "RX player $currentAccountId: $msg" }
       }

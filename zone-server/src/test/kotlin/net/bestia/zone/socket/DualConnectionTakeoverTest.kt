@@ -1,14 +1,20 @@
 package net.bestia.zone.socket
 
+import io.netty.channel.ChannelHandlerContext
+import io.netty.channel.ChannelOutboundHandlerAdapter
+import io.netty.channel.ChannelPromise
 import io.netty.channel.embedded.EmbeddedChannel
 import net.bestia.account.Authority
 import net.bestia.bnet.proto.AuthenticationProto
 import net.bestia.bnet.proto.EnvelopeProto
+import net.bestia.bnet.proto.PingOuterClass
 import net.bestia.zone.account.AccountDisconnectedEvent
 import net.bestia.zone.account.authentication.AuthenticationProcessor
 import net.bestia.zone.account.authentication.HttpTicketService
+import net.bestia.zone.message.MessageEnvelopeReceivedEvent
 import org.junit.jupiter.api.Test
 import org.springframework.context.ApplicationEventPublisher
+import java.util.concurrent.TimeUnit
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
@@ -62,15 +68,27 @@ class DualConnectionTakeoverTest {
     )
   }
 
+  /** A client that stopped reading: nothing written to it ever leaves. */
+  private class StalledOutbound : ChannelOutboundHandlerAdapter() {
+    override fun write(ctx: ChannelHandlerContext, msg: Any, promise: ChannelPromise) {
+    }
+  }
+
   /** A connection that has completed the handshake, i.e. is registered and owns the account. */
   private fun connect(
     registry: ChannelRegistry,
-    publisher: ApplicationEventPublisher
+    publisher: ApplicationEventPublisher,
+    stalled: Boolean = false
   ): EmbeddedChannel {
-    val channel = EmbeddedChannel(ClientMessageHandler(contextFor(registry, publisher)))
+    val handler = ClientMessageHandler(contextFor(registry, publisher))
+    val channel = if (stalled) EmbeddedChannel(StalledOutbound(), handler) else EmbeddedChannel(handler)
     channel.writeInbound(authEnvelope())
 
     return channel
+  }
+
+  private fun ping(): EnvelopeProto.Envelope {
+    return EnvelopeProto.Envelope.newBuilder().setPing(PingOuterClass.Ping.getDefaultInstance()).build()
   }
 
   private fun authEnvelope(): EnvelopeProto.Envelope = EnvelopeProto.Envelope.newBuilder()
@@ -149,6 +167,32 @@ class DualConnectionTakeoverTest {
       1, publisher.countOf<AccountDisconnectedEvent>(),
       "the displaced connection must not publish a second teardown for an account it no longer owns"
     )
+  }
+
+  /** The close waits for the notice to be written, and a client that stopped reading never lets it out. */
+  @Test
+  fun `a displaced connection whose client stopped reading is closed anyway`() {
+    val registry = ChannelRegistry(SocketServerConfig("127.0.0.1", 0, 30L, emptyList()))
+    val publisher = RecordingPublisher()
+    val first = connect(registry, publisher, stalled = true)
+    connect(registry, publisher)
+
+    first.advanceTimeBy(3, TimeUnit.SECONDS)
+    first.runScheduledPendingTasks()
+
+    assertFalse(first.isOpen)
+  }
+
+  @Test
+  fun `a displaced connection no longer acts for the account`() {
+    val registry = ChannelRegistry(SocketServerConfig("127.0.0.1", 0, 30L, emptyList()))
+    val publisher = RecordingPublisher()
+    val first = connect(registry, publisher, stalled = true)
+    connect(registry, publisher)
+
+    first.writeInbound(ping())
+
+    assertEquals(0, publisher.countOf<MessageEnvelopeReceivedEvent>())
   }
 
   @Test

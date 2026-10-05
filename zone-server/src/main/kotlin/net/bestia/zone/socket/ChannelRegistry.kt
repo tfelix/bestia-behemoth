@@ -60,8 +60,6 @@ class ChannelRegistry(
   override fun disconnect(accountId: Long, reason: String): Boolean {
     val channel = getChannel(accountId) ?: return false
 
-    // The close waits for the notice to be written. Until then the client must not act any more.
-    channel.config().isAutoRead = false
     DisconnectNotice.sendAndClose(channel, reason)
     LOG.info { "Disconnected account $accountId: $reason" }
 
