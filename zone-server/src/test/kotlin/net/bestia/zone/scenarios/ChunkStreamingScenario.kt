@@ -248,7 +248,8 @@ class ChunkStreamingScenario : BestiaNoSocketScenario(
    */
   private fun carvable(chunk: ChunkPos): Triple<Int, Int, Int>? {
     val config = chunkService.config
-    val voxels = chunkService.merged(chunk)
+    // In a world scope, like every other read here: the chunk caches belong to the tick thread.
+    val voxels = world.read { chunkService.merged(chunk) }
     val margin = CarveBrush.MIN_RADIUS.toInt() + 1
 
     for (localZ in margin until config.chunkHeight - margin) {
@@ -275,7 +276,7 @@ class ChunkStreamingScenario : BestiaNoSocketScenario(
     // size picks a surface chunk, some three kilobytes of it, where a patch wins by an order of magnitude and
     // the decision under test is the one actually being made.
     val candidates = subscriptions.sentTo(clientPlayer1.connectedPlayerId)
-      .sortedByDescending { chunkService.encodedOf(it).payload.size }
+      .sortedByDescending { world.read { chunkService.encodedOf(it).payload.size } }
     val target = candidates.firstNotNullOfOrNull { chunk -> carvable(chunk)?.let { chunk to it } }
 
     assertNotNull(target, "none of the ${candidates.size} held chunks had material to carve")
@@ -332,7 +333,7 @@ class ChunkStreamingScenario : BestiaNoSocketScenario(
     // That the server picks a patch here at all is the interesting part: `broadcastChanges` compares the two
     // and would have sent the snapshot had it been smaller, which on a chunk this cheap is a real possibility
     // rather than a theoretical one.
-    val chunkBytes = chunkService.encodedOf(held).payload.size
+    val chunkBytes = world.read { chunkService.encodedOf(held).payload.size }
     assertTrue(
       patch.removals.size < chunkBytes,
       "a ${removals.size}-voxel patch is ${patch.removals.size} B against $chunkBytes B of chunk - it must be " +
@@ -361,7 +362,7 @@ class ChunkStreamingScenario : BestiaNoSocketScenario(
       for (dy in -radius..radius) {
         for (dx in -radius..radius) {
           assertNotNull(
-            chunkService.cachedSlabsOf(ChunkPos(anchor.x + dx, anchor.y + dy, anchor.z)),
+            world.read { chunkService.cachedSlabsOf(ChunkPos(anchor.x + dx, anchor.y + dy, anchor.z)) },
             "the slab budget should have reached the whole view volume by now"
           )
         }
@@ -370,9 +371,11 @@ class ChunkStreamingScenario : BestiaNoSocketScenario(
 
     val before = chunkService.slabComputations
 
-    for (dy in -radius..radius) {
-      for (dx in -radius..radius) {
-        chunkService.surfaceSlabsOf(ChunkPos(anchor.x + dx, anchor.y + dy, anchor.z))
+    world.read {
+      for (dy in -radius..radius) {
+        for (dx in -radius..radius) {
+          chunkService.surfaceSlabsOf(ChunkPos(anchor.x + dx, anchor.y + dy, anchor.z))
+        }
       }
     }
 
@@ -390,7 +393,7 @@ class ChunkStreamingScenario : BestiaNoSocketScenario(
 
     // The correctness half of the vertical rule. Being thin is only worth anything if it is thin around the
     // right place - a set that missed the surface would send a player bedrock and look like working code.
-    val slabs = chunkService.surfaceSlabsOf(anchor)
+    val slabs = world.read { chunkService.surfaceSlabsOf(anchor) }
 
     assertTrue(
       config.chunkZOf(config.seaLevel) in slabs,
@@ -398,7 +401,7 @@ class ChunkStreamingScenario : BestiaNoSocketScenario(
     )
 
     for (z in slabs) {
-      val voxels = chunkService.merged(ChunkPos(anchor.x, anchor.y, z))
+      val voxels = world.read { chunkService.merged(ChunkPos(anchor.x, anchor.y, z)) }
       assertEquals(config.chunkHeight, voxels.height)
     }
   }

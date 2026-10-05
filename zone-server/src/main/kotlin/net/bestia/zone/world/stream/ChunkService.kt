@@ -10,6 +10,7 @@ import net.bestia.worldgen.core.WorldWrap
 import net.bestia.worldgen.derived.AgentProfile
 import net.bestia.worldgen.derived.ChunkDelta
 import net.bestia.worldgen.derived.DerivedStore
+import net.bestia.worldgen.store.BaseHash
 import net.bestia.worldgen.store.ChunkCache
 import net.bestia.worldgen.store.ChunkStore
 import net.bestia.worldgen.store.MemoryBlobStore
@@ -50,7 +51,8 @@ import java.util.zip.Deflater
 @Service
 class ChunkService(
   private val worldService: WorldService,
-  private val settings: ChunkStreamConfig
+  private val settings: ChunkStreamConfig,
+  private val workers: ChunkWorkers = ChunkWorkers(settings),
 ) {
 
   /**
@@ -160,6 +162,7 @@ class ChunkService(
     val config: WorldConfig,
     val wrap: WorldWrap,
     val columns: ChunkColumnSource,
+    val cache: ChunkCache,
     val store: ChunkStore,
     val derived: DerivedStore
   )
@@ -254,7 +257,7 @@ class ChunkService(
           "view radius ${settings.viewRadiusChunks} (${settings.chunksAcrossView}x${settings.chunksAcrossView})"
     }
 
-    return Loaded(config, WorldWrap(config), generated.columns, store, derived)
+    return Loaded(config, WorldWrap(config), generated.columns, cache, store, derived)
   }
 
   /** Normalises a client-supplied or computed address across the world seam. Never wraps z; up is not a loop. */
@@ -368,15 +371,17 @@ class ChunkService(
    * `MoveSystem`'s per-step path, where a party walking together would rebuild the same block once per entity
    * per tile.
    */
-  private val columnHeights = Lru<Pair<Int, Int>, ColumnHeights>(settings.hotChunkCapacity)
+  private val columnHeights = Lru<Long, ColumnHeights>(COLUMN_HEIGHT_CAPACITY)
 
   private fun heightsOf(chunkX: Int, chunkY: Int): ColumnHeights =
-    columnHeights.getOrPut(chunkX to chunkY) {
+    columnHeights.getOrPut((chunkX.toLong() shl 32) or (chunkY.toLong() and 0xFFFFFFFFL)) {
       loaded.columns.heights(ChunkPos(chunkX, chunkY, 0), 0)
     }
 
   private fun computeSurfaceSlabs(column: ChunkPos): IntArray {
-    val heights = heightsOf(column.x, column.y)
+    // Not through [heightsOf]: a manifest computes a whole view volume once, and would push out the columns
+    // players actually stand on.
+    val heights = loaded.columns.heights(ChunkPos(column.x, column.y, 0), 0)
     val seaSlabs = ChunkCoords.seaSurfaceSlabs(loaded.config)
 
     var lowest = Double.POSITIVE_INFINITY
@@ -461,28 +466,99 @@ class ChunkService(
     val revision = revisionOf(chunk)
     encoded[EncodedKey(chunk, revision)]?.let { return it }
 
-    val voxels = loaded.store.merged(chunk)
-    val raw = RleCodec.encode(voxels)
-
-    val deflated = if (raw.size >= settings.deflateMinimumBytes) deflate(raw) else null
-    val useDeflate = deflated != null && deflated.size < raw.size
-
-    val result = Encoded(
-      chunk = chunk,
-      revision = revision,
-      compression = if (useDeflate) ChunkDataSMSG.Compression.DEFLATE else ChunkDataSMSG.Compression.NONE,
-      payload = if (useDeflate) deflated!! else raw,
-      baseHash = baseHashOf(chunk),
-      encodedBytes = raw.size
-    )
+    val result = encode(chunk, revision, loaded.store.merged(chunk), baseHashOf(chunk))
 
     encoded[EncodedKey(chunk, revision)] = result
     return result
   }
 
-  fun dataMessageFor(chunk: ChunkPos): ChunkDataSMSG {
-    val payload = encodedOf(chunk)
+  private fun encode(chunk: ChunkPos, revision: Int, voxels: VoxelChunk, baseHash: Long): Encoded {
+    val raw = RleCodec.encode(voxels)
 
+    val deflated = if (raw.size >= settings.deflateMinimumBytes) deflate(raw) else null
+    val useDeflate = deflated != null && deflated.size < raw.size
+
+    return Encoded(
+      chunk = chunk,
+      revision = revision,
+      compression = if (useDeflate) ChunkDataSMSG.Compression.DEFLATE else ChunkDataSMSG.Compression.NONE,
+      payload = if (useDeflate) deflated!! else raw,
+      baseHash = baseHash,
+      encodedBytes = raw.size
+    )
+  }
+
+  /**
+   * The payload for [chunk] if it can go out now, or null while it is still being made.
+   *
+   * An unedited chunk is generated, encoded and compressed on a [ChunkWorkers] thread, at most
+   * [ChunkStreamConfig.encodesPerTick] of them per tick and each only once however many players want it. An
+   * edited chunk is encoded here: its base is hot near the edit, and a chunk dug every tick must not wait.
+   */
+  fun readyDataMessage(chunk: ChunkPos): ChunkDataSMSG? {
+    val revision = revisionOf(chunk)
+    encoded[EncodedKey(chunk, revision)]?.let { return messageOf(it) }
+
+    if (chunk in inFlight || encodesLeft <= 0) return null
+    encodesLeft--
+
+    if (revision > 0) return dataMessageFor(chunk)
+
+    inFlight.add(chunk)
+    val hotBase = loaded.cache.peek(chunk)
+    val materializer = worldService.generated.materializer
+    workers.submit(
+      work = { encodeBase(chunk, hotBase ?: materializer.materialize(chunk)) },
+      deliver = { result -> takeEncoded(chunk, generated = hotBase == null, result) }
+    )
+
+    return readyCached(chunk)
+  }
+
+  /** Resets the per-tick budget of [readyDataMessage]. Called once at the start of every tick. */
+  fun beginTick() {
+    encodesLeft = settings.encodesPerTick
+  }
+
+  /** The size of [chunk]'s payload at [revision], if one is cached; for choosing between a patch and a snapshot. */
+  fun cachedPayloadSize(chunk: ChunkPos, revision: Int): Int? {
+    return encoded[EncodedKey(chunk, revision)]?.payload?.size
+  }
+
+  private fun readyCached(chunk: ChunkPos): ChunkDataSMSG? {
+    return encoded[EncodedKey(chunk, revisionOf(chunk))]?.let { messageOf(it) }
+  }
+
+  private class EncodedBase(val encoded: Encoded, val voxels: VoxelChunk)
+
+  /** Pure, so it may run on any thread. */
+  private fun encodeBase(chunk: ChunkPos, voxels: VoxelChunk): EncodedBase {
+    return EncodedBase(encode(chunk, revision = 0, voxels, BaseHash.of(voxels)), voxels)
+  }
+
+  private fun takeEncoded(chunk: ChunkPos, generated: Boolean, result: Result<EncodedBase>) {
+    inFlight.remove(chunk)
+
+    val base = result.getOrElse {
+      LOG.warn(it) { "Encoding $chunk failed; the next request tries again" }
+      return
+    }
+
+    baseHashes[chunk] = base.encoded.baseHash
+    if (generated) loaded.cache.adopt(chunk, base.voxels)
+
+    // A carve that landed meanwhile made this stale; the next request encodes the new revision here.
+    if (revisionOf(chunk) == 0) encoded[EncodedKey(chunk, 0)] = base.encoded
+  }
+
+  private val inFlight = HashSet<ChunkPos>()
+  private var encodesLeft = settings.encodesPerTick
+
+  fun dataMessageFor(chunk: ChunkPos): ChunkDataSMSG {
+    return messageOf(encodedOf(chunk))
+  }
+
+  private fun messageOf(payload: Encoded): ChunkDataSMSG {
     return ChunkDataSMSG(
       chunk = payload.chunk,
       revision = payload.revision,
@@ -783,27 +859,29 @@ class ChunkService(
   fun rebuildDerived(): Int =
     if (settings.derivedRebuildsPerTick == 0) 0 else loaded.derived.rebuild(settings.derivedRebuildsPerTick)
 
-  private fun deflate(blob: ByteArray): ByteArray {
-    val deflater = Deflater(settings.deflateLevel)
-    try {
-      deflater.setInput(blob)
-      deflater.finish()
+  /** One deflater and buffer per thread, reset between uses: the tick and every chunk worker deflate. */
+  private val deflaters = ThreadLocal.withInitial { Deflater(settings.deflateLevel) to ByteArray(8192) }
 
-      val out = ByteArrayOutputStream(blob.size / 2 + 32)
-      val buffer = ByteArray(8192)
-      while (!deflater.finished()) {
-        val n = deflater.deflate(buffer)
-        if (n == 0) break
-        out.write(buffer, 0, n)
-      }
-      return out.toByteArray()
-    } finally {
-      deflater.end()
+  private fun deflate(blob: ByteArray): ByteArray {
+    val (deflater, buffer) = deflaters.get()
+    deflater.reset()
+    deflater.setInput(blob)
+    deflater.finish()
+
+    val out = ByteArrayOutputStream(blob.size / 2 + 32)
+    while (!deflater.finished()) {
+      val n = deflater.deflate(buffer)
+      if (n == 0) break
+      out.write(buffer, 0, n)
     }
+    return out.toByteArray()
   }
 
   private companion object {
     private val LOG = KotlinLogging.logger { }
+
+    /** Chunk columns of ground heights kept for movement, weather and fire; about 8 KB each. */
+    private const val COLUMN_HEIGHT_CAPACITY = 1024
 
     // Must match TerrainPatch.ApronLow / TerrainPatch.ApronHigh in the client mesher - see the same precedent
     // for CarveBrush.MIN_RADIUS, which is pinned against client rendering assumptions the same way. The match

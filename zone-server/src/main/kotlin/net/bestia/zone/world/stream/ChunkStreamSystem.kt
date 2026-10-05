@@ -58,6 +58,7 @@ class ChunkStreamSystem(
   private val groundHeight: GroundHeight,
   private val oreYield: OreYield,
   private val connections: ConnectionInfoService,
+  private val workers: ChunkWorkers,
 ) : System {
 
   /**
@@ -123,6 +124,9 @@ class ChunkStreamSystem(
 
   override fun update(world: World, deltaTime: Float) {
     if (!chunkService.isReady) return
+
+    workers.drain()
+    chunkService.beginTick()
 
     applyCarves(world)
 
@@ -514,17 +518,19 @@ class ChunkStreamSystem(
         removals = change.removals
       )
 
-      val snapshot = chunkService.encodedOf(change.chunk)
+      // Measured against the chunk as the holders have it, whose payload is cached, rather than by encoding the
+      // new revision just to compare: most carves send a patch. Unknown means a patch, which is always correct.
+      val snapshotSize = chunkService.cachedPayloadSize(change.chunk, change.fromRevision)
 
       // Past the point where the removals cost more than the whole chunk, stop describing the change and just
       // restate the result - the same trade `ChunkDelta.shouldBake` makes about storage, applied to the wire.
-      if (patch.removals.size >= snapshot.payload.size) {
+      if (snapshotSize != null && patch.removals.size >= snapshotSize) {
         val message = chunkService.dataMessageFor(change.chunk)
         val sent = fanOut.fanOut(holders.toList(), message)
 
         LOG.debug {
           "Chunk ${change.chunk} rev ${change.toRevision}: ${change.removals.size} removals cost " +
-              "${patch.removals.size} B, sent the ${snapshot.payload.size} B snapshot to $sent clients instead"
+              "${patch.removals.size} B, sent the ${message.payload.size} B snapshot to $sent clients instead"
         }
         continue
       }
@@ -590,6 +596,7 @@ class ChunkStreamSystem(
     for ((accountId, pending) in queued) {
       var sent = 0
       val iterator = pending.iterator()
+      val ground = subscriptions.anchorOf(accountId)?.let { chunkService.normalise(it) }
 
       while (iterator.hasNext() && sent < settings.chunksPerTickPerPlayer) {
         val chunk = iterator.next()
@@ -600,10 +607,15 @@ class ChunkStreamSystem(
           continue
         }
 
+        // The ground under the player is encoded at once: standing on nothing is worse than a hitch. Anything
+        // else still being made stays queued for a later tick.
+        val message = if (chunk == ground) chunkService.dataMessageFor(chunk) else chunkService.readyDataMessage(chunk)
+        if (message == null) continue
+
         // Kept on a failed write, because nothing else would bring it back - the manifest offers what was not
         // announced, not what did not arrive. A channel that is gone or full will refuse the rest of this
         // tick's writes too, so stop rather than spend the budget finding that out chunk by chunk.
-        if (!push(accountId, chunk)) break
+        if (!push(accountId, chunk, message)) break
 
         iterator.remove()
         sent++
@@ -640,9 +652,7 @@ class ChunkStreamSystem(
    * went out. A skipped write leaves the chunk un-sent and in the send queue; the caller retries it on a later
    * tick. The manifest will not, because it offers what was never announced rather than what never arrived.
    */
-  private fun push(accountId: Long, chunk: ChunkPos): Boolean {
-    val message = chunkService.dataMessageFor(chunk)
-
+  private fun push(accountId: Long, chunk: ChunkPos, message: ChunkDataSMSG): Boolean {
     if (!fanOut.sendTo(accountId, message)) return false
 
     subscriptions.markSent(accountId, chunk)

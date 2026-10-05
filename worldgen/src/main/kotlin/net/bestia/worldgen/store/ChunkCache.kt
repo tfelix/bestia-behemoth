@@ -112,13 +112,33 @@ class ChunkCache(
 
     generated++
     val fresh = generate(chunk)
-    val blob = RleCodec.encode(fresh)
-    for (tier in tiers.asReversed()) {
-      tier.put(key, blob)
-    }
-    hot[key] = fresh
+    writeThrough(key, fresh)
 
     return fresh
+  }
+
+  /** The base if it is already hot; never generates and counts nothing. */
+  fun peek(chunk: ChunkPos): VoxelChunk? {
+    return hot[keyOf(chunk)]
+  }
+
+  /**
+   * Takes a base generated elsewhere - on another thread, from the same pure [generate] - as if [base] had
+   * produced it, so the next reader finds it hot.
+   */
+  fun adopt(chunk: ChunkPos, voxels: VoxelChunk) {
+    writeThrough(keyOf(chunk), voxels)
+  }
+
+  private fun writeThrough(key: Long, fresh: VoxelChunk) {
+    // Encoded only for the tiers: with none, the encode is thrown away.
+    if (tiers.isNotEmpty()) {
+      val blob = RleCodec.encode(fresh)
+      for (tier in tiers.asReversed()) {
+        tier.put(key, blob)
+      }
+    }
+    hot[key] = fresh
   }
 
   /** Drops a chunk from every tier. For baking, which replaces the generated base with a stored one. */

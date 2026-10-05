@@ -103,6 +103,10 @@ chunk-stream:
   # 13 bytes encoded and 19 deflated.
   deflate-minimum-bytes: 64
   deflate-level: 9
+  # Threads that generate and encode chunks off the tick. 0 does it on the tick at once (tests).
+  encode-workers: 2
+  # Chunk payloads started per tick across all players; the rest wait in their send queues.
+  encodes-per-tick: 16
   # Encoded wire payloads kept (~3 kB each). This is what makes thirty players entering the same area cost one
   # encode between them rather than thirty, so it should exceed one view volume comfortably.
   encoded-cache-capacity: 1024
