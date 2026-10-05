@@ -52,9 +52,20 @@ class MasterFactoryTest {
     verify(exactly = 0) { spawnPoints.ensureComputed() }
   }
 
-  private fun createData(effortValues: Map<StatusAttribute, Int>): MasterFactory.CreateMasterData {
+  /** Other players read a master's name, so it must not reorder or disguise itself. */
+  @Test
+  fun `a name that hides a direction override is refused`() {
+    assertThrows<InvalidMasterNameException> {
+      factory.create(ACCOUNT_ID, createData(StatusAttribute.entries.associateWith { 1 }, name = "Bob\u202Enimda"))
+    }
+  }
+
+  private fun createData(
+    effortValues: Map<StatusAttribute, Int>,
+    name: String = "Tester"
+  ): MasterFactory.CreateMasterData {
     return MasterFactory.CreateMasterData(
-      name = "Tester",
+      name = name,
       hairColor = Color.BLACK,
       skinColor = Color.WHITE,
       hair = Hairstyle.HAIR_1,

@@ -6,6 +6,7 @@ import net.bestia.zone.account.master.Master
 import net.bestia.zone.account.master.MasterRepository
 import net.bestia.zone.account.master.MasterResolver
 import net.bestia.zone.util.AccountId
+import net.bestia.zone.util.DisplayName
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.movement.Position
@@ -60,15 +61,10 @@ class PartyService(
       throw AlreadyInPartyException()
     }
 
-    val trimmedName = partyName.trim()
-    if (trimmedName.isEmpty() ||
-      trimmedName.length > zoneConfig.partyNameMaxLength ||
-      !trimmedName.all { it.code in 32..126 }
-    ) {
-      throw InvalidPartyNameException()
-    }
+    val name = DisplayName.normalizeOrNull(partyName, zoneConfig.partyNameMaxLength)
+      ?: throw InvalidPartyNameException()
 
-    val party = Party(owner = owner, name = trimmedName)
+    val party = Party(owner = owner, name = name)
     val saved = partyRepository.save(party)
 
     syncPartyMembershipComponents(saved)
