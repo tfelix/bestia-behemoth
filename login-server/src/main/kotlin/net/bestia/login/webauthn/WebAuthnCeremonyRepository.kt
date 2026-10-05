@@ -12,6 +12,11 @@ interface WebAuthnCeremonyRepository : JpaRepository<WebAuthnCeremony, String> {
   @Query("DELETE FROM WebAuthnCeremony c WHERE c.expiresAt < :cutoff")
   fun deleteExpired(@Param("cutoff") cutoff: LocalDateTime): Int
 
+  /** Answers 1 only for the caller that removed the row, so racing requests take a ceremony once. */
+  @Modifying
+  @Query("DELETE FROM WebAuthnCeremony c WHERE c.id = :id")
+  fun deleteTaken(@Param("id") id: String): Int
+
   /** Ceremonies that would add a passkey to an existing account. */
   @Modifying
   @Query("DELETE FROM WebAuthnCeremony c WHERE c.accountId = :accountId")
