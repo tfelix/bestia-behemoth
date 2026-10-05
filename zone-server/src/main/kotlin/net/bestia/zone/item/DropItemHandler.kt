@@ -6,6 +6,7 @@ import net.bestia.zone.ecs.item.Inventory
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.WorldView
+import net.bestia.zone.ecs.battle.damage.DeadActionGuard
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.item.loot.LootItemEntitySpawner
@@ -20,6 +21,7 @@ class DropItemHandler(
   private val inventoryService: InventoryService,
   private val lootItemEntitySpawner: LootItemEntitySpawner,
   private val connectionInfoService: ConnectionInfoService,
+  private val deadActionGuard: DeadActionGuard,
   private val world: WorldView
 ) : InMessageProcessor.IncomingMessageHandler<DropItemCMSG> {
   override val handles = DropItemCMSG::class
@@ -38,6 +40,9 @@ class DropItemHandler(
     }
 
     val activeEntityId = connectionInfoService.getActiveEntityId(msg.playerId)
+    if (deadActionGuard.refuses(activeEntityId, "drop an item")) {
+      return true
+    }
     val masterId = connectionInfoService.getMasterId(msg.playerId)
 
     // Access the entity, verify preconditions from ECS info and persist the removal to the

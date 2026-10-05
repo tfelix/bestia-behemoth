@@ -4,6 +4,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.battle.status.IsStatusValueDirty
 import net.bestia.zone.ecs.core.AsyncJobExecutor
 import net.bestia.zone.ecs.core.WorldView
+import net.bestia.zone.ecs.battle.damage.DeadActionGuard
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.item.Equipment
 import net.bestia.zone.ecs.item.Inventory
@@ -23,12 +24,16 @@ class UnequipItemHandler(
   private val connectionInfoService: ConnectionInfoService,
   private val inventoryService: InventoryService,
   private val asyncJobExecutor: AsyncJobExecutor,
+  private val deadActionGuard: DeadActionGuard,
   private val world: WorldView
 ) : InMessageProcessor.IncomingMessageHandler<UnequipItemCMSG> {
   override val handles = UnequipItemCMSG::class
 
   override fun handle(msg: UnequipItemCMSG): Boolean {
     val activeEntityId = connectionInfoService.getActiveEntityId(msg.playerId)
+    if (deadActionGuard.refuses(activeEntityId, "unequip an item")) {
+      return true
+    }
 
     val removed = world.modify(activeEntityId) { id ->
       val equipment = get(id, Equipment::class)

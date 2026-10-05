@@ -7,6 +7,7 @@ import net.bestia.zone.ecs.battle.skill.KnownSkills
 import net.bestia.zone.ecs.battle.status.IsStatusValueDirty
 import net.bestia.zone.ecs.core.AsyncJobExecutor
 import net.bestia.zone.ecs.core.WorldView
+import net.bestia.zone.ecs.battle.damage.DeadActionGuard
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.item.Equipment
 import net.bestia.zone.ecs.item.Inventory
@@ -36,6 +37,7 @@ class EquipItemHandler(
   private val inventoryService: InventoryService,
   private val asyncJobExecutor: AsyncJobExecutor,
   private val outMessageProcessor: OutMessageProcessor,
+  private val deadActionGuard: DeadActionGuard,
   private val world: WorldView
 ) : InMessageProcessor.IncomingMessageHandler<EquipItemCMSG> {
   override val handles = EquipItemCMSG::class
@@ -49,6 +51,9 @@ class EquipItemHandler(
     }
 
     val activeEntityId = connectionInfoService.getActiveEntityId(msg.playerId)
+    if (deadActionGuard.refuses(activeEntityId, "equip an item")) {
+      return true
+    }
 
     val applied = world.modify(activeEntityId) { id ->
       val equipment = get(id, Equipment::class)
