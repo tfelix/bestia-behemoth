@@ -541,22 +541,12 @@ class ChunkStreamSystem(
 
   // ---------------------------------------------------------------- step 4
 
-  private fun serveRequests() {
+  internal fun serveRequests() {
     for (request in inbox.drainRequests()) {
       val budget = tokens.getOrPut(request.accountId) { settings.requestBurst }
       var spent = 0
 
       for ((index, chunk) in request.chunks.withIndex()) {
-        val normalised = chunkService.normalise(chunk)
-
-        // The gate. A position the client was never offered is not served - which is what stops a pull
-        // transport from being a way to walk the whole map, or to make the server generate arbitrary
-        // terrain, without needing any separate notion of a "legal" coordinate.
-        if (!subscriptions.isAnnouncedTo(request.accountId, normalised)) {
-          LOG.debug { "Account ${request.accountId} asked for $normalised, which it was not offered" }
-          continue
-        }
-
         if (spent >= budget) {
           // Deferred rather than dropped. A manifest diffs against what has been announced, so a request
           // discarded here is never re-offered and the client never asks again - which turned a rate limit that
@@ -569,8 +559,19 @@ class ChunkStreamSystem(
           break
         }
 
-        queued.getOrPut(request.accountId) { LinkedHashSet() }.add(normalised)
+        // Charged before the gate below: a position the client was never offered still costs the tick a check.
         spent++
+        val normalised = chunkService.normalise(chunk)
+
+        // The gate. A position the client was never offered is not served - which is what stops a pull
+        // transport from being a way to walk the whole map, or to make the server generate arbitrary
+        // terrain, without needing any separate notion of a "legal" coordinate.
+        if (!subscriptions.isAnnouncedTo(request.accountId, normalised)) {
+          LOG.debug { "Account ${request.accountId} asked for $normalised, which it was not offered" }
+          continue
+        }
+
+        queued.getOrPut(request.accountId) { LinkedHashSet() }.add(normalised)
       }
 
       tokens[request.accountId] = budget - spent
@@ -579,6 +580,8 @@ class ChunkStreamSystem(
     tokens.replaceAll { _, remaining ->
       minOf(settings.requestBurst, remaining + settings.requestRefillPerTick)
     }
+    // A full bucket is what a missing one becomes, so dropping it keeps the map bounded without a refill.
+    tokens.values.removeIf { it >= settings.requestBurst }
 
     sendQueued()
   }
@@ -650,11 +653,11 @@ class ChunkStreamSystem(
     return true
   }
 
-  private fun forget(accountId: Long) {
+  /** Keeps the request bucket: reconnecting must not hand a client a fresh budget. */
+  internal fun forget(accountId: Long) {
     subscriptions.forget(accountId)
     inbox.forget(accountId)
     queued.remove(accountId)
-    tokens.remove(accountId)
   }
 
   // ---------------------------------------------------------------- step 6
