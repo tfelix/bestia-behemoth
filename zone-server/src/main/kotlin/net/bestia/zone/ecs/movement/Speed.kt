@@ -2,6 +2,7 @@ package net.bestia.zone.ecs.movement
 
 import net.bestia.zone.ecs.core.Component
 import net.bestia.zone.util.EntityId
+import net.bestia.zone.ecs.core.DirtyFlag
 import net.bestia.zone.ecs.core.Dirtyable
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.SyncTargets
@@ -17,29 +18,16 @@ data class Speed(
    */
   val baseSpeed: Float = _speed
 ) : Component, Dirtyable {
-
-  private var dirty: Boolean = true
+  override val dirtyFlag = DirtyFlag()
 
   var speed: Float
     get() = _speed
     set(value) {
       if (_speed != value) {
         _speed = value
-        dirty = true
+        markDirty()
       }
     }
-
-  override fun isDirty(): Boolean {
-    return dirty
-  }
-
-  override fun markDirty() {
-    dirty = true
-  }
-
-  override fun clearDirty() {
-    dirty = false
-  }
 
   override fun toEntityMessage(entityId: Long, removed: Boolean): EntitySMSG {
     return SpeedSMSG(

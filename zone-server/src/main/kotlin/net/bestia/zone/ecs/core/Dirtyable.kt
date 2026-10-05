@@ -5,7 +5,12 @@ import net.bestia.zone.util.EntityId
 import net.bestia.zone.message.EntitySMSG
 
 interface Dirtyable {
-  fun isDirty(): Boolean
+  /** Declared first in an implementation's body: setters running in its `init` already use it. */
+  val dirtyFlag: DirtyFlag
+
+  fun isDirty(): Boolean {
+    return dirtyFlag.isSet
+  }
 
   /**
    * Forces this component to be considered dirty so the next flush re-sends it even though no
@@ -14,9 +19,13 @@ interface Dirtyable {
    * longer a `World.markChanged` for this. Mutating a component through its own setters already
    * marks it dirty, so this is only needed when nothing actually changed.
    */
-  fun markDirty()
+  fun markDirty() {
+    dirtyFlag.set()
+  }
 
-  fun clearDirty()
+  fun clearDirty() {
+    dirtyFlag.clear()
+  }
 
 
   /**

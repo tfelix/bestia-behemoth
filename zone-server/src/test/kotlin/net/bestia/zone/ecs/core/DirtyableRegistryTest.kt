@@ -37,4 +37,11 @@ class DirtyableRegistryTest {
       "expected all known Dirtyable types to be discovered, missing: ${expected - syncTypes.toSet()}"
     )
   }
+
+  @Test
+  fun `reports only types that can actually sit in a store`() {
+    val abstract = scanDirtyableComponentTypes().filter { java.lang.reflect.Modifier.isAbstract(it.java.modifiers) }
+
+    assertTrue(abstract.isEmpty(), "abstract types would get an empty store each: $abstract")
+  }
 }

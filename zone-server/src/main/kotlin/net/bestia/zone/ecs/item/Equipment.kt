@@ -1,5 +1,6 @@
 package net.bestia.zone.ecs.item
 
+import net.bestia.zone.ecs.core.DirtyFlag
 import net.bestia.zone.ecs.core.Dirtyable
 import net.bestia.zone.ecs.SyncTargets
 import net.bestia.zone.ecs.core.Component
@@ -24,8 +25,7 @@ data class Equipment(
   val wearableArmorTypeMask: Int = ArmorType.ALL,
   private val worn: MutableMap<EquipmentSlot, EquippedItem> = mutableMapOf()
 ) : Component, Dirtyable {
-
-  private var dirty = true
+  override val dirtyFlag = DirtyFlag()
 
   /**
    * One worn item. [uniqueId] is the id of the backing
@@ -80,16 +80,6 @@ data class Equipment(
     markDirty()
 
     return removed
-  }
-
-  override fun isDirty(): Boolean = dirty
-
-  override fun markDirty() {
-    dirty = true
-  }
-
-  override fun clearDirty() {
-    dirty = false
   }
 
   override fun toEntityMessage(entityId: Long, removed: Boolean): EntitySMSG {

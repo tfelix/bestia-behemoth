@@ -1,5 +1,6 @@
 package net.bestia.zone.battle.status
 
+import net.bestia.zone.ecs.core.DirtyFlag
 import net.bestia.zone.ecs.core.Dirtyable
 import kotlin.math.max
 import kotlin.math.min
@@ -8,15 +9,14 @@ abstract class CurMax(
   current: Int,
   max: Int
 ) : Dirtyable {
-
-  private var dirty = true
+  override val dirtyFlag = DirtyFlag()
 
   open var current: Int = 0
     set(value) {
       val clamped = max(0, min(value, max))
       if (clamped != field) {
         field = clamped
-        dirty = true
+        markDirty()
       }
     }
 
@@ -25,7 +25,7 @@ abstract class CurMax(
       require(value >= 0)
       if (value != field) {
         field = value
-        dirty = true
+        markDirty()
       }
 
       if (current > value) {
@@ -40,15 +40,5 @@ abstract class CurMax(
 
   override fun toString(): String {
     return "$current/$max"
-  }
-
-  override fun isDirty(): Boolean = dirty
-
-  override fun markDirty() {
-    dirty = true
-  }
-
-  override fun clearDirty() {
-    dirty = false
   }
 }

@@ -219,10 +219,9 @@ class WorldObjectResidencyTest {
   /**
    * **The load-bearing property of the whole design.**
    *
-   * `ZoneEngine.syncDirtyComponents` walks every `Dirtyable` store on every tick, and a `Dirtyable` cannot opt
-   * out - it sets its own flag from inside its own setters with no reference to the world or its id, so there
-   * is no dirty list to stay off. The only way out of the scan is not to be in the store, which is why props
-   * carry `PropPose` rather than `Position` and `PropVitality` rather than `Health`.
+   * A fresh `Dirtyable` is reported to the sync the moment it is added, so tens of thousands of props would
+   * each be sent once for nothing - which is why props carry `PropPose` rather than `Position` and
+   * `PropVitality` rather than `Health`.
    *
    * Being out of the `Position` store also keeps them out of `ChunkStreamSystem.groundNewcomers`, which scans
    * that whole store every tick, and out of `HpRegenSystem`, which queries `Health` directly.

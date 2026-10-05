@@ -2,6 +2,7 @@ package net.bestia.zone.ecs.item
 
 import net.bestia.zone.ecs.core.Component
 import net.bestia.zone.util.EntityId
+import net.bestia.zone.ecs.core.DirtyFlag
 import net.bestia.zone.ecs.core.Dirtyable
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.SyncTargets
@@ -10,7 +11,7 @@ import net.bestia.zone.message.EntitySMSG
 data class Inventory(
   private val items: MutableList<Item>
 ) : Component, Dirtyable {
-  private var dirty = true
+  override val dirtyFlag = DirtyFlag()
 
   /**
    * A single held stack. [uniqueId] is the id of the backing
@@ -255,18 +256,6 @@ data class Inventory(
     markDirty()
 
     return true
-  }
-
-  override fun isDirty(): Boolean {
-    return dirty
-  }
-
-  override fun clearDirty() {
-    dirty = false
-  }
-
-  override fun markDirty() {
-    dirty = true
   }
 
   override fun toEntityMessage(entityId: Long, removed: Boolean): EntitySMSG {

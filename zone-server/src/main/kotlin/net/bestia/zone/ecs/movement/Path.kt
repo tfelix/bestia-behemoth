@@ -1,5 +1,6 @@
 package net.bestia.zone.ecs.movement
 
+import net.bestia.zone.ecs.core.DirtyFlag
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.ecs.core.Component
 import net.bestia.zone.util.EntityId
@@ -21,12 +22,11 @@ import net.bestia.zone.message.EntitySMSG
 data class Path(
   private var _path: MutableList<Vec3L>
 ) : Component, Removable {
+  override val dirtyFlag = DirtyFlag()
 
   init {
     require(_path.isNotEmpty()) { "Path must not be empty on creation." }
   }
-
-  private var dirty: Boolean = true
 
   /**
    * Whether the waypoints' vertical has been checked against the terrain yet.
@@ -66,14 +66,14 @@ data class Path(
     if (_path != newPath) {
       _path.clear()
       _path.addAll(newPath)
-      dirty = true
+      markDirty()
       groundResolved = false
     }
   }
 
   fun addPathPoint(point: Vec3L) {
     _path.add(point)
-    dirty = true
+    markDirty()
     groundResolved = false
   }
 
@@ -90,23 +90,11 @@ data class Path(
 
       if (z != point.z) {
         _path[i] = Vec3L(point.x, point.y, z)
-        dirty = true
+        markDirty()
       }
     }
 
     groundResolved = true
-  }
-
-  override fun isDirty(): Boolean {
-    return dirty
-  }
-
-  override fun markDirty() {
-    dirty = true
-  }
-
-  override fun clearDirty() {
-    dirty = false
   }
 
   override fun toEntityMessage(entityId: Long, removed: Boolean): EntitySMSG {
