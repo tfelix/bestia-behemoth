@@ -33,13 +33,25 @@ class PropPromotionServiceTest {
       add(id, StaticSync)
     }
 
+  /** A prop's entity id can name a tree anywhere in the world, and each promotion makes a full entity. */
+  @Test
+  fun `a prop out of the actor's reach is not promoted`() {
+    val world = testWorld()
+    val service = PropPromotionService(noDivergence())
+    val id = propEntity(world)
+
+    assertFalse(service.promoteIfNeeded(world, id, Vec3L(1 + REACH + 1, 2, 3), REACH))
+
+    assertFalse(world.has(id, Position::class))
+  }
+
   @Test
   fun `promoting a pristine prop adds Position, Health and StatusValues`() {
     val world = testWorld()
     val service = PropPromotionService(noDivergence())
     val id = propEntity(world)
 
-    assertTrue(service.promoteIfNeeded(world, id))
+    assertTrue(service.promoteIfNeeded(world, id, NEXT_TO_PROP, REACH))
 
     assertEquals(Vec3L(1, 2, 3), world.get(id, Position::class)?.toVec3L())
     assertEquals(50, world.get(id, Health::class)?.current)
@@ -53,10 +65,10 @@ class PropPromotionServiceTest {
     val service = PropPromotionService(noDivergence())
     val id = propEntity(world)
 
-    service.promoteIfNeeded(world, id)
+    service.promoteIfNeeded(world, id, NEXT_TO_PROP, REACH)
     world.get(id, Health::class)!!.current = 10 // simulate a hit already landed
 
-    assertTrue(service.promoteIfNeeded(world, id), "an already-promoted prop must still resolve")
+    assertTrue(service.promoteIfNeeded(world, id, NEXT_TO_PROP, REACH), "an already-promoted prop must still resolve")
     assertEquals(10, world.get(id, Health::class)?.current, "a second promotion must not reset accumulated damage")
   }
 
@@ -66,7 +78,7 @@ class PropPromotionServiceTest {
     val service = PropPromotionService(noDivergence())
     val id = world.createEntity { }
 
-    assertTrue(service.promoteIfNeeded(world, id), "an ordinary entity is not this service's concern")
+    assertTrue(service.promoteIfNeeded(world, id, NEXT_TO_PROP, REACH), "an ordinary entity is not this service's concern")
     assertFalse(world.has(id, Position::class), "nothing should have been added to a non-prop entity")
   }
 
@@ -79,7 +91,12 @@ class PropPromotionServiceTest {
     val service = PropPromotionService(divergence)
     val id = propEntity(world, propId = 7L)
 
-    assertFalse(service.promoteIfNeeded(world, id), "a claimed landmark must not stand back up")
+    assertFalse(service.promoteIfNeeded(world, id, NEXT_TO_PROP, REACH), "a claimed landmark must not stand back up")
     assertFalse(world.has(id, Position::class))
+  }
+
+  private companion object {
+    val NEXT_TO_PROP = Vec3L(1, 2, 3)
+    const val REACH = 10L
   }
 }

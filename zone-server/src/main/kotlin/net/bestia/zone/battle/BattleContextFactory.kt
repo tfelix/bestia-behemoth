@@ -47,6 +47,12 @@ class BattleContextFactory(
     val attacker = battleEntity(world, attackerId) ?: return null
 
     if (targetEntityId != null) {
+      // A defensive, idempotent no-op for anything already promoted or never a prop; the call site that
+      // actually matters for a channelled skill is ActivateSkillHandler - see PropPromotionService's own KDoc
+      // for why calling it only here would fizzle the first hit of a channelled cast.
+      val reach = PropPromotionService.TARGETING_REACH
+      if (!propPromotion.promoteIfNeeded(world, targetEntityId, attacker.position, reach)) return null
+
       val defender = battleEntity(world, targetEntityId) ?: return null
 
       return EntityBattleContext(
@@ -72,10 +78,6 @@ class BattleContextFactory(
       return null
     }
 
-    // A defensive, idempotent no-op for anything already promoted or never a prop; the call site that
-    // actually matters for a channelled skill is ActivateSkillHandler - see PropPromotionService's own KDoc
-    // for why calling it only here would fizzle the first hit of a channelled cast.
-    if (!propPromotion.promoteIfNeeded(world, entityId)) return null
 
     val position = world.get(entityId, Position::class)?.toVec3L() ?: return null
     val attributes = world.get(entityId, StatusValues::class) ?: return null

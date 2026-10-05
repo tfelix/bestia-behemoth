@@ -17,6 +17,7 @@ import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.skill.SkillRepository
 import net.bestia.zone.util.EntityId
+import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.world.prop.PropPromotionService
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
@@ -125,8 +126,9 @@ class ActivateSkillHandler(
       // scheduler.tick(), so this add() applies immediately - unlike promoting only from
       // BattleContextFactory, which a channelled cast reaches from inside CastingSystem.update() and would
       // silently fizzle its first hit against a pristine prop. See PropPromotionService's own KDoc.
-      if (targetEntityId != null) {
-        propPromotion.promoteIfNeeded(this, targetEntityId)
+      val caster = get(id, Position::class)?.toVec3L()
+      if (targetEntityId != null && caster != null) {
+        propPromotion.promoteIfNeeded(this, targetEntityId, caster, PropPromotionService.TARGETING_REACH)
       }
 
       if (skill.castTime > 0f) {

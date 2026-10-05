@@ -115,7 +115,8 @@ class AreaEffectSystem(
         // Sound *here* specifically because this is inside `world.defer`: structural changes apply immediately
         // in a deferred block, so the `Health` the promotion adds is visible to the check on the next line. In
         // an ordinary system body it would be queued and this would still see nothing.
-        if (!propPromotionService.promoteIfNeeded(world, victimId)) continue
+        // The cube's half diagonal is under two radii, so every prop the query found is within reach.
+        if (!propPromotionService.promoteIfNeeded(world, victimId, center, effect.radiusTiles * 2)) continue
         if (!world.has(victimId, Health::class)) continue
         // See Invulnerable: staging a burn ReceivedDamageSystem drops would only report it to the client.
         if (world.has(victimId, Invulnerable::class)) continue

@@ -8,6 +8,7 @@ import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.logout.LogoutCancelService
 import net.bestia.zone.message.InMessageProcessor
+import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.world.prop.PropPromotionService
 import org.springframework.stereotype.Component
 
@@ -53,7 +54,10 @@ class AttackEntityHandler(
       // Here rather than only in BattleContextFactory: from a handler the adds apply immediately and the
       // swing below reads them straight back, whereas AttackSystem would see nothing yet and fizzle the
       // first hit on a pristine prop. See PropPromotionService's own KDoc.
-      propPromotion.promoteIfNeeded(this, msg.targetEntityId)
+      get(id, Position::class)?.let { attacker ->
+        val reach = PropPromotionService.TARGETING_REACH
+        propPromotion.promoteIfNeeded(this, msg.targetEntityId, attacker.toVec3L(), reach)
+      }
 
       update(id, { AttackTarget(msg.targetEntityId) }) { it.targetEntityId = msg.targetEntityId }
 
