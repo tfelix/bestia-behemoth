@@ -103,12 +103,17 @@ class AsyncJobExecutor(
     }
   }
 
+  /** Runs what is queued, waiting up to [timeoutSeconds] per worker, then stops; later submits are dropped. */
   @PreDestroy
   fun shutdown() {
+    shutdown(timeoutSeconds = 5)
+  }
+
+  fun shutdown(timeoutSeconds: Long) {
     workers.forEach { it.shutdown() }
     workers.forEach {
       try {
-        if (!it.awaitTermination(5, TimeUnit.SECONDS)) it.shutdownNow()
+        if (!it.awaitTermination(timeoutSeconds, TimeUnit.SECONDS)) it.shutdownNow()
       } catch (_: InterruptedException) {
         it.shutdownNow()
       }

@@ -30,11 +30,7 @@ class PersistAndRemoveSystem(
   private val writeBehind: EntityWriteBehind,
 ) : System {
 
-  override val reads: ComponentClassSet = setOf(
-    PersistAndRemove::class, Master::class, Account::class, Position::class,
-    Level::class, SkillPoints::class, StatusPoints::class, BaseStatusValues::class,
-    Health::class, EntityVisual::class, GroundItemStack::class, StatusEffects::class,
-  ) + MasterEntityPersister.SNAPSHOT_READS
+  override val reads: ComponentClassSet = setOf(PersistAndRemove::class) + SNAPSHOT_READS
 
   override fun update(world: World, deltaTime: Float) {
     val toRemove = mutableListOf<EntityId>()
@@ -43,5 +39,14 @@ class PersistAndRemoveSystem(
 
     writeBehind.persist(world, toRemove)
     toRemove.forEach(world::destroy)
+  }
+
+  companion object {
+    /** What taking a snapshot of any persistent entity reads. */
+    val SNAPSHOT_READS: ComponentClassSet = setOf(
+      Master::class, Account::class, Position::class,
+      Level::class, SkillPoints::class, StatusPoints::class, BaseStatusValues::class,
+      Health::class, EntityVisual::class, GroundItemStack::class, StatusEffects::class,
+    ) + MasterEntityPersister.SNAPSHOT_READS
   }
 }

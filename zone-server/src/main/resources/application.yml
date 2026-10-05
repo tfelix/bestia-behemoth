@@ -19,7 +19,7 @@ zone:
   sql-on-tick: log
 
 persistence:
-  initial-delay-ms: 90000
+  # Each persistent entity is saved this often if it changed; the population is spread over the interval.
   interval-ms: 90000
 
 # Settings a *new* world is born with. Ignored once a world exists: what gets generated then comes from the
@@ -470,6 +470,12 @@ spring:
       ddl-auto: update
     show-sql: false  # Optional: Show SQL statements in logs
     open-in-view: false
+    properties:
+      # One round trip per 50 rows for the periodic save's UPDATEs. Inserts stay single: IDENTITY ids
+      # cannot be batched, and a sequence would collide with the rows `ddl-auto: update` already made.
+      hibernate.jdbc.batch_size: 50
+      hibernate.order_updates: true
+      hibernate.order_inserts: true
 
   main:
     # `servlet` since the map tile service arrived. The game socket is Netty on `socket.port` and is unaffected -

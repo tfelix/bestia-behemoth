@@ -38,9 +38,18 @@ class PersistedEntity(
     component.entity = this
   }
 
-  /** Swaps the stored component blobs for a fresh set (orphan removal deletes the old rows). */
-  fun replaceComponents(newComponents: List<PersistedComponent>) {
-    components.clear()
-    newComponents.forEach(::addComponent)
+  /**
+   * Makes [data] the entity's one component blob. The existing row of that [type] is updated in place, so a
+   * periodic save is one UPDATE rather than a DELETE and an INSERT.
+   */
+  fun writeComponent(type: String, data: String) {
+    val existing = components.firstOrNull { it.type == type }
+    components.retainAll { it === existing }
+
+    if (existing != null) {
+      existing.data = data
+    } else {
+      addComponent(PersistedComponent(type = type, data = data))
+    }
   }
 }

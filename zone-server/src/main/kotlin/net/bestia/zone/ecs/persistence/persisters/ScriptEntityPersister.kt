@@ -67,9 +67,7 @@ class ScriptEntityPersister(
     val rows = snapshots.map { snap ->
       val row = existing[snap.entityId] ?: PersistedEntity(entityId = snap.entityId, kind = kind)
       row.updatedAt = Instant.now()
-      row.replaceComponents(
-        listOf(PersistedComponent(type = kind, data = objectMapper.writeValueAsString(snap)))
-      )
+      row.writeComponent(kind, objectMapper.writeValueAsString(snap))
       row
     }
     repository.saveAll(rows)

@@ -33,8 +33,8 @@ import net.bestia.zone.ecs.core.System as EcsSystem
  * touch it.
  *
  * Deliberately **before** `PersistAndRemoveSystem` (90), which is irrelevant while props carry no `Persistent`
- * - and they must not: `EntityPersistenceService`'s ninety-second sweep would snapshot and upsert every
- * resident prop, 99.99% of which are pristine.
+ * - and they must not: `EntityPersistenceService`'s ninety-second sweep would snapshot every resident prop
+ * and write a row for each, 99.99% of which are pristine.
  */
 @Component
 @Order(46)

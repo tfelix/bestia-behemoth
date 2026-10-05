@@ -12,6 +12,7 @@ import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.persistence.EntityPersister
 import net.bestia.zone.ecs.persistence.EntitySnapshot
+import net.bestia.zone.ecs.persistence.PersistedEntityDeletionQueue
 import net.bestia.zone.ecs.spawn.DenIdentity
 import net.bestia.zone.ecs.spawn.DenMember
 import net.bestia.zone.entity.PersistedComponent
@@ -54,6 +55,7 @@ class MobEntityPersister(
   private val repository: PersistedEntityRepository,
   private val bestiaEntitySpawner: BestiaEntitySpawner,
   private val objectMapper: ObjectMapper,
+  private val deletionQueue: PersistedEntityDeletionQueue,
 ) : EntityPersister {
 
   override val kind = KIND
@@ -85,9 +87,7 @@ class MobEntityPersister(
     val rows = snapshots.map { snap ->
       val row = existing[snap.entityId] ?: PersistedEntity(entityId = snap.entityId, kind = kind)
       row.updatedAt = Instant.now()
-      row.replaceComponents(
-        listOf(PersistedComponent(type = kind, data = objectMapper.writeValueAsString(snap)))
-      )
+      row.writeComponent(kind, objectMapper.writeValueAsString(snap))
       row
     }
     repository.saveAll(rows)
@@ -100,12 +100,18 @@ class MobEntityPersister(
     for (row in rows) {
       val json = row.components.firstOrNull()?.data ?: continue
       val snap = objectMapper.readValue<MobSnapshot>(json)
+
+      // Den packs are no longer saved. One saved before that comes back this once, and its row goes.
+      val fromDen = snap.den != null
+      if (fromDen) deletionQueue.enqueue(snap.entityId)
+
       bestiaEntitySpawner.spawnMob(
         world = world,
         bestiaId = snap.bestiaId,
         pos = Vec3L(snap.x, snap.y, snap.z),
         entityId = snap.entityId,
         den = snap.den?.let(::DenMember),
+        persistent = !fromDen,
       )
       if (snap.currentHp != NO_HP) {
         world.modify(snap.entityId) { id ->
