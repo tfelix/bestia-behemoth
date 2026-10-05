@@ -11,6 +11,7 @@ class OutMessageProcessor(
   private val playerAOIService: ActivePlayerAOIService,
   private val outMessageHandler: OutMessageHandler,
   private val interestRange: InterestRange,
+  private val outbox: TickOutbox,
 ) {
 
   fun sendToAllPlayersInRange(pos: Vec3L, msgs: Collection<SMSG>) {
@@ -46,12 +47,17 @@ class OutMessageProcessor(
     return accountIds.size
   }
 
+  /** On the tick this joins the account's batch for the tick, see [TickOutbox]; elsewhere it goes out now. */
   fun sendToPlayer(playerId: Long, msg: SMSG) {
+    if (outbox.offer(playerId, listOf(msg))) return
+
     outMessageHandler.sendMessage(playerId, msg)
   }
 
   /** One flush for the batch rather than one per message; see [OutMessageHandler.sendMessages]. */
   fun sendToPlayer(playerId: Long, msgs: Collection<SMSG>) {
+    if (outbox.offer(playerId, msgs)) return
+
     outMessageHandler.sendMessages(playerId, msgs)
   }
 

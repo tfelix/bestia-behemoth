@@ -49,7 +49,6 @@ class SkillExecutionServiceTest {
   /** Runs submitted work inline, so a test asserts on the outcome instead of racing a worker pool. */
   private val asyncJobs: AsyncJobExecutor = mockk<AsyncJobExecutor>().also {
     every { it.submit(any(), any()) } answers { secondArg<() -> Unit>()() }
-    every { it.submit(any<() -> Unit>()) } answers { firstArg<() -> Unit>()() }
   }
 
   private val propPromotion = PropPromotionService(mockk(relaxed = true))

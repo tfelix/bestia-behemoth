@@ -90,9 +90,10 @@ Inbound flow:
 
 Outbound flow: an `SMSG` implementation (`message/SMSG.kt`) provides
 `toBnetEnvelope(): EnvelopeProto.Envelope`; `OutMessageProcessor` /
-`OutMessageHandler` route it to `ChannelRegistry.sendMessage()`
-(`socket/ChannelRegistry.kt`), which looks up the Netty `Channel` by `accountId` and
-calls `writeAndFlush`.
+`OutMessageHandler` route it to `ChannelRegistry` (`socket/ChannelRegistry.kt`), which looks up
+the Netty `Channel` by `accountId`. A send made on the tick thread is first collected in
+`message/TickOutbox.kt` and leaves as one batch (one flush) per account when the tick ends; a
+send from any other thread goes out at once. `AsyncJobExecutor` carries database work only.
 
 `ChannelRegistry` (accountId → Netty `Channel`) and
 `ConnectionInfoService` (`ecs/session/ConnectionInfoService.kt`, accountId → `Session`

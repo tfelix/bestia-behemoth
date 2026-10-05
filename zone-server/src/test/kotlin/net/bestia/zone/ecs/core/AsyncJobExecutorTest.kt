@@ -19,7 +19,7 @@ class AsyncJobExecutorTest {
     val jobThread = AtomicReference<Thread?>(null)
     val latch = CountDownLatch(1)
 
-    sut.submit { jobThread.set(Thread.currentThread()); latch.countDown() }
+    sut.submit(key = 1L) { jobThread.set(Thread.currentThread()); latch.countDown() }
 
     assertTrue(latch.await(2, TimeUnit.SECONDS))
     assertTrue(jobThread.get() !== callingThread)
@@ -112,6 +112,24 @@ class AsyncJobExecutorTest {
     }
 
     assertTrue(latch.await(2, TimeUnit.SECONDS), "a worker waiting on its own queue would never finish")
+    sut.shutdown()
+  }
+
+  @Test
+  fun `a job that does not fit the queue is dropped and counted, never run on the caller`() {
+    val sut = AsyncJobExecutor(workerCount = 1, queueCapacity = 1)
+    val release = CountDownLatch(1)
+    val ranOn = CopyOnWriteArrayList<Thread>()
+
+    sut.submit(key = 1L) { release.await() }
+    sut.submit(key = 1L) { ranOn.add(Thread.currentThread()) }
+    sut.submit(key = 1L) { ranOn.add(Thread.currentThread()) }
+
+    assertEquals(1L, sut.rejectedJobs)
+    assertEquals(1, sut.pendingJobs)
+    assertTrue(ranOn.none { it === Thread.currentThread() })
+
+    release.countDown()
     sut.shutdown()
   }
 }

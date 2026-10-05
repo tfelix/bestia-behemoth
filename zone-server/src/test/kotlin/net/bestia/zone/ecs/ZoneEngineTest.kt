@@ -5,7 +5,6 @@ import io.mockk.verify
 import net.bestia.zone.ecs.account.Account
 import net.bestia.zone.ecs.account.ActivePlayer
 import net.bestia.zone.ecs.battle.damage.Dead
-import net.bestia.zone.ecs.core.AsyncJobExecutor
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld
@@ -23,6 +22,7 @@ import net.bestia.zone.entity.VanishEntitySMSG
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.message.OutMessageProcessor
+import net.bestia.zone.message.TickOutbox
 import net.bestia.zone.message.SMSG
 import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.BeforeEach
@@ -47,7 +47,7 @@ class ZoneEngineTest {
   private val entityAOIService = EntityAOIService()
   private val playerAOIService = ActivePlayerAOIService()
   private val outMessageProcessor = mockk<OutMessageProcessor>(relaxed = true)
-  private val asyncJobExecutor = AsyncJobExecutor(workerCount = 1)
+  private val outbox = TickOutbox(mockk(relaxed = true))
 
   /** Records what it is told, so the position sweep's static/dynamic split can be asserted. */
   private val entityVisibility = RecordingEntityVisibility()
@@ -78,7 +78,7 @@ class ZoneEngineTest {
       entityAOIService = entityAOIService,
       playerAOIService = playerAOIService,
       outMessageProcessor = outMessageProcessor,
-      asyncJobExecutor = asyncJobExecutor,
+      outbox = outbox,
       entityVisibility = entityVisibility,
       snapshotBuilder = EntitySnapshotBuilder(),
     )
