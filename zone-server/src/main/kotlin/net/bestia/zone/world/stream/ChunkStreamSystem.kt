@@ -380,15 +380,15 @@ class ChunkStreamSystem(
 
     val added = if (reset) desired.toList() else desired.filterNot { it in held }
 
-    // Only withdraw what the view has genuinely left behind. A chunk absent from `desired` because the slab
-    // budget ran out this tick has not gone anywhere, and withdrawing it would make the client discard terrain
-    // it is standing next to only to be offered it again moments later. `reset` says everything, so it names
-    // nothing removed.
-    val viewColumns = viewColumnsAround(anchor)
+    // Only withdraw what the view has genuinely left behind, plus a margin. A chunk absent from `desired`
+    // because the slab budget ran out this tick has not gone anywhere, and withdrawing it would make the client
+    // discard terrain it is standing next to only to be offered it again moments later. `reset` says
+    // everything, so it names nothing removed.
+    val keptColumns = viewColumnsAround(anchor, settings.viewRadiusChunks + settings.releaseMarginChunks)
     val removed = if (reset) {
       emptyList()
     } else {
-      held.filterNot { it in desired || (it.x to it.y) in viewColumns }
+      held.filterNot { it in desired || (it.x to it.y) in keptColumns }
     }
 
     if (added.isEmpty() && removed.isEmpty() && !reset) return complete
@@ -508,14 +508,13 @@ class ChunkStreamSystem(
   }
 
   /**
-   * The normalised horizontal columns the view covers, ignoring vertical slabs.
+   * The normalised horizontal columns within [radius] chunks of [anchor], ignoring vertical slabs.
    *
    * Exists to tell "outside the view" apart from "inside the view but not costed yet", which the desired set
    * alone cannot say. Normalised, so a view straddling the world seam does not read its own far half as out of
    * range.
    */
-  private fun viewColumnsAround(anchor: ChunkPos): Set<Pair<Int, Int>> {
-    val radius = settings.viewRadiusChunks
+  private fun viewColumnsAround(anchor: ChunkPos, radius: Int): Set<Pair<Int, Int>> {
     val columns = HashSet<Pair<Int, Int>>((2 * radius + 1) * (2 * radius + 1))
 
     for (dy in -radius..radius) {

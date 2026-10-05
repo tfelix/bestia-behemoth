@@ -13,6 +13,9 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesScan
  *   352 m across and 176 m from centre to edge - sized against a draw distance of about 200 m. The cost is
  *   quadratic: seven would be 225 chunks rather than 121. A square rather than a disc on purpose; the frustum
  *   it is standing in for is rectangular.
+ * @property releaseMarginChunks how far past [viewRadiusChunks] a held chunk is kept before it is withdrawn.
+ *   One chunk of slack, so walking back and forth over a view edge does not withdraw and re-send a whole row
+ *   each time. Chunks are still only *added* within [viewRadiusChunks].
  * @property viewRadiusChunksVertical vertical radius in *slabs*. A view volume wants bounding in z for the
  *   same reason it wants bounding in x and y, and a slab is 256 m tall, so one is already a 768 m column -
  *   far more than an isometric camera can show. This is a ceiling on what the surface rule may offer, not a
@@ -36,6 +39,7 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesScan
 @ConfigurationPropertiesScan
 data class ChunkStreamConfig(
   val viewRadiusChunks: Int = 5,
+  val releaseMarginChunks: Int = 1,
   val viewRadiusChunksVertical: Int = 1,
   val chunksPerTickPerPlayer: Int = 4,
   val requestBurst: Int = 512,

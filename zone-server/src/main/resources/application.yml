@@ -93,6 +93,9 @@ chunk-stream:
   # Horizontal radius in chunks around the player's own. A chunk is 32 m across, so 5 gives an 11x11 square -
   # 352 m across, 176 m from centre to edge. Cost is quadratic: 7 would be 225 chunks rather than 121.
   view-radius-chunks: 5
+  # A held chunk is withdrawn only this many chunks past the view radius, so walking back and forth over the
+  # view edge does not withdraw and re-send a whole row each time.
+  release-margin-chunks: 1
   # Vertical radius in slabs. A slab is 256 m tall, so 1 is already a 768 m column - far more than the camera
   # shows. This caps what the surface rule may offer; it is not subscribed to as a box. Without it a login in
   # deep water offered every slab from the seabed up to the waterline, 726 chunks where 121 was the answer.
