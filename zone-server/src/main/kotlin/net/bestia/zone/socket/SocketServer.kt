@@ -3,16 +3,10 @@ package net.bestia.zone.socket
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.netty.bootstrap.ServerBootstrap
 import io.netty.channel.ChannelFuture
-import io.netty.channel.ChannelInitializer
 import io.netty.channel.EventLoopGroup
 import io.netty.channel.nio.NioEventLoopGroup
-import io.netty.channel.socket.SocketChannel
 import io.netty.channel.socket.nio.NioServerSocketChannel
-import io.netty.handler.codec.LengthFieldBasedFrameDecoder
-import io.netty.handler.codec.protobuf.ProtobufDecoder
-import io.netty.handler.codec.protobuf.ProtobufEncoder
 import jakarta.annotation.PreDestroy
-import net.bestia.bnet.proto.EnvelopeProto
 import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Service
 import java.net.InetSocketAddress
@@ -36,22 +30,7 @@ class SocketServer(
         val bootstrap = ServerBootstrap()
         bootstrap.group(bossGroup, workerGroup)
           .channel(NioServerSocketChannel::class.java)
-          .childHandler(object : ChannelInitializer<SocketChannel>() {
-            override fun initChannel(ch: SocketChannel) {
-              ch.pipeline().addLast(
-                // Decoder for handling length prefix
-                LengthFieldBasedFrameDecoder(MAX_FRAME_LENGTH, 0, 4, 0, 4),
-                // Decoder for protobuf messages
-                ProtobufDecoder(EnvelopeProto.Envelope.getDefaultInstance()),
-                // Encoder for protobuf messages
-                ProtobufEncoder(),
-                // Custom encoder for adding big-endian length prefix
-                BigEndianLengthFieldPrepender(),
-                // Create new handler instance for each connection
-                ClientMessageHandler(handlerContext)
-              )
-            }
-          })
+          .childHandler(ZoneChannelInitializer(handlerContext))
 
         val socketAddress = InetSocketAddress(config.ipAddress, config.port)
         channelFuture = bootstrap.bind(socketAddress).sync()
@@ -83,6 +62,5 @@ class SocketServer(
 
   companion object {
     private val LOG = KotlinLogging.logger { }
-    private const val MAX_FRAME_LENGTH = 1048576 // 1MB
   }
 }

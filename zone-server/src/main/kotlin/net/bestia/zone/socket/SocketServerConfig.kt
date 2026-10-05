@@ -13,4 +13,7 @@ class SocketServerConfig(
   /** Messages one connection may send in a burst before [messagesPerSecond] applies. */
   val messageBurst: Int = 200,
   val messagesPerSecond: Int = 50,
+  /** Largest frame an unauthenticated connection may send; the authentication message is well under 1 KiB. */
+  val maxFrameBytesBeforeAuth: Int = 8192,
+  val maxFrameBytes: Int = 65536,
 )
