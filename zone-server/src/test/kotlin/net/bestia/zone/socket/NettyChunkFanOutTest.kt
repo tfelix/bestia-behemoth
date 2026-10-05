@@ -1,6 +1,8 @@
 package net.bestia.zone.socket
 
 import io.netty.buffer.ByteBuf
+import io.netty.buffer.Unpooled
+import io.netty.channel.WriteBufferWaterMark
 import io.netty.channel.embedded.EmbeddedChannel
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder
 import io.netty.handler.codec.protobuf.ProtobufDecoder
@@ -14,6 +16,7 @@ import net.bestia.zone.world.stream.ChunkPatchCodec
 import net.bestia.zone.world.stream.ChunkPatchSMSG
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 /**
@@ -131,7 +134,7 @@ class NettyChunkFanOutTest {
   }
 
   @Test
-  fun `an unwritable or dead channel is skipped rather than queued`() {
+  fun `a dead channel is skipped`() {
     val live = bareChannel()
     val dead = bareChannel().also { it.close().sync() }
 
@@ -141,6 +144,30 @@ class NettyChunkFanOutTest {
     // record the client as holding the chunk - and a client recorded as holding terrain it never received
     // would go on receiving patches it cannot apply.
     assertEquals(1, fanOut.fanOut(listOf(1L, 2L), patch()))
+  }
+
+  @Test
+  fun `a busy channel still gets a patch, because nobody sends that patch again`() {
+    val fanOut = NettyChunkFanOut(registryWith(mapOf(1L to busyChannel())))
+
+    assertEquals(1, fanOut.fanOut(listOf(1L), patch()))
+  }
+
+  @Test
+  fun `a busy channel is skipped by a caller that retries`() {
+    val fanOut = NettyChunkFanOut(registryWith(mapOf(1L to busyChannel())))
+
+    assertFalse(fanOut.sendToIfWritable(1L, patch()))
+  }
+
+  /** Holds more unflushed bytes than its high water mark, so it reports itself unwritable. */
+  private fun busyChannel(): EmbeddedChannel {
+    val channel = bareChannel()
+    channel.config().writeBufferWaterMark = WriteBufferWaterMark(1, 2)
+    channel.write(Unpooled.wrappedBuffer(ByteArray(16)))
+    assertFalse(channel.isWritable)
+
+    return channel
   }
 
   /** An `EmbeddedChannel` with no handlers, for the cases that only care about what was written. */
