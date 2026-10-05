@@ -30,6 +30,8 @@ import net.bestia.zone.ecs.battle.status.StatusPoints
 import net.bestia.zone.ecs.account.MasterVisual
 import net.bestia.zone.ecs.battle.exp.Exp
 import net.bestia.zone.ecs.battle.level.LevelUpExperienceCalculator
+import net.bestia.zone.ecs.logout.LogoutIntent
+import net.bestia.zone.ecs.persistence.PersistAndRemove
 import net.bestia.zone.ecs.persistence.Persistent
 import net.bestia.zone.ecs.persistence.StatusEffectPersistenceService
 import net.bestia.zone.util.AccountId
@@ -64,8 +66,7 @@ class MasterEntitySpawner(
    * Creating a master is usually a two step process as we need to register him for the current
    * session before we start adding him to the zone server. Otherwise we would start sending out
    * updated and the master entity id is not yet registered to the session.
-   */
-  /**
+   *
    * Returns null when [accountId] does not own [masterId]: the id comes straight from the client.
    */
   @Transactional(readOnly = true)
@@ -77,18 +78,20 @@ class MasterEntitySpawner(
       return null
     }
 
-    LOG.info { "Create master entity for account ${master.account.id} with master id: $masterId" }
-
-    // The master reuses the entity id it was stamped with at creation, so anything stored against it
-    // (persisted status effects) finds it again. The flip side is that a leftover entity from a previous
-    // session now collides instead of being quietly orphaned by a freshly minted id, and
-    // `createEntity(id)` throws on a duplicate - so an incumbent is cleared out first. It is about to be
-    // replaced by state read straight from the database anyway.
-    if (world.hasEntity(master.entityId)) {
-      LOG.warn { "Master $masterId still holds entity ${master.entityId} from a previous session, replacing it" }
-
-      world.modify(master.entityId) { id -> destroy(id) }
+    // Still in the world after a logout or disconnect that has not finished: picked up as it is, because a
+    // reload from the database would roll it back to its last save and revive it if it died since.
+    val reattached = world.modify(master.entityId) { id ->
+      connectionInfoService.activateSession(accountId = accountId, masterId = masterId, masterEntityId = id)
+      remove(id, LogoutIntent::class)
+      remove(id, PersistAndRemove::class)
+      id
     }
+    if (reattached != null) {
+      LOG.info { "Re-attached account $accountId to master $masterId, still in the world as $reattached" }
+      return reattached
+    }
+
+    LOG.info { "Create master entity for account ${master.account.id} with master id: $masterId" }
 
     val learnedSkillIds = learnedSkillRepository.findAllByMasterId(masterId)
       .associate { it.skill.id to it.level }
