@@ -24,5 +24,8 @@ data class GameLoginConfig(
   /** Base URL the game is told to open. Must be one of `webauthn.origins`. */
   val publicBaseUrl: String,
 
-  val recoveryCodeCount: Int = 10
+  val recoveryCodeCount: Int = 10,
+
+  /** Off only for plain-http development, where a browser would refuse to store a Secure cookie. */
+  val bindingCookieSecure: Boolean = true
 )

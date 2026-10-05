@@ -67,7 +67,7 @@
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
-      credentials: 'omit'
+      credentials: 'same-origin'
     });
 
     const payload = await response.json().catch(function () {

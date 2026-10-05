@@ -1,5 +1,6 @@
 package net.bestia.login.webauthn
 
+import org.springframework.web.bind.annotation.CookieValue
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.PropertyNamingStrategies
@@ -23,9 +24,9 @@ import java.time.Duration
 /**
  * The browser half of the flow. Called by the login page's JavaScript, never by the game.
  *
- * There is no cookie anywhere in here. The login session identifier travels in the page URL and
- * back in the request body, so these endpoints carry no ambient authority for a cross-site request
- * to ride on, and CSRF has nothing to attack.
+ * Every call carries the login session id and the binding cookie the login page set. The id alone is not
+ * enough: whoever started the login knows it too. The cookie is SameSite=Strict, so a cross-site request
+ * cannot ride on it.
  */
 @RestController
 @RequestMapping("/api/v1/webauthn")
@@ -99,6 +100,7 @@ class WebAuthnController(
   @PostMapping("/assert/options")
   fun assertOptions(
     @RequestBody request: AssertOptionsRequest,
+    @CookieValue(name = LoginSessionService.BINDING_COOKIE, required = false) browserBinding: String?,
     servletRequest: HttpServletRequest
   ): ResponseEntity<*> {
     if (!allow(servletRequest, "assert-options")) {
@@ -106,7 +108,7 @@ class WebAuthnController(
     }
 
     return handle {
-      val session = loginSessionService.requireUsable(request.sessionId)
+      val session = loginSessionService.requireUsable(request.sessionId, browserBinding)
       val started = assertionService.start(session.idHash)
 
       OptionsResponse(
@@ -119,6 +121,7 @@ class WebAuthnController(
   @PostMapping("/assert/verify")
   fun assertVerify(
     @RequestBody request: VerifyRequest,
+    @CookieValue(name = LoginSessionService.BINDING_COOKIE, required = false) browserBinding: String?,
     servletRequest: HttpServletRequest
   ): ResponseEntity<*> {
     if (!allow(servletRequest, "assert-verify")) {
@@ -131,7 +134,7 @@ class WebAuthnController(
         objectMapper.writeValueAsString(request.credential)
       )
 
-      bindLoginSession(finished.loginSessionIdHash, finished.accountId)
+      bindLoginSession(finished.loginSessionIdHash, finished.accountId, browserBinding)
 
       VerifyResponse(authenticated = true)
     }
@@ -140,6 +143,7 @@ class WebAuthnController(
   @PostMapping("/register/options")
   fun registerOptions(
     @RequestBody request: RegisterOptionsRequest,
+    @CookieValue(name = LoginSessionService.BINDING_COOKIE, required = false) browserBinding: String?,
     servletRequest: HttpServletRequest
   ): ResponseEntity<*> {
     if (!allow(servletRequest, "register-options")) {
@@ -147,7 +151,7 @@ class WebAuthnController(
     }
 
     return handle {
-      val session = loginSessionService.requireUsable(request.sessionId)
+      val session = loginSessionService.requireUsable(request.sessionId, browserBinding)
       val started = registrationService.startAccountRegistration(request.displayName, session.idHash)
 
       OptionsResponse(
@@ -160,6 +164,7 @@ class WebAuthnController(
   @PostMapping("/register/verify")
   fun registerVerify(
     @RequestBody request: VerifyRequest,
+    @CookieValue(name = LoginSessionService.BINDING_COOKIE, required = false) browserBinding: String?,
     servletRequest: HttpServletRequest
   ): ResponseEntity<*> {
     if (!allow(servletRequest, "register-verify")) {
@@ -172,7 +177,7 @@ class WebAuthnController(
         objectMapper.writeValueAsString(request.credential)
       )
 
-      bindLoginSession(finished.loginSessionIdHash, finished.accountId)
+      bindLoginSession(finished.loginSessionIdHash, finished.accountId, browserBinding)
 
       VerifyResponse(authenticated = true, recoveryCodes = finished.recoveryCodes)
     }
@@ -182,13 +187,13 @@ class WebAuthnController(
    * Enrols an extra passkey or security key on the account that has just authenticated, before the
    * player returns to the game.
    *
-   * Authorized by the login session itself. It is in the AUTHENTICATED state, which only a
-   * completed ceremony can produce, and its identifier is a 256-bit secret held by this browser tab
-   * alone - which is why adding a credential needs neither a cookie nor a second login scheme.
+   * Authorized by the login session in the AUTHENTICATED state, which only a completed ceremony can
+   * produce, presented by the browser it is bound to.
    */
   @PostMapping("/credentials/options")
   fun addCredentialOptions(
     @RequestBody request: AddCredentialRequest,
+    @CookieValue(name = LoginSessionService.BINDING_COOKIE, required = false) browserBinding: String?,
     servletRequest: HttpServletRequest
   ): ResponseEntity<*> {
     if (!allow(servletRequest, "credential-options")) {
@@ -196,7 +201,7 @@ class WebAuthnController(
     }
 
     return handle {
-      val session = loginSessionService.requireAuthenticated(request.sessionId)
+      val session = loginSessionService.requireAuthenticated(request.sessionId, browserBinding)
 
       val started = registrationService.startCredentialRegistration(
         accountId = requireAccount(session.accountId),
@@ -239,6 +244,7 @@ class WebAuthnController(
   @PostMapping("/recover/options")
   fun recoverOptions(
     @RequestBody request: RecoverOptionsRequest,
+    @CookieValue(name = LoginSessionService.BINDING_COOKIE, required = false) browserBinding: String?,
     servletRequest: HttpServletRequest
   ): ResponseEntity<*> {
     if (!allow(servletRequest, "recover", RECOVERY_ATTEMPTS_PER_WINDOW, RECOVERY_WINDOW)) {
@@ -246,7 +252,7 @@ class WebAuthnController(
     }
 
     return handle {
-      val session = loginSessionService.requireUsable(request.sessionId)
+      val session = loginSessionService.requireUsable(request.sessionId, browserBinding)
 
       val started = recoveryService.startRecovery(
         displayName = request.displayName,
@@ -268,13 +274,15 @@ class WebAuthnController(
    * credential. If the browser could name the session, an assertion obtained during one login
    * attempt could be attached to a different one.
    */
-  private fun bindLoginSession(loginSessionIdHash: String?, accountId: Long) {
+  private fun bindLoginSession(loginSessionIdHash: String?, accountId: Long, browserBinding: String?) {
     if (loginSessionIdHash == null) {
       return
     }
 
     val session = loginSessionService.findByHash(loginSessionIdHash)
       ?: throw WebAuthnException("Ceremony refers to a login session that no longer exists")
+
+    loginSessionService.requireBoundTo(session, browserBinding)
 
     val account = accounts.findById(accountId).orElseThrow {
       WebAuthnException("Authenticated account no longer exists")

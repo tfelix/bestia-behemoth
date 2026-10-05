@@ -16,9 +16,11 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.util.UriComponentsBuilder
+import java.net.URI
 import java.nio.charset.StandardCharsets
 import java.util.Base64
 
@@ -63,13 +65,14 @@ abstract class BasePasskeyScenario : BaseLoginScenario() {
 
     val options = post(
       "/api/v1/webauthn/register/options",
-      mapOf("session_id" to session.sessionId, "display_name" to displayName)
+      mapOf("session_id" to session.sessionId, "display_name" to displayName),
+      session.cookie
     )
 
     val publicKey = options.get("public_key")
     val userHandle = decodeB64u(publicKey.get("user").get("id").asText())
 
-    val verified = createCredential(authenticator, options, "/api/v1/webauthn/register/verify")
+    val verified = createCredential(authenticator, options, "/api/v1/webauthn/register/verify", session.cookie)
 
     return Completed(
       code = completeAndTakeCode(session),
@@ -92,11 +95,12 @@ abstract class BasePasskeyScenario : BaseLoginScenario() {
         "session_id" to session.sessionId,
         "display_name" to displayName,
         "recovery_code" to recoveryCode
-      )
+      ),
+      session.cookie
     )
 
     val userHandle = decodeB64u(options.get("public_key").get("user").get("id").asText())
-    val verified = createCredential(authenticator, options, "/api/v1/webauthn/register/verify")
+    val verified = createCredential(authenticator, options, "/api/v1/webauthn/register/verify", session.cookie)
 
     return Completed(
       code = completeAndTakeCode(session),
@@ -123,7 +127,7 @@ abstract class BasePasskeyScenario : BaseLoginScenario() {
     authenticator: VirtualAuthenticator,
     userHandle: ByteArray
   ) {
-    val options = post("/api/v1/webauthn/assert/options", mapOf("session_id" to session.sessionId))
+    val options = post("/api/v1/webauthn/assert/options", mapOf("session_id" to session.sessionId), session.cookie)
     val publicKey = options.get("public_key")
 
     // Usernameless: nothing identifying the account was sent, so the credential has to be
@@ -139,20 +143,22 @@ abstract class BasePasskeyScenario : BaseLoginScenario() {
 
     post(
       "/api/v1/webauthn/assert/verify",
-      mapOf("ceremony_id" to options.get("ceremony_id").asText(), "credential" to mapper.readTree(credential))
+      mapOf("ceremony_id" to options.get("ceremony_id").asText(), "credential" to mapper.readTree(credential)),
+      session.cookie
     )
   }
 
   protected fun addCredential(session: StartedSession, authenticator: VirtualAuthenticator) {
-    val options = post("/api/v1/webauthn/credentials/options", mapOf("session_id" to session.sessionId))
+    val options = post("/api/v1/webauthn/credentials/options", mapOf("session_id" to session.sessionId), session.cookie)
 
-    createCredential(authenticator, options, "/api/v1/webauthn/credentials/verify")
+    createCredential(authenticator, options, "/api/v1/webauthn/credentials/verify", session.cookie)
   }
 
   protected fun createCredential(
     authenticator: VirtualAuthenticator,
     options: JsonNode,
-    verifyPath: String
+    verifyPath: String,
+    cookie: String?
   ): JsonNode {
     val credential = authenticator.create(
       webAuthnConfig.rpId,
@@ -162,7 +168,8 @@ abstract class BasePasskeyScenario : BaseLoginScenario() {
 
     return post(
       verifyPath,
-      mapOf("ceremony_id" to options.get("ceremony_id").asText(), "credential" to mapper.readTree(credential))
+      mapOf("ceremony_id" to options.get("ceremony_id").asText(), "credential" to mapper.readTree(credential)),
+      cookie
     )
   }
 
@@ -175,13 +182,33 @@ abstract class BasePasskeyScenario : BaseLoginScenario() {
       startBody("http://127.0.0.1:$LOOPBACK_PORT/callback", state, verifier)
     )
 
-    assertTrue(response.get("login_url").asText().contains("/game-login"))
+    val loginUrl = response.get("login_url").asText()
+    assertTrue(loginUrl.contains("/game-login"))
+
+    // The game opens the link in the browser; that first page load is what the browser half is bound to.
+    val loginPath = UriComponentsBuilder.fromUriString(loginUrl).build().let { "${it.path}?${it.query}" }
 
     return StartedSession(
       sessionId = response.get("session_id").asText(),
       verifier = verifier,
-      state = state
+      state = state,
+      loginPath = loginPath,
+      cookie = bindingCookieOf(openLoginPage(loginPath))
     )
+  }
+
+  protected fun openLoginPage(loginPath: String, cookie: String? = null): ResponseEntity<String> {
+    val headers = HttpHeaders()
+    cookie?.let { headers.add(HttpHeaders.COOKIE, it) }
+
+    return restTemplate.exchange(URI.create(loginPath), HttpMethod.GET, HttpEntity<Void>(headers), String::class.java)
+  }
+
+  /** The cookie the login page set, as a `name=value` pair ready to send back. */
+  protected fun bindingCookieOf(page: ResponseEntity<String>): String? {
+    return page.headers[HttpHeaders.SET_COOKIE]
+      ?.firstOrNull { it.startsWith("$BINDING_COOKIE=") }
+      ?.substringBefore(';')
   }
 
   protected fun startBody(
@@ -203,7 +230,7 @@ abstract class BasePasskeyScenario : BaseLoginScenario() {
    * not spent while the player reads their recovery codes.
    */
   protected fun completeAndTakeCode(session: StartedSession): String {
-    val completed = post("/api/v1/auth/session/complete", mapOf("session_id" to session.sessionId))
+    val completed = post("/api/v1/auth/session/complete", mapOf("session_id" to session.sessionId), session.cookie)
     val query = UriComponentsBuilder.fromUriString(completed.get("redirect_to").asText()).build().queryParams
 
     assertEquals(session.state, query.getFirst("state"))
@@ -271,16 +298,17 @@ abstract class BasePasskeyScenario : BaseLoginScenario() {
 
   // --- transport ----------------------------------------------------------------------------
 
-  protected fun post(path: String, body: Any): JsonNode {
-    val response = rawPost(path, body)
+  protected fun post(path: String, body: Any, cookie: String? = null): JsonNode {
+    val response = rawPost(path, body, cookie)
 
     assertEquals(200, response.statusCode.value(), "POST $path returned ${response.body}")
 
     return mapper.readTree(response.body)
   }
 
-  protected fun rawPost(path: String, body: Any): ResponseEntity<String> {
+  protected fun rawPost(path: String, body: Any, cookie: String? = null): ResponseEntity<String> {
     val headers = HttpHeaders().apply { contentType = MediaType.APPLICATION_JSON }
+    cookie?.let { headers.add(HttpHeaders.COOKIE, it) }
 
     return restTemplate.postForEntity(path, HttpEntity(body, headers), String::class.java)
   }
@@ -300,7 +328,10 @@ abstract class BasePasskeyScenario : BaseLoginScenario() {
   protected data class StartedSession(
     val sessionId: String,
     val verifier: String,
-    val state: String
+    val state: String,
+    val loginPath: String,
+    /** Null until the server binds the browser half; every browser-side call sends it back. */
+    val cookie: String?
   )
 
   protected data class Completed(
@@ -320,5 +351,6 @@ abstract class BasePasskeyScenario : BaseLoginScenario() {
     /** Never bound in the test: the server only records the redirect target, it never calls it. */
     const val LOOPBACK_PORT = 49721
     const val RECOVERY_CODE_COUNT = 10
+    const val BINDING_COOKIE = "bestia_login_binding"
   }
 }

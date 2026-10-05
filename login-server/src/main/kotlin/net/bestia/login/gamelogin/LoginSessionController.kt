@@ -1,5 +1,6 @@
 package net.bestia.login.gamelogin
 
+import org.springframework.web.bind.annotation.CookieValue
 import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import com.fasterxml.jackson.databind.annotation.JsonNaming
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -52,6 +53,7 @@ class LoginSessionController(
   @PostMapping("/complete")
   fun complete(
     @RequestBody request: CompleteRequest,
+    @CookieValue(name = LoginSessionService.BINDING_COOKIE, required = false) browserBinding: String?,
     servletRequest: HttpServletRequest
   ): ResponseEntity<*> {
     if (!rateLimiter.tryAcquire("session-complete:${servletRequest.remoteAddr}", REQUESTS_PER_WINDOW, WINDOW)) {
@@ -59,7 +61,7 @@ class LoginSessionController(
     }
 
     return try {
-      val session = loginSessionService.requireAuthenticated(request.sessionId)
+      val session = loginSessionService.requireAuthenticated(request.sessionId, browserBinding)
       val accountId = session.accountId!!
 
       val account = accounts.findById(accountId).orElseThrow {

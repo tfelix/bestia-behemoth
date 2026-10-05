@@ -3,3 +3,7 @@
 # trusted with everything and no separate admin account is needed.
 account:
   sign-up-role: SUPER_GM
+
+game-login:
+  # A dev host serves the login page over plain http, where a browser refuses to store a Secure cookie.
+  binding-cookie-secure: false
