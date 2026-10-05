@@ -57,6 +57,11 @@ tasks.named('test') {
     useJUnitPlatform()
 }
 
+// Local play runs with the dev profile; a packaged jar does not, so it never inherits dev-only settings.
+tasks.named('bootRun') {
+    environment 'SPRING_PROFILES_ACTIVE', System.getenv('SPRING_PROFILES_ACTIVE') ?: 'dev'
+}
+
 /**
  * Enable resource filtering to fill in the version number
  */

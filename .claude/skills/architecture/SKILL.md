@@ -278,7 +278,8 @@ sockets) — authentication only, it never touches the game world. Key packages 
 
 `account.sign-up-role` (`AccountConfig`) is the role every passkey registration is
 created with — `USER` in `application.yml`, raised to `SUPER_GM` by
-`application-dev.yml`, which is how a dev host gets a GM account.
+`application-dev.yml`, which is how a dev host gets a GM account. `LoginDeploymentGuard` refuses that, the dev
+secret and relaxed WebAuthn origins outside the `dev` and `test` profiles.
 
 Storage is MariaDB (`login-server/compose.yaml`, port 3307) with Flyway owning the
 schema (`src/main/resources/db/migration/`) and `ddl-auto: validate` checking it. This
@@ -291,8 +292,11 @@ socket's `Authentication` message payload; zone-server independently re-validate
 in `LoginTokenValidator.validateLoginToken`
 (`zone-server/src/main/kotlin/net/bestia/zone/jwt/LoginTokenValidator.kt`), checking
 issuer/audience against a **shared secret string** configured separately in each
-server's `application.yml` (`jwt.secret` in login-server, `zone.jwt-auth-secret-key`
-in zone-server — currently both the placeholder `"your-secret-key-here-change-in-production"`).
+server (`jwt.secret` in login-server, `zone.jwt-auth-secret-key` in zone-server). The shipped
+`application.yml`s carry no value, so a deployment without one does not boot; the public placeholder
+`"your-secret-key-here-change-in-production"` lives in each server's `application-dev.yml`, which `bootRun`
+activates, and a startup guard refuses it under any other profile. The shared HMAC secret is meant to move to an
+asymmetric key pair before production.
 There is no DB call between the two servers; trust is entirely in the JWT signature.
 
 Passkeys / WebAuthn are the only login method, and they never touch the game client. The client calls

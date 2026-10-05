@@ -2,12 +2,8 @@ server:
   port: 8080
 
 spring:
-  # `dev` raises `account.sign-up-role` (see application-dev.yml). Any real deployment must run
-  # with SPRING_PROFILES_ACTIVE set to something else, or it hands SUPER_GM to everyone who
-  # registers.
-  profiles:
-    active: dev
-
+  # No profile here: `./gradlew :login-server:bootRun` activates `dev`, a packaged jar runs without it.
+  # LoginDeploymentGuard refuses to boot with any of the dev-only settings outside that profile.
   datasource:
     # Matches login-server/compose.yaml. `./gradlew :login-server:bootRun` starts that container via
     # spring-boot-docker-compose and rewires the datasource to it, so these values only apply when
@@ -30,9 +26,9 @@ spring:
     locations: classpath:db/migration
 
 jwt:
-  # Overridable without a placeholder: relaxed binding maps the JWT_SECRET env var onto this key.
-  # Must be kept identical to zone-server's `zone.jwt-auth-secret-key`.
-  secret: "your-secret-key-here-change-in-production"
+  # secret: no value on purpose, so a deployment that forgets it does not boot. Supplied through JWT_SECRET and
+  # identical to zone-server's `zone.jwt-auth-secret-key`; the dev profile carries a public one. A shared HMAC
+  # secret for now: it moves to an asymmetric key pair (login signs, zones only verify) before production.
   # Validity (minutes) of the short-lived zone login token. This is a handoff ticket, not a session:
   # the socket judges it once at the handshake and the map endpoint uses its own ticket
   # (zone-server HttpTicketService), so it only has to survive the walk from login to connect.
@@ -45,17 +41,12 @@ account:
   sign-up-role: USER
 
 webauthn:
-  # The RP ID is burned into every credential ever created and cannot be changed without
+  # rp-id (WEBAUTHN_RP_ID): burned into every credential ever created and cannot be changed without
   # re-enrolling all of them. In production use the registrable domain (bestia.game), never the
   # host the page happens to be served from, so the auth site can move between subdomains later.
-  rp-id: "localhost"
   rp-name: "Bestia"
-  # Origins the browser is allowed to run the ceremony from. Production: https://auth.bestia.game
-  origins:
-    - "http://localhost:8080"
-  # Relaxes origin matching to ignore the port. Only correct for development, where the page is on
-  # http://localhost:8080 rather than the implicit https://<rp-id>:443.
-  allow-origin-port: true
+  # origins (WEBAUTHN_ORIGINS_0, ...): where the browser may run the ceremony. Production: https://auth.bestia.game
+  # The dev profile points both at localhost and relaxes origin port matching.
   # How long a started registration/assertion ceremony may sit unfinished.
   ceremony-ttl-seconds: 300
 
@@ -68,7 +59,6 @@ game-login:
   # rotation, so it expires a client that has not started the game in this long rather than capping
   # how long a session may live.
   refresh-token-days: 30
-  # Base URL the game is told to open. Must be an origin listed under `webauthn.origins`.
-  public-base-url: "http://localhost:8080"
+  # public-base-url (GAME_LOGIN_PUBLIC_BASE_URL): what the game is told to open. Must be one of `webauthn.origins`.
   # Recovery codes handed out once when an account is created.
   recovery-code-count: 10
