@@ -1,8 +1,12 @@
 package net.bestia.login.scenario
 
+import net.bestia.internal.ServiceTokens
 import net.bestia.login.webauthn.VirtualAuthenticator
+import net.bestia.login.zone.ZoneStub
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
 
 /**
@@ -10,6 +14,24 @@ import org.springframework.http.ResponseEntity
  * login at that moment, and that login must not finish either.
  */
 class AccountTerminationScenario : BasePasskeyScenario() {
+
+  @Autowired
+  private lateinit var zone: ZoneStub
+
+  /** A thief already in the game keeps playing until the zone ends the connection. */
+  @Test
+  fun `the zones are told to kick the account when its owner recovers`() {
+    val displayName = uniqueDisplayName()
+    val owner = register(VirtualAuthenticator(), displayName)
+    val accountId = accountIdOf(exchange(owner.code, owner.verifier))
+
+    recover(VirtualAuthenticator(), displayName, owner.recoveryCodes.first())
+
+    assertTrue(
+      zone.calls.any { it.path == ServiceTokens.kickPath(accountId) && it.body.contains("RECOVERED") },
+      "zone calls: ${zone.calls}"
+    )
+  }
 
   @Test
   fun `a thief's signed-in page cannot finish once the owner recovers`() {

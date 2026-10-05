@@ -34,6 +34,14 @@ jwt:
   # (zone-server HttpTicketService), so it only has to survive the walk from login to connect.
   login-token-minutes: 2
 
+zone-directory:
+  # The zones a ban or a recovery kicks the account from: every one of them, because the login server cannot see
+  # which one the player is on. Each entry is a zone's HTTP port (`server.port` there), not its game socket:
+  #   - name: zone-1
+  #     base-url: http://zone-1.internal:8091
+  zones: []
+  request-timeout-millis: 3000
+
 account:
   # Role every newly registered account is created with. Registration is unauthenticated, so
   # anything above USER hands elevated permissions to whoever signs up next - application-dev.yml
