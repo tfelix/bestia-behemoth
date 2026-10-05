@@ -16,4 +16,6 @@ class SocketServerConfig(
   /** Largest frame an unauthenticated connection may send; the authentication message is well under 1 KiB. */
   val maxFrameBytesBeforeAuth: Int = 8192,
   val maxFrameBytes: Int = 65536,
+  /** Concurrent connections from one IP address. Players behind one NAT share it, so not too tight. */
+  val maxConnectionsPerAddress: Int = 10,
 )

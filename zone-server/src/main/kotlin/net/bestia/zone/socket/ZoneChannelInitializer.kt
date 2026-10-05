@@ -12,9 +12,11 @@ class ZoneChannelInitializer(
 ) : ChannelInitializer<Channel>() {
 
   private val config = handlerContext.socketConfig
+  private val connectionLimit = ConnectionLimitHandler(config.maxConnectionsPerAddress)
 
   override fun initChannel(ch: Channel) {
     ch.pipeline().addLast(
+      connectionLimit,
       EnvelopeFrameDecoder(config.maxFrameBytesBeforeAuth, config.maxFrameBytes),
       // Decoder for protobuf messages
       ProtobufDecoder(EnvelopeProto.Envelope.getDefaultInstance()),

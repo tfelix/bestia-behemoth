@@ -412,6 +412,8 @@ socket:
   # Frames are buffered whole before decoding. Before authentication only the login message is expected.
   max-frame-bytes-before-auth: 8192
   max-frame-bytes: 65536
+  # Concurrent connections from one IP address. Players behind one NAT share an address.
+  max-connections-per-address: 10
   filter-log-messages:
     - "!comp_path"
     - "!comp_position"
