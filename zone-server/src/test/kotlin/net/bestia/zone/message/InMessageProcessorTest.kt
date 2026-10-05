@@ -1,6 +1,11 @@
 package net.bestia.zone.message
 
+import io.mockk.mockk
+import io.mockk.verify
+import kotlin.test.assertTrue
 import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
+import net.bestia.bnet.proto.OperationErrorProto.OpError
+import net.bestia.zone.BestiaException
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.util.AccountId
@@ -51,11 +56,21 @@ class InMessageProcessorTest {
   }
 
   private val world = testWorld()
+  private val messages = mockk<OutMessageProcessor>(relaxed = true)
+
+  /** Refuses every request the way a domain service does: with a [BestiaException]. */
+  private class RefusingHandler : IoMessageHandler<Poke> {
+    override val wire = decoder(MessageCase.PING) { accountId, _ -> Poke(accountId) }
+
+    override fun handle(msg: Poke): Boolean {
+      throw BestiaException(code = "NOT_ALLOWED", message = "not allowed")
+    }
+  }
 
   @Test
   fun `a message type may have only one handler`() {
     assertThrows<IllegalArgumentException> {
-      InMessageProcessor(listOf(TickPokeHandler(), IoPokeHandler()), RecordingInbox(world))
+      InMessageProcessor(listOf(TickPokeHandler(), IoPokeHandler()), RecordingInbox(world), messages)
     }
   }
 
@@ -64,7 +79,7 @@ class InMessageProcessorTest {
     val handler = TickPokeHandler()
     val inbox = RecordingInbox(world)
 
-    InMessageProcessor(listOf(handler), inbox).submit(Poke(playerId = 7L))
+    InMessageProcessor(listOf(handler), inbox, messages).submit(Poke(playerId = 7L))
 
     assertEquals(7L to "tick", inbox.submitted)
     assertEquals(world, handler.handledWith)
@@ -75,9 +90,17 @@ class InMessageProcessorTest {
     val handler = IoPokeHandler()
     val inbox = RecordingInbox(world)
 
-    InMessageProcessor(listOf(handler), inbox).submit(Poke(playerId = 7L))
+    InMessageProcessor(listOf(handler), inbox, messages).submit(Poke(playerId = 7L))
 
     assertEquals(7L to "io", inbox.submitted)
     assertEquals(1, handler.handled)
+  }
+
+  @Test
+  fun `a refused request is answered with REQUEST_REFUSED and does not fail`() {
+    val done = InMessageProcessor(listOf(RefusingHandler()), RecordingInbox(world), messages).submit(Poke(playerId = 7L))
+
+    assertTrue(done.isDone && !done.isCompletedExceptionally)
+    verify { messages.sendToPlayer(7L, OperationErrorSMSG(OpError.REQUEST_REFUSED)) }
   }
 }

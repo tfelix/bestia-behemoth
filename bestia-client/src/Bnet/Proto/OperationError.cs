@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSq4CwoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSrNCwoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -58,9 +58,9 @@ namespace Bnet {
             "X09GX0dPTEQQMRIVChFFUVVJUF9OT1ZJQ0VfT05MWRAyEiEKHUVRVUlQX0FS",
             "TU9SX1RZUEVfTk9UX1dFQVJBQkxFEDMSFAoQVFJBREVfT0ZGRVJfRlVMTBA0",
             "EhUKEVRSQVBfT1VUX09GX1JBTkdFEDUSEAoMVFJBUF9OT19ST09NEDYSFgoS",
-            "VFJBUF9MSU1JVF9SRUFDSEVEEDcSFQoRQkVTVElBX1NMT1RTX0ZVTEwQOEIs",
-            "ChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CE09wZXJhdGlvbkVycm9yUHJvdG9i",
-            "BnByb3RvMw=="));
+            "VFJBUF9MSU1JVF9SRUFDSEVEEDcSFQoRQkVTVElBX1NMT1RTX0ZVTEwQOBIT",
+            "Cg9SRVFVRVNUX1JFRlVTRUQQOUIsChVuZXQuYmVzdGlhLmJuZXQucHJvdG9C",
+            "E09wZXJhdGlvbkVycm9yUHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -298,6 +298,11 @@ namespace Bnet {
     /// A trap caught a bestia and the master had no free bestia slot to keep it in, so it went free again.
     /// </summary>
     [pbr::OriginalName("BESTIA_SLOTS_FULL")] BestiaSlotsFull = 56,
+    /// <summary>
+    /// The server refused a request in a way no honest client can provoke (its UI does not offer it), so there
+    /// is nothing for the player to read; it only tells the client the request is over.
+    /// </summary>
+    [pbr::OriginalName("REQUEST_REFUSED")] RequestRefused = 57,
   }
 
   #endregion

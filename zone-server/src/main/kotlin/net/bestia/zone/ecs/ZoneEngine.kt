@@ -32,17 +32,11 @@ import java.util.concurrent.TimeUnit
 import kotlin.collections.iterator
 
 /**
- * Owns the running ecs [World]: it drives the single-threaded tick loop and, after every tick,
- * flushes ECS state changes to the outside world. This replaces the old `ZoneServer` tick loop plus
- * `DirtyComponentUpdateSystem`:
- *
- *  - **component sync**: for each dirty syncable component (each component tracks its own dirty
- *    state via [Dirtyable]) it builds the matching
- *    [net.bestia.zone.message.EntitySMSG] and routes it to whatever [SyncTargets] the
- *    component resolves (all players in range, or a specific set of accounts), and it keeps the
- *    area-of-interest services up to date from changed positions.
- *  - **domain events**: it drains the world outbox ([ZoneEvent]s emitted by systems, e.g. death)
- *    and performs their side effects (loot spawn, vanish broadcast).
+ * Owns the running ecs [World]: it drives the single-threaded tick loop and, after every tick, syncs
+ * component changes to clients. For each dirty syncable component (see [Dirtyable]) it builds the matching
+ * [net.bestia.zone.message.EntitySMSG] and routes it to whatever [SyncTargets] the component resolves, keeps
+ * the area-of-interest services up to date from changed positions, and broadcasts a vanish for each
+ * destroyed entity.
  *
  * Everything a tick sends is collected in the [TickOutbox] and leaves as one batch per account when the
  * tick ends; `channel.write` does not block, so the tick never waits on the network.

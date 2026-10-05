@@ -13,7 +13,7 @@ import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
 
 /**
- * Loads the in-memory catalogues the tick reads, after the importers wrote them (`@Order(100..104)`)
+ * Loads the in-memory catalogues the tick reads, after the importers wrote them (`@Order(100..105)`)
  * and before the tick starts, so their first lookup never reaches the database on the tick.
  */
 @Component

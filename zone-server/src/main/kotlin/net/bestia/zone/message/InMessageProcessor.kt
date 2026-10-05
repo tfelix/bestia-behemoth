@@ -1,16 +1,24 @@
 package net.bestia.zone.message
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.bnet.proto.OperationErrorProto.OpError
+import net.bestia.zone.BestiaException
 import org.springframework.stereotype.Component
 import java.util.UUID
 import java.util.concurrent.CompletableFuture
 import kotlin.reflect.KClass
 
-/** Hands each client message to its handler, behind the sender's earlier messages and on the handler's thread. */
+/**
+ * Hands each client message to its handler, behind the sender's earlier messages and on the handler's thread.
+ *
+ * A [BestiaException] out of a handler is a refusal: the client is told the request is over and keeps its
+ * connection. Any other exception is a bug and ends the connection.
+ */
 @Component
 class InMessageProcessor(
   handlers: List<IncomingMessageHandler<*>>,
   private val inbox: AccountTaskExecutor,
+  private val outMessageProcessor: OutMessageProcessor,
 ) {
 
   private val handlerByMessage: Map<KClass<*>, IncomingMessageHandler<*>> = handlers.associateBy { it.handles }
@@ -39,11 +47,13 @@ class InMessageProcessor(
   private fun process(handler: IncomingMessageHandler<*>, msg: CMSG, handle: () -> Boolean) {
     val handled = try {
       handle()
+    } catch (e: BestiaException) {
+      LOG.warn { "Refused ${msg::class.simpleName} from account ${msg.playerId}: ${e.message}" }
+      outMessageProcessor.sendToPlayer(msg.playerId, OperationErrorSMSG(OpError.REQUEST_REFUSED))
+      return
     } catch (e: Exception) {
-      // A handler exception is a bug, not a "this client request was invalid" outcome - it
-      // leaves the client waiting for a response that will never come. Fail the connection
-      // instead of swallowing it: errorCode ties this log entry to whatever generic error the
-      // client ends up displaying.
+      // A bug: fail the connection rather than leave the client waiting for an answer. errorCode ties this
+      // log entry to the generic error the client ends up displaying.
       val errorCode = UUID.randomUUID().toString()
       LOG.error(e) {
         "Error during message handling [errorCode=$errorCode] handler=${handler::class.simpleName} " +
