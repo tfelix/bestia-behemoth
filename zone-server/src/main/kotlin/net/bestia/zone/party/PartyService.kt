@@ -18,6 +18,7 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicLong
 
 @Service
 class PartyService(
@@ -31,7 +32,6 @@ class PartyService(
   companion object {
     const val MAX_PARTY_SIZE = 12
     const val INVITATION_TIMEOUT_SECONDS = 60L
-    const val MAX_INVITATIONS_IN_FLIGHT = 100
     private val LOG = KotlinLogging.logger { }
   }
 
@@ -50,7 +50,7 @@ class PartyService(
 
   private val pendingInvitations = ConcurrentHashMap<Long, OpenPartyInvitation>()
   private val scheduler: ScheduledExecutorService = Executors.newScheduledThreadPool(1)
-  private var nextInvitationId = 1L
+  private val nextInvitationId = AtomicLong(1)
 
   @Transactional
   fun createParty(ownerId: Long, partyName: String): Party {
@@ -107,10 +107,6 @@ class PartyService(
 
   @Transactional(readOnly = true)
   fun invitePlayerToParty(inviterAccountId: Long, invitedAccountId: Long): PartyInvitationSMSG {
-    if (pendingInvitations.size > MAX_INVITATIONS_IN_FLIGHT) {
-      throw TooManyPartyInvitationsInFlightException()
-    }
-
     val inviter = masterResolver.getSelectedMasterByAccountId(inviterAccountId)
 
     val party = partyRepository.findByOwner(inviter)
@@ -120,10 +116,6 @@ class PartyService(
       throw NotPartyOwnerException()
     }
 
-    if (party.size >= MAX_PARTY_SIZE) {
-      throw PartyFullException()
-    }
-
     val invited = masterResolver.getSelectedMasterByAccountId(invitedAccountId)
 
     val existingParty = partyRepository.findByMember(invited)
@@ -131,7 +123,26 @@ class PartyService(
       throw AlreadyInPartyException()
     }
 
-    val invitationId = nextInvitationId++
+    return synchronized(pendingInvitations) {
+      openInvitationTo(party.id, invited.account.id)?.invitation
+        ?: openInvitation(party, inviter, invited)
+    }
+  }
+
+  private fun openInvitationTo(partyId: Long, invitedAccountId: Long): OpenPartyInvitation? {
+    return pendingInvitations.values.firstOrNull {
+      it.invitation.partyId == partyId && it.invitedAccountId == invitedAccountId
+    }
+  }
+
+  /** Open invitations take a seat each, so no party can crowd the server with more than it could seat. */
+  private fun openInvitation(party: Party, inviter: Master, invited: Master): PartyInvitationSMSG {
+    val openInvitations = pendingInvitations.values.count { it.invitation.partyId == party.id }
+    if (party.size + openInvitations >= MAX_PARTY_SIZE) {
+      throw PartyFullException()
+    }
+
+    val invitationId = nextInvitationId.getAndIncrement()
 
     val invitation = PartyInvitationSMSG(
       invitedByMaster = inviter.name,

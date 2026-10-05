@@ -36,11 +36,6 @@ class PartyInviteForbiddenException(
   message = "Player $playerId is not allowed to access party invitation $invitationId"
 )
 
-class TooManyPartyInvitationsInFlightException : PartyException(
-  code = "TOO_MANY_PARTY_INVITES",
-  message = "The server limit of in-flight invites was reached"
-)
-
 class PartyNotFoundException(partyId: Long) : PartyException(
   code = "PARTY_NOT_FOUND",
   message = "Party $partyId was not found"
