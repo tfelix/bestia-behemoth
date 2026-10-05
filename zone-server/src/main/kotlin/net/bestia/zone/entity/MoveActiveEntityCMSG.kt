@@ -6,7 +6,9 @@ import net.bestia.zone.message.CMSG
 
 data class MoveActiveEntityCMSG(
   override val playerId: Long,
-  val path: List<Vec3L>
+  val path: List<Vec3L>,
+  /** Adds [path] to the walk under way instead of replacing it. */
+  val append: Boolean = false,
 ) : CMSG {
   companion object {
     fun fromBnet(
@@ -15,7 +17,8 @@ data class MoveActiveEntityCMSG(
     ): MoveActiveEntityCMSG {
       return MoveActiveEntityCMSG(
         accountId,
-        moveActiveEntity.pathList.map { Vec3L(it.x, it.y, it.z) }
+        moveActiveEntity.pathList.map { Vec3L(it.x, it.y, it.z) },
+        moveActiveEntity.append
       )
     }
   }

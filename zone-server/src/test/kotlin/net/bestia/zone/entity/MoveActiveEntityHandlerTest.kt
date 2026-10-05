@@ -94,6 +94,51 @@ class MoveActiveEntityHandlerTest {
   }
 
   @Test
+  fun `an appended leg extends the walk under way from its last step`() {
+    val world = testWorld()
+    val id = world.create()
+    world.add(id, Position(0, 0, 0))
+    val handler = handlerFor(world, id, OpenWalkQuery())
+    handler.handle(MoveActiveEntityCMSG(playerId = accountId, path = listOf(Vec3L(1, 0, 0), Vec3L(2, 0, 0))))
+
+    handler.handle(
+      MoveActiveEntityCMSG(playerId = accountId, path = listOf(Vec3L(3, 0, 0), Vec3L(4, 0, 0)), append = true)
+    )
+
+    assertEquals(
+      listOf(Vec3L(1, 0, 0), Vec3L(2, 0, 0), Vec3L(3, 0, 0), Vec3L(4, 0, 0)),
+      world.get(id, Path::class)?.path
+    )
+  }
+
+  @Test
+  fun `an appended leg that does not join the walk is ignored`() {
+    val world = testWorld()
+    val id = world.create()
+    world.add(id, Position(0, 0, 0))
+    val handler = handlerFor(world, id, OpenWalkQuery())
+    val walk = listOf(Vec3L(1, 0, 0), Vec3L(2, 0, 0))
+    handler.handle(MoveActiveEntityCMSG(playerId = accountId, path = walk))
+
+    handler.handle(MoveActiveEntityCMSG(playerId = accountId, path = listOf(Vec3L(9, 0, 0)), append = true))
+
+    assertEquals(walk, world.get(id, Path::class)?.path)
+  }
+
+  @Test
+  fun `an appended leg after the walk ended starts a new walk from the position`() {
+    val world = testWorld()
+    val id = world.create()
+    world.add(id, Position(0, 0, 0))
+    val handler = handlerFor(world, id, OpenWalkQuery())
+
+    val leg = listOf(Vec3L(1, 0, 0), Vec3L(2, 0, 0))
+    handler.handle(MoveActiveEntityCMSG(playerId = accountId, path = leg, append = true))
+
+    assertEquals(leg, world.get(id, Path::class)?.path)
+  }
+
+  @Test
   fun `a path is truncated at the first step a wall or slope refuses, not rejected outright`() {
     val world = testWorld()
     val id = world.create()

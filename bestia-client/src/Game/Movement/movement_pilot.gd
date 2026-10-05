@@ -5,8 +5,9 @@ extends Node
 ##
 ## [b]Entirely client-side, and that is the design.[/b] The server has no notion of a destination: it
 ## takes a path of adjacent steps, validates it and walks it (`MoveActiveEntityHandler`). So a long
-## walk is not a message - it is this, sending the next short stretch each time the last one runs
-## out, until the player arrives, gets stuck, or takes over.
+## walk is not a message - it is this, sending the next short stretch shortly before the last one
+## runs out, until the player arrives, gets stuck, or takes over. The server appends that stretch to
+## the walk under way, so the player does not stop between them.
 ##
 ## [b]Why legs and not one long path.[/b] [PathCalculator] says outright that it ignores terrain, and
 ## the server cuts a path at the first step it cannot walk. A kilometre of straight line sent in one
@@ -48,6 +49,13 @@ const _MAX_STALLS := 2
 ## another leg.
 const _LEG_COOLDOWN := 0.4
 
+## Tile steps of slack, on top of one round trip, left on a walk when the next leg is sent.
+## Covers the server tick and jitter, so the leg is appended before the walk runs out.
+const _EXTEND_MARGIN_STEPS := 2.0
+
+## Assumed until the first pong measures one.
+const _DEFAULT_RTT_SECONDS := 0.2
+
 var _goal: PilotGoal = null
 var _stalls := 0
 var _cooldown := 0.0
@@ -55,6 +63,10 @@ var _cooldown := 0.0
 ## The nearest we have ever been to the goal, in tiles. A leg that fails to beat it walked into
 ## something - see [constant _MAX_STALLS].
 var _closest := INF
+
+## The walk end the last leg was appended to. The server's longer path moves the end, which allows the
+## next one; an append it refused leaves the end in place, and the walk ends and starts afresh.
+var _extended_from := Vector3.INF
 
 
 ## The one in the current scene, or null before [code]Game.tscn[/code] exists, so guard the result.
@@ -143,8 +155,10 @@ func _process(delta: float) -> void:
 		_cooldown -= delta
 		return
 
-	# The leg is still being walked. Nothing to decide until it runs out.
+	# The leg is still being walked. The next one goes out before it runs out, so the walk does not
+	# pause for a round trip at every leg.
 	if entity.is_moving():
+		_extend_in_time(entity)
 		return
 
 	# A leg that got no closer is a leg that walked into something. Measured against the best we have
@@ -172,6 +186,7 @@ func _start(goal: PilotGoal) -> void:
 	_stalls = 0
 	_cooldown = 0.0
 	_closest = INF
+	_extended_from = Vector3.INF
 
 
 func _arrive() -> void:
@@ -195,6 +210,27 @@ func _send_leg(entity: Entity, here: Vector2) -> void:
 	# standing at keeps the invented vertical flat instead of sloping towards a guess.
 	var at: Vector3 = entity.get_logical_position()
 	ConnectionManager.move_to(TileSpace.tile_centre(Vector3(target.x, at.y, target.y)))
+
+
+## Appends the next leg once the walk is about one round trip from its end.
+func _extend_in_time(entity: Entity) -> void:
+	var end := entity.path_end()
+	if end == _extended_from:
+		return
+
+	var rtt_seconds := _DEFAULT_RTT_SECONDS
+	if ConnectionManager.rtt_ms >= 0:
+		rtt_seconds = ConnectionManager.rtt_ms / 1000.0
+	if entity.remaining_path_steps() > rtt_seconds * entity.speed() + _EXTEND_MARGIN_STEPS:
+		return
+
+	var end_xz := _horizontal(end)
+	if end_xz.distance_to(_goal.destination()) <= _goal.arrival_tiles():
+		return
+
+	_extended_from = end
+	var target := end_xz + (_goal.destination() - end_xz).limit_length(_LEG_TILES)
+	ConnectionManager.extend_move(end, TileSpace.tile_centre(Vector3(target.x, end.y, target.y)))
 
 
 ## The x and z of a logical position, as the plane everything here reasons in. Godot is Y-up, so the

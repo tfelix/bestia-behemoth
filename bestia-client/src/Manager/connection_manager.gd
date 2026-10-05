@@ -405,6 +405,21 @@ func move_to(destination: Vector3) -> void:
 	owned_entity.predict_path(path)
 
 
+## Adds a leg to the walk under way. The leg starts next to [param path_end], the walk's last tile, so the
+## server can append it and the entity walks on without stopping.
+func extend_move(path_end: Vector3, destination: Vector3) -> void:
+	assert(is_ready_to_send())
+
+	var path := PathCalculator.calculate_tile_path(path_end, destination)
+	if path.is_empty():
+		return
+
+	var msg = MoveActiveEntityCMSG.new()
+	msg.Path = path
+	msg.Append = true
+	_socket.SendMessage(msg)
+
+
 ## [param args] carries whatever a scripted item gathered first - a placement position, a facing. Null for
 ## the ordinary case, where using the item is the whole request. Build one with ScriptArgsCls.new() and the
 ## keys in ScriptArgKeys.

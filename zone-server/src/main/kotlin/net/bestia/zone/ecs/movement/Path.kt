@@ -75,8 +75,12 @@ data class Path(
     }
   }
 
-  fun addPathPoint(point: Vec3L) {
-    _path.add(point)
+  /** The last waypoint, or null once the walk is spent. */
+  val lastWaypoint: Vec3L?
+    get() = _path.lastOrNull()
+
+  fun appendPath(points: List<Vec3L>) {
+    _path.addAll(points)
     markDirty()
     groundResolved = false
   }
