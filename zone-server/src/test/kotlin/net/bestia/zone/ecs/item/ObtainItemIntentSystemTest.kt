@@ -10,6 +10,7 @@ import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.ecs.movement.Position
+import net.bestia.zone.ecs.persistence.PersistedEntityDeletionQueue
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.item.Item
 import net.bestia.zone.item.ItemRepository
@@ -47,6 +48,7 @@ class ObtainItemIntentSystemTest {
     inventoryService = inventoryService,
     asyncJobExecutor = asyncJobExecutor,
     connectionInfoService = connectionInfoService,
+    deletionQueue = PersistedEntityDeletionQueue(),
   )
 
   private fun setUp() {
