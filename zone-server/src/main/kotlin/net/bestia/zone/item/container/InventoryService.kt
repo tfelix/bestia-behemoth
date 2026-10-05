@@ -2,6 +2,7 @@ package net.bestia.zone.item.container
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.account.master.Master
+import net.bestia.zone.account.master.MasterNotFoundException
 import net.bestia.zone.account.master.MasterRepository
 import net.bestia.zone.account.master.findByIdOrThrow
 import net.bestia.zone.bestia.PlayerBestiaRepository
@@ -51,7 +52,7 @@ class InventoryService(
    */
   @Transactional
   fun addItem(master: Master, itemIdentifier: String, amount: Int) {
-    val freshMaster = masterRepository.findByIdOrThrow(master.id)
+    val freshMaster = lockedMaster(master.id)
     val item = itemRepository.findByIdentifierOrThrow(itemIdentifier)
     grant(freshMaster.container, item, amount, uniqueId = 0L)
     masterRepository.save(freshMaster)
@@ -66,7 +67,7 @@ class InventoryService(
    */
   @Transactional
   fun grantToMaster(masterId: Long, item: Item, amount: Int, uniqueId: Long = 0L) {
-    val master = masterRepository.findByIdOrThrow(masterId)
+    val master = lockedMaster(masterId)
     grant(master.container, item, amount, uniqueId)
     masterRepository.save(master)
   }
@@ -84,7 +85,7 @@ class InventoryService(
    */
   @Transactional
   fun mintInstanceForMaster(masterId: Long, item: Item): ItemInstance {
-    val master = masterRepository.findByIdOrThrow(masterId)
+    val master = lockedMaster(masterId)
     val instance = itemInstanceRepository.save(ItemInstance(item = item))
 
     master.container.addInstance(instance)
@@ -110,7 +111,7 @@ class InventoryService(
     amount: Int,
     uniqueId: Long = 0L
   ): ItemContainer.RemovedItem? {
-    val master = masterRepository.findByIdOrThrow(masterId)
+    val master = lockedMaster(masterId)
     val removed = master.container.removeOne(itemId, amount, uniqueId) ?: return null
     masterRepository.save(master)
     return removed
@@ -152,7 +153,7 @@ class InventoryService(
   fun consumeAll(masterId: Long, inputs: List<Pair<Long, Int>>): Boolean {
     if (inputs.isEmpty()) return true
 
-    val master = masterRepository.findByIdOrThrow(masterId)
+    val master = lockedMaster(masterId)
 
     // Summed per item first, so a recipe naming the same material twice is checked against the total
     // rather than against whichever line happened to be looked at last.
@@ -226,7 +227,7 @@ class InventoryService(
    */
   @Transactional
   fun destroyInstance(masterId: Long, uniqueId: Long): Boolean {
-    val master = masterRepository.findByIdOrThrow(masterId)
+    val master = lockedMaster(masterId)
     val taken = master.container.takeInstance(uniqueId) ?: return false
 
     masterRepository.save(master)
@@ -261,7 +262,7 @@ class InventoryService(
   fun reserveForTrade(masterId: Long, tradeId: Long, itemId: Long, uniqueId: Long, amount: Int): ReservedItem? {
     require(amount > 0) { "amount > 0 required, was $amount" }
 
-    val master = masterRepository.findByIdOrThrow(masterId)
+    val master = lockedMaster(masterId)
     val item = itemRepository.findByIdOrNull(itemId) ?: return null
 
     val alreadyOffered = master.container.reservedSlots(tradeId).map { it.id }.toSet()
@@ -291,7 +292,7 @@ class InventoryService(
    */
   @Transactional
   fun releaseTradeReservation(masterId: Long, tradeId: Long, offerSlotId: Long): ReservedItem? {
-    val master = masterRepository.findByIdOrThrow(masterId)
+    val master = lockedMaster(masterId)
     val slot = master.container.slots
       .firstOrNull { it.id == offerSlotId && it.reservedByTradeId == tradeId }
       ?: return null
@@ -314,7 +315,7 @@ class InventoryService(
    */
   @Transactional
   fun releaseAllTradeReservations(masterId: Long, tradeId: Long): List<ReservedItem> {
-    val master = masterRepository.findByIdOrThrow(masterId)
+    val master = lockedMaster(masterId)
     val released = master.container.reservedSlots(tradeId).map { ReservedItem.of(it) }
 
     if (released.isEmpty()) {
@@ -352,8 +353,12 @@ class InventoryService(
   ): Settlement {
     require(masterAId != masterBId) { "A master cannot trade with themselves (master $masterAId)" }
 
-    val masterA = masterRepository.findByIdOrThrow(masterAId)
-    val masterB = masterRepository.findByIdOrThrow(masterBId)
+    // Locked in id order, like every other multi-master write, so two settlements cannot deadlock.
+    val (masterA, masterB) = if (masterAId < masterBId) {
+      lockedMaster(masterAId).let { a -> a to lockedMaster(masterBId) }
+    } else {
+      lockedMaster(masterBId).let { b -> lockedMaster(masterAId) to b }
+    }
 
     val heldA = masterA.container.reservedSlots(tradeId).map { it.id }.toSet()
     val heldB = masterB.container.reservedSlots(tradeId).map { it.id }.toSet()
@@ -412,7 +417,7 @@ class InventoryService(
 
   private fun <T> withOwnerContainer(masterId: Long, playerBestiaId: PlayerBestiaId?, block: (ItemContainer) -> T): T {
     return if (playerBestiaId == null) {
-      val master = masterRepository.findByIdOrThrow(masterId)
+      val master = lockedMaster(masterId)
       val result = block(master.container)
       masterRepository.save(master)
       result
@@ -422,6 +427,14 @@ class InventoryService(
       playerBestiaRepository.save(playerBestia)
       result
     }
+  }
+
+  /**
+   * Every write here loads the container, changes it and saves it, from several kinds of threads at once. The
+   * row lock serialises them per master; without it two writers read the same state and one change is lost.
+   */
+  private fun lockedMaster(masterId: Long): Master {
+    return masterRepository.findByIdForUpdate(masterId) ?: throw MasterNotFoundException()
   }
 
   private companion object {
