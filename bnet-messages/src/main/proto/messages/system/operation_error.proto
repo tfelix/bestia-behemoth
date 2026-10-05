@@ -164,6 +164,10 @@ enum OpError {
   // The bestia's species cannot wear armor of that weight, such as plate on a blob. The client does not grey
   // these out yet, so a player can ask for one.
   EQUIP_ARMOR_TYPE_NOT_WEARABLE = 51;
+
+  // One side of a trade already offers as many lines as a trade holds. A player can reach this by offering
+  // item after item, so it gets a code; the limit keeps the trade window and its database rows small.
+  TRADE_OFFER_FULL = 52;
 }
 
 message OperationError {

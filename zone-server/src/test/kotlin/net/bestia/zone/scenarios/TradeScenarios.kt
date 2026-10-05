@@ -22,6 +22,7 @@ import net.bestia.zone.trade.RequestTradeCMSG
 import net.bestia.zone.trade.RetractTradeItemCMSG
 import net.bestia.zone.trade.SetTradeLockCMSG
 import net.bestia.zone.trade.TradeRequestSMSG
+import net.bestia.zone.trade.TradeService
 import net.bestia.zone.trade.TradeStateSMSG
 import net.bestia.zone.util.EntityId
 import org.junit.jupiter.api.Order
@@ -392,5 +393,27 @@ class TradeScenarios : BestiaNoSocketScenario() {
 
     endTrade(clientPlayer1, tradeId)
     world.modify(entityOf(player1)) { id -> get(id, Equipment::class)!!.unequip(EquipmentSlot.ACCESSORY_1) }
+  }
+
+  /** Every line is a reservation row and part of every trade state sent to both sides. */
+  @Test
+  @Order(10)
+  fun `an offer holds at most a full trade window of lines`() {
+    val apple = appleId()
+    grant(player1, apple, TradeService.MAX_OFFER_LINES + 1)
+    val tradeId = openTrade()
+
+    repeat(TradeService.MAX_OFFER_LINES + 1) {
+      clientPlayer1.sendMessage(OfferTradeItemCMSG(player1, tradeId, apple, uniqueId = 0L, amount = 1))
+    }
+
+    await {
+      val refusal = assertNotNull(clientPlayer1.tryGetLastReceived(OperationErrorSMSG::class))
+      assertEquals(OpError.TRADE_OFFER_FULL, refusal.code)
+    }
+    val state = assertNotNull(clientPlayer1.tryGetLastReceived(TradeStateSMSG::class))
+    assertEquals(TradeService.MAX_OFFER_LINES, state.ownOffer.size)
+
+    endTrade(clientPlayer1, tradeId)
   }
 }
