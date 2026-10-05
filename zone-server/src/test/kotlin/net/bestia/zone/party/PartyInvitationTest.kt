@@ -9,7 +9,6 @@ import net.bestia.zone.account.master.MasterResolver
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
-import java.util.Optional
 import kotlin.test.assertEquals
 
 /**
@@ -97,7 +96,7 @@ class PartyInvitationTest {
       every { member } returns mutableSetOf()
     }
     every { partyRepository.findByOwner(owner) } returns party
-    every { partyRepository.findById(partyId) } returns Optional.of(party)
+    every { partyRepository.findByIdForUpdate(partyId) } returns party
   }
 
   private fun masterOf(accountId: Long): Master {
