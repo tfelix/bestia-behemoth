@@ -23,6 +23,12 @@ class ClientMessageHandler(
   private var authTimeoutTask: ScheduledFuture<*>? = null
   private var accountId: Long? = null
 
+  private val rateLimiter = MessageRateLimiter(
+    handlerCtx.socketConfig.messageBurst,
+    handlerCtx.socketConfig.messagesPerSecond
+  )
+  private var closing = false
+
   /**
    * Called when a new connection is opened.
    */
@@ -55,6 +61,18 @@ class ClientMessageHandler(
   }
 
   override fun channelRead0(ctx: ChannelHandlerContext, msg: EnvelopeProto.Envelope) {
+    if (closing) {
+      return
+    }
+
+    // Disconnected rather than dropped: skipping arbitrary game messages would leave the client out of step.
+    if (!rateLimiter.tryAcquire()) {
+      closing = true
+      LOG.warn { "Client $connectionUuid (player $accountId) exceeded the message rate, disconnecting" }
+      sendDisconnectMessageAndClose(ctx.channel(), reason = "RATE_LIMITED")
+      return
+    }
+
     val currentAccountId = accountId
     if (currentAccountId != null) {
       if (LOG.isTraceEnabled() && handlerCtx.logFilter.allows(msg)) {

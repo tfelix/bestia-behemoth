@@ -9,5 +9,8 @@ class SocketServerConfig(
   val ipAddress: String,
   val port: Int,
   val authenticationTimeoutSeconds: Long = 30L,
-  val filterLogMessages: List<String>
+  val filterLogMessages: List<String>,
+  /** Messages one connection may send in a burst before [messagesPerSecond] applies. */
+  val messageBurst: Int = 200,
+  val messagesPerSecond: Int = 50,
 )
