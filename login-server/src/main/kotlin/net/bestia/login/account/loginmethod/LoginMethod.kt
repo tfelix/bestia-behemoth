@@ -5,7 +5,7 @@ import java.time.LocalDateTime
 
 /**
  * Shared domain contract for the different, otherwise unrelated ways an [Account] can authenticate
- * (NFT signature, static development token, later e.g. email/password, ...).
+ * (passkeys today, later e.g. email/password, ...).
  *
  * Each login method is its own standalone JPA entity with its own table and its own authentication
  * code path. This interface only provides the common accessors so callers that want to treat any

@@ -13,9 +13,9 @@ import java.util.Base64
 /**
  * A FIDO2 authenticator, in about two hundred lines.
  *
- * Written against the specification rather than against the production code, in the same spirit as
- * [net.bestia.login.eip712.Eip712SignatureFixture]: if this reused the server's own encoding then a
- * bug in that encoding would be reproduced on both sides and the tests would agree with it.
+ * Written against the specification rather than against the production code: if this reused the
+ * server's own encoding then a bug in that encoding would be reproduced on both sides and the tests
+ * would agree with it.
  *
  * Defaults describe a synced passkey - discoverable, user-verified, backup eligible, signature
  * counter pinned at zero - because that is what iCloud Keychain and Google Password Manager

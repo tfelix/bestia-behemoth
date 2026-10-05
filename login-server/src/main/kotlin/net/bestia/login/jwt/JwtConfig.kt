@@ -8,6 +8,5 @@ import org.springframework.context.annotation.Configuration
 @ConfigurationPropertiesScan
 data class JwtConfig(
     val secret: String,
-    val expirationDays: Int,
     val loginTokenMinutes: Long
 )

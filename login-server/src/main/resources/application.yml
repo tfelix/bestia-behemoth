@@ -29,17 +29,10 @@ spring:
     enabled: true
     locations: classpath:db/migration
 
-eip712:
-  name: "Bestia Login"
-  version: "1"
-  chain-id: 1
-
 jwt:
   # Overridable without a placeholder: relaxed binding maps the JWT_SECRET env var onto this key.
   # Must be kept identical to zone-server's `zone.jwt-auth-secret-key`.
   secret: "your-secret-key-here-change-in-production"
-  # Validity (days) of the long-lived refresh token.
-  expiration-days: 5
   # Validity (minutes) of the short-lived zone login token. This is a handoff ticket, not a session:
   # the socket judges it once at the handshake and the map endpoint uses its own ticket
   # (zone-server HttpTicketService), so it only has to survive the walk from login to connect.
@@ -79,9 +72,3 @@ game-login:
   public-base-url: "http://localhost:8080"
   # Recovery codes handed out once when an account is created.
   recovery-code-count: 10
-
-ethereum:
-  rpc-url: "https://mainnet.infura.io/v3/YOUR_PROJECT_ID"
-  nft-contract-address: "0x0000000000000000000000000000000000000000"
-  # Set to false to completely disable NFT ownership checks
-  enable-nft-verification: false

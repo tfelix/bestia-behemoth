@@ -17,8 +17,6 @@ dependencies {
     implementation 'io.github.oshai:kotlin-logging-jvm:7.0.3'
     implementation 'org.jetbrains.kotlin:kotlin-reflect'
     implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
-    implementation 'org.web3j:core:4.10.3'
-    implementation 'org.web3j:crypto:4.10.3'
     implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
 
     // Server-side WebAuthn/FIDO2 ceremony handling. 2.9.0 is the first release carrying the
