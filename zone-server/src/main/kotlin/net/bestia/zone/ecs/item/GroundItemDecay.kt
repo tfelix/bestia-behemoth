@@ -1,11 +1,11 @@
 package net.bestia.zone.ecs.item
 
 import net.bestia.zone.ecs.core.Component
+import java.time.Instant
 
 /**
- * How much longer a dropped plain item lies on the ground. Server-only and not persisted: a restart gives every
- * item on the ground its full time again, which only delays the cleanup.
+ * When a dropped plain item is gone. Persisted with the item, so a restart does not give it its full time again.
  */
 class GroundItemDecay(
-  var remainingSeconds: Float
+  val despawnAt: Instant
 ) : Component

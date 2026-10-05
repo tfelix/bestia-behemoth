@@ -14,6 +14,8 @@ import net.bestia.zone.ecs.persistence.Persistent
 import net.bestia.zone.geometry.Vec3L
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
+import java.time.Clock
+import java.time.Instant
 import kotlin.random.Random
 
 /**
@@ -22,7 +24,8 @@ import kotlin.random.Random
 @Component
 class LootItemEntitySpawner(
   private val lootItemRepository: LootItemRepository,
-  private val zoneConfig: ZoneConfig
+  private val zoneConfig: ZoneConfig,
+  private val clock: Clock = Clock.systemUTC()
 ) {
 
   @Transactional(readOnly = true)
@@ -43,7 +46,8 @@ class LootItemEntitySpawner(
   }
 
   /**
-   * Spawns a single ground item entity at the given position which can be picked up.
+   * Spawns a single ground item entity at the given position which can be picked up. A rehydrated plain item
+   * passes the [despawnAt] it was persisted with; a fresh drop gets the full time.
    */
   fun spawnLootItem(
     world: WorldView,
@@ -52,6 +56,7 @@ class LootItemEntitySpawner(
     pos: Vec3L,
     uniqueId: Long = 0,
     entityId: EntityId? = null,
+    despawnAt: Instant? = null,
   ): EntityId {
     val configure: World.(EntityId) -> Unit = { id ->
       add(id, Position.fromVec3(pos))
@@ -67,7 +72,7 @@ class LootItemEntitySpawner(
       add(id, Persistent)
       // A unique item is one of a kind, and its instance would be lost with it, so only plain items decay.
       if (uniqueId == 0L) {
-        add(id, GroundItemDecay(zoneConfig.groundItemDespawnSeconds))
+        add(id, GroundItemDecay(despawnAt ?: clock.instant().plus(zoneConfig.groundItemDespawnAfter)))
       }
     }
 

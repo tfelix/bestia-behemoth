@@ -265,8 +265,8 @@ world:
   tick-rate: 20
   parallel-systems: false
   logout-protection-seconds: 20
-  # A dropped plain item is gone after this long. Unique items stay.
-  ground-item-despawn-seconds: 600
+  # A dropped plain item is gone after this long, in real time. Unique items stay.
+  ground-item-despawn-after: 7d
 
 # How much of the generator's den field is actually used, per level band of the *den*.
 #

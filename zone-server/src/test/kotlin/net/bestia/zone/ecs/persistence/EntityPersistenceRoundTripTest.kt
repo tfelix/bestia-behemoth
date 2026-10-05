@@ -4,10 +4,13 @@ import net.bestia.zone.bestia.BestiaEntitySpawner
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.core.SnowflakeEntityIdGenerator
 import net.bestia.zone.ecs.core.World
+import net.bestia.zone.ecs.item.GroundItemDecay
 import net.bestia.zone.ecs.movement.Position
+import net.bestia.zone.ecs.persistence.persisters.LootItemEntityPersister
 import net.bestia.zone.ecs.persistence.persisters.MobEntityPersister
 import net.bestia.zone.entity.PersistedEntityRepository
 import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.item.loot.LootItemEntitySpawner
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -31,6 +34,12 @@ class EntityPersistenceRoundTripTest {
 
   @Autowired
   private lateinit var mobEntityPersister: MobEntityPersister
+
+  @Autowired
+  private lateinit var lootItemEntitySpawner: LootItemEntitySpawner
+
+  @Autowired
+  private lateinit var lootItemEntityPersister: LootItemEntityPersister
 
   @Autowired
   private lateinit var persistedEntityRepository: PersistedEntityRepository
@@ -64,6 +73,25 @@ class EntityPersistenceRoundTripTest {
     reloadWorld.read {
       assertEquals(pos, getOrThrow(entityId, Position::class).toVec3L())
       assertEquals(3, getOrThrow(entityId, Health::class).current)
+    }
+  }
+
+  /** A restart must not give a dropped item its full time on the ground again. */
+  @Test
+  fun `ground item is reloaded with the despawn time it was dropped with`() {
+    val spawnWorld = newWorld()
+    val entityId = lootItemEntitySpawner.spawnLootItem(spawnWorld, itemId = 1L, amount = 3, pos = Vec3L(4, 5, 6))
+    val despawnAt = spawnWorld.read { getOrThrow(entityId, GroundItemDecay::class).despawnAt }
+
+    val snapshot = spawnWorld.read { lootItemEntityPersister.snapshot(this, entityId) }
+    assertNotNull(snapshot)
+    lootItemEntityPersister.persist(listOf(snapshot))
+
+    val reloadWorld = newWorld()
+    lootItemEntityPersister.loadAll(reloadWorld)
+
+    reloadWorld.read {
+      assertEquals(despawnAt, getOrThrow(entityId, GroundItemDecay::class).despawnAt)
     }
   }
 
