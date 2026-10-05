@@ -405,6 +405,10 @@ socket:
   ip-address: 127.0.0.1
   port: 8090
   authentication-timeout-seconds: 5
+  # Per connection. An honest client sends far less: a ping on a timer, movement legs, chunk requests per
+  # manifest and clicks at human speed. A client over the limit is disconnected.
+  message-burst: 200
+  messages-per-second: 50
   filter-log-messages:
     - "!comp_path"
     - "!comp_position"
