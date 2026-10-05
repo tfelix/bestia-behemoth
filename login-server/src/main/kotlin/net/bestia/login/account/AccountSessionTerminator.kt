@@ -7,7 +7,7 @@ import net.bestia.login.gamelogin.LoginSessionRepository
 import net.bestia.login.gamelogin.RefreshTokenService
 import net.bestia.login.webauthn.WebAuthnCeremonyRepository
 import org.springframework.context.ApplicationEventPublisher
-import org.springframework.stereotype.Service
+import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
 
@@ -18,7 +18,7 @@ import java.time.LocalDateTime
  * One place for all of them, because each caller - a recovery, a ban - has to close every one, and a list kept
  * at each call site is a list that misses the next way in.
  */
-@Service
+@Component
 class AccountSessionTerminator(
   private val refreshTokenService: RefreshTokenService,
   private val loginSessions: LoginSessionRepository,
