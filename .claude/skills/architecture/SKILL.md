@@ -365,7 +365,9 @@ again in that time re-attaches to the live entity.
 
 On disconnect the account's session is removed. Player bestias stay in the
 world; their `OwnedBestia` component (`ecs/account/`) is the source of truth for ownership, and
-`activateSession` rebuilds the session's owned entities from it.
+`activateSession` rebuilds the session's owned entities from it. A restart loses them: selecting the
+master respawns the missing ones from their `player_bestia` rows
+(`PlayerBestiaEntitySpawner.respawnMissing`), which `PlayerBestiaEntityPersister` keeps current.
 
 ## Database
 

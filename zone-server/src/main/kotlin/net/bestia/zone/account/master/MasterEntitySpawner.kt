@@ -13,6 +13,7 @@ import net.bestia.zone.ecs.battle.status.IsStatusValueDirty
 import net.bestia.zone.ecs.battle.status.Mana
 import net.bestia.zone.ecs.battle.status.Stamina
 import net.bestia.zone.battle.status.ConditionValueCalculator
+import net.bestia.zone.bestia.PlayerBestiaEntitySpawner
 import net.bestia.zone.ecs.item.Equipment
 import net.bestia.zone.ecs.item.Inventory
 import net.bestia.zone.item.equip.EquipmentSlots
@@ -62,6 +63,7 @@ class MasterEntitySpawner(
   private val conditionValueCalculator: ConditionValueCalculator,
   private val statusEffectPersistenceService: StatusEffectPersistenceService,
   private val placeNames: PlaceNameService,
+  private val playerBestiaEntitySpawner: PlayerBestiaEntitySpawner,
 ) {
 
   /**
@@ -104,8 +106,12 @@ class MasterEntitySpawner(
     val persistedStatusEffects = statusEffectPersistenceService.load(master.entityId)
     val inventory = buildInventory(master)
     val equipment = buildEquipment(master)
+    val bestias = playerBestiaEntitySpawner.loadOwnedBy(masterId)
 
     return world.createEntity(master.entityId) { id ->
+      // Before the session is read from the world, so it also gets the bestias a restart lost.
+      playerBestiaEntitySpawner.respawnMissing(this, masterId, bestias)
+
       connectionInfoService.activateSession(
         accountId = master.account.id,
         masterId = masterId,
