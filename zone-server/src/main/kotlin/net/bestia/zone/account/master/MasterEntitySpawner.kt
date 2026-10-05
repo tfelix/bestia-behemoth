@@ -32,8 +32,10 @@ import net.bestia.zone.ecs.battle.exp.Exp
 import net.bestia.zone.ecs.battle.level.LevelUpExperienceCalculator
 import net.bestia.zone.ecs.persistence.Persistent
 import net.bestia.zone.ecs.persistence.StatusEffectPersistenceService
+import net.bestia.zone.util.AccountId
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.ecs.core.WorldView
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
@@ -63,9 +65,17 @@ class MasterEntitySpawner(
    * session before we start adding him to the zone server. Otherwise we would start sending out
    * updated and the master entity id is not yet registered to the session.
    */
+  /**
+   * Returns null when [accountId] does not own [masterId]: the id comes straight from the client.
+   */
   @Transactional(readOnly = true)
-  fun spawnMaster(masterId: Long): EntityId {
-    val master = masterRepository.findByIdOrThrow(masterId)
+  fun spawnMaster(accountId: AccountId, masterId: Long): EntityId? {
+    val master = masterRepository.findByIdOrNull(masterId)
+
+    if (master == null || master.account.id != accountId) {
+      LOG.warn { "Account $accountId tried to select master $masterId, which it does not own" }
+      return null
+    }
 
     LOG.info { "Create master entity for account ${master.account.id} with master id: $masterId" }
 
