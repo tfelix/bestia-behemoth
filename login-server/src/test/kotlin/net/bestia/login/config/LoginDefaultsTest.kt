@@ -8,7 +8,8 @@ import org.springframework.core.io.ClassPathResource
 import java.util.Properties
 
 /**
- * What a packaged login server runs with when nobody configured it, which is what a careless deployment gets.
+ * What the shipped base config holds. A server with no profile set runs as `dev`; one given any other profile
+ * gets none of the dev settings, which live in `application-dev.yml` only.
  */
 class LoginDefaultsTest {
 
@@ -16,8 +17,10 @@ class LoginDefaultsTest {
     .apply { setResources(ClassPathResource("application.yml")) }
     .getObject()!!
 
+  /** A default, not an active profile: a deployment that sets its own profile drops dev entirely. */
   @Test
-  fun `the packaged server does not run as dev`() {
+  fun `the server runs as dev unless a profile is set`() {
+    assertEquals("dev", shipped.getProperty("spring.profiles.default"))
     assertNull(shipped.getProperty("spring.profiles.active"))
   }
 
@@ -26,7 +29,7 @@ class LoginDefaultsTest {
     assertEquals("USER", shipped.getProperty("account.sign-up-role"))
   }
 
-  /** Missing, a deployment that forgets them does not boot rather than running on public or localhost values. */
+  /** Missing, a deployment with its own profile that forgets them does not boot. */
   @Test
   fun `the packaged server carries no secret and no localhost relying party`() {
     assertNull(shipped.getProperty("jwt.secret"))

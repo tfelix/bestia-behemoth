@@ -1,5 +1,5 @@
-# Only loaded under the `dev` profile, which `./gradlew :zone-server:bootRun` activates. A packaged server
-# runs without it.
+# Loaded under the `dev` profile, which is the default when no profile is set (`spring.profiles.default`). A
+# server given any other profile runs without it.
 logging:
   level:
     net.bestia.zone: TRACE
