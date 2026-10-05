@@ -16,6 +16,7 @@ import net.bestia.zone.ecs.core.dirtyableComponentTypes
 import net.bestia.zone.ecs.core.isFatal
 import net.bestia.zone.ecs.prop.StaticSync
 import net.bestia.zone.ecs.prop.WorldObjectIdentity
+import net.bestia.zone.ecs.visibility.EntityAudience
 import net.bestia.zone.ecs.visibility.EntitySnapshotBuilder
 import net.bestia.zone.ecs.visibility.EntityVisibility
 import net.bestia.zone.entity.VanishEntitySMSG
@@ -54,6 +55,7 @@ class ZoneEngine(
   private val outMessageProcessor: OutMessageProcessor,
   private val outbox: TickOutbox,
   private val entityVisibility: EntityVisibility,
+  private val entityAudience: EntityAudience,
   private val snapshotBuilder: EntitySnapshotBuilder,
 ) {
 
@@ -328,22 +330,9 @@ class ZoneEngine(
     }
   }
 
-  /**
-   * Who is told about a [SyncTargets.PublicInRange] change to [entityId].
-   *
-   * The accounts holding the chunk it stands in, plus - always - the account that owns it. A player has to
-   * hear about its own entity whatever terrain it happens to be holding: the chunk it is walking into may not
-   * have been requested and served yet, and losing sight of yourself for those ticks is never the right
-   * answer.
-   */
+  /** Who is told about a [SyncTargets.PublicInRange] change to [entityId]; see [EntityAudience]. */
   private fun publicAudienceOf(entityId: EntityId): Set<AccountId> {
-    val observers = entityVisibility.observersOf(entityId)
-
-    if (!world.has(entityId, ActivePlayer::class)) return observers
-
-    val owner = world.get(entityId, Account::class)?.accountId ?: return observers
-
-    return if (owner in observers) observers else observers + owner
+    return entityAudience.of(world, entityId)
   }
 
   /**

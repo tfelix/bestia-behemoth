@@ -1,7 +1,7 @@
 package net.bestia.zone.ecs
 
 sealed interface SyncTargets {
-  /** Broadcast to every player currently in AOI range of the entity's position. */
+  /** Sent to every account that sees the entity; see [net.bestia.zone.ecs.visibility.EntityAudience]. */
   data object PublicInRange : SyncTargets
 
   /** Sends this component only to the owner of the entity. Only works for PlayerBestia and Master */

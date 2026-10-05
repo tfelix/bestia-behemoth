@@ -89,7 +89,7 @@ class AttackExecutionService(
   }
 
   private fun apply(world: World, attackerId: EntityId, targetId: EntityId, result: DamageResult) {
-    val position = world.get(targetId, Position::class)?.toVec3L() ?: return
+    if (!world.has(targetId, Position::class)) return
 
     val msg = DamageEntitySMSG(
       entityId = targetId,
@@ -133,7 +133,7 @@ class AttackExecutionService(
         }
       }
 
-      outMessageProcessor.sendToAllPlayersInRange(position, msg)
+      outMessageProcessor.sendToObserversOf(world, targetId, msg)
     }
   }
 

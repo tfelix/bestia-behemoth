@@ -6,7 +6,6 @@ import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.battle.status.Mana
 import net.bestia.zone.ecs.battle.status.Stamina
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.script.ScriptArgs
 import net.bestia.zone.util.EntityId
@@ -66,11 +65,6 @@ abstract class RestorativeScript(
   }
 
   private fun showHeal(world: World, userId: EntityId) {
-    val position = world.get(userId, Position::class) ?: return
-
-    messages?.sendToAllPlayersInRange(
-      position.toVec3L(),
-      DamageEntitySMSG.fromItemHeal(userId, health)
-    )
+    messages?.sendToObserversOf(world, userId, DamageEntitySMSG.fromItemHeal(userId, health))
   }
 }
