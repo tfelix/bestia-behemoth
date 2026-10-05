@@ -198,7 +198,7 @@ class AiPipelineFixture(tickRate: Int = 20, randomSeed: Long = DEFAULT_SEED) {
     AiActSystem(sharedMemory, ZoneConfig(tickRate = tickRate)),
     // No terrain in these scenarios, so no ground to snap to; null keeps the waypoint's own z, which is what
     // the flat test navigation produces anyway.
-    MoveSystem({ null }, GroundTrample.NONE),
+    MoveSystem({ null }, GroundTrample.NONE, TestNavigation.flatGround()),
   )
 
   val world: World = testWorld(systems = systems)
