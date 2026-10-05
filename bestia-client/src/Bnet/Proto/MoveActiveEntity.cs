@@ -25,13 +25,14 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CihtZXNzYWdlcy9lbnRpdHkvbW92ZV9hY3RpdmVfZW50aXR5LnByb3RvEgRi",
-            "bmV0GhNtZXNzYWdlcy92ZWMzLnByb3RvIiwKEE1vdmVBY3RpdmVFbnRpdHkS",
-            "GAoEcGF0aBgBIAMoCzIKLmJuZXQuVmVjM0IuChVuZXQuYmVzdGlhLmJuZXQu",
-            "cHJvdG9CFU1vdmVBY3RpdmVFbnRpdHlQcm90b2IGcHJvdG8z"));
+            "bmV0GhNtZXNzYWdlcy92ZWMzLnByb3RvIjwKEE1vdmVBY3RpdmVFbnRpdHkS",
+            "GAoEcGF0aBgBIAMoCzIKLmJuZXQuVmVjMxIOCgZhcHBlbmQYAiABKAhCLgoV",
+            "bmV0LmJlc3RpYS5ibmV0LnByb3RvQhVNb3ZlQWN0aXZlRW50aXR5UHJvdG9i",
+            "BnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Bnet.Vec3Reflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.MoveActiveEntity), global::Bnet.MoveActiveEntity.Parser, new[]{ "Path" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.MoveActiveEntity), global::Bnet.MoveActiveEntity.Parser, new[]{ "Path", "Append" }, null, null, null, null)
           }));
     }
     #endregion
@@ -78,6 +79,7 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public MoveActiveEntity(MoveActiveEntity other) : this() {
       path_ = other.path_.Clone();
+      append_ = other.append_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -98,6 +100,22 @@ namespace Bnet {
       get { return path_; }
     }
 
+    /// <summary>Field number for the "append" field.</summary>
+    public const int AppendFieldNumber = 2;
+    private bool append_;
+    /// <summary>
+    /// Continue the walk under way: the path starts next to the current path's last step and is added to it,
+    /// so the entity does not stop between legs. A path that does not join it is ignored.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Append {
+      get { return append_; }
+      set {
+        append_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -114,6 +132,7 @@ namespace Bnet {
         return true;
       }
       if(!path_.Equals(other.path_)) return false;
+      if (Append != other.Append) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -122,6 +141,7 @@ namespace Bnet {
     public override int GetHashCode() {
       int hash = 1;
       hash ^= path_.GetHashCode();
+      if (Append != false) hash ^= Append.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -141,6 +161,10 @@ namespace Bnet {
       output.WriteRawMessage(this);
     #else
       path_.WriteTo(output, _repeated_path_codec);
+      if (Append != false) {
+        output.WriteRawTag(16);
+        output.WriteBool(Append);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -152,6 +176,10 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
       path_.WriteTo(ref output, _repeated_path_codec);
+      if (Append != false) {
+        output.WriteRawTag(16);
+        output.WriteBool(Append);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -163,6 +191,9 @@ namespace Bnet {
     public int CalculateSize() {
       int size = 0;
       size += path_.CalculateSize(_repeated_path_codec);
+      if (Append != false) {
+        size += 1 + 1;
+      }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -176,6 +207,9 @@ namespace Bnet {
         return;
       }
       path_.Add(other.path_);
+      if (other.Append != false) {
+        Append = other.Append;
+      }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -199,6 +233,10 @@ namespace Bnet {
             path_.AddEntriesFrom(input, _repeated_path_codec);
             break;
           }
+          case 16: {
+            Append = input.ReadBool();
+            break;
+          }
         }
       }
     #endif
@@ -220,6 +258,10 @@ namespace Bnet {
             break;
           case 10: {
             path_.AddEntriesFrom(ref input, _repeated_path_codec);
+            break;
+          }
+          case 16: {
+            Append = input.ReadBool();
             break;
           }
         }

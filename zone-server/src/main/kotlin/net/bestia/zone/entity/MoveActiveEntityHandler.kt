@@ -64,6 +64,14 @@ class MoveActiveEntityHandler(
       }
 
       val position = get(id, Position::class)
+      val existing = get(id, Path::class)
+
+      // A leg sent while the last one is still walked, so the walk does not stop for a round trip at every leg.
+      val walkToExtend = if (msg.append) existing?.takeUnless { it.isEmpty } else null
+      if (walkToExtend != null) {
+        extend(walkToExtend, msg.path)
+        return@modify
+      }
 
       // Without a known position there is nothing to validate a step against, so the path is trusted as it
       // used to be unconditionally. With one, the path is walked and cut at the first step that is not
@@ -92,7 +100,6 @@ class MoveActiveEntityHandler(
         return@modify
       }
 
-      val existing = get(id, Path::class)
       if (existing != null) {
         existing.setPath(validPath)
       } else {
@@ -101,6 +108,20 @@ class MoveActiveEntityHandler(
     }
 
     return true
+  }
+
+  /** Validated from the walk's last waypoint, the same way a new path is validated from the position. */
+  private fun extend(walk: Path, leg: List<Vec3L>) {
+    val tail = walk.lastWaypoint ?: return
+    val validLeg = walkableStepsOf(tail, leg)
+
+    if (validLeg.isEmpty()) {
+      // The client sends a fresh leg once the entity stops, so nothing is lost by ignoring this one.
+      LOG.debug { "Ignoring a leg that does not join the walk at $tail: ${leg.firstOrNull()}" }
+      return
+    }
+
+    walk.appendPath(validLeg)
   }
 
   /**

@@ -12,4 +12,7 @@ option java_outer_classname = "MoveActiveEntityProto";
  */
 message MoveActiveEntity {
   repeated Vec3 path = 1;
+  // Continue the walk under way: the path starts next to the current path's last step and is added to it,
+  // so the entity does not stop between legs. A path that does not join it is ignored.
+  bool append = 2;
 }
