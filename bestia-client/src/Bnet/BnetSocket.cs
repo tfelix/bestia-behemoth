@@ -66,14 +66,10 @@ namespace BestiaBehemothClient.Bnet.Message
     /// <summary>What the server named when it last closed this connection, or empty if it named nothing.</summary>
     public string LastDisconnectReason { get; private set; } = "";
 
-    // Buffer for reading network data
-    private MemoryStream _receiveBuffer;
-    private readonly object _bufferLock = new();
 
     public override void _Ready()
     {
       _messageQueue = new ConcurrentQueue<Envelope>();
-      _receiveBuffer = new MemoryStream();
     }
 
     public override void _Process(double delta)
@@ -507,6 +503,7 @@ namespace BestiaBehemothClient.Bnet.Message
 
         // Buffer for reading data
         byte[] buffer = new byte[4096];
+        var frames = new EnvelopeFrameReader(MaxFrameLength);
 
         // Main communication loop
         while (!_shouldStop && _tcpClient.Connected)
@@ -517,14 +514,7 @@ namespace BestiaBehemothClient.Bnet.Message
             int bytesRead = _networkStream.Read(buffer, 0, buffer.Length);
             if (bytesRead > 0)
             {
-              lock (_bufferLock)
-              {
-                // Append new data to the receive buffer
-                _receiveBuffer.Write(buffer, 0, bytesRead);
-
-                // Try to extract complete messages
-                ProcessReceivedData();
-              }
+              frames.Feed(buffer.AsSpan(0, bytesRead), EnqueueFrame);
             }
             else
             {
@@ -538,6 +528,12 @@ namespace BestiaBehemothClient.Bnet.Message
           {
             // Timeout occurred - this is normal, just continue the loop to check _shouldStop
             continue;
+          }
+          catch (InvalidDataException ex)
+          {
+            // A length read off the wire must never size an allocation unchecked; see EnvelopeFrameReader.
+            GD.PrintErr($"BnetSocket: {ex.Message} The stream is desynchronised; disconnecting.");
+            break;
           }
           catch (Exception ex)
           {
@@ -567,81 +563,24 @@ namespace BestiaBehemothClient.Bnet.Message
       }
     }
 
-    /// <summary>
-    /// Processes the received data buffer to extract complete messages with length prefixes
-    /// </summary>
-    private void ProcessReceivedData()
+    private void EnqueueFrame(ReadOnlySpan<byte> body)
     {
-      byte[] data = _receiveBuffer.ToArray();
-      _receiveBuffer.SetLength(0); // Clear the buffer
-      _receiveBuffer.Position = 0;
-
-      int offset = 0;
-
-      while (offset < data.Length)
+      try
       {
-        // Check if we have at least 4 bytes for the length prefix
-        if (offset + 4 > data.Length)
+        // Decode the protobuf message
+        Envelope envelope = Envelope.Parser.ParseFrom(body);
+        NetLog.CountRx(envelope.MessageCase, body.Length);
+        // Taken here on the socket thread: the close right behind this frame can reach the main thread first.
+        if (envelope.Disconnected != null)
         {
-          // Not enough data for length prefix, put remaining bytes back in buffer
-          _receiveBuffer.Write(data, offset, data.Length - offset);
-          break;
+          LastDisconnectReason = envelope.Disconnected.Reason;
         }
-
-        // Read the message length (big-endian 4 bytes)
-        int messageLength = (data[offset] << 24) |
-                           (data[offset + 1] << 16) |
-                           (data[offset + 2] << 8) |
-                           data[offset + 3];
-
-        offset += 4;
-
-        // A length read off the wire must never size an allocation unchecked. The server frames nothing above
-        // MaxFrameLength and refuses anything larger inbound, so a length outside that range means the stream
-        // is desynchronised or hostile - and either way the framing is unrecoverable, because there is no way
-        // to know where the next real frame begins. Drop the connection instead of allocating what it asked
-        // for. Chunk payloads are the first frames here big enough for this to be worth stating.
-        if (messageLength < 0 || messageLength > MaxFrameLength)
-        {
-          GD.PrintErr(
-            $"BnetSocket: frame claims {messageLength} bytes, over the {MaxFrameLength} limit. " +
-            "The stream is desynchronised; disconnecting.");
-
-          _receiveBuffer.SetLength(0);
-          _shouldStop = true;
-          return;
-        }
-
-        // Check if we have enough data for the complete message
-        if (offset + messageLength > data.Length)
-        {
-          // Not enough data for complete message, put length prefix and remaining bytes back
-          _receiveBuffer.Write(data, offset - 4, data.Length - (offset - 4));
-          break;
-        }
-
-        // Extract the complete message
-        byte[] messageBytes = new byte[messageLength];
-        Array.Copy(data, offset, messageBytes, 0, messageLength);
-        offset += messageLength;
-
-        try
-        {
-          // Decode the protobuf message
-          Envelope envelope = Envelope.Parser.ParseFrom(messageBytes);
-          NetLog.CountRx(envelope.MessageCase, messageLength);
-          // Taken here on the socket thread: the close right behind this frame can reach the main thread first.
-          if (envelope.Disconnected != null)
-          {
-            LastDisconnectReason = envelope.Disconnected.Reason;
-          }
-          _messageQueue.Enqueue(envelope);
-          NetLog.NoteQueueDepth(_messageQueue.Count);
-        }
-        catch (Exception ex)
-        {
-          GD.PrintErr($"Failed to parse protobuf message: {ex.Message}");
-        }
+        _messageQueue.Enqueue(envelope);
+        NetLog.NoteQueueDepth(_messageQueue.Count);
+      }
+      catch (Exception ex)
+      {
+        GD.PrintErr($"Failed to parse protobuf message: {ex.Message}");
       }
     }
 
@@ -694,7 +633,6 @@ namespace BestiaBehemothClient.Bnet.Message
     public override void _ExitTree()
     {
       DisconnectFromServer();
-      _receiveBuffer?.Dispose();
     }
   }
 }
