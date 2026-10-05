@@ -124,6 +124,8 @@ class ChunkStreamSystem(
   override fun update(world: World, deltaTime: Float) {
     if (!chunkService.isReady) return
 
+    applyResets()
+
     applyCarves(world)
 
     // Before the subscriptions, so a teleport and the manifest that answers it happen in the same tick. The
@@ -651,6 +653,11 @@ class ChunkStreamSystem(
 
     subscriptions.markSent(accountId, chunk)
     return true
+  }
+
+  /** Streaming state is only touched on the tick thread, so the socket side queues its resets here. */
+  internal fun applyResets() {
+    inbox.drainResets().forEach { forget(it) }
   }
 
   /** Keeps the request bucket: reconnecting must not hand a client a fresh budget. */

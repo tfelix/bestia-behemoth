@@ -63,6 +63,9 @@ class ChunkStreamInbox {
   private val teleports = ConcurrentLinkedQueue<Teleport>()
   private val teleportCount = AtomicInteger()
 
+  /** Accounts whose streaming state the tick has to drop: they disconnected, or connected again. */
+  private val resets = ConcurrentLinkedQueue<Long>()
+
   val pendingRequests get() = requestCount.get()
 
   val pendingCarves get() = carveCount.get()
@@ -98,6 +101,14 @@ class ChunkStreamInbox {
   fun offerTeleport(teleport: Teleport) {
     teleports.add(teleport)
     trim(teleports, teleportCount, "teleports")
+  }
+
+  fun offerReset(accountId: Long) {
+    resets.add(accountId)
+  }
+
+  fun drainResets(): List<Long> {
+    return generateSequence { resets.poll() }.toList()
   }
 
   fun drainRequests(): List<Request> {

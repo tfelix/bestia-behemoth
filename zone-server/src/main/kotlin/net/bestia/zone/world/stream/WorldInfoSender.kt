@@ -20,15 +20,20 @@ import org.springframework.stereotype.Component
 class WorldInfoSender(
   private val worldService: WorldService,
   private val chunkService: ChunkService,
-  private val subscriptions: ChunkSubscriptionService,
   private val inbox: ChunkStreamInbox,
   private val outMessageProcessor: OutMessageProcessor,
   private val bestiaClock: BestiaClock,
   private val settings: ChunkStreamConfig
 ) {
 
+  /**
+   * A body kept in the world after a disconnect is still streamed to, so the server believes chunks were
+   * offered that the new connection never received. Starting over makes it announce them again.
+   */
   @EventListener
   fun handleAccountConnected(event: AccountConnectedEvent) {
+    inbox.offerReset(event.accountId)
+
     if (!chunkService.isReady) {
       LOG.warn { "Account ${event.accountId} connected before the world was generated; sending no world info" }
       return
@@ -47,17 +52,9 @@ class WorldInfoSender(
     LOG.debug { "Sent world info to account ${event.accountId}" }
   }
 
-  /**
-   * Drops the connection's streaming state.
-   *
-   * [ChunkStreamSystem] would notice on its next tick anyway, because the account stops having an anchor -
-   * but doing it here means a reconnect inside one tick cannot inherit the old connection's idea of what it
-   * held, which would leave it receiving patches for chunks it never received.
-   */
   @EventListener
   fun handleAccountDisconnected(event: AccountDisconnectedEvent) {
-    subscriptions.forget(event.accountId)
-    inbox.forget(event.accountId)
+    inbox.offerReset(event.accountId)
   }
 
   private companion object {
