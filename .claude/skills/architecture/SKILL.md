@@ -139,7 +139,8 @@ Use those files as a template instead of re-deriving the shape from scratch.
 5. **Kotlin SMSG** (outgoing), if a reply/broadcast is needed: `data class XyzSMSG(...) : SMSG`
    implementing `toBnetEnvelope()`. Two templates depending on shape: a one-off
    broadcast event (`battle/damage/DamageEntitySMSG.kt`, sent via
-   `OutMessageProcessor.sendToAllPlayersInRange(pos, msg)`), or persistent entity-state
+   `OutMessageProcessor.sendToObserversOf(world, entityId, msg)` to the same audience as the
+   entity's component state, `ecs/visibility/EntityAudience.kt`), or persistent entity-state
    sync (`ecs/status/SkillPointsSMSG.kt`'s owning component implements `Dirtyable` +
    `toEntityMessage()` and is auto-pushed on change — only use this shape for actual
    entity state, not one-off events).

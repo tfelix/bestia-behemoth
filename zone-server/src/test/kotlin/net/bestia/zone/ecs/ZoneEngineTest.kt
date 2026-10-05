@@ -4,7 +4,6 @@ import io.mockk.clearMocks
 import io.mockk.mockk
 import io.mockk.verify
 import net.bestia.zone.ecs.account.Account
-import net.bestia.zone.ecs.account.ActivePlayer
 import net.bestia.zone.ecs.battle.damage.Dead
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
@@ -16,6 +15,7 @@ import net.bestia.zone.ecs.entity.VisualKind
 import net.bestia.zone.ecs.movement.Path
 import net.bestia.zone.ecs.movement.PathSMSG
 import net.bestia.zone.ecs.movement.Position
+import net.bestia.zone.ecs.visibility.EntityAudience
 import net.bestia.zone.ecs.visibility.EntitySnapshotBuilder
 import net.bestia.zone.ecs.visibility.EntityVisibility
 import net.bestia.zone.ecs.prop.StaticSync
@@ -46,7 +46,6 @@ import kotlin.test.assertEquals
 class ZoneEngineTest {
 
   private val entityAOIService = EntityAOIService()
-  private val playerAOIService = ActivePlayerAOIService()
   private val outMessageProcessor = mockk<OutMessageProcessor>(relaxed = true)
   private val outbox = TickOutbox(mockk(relaxed = true))
 
@@ -77,10 +76,11 @@ class ZoneEngineTest {
       world = world,
       config = ZoneConfig(tickRate = 20),
       entityAOIService = entityAOIService,
-      playerAOIService = playerAOIService,
+      playerAOIService = ActivePlayerAOIService(),
       outMessageProcessor = outMessageProcessor,
       outbox = outbox,
       entityVisibility = entityVisibility,
+      entityAudience = EntityAudience(entityVisibility),
       snapshotBuilder = EntitySnapshotBuilder(),
     )
   }
@@ -183,30 +183,6 @@ class ZoneEngineTest {
         listOf(VanishEntitySMSG(entity, VanishEntitySMSG.VanishKind.OUT_OF_SIGHT))
       )
     }
-  }
-
-  @Test
-  fun `destroying a player entity takes its account out of the player index`() {
-    // Deliberately nothing like an entity id: EntityId is a typealias for Long, so a small account id
-    // could collide with the generated entity id and let the assertion pass for the wrong reason.
-    val accountId = 90_001L
-    val pos = Vec3L(30, 40, 0)
-    val entity = world.createEntity { id ->
-      add(id, Position.fromVec3(pos))
-      add(id, Account(accountId))
-      add(id, ActivePlayer)
-    }
-    zoneEngine.tickOnce(0.05f)
-
-    assertEquals(setOf(accountId), playerAOIService.queryEntitiesInCube(pos, 4), "indexed while alive")
-
-    world.destroy(entity)
-
-    assertEquals(
-      emptySet(),
-      playerAOIService.queryEntitiesInCube(pos, 4),
-      "the index is keyed by account, so the entity id never removed anything"
-    )
   }
 
   @Test

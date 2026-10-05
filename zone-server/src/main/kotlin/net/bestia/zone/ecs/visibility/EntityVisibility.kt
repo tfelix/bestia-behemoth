@@ -36,6 +36,8 @@ interface EntityVisibility {
    *
    * Not the same set as a range query: the view volume lets an account hold a chunk from a good deal further
    * away than an interest radius reaches, so a radius audience leaves the outer holders drawing stale state.
+   *
+   * Also safe under the world lock, because the streaming layer changes only on the tick. Returns a live set.
    */
   fun observersOf(entityId: EntityId): Set<AccountId>
 

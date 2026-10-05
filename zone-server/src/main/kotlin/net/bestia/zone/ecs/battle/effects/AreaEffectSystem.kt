@@ -14,6 +14,8 @@ import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
+import net.bestia.zone.ecs.account.Account
+import net.bestia.zone.ecs.account.ActivePlayer
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.OutMessageProcessor
@@ -46,8 +48,9 @@ class AreaEffectSystem(
 
   override val schedule: Schedule = Schedule.EveryTick
 
+  /** `ActivePlayer` and `Account` are read to address the damage message; see [OutMessageProcessor.sendToObserversOf]. */
   override val reads: ComponentClassSet =
-    setOf(Position::class, Health::class, Dead::class, Invulnerable::class)
+    setOf(Position::class, Health::class, Dead::class, Invulnerable::class, ActivePlayer::class, Account::class)
   /**
    * Includes what `PropPromotionService` adds to a *victim*, not just what this touches on the effect.
    *
@@ -102,8 +105,6 @@ class AreaEffectSystem(
     // in the same tick each create their own Damage component and lose one of them. Inside a deferred
     // block structural changes apply immediately, making the get-or-create below sound.
     world.defer {
-      val hits = mutableListOf<SMSG>()
-
       for (victimId in inside) {
         if (victimId == effectEntityId) continue
         if (!effect.hitsCaster && victimId == effect.casterId) continue
@@ -127,19 +128,20 @@ class AreaEffectSystem(
         val damage = world.get(victimId, Damage::class) ?: world.add(victimId, Damage())
         damage.add(effect.damagePerTick, effect.casterId)
 
-        hits += DamageEntitySMSG(
-          entityId = victimId,
-          sourceEntityId = effect.casterId,
-          attackId = effect.skillId.toInt(),
-          div = 1,
-          damage = effect.damagePerTick,
-          skillLevel = effect.skillLevel,
-          type = DamageEntitySMSG.DamageType.NORMAL
+        outMessageProcessor.sendToObserversOf(
+          world,
+          victimId,
+          DamageEntitySMSG(
+            entityId = victimId,
+            sourceEntityId = effect.casterId,
+            attackId = effect.skillId.toInt(),
+            div = 1,
+            damage = effect.damagePerTick,
+            skillLevel = effect.skillLevel,
+            type = DamageEntitySMSG.DamageType.NORMAL
+          )
         )
       }
-
-      // One audience lookup for the whole effect, not one per victim: they all share the centre.
-      if (hits.isNotEmpty()) outMessageProcessor.sendToAllPlayersInRange(center, hits)
     }
   }
 

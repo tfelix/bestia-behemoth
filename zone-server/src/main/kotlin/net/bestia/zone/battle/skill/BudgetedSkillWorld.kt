@@ -230,10 +230,9 @@ class BudgetedSkillWorld(
   }
 
   private fun broadcastDamage(targetEntityId: EntityId, damage: Damage) {
-    val at = world.read { get(targetEntityId, Position::class)?.toVec3L() } ?: return
-
-    services.messages.sendToAllPlayersInRange(
-      at,
+    services.messages.sendToObserversOf(
+      world,
+      targetEntityId,
       DamageEntitySMSG(
         entityId = targetEntityId,
         sourceEntityId = casterId,

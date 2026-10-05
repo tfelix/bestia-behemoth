@@ -5,7 +5,6 @@ import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.account.master.MasterNotFoundException
 import net.bestia.zone.account.master.MasterResolver
 import net.bestia.zone.account.master.skill.BasicSkillGate
-import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.message.HandlerLane
@@ -63,8 +62,6 @@ class ChatHandler(
   }
 
   private fun handlePublicChat(msg: ChatCMSG) {
-    // TODO if this section here is needed more often (position of active entity) check if it make sense
-    //   to encapsulate this.
     val activeEntityId = connectionInfoService.getActiveEntityId(msg.playerId)
 
     val chatSMSG = ChatSMSG(
@@ -74,14 +71,8 @@ class ChatHandler(
       senderEntityId = activeEntityId
     )
 
-    val position = world.modify(activeEntityId) { id ->
-      get(id, Position::class)?.toVec3L()
-    }
-
-    if (position != null) {
-      // Posted: who is in range is tick-thread state, and this handler runs on the IO lane.
-      world.post { outMessageProcessor.sendToAllPlayersInRange(position, chatSMSG) }
-    }
+    // Posted: who sees the entity is tick-thread state, and this handler runs on the IO lane.
+    world.post { outMessageProcessor.sendToObserversOf(world, activeEntityId, chatSMSG) }
   }
 
   /**
