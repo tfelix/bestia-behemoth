@@ -8,7 +8,7 @@ import net.bestia.zone.util.EntityId
  * values, how long it lasts, and how re-application behaves. Registered under its simple class
  * name (see [StatusEffectScriptRegistry]) and referenced by [StatusEffectDefinition.script],
  * exactly the same pattern as [net.bestia.zone.battle.skill.SkillStrategy] /
- * [net.bestia.zone.battle.skill.SkillScriptRegistry] for skills.
+ * [net.bestia.zone.battle.skill.SkillStrategyFactory] for skills.
  *
  * Every definition needs one, even a purely bookkeeping effect with nothing to apply - it still
  * needs to answer "how long" and "what happens on re-application".

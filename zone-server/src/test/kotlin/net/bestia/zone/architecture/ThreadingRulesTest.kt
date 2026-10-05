@@ -25,7 +25,6 @@ class ThreadingRulesTest {
     "cartography/tile/MapTileService.kt" to "map tile rendering, which never touches the world",
     "cartography/tools/MapServeMain.kt" to "a stand-alone tool, not the zone",
     "cartography/tools/MapBakeMain.kt" to "a stand-alone tool, not the zone",
-    "ecs/EcsRunner.kt" to "an unused tick driver",
   )
 
   private val startsThreads = Regex("""Executors\.|ScheduledExecutorService|ForkJoinPool\(|[^\w.]Thread\(|@Async|\bthread\(""")

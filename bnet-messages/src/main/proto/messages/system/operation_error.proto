@@ -178,6 +178,10 @@ enum OpError {
   TRAP_LIMIT_REACHED = 55;
   // A trap caught a bestia and the master had no free bestia slot to keep it in, so it went free again.
   BESTIA_SLOTS_FULL = 56;
+
+  // The server refused a request in a way no honest client can provoke (its UI does not offer it), so there
+  // is nothing for the player to read; it only tells the client the request is over.
+  REQUEST_REFUSED = 57;
 }
 
 message OperationError {

@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component
 /**
  * Loads which ground is still burnt, so a scar a player made survives a restart.
  *
- * `@Order(5)`, at the end of the "things about the world" group - after [WorldGenerationBootRunner] (`@Order(1)`)
+ * `@Order(5)`, in the "things about the world" group - after [WorldGenerationBootRunner] (`@Order(1)`)
  * so [WorldService.record] exists for the version guards, and beside
  * [WorldObjectDivergenceBootRunner] (`@Order(3)`) and [PlayerStructureBootRunner] (`@Order(4)`) rather than
  * with the entity loaders at `@Order(110)`.

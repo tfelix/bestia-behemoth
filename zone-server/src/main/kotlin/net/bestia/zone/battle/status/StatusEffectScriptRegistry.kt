@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component
  * Resolves the `script` name from `status_effects.yml` (e.g. `Swiftness`) to the
  * [StatusEffectScript] bean implementing it. Scripts are plain Spring beans in
  * `net.bestia.zone.battle.status.scripts`, keyed here by their simple class name - identical
- * shape to [net.bestia.zone.battle.skill.SkillScriptRegistry].
+ * shape to [net.bestia.zone.battle.skill.SkillStrategyFactory].
  */
 @Component
 class StatusEffectScriptRegistry(

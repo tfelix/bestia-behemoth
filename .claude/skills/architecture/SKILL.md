@@ -40,7 +40,8 @@ with its own `application.yml`.
 - Naming convention: client→server messages end `*_cmsg.proto` → generated
   `*CMSG` (e.g. `messages/entity/attack_entity_cmsg.proto` → `AttackEntityCMSG`).
   Server→client messages end `*_smsg.proto` → `*SMSG`. Bidirectional/shared messages
-  have no suffix (`master.proto` → `Master`, `ping.proto` → `Ping`/`Pong`).
+  have no suffix (`messages/master/master.proto` → `Master`, `messages/system/ping.proto` →
+  `Ping`/`Pong`).
 
 **Codegen is two separate pipelines that both must run after editing a `.proto`:**
 - Kotlin (zone-server, login-server): automatic via the Gradle `com.google.protobuf`
@@ -72,7 +73,7 @@ SlowConsumerGuard                   (drops a client that stops reading)
 
 Inbound flow:
 
-1. `ClientMessageHandler.channelRead0` (`socket/ClientMessageHandler.kt:62`) — if the
+1. `ClientMessageHandler.channelRead0` (`socket/ClientMessageHandler.kt`) — if the
    channel isn't authenticated yet, routes to `authenticateChannel`; otherwise wraps
    the raw `Envelope` in `MessageEnvelopeReceivedEvent(this, accountId, msg)` and
    publishes it as a Spring `ApplicationEvent`.
@@ -103,14 +104,14 @@ the Netty `Channel` by `accountId`. A send made on the tick thread is first coll
 send from any other thread goes out at once. `AsyncJobExecutor` carries database work only.
 
 `ChannelRegistry` (accountId → Netty `Channel`) and
-`ConnectionInfoService` (`ecs/session/ConnectionInfoService.kt`, accountId → `Session`
+`ConnectionInfoService` (`ecs/core/session/ConnectionInfoService.kt`, accountId → `Session`
 sealed class tracking the selected master/owned player entities/active entity) are the
 two session maps — there is no single unified `Session` object.
 
 ## Adding a new message type end-to-end
 
 Every step below, worked through once already for a real feature: `ActivateSkillCMSG`
-/ `ActivateSkillHandler` (`zone-server/.../battle/attack/`), added for
+/ `ActivateSkillHandler` (`zone-server/.../battle/`), added for
 player-triggered skill activation, plus an SMSG example such as `DamageEntitySMSG`.
 Use those files as a template instead of re-deriving the shape from scratch.
 
@@ -121,7 +122,7 @@ Use those files as a template instead of re-deriving the shape from scratch.
    number in that block + 1, don't reuse or leave gaps.
 2. **Kotlin CMSG** (incoming): `data class XyzCMSG(override val playerId: Long, ...) : CMSG`
    with `companion object fun fromBnet(accountId: Long, proto: XyzCmsgProto.XyzCMSG): XyzCMSG`.
-   Template: `battle/attack/AttackEntityCMSG.kt`.
+   Template: `battle/AttackEntityCMSG.kt`.
 3. **Handler**: `@Component class XyzHandler(...) : TickMessageHandler<XyzCMSG>` with
    `override val wire = decoder(MessageCase.XYZ) { accountId, envelope -> XyzCMSG.fromBnet(accountId, envelope.xyz) }`
    and `handle(world, msg)` — the decoder is the handler's registration for its envelope case,
@@ -140,7 +141,7 @@ Use those files as a template instead of re-deriving the shape from scratch.
    broadcast event (`battle/damage/DamageEntitySMSG.kt`, sent via
    `OutMessageProcessor.sendToObserversOf(world, entityId, msg)` to the same audience as the
    entity's component state, `ecs/visibility/EntityAudience.kt`), or persistent entity-state
-   sync (`ecs/status/SkillPointsSMSG.kt`'s owning component implements `Dirtyable` +
+   sync (`ecs/battle/status/SkillPointsComponentSMSG.kt`'s owning component implements `Dirtyable` +
    `toEntityMessage()` and is auto-pushed on change — only use this shape for actual
    entity state, not one-off events).
 5. **C# client wrappers**: outgoing message is an `ICMSG` subclass under
@@ -172,8 +173,7 @@ ECS library):
   ("wave" scheduling from declared read/write component sets), `EntityRegistry`,
   `AsyncJobExecutor`. Spring wiring is `ecs/EcsConfiguration.kt`, which builds the
   `World` empty and registers every `System` bean once all singletons exist, so any service may inject
-  the `World` or `WorldView`; `ecs/EcsRunner.kt` is an optional standalone
-  tick driver and `ecs/ZoneEngine.kt` is the real one (thread `zone-tick`).
+  the `World` or `WorldView`; `ecs/ZoneEngine.kt` runs the tick (thread `zone-tick`).
 - Game logic implements `ecs/core/System.kt` — `update(world, deltaTime)` plus a `schedule`
   (`EveryTick` / `EveryTicks(n)` / `EverySeconds(s)`) and `reads`/`writes` sets — and registers
   as a Spring `@Component` with a `phase` (`ecs/core/Phase.kt`) and, for systems of the same phase that
@@ -320,7 +320,7 @@ an older client would read wrongly.**
 `audience("zone")`, `claim("role", role.name)`. The client sends that token as the
 socket's `Authentication` message payload; zone-server independently re-validates it
 in `LoginTokenValidator.validateLoginToken`
-(`zone-server/src/main/kotlin/net/bestia/zone/jwt/LoginTokenValidator.kt`), checking
+(`zone-server/src/main/kotlin/net/bestia/zone/account/authentication/LoginTokenValidator.kt`), checking
 issuer/audience against a **shared secret string** configured separately in each
 server (`jwt.secret` in login-server, `zone.jwt-auth-secret-key` in zone-server). The shipped
 `application.yml`s carry no value; the public placeholder `"your-secret-key-here-change-in-production"` lives in
@@ -396,10 +396,10 @@ The two servers no longer agree here, and the difference matters:
   survives a restart**: adding a column to a JPA entity is applied automatically, but existing rows
   keep their old values, so a new field needs a default that reads sensibly for rows written before
   it existed.
-- **login-server: H2, in-memory, `ddl-auto: create`** — dropped and recreated on every start, with
-  the H2 web console enabled.
+- **login-server: MariaDB, Flyway, `ddl-auto: validate`** (`jdbc:mariadb://localhost:3307/bestia_login`),
+  as described above.
 
-No Flyway/Liquibase on either. ORM is Spring Data JPA/Hibernate. Each server defines its own
+The zone has no Flyway yet. ORM is Spring Data JPA/Hibernate. Each server defines its own
 `Account` JPA entity independently (`login-server/.../account/Account.kt` vs
 `zone-server/.../account/Account.kt`), linked only by convention (`loginAccountId: Long`), not a
 shared entity class.

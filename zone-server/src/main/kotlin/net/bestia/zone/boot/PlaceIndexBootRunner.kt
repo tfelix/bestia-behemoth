@@ -21,9 +21,8 @@ import org.springframework.stereotype.Component
  * [PlaceRegionService][net.bestia.zone.ecs.place.PlaceRegionService], because a server nobody joins should not
  * pay for it.
  *
- * `@Order(6)` puts it after [ScorchBootRunner], which documents itself as the end of the "things about the
- * world" group. Nothing here depends on scorch; the number is just the next free slot in the group this
- * belongs to. It needs the world, so it must stay after [WorldGenerationBootRunner] (`@Order(1)`).
+ * `@Order(6)` puts it in the "things about the world" group, after [ScorchBootRunner]. Nothing here depends
+ * on scorch; the number is just a free slot in the group this belongs to. It needs the world, so it must stay after [WorldGenerationBootRunner] (`@Order(1)`).
  */
 @Component
 @Order(6)

@@ -93,6 +93,14 @@ Worked examples, both of which deliberately report `MASTER_GENERAL_ERROR`:
   catches `NoStatusPointsAvailableException` - but the status window prices every `+` before enabling
   it.
 
+## A refusal that escapes the handler
+
+A `BestiaException` a handler does not catch is answered by `InMessageProcessor` with
+`OperationErrorSMSG(OpError.REQUEST_REFUSED)` and logged at WARN; the connection stays open. That is
+the right answer for a state an honest client cannot produce, so such a handler needs no `try` just to
+stay connected. Catch the exception only to send a code the player is meant to read. Any other
+exception that escapes is a bug and closes the connection.
+
 ## Exception: a genuinely distinct payload
 
 [`PartyErrorSMSG`](../../../zone-server/src/main/kotlin/net/bestia/zone/party/PartyErrorSMSG.kt)

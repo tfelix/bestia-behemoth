@@ -20,8 +20,8 @@ import java.util.concurrent.ConcurrentHashMap
  * handler) while being read on it, and because the AI systems are meant to become parallel-safe. Note
  * that the [Blackboard]s themselves are not synchronised: they are only ever mutated from AI systems,
  * which the scheduler keeps in their own wave via their declared component writes. A team board written
- * concurrently by two packmates in the same wave would need more than this, and that is a real
- * constraint to respect when the engine's global tick lock is eventually lifted.
+ * concurrently by two packmates in the same wave would need more than this, so the AI systems must stay
+ * out of parallel waves until it has it.
  */
 @Service
 class SharedMemoryService {
