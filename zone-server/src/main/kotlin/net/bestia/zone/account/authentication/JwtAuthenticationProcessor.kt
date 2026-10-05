@@ -19,9 +19,8 @@ class JwtAuthenticationProcessor(
     val authRequest = msg.authentication
       ?: return AuthenticationProcessor.AuthenticationFailed
 
+    // Never logged: the token is a bearer credential until it expires.
     val jwtToken = authRequest.token
-
-    LOG.trace { "Authenticating token: $jwtToken" }
 
     val data = try {
       validateAndExtract(jwtToken)
@@ -30,7 +29,7 @@ class JwtAuthenticationProcessor(
       return AuthenticationProcessor.AuthenticationFailed
     }
 
-    LOG.trace { "Authentication data: $data" }
+    LOG.debug { "Authenticated account ${data.accountId}" }
 
     return AuthenticationProcessor.AuthenticationSuccess(
       accountId = data.accountId,
