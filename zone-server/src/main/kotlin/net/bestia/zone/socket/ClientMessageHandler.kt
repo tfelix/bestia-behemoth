@@ -133,6 +133,7 @@ class ClientMessageHandler(
 
     accountId = result.accountId
     takeOverAccount(ctx, result.accountId)
+    ctx.pipeline().fireUserEventTriggered(EnvelopeFrameDecoder.Authenticated)
 
     LOG.debug { "Client ${ctx.channel().remoteAddress()} authed as player ${result.accountId}" }
 
