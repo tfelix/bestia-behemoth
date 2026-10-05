@@ -26,9 +26,6 @@ data class GameLoginConfig(
 
   val recoveryCodeCount: Int = 10,
 
-  /** How long after the sign-in a further passkey may still be enrolled on the session. */
-  val credentialEnrolmentSeconds: Long = 120,
-
   /** Off only for plain-http development, where a browser would refuse to store a Secure cookie. */
   val bindingCookieSecure: Boolean = true
 )

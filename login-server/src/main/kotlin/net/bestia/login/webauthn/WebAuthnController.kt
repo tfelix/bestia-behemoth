@@ -10,7 +10,9 @@ import jakarta.servlet.http.HttpServletRequest
 import net.bestia.login.account.AccountLoginGuard
 import net.bestia.login.account.AccountRepository
 import net.bestia.login.gamelogin.GameLoginException
+import net.bestia.login.gamelogin.LoginSession
 import net.bestia.login.gamelogin.LoginSessionService
+import net.bestia.login.gamelogin.LoginSessionStatus
 import net.bestia.login.recovery.AccountRecoveryService
 import net.bestia.login.ratelimit.RateLimiter
 import org.springframework.http.HttpStatus
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import java.time.Duration
+import java.time.LocalDateTime
 
 /**
  * The browser half of the flow. Called by the login page's JavaScript, never by the game.
@@ -38,7 +41,8 @@ class WebAuthnController(
   private val accounts: AccountRepository,
   private val accountLoginGuard: AccountLoginGuard,
   private val rateLimiter: RateLimiter,
-  private val objectMapper: ObjectMapper
+  private val objectMapper: ObjectMapper,
+  private val webAuthnConfig: WebAuthnConfig
 ) {
 
   @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
@@ -203,7 +207,7 @@ class WebAuthnController(
 
     return handle {
       val session = loginSessionService.requireAuthenticated(request.sessionId, browserBinding)
-      loginSessionService.requireEnrolable(session, browserBinding)
+      requireEnrolable(session, browserBinding)
 
       val started = registrationService.startCredentialRegistration(
         accountId = requireAccount(session.accountId),
@@ -305,7 +309,7 @@ class WebAuthnController(
     val session = ceremony.loginSessionIdHash?.let { loginSessionService.findByHash(it) }
       ?: throw WebAuthnException("Credential ceremony has no login session")
 
-    loginSessionService.requireEnrolable(session, browserBinding)
+    requireEnrolable(session, browserBinding)
 
     if (session.accountId != ceremony.accountId) {
       throw WebAuthnException("Credential ceremony and login session name different accounts")
@@ -318,6 +322,22 @@ class WebAuthnController(
     accountLoginGuard.denialReason(account)?.let { reason ->
       LOG.info { "Refusing to add a passkey: $reason" }
       throw WebAuthnException("Account may not log in")
+    }
+  }
+
+  /**
+   * The bound, authenticated session a further passkey may be enrolled on. Only shortly after the sign-in:
+   * a credential survives every later revocation, so it needs a fresh proof of the existing one.
+   */
+  private fun requireEnrolable(session: LoginSession, browserBinding: String?) {
+    loginSessionService.requireBoundTo(session, browserBinding)
+
+    val authenticatedAt = session.authenticatedAt
+    val fresh = authenticatedAt != null &&
+      authenticatedAt.plusSeconds(webAuthnConfig.credentialEnrolmentSeconds).isAfter(LocalDateTime.now())
+
+    if (session.status != LoginSessionStatus.AUTHENTICATED || session.accountId == null || !fresh) {
+      throw WebAuthnException("Login session may not enrol a passkey now")
     }
   }
 
