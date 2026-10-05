@@ -3,7 +3,9 @@ package net.bestia.zone.socket
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.netty.bootstrap.ServerBootstrap
 import io.netty.channel.ChannelFuture
+import io.netty.channel.ChannelOption
 import io.netty.channel.EventLoopGroup
+import io.netty.channel.WriteBufferWaterMark
 import io.netty.channel.nio.NioEventLoopGroup
 import io.netty.channel.socket.nio.NioServerSocketChannel
 import jakarta.annotation.PreDestroy
@@ -30,6 +32,10 @@ class SocketServer(
         val bootstrap = ServerBootstrap()
         bootstrap.group(bossGroup, workerGroup)
           .channel(NioServerSocketChannel::class.java)
+          .childOption(
+            ChannelOption.WRITE_BUFFER_WATER_MARK,
+            WriteBufferWaterMark(config.writeBufferLowBytes, config.writeBufferHighBytes)
+          )
           .childHandler(ZoneChannelInitializer(handlerContext))
 
         val socketAddress = InetSocketAddress(config.ipAddress, config.port)
