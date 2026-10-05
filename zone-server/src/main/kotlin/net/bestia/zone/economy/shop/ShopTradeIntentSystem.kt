@@ -80,6 +80,10 @@ class ShopTradeIntentSystem(
 
     val position = world.get(traderId, Position::class)?.toVec3L()
       ?: return deny(world, traderId, OperationErrorProto.OpError.SHOP_NONE_HERE)
+    val counter = world.get(intent.merchantEntityId, Position::class)?.toVec3L()
+    if (counter == null || !ShopReach.withinReach(position, counter)) {
+      return deny(world, traderId, OperationErrorProto.OpError.SHOP_NONE_HERE)
+    }
     val (settlement, shop) = economy.shopAt(position.x, position.y)
       ?: return deny(world, traderId, OperationErrorProto.OpError.SHOP_NONE_HERE)
 

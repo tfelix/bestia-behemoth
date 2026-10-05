@@ -94,6 +94,20 @@ class ShopTradeIntentSystemTest {
     assertEquals(1, held(seller, BREAD_ITEM))
   }
 
+  /** Opening the window checks the distance, but a hand-made packet can trade without ever opening it. */
+  @Test
+  fun `a merchant out of reach does not trade`() {
+    every { shop.quoteSell(bread, 1) } returns Shop.Quote(units = 1, coins = 5)
+    every { inventoryService.consumeAll(MASTER_ID, any()) } returns true
+    val seller = trader(Inventory.Item(BREAD_ITEM, 1))
+
+    trade(seller, selling = true, merchant = merchant(Position(500, 0, 0)))
+
+    assertNull(world.get(seller, ObtainItemIntent.CreateItemIntent::class), "nothing is paid out")
+    assertEquals(1, held(seller, BREAD_ITEM))
+    verify { out.sendToPlayer(ACCOUNT_ID, OperationErrorSMSG(OpError.SHOP_NONE_HERE)) }
+  }
+
   private fun trader(vararg held: Inventory.Item): EntityId {
     return world.createEntity { id ->
       add(id, Position(0, 0, 0))
@@ -103,8 +117,12 @@ class ShopTradeIntentSystemTest {
     }
   }
 
-  private fun trade(traderId: EntityId, selling: Boolean) {
-    world.add(traderId, ShopTradeIntent(BREAD_ITEM, 1, selling, setOf(BREAD), merchantEntityId = MERCHANT_ID))
+  private fun merchant(at: Position): EntityId {
+    return world.createEntity { id -> add(id, at) }
+  }
+
+  private fun trade(traderId: EntityId, selling: Boolean, merchant: EntityId = merchant(Position(1, 0, 0))) {
+    world.add(traderId, ShopTradeIntent(BREAD_ITEM, 1, selling, setOf(BREAD), merchantEntityId = merchant))
     world.tick(0.05f)
   }
 
@@ -115,7 +133,6 @@ class ShopTradeIntentSystemTest {
   private companion object {
     const val ACCOUNT_ID = 1L
     const val MASTER_ID = 2L
-    const val MERCHANT_ID = 3L
     const val SETTLEMENT = 7
     const val BREAD = "bread"
     const val BREAD_ITEM = 10L
