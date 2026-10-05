@@ -13,6 +13,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.slf4j.LoggerFactory
+import java.util.Date
 import kotlin.test.assertTrue
 
 /**
@@ -42,10 +43,10 @@ class JwtAuthenticationProcessorLoggingTest {
   @Test
   fun `the login token is never logged`() {
     val validator = mockk<LoginTokenValidator> {
-      every { validateLoginToken(TOKEN) } returns LoginTokenValidator.LoginTokenClaims(1L, Role.USER, emptySet())
+      every { validateLoginToken(TOKEN) } returns LoginTokenValidator.LoginTokenClaims(1L, Role.USER, emptySet(), Date())
     }
 
-    JwtAuthenticationProcessor(validator).authenticate(authenticationEnvelope())
+    JwtAuthenticationProcessor(validator, mockk(relaxed = true)).authenticate(authenticationEnvelope())
 
     assertTrue(appender.list.none { TOKEN in it.formattedMessage }, "logged: ${appender.list.map { it.formattedMessage }}")
   }

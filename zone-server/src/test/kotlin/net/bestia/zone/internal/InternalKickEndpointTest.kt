@@ -4,6 +4,7 @@ import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
 import net.bestia.internal.ServiceTokens
 import net.bestia.zone.ZoneConfig
+import net.bestia.zone.account.authentication.KickedAccounts
 import net.bestia.zone.mocks.GameClientMockFactory
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -20,6 +21,7 @@ import java.util.Date
 import java.util.UUID
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 /**
  * The login server ends a banned or recovered account's game session through this endpoint. It shares the port
@@ -46,6 +48,9 @@ class InternalKickEndpointTest {
   @Autowired
   private lateinit var connections: GameClientMockFactory.MockConnectionAdapter
 
+  @Autowired
+  private lateinit var kickedAccounts: KickedAccounts
+
   @BeforeEach
   fun forgetEarlierKicks() {
     connections.disconnectReasons.clear()
@@ -57,6 +62,13 @@ class InternalKickEndpointTest {
 
     assertEquals(HttpStatus.NO_CONTENT, response.statusCode)
     assertEquals("BANNED", connections.disconnectReasons[ACCOUNT])
+  }
+
+  @Test
+  fun `a kick refuses the login tokens issued before it`() {
+    kick(ACCOUNT, serviceToken(ACCOUNT))
+
+    assertTrue(kickedAccounts.refuses(ACCOUNT, Date(System.currentTimeMillis() - 1_000)))
   }
 
   @Test

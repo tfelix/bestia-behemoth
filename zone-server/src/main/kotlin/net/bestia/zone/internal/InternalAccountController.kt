@@ -4,6 +4,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.servlet.http.HttpServletRequest
 import net.bestia.account.KickReason
 import net.bestia.internal.ServiceTokens
+import net.bestia.zone.account.authentication.KickedAccounts
 import net.bestia.zone.socket.ConnectionTerminator
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -15,7 +16,8 @@ import org.springframework.web.bind.annotation.RestController
 /** What the login server may do to an account on this zone. */
 @RestController
 class InternalAccountController(
-  private val connections: ConnectionTerminator
+  private val connections: ConnectionTerminator,
+  private val kickedAccounts: KickedAccounts
 ) {
 
   data class KickRequest(
@@ -38,6 +40,8 @@ class InternalAccountController(
       return ResponseEntity.status(HttpStatus.FORBIDDEN).build()
     }
 
+    // Remembered even when the account is not here: it may be on its way, with a token issued before the kick.
+    kickedAccounts.remember(accountId)
     connections.disconnect(accountId, request.reason.name)
 
     return ResponseEntity.noContent().build()

@@ -7,12 +7,14 @@ import org.springframework.stereotype.Component
 
 @Component
 class JwtAuthenticationProcessor(
-  private val loginTokenValidator: LoginTokenValidator
+  private val loginTokenValidator: LoginTokenValidator,
+  private val kickedAccounts: KickedAccounts
 ) : AuthenticationProcessor {
 
   private data class AuthData(
     val accountId: Long,
-    val authorities: Set<Authority>
+    val authorities: Set<Authority>,
+    val kickedSince: Boolean
   )
 
   override fun authenticate(msg: EnvelopeProto.Envelope): AuthenticationProcessor.Authentication {
@@ -29,6 +31,11 @@ class JwtAuthenticationProcessor(
       return AuthenticationProcessor.AuthenticationFailed
     }
 
+    if (data.kickedSince) {
+      LOG.info { "Refused a login token for account ${data.accountId} that was issued before its kick" }
+      return AuthenticationProcessor.AuthenticationFailed
+    }
+
     LOG.debug { "Authenticated account ${data.accountId}" }
 
     return AuthenticationProcessor.AuthenticationSuccess(
@@ -42,7 +49,8 @@ class JwtAuthenticationProcessor(
 
     return AuthData(
       accountId = claims.accountId,
-      authorities = claims.authorities
+      authorities = claims.authorities,
+      kickedSince = kickedAccounts.refuses(claims.accountId, claims.issuedAt)
     )
   }
 
