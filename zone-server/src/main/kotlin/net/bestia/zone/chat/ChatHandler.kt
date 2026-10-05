@@ -70,7 +70,8 @@ class ChatHandler(
     }
 
     if (position != null) {
-      outMessageProcessor.sendToAllPlayersInRange(position, chatSMSG)
+      // Posted: who is in range is tick-thread state, and this handler runs on the IO lane.
+      world.post { outMessageProcessor.sendToAllPlayersInRange(position, chatSMSG) }
     }
   }
 

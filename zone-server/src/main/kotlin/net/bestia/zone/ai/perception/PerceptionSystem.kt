@@ -149,21 +149,25 @@ class PerceptionSystem(
    */
   private fun nearestHostile(world: World, self: Long, selfPos: Vec3L, sightRadius: Int): Long? {
     // Dynamic only: a mob in a dense wood is inside the sight radius of hundreds of trees and has
-    // nothing to think about any of them. Every candidate costs locked component reads below, so
-    // filtering here rather than in the loop is what keeps this affordable once statics are resident.
+    // nothing to think about any of them.
     val sightSize = sightRadius.toLong() * 2
+    var nearest: Long? = null
+    var nearestDistance = Long.MAX_VALUE
 
-    return aoiService.queryEntitiesInCube(selfPos, sightSize, AoiLayer.DYNAMIC_ONLY)
-      .asSequence()
-      .filter { it != self }
-      .filter { world.has(it, Master::class) }
-      .filterNot { isFeigningDeath(world, it) }
-      .mapNotNull { candidate ->
-        val pos = world.get(candidate, Position::class)?.toVec3L() ?: return@mapNotNull null
-        candidate to selfPos.distance(pos)
+    aoiService.forEachInCube(selfPos, sightSize, AoiLayer.DYNAMIC_ONLY) { candidate, _, _, _ ->
+      if (candidate == self || !world.has(candidate, Master::class) || isFeigningDeath(world, candidate)) {
+        return@forEachInCube
       }
-      .minByOrNull { it.second }
-      ?.first
+
+      val pos = world.get(candidate, Position::class)?.toVec3L() ?: return@forEachInCube
+      val distance = selfPos.distance(pos)
+      if (distance < nearestDistance) {
+        nearest = candidate
+        nearestDistance = distance
+      }
+    }
+
+    return nearest
   }
 
   /**
