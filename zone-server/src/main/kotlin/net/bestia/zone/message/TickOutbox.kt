@@ -20,6 +20,8 @@ class TickOutbox(
 
   private val pending = LinkedHashMap<AccountId, MutableList<SMSG>>()
 
+  private val afterFlush = ArrayList<() -> Unit>()
+
   private val failureLog = RateLimitedLog()
 
   /** Runs [block] and then sends everything it offered, one batch per account in the order offered. */
@@ -48,6 +50,16 @@ class TickOutbox(
     return true
   }
 
+  /** Runs [action] once what was offered so far has gone out; at once when nothing collects on this thread. */
+  fun afterFlush(action: () -> Unit) {
+    if (collectingThread !== Thread.currentThread()) {
+      action()
+      return
+    }
+
+    afterFlush.add(action)
+  }
+
   private fun flush() {
     for ((accountId, msgs) in pending) {
       try {
@@ -57,6 +69,9 @@ class TickOutbox(
       }
     }
     pending.clear()
+
+    afterFlush.forEach { it() }
+    afterFlush.clear()
   }
 
   companion object {

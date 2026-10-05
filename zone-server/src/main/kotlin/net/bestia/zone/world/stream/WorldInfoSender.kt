@@ -3,6 +3,7 @@ package net.bestia.zone.world.stream
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.account.AccountConnectedEvent
 import net.bestia.zone.account.AccountDisconnectedEvent
+import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.environment.time.BestiaClock
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.world.WorldService
@@ -23,7 +24,8 @@ class WorldInfoSender(
   private val inbox: ChunkStreamInbox,
   private val outMessageProcessor: OutMessageProcessor,
   private val bestiaClock: BestiaClock,
-  private val settings: ChunkStreamConfig
+  private val settings: ChunkStreamConfig,
+  private val world: WorldView,
 ) {
 
   /**
@@ -52,9 +54,21 @@ class WorldInfoSender(
     LOG.debug { "Sent world info to account ${event.accountId}" }
   }
 
+  /**
+   * Drops the connection's streaming state.
+   *
+   * [ChunkStreamSystem] would notice on its next tick anyway, because the account stops having an anchor -
+   * but doing it here means a reconnect inside one tick cannot inherit the old connection's idea of what it
+   * held, which would leave it receiving patches for chunks it never received. Posted, because the
+   * streaming state belongs to the tick thread.
+   */
   @EventListener
   fun handleAccountDisconnected(event: AccountDisconnectedEvent) {
     inbox.offerReset(event.accountId)
+    world.post {
+      subscriptions.forget(event.accountId)
+      inbox.forget(event.accountId)
+    }
   }
 
   private companion object {

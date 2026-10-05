@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service
  * that lives only in [MasterSkillTreeRegistry], loaded from `master_skill_tree.yml`. So the question is asked
  * the other way round, walking the (few dozen) non-Novice nodes and reading a level for each, the same
  * direction [BasicSkillGate] and `PassiveSkillScriptRegistry.bound()` already take. No database round trip,
- * which is what makes it safe to call from inside a world lock.
+ * which is what makes it safe to call from inside a world scope.
  *
  * A player bestia reads as a novice, correctly: its item-taught skills are catalogued at 1000+ and have no
  * tree node at all, so none of them can end a novicehood it was never really in.

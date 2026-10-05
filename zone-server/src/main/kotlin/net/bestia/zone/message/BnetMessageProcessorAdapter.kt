@@ -113,7 +113,7 @@ class BnetMessageProcessorAdapter(
       return
     }
 
-    inMessageProcessor.process(internalMessage)
+    inMessageProcessor.submit(internalMessage)
   }
 
   companion object {

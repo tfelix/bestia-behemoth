@@ -1,6 +1,7 @@
 package net.bestia.zone.party.handler
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.zone.message.HandlerLane
 import net.bestia.zone.message.InMessageProcessor
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.party.DisbandPartySMSG
@@ -23,6 +24,8 @@ class RemovePartyMemberHandler(
 ) : InMessageProcessor.IncomingMessageHandler<RemovePartyMemberCMSG> {
 
   override val handles = RemovePartyMemberCMSG::class
+
+  override val lane = HandlerLane.IO
 
   override fun handle(msg: RemovePartyMemberCMSG): Boolean {
     try {

@@ -21,13 +21,11 @@ import net.bestia.zone.ecs.logout.LogoutIntent
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.skill.Skill
-import net.bestia.zone.skill.SkillRepository
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.world.prop.PropPromotionService
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import java.util.Optional
 
 /**
  * The cast-time branch, which is the whole job of this handler: an instant skill is handed straight to
@@ -52,14 +50,12 @@ class ActivateSkillHandlerTest {
     val connectionInfoService = ConnectionInfoService()
     connectionInfoService.activateSession(ACCOUNT_ID, masterId = 1L, masterEntityId = caster)
 
-    val repository = mockk<SkillRepository>()
-    every { repository.findById(skill.id) } returns Optional.of(skill)
+    every { skillExecution.skillOf(skill.id) } returns skill
 
     return ActivateSkillHandler(
       connectionInfoService = connectionInfoService,
       skillCheckService = SkillCheckService(world),
       world = world,
-      skillRepository = repository,
       skillStrategyFactory = SkillStrategyFactory(listOf(TestScript())),
       skillExecutionService = skillExecution,
       logoutCancelService = LogoutCancelService(world),

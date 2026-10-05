@@ -50,7 +50,7 @@ class BestiaClock(
    * so `/date 02:00` sets the time to two in the morning and then two in the morning goes on becoming three.
    * A GM checking what a night looks like wants a night, not a paused frame of one.
    *
-   * `@Volatile` because chat is dispatched on a Netty worker thread while the ECS systems that read [now] are
+   * `@Volatile` because chat is dispatched on an IO thread while the ECS systems that read [now] are
    * on `zone-tick`. A `Duration` reference publishes safely; the object itself is immutable.
    */
   @Volatile

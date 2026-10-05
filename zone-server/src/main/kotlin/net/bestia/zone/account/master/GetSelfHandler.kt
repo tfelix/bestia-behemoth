@@ -17,6 +17,7 @@ import net.bestia.zone.ecs.item.Equipment
 import net.bestia.zone.ecs.place.Place
 import net.bestia.zone.ecs.visibility.EntityVisibility
 import net.bestia.zone.account.GetSelfCMSG
+import net.bestia.zone.message.HandlerLane
 import net.bestia.zone.message.SelfSMSG
 import net.bestia.zone.message.InMessageProcessor
 import net.bestia.zone.message.OutMessageProcessor
@@ -35,12 +36,12 @@ class GetSelfHandler(
   private val entityVisibility: EntityVisibility
 ) : InMessageProcessor.IncomingMessageHandler<GetSelfCMSG> {
   override val handles = GetSelfCMSG::class
+  override val lane = HandlerLane.IO
 
   /**
-   * Note this runs `readOnly = true` and now also briefly waits for the world lock inside that
-   * transaction (at most one tick). All the DB reads happen in [getSelfInfo] first, so nothing does
-   * I/O while holding the lock; `world.send` is the async alternative if that ever becomes a
-   * problem.
+   * Note this runs `readOnly = true` and also briefly waits for a world scope inside that transaction
+   * (at most one tick). All the DB reads happen in [getSelfInfo] first, so nothing does I/O inside the
+   * scope; `world.post` is the async alternative if that ever becomes a problem.
    */
   @Transactional(readOnly = true)
   override fun handle(msg: GetSelfCMSG): Boolean {

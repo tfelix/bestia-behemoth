@@ -20,7 +20,7 @@ interface Removable : Dirtyable {
    *
    * Override it only when the notification has to say something the component cannot answer for itself:
    * [net.bestia.zone.ecs.movement.Path] does, because a stop carries *where* the entity stopped, which lives
-   * on its `Position`. Called with the world lock held, so the entity's other components are still readable
+   * on its `Position`. Called with the world to itself, so the entity's other components are still readable
    * and current - do no I/O here.
    */
   fun toRemovedMessage(world: World, entityId: EntityId): EntitySMSG = toEntityMessage(entityId, removed = true)

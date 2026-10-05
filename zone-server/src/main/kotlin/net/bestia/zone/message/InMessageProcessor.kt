@@ -3,6 +3,7 @@ package net.bestia.zone.message
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Component
 import java.util.UUID
+import java.util.concurrent.CompletableFuture
 import kotlin.reflect.KClass
 
 /**
@@ -20,18 +21,38 @@ import kotlin.reflect.KClass
  */
 @Component
 class InMessageProcessor(
-  handler: List<IncomingMessageHandler<*>>
+  handler: List<IncomingMessageHandler<*>>,
+  private val inbox: AccountTaskExecutor,
 ) {
 
   private val existingHandler = handler.groupBy { it.handles }
 
+  private val laneByMessage: Map<KClass<*>, HandlerLane> = existingHandler.mapValues { (type, handlers) ->
+    val lanes = handlers.map { it.lane }.toSet()
+    require(lanes.size == 1) { "Handlers of ${type.simpleName} disagree about their lane: $lanes" }
+    lanes.single()
+  }
+
   interface IncomingMessageHandler<T : CMSG> {
     val handles: KClass<T>
+
+    /** Where [handle] runs. A handler that touches the database must say [HandlerLane.IO]. */
+    val lane: HandlerLane
+      get() {
+        return HandlerLane.TICK
+      }
 
     /**
      * return: Signals if the message was successfully handled.
      */
     fun handle(msg: T): Boolean
+  }
+
+  /** Queues [msg] behind the sender's earlier messages and handles it on its lane. */
+  fun submit(msg: CMSG): CompletableFuture<Unit> {
+    val lane = laneByMessage[msg::class] ?: HandlerLane.TICK
+
+    return inbox.execute(msg.playerId, lane) { process(msg) }
   }
 
   fun <T : CMSG> process(msg: T) {

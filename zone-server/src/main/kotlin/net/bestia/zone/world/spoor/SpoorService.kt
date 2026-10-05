@@ -22,9 +22,9 @@ import org.springframework.stereotype.Service
  *
  * ### Tick-thread state, read through a world scope
  *
- * The registry is a plain map owned by the tick thread and a skill resolves on a background worker, so every
- * caller has to reach this through `SkillWorld.readTracks`, which opens a scope for exactly that reason.
- * Nothing here reads an ECS component, so the scope is about the lock and nothing else.
+ * The registry is a plain map owned by the tick thread, so every caller reaches this through
+ * `SkillWorld.readTracks`, which opens a world scope. Nothing here reads an ECS component, so the scope is
+ * about the thread and nothing else.
  */
 @Service
 class SpoorService(

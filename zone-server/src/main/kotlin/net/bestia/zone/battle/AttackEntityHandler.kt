@@ -47,7 +47,7 @@ class AttackEntityHandler(
     logoutCancelService.cancelLogout(attackerId)
 
     // Inside the caster's own scope because AttackExecutionService resolves inline against the live World:
-    // it stages the damage and broadcasts, which both need the lock held. A handler scope never runs nested
+    // it stages the damage and broadcasts, which both need the world to itself. A handler never runs nested
     // inside a tick, so the staging applies immediately rather than being deferred.
     // Returns null - and so does nothing - when the attacker is no longer alive.
     world.modify(attackerId) { id ->

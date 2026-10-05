@@ -46,14 +46,14 @@ import java.util.concurrent.atomic.AtomicLong
  *
  * ### Ordering
  *
- * Every transition runs inside `synchronized(session)`, because messages arrive on socket threads while the
- * range sweep runs on the tick thread. Work that touches the database or the world lock stays outside that
+ * Every transition runs inside `synchronized(session)`, because messages arrive on IO threads while the
+ * range sweep runs on the tick thread. Work that touches the database or a world scope stays outside that
  * block where it can, and is handed to [AsyncJobExecutor] when the caller is the tick thread.
  *
- * **Nothing here ever holds a session monitor while waiting for the world lock.** That is what makes it safe
- * for the tick thread - which holds the world lock for the whole tick - to take a session monitor on its way
- * through [handleTradeInterrupted]. Every method below alternates the two rather than nesting them; nesting a
- * `world.modify` inside a `synchronized(session)` would close the cycle and hang the server.
+ * **Nothing here ever holds a session monitor while waiting for a world scope.** That is what makes it safe
+ * for the tick thread - which lends the world only between its own tasks - to take a session monitor on its
+ * way through [handleTradeInterrupted]. Every method below alternates the two rather than nesting them;
+ * nesting a `world.modify` inside a `synchronized(session)` would close the cycle and hang the server.
  */
 @Service
 class TradeService(
@@ -207,8 +207,8 @@ class TradeService(
    *
    * The durable commit comes first and decides which physical item leaves, then the live inventory is brought
    * into line - the ordering `DropItemHandler` established, and the one that does not duplicate the item if
-   * the process dies in between. Both happen inside one world-lock scope, so a concurrent drop of the same
-   * item lands strictly before or after and never in the middle.
+   * the process dies in between. The commit runs outside the world scope, because a lease must not wait on the
+   * database; a concurrent drop of the same item is settled there too, by whichever claims the row first.
    */
   fun offerItem(accountId: AccountId, tradeId: Long, itemId: Long, uniqueId: Long, amount: Int) {
     val session = sessions[tradeId] ?: return
@@ -233,33 +233,36 @@ class TradeService(
       return
     }
 
-    val reserved = world.modify(side.entityId) { id ->
-      val inventory = get(id, Inventory::class) ?: return@modify null
-
-      if (get(id, Equipment::class)?.leavesUnwornCopy(inventory, itemId, uniqueId) == false) {
-        LOG.warn { "Trade $tradeId: master ${side.masterId} offered item $itemId it is wearing" }
-        return@modify null
-      }
-
-      val reserved = inventoryService.reserveForTrade(side.masterId, tradeId, itemId, uniqueId, amount)
-        ?: return@modify null
-
-      if (!removeFromLive(inventory, reserved)) {
-        // The durable side gave the item up but the live mirror disagrees about holding it. Put it back rather
-        // than let the two drift; the player sees the offer simply not appear.
-        inventoryService.releaseTradeReservation(side.masterId, tradeId, reserved.offerSlotId)
-        LOG.warn {
-          "Trade $tradeId: master ${side.masterId} reserved item ${reserved.itemId} " +
-                  "that its live inventory does not hold"
-        }
-
-        return@modify null
-      }
-
-      reserved
+    val wornCopyOnly = world.read {
+      val inventory = get(side.entityId, Inventory::class)
+      val equipment = get(side.entityId, Equipment::class)
+      inventory != null && equipment?.leavesUnwornCopy(inventory, itemId, uniqueId) == false
+    }
+    if (wornCopyOnly) {
+      LOG.warn { "Trade $tradeId: master ${side.masterId} offered item $itemId it is wearing" }
+      resendTo(session, accountId)
+      return
     }
 
+    val reserved = inventoryService.reserveForTrade(side.masterId, tradeId, itemId, uniqueId, amount)
     if (reserved == null) {
+      resendTo(session, accountId)
+      return
+    }
+
+    val mirrored = world.modify(side.entityId) { id ->
+      val inventory = get(id, Inventory::class) ?: return@modify false
+      removeFromLive(inventory, reserved)
+    } ?: false
+
+    if (!mirrored) {
+      // The durable side gave the item up but the live mirror disagrees about holding it. Put it back rather
+      // than let the two drift; the player sees the offer simply not appear.
+      inventoryService.releaseTradeReservation(side.masterId, tradeId, reserved.offerSlotId)
+      LOG.warn {
+        "Trade $tradeId: master ${side.masterId} reserved item ${reserved.itemId} " +
+                "that its live inventory does not hold"
+      }
       resendTo(session, accountId)
       return
     }
@@ -308,20 +311,13 @@ class TradeService(
       return
     }
 
-    val released = world.modify(side.entityId) { id ->
-      val inventory = get(id, Inventory::class) ?: return@modify null
-      val released = inventoryService.releaseTradeReservation(side.masterId, tradeId, offerSlotId)
-        ?: return@modify null
-
-      inventory.addItem(released.toLiveItem())
-
-      released
-    }
-
+    val released = inventoryService.releaseTradeReservation(side.masterId, tradeId, offerSlotId)
     if (released == null) {
       resendTo(session, accountId)
       return
     }
+
+    world.modify(side.entityId) { id -> get(id, Inventory::class)?.addItem(released.toLiveItem()) }
 
     synchronized(session) {
       side.offer.removeIf { it.offerSlotId == offerSlotId }
@@ -420,7 +416,7 @@ class TradeService(
 
   /**
    * Ends a trade from somewhere that must not block: the range sweep runs on the tick thread, and giving the
-   * reservations back means a transaction plus two world-lock scopes.
+   * reservations back means a transaction plus two world scopes.
    */
   fun cancelAsync(tradeId: Long, reason: TradeEndReason) {
     val session = sessions[tradeId] ?: return

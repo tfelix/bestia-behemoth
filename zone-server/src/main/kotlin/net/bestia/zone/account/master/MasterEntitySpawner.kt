@@ -98,8 +98,11 @@ class MasterEntitySpawner(
     val learnedSkillIds = learnedSkillRepository.findAllByMasterId(masterId)
       .associate { it.skill.id to it.level }
 
-    // Read before taking the world lock: the attach below runs inside createEntity and must not do I/O.
+    // Read before the world scope: everything inside createEntity holds the world, and must not do I/O -
+    // the container's slots are a lazy relation.
     val persistedStatusEffects = statusEffectPersistenceService.load(master.entityId)
+    val inventory = buildInventory(master)
+    val equipment = buildEquipment(master)
 
     return world.createEntity(master.entityId) { id ->
       connectionInfoService.activateSession(
@@ -129,9 +132,8 @@ class MasterEntitySpawner(
           hair = master.hair
         )
       )
-      val inventory = buildInventory(master)
       add(id, inventory)
-      add(id, buildEquipment(master))
+      add(id, equipment)
 
       val baseStatusValues = BaseStatusValues(
         strength = master.strength,

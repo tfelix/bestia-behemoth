@@ -1,6 +1,7 @@
 package net.bestia.zone.account.master.skill
 
 import net.bestia.zone.account.master.MasterResolver
+import net.bestia.zone.message.HandlerLane
 import net.bestia.zone.skill.SkillListSMSG
 import net.bestia.zone.message.InMessageProcessor
 import net.bestia.zone.message.OutMessageProcessor
@@ -18,6 +19,7 @@ class InvestSkillPointHandler(
   private val outMessageProcessor: OutMessageProcessor
 ) : InMessageProcessor.IncomingMessageHandler<InvestSkillPointCMSG> {
   override val handles = InvestSkillPointCMSG::class
+  override val lane = HandlerLane.IO
 
   override fun handle(msg: InvestSkillPointCMSG): Boolean {
     val master = masterResolver.getSelectedMasterByAccountId(msg.playerId)

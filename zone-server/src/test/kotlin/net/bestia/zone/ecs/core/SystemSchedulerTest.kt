@@ -3,6 +3,7 @@ package net.bestia.zone.ecs.core
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import java.util.concurrent.atomic.AtomicInteger
 
 private class CompA : Component
 private class CompB : Component
@@ -166,6 +167,31 @@ class SystemSchedulerTest {
     repeat(3) { world.tick(0.05f) }
 
     assertEquals(3, sibling.runs)
+  }
+
+  @Test
+  fun `systems of a parallel wave may use the world's accessors while it is owned`() {
+    val reads = AtomicInteger()
+    val reader = object : System {
+      override val writes = setOf(CompB::class)
+      override fun update(world: World, deltaTime: Float) {
+        world.query(CompA::class).each { id -> if (world.has(id, CompA::class)) reads.incrementAndGet() }
+      }
+    }
+    val sibling = CountingSystem(Schedule.EveryTick, writes = setOf(CompC::class))
+    val world = testWorld(parallelSystems = true, systems = listOf(reader, sibling))
+    world.add(world.create(), CompA())
+
+    // Owned, as it is once the engine runs; a wave's threads must not need a lease from the waiting owner.
+    world.bindTickThread()
+    try {
+      world.tick(0.05f)
+    } finally {
+      world.unbindTickThread()
+    }
+
+    assertEquals(1, reads.get())
+    assertEquals(1, sibling.runs)
   }
 }
 

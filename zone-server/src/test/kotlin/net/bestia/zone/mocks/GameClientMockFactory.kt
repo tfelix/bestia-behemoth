@@ -3,6 +3,7 @@ package net.bestia.zone.mocks
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.account.AccountRepository
 import net.bestia.zone.message.SMSG
+import net.bestia.zone.message.AccountTaskExecutor
 import net.bestia.zone.message.InMessageProcessor
 import net.bestia.zone.socket.ConnectionTerminator
 import net.bestia.zone.socket.OutMessageHandler
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional
 @Profile("no-socket")
 class GameClientMockFactory(
   private val inMessageProcessor: InMessageProcessor,
+  private val inbox: AccountTaskExecutor,
   private val applicationEventPublisher: ApplicationEventPublisher,
   private val accountRepository: AccountRepository,
   private val connectionAdapter: MockConnectionAdapter
@@ -33,7 +35,7 @@ class GameClientMockFactory(
   class MockConnectionAdapter : OutMessageHandler, ConnectionTerminator {
 
     /**
-     * Written by whichever thread the server sent from - the zone tick, or one of `AsyncJobExecutor`'s
+     * Written by whichever thread the server sent from - the zone tick, or one of the IO lane's
      * workers - and read by the test thread, usually inside an Awaitility poll. So the buffers are
      * synchronized: an `ArrayList` here throws `ConcurrentModificationException` out of the assertion rather
      * than out of the code under test, which is a confusing way to learn nothing.
@@ -75,6 +77,7 @@ class GameClientMockFactory(
     return GameClientMock(
       accountId,
       inMessageProcessor,
+      inbox,
       applicationEventPublisher,
       buffer
     )

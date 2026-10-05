@@ -4,6 +4,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.account.master.MasterNotFoundException
 import net.bestia.zone.account.master.skill.BasicSkillGate
+import net.bestia.zone.message.HandlerLane
 import net.bestia.zone.message.InMessageProcessor
 import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OutMessageProcessor
@@ -25,6 +26,8 @@ class RequestInvitePlayerToPartyHandler(
 ) : InMessageProcessor.IncomingMessageHandler<RequestPartyInvitationCMSG> {
 
   override val handles = RequestPartyInvitationCMSG::class
+
+  override val lane = HandlerLane.IO
 
   override fun handle(msg: RequestPartyInvitationCMSG): Boolean {
     // The inviter's rank, not the invitee's: joining a party is not what Basic Skill rank 5 unlocks, growing

@@ -1,5 +1,6 @@
 package net.bestia.zone.scenarios
 
+import net.bestia.zone.ecs.NoSqlOnTickExtension
 import net.bestia.zone.mocks.GameClientMock
 import net.bestia.zone.mocks.GameClientMockFactory
 import org.awaitility.Awaitility
@@ -9,6 +10,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestMethodOrder
+import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.ApplicationContext
@@ -20,6 +22,7 @@ import org.springframework.test.context.ActiveProfiles
  * working with kotlin native classes.
  */
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@ExtendWith(NoSqlOnTickExtension::class)
 @SpringBootTest
 @ActiveProfiles("no-socket", "test")
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)

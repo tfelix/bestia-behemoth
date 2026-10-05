@@ -22,7 +22,7 @@ import org.springframework.stereotype.Component
  *
  * ### It reports queued, not lit
  *
- * Chat is dispatched on a Netty worker thread, so this goes through `GroundFireService.requestIgnition` and
+ * Chat is dispatched on an IO thread, so this goes through `GroundFireService.requestIgnition` and
  * starts on the next tick. Whether anything actually caught depends on the ground, and this cannot know - so
  * it says it asked. A `true` here means the command parsed, not that a fire is burning.
  */

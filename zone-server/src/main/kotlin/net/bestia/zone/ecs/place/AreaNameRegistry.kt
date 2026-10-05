@@ -43,7 +43,7 @@ import org.springframework.stereotype.Service
  * `MasterEntitySpawner` resolves inside its `createEntity` block, which is a login thread. Filled by
  * `boot/PlaceIndexBootRunner` before the tick loop starts.
  *
- * So a founding path must write from inside the world lock too. Writing from a request thread while a tick
+ * So a founding path must write from inside a world scope too. Writing from a request thread while a tick
  * reads is the mistake `AreaOfInterestService`'s KDoc records having shipped once: a reader can hang inside
  * `HashMap.get` during a resize, and it will not look like a locking bug when it happens.
  *

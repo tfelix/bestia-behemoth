@@ -312,8 +312,7 @@ class ChunkStreamSystem(
     val anchors = HashMap<Long, ChunkPos>()
 
     // Queried directly rather than through `WorldView.read`: a system already runs on the tick thread with
-    // the full World, and taking the lock a second time from inside it is what that narrow view exists to
-    // stop *other* threads doing, not this one.
+    // the full World, and that narrow view exists for *other* threads, not this one.
     world.query(Position::class, Account::class, ActivePlayer::class).each {
       val accountId = get<Account>().accountId
       anchors[accountId] = ChunkCoords.chunkOf(chunkService.config, get<Position>().toVec3L())

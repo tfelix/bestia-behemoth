@@ -1,6 +1,7 @@
 package net.bestia.zone.party.handler
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.zone.message.HandlerLane
 import net.bestia.zone.message.InMessageProcessor
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.party.AcceptPartyInviteCMSG
@@ -20,6 +21,8 @@ class AcceptPartyInviteHandler(
 ) : InMessageProcessor.IncomingMessageHandler<AcceptPartyInviteCMSG> {
 
   override val handles = AcceptPartyInviteCMSG::class
+
+  override val lane = HandlerLane.IO
 
   override fun handle(msg: AcceptPartyInviteCMSG): Boolean {
     try {

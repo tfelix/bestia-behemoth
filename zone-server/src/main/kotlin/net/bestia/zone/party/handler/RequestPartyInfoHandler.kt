@@ -1,6 +1,7 @@
 package net.bestia.zone.party.handler
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.zone.message.HandlerLane
 import net.bestia.zone.message.InMessageProcessor
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.party.PartyErrorSMSG
@@ -15,6 +16,8 @@ class RequestPartyInfoHandler(
 ) : InMessageProcessor.IncomingMessageHandler<RequestPartyInfoCMSG> {
 
   override val handles = RequestPartyInfoCMSG::class
+
+  override val lane = HandlerLane.IO
 
   override fun handle(msg: RequestPartyInfoCMSG): Boolean {
     try {

@@ -7,7 +7,6 @@ import net.bestia.zone.battle.damage.Damage
 import net.bestia.zone.battle.damage.HitDamage
 import net.bestia.zone.ecs.battle.status.Mana
 import net.bestia.zone.ecs.battle.status.StatusValues
-import net.bestia.zone.ecs.core.AsyncJobExecutor
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.ecs.movement.Position
@@ -20,7 +19,6 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import java.util.Optional
 import net.bestia.zone.ecs.battle.damage.Damage as DamageComponent
 
 class SkillExecutionServiceTest {
@@ -46,11 +44,6 @@ class SkillExecutionServiceTest {
 
   private val world = testWorld()
 
-  /** Runs submitted work inline, so a test asserts on the outcome instead of racing a worker pool. */
-  private val asyncJobs: AsyncJobExecutor = mockk<AsyncJobExecutor>().also {
-    every { it.submit(any(), any()) } answers { secondArg<() -> Unit>()() }
-  }
-
   private val propPromotion = PropPromotionService(mockk(relaxed = true))
 
   @Test
@@ -59,7 +52,7 @@ class SkillExecutionServiceTest {
     val caster = world.spawnFighter()
     val target = world.spawnFighter()
 
-    serviceFor(script).execute(world, caster, SKILL_ID, 1, target, null)
+    serviceFor(script).executeNow(world, caster, SKILL_ID, 1, target, null)
 
     assertEquals(1, script.casts)
     assertEquals(42, world.stagedDamageOn(target))
@@ -71,7 +64,7 @@ class SkillExecutionServiceTest {
     val caster = world.spawnFighter(mana = 100)
     val target = world.spawnFighter()
 
-    serviceFor(script, manaCost = 30).execute(world, caster, SKILL_ID, 1, target, null)
+    serviceFor(script, manaCost = 30).executeNow(world, caster, SKILL_ID, 1, target, null)
 
     assertEquals(0, script.casts)
     assertEquals(100, world.manaOf(caster), "a refused cast must not be charged for")
@@ -84,7 +77,7 @@ class SkillExecutionServiceTest {
     val caster = world.spawnFighter(mana = 5)
     val target = world.spawnFighter()
 
-    serviceFor(script, manaCost = 30).execute(world, caster, SKILL_ID, 1, target, null)
+    serviceFor(script, manaCost = 30).executeNow(world, caster, SKILL_ID, 1, target, null)
 
     assertEquals(0, script.casts)
     assertEquals(5, world.manaOf(caster))
@@ -96,7 +89,7 @@ class SkillExecutionServiceTest {
     val caster = world.spawnFighter(mana = 100)
     val target = world.spawnFighter()
 
-    serviceFor(script, manaCost = 30).execute(world, caster, SKILL_ID, 1, target, null)
+    serviceFor(script, manaCost = 30).executeNow(world, caster, SKILL_ID, 1, target, null)
 
     assertEquals(70, world.manaOf(caster))
   }
@@ -110,8 +103,8 @@ class SkillExecutionServiceTest {
     val target = world.spawnFighter()
     val service = serviceFor(script)
 
-    service.execute(world, caster, SKILL_ID, 1, target, null)
-    service.execute(world, caster, SKILL_ID, 1, target, null)
+    service.executeNow(world, caster, SKILL_ID, 1, target, null)
+    service.executeNow(world, caster, SKILL_ID, 1, target, null)
 
     assertEquals(20, world.stagedDamageOn(target))
   }
@@ -124,7 +117,7 @@ class SkillExecutionServiceTest {
 
     // Throwing out of here would kill the AsyncJobExecutor worker in production, so the test is that it does
     // not throw at all.
-    serviceFor(runaway).execute(world, caster, SKILL_ID, 1, target, null)
+    serviceFor(runaway).executeNow(world, caster, SKILL_ID, 1, target, null)
 
     assertEquals(1, runaway.casts)
     assertEquals(0, world.stagedDamageOn(target), "the number is never applied once the script was cut off")
@@ -136,7 +129,7 @@ class SkillExecutionServiceTest {
     val target = world.spawnFighter()
     val service = service(skill(script = "NotImplemented"), strategies = SkillStrategyFactory(emptyList()))
 
-    service.execute(world, caster, SKILL_ID, 1, target, null)
+    service.executeNow(world, caster, SKILL_ID, 1, target, null)
 
     assertEquals(0, world.stagedDamageOn(target))
   }
@@ -145,16 +138,15 @@ class SkillExecutionServiceTest {
   fun `a skill id that is not in the catalogue is ignored rather than throwing`() {
     val caster = world.spawnFighter()
     val repository = mockk<SkillRepository>()
-    every { repository.findById(any()) } returns Optional.empty()
+    every { repository.findAll() } returns emptyList()
 
     val service = SkillExecutionService(
       repository,
       SkillStrategyFactory(emptyList()),
       contextFactory(),
-      asyncJobs
-    )
+    ).also { it.warmUp() }
 
-    service.execute(world, caster, 9999L, 1, null, Vec3L(1, 0, 0))
+    service.executeNow(world, caster, 9999L, 1, null, Vec3L(1, 0, 0))
 
     assertFalse(world.has(caster, DamageComponent::class))
   }
@@ -164,7 +156,7 @@ class SkillExecutionServiceTest {
     val script = TestScript(result = HitDamage(7))
     val caster = world.spawnFighter()
 
-    serviceFor(script).execute(world, caster, SKILL_ID, 1, null, Vec3L(2, 0, 0))
+    serviceFor(script).executeNow(world, caster, SKILL_ID, 1, null, Vec3L(2, 0, 0))
 
     assertEquals(1, script.casts, "a ground cast still runs; it just has nothing to show the number on")
   }
@@ -176,7 +168,7 @@ class SkillExecutionServiceTest {
     val caster = world.spawnFighter()
     val target = world.spawnFighter()
 
-    serviceFor(script).execute(world, caster, SKILL_ID, 7, target, null)
+    serviceFor(script).executeNow(world, caster, SKILL_ID, 7, target, null)
 
     assertEquals(7, seen)
   }
@@ -189,7 +181,7 @@ class SkillExecutionServiceTest {
     val caster = world.spawnFighter(at = at)
     val target = world.spawnFighter()
 
-    serviceFor(script).execute(world, caster, SKILL_ID, 1, target, null)
+    serviceFor(script).executeNow(world, caster, SKILL_ID, 1, target, null)
 
     assertEquals(at, seen)
     assertTrue(script.casts == 1)
@@ -200,9 +192,22 @@ class SkillExecutionServiceTest {
 
   private fun service(skill: Skill, strategies: SkillStrategyFactory): SkillExecutionService {
     val repository = mockk<SkillRepository>()
-    every { repository.findById(skill.id) } returns Optional.of(skill)
+    every { repository.findAll() } returns listOf(skill)
 
-    return SkillExecutionService(repository, strategies, contextFactory(), asyncJobs)
+    return SkillExecutionService(repository, strategies, contextFactory()).also { it.warmUp() }
+  }
+
+  /** Resolution is posted to the tick thread; a tick runs it. */
+  private fun SkillExecutionService.executeNow(
+    world: World,
+    casterId: EntityId,
+    skillId: Long,
+    skillLevel: Int,
+    targetEntityId: EntityId?,
+    targetPosition: Vec3L?,
+  ) {
+    execute(world, casterId, skillId, skillLevel, targetEntityId, targetPosition)
+    world.tick(0f)
   }
 
   private fun contextFactory() = SkillContextFactory(

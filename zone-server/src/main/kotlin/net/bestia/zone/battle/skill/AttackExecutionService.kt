@@ -38,9 +38,9 @@ class AttackExecutionService(
 ) {
 
   /**
-   * Swings [attack] at [targetId]. Callable from anywhere the world lock is already held: the tick thread
-   * inside a system (the `BasicAttack` behaviour-tree leaf), or a `WorldView.modify` scope on the message
-   * thread (`AttackEntityHandler`, when a player clicks something). A player's swing and a mob's bite are
+   * Swings [attack] at [targetId]. Callable from anywhere that has the world to itself: the tick thread
+   * inside a system (the `BasicAttack` behaviour-tree leaf), or a `WorldView.modify` scope in a message
+   * handler (`AttackEntityHandler`, when a player clicks something). A player's swing and a mob's bite are
    * the same swing, which is the point.
    *
    * Being the one place both reach, this is also where [AttackDelay] is enforced and armed - there is no

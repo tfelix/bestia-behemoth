@@ -1,5 +1,6 @@
 package net.bestia.zone.boot
 
+import net.bestia.zone.battle.skill.SkillExecutionService
 import net.bestia.zone.bestia.BestiaCatalogue
 import net.bestia.zone.crafting.MasterCraftBonusService
 import net.bestia.zone.economy.CommodityItems
@@ -25,6 +26,7 @@ class CatalogueWarmUpBootRunner(
   private val craftBonus: MasterCraftBonusService,
   private val exposure: EnvironmentalExposureSystem,
   private val weather: WeatherPublisher,
+  private val skills: SkillExecutionService,
 ) : CommandLineRunner {
 
   override fun run(vararg args: String?) {
@@ -35,5 +37,6 @@ class CatalogueWarmUpBootRunner(
     craftBonus.warmUp()
     exposure.warmUp()
     weather.weatherSenseSkillId
+    skills.warmUp()
   }
 }

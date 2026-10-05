@@ -1,6 +1,7 @@
 package net.bestia.zone.party.handler
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.zone.message.HandlerLane
 import net.bestia.zone.message.InMessageProcessor
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.party.DisbandPartySMSG
@@ -17,6 +18,8 @@ class LeavePartyHandler(
 ) : InMessageProcessor.IncomingMessageHandler<LeavePartyCMSG> {
 
   override val handles = LeavePartyCMSG::class
+
+  override val lane = HandlerLane.IO
 
   override fun handle(msg: LeavePartyCMSG): Boolean {
     try {

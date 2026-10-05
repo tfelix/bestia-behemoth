@@ -30,9 +30,9 @@ import kotlin.math.abs
  *
  * ### Nothing here touches the ECS, deliberately
  *
- * The two callers are on different threads - [WeatherSystem] on `zone-tick`, the handler on a Netty worker -
- * so the maps are concurrent. Both callers read the position and the skill level themselves and hand over
- * plain values, which keeps this class out of the question of who may take the world lock and when.
+ * Both callers - [WeatherSystem], and `SelectMasterHandler` inside a world scope - read the position and the
+ * skill level themselves and hand over plain values, which keeps this class out of the question of who may
+ * touch the world and when. The maps stay concurrent anyway.
  */
 @Service
 class WeatherPublisher(

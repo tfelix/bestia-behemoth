@@ -1,5 +1,6 @@
 package net.bestia.zone.trade.handler
 
+import net.bestia.zone.message.HandlerLane
 import net.bestia.zone.message.InMessageProcessor
 import net.bestia.zone.trade.CancelTradeCMSG
 import net.bestia.zone.trade.TradeService
@@ -15,6 +16,8 @@ class CancelTradeHandler(
 ) : InMessageProcessor.IncomingMessageHandler<CancelTradeCMSG> {
 
   override val handles = CancelTradeCMSG::class
+
+  override val lane = HandlerLane.IO
 
   override fun handle(msg: CancelTradeCMSG): Boolean {
     tradeService.cancel(msg.playerId, msg.tradeId)

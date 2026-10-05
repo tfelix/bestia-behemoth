@@ -57,8 +57,8 @@ interface EntityVisibility {
   /**
    * Takes the visibility changes accumulated since the last call, and clears them.
    *
-   * Drained by `ZoneEngine` after the tick: the only place on the tick thread with no system running and
-   * outside the world lock, and so the only place a snapshot may safely be built.
+   * Drained by `ZoneEngine` after the tick: the only place on the tick thread with no system running, and
+   * so the only place a snapshot may safely be built.
    */
   fun drain(): List<Delivery>
 

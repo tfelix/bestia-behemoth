@@ -5,12 +5,11 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 /**
  * Bounds on what one skill script may do to the world.
  *
- * A script runs off the tick thread (see [SkillExecutionService]) but reaches the world through the
- * same lock the tick holds, so the cost it imposes is *lock occupancy* rather than tick time. These
- * are the two ceilings on that.
+ * A script resolves on the tick thread between two ticks (see [SkillExecutionService]), so the cost it
+ * imposes is tick time. These are the two ceilings on that.
  *
- * @property worldOpsPerCast world operations one cast may spend. Each opens its own lock scope, so this is
- *   what bounds how often a cast interrupts the tick. Generous against what the current scripts need (the
+ * @property worldOpsPerCast world operations one cast may spend. Each is one call into the world, so this is
+ *   what bounds how long a cast holds the tick. Generous against what the current scripts need (the
  *   busiest, a crafting activation, spends four) and low enough that a loop is caught long before it matters.
  * @property maxQueryResults entities one spatial query may return, charged per result on top of the query
  *   itself. Beyond this the query is refused rather than truncated, because a silently short answer is worse

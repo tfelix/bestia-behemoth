@@ -8,7 +8,7 @@ import net.bestia.zone.util.EntityId
  * One trade between two players, from the moment it is asked for until it closes.
  *
  * Lives only in memory. [TradeService] holds the map and is the only thing that mutates a session, always
- * inside `synchronized(session)` - message handlers run on socket threads and the range sweep runs on the
+ * inside `synchronized(session)` - message handlers run on IO threads and the range sweep runs on the
  * tick thread, so every transition has to be one indivisible step. What is durable is the reservation each
  * offered item carries on its own container row, which is deliberately the *only* thing that survives a
  * restart: see [net.bestia.zone.boot.TradeReservationCleanupBootRunner].

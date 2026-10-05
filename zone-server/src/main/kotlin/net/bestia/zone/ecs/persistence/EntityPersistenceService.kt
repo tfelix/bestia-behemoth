@@ -12,9 +12,9 @@ import org.springframework.stereotype.Service
 /**
  * Periodically snapshots every live [Persistent] entity to durable storage in bounded batches.
  *
- * Runs off the tick thread (driven by `@Scheduled`). For each batch it takes the world lock only long
+ * Runs off the tick thread (driven by `@Scheduled`). For each batch it takes a world scope only long
  * enough to copy component state into [EntitySnapshot]s; [EntityWriteBehind] then writes them on the
- * DB executor. Batching keeps a single lock acquisition small even with thousands of entities.
+ * DB executor. Batching keeps a single world scope short even with thousands of entities.
  *
  * TODO we should benchmark this with ~1m entities
  */

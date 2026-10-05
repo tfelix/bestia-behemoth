@@ -15,11 +15,7 @@ import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.InMessageProcessor
 import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OutMessageProcessor
-import net.bestia.zone.skill.SkillRepository
-import net.bestia.zone.util.EntityId
-import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.world.prop.PropPromotionService
-import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
 
 /**
@@ -39,7 +35,6 @@ class ActivateSkillHandler(
   private val connectionInfoService: ConnectionInfoService,
   private val skillCheckService: SkillCheckService,
   private val world: WorldView,
-  private val skillRepository: SkillRepository,
   private val skillStrategyFactory: SkillStrategyFactory,
   private val skillExecutionService: SkillExecutionService,
   private val logoutCancelService: LogoutCancelService,
@@ -68,7 +63,7 @@ class ActivateSkillHandler(
 
     // The catalogue row is needed here and not only at resolution: the cast time decides between the two
     // branches below, and a channelled cast has to carry the skill id into its Casting component.
-    val skill = skillRepository.findByIdOrNull(msg.attackId)
+    val skill = skillExecutionService.skillOf(msg.attackId)
     if (skill == null) {
       LOG.warn { "Entity $activeEntityId activated unknown skill ${msg.attackId}, ignoring" }
       return true
@@ -147,8 +142,6 @@ class ActivateSkillHandler(
       id
     } ?: return true
 
-    // Outside the modify scope on purpose: resolution runs on a worker that has to take the world lock, and
-    // handing it work while this thread still holds that lock would just make the worker wait.
     if (skill.castTime <= 0f) {
       skillExecutionService.execute(
         world = world,

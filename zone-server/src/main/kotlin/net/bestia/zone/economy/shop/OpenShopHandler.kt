@@ -34,7 +34,7 @@ class OpenShopHandler(
   override fun handle(msg: OpenShopCMSG): Boolean {
     val activeEntityId = connectionInfoService.getActiveEntityId(msg.playerId)
 
-    // Outside the read below rather than inside it: resolving a townsperson takes the world lock itself.
+    // Outside the read below rather than inside it: resolving a townsperson opens a world scope itself.
     val stocked = merchants.of(msg.merchantEntityId)
 
     val shop = if (stocked == null) {

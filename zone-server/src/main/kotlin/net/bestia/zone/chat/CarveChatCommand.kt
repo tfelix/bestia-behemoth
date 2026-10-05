@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component
  * carries the authority check, the help text and the error reply, and this way a dev-only capability costs no
  * wire message, no generated C# and no client code at all.
  *
- * The carve is queued rather than applied. Chat is dispatched on a Netty worker thread and the chunk store has
+ * The carve is queued rather than applied. Chat is dispatched on an IO thread and the chunk store has
  * one owning thread - see [ChunkStreamInbox].
  *
  * ### It takes a radius, and there is no way to ask for one voxel

@@ -260,8 +260,8 @@ skill:
   max-query-results: 32
   # Wall clock one cast may take, checked whenever an operation is charged. It catches a script looping
   # *between* operations; it cannot interrupt one already running, so it is a runaway guard rather than the
-  # bound. The op count above is what pins behaviour.
-  max-millis-per-cast: 250
+  # bound. The op count above is what pins behaviour. Casts resolve on the tick thread, so keep it at a tick.
+  max-millis-per-cast: 50
 
 world:
   tick-rate: 20

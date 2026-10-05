@@ -31,7 +31,7 @@ class BattleContextFactoryTest {
     val attacker = world.spawnMobLike()
     val defender = world.spawnMobLike()
 
-    val ctx = world.locked {
+    val ctx = world.read {
       factory.create(
         world = world,
         attackerId = attacker,
@@ -52,7 +52,7 @@ class BattleContextFactoryTest {
     val fiery = world.spawnMobLike(Nature(Element.FIRE_2, Size.SMALL))
     val plain = world.spawnMobLike()
 
-    fun defenderElement(defender: EntityId) = world.locked {
+    fun defenderElement(defender: EntityId) = world.read {
       val ctx = factory.create(
         world = world,
         attackerId = attacker,

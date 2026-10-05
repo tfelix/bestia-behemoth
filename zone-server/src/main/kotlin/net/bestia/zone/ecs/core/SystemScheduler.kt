@@ -43,7 +43,12 @@ class SystemScheduler(private val parallel: Boolean = false) {
 
   private val entries = ArrayList<Entry>()
   private var waves: List<List<Entry>> = emptyList()
-  private val pool: ForkJoinPool? = if (parallel) ForkJoinPool.commonPool() else null
+  // Its own pool, so the world can tell a wave's threads apart and let them in while the tick thread waits.
+  private val pool: ForkJoinPool? = if (parallel) {
+    ForkJoinPool(Runtime.getRuntime().availableProcessors(), { pool -> WaveWorker(pool) }, null, false)
+  } else {
+    null
+  }
 
   val systemCount: Int get() = entries.size
 

@@ -25,10 +25,9 @@ import org.springframework.stereotype.Service
  * survey costs is taken by `ChartService.mint` at the far end, so a cancelled cast pays nothing.
  *
  * Three things have to happen in three different places and this is what sequences them: the chart is written
- * relationally (off-tick, transactional), the live inventory the player is looking at is corrected (on the
- * world lock), and the outcome is reported (fire-and-forget). Splitting them is not a refinement - `zone-tick`
- * holds the world lock and may not do database work, and `ChartService` is transactional and may not touch the
- * world.
+ * relationally (off-tick, transactional), the live inventory the player is looking at is corrected (in a
+ * world scope), and the outcome is reported (fire-and-forget). Splitting them is not a refinement - `zone-tick`
+ * may not do database work, and `ChartService` is transactional and may not touch the world.
  *
  * ### Why the live inventory is corrected rather than left to resync
  *
@@ -70,8 +69,8 @@ class SurveyService(
    * checks that guard one removal, and it exists for the player rather than for correctness: without it the
    * refusal arrives five seconds late, after a cast bar that was always going to come to nothing.
    *
-   * Reads the live [Inventory] rather than the container, because it runs on a message thread holding the
-   * world lock, where a transaction may not go - and because the mirror is what the player is looking at. An
+   * Reads the live [Inventory] rather than the container, because it runs inside a world scope, where a
+   * transaction may not go - and because the mirror is what the player is looking at. An
    * item promised to a trade is already out of it, so it cannot be counted here.
    *
    * @return the refusal to report, or null when the cast may start
@@ -140,9 +139,9 @@ class SurveyService(
    * Public because merging and copying need exactly this and produce exactly the same result type; the ECS half
    * of a chart operation is one thing whichever of the three wrote the row.
    *
-   * Takes the world lock from off the tick, which is how a message handler reaches the world too - see
-   * `GetInventoryHandler`. It blocks until the current tick lets go, which is why this is called from an async
-   * worker and never from the tick itself.
+   * Takes a world scope from off the tick, which is how an IO-lane handler reaches the world too. It waits
+   * until the tick thread lends the world, which is why this is called from an async worker and never from the
+   * tick itself.
    */
   fun applyToLiveInventory(
     world: WorldView,

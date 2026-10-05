@@ -41,9 +41,9 @@ interface SkillStrategy {
    * Separate from [isCastPossible] because it answers a different question at a different moment: that one
    * asks whether the cast still makes sense when it resolves, this one whether it should ever begin.
    *
-   * Runs on the message thread inside the caster's own `modify` scope, which is why it is handed the [World]
+   * Runs in the message handler inside the caster's own `modify` scope, which is why it is handed the [World]
    * rather than the budgeted [SkillWorld] a resolving cast gets: there is no budget yet and no snapshot to
-   * take. The lock is held for the duration, so an implementation may read live components - but it may not
+   * take. The world is the handler's for the duration, so an implementation may read live components - but it may not
    * do relational work, and having nothing to write it has no reason to.
    *
    * @return the refusal to report to the player, or null when the cast may start

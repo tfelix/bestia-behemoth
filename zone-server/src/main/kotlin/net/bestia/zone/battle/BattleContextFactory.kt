@@ -24,8 +24,8 @@ import org.springframework.stereotype.Component
  * This is the bridge that was missing between the ECS and the (previously unreachable) battle
  * package - nothing built a [BattleEntity] from an entity id before.
  *
- * Must be called while the world lock is held; callers pass the [World] they already have (a system
- * on the tick thread, or the receiver inside a `WorldView.read/modify` block).
+ * Must be called with the world to itself; callers pass the [World] they already have (a system on the
+ * tick thread, or the receiver inside a `WorldView.read/modify` block).
  */
 @Component
 class BattleContextFactory(

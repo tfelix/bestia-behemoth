@@ -59,3 +59,7 @@ ambient-spawn:
 # itself without needing a context.
 worldgen:
   enforce-client-layout: false
+
+# A statement on the tick thread, or inside a world lease, stalls the whole world; in tests it is an error.
+zone:
+  sql-on-tick: fail

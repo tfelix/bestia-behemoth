@@ -40,9 +40,9 @@ data class StatusEffectsSnapshot(
  * runs alongside the kind persister at every persist site rather than becoming one of them.
  *
  * ### Threading
- * [snapshot] and [attach] touch components and must be called with the world lock held (inside a
+ * [snapshot] and [attach] touch components and must be called with the world to itself (inside a
  * `read`/`modify`/`createEntity` block, or on the tick thread). [seed], [load], [persist] and
- * [deleteFor] hit the database and must not be called under the lock.
+ * [deleteFor] hit the database and must not be called inside a world scope.
  */
 @Service
 class StatusEffectPersistenceService(
@@ -82,7 +82,7 @@ class StatusEffectPersistenceService(
     LOG.debug { "Seeded status effect ${effect.name} for entity $entityId" }
   }
 
-  /** Loads the stored effects of a single entity. Hits the DB — call before taking the world lock. */
+  /** Loads the stored effects of a single entity. Hits the DB — call before taking a world scope. */
   @Transactional(readOnly = true)
   fun load(entityId: EntityId): List<ActiveStatusEffect> =
     persistedStatusEffectRepository.findAllByOwnerEntityId(entityId).mapNotNull(::toActiveEffect)
@@ -98,7 +98,7 @@ class StatusEffectPersistenceService(
   /**
    * Attaches previously [load]ed effects to a live entity and marks it for a status value recalc so
    * [net.bestia.zone.ecs.battle.effects.StatusValueRecalcSystem] folds them into `StatusValues`/`Speed`
-   * on the next tick. Called under the world lock; does no I/O.
+   * on the next tick. Called with the world to itself; does no I/O.
    */
   fun attach(world: World, entityId: EntityId, effects: List<ActiveStatusEffect>) {
     if (effects.isEmpty()) {
@@ -110,7 +110,7 @@ class StatusEffectPersistenceService(
   }
 
   /**
-   * Copies a live entity's effects out into plain values. Called under the world lock; does no I/O.
+   * Copies a live entity's effects out into plain values. Called with the world to itself; does no I/O.
    *
    * Returns null when the entity carries no [StatusEffects] component at all, which means "this
    * entity is not participating" rather than "this entity has no effects" — the distinction matters
