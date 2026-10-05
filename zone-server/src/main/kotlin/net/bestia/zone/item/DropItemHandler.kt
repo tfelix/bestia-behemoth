@@ -49,8 +49,8 @@ class DropItemHandler(
         return@modify null
       }
 
-      if (!inventory.hasItem(msg.itemId.toInt())) {
-        LOG.warn { "Entity $activeEntityId owned no item ${msg.itemId}" }
+      if (!holdsDroppable(inventory, msg)) {
+        LOG.warn { "Entity $activeEntityId does not hold ${msg.amount}x item ${msg.itemId} (uniqueId ${msg.uniqueId})" }
         return@modify null
       }
 
@@ -67,13 +67,16 @@ class DropItemHandler(
         return@modify null
       }
 
-      // 2. Mirror the removal in the ECS inventory; it marks itself dirty and syncs back to the owner.
-      val groundAmount = if (removed.uniqueId != 0L) {
-        inventory.removeByUniqueId(removed.uniqueId)
-        1
+      // 2. Mirror the removal in the ECS inventory; it marks itself dirty and syncs back to the owner. A copy
+      //    looted this session still reads uniqueId 0 here, because its instance was minted after the mirror.
+      val groundAmount = if (removed.uniqueId != 0L) 1 else msg.amount
+      val mirrored = if (removed.uniqueId != 0L) {
+        inventory.removeByUniqueId(removed.uniqueId) || inventory.removeInstanceOf(msg.itemId)
       } else {
-        inventory.removeAmount(msg.itemId.toInt(), msg.amount)
-        msg.amount
+        inventory.removeFromStack(msg.itemId, msg.amount)
+      }
+      if (!mirrored) {
+        LOG.error { "Master $masterId dropped item ${msg.itemId} durably, but its live inventory held no such copy" }
       }
 
       val pos = getOrThrow(id, Position::class).toVec3L()
@@ -100,6 +103,20 @@ class DropItemHandler(
     }
 
     return true
+  }
+
+  /**
+   * Checked before the durable removal, which cannot be taken back: the database prefers an instance over a pile,
+   * so any instance of the template can be dropped, and a pile only for the full amount.
+   */
+  private fun holdsDroppable(inventory: Inventory, msg: DropItemCMSG): Boolean {
+    val copies = inventory.getItems().filter { it.itemId == msg.itemId }
+
+    if (msg.uniqueId != 0L) {
+      return copies.any { it.uniqueId == msg.uniqueId }
+    }
+
+    return copies.any { !it.isStackable } || copies.filter { it.isStackable }.sumOf { it.amount } >= msg.amount
   }
 
   private data class Dropped(
