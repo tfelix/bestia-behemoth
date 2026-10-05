@@ -82,7 +82,9 @@ class GameLoginController(
   @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
   data class ExchangeResponse(
     val token: String,
-    val refreshToken: String
+    val refreshToken: String,
+    /** For calls to this server's REST API. Short-lived, and renewed with every refresh. */
+    val apiToken: String
   )
 
   data class GameLoginFailure(
@@ -162,7 +164,8 @@ class GameLoginController(
       ResponseEntity.ok(
         ExchangeResponse(
           token = jwtService.createLoginToken(account.id, account.role),
-          refreshToken = refreshTokenService.issueForNewSession(account.id)
+          refreshToken = refreshTokenService.issueForNewSession(account.id),
+          apiToken = jwtService.createApiToken(account.id)
         )
       )
     } catch (e: GameLoginException) {
@@ -213,7 +216,8 @@ class GameLoginController(
       ResponseEntity.ok(
         ExchangeResponse(
           token = jwtService.createLoginToken(account.id, account.role),
-          refreshToken = rotated.token
+          refreshToken = rotated.token,
+          apiToken = jwtService.createApiToken(account.id)
         )
       )
     } catch (e: GameLoginException) {

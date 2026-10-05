@@ -3,6 +3,7 @@ package net.bestia.login.jwt
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
 import net.bestia.account.Role
+import net.bestia.internal.ServiceTokens
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -86,5 +87,28 @@ class JwtServiceTest {
 
         assertTrue(ids.all { !it.isNullOrBlank() })
         assertNotEquals(ids[0], ids[1])
+    }
+
+    @Test
+    fun `an api token names its account`() {
+        assertEquals(789L, jwtService.validateApiToken(jwtService.createApiToken(789L)))
+    }
+
+    /** Each token is meant for one receiver, so none of them may open another's door. */
+    @Test
+    fun `a zone login token is not an api token`() {
+        assertNull(jwtService.validateApiToken(jwtService.createLoginToken(789L, Role.SUPER_GM)))
+    }
+
+    @Test
+    fun `a service token is not an api token`() {
+        assertNull(jwtService.validateApiToken(jwtService.createServiceToken(789L, ServiceTokens.KICK_SCOPE)))
+    }
+
+    @Test
+    fun `a tampered api token is refused`() {
+        val token = jwtService.createApiToken(789L)
+
+        assertNull(jwtService.validateApiToken(token.dropLast(2) + "xx"))
     }
 }
