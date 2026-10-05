@@ -1,6 +1,7 @@
 package net.bestia.zone.entity
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.zone.ai.ecs.PlayerControlled
 import net.bestia.zone.ecs.ActivePlayerAOIService
 import net.bestia.zone.ecs.account.ActivePlayer
@@ -12,6 +13,7 @@ import net.bestia.zone.ecs.core.session.EntityNotOwnedSessionException
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.message.TickMessageHandler
+import net.bestia.zone.message.decoder
 import net.bestia.zone.util.AccountId
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
@@ -30,7 +32,9 @@ class SelectEntityHandler(
   private val playerAOIService: ActivePlayerAOIService,
   private val outMessageProcessor: OutMessageProcessor,
 ) : TickMessageHandler<SelectEntityCMSG> {
-  override val handles = SelectEntityCMSG::class
+  override val wire = decoder(MessageCase.SELECT_ACTIVE_ENTITY) { accountId, envelope ->
+    SelectEntityCMSG(accountId, envelope.selectActiveEntity.entityId)
+  }
 
   override fun handle(world: World, msg: SelectEntityCMSG): Boolean {
     // Read before switching: this is the entity that is about to stop being driven and start looking after

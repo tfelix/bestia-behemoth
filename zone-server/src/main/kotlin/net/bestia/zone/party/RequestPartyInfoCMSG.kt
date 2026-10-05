@@ -1,5 +1,6 @@
 package net.bestia.zone.party
 
+import net.bestia.bnet.proto.RequestPartyInfoCmsgProto
 import net.bestia.zone.message.CMSG
 
 /**
@@ -8,5 +9,10 @@ import net.bestia.zone.message.CMSG
  */
 data class RequestPartyInfoCMSG(
   override val playerId: Long
-) : CMSG
-
+) : CMSG {
+  companion object {
+    fun fromBnet(accountId: Long, proto: RequestPartyInfoCmsgProto.RequestPartyInfoCMSG): RequestPartyInfoCMSG {
+      return RequestPartyInfoCMSG(playerId = accountId)
+    }
+  }
+}

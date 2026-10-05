@@ -1,12 +1,14 @@
 package net.bestia.zone.party.handler
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.account.master.MasterNotFoundException
 import net.bestia.zone.account.master.skill.BasicSkillGate
 import net.bestia.zone.message.IoMessageHandler
 import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OutMessageProcessor
+import net.bestia.zone.message.decoder
 import net.bestia.zone.party.AlreadyInPartyException
 import net.bestia.zone.party.NotPartyException
 import net.bestia.zone.party.NotPartyOwnerException
@@ -24,7 +26,9 @@ class RequestInvitePlayerToPartyHandler(
   private val basicSkillGate: BasicSkillGate
 ) : IoMessageHandler<RequestPartyInvitationCMSG> {
 
-  override val handles = RequestPartyInvitationCMSG::class
+  override val wire = decoder(MessageCase.REQUEST_PARTY_INVITATION) { accountId, envelope ->
+    RequestPartyInvitationCMSG.fromBnet(accountId, envelope.requestPartyInvitation)
+  }
 
 
   override fun handle(msg: RequestPartyInvitationCMSG): Boolean {

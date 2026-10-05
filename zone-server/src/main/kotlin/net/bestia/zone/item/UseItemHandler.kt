@@ -1,6 +1,7 @@
 package net.bestia.zone.item
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.zone.ecs.battle.damage.DeadActionGuard
 import net.bestia.zone.ecs.core.AsyncJobExecutor
 import net.bestia.zone.ecs.item.Inventory
@@ -9,6 +10,7 @@ import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.item.script.ItemScriptExecutionService
 import net.bestia.zone.message.IoMessageHandler
+import net.bestia.zone.message.decoder
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
 
@@ -22,7 +24,9 @@ class UseItemHandler(
   private val deadActionGuard: DeadActionGuard,
   private val world: WorldView
 ) : IoMessageHandler<UseItemCMSG> {
-  override val handles = UseItemCMSG::class
+  override val wire = decoder(MessageCase.USE_ITEM) { accountId, envelope ->
+    UseItemCMSG.fromBnet(accountId, envelope.useItem)
+  }
 
   override fun handle(msg: UseItemCMSG): Boolean {
     val item = itemRepository.findByIdOrNull(msg.itemId)

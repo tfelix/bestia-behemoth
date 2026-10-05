@@ -1,6 +1,7 @@
 package net.bestia.zone.item
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.zone.ecs.core.AsyncJobExecutor
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.item.Equipment
@@ -13,6 +14,7 @@ import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.item.container.ItemContainer
 import net.bestia.zone.item.loot.LootItemEntitySpawner
 import net.bestia.zone.message.TickMessageHandler
+import net.bestia.zone.message.decoder
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
 import kotlin.random.Random
@@ -31,7 +33,9 @@ class DropItemHandler(
   private val asyncJobExecutor: AsyncJobExecutor,
   private val worldView: WorldView,
 ) : TickMessageHandler<DropItemCMSG> {
-  override val handles = DropItemCMSG::class
+  override val wire = decoder(MessageCase.DROP_ITEM) { accountId, envelope ->
+    DropItemCMSG.fromBnet(accountId, envelope.dropItem)
+  }
 
   override fun handle(world: World, msg: DropItemCMSG): Boolean {
     if (msg.amount <= 0) {

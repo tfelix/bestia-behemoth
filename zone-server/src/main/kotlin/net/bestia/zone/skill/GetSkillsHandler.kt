@@ -1,5 +1,6 @@
 package net.bestia.zone.skill
 
+import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.zone.account.master.skill.MasterSkillListBuilder
 import net.bestia.zone.bestia.PlayerBestiaRepository
 import net.bestia.zone.bestia.findByIdOrThrow
@@ -7,6 +8,7 @@ import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.session.EntityNotOwnedSessionException
 import net.bestia.zone.message.IoMessageHandler
 import net.bestia.zone.message.OutMessageProcessor
+import net.bestia.zone.message.decoder
 import net.bestia.zone.util.AccountId
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
@@ -25,7 +27,7 @@ class GetSkillsHandler(
   private val learnedSkillRepository: LearnedSkillRepository,
   private val masterSkillListBuilder: MasterSkillListBuilder
 ) : IoMessageHandler<GetSkillsCMSG> {
-  override val handles = GetSkillsCMSG::class
+  override val wire = decoder(MessageCase.GET_SKILLS) { accountId, _ -> GetSkillsCMSG(accountId) }
 
   @Transactional(readOnly = true)
   override fun handle(msg: GetSkillsCMSG): Boolean {

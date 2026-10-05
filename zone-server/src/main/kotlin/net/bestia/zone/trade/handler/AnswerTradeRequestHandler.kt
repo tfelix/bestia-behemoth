@@ -1,6 +1,8 @@
 package net.bestia.zone.trade.handler
 
+import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.zone.message.IoMessageHandler
+import net.bestia.zone.message.decoder
 import net.bestia.zone.trade.AnswerTradeRequestCMSG
 import net.bestia.zone.trade.TradeService
 import org.springframework.stereotype.Component
@@ -14,7 +16,9 @@ class AnswerTradeRequestHandler(
   private val tradeService: TradeService,
 ) : IoMessageHandler<AnswerTradeRequestCMSG> {
 
-  override val handles = AnswerTradeRequestCMSG::class
+  override val wire = decoder(MessageCase.ANSWER_TRADE_REQUEST) { accountId, envelope ->
+    AnswerTradeRequestCMSG.fromBnet(accountId, envelope.answerTradeRequest)
+  }
 
 
   override fun handle(msg: AnswerTradeRequestCMSG): Boolean {

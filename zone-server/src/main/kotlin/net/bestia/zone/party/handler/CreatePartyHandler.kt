@@ -1,11 +1,13 @@
 package net.bestia.zone.party.handler
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.account.master.skill.BasicSkillGate
 import net.bestia.zone.message.IoMessageHandler
 import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OutMessageProcessor
+import net.bestia.zone.message.decoder
 import net.bestia.zone.party.CreatePartyCMSG
 import net.bestia.zone.party.PartyService
 import net.bestia.zone.party.PartyErrorSMSG
@@ -21,7 +23,9 @@ class CreatePartyHandler(
   private val basicSkillGate: BasicSkillGate
 ) : IoMessageHandler<CreatePartyCMSG> {
 
-  override val handles = CreatePartyCMSG::class
+  override val wire = decoder(MessageCase.CREATE_PARTY) { accountId, envelope ->
+    CreatePartyCMSG.fromBnet(accountId, envelope.createParty)
+  }
 
 
   override fun handle(msg: CreatePartyCMSG): Boolean {

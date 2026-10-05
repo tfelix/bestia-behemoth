@@ -1,11 +1,13 @@
 package net.bestia.zone.world.prop.collect
 
+import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.zone.ecs.battle.damage.DeadActionGuard
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.modify
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.prop.CollectPropIntent
 import net.bestia.zone.message.TickMessageHandler
+import net.bestia.zone.message.decoder
 import org.springframework.stereotype.Component
 
 /**
@@ -24,7 +26,9 @@ class CollectPropHandler(
   private val connectionInfoService: ConnectionInfoService,
   private val deadActionGuard: DeadActionGuard,
 ) : TickMessageHandler<CollectPropCMSG> {
-  override val handles = CollectPropCMSG::class
+  override val wire = decoder(MessageCase.COLLECT_PROP) { accountId, envelope ->
+    CollectPropCMSG.fromBnet(accountId, envelope.collectProp)
+  }
 
   override fun handle(world: World, msg: CollectPropCMSG): Boolean {
     val activeEntityId = connectionInfoService.getActiveEntityId(msg.playerId)

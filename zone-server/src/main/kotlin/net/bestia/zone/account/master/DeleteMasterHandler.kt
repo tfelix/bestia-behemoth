@@ -1,10 +1,12 @@
 package net.bestia.zone.account.master
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.bnet.proto.OperationErrorProto
 import net.bestia.zone.message.IoMessageHandler
 import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OutMessageProcessor
+import net.bestia.zone.message.decoder
 import net.bestia.zone.party.DisbandPartySMSG
 import net.bestia.zone.party.PartyService
 import org.springframework.stereotype.Component
@@ -22,7 +24,9 @@ class DeleteMasterHandler(
   private val partyService: PartyService,
   private val outMessageProcessor: OutMessageProcessor
 ) : IoMessageHandler<DeleteMasterCMSG> {
-  override val handles = DeleteMasterCMSG::class
+  override val wire = decoder(MessageCase.DELETE_MASTER) { accountId, envelope ->
+    DeleteMasterCMSG.fromBnet(accountId, envelope.deleteMaster)
+  }
 
   override fun handle(msg: DeleteMasterCMSG): Boolean {
     val result = try {

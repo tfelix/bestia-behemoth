@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "LeavePartyCmsgProto";
+
+// Client leaves its party. When the owner leaves, the party is disbanded.
+message LeavePartyCMSG {
+}

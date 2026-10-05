@@ -1,5 +1,6 @@
 package net.bestia.zone.economy.shop
 
+import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.bnet.proto.OperationErrorProto
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
@@ -8,6 +9,7 @@ import net.bestia.zone.economy.SettlementEconomyService
 import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.message.TickMessageHandler
+import net.bestia.zone.message.decoder
 import org.springframework.stereotype.Component
 
 /**
@@ -27,7 +29,9 @@ class OpenShopHandler(
   private val offers: ShopOfferPublisher,
   private val outMessageProcessor: OutMessageProcessor,
 ) : TickMessageHandler<OpenShopCMSG> {
-  override val handles = OpenShopCMSG::class
+  override val wire = decoder(MessageCase.OPEN_SHOP) { accountId, envelope ->
+    OpenShopCMSG.fromBnet(accountId, envelope.openShop)
+  }
 
   override fun handle(world: World, msg: OpenShopCMSG): Boolean {
     val activeEntityId = connectionInfoService.getActiveEntityId(msg.playerId)

@@ -1,6 +1,7 @@
 package net.bestia.zone.world.prop.interact
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.dialog.DialogId
 import net.bestia.zone.dialog.DialogService
@@ -18,6 +19,7 @@ import net.bestia.zone.ecs.spawn.townsfolk.Townsfolk
 import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.message.TickMessageHandler
+import net.bestia.zone.message.decoder
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.world.prop.PlayerStructureService
 import org.springframework.stereotype.Component
@@ -42,7 +44,9 @@ class InteractEntityHandler(
   private val outMessageProcessor: OutMessageProcessor,
 ) : TickMessageHandler<InteractEntityCMSG> {
 
-  override val handles = InteractEntityCMSG::class
+  override val wire = decoder(MessageCase.INTERACT_ENTITY) { accountId, envelope ->
+    InteractEntityCMSG.fromBnet(accountId, envelope.interactEntity)
+  }
 
   override fun handle(world: World, msg: InteractEntityCMSG): Boolean {
     val actorId = connectionInfoService.getActiveEntityId(msg.playerId)

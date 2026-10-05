@@ -1,8 +1,10 @@
 package net.bestia.zone.party.handler
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.zone.message.IoMessageHandler
 import net.bestia.zone.message.OutMessageProcessor
+import net.bestia.zone.message.decoder
 import net.bestia.zone.party.DisbandPartySMSG
 import net.bestia.zone.party.PartyErrorSMSG
 import net.bestia.zone.party.PartyNotFoundException
@@ -16,7 +18,9 @@ class RequestDisbandPartyHandler(
   private val outMessageProcessor: OutMessageProcessor
 ) : IoMessageHandler<RequestDisbandPartyCMSG> {
 
-  override val handles = RequestDisbandPartyCMSG::class
+  override val wire = decoder(MessageCase.REQUEST_DISBAND_PARTY) { accountId, envelope ->
+    RequestDisbandPartyCMSG.fromBnet(accountId, envelope.requestDisbandParty)
+  }
 
 
   override fun handle(msg: RequestDisbandPartyCMSG): Boolean {

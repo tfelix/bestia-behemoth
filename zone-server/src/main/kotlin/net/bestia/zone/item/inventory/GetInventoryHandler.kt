@@ -1,18 +1,20 @@
 package net.bestia.zone.item.inventory
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.modify
 import net.bestia.zone.ecs.item.Inventory
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.message.TickMessageHandler
+import net.bestia.zone.message.decoder
 import org.springframework.stereotype.Component
 
 @Component
 class GetInventoryHandler(
   private val connectionInfoService: ConnectionInfoService,
 ) : TickMessageHandler<GetInventoryCMSG> {
-  override val handles = GetInventoryCMSG::class
+  override val wire = decoder(MessageCase.GET_INVENTORY) { accountId, _ -> GetInventoryCMSG(accountId) }
 
   override fun handle(world: World, msg: GetInventoryCMSG): Boolean {
     // Get the currently selected entity for this player

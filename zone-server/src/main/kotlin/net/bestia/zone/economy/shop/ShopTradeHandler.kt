@@ -1,11 +1,13 @@
 package net.bestia.zone.economy.shop
 
+import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.zone.ecs.battle.damage.DeadActionGuard
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.modify
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.economy.ShopTradeIntent
 import net.bestia.zone.message.TickMessageHandler
+import net.bestia.zone.message.decoder
 import org.springframework.stereotype.Component
 
 /**
@@ -18,7 +20,9 @@ class ShopTradeHandler(
   private val deadActionGuard: DeadActionGuard,
   private val merchants: MerchantStock,
 ) : TickMessageHandler<ShopTradeCMSG> {
-  override val handles = ShopTradeCMSG::class
+  override val wire = decoder(MessageCase.SHOP_TRADE) { accountId, envelope ->
+    ShopTradeCMSG.fromBnet(accountId, envelope.shopTrade)
+  }
 
   override fun handle(world: World, msg: ShopTradeCMSG): Boolean {
     val activeEntityId = connectionInfoService.getActiveEntityId(msg.playerId)

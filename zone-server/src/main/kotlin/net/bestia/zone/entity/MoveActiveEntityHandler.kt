@@ -1,6 +1,7 @@
 package net.bestia.zone.entity
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.zone.ecs.ZoneConfig
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.modify
@@ -13,6 +14,7 @@ import net.bestia.zone.ecs.battle.skill.CastCancelService
 import net.bestia.zone.ecs.logout.LogoutCancelService
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.TickMessageHandler
+import net.bestia.zone.message.decoder
 import net.bestia.zone.navigation.local.LocalWalkQuery
 import org.springframework.stereotype.Component
 import kotlin.math.abs
@@ -33,7 +35,9 @@ class MoveActiveEntityHandler(
   private val zoneConfig: ZoneConfig,
   private val rateLimit: MoveRequestRateLimit,
 ) : TickMessageHandler<MoveActiveEntityCMSG> {
-  override val handles = MoveActiveEntityCMSG::class
+  override val wire = decoder(MessageCase.MOVE_ACTIVE_ENTITY) { accountId, envelope ->
+    MoveActiveEntityCMSG.fromBnet(accountId, envelope.moveActiveEntity)
+  }
 
   override fun handle(world: World, msg: MoveActiveEntityCMSG): Boolean {
     val activeEntityId = connectionInfoService.getActiveEntityId(msg.playerId)

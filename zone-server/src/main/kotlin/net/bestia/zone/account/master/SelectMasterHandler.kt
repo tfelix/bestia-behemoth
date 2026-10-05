@@ -1,6 +1,7 @@
 package net.bestia.zone.account.master
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.zone.bestia.OwnedBestiaSpawnService
 import net.bestia.zone.bestia.OwnedBestiasPublisher
 import net.bestia.zone.ecs.battle.skill.KnownSkills
@@ -11,6 +12,7 @@ import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.environment.weather.WeatherPublisher
 import net.bestia.zone.item.equip.EquipmentRevalidationService
 import net.bestia.zone.message.IoMessageHandler
+import net.bestia.zone.message.decoder
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
 
@@ -25,7 +27,9 @@ class SelectMasterHandler(
   private val ownedBestiasPublisher: OwnedBestiasPublisher,
   private val asyncJobExecutor: AsyncJobExecutor,
 ) : IoMessageHandler<SelectMasterCMSG> {
-  override val handles = SelectMasterCMSG::class
+  override val wire = decoder(MessageCase.SELECT_MASTER) { accountId, envelope ->
+    SelectMasterCMSG(accountId, envelope.selectMaster.masterId)
+  }
 
   override fun handle(msg: SelectMasterCMSG): Boolean {
     // A second master next to the active one would be orphaned in the world: the session tracks only one.

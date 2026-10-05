@@ -1,8 +1,10 @@
 package net.bestia.zone.world.stream
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.message.TickMessageHandler
+import net.bestia.zone.message.decoder
 import org.springframework.stereotype.Component
 
 /**
@@ -18,7 +20,9 @@ class ChunkRequestHandler(
   private val inbox: ChunkStreamInbox
 ) : TickMessageHandler<ChunkRequestCMSG> {
 
-  override val handles = ChunkRequestCMSG::class
+  override val wire = decoder(MessageCase.CHUNK_REQUEST) { accountId, envelope ->
+    ChunkRequestCMSG.fromBnet(accountId, envelope.chunkRequest)
+  }
 
   override fun handle(world: World, msg: ChunkRequestCMSG): Boolean {
     LOG.trace { "Account ${msg.playerId} requested ${msg.chunks.size} chunks" }

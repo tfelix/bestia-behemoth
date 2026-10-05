@@ -1,6 +1,7 @@
 package net.bestia.zone.ai.message
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.zone.ai.ecs.AiAgent
 import net.bestia.zone.ai.ecs.AiAgentFactory
 import net.bestia.zone.ai.profile.AiProfileRegistry
@@ -11,6 +12,7 @@ import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.message.IoMessageHandler
 import net.bestia.zone.message.OutMessageProcessor
+import net.bestia.zone.message.decoder
 import net.bestia.zone.util.PlayerBestiaId
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
@@ -32,7 +34,9 @@ class SetBestiaAiConfigHandler(
   private val outMessageProcessor: OutMessageProcessor,
 ) : IoMessageHandler<SetBestiaAiConfigCMSG> {
 
-  override val handles = SetBestiaAiConfigCMSG::class
+  override val wire = decoder(MessageCase.SET_BESTIA_AI_CONFIG) { accountId, envelope ->
+    SetBestiaAiConfigCMSG.fromBnet(accountId, envelope.setBestiaAiConfig)
+  }
 
 
   @Transactional

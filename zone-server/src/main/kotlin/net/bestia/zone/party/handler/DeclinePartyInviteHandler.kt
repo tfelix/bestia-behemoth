@@ -1,8 +1,10 @@
 package net.bestia.zone.party.handler
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.zone.message.IoMessageHandler
 import net.bestia.zone.message.OutMessageProcessor
+import net.bestia.zone.message.decoder
 import net.bestia.zone.party.DeclinePartyInviteCMSG
 import net.bestia.zone.party.PartyErrorSMSG
 import net.bestia.zone.party.PartyException
@@ -17,7 +19,9 @@ class DeclinePartyInviteHandler(
   private val outMessageProcessor: OutMessageProcessor
 ) : IoMessageHandler<DeclinePartyInviteCMSG> {
 
-  override val handles = DeclinePartyInviteCMSG::class
+  override val wire = decoder(MessageCase.DECLINE_PARTY_INVITE) { accountId, envelope ->
+    DeclinePartyInviteCMSG.fromBnet(accountId, envelope.declinePartyInvite)
+  }
 
 
   override fun handle(msg: DeclinePartyInviteCMSG): Boolean {

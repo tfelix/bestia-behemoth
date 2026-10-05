@@ -1,6 +1,7 @@
 package net.bestia.zone.crafting
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.zone.ecs.battle.damage.DeadActionGuard
 import net.bestia.zone.ecs.battle.skill.CastCancelService
 import net.bestia.zone.ecs.core.World
@@ -10,6 +11,7 @@ import net.bestia.zone.ecs.logout.LogoutCancelService
 import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.message.TickMessageHandler
+import net.bestia.zone.message.decoder
 import org.springframework.stereotype.Component
 
 /**
@@ -26,7 +28,9 @@ class CraftItemHandler(
   private val deadActionGuard: DeadActionGuard,
   private val outMessageProcessor: OutMessageProcessor,
 ) : TickMessageHandler<CraftItemCMSG> {
-  override val handles = CraftItemCMSG::class
+  override val wire = decoder(MessageCase.CRAFT_ITEM) { accountId, envelope ->
+    CraftItemCMSG.fromBnet(accountId, envelope.craftItem)
+  }
 
   override fun handle(world: World, msg: CraftItemCMSG): Boolean {
     val activeEntityId = connectionInfoService.getActiveEntityId(msg.playerId)

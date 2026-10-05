@@ -1,12 +1,12 @@
 package net.bestia.zone.message
 
+import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.util.AccountId
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.util.concurrent.CompletableFuture
-import kotlin.reflect.KClass
 import kotlin.test.assertEquals
 
 class InMessageProcessorTest {
@@ -14,7 +14,7 @@ class InMessageProcessorTest {
   private data class Poke(override val playerId: Long) : CMSG
 
   private class TickPokeHandler : TickMessageHandler<Poke> {
-    override val handles: KClass<Poke> = Poke::class
+    override val wire = decoder(MessageCase.PING) { accountId, _ -> Poke(accountId) }
     var handledWith: World? = null
 
     override fun handle(world: World, msg: Poke): Boolean {
@@ -24,7 +24,7 @@ class InMessageProcessorTest {
   }
 
   private class IoPokeHandler : IoMessageHandler<Poke> {
-    override val handles: KClass<Poke> = Poke::class
+    override val wire = decoder(MessageCase.PING) { accountId, _ -> Poke(accountId) }
     var handled = 0
 
     override fun handle(msg: Poke): Boolean {

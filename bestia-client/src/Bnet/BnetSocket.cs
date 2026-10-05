@@ -6,7 +6,6 @@ using System.Threading;
 using System.IO;
 using Bnet;
 using Google.Protobuf;
-using BestiaBehemothClient.Game.World;
 
 namespace BestiaBehemothClient.Bnet.Message
 {
@@ -70,6 +69,10 @@ namespace BestiaBehemothClient.Bnet.Message
     public override void _Ready()
     {
       _messageQueue = new ConcurrentQueue<Envelope>();
+      foreach (var unrouted in EnvelopeCases.Unrouted(EnvelopeDecoder.RoutedCases))
+      {
+        GD.PushError($"BnetSocket: the server sends '{unrouted}', which EnvelopeDecoder does not route");
+      }
     }
 
     public override void _Process(double delta)
@@ -86,301 +89,16 @@ namespace BestiaBehemothClient.Bnet.Message
           GD.Print($"Disconnected by server: {envelope.Disconnected.Reason}");
           DisconnectFromServer();
         }
-        else if (envelope.AuthenticationSuccess != null)
-        {
-          var msg = AuthenticationSuccess.FromProto(envelope.AuthenticationSuccess);
-          EmitSignal(SignalName.MessageReceived, msg);
-        }
-        else if (envelope.Pong != null)
-        {
-          var msg = new Pong();
-          EmitSignal(SignalName.MessageReceived, msg);
-        }
-        else if (envelope.Master != null)
-        {
-          var msg = Master.MasterSMSG.FromProto(envelope.Master);
-          EmitSignal(SignalName.MessageReceived, msg);
-        }
-        else if (envelope.DamageEntity != null)
-        {
-          var msg = Entity.DamageEntitySMSG.FromProto(envelope.DamageEntity);
-          EmitSignal(SignalName.MessageReceived, msg);
-        }
-        else if (envelope.CompMana != null)
-        {
-          var msg = Entity.ManaComponentSMSG.FromProto(envelope.CompMana);
-          EmitSignal(SignalName.MessageReceived, msg);
-        }
-        else if (envelope.CompHealth != null)
-        {
-          var msg = Entity.HealthComponentSMSG.FromProto(envelope.CompHealth);
-          EmitSignal(SignalName.MessageReceived, msg);
-        }
-        else if (envelope.CompCasting != null)
-        {
-          var msg = Entity.CastingComponentSMSG.FromProto(envelope.CompCasting);
-          EmitSignal(SignalName.MessageReceived, msg);
-        }
-        else if (envelope.CompConstruction != null)
-        {
-          var msg = Entity.ConstructionComponentSMSG.FromProto(envelope.CompConstruction);
-          EmitSignal(SignalName.MessageReceived, msg);
-        }
-        else if (envelope.CompStamina != null)
-        {
-          var msg = Entity.StaminaComponentSMSG.FromProto(envelope.CompStamina);
-          EmitSignal(SignalName.MessageReceived, msg);
-        }
-        else if (envelope.CompPlace != null)
-        {
-          var msg = Entity.PlaceComponentSMSG.FromProto(envelope.CompPlace);
-          EmitSignal(SignalName.MessageReceived, msg);
-        }
-        else if (envelope.CompAreaName != null)
-        {
-          var msg = Entity.AreaNameComponentSMSG.FromProto(envelope.CompAreaName);
-          EmitSignal(SignalName.MessageReceived, msg);
-        }
-        else if (envelope.CompCarryCapacity != null)
-        {
-          var msg = Entity.CarryCapacityComponentSMSG.FromProto(envelope.CompCarryCapacity);
-          EmitSignal(SignalName.MessageReceived, msg);
-        }
-        else if (envelope.CompEffects != null)
-        {
-          var msg = Entity.BuffListSMSG.FromProto(envelope.CompEffects);
-          EmitSignal(SignalName.MessageReceived, msg);
-        }
-        else if (envelope.CompInventory != null)
-        {
-          var msg = Entity.InventoryComponentSMSG.FromProto(envelope.CompInventory);
-          EmitSignal(SignalName.MessageReceived, msg);
-        }
-        else if (envelope.CompEquipment != null)
-        {
-          var msg = Entity.EquipmentComponentSMSG.FromProto(envelope.CompEquipment);
-          EmitSignal(SignalName.MessageReceived, msg);
-        }
-        else if (envelope.CompSkillList != null)
-        {
-          var msg = Entity.SkillListSMSG.FromProto(envelope.CompSkillList);
-          EmitSignal(SignalName.MessageReceived, msg);
-        }
-        else if (envelope.CompSkillPoints != null)
-        {
-          var msg = Entity.SkillPointsComponentSMSG.FromProto(envelope.CompSkillPoints);
-          EmitSignal(SignalName.MessageReceived, msg);
-        }
-        else if (envelope.CompStatusValues != null)
-        {
-          var msg = Entity.StatusValuesComponentSMSG.FromProto(envelope.CompStatusValues);
-          EmitSignal(SignalName.MessageReceived, msg);
-        }
-        else if (envelope.CompBaseStatusValues != null)
-        {
-          var msg = Entity.BaseStatusValuesComponentSMSG.FromProto(envelope.CompBaseStatusValues);
-          EmitSignal(SignalName.MessageReceived, msg);
-        }
-        else if (envelope.CompStatusPoints != null)
-        {
-          var msg = Entity.StatusPointsComponentSMSG.FromProto(envelope.CompStatusPoints);
-          EmitSignal(SignalName.MessageReceived, msg);
-        }
-        else if (envelope.CompVisual != null)
-        {
-          var msg = Entity.VisualComponentSMSG.FromProto(envelope.CompVisual);
-          EmitSignal(SignalName.MessageReceived, msg);
-        }
-        else if (envelope.Self != null)
-        {
-          var msg = Master.SelfSMSG.FromProto(envelope.Self);
-          EmitSignal(SignalName.MessageReceived, msg);
-        }
-        else if (envelope.OwnedBestias != null)
-        {
-          var msg = Master.OwnedBestiasSMSG.FromProto(envelope.OwnedBestias);
-          EmitSignal(SignalName.MessageReceived, msg);
-        }
-        else if (envelope.ActiveEntity != null)
-        {
-          var msg = Master.ActiveEntitySMSG.FromProto(envelope.ActiveEntity);
-          EmitSignal(SignalName.MessageReceived, msg);
-        }
-        else if (envelope.BestiaCapture != null)
-        {
-          var msg = Master.BestiaCaptureSMSG.FromProto(envelope.BestiaCapture);
-          EmitSignal(SignalName.MessageReceived, msg);
-        }
-        else if (envelope.CompLevel != null)
-        {
-          var msg = Entity.LevelComponentSMSG.FromBnet(envelope.CompLevel);
-          EmitSignal(SignalName.MessageReceived, msg);
-        }
-        else if (envelope.CompExp != null)
-        {
-          var msg = Entity.ExpComponentSMSG.FromBnet(envelope.CompExp);
-          EmitSignal(SignalName.MessageReceived, msg);
-        }
-        else if (envelope.CompMasterVisual != null)
-        {
-          var msg = Entity.MasterVisualComponentSMSG.FromProto(envelope.CompMasterVisual);
-          EmitSignal(SignalName.MessageReceived, msg);
-        }
-        else if (envelope.CompTownsfolkVisual != null)
-        {
-          var msg = Entity.TownsfolkVisualComponentSMSG.FromProto(envelope.CompTownsfolkVisual);
-          EmitSignal(SignalName.MessageReceived, msg);
-        }
-        else if (envelope.VanishEntity != null)
-        {
-          var msg = Entity.VanishEntitySMSG.FromProto(envelope.VanishEntity);
-          EmitSignal(SignalName.MessageReceived, msg);
-        }
-        else if (envelope.CompLogoutIntent != null)
-        {
-          var msg = Entity.LogoutIntentComponentSMSG.FromProto(envelope.CompLogoutIntent);
-          EmitSignal(SignalName.MessageReceived, msg);
-        }
-        else if (envelope.CompDead != null)
-        {
-          var msg = Entity.DeadComponentSMSG.FromProto(envelope.CompDead);
-          EmitSignal(SignalName.MessageReceived, msg);
-        }
-        else if (envelope.CompPosition != null)
-        {
-          var msg = Entity.PositionComponent.FromProto(envelope.CompPosition);
-          EmitSignal(SignalName.MessageReceived, msg);
-        }
-        else if (envelope.CompPath != null)
-        {
-          var msg = Entity.PathComponentSMSG.FromProto(envelope.CompPath);
-          EmitSignal(SignalName.MessageReceived, msg);
-        }
-        else if (envelope.CompSpeed != null)
-        {
-          var msg = Entity.SpeedComponentSMSG.FromProto(envelope.CompSpeed);
-          EmitSignal(SignalName.MessageReceived, msg);
-        }
-        else if (envelope.CompAnimation != null)
-        {
-          var msg = Entity.AnimationComponentSMSG.FromProto(envelope.CompAnimation);
-          EmitSignal(SignalName.MessageReceived, msg);
-        }
-        else if (envelope.OperationSuccess != null)
-        {
-          var msg = OperationSuccess.FromProto(envelope.OperationSuccess);
-          EmitSignal(SignalName.MessageReceived, msg);
-        }
-        else if (envelope.OperationError != null)
-        {
-          var msg = OperationError.FromProto(envelope.OperationError);
-          EmitSignal(SignalName.MessageReceived, msg);
-        }
-        else if (envelope.ChatSmsg != null)
-        {
-          var msg = System.ChatSMSG.FromProto(envelope.ChatSmsg);
-          EmitSignal(SignalName.MessageReceived, msg);
-        }
-        else if (envelope.Dialog != null)
-        {
-          var msg = System.DialogSMSG.FromProto(envelope.Dialog);
-          EmitSignal(SignalName.MessageReceived, msg);
-        }
-        else if (envelope.Conversation != null)
-        {
-          var msg = System.ConversationSMSG.FromProto(envelope.Conversation);
-          EmitSignal(SignalName.MessageReceived, msg);
-        }
-        else if (envelope.CraftableRecipes != null)
-        {
-          var msg = Crafting.CraftableRecipesSMSG.FromProto(envelope.CraftableRecipes);
-          EmitSignal(SignalName.MessageReceived, msg);
-        }
-        else if (envelope.WorldInfo != null)
-        {
-          var msg = Map.WorldInfoSMSG.FromProto(envelope.WorldInfo);
-          EmitSignal(SignalName.MessageReceived, msg);
-        }
-        else if (envelope.WorldTime != null)
-        {
-          var msg = Map.WorldTimeSMSG.FromProto(envelope.WorldTime);
-          EmitSignal(SignalName.MessageReceived, msg);
-        }
-        else if (envelope.ChunkManifest != null)
-        {
-          var msg = Map.ChunkManifestSMSG.FromProto(envelope.ChunkManifest);
-          EmitSignal(SignalName.MessageReceived, msg);
-        }
-        else if (envelope.ChunkData != null)
-        {
-          // Converted but not decoded. Decoding here would put a whole login's worth of chunks into the one
-          // frame that drains the queue; ChunkStreamManager spreads it instead.
-          var msg = Map.ChunkDataSMSG.FromProto(envelope.ChunkData);
-          EmitSignal(SignalName.MessageReceived, msg);
-        }
-        else if (envelope.ChunkPatch != null)
-        {
-          var msg = Map.ChunkPatchSMSG.FromProto(envelope.ChunkPatch);
-          EmitSignal(SignalName.MessageReceived, msg);
-        }
-        else if (envelope.Weather != null)
-        {
-          var msg = Map.WeatherSMSG.FromProto(envelope.Weather);
-          EmitSignal(SignalName.MessageReceived, msg);
-        }
-        else if (envelope.ChunkStaticEntities != null)
-        {
-          // A MapSMSG, so ConnectionManager's GDScript handler passes it over and EntityManager never sees it.
-          // See ChunkStaticEntitiesSMSG: routing these through the entity path would instantiate a full
-          // Entity.tscn per tree.
-          var msg = Map.ChunkStaticEntitiesSMSG.FromProto(envelope.ChunkStaticEntities);
-          EmitSignal(SignalName.MessageReceived, msg);
-        }
-        else if (envelope.ChunkGroundOverlay != null)
-        {
-          // A MapSMSG for ChunkStaticEntitiesSMSG's reason: it describes ground, not an entity this client ever
-          // spawned, so EntityManager must never see it.
-          var msg = Map.ChunkGroundOverlaySMSG.FromProto(
-            envelope.ChunkGroundOverlay, WorldLayout.ChunkSize);
-          EmitSignal(SignalName.MessageReceived, msg);
-        }
-        else if (envelope.ChunkGroundLayers != null)
-        {
-          // Also a MapSMSG: lasting marks on the ground, not an entity.
-          var msg = Map.ChunkGroundLayersSMSG.FromProto(
-            envelope.ChunkGroundLayers, WorldLayout.ChunkSize);
-          EmitSignal(SignalName.MessageReceived, msg);
-        }
-        else if (envelope.ChunkGroundStamps != null)
-        {
-          // Also a MapSMSG: what walked over the ground, not an entity.
-          var msg = Map.ChunkGroundStampsSMSG.FromProto(envelope.ChunkGroundStamps);
-          EmitSignal(SignalName.MessageReceived, msg);
-        }
-        else if (envelope.StaticEntityRemoved != null)
-        {
-          // Also a MapSMSG, and for the same reason: it names a prop, not an entity the client ever spawned.
-          var msg = Map.StaticEntityRemovedSMSG.FromProto(envelope.StaticEntityRemoved);
-          EmitSignal(SignalName.MessageReceived, msg);
-        }
-        else if (envelope.TradeRequest != null)
-        {
-          var msg = Trade.TradeRequestSMSG.FromProto(envelope.TradeRequest);
-          EmitSignal(SignalName.MessageReceived, msg);
-        }
-        else if (envelope.TradeState != null)
-        {
-          var msg = Trade.TradeStateSMSG.FromProto(envelope.TradeState);
-          EmitSignal(SignalName.MessageReceived, msg);
-        }
-        else if (envelope.ShopOffer != null)
-        {
-          var msg = Shop.ShopOfferSMSG.FromProto(envelope.ShopOffer);
-          EmitSignal(SignalName.MessageReceived, msg);
-        }
         else
         {
-          GD.PrintErr($"BnetSocket: Envelope message '{envelope.MessageCase}' was not handled! Please add handling and type conversion.");
+          var msg = EnvelopeDecoder.Decode(envelope);
+          if (msg == null)
+          {
+            GD.PrintErr($"BnetSocket: Envelope message '{envelope.MessageCase}' has no route in EnvelopeDecoder.");
+            continue;
+          }
+
+          EmitSignal(SignalName.MessageReceived, msg);
         }
       }
     }

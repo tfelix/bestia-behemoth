@@ -1,6 +1,7 @@
 package net.bestia.zone.battle
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.zone.battle.skill.NoSkillScriptException
 import net.bestia.zone.battle.skill.SkillCheckService
 import net.bestia.zone.battle.skill.SkillExecutionService
@@ -17,6 +18,7 @@ import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.message.TickMessageHandler
+import net.bestia.zone.message.decoder
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.world.prop.PropPromotionService
 import org.springframework.stereotype.Component
@@ -44,7 +46,9 @@ class ActivateSkillHandler(
   private val propPromotion: PropPromotionService,
   private val outMessageProcessor: OutMessageProcessor,
 ) : TickMessageHandler<ActivateSkillCMSG> {
-  override val handles = ActivateSkillCMSG::class
+  override val wire = decoder(MessageCase.ACTIVATE_SKILL) { accountId, envelope ->
+    ActivateSkillCMSG.fromBnet(accountId, envelope.activateSkill)
+  }
 
   override fun handle(world: World, msg: ActivateSkillCMSG): Boolean {
     val activeEntityId = connectionInfoService.getActiveEntityId(msg.playerId)
