@@ -44,6 +44,9 @@ import kotlin.random.Random
  * `ObtainItemIntentSystem.schedulePersist` uses, and the per-key ordering is what keeps two crafts a second
  * apart from landing out of order.
  *
+ * The outcome of a craft is applied by that keyed job only once the durable take of the inputs has committed:
+ * granting it first would create the crafted item whenever the two inventories disagree about the materials.
+ *
  * The crafted item itself is granted through [ObtainItemIntent.CreateItemIntent] rather than written here, so
  * it goes through the one path that already checks carry capacity and persists the grant.
  */
@@ -188,14 +191,43 @@ class CraftingService(
       return refuse(accountId, OpError.CRAFT_WORLD_OUT_OF_GOLD)
     }
 
-    if (!consumeInputs(recipe, inventory, masterId)) {
-      return refuse(accountId, OpError.CRAFT_MISSING_MATERIALS)
-    }
+    val inputs = required(recipe)
+    val taken = takeInputs(inventory, inputs) ?: return refuse(accountId, OpError.CRAFT_MISSING_MATERIALS)
 
     val chance = bonuses.successChance(known, recipe)
-    if (Random.nextFloat() > chance) {
-      return fail(world, entityId, accountId, masterId, recipe, target, known)
+    val succeeded = Random.nextFloat() <= chance
+
+    asyncJobExecutor.submit(masterId) {
+      if (!inventoryService.consumeAll(masterId, inputs.toList())) {
+        LOG.warn { "Master $masterId lost the inputs of ${recipe.identifier} in the database; giving them back" }
+        world.modify(entityId) { id -> taken.forEach { get(id, Inventory::class)?.addItem(it) } }
+        return@submit refuse(accountId, OpError.CRAFT_MISSING_MATERIALS)
+      }
+
+      val applied = world.modify(entityId) { id ->
+        if (succeeded) {
+          succeed(this, id, accountId, masterId, recipe, target, minted, chance)
+        } else {
+          fail(this, id, accountId, masterId, recipe, target, known)
+        }
+      }
+      if (applied == null) {
+        LOG.warn { "Master $masterId left the world before ${recipe.identifier} resolved; its inputs are spent" }
+      }
     }
+  }
+
+  private fun succeed(
+    world: World,
+    entityId: EntityId,
+    accountId: Long?,
+    masterId: Long,
+    recipe: Recipe,
+    target: TargetState?,
+    minted: Int,
+    chance: Float
+  ) {
+    val inventory = world.get(entityId, Inventory::class) ?: return
 
     when (recipe.effect) {
       RecipeEffect.PRODUCE -> {
@@ -343,18 +375,15 @@ class CraftingService(
   private fun holdsInputs(recipe: Recipe, inventory: Inventory): Boolean =
     required(recipe).all { (itemId, amount) -> heldAmount(inventory, itemId) >= amount }
 
-  /** Takes the inputs off the live inventory and schedules the durable removal. False if any is short. */
-  private fun consumeInputs(recipe: Recipe, inventory: Inventory, masterId: Long): Boolean {
-    val required = required(recipe)
-    if (required.any { (itemId, amount) -> heldAmount(inventory, itemId) < amount }) return false
+  /** Takes the inputs off the live inventory and answers what was taken, or null if any is short. */
+  private fun takeInputs(inventory: Inventory, inputs: Map<Long, Int>): List<Inventory.Item>? {
+    if (inputs.any { (itemId, amount) -> heldAmount(inventory, itemId) < amount }) return null
 
-    required.forEach { (itemId, amount) -> inventory.removeAmount(itemId.toInt(), amount) }
-
-    asyncJobExecutor.submit(masterId) {
-      inventoryService.consumeAll(masterId, required.map { (itemId, amount) -> itemId to amount })
+    return inputs.map { (itemId, amount) ->
+      val weight = inventory.getItems().first { it.itemId == itemId && it.isStackable }.weight
+      check(inventory.removeFromStack(itemId, amount)) { "Held $itemId was counted but could not be taken" }
+      Inventory.Item(itemId = itemId, amount = amount, weight = weight)
     }
-
-    return true
   }
 
   /** Summed per item, so a recipe naming a material twice is checked against the total. */

@@ -52,7 +52,10 @@ class CraftingFixture(
   val recipes = RecipeRegistry().apply { load(recipeList) }
 
   val skillRepository = mockk<SkillRepository>()
-  val inventoryService = mockk<InventoryService>(relaxed = true)
+  /** The durable take succeeds unless a test says otherwise; a relaxed mock would answer false. */
+  val inventoryService = mockk<InventoryService>(relaxed = true).also {
+    every { it.consumeAll(any(), any()) } returns true
+  }
   val structures = mockk<PlayerStructureService>()
   val outMessageProcessor = mockk<OutMessageProcessor>(relaxed = true)
 
