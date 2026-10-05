@@ -15,6 +15,7 @@ import net.bestia.account.Role
 import net.bestia.login.account.Account
 import net.bestia.login.account.AccountConfig
 import net.bestia.login.account.AccountRepository
+import net.bestia.login.account.DisplayNames
 import net.bestia.login.account.loginmethod.WebAuthnCredential
 import net.bestia.login.account.loginmethod.WebAuthnCredentialRepository
 import net.bestia.login.gamelogin.GameLoginConfig
@@ -44,7 +45,10 @@ class WebAuthnRegistrationService(
    */
   @Transactional
   fun startAccountRegistration(displayName: String, loginSessionIdHash: String?): StartedCeremony {
-    val name = normalizeDisplayName(displayName)
+    val name = DisplayNames.normalizeOrNull(displayName)
+      ?: throw WebAuthnException(
+        "Display name must be ${DisplayNames.MIN_LENGTH}-${DisplayNames.MAX_LENGTH} ASCII letters, digits, spaces, _ or -"
+      )
 
     if (accounts.existsByDisplayName(name)) {
       throw WebAuthnException("Display name is taken")
@@ -248,20 +252,6 @@ class WebAuthnRegistrationService(
     )
   }
 
-  private fun normalizeDisplayName(raw: String): String {
-    val name = raw.trim()
-
-    if (name.length !in MIN_NAME_LENGTH..MAX_NAME_LENGTH) {
-      throw WebAuthnException("Display name must be $MIN_NAME_LENGTH-$MAX_NAME_LENGTH characters")
-    }
-
-    if (!name.all { it.isLetterOrDigit() || it == ' ' || it == '_' || it == '-' }) {
-      throw WebAuthnException("Display name contains unsupported characters")
-    }
-
-    return name
-  }
-
   data class StartedCeremony(
     val ceremonyId: String,
     val request: PublicKeyCredentialCreationOptions
@@ -282,8 +272,6 @@ class WebAuthnRegistrationService(
 
     /** The spec caps the handle at 64 bytes; 32 is already far beyond any collision concern. */
     private const val USER_HANDLE_BYTES = 32
-    private const val MIN_NAME_LENGTH = 3
-    private const val MAX_NAME_LENGTH = 32
     private const val MILLIS_PER_SECOND = 1000L
     private const val FALLBACK_DISPLAY_NAME = "Bestia player"
   }

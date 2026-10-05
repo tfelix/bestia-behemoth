@@ -5,6 +5,7 @@ import net.bestia.account.KickReason
 import net.bestia.login.account.AccountLoginGuard
 import net.bestia.login.account.AccountRepository
 import net.bestia.login.account.AccountSessionTerminator
+import net.bestia.login.account.DisplayNames
 import net.bestia.login.webauthn.WebAuthnException
 import net.bestia.login.webauthn.WebAuthnRegistrationService
 import org.springframework.stereotype.Service
@@ -33,7 +34,7 @@ class AccountRecoveryService(
     recoveryCode: String,
     loginSessionIdHash: String
   ): WebAuthnRegistrationService.StartedCeremony {
-    val account = accounts.findByDisplayName(displayName.trim())
+    val account = DisplayNames.normalizeOrNull(displayName)?.let { accounts.findByDisplayName(it) }
 
     // One failure for a wrong name and a wrong code alike, so the endpoint cannot be used to find
     // out which display names exist.

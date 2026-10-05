@@ -24,10 +24,10 @@
   <form id="register-form" class="hidden" autocomplete="off">
     <label for="display-name">Choose an account name</label>
     <input type="text" id="display-name" name="displayName" maxlength="32" minlength="3"
-           autocomplete="off" spellcheck="false">
+           pattern="[A-Za-z0-9 _\-]+" autocomplete="off" spellcheck="false">
     <p class="hint">
-      This labels your passkey in your device's sign-in list, and identifies you if you ever have to
-      recover the account. Your character's name is chosen later, in the game.
+      Letters A-Z, digits, spaces, _ and -. This labels your passkey in your device's sign-in list, and
+      identifies you if you ever have to recover the account. Your character's name is chosen later, in the game.
     </p>
     <button type="submit" class="primary">Create account and passkey</button>
     <button type="button" class="secondary" data-back>Back</button>
