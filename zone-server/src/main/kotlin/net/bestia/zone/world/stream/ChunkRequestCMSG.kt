@@ -16,9 +16,14 @@ data class ChunkRequestCMSG(
 ) : CMSG {
 
   companion object {
-    fun fromBnet(accountId: Long, request: ChunkRequestCMSGProto.ChunkRequestCMSG) = ChunkRequestCMSG(
-      playerId = accountId,
-      chunks = request.chunksList.map { ChunkCoords.fromProto(it) }
-    )
+    /** More than twice the largest view volume, 11 x 11 x 3 chunks; anything beyond it is forged work. */
+    const val MAX_CHUNKS_PER_REQUEST = 1024
+
+    fun fromBnet(accountId: Long, request: ChunkRequestCMSGProto.ChunkRequestCMSG): ChunkRequestCMSG {
+      return ChunkRequestCMSG(
+        playerId = accountId,
+        chunks = request.chunksList.take(MAX_CHUNKS_PER_REQUEST).map { ChunkCoords.fromProto(it) }
+      )
+    }
   }
 }

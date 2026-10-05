@@ -3,6 +3,7 @@ package net.bestia.zone.world.stream
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.worldgen.core.ChunkPos
 import org.springframework.stereotype.Service
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -21,11 +22,11 @@ import java.util.concurrent.atomic.AtomicInteger
  *
  * ### Bounded, and it drops rather than blocks
  *
- * A queue fed by the network and drained by a fixed budget is a queue a client can grow on purpose. Past
- * [MAX_PENDING] the oldest entries are discarded, on the grounds that an unbounded queue costs the server its
- * heap. That is the one loss here with no recovery behind it - the next manifest does *not* re-offer what was
- * dropped, because it diffs against what was announced rather than what arrived - so the bound is set far above
- * what a view volume can ask for and reaching it means something is wrong upstream.
+ * A queue fed by the network and drained by a fixed budget is a queue a client can grow on purpose. Chunk
+ * requests are capped per account, at [MAX_PENDING_CHUNKS_PER_ACCOUNT] chunks: a dropped request is never
+ * re-offered, because the next manifest diffs against what was announced rather than what arrived, so one
+ * client's flood must only ever cost that client. The other queues drop their oldest entries past
+ * [MAX_PENDING].
  */
 @Service
 class ChunkStreamInbox {
@@ -54,6 +55,7 @@ class ChunkStreamInbox {
 
   private val requests = ConcurrentLinkedQueue<Request>()
   private val requestCount = AtomicInteger()
+  private val pendingChunksByAccount = ConcurrentHashMap<Long, AtomicInteger>()
 
   private val carves = ConcurrentLinkedQueue<Carve>()
   private val carveCount = AtomicInteger()
@@ -70,8 +72,22 @@ class ChunkStreamInbox {
   fun offerRequest(request: Request) {
     if (request.chunks.isEmpty()) return
 
+    val pending = pendingChunksOf(request.accountId)
+    if (pending.addAndGet(request.chunks.size) > MAX_PENDING_CHUNKS_PER_ACCOUNT) {
+      pending.addAndGet(-request.chunks.size)
+      LOG.warn { "Account ${request.accountId} has too many chunks pending; dropped ${request.chunks.size}" }
+      return
+    }
+
     requests.add(request)
-    trim(requests, requestCount, "chunk requests")
+    requestCount.incrementAndGet()
+  }
+
+  /** The deferred rest of an admitted request, which must not be lost to the cap it already passed. */
+  fun requeue(request: Request) {
+    pendingChunksOf(request.accountId).addAndGet(request.chunks.size)
+    requests.add(request)
+    requestCount.incrementAndGet()
   }
 
   fun offerCarve(carve: Carve) {
@@ -84,7 +100,12 @@ class ChunkStreamInbox {
     trim(teleports, teleportCount, "teleports")
   }
 
-  fun drainRequests(): List<Request> = drain(requests, requestCount)
+  fun drainRequests(): List<Request> {
+    val drained = drain(requests, requestCount)
+    drained.forEach { pendingChunksOf(it.accountId).addAndGet(-it.chunks.size) }
+
+    return drained
+  }
 
   fun drainCarves(): List<Carve> = drain(carves, carveCount)
 
@@ -94,12 +115,17 @@ class ChunkStreamInbox {
   fun forget(accountId: Long) {
     requestCount.addAndGet(-requests.count { it.accountId == accountId })
     requests.removeIf { it.accountId == accountId }
+    pendingChunksByAccount.remove(accountId)
 
     carveCount.addAndGet(-carves.count { it.accountId == accountId })
     carves.removeIf { it.accountId == accountId }
 
     teleportCount.addAndGet(-teleports.count { it.accountId == accountId })
     teleports.removeIf { it.accountId == accountId }
+  }
+
+  private fun pendingChunksOf(accountId: Long): AtomicInteger {
+    return pendingChunksByAccount.computeIfAbsent(accountId) { AtomicInteger() }
   }
 
   private fun <T> trim(queue: ConcurrentLinkedQueue<T>, counter: AtomicInteger, what: String) {
@@ -130,6 +156,9 @@ class ChunkStreamInbox {
   private companion object {
     /** Generous enough that a legitimate whole-manifest request never trips it. */
     const val MAX_PENDING = 4096
+
+    /** Several times the largest view volume, 11 x 11 x 3 chunks. */
+    const val MAX_PENDING_CHUNKS_PER_ACCOUNT = 2048
 
     private val LOG = KotlinLogging.logger { }
   }
