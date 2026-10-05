@@ -23,6 +23,11 @@ class SkillCheckService(
 ) {
 
   fun knowsSkill(entityId: EntityId, skillId: Long, minLevel: Int): Boolean {
+    // An unlearned skill reads as level 0, so a level below 1 would pass for any skill in the catalogue.
+    if (minLevel < 1) {
+      return false
+    }
+
     return world.read {
       get(entityId, KnownSkills::class)?.knowsSkill(skillId, minLevel) ?: false
     }
