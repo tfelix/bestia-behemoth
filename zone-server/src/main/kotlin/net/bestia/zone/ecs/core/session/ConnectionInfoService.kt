@@ -79,6 +79,10 @@ class ConnectionInfoService {
 
   private val sessions = ConcurrentHashMap<AccountId, Session>()
 
+  /** Accounts holding a session; it should fall back to the connected count when they leave. */
+  val sessionCount: Int
+    get() = sessions.size
+
   /**
    * Registers the authorities granted to a freshly authenticated account. Must be called on
    * successful authentication, before a master is selected, so the authorities are available
@@ -90,7 +94,7 @@ class ConnectionInfoService {
   ) {
     LOG.info { "Register authenticated connection for account: $accountId with authorities: $authorities" }
 
-    sessions[accountId] = when (val session = getSession(accountId)) {
+    sessions[accountId] = when (val session = getOrCreateSession(accountId)) {
       is InactiveConnection -> session.copy(authorities = authorities)
       is ActiveConnection -> session.copy(authorities = authorities)
     }
@@ -103,11 +107,13 @@ class ConnectionInfoService {
   fun activateSession(
     accountId: Long,
     masterId: Long,
-    masterEntityId: MasterEntityId
+    masterEntityId: MasterEntityId,
+    /** Replaces what the session knew for [masterId]; read from the world's `OwnedBestia`, which outlives it. */
+    ownedBestias: Collection<PlayerEntity> = emptyList(),
   ) {
     LOG.info { "Activate session for account: $accountId with master entity id: $masterEntityId" }
 
-    when (val session = getSession(accountId)) {
+    when (val session = getOrCreateSession(accountId)) {
       is InactiveConnection -> {
         sessions[accountId] = session.activate(masterId, masterEntityId)
       }
@@ -115,11 +121,13 @@ class ConnectionInfoService {
       is ActiveConnection -> {
         if (session.master.entityId != masterEntityId) {
           deactivateSession(accountId)
-          val newInactiveConnection = getSession(accountId) as InactiveConnection
+          val newInactiveConnection = getOrCreateSession(accountId) as InactiveConnection
           sessions[accountId] = newInactiveConnection.activate(masterId, masterEntityId)
         }
       }
     }
+
+    sessions[accountId]?.playerEntitiesByMaster?.set(masterId, ownedBestias.toMutableSet())
   }
 
   fun hasActiveSession(accountId: AccountId): Boolean {
@@ -129,11 +137,18 @@ class ConnectionInfoService {
   fun deactivateSession(accountId: Long) {
     LOG.info { "Deactivated session for account: $accountId" }
 
-    val session = getSession(accountId)
+    val session = sessions[accountId]
 
     if (session is ActiveConnection) {
       sessions[accountId] = session.deactivate()
     }
+  }
+
+  /** Forgets the account entirely, on disconnect. Its bestias stay in the world and keep their `OwnedBestia`. */
+  fun removeSession(accountId: AccountId) {
+    LOG.info { "Removed session for account: $accountId" }
+
+    sessions.remove(accountId)
   }
 
   fun registerPlayerBestiaEntity(
@@ -142,14 +157,14 @@ class ConnectionInfoService {
     playerBestiaId: PlayerBestiaId,
     playerBestiaEntityId: EntityId
   ) {
-    val session = getSession(accountId)
+    val session = getOrCreateSession(accountId)
 
     val store = session.playerEntitiesByMaster.getOrPut(masterId) { mutableSetOf() }
     store.add(PlayerEntity(playerBestiaId, playerBestiaEntityId))
   }
 
   fun getSelectedMasterEntityId(accountId: AccountId): MasterEntityId {
-    val session = getSession(accountId)
+    val session = sessions[accountId]
 
     requireActiveSession(session, accountId)
 
@@ -157,7 +172,7 @@ class ConnectionInfoService {
   }
 
   fun getMasterId(accountId: AccountId): Long {
-    val session = getSession(accountId)
+    val session = sessions[accountId]
 
     requireActiveSession(session, accountId)
 
@@ -168,7 +183,7 @@ class ConnectionInfoService {
     accountId: AccountId,
     masterId: Long
   ): Set<PlayerEntity> {
-    val session = getSession(accountId)
+    val session = sessions[accountId] ?: return emptySet()
 
     return session.playerEntitiesByMaster[masterId] ?: emptySet()
   }
@@ -179,7 +194,7 @@ class ConnectionInfoService {
   ) {
     LOG.info { "Activate entity: $selectedEntityId for account: $accountId" }
 
-    val session = getSession(accountId)
+    val session = sessions[accountId]
 
     requireActiveSession(session, accountId)
 
@@ -195,7 +210,7 @@ class ConnectionInfoService {
   }
 
   fun getActiveEntityId(accountId: AccountId): EntityId {
-    val session = getSession(accountId)
+    val session = sessions[accountId]
 
     requireActiveSession(session, accountId)
 
@@ -208,7 +223,7 @@ class ConnectionInfoService {
    * [net.bestia.zone.account.master.Master]) without the caller re-deriving it from the entity id.
    */
   fun getActivePlayerBestiaId(accountId: AccountId): PlayerBestiaId? {
-    val session = getSession(accountId)
+    val session = sessions[accountId]
 
     requireActiveSession(session, accountId)
 
@@ -225,33 +240,19 @@ class ConnectionInfoService {
   fun getAuthorities(
     accountId: AccountId
   ): Set<Authority> {
-    return when (val session = getSession(accountId)) {
+    return when (val session = sessions[accountId]) {
       is ActiveConnection -> session.authorities
-      is InactiveConnection -> emptySet()
+      is InactiveConnection, null -> emptySet()
     }
   }
 
-  private fun getSession(accountId: AccountId): Session {
-    return sessions.getOrPut(accountId) {
-      createInactiveSession(accountId)
-    }
-  }
-
-  /**
-   * Must be initially called when it is clear that a certain account exists.
-   */
-  private fun createInactiveSession(accountId: Long): InactiveConnection {
-    require(!sessions.containsKey(accountId)) {
-      // This should never happen as we only call this when not session exists.
-      // It is a security check.
-      "Session for account $accountId already exists"
-    }
-
-    return InactiveConnection()
+  /** For the writers only: a lookup must not leave a session behind for an account that never connected. */
+  private fun getOrCreateSession(accountId: AccountId): Session {
+    return sessions.getOrPut(accountId) { InactiveConnection() }
   }
 
   @OptIn(ExperimentalContracts::class)
-  private final fun requireActiveSession(session: Session, accountId: AccountId) {
+  private final fun requireActiveSession(session: Session?, accountId: AccountId) {
     contract {
       returns() implies (session is ActiveConnection)
     }

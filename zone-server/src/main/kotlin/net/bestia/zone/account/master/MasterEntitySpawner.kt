@@ -28,6 +28,7 @@ import net.bestia.zone.ecs.battle.level.Level
 import net.bestia.zone.ecs.battle.status.SkillPoints
 import net.bestia.zone.ecs.battle.status.StatusPoints
 import net.bestia.zone.ecs.account.MasterVisual
+import net.bestia.zone.ecs.account.OwnedBestia
 import net.bestia.zone.ecs.battle.exp.Exp
 import net.bestia.zone.ecs.battle.level.LevelUpExperienceCalculator
 import net.bestia.zone.ecs.logout.DisconnectProtection
@@ -108,7 +109,8 @@ class MasterEntitySpawner(
       connectionInfoService.activateSession(
         accountId = master.account.id,
         masterId = masterId,
-        masterEntityId = id
+        masterEntityId = id,
+        ownedBestias = OwnedBestia.ownedBy(this, masterId),
       )
 
       add(id, Account(accountId = master.account.id))

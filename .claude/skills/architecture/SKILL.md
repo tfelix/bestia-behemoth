@@ -363,6 +363,10 @@ than being removed synchronously - unless it is `InCombat`: then it gets `Discon
 world for `world.logout-protection-seconds`, so disconnecting is no escape from a fight. Selecting the master
 again in that time re-attaches to the live entity.
 
+On disconnect the account's session is removed. Player bestias stay in the
+world; their `OwnedBestia` component (`ecs/account/`) is the source of truth for ownership, and
+`activateSession` rebuilds the session's owned entities from it.
+
 ## Database
 
 The two servers no longer agree here, and the difference matters:

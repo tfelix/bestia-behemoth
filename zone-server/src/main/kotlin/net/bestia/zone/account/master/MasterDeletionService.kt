@@ -2,7 +2,7 @@ package net.bestia.zone.account.master
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.core.WorldView
-import net.bestia.zone.ecs.core.session.ConnectionInfoService
+import net.bestia.zone.ecs.account.OwnedBestia
 import net.bestia.zone.ecs.persistence.StatusEffectPersistenceService
 import net.bestia.zone.cartography.chart.MapChartRepository
 import net.bestia.zone.item.instance.ItemInstanceRepository
@@ -45,7 +45,6 @@ class MasterDeletionService(
   private val itemInstanceRepository: ItemInstanceRepository,
   private val mapChartRepository: MapChartRepository,
   private val statusEffectPersistenceService: StatusEffectPersistenceService,
-  private val connectionInfoService: ConnectionInfoService,
   private val world: WorldView,
 ) {
 
@@ -87,7 +86,7 @@ class MasterDeletionService(
       return Result.Denied(Denial.NAME_MISMATCH)
     }
 
-    if (isStillInTheWorld(accountId, master)) {
+    if (isStillInTheWorld(master)) {
       LOG.info { "Refusing to delete master $masterId for account $accountId: it is still live in the world" }
 
       return Result.Denied(Denial.IN_USE)
@@ -138,19 +137,16 @@ class MasterDeletionService(
    * while a master is playing, and briefly after a logout until `PersistAndRemoveSystem` has written it
    * back; deleting in that window would race the persist job into re-inserting rows behind us.
    *
-   * The owned bestias are checked as well as the master itself. They are the reason the session is
-   * consulted at all: a [net.bestia.zone.bestia.PlayerBestia] has no stored entity id to look up, its id is
-   * minted at spawn, so the session's record of what it spawned for this master is the only way to find
-   * them. Each is re-checked against the world because that record is not cleared on disconnect and can
-   * outlive the entities it names.
+   * The owned bestias are checked as well as the master itself. A [net.bestia.zone.bestia.PlayerBestia] has
+   * no stored entity id to look up, its id is minted at spawn, so its `OwnedBestia` component is how it is
+   * found.
    */
-  private fun isStillInTheWorld(accountId: AccountId, master: Master): Boolean {
+  private fun isStillInTheWorld(master: Master): Boolean {
     if (world.hasEntity(master.entityId)) {
       return true
     }
 
-    return connectionInfoService.getOwnedEntitiesByMaster(accountId, master.id)
-      .any { world.hasEntity(it.entityId) }
+    return world.read { OwnedBestia.ownedBy(this, master.id) }.isNotEmpty()
   }
 
   companion object {
