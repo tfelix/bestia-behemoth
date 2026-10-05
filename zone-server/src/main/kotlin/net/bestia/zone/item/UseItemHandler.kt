@@ -69,7 +69,7 @@ class UseItemHandler(
 
     if (consumed.getOrNull() != true) {
       asyncJobExecutor.submit(key = masterId) {
-        inventoryService.grantToMaster(masterId, item, 1, removed.uniqueId)
+        inventoryService.grantToMaster(masterId, item.id, 1, removed.uniqueId)
       }
     }
     consumed.getOrThrow()

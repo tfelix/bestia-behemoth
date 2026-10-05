@@ -173,7 +173,7 @@ class PersistedEntityDeletionTest {
     world.tick(0.1f)
     assertNotNull(world.get(looter, Inventory::class)?.getItem(APPLE_ITEM_ID.toInt()), "the pickup itself failed")
 
-    entityPersistenceService.syncOnce()
+    syncAndWait()
 
     assertTrue(
       persistedEntityRepository.findAllByEntityIdIn(listOf(groundItem)).isEmpty(),

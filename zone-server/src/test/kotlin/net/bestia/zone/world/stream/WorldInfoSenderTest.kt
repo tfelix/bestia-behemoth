@@ -31,6 +31,7 @@ class WorldInfoSenderTest {
     inbox = inbox,
     fanOut = mockk(relaxed = true),
     settings = ChunkStreamConfig(),
+    workers = ChunkWorkers(java.util.concurrent.Executor { it.run() }),
     groundHeight = mockk(relaxed = true),
     oreYield = mockk(relaxed = true),
     connections = mockk(relaxed = true),

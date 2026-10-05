@@ -53,7 +53,7 @@ class UseItemHandlerTest {
 
     handler(user).handle(UseItemCMSG(ACCOUNT_ID, POTION.id, ScriptArgs.EMPTY))
 
-    verify { inventoryService.grantToMaster(MASTER_ID, POTION, 1, 0L) }
+    verify { inventoryService.grantToMaster(MASTER_ID, POTION.id, 1, 0L) }
   }
 
   private fun user(): EntityId {

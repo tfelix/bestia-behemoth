@@ -1,40 +1,49 @@
 package net.bestia.zone.ecs.persistence.persisters
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.bestia.OwnedBestia
 import net.bestia.zone.bestia.PlayerBestiaRepository
+import net.bestia.zone.ecs.account.OwnedBestia
 import net.bestia.zone.ecs.battle.damage.Dead
 import net.bestia.zone.ecs.battle.level.Level
+import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.persistence.EntityPersister
 import net.bestia.zone.ecs.persistence.EntitySnapshot
+import net.bestia.zone.ecs.respawn.SavePointService
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.util.PlayerBestiaId
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
-data class PlayerBestiaSnapshot(
-  override val entityId: EntityId,
-  val playerBestiaId: PlayerBestiaId,
-  val x: Long,
-  val y: Long,
-  val z: Long,
-  val level: Int,
-  val died: Boolean,
-) : EntitySnapshot
-
 /**
- * Writes owned bestia back to their `player_bestia` row. They come back when their master is next selected,
- * through `OwnedBestiaSpawnService`, so nothing is rehydrated at startup.
+ * Writes where a player bestia stands and its level back to its `player_bestia` row. The live entity does not
+ * survive a restart; the row does.
  */
 @Component
 class PlayerBestiaEntityPersister(
   private val playerBestiaRepository: PlayerBestiaRepository,
+  private val savePointService: SavePointService,
 ) : EntityPersister {
 
-  override val kind = "player_bestia"
+  data class Snapshot(
+    override val entityId: EntityId,
+    val masterId: Long,
+    val playerBestiaId: PlayerBestiaId,
+    val position: Vec3L,
+    val level: Int,
+    val died: Boolean,
+  ) : EntitySnapshot {
+
+    /** The master's key, so selecting the master waits for this write before it reads the row. */
+    override val writeKey: Any
+      get() {
+        return masterId
+      }
+  }
+
+  override val kind = "player-bestia"
   override val loadsAtStartup = false
 
   override fun supports(world: World, id: EntityId): Boolean {
@@ -42,13 +51,14 @@ class PlayerBestiaEntityPersister(
   }
 
   override fun snapshot(world: World, id: EntityId): EntitySnapshot? {
-    val owned = world.get(id, OwnedBestia::class) ?: return null
-    val pos = world.get(id, Position::class) ?: return null
+    val owner = world.get(id, OwnedBestia::class) ?: return null
+    val position = world.get(id, Position::class) ?: return null
 
-    return PlayerBestiaSnapshot(
+    return Snapshot(
       entityId = id,
-      playerBestiaId = owned.playerBestiaId,
-      x = pos.x, y = pos.y, z = pos.z,
+      masterId = owner.masterId,
+      playerBestiaId = owner.playerBestiaId,
+      position = position.toVec3L(),
       level = world.get(id, Level::class)?.level ?: 1,
       died = world.has(id, Dead::class),
     )
@@ -56,27 +66,34 @@ class PlayerBestiaEntityPersister(
 
   @Transactional
   override fun persist(snapshots: List<EntitySnapshot>) {
-    val bySnapshot = snapshots.filterIsInstance<PlayerBestiaSnapshot>()
-    val rows = playerBestiaRepository.findAllById(bySnapshot.map { it.playerBestiaId }).associateBy { it.id }
-
-    for (snap in bySnapshot) {
-      val row = rows[snap.playerBestiaId]
-      if (row == null) {
-        LOG.warn { "Player bestia ${snap.playerBestiaId} was not found, cannot persist it" }
+    for (snapshot in snapshots) {
+      val snap = snapshot as Snapshot
+      val playerBestia = playerBestiaRepository.findByIdForUpdate(snap.playerBestiaId)
+      if (playerBestia == null) {
+        LOG.debug { "Player bestia ${snap.playerBestiaId} was deleted, not persisting it" }
         continue
       }
-      // Like a master: a body is not left where it fell for the next session.
-      row.position = if (snap.died) row.spawnPosition else Vec3L(snap.x, snap.y, snap.z)
-      row.level = snap.level
+
+      // A respawn brings it back alive, so it must not come back where it was killed.
+      playerBestia.position = if (snap.died) {
+        savePointService.forPlayerBestia(snap.playerBestiaId)
+      } else {
+        snap.position
+      }
+      playerBestia.level = snap.level
+      playerBestiaRepository.save(playerBestia)
     }
-    playerBestiaRepository.saveAll(rows.values)
   }
 
-  override fun loadAll(world: World) {
-    return
-  }
+  /** Player bestias are respawned when their master is selected, not at startup. */
+  override fun loadAll(world: World) = Unit
 
   companion object {
     private val LOG = KotlinLogging.logger { }
+
+    /** What [snapshot] reads; a system that snapshots a player bestia must declare these. */
+    val SNAPSHOT_READS: ComponentClassSet = setOf(
+      OwnedBestia::class, Position::class, Level::class, Dead::class,
+    )
   }
 }

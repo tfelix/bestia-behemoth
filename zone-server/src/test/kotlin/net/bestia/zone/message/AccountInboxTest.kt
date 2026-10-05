@@ -65,7 +65,7 @@ class AccountInboxTest {
 
     repeat(AccountInbox.CAPACITY + 1) { sut.execute(1L, HandlerLane.IO) { } }
 
-    verify { registry.terminate(1L, "INBOX_OVERFLOW") }
+    verify { registry.disconnect(1L, "INBOX_OVERFLOW") }
     release.countDown()
   }
 
@@ -76,7 +76,7 @@ class AccountInboxTest {
 
     next.get(2, TimeUnit.SECONDS)
 
-    verify { registry.terminate(1L, match { it.startsWith("INTERNAL_SERVER_ERROR:") }) }
+    verify { registry.disconnect(1L, match { it.startsWith("INTERNAL_SERVER_ERROR:") }) }
     assertTrue(next.isDone)
   }
 }

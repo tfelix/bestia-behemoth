@@ -1,5 +1,6 @@
 package net.bestia.zone.ai.ecs
 
+import net.bestia.zone.battle.status.AttackSpeed
 import net.bestia.zone.ai.domain.bestia.BestiaDomain
 import net.bestia.zone.bestia.DefaultAttack
 import net.bestia.zone.ecs.battle.status.Health
@@ -81,7 +82,7 @@ class AiLodCadenceTest {
       ai.world.add(id, Health(10, 10))
       ai.world.add(id, Speed())
       ai.world.add(id, Animation())
-      ai.world.add(id, ai.agentFactory.create(profile, DefaultAttack.MELEE, homePosition = at))
+      ai.world.add(id, ai.agentFactory.create(profile, DefaultAttack.MELEE, AttackSpeed.DEFAULT_SPECIES_ASPD, homePosition = at))
       ai.world.add(id, AiThrottleable)
     }
   }

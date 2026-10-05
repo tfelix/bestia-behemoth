@@ -25,6 +25,7 @@ class ConnectionLimitTest {
       channelRegistry = ChannelRegistry(SocketServerConfig("127.0.0.1", 0, 30L, emptyList())),
       zoneReadinessService = ZoneReadinessService().apply { markReady() },
       httpTicketService = HttpTicketService(),
+      inbox = { _, _, task -> java.util.concurrent.CompletableFuture.completedFuture(task()) },
       version = "test"
     )
   )

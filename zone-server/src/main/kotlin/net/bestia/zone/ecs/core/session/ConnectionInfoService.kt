@@ -131,7 +131,7 @@ class ConnectionInfoService {
   }
 
   fun hasActiveSession(accountId: AccountId): Boolean {
-    return getSession(accountId) is ActiveConnection
+    return sessions[accountId] is ActiveConnection
   }
 
   fun deactivateSession(accountId: Long) {

@@ -116,7 +116,7 @@ class ObtainItemIntentSystemTest {
     world.modify(entity) { id -> add(id, ObtainItemIntent.CreateItemIntent(itemId = sword.id, amount = 3)) }
     world.tick(0.1f)
 
-    verify(timeout = 1000) { inventoryService.grantToMaster(MASTER_ID, sword, 3, 0L) }
+    verify(timeout = 1000) { inventoryService.grantToMaster(MASTER_ID, sword.id, 3, 0L) }
   }
 
   @Test

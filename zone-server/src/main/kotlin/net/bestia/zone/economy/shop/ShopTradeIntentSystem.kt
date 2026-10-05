@@ -177,8 +177,7 @@ class ShopTradeIntentSystem(
 
     if (queued != true) {
       // The live inventory catches up on the next login; the trade itself is already paid for.
-      val item = itemRepository.findByIdOrNull(itemId) ?: return
-      inventoryService.grantToMaster(masterId, item, amount)
+      inventoryService.grantToMaster(masterId, itemId, amount)
     }
   }
 

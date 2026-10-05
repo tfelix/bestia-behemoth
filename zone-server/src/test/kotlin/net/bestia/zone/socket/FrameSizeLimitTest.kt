@@ -33,6 +33,7 @@ class FrameSizeLimitTest {
     channelRegistry = registry,
     zoneReadinessService = ZoneReadinessService().apply { markReady() },
     httpTicketService = HttpTicketService(),
+    inbox = { _, _, task -> java.util.concurrent.CompletableFuture.completedFuture(task()) },
     version = "test"
   )
 

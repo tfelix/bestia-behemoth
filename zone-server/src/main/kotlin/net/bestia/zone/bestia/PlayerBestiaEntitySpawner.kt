@@ -79,7 +79,6 @@ class PlayerBestiaEntitySpawner(
       // on a FORAGE stance sleeps, and its owner should be able to see that it is asleep.
       add(id, Animation())
       add(id, Account(accountId))
-      add(id, OwnedBestia(playerBestia.id))
       add(id, KnownSkills((fixedAttackIds + customAttackIds).toMutableMap()))
 
       val inventory = buildInventory(playerBestia)

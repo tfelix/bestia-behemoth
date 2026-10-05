@@ -11,10 +11,12 @@ import net.bestia.zone.ecs.battle.skill.Casting
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.logout.LogoutCancelService
+import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.InMessageProcessor
 import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OutMessageProcessor
+import net.bestia.zone.util.EntityId
 import net.bestia.zone.world.prop.PropPromotionService
 import org.springframework.stereotype.Component
 

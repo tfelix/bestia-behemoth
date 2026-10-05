@@ -21,6 +21,7 @@ class ChunkStreamRequestBudgetTest {
     inbox = inbox,
     fanOut = mockk(relaxed = true),
     settings = ChunkStreamConfig(requestBurst = 4, requestRefillPerTick = 1),
+    workers = ChunkWorkers(java.util.concurrent.Executor { it.run() }),
     groundHeight = mockk(relaxed = true),
     oreYield = mockk(relaxed = true),
     connections = mockk(relaxed = true),

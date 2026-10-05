@@ -58,7 +58,7 @@ class InventoryServiceLockTest {
       }
       assertTrue(holderLocked.await(5, TimeUnit.SECONDS))
 
-      val grant = threads.submit { inventoryService.grantToMaster(masterId, apple, 1) }
+      val grant = threads.submit { inventoryService.grantToMaster(masterId, apple.id, 1) }
 
       // Kept well under H2's one-second lock timeout, so the waiting grant does not fail instead.
       Thread.sleep(300)
