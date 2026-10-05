@@ -1,5 +1,6 @@
 package net.bestia.zone.socket
 
+import com.google.protobuf.CodedOutputStream
 import io.netty.buffer.ByteBuf
 import io.netty.buffer.ByteBufAllocator
 import net.bestia.bnet.proto.EnvelopeProto
@@ -16,14 +17,26 @@ object EnvelopeFraming {
   const val LENGTH_FIELD_BYTES = 4
 
   fun frame(alloc: ByteBufAllocator, envelope: EnvelopeProto.Envelope): ByteBuf {
-    val body = envelope.toByteArray()
-    val buffer = alloc.buffer(LENGTH_FIELD_BYTES + body.size)
-
-    // writeInt is big-endian regardless of the buffer's nominal order, which is why no order() call is
-    // needed here - and why one in the caller would be misleading rather than helpful.
-    buffer.writeInt(body.size)
-    buffer.writeBytes(body)
+    val buffer = alloc.buffer(frameSize(envelope))
+    writeFrame(envelope, buffer)
 
     return buffer
+  }
+
+  fun frameSize(envelope: EnvelopeProto.Envelope): Int {
+    return LENGTH_FIELD_BYTES + envelope.serializedSize
+  }
+
+  /** Serialises straight into [out]'s memory, so no byte array is made and nothing is copied. */
+  fun writeFrame(envelope: EnvelopeProto.Envelope, out: ByteBuf) {
+    val bodySize = envelope.serializedSize
+    out.ensureWritable(LENGTH_FIELD_BYTES + bodySize)
+    // writeInt is big-endian regardless of the buffer's nominal order.
+    out.writeInt(bodySize)
+
+    val body = CodedOutputStream.newInstance(out.nioBuffer(out.writerIndex(), bodySize))
+    envelope.writeTo(body)
+    body.checkNoSpaceLeft()
+    out.writerIndex(out.writerIndex() + bodySize)
   }
 }

@@ -65,8 +65,8 @@ SlowConsumerGuard                   (drops a client that stops reading)
   → IdleStateHandler                (30 s silence → ClientMessageHandler closes with IDLE_TIMEOUT)
   → LengthFieldBasedFrameDecoder (4-byte length prefix, 1 MB max frame)
   → ProtobufDecoder(EnvelopeProto.Envelope)
-  → ProtobufEncoder
-  → BigEndianLengthFieldPrepender   (outbound length prefix)
+  → BigEndianLengthFieldPrepender   (outbound: serialises the Envelope straight into the
+                                     socket buffer behind its length prefix)
   → ClientMessageHandler
 ```
 
@@ -303,7 +303,6 @@ The socket's `Authentication` message also carries `protocol_version`. `ClientMe
 refuses any value other than `ProtocolVersion.PROTOCOL_VERSION_CURRENT` (`authentication.proto`)
 with `PROTOCOL_MISMATCH`, before it looks at the token. **Raise that value with every wire change
 an older client would read wrongly.**
-
 
 `GameLoginController` (`/api/v1/auth/game/exchange` and `/refresh`) returns a signed JWT from
 `JwtService.createLoginToken(accountId, role)` — `issuer("login")`,
