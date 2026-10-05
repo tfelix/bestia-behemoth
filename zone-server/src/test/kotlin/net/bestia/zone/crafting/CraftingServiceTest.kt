@@ -3,6 +3,7 @@ package net.bestia.zone.crafting
 import io.mockk.every
 import io.mockk.verify
 import net.bestia.bnet.proto.OperationErrorProto.OpError
+import net.bestia.zone.crafting.CraftingFixture.Companion.ACCOUNT_ID
 import net.bestia.zone.crafting.CraftingFixture.Companion.INPUT_ITEM
 import net.bestia.zone.crafting.CraftingFixture.Companion.MASTER_ID
 import net.bestia.zone.crafting.CraftingFixture.Companion.OUTPUT_ITEM
@@ -14,6 +15,7 @@ import net.bestia.zone.crafting.CraftingFixture.Companion.stack
 import net.bestia.zone.ecs.account.Master
 import net.bestia.zone.ecs.crafting.Crafting
 import net.bestia.zone.ecs.item.ObtainItemIntent
+import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.world.prop.StaticEntityKind
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -139,6 +141,20 @@ class CraftingServiceTest {
 
     assertEquals(3, fixture.inventoryOf(crafter).getItems().single { it.itemId == INPUT_ITEM }.amount)
     assertNull(fixture.world.get(crafter, ObtainItemIntent.CreateItemIntent::class))
+  }
+
+  /** The live and the durable inventory can disagree; the crafted item must not exist unless both paid. */
+  @Test
+  fun `a craft whose durable consume fails grants nothing and gives the inputs back`() {
+    val fixture = CraftingFixture(listOf(produce))
+    every { fixture.inventoryService.consumeAll(any(), any()) } returns false
+    val crafter = fixture.givenCrafter(items = listOf(stack(INPUT_ITEM, 5)), knownSkills = mapOf(SKILL_ID to 1))
+
+    fixture.service.resolve(fixture.world, crafter, crafting(produce.id))
+
+    assertNull(fixture.world.get(crafter, ObtainItemIntent.CreateItemIntent::class))
+    assertEquals(5, fixture.inventoryOf(crafter).getItems().filter { it.itemId == INPUT_ITEM }.sumOf { it.amount })
+    verify { fixture.outMessageProcessor.sendToPlayer(ACCOUNT_ID, OperationErrorSMSG(OpError.CRAFT_MISSING_MATERIALS)) }
   }
 
   @Test
