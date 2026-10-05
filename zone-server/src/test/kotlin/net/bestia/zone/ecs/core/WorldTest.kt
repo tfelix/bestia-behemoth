@@ -7,6 +7,9 @@ import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.atomic.AtomicReference
+import kotlin.concurrent.thread
 
 private class Position(var x: Float = 0f, var y: Float = 0f) : Component
 private class Velocity(var dx: Float = 0f, var dy: Float = 0f) : Component
@@ -159,6 +162,75 @@ class WorldTest {
     world.tick(0.05f)
 
     assertEquals(5f, world.get(e, Velocity::class)!!.dx)
+  }
+
+  @Test
+  fun `a scope from another thread runs on that thread while the tick thread waits`() {
+    val world = testWorld()
+    val e = world.create()
+    world.add(e, Health(5))
+    val ranOn = AtomicReference<Thread>()
+    val tick = TickThread(world)
+
+    try {
+      val hp = thread { world.modify(e) { id -> ranOn.set(Thread.currentThread()); get(id, Health::class)!!.value } }
+      hp.join(5_000)
+
+      assertTrue(ranOn.get() === hp, "the block must run on the borrower's own thread")
+    } finally {
+      tick.stop()
+    }
+  }
+
+  @Test
+  fun `a scope inside a lent scope runs inline`() {
+    val world = testWorld()
+    val e = world.create()
+    world.add(e, Health(5))
+    val tick = TickThread(world)
+    val nested = AtomicReference<Int>()
+
+    try {
+      thread { nested.set(world.read { world.read { get(e, Health::class)!!.value } }) }.join(5_000)
+
+      assertEquals(5, nested.get())
+    } finally {
+      tick.stop()
+    }
+  }
+
+  @Test
+  fun `posted work runs on the next tick`() {
+    val world = testWorld()
+    var ran = false
+
+    world.post { ran = true }
+    assertFalse(ran)
+
+    world.tick(0.05f)
+    assertTrue(ran)
+  }
+
+  /** Binds a thread as the world's owner and runs posted work on it, the way `ZoneEngine` does. */
+  private class TickThread(world: World) {
+    @Volatile
+    private var running = true
+    private val bound = CountDownLatch(1)
+    private val thread = thread {
+      world.bindTickThread()
+      bound.countDown()
+      while (running) world.runPostedUntil(java.lang.System.nanoTime() + 10_000_000)
+      world.unbindTickThread()
+    }
+
+    init {
+      bound.await()
+    }
+
+    fun stop() {
+      running = false
+      thread.join(5_000)
+    }
   }
 
   private class SetVelocity(val entity: EntityId, val dx: Float, val dy: Float) : Command

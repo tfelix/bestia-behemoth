@@ -1,5 +1,6 @@
 package net.bestia.zone.trade.handler
 
+import net.bestia.zone.message.HandlerLane
 import net.bestia.zone.message.InMessageProcessor
 import net.bestia.zone.trade.RetractTradeItemCMSG
 import net.bestia.zone.trade.TradeService
@@ -15,6 +16,8 @@ class RetractTradeItemHandler(
 ) : InMessageProcessor.IncomingMessageHandler<RetractTradeItemCMSG> {
 
   override val handles = RetractTradeItemCMSG::class
+
+  override val lane = HandlerLane.IO
 
   override fun handle(msg: RetractTradeItemCMSG): Boolean {
     tradeService.retractItem(msg.playerId, msg.tradeId, msg.offerSlotId)

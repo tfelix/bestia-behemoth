@@ -1,12 +1,10 @@
 package net.bestia.zone.battle.skill
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.ecs.core.AsyncJobExecutor
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.skill.Skill
 import net.bestia.zone.skill.SkillRepository
-import net.bestia.zone.skill.findByIdOrThrow
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Service
 import java.util.concurrent.ConcurrentHashMap
@@ -15,20 +13,13 @@ import java.util.concurrent.ConcurrentHashMap
  * Resolves an activated skill: builds the context, runs the script, applies whatever number came back.
  * The single place a skill takes effect, whether it fired instantly or at the end of a channelled cast.
  *
- * ### Skills resolve off the tick thread
+ * ### Skills resolve on the tick thread, between ticks
  *
- * [execute] enqueues and returns; the work happens on an [AsyncJobExecutor] worker. That is what lets a
- * script query and spawn and do relational work itself, instead of returning a spec for this service to
- * enact - the arrangement the deleted `AreaEffectResult`/`CraftingResult`/`SurveyResult` types existed to
- * work around.
- *
- * It is safe because `World.tick` holds the world lock for its whole duration, and every scope a script
- * opens takes that same lock. A cast therefore never interleaves with a tick: inside one of its scopes
- * `World.iterating` is always false, so structural changes apply immediately rather than being deferred,
- * and a get-or-create on the target's `Damage` component is atomic against every other caster. The cost
- * is lock *contention*, which [SkillBudget] bounds.
- *
- * Jobs are keyed on the caster, so two casts by the same entity resolve in the order they were activated.
+ * [execute] posts the resolution to the tick thread and returns. That is what lets a script query and spawn
+ * and do relational work itself, instead of returning a spec for this service to enact. It runs between
+ * ticks, where `World.iterating` is false, so structural changes apply immediately and a get-or-create on
+ * the target's `Damage` component is atomic against every other caster. Casts resolve in the order they
+ * were posted. [SkillBudget] bounds how long one cast may hold the tick.
  *
  * ### What is still checked here rather than in the script
  *
@@ -40,28 +31,22 @@ class SkillExecutionService(
   private val skillRepository: SkillRepository,
   private val skillStrategyFactory: SkillStrategyFactory,
   private val skillContextFactory: SkillContextFactory,
-  private val asyncJobExecutor: AsyncJobExecutor,
 ) {
 
-  /**
-   * Skills are immutable once imported, so they are cached rather than hitting JPA on every cast. Kept
-   * even though resolution moved off the tick thread: a cast is on the critical path of somebody pressing
-   * a button, and a round trip per keypress is still a round trip.
-   */
+  /** Skills never change after the import, and resolution runs on the tick, so they are read once at boot. */
   private val skillCache = ConcurrentHashMap<Long, Skill>()
 
-  /**
-   * Queues [skillId] for resolution and returns immediately, from any thread.
-   *
-   * The worker takes the world lock, so it waits out whatever scope the caller is inside. From a system that
-   * is expected and bounded - `CastingSystem` runs inside `World.tick`, which holds the lock for the whole
-   * tick, and the worker simply starts when the tick ends. From a message handler it is worth avoiding, since
-   * a handler's scope is as long as the handler makes it; `ActivateSkillHandler` calls this outside its
-   * `modify` block for that reason.
-   *
-   * A waiting worker is one of four in the DB pool, so a cast queued mid-tick holds that worker for the rest
-   * of the tick. It cannot deadlock: nothing ever waits on a submitted job.
-   */
+  /** Loads the whole skill catalogue; called at boot, after the importer. */
+  fun warmUp() {
+    skillRepository.findAll().forEach { skillCache[it.id] = it }
+  }
+
+  /** The catalogue row for [skillId], from memory, or null for an id the catalogue does not know. */
+  fun skillOf(skillId: Long): Skill? {
+    return skillCache[skillId]
+  }
+
+  /** Queues [skillId] for resolution on the tick thread and returns immediately, from any thread. */
   fun execute(
     world: WorldView,
     casterId: EntityId,
@@ -70,7 +55,7 @@ class SkillExecutionService(
     targetEntityId: EntityId?,
     targetPosition: Vec3L?
   ) {
-    asyncJobExecutor.submit(casterId) {
+    world.post {
       resolve(world, casterId, skillId, skillLevel, targetEntityId, targetPosition)
     }
   }
@@ -83,10 +68,9 @@ class SkillExecutionService(
     targetEntityId: EntityId?,
     targetPosition: Vec3L?
   ) {
-    val skill = try {
-      skillCache.computeIfAbsent(skillId) { skillRepository.findByIdOrThrow(it) }
-    } catch (e: Exception) {
-      LOG.warn(e) { "Skill $skillId activated by $casterId is not in the catalogue, ignoring" }
+    val skill = skillOf(skillId)
+    if (skill == null) {
+      LOG.warn { "Skill $skillId activated by $casterId is not in the catalogue, ignoring" }
       return
     }
 

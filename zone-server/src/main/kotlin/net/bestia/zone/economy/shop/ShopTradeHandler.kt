@@ -27,8 +27,8 @@ class ShopTradeHandler(
       return true
     }
 
-    // Resolved here because `SpeakerResolver` takes the world lock, and the system that reads this runs
-    // holding it. An empty set is a refusal the system reports, rather than a silent no-op here.
+    // Resolved here because `SpeakerResolver` opens a world scope of its own, which the system that reads
+    // this has no use for. An empty set is a refusal the system reports, rather than a silent no-op here.
     val stocked = merchants.of(msg.merchantEntityId).orEmpty()
 
     world.modify(activeEntityId) { id ->

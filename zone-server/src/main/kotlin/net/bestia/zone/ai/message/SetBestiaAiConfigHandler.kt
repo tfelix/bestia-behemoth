@@ -9,6 +9,7 @@ import net.bestia.zone.bestia.PlayerBestiaRepository
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.movement.Position
+import net.bestia.zone.message.HandlerLane
 import net.bestia.zone.message.InMessageProcessor
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.util.PlayerBestiaId
@@ -33,6 +34,8 @@ class SetBestiaAiConfigHandler(
 ) : InMessageProcessor.IncomingMessageHandler<SetBestiaAiConfigCMSG> {
 
   override val handles = SetBestiaAiConfigCMSG::class
+
+  override val lane = HandlerLane.IO
 
   @Transactional
   override fun handle(msg: SetBestiaAiConfigCMSG): Boolean {

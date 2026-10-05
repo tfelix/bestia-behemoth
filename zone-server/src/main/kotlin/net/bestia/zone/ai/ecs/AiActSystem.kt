@@ -62,7 +62,7 @@ class AiActSystem(
    * `Path` and put the AI in a wave with everything it feeds.
    *
    * Skill execution can reach further still (status effects, outgoing messages). Those are not component
-   * writes this system can meaningfully claim, and skills are cast on the tick thread under the world lock
+   * writes this system can meaningfully claim, and skills are cast on the tick thread
    * by the same route a player's are, so the boundary is drawn at the components above.
    */
   override val writes: ComponentClassSet = setOf(

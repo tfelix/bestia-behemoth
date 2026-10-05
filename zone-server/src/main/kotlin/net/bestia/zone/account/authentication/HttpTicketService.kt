@@ -32,7 +32,7 @@ import java.util.concurrent.ConcurrentHashMap
  *
  * ### Its own store rather than a field on the session
  *
- * This is read from Tomcat's thread pool and written from Netty's event loops, with no world-thread
+ * This is read from Tomcat's thread pool and written from Netty's event loops and the IO lane, with no world-thread
  * convention to lean on - so it holds its own concurrent maps. `ConnectionInfoService` also never removes
  * its entries, and a credential has to actually go away when the connection does.
  */

@@ -29,9 +29,9 @@ import java.time.Instant
  *
  * ### Why the claim works, in one paragraph
  *
- * `World.tick` holds the world lock across the whole tick *including* `applyDeferred`, and a message handler
- * reaches the ECS only through `world.modify` on that same lock. So every intent attached since the last tick
- * is already applied when this runs, and none can land mid-iteration. Two players who clicked the same
+ * The tick thread owns the world across the whole tick *including* `applyDeferred`, and a message handler
+ * reaches the ECS only between ticks. So every intent attached since the last tick is already applied when
+ * this runs, and none can land mid-iteration. Two players who clicked the same
  * crystal are therefore both visited by one pass of this loop: the first passes the divergence check and
  * `recordDepletion` writes the in-memory map **synchronously**, so the second sees it and is refused.
  *

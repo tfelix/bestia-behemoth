@@ -24,7 +24,7 @@ class MerchantStock(
     return forBusiness(speakers.of(entityId)?.business)
   }
 
-  /** The same question for a caller that has already resolved the person, and so takes no world lock. */
+  /** The same question for a caller that has already resolved the person, and so opens no world scope. */
   fun forBusiness(business: String?): Set<String>? {
     if (business == null) return null
 

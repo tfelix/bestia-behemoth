@@ -33,9 +33,9 @@ import org.springframework.stereotype.Service
  *
  * ### Why it is split into phases
  *
- * [WorldView.read] and [WorldView.modify] hold the world lock for the whole block, and resolving an item
- * template is a database round trip. Doing that inside either scope would make the tick wait on I/O. So the
- * worn gear is copied out as plain values first, judged off-lock, and only the removals go back in.
+ * [WorldView.read] and [WorldView.modify] hold the world for the whole block, and resolving an item template
+ * is a database round trip. Doing that inside either scope would make the tick wait on I/O. So the worn gear
+ * is copied out as plain values first, judged outside, and only the removals go back in.
  */
 @Service
 class EquipmentRevalidationService(
@@ -143,7 +143,7 @@ class EquipmentRevalidationService(
     } ?: emptyList()
   }
 
-  /** What the rules need about the wearer, copied out from under the world lock. */
+  /** What the rules need about the wearer, copied out of the world scope. */
   private data class Wearer(
     val accountId: Long,
     val level: Int,

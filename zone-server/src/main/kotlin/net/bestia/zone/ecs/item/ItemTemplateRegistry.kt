@@ -62,7 +62,7 @@ class ItemTemplateRegistry(
    * The catalogue id behind an `items.yml` identifier, or null when no such item was imported.
    *
    * For the callers that know an item by name rather than by id - a script naming its reagent - and have to
-   * resolve it where a `findByIdentifier` round trip cannot go: inside a world lock scope.
+   * resolve it where a `findByIdentifier` round trip cannot go: inside a world scope.
    */
   fun idOf(identifier: String): Long? = idByIdentifier[identifier]
 }

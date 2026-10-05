@@ -4,8 +4,8 @@ import net.bestia.zone.ecs.core.World
 import net.bestia.zone.util.EntityId
 
 /**
- * Serializable, component-free snapshot of a persistable entity. Produced under the
- * world lock (so it must copy out plain values, never hold a live component reference)
+ * Serializable, component-free snapshot of a persistable entity. Produced with the
+ * world to itself (so it must copy out plain values, never hold a live component reference)
  * and written to storage off the tick thread.
  */
 interface EntitySnapshot {
@@ -46,10 +46,10 @@ interface EntityPersister {
   /** Whether entities of this kind are rehydrated into the world at server startup. */
   val loadsAtStartup: Boolean
 
-  /** True if this persister is responsible for the given live entity. Called under the world lock. */
+  /** True if this persister is responsible for the given live entity. Called with the world to itself. */
   fun supports(world: World, id: EntityId): Boolean
 
-  /** Snapshots the entity into a serializable record. Called under the world lock; return null to skip. */
+  /** Snapshots the entity into a serializable record. Called with the world to itself; return null to skip. */
   fun snapshot(world: World, id: EntityId): EntitySnapshot?
 
   /** Persists a batch of snapshots produced by this persister. Runs off the tick thread. */

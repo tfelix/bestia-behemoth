@@ -8,6 +8,7 @@ import net.bestia.zone.account.AccountDisconnectedEvent
 import net.bestia.zone.account.authentication.AuthenticationProcessor
 import net.bestia.zone.account.authentication.HttpTicketService
 import org.junit.jupiter.api.Test
+import java.util.concurrent.CompletableFuture
 import org.springframework.context.ApplicationEventPublisher
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -58,6 +59,8 @@ class DualConnectionTakeoverTest {
       channelRegistry = registry,
       zoneReadinessService = readiness,
       httpTicketService = HttpTicketService(),
+      // Runs connection events inline, so the test sees them in the order the inbox would run them.
+      inbox = { _, _, task -> CompletableFuture.completedFuture(task()) },
       version = "test"
     )
   }

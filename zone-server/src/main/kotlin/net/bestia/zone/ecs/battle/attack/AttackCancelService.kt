@@ -7,8 +7,8 @@ import org.springframework.stereotype.Service
 /**
  * Drops an entity's standing attack order. No-op when it has none.
  *
- * For callers *outside* the tick (message handlers, session teardown); a system already holds the world lock
- * and removes the component directly - see [AttackSystem].
+ * For callers *outside* the tick (message handlers, session teardown); a system already has the world and
+ * removes the component directly - see [AttackSystem].
  */
 @Service
 class AttackCancelService(

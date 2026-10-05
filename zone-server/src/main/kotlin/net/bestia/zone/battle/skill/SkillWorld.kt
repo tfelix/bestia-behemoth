@@ -17,18 +17,16 @@ import kotlin.reflect.KClass
  *
  * ### Why a facade rather than the world itself
  *
- * A script runs off the tick thread, so every read and write has to happen inside a lock-holding scope -
- * the trap [WorldView] exists to close. Handing a script the [WorldView] would leave it free to open one
- * scope and do unbounded work inside it, which is the one thing that must not happen: a tick cannot start
- * while a scope is open. So this is a closed set of operations, each of which opens its own scope and is
- * charged against the cast's budget. See [BudgetedSkillWorld].
+ * A script resolves on the tick thread between two ticks, so it may not do unbounded work: the next tick
+ * cannot start while a cast resolves. Handing a script the [WorldView] would leave it free to do exactly
+ * that. So this is a closed set of operations, each charged against the cast's budget. See
+ * [BudgetedSkillWorld].
  *
- * What the budget bounds is therefore the *number* of scopes, not the cost of one. Two of these are not
- * cheap: [placeStation] writes a row through JPA and [offerRecipes] sends a message, both inside their
- * scope, so each holds the world lock across a database round trip or a socket write. That is inherited -
- * the same work happened under the same lock when skills resolved on the tick thread - but it means the
- * honest ceiling on a cast's lock occupancy is "ops x the slowest op", not "ops x short". Moving those two
- * off the lock is the follow-up that would make the budget mean what it says.
+ * What the budget bounds is therefore the *number* of operations, not the cost of one. Two of these are
+ * not cheap: [placeStation] writes a row through JPA and [offerRecipes] sends a message, so each holds the
+ * tick across a database round trip or a socket write. The honest ceiling on how long a cast holds the
+ * tick is "ops x the slowest op", not "ops x short". Moving those two off the tick is the follow-up that
+ * would make the budget mean what it says.
  *
  * ### Why the world is not injected
  *
@@ -48,8 +46,8 @@ interface SkillWorld {
 
   /**
    * The live component, for the cases the named accessors below do not cover. Read what you need off it and
-   * do not hold on to it: the lock scope closes when this returns, so mutating the result afterwards races
-   * the tick, which is the whole reason [WorldView] hides `get`.
+   * do not hold on to it: a change made outside an operation is not charged against the budget, which is
+   * the whole reason [WorldView] hides `get`.
    */
   fun <T : Component> component(entityId: EntityId, type: KClass<T>): T?
 
@@ -103,12 +101,11 @@ interface SkillWorld {
 
   /**
    * Applies [effectId] only if [targetEntityId] does not already carry it, and answers whether it did.
-   * Check and write happen in **one** lock scope, so it is safe against another cast landing between them.
+   * Check and write happen in **one** operation, so another cast cannot land between them.
    *
    * This is how a script makes a status effect into a claim. The snapshot on [SkillContext.battle] carries
-   * the same information, but only as of when the cast started - and off-thread resolution means two casts of
-   * one skill can be in flight at once, so a snapshot test followed by a write is a race. First Aid's
-   * once-a-minute limit is exactly this and nothing else.
+   * the same information, but only as of when the cast started, so a snapshot test followed by a write can
+   * act on a stale answer. First Aid's once-a-minute limit is exactly this and nothing else.
    */
   fun applyStatusEffectIfAbsent(targetEntityId: EntityId, effectId: Long, level: Int): Boolean
 

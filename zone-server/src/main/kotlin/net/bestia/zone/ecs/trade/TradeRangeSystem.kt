@@ -33,8 +33,8 @@ class TradeRangeSystem(
 
   /**
    * Nothing, deliberately. This only *detects*; the cancellation it asks for releases database reservations
-   * and rebuilds two live inventories, which cannot happen on the tick thread, so `TradeService` takes the
-   * world lock again from a worker. Declaring `Trading` as written here would claim an ordering that does
+   * and rebuilds two live inventories, which cannot happen on the tick thread, so `TradeService` takes a
+   * world scope from a worker. Declaring `Trading` as written here would claim an ordering that does
    * not exist.
    */
   override val writes: ComponentClassSet = emptySet()

@@ -24,12 +24,12 @@ import kotlin.math.sqrt
  * The live state is a plain `HashMap` and this is a tick-thread service, so every entry point has to say how it
  * gets there.
  *
- * [ignite] is **immediate and requires the world lock** - either the tick thread itself, or a
- * `world.read`/`world.modify` scope, which the tick holds for its whole duration. That is how a skill reaches
+ * [ignite] is **immediate and requires the world** - either the tick thread itself, or a
+ * `world.read`/`world.modify` scope. That is how a skill reaches
  * it: `BudgetedSkillWorld.igniteGroundFire` wraps it exactly as it wraps `spawnAreaEffect`, and a skill needs
  * the answer straight away to know whether anything caught.
  *
- * [requestIgnition] is for a caller with **no lock at all** - a chat command on a Netty worker thread - and is
+ * [requestIgnition] is for a caller with **no world at all** - a chat command on an IO thread - and is
  * drained at the top of the next [step]. `Command`/`CommandQueue` would be the framework answer, and this is
  * not it for one reason: that queue has no production implementations yet, and a debug command is a poor place
  * to be the first exercise of an untested mechanism.
@@ -76,7 +76,7 @@ class GroundFireService(
   val isIdle get() = fires.isEmpty() && requested.isEmpty()
 
   /**
-   * Asks for a fire from a thread that holds no world lock; it starts on the next [step].
+   * Asks for a fire from a thread with no world scope; it starts on the next [step].
    *
    * Deliberately returns nothing. The caller is off the tick thread, so "did it catch" is not a question that
    * can be answered synchronously - and a debug trigger that pretended otherwise would report success for a

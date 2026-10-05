@@ -8,6 +8,7 @@ import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.item.script.ItemScriptExecutionService
+import net.bestia.zone.message.HandlerLane
 import net.bestia.zone.message.InMessageProcessor
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
@@ -23,6 +24,7 @@ class UseItemHandler(
   private val world: WorldView
 ) : InMessageProcessor.IncomingMessageHandler<UseItemCMSG> {
   override val handles = UseItemCMSG::class
+  override val lane = HandlerLane.IO
 
   override fun handle(msg: UseItemCMSG): Boolean {
     val item = itemRepository.findByIdOrNull(msg.itemId)

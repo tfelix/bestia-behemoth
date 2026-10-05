@@ -13,8 +13,8 @@ import net.bestia.zone.util.EntityId
  *
  * Claiming a prop means writing [net.bestia.zone.world.prop.WorldObjectDivergenceRegistry], whose KDoc states
  * it is a plain `HashMap` touched exclusively from the tick thread and that this is what makes it correct
- * rather than merely convenient. Message handlers run on Netty threads, and the world lock does not cover
- * that map - it is off the ECS entirely. So the write has to happen inside a `System.update`, and an intent
+ * rather than merely convenient. A message handler may run on an IO thread, and a world scope does not
+ * cover that map - it is off the ECS entirely. So the write has to happen inside a `System.update`, and an intent
  * component is how a handler asks for that.
  *
  * ### Why this is not an [net.bestia.zone.ecs.item.ObtainItemIntent]

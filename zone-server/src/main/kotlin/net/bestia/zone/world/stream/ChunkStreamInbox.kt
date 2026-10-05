@@ -7,12 +7,11 @@ import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicInteger
 
 /**
- * Carries client-originated chunk work from the Netty threads onto the zone tick thread.
+ * Carries client-originated chunk work to [ChunkStreamSystem], which serves it once per tick.
  *
- * Incoming messages are dispatched on the connection's Netty worker thread - `ClientMessageHandler` publishes
- * a Spring event and the listener runs inline - so a handler is *not* on `zone-tick`. Everything the
- * streaming layer owns is documented as single-threaded: `ChunkStore`, `ChunkDelta` and `DerivedStore` all
- * assume one owner, and [ChunkSubscriptionService] holds plain `HashMap`s.
+ * Chunk requests arrive as tick-lane messages, but a chat command such as `/carve` runs on an IO thread, and
+ * everything the streaming layer owns is documented as single-threaded: `ChunkStore`, `ChunkDelta` and
+ * `DerivedStore` all assume one owner, and [ChunkSubscriptionService] holds plain `HashMap`s.
  *
  * So handlers do no work. They enqueue here, and [ChunkStreamSystem] drains this once per tick and does
  * everything on the thread that owns the data. That is cheaper than locking - the alternative would put a

@@ -7,8 +7,8 @@ import net.bestia.zone.util.EntityId
  * Intent to buy or sell [amount] of [itemId] with the settlement this entity is standing in.
  *
  * Attached by `ShopTradeHandler` and resolved by `ShopTradeIntentSystem`, where every check lives -
- * `CollectPropIntent`'s arrangement, and for the same reason: the settlement ledger is a plain map
- * touched only from the tick thread, and a message handler runs on a Netty thread.
+ * `CollectPropIntent`'s arrangement: the settlement ledger is a plain map touched only from the tick
+ * thread, and resolving every trade in one system pass is what settles two buyers of the last loaf.
  *
  * The race it resolves is sharper here than for a prop. Two players buying the last loaf are visited by
  * a single pass of one system: the first decrements the in-memory ledger synchronously, so the second is
@@ -25,8 +25,7 @@ data class ShopTradeIntent(
 
   /**
    * The commodities the merchant deals in, resolved off the tick where the household expansion is safe
-   * to do. Carried rather than looked up here because `SpeakerResolver` takes the world lock, and this
-   * runs inside it.
+   * to do. Carried rather than looked up here because `SpeakerResolver` opens a world scope of its own.
    */
   val stocked: Set<String>,
 

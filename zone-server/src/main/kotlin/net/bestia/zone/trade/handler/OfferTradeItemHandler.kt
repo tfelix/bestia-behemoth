@@ -1,5 +1,6 @@
 package net.bestia.zone.trade.handler
 
+import net.bestia.zone.message.HandlerLane
 import net.bestia.zone.message.InMessageProcessor
 import net.bestia.zone.trade.OfferTradeItemCMSG
 import net.bestia.zone.trade.TradeService
@@ -15,6 +16,8 @@ class OfferTradeItemHandler(
 ) : InMessageProcessor.IncomingMessageHandler<OfferTradeItemCMSG> {
 
   override val handles = OfferTradeItemCMSG::class
+
+  override val lane = HandlerLane.IO
 
   override fun handle(msg: OfferTradeItemCMSG): Boolean {
     tradeService.offerItem(msg.playerId, msg.tradeId, msg.itemId, msg.uniqueId, msg.amount)

@@ -4,13 +4,14 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.battle.damage.Dead
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
+import net.bestia.zone.message.HandlerLane
 import net.bestia.zone.message.InMessageProcessor
 import org.springframework.stereotype.Component
 
 /**
  * Revives the player's currently active entity at its save point.
  *
- * The save point is resolved here, on the message thread, and handed to [RespawnSystem] inside the
+ * The save point is resolved here, on the IO lane, and handed to [RespawnSystem] inside the
  * [Respawn] intent - the tick thread must not go to the database for it.
  */
 @Component
@@ -20,6 +21,7 @@ class RespawnHandler(
   private val world: WorldView,
 ) : InMessageProcessor.IncomingMessageHandler<RespawnCMSG> {
   override val handles = RespawnCMSG::class
+  override val lane = HandlerLane.IO
 
   override fun handle(msg: RespawnCMSG): Boolean {
     val activeEntityId = connectionInfoService.getActiveEntityId(msg.playerId)

@@ -81,7 +81,12 @@ Inbound flow:
    `envelope.hasAttackEntity() -> AttackEntityCMSG.fromBnet(accountId, envelope.attackEntity)`).
    Unmatched envelopes throw `UnknownBnetMessageException`. **Adding a new incoming
    message type means adding a branch here.**
-3. `InMessageProcessor.process()` (`message/InMessageProcessor.kt:36`) looks
+3. `InMessageProcessor.submit()` puts the message into the sender's `AccountInbox`
+   (`message/AccountInbox.kt`): one mailbox per account, run strictly in order, each item on its
+   handler's `HandlerLane` - `TICK` (default, on the tick thread) or `IO` (an IO thread, for
+   handlers that touch the database). Netty threads only decode. Connection events go through the
+   same inbox on the IO lane. A full inbox or a failing handler closes the connection.
+4. `InMessageProcessor.process()` (`message/InMessageProcessor.kt`) looks
    up handlers by `msg::class` from a `Map<KClass<*>, List<IncomingMessageHandler<*>>>`
    built from every Spring-injected `IncomingMessageHandler<*>` bean — dispatch is by
    Kotlin class, not a string/int tag. See
@@ -121,7 +126,9 @@ Use those files as a template instead of re-deriving the shape from scratch.
 4. **Handler**: `@Component class XyzHandler(...) : InMessageProcessor.IncomingMessageHandler<XyzCMSG>`
    with `override val handles = XyzCMSG::class` — auto-discovered by
    `InMessageProcessor` through Spring's injected `List<IncomingMessageHandler<*>>`, no
-   manual registry entry needed. **Resolve the acting entity via
+   manual registry entry needed. Declare `override val lane = HandlerLane.IO` as soon as anything
+   it calls reaches the database; `HandlerLaneTest` and `TickSqlGuard` catch a tick-lane handler that
+   does. **Resolve the acting entity via
    `ConnectionInfoService.getActiveEntityId(msg.playerId)`**, never a client-supplied
    entity ID — this is the pattern used by every handler that acts "on behalf of
    whichever entity is currently selected" (`GetSkillsHandler`, `ChatHandler`,
@@ -180,20 +187,22 @@ Three things that bite:
   component it only declared under `reads` therefore appears to conflict with nobody, and any
   ordering it depends on holds only by luck of registration order. Declare honestly, including
   components your helpers write to *other* entities.
-- **`parallel-systems` is off, and cannot simply be switched on.** The world lock is a single
-  `ReentrantLock` held for the entire tick, with `scheduler.tick` inside it, so a system running
-  on a pool thread that calls any locked accessor (`world.get`/`add`/`has`/`isAlive`) blocks
-  forever. Only `world.query(...).each { get<T>() }` is lock-free. `World.kt`'s own KDoc says the
-  coarse lock is "only meaningful when `parallelSystems` is disabled".
+- **The tick thread owns the world; there is no lock.** `ecs/core/WorldOwnership.kt`: the tick
+  thread (bound by `ZoneEngine`) and a parallel wave's `WaveWorker` threads touch the world inline;
+  any other thread gets it on a *lease* between two tasks of the tick thread, its block running on
+  its own thread while the tick waits; before binding (boot, unit tests) everyone shares a monitor.
+  `parallel-systems` stays off by default, but no longer deadlocks.
 - **Structural changes are deferred.** `add`/`remove`/`destroy` inside `update()` queue until the
   end of the tick, so a component added mid-tick is not visible later in the same tick. Use
   `World.defer { }` when it must apply immediately.
 
-Off-tick code must go through `WorldView` (a lock-holding `read`/`modify` scope, or `send(command)`),
-never `World` directly. Never block on I/O on the tick thread: snapshot the entity and hand the write to
-`EntityWriteBehind` (`ecs/persistence/`), which queues it on `AsyncJobExecutor` under the owner's key, and
-read static content from the in-memory catalogues (`ItemTemplateRegistry`, `BestiaCatalogue`,
-`CommodityItems`). `TickSqlGuard` reports any SQL that still runs on the tick thread.
+Off-tick code must go through `WorldView` (a `read`/`modify` scope, which leases the world, or
+`post {}`, which runs a block on the tick thread), never `World` directly. Never wait for another thread
+inside a scope: the tick thread is waiting for you. Never block on I/O on the tick thread: snapshot
+the entity and hand the write to `EntityWriteBehind` (`ecs/persistence/`), which queues it on
+`AsyncJobExecutor` under the owner's key, and read static content from the in-memory catalogues
+(`ItemTemplateRegistry`, `BestiaCatalogue`, `CommodityItems`). `TickSqlGuard` reports any SQL that
+runs on the tick thread or inside a lease, and fails it in tests (`zone.sql-on-tick: fail`).
 
 ## AI module
 

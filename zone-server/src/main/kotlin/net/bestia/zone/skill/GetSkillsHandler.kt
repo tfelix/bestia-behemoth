@@ -5,6 +5,7 @@ import net.bestia.zone.bestia.PlayerBestiaRepository
 import net.bestia.zone.bestia.findByIdOrThrow
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.session.EntityNotOwnedSessionException
+import net.bestia.zone.message.HandlerLane
 import net.bestia.zone.message.InMessageProcessor
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.util.AccountId
@@ -26,6 +27,7 @@ class GetSkillsHandler(
   private val masterSkillListBuilder: MasterSkillListBuilder
 ) : InMessageProcessor.IncomingMessageHandler<GetSkillsCMSG> {
   override val handles = GetSkillsCMSG::class
+  override val lane = HandlerLane.IO
 
   @Transactional(readOnly = true)
   override fun handle(msg: GetSkillsCMSG): Boolean {

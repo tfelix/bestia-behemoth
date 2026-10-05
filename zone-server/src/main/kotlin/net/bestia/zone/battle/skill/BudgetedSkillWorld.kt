@@ -23,7 +23,7 @@ import net.bestia.zone.ecs.battle.damage.Damage as DamageComponent
 import kotlin.reflect.KClass
 
 /**
- * The real [SkillWorld]: one short lock scope per operation, each charged against the cast's [SkillBudget].
+ * The real [SkillWorld]: one world scope per operation, each charged against the cast's [SkillBudget].
  *
  * One instance per cast, because the budget is.
  */
@@ -96,12 +96,11 @@ class BudgetedSkillWorld(
   }
 
   /**
-   * On the lock, like every other op here, and that is what makes it safe.
+   * In a world scope, like every other op here, and that is what makes it safe.
    *
    * `GroundFireService` holds a plain `HashMap` on the documented grounds that only the tick thread touches
-   * it. A skill script runs off that thread - so this goes through `world.read`, whose lock the tick also
-   * holds for its whole duration. Same reasoning as `spawnAreaEffect` above, including that `read` is an odd
-   * name for something that mutates.
+   * it, so this goes through `world.read`, which only ever runs with the world to itself. Same reasoning as
+   * `spawnAreaEffect` above, including that `read` is an odd name for something that mutates.
    */
   override fun igniteGroundFire(centre: Vec3L, radiusTiles: Long): Boolean {
     budget.charge(SPAWN_OPS)
@@ -115,10 +114,9 @@ class BudgetedSkillWorld(
    * A heal moves [Health] directly; damage is staged as a [DamageComponent] so `ReceivedDamageSystem` drains
    * it, which is also what handles death, threat and interrupting the victim's own cast.
    *
-   * Two casts landing on the same target share one component rather than one replacing the other: the lock
-   * is held for the whole scope and a tick cannot be iterating inside it, so `World.add` applies immediately
-   * and the get-or-create is atomic against every other caster. That is what the old `world.defer { }` here
-   * was working around when this ran on the tick thread.
+   * Two casts landing on the same target share one component rather than one replacing the other: a cast
+   * resolves between ticks, so no system is iterating, `World.add` applies immediately and the
+   * get-or-create is atomic against every other caster.
    */
   override fun apply(targetEntityId: EntityId, damage: Damage) {
     budget.charge()
@@ -201,7 +199,7 @@ class BudgetedSkillWorld(
     } ?: false
   }
 
-  /** One op, though the service reads several components: the whole answer is assembled in one lock scope. */
+  /** One op, though the service reads several components: the whole answer is assembled in one world scope. */
   override fun offerRecipes(skillId: Long) {
     budget.charge()
 
@@ -209,8 +207,8 @@ class BudgetedSkillWorld(
   }
 
   /**
-   * One op, and the scope is for the lock rather than for a component: the print store is tick-thread state
-   * and a cast resolves on a worker.
+   * One op, and the scope is for the tick thread rather than for a component: the print store is tick-thread
+   * state.
    */
   override fun readTracks(centre: Vec3L, radiusTiles: Long): TrackReading? {
     budget.charge()
@@ -251,7 +249,7 @@ class BudgetedSkillWorld(
   private companion object {
     /**
      * Creating an entity is a structural change plus several component adds, so it costs more than a read -
-     * not because the lock is held much longer, but so a script that spawns in a loop runs out of budget an
+     * not because it holds the tick much longer, but so a script that spawns in a loop runs out of budget an
      * order of magnitude sooner than one that only looks around.
      */
     const val SPAWN_OPS = 8

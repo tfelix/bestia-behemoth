@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service
  * [CastingComponentSMSG] a cast does, so anything that ends one has to be able to end the other, and
  * `CraftItemHandler` / `ActivateSkillHandler` each cancel the opposite before starting their own.
  *
- * Note this is for callers *outside* the tick (message handlers). Systems already hold the world lock
+ * Note this is for callers *outside* the tick (message handlers). Systems already have the world
  * and must remove the component directly instead - see
  * [net.bestia.zone.ecs.battle.damage.ReceivedDamageSystem].
  */

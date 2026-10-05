@@ -6,9 +6,12 @@ import net.bestia.zone.account.AccountDisconnectedEvent
 import net.bestia.zone.message.CMSG
 import net.bestia.zone.message.SMSG
 import net.bestia.zone.account.master.SelectMasterCMSG
+import net.bestia.zone.message.AccountTaskExecutor
+import net.bestia.zone.message.HandlerLane
 import net.bestia.zone.message.InMessageProcessor
 import org.springframework.context.ApplicationEventPublisher
 import java.lang.IllegalStateException
+import java.util.concurrent.TimeUnit
 import kotlin.reflect.KClass
 
 /**
@@ -18,6 +21,7 @@ import kotlin.reflect.KClass
 class GameClientMock(
   val connectedPlayerId: Long,
   private val inMessageProcessor: InMessageProcessor,
+  private val inbox: AccountTaskExecutor,
   private val applicationEventPublisher: ApplicationEventPublisher,
   private val rxBuffer: MutableList<SMSG>,
   // Authorities granted to the mocked client. Defaults to all so authority-gated commands work.
@@ -34,7 +38,7 @@ class GameClientMock(
         accountId = connectedPlayerId,
         authorities = authorities,
       )
-      applicationEventPublisher.publishEvent(accountConnectedEvent)
+      publishInOrder(accountConnectedEvent)
 
       if (selectMasterId != null) {
         sendMessage(SelectMasterCMSG(connectedPlayerId, selectMasterId))
@@ -42,8 +46,15 @@ class GameClientMock(
     }
   }
 
+  /** Through the account's inbox like a real connection, and back once the handler has run. */
   fun sendMessage(msg: CMSG) {
-    inMessageProcessor.process(msg)
+    inMessageProcessor.submit(msg).get(5, TimeUnit.SECONDS)
+  }
+
+  /** What [net.bestia.zone.socket.ClientMessageHandler] does with a connection event. */
+  private fun publishInOrder(event: Any) {
+    inbox.execute(connectedPlayerId, HandlerLane.IO) { applicationEventPublisher.publishEvent(event) }
+      .get(5, TimeUnit.SECONDS)
   }
 
   fun clearMessages() {
@@ -54,7 +65,7 @@ class GameClientMock(
    * A copy taken under the buffer's own lock.
    *
    * The buffer is a `Collections.synchronizedList`, which guards each operation but *not* iteration - and the
-   * server writes to it from the zone tick and from `AsyncJobExecutor`'s workers while the test thread reads.
+   * server writes to it from the zone tick and from the IO lane while the test thread reads.
    */
   private fun received(): List<SMSG> = synchronized(rxBuffer) { rxBuffer.toList() }
 
@@ -75,7 +86,7 @@ class GameClientMock(
 
   fun disconnect() {
     if (isConnected) {
-      applicationEventPublisher.publishEvent(AccountDisconnectedEvent(this, connectedPlayerId))
+      publishInOrder(AccountDisconnectedEvent(this, connectedPlayerId))
       isConnected = false
     }
   }

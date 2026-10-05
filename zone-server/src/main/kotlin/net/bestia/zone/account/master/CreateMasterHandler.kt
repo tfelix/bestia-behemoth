@@ -1,5 +1,6 @@
 package net.bestia.zone.account.master
 
+import net.bestia.zone.message.HandlerLane
 import net.bestia.zone.message.InMessageProcessor
 import net.bestia.zone.message.OutMessageProcessor
 import org.springframework.stereotype.Component
@@ -11,6 +12,7 @@ class CreateMasterHandler(
   private val outMessageProcessor: OutMessageProcessor
 ) : InMessageProcessor.IncomingMessageHandler<CreateMasterCMSG> {
   override val handles = CreateMasterCMSG::class
+  override val lane = HandlerLane.IO
 
   /**
    * Safe to report a rejection from inside this transaction only because [MasterCreateOperation] runs the

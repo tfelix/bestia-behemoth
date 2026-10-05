@@ -2,6 +2,8 @@ package net.bestia.zone.socket
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.netty.channel.Channel
+import net.bestia.bnet.proto.DisconnectedProto
+import net.bestia.bnet.proto.EnvelopeProto
 import net.bestia.zone.message.SMSG
 import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Component
@@ -56,6 +58,16 @@ class ChannelRegistry(
   }
 
   fun getChannel(accountId: Long): Channel? = channelsByAccountId[accountId]
+
+  /** Tells the account why, then closes its connection; the close runs the usual disconnect teardown. */
+  fun terminate(accountId: Long, reason: String) {
+    val channel = getChannel(accountId) ?: return
+    val envelope = EnvelopeProto.Envelope.newBuilder()
+      .setDisconnected(DisconnectedProto.Disconnected.newBuilder().setReason(reason))
+      .build()
+
+    channel.writeAndFlush(envelope).addListener { channel.close() }
+  }
 
   /**
    * A snapshot, deliberately: the keys of a [ConcurrentHashMap] are a live view, and a caller iterating one

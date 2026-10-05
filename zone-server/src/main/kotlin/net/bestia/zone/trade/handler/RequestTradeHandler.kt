@@ -1,5 +1,6 @@
 package net.bestia.zone.trade.handler
 
+import net.bestia.zone.message.HandlerLane
 import net.bestia.zone.message.InMessageProcessor
 import net.bestia.zone.trade.RequestTradeCMSG
 import net.bestia.zone.trade.TradeService
@@ -15,6 +16,8 @@ class RequestTradeHandler(
 ) : InMessageProcessor.IncomingMessageHandler<RequestTradeCMSG> {
 
   override val handles = RequestTradeCMSG::class
+
+  override val lane = HandlerLane.IO
 
   override fun handle(msg: RequestTradeCMSG): Boolean {
     tradeService.requestTrade(msg.playerId, msg.targetEntityId)

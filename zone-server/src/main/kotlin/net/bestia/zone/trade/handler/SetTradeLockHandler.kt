@@ -1,5 +1,6 @@
 package net.bestia.zone.trade.handler
 
+import net.bestia.zone.message.HandlerLane
 import net.bestia.zone.message.InMessageProcessor
 import net.bestia.zone.trade.SetTradeLockCMSG
 import net.bestia.zone.trade.TradeService
@@ -15,6 +16,8 @@ class SetTradeLockHandler(
 ) : InMessageProcessor.IncomingMessageHandler<SetTradeLockCMSG> {
 
   override val handles = SetTradeLockCMSG::class
+
+  override val lane = HandlerLane.IO
 
   override fun handle(msg: SetTradeLockCMSG): Boolean {
     tradeService.setLock(msg.playerId, msg.tradeId, msg.locked)

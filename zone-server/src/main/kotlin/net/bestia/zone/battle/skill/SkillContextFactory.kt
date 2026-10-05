@@ -10,8 +10,8 @@ import org.springframework.stereotype.Component
 /**
  * Builds the [SkillContext] one cast runs against: a snapshot of the fight plus a fresh budget.
  *
- * The snapshot is taken inside a single lock scope and is a plain value afterwards, which is what lets
- * the rest of the cast run off the tick thread. [BattleContextFactory] does that part - it is the one
+ * The snapshot is taken inside a single world scope and is a plain value afterwards, which is what lets
+ * the script's checks be pure functions of it. [BattleContextFactory] does that part - it is the one
  * place ECS state is projected onto [net.bestia.zone.battle.BattleEntity], and duplicating it here
  * would give the skill pathway a second copy of the defence and status formulas to drift from.
  */

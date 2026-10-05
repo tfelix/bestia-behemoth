@@ -6,6 +6,7 @@ import io.netty.channel.SimpleChannelInboundHandler
 import net.bestia.zone.account.AccountConnectedEvent
 import net.bestia.zone.account.AccountDisconnectedEvent
 import net.bestia.zone.account.authentication.AuthenticationProcessor
+import net.bestia.zone.message.HandlerLane
 import net.bestia.zone.message.MessageEnvelopeReceivedEvent
 import net.bestia.zone.message.MessageHandlingFailedException
 import net.bestia.bnet.proto.AuthenticationSuccessProto
@@ -133,13 +134,22 @@ class ClientMessageHandler(
 
     ctx.channel().writeAndFlush(envelope)
 
-    handlerCtx.applicationEventPublisher.publishEvent(
+    publishInOrder(
+      result.accountId,
       AccountConnectedEvent(
         source = this,
         accountId = result.accountId,
         authorities = result.authorities,
       )
     )
+  }
+
+  /**
+   * Publishes a connection event through the account's inbox, so it is ordered with the account's messages
+   * and its listeners (which reach the database) run on an IO thread rather than this event loop.
+   */
+  private fun publishInOrder(accountId: Long, event: Any) {
+    handlerCtx.inbox.execute(accountId, HandlerLane.IO) { handlerCtx.applicationEventPublisher.publishEvent(event) }
   }
 
   /**
@@ -151,9 +161,10 @@ class ClientMessageHandler(
    * is already dead in a way the server has not noticed yet — refusing would lock the player out until
    * the stale connection timed out.
    *
-   * The displaced connection's teardown is published from here, synchronously, rather than left to its
-   * own [channelInactive]: its session must be gone before [AccountConnectedEvent] below announces
-   * ours, and `channelInactive` runs later on a different event loop with no ordering guarantee at all.
+   * The displaced connection's teardown is queued from here rather than left to its own
+   * [channelInactive]: its session must be gone before [AccountConnectedEvent] below announces ours, and
+   * the account's inbox runs the two in the order they were queued. `channelInactive` runs later on a
+   * different event loop with no ordering guarantee at all.
    */
   private fun takeOverAccount(ctx: ChannelHandlerContext, accountId: Long) {
     val displaced = handlerCtx.channelRegistry.registerChannel(accountId, ctx.channel())
@@ -167,7 +178,7 @@ class ClientMessageHandler(
               "${displaced.remoteAddress()} - terminating the older connection"
     }
 
-    handlerCtx.applicationEventPublisher.publishEvent(AccountDisconnectedEvent(this, accountId))
+    publishInOrder(accountId, AccountDisconnectedEvent(this, accountId))
     sendDisconnectMessageAndClose(displaced, reason = "OTHER_CONNECTION")
   }
 
@@ -182,7 +193,7 @@ class ClientMessageHandler(
     val id = accountId ?: return
 
     if (handlerCtx.channelRegistry.unregisterChannel(id, ctx.channel())) {
-      handlerCtx.applicationEventPublisher.publishEvent(AccountDisconnectedEvent(this, id))
+      publishInOrder(id, AccountDisconnectedEvent(this, id))
     }
   }
 

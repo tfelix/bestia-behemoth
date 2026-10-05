@@ -3,6 +3,7 @@ package net.bestia.zone.party.handler
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.account.master.skill.BasicSkillGate
+import net.bestia.zone.message.HandlerLane
 import net.bestia.zone.message.InMessageProcessor
 import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OutMessageProcessor
@@ -22,6 +23,8 @@ class CreatePartyHandler(
 ) : InMessageProcessor.IncomingMessageHandler<CreatePartyCMSG> {
 
   override val handles = CreatePartyCMSG::class
+
+  override val lane = HandlerLane.IO
 
   override fun handle(msg: CreatePartyCMSG): Boolean {
     // Parties are Basic Skill rank 5. Refused through the shared OperationError rather than a PartyErrorCode:

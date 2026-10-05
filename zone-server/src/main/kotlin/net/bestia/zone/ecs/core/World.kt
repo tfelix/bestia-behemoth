@@ -6,8 +6,6 @@ import net.bestia.zone.util.EntityId
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.CopyOnWriteArrayList
-import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.withLock
 import kotlin.reflect.KClass
 
 /**
@@ -18,16 +16,16 @@ import kotlin.reflect.KClass
  * ### Tick pipeline (deterministic, single tick thread)
  * ```
  * tick(dt):
- *   1. apply deferred structural changes queued last tick
+ *   1. run posted work          -> tick-lane messages, leases, skill resolutions
  *   2. drain external commands  -> onCommand handlers
  *   3. run due systems          -> scheduler (parallel waves)
  *   4. apply deferred structural changes emitted by systems
  * ```
  *
  * ### Threading
- * Only the tick thread mutates ECS state. Other threads may [send] commands
- * (thread-safe). Structural changes requested while systems are iterating are
- * automatically deferred to a safe sync point.
+ * The tick thread owns the world and uses it without a lock. Other threads [post] work for it, or get
+ * the world on a lease between two ticks; see [WorldOwnership]. Structural changes requested while
+ * systems are iterating are deferred to a safe sync point.
  *
  * ### Outbound sync
  * The world keeps no separate "changed" bookkeeping: a component is the single source of
@@ -50,28 +48,36 @@ class World(
     scheduler.registerAll(systems)
   }
 
-  /**
-   * Guards all structural changes, component access and the tick against concurrent access from
-   * non-tick threads (network handlers, entity spawners, ...). The lock is reentrant so systems running
-   * inside [tick] (which already holds it) may freely call [get]/[add]/... The old lock-per-entity
-   * model of `EntityManager` is replaced by this single coarse lock; only meaningful when
-   * `parallelSystems` is disabled (the default), which mirrors the previous single-threaded loop.
-   */
-  private val lock = ReentrantLock()
+  private val owner = WorldOwnership()
   private val destroyListeners = CopyOnWriteArrayList<(EntityId) -> Unit>()
   private val componentRemovedListeners = CopyOnWriteArrayList<(EntityId, Component) -> Unit>()
 
   @Volatile
   private var iterating = false
 
-  /** Runs [block] holding the world lock; used to make external ECS access thread-safe. */
-  fun <T> locked(block: () -> T): T = lock.withLock(block)
-
   /**
-   * [WorldView] read scope: runs [block] against this world while holding the lock. Intended for
-   * pure reads from off-tick threads; return values/DTOs rather than leaking components out.
+   * [WorldView] read scope: runs [block] with the world to itself. Intended for pure reads from off-tick
+   * threads; return values/DTOs rather than leaking components out.
    */
-  override fun <T> read(block: World.() -> T): T = lock.withLock { this.block() }
+  override fun <T> read(block: World.() -> T): T = owner.guarded { this.block() }
+
+  /** Makes the calling thread the tick thread, which from now on owns the world. */
+  fun bindTickThread() {
+    owner.bindTickThread()
+  }
+
+  fun unbindTickThread() {
+    owner.unbindTickThread()
+  }
+
+  override fun post(task: World.() -> Unit) {
+    owner.post { this.task() }
+  }
+
+  /** Runs posted work until [deadlineNanos] ([java.lang.System.nanoTime] scale). Tick thread only. */
+  fun runPostedUntil(deadlineNanos: Long) {
+    owner.runQueuedUntil(deadlineNanos)
+  }
 
   /** Registers a hook fired (on the tick thread) whenever an entity is destroyed. */
   fun onDestroy(handler: (EntityId) -> Unit) {
@@ -97,37 +103,37 @@ class World(
   fun lastTickBreakdown(limit: Int = 5): String = scheduler.lastTickBreakdown(limit)
 
   // ---------------------------------------------------------------- entities
-  fun create(): EntityId = lock.withLock { entities.create() }
+  fun create(): EntityId = owner.guarded { entities.create() }
 
-  fun create(id: EntityId): EntityId = lock.withLock { entities.create(id) }
+  fun create(id: EntityId): EntityId = owner.guarded { entities.create(id) }
 
-  override fun isAlive(id: EntityId): Boolean = lock.withLock { entities.isAlive(id) }
+  override fun isAlive(id: EntityId): Boolean = owner.guarded { entities.isAlive(id) }
 
   /** Alias for [isAlive] preserving the previous `ZoneServer.hasEntity` naming. */
   override fun hasEntity(id: EntityId): Boolean = isAlive(id)
 
   /**
    * Atomically creates an entity and runs [configure] on it (typically a batch of [add]s) while
-   * holding the world lock, then returns the new id. Replaces `ZoneServer.addEntityWithWriteLock`.
+   * with the world to itself, then returns the new id. Replaces `ZoneServer.addEntityWithWriteLock`.
    */
-  override fun createEntity(configure: World.(EntityId) -> Unit): EntityId = lock.withLock {
+  override fun createEntity(configure: World.(EntityId) -> Unit): EntityId = owner.guarded {
     val id = entities.create()
     this.configure(id)
     id
   }
 
-  override fun createEntity(id: EntityId, configure: World.(EntityId) -> Unit): EntityId = lock.withLock {
+  override fun createEntity(id: EntityId, configure: World.(EntityId) -> Unit): EntityId = owner.guarded {
     entities.create(id)
     this.configure(id)
     id
   }
 
   /**
-   * Runs [block] against [id] while holding the world lock, or returns null if the entity is not
+   * Runs [block] against [id] with the world to itself, or returns null if the entity is not
    * alive. Replaces `ZoneServer.withEntityWriteLock` / `withEntityReadLock` (a single tick thread
    * makes read/write locks unnecessary).
    */
-  override fun <T> modify(id: EntityId, block: World.(EntityId) -> T): T? = lock.withLock {
+  override fun <T> modify(id: EntityId, block: World.(EntityId) -> T): T? = owner.guarded {
     if (!entities.isAlive(id)) null else this.block(id)
   }
 
@@ -135,7 +141,7 @@ class World(
   override fun <T> modifyOrThrow(id: EntityId, block: World.(EntityId) -> T): T =
     modify(id, block) ?: throw EntityNotAliveException(id)
 
-  fun destroy(id: EntityId) = lock.withLock {
+  fun destroy(id: EntityId) = owner.guarded {
     if (iterating) deferred.add { destroyNow(id) } else destroyNow(id)
   }
 
@@ -166,7 +172,7 @@ class World(
    * Adds a component to [id]. Deferred if called mid-tick. A freshly created component starts
    * dirty (see [Dirtyable]), so adding one already queues it for sync.
    */
-  fun <T : Component> add(id: EntityId, component: T): T = lock.withLock {
+  fun <T : Component> add(id: EntityId, component: T): T = owner.guarded {
     if (iterating) {
       deferred.add {
         addNow(id, component)
@@ -183,11 +189,11 @@ class World(
     store(component::class as KClass<T>).set(id, component)
   }
 
-  fun <T : Component> get(id: EntityId, type: KClass<T>): T? = lock.withLock { store(type).get(id) }
+  fun <T : Component> get(id: EntityId, type: KClass<T>): T? = owner.guarded { store(type).get(id) }
 
-  override fun <T : Component> has(id: EntityId, type: KClass<T>): Boolean = lock.withLock { store(type).has(id) }
+  override fun <T : Component> has(id: EntityId, type: KClass<T>): Boolean = owner.guarded { store(type).has(id) }
 
-  fun <T : Component> remove(id: EntityId, type: KClass<T>): T? = lock.withLock {
+  fun <T : Component> remove(id: EntityId, type: KClass<T>): T? = owner.guarded {
     if (iterating) {
       deferred.add { removeNow(id, type) }
       null
@@ -256,7 +262,7 @@ class World(
   }
 
   /** Visits every `(entity, component)` pair currently stored for [type]. */
-  fun <T : Component> each(type: KClass<T>, action: (EntityId, T) -> Unit) = lock.withLock {
+  fun <T : Component> each(type: KClass<T>, action: (EntityId, T) -> Unit) = owner.guarded {
     store(type).each(action)
   }
 
@@ -320,7 +326,8 @@ class World(
     private set
 
   // -------------------------------------------------------------- tick pipeline
-  fun tick(deltaTime: Float) = lock.withLock {
+  fun tick(deltaTime: Float) = owner.guarded {
+    owner.runQueued()        // posted work: tick-lane messages, leases, skill resolutions
     tickCount++
     commands.drain(this)     // external intent -> handlers
     iterating = true

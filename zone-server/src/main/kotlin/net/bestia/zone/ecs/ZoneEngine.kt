@@ -27,7 +27,6 @@ import org.springframework.stereotype.Service
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.locks.LockSupport
 import kotlin.collections.iterator
 
 /**
@@ -93,8 +92,8 @@ class ZoneEngine(
 
     // Turn removals of opted-in components into client notifications. Fires only for explicit
     // single-component removals (not whole-entity destroy), resolving the message and the sync
-    // targets while the world lock is still held, the entity's other components are still readable
-    // and the owner is still reachable. The removal is the component's own message type re-sent with
+    // targets right away, while the entity's other components are still readable and the owner is
+    // still reachable. The removal is the component's own message type re-sent with
     // removed = true, not a separate generic notification - see Removable.
     world.onComponentRemoved { entityId, component ->
       if (component is Removable) {
@@ -128,9 +127,14 @@ class ZoneEngine(
   /** Every step hands the systems the same delta; time lost to a long pause is dropped, see [FixedStepClock]. */
   private fun runTickLoop() {
     LOG.info { "Zone ECS engine started @ ${config.tickRate}Hz" }
-    while (running) {
-      repeat(clock.dueSteps(System.nanoTime())) { tickSafely() }
-      awaitNextStep()
+    world.bindTickThread()
+    try {
+      while (running) {
+        repeat(clock.dueSteps(System.nanoTime())) { tickSafely() }
+        awaitNextStep()
+      }
+    } finally {
+      world.unbindTickThread()
     }
   }
 
@@ -148,9 +152,16 @@ class ZoneEngine(
     if (elapsed > stepNanos) reportSlowTick(elapsed)
   }
 
+  /** Between steps the tick thread runs posted work (tick-lane messages, leases), each burst one outbox batch. */
   private fun awaitNextStep() {
-    val wait = clock.nextStepAt - System.nanoTime()
-    if (wait > 0) LockSupport.parkNanos(wait)
+    while (running && clock.nextStepAt - System.nanoTime() > 0) {
+      try {
+        outbox.collect { world.runPostedUntil(clock.nextStepAt) }
+      } catch (e: Throwable) {
+        if (e.isFatal()) throw e
+        LOG.error(e) { "Error while running posted work: ${e.message}" }
+      }
+    }
   }
 
   /**
@@ -226,7 +237,7 @@ class ZoneEngine(
   private fun syncDirtyComponents() {
     val perEntity = LinkedHashMap<EntityId, MutableList<Dirtyable>>()
 
-    world.locked {
+    run {
       val positionChanged = HashSet<EntityId>()
 
       for (syncableComponentType in syncableComponentTypes) {
@@ -271,8 +282,6 @@ class ZoneEngine(
       }
     }
 
-    // Build the outbound component update messages outside the world lock: resolving sync
-    // targets (e.g. party membership) may hit the database and must not block the tick thread.
     for ((entityId, comps) in perEntity) {
       try {
         sendChanges(entityId, comps)
@@ -342,8 +351,8 @@ class ZoneEngine(
    * Sends a full snapshot for every entity that has just come into an account's view.
    *
    * Built here rather than where the change was noticed because this is the one place that is on the tick
-   * thread, after every system, and outside the world lock - and a snapshot is a read of up to
-   * twenty-five components against sync targets that may look at other entities.
+   * thread after every system - and a snapshot is a read of up to twenty-five components against sync
+   * targets that may look at other entities.
    *
    * No budget of its own: arrivals are driven by chunks going out, which `ChunkStreamSystem` already meters
    * at `chunksPerTickPerPlayer`, so a login spreads over the same second or two the terrain does.

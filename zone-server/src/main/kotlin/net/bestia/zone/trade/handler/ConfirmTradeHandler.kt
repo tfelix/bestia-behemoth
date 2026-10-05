@@ -1,5 +1,6 @@
 package net.bestia.zone.trade.handler
 
+import net.bestia.zone.message.HandlerLane
 import net.bestia.zone.message.InMessageProcessor
 import net.bestia.zone.trade.ConfirmTradeCMSG
 import net.bestia.zone.trade.TradeService
@@ -15,6 +16,8 @@ class ConfirmTradeHandler(
 ) : InMessageProcessor.IncomingMessageHandler<ConfirmTradeCMSG> {
 
   override val handles = ConfirmTradeCMSG::class
+
+  override val lane = HandlerLane.IO
 
   override fun handle(msg: ConfirmTradeCMSG): Boolean {
     tradeService.confirm(msg.playerId, msg.tradeId)

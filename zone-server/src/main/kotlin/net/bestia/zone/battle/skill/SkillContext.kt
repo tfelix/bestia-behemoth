@@ -10,9 +10,9 @@ import net.bestia.zone.util.EntityId
  * Everything a [SkillStrategy] is given: an immutable snapshot of the fight, and a budgeted door to the
  * live world.
  *
- * [battle] is taken under one lock scope before the script runs and is a plain value from then on, so
+ * [battle] is taken in one world scope before the script runs and is a plain value from then on, so
  * range checks and damage formulas are pure functions of it and can be unit-tested without a world. It
- * is also, necessarily, *stale*: the script runs off the tick thread, so anything it acts on must be
+ * is also, necessarily, *stale*: a channelled cast started a while ago, so anything it acts on must be
  * re-checked through [world], which returns null or false for whatever has since died.
  */
 class SkillContext(
