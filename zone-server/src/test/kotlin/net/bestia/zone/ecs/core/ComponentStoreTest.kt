@@ -65,4 +65,16 @@ class ComponentStoreTest {
     val store = ComponentStore(Pos::class)
     assertNull(store.remove(123L))
   }
+
+  @Test
+  fun `a store that empties out gives its memory back and keeps the rest`() {
+    val store = ComponentStore(Pos::class)
+    (0L until 1_000L).forEach { store.set(it, Pos(x = it.toInt())) }
+    val peak = store.capacity
+
+    (0L until 990L).forEach { store.remove(it) }
+
+    assertTrue(store.capacity < peak / 4, "capacity stayed at ${store.capacity}")
+    (990L until 1_000L).forEach { assertEquals(it.toInt(), store.get(it)!!.x) }
+  }
 }

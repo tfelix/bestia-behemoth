@@ -17,12 +17,15 @@ import net.bestia.zone.world.stream.ChunkPatchSMSG
 import net.bestia.zone.world.stream.ChunkRequestCMSG
 import net.bestia.zone.world.stream.ChunkService
 import net.bestia.zone.world.stream.ChunkStreamConfig
+import net.bestia.zone.world.stream.ChunkStreamSystem
 import net.bestia.zone.world.stream.ChunkSubscriptionService
 import net.bestia.zone.world.stream.WorldInfoSMSG
+import org.awaitility.Awaitility
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import java.io.ByteArrayOutputStream
+import java.time.Duration
 import java.util.zip.Inflater
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -54,6 +57,9 @@ class ChunkStreamingScenario : BestiaNoSocketScenario(
 
   @Autowired
   private lateinit var settings: ChunkStreamConfig
+
+  @Autowired
+  private lateinit var streamSystem: ChunkStreamSystem
 
   @Autowired
   private lateinit var world: WorldView
@@ -383,6 +389,20 @@ class ChunkStreamingScenario : BestiaNoSocketScenario(
       before, chunkService.slabComputations,
       "the tick already sampled this view volume; asking again must not resample the heightfield"
     )
+  }
+
+  @Test
+  @Order(6)
+  fun `a player standing still on a settled view costs no manifest work`() {
+    // Once the whole view is costed and nobody digs, nothing a manifest is computed from can change. Two polls
+    // ten ticks apart with no computation between them is that, observed.
+    var last = -1L
+    Awaitility.await().atMost(Duration.ofSeconds(30)).pollInterval(Duration.ofMillis(500)).until {
+      val now = streamSystem.manifestComputations
+      val unchanged = now == last
+      last = now
+      unchanged
+    }
   }
 
   @Test

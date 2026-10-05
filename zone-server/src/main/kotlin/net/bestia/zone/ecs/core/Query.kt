@@ -39,6 +39,7 @@ class Query internal constructor(
   }
 
   private val storeList: List<ComponentStore<out Component>> = stores.values.toList()
+  private val storeArray: Array<ComponentStore<out Component>> = storeList.toTypedArray()
 
   private fun driver(): ComponentStore<out Component> =
     storeList.reduce { smallest, s -> if (s.size < smallest.size) s else smallest }
@@ -50,7 +51,7 @@ class Query internal constructor(
 
   fun each(action: Row.(EntityId) -> Unit) {
     val driver = driver()
-    val row = Row(stores)
+    val row = Row(storeArray)
     val failures = AtomicInteger()
     for (i in 0 until driver.size) {
       val id = driver.entityAt(i)
@@ -62,7 +63,7 @@ class Query internal constructor(
 
   fun parallelEach(action: Row.(EntityId) -> Unit) {
     val driver = driver()
-    val threadRow = ThreadLocal.withInitial { Row(stores) }
+    val threadRow = ThreadLocal.withInitial { Row(storeArray) }
     val failures = AtomicInteger()
     IntStream.range(0, driver.size).parallel().forEach { i ->
       val id = driver.entityAt(i)
@@ -106,7 +107,7 @@ class Query internal constructor(
  * store `this` or a `Row` reference outside the lambda body.
  */
 class Row internal constructor(
-  @PublishedApi internal val stores: Map<KClass<out Component>, ComponentStore<out Component>>,
+  @PublishedApi internal val stores: Array<ComponentStore<out Component>>,
 ) {
   @PublishedApi
   internal var currentId: EntityId = -1L
@@ -118,16 +119,22 @@ class Row internal constructor(
    * case — join membership already guarantees the component is present).
    */
   inline fun <reified T : Component> get(): T {
-    val store = stores[T::class]
-      ?: throw IllegalStateException(
-        "Row.get<${T::class.simpleName}>(): ${T::class.simpleName} is not part of this query's " +
-          "component types (${stores.keys.map { it.simpleName }}); add it to the world.query(...) call."
-      )
-    @Suppress("UNCHECKED_CAST")
-    return (store as ComponentStore<T>).get(currentId)
-      ?: error(
-        "Row.get<${T::class.simpleName}>() found nothing for entity $currentId despite the join match " +
-          "— bug in Query's join logic."
-      )
+    // A query joins a handful of types, so comparing class references beats hashing a KClass on every read.
+    val type = T::class.java
+    for (store in stores) {
+      if (store.javaType !== type) continue
+
+      @Suppress("UNCHECKED_CAST")
+      return (store as ComponentStore<T>).get(currentId)
+        ?: error(
+          "Row.get<${type.simpleName}>() found nothing for entity $currentId despite the join match " +
+            "— bug in Query's join logic."
+        )
+    }
+
+    throw IllegalStateException(
+      "Row.get<${type.simpleName}>(): ${type.simpleName} is not part of this query's " +
+        "component types (${stores.map { it.type.simpleName }}); add it to the world.query(...) call."
+    )
   }
 }

@@ -61,7 +61,7 @@ class ActorSignatureSystem(
     world.query(Path::class).each { id ->
       if (!signatures.needsRefresh(id, now)) return@each
 
-      signatureOf(world, id)?.let { signatures.remember(id, it, now) }
+      signatures.remember(id, signatureOf(world, id), now)
     }
 
     secondsSinceSweep += deltaTime

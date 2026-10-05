@@ -154,6 +154,8 @@ class World(
       listener(id)
     }
     for (store in stores.values) {
+      // Most of the hundred-odd stores are empty or tiny; skipping the empty ones is a size read.
+      if (store.size == 0) continue
       @Suppress("UNCHECKED_CAST")
       (store as ComponentStore<Component>).remove(id)
     }

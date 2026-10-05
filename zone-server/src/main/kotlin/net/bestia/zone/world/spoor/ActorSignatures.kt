@@ -25,7 +25,8 @@ class ActorSignatures(
   private val config: SpoorConfig,
 ) {
 
-  private class Held(val signature: ActorSignature, val takenSecond: Long)
+  /** [signature] is null for something that walks but is nothing a tracker names, so it is not asked again each tick. */
+  private class Held(val signature: ActorSignature?, val takenSecond: Long)
 
   private val byEntity = HashMap<EntityId, Held>()
 
@@ -45,7 +46,7 @@ class ActorSignatures(
     return nowSecond - held.takenSecond >= config.refreshSeconds
   }
 
-  fun remember(entityId: EntityId, signature: ActorSignature, nowSecond: Long) {
+  fun remember(entityId: EntityId, signature: ActorSignature?, nowSecond: Long) {
     if (!byEntity.containsKey(entityId) && byEntity.size >= config.maxSignatures) {
       if (!warnedFull) {
         warnedFull = true

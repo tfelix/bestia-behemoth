@@ -101,12 +101,12 @@ class TownsfolkResidencySystem(
     val radius = config.activationRadiusTiles
     val wanted = HashMap<Long, Vec3L>()
 
-    for (settlement in settlementsNear(players, radius)) {
+    for ((settlement, coveringPlayers) in settlementsNear(players, radius)) {
       for (resident in roster.of(settlement)) {
         if (indoors.isIndoors(resident.identity)) continue
 
         val anchor = resident.anchorAt(minuteOfDay)
-        if (players.any { within(anchor, it, radius) }) wanted[resident.identity] = anchor
+        if (coveringPlayers.any { within(anchor, it, radius) }) wanted[resident.identity] = anchor
       }
     }
 
@@ -114,15 +114,16 @@ class TownsfolkResidencySystem(
   }
 
   /**
-   * The settlements close enough that somebody in them might be in range.
+   * The settlements close enough that somebody in them might be in range, each with the players it is close
+   * to - only those can have a resident in range, so the others need not be asked about each one.
    *
    * The coarse half of the same two-phase shape `TownClearance` uses: almost every player is nowhere near
    * a town, and a disc test against the settlement index answers those without expanding a roster.
    */
-  private fun settlementsNear(players: List<Vec3L>, radius: Long): Set<Int> {
-    val found = LinkedHashSet<Int>()
+  private fun settlementsNear(players: List<Vec3L>, radius: Long): Map<Int, List<Vec3L>> {
+    val found = LinkedHashMap<Int, MutableList<Vec3L>>()
     for (player in players) {
-      sites.coveringWithin(player.x, player.y, radius).forEach { found.add(it) }
+      sites.coveringWithin(player.x, player.y, radius).forEach { found.getOrPut(it) { ArrayList(1) }.add(player) }
     }
     return found
   }

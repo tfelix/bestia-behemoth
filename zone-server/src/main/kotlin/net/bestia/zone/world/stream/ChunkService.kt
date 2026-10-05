@@ -223,6 +223,14 @@ class ChunkService(
    */
   private val editedSlabs = HashMap<Pair<Int, Int>, MutableSet<Int>>()
 
+  /**
+   * Moves whenever a column's slabs become known or grow, which is when a desired set can change for a player
+   * standing still. Lets `ChunkStreamSystem` skip a manifest nothing can have changed.
+   */
+  val slabEpoch: Long get() = slabChanges
+
+  private var slabChanges = 0L
+
   private data class EncodedKey(val chunk: ChunkPos, val revision: Int)
 
   /** Per chunk, voxel index to the lowest occupancy it reached this tick. */
@@ -312,6 +320,7 @@ class ChunkService(
     val key = column.x to column.y
     val generated = slabs.getOrPut(key) {
       computed++
+      slabChanges++
       computeSurfaceSlabs(column)
     }
 
@@ -721,8 +730,8 @@ class ChunkService(
     revisions[chunk] = revisionOf(chunk) + 1
 
     val edited = editedSlabs.getOrPut(chunk.x to chunk.y) { HashSet(2) }
-    edited.add(chunk.z)
-    edited.add(chunk.z - 1)
+    val grew = edited.add(chunk.z) or edited.add(chunk.z - 1)
+    if (grew) slabChanges++
 
     loaded.derived.track(chunk)
     loaded.derived.invalidate(chunk)

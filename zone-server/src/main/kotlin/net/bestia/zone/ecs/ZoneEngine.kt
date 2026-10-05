@@ -354,9 +354,12 @@ class ZoneEngine(
    * at `chunksPerTickPerPlayer`, so a login spreads over the same second or two the terrain does.
    */
   private fun flushVisibilityChanges() {
+    // One snapshot per entity per tick, however many accounts it appears to.
+    val snapshots = HashMap<EntityId, EntitySnapshotBuilder.Snapshot>()
+
     for (delivery in entityVisibility.drain()) {
       val msgs = delivery.appeared.flatMap { entityId ->
-        snapshotBuilder.build(world, entityId, delivery.accountId)
+        snapshots.getOrPut(entityId) { snapshotBuilder.snapshotOf(world, entityId) }.visibleTo(delivery.accountId)
       }
 
       val withVanishes = msgs + delivery.vanished.map {

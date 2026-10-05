@@ -138,21 +138,20 @@ class SpawnerSystem(
     // other order asks the same question a thousand times.
     val players = activePlayerPositions(world)
 
-    // Broad phase. One shared set, so several players standing together cost one union rather than one
-    // collection each.
-    val candidates = HashSet<EntityId>()
+    // Broad phase per player, then the exact per-den test against that player only: a den in some other
+    // player's range is found by that player's own broad phase. `desired` is the single producer of "this den
+    // should have a pack" - anything else that ever wants to hold a den awake (a quest, a world event) unions
+    // into it here and needs no other change.
+    val desired = HashSet<EntityId>()
+    val near = HashSet<EntityId>()
     for (player in players) {
-      cellIndex.collectNear(player, candidates)
-    }
+      near.clear()
+      cellIndex.collectNear(player, near)
 
-    // Narrow phase: the exact per-den test, over the handful the cells returned. `desired` is the single
-    // producer of "this den should have a pack" - anything else that ever wants to hold a den awake (a quest,
-    // a world event) unions into it here and needs no other change.
-    val desired = HashSet<EntityId>(candidates.size)
-    for (id in candidates) {
-      val spawner = world.get(id, Spawner::class) ?: continue
-      if (players.any { withinActivation(spawner, it) }) {
-        desired.add(id)
+      for (id in near) {
+        if (id in desired) continue
+        val spawner = world.get(id, Spawner::class) ?: continue
+        if (withinActivation(spawner, player)) desired.add(id)
       }
     }
 
