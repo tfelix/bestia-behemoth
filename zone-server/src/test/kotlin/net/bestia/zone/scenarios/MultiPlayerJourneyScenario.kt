@@ -415,14 +415,6 @@ class MultiPlayerJourneyScenario : BestiaNoSocketScenario(autoClientConnect = fa
       assertTrue(vanish, "expected the master entity to vanish for its owner after logout")
     }
 
-    // The vanish message is sent by LogoutSystem *before* it tags the entity PersistAndRemove -
-    // that tag is only picked up (and the master's row actually persisted) by PersistAndRemoveSystem
-    // on a later tick. Re-selecting before that has actually run would reload the master from a
-    // stale DB row, so wait for the entity to be truly gone rather than just "vanished for the client".
-    await {
-      assertFalse(world.isAlive(masterEntityId), "expected the master entity to be fully persisted and removed")
-    }
-
     // The account-level connection is untouched by logout, only the session's active master - so
     // re-selecting directly (rather than GameClientMock.connect(), which no-ops once "connected")
     // is exactly what a real client reconnecting and picking the same master again would send.

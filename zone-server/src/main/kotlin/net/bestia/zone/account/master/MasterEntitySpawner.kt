@@ -63,23 +63,15 @@ class MasterEntitySpawner(
    * Creating a master is usually a two step process as we need to register him for the current
    * session before we start adding him to the zone server. Otherwise we would start sending out
    * updated and the master entity id is not yet registered to the session.
+   *
+   * The master reuses the entity id it was stamped with at creation, so anything stored against it (persisted
+   * status effects) finds it again. That entity must not be alive any more, see [SelectMasterHandler].
    */
   @Transactional(readOnly = true)
   fun spawnMaster(masterId: Long): EntityId {
     val master = masterRepository.findByIdOrThrow(masterId)
 
     LOG.info { "Create master entity for account ${master.account.id} with master id: $masterId" }
-
-    // The master reuses the entity id it was stamped with at creation, so anything stored against it
-    // (persisted status effects) finds it again. The flip side is that a leftover entity from a previous
-    // session now collides instead of being quietly orphaned by a freshly minted id, and
-    // `createEntity(id)` throws on a duplicate - so an incumbent is cleared out first. It is about to be
-    // replaced by state read straight from the database anyway.
-    if (world.hasEntity(master.entityId)) {
-      LOG.warn { "Master $masterId still holds entity ${master.entityId} from a previous session, replacing it" }
-
-      world.modify(master.entityId) { id -> destroy(id) }
-    }
 
     val learnedSkillIds = learnedSkillRepository.findAllByMasterId(masterId)
       .associate { it.skill.id to it.level }

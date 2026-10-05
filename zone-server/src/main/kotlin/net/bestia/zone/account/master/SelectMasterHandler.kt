@@ -5,6 +5,7 @@ import net.bestia.zone.ecs.battle.skill.KnownSkills
 import net.bestia.zone.ecs.core.AsyncJobExecutor
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.movement.Position
+import net.bestia.zone.ecs.persistence.EntityWriteBehind
 import net.bestia.zone.environment.weather.WeatherPublisher
 import net.bestia.zone.item.equip.EquipmentRevalidationService
 import net.bestia.zone.message.HandlerLane
@@ -19,12 +20,15 @@ class SelectMasterHandler(
   private val weatherPublisher: WeatherPublisher,
   private val equipmentRevalidationService: EquipmentRevalidationService,
   private val asyncJobExecutor: AsyncJobExecutor,
+  private val masterRepository: MasterRepository,
+  private val writeBehind: EntityWriteBehind,
 ) : InMessageProcessor.IncomingMessageHandler<SelectMasterCMSG> {
   override val handles = SelectMasterCMSG::class
   override val lane = HandlerLane.IO
 
   override fun handle(msg: SelectMasterCMSG): Boolean {
-    // The row is read below; a logout or a grant for this master may still be on its way to it.
+    saveAndRemoveIncumbent(msg.selectedMasterId)
+    // The row is read below; this save, a logout or a grant for this master may still be on its way to it.
     asyncJobExecutor.awaitPending(msg.selectedMasterId)
     val masterEntityId = masterEntitySpawner.spawnMaster(msg.selectedMasterId)
 
@@ -38,6 +42,23 @@ class SelectMasterHandler(
     equipmentRevalidationService.revalidate(msg.selectedMasterId, masterEntityId)
 
     return true
+  }
+
+  /**
+   * A master keeps the entity id it was stamped with at creation, so an entity left over from a previous session
+   * collides with the one about to be spawned. The leftover's state is newer than the row, so it is saved first.
+   *
+   * Not part of [MasterEntitySpawner.spawnMaster]: a read in its transaction would fix the snapshot before this
+   * save is written.
+   */
+  private fun saveAndRemoveIncumbent(masterId: Long) {
+    val entityId = masterRepository.findEntityIdById(masterId) ?: return
+
+    world.modify(entityId) { id ->
+      LOG.warn { "Master $masterId still holds entity $id from a previous session, saving and replacing it" }
+      writeBehind.persist(this, listOf(id))
+      destroy(id)
+    }
   }
 
   /**
