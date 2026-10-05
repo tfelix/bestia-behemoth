@@ -9,7 +9,6 @@ import net.bestia.zone.account.authentication.AuthenticationProcessor
 import net.bestia.zone.message.MessageEnvelopeReceivedEvent
 import net.bestia.zone.message.MessageHandlingFailedException
 import net.bestia.bnet.proto.AuthenticationSuccessProto
-import net.bestia.bnet.proto.DisconnectedProto
 import net.bestia.bnet.proto.EnvelopeProto
 import java.util.UUID
 import java.util.concurrent.ScheduledFuture
@@ -211,22 +210,7 @@ class ClientMessageHandler(
   }
 
   private fun sendDisconnectMessageAndClose(channel: io.netty.channel.Channel, reason: String = "AUTH_FAILED") {
-    try {
-      if (channel.isActive) {
-        val disconnected = DisconnectedProto.Disconnected
-          .newBuilder()
-          .setReason(reason)
-
-        val envelope = EnvelopeProto.Envelope.newBuilder()
-          .setDisconnected(disconnected)
-          .build()
-
-        channel.writeAndFlush(envelope).addListener { channel.close() }
-      }
-    } catch (e: Exception) {
-      LOG.warn(e) { "Failed to send disconnect message, forcing close" }
-      channel.close()
-    }
+    DisconnectNotice.sendAndClose(channel, reason)
   }
 
   companion object {
