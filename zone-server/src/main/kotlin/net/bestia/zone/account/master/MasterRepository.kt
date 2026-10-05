@@ -22,6 +22,9 @@ interface MasterRepository : JpaRepository<Master, Long> {
   @Lock(LockModeType.PESSIMISTIC_WRITE)
   @Query("select m from Master m where m.id = :id")
   fun findByIdForUpdate(@Param("id") id: Long): Master?
+
+  @Query("select m.entityId from Master m where m.id = :id")
+  fun findEntityIdById(@Param("id") id: Long): Long?
 }
 
 fun MasterRepository.findByIdOrThrow(id: Long): Master {
