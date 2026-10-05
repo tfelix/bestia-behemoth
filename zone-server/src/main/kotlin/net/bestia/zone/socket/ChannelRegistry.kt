@@ -1,6 +1,8 @@
 package net.bestia.zone.socket
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.netty.buffer.ByteBuf
+import io.netty.buffer.ByteBufAllocator
 import io.netty.channel.Channel
 import net.bestia.zone.message.SMSG
 import org.springframework.context.annotation.Profile
@@ -103,6 +105,52 @@ class ChannelRegistry(
 
     outMessages.forEach { write(playerId, channel, it) }
     channel.flush()
+  }
+
+  /** Serialises [outMessage] once, however many accounts it goes to. */
+  override fun broadcast(playerIds: Collection<Long>, outMessage: SMSG) {
+    if (playerIds.isEmpty()) return
+
+    val envelope = outMessage.toBnetEnvelope()
+    writeFramed(playerIds, EnvelopeFraming.frame(ByteBufAllocator.DEFAULT, envelope), skipBusy = false)
+
+    if (LOG.isTraceEnabled() && logFilter.allows(envelope)) {
+      LOG.trace { "TX players: $playerIds: $envelope" }
+    }
+  }
+
+  /**
+   * Writes a retained duplicate of [framed] to each account's live channel and releases [framed]. A duplicate
+   * shares the memory, so each recipient costs a refcount, not a copy.
+   *
+   * @param skipBusy also skips a channel that is not writable, for a caller that sends again later
+   * @return how many accounts it was written to
+   */
+  fun writeFramed(accountIds: Collection<Long>, framed: ByteBuf, skipBusy: Boolean): Int {
+    var written = 0
+    try {
+      for (accountId in accountIds) {
+        val channel = getChannel(accountId)
+
+        if (channel == null || !channel.isActive) {
+          LOG.debug { "No active channel for account $accountId; skipping a framed message" }
+          continue
+        }
+
+        if (skipBusy && !channel.isWritable) {
+          LOG.debug { "Channel for account $accountId is not writable; skipping a framed message" }
+          continue
+        }
+
+        channel.writeAndFlush(framed.retainedDuplicate())
+        written++
+      }
+    } finally {
+      // Each duplicate holds its own reference until its write completes.
+      framed.release()
+    }
+
+    return written
   }
 
   private fun write(playerId: Long, channel: Channel, outMessage: SMSG) {

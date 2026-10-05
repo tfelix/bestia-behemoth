@@ -22,6 +22,14 @@ interface OutMessageHandler {
   }
 
   /**
+   * Sends one message to several accounts. Defaulted to a loop for the test doubles; [ChannelRegistry]
+   * serialises it once for all of them.
+   */
+  fun broadcast(playerIds: Collection<Long>, outMessage: SMSG) {
+    playerIds.forEach { sendMessage(it, outMessage) }
+  }
+
+  /**
    * Every account with a live connection, for the rare message addressed to the world rather than to a
    * player - a world-clock jump, and nothing else today.
    *
