@@ -17,6 +17,7 @@ import java.nio.charset.StandardCharsets
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.Date
+import java.util.UUID
 import javax.crypto.SecretKey
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -169,8 +170,42 @@ class LoginTokenValidatorTest {
   private fun futureExpiration(): Date =
     Date.from(LocalDateTime.now().plusMinutes(2).atZone(ZoneId.systemDefault()).toInstant())
 
+  /** Seen once and then replayed: a sniffed token must not take over the session it was minted for. */
+  @Test
+  fun `a login token is accepted only once`() {
+    val token = createValidLoginToken(12345L, Role.USER)
+    sut.validateLoginToken(token)
+
+    assertThrows<JwtLoginException> { sut.validateLoginToken(token) }
+  }
+
+  @Test
+  fun `a token without an id is refused`() {
+    assertThrows<JwtLoginException> { sut.validateLoginToken(createToken(id = null)) }
+  }
+
+  /** jjwt only checks an expiry that is present, so a token without one would never expire. */
+  @Test
+  fun `a token without an expiry is refused`() {
+    assertThrows<JwtLoginException> { sut.validateLoginToken(createToken(expiration = null)) }
+  }
+
+  private fun createToken(id: String? = UUID.randomUUID().toString(), expiration: Date? = futureExpiration()): String {
+    val builder = Jwts.builder()
+      .subject("12345")
+      .issuer("login")
+      .audience().add("zone").and()
+      .claim("role", "USER")
+      .issuedAt(Date())
+    id?.let { builder.id(it) }
+    expiration?.let { builder.expiration(it) }
+
+    return builder.signWith(secretKey).compact()
+  }
+
   private fun createValidLoginToken(accountId: Long, role: Role): String {
     return Jwts.builder()
+      .id(UUID.randomUUID().toString())
       .subject(accountId.toString())
       .issuer("login")
       .audience().add("zone").and()
@@ -183,6 +218,7 @@ class LoginTokenValidatorTest {
 
   private fun createTokenWithRoleClaim(role: String): String {
     return Jwts.builder()
+      .id(UUID.randomUUID().toString())
       .subject("12345")
       .issuer("login")
       .audience().add("zone").and()
@@ -195,6 +231,7 @@ class LoginTokenValidatorTest {
 
   private fun createTokenWithoutRoleClaim(): String {
     return Jwts.builder()
+      .id(UUID.randomUUID().toString())
       .subject("12345")
       .issuer("login")
       .audience().add("zone").and()
@@ -206,6 +243,7 @@ class LoginTokenValidatorTest {
 
   private fun createTokenWithIssuer(issuer: String): String {
     return Jwts.builder()
+      .id(UUID.randomUUID().toString())
       .subject("12345")
       .issuer(issuer)
       .audience().add("zone").and()
@@ -218,6 +256,7 @@ class LoginTokenValidatorTest {
 
   private fun createTokenWithAudience(audience: String): String {
     return Jwts.builder()
+      .id(UUID.randomUUID().toString())
       .subject("12345")
       .issuer("login")
       .audience().add(audience).and()
@@ -230,6 +269,7 @@ class LoginTokenValidatorTest {
 
   private fun createExpiredToken(): String {
     return Jwts.builder()
+      .id(UUID.randomUUID().toString())
       .subject("12345")
       .issuer("login")
       .audience().add("zone").and()
@@ -242,6 +282,7 @@ class LoginTokenValidatorTest {
 
   private fun createTokenWithDifferentKey(differentKey: SecretKey): String {
     return Jwts.builder()
+      .id(UUID.randomUUID().toString())
       .subject("12345")
       .issuer("login")
       .audience().add("zone").and()
