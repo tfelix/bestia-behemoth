@@ -4,7 +4,7 @@ enum class LoginSessionStatus {
   /** Started by the game, waiting for the browser to finish authenticating. */
   PENDING,
 
-  /** WebAuthn succeeded; the browser may still enrol a passkey before returning to the game. */
+  /** An authentication method proved the account; the browser has not yet asked to return to the game. */
   AUTHENTICATED,
 
   /** The single authorization code has been issued and waits for the game to exchange it. */

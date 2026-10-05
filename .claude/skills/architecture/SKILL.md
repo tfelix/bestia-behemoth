@@ -332,6 +332,10 @@ zone JWT. WebAuthn itself is entirely the browser's problem — there is no nati
 passkey code on any platform, and no `bestia://` URI scheme (RFC 8252 §7.3; Safari and
 Firefox refuse custom-scheme redirects anyway).
 
+`LoginSessionService` holds the session itself; `BrowserLoginService` holds the browser half shared by every login
+method. A new method runs its own ceremony in the browser between `BrowserLoginService.requireUsable` and
+`BrowserLoginService.authenticate`, which takes the account it proved. Binding cookie, account checks and code stay shared.
+
 An account may hold any number of `WebAuthn Credential` rows. They are joined to it by
 one `webauthn_user.user_handle`, which is what makes a synced passkey created on one
 machine resolve to the same account on another — the backend has no concept of a device.

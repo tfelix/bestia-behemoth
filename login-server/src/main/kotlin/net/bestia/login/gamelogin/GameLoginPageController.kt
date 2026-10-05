@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam
  */
 @Controller
 class GameLoginPageController(
-  private val loginSessionService: LoginSessionService,
+  private val browserLogin: BrowserLoginService,
   private val webAuthnConfig: WebAuthnConfig,
   private val gameLoginConfig: GameLoginConfig
 ) {
@@ -29,12 +29,12 @@ class GameLoginPageController(
   fun page(
     @RequestParam("session") sessionId: String,
     @RequestParam("intent", required = false) intent: String?,
-    @CookieValue(name = LoginSessionService.BINDING_COOKIE, required = false) presentedBinding: String?,
+    @CookieValue(name = BrowserLoginService.BINDING_COOKIE, required = false) presentedBinding: String?,
     response: HttpServletResponse,
     model: Model
   ): String {
     val binding = try {
-      loginSessionService.claimForBrowser(sessionId, presentedBinding)
+      browserLogin.claim(sessionId, presentedBinding)
     } catch (e: GameLoginException) {
       LOG.debug(e) { "Refusing to render game login page" }
       null
@@ -57,7 +57,7 @@ class GameLoginPageController(
   }
 
   private fun bindingCookie(binding: String): ResponseCookie {
-    return ResponseCookie.from(LoginSessionService.BINDING_COOKIE, binding)
+    return ResponseCookie.from(BrowserLoginService.BINDING_COOKIE, binding)
       .httpOnly(true)
       .secure(gameLoginConfig.bindingCookieSecure)
       .sameSite("Strict")
