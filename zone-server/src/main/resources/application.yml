@@ -4,7 +4,10 @@ zone:
   bestia-base-slot-count: 4
   # The max amount of bestia slot a single master can have.
   bestia-max-slot-count: 8
-  jwt-auth-secret-key: "your-secret-key-here-change-in-production"
+  # jwt-auth-secret-key: no value on purpose, so a deployment that forgets it does not boot. Supplied through
+  # ZONE_JWT_AUTH_SECRET_KEY and identical to login-server's `jwt.secret`; the dev profile carries a public one.
+  # A shared HMAC secret for now: it moves to an asymmetric key pair (login signs, zones only verify) before
+  # production.
   # Must be different for every zone which starts. So this probably needs to be overwritten
   # during deployment. This hard coded value is for development purposes.
   shard-id: 1
@@ -28,7 +31,7 @@ worldgen:
   #   - the world centre is dry land - tropical seasonal forest at 53 m - and the centre is where a new master
   #     spawns. Most seeds put the centre in open ocean: of fourteen sampled, twelve did.
   #
-  # DEV ONLY - this value is committed and therefore public, same as `jwt-auth-secret-key` above. The
+  # DEV ONLY - this value is committed and therefore public. The
   # generator is open source and runs offline in well under a second, so anyone who knows the seed can
   # regenerate the whole map - every ore deposit, cave hoard and ruin - before setting foot in it. A real,
   # persistent deployment must leave this unset (a fresh `Long` is then drawn at random on first boot, over
