@@ -7,6 +7,7 @@ import net.bestia.zone.ecs.core.Component
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.session.NoActiveSessionException
+import net.bestia.zone.ecs.logout.DisconnectProtection
 import net.bestia.zone.ecs.logout.LogoutIntent
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -74,6 +75,7 @@ class SelectMasterScenario : BestiaNoSocketScenario(autoClientConnect = false) {
     world.modify(entityId) { id ->
       add(id, NeverPersisted)
       add(id, LogoutIntent())
+      add(id, DisconnectProtection(remainingSeconds = 20f))
     }
     connectionInfoService.deactivateSession(accountId)
 
@@ -81,6 +83,7 @@ class SelectMasterScenario : BestiaNoSocketScenario(autoClientConnect = false) {
 
     assertTrue(world.has(entityId, NeverPersisted::class), "the live entity must be kept, not reloaded")
     assertFalse(world.has(entityId, LogoutIntent::class), "picking the master back up ends its logout")
+    assertFalse(world.has(entityId, DisconnectProtection::class), "and its disconnect protection")
     assertEquals(entityId, connectionInfoService.getSelectedMasterEntityId(accountId))
   }
 

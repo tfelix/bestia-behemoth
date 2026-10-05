@@ -33,7 +33,7 @@ class LogoutSystem(
 
   override val schedule: Schedule = Schedule.EverySeconds(1f)
   override val reads: ComponentClassSet = setOf(Account::class)
-  override val writes: ComponentClassSet = setOf(LogoutIntent::class, PersistAndRemove::class)
+  override val writes: ComponentClassSet = setOf(LogoutIntent::class, DisconnectProtection::class, PersistAndRemove::class)
 
   override fun update(world: World, deltaTime: Float) {
     world.query(LogoutIntent::class).each { id ->
@@ -42,6 +42,17 @@ class LogoutSystem(
 
       if (intent.hasElapsed()) {
         finalizeLogout(world, id)
+      }
+    }
+
+    // Nobody is connected to tell, so a protected body just leaves the same way.
+    world.query(DisconnectProtection::class).each { id ->
+      val protection = get<DisconnectProtection>()
+      protection.remainingSeconds -= deltaTime
+
+      if (protection.remainingSeconds <= 0f) {
+        world.remove(id, DisconnectProtection::class)
+        world.add(id, PersistAndRemove)
       }
     }
   }
