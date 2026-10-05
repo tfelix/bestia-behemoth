@@ -5,3 +5,8 @@ logging:
     net.bestia.zone: TRACE
     net.bestia.zone.ai: INFO
     net.bestia.zone.ecs.movement.MoveSystem: INFO # disable movement, too spammy
+
+zone:
+  # Public and committed; JwtSecretGuard refuses it outside the dev and test profiles. Must equal
+  # login-server's dev `jwt.secret`.
+  jwt-auth-secret-key: "your-secret-key-here-change-in-production"

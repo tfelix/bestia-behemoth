@@ -5,6 +5,7 @@ import org.springframework.beans.factory.config.YamlPropertiesFactoryBean
 import org.springframework.core.io.ClassPathResource
 import java.util.Properties
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
 
 /**
  * What a packaged zone server runs with when nobody configured it, which is what a careless deployment gets.
@@ -15,6 +16,12 @@ class ZoneDefaultConfigTest {
   fun `the shipped config logs at INFO and only the dev profile turns on TRACE`() {
     assertEquals("INFO", load("application.yml").getProperty("logging.level.net.bestia.zone"))
     assertEquals("TRACE", load("application-dev.yml").getProperty("logging.level.net.bestia.zone"))
+  }
+
+  /** Missing, a packaged server refuses to boot rather than accepting tokens signed with a public value. */
+  @Test
+  fun `the shipped config carries no JWT secret`() {
+    assertNull(load("application.yml").getProperty("zone.jwt-auth-secret-key"))
   }
 
   private fun load(name: String): Properties {

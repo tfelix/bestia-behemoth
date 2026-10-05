@@ -15,6 +15,8 @@ class LoginTokenValidator(
   config: ZoneConfig
 ) {
 
+  // HMAC with the secret login-server signs with, for now. It moves to an asymmetric key pair before production,
+  // so that a zone can verify tokens but never mint one.
   private val secretKey: SecretKey = Keys.hmacShaKeyFor(
     config.jwtAuthSecretKey.toByteArray(StandardCharsets.UTF_8)
   )

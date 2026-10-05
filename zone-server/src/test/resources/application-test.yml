@@ -1,3 +1,6 @@
+zone:
+  jwt-auth-secret-key: "zone-test-secret-that-is-long-enough-for-hmac"
+
 spring:
   # Pinned back to `none`: eleven test classes use a bare `@SpringBootTest`, which defaults to a MOCK web
   # environment and binds no port, so there is no collision to avoid - but building a servlet context the suite

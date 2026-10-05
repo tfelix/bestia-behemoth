@@ -9,6 +9,7 @@ import org.springframework.test.context.TestPropertySource
 	properties = [
 		"spring.datasource.url=jdbc:h2:mem:behemoth-application-tests",
 		"spring.datasource.driver-class-name=org.h2.Driver",
+		"zone.jwt-auth-secret-key=behemoth-application-test-secret-long-enough",
 	]
 )
 class BehemothApplicationTests {
