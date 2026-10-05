@@ -138,11 +138,21 @@ class LoginSessionService(
     sessions.save(session)
   }
 
+  /** One ceremony, one code: a second call for the same session is refused. */
+  @Transactional
+  fun markCodeIssued(idHash: String) {
+    advance(idHash, LoginSessionStatus.AUTHENTICATED, LoginSessionStatus.CODE_ISSUED)
+  }
+
   @Transactional
   fun markConsumed(idHash: String) {
-    val session = sessions.findById(idHash).orElse(null) ?: return
-    session.status = LoginSessionStatus.CONSUMED
-    sessions.save(session)
+    advance(idHash, LoginSessionStatus.CODE_ISSUED, LoginSessionStatus.CONSUMED)
+  }
+
+  private fun advance(idHash: String, from: LoginSessionStatus, to: LoginSessionStatus) {
+    if (sessions.advance(idHash, from, to, LocalDateTime.now()) != 1) {
+      throw GameLoginException(GameLoginError.INVALID_GRANT, "login session is not $from")
+    }
   }
 
   fun hash(sessionId: String): String {

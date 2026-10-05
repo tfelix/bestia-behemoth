@@ -74,6 +74,7 @@ class LoginSessionController(
         throw GameLoginException(GameLoginError.ACCOUNT_UNAVAILABLE, reason)
       }
 
+      loginSessionService.markCodeIssued(session.idHash)
       val code = authorizationCodeService.issue(session, accountId)
       val encodedCode = URLEncoder.encode(code, StandardCharsets.UTF_8)
       val encodedState = URLEncoder.encode(session.clientState, StandardCharsets.UTF_8)
