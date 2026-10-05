@@ -70,9 +70,8 @@ class WanderScenarioTest {
   @Test
   fun `spring collects the systems and schedules them into waves`() {
     assertEquals(3, world.systemCount)
-    // MovementSystem (reads Velocity) conflicts with WanderSystem (writes Velocity)
-    // => 2 waves; HealthRegenSystem is independent and shares the first wave.
-    assertEquals(2, world.waveCount)
+    // One phase each (AI, movement, recovery), and phases never share a wave.
+    assertEquals(3, world.waveCount)
   }
 
   @Test
@@ -83,7 +82,8 @@ class WanderScenarioTest {
       p.x to p.y
     }
 
-    repeat(20) { world.tick(0.05f) }
+    // Not a multiple of four: a critter's direction cycles every four steps, which brings it back home.
+    repeat(5) { world.tick(0.05f) }
 
     val movedIds = critters.filter { id ->
       val p = world.get(id, Position::class)!!

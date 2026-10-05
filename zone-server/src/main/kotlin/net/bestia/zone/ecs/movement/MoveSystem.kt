@@ -3,15 +3,15 @@ package net.bestia.zone.ecs.movement
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.account.Account
 import net.bestia.zone.ecs.battle.damage.Dead
-import net.bestia.zone.ecs.core.Component
 import net.bestia.zone.ecs.core.ComponentClassSet
+import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.TickBuckets
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.navigation.local.LocalWalkQuery
 import net.bestia.zone.util.EntityId
-import org.springframework.core.annotation.Order
+import net.bestia.zone.world.spoor.ActorSignatureSystem
 import kotlin.math.sqrt
 import org.springframework.stereotype.Component as SpringComponent
 
@@ -38,12 +38,13 @@ import org.springframework.stereotype.Component as SpringComponent
  * [POSITION_RESYNC_STEPS]th step is, as insurance against a client that stalled or lost a message.
  */
 @SpringComponent
-@Order(40)
 class MoveSystem(
   private val ground: GroundHeight,
   private val trample: GroundTrample,
   private val walkQuery: LocalWalkQuery,
 ) : System {
+  override val phase = Phase.MOVEMENT
+  override val after = setOf(ActorSignatureSystem::class)
 
   override val reads: ComponentClassSet = setOf(Speed::class, Dead::class, Account::class)
   override val writes: ComponentClassSet = setOf(Position::class, Path::class, CoarseMovement::class)

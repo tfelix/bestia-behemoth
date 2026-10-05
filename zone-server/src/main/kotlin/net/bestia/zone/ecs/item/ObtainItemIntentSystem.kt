@@ -5,6 +5,7 @@ import net.bestia.zone.ecs.account.Account
 import net.bestia.zone.ecs.account.Master
 import net.bestia.zone.ecs.core.AsyncJobExecutor
 import net.bestia.zone.ecs.core.ComponentClassSet
+import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
@@ -14,7 +15,6 @@ import net.bestia.zone.ecs.persistence.PersistedEntityDeletionQueue
 import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.item.loot.LootItemEntitySpawner
 import net.bestia.zone.util.EntityId
-import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
 import net.bestia.zone.ecs.core.modify
 
@@ -22,12 +22,10 @@ import net.bestia.zone.ecs.core.modify
  * Resolves [ObtainItemIntent]s: whichever entity has one attached (master or player bestia,
  * whichever is currently the active entity - see `ConnectionInfoService.getActiveEntityId`) gets
  * checked against its carry capacity and, if it fits, the item is added to its ECS [Inventory]
- * component immediately. Runs before [CarryCapacitySystem] (`@Order(61)`) so a same-tick grant is
- * already reflected in the [CarryCapacity] the owner is about to be sent (same pattern as
- * `GainExpSystem` (60) -> [CarryCapacitySystem] for level-ups).
+ * component immediately. Runs before [CarryCapacitySystem] so a same-tick grant is already reflected
+ * in the [CarryCapacity] the owner is about to be sent, as a level-up from `GainExpSystem` is.
  */
 @Component
-@Order(59)
 class ObtainItemIntentSystem(
   private val itemTemplates: ItemTemplateRegistry,
   private val lootItemEntitySpawner: LootItemEntitySpawner,
@@ -36,6 +34,7 @@ class ObtainItemIntentSystem(
   private val connectionInfoService: ConnectionInfoService,
   private val deletionQueue: PersistedEntityDeletionQueue,
 ) : System {
+  override val phase = Phase.ITEMS
 
   private data class ClaimedLoot(
     val item: ItemTemplateRegistry.Template,

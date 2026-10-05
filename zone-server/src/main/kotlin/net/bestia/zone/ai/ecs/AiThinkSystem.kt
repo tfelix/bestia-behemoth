@@ -5,12 +5,12 @@ import net.bestia.zone.ai.core.planner.Planner
 import net.bestia.zone.ai.core.planner.PlanningBudget
 import net.bestia.zone.ecs.battle.damage.Dead
 import net.bestia.zone.ecs.core.ComponentClassSet
+import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.TickBuckets
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.movement.Position
-import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component as SpringComponent
 
 /**
@@ -33,12 +33,13 @@ import org.springframework.stereotype.Component as SpringComponent
  * *Cap a tick's searches.* [PLANNING_BUDGET_PER_TICK] iterations are shared by everyone thinking on a tick.
  */
 @SpringComponent
-@Order(20)
 class AiThinkSystem(
   private val planner: Planner,
   private val sharedMemory: SharedMemoryService,
   private val throttle: AiThrottle,
 ) : System {
+  override val phase = Phase.AI
+  override val after = setOf(AiDriveSystem::class)
 
   override val schedule: Schedule = Schedule.EveryTick
 

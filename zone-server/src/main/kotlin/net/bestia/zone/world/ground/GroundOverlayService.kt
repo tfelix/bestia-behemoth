@@ -17,20 +17,8 @@ import java.util.concurrent.ConcurrentHashMap
  *
  * ### It keeps its own record of who holds what, and never reads the subscription service
  *
- * The load-bearing decision in the file, and it took two wrong turns to reach.
- *
- * `ChunkSubscriptionService` is tick-thread state owned by `ChunkStreamSystem`, and `SystemScheduler.conflicts`
- * can only compare *components* - read-read does not conflict at all, so a system declaring no components is
- * free to run in a **parallel wave** with it. `ChunkStreamSystem`'s own comment says why `@Order` does not
- * help: *"`@Order` fixes the sequence only among systems that already conflict."* Reading the subscription
- * service from a flush therefore raced with it.
- *
- * The obvious repair - declare a write on a component that system reads, purely to force the ordering - is
- * worse, and measurably so. It makes an always-present system conflict with a large part of the engine,
- * which flattens the wave scheduling for everything, slows every tick, and on this codebase's own test suite
- * ran the heap out.
- *
- * So [holders] is this service's **own** map, maintained only from the subscription callbacks - which run on
+ * `ChunkSubscriptionService` is tick-thread state owned by `ChunkStreamSystem`, and `ScorchRegrowthSystem` reads
+ * this service too, from another phase. So [holders] is this service's **own** map, maintained only from the subscription callbacks - which run on
  * the tick thread inside `ChunkStreamSystem` itself and are therefore safe by construction. Concurrent maps
  * make a read from another wave safe rather than merely lucky, and the staleness that buys is harmless: the
  * message carries the whole mask and is idempotent, so a newcomer is served by `onChunkSent` and a departed

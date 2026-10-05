@@ -2,13 +2,13 @@ package net.bestia.zone.world.prop
 
 import net.bestia.zone.ecs.battle.damage.Dead
 import net.bestia.zone.ecs.core.ComponentClassSet
+import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.prop.StaticVisual
 import net.bestia.zone.ecs.prop.WorldObjectIdentity
 import net.bestia.zone.item.loot.LootItemEntitySpawner
-import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component as SpringComponent
 import java.time.Instant
 import kotlin.random.Random
@@ -16,9 +16,8 @@ import kotlin.random.Random
 /**
  * Records what a promoted prop's death means for the durable object it was, once per kill, ever.
  *
- * `@Order(65)`: after [net.bestia.zone.ecs.battle.damage.ReceivedDamageSystem] (`@Order(50)`, adds [Dead])
- * and before [net.bestia.zone.ecs.battle.damage.DeathSystem] (`@Order(70)`, unconditionally destroys
- * anything `Dead` - its own `assignExp`/`spawnLoot` already no-op harmlessly here since a prop has no
+ * In the death phase: after [net.bestia.zone.ecs.battle.damage.ReceivedDamageSystem] (adds [Dead]) and before
+ * [net.bestia.zone.ecs.battle.damage.DeathSystem] (unconditionally destroys anything `Dead` - its own `assignExp`/`spawnLoot` already no-op harmlessly here since a prop has no
  * `EntityVisual`, so that system needs no changes at all). No wave-scheduling conflict: neither system reads
  * or writes what the other does.
  *
@@ -28,15 +27,15 @@ import kotlin.random.Random
  * `SkillExecutionService.applyResult` stages both hits onto the *same* `DamageComponent` instance per
  * target, and `ReceivedDamageSystem` drains it once per tick, adding `Dead` at most once. This system's own
  * query over `Dead` therefore sees a given propId's death exactly once, ever: the entity is destroyed the
- * same tick, later in `@Order`, so it can never reappear in a future tick's query.
+ * same tick, later in the death phase, so it can never reappear in a future tick's query.
  */
 @SpringComponent
-@Order(65)
 class PropDeathDivergenceSystem(
   private val kinds: PropKindRegistry,
   private val lootItemEntitySpawner: LootItemEntitySpawner,
   private val divergence: WorldObjectDivergenceRegistry,
 ) : System {
+  override val phase = Phase.DEATH
 
   override val reads: ComponentClassSet =
     setOf(Dead::class, WorldObjectIdentity::class, StaticVisual::class, Position::class)

@@ -65,3 +65,7 @@ worldgen:
 # Chunks are encoded at once on the tick, so a scenario sees them in the tick it asked.
 chunk-stream:
   encode-workers: 0
+
+# A system that touches a component it did not declare breaks the wave scheduler's ordering silently.
+world:
+  undeclared-access: fail

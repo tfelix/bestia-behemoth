@@ -1,29 +1,31 @@
 package net.bestia.zone.world.ground
 
 import net.bestia.zone.ecs.core.ComponentClassSet
+import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
-import org.springframework.core.annotation.Order
+import net.bestia.zone.world.fire.GroundFireSystem
+import net.bestia.zone.world.prop.WorldObjectResidencySystem
 import org.springframework.stereotype.Component
 
 /**
  * Flushes the ground overlay once per tick, behind the terrain it describes.
  *
- * `@Order(47)`: after `ChunkStreamSystem` (45) has served the chunk payloads and
- * `WorldObjectResidencySystem` (46) has announced what stands on them, so a client is told about the ground,
- * then the things on it, then what has happened to it - in that order, within one tick.
+ * After `ChunkStreamSystem` has served the chunk payloads and `WorldObjectResidencySystem` has announced what
+ * stands on them, so a client is told about the ground, then the things on it, then what has happened to it -
+ * in that order, within one tick.
  *
  * Declares no `reads` and no `writes`, honestly: it touches the scorch registry and the socket, neither of
- * which is an ECS component, so there is nothing for `SystemScheduler.conflicts()` to order it against. The
- * `@Order` above is therefore about *observable* sequence rather than about wave scheduling, which is worth
- * saying because the two are easy to conflate.
+ * which is an ECS component. Its `after` is therefore about *observable* sequence, not about a shared
+ * component.
  */
 @Component
-@Order(47)
 class GroundOverlaySystem(
   private val overlay: GroundOverlayService,
 ) : System {
+  override val phase = Phase.WORLD
+  override val after = setOf(GroundStampSystem::class, GroundFireSystem::class, WorldObjectResidencySystem::class)
 
   override val schedule: Schedule = Schedule.EveryTick
 

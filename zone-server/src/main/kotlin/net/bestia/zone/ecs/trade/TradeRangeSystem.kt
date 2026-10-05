@@ -1,13 +1,13 @@
 package net.bestia.zone.ecs.trade
 
 import net.bestia.zone.ecs.core.ComponentClassSet
+import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.trade.TradeEndReason
 import net.bestia.zone.trade.TradeService
-import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component as SpringComponent
 
 /**
@@ -21,10 +21,10 @@ import org.springframework.stereotype.Component as SpringComponent
  * `Vec3L.distance` is two subtractions and a square root.
  */
 @SpringComponent
-@Order(86)
 class TradeRangeSystem(
   private val tradeService: TradeService,
 ) : System {
+  override val phase = Phase.UPKEEP
 
   override val schedule: Schedule = Schedule.EverySeconds(0.5f)
   override val reads: ComponentClassSet = setOf(Trading::class, Position::class)

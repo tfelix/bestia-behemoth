@@ -38,6 +38,7 @@ class EcsConfiguration {
     return EcsWorld(
       parallelSystems = worldConfig.parallelSystems,
       idGenerator = idGenerator,
+      undeclaredAccess = worldConfig.undeclaredAccess,
     )
   }
 
@@ -48,13 +49,11 @@ class EcsConfiguration {
     worldConfig: WorldConfig,
   ): SmartInitializingSingleton {
     return SmartInitializingSingleton {
-      val ordered = systems.orderedStream().toList()
-      world.registerSystems(ordered)
+      world.registerSystems(systems.stream().toList())
 
       LOG.info {
-        "ECS initialised (parallel=${worldConfig.parallelSystems}) with ${ordered.size} system(s) " +
-          "across ${world.waveCount} wave(s):\n" +
-          ordered.joinToString("\n") { " - ${it.name} [${it.schedule}]" }
+        "ECS initialised (parallel=${worldConfig.parallelSystems}) with ${world.systemCount} system(s) " +
+          "across ${world.waveCount} wave(s):\n" + world.describeSystems()
       }
     }
   }

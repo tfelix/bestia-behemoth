@@ -7,7 +7,7 @@ package net.bestia.zone.ecs.core
  */
 sealed interface Schedule {
   /** Runs on every simulation tick. */
-  object EveryTick : Schedule
+  data object EveryTick : Schedule
 
   /** Runs once every [n] ticks. */
   data class EveryTicks(val n: Int) : Schedule {

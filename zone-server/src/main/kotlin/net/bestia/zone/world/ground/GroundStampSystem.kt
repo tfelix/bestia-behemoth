@@ -2,11 +2,11 @@ package net.bestia.zone.world.ground
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.core.ComponentClassSet
+import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.environment.time.BestiaClock
-import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
 
 /**
@@ -19,26 +19,26 @@ import org.springframework.stereotype.Component
  * is over `GroundStampRegistry`'s own keys, which is bounded by `GroundStampConfig.maxColumns` and never by the
  * size of the world.
  *
- * ### `@Order(44)`, ahead of the chunk stream
+ * ### Ahead of the chunk stream
  *
- * `MoveSystem` (40) lays the prints, this notices them, and `GroundOverlaySystem` (47) sends them - all inside
- * the tick they were made in. Being ahead of `ChunkStreamSystem` (45) also means a player arriving this tick is
+ * `MoveSystem` lays the prints, this notices them, and `GroundOverlaySystem` sends them - all inside
+ * the tick they were made in. Being ahead of `ChunkStreamSystem` (its `after`) also means a player arriving this tick is
  * served the column's terrain after the prints on it were already accounted for, so they are told once rather
  * than twice.
  *
  * ### It declares no components, and means it
  *
  * The registry, the clock and [GroundOverlayService] are none of them components, so there is nothing for
- * `SystemScheduler.conflicts()` to order this against and the `@Order` above is about observable sequence only.
- * Declaring a write it does not make to force an ordering is the trap `ScorchRegrowthSystem` already fell into.
+ * `SystemScheduler.conflicts()` to order this against; the order above is about observable sequence and is
+ * declared with `after`.
  */
 @Component
-@Order(44)
 class GroundStampSystem(
   private val registry: GroundStampRegistry,
   private val overlay: GroundOverlayService,
   private val clock: BestiaClock,
 ) : System {
+  override val phase = Phase.WORLD
 
   override val schedule: Schedule = Schedule.EveryTick
 

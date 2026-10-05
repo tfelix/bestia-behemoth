@@ -281,6 +281,8 @@ world:
   # a flurry of clicking and the sustained rate for nothing else.
   move-requests-per-second: 10
   move-request-burst: 20
+  # A system touching a component it did not declare: `off`, `log`, or `fail` (tests).
+  undeclared-access: off
 
 # How much of the generator's den field is actually used, per level band of the *den*.
 #

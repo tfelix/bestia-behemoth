@@ -1,6 +1,7 @@
 package net.bestia.zone.ecs.battle.damage
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.account.Account
 import net.bestia.zone.ecs.battle.exp.Exp
@@ -19,12 +20,10 @@ import net.bestia.zone.ai.rumour.NotableKillReporter
 import net.bestia.zone.item.loot.LootItemEntitySpawner
 import net.bestia.zone.party.PartyMembership
 import net.bestia.zone.util.EntityId
-import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component as SpringComponent
 import net.bestia.zone.ecs.core.update
 
 @SpringComponent
-@Order(70)
 class DeathSystem(
   private val experienceGainCalculator: ExperienceGainCalculator,
   private val lootItemEntitySpawner: LootItemEntitySpawner,
@@ -33,6 +32,8 @@ class DeathSystem(
   private val notableKills: NotableKillReporter,
   private val spill: GroundSpill,
 ) : System {
+  override val phase = Phase.DEATH
+  override val after = setOf(PlayerDeathSystem::class)
 
   override val reads: ComponentClassSet =
     setOf(
@@ -58,7 +59,7 @@ class DeathSystem(
       }
 
       // A player-owned body is not gone for good: it stays where it fell until its owner respawns it,
-      // driven by PlayerDeathSystem (@68) and RespawnSystem (@44). Skipping it here also stops an
+      // driven by PlayerDeathSystem and RespawnSystem. Skipping it here also stops an
       // owned bestia paying out species EXP and loot when another player kills it - it carries
       // EntityVisual(BESTIA) exactly like the wild version, which is all `bestiaSpeciesOf` looks at.
       if (world.has(entityId, Account::class)) {

@@ -5,15 +5,16 @@ import net.bestia.zone.ai.ecs.AiThrottleable
 import net.bestia.zone.ecs.account.ActivePlayer
 import net.bestia.zone.ecs.battle.status.Invulnerable
 import net.bestia.zone.ecs.core.ComponentClassSet
+import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.movement.Position
+import net.bestia.zone.ecs.spawn.ambient.AmbientSpawnerSystem
 import net.bestia.zone.environment.time.BestiaClock
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.world.settlement.SettlementSiteIndex
-import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component as SpringComponent
 
 /**
@@ -39,7 +40,6 @@ import org.springframework.stereotype.Component as SpringComponent
  * when it comes back.
  */
 @SpringComponent
-@Order(82)
 class TownsfolkResidencySystem(
   private val roster: TownsfolkRoster,
   private val sites: SettlementSiteIndex,
@@ -48,6 +48,8 @@ class TownsfolkResidencySystem(
   private val clock: BestiaClock,
   private val config: TownsfolkResidencyConfig,
 ) : System {
+  override val phase = Phase.SPAWN
+  override val after = setOf(AmbientSpawnerSystem::class)
 
   /** Matches the ambient layer: activation is a coarse gate and a quarter second is inside the margin. */
   override val schedule: Schedule = Schedule.EverySeconds(0.25f)

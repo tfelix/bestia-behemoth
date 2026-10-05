@@ -1,10 +1,10 @@
 package net.bestia.zone.economy
 
 import net.bestia.zone.ecs.core.ComponentClassSet
+import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
-import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
 
 /**
@@ -22,11 +22,11 @@ import org.springframework.stereotype.Component
  * its row until somebody happened to visit again.
  */
 @Component
-@Order(87)
 class SettlementEconomySystem(
   private val economy: SettlementEconomyService,
   private val reserve: WorldReserve,
 ) : System {
+  override val phase = Phase.UPKEEP
 
   /**
    * Rare on purpose. The books move in game-days and the shortest of those is twenty minutes of real

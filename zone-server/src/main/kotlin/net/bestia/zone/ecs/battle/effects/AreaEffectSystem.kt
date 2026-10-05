@@ -9,6 +9,7 @@ import net.bestia.zone.ecs.battle.damage.Dead
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.battle.status.Invulnerable
 import net.bestia.zone.ecs.battle.status.StatusValues
+import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.movement.Grounded
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Schedule
@@ -22,7 +23,6 @@ import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.message.SMSG
 import net.bestia.zone.world.prop.PropPromotionService
 import net.bestia.zone.util.EntityId
-import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component as SpringComponent
 
 /**
@@ -34,17 +34,16 @@ import org.springframework.stereotype.Component as SpringComponent
  * are the same code with different numbers, and the finest cadence anything can have is the tick
  * rate rather than a system's own schedule.
  *
- * Ordered before [net.bestia.zone.ecs.battle.damage.ReceivedDamageSystem] (50), which reads the
- * [Damage] this writes - that read/write overlap is what actually orders the two, `@Order` alone
- * would not (see `ChunkStreamSystem`'s note on the same trap).
+ * Runs before [net.bestia.zone.ecs.battle.damage.ReceivedDamageSystem], which drains the [Damage] this
+ * writes.
  */
 @SpringComponent
-@Order(48)
 class AreaEffectSystem(
   private val entityAOIService: EntityAOIService,
   private val outMessageProcessor: OutMessageProcessor,
   private val propPromotionService: PropPromotionService
 ) : System {
+  override val phase = Phase.COMBAT
 
   override val schedule: Schedule = Schedule.EveryTick
 

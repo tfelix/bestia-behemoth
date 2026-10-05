@@ -1,5 +1,6 @@
 package net.bestia.zone.ecs
 
+import net.bestia.zone.ecs.core.UndeclaredAccess
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan
 import java.time.Duration
@@ -22,4 +23,5 @@ data class ZoneConfig(
    */
   val moveRequestsPerSecond: Float = 10f,
   val moveRequestBurst: Float = 20f,
+  val undeclaredAccess: UndeclaredAccess = UndeclaredAccess.OFF,
 )

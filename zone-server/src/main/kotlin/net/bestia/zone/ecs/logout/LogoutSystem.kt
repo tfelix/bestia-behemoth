@@ -3,6 +3,7 @@ package net.bestia.zone.ecs.logout
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.account.Account
 import net.bestia.zone.ecs.core.ComponentClassSet
+import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
@@ -11,7 +12,6 @@ import net.bestia.zone.ecs.persistence.PersistAndRemove
 import net.bestia.zone.entity.VanishEntitySMSG
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.util.EntityId
-import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component as SpringComponent
 
 /**
@@ -20,16 +20,16 @@ import org.springframework.stereotype.Component as SpringComponent
  * "logout complete" signal to run its queued action), deactivates the session, and tags the entity
  * [PersistAndRemove] so the existing persistence path saves-then-despawns it.
  *
- * Ordered before [net.bestia.zone.ecs.persistence.PersistAndRemoveSystem] (@90) so the tag is picked
+ * Ordered before [net.bestia.zone.ecs.persistence.PersistAndRemoveSystem] (a later phase) so the tag is picked
  * up on the next tick. Cancellation is not handled here — it happens by removing the component (see
  * [LogoutCancelService]).
  */
 @SpringComponent
-@Order(85)
 class LogoutSystem(
   private val outMessageProcessor: OutMessageProcessor,
   private val connectionInfoService: ConnectionInfoService,
 ) : System {
+  override val phase = Phase.UPKEEP
 
   override val schedule: Schedule = Schedule.EverySeconds(1f)
   override val reads: ComponentClassSet = setOf(Account::class)

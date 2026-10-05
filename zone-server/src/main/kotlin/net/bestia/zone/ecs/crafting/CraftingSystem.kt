@@ -3,10 +3,10 @@ package net.bestia.zone.ecs.crafting
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.crafting.CraftingService
 import net.bestia.zone.ecs.core.ComponentClassSet
+import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.util.EntityId
-import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component as SpringComponent
 
 /**
@@ -21,10 +21,10 @@ import org.springframework.stereotype.Component as SpringComponent
  * [net.bestia.zone.ecs.battle.damage.ReceivedDamageSystem] for damage.
  */
 @SpringComponent
-@Order(45)
 class CraftingSystem(
   private val craftingService: CraftingService,
 ) : System {
+  override val phase = Phase.ACTIONS
 
   override val writes: ComponentClassSet = setOf(Crafting::class)
 

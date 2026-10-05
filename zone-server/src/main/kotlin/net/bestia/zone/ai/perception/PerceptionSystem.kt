@@ -2,6 +2,7 @@ package net.bestia.zone.ai.perception
 
 import net.bestia.zone.ai.core.state.CommonKeys
 import net.bestia.zone.ai.ecs.AiAgent
+import net.bestia.zone.ai.ecs.AiDetailSystem
 import net.bestia.zone.ai.ecs.AiThrottle
 import net.bestia.zone.ai.profile.AiProfileRegistry
 import net.bestia.zone.ecs.AoiLayer
@@ -13,6 +14,7 @@ import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.ecs.battle.effects.StatusEffects
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.core.ComponentClassSet
+import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.TickBuckets
 import net.bestia.zone.ecs.core.System as EcsSystem
@@ -21,7 +23,6 @@ import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.environment.time.BestiaClock
 import net.bestia.zone.environment.time.BestiaDateTime
 import net.bestia.zone.geometry.Vec3L
-import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component as SpringComponent
 
 /**
@@ -37,7 +38,6 @@ import org.springframework.stereotype.Component as SpringComponent
  * Each agent perceives every half second at full detail, on a tick of its own; see `AiThrottle`.
  */
 @SpringComponent
-@Order(10)
 class PerceptionSystem(
   private val profileRegistry: AiProfileRegistry,
   private val aoiService: EntityAOIService,
@@ -45,6 +45,8 @@ class PerceptionSystem(
   private val throttle: AiThrottle,
   private val zoneConfig: ZoneConfig,
 ) : EcsSystem {
+  override val phase = Phase.AI
+  override val after = setOf(AiDetailSystem::class)
 
   /** Every tick, but each agent only on its own bucket: the work is spread out rather than all in one tick. */
   override val schedule: Schedule = Schedule.EveryTick

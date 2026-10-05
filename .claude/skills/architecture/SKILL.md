@@ -176,7 +176,9 @@ ECS library):
   tick driver and `ecs/ZoneEngine.kt` is the real one (thread `zone-tick`).
 - Game logic implements `ecs/core/System.kt` — `update(world, deltaTime)` plus a `schedule`
   (`EveryTick` / `EveryTicks(n)` / `EverySeconds(s)`) and `reads`/`writes` sets — and registers
-  as a Spring `@Component` with an `@Order(n)` that fixes registration order.
+  as a Spring `@Component` with a `phase` (`ecs/core/Phase.kt`) and, for systems of the same phase that
+  touch the same components, an `after` set. `TickOrder` resolves the order and refuses to boot when two
+  conflicting systems of one phase are not ordered by `after`.
 - Domain subpackages sit alongside `core/`: `battle/`, `bestia/`, `item/`, `movement/`,
   `persistence/`, `spawn/`, ... — components + systems per gameplay area.
 - `ecs/place/` names positions: `Place` (owner-only, where a player is in words) and `AreaName` (public,
@@ -187,11 +189,11 @@ ECS library):
 
 Three things that bite:
 
-- **`reads`/`writes` are the whole contract.** `SystemScheduler.conflicts()` looks at nothing
-  else, and non-conflicting systems are placed in the *same* wave. A system that mutates a
-  component it only declared under `reads` therefore appears to conflict with nobody, and any
-  ordering it depends on holds only by luck of registration order. Declare honestly, including
-  components your helpers write to *other* entities.
+- **`reads`/`writes` are the whole contract.** `TickOrder` and `SystemScheduler` look at nothing
+  else. Declare honestly, including components your helpers touch on *other* entities; a shared
+  helper exposes its own set (`EntityWriteBehind.READS`, `AttackExecutionService.READS`/`WRITES`).
+  In tests `world.undeclared-access: fail` (and every `testWorld()`) fails a system that touches a
+  component it did not declare.
 - **The tick thread owns the world; there is no lock.** `ecs/core/WorldOwnership.kt`: the tick
   thread (bound by `ZoneEngine`) and a parallel wave's `WaveWorker` threads touch the world inline;
   any other thread gets it on a *lease* between two tasks of the tick thread, its block running on

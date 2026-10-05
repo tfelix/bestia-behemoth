@@ -7,6 +7,7 @@ import net.bestia.zone.ecs.battle.damage.TakenDamage
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.battle.status.InCombat
 import net.bestia.zone.ecs.core.ComponentClassSet
+import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.movement.GroundHeight
@@ -14,7 +15,6 @@ import net.bestia.zone.ecs.movement.Grounded
 import net.bestia.zone.ecs.movement.Path
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.geometry.Vec3L
-import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component as SpringComponent
 
 /**
@@ -33,16 +33,16 @@ import org.springframework.stereotype.Component as SpringComponent
  * changes made inside `update` are deferred to the end of the tick, so the marker would still be there
  * when the sweep runs. It is dropped only as a fallback, for the case the lookup cannot answer at all.
  *
- * `@Order(44)`, before `ChunkStreamSystem` (@45), so the chunk manifest that follows describes where
+ * In the actions phase, before `ChunkStreamSystem`, so the chunk manifest that follows describes where
  * the player now is rather than where they died - the same reasoning that puts the teleport there.
  * That teleport could not have been reused: it only moves entities carrying `ActivePlayer` and is
  * keyed one destination per account, so it cannot move an owned bestia.
  */
 @SpringComponent
-@Order(44)
 class RespawnSystem(
   private val groundHeight: GroundHeight,
 ) : System {
+  override val phase = Phase.ACTIONS
 
   override val reads: ComponentClassSet = setOf(Respawn::class)
 

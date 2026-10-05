@@ -1,11 +1,12 @@
 package net.bestia.zone.ecs.place
 
 import net.bestia.zone.ecs.core.ComponentClassSet
+import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.movement.Position
-import org.springframework.core.annotation.Order
+import net.bestia.zone.world.stream.ChunkStreamSystem
 import org.springframework.stereotype.Component as SpringComponent
 
 /**
@@ -29,16 +30,16 @@ import org.springframework.stereotype.Component as SpringComponent
  *
  * ### Ordering
  *
- * `@Order(47)` puts this after `MoveSystem` (40) and after `ChunkStreamSystem` (45), which writes
- * `Position` when it applies a teleport. Both are conflicts the scheduler resolves into earlier waves, so
- * this sees the tick's final position rather than depending on registration luck - and before
- * `ZoneEngine` clears the dirty flags at the end of the tick.
+ * After `MoveSystem` (an earlier phase) and after `ChunkStreamSystem`, which writes `Position` when it applies
+ * a teleport, so this sees the tick's final position - and before `ZoneEngine` clears the dirty flags at the
+ * end of the tick.
  */
 @SpringComponent
-@Order(47)
 class PlaceSystem(
   private val names: PlaceNameService
 ) : System {
+  override val phase = Phase.WORLD
+  override val after = setOf(ChunkStreamSystem::class)
 
   override val schedule: Schedule
     get() {

@@ -1,6 +1,7 @@
 package net.bestia.zone.ecs.core.scenario
 
 import net.bestia.zone.ecs.core.ComponentClassSet
+import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
@@ -16,6 +17,8 @@ import org.springframework.stereotype.Component
  */
 @Component
 class WanderSystem : System {
+  override val phase = Phase.AI
+
   override val schedule = Schedule.EverySeconds(0.05f)
   override val reads: ComponentClassSet = setOf(Wander::class)
   override val writes: ComponentClassSet = setOf(Velocity::class)

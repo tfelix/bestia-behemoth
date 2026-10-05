@@ -34,6 +34,7 @@ class EcsWorld(
   parallelSystems: Boolean = false,
   idGenerator: EntityIdGenerator,
   systems: Iterable<System> = emptyList(),
+  private val undeclaredAccess: UndeclaredAccess = UndeclaredAccess.OFF,
 ) : World, WorldView {
   /** What changed since the last sync; see [Dirtyable] and [SpatiallyIndexed]. */
   val dirtyLog = DirtyLog()
@@ -99,6 +100,11 @@ class EcsWorld(
     scheduler.registerAll(systems)
   }
 
+  /** One line per system, in the order they run. */
+  fun describeSystems(): String {
+    return scheduler.describe()
+  }
+
   val entityCount: Int get() = entities.count
   val systemCount: Int get() = scheduler.systemCount
   val waveCount: Int get() = scheduler.waveCount
@@ -148,6 +154,7 @@ class EcsWorld(
     stores.computeIfAbsent(type) { ComponentStore(type, dirtyLog = dirtyLog) } as ComponentStore<T>
 
   override fun <T : Component> add(id: EntityId, component: T): T = owner.requireOwned {
+    checkDeclared(component::class)
     if (iterating) {
       deferred.add {
         addNow(id, component)
@@ -164,11 +171,18 @@ class EcsWorld(
     store(component::class as KClass<T>).set(id, component)
   }
 
-  override fun <T : Component> get(id: EntityId, type: KClass<T>): T? = owner.requireOwned { store(type).get(id) }
+  override fun <T : Component> get(id: EntityId, type: KClass<T>): T? = owner.requireOwned {
+    checkDeclared(type)
+    store(type).get(id)
+  }
 
-  override fun <T : Component> has(id: EntityId, type: KClass<T>): Boolean = owner.requireOwned { store(type).has(id) }
+  override fun <T : Component> has(id: EntityId, type: KClass<T>): Boolean = owner.requireOwned {
+    checkDeclared(type)
+    store(type).has(id)
+  }
 
   override fun <T : Component> remove(id: EntityId, type: KClass<T>): T? = owner.requireOwned {
+    checkDeclared(type)
     if (iterating) {
       deferred.add { removeNow(id, type) }
       null
@@ -191,12 +205,14 @@ class EcsWorld(
 
   // ------------------------------------------------------------------ queries
   override fun query(vararg types: KClass<out Component>): Query = owner.requireOwned {
+    types.forEach { checkDeclared(it) }
     val byType = LinkedHashMap<KClass<out Component>, ComponentStore<out Component>>(types.size)
     for (type in types) byType[type] = storeErased(type)
     Query(byType, isolateFailures = iterating)
   }
 
   override fun <T : Component> each(type: KClass<T>, action: (EntityId, T) -> Unit) = owner.requireOwned {
+    checkDeclared(type)
     store(type).each(action)
   }
 
@@ -208,6 +224,21 @@ class EcsWorld(
   @Suppress("UNCHECKED_CAST")
   private fun storeErased(type: KClass<out Component>): ComponentStore<out Component> =
     store(type as KClass<Component>)
+
+  private fun checkDeclared(type: KClass<out Component>) {
+    if (undeclaredAccess == UndeclaredAccess.OFF) return
+
+    val system = scheduler.runningSystem() ?: return
+    if (type in system.reads || type in system.writes) return
+
+    val problem = "${system.name} touched ${type.simpleName} without declaring it in reads or writes"
+    when (undeclaredAccess) {
+      UndeclaredAccess.FAIL -> throw IllegalStateException(problem)
+      else -> undeclaredAccessLog.emit { held -> LOG.warn { "$problem (+$held more)" } }
+    }
+  }
+
+  private val undeclaredAccessLog = RateLimitedLog()
 
   // --------------------------------------------------- deferred structural ops
   override fun defer(block: () -> Unit) {

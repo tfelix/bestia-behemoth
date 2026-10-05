@@ -5,22 +5,13 @@ import net.bestia.zone.battle.skill.AttackOutcome
 import net.bestia.zone.battle.skill.BattleAttack
 import net.bestia.zone.ecs.battle.damage.Damage
 import net.bestia.zone.ecs.battle.damage.Dead
-import net.bestia.zone.ecs.battle.effects.StatusEffects
-import net.bestia.zone.ecs.battle.level.Level
-import net.bestia.zone.ecs.battle.status.Health
-import net.bestia.zone.ecs.battle.status.Invulnerable
-import net.bestia.zone.ecs.battle.status.Nature
+import net.bestia.zone.ecs.battle.effects.AreaEffectSystem
 import net.bestia.zone.ecs.battle.status.StatusValues
 import net.bestia.zone.ecs.core.ComponentClassSet
+import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.ecs.movement.Grounded
-import net.bestia.zone.ecs.movement.Position
-import net.bestia.zone.ecs.prop.PropPose
-import net.bestia.zone.ecs.prop.PropVitality
-import net.bestia.zone.ecs.prop.WorldObjectIdentity
-import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component as SpringComponent
 
 /**
@@ -29,16 +20,17 @@ import org.springframework.stereotype.Component as SpringComponent
  * Both passes live here because a mob has an attack delay without ever holding a standing order, so the
  * countdown cannot hang off the target query.
  *
- * `@Order(49)`: after `StatusValueRecalcSystem` (@47), which rebuilds the `StatusValues` the delay is derived
- * from, after `RespawnSystem` (@44) so a body revived this tick does not swing on it, and before `DeathSystem`
- * (@70) - the deferred queue is FIFO and `World.addNow` rejects a dead entity, so [Damage] enqueued after a
+ * In the combat phase: after `StatusValueRecalcSystem`, which rebuilds the `StatusValues` the delay is
+ * derived from, after `RespawnSystem` so a body revived this tick does not swing on it, and before
+ * `DeathSystem` - the deferred queue is FIFO and `World.addNow` rejects a dead entity, so [Damage] enqueued after a
  * destroy would throw out of `applyDeferred` and take the rest of the queue with it.
  */
 @SpringComponent
-@Order(49)
 class AttackSystem(
   private val attackExecutionService: AttackExecutionService,
 ) : System {
+  override val phase = Phase.COMBAT
+  override val after = setOf(AreaEffectSystem::class)
 
   override val schedule: Schedule = Schedule.EveryTick
 
@@ -46,20 +38,14 @@ class AttackSystem(
    * The three prop components are `PropPromotionService`'s, read off a target being hit for the first time.
    * `PropSupportSystem`, `WorldObjectResidencySystem` and `ConstructionSystem` all write them.
    */
-  override val reads: ComponentClassSet = setOf(
-    Dead::class, Level::class, Nature::class, StatusEffects::class, Invulnerable::class,
-    WorldObjectIdentity::class, PropPose::class, PropVitality::class
-  )
+  override val reads: ComponentClassSet = AttackExecutionService.READS
 
   /**
    * Includes what the swing writes to the *target* and what `PropPromotionService` adds to a prop being hit
    * for the first time, not just what this touches on the attacker. `SystemScheduler.conflicts()` looks at
    * nothing but these sets, and the store being mutated does not care whose entity it belongs to.
    */
-  override val writes: ComponentClassSet = setOf(
-    AttackTarget::class, AttackDelay::class, Damage::class,
-    Position::class, Grounded::class, Health::class, StatusValues::class
-  )
+  override val writes: ComponentClassSet = setOf(AttackTarget::class) + AttackExecutionService.WRITES
 
   // TODO Take the weapon and its element off the attacker once an equipment system exists.
   private val basicAttack = BattleAttack.getBasicMeleeAttack()

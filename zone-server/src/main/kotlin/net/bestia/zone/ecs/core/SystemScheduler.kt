@@ -11,7 +11,7 @@ import java.util.concurrent.ForkJoinPool
  * Systems are grouped into ordered *waves*. Systems within a wave are mutually
  * non-conflicting and may run in parallel (when [parallel] is enabled); waves
  * run sequentially. A system is always placed in a wave strictly later than any
- * earlier-registered conflicting system, which preserves ordering for dependent
+ * conflicting system that comes before it in the [TickOrder], which preserves ordering for dependent
  * systems while still allowing independent ones to share a wave.
  */
 class SystemScheduler(private val parallel: Boolean = false) {
@@ -50,18 +50,34 @@ class SystemScheduler(private val parallel: Boolean = false) {
     null
   }
 
+  private val running = ThreadLocal<System?>()
+
   val systemCount: Int get() = entries.size
+
+  /** The system whose update the calling thread is in, or null outside of one. */
+  fun runningSystem(): System? {
+    return running.get()
+  }
+
+  /** One line per system, in the order they run: phase, wave, name and schedule. */
+  fun describe(): String {
+    return waves.withIndex().joinToString("\n") { (index, wave) ->
+      wave.joinToString("\n") { " - ${it.system.phase} wave ${index + 1}: ${it.system.name} [${it.system.schedule}]" }
+    }
+  }
 
   /** Number of parallel waves; exposed for testing/introspection. */
   val waveCount: Int get() = waves.size
 
   fun register(system: System) {
-    entries.add(Entry(system))
-    recomputeWaves()
+    registerAll(listOf(system))
   }
 
   fun registerAll(systems: Iterable<System>) {
     systems.forEach { entries.add(Entry(it)) }
+
+    val order = TickOrder.of(entries.map { it.system })
+    entries.sortBy { entry -> order.indexOfFirst { it === entry.system } }
     recomputeWaves()
   }
 
@@ -103,6 +119,7 @@ class SystemScheduler(private val parallel: Boolean = false) {
    */
   private fun Entry.run(world: World) {
     val started = java.lang.System.nanoTime()
+    running.set(system)
 
     try {
       system.update(world, effectiveDelta)
@@ -111,6 +128,7 @@ class SystemScheduler(private val parallel: Boolean = false) {
       if (e.isFatal()) throw e
       recordFailure(e)
     } finally {
+      running.remove()
       lastNanos = java.lang.System.nanoTime() - started
     }
   }
@@ -193,12 +211,19 @@ class SystemScheduler(private val parallel: Boolean = false) {
   private fun recomputeWaves() {
     val waveIndexOf = HashMap<Entry, Int>()
     val result = ArrayList<MutableList<Entry>>()
+    var phase: Phase? = null
+    var phaseStart = 0
 
     for (e in entries) {
-      // Earliest wave allowed = one past the latest conflicting earlier system.
-      var minWave = 0
+      // Entries are in tick order, so a new phase starts a new wave: phases never share one.
+      if (e.system.phase != phase) {
+        phase = e.system.phase
+        phaseStart = result.size
+      }
+
+      var minWave = phaseStart
       for ((other, w) in waveIndexOf) {
-        if (conflicts(other.system, e.system)) {
+        if (TickOrder.conflicts(other.system, e.system) || e.system.after.any { it.isInstance(other.system) }) {
           minWave = maxOf(minWave, w + 1)
         }
       }
@@ -210,9 +235,6 @@ class SystemScheduler(private val parallel: Boolean = false) {
     waves = result.filter { it.isNotEmpty() }
   }
 
-  private fun conflicts(a: System, b: System): Boolean =
-    a.writes.any { it in b.reads || it in b.writes } ||
-      b.writes.any { it in a.reads || it in a.writes }
 
   companion object {
     private val LOG = KotlinLogging.logger { }

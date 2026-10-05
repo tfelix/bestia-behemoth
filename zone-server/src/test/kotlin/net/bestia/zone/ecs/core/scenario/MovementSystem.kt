@@ -1,6 +1,7 @@
 package net.bestia.zone.ecs.core.scenario
 
 import net.bestia.zone.ecs.core.ComponentClassSet
+import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
@@ -13,6 +14,8 @@ import org.springframework.stereotype.Component
  */
 @Component
 class MovementSystem : System {
+  override val phase = Phase.MOVEMENT
+
   override val schedule = Schedule.EveryTick
   override val reads: ComponentClassSet = setOf(Velocity::class)
   override val writes: ComponentClassSet = setOf(Position::class)

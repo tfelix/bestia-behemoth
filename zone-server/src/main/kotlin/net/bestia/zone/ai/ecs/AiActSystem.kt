@@ -6,9 +6,12 @@ import net.bestia.zone.ai.core.action.Posture
 import net.bestia.zone.ai.core.behavior.BtContext
 import net.bestia.zone.ai.core.behavior.Status
 import net.bestia.zone.ai.core.planner.EffectWriteBack
+import net.bestia.zone.battle.skill.AttackExecutionService
 import net.bestia.zone.ecs.ZoneConfig
 import net.bestia.zone.ecs.battle.damage.Damage
 import net.bestia.zone.ecs.battle.damage.Dead
+import net.bestia.zone.ecs.battle.skill.KnownSkills
+import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.entity.Animation
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.battle.status.Mana
@@ -18,8 +21,8 @@ import net.bestia.zone.ecs.core.TickBuckets
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.movement.Path
 import net.bestia.zone.ecs.movement.Position
+import net.bestia.zone.ecs.spawn.townsfolk.Townsfolk
 import net.bestia.zone.navigation.MacroRoute
-import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component as SpringComponent
 
 /**
@@ -46,20 +49,23 @@ import org.springframework.stereotype.Component as SpringComponent
  * outright), so a leaf that switched an animation on when it started would have nobody to switch it off.
  */
 @SpringComponent
-@Order(30)
 class AiActSystem(
   private val sharedMemory: SharedMemoryService,
   private val zoneConfig: ZoneConfig,
   private val throttle: AiThrottle,
 ) : System {
+  override val phase = Phase.AI
+  override val after = setOf(AiThinkSystem::class)
 
-  override val reads: ComponentClassSet = setOf(Position::class, PlayerControlled::class, Dead::class)
+  override val reads: ComponentClassSet = setOf(
+    Position::class, PlayerControlled::class, Dead::class, Townsfolk::class, KnownSkills::class
+  ) + AttackExecutionService.READS
 
   /**
    * Everything the behaviour trees can touch, directly or through the services their leaves hold.
    *
-   * `Path`/`MacroRoute` come from locomotion; `Damage`/`Health`/`Mana` from casting a skill, which reaches
-   * further than this system's own code does. Naming them is what keeps this out of the same scheduler
+   * `Path`/`MacroRoute` come from locomotion, the attack's own set from the basic-attack leaf, and `Mana`
+   * from casting a skill, which reaches further than this system's own code does. Naming them is what keeps this out of the same scheduler
    * wave as the movement and combat systems that consume them — the previous declaration listed only
    * `Path` and put the AI in a wave with everything it feeds.
    *
@@ -75,7 +81,7 @@ class AiActSystem(
     Health::class,
     Mana::class,
     Animation::class,
-  )
+  ) + AttackExecutionService.WRITES
 
   override fun update(world: World, deltaTime: Float) {
     val worldBoard = sharedMemory.worldBoard()

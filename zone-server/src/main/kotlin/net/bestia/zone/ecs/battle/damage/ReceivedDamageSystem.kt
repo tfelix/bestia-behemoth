@@ -1,7 +1,9 @@
 package net.bestia.zone.ecs.battle.damage
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.zone.ecs.battle.attack.AttackSystem
 import net.bestia.zone.ecs.battle.skill.Casting
+import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.crafting.Crafting
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.battle.status.InCombat
@@ -10,7 +12,6 @@ import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.logout.LogoutIntent
-import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component as SpringComponent
 import net.bestia.zone.ecs.core.update
 
@@ -20,8 +21,9 @@ import net.bestia.zone.ecs.core.update
  * handle also damage this directly came from ecs entities e.g. like AOE attacks.
  */
 @SpringComponent
-@Order(50)
 class ReceivedDamageSystem : System {
+  override val phase = Phase.COMBAT
+  override val after = setOf(AttackSystem::class)
 
   override val reads: ComponentClassSet = setOf(Damage::class, Invulnerable::class)
   override val writes: ComponentClassSet =

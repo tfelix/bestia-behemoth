@@ -2,6 +2,7 @@ package net.bestia.zone.world.fire
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.core.ComponentClassSet
+import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
@@ -38,6 +39,7 @@ class ScorchRegrowthSystem(
   private val rain: RainAccumulator,
   private val overlay: GroundOverlayService,
 ) : System {
+  override val phase = Phase.UPKEEP
 
   override val schedule: Schedule = Schedule.EverySeconds(SWEEP_SECONDS)
 
