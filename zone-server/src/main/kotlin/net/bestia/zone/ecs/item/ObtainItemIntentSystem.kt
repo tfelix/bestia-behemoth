@@ -16,6 +16,7 @@ import net.bestia.zone.item.loot.LootItemEntitySpawner
 import net.bestia.zone.util.EntityId
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
+import net.bestia.zone.ecs.core.modify
 
 /**
  * Resolves [ObtainItemIntent]s: whichever entity has one attached (master or player bestia,

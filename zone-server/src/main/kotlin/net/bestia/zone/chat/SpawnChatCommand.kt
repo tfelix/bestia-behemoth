@@ -49,7 +49,7 @@ class SpawnChatCommand(
     }
 
     // TODO add height check if we get more complex maps
-    val entityId = bestiaEntitySpawner.spawnMob(world, bestiaId = bestia.id, pos = Vec3L(x, y, 0L))
+    val entityId = world.read { bestiaEntitySpawner.spawnMob(this, bestiaId = bestia.id, pos = Vec3L(x, y, 0L)) }
 
     LOG.info { "Spawned bestia ${bestia.identifier} as entity $entityId at $x/$y (player $playerId)" }
 

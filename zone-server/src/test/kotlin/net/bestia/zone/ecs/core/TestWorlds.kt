@@ -13,15 +13,11 @@ class SequentialEntityIdGenerator(start: Long = 1L) : EntityIdGenerator {
   override fun nextId(): EntityId = next.getAndIncrement()
 }
 
-/**
- * Builds a [World] wired for tests: sequential entity ids, plus the given [systems] and wave mode.
- * Mirrors the production `World(idGenerator, systems)` construction while keeping test call sites
- * terse now that systems are supplied at construction (there is no more `addSystem`).
- */
+/** Builds an [EcsWorld] wired for tests: sequential entity ids, plus the given [systems] and wave mode. */
 fun testWorld(
   parallelSystems: Boolean = false,
   systems: Iterable<System> = emptyList(),
-): World = World(
+): EcsWorld = EcsWorld(
   parallelSystems = parallelSystems,
   idGenerator = SequentialEntityIdGenerator(),
   systems = systems,

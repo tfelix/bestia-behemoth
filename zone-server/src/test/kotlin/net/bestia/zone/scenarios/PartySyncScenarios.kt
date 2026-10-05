@@ -4,7 +4,6 @@ import net.bestia.zone.ecs.battle.status.HealthComponentSMSG
 import net.bestia.zone.ecs.battle.status.ManaComponentSMSG
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.battle.status.Mana
-import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.party.AlreadyInPartyException
 import net.bestia.zone.party.PartyService
@@ -14,6 +13,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import net.bestia.zone.ecs.core.EcsWorld
 
 /**
  * Exercises the party-visible [net.bestia.zone.ecs.SyncTargets] path end to end: a party member's
@@ -26,7 +26,7 @@ class PartySyncScenarios : BestiaNoSocketScenario() {
   private lateinit var connectionInfoService: ConnectionInfoService
 
   @Autowired
-  private lateinit var world: World
+  private lateinit var world: EcsWorld
 
   @Autowired
   private lateinit var partyService: PartyService

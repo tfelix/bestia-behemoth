@@ -12,6 +12,7 @@ import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.logout.LogoutIntent
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component as SpringComponent
+import net.bestia.zone.ecs.core.update
 
 /**
  * Distributes the damage to the entity. It is not yet clear if we should go this approach or rather

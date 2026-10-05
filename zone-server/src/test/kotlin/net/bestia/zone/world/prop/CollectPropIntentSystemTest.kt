@@ -23,6 +23,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import net.bestia.zone.ecs.core.EcsWorld
 
 /**
  * Taking a prop into the inventory with a click.
@@ -73,7 +74,7 @@ class CollectPropIntentSystemTest {
    * system makes are deferred exactly as they are in production. Calling `update` straight would apply them
    * immediately and quietly hide the reason the claim has to be the divergence map and not liveness.
    */
-  private fun worldWith(system: CollectPropIntentSystem): World = testWorld(systems = listOf(system))
+  private fun worldWith(system: CollectPropIntentSystem): EcsWorld = testWorld(systems = listOf(system))
 
   private fun World.addProp(
     kind: StaticEntityKind = StaticEntityKind.MANA_CRYSTAL_SMALL,

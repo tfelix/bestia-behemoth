@@ -78,7 +78,7 @@ class TownsfolkChatCommand(
       post?.let { set(TownsfolkDomain.WORK_POSITION, it, Blackboard.PERMANENT) }
     }
 
-    val entityId = spawner.spawnMob(world, bestiaId = bestia.id, pos = home, aiMemory = memory)
+    val entityId = world.read { spawner.spawnMob(this, bestiaId = bestia.id, pos = home, aiMemory = memory) }
 
     LOG.info { "Spawned ${occupation.id} as entity $entityId at $home, post $post (player $playerId)" }
     reply(playerId, describe(occupation, home, post))
@@ -110,7 +110,7 @@ class TownsfolkChatCommand(
       return true
     }
 
-    val spawned = households.spawnHousehold(world, site.index, nearest)
+    val spawned = world.read { households.spawnHousehold(this, site.index, nearest) }
     if (spawned.isEmpty()) {
       reply(playerId, "Nobody lives in house $nearest - the settlement has fewer households than houses.")
       return true

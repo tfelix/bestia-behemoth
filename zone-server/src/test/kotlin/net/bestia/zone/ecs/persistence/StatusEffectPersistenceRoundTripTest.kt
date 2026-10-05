@@ -5,6 +5,7 @@ import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.ecs.battle.effects.StatusEffects
 import net.bestia.zone.ecs.battle.status.IsStatusValueDirty
 import net.bestia.zone.ecs.core.SnowflakeEntityIdGenerator
+import net.bestia.zone.ecs.core.EcsWorld
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.entity.PersistedStatusEffectRepository
 import org.junit.jupiter.api.BeforeEach
@@ -156,5 +157,5 @@ class StatusEffectPersistenceRoundTripTest {
    */
   private val idGenerator = SnowflakeEntityIdGenerator()
 
-  private fun newWorld() = World(idGenerator = idGenerator, systems = emptyList())
+  private fun newWorld() = EcsWorld(idGenerator = idGenerator, systems = emptyList())
 }

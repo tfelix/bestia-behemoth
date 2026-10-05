@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import net.bestia.zone.ecs.battle.damage.Damage as DamageComponent
+import net.bestia.zone.ecs.core.EcsWorld
 
 class SkillExecutionServiceTest {
 
@@ -199,7 +200,7 @@ class SkillExecutionServiceTest {
 
   /** Resolution is posted to the tick thread; a tick runs it. */
   private fun SkillExecutionService.executeNow(
-    world: World,
+    world: EcsWorld,
     casterId: EntityId,
     skillId: Long,
     skillLevel: Int,

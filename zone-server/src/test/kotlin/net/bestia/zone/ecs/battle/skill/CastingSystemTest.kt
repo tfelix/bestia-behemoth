@@ -4,7 +4,6 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import net.bestia.zone.battle.skill.SkillExecutionService
-import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
@@ -13,12 +12,13 @@ import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import net.bestia.zone.ecs.core.EcsWorld
 
 class CastingSystemTest {
 
   private val skillExecutionService = mockk<SkillExecutionService>(relaxed = true)
   private val sut = CastingSystem(skillExecutionService)
-  private val world: World = testWorld(systems = listOf(sut))
+  private val world: EcsWorld = testWorld(systems = listOf(sut))
 
   private fun castingEntity(castTime: Float, target: EntityId = 99L): EntityId {
     return world.createEntity { id ->

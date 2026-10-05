@@ -8,6 +8,7 @@ import net.bestia.zone.ecs.battle.status.IsStatusValueDirty
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Service
+import net.bestia.zone.ecs.core.update
 
 /**
  * Entry point for applying a status effect to a target entity - what skill scripts and attack

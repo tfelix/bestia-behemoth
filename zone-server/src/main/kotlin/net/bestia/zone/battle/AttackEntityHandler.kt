@@ -11,6 +11,7 @@ import net.bestia.zone.message.InMessageProcessor
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.world.prop.PropPromotionService
 import org.springframework.stereotype.Component
+import net.bestia.zone.ecs.core.update
 
 /**
  * Handles a player committing to a target entity, for whichever entity (master or an owned bestia) is

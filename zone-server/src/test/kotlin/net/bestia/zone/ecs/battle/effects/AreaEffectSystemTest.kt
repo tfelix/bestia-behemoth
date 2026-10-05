@@ -6,7 +6,6 @@ import net.bestia.zone.ecs.EntityAOIService
 import net.bestia.zone.ecs.battle.damage.Damage
 import net.bestia.zone.ecs.battle.damage.Dead
 import net.bestia.zone.ecs.battle.status.Health
-import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.prop.PropPose
@@ -20,6 +19,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import net.bestia.zone.ecs.core.EcsWorld
 
 class AreaEffectSystemTest {
 
@@ -35,7 +35,7 @@ class AreaEffectSystemTest {
   )
 
   private val sut = AreaEffectSystem(aoi, outMessageProcessor, propPromotion)
-  private val world: World = testWorld(systems = listOf(sut))
+  private val world: EcsWorld = testWorld(systems = listOf(sut))
 
   /** The world's AOI index is fed by ZoneEngine's dirty-position pass, which no test world runs. */
   private fun victimAt(position: Vec3L, dead: Boolean = false): EntityId {

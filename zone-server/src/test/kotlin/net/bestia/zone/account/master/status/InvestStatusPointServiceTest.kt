@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.awt.Color
 import java.util.Optional
+import net.bestia.zone.ecs.core.EcsWorld
 
 /**
  * Drives the real service against a real (system-less) [World], mocking only the repository and the
@@ -27,7 +28,7 @@ import java.util.Optional
  */
 class InvestStatusPointServiceTest {
 
-  private val world: World = testWorld()
+  private val world: EcsWorld = testWorld()
   private val masterRepository = mockk<MasterRepository>(relaxed = true)
   private val masterResolver = mockk<MasterResolver>()
 

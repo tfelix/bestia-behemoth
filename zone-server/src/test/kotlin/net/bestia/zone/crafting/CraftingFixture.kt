@@ -6,7 +6,6 @@ import net.bestia.zone.ecs.account.Account
 import net.bestia.zone.ecs.account.Master
 import net.bestia.zone.ecs.battle.skill.KnownSkills
 import net.bestia.zone.ecs.core.AsyncJobExecutor
-import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.ecs.item.Inventory
 import net.bestia.zone.ecs.item.ItemTemplateRegistry
@@ -21,6 +20,7 @@ import net.bestia.zone.skill.SkillRepository
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.world.prop.PlayerStructureService
 import net.bestia.zone.world.prop.StaticEntityKind
+import net.bestia.zone.ecs.core.EcsWorld
 
 /**
  * A crafter, a world, and a [CraftingService] whose only mocks are the things that leave the tick: the durable
@@ -47,7 +47,7 @@ class CraftingFixture(
   val reserve: CoinReserve = UnlimitedReserve(),
 ) {
 
-  val world: World = testWorld()
+  val world: EcsWorld = testWorld()
 
   val recipes = RecipeRegistry().apply { load(recipeList) }
 

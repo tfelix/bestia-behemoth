@@ -6,6 +6,7 @@ import net.bestia.zone.ecs.persistence.StatusEffectPersistenceService
 import org.springframework.boot.CommandLineRunner
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
+import net.bestia.zone.ecs.core.modify
 
 /**
  * Re-attaches persisted status effects to the entities [EntityLoaderBootRunner] just rehydrated.

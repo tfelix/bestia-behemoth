@@ -12,7 +12,7 @@ import net.bestia.zone.ecs.battle.effects.StatusEffects
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.battle.status.Invulnerable
 import net.bestia.zone.ecs.battle.status.Mana
-import net.bestia.zone.ecs.core.WorldView
+import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
@@ -21,12 +21,13 @@ import net.bestia.zone.world.spoor.TrackReading
 import net.bestia.zone.ecs.battle.damage.Damage as DamageComponent
 
 /**
- * The real [SkillWorld]: one world scope per operation, each charged against the cast's [SkillBudget].
+ * The real [SkillWorld]: every operation is charged against the cast's [SkillBudget]. A cast resolves on the
+ * tick thread (see [SkillExecutionService]), so it uses the [World] directly.
  *
  * One instance per cast, because the budget is.
  */
 class BudgetedSkillWorld(
-  private val world: WorldView,
+  private val world: World,
   private val budget: SkillBudget,
   private val services: SkillWorldServices,
   private val casterId: EntityId,
@@ -39,25 +40,25 @@ class BudgetedSkillWorld(
   override fun isAlive(entityId: EntityId): Boolean {
     budget.charge()
 
-    return world.read { isAlive(entityId) }
+    return world.isAlive(entityId)
   }
 
   override fun positionOf(entityId: EntityId): Vec3L? {
     budget.charge()
 
-    return world.read { get(entityId, Position::class)?.toVec3L() }
+    return world.get(entityId, Position::class)?.toVec3L()
   }
 
   override fun masterIdOf(entityId: EntityId): Long? {
     budget.charge()
 
-    return world.read { get(entityId, Master::class)?.masterId }
+    return world.get(entityId, Master::class)?.masterId
   }
 
   override fun accountIdOf(entityId: EntityId): Long? {
     budget.charge()
 
-    return world.read { get(entityId, Account::class)?.accountId }
+    return world.get(entityId, Account::class)?.accountId
   }
 
   override fun entitiesInCube(centre: Vec3L, edge: Long, layers: Set<AoiLayer>): Set<EntityId> {
@@ -72,34 +73,25 @@ class BudgetedSkillWorld(
   override fun stationNear(around: Vec3L, kind: StaticEntityKind): EntityId? {
     budget.charge()
 
-    return world.read { services.structures.stationNear(this, around, kind) }
+    return services.structures.stationNear(world, around, kind)
   }
 
   override fun spawnAreaEffect(centre: Vec3L, visualId: Long, effect: AreaEffect): EntityId {
     budget.charge(SPAWN_OPS)
 
-    return world.read { services.areaEffectSpawner.spawn(this, centre, visualId, effect) }
+    return services.areaEffectSpawner.spawn(world, centre, visualId, effect)
   }
 
   override fun placeStation(kind: StaticEntityKind, masterId: Long, at: Vec3L, yaw: Float): Boolean {
     budget.charge(SPAWN_OPS)
 
-    return world.read { services.structures.place(this, kind, masterId, at, yaw) } != null
+    return services.structures.place(world, kind, masterId, at, yaw) != null
   }
 
-  /**
-   * In a world scope, like every other op here, and that is what makes it safe.
-   *
-   * `GroundFireService` holds a plain `HashMap` on the documented grounds that only the tick thread touches
-   * it, so this goes through `world.read`, which only ever runs with the world to itself. Same reasoning as
-   * `spawnAreaEffect` above, including that `read` is an odd name for something that mutates.
-   */
   override fun igniteGroundFire(centre: Vec3L, radiusTiles: Long): Boolean {
     budget.charge(SPAWN_OPS)
 
-    return world.read {
-      services.groundFire.ignite(centre, radiusTiles, casterId, skillId, skillLevel) != null
-    }
+    return services.groundFire.ignite(centre, radiusTiles, casterId, skillId, skillLevel) != null
   }
 
   /**
@@ -107,8 +99,7 @@ class BudgetedSkillWorld(
    * it, which is also what handles death, threat and interrupting the victim's own cast.
    *
    * Two casts landing on the same target share one component rather than one replacing the other: a cast
-   * resolves between ticks, so no system is iterating, `World.add` applies immediately and the
-   * get-or-create is atomic against every other caster.
+   * resolves between ticks, so no system is iterating and `World.add` applies immediately.
    */
   override fun apply(targetEntityId: EntityId, damage: Damage) {
     budget.charge()
@@ -120,7 +111,7 @@ class BudgetedSkillWorld(
 
     // `true` only from inside the scope, so it distinguishes "the entity is gone" from "the entity is here
     // but has no Health to heal" - a `when` returning Unit? would conflate the two.
-    val landed = world.modify(targetEntityId) { target ->
+    val landed = onEntity(targetEntityId) { target ->
       when (damage) {
         // CurMax.current clamps to [0, max] itself.
         is Heal -> get(target, Health::class)?.let { it.current += damage.amount }
@@ -128,7 +119,7 @@ class BudgetedSkillWorld(
         else -> {
           // This branch only - see Invulnerable: a miss and a heal stay true of a target that cannot be hurt.
           if (has(target, Invulnerable::class)) {
-            return@modify false
+            return@onEntity false
           }
 
           val staged = get(target, DamageComponent::class) ?: add(target, DamageComponent())
@@ -149,22 +140,21 @@ class BudgetedSkillWorld(
   override fun applyStatusEffect(targetEntityId: EntityId, effectId: Long, level: Int) {
     budget.charge()
 
-    world.modify(targetEntityId) { target ->
+    onEntity(targetEntityId) { target ->
       services.statusEffects.applyEffect(this, target, effectId, level, casterId)
     }
   }
 
-  /** One `modify` scope for both halves, which is what makes the claim atomic against a concurrent cast. */
   override fun applyStatusEffectIfAbsent(targetEntityId: EntityId, effectId: Long, level: Int): Boolean {
     budget.charge()
 
-    return world.modify(targetEntityId) { target ->
+    return onEntity(targetEntityId) { target ->
       val present = get(target, StatusEffects::class)
         ?.activeEffects
         ?.any { it.definitionId == effectId } == true
 
       if (present) {
-        return@modify false
+        return@onEntity false
       }
 
       services.statusEffects.applyEffect(this, target, effectId, level, casterId)
@@ -180,10 +170,10 @@ class BudgetedSkillWorld(
 
     budget.charge()
 
-    return world.modify(casterId) { caster ->
-      val mana = get(caster, Mana::class) ?: return@modify true
+    return onEntity(casterId) { caster ->
+      val mana = get(caster, Mana::class) ?: return@onEntity true
       if (mana.current < cost) {
-        return@modify false
+        return@onEntity false
       }
 
       mana.current -= cost
@@ -191,21 +181,17 @@ class BudgetedSkillWorld(
     } ?: false
   }
 
-  /** One op, though the service reads several components: the whole answer is assembled in one world scope. */
+  /** One op, though the service reads several components. */
   override fun offerRecipes(skillId: Long) {
     budget.charge()
 
-    world.read { services.crafting.offerRecipes(this, casterId, skillId) }
+    services.crafting.offerRecipes(world, casterId, skillId)
   }
 
-  /**
-   * One op, and the scope is for the tick thread rather than for a component: the print store is tick-thread
-   * state.
-   */
   override fun readTracks(centre: Vec3L, radiusTiles: Long): TrackReading? {
     budget.charge()
 
-    return world.read { services.spoor.read(centre, radiusTiles) }
+    return services.spoor.read(centre, radiusTiles)
   }
 
   override fun survey(masterId: Long, accountId: Long?, centre: Vec3L, radiusMetres: Double) {
@@ -218,6 +204,11 @@ class BudgetedSkillWorld(
       centre = centre,
       radiusMetres = radiusMetres
     )
+  }
+
+  /** [block] against [id], or null if [id] is gone. */
+  private inline fun <T> onEntity(id: EntityId, block: World.(EntityId) -> T): T? {
+    return if (world.isAlive(id)) world.block(id) else null
   }
 
   private fun broadcastDamage(targetEntityId: EntityId, damage: Damage) {

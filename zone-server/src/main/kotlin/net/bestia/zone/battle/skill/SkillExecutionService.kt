@@ -1,7 +1,7 @@
 package net.bestia.zone.battle.skill
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.ecs.core.WorldView
+import net.bestia.zone.ecs.core.World
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.skill.Skill
 import net.bestia.zone.skill.SkillRepository
@@ -48,7 +48,7 @@ class SkillExecutionService(
 
   /** Queues [skillId] for resolution on the tick thread and returns immediately, from any thread. */
   fun execute(
-    world: WorldView,
+    world: World,
     casterId: EntityId,
     skillId: Long,
     skillLevel: Int,
@@ -61,7 +61,7 @@ class SkillExecutionService(
   }
 
   private fun resolve(
-    world: WorldView,
+    world: World,
     casterId: EntityId,
     skillId: Long,
     skillLevel: Int,

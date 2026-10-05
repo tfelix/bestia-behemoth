@@ -35,6 +35,7 @@ import net.bestia.zone.util.EntityId
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import net.bestia.zone.ecs.core.EcsWorld
 
 /**
  * Exercises [StatusEffectDurationSystem] and [StatusValueRecalcSystem] wired together against a
@@ -160,7 +161,7 @@ class StatusEffectSystemsIntegrationTest {
     script: StatusEffectScript,
     equipmentScriptRegistry: EquipmentScriptRegistry = EquipmentScriptRegistry(emptyList()),
     passiveSkillScriptRegistry: PassiveSkillScriptRegistry = passiveRegistry()
-  ): Pair<World, StatusEffectDefinitionRegistry> {
+  ): Pair<EcsWorld, StatusEffectDefinitionRegistry> {
     val definitionRegistry = StatusEffectDefinitionRegistry()
     definitionRegistry.load(listOf(speedEffect, vitalityEffect, regenEffect))
 

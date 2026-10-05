@@ -1,10 +1,10 @@
 package net.bestia.zone.ecs
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.zone.ecs.core.EcsWorld
 import net.bestia.zone.ecs.core.EntityIdGenerator
 import net.bestia.zone.ecs.core.SnowflakeEntityIdGenerator
 import net.bestia.zone.ecs.core.System
-import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ZoneConfig as ZoneShardConfig
 import net.bestia.zone.ecs.ZoneConfig as WorldConfig
 import org.springframework.beans.factory.ObjectProvider
@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
 /**
- * Spring wiring for the ecs [World]. The World is built empty and gets every [System] bean only once all
+ * Spring wiring for the ecs [EcsWorld]. The World is built empty and gets every [System] bean only once all
  * singletons exist, so a service a system depends on can still inject the World. `ZoneEngine` runs the tick.
  */
 @Configuration
@@ -34,8 +34,8 @@ class EcsConfiguration {
   fun ecsWorld(
     worldConfig: WorldConfig,
     idGenerator: EntityIdGenerator,
-  ): World {
-    return World(
+  ): EcsWorld {
+    return EcsWorld(
       parallelSystems = worldConfig.parallelSystems,
       idGenerator = idGenerator,
     )
@@ -43,7 +43,7 @@ class EcsConfiguration {
 
   @Bean
   fun systemRegistration(
-    world: World,
+    world: EcsWorld,
     systems: ObjectProvider<System>,
     worldConfig: WorldConfig,
   ): SmartInitializingSingleton {

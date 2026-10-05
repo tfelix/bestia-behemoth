@@ -145,14 +145,16 @@ class ActivateSkillHandler(
     } ?: return true
 
     if (skill.castTime <= 0f) {
-      skillExecutionService.execute(
-        world = world,
-        casterId = started,
-        skillId = skill.id,
-        skillLevel = msg.skillLevel,
-        targetEntityId = targetEntityId,
-        targetPosition = targetPosition
-      )
+      world.read {
+        skillExecutionService.execute(
+          world = this,
+          casterId = started,
+          skillId = skill.id,
+          skillLevel = msg.skillLevel,
+          targetEntityId = targetEntityId,
+          targetPosition = targetPosition
+        )
+      }
     }
 
     return true

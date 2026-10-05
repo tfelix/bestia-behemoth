@@ -19,7 +19,6 @@ import net.bestia.zone.account.master.status.StatusAttribute
 import net.bestia.zone.account.master.status.effortValues
 import net.bestia.zone.dialog.DialogSMSG
 import net.bestia.zone.ecs.battle.effects.StatusEffects
-import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.mocks.GameClientMock
 import net.bestia.zone.mocks.GameClientMockFactory
@@ -38,6 +37,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import net.bestia.zone.ecs.core.EcsWorld
 
 /**
  * Scenario: Spawns a blob bestia entity, connects, sends a kill message, and provides a placeholder for post-kill checks.
@@ -63,7 +63,7 @@ class MasterCreateScenario : BestiaNoSocketScenario(autoClientConnect = false) {
   private lateinit var connectionInfoService: ConnectionInfoService
 
   @Autowired
-  private lateinit var world: World
+  private lateinit var world: EcsWorld
 
   private lateinit var accountNoMaster: Account
 

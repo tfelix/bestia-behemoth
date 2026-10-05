@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import net.bestia.zone.bestia.BestiaEntitySpawner
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.core.SnowflakeEntityIdGenerator
+import net.bestia.zone.ecs.core.EcsWorld
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.item.GroundItemDecay
 import net.bestia.zone.ecs.movement.Position
@@ -128,7 +129,7 @@ class EntityPersistenceRoundTripTest {
    */
   private val idGenerator = SnowflakeEntityIdGenerator()
 
-  private fun newWorld() = World(idGenerator = idGenerator, systems = emptyList())
+  private fun newWorld() = EcsWorld(idGenerator = idGenerator, systems = emptyList())
 
   private companion object {
     // Seeded from mob/blob.yml by the mob importer in the test profile.

@@ -2,7 +2,6 @@ package net.bestia.zone.ecs.script
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.persistence.Persistent
 import net.bestia.zone.geometry.Vec3L
@@ -14,7 +13,7 @@ import org.springframework.stereotype.Component
 class ScriptEntitySpawner {
 
   fun spawnScript(
-    world: WorldView,
+    world: World,
     position: Vec3L,
     scriptId: String,
     entityId: EntityId? = null,

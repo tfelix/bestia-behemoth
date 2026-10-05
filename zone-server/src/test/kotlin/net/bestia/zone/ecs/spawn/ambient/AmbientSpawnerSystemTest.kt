@@ -6,7 +6,6 @@ import io.mockk.verify
 import net.bestia.zone.ai.ecs.AiThrottleable
 import net.bestia.zone.bestia.BestiaEntitySpawner
 import net.bestia.zone.ecs.account.ActivePlayer
-import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.persistence.PersistedEntityDeletionQueue
@@ -16,6 +15,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import net.bestia.zone.ecs.core.EcsWorld
 
 /**
  * The lifecycle of the baseline population: filling in around a player, and emptying out behind them.
@@ -44,7 +44,7 @@ class AmbientSpawnerSystemTest {
   )
 
   private val sut = AmbientSpawnerSystem(spawner, resolver, config)
-  private val world: World = testWorld(systems = listOf(sut))
+  private val world: EcsWorld = testWorld(systems = listOf(sut))
 
   /** Every creature the mocked spawner produced, with the position it was asked for. */
   private val spawnedAt = mutableMapOf<EntityId, Vec3L>()

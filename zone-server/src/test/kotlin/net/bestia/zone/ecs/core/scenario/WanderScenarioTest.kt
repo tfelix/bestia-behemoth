@@ -1,7 +1,6 @@
 package net.bestia.zone.ecs.core.scenario
 
 import net.bestia.zone.util.EntityId
-import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.EcsConfiguration
 import net.bestia.zone.ZoneConfig as ZoneShardConfig
 import net.bestia.zone.ecs.ZoneConfig as WorldConfig
@@ -17,6 +16,7 @@ import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import java.util.concurrent.Executors
+import net.bestia.zone.ecs.core.EcsWorld
 
 /**
  * End-to-end scenario proving the whole ecs pipeline through the real Spring
@@ -45,12 +45,12 @@ class WanderScenarioTest {
   }
 
   private lateinit var ctx: AnnotationConfigApplicationContext
-  private lateinit var world: World
+  private lateinit var world: EcsWorld
 
   @BeforeEach
   fun setUp() {
     ctx = AnnotationConfigApplicationContext(ScenarioConfig::class.java)
-    world = ctx.getBean(World::class.java)
+    world = ctx.getBean(EcsWorld::class.java)
   }
 
   @AfterEach

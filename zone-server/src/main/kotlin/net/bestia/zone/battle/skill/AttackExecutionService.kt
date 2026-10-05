@@ -17,6 +17,7 @@ import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Service
 import net.bestia.zone.battle.damage.Damage as DamageResult
 import net.bestia.zone.ecs.battle.damage.Damage as DamageComponent
+import net.bestia.zone.ecs.core.update
 
 /**
  * Resolves a **basic attack** - a sword swing, an arrow, a mob's bite.
