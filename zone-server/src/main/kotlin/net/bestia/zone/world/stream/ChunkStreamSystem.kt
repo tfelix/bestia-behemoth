@@ -563,7 +563,7 @@ class ChunkStreamSystem(
           // only meant to slow the asking down into permanent holes in the terrain, worst right after a
           // teleport asks for a whole view volume at once.
           val deferred = request.chunks.drop(index)
-          inbox.offerRequest(ChunkStreamInbox.Request(request.accountId, deferred))
+          inbox.requeue(ChunkStreamInbox.Request(request.accountId, deferred))
 
           LOG.debug { "Account ${request.accountId} is out of request tokens; deferring ${deferred.size}" }
           break
