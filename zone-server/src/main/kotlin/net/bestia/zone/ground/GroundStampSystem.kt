@@ -8,6 +8,7 @@ import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.world.time.BestiaClock
 import org.springframework.stereotype.Component
+import net.bestia.zone.world.stream.ChunkStreamSystem
 
 /**
  * Lets tracks fade, and decides which columns of them go on the wire this tick.
@@ -39,6 +40,7 @@ class GroundStampSystem(
   private val clock: BestiaClock,
 ) : System {
   override val phase = Phase.WORLD
+  override val before = setOf(ChunkStreamSystem::class)
 
   override val schedule: Schedule = Schedule.EveryTick
 

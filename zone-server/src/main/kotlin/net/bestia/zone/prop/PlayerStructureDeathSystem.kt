@@ -11,6 +11,7 @@ import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.entity.ecs.PropPose
 import net.bestia.zone.world.WorldService
 import org.springframework.stereotype.Component as SpringComponent
+import net.bestia.zone.battle.ecs.damage.PlayerDeathSystem
 
 /**
  * Forgets a player-built station that has been knocked down.
@@ -32,6 +33,7 @@ class PlayerStructureDeathSystem(
   private val worldService: WorldService
 ) : System {
   override val phase = Phase.DEATH
+  override val before = setOf(PlayerDeathSystem::class)
 
   override val reads: ComponentClassSet =
     setOf(Dead::class, PlayerStructureIdentity::class, PropPose::class, Position::class)

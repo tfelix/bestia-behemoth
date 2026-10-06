@@ -14,6 +14,7 @@ import net.bestia.zone.world.stream.ChunkStreamConfig
 import net.bestia.zone.world.stream.ChunkStreamSystem
 import org.springframework.stereotype.Component
 import net.bestia.zone.ecs.core.System as EcsSystem
+import net.bestia.zone.ground.GroundOverlaySystem
 
 /**
  * Brings static entities into existence behind the terrain, and takes them out behind it too.
@@ -42,6 +43,7 @@ class WorldObjectResidencySystem(
 ) : EcsSystem {
   override val phase = Phase.WORLD
   override val after = setOf(ChunkStreamSystem::class)
+  override val before = setOf(GroundOverlaySystem::class)
 
   override val schedule: Schedule = Schedule.EveryTick
 

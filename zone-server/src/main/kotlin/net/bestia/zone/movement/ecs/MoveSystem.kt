@@ -11,7 +11,6 @@ import net.bestia.zone.ecs.core.World
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.navigation.local.LocalWalkQuery
 import net.bestia.zone.util.EntityId
-import net.bestia.zone.spoor.ActorSignatureSystem
 import kotlin.math.sqrt
 import org.springframework.stereotype.Component as SpringComponent
 
@@ -44,7 +43,6 @@ class MoveSystem(
   private val walkQuery: LocalWalkQuery,
 ) : System {
   override val phase = Phase.MOVEMENT
-  override val after = setOf(ActorSignatureSystem::class)
 
   override val reads: ComponentClassSet = setOf(Speed::class, Dead::class, Account::class)
   override val writes: ComponentClassSet = setOf(Position::class, Path::class, CoarseMovement::class)
