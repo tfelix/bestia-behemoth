@@ -1,5 +1,6 @@
 package net.bestia.zone.account.master.skill
 
+import net.bestia.zone.skill.SkillId
 import org.springframework.stereotype.Service
 
 /**
@@ -12,8 +13,17 @@ class MasterSkillTreeRegistry {
 
   private var nodesBySkillId: Map<Long, MasterSkillTreeNode> = emptyMap()
 
+  private var basicSkill: Long? = null
+
+  /** Basic Skill's id, or null if the tree lacks it - which keeps every tree but Novice shut. */
+  val basicSkillId: Long?
+    get() {
+      return basicSkill
+    }
+
   fun load(nodes: List<MasterSkillTreeNode>) {
     nodesBySkillId = nodes.associateBy { it.skillId }
+    basicSkill = nodes.firstOrNull { it.identifier == SkillId.BASIC_SKILL.name }?.skillId
   }
 
   fun findBySkillId(skillId: Long): MasterSkillTreeNode? {

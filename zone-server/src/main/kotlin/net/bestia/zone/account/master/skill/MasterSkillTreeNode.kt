@@ -14,6 +14,8 @@ package net.bestia.zone.account.master.skill
  */
 data class MasterSkillTreeNode(
   val skillId: Long,
+  /** The skill's `skills.yml` identifier, so a refusal can name it without asking the database. */
+  val identifier: String,
   val maxLevel: Int,
   val tree: String,
   val subTree: String? = null,

@@ -100,7 +100,7 @@ class AsyncJobExecutor(
     val queuedAt = java.lang.System.nanoTime()
 
     try {
-      worker.execute { runSafely(queuedAt, job) }
+      worker.execute { runSafely(key, queuedAt, job) }
     } catch (_: RejectedExecutionException) {
       val total = rejected.incrementAndGet()
       rejectionLog.emit { held -> LOG.error { "DB job for $key dropped, its queue is full ($total dropped so far, +$held)" } }
@@ -133,7 +133,7 @@ class AsyncJobExecutor(
   }
 
   /** `java.lang.System` spelled out because [System] in this package is the ECS one. */
-  private fun runSafely(queuedAt: Long, job: () -> Unit) {
+  private fun runSafely(key: Any, queuedAt: Long, job: () -> Unit) {
     val started = java.lang.System.nanoTime()
     waitNanos.add(started - queuedAt)
 
@@ -142,7 +142,7 @@ class AsyncJobExecutor(
     } catch (e: Throwable) {
       if (e.isFatal()) throw e
       failed.increment()
-      LOG.error(e) { "Async job failed: ${e.message}" }
+      LOG.error(e) { "DB job for $key failed: ${e.message}" }
     } finally {
       runNanos.add(java.lang.System.nanoTime() - started)
       finished.increment()

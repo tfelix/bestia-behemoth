@@ -25,6 +25,11 @@ class KnownSkills(
    */
   fun levelOf(skillId: Long): Int = availableSkills.getOrDefault(skillId, 0)
 
+  /** A copy of every known skill and its level. */
+  fun levels(): Map<Long, Int> {
+    return availableSkills.toMap()
+  }
+
   fun learnOrUpdate(skillId: Long, skillLevel: Int = 1) {
     availableSkills[skillId] = skillLevel
   }

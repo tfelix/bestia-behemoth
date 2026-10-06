@@ -1,6 +1,9 @@
 package net.bestia.zone.ecs.item
 
 import io.mockk.every
+import io.mockk.andThenJust
+import io.mockk.just
+import io.mockk.Runs
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import io.mockk.verify
@@ -24,6 +27,7 @@ import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.springframework.dao.CannotAcquireLockException
 import net.bestia.zone.ecs.core.EcsWorld
 
 @ExtendWith(MockKExtension::class)
@@ -99,6 +103,38 @@ class ObtainItemIntentSystemTest {
 
     verify(timeout = 1000) { inventoryService.grantToMaster(MASTER_ID, sword.id, 3, 0L) }
     verifyNoGroundDrop()
+  }
+
+  /** The live inventory already holds the item, so a grant that lost a lock race has to be written after all. */
+  @Test
+  fun `a grant that lost a lock race is written on the next try`() {
+    setUp()
+    stub(sword)
+    every { inventoryService.grantToMaster(MASTER_ID, sword.id, 1, 0L) } throws
+      CannotAcquireLockException("lock wait timeout") andThenJust Runs
+    val entity = createCarrier(capacityMax = 2475)
+
+    world.modify(entity) { id -> add(id, ObtainItemIntent.CreateItemIntent(itemId = sword.id, amount = 1)) }
+    world.tick(0.1f)
+    asyncJobExecutor.awaitPending(MASTER_ID)
+
+    verify(exactly = 2) { inventoryService.grantToMaster(MASTER_ID, sword.id, 1, 0L) }
+    assertEquals(0L, asyncJobExecutor.failedJobs)
+  }
+
+  @Test
+  fun `a grant that fails for good is counted as a failed job`() {
+    setUp()
+    stub(sword)
+    every { inventoryService.grantToMaster(MASTER_ID, sword.id, 1, 0L) } throws IllegalStateException("broken")
+    val entity = createCarrier(capacityMax = 2475)
+
+    world.modify(entity) { id -> add(id, ObtainItemIntent.CreateItemIntent(itemId = sword.id, amount = 1)) }
+    world.tick(0.1f)
+    asyncJobExecutor.awaitPending(MASTER_ID)
+
+    verify(exactly = 1) { inventoryService.grantToMaster(MASTER_ID, sword.id, 1, 0L) }
+    assertEquals(1L, asyncJobExecutor.failedJobs)
   }
 
   /**

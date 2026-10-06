@@ -80,6 +80,7 @@ class MasterSkillTreeImporterBootRunner(
 
     return MasterSkillTreeNode(
       skillId = skill.id,
+      identifier = skill.identifier,
       maxLevel = dto.maxLevel,
       tree = dto.tree,
       subTree = dto.subTree,

@@ -6,7 +6,7 @@ import net.bestia.zone.account.master.MasterNotFoundException
 import net.bestia.zone.account.master.MasterRepository
 import net.bestia.zone.account.master.findByIdOrThrow
 import net.bestia.zone.bestia.PlayerBestiaRepository
-import net.bestia.zone.bestia.findByIdOrThrow
+import net.bestia.zone.bestia.PlayerBestiaNotFoundException
 import net.bestia.zone.item.Item
 import net.bestia.zone.item.ItemNotFoundException
 import net.bestia.zone.item.ItemRepository
@@ -424,7 +424,8 @@ class InventoryService(
       masterRepository.save(master)
       result
     } else {
-      val playerBestia = playerBestiaRepository.findByIdOrThrow(playerBestiaId)
+      val playerBestia = playerBestiaRepository.findByIdForUpdate(playerBestiaId)
+        ?: throw PlayerBestiaNotFoundException(playerBestiaId)
       val result = block(playerBestia.container)
       playerBestiaRepository.save(playerBestia)
       result

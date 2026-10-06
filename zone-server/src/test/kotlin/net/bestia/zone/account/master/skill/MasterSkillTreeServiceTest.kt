@@ -1,260 +1,202 @@
 package net.bestia.zone.account.master.skill
 
-import io.mockk.every
 import io.mockk.mockk
-import net.bestia.zone.account.Account
-import net.bestia.zone.account.master.BodyType
-import net.bestia.zone.account.master.Face
-import net.bestia.zone.account.master.Hairstyle
-import net.bestia.zone.account.master.Master
-import net.bestia.zone.account.master.MasterRepository
-import net.bestia.zone.account.master.MasterResolver
-import net.bestia.zone.battle.skill.SkillTargetType
-import net.bestia.zone.ecs.account.Account as EcsAccount
+import io.mockk.verify
+import net.bestia.zone.ecs.account.Master as MasterComponent
 import net.bestia.zone.ecs.battle.skill.KnownSkills
 import net.bestia.zone.ecs.battle.status.SkillPoints
+import net.bestia.zone.ecs.core.EcsWorld
+import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld
+import net.bestia.zone.ecs.persistence.EntityWriteBehind
+import net.bestia.zone.message.AccountTaskExecutor
 import net.bestia.zone.skill.BasicSkillTooLowForTreeException
-import net.bestia.zone.skill.LearnedSkill
-import net.bestia.zone.skill.LearnedSkillRepository
-import net.bestia.zone.skill.Skill
-import net.bestia.zone.skill.SkillRepository
+import net.bestia.zone.skill.NoSkillPointsAvailableException
+import net.bestia.zone.skill.SkillPrerequisiteNotMetException
 import net.bestia.zone.skill.SkillSubTreeNotUnlockedException
+import net.bestia.zone.util.AccountId
 import net.bestia.zone.util.EntityId
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.context.ApplicationEventPublisher
-import java.awt.Color
-import java.util.Optional
-import net.bestia.zone.ecs.core.EcsWorld
+import java.util.concurrent.CompletableFuture
 
 /**
  * A small test tree standing in for `master_skill_tree.yml`: BASIC_SKILL in Novice, a Craftsman
- * trunk skill and one Blacksmith sub-tree skill - just enough to exercise the two gates
- * `investSkillPoints` enforces beyond a plain prerequisite check.
+ * trunk skill and one Blacksmith sub-tree skill with a prerequisite - just enough to exercise the
+ * gates `investSkillPoints` enforces.
  */
 class MasterSkillTreeServiceTest {
 
   private val world: EcsWorld = testWorld()
-  private val masterRepository = mockk<MasterRepository>(relaxed = true)
-  private val masterResolver = mockk<MasterResolver>()
-  private val skillRepository = mockk<SkillRepository>()
-  private val learnedSkills = mutableListOf<LearnedSkill>()
-  private val learnedSkillRepository = mockk<LearnedSkillRepository>()
+  private val writeBehind = mockk<EntityWriteBehind>(relaxed = true)
   private val masterSkillTreeRegistry = MasterSkillTreeRegistry()
   private val publishedEvents = mutableListOf<Any>()
 
-  /**
-   * Records what the entity already knew at the moment each event went out, which is the only way to tell
-   * this event apart from one published a moment too early - see the ordering test below.
-   */
+  /** What the entity knew when each event went out: a listener asks the entity, not the event. */
   private val carpentryWhenPublished = mutableListOf<Int>()
   private val events = ApplicationEventPublisher { event ->
     publishedEvents.add(event)
     if (event is MasterSkillsChangedEvent) {
-      carpentryWhenPublished.add(
-        world.read { get(event.entityId, KnownSkills::class)?.levelOf(CARPENTRY_ID) ?: 0 }
-      )
+      carpentryWhenPublished.add(world.get(event.entityId, KnownSkills::class)?.levelOf(CARPENTRY_ID) ?: 0)
     }
   }
 
-  private val service = MasterSkillTreeService(
-    masterRepository = masterRepository,
-    skillRepository = skillRepository,
-    masterSkillTreeRegistry = masterSkillTreeRegistry,
-    learnedSkillRepository = learnedSkillRepository,
-    world = world,
-    masterResolver = masterResolver,
-    events = events
-  )
+  /** Runs IO work at once, as if the account's inbox had nothing else queued. */
+  private val accountTasks = object : AccountTaskExecutor {
+    override fun onTick(accountId: AccountId, task: World.() -> Unit): CompletableFuture<Unit> {
+      error("skill spends publish on the IO lane")
+    }
 
-  private val skills = listOf(
-    skill(BASIC_SKILL_ID, "BASIC_SKILL"),
-    skill(CARPENTRY_ID, "CARPENTRY"),
-    skill(ORE_REFINEMENT_ID, "ORE_REFINEMENT")
-  ).associateBy { it.identifier }
+    override fun onIo(accountId: AccountId, task: () -> Unit): CompletableFuture<Unit> {
+      return CompletableFuture.completedFuture(task())
+    }
+  }
+
+  private val service = MasterSkillTreeService(masterSkillTreeRegistry, writeBehind, accountTasks, events)
 
   init {
     masterSkillTreeRegistry.load(
       listOf(
-        MasterSkillTreeNode(skillId = BASIC_SKILL_ID, maxLevel = 5, tree = "NOVICE"),
-        MasterSkillTreeNode(skillId = CARPENTRY_ID, maxLevel = 10, tree = "CRAFTSMAN"),
+        MasterSkillTreeNode(skillId = BASIC_SKILL_ID, identifier = "BASIC_SKILL", maxLevel = 5, tree = "NOVICE"),
+        MasterSkillTreeNode(skillId = CARPENTRY_ID, identifier = "CARPENTRY", maxLevel = 10, tree = "CRAFTSMAN"),
         MasterSkillTreeNode(
           skillId = ORE_REFINEMENT_ID,
+          identifier = "ORE_REFINEMENT",
           maxLevel = 3,
           tree = "CRAFTSMAN",
-          subTree = "BLACKSMITH"
+          subTree = "BLACKSMITH",
+          prerequisites = listOf(MasterSkillPrerequisite(prerequisiteSkillId = CARPENTRY_ID, requiredLevel = 6))
         )
       )
     )
-
-    every { skillRepository.findByIdentifier(any()) } answers { skills[firstArg<String>()] }
-    every { skillRepository.findById(any()) } answers {
-      Optional.ofNullable(skills.values.find { it.id == firstArg<Long>() })
-    }
-
-    every { learnedSkillRepository.save(any<LearnedSkill>()) } answers {
-      val saved = firstArg<LearnedSkill>()
-      learnedSkills.removeIf { it.skill.id == saved.skill.id }
-      learnedSkills.add(saved)
-      saved
-    }
-    every { learnedSkillRepository.findByMasterIdAndSkillId(any(), any()) } answers {
-      val skillId = secondArg<Long>()
-      learnedSkills.find { it.skill.id == skillId }
-    }
-    every { learnedSkillRepository.findAllByMasterId(any()) } answers { learnedSkills.toList() }
   }
 
-  private fun givenMaster(skillPoints: Int = 99): Pair<Master, EntityId> {
-    val master = Master(
-      account = Account(1L),
-      name = "novice",
-      hairColor = Color.BLUE,
-      skinColor = Color.BLUE,
-      hair = Hairstyle.HAIR_1,
-      face = Face.FACE_1,
-      body = BodyType.BODY_M_1
-    )
-
-    val entityId = world.createEntity { id ->
+  private fun givenMaster(skillPoints: Int = 99): EntityId {
+    return world.createEntity { id ->
+      add(id, MasterComponent(MASTER_ID, "novice"))
       add(id, SkillPoints(skillPoints))
       add(id, KnownSkills(mutableMapOf()))
-      add(id, EcsAccount(accountId = 1L))
     }
-
-    every { masterRepository.findById(master.id) } returns Optional.of(master)
-    every { masterRepository.save(any<Master>()) } answers { firstArg() }
-    every { masterResolver.getEntityIdByMasterId(master.id) } returns entityId
-
-    return master to entityId
   }
 
-  private fun invest(masterId: Long, skillId: Long, amount: Int = 1) =
-    service.investSkillPoints(masterId, listOf(SkillPointInvestment(skillId, amount)))
+  private fun invest(entityId: EntityId, vararg investments: Pair<Long, Int>): Map<Long, Int> {
+    return service.investSkillPoints(
+      world,
+      ACCOUNT_ID,
+      entityId,
+      investments.map { (skillId, amount) -> SkillPointInvestment(skillId, amount) }
+    )
+  }
 
-  private fun learnedLevelOf(skillId: Long): Int? = learnedSkills.find { it.skill.id == skillId }?.level
+  private fun levelOf(entityId: EntityId, skillId: Long): Int {
+    return world.get(entityId, KnownSkills::class)!!.levelOf(skillId)
+  }
 
-  /**
-   * The event exists so that gear which is only a novice's can be taken back off, and a listener answers that
-   * by asking the entity what it now knows. Published from the wrong place - beside the ECS sync rather than
-   * at the end of it - the listener would be handed the skills from *before* the investment and would
-   * conclude that nothing had changed. So what is asserted here is not that an event went out, but that the
-   * world had already moved when it did.
-   */
+  private fun pointsOf(entityId: EntityId): Int {
+    return world.get(entityId, SkillPoints::class)!!.value
+  }
+
+  @Test
+  fun `a spend moves the components and hands the master to its write-behind`() {
+    val entityId = givenMaster(skillPoints = 3)
+
+    val changed = invest(entityId, BASIC_SKILL_ID to 2)
+
+    assertEquals(mapOf(BASIC_SKILL_ID to 2), changed)
+    assertEquals(2, levelOf(entityId, BASIC_SKILL_ID))
+    assertEquals(1, pointsOf(entityId))
+    verify(exactly = 1) { writeBehind.persist(world, listOf(entityId), withStatusEffects = false) }
+  }
+
   @Test
   fun `the skills-changed event goes out only once the entity knows the new skill`() {
-    val (master, _) = givenMaster()
-    invest(master.id, BASIC_SKILL_ID, amount = 5)
+    val entityId = givenMaster()
+    invest(entityId, BASIC_SKILL_ID to 5)
     publishedEvents.clear()
     carpentryWhenPublished.clear()
 
-    invest(master.id, CARPENTRY_ID)
+    invest(entityId, CARPENTRY_ID to 1)
 
     assertEquals(1, publishedEvents.filterIsInstance<MasterSkillsChangedEvent>().size)
     assertEquals(listOf(1), carpentryWhenPublished, "KnownSkills must already carry the investment")
   }
 
-  /** Nothing was learned, so there is nothing for a listener to re-examine. */
   @Test
-  fun `a refused investment publishes nothing`() {
-    val (master, _) = givenMaster()
+  fun `a refused investment changes nothing, saves nothing and publishes nothing`() {
+    val entityId = givenMaster(skillPoints = 7)
     publishedEvents.clear()
 
     assertThrows<BasicSkillTooLowForTreeException> {
-      invest(master.id, CARPENTRY_ID)
+      invest(entityId, BASIC_SKILL_ID to 1, CARPENTRY_ID to 1)
     }
 
-    assertTrue(publishedEvents.filterIsInstance<MasterSkillsChangedEvent>().isEmpty())
+    assertEquals(0, levelOf(entityId, BASIC_SKILL_ID), "the batch is checked whole before anything moves")
+    assertEquals(7, pointsOf(entityId))
+    assertTrue(publishedEvents.isEmpty())
+    verify(exactly = 0) { writeBehind.persist(any(), any(), any(), any()) }
   }
 
   @Test
-  fun `a master with no Basic Skill at all cannot invest outside the Novice tree`() {
-    val (master, _) = givenMaster()
+  fun `a batch larger than the points left is refused`() {
+    val entityId = givenMaster(skillPoints = 2)
 
-    assertThrows<BasicSkillTooLowForTreeException> {
-      invest(master.id, CARPENTRY_ID)
+    assertThrows<NoSkillPointsAvailableException> {
+      invest(entityId, BASIC_SKILL_ID to 3)
     }
-    assertNull(learnedLevelOf(CARPENTRY_ID))
+    assertEquals(2, pointsOf(entityId))
   }
 
   @Test
   fun `a master below Basic Skill 5 cannot invest outside the Novice tree`() {
-    val (master, _) = givenMaster()
-    invest(master.id, BASIC_SKILL_ID, 4)
+    val entityId = givenMaster()
+    invest(entityId, BASIC_SKILL_ID to 4)
 
     assertThrows<BasicSkillTooLowForTreeException> {
-      invest(master.id, CARPENTRY_ID)
+      invest(entityId, CARPENTRY_ID to 1)
     }
-    assertNull(learnedLevelOf(CARPENTRY_ID))
+    assertEquals(0, levelOf(entityId, CARPENTRY_ID))
   }
 
-  @Test
-  fun `Basic Skill 5 unlocks the other trees`() {
-    val (master, _) = givenMaster()
-    invest(master.id, BASIC_SKILL_ID, 5)
-
-    invest(master.id, CARPENTRY_ID)
-
-    assertEquals(1, learnedLevelOf(CARPENTRY_ID))
-  }
-
-  /**
-   * The gate is checked per level rather than once per batch precisely so this works - the same
-   * promise `investSkillPoints` already makes for a prerequisite satisfied earlier in the batch.
-   */
+  /** Checked per level rather than once per batch, the same promise made for a prerequisite. */
   @Test
   fun `Basic Skill 5 and a point in another tree can be spent in one batch`() {
-    val (master, _) = givenMaster()
+    val entityId = givenMaster()
 
-    service.investSkillPoints(
-      master.id,
-      listOf(SkillPointInvestment(BASIC_SKILL_ID, 5), SkillPointInvestment(CARPENTRY_ID, 1))
-    )
+    invest(entityId, BASIC_SKILL_ID to 5, CARPENTRY_ID to 1)
 
-    assertEquals(5, learnedLevelOf(BASIC_SKILL_ID))
-    assertEquals(1, learnedLevelOf(CARPENTRY_ID))
+    assertEquals(5, levelOf(entityId, BASIC_SKILL_ID))
+    assertEquals(1, levelOf(entityId, CARPENTRY_ID))
   }
 
   @Test
   fun `a sub-tree stays locked below 5 points spent in its parent tree`() {
-    val (master, _) = givenMaster()
-    invest(master.id, BASIC_SKILL_ID, 5)
-    invest(master.id, CARPENTRY_ID, 4)
+    val entityId = givenMaster()
+    invest(entityId, BASIC_SKILL_ID to 5, CARPENTRY_ID to 4)
 
     assertThrows<SkillSubTreeNotUnlockedException> {
-      invest(master.id, ORE_REFINEMENT_ID)
+      invest(entityId, ORE_REFINEMENT_ID to 1)
     }
-    assertNull(learnedLevelOf(ORE_REFINEMENT_ID))
   }
 
   @Test
-  fun `a sub-tree unlocks once 5 points are spent anywhere in its parent tree`() {
-    val (master, _) = givenMaster()
-    invest(master.id, BASIC_SKILL_ID, 5)
-    invest(master.id, CARPENTRY_ID, 5)
+  fun `a prerequisite is checked against the levels the batch has reached so far`() {
+    val entityId = givenMaster()
+    invest(entityId, BASIC_SKILL_ID to 5)
 
-    invest(master.id, ORE_REFINEMENT_ID)
+    assertThrows<SkillPrerequisiteNotMetException> {
+      invest(entityId, CARPENTRY_ID to 5, ORE_REFINEMENT_ID to 1)
+    }
 
-    assertEquals(1, learnedLevelOf(ORE_REFINEMENT_ID))
+    invest(entityId, CARPENTRY_ID to 6, ORE_REFINEMENT_ID to 1)
+    assertEquals(1, levelOf(entityId, ORE_REFINEMENT_ID))
   }
 
-  private fun skill(id: Long, identifier: String) = Skill(
-    id = id,
-    identifier = identifier,
-    strength = null,
-    script = null,
-    manaCost = 0,
-    range = null,
-    targetType = SkillTargetType.FRIENDLY,
-    needsLineOfSight = false,
-    requiredLevel = 0
-  )
-
   companion object {
+    private const val ACCOUNT_ID = 1L
+    private const val MASTER_ID = 7L
     private const val BASIC_SKILL_ID = 1L
     private const val CARPENTRY_ID = 3L
     private const val ORE_REFINEMENT_ID = 4L
