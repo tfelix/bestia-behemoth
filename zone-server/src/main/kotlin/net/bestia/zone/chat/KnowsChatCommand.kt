@@ -140,7 +140,7 @@ class KnowsChatCommand(
   }
 
   private fun reply(playerId: Long, text: String) {
-    out.sendToPlayer(playerId, ChatSMSG(text = text, type = ChatCMSG.Type.COMMAND))
+    out.sendToPlayer(playerId, ChatSMSG(text = text, type = ChatType.COMMAND))
   }
 
   private companion object {

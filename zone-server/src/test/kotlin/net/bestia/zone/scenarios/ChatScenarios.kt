@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
+import net.bestia.zone.chat.ChatType
 
 class ChatScenarios : BestiaNoSocketScenario() {
 
@@ -28,7 +29,7 @@ class ChatScenarios : BestiaNoSocketScenario() {
     clientPlayer1.sendMessage(
       ChatCMSG(
         playerId = clientPlayer1.connectedPlayerId,
-        type = ChatCMSG.Type.WHISPER,
+        type = ChatType.WHISPER,
         text = "helloworld",
         targetUsername = "player2"
       )
@@ -38,7 +39,7 @@ class ChatScenarios : BestiaNoSocketScenario() {
 
     assertEquals("helloworld", whisperChatRx.text)
     assertEquals("player1", whisperChatRx.senderUsername)
-    assertEquals(ChatCMSG.Type.WHISPER, whisperChatRx.type)
+    assertEquals(ChatType.WHISPER, whisperChatRx.type)
   }
 
   @Test
@@ -46,7 +47,7 @@ class ChatScenarios : BestiaNoSocketScenario() {
     clientPlayer1.sendMessage(
       ChatCMSG(
         playerId = clientPlayer1.connectedPlayerId,
-        type = ChatCMSG.Type.WHISPER,
+        type = ChatType.WHISPER,
         text = "helloworld",
         targetUsername = "playerUnknown"
       )
@@ -66,7 +67,7 @@ class ChatScenarios : BestiaNoSocketScenario() {
     clientPlayer1.sendMessage(
       ChatCMSG(
         playerId = clientPlayer1.connectedPlayerId,
-        type = ChatCMSG.Type.PARTY,
+        type = ChatType.PARTY,
         text = "helloworld",
       )
     )
@@ -75,7 +76,7 @@ class ChatScenarios : BestiaNoSocketScenario() {
 
     assertEquals("error.not_supported", whisperChatErrorRx.text)
     assertNull(whisperChatErrorRx.senderUsername)
-    assertEquals(ChatCMSG.Type.ERROR, whisperChatErrorRx.type)
+    assertEquals(ChatType.ERROR, whisperChatErrorRx.type)
   }
 
   @Test
@@ -83,7 +84,7 @@ class ChatScenarios : BestiaNoSocketScenario() {
     clientPlayer3.sendMessage(
       ChatCMSG(
         playerId = clientPlayer3.connectedPlayerId,
-        type = ChatCMSG.Type.PARTY,
+        type = ChatType.PARTY,
         text = "helloworld",
       )
     )
@@ -92,7 +93,7 @@ class ChatScenarios : BestiaNoSocketScenario() {
 
     assertEquals("error.not_supported", whisperChatErrorRx.text)
     assertNull(whisperChatErrorRx.senderUsername)
-    assertEquals(ChatCMSG.Type.ERROR, whisperChatErrorRx.type)
+    assertEquals(ChatType.ERROR, whisperChatErrorRx.type)
   }
 
   @Test
@@ -100,7 +101,7 @@ class ChatScenarios : BestiaNoSocketScenario() {
     clientPlayer1.sendMessage(
       ChatCMSG(
         playerId = clientPlayer1.connectedPlayerId,
-        type = ChatCMSG.Type.GUILD,
+        type = ChatType.GUILD,
         text = "helloworld",
       )
     )
@@ -109,7 +110,7 @@ class ChatScenarios : BestiaNoSocketScenario() {
 
     assertEquals("error.not_supported", guildChatErrorRx.text)
     assertNull(guildChatErrorRx.senderUsername)
-    assertEquals(ChatCMSG.Type.ERROR, guildChatErrorRx.type)
+    assertEquals(ChatType.ERROR, guildChatErrorRx.type)
   }
 
   @Test
@@ -117,7 +118,7 @@ class ChatScenarios : BestiaNoSocketScenario() {
     clientPlayer3.sendMessage(
       ChatCMSG(
         playerId = clientPlayer3.connectedPlayerId,
-        type = ChatCMSG.Type.GUILD,
+        type = ChatType.GUILD,
         text = "helloworld",
       )
     )
@@ -126,7 +127,7 @@ class ChatScenarios : BestiaNoSocketScenario() {
 
     assertEquals("error.not_supported", whisperChatErrorRx.text)
     assertNull(whisperChatErrorRx.senderUsername)
-    assertEquals(ChatCMSG.Type.ERROR, whisperChatErrorRx.type)
+    assertEquals(ChatType.ERROR, whisperChatErrorRx.type)
   }
 
   /**
@@ -144,7 +145,7 @@ class ChatScenarios : BestiaNoSocketScenario() {
     clientPlayer3.sendMessage(
       ChatCMSG(
         playerId = clientPlayer3.connectedPlayerId,
-        type = ChatCMSG.Type.COMMAND,
+        type = ChatType.COMMAND,
         text = "/nosuchcommand 10 10",
       )
     )
@@ -167,13 +168,13 @@ class ChatScenarios : BestiaNoSocketScenario() {
     clientPlayer1.sendMessage(
       ChatCMSG(
         playerId = clientPlayer1.connectedPlayerId,
-        type = ChatCMSG.Type.COMMAND,
+        type = ChatType.COMMAND,
         text = "/date",
       )
     )
 
     assertNull(clientPlayer1.tryGetLastReceived(OperationErrorSMSG::class))
-    assertEquals(ChatCMSG.Type.COMMAND, clientPlayer1.getLastReceived(ChatSMSG::class).type)
+    assertEquals(ChatType.COMMAND, clientPlayer1.getLastReceived(ChatSMSG::class).type)
   }
 }
 

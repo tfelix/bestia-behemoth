@@ -5,7 +5,7 @@ import net.bestia.zone.message.CMSG
 
 data class ChatCMSG(
   override val playerId: Long,
-  val type: Type,
+  val type: ChatType,
   val text: String,
   val targetUsername: String? = null
 ) : CMSG {
@@ -21,22 +21,11 @@ data class ChatCMSG(
       }
     }
 
-    if (type == Type.COMMAND) {
+    if (type == ChatType.COMMAND) {
       require(text.startsWith("/")) {
         "Text of type COMMAND must start with /"
       }
     }
-  }
-
-  enum class Type {
-    PUBLIC,
-    WHISPER,
-    PARTY,
-    GUILD,
-    ERROR,
-    COMMAND,
-    GM,
-    BROADCAST
   }
 
   companion object {
@@ -47,11 +36,11 @@ data class ChatCMSG(
       return ChatCMSG(
         playerId = accountId,
         type = when (chat.mode) {
-          ChatCmsgProto.Mode.PARTY -> Type.PARTY
-          ChatCmsgProto.Mode.GUILD -> Type.GUILD
-          ChatCmsgProto.Mode.WHISPER -> Type.WHISPER
-          ChatCmsgProto.Mode.PUBLIC -> Type.PUBLIC
-          ChatCmsgProto.Mode.COMMAND -> Type.COMMAND
+          ChatCmsgProto.Mode.PARTY -> ChatType.PARTY
+          ChatCmsgProto.Mode.GUILD -> ChatType.GUILD
+          ChatCmsgProto.Mode.WHISPER -> ChatType.WHISPER
+          ChatCmsgProto.Mode.PUBLIC -> ChatType.PUBLIC
+          ChatCmsgProto.Mode.COMMAND -> ChatType.COMMAND
           else -> throw IllegalStateException("Unknown chat mode: ${chat.mode}")
         },
         text = chat.text,
@@ -64,15 +53,15 @@ data class ChatCMSG(
     }
 
     private val TARGET_USERNAME_REQUIRED_TYPES = setOf(
-      Type.WHISPER
+      ChatType.WHISPER
     )
 
     private val TARGET_USERNAME_NOT_ALLOWED_TYPES = setOf(
-      Type.PUBLIC,
-      Type.PARTY,
-      Type.GUILD,
-      Type.ERROR,
-      Type.BROADCAST
+      ChatType.PUBLIC,
+      ChatType.PARTY,
+      ChatType.GUILD,
+      ChatType.ERROR,
+      ChatType.BROADCAST
     )
   }
 }

@@ -7,7 +7,7 @@ import net.bestia.zone.message.SMSG
 import java.lang.IllegalStateException
 
 data class ChatSMSG(
-  val type: ChatCMSG.Type,
+  val type: ChatType,
   val text: String,
   val senderUsername: String? = null,
   val senderEntityId: Long? = null
@@ -21,14 +21,14 @@ data class ChatSMSG(
 
   override fun toBnetEnvelope(): EnvelopeProto.Envelope {
     val mode = when (type) {
-      ChatCMSG.Type.PUBLIC -> ChatCmsgProto.Mode.PUBLIC
-      ChatCMSG.Type.WHISPER -> ChatCmsgProto.Mode.WHISPER
-      ChatCMSG.Type.PARTY -> ChatCmsgProto.Mode.PARTY
-      ChatCMSG.Type.GUILD -> ChatCmsgProto.Mode.GUILD
-      ChatCMSG.Type.ERROR -> ChatCmsgProto.Mode.ERROR
-      ChatCMSG.Type.GM -> ChatCmsgProto.Mode.GM
-      ChatCMSG.Type.BROADCAST -> ChatCmsgProto.Mode.BROADCAST
-      ChatCMSG.Type.COMMAND -> ChatCmsgProto.Mode.COMMAND
+      ChatType.PUBLIC -> ChatCmsgProto.Mode.PUBLIC
+      ChatType.WHISPER -> ChatCmsgProto.Mode.WHISPER
+      ChatType.PARTY -> ChatCmsgProto.Mode.PARTY
+      ChatType.GUILD -> ChatCmsgProto.Mode.GUILD
+      ChatType.ERROR -> ChatCmsgProto.Mode.ERROR
+      ChatType.GM -> ChatCmsgProto.Mode.GM
+      ChatType.BROADCAST -> ChatCmsgProto.Mode.BROADCAST
+      ChatType.COMMAND -> ChatCmsgProto.Mode.COMMAND
     }
 
     val chat = ChatSmsgProto.ChatSMSG.newBuilder()
@@ -50,21 +50,21 @@ data class ChatSMSG(
 
   companion object {
     private val USERNAME_REQUIRED_TYPES = setOf(
-      ChatCMSG.Type.PUBLIC,
-      ChatCMSG.Type.WHISPER,
-      ChatCMSG.Type.PARTY,
-      ChatCMSG.Type.GUILD,
-      ChatCMSG.Type.GM
+      ChatType.PUBLIC,
+      ChatType.WHISPER,
+      ChatType.PARTY,
+      ChatType.GUILD,
+      ChatType.GM
     )
 
     val ERROR_NO_PARTY = ChatSMSG(
       text = "error.no_party",
-      type = ChatCMSG.Type.ERROR,
+      type = ChatType.ERROR,
     )
 
     val ERROR_NOT_SUPPORTED = ChatSMSG(
       text = "error.not_supported",
-      type = ChatCMSG.Type.ERROR,
+      type = ChatType.ERROR,
     )
   }
 }

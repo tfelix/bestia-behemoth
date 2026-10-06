@@ -36,6 +36,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+import net.bestia.zone.chat.ChatType
 
 /**
  * Chunk streaming end to end, against the real Spring context and the real tick loop.
@@ -320,7 +321,7 @@ class ChunkStreamingScenario : BestiaNoSocketScenario(
     clientPlayer1.sendMessage(
       ChatCMSG(
         clientPlayer1.connectedPlayerId,
-        ChatCMSG.Type.COMMAND,
+        ChatType.COMMAND,
         "/carve $voxelX $voxelY $voxelZ ${CarveBrush.MIN_RADIUS}"
       )
     )
@@ -535,7 +536,7 @@ class ChunkStreamingScenario : BestiaNoSocketScenario(
     clientPlayer1.sendMessage(
       ChatCMSG(
         clientPlayer1.connectedPlayerId,
-        ChatCMSG.Type.COMMAND,
+        ChatType.COMMAND,
         "/carve ${before.x} ${before.y} ${before.z - 1} $radius"
       )
     )

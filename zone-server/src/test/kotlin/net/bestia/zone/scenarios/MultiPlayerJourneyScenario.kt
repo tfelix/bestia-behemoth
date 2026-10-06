@@ -56,6 +56,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+import net.bestia.zone.chat.ChatType
 
 /**
  * Drives two simulated clients through a full player session end to end - login, master
@@ -211,7 +212,7 @@ class MultiPlayerJourneyScenario : BestiaNoSocketScenario(autoClientConnect = fa
     clientPlayer1.sendMessage(
       ChatCMSG(
         playerId = clientPlayer1.connectedPlayerId,
-        type = ChatCMSG.Type.PUBLIC,
+        type = ChatType.PUBLIC,
         text = "hello everyone"
       )
     )
@@ -220,7 +221,7 @@ class MultiPlayerJourneyScenario : BestiaNoSocketScenario(autoClientConnect = fa
       val chat = clientPlayer2.getLastReceived(ChatSMSG::class)
       assertEquals("hello everyone", chat.text)
       assertEquals(newMasterName, chat.senderUsername)
-      assertEquals(ChatCMSG.Type.PUBLIC, chat.type)
+      assertEquals(ChatType.PUBLIC, chat.type)
     }
   }
 
@@ -230,7 +231,7 @@ class MultiPlayerJourneyScenario : BestiaNoSocketScenario(autoClientConnect = fa
     clientPlayer1.sendMessage(
       ChatCMSG(
         playerId = clientPlayer1.connectedPlayerId,
-        type = ChatCMSG.Type.WHISPER,
+        type = ChatType.WHISPER,
         text = "hi player2, just you",
         targetUsername = "player2"
       )
@@ -240,7 +241,7 @@ class MultiPlayerJourneyScenario : BestiaNoSocketScenario(autoClientConnect = fa
       val whisper = clientPlayer2.getLastReceived(ChatSMSG::class)
       assertEquals("hi player2, just you", whisper.text)
       assertEquals(newMasterName, whisper.senderUsername)
-      assertEquals(ChatCMSG.Type.WHISPER, whisper.type)
+      assertEquals(ChatType.WHISPER, whisper.type)
     }
   }
 
@@ -250,7 +251,7 @@ class MultiPlayerJourneyScenario : BestiaNoSocketScenario(autoClientConnect = fa
     clientPlayer2.sendMessage(
       ChatCMSG(
         playerId = clientPlayer2.connectedPlayerId,
-        type = ChatCMSG.Type.WHISPER,
+        type = ChatType.WHISPER,
         text = "right back at you",
         targetUsername = newMasterName
       )
@@ -260,7 +261,7 @@ class MultiPlayerJourneyScenario : BestiaNoSocketScenario(autoClientConnect = fa
       val whisper = clientPlayer1.getLastReceived(ChatSMSG::class)
       assertEquals("right back at you", whisper.text)
       assertEquals("player2", whisper.senderUsername)
-      assertEquals(ChatCMSG.Type.WHISPER, whisper.type)
+      assertEquals(ChatType.WHISPER, whisper.type)
     }
   }
 
@@ -333,7 +334,7 @@ class MultiPlayerJourneyScenario : BestiaNoSocketScenario(autoClientConnect = fa
   @Order(10)
   fun `gaining exp via chat command levels up and grants skill points`() {
     clientPlayer1.sendMessage(
-      ChatCMSG(playerId = clientPlayer1.connectedPlayerId, type = ChatCMSG.Type.COMMAND, text = "/exp 5000")
+      ChatCMSG(playerId = clientPlayer1.connectedPlayerId, type = ChatType.COMMAND, text = "/exp 5000")
     )
 
     await {
