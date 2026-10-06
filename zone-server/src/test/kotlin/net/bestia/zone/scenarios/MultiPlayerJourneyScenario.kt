@@ -8,7 +8,7 @@ import net.bestia.zone.account.master.MasterRepository
 import net.bestia.zone.account.master.SelectMasterCMSG
 import net.bestia.zone.account.master.findByIdOrThrow
 import net.bestia.zone.account.master.skill.InvestSkillPointCMSG
-import net.bestia.zone.battle.ActivateSkillCMSG
+import net.bestia.zone.casting.ActivateSkillCMSG
 import net.bestia.zone.battle.damage.DamageEntitySMSG
 import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.chat.ChatCMSG

@@ -5,6 +5,7 @@ import net.bestia.zone.battle.BattleContextFixture
 import net.bestia.zone.battle.EntityBattleContext
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
+import net.bestia.zone.casting.SkillContext
 
 /**
  * Builds the [SkillContext] a script test runs against, over a [RecordingSkillWorld].

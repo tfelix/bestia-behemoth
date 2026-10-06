@@ -1,9 +1,9 @@
 package net.bestia.zone.battle.passive
 
 import net.bestia.zone.battle.damage.Damage
-import net.bestia.zone.battle.skill.SkillContext
-import net.bestia.zone.battle.skill.SkillStrategyFactory
-import net.bestia.zone.battle.skill.SkillStrategy
+import net.bestia.zone.casting.SkillContext
+import net.bestia.zone.casting.SkillStrategyFactory
+import net.bestia.zone.casting.SkillStrategy
 import net.bestia.zone.skill.SkillTargetType
 import net.bestia.zone.battle.status.StatusValueRecalcContext
 import net.bestia.zone.skill.Skill

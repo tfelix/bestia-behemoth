@@ -10,7 +10,7 @@ import java.util.Random
 /**
  * Picks how a basic attack resolves, from the weapon's [AttackType] and nothing else.
  *
- * Unlike [net.bestia.zone.battle.skill.SkillStrategyFactory] there is no registry and no name lookup: the set of ways to hit somebody with
+ * Unlike [net.bestia.zone.casting.SkillStrategyFactory] there is no registry and no name lookup: the set of ways to hit somebody with
  * a weapon is closed and lives in [AttackType], so a missing case here is a compile error rather than a boot
  * warning.
  *

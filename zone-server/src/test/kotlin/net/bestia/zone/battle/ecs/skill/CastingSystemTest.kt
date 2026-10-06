@@ -2,7 +2,7 @@ package net.bestia.zone.battle.ecs.skill
 
 import io.mockk.mockk
 import io.mockk.verify
-import net.bestia.zone.battle.skill.SkillExecutionService
+import net.bestia.zone.casting.SkillExecutionService
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import net.bestia.zone.ecs.core.EcsWorld
-import net.bestia.zone.ecs.battle.skill.CastingSystem
+import net.bestia.zone.casting.ecs.CastingSystem
 
 class CastingSystemTest {
 

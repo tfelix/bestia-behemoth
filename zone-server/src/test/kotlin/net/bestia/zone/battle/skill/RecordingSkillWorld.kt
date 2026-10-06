@@ -7,6 +7,7 @@ import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.entity.StaticEntityKind
 import net.bestia.zone.spoor.TrackReading
+import net.bestia.zone.casting.SkillWorld
 
 /**
  * A [SkillWorld] that records what a script did to it instead of doing it.

@@ -1,6 +1,6 @@
 package net.bestia.zone.boot
 
-import net.bestia.zone.battle.skill.SkillExecutionService
+import net.bestia.zone.casting.SkillExecutionService
 import net.bestia.zone.bestia.BestiaCatalogue
 import net.bestia.zone.crafting.MasterCraftBonusService
 import net.bestia.zone.economy.CommodityItems

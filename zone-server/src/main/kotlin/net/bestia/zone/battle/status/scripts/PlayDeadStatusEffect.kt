@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component
  * and it lives there because being noticed is a perception question rather than a stat.
  *
  * The design docs call this a toggle. It lands as a fixed duration instead: a
- * [net.bestia.zone.battle.skill.SkillStrategy] returns a
+ * [net.bestia.zone.casting.SkillStrategy] returns a
  * [net.bestia.zone.battle.damage.Damage] and has no way to *remove* an effect, so switching it back
  * off needs a result type that means "take this away" - a separate piece of work.
  */

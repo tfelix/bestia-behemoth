@@ -14,7 +14,7 @@ import net.bestia.zone.entity.StaticEntityKind
  * A box of parts that becomes a construction site where the player points it.
  *
  * The shape every buildable kit has, so a furnace kit is one subclass rather than one more copy of
- * [execute] - the same argument [net.bestia.zone.battle.skill.CraftingSkillStrategy] makes about the nine
+ * [execute] - the same argument [net.bestia.zone.casting.CraftingSkillStrategy] makes about the nine
  * crafting skills that differ only in which station they work at.
  *
  * ### Every refusal returns false, which is what keeps the kit in the bag

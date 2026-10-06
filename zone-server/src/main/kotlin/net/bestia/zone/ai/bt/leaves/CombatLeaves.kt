@@ -6,7 +6,7 @@ import net.bestia.zone.ai.core.behavior.Status
 import net.bestia.zone.battle.attack.AttackExecutionService
 import net.bestia.zone.battle.attack.AttackOutcome
 import net.bestia.zone.battle.attack.BattleAttack
-import net.bestia.zone.battle.skill.SkillExecutionService
+import net.bestia.zone.casting.SkillExecutionService
 import net.bestia.zone.skill.ecs.KnownSkills
 import net.bestia.zone.util.EntityId
 

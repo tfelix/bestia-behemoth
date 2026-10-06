@@ -13,7 +13,7 @@ import net.bestia.zone.battle.ecs.skill.Crafting
 /**
  * Drives the craft countdown and resolves each craft on the tick it elapses.
  *
- * Structurally the same as [net.bestia.zone.ecs.battle.skill.CastingSystem], and ordered right after it
+ * Structurally the same as [net.bestia.zone.casting.ecs.CastingSystem], and ordered right after it
  * for the same reason it sits where it does: dropping the component is what tells the client the bar is
  * done, and an interrupt produces exactly the same signal, because visually both just end.
  *

@@ -11,8 +11,8 @@ import net.bestia.zone.util.EntityId
 /**
  * Marks an entity as channelling a skill with a cast time. It carries everything needed to resolve
  * the skill once [remainingSeconds] hits zero, so the original activation message does not have to be
- * kept around. [net.bestia.zone.ecs.battle.skill.CastingSystem] drives the countdown and hands the finished cast to
- * [net.bestia.zone.battle.skill.SkillExecutionService].
+ * kept around. [net.bestia.zone.casting.ecs.CastingSystem] drives the countdown and hands the finished cast to
+ * [net.bestia.zone.casting.SkillExecutionService].
  *
  * Synced to everyone in range via the [Dirtyable] pipeline so bystanders see the cast bar too, at the
  * throttled cadence [Countdown] describes rather than every tick. It is [Removable]: cancelling a

@@ -25,7 +25,7 @@ import net.bestia.zone.ai.perception.SettlementSense
 import net.bestia.zone.ai.perception.ShelterSense
 import net.bestia.zone.ai.profile.AiProfileRegistry
 import net.bestia.zone.battle.attack.AttackExecutionService
-import net.bestia.zone.battle.skill.SkillExecutionService
+import net.bestia.zone.casting.SkillExecutionService
 import net.bestia.zone.aoi.ActivePlayerAOIService
 import net.bestia.zone.aoi.EntityAOIService
 import net.bestia.zone.config.WorldRulesConfig

@@ -25,7 +25,7 @@ import net.bestia.zone.ecs.core.update
  * Nothing but a basic attack arrives here - no catalogue row, no script, no mana, no cast bar - so the
  * handler has nothing to validate beyond who is swinging: range, line of sight, attack delay, whether the
  * swing lands and what it takes off are all [AttackExecutionService]'s, the same path a mob's bite takes
- * through the `BasicAttack` behaviour-tree leaf. Casting a skill is [ActivateSkillHandler].
+ * through the `BasicAttack` behaviour-tree leaf. Casting a skill is [net.bestia.zone.casting.ActivateSkillHandler].
  */
 @Component
 class AttackEntityHandler(

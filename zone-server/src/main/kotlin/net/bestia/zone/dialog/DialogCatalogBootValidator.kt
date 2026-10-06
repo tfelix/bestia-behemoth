@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component
  * any drift. The two exist together on purpose - the yml owns each dialog's metadata, the enum gives
  * call sites a compiler-checked symbol - and this is what stops that duplication from rotting.
  *
- * Unlike [net.bestia.zone.battle.skill.scripts.SkillScriptBootValidator] this throws instead of
+ * Unlike [net.bestia.zone.casting.scripts.SkillScriptBootValidator] this throws instead of
  * logging: a `DialogId` with no catalog entry throws at the moment someone tries to send it, and a
  * catalog entry with no enum constant is a dialog nothing can ever send. Both are authoring
  * mistakes with no legitimate in-between state, so failing immediately is cheaper than a warning
