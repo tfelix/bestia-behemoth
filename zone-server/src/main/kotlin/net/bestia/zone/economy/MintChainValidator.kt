@@ -3,7 +3,7 @@ package net.bestia.zone.economy
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.worldgen.resource.GradeMix
 import net.bestia.worldgen.resource.OreGrade
-import net.bestia.zone.boot.CatalogValidator
+import net.bestia.zone.util.CatalogValidator
 import net.bestia.zone.crafting.RecipeRegistry
 import net.bestia.zone.item.ItemRepository
 import net.bestia.zone.world.mining.OreYield

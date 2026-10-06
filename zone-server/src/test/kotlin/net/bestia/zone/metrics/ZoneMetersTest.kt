@@ -7,7 +7,7 @@ import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import io.mockk.every
 import io.mockk.mockk
 import net.bestia.zone.cartography.tile.MapTileService
-import net.bestia.zone.ecs.ZoneConfig
+import net.bestia.zone.config.WorldRulesConfig
 import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.System
@@ -85,7 +85,7 @@ class ZoneMetersTest {
   fun `the Prometheus names are the ones dashboards use`() {
     val prometheus = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
     bindAll(prometheus)
-    TickMetrics(prometheus, ZoneConfig(tickRate = 20)).recordTotal(1_000_000)
+    TickMetrics(prometheus, WorldRulesConfig(tickRate = 20)).recordTotal(1_000_000)
 
     val scrape = prometheus.scrape()
 

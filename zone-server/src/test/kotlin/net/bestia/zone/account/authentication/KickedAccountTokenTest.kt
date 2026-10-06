@@ -5,7 +5,7 @@ import io.mockk.mockk
 import net.bestia.account.Role
 import net.bestia.bnet.proto.AuthenticationProto
 import net.bestia.bnet.proto.EnvelopeProto
-import net.bestia.zone.ZoneConfig
+import net.bestia.zone.config.ZoneConfig
 import org.junit.jupiter.api.Test
 import java.util.Date
 import kotlin.test.assertEquals

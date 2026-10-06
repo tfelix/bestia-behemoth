@@ -3,7 +3,7 @@ package net.bestia.zone.account
 import io.mockk.every
 import io.mockk.mockk
 import net.bestia.zone.account.master.MasterResolver
-import net.bestia.zone.ecs.ZoneConfig
+import net.bestia.zone.config.WorldRulesConfig
 import net.bestia.zone.ecs.battle.attack.AttackCancelService
 import net.bestia.zone.ecs.battle.status.InCombat
 import net.bestia.zone.ecs.core.World
@@ -33,7 +33,7 @@ class AccountEntityControlServiceTest {
     attackCancelService = AttackCancelService(),
     playerAOIService = mockk(relaxed = true),
     world = world,
-    zoneConfig = ZoneConfig(tickRate = 20)
+    zoneConfig = WorldRulesConfig(tickRate = 20)
   )
 
   init {

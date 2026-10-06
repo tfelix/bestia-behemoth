@@ -40,6 +40,7 @@ import java.util.concurrent.atomic.AtomicInteger
 import kotlin.test.assertEquals
 import net.bestia.zone.ecs.core.EcsWorld
 import net.bestia.zone.sync.SyncTargets
+import net.bestia.zone.config.WorldRulesConfig
 
 /**
  * Covers what [ZoneEngine] does between ticks, rather than what any one system does:
@@ -84,7 +85,7 @@ class ZoneEngineTest {
   private fun engineFor(world: EcsWorld): ZoneEngine {
     return ZoneEngine(
       world = world,
-      config = ZoneConfig(tickRate = 20),
+      config = WorldRulesConfig(tickRate = 20),
       entityAOIService = entityAOIService,
       playerAOIService = ActivePlayerAOIService(),
       outMessageProcessor = outMessageProcessor,
@@ -92,7 +93,7 @@ class ZoneEngineTest {
       entityVisibility = entityVisibility,
       entityAudience = EntityAudience(entityVisibility),
       snapshotBuilder = EntitySnapshotBuilder(),
-      tickMetrics = TickMetrics(meters, ZoneConfig(tickRate = 20)),
+      tickMetrics = TickMetrics(meters, WorldRulesConfig(tickRate = 20)),
     )
   }
 

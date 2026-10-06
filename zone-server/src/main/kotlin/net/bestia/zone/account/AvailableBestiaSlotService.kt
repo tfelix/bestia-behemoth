@@ -1,6 +1,6 @@
 package net.bestia.zone.account
 
-import net.bestia.zone.ZoneConfig
+import net.bestia.zone.config.ZoneConfig
 import net.bestia.zone.util.AccountId
 import org.springframework.stereotype.Service
 import kotlin.math.min

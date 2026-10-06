@@ -2,7 +2,7 @@ package net.bestia.zone.entity
 
 import net.bestia.zone.ecs.battle.attack.AttackCancelService
 import net.bestia.zone.ecs.battle.skill.CastCancelService
-import net.bestia.zone.ecs.ZoneConfig
+import net.bestia.zone.config.WorldRulesConfig
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.ecs.battle.damage.DeadActionGuard
@@ -62,7 +62,7 @@ class MoveActiveEntityHandlerTest {
     world: EcsWorld,
     entityId: EntityId,
     walkQuery: LocalWalkQuery,
-    rateLimit: MoveRequestRateLimit = MoveRequestRateLimit(ZoneConfig(tickRate = 20)),
+    rateLimit: MoveRequestRateLimit = MoveRequestRateLimit(WorldRulesConfig(tickRate = 20)),
   ): MoveActiveEntityHandler {
     val connectionInfoService = ConnectionInfoService()
     connectionInfoService.activateSession(accountId, masterId = 1L, masterEntityId = entityId)
@@ -74,7 +74,7 @@ class MoveActiveEntityHandlerTest {
       attackCancelService = AttackCancelService(),
       deadActionGuard = DeadActionGuard(),
       walkQuery = walkQuery,
-      zoneConfig = ZoneConfig(tickRate = 20),
+      zoneConfig = WorldRulesConfig(tickRate = 20),
       rateLimit = rateLimit,
     )
   }
@@ -161,7 +161,7 @@ class MoveActiveEntityHandlerTest {
     val path = (1L..100L).map { Vec3L(it, 0, 0) }
     handler.handle(world, MoveActiveEntityCMSG(playerId = accountId, path = path))
 
-    assertEquals(path.take(ZoneConfig(tickRate = 20).maxMovePathSteps), world.get(id, Path::class)?.path)
+    assertEquals(path.take(WorldRulesConfig(tickRate = 20).maxMovePathSteps), world.get(id, Path::class)?.path)
   }
 
   @Test
@@ -259,7 +259,7 @@ class MoveActiveEntityHandlerTest {
 
     // Two tokens and no refill, so the assertion does not depend on how long the test itself takes.
     val exhausted = MoveRequestRateLimit(
-      ZoneConfig(tickRate = 20, moveRequestsPerSecond = 0f, moveRequestBurst = 2f)
+      WorldRulesConfig(tickRate = 20, moveRequestsPerSecond = 0f, moveRequestBurst = 2f)
     )
     val handler = handlerFor(world, id, OpenWalkQuery(), exhausted)
 

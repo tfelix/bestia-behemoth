@@ -2,7 +2,7 @@ package net.bestia.zone.entity
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
-import net.bestia.zone.ecs.ZoneConfig
+import net.bestia.zone.config.WorldRulesConfig
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.modify
 import net.bestia.zone.ecs.movement.Path
@@ -32,7 +32,7 @@ class MoveActiveEntityHandler(
   private val attackCancelService: AttackCancelService,
   private val deadActionGuard: DeadActionGuard,
   private val walkQuery: LocalWalkQuery,
-  private val zoneConfig: ZoneConfig,
+  private val zoneConfig: WorldRulesConfig,
   private val rateLimit: MoveRequestRateLimit,
 ) : TickMessageHandler<MoveActiveEntityCMSG> {
   override val wire = decoder(MessageCase.MOVE_ACTIVE_ENTITY) { accountId, envelope ->

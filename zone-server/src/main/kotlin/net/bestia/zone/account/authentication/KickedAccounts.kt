@@ -1,6 +1,6 @@
 package net.bestia.zone.account.authentication
 
-import net.bestia.zone.ZoneConfig
+import net.bestia.zone.config.ZoneConfig
 import org.springframework.stereotype.Component
 import java.util.Date
 import java.util.concurrent.ConcurrentHashMap

@@ -1,13 +1,11 @@
-package net.bestia.zone.ecs
+package net.bestia.zone.config
 
 import net.bestia.zone.ecs.core.UndeclaredAccess
 import org.springframework.boot.context.properties.ConfigurationProperties
-import org.springframework.boot.context.properties.ConfigurationPropertiesScan
 import java.time.Duration
 
 @ConfigurationProperties(prefix = "world")
-@ConfigurationPropertiesScan
-data class ZoneConfig(
+data class WorldRulesConfig(
   val tickRate: Int,
   val parallelSystems: Boolean = false,
   val logoutProtectionSeconds: Float = 20f,

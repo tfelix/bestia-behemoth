@@ -4,7 +4,7 @@ import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
 import net.bestia.account.Authority
 import net.bestia.account.Role
-import net.bestia.zone.ZoneConfig
+import net.bestia.zone.config.ZoneConfig
 import org.springframework.stereotype.Component
 import java.nio.charset.StandardCharsets
 import java.util.Date

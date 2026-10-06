@@ -2,7 +2,7 @@ package net.bestia.zone.battle.skill.scripts
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.battle.skill.SkillStrategyFactory
-import net.bestia.zone.boot.CatalogValidator
+import net.bestia.zone.util.CatalogValidator
 import net.bestia.zone.skill.SkillRepository
 import org.springframework.stereotype.Component
 

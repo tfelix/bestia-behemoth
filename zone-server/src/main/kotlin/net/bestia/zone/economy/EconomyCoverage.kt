@@ -2,7 +2,7 @@ package net.bestia.zone.economy
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.worldgen.pop.BusinessCatalogue
-import net.bestia.zone.boot.CatalogValidator
+import net.bestia.zone.util.CatalogValidator
 import net.bestia.zone.crafting.Recipe
 import net.bestia.zone.crafting.RecipeEffect
 import net.bestia.zone.crafting.RecipeRegistry

@@ -1,6 +1,6 @@
 package net.bestia.zone.ecs.logout
 
-import net.bestia.zone.ecs.ZoneConfig
+import net.bestia.zone.config.WorldRulesConfig
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.testWorld
 import org.junit.jupiter.api.Test
@@ -24,7 +24,7 @@ class RequestLogoutHandlerTest {
     sessions.registerPlayerBestiaEntity(ACCOUNT, MASTER_ID, playerBestiaId = 5L, playerBestiaEntityId = bestia)
     sessions.activateEntity(ACCOUNT, bestia)
 
-    RequestLogoutHandler(sessions, ZoneConfig(tickRate = 20)).handle(world, RequestLogoutCMSG(ACCOUNT))
+    RequestLogoutHandler(sessions, WorldRulesConfig(tickRate = 20)).handle(world, RequestLogoutCMSG(ACCOUNT))
 
     assertTrue(world.has(master, LogoutIntent::class))
     assertFalse(world.has(bestia, LogoutIntent::class))

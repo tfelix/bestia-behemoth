@@ -1,6 +1,6 @@
 package net.bestia.zone.account.authentication
 
-import net.bestia.zone.ZoneConfig
+import net.bestia.zone.config.ZoneConfig
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows

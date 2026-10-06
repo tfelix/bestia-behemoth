@@ -1,7 +1,7 @@
 package net.bestia.zone.ecs.battle.damage
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.ecs.ZoneConfig
+import net.bestia.zone.config.WorldRulesConfig
 import net.bestia.zone.ecs.account.Account
 import net.bestia.zone.ecs.battle.attack.AttackTarget
 import net.bestia.zone.ecs.battle.exp.Exp
@@ -26,7 +26,7 @@ import kotlin.math.floor
  */
 @SpringComponent
 class PlayerDeathSystem(
-  private val zoneConfig: ZoneConfig,
+  private val zoneConfig: WorldRulesConfig,
 ) : System {
   override val phase = Phase.DEATH
   override val after = setOf(PropDeathDivergenceSystem::class, PlayerStructureDeathSystem::class)

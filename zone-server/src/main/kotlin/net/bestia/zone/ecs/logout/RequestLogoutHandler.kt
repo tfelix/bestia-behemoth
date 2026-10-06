@@ -1,7 +1,7 @@
 package net.bestia.zone.ecs.logout
 
 import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
-import net.bestia.zone.ecs.ZoneConfig
+import net.bestia.zone.config.WorldRulesConfig
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.modify
 import net.bestia.zone.session.ConnectionInfoService
@@ -19,7 +19,7 @@ import org.springframework.stereotype.Component
 @Component
 class RequestLogoutHandler(
   private val connectionInfoService: ConnectionInfoService,
-  private val zoneConfig: ZoneConfig,
+  private val zoneConfig: WorldRulesConfig,
 ) : TickMessageHandler<RequestLogoutCMSG> {
   override val wire = decoder(MessageCase.REQUEST_LOGOUT) { accountId, envelope ->
     RequestLogoutCMSG.fromBnet(accountId, envelope.requestLogout)

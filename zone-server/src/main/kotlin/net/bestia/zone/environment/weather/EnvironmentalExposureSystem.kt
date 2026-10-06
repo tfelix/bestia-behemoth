@@ -5,7 +5,7 @@ import net.bestia.zone.ecs.battle.skill.KnownSkills
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.battle.status.Invulnerable
 import net.bestia.zone.ecs.battle.status.Stamina
-import net.bestia.zone.ecs.ZoneConfig
+import net.bestia.zone.config.WorldRulesConfig
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.Schedule
@@ -39,7 +39,7 @@ class EnvironmentalExposureSystem(
   private val chunkService: ChunkService,
   private val config: ExposureConfig,
   private val skills: SkillRepository,
-  zoneConfig: ZoneConfig,
+  zoneConfig: WorldRulesConfig,
 ) : System {
   override val phase = Phase.UPKEEP
 

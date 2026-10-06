@@ -3,14 +3,14 @@ package net.bestia.zone.metrics
 import io.micrometer.core.instrument.Counter
 import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.core.instrument.Timer
-import net.bestia.zone.ecs.ZoneConfig
+import net.bestia.zone.config.WorldRulesConfig
 import org.springframework.stereotype.Component
 import java.time.Duration
 import java.util.concurrent.TimeUnit
 
 /** What each tick cost, recorded by `ZoneEngine`. Buckets sit at half, one and two tick budgets. */
 @Component
-class TickMetrics(registry: MeterRegistry, config: ZoneConfig) {
+class TickMetrics(registry: MeterRegistry, config: WorldRulesConfig) {
 
   private val budget = Duration.ofSeconds(1).dividedBy(config.tickRate.toLong())
 

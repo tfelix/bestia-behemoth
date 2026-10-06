@@ -2,7 +2,7 @@ package net.bestia.zone.ai.domain.townsfolk
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.worldgen.pop.BusinessCatalogue
-import net.bestia.zone.boot.CatalogValidator
+import net.bestia.zone.util.CatalogValidator
 import org.springframework.stereotype.Component
 
 /**

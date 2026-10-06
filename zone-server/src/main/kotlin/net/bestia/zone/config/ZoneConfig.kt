@@ -1,10 +1,8 @@
-package net.bestia.zone
+package net.bestia.zone.config
 
 import org.springframework.boot.context.properties.ConfigurationProperties
-import org.springframework.boot.context.properties.ConfigurationPropertiesScan
 
 @ConfigurationProperties(prefix = "zone")
-@ConfigurationPropertiesScan
 data class ZoneConfig(
   val bestiaBaseSlotCount: Int,
   val bestiaMaxSlotCount: Int,

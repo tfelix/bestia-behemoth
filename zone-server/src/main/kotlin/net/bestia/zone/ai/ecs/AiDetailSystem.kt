@@ -1,6 +1,6 @@
 package net.bestia.zone.ai.ecs
 
-import net.bestia.zone.ecs.ZoneConfig
+import net.bestia.zone.config.WorldRulesConfig
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.Schedule
@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component as SpringComponent
 @SpringComponent
 class AiDetailSystem(
   private val throttle: AiThrottle,
-  private val zoneConfig: ZoneConfig,
+  private val zoneConfig: WorldRulesConfig,
 ) : System {
   override val phase = Phase.AI
 
