@@ -16,8 +16,8 @@ import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.message.TickMessageHandler
 import net.bestia.zone.message.decoder
 import net.bestia.zone.util.EntityId
-import net.bestia.zone.prop.PropPromotionService
 import org.springframework.stereotype.Component
+import net.bestia.zone.battle.CombatTargetPromotion
 
 /**
  * Handles a player activating a learned skill from the UI (Skills window or hotbar), for whichever
@@ -39,7 +39,7 @@ class ActivateSkillHandler(
   private val skillExecutionService: SkillExecutionService,
   private val logoutCancelService: LogoutCancelService,
   private val deadActionGuard: DeadActionGuard,
-  private val propPromotion: PropPromotionService,
+  private val propPromotion: CombatTargetPromotion,
   private val outMessageProcessor: OutMessageProcessor,
 ) : TickMessageHandler<ActivateSkillCMSG> {
   override val wire = decoder(MessageCase.ACTIVATE_SKILL) { accountId, envelope ->
@@ -125,7 +125,7 @@ class ActivateSkillHandler(
       // silently fizzle its first hit against a pristine prop. See PropPromotionService's own KDoc.
       val caster = get(id, Position::class)?.toVec3L()
       if (targetEntityId != null && caster != null) {
-        propPromotion.promoteIfNeeded(this, targetEntityId, caster, PropPromotionService.TARGETING_REACH)
+        propPromotion.promoteIfNeeded(this, targetEntityId, caster, CombatTargetPromotion.TARGETING_REACH)
       }
 
       if (skill.castTime > 0f) {

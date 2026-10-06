@@ -12,7 +12,6 @@ import net.bestia.zone.logout.ecs.LogoutCancelService
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.message.TickMessageHandler
 import net.bestia.zone.message.decoder
-import net.bestia.zone.prop.PropPromotionService
 import org.springframework.stereotype.Component
 import net.bestia.zone.ecs.core.update
 
@@ -33,7 +32,7 @@ class AttackEntityHandler(
   private val attackExecutionService: AttackExecutionService,
   private val logoutCancelService: LogoutCancelService,
   private val deadActionGuard: DeadActionGuard,
-  private val propPromotion: PropPromotionService,
+  private val propPromotion: CombatTargetPromotion,
 ) : TickMessageHandler<AttackEntityCMSG> {
   override val wire = decoder(MessageCase.ATTACK_ENTITY) { accountId, envelope ->
     AttackEntityCMSG.fromBnet(accountId, envelope.attackEntity)
@@ -58,7 +57,7 @@ class AttackEntityHandler(
       // swing below reads them straight back, whereas AttackSystem would see nothing yet and fizzle the
       // first hit on a pristine prop. See PropPromotionService's own KDoc.
       get(id, Position::class)?.let { attacker ->
-        val reach = PropPromotionService.TARGETING_REACH
+        val reach = CombatTargetPromotion.TARGETING_REACH
         propPromotion.promoteIfNeeded(this, msg.targetEntityId, attacker.toVec3L(), reach)
       }
 
