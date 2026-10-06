@@ -18,7 +18,7 @@ class ReceivedDamageSystemTest {
     val world = testWorld()
     val id = world.createEntity { eid ->
       add(eid, Health(current = 10, max = 100))
-      add(eid, Damage().also { it.add(10, sourceEntity = 99L) })
+      add(eid, IncomingDamage().also { it.add(10, sourceEntity = 99L) })
     }
 
     sut.update(world, 0f)
@@ -37,7 +37,7 @@ class ReceivedDamageSystemTest {
     val world = testWorld()
     val id = world.createEntity { eid ->
       add(eid, Health(current = 10, max = 100))
-      add(eid, Damage().also { it.add(10, sourceEntity = 99L) })
+      add(eid, IncomingDamage().also { it.add(10, sourceEntity = 99L) })
     }
 
     sut.update(world, 0f)
@@ -46,7 +46,7 @@ class ReceivedDamageSystemTest {
     val firstDeath = world.get(id, Dead::class)
     firstDeath?.resolved = true
 
-    world.add(id, Damage().also { it.add(5, sourceEntity = 99L) })
+    world.add(id, IncomingDamage().also { it.add(5, sourceEntity = 99L) })
     sut.update(world, 0f)
     world.tick(0f)
 
@@ -59,7 +59,7 @@ class ReceivedDamageSystemTest {
     val world = testWorld()
     val id = world.createEntity { eid ->
       add(eid, Health(current = 10, max = 100))
-      add(eid, Damage().also { it.add(3, sourceEntity = 99L) })
+      add(eid, IncomingDamage().also { it.add(3, sourceEntity = 99L) })
     }
 
     sut.update(world, 0f)

@@ -8,7 +8,7 @@ import net.bestia.zone.ai.core.behavior.Status
 import net.bestia.zone.ai.core.planner.EffectWriteBack
 import net.bestia.zone.battle.attack.AttackExecutionService
 import net.bestia.zone.config.WorldRulesConfig
-import net.bestia.zone.battle.ecs.damage.Damage
+import net.bestia.zone.battle.ecs.damage.IncomingDamage
 import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.skill.ecs.KnownSkills
 import net.bestia.zone.ecs.core.Phase
@@ -78,7 +78,7 @@ class AiActSystem(
     AiAgent::class,
     Path::class,
     MacroRoute::class,
-    Damage::class,
+    IncomingDamage::class,
     Health::class,
     Mana::class,
     Animation::class,

@@ -3,7 +3,7 @@ package net.bestia.zone.battle.ecs.attack
 import net.bestia.zone.battle.attack.AttackExecutionService
 import net.bestia.zone.battle.attack.AttackOutcome
 import net.bestia.zone.battle.attack.BattleAttack
-import net.bestia.zone.battle.ecs.damage.Damage
+import net.bestia.zone.battle.ecs.damage.IncomingDamage
 import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.battle.ecs.effects.AreaEffectSystem
 import net.bestia.zone.ecs.core.ComponentClassSet
@@ -21,8 +21,8 @@ import org.springframework.stereotype.Component as SpringComponent
  *
  * In the combat phase: after `StatusValueRecalcSystem`, which rebuilds the `StatusValues` the delay is
  * derived from, after `RespawnSystem` so a body revived this tick does not swing on it, and before
- * `DeathSystem` - the deferred queue is FIFO and `World.addNow` rejects a dead entity, so [Damage] enqueued after a
- * destroy would throw out of `applyDeferred` and take the rest of the queue with it.
+ * `DeathSystem` - the deferred queue is FIFO and `World.addNow` rejects a dead entity, so [IncomingDamage]
+ * enqueued after a destroy would throw out of `applyDeferred` and take the rest of the queue with it.
  */
 @SpringComponent
 class AttackSystem(

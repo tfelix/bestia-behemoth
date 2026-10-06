@@ -19,7 +19,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import net.bestia.zone.battle.ecs.damage.Damage as DamageComponent
+import net.bestia.zone.battle.ecs.damage.IncomingDamage
 import net.bestia.zone.ecs.core.EcsWorld
 import net.bestia.zone.skill.SkillTargetType
 
@@ -99,7 +99,7 @@ class SkillExecutionServiceTest {
   @Test
   fun `two casts on the same target add up rather than replacing each other`() {
     // The reason the old implementation needed `world.defer`: off the tick thread each modify scope holds the
-    // lock outright, so the get-or-create on the Damage component is atomic and both hits survive.
+    // lock outright, so the get-or-create on the IncomingDamage component is atomic and both hits survive.
     val script = TestScript(result = HitDamage(10))
     val caster = world.spawnFighter()
     val target = world.spawnFighter()
@@ -150,7 +150,7 @@ class SkillExecutionServiceTest {
 
     service.executeNow(world, caster, 9999L, 1, null, Vec3L(1, 0, 0))
 
-    assertFalse(world.has(caster, DamageComponent::class))
+    assertFalse(world.has(caster, IncomingDamage::class))
   }
 
   @Test
@@ -250,7 +250,7 @@ class SkillExecutionServiceTest {
 
   private fun World.manaOf(id: EntityId): Int = get(id, Mana::class)?.current ?: 0
 
-  private fun World.stagedDamageOn(id: EntityId): Int = get(id, DamageComponent::class)?.total() ?: 0
+  private fun World.stagedDamageOn(id: EntityId): Int = get(id, IncomingDamage::class)?.total() ?: 0
 
   private companion object {
     const val SKILL_ID = 1L

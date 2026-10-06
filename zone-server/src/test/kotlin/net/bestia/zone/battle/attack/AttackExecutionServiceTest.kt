@@ -18,8 +18,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import net.bestia.zone.battle.ecs.damage.Damage as DamageComponent
-
+import net.bestia.zone.battle.ecs.damage.IncomingDamage
 class AttackExecutionServiceTest {
 
   private val world = testWorld()
@@ -47,7 +46,7 @@ class AttackExecutionServiceTest {
     sut.attack(world, attacker, target, BattleAttack.getBasicMeleeAttack())
 
     // What the old arrangement could not do at all: a mob cast skill id 0, a row `skills.yml` never had.
-    assertTrue(world.has(target, DamageComponent::class), "a swing in reach must resolve onto the target")
+    assertTrue(world.has(target, IncomingDamage::class), "a swing in reach must resolve onto the target")
   }
 
   @Test
@@ -60,7 +59,7 @@ class AttackExecutionServiceTest {
 
     sut.attack(world, attacker, target, BattleAttack.getBasicMeleeAttack())
 
-    assertEquals(42, world.get(target, DamageComponent::class)?.total())
+    assertEquals(42, world.get(target, IncomingDamage::class)?.total())
   }
 
   @Test
@@ -72,7 +71,7 @@ class AttackExecutionServiceTest {
 
     serviceWith(FixedRandom(0.5f)).attack(world, attacker, target, BattleAttack.getBasicMeleeAttack())
 
-    assertEquals(13, world.get(target, DamageComponent::class)?.total())
+    assertEquals(13, world.get(target, IncomingDamage::class)?.total())
   }
 
   @Test
@@ -82,7 +81,7 @@ class AttackExecutionServiceTest {
 
     sut.attack(world, attacker, target, BattleAttack.getBasicMeleeAttack())
 
-    assertFalse(world.has(target, DamageComponent::class), "a basic swing reaches one tile")
+    assertFalse(world.has(target, IncomingDamage::class), "a basic swing reaches one tile")
   }
 
   @Test
@@ -94,7 +93,7 @@ class AttackExecutionServiceTest {
 
     assertEquals(AttackOutcome.OUT_OF_RANGE, sut.attack(world, shooter, tooFar, shot))
     assertEquals(AttackOutcome.SWUNG, sut.attack(world, shooter, inReach, shot))
-    assertTrue(world.has(inReach, DamageComponent::class))
+    assertTrue(world.has(inReach, IncomingDamage::class))
   }
 
   @Test
@@ -105,7 +104,7 @@ class AttackExecutionServiceTest {
 
     sut.attack(world, attacker, target, BattleAttack.getBasicMeleeAttack())
 
-    assertFalse(world.has(target, DamageComponent::class))
+    assertFalse(world.has(target, IncomingDamage::class))
   }
 
   @Test
@@ -120,8 +119,8 @@ class AttackExecutionServiceTest {
 
     assertEquals(
       2,
-      world.get(target, DamageComponent::class)?.amounts?.size,
-      "each swing is its own entry on the target's Damage component, so neither is lost"
+      world.get(target, IncomingDamage::class)?.amounts?.size,
+      "each swing is its own entry on the target's IncomingDamage component, so neither is lost"
     )
   }
 
@@ -140,7 +139,7 @@ class AttackExecutionServiceTest {
     )
     assertEquals(
       1,
-      world.get(target, DamageComponent::class)?.amounts?.size,
+      world.get(target, IncomingDamage::class)?.amounts?.size,
       "and the refused swing must stage nothing"
     )
   }
@@ -186,7 +185,7 @@ class AttackExecutionServiceTest {
     serviceWith(neverLands).attack(world, attacker, target, BattleAttack.getBasicMeleeAttack())
 
     assertFalse(
-      world.has(target, DamageComponent::class),
+      world.has(target, IncomingDamage::class),
       "a miss is broadcast for the client to show, but must not stage a hit"
     )
   }

@@ -73,10 +73,10 @@ class AiSchedulingTest {
     val ai = AiPipelineFixture()
     val act = ai.systems.filterIsInstance<AiActSystem>().single()
 
-    // Locomotion writes Path and MacroRoute; casting a skill reaches Damage, Health and Mana. Leaving these
+    // Locomotion writes Path and MacroRoute; casting a skill reaches IncomingDamage, Health and Mana. Leaving these
     // undeclared is what put the AI in the same wave as the movement and combat systems that consume them.
     val declared = act.writes.map { it.simpleName }.toSet()
-    assertTrue(declared.containsAll(setOf("AiAgent", "Path", "MacroRoute", "Damage", "Health", "Mana")),
+    assertTrue(declared.containsAll(setOf("AiAgent", "Path", "MacroRoute", "IncomingDamage", "Health", "Mana")),
       "act system under-declares its writes: $declared")
   }
 }

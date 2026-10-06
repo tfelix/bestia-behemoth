@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component
  * Before `GroundOverlaySystem` (its `after`), which is what matters: a fire marks columns dirty as it spreads and
  * the overlay flushes them after, so the mask a client receives is the one this tick produced rather than last
  * tick's. Also before `AreaEffectSystem` (a later phase), so an effect this resizes is ticked at its new size in
- * the same tick, and before `ReceivedDamageSystem`, which drains the `Damage` that effect stages.
+ * the same tick, and before `ReceivedDamageSystem`, which drains the `IncomingDamage` that effect stages.
  *
  * ### It declares `AreaEffect` and nothing else, deliberately
  *

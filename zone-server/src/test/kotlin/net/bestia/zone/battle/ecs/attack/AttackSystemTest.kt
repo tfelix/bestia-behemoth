@@ -18,11 +18,10 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import net.bestia.zone.battle.ecs.damage.Damage as DamageComponent
-
+import net.bestia.zone.battle.ecs.damage.IncomingDamage
 /**
  * Driven by hand at the production tick rate. Every swing lands ([FixedRandom] draws zero), so the number of
- * entries on the target's `Damage` is the number of swings - nothing drains it here, since
+ * entries on the target's `IncomingDamage` is the number of swings - nothing drains it here, since
  * `ReceivedDamageSystem` is deliberately not registered.
  */
 class AttackSystemTest {
@@ -84,7 +83,7 @@ class AttackSystemTest {
     world.tick(TICK)
 
     assertFalse(world.has(attacker, AttackTarget::class), "a corpse is not something to keep hitting")
-    assertFalse(world.has(target, DamageComponent::class))
+    assertFalse(world.has(target, IncomingDamage::class))
   }
 
   @Test
@@ -109,7 +108,7 @@ class AttackSystemTest {
     world.tick(TICK)
 
     assertFalse(world.has(attacker, AttackTarget::class))
-    assertFalse(world.has(target, DamageComponent::class))
+    assertFalse(world.has(target, IncomingDamage::class))
   }
 
   @Test
@@ -141,7 +140,7 @@ class AttackSystemTest {
   }
 
   private fun World.swingsOn(target: EntityId): Int {
-    return get(target, DamageComponent::class)?.amounts?.size ?: 0
+    return get(target, IncomingDamage::class)?.amounts?.size ?: 0
   }
 
   private fun World.spawnFighter(at: Vec3L): EntityId = createEntity { id ->
