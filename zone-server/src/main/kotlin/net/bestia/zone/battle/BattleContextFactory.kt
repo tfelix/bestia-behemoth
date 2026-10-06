@@ -16,7 +16,7 @@ import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.item.equip.EquipmentSlot
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
-import net.bestia.zone.world.prop.PropPromotionService
+import net.bestia.zone.prop.PropPromotionService
 import org.springframework.stereotype.Component
 
 /**

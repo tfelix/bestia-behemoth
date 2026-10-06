@@ -12,7 +12,7 @@ import net.bestia.zone.logout.ecs.LogoutCancelService
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.message.TickMessageHandler
 import net.bestia.zone.message.decoder
-import net.bestia.zone.world.prop.PropPromotionService
+import net.bestia.zone.prop.PropPromotionService
 import org.springframework.stereotype.Component
 import net.bestia.zone.ecs.core.update
 

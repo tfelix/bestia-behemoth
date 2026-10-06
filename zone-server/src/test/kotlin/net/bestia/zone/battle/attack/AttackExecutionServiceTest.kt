@@ -12,7 +12,7 @@ import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.battle.FixedRandom
-import net.bestia.zone.world.prop.PropPromotionService
+import net.bestia.zone.prop.PropPromotionService
 import java.util.Random
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse

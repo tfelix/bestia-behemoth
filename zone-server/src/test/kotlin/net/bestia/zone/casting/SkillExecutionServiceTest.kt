@@ -14,7 +14,7 @@ import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.skill.Skill
 import net.bestia.zone.skill.SkillRepository
 import net.bestia.zone.util.EntityId
-import net.bestia.zone.world.prop.PropPromotionService
+import net.bestia.zone.prop.PropPromotionService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue

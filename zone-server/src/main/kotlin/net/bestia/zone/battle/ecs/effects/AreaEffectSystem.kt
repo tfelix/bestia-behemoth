@@ -20,7 +20,7 @@ import net.bestia.zone.identity.ecs.ActivePlayer
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.OutMessageProcessor
-import net.bestia.zone.world.prop.PropPromotionService
+import net.bestia.zone.prop.PropPromotionService
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component as SpringComponent
 

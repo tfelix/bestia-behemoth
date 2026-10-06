@@ -6,7 +6,7 @@ import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ground.fire.GroundFireSystem
-import net.bestia.zone.world.prop.WorldObjectResidencySystem
+import net.bestia.zone.prop.WorldObjectResidencySystem
 import org.springframework.stereotype.Component
 
 /**

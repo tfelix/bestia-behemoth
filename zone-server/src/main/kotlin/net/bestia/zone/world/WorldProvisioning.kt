@@ -11,7 +11,7 @@ import net.bestia.zone.ai.rumour.RumourRepository
 import net.bestia.zone.economy.SettlementLedgerRepository
 import net.bestia.zone.economy.WorldTreasuryRepository
 import net.bestia.zone.persistence.deleteAllByKind
-import net.bestia.zone.world.prop.WorldObjectDivergenceRepository
+import net.bestia.zone.prop.WorldObjectDivergenceRepository
 import net.bestia.zone.world.stream.PersistedChunkEditRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional

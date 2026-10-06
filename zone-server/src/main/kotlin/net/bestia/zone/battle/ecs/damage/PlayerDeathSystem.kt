@@ -10,8 +10,8 @@ import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.movement.ecs.Path
-import net.bestia.zone.world.prop.PlayerStructureDeathSystem
-import net.bestia.zone.world.prop.PropDeathDivergenceSystem
+import net.bestia.zone.prop.PlayerStructureDeathSystem
+import net.bestia.zone.prop.PropDeathDivergenceSystem
 import org.springframework.stereotype.Component as SpringComponent
 import kotlin.math.floor
 import net.bestia.zone.entity.ecs.Dead
