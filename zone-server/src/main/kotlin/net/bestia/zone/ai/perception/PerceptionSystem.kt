@@ -7,7 +7,7 @@ import net.bestia.zone.ai.ecs.AiThrottle
 import net.bestia.zone.ai.profile.AiProfileRegistry
 import net.bestia.zone.ecs.AoiLayer
 import net.bestia.zone.ecs.EntityAOIService
-import net.bestia.zone.ecs.ZoneConfig
+import net.bestia.zone.config.WorldRulesConfig
 import net.bestia.zone.ecs.account.Master
 import net.bestia.zone.ecs.battle.damage.TakenDamage
 import net.bestia.zone.battle.status.StatusEffectId
@@ -43,7 +43,7 @@ class PerceptionSystem(
   private val aoiService: EntityAOIService,
   private val clock: BestiaClock,
   private val throttle: AiThrottle,
-  private val zoneConfig: ZoneConfig,
+  private val zoneConfig: WorldRulesConfig,
 ) : EcsSystem {
   override val phase = Phase.AI
   override val after = setOf(AiDetailSystem::class)

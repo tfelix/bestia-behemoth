@@ -1,6 +1,6 @@
 package net.bestia.zone.skill
 
-import net.bestia.zone.boot.CatalogValidator
+import net.bestia.zone.util.CatalogValidator
 import org.springframework.stereotype.Component
 
 /**

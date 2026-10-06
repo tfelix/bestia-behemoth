@@ -1,7 +1,7 @@
 package net.bestia.zone.ecs.item
 
 import io.mockk.mockk
-import net.bestia.zone.ecs.ZoneConfig
+import net.bestia.zone.config.WorldRulesConfig
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.item.loot.LootItemEntitySpawner
@@ -30,7 +30,7 @@ class GroundItemDecaySystemTest {
   private val world = testWorld(systems = listOf(GroundItemDecaySystem(clock)))
   private val spawner = LootItemEntitySpawner(
     mockk(),
-    ZoneConfig(tickRate = 20, groundItemDespawnAfter = Duration.ofDays(7)),
+    WorldRulesConfig(tickRate = 20, groundItemDespawnAfter = Duration.ofDays(7)),
     clock
   )
 

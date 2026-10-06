@@ -2,7 +2,7 @@ package net.bestia.zone.account
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.account.master.MasterResolver
-import net.bestia.zone.ecs.ZoneConfig
+import net.bestia.zone.config.WorldRulesConfig
 import net.bestia.zone.ai.ecs.PlayerControlled
 import net.bestia.zone.ecs.ActivePlayerAOIService
 import net.bestia.zone.ecs.account.ActivePlayer
@@ -37,7 +37,7 @@ class AccountEntityControlService(
   private val masterResolver: MasterResolver,
   private val savePointService: SavePointService,
   private val attackCancelService: AttackCancelService,
-  private val zoneConfig: ZoneConfig,
+  private val zoneConfig: WorldRulesConfig,
   private val playerAOIService: ActivePlayerAOIService,
   private val world: WorldView
 ) {

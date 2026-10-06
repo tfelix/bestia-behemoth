@@ -2,8 +2,8 @@ package net.bestia.zone.ecs.core.scenario
 
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.ecs.EcsConfiguration
-import net.bestia.zone.ZoneConfig as ZoneShardConfig
-import net.bestia.zone.ecs.ZoneConfig as WorldConfig
+import net.bestia.zone.config.ZoneConfig
+import net.bestia.zone.config.WorldRulesConfig
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -33,10 +33,10 @@ class WanderScenarioTest {
     // ecsWorld() takes these as typed config beans rather than @Value properties; this minimal
     // context has no property source to bind them from, so supply plain test instances directly.
     @Bean
-    fun worldConfig(): WorldConfig = WorldConfig(tickRate = 20, parallelSystems = false)
+    fun worldConfig(): WorldRulesConfig = WorldRulesConfig(tickRate = 20, parallelSystems = false)
 
     @Bean
-    fun zoneShardConfig(): ZoneShardConfig = ZoneShardConfig(
+    fun zoneShardConfig(): ZoneConfig = ZoneConfig(
       bestiaBaseSlotCount = 4,
       bestiaMaxSlotCount = 4,
       jwtAuthSecretKey = "test-secret",

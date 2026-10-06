@@ -28,7 +28,7 @@ import net.bestia.zone.battle.skill.AttackExecutionService
 import net.bestia.zone.battle.skill.SkillExecutionService
 import net.bestia.zone.ecs.ActivePlayerAOIService
 import net.bestia.zone.ecs.EntityAOIService
-import net.bestia.zone.ecs.ZoneConfig
+import net.bestia.zone.config.WorldRulesConfig
 import net.bestia.zone.ecs.account.Master
 import net.bestia.zone.ecs.battle.damage.TakenDamage
 import net.bestia.zone.ecs.battle.status.Health
@@ -185,7 +185,7 @@ class AiPipelineFixture(
 
   val throttle = AiThrottle(throttleConfig, playerAoi, visibility)
 
-  private val zoneConfig = ZoneConfig(tickRate = tickRate)
+  private val zoneConfig = WorldRulesConfig(tickRate = tickRate)
 
   /** The AI stages in pipeline order, plus movement so a decision to walk actually moves something. */
   val systems: List<System> = listOf(

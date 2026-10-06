@@ -2,7 +2,7 @@ package net.bestia.zone.item.loot
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.util.EntityId
-import net.bestia.zone.ecs.ZoneConfig
+import net.bestia.zone.config.WorldRulesConfig
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.entity.EntityVisual
 import net.bestia.zone.ecs.entity.VisualKind
@@ -22,7 +22,7 @@ import kotlin.random.Random
 @Component
 class LootItemEntitySpawner(
   private val lootItemRepository: LootItemRepository,
-  private val zoneConfig: ZoneConfig,
+  private val zoneConfig: WorldRulesConfig,
   private val clock: Clock = Clock.systemUTC()
 ) {
 

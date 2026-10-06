@@ -7,7 +7,7 @@ import net.bestia.zone.ai.core.behavior.BtContext
 import net.bestia.zone.ai.core.behavior.Status
 import net.bestia.zone.ai.core.planner.EffectWriteBack
 import net.bestia.zone.battle.skill.AttackExecutionService
-import net.bestia.zone.ecs.ZoneConfig
+import net.bestia.zone.config.WorldRulesConfig
 import net.bestia.zone.ecs.battle.damage.Damage
 import net.bestia.zone.ecs.battle.damage.Dead
 import net.bestia.zone.ecs.battle.skill.KnownSkills
@@ -51,7 +51,7 @@ import org.springframework.stereotype.Component as SpringComponent
 @SpringComponent
 class AiActSystem(
   private val sharedMemory: SharedMemoryService,
-  private val zoneConfig: ZoneConfig,
+  private val zoneConfig: WorldRulesConfig,
   private val throttle: AiThrottle,
 ) : System {
   override val phase = Phase.AI

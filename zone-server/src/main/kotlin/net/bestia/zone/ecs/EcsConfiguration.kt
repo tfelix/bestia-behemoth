@@ -5,8 +5,8 @@ import net.bestia.zone.ecs.core.EcsWorld
 import net.bestia.zone.ecs.core.EntityIdGenerator
 import net.bestia.zone.ecs.core.SnowflakeEntityIdGenerator
 import net.bestia.zone.ecs.core.System
-import net.bestia.zone.ZoneConfig as ZoneShardConfig
-import net.bestia.zone.ecs.ZoneConfig as WorldConfig
+import net.bestia.zone.config.ZoneConfig
+import net.bestia.zone.config.WorldRulesConfig
 import org.springframework.beans.factory.ObjectProvider
 import org.springframework.beans.factory.SmartInitializingSingleton
 import org.springframework.context.annotation.Bean
@@ -27,12 +27,12 @@ class EcsConfiguration {
    * snowflake's uniqueness, since two of them with the same node id emit the same timestamp|node|sequence.
    */
   @Bean
-  fun entityIdGenerator(zoneShardConfig: ZoneShardConfig): EntityIdGenerator =
+  fun entityIdGenerator(zoneShardConfig: ZoneConfig): EntityIdGenerator =
     SnowflakeEntityIdGenerator(nodeId = zoneShardConfig.shardId.coerceIn(0, 255))
 
   @Bean
   fun ecsWorld(
-    worldConfig: WorldConfig,
+    worldConfig: WorldRulesConfig,
     idGenerator: EntityIdGenerator,
   ): EcsWorld {
     return EcsWorld(
@@ -46,7 +46,7 @@ class EcsConfiguration {
   fun systemRegistration(
     world: EcsWorld,
     systems: ObjectProvider<System>,
-    worldConfig: WorldConfig,
+    worldConfig: WorldRulesConfig,
   ): SmartInitializingSingleton {
     return SmartInitializingSingleton {
       world.registerSystems(systems.stream().toList())

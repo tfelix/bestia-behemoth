@@ -3,7 +3,7 @@ package net.bestia.zone.internal
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
 import net.bestia.internal.ServiceTokens
-import net.bestia.zone.ZoneConfig
+import net.bestia.zone.config.ZoneConfig
 import net.bestia.zone.account.authentication.KickedAccounts
 import net.bestia.zone.mocks.GameClientMockFactory
 import org.junit.jupiter.api.BeforeEach

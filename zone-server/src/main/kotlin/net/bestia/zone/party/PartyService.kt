@@ -1,7 +1,7 @@
 package net.bestia.zone.party
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.ZoneConfig
+import net.bestia.zone.config.ZoneConfig
 import net.bestia.zone.account.master.Master
 import net.bestia.zone.account.master.MasterRepository
 import net.bestia.zone.account.master.MasterResolver

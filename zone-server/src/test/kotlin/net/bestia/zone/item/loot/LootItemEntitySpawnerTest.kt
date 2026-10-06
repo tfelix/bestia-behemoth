@@ -1,6 +1,6 @@
 package net.bestia.zone.item.loot
 
-import net.bestia.zone.ecs.ZoneConfig
+import net.bestia.zone.config.WorldRulesConfig
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -16,7 +16,7 @@ class LootItemEntitySpawnerTest {
     every { it.findAllDrops() } returns listOf(LootDrop(bestiaId = 1L, itemId = 50L, dropChance = 10_000))
   }
 
-  private val sut = LootItemEntitySpawner(repository, ZoneConfig(tickRate = 20))
+  private val sut = LootItemEntitySpawner(repository, WorldRulesConfig(tickRate = 20))
 
   @Test
   fun `the drop table is read once, not once per kill`() {

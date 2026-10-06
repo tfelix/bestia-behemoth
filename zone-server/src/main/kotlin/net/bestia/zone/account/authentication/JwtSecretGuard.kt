@@ -1,6 +1,6 @@
 package net.bestia.zone.account.authentication
 
-import net.bestia.zone.ZoneConfig
+import net.bestia.zone.config.ZoneConfig
 import org.springframework.core.env.Environment
 import org.springframework.core.env.Profiles
 import org.springframework.stereotype.Component

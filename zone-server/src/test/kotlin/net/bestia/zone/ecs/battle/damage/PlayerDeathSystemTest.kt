@@ -1,6 +1,6 @@
 package net.bestia.zone.ecs.battle.damage
 
-import net.bestia.zone.ecs.ZoneConfig
+import net.bestia.zone.config.WorldRulesConfig
 import net.bestia.zone.ecs.account.Account
 import net.bestia.zone.ecs.battle.exp.Exp
 import net.bestia.zone.ecs.core.testWorld
@@ -13,7 +13,7 @@ import kotlin.test.assertFalse
 /** What dying costs a player, and that it costs it exactly once. */
 class PlayerDeathSystemTest {
 
-  private val sut = PlayerDeathSystem(ZoneConfig(tickRate = 10))
+  private val sut = PlayerDeathSystem(WorldRulesConfig(tickRate = 10))
 
   @Test
   fun `a dead player forfeits one percent of its current exp`() {

@@ -1,7 +1,7 @@
 package net.bestia.zone.entity
 
 import net.bestia.zone.session.AccountDisconnectedEvent
-import net.bestia.zone.ecs.ZoneConfig
+import net.bestia.zone.config.WorldRulesConfig
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
 import java.util.concurrent.ConcurrentHashMap
@@ -22,7 +22,7 @@ import org.springframework.core.annotation.Order
  * where it would cover every unbounded CMSG rather than only the one that happens to broadcast.
  */
 @Component
-class MoveRequestRateLimit(private val config: ZoneConfig) {
+class MoveRequestRateLimit(private val config: WorldRulesConfig) {
 
   private class Bucket(var tokens: Float, var lastRefillMs: Long)
 

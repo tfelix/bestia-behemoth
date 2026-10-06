@@ -5,7 +5,7 @@ import io.jsonwebtoken.JwtException
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
 import net.bestia.internal.ServiceTokens
-import net.bestia.zone.ZoneConfig
+import net.bestia.zone.config.ZoneConfig
 import net.bestia.zone.account.authentication.SingleUseTokenIds
 import org.springframework.stereotype.Component
 import java.nio.charset.StandardCharsets

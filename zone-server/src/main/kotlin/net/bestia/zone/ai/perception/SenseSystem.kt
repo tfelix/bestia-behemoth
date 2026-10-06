@@ -4,7 +4,7 @@ import net.bestia.zone.ai.ecs.AiAgent
 import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ai.ecs.AiThrottle
 import net.bestia.zone.ai.ecs.SharedMemoryService
-import net.bestia.zone.ecs.ZoneConfig
+import net.bestia.zone.config.WorldRulesConfig
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.TickBuckets
@@ -43,7 +43,7 @@ class SenseSystem(
   foundSenses: List<Sense>,
   private val sharedMemory: SharedMemoryService,
   private val throttle: AiThrottle,
-  zoneConfig: ZoneConfig,
+  zoneConfig: WorldRulesConfig,
 ) : System {
 
   private val senses = foundSenses.inClassNameOrder()

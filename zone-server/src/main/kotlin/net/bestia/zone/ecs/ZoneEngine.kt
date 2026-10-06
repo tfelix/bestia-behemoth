@@ -32,6 +32,7 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.collections.iterator
 import net.bestia.zone.sync.SyncTargets
+import net.bestia.zone.config.WorldRulesConfig
 
 /**
  * Owns the running ecs [World]: it drives the single-threaded tick loop and, after every tick, syncs
@@ -46,7 +47,7 @@ import net.bestia.zone.sync.SyncTargets
 @Service
 class ZoneEngine(
   private val world: EcsWorld,
-  private val config: ZoneConfig,
+  private val config: WorldRulesConfig,
   private val entityAOIService: EntityAOIService,
   private val playerAOIService: ActivePlayerAOIService,
   private val outMessageProcessor: OutMessageProcessor,
