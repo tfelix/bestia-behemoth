@@ -44,7 +44,7 @@ class DropItemHandler(
     }
 
     val activeEntityId = connectionInfoService.getActiveEntityId(msg.playerId)
-    if (deadActionGuard.refuses(activeEntityId, "drop an item")) {
+    if (deadActionGuard.refuses(world, activeEntityId, "drop an item")) {
       return true
     }
     val masterId = connectionInfoService.getMasterId(msg.playerId)

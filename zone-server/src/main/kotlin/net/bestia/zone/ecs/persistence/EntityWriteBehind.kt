@@ -9,6 +9,7 @@ import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.entity.EntityVisual
 import net.bestia.zone.ecs.item.GroundItemStack
 import net.bestia.zone.ecs.persistence.persisters.MasterEntityPersister
+import net.bestia.zone.ecs.persistence.persisters.PlayerBestiaEntityPersister
 import net.bestia.zone.ecs.script.ScriptComponent
 import net.bestia.zone.ecs.spawn.DenMember
 import net.bestia.zone.util.EntityId
@@ -112,6 +113,6 @@ class EntityWriteBehind(
     val READS: ComponentClassSet = setOf(
       Account::class, EntityVisual::class, GroundItemStack::class, ScriptComponent::class, DenMember::class,
       StatusEffects::class,
-    ) + MasterEntityPersister.SNAPSHOT_READS
+    ) + MasterEntityPersister.SNAPSHOT_READS + PlayerBestiaEntityPersister.SNAPSHOT_READS
   }
 }

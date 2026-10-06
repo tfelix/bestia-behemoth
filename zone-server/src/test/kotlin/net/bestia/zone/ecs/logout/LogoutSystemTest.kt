@@ -12,7 +12,7 @@ class LogoutSystemTest {
   @Test
   fun `a protected body leaves once the protection runs out`() {
     val world = testWorld(systems = listOf(LogoutSystem(mockk(relaxed = true), mockk(relaxed = true))))
-    val body = world.create()
+    val body = world.createEntity { }
     world.add(body, DisconnectProtection(remainingSeconds = 1f))
 
     world.tick(1.5f)

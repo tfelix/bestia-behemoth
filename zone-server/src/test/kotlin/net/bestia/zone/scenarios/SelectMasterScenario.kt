@@ -40,12 +40,12 @@ class SelectMasterScenario : BestiaNoSocketScenario(autoClientConnect = false) {
   fun `another account's master cannot be selected`() {
     val foreignMasterId = testData.account1.masterIds.first()
     val foreignEntityId = masterRepository.findByIdOrThrow(foreignMasterId).entityId
-    await { assertFalse(world.isAlive(foreignEntityId), "left over from an earlier scenario") }
+    await { assertFalse(world.read { isAlive(foreignEntityId) }, "left over from an earlier scenario") }
 
     clientPlayer2.connect()
     clientPlayer2.sendMessage(SelectMasterCMSG(clientPlayer2.connectedPlayerId, foreignMasterId))
 
-    assertFalse(world.isAlive(foreignEntityId), "a foreign master must not be spawned")
+    assertFalse(world.read { isAlive(foreignEntityId) }, "a foreign master must not be spawned")
     assertThrows<NoActiveSessionException> {
       connectionInfoService.getMasterId(clientPlayer1.connectedPlayerId)
     }
@@ -61,7 +61,7 @@ class SelectMasterScenario : BestiaNoSocketScenario(autoClientConnect = false) {
     clientPlayer1.connect(activeMasterId)
     clientPlayer1.sendMessage(SelectMasterCMSG(clientPlayer1.connectedPlayerId, otherMasterId))
 
-    assertFalse(world.isAlive(otherEntityId), "a second master must not be spawned next to the active one")
+    assertFalse(world.read { isAlive(otherEntityId) }, "a second master must not be spawned next to the active one")
     assertEquals(activeMasterId, connectionInfoService.getMasterId(clientPlayer1.connectedPlayerId))
   }
 
@@ -86,9 +86,9 @@ class SelectMasterScenario : BestiaNoSocketScenario(autoClientConnect = false) {
 
     clientPlayer3.sendMessage(SelectMasterCMSG(accountId, masterId))
 
-    assertTrue(world.has(entityId, NeverPersisted::class), "the live entity must be kept, not reloaded")
-    assertFalse(world.has(entityId, LogoutIntent::class), "picking the master back up ends its logout")
-    assertFalse(world.has(entityId, DisconnectProtection::class), "and its disconnect protection")
+    assertTrue(world.read { has(entityId, NeverPersisted::class) }, "the live entity must be kept, not reloaded")
+    assertFalse(world.read { has(entityId, LogoutIntent::class) }, "picking the master back up ends its logout")
+    assertFalse(world.read { has(entityId, DisconnectProtection::class) }, "and its disconnect protection")
     assertEquals(entityId, connectionInfoService.getSelectedMasterEntityId(accountId))
   }
 

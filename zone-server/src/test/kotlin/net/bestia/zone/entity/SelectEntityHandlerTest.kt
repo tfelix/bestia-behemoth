@@ -25,7 +25,7 @@ class SelectEntityHandlerTest {
   private val playerAoi = ActivePlayerAOIService()
   private val out = mockk<OutMessageProcessor>(relaxed = true)
 
-  private val sut = SelectEntityHandler(sessions, world, mockk(relaxed = true), playerAoi, out)
+  private val sut = SelectEntityHandler(sessions, mockk(relaxed = true), playerAoi, out)
 
   private var master: EntityId = 0
   private var bestia: EntityId = 0
@@ -45,7 +45,7 @@ class SelectEntityHandlerTest {
 
   @Test
   fun `selecting an owned bestia moves control and the view onto it`() {
-    assertTrue(sut.handle(SelectEntityCMSG(ACCOUNT_ID, bestia)))
+    assertTrue(sut.handle(world, SelectEntityCMSG(ACCOUNT_ID, bestia)))
 
     assertEquals(bestia, sessions.getActiveEntityId(ACCOUNT_ID))
     assertTrue(world.has(bestia, ActivePlayer::class))
@@ -57,9 +57,9 @@ class SelectEntityHandlerTest {
 
   @Test
   fun `the master can be selected again`() {
-    sut.handle(SelectEntityCMSG(ACCOUNT_ID, bestia))
+    sut.handle(world, SelectEntityCMSG(ACCOUNT_ID, bestia))
 
-    assertTrue(sut.handle(SelectEntityCMSG(ACCOUNT_ID, master)))
+    assertTrue(sut.handle(world, SelectEntityCMSG(ACCOUNT_ID, master)))
 
     assertEquals(master, sessions.getActiveEntityId(ACCOUNT_ID))
     assertTrue(world.has(master, ActivePlayer::class))
@@ -71,7 +71,7 @@ class SelectEntityHandlerTest {
   fun `an entity the player does not own is refused`() {
     val stranger = world.createEntity { id -> add(id, Position.fromVec3(BESTIA_AT)) }
 
-    assertFalse(sut.handle(SelectEntityCMSG(ACCOUNT_ID, stranger)))
+    assertFalse(sut.handle(world, SelectEntityCMSG(ACCOUNT_ID, stranger)))
 
     assertEquals(master, sessions.getActiveEntityId(ACCOUNT_ID))
     assertTrue(world.has(master, ActivePlayer::class))

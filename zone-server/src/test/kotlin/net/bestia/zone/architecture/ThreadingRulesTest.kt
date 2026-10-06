@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.extension
+import kotlin.io.path.invariantSeparatorsPathString
 import kotlin.io.path.readText
 import kotlin.io.path.relativeTo
 import kotlin.test.assertEquals
@@ -22,7 +23,7 @@ class ThreadingRulesTest {
     "ecs/core/AsyncJobExecutor.kt" to "database writes, ordered per owner",
     "world/stream/ChunkWorkers.kt" to "terrain encoding, which never touches the world",
     "socket/SocketServer.kt" to "the Netty server",
-    "cartography/tile/MapTileService.kt" to "map tile rendering, which never touches the world",
+    "cartography/tile/TileRenderPool.kt" to "map tile rendering, which never touches the world",
     "cartography/tools/MapServeMain.kt" to "a stand-alone tool, not the zone",
     "cartography/tools/MapBakeMain.kt" to "a stand-alone tool, not the zone",
   )
@@ -37,7 +38,7 @@ class ThreadingRulesTest {
       paths
         .filter { it.extension == "kt" }
         .filter { file -> file.readText().lineSequence().any { line -> isCode(line) && startsThreads.containsMatchIn(line) } }
-        .map { it.relativeTo(root).toString() }
+        .map { it.relativeTo(root).invariantSeparatorsPathString }
         .filter { it !in threadOwners }
         .toList()
     }

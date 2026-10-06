@@ -13,9 +13,13 @@ import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.battle.status.Invulnerable
 import net.bestia.zone.ecs.battle.status.StatusValues
 import net.bestia.zone.ecs.core.ComponentClassSet
+import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
+import net.bestia.zone.ecs.core.update
+import net.bestia.zone.ecs.construction.ConstructionSystem
+import net.bestia.zone.ecs.respawn.RespawnSystem
 import net.bestia.zone.ecs.entity.EntityVisual
 import net.bestia.zone.ecs.entity.VisualKind
 import net.bestia.zone.ecs.movement.Position
@@ -28,17 +32,15 @@ import net.bestia.zone.skill.SkillRepository
 import net.bestia.zone.skill.findByIdentifier
 import net.bestia.zone.util.EntityId
 import org.springframework.context.ApplicationEventPublisher
-import org.springframework.core.annotation.Order
 import java.util.Random
 import org.springframework.stereotype.Component as SpringComponent
 
 /**
  * Springs a [BestiaTrap] on the first wild bestia standing on its tile and rolls the catch.
  *
- * After [net.bestia.zone.ecs.movement.MoveSystem] (40), so a creature is caught on the tick it steps in.
+ * In the actions phase, which follows movement, so a creature is caught on the tick it steps in.
  */
 @SpringComponent
-@Order(45)
 class BestiaTrapSystem(
   private val entityAOIService: EntityAOIService,
   private val bestiaCatalogue: BestiaCatalogue,
@@ -50,6 +52,8 @@ class BestiaTrapSystem(
   private val random: Random = ThreadLocalRandomSource,
 ) : System {
 
+  override val phase = Phase.ACTIONS
+  override val after = setOf(RespawnSystem::class, ConstructionSystem::class)
   override val schedule: Schedule = Schedule.EveryTick
 
   override val reads: ComponentClassSet = setOf(

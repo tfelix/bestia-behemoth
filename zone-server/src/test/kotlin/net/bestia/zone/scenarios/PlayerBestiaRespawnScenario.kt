@@ -8,7 +8,7 @@ import net.bestia.zone.account.master.MasterFactory
 import net.bestia.zone.bestia.PlayerBestiaCreateOperation
 import net.bestia.zone.bestia.PlayerBestiaCreateOperation.PlayerBestiaCreateData
 import net.bestia.zone.ecs.account.OwnedBestia
-import net.bestia.zone.ecs.core.World
+import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.session.ConnectionInfoService.PlayerEntity
 import net.bestia.zone.geometry.Vec3L
@@ -47,7 +47,7 @@ class PlayerBestiaRespawnScenario : BestiaNoSocketScenario(autoClientConnect = f
   private lateinit var connectionInfoService: ConnectionInfoService
 
   @Autowired
-  private lateinit var world: World
+  private lateinit var world: WorldView
 
   private lateinit var client: GameClientMock
 
@@ -108,7 +108,7 @@ class PlayerBestiaRespawnScenario : BestiaNoSocketScenario(autoClientConnect = f
   fun `selecting the master again keeps the bestia that is still in the world`() {
     val masterEntityId = connectionInfoService.getSelectedMasterEntityId(client.connectedPlayerId)
     client.disconnect()
-    await { assertFalse(world.hasEntity(masterEntityId)) }
+    await { assertFalse(world.read { isAlive(masterEntityId) }) }
 
     client.connect(masterId)
 

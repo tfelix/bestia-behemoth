@@ -74,7 +74,7 @@ class ChatHandler(
     )
 
     // Posted: who sees the entity is tick-thread state, and this handler runs on the IO lane.
-    world.post { outMessageProcessor.sendToObserversOf(world, activeEntityId, chatSMSG) }
+    world.post { outMessageProcessor.sendToObserversOf(this, activeEntityId, chatSMSG) }
   }
 
   /**

@@ -31,7 +31,13 @@ class ClientMessageRateLimitTest {
     channelRegistry = ChannelRegistry(SocketServerConfig("127.0.0.1", 0, 30L, emptyList())),
     zoneReadinessService = ZoneReadinessService().apply { markReady() },
     httpTicketService = HttpTicketService(),
-    inbox = { _, _, task -> java.util.concurrent.CompletableFuture.completedFuture(task()) },
+    inbox = object : net.bestia.zone.message.AccountTaskExecutor {
+        override fun onTick(accountId: net.bestia.zone.util.AccountId, task: net.bestia.zone.ecs.core.World.() -> Unit) =
+          error("connection events run on IO")
+
+        override fun onIo(accountId: net.bestia.zone.util.AccountId, task: () -> Unit) =
+          java.util.concurrent.CompletableFuture.completedFuture(task())
+      },
     version = "test"
   )
 

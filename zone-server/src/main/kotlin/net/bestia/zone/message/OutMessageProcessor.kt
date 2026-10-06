@@ -1,7 +1,7 @@
 package net.bestia.zone.message
 
 import net.bestia.zone.ecs.ActivePlayerAOIService
-import net.bestia.zone.ecs.core.WorldView
+import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.visibility.EntityAudience
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.socket.OutMessageHandler
@@ -22,8 +22,8 @@ class OutMessageProcessor(
    * Sends a one-off event about [entityId], such as a hit or a chat line, to the accounts its component state
    * goes to. Tick thread only: the audience is read from the world.
    */
-  fun sendToObserversOf(world: WorldView, entityId: EntityId, msg: SMSG) {
-    val audience = world.read { entityAudience.of(this, entityId).toList() }
+  fun sendToObserversOf(world: World, entityId: EntityId, msg: SMSG) {
+    val audience = entityAudience.of(world, entityId).toList()
 
     audience.forEach { accountId -> sendToPlayer(accountId, msg) }
   }

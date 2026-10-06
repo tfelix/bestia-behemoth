@@ -55,7 +55,7 @@ class EquipItemHandler(
     }
 
     val activeEntityId = connectionInfoService.getActiveEntityId(msg.playerId)
-    if (deadActionGuard.refuses(activeEntityId, "equip an item")) {
+    if (world.read { deadActionGuard.refuses(this, activeEntityId, "equip an item") }) {
       return true
     }
 

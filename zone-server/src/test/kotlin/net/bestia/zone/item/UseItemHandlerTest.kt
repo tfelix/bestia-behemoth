@@ -22,7 +22,7 @@ import java.util.Optional
  */
 class UseItemHandlerTest {
 
-  private val world: World = testWorld()
+  private val world = testWorld()
   private val inventoryService = mockk<InventoryService>(relaxed = true)
   private val scripts = mockk<ItemScriptExecutionService>()
 
@@ -70,7 +70,7 @@ class UseItemHandlerTest {
       connectionInfoService = connectionInfoService,
       inventoryService = inventoryService,
       asyncJobExecutor = inlineJobs,
-      deadActionGuard = DeadActionGuard(world),
+      deadActionGuard = DeadActionGuard(),
       world = world
     )
   }

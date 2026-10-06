@@ -21,15 +21,15 @@ import kotlin.test.assertTrue
  */
 class AccountEntityControlServiceTest {
 
-  private val world: World = testWorld()
+  private val world = testWorld()
   private val connections = ConnectionInfoService()
-  private val master: EntityId = world.create()
+  private val master: EntityId = world.createEntity { }
 
   private val service = AccountEntityControlService(
     connectionInfoService = connections,
     masterResolver = mockk<MasterResolver> { every { getSelectedMasterEntityIdByAccountId(ACCOUNT) } returns master },
     savePointService = mockk(relaxed = true),
-    attackCancelService = AttackCancelService(world),
+    attackCancelService = AttackCancelService(),
     playerAOIService = mockk(relaxed = true),
     world = world,
     zoneConfig = ZoneConfig(tickRate = 20)

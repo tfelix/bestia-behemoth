@@ -48,7 +48,7 @@ class DropItemHandlerTest {
     it.activateSession(ACCOUNT_ID, masterId = MASTER_ID, masterEntityId = entity)
   }
 
-  private val sut = DropItemHandler(inventoryService, spawner, connections, DeadActionGuard(world), executor, world)
+  private val sut = DropItemHandler(inventoryService, spawner, connections, DeadActionGuard(), executor, world)
 
   private val drop = DropItemCMSG(playerId = ACCOUNT_ID, itemId = ARROW, amount = 4)
 
@@ -111,7 +111,7 @@ class DropItemHandlerTest {
       ItemContainer.RemovedItem(uniqueId = 77L, instance = null)
     world.get(entity, Inventory::class)!!.addItem(Inventory.Item(SWORD, amount = 1, uniqueId = 0L, stackable = false))
 
-    sut.handle(DropItemCMSG(ACCOUNT_ID, SWORD, amount = 1))
+    sut.handle(world, DropItemCMSG(ACCOUNT_ID, SWORD, amount = 1))
     pending!!.invoke()
 
     assertTrue(world.get(entity, Inventory::class)!!.getItems().none { it.itemId == SWORD })
@@ -124,7 +124,7 @@ class DropItemHandlerTest {
     world.get(entity, Equipment::class)!!
       .equip(EquipmentSlot.RIGHT_HAND, Equipment.EquippedItem(itemId = SWORD, uniqueId = 0L))
 
-    sut.handle(DropItemCMSG(ACCOUNT_ID, SWORD, amount = 1))
+    sut.handle(world, DropItemCMSG(ACCOUNT_ID, SWORD, amount = 1))
 
     assertNull(pending)
   }
@@ -133,7 +133,7 @@ class DropItemHandlerTest {
   fun `a dead master drops nothing`() {
     world.add(entity, Dead())
 
-    sut.handle(drop)
+    sut.handle(world, drop)
 
     assertNull(pending)
   }

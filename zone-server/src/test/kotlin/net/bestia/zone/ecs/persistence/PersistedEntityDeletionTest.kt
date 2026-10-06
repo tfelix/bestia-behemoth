@@ -159,7 +159,7 @@ class PersistedEntityDeletionTest {
   @Test
   fun `a picked-up ground item's row is pruned`() {
     // A surviving row is rehydrated at the next boot, so the item could be picked up a second time.
-    val world = World(idGenerator = idGenerator, systems = listOf(obtainItemIntentSystem))
+    val world = EcsWorld(idGenerator = idGenerator, systems = listOf(obtainItemIntentSystem))
     val groundItem = lootItemEntitySpawner.spawnLootItem(world, itemId = APPLE_ITEM_ID, amount = 1, pos = Vec3L(1, 2, 3))
     val snapshot = world.read { lootItemEntityPersister.snapshot(this, groundItem) }
     assertNotNull(snapshot)

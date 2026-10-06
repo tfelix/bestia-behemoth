@@ -31,7 +31,6 @@ class PartyService(
   companion object {
     const val MAX_PARTY_SIZE = 12
     const val INVITATION_TIMEOUT_SECONDS = 60L
-    const val MAX_INVITATIONS_IN_FLIGHT = 100
     private val LOG = KotlinLogging.logger { }
   }
 
@@ -108,9 +107,6 @@ class PartyService(
   @Transactional(readOnly = true)
   fun invitePlayerToParty(inviterAccountId: Long, invitedAccountId: Long): PartyInvitationSMSG {
     pendingInvitations.values.removeIf { it.isExpired() }
-    if (pendingInvitations.size > MAX_INVITATIONS_IN_FLIGHT) {
-      throw TooManyPartyInvitationsInFlightException()
-    }
 
     val inviter = masterResolver.getSelectedMasterByAccountId(inviterAccountId)
 
@@ -128,6 +124,24 @@ class PartyService(
       throw AlreadyInPartyException()
     }
 
+    return synchronized(pendingInvitations) {
+      openInvitationTo(party.id, invited.account.id)?.invitation
+        ?: openInvitation(party, inviter, invited)
+    }
+  }
+
+  private fun openInvitationTo(partyId: Long, invitedAccountId: Long): OpenPartyInvitation? {
+    return pendingInvitations.values.firstOrNull {
+      it.invitation.partyId == partyId && it.invitedAccountId == invitedAccountId
+    }
+  }
+
+  /** Open invitations take a seat each, so no party can crowd the server with more than it could seat. */
+  private fun openInvitation(party: Party, inviter: Master, invited: Master): PartyInvitationSMSG {
+    val openInvitations = pendingInvitations.values.count { it.invitation.partyId == party.id }
+    if (party.size + openInvitations >= MAX_PARTY_SIZE) {
+      throw PartyFullException()
+    }
 
     val invitationId = nextInvitationId.getAndIncrement()
 

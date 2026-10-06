@@ -108,7 +108,7 @@ class ActivateSkillHandlerTest {
   fun `an unlearned skill cast at level zero is refused`() {
     val caster = world.spawnCaster(knownLevel = 0)
 
-    handlerFor(caster, skill(castTime = 0f)).handle(activate(caster, skillLevel = 0))
+    handlerFor(caster, skill(castTime = 0f)).handle(world, activate(caster, skillLevel = 0))
 
     verify(exactly = 0) { skillExecution.execute(any(), any(), any(), any(), any(), any()) }
   }
@@ -117,7 +117,7 @@ class ActivateSkillHandlerTest {
   fun `a negative skill level is refused`() {
     val caster = world.spawnCaster(knownLevel = 1)
 
-    handlerFor(caster, skill(castTime = 0f)).handle(activate(caster, skillLevel = -1))
+    handlerFor(caster, skill(castTime = 0f)).handle(world, activate(caster, skillLevel = -1))
 
     verify(exactly = 0) { skillExecution.execute(any(), any(), any(), any(), any(), any()) }
   }
@@ -126,7 +126,7 @@ class ActivateSkillHandlerTest {
   fun `a ground skill is cast at the position even when an entity was sent`() {
     val caster = world.spawnCaster()
 
-    handlerFor(caster, skill(castTime = 0f, targetType = SkillTargetType.GROUND)).handle(activate(caster))
+    handlerFor(caster, skill(castTime = 0f, targetType = SkillTargetType.GROUND)).handle(world, activate(caster))
 
     verify(exactly = 1) { skillExecution.execute(any(), caster, SKILL_ID, 1, null, Vec3L.ZERO) }
   }
@@ -135,7 +135,7 @@ class ActivateSkillHandlerTest {
   fun `an enemy skill without a target is refused`() {
     val caster = world.spawnCaster()
 
-    handlerFor(caster, skill(castTime = 0f, targetType = SkillTargetType.ENEMY)).handle(activate(NO_TARGET))
+    handlerFor(caster, skill(castTime = 0f, targetType = SkillTargetType.ENEMY)).handle(world, activate(NO_TARGET))
 
     verify(exactly = 0) { skillExecution.execute(any(), any(), any(), any(), any(), any()) }
   }
@@ -145,7 +145,7 @@ class ActivateSkillHandlerTest {
   fun `a friendly skill without a target is cast on the caster`() {
     val caster = world.spawnCaster()
 
-    handlerFor(caster, skill(castTime = 0f, targetType = SkillTargetType.FRIENDLY)).handle(activate(NO_TARGET))
+    handlerFor(caster, skill(castTime = 0f, targetType = SkillTargetType.FRIENDLY)).handle(world, activate(NO_TARGET))
 
     verify(exactly = 1) { skillExecution.execute(any(), caster, SKILL_ID, 1, caster, null) }
   }
