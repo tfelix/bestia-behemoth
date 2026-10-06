@@ -1,7 +1,7 @@
 package net.bestia.zone.battle.status
 
 import net.bestia.zone.ecs.core.DirtyFlag
-import net.bestia.zone.ecs.core.Dirtyable
+import net.bestia.zone.sync.Dirtyable
 import kotlin.math.max
 import kotlin.math.min
 

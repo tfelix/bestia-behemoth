@@ -1,4 +1,4 @@
-package net.bestia.zone.ecs.core
+package net.bestia.zone.sync
 
 import net.bestia.zone.ecs.entity.EntityVisual
 import net.bestia.zone.ecs.battle.status.Health

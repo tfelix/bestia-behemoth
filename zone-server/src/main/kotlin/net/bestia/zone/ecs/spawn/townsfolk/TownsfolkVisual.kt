@@ -1,7 +1,7 @@
 package net.bestia.zone.ecs.spawn.townsfolk
 
-import net.bestia.zone.ecs.SyncTargets
-import net.bestia.zone.ecs.core.DirtyableComponent
+import net.bestia.zone.sync.SyncTargets
+import net.bestia.zone.sync.DirtyableComponent
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.message.EntitySMSG
 import net.bestia.zone.util.EntityId

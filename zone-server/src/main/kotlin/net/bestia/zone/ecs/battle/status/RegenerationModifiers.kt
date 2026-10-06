@@ -32,7 +32,7 @@ import net.bestia.zone.ecs.core.Component
  * exactly that state, ignoring every buff and level-up, because the system meant to own it was never
  * written.
  *
- * Server-side bookkeeping only - deliberately not [net.bestia.zone.ecs.core.Dirtyable]. The client
+ * Server-side bookkeeping only - deliberately not [net.bestia.zone.sync.Dirtyable]. The client
  * sees the consequence in the [Health] / [Mana] / [Stamina] values it already receives and has no
  * use for knowing how the rate was arrived at, the same argument [FormulaDrivenVitals] makes.
  */

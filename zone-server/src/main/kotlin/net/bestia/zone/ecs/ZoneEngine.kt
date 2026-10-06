@@ -6,14 +6,14 @@ import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.account.Account
 import net.bestia.zone.ecs.account.ActivePlayer
 import net.bestia.zone.ecs.battle.damage.Dead
-import net.bestia.zone.ecs.core.Dirtyable
+import net.bestia.zone.sync.Dirtyable
 import net.bestia.zone.ecs.core.RateLimitedLog
-import net.bestia.zone.ecs.core.Removable
+import net.bestia.zone.sync.Removable
 import net.bestia.zone.util.AccountId
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.ecs.core.EcsWorld
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.ecs.core.dirtyableComponentTypes
+import net.bestia.zone.sync.dirtyableComponentTypes
 import net.bestia.zone.ecs.core.isFatal
 import net.bestia.zone.ecs.prop.StaticSync
 import net.bestia.zone.ecs.prop.WorldObjectIdentity
@@ -31,6 +31,7 @@ import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.collections.iterator
+import net.bestia.zone.sync.SyncTargets
 
 /**
  * Owns the running ecs [World]: it drives the single-threaded tick loop and, after every tick, syncs

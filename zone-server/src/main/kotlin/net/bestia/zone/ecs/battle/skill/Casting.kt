@@ -1,8 +1,8 @@
 package net.bestia.zone.ecs.battle.skill
 
-import net.bestia.zone.ecs.core.Removable
-import net.bestia.zone.ecs.SyncTargets
-import net.bestia.zone.ecs.core.Countdown
+import net.bestia.zone.sync.Removable
+import net.bestia.zone.sync.SyncTargets
+import net.bestia.zone.sync.Countdown
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.EntitySMSG

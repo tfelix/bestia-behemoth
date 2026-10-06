@@ -22,7 +22,7 @@ import net.bestia.zone.ecs.core.Component
  * availability and priority read them the same way they read anything else, and there is one place to
  * change a number rather than two.
  *
- * ### Deliberately not [net.bestia.zone.ecs.core.Dirtyable]
+ * ### Deliberately not [net.bestia.zone.sync.Dirtyable]
  *
  * Not implementing `Dirtyable` is what keeps AI internals off the wire. (The old comment here claimed the
  * dirty-component scan was limited to `net.bestia.zone.ecs` and that the package therefore protected it —

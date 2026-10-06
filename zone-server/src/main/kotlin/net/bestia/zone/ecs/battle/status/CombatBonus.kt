@@ -23,7 +23,7 @@ import net.bestia.zone.ecs.core.Component
  * [RegenerationModifiers] sets out at length - it is the same shape, with the same single writer and the
  * same dependence on `IsStatusValueDirty` to keep it from going stale.
  *
- * Server-side bookkeeping only, deliberately not [net.bestia.zone.ecs.core.Dirtyable]. The client reads the
+ * Server-side bookkeeping only, deliberately not [net.bestia.zone.sync.Dirtyable]. The client reads the
  * consequence off the damage numbers it already receives; showing ATK and DEF in the status window is a
  * separate change, and would want the resolved totals rather than this contribution alone.
  */

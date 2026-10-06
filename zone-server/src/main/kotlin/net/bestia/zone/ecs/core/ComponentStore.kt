@@ -78,12 +78,12 @@ class ComponentStore<T : Component>(
   }
 
   private fun track(entity: EntityId, component: T) {
-    if (component is Dirtyable && dirtySink != null) component.dirtyFlag.attach(entity, dirtySink)
+    if (component is DirtyTracked && dirtySink != null) component.dirtyFlag.attach(entity, dirtySink)
     if (component is SpatiallyIndexed && dirtyLog != null) component.movedFlag.attach(entity, dirtyLog.movedSink)
   }
 
   private fun untrack(entity: EntityId, component: T) {
-    if (component is Dirtyable) component.dirtyFlag.detachFrom(entity)
+    if (component is DirtyTracked) component.dirtyFlag.detachFrom(entity)
     if (component is SpatiallyIndexed) component.movedFlag.detachFrom(entity)
   }
 

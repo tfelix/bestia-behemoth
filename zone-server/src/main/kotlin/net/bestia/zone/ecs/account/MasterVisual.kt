@@ -6,9 +6,9 @@ import net.bestia.zone.account.master.Hairstyle
 import net.bestia.zone.ecs.core.Component
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.ecs.core.DirtyFlag
-import net.bestia.zone.ecs.core.Dirtyable
+import net.bestia.zone.sync.Dirtyable
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.ecs.SyncTargets
+import net.bestia.zone.sync.SyncTargets
 import net.bestia.zone.message.EntitySMSG
 import java.awt.Color
 

@@ -1,12 +1,11 @@
-package net.bestia.zone.ecs.core
+package net.bestia.zone.sync
 
-import net.bestia.zone.ecs.SyncTargets
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.message.EntitySMSG
+import net.bestia.zone.ecs.core.DirtyTracked
+import net.bestia.zone.ecs.core.World
 
-interface Dirtyable {
-  /** Declared first in an implementation's body: setters running in its `init` already use it. */
-  val dirtyFlag: DirtyFlag
+interface Dirtyable : DirtyTracked {
 
   fun isDirty(): Boolean {
     return dirtyFlag.isSet

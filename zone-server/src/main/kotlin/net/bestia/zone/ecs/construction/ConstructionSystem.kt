@@ -33,7 +33,7 @@ import kotlin.math.roundToInt
  * ### Progress is work, not time
  *
  * Unlike a cast or a craft, nothing here advances on its own. A site with no builder holds exactly where it
- * is - which is why [ConstructionSite] is a [net.bestia.zone.ecs.core.Countdown] that this system counts down
+ * is - which is why [ConstructionSite] is a [net.bestia.zone.sync.Countdown] that this system counts down
  * by hand, and why its message carries an `active` flag the client needs in order to know whether to keep
  * animating.
  */

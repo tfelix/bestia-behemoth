@@ -60,7 +60,7 @@ class GetSelfHandler(
 
   /**
    * Re-pushes every owner-only component the master's own windows are built from. They are all
-   * [net.bestia.zone.ecs.core.Dirtyable] and pushed on change, but a master spawns with pools
+   * [net.bestia.zone.sync.Dirtyable] and pushed on change, but a master spawns with pools
    * already full and attributes already settled, so that first push at spawn is the *only* one -
    * and it races the client still loading its game scene. A lost push is otherwise never made good
    * on, leaving the UI showing its scene placeholders indefinitely.
@@ -73,7 +73,7 @@ class GetSelfHandler(
    * position, visual, speed - is lost to the same race and is made good by
    * [EntityVisibility.reannounce] through that builder, so listing it here as well would send it twice.
    *
-   * The list is opt-in rather than a scan over every [net.bestia.zone.ecs.core.Dirtyable] the entity
+   * The list is opt-in rather than a scan over every [net.bestia.zone.sync.Dirtyable] the entity
    * carries, because re-sending is not harmless for all of them: a repeated `LogoutIntent`, for one,
    * restarts the client's logout countdown.
    */

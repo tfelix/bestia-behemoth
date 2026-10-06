@@ -18,7 +18,7 @@ import kotlin.test.assertTrue
 import net.bestia.zone.ecs.core.EcsWorld
 
 /**
- * Exercises the party-visible [net.bestia.zone.ecs.SyncTargets] path end to end: a party member's
+ * Exercises the party-visible [net.bestia.zone.sync.SyncTargets] path end to end: a party member's
  * Health/Mana change must reach the other party member even without an AOI range check, while an
  * unrelated player receives nothing.
  */
