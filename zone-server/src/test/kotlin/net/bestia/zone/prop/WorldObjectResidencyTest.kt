@@ -1,0 +1,549 @@
+package net.bestia.zone.prop
+
+import net.bestia.worldgen.core.ChunkPos
+import net.bestia.zone.aoi.AoiLayer
+import net.bestia.zone.aoi.EntityAOIService
+import net.bestia.zone.battle.ecs.status.Health
+import net.bestia.zone.ecs.core.testWorld
+import net.bestia.zone.movement.ecs.Position
+import net.bestia.zone.entity.ecs.PropPose
+import net.bestia.zone.entity.ecs.StaticVisual
+import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.message.ChunkFanOut
+import net.bestia.zone.world.WorldService
+import net.bestia.zone.world.stream.ChunkStaticEntitiesSMSG
+import net.bestia.zone.world.stream.ChunkStreamConfig
+import net.bestia.zone.world.stream.ChunkSubscriptionService
+import net.bestia.zone.world.stream.StaticEntityRemovedSMSG
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertNotEquals
+import org.junit.jupiter.api.Assertions.assertTrue
+import io.mockk.every
+import io.mockk.mockk
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import net.bestia.zone.entity.StaticEntityKind
+
+/**
+ * Residency: which static entities exist, driven by which chunks a client holds.
+ *
+ * Against a stub source rather than a generated world, because every property here is about the *bookkeeping* -
+ * refcounting, the slab-to-column collapse, the budget, what happens on a teleport - and a real world would
+ * make the answers depend on where the trees happen to be. `GeneratedPropSource` is the thing that reads the
+ * generator, and it is a separate concern from when the reading happens.
+ */
+class WorldObjectResidencyTest {
+
+  private lateinit var subscriptions: ChunkSubscriptionService
+  private lateinit var aoi: EntityAOIService
+  private lateinit var source: StubSource
+  private lateinit var residency: WorldObjectResidencyService
+  private lateinit var sent: MutableList<ChunkStaticEntitiesSMSG>
+
+  /** Removals plus who they were addressed to, since the audience is half the point of them. */
+  private lateinit var removals: MutableList<Pair<Set<Long>, StaticEntityRemovedSMSG>>
+
+  /** Three trees per column, at positions derived from the column so they are distinguishable. */
+  private class StubSource : WorldObjectSource {
+    var asked = 0
+
+    override val kinds = setOf(StaticEntityKind.TREE)
+
+    override fun sitesIn(chunk: ChunkPos): List<WorldObjectSite> {
+      asked++
+      return (0 until 3).map { i ->
+        WorldObjectSite(
+          kind = StaticEntityKind.TREE,
+          propId = (chunk.x.toLong() shl 40) or (chunk.y.toLong() shl 8) or i.toLong(),
+          position = Vec3L(chunk.x * 32L + i, chunk.y * 32L, 64),
+          variant = i,
+          heightDm = 80,
+          yaw = 0f
+        )
+      }
+    }
+  }
+
+  @BeforeEach
+  fun setup() {
+    subscriptions = ChunkSubscriptionService()
+    aoi = EntityAOIService()
+    source = StubSource()
+    sent = ArrayList()
+    removals = ArrayList()
+    residency = WorldObjectResidencyService(
+      listOf(source), kindRegistry(), aoi, recordingFanOut(), worldService(), noDivergence(), subscriptions
+    )
+  }
+
+  /** Records what would have gone out, so the batch can be asserted on without a socket. */
+  private fun recordingFanOut() = object : ChunkFanOut {
+    override fun fanOut(accountIds: Collection<Long>, message: net.bestia.zone.message.SMSG): Int {
+      if (message is ChunkStaticEntitiesSMSG) sent.add(message)
+      if (message is StaticEntityRemovedSMSG) removals.add(accountIds.toSet() to message)
+      return accountIds.size
+    }
+  }
+
+  /** `config.chunkSize` turns a world position into a chunk-local one; `record.pipelineVersion` is the
+   *  lattice version freshly materialised props are stamped with. */
+  private fun worldService(): WorldService = mockk {
+    every { config } returns net.bestia.worldgen.core.WorldConfig(seed = 1L, chunkSize = 32, voxelSize = 1.0)
+    every { record } returns mockk { every { pipelineVersion } returns 1L }
+  }
+
+  /** No propId has ever diverged - the common case, and every test above this line assumes it. */
+  private fun noDivergence(): WorldObjectDivergenceRegistry = mockk {
+    every { of(any()) } returns null
+  }
+
+  @Test
+  fun `a column materialises on its first subscriber and releases on its last`() {
+    val world = testWorld()
+
+    subscriptions.markSent(1L, ChunkPos(4, 5, 0))
+    assertEquals(1, residency.pending, "holding a chunk should queue exactly one column")
+
+    residency.drain(world, budget = 8)
+    assertEquals(3, residency.residentEntities)
+    assertEquals(1, residency.residentColumns)
+
+    subscriptions.unsend(1L, ChunkPos(4, 5, 0))
+    residency.drain(world, budget = 8)
+
+    assertEquals(0, residency.residentEntities, "the last holder left and the column is still resident")
+    assertEquals(0, residency.residentColumns)
+  }
+
+  /**
+   * The slab-to-column collapse, and the bug it prevents is specific: a subscription addresses one *slab*, so
+   * a player standing in a cave holds the column's surface slab and the one below it. Without the refcount,
+   * leaving the cave would fire a last-subscriber callback for the lower slab and delete the trees overhead.
+   */
+  @Test
+  fun `three subscribed slabs of one column are one set of entities`() {
+    val world = testWorld()
+
+    subscriptions.markSent(1L, ChunkPos(4, 5, 0))
+    subscriptions.markSent(1L, ChunkPos(4, 5, 1))
+    subscriptions.markSent(1L, ChunkPos(4, 5, 2))
+    residency.drain(world, budget = 8)
+
+    assertEquals(1, residency.residentColumns, "three slabs of one column are one column")
+    assertEquals(3, residency.residentEntities)
+    assertEquals(1, source.asked, "the source was asked once per column, not once per slab")
+
+    // Two of the three released: the column stays.
+    subscriptions.unsend(1L, ChunkPos(4, 5, 2))
+    subscriptions.unsend(1L, ChunkPos(4, 5, 1))
+    residency.drain(world, budget = 8)
+    assertEquals(3, residency.residentEntities, "a column with a slab still held must keep its entities")
+
+    subscriptions.unsend(1L, ChunkPos(4, 5, 0))
+    residency.drain(world, budget = 8)
+    assertEquals(0, residency.residentEntities)
+  }
+
+  /** Two players over the same ground get one set of trees, and it survives either of them leaving. */
+  @Test
+  fun `overlapping players do not double-materialise a column`() {
+    val world = testWorld()
+
+    subscriptions.markSent(1L, ChunkPos(0, 0, 0))
+    subscriptions.markSent(2L, ChunkPos(0, 0, 0))
+    residency.drain(world, budget = 8)
+
+    assertEquals(3, residency.residentEntities)
+    assertEquals(1, source.asked)
+
+    subscriptions.unsend(1L, ChunkPos(0, 0, 0))
+    residency.drain(world, budget = 8)
+    assertEquals(3, residency.residentEntities, "one player left and the other's trees went with them")
+  }
+
+  /**
+   * A teleport withdraws everything and re-announces, which happens inside one tick.
+   *
+   * The entities must be the *same* ones. Releasing and reloading would hand every client a new set of ids for
+   * the same trees, and since a prop's id is what a client points at to interact with one, that is a stale
+   * reference for everybody who was already looking.
+   */
+  @Test
+  fun `a release and re-hold inside one tick keeps the same entities`() {
+    val world = testWorld()
+
+    subscriptions.markSent(1L, ChunkPos(7, 7, 0))
+    residency.drain(world, budget = 8)
+    val before = residency.entitiesIn(7, 7).toList()
+
+    // The `reset` manifest's shape: unsend everything, then mark the survivors sent again.
+    subscriptions.unsend(1L, ChunkPos(7, 7, 0))
+    subscriptions.markSent(1L, ChunkPos(7, 7, 0))
+    residency.drain(world, budget = 8)
+
+    assertEquals(before, residency.entitiesIn(7, 7).toList(), "the column was churned inside one tick")
+    assertEquals(1, source.asked, "the column was rebuilt when nothing about it had changed")
+  }
+
+  /** `forget` is the disconnect path, and it has to release everything the account was holding. */
+  @Test
+  fun `forgetting an account releases the columns it held alone`() {
+    val world = testWorld()
+
+    subscriptions.markSent(1L, ChunkPos(1, 1, 0))
+    subscriptions.markSent(1L, ChunkPos(2, 1, 0))
+    residency.drain(world, budget = 8)
+    assertEquals(2, residency.residentColumns)
+
+    subscriptions.forget(1L)
+    residency.drain(world, budget = 8)
+
+    assertEquals(0, residency.residentColumns)
+    assertEquals(0, residency.residentEntities)
+  }
+
+  @Test
+  fun `the drain budget bounds how much work one tick does`() {
+    val world = testWorld()
+
+    for (x in 0 until 10) subscriptions.markSent(1L, ChunkPos(x, 0, 0))
+    assertEquals(10, residency.pending)
+
+    val (loaded, _) = residency.drain(world, budget = 4)
+
+    assertEquals(4, loaded)
+    assertEquals(6, residency.pending, "the rest must wait for the next tick")
+    assertEquals(12, residency.residentEntities)
+  }
+
+  /**
+   * **The load-bearing property of the whole design.**
+   *
+   * A fresh `Dirtyable` is reported to the sync the moment it is added, so tens of thousands of props would
+   * each be sent once for nothing - which is why props carry `PropPose` rather than `Position` and
+   * `PropVitality` rather than `Health`.
+   *
+   * Being out of the `Position` store also keeps them out of `ChunkStreamSystem.groundNewcomers`, which scans
+   * that whole store every tick, and out of `HpRegenSystem`, which queries `Health` directly.
+   */
+  @Test
+  fun `resident props are in no Dirtyable store`() {
+    val world = testWorld()
+
+    for (x in 0 until 20) subscriptions.markSent(1L, ChunkPos(x, 0, 0))
+    residency.drain(world, budget = 64)
+
+    assertEquals(60, residency.residentEntities)
+
+    assertEquals(0, world.store(Position::class).size, "props are in the Position store and will be synced per tick")
+    assertEquals(0, world.store(Health::class).size, "props are in the Health store and will be regenerated")
+    assertEquals(60, world.store(PropPose::class).size)
+    assertEquals(60, world.store(StaticVisual::class).size)
+  }
+
+  /**
+   * A prop is findable by an area query even though it is synced by chunk.
+   *
+   * Those two things looked coupled and are not: the octree decides what an area-of-effect spell hits, and
+   * `Dirtyable` decides what generates per-tick traffic. `ZoneEngine` only ever inserts into the octree from
+   * its dirty-`Position` loop, so residency has to insert directly - and if it did not, a fireball would spare
+   * every tree in the world.
+   */
+  @Test
+  fun `props are findable by an area query and tagged STATIC`() {
+    val world = testWorld()
+
+    subscriptions.markSent(1L, ChunkPos(0, 0, 0))
+    residency.drain(world, budget = 8)
+
+    val centre = Vec3L(1, 0, 64)
+    assertEquals(3, aoi.queryEntitiesInCube(centre, 8).size, "an area query cannot see the trees")
+    assertEquals(3, aoi.queryEntitiesInCube(centre, 8, AoiLayer.STATIC_ONLY).size)
+    assertTrue(
+      aoi.queryEntitiesInCube(centre, 8, AoiLayer.DYNAMIC_ONLY).isEmpty(),
+      "a tree answered a dynamic-only query, so perception will see a wood full of neighbours"
+    )
+  }
+
+  @Test
+  fun `releasing a column takes its props out of the interest index`() {
+    val world = testWorld()
+
+    subscriptions.markSent(1L, ChunkPos(0, 0, 0))
+    residency.drain(world, budget = 8)
+    assertNotEquals(0, aoi.getTotalEntityCount())
+
+    subscriptions.unsend(1L, ChunkPos(0, 0, 0))
+    residency.drain(world, budget = 8)
+
+    assertEquals(0, aoi.getTotalEntityCount(), "a released prop is still in the octree and can still be hit")
+  }
+
+  /** A column with nothing on it must not be re-asked every tick it stays held. */
+  @Test
+  fun `an empty column is remembered as empty`() {
+    val empty = object : WorldObjectSource {
+      var asked = 0
+      override val kinds = setOf(StaticEntityKind.TREE)
+      override fun sitesIn(chunk: ChunkPos): List<WorldObjectSite> {
+        asked++
+        return emptyList()
+      }
+    }
+    val service = WorldObjectResidencyService(
+      listOf(empty), kindRegistry(), EntityAOIService(), recordingFanOut(), worldService(), noDivergence(),
+      subscriptions
+    )
+    val world = testWorld()
+
+    subscriptions.markSent(1L, ChunkPos(3, 3, 0))
+    service.drain(world, budget = 8)
+    subscriptions.markSent(2L, ChunkPos(3, 3, 0))
+    service.drain(world, budget = 8)
+
+    assertEquals(1, empty.asked, "an empty column was rebuilt on a second subscriber")
+    assertEquals(1, service.residentColumns)
+    assertEquals(0, service.residentEntities)
+    assertFalse(service.entitiesIn(3, 3).isNotEmpty())
+  }
+
+  /**
+   * The batch follows the terrain, and it is encoded once per column however many clients are waiting.
+   *
+   * That count is the whole reason this goes through `ChunkFanOut` rather than the ordinary send path: thirty
+   * players walking into one wood must cost one serialisation between them, not thirty.
+   */
+  @Test
+  fun `one batch per column serves every account that just received the terrain`() {
+    val world = testWorld()
+
+    subscriptions.markSent(1L, ChunkPos(2, 3, 0))
+    subscriptions.markSent(2L, ChunkPos(2, 3, 0))
+    subscriptions.markSent(3L, ChunkPos(2, 3, 0))
+    residency.drain(world, budget = 8)
+
+    assertEquals(1, sent.size, "the column was encoded once per recipient rather than once")
+    assertEquals(3, sent.single().entries.size)
+    assertEquals(ChunkPos(2, 3, 0), sent.single().chunk)
+  }
+
+  /**
+   * The batch has to carry its entries when the drain runs *where production runs it*.
+   *
+   * Every other test here calls [WorldObjectResidencyService.drain] directly, so `World.iterating` is false and
+   * `add` applies immediately. In production the drain happens inside [WorldObjectResidencySystem.update], which
+   * the scheduler runs with `iterating` set - and `World.add` is deferred to the end of the tick then. A flush
+   * that reads the components back in the same call therefore sees none of them.
+   */
+  @Test
+  fun `a batch drained from inside a system update still carries its entries`() {
+    val world = testWorld(systems = listOf(WorldObjectResidencySystem(residency, ChunkStreamConfig())))
+
+    subscriptions.markSent(1L, ChunkPos(2, 3, 0))
+    world.tick(0.05f)
+
+    assertEquals(1, sent.size, "the column was never announced")
+    assertEquals(3, sent.single().entries.size, "the batch went out empty, so the client draws bare ground")
+  }
+
+  /**
+   * The second player into a wood is told about the trees, though their arrival queues no work.
+   *
+   * The first subscriber already materialised the column, so nothing is pending when the second one is served -
+   * and [WorldObjectResidencySystem] skips the drain entirely when nothing is pending, which takes the batch
+   * flush with it. `onChunkSent` fires for every recipient precisely so this case is covered.
+   */
+  @Test
+  fun `a second player into an already resident column is still sent the batch`() {
+    val world = testWorld(systems = listOf(WorldObjectResidencySystem(residency, ChunkStreamConfig())))
+
+    subscriptions.markSent(1L, ChunkPos(2, 3, 0))
+    world.tick(0.05f)
+    assertEquals(1, sent.size, "the first player was not served")
+
+    subscriptions.markSent(2L, ChunkPos(2, 3, 0))
+    world.tick(0.05f)
+
+    assertEquals(2, sent.size, "the second player was never told what stands on the ground they were given")
+    assertEquals(3, sent.last().entries.size)
+  }
+
+  /**
+   * Positions in the batch are chunk-local horizontally and global vertically.
+   *
+   * Local x and y are what keep an entry at about 25 bytes - a world x on a 128 km world is a three-byte
+   * varint and a local one is a single byte - and z stays global because a column spans the whole vertical
+   * extent, so a slab-local z would need the slab index to mean anything.
+   */
+  @Test
+  fun `batch positions are chunk-local horizontally and global vertically`() {
+    val world = testWorld()
+
+    // The stub puts its trees at `chunk.x * 32 + i`, so in chunk 2 they are at world x 64, 65, 66.
+    subscriptions.markSent(1L, ChunkPos(2, 3, 0))
+    residency.drain(world, budget = 8)
+
+    val entries = sent.single().entries.sortedBy { it.localX }
+
+    assertEquals(listOf(0, 1, 2), entries.map { it.localX })
+    assertEquals(listOf(0, 0, 0), entries.map { it.localY })
+    assertEquals(listOf(64, 64, 64), entries.map { it.z }, "z must stay global")
+    assertTrue(entries.all { it.kind == StaticEntityKind.TREE })
+    assertTrue(entries.all { it.entityId != 0L }, "an entry with no id is a thing a client cannot click")
+  }
+
+  /** A column released in the same tick it was announced must not be described to anybody. */
+  @Test
+  fun `a column released before its batch flushes is not announced`() {
+    val world = testWorld()
+
+    subscriptions.markSent(1L, ChunkPos(9, 9, 0))
+    subscriptions.unsend(1L, ChunkPos(9, 9, 0))
+    residency.drain(world, budget = 8)
+
+    assertTrue(sent.isEmpty(), "a batch went out for a column that no longer exists")
+  }
+
+  /**
+   * A batch is only sent once the entities exist, and it is not lost while waiting.
+   *
+   * The terrain goes out at order 45 and the entities appear at 46, so a column can be held for part of a tick
+   * before anything stands in it. A waiter must survive that rather than being dropped.
+   */
+  @Test
+  fun `a waiter whose column is not yet resident is served on a later drain`() {
+    val world = testWorld()
+
+    for (x in 0 until 6) subscriptions.markSent(1L, ChunkPos(x, 0, 0))
+
+    residency.drain(world, budget = 2)
+    assertEquals(2, sent.size, "only the columns materialised so far should be announced")
+
+    residency.drain(world, budget = 2)
+    assertEquals(4, sent.size)
+
+    residency.drain(world, budget = 2)
+    assertEquals(6, sent.size, "a waiter was dropped instead of being served on a later tick")
+  }
+
+  /** A terminally depleted propId (a claimed POI, a mined-out crystal) must never be re-materialised. */
+  @Test
+  fun `a terminally diverged prop is not re-materialised`() {
+    val depletedPropId = (4L shl 40) or (5L shl 8) or 0L // the stub's tree 0 in chunk (4, 5)
+    val divergence: WorldObjectDivergenceRegistry = mockk {
+      every { of(any()) } answers {
+        val propId = firstArg<Long>()
+        if (propId == depletedPropId) DivergenceEntry(StaticEntityKind.TREE, DivergenceState.DEPLETED, null) else null
+      }
+    }
+    val service = WorldObjectResidencyService(
+      listOf(source), kindRegistry(), aoi, recordingFanOut(), worldService(), divergence, subscriptions
+    )
+    val world = testWorld()
+
+    subscriptions.markSent(1L, ChunkPos(4, 5, 0))
+    service.drain(world, budget = 8)
+
+    assertEquals(2, service.residentEntities, "the depleted tree must not stand again")
+  }
+
+  /** A `resumeAt` that has already passed means the tree grew back: it re-emits and forgets the divergence. */
+  @Test
+  fun `a regrown prop is re-materialised and its divergence forgotten`() {
+    val regrownPropId = (4L shl 40) or (5L shl 8) or 0L
+    var evicted = false
+    val divergence: WorldObjectDivergenceRegistry = mockk {
+      every { of(any()) } answers {
+        val propId = firstArg<Long>()
+        if (propId == regrownPropId) {
+          DivergenceEntry(StaticEntityKind.TREE, DivergenceState.DEPLETED, java.time.Instant.now().minusSeconds(1))
+        } else {
+          null
+        }
+      }
+      every { evictRegrown(regrownPropId) } answers { evicted = true }
+    }
+    val service = WorldObjectResidencyService(
+      listOf(source), kindRegistry(), aoi, recordingFanOut(), worldService(), divergence, subscriptions
+    )
+    val world = testWorld()
+
+    subscriptions.markSent(1L, ChunkPos(4, 5, 0))
+    service.drain(world, budget = 8)
+
+    assertEquals(3, service.residentEntities, "a regrown tree must stand again like the other two")
+    assertTrue(evicted, "the stale divergence must be forgotten once the tree has regrown")
+  }
+
+  /**
+   * The property `CollectPropIntentSystem` leans on: `remove` prunes [WorldObjectResidencyService] straight
+   * away, so a `flushBatches` that runs later in the same tick has already forgotten the entity. Without it a
+   * client served this column in the same tick would receive the removal first and a batch still listing the
+   * prop second, and draw something nobody can pick up.
+   */
+  @Test
+  fun `removing a prop prunes it before the next batch goes out`() {
+    val world = testWorld()
+
+    subscriptions.markSent(1L, ChunkPos(4, 5, 0))
+    residency.drain(world, budget = 8)
+    assertEquals(3, residency.residentEntities)
+
+    val victim = residency.entitiesIn(4, 5).first()
+    assertTrue(residency.remove(world, victim))
+
+    assertEquals(2, residency.residentEntities, "the removed prop must be gone from residency at once")
+    assertFalse(residency.entitiesIn(4, 5).contains(victim))
+
+    // A second holder arriving now is told about the two survivors and never about the third.
+    sent.clear()
+    subscriptions.markSent(2L, ChunkPos(4, 5, 0))
+    residency.drain(world, budget = 8)
+
+    val batch = sent.single { it.chunk.x == 4 && it.chunk.y == 5 }
+    assertEquals(2, batch.entries.size)
+    assertFalse(batch.entries.any { it.entityId == victim })
+  }
+
+  /**
+   * The audience is the column's holders, not whoever is nearby. A view volume is eleven chunks across, so a
+   * distance-addressed broadcast would leave the far holders drawing a prop the server has forgotten.
+   */
+  @Test
+  fun `a removal reaches every account holding any slab of the column`() {
+    val world = testWorld()
+
+    subscriptions.markSent(1L, ChunkPos(4, 5, 0))
+    subscriptions.markSent(2L, ChunkPos(4, 5, 2))
+    subscriptions.markSent(3L, ChunkPos(9, 9, 0))
+    residency.drain(world, budget = 8)
+
+    val victim = residency.entitiesIn(4, 5).first()
+    residency.remove(world, victim)
+
+    val (audience, message) = removals.single()
+    assertEquals(setOf(1L, 2L), audience, "a holder of any slab of the column has been told about the prop")
+    assertEquals(victim, message.entityId)
+    assertEquals(4, message.chunk.x)
+    assertEquals(5, message.chunk.y)
+  }
+
+  @Test
+  fun `removing something that is not a resident prop is a no-op`() {
+    val world = testWorld()
+
+    subscriptions.markSent(1L, ChunkPos(4, 5, 0))
+    residency.drain(world, budget = 8)
+
+    assertFalse(residency.remove(world, 999_999L), "an id that names nothing cannot be removed")
+
+    val victim = residency.entitiesIn(4, 5).first()
+    assertTrue(residency.remove(world, victim))
+    assertFalse(residency.remove(world, victim), "removing twice must not report a second removal")
+
+    assertEquals(1, removals.size, "only the real removal is announced")
+  }
+
+  private fun kindRegistry() = PropKindRegistry().also { it.load() }
+}

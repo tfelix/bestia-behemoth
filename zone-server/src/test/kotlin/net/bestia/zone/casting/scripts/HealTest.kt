@@ -2,7 +2,7 @@ package net.bestia.zone.casting.scripts
 
 import net.bestia.zone.battle.BattleContextFixture
 import net.bestia.zone.battle.LineOfSightService
-import net.bestia.zone.battle.skill.SkillContextFixture
+import net.bestia.zone.casting.SkillContextFixture
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 

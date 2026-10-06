@@ -3,9 +3,9 @@ package net.bestia.zone.casting.scripts
 import net.bestia.zone.battle.BattleContextFixture
 import net.bestia.zone.battle.LineOfSightService
 import net.bestia.zone.battle.damage.Heal
-import net.bestia.zone.battle.skill.RecordingSkillWorld
+import net.bestia.zone.casting.RecordingSkillWorld
 import net.bestia.zone.casting.SkillContext
-import net.bestia.zone.battle.skill.SkillContextFixture
+import net.bestia.zone.casting.SkillContextFixture
 import net.bestia.zone.battle.status.StatusEffectId
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse

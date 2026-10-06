@@ -42,7 +42,7 @@ import net.bestia.zone.sync.SyncTargets
 import net.bestia.zone.config.WorldRulesConfig
 import net.bestia.zone.aoi.ActivePlayerAOIService
 import net.bestia.zone.aoi.EntityAOIService
-import net.bestia.zone.ecs.RecordingEntityVisibility
+import net.bestia.zone.aoi.RecordingEntityVisibility
 
 /**
  * Covers what [ZoneEngine] does between ticks, rather than what any one system does:
