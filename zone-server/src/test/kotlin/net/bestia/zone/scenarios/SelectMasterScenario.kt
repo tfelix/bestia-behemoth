@@ -7,8 +7,8 @@ import net.bestia.zone.ecs.core.Component
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.session.NoActiveSessionException
-import net.bestia.zone.ecs.logout.DisconnectProtection
-import net.bestia.zone.ecs.logout.LogoutIntent
+import net.bestia.zone.logout.ecs.DisconnectProtection
+import net.bestia.zone.logout.ecs.LogoutIntent
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue

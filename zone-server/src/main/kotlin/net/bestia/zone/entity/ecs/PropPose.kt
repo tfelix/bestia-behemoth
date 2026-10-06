@@ -6,7 +6,7 @@ import net.bestia.zone.geometry.Vec3L
 /**
  * Where a static entity stands, and which way it faces.
  *
- * ### Why this is not [net.bestia.zone.ecs.movement.Position]
+ * ### Why this is not [net.bestia.zone.movement.ecs.Position]
  *
  * Being out of the `Position` store spares a resident population of tens of thousands of things that never
  * move from several per-tick costs: `ChunkStreamSystem.groundNewcomers` scans the whole `Position` store every

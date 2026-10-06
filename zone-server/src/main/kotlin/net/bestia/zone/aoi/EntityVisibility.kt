@@ -7,7 +7,7 @@ import net.bestia.zone.util.EntityId
 /**
  * Told where the dynamic entities are, so whatever decides who can see them can keep up.
  *
- * A seam, the same shape as [net.bestia.zone.ecs.movement.GroundHeight] beside it: the answer is the chunk
+ * A seam, the same shape as [net.bestia.zone.movement.ecs.GroundHeight] beside it: the answer is the chunk
  * subscription a client holds for its terrain, which lives in `world.stream`, and `ZoneEngine` is the only
  * place that knows when an entity moved. This lets it say so without pointing `ecs/` at `world/stream/`.
  *

@@ -1,6 +1,6 @@
 package net.bestia.zone.boot
 
-import net.bestia.zone.ecs.place.AreaNameRegistry
+import net.bestia.zone.place.ecs.AreaNameRegistry
 import net.bestia.zone.world.WorldService
 import org.springframework.boot.CommandLineRunner
 import org.springframework.core.annotation.Order
@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component
  *
  * Cheap enough to do unconditionally: one pass over the feature store, no Dijkstra. The region *partition* -
  * which does cost one - stays lazy in
- * [PlaceRegionService][net.bestia.zone.ecs.place.PlaceRegionService], because a server nobody joins should not
+ * [PlaceRegionService][net.bestia.zone.place.ecs.PlaceRegionService], because a server nobody joins should not
  * pay for it.
  *
  * `@Order(6)` puts it in the "things about the world" group, after [ScorchBootRunner]. Nothing here depends

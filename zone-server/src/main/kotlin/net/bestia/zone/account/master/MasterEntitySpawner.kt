@@ -17,12 +17,12 @@ import net.bestia.zone.bestia.PlayerBestiaEntitySpawner
 import net.bestia.zone.ecs.item.Equipment
 import net.bestia.zone.ecs.item.Inventory
 import net.bestia.zone.item.equip.EquipmentSlots
-import net.bestia.zone.ecs.movement.Position
-import net.bestia.zone.ecs.movement.Speed
+import net.bestia.zone.movement.ecs.Position
+import net.bestia.zone.movement.ecs.Speed
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.identity.ecs.ActivePlayer
-import net.bestia.zone.ecs.place.Place
-import net.bestia.zone.ecs.place.PlaceNameService
+import net.bestia.zone.place.ecs.Place
+import net.bestia.zone.place.ecs.PlaceNameService
 import net.bestia.zone.identity.ecs.Master as MasterComponent
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.ecs.battle.level.Level
@@ -32,8 +32,8 @@ import net.bestia.zone.ecs.account.MasterVisual
 import net.bestia.zone.identity.ecs.OwnedBestia
 import net.bestia.zone.ecs.battle.exp.Exp
 import net.bestia.zone.ecs.battle.level.LevelUpExperienceCalculator
-import net.bestia.zone.ecs.logout.DisconnectProtection
-import net.bestia.zone.ecs.logout.LogoutIntent
+import net.bestia.zone.logout.ecs.DisconnectProtection
+import net.bestia.zone.logout.ecs.LogoutIntent
 import net.bestia.zone.persistence.PersistAndRemove
 import net.bestia.zone.persistence.Persistent
 import net.bestia.zone.ecs.persistence.StatusEffectPersistenceService

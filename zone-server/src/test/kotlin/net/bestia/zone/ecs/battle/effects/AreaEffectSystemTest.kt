@@ -7,7 +7,7 @@ import net.bestia.zone.ecs.battle.damage.Damage
 import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.core.testWorld
-import net.bestia.zone.ecs.movement.Position
+import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.entity.ecs.PropPose
 import net.bestia.zone.entity.ecs.PropVitality
 import net.bestia.zone.entity.ecs.WorldObjectIdentity

@@ -6,7 +6,7 @@ import net.bestia.zone.aoi.EntityAOIService
 import net.bestia.zone.ecs.battle.damage.TakenDamage
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.ecs.movement.Position
+import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.ecs.spawn.townsfolk.Townsfolk
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId

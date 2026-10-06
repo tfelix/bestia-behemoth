@@ -3,7 +3,7 @@ package net.bestia.zone.ai.bt.leaves
 import net.bestia.zone.ai.core.behavior.BtContext
 import net.bestia.zone.ai.core.behavior.BtNode
 import net.bestia.zone.ai.core.behavior.Status
-import net.bestia.zone.ecs.movement.Path
+import net.bestia.zone.movement.ecs.Path
 
 /**
  * Lies down for at least [minSeconds], and stays down for as long as [stayAsleep] says the reason for

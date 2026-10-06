@@ -6,7 +6,7 @@ import net.bestia.zone.ai.rumour.RumourRegistry
 import net.bestia.zone.ai.rumour.RumourService
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.session.ConnectionInfoService
-import net.bestia.zone.ecs.movement.Position
+import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.environment.time.BestiaClock
 import net.bestia.zone.message.OutMessageProcessor
 import org.springframework.stereotype.Component

@@ -19,7 +19,7 @@ import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.TickBuckets
 import net.bestia.zone.ecs.core.System as EcsSystem
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.ecs.movement.Position
+import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.environment.time.BestiaClock
 import net.bestia.zone.environment.time.BestiaDateTime
 import net.bestia.zone.geometry.Vec3L

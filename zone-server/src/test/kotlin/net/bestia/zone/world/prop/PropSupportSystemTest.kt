@@ -9,7 +9,7 @@ import net.bestia.worldgen.derived.DerivedStore
 import net.bestia.zone.aoi.EntityAOIService
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld
-import net.bestia.zone.ecs.movement.GroundHeight
+import net.bestia.zone.movement.ecs.GroundHeight
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.SMSG
 import net.bestia.zone.message.ChunkFanOut

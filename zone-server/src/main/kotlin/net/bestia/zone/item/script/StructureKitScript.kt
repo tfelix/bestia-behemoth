@@ -3,7 +3,7 @@ package net.bestia.zone.item.script
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.identity.ecs.Master
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.ecs.movement.Position
+import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.script.ScriptArgKeys
 import net.bestia.zone.script.ScriptArgs
 import net.bestia.zone.util.EntityId

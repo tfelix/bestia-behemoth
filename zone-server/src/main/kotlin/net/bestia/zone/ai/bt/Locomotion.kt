@@ -2,8 +2,8 @@ package net.bestia.zone.ai.bt
 
 import net.bestia.zone.ai.core.behavior.BtContext
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.ecs.movement.Path
-import net.bestia.zone.ecs.movement.Position
+import net.bestia.zone.movement.ecs.Path
+import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.navigation.MacroRoute
 import net.bestia.zone.navigation.NavigationService

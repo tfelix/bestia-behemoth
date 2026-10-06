@@ -1,6 +1,6 @@
 package net.bestia.zone.ai.ecs
 
-import net.bestia.zone.ecs.movement.GroundTrample
+import net.bestia.zone.movement.ecs.GroundTrample
 import io.mockk.every
 import io.mockk.mockk
 import net.bestia.zone.ai.core.planner.Planner
@@ -36,9 +36,9 @@ import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.spawn.ambient.AmbientSpawnConfig
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.entity.ecs.Animation
-import net.bestia.zone.ecs.movement.MoveSystem
-import net.bestia.zone.ecs.movement.Position
-import net.bestia.zone.ecs.movement.Speed
+import net.bestia.zone.movement.ecs.MoveSystem
+import net.bestia.zone.movement.ecs.Position
+import net.bestia.zone.movement.ecs.Speed
 import net.bestia.zone.environment.time.BestiaClock
 import net.bestia.zone.environment.time.BestiaDateTime
 import net.bestia.zone.battle.status.AttackSpeed

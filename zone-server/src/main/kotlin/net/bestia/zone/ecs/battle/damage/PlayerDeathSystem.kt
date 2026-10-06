@@ -9,7 +9,7 @@ import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.ecs.movement.Path
+import net.bestia.zone.movement.ecs.Path
 import net.bestia.zone.world.prop.PlayerStructureDeathSystem
 import net.bestia.zone.world.prop.PropDeathDivergenceSystem
 import org.springframework.stereotype.Component as SpringComponent

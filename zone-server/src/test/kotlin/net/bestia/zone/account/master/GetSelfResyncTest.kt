@@ -19,8 +19,8 @@ import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.ecs.RecordingEntityVisibility
 import net.bestia.zone.ecs.item.CarryCapacity
 import net.bestia.zone.ecs.item.Equipment
-import net.bestia.zone.ecs.place.Place
-import net.bestia.zone.ecs.place.PlaceRef
+import net.bestia.zone.place.ecs.Place
+import net.bestia.zone.place.ecs.PlaceRef
 import net.bestia.zone.item.equip.EquipmentSlots
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.util.EntityId

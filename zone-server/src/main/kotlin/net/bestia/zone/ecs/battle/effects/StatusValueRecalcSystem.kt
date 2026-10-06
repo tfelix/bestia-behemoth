@@ -23,7 +23,7 @@ import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.item.Equipment
-import net.bestia.zone.ecs.movement.Speed
+import net.bestia.zone.movement.ecs.Speed
 import net.bestia.zone.item.equip.script.EquipmentScriptRegistry
 import net.bestia.zone.util.EntityId
 import kotlin.collections.component1

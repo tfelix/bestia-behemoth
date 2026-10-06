@@ -7,7 +7,7 @@ import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.entity.ecs.PlayerStructureIdentity
-import net.bestia.zone.ecs.movement.Position
+import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.entity.ecs.PropPose
 import net.bestia.zone.world.WorldService
 import org.springframework.stereotype.Component as SpringComponent

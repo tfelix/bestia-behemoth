@@ -8,7 +8,7 @@ import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.ecs.item.Equipment
 import net.bestia.zone.ecs.item.Inventory
 import net.bestia.zone.ecs.item.ObtainItemIntent
-import net.bestia.zone.ecs.movement.Position
+import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.item.ItemRepository
 import net.bestia.zone.item.equip.EquipmentSlot
 import net.bestia.zone.item.findByIdentifierOrThrow

@@ -8,7 +8,7 @@ import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.entity.ecs.EntityVisual
 import net.bestia.zone.entity.ecs.VisualKind
-import net.bestia.zone.ecs.movement.Position
+import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.ai.rumour.NotableKillReporter
 import net.bestia.zone.persistence.PersistedEntityDeletionQueue
 import net.bestia.zone.persistence.Persistent

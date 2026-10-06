@@ -21,11 +21,10 @@ import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.ecs.item.EquipmentComponentSMSG
 import net.bestia.zone.ecs.item.InventoryComponentSMSG
 import net.bestia.zone.entity.ecs.VisualComponentSMSG
-import net.bestia.zone.ecs.logout.LogoutIntentComponentSMSG
-import net.bestia.zone.ecs.logout.RequestLogoutCMSG
-import net.bestia.zone.ecs.movement.Position
-import net.bestia.zone.ecs.movement.PathSMSG
-import net.bestia.zone.ecs.movement.PositionSMSG
+import net.bestia.zone.logout.ecs.LogoutIntentComponentSMSG
+import net.bestia.zone.logout.ecs.RequestLogoutCMSG
+import net.bestia.zone.movement.ecs.Position
+import net.bestia.zone.movement.ecs.PathSMSG
 import net.bestia.zone.entity.MoveActiveEntityCMSG
 import net.bestia.zone.entity.VanishEntitySMSG
 import net.bestia.zone.extensions.test

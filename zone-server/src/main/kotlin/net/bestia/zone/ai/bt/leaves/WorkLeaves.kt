@@ -3,7 +3,7 @@ package net.bestia.zone.ai.bt.leaves
 import net.bestia.zone.ai.core.behavior.BtContext
 import net.bestia.zone.ai.core.behavior.BtNode
 import net.bestia.zone.ai.core.behavior.Status
-import net.bestia.zone.ecs.movement.Path
+import net.bestia.zone.movement.ecs.Path
 
 /**
  * Turns out one piece of work every [secondsPerUnit], for as long as [canBegin] allows.

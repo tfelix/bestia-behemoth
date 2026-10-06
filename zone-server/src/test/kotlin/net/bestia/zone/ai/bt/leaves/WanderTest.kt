@@ -6,8 +6,8 @@ import net.bestia.zone.ai.core.state.Blackboard
 import net.bestia.zone.ai.core.state.WorldState
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld
-import net.bestia.zone.ecs.movement.Path
-import net.bestia.zone.ecs.movement.Position
+import net.bestia.zone.movement.ecs.Path
+import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.navigation.TestNavigation
 import net.bestia.zone.navigation.local.LocalWalkQuery

@@ -19,8 +19,8 @@ import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.TickBuckets
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.ecs.movement.Path
-import net.bestia.zone.ecs.movement.Position
+import net.bestia.zone.movement.ecs.Path
+import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.ecs.spawn.townsfolk.Townsfolk
 import net.bestia.zone.navigation.MacroRoute
 import org.springframework.stereotype.Component as SpringComponent

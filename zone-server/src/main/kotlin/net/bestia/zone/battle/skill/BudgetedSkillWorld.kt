@@ -13,7 +13,7 @@ import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.battle.status.Invulnerable
 import net.bestia.zone.ecs.battle.status.Mana
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.ecs.movement.Position
+import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.entity.StaticEntityKind

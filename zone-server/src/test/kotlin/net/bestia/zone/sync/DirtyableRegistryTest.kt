@@ -4,9 +4,9 @@ import net.bestia.zone.entity.ecs.EntityVisual
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.battle.status.Mana
 import net.bestia.zone.ecs.item.Inventory
-import net.bestia.zone.ecs.movement.Path
-import net.bestia.zone.ecs.movement.Position
-import net.bestia.zone.ecs.movement.Speed
+import net.bestia.zone.movement.ecs.Path
+import net.bestia.zone.movement.ecs.Position
+import net.bestia.zone.movement.ecs.Speed
 import net.bestia.zone.ecs.battle.exp.Exp
 import net.bestia.zone.ecs.battle.level.Level
 import net.bestia.zone.ecs.battle.status.SkillPoints

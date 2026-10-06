@@ -10,7 +10,7 @@ import net.bestia.zone.ai.domain.townsfolk.TownsfolkDomain
 import net.bestia.zone.bestia.BestiaEntitySpawner
 import net.bestia.zone.bestia.BestiaRepository
 import net.bestia.zone.session.ConnectionInfoService
-import net.bestia.zone.ecs.movement.Position
+import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.ecs.spawn.townsfolk.TownsfolkEntitySpawner
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.geometry.Vec3L

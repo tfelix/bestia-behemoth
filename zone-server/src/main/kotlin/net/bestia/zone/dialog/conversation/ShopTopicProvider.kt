@@ -1,7 +1,7 @@
 package net.bestia.zone.dialog.conversation
 
 import net.bestia.zone.ecs.core.WorldView
-import net.bestia.zone.ecs.movement.Position
+import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.economy.SettlementEconomyService
 import net.bestia.zone.economy.shop.MerchantStock
 import net.bestia.zone.economy.shop.ShopOfferPublisher

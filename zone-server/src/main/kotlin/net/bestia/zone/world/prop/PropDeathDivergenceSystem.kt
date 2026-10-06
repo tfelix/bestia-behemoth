@@ -5,7 +5,7 @@ import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.ecs.movement.Position
+import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.entity.ecs.StaticVisual
 import net.bestia.zone.entity.ecs.WorldObjectIdentity
 import net.bestia.zone.item.loot.LootItemEntitySpawner

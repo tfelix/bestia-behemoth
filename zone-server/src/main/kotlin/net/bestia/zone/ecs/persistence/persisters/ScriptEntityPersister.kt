@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.ecs.movement.Position
+import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.persistence.EntityPersister
 import net.bestia.zone.persistence.EntitySnapshot
 import net.bestia.zone.ecs.script.ScriptComponent

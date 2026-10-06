@@ -19,10 +19,10 @@ import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.update
 import net.bestia.zone.ecs.construction.ConstructionSystem
-import net.bestia.zone.ecs.respawn.RespawnSystem
+import net.bestia.zone.respawn.ecs.RespawnSystem
 import net.bestia.zone.entity.ecs.EntityVisual
 import net.bestia.zone.entity.ecs.VisualKind
-import net.bestia.zone.ecs.movement.Position
+import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.persistence.PersistedEntityDeletionQueue
 import net.bestia.zone.persistence.Persistent
 import net.bestia.zone.geometry.Vec3L

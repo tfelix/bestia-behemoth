@@ -9,7 +9,7 @@ import net.bestia.zone.chat.ChatCMSG
 import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.session.ConnectionInfoService
-import net.bestia.zone.ecs.movement.Position
+import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.world.stream.ChunkCoords
 import net.bestia.zone.world.WorldService
 import net.bestia.zone.world.stream.ChunkDataSMSG

@@ -25,7 +25,7 @@ import net.bestia.zone.skill.SkillId
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.ecs.item.Equipment
-import net.bestia.zone.ecs.movement.Speed
+import net.bestia.zone.movement.ecs.Speed
 import net.bestia.zone.item.Item
 import net.bestia.zone.item.equip.EquipmentSlot
 import net.bestia.zone.item.equip.EquipmentSlots

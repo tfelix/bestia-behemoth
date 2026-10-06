@@ -1,6 +1,6 @@
 package net.bestia.zone.world.ground
 
-import net.bestia.zone.ecs.movement.GroundTrample
+import net.bestia.zone.movement.ecs.GroundTrample
 import net.bestia.zone.environment.time.BestiaClock
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Service

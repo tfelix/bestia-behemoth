@@ -7,7 +7,7 @@ import net.bestia.zone.ecs.core.SnowflakeEntityIdGenerator
 import net.bestia.zone.ecs.core.EcsWorld
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.item.GroundItemDecay
-import net.bestia.zone.ecs.movement.Position
+import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.ecs.persistence.persisters.LootItemEntityPersister
 import net.bestia.zone.ecs.persistence.persisters.MobEntityPersister
 import net.bestia.zone.ecs.spawn.DenIdentity

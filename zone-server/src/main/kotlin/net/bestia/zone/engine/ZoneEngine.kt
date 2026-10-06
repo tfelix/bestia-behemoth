@@ -2,7 +2,7 @@ package net.bestia.zone.engine
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.annotation.PreDestroy
-import net.bestia.zone.ecs.movement.Position
+import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.identity.ecs.ActivePlayer
 import net.bestia.zone.entity.ecs.Dead

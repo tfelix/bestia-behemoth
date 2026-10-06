@@ -9,7 +9,7 @@ import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.entity.ecs.EntityVisual
 import net.bestia.zone.entity.ecs.VisualKind
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.ecs.movement.Position
+import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.persistence.EntityPersister
 import net.bestia.zone.persistence.EntitySnapshot
 import net.bestia.zone.persistence.PersistedEntityDeletionQueue

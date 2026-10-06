@@ -6,9 +6,9 @@ import net.bestia.zone.config.WorldRulesConfig
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.entity.ecs.DeadActionGuard
-import net.bestia.zone.ecs.logout.LogoutCancelService
-import net.bestia.zone.ecs.movement.Path
-import net.bestia.zone.ecs.movement.Position
+import net.bestia.zone.logout.ecs.LogoutCancelService
+import net.bestia.zone.movement.ecs.Path
+import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.navigation.local.LocalWalkQuery
 import net.bestia.zone.util.EntityId

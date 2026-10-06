@@ -12,7 +12,7 @@ import net.bestia.zone.ecs.battle.status.Nature
 import net.bestia.zone.ecs.battle.status.StatusValues
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.item.Equipment
-import net.bestia.zone.ecs.movement.Position
+import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.item.equip.EquipmentSlot
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
