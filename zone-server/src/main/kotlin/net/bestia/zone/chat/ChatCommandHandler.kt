@@ -64,7 +64,7 @@ class ChatCommandHandler(
 
     val chatSMSG = ChatSMSG(
       text = helpText,
-      type = ChatCMSG.Type.COMMAND,
+      type = ChatType.COMMAND,
       senderUsername = null,
       senderEntityId = null
     )

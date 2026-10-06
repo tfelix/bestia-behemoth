@@ -44,17 +44,17 @@ class ChatHandler(
 
     // Talking to other players needs Basic Skill rank 2; commands deliberately do not, since a GM command
     // and a chat message only share a transport, and locking `/spawn` behind a novice skill would be absurd.
-    if (line.type != ChatCMSG.Type.COMMAND && !basicSkillGate.mayChat(line.playerId)) {
+    if (line.type != ChatType.COMMAND && !basicSkillGate.mayChat(line.playerId)) {
       outMessageProcessor.sendToPlayer(line.playerId, OperationErrorSMSG(OpError.BASIC_SKILL_CHAT_LOCKED))
       return true
     }
 
     when (line.type) {
-      ChatCMSG.Type.PUBLIC -> handlePublicChat(line)
-      ChatCMSG.Type.WHISPER -> handleWhisperChat(line)
-      ChatCMSG.Type.PARTY -> sendNotYetSupported(line.playerId)
-      ChatCMSG.Type.GUILD -> sendNotYetSupported(line.playerId)
-      ChatCMSG.Type.COMMAND -> handleChatCommand(line)
+      ChatType.PUBLIC -> handlePublicChat(line)
+      ChatType.WHISPER -> handleWhisperChat(line)
+      ChatType.PARTY -> sendNotYetSupported(line.playerId)
+      ChatType.GUILD -> sendNotYetSupported(line.playerId)
+      ChatType.COMMAND -> handleChatCommand(line)
       else -> {
         LOG.warn { "Received unsupported chat type: ${line.type} from player ${line.playerId}" }
       }
@@ -104,7 +104,7 @@ class ChatHandler(
       targetAccountId,
       ChatSMSG(
         text = msg.text,
-        type = ChatCMSG.Type.WHISPER,
+        type = ChatType.WHISPER,
         senderUsername = masterOperations.getSelectedMasterByAccountId(msg.playerId).name
       )
     )

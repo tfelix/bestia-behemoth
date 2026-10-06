@@ -41,7 +41,7 @@ class ChatHandlerTest {
     handler.handle(
       ChatCMSG(
         playerId = SENDER,
-        type = ChatCMSG.Type.WHISPER,
+        type = ChatType.WHISPER,
         text = text,
         targetUsername = target
       )
@@ -61,7 +61,7 @@ class ChatHandlerTest {
     verify {
       out.sendToPlayer(
         TARGET,
-        ChatSMSG(type = ChatCMSG.Type.WHISPER, text = "helloworld", senderUsername = "sender")
+        ChatSMSG(type = ChatType.WHISPER, text = "helloworld", senderUsername = "sender")
       )
     }
   }
@@ -110,7 +110,7 @@ class ChatHandlerTest {
     whisper("target", text = "hello\u0007\u202Eworld")
 
     verify {
-      out.sendToPlayer(TARGET, ChatSMSG(type = ChatCMSG.Type.WHISPER, text = "helloworld", senderUsername = "sender"))
+      out.sendToPlayer(TARGET, ChatSMSG(type = ChatType.WHISPER, text = "helloworld", senderUsername = "sender"))
     }
   }
 

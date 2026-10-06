@@ -116,7 +116,7 @@ class ChatCommandHandlerTest {
       FakeChatCommand("/mm", requiredAuthority = Authority.MAP_MOVE)
     )
 
-    assertEquals(ChatSMSG(text = "/mm - fake", type = ChatCMSG.Type.COMMAND), answer())
+    assertEquals(ChatSMSG(text = "/mm - fake", type = ChatType.COMMAND), answer())
   }
 
   private class FakeChatCommand(
