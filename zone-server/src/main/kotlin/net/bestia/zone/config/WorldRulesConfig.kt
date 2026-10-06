@@ -17,7 +17,7 @@ data class WorldRulesConfig(
   val groundItemDespawnAfter: Duration = Duration.ofDays(7),
   /**
    * Sustained ceiling on move requests from one account, and how many it may bank against a flurry of
-   * clicking. See [net.bestia.zone.entity.MoveRequestRateLimit] for why a move request is worth limiting.
+   * clicking. See [net.bestia.zone.control.MoveRequestRateLimit] for why a move request is worth limiting.
    */
   val moveRequestsPerSecond: Float = 10f,
   val moveRequestBurst: Float = 20f,

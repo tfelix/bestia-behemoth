@@ -1,14 +1,14 @@
 package net.bestia.zone.cartography.chart
 
 import net.bestia.bnet.proto.OperationErrorProto.OpError
-import net.bestia.zone.account.master.BodyType
-import net.bestia.zone.account.master.Face
-import net.bestia.zone.account.master.Hairstyle
-import net.bestia.zone.account.master.Master
-import net.bestia.zone.account.master.MasterDeletionService
-import net.bestia.zone.account.master.MasterFactory
-import net.bestia.zone.account.master.MasterRepository
-import net.bestia.zone.account.master.findByIdOrThrow
+import net.bestia.zone.account.BodyType
+import net.bestia.zone.account.Face
+import net.bestia.zone.account.Hairstyle
+import net.bestia.zone.account.persistence.Master
+import net.bestia.zone.master.MasterDeletionService
+import net.bestia.zone.master.MasterFactory
+import net.bestia.zone.account.persistence.MasterRepository
+import net.bestia.zone.account.persistence.findByIdOrThrow
 import net.bestia.zone.cartography.coverage.CoverageCodec
 import net.bestia.zone.item.ItemRepository
 import net.bestia.zone.item.container.InventoryService
@@ -80,7 +80,7 @@ class ChartServiceTest {
    * Deletes the masters this class made.
    *
    * Not tidiness - an account has a hard cap on how many masters it may hold, so without this every test after
-   * the first fails with [net.bestia.zone.account.master.MaxMastersReachedException]. It also puts the chart
+   * the first fails with [net.bestia.zone.master.MaxMastersReachedException]. It also puts the chart
    * foreign key through its cleanup path on every single test.
    */
   @AfterEach

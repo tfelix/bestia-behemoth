@@ -1,0 +1,272 @@
+package net.bestia.zone.master.bestia
+
+import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.zone.ai.ecs.AiAgentFactory
+import net.bestia.zone.ai.profile.AiProfileRegistry
+import net.bestia.zone.skill.ecs.KnownSkills
+import net.bestia.zone.battle.ecs.status.BaseStatusValues
+import net.bestia.zone.battle.ecs.status.FormulaDrivenVitals
+import net.bestia.zone.battle.ecs.status.Health
+import net.bestia.zone.battle.ecs.status.IsStatusValueDirty
+import net.bestia.zone.battle.ecs.status.Mana
+import net.bestia.zone.battle.ecs.status.Stamina
+import net.bestia.zone.battle.ecs.status.StatusValues
+import net.bestia.zone.item.ecs.CarryCapacity
+import net.bestia.zone.battle.status.ConditionValueCalculator
+import net.bestia.zone.item.ecs.WeightLimitCalculator
+import net.bestia.zone.item.ecs.Equipment
+import net.bestia.zone.item.ecs.Inventory
+import net.bestia.zone.movement.ecs.Position
+import net.bestia.zone.movement.ecs.Speed
+import net.bestia.zone.identity.ecs.Account
+import net.bestia.zone.identity.ecs.OwnedBestia
+import net.bestia.zone.session.ConnectionInfoService
+import net.bestia.zone.battle.ecs.exp.Exp
+import net.bestia.zone.battle.ecs.level.Level
+import net.bestia.zone.battle.ecs.level.LevelUpExperienceCalculator
+import net.bestia.zone.entity.ecs.EntityVisual
+import net.bestia.zone.entity.ecs.VisualKind
+import net.bestia.zone.entity.ecs.Animation
+import net.bestia.zone.ecs.core.World
+import net.bestia.zone.ecs.core.WorldView
+import net.bestia.zone.persistence.Persistent
+import net.bestia.zone.util.EntityId
+import net.bestia.zone.util.PlayerBestiaId
+import org.springframework.stereotype.Component
+import org.springframework.transaction.annotation.Transactional
+import net.bestia.zone.account.persistence.PlayerBestia
+import net.bestia.zone.account.persistence.PlayerBestiaRepository
+import net.bestia.zone.account.persistence.findByIdOrThrow
+import net.bestia.zone.bestia.findByIdOrThrow
+
+@Component
+class PlayerBestiaEntitySpawner(
+  private val playerBestiaRepository: PlayerBestiaRepository,
+  private val world: WorldView,
+  private val connectionInfoService: ConnectionInfoService,
+  private val weightLimitCalculator: WeightLimitCalculator,
+  private val levelUpExpCalculator: LevelUpExperienceCalculator,
+  private val conditionValueCalculator: ConditionValueCalculator,
+  private val aiProfileRegistry: AiProfileRegistry,
+  private val aiAgentFactory: AiAgentFactory,
+) {
+
+  /**
+   * A [PlayerBestia] with its lazy relations already read, so it can be spawned inside a world scope, which
+   * must not query the database.
+   */
+  class LoadedBestia(
+    val row: PlayerBestia,
+    val knownSkills: KnownSkills,
+    val inventory: Inventory,
+    val equipment: Equipment,
+  )
+
+  @Transactional(readOnly = true)
+  fun spawnPlayerBestia(
+    playerBestiaId: PlayerBestiaId,
+  ) {
+    val playerBestia = playerBestiaRepository.findByIdOrThrow(playerBestiaId)
+
+    spawnPlayerBestia(playerBestia)
+  }
+
+  /** Spawns a bestia that was just created. One that already existed comes back through [respawnMissing]. */
+  fun spawnPlayerBestia(
+    playerBestia: PlayerBestia,
+  ) {
+    val loaded = load(playerBestia)
+    val entityId = world.createEntity { id -> addComponents(id, loaded) }
+
+    val accountId = playerBestia.master.account.id
+    val playerBestiaId = playerBestia.id
+    val masterId = playerBestia.master.id
+
+    LOG.info { "Spawned player bestia $playerBestiaId for account $accountId with entity id: $entityId" }
+
+    connectionInfoService.registerPlayerBestiaEntity(
+      accountId = accountId,
+      masterId = masterId,
+      playerBestiaId = playerBestiaId,
+      playerBestiaEntityId = entityId
+    )
+  }
+
+  @Transactional(readOnly = true)
+  fun loadOwnedBy(masterId: Long): List<LoadedBestia> {
+    return playerBestiaRepository.findAllByMasterId(masterId).map(::load)
+  }
+
+  /**
+   * Spawns each of [bestias] that is not in [world]. A bestia stays in the world when its owner leaves, but a
+   * restart loses it. Checked in the same world scope that spawns, so a bestia still in the world is never doubled.
+   */
+  fun respawnMissing(world: World, masterId: Long, bestias: List<LoadedBestia>) {
+    val inWorld = OwnedBestia.ownedBy(world, masterId).mapTo(HashSet()) { it.playerBestiaId }
+
+    for (bestia in bestias) {
+      if (bestia.row.id in inWorld) {
+        continue
+      }
+
+      val entityId = world.createEntity { id -> addComponents(id, bestia) }
+      LOG.info { "Respawned player bestia ${bestia.row.id} of master $masterId with entity id: $entityId" }
+    }
+  }
+
+  private fun load(playerBestia: PlayerBestia): LoadedBestia {
+    val fixedAttackIds = playerBestia.bestia.skills
+      .filter { it.requiredLevel <= playerBestia.level }
+      .associate { it.skill.id to 1 }
+    val customAttackIds = playerBestia.learnedSkills.associate { it.skill.id to it.level }
+
+    return LoadedBestia(
+      row = playerBestia,
+      knownSkills = KnownSkills((fixedAttackIds + customAttackIds).toMutableMap()),
+      inventory = buildInventory(playerBestia),
+      equipment = buildEquipment(playerBestia),
+    )
+  }
+
+  private fun World.addComponents(id: EntityId, loaded: LoadedBestia) {
+    val playerBestia = loaded.row
+
+    add(id, Position.fromVec3(playerBestia.position))
+    add(id, Level(playerBestia.level))
+    add(id, Exp(0, levelUpExpCalculator.getRequiredExperience(playerBestia.level)))
+    add(id, Speed())
+    add(id, EntityVisual(VisualKind.BESTIA, playerBestia.bestia.id))
+    // Rendered by the same visual as a wild mob, so it gets the same posture channel: an owned bestia left
+    // on a FORAGE stance sleeps, and its owner should be able to see that it is asleep.
+    add(id, Animation())
+    add(id, Account(playerBestia.master.account.id))
+    add(id, loaded.knownSkills)
+    add(id, loaded.inventory)
+    add(id, loaded.equipment)
+
+    val baseStatusValues = BaseStatusValues(
+      strength = 10,
+      intelligence = 10,
+      vitality = 10,
+      dexterity = 10,
+      willpower = 10,
+      agility = 10
+    )
+    add(id, baseStatusValues)
+    add(
+      id,
+      StatusValues(
+        strength = baseStatusValues.strength,
+        intelligence = baseStatusValues.intelligence,
+        vitality = baseStatusValues.vitality,
+        dexterity = baseStatusValues.dexterity,
+        willpower = baseStatusValues.willpower,
+        agility = baseStatusValues.agility
+      )
+    )
+
+    // Formula-driven pools, kept fresh by StatusValueRecalcSystem - which is what the
+    // FormulaDrivenVitals marker below opts this entity into.
+    val maxHp = conditionValueCalculator.computeMaxHp(playerBestia.level, baseStatusValues.vitality)
+    val maxMana = conditionValueCalculator.computeMaxMana(playerBestia.level, baseStatusValues.intelligence)
+    val maxStamina = conditionValueCalculator.computeMaxStamina(
+      playerBestia.level, baseStatusValues.vitality, baseStatusValues.strength, baseStatusValues.willpower
+    )
+    add(id, Health(current = maxHp, max = maxHp))
+    add(id, Mana(current = maxMana, max = maxMana))
+    add(id, Stamina(current = maxStamina, max = maxStamina))
+    add(id, FormulaDrivenVitals)
+
+    // Recalc on the first tick so passives and worn equipment are folded in - see the same call
+    // in MasterEntitySpawner for the (minor, self-healing) effect this has on starting pools.
+    add(id, IsStatusValueDirty)
+
+    add(
+      id,
+      CarryCapacity(
+        current = loaded.inventory.totalWeight,
+        max = weightLimitCalculator.computeWeightLimit(
+          strength = baseStatusValues.strength,
+          vitality = baseStatusValues.vitality,
+          level = playerBestia.level
+        )
+      )
+    )
+
+    add(id, Persistent)
+    add(id, OwnedBestia(masterId = playerBestia.master.id, playerBestiaId = playerBestia.id))
+
+    attachIdleAi(id, playerBestia)
+  }
+
+  /**
+   * Gives an owned bestia the same AI a wild one of its species gets, narrowed by whatever standing order its
+   * owner has set.
+   *
+   * Player bestias had no AI at all before: an owned creature the player was not currently driving simply stood
+   * still. It gets one here so that "what my bestia does while I am busy" becomes a thing the player can
+   * configure — see [net.bestia.zone.ai.profile.AiConfig]. The think and act stages skip whichever entity is
+   * actually being driven, via [net.bestia.zone.ai.ecs.PlayerControlled].
+   */
+  private fun net.bestia.zone.ecs.core.World.attachIdleAi(
+    id: net.bestia.zone.util.EntityId,
+    playerBestia: PlayerBestia,
+  ) {
+    val profileId = playerBestia.bestia.aiProfile ?: return
+    val profile = aiProfileRegistry.get(profileId) ?: run {
+      LOG.warn {
+        "Player bestia ${playerBestia.id} references unknown AI profile '$profileId', spawning without idle AI"
+      }
+      return
+    }
+
+    // Home is where it stands now, not a species spawn point: a bestia told to patrol should patrol where its
+    // owner left it.
+    add(id, aiAgentFactory.create(profile, playerBestia.bestia.defaultAttack, playerBestia.bestia.aspd, homePosition = playerBestia.position, config = playerBestia.aiConfig))
+  }
+
+  /**
+   * Unlike a master, a bestia only has the slots and armor types its species declares (`equip-slots` and
+   * `armor-types` in the mob YML). The client knows the same masks from its static bestia DB; this is the
+   * server-side half of that rule.
+   */
+  private fun buildEquipment(playerBestia: PlayerBestia): Equipment {
+    return Equipment(
+      availableSlotMask = playerBestia.bestia.equipSlotMask,
+      wearableArmorTypeMask = playerBestia.bestia.armorTypeMask,
+      worn = playerBestia.container.equipped().mapValues { (_, slot) ->
+        Equipment.EquippedItem(
+          itemId = slot.template.id,
+          uniqueId = slot.uniqueId,
+          upgradeLevel = slot.itemInstance?.upgradeLevel ?: 0,
+          durability = slot.durability,
+          maxDurability = slot.maxDurability,
+          slots = slot.slots
+        )
+      }.toMutableMap()
+    )
+  }
+
+  private fun buildInventory(playerBestia: PlayerBestia): Inventory {
+    return Inventory(
+      items = playerBestia.container.slots.map { slot ->
+        Inventory.Item(
+          itemId = slot.template.id,
+          amount = slot.amount,
+          weight = slot.template.weight,
+          uniqueId = slot.uniqueId,
+          stackable = slot.isStackable,
+          equipped = slot.isEquipped,
+          durability = slot.durability,
+          maxDurability = slot.maxDurability,
+          slots = slot.slots,
+          upgradeLevel = slot.itemInstance?.upgradeLevel ?: 0
+        )
+      }.toMutableList()
+    )
+  }
+
+  companion object {
+    private val LOG = KotlinLogging.logger { }
+  }
+}

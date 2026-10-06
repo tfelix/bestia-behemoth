@@ -3,8 +3,8 @@ package net.bestia.zone.trade
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.session.AccountDisconnectedEvent
-import net.bestia.zone.account.master.MasterRepository
-import net.bestia.zone.account.master.findByIdOrThrow
+import net.bestia.zone.account.persistence.MasterRepository
+import net.bestia.zone.account.persistence.findByIdOrThrow
 import net.bestia.zone.skill.BasicSkillGate
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.entity.ecs.DeadActionGuard

@@ -3,8 +3,8 @@ package net.bestia.zone.trade
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import net.bestia.zone.account.master.Master
-import net.bestia.zone.account.master.MasterRepository
+import net.bestia.zone.account.persistence.Master
+import net.bestia.zone.account.persistence.MasterRepository
 import net.bestia.zone.skill.BasicSkillGate
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.entity.ecs.Dead

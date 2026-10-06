@@ -3,8 +3,8 @@ package net.bestia.zone.cartography.chart
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.worldgen.core.WorldWrap
-import net.bestia.zone.account.master.MasterRepository
-import net.bestia.zone.account.master.findByIdOrThrow
+import net.bestia.zone.account.persistence.MasterRepository
+import net.bestia.zone.account.persistence.findByIdOrThrow
 import net.bestia.zone.cartography.coverage.Coverage
 import net.bestia.zone.cartography.coverage.CoverageCodec
 import net.bestia.zone.cartography.coverage.SurveyGrid

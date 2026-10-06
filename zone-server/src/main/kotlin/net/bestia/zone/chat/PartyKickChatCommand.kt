@@ -1,7 +1,7 @@
 package net.bestia.zone.chat
 
-import net.bestia.zone.account.master.MasterNotFoundException
-import net.bestia.zone.account.master.MasterResolver
+import net.bestia.zone.account.MasterNotFoundException
+import net.bestia.zone.account.MasterResolver
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.party.PartyErrorSMSG
 import net.bestia.zone.party.PartyService

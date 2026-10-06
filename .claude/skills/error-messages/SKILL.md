@@ -86,10 +86,10 @@ mapping `when` and the client's error-code branch all have to be maintained fore
 
 Worked examples, both of which deliberately report `MASTER_GENERAL_ERROR`:
 
-- [`MasterFactory.validateEffortValues`](../../../zone-server/src/main/kotlin/net/bestia/zone/account/master/MasterFactory.kt)
+- [`MasterFactory.validateEffortValues`](../../../zone-server/src/main/kotlin/net/bestia/zone/master/MasterFactory.kt)
   checks that a new master's effort value distribution spends the creation budget exactly with every
   value in range - but `CreateNewMaster` keeps its Create button disabled until it does.
-- [`InvestStatusPointHandler`](../../../zone-server/src/main/kotlin/net/bestia/zone/account/master/status/InvestStatusPointHandler.kt)
+- [`InvestStatusPointHandler`](../../../zone-server/src/main/kotlin/net/bestia/zone/master/status/InvestStatusPointHandler.kt)
   catches `NoStatusPointsAvailableException` - but the status window prices every `+` before enabling
   it.
 

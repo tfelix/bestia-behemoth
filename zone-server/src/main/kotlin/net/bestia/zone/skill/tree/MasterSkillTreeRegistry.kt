@@ -49,7 +49,7 @@ class MasterSkillTreeRegistry {
 
     /**
      * The one tree a master may invest in from the start, and the one whose skills do not end their
-     * novicehood. Named here rather than in [net.bestia.zone.account.master.skill.MasterSkillTreeService] because two unrelated rules now read
+     * novicehood. Named here rather than in [net.bestia.zone.master.skill.MasterSkillTreeService] because two unrelated rules now read
      * it - the tree unlock and the gear gate - and the tree names are this registry's vocabulary.
      */
     const val NOVICE_TREE = "NOVICE"

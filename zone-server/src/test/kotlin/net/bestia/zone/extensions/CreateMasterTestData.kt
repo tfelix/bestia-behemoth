@@ -1,11 +1,11 @@
 package net.bestia.zone.extensions
 
-import net.bestia.zone.account.master.CreateMasterCMSG
-import net.bestia.zone.account.master.BodyType
-import net.bestia.zone.account.master.Face
-import net.bestia.zone.account.master.Hairstyle
-import net.bestia.zone.account.master.MasterFactory
-import net.bestia.zone.account.master.status.StatusAttribute
+import net.bestia.zone.master.CreateMasterCMSG
+import net.bestia.zone.account.BodyType
+import net.bestia.zone.account.Face
+import net.bestia.zone.account.Hairstyle
+import net.bestia.zone.master.MasterFactory
+import net.bestia.zone.master.status.StatusAttribute
 import net.bestia.zone.message.CMSG
 import java.awt.Color
 

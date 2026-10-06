@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import net.bestia.zone.account.master.status.EffortValueCostCalculator
+import net.bestia.zone.master.status.EffortValueCostCalculator
 import net.bestia.zone.battle.BattleContextFixture
 import net.bestia.zone.battle.EntityBattleContext
 import net.bestia.zone.battle.FixedRandom

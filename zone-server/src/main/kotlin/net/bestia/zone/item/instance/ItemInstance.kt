@@ -7,7 +7,7 @@ import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
-import net.bestia.zone.account.master.Master
+import net.bestia.zone.account.persistence.Master
 import net.bestia.zone.item.Item
 
 /**

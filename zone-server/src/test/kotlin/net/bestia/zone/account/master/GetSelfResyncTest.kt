@@ -2,7 +2,7 @@ package net.bestia.zone.account.master
 
 import io.mockk.every
 import io.mockk.mockk
-import net.bestia.zone.account.GetSelfCMSG
+import net.bestia.zone.master.GetSelfCMSG
 import net.bestia.zone.battle.ecs.exp.Exp
 import net.bestia.zone.battle.ecs.level.Level
 import net.bestia.zone.battle.ecs.status.BaseStatusValues
@@ -30,6 +30,8 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import kotlin.reflect.KClass
 import net.bestia.zone.ecs.core.EcsWorld
+import net.bestia.zone.master.BestiaInfoFactory
+import net.bestia.zone.master.GetSelfHandler
 
 /**
  * Pins the resync half of [GetSelfHandler] against a real (system-less) [World], mocking only the

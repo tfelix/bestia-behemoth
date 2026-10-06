@@ -2,7 +2,7 @@ package net.bestia.zone.scenarios
 
 import jakarta.persistence.EntityManager
 import jakarta.persistence.LockModeType
-import net.bestia.zone.party.Party
+import net.bestia.zone.account.persistence.Party
 import net.bestia.zone.party.PartyService
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test

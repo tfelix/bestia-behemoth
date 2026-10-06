@@ -2,6 +2,8 @@ package net.bestia.zone.account
 
 import net.bestia.zone.util.AccountId
 import org.springframework.stereotype.Component
+import net.bestia.zone.account.persistence.Account
+import net.bestia.zone.account.persistence.AccountRepository
 
 /**
  * Used to generate a fully new account and prepare all the required data so the player can log in.

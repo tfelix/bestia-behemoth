@@ -1,10 +1,10 @@
 package net.bestia.zone.account
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.account.master.MasterRepository
-import net.bestia.zone.account.master.findByIdOrThrow
-import net.bestia.zone.bestia.PlayerBestiaRepository
-import net.bestia.zone.bestia.findByIdOrThrow
+import net.bestia.zone.account.persistence.MasterRepository
+import net.bestia.zone.account.persistence.findByIdOrThrow
+import net.bestia.zone.account.persistence.PlayerBestiaRepository
+import net.bestia.zone.account.persistence.findByIdOrThrow
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.PlayerBestiaId
 import org.springframework.stereotype.Service

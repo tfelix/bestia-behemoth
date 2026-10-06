@@ -1,7 +1,7 @@
 package net.bestia.zone.item.container
 
-import net.bestia.zone.account.master.MasterRepository
-import net.bestia.zone.account.master.findByIdOrThrow
+import net.bestia.zone.account.persistence.MasterRepository
+import net.bestia.zone.account.persistence.findByIdOrThrow
 import net.bestia.zone.scenarios.ScenarioDataSetup
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -13,7 +13,7 @@ import kotlin.test.assertEquals
 
 /**
  * Regression test for the exact pattern [net.bestia.zone.boot.DevDataBootstrapRunner] uses: granting
- * several items to the same in-memory [net.bestia.zone.account.master.Master] reference across
+ * several items to the same in-memory [net.bestia.zone.account.persistence.Master] reference across
  * separate [InventoryService.addItem] calls (each its own transaction, so `master` is detached
  * between calls - unlike a single wrapping test transaction, which would never exercise the bug).
  * Before [ContainerSlot] had id-based equals/hashCode, every slot added in an earlier call got

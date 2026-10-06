@@ -4,6 +4,8 @@ import net.bestia.zone.config.ZoneConfig
 import net.bestia.zone.util.AccountId
 import org.springframework.stereotype.Service
 import kotlin.math.min
+import net.bestia.zone.account.persistence.AccountRepository
+import net.bestia.zone.account.persistence.findByIdOrThrow
 
 @Service
 class AvailableBestiaSlotService(
