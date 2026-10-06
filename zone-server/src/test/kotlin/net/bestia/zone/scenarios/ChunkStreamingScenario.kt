@@ -5,7 +5,7 @@ import net.bestia.worldgen.derived.ChunkDelta
 import net.bestia.worldgen.voxel.CarveBrush
 import net.bestia.worldgen.voxel.ChunkEngine
 import net.bestia.worldgen.voxel.RleCodec
-import net.bestia.zone.chat.ChatCMSG
+import net.bestia.zone.chat.net.ChatCMSG
 import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.session.ConnectionInfoService

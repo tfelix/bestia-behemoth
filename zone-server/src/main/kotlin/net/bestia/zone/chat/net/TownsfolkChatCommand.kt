@@ -1,4 +1,4 @@
-package net.bestia.zone.chat
+package net.bestia.zone.chat.net
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.account.Authority
@@ -19,6 +19,9 @@ import net.bestia.worldgen.civ.BuildingFunction
 import net.bestia.zone.world.settlement.SettlementSite
 import net.bestia.zone.world.settlement.SettlementSiteIndex
 import org.springframework.stereotype.Component
+import net.bestia.zone.chat.ChatCommand
+import net.bestia.zone.chat.ChatSMSG
+import net.bestia.zone.chat.ChatType
 
 /**
  * Puts one townsperson on the ground with a trade, for looking at a day.

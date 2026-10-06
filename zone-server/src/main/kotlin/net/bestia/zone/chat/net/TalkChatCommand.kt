@@ -1,4 +1,4 @@
-package net.bestia.zone.chat
+package net.bestia.zone.chat.net
 
 import net.bestia.account.Authority
 import net.bestia.zone.dialog.DialogArg
@@ -15,6 +15,9 @@ import net.bestia.zone.townsfolk.ecs.Townsfolk
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
+import net.bestia.zone.chat.ChatCommand
+import net.bestia.zone.chat.ChatSMSG
+import net.bestia.zone.chat.ChatType
 
 /**
  * Holds a conversation with the nearest townsperson, in the chat window.

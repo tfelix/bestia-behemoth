@@ -1,4 +1,4 @@
-package net.bestia.zone.chat
+package net.bestia.zone.chat.net
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.account.Authority
@@ -6,6 +6,7 @@ import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.ground.fire.GroundFireService
 import net.bestia.zone.world.stream.ChunkStreamConfig
 import org.springframework.stereotype.Component
+import net.bestia.zone.chat.ChatCommand
 
 /**
  * `/ignite <x> <y> [radius]` - sets light to the grass. The development trigger for spreading fire.

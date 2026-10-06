@@ -1,4 +1,4 @@
-package net.bestia.zone.chat
+package net.bestia.zone.chat.net
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.account.Authority
@@ -8,6 +8,7 @@ import net.bestia.zone.item.ecs.ObtainItemIntent
 import net.bestia.zone.item.ItemRepository
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
+import net.bestia.zone.chat.ChatCommand
 
 /**
  * Spawns items via [ObtainItemIntent.CreateItemIntent], the same "create an item out of thin air"

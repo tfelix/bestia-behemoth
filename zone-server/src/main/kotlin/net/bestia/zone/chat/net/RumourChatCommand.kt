@@ -1,4 +1,4 @@
-package net.bestia.zone.chat
+package net.bestia.zone.chat.net
 
 import net.bestia.account.Authority
 import net.bestia.zone.townsfolk.rumour.RumourKind
@@ -10,6 +10,9 @@ import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.world.time.BestiaClock
 import net.bestia.zone.message.OutMessageProcessor
 import org.springframework.stereotype.Component
+import net.bestia.zone.chat.ChatCommand
+import net.bestia.zone.chat.ChatSMSG
+import net.bestia.zone.chat.ChatType
 
 /**
  * Posts news where the caller is standing, and reads back what the towns around them have heard.

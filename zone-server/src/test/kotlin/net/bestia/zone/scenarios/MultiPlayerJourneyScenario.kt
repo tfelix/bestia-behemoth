@@ -11,7 +11,7 @@ import net.bestia.zone.master.net.InvestSkillPointCMSG
 import net.bestia.zone.casting.net.ActivateSkillCMSG
 import net.bestia.zone.battle.damage.DamageEntitySMSG
 import net.bestia.zone.battle.status.StatusEffectId
-import net.bestia.zone.chat.ChatCMSG
+import net.bestia.zone.chat.net.ChatCMSG
 import net.bestia.zone.chat.ChatSMSG
 import net.bestia.zone.battle.ecs.effects.StatusEffectsComponentSMSG
 import net.bestia.zone.battle.ecs.level.LevelComponentSMSG

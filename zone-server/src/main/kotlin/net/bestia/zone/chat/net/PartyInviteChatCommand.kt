@@ -1,4 +1,4 @@
-package net.bestia.zone.chat
+package net.bestia.zone.chat.net
 
 import net.bestia.zone.account.MasterNotFoundException
 import net.bestia.zone.account.MasterResolver
@@ -7,6 +7,7 @@ import net.bestia.zone.party.PartyErrorSMSG
 import net.bestia.zone.party.net.RequestPartyInvitationCMSG
 import net.bestia.zone.party.net.RequestInvitePlayerToPartyHandler
 import org.springframework.stereotype.Component
+import net.bestia.zone.chat.ChatCommand
 
 /** `/invite <username>` - invites the named master's account into the sender's party. */
 @Component

@@ -1,4 +1,4 @@
-package net.bestia.zone.chat
+package net.bestia.zone.chat.net
 
 import net.bestia.zone.account.MasterNotFoundException
 import net.bestia.zone.account.MasterResolver
@@ -8,6 +8,7 @@ import net.bestia.zone.party.PartyService
 import net.bestia.zone.party.net.RemovePartyMemberCMSG
 import net.bestia.zone.party.net.RemovePartyMemberHandler
 import org.springframework.stereotype.Component
+import net.bestia.zone.chat.ChatCommand
 
 /** `/kick <username>` - the party owner removes the named member from their party. */
 @Component
