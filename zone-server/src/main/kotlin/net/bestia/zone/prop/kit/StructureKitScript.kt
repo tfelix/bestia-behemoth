@@ -7,7 +7,7 @@ import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.script.ScriptArgKeys
 import net.bestia.zone.script.ScriptArgs
 import net.bestia.zone.util.EntityId
-import net.bestia.zone.world.prop.PlayerStructureService
+import net.bestia.zone.prop.PlayerStructureService
 import net.bestia.zone.entity.StaticEntityKind
 import net.bestia.zone.item.script.ItemScript
 

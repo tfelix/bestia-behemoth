@@ -1,12 +1,12 @@
 package net.bestia.zone.boot
 
-import net.bestia.zone.world.prop.PlayerStructureRegistry
+import net.bestia.zone.prop.PlayerStructureRegistry
 import org.springframework.boot.CommandLineRunner
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
 
 /**
- * Loads what players have built, so [net.bestia.zone.world.prop.PlayerStructureSource] can answer per chunk
+ * Loads what players have built, so [net.bestia.zone.prop.PlayerStructureSource] can answer per chunk
  * column from memory rather than querying the table from the tick thread.
  *
  * Grouped with [WorldObjectDivergenceBootRunner] (`@Order(3)`) under "things about the world" - both exist so

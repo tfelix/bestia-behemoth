@@ -6,7 +6,7 @@ import net.bestia.zone.crafting.CraftingService
 import net.bestia.zone.aoi.EntityAOIService
 import net.bestia.zone.battle.ecs.effects.AreaEffectSpawner
 import net.bestia.zone.message.OutMessageProcessor
-import net.bestia.zone.world.prop.PlayerStructureService
+import net.bestia.zone.prop.PlayerStructureService
 import net.bestia.zone.spoor.SpoorService
 import org.springframework.stereotype.Component
 

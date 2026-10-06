@@ -18,7 +18,7 @@ import net.bestia.zone.world.WorldService
 import net.bestia.zone.ground.fire.Scar
 import net.bestia.zone.ground.fire.ScorchRegistry
 import net.bestia.zone.ground.ColumnMask
-import net.bestia.zone.world.prop.WorldObjectDivergenceRegistry
+import net.bestia.zone.prop.WorldObjectDivergenceRegistry
 import net.bestia.zone.world.settlement.SettlementSite
 import net.bestia.zone.world.settlement.SettlementSiteIndex
 import java.time.Instant

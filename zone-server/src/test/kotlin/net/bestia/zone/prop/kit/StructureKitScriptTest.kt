@@ -10,7 +10,7 @@ import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.script.ScriptArgKeys
 import net.bestia.zone.script.ScriptArgs
 import net.bestia.zone.util.EntityId
-import net.bestia.zone.world.prop.PlayerStructureService
+import net.bestia.zone.prop.PlayerStructureService
 import net.bestia.zone.entity.StaticEntityKind
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

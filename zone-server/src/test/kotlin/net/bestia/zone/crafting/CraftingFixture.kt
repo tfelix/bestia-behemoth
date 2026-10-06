@@ -18,7 +18,7 @@ import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.skill.Skill
 import net.bestia.zone.skill.SkillRepository
 import net.bestia.zone.util.EntityId
-import net.bestia.zone.world.prop.PlayerStructureService
+import net.bestia.zone.prop.PlayerStructureService
 import net.bestia.zone.entity.StaticEntityKind
 import net.bestia.zone.ecs.core.EcsWorld
 

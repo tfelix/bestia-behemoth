@@ -16,7 +16,7 @@ import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.message.TickMessageHandler
 import net.bestia.zone.message.decoder
 import net.bestia.zone.util.EntityId
-import net.bestia.zone.world.prop.PropPromotionService
+import net.bestia.zone.prop.PropPromotionService
 import org.springframework.stereotype.Component
 
 /**

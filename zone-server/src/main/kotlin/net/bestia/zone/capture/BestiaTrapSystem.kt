@@ -18,7 +18,7 @@ import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.update
-import net.bestia.zone.ecs.construction.ConstructionSystem
+import net.bestia.zone.prop.ecs.construction.ConstructionSystem
 import net.bestia.zone.respawn.ecs.RespawnSystem
 import net.bestia.zone.entity.ecs.EntityVisual
 import net.bestia.zone.entity.ecs.VisualKind

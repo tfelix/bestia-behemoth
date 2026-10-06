@@ -22,7 +22,7 @@ import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OperationSuccessSMSG
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.util.EntityId
-import net.bestia.zone.world.prop.PlayerStructureService
+import net.bestia.zone.prop.PlayerStructureService
 import net.bestia.zone.entity.StaticEntityKind
 import org.springframework.stereotype.Service
 import kotlin.math.roundToInt
