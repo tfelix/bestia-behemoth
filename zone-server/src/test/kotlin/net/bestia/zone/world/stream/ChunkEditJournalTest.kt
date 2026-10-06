@@ -6,7 +6,7 @@ import io.mockk.slot
 import io.mockk.verify
 import net.bestia.worldgen.core.ChunkPos
 import net.bestia.worldgen.store.ChunkEdit
-import net.bestia.zone.ecs.core.AsyncJobExecutor
+import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.world.PersistedWorld
 import net.bestia.zone.world.WorldService
 import org.junit.jupiter.api.AfterEach

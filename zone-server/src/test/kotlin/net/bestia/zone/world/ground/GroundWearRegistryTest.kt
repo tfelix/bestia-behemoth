@@ -3,7 +3,7 @@ package net.bestia.zone.world.ground
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import net.bestia.zone.ecs.core.AsyncJobExecutor
+import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.environment.time.BestiaClock
 import net.bestia.zone.world.WorldService
 import org.junit.jupiter.api.Test

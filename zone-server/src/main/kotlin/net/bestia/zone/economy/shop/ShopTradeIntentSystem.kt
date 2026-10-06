@@ -4,7 +4,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.OperationErrorProto
 import net.bestia.zone.ecs.account.Account
 import net.bestia.zone.ecs.account.Master
-import net.bestia.zone.ecs.core.AsyncJobExecutor
+import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.System

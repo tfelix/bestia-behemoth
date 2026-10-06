@@ -4,7 +4,7 @@ import net.bestia.zone.world.ground.ColumnKey
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import net.bestia.zone.ecs.core.AsyncJobExecutor
+import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.world.WorldService
 import net.bestia.zone.world.ground.ColumnMask

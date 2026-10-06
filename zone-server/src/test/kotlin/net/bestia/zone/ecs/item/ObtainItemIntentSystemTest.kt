@@ -9,7 +9,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import net.bestia.zone.ecs.account.Account
 import net.bestia.zone.ecs.account.Master
-import net.bestia.zone.ecs.core.AsyncJobExecutor
+import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.session.NoActiveSessionException
 import net.bestia.zone.ecs.core.testWorld

@@ -5,7 +5,7 @@ import io.mockk.every
 import io.mockk.mockk
 import net.bestia.worldgen.climate.WeatherKind
 import net.bestia.worldgen.climate.WeatherModel
-import net.bestia.zone.ecs.core.AsyncJobExecutor
+import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.environment.time.BestiaClock
 import net.bestia.zone.environment.weather.WeatherAt

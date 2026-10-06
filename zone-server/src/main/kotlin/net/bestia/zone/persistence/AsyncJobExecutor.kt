@@ -1,4 +1,4 @@
-package net.bestia.zone.ecs.core
+package net.bestia.zone.persistence
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.annotation.PreDestroy
@@ -10,6 +10,8 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 import java.util.concurrent.atomic.AtomicLong
 import java.util.concurrent.atomic.LongAdder
+import net.bestia.zone.ecs.core.RateLimitedLog
+import net.bestia.zone.ecs.core.isFatal
 
 /**
  * Runs database and other blocking work off the tick thread. Network sends never come here: they leave
@@ -97,7 +99,7 @@ class AsyncJobExecutor(
   /** Runs [job] on a background worker, keeping jobs sharing [key] strictly ordered. */
   fun submit(key: Any, job: () -> Unit) {
     val worker = workerFor(key.hashCode())
-    val queuedAt = java.lang.System.nanoTime()
+    val queuedAt = System.nanoTime()
 
     try {
       worker.execute { runSafely(key, queuedAt, job) }
@@ -132,9 +134,8 @@ class AsyncJobExecutor(
     return workers[(hash and Int.MAX_VALUE) % workers.size]
   }
 
-  /** `java.lang.System` spelled out because [System] in this package is the ECS one. */
   private fun runSafely(key: Any, queuedAt: Long, job: () -> Unit) {
-    val started = java.lang.System.nanoTime()
+    val started = System.nanoTime()
     waitNanos.add(started - queuedAt)
 
     try {
@@ -144,7 +145,7 @@ class AsyncJobExecutor(
       failed.increment()
       LOG.error(e) { "DB job for $key failed: ${e.message}" }
     } finally {
-      runNanos.add(java.lang.System.nanoTime() - started)
+      runNanos.add(System.nanoTime() - started)
       finished.increment()
     }
   }

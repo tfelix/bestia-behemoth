@@ -20,7 +20,7 @@ class ThreadingRulesTest {
     "ecs/ZoneEngine.kt" to "the tick thread, which owns the world",
     "ecs/core/SystemScheduler.kt" to "parallel waves, which run while the tick thread waits",
     "message/AccountInbox.kt" to "the IO lane for handlers that need the database",
-    "ecs/core/AsyncJobExecutor.kt" to "database writes, ordered per owner",
+    "persistence/AsyncJobExecutor.kt" to "database writes, ordered per owner",
     "world/stream/ChunkWorkers.kt" to "terrain encoding, which never touches the world",
     "socket/SocketServer.kt" to "the Netty server",
     "cartography/tile/TileRenderPool.kt" to "map tile rendering, which never touches the world",

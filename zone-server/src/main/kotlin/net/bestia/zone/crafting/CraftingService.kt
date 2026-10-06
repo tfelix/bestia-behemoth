@@ -6,7 +6,7 @@ import net.bestia.bnet.proto.OperationSuccessProto.OpSuccess
 import net.bestia.zone.ecs.account.Account
 import net.bestia.zone.ecs.account.Master
 import net.bestia.zone.ecs.battle.skill.KnownSkills
-import net.bestia.zone.ecs.core.AsyncJobExecutor
+import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.modify
 import net.bestia.zone.ecs.crafting.Crafting

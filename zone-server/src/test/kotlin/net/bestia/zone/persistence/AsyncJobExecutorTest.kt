@@ -1,4 +1,4 @@
-package net.bestia.zone.ecs.core
+package net.bestia.zone.persistence
 
 import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.Assertions.assertEquals

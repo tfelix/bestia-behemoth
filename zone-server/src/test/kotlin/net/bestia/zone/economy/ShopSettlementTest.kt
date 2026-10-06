@@ -5,7 +5,7 @@ import io.mockk.mockk
 import net.bestia.worldgen.civ.SettlementTier
 import net.bestia.worldgen.pop.PopulationSummary
 import net.bestia.worldgen.vector.Vec2d
-import net.bestia.zone.ecs.core.AsyncJobExecutor
+import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.environment.time.BestiaClock
 import net.bestia.zone.environment.time.BestiaDateTime
 import net.bestia.zone.world.PersistedWorld

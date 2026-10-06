@@ -8,7 +8,7 @@ import net.bestia.zone.account.master.findByIdOrThrow
 import net.bestia.zone.account.master.skill.BasicSkillGate
 import net.bestia.zone.ecs.account.Account
 import net.bestia.zone.ecs.battle.damage.DeadActionGuard
-import net.bestia.zone.ecs.core.AsyncJobExecutor
+import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.ecs.item.Equipment
