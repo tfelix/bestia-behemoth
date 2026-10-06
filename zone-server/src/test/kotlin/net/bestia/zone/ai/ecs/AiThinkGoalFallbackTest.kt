@@ -14,7 +14,6 @@ import net.bestia.zone.ai.core.state.StateKey
 import net.bestia.zone.aoi.ActivePlayerAOIService
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.movement.ecs.Position
-import net.bestia.zone.spawn.ecs.ambient.AmbientSpawnConfig
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -30,7 +29,7 @@ class AiThinkGoalFallbackTest {
   /** What the resolver offers; a test adds to it to make a goal plannable later. */
   private val actions = mutableListOf(Action(name = "rest", effects = listOf(Effects.set(rested, true))))
 
-  private val throttle = AiThrottle(AmbientSpawnConfig(), ActivePlayerAOIService(), mockk(relaxed = true))
+  private val throttle = AiThrottle(AiThrottleConfig(), ActivePlayerAOIService(), mockk(relaxed = true))
   private val world = testWorld(systems = listOf(AiThinkSystem(Planner(), SharedMemoryService(), throttle)))
 
   @Test

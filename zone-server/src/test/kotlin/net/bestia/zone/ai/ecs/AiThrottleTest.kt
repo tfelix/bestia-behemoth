@@ -6,7 +6,6 @@ import net.bestia.zone.aoi.ActivePlayerAOIService
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.movement.ecs.Position
-import net.bestia.zone.spawn.ecs.ambient.AmbientSpawnConfig
 import net.bestia.zone.aoi.EntityVisibility
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.AccountId
@@ -25,7 +24,7 @@ import org.junit.jupiter.api.Test
  */
 class AiThrottleTest {
 
-  private val config = AmbientSpawnConfig()
+  private val config = AiThrottleConfig()
   private val players = ActivePlayerAOIService()
   private val observers = mutableMapOf<EntityId, Set<AccountId>>()
   private val visibility = mockk<EntityVisibility>().also {

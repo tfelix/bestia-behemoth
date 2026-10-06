@@ -7,6 +7,7 @@ import net.bestia.zone.world.stream.InterestRange
 import org.springframework.boot.CommandLineRunner
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
+import net.bestia.zone.ai.ecs.AiThrottleConfig
 
 /**
  * Checks that the ambient wilderness is configured coherently, before anybody can walk into it.
@@ -29,6 +30,7 @@ import org.springframework.stereotype.Component
 @Order(106)
 class AmbientSpawnerBootRunner(
   private val config: AmbientSpawnConfig,
+  private val throttle: AiThrottleConfig,
   private val interestRange: InterestRange,
   private val profileRegistry: AiProfileRegistry
 ) : CommandLineRunner {
@@ -52,7 +54,7 @@ class AmbientSpawnerBootRunner(
     LOG.info {
       "Ambient spawn: one site per ${config.spacingTiles} tiles, stocked within " +
           "${config.activationRadiusTiles} of a player (needs >= $required), " +
-          "${config.spawnsPerPass}/pass, throttle x${config.throttleFactor} seen, x${config.backgroundFactor} unseen"
+          "${config.spawnsPerPass}/pass, throttle x${throttle.throttleFactor} seen, x${throttle.backgroundFactor} unseen"
     }
   }
 

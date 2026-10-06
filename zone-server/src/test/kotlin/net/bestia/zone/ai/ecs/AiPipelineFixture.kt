@@ -33,7 +33,6 @@ import net.bestia.zone.identity.ecs.Master
 import net.bestia.zone.battle.ecs.damage.TakenDamage
 import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.ecs.core.System
-import net.bestia.zone.spawn.ecs.ambient.AmbientSpawnConfig
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.entity.ecs.Animation
 import net.bestia.zone.movement.ecs.MoveSystem
@@ -67,7 +66,7 @@ class AiPipelineFixture(
    * Every detail tier at full rate by default, so a scenario measures behaviour rather than cadence.
    * `AiLodCadenceTest` passes the shipped factors.
    */
-  throttleConfig: AmbientSpawnConfig = AmbientSpawnConfig(throttleFactor = 1, backgroundFactor = 1),
+  throttleConfig: AiThrottleConfig = AiThrottleConfig(throttleFactor = 1, backgroundFactor = 1),
 ) {
 
   /**
