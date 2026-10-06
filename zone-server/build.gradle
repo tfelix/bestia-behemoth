@@ -51,23 +51,26 @@ dependencies {
 	testImplementation 'org.jetbrains.kotlin:kotlin-test-junit5'
 	testImplementation 'org.awaitility:awaitility:4.2.2'
     testImplementation 'io.mockk:mockk:1.14.5'
+	// Plain JUnit tests over imported classes (see the architecture package); not in Boot's BOM.
+	testImplementation 'com.tngtech.archunit:archunit:1.5.1'
 
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 /**
- * Pinned rather than detected.
- *
- * The Spring Boot plugin finds the application class by scanning the compiled output for a `main` method,
- * and fails outright when it finds more than one candidate. The cartography tools further down this file
- * are five plain `main`s in the same source set, so without this line `bootRun` and `bootJar` stop with
- * "Unable to find a single main class" and list all six.
- *
- * Any future `main` added to zone-server is therefore free rather than fatal, which is the point of
- * stating it here: the alternative is the next tool breaking the server's boot.
+ * The cartography dev tools (see `cartographyTool` below), kept out of the server's own classes and its jar.
+ * They see `main` and its `internal` members; `main` cannot see them. A new tool `main` goes here too: in `main`
+ * it would give the Spring Boot plugin a second application class to choose from.
  */
-springBoot {
-	mainClass = 'net.bestia.zone.ZoneServerApplicationKt'
+sourceSets {
+	tools {
+		compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
+		runtimeClasspath += sourceSets.main.output + sourceSets.main.runtimeClasspath
+	}
+}
+
+kotlin {
+	target.compilations.tools.associateWith(target.compilations.main)
 }
 
 allOpen {
@@ -236,7 +239,7 @@ def WORLD_PROPS = ['genesis', 'seed', 'cells', 'params'] as Set
  * set is derived from the same map that does the forwarding, so the two cannot drift.
  *
  * Checked in `doFirst` rather than at configuration time, so an unrelated invocation - `:zone-server:test` with
- * some other project property set - is not broken by a validation only these five tasks want.
+ * some other project property set - is not broken by a validation only these six tasks want.
  *
  * `-Pgenesis` is applied before the rest so an explicit `-Pseed` or `-Pcells` still overrides it: MapToolArgs
  * takes the *last* occurrence of a flag, which is what makes "the server's world, but 256 cells across"
@@ -277,7 +280,7 @@ def cartographyTool = { task, Map values, Map switches ->
     // JavaExec otherwise runs on the Gradle daemon's JVM, which is older than the toolchain these classes were
     // compiled against.
     task.javaLauncher = javaToolchains.launcherFor(java.toolchain)
-    task.classpath = sourceSets.main.runtimeClasspath
+    task.classpath = sourceSets.tools.runtimeClasspath
     task.group = 'cartography'
 }
 
