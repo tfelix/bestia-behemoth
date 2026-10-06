@@ -406,7 +406,7 @@ class PartyService(
    * members get the roster when they next log in.
    */
   private fun syncPartyMembershipComponents(party: Party) {
-    val membership = PartyMembership.of(party)
+    val membership = party.membership()
 
     afterCommit {
       membership.memberAccountIds.forEach { accountId ->
