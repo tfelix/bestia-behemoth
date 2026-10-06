@@ -1,7 +1,6 @@
 package net.bestia.zone.battle.passive
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.casting.SkillStrategyFactory
 import net.bestia.zone.skill.Skill
 import org.springframework.stereotype.Component
 
@@ -20,7 +19,6 @@ import org.springframework.stereotype.Component
 @Component
 class PassiveSkillScriptRegistry(
   scripts: List<PassiveSkillScript>,
-  private val skillStrategyFactory: SkillStrategyFactory,
 ) {
 
   private val byName: Map<String, PassiveSkillScript> = scripts
@@ -31,7 +29,8 @@ class PassiveSkillScriptRegistry(
   private var bySkillId: Map<Long, PassiveSkillScript> = emptyMap()
 
   /**
-   * Resolves every script's [PassiveSkillScript.skill] against the catalogue.
+   * Resolves every script's [PassiveSkillScript.skill] against the catalogue. [isCastable] tells a skill
+   * with a cast script; casting sits above this slice, so the caller asks it.
    *
    * Throws rather than warning, unlike
    * [net.bestia.zone.casting.scripts.SkillScriptBootValidator]: that one tolerates misses
@@ -40,7 +39,7 @@ class PassiveSkillScriptRegistry(
    * skill. The reverse direction is deliberately *not* checked: a passive skill with no script is
    * the normal case for most of the catalogue.
    */
-  fun bind(skills: List<Skill>) {
+  fun bind(skills: List<Skill>, isCastable: (Skill) -> Boolean) {
     val byIdentifier = skills.associateBy { it.identifier }
 
     bySkillId = byName.values.associateBy { script ->
@@ -52,7 +51,7 @@ class PassiveSkillScriptRegistry(
       // A skill cannot be both cast and folded into the status recalc: the two ask different questions of
       // the same level, and nothing decides which one a point bought. With `Skill.type` gone this is the
       // check that catches it - a passive is a skill *without* a SkillStrategy, by definition.
-      if (skillStrategyFactory.isCastable(skill)) {
+      if (isCastable(skill)) {
         throw PassiveSkillScriptBindingException(
           "${script::class.simpleName} names skill '${script.skill}', which also has the " +
             "castable script '${skill.script}' - a skill is either cast or always-on, not both"
