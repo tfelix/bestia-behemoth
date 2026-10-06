@@ -1,4 +1,4 @@
-package net.bestia.zone.bestia.loot
+package net.bestia.zone.spawn.ecs
 
 import net.bestia.zone.config.WorldRulesConfig
 import io.mockk.every
@@ -9,15 +9,17 @@ import net.bestia.zone.item.ecs.GroundItemStack
 import net.bestia.zone.geometry.Vec3L
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
+import net.bestia.zone.bestia.loot.LootDrop
+import net.bestia.zone.bestia.loot.LootItemRepository
 import net.bestia.zone.item.loot.LootItemEntitySpawner
 
-class LootItemEntitySpawnerTest {
+class MobLootSpawnerTest {
 
   private val repository = mockk<LootItemRepository>().also {
     every { it.findAllDrops() } returns listOf(LootDrop(bestiaId = 1L, itemId = 50L, dropChance = 10_000))
   }
 
-  private val sut = LootItemEntitySpawner(repository, WorldRulesConfig(tickRate = 20))
+  private val sut = MobLootSpawner(repository, LootItemEntitySpawner(WorldRulesConfig(tickRate = 20)))
 
   @Test
   fun `the drop table is read once, not once per kill`() {

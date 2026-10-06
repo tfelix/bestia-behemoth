@@ -14,7 +14,7 @@ import net.bestia.zone.entity.StaticEntityKind
 /** A collider's half-extents and height, in position units. */
 data class PropColliderDto(val halfX: Long = 1, val halfY: Long = 1, val height: Long = 2)
 
-/** One roll of loot, `PropDeathDivergenceSystem`'s own image of `LootItemEntitySpawner`'s bestia loot rows. */
+/** One roll of loot, `PropDeathDivergenceSystem`'s own image of `MobLootSpawner`'s bestia loot rows. */
 data class PropLootEntryDto(val itemId: Long, val amount: Int = 1, val dropChance: Int = 10000)
 
 /**

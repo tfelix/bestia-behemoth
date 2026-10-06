@@ -27,7 +27,7 @@ import org.springframework.stereotype.Service
  * ### Holding detached entities is safe here, and would not always be
  *
  * These [Bestia] instances outlive their session, so touching a lazy `@OneToMany` on one throws. That is
- * fine because nothing on any runtime path does: loot goes through `LootItemEntitySpawner`'s own
+ * fine because nothing on any runtime path does: loot goes through `MobLootSpawner`'s own
  * drop table, and the learnset through [learnset]. **A new field that is a collection must not be
  * read through this catalogue.**
  */
