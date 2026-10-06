@@ -104,7 +104,6 @@ class FeatureSliceRulesTest {
 
     /** Back edges not broken yet. The list must only shrink. */
     val KNOWN_BACK_EDGES = setOf(
-      "ai -> townsfolk",
       "economy -> townsfolk",
       "identity -> account",
       "spawn -> townsfolk",

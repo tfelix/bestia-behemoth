@@ -49,6 +49,7 @@ import net.bestia.zone.util.AccountId
 import net.bestia.zone.util.EntityId
 import kotlin.random.Random
 import net.bestia.zone.ecs.core.EcsWorld
+import net.bestia.zone.ai.domain.allAiDomains
 
 /**
  * The whole AI pipeline wired for a test, without a Spring context and without a generated world.
@@ -97,7 +98,7 @@ class AiPipelineFixture(
   val attackExecution: AttackExecutionService = mockk(relaxed = true)
   val sharedMemory = SharedMemoryService()
 
-  val profiles = AiProfileRegistry().apply { load() }
+  val profiles = AiProfileRegistry(allAiDomains()).apply { load() }
 
   /**
    * What the world calendar reports. Move it with [advanceHours]/[setDay]/[setNight] rather than by waiting:
@@ -211,7 +212,7 @@ class AiPipelineFixture(
     ),
     AiDriveSystem(sharedMemory, clock, throttle),
     AiThinkSystem(Planner(), sharedMemory, throttle),
-    AiActSystem(sharedMemory, zoneConfig, throttle),
+    AiActSystem(sharedMemory, zoneConfig, throttle, listOf(bestia, townsfolk)),
     // No terrain in these scenarios, so no ground to snap to; null keeps the waypoint's own z, which is what
     // the flat test navigation produces anyway.
     MoveSystem({ null }, GroundTrample.NONE, TestNavigation.flatGround()),

@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import net.bestia.zone.ai.domain.allAiDomains
 
 /**
  * Boot-time behaviour of the one AI profile registry: the shipped archetypes parse, and a profile naming
@@ -14,7 +15,7 @@ import org.junit.jupiter.api.assertThrows
  */
 class AiProfileRegistryTest {
 
-  private fun loadedRegistry() = AiProfileRegistry().apply { load() }
+  private fun loadedRegistry() = AiProfileRegistry(allAiDomains()).apply { load() }
 
   @Test
   fun `loads every shipped archetype from the classpath`() {
@@ -52,7 +53,7 @@ class AiProfileRegistryTest {
 
   @Test
   fun `an unknown action id fails fast`() {
-    val registry = AiProfileRegistry()
+    val registry = AiProfileRegistry(allAiDomains())
     val dto = AiProfileDto(
       identifier = "broken",
       goals = listOf(AiProfileDto.GoalDto("Sleep")),
@@ -65,7 +66,7 @@ class AiProfileRegistryTest {
 
   @Test
   fun `an unknown goal name fails fast`() {
-    val registry = AiProfileRegistry()
+    val registry = AiProfileRegistry(allAiDomains())
     val dto = AiProfileDto(
       identifier = "broken",
       goals = listOf(AiProfileDto.GoalDto("BecomeEmperor")),
@@ -78,7 +79,7 @@ class AiProfileRegistryTest {
 
   @Test
   fun `goals with no actions to satisfy them fail fast`() {
-    val registry = AiProfileRegistry()
+    val registry = AiProfileRegistry(allAiDomains())
     val dto = AiProfileDto(
       identifier = "inert",
       goals = listOf(AiProfileDto.GoalDto("Sleep")),
@@ -96,7 +97,7 @@ class AiProfileRegistryTest {
     // passive_wanderer's `KillAttacker: 60` is gone, and that override was only ever readable as tuning
     // because fleeing was the real answer to being hurt. The mechanism still has to work, so it is tested
     // directly instead of through whichever profile happened to use it.
-    val registry = AiProfileRegistry()
+    val registry = AiProfileRegistry(allAiDomains())
     registry.register(
       AiProfileDto(
         identifier = "tuned",

@@ -1,18 +1,17 @@
 package net.bestia.zone.ai.domain
 
-import net.bestia.zone.ai.domain.bestia.BestiaDomain
-import net.bestia.zone.townsfolk.domain.TownsfolkDomain
+import org.springframework.stereotype.Component
 
 /**
  * Every domain a profile may declare, by id.
  *
- * A plain object and not a Spring registry, so profile validation stays constructible on its own - see
- * [AiDomainCatalogue]. The runtime halves are beans and Spring collects those; this is the half that has to
- * be reachable before a context exists.
+ * Built from the catalogues alone, so profile validation stays constructible on its own - see
+ * [AiDomainCatalogue]. Each domain's slice declares its catalogue as a bean; a test passes them in.
  */
-object AiDomains {
+@Component
+class AiDomains(catalogues: List<AiDomainCatalogue>) {
 
-  private val byId: Map<String, AiDomainCatalogue> = listOf(BestiaDomain, TownsfolkDomain).associateBy { it.id }
+  private val byId: Map<String, AiDomainCatalogue> = catalogues.associateBy { it.id }
 
   val ids: Set<String> get() = byId.keys
 

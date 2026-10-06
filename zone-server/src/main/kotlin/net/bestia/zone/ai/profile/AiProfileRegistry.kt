@@ -26,7 +26,9 @@ import org.springframework.stereotype.Service
  * registry beans left to inject.
  */
 @Service
-class AiProfileRegistry {
+class AiProfileRegistry(
+  private val domains: AiDomains,
+) {
 
   private val profilesById = mutableMapOf<String, AiProfile>()
 
@@ -71,9 +73,9 @@ class AiProfileRegistry {
   fun all(): Collection<AiProfile> = profilesById.values
 
   private fun validate(profile: AiProfile) {
-    val domain = requireNotNull(AiDomains.of(profile.domain)) {
+    val domain = requireNotNull(domains.of(profile.domain)) {
       "AI profile '${profile.identifier}' references unknown domain '${profile.domain}'; " +
-        "known domains are ${AiDomains.ids.sorted()}"
+        "known domains are ${domains.ids.sorted()}"
     }
 
     profile.actionIds.forEach { actionId ->

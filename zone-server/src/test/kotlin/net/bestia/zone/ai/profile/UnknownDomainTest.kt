@@ -1,11 +1,11 @@
 package net.bestia.zone.ai.profile
 
-import net.bestia.zone.ai.domain.AiDomains
 import net.bestia.zone.ai.domain.bestia.BestiaDomain
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import net.bestia.zone.ai.domain.allAiDomains
 
 /**
  * That a profile's `domain:` is checked, and checked without a Spring context.
@@ -20,7 +20,7 @@ class UnknownDomainTest {
   @Test
   fun `a profile naming a domain that does not exist fails fast, and says what does`() {
     val error = assertThrows<IllegalArgumentException> {
-      AiProfileRegistry().register(profile(domain = "nonsense"))
+      AiProfileRegistry(allAiDomains()).register(profile(domain = "nonsense"))
     }
 
     assertTrue(error.message!!.contains("nonsense"), "the message must name the domain that was asked for")
@@ -33,15 +33,16 @@ class UnknownDomainTest {
   @Test
   fun `a profile that says nothing about a domain gets the wild creatures`() {
     // The compatibility default the shipped archetypes rely on: none of them carries a `domain:` key.
-    assertEquals(BestiaDomain.ID, AiProfileRegistry().register(profile()).domain)
+    assertEquals(BestiaDomain.ID, AiProfileRegistry(allAiDomains()).register(profile()).domain)
   }
 
   @Test
   fun `every registered domain answers to its own id`() {
     // A catalogue filed under a different key than it reports would make the lookup above unreachable for
     // exactly one domain, and nothing else would notice.
-    for (id in AiDomains.ids) {
-      assertEquals(id, AiDomains.of(id)?.id)
+    val domains = allAiDomains()
+    for (id in domains.ids) {
+      assertEquals(id, domains.of(id)?.id)
     }
   }
 

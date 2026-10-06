@@ -7,6 +7,7 @@ import net.bestia.zone.ai.core.state.RestingWindow
 import net.bestia.zone.ai.profile.AiConfig
 import net.bestia.zone.ai.profile.AiProfile
 import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.ecs.core.ComponentClassSet
 
 /**
  * How a domain turns a profile into a live agent: the half that needs collaborators.
@@ -17,6 +18,10 @@ import net.bestia.zone.geometry.Vec3L
  * which happens before any of them exist.
  */
 interface AiDomainRuntime {
+
+  /** What this domain's behaviour trees read beyond what every agent's do. `AiActSystem` declares it. */
+  val reads: ComponentClassSet
+    get() = emptySet()
 
   val catalogue: AiDomainCatalogue
 
