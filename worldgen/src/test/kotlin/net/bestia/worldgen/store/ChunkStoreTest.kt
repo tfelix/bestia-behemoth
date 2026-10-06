@@ -8,10 +8,13 @@ import net.bestia.worldgen.voxel.ChunkEngine
 import net.bestia.worldgen.voxel.Occupancy
 import net.bestia.worldgen.voxel.VoxelChunk
 import kotlin.test.Test
+import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
+import kotlin.test.assertIs
 import kotlin.test.assertNotEquals
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class ChunkStoreTest {
@@ -339,6 +342,71 @@ class ChunkStoreTest {
     baked.loseEverything()
 
     assertFailsWith<IllegalStateException> { store.merged(ChunkPos(0, 0)) }
+  }
+
+  // --- Saving and restoring -------------------------------------------------------------------------
+
+  private fun assertSameChunk(expected: VoxelChunk, actual: VoxelChunk) {
+    assertContentEquals(expected.blocks, actual.blocks)
+    assertContentEquals(expected.occupancy, actual.occupancy)
+  }
+
+  @Test
+  fun `an untouched chunk has no edit to save`() {
+    val store = ChunkStore(config, ChunkCache(config.seed, 7L, ::generate))
+
+    assertNull(store.editOf(ChunkPos(0, 0)))
+  }
+
+  @Test
+  fun `a restored delta reads back as the chunk it was taken from, without announcing a change`() {
+    val chunk = ChunkPos(1, 2)
+    val first = ChunkStore(config, ChunkCache(config.seed, 7L, ::generate))
+    carve(first, chunk, Triple(1, 1, alwaysRock), Triple(2, 3, 1))
+
+    val announced = ArrayList<ChunkPos>()
+    val second = ChunkStore(config, ChunkCache(config.seed, 7L, ::generate), onChanged = { announced.add(it) })
+    val edit = first.editOf(chunk)
+    assertIs<ChunkEdit.Delta>(edit)
+    second.restore(chunk, edit)
+
+    assertSameChunk(first.merged(chunk), second.merged(chunk))
+    assertEquals(1, second.deltaCount)
+    assertEquals(emptyList(), announced)
+  }
+
+  @Test
+  fun `a restored baked chunk stays baked`() {
+    val chunk = ChunkPos(1, 1)
+    val first = ChunkStore(config, ChunkCache(config.seed, 7L, ::generate))
+    carve(first, chunk, Triple(0, 0, 1))
+    first.bakeAll()
+
+    val second = ChunkStore(config, ChunkCache(config.seed, 7L, ::generate))
+    val edit = first.editOf(chunk)
+    assertIs<ChunkEdit.Baked>(edit)
+    second.restore(chunk, edit)
+
+    assertTrue(second.isBaked(chunk))
+    assertSameChunk(first.merged(chunk), second.merged(chunk))
+  }
+
+  @Test
+  fun `an edit is restored only into a chunk that has none`() {
+    val chunk = ChunkPos(0, 0)
+    val store = ChunkStore(config, ChunkCache(config.seed, 7L, ::generate))
+    carve(store, chunk, Triple(1, 1, alwaysRock))
+    val edit = store.editOf(chunk)!!
+
+    assertFailsWith<IllegalArgumentException> { store.restore(chunk, edit) }
+  }
+
+  @Test
+  fun `a baked blob that is not a chunk is refused on restore`() {
+    val store = ChunkStore(config, ChunkCache(config.seed, 7L, ::generate))
+
+    assertFailsWith<Exception> { store.restore(ChunkPos(0, 0), ChunkEdit.Baked(byteArrayOf(1, 2, 3))) }
+    assertFalse(store.isBaked(ChunkPos(0, 0)))
   }
 
   /** A blob store that can be emptied, to simulate a storage failure. */

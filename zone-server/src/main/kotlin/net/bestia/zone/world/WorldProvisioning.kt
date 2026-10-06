@@ -12,6 +12,7 @@ import net.bestia.zone.economy.SettlementLedgerRepository
 import net.bestia.zone.economy.WorldTreasuryRepository
 import net.bestia.zone.entity.deleteAllByKind
 import net.bestia.zone.world.prop.WorldObjectDivergenceRepository
+import net.bestia.zone.world.stream.PersistedChunkEditRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
@@ -35,6 +36,7 @@ class WorldProvisioning(
   private val settlementLedgerRepository: SettlementLedgerRepository,
   private val worldTreasuryRepository: WorldTreasuryRepository,
   private val rumourRepository: RumourRepository,
+  private val chunkEditRepository: PersistedChunkEditRepository,
   private val config: WorldGenConfig
 ) {
 
@@ -66,9 +68,10 @@ class WorldProvisioning(
    * Reached from [WorldService] both under [WorldGenConfig.OnMismatch.REGENERATE] and while retrying a fresh
    * world that came out with too few standing settlements. Everything the old world implied - terrain, chunk
    * caches, the cached [MasterSpawnPoint] candidates, surveyed chart coverage, which props were felled or
-   * claimed, any persisted script entities, and in time the stored player deltas over them - goes with the
-   * row, because all of it is derived from the seed and dimensions being replaced. Nothing is backed up: a world that was worth keeping should not have been booted under
-   * this policy (or, for the retry case, was never shown to a player in the first place).
+   * claimed, any persisted script entities, and the terrain players dug - goes with the row, because all of it
+   * is derived from the seed and dimensions being replaced. Nothing is backed up: a world that was worth keeping
+   * should not have been booted under this policy (or, for the retry case, was never shown to a player in the
+   * first place).
    */
   @Transactional
   fun recreate(): PersistedWorld {
@@ -109,6 +112,8 @@ class WorldProvisioning(
     // the new world never placed is what it would look like without both.
     rumourRepository.deleteAll()
     persistedEntityRepository.deleteAllByKind(ScriptComponent.KIND)
+    // Removals over a base that is about to change. The version columns would refuse them, so this is the tidy half.
+    chunkEditRepository.deleteAll()
 
     // Before the insert, not after the method returns. The name is uniquely indexed and Hibernate is free to
     // order a pending insert ahead of a pending delete inside one transaction, which would collide with the

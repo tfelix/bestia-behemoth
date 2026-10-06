@@ -468,6 +468,8 @@ has shipped to make the bumps so far mean anything.
   occupancy-never-rises. **`bakedKeyOf` (`:288-289`) now folds in `pipelineVersion`** — a reversal of an
   earlier "deliberately omit it" decision, made because omitting it let a stale build's baked chunk read
   back indistinguishable from a fresh one. Any doc claiming otherwise is describing the prior state.
+  `editOf()`/`restore()` hand an edited chunk out and take it back (`store/ChunkEdit.kt`: removals, or the
+  baked blob); `restore` fires no `onChanged`. This is how zone-server keeps edits across a restart.
 - **`store/VersionGate`** (`store/VersionGate.kt:73`) — three independently-diagnosable versions
   (`pipelineVersion`, `blockPaletteVersion`, `chunkFormatVersion = RleCodec.VERSION`); `check()` returns
   `Compatible` / `Incompatible(reason)` / `ServerAuthoritativeOnly`.
@@ -494,7 +496,9 @@ first build rather than a skipped one. Count the output before believing the tes
 
 The world tier is **regenerated at boot, never persisted** — rasters/features are a pure function of
 `(seed, dimensions)`, so persisting them would only be persisting a cache. What players change (voxel
-edits) is stored as deltas over that regenerated base.
+edits) is stored over that regenerated base: one `chunk_edit` row per edited chunk
+(`world/stream/PersistedChunkEdit.kt`), written by `ChunkEditJournal` every
+`chunk-stream.edit-flush-seconds` and at shutdown, restored by `ChunkEditBootRunner` (`@Order(8)`).
 
 - **`PersistedWorld`** (real JPA entity, `zone-server/.../world/PersistedWorld.kt`) — name, seed,
   dimensions, `wrapX`/`wrapY`, and the three version columns from `VersionGate` above, plus a

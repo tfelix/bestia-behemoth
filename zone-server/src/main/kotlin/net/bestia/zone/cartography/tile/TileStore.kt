@@ -12,9 +12,9 @@ private val LOG = KotlinLogging.logger { }
  *
  * ### Why a directory tree and not a table
  *
- * This is the first durable derived output in the repository - `world/WorldService` regenerates rasters at boot
- * and `world/stream/ChunkService` keeps even baked chunks in a `MemoryBlobStore` - so the choice is open, and a
- * directory of PNGs wins on the one axis that matters most here: you can look at it. `mapBake` writes files you
+ * This is the first durable derived output in the repository - `world/WorldService` regenerates rasters at
+ * boot - so the choice is open, and a directory of PNGs wins on the one axis that matters most here: you can
+ * look at it. `mapBake` writes files you
  * can open in an image viewer, diff between two runs, serve with any static file server, or delete with `rm`.
  * A blob table gives none of that and buys nothing, because tiles are regenerable by construction and so are
  * exactly what a backup should not contain.

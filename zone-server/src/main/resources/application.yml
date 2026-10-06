@@ -143,6 +143,9 @@ chunk-stream:
   derived-rebuilds-per-tick: 8
   # Whether the /carve chat command is honoured. It also needs the TERRAIN authority.
   allow-debug-edits: true
+  # How often edited chunks are written to the database. A crash loses at most this much digging; a normal
+  # shutdown writes the rest.
+  edit-flush-seconds: 10
 
 # Ground wearing down under traffic. Runtime settings in `chunk-stream`'s sense: none decides what the terrain
 # is, and what is stored is a level rather than a rate, so retuning these reshapes how existing paths fade
