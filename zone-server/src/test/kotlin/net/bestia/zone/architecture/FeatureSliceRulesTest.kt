@@ -106,7 +106,6 @@ class FeatureSliceRulesTest {
     val KNOWN_BACK_EDGES = setOf(
       "economy -> townsfolk",
       "identity -> account",
-      "spawn -> townsfolk",
     )
   }
 }

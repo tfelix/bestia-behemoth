@@ -15,7 +15,6 @@ import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.session.NoActiveSessionException
 import net.bestia.zone.persistence.PersistedEntityDeletionQueue
 import net.bestia.zone.persistence.Persistent
-import net.bestia.zone.townsfolk.rumour.NotableKillReporter
 import net.bestia.zone.identity.ecs.PartyMembership
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component as SpringComponent
@@ -31,7 +30,7 @@ class DeathSystem(
   private val mobLootSpawner: MobLootSpawner,
   private val deletionQueue: PersistedEntityDeletionQueue,
   private val connectionInfoService: ConnectionInfoService,
-  private val notableKills: NotableKillReporter,
+  private val notableKills: KillReporter,
   private val spill: GroundSpill,
 ) : System {
   override val phase = Phase.DEATH
@@ -91,7 +90,7 @@ class DeathSystem(
    *
    * The position is read *here* rather than inside the deferred block, because the entity is destroyed
    * a few lines below and the deferred work runs long after that. Whether it was notable at all is the
-   * reporter's judgement - see [NotableKillReporter].
+   * reporter's judgement - see [KillReporter].
    */
   private fun reportKill(world: World, entityId: EntityId) {
     val species = world.bestiaSpeciesOf(entityId) ?: return
