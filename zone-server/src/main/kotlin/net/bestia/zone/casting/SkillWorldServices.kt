@@ -1,8 +1,6 @@
 package net.bestia.zone.casting
 
 import net.bestia.zone.battle.StatusEffectService
-import net.bestia.zone.cartography.SurveyService
-import net.bestia.zone.crafting.CraftingService
 import net.bestia.zone.aoi.EntityAOIService
 import net.bestia.zone.battle.ecs.effects.AreaEffectSpawner
 import net.bestia.zone.message.OutMessageProcessor
@@ -29,7 +27,7 @@ class SkillWorldServices(
   val groundFire: net.bestia.zone.ground.fire.GroundFireService,
   val statusEffects: StatusEffectService,
   val messages: OutMessageProcessor,
-  val crafting: CraftingService,
-  val survey: SurveyService,
+  val crafting: RecipeOffering,
+  val survey: Surveying,
   val spoor: SpoorService,
 )

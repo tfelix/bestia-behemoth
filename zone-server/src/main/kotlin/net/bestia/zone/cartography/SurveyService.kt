@@ -17,6 +17,7 @@ import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.world.WorldService
 import org.springframework.stereotype.Service
+import net.bestia.zone.casting.Surveying
 
 /**
  * Carries a resolved survey from the tick thread to the database and back.
@@ -50,7 +51,7 @@ class SurveyService(
   private val outMessageProcessor: OutMessageProcessor,
   private val world: WorldView,
   private val itemTemplates: ItemTemplateRegistry,
-) {
+) : Surveying {
 
   /**
    * Whether a survey may start at all: is there a master here, and is there anything to draw on.
@@ -94,7 +95,7 @@ class SurveyService(
    *
    * @param centre the aimed-at point in **voxels**, as a skill target position always is
    */
-  fun survey(
+  override fun survey(
     masterId: Long,
     accountId: Long?,
     entityId: EntityId,
