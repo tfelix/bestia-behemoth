@@ -11,9 +11,7 @@ import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.battle.ecs.status.Nature
 import net.bestia.zone.battle.ecs.status.StatusValues
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.item.ecs.Equipment
 import net.bestia.zone.movement.ecs.Position
-import net.bestia.zone.item.equip.EquipmentSlot
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.prop.PropPromotionService
@@ -121,23 +119,21 @@ class BattleContextFactory(
   /**
    * What the attacker is swinging, as the damage formula wants it.
    *
-   * The attack comes off [CombatBonus] rather than off [Equipment] directly, because by the time it reaches
+   * The attack comes off [CombatBonus] rather than off the equipment directly, because by the time it reaches
    * here it is already resolved: `StatusValueRecalcSystem` has run every worn item's script into one number,
    * so a two-handed weapon, a shield that bites, or a ring that adds flat attack all arrive the same way and
    * this does not have to know which slots can carry power.
    *
-   * The refinement level cannot come from there - it scales the weapon term specifically, not the total - so
-   * it is read off the right hand, which is the only slot the damage formula prices refinement for.
-   * Absent anything, a bare-handed fighter, which is every mob.
+   * The refinement level travels apart from the attack, because it scales the weapon term specifically, not
+   * the total. Absent anything, a bare-handed fighter, which is every mob.
    */
   private fun equippedWeapon(world: World, entityId: EntityId): Weapon {
     val bonus = world.get(entityId, CombatBonus::class)
-    val upgradeLevel = world.get(entityId, Equipment::class)?.get(EquipmentSlot.RIGHT_HAND)?.upgradeLevel ?: 0
 
     return Weapon(
       atk = bonus?.atk ?: 0,
       matk = bonus?.matk ?: 0,
-      upgradeLevel = upgradeLevel
+      upgradeLevel = bonus?.weaponUpgradeLevel ?: 0
     )
   }
 }

@@ -4,7 +4,7 @@ import net.bestia.zone.battle.status.StatusValueRecalcContext
 import net.bestia.zone.ecs.core.Component
 
 /**
- * Everything adding to this entity's attack power and subtracting from what reaches it, resolved into four
+ * Everything adding to this entity's attack power and subtracting from what reaches it, resolved into a few
  * numbers - worn equipment today, and whatever else learns to contribute tomorrow.
  *
  * [atk] and [matk] feed `Weapon` and from there the `weaponAtk` term in
@@ -31,7 +31,8 @@ class CombatBonus(
   var atk: Int = 0,
   var matk: Int = 0,
   var hardDefense: Int = 0,
-  var hardMagicDefense: Int = 0
+  var hardMagicDefense: Int = 0,
+  var weaponUpgradeLevel: Int = 0,
 ) : Component {
 
   fun copyFrom(context: StatusValueRecalcContext) {
@@ -39,5 +40,6 @@ class CombatBonus(
     matk = context.magicAttack
     hardDefense = context.hardDefense
     hardMagicDefense = context.hardMagicDefense
+    weaponUpgradeLevel = context.weaponUpgradeLevel
   }
 }
