@@ -13,7 +13,7 @@ import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.ecs.item.Equipment
 import net.bestia.zone.ecs.item.Inventory
-import net.bestia.zone.ecs.movement.Position
+import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.ecs.trade.Trading
 import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.item.container.ReservedItem

@@ -4,7 +4,7 @@ import net.bestia.zone.ai.bt.Locomotion
 import net.bestia.zone.ai.core.behavior.BtContext
 import net.bestia.zone.ai.core.behavior.BtNode
 import net.bestia.zone.ai.core.behavior.Status
-import net.bestia.zone.ecs.movement.Path
+import net.bestia.zone.movement.ecs.Path
 import net.bestia.zone.geometry.Vec3L
 import kotlin.random.Random
 

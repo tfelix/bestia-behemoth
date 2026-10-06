@@ -3,7 +3,7 @@ package net.bestia.zone.ai.ecs
 import net.bestia.zone.ai.core.state.CommonKeys
 import net.bestia.zone.aoi.ActivePlayerAOIService
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.ecs.movement.Position
+import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.ecs.spawn.ambient.AmbientSpawnConfig
 import net.bestia.zone.aoi.EntityVisibility
 import net.bestia.zone.util.EntityId

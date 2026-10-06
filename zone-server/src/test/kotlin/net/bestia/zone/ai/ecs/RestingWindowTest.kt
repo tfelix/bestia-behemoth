@@ -4,8 +4,8 @@ import net.bestia.zone.ai.core.state.CommonKeys
 import net.bestia.zone.ai.core.state.RestingWindow
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.entity.ecs.Animation
-import net.bestia.zone.ecs.movement.Position
-import net.bestia.zone.ecs.movement.Speed
+import net.bestia.zone.movement.ecs.Position
+import net.bestia.zone.movement.ecs.Speed
 import net.bestia.zone.battle.status.AttackSpeed
 import net.bestia.zone.bestia.DefaultAttack
 import net.bestia.zone.geometry.Vec3L

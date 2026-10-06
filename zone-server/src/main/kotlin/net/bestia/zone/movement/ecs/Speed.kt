@@ -1,0 +1,40 @@
+package net.bestia.zone.movement.ecs
+
+import net.bestia.zone.ecs.core.Component
+import net.bestia.zone.util.EntityId
+import net.bestia.zone.ecs.core.DirtyFlag
+import net.bestia.zone.sync.Dirtyable
+import net.bestia.zone.ecs.core.World
+import net.bestia.zone.sync.SyncTargets
+import net.bestia.zone.message.EntitySMSG
+
+data class Speed(
+  private var _speed: Float = 4.0f,
+  /**
+   * The unbuffed speed, set once at spawn and never touched by buffs. [speed] is the effective,
+   * synced value - recomputed from this by
+   * `net.bestia.zone.ecs.battle.effects.StatusValueRecalcSystem` whenever an active status
+   * effect's script mutates `StatusValueRecalcContext.speed`.
+   */
+  val baseSpeed: Float = _speed
+) : Component, Dirtyable {
+  override val dirtyFlag = DirtyFlag()
+
+  var speed: Float
+    get() = _speed
+    set(value) {
+      if (_speed != value) {
+        _speed = value
+        markDirty()
+      }
+    }
+
+  override fun toEntityMessage(entityId: Long, removed: Boolean): EntitySMSG {
+    return SpeedSMSG(
+      entityId = entityId,
+      speed = speed
+    )
+  }
+
+  override fun syncTargets(world: World, entityId: EntityId): SyncTargets = SyncTargets.PublicInRange
+}

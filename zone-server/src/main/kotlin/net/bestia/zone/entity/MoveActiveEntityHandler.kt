@@ -5,13 +5,13 @@ import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.zone.config.WorldRulesConfig
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.modify
-import net.bestia.zone.ecs.movement.Path
-import net.bestia.zone.ecs.movement.Position
+import net.bestia.zone.movement.ecs.Path
+import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.ecs.battle.attack.AttackCancelService
 import net.bestia.zone.entity.ecs.DeadActionGuard
 import net.bestia.zone.ecs.battle.skill.CastCancelService
-import net.bestia.zone.ecs.logout.LogoutCancelService
+import net.bestia.zone.logout.ecs.LogoutCancelService
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.TickMessageHandler
 import net.bestia.zone.message.decoder
@@ -21,7 +21,7 @@ import kotlin.math.abs
 
 /**
  * Applies a movement request from a client by attaching a [Path] to the player's currently active
- * entity. The [net.bestia.zone.ecs.movement.MoveSystem] then advances the entity along the path and
+ * entity. The [net.bestia.zone.movement.ecs.MoveSystem] then advances the entity along the path and
  * the resulting position changes are synced back to nearby clients by the engine.
  */
 @Component

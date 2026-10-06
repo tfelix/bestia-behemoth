@@ -12,8 +12,8 @@ import java.util.SortedSet
  * ### One position unit is one voxel
  *
  * This is the load-bearing assumption of the whole streaming layer, and it is worth stating because the
- * repository was not always unanimous about it. [MoveSystem][net.bestia.zone.ecs.movement.MoveSystem]
- * advances a [net.bestia.zone.ecs.movement.Position] by whole units along a path, one per `fraction`
+ * repository was not always unanimous about it. [MoveSystem][net.bestia.zone.movement.ecs.MoveSystem]
+ * advances a [net.bestia.zone.movement.ecs.Position] by whole units along a path, one per `fraction`
  * rollover, and the AI's `Locomotion` neighbour table steps by one - so a unit behaves as a tile everywhere
  * movement is concerned. Against that, a lone comment on `OutMessageProcessor.UPDATE_RANGE` claimed one metre
  * was a hundred units. It was the only place in the repository that said so, and it was not free: taken
@@ -70,7 +70,7 @@ object ChunkCoords {
    * which that one clamps. So this is for a caller that wants the *entity's* altitude rather than the
    * column's: how high up the entity is, for a lapse rate or a pressure, where half a metre is nothing and a
    * chunk-height computation per asker is not. Anything that has to agree with the terrain asks
-   * [ChunkService.surfaceElevationAt] or [net.bestia.zone.ecs.movement.GroundHeight] instead.
+   * [ChunkService.surfaceElevationAt] or [net.bestia.zone.movement.ecs.GroundHeight] instead.
    */
   fun elevationOf(config: WorldConfig, z: Long): Double =
     (z * VOXELS_PER_POSITION_UNIT) * config.voxelSize

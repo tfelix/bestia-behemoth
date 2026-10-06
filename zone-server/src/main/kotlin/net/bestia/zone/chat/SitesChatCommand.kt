@@ -8,7 +8,7 @@ import net.bestia.zone.ai.domain.townsfolk.TownsfolkProduction
 import net.bestia.zone.economy.EconomyCatalogue
 import net.bestia.zone.environment.time.BestiaClock
 import net.bestia.zone.economy.SettlementEconomyService
-import net.bestia.zone.ecs.movement.Position
+import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.world.WorldService
 import net.bestia.zone.world.settlement.SettlementSite

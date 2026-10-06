@@ -16,8 +16,8 @@ import net.bestia.zone.ecs.battle.status.Nature
 import net.bestia.zone.ecs.battle.skill.KnownSkills
 import net.bestia.zone.ecs.battle.status.Stamina
 import net.bestia.zone.ecs.battle.status.StatusValues
-import net.bestia.zone.ecs.movement.Position
-import net.bestia.zone.ecs.movement.Speed
+import net.bestia.zone.movement.ecs.Position
+import net.bestia.zone.movement.ecs.Speed
 import net.bestia.zone.entity.ecs.EntityVisual
 import net.bestia.zone.entity.ecs.VisualKind
 import net.bestia.zone.entity.ecs.Animation

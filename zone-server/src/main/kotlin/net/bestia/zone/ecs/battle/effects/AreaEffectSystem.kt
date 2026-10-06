@@ -10,14 +10,14 @@ import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.battle.status.Invulnerable
 import net.bestia.zone.ecs.battle.status.StatusValues
 import net.bestia.zone.ecs.core.Phase
-import net.bestia.zone.ecs.movement.Grounded
+import net.bestia.zone.movement.ecs.Grounded
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.identity.ecs.ActivePlayer
-import net.bestia.zone.ecs.movement.Position
+import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.message.SMSG

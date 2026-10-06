@@ -12,7 +12,7 @@ package net.bestia.zone.sync
  * entity to everyone in range, for a number the client already counts down itself - the sync is a
  * drift correction, not the source of the animation.
  *
- * Throttling the *system* instead (the way [net.bestia.zone.ecs.logout.LogoutSystem] does) would tie
+ * Throttling the *system* instead (the way [net.bestia.zone.logout.ecs.LogoutSystem] does) would tie
  * resolution granularity to the send rate, and a 1.5s cast resolving at 2.0s is not acceptable in
  * combat. Hence the accumulator here, for the same reason
  * [net.bestia.zone.ecs.battle.effects.AreaEffect] carries its own.

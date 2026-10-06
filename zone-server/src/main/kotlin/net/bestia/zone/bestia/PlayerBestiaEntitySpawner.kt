@@ -16,8 +16,8 @@ import net.bestia.zone.battle.status.ConditionValueCalculator
 import net.bestia.zone.ecs.item.WeightLimitCalculator
 import net.bestia.zone.ecs.item.Equipment
 import net.bestia.zone.ecs.item.Inventory
-import net.bestia.zone.ecs.movement.Position
-import net.bestia.zone.ecs.movement.Speed
+import net.bestia.zone.movement.ecs.Position
+import net.bestia.zone.movement.ecs.Speed
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.identity.ecs.OwnedBestia
 import net.bestia.zone.session.ConnectionInfoService

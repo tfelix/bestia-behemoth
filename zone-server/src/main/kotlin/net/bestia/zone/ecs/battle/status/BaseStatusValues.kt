@@ -12,7 +12,7 @@ import net.bestia.zone.util.EntityId
  * The unbuffed status values for an entity - untouched by status effects, but permanently raised
  * by investing a [StatusPoints] point. [StatusValues] is the effective, current counterpart
  * recomputed from this by `net.bestia.zone.ecs.battle.effects.StatusValueRecalcSystem`, the same
- * base/effective split [net.bestia.zone.ecs.movement.Speed] already uses for `baseSpeed`/`speed`.
+ * base/effective split [net.bestia.zone.movement.ecs.Speed] already uses for `baseSpeed`/`speed`.
  *
  * Synced to the owner alongside [StatusValues] because the next status point is priced off *this*
  * value, not the effective one - see

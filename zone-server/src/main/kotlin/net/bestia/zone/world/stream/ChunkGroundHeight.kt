@@ -1,6 +1,6 @@
 package net.bestia.zone.world.stream
 
-import net.bestia.zone.ecs.movement.GroundHeight
+import net.bestia.zone.movement.ecs.GroundHeight
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.navigation.local.LocalWalkQuery
 import org.springframework.stereotype.Service

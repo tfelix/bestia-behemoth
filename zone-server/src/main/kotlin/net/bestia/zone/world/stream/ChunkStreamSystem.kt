@@ -11,10 +11,10 @@ import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.ecs.item.ObtainItemIntent
-import net.bestia.zone.ecs.movement.GroundHeight
-import net.bestia.zone.ecs.movement.Grounded
-import net.bestia.zone.ecs.movement.Path
-import net.bestia.zone.ecs.movement.Position
+import net.bestia.zone.movement.ecs.GroundHeight
+import net.bestia.zone.movement.ecs.Grounded
+import net.bestia.zone.movement.ecs.Path
+import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.entity.ecs.PropPose
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.ChunkFanOut

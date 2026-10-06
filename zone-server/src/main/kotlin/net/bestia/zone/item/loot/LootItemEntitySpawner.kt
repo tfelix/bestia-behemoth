@@ -8,7 +8,7 @@ import net.bestia.zone.entity.ecs.EntityVisual
 import net.bestia.zone.entity.ecs.VisualKind
 import net.bestia.zone.ecs.item.GroundItemDecay
 import net.bestia.zone.ecs.item.GroundItemStack
-import net.bestia.zone.ecs.movement.Position
+import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.persistence.Persistent
 import net.bestia.zone.geometry.Vec3L
 import org.springframework.stereotype.Component

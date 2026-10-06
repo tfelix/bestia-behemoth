@@ -8,9 +8,9 @@ import net.bestia.zone.ecs.core.World
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.entity.ecs.DeadActionGuard
-import net.bestia.zone.ecs.logout.LogoutCancelService
-import net.bestia.zone.ecs.logout.LogoutIntent
-import net.bestia.zone.ecs.movement.Position
+import net.bestia.zone.logout.ecs.LogoutCancelService
+import net.bestia.zone.logout.ecs.LogoutIntent
+import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.world.prop.PropPromotionService

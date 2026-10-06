@@ -15,7 +15,7 @@ import net.bestia.zone.ecs.item.ItemTemplateRegistry
 import net.bestia.zone.economy.CoinReserve
 import net.bestia.zone.economy.CommodityItems
 import net.bestia.zone.ecs.item.ObtainItemIntent
-import net.bestia.zone.ecs.movement.Position
+import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.item.instance.ItemInstance
 import net.bestia.zone.message.OperationErrorSMSG

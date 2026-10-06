@@ -20,7 +20,7 @@ interface Removable : Dirtyable {
    * The message announcing this component's removal, defaulting to what the marker above promises.
    *
    * Override it only when the notification has to say something the component cannot answer for itself:
-   * [net.bestia.zone.ecs.movement.Path] does, because a stop carries *where* the entity stopped, which lives
+   * [net.bestia.zone.movement.ecs.Path] does, because a stop carries *where* the entity stopped, which lives
    * on its `Position`. Called with the world to itself, so the entity's other components are still readable
    * and current - do no I/O here.
    */

@@ -11,7 +11,7 @@ import net.bestia.zone.ecs.battle.status.Invulnerable
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.ecs.logout.LogoutIntent
+import net.bestia.zone.logout.ecs.LogoutIntent
 import org.springframework.stereotype.Component as SpringComponent
 import net.bestia.zone.ecs.core.update
 import net.bestia.zone.entity.ecs.Dead

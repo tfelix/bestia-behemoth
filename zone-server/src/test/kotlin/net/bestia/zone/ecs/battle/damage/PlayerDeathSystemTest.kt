@@ -4,7 +4,7 @@ import net.bestia.zone.config.WorldRulesConfig
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.ecs.battle.exp.Exp
 import net.bestia.zone.ecs.core.testWorld
-import net.bestia.zone.ecs.movement.Path
+import net.bestia.zone.movement.ecs.Path
 import net.bestia.zone.geometry.Vec3L
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals

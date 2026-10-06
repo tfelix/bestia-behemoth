@@ -2,7 +2,7 @@ package net.bestia.zone.dialog.conversation.smalltalk
 
 import net.bestia.worldgen.climate.WeatherKind
 import net.bestia.zone.dialog.conversation.Speaker
-import net.bestia.zone.ecs.place.PlaceRegionService
+import net.bestia.zone.place.ecs.PlaceRegionService
 import net.bestia.zone.environment.time.BestiaClock
 import net.bestia.zone.environment.time.Season
 import net.bestia.zone.environment.weather.WeatherService

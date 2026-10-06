@@ -2,7 +2,7 @@ package net.bestia.zone.ecs.battle.damage
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.core.Phase
-import net.bestia.zone.ecs.movement.Position
+import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.ecs.battle.exp.Exp
 import net.bestia.zone.ecs.battle.exp.ExperienceGainCalculator

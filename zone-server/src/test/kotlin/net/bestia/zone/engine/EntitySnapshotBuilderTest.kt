@@ -8,11 +8,11 @@ import net.bestia.zone.entity.ecs.VisualComponentSMSG
 import net.bestia.zone.entity.ecs.VisualKind
 import net.bestia.zone.ecs.item.Inventory
 import net.bestia.zone.ecs.item.InventoryComponentSMSG
-import net.bestia.zone.ecs.movement.Path
-import net.bestia.zone.ecs.movement.PathSMSG
-import net.bestia.zone.ecs.movement.Position
-import net.bestia.zone.ecs.movement.PositionSMSG
-import net.bestia.zone.ecs.movement.Speed
+import net.bestia.zone.movement.ecs.Path
+import net.bestia.zone.movement.ecs.PathSMSG
+import net.bestia.zone.movement.ecs.Position
+import net.bestia.zone.movement.ecs.PositionSMSG
+import net.bestia.zone.movement.ecs.Speed
 import net.bestia.zone.geometry.Vec3L
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals

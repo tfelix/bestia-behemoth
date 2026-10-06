@@ -16,11 +16,11 @@ import net.bestia.zone.ecs.item.CarryCapacityComponentSMSG
 import net.bestia.zone.entity.ecs.EntityVisual
 import net.bestia.zone.entity.ecs.VisualComponentSMSG
 import net.bestia.zone.entity.ecs.VisualKind
-import net.bestia.zone.ecs.movement.Path
-import net.bestia.zone.ecs.movement.PathSMSG
-import net.bestia.zone.ecs.movement.Position
+import net.bestia.zone.movement.ecs.Path
+import net.bestia.zone.movement.ecs.PathSMSG
+import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.aoi.EntityAudience
-import net.bestia.zone.ecs.movement.PositionSMSG
+import net.bestia.zone.movement.ecs.PositionSMSG
 import net.bestia.zone.aoi.EntityVisibility
 import net.bestia.zone.entity.ecs.StaticSync
 import net.bestia.zone.entity.VanishEntitySMSG

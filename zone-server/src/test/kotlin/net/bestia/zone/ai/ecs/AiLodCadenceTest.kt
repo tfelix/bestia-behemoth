@@ -5,9 +5,9 @@ import net.bestia.zone.ai.domain.bestia.BestiaDomain
 import net.bestia.zone.bestia.DefaultAttack
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.entity.ecs.Animation
-import net.bestia.zone.ecs.movement.CoarseMovement
-import net.bestia.zone.ecs.movement.Position
-import net.bestia.zone.ecs.movement.Speed
+import net.bestia.zone.movement.ecs.CoarseMovement
+import net.bestia.zone.movement.ecs.Position
+import net.bestia.zone.movement.ecs.Speed
 import net.bestia.zone.ecs.spawn.ambient.AmbientSpawnConfig
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId

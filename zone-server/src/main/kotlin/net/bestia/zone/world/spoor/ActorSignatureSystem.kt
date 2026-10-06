@@ -11,7 +11,7 @@ import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.entity.ecs.EntityVisual
 import net.bestia.zone.entity.ecs.VisualKind
-import net.bestia.zone.ecs.movement.Path
+import net.bestia.zone.movement.ecs.Path
 import net.bestia.zone.environment.time.BestiaClock
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component

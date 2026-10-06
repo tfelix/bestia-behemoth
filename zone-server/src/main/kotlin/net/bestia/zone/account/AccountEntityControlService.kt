@@ -12,11 +12,10 @@ import net.bestia.zone.ecs.battle.status.InCombat
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.session.NoActiveSessionException
-import net.bestia.zone.ecs.logout.DisconnectProtection
-import net.bestia.zone.ecs.logout.LogoutIntent
+import net.bestia.zone.logout.ecs.DisconnectProtection
+import net.bestia.zone.logout.ecs.LogoutIntent
 import net.bestia.zone.persistence.PersistAndRemove
-import net.bestia.zone.ecs.respawn.Respawn
-import net.bestia.zone.ecs.respawn.SavePointService
+import net.bestia.zone.respawn.ecs.Respawn
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Service
 import org.springframework.core.annotation.Order

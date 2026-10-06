@@ -5,7 +5,7 @@ import net.bestia.zone.ai.domain.bestia.BestiaDomain
 import net.bestia.zone.ai.profile.AiProfileDto
 import net.bestia.zone.battle.skill.AttackType
 import net.bestia.zone.bestia.DefaultAttack
-import net.bestia.zone.ecs.movement.Path
+import net.bestia.zone.movement.ecs.Path
 import net.bestia.zone.geometry.Vec3L
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals

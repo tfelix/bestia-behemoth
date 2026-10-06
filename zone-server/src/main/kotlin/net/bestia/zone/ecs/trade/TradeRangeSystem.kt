@@ -5,7 +5,7 @@ import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.ecs.movement.Position
+import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.trade.TradeEndReason
 import net.bestia.zone.trade.TradeService
 import org.springframework.stereotype.Component as SpringComponent

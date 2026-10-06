@@ -9,7 +9,7 @@ import net.bestia.zone.ecs.item.CarryCapacity
 import net.bestia.zone.ecs.item.Inventory
 import net.bestia.zone.ecs.item.ObtainItemIntent
 import net.bestia.zone.ecs.item.ObtainItemIntentSystem
-import net.bestia.zone.ecs.movement.Position
+import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.ecs.persistence.persisters.LootItemEntityPersister
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.persistence.persisters.MobEntityPersister

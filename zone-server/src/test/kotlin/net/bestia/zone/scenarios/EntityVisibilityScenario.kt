@@ -4,8 +4,8 @@ import net.bestia.zone.account.GetSelfCMSG
 import net.bestia.zone.ecs.account.MasterVisualComponentSMSG
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.item.EquipmentComponentSMSG
-import net.bestia.zone.ecs.movement.SpeedSMSG
-import net.bestia.zone.ecs.place.PlaceComponentSMSG
+import net.bestia.zone.movement.ecs.SpeedSMSG
+import net.bestia.zone.place.ecs.PlaceComponentSMSG
 import net.bestia.zone.message.SelfSMSG
 import net.bestia.zone.mocks.GameClientMock
 import net.bestia.zone.world.stream.ChunkCoords
@@ -17,10 +17,10 @@ import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.entity.ecs.EntityVisual
 import net.bestia.zone.entity.ecs.VisualComponentSMSG
 import net.bestia.zone.entity.ecs.VisualKind
-import net.bestia.zone.ecs.movement.Grounded
-import net.bestia.zone.ecs.movement.Position
-import net.bestia.zone.ecs.movement.PositionSMSG
-import net.bestia.zone.ecs.movement.Speed
+import net.bestia.zone.movement.ecs.Grounded
+import net.bestia.zone.movement.ecs.Position
+import net.bestia.zone.movement.ecs.PositionSMSG
+import net.bestia.zone.movement.ecs.Speed
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired

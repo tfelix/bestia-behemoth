@@ -13,7 +13,7 @@ import net.bestia.zone.ai.core.state.Blackboard
 import net.bestia.zone.ai.core.state.StateKey
 import net.bestia.zone.aoi.ActivePlayerAOIService
 import net.bestia.zone.ecs.core.testWorld
-import net.bestia.zone.ecs.movement.Position
+import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.ecs.spawn.ambient.AmbientSpawnConfig
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId

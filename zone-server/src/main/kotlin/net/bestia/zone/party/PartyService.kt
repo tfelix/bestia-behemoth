@@ -9,8 +9,8 @@ import net.bestia.zone.util.AccountId
 import net.bestia.zone.util.DisplayName
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.ecs.battle.status.Health
-import net.bestia.zone.ecs.movement.Position
-import net.bestia.zone.ecs.place.Place
+import net.bestia.zone.movement.ecs.Position
+import net.bestia.zone.place.ecs.Place
 import net.bestia.zone.ecs.core.WorldView
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service

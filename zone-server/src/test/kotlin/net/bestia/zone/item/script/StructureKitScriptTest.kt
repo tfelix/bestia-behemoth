@@ -5,7 +5,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import net.bestia.zone.identity.ecs.Master
 import net.bestia.zone.ecs.core.testWorld
-import net.bestia.zone.ecs.movement.Position
+import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.script.ScriptArgKeys
 import net.bestia.zone.script.ScriptArgs
