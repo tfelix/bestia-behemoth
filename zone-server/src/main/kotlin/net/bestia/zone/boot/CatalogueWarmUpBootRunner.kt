@@ -7,7 +7,7 @@ import net.bestia.zone.economy.CommodityItems
 import net.bestia.zone.item.ecs.ItemTemplateRegistry
 import net.bestia.zone.weather.EnvironmentalExposureSystem
 import net.bestia.zone.weather.WeatherPublisher
-import net.bestia.zone.item.loot.LootItemEntitySpawner
+import net.bestia.zone.spawn.ecs.MobLootSpawner
 import org.springframework.boot.CommandLineRunner
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
@@ -21,7 +21,7 @@ import org.springframework.stereotype.Component
 class CatalogueWarmUpBootRunner(
   private val items: ItemTemplateRegistry,
   private val commodities: CommodityItems,
-  private val loot: LootItemEntitySpawner,
+  private val loot: MobLootSpawner,
   private val bestias: BestiaCatalogue,
   private val craftBonus: MasterCraftBonusService,
   private val exposure: EnvironmentalExposureSystem,

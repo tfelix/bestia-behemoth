@@ -13,7 +13,6 @@ import net.bestia.zone.persistence.PersistedEntityDeletionQueue
 import net.bestia.zone.persistence.Persistent
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
-import net.bestia.zone.item.loot.LootItemEntitySpawner
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -29,7 +28,7 @@ import net.bestia.zone.entity.ecs.Dead
  */
 class DeathSystemTest {
 
-  private val lootSpawner = mockk<LootItemEntitySpawner>(relaxed = true)
+  private val lootSpawner = mockk<MobLootSpawner>(relaxed = true)
   private val deletionQueue = PersistedEntityDeletionQueue()
 
   /** Where blood was spilled, so the once-per-death rule can be asserted rather than assumed. */
@@ -37,7 +36,7 @@ class DeathSystemTest {
 
   private val sut = DeathSystem(
     experienceGainCalculator = mockk<ExperienceGainCalculator>(relaxed = true),
-    lootItemEntitySpawner = lootSpawner,
+    mobLootSpawner = lootSpawner,
     deletionQueue = deletionQueue,
     connectionInfoService = ConnectionInfoService(),
     notableKills = mockk<NotableKillReporter>(relaxed = true),

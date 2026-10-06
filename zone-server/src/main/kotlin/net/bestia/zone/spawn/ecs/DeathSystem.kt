@@ -16,7 +16,6 @@ import net.bestia.zone.session.NoActiveSessionException
 import net.bestia.zone.persistence.PersistedEntityDeletionQueue
 import net.bestia.zone.persistence.Persistent
 import net.bestia.zone.townsfolk.rumour.NotableKillReporter
-import net.bestia.zone.item.loot.LootItemEntitySpawner
 import net.bestia.zone.identity.ecs.PartyMembership
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component as SpringComponent
@@ -29,7 +28,7 @@ import net.bestia.zone.battle.ecs.damage.TakenDamage
 @SpringComponent
 class DeathSystem(
   private val experienceGainCalculator: ExperienceGainCalculator,
-  private val lootItemEntitySpawner: LootItemEntitySpawner,
+  private val mobLootSpawner: MobLootSpawner,
   private val deletionQueue: PersistedEntityDeletionQueue,
   private val connectionInfoService: ConnectionInfoService,
   private val notableKills: NotableKillReporter,
@@ -177,7 +176,7 @@ class DeathSystem(
     val species = world.bestiaSpeciesOf(entityId)
       ?: return
 
-    lootItemEntitySpawner.spawnLoot(world, species, position)
+    mobLootSpawner.spawnLoot(world, species, position)
   }
 
   /**
