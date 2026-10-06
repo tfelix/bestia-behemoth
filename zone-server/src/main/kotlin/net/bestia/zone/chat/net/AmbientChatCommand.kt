@@ -1,4 +1,4 @@
-package net.bestia.zone.chat
+package net.bestia.zone.chat.net
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.account.Authority
@@ -8,6 +8,7 @@ import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.spawn.ecs.ambient.AmbientSiteResolver
 import net.bestia.zone.spawn.ecs.ambient.AmbientSpawnConfig
 import org.springframework.stereotype.Component
+import net.bestia.zone.chat.ChatCommand
 
 /**
  * Reports why the wilderness around the caller looks the way it does.

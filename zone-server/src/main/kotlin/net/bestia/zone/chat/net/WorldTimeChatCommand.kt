@@ -1,4 +1,4 @@
-package net.bestia.zone.chat
+package net.bestia.zone.chat.net
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.account.Authority
@@ -7,6 +7,9 @@ import net.bestia.zone.world.time.BestiaDateTime
 import net.bestia.zone.world.time.WorldTimeSMSG
 import net.bestia.zone.message.OutMessageProcessor
 import org.springframework.stereotype.Component
+import net.bestia.zone.chat.ChatCommand
+import net.bestia.zone.chat.ChatSMSG
+import net.bestia.zone.chat.ChatType
 
 /**
  * `/date [<YEAR>-<MONTH>-<DAY>] <HH:MM>` - moves the world calendar. In memory only.

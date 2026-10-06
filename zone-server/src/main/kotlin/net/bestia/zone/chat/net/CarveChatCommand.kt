@@ -1,4 +1,4 @@
-package net.bestia.zone.chat
+package net.bestia.zone.chat.net
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.account.Authority
@@ -6,6 +6,7 @@ import net.bestia.worldgen.voxel.CarveBrush
 import net.bestia.zone.world.stream.ChunkStreamConfig
 import net.bestia.zone.world.stream.ChunkStreamInbox
 import org.springframework.stereotype.Component
+import net.bestia.zone.chat.ChatCommand
 
 /**
  * `/carve <x> <y> <z> [radius]` - removes a sphere of rock. The development trigger for terrain mining.

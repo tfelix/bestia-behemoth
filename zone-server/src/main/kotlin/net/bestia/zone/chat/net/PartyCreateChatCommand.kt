@@ -1,8 +1,9 @@
-package net.bestia.zone.chat
+package net.bestia.zone.chat.net
 
 import net.bestia.zone.party.net.CreatePartyCMSG
 import net.bestia.zone.party.net.CreatePartyHandler
 import org.springframework.stereotype.Component
+import net.bestia.zone.chat.ChatCommand
 
 /**
  * `/party <name>` - creates a new party owned by the command's sender. Name validation (ASCII,

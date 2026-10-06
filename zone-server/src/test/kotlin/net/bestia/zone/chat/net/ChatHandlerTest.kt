@@ -1,4 +1,4 @@
-package net.bestia.zone.chat
+package net.bestia.zone.chat.net
 
 import io.mockk.every
 import io.mockk.mockk
@@ -12,6 +12,8 @@ import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OutMessageProcessor
 import org.junit.jupiter.api.Test
+import net.bestia.zone.chat.ChatSMSG
+import net.bestia.zone.chat.ChatType
 
 /**
  * A whisper that goes nowhere has to say so. It is the one chat line nothing will ever send again, so a

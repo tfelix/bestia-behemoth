@@ -1,4 +1,4 @@
-package net.bestia.zone.chat
+package net.bestia.zone.chat.net
 
 import net.bestia.account.Authority
 import net.bestia.worldgen.pop.BusinessCatalogue
@@ -14,6 +14,9 @@ import net.bestia.zone.world.WorldService
 import net.bestia.zone.world.settlement.SettlementSite
 import net.bestia.zone.world.settlement.SettlementSiteIndex
 import org.springframework.stereotype.Component
+import net.bestia.zone.chat.ChatCommand
+import net.bestia.zone.chat.ChatSMSG
+import net.bestia.zone.chat.ChatType
 
 /**
  * Reports the settlement the caller is standing in: its size, its buildings, and who works where.

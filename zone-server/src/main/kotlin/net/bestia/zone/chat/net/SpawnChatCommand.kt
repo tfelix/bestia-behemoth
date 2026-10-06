@@ -1,4 +1,4 @@
-package net.bestia.zone.chat
+package net.bestia.zone.chat.net
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.account.Authority
@@ -7,6 +7,7 @@ import net.bestia.zone.bestia.BestiaRepository
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.geometry.Vec3L
 import org.springframework.stereotype.Component
+import net.bestia.zone.chat.ChatCommand
 
 /**
  * Spawns an NPC bestia via [BestiaEntitySpawner], the same spawner the [net.bestia.zone.spawn.ecs.SpawnerSystem]
