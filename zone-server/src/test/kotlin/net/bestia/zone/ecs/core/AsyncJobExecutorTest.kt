@@ -87,6 +87,38 @@ class AsyncJobExecutorTest {
   }
 
   @Test
+  fun `finished and failed jobs are counted with their wait and run time`() {
+    val sut = AsyncJobExecutor(workerCount = 1)
+
+    sut.submit(key = "k") { Thread.sleep(20) }
+    sut.submit(key = "k") { throw RuntimeException("boom") }
+    sut.awaitPending("k")
+
+    assertEquals(2L, sut.finishedJobs)
+    assertEquals(1L, sut.failedJobs)
+    assertTrue(sut.jobRunNanos >= TimeUnit.MILLISECONDS.toNanos(20))
+    // The second job waited behind the first one's sleep.
+    assertTrue(sut.jobWaitNanos >= TimeUnit.MILLISECONDS.toNanos(15))
+
+    sut.shutdown()
+  }
+
+  @Test
+  fun `pending jobs are reported per worker`() {
+    val sut = AsyncJobExecutor(workerCount = 1)
+    val release = CountDownLatch(1)
+
+    sut.submit(key = 7L) { release.await() }
+    sut.submit(key = 7L) { }
+    sut.submit(key = 7L) { }
+
+    await().atMost(2, TimeUnit.SECONDS).until { sut.pendingJobsOf(0) == 2 }
+
+    release.countDown()
+    sut.shutdown()
+  }
+
+  @Test
   fun `awaitPending returns only after the jobs queued on its key have run`() {
     val sut = AsyncJobExecutor(workerCount = 2)
     val done = AtomicInteger()

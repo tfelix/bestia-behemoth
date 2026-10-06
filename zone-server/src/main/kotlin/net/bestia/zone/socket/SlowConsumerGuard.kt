@@ -16,6 +16,7 @@ import java.util.concurrent.TimeUnit
 class SlowConsumerGuard(
   private val unwritableTimeoutSeconds: Long,
   private val maxWriteBacklogBytes: Long,
+  private val traffic: SocketTraffic = SocketTraffic(),
 ) : ChannelDuplexHandler() {
 
   private var pendingDrop: ScheduledFuture<*>? = null
@@ -24,8 +25,8 @@ class SlowConsumerGuard(
     ctx.write(msg, promise)
 
     val backlog = ctx.channel().bytesBeforeWritable()
-    if (backlog > maxWriteBacklogBytes) {
-      drop(ctx, "its write backlog reached $backlog bytes")
+    if (backlog > maxWriteBacklogBytes && drop(ctx, "its write backlog reached $backlog bytes")) {
+      traffic.droppedForBacklog()
     }
   }
 
@@ -34,8 +35,8 @@ class SlowConsumerGuard(
       cancelPendingDrop()
     } else if (pendingDrop == null) {
       pendingDrop = ctx.executor().schedule({
-        if (!ctx.channel().isWritable) {
-          drop(ctx, "it stayed unwritable for $unwritableTimeoutSeconds s")
+        if (!ctx.channel().isWritable && drop(ctx, "it stayed unwritable for $unwritableTimeoutSeconds s")) {
+          traffic.droppedAsUnwritable()
         }
       }, unwritableTimeoutSeconds, TimeUnit.SECONDS)
     }
@@ -53,11 +54,13 @@ class SlowConsumerGuard(
     pendingDrop = null
   }
 
-  private fun drop(ctx: ChannelHandlerContext, reason: String) {
-    if (!ctx.channel().isOpen) return
+  /** Whether this call closed the connection; a backlog keeps growing while the close is under way. */
+  private fun drop(ctx: ChannelHandlerContext, reason: String): Boolean {
+    if (!ctx.channel().isOpen) return false
 
     LOG.warn { "Closing ${ctx.channel().remoteAddress()} because $reason" }
     ctx.close()
+    return true
   }
 
   private companion object {

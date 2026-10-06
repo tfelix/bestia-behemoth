@@ -5,6 +5,7 @@ import org.springframework.beans.factory.config.YamlPropertiesFactoryBean
 import org.springframework.core.io.ClassPathResource
 import java.util.Properties
 import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
 import kotlin.test.assertNull
 
 /**
@@ -30,6 +31,18 @@ class ZoneDefaultConfigTest {
   @Test
   fun `the shipped config carries no JWT secret`() {
     assertNull(load("application.yml").getProperty("zone.jwt-auth-secret-key"))
+  }
+
+  /** The metrics show what the zone does; they belong on loopback, apart from the tiles and the game socket. */
+  @Test
+  fun `metrics are served on a loopback port of their own, and nothing else is exposed`() {
+    val config = load("application.yml")
+    val port = config.getProperty("management.server.port")
+
+    assertEquals("127.0.0.1", config.getProperty("management.server.address"))
+    assertNotEquals(config.getProperty("server.port"), port)
+    assertNotEquals(config.getProperty("socket.port"), port)
+    assertEquals("health,prometheus", config.getProperty("management.endpoints.web.exposure.include"))
   }
 
   private fun load(name: String): Properties {

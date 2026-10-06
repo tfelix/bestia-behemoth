@@ -69,3 +69,8 @@ chunk-stream:
 # A system that touches a component it did not declare breaks the wave scheduler's ordering silently.
 world:
   undeclared-access: fail
+
+# The one HTTP test would otherwise start a second server for the metrics.
+management:
+  server:
+    port: -1

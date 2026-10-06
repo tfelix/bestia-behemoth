@@ -20,6 +20,7 @@ class ClientMessageHandlerContext(
   val inbox: AccountTaskExecutor,
   @Value("\${zone.version}")
   val version: String,
+  val traffic: SocketTraffic = SocketTraffic(),
 ) {
 
   /** Shared with the outbound side, so one setting governs the log in both directions. */

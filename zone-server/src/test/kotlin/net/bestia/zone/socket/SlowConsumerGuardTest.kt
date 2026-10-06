@@ -1,20 +1,28 @@
 package net.bestia.zone.socket
 
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import io.netty.buffer.Unpooled
 import io.netty.channel.WriteBufferWaterMark
 import io.netty.channel.embedded.EmbeddedChannel
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import java.util.concurrent.TimeUnit
+import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class SlowConsumerGuardTest {
 
+  private val meters = SimpleMeterRegistry()
+
   private val channel = EmbeddedChannel().apply {
     freezeTime()
     config().writeBufferWaterMark = WriteBufferWaterMark(LOW_MARK, HIGH_MARK)
-    pipeline().addLast(SlowConsumerGuard(TIMEOUT_SECONDS, MAX_BACKLOG))
+    pipeline().addLast(SlowConsumerGuard(TIMEOUT_SECONDS, MAX_BACKLOG, SocketTraffic(meters)))
+  }
+
+  private fun dropped(reason: String): Double {
+    return meters.get("zone.socket.dropped").tag("reason", reason).counter().count()
   }
 
   @AfterEach
@@ -31,6 +39,7 @@ class SlowConsumerGuardTest {
 
     advanceSeconds(1)
     assertFalse(channel.isOpen)
+    assertEquals(1.0, dropped("unwritable"))
   }
 
   @Test
@@ -50,6 +59,7 @@ class SlowConsumerGuardTest {
     channel.write(Unpooled.wrappedBuffer(ByteArray((MAX_BACKLOG * 2).toInt())))
 
     assertFalse(channel.isOpen)
+    assertEquals(1.0, dropped("backlog"))
   }
 
   private fun fillPastHighMark() {

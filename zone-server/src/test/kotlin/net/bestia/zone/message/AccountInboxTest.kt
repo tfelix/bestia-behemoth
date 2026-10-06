@@ -66,7 +66,21 @@ class AccountInboxTest {
     repeat(AccountInbox.CAPACITY + 1) { sut.onIo(1L) { } }
 
     verify { registry.disconnect(1L, "INBOX_OVERFLOW") }
+    assertEquals(1L, sut.overflowCount)
     release.countDown()
+  }
+
+  @Test
+  fun `waiting messages are counted until they start`() {
+    val release = CountDownLatch(1)
+    sut.onIo(1L) { release.await() }
+    val last = (1..3).map { sut.onIo(1L) { } }.last()
+
+    assertEquals(3, sut.pendingMessages)
+
+    release.countDown()
+    last.get(2, TimeUnit.SECONDS)
+    assertEquals(0, sut.pendingMessages)
   }
 
   @Test

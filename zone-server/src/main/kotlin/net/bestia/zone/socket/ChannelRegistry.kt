@@ -59,6 +59,12 @@ class ChannelRegistry(
 
   fun getChannel(accountId: Long): Channel? = channelsByAccountId[accountId]
 
+  /** Accounts with a registered connection, without copying the key set as [connectedAccountIds] does. */
+  val connectedCount: Int
+    get() {
+      return channelsByAccountId.size
+    }
+
   override fun disconnect(accountId: Long, reason: String): Boolean {
     val channel = getChannel(accountId) ?: return false
 

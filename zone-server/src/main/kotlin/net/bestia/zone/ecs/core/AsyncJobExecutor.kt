@@ -9,6 +9,7 @@ import java.util.concurrent.ThreadPoolExecutor
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 import java.util.concurrent.atomic.AtomicLong
+import java.util.concurrent.atomic.LongAdder
 
 /**
  * Runs database and other blocking work off the tick thread. Network sends never come here: they leave
@@ -42,6 +43,10 @@ class AsyncJobExecutor(
   }
 
   private val rejected = AtomicLong()
+  private val finished = LongAdder()
+  private val failed = LongAdder()
+  private val waitNanos = LongAdder()
+  private val runNanos = LongAdder()
   private val rejectionLog = RateLimitedLog()
   private val backlogLog = RateLimitedLog(intervalMillis = 10_000L)
 
@@ -57,12 +62,45 @@ class AsyncJobExecutor(
       return rejected.get()
     }
 
+  /** Jobs run since start, the failed ones included. */
+  val finishedJobs: Long
+    get() {
+      return finished.sum()
+    }
+
+  val failedJobs: Long
+    get() {
+      return failed.sum()
+    }
+
+  /** Time the finished jobs spent queued, summed. */
+  val jobWaitNanos: Long
+    get() {
+      return waitNanos.sum()
+    }
+
+  /** Time the finished jobs spent running, summed. */
+  val jobRunNanos: Long
+    get() {
+      return runNanos.sum()
+    }
+
+  val workerCount: Int
+    get() {
+      return workers.size
+    }
+
+  fun pendingJobsOf(worker: Int): Int {
+    return workers[worker].queue.size
+  }
+
   /** Runs [job] on a background worker, keeping jobs sharing [key] strictly ordered. */
   fun submit(key: Any, job: () -> Unit) {
     val worker = workerFor(key.hashCode())
+    val queuedAt = java.lang.System.nanoTime()
 
     try {
-      worker.execute { runSafely(job) }
+      worker.execute { runSafely(queuedAt, job) }
     } catch (_: RejectedExecutionException) {
       val total = rejected.incrementAndGet()
       rejectionLog.emit { held -> LOG.error { "DB job for $key dropped, its queue is full ($total dropped so far, +$held)" } }
@@ -94,12 +132,20 @@ class AsyncJobExecutor(
     return workers[(hash and Int.MAX_VALUE) % workers.size]
   }
 
-  private fun runSafely(job: () -> Unit) {
+  /** `java.lang.System` spelled out because [System] in this package is the ECS one. */
+  private fun runSafely(queuedAt: Long, job: () -> Unit) {
+    val started = java.lang.System.nanoTime()
+    waitNanos.add(started - queuedAt)
+
     try {
       job()
     } catch (e: Throwable) {
       if (e.isFatal()) throw e
+      failed.increment()
       LOG.error(e) { "Async job failed: ${e.message}" }
+    } finally {
+      runNanos.add(java.lang.System.nanoTime() - started)
+      finished.increment()
     }
   }
 

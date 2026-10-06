@@ -1,5 +1,6 @@
 package net.bestia.zone.ecs
 
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import io.mockk.clearMocks
 import io.mockk.mockk
 import io.mockk.slot
@@ -29,6 +30,7 @@ import net.bestia.zone.util.EntityId
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.message.TickOutbox
 import net.bestia.zone.message.SMSG
+import net.bestia.zone.metrics.TickMetrics
 import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -67,6 +69,8 @@ class ZoneEngineTest {
     return entityId
   }
 
+  private val meters = SimpleMeterRegistry()
+
   private lateinit var world: EcsWorld
   private lateinit var zoneEngine: ZoneEngine
 
@@ -87,7 +91,16 @@ class ZoneEngineTest {
       entityVisibility = entityVisibility,
       entityAudience = EntityAudience(entityVisibility),
       snapshotBuilder = EntitySnapshotBuilder(),
+      tickMetrics = TickMetrics(meters, ZoneConfig(tickRate = 20)),
     )
+  }
+
+  @Test
+  fun `a tick is recorded as its systems and its sync`() {
+    zoneEngine.tickOnce(0.05f)
+
+    assertEquals(1L, meters.get("zone.tick.duration").tag("part", "systems").timer().count())
+    assertEquals(1L, meters.get("zone.tick.duration").tag("part", "sync").timer().count())
   }
 
   @Test

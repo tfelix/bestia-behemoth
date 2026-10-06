@@ -17,8 +17,9 @@ class ZoneChannelInitializer(
 
   override fun initChannel(ch: Channel) {
     ch.pipeline().addLast(
+      TrafficCounter(handlerContext.traffic),
       // At the head, so it sees the encoded bytes that actually queue up.
-      SlowConsumerGuard(config.unwritableTimeoutSeconds, config.maxWriteBacklogBytes),
+      SlowConsumerGuard(config.unwritableTimeoutSeconds, config.maxWriteBacklogBytes, handlerContext.traffic),
       // ClientMessageHandler closes the connection on the idle event.
       IdleStateHandler(config.readIdleTimeoutSeconds, 0, 0, TimeUnit.SECONDS),
       connectionLimit,

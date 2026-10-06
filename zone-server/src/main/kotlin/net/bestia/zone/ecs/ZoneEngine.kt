@@ -25,6 +25,7 @@ import net.bestia.zone.message.EntitySMSG
 import net.bestia.zone.message.SMSG
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.message.TickOutbox
+import net.bestia.zone.metrics.TickMetrics
 import org.springframework.stereotype.Service
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.Executors
@@ -52,6 +53,7 @@ class ZoneEngine(
   private val entityVisibility: EntityVisibility,
   private val entityAudience: EntityAudience,
   private val snapshotBuilder: EntitySnapshotBuilder,
+  private val tickMetrics: TickMetrics,
 ) {
 
   private data class RemovedComponentRecord(
@@ -130,7 +132,11 @@ class ZoneEngine(
     world.bindTickThread()
     try {
       while (running) {
-        repeat(clock.dueSteps(System.nanoTime())) { tickSafely() }
+        val droppedBefore = clock.droppedSteps
+        val due = clock.dueSteps(System.nanoTime())
+        tickMetrics.stepsDropped(clock.droppedSteps - droppedBefore)
+
+        repeat(due) { tickSafely() }
         awaitNextStep()
       }
     } finally {
@@ -149,6 +155,7 @@ class ZoneEngine(
     }
 
     val elapsed = System.nanoTime() - started
+    tickMetrics.recordTotal(elapsed)
     if (elapsed > stepNanos) reportSlowTick(elapsed)
   }
 
@@ -192,7 +199,8 @@ class ZoneEngine(
 
     LOG.warn {
       "Zone tick took ${elapsedNanos / 1_000_000} ms against a ${stepNanos / 1_000_000} ms budget " +
-          "(systems $lastWorldTickMs ms, component sync $lastSyncMs ms): ${world.lastTickBreakdown()}" +
+          "(systems ${lastSystemsNanos / 1_000_000} ms, component sync ${lastSyncNanos / 1_000_000} ms): " +
+          world.lastTickBreakdown() +
           (if (suppressed > 0) "; $suppressed more late ticks since the last of these" else "") +
           if (dropped > 0) "; $dropped steps dropped to catch up" else ""
     }
@@ -203,8 +211,8 @@ class ZoneEngine(
   private var droppedStepsReported = 0L
 
   /** The tick's two halves, split so the breakdown cannot be misread as the whole cost. */
-  private var lastWorldTickMs = 0L
-  private var lastSyncMs = 0L
+  private var lastSystemsNanos = 0L
+  private var lastSyncNanos = 0L
 
   @PreDestroy
   fun stop() {
@@ -229,8 +237,9 @@ class ZoneEngine(
       val ticked = System.nanoTime()
       syncDirtyComponents()
 
-      lastWorldTickMs = (ticked - started) / 1_000_000
-      lastSyncMs = (System.nanoTime() - ticked) / 1_000_000
+      lastSystemsNanos = ticked - started
+      lastSyncNanos = System.nanoTime() - ticked
+      tickMetrics.recordParts(lastSystemsNanos, lastSyncNanos)
     }
   }
 
