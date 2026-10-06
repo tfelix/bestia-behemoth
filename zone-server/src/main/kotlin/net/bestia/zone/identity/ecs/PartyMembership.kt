@@ -1,7 +1,7 @@
 package net.bestia.zone.identity.ecs
 
 import net.bestia.zone.ecs.core.Component
-import net.bestia.zone.party.Party
+import net.bestia.zone.account.persistence.Party
 
 /**
  * Marks a master entity as being part of a party, caching the current roster's account ids so

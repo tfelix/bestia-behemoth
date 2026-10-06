@@ -1,0 +1,225 @@
+package net.bestia.zone.account.persistence
+
+import jakarta.persistence.*
+import net.bestia.zone.bestia.Bestia
+import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.item.container.ItemContainer
+import org.hibernate.annotations.DynamicUpdate
+import java.awt.Color
+import net.bestia.zone.account.BodyType
+import net.bestia.zone.account.Face
+import net.bestia.zone.account.Hairstyle
+import net.bestia.zone.account.PlayerBestiaPolicy
+
+/**
+ * `@DynamicUpdate`: a save writes only the columns that changed, so a writer that only moves the party cannot
+ * write back a level or position it read before the persister saved newer ones.
+ */
+@Entity
+@DynamicUpdate
+@Table(
+  name = "master",
+  indexes = [
+    Index(columnList = "name", unique = true)
+  ]
+)
+class Master(
+  @ManyToOne
+  @JoinColumn(name = "account_id", nullable = false)
+  val account: Account,
+
+  @Column(length = 20)
+  var name: String,
+
+  @Column(name = "hairColor", columnDefinition = "CHAR(6)")
+  var hairColor: Color,
+
+  @Column(name = "skinColor", columnDefinition = "CHAR(6)")
+  var skinColor: Color,
+
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  var hair: Hairstyle,
+
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  var face: Face,
+
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  var body: BodyType
+) {
+
+  var level: Int = 1
+    set(value) {
+      require(value > 0)
+
+      field = value
+    }
+
+  @Column(name = "skill_points", nullable = false)
+  var skillPoints: Int = 0
+    set(value) {
+      require(value >= 0)
+
+      field = value
+    }
+
+  @Column(name = "status_points", nullable = false)
+  var statusPoints: Int = 0
+    set(value) {
+      require(value >= 0)
+
+      field = value
+    }
+
+  /**
+   * The six **effort values** (EV) - the only part of a master's status values the player controls.
+   * Distributed on the creation screen out of
+   * [net.bestia.zone.master.status.EffortValueCostCalculator.CREATION_EFFORT_POINTS] and
+   * raised afterwards by spending [statusPoints] through
+   * [net.bestia.zone.master.status.InvestStatusPointService]. A master's individual values
+   * (IV) are fixed at the average 50 for everyone, so unlike a caught bestia there is nothing else
+   * per-master to store.
+   *
+   * Fed straight into [net.bestia.zone.battle.ecs.status.BaseStatusValues] by
+   * [net.bestia.zone.master.MasterEntitySpawner]: the docs' `(baseValue + IV) * level / 100` term is not implemented yet
+   * (see [net.bestia.zone.battle.status.ConditionValueCalculator]), and at level 1 it rounds to 0
+   * anyway, so for now the effort value *is* the base status value.
+   *
+   * The `= 10` defaults only apply to rows written before creation started sending a distribution;
+   * a master created through the creation screen always has all six set explicitly.
+   */
+  @Column(name = "strength", nullable = false)
+  var strength: Int = 10
+    set(value) {
+      require(value >= 0)
+
+      field = value
+    }
+
+  @Column(name = "vitality", nullable = false)
+  var vitality: Int = 10
+    set(value) {
+      require(value >= 0)
+
+      field = value
+    }
+
+  @Column(name = "intelligence", nullable = false)
+  var intelligence: Int = 10
+    set(value) {
+      require(value >= 0)
+
+      field = value
+    }
+
+  @Column(name = "dexterity", nullable = false)
+  var dexterity: Int = 10
+    set(value) {
+      require(value >= 0)
+
+      field = value
+    }
+
+  @Column(name = "willpower", nullable = false)
+  var willpower: Int = 10
+    set(value) {
+      require(value >= 0)
+
+      field = value
+    }
+
+  @Column(name = "agility", nullable = false)
+  var agility: Int = 10
+    set(value) {
+      require(value >= 0)
+
+      field = value
+    }
+
+  @Column(name = "exp", nullable = false)
+  var exp: Int = 0
+    set(value) {
+      require(value >= 0)
+
+      field = value
+    }
+
+  /**
+   * Hit points this master last left the world with, or null to enter it at full.
+   *
+   * Nullable because the schema is `ddl-auto: update` against a live database: every row written
+   * before this column existed reads back as null, and "as many as it had" is not an answer for
+   * those. Null is also what a master that died and logged out does *not* get - that one is stored
+   * as 1, next to its save point, so leaving while dead resolves the respawn rather than dodging it.
+   */
+  @Column(name = "current_health")
+  var currentHealth: Int? = null
+
+  @OneToMany(mappedBy = "master", cascade = [CascadeType.ALL], orphanRemoval = true)
+  val learnedSkills: MutableSet<LearnedSkill> = mutableSetOf()
+
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  val id: Long = 0
+
+  /**
+   * The ECS [net.bestia.zone.util.EntityId] this master occupies whenever it is in the world. Unlike
+   * [id] it is not a database key but a snowflake taken from the zone's shared
+   * [net.bestia.zone.ecs.core.EntityIdGenerator] at creation time, and it stays the same across every
+   * spawn - the same way a mob keeps its id across a restart.
+   *
+   * Assigned by [net.bestia.zone.master.MasterFactory] and replayed into the world by [net.bestia.zone.master.MasterEntitySpawner]. Having it exist
+   * before the entity does is what lets per-entity state (persisted status effects) be written for a
+   * master that has never been selected.
+   */
+  @Column(name = "entity_id", nullable = false, unique = true)
+  var entityId: Long = 0
+
+  @ManyToOne
+  @JoinColumn(name = "party_id", nullable = true)
+  var party: Party? = null
+
+  @Embedded
+  @AttributeOverrides(
+    AttributeOverride(name = "x", column = Column(name = "current_position_x")),
+    AttributeOverride(name = "y", column = Column(name = "current_position_y")),
+    AttributeOverride(name = "z", column = Column(name = "current_position_z"))
+  )
+  var currentPosition: Vec3L = Vec3L.ZERO
+
+  @Embedded
+  @AttributeOverrides(
+    AttributeOverride(name = "x", column = Column(name = "spawn_position_x")),
+    AttributeOverride(name = "y", column = Column(name = "spawn_position_y")),
+    AttributeOverride(name = "z", column = Column(name = "spawn_position_z"))
+  )
+  var spawnPosition: Vec3L = Vec3L.ZERO
+
+  /** Name of the settlement this master chose to spawn near at creation, or blank if none was chosen. */
+  @Column(nullable = false, length = 64)
+  var homeSettlementName: String = ""
+
+  @OneToOne(cascade = [CascadeType.ALL], orphanRemoval = true)
+  @JoinColumn(name = "container_id", nullable = false)
+  val container: ItemContainer = ItemContainer(ItemContainer.Type.MASTER)
+
+  val bestias = MasterBestias()
+
+  init {
+    require(name.length <= MAX_NAME_LENGTH) { "Master name must be at most $MAX_NAME_LENGTH characters." }
+  }
+
+  fun addPlayerBestia(bestia: Bestia, policy: PlayerBestiaPolicy): PlayerBestia {
+    return bestias.addBestia(this, bestia, policy)
+  }
+
+  override fun toString(): String {
+    return "Master(id=$id, name=$name, pos=$currentPosition)"
+  }
+
+  companion object {
+    private const val MAX_NAME_LENGTH = 20
+  }
+}

@@ -93,7 +93,7 @@ Inbound flow:
    `IoMessageHandler` runs on an IO thread, for handlers that touch the database. Netty threads
    only decode. Connection events go through the same inbox on the IO lane. A full inbox or a
    failing handler closes the connection. See
-   `entity/SelectEntityHandler.kt` for the pattern to follow when
+   `control/SelectEntityHandler.kt` for the pattern to follow when
    adding a handler.
 
 Outbound flow: an `SMSG` implementation (`message/SMSG.kt`) provides

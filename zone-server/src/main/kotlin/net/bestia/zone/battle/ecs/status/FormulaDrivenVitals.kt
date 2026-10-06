@@ -6,8 +6,8 @@ import net.bestia.zone.ecs.core.Component
  * Marks an entity whose [Health] / [Mana] / [Stamina] **maxima** are derived from its level and
  * primary attributes by [net.bestia.zone.battle.status.ConditionValueCalculator], and are therefore
  * re-derived by `net.bestia.zone.battle.ecs.effects.StatusValueRecalcSystem` whenever those inputs
- * change. Player-owned entities carry it: `net.bestia.zone.account.master.MasterEntitySpawner` and
- * `net.bestia.zone.bestia.PlayerBestiaEntitySpawner`.
+ * change. Player-owned entities carry it: `net.bestia.zone.master.MasterEntitySpawner` and
+ * `net.bestia.zone.master.bestia.PlayerBestiaEntitySpawner`.
  *
  * Mobs deliberately do **not**: `net.bestia.zone.spawn.BestiaEntitySpawner` gives them the authored
  * `Bestia.health` from their species row, which is content and must survive a recalc. They still get

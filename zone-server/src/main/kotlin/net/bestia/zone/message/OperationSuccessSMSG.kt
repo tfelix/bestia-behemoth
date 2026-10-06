@@ -8,7 +8,7 @@ import net.bestia.bnet.proto.OperationSuccessProto
  *
  * Reuse this for a new "it worked" acknowledgement instead of adding another per-feature SMSG - add the value
  * to `OpSuccess` in operation_success.proto and send it through here. The two existing per-case classes
- * ([net.bestia.zone.account.master.MasterCreatedSMSG] and its sibling) predate this and say exactly the same
+ * ([net.bestia.zone.master.MasterCreatedSMSG] and its sibling) predate this and say exactly the same
  * thing the long way round.
  */
 data class OperationSuccessSMSG(

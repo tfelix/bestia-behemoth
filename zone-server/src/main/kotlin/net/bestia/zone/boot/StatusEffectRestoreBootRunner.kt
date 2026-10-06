@@ -17,7 +17,7 @@ import net.bestia.zone.ecs.core.modify
  * script entities alike.
  *
  * Player masters are absent here by design - they are materialized on login, and
- * [net.bestia.zone.account.master.MasterEntitySpawner] restores their effects at that point.
+ * [net.bestia.zone.master.MasterEntitySpawner] restores their effects at that point.
  */
 @Component
 @Order(111)

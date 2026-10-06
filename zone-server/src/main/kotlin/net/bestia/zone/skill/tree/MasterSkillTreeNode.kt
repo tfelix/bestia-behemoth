@@ -8,7 +8,7 @@ package net.bestia.zone.skill.tree
  * is config, not player state, so it is never persisted to the database.
  *
  * [tree] and [subTree] used to be client-presentation-only (the grouping the Skills window reads
- * from its own Attack DB) but are now also load-bearing server-side: [net.bestia.zone.account.master.skill.MasterSkillTreeService]
+ * from its own Attack DB) but are now also load-bearing server-side: [net.bestia.zone.master.skill.MasterSkillTreeService]
  * gates investment outside the Novice tree behind Basic Skill 5, and gates a [subTree] behind
  * 5+ points spent anywhere in [tree].
  */

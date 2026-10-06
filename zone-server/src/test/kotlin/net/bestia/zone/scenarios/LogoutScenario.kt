@@ -4,7 +4,7 @@ import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.session.NoActiveSessionException
 import net.bestia.zone.logout.ecs.LogoutIntentComponentSMSG
 import net.bestia.zone.logout.ecs.RequestLogoutCMSG
-import net.bestia.zone.entity.MoveActiveEntityCMSG
+import net.bestia.zone.control.MoveActiveEntityCMSG
 import net.bestia.zone.entity.VanishEntitySMSG
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull

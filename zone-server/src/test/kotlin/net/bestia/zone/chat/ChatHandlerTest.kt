@@ -4,9 +4,9 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import net.bestia.bnet.proto.OperationErrorProto.OpError
-import net.bestia.zone.account.master.Master
-import net.bestia.zone.account.master.MasterNotFoundException
-import net.bestia.zone.account.master.MasterResolver
+import net.bestia.zone.account.persistence.Master
+import net.bestia.zone.account.MasterNotFoundException
+import net.bestia.zone.account.MasterResolver
 import net.bestia.zone.skill.BasicSkillGate
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.message.OperationErrorSMSG

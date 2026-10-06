@@ -1,7 +1,7 @@
 package net.bestia.zone.engine
 
 import net.bestia.zone.sync.SyncTargets
-import net.bestia.zone.ecs.account.MasterVisual
+import net.bestia.zone.master.ecs.MasterVisual
 import net.bestia.zone.sync.Dirtyable
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.sync.dirtyableComponentTypes

@@ -3,8 +3,8 @@ package net.bestia.zone.chat
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.bnet.proto.OperationErrorProto.OpError
-import net.bestia.zone.account.master.MasterNotFoundException
-import net.bestia.zone.account.master.MasterResolver
+import net.bestia.zone.account.MasterNotFoundException
+import net.bestia.zone.account.MasterResolver
 import net.bestia.zone.skill.BasicSkillGate
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.WorldView

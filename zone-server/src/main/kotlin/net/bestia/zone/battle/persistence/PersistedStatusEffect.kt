@@ -19,7 +19,7 @@ import jakarta.persistence.Table
  * - `Float.POSITIVE_INFINITY` does not round-trip through JSON, while [remainingSeconds] being
  *   nullable states "never expires" outright;
  * - a row can be written for an entity id that has not been spawned yet, which is what lets
- *   [net.bestia.zone.account.master.MasterFactory] seed an effect at master creation time.
+ *   [net.bestia.zone.master.MasterFactory] seed an effect at master creation time.
  */
 @Entity
 @Table(

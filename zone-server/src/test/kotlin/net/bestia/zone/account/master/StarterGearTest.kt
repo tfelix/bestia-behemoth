@@ -13,6 +13,14 @@ import java.awt.Color
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import net.bestia.zone.account.BodyType
+import net.bestia.zone.account.Face
+import net.bestia.zone.account.Hairstyle
+import net.bestia.zone.account.persistence.Master
+import net.bestia.zone.account.persistence.MasterRepository
+import net.bestia.zone.account.persistence.findByIdOrThrow
+import net.bestia.zone.master.MasterDeletionService
+import net.bestia.zone.master.MasterFactory
 
 /**
  * A new master is created *wearing* the novice kit, not merely carrying it.

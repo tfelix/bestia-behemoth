@@ -1,12 +1,12 @@
 package net.bestia.zone.scenarios
 
 import net.bestia.zone.account.AccountFactory
-import net.bestia.zone.account.master.BodyType
-import net.bestia.zone.account.master.Face
-import net.bestia.zone.account.master.Hairstyle
-import net.bestia.zone.account.master.MasterFactory
-import net.bestia.zone.bestia.PlayerBestiaCreateOperation
-import net.bestia.zone.bestia.PlayerBestiaCreateOperation.PlayerBestiaCreateData
+import net.bestia.zone.account.BodyType
+import net.bestia.zone.account.Face
+import net.bestia.zone.account.Hairstyle
+import net.bestia.zone.master.MasterFactory
+import net.bestia.zone.master.bestia.PlayerBestiaCreateOperation
+import net.bestia.zone.master.bestia.PlayerBestiaCreateOperation.PlayerBestiaCreateData
 import net.bestia.zone.identity.ecs.OwnedBestia
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.session.ConnectionInfoService

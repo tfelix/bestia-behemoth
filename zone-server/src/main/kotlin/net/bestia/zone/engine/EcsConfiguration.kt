@@ -21,7 +21,7 @@ class EcsConfiguration {
 
   /**
    * The one id source for the whole zone. Exposed as a bean rather than kept inside [ecsWorld]
-   * because ids are also handed out *before* an entity exists — [net.bestia.zone.account.master.MasterFactory]
+   * because ids are also handed out *before* an entity exists — [net.bestia.zone.master.MasterFactory]
    * stamps a master's [net.bestia.zone.util.EntityId] at creation so persisted per-entity state can be
    * written for it long before it is ever spawned. A second generator instance would defeat the
    * snowflake's uniqueness, since two of them with the same node id emit the same timestamp|node|sequence.

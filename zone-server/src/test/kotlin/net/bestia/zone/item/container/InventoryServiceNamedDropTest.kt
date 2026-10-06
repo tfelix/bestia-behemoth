@@ -1,7 +1,7 @@
 package net.bestia.zone.item.container
 
-import net.bestia.zone.account.master.MasterRepository
-import net.bestia.zone.account.master.findByIdOrThrow
+import net.bestia.zone.account.persistence.MasterRepository
+import net.bestia.zone.account.persistence.findByIdOrThrow
 import net.bestia.zone.item.ItemRepository
 import net.bestia.zone.item.findByIdentifierOrThrow
 import net.bestia.zone.scenarios.ScenarioDataSetup

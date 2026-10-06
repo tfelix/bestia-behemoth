@@ -19,8 +19,8 @@ import java.lang.Double.POSITIVE_INFINITY
 /**
  * Greets a player the first time their master reaches the world, exactly once for the life of that master.
  *
- * The "exactly once" is what the effect is for. [net.bestia.zone.account.master.MasterFactory] seeds this
- * marker into durable storage when the master row is created; [net.bestia.zone.account.master.MasterEntitySpawner]
+ * The "exactly once" is what the effect is for. [net.bestia.zone.master.MasterFactory] seeds this
+ * marker into durable storage when the master row is created; [net.bestia.zone.master.MasterEntitySpawner]
  * replays whatever is stored on every spawn, and [apply] deletes the marker as soon as it has sent the dialog.
  * The next persist writes the emptied list, so no later login finds anything to replay.
  */

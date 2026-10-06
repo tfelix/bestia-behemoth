@@ -16,7 +16,7 @@ import net.bestia.zone.util.EntityId
  *
  * Synced to the owner alongside [StatusValues] because the next status point is priced off *this*
  * value, not the effective one - see
- * [net.bestia.zone.account.master.status.EffortValueCostCalculator]. Pricing off the effective value
+ * [net.bestia.zone.master.status.EffortValueCostCalculator]. Pricing off the effective value
  * would make a point cost more for as long as a buff happened to be running.
  */
 data class BaseStatusValues(

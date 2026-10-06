@@ -1,7 +1,7 @@
 package net.bestia.zone.mocks
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.account.AccountRepository
+import net.bestia.zone.account.persistence.AccountRepository
 import net.bestia.zone.message.SMSG
 import net.bestia.zone.message.AccountTaskExecutor
 import net.bestia.zone.message.InMessageProcessor

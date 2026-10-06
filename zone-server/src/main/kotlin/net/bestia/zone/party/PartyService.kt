@@ -2,9 +2,9 @@ package net.bestia.zone.party
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.config.ZoneConfig
-import net.bestia.zone.account.master.Master
-import net.bestia.zone.account.master.MasterRepository
-import net.bestia.zone.account.master.MasterResolver
+import net.bestia.zone.account.persistence.Master
+import net.bestia.zone.account.persistence.MasterRepository
+import net.bestia.zone.account.MasterResolver
 import net.bestia.zone.util.AccountId
 import net.bestia.zone.util.DisplayName
 import net.bestia.zone.util.EntityId
@@ -21,6 +21,8 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicLong
 import net.bestia.zone.identity.ecs.PartyMembership
+import net.bestia.zone.account.persistence.Party
+import net.bestia.zone.account.persistence.PartyRepository
 
 /**
  * Every change to a party locks its row first, then touches its masters. Master rows are written with

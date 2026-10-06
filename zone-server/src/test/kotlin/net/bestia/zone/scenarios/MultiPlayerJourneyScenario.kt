@@ -1,13 +1,13 @@
 package net.bestia.zone.scenarios
 
-import net.bestia.zone.account.master.AvailableMasterSMSG
-import net.bestia.zone.account.master.CreateMasterCMSG
-import net.bestia.zone.account.master.GetMasterCMSG
-import net.bestia.zone.account.master.MasterCreatedSMSG
-import net.bestia.zone.account.master.MasterRepository
-import net.bestia.zone.account.master.SelectMasterCMSG
-import net.bestia.zone.account.master.findByIdOrThrow
-import net.bestia.zone.account.master.skill.InvestSkillPointCMSG
+import net.bestia.zone.master.AvailableMasterSMSG
+import net.bestia.zone.master.CreateMasterCMSG
+import net.bestia.zone.master.GetMasterCMSG
+import net.bestia.zone.master.MasterCreatedSMSG
+import net.bestia.zone.account.persistence.MasterRepository
+import net.bestia.zone.master.SelectMasterCMSG
+import net.bestia.zone.account.persistence.findByIdOrThrow
+import net.bestia.zone.master.skill.InvestSkillPointCMSG
 import net.bestia.zone.casting.ActivateSkillCMSG
 import net.bestia.zone.battle.damage.DamageEntitySMSG
 import net.bestia.zone.battle.status.StatusEffectId
@@ -25,7 +25,7 @@ import net.bestia.zone.logout.ecs.LogoutIntentComponentSMSG
 import net.bestia.zone.logout.ecs.RequestLogoutCMSG
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.movement.ecs.PathSMSG
-import net.bestia.zone.entity.MoveActiveEntityCMSG
+import net.bestia.zone.control.MoveActiveEntityCMSG
 import net.bestia.zone.entity.VanishEntitySMSG
 import net.bestia.zone.extensions.test
 import net.bestia.zone.geometry.Vec3L
@@ -45,8 +45,8 @@ import net.bestia.zone.party.PartyInvitationCreatedSMSG
 import net.bestia.zone.party.PartyInvitationSMSG
 import net.bestia.zone.party.RequestDisbandPartyCMSG
 import net.bestia.zone.party.RequestPartyInvitationCMSG
-import net.bestia.zone.skill.GetSkillsCMSG
-import net.bestia.zone.skill.SkillListSMSG
+import net.bestia.zone.master.skill.GetSkillsCMSG
+import net.bestia.zone.master.skill.SkillListSMSG
 import net.bestia.zone.world.MasterSpawnPointService
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
