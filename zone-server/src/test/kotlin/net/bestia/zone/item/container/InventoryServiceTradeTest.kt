@@ -73,7 +73,7 @@ class InventoryServiceTradeTest {
   fun `a reserved stack is no longer counted as held and comes back on release`() {
     val tradeId = 900_001L
     val master = masterA()
-    inventoryService.addItem(tx.execute { masterRepository.findByIdOrThrow(master) }!!, "apple", 10)
+    inventoryService.addItem(master, "apple", 10)
 
     val before = heldAmount(master, "apple")
 
@@ -94,7 +94,7 @@ class InventoryServiceTradeTest {
   fun `two offers of the same item stay separately retractable`() {
     val tradeId = 900_002L
     val master = masterA()
-    inventoryService.addItem(tx.execute { masterRepository.findByIdOrThrow(master) }!!, "apple", 10)
+    inventoryService.addItem(master, "apple", 10)
 
     val first = inventoryService.reserveForTrade(master, tradeId, appleId(), 0L, 3)!!
     val second = inventoryService.reserveForTrade(master, tradeId, appleId(), 0L, 2)!!
@@ -118,7 +118,7 @@ class InventoryServiceTradeTest {
     val a = masterA()
     val b = masterB()
 
-    inventoryService.addItem(tx.execute { masterRepository.findByIdOrThrow(a) }!!, "apple", 6)
+    inventoryService.addItem(a, "apple", 6)
 
     // A forged sword with state worth losing: the whole reason instances move rather than being remade.
     val sword = inventoryService.mintInstanceForMaster(b, itemRepository.findByIdentifierOrThrow("iron_sword"))
@@ -168,8 +168,8 @@ class InventoryServiceTradeTest {
     val a = masterA()
     val b = masterB()
 
-    inventoryService.addItem(tx.execute { masterRepository.findByIdOrThrow(a) }!!, "apple", 5)
-    inventoryService.addItem(tx.execute { masterRepository.findByIdOrThrow(b) }!!, "apple", 5)
+    inventoryService.addItem(a, "apple", 5)
+    inventoryService.addItem(b, "apple", 5)
 
     val offeredByA = inventoryService.reserveForTrade(a, tradeId, appleId(), 0L, 2)!!
     val offeredByB = inventoryService.reserveForTrade(b, tradeId, appleId(), 0L, 3)!!
@@ -204,7 +204,7 @@ class InventoryServiceTradeTest {
   fun `a promised item can no longer be dropped or spent on a craft`() {
     val tradeId = 900_005L
     val master = masterA()
-    inventoryService.addItem(tx.execute { masterRepository.findByIdOrThrow(master) }!!, "apple", 3)
+    inventoryService.addItem(master, "apple", 3)
 
     val held = heldAmount(master, "apple")
     inventoryService.reserveForTrade(master, tradeId, appleId(), 0L, held)

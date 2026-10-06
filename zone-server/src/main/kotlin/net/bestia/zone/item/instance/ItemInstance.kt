@@ -1,5 +1,6 @@
 package net.bestia.zone.item.instance
 
+import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
@@ -7,7 +8,6 @@ import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
-import net.bestia.zone.account.persistence.Master
 import net.bestia.zone.item.Item
 
 /**
@@ -27,9 +27,8 @@ class ItemInstance(
   @JoinColumn(name = "item_id", nullable = false)
   val item: Item,
 
-  @ManyToOne
-  @JoinColumn(name = "crafted_by_master_id", nullable = true)
-  val craftedBy: Master? = null,
+  @Column(name = "crafted_by_master_id", nullable = true)
+  val craftedByMasterId: Long? = null,
 
   var upgradeLevel: Int = 0,
 

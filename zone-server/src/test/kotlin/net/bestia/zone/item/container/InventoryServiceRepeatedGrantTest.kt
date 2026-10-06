@@ -12,13 +12,10 @@ import org.springframework.transaction.support.TransactionTemplate
 import kotlin.test.assertEquals
 
 /**
- * Regression test for the exact pattern [net.bestia.zone.boot.DevDataBootstrapRunner] uses: granting
- * several items to the same in-memory [net.bestia.zone.account.persistence.Master] reference across
- * separate [InventoryService.addItem] calls (each its own transaction, so `master` is detached
- * between calls - unlike a single wrapping test transaction, which would never exercise the bug).
- * Before [ContainerSlot] had id-based equals/hashCode, every slot added in an earlier call got
- * merged into the `Set` again on every later call's save(), duplicating earlier grants once per
- * subsequent call.
+ * Grants several items to one master across separate [InventoryService.addItem] calls, each its own
+ * transaction. Before [ContainerSlot] had id-based equals/hashCode, and while `addItem` still took a
+ * reusable `Master` instance, every slot added in an earlier call got merged into the `Set` again on
+ * every later call's save(), duplicating earlier grants once per subsequent call.
  */
 @SpringBootTest
 @ActiveProfiles("no-socket", "test")
@@ -37,20 +34,11 @@ class InventoryServiceRepeatedGrantTest {
   private lateinit var transactionManager: PlatformTransactionManager
 
   @Test
-  fun `granting three items across separate calls on the same master reference does not duplicate earlier grants`() {
+  fun `granting three items across separate calls does not duplicate earlier grants`() {
     val masterId = testFixture.account1.masterIds.first()
     val transactionTemplate = TransactionTemplate(transactionManager)
 
-    // DevDataBootstrapRunner works from a freshly-constructed, already-in-memory Master (its
-    // `_slots` Set is never a lazy DB proxy). Force the same shape here by initializing the
-    // collection once while a session is open, before detaching.
-    val master = transactionTemplate.execute {
-      masterRepository.findByIdOrThrow(masterId).also { it.container.slots.size }
-    }!!
-
-    // Each call below is its own top-level transaction (this test method itself is not
-    // @Transactional), matching how DevDataBootstrapRunner invokes them - `master` becomes
-    // detached after every commit, which is what makes the merge-duplication bug reproducible.
+    // Each call below is its own top-level transaction: this test method itself is not @Transactional.
     // Counted rather than assumed empty: the fixture master is shared with other tests in the same
     // database, and this test is about whether *these three* grants duplicate, not about what else is in the bag.
     val before = transactionTemplate.execute {
@@ -58,9 +46,9 @@ class InventoryServiceRepeatedGrantTest {
         .map { it.template.identifier to it.amount }
     }!!
 
-    inventoryService.addItem(master, "apple", 12)
-    inventoryService.addItem(master, "shoes", 1)
-    inventoryService.addItem(master, "boots", 1)
+    inventoryService.addItem(masterId, "apple", 12)
+    inventoryService.addItem(masterId, "shoes", 1)
+    inventoryService.addItem(masterId, "boots", 1)
 
     val slots = transactionTemplate.execute {
       masterRepository.findByIdOrThrow(masterId).container.slots

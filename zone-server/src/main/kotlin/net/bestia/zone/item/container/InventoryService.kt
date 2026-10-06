@@ -1,12 +1,6 @@
 package net.bestia.zone.item.container
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.account.persistence.Master
-import net.bestia.zone.account.MasterNotFoundException
-import net.bestia.zone.account.persistence.MasterRepository
-import net.bestia.zone.account.persistence.findByIdOrThrow
-import net.bestia.zone.account.persistence.PlayerBestiaRepository
-import net.bestia.zone.account.PlayerBestiaNotFoundException
 import net.bestia.zone.item.Item
 import net.bestia.zone.item.ItemNotFoundException
 import net.bestia.zone.item.ItemRepository
@@ -33,30 +27,27 @@ import org.springframework.transaction.annotation.Transactional
  */
 @Service
 class InventoryService(
-  private val masterRepository: MasterRepository,
-  private val playerBestiaRepository: PlayerBestiaRepository,
+  private val owners: ContainerOwners,
   private val itemRepository: ItemRepository,
   private val itemInstanceRepository: ItemInstanceRepository,
 ) {
 
   /**
-   * Adds an item directly to a managed master's container (e.g. during DB seeding). Does not touch
-   * any ECS inventory component.
+   * Adds an item directly to a master's container (e.g. during DB seeding). Does not touch any ECS
+   * inventory component.
    *
-   * Always re-fetches [master] fresh by id rather than trusting the passed-in instance: callers
-   * (e.g. `DevDataBootstrapRunner`) may reuse the same `Master` reference across several of these
+   * Takes the id rather than a `Master`: a caller may reuse one instance across several of these
    * calls, each its own transaction. Since `save()` on an already-persisted entity goes through
    * `merge()` - which returns a new managed copy rather than updating the argument in place - a
-   * reused, once-already-saved instance would still show its previously-added slots with `id == 0`
-   * from this method's point of view, and cascading persist would re-insert them as new rows on
-   * every subsequent call.
+   * reused, once-already-saved instance would still show its previously-added slots with `id == 0`,
+   * and cascading persist would re-insert them as new rows on every subsequent call.
    */
   @Transactional
-  fun addItem(master: Master, itemIdentifier: String, amount: Int) {
-    val freshMaster = lockedMaster(master.id)
+  fun addItem(masterId: Long, itemIdentifier: String, amount: Int) {
+    val master = owners.lockedMaster(masterId)
     val item = itemRepository.findByIdentifierOrThrow(itemIdentifier)
-    grant(freshMaster.container, item, amount, uniqueId = 0L)
-    masterRepository.save(freshMaster)
+    grant(master.container, item, amount, uniqueId = 0L)
+    owners.save(master)
   }
 
   /**
@@ -68,10 +59,10 @@ class InventoryService(
    */
   @Transactional
   fun grantToMaster(masterId: Long, itemId: Long, amount: Int, uniqueId: Long = 0L) {
-    val master = lockedMaster(masterId)
+    val master = owners.lockedMaster(masterId)
     val item = itemRepository.findByIdOrNull(itemId) ?: throw ItemNotFoundException(itemId.toString())
     grant(master.container, item, amount, uniqueId)
-    masterRepository.save(master)
+    owners.save(master)
   }
 
   /**
@@ -87,11 +78,11 @@ class InventoryService(
    */
   @Transactional
   fun mintInstanceForMaster(masterId: Long, item: Item): ItemInstance {
-    val master = lockedMaster(masterId)
+    val master = owners.lockedMaster(masterId)
     val instance = itemInstanceRepository.save(ItemInstance(item = item))
 
     master.container.addInstance(instance)
-    masterRepository.save(master)
+    owners.save(master)
 
     return instance
   }
@@ -113,9 +104,9 @@ class InventoryService(
     amount: Int,
     uniqueId: Long = 0L
   ): ItemContainer.RemovedItem? {
-    val master = lockedMaster(masterId)
+    val master = owners.lockedMaster(masterId)
     val removed = master.container.removeOne(itemId, amount, uniqueId) ?: return null
-    masterRepository.save(master)
+    owners.save(master)
     return removed
   }
 
@@ -155,7 +146,7 @@ class InventoryService(
   fun consumeAll(masterId: Long, inputs: List<Pair<Long, Int>>): Boolean {
     if (inputs.isEmpty()) return true
 
-    val master = lockedMaster(masterId)
+    val master = owners.lockedMaster(masterId)
 
     // Summed per item first, so a recipe naming the same material twice is checked against the total
     // rather than against whichever line happened to be looked at last.
@@ -176,7 +167,7 @@ class InventoryService(
       }
     }
 
-    masterRepository.save(master)
+    owners.save(master)
 
     return true
   }
@@ -194,7 +185,7 @@ class InventoryService(
   fun heldInstance(masterId: Long, uniqueId: Long): ItemInstance? {
     if (uniqueId == 0L) return null
 
-    val master = lockedMaster(masterId)
+    val master = owners.lockedMaster(masterId)
 
     return master.container.slots
       .firstOrNull { it.uniqueId == uniqueId && it.isFree }
@@ -229,10 +220,10 @@ class InventoryService(
    */
   @Transactional
   fun destroyInstance(masterId: Long, uniqueId: Long): Boolean {
-    val master = lockedMaster(masterId)
+    val master = owners.lockedMaster(masterId)
     val taken = master.container.takeInstance(uniqueId) ?: return false
 
-    masterRepository.save(master)
+    owners.save(master)
     itemInstanceRepository.delete(taken)
 
     return true
@@ -264,7 +255,7 @@ class InventoryService(
   fun reserveForTrade(masterId: Long, tradeId: Long, itemId: Long, uniqueId: Long, amount: Int): ReservedItem? {
     require(amount > 0) { "amount > 0 required, was $amount" }
 
-    val master = lockedMaster(masterId)
+    val master = owners.lockedMaster(masterId)
     val item = itemRepository.findByIdOrNull(itemId) ?: return null
 
     val alreadyOffered = master.container.reservedSlots(tradeId).map { it.id }.toSet()
@@ -275,7 +266,7 @@ class InventoryService(
       else -> master.container.reserveStackable(itemId, amount, tradeId)
     } ?: return null
 
-    val saved = masterRepository.saveAndFlush(master)
+    val saved = owners.saveAndFlush(master)
 
     val persisted = saved.container.reservedSlots(tradeId).firstOrNull { it.id !in alreadyOffered }
     if (persisted == null) {
@@ -294,7 +285,7 @@ class InventoryService(
    */
   @Transactional
   fun releaseTradeReservation(masterId: Long, tradeId: Long, offerSlotId: Long): ReservedItem? {
-    val master = lockedMaster(masterId)
+    val master = owners.lockedMaster(masterId)
     val slot = master.container.slots
       .firstOrNull { it.id == offerSlotId && it.reservedByTradeId == tradeId }
       ?: return null
@@ -304,7 +295,7 @@ class InventoryService(
     val released = ReservedItem.of(slot)
 
     master.container.releaseReservation(offerSlotId, tradeId)
-    masterRepository.save(master)
+    owners.save(master)
 
     return released
   }
@@ -317,7 +308,7 @@ class InventoryService(
    */
   @Transactional
   fun releaseAllTradeReservations(masterId: Long, tradeId: Long): List<ReservedItem> {
-    val master = lockedMaster(masterId)
+    val master = owners.lockedMaster(masterId)
     val released = master.container.reservedSlots(tradeId).map { ReservedItem.of(it) }
 
     if (released.isEmpty()) {
@@ -325,7 +316,7 @@ class InventoryService(
     }
 
     master.container.releaseAllReservations(tradeId)
-    masterRepository.save(master)
+    owners.save(master)
 
     return released
   }
@@ -357,9 +348,9 @@ class InventoryService(
 
     // Locked in id order, like every other multi-master write, so two settlements cannot deadlock.
     val (masterA, masterB) = if (masterAId < masterBId) {
-      lockedMaster(masterAId).let { a -> a to lockedMaster(masterBId) }
+      owners.lockedMaster(masterAId).let { a -> a to owners.lockedMaster(masterBId) }
     } else {
-      lockedMaster(masterBId).let { b -> lockedMaster(masterAId) to b }
+      owners.lockedMaster(masterBId).let { b -> owners.lockedMaster(masterAId) to b }
     }
 
     val heldA = masterA.container.reservedSlots(tradeId).map { it.id }.toSet()
@@ -376,8 +367,8 @@ class InventoryService(
     val toB = move(tradeId, expectedA, from = masterA.container, to = masterB.container)
     val toA = move(tradeId, expectedB, from = masterB.container, to = masterA.container)
 
-    masterRepository.save(masterA)
-    masterRepository.save(masterB)
+    owners.save(masterA)
+    owners.save(masterB)
 
     return Settlement(toMasterA = toA, toMasterB = toB)
   }
@@ -419,25 +410,16 @@ class InventoryService(
 
   private fun <T> withOwnerContainer(masterId: Long, playerBestiaId: PlayerBestiaId?, block: (ItemContainer) -> T): T {
     return if (playerBestiaId == null) {
-      val master = lockedMaster(masterId)
+      val master = owners.lockedMaster(masterId)
       val result = block(master.container)
-      masterRepository.save(master)
+      owners.save(master)
       result
     } else {
-      val playerBestia = playerBestiaRepository.findByIdForUpdate(playerBestiaId)
-        ?: throw PlayerBestiaNotFoundException(playerBestiaId)
+      val playerBestia = owners.lockedPlayerBestia(playerBestiaId)
       val result = block(playerBestia.container)
-      playerBestiaRepository.save(playerBestia)
+      owners.save(playerBestia)
       result
     }
-  }
-
-  /**
-   * Every write here loads the container, changes it and saves it, from several kinds of threads at once. The
-   * row lock serialises them per master; without it two writers read the same state and one change is lost.
-   */
-  private fun lockedMaster(masterId: Long): Master {
-    return masterRepository.findByIdForUpdate(masterId) ?: throw MasterNotFoundException()
   }
 
   private companion object {
