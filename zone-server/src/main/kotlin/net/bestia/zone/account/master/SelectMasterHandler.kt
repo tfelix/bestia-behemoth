@@ -5,7 +5,7 @@ import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.zone.bestia.OwnedBestiaSpawnService
 import net.bestia.zone.bestia.OwnedBestiasPublisher
 import net.bestia.zone.ecs.battle.skill.KnownSkills
-import net.bestia.zone.ecs.core.AsyncJobExecutor
+import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.ecs.movement.Position

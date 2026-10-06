@@ -8,7 +8,7 @@ import io.mockk.every
 import io.mockk.mockk
 import net.bestia.zone.cartography.tile.MapTileService
 import net.bestia.zone.ecs.ZoneConfig
-import net.bestia.zone.ecs.core.AsyncJobExecutor
+import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World

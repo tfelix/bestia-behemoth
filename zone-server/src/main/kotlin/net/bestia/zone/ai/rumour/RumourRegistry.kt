@@ -1,7 +1,7 @@
 package net.bestia.zone.ai.rumour
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.ecs.core.AsyncJobExecutor
+import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.world.WorldService
 import org.springframework.stereotype.Service
 import java.util.concurrent.atomic.AtomicLong

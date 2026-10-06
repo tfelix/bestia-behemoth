@@ -1,7 +1,7 @@
 package net.bestia.zone.economy
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.ecs.core.AsyncJobExecutor
+import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.world.WorldRecreatedEvent
 import net.bestia.zone.world.WorldService
 import org.springframework.context.event.EventListener

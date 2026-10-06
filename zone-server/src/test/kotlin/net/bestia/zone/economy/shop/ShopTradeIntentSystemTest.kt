@@ -6,7 +6,7 @@ import io.mockk.verify
 import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.ecs.account.Account
 import net.bestia.zone.ecs.account.Master
-import net.bestia.zone.ecs.core.AsyncJobExecutor
+import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.ecs.economy.ShopTradeIntent
 import net.bestia.zone.ecs.item.Inventory
