@@ -7,6 +7,7 @@ import jakarta.persistence.Lob
 import jakarta.persistence.Table
 import net.bestia.zone.ground.ColumnMask
 import java.time.Instant
+import org.hibernate.Length
 
 /**
  * Which square metres of one chunk column are burnt, and when the fire that burnt them started.
@@ -56,7 +57,7 @@ class ScorchMark(
 
   /** See [ColumnMask]: `chunkSize²` bits, `localY * size + localX`. */
   @Lob
-  @Column(nullable = false)
+  @Column(nullable = false, length = Length.LONG32)
   var mask: ByteArray = ByteArray(0),
 
   @Column(name = "burned_at_second", nullable = false)
