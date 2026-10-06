@@ -82,6 +82,9 @@ Godot_*.exe
 # run (the output dir is wiped and recreated), and nothing references them by uid://.
 bestia-client/src/Bnet/Proto/*.cs.uid
 
+### Python (tools/) ###
+__pycache__/
+
 ### Platform-specific ###
 Thumbs.db
 .DS_Store
