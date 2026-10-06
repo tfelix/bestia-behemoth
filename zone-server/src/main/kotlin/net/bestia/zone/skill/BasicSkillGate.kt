@@ -6,8 +6,7 @@ import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.util.AccountId
 import org.springframework.stereotype.Service
-import net.bestia.zone.skill.persistence.SkillRepository
-import net.bestia.zone.skill.persistence.findByIdentifier
+import net.bestia.zone.skill.tree.MasterSkillTreeRegistry
 
 /**
  * What a player may do at all, according to how far they have taken Basic Skill.
@@ -33,11 +32,8 @@ import net.bestia.zone.skill.persistence.findByIdentifier
 class BasicSkillGate(
   private val world: WorldView,
   private val connectionInfoService: ConnectionInfoService,
-  private val skills: SkillRepository,
+  private val skillTree: MasterSkillTreeRegistry,
 ) {
-
-  /** Resolved by identifier, because the id in `skills.yml` is content and this is code. */
-  private val basicSkillId: Long? by lazy { skills.findByIdentifier(SkillId.BASIC_SKILL)?.id }
 
   /** True once the account may trade with another player. Asked of both parties, not only the one who asks. */
   fun mayTrade(accountId: AccountId): Boolean = rankOf(accountId) >= TRADE_RANK
@@ -55,11 +51,12 @@ class BasicSkillGate(
    * gone away, and "cannot do it" is the right answer for a player who is not there.
    */
   fun rankOf(accountId: AccountId): Int {
-    val skillId = basicSkillId
+    // Read from the tree loaded at boot rather than from the skill table: this is asked on the tick.
+    val skillId = skillTree.basicSkillId
     if (skillId == null) {
-      // `skills.yml` has no BASIC_SKILL, which is a catalogue error. Refusing everything on a content
+      // The skill tree has no BASIC_SKILL, which is a content error. Refusing everything on a content
       // mistake would take chat away from every player, so this fails open and says so.
-      LOG.warn { "No BASIC_SKILL in the skill catalogue; every Basic Skill gate is open" }
+      LOG.warn { "No BASIC_SKILL in the master skill tree; every Basic Skill gate is open" }
       return Int.MAX_VALUE
     }
 
