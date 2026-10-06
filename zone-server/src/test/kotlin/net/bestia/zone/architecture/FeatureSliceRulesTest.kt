@@ -108,7 +108,6 @@ class FeatureSliceRulesTest {
       "casting -> cartography", "casting -> crafting",
       "economy -> townsfolk",
       "identity -> account",
-      "item -> account",
       "spawn -> townsfolk",
     )
   }

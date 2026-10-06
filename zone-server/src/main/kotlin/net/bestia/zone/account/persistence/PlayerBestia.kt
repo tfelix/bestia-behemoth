@@ -3,6 +3,7 @@ package net.bestia.zone.account.persistence
 import jakarta.persistence.*
 import net.bestia.zone.ai.profile.AiConfig
 import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.item.container.ContainerOwner
 import net.bestia.zone.item.container.ItemContainer
 import net.bestia.zone.bestia.Bestia
 
@@ -23,7 +24,7 @@ class PlayerBestia(
   val bestia: Bestia,
 
   var name: String? = null
-) {
+) : ContainerOwner {
   var level: Int = 1
     set(value) {
       require(value > 0)
@@ -68,7 +69,7 @@ class PlayerBestia(
 
   @OneToOne(cascade = [CascadeType.ALL], orphanRemoval = true)
   @JoinColumn(name = "container_id", nullable = false)
-  val container: ItemContainer = ItemContainer(ItemContainer.Type.BESTIA)
+  override val container: ItemContainer = ItemContainer(ItemContainer.Type.BESTIA)
 
   @OneToMany(mappedBy = "playerBestia", cascade = [CascadeType.ALL], orphanRemoval = true)
   val learnedSkills: MutableSet<LearnedSkill> = mutableSetOf()

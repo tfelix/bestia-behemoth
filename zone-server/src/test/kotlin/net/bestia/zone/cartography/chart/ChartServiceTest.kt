@@ -113,7 +113,7 @@ class ChartServiceTest {
   @Test
   fun `surveying spends a blank and produces a chart of the surveyed ground`() {
     val master = givenMaster()
-    inventoryService.addItem(master, ChartService.BLANK_IDENTIFIER, 2)
+    inventoryService.addItem(master.id, ChartService.BLANK_IDENTIFIER, 2)
 
     val result = assertIs<ChartService.Result.Ok>(chartService.mint(master.id, 40_000.0, 40_000.0, 1_000.0))
 
@@ -130,7 +130,7 @@ class ChartServiceTest {
   @Test
   fun `merging joins both surveys into the chart that stays and consumes the other`() {
     val master = givenMaster()
-    inventoryService.addItem(master, ChartService.BLANK_IDENTIFIER, 2)
+    inventoryService.addItem(master.id, ChartService.BLANK_IDENTIFIER, 2)
 
     val west = assertIs<ChartService.Result.Ok>(chartService.mint(master.id, 30_000.0, 30_000.0, 1_000.0))
     val east = assertIs<ChartService.Result.Ok>(chartService.mint(master.id, 60_000.0, 60_000.0, 1_000.0))
@@ -153,7 +153,7 @@ class ChartServiceTest {
   @Test
   fun `a chart cannot be merged into itself`() {
     val master = givenMaster()
-    inventoryService.addItem(master, ChartService.BLANK_IDENTIFIER, 1)
+    inventoryService.addItem(master.id, ChartService.BLANK_IDENTIFIER, 1)
     val chart = assertIs<ChartService.Result.Ok>(chartService.mint(master.id, 30_000.0, 30_000.0, 1_000.0))
 
     val result = chartService.merge(master.id, chart.uniqueId, chart.uniqueId)
@@ -165,7 +165,7 @@ class ChartServiceTest {
   @Test
   fun `merging something that is not a held chart is refused`() {
     val master = givenMaster()
-    inventoryService.addItem(master, ChartService.BLANK_IDENTIFIER, 1)
+    inventoryService.addItem(master.id, ChartService.BLANK_IDENTIFIER, 1)
     val chart = assertIs<ChartService.Result.Ok>(chartService.mint(master.id, 30_000.0, 30_000.0, 1_000.0))
 
     val result = chartService.merge(master.id, chart.uniqueId, fromUniqueId = 999_999L)
@@ -176,7 +176,7 @@ class ChartServiceTest {
   @Test
   fun `copying spends a blank, leaves the original and produces the same coverage`() {
     val master = givenMaster()
-    inventoryService.addItem(master, ChartService.BLANK_IDENTIFIER, 2)
+    inventoryService.addItem(master.id, ChartService.BLANK_IDENTIFIER, 2)
     val original = assertIs<ChartService.Result.Ok>(chartService.mint(master.id, 30_000.0, 30_000.0, 1_000.0))
 
     val copy = assertIs<ChartService.Result.Ok>(chartService.copy(master.id, original.uniqueId))
@@ -190,7 +190,7 @@ class ChartServiceTest {
   @Test
   fun `copying with no blank is refused and leaves the original alone`() {
     val master = givenMaster()
-    inventoryService.addItem(master, ChartService.BLANK_IDENTIFIER, 1)
+    inventoryService.addItem(master.id, ChartService.BLANK_IDENTIFIER, 1)
     val original = assertIs<ChartService.Result.Ok>(chartService.mint(master.id, 30_000.0, 30_000.0, 1_000.0))
 
     val result = chartService.copy(master.id, original.uniqueId)
@@ -202,7 +202,7 @@ class ChartServiceTest {
   @Test
   fun `coverage is the union of every chart held`() {
     val master = givenMaster()
-    inventoryService.addItem(master, ChartService.BLANK_IDENTIFIER, 2)
+    inventoryService.addItem(master.id, ChartService.BLANK_IDENTIFIER, 2)
     chartService.mint(master.id, 30_000.0, 30_000.0, 1_000.0)
     chartService.mint(master.id, 60_000.0, 60_000.0, 1_000.0)
 
@@ -218,7 +218,7 @@ class ChartServiceTest {
     // The coordinates are the same numbers over different terrain, so showing it would put its owner somewhere
     // they have never been. The row is kept - only reading it is refused.
     val master = givenMaster()
-    inventoryService.addItem(master, ChartService.BLANK_IDENTIFIER, 1)
+    inventoryService.addItem(master.id, ChartService.BLANK_IDENTIFIER, 1)
     val chart = assertIs<ChartService.Result.Ok>(chartService.mint(master.id, 30_000.0, 30_000.0, 1_000.0))
 
     val row = assertNotNull(mapChartRepository.findByItemInstanceId(chart.uniqueId))

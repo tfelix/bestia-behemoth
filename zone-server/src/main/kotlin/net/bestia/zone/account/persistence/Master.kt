@@ -3,6 +3,7 @@ package net.bestia.zone.account.persistence
 import jakarta.persistence.*
 import net.bestia.zone.bestia.Bestia
 import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.item.container.ContainerOwner
 import net.bestia.zone.item.container.ItemContainer
 import org.hibernate.annotations.DynamicUpdate
 import java.awt.Color
@@ -48,7 +49,7 @@ class Master(
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
   var body: BodyType
-) {
+) : ContainerOwner {
 
   var level: Int = 1
     set(value) {
@@ -203,7 +204,7 @@ class Master(
 
   @OneToOne(cascade = [CascadeType.ALL], orphanRemoval = true)
   @JoinColumn(name = "container_id", nullable = false)
-  val container: ItemContainer = ItemContainer(ItemContainer.Type.MASTER)
+  override val container: ItemContainer = ItemContainer(ItemContainer.Type.MASTER)
 
   val bestias = MasterBestias()
 

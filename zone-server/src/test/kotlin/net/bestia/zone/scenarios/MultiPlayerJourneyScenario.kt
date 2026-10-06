@@ -142,9 +142,8 @@ class MultiPlayerJourneyScenario : BestiaNoSocketScenario(autoClientConnect = fa
     // Inventory/Equipment components - the equip scenario tests further down rely on both already
     // being held. Shoes (80) and boots (200), plus the apple picked up later (Order 16/17), sit well
     // inside the default level-1 carry limit of 2475, so nothing here needs its attributes bent.
-    val newMaster = masterRepository.findByIdOrThrow(newMasterId)
-    inventoryService.addItem(newMaster, "shoes", 1)
-    inventoryService.addItem(newMaster, "boots", 1)
+    inventoryService.addItem(newMasterId, "shoes", 1)
+    inventoryService.addItem(newMasterId, "boots", 1)
 
     // This master is created through the real message flow rather than by the fixture, so it starts with Basic
     // Skill at rank 0 - and the chat and party orders below would then be testing BasicSkillGate instead of

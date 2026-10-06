@@ -1,8 +1,6 @@
 package net.bestia.zone.cartography.web
 
 import net.bestia.zone.session.HttpTicketService
-import net.bestia.zone.account.persistence.MasterRepository
-import net.bestia.zone.account.persistence.findByIdOrThrow
 import net.bestia.zone.cartography.chart.ChartService
 import net.bestia.zone.cartography.tile.TileId
 import net.bestia.zone.item.container.InventoryService
@@ -65,9 +63,6 @@ class MapTileControllerTest {
 
   @Autowired
   private lateinit var inventoryService: InventoryService
-
-  @Autowired
-  private lateinit var masterRepository: MasterRepository
 
   @Autowired
   private lateinit var testFixture: ScenarioDataSetup.TestFixture
@@ -334,9 +329,7 @@ class MapTileControllerTest {
 
   /** The same, on ground the caller has picked - for the tests that care where the boundary falls. */
   private fun chartedAt(centreX: Double, centreY: Double, radiusMetres: Double): Pair<Double, Double> {
-    inventoryService.addItem(
-      masterRepository.findByIdOrThrow(masterId), ChartService.BLANK_IDENTIFIER, 1
-    )
+    inventoryService.addItem(masterId, ChartService.BLANK_IDENTIFIER, 1)
     val result = chartService.mint(masterId, centreX, centreY, radiusMetres)
     assertTrue(result is ChartService.Result.Ok, "could not chart the ground this test is about: $result")
 

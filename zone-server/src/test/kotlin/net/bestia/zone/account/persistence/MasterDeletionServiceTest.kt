@@ -110,7 +110,7 @@ class MasterDeletionServiceTest {
     // Shoes are EQUIP and therefore not stackable, so granting a pair mints an ItemInstance row instead of
     // growing a stack. That is the case the delete order has to get right: the container slot pointing at
     // the instance must be gone before the instance itself can be removed.
-    inventoryService.addItem(master, "shoes", 1)
+    inventoryService.addItem(master.id, "shoes", 1)
     assertEquals(
       instancesBefore + CREATION_INSTANCES + 1,
       itemInstanceRepository.count(),
