@@ -11,7 +11,7 @@ import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.cartography.CartographyConfig
 import net.bestia.zone.cartography.chart.ChartService
 import net.bestia.zone.ecs.core.EntityIdGenerator
-import net.bestia.zone.ecs.persistence.StatusEffectPersistenceService
+import net.bestia.zone.battle.persistence.StatusEffectPersistenceService
 import net.bestia.zone.item.ItemRepository
 import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.item.equip.EquipmentSlot

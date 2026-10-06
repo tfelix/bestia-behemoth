@@ -25,7 +25,7 @@ import net.bestia.zone.util.EntityId
 class Dead : DirtyableComponent(), Removable {
 
   /**
-   * Whether [net.bestia.zone.ecs.battle.damage.PlayerDeathSystem] has already charged this death's cost. The component outlives the
+   * Whether [net.bestia.zone.battle.ecs.damage.PlayerDeathSystem] has already charged this death's cost. The component outlives the
    * tick it was added on, so without this the EXP penalty would be applied again every tick the body
    * lies there.
    */

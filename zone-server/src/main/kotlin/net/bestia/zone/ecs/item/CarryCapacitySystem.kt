@@ -1,8 +1,8 @@
 package net.bestia.zone.ecs.item
 
-import net.bestia.zone.ecs.battle.exp.GainExpSystem
-import net.bestia.zone.ecs.battle.level.Level
-import net.bestia.zone.ecs.battle.status.StatusValues
+import net.bestia.zone.battle.ecs.exp.GainExpSystem
+import net.bestia.zone.battle.ecs.level.Level
+import net.bestia.zone.battle.ecs.status.StatusValues
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.System

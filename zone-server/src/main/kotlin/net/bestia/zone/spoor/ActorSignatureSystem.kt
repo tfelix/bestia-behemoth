@@ -3,7 +3,7 @@ package net.bestia.zone.spoor
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.bestia.BestiaCatalogue
 import net.bestia.zone.identity.ecs.Master
-import net.bestia.zone.ecs.battle.level.Level
+import net.bestia.zone.battle.ecs.level.Level
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.Schedule

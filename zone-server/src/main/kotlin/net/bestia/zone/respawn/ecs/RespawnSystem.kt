@@ -1,11 +1,11 @@
 package net.bestia.zone.respawn.ecs
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.ecs.battle.attack.AttackTarget
+import net.bestia.zone.battle.ecs.attack.AttackTarget
 import net.bestia.zone.entity.ecs.Dead
-import net.bestia.zone.ecs.battle.damage.TakenDamage
-import net.bestia.zone.ecs.battle.status.Health
-import net.bestia.zone.ecs.battle.status.InCombat
+import net.bestia.zone.battle.ecs.damage.TakenDamage
+import net.bestia.zone.battle.ecs.status.Health
+import net.bestia.zone.battle.ecs.status.InCombat
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.System

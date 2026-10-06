@@ -1,7 +1,7 @@
 package net.bestia.zone.entity
 
-import net.bestia.zone.ecs.battle.attack.AttackCancelService
-import net.bestia.zone.ecs.battle.skill.CastCancelService
+import net.bestia.zone.battle.ecs.attack.AttackCancelService
+import net.bestia.zone.battle.ecs.skill.CastCancelService
 import net.bestia.zone.config.WorldRulesConfig
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.testWorld

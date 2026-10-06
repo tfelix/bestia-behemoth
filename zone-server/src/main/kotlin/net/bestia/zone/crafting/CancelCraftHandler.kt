@@ -1,7 +1,7 @@
 package net.bestia.zone.crafting
 
 import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
-import net.bestia.zone.ecs.battle.skill.CastCancelService
+import net.bestia.zone.battle.ecs.skill.CastCancelService
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.message.TickMessageHandler

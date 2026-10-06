@@ -2,7 +2,7 @@ package net.bestia.zone.boot
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.ecs.persistence.StatusEffectPersistenceService
+import net.bestia.zone.battle.persistence.StatusEffectPersistenceService
 import org.springframework.boot.CommandLineRunner
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component

@@ -3,7 +3,7 @@ package net.bestia.zone.ai.domain.bestia
 import io.mockk.mockk
 import net.bestia.zone.ai.bt.Locomotion
 import net.bestia.zone.ai.core.action.ActionResolver
-import net.bestia.zone.battle.skill.AttackExecutionService
+import net.bestia.zone.battle.attack.AttackExecutionService
 import net.bestia.zone.battle.skill.SkillExecutionService
 import net.bestia.zone.navigation.TestNavigation
 import kotlin.random.Random

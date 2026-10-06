@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component
  *
  * A skill with **no** `script` at all is not reported: that is the normal shape of a passive, and most of the
  * catalogue is one. A passive with a stat effect is not reported either, and must not name its
- * [net.bestia.zone.battle.skill.passive.PassiveSkillScript] here - that bean declares its own skill
+ * [net.bestia.zone.battle.passive.PassiveSkillScript] here - that bean declares its own skill
  * identifier, which is what keeps this column meaning exactly one thing and lets `syncSkillDb` derive the
  * client's `is_passive` from it. A `script` naming a passive bean therefore shows up in this warning, which
  * is the intended way to notice the mistake.

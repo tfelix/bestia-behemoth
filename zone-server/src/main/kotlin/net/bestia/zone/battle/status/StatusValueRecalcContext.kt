@@ -1,10 +1,10 @@
 package net.bestia.zone.battle.status
 
-import net.bestia.zone.ecs.battle.status.BaseStatusValues
+import net.bestia.zone.battle.ecs.status.BaseStatusValues
 
 /**
  * Mutable working set a [StatusEffectScript] writes into while
- * [net.bestia.zone.ecs.battle.effects.StatusValueRecalcSystem] rebuilds an entity's effective
+ * [net.bestia.zone.battle.ecs.effects.StatusValueRecalcSystem] rebuilds an entity's effective
  * status values from scratch. Seeded from [BaseStatusValues] plus whatever other base values feed
  * into the recalc (currently just [baseSpeed]); starts equal to the unbuffed values, then every
  * learned passive skill, worn item and active effect mutates it in turn.

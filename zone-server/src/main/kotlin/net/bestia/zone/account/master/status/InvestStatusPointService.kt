@@ -2,9 +2,9 @@ package net.bestia.zone.account.master.status
 
 import net.bestia.zone.account.master.MasterNotFoundException
 import net.bestia.zone.identity.ecs.Master as MasterComponent
-import net.bestia.zone.ecs.battle.status.BaseStatusValues
-import net.bestia.zone.ecs.battle.status.IsStatusValueDirty
-import net.bestia.zone.ecs.battle.status.StatusPoints
+import net.bestia.zone.battle.ecs.status.BaseStatusValues
+import net.bestia.zone.battle.ecs.status.IsStatusValueDirty
+import net.bestia.zone.battle.ecs.status.StatusPoints
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.persistence.EntityWriteBehind
 import net.bestia.zone.util.EntityId

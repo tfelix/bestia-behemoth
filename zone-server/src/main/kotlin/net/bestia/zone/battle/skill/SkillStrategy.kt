@@ -11,7 +11,7 @@ import net.bestia.zone.util.EntityId
  * a passive, and a skill nobody has implemented yet, are told apart from an active one.
  *
  * A basic attack is deliberately **not** one of these: a sword swing needs no script, only the weapon
- * and the stats, and it goes through [AttackStrategy] and [AttackExecutionService] instead.
+ * and the stats, and it goes through [net.bestia.zone.battle.attack.AttackStrategy] and [net.bestia.zone.battle.attack.AttackExecutionService] instead.
  *
  * ### What a script may do
  *

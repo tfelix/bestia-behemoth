@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service
  *
  * ### Why these are not `PassiveSkillScript`s
  *
- * [net.bestia.zone.battle.skill.passive.PassiveSkillScript] can only mutate a
+ * [net.bestia.zone.battle.passive.PassiveSkillScript] can only mutate a
  * [net.bestia.zone.battle.status.StatusValueRecalcContext] - six attributes, speed and the regeneration
  * modifiers. `TINKERER`, `WEAPONRY_RESEARCH` and `MASTER_SMITH` change none of those; they change a
  * *success chance*, which lives nowhere near a status value. Binding them as passives would give each a

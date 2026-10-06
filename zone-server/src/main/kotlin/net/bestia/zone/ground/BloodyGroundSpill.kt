@@ -1,6 +1,6 @@
 package net.bestia.zone.ground
 
-import net.bestia.zone.ecs.battle.damage.GroundSpill
+import net.bestia.zone.battle.ecs.damage.GroundSpill
 import net.bestia.zone.world.time.BestiaClock
 import org.springframework.stereotype.Service
 

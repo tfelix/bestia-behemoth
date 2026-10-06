@@ -5,7 +5,7 @@ import net.bestia.zone.ecs.core.TickBuckets
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Service
-import net.bestia.zone.ecs.persistence.StatusEffectPersistenceService
+import net.bestia.zone.battle.persistence.StatusEffectPersistenceService
 
 /**
  * Saves every live [Persistent] entity once per interval, and deletes the rows of the ones that are gone.

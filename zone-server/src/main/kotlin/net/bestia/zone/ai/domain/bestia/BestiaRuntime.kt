@@ -8,7 +8,7 @@ import net.bestia.zone.ai.core.state.RestingWindow
 import net.bestia.zone.ai.domain.AiDomainRuntime
 import net.bestia.zone.ai.profile.AiConfig
 import net.bestia.zone.ai.profile.AiProfile
-import net.bestia.zone.battle.skill.AttackExecutionService
+import net.bestia.zone.battle.attack.AttackExecutionService
 import net.bestia.zone.battle.skill.SkillExecutionService
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.navigation.NavigationService

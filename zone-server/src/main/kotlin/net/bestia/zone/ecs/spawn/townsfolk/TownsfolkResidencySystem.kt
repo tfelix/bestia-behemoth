@@ -3,7 +3,7 @@ package net.bestia.zone.ecs.spawn.townsfolk
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ai.ecs.AiThrottleable
 import net.bestia.zone.identity.ecs.ActivePlayer
-import net.bestia.zone.ecs.battle.status.Invulnerable
+import net.bestia.zone.battle.ecs.status.Invulnerable
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.Schedule

@@ -1,6 +1,6 @@
 package net.bestia.zone.ai.domain.bestia
 
-import net.bestia.zone.battle.skill.BattleAttack
+import net.bestia.zone.battle.attack.BattleAttack
 import net.bestia.zone.battle.status.AttackSpeed
 import net.bestia.zone.bestia.DefaultAttack
 

@@ -1,15 +1,15 @@
 package net.bestia.zone.sync
 
 import net.bestia.zone.entity.ecs.EntityVisual
-import net.bestia.zone.ecs.battle.status.Health
-import net.bestia.zone.ecs.battle.status.Mana
+import net.bestia.zone.battle.ecs.status.Health
+import net.bestia.zone.battle.ecs.status.Mana
 import net.bestia.zone.ecs.item.Inventory
 import net.bestia.zone.movement.ecs.Path
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.movement.ecs.Speed
-import net.bestia.zone.ecs.battle.exp.Exp
-import net.bestia.zone.ecs.battle.level.Level
-import net.bestia.zone.ecs.battle.status.SkillPoints
+import net.bestia.zone.battle.ecs.exp.Exp
+import net.bestia.zone.battle.ecs.level.Level
+import net.bestia.zone.battle.ecs.status.SkillPoints
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 

@@ -497,7 +497,7 @@ internal object ElementModifier {
    * Whether [element] may be used as an *attack* element. Only level 1 elements may: a level is a property of
    * what something is made of, not of what is thrown at it.
    *
-   * Exposed so the boundary where an element enters a [net.bestia.zone.battle.skill.BattleAttack] can refuse a
+   * Exposed so the boundary where an element enters a [net.bestia.zone.battle.attack.BattleAttack] can refuse a
    * bad one, rather than [getModifier] throwing from inside the damage formula - which runs on the tick thread
    * and would take the tick down with it.
    */

@@ -5,7 +5,7 @@ import net.bestia.zone.battle.LineOfSightService
 import net.bestia.zone.battle.damage.Damage
 import net.bestia.zone.battle.skill.BasicMagicSkillStrategy
 import net.bestia.zone.battle.skill.SkillContext
-import net.bestia.zone.ecs.battle.effects.AreaEffect
+import net.bestia.zone.battle.ecs.effects.AreaEffect
 import org.springframework.stereotype.Component
 import kotlin.math.roundToLong
 
@@ -16,7 +16,7 @@ import kotlin.math.roundToLong
  * The per-tick number is computed once, at cast time, from the caster's stats: a patch has no single
  * defender whose magic defence could be subtracted, so unlike [Firebolt] the damage is unmitigated. Working
  * defence into it needs the mitigation to move to the point of application in
- * [net.bestia.zone.ecs.battle.effects.AreaEffectSystem], which is a change to every area effect rather than
+ * [net.bestia.zone.battle.ecs.effects.AreaEffectSystem], which is a change to every area effect rather than
  * to this one.
  *
  * The radius comes from the catalogue rather than from a constant here, so the circle the client draws while

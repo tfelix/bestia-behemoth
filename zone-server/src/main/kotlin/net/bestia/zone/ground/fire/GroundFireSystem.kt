@@ -5,7 +5,7 @@ import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.ecs.battle.effects.AreaEffect
+import net.bestia.zone.battle.ecs.effects.AreaEffect
 import org.springframework.stereotype.Component
 
 /**

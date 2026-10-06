@@ -5,7 +5,7 @@ import io.mockk.justRun
 import io.mockk.mockk
 import io.mockk.verify
 import net.bestia.zone.entity.ecs.Dead
-import net.bestia.zone.ecs.battle.status.Health
+import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.geometry.Vec3L

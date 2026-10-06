@@ -13,9 +13,9 @@ import net.bestia.zone.battle.damage.DamageEntitySMSG
 import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.chat.ChatCMSG
 import net.bestia.zone.chat.ChatSMSG
-import net.bestia.zone.ecs.battle.effects.StatusEffectsComponentSMSG
-import net.bestia.zone.ecs.battle.level.LevelComponentSMSG
-import net.bestia.zone.ecs.battle.status.SkillPointsComponentSMSG
+import net.bestia.zone.battle.ecs.effects.StatusEffectsComponentSMSG
+import net.bestia.zone.battle.ecs.level.LevelComponentSMSG
+import net.bestia.zone.battle.ecs.status.SkillPointsComponentSMSG
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.ecs.item.EquipmentComponentSMSG

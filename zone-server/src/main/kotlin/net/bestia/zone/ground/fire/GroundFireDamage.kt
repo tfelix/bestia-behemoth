@@ -1,7 +1,7 @@
 package net.bestia.zone.ground.fire
 
-import net.bestia.zone.ecs.battle.effects.AreaEffect
-import net.bestia.zone.ecs.battle.effects.AreaEffectSpawner
+import net.bestia.zone.battle.ecs.effects.AreaEffect
+import net.bestia.zone.battle.ecs.effects.AreaEffectSpawner
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.world.stream.ChunkService

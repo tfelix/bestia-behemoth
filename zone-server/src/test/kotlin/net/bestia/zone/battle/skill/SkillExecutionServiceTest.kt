@@ -5,8 +5,8 @@ import io.mockk.mockk
 import net.bestia.zone.battle.BattleContextFactory
 import net.bestia.zone.battle.damage.Damage
 import net.bestia.zone.battle.damage.HitDamage
-import net.bestia.zone.ecs.battle.status.Mana
-import net.bestia.zone.ecs.battle.status.StatusValues
+import net.bestia.zone.battle.ecs.status.Mana
+import net.bestia.zone.battle.ecs.status.StatusValues
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.movement.ecs.Position
@@ -19,7 +19,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import net.bestia.zone.ecs.battle.damage.Damage as DamageComponent
+import net.bestia.zone.battle.ecs.damage.Damage as DamageComponent
 import net.bestia.zone.ecs.core.EcsWorld
 import net.bestia.zone.skill.SkillTargetType
 

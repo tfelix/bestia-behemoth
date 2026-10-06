@@ -8,6 +8,7 @@ import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component as SpringComponent
+import net.bestia.zone.battle.ecs.skill.Crafting
 
 /**
  * Drives the craft countdown and resolves each craft on the tick it elapses.
@@ -17,8 +18,8 @@ import org.springframework.stereotype.Component as SpringComponent
  * done, and an interrupt produces exactly the same signal, because visually both just end.
  *
  * Interruption is not handled here - it happens by removing the component elsewhere, from
- * [net.bestia.zone.ecs.battle.skill.CastCancelService] for message handlers and from
- * [net.bestia.zone.ecs.battle.damage.ReceivedDamageSystem] for damage.
+ * [net.bestia.zone.battle.ecs.skill.CastCancelService] for message handlers and from
+ * [net.bestia.zone.battle.ecs.damage.ReceivedDamageSystem] for damage.
  */
 @SpringComponent
 class CraftingSystem(

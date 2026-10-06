@@ -2,12 +2,12 @@ package net.bestia.zone.ecs.persistence
 
 import net.bestia.zone.battle.StatusEffectService
 import net.bestia.zone.battle.status.StatusEffectId
-import net.bestia.zone.ecs.battle.effects.StatusEffects
-import net.bestia.zone.ecs.battle.status.IsStatusValueDirty
+import net.bestia.zone.battle.ecs.effects.StatusEffects
+import net.bestia.zone.battle.ecs.status.IsStatusValueDirty
 import net.bestia.zone.ecs.core.SnowflakeEntityIdGenerator
 import net.bestia.zone.ecs.core.EcsWorld
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.entity.PersistedStatusEffectRepository
+import net.bestia.zone.battle.persistence.PersistedStatusEffectRepository
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -17,6 +17,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import net.bestia.zone.battle.persistence.StatusEffectPersistenceService
 
 /**
  * Exercises the status effect store against the real repository and (in-memory) DB. Uses isolated,

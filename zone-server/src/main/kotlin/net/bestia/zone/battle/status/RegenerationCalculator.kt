@@ -18,7 +18,7 @@ import kotlin.math.max
  * The docs' `HPRMod` / `MPRMod` / `STARMod` arrive through [applyModifier]: equipment, status
  * effects and passive skills accumulate into a [RegenModifier] on [StatusValueRecalcContext], which
  * `StatusValueRecalcSystem` resolves into a
- * [net.bestia.zone.ecs.battle.status.RegenerationModifiers] component for the regen systems to read.
+ * [net.bestia.zone.battle.ecs.status.RegenerationModifiers] component for the regen systems to read.
  * The base rates below stay modifier-free; [applyModifier] is the only place the two meet.
  *
  * Still unmodelled: the docs' "doubles while resting", because there is no resting state - the

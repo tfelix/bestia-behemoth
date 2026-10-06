@@ -5,7 +5,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.bestia.BestiaEntitySpawner
 import net.bestia.zone.identity.ecs.Account
-import net.bestia.zone.ecs.battle.status.Health
+import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.entity.ecs.EntityVisual
 import net.bestia.zone.entity.ecs.VisualKind
 import net.bestia.zone.ecs.core.World

@@ -16,7 +16,7 @@ import kotlin.random.Random
 /**
  * Records what a promoted prop's death means for the durable object it was, once per kill, ever.
  *
- * In the death phase: after [net.bestia.zone.ecs.battle.damage.ReceivedDamageSystem] (adds [Dead]) and before
+ * In the death phase: after [net.bestia.zone.battle.ecs.damage.ReceivedDamageSystem] (adds [Dead]) and before
  * [net.bestia.zone.ecs.battle.damage.DeathSystem] (unconditionally destroys anything `Dead` - its own `assignExp`/`spawnLoot` already no-op harmlessly here since a prop has no
  * `EntityVisual`, so that system needs no changes at all). No wave-scheduling conflict: neither system reads
  * or writes what the other does.

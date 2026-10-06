@@ -7,18 +7,18 @@ import net.bestia.zone.battle.damage.Miss
 import net.bestia.zone.aoi.AoiLayer
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.identity.ecs.Master
-import net.bestia.zone.ecs.battle.effects.AreaEffect
-import net.bestia.zone.ecs.battle.effects.StatusEffects
-import net.bestia.zone.ecs.battle.status.Health
-import net.bestia.zone.ecs.battle.status.Invulnerable
-import net.bestia.zone.ecs.battle.status.Mana
+import net.bestia.zone.battle.ecs.effects.AreaEffect
+import net.bestia.zone.battle.ecs.effects.StatusEffects
+import net.bestia.zone.battle.ecs.status.Health
+import net.bestia.zone.battle.ecs.status.Invulnerable
+import net.bestia.zone.battle.ecs.status.Mana
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.entity.StaticEntityKind
 import net.bestia.zone.spoor.TrackReading
-import net.bestia.zone.ecs.battle.damage.Damage as DamageComponent
+import net.bestia.zone.battle.ecs.damage.Damage as DamageComponent
 
 /**
  * The real [SkillWorld]: every operation is charged against the cast's [SkillBudget]. A cast resolves on the

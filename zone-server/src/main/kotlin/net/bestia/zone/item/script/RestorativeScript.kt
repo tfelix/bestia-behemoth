@@ -2,9 +2,9 @@ package net.bestia.zone.item.script
 
 import net.bestia.zone.battle.damage.DamageEntitySMSG
 import net.bestia.zone.battle.status.CurMax
-import net.bestia.zone.ecs.battle.status.Health
-import net.bestia.zone.ecs.battle.status.Mana
-import net.bestia.zone.ecs.battle.status.Stamina
+import net.bestia.zone.battle.ecs.status.Health
+import net.bestia.zone.battle.ecs.status.Mana
+import net.bestia.zone.battle.ecs.status.Stamina
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.script.ScriptArgs

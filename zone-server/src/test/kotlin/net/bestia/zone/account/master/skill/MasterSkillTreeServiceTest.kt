@@ -4,7 +4,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import net.bestia.zone.identity.ecs.Master as MasterComponent
 import net.bestia.zone.skill.ecs.KnownSkills
-import net.bestia.zone.ecs.battle.status.SkillPoints
+import net.bestia.zone.battle.ecs.status.SkillPoints
 import net.bestia.zone.ecs.core.EcsWorld
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld

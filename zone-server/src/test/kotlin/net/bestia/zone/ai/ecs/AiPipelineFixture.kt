@@ -24,14 +24,14 @@ import net.bestia.zone.economy.Trade
 import net.bestia.zone.ai.perception.SettlementSense
 import net.bestia.zone.ai.perception.ShelterSense
 import net.bestia.zone.ai.profile.AiProfileRegistry
-import net.bestia.zone.battle.skill.AttackExecutionService
+import net.bestia.zone.battle.attack.AttackExecutionService
 import net.bestia.zone.battle.skill.SkillExecutionService
 import net.bestia.zone.aoi.ActivePlayerAOIService
 import net.bestia.zone.aoi.EntityAOIService
 import net.bestia.zone.config.WorldRulesConfig
 import net.bestia.zone.identity.ecs.Master
-import net.bestia.zone.ecs.battle.damage.TakenDamage
-import net.bestia.zone.ecs.battle.status.Health
+import net.bestia.zone.battle.ecs.damage.TakenDamage
+import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.spawn.ambient.AmbientSpawnConfig
 import net.bestia.zone.ecs.core.testWorld

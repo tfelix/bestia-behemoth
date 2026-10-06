@@ -15,7 +15,7 @@ import net.bestia.zone.ai.domain.bestia.BestiaDomain
 import net.bestia.zone.ai.domain.bestia.DefaultAttackDefinition
 import net.bestia.zone.ai.domain.bestia.EffectivenessKey
 import net.bestia.zone.ai.domain.bestia.SkillAttack
-import net.bestia.zone.battle.skill.AttackExecutionService
+import net.bestia.zone.battle.attack.AttackExecutionService
 import net.bestia.zone.battle.skill.SkillExecutionService
 
 /**

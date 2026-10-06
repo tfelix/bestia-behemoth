@@ -1,9 +1,9 @@
 package net.bestia.zone.battle
 
 import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
-import net.bestia.zone.battle.skill.AttackExecutionService
-import net.bestia.zone.battle.skill.BattleAttack
-import net.bestia.zone.ecs.battle.attack.AttackTarget
+import net.bestia.zone.battle.attack.AttackExecutionService
+import net.bestia.zone.battle.attack.BattleAttack
+import net.bestia.zone.battle.ecs.attack.AttackTarget
 import net.bestia.zone.entity.ecs.DeadActionGuard
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.modify
@@ -19,7 +19,7 @@ import net.bestia.zone.ecs.core.update
 /**
  * Handles a player committing to a target entity, for whichever entity (master or an owned bestia) is
  * currently active. One click is a standing order rather than a single swing:
- * [net.bestia.zone.ecs.battle.attack.AttackSystem] keeps swinging at the target until one of them dies, or
+ * [net.bestia.zone.battle.ecs.attack.AttackSystem] keeps swinging at the target until one of them dies, or
  * the player moves, or picks something else.
  *
  * Nothing but a basic attack arrives here - no catalogue row, no script, no mana, no cast bar - so the

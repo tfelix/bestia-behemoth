@@ -3,7 +3,7 @@ package net.bestia.zone.world.prop
 import net.bestia.worldgen.core.ChunkPos
 import net.bestia.zone.aoi.AoiLayer
 import net.bestia.zone.aoi.EntityAOIService
-import net.bestia.zone.ecs.battle.status.Health
+import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.entity.ecs.PropPose

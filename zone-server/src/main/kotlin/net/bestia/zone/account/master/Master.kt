@@ -82,7 +82,7 @@ class Master(
    * (IV) are fixed at the average 50 for everyone, so unlike a caught bestia there is nothing else
    * per-master to store.
    *
-   * Fed straight into [net.bestia.zone.ecs.battle.status.BaseStatusValues] by
+   * Fed straight into [net.bestia.zone.battle.ecs.status.BaseStatusValues] by
    * [MasterEntitySpawner]: the docs' `(baseValue + IV) * level / 100` term is not implemented yet
    * (see [net.bestia.zone.battle.status.ConditionValueCalculator]), and at level 1 it rounds to 0
    * anyway, so for now the effort value *is* the base status value.

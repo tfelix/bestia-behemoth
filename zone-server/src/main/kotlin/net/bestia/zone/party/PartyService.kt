@@ -8,7 +8,7 @@ import net.bestia.zone.account.master.MasterResolver
 import net.bestia.zone.util.AccountId
 import net.bestia.zone.util.DisplayName
 import net.bestia.zone.util.EntityId
-import net.bestia.zone.ecs.battle.status.Health
+import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.place.ecs.Place
 import net.bestia.zone.ecs.core.WorldView

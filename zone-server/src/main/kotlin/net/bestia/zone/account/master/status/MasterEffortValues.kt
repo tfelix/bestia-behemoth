@@ -1,7 +1,7 @@
 package net.bestia.zone.account.master.status
 
 import net.bestia.zone.account.master.Master
-import net.bestia.zone.ecs.battle.status.BaseStatusValues
+import net.bestia.zone.battle.ecs.status.BaseStatusValues
 
 /**
  * Attribute-keyed access to a [Master]'s six persisted effort values, so callers that already work in

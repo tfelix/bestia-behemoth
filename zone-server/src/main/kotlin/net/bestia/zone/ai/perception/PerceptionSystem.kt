@@ -9,10 +9,10 @@ import net.bestia.zone.aoi.AoiLayer
 import net.bestia.zone.aoi.EntityAOIService
 import net.bestia.zone.config.WorldRulesConfig
 import net.bestia.zone.identity.ecs.Master
-import net.bestia.zone.ecs.battle.damage.TakenDamage
+import net.bestia.zone.battle.ecs.damage.TakenDamage
 import net.bestia.zone.battle.status.StatusEffectId
-import net.bestia.zone.ecs.battle.effects.StatusEffects
-import net.bestia.zone.ecs.battle.status.Health
+import net.bestia.zone.battle.ecs.effects.StatusEffects
+import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.Schedule

@@ -3,7 +3,7 @@ package net.bestia.zone.crafting
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.zone.entity.ecs.DeadActionGuard
-import net.bestia.zone.ecs.battle.skill.CastCancelService
+import net.bestia.zone.battle.ecs.skill.CastCancelService
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.modify
 import net.bestia.zone.session.ConnectionInfoService

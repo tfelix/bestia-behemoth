@@ -6,7 +6,7 @@ import net.bestia.zone.battle.LineOfSightService
  * The range and line-of-sight gate almost every cast skill wants, so a script only has to say what it
  * does and not re-derive where it reaches.
  *
- * Both numbers come from the catalogue via [BattleAttack], which is what keeps the reach the client
+ * Both numbers come from the catalogue via [net.bestia.zone.battle.attack.BattleAttack], which is what keeps the reach the client
  * enforces while aiming and the reach the server checks the same value.
  */
 abstract class BasicMagicSkillStrategy(

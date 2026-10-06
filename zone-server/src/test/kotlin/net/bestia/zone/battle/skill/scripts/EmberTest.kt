@@ -4,7 +4,7 @@ import net.bestia.zone.battle.BattleContextFixture
 import net.bestia.zone.battle.LineOfSightService
 import net.bestia.zone.battle.skill.RecordingSkillWorld
 import net.bestia.zone.battle.skill.SkillContextFixture
-import net.bestia.zone.ecs.battle.effects.AreaEffect
+import net.bestia.zone.battle.ecs.effects.AreaEffect
 import net.bestia.zone.geometry.Vec3L
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
