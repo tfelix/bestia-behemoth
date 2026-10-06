@@ -23,7 +23,16 @@ class Party(
   @OneToMany(mappedBy = "party", fetch = FetchType.LAZY)
   val member: MutableSet<Master> = mutableSetOf()
 
-  val size: Int get() = member.size + 1 // + 1 is the owner himself.
+  /**
+   * Every master in the party, the owner included, each once. `Master.party` is set on the owner too, so a
+   * party read back from the database lists its owner in [member] as well.
+   */
+  val everyone: Collection<Master>
+    get() {
+      return (member + owner).distinctBy { it.id }
+    }
+
+  val size: Int get() = everyone.size
 
   init {
     require(owner.party == null) {
