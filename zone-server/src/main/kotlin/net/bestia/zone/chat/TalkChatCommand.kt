@@ -2,16 +2,16 @@ package net.bestia.zone.chat
 
 import net.bestia.account.Authority
 import net.bestia.zone.dialog.DialogArg
-import net.bestia.zone.dialog.conversation.Asker
-import net.bestia.zone.dialog.conversation.ConversationNode
-import net.bestia.zone.dialog.conversation.ConversationService
-import net.bestia.zone.dialog.conversation.Line
-import net.bestia.zone.dialog.conversation.Speaker
-import net.bestia.zone.dialog.conversation.SpeakerResolver
+import net.bestia.zone.townsfolk.conversation.Asker
+import net.bestia.zone.townsfolk.conversation.ConversationNode
+import net.bestia.zone.townsfolk.conversation.ConversationService
+import net.bestia.zone.townsfolk.conversation.Line
+import net.bestia.zone.townsfolk.conversation.Speaker
+import net.bestia.zone.townsfolk.conversation.SpeakerResolver
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.movement.ecs.Position
-import net.bestia.zone.ecs.spawn.townsfolk.Townsfolk
+import net.bestia.zone.townsfolk.ecs.Townsfolk
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component

@@ -5,8 +5,8 @@ import net.bestia.account.Authority
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.movement.ecs.Position
-import net.bestia.zone.ecs.spawn.ambient.AmbientSiteResolver
-import net.bestia.zone.ecs.spawn.ambient.AmbientSpawnConfig
+import net.bestia.zone.spawn.ecs.ambient.AmbientSiteResolver
+import net.bestia.zone.spawn.ecs.ambient.AmbientSpawnConfig
 import org.springframework.stereotype.Component
 
 /**

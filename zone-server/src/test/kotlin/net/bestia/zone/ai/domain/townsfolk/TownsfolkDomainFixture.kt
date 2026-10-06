@@ -2,12 +2,14 @@ package net.bestia.zone.ai.domain.townsfolk
 
 import net.bestia.zone.ai.bt.Locomotion
 import net.bestia.zone.ai.core.action.ActionResolver
-import net.bestia.zone.ai.perception.SettlementWork
-import net.bestia.zone.ecs.spawn.townsfolk.IndoorRegistry
+import net.bestia.zone.townsfolk.perception.SettlementWork
+import net.bestia.zone.townsfolk.ecs.IndoorRegistry
 import net.bestia.zone.economy.Trade
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.navigation.TestNavigation
 import kotlin.random.Random
+import net.bestia.zone.townsfolk.domain.TownsfolkDomain
+import net.bestia.zone.townsfolk.domain.TownsfolkProduction
 
 /**
  * Collaborators the townsfolk action templates need in order to be built.

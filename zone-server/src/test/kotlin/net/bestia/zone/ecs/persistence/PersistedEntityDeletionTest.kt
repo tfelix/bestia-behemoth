@@ -1,6 +1,6 @@
 package net.bestia.zone.ecs.persistence
 
-import net.bestia.zone.bestia.BestiaEntitySpawner
+import net.bestia.zone.spawn.BestiaEntitySpawner
 import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.ecs.core.SnowflakeEntityIdGenerator
 import net.bestia.zone.ecs.core.EcsWorld
@@ -12,7 +12,7 @@ import net.bestia.zone.item.ecs.ObtainItemIntentSystem
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.item.persistence.LootItemEntityPersister
 import net.bestia.zone.ecs.core.WorldView
-import net.bestia.zone.ecs.persistence.persisters.MobEntityPersister
+import net.bestia.zone.spawn.persistence.MobEntityPersister
 import net.bestia.zone.persistence.PersistedEntityRepository
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.item.loot.LootItemEntitySpawner

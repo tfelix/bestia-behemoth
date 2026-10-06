@@ -33,7 +33,7 @@ data class ScriptEntitySnapshot(
  * tables, and rebuilds them on startup through [ScriptEntitySpawner].
  *
  * [loadAll] does double duty: if script entities are already persisted (a normal restart), they are
- * rehydrated with their original entity ids, exactly like [MobEntityPersister]. If none exist yet (the
+ * rehydrated with their original entity ids, exactly like [net.bestia.zone.spawn.persistence.MobEntityPersister]. If none exist yet (the
  * world was just created), it asks [MasterSpawnPointService] for the settlement spawn point
  * candidates, creates one placeholder script entity per candidate (see [SPAWN_POINT_SCRIPT_ID]), and
  * persists them immediately - not waiting for

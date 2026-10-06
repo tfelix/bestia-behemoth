@@ -1,0 +1,14 @@
+package net.bestia.zone.townsfolk.ecs
+
+import net.bestia.zone.ecs.core.Component
+
+/**
+ * Marks an entity as one settlement's inhabitant, and says which one.
+ *
+ * Absence is meaningful, as it is for `Ambient`: a creature without this was not put here by the
+ * settlement layer and must not be torn down by it.
+ *
+ * Not `Dirtyable`. Which household somebody belongs to is server bookkeeping - what a client is told about
+ * this person is [TownsfolkVisual], and that carries nothing an identity could be recovered from.
+ */
+data class Townsfolk(val identity: Long) : Component

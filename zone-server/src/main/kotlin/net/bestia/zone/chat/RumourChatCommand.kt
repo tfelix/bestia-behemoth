@@ -1,9 +1,9 @@
 package net.bestia.zone.chat
 
 import net.bestia.account.Authority
-import net.bestia.zone.ai.rumour.RumourKind
-import net.bestia.zone.ai.rumour.RumourRegistry
-import net.bestia.zone.ai.rumour.RumourService
+import net.bestia.zone.townsfolk.rumour.RumourKind
+import net.bestia.zone.townsfolk.rumour.RumourRegistry
+import net.bestia.zone.townsfolk.rumour.RumourService
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.movement.ecs.Position

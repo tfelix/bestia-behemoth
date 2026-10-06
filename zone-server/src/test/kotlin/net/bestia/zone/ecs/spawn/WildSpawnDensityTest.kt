@@ -10,7 +10,7 @@ import net.bestia.worldgen.spawn.SpawnerChannels
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.PointMarker
 import net.bestia.zone.bestia.Bestia
-import net.bestia.zone.ecs.spawn.WildSpawnerService.Candidate
+import net.bestia.zone.spawn.ecs.WildSpawnerService.Candidate
 import net.bestia.zone.world.WorldGenConfig
 import net.bestia.zone.world.stream.ChunkStreamConfig
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -19,6 +19,8 @@ import kotlin.math.ceil
 import kotlin.math.exp
 import kotlin.math.floor
 import kotlin.math.hypot
+import net.bestia.zone.spawn.ecs.WildSpawnConfig
+import net.bestia.zone.spawn.ecs.WildSpawnerService
 
 /**
  * How thick the **den layer** is, in creatures a player can see.

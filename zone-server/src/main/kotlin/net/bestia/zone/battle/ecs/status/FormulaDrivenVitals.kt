@@ -9,7 +9,7 @@ import net.bestia.zone.ecs.core.Component
  * change. Player-owned entities carry it: `net.bestia.zone.account.master.MasterEntitySpawner` and
  * `net.bestia.zone.bestia.PlayerBestiaEntitySpawner`.
  *
- * Mobs deliberately do **not**: `net.bestia.zone.bestia.BestiaEntitySpawner` gives them the authored
+ * Mobs deliberately do **not**: `net.bestia.zone.spawn.BestiaEntitySpawner` gives them the authored
  * `Bestia.health` from their species row, which is content and must survive a recalc. They still get
  * their [StatusValues] and speed rebuilt like anything else, so buffs and slows work on them - it is
  * only the pool maxima that are off limits. Without this gate a mob's pool gets recomputed with the

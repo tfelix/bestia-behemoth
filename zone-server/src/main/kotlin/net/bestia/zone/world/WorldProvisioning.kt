@@ -7,7 +7,7 @@ import net.bestia.worldgen.store.PipelineVersion
 import net.bestia.zone.ecs.script.ScriptComponent
 import net.bestia.zone.persistence.PersistedEntityRepository
 import net.bestia.zone.cartography.chart.MapChartRepository
-import net.bestia.zone.ai.rumour.RumourRepository
+import net.bestia.zone.townsfolk.rumour.RumourRepository
 import net.bestia.zone.economy.SettlementLedgerRepository
 import net.bestia.zone.economy.WorldTreasuryRepository
 import net.bestia.zone.persistence.deleteAllByKind

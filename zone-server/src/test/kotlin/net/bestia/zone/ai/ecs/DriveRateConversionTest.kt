@@ -3,7 +3,7 @@ package net.bestia.zone.ai.ecs
 import net.bestia.zone.ai.core.state.Drive
 import net.bestia.zone.ai.core.state.StateKey
 import net.bestia.zone.ai.domain.bestia.BestiaDomain
-import net.bestia.zone.ai.domain.townsfolk.TownsfolkDomain
+import net.bestia.zone.townsfolk.domain.TownsfolkDomain
 import net.bestia.zone.world.time.BestiaDateTime
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue

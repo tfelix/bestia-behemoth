@@ -19,7 +19,7 @@ import net.bestia.zone.entity.ecs.Dead
 /**
  * Charges a player-owned entity for its own death, once, and leaves the body lying there.
  *
- * In the death phase, after `ReceivedDamageSystem` has added [Dead], and before [net.bestia.zone.ecs.battle.damage.DeathSystem], which skips
+ * In the death phase, after `ReceivedDamageSystem` has added [Dead], and before [net.bestia.zone.spawn.ecs.DeathSystem], which skips
  * player-owned entities entirely.
  *
  * [TakenDamage] and `InCombat` are deliberately left alone: the damage ledger stays readable while

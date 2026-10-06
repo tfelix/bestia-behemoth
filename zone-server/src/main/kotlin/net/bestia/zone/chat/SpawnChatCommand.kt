@@ -2,14 +2,14 @@ package net.bestia.zone.chat
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.account.Authority
-import net.bestia.zone.bestia.BestiaEntitySpawner
+import net.bestia.zone.spawn.BestiaEntitySpawner
 import net.bestia.zone.bestia.BestiaRepository
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.geometry.Vec3L
 import org.springframework.stereotype.Component
 
 /**
- * Spawns an NPC bestia via [BestiaEntitySpawner], the same spawner the [net.bestia.zone.ecs.spawn.SpawnerSystem]
+ * Spawns an NPC bestia via [BestiaEntitySpawner], the same spawner the [net.bestia.zone.spawn.ecs.SpawnerSystem]
  * uses - so the mob gets its AI brain and known skills like a naturally spawned one.
  */
 @Component

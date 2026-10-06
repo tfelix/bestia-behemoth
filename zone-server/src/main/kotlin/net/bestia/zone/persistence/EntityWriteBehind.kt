@@ -10,7 +10,7 @@ import net.bestia.zone.item.ecs.GroundItemStack
 import net.bestia.zone.ecs.persistence.persisters.MasterEntityPersister
 import net.bestia.zone.ecs.persistence.persisters.PlayerBestiaEntityPersister
 import net.bestia.zone.ecs.script.ScriptComponent
-import net.bestia.zone.ecs.spawn.DenMember
+import net.bestia.zone.spawn.ecs.DenMember
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Service
 import java.util.concurrent.ConcurrentHashMap

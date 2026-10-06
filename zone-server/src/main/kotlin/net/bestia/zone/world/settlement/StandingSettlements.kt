@@ -17,7 +17,7 @@ import kotlin.math.hypot
  *  - **How far is the nearest town?** The largest term in `SpawnDangerCurve`, and therefore what makes the
  *    country around a settlement gentle and the deep wilderness harsh. Without it the curve would rate a
  *    village's fields exactly as it rates identical grassland forty kilometres out.
- *  - **Which towns could this position be inside?** The broad phase of [net.bestia.zone.ecs.spawn.ambient.TownClearance], which only reaches
+ *  - **Which towns could this position be inside?** The broad phase of [net.bestia.zone.spawn.ecs.ambient.TownClearance], which only reaches
  *    for a town's real outline once a cheap disc test says it might matter.
  *
  * A bucket lattice rather than the feature index, for `SpawnerCellIndex`'s reason: there are on the order of

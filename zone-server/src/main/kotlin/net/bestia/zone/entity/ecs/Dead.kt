@@ -13,7 +13,7 @@ import net.bestia.zone.util.EntityId
  * - Loot is spawned
  * - EXP distributed
  *
- * For anything without an owner that is the whole story: [net.bestia.zone.ecs.battle.damage.DeathSystem] destroys it the same tick, and
+ * For anything without an owner that is the whole story: [net.bestia.zone.spawn.ecs.DeathSystem] destroys it the same tick, and
  * the client hears about it as a `VanishEntitySMSG` of kind `DEATH`. A player-owned entity instead
  * keeps this component and stays lying where it fell until it respawns, which is why the tag carries
  * state and is synced: it is the body's visible condition, not a one-off event. [Removable], so
@@ -32,9 +32,9 @@ class Dead : DirtyableComponent(), Removable {
   var resolved: Boolean = false
 
   /**
-   * Whether [net.bestia.zone.ecs.battle.damage.DeathSystem] has already spilled this death's blood.
+   * Whether [net.bestia.zone.spawn.ecs.DeathSystem] has already spilled this death's blood.
    *
-   * Separate from [resolved], which `PlayerDeathSystem` sets an order earlier - so by the time [net.bestia.zone.ecs.battle.damage.DeathSystem]
+   * Separate from [resolved], which `PlayerDeathSystem` sets an order earlier - so by the time [net.bestia.zone.spawn.ecs.DeathSystem]
    * runs it is already true and cannot tell a first tick from a hundredth. Without a flag of its own a body
    * lying where it fell would soak the ground a little deeper every tick for as long as nobody respawned it.
    */

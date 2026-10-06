@@ -4,7 +4,7 @@ import net.bestia.account.Authority
 import net.bestia.worldgen.pop.BusinessCatalogue
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.session.ConnectionInfoService
-import net.bestia.zone.ai.domain.townsfolk.TownsfolkProduction
+import net.bestia.zone.townsfolk.domain.TownsfolkProduction
 import net.bestia.zone.economy.EconomyCatalogue
 import net.bestia.zone.world.time.BestiaClock
 import net.bestia.zone.economy.SettlementEconomyService
@@ -81,7 +81,7 @@ class SitesChatCommand(
    *
    * The last is separate from all of them on purpose and will not add up against the store: what the
    * visible workers turn out is a tally of the work being done in front of you, not a fourth way into
-   * the books. See [net.bestia.zone.ai.domain.townsfolk.TownsfolkProduction].
+   * the books. See [net.bestia.zone.townsfolk.domain.TownsfolkProduction].
    */
   private fun describePrices(site: SettlementSite): List<String> {
     val market = economy.marketOf(site.index)
