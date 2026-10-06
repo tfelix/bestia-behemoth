@@ -1,11 +1,11 @@
 package net.bestia.zone.persistence
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.TickBuckets
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Service
-import net.bestia.zone.battle.persistence.StatusEffectPersistenceService
 
 /**
  * Saves every live [Persistent] entity once per interval, and deletes the rows of the ones that are gone.
@@ -21,8 +21,14 @@ class EntityPersistenceService(
   private val asyncJobExecutor: AsyncJobExecutor,
   private val deletionQueue: PersistedEntityDeletionQueue,
   private val persistedEntityRepository: PersistedEntityRepository,
-  private val statusEffectPersistenceService: StatusEffectPersistenceService,
+  private val statusEffectPersistenceService: EntitySidecar,
 ) {
+
+  /** What a sweep reads, see [EntityWriteBehind.reads]. */
+  val reads: ComponentClassSet
+    get() {
+      return writeBehind.reads
+    }
 
   /** Saves the share of entities due on this [sweep], so one interval spreads the whole population over its sweeps. */
   fun syncDue(world: World, sweep: Long, sweepsPerInterval: Long) {

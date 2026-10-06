@@ -17,6 +17,7 @@ import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
+import net.bestia.zone.ecs.core.ComponentClassSet
 
 /**
  * Persists dropped/ground item entities (those carrying a [GroundItemStack]) into the generic blob
@@ -31,6 +32,8 @@ class LootItemEntityPersister(
 
   override val kind = KIND
   override val loadsAtStartup = true
+
+  override val reads: ComponentClassSet = setOf(GroundItemStack::class, Position::class, GroundItemDecay::class)
 
   override fun supports(world: World, id: EntityId): Boolean =
     world.has(id, GroundItemStack::class)

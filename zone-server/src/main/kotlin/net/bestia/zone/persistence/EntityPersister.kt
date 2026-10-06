@@ -1,5 +1,6 @@
 package net.bestia.zone.persistence
 
+import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.util.EntityId
 
@@ -45,6 +46,9 @@ interface EntityPersister {
 
   /** Whether entities of this kind are rehydrated into the world at server startup. */
   val loadsAtStartup: Boolean
+
+  /** The component types [supports] and [snapshot] read. A system that persists entities declares them. */
+  val reads: ComponentClassSet
 
   /** True if this persister is responsible for the given live entity. Called with the world to itself. */
   fun supports(world: World, id: EntityId): Boolean

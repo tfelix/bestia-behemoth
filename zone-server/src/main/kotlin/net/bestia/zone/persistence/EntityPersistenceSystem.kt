@@ -20,7 +20,7 @@ class EntityPersistenceSystem(
 
   override val schedule: Schedule = Schedule.EverySeconds(SWEEP_SECONDS)
 
-  override val reads: ComponentClassSet = setOf(Persistent::class) + EntityWriteBehind.READS
+  override val reads: ComponentClassSet = setOf(Persistent::class) + persistence.reads
 
   private val sweepsPerInterval = (config.intervalMs / 1000f / SWEEP_SECONDS).toLong().coerceAtLeast(1)
 

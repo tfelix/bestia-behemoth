@@ -7,16 +7,19 @@ import net.bestia.zone.battle.status.StatusEffectScriptRegistry
 import net.bestia.zone.battle.ecs.effects.ActiveStatusEffect
 import net.bestia.zone.battle.ecs.effects.StatusEffects
 import net.bestia.zone.battle.ecs.status.IsStatusValueDirty
+import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.World
+import net.bestia.zone.persistence.EntitySidecar
+import net.bestia.zone.persistence.EntitySnapshot
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 /** Component-free copy of one entity's [StatusEffects], safe to carry off the tick thread. */
 data class StatusEffectsSnapshot(
-  val entityId: EntityId,
+  override val entityId: EntityId,
   val effects: List<Entry>
-) {
+) : EntitySnapshot {
   data class Entry(
     val definitionId: Long,
     val level: Int,
@@ -47,7 +50,9 @@ class StatusEffectPersistenceService(
   private val persistedStatusEffectRepository: PersistedStatusEffectRepository,
   private val statusEffectDefinitionRegistry: StatusEffectDefinitionRegistry,
   private val statusEffectScriptRegistry: StatusEffectScriptRegistry,
-) {
+) : EntitySidecar {
+
+  override val reads: ComponentClassSet = setOf(StatusEffects::class)
 
   /**
    * Writes an effect for an entity that need not exist yet — the pre-spawn path. Duration comes
@@ -114,7 +119,7 @@ class StatusEffectPersistenceService(
    * entity is not participating" rather than "this entity has no effects" — the distinction matters
    * because an empty snapshot deletes the stored rows.
    */
-  fun snapshot(world: World, entityId: EntityId): StatusEffectsSnapshot? {
+  override fun snapshot(world: World, entityId: EntityId): StatusEffectsSnapshot? {
     val statusEffects = world.get(entityId, StatusEffects::class) ?: return null
 
     return StatusEffectsSnapshot(
@@ -136,14 +141,14 @@ class StatusEffectPersistenceService(
    * marker like [StatusEffectId.MASTER_INTRO_MARKER] stay gone.
    */
   @Transactional
-  fun persist(snapshots: List<StatusEffectsSnapshot>) {
+  override fun persist(snapshots: List<EntitySnapshot>) {
     if (snapshots.isEmpty()) {
       return
     }
 
     persistedStatusEffectRepository.deleteByOwnerEntityIdIn(snapshots.map { it.entityId })
 
-    val rows = snapshots.flatMap { snapshot ->
+    val rows = snapshots.map { it as StatusEffectsSnapshot }.flatMap { snapshot ->
       snapshot.effects.map {
         PersistedStatusEffect(
           ownerEntityId = snapshot.entityId,
@@ -162,7 +167,7 @@ class StatusEffectPersistenceService(
 
   /** Drops every stored effect of the given entities, e.g. once they are gone for good. */
   @Transactional
-  fun deleteFor(entityIds: Collection<EntityId>) {
+  override fun deleteFor(entityIds: Collection<EntityId>) {
     if (entityIds.isEmpty()) {
       return
     }

@@ -110,8 +110,6 @@ class FeatureSliceRulesTest {
       "economy -> townsfolk",
       "identity -> account",
       "item -> account", "item -> bestia",
-      "persistence -> battle", "persistence -> entity", "persistence -> identity", "persistence -> item",
-      "persistence -> master", "persistence -> script", "persistence -> spawn",
       "spawn -> townsfolk",
       "world -> cartography", "world -> economy", "world -> item", "world -> prop", "world -> townsfolk",
     )

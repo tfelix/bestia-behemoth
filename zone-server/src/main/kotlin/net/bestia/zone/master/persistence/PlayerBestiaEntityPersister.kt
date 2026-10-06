@@ -46,6 +46,8 @@ class PlayerBestiaEntityPersister(
   override val kind = "player-bestia"
   override val loadsAtStartup = false
 
+  override val reads: ComponentClassSet = setOf(OwnedBestia::class, Position::class, Level::class, Dead::class)
+
   override fun supports(world: World, id: EntityId): Boolean {
     return world.has(id, OwnedBestia::class)
   }
@@ -90,10 +92,5 @@ class PlayerBestiaEntityPersister(
 
   companion object {
     private val LOG = KotlinLogging.logger { }
-
-    /** What [snapshot] reads; a system that snapshots a player bestia must declare these. */
-    val SNAPSHOT_READS: ComponentClassSet = setOf(
-      OwnedBestia::class, Position::class, Level::class, Dead::class,
-    )
   }
 }
