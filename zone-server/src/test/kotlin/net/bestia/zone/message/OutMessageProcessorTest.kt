@@ -8,6 +8,7 @@ import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.identity.ecs.ActivePlayer
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.aoi.EntityAudience
+import net.bestia.zone.world.stream.InterestRecipients
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertSame
@@ -26,11 +27,9 @@ class OutMessageProcessorTest {
 
   /** Off the tick the outbox takes nothing, so every send goes straight to the handler. */
   private val processor = OutMessageProcessor(
-    playerAOIService = ActivePlayerAOIService(),
+    recipients = InterestRecipients(EntityAudience(visibility), ActivePlayerAOIService(), mockk(relaxed = true)),
     outMessageHandler = handler,
-    interestRange = mockk(relaxed = true),
     outbox = TickOutbox(handler),
-    entityAudience = EntityAudience(visibility),
   )
 
   private val event = object : SMSG {

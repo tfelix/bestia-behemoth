@@ -110,7 +110,6 @@ class FeatureSliceRulesTest {
       "economy -> townsfolk",
       "identity -> account",
       "item -> account", "item -> bestia",
-      "message -> aoi", "message -> socket", "message -> world",
       "persistence -> battle", "persistence -> entity", "persistence -> identity", "persistence -> item",
       "persistence -> master", "persistence -> script", "persistence -> spawn",
       "spawn -> townsfolk",

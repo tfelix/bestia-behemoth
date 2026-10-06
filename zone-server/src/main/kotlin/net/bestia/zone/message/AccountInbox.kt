@@ -5,7 +5,6 @@ import io.github.oshai.kotlinlogging.withLoggingContext
 import jakarta.annotation.PreDestroy
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.WorldView
-import net.bestia.zone.socket.ChannelRegistry
 import net.bestia.zone.util.AccountId
 import org.springframework.beans.factory.ObjectProvider
 import org.springframework.stereotype.Component
@@ -31,7 +30,7 @@ import java.util.concurrent.atomic.AtomicLong
 class AccountInbox(
   private val world: WorldView,
   private val outbox: TickOutbox,
-  private val channels: ObjectProvider<ChannelRegistry>,
+  private val connections: ObjectProvider<ConnectionTerminator>,
 ) : AccountTaskExecutor {
 
   private sealed class Item {
@@ -149,13 +148,13 @@ class AccountInbox(
   }
 
   private fun terminate(accountId: AccountId, reason: String) {
-    val registry = channels.ifAvailable
-    if (registry == null) {
+    val terminator = connections.ifAvailable
+    if (terminator == null) {
       LOG.warn { "Would close account $accountId ($reason), but there is no socket" }
       return
     }
 
-    registry.disconnect(accountId, reason)
+    terminator.disconnect(accountId, reason)
   }
 
   @PreDestroy
