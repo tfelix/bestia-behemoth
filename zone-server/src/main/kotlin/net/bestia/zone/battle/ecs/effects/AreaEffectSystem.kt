@@ -20,9 +20,9 @@ import net.bestia.zone.identity.ecs.ActivePlayer
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.OutMessageProcessor
-import net.bestia.zone.prop.PropPromotionService
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component as SpringComponent
+import net.bestia.zone.battle.CombatTargetPromotion
 
 /**
  * The one system behind every ground effect, whatever its cadence or duration.
@@ -40,7 +40,7 @@ import org.springframework.stereotype.Component as SpringComponent
 class AreaEffectSystem(
   private val entityAOIService: EntityAOIService,
   private val outMessageProcessor: OutMessageProcessor,
-  private val propPromotionService: PropPromotionService
+  private val propPromotionService: CombatTargetPromotion
 ) : System {
   override val phase = Phase.COMBAT
 

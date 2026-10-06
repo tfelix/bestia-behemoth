@@ -1,5 +1,6 @@
 package net.bestia.zone.prop
 
+import net.bestia.zone.battle.CombatTargetPromotion
 import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.battle.ecs.status.StatusValues
 import net.bestia.zone.ecs.core.World
@@ -35,7 +36,7 @@ import org.springframework.stereotype.Component
 @Component
 class PropPromotionService(
   private val divergence: WorldObjectDivergenceRegistry,
-) {
+) : CombatTargetPromotion {
 
   /**
    * Idempotent: an already-promoted entity (or an entity that was never a prop at all) is a cheap no-op.
@@ -49,7 +50,7 @@ class PropPromotionService(
    *   mined-out crystal) or not yet regrown - in which case the caller proceeds exactly as it does for any
    *   other unresolvable target.
    */
-  fun promoteIfNeeded(world: World, entityId: EntityId, from: Vec3L, reach: Long): Boolean {
+  override fun promoteIfNeeded(world: World, entityId: EntityId, from: Vec3L, reach: Long): Boolean {
     if (world.has(entityId, Position::class)) return true
 
     val identity = world.get(entityId, WorldObjectIdentity::class) ?: return true
@@ -76,11 +77,5 @@ class PropPromotionService(
 
   companion object {
     private const val BASELINE_STAT = 1
-
-    /**
-     * How far from its actor a prop may be named as a target: about the draw distance that
-     * `ChunkStreamConfig.viewRadiusChunks` is sized against, so a player can target whatever they see.
-     */
-    const val TARGETING_REACH = 200L
   }
 }

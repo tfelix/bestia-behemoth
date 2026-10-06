@@ -14,7 +14,6 @@ import net.bestia.zone.ecs.core.World
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
-import net.bestia.zone.prop.PropPromotionService
 import org.springframework.stereotype.Component
 
 /**
@@ -27,7 +26,7 @@ import org.springframework.stereotype.Component
  */
 @Component
 class BattleContextFactory(
-  private val propPromotion: PropPromotionService,
+  private val propPromotion: CombatTargetPromotion,
 ) {
 
   /**
@@ -48,7 +47,7 @@ class BattleContextFactory(
       // A defensive, idempotent no-op for anything already promoted or never a prop; the call site that
       // actually matters for a channelled skill is ActivateSkillHandler - see PropPromotionService's own KDoc
       // for why calling it only here would fizzle the first hit of a channelled cast.
-      val reach = PropPromotionService.TARGETING_REACH
+      val reach = CombatTargetPromotion.TARGETING_REACH
       if (!propPromotion.promoteIfNeeded(world, targetEntityId, attacker.position, reach)) return null
 
       val defender = battleEntity(world, targetEntityId) ?: return null
