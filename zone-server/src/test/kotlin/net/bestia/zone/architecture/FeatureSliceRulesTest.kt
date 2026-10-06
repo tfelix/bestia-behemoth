@@ -52,16 +52,17 @@ class FeatureSliceRulesTest {
     assertEquals(sortedSetOf<String>(), untiered, "Add these packages to TIERS")
   }
 
-  /** A slice that needs something from a higher slice declares a port and lets the higher slice implement it. */
+  /**
+   * A slice that needs something from a higher slice declares a port and lets the higher slice implement it.
+   * A stack has no cycles, so this also keeps the slices free of them.
+   */
   @Test
   fun `slices only depend on lower tiers`() {
     val found = backEdges()
 
-    val added = found.keys - KNOWN_BACK_EDGES
-    val fixed = KNOWN_BACK_EDGES - found.keys
-    assertTrue(added.isEmpty() && fixed.isEmpty()) {
-      "New back edges:\n" + added.joinToString("\n") { "  $it (${found[it]})" } +
-        "\nBack edges that are gone, remove them from KNOWN_BACK_EDGES:\n" + fixed.joinToString("\n") { "  $it" }
+    assertTrue(found.isEmpty()) {
+      val listed = found.entries.joinToString("\n") { (edge, cause) -> "  $edge ($cause)" }
+      "Dependencies that point up the stack:\n$listed"
     }
   }
 
@@ -101,8 +102,5 @@ class FeatureSliceRulesTest {
       "account", "party", "economy", "crafting", "cartography", "townsfolk", "master", "respawn", "trade", "capture",
       "chat", "control", "internal", "socket", "metrics", "engine", "boot",
     )
-
-    /** Back edges not broken yet. The list must only shrink. */
-    val KNOWN_BACK_EDGES = emptySet<String>()
   }
 }
