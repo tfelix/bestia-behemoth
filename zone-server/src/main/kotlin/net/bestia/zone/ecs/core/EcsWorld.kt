@@ -27,7 +27,7 @@ import kotlin.reflect.KClass
  * Structural changes requested while systems are iterating are deferred to a safe sync point.
  *
  * ### Outbound sync
- * A component knows whether it needs re-sending (see [Dirtyable]). Mutating it through its own setters
+ * A component knows whether it needs re-sending (see [DirtyTracked]). Mutating it through its own setters
  * marks it dirty, which also enters it into [dirtyLog]; the flush visits only those entries.
  */
 class EcsWorld(
@@ -36,7 +36,7 @@ class EcsWorld(
   systems: Iterable<System> = emptyList(),
   private val undeclaredAccess: UndeclaredAccess = UndeclaredAccess.OFF,
 ) : World, WorldView {
-  /** What changed since the last sync; see [Dirtyable] and [SpatiallyIndexed]. */
+  /** What changed since the last sync; see [DirtyTracked] and [SpatiallyIndexed]. */
   val dirtyLog = DirtyLog()
 
   private val entities = EntityRegistry(idGenerator)

@@ -4,9 +4,9 @@ import net.bestia.zone.ecs.core.DirtyFlag
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.ecs.core.Component
 import net.bestia.zone.util.EntityId
-import net.bestia.zone.ecs.core.Removable
+import net.bestia.zone.sync.Removable
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.ecs.SyncTargets
+import net.bestia.zone.sync.SyncTargets
 import net.bestia.zone.message.EntitySMSG
 
 /**

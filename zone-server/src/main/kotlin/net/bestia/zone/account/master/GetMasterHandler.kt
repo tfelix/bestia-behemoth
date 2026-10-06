@@ -1,7 +1,6 @@
 package net.bestia.zone.account.master
 
 import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
-import net.bestia.zone.account.master.GetMasterCMSG
 import net.bestia.zone.message.IoMessageHandler
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.message.decoder

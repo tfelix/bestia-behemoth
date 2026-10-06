@@ -1,9 +1,10 @@
-package net.bestia.zone.ecs.core
+package net.bestia.zone.sync
 
 import org.reflections.Reflections
 import org.reflections.scanners.Scanners
 import java.lang.reflect.Modifier
 import kotlin.reflect.KClass
+import net.bestia.zone.ecs.core.Component
 
 /**
  * Every concrete [Component] that also implements [Dirtyable] - the "syncable" component types

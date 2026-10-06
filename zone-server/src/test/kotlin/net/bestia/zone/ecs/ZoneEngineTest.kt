@@ -39,6 +39,7 @@ import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.test.assertEquals
 import net.bestia.zone.ecs.core.EcsWorld
+import net.bestia.zone.sync.SyncTargets
 
 /**
  * Covers what [ZoneEngine] does between ticks, rather than what any one system does:
@@ -48,7 +49,7 @@ import net.bestia.zone.ecs.core.EcsWorld
  *    client needs no vanish, one that was gets broadcast to the superset of its synced components'
  *    [SyncTargets];
  *  - component removals that mean something to the client, via
- *    [net.bestia.zone.ecs.core.Removable.toRemovedMessage].
+ *    [net.bestia.zone.sync.Removable.toRemovedMessage].
  */
 class ZoneEngineTest {
 

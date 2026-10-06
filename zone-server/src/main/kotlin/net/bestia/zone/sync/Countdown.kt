@@ -1,4 +1,5 @@
-package net.bestia.zone.ecs.core
+package net.bestia.zone.sync
+
 
 /**
  * A countdown the client draws as a filling bar - a cast, a craft, anything that runs for a fixed

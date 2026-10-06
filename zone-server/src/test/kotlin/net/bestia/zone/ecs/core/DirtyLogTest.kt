@@ -4,6 +4,7 @@ import net.bestia.zone.util.EntityId
 import org.junit.jupiter.api.Test
 import kotlin.reflect.KClass
 import kotlin.test.assertEquals
+import net.bestia.zone.sync.DirtyableComponent
 
 class DirtyLogTest {
 

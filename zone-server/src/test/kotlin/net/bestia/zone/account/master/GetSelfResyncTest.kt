@@ -12,7 +12,7 @@ import net.bestia.zone.ecs.battle.status.SkillPoints
 import net.bestia.zone.ecs.battle.status.Stamina
 import net.bestia.zone.ecs.battle.status.StatusPoints
 import net.bestia.zone.ecs.battle.status.StatusValues
-import net.bestia.zone.ecs.core.Dirtyable
+import net.bestia.zone.sync.Dirtyable
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.testWorld

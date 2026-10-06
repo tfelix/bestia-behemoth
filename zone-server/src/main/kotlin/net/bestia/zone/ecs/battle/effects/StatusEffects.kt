@@ -1,10 +1,10 @@
 package net.bestia.zone.ecs.battle.effects
 
 import net.bestia.zone.battle.status.StackBehavior
-import net.bestia.zone.ecs.core.Dirtyable
-import net.bestia.zone.ecs.SyncTargets
+import net.bestia.zone.sync.Dirtyable
+import net.bestia.zone.sync.SyncTargets
 import net.bestia.zone.ecs.account.Account
-import net.bestia.zone.ecs.core.DirtyableComponent
+import net.bestia.zone.sync.DirtyableComponent
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.message.EntitySMSG
 import net.bestia.zone.util.EntityId

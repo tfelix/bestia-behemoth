@@ -1,8 +1,8 @@
 package net.bestia.zone.ecs.item
 
 import net.bestia.zone.ecs.core.DirtyFlag
-import net.bestia.zone.ecs.core.Dirtyable
-import net.bestia.zone.ecs.SyncTargets
+import net.bestia.zone.sync.Dirtyable
+import net.bestia.zone.sync.SyncTargets
 import net.bestia.zone.ecs.core.Component
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.item.equip.ArmorType

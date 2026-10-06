@@ -1,4 +1,4 @@
-package net.bestia.zone.ecs
+package net.bestia.zone.sync
 
 sealed interface SyncTargets {
   /** Sent to every account that sees the entity; see [net.bestia.zone.ecs.visibility.EntityAudience]. */

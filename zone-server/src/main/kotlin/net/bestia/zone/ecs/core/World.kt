@@ -30,7 +30,7 @@ interface World {
 
   fun <T : Component> has(id: EntityId, type: KClass<T>): Boolean
 
-  /** A freshly created component starts dirty (see [Dirtyable]), so adding one already queues it for sync. */
+  /** A freshly created component starts dirty (see [DirtyTracked]), so adding one already queues it for sync. */
   fun <T : Component> add(id: EntityId, component: T): T
 
   /** Returns null while systems iterate, because the removal is deferred. */

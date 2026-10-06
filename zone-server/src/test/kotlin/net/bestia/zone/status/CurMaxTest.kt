@@ -1,7 +1,7 @@
 package net.bestia.zone.status
 
 import net.bestia.zone.battle.status.CurMax
-import net.bestia.zone.ecs.SyncTargets
+import net.bestia.zone.sync.SyncTargets
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.message.EntitySMSG
 import net.bestia.zone.util.EntityId

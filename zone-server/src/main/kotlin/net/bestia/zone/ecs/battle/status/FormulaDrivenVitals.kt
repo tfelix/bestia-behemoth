@@ -17,7 +17,7 @@ import net.bestia.zone.ecs.core.Component
  * the first time anything applies a status effect to it, permanently, because
  * [net.bestia.zone.battle.status.CurMax]'s `max` setter clamps `current` down with it.
  *
- * Server-side bookkeeping only - deliberately not [net.bestia.zone.ecs.core.Dirtyable], since the
+ * Server-side bookkeeping only - deliberately not [net.bestia.zone.sync.Dirtyable], since the
  * client learns the resulting pools from [Health] / [Mana] / [Stamina] themselves and has no use for
  * knowing how they were arrived at.
  */
