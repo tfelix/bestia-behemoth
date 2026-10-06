@@ -7,6 +7,7 @@ import com.tngtech.archunit.core.domain.JavaClass.Predicates.resideInAnyPackage
 import com.tngtech.archunit.core.domain.JavaClass.Predicates.resideOutsideOfPackage
 import com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes
 import com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses
+import jakarta.persistence.Entity
 import net.bestia.zone.BestiaException
 import net.bestia.zone.architecture.ZoneClasses.ROOT
 import net.bestia.zone.chat.ChatCommand
@@ -15,6 +16,7 @@ import net.bestia.zone.message.IncomingMessageHandler
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import org.springframework.data.repository.Repository
 
 /** What each part of the zone may depend on. The packages at the bottom depend on nothing above them. */
 class FeatureSliceRulesTest {
@@ -68,6 +70,14 @@ class FeatureSliceRulesTest {
   fun `nothing outside a net package depends on one`() {
     noClasses().that().resideOutsideOfPackage(NET)
       .should().dependOnClassesThat().resideInAPackage(NET)
+      .check(ZoneClasses.main)
+  }
+
+  /** What a slice stores is one package to read: `<slice>.persistence`. */
+  @Test
+  fun `entities and repositories live in a persistence package`() {
+    classes().that().areAnnotatedWith(Entity::class.java).or().areAssignableTo(Repository::class.java)
+      .should().resideInAnyPackage("$ROOT.*.persistence..", "$ROOT.persistence..")
       .check(ZoneClasses.main)
   }
 
