@@ -9,6 +9,7 @@ import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.economy.SettlementEconomyService
 import net.bestia.zone.economy.WorldReserve
+import net.bestia.zone.ground.GroundLevelStore
 import net.bestia.zone.world.stream.ChunkEditJournal
 import org.junit.jupiter.api.Test
 import net.bestia.zone.persistence.EntityPersistenceService
@@ -24,9 +25,12 @@ class PersistOnShutdownTest {
   private val economy = mockk<SettlementEconomyService>(relaxed = true)
   private val reserve = mockk<WorldReserve>(relaxed = true)
   private val chunkEdits = mockk<ChunkEditJournal>(relaxed = true)
+  private val wear = mockk<GroundLevelStore>(relaxed = true)
+  private val blood = mockk<GroundLevelStore>(relaxed = true)
   private val executor = mockk<AsyncJobExecutor>(relaxed = true)
 
-  private val sut = PersistOnShutdown(engine, worldView, persistence, economy, reserve, chunkEdits, executor)
+  private val sut =
+    PersistOnShutdown(engine, worldView, persistence, economy, reserve, chunkEdits, listOf(wear, blood), executor)
 
   @Test
   fun `the tick stops, then everything is saved, then the writes are given time to land`() {
@@ -40,6 +44,8 @@ class PersistOnShutdownTest {
       economy.flush()
       reserve.flush()
       chunkEdits.flushDirty()
+      wear.flushDirty()
+      blood.flushDirty()
       executor.shutdown(timeoutSeconds = any())
     }
   }
