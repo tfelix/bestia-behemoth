@@ -5,7 +5,7 @@ import kotlin.reflect.KClass
 /**
  * A unit of gameplay logic, as a Spring bean. A system declares:
  *  - its [schedule] (how often it runs),
- *  - its [phase], and which systems of that phase it runs [after] (see [TickOrder]), and
+ *  - its [phase], and which systems of that phase it runs [after] or [before] (see [TickOrder]), and
  *  - the component types it [reads] and [writes].
  *
  * Two systems conflict when one writes a component type the other reads or writes. The [SystemScheduler] runs
@@ -20,6 +20,13 @@ interface System {
 
   /** Systems of the same [phase] that must run before this one. */
   val after: Set<KClass<out System>>
+    get() = emptySet()
+
+  /**
+   * Systems of the same [phase] that must run after this one. Means the same as their [after]. Declare it here
+   * when those systems are in a lower slice and may not name this one.
+   */
+  val before: Set<KClass<out System>>
     get() = emptySet()
 
   val reads: ComponentClassSet

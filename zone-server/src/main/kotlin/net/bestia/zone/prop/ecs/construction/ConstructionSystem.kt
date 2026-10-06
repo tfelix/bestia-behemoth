@@ -14,7 +14,6 @@ import net.bestia.zone.entity.ecs.PropVitality
 import net.bestia.zone.entity.ecs.StaticSync
 import net.bestia.zone.entity.ecs.StaticVisual
 import net.bestia.zone.entity.ecs.WorldObjectIdentity
-import net.bestia.zone.respawn.ecs.RespawnSystem
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.prop.PlayerStructureRegistry
 import net.bestia.zone.prop.PlayerStructureService
@@ -44,7 +43,6 @@ class ConstructionSystem(
   private val propKinds: PropKindRegistry
 ) : System {
   override val phase = Phase.ACTIONS
-  override val after = setOf(RespawnSystem::class)
 
   override val reads: ComponentClassSet = setOf(Position::class, Dead::class)
 

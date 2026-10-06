@@ -10,8 +10,6 @@ import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.movement.ecs.Path
-import net.bestia.zone.prop.PlayerStructureDeathSystem
-import net.bestia.zone.prop.PropDeathDivergenceSystem
 import org.springframework.stereotype.Component as SpringComponent
 import kotlin.math.floor
 import net.bestia.zone.entity.ecs.Dead
@@ -30,7 +28,6 @@ class PlayerDeathSystem(
   private val zoneConfig: WorldRulesConfig,
 ) : System {
   override val phase = Phase.DEATH
-  override val after = setOf(PropDeathDivergenceSystem::class, PlayerStructureDeathSystem::class)
 
   override val reads: ComponentClassSet = setOf(Account::class)
   override val writes: ComponentClassSet = setOf(Dead::class, Exp::class, Path::class, AttackTarget::class)

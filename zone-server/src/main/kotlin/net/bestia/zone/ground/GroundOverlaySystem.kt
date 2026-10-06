@@ -6,7 +6,6 @@ import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ground.fire.GroundFireSystem
-import net.bestia.zone.prop.WorldObjectResidencySystem
 import org.springframework.stereotype.Component
 
 /**
@@ -25,7 +24,7 @@ class GroundOverlaySystem(
   private val overlay: GroundOverlayService,
 ) : System {
   override val phase = Phase.WORLD
-  override val after = setOf(GroundStampSystem::class, GroundFireSystem::class, WorldObjectResidencySystem::class)
+  override val after = setOf(GroundStampSystem::class, GroundFireSystem::class)
 
   override val schedule: Schedule = Schedule.EveryTick
 

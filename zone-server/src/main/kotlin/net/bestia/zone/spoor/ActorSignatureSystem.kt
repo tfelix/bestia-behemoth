@@ -15,6 +15,7 @@ import net.bestia.zone.movement.ecs.Path
 import net.bestia.zone.world.time.BestiaClock
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
+import net.bestia.zone.movement.ecs.MoveSystem
 
 /**
  * Writes down what everything that is walking *is*, while it is still there to ask.
@@ -44,6 +45,7 @@ class ActorSignatureSystem(
   private val clock: BestiaClock,
 ) : System {
   override val phase = Phase.MOVEMENT
+  override val before = setOf(MoveSystem::class)
 
   override val schedule: Schedule = Schedule.EveryTick
 

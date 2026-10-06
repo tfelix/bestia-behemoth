@@ -108,17 +108,13 @@ class FeatureSliceRulesTest {
       "battle -> casting", "battle -> item", "battle -> prop",
       "casting -> cartography", "casting -> crafting",
       "economy -> townsfolk",
-      "ground -> prop",
       "identity -> account",
       "item -> account", "item -> bestia",
       "message -> aoi", "message -> socket", "message -> world",
-      "movement -> spoor",
       "persistence -> battle", "persistence -> entity", "persistence -> identity", "persistence -> item",
       "persistence -> master", "persistence -> script", "persistence -> spawn",
-      "prop -> economy", "prop -> respawn",
       "spawn -> townsfolk",
-      "world -> cartography", "world -> economy", "world -> ground", "world -> item", "world -> prop",
-      "world -> townsfolk",
+      "world -> cartography", "world -> economy", "world -> item", "world -> prop", "world -> townsfolk",
     )
   }
 }

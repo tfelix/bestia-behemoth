@@ -15,6 +15,7 @@ import net.bestia.zone.movement.ecs.Grounded
 import net.bestia.zone.movement.ecs.Path
 import net.bestia.zone.movement.ecs.Position
 import org.springframework.stereotype.Component as SpringComponent
+import net.bestia.zone.prop.ecs.construction.ConstructionSystem
 
 /**
  * Revives entities tagged [Respawn] at their save point with a single hit point.
@@ -42,6 +43,7 @@ class RespawnSystem(
   private val groundHeight: GroundHeight,
 ) : System {
   override val phase = Phase.ACTIONS
+  override val before = setOf(ConstructionSystem::class)
 
   override val reads: ComponentClassSet = setOf(Respawn::class)
 

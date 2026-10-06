@@ -2,7 +2,6 @@ package net.bestia.zone.prop
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.OperationErrorProto
-import net.bestia.zone.economy.shop.ShopTradeIntentSystem
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Phase
@@ -64,7 +63,6 @@ class CollectPropIntentSystem(
   private val outMessageProcessor: OutMessageProcessor,
 ) : System {
   override val phase = Phase.ITEMS
-  override val after = setOf(ShopTradeIntentSystem::class)
 
   override val reads: ComponentClassSet = setOf(
     Account::class, Position::class, PropPose::class, StaticVisual::class, WorldObjectIdentity::class

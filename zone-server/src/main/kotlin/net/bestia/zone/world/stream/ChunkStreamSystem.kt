@@ -18,7 +18,6 @@ import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.entity.ecs.PropPose
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.ChunkFanOut
-import net.bestia.zone.ground.GroundStampSystem
 import net.bestia.zone.item.mining.OreYield
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component as SpringComponent
@@ -61,7 +60,6 @@ class ChunkStreamSystem(
   private val workers: ChunkWorkers,
 ) : System {
   override val phase = Phase.WORLD
-  override val after = setOf(GroundStampSystem::class)
 
   /**
    * Ore a carve broke that its owner has not been handed yet.

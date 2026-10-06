@@ -1,11 +1,12 @@
 package net.bestia.zone.ecs.core
 
 /**
- * Resolves the order systems run in: by [Phase], then inside a phase by [System.after], ties broken by name.
+ * Resolves the order systems run in: by [Phase], then inside a phase by [System.after] and [System.before], ties
+ * broken by name.
  *
  * It refuses an order it would have to guess. Two systems of one phase that touch the same component must be
- * ordered by [System.after], because the scheduler sees nothing else, and nothing may run after a system of a
- * later phase. Instances of one class keep the order they were registered in.
+ * ordered by [System.after] or [System.before], because the scheduler sees nothing else, and nothing may run
+ * after a system of a later phase. Instances of one class keep the order they were registered in.
  */
 object TickOrder {
 
@@ -33,7 +34,7 @@ object TickOrder {
 
     while (remaining.isNotEmpty()) {
       val next = remaining
-        .filter { candidate -> remaining.none { other -> other !== candidate && candidate.runsAfter(other) } }
+        .filter { candidate -> remaining.none { other -> other !== candidate && runsAfter(candidate, other) } }
         .minByOrNull { it.name }
 
       if (next == null) {
@@ -71,13 +72,14 @@ object TickOrder {
   private fun afterAcrossPhases(systems: List<System>): List<String> {
     return systems.flatMap { system ->
       systems
-        .filter { other -> other.phase > system.phase && system.runsAfter(other) }
+        .filter { other -> other.phase > system.phase && runsAfter(system, other) }
         .map { other -> "${system.name} (${system.phase}) runs after ${other.name}, which is in the later ${other.phase}" }
     }
   }
 
-  private fun System.runsAfter(other: System): Boolean {
-    return after.any { it.isInstance(other) }
+  /** Whether [system] has to run after [other], whichever of the two declared it. */
+  fun runsAfter(system: System, other: System): Boolean {
+    return system.after.any { it.isInstance(other) } || other.before.any { it.isInstance(system) }
   }
 
   private fun System.isTransitivelyAfter(earlier: System, phase: List<System>): Boolean {
@@ -86,7 +88,7 @@ object TickOrder {
 
     while (pending.isNotEmpty()) {
       val current = pending.removeFirst()
-      for (before in phase.filter { current.runsAfter(it) }) {
+      for (before in phase.filter { runsAfter(current, it) }) {
         if (before === earlier) return true
         if (seen.add(before)) pending.addLast(before)
       }

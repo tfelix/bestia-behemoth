@@ -26,6 +26,7 @@ import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.util.EntityId
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component as SpringComponent
+import net.bestia.zone.prop.CollectPropIntentSystem
 
 /**
  * Resolves a [ShopTradeIntent]: quotes the trade against the town the player is standing in, moves the
@@ -58,6 +59,7 @@ class ShopTradeIntentSystem(
 ) : System {
   override val phase = Phase.ITEMS
   override val after = setOf(CarryCapacitySystem::class)
+  override val before = setOf(CollectPropIntentSystem::class)
 
   override val reads: ComponentClassSet = setOf(Account::class, Master::class, Position::class)
 

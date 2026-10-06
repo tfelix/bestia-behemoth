@@ -240,7 +240,7 @@ class SystemScheduler(private val parallel: Boolean = false) {
 
       var minWave = phaseStart
       for ((other, w) in waveIndexOf) {
-        if (TickOrder.conflicts(other.system, e.system) || e.system.after.any { it.isInstance(other.system) }) {
+        if (TickOrder.conflicts(other.system, e.system) || TickOrder.runsAfter(e.system, other.system)) {
           minWave = maxOf(minWave, w + 1)
         }
       }

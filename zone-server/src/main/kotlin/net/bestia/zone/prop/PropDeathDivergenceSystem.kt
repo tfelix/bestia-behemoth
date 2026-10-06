@@ -12,6 +12,7 @@ import net.bestia.zone.item.loot.LootItemEntitySpawner
 import org.springframework.stereotype.Component as SpringComponent
 import java.time.Instant
 import kotlin.random.Random
+import net.bestia.zone.battle.ecs.damage.PlayerDeathSystem
 
 /**
  * Records what a promoted prop's death means for the durable object it was, once per kill, ever.
@@ -36,6 +37,7 @@ class PropDeathDivergenceSystem(
   private val divergence: WorldObjectDivergenceRegistry,
 ) : System {
   override val phase = Phase.DEATH
+  override val before = setOf(PlayerDeathSystem::class)
 
   override val reads: ComponentClassSet =
     setOf(Dead::class, WorldObjectIdentity::class, StaticVisual::class, Position::class)
