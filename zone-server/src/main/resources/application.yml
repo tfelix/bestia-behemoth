@@ -465,6 +465,10 @@ logging:
     root: INFO
     # TRACE stringifies every message in both directions; application-dev.yml turns it on for local play.
     net.bestia.zone: INFO
+  pattern:
+    # Adds the account a client message runs for (see AccountInbox), and nothing when there is none.
+    # No dollar sign or backslash: this file goes through Gradle's `expand` first (see build.gradle).
+    level: "%5p%replace( account=%X{account}){' account=(?!.)', ''}"
 
 spring:
   # `dev` when no profile is set, so a local start needs no setup. To change before production: a server started
@@ -522,6 +526,22 @@ spring:
 server:
   address: 127.0.0.1
   port: 8091
+
+# Metrics and health on a port of their own, on loopback only: never route it through the tile proxy. A separate
+# port is also a separate context, so the map and internal-API filters do not apply to it.
+management:
+  server:
+    address: 127.0.0.1
+    port: 8092
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus
+  metrics:
+    tags:
+      application: zone-server
+      # Escaped: this file goes through Gradle's `expand` first (see build.gradle).
+      shard: \${zone.shard-id}
 
 cartography:
   # Where baked tiles live. Regenerable: the directory is keyed by world shape, pipeline and style version, so

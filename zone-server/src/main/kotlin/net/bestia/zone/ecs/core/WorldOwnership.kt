@@ -31,6 +31,11 @@ class WorldOwnership {
   private val posted = LinkedBlockingQueue<() -> Unit>()
   private val failureLog = RateLimitedLog()
 
+  val pendingPosts: Int
+    get() {
+      return posted.size
+    }
+
   /**
    * Runs a scope's [block] with the world to itself: inline for its owner, under the monitor while unbound,
    * else on a lease. Only scopes borrow; a single accessor never does, see [requireOwned].

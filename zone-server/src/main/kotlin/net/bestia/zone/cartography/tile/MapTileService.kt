@@ -111,6 +111,11 @@ class MapTileService(
 
   private val renderers = ThreadLocal.withInitial { TileRenderer(resources.inputs) }
 
+  val queuedRenders: Int
+    get() {
+      return pool.queuedRenders
+    }
+
   /** Masked tiles, keyed by tile and coverage digest. Bounded by count; a tile is tens of kilobytes. */
   private val masked = ConcurrentHashMap<String, ByteArray>()
 

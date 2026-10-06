@@ -16,7 +16,15 @@ import java.util.concurrent.ForkJoinPool
  */
 class SystemScheduler(private val parallel: Boolean = false) {
 
-  private class Entry(val system: System) {
+  // One thread runs an entry at a time, so volatile totals are enough for the reader on another thread.
+  private class Entry(val system: System) : SystemStats {
+    override val name: String get() = system.name
+    override val phase: Phase get() = system.phase
+
+    @Volatile override var runs = 0L
+    @Volatile override var totalNanos = 0L
+    @Volatile override var failures = 0L
+
     var tickCounter = 0
 
     /**
@@ -38,7 +46,7 @@ class SystemScheduler(private val parallel: Boolean = false) {
     var consecutiveFailures = 0
 
     /** Set once the system has failed [MAX_CONSECUTIVE_FAILURES] ticks in a row; it never runs again. */
-    var disabled = false
+    @Volatile override var disabled = false
   }
 
   private val entries = ArrayList<Entry>()
@@ -64,6 +72,11 @@ class SystemScheduler(private val parallel: Boolean = false) {
     return waves.withIndex().joinToString("\n") { (index, wave) ->
       wave.joinToString("\n") { " - ${it.system.phase} wave ${index + 1}: ${it.system.name} [${it.system.schedule}]" }
     }
+  }
+
+  /** Every registered system with its running totals, in the order they run. */
+  fun stats(): List<SystemStats> {
+    return entries.toList()
   }
 
   /** Number of parallel waves; exposed for testing/introspection. */
@@ -129,12 +142,16 @@ class SystemScheduler(private val parallel: Boolean = false) {
       recordFailure(e)
     } finally {
       running.remove()
-      lastNanos = java.lang.System.nanoTime() - started
+      val elapsed = java.lang.System.nanoTime() - started
+      lastNanos = elapsed
+      totalNanos += elapsed
+      runs++
     }
   }
 
   /** A system that keeps failing would fill the log every tick and still do nothing useful, so it is switched off. */
   private fun Entry.recordFailure(e: Throwable) {
+    failures++
     consecutiveFailures++
 
     if (consecutiveFailures < MAX_CONSECUTIVE_FAILURES) {

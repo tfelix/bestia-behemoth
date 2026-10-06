@@ -148,6 +148,26 @@ class SystemSchedulerTest {
   }
 
   @Test
+  fun `each system keeps its runs, time and failures`() {
+    val counting = CountingSystem(Schedule.EveryTick)
+    val failing = FailingSystem { error("boom") }
+    val world = testWorld(systems = listOf(counting, failing))
+
+    repeat(SystemScheduler.MAX_CONSECUTIVE_FAILURES + 2) { world.tick(0.05f) }
+
+    val stats = world.systemStats().associateBy { it.name }
+    val counted = stats.getValue("CountingSystem")
+    assertEquals(SystemScheduler.MAX_CONSECUTIVE_FAILURES + 2L, counted.runs)
+    assertTrue(counted.totalNanos > 0)
+    assertEquals(0L, counted.failures)
+
+    val failed = stats.getValue("FailingSystem")
+    assertEquals(SystemScheduler.MAX_CONSECUTIVE_FAILURES.toLong(), failed.runs)
+    assertEquals(SystemScheduler.MAX_CONSECUTIVE_FAILURES.toLong(), failed.failures)
+    assertTrue(failed.disabled)
+  }
+
+  @Test
   fun `one success resets the failure count`() {
     var tick = 0
     // Fails on every tick but every fourth, so it never reaches five failures in a row.

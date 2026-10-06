@@ -109,6 +109,16 @@ class EcsWorld(
   val systemCount: Int get() = scheduler.systemCount
   val waveCount: Int get() = scheduler.waveCount
 
+  fun systemStats(): List<SystemStats> {
+    return scheduler.stats()
+  }
+
+  /** Tick-lane messages, leases and other work waiting for the tick thread. */
+  val pendingPosts: Int
+    get() {
+      return owner.pendingPosts
+    }
+
   /** What the systems on the most recent [tick] cost, slowest first. See [SystemScheduler.lastTickBreakdown]. */
   fun lastTickBreakdown(limit: Int = 5): String = scheduler.lastTickBreakdown(limit)
 

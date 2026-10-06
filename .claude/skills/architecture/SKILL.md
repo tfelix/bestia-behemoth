@@ -217,6 +217,12 @@ Do not start threads or executors: `ThreadingRulesTest` lists the classes that m
 `@Scheduled` sweep that hands due work to a DB job, an account's inbox or `world.post` (trade request
 expiry), or state that expires when it is next touched (party invitations).
 
+**Metrics.** Prometheus text on `127.0.0.1:8092/actuator/prometheus` (`management.server` in
+`application.yml`). A source keeps plain counters (`SystemScheduler`'s per-system totals,
+`AsyncJobExecutor`, `AccountInbox`); `zone/metrics/` binds them to Micrometer when scraped, so
+`ecs/core` never imports Micrometer and the tick never pays for a meter. Tags stay bounded: never an
+account or entity id.
+
 ## AI module
 
 `net.bestia.zone.ai`, built on `ecs/core/`: **GOAP chooses and sequences goals, behaviour trees carry
