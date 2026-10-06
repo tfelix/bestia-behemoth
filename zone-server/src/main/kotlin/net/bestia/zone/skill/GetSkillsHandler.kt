@@ -4,6 +4,8 @@ import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.zone.account.master.skill.MasterSkillListBuilder
 import net.bestia.zone.bestia.PlayerBestiaRepository
 import net.bestia.zone.bestia.findByIdOrThrow
+import net.bestia.zone.ecs.battle.skill.KnownSkills
+import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.session.EntityNotOwnedSessionException
 import net.bestia.zone.message.IoMessageHandler
@@ -25,7 +27,8 @@ class GetSkillsHandler(
   private val outMessageProcessor: OutMessageProcessor,
   private val playerBestiaRepository: PlayerBestiaRepository,
   private val learnedSkillRepository: LearnedSkillRepository,
-  private val masterSkillListBuilder: MasterSkillListBuilder
+  private val masterSkillListBuilder: MasterSkillListBuilder,
+  private val world: WorldView,
 ) : IoMessageHandler<GetSkillsCMSG> {
   override val wire = decoder(MessageCase.GET_SKILLS) { accountId, _ -> GetSkillsCMSG(accountId) }
 
@@ -36,7 +39,8 @@ class GetSkillsHandler(
     val masterId = connectionInfoService.getMasterId(msg.playerId)
 
     val entries = if (activeEntityId == masterEntityId) {
-      masterSkillListBuilder.buildMasterSkillEntries(masterId)
+      val levels = world.read { get(masterEntityId, KnownSkills::class)?.levels() }.orEmpty()
+      masterSkillListBuilder.entriesFor(levels)
     } else {
       buildBestiaSkillEntries(msg.playerId, masterId, activeEntityId)
     }

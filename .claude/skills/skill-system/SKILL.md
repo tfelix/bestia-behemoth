@@ -191,6 +191,10 @@ by `identifier`.
   points until every listed prerequisite skill is invested to at least `level`.
   Enforced entirely server-side in `MasterSkillTreeService` — **the client never receives or
   evaluates the prerequisite graph**, it just follows its own cataloge generated from this file.
+  The service checks a spend on the tick against the master's `KnownSkills` and `SkillPoints`; the
+  master's write-behind (`MasterEntityPersister`) then saves the points and the `learned_skill` rows
+  together. `KnownSkills` is the authority while the master is online, so `SkillListSMSG` is built
+  from it, not from the database.
 - A skill in `skills.yml` with no entry here (e.g. bestia skills 1000+, `ember`,
   `tackle`) is not master-investable at all — masters never see a level-up option for
   it.

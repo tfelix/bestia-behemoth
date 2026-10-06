@@ -8,9 +8,15 @@ import net.bestia.zone.bestia.PlayerBestia
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.item.container.ItemContainer
 import net.bestia.zone.party.Party
+import org.hibernate.annotations.DynamicUpdate
 import java.awt.Color
 
+/**
+ * `@DynamicUpdate`: a save writes only the columns that changed, so a writer that only moves the party cannot
+ * write back a level or position it read before the persister saved newer ones.
+ */
 @Entity
+@DynamicUpdate
 @Table(
   name = "master",
   indexes = [

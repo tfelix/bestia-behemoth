@@ -6,11 +6,13 @@ import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.battle.status.Mana
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.party.AlreadyInPartyException
+import net.bestia.zone.party.PartyMembership
 import net.bestia.zone.party.PartyService
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import net.bestia.zone.ecs.core.EcsWorld
@@ -71,6 +73,21 @@ class PartySyncScenarios : BestiaNoSocketScenario() {
     // player3 is not in the party and must not receive the owner-scoped update for player1's entity.
     assertFalse(clientPlayer3.receivedAny(HealthComponentSMSG::class) { it.entityId == player1EntityId })
     assertFalse(clientPlayer3.receivedAny(ManaComponentSMSG::class) { it.entityId == player1EntityId })
+  }
+
+  /** Nothing else gives a spawned master its roster, and without it party members stop hearing of it. */
+  @Test
+  @Order(2)
+  fun `a member who logs in again still belongs to the party`() {
+    val account = clientPlayer2.connectedPlayerId
+    val entityId = connectionInfoService.getSelectedMasterEntityId(account)
+
+    clientPlayer2.disconnect()
+    await { assertFalse(world.read { isAlive(entityId) }, "the master should have left the world") }
+
+    clientPlayer2.connect(testData.account2.masterIds.first())
+
+    assertEquals(createdPartyId, world.read { get(entityId, PartyMembership::class)?.partyId })
   }
 
   /** Disband whatever party this test created so it doesn't leak into other scenario classes

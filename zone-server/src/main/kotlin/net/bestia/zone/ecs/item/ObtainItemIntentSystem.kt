@@ -17,6 +17,7 @@ import net.bestia.zone.item.loot.LootItemEntitySpawner
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
 import net.bestia.zone.ecs.core.modify
+import net.bestia.zone.ecs.persistence.retryingTransientFailures
 
 /**
  * Resolves [ObtainItemIntent]s: whichever entity has one attached (master or player bestia,
@@ -210,8 +211,14 @@ class ObtainItemIntentSystem(
       return
     }
 
+    // The live inventory already holds the item, so a write lost here is an item gone after a restart.
     asyncJobExecutor.submit(key = masterId) {
-      inventoryService.grantToMaster(masterId, itemId, amount, uniqueId)
+      try {
+        retryingTransientFailures { inventoryService.grantToMaster(masterId, itemId, amount, uniqueId) }
+      } catch (e: Exception) {
+        LOG.error { "${amount}x item $itemId for master $masterId was not saved and is gone after a restart" }
+        throw e
+      }
     }
   }
 

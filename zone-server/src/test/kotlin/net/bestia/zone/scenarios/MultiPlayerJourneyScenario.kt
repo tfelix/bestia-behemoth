@@ -386,16 +386,15 @@ class MultiPlayerJourneyScenario : BestiaNoSocketScenario(autoClientConnect = fa
       skillPointsAfterInvestment = points.points
     }
 
-    // The spend must be durable in the master row *immediately* after investing - not only once a
-    // logout snapshot runs (see @Order(12) for the relogin path). By the time the client observed
-    // the decremented SkillPointsComponentSMSG, MasterSkillTreeService's transaction (LearnedSkill
-    // rows + Master.skillPoints) has committed, so a crash right here could not refund the points.
-    val persistedSkillPoints = masterRepository.findByIdOrThrow(newMasterId).skillPoints
-    assertEquals(
-      skillPointsAfterInvestment,
-      persistedSkillPoints,
-      "skill-point spend must be persisted to the DB in the invest transaction, not only on logout"
-    )
+    // The spend is written right after investing, not only once a logout snapshot runs (see @Order(12) for
+    // the relogin path): the master's write-behind saves the points and the learned levels together.
+    await {
+      assertEquals(
+        skillPointsAfterInvestment,
+        masterRepository.findByIdOrThrow(newMasterId).skillPoints,
+        "skill-point spend must be written right after investing, not only on logout"
+      )
+    }
   }
 
   @Test

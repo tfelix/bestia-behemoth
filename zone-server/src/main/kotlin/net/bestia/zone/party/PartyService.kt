@@ -15,10 +15,16 @@ import net.bestia.zone.ecs.core.WorldView
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.transaction.support.TransactionSynchronization
+import org.springframework.transaction.support.TransactionSynchronizationManager
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicLong
 
+/**
+ * Every change to a party locks its row first, then touches its masters. Master rows are written with
+ * `@DynamicUpdate`, so a party change writes only `party_id` and cannot undo a level the persister just saved.
+ */
 @Service
 class PartyService(
   private val partyRepository: PartyRepository,
@@ -77,7 +83,7 @@ class PartyService(
 
   @Transactional
   fun disbandParty(requesterId: Long, partyId: Long): List<Long> {
-    val party = partyRepository.findByIdOrThrow(partyId)
+    val party = partyRepository.findByIdForUpdateOrThrow(partyId)
     val requester = masterResolver.getSelectedMasterByAccountId(requesterId)
 
     // only owner can disband
@@ -227,7 +233,7 @@ class PartyService(
    * [leaveParty], which disbands the party instead since there is no ownership transfer. */
   @Transactional
   fun removeMember(requesterId: Long, partyId: Long, memberAccountId: Long): Long {
-    val party = partyRepository.findByIdOrThrow(partyId)
+    val party = partyRepository.findByIdForUpdateOrThrow(partyId)
     val requester = masterResolver.getSelectedMasterByAccountId(requesterId)
 
     if (party.owner.id != requester.id) {
@@ -252,7 +258,7 @@ class PartyService(
   @Transactional
   fun leaveParty(playerId: Long): LeavePartyResult {
     val player = masterResolver.getSelectedMasterByAccountId(playerId)
-    val party = player.party ?: throw NotPartyException()
+    val party = player.party?.let { partyRepository.findByIdForUpdate(it.id) } ?: throw NotPartyException()
 
     return if (party.owner.id == player.id) {
       val notified = disbandParty(playerId, party.id)
@@ -284,7 +290,8 @@ class PartyService(
    */
   @Transactional
   fun detachDeletedMaster(master: Master): LeavePartyResult? {
-    val party = partyRepository.findByOwner(master) ?: partyRepository.findByMember(master) ?: return null
+    val found = partyRepository.findByOwner(master) ?: partyRepository.findByMember(master) ?: return null
+    val party = partyRepository.findByIdForUpdate(found.id) ?: return null
 
     return if (party.owner.id == master.id) {
       // The owner filters itself out of `member` because `Master.party` is set on the owner too, so a
@@ -390,21 +397,41 @@ class PartyService(
     return entityId
   }
 
-  /** Refreshes the [PartyMembership] component on every currently-online member's (owner
-   * included) entity with the current roster. Offline members are skipped - they pick up the
-   * current roster the next time they log in and their master entity is spawned. */
+  /**
+   * Refreshes the [PartyMembership] component on every online member's entity, owner included, once the
+   * change has committed: a rolled back change must not leave the component ahead of the row. Offline
+   * members get the roster when they next log in.
+   */
   private fun syncPartyMembershipComponents(party: Party) {
-    val allAccountIds = (party.member.map { it.account.id } + party.owner.account.id).toSet()
+    val membership = PartyMembership.of(party)
 
-    allAccountIds.forEach { accountId ->
-      val entityId = masterResolver.getSelectedMasterEntityIdByAccountId(accountId) ?: return@forEach
-      world.modify(entityId) { id -> add(id, PartyMembership(party.id, allAccountIds)) }
+    afterCommit {
+      membership.memberAccountIds.forEach { accountId ->
+        val entityId = masterResolver.getSelectedMasterEntityIdByAccountId(accountId) ?: return@forEach
+        world.modify(entityId) { id -> add(id, membership) }
+      }
     }
   }
 
-  /** Removes the [PartyMembership] component from a specific (now former) member's entity. */
+  /** Removes the [PartyMembership] component from a (now former) member's entity, once the change has committed. */
   private fun clearPartyMembershipComponent(accountId: Long) {
-    val entityId = masterResolver.getSelectedMasterEntityIdByAccountId(accountId) ?: return
-    world.modify(entityId) { id -> remove(id, PartyMembership::class) }
+    afterCommit {
+      val entityId = masterResolver.getSelectedMasterEntityIdByAccountId(accountId) ?: return@afterCommit
+      world.modify(entityId) { id -> remove(id, PartyMembership::class) }
+    }
+  }
+
+  /** Runs [block] after the current transaction commits, or at once outside a transaction. */
+  private fun afterCommit(block: () -> Unit) {
+    if (!TransactionSynchronizationManager.isSynchronizationActive()) {
+      block()
+      return
+    }
+
+    TransactionSynchronizationManager.registerSynchronization(object : TransactionSynchronization {
+      override fun afterCommit() {
+        block()
+      }
+    })
   }
 }

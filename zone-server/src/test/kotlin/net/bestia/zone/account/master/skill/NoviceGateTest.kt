@@ -10,10 +10,10 @@ class NoviceGateTest {
   private val registry = MasterSkillTreeRegistry().apply {
     load(
       listOf(
-        MasterSkillTreeNode(skillId = BASIC_SKILL_ID, maxLevel = 5, tree = "NOVICE"),
-        MasterSkillTreeNode(skillId = FIRST_AID_ID, maxLevel = 3, tree = "NOVICE"),
-        MasterSkillTreeNode(skillId = CARPENTRY_ID, maxLevel = 5, tree = "CRAFTSMAN"),
-        MasterSkillTreeNode(skillId = ORE_REFINEMENT_ID, maxLevel = 5, tree = "CRAFTSMAN", subTree = "BLACKSMITH")
+        MasterSkillTreeNode(skillId = BASIC_SKILL_ID, identifier = "BASIC_SKILL", maxLevel = 5, tree = "NOVICE"),
+        MasterSkillTreeNode(skillId = FIRST_AID_ID, identifier = "FIRST_AID", maxLevel = 3, tree = "NOVICE"),
+        MasterSkillTreeNode(skillId = CARPENTRY_ID, identifier = "CARPENTRY", maxLevel = 5, tree = "CRAFTSMAN"),
+        MasterSkillTreeNode(skillId = ORE_REFINEMENT_ID, identifier = "ORE_REFINEMENT", maxLevel = 5, tree = "CRAFTSMAN", subTree = "BLACKSMITH")
       )
     )
   }
