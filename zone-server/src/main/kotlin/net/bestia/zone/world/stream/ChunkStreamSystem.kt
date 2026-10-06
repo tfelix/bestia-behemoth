@@ -10,7 +10,6 @@ import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.session.ConnectionInfoService
-import net.bestia.zone.item.ecs.ObtainItemIntent
 import net.bestia.zone.movement.ecs.GroundHeight
 import net.bestia.zone.movement.ecs.Grounded
 import net.bestia.zone.movement.ecs.Path
@@ -18,7 +17,6 @@ import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.entity.ecs.PropPose
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.ChunkFanOut
-import net.bestia.zone.item.mining.OreYield
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component as SpringComponent
 
@@ -55,20 +53,11 @@ class ChunkStreamSystem(
   private val fanOut: ChunkFanOut,
   private val settings: ChunkStreamConfig,
   private val groundHeight: GroundHeight,
-  private val oreYield: OreYield,
+  private val carveYield: CarveYield,
   private val connections: ConnectionInfoService,
   private val workers: ChunkWorkers,
 ) : System {
   override val phase = Phase.WORLD
-
-  /**
-   * Ore a carve broke that its owner has not been handed yet.
-   *
-   * Only ever holds a second stack for a tick: a brush is metres wide and ore bodies are kilometres
-   * apart, so one carve is one resource. It exists because the intent is a component and a second one
-   * would overwrite the first, not because a queue was wanted.
-   */
-  private val unclaimed = HashMap<EntityId, MutableMap<Long, Int>>()
 
   override val reads: ComponentClassSet = setOf(Account::class, ActivePlayer::class, PropPose::class)
 
@@ -80,7 +69,7 @@ class ChunkStreamSystem(
    * which writes it.
    */
   override val writes: ComponentClassSet =
-    setOf(Position::class, Path::class, Grounded::class, ObtainItemIntent.CreateItemIntent::class)
+    setOf(Position::class, Path::class, Grounded::class) + carveYield.writes
 
   /**
    * Gives the derived structures their residency, which nothing used to.
@@ -180,47 +169,14 @@ class ChunkStreamSystem(
       }
     }
 
-    handOut(world)
+    carveYield.handOut(world)
   }
 
-  /**
-   * Puts what a carve broke aside for whoever swung the pick.
-   *
-   * A voxel pays only once it is gone. A brush that shaves a third off an ore block has not got the ore
-   * out of it, and paying per fraction would turn one deposit into as many lumps as a player cares to
-   * click - which, since this is where the world's money comes from, is the difference between mining
-   * and printing.
-   */
+  /** Puts what a carve broke aside for whoever swung the pick. */
   private fun bank(result: ChunkService.CarveResult, accountId: Long) {
     val entityId = runCatching { connections.getActiveEntityId(accountId) }.getOrNull() ?: return
 
-    for (voxel in result.voxels) {
-      if (!voxel.exhausted) continue
-
-      val stack = oreYield.of(voxel.priorBlock) ?: continue
-      val owed = unclaimed.getOrPut(entityId) { HashMap() }
-      owed[stack.itemId] = (owed[stack.itemId] ?: 0) + stack.amount
-    }
-  }
-
-  /** One stack per entity per tick; `ObtainItemIntentSystem` at 59 picks them up in the same pass. */
-  private fun handOut(world: World) {
-    val entries = unclaimed.entries.iterator()
-
-    while (entries.hasNext()) {
-      val (entityId, owed) = entries.next()
-      val next = owed.entries.firstOrNull()
-
-      if (next == null) {
-        entries.remove()
-        continue
-      }
-      if (world.get(entityId, ObtainItemIntent.CreateItemIntent::class) != null) continue
-
-      world.add(entityId, ObtainItemIntent.CreateItemIntent(next.key, next.value))
-      owed.remove(next.key)
-      if (owed.isEmpty()) entries.remove()
-    }
+    carveYield.bank(result, entityId)
   }
 
   /**
