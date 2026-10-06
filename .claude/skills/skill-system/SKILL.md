@@ -88,7 +88,7 @@ be activated. The one question that survives is answered by `script` alone:
 
 | `script` in `skills.yml` | meaning |
 | --- | --- |
-| names a `SkillStrategy` bean (`battle/skill/scripts/`) | **castable** — an active skill |
+| names a `SkillStrategy` bean (`casting/scripts/`) | **castable** — an active skill |
 | absent | not castable: a passive, or a skill nobody has written yet |
 | present but no such bean | not implemented; `SkillScriptBootValidator` warns at boot |
 
