@@ -9,6 +9,7 @@ import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
+import net.bestia.zone.ecs.core.modify
 import net.bestia.zone.ecs.economy.ShopTradeIntent
 import net.bestia.zone.ecs.item.CarryCapacitySystem
 import net.bestia.zone.ecs.item.Inventory

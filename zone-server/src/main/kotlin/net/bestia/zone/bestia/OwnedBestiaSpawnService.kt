@@ -28,7 +28,7 @@ class OwnedBestiaSpawnService(
   @Transactional(readOnly = true)
   fun bringBack(accountId: AccountId, masterId: Long) {
     val registered = connectionInfoService.getOwnedEntitiesByMaster(accountId, masterId)
-      .filter { world.isAlive(it.entityId) }
+      .filter { world.read { isAlive(it.entityId) } }
       .map { it.playerBestiaId }
       .toSet()
     val live = liveOwnedBestias()

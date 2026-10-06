@@ -41,7 +41,7 @@ class DeadEquipmentChangeTest {
     world.get(master, Equipment::class)!!
       .equip(EquipmentSlot.RIGHT_HAND, Equipment.EquippedItem(itemId = SWORD.id, uniqueId = 3L))
 
-    unequipHandler().handle(UnequipItemCMSG(ACCOUNT, EquipmentSlot.RIGHT_HAND))
+    unequipHandler().handle(world, UnequipItemCMSG(ACCOUNT, EquipmentSlot.RIGHT_HAND))
 
     assertEquals(SWORD.id, world.get(master, Equipment::class)!!.get(EquipmentSlot.RIGHT_HAND)?.itemId)
   }
@@ -66,7 +66,7 @@ class DeadEquipmentChangeTest {
       inventoryService = mockk(relaxed = true),
       asyncJobExecutor = mockk(relaxed = true),
       outMessageProcessor = mockk(relaxed = true),
-      deadActionGuard = DeadActionGuard(world),
+      deadActionGuard = DeadActionGuard(),
       world = world
     )
   }
@@ -76,8 +76,7 @@ class DeadEquipmentChangeTest {
       connectionInfoService = sessions,
       inventoryService = mockk(relaxed = true),
       asyncJobExecutor = mockk(relaxed = true),
-      deadActionGuard = DeadActionGuard(world),
-      world = world
+      deadActionGuard = DeadActionGuard(),
     )
   }
 

@@ -18,13 +18,13 @@ class RequestLogoutHandlerTest {
 
   @Test
   fun `a logout while controlling a bestia counts down on the master`() {
-    val master = world.create()
-    val bestia = world.create()
+    val master = world.createEntity { }
+    val bestia = world.createEntity { }
     sessions.activateSession(ACCOUNT, MASTER_ID, master)
     sessions.registerPlayerBestiaEntity(ACCOUNT, MASTER_ID, playerBestiaId = 5L, playerBestiaEntityId = bestia)
     sessions.activateEntity(ACCOUNT, bestia)
 
-    RequestLogoutHandler(sessions, world, ZoneConfig(tickRate = 20)).handle(RequestLogoutCMSG(ACCOUNT))
+    RequestLogoutHandler(sessions, ZoneConfig(tickRate = 20)).handle(world, RequestLogoutCMSG(ACCOUNT))
 
     assertTrue(world.has(master, LogoutIntent::class))
     assertFalse(world.has(bestia, LogoutIntent::class))

@@ -66,7 +66,7 @@ class BestiaAdoptionService(
 
   /** Puts the creature back as a wild one, so a failed hand-over loses nothing. */
   private fun release(species: Bestia, at: Vec3L) {
-    bestiaEntitySpawner.spawnMob(worldView, species.id, at)
+    worldView.read { bestiaEntitySpawner.spawnMob(this, species.id, at) }
   }
 
   private companion object {

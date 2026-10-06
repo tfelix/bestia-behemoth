@@ -29,6 +29,4 @@ class PersistAndRemoveSystem(
     writeBehind.persist(world, toRemove)
     toRemove.forEach(world::destroy)
   }
-
-
 }

@@ -103,7 +103,7 @@ class TradeService(
       return
     }
 
-    if (deadActionGuard.refuses(requesterEntityId, "ask for a trade")) {
+    if (world.read { deadActionGuard.refuses(this, requesterEntityId, "ask for a trade") }) {
       return
     }
 
@@ -166,7 +166,7 @@ class TradeService(
     val session = sessions[tradeId] ?: return
 
     // Outside the session monitor: the guard takes the world lock.
-    if (accept && deadActionGuard.refuses(session.target.entityId, "accept a trade")) {
+    if (accept && world.read { deadActionGuard.refuses(this, session.target.entityId, "accept a trade") }) {
       return
     }
 
@@ -217,7 +217,7 @@ class TradeService(
 
     // An honest client offers nothing while locked and nothing it does not hold, so re-sending the truth is
     // both the correction and the whole answer - no code of its own for a state only a broken client reaches.
-    if (side == null || amount <= 0 || deadActionGuard.refuses(side.entityId, "offer an item")) {
+    if (side == null || amount <= 0 || world.read { deadActionGuard.refuses(this, side.entityId, "offer an item") }) {
       resendTo(session, accountId)
       return
     }
@@ -358,7 +358,7 @@ class TradeService(
 
     // Outside the session monitor: the guard takes the world lock.
     val confirmer = session.sideOf(accountId) ?: return
-    if (deadActionGuard.refuses(confirmer.entityId, "confirm a trade")) {
+    if (world.read { deadActionGuard.refuses(this, confirmer.entityId, "confirm a trade") }) {
       return
     }
 

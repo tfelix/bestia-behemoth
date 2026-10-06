@@ -111,7 +111,7 @@ class AccountEntityControlService(
           remove(id, PlayerControlled::class)
           remove(id, ActivePlayer::class)
           has(id, Dead::class)
-        }
+        } ?: false
 
         if (!isDead) {
           return@forEach

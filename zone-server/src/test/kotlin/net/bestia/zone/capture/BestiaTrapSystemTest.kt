@@ -54,7 +54,7 @@ class BestiaTrapSystemTest {
     skills = mockk(relaxed = true),
     random = random,
   )
-  private val world: World = testWorld(systems = listOf(sut))
+  private val world = testWorld(systems = listOf(sut))
 
   @Test
   fun `a wild bestia stepping on the trap is caught on a good roll`() {

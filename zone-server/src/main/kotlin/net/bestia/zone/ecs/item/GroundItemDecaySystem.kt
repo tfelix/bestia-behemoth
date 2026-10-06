@@ -1,6 +1,7 @@
 package net.bestia.zone.ecs.item
 
 import net.bestia.zone.ecs.core.ComponentClassSet
+import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
@@ -18,6 +19,7 @@ class GroundItemDecaySystem(
   private val clock: Clock = Clock.systemUTC()
 ) : System {
 
+  override val phase = Phase.WORLD
   override val schedule: Schedule = Schedule.EverySeconds(60f)
   override val reads: ComponentClassSet = emptySet()
   override val writes: ComponentClassSet = setOf(GroundItemDecay::class)

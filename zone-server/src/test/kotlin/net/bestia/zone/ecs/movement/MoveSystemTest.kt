@@ -219,7 +219,7 @@ class MoveSystemTest {
   fun `a player's walk stops at a step the ground refuses`() {
     val wallAtTwo = TestNavigation.flatGround { it.x != 2L }
     val world = testWorld(systems = listOf(MoveSystem(flat, GroundTrample.NONE, wallAtTwo)))
-    val id = world.create()
+    val id = world.createEntity { }
     val position = Position(0, 0, 100)
     world.add(id, position)
     world.add(id, Speed(1.0f))
@@ -264,7 +264,7 @@ class MoveSystemTest {
   @Test
   fun `one tile of travel is one tile, not one tick short of it`() {
     val world = testWorld(systems = listOf(MoveSystem(flat, GroundTrample.NONE, TestNavigation.flatGround())))
-    val id = world.create()
+    val id = world.createEntity { }
     val position = Position(0, 0, 100)
     world.add(id, position)
     world.add(id, Speed(1.0f))
@@ -278,7 +278,7 @@ class MoveSystemTest {
   @Test
   fun `a fresh path starts from this tile, not from the previous walk's leftover progress`() {
     val world = testWorld(systems = listOf(MoveSystem(flat, GroundTrample.NONE, TestNavigation.flatGround())))
-    val id = world.create()
+    val id = world.createEntity { }
     val position = Position(0, 0, 100)
     val path = Path(mutableListOf(Vec3L(1, 0, 100)))
     world.add(id, position)
@@ -296,7 +296,7 @@ class MoveSystemTest {
   /** Simulated seconds a walk down [path] takes at one metre a second. */
   private fun secondsToWalk(path: List<Vec3L>): Float {
     val world = testWorld(systems = listOf(MoveSystem(flat, GroundTrample.NONE, TestNavigation.flatGround())))
-    val id = world.create()
+    val id = world.createEntity { }
     world.add(id, Position(0, 0, 100))
     world.add(id, Speed(1.0f))
     world.add(id, Path(path.toMutableList()))
@@ -315,7 +315,7 @@ class MoveSystemTest {
   @Test
   fun `a cardinal step is one metre of travel`() {
     val world = testWorld(systems = listOf(MoveSystem(flat, GroundTrample.NONE, TestNavigation.flatGround())))
-    val id = world.create()
+    val id = world.createEntity { }
     val position = Position(0, 0, 100)
     world.add(id, position)
     world.add(id, Speed(1.0f))
@@ -333,7 +333,7 @@ class MoveSystemTest {
     // The reported symptom. Charging every waypoint 1.0 made a diagonal 41% faster in world space, because
     // the tile it arrives at is sqrt(2) away rather than 1.
     val world = testWorld(systems = listOf(MoveSystem(flat, GroundTrample.NONE, TestNavigation.flatGround())))
-    val id = world.create()
+    val id = world.createEntity { }
     val position = Position(0, 0, 100)
     world.add(id, position)
     world.add(id, Speed(1.0f))

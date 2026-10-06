@@ -35,7 +35,7 @@ class UnequipItemHandler(
 
   override fun handle(world: World, msg: UnequipItemCMSG): Boolean {
     val activeEntityId = connectionInfoService.getActiveEntityId(msg.playerId)
-    if (deadActionGuard.refuses(activeEntityId, "unequip an item")) {
+    if (deadActionGuard.refuses(world, activeEntityId, "unequip an item")) {
       return true
     }
 

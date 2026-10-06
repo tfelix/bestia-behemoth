@@ -95,12 +95,12 @@ class MoveActiveEntityHandlerTest {
   @Test
   fun `an appended leg extends the walk under way from its last step`() {
     val world = testWorld()
-    val id = world.create()
+    val id = world.createEntity { }
     world.add(id, Position(0, 0, 0))
     val handler = handlerFor(world, id, OpenWalkQuery())
-    handler.handle(MoveActiveEntityCMSG(playerId = accountId, path = listOf(Vec3L(1, 0, 0), Vec3L(2, 0, 0))))
+    handler.handle(world, MoveActiveEntityCMSG(playerId = accountId, path = listOf(Vec3L(1, 0, 0), Vec3L(2, 0, 0))))
 
-    handler.handle(
+    handler.handle(world, 
       MoveActiveEntityCMSG(playerId = accountId, path = listOf(Vec3L(3, 0, 0), Vec3L(4, 0, 0)), append = true)
     )
 
@@ -113,13 +113,13 @@ class MoveActiveEntityHandlerTest {
   @Test
   fun `an appended leg that does not join the walk is ignored`() {
     val world = testWorld()
-    val id = world.create()
+    val id = world.createEntity { }
     world.add(id, Position(0, 0, 0))
     val handler = handlerFor(world, id, OpenWalkQuery())
     val walk = listOf(Vec3L(1, 0, 0), Vec3L(2, 0, 0))
-    handler.handle(MoveActiveEntityCMSG(playerId = accountId, path = walk))
+    handler.handle(world, MoveActiveEntityCMSG(playerId = accountId, path = walk))
 
-    handler.handle(MoveActiveEntityCMSG(playerId = accountId, path = listOf(Vec3L(9, 0, 0)), append = true))
+    handler.handle(world, MoveActiveEntityCMSG(playerId = accountId, path = listOf(Vec3L(9, 0, 0)), append = true))
 
     assertEquals(walk, world.get(id, Path::class)?.path)
   }
@@ -127,12 +127,12 @@ class MoveActiveEntityHandlerTest {
   @Test
   fun `an appended leg after the walk ended starts a new walk from the position`() {
     val world = testWorld()
-    val id = world.create()
+    val id = world.createEntity { }
     world.add(id, Position(0, 0, 0))
     val handler = handlerFor(world, id, OpenWalkQuery())
 
     val leg = listOf(Vec3L(1, 0, 0), Vec3L(2, 0, 0))
-    handler.handle(MoveActiveEntityCMSG(playerId = accountId, path = leg, append = true))
+    handler.handle(world, MoveActiveEntityCMSG(playerId = accountId, path = leg, append = true))
 
     assertEquals(leg, world.get(id, Path::class)?.path)
   }
@@ -154,12 +154,12 @@ class MoveActiveEntityHandlerTest {
   @Test
   fun `a path longer than the cap is cut to the cap`() {
     val world = testWorld()
-    val id = world.create()
+    val id = world.createEntity { }
     world.add(id, Position(0, 0, 0))
     val handler = handlerFor(world, id, OpenWalkQuery())
 
     val path = (1L..100L).map { Vec3L(it, 0, 0) }
-    handler.handle(MoveActiveEntityCMSG(playerId = accountId, path = path))
+    handler.handle(world, MoveActiveEntityCMSG(playerId = accountId, path = path))
 
     assertEquals(path.take(ZoneConfig(tickRate = 20).maxMovePathSteps), world.get(id, Path::class)?.path)
   }
@@ -167,12 +167,12 @@ class MoveActiveEntityHandlerTest {
   @Test
   fun `a made-up step height does not get a path through a wall`() {
     val world = testWorld()
-    val id = world.create()
+    val id = world.createEntity { }
     world.add(id, Position(0, 0, 0))
     val handler = handlerFor(world, id, GroundLevelWalkQuery(wallX = 2))
 
     val path = listOf(Vec3L(1, 0, 0), Vec3L(2, 0, 9999), Vec3L(3, 0, 0))
-    handler.handle(MoveActiveEntityCMSG(playerId = accountId, path = path))
+    handler.handle(world, MoveActiveEntityCMSG(playerId = accountId, path = path))
 
     assertEquals(listOf(Vec3L(1, 0, 0)), world.get(id, Path::class)?.path)
   }
@@ -254,7 +254,7 @@ class MoveActiveEntityHandlerTest {
   @Test
   fun `an account over its request rate is ignored rather than served`() {
     val world = testWorld()
-    val id = world.create()
+    val id = world.createEntity { }
     world.add(id, Position(0, 0, 0))
 
     // Two tokens and no refill, so the assertion does not depend on how long the test itself takes.
@@ -264,11 +264,11 @@ class MoveActiveEntityHandlerTest {
     val handler = handlerFor(world, id, OpenWalkQuery(), exhausted)
 
     repeat(2) {
-      handler.handle(MoveActiveEntityCMSG(playerId = accountId, path = listOf(Vec3L(1, 0, 0))))
+      handler.handle(world, MoveActiveEntityCMSG(playerId = accountId, path = listOf(Vec3L(1, 0, 0))))
     }
     world.remove(id, Path::class)
 
-    handler.handle(MoveActiveEntityCMSG(playerId = accountId, path = listOf(Vec3L(1, 0, 0))))
+    handler.handle(world, MoveActiveEntityCMSG(playerId = accountId, path = listOf(Vec3L(1, 0, 0))))
 
     assertNull(world.get(id, Path::class), "the request past the burst never reached the world")
   }
@@ -276,12 +276,12 @@ class MoveActiveEntityHandlerTest {
   @Test
   fun `a burst of clicking is served, because that is what clicking looks like`() {
     val world = testWorld()
-    val id = world.create()
+    val id = world.createEntity { }
     world.add(id, Position(0, 0, 0))
     val handler = handlerFor(world, id, OpenWalkQuery())
 
     repeat(10) {
-      handler.handle(MoveActiveEntityCMSG(playerId = accountId, path = listOf(Vec3L(1, 0, 0))))
+      handler.handle(world, MoveActiveEntityCMSG(playerId = accountId, path = listOf(Vec3L(1, 0, 0))))
     }
 
     assertTrue(world.get(id, Path::class) != null, "ten clicks is a person, not an attack")
