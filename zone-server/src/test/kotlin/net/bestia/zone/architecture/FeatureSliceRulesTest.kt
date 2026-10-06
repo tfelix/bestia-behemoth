@@ -1,12 +1,17 @@
 package net.bestia.zone.architecture
 
 import com.tngtech.archunit.core.domain.JavaClass
+import com.tngtech.archunit.core.domain.JavaClass.Predicates.assignableTo
 import com.tngtech.archunit.core.domain.JavaClass.Predicates.equivalentTo
 import com.tngtech.archunit.core.domain.JavaClass.Predicates.resideInAnyPackage
 import com.tngtech.archunit.core.domain.JavaClass.Predicates.resideOutsideOfPackage
 import com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes
+import com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses
 import net.bestia.zone.BestiaException
 import net.bestia.zone.architecture.ZoneClasses.ROOT
+import net.bestia.zone.chat.ChatCommand
+import net.bestia.zone.message.CMSG
+import net.bestia.zone.message.IncomingMessageHandler
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -42,6 +47,27 @@ class FeatureSliceRulesTest {
         resideInAnyPackage("$ROOT.config..", "$ROOT.ecs.core..", "java..", "kotlin..", "org.jetbrains.annotations..",
           "org.springframework..")
       )
+      .check(ZoneClasses.main)
+  }
+
+  /** What a client can send a slice is one package to read: `<slice>.net`. */
+  @Test
+  fun `inbound messages, their handlers and chat commands live in a net package`() {
+    val inbound = assignableTo(CMSG::class.java)
+      .or(assignableTo(IncomingMessageHandler::class.java))
+      .or(assignableTo(ChatCommand::class.java))
+
+    classes().that(inbound).and().areNotInterfaces().and().resideOutsideOfPackage("$ROOT.message..")
+      .and().doNotHaveFullyQualifiedName(ChatCommand::class.java.name)
+      .should().resideInAPackage(NET)
+      .check(ZoneClasses.main)
+  }
+
+  /** The inbound side calls services; nothing calls back into it. */
+  @Test
+  fun `nothing outside a net package depends on one`() {
+    noClasses().that().resideOutsideOfPackage(NET)
+      .should().dependOnClassesThat().resideInAPackage(NET)
       .check(ZoneClasses.main)
   }
 
@@ -94,6 +120,9 @@ class FeatureSliceRulesTest {
   }
 
   private companion object {
+    /** `..net..` would match every class, the root package is `net.bestia.zone`. */
+    const val NET = "$ROOT.*.net.."
+
     /** The slices from the bottom up. `ecs` is the kernel `ecs.core`. */
     val TIERS = listOf(
       "root", "util", "geometry", "ecs", "config", "message", "session", "sync", "persistence",
