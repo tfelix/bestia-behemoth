@@ -1,4 +1,4 @@
-package net.bestia.zone.ecs.battle.skill
+package net.bestia.zone.skill.ecs
 
 import net.bestia.zone.ecs.core.Component
 

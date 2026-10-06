@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service
  *
  * Loaded once by [net.bestia.zone.boot.RecipeImporterBootRunner] before the tick loop starts and never
  * written again, so the plain maps need no synchronisation - the same convention
- * [net.bestia.zone.account.master.skill.MasterSkillTreeRegistry] and
+ * [net.bestia.zone.skill.tree.MasterSkillTreeRegistry] and
  * [net.bestia.zone.world.prop.PropKindRegistry] follow.
  */
 @Service

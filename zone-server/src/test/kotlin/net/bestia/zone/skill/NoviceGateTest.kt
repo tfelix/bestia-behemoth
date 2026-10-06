@@ -1,9 +1,11 @@
-package net.bestia.zone.account.master.skill
+package net.bestia.zone.skill
 
-import net.bestia.zone.ecs.battle.skill.KnownSkills
+import net.bestia.zone.skill.ecs.KnownSkills
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import net.bestia.zone.skill.tree.MasterSkillTreeNode
+import net.bestia.zone.skill.tree.MasterSkillTreeRegistry
 
 class NoviceGateTest {
 

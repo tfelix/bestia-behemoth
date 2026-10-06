@@ -13,7 +13,7 @@ import net.bestia.zone.ecs.battle.level.Level
 import net.bestia.zone.ecs.battle.status.Invulnerable
 import net.bestia.zone.ecs.battle.status.Mana
 import net.bestia.zone.ecs.battle.status.Nature
-import net.bestia.zone.ecs.battle.skill.KnownSkills
+import net.bestia.zone.skill.ecs.KnownSkills
 import net.bestia.zone.ecs.battle.status.Stamina
 import net.bestia.zone.ecs.battle.status.StatusValues
 import net.bestia.zone.movement.ecs.Position

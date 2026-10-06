@@ -3,7 +3,7 @@ package net.bestia.zone.bestia
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ai.ecs.AiAgentFactory
 import net.bestia.zone.ai.profile.AiProfileRegistry
-import net.bestia.zone.ecs.battle.skill.KnownSkills
+import net.bestia.zone.skill.ecs.KnownSkills
 import net.bestia.zone.ecs.battle.status.BaseStatusValues
 import net.bestia.zone.ecs.battle.status.FormulaDrivenVitals
 import net.bestia.zone.ecs.battle.status.Health

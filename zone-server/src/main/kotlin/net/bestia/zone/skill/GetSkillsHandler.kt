@@ -4,7 +4,7 @@ import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.zone.account.master.skill.MasterSkillListBuilder
 import net.bestia.zone.bestia.PlayerBestiaRepository
 import net.bestia.zone.bestia.findByIdOrThrow
-import net.bestia.zone.ecs.battle.skill.KnownSkills
+import net.bestia.zone.skill.ecs.KnownSkills
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.session.EntityNotOwnedSessionException

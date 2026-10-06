@@ -59,7 +59,7 @@ class ScenarioDataSetup(
    * Gives a master Basic Skill at full rank.
    *
    * Without it every scenario that chats or forms a party would be testing
-   * [net.bestia.zone.account.master.skill.BasicSkillGate] instead of what it is about - a fresh master holds
+   * [net.bestia.zone.skill.BasicSkillGate] instead of what it is about - a fresh master holds
    * rank 0, and rank 2 is what chat needs. Written as a row rather than invested through
    * `MasterSkillTreeService`, which needs a live entity and so cannot be used before anyone has selected the
    * master.

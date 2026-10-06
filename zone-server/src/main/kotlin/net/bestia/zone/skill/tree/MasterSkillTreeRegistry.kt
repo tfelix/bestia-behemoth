@@ -1,4 +1,4 @@
-package net.bestia.zone.account.master.skill
+package net.bestia.zone.skill.tree
 
 import net.bestia.zone.skill.SkillId
 import org.springframework.stereotype.Service
@@ -36,7 +36,7 @@ class MasterSkillTreeRegistry {
 
   /**
    * Every node outside the Novice tree - what "has this master specialised yet" is asked of, by
-   * [NoviceGate] and anything else that needs the question.
+   * [net.bestia.zone.skill.NoviceGate] and anything else that needs the question.
    *
    * Phrased as the complement rather than as `findByTree(NOVICE_TREE)` because the callers all want the
    * negative: a master is a novice for as long as *none* of these has a level in it.
@@ -49,7 +49,7 @@ class MasterSkillTreeRegistry {
 
     /**
      * The one tree a master may invest in from the start, and the one whose skills do not end their
-     * novicehood. Named here rather than in [MasterSkillTreeService] because two unrelated rules now read
+     * novicehood. Named here rather than in [net.bestia.zone.account.master.skill.MasterSkillTreeService] because two unrelated rules now read
      * it - the tree unlock and the gear gate - and the tree names are this registry's vocabulary.
      */
     const val NOVICE_TREE = "NOVICE"

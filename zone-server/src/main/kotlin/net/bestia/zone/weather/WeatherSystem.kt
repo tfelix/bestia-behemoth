@@ -8,7 +8,7 @@ import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.identity.ecs.Account
-import net.bestia.zone.ecs.battle.skill.KnownSkills
+import net.bestia.zone.skill.ecs.KnownSkills
 import net.bestia.zone.world.stream.ChunkStreamSystem
 import org.springframework.stereotype.Component as SpringComponent
 

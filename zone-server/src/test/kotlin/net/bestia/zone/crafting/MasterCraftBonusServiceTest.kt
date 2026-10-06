@@ -2,7 +2,7 @@ package net.bestia.zone.crafting
 
 import io.mockk.every
 import io.mockk.mockk
-import net.bestia.zone.ecs.battle.skill.KnownSkills
+import net.bestia.zone.skill.ecs.KnownSkills
 import net.bestia.zone.skill.Skill
 import net.bestia.zone.skill.SkillRepository
 import net.bestia.zone.entity.StaticEntityKind

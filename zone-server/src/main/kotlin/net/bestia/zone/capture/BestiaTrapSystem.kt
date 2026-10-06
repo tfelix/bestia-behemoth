@@ -8,7 +8,7 @@ import net.bestia.zone.aoi.EntityAOIService
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.ecs.battle.damage.TakenDamage
-import net.bestia.zone.ecs.battle.skill.KnownSkills
+import net.bestia.zone.skill.ecs.KnownSkills
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.battle.status.Invulnerable
 import net.bestia.zone.ecs.battle.status.StatusValues

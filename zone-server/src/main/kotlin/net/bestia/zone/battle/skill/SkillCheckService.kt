@@ -1,6 +1,6 @@
 package net.bestia.zone.battle.skill
 
-import net.bestia.zone.ecs.battle.skill.KnownSkills
+import net.bestia.zone.skill.ecs.KnownSkills
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Service
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service
  *
  * Keyed on the catalogue id rather than a [net.bestia.zone.skill.SkillId] constant: the component is keyed on
  * the id, and a constant carries no number to key with - a caller that names a skill in code resolves it
- * through `SkillRepository.findByIdentifier` first, the way [net.bestia.zone.account.master.skill.BasicSkillGate]
+ * through `SkillRepository.findByIdentifier` first, the way [net.bestia.zone.skill.BasicSkillGate]
  * does.
  *
  * There is deliberately nothing here for a *basic attack*: a sword swing has no catalogue row, so there is

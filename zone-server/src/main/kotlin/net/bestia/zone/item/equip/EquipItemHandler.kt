@@ -2,9 +2,9 @@ package net.bestia.zone.item.equip
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
-import net.bestia.zone.account.master.skill.NoviceGate
+import net.bestia.zone.skill.NoviceGate
 import net.bestia.zone.ecs.battle.level.Level
-import net.bestia.zone.ecs.battle.skill.KnownSkills
+import net.bestia.zone.skill.ecs.KnownSkills
 import net.bestia.zone.ecs.battle.status.IsStatusValueDirty
 import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.ecs.core.WorldView

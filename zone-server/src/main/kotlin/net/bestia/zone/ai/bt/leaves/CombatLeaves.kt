@@ -7,7 +7,7 @@ import net.bestia.zone.battle.skill.AttackExecutionService
 import net.bestia.zone.battle.skill.AttackOutcome
 import net.bestia.zone.battle.skill.BattleAttack
 import net.bestia.zone.battle.skill.SkillExecutionService
-import net.bestia.zone.ecs.battle.skill.KnownSkills
+import net.bestia.zone.skill.ecs.KnownSkills
 import net.bestia.zone.util.EntityId
 
 /**

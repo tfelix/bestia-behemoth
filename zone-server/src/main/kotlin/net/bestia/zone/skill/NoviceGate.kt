@@ -1,7 +1,8 @@
-package net.bestia.zone.account.master.skill
+package net.bestia.zone.skill
 
-import net.bestia.zone.ecs.battle.skill.KnownSkills
+import net.bestia.zone.skill.ecs.KnownSkills
 import org.springframework.stereotype.Service
+import net.bestia.zone.skill.tree.MasterSkillTreeRegistry
 
 /**
  * Whether a wearer still counts as a novice: one who has put no skill point into any tree but Novice.

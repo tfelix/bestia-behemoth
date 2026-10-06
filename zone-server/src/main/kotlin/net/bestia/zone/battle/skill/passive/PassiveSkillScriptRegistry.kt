@@ -74,7 +74,7 @@ class PassiveSkillScriptRegistry(
   /**
    * Every bound script keyed by the skill id it implements.
    *
-   * The recalc iterates this and asks [net.bestia.zone.ecs.battle.skill.KnownSkills] for each level,
+   * The recalc iterates this and asks [net.bestia.zone.skill.ecs.KnownSkills] for each level,
    * rather than iterating an entity's known skills. That is the cheaper direction while scripted
    * passives number a handful and a master can know dozens of skills, and it spares `KnownSkills` an
    * iteration accessor it has no other use for. Invert it if scripted passives ever reach the same

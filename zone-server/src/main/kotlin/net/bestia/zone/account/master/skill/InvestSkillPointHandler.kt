@@ -1,7 +1,7 @@
 package net.bestia.zone.account.master.skill
 
 import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
-import net.bestia.zone.ecs.battle.skill.KnownSkills
+import net.bestia.zone.skill.ecs.KnownSkills
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.message.OutMessageProcessor

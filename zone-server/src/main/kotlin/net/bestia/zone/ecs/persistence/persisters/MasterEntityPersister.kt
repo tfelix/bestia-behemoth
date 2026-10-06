@@ -3,12 +3,12 @@ package net.bestia.zone.ecs.persistence.persisters
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.account.master.Master
 import net.bestia.zone.account.master.MasterRepository
-import net.bestia.zone.account.master.skill.MasterSkillTreeRegistry
+import net.bestia.zone.skill.tree.MasterSkillTreeRegistry
 import net.bestia.zone.identity.ecs.Master as MasterComponent
 import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.ecs.battle.exp.Exp
 import net.bestia.zone.ecs.battle.level.Level
-import net.bestia.zone.ecs.battle.skill.KnownSkills
+import net.bestia.zone.skill.ecs.KnownSkills
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.battle.status.BaseStatusValues
 import net.bestia.zone.ecs.battle.status.SkillPoints

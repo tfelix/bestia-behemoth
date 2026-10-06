@@ -6,7 +6,7 @@ import net.bestia.zone.battle.skill.NoSkillScriptException
 import net.bestia.zone.battle.skill.SkillCheckService
 import net.bestia.zone.battle.skill.SkillExecutionService
 import net.bestia.zone.battle.skill.SkillStrategyFactory
-import net.bestia.zone.battle.skill.SkillTargetType
+import net.bestia.zone.skill.SkillTargetType
 import net.bestia.zone.entity.ecs.DeadActionGuard
 import net.bestia.zone.ecs.battle.skill.Casting
 import net.bestia.zone.ecs.core.World
