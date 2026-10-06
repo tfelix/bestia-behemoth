@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service
  *
  * ### Why this exists
  *
- * [BestiaEntitySpawner] used to call [BestiaRepository.findByIdOrThrow] on every single spawn, and
+ * [net.bestia.zone.spawn.BestiaEntitySpawner] used to call [BestiaRepository.findByIdOrThrow] on every single spawn, and
  * `BestiaRepository` is a plain `JpaRepository` with no cache - so **every creature entering the world cost a
  * synchronous SELECT on the tick thread, inside the world lock**. At one den restocking one creature per
  * quarter second that was survivable, which is why it went unnoticed. It stops being survivable the moment

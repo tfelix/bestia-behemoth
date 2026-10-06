@@ -9,7 +9,7 @@ import net.bestia.zone.entity.ecs.EntityVisual
 import net.bestia.zone.movement.ecs.Path
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.movement.ecs.Speed
-import net.bestia.zone.ecs.spawn.townsfolk.TownsfolkVisual
+import net.bestia.zone.townsfolk.ecs.TownsfolkVisual
 import net.bestia.zone.message.EntitySMSG
 import net.bestia.zone.util.AccountId
 import net.bestia.zone.util.EntityId

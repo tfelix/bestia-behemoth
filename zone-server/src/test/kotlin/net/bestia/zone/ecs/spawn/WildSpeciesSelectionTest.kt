@@ -2,13 +2,15 @@ package net.bestia.zone.ecs.spawn
 
 import net.bestia.worldgen.bio.Biome
 import net.bestia.zone.bestia.Bestia
-import net.bestia.zone.ecs.spawn.WildSpawnerService.Candidate
-import net.bestia.zone.ecs.spawn.WildSpawnerService.DenFacts
+import net.bestia.zone.spawn.ecs.WildSpawnerService.Candidate
+import net.bestia.zone.spawn.ecs.WildSpawnerService.DenFacts
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import net.bestia.zone.spawn.ecs.WildSpawnConfig
+import net.bestia.zone.spawn.ecs.WildSpawnerService
 
 /**
  * Which species a den holds.

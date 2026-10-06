@@ -1,7 +1,7 @@
 package net.bestia.zone.ai.domain
 
 import net.bestia.zone.ai.domain.bestia.BestiaDomain
-import net.bestia.zone.ai.domain.townsfolk.TownsfolkDomain
+import net.bestia.zone.townsfolk.domain.TownsfolkDomain
 
 /**
  * Every domain a profile may declare, by id.

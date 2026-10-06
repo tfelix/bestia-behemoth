@@ -1,6 +1,6 @@
 package net.bestia.zone.economy.shop
 
-import net.bestia.zone.dialog.conversation.SpeakerResolver
+import net.bestia.zone.townsfolk.conversation.SpeakerResolver
 import net.bestia.zone.economy.EconomyCatalogue
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Service

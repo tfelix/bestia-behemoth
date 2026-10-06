@@ -9,6 +9,8 @@ import net.bestia.worldgen.vector.PointMarker
 import net.bestia.zone.bestia.Bestia
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import net.bestia.zone.spawn.ecs.WildSpawnConfig
+import net.bestia.zone.spawn.ecs.WildSpawnerService
 
 /**
  * How much of the generator's level ramp the **shipped bestia catalogue** can actually fill.

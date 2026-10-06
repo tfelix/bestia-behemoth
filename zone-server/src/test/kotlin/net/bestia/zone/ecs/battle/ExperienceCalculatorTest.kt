@@ -7,7 +7,7 @@ import io.mockk.mockk
 import net.bestia.zone.bestia.Bestia
 import net.bestia.zone.bestia.BestiaCatalogue
 import net.bestia.zone.bestia.BestiaRepository
-import net.bestia.zone.ecs.battle.exp.ExperienceGainCalculator
+import net.bestia.zone.spawn.ecs.ExperienceGainCalculator
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

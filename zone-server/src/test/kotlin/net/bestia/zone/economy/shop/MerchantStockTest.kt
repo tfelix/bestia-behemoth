@@ -2,8 +2,8 @@ package net.bestia.zone.economy.shop
 
 import io.mockk.every
 import io.mockk.mockk
-import net.bestia.zone.dialog.conversation.Speaker
-import net.bestia.zone.dialog.conversation.SpeakerResolver
+import net.bestia.zone.townsfolk.conversation.Speaker
+import net.bestia.zone.townsfolk.conversation.SpeakerResolver
 import net.bestia.zone.economy.EconomyCatalogue
 import kotlin.test.Test
 import kotlin.test.assertEquals

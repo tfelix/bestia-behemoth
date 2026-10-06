@@ -2,13 +2,13 @@ package net.bestia.zone.chat
 
 import net.bestia.account.Authority
 import net.bestia.worldgen.pop.Households
-import net.bestia.zone.ai.knowledge.Knowledge
-import net.bestia.zone.ai.knowledge.KnowledgeService
-import net.bestia.zone.ai.knowledge.TownKnowledge
+import net.bestia.zone.townsfolk.knowledge.Knowledge
+import net.bestia.zone.townsfolk.knowledge.KnowledgeService
+import net.bestia.zone.townsfolk.knowledge.TownKnowledge
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.movement.ecs.Position
-import net.bestia.zone.ecs.spawn.townsfolk.HouseholdPlacement
+import net.bestia.zone.townsfolk.ecs.HouseholdPlacement
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.world.settlement.SettlementSite
 import net.bestia.zone.world.settlement.SettlementSiteIndex

@@ -2,7 +2,7 @@ package net.bestia.zone.boot
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ai.profile.AiProfileRegistry
-import net.bestia.zone.ecs.spawn.ambient.AmbientSpawnConfig
+import net.bestia.zone.spawn.ecs.ambient.AmbientSpawnConfig
 import net.bestia.zone.world.stream.InterestRange
 import org.springframework.boot.CommandLineRunner
 import org.springframework.core.annotation.Order

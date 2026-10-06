@@ -1,0 +1,193 @@
+package net.bestia.zone.spawn.ecs
+
+import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.zone.ecs.core.Phase
+import net.bestia.zone.movement.ecs.Position
+import net.bestia.zone.identity.ecs.Account
+import net.bestia.zone.battle.ecs.exp.Exp
+import net.bestia.zone.battle.ecs.exp.GainExp
+import net.bestia.zone.entity.ecs.EntityVisual
+import net.bestia.zone.entity.ecs.VisualKind
+import net.bestia.zone.ecs.core.ComponentClassSet
+import net.bestia.zone.ecs.core.System
+import net.bestia.zone.ecs.core.World
+import net.bestia.zone.session.ConnectionInfoService
+import net.bestia.zone.session.NoActiveSessionException
+import net.bestia.zone.persistence.PersistedEntityDeletionQueue
+import net.bestia.zone.persistence.Persistent
+import net.bestia.zone.townsfolk.rumour.NotableKillReporter
+import net.bestia.zone.item.loot.LootItemEntitySpawner
+import net.bestia.zone.identity.ecs.PartyMembership
+import net.bestia.zone.util.EntityId
+import org.springframework.stereotype.Component as SpringComponent
+import net.bestia.zone.ecs.core.update
+import net.bestia.zone.entity.ecs.Dead
+import net.bestia.zone.battle.ecs.damage.GroundSpill
+import net.bestia.zone.battle.ecs.damage.PlayerDeathSystem
+import net.bestia.zone.battle.ecs.damage.TakenDamage
+
+@SpringComponent
+class DeathSystem(
+  private val experienceGainCalculator: ExperienceGainCalculator,
+  private val lootItemEntitySpawner: LootItemEntitySpawner,
+  private val deletionQueue: PersistedEntityDeletionQueue,
+  private val connectionInfoService: ConnectionInfoService,
+  private val notableKills: NotableKillReporter,
+  private val spill: GroundSpill,
+) : System {
+  override val phase = Phase.DEATH
+  override val after = setOf(PlayerDeathSystem::class)
+
+  override val reads: ComponentClassSet =
+    setOf(
+      TakenDamage::class,
+      EntityVisual::class,
+      Position::class,
+      Account::class,
+      PartyMembership::class,
+      Persistent::class
+    )
+
+  // `Dead` is written rather than read: `bled` is set here, the same way PlayerDeathSystem sets `resolved`.
+  override val writes: ComponentClassSet = setOf(Dead::class, Exp::class)
+
+  override fun update(world: World, deltaTime: Float) {
+    world.query(Dead::class).each { entityId ->
+      // Before the early return below, because a player bleeds too - and once, because a body lies there for
+      // as long as its owner leaves it and this would otherwise deepen every tick.
+      val dead = get<Dead>()
+      if (!dead.bled) {
+        dead.bled = true
+        world.get(entityId, Position::class)?.let { spill.bledAt(it.x, it.y) }
+      }
+
+      // A player-owned body is not gone for good: it stays where it fell until its owner respawns it,
+      // driven by PlayerDeathSystem and RespawnSystem. Skipping it here also stops an
+      // owned bestia paying out species EXP and loot when another player kills it - it carries
+      // EntityVisual(BESTIA) exactly like the wild version, which is all `bestiaSpeciesOf` looks at.
+      if (world.has(entityId, Account::class)) {
+        return@each
+      }
+
+      LOG.debug { "Entity $entityId is dead" }
+
+      assignExp(world, entityId)
+      spawnLoot(world, entityId)
+      reportKill(world, entityId)
+
+      // A dead entity is gone for good — drop any persisted row so it is not resurrected on reload.
+      // The actual DB delete is batched off the tick thread by the persistence sync. Only for an entity
+      // that could have a row: a transient one has none, and queueing those spends a growing DELETE ... IN
+      // every sync on ids the table never held.
+      if (world.has(entityId, Persistent::class)) {
+        deletionQueue.enqueue(entityId)
+      }
+
+      world.destroy(entityId)
+    }
+  }
+
+  /**
+   * Tells the towns nearby, if this was worth telling them about.
+   *
+   * The position is read *here* rather than inside the deferred block, because the entity is destroyed
+   * a few lines below and the deferred work runs long after that. Whether it was notable at all is the
+   * reporter's judgement - see [NotableKillReporter].
+   */
+  private fun reportKill(world: World, entityId: EntityId) {
+    val species = world.bestiaSpeciesOf(entityId) ?: return
+    val position = world.get(entityId, Position::class)?.toVec3L() ?: return
+
+    world.defer {
+      notableKills.report(species, position.x, position.y)
+    }
+  }
+
+  private fun assignExp(
+    world: World,
+    entityId: EntityId
+  ) {
+    val damageDealer = world.get(entityId, TakenDamage::class)?.damagePercentages()
+      ?: return
+
+    val species = world.bestiaSpeciesOf(entityId)
+      ?: return
+
+    // Check which of those are an actual player. Every player bestia has an Account component.
+    val attackingPlayerCount = damageDealer.keys
+      .mapNotNull { world.get(it, Account::class)?.accountId }
+      .distinct()
+      .size
+
+    // Deferred so that several kills in one tick add up into one GainExp per recipient.
+    world.defer {
+      val earnedExp = experienceGainCalculator.calculate(
+        species,
+        damageDealer,
+        attackingPlayerCount
+      )
+
+      earnedExp.forEach { (attackerEntityId, receivedExp) ->
+        val recipients = resolvePartyExpRecipients(world, attackerEntityId)
+        val share = receivedExp / recipients.size
+
+        recipients.forEach { recipientEntityId ->
+          LOG.debug { "Entity $recipientEntityId received $share EXP (party share of $receivedExp)" }
+          world.update(recipientEntityId, { GainExp() }) { exp -> exp.value += share }
+        }
+      }
+    }
+  }
+
+  /** If [attackerEntityId]'s owner is in a party, splits its earned EXP share evenly across every
+   * online party member's active master instead of granting it only to the attacker itself. Falls
+   * back to the attacker alone when it has no owner, the owner isn't in a party, or no party
+   * member (including the attacker) currently has an online master. */
+  private fun resolvePartyExpRecipients(world: World, attackerEntityId: EntityId): Set<EntityId> {
+    val ownerAccountId = world.get(attackerEntityId, Account::class)?.accountId
+      ?: return setOf(attackerEntityId)
+
+    val ownerMasterEntityId = try {
+      connectionInfoService.getSelectedMasterEntityId(ownerAccountId)
+    } catch (_: NoActiveSessionException) {
+      return setOf(attackerEntityId)
+    }
+
+    val memberAccountIds = world.get(ownerMasterEntityId, PartyMembership::class)?.memberAccountIds
+      ?: return setOf(attackerEntityId)
+
+    val recipientEntityIds = memberAccountIds.mapNotNullTo(mutableSetOf()) { accountId ->
+      try {
+        connectionInfoService.getSelectedMasterEntityId(accountId)
+      } catch (_: NoActiveSessionException) {
+        null
+      }
+    }
+
+    return recipientEntityIds.ifEmpty { setOf(attackerEntityId) }
+  }
+
+  private fun spawnLoot(
+    world: World,
+    entityId: Long,
+  ) {
+    val position = world.get(entityId, Position::class)?.toVec3L()
+      ?: return
+
+    val species = world.bestiaSpeciesOf(entityId)
+      ?: return
+
+    lootItemEntitySpawner.spawnLoot(world, species, position)
+  }
+
+  /**
+   * The species id behind an entity, or null when it is not a bestia at all. Exp and loot are both
+   * keyed on the species, and [EntityVisual] carries ids from several catalogues.
+   */
+  private fun World.bestiaSpeciesOf(entityId: EntityId): Long? =
+    get(entityId, EntityVisual::class)?.takeIf { it.kind == VisualKind.BESTIA }?.id
+
+  companion object {
+    private val LOG = KotlinLogging.logger { }
+  }
+}

@@ -4,14 +4,14 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.account.Authority
 import net.bestia.worldgen.pop.BusinessCatalogue
 import net.bestia.zone.ai.core.state.Blackboard
-import net.bestia.zone.ai.domain.townsfolk.Occupation
-import net.bestia.zone.ai.domain.townsfolk.OccupationCatalogue
-import net.bestia.zone.ai.domain.townsfolk.TownsfolkDomain
-import net.bestia.zone.bestia.BestiaEntitySpawner
+import net.bestia.zone.townsfolk.domain.Occupation
+import net.bestia.zone.townsfolk.domain.OccupationCatalogue
+import net.bestia.zone.townsfolk.domain.TownsfolkDomain
+import net.bestia.zone.spawn.BestiaEntitySpawner
 import net.bestia.zone.bestia.BestiaRepository
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.movement.ecs.Position
-import net.bestia.zone.ecs.spawn.townsfolk.TownsfolkEntitySpawner
+import net.bestia.zone.townsfolk.ecs.TownsfolkEntitySpawner
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.OutMessageProcessor
@@ -89,7 +89,7 @@ class TownsfolkChatCommand(
   /**
    * The household that lives in the house the caller is standing by.
    *
-   * The inverse of how [net.bestia.zone.ecs.spawn.townsfolk.HouseholdPlacement] houses people: household
+   * The inverse of how [net.bestia.zone.townsfolk.ecs.HouseholdPlacement] houses people: household
    * `h` lives in residence `h`, one family to a door. A town has more households than houses, so the
    * ones past the end of the list live nowhere and a house near the end of it may stand empty.
    */

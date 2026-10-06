@@ -1,8 +1,8 @@
 package net.bestia.zone.ai.ecs
 
 import net.bestia.zone.ai.core.state.HourWindow
-import net.bestia.zone.ai.domain.townsfolk.Occupation
-import net.bestia.zone.ai.domain.townsfolk.TownsfolkDomain
+import net.bestia.zone.townsfolk.domain.Occupation
+import net.bestia.zone.townsfolk.domain.TownsfolkDomain
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
 import org.junit.jupiter.api.Assertions.assertEquals

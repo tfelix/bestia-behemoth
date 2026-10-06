@@ -5,7 +5,7 @@ import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.account.master.OwnedBestiaPolicyViolationException
 import net.bestia.zone.bestia.Bestia
 import net.bestia.zone.bestia.BestiaCatalogue
-import net.bestia.zone.bestia.BestiaEntitySpawner
+import net.bestia.zone.spawn.BestiaEntitySpawner
 import net.bestia.zone.bestia.OwnedBestiasPublisher
 import net.bestia.zone.bestia.PlayerBestiaCreateOperation
 import net.bestia.zone.persistence.AsyncJobExecutor

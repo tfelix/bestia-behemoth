@@ -9,6 +9,8 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
+import net.bestia.zone.townsfolk.domain.Occupation
+import net.bestia.zone.townsfolk.domain.TownsfolkDomain
 
 /**
  * What a townsperson decides with a fight going on nearby.

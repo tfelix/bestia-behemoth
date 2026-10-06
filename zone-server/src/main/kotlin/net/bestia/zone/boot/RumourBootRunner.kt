@@ -1,6 +1,6 @@
 package net.bestia.zone.boot
 
-import net.bestia.zone.ai.rumour.RumourRegistry
+import net.bestia.zone.townsfolk.rumour.RumourRegistry
 import org.springframework.boot.CommandLineRunner
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component

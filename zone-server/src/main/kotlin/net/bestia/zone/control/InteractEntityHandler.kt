@@ -5,7 +5,7 @@ import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.dialog.DialogId
 import net.bestia.zone.dialog.DialogService
-import net.bestia.zone.dialog.conversation.TalkService
+import net.bestia.zone.townsfolk.conversation.TalkService
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.entity.ecs.DeadActionGuard
 import net.bestia.zone.prop.ecs.construction.Building
@@ -15,7 +15,7 @@ import net.bestia.zone.ecs.core.modify
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.entity.ecs.PlayerStructureIdentity
-import net.bestia.zone.ecs.spawn.townsfolk.Townsfolk
+import net.bestia.zone.townsfolk.ecs.Townsfolk
 import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.message.TickMessageHandler

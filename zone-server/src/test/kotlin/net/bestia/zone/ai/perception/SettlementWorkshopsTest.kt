@@ -12,12 +12,13 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import net.bestia.zone.townsfolk.perception.SettlementWorkshops
 
 /**
  * Whether a workshop can work today.
  *
  * The stock-not-offer choice is the part worth pinning, and it is the opposite of the one
- * [SettlementFoodStalls] documents: the reserve a town holds back from sale is exactly what its own mill
+ * [net.bestia.zone.townsfolk.perception.SettlementFoodStalls] documents: the reserve a town holds back from sale is exactly what its own mill
  * draws on, so reading the offer would idle a workshop standing next to a full store.
  */
 class SettlementWorkshopsTest {

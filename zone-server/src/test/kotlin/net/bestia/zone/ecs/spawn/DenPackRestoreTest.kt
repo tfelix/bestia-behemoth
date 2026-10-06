@@ -1,13 +1,13 @@
 package net.bestia.zone.ecs.spawn
 
 import io.mockk.mockk
-import net.bestia.zone.bestia.BestiaEntitySpawner
+import net.bestia.zone.spawn.BestiaEntitySpawner
 import net.bestia.zone.entity.ecs.EntityVisual
 import net.bestia.zone.ecs.core.SnowflakeEntityIdGenerator
 import net.bestia.zone.ecs.core.EcsWorld
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.persistence.PersistedEntityDeletionQueue
-import net.bestia.zone.ecs.persistence.persisters.MobEntityPersister
+import net.bestia.zone.spawn.persistence.MobEntityPersister
 import net.bestia.zone.persistence.PersistedEntityRepository
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
@@ -20,6 +20,11 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+import net.bestia.zone.spawn.ecs.DenIdentity
+import net.bestia.zone.spawn.ecs.DenMember
+import net.bestia.zone.spawn.ecs.DenPackRestoreService
+import net.bestia.zone.spawn.ecs.Spawner
+import net.bestia.zone.spawn.ecs.SpawnerSystem
 
 /**
  * A den's creatures survive a restart, and come back belonging to the same den.

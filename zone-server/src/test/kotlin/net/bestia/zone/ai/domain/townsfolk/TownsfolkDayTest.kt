@@ -11,6 +11,8 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+import net.bestia.zone.townsfolk.domain.Occupation
+import net.bestia.zone.townsfolk.domain.TownsfolkDomain
 
 /**
  * What a townsperson decides at each hour of a day with nothing in it but a bedtime.
