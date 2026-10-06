@@ -94,11 +94,8 @@ class PartyService(
       throw NotPartyOwnerException()
     }
 
-    // Notify all members
-    val oldPartyMemberAccountIds = party.member.map { member ->
-      member.account.id
-    }
-    val allAffectedAccountIds = oldPartyMemberAccountIds + party.owner.account.id
+    // Notify everyone, the owner included
+    val oldPartyMemberAccountIds = party.everyone.map { it.account.id }
 
     // Master.party/ownedParty still reference this party - clear them first, otherwise Hibernate
     // flushes those managed Masters with a dangling reference to the row we're about to delete.
@@ -108,7 +105,7 @@ class PartyService(
 
     partyRepository.delete(party)
 
-    allAffectedAccountIds.forEach { clearPartyMembershipComponent(it) }
+    oldPartyMemberAccountIds.forEach { clearPartyMembershipComponent(it) }
 
     return oldPartyMemberAccountIds
   }
