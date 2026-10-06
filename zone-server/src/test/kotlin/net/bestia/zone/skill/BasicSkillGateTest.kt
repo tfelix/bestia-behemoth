@@ -13,9 +13,8 @@ import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import net.bestia.zone.ecs.core.EcsWorld
-import net.bestia.zone.skill.persistence.Skill
-import net.bestia.zone.skill.persistence.SkillRepository
-import net.bestia.zone.skill.persistence.findByIdentifier
+import net.bestia.zone.skill.tree.MasterSkillTreeNode
+import net.bestia.zone.skill.tree.MasterSkillTreeRegistry
 
 /**
  * The two Basic Skill ranks the game actually enforces, and what happens at the edges of them.
@@ -27,17 +26,19 @@ import net.bestia.zone.skill.persistence.findByIdentifier
 class BasicSkillGateTest {
 
   private val world: EcsWorld = testWorld()
-  private val skillRepository = mockk<SkillRepository>()
   private val connectionInfoService = mockk<ConnectionInfoService>()
 
-  private val gate: BasicSkillGate
-
-  init {
-    every { skillRepository.findByIdentifier("BASIC_SKILL") } returns
-      mockk<Skill>().also { every { it.id } returns BASIC_SKILL_ID }
-
-    gate = BasicSkillGate(worldViewOf(world), connectionInfoService, skillRepository)
+  private val skillTree = MasterSkillTreeRegistry().apply {
+    val basicSkill = MasterSkillTreeNode(
+      skillId = BASIC_SKILL_ID,
+      identifier = "BASIC_SKILL",
+      maxLevel = 5,
+      tree = MasterSkillTreeRegistry.NOVICE_TREE,
+    )
+    load(listOf(basicSkill))
   }
+
+  private val gate = BasicSkillGate(worldViewOf(world), connectionInfoService, skillTree)
 
   @Test
   fun `a fresh master may neither chat nor party`() {
@@ -99,15 +100,12 @@ class BasicSkillGateTest {
   }
 
   /**
-   * A catalogue without BASIC_SKILL is a content error, and taking chat away from every player because of one
+   * A skill tree without BASIC_SKILL is a content error, and taking chat away from every player because of one
    * would be far worse than letting everybody talk.
    */
   @Test
-  fun `a missing Basic Skill in the catalogue opens every gate`() {
-    val emptyCatalogue = mockk<SkillRepository>()
-    every { emptyCatalogue.findByIdentifier(any()) } returns null
-
-    val openGate = BasicSkillGate(worldViewOf(world), connectionInfoService, emptyCatalogue)
+  fun `a missing Basic Skill in the skill tree opens every gate`() {
+    val openGate = BasicSkillGate(worldViewOf(world), connectionInfoService, MasterSkillTreeRegistry())
 
     assertTrue(openGate.mayChat(ACCOUNT_ID))
     assertTrue(openGate.mayParty(ACCOUNT_ID))
