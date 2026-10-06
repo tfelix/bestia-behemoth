@@ -104,7 +104,7 @@ the Netty `Channel` by `accountId`. A send made on the tick thread is first coll
 send from any other thread goes out at once. `AsyncJobExecutor` carries database work only.
 
 `ChannelRegistry` (accountId → Netty `Channel`) and
-`ConnectionInfoService` (`ecs/core/session/ConnectionInfoService.kt`, accountId → `Session`
+`ConnectionInfoService` (`session/ConnectionInfoService.kt`, accountId → `Session`
 sealed class tracking the selected master/owned player entities/active entity) are the
 two session maps — there is no single unified `Session` object.
 

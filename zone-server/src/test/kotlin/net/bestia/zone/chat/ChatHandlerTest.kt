@@ -9,7 +9,6 @@ import net.bestia.zone.account.master.MasterNotFoundException
 import net.bestia.zone.account.master.MasterResolver
 import net.bestia.zone.account.master.skill.BasicSkillGate
 import net.bestia.zone.ecs.core.WorldView
-import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OutMessageProcessor
 import org.junit.jupiter.api.Test

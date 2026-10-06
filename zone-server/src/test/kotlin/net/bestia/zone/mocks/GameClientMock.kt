@@ -1,8 +1,8 @@
 package net.bestia.zone.mocks
 
 import net.bestia.account.Authority
-import net.bestia.zone.account.AccountConnectedEvent
-import net.bestia.zone.account.AccountDisconnectedEvent
+import net.bestia.zone.session.AccountConnectedEvent
+import net.bestia.zone.session.AccountDisconnectedEvent
 import net.bestia.zone.message.CMSG
 import net.bestia.zone.message.SMSG
 import net.bestia.zone.account.master.SelectMasterCMSG

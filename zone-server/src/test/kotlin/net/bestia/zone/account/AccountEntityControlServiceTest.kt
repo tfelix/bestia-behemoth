@@ -7,7 +7,7 @@ import net.bestia.zone.ecs.ZoneConfig
 import net.bestia.zone.ecs.battle.attack.AttackCancelService
 import net.bestia.zone.ecs.battle.status.InCombat
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.ecs.core.session.ConnectionInfoService
+import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.ecs.logout.DisconnectProtection
 import net.bestia.zone.ecs.persistence.PersistAndRemove
@@ -15,6 +15,7 @@ import net.bestia.zone.util.EntityId
 import org.junit.jupiter.api.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import net.bestia.zone.session.AccountDisconnectedEvent
 
 /**
  * The logout button makes a player wait, so dropping the connection must not be the quicker way out of a fight.

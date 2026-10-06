@@ -8,8 +8,8 @@ import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.ecs.core.session.ConnectionInfoService
-import net.bestia.zone.ecs.core.session.NoActiveSessionException
+import net.bestia.zone.session.ConnectionInfoService
+import net.bestia.zone.session.NoActiveSessionException
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.persistence.PersistedEntityDeletionQueue
 import net.bestia.zone.item.container.InventoryService

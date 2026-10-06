@@ -4,7 +4,7 @@ import net.bestia.zone.ecs.battle.status.HealthComponentSMSG
 import net.bestia.zone.ecs.battle.status.ManaComponentSMSG
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.battle.status.Mana
-import net.bestia.zone.ecs.core.session.ConnectionInfoService
+import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.party.AlreadyInPartyException
 import net.bestia.zone.party.PartyMembership
 import net.bestia.zone.party.PartyService

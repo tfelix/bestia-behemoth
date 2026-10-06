@@ -2,7 +2,7 @@ package net.bestia.zone.ecs.account
 
 import net.bestia.zone.ecs.core.Component
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.ecs.core.session.ConnectionInfoService.PlayerEntity
+import net.bestia.zone.session.ConnectionInfoService.PlayerEntity
 import net.bestia.zone.util.PlayerBestiaId
 
 /**

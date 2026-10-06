@@ -4,8 +4,8 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
-import net.bestia.zone.account.authentication.HttpTicketService
-import net.bestia.zone.ecs.core.session.ConnectionInfoService
+import net.bestia.zone.session.HttpTicketService
+import net.bestia.zone.session.ConnectionInfoService
 import org.springframework.stereotype.Component
 import org.springframework.web.filter.OncePerRequestFilter
 

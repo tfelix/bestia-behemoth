@@ -13,7 +13,7 @@ import net.bestia.zone.world.stream.ChunkManifestSMSG
 import net.bestia.zone.world.stream.ChunkRequestCMSG
 import net.bestia.zone.world.stream.ChunkService
 import net.bestia.zone.world.stream.ChunkSubscriptionService
-import net.bestia.zone.ecs.core.session.ConnectionInfoService
+import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.ecs.entity.EntityVisual
 import net.bestia.zone.ecs.entity.VisualComponentSMSG
 import net.bestia.zone.ecs.entity.VisualKind

@@ -10,8 +10,8 @@ import io.mockk.verify
 import net.bestia.zone.ecs.account.Account
 import net.bestia.zone.ecs.account.Master
 import net.bestia.zone.ecs.core.AsyncJobExecutor
-import net.bestia.zone.ecs.core.session.ConnectionInfoService
-import net.bestia.zone.ecs.core.session.NoActiveSessionException
+import net.bestia.zone.session.ConnectionInfoService
+import net.bestia.zone.session.NoActiveSessionException
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.persistence.PersistedEntityDeletionQueue

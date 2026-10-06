@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test
 import java.util.Date
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
+import net.bestia.zone.session.AuthenticationProcessor
 
 /**
  * A kicked player may still hold a login token the login server issued a moment before the ban. Reconnecting

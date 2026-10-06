@@ -5,9 +5,9 @@ import io.netty.channel.ChannelHandlerContext
 import io.netty.channel.SimpleChannelInboundHandler
 import io.netty.handler.timeout.IdleState
 import io.netty.handler.timeout.IdleStateEvent
-import net.bestia.zone.account.AccountConnectedEvent
-import net.bestia.zone.account.AccountDisconnectedEvent
-import net.bestia.zone.account.authentication.AuthenticationProcessor
+import net.bestia.zone.session.AccountConnectedEvent
+import net.bestia.zone.session.AccountDisconnectedEvent
+import net.bestia.zone.session.AuthenticationProcessor
 import net.bestia.zone.message.MessageEnvelopeReceivedEvent
 import net.bestia.zone.message.MessageHandlingFailedException
 import net.bestia.zone.message.UnknownBnetMessageException

@@ -1,8 +1,8 @@
 package net.bestia.zone.bestia
 
 import net.bestia.zone.account.master.BestiaInfoFactory
-import net.bestia.zone.ecs.core.session.ConnectionInfoService
-import net.bestia.zone.ecs.core.session.NoActiveSessionException
+import net.bestia.zone.session.ConnectionInfoService
+import net.bestia.zone.session.NoActiveSessionException
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.util.AccountId
 import org.springframework.stereotype.Component

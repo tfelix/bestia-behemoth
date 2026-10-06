@@ -1,8 +1,8 @@
-package net.bestia.zone.ecs.core.session
+package net.bestia.zone.session
 
 import net.bestia.zone.ecs.account.OwnedBestia
 import net.bestia.zone.ecs.core.testWorld
-import net.bestia.zone.ecs.core.session.ConnectionInfoService.PlayerEntity
+import net.bestia.zone.session.ConnectionInfoService.PlayerEntity
 import org.junit.jupiter.api.assertThrows
 import kotlin.test.Test
 import kotlin.test.assertEquals

@@ -6,8 +6,8 @@ import net.bestia.zone.bestia.PlayerBestiaRepository
 import net.bestia.zone.bestia.findByIdOrThrow
 import net.bestia.zone.ecs.battle.skill.KnownSkills
 import net.bestia.zone.ecs.core.WorldView
-import net.bestia.zone.ecs.core.session.ConnectionInfoService
-import net.bestia.zone.ecs.core.session.EntityNotOwnedSessionException
+import net.bestia.zone.session.ConnectionInfoService
+import net.bestia.zone.session.EntityNotOwnedSessionException
 import net.bestia.zone.message.IoMessageHandler
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.message.decoder

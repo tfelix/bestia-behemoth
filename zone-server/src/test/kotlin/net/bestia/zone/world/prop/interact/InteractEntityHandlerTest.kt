@@ -11,7 +11,7 @@ import net.bestia.zone.ecs.account.Account
 import net.bestia.zone.ecs.battle.damage.DeadActionGuard
 import net.bestia.zone.ecs.construction.Building
 import net.bestia.zone.ecs.construction.ConstructionSite
-import net.bestia.zone.ecs.core.session.ConnectionInfoService
+import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.prop.PlayerStructureIdentity

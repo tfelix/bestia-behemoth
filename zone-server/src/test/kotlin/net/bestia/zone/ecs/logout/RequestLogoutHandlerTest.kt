@@ -1,7 +1,7 @@
 package net.bestia.zone.ecs.logout
 
 import net.bestia.zone.ecs.ZoneConfig
-import net.bestia.zone.ecs.core.session.ConnectionInfoService
+import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.testWorld
 import org.junit.jupiter.api.Test
 import kotlin.test.assertFalse

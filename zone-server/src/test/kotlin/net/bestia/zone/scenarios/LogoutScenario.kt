@@ -1,7 +1,7 @@
 package net.bestia.zone.scenarios
 
-import net.bestia.zone.ecs.core.session.ConnectionInfoService
-import net.bestia.zone.ecs.core.session.NoActiveSessionException
+import net.bestia.zone.session.ConnectionInfoService
+import net.bestia.zone.session.NoActiveSessionException
 import net.bestia.zone.ecs.logout.LogoutIntentComponentSMSG
 import net.bestia.zone.ecs.logout.RequestLogoutCMSG
 import net.bestia.zone.entity.MoveActiveEntityCMSG

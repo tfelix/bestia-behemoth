@@ -9,7 +9,7 @@ import net.bestia.zone.account.master.skill.BasicSkillGate
 import net.bestia.zone.ecs.account.Account
 import net.bestia.zone.ecs.battle.damage.Dead
 import net.bestia.zone.ecs.battle.damage.DeadActionGuard
-import net.bestia.zone.ecs.core.session.ConnectionInfoService
+import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.ecs.item.Inventory
 import net.bestia.zone.ecs.movement.Position

@@ -8,7 +8,7 @@ import net.bestia.zone.util.AccountId
  * Request to permanently delete one of the account's masters.
  *
  * Unlike most handlers this one cannot resolve its subject from the session
- * ([net.bestia.zone.ecs.core.session.ConnectionInfoService.getActiveEntityId]): deletion happens on the
+ * ([net.bestia.zone.session.ConnectionInfoService.getActiveEntityId]): deletion happens on the
  * character selection screen, before any master has been picked, so the id has to come from the client.
  * [MasterDeletionService] therefore checks ownership itself instead of relying on the session.
  */

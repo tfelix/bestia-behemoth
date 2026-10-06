@@ -3,7 +3,7 @@ package net.bestia.zone.entity
 import net.bestia.zone.ecs.battle.attack.AttackCancelService
 import net.bestia.zone.ecs.battle.skill.CastCancelService
 import net.bestia.zone.ecs.ZoneConfig
-import net.bestia.zone.ecs.core.session.ConnectionInfoService
+import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.ecs.battle.damage.DeadActionGuard
 import net.bestia.zone.ecs.logout.LogoutCancelService

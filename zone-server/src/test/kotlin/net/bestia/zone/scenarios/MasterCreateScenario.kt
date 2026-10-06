@@ -19,7 +19,7 @@ import net.bestia.zone.account.master.status.StatusAttribute
 import net.bestia.zone.account.master.status.effortValues
 import net.bestia.zone.dialog.DialogSMSG
 import net.bestia.zone.ecs.battle.effects.StatusEffects
-import net.bestia.zone.ecs.core.session.ConnectionInfoService
+import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.mocks.GameClientMock
 import net.bestia.zone.mocks.GameClientMockFactory
 import net.bestia.zone.world.MasterSpawnPointRepository

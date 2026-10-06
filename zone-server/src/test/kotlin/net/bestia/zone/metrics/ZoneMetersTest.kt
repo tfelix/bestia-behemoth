@@ -12,7 +12,7 @@ import net.bestia.zone.ecs.core.AsyncJobExecutor
 import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.ecs.core.session.ConnectionInfoService
+import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.message.AccountInbox
 import net.bestia.zone.message.TickOutbox
