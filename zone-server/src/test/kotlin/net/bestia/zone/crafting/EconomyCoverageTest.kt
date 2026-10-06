@@ -1,16 +1,15 @@
-package net.bestia.zone.economy
+package net.bestia.zone.crafting
 
 import io.mockk.every
 import io.mockk.mockk
 import net.bestia.worldgen.pop.BusinessCatalogue
-import net.bestia.zone.crafting.Recipe
-import net.bestia.zone.crafting.RecipeEffect
-import net.bestia.zone.crafting.RecipeRegistry
 import net.bestia.zone.item.Item
 import net.bestia.zone.item.ItemRepository
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
+import net.bestia.zone.economy.CommodityItems
+import net.bestia.zone.economy.EconomyCatalogue
 
 /**
  * The boot checks that need the item and recipe catalogues.

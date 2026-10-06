@@ -1,4 +1,4 @@
-package net.bestia.zone.ecs.economy
+package net.bestia.zone.economy.ecs
 
 import net.bestia.zone.ecs.core.Component
 import net.bestia.zone.util.EntityId

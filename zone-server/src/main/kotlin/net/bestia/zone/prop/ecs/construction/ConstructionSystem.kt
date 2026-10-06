@@ -25,7 +25,7 @@ import kotlin.math.roundToInt
 /**
  * Puts work into every construction site somebody is standing at, and finishes the ones that are done.
  *
- * In the actions phase, beside [net.bestia.zone.ecs.crafting.CraftingSystem] because it is the same kind of
+ * In the actions phase, beside [net.bestia.zone.crafting.ecs.CraftingSystem] because it is the same kind of
  * thing, and so **before** `WorldObjectResidencySystem` because finishing a site raises a static prop: the residency
  * drain is what announces the new column, and it has to run after this in the same tick rather than a tick
  * later.

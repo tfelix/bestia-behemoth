@@ -1,9 +1,9 @@
-package net.bestia.zone.ecs.persistence.persisters
+package net.bestia.zone.script.persistence
 
 import net.bestia.zone.ecs.core.SnowflakeEntityIdGenerator
 import net.bestia.zone.ecs.core.EcsWorld
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.ecs.script.ScriptComponent
+import net.bestia.zone.script.ecs.ScriptComponent
 import net.bestia.zone.persistence.PersistedEntityRepository
 import net.bestia.zone.persistence.deleteAllByKind
 import net.bestia.zone.world.MasterSpawnPointService

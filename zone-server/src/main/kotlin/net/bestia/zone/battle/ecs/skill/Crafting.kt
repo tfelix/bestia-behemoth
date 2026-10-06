@@ -9,7 +9,7 @@ import net.bestia.zone.util.EntityId
 
 /**
  * Marks an entity as working on one craft, carrying everything needed to resolve it when
- * [remainingSeconds] hits zero. [net.bestia.zone.ecs.crafting.CraftingSystem] drives the countdown and hands the finished craft to
+ * [remainingSeconds] hits zero. [net.bestia.zone.crafting.ecs.CraftingSystem] drives the countdown and hands the finished craft to
  * [net.bestia.zone.crafting.CraftingService].
  *
  * ### It sends a [CastingComponentSMSG]

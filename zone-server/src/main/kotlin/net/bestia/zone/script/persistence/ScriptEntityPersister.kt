@@ -1,4 +1,4 @@
-package net.bestia.zone.ecs.persistence.persisters
+package net.bestia.zone.script.persistence
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
@@ -7,8 +7,8 @@ import net.bestia.zone.ecs.core.World
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.persistence.EntityPersister
 import net.bestia.zone.persistence.EntitySnapshot
-import net.bestia.zone.ecs.script.ScriptComponent
-import net.bestia.zone.ecs.script.ScriptEntitySpawner
+import net.bestia.zone.script.ecs.ScriptComponent
+import net.bestia.zone.script.ecs.ScriptEntitySpawner
 import net.bestia.zone.persistence.PersistedComponent
 import net.bestia.zone.persistence.PersistedEntity
 import net.bestia.zone.persistence.PersistedEntityRepository
