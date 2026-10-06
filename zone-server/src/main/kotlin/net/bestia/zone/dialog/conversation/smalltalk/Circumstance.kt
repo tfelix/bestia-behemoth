@@ -3,7 +3,7 @@ package net.bestia.zone.dialog.conversation.smalltalk
 import net.bestia.worldgen.climate.WeatherKind
 import net.bestia.worldgen.place.RegionKind
 import net.bestia.worldgen.pop.Kinship
-import net.bestia.zone.environment.time.Season
+import net.bestia.zone.world.time.Season
 
 /**
  * Everything true of one speaker, in one place, on one day, that a small-talk line may be gated on.

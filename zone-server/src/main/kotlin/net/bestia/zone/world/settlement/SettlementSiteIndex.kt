@@ -11,7 +11,6 @@ import net.bestia.worldgen.vector.FootprintFeature
 import net.bestia.worldgen.vector.PointMarker
 import net.bestia.worldgen.vector.Vec2d
 import net.bestia.worldgen.voxel.BuildingProps
-import net.bestia.zone.ecs.spawn.ambient.StandingSettlements
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.world.WorldService
 import net.bestia.zone.world.stream.ChunkCoords

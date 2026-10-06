@@ -25,8 +25,8 @@ import net.bestia.zone.skill.SkillId
  *
  * Declaring the skill on the bean keeps the two vocabularies apart, and follows what this
  * codebase already does for the two passives that were wired by hand -
- * [net.bestia.zone.environment.weather.EnvironmentalExposureSystem] and
- * [net.bestia.zone.environment.weather.WeatherPublisher] both resolve their skill by identifier,
+ * [net.bestia.zone.weather.EnvironmentalExposureSystem] and
+ * [net.bestia.zone.weather.WeatherPublisher] both resolve their skill by identifier,
  * "because the id in `skills.yml` is content and this is code". The same reasoning applies to the
  * script name.
  */

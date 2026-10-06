@@ -3,7 +3,7 @@ package net.bestia.zone.chat
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.account.Authority
 import net.bestia.zone.geometry.Vec3L
-import net.bestia.zone.world.fire.GroundFireService
+import net.bestia.zone.ground.fire.GroundFireService
 import net.bestia.zone.world.stream.ChunkStreamConfig
 import org.springframework.stereotype.Component
 

@@ -7,7 +7,7 @@ import net.bestia.worldgen.pop.Member
 import net.bestia.zone.ai.core.state.HourWindow
 import net.bestia.zone.ai.domain.townsfolk.Occupation
 import net.bestia.zone.ai.domain.townsfolk.OccupationDialog
-import net.bestia.zone.environment.time.BestiaClock
+import net.bestia.zone.world.time.BestiaClock
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull

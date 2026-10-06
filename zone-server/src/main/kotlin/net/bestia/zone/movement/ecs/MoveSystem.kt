@@ -11,7 +11,7 @@ import net.bestia.zone.ecs.core.World
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.navigation.local.LocalWalkQuery
 import net.bestia.zone.util.EntityId
-import net.bestia.zone.world.spoor.ActorSignatureSystem
+import net.bestia.zone.spoor.ActorSignatureSystem
 import kotlin.math.sqrt
 import org.springframework.stereotype.Component as SpringComponent
 

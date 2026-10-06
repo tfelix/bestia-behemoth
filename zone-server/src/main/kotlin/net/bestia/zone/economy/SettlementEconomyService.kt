@@ -2,7 +2,7 @@ package net.bestia.zone.economy
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.persistence.AsyncJobExecutor
-import net.bestia.zone.environment.time.BestiaClock
+import net.bestia.zone.world.time.BestiaClock
 import net.bestia.zone.world.WorldService
 import net.bestia.zone.world.settlement.SettlementSiteIndex
 import org.springframework.stereotype.Service

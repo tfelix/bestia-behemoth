@@ -13,8 +13,8 @@ import net.bestia.zone.dialog.conversation.Asker
 import net.bestia.zone.dialog.conversation.SmallTalkTopicProvider
 import net.bestia.zone.dialog.conversation.Speaker
 import net.bestia.zone.dialog.conversation.Topics
-import net.bestia.zone.environment.time.BestiaClock
-import net.bestia.zone.environment.time.Season
+import net.bestia.zone.world.time.BestiaClock
+import net.bestia.zone.world.time.Season
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull

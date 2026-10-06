@@ -4,7 +4,7 @@ import net.bestia.worldgen.core.GenRng
 import net.bestia.zone.dialog.conversation.smalltalk.CircumstanceService
 import net.bestia.zone.dialog.conversation.smalltalk.SmallTalk
 import net.bestia.zone.dialog.conversation.smalltalk.SmallTalkCatalogue
-import net.bestia.zone.environment.time.BestiaClock
+import net.bestia.zone.world.time.BestiaClock
 import org.springframework.stereotype.Component
 
 /**

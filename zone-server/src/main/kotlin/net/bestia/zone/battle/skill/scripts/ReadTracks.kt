@@ -9,9 +9,9 @@ import net.bestia.zone.battle.skill.SkillContext
 import net.bestia.zone.dialog.DialogArg
 import net.bestia.zone.dialog.DialogId
 import net.bestia.zone.dialog.DialogService
-import net.bestia.zone.world.spoor.ActorKind
-import net.bestia.zone.world.spoor.SpoorConfig
-import net.bestia.zone.world.spoor.TrackReading
+import net.bestia.zone.spoor.ActorKind
+import net.bestia.zone.spoor.SpoorConfig
+import net.bestia.zone.spoor.TrackReading
 import org.springframework.stereotype.Component
 
 /**

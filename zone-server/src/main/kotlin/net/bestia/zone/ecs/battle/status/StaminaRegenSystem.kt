@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component as SpringComponent
  *
  * The docs' stamina section mentions only the resting doubling and says nothing about combat, and
  * stamina is not a combat resource here - its only consumer is
- * [net.bestia.zone.environment.weather.EnvironmentalExposureSystem], which drains it for being out
+ * [net.bestia.zone.weather.EnvironmentalExposureSystem], which drains it for being out
  * in the cold and then starts on health once it is gone. Gating regeneration on combat would mean a
  * player being poked while crossing a blizzard can never recover the stamina that is keeping them
  * alive, which turns two independent mechanics into a death spiral. Should stamina ever gain a

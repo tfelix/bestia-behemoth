@@ -19,6 +19,7 @@ import net.bestia.zone.world.stream.ChunkCoords
 import org.springframework.stereotype.Service
 import kotlin.math.hypot
 import kotlin.math.roundToInt
+import net.bestia.zone.world.settlement.StandingSettlements
 
 /**
  * What, if anything, stands at each lattice cell.

@@ -8,7 +8,7 @@ import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.entity.StaticEntityKind
-import net.bestia.zone.world.spoor.TrackReading
+import net.bestia.zone.spoor.TrackReading
 
 /**
  * Everything a [SkillStrategy] may do to the world, and nothing else.

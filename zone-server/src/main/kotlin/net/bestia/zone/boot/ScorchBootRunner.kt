@@ -1,7 +1,7 @@
 package net.bestia.zone.boot
 
 import net.bestia.zone.world.WorldService
-import net.bestia.zone.world.fire.ScorchRegistry
+import net.bestia.zone.ground.fire.ScorchRegistry
 import org.springframework.boot.CommandLineRunner
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component

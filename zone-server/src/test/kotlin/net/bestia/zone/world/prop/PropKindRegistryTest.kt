@@ -2,7 +2,7 @@ package net.bestia.zone.world.prop
 
 import net.bestia.worldgen.poi.PoiKind
 import net.bestia.worldgen.voxel.PropKind
-import net.bestia.zone.world.fire.GroundFireConfig
+import net.bestia.zone.ground.fire.GroundFireConfig
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test

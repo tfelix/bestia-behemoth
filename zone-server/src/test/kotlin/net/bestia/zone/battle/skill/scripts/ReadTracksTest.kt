@@ -11,10 +11,10 @@ import net.bestia.zone.dialog.DialogArg
 import net.bestia.zone.dialog.DialogId
 import net.bestia.zone.dialog.DialogService
 import net.bestia.zone.geometry.Vec3L
-import net.bestia.zone.world.spoor.ActorKind
-import net.bestia.zone.world.spoor.ActorSignature
-import net.bestia.zone.world.spoor.SpoorConfig
-import net.bestia.zone.world.spoor.TrackReading
+import net.bestia.zone.spoor.ActorKind
+import net.bestia.zone.spoor.ActorSignature
+import net.bestia.zone.spoor.SpoorConfig
+import net.bestia.zone.spoor.TrackReading
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
