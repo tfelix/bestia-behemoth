@@ -40,12 +40,12 @@ import net.bestia.zone.battle.persistence.StatusEffectPersistenceService
 import net.bestia.zone.util.AccountId
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.ecs.core.WorldView
-import net.bestia.zone.identity.ecs.PartyMembership
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 import net.bestia.zone.account.persistence.Master
 import net.bestia.zone.account.persistence.MasterRepository
+import net.bestia.zone.party.membership
 
 /**
  * Materializes an already persisted [Master] row into a live ECS entity carrying every component a player
@@ -110,7 +110,7 @@ class MasterEntitySpawner(
     val inventory = buildInventory(master)
     val equipment = buildEquipment(master)
     val bestias = playerBestiaEntitySpawner.loadOwnedBy(masterId)
-    val partyMembership = master.party?.let { PartyMembership.of(it) }
+    val partyMembership = master.party?.membership()
 
     return world.createEntity(master.entityId) { id ->
       // Before the session is read from the world, so it also gets the bestias a restart lost.

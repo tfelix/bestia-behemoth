@@ -103,8 +103,6 @@ class FeatureSliceRulesTest {
     )
 
     /** Back edges not broken yet. The list must only shrink. */
-    val KNOWN_BACK_EDGES = setOf(
-      "identity -> account",
-    )
+    val KNOWN_BACK_EDGES = emptySet<String>()
   }
 }
