@@ -34,7 +34,7 @@ enum class DivergenceState { DEPLETED }
  * ### `resumeAt`: the same trigger, two different outcomes
  *
  * A felled tree and a claimed point-of-interest reach this row through the identical path - `PropVitality`/
- * `Health` hitting zero via [net.bestia.zone.ecs.battle.damage.ReceivedDamageSystem]'s ordinary `Dead` path -
+ * `Health` hitting zero via [net.bestia.zone.battle.ecs.damage.ReceivedDamageSystem]'s ordinary `Dead` path -
  * so [state] names *what happened* (`DEPLETED`) and [resumeAt] alone says whether it comes back: non-null
  * (a tree, given a `regrowSeconds` in `prop-kinds.yml`) means temporary, null (a POI, a crystal, a wound
  * spire, an aetherite shard - nothing else in `prop-kinds.yml` regrows) means terminal.

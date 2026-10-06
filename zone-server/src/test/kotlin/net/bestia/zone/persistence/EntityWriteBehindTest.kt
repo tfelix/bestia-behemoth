@@ -8,7 +8,7 @@ import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.util.EntityId
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
-import net.bestia.zone.ecs.persistence.StatusEffectPersistenceService
+import net.bestia.zone.battle.persistence.StatusEffectPersistenceService
 
 class EntityWriteBehindTest {
 

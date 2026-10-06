@@ -6,6 +6,7 @@ import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.skill.Skill
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
+import net.bestia.zone.battle.attack.BattleAttack
 
 /**
  * Builds the [SkillContext] one cast runs against: a snapshot of the fight plus a fresh budget.

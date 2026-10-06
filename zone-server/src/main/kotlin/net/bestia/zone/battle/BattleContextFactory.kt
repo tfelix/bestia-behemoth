@@ -1,15 +1,15 @@
 package net.bestia.zone.battle
 
-import net.bestia.zone.battle.skill.BattleAttack
+import net.bestia.zone.battle.attack.BattleAttack
 import net.bestia.zone.battle.status.DefenseValues
 import net.bestia.zone.battle.status.DerivedStatusValues
 import net.bestia.zone.battle.damage.DamageVariables
-import net.bestia.zone.ecs.battle.effects.StatusEffects
-import net.bestia.zone.ecs.battle.level.Level
-import net.bestia.zone.ecs.battle.status.CombatBonus
-import net.bestia.zone.ecs.battle.status.Health
-import net.bestia.zone.ecs.battle.status.Nature
-import net.bestia.zone.ecs.battle.status.StatusValues
+import net.bestia.zone.battle.ecs.effects.StatusEffects
+import net.bestia.zone.battle.ecs.level.Level
+import net.bestia.zone.battle.ecs.status.CombatBonus
+import net.bestia.zone.battle.ecs.status.Health
+import net.bestia.zone.battle.ecs.status.Nature
+import net.bestia.zone.battle.ecs.status.StatusValues
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.item.Equipment
 import net.bestia.zone.movement.ecs.Position

@@ -2,7 +2,7 @@ package net.bestia.zone.persistence
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.identity.ecs.Account
-import net.bestia.zone.ecs.battle.effects.StatusEffects
+import net.bestia.zone.battle.ecs.effects.StatusEffects
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.entity.ecs.EntityVisual
@@ -15,8 +15,8 @@ import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Service
 import java.util.concurrent.ConcurrentHashMap
 import net.bestia.zone.util.inClassNameOrder
-import net.bestia.zone.ecs.persistence.StatusEffectPersistenceService
-import net.bestia.zone.ecs.persistence.StatusEffectsSnapshot
+import net.bestia.zone.battle.persistence.StatusEffectPersistenceService
+import net.bestia.zone.battle.persistence.StatusEffectsSnapshot
 
 /**
  * Takes entity snapshots where the world may be read, and writes them off the tick. All writes about

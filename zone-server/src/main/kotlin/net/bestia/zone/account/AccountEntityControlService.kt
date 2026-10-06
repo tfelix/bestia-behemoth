@@ -6,9 +6,9 @@ import net.bestia.zone.config.WorldRulesConfig
 import net.bestia.zone.ai.ecs.PlayerControlled
 import net.bestia.zone.aoi.ActivePlayerAOIService
 import net.bestia.zone.identity.ecs.ActivePlayer
-import net.bestia.zone.ecs.battle.attack.AttackCancelService
+import net.bestia.zone.battle.ecs.attack.AttackCancelService
 import net.bestia.zone.entity.ecs.Dead
-import net.bestia.zone.ecs.battle.status.InCombat
+import net.bestia.zone.battle.ecs.status.InCombat
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.session.NoActiveSessionException

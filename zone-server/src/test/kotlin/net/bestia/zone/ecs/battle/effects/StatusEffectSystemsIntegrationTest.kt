@@ -3,8 +3,8 @@ package net.bestia.zone.ecs.battle.effects
 import net.bestia.zone.battle.StatusEffectService
 import net.bestia.zone.skill.SkillTargetType
 import net.bestia.zone.battle.skill.SkillStrategyFactory
-import net.bestia.zone.battle.skill.passive.PassiveSkillScript
-import net.bestia.zone.battle.skill.passive.PassiveSkillScriptRegistry
+import net.bestia.zone.battle.passive.PassiveSkillScript
+import net.bestia.zone.battle.passive.PassiveSkillScriptRegistry
 import net.bestia.zone.battle.status.RegenModifier
 import net.bestia.zone.battle.status.StackBehavior
 import net.bestia.zone.battle.status.StatusEffectDefinition
@@ -14,12 +14,12 @@ import net.bestia.zone.battle.status.StatusEffectScriptRegistry
 import net.bestia.zone.battle.status.ConditionValueCalculator
 import net.bestia.zone.battle.status.StatusValueRecalcContext
 import net.bestia.zone.skill.ecs.KnownSkills
-import net.bestia.zone.ecs.battle.status.BaseStatusValues
-import net.bestia.zone.ecs.battle.status.FormulaDrivenVitals
-import net.bestia.zone.ecs.battle.status.Health
-import net.bestia.zone.ecs.battle.status.IsStatusValueDirty
-import net.bestia.zone.ecs.battle.status.RegenerationModifiers
-import net.bestia.zone.ecs.battle.status.StatusValues
+import net.bestia.zone.battle.ecs.status.BaseStatusValues
+import net.bestia.zone.battle.ecs.status.FormulaDrivenVitals
+import net.bestia.zone.battle.ecs.status.Health
+import net.bestia.zone.battle.ecs.status.IsStatusValueDirty
+import net.bestia.zone.battle.ecs.status.RegenerationModifiers
+import net.bestia.zone.battle.ecs.status.StatusValues
 import net.bestia.zone.skill.Skill
 import net.bestia.zone.skill.SkillId
 import net.bestia.zone.ecs.core.World
@@ -36,6 +36,9 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import net.bestia.zone.ecs.core.EcsWorld
+import net.bestia.zone.battle.ecs.effects.StatusEffectDurationSystem
+import net.bestia.zone.battle.ecs.effects.StatusEffects
+import net.bestia.zone.battle.ecs.effects.StatusValueRecalcSystem
 
 /**
  * Exercises [StatusEffectDurationSystem] and [StatusValueRecalcSystem] wired together against a

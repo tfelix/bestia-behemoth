@@ -8,9 +8,9 @@ import net.bestia.zone.ecs.core.modify
 import net.bestia.zone.movement.ecs.Path
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.session.ConnectionInfoService
-import net.bestia.zone.ecs.battle.attack.AttackCancelService
+import net.bestia.zone.battle.ecs.attack.AttackCancelService
 import net.bestia.zone.entity.ecs.DeadActionGuard
-import net.bestia.zone.ecs.battle.skill.CastCancelService
+import net.bestia.zone.battle.ecs.skill.CastCancelService
 import net.bestia.zone.logout.ecs.LogoutCancelService
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.TickMessageHandler

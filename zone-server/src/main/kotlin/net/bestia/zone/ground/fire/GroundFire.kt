@@ -31,7 +31,7 @@ class GroundFire(
   /** Packed `(voxelX, voxelY)` to how many steps that cell has been alight. */
   val burning = HashMap<Long, Int>()
 
-  /** The invisible [net.bestia.zone.ecs.battle.effects.AreaEffect] entity covering the front, if one is up. */
+  /** The invisible [net.bestia.zone.battle.ecs.effects.AreaEffect] entity covering the front, if one is up. */
   var effectId: EntityId? = null
 
   var sinceLastStep: Float = 0f

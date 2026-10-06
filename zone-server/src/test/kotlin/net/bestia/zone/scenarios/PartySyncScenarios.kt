@@ -1,9 +1,9 @@
 package net.bestia.zone.scenarios
 
-import net.bestia.zone.ecs.battle.status.HealthComponentSMSG
-import net.bestia.zone.ecs.battle.status.ManaComponentSMSG
-import net.bestia.zone.ecs.battle.status.Health
-import net.bestia.zone.ecs.battle.status.Mana
+import net.bestia.zone.battle.ecs.status.HealthComponentSMSG
+import net.bestia.zone.battle.ecs.status.ManaComponentSMSG
+import net.bestia.zone.battle.ecs.status.Health
+import net.bestia.zone.battle.ecs.status.Mana
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.party.AlreadyInPartyException
 import net.bestia.zone.identity.ecs.PartyMembership

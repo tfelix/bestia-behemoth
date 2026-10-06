@@ -3,7 +3,7 @@ package net.bestia.zone.ai.perception
 import net.bestia.zone.ai.domain.townsfolk.TownsfolkDomain
 import net.bestia.zone.aoi.AoiLayer
 import net.bestia.zone.aoi.EntityAOIService
-import net.bestia.zone.ecs.battle.damage.TakenDamage
+import net.bestia.zone.battle.ecs.damage.TakenDamage
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.movement.ecs.Position

@@ -2,7 +2,7 @@ package net.bestia.zone.ecs.construction
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.entity.ecs.Dead
-import net.bestia.zone.ecs.battle.status.Health
+import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.System

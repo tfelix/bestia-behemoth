@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component
  * On top of the name lookup it also resolves scripts straight by **item id**. That mapping is not
  * derivable from the beans alone (it lives in `items.yml`), so it is injected once at boot by
  * [net.bestia.zone.boot.EquipmentScriptBinderBootRunner] via [bind]. It matters because
- * [net.bestia.zone.ecs.battle.effects.StatusValueRecalcSystem] needs a script for every worn item
+ * [net.bestia.zone.battle.ecs.effects.StatusValueRecalcSystem] needs a script for every worn item
  * on the tick thread, where a repository round trip per item is not acceptable.
  */
 @Component

@@ -3,7 +3,7 @@ package net.bestia.zone.ai.ecs
 import net.bestia.zone.battle.status.AttackSpeed
 import net.bestia.zone.ai.domain.bestia.BestiaDomain
 import net.bestia.zone.bestia.DefaultAttack
-import net.bestia.zone.ecs.battle.status.Health
+import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.entity.ecs.Animation
 import net.bestia.zone.movement.ecs.CoarseMovement
 import net.bestia.zone.movement.ecs.Position

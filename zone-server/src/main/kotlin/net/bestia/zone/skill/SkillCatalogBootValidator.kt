@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component
  *
  * The reverse is the **normal** case and must never fail: most of `skills.yml` is content no code
  * names, and adding a skill has to stay a content-only edit.
- * [net.bestia.zone.battle.skill.passive.PassiveSkillScriptRegistry] draws the same line for the same
+ * [net.bestia.zone.battle.passive.PassiveSkillScriptRegistry] draws the same line for the same
  * reason.
  *
  * Runs from [net.bestia.zone.boot.ContentValidationBootRunner], after

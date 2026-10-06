@@ -2,7 +2,7 @@ package net.bestia.zone.battle.status
 
 /**
  * The accumulated flat and percentage bonus to **one** condition pool's regeneration rate - not to be
- * confused with [net.bestia.zone.ecs.battle.status.RegenerationModifiers], the component that carries
+ * confused with [net.bestia.zone.battle.ecs.status.RegenerationModifiers], the component that carries
  * one of these per pool.
  *
  * Every contributor a character has folds into a single pair of numbers here: worn equipment, active

@@ -6,7 +6,7 @@ import net.bestia.zone.crafting.CraftingFixture.Companion.INPUT_ITEM
 import net.bestia.zone.crafting.CraftingFixture.Companion.SKILL_ID
 import net.bestia.zone.crafting.CraftingFixture.Companion.recipe
 import net.bestia.zone.crafting.CraftingFixture.Companion.stack
-import net.bestia.zone.ecs.crafting.Crafting
+import net.bestia.zone.battle.ecs.skill.Crafting
 import net.bestia.zone.ecs.item.ObtainItemIntent
 import net.bestia.zone.economy.CoinReserve
 import org.junit.jupiter.api.Assertions.assertEquals

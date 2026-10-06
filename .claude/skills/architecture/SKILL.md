@@ -141,7 +141,7 @@ Use those files as a template instead of re-deriving the shape from scratch.
    broadcast event (`battle/damage/DamageEntitySMSG.kt`, sent via
    `OutMessageProcessor.sendToObserversOf(world, entityId, msg)` to the same audience as the
    entity's component state, `aoi/EntityAudience.kt`), or persistent entity-state
-   sync (`ecs/battle/status/SkillPointsComponentSMSG.kt`'s owning component implements `Dirtyable` +
+   sync (`battle/ecs/status/SkillPointsComponentSMSG.kt`'s owning component implements `Dirtyable` +
    `toEntityMessage()` and is auto-pushed on change — only use this shape for actual
    entity state, not one-off events).
 5. **C# client wrappers**: outgoing message is an `ICMSG` subclass under

@@ -9,9 +9,9 @@ import net.bestia.zone.skill.tree.MasterSkillTreeNode
 import net.bestia.zone.skill.tree.MasterSkillTreeRegistry
 import net.bestia.zone.skill.NoviceGate
 import net.bestia.zone.identity.ecs.Account
-import net.bestia.zone.ecs.battle.level.Level
+import net.bestia.zone.battle.ecs.level.Level
 import net.bestia.zone.skill.ecs.KnownSkills
-import net.bestia.zone.ecs.battle.status.IsStatusValueDirty
+import net.bestia.zone.battle.ecs.status.IsStatusValueDirty
 import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.ecs.item.Equipment

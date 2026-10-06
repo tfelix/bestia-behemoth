@@ -106,7 +106,7 @@ invested level with nothing deciding which one a point bought.
 ### A basic attack is not a skill
 
 A sword swing, an arrow, a mob's bite has **no entry in this file at all**. It is a `BattleAttack`
-(`battle/skill/BattleAttack.kt`) resolved by `AttackStrategyFactory` → `AttackStrategy` and run by
+(`battle/attack/BattleAttack.kt`) resolved by `AttackStrategyFactory` → `AttackStrategy` and run by
 `AttackExecutionService` — no catalogue row, no script, no mana, no cast bar. That split is why
 `AttackType` still exists (it selects the melee/ranged/magic formula) but no longer appears in
 `skills.yml`.

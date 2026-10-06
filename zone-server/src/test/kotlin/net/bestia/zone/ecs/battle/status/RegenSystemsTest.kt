@@ -10,6 +10,16 @@ import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import net.bestia.zone.ecs.core.EcsWorld
+import net.bestia.zone.battle.ecs.status.Health
+import net.bestia.zone.battle.ecs.status.HpRegenSystem
+import net.bestia.zone.battle.ecs.status.InCombat
+import net.bestia.zone.battle.ecs.status.InCombatSystem
+import net.bestia.zone.battle.ecs.status.Mana
+import net.bestia.zone.battle.ecs.status.ManaRegenSystem
+import net.bestia.zone.battle.ecs.status.RegenerationModifiers
+import net.bestia.zone.battle.ecs.status.Stamina
+import net.bestia.zone.battle.ecs.status.StaminaRegenSystem
+import net.bestia.zone.battle.ecs.status.StatusValues
 
 /**
  * Drives [HpRegenSystem], [ManaRegenSystem] and [StaminaRegenSystem] against a real [World], the

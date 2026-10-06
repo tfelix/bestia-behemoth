@@ -4,9 +4,9 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.identity.ecs.Account
-import net.bestia.zone.ecs.battle.exp.Exp
+import net.bestia.zone.battle.ecs.exp.Exp
 import net.bestia.zone.ecs.battle.exp.ExperienceGainCalculator
-import net.bestia.zone.ecs.battle.exp.GainExp
+import net.bestia.zone.battle.ecs.exp.GainExp
 import net.bestia.zone.entity.ecs.EntityVisual
 import net.bestia.zone.entity.ecs.VisualKind
 import net.bestia.zone.ecs.core.ComponentClassSet
@@ -23,6 +23,9 @@ import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component as SpringComponent
 import net.bestia.zone.ecs.core.update
 import net.bestia.zone.entity.ecs.Dead
+import net.bestia.zone.battle.ecs.damage.GroundSpill
+import net.bestia.zone.battle.ecs.damage.PlayerDeathSystem
+import net.bestia.zone.battle.ecs.damage.TakenDamage
 
 @SpringComponent
 class DeathSystem(

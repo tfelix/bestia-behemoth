@@ -1,9 +1,9 @@
 package net.bestia.zone.battle
 
 import io.mockk.mockk
-import net.bestia.zone.battle.skill.AttackExecutionService
-import net.bestia.zone.battle.skill.AttackStrategyFactory
-import net.bestia.zone.ecs.battle.status.StatusValues
+import net.bestia.zone.battle.attack.AttackExecutionService
+import net.bestia.zone.battle.attack.AttackStrategyFactory
+import net.bestia.zone.battle.ecs.status.StatusValues
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.testWorld
@@ -17,7 +17,7 @@ import net.bestia.zone.world.prop.PropPromotionService
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import net.bestia.zone.ecs.battle.damage.Damage as DamageComponent
+import net.bestia.zone.battle.ecs.damage.Damage as DamageComponent
 
 /**
  * A player's click reaches the same [AttackExecutionService] a mob's bite does, rather than the random number

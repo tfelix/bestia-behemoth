@@ -8,7 +8,7 @@ import net.bestia.zone.battle.skill.SkillExecutionService
 import net.bestia.zone.battle.skill.SkillStrategyFactory
 import net.bestia.zone.skill.SkillTargetType
 import net.bestia.zone.entity.ecs.DeadActionGuard
-import net.bestia.zone.ecs.battle.skill.Casting
+import net.bestia.zone.battle.ecs.skill.Casting
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.modify
 import net.bestia.zone.session.ConnectionInfoService
@@ -33,7 +33,7 @@ import org.springframework.stereotype.Component
  *
  * A basic attack does **not** come through here: it has no catalogue row and no script, so it arrives as
  * an [AttackEntityCMSG] and is resolved by
- * [net.bestia.zone.battle.skill.AttackExecutionService] instead.
+ * [net.bestia.zone.battle.attack.AttackExecutionService] instead.
  */
 @Component
 class ActivateSkillHandler(

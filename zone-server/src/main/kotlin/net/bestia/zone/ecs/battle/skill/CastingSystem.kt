@@ -7,6 +7,7 @@ import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import org.springframework.stereotype.Component as SpringComponent
+import net.bestia.zone.battle.ecs.skill.Casting
 
 /**
  * Drives the cast-time countdown. Every tick it advances each [Casting] and, on the tick it elapses,
@@ -15,8 +16,8 @@ import org.springframework.stereotype.Component as SpringComponent
  * Removing the component is also what tells the client the bar is done - the same signal an
  * interrupt produces, since visually both just end the cast. Interruption
  * itself is not handled here; it happens by removing the component elsewhere (see
- * [CastCancelService] for message handlers and
- * [net.bestia.zone.ecs.battle.damage.ReceivedDamageSystem] for damage).
+ * [net.bestia.zone.battle.ecs.skill.CastCancelService] for message handlers and
+ * [net.bestia.zone.battle.ecs.damage.ReceivedDamageSystem] for damage).
  */
 @SpringComponent
 class CastingSystem(

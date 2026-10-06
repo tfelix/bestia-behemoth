@@ -6,13 +6,13 @@ import net.bestia.zone.account.master.MasterRepository
 import net.bestia.zone.skill.tree.MasterSkillTreeRegistry
 import net.bestia.zone.identity.ecs.Master as MasterComponent
 import net.bestia.zone.entity.ecs.Dead
-import net.bestia.zone.ecs.battle.exp.Exp
-import net.bestia.zone.ecs.battle.level.Level
+import net.bestia.zone.battle.ecs.exp.Exp
+import net.bestia.zone.battle.ecs.level.Level
 import net.bestia.zone.skill.ecs.KnownSkills
-import net.bestia.zone.ecs.battle.status.Health
-import net.bestia.zone.ecs.battle.status.BaseStatusValues
-import net.bestia.zone.ecs.battle.status.SkillPoints
-import net.bestia.zone.ecs.battle.status.StatusPoints
+import net.bestia.zone.battle.ecs.status.Health
+import net.bestia.zone.battle.ecs.status.BaseStatusValues
+import net.bestia.zone.battle.ecs.status.SkillPoints
+import net.bestia.zone.battle.ecs.status.StatusPoints
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.movement.ecs.Position

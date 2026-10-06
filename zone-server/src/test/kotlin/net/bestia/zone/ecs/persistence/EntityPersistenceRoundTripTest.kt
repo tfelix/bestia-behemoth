@@ -2,7 +2,7 @@ package net.bestia.zone.ecs.persistence
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import net.bestia.zone.bestia.BestiaEntitySpawner
-import net.bestia.zone.ecs.battle.status.Health
+import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.ecs.core.SnowflakeEntityIdGenerator
 import net.bestia.zone.ecs.core.EcsWorld
 import net.bestia.zone.ecs.core.World

@@ -4,8 +4,8 @@ import io.mockk.every
 import io.mockk.mockk
 import net.bestia.zone.account.master.MasterResolver
 import net.bestia.zone.config.WorldRulesConfig
-import net.bestia.zone.ecs.battle.attack.AttackCancelService
-import net.bestia.zone.ecs.battle.status.InCombat
+import net.bestia.zone.battle.ecs.attack.AttackCancelService
+import net.bestia.zone.battle.ecs.status.InCombat
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.testWorld

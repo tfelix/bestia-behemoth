@@ -8,7 +8,7 @@ import kotlin.math.max
  * Magic damage: the same [BaseDamageCalculator] shape as the two physical calculators, off `MATK` and
  * `SoftMDEF` instead of `ATK` and `SoftDEF`.
  *
- * **Nothing uses this yet.** No weapon is magic ([net.bestia.zone.battle.skill.AttackStrategyFactory] routes
+ * **Nothing uses this yet.** No weapon is magic ([net.bestia.zone.battle.attack.AttackStrategyFactory] routes
  * `MAGIC` to melee), and the magic skills that exist - `Firebolt`, `Ember`, `Heal` - each compute their own
  * number in their own script. It is implemented rather than left as a stub so that the day a skill wants the
  * shared formula, the formula is there and is the same one everything else uses; and because a `TODO()` in a

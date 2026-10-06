@@ -3,7 +3,7 @@ package net.bestia.zone.ai.ecs
 import io.mockk.verify
 import net.bestia.zone.ai.domain.bestia.BestiaDomain
 import net.bestia.zone.ai.profile.AiProfileDto
-import net.bestia.zone.battle.skill.AttackType
+import net.bestia.zone.battle.attack.AttackType
 import net.bestia.zone.bestia.DefaultAttack
 import net.bestia.zone.movement.ecs.Path
 import net.bestia.zone.geometry.Vec3L

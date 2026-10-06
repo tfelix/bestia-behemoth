@@ -13,7 +13,7 @@ data class Speed(
   /**
    * The unbuffed speed, set once at spawn and never touched by buffs. [speed] is the effective,
    * synced value - recomputed from this by
-   * `net.bestia.zone.ecs.battle.effects.StatusValueRecalcSystem` whenever an active status
+   * `net.bestia.zone.battle.ecs.effects.StatusValueRecalcSystem` whenever an active status
    * effect's script mutates `StatusValueRecalcContext.speed`.
    */
   val baseSpeed: Float = _speed

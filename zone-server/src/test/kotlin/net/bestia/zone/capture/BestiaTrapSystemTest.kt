@@ -8,8 +8,8 @@ import net.bestia.zone.bestia.BestiaCatalogue
 import net.bestia.zone.aoi.EntityAOIService
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.entity.ecs.Dead
-import net.bestia.zone.ecs.battle.damage.TakenDamage
-import net.bestia.zone.ecs.battle.status.Health
+import net.bestia.zone.battle.ecs.damage.TakenDamage
+import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.entity.ecs.EntityVisual

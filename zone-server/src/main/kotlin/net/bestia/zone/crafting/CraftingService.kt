@@ -9,7 +9,7 @@ import net.bestia.zone.skill.ecs.KnownSkills
 import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.modify
-import net.bestia.zone.ecs.crafting.Crafting
+import net.bestia.zone.battle.ecs.skill.Crafting
 import net.bestia.zone.ecs.item.Inventory
 import net.bestia.zone.ecs.item.ItemTemplateRegistry
 import net.bestia.zone.economy.CoinReserve

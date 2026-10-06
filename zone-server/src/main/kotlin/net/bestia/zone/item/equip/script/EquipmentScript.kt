@@ -6,13 +6,13 @@ import net.bestia.zone.item.equip.EquipmentSlot
 /**
  * What wearing one item does to its wearer: primary attributes, speed and regeneration, and the flat attack
  * and worn ("hard") defence that reach the damage formula through
- * [net.bestia.zone.ecs.battle.status.CombatBonus]. Registered under its simple class name
+ * [net.bestia.zone.battle.ecs.status.CombatBonus]. Registered under its simple class name
  * (see [EquipmentScriptRegistry]) and referenced by `Item.script` for
  * [net.bestia.zone.item.Item.ItemType.EQUIP] items - the same script-name-to-bean pattern as
  * [net.bestia.zone.battle.status.StatusEffectScript] / [net.bestia.zone.battle.status.StatusEffectScriptRegistry].
  *
- * Applied by [net.bestia.zone.ecs.battle.effects.StatusValueRecalcSystem] on the tick thread while
- * it rebuilds [net.bestia.zone.ecs.battle.status.StatusValues] from scratch, so implementations
+ * Applied by [net.bestia.zone.battle.ecs.effects.StatusValueRecalcSystem] on the tick thread while
+ * it rebuilds [net.bestia.zone.battle.ecs.status.StatusValues] from scratch, so implementations
  * must be stateless and must only mutate [StatusValueRecalcContext].
  *
  * Equipment without any stat effect simply has no script at all - unlike a status effect, there is

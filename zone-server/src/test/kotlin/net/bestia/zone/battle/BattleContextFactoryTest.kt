@@ -1,8 +1,8 @@
 package net.bestia.zone.battle
 
 import io.mockk.mockk
-import net.bestia.zone.ecs.battle.status.Nature
-import net.bestia.zone.ecs.battle.status.StatusValues
+import net.bestia.zone.battle.ecs.status.Nature
+import net.bestia.zone.battle.ecs.status.StatusValues
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.movement.ecs.Position

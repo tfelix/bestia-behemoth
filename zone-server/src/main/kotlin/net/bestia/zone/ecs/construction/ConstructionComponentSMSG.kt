@@ -8,7 +8,7 @@ import net.bestia.zone.message.EntitySMSG
  * In-range broadcast of a construction site's progress, driving how far the finished art has faded in.
  * Produced by [ConstructionSite.toEntityMessage].
  *
- * Not [net.bestia.zone.ecs.battle.skill.CastingComponentSMSG], which a craft does reuse - see the proto.
+ * Not [net.bestia.zone.battle.ecs.skill.CastingComponentSMSG], which a craft does reuse - see the proto.
  */
 data class ConstructionComponentSMSG(
   override val entityId: Long,

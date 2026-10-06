@@ -1,7 +1,7 @@
 package net.bestia.zone.ecs.item
 
-import net.bestia.zone.ecs.battle.level.Level
-import net.bestia.zone.ecs.battle.status.StatusValues
+import net.bestia.zone.battle.ecs.level.Level
+import net.bestia.zone.battle.ecs.status.StatusValues
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.util.EntityId
 import org.junit.jupiter.api.Assertions.assertEquals

@@ -5,7 +5,7 @@ import net.bestia.zone.ecs.core.Component
 /**
  * How much punishment a static entity can take, before it has taken any.
  *
- * Not [net.bestia.zone.ecs.battle.status.Health], for the reason [PropPose] is not `Position`, and with a
+ * Not [net.bestia.zone.battle.ecs.status.Health], for the reason [PropPose] is not `Position`, and with a
  * second one on top: being in the `Health` store puts an entity in front of `HpRegenSystem`, `DeathSystem` and
  * `ReceivedDamageSystem`, all of which query it directly. A pristine tree has nothing for any of them to do.
  *

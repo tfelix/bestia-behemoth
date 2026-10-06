@@ -15,7 +15,7 @@ package net.bestia.zone.sync
  * Throttling the *system* instead (the way [net.bestia.zone.logout.ecs.LogoutSystem] does) would tie
  * resolution granularity to the send rate, and a 1.5s cast resolving at 2.0s is not acceptable in
  * combat. Hence the accumulator here, for the same reason
- * [net.bestia.zone.ecs.battle.effects.AreaEffect] carries its own.
+ * [net.bestia.zone.battle.ecs.effects.AreaEffect] carries its own.
  */
 abstract class Countdown(
   remainingSeconds: Float

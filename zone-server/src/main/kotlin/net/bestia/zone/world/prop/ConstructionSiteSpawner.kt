@@ -1,8 +1,8 @@
 package net.bestia.zone.world.prop
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.ecs.battle.status.Health
-import net.bestia.zone.ecs.battle.status.StatusValues
+import net.bestia.zone.battle.ecs.status.Health
+import net.bestia.zone.battle.ecs.status.StatusValues
 import net.bestia.zone.ecs.construction.ConstructionSite
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.entity.ecs.EntityVisual

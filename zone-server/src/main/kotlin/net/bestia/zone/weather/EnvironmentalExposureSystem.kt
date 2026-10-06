@@ -2,9 +2,9 @@ package net.bestia.zone.weather
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.skill.ecs.KnownSkills
-import net.bestia.zone.ecs.battle.status.Health
-import net.bestia.zone.ecs.battle.status.Invulnerable
-import net.bestia.zone.ecs.battle.status.Stamina
+import net.bestia.zone.battle.ecs.status.Health
+import net.bestia.zone.battle.ecs.status.Invulnerable
+import net.bestia.zone.battle.ecs.status.Stamina
 import net.bestia.zone.config.WorldRulesConfig
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Phase

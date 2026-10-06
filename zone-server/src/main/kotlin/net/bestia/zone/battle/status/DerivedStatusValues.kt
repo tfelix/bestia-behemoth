@@ -9,7 +9,7 @@ package net.bestia.zone.battle.status
  * Formulas follow the game docs (https://docs.bestia-game.net/docs/mechanics/statusvalues/),
  * simplified to the parts expressible today: the docs' additive `Mod`/multiplicative `ModPerc` terms are
  * omitted here (`ModSum = 0`, `ModPerc = 1`). That is not the same as saying equipment does nothing - gear
- * reaches the damage formula through [net.bestia.zone.ecs.battle.status.CombatBonus] and through the
+ * reaches the damage formula through [net.bestia.zone.battle.ecs.status.CombatBonus] and through the
  * primary attributes these are derived from, just not as a modifier on the derived value itself.
  */
 data class DerivedStatusValues(

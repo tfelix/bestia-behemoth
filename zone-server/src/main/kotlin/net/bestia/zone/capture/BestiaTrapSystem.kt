@@ -1,17 +1,17 @@
 package net.bestia.zone.capture
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.battle.skill.ThreadLocalRandomSource
+import net.bestia.zone.battle.attack.ThreadLocalRandomSource
 import net.bestia.zone.bestia.BestiaCatalogue
 import net.bestia.zone.aoi.AoiLayer
 import net.bestia.zone.aoi.EntityAOIService
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.entity.ecs.Dead
-import net.bestia.zone.ecs.battle.damage.TakenDamage
+import net.bestia.zone.battle.ecs.damage.TakenDamage
 import net.bestia.zone.skill.ecs.KnownSkills
-import net.bestia.zone.ecs.battle.status.Health
-import net.bestia.zone.ecs.battle.status.Invulnerable
-import net.bestia.zone.ecs.battle.status.StatusValues
+import net.bestia.zone.battle.ecs.status.Health
+import net.bestia.zone.battle.ecs.status.Invulnerable
+import net.bestia.zone.battle.ecs.status.StatusValues
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.Schedule
