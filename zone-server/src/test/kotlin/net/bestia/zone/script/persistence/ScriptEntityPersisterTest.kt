@@ -19,7 +19,7 @@ import kotlin.test.assertTrue
  * Exercises [ScriptEntityPersister.loadAll]'s double duty: creating one script entity per settlement
  * spawn point candidate when none are persisted yet, and rehydrating those exact entity ids - not
  * duplicating them - on a later "restart". Uses isolated [World] instances rather than the
- * Spring-managed world, same as [net.bestia.zone.ecs.persistence.EntityPersistenceRoundTripTest].
+ * Spring-managed world, same as [net.bestia.zone.persistence.EntityPersistenceRoundTripTest].
  */
 @SpringBootTest
 @ActiveProfiles("no-socket", "test")

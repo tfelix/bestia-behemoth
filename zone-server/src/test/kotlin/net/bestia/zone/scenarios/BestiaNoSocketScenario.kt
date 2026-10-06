@@ -1,6 +1,6 @@
 package net.bestia.zone.scenarios
 
-import net.bestia.zone.ecs.NoSqlOnTickExtension
+import net.bestia.zone.engine.NoSqlOnTickExtension
 import net.bestia.zone.mocks.GameClientMock
 import net.bestia.zone.mocks.GameClientMockFactory
 import org.awaitility.Awaitility

@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test
 /**
  * A townsperson's whole day, through the real pipeline: perception, drives, planner, behaviour, movement.
  *
- * [net.bestia.zone.ai.domain.townsfolk.TownsfolkDayTest] settles what the planner *decides*; this settles
+ * [net.bestia.zone.townsfolk.domain.TownsfolkDayTest] settles what the planner *decides*; this settles
  * that the decisions survive contact with the world - that the hour reaches memory at all, that the walk
  * home actually moves the entity, and that morning ends the sleep rather than the sleep ending itself.
  */

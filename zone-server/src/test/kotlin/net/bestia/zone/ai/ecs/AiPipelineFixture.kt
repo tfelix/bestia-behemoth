@@ -16,7 +16,7 @@ import net.bestia.zone.townsfolk.ecs.TownsfolkIdentity
 import net.bestia.zone.ai.perception.ForageSense
 import net.bestia.zone.ai.perception.PerceptionSystem
 import net.bestia.zone.ai.perception.SenseSystem
-import net.bestia.zone.ai.domain.townsfolk.TownsfolkDomainFixture
+import net.bestia.zone.townsfolk.domain.TownsfolkDomainFixture
 import net.bestia.zone.townsfolk.domain.TownsfolkProduction
 import net.bestia.zone.townsfolk.perception.SettlementFood
 import net.bestia.zone.townsfolk.perception.SettlementWork
