@@ -9,9 +9,9 @@ import net.bestia.zone.battle.skill.SkillContext
 import net.bestia.zone.battle.skill.SkillExecutionService
 import net.bestia.zone.battle.skill.SkillStrategy
 import net.bestia.zone.battle.skill.SkillStrategyFactory
-import net.bestia.zone.battle.skill.SkillTargetType
+import net.bestia.zone.skill.SkillTargetType
 import net.bestia.zone.ecs.battle.skill.Casting
-import net.bestia.zone.ecs.battle.skill.KnownSkills
+import net.bestia.zone.skill.ecs.KnownSkills
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.testWorld

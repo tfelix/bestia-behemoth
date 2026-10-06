@@ -1,4 +1,4 @@
-package net.bestia.zone.account.master.skill
+package net.bestia.zone.skill.tree
 
 /**
  * Static, in-memory definition of a single skill in the bestia master's skill tree: which skill
@@ -8,7 +8,7 @@ package net.bestia.zone.account.master.skill
  * is config, not player state, so it is never persisted to the database.
  *
  * [tree] and [subTree] used to be client-presentation-only (the grouping the Skills window reads
- * from its own Attack DB) but are now also load-bearing server-side: [MasterSkillTreeService]
+ * from its own Attack DB) but are now also load-bearing server-side: [net.bestia.zone.account.master.skill.MasterSkillTreeService]
  * gates investment outside the Novice tree behind Basic Skill 5, and gates a [subTree] behind
  * 5+ points spent anywhere in [tree].
  */

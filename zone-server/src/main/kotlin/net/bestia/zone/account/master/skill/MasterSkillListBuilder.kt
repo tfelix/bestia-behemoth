@@ -2,6 +2,7 @@ package net.bestia.zone.account.master.skill
 
 import net.bestia.zone.skill.SkillListSMSG
 import org.springframework.stereotype.Service
+import net.bestia.zone.skill.tree.MasterSkillTreeRegistry
 
 /**
  * Builds a master's merged skill list - the whole skill tree (config, not player state), every

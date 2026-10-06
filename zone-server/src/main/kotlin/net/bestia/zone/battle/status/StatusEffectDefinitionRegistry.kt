@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service
  * In-memory store of the status effect catalog, keyed by effect id. Populated once at boot by
  * [net.bestia.zone.boot.StatusEffectImporterBootRunner] from `status_effects.yml`; the catalog is config, not
  * player state, so it is never persisted to the database (mirrors
- * [net.bestia.zone.account.master.skill.MasterSkillTreeRegistry]).
+ * [net.bestia.zone.skill.tree.MasterSkillTreeRegistry]).
  */
 @Service
 class StatusEffectDefinitionRegistry {

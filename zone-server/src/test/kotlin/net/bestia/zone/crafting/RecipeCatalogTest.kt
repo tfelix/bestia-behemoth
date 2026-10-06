@@ -7,7 +7,7 @@ import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.mockk.every
 import io.mockk.mockk
 import net.bestia.zone.boot.RecipeImporterBootRunner
-import net.bestia.zone.ecs.battle.skill.KnownSkills
+import net.bestia.zone.skill.ecs.KnownSkills
 import net.bestia.zone.item.Item
 import net.bestia.zone.item.ItemRepository
 import net.bestia.zone.skill.Skill

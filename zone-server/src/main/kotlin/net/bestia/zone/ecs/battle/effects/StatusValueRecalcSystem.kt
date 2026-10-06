@@ -8,7 +8,7 @@ import net.bestia.zone.battle.status.StatusValueRecalcContext
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.identity.ecs.Master
 import net.bestia.zone.ecs.battle.level.Level
-import net.bestia.zone.ecs.battle.skill.KnownSkills
+import net.bestia.zone.skill.ecs.KnownSkills
 import net.bestia.zone.ecs.battle.status.CombatBonus
 import net.bestia.zone.ecs.battle.status.RegenerationModifiers
 import net.bestia.zone.ecs.battle.status.BaseStatusValues

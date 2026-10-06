@@ -1,4 +1,4 @@
-package net.bestia.zone.account.master.skill
+package net.bestia.zone.skill.tree
 
 import net.bestia.zone.BestiaException
 

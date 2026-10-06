@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import net.bestia.zone.ecs.battle.damage.Damage as DamageComponent
 import net.bestia.zone.ecs.core.EcsWorld
+import net.bestia.zone.skill.SkillTargetType
 
 class SkillExecutionServiceTest {
 

@@ -29,7 +29,7 @@ enum class SkillId {
 
   /**
    * The permission ladder - trading, chat and parties are gated on its rank rather than on any
-   * effect ([net.bestia.zone.account.master.skill.BasicSkillGate]), and it is also the gate on every
+   * effect ([net.bestia.zone.skill.BasicSkillGate]), and it is also the gate on every
    * skill tree but Novice. Pinned at catalogue id 1, which the client hardcodes.
    */
   BASIC_SKILL,

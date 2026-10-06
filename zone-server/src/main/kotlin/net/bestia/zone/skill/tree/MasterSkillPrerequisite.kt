@@ -1,4 +1,4 @@
-package net.bestia.zone.account.master.skill
+package net.bestia.zone.skill.tree
 
 /**
  * A single edge of the master skill tree's prerequisite DAG: the owning [MasterSkillTreeNode]

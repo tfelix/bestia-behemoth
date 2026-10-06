@@ -2,7 +2,7 @@ package net.bestia.zone.account.master
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.skill.LearnedSkillRepository
-import net.bestia.zone.ecs.battle.skill.KnownSkills
+import net.bestia.zone.skill.ecs.KnownSkills
 import net.bestia.zone.ecs.battle.status.BaseStatusValues
 import net.bestia.zone.ecs.battle.status.FormulaDrivenVitals
 import net.bestia.zone.ecs.battle.status.StatusValues

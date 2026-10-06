@@ -10,7 +10,7 @@ import net.bestia.zone.battle.skill.AttackExecutionService
 import net.bestia.zone.config.WorldRulesConfig
 import net.bestia.zone.ecs.battle.damage.Damage
 import net.bestia.zone.entity.ecs.Dead
-import net.bestia.zone.ecs.battle.skill.KnownSkills
+import net.bestia.zone.skill.ecs.KnownSkills
 import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.entity.ecs.Animation
 import net.bestia.zone.ecs.battle.status.Health

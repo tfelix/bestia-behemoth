@@ -2,7 +2,7 @@ package net.bestia.zone.account.master.skill
 
 import net.bestia.zone.account.master.MasterNotFoundException
 import net.bestia.zone.identity.ecs.Master as MasterComponent
-import net.bestia.zone.ecs.battle.skill.KnownSkills
+import net.bestia.zone.skill.ecs.KnownSkills
 import net.bestia.zone.ecs.battle.status.IsStatusValueDirty
 import net.bestia.zone.ecs.battle.status.SkillPoints
 import net.bestia.zone.ecs.core.World
@@ -17,11 +17,14 @@ import net.bestia.zone.util.AccountId
 import net.bestia.zone.util.EntityId
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
+import net.bestia.zone.skill.MasterSkillsChangedEvent
+import net.bestia.zone.skill.tree.MasterSkillTreeRegistry
+import net.bestia.zone.skill.tree.SkillTreeNodeNotFoundException
 
 /**
  * Spends a bestia master's unspent skill points to invest levels into nodes of the master skill
  * tree ([MasterSkillTreeRegistry]). The tree is a DAG: a node only becomes investable once all of
- * its [MasterSkillPrerequisite] edges are satisfied at the required level.
+ * its [net.bestia.zone.skill.tree.MasterSkillPrerequisite] edges are satisfied at the required level.
  *
  * On the tick, against [KnownSkills] and [SkillPoints], which are the authority while the master is
  * online. The master's write-behind then saves the points and the learned levels in one transaction, so a

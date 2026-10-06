@@ -4,7 +4,7 @@ import net.bestia.zone.battle.damage.Damage
 import net.bestia.zone.battle.skill.SkillContext
 import net.bestia.zone.battle.skill.SkillStrategyFactory
 import net.bestia.zone.battle.skill.SkillStrategy
-import net.bestia.zone.battle.skill.SkillTargetType
+import net.bestia.zone.skill.SkillTargetType
 import net.bestia.zone.battle.status.StatusValueRecalcContext
 import net.bestia.zone.skill.Skill
 import net.bestia.zone.skill.SkillId

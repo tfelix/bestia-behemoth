@@ -1,4 +1,4 @@
-package net.bestia.zone.account.master.skill
+package net.bestia.zone.skill
 
 import net.bestia.zone.BestiaEvent
 import net.bestia.zone.util.EntityId
@@ -6,7 +6,7 @@ import net.bestia.zone.util.EntityId
 /**
  * A master's learned skills have moved: what they qualify for may have changed with them.
  *
- * Published by [MasterSkillTreeService] once an investment has been written to both the database and the
+ * Published by [net.bestia.zone.account.master.skill.MasterSkillTreeService] once an investment has been written to both the database and the
  * entity, and listened for by `EquipmentRevalidationService`, which takes off novice-only gear the master has
  * just outgrown.
  *

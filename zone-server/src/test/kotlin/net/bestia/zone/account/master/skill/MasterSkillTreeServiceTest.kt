@@ -3,7 +3,7 @@ package net.bestia.zone.account.master.skill
 import io.mockk.mockk
 import io.mockk.verify
 import net.bestia.zone.identity.ecs.Master as MasterComponent
-import net.bestia.zone.ecs.battle.skill.KnownSkills
+import net.bestia.zone.skill.ecs.KnownSkills
 import net.bestia.zone.ecs.battle.status.SkillPoints
 import net.bestia.zone.ecs.core.EcsWorld
 import net.bestia.zone.ecs.core.World
@@ -22,6 +22,10 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.context.ApplicationEventPublisher
 import java.util.concurrent.CompletableFuture
+import net.bestia.zone.skill.MasterSkillsChangedEvent
+import net.bestia.zone.skill.tree.MasterSkillPrerequisite
+import net.bestia.zone.skill.tree.MasterSkillTreeNode
+import net.bestia.zone.skill.tree.MasterSkillTreeRegistry
 
 /**
  * A small test tree standing in for `master_skill_tree.yml`: BASIC_SKILL in Novice, a Craftsman

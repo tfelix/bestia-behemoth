@@ -1,12 +1,9 @@
-package net.bestia.zone.account.master.skill
+package net.bestia.zone.skill
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.ecs.battle.skill.KnownSkills
+import net.bestia.zone.skill.ecs.KnownSkills
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.session.ConnectionInfoService
-import net.bestia.zone.skill.SkillId
-import net.bestia.zone.skill.SkillRepository
-import net.bestia.zone.skill.findByIdentifier
 import net.bestia.zone.util.AccountId
 import org.springframework.stereotype.Service
 

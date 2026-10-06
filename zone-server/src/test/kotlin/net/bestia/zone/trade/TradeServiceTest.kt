@@ -5,7 +5,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import net.bestia.zone.account.master.Master
 import net.bestia.zone.account.master.MasterRepository
-import net.bestia.zone.account.master.skill.BasicSkillGate
+import net.bestia.zone.skill.BasicSkillGate
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.entity.ecs.DeadActionGuard

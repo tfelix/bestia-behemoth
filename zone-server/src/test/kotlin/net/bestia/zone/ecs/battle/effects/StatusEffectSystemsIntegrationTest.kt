@@ -1,7 +1,7 @@
 package net.bestia.zone.ecs.battle.effects
 
 import net.bestia.zone.battle.StatusEffectService
-import net.bestia.zone.battle.skill.SkillTargetType
+import net.bestia.zone.skill.SkillTargetType
 import net.bestia.zone.battle.skill.SkillStrategyFactory
 import net.bestia.zone.battle.skill.passive.PassiveSkillScript
 import net.bestia.zone.battle.skill.passive.PassiveSkillScriptRegistry
@@ -13,7 +13,7 @@ import net.bestia.zone.battle.status.StatusEffectScript
 import net.bestia.zone.battle.status.StatusEffectScriptRegistry
 import net.bestia.zone.battle.status.ConditionValueCalculator
 import net.bestia.zone.battle.status.StatusValueRecalcContext
-import net.bestia.zone.ecs.battle.skill.KnownSkills
+import net.bestia.zone.skill.ecs.KnownSkills
 import net.bestia.zone.ecs.battle.status.BaseStatusValues
 import net.bestia.zone.ecs.battle.status.FormulaDrivenVitals
 import net.bestia.zone.ecs.battle.status.Health

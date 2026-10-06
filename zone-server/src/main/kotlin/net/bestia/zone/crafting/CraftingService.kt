@@ -5,7 +5,7 @@ import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.bnet.proto.OperationSuccessProto.OpSuccess
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.identity.ecs.Master
-import net.bestia.zone.ecs.battle.skill.KnownSkills
+import net.bestia.zone.skill.ecs.KnownSkills
 import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.modify

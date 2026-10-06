@@ -1,10 +1,10 @@
 package net.bestia.zone.item.equip
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.account.master.skill.NoviceGate
+import net.bestia.zone.skill.NoviceGate
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.ecs.battle.level.Level
-import net.bestia.zone.ecs.battle.skill.KnownSkills
+import net.bestia.zone.skill.ecs.KnownSkills
 import net.bestia.zone.ecs.battle.status.IsStatusValueDirty
 import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.ecs.core.WorldView
@@ -14,7 +14,7 @@ import net.bestia.zone.item.ItemRepository
 import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OutMessageProcessor
-import net.bestia.zone.account.master.skill.MasterSkillsChangedEvent
+import net.bestia.zone.skill.MasterSkillsChangedEvent
 import net.bestia.zone.util.EntityId
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Service

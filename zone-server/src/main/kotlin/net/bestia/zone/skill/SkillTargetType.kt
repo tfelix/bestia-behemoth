@@ -1,4 +1,4 @@
-package net.bestia.zone.battle.skill
+package net.bestia.zone.skill
 
 /**
  * How a skill is aimed by the caster. Mirrored client-side by AttackResource.target_type
