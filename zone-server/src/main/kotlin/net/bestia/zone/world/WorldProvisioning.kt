@@ -4,7 +4,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.worldgen.core.Faction
 import net.bestia.worldgen.pipeline.StandardWorld
 import net.bestia.worldgen.store.PipelineVersion
-import net.bestia.zone.ecs.script.ScriptComponent
+import net.bestia.zone.script.ecs.ScriptComponent
 import net.bestia.zone.persistence.PersistedEntityRepository
 import net.bestia.zone.cartography.chart.MapChartRepository
 import net.bestia.zone.townsfolk.rumour.RumourRepository

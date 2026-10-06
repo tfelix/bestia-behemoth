@@ -1,13 +1,14 @@
-package net.bestia.zone.economy
+package net.bestia.zone.crafting
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.worldgen.pop.BusinessCatalogue
 import net.bestia.zone.util.CatalogValidator
-import net.bestia.zone.crafting.Recipe
-import net.bestia.zone.crafting.RecipeEffect
-import net.bestia.zone.crafting.RecipeRegistry
 import net.bestia.zone.item.ItemRepository
 import org.springframework.stereotype.Component
+import net.bestia.zone.economy.Commodity
+import net.bestia.zone.economy.CommodityItems
+import net.bestia.zone.economy.EconomyCatalogue
+import net.bestia.zone.economy.PriceCurve
 
 /**
  * The economy checks that need catalogues the boot fills in later - the items and the recipes are written

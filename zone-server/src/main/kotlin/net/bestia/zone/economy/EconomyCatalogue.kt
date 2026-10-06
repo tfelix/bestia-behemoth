@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service
  * database ever references a commodity by row, because what is stored is a *deviation* keyed on the
  * settlement.
  *
- * The checks here are the ones that need nothing but this file. [EconomyCoverage] holds the rest,
+ * The checks here are the ones that need nothing but this file. [net.bestia.zone.crafting.EconomyCoverage] holds the rest,
  * because they need catalogues the boot fills in later. I5 - that no commodity is an accumulator
  * nothing drains - is neither: it holds by the shape of the step, and `EconomyStepTest` is what says so.
  */
@@ -110,7 +110,7 @@ class EconomyCatalogue {
     return unbound
   }
 
-  /** @param needs an item this trade is waiting for, checked against the item catalogue by [EconomyCoverage] */
+  /** @param needs an item this trade is waiting for, checked against the item catalogue by [net.bestia.zone.crafting.EconomyCoverage] */
   class Unbound(val business: String, val needs: String?, val reason: String)
 
   private fun checkTradesNameKnownCommodities() {

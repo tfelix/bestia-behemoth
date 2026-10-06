@@ -14,7 +14,7 @@ import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.item.ecs.Equipment
 import net.bestia.zone.item.ecs.Inventory
 import net.bestia.zone.movement.ecs.Position
-import net.bestia.zone.ecs.trade.Trading
+import net.bestia.zone.trade.ecs.Trading
 import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.item.container.ReservedItem
 import net.bestia.zone.message.OperationErrorSMSG
@@ -694,7 +694,7 @@ class TradeService(
 
     /**
      * How close the two have to be, in tiles - to start a trade and to keep one, which is why
-     * [net.bestia.zone.ecs.trade.TradeRangeSystem] reads this one rather than declaring its own. Ten is far
+     * [net.bestia.zone.trade.ecs.TradeRangeSystem] reads this one rather than declaring its own. Ten is far
      * enough to survive both parties shuffling about and close enough that a trade stays a face-to-face
      * gesture rather than a way to hand things across a town.
      *

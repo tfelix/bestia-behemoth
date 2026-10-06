@@ -1,14 +1,14 @@
-package net.bestia.zone.economy
+package net.bestia.zone.crafting
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.worldgen.resource.GradeMix
 import net.bestia.worldgen.resource.OreGrade
 import net.bestia.zone.util.CatalogValidator
-import net.bestia.zone.crafting.RecipeRegistry
 import net.bestia.zone.item.ItemRepository
 import net.bestia.zone.item.mining.OreYield
 import org.springframework.stereotype.Component
 import kotlin.math.abs
+import net.bestia.zone.economy.EconomyConfig
 
 /**
  * Checks that digging a voxel and minting what comes out is worth what the economy says it is.

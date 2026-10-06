@@ -9,7 +9,7 @@ import net.bestia.zone.entity.ecs.EntityVisual
 import net.bestia.zone.item.ecs.GroundItemStack
 import net.bestia.zone.master.persistence.MasterEntityPersister
 import net.bestia.zone.master.persistence.PlayerBestiaEntityPersister
-import net.bestia.zone.ecs.script.ScriptComponent
+import net.bestia.zone.script.ecs.ScriptComponent
 import net.bestia.zone.spawn.ecs.DenMember
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Service

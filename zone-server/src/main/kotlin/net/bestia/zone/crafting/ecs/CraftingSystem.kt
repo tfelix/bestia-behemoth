@@ -1,4 +1,4 @@
-package net.bestia.zone.ecs.crafting
+package net.bestia.zone.crafting.ecs
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.crafting.CraftingService

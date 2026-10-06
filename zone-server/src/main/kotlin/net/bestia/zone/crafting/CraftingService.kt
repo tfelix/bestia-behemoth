@@ -39,7 +39,7 @@ import kotlin.random.Random
  *
  * ### The ECS inventory is the authority inside the tick; the database catches up
  *
- * [resolve] runs on the tick thread from [net.bestia.zone.ecs.crafting.CraftingSystem], where a transaction
+ * [resolve] runs on the tick thread from [net.bestia.zone.crafting.ecs.CraftingSystem], where a transaction
  * would stall the whole simulation. So it checks and mutates the live [Inventory] component synchronously and
  * hands the durable write to [AsyncJobExecutor] keyed on the master id - exactly the shape
  * `ObtainItemIntentSystem.schedulePersist` uses, and the per-key ordering is what keeps two crafts a second

@@ -1,4 +1,4 @@
-package net.bestia.zone.ecs.script
+package net.bestia.zone.script.ecs
 
 import net.bestia.zone.ecs.core.Component
 

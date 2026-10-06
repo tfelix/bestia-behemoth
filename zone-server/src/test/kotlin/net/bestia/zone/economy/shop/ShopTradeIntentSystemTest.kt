@@ -8,7 +8,7 @@ import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.identity.ecs.Master
 import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.ecs.core.testWorld
-import net.bestia.zone.ecs.economy.ShopTradeIntent
+import net.bestia.zone.economy.ecs.ShopTradeIntent
 import net.bestia.zone.item.ecs.Inventory
 import net.bestia.zone.item.ecs.ObtainItemIntent
 import net.bestia.zone.movement.ecs.Position

@@ -10,7 +10,7 @@ import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.modify
-import net.bestia.zone.ecs.economy.ShopTradeIntent
+import net.bestia.zone.economy.ecs.ShopTradeIntent
 import net.bestia.zone.item.ecs.CarryCapacitySystem
 import net.bestia.zone.item.ecs.Inventory
 import net.bestia.zone.item.ecs.ObtainItemIntent

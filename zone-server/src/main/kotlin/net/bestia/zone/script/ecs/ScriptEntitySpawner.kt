@@ -1,4 +1,4 @@
-package net.bestia.zone.ecs.script
+package net.bestia.zone.script.ecs
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.core.World
