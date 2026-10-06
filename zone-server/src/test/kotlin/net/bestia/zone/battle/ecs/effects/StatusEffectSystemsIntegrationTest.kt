@@ -30,6 +30,7 @@ import net.bestia.zone.item.Item
 import net.bestia.zone.item.equip.EquipmentSlot
 import net.bestia.zone.item.equip.EquipmentSlots
 import net.bestia.zone.item.equip.script.EquipmentScript
+import net.bestia.zone.item.equip.EquipmentStatusContributor
 import net.bestia.zone.item.equip.script.EquipmentScriptRegistry
 import net.bestia.zone.util.EntityId
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -173,7 +174,7 @@ class StatusEffectSystemsIntegrationTest {
         StatusValueRecalcSystem(
           definitionRegistry,
           scriptRegistry,
-          equipmentScriptRegistry,
+          EquipmentStatusContributor(equipmentScriptRegistry),
           passiveSkillScriptRegistry,
           conditionValueCalculator
         )

@@ -4,6 +4,7 @@ import net.bestia.zone.battle.passive.PassiveSkillScriptRegistry
 import net.bestia.zone.battle.status.ConditionValueCalculator
 import net.bestia.zone.battle.status.StatusEffectDefinitionRegistry
 import net.bestia.zone.battle.status.StatusEffectScriptRegistry
+import net.bestia.zone.battle.status.StatusValueContributor
 import net.bestia.zone.battle.status.StatusValueRecalcContext
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.identity.ecs.Master
@@ -22,9 +23,7 @@ import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.item.ecs.Equipment
 import net.bestia.zone.movement.ecs.Speed
-import net.bestia.zone.item.equip.script.EquipmentScriptRegistry
 import net.bestia.zone.util.EntityId
 import kotlin.collections.orEmpty
 import org.springframework.stereotype.Component as SpringComponent
@@ -52,7 +51,7 @@ import net.bestia.zone.ecs.core.update
 class StatusValueRecalcSystem(
   private val statusEffectDefinitionRegistry: StatusEffectDefinitionRegistry,
   private val statusEffectScriptRegistry: StatusEffectScriptRegistry,
-  private val equipmentScriptRegistry: EquipmentScriptRegistry,
+  private val equipment: StatusValueContributor,
   private val passiveSkillScriptRegistry: PassiveSkillScriptRegistry,
   private val conditionValueCalculator: ConditionValueCalculator
 ) : System {
@@ -62,7 +61,6 @@ class StatusValueRecalcSystem(
   override val reads: ComponentClassSet = setOf(
     BaseStatusValues::class,
     StatusEffects::class,
-    Equipment::class,
     IsStatusValueDirty::class,
     Level::class,
     FormulaDrivenVitals::class,
@@ -70,7 +68,7 @@ class StatusValueRecalcSystem(
     // A status effect script may address the entity's owner (MasterIntroMarker greets them).
     Account::class,
     Master::class
-  )
+  ) + equipment.reads
   override val writes: ComponentClassSet = setOf(
     StatusValues::class,
     Speed::class,
@@ -93,7 +91,7 @@ class StatusValueRecalcSystem(
       val context = StatusValueRecalcContext(base, baseSpeed)
 
       applyPassiveSkills(context, world, id)
-      applyEquipmentEffects(context, world, id)
+      equipment.contribute(context, world, id)
       applyStatusEffects(context, world, id)
 
       world.update(
@@ -153,18 +151,6 @@ class StatusValueRecalcSystem(
       if (level > 0) {
         script.apply(context, level)
       }
-    }
-  }
-
-  private fun applyEquipmentEffects(
-    context: StatusValueRecalcContext,
-    world: World,
-    id: EntityId
-  ) {
-    val worn = world.get(id, Equipment::class)?.getWorn().orEmpty()
-    for ((slot, item) in worn) {
-      val script = equipmentScriptRegistry.getByItemId(item.itemId) ?: continue
-      script.apply(context, slot, item.upgradeLevel)
     }
   }
 

@@ -17,7 +17,6 @@ import net.bestia.zone.battle.ecs.status.Nature
 import net.bestia.zone.battle.ecs.status.StatusValues
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.item.ecs.Equipment
 import net.bestia.zone.movement.ecs.Grounded
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.entity.ecs.PropPose
@@ -155,7 +154,7 @@ class AttackExecutionService(
     /** What [attack] reads on both sides, through the battle context and a prop's first promotion. */
     val READS: ComponentClassSet = setOf(
       Position::class, Dead::class, Level::class, Nature::class, StatusEffects::class, StatusValues::class,
-      CombatBonus::class, Equipment::class, Invulnerable::class, Health::class, AttackDelay::class,
+      CombatBonus::class, Invulnerable::class, Health::class, AttackDelay::class,
       WorldObjectIdentity::class, PropPose::class, PropVitality::class,
     )
 

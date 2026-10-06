@@ -44,6 +44,9 @@ class StatusValueRecalcContext(
   var hardMagicDefense: Int = 0
     private set
 
+  /** Refinement of the weapon in hand. It scales the weapon term of the damage formula, not the total. */
+  var weaponUpgradeLevel: Int = 0
+
   var hpRegen: RegenModifier = RegenModifier()
     private set
 
