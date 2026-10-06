@@ -1,7 +1,7 @@
 package net.bestia.zone.world.stream
 
 import io.mockk.mockk
-import net.bestia.zone.environment.time.BestiaDateTime
+import net.bestia.zone.world.time.BestiaDateTime
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test

@@ -3,6 +3,7 @@ package net.bestia.zone.ecs.spawn.ambient
 import net.bestia.worldgen.pipeline.GeneratedWorld
 import net.bestia.worldgen.vector.Aabb
 import net.bestia.worldgen.vector.FeatureKind
+import net.bestia.zone.world.settlement.StandingSettlements
 
 /**
  * Whether a position is too close to a town for a creature to stand there.

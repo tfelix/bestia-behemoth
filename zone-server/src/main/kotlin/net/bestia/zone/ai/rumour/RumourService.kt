@@ -4,7 +4,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.worldgen.vector.Vec2d
 import net.bestia.zone.ai.knowledge.Knowledge
 import net.bestia.zone.ai.knowledge.KnowledgeService
-import net.bestia.zone.environment.time.BestiaClock
+import net.bestia.zone.world.time.BestiaClock
 import net.bestia.zone.world.SettlementLoreService
 import net.bestia.zone.world.WorldService
 import org.springframework.stereotype.Service

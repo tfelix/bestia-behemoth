@@ -5,7 +5,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import net.bestia.zone.ai.knowledge.KnowledgeService
 import net.bestia.zone.persistence.AsyncJobExecutor
-import net.bestia.zone.environment.time.BestiaClock
+import net.bestia.zone.world.time.BestiaClock
 import net.bestia.zone.world.WorldService
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals

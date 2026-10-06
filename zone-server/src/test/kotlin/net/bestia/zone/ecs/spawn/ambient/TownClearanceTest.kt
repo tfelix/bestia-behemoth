@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import kotlin.math.cos
 import kotlin.math.sin
+import net.bestia.zone.world.settlement.StandingSettlements
 
 /**
  * That the ring around a town follows the town rather than a radius.

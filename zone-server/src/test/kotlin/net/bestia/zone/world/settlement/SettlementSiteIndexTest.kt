@@ -6,7 +6,6 @@ import net.bestia.worldgen.core.Resolution
 import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.pipeline.StandardWorld
 import net.bestia.worldgen.pop.BusinessCatalogue
-import net.bestia.zone.ecs.spawn.ambient.StandingSettlements
 import net.bestia.zone.world.WorldGenConfig
 import net.bestia.zone.world.WorldService
 import org.junit.jupiter.api.Assertions.assertEquals

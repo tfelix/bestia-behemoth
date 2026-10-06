@@ -3,9 +3,9 @@ package net.bestia.zone.dialog.conversation.smalltalk
 import net.bestia.worldgen.climate.WeatherKind
 import net.bestia.zone.dialog.conversation.Speaker
 import net.bestia.zone.place.ecs.PlaceRegionService
-import net.bestia.zone.environment.time.BestiaClock
-import net.bestia.zone.environment.time.Season
-import net.bestia.zone.environment.weather.WeatherService
+import net.bestia.zone.world.time.BestiaClock
+import net.bestia.zone.world.time.Season
+import net.bestia.zone.weather.WeatherService
 import net.bestia.zone.world.WorldService
 import net.bestia.zone.world.settlement.SettlementSite
 import net.bestia.zone.world.settlement.SettlementSiteIndex

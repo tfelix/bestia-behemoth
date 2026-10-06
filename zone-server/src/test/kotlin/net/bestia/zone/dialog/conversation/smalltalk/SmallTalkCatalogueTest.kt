@@ -4,7 +4,7 @@ import net.bestia.worldgen.climate.WeatherKind
 import net.bestia.worldgen.place.RegionKind
 import net.bestia.worldgen.pop.Kinship
 import net.bestia.zone.ai.domain.townsfolk.OccupationCatalogue
-import net.bestia.zone.environment.time.Season
+import net.bestia.zone.world.time.Season
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse

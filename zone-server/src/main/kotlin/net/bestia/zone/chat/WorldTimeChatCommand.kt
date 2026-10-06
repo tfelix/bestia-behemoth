@@ -2,9 +2,9 @@ package net.bestia.zone.chat
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.account.Authority
-import net.bestia.zone.environment.time.BestiaClock
-import net.bestia.zone.environment.time.BestiaDateTime
-import net.bestia.zone.environment.time.WorldTimeSMSG
+import net.bestia.zone.world.time.BestiaClock
+import net.bestia.zone.world.time.BestiaDateTime
+import net.bestia.zone.world.time.WorldTimeSMSG
 import net.bestia.zone.message.OutMessageProcessor
 import org.springframework.stereotype.Component
 

@@ -4,7 +4,7 @@ import net.bestia.zone.ai.core.state.Drive
 import net.bestia.zone.ai.core.state.StateKey
 import net.bestia.zone.ai.domain.bestia.BestiaDomain
 import net.bestia.zone.ai.domain.townsfolk.TownsfolkDomain
-import net.bestia.zone.environment.time.BestiaDateTime
+import net.bestia.zone.world.time.BestiaDateTime
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test

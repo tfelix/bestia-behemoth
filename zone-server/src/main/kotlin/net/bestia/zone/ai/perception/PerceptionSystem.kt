@@ -20,8 +20,8 @@ import net.bestia.zone.ecs.core.TickBuckets
 import net.bestia.zone.ecs.core.System as EcsSystem
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.movement.ecs.Position
-import net.bestia.zone.environment.time.BestiaClock
-import net.bestia.zone.environment.time.BestiaDateTime
+import net.bestia.zone.world.time.BestiaClock
+import net.bestia.zone.world.time.BestiaDateTime
 import net.bestia.zone.geometry.Vec3L
 import org.springframework.stereotype.Component as SpringComponent
 

@@ -1,6 +1,6 @@
 package net.bestia.zone.economy
 
-import net.bestia.zone.environment.time.BestiaDateTime
+import net.bestia.zone.world.time.BestiaDateTime
 import kotlin.math.cos
 
 /**

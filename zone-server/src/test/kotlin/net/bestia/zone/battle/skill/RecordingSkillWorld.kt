@@ -6,7 +6,7 @@ import net.bestia.zone.ecs.battle.effects.AreaEffect
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.entity.StaticEntityKind
-import net.bestia.zone.world.spoor.TrackReading
+import net.bestia.zone.spoor.TrackReading
 
 /**
  * A [SkillWorld] that records what a script did to it instead of doing it.

@@ -7,7 +7,7 @@ import net.bestia.zone.aoi.EntityAOIService
 import net.bestia.zone.ecs.battle.effects.AreaEffectSpawner
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.world.prop.PlayerStructureService
-import net.bestia.zone.world.spoor.SpoorService
+import net.bestia.zone.spoor.SpoorService
 import org.springframework.stereotype.Component
 
 /**
@@ -26,7 +26,7 @@ class SkillWorldServices(
   val aoi: EntityAOIService,
   val structures: PlayerStructureService,
   val areaEffectSpawner: AreaEffectSpawner,
-  val groundFire: net.bestia.zone.world.fire.GroundFireService,
+  val groundFire: net.bestia.zone.ground.fire.GroundFireService,
   val statusEffects: StatusEffectService,
   val messages: OutMessageProcessor,
   val crafting: CraftingService,

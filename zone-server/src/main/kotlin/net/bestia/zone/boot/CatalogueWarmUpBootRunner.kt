@@ -5,8 +5,8 @@ import net.bestia.zone.bestia.BestiaCatalogue
 import net.bestia.zone.crafting.MasterCraftBonusService
 import net.bestia.zone.economy.CommodityItems
 import net.bestia.zone.ecs.item.ItemTemplateRegistry
-import net.bestia.zone.environment.weather.EnvironmentalExposureSystem
-import net.bestia.zone.environment.weather.WeatherPublisher
+import net.bestia.zone.weather.EnvironmentalExposureSystem
+import net.bestia.zone.weather.WeatherPublisher
 import net.bestia.zone.item.loot.LootItemEntitySpawner
 import org.springframework.boot.CommandLineRunner
 import org.springframework.core.annotation.Order

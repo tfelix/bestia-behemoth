@@ -8,7 +8,7 @@ import net.bestia.zone.ai.rumour.RumourLineCatalogue
 import net.bestia.zone.ai.rumour.RumourRegistry
 import net.bestia.zone.ecs.spawn.townsfolk.HouseholdPlacement
 import net.bestia.zone.ecs.spawn.townsfolk.TownsfolkIdentity
-import net.bestia.zone.environment.time.BestiaClock
+import net.bestia.zone.world.time.BestiaClock
 import net.bestia.zone.world.SettlementLoreService
 import net.bestia.zone.world.WorldRecreatedEvent
 import net.bestia.zone.world.WorldService

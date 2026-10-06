@@ -4,8 +4,8 @@ import io.mockk.every
 import io.mockk.mockk
 import net.bestia.zone.ai.core.state.HourWindow
 import net.bestia.zone.ecs.core.testWorld
-import net.bestia.zone.environment.time.BestiaClock
-import net.bestia.zone.environment.time.BestiaDateTime
+import net.bestia.zone.world.time.BestiaClock
+import net.bestia.zone.world.time.BestiaDateTime
 import net.bestia.zone.geometry.Vec3L
 import kotlin.test.Test
 import kotlin.test.assertEquals

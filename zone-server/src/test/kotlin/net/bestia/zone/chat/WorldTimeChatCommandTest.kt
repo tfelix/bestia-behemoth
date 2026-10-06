@@ -5,9 +5,9 @@ import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
 import net.bestia.account.Authority
-import net.bestia.zone.environment.time.BestiaClock
-import net.bestia.zone.environment.time.BestiaDateTime
-import net.bestia.zone.environment.time.WorldTimeSMSG
+import net.bestia.zone.world.time.BestiaClock
+import net.bestia.zone.world.time.BestiaDateTime
+import net.bestia.zone.world.time.WorldTimeSMSG
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.message.SMSG
 import org.junit.jupiter.api.Assertions.assertEquals

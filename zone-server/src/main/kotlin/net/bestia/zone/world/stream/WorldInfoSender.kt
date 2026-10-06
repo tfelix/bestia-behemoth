@@ -3,7 +3,7 @@ package net.bestia.zone.world.stream
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.session.AccountConnectedEvent
 import net.bestia.zone.session.AccountDisconnectedEvent
-import net.bestia.zone.environment.time.BestiaClock
+import net.bestia.zone.world.time.BestiaClock
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.world.WorldService
 import org.springframework.context.event.EventListener

@@ -39,8 +39,8 @@ import net.bestia.zone.entity.ecs.Animation
 import net.bestia.zone.movement.ecs.MoveSystem
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.movement.ecs.Speed
-import net.bestia.zone.environment.time.BestiaClock
-import net.bestia.zone.environment.time.BestiaDateTime
+import net.bestia.zone.world.time.BestiaClock
+import net.bestia.zone.world.time.BestiaDateTime
 import net.bestia.zone.battle.status.AttackSpeed
 import net.bestia.zone.bestia.DefaultAttack
 import net.bestia.zone.geometry.Vec3L

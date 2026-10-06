@@ -3,7 +3,7 @@ package net.bestia.zone.dialog.conversation
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.worldgen.core.GenRng
 import net.bestia.zone.dialog.DialogArg
-import net.bestia.zone.environment.time.BestiaClock
+import net.bestia.zone.world.time.BestiaClock
 import org.springframework.stereotype.Service
 
 /**

@@ -3,7 +3,7 @@ package net.bestia.zone.world.stream
 import net.bestia.bnet.proto.EnvelopeProto
 import net.bestia.bnet.proto.WorldInfoSMSGProto
 import net.bestia.worldgen.voxel.ChunkEngine
-import net.bestia.zone.environment.time.BestiaDateTime
+import net.bestia.zone.world.time.BestiaDateTime
 import net.bestia.zone.message.SMSG
 import net.bestia.zone.world.PersistedWorld
 
