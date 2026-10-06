@@ -37,80 +37,90 @@ class DeflatedBlobStore(
 
   override fun get(key: Long): ByteArray? {
     val stored = delegate.get(key) ?: return null
-    require(stored.isNotEmpty()) { "Blob $key is empty; it cannot even say whether it is compressed" }
-
-    return when (stored[0]) {
-      STORED -> stored.copyOfRange(1, stored.size)
-      DEFLATED -> inflate(key, stored)
-      else -> throw IllegalStateException(
-        "Blob $key has framing byte ${stored[0]}, which is neither stored nor deflated"
-      )
-    }
+    return unframe(key, stored)
   }
 
   override fun put(key: Long, blob: ByteArray) {
-    val deflated = if (blob.size >= minimumBytes) deflate(blob) else null
-
-    if (deflated != null && deflated.size + 1 < blob.size + 1) {
-      delegate.put(key, framed(DEFLATED, deflated))
-    } else {
-      delegate.put(key, framed(STORED, blob))
-    }
+    delegate.put(key, frame(blob, level, minimumBytes))
   }
 
   override fun remove(key: Long) = delegate.remove(key)
 
-  private fun deflate(blob: ByteArray): ByteArray {
-    val deflater = Deflater(level)
-    try {
-      deflater.setInput(blob)
-      deflater.finish()
+  /** The framing on its own, for a store that cannot be a [ChunkBlobStore] - one written off the owning thread. */
+  companion object {
+    private const val STORED: Byte = 0
+    private const val DEFLATED: Byte = 1
 
-      val out = ByteArrayOutputStream(blob.size / 2 + 32)
-      val buffer = ByteArray(8192)
-      while (!deflater.finished()) {
-        val n = deflater.deflate(buffer)
-        if (n == 0) break
-        out.write(buffer, 0, n)
+    /** [blob] as [put] stores it: deflated if that is smaller, behind a leading byte saying which. */
+    fun frame(blob: ByteArray, level: Int = Deflater.BEST_COMPRESSION, minimumBytes: Int = 64): ByteArray {
+      val deflated = if (blob.size >= minimumBytes) deflate(blob, level) else null
+
+      if (deflated != null && deflated.size + 1 < blob.size + 1) {
+        return framed(DEFLATED, deflated)
       }
-      return out.toByteArray()
-    } finally {
-      deflater.end()
+      return framed(STORED, blob)
     }
-  }
 
-  private fun inflate(key: Long, stored: ByteArray): ByteArray {
-    val inflater = Inflater()
-    try {
-      inflater.setInput(stored, 1, stored.size - 1)
+    /** Inverse of [frame]; [label] names the blob in the error a corrupt one raises. */
+    fun unframe(label: Any, stored: ByteArray): ByteArray {
+      require(stored.isNotEmpty()) { "Blob $label is empty; it cannot even say whether it is compressed" }
 
-      val out = ByteArrayOutputStream(stored.size * 4)
-      val buffer = ByteArray(8192)
-      while (!inflater.finished()) {
-        val n = inflater.inflate(buffer)
-        // A truncated or corrupt payload stops producing output without ever reporting finished. Saying so is
-        // the whole point of a store that might be holding a blob written months ago by another build.
-        if (n == 0) {
-          check(inflater.finished()) { "Blob $key is truncated or corrupt: inflate stalled" }
-          break
+      return when (stored[0]) {
+        STORED -> stored.copyOfRange(1, stored.size)
+        DEFLATED -> inflate(label, stored)
+        else -> throw IllegalStateException(
+          "Blob $label has framing byte ${stored[0]}, which is neither stored nor deflated"
+        )
+      }
+    }
+
+    private fun deflate(blob: ByteArray, level: Int): ByteArray {
+      val deflater = Deflater(level)
+      try {
+        deflater.setInput(blob)
+        deflater.finish()
+
+        val out = ByteArrayOutputStream(blob.size / 2 + 32)
+        val buffer = ByteArray(8192)
+        while (!deflater.finished()) {
+          val n = deflater.deflate(buffer)
+          if (n == 0) break
+          out.write(buffer, 0, n)
         }
-        out.write(buffer, 0, n)
+        return out.toByteArray()
+      } finally {
+        deflater.end()
       }
-      return out.toByteArray()
-    } finally {
-      inflater.end()
     }
-  }
 
-  private fun framed(kind: Byte, payload: ByteArray): ByteArray {
-    val framed = ByteArray(payload.size + 1)
-    framed[0] = kind
-    payload.copyInto(framed, 1)
-    return framed
-  }
+    private fun inflate(label: Any, stored: ByteArray): ByteArray {
+      val inflater = Inflater()
+      try {
+        inflater.setInput(stored, 1, stored.size - 1)
 
-  private companion object {
-    const val STORED: Byte = 0
-    const val DEFLATED: Byte = 1
+        val out = ByteArrayOutputStream(stored.size * 4)
+        val buffer = ByteArray(8192)
+        while (!inflater.finished()) {
+          val n = inflater.inflate(buffer)
+          // A truncated or corrupt payload stops producing output without ever reporting finished. Saying so is
+          // the whole point of a store that might be holding a blob written months ago by another build.
+          if (n == 0) {
+            check(inflater.finished()) { "Blob $label is truncated or corrupt: inflate stalled" }
+            break
+          }
+          out.write(buffer, 0, n)
+        }
+        return out.toByteArray()
+      } finally {
+        inflater.end()
+      }
+    }
+
+    private fun framed(kind: Byte, payload: ByteArray): ByteArray {
+      val framed = ByteArray(payload.size + 1)
+      framed[0] = kind
+      payload.copyInto(framed, 1)
+      return framed
+    }
   }
 }

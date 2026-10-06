@@ -12,6 +12,7 @@ import net.bestia.worldgen.derived.ChunkDelta
 import net.bestia.worldgen.derived.DerivedStore
 import net.bestia.worldgen.store.BaseHash
 import net.bestia.worldgen.store.ChunkCache
+import net.bestia.worldgen.store.ChunkEdit
 import net.bestia.worldgen.store.ChunkStore
 import net.bestia.worldgen.store.MemoryBlobStore
 import net.bestia.worldgen.voxel.BlockType
@@ -168,17 +169,22 @@ class ChunkService(
   )
 
   /**
-   * Whether the world is generated yet.
-   *
-   * `WorldService.load()` runs as the first boot runner, so this is only ever false for the window between
-   * bean creation and that runner - which the tick loop can overlap with, since it is a boot runner too.
-   * Asking is cheaper than ordering the two, and getting it wrong would generate a whole world on the tick
-   * thread inside one tick.
+   * One edited chunk as it is saved and restored: its content beyond the generated base, and its revision.
+   * Taken on the tick, so it can be written out on any thread.
+   */
+  data class SavedEdit(val chunk: ChunkPos, val revision: Int, val edit: ChunkEdit)
+
+  /**
+   * Whether the world is generated yet. Asked by systems, which may run before the boot runner that loads
+   * the world: building the chunk store then would generate a whole world on the tick thread.
    */
   val isReady get() = worldService.isLoaded
 
   /** Revision of each chunk that has ever been edited. Absent means zero - untouched. */
   private val revisions = HashMap<ChunkPos, Int>()
+
+  /** Chunks edited since the last [drainUnsaved]. */
+  private val unsaved = LinkedHashSet<ChunkPos>()
 
   private val encoded = Lru<EncodedKey, Encoded>(settings.encodedCacheCapacity)
 
@@ -218,8 +224,7 @@ class ChunkService(
    *
    * Not an LRU, and not evictable: forgetting an entry would silently withdraw terrain a player is standing
    * on. It grows with the number of *columns* anyone has ever dug in, holding a two- or three-element set
-   * each, and lives exactly as long as the deltas it describes - `ChunkStore`'s blob store is in memory, so
-   * both are gone on restart together.
+   * each, and is rebuilt by [restore] from the saved edits it describes.
    */
   private val editedSlabs = HashMap<Pair<Int, Int>, MutableSet<Int>>()
 
@@ -461,6 +466,31 @@ class ChunkService(
   fun navGraphSource(): NavGraph = worldService.generated.world.navGraph
 
   fun revisionOf(chunk: ChunkPos): Int = revisions[chunk] ?: 0
+
+  /** Every chunk edited since the last call, as it is now. Tick thread, like every edit. */
+  fun drainUnsaved(): List<SavedEdit> {
+    if (unsaved.isEmpty()) return emptyList()
+
+    val saved = unsaved.mapNotNull { chunk ->
+      loaded.store.editOf(chunk)?.let { SavedEdit(chunk, revisionOf(chunk), it) }
+    }
+    unsaved.clear()
+
+    return saved
+  }
+
+  /**
+   * Puts back the edits an earlier run saved, before anything has read or edited those chunks. The revision
+   * comes back too: a client that cached a chunk at that revision must not be told it is current under a
+   * different one, and revision 0 would send the bare base.
+   */
+  fun restore(saved: SavedEdit) {
+    require(saved.revision > 0) { "${saved.chunk} was saved at revision ${saved.revision}; an edit is above 0" }
+
+    loaded.store.restore(saved.chunk, saved.edit)
+    revisions[saved.chunk] = saved.revision
+    recordEdited(saved.chunk)
+  }
 
   fun derived(): DerivedStore = loaded.derived
 
@@ -728,7 +758,12 @@ class ChunkService(
    */
   private fun onChunkChanged(chunk: ChunkPos) {
     revisions[chunk] = revisionOf(chunk) + 1
+    unsaved.add(chunk)
+    recordEdited(chunk)
+  }
 
+  /** What every edited chunk needs, whether it was carved this run or restored from an earlier one. */
+  private fun recordEdited(chunk: ChunkPos) {
     val edited = editedSlabs.getOrPut(chunk.x to chunk.y) { HashSet(2) }
     val grew = edited.add(chunk.z) or edited.add(chunk.z - 1)
     if (grew) slabChanges++
@@ -824,13 +859,15 @@ class ChunkService(
   private val changeListeners = ArrayList<(ChunkPos) -> Unit>()
 
   /**
-   * Registers a callback fired whenever a chunk's contents change.
+   * Registers a callback fired whenever a chunk's contents change, and calls it at once for every chunk
+   * already edited: a listener that registers on first use would otherwise never hear of them.
    *
    * The listener runs on the tick thread inside the carve, so it must be cheap and must not itself carve: mark
    * something stale and return. `MacroGraphService` queues an edge index; it does not re-test the edge there.
    */
   fun onChunkChanged(handler: (ChunkPos) -> Unit) {
     changeListeners.add(handler)
+    for (chunk in revisions.keys) handler(chunk)
   }
 
   /**

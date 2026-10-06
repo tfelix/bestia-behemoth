@@ -89,6 +89,41 @@ class ChunkStore(
     return delta.mergedOnto(base)
   }
 
+  /** A copy of what this store holds for [chunk] beyond its generated base; null for an untouched chunk. */
+  fun editOf(chunk: ChunkPos): ChunkEdit? {
+    if (chunk in bakedChunks) {
+      val blob = baked.get(bakedKeyOf(chunk)) ?: throw IllegalStateException("$chunk is marked baked but its blob is missing")
+      return ChunkEdit.Baked(blob.copyOf())
+    }
+
+    val delta = deltas[chunk] ?: return null
+    return ChunkEdit.Delta(delta.packedRemovals())
+  }
+
+  /**
+   * Puts back an edit [editOf] handed out, into a chunk this store has not touched yet. Calls no [onChanged]:
+   * the content is what it was when the edit was taken, so nothing changed.
+   */
+  fun restore(chunk: ChunkPos, edit: ChunkEdit) {
+    require(chunk !in deltas && chunk !in bakedChunks) { "$chunk already has edits; restore only into an untouched chunk" }
+
+    when (edit) {
+      is ChunkEdit.Delta -> {
+        val delta = ChunkDelta(chunk, config.chunkSize, config.chunkHeight)
+        delta.carveAll(edit.removals)
+        deltas[chunk] = delta
+      }
+
+      is ChunkEdit.Baked -> {
+        // Decoded once so a blob that is not a chunk fails here, not on the first read of the chunk.
+        RleCodec.decode(chunk, edit.rle)
+        baked.put(bakedKeyOf(chunk), edit.rle)
+        bakedChunks.add(chunk)
+        cache.evict(chunk)
+      }
+    }
+  }
+
   /** The generated base only, with no edits - what a client would produce for itself. */
   fun base(chunk: ChunkPos): VoxelChunk = cache.base(chunk)
 

@@ -100,7 +100,9 @@ the next `./gradlew :zone-server:bootRun` discards the world and builds the new 
 
 - the `world` row,
 - every `master_spawn_point` row (the cached spawn-point candidates),
-- every `persisted_entity` of kind `ScriptComponent.KIND`.
+- every `persisted_entity` of kind `ScriptComponent.KIND`,
+- the charts, depleted props, ledgers, treasury and rumours, which all name places of the old world,
+- every `chunk_edit` row (the terrain players dug).
 
 Then `WorldService` publishes `WorldRecreatedEvent`, and `MasterWorldResetListener` re-homes every master
 onto the new world's spawn points — keeping a master's home settlement if a settlement of that name still
@@ -142,10 +144,10 @@ insert starts failing on a column no entity mentions, that is why: drop the colu
 
 ### What a reset does *not* have to clean
 
-Chunk voxel data. `ChunkService` builds its store over a `MemoryBlobStore()`
-(`world/stream/ChunkService.kt:212`) — base chunks and player deltas are **not persisted at all** today,
-so every restart already starts from pristine generated terrain. `ChunkCache`'s key folds
-`pipelineVersion`, so a stale chunk cannot outlive a version bump even in-process.
+Generated chunks. Base chunks are never persisted; `ChunkCache`'s key folds `pipelineVersion`, so a stale
+chunk cannot outlive a version bump even in-process. Player edits are persisted (`chunk_edit`), and each row
+carries the shape and pipeline version it was dug under: `ChunkEditJournal.restoreAll` drops a row whose
+versions disagree, because removals only mean something on the base they were taken from.
 
 `world_object_divergence` (depleted trees, claimed POIs) is self-cleaning: each row stores the
 `pipelineVersion` it was written under, and `WorldObjectDivergenceBootRunner` (`@Order(3)`) **discards**

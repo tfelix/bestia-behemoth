@@ -6,6 +6,7 @@ import net.bestia.zone.ecs.core.AsyncJobExecutor
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.economy.SettlementEconomyService
 import net.bestia.zone.economy.WorldReserve
+import net.bestia.zone.world.stream.ChunkEditJournal
 import org.springframework.context.SmartLifecycle
 import org.springframework.stereotype.Component
 
@@ -23,6 +24,7 @@ class PersistOnShutdown(
   private val persistence: EntityPersistenceService,
   private val economy: SettlementEconomyService,
   private val reserve: WorldReserve,
+  private val chunkEdits: ChunkEditJournal,
   private val asyncJobExecutor: AsyncJobExecutor,
 ) : SmartLifecycle {
 
@@ -42,6 +44,7 @@ class PersistOnShutdown(
       persistence.syncAll(this)
       economy.flush()
       reserve.flush()
+      chunkEdits.flushDirty()
     }
     asyncJobExecutor.shutdown(timeoutSeconds = DRAIN_SECONDS)
 

@@ -122,6 +122,9 @@ data class ChunkStreamConfig(
   /** Whether the `/carve` chat command is honoured at all. Off in production; the authority check applies too. */
   val allowDebugEdits: Boolean = true,
 
+  /** How often edited chunks are written out. A crash loses at most this much digging. */
+  val editFlushSeconds: Float = 10f,
+
   /**
    * Steepest rise a step may cross and still count as walkable, in degrees, up or down alike.
    *
@@ -156,6 +159,7 @@ data class ChunkStreamConfig(
     require(slabComputationsPerTick > 0) { "A slab budget of zero would never offer any terrain" }
     require(deflateLevel in 0..9) { "Deflate level must be 0..9, was $deflateLevel" }
     require(derivedRebuildsPerTick >= 0) { "Rebuild budget cannot be negative" }
+    require(editFlushSeconds > 0f) { "Edits must be written out at some point, was every $editFlushSeconds s" }
     require(maxWalkSlopeDegrees > 0.0 && maxWalkSlopeDegrees < 90.0) {
       "maxWalkSlopeDegrees must be strictly between 0 and 90, was $maxWalkSlopeDegrees"
     }

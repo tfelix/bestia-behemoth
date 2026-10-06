@@ -6,11 +6,14 @@ import net.bestia.worldgen.voxel.CarveBrush
 import net.bestia.worldgen.voxel.ChunkEngine
 import net.bestia.worldgen.voxel.RleCodec
 import net.bestia.zone.chat.ChatCMSG
+import net.bestia.zone.ecs.core.AsyncJobExecutor
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.world.stream.ChunkCoords
+import net.bestia.zone.world.WorldService
 import net.bestia.zone.world.stream.ChunkDataSMSG
+import net.bestia.zone.world.stream.ChunkEditJournal
 import net.bestia.zone.world.stream.ChunkManifestSMSG
 import net.bestia.zone.world.stream.ChunkPatchCodec
 import net.bestia.zone.world.stream.ChunkPatchSMSG
@@ -19,6 +22,7 @@ import net.bestia.zone.world.stream.ChunkService
 import net.bestia.zone.world.stream.ChunkStreamConfig
 import net.bestia.zone.world.stream.ChunkStreamSystem
 import net.bestia.zone.world.stream.ChunkSubscriptionService
+import net.bestia.zone.world.stream.PersistedChunkEditRepository
 import net.bestia.zone.world.stream.WorldInfoSMSG
 import org.awaitility.Awaitility
 import org.junit.jupiter.api.Order
@@ -27,6 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import java.io.ByteArrayOutputStream
 import java.time.Duration
 import java.util.zip.Inflater
+import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
@@ -67,6 +72,18 @@ class ChunkStreamingScenario : BestiaNoSocketScenario(
 
   @Autowired
   private lateinit var connectionInfoService: ConnectionInfoService
+
+  @Autowired
+  private lateinit var chunkEdits: ChunkEditJournal
+
+  @Autowired
+  private lateinit var chunkEditRepository: PersistedChunkEditRepository
+
+  @Autowired
+  private lateinit var asyncJobExecutor: AsyncJobExecutor
+
+  @Autowired
+  private lateinit var worldService: WorldService
 
   /**
    * The chunk and voxel the carve test aimed at, so the authoritative-view test can check the same spot.
@@ -595,5 +612,27 @@ class ChunkStreamingScenario : BestiaNoSocketScenario(
       clientPlayer1.receivedAny(ChunkManifestSMSG::class) { it.removed.isNotEmpty() },
       "a chunk one step past the view must be kept, or every step back and forth re-sends a whole row"
     )
+  }
+
+  @Test
+  @Order(13)
+  fun `the carved terrain is written out and comes back on a restart`() {
+    assertTrue(carvedIndex >= 0, "the carve test must run first; these are ordered and cumulative")
+
+    world.read { chunkEdits.flushDirty() }
+    asyncJobExecutor.awaitPending(carvedChunk)
+
+    val (revision, occupancy) = world.read {
+      chunkService.revisionOf(carvedChunk) to chunkService.merged(carvedChunk).occupancy.copyOf()
+    }
+    val rows = chunkEditRepository.findAll().map { it.toSavedEdit() }
+    assertEquals(revision, rows.single { it.chunk == carvedChunk }.revision)
+
+    // A fresh service is what the next boot builds: the generated base plus whatever the table holds.
+    val restarted = ChunkService(worldService, settings)
+    rows.forEach(restarted::restore)
+
+    assertEquals(revision, restarted.revisionOf(carvedChunk))
+    assertContentEquals(occupancy, restarted.merged(carvedChunk).occupancy)
   }
 }
