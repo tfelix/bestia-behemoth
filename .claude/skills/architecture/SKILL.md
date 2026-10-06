@@ -93,7 +93,7 @@ Inbound flow:
    `IoMessageHandler` runs on an IO thread, for handlers that touch the database. Netty threads
    only decode. Connection events go through the same inbox on the IO lane. A full inbox or a
    failing handler closes the connection. See
-   `control/SelectEntityHandler.kt` for the pattern to follow when
+   `control/net/SelectEntityHandler.kt` for the pattern to follow when
    adding a handler.
 
 Outbound flow: an `SMSG` implementation (`message/SMSG.kt`) provides
@@ -111,7 +111,7 @@ two session maps — there is no single unified `Session` object.
 ## Adding a new message type end-to-end
 
 Every step below, worked through once already for a real feature: `ActivateSkillCMSG`
-/ `ActivateSkillHandler` (`zone-server/.../battle/`), added for
+/ `ActivateSkillHandler` (`zone-server/.../casting/net/`), added for
 player-triggered skill activation, plus an SMSG example such as `DamageEntitySMSG`.
 Use those files as a template instead of re-deriving the shape from scratch.
 
@@ -122,7 +122,7 @@ Use those files as a template instead of re-deriving the shape from scratch.
    number in that block + 1, don't reuse or leave gaps.
 2. **Kotlin CMSG** (incoming): `data class XyzCMSG(override val playerId: Long, ...) : CMSG`
    with `companion object fun fromBnet(accountId: Long, proto: XyzCmsgProto.XyzCMSG): XyzCMSG`.
-   Template: `battle/AttackEntityCMSG.kt`.
+   Template: `battle/net/AttackEntityCMSG.kt`. CMSGs and handlers go into the slice's `net` package.
 3. **Handler**: `@Component class XyzHandler(...) : TickMessageHandler<XyzCMSG>` with
    `override val wire = decoder(MessageCase.XYZ) { accountId, envelope -> XyzCMSG.fromBnet(accountId, envelope.xyz) }`
    and `handle(world, msg)` — the decoder is the handler's registration for its envelope case,
@@ -161,27 +161,35 @@ Use those files as a template instead of re-deriving the shape from scratch.
    including the compiler itself, is anchored to the script's own location. The Kotlin side
    regenerates automatically on the next Gradle build, no manual step.
 
+## zone-server code layout: slices
+
+One top-level package per feature (`battle`, `item`, `party`, ...) or piece of shared machinery
+(`message`, `persistence`, `engine`, ...). Inside a slice, `<slice>.ecs` holds components and systems,
+`<slice>.net` the CMSGs, handlers and chat commands, and `<slice>.persistence` the JPA entities,
+repositories and persisters. The slices form a stack: a slice may only depend on slices below it.
+`FeatureSliceRulesTest` holds the order and fails on any dependency that points up. When a lower slice
+needs a higher one, add a port: an interface in the lower slice that the higher one implements. The
+order and the reasons are in bestia-docs, `server/architecture.md`, section "Code layout".
+
 ## zone-server ECS (game loop)
 
-`zone-server/src/main/kotlin/net/bestia/zone/ecs/` is the hand-rolled ECS (no external
-ECS library):
+The hand-rolled ECS (no external ECS library) is the kernel in `zone-server/.../ecs/core/`; components
+and systems live in each slice's `ecs` package:
 
 - **`ecs/core/`** — the engine itself. Gameplay code sees the `World` interface (`ecs/core/World.kt`:
   entities, components, queries); `EcsWorld` implements it and adds the engine side (tick, thread
   binding, listeners) for `ZoneEngine`, boot runners and tests. Around it: `ComponentStore`
   (sparse set, one per concrete component class — there are no archetypes), `SystemScheduler`
-  ("wave" scheduling from declared read/write component sets), `EntityRegistry`,
-  `AsyncJobExecutor`. Spring wiring is `engine/EcsConfiguration.kt`, which builds the
+  ("wave" scheduling from declared read/write component sets), `EntityRegistry`. Spring wiring is `engine/EcsConfiguration.kt`, which builds the
   `World` empty and registers every `System` bean once all singletons exist, so any service may inject
   the `World` or `WorldView`; `engine/ZoneEngine.kt` runs the tick (thread `zone-tick`).
 - Game logic implements `ecs/core/System.kt` — `update(world, deltaTime)` plus a `schedule`
   (`EveryTick` / `EveryTicks(n)` / `EverySeconds(s)`) and `reads`/`writes` sets — and registers
   as a Spring `@Component` with a `phase` (`ecs/core/Phase.kt`) and, for systems of the same phase that
-  touch the same components, an `after` set. `TickOrder` resolves the order and refuses to boot when two
-  conflicting systems of one phase are not ordered by `after`.
-- Domain subpackages sit alongside `core/`: `battle/`, `bestia/`, `item/`, `movement/`,
-  `persistence/`, `spawn/`, ... — components + systems per gameplay area.
-- `ecs/place/` names positions: `Place` (owner-only, where a player is in words) and `AreaName` (public,
+  touch the same components, an `after` set, or a `before` set when the other system sits in a lower
+  slice. `TickOrder` resolves the order and refuses to boot when two conflicting systems of one phase
+  are not ordered. `TickOrderSnapshotTest` pins the resolved order in `architecture/tick-order.txt`.
+- `place/` names positions: `Place` (owner-only, where a player is in words) and `AreaName` (public,
   the label on a town or claim). `PlaceNameService` owns the one rule that resolves a position to a single
   name - narrowest area wins, region otherwise - against `AreaNameRegistry` plus the world's region
   partition. `PlaceSystem` re-resolves only where `Position` is dirty. Generated settlements and
@@ -191,7 +199,7 @@ Three things that bite:
 
 - **`reads`/`writes` are the whole contract.** `TickOrder` and `SystemScheduler` look at nothing
   else. Declare honestly, including components your helpers touch on *other* entities; a shared
-  helper exposes its own set (`EntityWriteBehind.READS`, `AttackExecutionService.READS`/`WRITES`).
+  helper exposes its own set (`EntityWriteBehind.reads`, `AttackExecutionService.READS`/`WRITES`).
   In tests `world.undeclared-access: fail` (and every `testWorld()`) fails a system that touches a
   component it did not declare.
 - **The tick thread owns the world; there is no lock.** `ecs/core/WorldOwnership.kt`: the tick
@@ -208,7 +216,7 @@ Off-tick code must go through `WorldView` (a `read`/`modify`/`createEntity` scop
 world, or `post {}`, which runs a block on the tick thread), never `World` directly. Do the whole
 check-then-act inside one scope, and return values, not components, from it. Never wait for another thread
 inside a scope: the tick thread is waiting for you. Never block on I/O on the tick thread: snapshot
-the entity and hand the write to `EntityWriteBehind` (`ecs/persistence/`), which queues it on
+the entity and hand the write to `EntityWriteBehind` (`persistence/`), which queues it on
 `AsyncJobExecutor` under the owner's key, and read static content from the in-memory catalogues
 (`ItemTemplateRegistry`, `BestiaCatalogue`, `CommodityItems`). `TickSqlGuard` reports any SQL that
 runs on the tick thread or inside a lease, and fails it in tests (`zone.sql-on-tick: fail`).
@@ -387,7 +395,7 @@ world for `world.logout-protection-seconds`, so disconnecting is no escape from 
 again in that time re-attaches to the live entity.
 
 On disconnect the account's session is removed. Player bestias stay in the
-world; their `OwnedBestia` component (`ecs/account/`) is the source of truth for ownership, and
+world; their `OwnedBestia` component (`identity/ecs/`) is the source of truth for ownership, and
 `activateSession` rebuilds the session's owned entities from it. A restart loses them: selecting the
 master respawns the missing ones from their `player_bestia` rows
 (`PlayerBestiaEntitySpawner.respawnMissing`), which `PlayerBestiaEntityPersister` keeps current.
@@ -407,5 +415,5 @@ The two servers no longer agree here, and the difference matters:
 
 The zone has no Flyway yet. ORM is Spring Data JPA/Hibernate. Each server defines its own
 `Account` JPA entity independently (`login-server/.../account/Account.kt` vs
-`zone-server/.../account/Account.kt`), linked only by convention (`loginAccountId: Long`), not a
+`zone-server/.../account/persistence/Account.kt`), linked only by convention (`loginAccountId: Long`), not a
 shared entity class.

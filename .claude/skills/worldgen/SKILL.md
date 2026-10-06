@@ -497,10 +497,10 @@ first build rather than a skipped one. Count the output before believing the tes
 The world tier is **regenerated at boot, never persisted** — rasters/features are a pure function of
 `(seed, dimensions)`, so persisting them would only be persisting a cache. What players change (voxel
 edits) is stored over that regenerated base: one `chunk_edit` row per edited chunk
-(`world/stream/PersistedChunkEdit.kt`), written by `ChunkEditJournal` every
+(`world/persistence/PersistedChunkEdit.kt`), written by `ChunkEditJournal` every
 `chunk-stream.edit-flush-seconds` and at shutdown, restored by `ChunkEditBootRunner` (`@Order(8)`).
 
-- **`PersistedWorld`** (real JPA entity, `zone-server/.../world/PersistedWorld.kt`) — name, seed,
+- **`PersistedWorld`** (real JPA entity, `zone-server/.../world/persistence/PersistedWorld.kt`) — name, seed,
   dimensions, `wrapX`/`wrapY`, and the three version columns from `VersionGate` above, plus a
   `shapeVersion` hash over every `WorldConfig` field that decides terrain shape.
 - **`WorldGenerationBootRunner`** — `@Order(1) CommandLineRunner`, runs before entity loading, the ECS
