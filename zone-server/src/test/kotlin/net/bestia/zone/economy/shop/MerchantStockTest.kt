@@ -2,8 +2,6 @@ package net.bestia.zone.economy.shop
 
 import io.mockk.every
 import io.mockk.mockk
-import net.bestia.zone.townsfolk.conversation.Speaker
-import net.bestia.zone.townsfolk.conversation.SpeakerResolver
 import net.bestia.zone.economy.EconomyCatalogue
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -17,8 +15,8 @@ import kotlin.test.assertTrue
 class MerchantStockTest {
 
   private val catalogue = EconomyCatalogue().apply { load() }
-  private val speakers = mockk<SpeakerResolver>()
-  private val stock = MerchantStock(catalogue, speakers)
+  private val merchants = mockk<MerchantDirectory>()
+  private val stock = MerchantStock(catalogue, merchants)
 
   @Test
   fun `a general store holds everything, because it produces none of it`() {
@@ -52,14 +50,14 @@ class MerchantStockTest {
 
   @Test
   fun `an entity that is not a townsperson at all is not a merchant`() {
-    every { speakers.of(NOBODY) } returns null
+    every { merchants.businessOf(NOBODY) } returns null
 
     assertNull(stock.of(NOBODY))
   }
 
   private fun keeperOf(business: String?): Long {
     val entityId = business.hashCode().toLong()
-    every { speakers.of(entityId) } returns mockk<Speaker>().also { every { it.business } returns business }
+    every { merchants.businessOf(entityId) } returns business
 
     return entityId
   }

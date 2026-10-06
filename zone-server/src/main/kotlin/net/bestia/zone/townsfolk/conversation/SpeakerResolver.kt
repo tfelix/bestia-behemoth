@@ -3,6 +3,7 @@ package net.bestia.zone.townsfolk.conversation
 import net.bestia.worldgen.pop.BusinessCatalogue
 import net.bestia.worldgen.pop.Households
 import net.bestia.worldgen.pop.Kinship
+import net.bestia.zone.economy.shop.MerchantDirectory
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.townsfolk.ecs.HouseholdPlacement
 import net.bestia.zone.townsfolk.ecs.Townsfolk
@@ -26,7 +27,11 @@ class SpeakerResolver(
   private val sites: SettlementSiteIndex,
   private val placement: HouseholdPlacement,
   private val naming: TownsfolkNaming,
-) {
+) : MerchantDirectory {
+
+  override fun businessOf(entityId: EntityId): String? {
+    return of(entityId)?.business
+  }
 
   /** @return null for anything that is not a townsperson, which is most entities. */
   fun of(entityId: EntityId): Speaker? {

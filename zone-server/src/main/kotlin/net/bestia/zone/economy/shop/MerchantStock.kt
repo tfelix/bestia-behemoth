@@ -1,6 +1,5 @@
 package net.bestia.zone.economy.shop
 
-import net.bestia.zone.townsfolk.conversation.SpeakerResolver
 import net.bestia.zone.economy.EconomyCatalogue
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Service
@@ -16,12 +15,12 @@ import org.springframework.stereotype.Service
 @Service
 class MerchantStock(
   private val catalogue: EconomyCatalogue,
-  private val speakers: SpeakerResolver,
+  private val merchants: MerchantDirectory,
 ) {
 
   /** Commodity ids this entity trades in, or null when they keep no shop at all. */
   fun of(entityId: EntityId): Set<String>? {
-    return forBusiness(speakers.of(entityId)?.business)
+    return forBusiness(merchants.businessOf(entityId))
   }
 
   /** The same question for a caller that has already resolved the person, and so opens no world scope. */
