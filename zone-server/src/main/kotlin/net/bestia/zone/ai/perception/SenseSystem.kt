@@ -12,6 +12,7 @@ import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.movement.Position
 import org.springframework.stereotype.Component as SpringComponent
+import net.bestia.zone.util.inClassNameOrder
 
 /**
  * The agents' eyes and ears: a periodic sweep over every AI entity that runs each registered [Sense] over
@@ -39,11 +40,14 @@ import org.springframework.stereotype.Component as SpringComponent
  */
 @SpringComponent
 class SenseSystem(
-  private val senses: List<Sense>,
+  foundSenses: List<Sense>,
   private val sharedMemory: SharedMemoryService,
   private val throttle: AiThrottle,
   zoneConfig: ZoneConfig,
 ) : System {
+
+  private val senses = foundSenses.inClassNameOrder()
+
   override val phase = Phase.AI
   override val after = setOf(PerceptionSystem::class)
 

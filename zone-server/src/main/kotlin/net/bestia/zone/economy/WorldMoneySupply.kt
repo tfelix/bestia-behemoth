@@ -9,6 +9,7 @@ import net.bestia.zone.world.WorldRecreatedEvent
 import net.bestia.zone.world.WorldService
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Service
+import org.springframework.core.annotation.Order
 
 /**
  * The world's coin supply, and each settlement's share of the part of it that starts in NPC hands.
@@ -89,6 +90,7 @@ class WorldMoneySupply(
   }
 
   @EventListener
+  @Order(WorldRecreatedEvent.ListenerOrder.MONEY_SUPPLY)
   fun handleWorldRecreated(event: WorldRecreatedEvent) {
     cachedWeight = null
   }

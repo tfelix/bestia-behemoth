@@ -6,6 +6,7 @@ import net.bestia.zone.world.WorldRecreatedEvent
 import net.bestia.zone.world.WorldService
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Service
+import org.springframework.core.annotation.Order
 
 /**
  * The world's region partition, built once per world and held in memory.
@@ -60,6 +61,7 @@ class PlaceRegionService(
    * tick loop is reading.
    */
   @EventListener
+  @Order(WorldRecreatedEvent.ListenerOrder.PLACE_REGIONS)
   fun handleWorldRecreated(event: WorldRecreatedEvent) {
     cached = null
     registry.clear()

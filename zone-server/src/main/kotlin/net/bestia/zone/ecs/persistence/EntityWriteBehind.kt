@@ -15,6 +15,7 @@ import net.bestia.zone.ecs.spawn.DenMember
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Service
 import java.util.concurrent.ConcurrentHashMap
+import net.bestia.zone.util.inClassNameOrder
 
 /**
  * Takes entity snapshots where the world may be read, and writes them off the tick. All writes about
@@ -22,10 +23,12 @@ import java.util.concurrent.ConcurrentHashMap
  */
 @Service
 class EntityWriteBehind(
-  private val persisters: List<EntityPersister>,
+  foundPersisters: List<EntityPersister>,
   private val statusEffects: StatusEffectPersistenceService,
   private val asyncJobExecutor: AsyncJobExecutor,
 ) {
+
+  private val persisters = foundPersisters.inClassNameOrder()
 
   /**
    * What was last queued for each entity. A periodic save compares against it and skips what has not

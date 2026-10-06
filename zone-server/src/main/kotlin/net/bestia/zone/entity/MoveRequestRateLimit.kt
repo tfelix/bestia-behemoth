@@ -5,6 +5,7 @@ import net.bestia.zone.ecs.ZoneConfig
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
 import java.util.concurrent.ConcurrentHashMap
+import org.springframework.core.annotation.Order
 
 /**
  * How often one account may ask to move.
@@ -57,6 +58,7 @@ class MoveRequestRateLimit(private val config: ZoneConfig) {
   }
 
   @EventListener
+  @Order(AccountDisconnectedEvent.ListenerOrder.MOVE_RATE_LIMIT)
   fun handleAccountDisconnected(event: AccountDisconnectedEvent) {
     buckets.remove(event.accountId)
   }

@@ -17,6 +17,7 @@ import net.bestia.zone.world.stream.ChunkSubscriptionService
 import net.bestia.zone.world.stream.StaticEntityRemovedSMSG
 import org.springframework.stereotype.Service
 import java.time.Instant
+import net.bestia.zone.util.inClassNameOrder
 
 /**
  * Which static entities exist right now, and which chunk each of them belongs to.
@@ -53,7 +54,7 @@ import java.time.Instant
  */
 @Service
 class WorldObjectResidencyService(
-  private val sources: List<WorldObjectSource>,
+  foundSources: List<WorldObjectSource>,
   private val kinds: PropKindRegistry,
   private val aoi: EntityAOIService,
   private val fanOut: ChunkFanOut,
@@ -61,6 +62,8 @@ class WorldObjectResidencyService(
   private val divergence: WorldObjectDivergenceRegistry,
   private val subscriptions: ChunkSubscriptionService
 ) {
+
+  private val sources = foundSources.inClassNameOrder()
 
   /** Voxels per chunk edge, for turning a world position into a chunk-local one. */
   private val chunkSize: Int get() = worldService.config.chunkSize

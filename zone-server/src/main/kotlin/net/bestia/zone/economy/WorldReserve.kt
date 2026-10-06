@@ -7,6 +7,7 @@ import net.bestia.zone.world.WorldService
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Service
 import kotlin.math.max
+import org.springframework.core.annotation.Order
 
 /**
  * The counterparty that makes the coin supply finite.
@@ -89,6 +90,7 @@ class WorldReserve(
   }
 
   @EventListener
+  @Order(WorldRecreatedEvent.ListenerOrder.RESERVE)
   fun handleWorldRecreated(event: WorldRecreatedEvent) {
     reset()
   }

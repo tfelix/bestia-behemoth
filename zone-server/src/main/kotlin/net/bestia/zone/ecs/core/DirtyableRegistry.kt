@@ -17,7 +17,8 @@ val dirtyableComponentTypes: List<KClass<out Component>> by lazy { scanDirtyable
 
 /**
  * Scans the classpath for every concrete [Component] that also implements [Dirtyable]. Prefer
- * [dirtyableComponentTypes], which does this once.
+ * [dirtyableComponentTypes], which does this once. Sorted by name: the scan returns a hash set, whose order
+ * would change whenever a class changes package.
  */
 fun scanDirtyableComponentTypes(): List<KClass<out Component>> {
   return Reflections("net.bestia.zone", Scanners.SubTypes)
@@ -28,5 +29,6 @@ fun scanDirtyableComponentTypes(): List<KClass<out Component>> {
       @Suppress("UNCHECKED_CAST")
       it.kotlin as KClass<out Component>
     }
+    .sortedBy { it.java.simpleName }
     .toList()
 }

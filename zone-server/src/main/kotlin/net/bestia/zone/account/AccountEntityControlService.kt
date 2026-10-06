@@ -19,6 +19,7 @@ import net.bestia.zone.ecs.respawn.Respawn
 import net.bestia.zone.ecs.respawn.SavePointService
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Service
+import org.springframework.core.annotation.Order
 
 /**
  * This service listens if a player connects or disconnects and will create or delete all player
@@ -43,6 +44,7 @@ class AccountEntityControlService(
    * Main socket server event when a new account got connected.
    */
   @EventListener
+  @Order(AccountConnectedEvent.ListenerOrder.ENTITY_CONTROL)
   fun handleAccountConnected(event: AccountConnectedEvent) {
     // Remember the authorities established during authentication so they are available once the
     // player selects a master and the session gets activated.
@@ -58,6 +60,7 @@ class AccountEntityControlService(
    * handle the cleanup work.
    */
   @EventListener
+  @Order(AccountDisconnectedEvent.ListenerOrder.ENTITY_CONTROL)
   fun handleAccountDisconnected(event: AccountDisconnectedEvent) {
     LOG.debug { "handleAccountDisconnected account: ${event.accountId}" }
 

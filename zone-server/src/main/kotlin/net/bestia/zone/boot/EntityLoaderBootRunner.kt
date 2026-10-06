@@ -6,6 +6,7 @@ import net.bestia.zone.ecs.persistence.EntityPersister
 import org.springframework.boot.CommandLineRunner
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
+import net.bestia.zone.util.inClassNameOrder
 
 /**
  * Rehydrates persisted world entities (mobs, ground items, ...) into the ECS world at startup.
@@ -19,8 +20,10 @@ import org.springframework.stereotype.Component
 @Order(110)
 class EntityLoaderBootRunner(
   private val world: EcsWorld,
-  private val persisters: List<EntityPersister>,
+  foundPersisters: List<EntityPersister>,
 ) : CommandLineRunner {
+
+  private val persisters = foundPersisters.inClassNameOrder()
 
   override fun run(vararg args: String?) {
     val startupPersisters = persisters.filter { it.loadsAtStartup }
