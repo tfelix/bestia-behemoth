@@ -111,7 +111,7 @@ class FeatureSliceRulesTest {
       "identity -> account",
       "item -> account", "item -> bestia",
       "spawn -> townsfolk",
-      "world -> cartography", "world -> economy", "world -> item", "world -> prop", "world -> townsfolk",
+      "world -> item",
     )
   }
 }

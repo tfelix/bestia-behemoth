@@ -4,14 +4,6 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.worldgen.core.Faction
 import net.bestia.worldgen.pipeline.StandardWorld
 import net.bestia.worldgen.store.PipelineVersion
-import net.bestia.zone.script.ecs.ScriptComponent
-import net.bestia.zone.persistence.PersistedEntityRepository
-import net.bestia.zone.cartography.chart.MapChartRepository
-import net.bestia.zone.townsfolk.rumour.RumourRepository
-import net.bestia.zone.economy.SettlementLedgerRepository
-import net.bestia.zone.economy.WorldTreasuryRepository
-import net.bestia.zone.persistence.deleteAllByKind
-import net.bestia.zone.prop.WorldObjectDivergenceRepository
 import net.bestia.zone.world.stream.PersistedChunkEditRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -30,12 +22,7 @@ import kotlin.random.Random
 class WorldProvisioning(
   private val worldRepository: WorldRepository,
   private val masterSpawnPointRepository: MasterSpawnPointRepository,
-  private val persistedEntityRepository: PersistedEntityRepository,
-  private val mapChartRepository: MapChartRepository,
-  private val worldObjectDivergenceRepository: WorldObjectDivergenceRepository,
-  private val settlementLedgerRepository: SettlementLedgerRepository,
-  private val worldTreasuryRepository: WorldTreasuryRepository,
-  private val rumourRepository: RumourRepository,
+  private val worldScopedData: List<WorldScopedData>,
   private val chunkEditRepository: PersistedChunkEditRepository,
   private val config: WorldGenConfig
 ) {
@@ -92,26 +79,7 @@ class WorldProvisioning(
 
     worldRepository.deleteAll()
     masterSpawnPointRepository.deleteAll()
-    // Charts name places by coordinate, and the coordinates mean different terrain in the new world.
-    // `MapChart.worldShapeVersion` would catch a survived row and refuse to read it, so this is the tidy half
-    // rather than the correctness half - but leaving them would keep an unreadable item in every inventory.
-    mapChartRepository.deleteAll()
-    // Every felled tree and claimed landmark. `WorldObjectDivergence` carries a `worldShapeVersion` now, so
-    // this is the tidy half like the charts above rather than the correctness half - but it was the
-    // correctness half until that column existed, because `pipelineVersion` does not fold the seed and a
-    // reseeded world therefore matched on the only guard there was.
-    worldObjectDivergenceRepository.deleteAll()
-    // Settlement indices are dense and re-used, so a surviving ledger would not be orphaned - it would
-    // be applied to a different town. The version columns would refuse it, so this is the tidy half.
-    settlementLedgerRepository.deleteAll()
-    // The reserve counts against those treasuries, so a survivor would be a number about a world that no
-    // longer exists rather than a slightly wrong one. The version columns would refuse it either way.
-    worldTreasuryRepository.deleteAll()
-    // News is attached to a settlement index, and those are dense and re-used. The version columns would
-    // refuse a survivor, so this is the tidy half - but a town talking about a battle outside a village
-    // the new world never placed is what it would look like without both.
-    rumourRepository.deleteAll()
-    persistedEntityRepository.deleteAllByKind(ScriptComponent.KIND)
+    worldScopedData.forEach { it.wipe() }
     // Removals over a base that is about to change. The version columns would refuse them, so this is the tidy half.
     chunkEditRepository.deleteAll()
 
