@@ -63,14 +63,14 @@ class PassiveSkillScriptRegistryTest {
   private val cooking = skill(3L, "COOKING", script = "Cooking")
 
   private fun registry(vararg scripts: PassiveSkillScript) =
-    PassiveSkillScriptRegistry(scripts.toList(), strategies)
+    PassiveSkillScriptRegistry(scripts.toList())
 
   @Test
   fun `a script binds to the skill it names`() {
     val script = InnerPeaceStub()
     val registry = registry(script)
 
-    registry.bind(listOf(innerPeace, divineProtection, cooking))
+    registry.bind(listOf(innerPeace, divineProtection, cooking), strategies::isCastable)
 
     assertEquals(1, registry.bound().size)
     assertSame(script, registry.bound()[innerPeace.id])
@@ -85,7 +85,7 @@ class PassiveSkillScriptRegistryTest {
     // database - the same reason SkillScriptBootValidator warns rather than throws.
     val registry = registry(InnerPeaceStub())
 
-    registry.bind(listOf(innerPeace, divineProtection))
+    registry.bind(listOf(innerPeace, divineProtection), strategies::isCastable)
 
     assertEquals(1, registry.bound().size)
     assertNull(registry.bound()[divineProtection.id])
@@ -98,7 +98,9 @@ class PassiveSkillScriptRegistryTest {
     // which only fires once the tick loop is already running.
     val registry = registry(MissingSkillScript())
 
-    val ex = assertThrows<PassiveSkillScriptBindingException> { registry.bind(listOf(innerPeace)) }
+    val ex = assertThrows<PassiveSkillScriptBindingException> {
+      registry.bind(listOf(innerPeace), strategies::isCastable)
+    }
 
     assertEquals(true, ex.message!!.contains("WEATHER_SENSE"))
   }
@@ -109,7 +111,9 @@ class PassiveSkillScriptRegistryTest {
     // nothing decides which one a point bought. This is the check that replaced `type != PASSIVE`.
     val registry = registry(CastableSkillScript())
 
-    val ex = assertThrows<PassiveSkillScriptBindingException> { registry.bind(listOf(cooking)) }
+    val ex = assertThrows<PassiveSkillScriptBindingException> {
+      registry.bind(listOf(cooking), strategies::isCastable)
+    }
 
     assertEquals(true, ex.message!!.contains("COOKING"))
   }

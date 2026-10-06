@@ -1,6 +1,7 @@
 package net.bestia.zone.boot
 
 import net.bestia.zone.battle.passive.PassiveSkillScriptRegistry
+import net.bestia.zone.casting.SkillStrategyFactory
 import net.bestia.zone.skill.SkillRepository
 import org.springframework.boot.CommandLineRunner
 import org.springframework.core.annotation.Order
@@ -24,9 +25,10 @@ import org.springframework.stereotype.Component
 class PassiveSkillScriptBinderBootRunner(
   private val skillRepository: SkillRepository,
   private val passiveSkillScriptRegistry: PassiveSkillScriptRegistry,
+  private val skillStrategyFactory: SkillStrategyFactory,
 ) : CommandLineRunner {
 
   override fun run(vararg args: String?) {
-    passiveSkillScriptRegistry.bind(skillRepository.findAll())
+    passiveSkillScriptRegistry.bind(skillRepository.findAll(), skillStrategyFactory::isCastable)
   }
 }

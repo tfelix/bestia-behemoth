@@ -2,7 +2,6 @@ package net.bestia.zone.battle.ecs.effects
 
 import net.bestia.zone.battle.StatusEffectService
 import net.bestia.zone.skill.SkillTargetType
-import net.bestia.zone.casting.SkillStrategyFactory
 import net.bestia.zone.battle.passive.PassiveSkillScript
 import net.bestia.zone.battle.passive.PassiveSkillScriptRegistry
 import net.bestia.zone.battle.status.RegenModifier
@@ -183,16 +182,15 @@ class StatusEffectSystemsIntegrationTest {
     return world to definitionRegistry
   }
 
-  /**
-   * No skill strategies: nothing here is castable, which is exactly what makes [passiveSkill] passive now
-   * that `Skill.type` is gone.
-   */
   private fun passiveRegistry(vararg scripts: PassiveSkillScript) =
-    PassiveSkillScriptRegistry(scripts.toList(), SkillStrategyFactory(emptyList()))
+    PassiveSkillScriptRegistry(scripts.toList())
 
-  /** A registry with [TestPassiveScript] already bound to [passiveSkill]. */
+  /**
+   * A registry with [TestPassiveScript] already bound to [passiveSkill]. Nothing here is castable, which is
+   * exactly what makes [passiveSkill] passive now that `Skill.type` is gone.
+   */
   private fun boundPassiveRegistry(): PassiveSkillScriptRegistry =
-    passiveRegistry(TestPassiveScript()).apply { bind(listOf(passiveSkill)) }
+    passiveRegistry(TestPassiveScript()).apply { bind(listOf(passiveSkill)) { false } }
 
   private fun World.seedStatusValues(entity: EntityId) {
     add(entity, BaseStatusValues(strength = 10, intelligence = 10, vitality = 10, dexterity = 10, willpower = 10, agility = 10))
