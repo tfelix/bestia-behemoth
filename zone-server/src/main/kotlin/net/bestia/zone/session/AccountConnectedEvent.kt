@@ -1,4 +1,4 @@
-package net.bestia.zone.account
+package net.bestia.zone.session
 
 import net.bestia.account.Authority
 import net.bestia.zone.BestiaEvent

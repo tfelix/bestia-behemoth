@@ -9,7 +9,7 @@ import net.bestia.zone.dialog.conversation.Line
 import net.bestia.zone.dialog.conversation.Speaker
 import net.bestia.zone.dialog.conversation.SpeakerResolver
 import net.bestia.zone.ecs.core.WorldView
-import net.bestia.zone.ecs.core.session.ConnectionInfoService
+import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.spawn.townsfolk.Townsfolk
 import net.bestia.zone.message.OutMessageProcessor

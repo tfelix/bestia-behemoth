@@ -8,9 +8,9 @@ import net.bestia.account.Authority
 import net.bestia.bnet.proto.AuthenticationProto
 import net.bestia.bnet.proto.EnvelopeProto
 import net.bestia.bnet.proto.PingOuterClass
-import net.bestia.zone.account.AccountDisconnectedEvent
-import net.bestia.zone.account.authentication.AuthenticationProcessor
-import net.bestia.zone.account.authentication.HttpTicketService
+import net.bestia.zone.session.AccountDisconnectedEvent
+import net.bestia.zone.session.AuthenticationProcessor
+import net.bestia.zone.session.HttpTicketService
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.message.AccountTaskExecutor
 import net.bestia.zone.message.MessageEnvelopeReceivedEvent

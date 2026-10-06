@@ -5,7 +5,7 @@ import net.bestia.zone.battle.skill.AttackExecutionService
 import net.bestia.zone.battle.skill.AttackStrategyFactory
 import net.bestia.zone.ecs.battle.status.StatusValues
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.ecs.core.session.ConnectionInfoService
+import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.ecs.battle.damage.DeadActionGuard
 import net.bestia.zone.ecs.logout.LogoutCancelService

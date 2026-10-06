@@ -3,7 +3,7 @@ package net.bestia.zone.chat
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.account.Authority
 import net.bestia.zone.ecs.core.WorldView
-import net.bestia.zone.ecs.core.session.ConnectionInfoService
+import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.spawn.ambient.AmbientSiteResolver
 import net.bestia.zone.ecs.spawn.ambient.AmbientSpawnConfig

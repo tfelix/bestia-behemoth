@@ -4,7 +4,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.zone.ecs.battle.damage.Dead
 import net.bestia.zone.ecs.core.WorldView
-import net.bestia.zone.ecs.core.session.ConnectionInfoService
+import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.message.IoMessageHandler
 import net.bestia.zone.message.decoder
 import org.springframework.stereotype.Component

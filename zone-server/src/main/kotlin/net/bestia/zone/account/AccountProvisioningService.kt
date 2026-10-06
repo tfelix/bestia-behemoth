@@ -6,6 +6,7 @@ import org.springframework.core.annotation.Order
 import org.springframework.context.event.EventListener
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.stereotype.Service
+import net.bestia.zone.session.AccountConnectedEvent
 
 /**
  * Materializes a zone-local account row the first time an account connects to this zone.

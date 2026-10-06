@@ -10,8 +10,8 @@ import net.bestia.zone.ecs.battle.attack.AttackCancelService
 import net.bestia.zone.ecs.battle.damage.Dead
 import net.bestia.zone.ecs.battle.status.InCombat
 import net.bestia.zone.ecs.core.WorldView
-import net.bestia.zone.ecs.core.session.ConnectionInfoService
-import net.bestia.zone.ecs.core.session.NoActiveSessionException
+import net.bestia.zone.session.ConnectionInfoService
+import net.bestia.zone.session.NoActiveSessionException
 import net.bestia.zone.ecs.logout.DisconnectProtection
 import net.bestia.zone.ecs.logout.LogoutIntent
 import net.bestia.zone.ecs.persistence.PersistAndRemove
@@ -20,6 +20,8 @@ import net.bestia.zone.ecs.respawn.SavePointService
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Service
 import org.springframework.core.annotation.Order
+import net.bestia.zone.session.AccountConnectedEvent
+import net.bestia.zone.session.AccountDisconnectedEvent
 
 /**
  * This service listens if a player connects or disconnects and will create or delete all player

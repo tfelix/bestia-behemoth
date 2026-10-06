@@ -7,8 +7,8 @@ import net.bestia.zone.socket.PongSMSG
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.movement.PathSMSG
-import net.bestia.zone.ecs.core.session.ConnectionInfoService
-import net.bestia.zone.ecs.core.session.NoActiveSessionException
+import net.bestia.zone.session.ConnectionInfoService
+import net.bestia.zone.session.NoActiveSessionException
 import net.bestia.zone.entity.MoveActiveEntityCMSG
 import net.bestia.zone.geometry.Vec3L
 import org.awaitility.Awaitility

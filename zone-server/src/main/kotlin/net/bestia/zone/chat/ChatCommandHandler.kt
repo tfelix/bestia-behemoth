@@ -2,7 +2,7 @@ package net.bestia.zone.chat
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.OperationErrorProto.OpError
-import net.bestia.zone.ecs.core.session.ConnectionInfoService
+import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OutMessageProcessor
 import org.springframework.stereotype.Component

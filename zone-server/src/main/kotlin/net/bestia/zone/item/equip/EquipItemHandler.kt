@@ -9,7 +9,7 @@ import net.bestia.zone.ecs.battle.status.IsStatusValueDirty
 import net.bestia.zone.ecs.core.AsyncJobExecutor
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.battle.damage.DeadActionGuard
-import net.bestia.zone.ecs.core.session.ConnectionInfoService
+import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.ecs.item.Equipment
 import net.bestia.zone.ecs.item.Inventory
 import net.bestia.zone.item.ItemRepository

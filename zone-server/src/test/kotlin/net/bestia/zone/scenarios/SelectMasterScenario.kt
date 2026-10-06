@@ -5,8 +5,8 @@ import net.bestia.zone.account.master.SelectMasterCMSG
 import net.bestia.zone.account.master.findByIdOrThrow
 import net.bestia.zone.ecs.core.Component
 import net.bestia.zone.ecs.core.WorldView
-import net.bestia.zone.ecs.core.session.ConnectionInfoService
-import net.bestia.zone.ecs.core.session.NoActiveSessionException
+import net.bestia.zone.session.ConnectionInfoService
+import net.bestia.zone.session.NoActiveSessionException
 import net.bestia.zone.ecs.logout.DisconnectProtection
 import net.bestia.zone.ecs.logout.LogoutIntent
 import org.junit.jupiter.api.Assertions.assertEquals

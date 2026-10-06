@@ -2,7 +2,7 @@ package net.bestia.zone.scenarios
 
 import net.bestia.zone.account.GetSelfCMSG
 import net.bestia.zone.entity.SelectEntityCMSG
-import net.bestia.zone.ecs.core.session.ConnectionInfoService
+import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.entity.MoveActiveEntityCMSG
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test

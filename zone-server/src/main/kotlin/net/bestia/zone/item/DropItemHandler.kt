@@ -7,7 +7,7 @@ import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.item.Equipment
 import net.bestia.zone.ecs.item.Inventory
 import net.bestia.zone.ecs.movement.Position
-import net.bestia.zone.ecs.core.session.ConnectionInfoService
+import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.ecs.battle.damage.DeadActionGuard
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.item.container.InventoryService

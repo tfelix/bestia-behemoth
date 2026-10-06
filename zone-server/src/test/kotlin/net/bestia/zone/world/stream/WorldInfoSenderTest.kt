@@ -3,7 +3,7 @@ package net.bestia.zone.world.stream
 import io.mockk.every
 import io.mockk.mockk
 import net.bestia.worldgen.core.ChunkPos
-import net.bestia.zone.account.AccountConnectedEvent
+import net.bestia.zone.session.AccountConnectedEvent
 import org.junit.jupiter.api.Test
 import kotlin.test.assertTrue
 

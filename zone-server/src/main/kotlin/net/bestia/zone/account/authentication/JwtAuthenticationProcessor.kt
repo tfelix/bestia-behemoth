@@ -4,6 +4,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.account.Authority
 import net.bestia.bnet.proto.EnvelopeProto
 import org.springframework.stereotype.Component
+import net.bestia.zone.session.AuthenticationProcessor
 
 @Component
 class JwtAuthenticationProcessor(

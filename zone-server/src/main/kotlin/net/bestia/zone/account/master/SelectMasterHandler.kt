@@ -7,7 +7,7 @@ import net.bestia.zone.bestia.OwnedBestiasPublisher
 import net.bestia.zone.ecs.battle.skill.KnownSkills
 import net.bestia.zone.ecs.core.AsyncJobExecutor
 import net.bestia.zone.ecs.core.WorldView
-import net.bestia.zone.ecs.core.session.ConnectionInfoService
+import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.environment.weather.WeatherPublisher
 import net.bestia.zone.item.equip.EquipmentRevalidationService

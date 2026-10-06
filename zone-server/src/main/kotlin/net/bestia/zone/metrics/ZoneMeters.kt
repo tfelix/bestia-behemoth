@@ -8,7 +8,7 @@ import io.micrometer.core.instrument.binder.MeterBinder
 import net.bestia.zone.cartography.tile.MapTileService
 import net.bestia.zone.ecs.core.AsyncJobExecutor
 import net.bestia.zone.ecs.core.EcsWorld
-import net.bestia.zone.ecs.core.session.ConnectionInfoService
+import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.message.AccountInbox
 import net.bestia.zone.socket.ChannelRegistry
 import net.bestia.zone.world.stream.ChunkStreamInbox

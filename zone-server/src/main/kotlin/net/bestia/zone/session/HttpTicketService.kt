@@ -1,8 +1,6 @@
-package net.bestia.zone.account.authentication
+package net.bestia.zone.session
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.account.AccountConnectedEvent
-import net.bestia.zone.account.AccountDisconnectedEvent
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Service
 import java.util.UUID

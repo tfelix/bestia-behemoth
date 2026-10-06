@@ -1,7 +1,7 @@
 package net.bestia.zone.scenarios
 
 import net.bestia.zone.party.*
-import net.bestia.zone.ecs.core.session.ConnectionInfoService
+import net.bestia.zone.session.ConnectionInfoService
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired

@@ -6,7 +6,7 @@ import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.account.master.MasterNotFoundException
 import net.bestia.zone.account.master.MasterResolver
 import net.bestia.zone.account.master.skill.BasicSkillGate
-import net.bestia.zone.ecs.core.session.ConnectionInfoService
+import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.message.IoMessageHandler
 import net.bestia.zone.message.OperationErrorSMSG

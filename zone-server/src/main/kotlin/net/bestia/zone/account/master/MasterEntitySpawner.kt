@@ -24,7 +24,7 @@ import net.bestia.zone.ecs.account.ActivePlayer
 import net.bestia.zone.ecs.place.Place
 import net.bestia.zone.ecs.place.PlaceNameService
 import net.bestia.zone.ecs.account.Master as MasterComponent
-import net.bestia.zone.ecs.core.session.ConnectionInfoService
+import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.ecs.battle.level.Level
 import net.bestia.zone.ecs.battle.status.SkillPoints
 import net.bestia.zone.ecs.battle.status.StatusPoints

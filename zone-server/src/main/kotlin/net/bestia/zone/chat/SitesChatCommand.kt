@@ -3,7 +3,7 @@ package net.bestia.zone.chat
 import net.bestia.account.Authority
 import net.bestia.worldgen.pop.BusinessCatalogue
 import net.bestia.zone.ecs.core.WorldView
-import net.bestia.zone.ecs.core.session.ConnectionInfoService
+import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.ai.domain.townsfolk.TownsfolkProduction
 import net.bestia.zone.economy.EconomyCatalogue
 import net.bestia.zone.environment.time.BestiaClock

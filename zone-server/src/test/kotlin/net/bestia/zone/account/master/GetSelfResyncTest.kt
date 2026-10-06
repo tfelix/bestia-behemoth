@@ -14,7 +14,7 @@ import net.bestia.zone.ecs.battle.status.StatusPoints
 import net.bestia.zone.ecs.battle.status.StatusValues
 import net.bestia.zone.sync.Dirtyable
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.ecs.core.session.ConnectionInfoService
+import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.ecs.RecordingEntityVisibility
 import net.bestia.zone.ecs.item.CarryCapacity

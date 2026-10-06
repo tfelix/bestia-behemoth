@@ -6,7 +6,7 @@ import net.bestia.zone.ai.ecs.PlayerControlled
 import net.bestia.zone.ecs.ActivePlayerAOIService
 import net.bestia.zone.ecs.account.ActivePlayer
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.ecs.core.session.ConnectionInfoService
+import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.geometry.Vec3L

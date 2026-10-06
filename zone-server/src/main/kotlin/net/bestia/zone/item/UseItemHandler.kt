@@ -5,7 +5,7 @@ import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.zone.ecs.battle.damage.DeadActionGuard
 import net.bestia.zone.ecs.core.AsyncJobExecutor
 import net.bestia.zone.ecs.item.Inventory
-import net.bestia.zone.ecs.core.session.ConnectionInfoService
+import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.item.script.ItemScriptExecutionService

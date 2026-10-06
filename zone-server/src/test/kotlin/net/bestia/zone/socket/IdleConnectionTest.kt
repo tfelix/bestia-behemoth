@@ -1,7 +1,7 @@
 package net.bestia.zone.socket
 
 import io.netty.handler.timeout.IdleStateEvent
-import net.bestia.zone.account.AccountDisconnectedEvent
+import net.bestia.zone.session.AccountDisconnectedEvent
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse

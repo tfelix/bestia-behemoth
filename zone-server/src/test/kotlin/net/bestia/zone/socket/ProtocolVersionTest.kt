@@ -1,7 +1,7 @@
 package net.bestia.zone.socket
 
 import net.bestia.bnet.proto.EnvelopeProto
-import net.bestia.zone.account.AccountConnectedEvent
+import net.bestia.zone.session.AccountConnectedEvent
 import net.bestia.zone.message.UnknownBnetMessageException
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals

@@ -4,7 +4,7 @@ import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.zone.ecs.battle.damage.DeadActionGuard
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.modify
-import net.bestia.zone.ecs.core.session.ConnectionInfoService
+import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.ecs.economy.ShopTradeIntent
 import net.bestia.zone.message.TickMessageHandler
 import net.bestia.zone.message.decoder

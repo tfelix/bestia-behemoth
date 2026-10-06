@@ -7,7 +7,7 @@ import io.mockk.verify
 import net.bestia.account.Authority
 import net.bestia.account.Role
 import net.bestia.bnet.proto.OperationErrorProto.OpError
-import net.bestia.zone.ecs.core.session.ConnectionInfoService
+import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.message.SMSG

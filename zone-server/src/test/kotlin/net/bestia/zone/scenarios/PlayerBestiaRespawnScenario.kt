@@ -9,8 +9,8 @@ import net.bestia.zone.bestia.PlayerBestiaCreateOperation
 import net.bestia.zone.bestia.PlayerBestiaCreateOperation.PlayerBestiaCreateData
 import net.bestia.zone.ecs.account.OwnedBestia
 import net.bestia.zone.ecs.core.WorldView
-import net.bestia.zone.ecs.core.session.ConnectionInfoService
-import net.bestia.zone.ecs.core.session.ConnectionInfoService.PlayerEntity
+import net.bestia.zone.session.ConnectionInfoService
+import net.bestia.zone.session.ConnectionInfoService.PlayerEntity
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.mocks.GameClientMock
 import net.bestia.zone.mocks.GameClientMockFactory

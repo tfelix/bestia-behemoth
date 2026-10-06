@@ -3,7 +3,7 @@ package net.bestia.zone.account.master
 import net.bestia.zone.bestia.PlayerBestiaNotFoundException
 import net.bestia.zone.bestia.PlayerBestiaRepository
 import net.bestia.zone.ecs.movement.Position
-import net.bestia.zone.ecs.core.session.ConnectionInfoService
+import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.ecs.battle.level.Level
 import net.bestia.zone.ecs.core.EntityNotAliveException
 import net.bestia.zone.ecs.core.WorldView

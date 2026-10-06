@@ -12,7 +12,7 @@ import net.bestia.zone.ecs.battle.status.Stamina
 import net.bestia.zone.ecs.battle.status.StatusPoints
 import net.bestia.zone.ecs.battle.status.StatusValues
 import net.bestia.zone.ecs.core.WorldView
-import net.bestia.zone.ecs.core.session.ConnectionInfoService
+import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.ecs.item.CarryCapacity
 import net.bestia.zone.ecs.item.Equipment
 import net.bestia.zone.ecs.place.Place

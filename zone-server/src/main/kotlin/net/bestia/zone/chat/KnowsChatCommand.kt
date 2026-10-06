@@ -6,7 +6,7 @@ import net.bestia.zone.ai.knowledge.Knowledge
 import net.bestia.zone.ai.knowledge.KnowledgeService
 import net.bestia.zone.ai.knowledge.TownKnowledge
 import net.bestia.zone.ecs.core.WorldView
-import net.bestia.zone.ecs.core.session.ConnectionInfoService
+import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.spawn.townsfolk.HouseholdPlacement
 import net.bestia.zone.message.OutMessageProcessor

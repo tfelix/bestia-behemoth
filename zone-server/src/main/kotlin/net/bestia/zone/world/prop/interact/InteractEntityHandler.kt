@@ -12,7 +12,7 @@ import net.bestia.zone.ecs.construction.Building
 import net.bestia.zone.ecs.construction.ConstructionSite
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.modify
-import net.bestia.zone.ecs.core.session.ConnectionInfoService
+import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.prop.PlayerStructureIdentity
 import net.bestia.zone.ecs.spawn.townsfolk.Townsfolk

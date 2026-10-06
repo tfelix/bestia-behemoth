@@ -8,8 +8,8 @@ import net.bestia.zone.ecs.account.ActivePlayer
 import net.bestia.zone.ecs.battle.attack.AttackCancelService
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.modify
-import net.bestia.zone.ecs.core.session.ConnectionInfoService
-import net.bestia.zone.ecs.core.session.EntityNotOwnedSessionException
+import net.bestia.zone.session.ConnectionInfoService
+import net.bestia.zone.session.EntityNotOwnedSessionException
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.message.TickMessageHandler

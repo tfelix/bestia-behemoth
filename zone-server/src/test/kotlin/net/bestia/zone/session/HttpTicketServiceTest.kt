@@ -1,7 +1,5 @@
-package net.bestia.zone.account.authentication
+package net.bestia.zone.session
 
-import net.bestia.zone.account.AccountConnectedEvent
-import net.bestia.zone.account.AccountDisconnectedEvent
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals

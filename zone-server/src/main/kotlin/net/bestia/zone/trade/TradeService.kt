@@ -2,7 +2,7 @@ package net.bestia.zone.trade
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.OperationErrorProto.OpError
-import net.bestia.zone.account.AccountDisconnectedEvent
+import net.bestia.zone.session.AccountDisconnectedEvent
 import net.bestia.zone.account.master.MasterRepository
 import net.bestia.zone.account.master.findByIdOrThrow
 import net.bestia.zone.account.master.skill.BasicSkillGate
@@ -10,7 +10,7 @@ import net.bestia.zone.ecs.account.Account
 import net.bestia.zone.ecs.battle.damage.DeadActionGuard
 import net.bestia.zone.ecs.core.AsyncJobExecutor
 import net.bestia.zone.ecs.core.WorldView
-import net.bestia.zone.ecs.core.session.ConnectionInfoService
+import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.ecs.item.Equipment
 import net.bestia.zone.ecs.item.Inventory
 import net.bestia.zone.ecs.movement.Position

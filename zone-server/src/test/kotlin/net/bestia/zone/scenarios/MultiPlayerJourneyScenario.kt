@@ -17,7 +17,7 @@ import net.bestia.zone.ecs.battle.effects.StatusEffectsComponentSMSG
 import net.bestia.zone.ecs.battle.level.LevelComponentSMSG
 import net.bestia.zone.ecs.battle.status.SkillPointsComponentSMSG
 import net.bestia.zone.ecs.core.WorldView
-import net.bestia.zone.ecs.core.session.ConnectionInfoService
+import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.ecs.item.EquipmentComponentSMSG
 import net.bestia.zone.ecs.item.InventoryComponentSMSG
 import net.bestia.zone.ecs.entity.VisualComponentSMSG

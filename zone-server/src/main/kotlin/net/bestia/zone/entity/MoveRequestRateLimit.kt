@@ -1,6 +1,6 @@
 package net.bestia.zone.entity
 
-import net.bestia.zone.account.AccountDisconnectedEvent
+import net.bestia.zone.session.AccountDisconnectedEvent
 import net.bestia.zone.ecs.ZoneConfig
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component

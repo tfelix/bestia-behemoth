@@ -1,4 +1,4 @@
-package net.bestia.zone.ecs.core.session
+package net.bestia.zone.session
 
 import net.bestia.zone.util.AccountId
 import net.bestia.zone.util.EntityId

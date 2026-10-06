@@ -4,8 +4,8 @@ import io.netty.channel.embedded.EmbeddedChannel
 import net.bestia.account.Authority
 import net.bestia.bnet.proto.AuthenticationProto
 import net.bestia.bnet.proto.EnvelopeProto
-import net.bestia.zone.account.authentication.AuthenticationProcessor
-import net.bestia.zone.account.authentication.HttpTicketService
+import net.bestia.zone.session.AuthenticationProcessor
+import net.bestia.zone.session.HttpTicketService
 import net.bestia.zone.message.MessageEnvelopeReceivedEvent
 import org.springframework.context.ApplicationEventPublisher
 
