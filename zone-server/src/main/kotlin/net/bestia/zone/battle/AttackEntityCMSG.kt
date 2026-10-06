@@ -6,7 +6,7 @@ import net.bestia.zone.util.EntityId
 
 /**
  * A swing of the active entity's basic attack at [targetEntityId]. Carries no attack id and no level:
- * a basic attack has no catalogue row, and a skill is cast with [ActivateSkillCMSG].
+ * a basic attack has no catalogue row, and a skill is cast with [net.bestia.zone.casting.ActivateSkillCMSG].
  */
 data class AttackEntityCMSG(
   override val playerId: Long,

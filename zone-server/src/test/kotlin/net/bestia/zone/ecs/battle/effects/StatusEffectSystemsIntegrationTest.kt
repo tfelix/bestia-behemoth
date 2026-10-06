@@ -2,7 +2,7 @@ package net.bestia.zone.ecs.battle.effects
 
 import net.bestia.zone.battle.StatusEffectService
 import net.bestia.zone.skill.SkillTargetType
-import net.bestia.zone.battle.skill.SkillStrategyFactory
+import net.bestia.zone.casting.SkillStrategyFactory
 import net.bestia.zone.battle.passive.PassiveSkillScript
 import net.bestia.zone.battle.passive.PassiveSkillScriptRegistry
 import net.bestia.zone.battle.status.RegenModifier

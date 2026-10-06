@@ -1,7 +1,7 @@
 package net.bestia.zone.battle.passive
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.battle.skill.SkillStrategyFactory
+import net.bestia.zone.casting.SkillStrategyFactory
 import net.bestia.zone.skill.Skill
 import org.springframework.stereotype.Component
 
@@ -34,7 +34,7 @@ class PassiveSkillScriptRegistry(
    * Resolves every script's [PassiveSkillScript.skill] against the catalogue.
    *
    * Throws rather than warning, unlike
-   * [net.bestia.zone.battle.skill.scripts.SkillScriptBootValidator]: that one tolerates misses
+   * [net.bestia.zone.casting.scripts.SkillScriptBootValidator]: that one tolerates misses
    * because plenty of catalogued skills legitimately have no implementation yet, whereas this
    * direction - a script bean that exists in code - can only miss through a typo or a renamed
    * skill. The reverse direction is deliberately *not* checked: a passive skill with no script is

@@ -33,7 +33,7 @@ import net.bestia.zone.ecs.core.update
 /**
  * Resolves a **basic attack** - a sword swing, an arrow, a mob's bite.
  *
- * Separate from [net.bestia.zone.battle.skill.SkillExecutionService] because the two have almost nothing in common beyond the word
+ * Separate from [net.bestia.zone.casting.SkillExecutionService] because the two have almost nothing in common beyond the word
  * "attack". A basic attack has no catalogue row, no script, no mana and no cast bar; it is the weapon and
  * the stats and nothing else. Forcing it through the skill pipeline meant every swing paid for a
  * repository lookup, a script registry lookup and a scripting context, and it is why mobs currently cast a

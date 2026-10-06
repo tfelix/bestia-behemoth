@@ -16,7 +16,7 @@ import net.bestia.zone.ai.domain.bestia.DefaultAttackDefinition
 import net.bestia.zone.ai.domain.bestia.EffectivenessKey
 import net.bestia.zone.ai.domain.bestia.SkillAttack
 import net.bestia.zone.battle.attack.AttackExecutionService
-import net.bestia.zone.battle.skill.SkillExecutionService
+import net.bestia.zone.casting.SkillExecutionService
 
 /**
  * Grounds one attack action per known [attacks] entry currently in range. All of them lead to the same

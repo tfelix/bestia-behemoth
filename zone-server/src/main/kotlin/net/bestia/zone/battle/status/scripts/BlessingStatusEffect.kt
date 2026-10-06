@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component
 
 /**
  * Registered under `status_effects.yml` id 5 (`BLESSING`), applied by the BLESSING skill (see
- * `net.bestia.zone.battle.skill.scripts.Blessing` - a distinct class registered in the skill
+ * `net.bestia.zone.casting.scripts.Blessing` - a distinct class registered in the skill
  * script registry; named differently here since Spring's default bean name is the decapitalised
  * simple class name regardless of package, and both scripts being called plain `Blessing` collided).
  *

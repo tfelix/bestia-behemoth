@@ -18,7 +18,7 @@ import net.bestia.zone.skill.SkillId
  *
  * The obvious design is to reuse the existing nullable `script` column the way equipment does. That
  * would work now that `SkillImporterBootRunner.tryUpdate` propagates content edits onto existing
- * rows, but it buys nothing: the `script` column already means "the [net.bestia.zone.battle.skill.SkillStrategy] that
+ * rows, but it buys nothing: the `script` column already means "the [net.bestia.zone.casting.SkillStrategy] that
  * resolves this skill when cast", and a passive is never cast. One column resolving into two unrelated bean
  * registries is a worse contract than a name on the bean - and now that `Skill.type` is gone, the *absence* of
  * a castable script is precisely what makes a skill passive, so the column could not carry both anyway.

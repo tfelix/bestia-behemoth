@@ -27,7 +27,7 @@ import net.bestia.zone.ai.domain.bestia.action.SleepActionTemplate
 import net.bestia.zone.ai.domain.bestia.action.WalkToVegetationActionTemplate
 import net.bestia.zone.ai.domain.bestia.action.WanderActionTemplate
 import net.bestia.zone.battle.attack.AttackExecutionService
-import net.bestia.zone.battle.skill.SkillExecutionService
+import net.bestia.zone.casting.SkillExecutionService
 import net.bestia.zone.geometry.Vec3L
 
 /**

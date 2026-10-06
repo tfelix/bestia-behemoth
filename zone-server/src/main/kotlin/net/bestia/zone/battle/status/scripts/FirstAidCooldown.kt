@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component
  * `status_effects.yml` id 8 (`FIRST_AID_COOLDOWN`) - bookkeeping, never shown, no stat effect.
  *
  * Marks a bestia as having had First Aid recently, which is how
- * [net.bestia.zone.battle.skill.scripts.FirstAid] enforces the once-a-minute limit its description
+ * [net.bestia.zone.casting.scripts.FirstAid] enforces the once-a-minute limit its description
  * promises. On the target rather than on the caster, deliberately: the limit is per bestia, so two
  * masters cannot take turns topping the same one up.
  */

@@ -1,0 +1,55 @@
+package net.bestia.zone.casting.ecs
+
+import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.zone.casting.SkillExecutionService
+import net.bestia.zone.ecs.core.ComponentClassSet
+import net.bestia.zone.ecs.core.Phase
+import net.bestia.zone.ecs.core.System
+import net.bestia.zone.ecs.core.World
+import org.springframework.stereotype.Component as SpringComponent
+import net.bestia.zone.battle.ecs.skill.Casting
+
+/**
+ * Drives the cast-time countdown. Every tick it advances each [Casting] and, on the tick it elapses,
+ * drops the component and resolves the skill.
+ *
+ * Removing the component is also what tells the client the bar is done - the same signal an
+ * interrupt produces, since visually both just end the cast. Interruption
+ * itself is not handled here; it happens by removing the component elsewhere (see
+ * [net.bestia.zone.battle.ecs.skill.CastCancelService] for message handlers and
+ * [net.bestia.zone.battle.ecs.damage.ReceivedDamageSystem] for damage).
+ */
+@SpringComponent
+class CastingSystem(
+  private val skillExecutionService: SkillExecutionService,
+) : System {
+  override val phase = Phase.ACTIONS
+
+  override val writes: ComponentClassSet = setOf(Casting::class)
+
+  override fun update(world: World, deltaTime: Float) {
+    world.query(Casting::class).each { id ->
+      val casting = get<Casting>()
+      casting.countdown(deltaTime)
+
+      if (casting.hasElapsed()) {
+        LOG.debug { "Cast of skill ${casting.skillId} by entity $id completed" }
+
+        world.remove(id, Casting::class)
+
+        skillExecutionService.execute(
+          world = world,
+          casterId = id,
+          skillId = casting.skillId,
+          skillLevel = casting.skillLevel,
+          targetEntityId = casting.targetEntityId,
+          targetPosition = casting.targetPosition
+        )
+      }
+    }
+  }
+
+  companion object {
+    private val LOG = KotlinLogging.logger { }
+  }
+}
