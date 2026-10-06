@@ -26,7 +26,7 @@ class ReceivedDamageSystem : System {
   override val phase = Phase.COMBAT
   override val after = setOf(AttackSystem::class)
 
-  override val reads: ComponentClassSet = setOf(Damage::class, Invulnerable::class)
+  override val reads: ComponentClassSet = setOf(IncomingDamage::class, Invulnerable::class)
   override val writes: ComponentClassSet =
     setOf(
       Health::class, TakenDamage::class, Dead::class, LogoutIntent::class, Casting::class, Crafting::class,
@@ -34,11 +34,11 @@ class ReceivedDamageSystem : System {
     )
 
   override fun update(world: World, deltaTime: Float) {
-    world.query(Damage::class, Health::class).each { id ->
-      val receivedDamage = get<Damage>()
+    world.query(IncomingDamage::class, Health::class).each { id ->
+      val receivedDamage = get<IncomingDamage>()
       val health = get<Health>()
 
-      world.remove(id, Damage::class)
+      world.remove(id, IncomingDamage::class)
 
       // Consumed and dropped, not skipped before the removal: leaving the component on would have the blow
       // land again on the next tick, forever. Nothing else follows either - no aggro record, no combat

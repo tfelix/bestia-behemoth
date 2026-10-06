@@ -18,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap
  * [execute] posts the resolution to the tick thread and returns. That is what lets a script query and spawn
  * and do relational work itself, instead of returning a spec for this service to enact. It runs between
  * ticks, where `World.iterating` is false, so structural changes apply immediately and a get-or-create on
- * the target's `Damage` component is atomic against every other caster. Casts resolve in the order they
+ * the target's `IncomingDamage` component is atomic against every other caster. Casts resolve in the order they
  * were posted. [SkillBudget] bounds how long one cast may hold the tick.
  *
  * ### What is still checked here rather than in the script

@@ -3,7 +3,7 @@ package net.bestia.zone.battle.ecs.damage
 import net.bestia.zone.ecs.core.Component
 import net.bestia.zone.util.EntityId
 
-class Damage() : Component {
+class IncomingDamage() : Component {
 
   val amounts: MutableList<DamageAmount> = mutableListOf()
 

@@ -17,7 +17,7 @@ import net.bestia.zone.prop.PropPromotionService
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import net.bestia.zone.battle.ecs.damage.Damage as DamageComponent
+import net.bestia.zone.battle.ecs.damage.IncomingDamage
 import net.bestia.zone.battle.BattleContextFactory
 import net.bestia.zone.battle.FixedRandom
 import net.bestia.zone.battle.LineOfSightService
@@ -58,7 +58,7 @@ class AttackEntityHandlerTest {
 
     handlerFor(attacker).handle(world, AttackEntityCMSG(playerId = ACCOUNT_ID, targetEntityId = target))
 
-    assertTrue(world.has(target, DamageComponent::class), "a swing in reach must resolve onto the target")
+    assertTrue(world.has(target, IncomingDamage::class), "a swing in reach must resolve onto the target")
   }
 
   @Test
@@ -69,7 +69,7 @@ class AttackEntityHandlerTest {
     handlerFor(attacker).handle(world, AttackEntityCMSG(playerId = ACCOUNT_ID, targetEntityId = target))
 
     assertFalse(
-      world.has(target, DamageComponent::class),
+      world.has(target, IncomingDamage::class),
       "range is enforced by the attack pathway; the old handler checked nothing at all"
     )
   }

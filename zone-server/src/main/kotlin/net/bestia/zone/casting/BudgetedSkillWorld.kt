@@ -18,8 +18,7 @@ import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.entity.StaticEntityKind
 import net.bestia.zone.spoor.TrackReading
-import net.bestia.zone.battle.ecs.damage.Damage as DamageComponent
-
+import net.bestia.zone.battle.ecs.damage.IncomingDamage
 /**
  * The real [SkillWorld]: every operation is charged against the cast's [SkillBudget]. A cast resolves on the
  * tick thread (see [SkillExecutionService]), so it uses the [World] directly.
@@ -95,7 +94,7 @@ class BudgetedSkillWorld(
   }
 
   /**
-   * A heal moves [Health] directly; damage is staged as a [DamageComponent] so `ReceivedDamageSystem` drains
+   * A heal moves [Health] directly; damage is staged as a [IncomingDamage] so `ReceivedDamageSystem` drains
    * it, which is also what handles death, threat and interrupting the victim's own cast.
    *
    * Two casts landing on the same target share one component rather than one replacing the other: a cast
@@ -122,7 +121,7 @@ class BudgetedSkillWorld(
             return@onEntity false
           }
 
-          val staged = get(target, DamageComponent::class) ?: add(target, DamageComponent())
+          val staged = get(target, IncomingDamage::class) ?: add(target, IncomingDamage())
           staged.add(damage.amount, casterId)
         }
       }

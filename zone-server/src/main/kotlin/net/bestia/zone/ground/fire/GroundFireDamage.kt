@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component
  * ### Why the existing effect engine rather than a damage pass of its own
  *
  * `AreaEffectSystem` already does everything needed: its own accumulator at any cadence, a `while` loop so a
- * long frame delivers every swallowed tick, the get-or-create on `Damage` inside `world.defer`, the
+ * long frame delivers every swallowed tick, the get-or-create on `IncomingDamage` inside `world.defer`, the
  * `DamageEntitySMSG` broadcast, `hitsCaster`, and `AoiLayer.ALL` so props are in scope. Its KDoc says the
  * generic case out loud - *"a 1.2s fire patch and a 3s poison cloud are the same code with different
  * numbers"* - and a grass fire is one more set of numbers.

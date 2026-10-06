@@ -4,7 +4,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.battle.damage.DamageEntitySMSG
 import net.bestia.zone.aoi.AoiLayer
 import net.bestia.zone.aoi.EntityAOIService
-import net.bestia.zone.battle.ecs.damage.Damage
+import net.bestia.zone.battle.ecs.damage.IncomingDamage
 import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.battle.ecs.status.Invulnerable
@@ -33,7 +33,7 @@ import net.bestia.zone.battle.CombatTargetPromotion
  * are the same code with different numbers, and the finest cadence anything can have is the tick
  * rate rather than a system's own schedule.
  *
- * Runs before [net.bestia.zone.battle.ecs.damage.ReceivedDamageSystem], which drains the [Damage] this
+ * Runs before [net.bestia.zone.battle.ecs.damage.ReceivedDamageSystem], which drains the [IncomingDamage] this
  * writes.
  */
 @SpringComponent
@@ -57,7 +57,7 @@ class AreaEffectSystem(
    * promotion happens to entities this system does not own makes no difference to the store being mutated.
    */
   override val writes: ComponentClassSet = setOf(
-    AreaEffect::class, Damage::class,
+    AreaEffect::class, IncomingDamage::class,
     Position::class, Grounded::class, Health::class, StatusValues::class
   )
 
@@ -100,7 +100,7 @@ class AreaEffectSystem(
 
     // Deferred for the reason SkillExecutionService.applyResult defers: `World.add` is itself
     // deferred while a system iterates, so staging inline would let two sources landing on one target
-    // in the same tick each create their own Damage component and lose one of them. Inside a deferred
+    // in the same tick each create their own IncomingDamage component and lose one of them. Inside a deferred
     // block structural changes apply immediately, making the get-or-create below sound.
     world.defer {
       for (victimId in inside) {
@@ -123,7 +123,7 @@ class AreaEffectSystem(
         // See Invulnerable: staging a burn ReceivedDamageSystem drops would only report it to the client.
         if (world.has(victimId, Invulnerable::class)) continue
 
-        val damage = world.get(victimId, Damage::class) ?: world.add(victimId, Damage())
+        val damage = world.get(victimId, IncomingDamage::class) ?: world.add(victimId, IncomingDamage())
         damage.add(effect.damagePerTick, effect.casterId)
 
         outMessageProcessor.sendToObserversOf(

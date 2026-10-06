@@ -25,7 +25,7 @@ import net.bestia.zone.battle.ecs.damage.PlayerDeathSystem
  * ### Exactly once, by construction, not by locking
  *
  * Two simultaneous attackers finishing the same prop in the same tick still only ever produce one `Dead` -
- * `SkillExecutionService.applyResult` stages both hits onto the *same* `DamageComponent` instance per
+ * `SkillExecutionService.applyResult` stages both hits onto the *same* `IncomingDamage` instance per
  * target, and `ReceivedDamageSystem` drains it once per tick, adding `Dead` at most once. This system's own
  * query over `Dead` therefore sees a given propId's death exactly once, ever: the entity is destroyed the
  * same tick, later in the death phase, so it can never reappear in a future tick's query.

@@ -3,7 +3,7 @@ package net.bestia.zone.battle.ecs.effects
 import io.mockk.every
 import io.mockk.mockk
 import net.bestia.zone.aoi.EntityAOIService
-import net.bestia.zone.battle.ecs.damage.Damage
+import net.bestia.zone.battle.ecs.damage.IncomingDamage
 import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.ecs.core.testWorld
@@ -69,7 +69,7 @@ class AreaEffectSystemTest {
   }
 
   /** Damage is staged rather than applied, and drained by ReceivedDamageSystem, which is not under test. */
-  private fun stagedDamage(id: EntityId): Int = world.get(id, Damage::class)?.total() ?: 0
+  private fun stagedDamage(id: EntityId): Int = world.get(id, IncomingDamage::class)?.total() ?: 0
 
   @Test
   fun `nine point six seconds at one point two per tick deals exactly eight ticks`() {
@@ -127,7 +127,7 @@ class AreaEffectSystemTest {
     world.tick(TICK_INTERVAL)
 
     assertEquals(0, stagedDamage(corpse))
-    assertFalse(world.has(scenery, Damage::class), "an entity with no Health takes no damage")
+    assertFalse(world.has(scenery, IncomingDamage::class), "an entity with no Health takes no damage")
   }
 
   @Test
@@ -186,7 +186,7 @@ class AreaEffectSystemTest {
     world.tick(TICK_INTERVAL)
 
     assertTrue(world.isAlive(patch))
-    assertFalse(world.has(patch, Damage::class))
+    assertFalse(world.has(patch, IncomingDamage::class))
   }
 
   private companion object {
@@ -224,6 +224,6 @@ class AreaEffectSystemTest {
     world.tick(0.2f)
 
     assertTrue(world.has(prop, Health::class), "the prop was never promoted")
-    assertTrue((world.get(prop, Damage::class)?.total() ?: 0) > 0, "the prop took no damage")
+    assertTrue((world.get(prop, IncomingDamage::class)?.total() ?: 0) > 0, "the prop took no damage")
   }
 }

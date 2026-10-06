@@ -71,7 +71,7 @@ class AiBehaviorScenarioTest {
     ai.tickUntilGoal(mob, "KillEnemy")
     ai.tick(times = 20)
 
-    // Going through the attack service rather than stacking a Damage component directly is the point: a mob
+    // Going through the attack service rather than stacking an IncomingDamage component directly is the point: a mob
     // swings by the same route a player does, so range and the damage formula both apply. It is deliberately
     // *not* the skill service - a default attack is not a catalogue row.
     verify(atLeast = 1) {

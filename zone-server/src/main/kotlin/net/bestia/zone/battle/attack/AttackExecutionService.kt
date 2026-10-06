@@ -26,7 +26,7 @@ import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Service
 import net.bestia.zone.battle.damage.Damage as DamageResult
-import net.bestia.zone.battle.ecs.damage.Damage as DamageComponent
+import net.bestia.zone.battle.ecs.damage.IncomingDamage
 import net.bestia.zone.ecs.core.update
 
 /**
@@ -116,7 +116,7 @@ class AttackExecutionService(
 
     // Deferred because this is called from inside a system: `World.add` is itself deferred while a system
     // iterates, so staging inline would let two swings landing on the same target in one tick each create
-    // their own Damage component with the second silently replacing the first. Inside a deferred block
+    // their own IncomingDamage component with the second silently replacing the first. Inside a deferred block
     // structural changes apply immediately, so the get-or-create below is sound.
     world.defer {
       // Re-checked inside the deferred block, not outside it: something later in this same tick may have
@@ -139,7 +139,7 @@ class AttackExecutionService(
             return@defer
           }
 
-          val staged = world.get(targetId, DamageComponent::class) ?: world.add(targetId, DamageComponent())
+          val staged = world.get(targetId, IncomingDamage::class) ?: world.add(targetId, IncomingDamage())
           staged.add(result.amount, attackerId)
         }
       }
@@ -160,7 +160,7 @@ class AttackExecutionService(
 
     /** What [attack] writes: the staged damage, the attacker's delay, and a prop promoted on its first hit. */
     val WRITES: ComponentClassSet = setOf(
-      DamageComponent::class, AttackDelay::class, Position::class, Grounded::class, Health::class,
+      IncomingDamage::class, AttackDelay::class, Position::class, Grounded::class, Health::class,
       StatusValues::class,
     )
   }
