@@ -8,6 +8,7 @@ import jakarta.persistence.Id
 import jakarta.persistence.Lob
 import jakarta.persistence.Table
 import java.time.Instant
+import org.hibernate.Length
 
 /**
  * Depleted, or a divergence otherwise, and never rolled again from a pristine `propsIn()` result.
@@ -90,6 +91,6 @@ class WorldObjectDivergence(
 
   /** Unused today; an escape hatch for who claimed it, a regrowth stage, or similar, never queried on. */
   @Lob
-  @Column
+  @Column(length = Length.LONG32)
   var payload: String? = null
 }

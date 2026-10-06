@@ -7,6 +7,7 @@ import jakarta.persistence.Lob
 import jakarta.persistence.Table
 import java.time.Instant
 import net.bestia.zone.economy.LedgerState
+import org.hibernate.Length
 
 /**
  * One settlement's books, for a settlement that has any.
@@ -42,11 +43,11 @@ class SettlementLedger(
 
   /** `commodity=delta` pairs, newline separated. See the class note on why this is not columns. */
   @Lob
-  @Column(name = "stock_deviation", nullable = false)
+  @Column(name = "stock_deviation", nullable = false, length = Length.LONG32)
   var stockDeviation: String = "",
 
   @Lob
-  @Column(name = "price_deviation", nullable = false)
+  @Column(name = "price_deviation", nullable = false, length = Length.LONG32)
   var priceDeviation: String = "",
 
   @Column(nullable = false)

@@ -1,6 +1,7 @@
 package net.bestia.zone.persistence
 
 import jakarta.persistence.*
+import org.hibernate.Length
 
 /**
  * A single serialized component blob belonging to a [PersistedEntity]. [type] is a stable
@@ -14,7 +15,7 @@ class PersistedComponent(
   var type: String,
 
   @Lob
-  @Column(nullable = false)
+  @Column(nullable = false, length = Length.LONG32)
   var data: String
 ) {
   @Id

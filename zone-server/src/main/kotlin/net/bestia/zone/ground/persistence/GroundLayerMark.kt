@@ -8,6 +8,7 @@ import jakarta.persistence.Lob
 import jakarta.persistence.Table
 import java.io.Serializable
 import java.time.Instant
+import org.hibernate.Length
 
 /**
  * One ground layer's cells for one chunk column.
@@ -44,7 +45,7 @@ class GroundLayerMark(
 
   /** See [net.bestia.zone.ground.ColumnLevels]: one byte per cell, `localY * size + localX`. */
   @Lob
-  @Column(nullable = false)
+  @Column(nullable = false, length = Length.LONG32)
   var cells: ByteArray = ByteArray(0),
 
   @Column(name = "last_decayed_second", nullable = false)
