@@ -8,7 +8,6 @@ import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.entity.ecs.EntityVisual
 import net.bestia.zone.entity.ecs.VisualKind
 import net.bestia.zone.movement.ecs.Position
-import net.bestia.zone.townsfolk.rumour.NotableKillReporter
 import net.bestia.zone.persistence.PersistedEntityDeletionQueue
 import net.bestia.zone.persistence.Persistent
 import net.bestia.zone.geometry.Vec3L
@@ -39,7 +38,7 @@ class DeathSystemTest {
     mobLootSpawner = lootSpawner,
     deletionQueue = deletionQueue,
     connectionInfoService = ConnectionInfoService(),
-    notableKills = mockk<NotableKillReporter>(relaxed = true),
+    notableKills = mockk<KillReporter>(relaxed = true),
     spill = { x, y -> spilledAt += x to y },
   )
 

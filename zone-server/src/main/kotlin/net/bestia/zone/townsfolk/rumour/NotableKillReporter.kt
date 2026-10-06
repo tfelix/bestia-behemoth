@@ -2,6 +2,7 @@ package net.bestia.zone.townsfolk.rumour
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.bestia.BestiaCatalogue
+import net.bestia.zone.spawn.ecs.KillReporter
 import org.springframework.stereotype.Service
 
 /**
@@ -19,15 +20,10 @@ import org.springframework.stereotype.Service
 class NotableKillReporter(
   private val rumours: RumourService,
   private val bestiaCatalogue: BestiaCatalogue,
-) {
+) : KillReporter {
 
-  /**
-   * Posts news of a kill if the species was large enough to be worth it.
-   *
-   * Takes the species id and a position rather than an entity: by the time this runs the entity is
-   * being destroyed, and a caller that handed over a live reference would be racing its own tick.
-   */
-  fun report(speciesId: Long, voxelX: Long, voxelY: Long) {
+  /** Posts news of a kill if the species was large enough to be worth it. */
+  override fun report(speciesId: Long, voxelX: Long, voxelY: Long) {
     val species = bestiaCatalogue.find(speciesId) ?: return
 
     if (species.level < NOTABLE_LEVEL) {
