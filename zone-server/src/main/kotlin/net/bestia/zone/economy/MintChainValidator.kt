@@ -6,7 +6,7 @@ import net.bestia.worldgen.resource.OreGrade
 import net.bestia.zone.util.CatalogValidator
 import net.bestia.zone.crafting.RecipeRegistry
 import net.bestia.zone.item.ItemRepository
-import net.bestia.zone.world.mining.OreYield
+import net.bestia.zone.item.mining.OreYield
 import org.springframework.stereotype.Component
 import kotlin.math.abs
 

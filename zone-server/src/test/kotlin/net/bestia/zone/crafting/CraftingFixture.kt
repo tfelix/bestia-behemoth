@@ -7,8 +7,8 @@ import net.bestia.zone.identity.ecs.Master
 import net.bestia.zone.skill.ecs.KnownSkills
 import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.ecs.core.testWorld
-import net.bestia.zone.ecs.item.Inventory
-import net.bestia.zone.ecs.item.ItemTemplateRegistry
+import net.bestia.zone.item.ecs.Inventory
+import net.bestia.zone.item.ecs.ItemTemplateRegistry
 import net.bestia.zone.economy.CoinReserve
 import net.bestia.zone.economy.CommodityItems
 import net.bestia.zone.economy.UnlimitedReserve

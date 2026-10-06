@@ -4,7 +4,7 @@ import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.modify
 import net.bestia.zone.session.ConnectionInfoService
-import net.bestia.zone.ecs.item.ObtainItemIntent
+import net.bestia.zone.item.ecs.ObtainItemIntent
 import net.bestia.zone.message.TickMessageHandler
 import net.bestia.zone.message.decoder
 import org.springframework.stereotype.Component
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component
 /**
  * Attaches a [ObtainItemIntent.LootItemIntent] to the player's current active entity; the actual
  * loot resolution (range/capacity checks, granting the item) happens in
- * [net.bestia.zone.ecs.item.ObtainItemIntentSystem] on the next tick.
+ * [net.bestia.zone.item.ecs.ObtainItemIntentSystem] on the next tick.
  */
 @Component
 class LootItemHandler(

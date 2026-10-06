@@ -28,7 +28,7 @@ import net.bestia.zone.ecs.core.Component
  * would make every expired effect permanent. The counterpart risk is the component going stale
  * because nothing triggers a recalc; that is what the `IsStatusValueDirty` markers on equipping,
  * effect expiry and skill learning are for. A cached input with nothing to invalidate it is a value
- * that silently stops being true - `net.bestia.zone.ecs.item.CarryCapacity` spent a long time in
+ * that silently stops being true - `net.bestia.zone.item.ecs.CarryCapacity` spent a long time in
  * exactly that state, ignoring every buff and level-up, because the system meant to own it was never
  * written.
  *

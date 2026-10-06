@@ -11,7 +11,7 @@ import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.battle.ecs.status.Nature
 import net.bestia.zone.battle.ecs.status.StatusValues
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.ecs.item.Equipment
+import net.bestia.zone.item.ecs.Equipment
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.item.equip.EquipmentSlot
 import net.bestia.zone.geometry.Vec3L

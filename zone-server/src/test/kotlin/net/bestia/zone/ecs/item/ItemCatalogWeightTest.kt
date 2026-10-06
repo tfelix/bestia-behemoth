@@ -7,6 +7,7 @@ import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.springframework.core.io.ClassPathResource
+import net.bestia.zone.item.ecs.WeightLimitCalculator
 
 /**
  * Reads the real `items.yml` and holds its weights against [WeightLimitCalculator], the same way

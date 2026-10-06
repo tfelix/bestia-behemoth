@@ -4,7 +4,7 @@ import jakarta.persistence.*
 import net.bestia.zone.battle.Element
 import net.bestia.zone.battle.Size
 import net.bestia.zone.battle.status.AttackSpeed
-import net.bestia.zone.item.loot.LootItem
+import net.bestia.zone.bestia.loot.LootItem
 import net.bestia.zone.util.requireValidIdentifier
 
 @Entity

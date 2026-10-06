@@ -6,7 +6,7 @@ import net.bestia.zone.battle.ecs.effects.StatusEffects
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.entity.ecs.EntityVisual
-import net.bestia.zone.ecs.item.GroundItemStack
+import net.bestia.zone.item.ecs.GroundItemStack
 import net.bestia.zone.ecs.persistence.persisters.MasterEntityPersister
 import net.bestia.zone.ecs.persistence.persisters.PlayerBestiaEntityPersister
 import net.bestia.zone.ecs.script.ScriptComponent

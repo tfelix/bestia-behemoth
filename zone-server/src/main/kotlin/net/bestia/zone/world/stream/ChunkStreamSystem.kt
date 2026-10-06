@@ -10,7 +10,7 @@ import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.session.ConnectionInfoService
-import net.bestia.zone.ecs.item.ObtainItemIntent
+import net.bestia.zone.item.ecs.ObtainItemIntent
 import net.bestia.zone.movement.ecs.GroundHeight
 import net.bestia.zone.movement.ecs.Grounded
 import net.bestia.zone.movement.ecs.Path
@@ -19,7 +19,7 @@ import net.bestia.zone.entity.ecs.PropPose
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.ChunkFanOut
 import net.bestia.zone.ground.GroundStampSystem
-import net.bestia.zone.world.mining.OreYield
+import net.bestia.zone.item.mining.OreYield
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component as SpringComponent
 

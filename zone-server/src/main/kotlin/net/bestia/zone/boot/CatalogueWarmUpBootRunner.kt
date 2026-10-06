@@ -4,7 +4,7 @@ import net.bestia.zone.casting.SkillExecutionService
 import net.bestia.zone.bestia.BestiaCatalogue
 import net.bestia.zone.crafting.MasterCraftBonusService
 import net.bestia.zone.economy.CommodityItems
-import net.bestia.zone.ecs.item.ItemTemplateRegistry
+import net.bestia.zone.item.ecs.ItemTemplateRegistry
 import net.bestia.zone.weather.EnvironmentalExposureSystem
 import net.bestia.zone.weather.WeatherPublisher
 import net.bestia.zone.item.loot.LootItemEntitySpawner

@@ -8,8 +8,8 @@ import net.bestia.zone.identity.ecs.Master
 import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.WorldView
-import net.bestia.zone.ecs.item.Inventory
-import net.bestia.zone.ecs.item.ItemTemplateRegistry
+import net.bestia.zone.item.ecs.Inventory
+import net.bestia.zone.item.ecs.ItemTemplateRegistry
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OperationSuccessSMSG

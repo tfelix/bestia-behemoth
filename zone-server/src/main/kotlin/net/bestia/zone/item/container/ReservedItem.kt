@@ -2,7 +2,7 @@ package net.bestia.zone.item.container
 
 /**
  * One line of a trade offer, carrying everything a caller needs to mirror it without going back to the
- * database: the live [net.bestia.zone.ecs.item.Inventory] wants weight and the per-instance state, and the
+ * database: the live [net.bestia.zone.item.ecs.Inventory] wants weight and the per-instance state, and the
  * trade window wants the same numbers again to draw a wear bar.
  *
  * [offerSlotId] is the [ContainerSlot] the line came from. It names the offer on the wire, so that two lines

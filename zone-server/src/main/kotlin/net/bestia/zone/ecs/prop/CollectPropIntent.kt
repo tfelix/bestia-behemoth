@@ -17,7 +17,7 @@ import net.bestia.zone.util.EntityId
  * cover that map - it is off the ECS entirely. So the write has to happen inside a `System.update`, and an intent
  * component is how a handler asks for that.
  *
- * ### Why this is not an [net.bestia.zone.ecs.item.ObtainItemIntent]
+ * ### Why this is not an [net.bestia.zone.item.ecs.ObtainItemIntent]
  *
  * That sealed class is "add an item to an inventory". This is "consume a world object, which happens to yield
  * one" - it needs the prop registry, the divergence registry and the residency service, none of which belong

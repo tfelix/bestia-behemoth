@@ -7,8 +7,8 @@ import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.entity.ecs.DeadActionGuard
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.testWorld
-import net.bestia.zone.ecs.item.Equipment
-import net.bestia.zone.ecs.item.Inventory
+import net.bestia.zone.item.ecs.Equipment
+import net.bestia.zone.item.ecs.Inventory
 import net.bestia.zone.item.Item
 import net.bestia.zone.item.ItemRepository
 import org.junit.jupiter.api.Test

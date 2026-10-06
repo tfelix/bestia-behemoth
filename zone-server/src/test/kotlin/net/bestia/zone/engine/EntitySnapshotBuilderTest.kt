@@ -6,8 +6,8 @@ import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.entity.ecs.EntityVisual
 import net.bestia.zone.entity.ecs.VisualComponentSMSG
 import net.bestia.zone.entity.ecs.VisualKind
-import net.bestia.zone.ecs.item.Inventory
-import net.bestia.zone.ecs.item.InventoryComponentSMSG
+import net.bestia.zone.item.ecs.Inventory
+import net.bestia.zone.item.ecs.InventoryComponentSMSG
 import net.bestia.zone.movement.ecs.Path
 import net.bestia.zone.movement.ecs.PathSMSG
 import net.bestia.zone.movement.ecs.Position

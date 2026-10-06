@@ -26,7 +26,7 @@ import org.springframework.transaction.annotation.Transactional
  * (message handlers, ECS systems, seeding) never touch [ContainerSlot]/[ItemInstance] directly.
  *
  * Deliberately has no dependency on the ECS world: callers that also need the live ECS `Inventory`
- * component updated go through [net.bestia.zone.ecs.item.ObtainItemIntent] instead, which mutates
+ * component updated go through [net.bestia.zone.item.ecs.ObtainItemIntent] instead, which mutates
  * the ECS side on the tick thread and hands the DB write here off to
  * [net.bestia.zone.persistence.AsyncJobExecutor]. This class does not check carry weight or item
  * count limits - the caller/service is responsible for that.
@@ -122,7 +122,7 @@ class InventoryService(
   /**
    * Durably marks an item as worn in [slot] by the given owner - a master when
    * [playerBestiaId] is null, otherwise that player bestia. The ECS
-   * [net.bestia.zone.ecs.item.Equipment] component has already been mutated by the caller on the
+   * [net.bestia.zone.item.ecs.Equipment] component has already been mutated by the caller on the
    * tick thread; this is the write-behind half, so a mismatch here (item gone, slot taken) only
    * means the change does not survive a restart, it never corrupts live state.
    */

@@ -3,7 +3,7 @@ package net.bestia.zone.scenarios
 import net.bestia.zone.account.GetSelfCMSG
 import net.bestia.zone.ecs.account.MasterVisualComponentSMSG
 import net.bestia.zone.ecs.core.WorldView
-import net.bestia.zone.ecs.item.EquipmentComponentSMSG
+import net.bestia.zone.item.ecs.EquipmentComponentSMSG
 import net.bestia.zone.movement.ecs.SpeedSMSG
 import net.bestia.zone.place.ecs.PlaceComponentSMSG
 import net.bestia.zone.message.SelfSMSG
