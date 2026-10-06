@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicLong
+import org.springframework.core.annotation.Order
 
 /**
  * Face-to-face trading between two players.
@@ -424,6 +425,7 @@ class TradeService(
   }
 
   @EventListener
+  @Order(AccountDisconnectedEvent.ListenerOrder.TRADE)
   fun handleAccountDisconnected(event: AccountDisconnectedEvent) {
     val tradeId = tradeByAccount[event.accountId] ?: return
     val session = sessions[tradeId] ?: return

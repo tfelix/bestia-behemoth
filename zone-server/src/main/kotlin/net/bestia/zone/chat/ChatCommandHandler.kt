@@ -6,13 +6,16 @@ import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OutMessageProcessor
 import org.springframework.stereotype.Component
+import net.bestia.zone.util.inClassNameOrder
 
 @Component
 class ChatCommandHandler(
-  private val commands: List<ChatCommand>,
+  foundCommands: List<ChatCommand>,
   private val connectionInfoService: ConnectionInfoService,
   private val outMessageProcessor: OutMessageProcessor
 ) {
+
+  private val commands = foundCommands.inClassNameOrder()
 
   companion object {
     private val LOG = KotlinLogging.logger { }

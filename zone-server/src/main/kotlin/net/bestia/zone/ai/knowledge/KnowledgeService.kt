@@ -15,6 +15,7 @@ import net.bestia.zone.world.WorldService
 import net.bestia.zone.world.settlement.SettlementSiteIndex
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Service
+import org.springframework.core.annotation.Order
 
 /**
  * What each townsperson knows, built the first time somebody asks about their settlement.
@@ -79,6 +80,7 @@ class KnowledgeService(
    * history.
    */
   @EventListener
+  @Order(WorldRecreatedEvent.ListenerOrder.KNOWLEDGE)
   fun handleWorldRecreated(event: WorldRecreatedEvent) {
     bySettlement.clear()
     positions = null

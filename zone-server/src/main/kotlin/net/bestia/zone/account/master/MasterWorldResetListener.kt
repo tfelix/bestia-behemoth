@@ -7,6 +7,7 @@ import net.bestia.zone.world.WorldRecreatedEvent
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.core.annotation.Order
 
 /**
  * Re-homes every master onto a spawn point of the new world after the old one has been thrown away and rebuilt.
@@ -35,6 +36,7 @@ class MasterWorldResetListener(
    * production server never takes.
    */
   @EventListener
+  @Order(WorldRecreatedEvent.ListenerOrder.MASTER_HOMES)
   @Transactional
   fun handleWorldRecreated(event: WorldRecreatedEvent) {
     val masters = masterRepository.findAll()

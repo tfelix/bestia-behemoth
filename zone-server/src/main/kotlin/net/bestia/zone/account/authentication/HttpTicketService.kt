@@ -7,6 +7,7 @@ import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Service
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
+import org.springframework.core.annotation.Order
 
 /**
  * The credential the client's HTTP requests carry, minted per socket session.
@@ -71,6 +72,7 @@ class HttpTicketService {
    * eagerly: a reconnect must not be able to inherit the old connection's credential.
    */
   @EventListener
+  @Order(AccountDisconnectedEvent.ListenerOrder.HTTP_TICKETS)
   fun handleAccountDisconnected(event: AccountDisconnectedEvent) {
     byAccount.remove(event.accountId)?.let { byTicket.remove(it) }
   }
@@ -81,6 +83,7 @@ class HttpTicketService {
    * which is why [ticketFor] is mint-or-return.
    */
   @EventListener
+  @Order(AccountConnectedEvent.ListenerOrder.HTTP_TICKETS)
   fun handleAccountConnected(event: AccountConnectedEvent) {
     ticketFor(event.accountId)
   }

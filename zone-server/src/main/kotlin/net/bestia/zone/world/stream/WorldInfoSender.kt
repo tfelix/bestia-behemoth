@@ -8,6 +8,7 @@ import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.world.WorldService
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
+import org.springframework.core.annotation.Order
 
 /**
  * Tells a freshly authenticated connection what world it is in, and cleans up after it when it leaves.
@@ -31,6 +32,7 @@ class WorldInfoSender(
    * offered that the new connection never received. Starting over makes it announce them again.
    */
   @EventListener
+  @Order(AccountConnectedEvent.ListenerOrder.WORLD_INFO)
   fun handleAccountConnected(event: AccountConnectedEvent) {
     inbox.offerReset(event.accountId)
 
@@ -53,6 +55,7 @@ class WorldInfoSender(
   }
 
   @EventListener
+  @Order(AccountDisconnectedEvent.ListenerOrder.WORLD_INFO)
   fun handleAccountDisconnected(event: AccountDisconnectedEvent) {
     inbox.offerReset(event.accountId)
   }
