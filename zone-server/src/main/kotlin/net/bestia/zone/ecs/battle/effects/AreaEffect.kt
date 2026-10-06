@@ -18,7 +18,7 @@ import kotlin.math.roundToInt
  * and the duration is simply what those eight ticks take.
  *
  * Not `Dirtyable`: the client learns the patch exists from the entity's
- * [net.bestia.zone.ecs.entity.EntityVisual] and needs none of the numbers below.
+ * [net.bestia.zone.entity.ecs.EntityVisual] and needs none of the numbers below.
  */
 data class AreaEffect(
   /** Credited with every tick, so kills and threat land on whoever cast the skill. */

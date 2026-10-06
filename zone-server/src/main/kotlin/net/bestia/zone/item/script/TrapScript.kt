@@ -4,11 +4,11 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.capture.BestiaTrap
 import net.bestia.zone.capture.TrapTier
-import net.bestia.zone.ecs.account.Account
-import net.bestia.zone.ecs.account.Master
+import net.bestia.zone.identity.ecs.Account
+import net.bestia.zone.identity.ecs.Master
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.ecs.entity.EntityVisual
-import net.bestia.zone.ecs.entity.VisualKind
+import net.bestia.zone.entity.ecs.EntityVisual
+import net.bestia.zone.entity.ecs.VisualKind
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.OperationErrorSMSG

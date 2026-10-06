@@ -5,6 +5,7 @@ import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.world.WorldService
 import org.springframework.stereotype.Service
 import java.time.Instant
+import net.bestia.zone.entity.StaticEntityKind
 
 /** In-memory mirror of one [WorldObjectDivergence] row, for the tick thread to read without a DB hit. */
 data class DivergenceEntry(val kind: StaticEntityKind, val state: DivergenceState, val resumeAt: Instant?)

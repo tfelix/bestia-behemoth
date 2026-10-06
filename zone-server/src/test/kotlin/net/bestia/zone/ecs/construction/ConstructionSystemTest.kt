@@ -4,7 +4,7 @@ import io.mockk.every
 import io.mockk.justRun
 import io.mockk.mockk
 import io.mockk.verify
-import net.bestia.zone.ecs.battle.damage.Dead
+import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.ecs.movement.Position
@@ -14,7 +14,7 @@ import net.bestia.zone.world.prop.PlayerStructureRegistry
 import net.bestia.zone.world.prop.PlayerStructureService
 import net.bestia.zone.world.prop.PropKindDto
 import net.bestia.zone.world.prop.PropKindRegistry
-import net.bestia.zone.world.prop.StaticEntityKind
+import net.bestia.zone.entity.StaticEntityKind
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals

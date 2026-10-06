@@ -5,8 +5,8 @@ import net.bestia.zone.battle.status.ConditionValueCalculator
 import net.bestia.zone.battle.status.StatusEffectDefinitionRegistry
 import net.bestia.zone.battle.status.StatusEffectScriptRegistry
 import net.bestia.zone.battle.status.StatusValueRecalcContext
-import net.bestia.zone.ecs.account.Account
-import net.bestia.zone.ecs.account.Master
+import net.bestia.zone.identity.ecs.Account
+import net.bestia.zone.identity.ecs.Master
 import net.bestia.zone.ecs.battle.level.Level
 import net.bestia.zone.ecs.battle.skill.KnownSkills
 import net.bestia.zone.ecs.battle.status.CombatBonus

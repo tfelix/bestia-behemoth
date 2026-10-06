@@ -20,6 +20,7 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicLong
+import net.bestia.zone.identity.ecs.PartyMembership
 
 /**
  * Every change to a party locks its row first, then touches its masters. Master rows are written with

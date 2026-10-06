@@ -4,7 +4,7 @@ import net.bestia.bnet.proto.ChunkStaticEntitiesSMSGProto
 import net.bestia.bnet.proto.EnvelopeProto
 import net.bestia.worldgen.core.ChunkPos
 import net.bestia.zone.message.SMSG
-import net.bestia.zone.world.prop.StaticEntityKind
+import net.bestia.zone.entity.StaticEntityKind
 
 /**
  * Every static entity standing in one chunk column.

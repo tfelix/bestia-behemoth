@@ -12,11 +12,11 @@ import net.bestia.zone.crafting.CraftingFixture.Companion.TARGET_ITEM
 import net.bestia.zone.crafting.CraftingFixture.Companion.instance
 import net.bestia.zone.crafting.CraftingFixture.Companion.recipe
 import net.bestia.zone.crafting.CraftingFixture.Companion.stack
-import net.bestia.zone.ecs.account.Master
+import net.bestia.zone.identity.ecs.Master
 import net.bestia.zone.ecs.crafting.Crafting
 import net.bestia.zone.ecs.item.ObtainItemIntent
 import net.bestia.zone.message.OperationErrorSMSG
-import net.bestia.zone.world.prop.StaticEntityKind
+import net.bestia.zone.entity.StaticEntityKind
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNotNull

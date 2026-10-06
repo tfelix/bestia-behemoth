@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
+import net.bestia.zone.entity.ecs.Dead
 
 /** Death tagging, and that a body already on the ground is not killed a second time. */
 class ReceivedDamageSystemTest {

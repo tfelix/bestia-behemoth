@@ -1,4 +1,4 @@
-package net.bestia.zone.ecs.account
+package net.bestia.zone.identity.ecs
 
 import net.bestia.zone.ecs.core.Component
 import net.bestia.zone.ecs.core.World

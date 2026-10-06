@@ -2,7 +2,7 @@ package net.bestia.zone.ecs.spawn
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.bestia.BestiaEntitySpawner
-import net.bestia.zone.ecs.account.ActivePlayer
+import net.bestia.zone.identity.ecs.ActivePlayer
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.Schedule

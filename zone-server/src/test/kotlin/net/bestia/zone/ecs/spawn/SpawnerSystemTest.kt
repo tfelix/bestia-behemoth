@@ -4,7 +4,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import net.bestia.zone.bestia.BestiaEntitySpawner
-import net.bestia.zone.ecs.account.ActivePlayer
+import net.bestia.zone.identity.ecs.ActivePlayer
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.persistence.PersistedEntityDeletionQueue

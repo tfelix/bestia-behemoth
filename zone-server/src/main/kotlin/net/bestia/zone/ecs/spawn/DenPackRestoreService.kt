@@ -1,9 +1,9 @@
 package net.bestia.zone.ecs.spawn
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.ecs.account.Account
-import net.bestia.zone.ecs.entity.EntityVisual
-import net.bestia.zone.ecs.entity.VisualKind
+import net.bestia.zone.identity.ecs.Account
+import net.bestia.zone.entity.ecs.EntityVisual
+import net.bestia.zone.entity.ecs.VisualKind
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.persistence.PersistedEntityDeletionQueue
 import net.bestia.zone.util.EntityId

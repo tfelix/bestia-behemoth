@@ -3,7 +3,7 @@ package net.bestia.zone.ai.ecs
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ai.core.planner.Planner
 import net.bestia.zone.ai.core.planner.PlanningBudget
-import net.bestia.zone.ecs.battle.damage.Dead
+import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.Schedule

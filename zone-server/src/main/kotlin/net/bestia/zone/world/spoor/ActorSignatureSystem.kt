@@ -2,15 +2,15 @@ package net.bestia.zone.world.spoor
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.bestia.BestiaCatalogue
-import net.bestia.zone.ecs.account.Master
+import net.bestia.zone.identity.ecs.Master
 import net.bestia.zone.ecs.battle.level.Level
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.ecs.entity.EntityVisual
-import net.bestia.zone.ecs.entity.VisualKind
+import net.bestia.zone.entity.ecs.EntityVisual
+import net.bestia.zone.entity.ecs.VisualKind
 import net.bestia.zone.ecs.movement.Path
 import net.bestia.zone.environment.time.BestiaClock
 import net.bestia.zone.util.EntityId

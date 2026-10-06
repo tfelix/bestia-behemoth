@@ -2,6 +2,7 @@ package net.bestia.zone.world.prop
 
 import net.bestia.worldgen.core.ChunkPos
 import org.springframework.stereotype.Component
+import net.bestia.zone.entity.StaticEntityKind
 
 /**
  * The crafting stations players have put up.

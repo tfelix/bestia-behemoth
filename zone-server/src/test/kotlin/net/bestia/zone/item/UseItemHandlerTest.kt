@@ -3,7 +3,7 @@ package net.bestia.zone.item
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import net.bestia.zone.ecs.battle.damage.DeadActionGuard
+import net.bestia.zone.entity.ecs.DeadActionGuard
 import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.session.ConnectionInfoService

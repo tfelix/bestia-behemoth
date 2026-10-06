@@ -1,7 +1,7 @@
 package net.bestia.zone.account.master.skill
 
 import net.bestia.zone.account.master.MasterNotFoundException
-import net.bestia.zone.ecs.account.Master as MasterComponent
+import net.bestia.zone.identity.ecs.Master as MasterComponent
 import net.bestia.zone.ecs.battle.skill.KnownSkills
 import net.bestia.zone.ecs.battle.status.IsStatusValueDirty
 import net.bestia.zone.ecs.battle.status.SkillPoints

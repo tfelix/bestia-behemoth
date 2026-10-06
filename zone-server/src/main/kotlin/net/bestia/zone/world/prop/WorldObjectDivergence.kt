@@ -20,7 +20,7 @@ enum class DivergenceState { DEPLETED }
 
 /**
  * A generated static entity whose state no longer matches what `propsIn()` alone would produce - keyed on
- * the durable [net.bestia.zone.ecs.prop.WorldObjectIdentity.propId], never on a live ECS entity id.
+ * the durable [net.bestia.zone.entity.ecs.WorldObjectIdentity.propId], never on a live ECS entity id.
  *
  * ### Why this cannot be a [net.bestia.zone.persistence.PersistedEntity] row
  *

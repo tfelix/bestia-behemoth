@@ -5,9 +5,9 @@ import net.bestia.zone.ecs.battle.status.StatusValues
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.movement.Grounded
 import net.bestia.zone.ecs.movement.Position
-import net.bestia.zone.ecs.prop.PropPose
-import net.bestia.zone.ecs.prop.PropVitality
-import net.bestia.zone.ecs.prop.WorldObjectIdentity
+import net.bestia.zone.entity.ecs.PropPose
+import net.bestia.zone.entity.ecs.PropVitality
+import net.bestia.zone.entity.ecs.WorldObjectIdentity
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component

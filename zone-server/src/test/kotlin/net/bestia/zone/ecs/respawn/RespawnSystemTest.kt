@@ -1,6 +1,6 @@
 package net.bestia.zone.ecs.respawn
 
-import net.bestia.zone.ecs.battle.damage.Dead
+import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.ecs.battle.damage.TakenDamage
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.battle.status.InCombat

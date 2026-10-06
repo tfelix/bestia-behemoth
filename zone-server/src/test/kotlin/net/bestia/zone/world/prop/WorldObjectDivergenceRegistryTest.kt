@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
+import net.bestia.zone.entity.StaticEntityKind
 
 /**
  * The two orphan guards, which are the only reason a stored `propId` can be trusted.

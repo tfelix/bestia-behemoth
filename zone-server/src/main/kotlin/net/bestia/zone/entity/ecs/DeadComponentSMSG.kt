@@ -1,4 +1,4 @@
-package net.bestia.zone.ecs.battle.damage
+package net.bestia.zone.entity.ecs
 
 import net.bestia.bnet.proto.DeadComponentSmsgProto
 import net.bestia.bnet.proto.EnvelopeProto

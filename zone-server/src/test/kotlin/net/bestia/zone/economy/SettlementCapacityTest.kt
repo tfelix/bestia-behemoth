@@ -18,7 +18,7 @@ import net.bestia.zone.world.fire.ScorchRegistry
 import net.bestia.zone.world.ground.ColumnMask
 import net.bestia.zone.world.prop.DivergenceEntry
 import net.bestia.zone.world.prop.DivergenceState
-import net.bestia.zone.world.prop.StaticEntityKind
+import net.bestia.zone.entity.StaticEntityKind
 import net.bestia.zone.world.prop.WorldObjectDivergenceRegistry
 import net.bestia.zone.world.settlement.SettlementSite
 import net.bestia.zone.world.settlement.SettlementSiteIndex

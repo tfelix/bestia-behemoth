@@ -4,7 +4,7 @@ import io.mockk.every
 import io.mockk.mockk
 import net.bestia.zone.ai.core.state.HourWindow
 import net.bestia.zone.ai.domain.townsfolk.Occupation
-import net.bestia.zone.ecs.account.ActivePlayer
+import net.bestia.zone.identity.ecs.ActivePlayer
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.environment.time.BestiaClock

@@ -6,9 +6,9 @@ import net.bestia.zone.util.EntityId
 import net.bestia.zone.sync.Dirtyable
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.sync.SyncTargets
-import net.bestia.zone.ecs.account.Account
+import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.message.EntitySMSG
-import net.bestia.zone.party.PartyMembership
+import net.bestia.zone.identity.ecs.PartyMembership
 
 class Health(
   current: Int,

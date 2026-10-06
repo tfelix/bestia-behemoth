@@ -5,8 +5,8 @@ import io.mockk.mockk
 import net.bestia.zone.ai.ecs.AiAgentFactory
 import net.bestia.zone.ai.profile.AiProfileRegistry
 import net.bestia.zone.ecs.core.testWorld
-import net.bestia.zone.ecs.entity.EntityVisual
-import net.bestia.zone.ecs.entity.VisualKind
+import net.bestia.zone.entity.ecs.EntityVisual
+import net.bestia.zone.entity.ecs.VisualKind
 import net.bestia.zone.ecs.spawn.townsfolk.TownsfolkBody
 import net.bestia.zone.ecs.spawn.townsfolk.TownsfolkVisual
 import net.bestia.zone.geometry.Vec3L

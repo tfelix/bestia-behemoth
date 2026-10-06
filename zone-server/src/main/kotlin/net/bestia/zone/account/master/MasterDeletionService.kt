@@ -2,7 +2,7 @@ package net.bestia.zone.account.master
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.core.WorldView
-import net.bestia.zone.ecs.account.OwnedBestia
+import net.bestia.zone.identity.ecs.OwnedBestia
 import net.bestia.zone.ecs.persistence.StatusEffectPersistenceService
 import net.bestia.zone.cartography.chart.MapChartRepository
 import net.bestia.zone.item.instance.ItemInstanceRepository

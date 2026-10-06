@@ -2,7 +2,7 @@ package net.bestia.zone.ecs.battle.exp
 
 import io.mockk.mockk
 import io.mockk.verify
-import net.bestia.zone.ecs.account.Master
+import net.bestia.zone.identity.ecs.Master
 import net.bestia.zone.ecs.battle.level.Level
 import net.bestia.zone.ecs.battle.level.LevelUpExperienceCalculator
 import net.bestia.zone.ecs.core.World

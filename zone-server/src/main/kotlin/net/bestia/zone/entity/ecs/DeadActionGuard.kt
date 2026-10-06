@@ -1,4 +1,4 @@
-package net.bestia.zone.ecs.battle.damage
+package net.bestia.zone.entity.ecs
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.core.World

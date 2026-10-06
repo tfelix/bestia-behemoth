@@ -2,12 +2,12 @@ package net.bestia.zone.ecs.battle.damage
 
 import io.mockk.mockk
 import io.mockk.verify
-import net.bestia.zone.ecs.account.Account
+import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.ecs.battle.exp.ExperienceGainCalculator
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.testWorld
-import net.bestia.zone.ecs.entity.EntityVisual
-import net.bestia.zone.ecs.entity.VisualKind
+import net.bestia.zone.entity.ecs.EntityVisual
+import net.bestia.zone.entity.ecs.VisualKind
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ai.rumour.NotableKillReporter
 import net.bestia.zone.persistence.PersistedEntityDeletionQueue
@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import net.bestia.zone.entity.ecs.Dead
 
 /**
  * Who is gone for good when they die, and who is not.

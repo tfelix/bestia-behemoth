@@ -3,12 +3,12 @@ package net.bestia.zone.ecs.battle.damage
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.movement.Position
-import net.bestia.zone.ecs.account.Account
+import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.ecs.battle.exp.Exp
 import net.bestia.zone.ecs.battle.exp.ExperienceGainCalculator
 import net.bestia.zone.ecs.battle.exp.GainExp
-import net.bestia.zone.ecs.entity.EntityVisual
-import net.bestia.zone.ecs.entity.VisualKind
+import net.bestia.zone.entity.ecs.EntityVisual
+import net.bestia.zone.entity.ecs.VisualKind
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
@@ -18,10 +18,11 @@ import net.bestia.zone.persistence.PersistedEntityDeletionQueue
 import net.bestia.zone.persistence.Persistent
 import net.bestia.zone.ai.rumour.NotableKillReporter
 import net.bestia.zone.item.loot.LootItemEntitySpawner
-import net.bestia.zone.party.PartyMembership
+import net.bestia.zone.identity.ecs.PartyMembership
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component as SpringComponent
 import net.bestia.zone.ecs.core.update
+import net.bestia.zone.entity.ecs.Dead
 
 @SpringComponent
 class DeathSystem(

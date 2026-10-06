@@ -6,6 +6,7 @@ import net.bestia.zone.world.fire.GroundFireConfig
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import net.bestia.zone.entity.StaticEntityKind
 
 /**
  * `prop-kinds.yml` describes every kind that can reach a client.

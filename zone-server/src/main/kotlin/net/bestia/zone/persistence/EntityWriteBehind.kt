@@ -1,11 +1,11 @@
 package net.bestia.zone.persistence
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.ecs.account.Account
+import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.ecs.battle.effects.StatusEffects
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.ecs.entity.EntityVisual
+import net.bestia.zone.entity.ecs.EntityVisual
 import net.bestia.zone.ecs.item.GroundItemStack
 import net.bestia.zone.ecs.persistence.persisters.MasterEntityPersister
 import net.bestia.zone.ecs.persistence.persisters.PlayerBestiaEntityPersister

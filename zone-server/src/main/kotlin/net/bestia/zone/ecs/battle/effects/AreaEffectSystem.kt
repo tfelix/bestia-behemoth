@@ -5,7 +5,7 @@ import net.bestia.zone.battle.damage.DamageEntitySMSG
 import net.bestia.zone.aoi.AoiLayer
 import net.bestia.zone.aoi.EntityAOIService
 import net.bestia.zone.ecs.battle.damage.Damage
-import net.bestia.zone.ecs.battle.damage.Dead
+import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.battle.status.Invulnerable
 import net.bestia.zone.ecs.battle.status.StatusValues
@@ -15,8 +15,8 @@ import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.ecs.account.Account
-import net.bestia.zone.ecs.account.ActivePlayer
+import net.bestia.zone.identity.ecs.Account
+import net.bestia.zone.identity.ecs.ActivePlayer
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.OutMessageProcessor

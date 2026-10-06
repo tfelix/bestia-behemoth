@@ -2,7 +2,7 @@ package net.bestia.zone.ecs.respawn
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.battle.attack.AttackTarget
-import net.bestia.zone.ecs.battle.damage.Dead
+import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.ecs.battle.damage.TakenDamage
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.battle.status.InCombat

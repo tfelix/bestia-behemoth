@@ -6,7 +6,7 @@ import net.bestia.zone.battle.FixedRandom
 import net.bestia.zone.battle.LineOfSightService
 import net.bestia.zone.battle.skill.AttackExecutionService
 import net.bestia.zone.battle.skill.AttackStrategyFactory
-import net.bestia.zone.ecs.battle.damage.Dead
+import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.ecs.battle.status.StatusValues
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld

@@ -6,7 +6,7 @@ import net.bestia.zone.sync.Removable
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.message.EntitySMSG
 import net.bestia.zone.util.EntityId
-import net.bestia.zone.world.prop.StaticEntityKind
+import net.bestia.zone.entity.StaticEntityKind
 
 /**
  * Something being built, and what it will be when it is.

@@ -1,7 +1,7 @@
 package net.bestia.zone.item.script
 
 import net.bestia.zone.world.prop.PlayerStructureService
-import net.bestia.zone.world.prop.StaticEntityKind
+import net.bestia.zone.entity.StaticEntityKind
 import org.springframework.stereotype.Component
 
 /**

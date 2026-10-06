@@ -7,7 +7,7 @@ import net.bestia.zone.account.master.Hairstyle
 import net.bestia.zone.account.master.MasterFactory
 import net.bestia.zone.bestia.PlayerBestiaCreateOperation
 import net.bestia.zone.bestia.PlayerBestiaCreateOperation.PlayerBestiaCreateData
-import net.bestia.zone.ecs.account.OwnedBestia
+import net.bestia.zone.identity.ecs.OwnedBestia
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.session.ConnectionInfoService.PlayerEntity

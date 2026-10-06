@@ -9,6 +9,7 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Index
 import jakarta.persistence.Table
+import net.bestia.zone.entity.StaticEntityKind
 
 /**
  * One thing a player put up: a workbench, a furnace, a forge.

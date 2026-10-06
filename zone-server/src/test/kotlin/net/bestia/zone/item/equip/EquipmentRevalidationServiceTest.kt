@@ -8,7 +8,7 @@ import net.bestia.bnet.proto.OperationErrorProto
 import net.bestia.zone.account.master.skill.MasterSkillTreeNode
 import net.bestia.zone.account.master.skill.MasterSkillTreeRegistry
 import net.bestia.zone.account.master.skill.NoviceGate
-import net.bestia.zone.ecs.account.Account
+import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.ecs.battle.level.Level
 import net.bestia.zone.ecs.battle.skill.KnownSkills
 import net.bestia.zone.ecs.battle.status.IsStatusValueDirty

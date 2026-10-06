@@ -5,8 +5,8 @@ import io.mockk.mockk
 import io.mockk.verify
 import net.bestia.zone.bestia.PlayerBestia
 import net.bestia.zone.bestia.PlayerBestiaRepository
-import net.bestia.zone.ecs.account.OwnedBestia
-import net.bestia.zone.ecs.battle.damage.Dead
+import net.bestia.zone.identity.ecs.OwnedBestia
+import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.ecs.battle.level.Level
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld

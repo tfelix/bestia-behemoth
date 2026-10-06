@@ -1,4 +1,4 @@
-package net.bestia.zone.ecs.entity
+package net.bestia.zone.entity.ecs
 
 import net.bestia.bnet.proto.VisualComponentProto
 
@@ -18,7 +18,7 @@ enum class VisualKind {
 
   /**
    * Something built, drawn from the prop catalogue: [EntityVisual.id] is a
-   * [net.bestia.zone.world.prop.StaticEntityKind] ordinal.
+   * [net.bestia.zone.entity.StaticEntityKind] ordinal.
    *
    * The odd one out, because a finished structure normally reaches a client on the per-chunk static batch
    * rather than as an entity at all. A construction site cannot: its progress and health change while

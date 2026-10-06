@@ -7,8 +7,8 @@ import net.bestia.zone.battle.status.StatusValueRecalcContext
 import net.bestia.zone.dialog.DialogArg
 import net.bestia.zone.dialog.DialogId
 import net.bestia.zone.dialog.DialogService
-import net.bestia.zone.ecs.account.Account
-import net.bestia.zone.ecs.account.Master
+import net.bestia.zone.identity.ecs.Account
+import net.bestia.zone.identity.ecs.Master
 import net.bestia.zone.ecs.battle.effects.StatusEffects
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.util.EntityId

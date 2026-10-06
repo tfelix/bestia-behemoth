@@ -3,8 +3,8 @@ package net.bestia.zone.world.stream
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.worldgen.core.ChunkPos
 import net.bestia.worldgen.voxel.CarveBrush
-import net.bestia.zone.ecs.account.Account
-import net.bestia.zone.ecs.account.ActivePlayer
+import net.bestia.zone.identity.ecs.Account
+import net.bestia.zone.identity.ecs.ActivePlayer
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.System
@@ -15,7 +15,7 @@ import net.bestia.zone.ecs.movement.GroundHeight
 import net.bestia.zone.ecs.movement.Grounded
 import net.bestia.zone.ecs.movement.Path
 import net.bestia.zone.ecs.movement.Position
-import net.bestia.zone.ecs.prop.PropPose
+import net.bestia.zone.entity.ecs.PropPose
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.ChunkFanOut
 import net.bestia.zone.world.ground.GroundStampSystem

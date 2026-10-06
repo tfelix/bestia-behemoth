@@ -6,8 +6,8 @@ import net.bestia.zone.aoi.EntityAOIService
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.ecs.movement.Position
-import net.bestia.zone.ecs.prop.PropPose
-import net.bestia.zone.ecs.prop.StaticVisual
+import net.bestia.zone.entity.ecs.PropPose
+import net.bestia.zone.entity.ecs.StaticVisual
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.ChunkFanOut
 import net.bestia.zone.world.WorldService
@@ -23,6 +23,7 @@ import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import net.bestia.zone.entity.StaticEntityKind
 
 /**
  * Residency: which static entities exist, driven by which chunks a client holds.

@@ -7,14 +7,14 @@ import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.dialog.DialogId
 import net.bestia.zone.dialog.DialogService
 import net.bestia.zone.dialog.conversation.TalkService
-import net.bestia.zone.ecs.account.Account
-import net.bestia.zone.ecs.battle.damage.DeadActionGuard
+import net.bestia.zone.identity.ecs.Account
+import net.bestia.zone.entity.ecs.DeadActionGuard
 import net.bestia.zone.ecs.construction.Building
 import net.bestia.zone.ecs.construction.ConstructionSite
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.ecs.movement.Position
-import net.bestia.zone.ecs.prop.PlayerStructureIdentity
+import net.bestia.zone.entity.ecs.PlayerStructureIdentity
 import net.bestia.zone.ecs.spawn.townsfolk.Townsfolk
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.OperationErrorSMSG
@@ -22,7 +22,7 @@ import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.message.SMSG
 import net.bestia.zone.script.ScriptArgs
 import net.bestia.zone.util.EntityId
-import net.bestia.zone.world.prop.StaticEntityKind
+import net.bestia.zone.entity.StaticEntityKind
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals

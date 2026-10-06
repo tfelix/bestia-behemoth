@@ -2,7 +2,7 @@ package net.bestia.zone.account.master.skill
 
 import io.mockk.mockk
 import io.mockk.verify
-import net.bestia.zone.ecs.account.Master as MasterComponent
+import net.bestia.zone.identity.ecs.Master as MasterComponent
 import net.bestia.zone.ecs.battle.skill.KnownSkills
 import net.bestia.zone.ecs.battle.status.SkillPoints
 import net.bestia.zone.ecs.core.EcsWorld

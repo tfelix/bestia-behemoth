@@ -3,7 +3,7 @@ package net.bestia.zone.world.prop
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.OperationErrorProto
 import net.bestia.zone.economy.shop.ShopTradeIntentSystem
-import net.bestia.zone.ecs.account.Account
+import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.System
@@ -11,9 +11,9 @@ import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.item.ObtainItemIntent
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.prop.CollectPropIntent
-import net.bestia.zone.ecs.prop.PropPose
-import net.bestia.zone.ecs.prop.StaticVisual
-import net.bestia.zone.ecs.prop.WorldObjectIdentity
+import net.bestia.zone.entity.ecs.PropPose
+import net.bestia.zone.entity.ecs.StaticVisual
+import net.bestia.zone.entity.ecs.WorldObjectIdentity
 import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.util.EntityId

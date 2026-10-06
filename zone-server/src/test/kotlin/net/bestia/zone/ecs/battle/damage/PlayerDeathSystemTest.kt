@@ -1,7 +1,7 @@
 package net.bestia.zone.ecs.battle.damage
 
 import net.bestia.zone.config.WorldRulesConfig
-import net.bestia.zone.ecs.account.Account
+import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.ecs.battle.exp.Exp
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.ecs.movement.Path
@@ -9,6 +9,7 @@ import net.bestia.zone.geometry.Vec3L
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import net.bestia.zone.entity.ecs.Dead
 
 /** What dying costs a player, and that it costs it exactly once. */
 class PlayerDeathSystemTest {

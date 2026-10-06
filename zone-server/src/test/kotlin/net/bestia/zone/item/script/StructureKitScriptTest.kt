@@ -3,7 +3,7 @@ package net.bestia.zone.item.script
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import net.bestia.zone.ecs.account.Master
+import net.bestia.zone.identity.ecs.Master
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.geometry.Vec3L
@@ -11,7 +11,7 @@ import net.bestia.zone.script.ScriptArgKeys
 import net.bestia.zone.script.ScriptArgs
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.world.prop.PlayerStructureService
-import net.bestia.zone.world.prop.StaticEntityKind
+import net.bestia.zone.entity.StaticEntityKind
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import kotlin.test.assertFalse

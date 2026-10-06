@@ -1,6 +1,6 @@
 package net.bestia.zone.sync
 
-import net.bestia.zone.ecs.entity.EntityVisual
+import net.bestia.zone.entity.ecs.EntityVisual
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.battle.status.Mana
 import net.bestia.zone.ecs.item.Inventory
