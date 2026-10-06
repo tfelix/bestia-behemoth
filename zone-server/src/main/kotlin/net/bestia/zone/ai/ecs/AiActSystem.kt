@@ -21,9 +21,9 @@ import net.bestia.zone.ecs.core.TickBuckets
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.movement.ecs.Path
 import net.bestia.zone.movement.ecs.Position
-import net.bestia.zone.townsfolk.ecs.Townsfolk
 import net.bestia.zone.navigation.MacroRoute
 import org.springframework.stereotype.Component as SpringComponent
+import net.bestia.zone.ai.domain.AiDomainRuntime
 
 /**
  * Final stage of the AI pipeline: tick the behaviour tree of the plan step currently being carried out.
@@ -53,13 +53,14 @@ class AiActSystem(
   private val sharedMemory: SharedMemoryService,
   private val zoneConfig: WorldRulesConfig,
   private val throttle: AiThrottle,
+  runtimes: List<AiDomainRuntime>,
 ) : System {
   override val phase = Phase.AI
   override val after = setOf(AiThinkSystem::class)
 
   override val reads: ComponentClassSet = setOf(
-    Position::class, PlayerControlled::class, Dead::class, Townsfolk::class, KnownSkills::class
-  ) + AttackExecutionService.READS
+    Position::class, PlayerControlled::class, Dead::class, KnownSkills::class
+  ) + AttackExecutionService.READS + runtimes.flatMap { it.reads }
 
   /**
    * Everything the behaviour trees can touch, directly or through the services their leaves hold.

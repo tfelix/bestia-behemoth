@@ -14,6 +14,8 @@ import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.navigation.NavigationService
 import org.springframework.stereotype.Service
 import kotlin.random.Random
+import net.bestia.zone.ecs.core.ComponentClassSet
+import net.bestia.zone.townsfolk.ecs.Townsfolk
 
 /**
  * Builds townspeople out of [TownsfolkDomain].
@@ -30,6 +32,8 @@ class TownsfolkRuntime(
   /** Where wandering draws from. Defaulted for the server; a test passes a seed to pin a walk. */
   random: Random = Random.Default,
 ) : AiDomainRuntime {
+
+  override val reads: ComponentClassSet = setOf(Townsfolk::class)
 
   private val locomotion = Locomotion(navigation, random)
 
