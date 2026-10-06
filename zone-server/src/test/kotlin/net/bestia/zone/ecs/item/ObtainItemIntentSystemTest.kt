@@ -14,7 +14,7 @@ import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.session.NoActiveSessionException
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.ecs.movement.Position
-import net.bestia.zone.ecs.persistence.PersistedEntityDeletionQueue
+import net.bestia.zone.persistence.PersistedEntityDeletionQueue
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.item.Item
 import net.bestia.zone.item.ItemRepository

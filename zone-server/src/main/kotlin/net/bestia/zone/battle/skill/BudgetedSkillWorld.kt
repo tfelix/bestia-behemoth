@@ -4,7 +4,7 @@ import net.bestia.zone.battle.damage.Damage
 import net.bestia.zone.battle.damage.DamageEntitySMSG
 import net.bestia.zone.battle.damage.Heal
 import net.bestia.zone.battle.damage.Miss
-import net.bestia.zone.ecs.AoiLayer
+import net.bestia.zone.aoi.AoiLayer
 import net.bestia.zone.ecs.account.Account
 import net.bestia.zone.ecs.account.Master
 import net.bestia.zone.ecs.battle.effects.AreaEffect

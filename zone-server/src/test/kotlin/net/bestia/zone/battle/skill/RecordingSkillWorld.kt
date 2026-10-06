@@ -1,7 +1,7 @@
 package net.bestia.zone.battle.skill
 
 import net.bestia.zone.battle.damage.Damage
-import net.bestia.zone.ecs.AoiLayer
+import net.bestia.zone.aoi.AoiLayer
 import net.bestia.zone.ecs.battle.effects.AreaEffect
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId

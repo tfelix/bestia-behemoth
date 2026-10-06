@@ -5,7 +5,7 @@ import io.mockk.mockk
 import net.bestia.zone.ai.ecs.AiAgentFactory
 import net.bestia.zone.ai.profile.AiProfileRegistry
 import net.bestia.zone.ecs.core.testWorld
-import net.bestia.zone.ecs.persistence.Persistent
+import net.bestia.zone.persistence.Persistent
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.navigation.profile.MovementProfileRegistry
 import org.junit.jupiter.api.Assertions.assertFalse

@@ -11,7 +11,7 @@ import net.bestia.zone.ai.core.precondition.Precondition
 import net.bestia.zone.ai.core.precondition.Preconditions
 import net.bestia.zone.ai.core.state.Blackboard
 import net.bestia.zone.ai.core.state.StateKey
-import net.bestia.zone.ecs.ActivePlayerAOIService
+import net.bestia.zone.aoi.ActivePlayerAOIService
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.spawn.ambient.AmbientSpawnConfig

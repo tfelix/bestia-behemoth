@@ -22,7 +22,7 @@ enum class DivergenceState { DEPLETED }
  * A generated static entity whose state no longer matches what `propsIn()` alone would produce - keyed on
  * the durable [net.bestia.zone.ecs.prop.WorldObjectIdentity.propId], never on a live ECS entity id.
  *
- * ### Why this cannot be a [net.bestia.zone.entity.PersistedEntity] row
+ * ### Why this cannot be a [net.bestia.zone.persistence.PersistedEntity] row
  *
  * `PersistedEntity` is keyed on the *live* entity id, reused via `world.createEntity(id)` on reload - correct for
  * a mob or a dropped item, whose id is stable across a save/load cycle. A generated prop's entity id is

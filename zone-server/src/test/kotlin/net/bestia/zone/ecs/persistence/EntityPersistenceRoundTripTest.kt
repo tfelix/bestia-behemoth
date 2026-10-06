@@ -12,7 +12,7 @@ import net.bestia.zone.ecs.persistence.persisters.LootItemEntityPersister
 import net.bestia.zone.ecs.persistence.persisters.MobEntityPersister
 import net.bestia.zone.ecs.spawn.DenIdentity
 import net.bestia.zone.ecs.spawn.DenMember
-import net.bestia.zone.entity.PersistedEntityRepository
+import net.bestia.zone.persistence.PersistedEntityRepository
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.item.loot.LootItemEntitySpawner
 import org.junit.jupiter.api.BeforeEach
@@ -24,6 +24,8 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+import net.bestia.zone.persistence.PersistedEntityDeletionQueue
+import net.bestia.zone.persistence.Persistent
 
 /**
  * Exercises the persist -> reload round trip for a world mob end-to-end against the real persister,

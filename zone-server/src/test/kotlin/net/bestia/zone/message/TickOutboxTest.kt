@@ -4,7 +4,6 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import net.bestia.zone.entity.VanishEntitySMSG
-import net.bestia.zone.socket.OutMessageHandler
 import org.junit.jupiter.api.Test
 import kotlin.concurrent.thread
 import kotlin.test.assertFalse

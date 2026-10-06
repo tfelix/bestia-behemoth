@@ -8,7 +8,7 @@ import net.bestia.zone.ecs.battle.status.SkillPoints
 import net.bestia.zone.ecs.core.EcsWorld
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld
-import net.bestia.zone.ecs.persistence.EntityWriteBehind
+import net.bestia.zone.persistence.EntityWriteBehind
 import net.bestia.zone.message.AccountTaskExecutor
 import net.bestia.zone.skill.BasicSkillTooLowForTreeException
 import net.bestia.zone.skill.NoSkillPointsAvailableException

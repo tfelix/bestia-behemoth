@@ -4,7 +4,7 @@ import io.mockk.every
 import io.mockk.mockk
 import net.bestia.worldgen.core.ChunkPos
 import net.bestia.worldgen.core.WorldConfig
-import net.bestia.zone.ecs.visibility.EntityVisibility
+import net.bestia.zone.aoi.EntityVisibility
 import net.bestia.zone.geometry.Vec3L
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals

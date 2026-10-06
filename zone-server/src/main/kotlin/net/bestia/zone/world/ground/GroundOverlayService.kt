@@ -2,7 +2,7 @@ package net.bestia.zone.world.ground
 
 import net.bestia.worldgen.core.ChunkPos
 import net.bestia.zone.message.SMSG
-import net.bestia.zone.socket.ChunkFanOut
+import net.bestia.zone.message.ChunkFanOut
 import net.bestia.zone.world.fire.GroundFireService
 import net.bestia.zone.world.stream.ChunkGroundLayersSMSG
 import net.bestia.zone.world.stream.ChunkGroundOverlaySMSG

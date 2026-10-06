@@ -5,7 +5,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import net.bestia.zone.bestia.Bestia
 import net.bestia.zone.bestia.BestiaCatalogue
-import net.bestia.zone.ecs.EntityAOIService
+import net.bestia.zone.aoi.EntityAOIService
 import net.bestia.zone.ecs.account.Account
 import net.bestia.zone.ecs.battle.damage.Dead
 import net.bestia.zone.ecs.battle.damage.TakenDamage
@@ -15,7 +15,7 @@ import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.ecs.entity.EntityVisual
 import net.bestia.zone.ecs.entity.VisualKind
 import net.bestia.zone.ecs.movement.Position
-import net.bestia.zone.ecs.persistence.PersistedEntityDeletionQueue
+import net.bestia.zone.persistence.PersistedEntityDeletionQueue
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.util.EntityId

@@ -28,7 +28,7 @@ interface Dirtyable : DirtyTracked {
 
 
   /**
-   * [removed] is true only for the one extra call [net.bestia.zone.ecs.ZoneEngine] makes when this component
+   * [removed] is true only for the one extra call [net.bestia.zone.engine.ZoneEngine] makes when this component
    * implements [Removable] and was just taken off an entity; every regular dirty-flush call
    * uses the default.
    */

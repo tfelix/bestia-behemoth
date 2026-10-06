@@ -5,8 +5,8 @@ import net.bestia.zone.ai.ecs.AiAgent
 import net.bestia.zone.ai.ecs.AiDetailSystem
 import net.bestia.zone.ai.ecs.AiThrottle
 import net.bestia.zone.ai.profile.AiProfileRegistry
-import net.bestia.zone.ecs.AoiLayer
-import net.bestia.zone.ecs.EntityAOIService
+import net.bestia.zone.aoi.AoiLayer
+import net.bestia.zone.aoi.EntityAOIService
 import net.bestia.zone.config.WorldRulesConfig
 import net.bestia.zone.ecs.account.Master
 import net.bestia.zone.ecs.battle.damage.TakenDamage

@@ -2,7 +2,7 @@ package net.bestia.zone.ecs.battle.effects
 
 import io.mockk.every
 import io.mockk.mockk
-import net.bestia.zone.ecs.EntityAOIService
+import net.bestia.zone.aoi.EntityAOIService
 import net.bestia.zone.ecs.battle.damage.Damage
 import net.bestia.zone.ecs.battle.damage.Dead
 import net.bestia.zone.ecs.battle.status.Health

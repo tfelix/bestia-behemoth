@@ -1,10 +1,9 @@
 package net.bestia.zone.message
 
-import net.bestia.zone.ecs.ActivePlayerAOIService
+import net.bestia.zone.aoi.ActivePlayerAOIService
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.ecs.visibility.EntityAudience
+import net.bestia.zone.aoi.EntityAudience
 import net.bestia.zone.geometry.Vec3L
-import net.bestia.zone.socket.OutMessageHandler
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.world.stream.InterestRange
 import org.springframework.stereotype.Component

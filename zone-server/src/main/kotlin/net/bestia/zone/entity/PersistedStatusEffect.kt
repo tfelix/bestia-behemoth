@@ -13,8 +13,8 @@ import jakarta.persistence.Table
  * mirror of a single [net.bestia.zone.ecs.battle.effects.ActiveStatusEffect].
  *
  * Deliberately keyed by entity id rather than by master/mob, and deliberately its own table rather
- * than a blob inside [PersistedEntity]:
- * - masters have no [PersistedEntity] row at all (they are written to the relational `master` table
+ * than a blob inside [net.bestia.zone.persistence.PersistedEntity]:
+ * - masters have no [net.bestia.zone.persistence.PersistedEntity] row at all (they are written to the relational `master` table
  *   by `MasterEntityPersister`), so a blob there would not reach them;
  * - `Float.POSITIVE_INFINITY` does not round-trip through JSON, while [remainingSeconds] being
  *   nullable states "never expires" outright;

@@ -11,7 +11,7 @@ import net.bestia.zone.ecs.battle.level.LevelUpExperienceCalculator
 import net.bestia.zone.ecs.battle.status.IsStatusValueDirty
 import net.bestia.zone.ecs.battle.status.SkillPoints
 import net.bestia.zone.ecs.battle.status.StatusPoints
-import net.bestia.zone.ecs.persistence.EntityWriteBehind
+import net.bestia.zone.persistence.EntityWriteBehind
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component as SpringComponent
 

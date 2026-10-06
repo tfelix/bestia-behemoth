@@ -17,7 +17,7 @@ import net.bestia.zone.bestia.BestiaCatalogue
 import net.bestia.zone.bestia.BestiaEntitySpawner
 import net.bestia.zone.ecs.core.Component
 import net.bestia.zone.ecs.core.testWorld
-import net.bestia.zone.ecs.persistence.Persistent
+import net.bestia.zone.persistence.Persistent
 import net.bestia.zone.geometry.Vec3L
 import kotlin.test.Test
 import kotlin.test.assertEquals

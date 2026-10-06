@@ -5,7 +5,7 @@ import jakarta.servlet.http.HttpServletRequest
 import net.bestia.account.KickReason
 import net.bestia.internal.ServiceTokens
 import net.bestia.zone.account.authentication.KickedAccounts
-import net.bestia.zone.socket.ConnectionTerminator
+import net.bestia.zone.message.ConnectionTerminator
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PathVariable

@@ -13,7 +13,7 @@ data class ScriptComponent(
 ) : Component {
 
   companion object {
-    /** [net.bestia.zone.ecs.persistence.EntityPersister.kind] routing key for script entities. */
+    /** [net.bestia.zone.persistence.EntityPersister.kind] routing key for script entities. */
     const val KIND = "script"
   }
 }

@@ -4,6 +4,7 @@ import org.junit.jupiter.api.extension.AfterAllCallback
 import org.junit.jupiter.api.extension.BeforeAllCallback
 import org.junit.jupiter.api.extension.ExtensionContext
 import kotlin.test.assertEquals
+import net.bestia.zone.engine.TickSqlGuard
 
 /**
  * Fails a test class when the tick ran SQL while it ran. The guard's exception alone may not: a system that

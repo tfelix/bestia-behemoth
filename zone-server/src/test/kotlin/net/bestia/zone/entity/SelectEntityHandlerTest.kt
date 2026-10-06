@@ -3,7 +3,7 @@ package net.bestia.zone.entity
 import io.mockk.mockk
 import io.mockk.verify
 import net.bestia.zone.ai.ecs.PlayerControlled
-import net.bestia.zone.ecs.ActivePlayerAOIService
+import net.bestia.zone.aoi.ActivePlayerAOIService
 import net.bestia.zone.ecs.account.ActivePlayer
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.session.ConnectionInfoService

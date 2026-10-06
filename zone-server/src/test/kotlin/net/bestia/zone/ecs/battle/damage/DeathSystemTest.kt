@@ -10,8 +10,8 @@ import net.bestia.zone.ecs.entity.EntityVisual
 import net.bestia.zone.ecs.entity.VisualKind
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ai.rumour.NotableKillReporter
-import net.bestia.zone.ecs.persistence.PersistedEntityDeletionQueue
-import net.bestia.zone.ecs.persistence.Persistent
+import net.bestia.zone.persistence.PersistedEntityDeletionQueue
+import net.bestia.zone.persistence.Persistent
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.item.loot.LootItemEntitySpawner

@@ -9,7 +9,7 @@ import net.bestia.bnet.proto.EnvelopeProto
  * The outbound frame: a big-endian four-byte length followed by the serialised envelope.
  *
  * Extracted so there is exactly one definition of it. There are two writers - the per-message encoder in
- * the Netty pipeline, and [ChunkFanOut], which frames once and hands the same bytes to many channels - and
+ * the Netty pipeline, and [net.bestia.zone.message.ChunkFanOut], which frames once and hands the same bytes to many channels - and
  * a frame format with two implementations is a frame format that will eventually have two behaviours.
  */
 object EnvelopeFraming {

@@ -32,8 +32,8 @@ data class StatusEffectsSnapshot(
  * Durable storage for [StatusEffects], keyed by [EntityId] and blind to what kind of entity that id
  * belongs to — a mob, a dropped item and a player master all round-trip through the same table.
  *
- * ### Why this is not an [EntityPersister]
- * Both [EntityPersistenceService] and [PersistAndRemoveSystem] resolve exactly one persister per
+ * ### Why this is not an [net.bestia.zone.persistence.EntityPersister]
+ * Both [net.bestia.zone.persistence.EntityPersistenceService] and [net.bestia.zone.persistence.PersistAndRemoveSystem] resolve exactly one persister per
  * entity (`persisters.firstOrNull { it.supports(world, id) }`), so a status-effect persister would
  * *compete* with the kind persister that owns the entity instead of composing with it. Status
  * effects are a cross-cutting concern of the component, not of the entity kind, so this service

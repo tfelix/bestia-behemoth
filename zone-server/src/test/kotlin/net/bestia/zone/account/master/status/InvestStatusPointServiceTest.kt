@@ -7,7 +7,7 @@ import net.bestia.zone.ecs.battle.status.BaseStatusValues
 import net.bestia.zone.ecs.battle.status.StatusPoints
 import net.bestia.zone.ecs.core.EcsWorld
 import net.bestia.zone.ecs.core.testWorld
-import net.bestia.zone.ecs.persistence.EntityWriteBehind
+import net.bestia.zone.persistence.EntityWriteBehind
 import net.bestia.zone.util.EntityId
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test

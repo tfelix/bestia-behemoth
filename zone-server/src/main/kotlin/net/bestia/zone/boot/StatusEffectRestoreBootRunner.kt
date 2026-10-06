@@ -12,7 +12,7 @@ import net.bestia.zone.ecs.core.modify
  * Re-attaches persisted status effects to the entities [EntityLoaderBootRunner] just rehydrated.
  *
  * A separate pass, ordered immediately after that runner (110), rather than something each
- * [net.bestia.zone.ecs.persistence.EntityPersister.loadAll] has to remember to do: effects are stored
+ * [net.bestia.zone.persistence.EntityPersister.loadAll] has to remember to do: effects are stored
  * per entity id and are indifferent to entity kind, so one sweep covers mobs, ground items and
  * script entities alike.
  *

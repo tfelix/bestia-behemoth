@@ -140,7 +140,7 @@ Use those files as a template instead of re-deriving the shape from scratch.
    implementing `toBnetEnvelope()`. Two templates depending on shape: a one-off
    broadcast event (`battle/damage/DamageEntitySMSG.kt`, sent via
    `OutMessageProcessor.sendToObserversOf(world, entityId, msg)` to the same audience as the
-   entity's component state, `ecs/visibility/EntityAudience.kt`), or persistent entity-state
+   entity's component state, `aoi/EntityAudience.kt`), or persistent entity-state
    sync (`ecs/battle/status/SkillPointsComponentSMSG.kt`'s owning component implements `Dirtyable` +
    `toEntityMessage()` and is auto-pushed on change — only use this shape for actual
    entity state, not one-off events).
@@ -171,9 +171,9 @@ ECS library):
   binding, listeners) for `ZoneEngine`, boot runners and tests. Around it: `ComponentStore`
   (sparse set, one per concrete component class — there are no archetypes), `SystemScheduler`
   ("wave" scheduling from declared read/write component sets), `EntityRegistry`,
-  `AsyncJobExecutor`. Spring wiring is `ecs/EcsConfiguration.kt`, which builds the
+  `AsyncJobExecutor`. Spring wiring is `engine/EcsConfiguration.kt`, which builds the
   `World` empty and registers every `System` bean once all singletons exist, so any service may inject
-  the `World` or `WorldView`; `ecs/ZoneEngine.kt` runs the tick (thread `zone-tick`).
+  the `World` or `WorldView`; `engine/ZoneEngine.kt` runs the tick (thread `zone-tick`).
 - Game logic implements `ecs/core/System.kt` — `update(world, deltaTime)` plus a `schedule`
   (`EveryTick` / `EveryTicks(n)` / `EverySeconds(s)`) and `reads`/`writes` sets — and registers
   as a Spring `@Component` with a `phase` (`ecs/core/Phase.kt`) and, for systems of the same phase that
@@ -381,7 +381,7 @@ Auth success on the socket triggers `AccountConnectedEvent` →
 `ConnectionInfoService` but does **not** spawn a game entity yet — that happens later
 once the client picks a master (`SelectMasterCMSG` → `ConnectionInfoService.activateSession`).
 On disconnect, the master's entity gets a `PersistAndRemove` component
-(`ecs/persistence/PersistAndRemoveSystem.kt`) for async persist-then-remove, rather
+(`persistence/PersistAndRemoveSystem.kt`) for async persist-then-remove, rather
 than being removed synchronously - unless it is `InCombat`: then it gets `DisconnectProtection` and stays in the
 world for `world.logout-protection-seconds`, so disconnecting is no escape from a fight. Selecting the master
 again in that time re-attaches to the live entity.

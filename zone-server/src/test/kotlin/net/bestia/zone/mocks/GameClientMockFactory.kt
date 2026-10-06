@@ -5,8 +5,8 @@ import net.bestia.zone.account.AccountRepository
 import net.bestia.zone.message.SMSG
 import net.bestia.zone.message.AccountTaskExecutor
 import net.bestia.zone.message.InMessageProcessor
-import net.bestia.zone.socket.ConnectionTerminator
-import net.bestia.zone.socket.OutMessageHandler
+import net.bestia.zone.message.ConnectionTerminator
+import net.bestia.zone.message.OutMessageHandler
 import net.bestia.zone.util.AccountId
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.annotation.Profile

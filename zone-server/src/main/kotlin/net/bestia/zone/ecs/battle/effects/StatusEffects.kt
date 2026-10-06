@@ -11,7 +11,7 @@ import net.bestia.zone.util.EntityId
 
 /**
  * Every status effect currently active on an entity. Synced to the client via the generic
- * [Dirtyable] pipeline ([net.bestia.zone.ecs.ZoneEngine]).
+ * [Dirtyable] pipeline ([net.bestia.zone.engine.ZoneEngine]).
  *
  * Sync is driven by this component's own dirty flag: [applyEffect]/[tickDown] mark it dirty as
  * they mutate, and a freshly added instance starts dirty, so changes reach the client without any

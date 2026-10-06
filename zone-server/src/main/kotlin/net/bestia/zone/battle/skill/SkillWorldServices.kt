@@ -3,7 +3,7 @@ package net.bestia.zone.battle.skill
 import net.bestia.zone.battle.StatusEffectService
 import net.bestia.zone.cartography.SurveyService
 import net.bestia.zone.crafting.CraftingService
-import net.bestia.zone.ecs.EntityAOIService
+import net.bestia.zone.aoi.EntityAOIService
 import net.bestia.zone.ecs.battle.effects.AreaEffectSpawner
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.world.prop.PlayerStructureService

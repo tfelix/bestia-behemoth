@@ -77,7 +77,7 @@ data class Position(
    * A second flag rather than a reuse of the dirty one, because **the index is not the wire**: every step has
    * to be indexed even though only one in [MoveSystem.POSITION_RESYNC_STEPS] is published, since
    * `AreaOfInterestService` answers what an area effect hits, what a creature can see and what a skill can
-   * target. Cleared by [net.bestia.zone.ecs.ZoneEngine] once it has re-indexed the entity.
+   * target. Cleared by [net.bestia.zone.engine.ZoneEngine] once it has re-indexed the entity.
    */
   val moved: Boolean
     get() = movedFlag.isSet

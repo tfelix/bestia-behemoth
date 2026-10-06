@@ -13,7 +13,7 @@ import net.bestia.zone.ecs.core.EcsWorld
 
 /**
  * Drives [HpRegenSystem], [ManaRegenSystem] and [StaminaRegenSystem] against a real [World], the
- * same way [net.bestia.zone.ecs.EcsConfiguration] wires them in production (minus Spring).
+ * same way [net.bestia.zone.engine.EcsConfiguration] wires them in production (minus Spring).
  *
  * A single `tick(10.1f)` fires all three at once: their schedules are 6 s / 8 s / 10 s, so anything
  * past 10 s is due for every one of them. Amounts themselves are pinned in

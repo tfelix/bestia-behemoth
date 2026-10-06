@@ -9,7 +9,7 @@ import net.bestia.zone.ecs.entity.VisualKind
 import net.bestia.zone.ecs.item.GroundItemDecay
 import net.bestia.zone.ecs.item.GroundItemStack
 import net.bestia.zone.ecs.movement.Position
-import net.bestia.zone.ecs.persistence.Persistent
+import net.bestia.zone.persistence.Persistent
 import net.bestia.zone.geometry.Vec3L
 import org.springframework.stereotype.Component
 import java.time.Clock

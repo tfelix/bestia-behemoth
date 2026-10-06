@@ -1,8 +1,8 @@
 package net.bestia.zone.mocks
 
 import net.bestia.zone.message.SMSG
-import net.bestia.zone.socket.ChunkFanOut
-import net.bestia.zone.socket.OutMessageHandler
+import net.bestia.zone.message.ChunkFanOut
+import net.bestia.zone.message.OutMessageHandler
 import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Component
 

@@ -13,7 +13,7 @@ import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.persistence.persisters.LootItemEntityPersister
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.persistence.persisters.MobEntityPersister
-import net.bestia.zone.entity.PersistedEntityRepository
+import net.bestia.zone.persistence.PersistedEntityRepository
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.item.loot.LootItemEntitySpawner
 import net.bestia.zone.util.EntityId
@@ -25,6 +25,9 @@ import org.springframework.test.context.ActiveProfiles
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+import net.bestia.zone.persistence.EntityPersistenceService
+import net.bestia.zone.persistence.EntitySnapshot
+import net.bestia.zone.persistence.PersistedEntityDeletionQueue
 
 /**
  * Pruning the rows of entities that have left the world for good.

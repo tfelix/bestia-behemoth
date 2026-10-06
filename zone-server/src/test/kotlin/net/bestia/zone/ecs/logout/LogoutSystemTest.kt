@@ -2,7 +2,7 @@ package net.bestia.zone.ecs.logout
 
 import io.mockk.mockk
 import net.bestia.zone.ecs.core.testWorld
-import net.bestia.zone.ecs.persistence.PersistAndRemove
+import net.bestia.zone.persistence.PersistAndRemove
 import org.junit.jupiter.api.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue

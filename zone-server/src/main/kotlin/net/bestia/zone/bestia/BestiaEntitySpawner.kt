@@ -21,7 +21,7 @@ import net.bestia.zone.ecs.movement.Speed
 import net.bestia.zone.ecs.entity.EntityVisual
 import net.bestia.zone.ecs.entity.VisualKind
 import net.bestia.zone.ecs.entity.Animation
-import net.bestia.zone.ecs.persistence.Persistent
+import net.bestia.zone.persistence.Persistent
 import net.bestia.zone.ecs.spawn.DenMember
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.ecs.core.Component

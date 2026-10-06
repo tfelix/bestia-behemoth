@@ -7,7 +7,7 @@ import net.bestia.zone.ecs.battle.level.Level
 import net.bestia.zone.ecs.battle.level.LevelUpExperienceCalculator
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld
-import net.bestia.zone.ecs.persistence.EntityWriteBehind
+import net.bestia.zone.persistence.EntityWriteBehind
 import net.bestia.zone.util.EntityId
 import org.junit.jupiter.api.Test
 

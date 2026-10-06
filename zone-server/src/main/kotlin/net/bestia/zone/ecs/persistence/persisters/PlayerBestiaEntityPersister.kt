@@ -8,8 +8,8 @@ import net.bestia.zone.ecs.battle.level.Level
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.movement.Position
-import net.bestia.zone.ecs.persistence.EntityPersister
-import net.bestia.zone.ecs.persistence.EntitySnapshot
+import net.bestia.zone.persistence.EntityPersister
+import net.bestia.zone.persistence.EntitySnapshot
 import net.bestia.zone.ecs.respawn.SavePointService
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId

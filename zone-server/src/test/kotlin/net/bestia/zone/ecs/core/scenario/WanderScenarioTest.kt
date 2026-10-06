@@ -1,7 +1,7 @@
 package net.bestia.zone.ecs.core.scenario
 
 import net.bestia.zone.util.EntityId
-import net.bestia.zone.ecs.EcsConfiguration
+import net.bestia.zone.engine.EcsConfiguration
 import net.bestia.zone.config.ZoneConfig
 import net.bestia.zone.config.WorldRulesConfig
 import org.junit.jupiter.api.AfterEach

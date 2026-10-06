@@ -1,11 +1,11 @@
 package net.bestia.zone.ecs
 
-import net.bestia.zone.ecs.visibility.EntityVisibility
+import net.bestia.zone.aoi.EntityVisibility
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
 
 /**
- * An [EntityVisibility] that only remembers what it was told, for the tests that care whether [ZoneEngine]
+ * An [EntityVisibility] that only remembers what it was told, for the tests that care whether [net.bestia.zone.engine.ZoneEngine]
  * announced an entity's move at all - the real answer needs a generated world and a chunk subscription.
  */
 class RecordingEntityVisibility : EntityVisibility {
