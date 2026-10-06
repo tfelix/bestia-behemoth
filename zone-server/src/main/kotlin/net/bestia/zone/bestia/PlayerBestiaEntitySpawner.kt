@@ -11,11 +11,11 @@ import net.bestia.zone.battle.ecs.status.IsStatusValueDirty
 import net.bestia.zone.battle.ecs.status.Mana
 import net.bestia.zone.battle.ecs.status.Stamina
 import net.bestia.zone.battle.ecs.status.StatusValues
-import net.bestia.zone.ecs.item.CarryCapacity
+import net.bestia.zone.item.ecs.CarryCapacity
 import net.bestia.zone.battle.status.ConditionValueCalculator
-import net.bestia.zone.ecs.item.WeightLimitCalculator
-import net.bestia.zone.ecs.item.Equipment
-import net.bestia.zone.ecs.item.Inventory
+import net.bestia.zone.item.ecs.WeightLimitCalculator
+import net.bestia.zone.item.ecs.Equipment
+import net.bestia.zone.item.ecs.Inventory
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.movement.ecs.Speed
 import net.bestia.zone.identity.ecs.Account

@@ -6,8 +6,8 @@ import net.bestia.zone.config.WorldRulesConfig
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.entity.ecs.EntityVisual
 import net.bestia.zone.entity.ecs.VisualKind
-import net.bestia.zone.ecs.item.GroundItemDecay
-import net.bestia.zone.ecs.item.GroundItemStack
+import net.bestia.zone.item.ecs.GroundItemDecay
+import net.bestia.zone.item.ecs.GroundItemStack
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.persistence.Persistent
 import net.bestia.zone.geometry.Vec3L
@@ -15,6 +15,8 @@ import org.springframework.stereotype.Component
 import java.time.Clock
 import java.time.Instant
 import kotlin.random.Random
+import net.bestia.zone.bestia.loot.LootDrop
+import net.bestia.zone.bestia.loot.LootItemRepository
 
 /**
  * Spawns an item entity in the world which can be used to pickup.

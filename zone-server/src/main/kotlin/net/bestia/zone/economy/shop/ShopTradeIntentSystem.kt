@@ -11,9 +11,9 @@ import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.modify
 import net.bestia.zone.ecs.economy.ShopTradeIntent
-import net.bestia.zone.ecs.item.CarryCapacitySystem
-import net.bestia.zone.ecs.item.Inventory
-import net.bestia.zone.ecs.item.ObtainItemIntent
+import net.bestia.zone.item.ecs.CarryCapacitySystem
+import net.bestia.zone.item.ecs.Inventory
+import net.bestia.zone.item.ecs.ObtainItemIntent
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.economy.Commodity
 import net.bestia.zone.economy.CommodityItems

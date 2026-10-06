@@ -82,7 +82,7 @@ class ItemContainer(
    *
    * [uniqueId] names the exact instance to wear. It may legitimately be 0 for an item obtained this
    * session whose instance row was minted after the live ECS copy was made (see
-   * [net.bestia.zone.ecs.item.Inventory.Item]); the item is then located by [itemId] instead,
+   * [net.bestia.zone.item.ecs.Inventory.Item]); the item is then located by [itemId] instead,
    * picking any held, not-yet-worn copy - which is equivalent, since equipment is never stackable
    * and copies of one template are interchangeable at this point.
    */

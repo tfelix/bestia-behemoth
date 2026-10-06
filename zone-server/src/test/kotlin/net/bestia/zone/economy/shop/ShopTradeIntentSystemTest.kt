@@ -9,8 +9,8 @@ import net.bestia.zone.identity.ecs.Master
 import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.ecs.economy.ShopTradeIntent
-import net.bestia.zone.ecs.item.Inventory
-import net.bestia.zone.ecs.item.ObtainItemIntent
+import net.bestia.zone.item.ecs.Inventory
+import net.bestia.zone.item.ecs.ObtainItemIntent
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.economy.Commodity
 import net.bestia.zone.economy.CommodityItems

@@ -18,8 +18,8 @@ import net.bestia.zone.battle.ecs.level.LevelComponentSMSG
 import net.bestia.zone.battle.ecs.status.SkillPointsComponentSMSG
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.session.ConnectionInfoService
-import net.bestia.zone.ecs.item.EquipmentComponentSMSG
-import net.bestia.zone.ecs.item.InventoryComponentSMSG
+import net.bestia.zone.item.ecs.EquipmentComponentSMSG
+import net.bestia.zone.item.ecs.InventoryComponentSMSG
 import net.bestia.zone.entity.ecs.VisualComponentSMSG
 import net.bestia.zone.logout.ecs.LogoutIntentComponentSMSG
 import net.bestia.zone.logout.ecs.RequestLogoutCMSG

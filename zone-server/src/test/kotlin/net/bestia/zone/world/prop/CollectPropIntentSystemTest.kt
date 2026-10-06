@@ -7,7 +7,7 @@ import net.bestia.bnet.proto.OperationErrorProto
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld
-import net.bestia.zone.ecs.item.ObtainItemIntent
+import net.bestia.zone.item.ecs.ObtainItemIntent
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.ecs.prop.CollectPropIntent
 import net.bestia.zone.entity.ecs.PropPose

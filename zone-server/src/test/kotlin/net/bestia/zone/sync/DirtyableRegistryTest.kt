@@ -3,7 +3,7 @@ package net.bestia.zone.sync
 import net.bestia.zone.entity.ecs.EntityVisual
 import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.battle.ecs.status.Mana
-import net.bestia.zone.ecs.item.Inventory
+import net.bestia.zone.item.ecs.Inventory
 import net.bestia.zone.movement.ecs.Path
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.movement.ecs.Speed

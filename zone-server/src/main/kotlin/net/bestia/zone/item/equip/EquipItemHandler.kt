@@ -10,8 +10,8 @@ import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.entity.ecs.DeadActionGuard
 import net.bestia.zone.session.ConnectionInfoService
-import net.bestia.zone.ecs.item.Equipment
-import net.bestia.zone.ecs.item.Inventory
+import net.bestia.zone.item.ecs.Equipment
+import net.bestia.zone.item.ecs.Inventory
 import net.bestia.zone.item.ItemRepository
 import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.message.IoMessageHandler

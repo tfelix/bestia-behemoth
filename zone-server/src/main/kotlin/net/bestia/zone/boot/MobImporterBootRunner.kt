@@ -15,7 +15,7 @@ import net.bestia.zone.item.ItemRepository
 import net.bestia.zone.item.equip.ArmorType
 import net.bestia.zone.item.equip.EquipmentSlot
 import net.bestia.zone.item.equip.EquipmentSlots
-import net.bestia.zone.item.loot.LootItem
+import net.bestia.zone.bestia.loot.LootItem
 import net.bestia.zone.skill.SkillRepository
 import org.springframework.boot.CommandLineRunner
 import org.springframework.core.annotation.Order

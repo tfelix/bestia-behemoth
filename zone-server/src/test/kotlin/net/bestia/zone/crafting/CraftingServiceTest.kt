@@ -14,7 +14,7 @@ import net.bestia.zone.crafting.CraftingFixture.Companion.recipe
 import net.bestia.zone.crafting.CraftingFixture.Companion.stack
 import net.bestia.zone.identity.ecs.Master
 import net.bestia.zone.battle.ecs.skill.Crafting
-import net.bestia.zone.ecs.item.ObtainItemIntent
+import net.bestia.zone.item.ecs.ObtainItemIntent
 import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.entity.StaticEntityKind
 import org.junit.jupiter.api.Assertions.assertEquals

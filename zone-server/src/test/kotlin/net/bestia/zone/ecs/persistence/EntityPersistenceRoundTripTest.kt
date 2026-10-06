@@ -6,9 +6,9 @@ import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.ecs.core.SnowflakeEntityIdGenerator
 import net.bestia.zone.ecs.core.EcsWorld
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.ecs.item.GroundItemDecay
+import net.bestia.zone.item.ecs.GroundItemDecay
 import net.bestia.zone.movement.ecs.Position
-import net.bestia.zone.ecs.persistence.persisters.LootItemEntityPersister
+import net.bestia.zone.item.persistence.LootItemEntityPersister
 import net.bestia.zone.ecs.persistence.persisters.MobEntityPersister
 import net.bestia.zone.ecs.spawn.DenIdentity
 import net.bestia.zone.ecs.spawn.DenMember

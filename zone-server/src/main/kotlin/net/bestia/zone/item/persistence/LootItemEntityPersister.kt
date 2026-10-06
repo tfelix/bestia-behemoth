@@ -1,0 +1,92 @@
+package net.bestia.zone.item.persistence
+
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
+import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.zone.ecs.core.World
+import net.bestia.zone.item.ecs.GroundItemDecay
+import net.bestia.zone.item.ecs.GroundItemStack
+import net.bestia.zone.movement.ecs.Position
+import net.bestia.zone.persistence.EntityPersister
+import net.bestia.zone.persistence.EntitySnapshot
+import net.bestia.zone.persistence.PersistedEntity
+import net.bestia.zone.persistence.PersistedEntityRepository
+import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.item.loot.LootItemEntitySpawner
+import net.bestia.zone.util.EntityId
+import org.springframework.stereotype.Component
+import org.springframework.transaction.annotation.Transactional
+import java.time.Instant
+
+/**
+ * Persists dropped/ground item entities (those carrying a [GroundItemStack]) into the generic blob
+ * tables and rebuilds them on startup via [LootItemEntitySpawner].
+ */
+@Component
+class LootItemEntityPersister(
+  private val repository: PersistedEntityRepository,
+  private val lootItemEntitySpawner: LootItemEntitySpawner,
+  private val objectMapper: ObjectMapper,
+) : EntityPersister {
+
+  override val kind = KIND
+  override val loadsAtStartup = true
+
+  override fun supports(world: World, id: EntityId): Boolean =
+    world.has(id, GroundItemStack::class)
+
+  override fun snapshot(world: World, id: EntityId): EntitySnapshot? {
+    val stack = world.get(id, GroundItemStack::class) ?: return null
+    val pos = world.get(id, Position::class) ?: return null
+
+    return LootSnapshot(
+      entityId = id,
+      itemId = stack.itemId,
+      amount = stack.amount,
+      uniqueId = stack.uniqueId,
+      x = pos.x, y = pos.y, z = pos.z,
+      despawnAt = world.get(id, GroundItemDecay::class)?.despawnAt,
+    )
+  }
+
+  @Transactional
+  override fun persist(snapshots: List<EntitySnapshot>) {
+    if (snapshots.isEmpty()) return
+    val existing = repository.findAllByEntityIdIn(snapshots.map { it.entityId }).associateBy { it.entityId }
+
+    val rows = snapshots.map { snap ->
+      val row = existing[snap.entityId] ?: PersistedEntity(entityId = snap.entityId, kind = kind)
+      row.updatedAt = Instant.now()
+      row.writeComponent(kind, objectMapper.writeValueAsString(snap))
+      row
+    }
+    repository.saveAll(rows)
+  }
+
+  @Transactional(readOnly = true)
+  override fun loadAll(world: World) {
+    val rows = repository.findAllByKind(kind)
+    var loaded = 0
+    for (row in rows) {
+      val json = row.components.firstOrNull()?.data ?: continue
+      val snap = objectMapper.readValue<LootSnapshot>(json)
+
+      lootItemEntitySpawner.spawnLootItem(
+        world = world,
+        itemId = snap.itemId,
+        amount = snap.amount,
+        pos = Vec3L(snap.x, snap.y, snap.z),
+        uniqueId = snap.uniqueId,
+        entityId = snap.entityId,
+        despawnAt = snap.despawnAt,
+      )
+      loaded++
+    }
+    LOG.info { "Rehydrated $loaded persisted ground item entities" }
+  }
+
+  companion object {
+    private val LOG = KotlinLogging.logger { }
+    private const val KIND = "loot"
+  }
+}

@@ -5,12 +5,12 @@ import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.ecs.core.SnowflakeEntityIdGenerator
 import net.bestia.zone.ecs.core.EcsWorld
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.ecs.item.CarryCapacity
-import net.bestia.zone.ecs.item.Inventory
-import net.bestia.zone.ecs.item.ObtainItemIntent
-import net.bestia.zone.ecs.item.ObtainItemIntentSystem
+import net.bestia.zone.item.ecs.CarryCapacity
+import net.bestia.zone.item.ecs.Inventory
+import net.bestia.zone.item.ecs.ObtainItemIntent
+import net.bestia.zone.item.ecs.ObtainItemIntentSystem
 import net.bestia.zone.movement.ecs.Position
-import net.bestia.zone.ecs.persistence.persisters.LootItemEntityPersister
+import net.bestia.zone.item.persistence.LootItemEntityPersister
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.persistence.persisters.MobEntityPersister
 import net.bestia.zone.persistence.PersistedEntityRepository

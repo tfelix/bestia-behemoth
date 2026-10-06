@@ -7,8 +7,8 @@ import net.bestia.zone.cartography.chart.ChartService
 import net.bestia.zone.identity.ecs.Master
 import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.ecs.core.testWorld
-import net.bestia.zone.ecs.item.Inventory
-import net.bestia.zone.ecs.item.ItemTemplateRegistry
+import net.bestia.zone.item.ecs.Inventory
+import net.bestia.zone.item.ecs.ItemTemplateRegistry
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.world.WorldService

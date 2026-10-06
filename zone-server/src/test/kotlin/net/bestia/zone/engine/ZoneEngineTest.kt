@@ -11,8 +11,8 @@ import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld
-import net.bestia.zone.ecs.item.CarryCapacity
-import net.bestia.zone.ecs.item.CarryCapacityComponentSMSG
+import net.bestia.zone.item.ecs.CarryCapacity
+import net.bestia.zone.item.ecs.CarryCapacityComponentSMSG
 import net.bestia.zone.entity.ecs.EntityVisual
 import net.bestia.zone.entity.ecs.VisualComponentSMSG
 import net.bestia.zone.entity.ecs.VisualKind
