@@ -6,8 +6,8 @@ import net.bestia.zone.session.AccountDisconnectedEvent
 import net.bestia.zone.account.master.MasterRepository
 import net.bestia.zone.account.master.findByIdOrThrow
 import net.bestia.zone.account.master.skill.BasicSkillGate
-import net.bestia.zone.ecs.account.Account
-import net.bestia.zone.ecs.battle.damage.DeadActionGuard
+import net.bestia.zone.identity.ecs.Account
+import net.bestia.zone.entity.ecs.DeadActionGuard
 import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.session.ConnectionInfoService

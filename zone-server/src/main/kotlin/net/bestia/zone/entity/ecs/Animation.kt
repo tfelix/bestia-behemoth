@@ -1,4 +1,4 @@
-package net.bestia.zone.ecs.entity
+package net.bestia.zone.entity.ecs
 
 import net.bestia.zone.ecs.core.Component
 import net.bestia.zone.util.EntityId

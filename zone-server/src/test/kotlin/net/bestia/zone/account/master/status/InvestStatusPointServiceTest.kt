@@ -2,7 +2,7 @@ package net.bestia.zone.account.master.status
 
 import io.mockk.mockk
 import io.mockk.verify
-import net.bestia.zone.ecs.account.Master as MasterComponent
+import net.bestia.zone.identity.ecs.Master as MasterComponent
 import net.bestia.zone.ecs.battle.status.BaseStatusValues
 import net.bestia.zone.ecs.battle.status.StatusPoints
 import net.bestia.zone.ecs.core.EcsWorld

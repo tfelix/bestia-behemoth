@@ -20,7 +20,7 @@ import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.ecs.item.EquipmentComponentSMSG
 import net.bestia.zone.ecs.item.InventoryComponentSMSG
-import net.bestia.zone.ecs.entity.VisualComponentSMSG
+import net.bestia.zone.entity.ecs.VisualComponentSMSG
 import net.bestia.zone.ecs.logout.LogoutIntentComponentSMSG
 import net.bestia.zone.ecs.logout.RequestLogoutCMSG
 import net.bestia.zone.ecs.movement.Position

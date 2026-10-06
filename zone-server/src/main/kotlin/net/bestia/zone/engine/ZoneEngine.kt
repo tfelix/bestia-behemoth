@@ -3,9 +3,9 @@ package net.bestia.zone.engine
 import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.annotation.PreDestroy
 import net.bestia.zone.ecs.movement.Position
-import net.bestia.zone.ecs.account.Account
-import net.bestia.zone.ecs.account.ActivePlayer
-import net.bestia.zone.ecs.battle.damage.Dead
+import net.bestia.zone.identity.ecs.Account
+import net.bestia.zone.identity.ecs.ActivePlayer
+import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.sync.Dirtyable
 import net.bestia.zone.ecs.core.RateLimitedLog
 import net.bestia.zone.sync.Removable
@@ -15,8 +15,8 @@ import net.bestia.zone.ecs.core.EcsWorld
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.sync.dirtyableComponentTypes
 import net.bestia.zone.ecs.core.isFatal
-import net.bestia.zone.ecs.prop.StaticSync
-import net.bestia.zone.ecs.prop.WorldObjectIdentity
+import net.bestia.zone.entity.ecs.StaticSync
+import net.bestia.zone.entity.ecs.WorldObjectIdentity
 import net.bestia.zone.aoi.EntityAudience
 import net.bestia.zone.aoi.EntityVisibility
 import net.bestia.zone.entity.VanishEntitySMSG

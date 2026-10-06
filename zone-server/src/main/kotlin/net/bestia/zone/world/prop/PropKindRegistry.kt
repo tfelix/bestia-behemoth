@@ -9,6 +9,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.annotation.PostConstruct
 import org.springframework.core.io.ClassPathResource
 import org.springframework.stereotype.Service
+import net.bestia.zone.entity.StaticEntityKind
 
 /** A collider's half-extents and height, in position units. */
 data class PropColliderDto(val halfX: Long = 1, val halfY: Long = 1, val height: Long = 2)

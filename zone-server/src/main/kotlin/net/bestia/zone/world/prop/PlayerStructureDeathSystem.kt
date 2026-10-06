@@ -1,14 +1,14 @@
 package net.bestia.zone.world.prop
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.ecs.battle.damage.Dead
+import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.ecs.prop.PlayerStructureIdentity
+import net.bestia.zone.entity.ecs.PlayerStructureIdentity
 import net.bestia.zone.ecs.movement.Position
-import net.bestia.zone.ecs.prop.PropPose
+import net.bestia.zone.entity.ecs.PropPose
 import net.bestia.zone.world.WorldService
 import org.springframework.stereotype.Component as SpringComponent
 

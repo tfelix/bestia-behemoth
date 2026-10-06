@@ -1,4 +1,4 @@
-package net.bestia.zone.ecs.prop
+package net.bestia.zone.entity.ecs
 
 import net.bestia.zone.ecs.core.Component
 import net.bestia.zone.geometry.Vec3L

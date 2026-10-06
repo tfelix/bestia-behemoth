@@ -1,6 +1,6 @@
 package net.bestia.zone.crafting
 
-import net.bestia.zone.world.prop.StaticEntityKind
+import net.bestia.zone.entity.StaticEntityKind
 
 /**
  * One thing a crafter can do at a station, loaded from `recipes.yml`.

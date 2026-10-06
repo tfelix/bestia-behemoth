@@ -18,9 +18,9 @@ import net.bestia.zone.ecs.battle.status.Stamina
 import net.bestia.zone.ecs.battle.status.StatusValues
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.movement.Speed
-import net.bestia.zone.ecs.entity.EntityVisual
-import net.bestia.zone.ecs.entity.VisualKind
-import net.bestia.zone.ecs.entity.Animation
+import net.bestia.zone.entity.ecs.EntityVisual
+import net.bestia.zone.entity.ecs.VisualKind
+import net.bestia.zone.entity.ecs.Animation
 import net.bestia.zone.persistence.Persistent
 import net.bestia.zone.ecs.spawn.DenMember
 import net.bestia.zone.util.EntityId

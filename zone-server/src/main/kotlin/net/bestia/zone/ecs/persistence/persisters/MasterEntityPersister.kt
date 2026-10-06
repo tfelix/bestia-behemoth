@@ -4,8 +4,8 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.account.master.Master
 import net.bestia.zone.account.master.MasterRepository
 import net.bestia.zone.account.master.skill.MasterSkillTreeRegistry
-import net.bestia.zone.ecs.account.Master as MasterComponent
-import net.bestia.zone.ecs.battle.damage.Dead
+import net.bestia.zone.identity.ecs.Master as MasterComponent
+import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.ecs.battle.exp.Exp
 import net.bestia.zone.ecs.battle.level.Level
 import net.bestia.zone.ecs.battle.skill.KnownSkills

@@ -3,7 +3,7 @@ package net.bestia.zone.account.master
 import net.bestia.zone.account.Account
 import net.bestia.zone.account.AccountRepository
 import net.bestia.zone.account.findByIdOrThrow
-import net.bestia.zone.ecs.account.OwnedBestia
+import net.bestia.zone.identity.ecs.OwnedBestia
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.util.AccountId
 import net.bestia.zone.world.MasterSpawnPointService

@@ -9,6 +9,7 @@ import net.bestia.zone.world.WorldService
 import net.bestia.zone.world.stream.ChunkCoords
 import org.springframework.stereotype.Component
 import kotlin.math.abs
+import net.bestia.zone.entity.StaticEntityKind
 
 /**
  * Everything the generator puts on the ground: trees, mana crystals, wound spires, landmarks, buildings.

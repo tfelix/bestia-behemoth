@@ -6,7 +6,7 @@ import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.battle.status.Mana
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.party.AlreadyInPartyException
-import net.bestia.zone.party.PartyMembership
+import net.bestia.zone.identity.ecs.PartyMembership
 import net.bestia.zone.party.PartyService
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Order

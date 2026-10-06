@@ -1,13 +1,13 @@
 package net.bestia.zone.environment.weather
 
-import net.bestia.zone.ecs.account.ActivePlayer
+import net.bestia.zone.identity.ecs.ActivePlayer
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.movement.Position
-import net.bestia.zone.ecs.account.Account
+import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.ecs.battle.skill.KnownSkills
 import net.bestia.zone.world.stream.ChunkStreamSystem
 import org.springframework.stereotype.Component as SpringComponent

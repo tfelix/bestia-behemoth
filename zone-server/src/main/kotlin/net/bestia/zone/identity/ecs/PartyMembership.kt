@@ -1,12 +1,13 @@
-package net.bestia.zone.party
+package net.bestia.zone.identity.ecs
 
 import net.bestia.zone.ecs.core.Component
+import net.bestia.zone.party.Party
 
 /**
  * Marks a master entity as being part of a party, caching the current roster's account ids so
  * other components (e.g. [net.bestia.zone.ecs.battle.status.Health]/[net.bestia.zone.ecs.battle.status.Mana])
  * can resolve party-wide sync targets with a plain component read instead of a DB lookup from the
- * tick thread. Kept up to date by [PartyService] on every join/leave/kick/disband, once it has committed, and
+ * tick thread. Kept up to date by [net.bestia.zone.party.PartyService] on every join/leave/kick/disband, once it has committed, and
  * added by `MasterEntitySpawner` when a member logs in.
  */
 data class PartyMembership(

@@ -4,13 +4,13 @@ import io.mockk.every
 import io.mockk.mockk
 import net.bestia.zone.aoi.EntityAOIService
 import net.bestia.zone.ecs.battle.damage.Damage
-import net.bestia.zone.ecs.battle.damage.Dead
+import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.ecs.movement.Position
-import net.bestia.zone.ecs.prop.PropPose
-import net.bestia.zone.ecs.prop.PropVitality
-import net.bestia.zone.ecs.prop.WorldObjectIdentity
+import net.bestia.zone.entity.ecs.PropPose
+import net.bestia.zone.entity.ecs.PropVitality
+import net.bestia.zone.entity.ecs.WorldObjectIdentity
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.util.EntityId

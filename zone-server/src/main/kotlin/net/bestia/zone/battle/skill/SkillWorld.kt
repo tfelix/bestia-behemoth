@@ -7,7 +7,7 @@ import net.bestia.zone.ecs.battle.effects.AreaEffect
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
-import net.bestia.zone.world.prop.StaticEntityKind
+import net.bestia.zone.entity.StaticEntityKind
 import net.bestia.zone.world.spoor.TrackReading
 
 /**

@@ -1,7 +1,7 @@
 package net.bestia.zone.aoi
 
-import net.bestia.zone.ecs.account.Account
-import net.bestia.zone.ecs.account.ActivePlayer
+import net.bestia.zone.identity.ecs.Account
+import net.bestia.zone.identity.ecs.ActivePlayer
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.util.AccountId
 import net.bestia.zone.util.EntityId

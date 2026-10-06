@@ -2,7 +2,7 @@ package net.bestia.zone.ecs.battle.damage
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.config.WorldRulesConfig
-import net.bestia.zone.ecs.account.Account
+import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.ecs.battle.attack.AttackTarget
 import net.bestia.zone.ecs.battle.exp.Exp
 import net.bestia.zone.ecs.core.ComponentClassSet
@@ -14,6 +14,7 @@ import net.bestia.zone.world.prop.PlayerStructureDeathSystem
 import net.bestia.zone.world.prop.PropDeathDivergenceSystem
 import org.springframework.stereotype.Component as SpringComponent
 import kotlin.math.floor
+import net.bestia.zone.entity.ecs.Dead
 
 /**
  * Charges a player-owned entity for its own death, once, and leaves the body lying there.

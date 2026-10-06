@@ -7,7 +7,7 @@ import net.bestia.zone.battle.damage.Heal
 import net.bestia.zone.battle.damage.Miss
 import net.bestia.zone.battle.status.AttackSpeed
 import net.bestia.zone.ecs.battle.attack.AttackDelay
-import net.bestia.zone.ecs.battle.damage.Dead
+import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.ecs.battle.effects.StatusEffects
 import net.bestia.zone.ecs.battle.level.Level
 import net.bestia.zone.ecs.battle.status.CombatBonus
@@ -20,9 +20,9 @@ import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.item.Equipment
 import net.bestia.zone.ecs.movement.Grounded
 import net.bestia.zone.ecs.movement.Position
-import net.bestia.zone.ecs.prop.PropPose
-import net.bestia.zone.ecs.prop.PropVitality
-import net.bestia.zone.ecs.prop.WorldObjectIdentity
+import net.bestia.zone.entity.ecs.PropPose
+import net.bestia.zone.entity.ecs.PropVitality
+import net.bestia.zone.entity.ecs.WorldObjectIdentity
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Service

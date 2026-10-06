@@ -3,15 +3,16 @@ package net.bestia.zone.world.prop
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import net.bestia.zone.ecs.battle.damage.Dead
+import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.ecs.movement.Position
-import net.bestia.zone.ecs.prop.StaticVisual
-import net.bestia.zone.ecs.prop.WorldObjectIdentity
+import net.bestia.zone.entity.ecs.StaticVisual
+import net.bestia.zone.entity.ecs.WorldObjectIdentity
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.item.loot.LootItemEntitySpawner
 import org.junit.jupiter.api.Test
 import java.time.Instant
+import net.bestia.zone.entity.StaticEntityKind
 
 /** What a promoted prop's death records about the durable object it was. */
 class PropDeathDivergenceSystemTest {

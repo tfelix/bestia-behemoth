@@ -4,7 +4,7 @@ import net.bestia.zone.ai.core.state.HourWindow
 import net.bestia.zone.ai.domain.townsfolk.Occupation
 import net.bestia.zone.ai.domain.townsfolk.TownsfolkDomain
 import net.bestia.zone.ai.perception.SettlementFood
-import net.bestia.zone.ecs.entity.Animation
+import net.bestia.zone.entity.ecs.Animation
 import net.bestia.zone.geometry.Vec3L
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue

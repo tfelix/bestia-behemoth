@@ -1,7 +1,7 @@
 package net.bestia.zone.ecs.logout
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.ecs.account.Account
+import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.Schedule

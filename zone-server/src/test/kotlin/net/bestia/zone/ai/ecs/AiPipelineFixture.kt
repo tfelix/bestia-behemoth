@@ -29,13 +29,13 @@ import net.bestia.zone.battle.skill.SkillExecutionService
 import net.bestia.zone.aoi.ActivePlayerAOIService
 import net.bestia.zone.aoi.EntityAOIService
 import net.bestia.zone.config.WorldRulesConfig
-import net.bestia.zone.ecs.account.Master
+import net.bestia.zone.identity.ecs.Master
 import net.bestia.zone.ecs.battle.damage.TakenDamage
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.spawn.ambient.AmbientSpawnConfig
 import net.bestia.zone.ecs.core.testWorld
-import net.bestia.zone.ecs.entity.Animation
+import net.bestia.zone.entity.ecs.Animation
 import net.bestia.zone.ecs.movement.MoveSystem
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.movement.Speed

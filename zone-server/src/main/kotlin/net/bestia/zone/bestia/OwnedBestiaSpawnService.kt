@@ -1,7 +1,7 @@
 package net.bestia.zone.bestia
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.ecs.account.OwnedBestia
+import net.bestia.zone.identity.ecs.OwnedBestia
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.util.AccountId

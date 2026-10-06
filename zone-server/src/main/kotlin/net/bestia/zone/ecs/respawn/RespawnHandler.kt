@@ -2,7 +2,7 @@ package net.bestia.zone.ecs.respawn
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
-import net.bestia.zone.ecs.battle.damage.Dead
+import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.message.IoMessageHandler

@@ -1,7 +1,7 @@
 package net.bestia.zone.ai.ecs
 
 import net.bestia.zone.ai.domain.bestia.BestiaDomain
-import net.bestia.zone.ecs.entity.Animation
+import net.bestia.zone.entity.ecs.Animation
 import net.bestia.zone.geometry.Vec3L
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals

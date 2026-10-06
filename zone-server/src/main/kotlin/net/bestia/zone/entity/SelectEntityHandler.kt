@@ -4,7 +4,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.zone.ai.ecs.PlayerControlled
 import net.bestia.zone.aoi.ActivePlayerAOIService
-import net.bestia.zone.ecs.account.ActivePlayer
+import net.bestia.zone.identity.ecs.ActivePlayer
 import net.bestia.zone.ecs.battle.attack.AttackCancelService
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.modify

@@ -4,15 +4,15 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import net.bestia.bnet.proto.OperationErrorProto
-import net.bestia.zone.ecs.account.Account
+import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.ecs.item.ObtainItemIntent
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.prop.CollectPropIntent
-import net.bestia.zone.ecs.prop.PropPose
-import net.bestia.zone.ecs.prop.StaticVisual
-import net.bestia.zone.ecs.prop.WorldObjectIdentity
+import net.bestia.zone.entity.ecs.PropPose
+import net.bestia.zone.entity.ecs.StaticVisual
+import net.bestia.zone.entity.ecs.WorldObjectIdentity
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OutMessageProcessor
@@ -24,6 +24,7 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import net.bestia.zone.ecs.core.EcsWorld
+import net.bestia.zone.entity.StaticEntityKind
 
 /**
  * Taking a prop into the inventory with a click.

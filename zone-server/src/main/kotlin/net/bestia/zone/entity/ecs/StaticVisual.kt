@@ -1,7 +1,7 @@
-package net.bestia.zone.ecs.prop
+package net.bestia.zone.entity.ecs
 
 import net.bestia.zone.ecs.core.Component
-import net.bestia.zone.world.prop.StaticEntityKind
+import net.bestia.zone.entity.StaticEntityKind
 
 /**
  * What a static entity looks like.

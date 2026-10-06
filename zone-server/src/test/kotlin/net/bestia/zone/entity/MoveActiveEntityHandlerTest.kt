@@ -5,7 +5,7 @@ import net.bestia.zone.ecs.battle.skill.CastCancelService
 import net.bestia.zone.config.WorldRulesConfig
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.testWorld
-import net.bestia.zone.ecs.battle.damage.DeadActionGuard
+import net.bestia.zone.entity.ecs.DeadActionGuard
 import net.bestia.zone.ecs.logout.LogoutCancelService
 import net.bestia.zone.ecs.movement.Path
 import net.bestia.zone.ecs.movement.Position

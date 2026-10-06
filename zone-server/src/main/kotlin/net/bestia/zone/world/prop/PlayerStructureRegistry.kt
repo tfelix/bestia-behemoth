@@ -4,6 +4,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.geometry.Vec3L
 import org.springframework.stereotype.Service
+import net.bestia.zone.entity.StaticEntityKind
 
 /** In-memory mirror of one [PlayerStructure] row, for the tick thread to read without a DB hit. */
 data class StructureEntry(

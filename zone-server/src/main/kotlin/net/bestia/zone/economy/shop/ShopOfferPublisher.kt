@@ -1,6 +1,6 @@
 package net.bestia.zone.economy.shop
 
-import net.bestia.zone.ecs.account.Account
+import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.economy.CommodityItems
 import net.bestia.zone.economy.Shop

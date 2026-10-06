@@ -9,10 +9,10 @@ import net.bestia.zone.ai.core.planner.EffectWriteBack
 import net.bestia.zone.battle.skill.AttackExecutionService
 import net.bestia.zone.config.WorldRulesConfig
 import net.bestia.zone.ecs.battle.damage.Damage
-import net.bestia.zone.ecs.battle.damage.Dead
+import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.ecs.battle.skill.KnownSkills
 import net.bestia.zone.ecs.core.Phase
-import net.bestia.zone.ecs.entity.Animation
+import net.bestia.zone.entity.ecs.Animation
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.battle.status.Mana
 import net.bestia.zone.ecs.core.ComponentClassSet

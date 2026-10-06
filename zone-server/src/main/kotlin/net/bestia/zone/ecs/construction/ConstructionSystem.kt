@@ -1,19 +1,19 @@
 package net.bestia.zone.ecs.construction
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.ecs.battle.damage.Dead
+import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.movement.Position
-import net.bestia.zone.ecs.prop.PlayerStructureIdentity
-import net.bestia.zone.ecs.prop.PropPose
-import net.bestia.zone.ecs.prop.PropVitality
-import net.bestia.zone.ecs.prop.StaticSync
-import net.bestia.zone.ecs.prop.StaticVisual
-import net.bestia.zone.ecs.prop.WorldObjectIdentity
+import net.bestia.zone.entity.ecs.PlayerStructureIdentity
+import net.bestia.zone.entity.ecs.PropPose
+import net.bestia.zone.entity.ecs.PropVitality
+import net.bestia.zone.entity.ecs.StaticSync
+import net.bestia.zone.entity.ecs.StaticVisual
+import net.bestia.zone.entity.ecs.WorldObjectIdentity
 import net.bestia.zone.ecs.respawn.RespawnSystem
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.world.prop.PlayerStructureRegistry

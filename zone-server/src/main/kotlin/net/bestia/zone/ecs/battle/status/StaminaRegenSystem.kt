@@ -1,7 +1,7 @@
 package net.bestia.zone.ecs.battle.status
 
 import net.bestia.zone.battle.status.RegenerationCalculator
-import net.bestia.zone.ecs.battle.damage.Dead
+import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.Schedule

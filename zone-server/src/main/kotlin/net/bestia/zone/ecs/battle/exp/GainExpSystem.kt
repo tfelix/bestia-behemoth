@@ -5,7 +5,7 @@ import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.ecs.account.Master
+import net.bestia.zone.identity.ecs.Master
 import net.bestia.zone.ecs.battle.level.Level
 import net.bestia.zone.ecs.battle.level.LevelUpExperienceCalculator
 import net.bestia.zone.ecs.battle.status.IsStatusValueDirty

@@ -2,7 +2,7 @@ package net.bestia.zone.ecs.spawn
 
 import io.mockk.mockk
 import net.bestia.zone.bestia.BestiaEntitySpawner
-import net.bestia.zone.ecs.entity.EntityVisual
+import net.bestia.zone.entity.ecs.EntityVisual
 import net.bestia.zone.ecs.core.SnowflakeEntityIdGenerator
 import net.bestia.zone.ecs.core.EcsWorld
 import net.bestia.zone.ecs.core.World

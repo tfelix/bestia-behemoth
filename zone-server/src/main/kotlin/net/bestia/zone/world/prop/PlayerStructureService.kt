@@ -6,11 +6,12 @@ import net.bestia.zone.aoi.EntityAOIService
 import net.bestia.zone.ecs.construction.ConstructionSite
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.ecs.prop.StaticVisual
+import net.bestia.zone.entity.ecs.StaticVisual
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.world.WorldService
 import org.springframework.stereotype.Service
+import net.bestia.zone.entity.StaticEntityKind
 
 /**
  * Puts a crafting station up, and answers whether one is standing near enough to work at.

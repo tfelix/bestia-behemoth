@@ -10,8 +10,6 @@ import net.bestia.zone.aoi.EntityAOIService
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.ecs.movement.GroundHeight
-import net.bestia.zone.ecs.prop.PropPose
-import net.bestia.zone.ecs.prop.StaticVisual
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.SMSG
 import net.bestia.zone.message.ChunkFanOut
@@ -27,6 +25,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import net.bestia.zone.entity.StaticEntityKind
 
 /**
  * What happens to a tree when the ground under it is dug away.

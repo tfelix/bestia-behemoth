@@ -8,7 +8,7 @@ import net.bestia.zone.ai.profile.AiProfileRegistry
 import net.bestia.zone.aoi.AoiLayer
 import net.bestia.zone.aoi.EntityAOIService
 import net.bestia.zone.config.WorldRulesConfig
-import net.bestia.zone.ecs.account.Master
+import net.bestia.zone.identity.ecs.Master
 import net.bestia.zone.ecs.battle.damage.TakenDamage
 import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.ecs.battle.effects.StatusEffects

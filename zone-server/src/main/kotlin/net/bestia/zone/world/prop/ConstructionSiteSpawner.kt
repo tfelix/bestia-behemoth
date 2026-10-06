@@ -5,10 +5,10 @@ import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.battle.status.StatusValues
 import net.bestia.zone.ecs.construction.ConstructionSite
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.ecs.entity.EntityVisual
-import net.bestia.zone.ecs.entity.VisualKind
+import net.bestia.zone.entity.ecs.EntityVisual
+import net.bestia.zone.entity.ecs.VisualKind
 import net.bestia.zone.ecs.movement.Position
-import net.bestia.zone.ecs.prop.PlayerStructureIdentity
+import net.bestia.zone.entity.ecs.PlayerStructureIdentity
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
 

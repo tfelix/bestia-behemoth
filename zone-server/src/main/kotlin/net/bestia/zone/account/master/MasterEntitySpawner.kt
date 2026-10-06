@@ -19,17 +19,17 @@ import net.bestia.zone.ecs.item.Inventory
 import net.bestia.zone.item.equip.EquipmentSlots
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.movement.Speed
-import net.bestia.zone.ecs.account.Account
-import net.bestia.zone.ecs.account.ActivePlayer
+import net.bestia.zone.identity.ecs.Account
+import net.bestia.zone.identity.ecs.ActivePlayer
 import net.bestia.zone.ecs.place.Place
 import net.bestia.zone.ecs.place.PlaceNameService
-import net.bestia.zone.ecs.account.Master as MasterComponent
+import net.bestia.zone.identity.ecs.Master as MasterComponent
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.ecs.battle.level.Level
 import net.bestia.zone.ecs.battle.status.SkillPoints
 import net.bestia.zone.ecs.battle.status.StatusPoints
 import net.bestia.zone.ecs.account.MasterVisual
-import net.bestia.zone.ecs.account.OwnedBestia
+import net.bestia.zone.identity.ecs.OwnedBestia
 import net.bestia.zone.ecs.battle.exp.Exp
 import net.bestia.zone.ecs.battle.level.LevelUpExperienceCalculator
 import net.bestia.zone.ecs.logout.DisconnectProtection
@@ -40,7 +40,7 @@ import net.bestia.zone.ecs.persistence.StatusEffectPersistenceService
 import net.bestia.zone.util.AccountId
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.ecs.core.WorldView
-import net.bestia.zone.party.PartyMembership
+import net.bestia.zone.identity.ecs.PartyMembership
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional

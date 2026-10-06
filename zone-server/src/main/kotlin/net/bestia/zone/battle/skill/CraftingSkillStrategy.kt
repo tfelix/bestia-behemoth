@@ -3,7 +3,7 @@ package net.bestia.zone.battle.skill
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.battle.LineOfSightService
 import net.bestia.zone.battle.damage.Damage
-import net.bestia.zone.world.prop.StaticEntityKind
+import net.bestia.zone.entity.StaticEntityKind
 
 /**
  * The shape every skill in the Craftsman and Blacksmith trees has: aim it at the ground and either a station

@@ -1,11 +1,11 @@
 package net.bestia.zone.engine
 
-import net.bestia.zone.ecs.account.Account
+import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.core.testWorld
-import net.bestia.zone.ecs.entity.EntityVisual
-import net.bestia.zone.ecs.entity.VisualComponentSMSG
-import net.bestia.zone.ecs.entity.VisualKind
+import net.bestia.zone.entity.ecs.EntityVisual
+import net.bestia.zone.entity.ecs.VisualComponentSMSG
+import net.bestia.zone.entity.ecs.VisualKind
 import net.bestia.zone.ecs.item.Inventory
 import net.bestia.zone.ecs.item.InventoryComponentSMSG
 import net.bestia.zone.ecs.movement.Path

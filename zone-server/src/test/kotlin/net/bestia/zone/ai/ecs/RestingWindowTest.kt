@@ -3,7 +3,7 @@ package net.bestia.zone.ai.ecs
 import net.bestia.zone.ai.core.state.CommonKeys
 import net.bestia.zone.ai.core.state.RestingWindow
 import net.bestia.zone.ecs.battle.status.Health
-import net.bestia.zone.ecs.entity.Animation
+import net.bestia.zone.entity.ecs.Animation
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.movement.Speed
 import net.bestia.zone.battle.status.AttackSpeed

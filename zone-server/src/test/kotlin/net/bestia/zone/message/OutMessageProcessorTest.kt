@@ -4,8 +4,8 @@ import io.mockk.mockk
 import net.bestia.bnet.proto.EnvelopeProto
 import net.bestia.zone.aoi.ActivePlayerAOIService
 import net.bestia.zone.ecs.RecordingEntityVisibility
-import net.bestia.zone.ecs.account.Account
-import net.bestia.zone.ecs.account.ActivePlayer
+import net.bestia.zone.identity.ecs.Account
+import net.bestia.zone.identity.ecs.ActivePlayer
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.aoi.EntityAudience
 import org.junit.jupiter.api.Test

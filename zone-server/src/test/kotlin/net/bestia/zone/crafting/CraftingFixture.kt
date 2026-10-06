@@ -2,8 +2,8 @@ package net.bestia.zone.crafting
 
 import io.mockk.every
 import io.mockk.mockk
-import net.bestia.zone.ecs.account.Account
-import net.bestia.zone.ecs.account.Master
+import net.bestia.zone.identity.ecs.Account
+import net.bestia.zone.identity.ecs.Master
 import net.bestia.zone.ecs.battle.skill.KnownSkills
 import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.ecs.core.testWorld
@@ -19,7 +19,7 @@ import net.bestia.zone.skill.Skill
 import net.bestia.zone.skill.SkillRepository
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.world.prop.PlayerStructureService
-import net.bestia.zone.world.prop.StaticEntityKind
+import net.bestia.zone.entity.StaticEntityKind
 import net.bestia.zone.ecs.core.EcsWorld
 
 /**

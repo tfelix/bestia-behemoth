@@ -1,4 +1,4 @@
-package net.bestia.zone.world.prop
+package net.bestia.zone.entity
 
 import net.bestia.worldgen.civ.BuildingFunction
 import net.bestia.worldgen.poi.PoiKind

@@ -4,7 +4,7 @@ import net.bestia.zone.battle.skill.AttackExecutionService
 import net.bestia.zone.battle.skill.AttackOutcome
 import net.bestia.zone.battle.skill.BattleAttack
 import net.bestia.zone.ecs.battle.damage.Damage
-import net.bestia.zone.ecs.battle.damage.Dead
+import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.ecs.battle.effects.AreaEffectSystem
 import net.bestia.zone.ecs.battle.status.StatusValues
 import net.bestia.zone.ecs.core.ComponentClassSet

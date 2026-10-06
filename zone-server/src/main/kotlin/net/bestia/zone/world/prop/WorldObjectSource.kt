@@ -2,6 +2,7 @@ package net.bestia.zone.world.prop
 
 import net.bestia.worldgen.core.ChunkPos
 import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.entity.StaticEntityKind
 
 /**
  * One static entity to be placed, in the ECS's own units.

@@ -5,7 +5,7 @@ import net.bestia.zone.ecs.core.Component
 /**
  * The durable name of a den, and the world it is a den of.
  *
- * The direct counterpart of [net.bestia.zone.ecs.prop.WorldObjectIdentity], and it exists for the same
+ * The direct counterpart of [net.bestia.zone.entity.ecs.WorldObjectIdentity], and it exists for the same
  * reason: a den's **entity id is not its name**. `WildSpawnerBootRunner` recreates every den from the
  * generator's markers on every boot, so a den's id is a fresh snowflake each time and nothing that has to
  * outlive a restart can be keyed on it. [featureId] - worldgen's own deterministic name for the marker,

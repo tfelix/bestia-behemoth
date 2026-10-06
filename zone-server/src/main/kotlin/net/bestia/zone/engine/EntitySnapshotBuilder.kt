@@ -5,7 +5,7 @@ import net.bestia.zone.ecs.account.MasterVisual
 import net.bestia.zone.sync.Dirtyable
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.sync.dirtyableComponentTypes
-import net.bestia.zone.ecs.entity.EntityVisual
+import net.bestia.zone.entity.ecs.EntityVisual
 import net.bestia.zone.ecs.movement.Path
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.movement.Speed

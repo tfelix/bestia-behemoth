@@ -4,7 +4,7 @@ import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.zone.battle.skill.AttackExecutionService
 import net.bestia.zone.battle.skill.BattleAttack
 import net.bestia.zone.ecs.battle.attack.AttackTarget
-import net.bestia.zone.ecs.battle.damage.DeadActionGuard
+import net.bestia.zone.entity.ecs.DeadActionGuard
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.modify
 import net.bestia.zone.session.ConnectionInfoService

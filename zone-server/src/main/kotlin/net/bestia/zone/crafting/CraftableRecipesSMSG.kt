@@ -3,7 +3,7 @@ package net.bestia.zone.crafting
 import net.bestia.bnet.proto.CraftableRecipesSmsgProto
 import net.bestia.bnet.proto.EnvelopeProto
 import net.bestia.zone.message.SMSG
-import net.bestia.zone.world.prop.StaticEntityKind
+import net.bestia.zone.entity.StaticEntityKind
 
 /**
  * What the caster can make with the skill they just activated, at the station they are standing next to.

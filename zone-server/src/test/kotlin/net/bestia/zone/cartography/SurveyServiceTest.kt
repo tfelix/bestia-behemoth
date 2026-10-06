@@ -4,7 +4,7 @@ import io.mockk.every
 import io.mockk.mockk
 import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.cartography.chart.ChartService
-import net.bestia.zone.ecs.account.Master
+import net.bestia.zone.identity.ecs.Master
 import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.ecs.item.Inventory

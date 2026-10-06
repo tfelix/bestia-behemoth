@@ -7,16 +7,17 @@ import net.bestia.zone.ecs.battle.status.StatusValues
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.ecs.movement.Position
-import net.bestia.zone.ecs.prop.PropPose
-import net.bestia.zone.ecs.prop.PropVitality
-import net.bestia.zone.ecs.prop.StaticSync
-import net.bestia.zone.ecs.prop.WorldObjectIdentity
+import net.bestia.zone.entity.ecs.PropPose
+import net.bestia.zone.entity.ecs.PropVitality
+import net.bestia.zone.entity.ecs.StaticSync
+import net.bestia.zone.entity.ecs.WorldObjectIdentity
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import net.bestia.zone.entity.StaticEntityKind
 
 /**
  * Promotion: turning a static prop into an attackable entity the first time something targets or damages it.

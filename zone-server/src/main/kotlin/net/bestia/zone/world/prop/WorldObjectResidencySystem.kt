@@ -5,11 +5,11 @@ import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.ecs.prop.PropPose
-import net.bestia.zone.ecs.prop.PropVitality
-import net.bestia.zone.ecs.prop.StaticSync
-import net.bestia.zone.ecs.prop.StaticVisual
-import net.bestia.zone.ecs.prop.WorldObjectIdentity
+import net.bestia.zone.entity.ecs.PropPose
+import net.bestia.zone.entity.ecs.PropVitality
+import net.bestia.zone.entity.ecs.StaticSync
+import net.bestia.zone.entity.ecs.StaticVisual
+import net.bestia.zone.entity.ecs.WorldObjectIdentity
 import net.bestia.zone.world.stream.ChunkStreamConfig
 import net.bestia.zone.world.stream.ChunkStreamSystem
 import org.springframework.stereotype.Component

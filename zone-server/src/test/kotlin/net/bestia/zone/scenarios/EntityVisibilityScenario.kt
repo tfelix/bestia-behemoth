@@ -14,9 +14,9 @@ import net.bestia.zone.world.stream.ChunkRequestCMSG
 import net.bestia.zone.world.stream.ChunkService
 import net.bestia.zone.world.stream.ChunkSubscriptionService
 import net.bestia.zone.session.ConnectionInfoService
-import net.bestia.zone.ecs.entity.EntityVisual
-import net.bestia.zone.ecs.entity.VisualComponentSMSG
-import net.bestia.zone.ecs.entity.VisualKind
+import net.bestia.zone.entity.ecs.EntityVisual
+import net.bestia.zone.entity.ecs.VisualComponentSMSG
+import net.bestia.zone.entity.ecs.VisualKind
 import net.bestia.zone.ecs.movement.Grounded
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.movement.PositionSMSG
