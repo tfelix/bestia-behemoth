@@ -27,6 +27,7 @@ import net.bestia.zone.entity.StaticEntityKind
 import org.springframework.stereotype.Service
 import kotlin.math.roundToInt
 import kotlin.random.Random
+import net.bestia.zone.casting.RecipeOffering
 
 /**
  * Everything a craft is: what a crafter can make here, starting one, and what happens when it resolves.
@@ -62,7 +63,7 @@ class CraftingService(
   private val itemTemplates: ItemTemplateRegistry,
   private val commodities: CommodityItems,
   private val reserve: CoinReserve,
-) {
+) : RecipeOffering {
 
   /**
    * Answers "what can I make here" for the skill that was just activated.
@@ -72,7 +73,7 @@ class CraftingService(
    * is a recipe whose station is missing, whose skill rank is too low, or whose output is above the tier this
    * crafter can reach - those are not near-misses, they are somewhere else entirely.
    */
-  fun offerRecipes(world: World, casterId: EntityId, skillId: Long) {
+  override fun offerRecipes(world: World, casterId: EntityId, skillId: Long) {
     val accountId = world.get(casterId, Account::class)?.accountId ?: return
     val known = world.get(casterId, KnownSkills::class)
     val inventory = world.get(casterId, Inventory::class)
