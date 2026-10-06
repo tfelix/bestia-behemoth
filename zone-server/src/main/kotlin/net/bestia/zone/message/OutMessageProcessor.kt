@@ -1,20 +1,15 @@
 package net.bestia.zone.message
 
-import net.bestia.zone.aoi.ActivePlayerAOIService
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.aoi.EntityAudience
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
-import net.bestia.zone.world.stream.InterestRange
 import org.springframework.stereotype.Component
 
 @Component
 class OutMessageProcessor(
-  private val playerAOIService: ActivePlayerAOIService,
+  private val recipients: Recipients,
   private val outMessageHandler: OutMessageHandler,
-  private val interestRange: InterestRange,
   private val outbox: TickOutbox,
-  private val entityAudience: EntityAudience,
 ) {
 
   /**
@@ -22,7 +17,7 @@ class OutMessageProcessor(
    * goes to. Tick thread only: the audience is read from the world.
    */
   fun sendToObserversOf(world: World, entityId: EntityId, msg: SMSG) {
-    val audience = entityAudience.of(world, entityId).toList()
+    val audience = recipients.observersOf(world, entityId).toList()
 
     audience.forEach { accountId -> sendToPlayer(accountId, msg) }
   }
@@ -30,13 +25,13 @@ class OutMessageProcessor(
   fun sendToAllPlayersInRange(pos: Vec3L, msgs: Collection<SMSG>) {
     if (msgs.isEmpty()) return
 
-    val accountIdsInRange = playerAOIService.queryEntitiesInCube(pos, interestRange.cubeEdge)
+    val accountIdsInRange = recipients.inRangeOf(pos)
 
     accountIdsInRange.forEach { accountIdInRange -> sendToPlayer(accountIdInRange, msgs) }
   }
 
   fun sendToAllPlayersInRange(pos: Vec3L, msg: SMSG) {
-    val accountIdsInRange = playerAOIService.queryEntitiesInCube(pos, interestRange.cubeEdge)
+    val accountIdsInRange = recipients.inRangeOf(pos)
 
     accountIdsInRange.forEach { accountIdInRange ->
       sendToPlayer(accountIdInRange, msg)

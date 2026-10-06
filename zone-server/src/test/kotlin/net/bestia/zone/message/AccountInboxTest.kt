@@ -4,7 +4,6 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import net.bestia.zone.ecs.core.testWorld
-import net.bestia.zone.socket.ChannelRegistry
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.ObjectProvider
@@ -17,9 +16,9 @@ import kotlin.test.assertTrue
 class AccountInboxTest {
 
   private val world = testWorld()
-  private val registry = mockk<ChannelRegistry>(relaxed = true)
-  private val channels = mockk<ObjectProvider<ChannelRegistry>>().also { every { it.ifAvailable } returns registry }
-  private val sut = AccountInbox(world, TickOutbox(mockk(relaxed = true)), channels)
+  private val terminator = mockk<ConnectionTerminator>(relaxed = true)
+  private val connections = mockk<ObjectProvider<ConnectionTerminator>>().also { every { it.ifAvailable } returns terminator }
+  private val sut = AccountInbox(world, TickOutbox(mockk(relaxed = true)), connections)
 
   @AfterEach
   fun shutDown() {
@@ -65,7 +64,7 @@ class AccountInboxTest {
 
     repeat(AccountInbox.CAPACITY + 1) { sut.onIo(1L) { } }
 
-    verify { registry.disconnect(1L, "INBOX_OVERFLOW") }
+    verify { terminator.disconnect(1L, "INBOX_OVERFLOW") }
     assertEquals(1L, sut.overflowCount)
     release.countDown()
   }
@@ -90,7 +89,7 @@ class AccountInboxTest {
 
     next.get(2, TimeUnit.SECONDS)
 
-    verify { registry.disconnect(1L, match { it.startsWith("INTERNAL_SERVER_ERROR:") }) }
+    verify { terminator.disconnect(1L, match { it.startsWith("INTERNAL_SERVER_ERROR:") }) }
     assertTrue(next.isDone)
   }
 }
