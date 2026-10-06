@@ -18,6 +18,7 @@ import net.bestia.zone.world.MasterSpawnPointService
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
+import net.bestia.zone.ecs.core.ComponentClassSet
 
 /** Static state of a script entity - position plus the id of the script that governs it. */
 data class ScriptEntitySnapshot(
@@ -50,6 +51,8 @@ class ScriptEntityPersister(
 
   override val kind = ScriptComponent.KIND
   override val loadsAtStartup = true
+
+  override val reads: ComponentClassSet = setOf(ScriptComponent::class, Position::class)
 
   override fun supports(world: World, id: EntityId): Boolean = world.has(id, ScriptComponent::class)
 

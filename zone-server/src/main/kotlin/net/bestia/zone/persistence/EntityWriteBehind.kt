@@ -1,22 +1,12 @@
 package net.bestia.zone.persistence
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.identity.ecs.Account
-import net.bestia.zone.battle.ecs.effects.StatusEffects
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.entity.ecs.EntityVisual
-import net.bestia.zone.item.ecs.GroundItemStack
-import net.bestia.zone.master.persistence.MasterEntityPersister
-import net.bestia.zone.master.persistence.PlayerBestiaEntityPersister
-import net.bestia.zone.script.ecs.ScriptComponent
-import net.bestia.zone.spawn.ecs.DenMember
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Service
 import java.util.concurrent.ConcurrentHashMap
 import net.bestia.zone.util.inClassNameOrder
-import net.bestia.zone.battle.persistence.StatusEffectPersistenceService
-import net.bestia.zone.battle.persistence.StatusEffectsSnapshot
 
 /**
  * Takes entity snapshots where the world may be read, and writes them off the tick. All writes about
@@ -25,11 +15,14 @@ import net.bestia.zone.battle.persistence.StatusEffectsSnapshot
 @Service
 class EntityWriteBehind(
   foundPersisters: List<EntityPersister>,
-  private val statusEffects: StatusEffectPersistenceService,
+  private val statusEffects: EntitySidecar,
   private val asyncJobExecutor: AsyncJobExecutor,
 ) {
 
   private val persisters = foundPersisters.inClassNameOrder()
+
+  /** What [persist] reads: every persister's `supports` check and snapshot, and the status effects. */
+  val reads: ComponentClassSet = persisters.flatMap { it.reads }.toSet() + statusEffects.reads
 
   /**
    * What was last queued for each entity. A periodic save compares against it and skips what has not
@@ -91,18 +84,18 @@ class EntityWriteBehind(
   }
 
   /** Status effects are compared too: a buff that ran out is a change even when nothing else moved. */
-  private data class Queued(val snapshot: EntitySnapshot?, val effects: StatusEffectsSnapshot?)
+  private data class Queued(val snapshot: EntitySnapshot?, val effects: EntitySnapshot?)
 
   private class WriteJob {
     val ids = mutableListOf<EntityId>()
     private val snapshots = LinkedHashMap<EntityPersister, MutableList<EntitySnapshot>>()
-    val effects = mutableListOf<StatusEffectsSnapshot>()
+    val effects = mutableListOf<EntitySnapshot>()
 
     fun add(persister: EntityPersister, snapshot: EntitySnapshot) {
       snapshots.getOrPut(persister) { mutableListOf() }.add(snapshot)
     }
 
-    fun write(statusEffects: StatusEffectPersistenceService) {
+    fun write(statusEffects: EntitySidecar) {
       snapshots.forEach { (persister, batch) -> persister.persist(batch) }
       if (effects.isNotEmpty()) {
         statusEffects.persist(effects)
@@ -112,11 +105,5 @@ class EntityWriteBehind(
 
   companion object {
     private val LOG = KotlinLogging.logger { }
-
-    /** What [persist] reads: every persister's `supports` check and snapshot, and the status effects. */
-    val READS: ComponentClassSet = setOf(
-      Account::class, EntityVisual::class, GroundItemStack::class, ScriptComponent::class, DenMember::class,
-      StatusEffects::class,
-    ) + MasterEntityPersister.SNAPSHOT_READS + PlayerBestiaEntityPersister.SNAPSHOT_READS
   }
 }

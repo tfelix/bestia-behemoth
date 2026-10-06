@@ -25,7 +25,7 @@ class GainExpSystem(
   override val reads: ComponentClassSet = setOf(
     Master::class,
     GainExp::class
-  ) + EntityWriteBehind.READS
+  ) + writeBehind.reads
 
   override val writes: ComponentClassSet = setOf(
     Exp::class,

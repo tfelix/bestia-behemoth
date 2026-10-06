@@ -3,12 +3,12 @@ package net.bestia.zone.persistence
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.util.EntityId
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
-import net.bestia.zone.battle.persistence.StatusEffectPersistenceService
 
 class EntityWriteBehindTest {
 
@@ -31,6 +31,7 @@ class EntityWriteBehindTest {
   private val persister = object : EntityPersister {
     override val kind = "test"
     override val loadsAtStartup = false
+    override val reads: ComponentClassSet = emptySet()
     override fun supports(world: World, id: EntityId): Boolean {
       return true
     }
@@ -50,7 +51,8 @@ class EntityWriteBehindTest {
     override fun loadAll(world: World) = Unit
   }
 
-  private val statusEffects = mockk<StatusEffectPersistenceService>(relaxed = true).also {
+  private val statusEffects = mockk<EntitySidecar>(relaxed = true).also {
+    every { it.reads } returns emptySet()
     every { it.snapshot(any(), any()) } returns null
   }
 

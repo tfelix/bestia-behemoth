@@ -24,6 +24,7 @@ import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
 import net.bestia.zone.ecs.core.modify
+import net.bestia.zone.ecs.core.ComponentClassSet
 
 /** Minimal mutable state of a world mob; static stats are re-derived from the bestia template on load. */
 data class MobSnapshot(
@@ -61,6 +62,9 @@ class MobEntityPersister(
 
   override val kind = KIND
   override val loadsAtStartup = true
+
+  override val reads: ComponentClassSet =
+    setOf(EntityVisual::class, Account::class, Position::class, Health::class, DenMember::class)
 
   override fun supports(world: World, id: EntityId): Boolean =
     world.get(id, EntityVisual::class)?.kind == VisualKind.BESTIA && !world.has(id, Account::class)

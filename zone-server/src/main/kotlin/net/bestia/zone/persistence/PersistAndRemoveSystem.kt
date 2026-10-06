@@ -19,7 +19,7 @@ class PersistAndRemoveSystem(
 ) : System {
   override val phase = Phase.PERSIST
 
-  override val reads: ComponentClassSet = setOf(PersistAndRemove::class) + EntityWriteBehind.READS
+  override val reads: ComponentClassSet = setOf(PersistAndRemove::class) + writeBehind.reads
 
   override fun update(world: World, deltaTime: Float) {
     val toRemove = mutableListOf<EntityId>()

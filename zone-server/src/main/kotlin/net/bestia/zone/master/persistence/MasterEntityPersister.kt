@@ -74,6 +74,11 @@ class MasterEntityPersister(
   override val kind = "master"
   override val loadsAtStartup = false
 
+  override val reads: ComponentClassSet = setOf(
+    MasterComponent::class, Position::class, Level::class, Exp::class, SkillPoints::class,
+    StatusPoints::class, BaseStatusValues::class, Health::class, Dead::class, KnownSkills::class,
+  )
+
   override fun supports(world: World, id: EntityId): Boolean =
     world.has(id, MasterComponent::class)
 
@@ -164,11 +169,5 @@ class MasterEntityPersister(
 
   companion object {
     private val LOG = KotlinLogging.logger { }
-
-    /** What [snapshot] reads; a system that snapshots a master must declare these. */
-    val SNAPSHOT_READS: ComponentClassSet = setOf(
-      MasterComponent::class, Position::class, Level::class, Exp::class, SkillPoints::class,
-      StatusPoints::class, BaseStatusValues::class, Health::class, Dead::class, KnownSkills::class,
-    )
   }
 }
