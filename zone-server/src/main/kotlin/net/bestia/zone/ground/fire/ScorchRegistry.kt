@@ -5,6 +5,8 @@ import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.world.WorldService
 import net.bestia.zone.ground.ColumnMask
 import org.springframework.stereotype.Service
+import net.bestia.zone.ground.persistence.ScorchMark
+import net.bestia.zone.ground.persistence.ScorchRepository
 
 /**
  * One chunk column's scar: the burnt cells, when the fire that made them started, and the regrowth memo.

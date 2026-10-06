@@ -10,14 +10,14 @@ import net.bestia.worldgen.pop.BusinessCatalogue
 import net.bestia.worldgen.pop.Catchment
 import net.bestia.worldgen.pop.PopulationSummary
 import net.bestia.worldgen.vector.Vec2d
-import net.bestia.zone.world.PersistedWorld
+import net.bestia.zone.world.persistence.PersistedWorld
 import net.bestia.zone.world.WorldGenConfig
 import net.bestia.zone.world.WorldService
 import net.bestia.zone.ground.fire.Scar
 import net.bestia.zone.ground.fire.ScorchRegistry
 import net.bestia.zone.ground.ColumnMask
 import net.bestia.zone.prop.DivergenceEntry
-import net.bestia.zone.prop.DivergenceState
+import net.bestia.zone.prop.persistence.DivergenceState
 import net.bestia.zone.entity.StaticEntityKind
 import net.bestia.zone.prop.WorldObjectDivergenceRegistry
 import net.bestia.zone.world.settlement.SettlementSite

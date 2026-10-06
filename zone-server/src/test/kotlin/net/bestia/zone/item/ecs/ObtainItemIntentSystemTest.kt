@@ -15,8 +15,8 @@ import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.persistence.PersistedEntityDeletionQueue
 import net.bestia.zone.geometry.Vec3L
-import net.bestia.zone.item.Item
-import net.bestia.zone.item.ItemRepository
+import net.bestia.zone.item.persistence.Item
+import net.bestia.zone.item.persistence.ItemRepository
 import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.item.loot.LootItemEntitySpawner
 import net.bestia.zone.util.EntityId

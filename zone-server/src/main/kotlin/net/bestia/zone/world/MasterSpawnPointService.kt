@@ -5,6 +5,8 @@ import net.bestia.worldgen.civ.SettlementSpawnPoints
 import net.bestia.zone.geometry.Vec3L
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import net.bestia.zone.world.persistence.MasterSpawnPoint
+import net.bestia.zone.world.persistence.MasterSpawnPointRepository
 
 /**
  * Computes and caches the settlement-based spawn point candidates a new master can choose to start

@@ -14,8 +14,8 @@ import net.bestia.zone.ecs.core.TickBuckets
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.skill.SkillId
-import net.bestia.zone.skill.SkillRepository
-import net.bestia.zone.skill.findByIdentifier
+import net.bestia.zone.skill.persistence.SkillRepository
+import net.bestia.zone.skill.persistence.findByIdentifier
 import net.bestia.zone.world.stream.ChunkCoords
 import net.bestia.zone.world.stream.ChunkService
 import kotlin.math.roundToInt

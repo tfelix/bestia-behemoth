@@ -1,8 +1,8 @@
 package net.bestia.zone.boot
 
 import net.bestia.zone.item.equip.script.EquipmentScriptRegistry
-import net.bestia.zone.item.Item
-import net.bestia.zone.item.ItemRepository
+import net.bestia.zone.item.persistence.Item
+import net.bestia.zone.item.persistence.ItemRepository
 import org.springframework.boot.CommandLineRunner
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component

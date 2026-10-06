@@ -2,7 +2,7 @@ package net.bestia.zone.spawn.ecs
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.bestia.loot.LootDrop
-import net.bestia.zone.bestia.loot.LootItemRepository
+import net.bestia.zone.bestia.persistence.LootItemRepository
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.item.loot.LootItemEntitySpawner

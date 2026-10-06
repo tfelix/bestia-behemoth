@@ -14,6 +14,7 @@ import net.bestia.worldgen.store.VersionGate
 import net.bestia.zone.world.stream.ChunkStreamConfig
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
+import net.bestia.zone.world.persistence.PersistedWorld
 
 /**
  * Owns the world: its record, and the generated terrain tier built from it.

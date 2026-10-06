@@ -8,7 +8,7 @@ import net.bestia.worldgen.pipeline.GeneratedWorld
 import net.bestia.worldgen.spawn.SpawnerChannels
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.PointMarker
-import net.bestia.zone.bestia.Bestia
+import net.bestia.zone.bestia.persistence.Bestia
 import net.bestia.zone.bestia.BestiaCatalogue
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.world.WorldService

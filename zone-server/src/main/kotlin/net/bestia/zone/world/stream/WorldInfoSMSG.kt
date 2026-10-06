@@ -5,7 +5,7 @@ import net.bestia.bnet.proto.WorldInfoSMSGProto
 import net.bestia.worldgen.voxel.ChunkEngine
 import net.bestia.zone.world.time.BestiaDateTime
 import net.bestia.zone.message.SMSG
-import net.bestia.zone.world.PersistedWorld
+import net.bestia.zone.world.persistence.PersistedWorld
 
 /**
  * The world's identity, its extent, and the clock. Sent once per connection, before any chunk.

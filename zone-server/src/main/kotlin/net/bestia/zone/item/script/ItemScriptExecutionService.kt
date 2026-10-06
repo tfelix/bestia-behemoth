@@ -3,7 +3,7 @@ package net.bestia.zone.item.script
 import net.bestia.zone.item.ecs.Inventory
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.item.Item
+import net.bestia.zone.item.persistence.Item
 import net.bestia.zone.script.ScriptArgs
 import org.springframework.stereotype.Service
 

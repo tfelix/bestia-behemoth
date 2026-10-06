@@ -15,8 +15,8 @@ import net.bestia.zone.economy.UnlimitedReserve
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.message.OutMessageProcessor
-import net.bestia.zone.skill.Skill
-import net.bestia.zone.skill.SkillRepository
+import net.bestia.zone.skill.persistence.Skill
+import net.bestia.zone.skill.persistence.SkillRepository
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.prop.PlayerStructureService
 import net.bestia.zone.entity.StaticEntityKind

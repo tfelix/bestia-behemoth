@@ -3,6 +3,7 @@ package net.bestia.zone.prop
 import net.bestia.zone.world.WorldScopedData
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
+import net.bestia.zone.prop.persistence.WorldObjectDivergenceRepository
 
 /**
  * Every felled tree and claimed landmark. `WorldObjectDivergence` carries a `worldShapeVersion` now, so this

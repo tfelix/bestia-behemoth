@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import net.bestia.zone.entity.StaticEntityKind
+import net.bestia.zone.prop.persistence.DivergenceState
 
 /**
  * Promotion: turning a static prop into an attackable entity the first time something targets or damages it.

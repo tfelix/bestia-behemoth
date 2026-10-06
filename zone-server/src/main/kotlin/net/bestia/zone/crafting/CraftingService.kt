@@ -17,7 +17,7 @@ import net.bestia.zone.economy.CommodityItems
 import net.bestia.zone.item.ecs.ObtainItemIntent
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.item.container.InventoryService
-import net.bestia.zone.item.instance.ItemInstance
+import net.bestia.zone.item.persistence.ItemInstance
 import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OperationSuccessSMSG
 import net.bestia.zone.message.OutMessageProcessor
@@ -35,7 +35,7 @@ import net.bestia.zone.casting.RecipeOffering
  * ### Only a master crafts
  *
  * Every skill in the Craftsman and Blacksmith trees is a *master* skill, and the durable side of a craft goes
- * through the master's own [net.bestia.zone.item.container.ItemContainer]. A bestia standing at a forge is
+ * through the master's own [net.bestia.zone.item.persistence.ItemContainer]. A bestia standing at a forge is
  * refused rather than silently crafting out of its owner's bag.
  *
  * ### The ECS inventory is the authority inside the tick; the database catches up

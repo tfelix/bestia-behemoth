@@ -1,10 +1,10 @@
 package net.bestia.zone.account.persistence
 
 import jakarta.persistence.*
-import net.bestia.zone.bestia.Bestia
+import net.bestia.zone.bestia.persistence.Bestia
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.item.container.ContainerOwner
-import net.bestia.zone.item.container.ItemContainer
+import net.bestia.zone.item.persistence.ItemContainer
 import org.hibernate.annotations.DynamicUpdate
 import java.awt.Color
 import net.bestia.zone.account.BodyType

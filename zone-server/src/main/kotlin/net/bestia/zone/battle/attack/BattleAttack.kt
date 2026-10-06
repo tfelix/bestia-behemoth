@@ -3,7 +3,7 @@ package net.bestia.zone.battle.attack
 import net.bestia.zone.battle.Element
 import net.bestia.zone.battle.ElementModifier
 import net.bestia.zone.battle.status.AttackSpeed
-import net.bestia.zone.skill.Skill
+import net.bestia.zone.skill.persistence.Skill
 
 /**
  * What is being used in a fight, whichever pathway resolved it: a basic attack built from the weapon,

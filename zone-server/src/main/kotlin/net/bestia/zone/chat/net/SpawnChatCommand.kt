@@ -3,7 +3,7 @@ package net.bestia.zone.chat.net
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.account.Authority
 import net.bestia.zone.spawn.BestiaEntitySpawner
-import net.bestia.zone.bestia.BestiaRepository
+import net.bestia.zone.bestia.persistence.BestiaRepository
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.geometry.Vec3L
 import org.springframework.stereotype.Component

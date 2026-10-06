@@ -12,7 +12,7 @@ import net.bestia.worldgen.vector.Vec2d
 import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.world.time.BestiaClock
 import net.bestia.zone.world.time.BestiaDateTime
-import net.bestia.zone.world.PersistedWorld
+import net.bestia.zone.world.persistence.PersistedWorld
 import net.bestia.zone.world.WorldGenConfig
 import net.bestia.zone.world.WorldService
 import net.bestia.zone.ground.fire.Scar
@@ -26,6 +26,7 @@ import kotlin.math.PI
 import kotlin.test.Test
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+import net.bestia.zone.economy.persistence.SettlementLedgerRepository
 
 /**
  * The sentence the whole release is measured against:

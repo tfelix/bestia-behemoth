@@ -22,7 +22,7 @@ import net.bestia.zone.world.stream.ChunkService
 import net.bestia.zone.world.stream.ChunkStreamConfig
 import net.bestia.zone.world.stream.ChunkStreamSystem
 import net.bestia.zone.world.stream.ChunkSubscriptionService
-import net.bestia.zone.world.stream.PersistedChunkEditRepository
+import net.bestia.zone.world.persistence.PersistedChunkEditRepository
 import net.bestia.zone.world.stream.WorldInfoSMSG
 import org.awaitility.Awaitility
 import org.junit.jupiter.api.Order

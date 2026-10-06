@@ -2,8 +2,8 @@ package net.bestia.zone.crafting
 
 import net.bestia.zone.skill.ecs.KnownSkills
 import net.bestia.zone.skill.SkillId
-import net.bestia.zone.skill.SkillRepository
-import net.bestia.zone.skill.findByIdentifier
+import net.bestia.zone.skill.persistence.SkillRepository
+import net.bestia.zone.skill.persistence.findByIdentifier
 import org.springframework.stereotype.Service
 
 /**

@@ -9,8 +9,8 @@ import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 import net.bestia.zone.account.persistence.PlayerBestia
 import net.bestia.zone.account.persistence.PlayerBestiaRepository
-import net.bestia.zone.bestia.BestiaRepository
-import net.bestia.zone.bestia.findByIdentifierOrThrow
+import net.bestia.zone.bestia.persistence.BestiaRepository
+import net.bestia.zone.bestia.persistence.findByIdentifierOrThrow
 
 @Component
 class PlayerBestiaFactory(

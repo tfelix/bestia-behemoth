@@ -24,6 +24,7 @@ import io.mockk.mockk
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import net.bestia.zone.entity.StaticEntityKind
+import net.bestia.zone.prop.persistence.DivergenceState
 
 /**
  * Residency: which static entities exist, driven by which chunks a client holds.

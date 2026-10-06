@@ -9,7 +9,7 @@ import net.bestia.worldgen.pipeline.StandardWorld
 import net.bestia.worldgen.spawn.SpawnerChannels
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.PointMarker
-import net.bestia.zone.bestia.Bestia
+import net.bestia.zone.bestia.persistence.Bestia
 import net.bestia.zone.spawn.ecs.WildSpawnerService.Candidate
 import net.bestia.zone.world.WorldGenConfig
 import net.bestia.zone.world.stream.ChunkStreamConfig

@@ -6,7 +6,7 @@ import io.mockk.verify
 import net.bestia.worldgen.climate.Temperature
 import net.bestia.worldgen.climate.WeatherKind
 import net.bestia.worldgen.climate.WeatherState
-import net.bestia.zone.skill.SkillRepository
+import net.bestia.zone.skill.persistence.SkillRepository
 import net.bestia.zone.message.OutMessageHandler
 import net.bestia.zone.world.stream.ChunkService
 import org.junit.jupiter.api.Assertions.assertFalse

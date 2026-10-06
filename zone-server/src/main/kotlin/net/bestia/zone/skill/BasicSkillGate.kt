@@ -6,6 +6,8 @@ import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.util.AccountId
 import org.springframework.stereotype.Service
+import net.bestia.zone.skill.persistence.SkillRepository
+import net.bestia.zone.skill.persistence.findByIdentifier
 
 /**
  * What a player may do at all, according to how far they have taken Basic Skill.

@@ -1,5 +1,7 @@
 package net.bestia.zone.world
 
+import net.bestia.zone.world.persistence.PersistedWorld
+
 /**
  * Published once the terrain has been rebuilt after [WorldGenConfig.OnMismatch.REGENERATE] threw a world away.
  *

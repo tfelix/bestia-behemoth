@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test
 
 /**
  * Pins the anchors [WeightLimitCalculator]'s KDoc claims, on the 100-per-kilogram scale
- * [net.bestia.zone.item.Item.weight] uses.
+ * [net.bestia.zone.item.persistence.Item.weight] uses.
  *
  * The formula this replaced divided by its constants, and integer division at the low end left a fresh
  * master with 22 units - two kilograms, less than a single lump of ore. Nothing caught it because the class

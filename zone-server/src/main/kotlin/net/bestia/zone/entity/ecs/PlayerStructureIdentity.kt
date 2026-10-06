@@ -4,7 +4,7 @@ import net.bestia.zone.ecs.core.Component
 
 /**
  * The durable name of a *player-built* static entity: the row id of its
- * [net.bestia.zone.prop.PlayerStructure].
+ * [net.bestia.zone.prop.persistence.PlayerStructure].
  *
  * The counterpart to [WorldObjectIdentity] and deliberately not the same component. A generated prop is named
  * by where the lattice put it, which is why its name needs a `latticeVersion` to be falsifiable; a structure

@@ -1,5 +1,7 @@
 package net.bestia.zone.item.container
 
+import net.bestia.zone.item.persistence.ContainerSlot
+
 /**
  * One line of a trade offer, carrying everything a caller needs to mirror it without going back to the
  * database: the live [net.bestia.zone.item.ecs.Inventory] wants weight and the per-instance state, and the

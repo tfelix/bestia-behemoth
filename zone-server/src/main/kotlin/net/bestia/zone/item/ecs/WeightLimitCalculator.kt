@@ -3,7 +3,7 @@ package net.bestia.zone.item.ecs
 import org.springframework.stereotype.Component
 
 /**
- * Pure calculations backing [CarryCapacity]. The limit is on [net.bestia.zone.item.Item.weight]'s scale of
+ * Pure calculations backing [CarryCapacity]. The limit is on [net.bestia.zone.item.persistence.Item.weight]'s scale of
  * 100 per kilogram, so the constants below are hundredths of a kilogram.
  *
  * The docs' formula is the same shape at a hundredth of this scale and is stale until it is rescaled too:

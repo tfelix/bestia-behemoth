@@ -286,7 +286,7 @@ class GroundFireService(
    * Records burnt-out cells against the scorch store, grouped by the column they fall in.
    *
    * Stamped with the **fire's** start rather than now, so every column one fire touched shares a window and a
-   * multi-chunk scar heals as one scar rather than in chunk-shaped steps. See [ScorchMark].
+   * multi-chunk scar heals as one scar rather than in chunk-shaped steps. See [net.bestia.zone.ground.persistence.ScorchMark].
    */
   private fun scorchAll(fire: GroundFire, cells: List<Long>) {
     if (cells.isEmpty()) return

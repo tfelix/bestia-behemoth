@@ -4,11 +4,14 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.worldgen.core.Faction
 import net.bestia.worldgen.pipeline.StandardWorld
 import net.bestia.worldgen.store.PipelineVersion
-import net.bestia.zone.world.stream.PersistedChunkEditRepository
+import net.bestia.zone.world.persistence.PersistedChunkEditRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
 import kotlin.random.Random
+import net.bestia.zone.world.persistence.MasterSpawnPointRepository
+import net.bestia.zone.world.persistence.PersistedWorld
+import net.bestia.zone.world.persistence.WorldRepository
 
 /**
  * Finds the world this server owns, or writes the record for a new one.
@@ -54,7 +57,7 @@ class WorldProvisioning(
    *
    * Reached from [WorldService] both under [WorldGenConfig.OnMismatch.REGENERATE] and while retrying a fresh
    * world that came out with too few standing settlements. Everything the old world implied - terrain, chunk
-   * caches, the cached [MasterSpawnPoint] candidates, surveyed chart coverage, which props were felled or
+   * caches, the cached [net.bestia.zone.world.persistence.MasterSpawnPoint] candidates, surveyed chart coverage, which props were felled or
    * claimed, any persisted script entities, and the terrain players dug - goes with the row, because all of it
    * is derived from the seed and dimensions being replaced. Nothing is backed up: a world that was worth keeping
    * should not have been booted under this policy (or, for the retry case, was never shown to a player in the

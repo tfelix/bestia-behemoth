@@ -2,8 +2,8 @@ package net.bestia.zone.item.container
 
 import net.bestia.zone.account.persistence.MasterRepository
 import net.bestia.zone.account.persistence.findByIdOrThrow
-import net.bestia.zone.item.ItemRepository
-import net.bestia.zone.item.findByIdentifierOrThrow
+import net.bestia.zone.item.persistence.ItemRepository
+import net.bestia.zone.item.persistence.findByIdentifierOrThrow
 import net.bestia.zone.scenarios.ScenarioDataSetup
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -18,7 +18,7 @@ import org.springframework.transaction.support.TransactionTemplate
 
 /**
  * Taking one named copy out of several of the same template, against a real database - which is what this
- * needs and the pure [ItemContainerTest] cannot give it: copies are told apart by instance id, and an
+ * needs and the pure [net.bestia.zone.item.persistence.ItemContainerTest] cannot give it: copies are told apart by instance id, and an
  * instance only has one once it has been flushed.
  *
  * Charts are the case that made this matter. Two of them are two different maps, so "remove one chart" is

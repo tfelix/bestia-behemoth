@@ -22,9 +22,9 @@ import net.bestia.zone.battle.ecs.effects.StatusEffects
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.mocks.GameClientMock
 import net.bestia.zone.mocks.GameClientMockFactory
-import net.bestia.zone.world.MasterSpawnPointRepository
+import net.bestia.zone.world.persistence.MasterSpawnPointRepository
 import net.bestia.zone.world.MasterSpawnPointService
-import net.bestia.zone.world.findByIdOrThrow
+import net.bestia.zone.world.persistence.findByIdOrThrow
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach

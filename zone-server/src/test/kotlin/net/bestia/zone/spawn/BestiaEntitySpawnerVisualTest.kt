@@ -15,7 +15,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
-import net.bestia.zone.bestia.Bestia
+import net.bestia.zone.bestia.persistence.Bestia
 import net.bestia.zone.bestia.BestiaCatalogue
 
 /**

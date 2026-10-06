@@ -20,7 +20,7 @@ data class CreateMasterCMSG(
   val face: Face,
   val body: BodyType,
   /**
-   * Id of the chosen [net.bestia.zone.world.MasterSpawnPoint]. Required - a client that leaves the
+   * Id of the chosen [net.bestia.zone.world.persistence.MasterSpawnPoint]. Required - a client that leaves the
    * presence-less `uint32` unset sends 0, which matches no spawn point and gets the request refused with
    * [MasterErrorSMSG.MasterErrorCode.INVALID_SPAWN_POINT] like any other unknown id.
    */

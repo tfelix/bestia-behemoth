@@ -2,9 +2,9 @@ package net.bestia.zone.item.container
 
 import net.bestia.zone.account.persistence.MasterRepository
 import net.bestia.zone.account.persistence.findByIdOrThrow
-import net.bestia.zone.item.ItemRepository
-import net.bestia.zone.item.findByIdentifierOrThrow
-import net.bestia.zone.item.instance.ItemInstanceRepository
+import net.bestia.zone.item.persistence.ItemRepository
+import net.bestia.zone.item.persistence.findByIdentifierOrThrow
+import net.bestia.zone.item.persistence.ItemInstanceRepository
 import net.bestia.zone.scenarios.ScenarioDataSetup
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -20,7 +20,7 @@ import org.springframework.transaction.support.TransactionTemplate
 
 /**
  * The durable half of a trade, against a real database - which is what these need and the pure
- * [ItemContainerTradeReservationTest] cannot give them: reservations are told apart by slot id, and a slot
+ * [net.bestia.zone.item.persistence.ItemContainerTradeReservationTest] cannot give them: reservations are told apart by slot id, and a slot
  * only has one once it has been flushed.
  *
  * The point of the whole exercise is the last two tests: an exchange either happens in full or not at all,

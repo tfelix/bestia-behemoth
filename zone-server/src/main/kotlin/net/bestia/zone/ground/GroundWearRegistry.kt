@@ -4,6 +4,7 @@ import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.world.time.BestiaClock
 import net.bestia.zone.world.WorldService
 import org.springframework.stereotype.Service
+import net.bestia.zone.ground.persistence.GroundLayerMarkRepository
 
 /**
  * Which ground has been walked bare.

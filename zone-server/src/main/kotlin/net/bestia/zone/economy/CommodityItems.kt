@@ -1,6 +1,6 @@
 package net.bestia.zone.economy
 
-import net.bestia.zone.item.ItemRepository
+import net.bestia.zone.item.persistence.ItemRepository
 import org.springframework.stereotype.Service
 
 /**

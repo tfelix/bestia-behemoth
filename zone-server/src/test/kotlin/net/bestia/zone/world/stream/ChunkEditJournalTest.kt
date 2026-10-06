@@ -7,11 +7,13 @@ import io.mockk.verify
 import net.bestia.worldgen.core.ChunkPos
 import net.bestia.worldgen.store.ChunkEdit
 import net.bestia.zone.persistence.AsyncJobExecutor
-import net.bestia.zone.world.PersistedWorld
+import net.bestia.zone.world.persistence.PersistedWorld
 import net.bestia.zone.world.WorldService
 import org.junit.jupiter.api.AfterEach
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import net.bestia.zone.world.persistence.PersistedChunkEdit
+import net.bestia.zone.world.persistence.PersistedChunkEditRepository
 
 class ChunkEditJournalTest {
 

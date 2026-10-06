@@ -1,8 +1,8 @@
 package net.bestia.zone.boot
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.skill.Skill
-import net.bestia.zone.skill.SkillRepository
+import net.bestia.zone.skill.persistence.Skill
+import net.bestia.zone.skill.persistence.SkillRepository
 import net.bestia.zone.skill.SkillTargetType
 import org.springframework.boot.CommandLineRunner
 import org.springframework.core.annotation.Order

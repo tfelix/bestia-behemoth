@@ -2,8 +2,8 @@ package net.bestia.zone.item.script
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.util.CatalogValidator
-import net.bestia.zone.item.Item
-import net.bestia.zone.item.ItemRepository
+import net.bestia.zone.item.persistence.Item
+import net.bestia.zone.item.persistence.ItemRepository
 import net.bestia.zone.item.equip.script.EquipmentScriptRegistry
 import org.springframework.stereotype.Component
 

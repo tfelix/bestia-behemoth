@@ -28,8 +28,8 @@ import net.bestia.zone.persistence.Persistent
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.skill.SkillId
-import net.bestia.zone.skill.SkillRepository
-import net.bestia.zone.skill.findByIdentifier
+import net.bestia.zone.skill.persistence.SkillRepository
+import net.bestia.zone.skill.persistence.findByIdentifier
 import net.bestia.zone.util.EntityId
 import org.springframework.context.ApplicationEventPublisher
 import java.util.Random

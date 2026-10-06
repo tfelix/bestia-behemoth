@@ -37,7 +37,7 @@ import org.springframework.transaction.annotation.Transactional
 import net.bestia.zone.account.persistence.PlayerBestia
 import net.bestia.zone.account.persistence.PlayerBestiaRepository
 import net.bestia.zone.account.persistence.findByIdOrThrow
-import net.bestia.zone.bestia.findByIdOrThrow
+import net.bestia.zone.bestia.persistence.findByIdOrThrow
 
 @Component
 class PlayerBestiaEntitySpawner(

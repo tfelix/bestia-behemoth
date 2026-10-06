@@ -13,6 +13,8 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import net.bestia.zone.ground.persistence.ScorchMark
+import net.bestia.zone.ground.persistence.ScorchRepository
 
 /**
  * The scorch store: what it remembers, what it refuses to load, and what it deliberately does not write.

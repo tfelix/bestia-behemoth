@@ -1,7 +1,7 @@
 package net.bestia.zone.item.script
 
 import net.bestia.zone.BestiaException
-import net.bestia.zone.item.Item
+import net.bestia.zone.item.persistence.Item
 
 class ItemScriptNotFoundException(item: Item) : BestiaException(
   "ITEM_SCRIPT_NOT_FOUND",

@@ -9,8 +9,8 @@ import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.item.ecs.Equipment
 import net.bestia.zone.item.ecs.Inventory
-import net.bestia.zone.item.Item
-import net.bestia.zone.item.ItemRepository
+import net.bestia.zone.item.persistence.Item
+import net.bestia.zone.item.persistence.ItemRepository
 import org.junit.jupiter.api.Test
 import java.util.Optional
 import kotlin.test.assertEquals

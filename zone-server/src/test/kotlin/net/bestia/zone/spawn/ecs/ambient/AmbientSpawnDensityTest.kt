@@ -4,7 +4,7 @@ import net.bestia.worldgen.civ.SettlementSpawnPoints
 import net.bestia.worldgen.core.Resolution
 import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.pipeline.StandardWorld
-import net.bestia.zone.bestia.Bestia
+import net.bestia.zone.bestia.persistence.Bestia
 import net.bestia.zone.spawn.ecs.WildSpawnConfig
 import net.bestia.zone.world.WorldGenConfig
 import org.junit.jupiter.api.Assertions.assertTrue

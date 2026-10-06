@@ -12,6 +12,8 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import net.bestia.zone.ground.persistence.GroundLayerMark
+import net.bestia.zone.ground.persistence.GroundLayerMarkRepository
 
 /**
  * The wear store: what it records, what it refuses to record, and what it deliberately does not write.

@@ -11,7 +11,7 @@ package net.bestia.zone.skill
  *
  * Those two carry their id because the wire and their in-memory registries are keyed on it. A
  * skill's id is content owned by `skills.yml`, and every call site that wants one already goes
- * through [findByIdentifier] "because the id in `skills.yml` is content and this is code". Copying
+ * through [net.bestia.zone.skill.persistence.findByIdentifier] "because the id in `skills.yml` is content and this is code". Copying
  * the ids in here would give a renumbering a second place to be right - and renumbering an existing
  * skill already needs a database wipe, so it must not also become a code change. The constant's
  * *name* is the identifier; there is nothing else to carry.

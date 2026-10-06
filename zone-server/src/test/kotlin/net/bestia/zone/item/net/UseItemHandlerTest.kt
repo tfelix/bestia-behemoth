@@ -9,14 +9,14 @@ import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.item.ecs.Inventory
 import net.bestia.zone.item.container.InventoryService
-import net.bestia.zone.item.container.ItemContainer
+import net.bestia.zone.item.persistence.ItemContainer
 import net.bestia.zone.item.script.ItemScriptExecutionService
 import net.bestia.zone.script.ScriptArgs
 import net.bestia.zone.util.EntityId
 import org.junit.jupiter.api.Test
 import java.util.Optional
-import net.bestia.zone.item.Item
-import net.bestia.zone.item.ItemRepository
+import net.bestia.zone.item.persistence.Item
+import net.bestia.zone.item.persistence.ItemRepository
 
 /**
  * A used item's effect cannot be taken back, so it only happens once the database has given the item up.

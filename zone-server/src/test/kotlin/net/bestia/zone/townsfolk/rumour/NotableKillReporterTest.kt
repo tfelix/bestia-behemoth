@@ -4,9 +4,9 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
-import net.bestia.zone.bestia.Bestia
+import net.bestia.zone.bestia.persistence.Bestia
 import net.bestia.zone.bestia.BestiaCatalogue
-import net.bestia.zone.bestia.BestiaRepository
+import net.bestia.zone.bestia.persistence.BestiaRepository
 import org.junit.jupiter.api.Test
 import kotlin.test.assertTrue
 

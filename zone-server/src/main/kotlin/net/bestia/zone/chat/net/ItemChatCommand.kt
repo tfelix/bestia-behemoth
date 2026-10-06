@@ -5,7 +5,7 @@ import net.bestia.account.Authority
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.item.ecs.ObtainItemIntent
-import net.bestia.zone.item.ItemRepository
+import net.bestia.zone.item.persistence.ItemRepository
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
 import net.bestia.zone.chat.ChatCommand

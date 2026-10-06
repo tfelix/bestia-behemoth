@@ -3,7 +3,7 @@ package net.bestia.zone.capture
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.account.OwnedBestiaPolicyViolationException
-import net.bestia.zone.bestia.Bestia
+import net.bestia.zone.bestia.persistence.Bestia
 import net.bestia.zone.bestia.BestiaCatalogue
 import net.bestia.zone.spawn.BestiaEntitySpawner
 import net.bestia.zone.master.bestia.OwnedBestiasPublisher

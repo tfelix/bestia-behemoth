@@ -15,7 +15,7 @@ data class Inventory(
 
   /**
    * A single held stack. [uniqueId] is the id of the backing
-   * [net.bestia.zone.item.instance.ItemInstance] (unique, upgradable/forgeable items); `0` means a
+   * [net.bestia.zone.item.persistence.ItemInstance] (unique, upgradable/forgeable items); `0` means a
    * plain stackable item with no per-instance identity. [stackable] guards against merging a
    * freshly obtained instance item (e.g. equipment) whose backing instance id is not yet known
    * this session - such an item has [uniqueId] `0` but must still not stack.
@@ -31,7 +31,7 @@ data class Inventory(
     /**
      * Mirrors the backing instance's wear so the client can draw it without a second round trip.
      * Both zero for a plain stack and for gear nobody gave a durability - see
-     * [net.bestia.zone.item.instance.ItemInstance.maxDurability].
+     * [net.bestia.zone.item.persistence.ItemInstance.maxDurability].
      */
     var durability: Int = 0,
     var maxDurability: Int = 0,
@@ -39,7 +39,7 @@ data class Inventory(
     /** Rune slots cut into the backing instance; zero for everything else. */
     var slots: Int = 0,
 
-    /** Mirrors [net.bestia.zone.item.instance.ItemInstance.upgradeLevel]. */
+    /** Mirrors [net.bestia.zone.item.persistence.ItemInstance.upgradeLevel]. */
     var upgradeLevel: Int = 0
   ) {
     val isStackable: Boolean get() = stackable && uniqueId == 0L
@@ -245,7 +245,7 @@ data class Inventory(
   }
 
   /**
-   * Mirrors a change made to the backing [net.bestia.zone.item.instance.ItemInstance] - a repair, a
+   * Mirrors a change made to the backing [net.bestia.zone.item.persistence.ItemInstance] - a repair, a
    * successful upgrade, a freshly cut rune slot.
    *
    * Named for *what changed* rather than offering a setter per field, because a craft resolves into

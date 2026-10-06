@@ -37,7 +37,7 @@ import net.bestia.zone.util.inClassNameOrder
  *
  * **What makes that safe is that a prop's entity id is ephemeral.** A re-materialised tree gets a fresh
  * snowflake. Nothing may hold a long-lived reference to one, and anything that has to survive the column
- * leaving the view is keyed on `WorldObjectIdentity.propId` instead - which is why [WorldObjectDivergence] is
+ * leaving the view is keyed on `WorldObjectIdentity.propId` instead - which is why [net.bestia.zone.prop.persistence.WorldObjectDivergence] is
  * keyed on the propId and not on an entity id. Keyed on the id, re-sending would silently orphan every row.
  *
  * ### Refcounted by column, not by chunk
@@ -72,7 +72,7 @@ class WorldObjectResidencyService(
    * The lattice version a freshly materialised prop is stamped with - `pipelineVersion`, not
    * `ChunkMaterializer.VERSION` alone, because a pure params retune (`VegetationParams.cellSize`, the POI
    * catalogue) never bumps that hand-incremented counter but does fold into this one via
-   * `WorldParams.chunkTierVersion` and every stage's `paramsVersion`. See [WorldObjectDivergence]'s KDoc.
+   * `WorldParams.chunkTierVersion` and every stage's `paramsVersion`. See [net.bestia.zone.prop.persistence.WorldObjectDivergence]'s KDoc.
    */
   private val latticeVersion: Long get() = worldService.record.pipelineVersion
 

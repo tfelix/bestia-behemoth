@@ -22,8 +22,8 @@ import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.account.persistence.LearnedSkill
 import net.bestia.zone.account.persistence.LearnedSkillRepository
-import net.bestia.zone.skill.Skill
-import net.bestia.zone.skill.SkillRepository
+import net.bestia.zone.skill.persistence.Skill
+import net.bestia.zone.skill.persistence.SkillRepository
 import org.junit.jupiter.api.Test
 import java.awt.Color
 import kotlin.test.assertEquals

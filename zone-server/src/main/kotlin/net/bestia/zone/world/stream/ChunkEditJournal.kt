@@ -4,6 +4,8 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.world.WorldService
 import org.springframework.stereotype.Service
+import net.bestia.zone.world.persistence.PersistedChunkEdit
+import net.bestia.zone.world.persistence.PersistedChunkEditRepository
 
 /** Keeps terrain edits across a restart: writes edited chunks out, and reads them back at boot. */
 @Service

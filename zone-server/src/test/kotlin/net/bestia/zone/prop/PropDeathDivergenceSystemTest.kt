@@ -13,6 +13,7 @@ import net.bestia.zone.item.loot.LootItemEntitySpawner
 import org.junit.jupiter.api.Test
 import java.time.Instant
 import net.bestia.zone.entity.StaticEntityKind
+import net.bestia.zone.prop.persistence.DivergenceState
 
 /** What a promoted prop's death records about the durable object it was. */
 class PropDeathDivergenceSystemTest {

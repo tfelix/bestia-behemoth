@@ -11,7 +11,7 @@ import net.bestia.worldgen.vector.Vec2d
 import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.world.time.BestiaClock
 import net.bestia.zone.world.time.BestiaDateTime
-import net.bestia.zone.world.PersistedWorld
+import net.bestia.zone.world.persistence.PersistedWorld
 import net.bestia.zone.world.WorldService
 import net.bestia.zone.world.settlement.SettlementSite
 import net.bestia.zone.world.settlement.SettlementSiteIndex
@@ -20,6 +20,8 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+import net.bestia.zone.economy.persistence.SettlementLedger
+import net.bestia.zone.economy.persistence.SettlementLedgerRepository
 
 /**
  * When a settlement earns a database row, and when it loses one again.

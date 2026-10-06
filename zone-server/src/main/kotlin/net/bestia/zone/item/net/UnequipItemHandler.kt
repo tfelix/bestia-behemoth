@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component
 
 /**
  * Takes an item off. The item never left the owner's container (only its
- * [net.bestia.zone.item.container.ContainerSlot.equippedIn] marker is cleared), so there is nothing
+ * [net.bestia.zone.item.persistence.ContainerSlot.equippedIn] marker is cleared), so there is nothing
  * to give back - it simply becomes a plain inventory item again.
  *
  * Unequipping is always permitted; unlike equipping there is no rule to consult, so no denial path.

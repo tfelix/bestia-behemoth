@@ -3,6 +3,8 @@ package net.bestia.zone.economy
 import net.bestia.zone.world.WorldScopedData
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
+import net.bestia.zone.economy.persistence.SettlementLedgerRepository
+import net.bestia.zone.economy.persistence.WorldTreasuryRepository
 
 @Component
 @Order(3)

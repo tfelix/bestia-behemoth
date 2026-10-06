@@ -2,17 +2,17 @@ package net.bestia.zone.item.equip
 
 import net.bestia.zone.item.ecs.Equipment
 import net.bestia.zone.item.ecs.Inventory
-import net.bestia.zone.item.Item
+import net.bestia.zone.item.persistence.Item
 import org.springframework.stereotype.Service
 
 /**
  * Decides whether a wearer is allowed to put a given item into a given slot - the single place that
- * answers "may this be equipped", separate from [net.bestia.zone.item.container.ItemContainer],
+ * answers "may this be equipped", separate from [net.bestia.zone.item.persistence.ItemContainer],
  * which only knows the structural item/slot rules.
  *
  * Two kinds of rule: the structural item/slot ones, which only [checkEquip] asks, and the ones about the
- * *wearer* - their level against [net.bestia.zone.item.Item.level], and their novicehood against
- * [net.bestia.zone.item.Item.noviceOnly] - which are split into [checkStillWearable] because they are the
+ * *wearer* - their level against [net.bestia.zone.item.persistence.Item.level], and their novicehood against
+ * [net.bestia.zone.item.persistence.Item.noviceOnly] - which are split into [checkStillWearable] because they are the
  * ones that can stop holding for gear already worn. Callers must handle a [Denial] by re-sending the
  * authoritative [Equipment] component
  * (see [net.bestia.zone.item.net.EquipItemHandler]) so a client that optimistically moved the item locally
@@ -37,7 +37,7 @@ class EquipmentService {
     /** Structurally fine, but this wearer may not wear this item. */
     NOT_ALLOWED,
 
-    /** The wearer has not reached the item's own level yet - see [net.bestia.zone.item.Item.level]. */
+    /** The wearer has not reached the item's own level yet - see [net.bestia.zone.item.persistence.Item.level]. */
     LEVEL_TOO_LOW,
 
     /** Novice-only gear on a wearer who has invested outside the Novice tree. */

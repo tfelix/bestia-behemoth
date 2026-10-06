@@ -3,7 +3,7 @@ package net.bestia.zone.casting
 import net.bestia.zone.battle.BattleContextFactory
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.geometry.Vec3L
-import net.bestia.zone.skill.Skill
+import net.bestia.zone.skill.persistence.Skill
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
 import net.bestia.zone.battle.attack.BattleAttack

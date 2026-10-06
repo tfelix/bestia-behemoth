@@ -3,6 +3,7 @@ package net.bestia.zone.cartography.chart
 import net.bestia.zone.world.WorldScopedData
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
+import net.bestia.zone.cartography.persistence.MapChartRepository
 
 /**
  * Charts name places by coordinate, and the coordinates mean different terrain in the new world.

@@ -13,6 +13,9 @@ import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import net.bestia.zone.ecs.core.EcsWorld
+import net.bestia.zone.skill.persistence.Skill
+import net.bestia.zone.skill.persistence.SkillRepository
+import net.bestia.zone.skill.persistence.findByIdentifier
 
 /**
  * The two Basic Skill ranks the game actually enforces, and what happens at the edges of them.

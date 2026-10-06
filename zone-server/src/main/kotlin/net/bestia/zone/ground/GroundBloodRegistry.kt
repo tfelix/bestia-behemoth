@@ -5,6 +5,7 @@ import net.bestia.zone.world.time.BestiaClock
 import net.bestia.zone.world.WorldService
 import org.springframework.stereotype.Service
 import kotlin.math.sqrt
+import net.bestia.zone.ground.persistence.GroundLayerMarkRepository
 
 /**
  * Where something has bled.

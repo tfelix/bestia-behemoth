@@ -1,8 +1,8 @@
 package net.bestia.zone.item.container
 
 import net.bestia.zone.account.persistence.MasterRepository
-import net.bestia.zone.item.ItemRepository
-import net.bestia.zone.item.findByIdentifierOrThrow
+import net.bestia.zone.item.persistence.ItemRepository
+import net.bestia.zone.item.persistence.findByIdentifierOrThrow
 import net.bestia.zone.scenarios.ScenarioDataSetup
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired

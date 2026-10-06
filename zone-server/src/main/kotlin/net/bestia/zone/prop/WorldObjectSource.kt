@@ -19,7 +19,7 @@ import net.bestia.zone.entity.StaticEntityKind
  *   instance by the lot it stands on rather than per kind - a temple and a barn share no dimension.
  * @property halfWidthDm the same across the facing axis. Zero and [halfLengthDm] zero travel together; one of
  *   the two set alone means a producer filled in half a footprint.
- * @property structureId the row id of the [PlayerStructure] this site came from, or 0 for anything a generator
+ * @property structureId the row id of the [net.bestia.zone.prop.persistence.PlayerStructure] this site came from, or 0 for anything a generator
  *   produced. Nonzero and [propId] nonzero are mutually exclusive: a site is named either by the lattice cell it
  *   stands in or by the row that records somebody building it, never by both.
  */

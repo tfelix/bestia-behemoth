@@ -2,7 +2,7 @@ package net.bestia.zone.boot
 
 import net.bestia.zone.battle.passive.PassiveSkillScriptRegistry
 import net.bestia.zone.casting.SkillStrategyFactory
-import net.bestia.zone.skill.SkillRepository
+import net.bestia.zone.skill.persistence.SkillRepository
 import org.springframework.boot.CommandLineRunner
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component

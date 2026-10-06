@@ -5,6 +5,8 @@ import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.world.time.BestiaClock
 import net.bestia.zone.world.WorldService
 import java.util.concurrent.ConcurrentLinkedQueue
+import net.bestia.zone.ground.persistence.GroundLayerMark
+import net.bestia.zone.ground.persistence.GroundLayerMarkRepository
 
 /**
  * One graded layer's grid: what is held, what is written, and what fades.

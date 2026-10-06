@@ -3,7 +3,7 @@ package net.bestia.zone.capture
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import net.bestia.zone.bestia.Bestia
+import net.bestia.zone.bestia.persistence.Bestia
 import net.bestia.zone.bestia.BestiaCatalogue
 import net.bestia.zone.aoi.EntityAOIService
 import net.bestia.zone.identity.ecs.Account
