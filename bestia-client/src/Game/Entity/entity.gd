@@ -849,7 +849,7 @@ func path_end() -> Vector3:
 
 ## Tile steps left until the predicted walk ends.
 func remaining_path_steps() -> float:
-	return float(_nodes.size() - 1) - _progress if _is_moving else 0.0
+	return _arc[_arc.size() - 1] - _travelled if _is_moving else 0.0
 
 
 ## Tile steps per second.
