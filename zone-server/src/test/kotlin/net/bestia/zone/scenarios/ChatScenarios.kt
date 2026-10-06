@@ -4,7 +4,7 @@ import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.chat.ChatCMSG
 import net.bestia.zone.chat.ChatSMSG
 import net.bestia.zone.message.OperationErrorSMSG
-import net.bestia.zone.socket.PingCMSG
+import net.bestia.zone.socket.net.PingCMSG
 import net.bestia.zone.socket.PongSMSG
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals

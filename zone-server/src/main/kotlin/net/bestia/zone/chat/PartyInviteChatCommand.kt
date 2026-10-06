@@ -4,8 +4,8 @@ import net.bestia.zone.account.MasterNotFoundException
 import net.bestia.zone.account.MasterResolver
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.party.PartyErrorSMSG
-import net.bestia.zone.party.RequestPartyInvitationCMSG
-import net.bestia.zone.party.handler.RequestInvitePlayerToPartyHandler
+import net.bestia.zone.party.net.RequestPartyInvitationCMSG
+import net.bestia.zone.party.net.RequestInvitePlayerToPartyHandler
 import org.springframework.stereotype.Component
 
 /** `/invite <username>` - invites the named master's account into the sender's party. */

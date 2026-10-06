@@ -14,7 +14,7 @@ interface Dirtyable : DirtyTracked {
   /**
    * Forces this component to be considered dirty so the next flush re-sends it even though no
    * field changed. The sanctioned way to satisfy a "client re-requested its current state"
-   * (e.g. [net.bestia.zone.item.inventory.GetInventoryHandler]) resync-on-demand; there is no
+   * (e.g. [net.bestia.zone.item.net.GetInventoryHandler]) resync-on-demand; there is no
    * longer a `World.markChanged` for this. Mutating a component through its own setters already
    * marks it dirty, so this is only needed when nothing actually changed.
    */

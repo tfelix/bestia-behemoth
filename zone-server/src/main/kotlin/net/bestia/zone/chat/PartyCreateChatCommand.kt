@@ -1,7 +1,7 @@
 package net.bestia.zone.chat
 
-import net.bestia.zone.party.CreatePartyCMSG
-import net.bestia.zone.party.handler.CreatePartyHandler
+import net.bestia.zone.party.net.CreatePartyCMSG
+import net.bestia.zone.party.net.CreatePartyHandler
 import org.springframework.stereotype.Component
 
 /**

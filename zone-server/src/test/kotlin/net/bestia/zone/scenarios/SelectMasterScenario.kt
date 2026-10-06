@@ -1,7 +1,7 @@
 package net.bestia.zone.scenarios
 
 import net.bestia.zone.account.persistence.MasterRepository
-import net.bestia.zone.master.SelectMasterCMSG
+import net.bestia.zone.master.net.SelectMasterCMSG
 import net.bestia.zone.account.persistence.findByIdOrThrow
 import net.bestia.zone.ecs.core.Component
 import net.bestia.zone.ecs.core.WorldView

@@ -1,6 +1,6 @@
 package net.bestia.zone.scenarios
 
-import net.bestia.zone.master.GetSelfCMSG
+import net.bestia.zone.master.net.GetSelfCMSG
 import net.bestia.zone.master.ecs.MasterVisualComponentSMSG
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.item.ecs.EquipmentComponentSMSG
@@ -10,7 +10,7 @@ import net.bestia.zone.message.SelfSMSG
 import net.bestia.zone.mocks.GameClientMock
 import net.bestia.zone.world.stream.ChunkCoords
 import net.bestia.zone.world.stream.ChunkManifestSMSG
-import net.bestia.zone.world.stream.ChunkRequestCMSG
+import net.bestia.zone.world.net.ChunkRequestCMSG
 import net.bestia.zone.world.stream.ChunkService
 import net.bestia.zone.world.stream.ChunkSubscriptionService
 import net.bestia.zone.session.ConnectionInfoService

@@ -7,6 +7,11 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import net.bestia.zone.party.net.CreatePartyCMSG
+import net.bestia.zone.party.net.DeclinePartyInviteCMSG
+import net.bestia.zone.party.net.RequestDisbandPartyCMSG
+import net.bestia.zone.party.net.RequestPartyInfoCMSG
+import net.bestia.zone.party.net.RequestPartyInvitationCMSG
 
 class PartyScenarios : BestiaNoSocketScenario() {
 

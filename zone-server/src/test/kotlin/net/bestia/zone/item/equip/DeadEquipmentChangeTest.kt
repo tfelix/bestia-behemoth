@@ -14,6 +14,10 @@ import net.bestia.zone.item.ItemRepository
 import org.junit.jupiter.api.Test
 import java.util.Optional
 import kotlin.test.assertEquals
+import net.bestia.zone.item.net.EquipItemCMSG
+import net.bestia.zone.item.net.EquipItemHandler
+import net.bestia.zone.item.net.UnequipItemCMSG
+import net.bestia.zone.item.net.UnequipItemHandler
 
 /** A body waiting to respawn keeps what it wears: changing gear is something only the living do. */
 class DeadEquipmentChangeTest {

@@ -1,6 +1,6 @@
 package net.bestia.zone.extensions
 
-import net.bestia.zone.master.CreateMasterCMSG
+import net.bestia.zone.master.net.CreateMasterCMSG
 import net.bestia.zone.account.BodyType
 import net.bestia.zone.account.Face
 import net.bestia.zone.account.Hairstyle

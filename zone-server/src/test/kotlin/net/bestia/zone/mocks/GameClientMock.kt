@@ -5,7 +5,7 @@ import net.bestia.zone.session.AccountConnectedEvent
 import net.bestia.zone.session.AccountDisconnectedEvent
 import net.bestia.zone.message.CMSG
 import net.bestia.zone.message.SMSG
-import net.bestia.zone.master.SelectMasterCMSG
+import net.bestia.zone.master.net.SelectMasterCMSG
 import net.bestia.zone.message.AccountTaskExecutor
 import net.bestia.zone.message.InMessageProcessor
 import org.springframework.context.ApplicationEventPublisher

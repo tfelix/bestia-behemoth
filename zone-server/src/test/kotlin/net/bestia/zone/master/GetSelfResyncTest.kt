@@ -29,6 +29,8 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import kotlin.reflect.KClass
 import net.bestia.zone.ecs.core.EcsWorld
+import net.bestia.zone.master.net.GetSelfCMSG
+import net.bestia.zone.master.net.GetSelfHandler
 
 /**
  * Pins the resync half of [GetSelfHandler] against a real (system-less) [World], mocking only the

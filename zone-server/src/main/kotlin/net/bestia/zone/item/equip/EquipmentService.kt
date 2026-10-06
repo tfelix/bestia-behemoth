@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service
  * [net.bestia.zone.item.Item.noviceOnly] - which are split into [checkStillWearable] because they are the
  * ones that can stop holding for gear already worn. Callers must handle a [Denial] by re-sending the
  * authoritative [Equipment] component
- * (see [net.bestia.zone.item.equip.EquipItemHandler]) so a client that optimistically moved the item locally
+ * (see [net.bestia.zone.item.net.EquipItemHandler]) so a client that optimistically moved the item locally
  * snaps back into sync.
  *
  * Deliberately takes plain components rather than the ECS world, so it stays free of tick-thread
