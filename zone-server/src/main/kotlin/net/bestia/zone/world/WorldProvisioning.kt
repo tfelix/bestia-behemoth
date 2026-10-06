@@ -5,12 +5,12 @@ import net.bestia.worldgen.core.Faction
 import net.bestia.worldgen.pipeline.StandardWorld
 import net.bestia.worldgen.store.PipelineVersion
 import net.bestia.zone.ecs.script.ScriptComponent
-import net.bestia.zone.entity.PersistedEntityRepository
+import net.bestia.zone.persistence.PersistedEntityRepository
 import net.bestia.zone.cartography.chart.MapChartRepository
 import net.bestia.zone.ai.rumour.RumourRepository
 import net.bestia.zone.economy.SettlementLedgerRepository
 import net.bestia.zone.economy.WorldTreasuryRepository
-import net.bestia.zone.entity.deleteAllByKind
+import net.bestia.zone.persistence.deleteAllByKind
 import net.bestia.zone.world.prop.WorldObjectDivergenceRepository
 import net.bestia.zone.world.stream.PersistedChunkEditRepository
 import org.springframework.stereotype.Service

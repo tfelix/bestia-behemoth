@@ -14,9 +14,9 @@ interface PersistedStatusEffectRepository : JpaRepository<PersistedStatusEffect,
   fun findAllByOwnerEntityIdIn(ownerEntityIds: Collection<Long>): List<PersistedStatusEffect>
 
   /**
-   * Safe as a bulk statement, unlike anything on [PersistedEntityRepository]: this entity owns no
+   * Safe as a bulk statement, unlike anything on [net.bestia.zone.persistence.PersistedEntityRepository]: this entity owns no
    * children, so there is no cascade for the bulk delete to bypass. That is exactly why the deletes over
-   * there are `deleteAll(findAll...)` extensions rather than `@Query`s - see [deleteAllByEntityIdIn].
+   * there are `deleteAll(findAll...)` extensions rather than `@Query`s - see [net.bestia.zone.persistence.deleteAllByEntityIdIn].
    */
   @Modifying
   @Query("DELETE FROM PersistedStatusEffect e WHERE e.ownerEntityId IN :ownerEntityIds")

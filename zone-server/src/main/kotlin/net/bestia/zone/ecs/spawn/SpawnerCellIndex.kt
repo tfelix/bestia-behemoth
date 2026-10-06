@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service
 /**
  * Flat 2D bucket index over wild dens: "which dens are near this point", answered with a few hash probes.
  *
- * ### Why not [AreaOfInterestService][net.bestia.zone.ecs.AreaOfInterestService]
+ * ### Why not [AreaOfInterestService][net.bestia.zone.aoi.AreaOfInterestService]
  *
  * The octree is the right structure for arbitrary volumes over a population that moves. Dens are neither.
  * Two properties make this problem much smaller than the general one, and this index leans on both:

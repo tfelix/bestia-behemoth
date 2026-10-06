@@ -26,8 +26,8 @@ import net.bestia.zone.ai.perception.ShelterSense
 import net.bestia.zone.ai.profile.AiProfileRegistry
 import net.bestia.zone.battle.skill.AttackExecutionService
 import net.bestia.zone.battle.skill.SkillExecutionService
-import net.bestia.zone.ecs.ActivePlayerAOIService
-import net.bestia.zone.ecs.EntityAOIService
+import net.bestia.zone.aoi.ActivePlayerAOIService
+import net.bestia.zone.aoi.EntityAOIService
 import net.bestia.zone.config.WorldRulesConfig
 import net.bestia.zone.ecs.account.Master
 import net.bestia.zone.ecs.battle.damage.TakenDamage
@@ -45,7 +45,7 @@ import net.bestia.zone.battle.status.AttackSpeed
 import net.bestia.zone.bestia.DefaultAttack
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.navigation.TestNavigation
-import net.bestia.zone.ecs.visibility.EntityVisibility
+import net.bestia.zone.aoi.EntityVisibility
 import net.bestia.zone.util.AccountId
 import net.bestia.zone.util.EntityId
 import kotlin.random.Random

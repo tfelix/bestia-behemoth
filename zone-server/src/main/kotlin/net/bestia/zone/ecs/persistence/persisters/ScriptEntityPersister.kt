@@ -5,13 +5,13 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.movement.Position
-import net.bestia.zone.ecs.persistence.EntityPersister
-import net.bestia.zone.ecs.persistence.EntitySnapshot
+import net.bestia.zone.persistence.EntityPersister
+import net.bestia.zone.persistence.EntitySnapshot
 import net.bestia.zone.ecs.script.ScriptComponent
 import net.bestia.zone.ecs.script.ScriptEntitySpawner
-import net.bestia.zone.entity.PersistedComponent
-import net.bestia.zone.entity.PersistedEntity
-import net.bestia.zone.entity.PersistedEntityRepository
+import net.bestia.zone.persistence.PersistedComponent
+import net.bestia.zone.persistence.PersistedEntity
+import net.bestia.zone.persistence.PersistedEntityRepository
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.world.MasterSpawnPointService
@@ -37,7 +37,7 @@ data class ScriptEntitySnapshot(
  * world was just created), it asks [MasterSpawnPointService] for the settlement spawn point
  * candidates, creates one placeholder script entity per candidate (see [SPAWN_POINT_SCRIPT_ID]), and
  * persists them immediately - not waiting for
- * [net.bestia.zone.ecs.persistence.EntityPersistenceService]'s periodic sweep - so a restart minutes
+ * [net.bestia.zone.persistence.EntityPersistenceService]'s periodic sweep - so a restart minutes
  * after a fresh world does not lose them.
  */
 @Component

@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service
  *   one metre - so the constant was not a hundred-metre range, it was a **ten-kilometre cube**, and
  *   every public component update was broadcast to a quarter of the world.
  * - the login snapshot's own `ENTITY_QUERY_RANGE` was `30`, and
- *   [net.bestia.zone.ecs.AreaOfInterestService] halves what it is given, so the snapshot a client asked
+ *   [net.bestia.zone.aoi.AreaOfInterestService] halves what it is given, so the snapshot a client asked
  *   for on login covered fifteen metres.
  *
  * Between them an entity was invisible until it moved and then visible from five kilometres away.
@@ -47,7 +47,7 @@ class InterestRange(
    * Edge length of the interest cube, in position units.
    *
    * The *edge*, not the radius, because that is what
-   * [net.bestia.zone.ecs.AreaOfInterestService.queryEntitiesInCube] takes - it halves the value
+   * [net.bestia.zone.aoi.AreaOfInterestService.queryEntitiesInCube] takes - it halves the value
    * itself. At the defaults this is 11 chunks x 32 voxels = 352, so +/-176 m, which is the view
    * volume to the metre.
    */

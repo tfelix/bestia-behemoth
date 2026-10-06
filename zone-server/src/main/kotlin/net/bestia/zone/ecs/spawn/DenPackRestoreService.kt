@@ -5,7 +5,7 @@ import net.bestia.zone.ecs.account.Account
 import net.bestia.zone.ecs.entity.EntityVisual
 import net.bestia.zone.ecs.entity.VisualKind
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.ecs.persistence.PersistedEntityDeletionQueue
+import net.bestia.zone.persistence.PersistedEntityDeletionQueue
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Service
 

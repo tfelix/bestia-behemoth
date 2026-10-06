@@ -34,8 +34,8 @@ import net.bestia.zone.ecs.battle.exp.Exp
 import net.bestia.zone.ecs.battle.level.LevelUpExperienceCalculator
 import net.bestia.zone.ecs.logout.DisconnectProtection
 import net.bestia.zone.ecs.logout.LogoutIntent
-import net.bestia.zone.ecs.persistence.PersistAndRemove
-import net.bestia.zone.ecs.persistence.Persistent
+import net.bestia.zone.persistence.PersistAndRemove
+import net.bestia.zone.persistence.Persistent
 import net.bestia.zone.ecs.persistence.StatusEffectPersistenceService
 import net.bestia.zone.util.AccountId
 import net.bestia.zone.util.EntityId

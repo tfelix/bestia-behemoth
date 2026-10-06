@@ -8,8 +8,8 @@ import net.bestia.zone.ecs.core.Component
 
 /**
  * Every concrete [Component] that also implements [Dirtyable] - the "syncable" component types
- * [net.bestia.zone.ecs.ZoneEngine] flushes to clients whenever they're dirty, and that
- * [net.bestia.zone.ecs.visibility.EntitySnapshotBuilder] sends in full when an entity comes into view.
+ * [net.bestia.zone.engine.ZoneEngine] flushes to clients whenever they're dirty, and that
+ * [net.bestia.zone.engine.EntitySnapshotBuilder] sends in full when an entity comes into view.
  *
  * Held here rather than scanned per consumer: [scanDirtyableComponentTypes] walks the classpath, which is
  * worth a few hundred milliseconds of boot once and not twice.

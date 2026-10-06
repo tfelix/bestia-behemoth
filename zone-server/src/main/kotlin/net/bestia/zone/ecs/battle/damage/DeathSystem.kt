@@ -14,8 +14,8 @@ import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.session.NoActiveSessionException
-import net.bestia.zone.ecs.persistence.PersistedEntityDeletionQueue
-import net.bestia.zone.ecs.persistence.Persistent
+import net.bestia.zone.persistence.PersistedEntityDeletionQueue
+import net.bestia.zone.persistence.Persistent
 import net.bestia.zone.ai.rumour.NotableKillReporter
 import net.bestia.zone.item.loot.LootItemEntitySpawner
 import net.bestia.zone.party.PartyMembership

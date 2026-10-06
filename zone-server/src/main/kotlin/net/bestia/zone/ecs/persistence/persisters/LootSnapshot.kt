@@ -1,6 +1,6 @@
 package net.bestia.zone.ecs.persistence.persisters
 
-import net.bestia.zone.ecs.persistence.EntitySnapshot
+import net.bestia.zone.persistence.EntitySnapshot
 import net.bestia.zone.util.EntityId
 import java.time.Instant
 

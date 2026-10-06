@@ -39,7 +39,7 @@ import net.bestia.zone.ecs.core.EcsWorld
 
 /**
  * Exercises [StatusEffectDurationSystem] and [StatusValueRecalcSystem] wired together against a
- * real [World], the same way [net.bestia.zone.ecs.EcsConfiguration] wires them in production
+ * real [World], the same way [net.bestia.zone.engine.EcsConfiguration] wires them in production
  * (minus Spring) - to verify the cross-system, recalc-from-scratch behavior, not just each
  * component in isolation.
  */

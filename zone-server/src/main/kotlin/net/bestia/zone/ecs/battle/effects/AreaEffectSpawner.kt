@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component
 /**
  * Puts an [AreaEffect] into the world as an entity of its own.
  *
- * Deliberately without [net.bestia.zone.ecs.persistence.Persistent]: a spell effect that outlived a
+ * Deliberately without [net.bestia.zone.persistence.Persistent]: a spell effect that outlived a
  * restart would be a bug, and leaving the marker off keeps it out of the persistence sweep by
  * construction. The vanish when [AreaEffectSystem] destroys it needs no message either - `ZoneEngine`
  * broadcasts one for any entity that had a `Dirtyable` component, which [EntityVisual] is.

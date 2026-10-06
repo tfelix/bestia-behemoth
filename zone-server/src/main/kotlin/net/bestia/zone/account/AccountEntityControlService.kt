@@ -4,7 +4,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.account.master.MasterResolver
 import net.bestia.zone.config.WorldRulesConfig
 import net.bestia.zone.ai.ecs.PlayerControlled
-import net.bestia.zone.ecs.ActivePlayerAOIService
+import net.bestia.zone.aoi.ActivePlayerAOIService
 import net.bestia.zone.ecs.account.ActivePlayer
 import net.bestia.zone.ecs.battle.attack.AttackCancelService
 import net.bestia.zone.ecs.battle.damage.Dead
@@ -14,7 +14,7 @@ import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.session.NoActiveSessionException
 import net.bestia.zone.ecs.logout.DisconnectProtection
 import net.bestia.zone.ecs.logout.LogoutIntent
-import net.bestia.zone.ecs.persistence.PersistAndRemove
+import net.bestia.zone.persistence.PersistAndRemove
 import net.bestia.zone.ecs.respawn.Respawn
 import net.bestia.zone.ecs.respawn.SavePointService
 import org.springframework.context.event.EventListener

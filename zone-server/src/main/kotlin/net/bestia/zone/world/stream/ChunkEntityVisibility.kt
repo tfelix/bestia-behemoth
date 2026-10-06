@@ -1,7 +1,7 @@
 package net.bestia.zone.world.stream
 
 import net.bestia.worldgen.core.ChunkPos
-import net.bestia.zone.ecs.visibility.EntityVisibility
+import net.bestia.zone.aoi.EntityVisibility
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.AccountId
 import net.bestia.zone.util.EntityId

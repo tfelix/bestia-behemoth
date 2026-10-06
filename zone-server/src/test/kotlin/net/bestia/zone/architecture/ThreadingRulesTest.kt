@@ -17,7 +17,7 @@ class ThreadingRulesTest {
 
   /** The only places allowed to start threads, each with what it runs. */
   private val threadOwners = mapOf(
-    "ecs/ZoneEngine.kt" to "the tick thread, which owns the world",
+    "engine/ZoneEngine.kt" to "the tick thread, which owns the world",
     "ecs/core/SystemScheduler.kt" to "parallel waves, which run while the tick thread waits",
     "message/AccountInbox.kt" to "the IO lane for handlers that need the database",
     "persistence/AsyncJobExecutor.kt" to "database writes, ordered per owner",

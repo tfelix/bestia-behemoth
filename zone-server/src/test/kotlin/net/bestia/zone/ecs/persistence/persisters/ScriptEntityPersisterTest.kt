@@ -4,8 +4,8 @@ import net.bestia.zone.ecs.core.SnowflakeEntityIdGenerator
 import net.bestia.zone.ecs.core.EcsWorld
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.script.ScriptComponent
-import net.bestia.zone.entity.PersistedEntityRepository
-import net.bestia.zone.entity.deleteAllByKind
+import net.bestia.zone.persistence.PersistedEntityRepository
+import net.bestia.zone.persistence.deleteAllByKind
 import net.bestia.zone.world.MasterSpawnPointService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

@@ -51,7 +51,7 @@ data class DenIdentity(
  * before this component existed. Absence is the honest answer to "which den owns this", and it keeps
  * `world.has(id, DenMember::class)` the single question rather than splitting it into two.
  *
- * Not `Dirtyable`, like [net.bestia.zone.ecs.persistence.Persistent] and `AiAgent`: which den a creature
+ * Not `Dirtyable`, like [net.bestia.zone.persistence.Persistent] and `AiAgent`: which den a creature
  * came from is server bookkeeping and has no business on the wire.
  */
 data class DenMember(val den: DenIdentity) : Component

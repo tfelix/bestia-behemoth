@@ -4,6 +4,7 @@ import io.netty.buffer.ByteBufAllocator
 import net.bestia.zone.message.SMSG
 import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Component
+import net.bestia.zone.message.ChunkFanOut
 
 /**
  * Frames the envelope once and writes it to each channel through [ChannelRegistry.writeFramed].

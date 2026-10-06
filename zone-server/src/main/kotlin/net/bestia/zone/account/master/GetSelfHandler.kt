@@ -16,7 +16,7 @@ import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.ecs.item.CarryCapacity
 import net.bestia.zone.ecs.item.Equipment
 import net.bestia.zone.ecs.place.Place
-import net.bestia.zone.ecs.visibility.EntityVisibility
+import net.bestia.zone.aoi.EntityVisibility
 import net.bestia.zone.account.GetSelfCMSG
 import net.bestia.zone.message.IoMessageHandler
 import net.bestia.zone.message.SelfSMSG
@@ -69,7 +69,7 @@ class GetSelfHandler(
    * changed, so `markDirty()` is what requests the resend.
    *
    * Owner-only components and no others, because that is the half of the split
-   * [net.bestia.zone.ecs.visibility.EntitySnapshotBuilder] deliberately leaves alone. The public half -
+   * [net.bestia.zone.engine.EntitySnapshotBuilder] deliberately leaves alone. The public half -
    * position, visual, speed - is lost to the same race and is made good by
    * [EntityVisibility.reannounce] through that builder, so listing it here as well would send it twice.
    *

@@ -17,7 +17,7 @@ import net.bestia.zone.ecs.movement.Path
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.prop.PropPose
 import net.bestia.zone.geometry.Vec3L
-import net.bestia.zone.socket.ChunkFanOut
+import net.bestia.zone.message.ChunkFanOut
 import net.bestia.zone.world.ground.GroundStampSystem
 import net.bestia.zone.world.mining.OreYield
 import net.bestia.zone.util.EntityId

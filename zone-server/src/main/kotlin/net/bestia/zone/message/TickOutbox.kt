@@ -2,7 +2,6 @@ package net.bestia.zone.message
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.core.RateLimitedLog
-import net.bestia.zone.socket.OutMessageHandler
 import net.bestia.zone.util.AccountId
 import org.springframework.stereotype.Component
 

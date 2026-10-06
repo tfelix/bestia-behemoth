@@ -6,7 +6,7 @@ import net.bestia.zone.ecs.battle.status.BaseStatusValues
 import net.bestia.zone.ecs.battle.status.IsStatusValueDirty
 import net.bestia.zone.ecs.battle.status.StatusPoints
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.ecs.persistence.EntityWriteBehind
+import net.bestia.zone.persistence.EntityWriteBehind
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Service
 

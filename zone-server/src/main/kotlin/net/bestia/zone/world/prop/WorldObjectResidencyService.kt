@@ -1,8 +1,8 @@
 package net.bestia.zone.world.prop
 
 import net.bestia.worldgen.core.ChunkPos
-import net.bestia.zone.ecs.AoiLayer
-import net.bestia.zone.ecs.EntityAOIService
+import net.bestia.zone.aoi.AoiLayer
+import net.bestia.zone.aoi.EntityAOIService
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.prop.PlayerStructureIdentity
 import net.bestia.zone.ecs.prop.PropPose
@@ -10,7 +10,7 @@ import net.bestia.zone.ecs.prop.PropVitality
 import net.bestia.zone.ecs.prop.StaticSync
 import net.bestia.zone.ecs.prop.StaticVisual
 import net.bestia.zone.ecs.prop.WorldObjectIdentity
-import net.bestia.zone.socket.ChunkFanOut
+import net.bestia.zone.message.ChunkFanOut
 import net.bestia.zone.world.WorldService
 import net.bestia.zone.world.stream.ChunkStaticEntitiesSMSG
 import net.bestia.zone.world.stream.ChunkSubscriptionService

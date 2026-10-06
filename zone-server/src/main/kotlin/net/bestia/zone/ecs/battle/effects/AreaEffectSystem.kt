@@ -2,8 +2,8 @@ package net.bestia.zone.ecs.battle.effects
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.battle.damage.DamageEntitySMSG
-import net.bestia.zone.ecs.AoiLayer
-import net.bestia.zone.ecs.EntityAOIService
+import net.bestia.zone.aoi.AoiLayer
+import net.bestia.zone.aoi.EntityAOIService
 import net.bestia.zone.ecs.battle.damage.Damage
 import net.bestia.zone.ecs.battle.damage.Dead
 import net.bestia.zone.ecs.battle.status.Health

@@ -29,7 +29,7 @@ import net.bestia.zone.ecs.entity.VisualKind
 import net.bestia.zone.ecs.entity.Animation
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.WorldView
-import net.bestia.zone.ecs.persistence.Persistent
+import net.bestia.zone.persistence.Persistent
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.util.PlayerBestiaId
 import org.springframework.stereotype.Component

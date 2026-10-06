@@ -4,7 +4,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.skill.SkillId
 import net.bestia.zone.skill.SkillRepository
 import net.bestia.zone.skill.findByIdentifier
-import net.bestia.zone.socket.OutMessageHandler
+import net.bestia.zone.message.OutMessageHandler
 import net.bestia.zone.world.stream.ChunkService
 import org.springframework.stereotype.Service
 import java.util.concurrent.ConcurrentHashMap

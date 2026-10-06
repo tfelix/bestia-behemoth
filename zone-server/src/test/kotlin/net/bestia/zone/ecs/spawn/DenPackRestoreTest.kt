@@ -6,9 +6,9 @@ import net.bestia.zone.ecs.entity.EntityVisual
 import net.bestia.zone.ecs.core.SnowflakeEntityIdGenerator
 import net.bestia.zone.ecs.core.EcsWorld
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.ecs.persistence.PersistedEntityDeletionQueue
+import net.bestia.zone.persistence.PersistedEntityDeletionQueue
 import net.bestia.zone.ecs.persistence.persisters.MobEntityPersister
-import net.bestia.zone.entity.PersistedEntityRepository
+import net.bestia.zone.persistence.PersistedEntityRepository
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
 import org.junit.jupiter.api.BeforeEach

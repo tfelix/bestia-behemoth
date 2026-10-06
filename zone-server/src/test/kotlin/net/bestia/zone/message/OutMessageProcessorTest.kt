@@ -2,13 +2,12 @@ package net.bestia.zone.message
 
 import io.mockk.mockk
 import net.bestia.bnet.proto.EnvelopeProto
-import net.bestia.zone.ecs.ActivePlayerAOIService
+import net.bestia.zone.aoi.ActivePlayerAOIService
 import net.bestia.zone.ecs.RecordingEntityVisibility
 import net.bestia.zone.ecs.account.Account
 import net.bestia.zone.ecs.account.ActivePlayer
 import net.bestia.zone.ecs.core.testWorld
-import net.bestia.zone.ecs.visibility.EntityAudience
-import net.bestia.zone.socket.OutMessageHandler
+import net.bestia.zone.aoi.EntityAudience
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertSame

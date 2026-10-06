@@ -6,7 +6,7 @@ import io.mockk.slot
 import net.bestia.worldgen.core.ChunkPos
 import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.derived.DerivedStore
-import net.bestia.zone.ecs.EntityAOIService
+import net.bestia.zone.aoi.EntityAOIService
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.ecs.movement.GroundHeight
@@ -14,7 +14,7 @@ import net.bestia.zone.ecs.prop.PropPose
 import net.bestia.zone.ecs.prop.StaticVisual
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.SMSG
-import net.bestia.zone.socket.ChunkFanOut
+import net.bestia.zone.message.ChunkFanOut
 import net.bestia.zone.world.WorldService
 import net.bestia.zone.world.stream.ChunkService
 import net.bestia.zone.world.stream.ChunkStreamConfig

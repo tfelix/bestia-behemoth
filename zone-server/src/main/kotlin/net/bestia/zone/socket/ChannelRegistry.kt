@@ -8,6 +8,8 @@ import net.bestia.zone.message.SMSG
 import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Component
 import java.util.concurrent.ConcurrentHashMap
+import net.bestia.zone.message.ConnectionTerminator
+import net.bestia.zone.message.OutMessageHandler
 
 @Component
 @Profile("!no-socket")

@@ -17,7 +17,7 @@ import net.bestia.zone.geometry.Vec3L
  * No world-id column: the codebase assumes a single world row throughout
  * ([WorldRepository.findFirstByOrderByIdAsc]), and this table is fully cleared whenever the world
  * row is replaced (see [WorldProvisioning.recreate]), so "any row present" already means "belongs to
- * the current world" - the same assumption [net.bestia.zone.entity.PersistedEntity] makes.
+ * the current world" - the same assumption [net.bestia.zone.persistence.PersistedEntity] makes.
  */
 @Entity
 @Table(name = "master_spawn_point")

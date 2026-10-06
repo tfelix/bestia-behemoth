@@ -1,7 +1,7 @@
 package net.bestia.zone.sync
 
 sealed interface SyncTargets {
-  /** Sent to every account that sees the entity; see [net.bestia.zone.ecs.visibility.EntityAudience]. */
+  /** Sent to every account that sees the entity; see [net.bestia.zone.aoi.EntityAudience]. */
   data object PublicInRange : SyncTargets
 
   /** Sends this component only to the owner of the entity. Only works for PlayerBestia and Master */

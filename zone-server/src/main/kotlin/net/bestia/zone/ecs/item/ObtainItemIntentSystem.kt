@@ -11,13 +11,13 @@ import net.bestia.zone.ecs.core.World
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.session.NoActiveSessionException
 import net.bestia.zone.ecs.movement.Position
-import net.bestia.zone.ecs.persistence.PersistedEntityDeletionQueue
+import net.bestia.zone.persistence.PersistedEntityDeletionQueue
 import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.item.loot.LootItemEntitySpawner
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
 import net.bestia.zone.ecs.core.modify
-import net.bestia.zone.ecs.persistence.retryingTransientFailures
+import net.bestia.zone.persistence.retryingTransientFailures
 
 /**
  * Resolves [ObtainItemIntent]s: whichever entity has one attached (master or player bestia,

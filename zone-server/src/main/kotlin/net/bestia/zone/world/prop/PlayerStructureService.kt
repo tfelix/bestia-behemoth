@@ -1,8 +1,8 @@
 package net.bestia.zone.world.prop
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.ecs.AoiLayer
-import net.bestia.zone.ecs.EntityAOIService
+import net.bestia.zone.aoi.AoiLayer
+import net.bestia.zone.aoi.EntityAOIService
 import net.bestia.zone.ecs.construction.ConstructionSite
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.core.World

@@ -8,7 +8,7 @@ import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.session.ConnectionInfoService
-import net.bestia.zone.ecs.persistence.PersistAndRemove
+import net.bestia.zone.persistence.PersistAndRemove
 import net.bestia.zone.entity.VanishEntitySMSG
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.util.EntityId
@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component as SpringComponent
  * "logout complete" signal to run its queued action), deactivates the session, and tags the entity
  * [PersistAndRemove] so the existing persistence path saves-then-despawns it.
  *
- * Ordered before [net.bestia.zone.ecs.persistence.PersistAndRemoveSystem] (a later phase) so the tag is picked
+ * Ordered before [net.bestia.zone.persistence.PersistAndRemoveSystem] (a later phase) so the tag is picked
  * up on the next tick. Cancellation is not handled here — it happens by removing the component (see
  * [LogoutCancelService]).
  */
