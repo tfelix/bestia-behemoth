@@ -1,7 +1,7 @@
 package net.bestia.zone.chat
 
-import net.bestia.zone.party.LeavePartyCMSG
-import net.bestia.zone.party.handler.LeavePartyHandler
+import net.bestia.zone.party.net.LeavePartyCMSG
+import net.bestia.zone.party.net.LeavePartyHandler
 import org.springframework.stereotype.Component
 
 /** `/leave` - leaves the sender's current party. Disbands it instead if the sender is the owner. */

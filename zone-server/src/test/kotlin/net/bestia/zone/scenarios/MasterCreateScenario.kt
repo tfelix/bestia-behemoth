@@ -9,12 +9,12 @@ import net.bestia.zone.account.Hairstyle
 import net.bestia.zone.master.MasterErrorSMSG
 import net.bestia.zone.extensions.test
 import net.bestia.zone.master.AvailableMasterSMSG
-import net.bestia.zone.master.CreateMasterCMSG
+import net.bestia.zone.master.net.CreateMasterCMSG
 import net.bestia.zone.master.MasterCreatedSMSG
-import net.bestia.zone.master.GetMasterCMSG
+import net.bestia.zone.master.net.GetMasterCMSG
 import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.account.persistence.MasterRepository
-import net.bestia.zone.master.SelectMasterCMSG
+import net.bestia.zone.master.net.SelectMasterCMSG
 import net.bestia.zone.master.status.StatusAttribute
 import net.bestia.zone.master.status.effortValues
 import net.bestia.zone.dialog.DialogSMSG

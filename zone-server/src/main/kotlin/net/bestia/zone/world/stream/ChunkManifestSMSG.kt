@@ -11,7 +11,7 @@ import net.bestia.zone.message.SMSG
  *
  * Roughly a byte and a half per chunk against three kilobytes of payload, so announcing is two orders of
  * magnitude cheaper than sending - and a client that already holds a listed revision asks for nothing.
- * It is also the authorisation set: [ChunkRequestHandler] serves only what a manifest has offered.
+ * It is also the authorisation set: [net.bestia.zone.world.net.ChunkRequestHandler] serves only what a manifest has offered.
  */
 data class ChunkManifestSMSG(
   /** Replace the client's set rather than amend it. Then [removed] is empty and [added] is everything. */

@@ -1,9 +1,9 @@
 package net.bestia.zone.scenarios
 
-import net.bestia.zone.master.GetSelfCMSG
-import net.bestia.zone.control.SelectEntityCMSG
+import net.bestia.zone.master.net.GetSelfCMSG
+import net.bestia.zone.control.net.SelectEntityCMSG
 import net.bestia.zone.session.ConnectionInfoService
-import net.bestia.zone.control.MoveActiveEntityCMSG
+import net.bestia.zone.control.net.MoveActiveEntityCMSG
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired

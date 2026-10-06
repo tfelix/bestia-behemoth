@@ -23,7 +23,7 @@ import org.springframework.stereotype.Service
  * ### Announced and sent are separate sets
  *
  * [announced] is the authorisation set: what a manifest has offered, and therefore what a
- * [ChunkRequestCMSG] may ask for. [sent] is the subset whose payload has actually gone out, and therefore
+ * [net.bestia.zone.world.net.ChunkRequestCMSG] may ask for. [sent] is the subset whose payload has actually gone out, and therefore
  * who a patch must reach. A chunk sits in the gap between them from the moment it is announced until the
  * client asks and is served - which is most of the time, for most chunks, since a client that already holds
  * a revision never asks at all.

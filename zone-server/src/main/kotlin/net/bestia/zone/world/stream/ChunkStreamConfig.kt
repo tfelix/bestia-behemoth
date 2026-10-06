@@ -24,7 +24,7 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesScan
  *   default tick rate of 20 this is 80 chunks a second, so an initial 121-chunk load spreads over about
  *   one and a half seconds. The ceiling exists for the *client's* sake as much as the socket's: it drains
  *   its whole receive queue in a single frame, so an unbudgeted burst is a visible stutter.
- * @property requestBurst token bucket depth for [ChunkRequestCMSG]. A client legitimately asks for a whole
+ * @property requestBurst token bucket depth for [net.bestia.zone.world.net.ChunkRequestCMSG]. A client legitimately asks for a whole
  *   manifest at once on login, so the burst has to cover that; the refill is what limits sustained asking.
  * @property requestRefillPerTick tokens returned per tick, so the sustained ceiling is this times the tick
  *   rate - 40 chunk requests a second at the defaults.

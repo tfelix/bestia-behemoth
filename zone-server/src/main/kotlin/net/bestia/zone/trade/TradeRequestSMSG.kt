@@ -6,7 +6,7 @@ import net.bestia.zone.message.SMSG
 import net.bestia.zone.util.EntityId
 
 /**
- * The prompt raised on the asked player's client. Answered with [AnswerTradeRequestCMSG].
+ * The prompt raised on the asked player's client. Answered with [net.bestia.zone.trade.net.AnswerTradeRequestCMSG].
  *
  * Not an [net.bestia.zone.message.EntitySMSG] despite naming an entity: it is addressed to an account, and
  * the client routes entity messages through its entity system, where a prompt has no business being.

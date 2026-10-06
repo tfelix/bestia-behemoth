@@ -5,8 +5,8 @@ import net.bestia.zone.account.MasterResolver
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.party.PartyErrorSMSG
 import net.bestia.zone.party.PartyService
-import net.bestia.zone.party.RemovePartyMemberCMSG
-import net.bestia.zone.party.handler.RemovePartyMemberHandler
+import net.bestia.zone.party.net.RemovePartyMemberCMSG
+import net.bestia.zone.party.net.RemovePartyMemberHandler
 import org.springframework.stereotype.Component
 
 /** `/kick <username>` - the party owner removes the named member from their party. */

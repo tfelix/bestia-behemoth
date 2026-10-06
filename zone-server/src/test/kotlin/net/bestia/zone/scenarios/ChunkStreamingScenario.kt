@@ -17,7 +17,7 @@ import net.bestia.zone.world.stream.ChunkEditJournal
 import net.bestia.zone.world.stream.ChunkManifestSMSG
 import net.bestia.zone.world.stream.ChunkPatchCodec
 import net.bestia.zone.world.stream.ChunkPatchSMSG
-import net.bestia.zone.world.stream.ChunkRequestCMSG
+import net.bestia.zone.world.net.ChunkRequestCMSG
 import net.bestia.zone.world.stream.ChunkService
 import net.bestia.zone.world.stream.ChunkStreamConfig
 import net.bestia.zone.world.stream.ChunkStreamSystem

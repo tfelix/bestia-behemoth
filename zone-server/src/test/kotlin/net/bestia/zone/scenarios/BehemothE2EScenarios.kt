@@ -1,15 +1,15 @@
 package net.bestia.zone.scenarios
 
-import net.bestia.zone.master.GetSelfCMSG
+import net.bestia.zone.master.net.GetSelfCMSG
 import net.bestia.zone.account.persistence.PlayerBestiaRepository
-import net.bestia.zone.socket.PingCMSG
+import net.bestia.zone.socket.net.PingCMSG
 import net.bestia.zone.socket.PongSMSG
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.movement.ecs.PathSMSG
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.session.NoActiveSessionException
-import net.bestia.zone.control.MoveActiveEntityCMSG
+import net.bestia.zone.control.net.MoveActiveEntityCMSG
 import net.bestia.zone.geometry.Vec3L
 import org.awaitility.Awaitility
 import org.junit.jupiter.api.Assertions.*
