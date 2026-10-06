@@ -3,7 +3,7 @@ package net.bestia.zone.crafting
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.worldgen.pop.BusinessCatalogue
 import net.bestia.zone.util.CatalogValidator
-import net.bestia.zone.item.ItemRepository
+import net.bestia.zone.item.persistence.ItemRepository
 import org.springframework.stereotype.Component
 import net.bestia.zone.economy.Commodity
 import net.bestia.zone.economy.CommodityItems

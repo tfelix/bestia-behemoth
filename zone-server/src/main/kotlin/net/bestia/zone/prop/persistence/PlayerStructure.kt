@@ -1,0 +1,87 @@
+package net.bestia.zone.prop.persistence
+
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
+import jakarta.persistence.Id
+import jakarta.persistence.Index
+import jakarta.persistence.Table
+import net.bestia.zone.entity.StaticEntityKind
+
+/**
+ * One thing a player put up: a workbench, a furnace, a forge.
+ *
+ * Also the record of one still being built: see [totalBuildSeconds].
+ *
+ * A row rather than in-memory config, which is the opposite of everything else in this package -
+ * `prop-kinds.yml` is configuration and `WorldObjectDivergence` records a *deviation* from what the
+ * generator would produce. This is neither: nothing generated it, so there is nothing for it to deviate
+ * from, and it has to survive a restart because a player spent materials on it.
+ *
+ * Indexed on the chunk column because that is the only way it is ever read - [net.bestia.zone.prop.PlayerStructureRegistry]
+ * loads the table once at boot and answers per column from memory, so the index earns its keep at boot
+ * and after a placement rather than on every query.
+ */
+@Entity
+@Table(
+  name = "player_structure",
+  indexes = [Index(columnList = "chunk_x,chunk_y")]
+)
+class PlayerStructure(
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  val kind: StaticEntityKind,
+
+  /** Who built it. Unowned structures do not exist, and taking one down is their owner's right. */
+  @Column(name = "owner_master_id", nullable = false)
+  val ownerMasterId: Long,
+
+  @Column(name = "pos_x", nullable = false)
+  val x: Long,
+
+  @Column(name = "pos_y", nullable = false)
+  val y: Long,
+
+  /** Settled when a construction site finishes - see [PlayerStructureRegistry.finish]. */
+  @Column(name = "pos_z", nullable = false)
+  var z: Long,
+
+  /** Radians, so a forge can face the way its builder was facing rather than always north. */
+  @Column(nullable = false)
+  val yaw: Float,
+
+  /**
+   * Denormalised chunk column, written once at placement.
+   *
+   * Derived from [x]/[y] and the world's chunk size, which is exactly why it is stored: the chunk size is a
+   * property of the *world*, and computing the column at query time would make every read of this table
+   * depend on `WorldService` being loaded. It also lets the index above exist at all.
+   */
+  @Column(name = "chunk_x", nullable = false)
+  val chunkX: Int,
+
+  @Column(name = "chunk_y", nullable = false)
+  val chunkY: Int,
+
+  /**
+   * How long this structure takes to build in total, or **0 once it is standing**.
+   *
+   * Counting down rather than up, and zero meaning *finished*, because `ddl-auto: update` adds a column to
+   * a live table with its type's default: every structure that existed before construction did must read as
+   * complete, and an ascending "seconds worked" would read every one of them as untouched.
+   */
+  @Column(name = "total_build_seconds", nullable = false)
+  var totalBuildSeconds: Float = 0f,
+
+  /** Work still owed. Only meaningful while [totalBuildSeconds] is non-zero. */
+  @Column(name = "remaining_build_seconds", nullable = false)
+  var remainingBuildSeconds: Float = 0f
+) {
+
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  val id: Long = 0
+}

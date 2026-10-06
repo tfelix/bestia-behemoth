@@ -33,7 +33,7 @@ class GeneralMasterException(message: String = "An error occurred while creating
 
 /**
  * Thrown when a create-master request names a spawn_point_id that does not resolve to a
- * [net.bestia.zone.world.MasterSpawnPoint] of the currently loaded world.
+ * [net.bestia.zone.world.persistence.MasterSpawnPoint] of the currently loaded world.
  */
 class MasterInvalidSpawnPointException :
   MasterCreateException(MasterErrorSMSG.MasterErrorCode.INVALID_SPAWN_POINT, "The chosen spawn point is invalid")

@@ -7,7 +7,7 @@ import net.bestia.zone.BestiaException
  *
  * Distinct from [IncompatibleWorldException] because the remedy is: that one is a world that no longer
  * matches the build, and regenerating it is a legitimate answer. This is a `WorldConfig` field that decides
- * terrain and has no column in [PersistedWorld], so the stored row silently describes a *different* world -
+ * terrain and has no column in [net.bestia.zone.world.persistence.PersistedWorld], so the stored row silently describes a *different* world -
  * and regenerating would write the same incomplete row again and fail identically on the next boot. It is a
  * bug in this code, not a state the operator can configure their way out of, so no policy applies to it.
  */

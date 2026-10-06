@@ -19,13 +19,13 @@ import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.battle.ecs.status.IsStatusValueDirty
 import net.bestia.zone.battle.ecs.status.RegenerationModifiers
 import net.bestia.zone.battle.ecs.status.StatusValues
-import net.bestia.zone.skill.Skill
+import net.bestia.zone.skill.persistence.Skill
 import net.bestia.zone.skill.SkillId
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.item.ecs.Equipment
 import net.bestia.zone.movement.ecs.Speed
-import net.bestia.zone.item.Item
+import net.bestia.zone.item.persistence.Item
 import net.bestia.zone.item.equip.EquipmentSlot
 import net.bestia.zone.item.equip.EquipmentSlots
 import net.bestia.zone.item.equip.script.EquipmentScript

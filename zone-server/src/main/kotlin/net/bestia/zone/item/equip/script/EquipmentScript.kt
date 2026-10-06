@@ -8,7 +8,7 @@ import net.bestia.zone.item.equip.EquipmentSlot
  * and worn ("hard") defence that reach the damage formula through
  * [net.bestia.zone.battle.ecs.status.CombatBonus]. Registered under its simple class name
  * (see [EquipmentScriptRegistry]) and referenced by `Item.script` for
- * [net.bestia.zone.item.Item.ItemType.EQUIP] items - the same script-name-to-bean pattern as
+ * [net.bestia.zone.item.persistence.Item.ItemType.EQUIP] items - the same script-name-to-bean pattern as
  * [net.bestia.zone.battle.status.StatusEffectScript] / [net.bestia.zone.battle.status.StatusEffectScriptRegistry].
  *
  * Applied by [net.bestia.zone.battle.ecs.effects.StatusValueRecalcSystem] on the tick thread while

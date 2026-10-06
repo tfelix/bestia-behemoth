@@ -6,6 +6,7 @@ import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.history.OrderInfluence
 import net.bestia.worldgen.pipeline.WorldParams
 import org.springframework.boot.context.properties.ConfigurationProperties
+import net.bestia.zone.world.persistence.PersistedWorld
 
 /**
  * What a world is created *as*, and what to do when the world that exists is not that.
@@ -27,7 +28,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties
  *   offline in well under a second, so a real deployment's seed must not be - leave it unset, which draws one
  *   from [kotlin.random.Random] over the full 64-bit range, or supply it from a non-committed,
  *   environment-specific source. Either way, do so before the world's first boot: the seed is permanent from
- *   then on, in [net.bestia.zone.world.PersistedWorld].
+ *   then on, in [net.bestia.zone.world.persistence.PersistedWorld].
  */
 @ConfigurationProperties(prefix = "worldgen")
 data class WorldGenConfig(

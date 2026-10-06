@@ -25,6 +25,7 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import net.bestia.zone.entity.StaticEntityKind
+import net.bestia.zone.prop.persistence.DivergenceState
 
 /**
  * What happens to a tree when the ground under it is dug away.

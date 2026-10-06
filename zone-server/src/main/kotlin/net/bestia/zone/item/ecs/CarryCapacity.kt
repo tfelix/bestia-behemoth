@@ -9,7 +9,7 @@ import net.bestia.zone.battle.status.CurMax
 
 /**
  * Tracks carried inventory weight (current) against the weight limit derived from
- * Attributes/Level (max), both on [net.bestia.zone.item.Item.weight]'s scale of 100 per kilogram.
+ * Attributes/Level (max), both on [net.bestia.zone.item.persistence.Item.weight]'s scale of 100 per kilogram.
  *
  * Owned by [CarryCapacitySystem], which mirrors `current` off [Inventory.totalWeight] every tick and
  * recomputes `max` whenever the attributes or level behind it move.

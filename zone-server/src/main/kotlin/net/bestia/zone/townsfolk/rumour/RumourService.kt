@@ -9,6 +9,7 @@ import net.bestia.zone.world.SettlementLoreService
 import net.bestia.zone.world.WorldService
 import org.springframework.stereotype.Service
 import kotlin.math.hypot
+import net.bestia.zone.townsfolk.persistence.Rumour
 
 /**
  * How something that just happened becomes something a town is talking about.

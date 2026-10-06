@@ -21,7 +21,7 @@ import net.bestia.zone.persistence.EntitySnapshot
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.account.persistence.LearnedSkill
 import net.bestia.zone.account.persistence.LearnedSkillRepository
-import net.bestia.zone.skill.SkillRepository
+import net.bestia.zone.skill.persistence.SkillRepository
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional

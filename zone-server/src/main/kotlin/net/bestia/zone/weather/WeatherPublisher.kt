@@ -2,8 +2,8 @@ package net.bestia.zone.weather
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.skill.SkillId
-import net.bestia.zone.skill.SkillRepository
-import net.bestia.zone.skill.findByIdentifier
+import net.bestia.zone.skill.persistence.SkillRepository
+import net.bestia.zone.skill.persistence.findByIdentifier
 import net.bestia.zone.message.OutMessageHandler
 import net.bestia.zone.world.stream.ChunkService
 import org.springframework.stereotype.Service

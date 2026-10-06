@@ -1,6 +1,6 @@
 package net.bestia.zone.account
 
-import net.bestia.zone.bestia.Bestia
+import net.bestia.zone.bestia.persistence.Bestia
 import org.springframework.stereotype.Component
 import net.bestia.zone.account.persistence.Master
 

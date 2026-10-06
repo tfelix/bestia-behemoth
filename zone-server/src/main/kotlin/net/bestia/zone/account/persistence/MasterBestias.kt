@@ -3,7 +3,7 @@ package net.bestia.zone.account.persistence
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Embeddable
 import jakarta.persistence.OneToMany
-import net.bestia.zone.bestia.Bestia
+import net.bestia.zone.bestia.persistence.Bestia
 import net.bestia.zone.account.PlayerBestiaPolicy
 
 @Embeddable

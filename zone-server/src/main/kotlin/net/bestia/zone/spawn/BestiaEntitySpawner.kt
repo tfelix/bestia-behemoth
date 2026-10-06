@@ -28,7 +28,7 @@ import net.bestia.zone.ecs.core.Component
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.geometry.Vec3L
 import org.springframework.stereotype.Component as SpringComponent
-import net.bestia.zone.bestia.Bestia
+import net.bestia.zone.bestia.persistence.Bestia
 import net.bestia.zone.bestia.BestiaCatalogue
 
 @SpringComponent

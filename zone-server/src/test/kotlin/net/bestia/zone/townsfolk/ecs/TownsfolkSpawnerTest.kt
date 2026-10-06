@@ -12,7 +12,7 @@ import net.bestia.zone.townsfolk.domain.OccupationCatalogue
 import net.bestia.zone.townsfolk.domain.TownsfolkDomain
 import net.bestia.zone.ai.core.state.Blackboard
 import net.bestia.zone.ai.ecs.AiThrottleable
-import net.bestia.zone.bestia.Bestia
+import net.bestia.zone.bestia.persistence.Bestia
 import net.bestia.zone.bestia.BestiaCatalogue
 import net.bestia.zone.spawn.BestiaEntitySpawner
 import net.bestia.zone.ecs.core.Component

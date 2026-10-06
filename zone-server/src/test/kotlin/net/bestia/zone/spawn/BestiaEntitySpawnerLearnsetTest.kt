@@ -11,9 +11,9 @@ import net.bestia.zone.navigation.profile.MovementProfileRegistry
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
-import net.bestia.zone.bestia.Bestia
+import net.bestia.zone.bestia.persistence.Bestia
 import net.bestia.zone.bestia.BestiaCatalogue
-import net.bestia.zone.bestia.LearnedSkill
+import net.bestia.zone.bestia.persistence.LearnedSkill
 
 /** A wild bestia can only cast the attack skills its AI profile lists if it knows them. */
 class BestiaEntitySpawnerLearnsetTest {

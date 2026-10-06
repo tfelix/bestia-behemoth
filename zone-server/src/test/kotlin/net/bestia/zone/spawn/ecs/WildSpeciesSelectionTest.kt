@@ -1,7 +1,7 @@
 package net.bestia.zone.spawn.ecs
 
 import net.bestia.worldgen.bio.Biome
-import net.bestia.zone.bestia.Bestia
+import net.bestia.zone.bestia.persistence.Bestia
 import net.bestia.zone.spawn.ecs.WildSpawnerService.Candidate
 import net.bestia.zone.spawn.ecs.WildSpawnerService.DenFacts
 import org.junit.jupiter.api.Assertions.assertEquals

@@ -2,6 +2,7 @@ package net.bestia.zone.skill
 
 import net.bestia.zone.util.CatalogValidator
 import org.springframework.stereotype.Component
+import net.bestia.zone.skill.persistence.SkillRepository
 
 /**
  * Cross-checks the [SkillId] enum against the imported skill catalogue and fails the boot on drift.

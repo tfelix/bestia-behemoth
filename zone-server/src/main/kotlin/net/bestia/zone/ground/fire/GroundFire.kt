@@ -24,7 +24,7 @@ class GroundFire(
   val casterId: EntityId,
   val skillId: Long,
   val skillLevel: Int,
-  /** Bestia second the fire started, stamped onto every column it scars. See [ScorchMark]. */
+  /** Bestia second the fire started, stamped onto every column it scars. See [net.bestia.zone.ground.persistence.ScorchMark]. */
   val startedAtSecond: Long,
 ) {
 

@@ -25,7 +25,7 @@ import net.bestia.zone.entity.StaticEntityKind
  * what keeps a progress bar from costing 20 broadcasts a second, and it is the same machinery a cast and a
  * craft already use.
  *
- * @param structureId the [net.bestia.zone.prop.PlayerStructure] row this site belongs to, which is what
+ * @param structureId the [net.bestia.zone.prop.persistence.PlayerStructure] row this site belongs to, which is what
  *   survives a restart. The entity id does not.
  */
 class ConstructionSite(

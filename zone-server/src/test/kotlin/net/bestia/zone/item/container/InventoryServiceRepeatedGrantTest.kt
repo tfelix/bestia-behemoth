@@ -13,7 +13,7 @@ import kotlin.test.assertEquals
 
 /**
  * Grants several items to one master across separate [InventoryService.addItem] calls, each its own
- * transaction. Before [ContainerSlot] had id-based equals/hashCode, and while `addItem` still took a
+ * transaction. Before [net.bestia.zone.item.persistence.ContainerSlot] had id-based equals/hashCode, and while `addItem` still took a
  * reusable `Master` instance, every slot added in an earlier call got merged into the `Set` again on
  * every later call's save(), duplicating earlier grants once per subsequent call.
  */

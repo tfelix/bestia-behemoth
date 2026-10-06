@@ -3,6 +3,7 @@ package net.bestia.zone.townsfolk.rumour
 import net.bestia.zone.world.WorldScopedData
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
+import net.bestia.zone.townsfolk.persistence.RumourRepository
 
 /**
  * News is attached to a settlement index, and those are dense and re-used. The version columns would refuse a

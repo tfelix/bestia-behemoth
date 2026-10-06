@@ -8,7 +8,7 @@ import net.bestia.zone.townsfolk.domain.Occupation
 import net.bestia.zone.townsfolk.domain.OccupationCatalogue
 import net.bestia.zone.townsfolk.domain.TownsfolkDomain
 import net.bestia.zone.spawn.BestiaEntitySpawner
-import net.bestia.zone.bestia.BestiaRepository
+import net.bestia.zone.bestia.persistence.BestiaRepository
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.townsfolk.ecs.TownsfolkEntitySpawner

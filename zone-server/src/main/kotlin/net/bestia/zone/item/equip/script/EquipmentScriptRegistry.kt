@@ -1,7 +1,7 @@
 package net.bestia.zone.item.equip.script
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.item.Item
+import net.bestia.zone.item.persistence.Item
 import org.springframework.stereotype.Component
 
 /**

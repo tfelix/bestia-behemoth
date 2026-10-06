@@ -4,8 +4,8 @@ import jakarta.persistence.*
 import net.bestia.zone.ai.profile.AiConfig
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.item.container.ContainerOwner
-import net.bestia.zone.item.container.ItemContainer
-import net.bestia.zone.bestia.Bestia
+import net.bestia.zone.item.persistence.ItemContainer
+import net.bestia.zone.bestia.persistence.Bestia
 
 @Entity
 @Table(

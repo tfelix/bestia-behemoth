@@ -12,12 +12,12 @@ import net.bestia.zone.cartography.CartographyConfig
 import net.bestia.zone.cartography.chart.ChartService
 import net.bestia.zone.ecs.core.EntityIdGenerator
 import net.bestia.zone.battle.persistence.StatusEffectPersistenceService
-import net.bestia.zone.item.ItemRepository
+import net.bestia.zone.item.persistence.ItemRepository
 import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.item.equip.EquipmentSlot
 import net.bestia.zone.util.AccountId
 import net.bestia.zone.util.DisplayName
-import net.bestia.zone.world.MasterSpawnPoint
+import net.bestia.zone.world.persistence.MasterSpawnPoint
 import net.bestia.zone.world.MasterSpawnPointService
 import net.bestia.zone.world.WorldService
 import org.springframework.dao.DataIntegrityViolationException
@@ -33,7 +33,7 @@ import net.bestia.zone.account.persistence.MasterRepository
 
 /**
  * Builds and persists a new [Master] row for a managed [Account] from what the player filled in on the
- * creation screen, resolving the [net.bestia.zone.world.MasterSpawnPoint] they picked into a world position.
+ * creation screen, resolving the [net.bestia.zone.world.persistence.MasterSpawnPoint] they picked into a world position.
  *
  * The database half only - this never touches the ECS. The master becomes a live entity later, when the
  * player selects it and [MasterEntitySpawner] materializes the persisted row into the world.
@@ -261,7 +261,7 @@ class MasterFactory(
     /**
      * What a new master is created wearing, by `items.yml` identifier and the slot it goes in.
      *
-     * The slot is named here rather than read off [net.bestia.zone.item.Item.equipSlot] so that a piece
+     * The slot is named here rather than read off [net.bestia.zone.item.persistence.Item.equipSlot] so that a piece
      * which is re-homed in the catalogue shows up as a mismatch instead of silently being worn somewhere
      * else - a starter kit is a specific set of three places on a body, not three arbitrary items.
      */

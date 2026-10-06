@@ -13,7 +13,7 @@ import net.bestia.zone.util.EntityId
 
 /**
  * The live view of what an entity is wearing, mirroring the [net.bestia.zone.item.equip.EquipmentSlot]
- * markers on its durable [net.bestia.zone.item.container.ItemContainer] slots the same way
+ * markers on its durable [net.bestia.zone.item.persistence.ItemContainer] slots the same way
  * [Inventory] mirrors the container's stacks.
  *
  * [availableSlotMask] and [wearableArmorTypeMask] are what the entity's *body* allows (everything for a
@@ -29,13 +29,13 @@ data class Equipment(
 
   /**
    * One worn item. [uniqueId] is the id of the backing
-   * [net.bestia.zone.item.instance.ItemInstance]; equipment is never stackable so it always has
+   * [net.bestia.zone.item.persistence.ItemInstance]; equipment is never stackable so it always has
    * one, except in the window between a fresh grant and its async DB write (see [Inventory.Item]).
    */
   data class EquippedItem(
     val itemId: Long,
     val uniqueId: Long,
-    /** Mirrors [net.bestia.zone.item.instance.ItemInstance.upgradeLevel] so equip scripts can scale off it. */
+    /** Mirrors [net.bestia.zone.item.persistence.ItemInstance.upgradeLevel] so equip scripts can scale off it. */
     val upgradeLevel: Int = 0,
 
     /** Wear on the backing instance, both zero for gear that does not wear. */

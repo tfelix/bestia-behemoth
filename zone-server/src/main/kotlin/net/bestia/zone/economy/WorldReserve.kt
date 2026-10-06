@@ -8,6 +8,8 @@ import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Service
 import kotlin.math.max
 import org.springframework.core.annotation.Order
+import net.bestia.zone.economy.persistence.WorldTreasury
+import net.bestia.zone.economy.persistence.WorldTreasuryRepository
 
 /**
  * The counterparty that makes the coin supply finite.

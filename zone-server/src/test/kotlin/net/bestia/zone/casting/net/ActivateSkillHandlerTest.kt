@@ -15,7 +15,7 @@ import net.bestia.zone.logout.ecs.LogoutCancelService
 import net.bestia.zone.logout.ecs.LogoutIntent
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.geometry.Vec3L
-import net.bestia.zone.skill.Skill
+import net.bestia.zone.skill.persistence.Skill
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.prop.PropPromotionService
 import org.junit.jupiter.api.Assertions.assertFalse

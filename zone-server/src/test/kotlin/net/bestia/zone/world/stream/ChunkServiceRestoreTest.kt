@@ -12,6 +12,7 @@ import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import net.bestia.zone.world.persistence.PersistedChunkEdit
 
 /** Edits taken from one [ChunkService] and restored into a fresh one, as a restart does through the database. */
 class ChunkServiceRestoreTest {

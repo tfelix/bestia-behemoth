@@ -9,6 +9,8 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+import net.bestia.zone.ground.persistence.GroundLayerMark
+import net.bestia.zone.ground.persistence.GroundLayerMarkRepository
 
 /**
  * The blood store: the shape of a pool, and the two things it does not share with wear.

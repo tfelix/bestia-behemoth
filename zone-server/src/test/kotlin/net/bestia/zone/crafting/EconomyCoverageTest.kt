@@ -3,8 +3,8 @@ package net.bestia.zone.crafting
 import io.mockk.every
 import io.mockk.mockk
 import net.bestia.worldgen.pop.BusinessCatalogue
-import net.bestia.zone.item.Item
-import net.bestia.zone.item.ItemRepository
+import net.bestia.zone.item.persistence.Item
+import net.bestia.zone.item.persistence.ItemRepository
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue

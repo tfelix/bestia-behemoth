@@ -11,7 +11,7 @@ import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.entity.ecs.DeadActionGuard
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.item.container.InventoryService
-import net.bestia.zone.item.container.ItemContainer
+import net.bestia.zone.item.persistence.ItemContainer
 import net.bestia.zone.item.loot.LootItemEntitySpawner
 import net.bestia.zone.message.TickMessageHandler
 import net.bestia.zone.message.decoder

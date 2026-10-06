@@ -4,7 +4,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.worldgen.resource.GradeMix
 import net.bestia.worldgen.resource.OreGrade
 import net.bestia.zone.util.CatalogValidator
-import net.bestia.zone.item.ItemRepository
+import net.bestia.zone.item.persistence.ItemRepository
 import net.bestia.zone.item.mining.OreYield
 import org.springframework.stereotype.Component
 import kotlin.math.abs

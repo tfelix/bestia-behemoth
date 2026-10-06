@@ -1,6 +1,10 @@
 package net.bestia.zone.bestia
 
 import org.springframework.stereotype.Service
+import net.bestia.zone.bestia.persistence.Bestia
+import net.bestia.zone.bestia.persistence.BestiaRepository
+import net.bestia.zone.bestia.persistence.BestiaSkillRepository
+import net.bestia.zone.bestia.persistence.LearnedSkill
 
 /**
  * The species catalogue, read once instead of per creature.

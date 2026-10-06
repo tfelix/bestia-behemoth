@@ -1,23 +1,24 @@
 package net.bestia.zone.item.container
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.item.Item
+import net.bestia.zone.item.persistence.Item
 import net.bestia.zone.item.ItemNotFoundException
-import net.bestia.zone.item.ItemRepository
+import net.bestia.zone.item.persistence.ItemRepository
 import net.bestia.zone.item.equip.EquipmentSlot
-import net.bestia.zone.item.findByIdentifierOrThrow
-import net.bestia.zone.item.instance.ItemInstance
-import net.bestia.zone.item.instance.ItemInstanceRepository
-import net.bestia.zone.item.instance.findByIdOrThrow
+import net.bestia.zone.item.persistence.findByIdentifierOrThrow
+import net.bestia.zone.item.persistence.ItemInstance
+import net.bestia.zone.item.persistence.ItemInstanceRepository
+import net.bestia.zone.item.persistence.findByIdOrThrow
 import net.bestia.zone.util.PlayerBestiaId
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import net.bestia.zone.item.persistence.ItemContainer
 
 /**
  * The single durable-inventory entry point. Adds/removes items on an owner's [ItemContainer] and
  * owns the rule for when a plain stackable pile vs. a unique [ItemInstance] is created - callers
- * (message handlers, ECS systems, seeding) never touch [ContainerSlot]/[ItemInstance] directly.
+ * (message handlers, ECS systems, seeding) never touch [net.bestia.zone.item.persistence.ContainerSlot]/[ItemInstance] directly.
  *
  * Deliberately has no dependency on the ECS world: callers that also need the live ECS `Inventory`
  * component updated go through [net.bestia.zone.item.ecs.ObtainItemIntent] instead, which mutates

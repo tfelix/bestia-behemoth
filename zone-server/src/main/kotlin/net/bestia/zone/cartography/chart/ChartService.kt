@@ -8,13 +8,15 @@ import net.bestia.zone.account.persistence.findByIdOrThrow
 import net.bestia.zone.cartography.coverage.Coverage
 import net.bestia.zone.cartography.coverage.CoverageCodec
 import net.bestia.zone.cartography.coverage.SurveyGrid
-import net.bestia.zone.item.Item
-import net.bestia.zone.item.ItemRepository
+import net.bestia.zone.item.persistence.Item
+import net.bestia.zone.item.persistence.ItemRepository
 import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.world.WorldService
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import net.bestia.zone.cartography.persistence.MapChart
+import net.bestia.zone.cartography.persistence.MapChartRepository
 
 /**
  * Everything that makes, joins and reads charts.

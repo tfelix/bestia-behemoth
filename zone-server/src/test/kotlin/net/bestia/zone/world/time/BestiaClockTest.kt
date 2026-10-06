@@ -2,7 +2,7 @@ package net.bestia.zone.world.time
 
 import io.mockk.every
 import io.mockk.mockk
-import net.bestia.zone.world.PersistedWorld
+import net.bestia.zone.world.persistence.PersistedWorld
 import net.bestia.zone.world.WorldService
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test

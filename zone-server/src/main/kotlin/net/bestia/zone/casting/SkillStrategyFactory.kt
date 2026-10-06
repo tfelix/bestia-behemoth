@@ -1,7 +1,7 @@
 package net.bestia.zone.casting
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.skill.Skill
+import net.bestia.zone.skill.persistence.Skill
 import org.springframework.stereotype.Component
 
 /**

@@ -13,8 +13,8 @@ import net.bestia.zone.message.IoMessageHandler
 import net.bestia.zone.message.decoder
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
-import net.bestia.zone.item.Item
-import net.bestia.zone.item.ItemRepository
+import net.bestia.zone.item.persistence.Item
+import net.bestia.zone.item.persistence.ItemRepository
 
 @Component
 class UseItemHandler(

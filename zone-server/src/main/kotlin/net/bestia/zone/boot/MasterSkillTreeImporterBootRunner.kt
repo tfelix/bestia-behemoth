@@ -7,7 +7,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.skill.tree.MasterSkillPrerequisite
 import net.bestia.zone.skill.tree.MasterSkillTreeNode
 import net.bestia.zone.skill.tree.MasterSkillTreeRegistry
-import net.bestia.zone.skill.SkillRepository
+import net.bestia.zone.skill.persistence.SkillRepository
 import org.springframework.boot.CommandLineRunner
 import org.springframework.core.annotation.Order
 import org.springframework.core.io.ClassPathResource

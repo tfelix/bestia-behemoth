@@ -12,7 +12,7 @@ import net.bestia.zone.item.ecs.Equipment
 import net.bestia.zone.item.ecs.Inventory
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.item.container.InventoryService
-import net.bestia.zone.item.container.ItemContainer
+import net.bestia.zone.item.persistence.ItemContainer
 import net.bestia.zone.item.equip.EquipmentSlot
 import net.bestia.zone.item.equip.EquipmentSlots
 import net.bestia.zone.item.loot.LootItemEntitySpawner

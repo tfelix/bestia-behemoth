@@ -4,8 +4,8 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.identity.ecs.OwnedBestia
 import net.bestia.zone.battle.persistence.StatusEffectPersistenceService
-import net.bestia.zone.cartography.chart.MapChartRepository
-import net.bestia.zone.item.instance.ItemInstanceRepository
+import net.bestia.zone.cartography.persistence.MapChartRepository
+import net.bestia.zone.item.persistence.ItemInstanceRepository
 import net.bestia.zone.party.PartyService
 import net.bestia.zone.util.AccountId
 import org.springframework.data.repository.findByIdOrNull
@@ -32,7 +32,7 @@ import net.bestia.zone.account.persistence.MasterRepository
  * - **Crafted items** ([ItemInstanceRepository.clearCraftedByMaster]) - an item this master forged may be in
  *   somebody else's hands and must outlive its maker, so the reference is nulled rather than followed.
  * - **Held item instances** - the container cascade deletes the *slots* but deliberately not the
- *   [net.bestia.zone.item.instance.ItemInstance] rows in them (an instance outlives its placement so it
+ *   [net.bestia.zone.item.persistence.ItemInstance] rows in them (an instance outlives its placement so it
  *   survives being moved). With their owner gone nothing can ever reach them again, so they are deleted
  *   here, after the slots that pointed at them.
  * - **Persisted status effects** - stored against [Master.entityId], which is not a foreign key to anything.

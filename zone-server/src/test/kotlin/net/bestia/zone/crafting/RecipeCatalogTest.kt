@@ -8,10 +8,10 @@ import io.mockk.every
 import io.mockk.mockk
 import net.bestia.zone.boot.RecipeImporterBootRunner
 import net.bestia.zone.skill.ecs.KnownSkills
-import net.bestia.zone.item.Item
-import net.bestia.zone.item.ItemRepository
-import net.bestia.zone.skill.Skill
-import net.bestia.zone.skill.SkillRepository
+import net.bestia.zone.item.persistence.Item
+import net.bestia.zone.item.persistence.ItemRepository
+import net.bestia.zone.skill.persistence.Skill
+import net.bestia.zone.skill.persistence.SkillRepository
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull

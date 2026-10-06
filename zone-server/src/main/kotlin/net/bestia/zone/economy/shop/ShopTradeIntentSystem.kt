@@ -19,7 +19,7 @@ import net.bestia.zone.economy.Commodity
 import net.bestia.zone.economy.CommodityItems
 import net.bestia.zone.economy.SettlementEconomyService
 import net.bestia.zone.economy.Shop
-import net.bestia.zone.item.ItemRepository
+import net.bestia.zone.item.persistence.ItemRepository
 import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OutMessageProcessor

@@ -10,7 +10,7 @@ import net.bestia.zone.geometry.Vec3L
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import net.bestia.zone.bestia.loot.LootDrop
-import net.bestia.zone.bestia.loot.LootItemRepository
+import net.bestia.zone.bestia.persistence.LootItemRepository
 import net.bestia.zone.item.loot.LootItemEntitySpawner
 
 class MobLootSpawnerTest {

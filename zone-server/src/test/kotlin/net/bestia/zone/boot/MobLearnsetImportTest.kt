@@ -4,12 +4,12 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
-import net.bestia.zone.bestia.Bestia
-import net.bestia.zone.bestia.BestiaSkill
-import net.bestia.zone.bestia.BestiaSkillRepository
+import net.bestia.zone.bestia.persistence.Bestia
+import net.bestia.zone.bestia.persistence.BestiaSkill
+import net.bestia.zone.bestia.persistence.BestiaSkillRepository
 import net.bestia.zone.boot.MobImporterBootRunner.MobYmlDto.LearnedAttack
-import net.bestia.zone.skill.Skill
-import net.bestia.zone.skill.SkillRepository
+import net.bestia.zone.skill.persistence.Skill
+import net.bestia.zone.skill.persistence.SkillRepository
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows

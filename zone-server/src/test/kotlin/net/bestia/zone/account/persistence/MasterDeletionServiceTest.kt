@@ -3,7 +3,7 @@ package net.bestia.zone.account.persistence
 import net.bestia.zone.master.bestia.PlayerBestiaFactory
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.item.container.InventoryService
-import net.bestia.zone.item.instance.ItemInstanceRepository
+import net.bestia.zone.item.persistence.ItemInstanceRepository
 import net.bestia.zone.party.PartyService
 import net.bestia.zone.scenarios.ScenarioDataSetup
 import net.bestia.zone.world.MasterSpawnPointService

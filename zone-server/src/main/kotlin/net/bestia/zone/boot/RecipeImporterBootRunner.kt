@@ -7,8 +7,8 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.crafting.Recipe
 import net.bestia.zone.crafting.RecipeEffect
 import net.bestia.zone.crafting.RecipeRegistry
-import net.bestia.zone.item.ItemRepository
-import net.bestia.zone.skill.SkillRepository
+import net.bestia.zone.item.persistence.ItemRepository
+import net.bestia.zone.skill.persistence.SkillRepository
 import net.bestia.zone.entity.StaticEntityKind
 import org.springframework.boot.CommandLineRunner
 import org.springframework.core.annotation.Order

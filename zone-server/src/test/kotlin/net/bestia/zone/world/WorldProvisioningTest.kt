@@ -17,6 +17,8 @@ import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import net.bestia.zone.world.persistence.PersistedWorld
+import net.bestia.zone.world.persistence.WorldRepository
 
 /**
  * Boot-time world detection, against the real repository.

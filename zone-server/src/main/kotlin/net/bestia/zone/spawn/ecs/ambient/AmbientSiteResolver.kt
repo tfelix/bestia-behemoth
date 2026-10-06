@@ -223,7 +223,7 @@ class AmbientSiteResolver(
 
     /** The placeable species, with habitats parsed once. Shared with the den layer's own filter. */
     internal fun catalogueOf(
-      species: List<net.bestia.zone.bestia.Bestia>,
+      species: List<net.bestia.zone.bestia.persistence.Bestia>,
       wildConfig: WildSpawnConfig
     ): List<WildSpawnerService.Candidate> {
       val excluded = wildConfig.excludedSpecies.toSet()

@@ -7,7 +7,7 @@ import net.bestia.zone.skill.tree.MasterSkillTreeRegistry
 /**
  * Whether a wearer still counts as a novice: one who has put no skill point into any tree but Novice.
  *
- * What the novice-only starter kit is gated on - see [net.bestia.zone.item.Item.noviceOnly]. Taking Basic
+ * What the novice-only starter kit is gated on - see [net.bestia.zone.item.persistence.Item.noviceOnly]. Taking Basic
  * Skill to 5 deliberately keeps a master a novice, because the whole Novice tree is the part of the game the
  * kit is meant to carry them through; it is the first point spent in Craftsman, Survival, Scholar or Warrior
  * that ends it.

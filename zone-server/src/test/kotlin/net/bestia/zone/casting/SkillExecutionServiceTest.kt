@@ -11,8 +11,8 @@ import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.geometry.Vec3L
-import net.bestia.zone.skill.Skill
-import net.bestia.zone.skill.SkillRepository
+import net.bestia.zone.skill.persistence.Skill
+import net.bestia.zone.skill.persistence.SkillRepository
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.prop.PropPromotionService
 import org.junit.jupiter.api.Assertions.assertEquals

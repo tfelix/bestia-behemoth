@@ -18,6 +18,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import net.bestia.zone.ground.persistence.ScorchMark
 
 /**
  * The automaton, against a fake ground and a fake sky.

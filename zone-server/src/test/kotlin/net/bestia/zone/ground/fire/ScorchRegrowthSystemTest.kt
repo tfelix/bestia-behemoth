@@ -14,6 +14,8 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import net.bestia.zone.ground.persistence.ScorchMark
+import net.bestia.zone.ground.persistence.ScorchRepository
 
 /**
  * Rain healing a scar, with the weather faked.

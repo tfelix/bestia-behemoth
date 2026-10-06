@@ -11,7 +11,7 @@ import jakarta.persistence.JoinColumn
 import jakarta.persistence.FetchType
 import jakarta.persistence.UniqueConstraint
 import org.hibernate.annotations.Check
-import net.bestia.zone.skill.Skill
+import net.bestia.zone.skill.persistence.Skill
 
 /**
  * A single learned skill, owned by exactly one of [playerBestia] or [master]: either a custom

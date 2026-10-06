@@ -6,7 +6,7 @@ import net.bestia.zone.casting.SkillStrategyFactory
 import net.bestia.zone.casting.SkillStrategy
 import net.bestia.zone.skill.SkillTargetType
 import net.bestia.zone.battle.status.StatusValueRecalcContext
-import net.bestia.zone.skill.Skill
+import net.bestia.zone.skill.persistence.Skill
 import net.bestia.zone.skill.SkillId
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull

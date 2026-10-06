@@ -10,7 +10,7 @@ import net.bestia.zone.master.MasterFactory
 import net.bestia.zone.account.persistence.MasterRepository
 import net.bestia.zone.account.persistence.findByIdOrThrow
 import net.bestia.zone.cartography.coverage.CoverageCodec
-import net.bestia.zone.item.ItemRepository
+import net.bestia.zone.item.persistence.ItemRepository
 import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.world.MasterSpawnPointService
 import net.bestia.zone.world.WorldService
@@ -29,6 +29,7 @@ import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import net.bestia.zone.cartography.persistence.MapChartRepository
 
 /**
  * What a chart is worth: what surveying costs, what merging joins, and what a copy leaves behind.

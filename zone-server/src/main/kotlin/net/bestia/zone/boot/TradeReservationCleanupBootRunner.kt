@@ -1,7 +1,7 @@
 package net.bestia.zone.boot
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.item.container.ContainerSlotRepository
+import net.bestia.zone.item.persistence.ContainerSlotRepository
 import org.springframework.boot.CommandLineRunner
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component

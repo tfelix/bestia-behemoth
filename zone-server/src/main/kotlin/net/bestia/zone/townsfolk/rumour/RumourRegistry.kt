@@ -5,6 +5,8 @@ import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.world.WorldService
 import org.springframework.stereotype.Service
 import java.util.concurrent.atomic.AtomicLong
+import net.bestia.zone.townsfolk.persistence.Rumour
+import net.bestia.zone.townsfolk.persistence.RumourRepository
 
 /**
  * What each town has heard lately, and the only place that answer is kept.

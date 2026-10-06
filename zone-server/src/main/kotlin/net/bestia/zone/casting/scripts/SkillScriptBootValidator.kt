@@ -3,7 +3,7 @@ package net.bestia.zone.casting.scripts
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.casting.SkillStrategyFactory
 import net.bestia.zone.util.CatalogValidator
-import net.bestia.zone.skill.SkillRepository
+import net.bestia.zone.skill.persistence.SkillRepository
 import org.springframework.stereotype.Component
 
 /**

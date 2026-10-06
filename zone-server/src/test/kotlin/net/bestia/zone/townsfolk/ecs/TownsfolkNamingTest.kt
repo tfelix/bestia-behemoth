@@ -4,7 +4,7 @@ import io.mockk.every
 import io.mockk.mockk
 import net.bestia.worldgen.core.Chronicle
 import net.bestia.worldgen.pipeline.GeneratedWorld
-import net.bestia.zone.world.PersistedWorld
+import net.bestia.zone.world.persistence.PersistedWorld
 import net.bestia.zone.world.WorldService
 import kotlin.test.Test
 import kotlin.test.assertEquals
