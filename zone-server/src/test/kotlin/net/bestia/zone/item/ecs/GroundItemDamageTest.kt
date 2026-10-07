@@ -2,6 +2,7 @@ package net.bestia.zone.item.ecs
 
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import net.bestia.zone.battle.Element
 import net.bestia.zone.battle.ecs.status.Invulnerable
 import net.bestia.zone.config.WorldRulesConfig
@@ -13,11 +14,13 @@ import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.item.container.LooseInstanceDisposal
 import net.bestia.zone.item.loot.LootItemEntitySpawner
 import net.bestia.zone.item.material.ItemMaterial
 import net.bestia.zone.item.material.ItemMaterialRegistry
 import net.bestia.zone.item.persistence.Item
 import net.bestia.zone.item.persistence.ItemRepository
+import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.persistence.PersistedEntityDeletionQueue
 import net.bestia.zone.util.EntityId
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -32,11 +35,14 @@ class GroundItemDamageTest {
 
   private val itemRepository = mockk<ItemRepository> { every { findAll() } returns listOf(blueprint, sword) }
   private val deletionQueue = PersistedEntityDeletionQueue()
+  private val instanceDisposal = mockk<LooseInstanceDisposal>(relaxed = true)
 
   private val sut = GroundItemDamage(
     itemTemplates = ItemTemplateRegistry(itemRepository),
     materials = ItemMaterialRegistry().also { it.load() },
     groundStackRemoval = GroundStackRemoval(deletionQueue),
+    asyncJobExecutor = AsyncJobExecutor(workerCount = 1),
+    looseInstanceDisposal = instanceDisposal,
   )
 
   private val spawner = LootItemEntitySpawner(WorldRulesConfig(tickRate = 20))
@@ -54,6 +60,27 @@ class GroundItemDamageTest {
 
     assertFalse(world.isAlive(stack))
     assertEquals(listOf(stack), deletionQueue.drainAll())
+  }
+
+  /** It lay in no container, so nothing else would ever delete its row. */
+  @Test
+  fun `a burnt unique item takes its instance with it`() {
+    val world = testWorld()
+    val chart = spawner.spawnLootItem(world, itemId = blueprint.id, amount = 1, pos = Vec3L(0, 0, 0), uniqueId = 77L)
+
+    sut.damage(world, chart, 10, Element.FIRE)
+
+    verify(timeout = 1000) { instanceDisposal.destroy(77L) }
+  }
+
+  @Test
+  fun `a plain item has no instance to delete`() {
+    val world = testWorld()
+    val stack = world.stackOf(blueprint)
+
+    sut.damage(world, stack, 10, Element.FIRE)
+
+    verify(exactly = 0, timeout = 200) { instanceDisposal.destroy(any()) }
   }
 
   @Test

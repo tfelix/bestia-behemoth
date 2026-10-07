@@ -5,7 +5,9 @@ import net.bestia.zone.battle.ecs.status.Invulnerable
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.entity.ecs.Dead
+import net.bestia.zone.item.container.LooseInstanceDisposal
 import net.bestia.zone.item.material.ItemMaterialRegistry
+import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
 
@@ -20,6 +22,8 @@ class GroundItemDamage(
   private val itemTemplates: ItemTemplateRegistry,
   private val materials: ItemMaterialRegistry,
   private val groundStackRemoval: GroundStackRemoval,
+  private val asyncJobExecutor: AsyncJobExecutor,
+  private val looseInstanceDisposal: LooseInstanceDisposal,
 ) {
 
   /** For a calling system's own declarations. */
@@ -38,14 +42,18 @@ class GroundItemDamage(
 
     integrity.lost += spec.damageFrom(amount, element)
     if (integrity.lost >= spec.integrity) {
-      destroy(world, stackId, integrity)
+      destroy(world, stackId, stack, integrity)
     }
   }
 
-  private fun destroy(world: World, stackId: EntityId, integrity: GroundItemIntegrity) {
+  private fun destroy(world: World, stackId: EntityId, stack: GroundItemStack, integrity: GroundItemIntegrity) {
     integrity.destroyed = true
     // So the vanish tells clients the stack was destroyed rather than picked up.
     world.add(stackId, Dead())
     groundStackRemoval.remove(world, stackId)
+
+    if (stack.uniqueId != 0L) {
+      asyncJobExecutor.submit(stack.uniqueId) { looseInstanceDisposal.destroy(stack.uniqueId) }
+    }
   }
 }
