@@ -5,6 +5,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.item.ecs.GroundItemDecay
+import net.bestia.zone.item.ecs.GroundItemIntegrity
 import net.bestia.zone.item.ecs.GroundItemStack
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.persistence.EntityPersister
@@ -33,7 +34,8 @@ class LootItemEntityPersister(
   override val kind = KIND
   override val loadsAtStartup = true
 
-  override val reads: ComponentClassSet = setOf(GroundItemStack::class, Position::class, GroundItemDecay::class)
+  override val reads: ComponentClassSet =
+    setOf(GroundItemStack::class, Position::class, GroundItemDecay::class, GroundItemIntegrity::class)
 
   override fun supports(world: World, id: EntityId): Boolean =
     world.has(id, GroundItemStack::class)
@@ -49,6 +51,7 @@ class LootItemEntityPersister(
       uniqueId = stack.uniqueId,
       x = pos.x, y = pos.y, z = pos.z,
       despawnAt = world.get(id, GroundItemDecay::class)?.despawnAt,
+      integrityLost = world.get(id, GroundItemIntegrity::class)?.lost ?: 0,
     )
   }
 
@@ -82,6 +85,7 @@ class LootItemEntityPersister(
         uniqueId = snap.uniqueId,
         entityId = snap.entityId,
         despawnAt = snap.despawnAt,
+        integrityLost = snap.integrityLost,
       )
       loaded++
     }

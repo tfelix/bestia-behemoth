@@ -7,6 +7,7 @@ import net.bestia.zone.ecs.core.SnowflakeEntityIdGenerator
 import net.bestia.zone.ecs.core.EcsWorld
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.item.ecs.GroundItemDecay
+import net.bestia.zone.item.ecs.GroundItemIntegrity
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.item.persistence.LootItemEntityPersister
 import net.bestia.zone.spawn.persistence.MobEntityPersister
@@ -99,6 +100,24 @@ class EntityPersistenceRoundTripTest {
 
     reloadWorld.read {
       assertEquals(despawnAt, getOrThrow(entityId, GroundItemDecay::class).despawnAt)
+    }
+  }
+
+  /** A restart must not mend a stack that a fire has half burnt. */
+  @Test
+  fun `ground item is reloaded with the integrity it had lost`() {
+    val spawnWorld = newWorld()
+    val entityId = lootItemEntitySpawner.spawnLootItem(spawnWorld, itemId = 1L, amount = 3, pos = Vec3L(4, 5, 6))
+    spawnWorld.modify(entityId) { id -> getOrThrow(id, GroundItemIntegrity::class).lost = 7 }
+
+    val snapshot = spawnWorld.read { lootItemEntityPersister.snapshot(this, entityId) }
+    lootItemEntityPersister.persist(listOf(assertNotNull(snapshot)))
+
+    val reloadWorld = newWorld()
+    lootItemEntityPersister.loadAll(reloadWorld)
+
+    reloadWorld.read {
+      assertEquals(7, getOrThrow(entityId, GroundItemIntegrity::class).lost)
     }
   }
 
