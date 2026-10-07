@@ -110,6 +110,15 @@ func is_entity_friendly(entity: Entity) -> bool:
 	return is_owned_entity_id(entity.entity_id) or entity.is_non_combatant()
 
 
+## Whether the local player's harm could land on [param entity], as far as the client can tell - the server's
+## damage gate has the last word. Only a living creature that is neither friendly nor warded qualifies.
+func can_be_harmed(entity: Entity) -> bool:
+	if is_entity_friendly(entity) or entity.is_warded() or entity.is_dead():
+		return false
+
+	return entity.is_creature()
+
+
 ## DEPRECATED We need to come up with a better solution this can not work and scale. We need certain
 ##    mouse over fields that send their position so this then decides what is the closes, best entity.
 ## Closest Entity to world_position within max_distance whose disposition matches
@@ -122,10 +131,9 @@ func get_closest_entity(world_position: Vector3, max_distance: float, filter: St
 	var best_dist_sq: float = max_distance * max_distance
 	for value in _entities.values():
 		var entity: Entity = value
-		var friendly: bool = is_entity_friendly(entity)
-		if filter == "enemy" and friendly:
+		if filter == "enemy" and not can_be_harmed(entity):
 			continue
-		if filter == "friendly" and not friendly:
+		if filter == "friendly" and not is_entity_friendly(entity):
 			continue
 		var entity_pos: Vector3 = entity.global_position
 		var d_sq: float = entity_pos.distance_squared_to(world_position)

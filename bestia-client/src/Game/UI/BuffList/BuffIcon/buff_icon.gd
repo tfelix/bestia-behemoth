@@ -18,12 +18,17 @@ var _fade_tween: Tween = null
 
 func setup(entry: StatusEffectListEntry) -> void:
 	_button.modulate = Color(1.0, 0.55, 0.55) if entry.Debuff else Color(1.0, 1.0, 1.0)
+	_button.tooltip_text = _description_of(entry.EffectId)
 	_remaining_seconds = entry.RemainingSeconds
-	_refresh()
+
+	# Infinite for an effect held until the server takes it away, such as a ward: there is no clock to show.
+	_duration_label.visible = not is_inf(_remaining_seconds)
+	if _duration_label.visible:
+		_refresh()
 
 
 func _process(delta: float) -> void:
-	if _remaining_seconds <= 0.0:
+	if _remaining_seconds <= 0.0 or is_inf(_remaining_seconds):
 		return
 	_remaining_seconds = maxf(_remaining_seconds - delta, 0.0)
 	_refresh()
@@ -36,6 +41,13 @@ func _refresh() -> void:
 	else:
 		_duration_label.text = "%d" % int(ceil(_remaining_seconds))
 		_set_fading(true)
+
+
+## Empty for an effect with no description yet, so the icon shows no tooltip rather than a raw key.
+func _description_of(effect_id: int) -> String:
+	var key := "STATUS_EFFECT_%d" % effect_id
+	var text := tr(key)
+	return "" if text == key else text
 
 
 func _set_fading(should_fade: bool) -> void:

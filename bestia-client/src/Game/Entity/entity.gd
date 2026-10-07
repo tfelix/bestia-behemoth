@@ -26,6 +26,10 @@ var _bestia_id: int = 0
 # is_non_combatant for them - see there.
 var _is_townsfolk: bool = false
 
+# True for a body that can be fought: a bestia, a townsperson or a master. A ward stone, an item or an effect
+# is none of these - see EntityManager.can_be_harmed.
+var _is_creature: bool = false
+
 # This entity's own name, for anything that labels it. Empty for a mob, which has only a species.
 var _display_name: String = ""
 
@@ -132,6 +136,7 @@ const _SNAP_METRES: float = 2.5          # desync this large just snaps
 const _PREDICTION_GRACE_FLOOR_MSEC: int = 600
 const _ROTATION_DURATION: float = 0.3  # Time to turn the model to face movement direction
 const _VISUAL_NODE_NAME = "Visual"
+const _WARDED_EFFECT_ID: int = 10  # the server's StatusEffectId.WARDED
 
 # Ground snapping (see _update_ground_offset).
 const _GROUND_MAX_RATE: float = 6.0      # metres/second the correction may travel
@@ -367,6 +372,7 @@ func show_chat(msg: ChatSMSG) -> void:
 ## Builds the visual from a kind plus a catalogue id. Masters go through update_master_visual.
 func update_visual(msg: VisualComponentSMSG) -> void:
 	_bestia_id = msg.VisualId if msg.Kind == VisualKind.BESTIA else 0
+	_is_creature = msg.Kind == VisualKind.BESTIA
 
 	var scene: PackedScene = _visual_scene_for(msg)
 	if scene == null:
@@ -394,6 +400,15 @@ func is_non_combatant() -> bool:
 
 	var bestia := BestiaDB.get_instance().get_bestia(_bestia_id)
 	return bestia != null and bestia.non_combatant
+
+
+func is_creature() -> bool:
+	return _is_creature
+
+
+## Whether a ward stone keeps other players from harming this entity right now.
+func is_warded() -> bool:
+	return _effects.any(func(effect): return effect.EffectId == _WARDED_EFFECT_ID)
 
 
 func _visual_scene_for(msg: VisualComponentSMSG) -> PackedScene:
@@ -429,6 +444,7 @@ func _visual_scene_for(msg: VisualComponentSMSG) -> PackedScene:
 
 func update_master_visual(msg: MasterVisualComponentSMSG) -> void:
 	_display_name = msg.Name
+	_is_creature = true
 
 	_release_visual()
 	var visual = MasterModelScn.instantiate() as MasterVisual
@@ -442,6 +458,7 @@ func update_master_visual(msg: MasterVisualComponentSMSG) -> void:
 ## town, so a species id could only say "a townsperson" - which is what they all used to be labelled.
 func update_townsfolk_visual(msg: TownsfolkVisualComponentSMSG) -> void:
 	_is_townsfolk = true
+	_is_creature = true
 	_display_name = msg.Name
 
 	_release_visual()
