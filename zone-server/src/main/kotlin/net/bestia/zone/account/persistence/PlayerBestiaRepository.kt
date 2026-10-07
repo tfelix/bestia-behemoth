@@ -15,6 +15,8 @@ interface PlayerBestiaRepository : JpaRepository<PlayerBestia, Long> {
 
   fun findAllByMasterId(masterId: Long): List<PlayerBestia>
 
+  fun findAllByEntityIdIsNull(): List<PlayerBestia>
+
   /** Locks the row for a read-modify-write, like `MasterRepository.findByIdForUpdate`. */
   @Lock(LockModeType.PESSIMISTIC_WRITE)
   @Query("select b from PlayerBestia b where b.id = :id")

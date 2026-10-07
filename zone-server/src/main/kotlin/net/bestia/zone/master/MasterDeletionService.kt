@@ -97,8 +97,8 @@ class MasterDeletionService(
     // Everything the log line and the reply need is read out now: once the delete below has been flushed,
     // touching the master's lazy associations again is reaching into a row that is gone.
     val masterName = master.name
-    val masterEntityId = master.entityId
     val ownedBestias = master.bestias.ownedBestias
+    val entityIds = listOf(master.entityId) + ownedBestias.mapNotNull { it.entityId }
 
     // Read out before the cascade takes the slots away, deleted after it has.
     val heldInstanceIds = (listOf(master.container) + ownedBestias.map { it.container })
@@ -124,7 +124,7 @@ class MasterDeletionService(
       itemInstanceRepository.deleteAllById(heldInstanceIds)
     }
 
-    statusEffectPersistenceService.deleteFor(listOf(masterEntityId))
+    statusEffectPersistenceService.deleteFor(entityIds)
 
     LOG.info {
       "Deleted master $masterId ('$masterName') of account $accountId, " +
@@ -139,9 +139,7 @@ class MasterDeletionService(
    * while a master is playing, and briefly after a logout until `PersistAndRemoveSystem` has written it
    * back; deleting in that window would race the persist job into re-inserting rows behind us.
    *
-   * The owned bestias are checked as well as the master itself. A [net.bestia.zone.account.persistence.PlayerBestia] has
-   * no stored entity id to look up, its id is minted at spawn, so its `OwnedBestia` component is how it is
-   * found.
+   * The owned bestias are checked as well as the master itself.
    */
   private fun isStillInTheWorld(master: Master): Boolean {
     return world.read {

@@ -67,6 +67,15 @@ class PlayerBestia(
   @Embedded
   var aiConfig: AiConfig = AiConfig()
 
+  /**
+   * The ECS [net.bestia.zone.util.EntityId] this bestia occupies whenever it is in the world, the same across
+   * every spawn like [Master.entityId], which is what lets its stored status effects find it again. Taken at
+   * creation; a row written before the column existed gets one at boot from
+   * [net.bestia.zone.boot.PlayerBestiaEntityIdBootRunner].
+   */
+  @Column(name = "entity_id", unique = true)
+  var entityId: Long? = null
+
   @OneToOne(cascade = [CascadeType.ALL], orphanRemoval = true)
   @JoinColumn(name = "container_id", nullable = false)
   override val container: ItemContainer = ItemContainer(ItemContainer.Type.BESTIA)
