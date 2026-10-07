@@ -20,6 +20,7 @@ ERROR_CHAT_COMMAND_NO_PERMISSION,You are not allowed to use that command.
 ERROR_CHAT_COMMAND_UNKNOWN,There is no such command. Type /help to see the ones you can use.
 ERROR_CHAT_COMMAND_FAILED,That command went wrong and did nothing.
 ERROR_COMBAT_TARGET_WARDED,A ward stone's magic keeps you from harming them.
+STATUS_EFFECT_10,Warded: a ward stone's magic keeps other players from harming you and you from harming them.
 ERROR_CHAT_WHISPER_TARGET_UNAVAILABLE,No player named %s is online.
 DEATH_TITLE,You have died.
 DEATH_TEXT,Your body lies where it fell. Return to your save point, or stay a while longer.
