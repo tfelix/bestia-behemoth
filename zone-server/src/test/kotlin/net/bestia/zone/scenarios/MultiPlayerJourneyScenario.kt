@@ -486,8 +486,8 @@ class MultiPlayerJourneyScenario : BestiaNoSocketScenario(autoClientConnect = fa
     )
 
     await {
-      val effects = clientPlayer1.getLastReceived(StatusEffectsComponentSMSG::class)
-      assertTrue(effects.effects.any { it.effectId == StatusEffectId.BLESSING.id })
+      val effects = clientPlayer1.tryGetLastReceivedFor(StatusEffectsComponentSMSG::class, activeEntityId)
+      assertTrue(effects?.effects.orEmpty().any { it.effectId == StatusEffectId.BLESSING.id })
     }
 
     // Kept in the same test as the appearance check (rather than a separate @Test) so the
@@ -497,8 +497,8 @@ class MultiPlayerJourneyScenario : BestiaNoSocketScenario(autoClientConnect = fa
     // block for a real minute; StatusEffectDurationSystem ticks on a real 1s schedule, so this is
     // a genuine (bounded) wall-clock wait, not a simulated one.
     await {
-      val effects = clientPlayer1.getLastReceived(StatusEffectsComponentSMSG::class)
-      assertFalse(effects.effects.any { it.effectId == StatusEffectId.BLESSING.id })
+      val effects = clientPlayer1.tryGetLastReceivedFor(StatusEffectsComponentSMSG::class, activeEntityId)
+      assertFalse(effects?.effects.orEmpty().any { it.effectId == StatusEffectId.BLESSING.id })
     }
   }
 
