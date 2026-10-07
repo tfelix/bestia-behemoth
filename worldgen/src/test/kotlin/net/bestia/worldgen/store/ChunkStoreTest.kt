@@ -3,6 +3,7 @@ package net.bestia.worldgen.store
 import net.bestia.worldgen.core.ChunkPos
 import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.derived.ChunkDelta
+import net.bestia.worldgen.derived.VoxelEdit
 import net.bestia.worldgen.voxel.BlockType
 import net.bestia.worldgen.voxel.ChunkEngine
 import net.bestia.worldgen.voxel.Occupancy
@@ -342,6 +343,82 @@ class ChunkStoreTest {
     baked.loseEverything()
 
     assertFailsWith<IllegalStateException> { store.merged(ChunkPos(0, 0)) }
+  }
+
+  // --- Edits that add material ----------------------------------------------------------------------
+
+  /** Above the fixture's highest rock in every column. */
+  private val alwaysAir = config.chunkHeight - 1
+
+  private fun water(x: Int, y: Int, z: Int, occupancy: Int = Occupancy.FULL): Long {
+    return VoxelEdit.pack(voxelIndex(x, y, z), BlockType.WATER, occupancy)
+  }
+
+  @Test
+  fun `an edit can put water where there was air`() {
+    val announced = ArrayList<ChunkPos>()
+    val store = ChunkStore(config, ChunkCache(config.seed, 7L, ::generate), onChanged = { announced.add(it) })
+    val chunk = ChunkPos(1, 2)
+
+    val outcome = store.edit(chunk, longArrayOf(water(2, 2, alwaysAir, occupancy = 90)))
+
+    assertEquals(1, outcome.changed)
+    assertEquals(listOf(chunk), announced)
+    val merged = store.merged(chunk)
+    assertEquals(BlockType.WATER, merged[2, 2, alwaysAir])
+    assertEquals(90, merged.occupancyAt(2, 2, alwaysAir))
+  }
+
+  @Test
+  fun `an edit that repeats what a voxel holds is not a change`() {
+    val announced = ArrayList<ChunkPos>()
+    val store = ChunkStore(config, ChunkCache(config.seed, 7L, ::generate), onChanged = { announced.add(it) })
+    val chunk = ChunkPos(1, 2)
+
+    store.edit(chunk, longArrayOf(water(2, 2, alwaysAir)))
+    val outcome = store.edit(chunk, longArrayOf(water(2, 2, alwaysAir)))
+
+    assertEquals(0, outcome.changed)
+    assertEquals(1, announced.size, "only the first edit is announced")
+  }
+
+  @Test
+  fun `water that drains back to air leaves no edit behind`() {
+    val store = ChunkStore(config, ChunkCache(config.seed, 7L, ::generate))
+    val chunk = ChunkPos(1, 2)
+    val air = VoxelEdit.pack(voxelIndex(2, 2, alwaysAir), BlockType.AIR, Occupancy.EMPTY)
+
+    store.edit(chunk, longArrayOf(water(2, 2, alwaysAir)))
+    val outcome = store.edit(chunk, longArrayOf(air))
+
+    assertEquals(1, outcome.changed)
+    val edit = store.editOf(chunk)
+    assertIs<ChunkEdit.Delta>(edit)
+    assertEquals(0, edit.edits.size, "nothing differs from the base any more")
+  }
+
+  @Test
+  fun `an edit of a baked chunk goes straight into the stored blob`() {
+    val store = ChunkStore(config, ChunkCache(config.seed, 7L, ::generate))
+    val chunk = ChunkPos(1, 1)
+    carve(store, chunk, Triple(0, 0, 1))
+    store.bakeAll()
+
+    store.edit(chunk, longArrayOf(water(0, 0, alwaysAir)))
+
+    val merged = store.merged(chunk)
+    assertEquals(BlockType.WATER, merged[0, 0, alwaysAir])
+    assertEquals(BlockType.AIR, merged[0, 0, 1], "the carve from before baking survives")
+    assertEquals(0, store.deltaCount, "a baked chunk has no delta to grow")
+  }
+
+  @Test
+  fun `edits out of order are refused`() {
+    val store = ChunkStore(config, ChunkCache(config.seed, 7L, ::generate))
+
+    assertFailsWith<IllegalArgumentException> {
+      store.edit(ChunkPos(0, 0), longArrayOf(water(2, 2, alwaysAir), water(1, 1, alwaysAir)))
+    }
   }
 
   // --- Saving and restoring -------------------------------------------------------------------------

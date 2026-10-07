@@ -65,7 +65,7 @@ class ChunkDelta(
    */
   fun editAll(batch: LongArray, base: VoxelChunk): Int {
     requireMatches(base)
-    requireSortedInRange(batch)
+    requireSorted(batch, volume)
     if (batch.isEmpty()) return 0
 
     val merged = LongArray(editCount + batch.size)
@@ -181,16 +181,6 @@ class ChunkDelta(
     }
   }
 
-  private fun requireSortedInRange(batch: LongArray) {
-    var previousIndex = -1
-    for (edit in batch) {
-      val index = VoxelEdit.indexOf(edit)
-      require(index > previousIndex) { "Edits must be sorted with each index at most once; $index followed $previousIndex" }
-      require(index < volume) { "Voxel index $index is outside a ${size}x${size}x$height chunk" }
-      previousIndex = index
-    }
-  }
-
   override fun toString(): String {
     return "ChunkDelta[$chunk, $editCount edits, ${"%.1f".format(Locale.ROOT, coverage * 100)}% of the chunk]"
   }
@@ -218,10 +208,21 @@ class ChunkDelta(
     /** A delta holding [edits] exactly as an earlier [edits] call handed them out, as persistence restores it. */
     fun of(chunk: ChunkPos, size: Int, height: Int, edits: LongArray): ChunkDelta {
       val delta = ChunkDelta(chunk, size, height)
-      delta.requireSortedInRange(edits)
+      requireSorted(edits, delta.volume)
       delta.edits = edits.copyOf()
       delta.editCount = edits.size
       return delta
+    }
+
+    /** The order every batch of edits must come in: ascending, each index at most once, inside the chunk. */
+    fun requireSorted(edits: LongArray, volume: Int) {
+      var previousIndex = -1
+      for (edit in edits) {
+        val index = VoxelEdit.indexOf(edit)
+        require(index > previousIndex) { "Edits must be sorted with each index at most once; $index followed $previousIndex" }
+        require(index < volume) { "Voxel index $index is outside a chunk of $volume voxels" }
+        previousIndex = index
+      }
     }
 
     /** A removal as `ChunkStore.carve` and the chunk patch take it: `(voxelIndex shl 8) or remainingOccupancy`. */
