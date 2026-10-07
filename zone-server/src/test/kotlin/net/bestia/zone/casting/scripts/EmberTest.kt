@@ -42,11 +42,6 @@ class EmberTest {
   }
 
   @Test
-  fun `the flames do not care whose side anyone is on`() {
-    assertTrue(burn().hitsCaster, "Ember burns its own caster if they stand in it")
-  }
-
-  @Test
   fun `the patch burns with fire`() {
     assertEquals(Element.FIRE, burn().element)
   }

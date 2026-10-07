@@ -70,8 +70,7 @@ class IgniteChatCommand(
     fire.requestIgnition(
       centre = Vec3L(x, y, 0),
       radiusTiles = radius,
-      // The caster is whoever typed it, so the fire's damage is attributed to them and `hitsCaster` means
-      // something. Standing in your own test fire should hurt.
+      // The caster is whoever typed it, so the fire's damage is attributed to them.
       casterId = playerId,
       skillId = 0L,
       skillLevel = 1

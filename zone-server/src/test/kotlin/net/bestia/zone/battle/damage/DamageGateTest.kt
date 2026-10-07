@@ -69,6 +69,25 @@ class DamageGateTest {
   }
 
   @Test
+  fun `nothing harms itself`() {
+    val mob = entity()
+
+    assertEquals(DamageGate.Verdict.OWN, DamageGate.verdict(world, mob, mob))
+  }
+
+  @Test
+  fun `nothing harms what its own account owns`() {
+    val master = player()
+    val bestia = entity().also { world.add(it, Account(accountId = master)) }
+    val workbench = entity().also { world.add(it, PlayerStructureIdentity(structureId = 7L, ownerAccountId = master)) }
+
+    assertEquals(DamageGate.Verdict.OWN, DamageGate.verdict(world, master, bestia))
+    assertEquals(DamageGate.Verdict.OWN, DamageGate.verdict(world, bestia, master))
+    assertEquals(DamageGate.Verdict.OWN, DamageGate.verdict(world, master, workbench))
+    assertEquals(DamageGate.Verdict.ADMITTED, DamageGate.verdict(world, player(), workbench))
+  }
+
+  @Test
   fun `a source that is gone counts as a player against a warded target`() {
     val warded = player(shield = HarmShield.PLAYERS)
 

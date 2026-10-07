@@ -131,36 +131,10 @@ class AreaEffectSystemTest {
   }
 
   @Test
-  fun `fire on the ground burns the caster who is standing in it`() {
-    val caster = victimAt(CENTER)
-    emberAt(CENTER, caster = caster)
-
-    world.tick(TICK_INTERVAL)
-
-    assertEquals(DAMAGE_PER_TICK, stagedDamage(caster))
-  }
-
-  @Test
-  fun `an effect that spares its caster leaves them alone but still hits everyone else`() {
+  fun `a patch never burns its own caster but still hits everyone else`() {
     val caster = victimAt(CENTER)
     val bystander = victimAt(Vec3L(CENTER.x + 1, CENTER.y, CENTER.z))
-    val patch = world.createEntity { entityId ->
-      add(entityId, Position.fromVec3(CENTER))
-      add(
-        entityId,
-        AreaEffect.lasting(
-          casterId = caster,
-          skillId = SKILL_ID,
-          skillLevel = 1,
-          radiusTiles = 1,
-          damagePerTick = DAMAGE_PER_TICK,
-          tickIntervalSeconds = TICK_INTERVAL,
-          durationSeconds = DURATION,
-          hitsCaster = false
-        )
-      )
-    }
-    aoi.setEntityPosition(patch, CENTER)
+    emberAt(CENTER, caster = caster)
 
     world.tick(TICK_INTERVAL)
 
@@ -216,7 +190,7 @@ class AreaEffectSystemTest {
     world.createEntity { entityId ->
       add(entityId, Position.fromVec3(at))
       add(entityId, AreaEffect.lasting(
-        casterId = 1L, skillId = 1000L, skillLevel = 1, radiusTiles = 2,
+        casterId = CASTER_ID, skillId = 1000L, skillLevel = 1, radiusTiles = 2,
         damagePerTick = 10, tickIntervalSeconds = 0.1f, durationSeconds = 1f
       ))
     }

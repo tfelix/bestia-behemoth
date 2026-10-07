@@ -44,9 +44,6 @@ data class AreaEffect(
   var remainingTicks: Int,
   var sinceLastTick: Float = 0f,
 
-  /** Fire on the ground burns its caster too; a consecrated patch should not. */
-  val hitsCaster: Boolean = true,
-
   /** Only items on the ground weigh it so far. A creature takes the same damage whatever the element. */
   val element: Element = Element.NORMAL
 ) : Component {
@@ -75,7 +72,6 @@ data class AreaEffect(
       damagePerTick: Int,
       tickIntervalSeconds: Float,
       durationSeconds: Float,
-      hitsCaster: Boolean = true,
       element: Element = Element.NORMAL
     ): AreaEffect = AreaEffect(
       casterId = casterId,
@@ -85,7 +81,6 @@ data class AreaEffect(
       damagePerTick = damagePerTick,
       tickIntervalSeconds = tickIntervalSeconds,
       remainingTicks = (durationSeconds / tickIntervalSeconds).roundToInt(),
-      hitsCaster = hitsCaster,
       element = element
     )
   }
