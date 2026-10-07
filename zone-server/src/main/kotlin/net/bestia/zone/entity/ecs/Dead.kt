@@ -48,4 +48,21 @@ class Dead : DirtyableComponent(), Removable {
   override fun syncTargets(world: World, entityId: EntityId): SyncTargets {
     return SyncTargets.PublicInRange
   }
+
+  companion object {
+    /**
+     * `World.add` overwrites, and a player body keeps its [Dead] for as long as it lies there. Adding it again on a
+     * second drain would reset the flags saying this death has already been paid for.
+     *
+     * @return true if [id] died just now
+     */
+    fun markOnce(world: World, id: EntityId): Boolean {
+      if (world.has(id, Dead::class)) {
+        return false
+      }
+
+      world.add(id, Dead())
+      return true
+    }
+  }
 }
