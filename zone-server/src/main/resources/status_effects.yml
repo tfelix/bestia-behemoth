@@ -5,10 +5,8 @@
 # apart (missing on either side, or an `identifier` that no longer matches the constant name).
 #
 # `script` is the simple class name of the StatusEffectScript bean in
-# net.bestia.zone.battle.status.scripts that implements the behavior.
-#
-# `persist: false` keeps an effect out of storage. It is for effects the spawner re-applies, where a stored
-# copy could only contradict the catalogue.
+# net.bestia.zone.battle.status.scripts that implements the behavior. What an effect shields from, whether it is
+# stored and how long it lasts are the script's to say, not this file's.
 statusEffects:
   - id: 1
     identifier: SWIFTNESS
@@ -80,5 +78,4 @@ statusEffects:
     polarity: BUFF
     showIcon: false
     isSyncedToClient: false
-    persist: false
     script: InvulnerableEffect

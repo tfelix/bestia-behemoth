@@ -5,6 +5,7 @@ import net.bestia.zone.battle.ecs.effects.ActiveStatusEffect
 import net.bestia.zone.battle.ecs.effects.StatusEffects
 import net.bestia.zone.battle.status.StatusEffectDefinition
 import net.bestia.zone.battle.status.StatusEffectDefinitionRegistry
+import net.bestia.zone.battle.status.StatusEffectScript
 import net.bestia.zone.battle.status.StatusEffectScriptRegistry
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.util.EntityId
@@ -19,15 +20,15 @@ class StatusEffectPersistenceServiceTest {
   private val definitions = StatusEffectDefinitionRegistry().apply {
     load(
       listOf(
-        StatusEffectDefinition(id = SAVED, identifier = "SAVED", isSyncedToClient = true, script = "None"),
-        StatusEffectDefinition(
-          id = RE_APPLIED, identifier = "RE_APPLIED", isSyncedToClient = false, script = "None", persist = false
-        ),
+        StatusEffectDefinition(id = SAVED, identifier = "SAVED", isSyncedToClient = true, script = "Saved"),
+        StatusEffectDefinition(id = RE_APPLIED, identifier = "RE_APPLIED", isSyncedToClient = false, script = "ReApplied"),
       )
     )
   }
 
-  private val service = StatusEffectPersistenceService(mockk(relaxed = true), definitions, StatusEffectScriptRegistry(emptyList()))
+  private val scripts = StatusEffectScriptRegistry(listOf(Saved(), ReApplied()))
+
+  private val service = StatusEffectPersistenceService(mockk(relaxed = true), definitions, scripts)
 
   @Test
   fun `an effect that is not persisted stays out of the snapshot`() {
@@ -54,6 +55,20 @@ class StatusEffectPersistenceServiceTest {
 
   private fun effect(definitionId: Long): ActiveStatusEffect {
     return ActiveStatusEffect(definitionId = definitionId, level = 1, remainingSeconds = 10f)
+  }
+
+  private class Saved : StatusEffectScript {
+    override fun durationSeconds(level: Int): Double {
+      return 10.0
+    }
+  }
+
+  private class ReApplied : StatusEffectScript {
+    override val isPersisted: Boolean = false
+
+    override fun durationSeconds(level: Int): Double {
+      return 10.0
+    }
   }
 
   private companion object {

@@ -207,7 +207,9 @@ class StatusEffectPersistenceService(
   }
 
   private fun isPersisted(effect: ActiveStatusEffect): Boolean {
-    return statusEffectDefinitionRegistry.findById(effect.definitionId)?.persist != false
+    val definition = statusEffectDefinitionRegistry.findById(effect.definitionId) ?: return true
+
+    return statusEffectScriptRegistry.getOrThrow(definition.script).isPersisted
   }
 
   private fun Float.toNullableSeconds(): Float? = if (isInfinite()) null else this

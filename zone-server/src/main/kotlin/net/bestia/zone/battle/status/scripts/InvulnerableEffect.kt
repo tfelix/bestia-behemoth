@@ -20,6 +20,8 @@ class InvulnerableEffect : StatusEffectScript {
 
   override val shield: HarmShield = HarmShield.ALL
 
+  override val isPersisted: Boolean = false
+
   override fun durationSeconds(level: Int): Double {
     return Double.POSITIVE_INFINITY
   }

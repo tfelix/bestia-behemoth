@@ -23,6 +23,10 @@ interface StatusEffectScript {
   val shield: HarmShield?
     get() = null
 
+  /** False for an effect that is re-derived on spawn, so a stored copy could only ever be stale. */
+  val isPersisted: Boolean
+    get() = true
+
   fun apply(
     world: World,
     entityId: EntityId,
