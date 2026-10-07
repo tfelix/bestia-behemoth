@@ -6,6 +6,10 @@
 #
 # `script` is the simple class name of the StatusEffectScript bean in
 # net.bestia.zone.battle.status.scripts that implements the behavior.
+#
+# `shield` (optional) is the harm the effect turns away while active - see HarmShield.
+# `persist: false` keeps an effect out of storage. It is for effects the spawner re-applies, where a stored
+# copy could only contradict the catalogue.
 statusEffects:
   - id: 1
     identifier: SWIFTNESS

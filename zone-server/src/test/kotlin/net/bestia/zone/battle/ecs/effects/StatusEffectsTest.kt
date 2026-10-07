@@ -1,5 +1,6 @@
 package net.bestia.zone.battle.ecs.effects
 
+import net.bestia.zone.battle.status.HarmShield
 import net.bestia.zone.battle.status.StackBehavior
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -94,5 +95,33 @@ class StatusEffectsTest {
     assertEquals(42L, message.entityId)
     assertEquals(1, message.effects.size)
     assertEquals(1L, message.effects.first().effectId)
+  }
+
+  @Test
+  fun `restore adds stored effects but keeps a live one with the same id`() {
+    val effects = StatusEffects()
+    effects.applyEffect(1L, StackBehavior.IGNORE_IF_PRESENT, 3, null, 10.0, true)
+
+    effects.restore(
+      listOf(
+        ActiveStatusEffect(definitionId = 1L, level = 1, remainingSeconds = 2f),
+        ActiveStatusEffect(definitionId = 2L, level = 1, remainingSeconds = 2f),
+      )
+    )
+
+    assertEquals(listOf(1L, 2L), effects.activeEffects.map { it.definitionId })
+    assertEquals(3, effects.activeEffects.first().level, "the stored copy replaced the live effect")
+  }
+
+  @Test
+  fun `a shield holds while its effect is active`() {
+    val effects = StatusEffects()
+    effects.applyEffect(1L, StackBehavior.REFRESH_DURATION, 1, null, 1.0, false, shield = HarmShield.ALL)
+
+    assertTrue(effects.hasShield(HarmShield.ALL))
+
+    effects.tickDown(2f)
+
+    assertFalse(effects.hasShield(HarmShield.ALL))
   }
 }
