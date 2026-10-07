@@ -27,7 +27,8 @@ class MobLootSpawner(
     dropsBySpecies.size
   }
 
-  fun spawnLoot(world: World, bestiaId: Long, pos: Vec3L): List<EntityId> {
+  /** [lootOwner] is the account of the killer, which alone may pick the loot up for a few seconds. */
+  fun spawnLoot(world: World, bestiaId: Long, pos: Vec3L, lootOwner: Long?): List<EntityId> {
     val lootItems = dropsBySpecies[bestiaId] ?: emptyList()
 
     val spawnItems = lootItems.filter { lootItem ->
@@ -39,7 +40,9 @@ class MobLootSpawner(
     LOG.debug { "Spawning loot $spawnItems from bestia $bestiaId ($lootItems) on pos $pos" }
 
     return spawnItems.map { spawnItem ->
-      lootItemEntitySpawner.spawnLootItem(world, itemId = spawnItem.itemId, amount = 1, pos = pos)
+      lootItemEntitySpawner.spawnLootItem(
+        world, itemId = spawnItem.itemId, amount = 1, pos = pos, lootOwner = lootOwner
+      )
     }
   }
 

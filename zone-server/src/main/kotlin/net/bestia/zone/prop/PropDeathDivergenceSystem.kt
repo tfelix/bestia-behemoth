@@ -13,6 +13,8 @@ import org.springframework.stereotype.Component as SpringComponent
 import java.time.Instant
 import kotlin.random.Random
 import net.bestia.zone.battle.ecs.damage.PlayerDeathSystem
+import net.bestia.zone.battle.ecs.damage.TakenDamage
+import net.bestia.zone.identity.ecs.Account
 
 /**
  * Records what a promoted prop's death means for the durable object it was, once per kill, ever.
@@ -40,7 +42,10 @@ class PropDeathDivergenceSystem(
   override val before = setOf(PlayerDeathSystem::class)
 
   override val reads: ComponentClassSet =
-    setOf(Dead::class, WorldObjectIdentity::class, StaticVisual::class, Position::class)
+    setOf(
+      Dead::class, WorldObjectIdentity::class, StaticVisual::class, Position::class, TakenDamage::class,
+      Account::class
+    )
 
   // Empty: recordDepletion only touches WorldObjectDivergenceRegistry's own map (off the ECS entirely), and
   // the loot entity it may create is brand new - DeathSystem's own spawnLoot demonstrates the same shape
@@ -64,9 +69,12 @@ class PropDeathDivergenceSystem(
 
       val spec = kinds.of(visual.kind)
       if (position != null) {
+        val killer = world.get(id, TakenDamage::class)?.topAccount(world)
         spec.loot.forEach { entry ->
           if (Random.nextInt(1, 10_001) <= entry.dropChance) {
-            lootItemEntitySpawner.spawnLootItem(world, itemId = entry.itemId, amount = entry.amount, pos = position)
+            lootItemEntitySpawner.spawnLootItem(
+              world, itemId = entry.itemId, amount = entry.amount, pos = position, lootOwner = killer
+            )
           }
         }
       }

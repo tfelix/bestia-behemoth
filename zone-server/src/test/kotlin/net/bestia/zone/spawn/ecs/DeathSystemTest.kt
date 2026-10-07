@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import net.bestia.zone.battle.ecs.damage.TakenDamage
 import net.bestia.zone.entity.ecs.Dead
 
 /**
@@ -84,7 +85,19 @@ class DeathSystemTest {
 
     sut.update(world, 0f)
 
-    verify { lootSpawner.spawnLoot(any(), 7L, Vec3L(1, 2, 3)) }
+    verify { lootSpawner.spawnLoot(any(), 7L, Vec3L(1, 2, 3), lootOwner = null) }
+  }
+
+  @Test
+  fun `a mob's loot belongs to the account that dealt the most damage`() {
+    val world = testWorld()
+    val killer = world.createEntity { eid -> add(eid, Account(42L)) }
+    val mob = world.deadBestia(owner = null)
+    world.add(mob, TakenDamage().apply { addDamage(killer, 10) })
+
+    sut.update(world, 0f)
+
+    verify { lootSpawner.spawnLoot(any(), 7L, Vec3L(1, 2, 3), lootOwner = 42L) }
   }
 
   @Test
@@ -106,7 +119,7 @@ class DeathSystemTest {
 
     sut.update(world, 0f)
 
-    verify(exactly = 0) { lootSpawner.spawnLoot(any(), any(), any()) }
+    verify(exactly = 0) { lootSpawner.spawnLoot(any(), any(), any(), any()) }
   }
 
   @Test

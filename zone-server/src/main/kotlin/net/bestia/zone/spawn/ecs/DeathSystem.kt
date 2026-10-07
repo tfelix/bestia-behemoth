@@ -175,7 +175,8 @@ class DeathSystem(
     val species = world.bestiaSpeciesOf(entityId)
       ?: return
 
-    mobLootSpawner.spawnLoot(world, species, position)
+    val killer = world.get(entityId, TakenDamage::class)?.topAccount(world)
+    mobLootSpawner.spawnLoot(world, species, position, lootOwner = killer)
   }
 
   /**

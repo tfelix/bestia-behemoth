@@ -279,6 +279,8 @@ world:
   logout-protection-seconds: 20
   # A dropped plain item is gone after this long, in real time. Unique items stay.
   ground-item-despawn-after: 7d
+  # Kill loot belongs to the killer alone for this long, and cannot be damaged.
+  loot-protection-seconds: 6
   # Move requests one account may make. Click-to-move produces a handful a second even from somebody clicking
   # frantically, and every accepted request broadcasts a path to everyone in range - so the burst is sized for
   # a flurry of clicking and the sustained rate for nothing else.

@@ -45,7 +45,7 @@ class ObtainItemIntentSystem(
   override val reads: ComponentClassSet = setOf(
     ObtainItemIntent.LootItemIntent::class, ObtainItemIntent.CreateItemIntent::class,
     Position::class, Account::class, Master::class, GroundItemStack::class, CarryCapacity::class,
-    Inventory::class, GroundItemIntegrity::class
+    Inventory::class, GroundItemIntegrity::class, LootProtection::class
   )
   override val writes: ComponentClassSet = setOf(
     ObtainItemIntent.LootItemIntent::class, ObtainItemIntent.CreateItemIntent::class, Inventory::class
@@ -80,6 +80,9 @@ class ObtainItemIntentSystem(
       val stack = get(itemStackEntityId, GroundItemStack::class)
         ?: return@modify null
       if (get(itemStackEntityId, GroundItemIntegrity::class)?.destroyed == true) {
+        return@modify null
+      }
+      if (!mayLoot(this, entityId, itemStackEntityId)) {
         return@modify null
       }
       val lootPos = get(itemStackEntityId, Position::class)?.toVec3L()
@@ -117,6 +120,13 @@ class ObtainItemIntentSystem(
     }
 
     grantItem(world, entityId, claimed.item, claimed.amount, claimed.uniqueId)
+  }
+
+  /** Protected kill loot is its killer's alone; a master and its bestias share one account. */
+  private fun mayLoot(world: World, looterId: EntityId, itemStackEntityId: EntityId): Boolean {
+    val protection = world.get(itemStackEntityId, LootProtection::class) ?: return true
+
+    return world.get(looterId, Account::class)?.accountId == protection.ownerAccountId
   }
 
   private fun tryCreateItem(world: World, entityId: EntityId, intent: ObtainItemIntent.CreateItemIntent) {
