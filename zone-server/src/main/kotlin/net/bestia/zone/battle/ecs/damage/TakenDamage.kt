@@ -1,6 +1,8 @@
 package net.bestia.zone.battle.ecs.damage
 
 import net.bestia.zone.ecs.core.Component
+import net.bestia.zone.ecs.core.World
+import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.util.EntityId
 import java.time.Duration
 
@@ -56,6 +58,20 @@ class TakenDamage(): Component {
       .filter { now - it.value.damageTakenAt <= withinMs }
       .maxByOrNull { it.value.damageTakenAt }
       ?.key
+
+  /**
+   * The account whose entities dealt the most damage, so a master and its bestias count as one. Damage from an
+   * entity without an account, such as a mob, counts for nobody.
+   */
+  fun topAccount(world: World): Long? {
+    val damageByAccount = HashMap<Long, Int>()
+    value.forEach { (sourceId, entry) ->
+      val accountId = world.get(sourceId, Account::class)?.accountId ?: return@forEach
+      damageByAccount.merge(accountId, entry.damage, Int::plus)
+    }
+
+    return damageByAccount.maxByOrNull { it.value }?.key
+  }
 
   fun removeOldEntries() {
     val currentTime = System.currentTimeMillis()
