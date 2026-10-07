@@ -4,12 +4,14 @@ import net.bestia.zone.config.WorldRulesConfig
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.item.loot.LootItemEntitySpawner
+import net.bestia.zone.persistence.PersistedEntityDeletionQueue
 import org.junit.jupiter.api.Test
 import java.time.Clock
 import java.time.Duration
 import java.time.Instant
 import java.time.ZoneId
 import java.time.ZoneOffset
+import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
@@ -26,7 +28,8 @@ class GroundItemDecaySystemTest {
     override fun instant() = now
   }
 
-  private val world = testWorld(systems = listOf(GroundItemDecaySystem(clock)))
+  private val deletionQueue = PersistedEntityDeletionQueue()
+  private val world = testWorld(systems = listOf(GroundItemDecaySystem(GroundStackRemoval(deletionQueue), clock)))
   private val spawner = LootItemEntitySpawner(
     WorldRulesConfig(tickRate = 20, groundItemDespawnAfter = Duration.ofDays(7)),
     clock
@@ -40,6 +43,17 @@ class GroundItemDecaySystemTest {
     world.tick(60f)
 
     assertFalse(world.isAlive(item))
+  }
+
+  /** Otherwise the next boot loads it again, and it decays once more a minute later. */
+  @Test
+  fun `a decayed item takes its row with it`() {
+    val item = spawner.spawnLootItem(world, itemId = 1L, amount = 3, pos = Vec3L(0, 0, 0))
+
+    now = now.plus(Duration.ofDays(7))
+    world.tick(60f)
+
+    assertEquals(listOf(item), deletionQueue.drainAll())
   }
 
   @Test

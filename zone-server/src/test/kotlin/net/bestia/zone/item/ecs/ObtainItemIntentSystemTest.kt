@@ -55,7 +55,7 @@ class ObtainItemIntentSystemTest {
     inventoryService = inventoryService,
     asyncJobExecutor = asyncJobExecutor,
     connectionInfoService = connectionInfoService,
-    deletionQueue = PersistedEntityDeletionQueue(),
+    groundStackRemoval = GroundStackRemoval(PersistedEntityDeletionQueue()),
   )
 
   private fun setUp() {

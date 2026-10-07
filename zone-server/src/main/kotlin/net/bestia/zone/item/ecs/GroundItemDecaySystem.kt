@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component as SpringComponent
  */
 @SpringComponent
 class GroundItemDecaySystem(
+  private val groundStackRemoval: GroundStackRemoval,
   private val clock: Clock = Clock.systemUTC()
 ) : System {
 
@@ -29,7 +30,7 @@ class GroundItemDecaySystem(
 
     world.query(GroundItemDecay::class).each { id ->
       if (!now.isBefore(get<GroundItemDecay>().despawnAt)) {
-        world.destroy(id)
+        groundStackRemoval.remove(world, id)
       }
     }
   }
