@@ -37,7 +37,8 @@ class StatusEffects(
     durationSeconds: Double,
     isSyncedToClient: Boolean,
     shield: HarmShield? = null,
-    polarity: StatusEffectPolarity = StatusEffectPolarity.NEUTRAL
+    polarity: StatusEffectPolarity = StatusEffectPolarity.NEUTRAL,
+    showsCountdown: Boolean = true
   ): Change {
     fun newInstance() = ActiveStatusEffect(
       definitionId = definitionId,
@@ -46,7 +47,8 @@ class StatusEffects(
       sourceEntityId = sourceEntityId,
       isSyncedToClient = isSyncedToClient,
       shield = shield,
-      polarity = polarity
+      polarity = polarity,
+      showsCountdown = showsCountdown
     )
 
     val existing = activeEffects.firstOrNull { it.definitionId == definitionId }
@@ -76,7 +78,7 @@ class StatusEffects(
   private fun refresh(effect: ActiveStatusEffect, durationSeconds: Double): Change {
     effect.remainingSeconds = durationSeconds.toFloat()
     // The client counts a visible effect down from the last sync, so it has to hear about the new clock.
-    if (effect.isSyncedToClient) {
+    if (effect.isSyncedToClient && effect.showsCountdown) {
       markDirty()
     }
 
@@ -143,7 +145,7 @@ class StatusEffects(
         StatusEffectsComponentSMSG.StatusEffectEntry(
           effectId = it.definitionId,
           level = it.level,
-          remainingSeconds = it.remainingSeconds,
+          remainingSeconds = if (it.showsCountdown) it.remainingSeconds else Float.POSITIVE_INFINITY,
           debuff = it.polarity == StatusEffectPolarity.DEBUFF
         )
       }

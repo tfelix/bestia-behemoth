@@ -28,6 +28,13 @@ interface StatusEffectScript {
     get() = true
 
   /**
+   * False for an effect its cause keeps refreshing, like a ward: the client shows it until it is gone, so a
+   * refresh has nothing to tell it.
+   */
+  val showsCountdown: Boolean
+    get() = true
+
+  /**
    * How often [onTick] runs, or null for an effect that does nothing over time. Counted on
    * `StatusEffectDurationSystem`'s one-second beat, so it is effectively whole seconds.
    */

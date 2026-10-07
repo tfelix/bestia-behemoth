@@ -346,6 +346,9 @@ namespace Bnet {
     /// <summary>Field number for the "remaining_seconds" field.</summary>
     public const int RemainingSecondsFieldNumber = 3;
     private float remainingSeconds_;
+    /// <summary>
+    /// Infinity for an effect that lasts until the server says it is gone, like the ward: show it without a timer.
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public float RemainingSeconds {
