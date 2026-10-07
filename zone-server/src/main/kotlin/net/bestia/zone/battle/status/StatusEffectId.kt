@@ -22,7 +22,8 @@ enum class StatusEffectId(val id: Long) {
   BLESSING(5),
   MASTER_INTRO_MARKER(6),
   PLAY_DEAD(7),
-  FIRST_AID_COOLDOWN(8);
+  FIRST_AID_COOLDOWN(8),
+  INVULNERABLE(9);
 
   companion object {
     private val byId = entries.associateBy { it.id }

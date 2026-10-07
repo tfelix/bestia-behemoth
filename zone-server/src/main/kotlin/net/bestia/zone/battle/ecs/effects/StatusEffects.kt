@@ -1,5 +1,6 @@
 package net.bestia.zone.battle.ecs.effects
 
+import net.bestia.zone.battle.status.HarmShield
 import net.bestia.zone.battle.status.StackBehavior
 import net.bestia.zone.sync.Dirtyable
 import net.bestia.zone.sync.SyncTargets
@@ -21,45 +22,76 @@ class StatusEffects(
   val activeEffects: MutableList<ActiveStatusEffect> = mutableListOf()
 ) : DirtyableComponent() {
 
-  /** Applies [definitionId] at [level], resolving [stackBehavior] against any existing instance. */
+  /**
+   * Applies [definitionId] at [level], resolving [stackBehavior] against any existing instance. An aura
+   * refreshes its effect on everybody in range every few seconds, so a refresh must stay cheap: see [Change].
+   */
   fun applyEffect(
     definitionId: Long,
     stackBehavior: StackBehavior,
     level: Int,
     sourceEntityId: EntityId?,
     durationSeconds: Double,
-    isSyncedToClient: Boolean
-  ) {
+    isSyncedToClient: Boolean,
+    shield: HarmShield? = null
+  ): Change {
     fun newInstance() = ActiveStatusEffect(
       definitionId = definitionId,
       level = level,
       remainingSeconds = durationSeconds.toFloat(),
       sourceEntityId = sourceEntityId,
-      isSyncedToClient = isSyncedToClient
+      isSyncedToClient = isSyncedToClient,
+      shield = shield
     )
 
     val existing = activeEffects.firstOrNull { it.definitionId == definitionId }
 
-    when (stackBehavior) {
-      StackBehavior.STACK_INDEPENDENT -> activeEffects.add(newInstance())
-      StackBehavior.IGNORE_IF_PRESENT -> if (existing == null) activeEffects.add(newInstance())
-      StackBehavior.REFRESH_DURATION -> {
-        if (existing != null) {
-          existing.remainingSeconds = durationSeconds.toFloat()
-        } else {
-          activeEffects.add(newInstance())
-        }
-      }
-      StackBehavior.REPLACE_IF_STRONGER -> {
-        if (existing == null) {
-          activeEffects.add(newInstance())
-        } else if (level > existing.level) {
+    return when (stackBehavior) {
+      StackBehavior.STACK_INDEPENDENT -> add(newInstance())
+      StackBehavior.IGNORE_IF_PRESENT -> if (existing == null) add(newInstance()) else Change.UNCHANGED
+      StackBehavior.REFRESH_DURATION -> if (existing == null) add(newInstance()) else refresh(existing, durationSeconds)
+      StackBehavior.REPLACE_IF_STRONGER -> when {
+        existing == null -> add(newInstance())
+        level > existing.level -> {
           activeEffects.remove(existing)
-          activeEffects.add(newInstance())
+          add(newInstance())
         }
+        else -> Change.UNCHANGED
       }
     }
+  }
 
+  private fun add(effect: ActiveStatusEffect): Change {
+    activeEffects.add(effect)
+    markDirty()
+
+    return Change.CHANGED
+  }
+
+  private fun refresh(effect: ActiveStatusEffect, durationSeconds: Double): Change {
+    effect.remainingSeconds = durationSeconds.toFloat()
+    // The client counts a visible effect down from the last sync, so it has to hear about the new clock.
+    if (effect.isSyncedToClient) {
+      markDirty()
+    }
+
+    return Change.REFRESHED
+  }
+
+  fun hasEffect(definitionId: Long): Boolean = activeEffects.any { it.definitionId == definitionId }
+
+  fun hasShield(shield: HarmShield): Boolean {
+    return activeEffects.any { it.shield == shield }
+  }
+
+  /** Adds stored effects to the live ones. A live effect wins over a stored one with the same id. */
+  fun restore(stored: List<ActiveStatusEffect>) {
+    val missing = stored.filter { restored -> !hasEffect(restored.definitionId) }
+    if (missing.isEmpty()) {
+      return
+    }
+
+    activeEffects.addAll(missing)
     markDirty()
   }
 
@@ -70,8 +102,6 @@ class StatusEffects(
    * a one-shot marker removing itself once it has done its job (see
    * [net.bestia.zone.battle.status.scripts.MasterIntroMarker]), a dispel, a skill that consumes a buff.
    */
-  fun hasEffect(definitionId: Long): Boolean = activeEffects.any { it.definitionId == definitionId }
-
   fun removeEffect(definitionId: Long): Boolean {
     val removed = activeEffects.removeAll { it.definitionId == definitionId }
 
@@ -117,6 +147,13 @@ class StatusEffects(
         )
       }
     )
+  }
+
+  /** What an [applyEffect] did. Only [CHANGED] can change what the effects do to the entity's values. */
+  enum class Change {
+    UNCHANGED,
+    REFRESHED,
+    CHANGED,
   }
 
   override fun syncTargets(world: World, entityId: EntityId): SyncTargets {

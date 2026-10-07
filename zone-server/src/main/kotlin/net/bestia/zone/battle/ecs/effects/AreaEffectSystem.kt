@@ -2,12 +2,12 @@ package net.bestia.zone.battle.ecs.effects
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.battle.damage.DamageEntitySMSG
+import net.bestia.zone.battle.damage.DamageGate
 import net.bestia.zone.aoi.AoiLayer
 import net.bestia.zone.aoi.EntityAOIService
 import net.bestia.zone.battle.ecs.damage.IncomingDamage
 import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.battle.ecs.status.Health
-import net.bestia.zone.battle.ecs.status.Invulnerable
 import net.bestia.zone.battle.ecs.status.StatusValues
 import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.movement.ecs.Grounded
@@ -48,7 +48,7 @@ class AreaEffectSystem(
 
   /** `ActivePlayer` and `Account` are read to address the damage message; see [OutMessageProcessor.sendToObserversOf]. */
   override val reads: ComponentClassSet =
-    setOf(Position::class, Health::class, Dead::class, Invulnerable::class, ActivePlayer::class, Account::class)
+    setOf(Position::class, Health::class, Dead::class, ActivePlayer::class, Account::class) + DamageGate.READS
   /**
    * Includes what `PropPromotionService` adds to a *victim*, not just what this touches on the effect.
    *
@@ -120,8 +120,8 @@ class AreaEffectSystem(
         // The cube's half diagonal is under two radii, so every prop the query found is within reach.
         if (!propPromotionService.promoteIfNeeded(world, victimId, center, effect.radiusTiles * 2)) continue
         if (!world.has(victimId, Health::class)) continue
-        // See Invulnerable: staging a burn ReceivedDamageSystem drops would only report it to the client.
-        if (world.has(victimId, Invulnerable::class)) continue
+        // Asked here as well as at the drain: a burn the drain drops would still be reported to the client.
+        if (DamageGate.verdict(world, effect.casterId, victimId) != DamageGate.Verdict.ADMITTED) continue
 
         val damage = world.get(victimId, IncomingDamage::class) ?: world.add(victimId, IncomingDamage())
         damage.add(effect.damagePerTick, effect.casterId)

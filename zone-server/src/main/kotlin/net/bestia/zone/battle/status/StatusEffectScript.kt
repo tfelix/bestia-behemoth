@@ -19,6 +19,18 @@ interface StatusEffectScript {
 
   fun durationSeconds(level: Int): Double
 
+  /**
+   * How often [onTick] runs, or null for an effect that does nothing over time. Counted on
+   * `StatusEffectDurationSystem`'s one-second beat, so it is effectively whole seconds.
+   */
+  val tickIntervalSeconds: Float?
+    get() = null
+
+  /** Acts over time: an aura handing out a buff, a poison. */
+  fun onTick(context: StatusEffectTickContext) {
+    // Most effects only change values during recalc.
+  }
+
   fun apply(
     world: World,
     entityId: EntityId,

@@ -3,7 +3,7 @@ package net.bestia.zone.weather
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.skill.ecs.KnownSkills
 import net.bestia.zone.battle.ecs.status.Health
-import net.bestia.zone.battle.ecs.status.Invulnerable
+import net.bestia.zone.battle.damage.DamageGate
 import net.bestia.zone.battle.ecs.status.Stamina
 import net.bestia.zone.config.WorldRulesConfig
 import net.bestia.zone.ecs.core.ComponentClassSet
@@ -55,7 +55,7 @@ class EnvironmentalExposureSystem(
 
   override val schedule: Schedule get() = Schedule.EveryTick
 
-  override val reads: ComponentClassSet = setOf(Invulnerable::class, Position::class, KnownSkills::class)
+  override val reads: ComponentClassSet = setOf(Position::class, KnownSkills::class) + DamageGate.READS
 
   override val writes: ComponentClassSet = setOf(Stamina::class, Health::class)
 
@@ -77,7 +77,7 @@ class EnvironmentalExposureSystem(
       // The weather is the second way health is lost, so it is the second place invulnerability is honoured.
       // Skipped whole rather than only at the health line: draining the stamina of something that cannot be
       // worn down is work with no reader.
-      if (world.has(entityId, Invulnerable::class)) return@each
+      if (DamageGate.isImmune(world, entityId)) return@each
 
       val position = get<Position>()
       val stamina = get<Stamina>()
