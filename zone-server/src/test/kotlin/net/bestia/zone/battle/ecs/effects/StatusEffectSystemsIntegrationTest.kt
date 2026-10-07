@@ -10,6 +10,7 @@ import net.bestia.zone.battle.status.StatusEffectDefinition
 import net.bestia.zone.battle.status.StatusEffectDefinitionRegistry
 import net.bestia.zone.battle.status.StatusEffectScript
 import net.bestia.zone.battle.status.StatusEffectScriptRegistry
+import net.bestia.zone.battle.status.StatusEffectTickContext
 import net.bestia.zone.battle.status.ConditionValueCalculator
 import net.bestia.zone.battle.status.StatusValueRecalcContext
 import net.bestia.zone.skill.ecs.KnownSkills
@@ -129,6 +130,28 @@ class StatusEffectSystemsIntegrationTest {
     }
   }
 
+  /** A stand-in [StatusEffectScript] that acts every two seconds and counts how often it did. */
+  private class PulseScript : StatusEffectScript {
+    val pulsedHosts = mutableListOf<EntityId>()
+
+    override val tickIntervalSeconds: Float = 2f
+
+    override fun durationSeconds(level: Int): Double {
+      return Double.POSITIVE_INFINITY
+    }
+
+    override fun onTick(context: StatusEffectTickContext) {
+      pulsedHosts.add(context.hostId)
+    }
+  }
+
+  private val pulseEffect = StatusEffectDefinition(
+    id = 4L,
+    identifier = "TEST_PULSE",
+    isSyncedToClient = false,
+    script = "PulseScript"
+  )
+
   /** A stand-in [EquipmentScript] granting a flat HP regeneration bonus. */
   private class RegenRingScript : EquipmentScript {
     override fun apply(context: StatusValueRecalcContext, slot: EquipmentSlot, upgradeLevel: Int) {
@@ -164,13 +187,13 @@ class StatusEffectSystemsIntegrationTest {
     passiveSkillScriptRegistry: PassiveSkillScriptRegistry = passiveRegistry()
   ): Pair<EcsWorld, StatusEffectDefinitionRegistry> {
     val definitionRegistry = StatusEffectDefinitionRegistry()
-    definitionRegistry.load(listOf(speedEffect, vitalityEffect, regenEffect))
+    definitionRegistry.load(listOf(speedEffect, vitalityEffect, regenEffect, pulseEffect))
 
     val scriptRegistry = StatusEffectScriptRegistry(listOf(script))
 
     val world = testWorld(
       systems = listOf(
-        StatusEffectDurationSystem(),
+        StatusEffectDurationSystem(StatusEffectService(definitionRegistry, scriptRegistry), definitionRegistry, scriptRegistry),
         StatusValueRecalcSystem(
           definitionRegistry,
           scriptRegistry,
@@ -418,6 +441,32 @@ class StatusEffectSystemsIntegrationTest {
     service.applyEffect(world, entity, definitionId = speedEffect.id, level = 1)
 
     assertFalse(world.has(entity, IsStatusValueDirty::class), "an aura's refresh would rebuild everyone in range")
+  }
+
+  @Test
+  fun `an effect that acts over time does so on its own interval`() {
+    val pulse = PulseScript()
+    val (world, registry) = newWorld(pulse)
+    val host = world.createEntity { }
+    StatusEffectService(registry, StatusEffectScriptRegistry(listOf(pulse))).applyEffect(world, host, pulseEffect.id, level = 1)
+
+    repeat(4) { world.tick(1.0f) }
+
+    assertEquals(listOf(host, host), pulse.pulsedHosts, "a two-second interval over four seconds is two pulses")
+  }
+
+  @Test
+  fun `an effect stops acting when its host is gone`() {
+    val pulse = PulseScript()
+    val (world, registry) = newWorld(pulse)
+    val host = world.createEntity { }
+    StatusEffectService(registry, StatusEffectScriptRegistry(listOf(pulse))).applyEffect(world, host, pulseEffect.id, level = 1)
+
+    world.tick(1.0f)
+    world.destroy(host)
+    repeat(3) { world.tick(1.0f) }
+
+    assertTrue(pulse.pulsedHosts.isEmpty())
   }
 
   private companion object {
