@@ -79,3 +79,19 @@ statusEffects:
     showIcon: false
     isSyncedToClient: false
     script: InvulnerableEffect
+
+  # Handed out by WARD_AURA to everything a player owns near a ward stone. Hidden.
+  - id: 10
+    identifier: WARDED
+    polarity: BUFF
+    showIcon: false
+    isSyncedToClient: false
+    script: Warded
+
+  # The spell on a ward stone.
+  - id: 11
+    identifier: WARD_AURA
+    polarity: BUFF
+    showIcon: false
+    isSyncedToClient: false
+    script: WardAura
