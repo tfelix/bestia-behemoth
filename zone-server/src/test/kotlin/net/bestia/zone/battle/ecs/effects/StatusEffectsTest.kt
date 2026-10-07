@@ -2,6 +2,7 @@ package net.bestia.zone.battle.ecs.effects
 
 import net.bestia.zone.battle.status.HarmShield
 import net.bestia.zone.battle.status.StackBehavior
+import net.bestia.zone.battle.status.StatusEffectPolarity
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -95,6 +96,17 @@ class StatusEffectsTest {
     assertEquals(42L, message.entityId)
     assertEquals(1, message.effects.size)
     assertEquals(1L, message.effects.first().effectId)
+  }
+
+  @Test
+  fun `the client is told which effects are debuffs`() {
+    val effects = StatusEffects()
+    effects.applyEffect(1L, StackBehavior.STACK_INDEPENDENT, 1, null, 10.0, true, polarity = StatusEffectPolarity.DEBUFF)
+    effects.applyEffect(2L, StackBehavior.STACK_INDEPENDENT, 1, null, 10.0, true, polarity = StatusEffectPolarity.BUFF)
+
+    val message = effects.toEntityMessage(entityId = 42L) as StatusEffectsComponentSMSG
+
+    assertEquals(mapOf(1L to true, 2L to false), message.effects.associate { it.effectId to it.debuff })
   }
 
   @Test

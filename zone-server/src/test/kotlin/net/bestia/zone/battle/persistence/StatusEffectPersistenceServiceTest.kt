@@ -1,10 +1,12 @@
 package net.bestia.zone.battle.persistence
 
+import io.mockk.every
 import io.mockk.mockk
 import net.bestia.zone.battle.ecs.effects.ActiveStatusEffect
 import net.bestia.zone.battle.ecs.effects.StatusEffects
 import net.bestia.zone.battle.status.StatusEffectDefinition
 import net.bestia.zone.battle.status.StatusEffectDefinitionRegistry
+import net.bestia.zone.battle.status.StatusEffectPolarity
 import net.bestia.zone.battle.status.StatusEffectScript
 import net.bestia.zone.battle.status.StatusEffectScriptRegistry
 import net.bestia.zone.ecs.core.testWorld
@@ -22,13 +24,18 @@ class StatusEffectPersistenceServiceTest {
       listOf(
         StatusEffectDefinition(id = SAVED, identifier = "SAVED", isSyncedToClient = true, script = "Saved"),
         StatusEffectDefinition(id = RE_APPLIED, identifier = "RE_APPLIED", isSyncedToClient = false, script = "ReApplied"),
+        StatusEffectDefinition(
+          id = CURSE, identifier = "CURSE", isSyncedToClient = true, script = "Saved", polarity = StatusEffectPolarity.DEBUFF
+        ),
       )
     )
   }
 
   private val scripts = StatusEffectScriptRegistry(listOf(Saved(), ReApplied()))
 
-  private val service = StatusEffectPersistenceService(mockk(relaxed = true), definitions, scripts)
+  private val repository = mockk<PersistedStatusEffectRepository>(relaxed = true)
+
+  private val service = StatusEffectPersistenceService(repository, definitions, scripts)
 
   @Test
   fun `an effect that is not persisted stays out of the snapshot`() {
@@ -47,6 +54,16 @@ class StatusEffectPersistenceServiceTest {
 
     val effects = world.getOrThrow(id, StatusEffects::class).activeEffects
     assertEquals(setOf(RE_APPLIED, SAVED), effects.map { it.definitionId }.toSet())
+  }
+
+  @Test
+  fun `a stored effect comes back with the catalog's polarity`() {
+    every { repository.findAllByOwnerEntityId(OWNER) } returns
+        listOf(PersistedStatusEffect(ownerEntityId = OWNER, definitionId = CURSE, remainingSeconds = 10f))
+
+    val restored = service.load(OWNER).single()
+
+    assertEquals(StatusEffectPolarity.DEBUFF, restored.polarity)
   }
 
   private fun entityWith(vararg effects: ActiveStatusEffect): EntityId {
@@ -74,5 +91,7 @@ class StatusEffectPersistenceServiceTest {
   private companion object {
     const val SAVED = 1L
     const val RE_APPLIED = 2L
+    const val CURSE = 3L
+    const val OWNER = 77L
   }
 }

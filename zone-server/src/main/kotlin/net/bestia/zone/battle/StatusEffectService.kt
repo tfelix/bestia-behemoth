@@ -52,7 +52,8 @@ class StatusEffectService(
         sourceEntityId = sourceEntityId,
         durationSeconds = durationSeconds,
         isSyncedToClient = definition.isSyncedToClient,
-        shield = script.shield
+        shield = script.shield,
+        polarity = definition.polarity
       )
     }
 

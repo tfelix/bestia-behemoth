@@ -183,9 +183,8 @@ class StatusEffectPersistenceService(
   }
 
   /**
-   * [ActiveStatusEffect.isSyncedToClient] and [ActiveStatusEffect.shield] are deliberately not stored: they are
-   * denormalized copies of the catalog entry and its script, so they are re-derived here and an edit to either
-   * can never be contradicted by a stale row.
+   * What an [ActiveStatusEffect] copies from its catalog entry and its script is deliberately not stored: it is
+   * re-derived here, so an edit to either can never be contradicted by a stale row.
    */
   private fun toActiveEffect(row: PersistedStatusEffect): ActiveStatusEffect? {
     val definition = statusEffectDefinitionRegistry.findById(row.definitionId)
@@ -202,7 +201,8 @@ class StatusEffectPersistenceService(
       remainingSeconds = row.remainingSeconds ?: Float.POSITIVE_INFINITY,
       sourceEntityId = row.sourceEntityId,
       isSyncedToClient = definition.isSyncedToClient,
-      shield = statusEffectScriptRegistry.getOrThrow(definition.script).shield
+      shield = statusEffectScriptRegistry.getOrThrow(definition.script).shield,
+      polarity = definition.polarity
     )
   }
 

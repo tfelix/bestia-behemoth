@@ -2,6 +2,7 @@ package net.bestia.zone.battle.ecs.effects
 
 import net.bestia.zone.battle.status.HarmShield
 import net.bestia.zone.battle.status.StackBehavior
+import net.bestia.zone.battle.status.StatusEffectPolarity
 import net.bestia.zone.sync.Dirtyable
 import net.bestia.zone.sync.SyncTargets
 import net.bestia.zone.identity.ecs.Account
@@ -33,7 +34,8 @@ class StatusEffects(
     sourceEntityId: EntityId?,
     durationSeconds: Double,
     isSyncedToClient: Boolean,
-    shield: HarmShield? = null
+    shield: HarmShield? = null,
+    polarity: StatusEffectPolarity = StatusEffectPolarity.NEUTRAL
   ): Change {
     fun newInstance() = ActiveStatusEffect(
       definitionId = definitionId,
@@ -41,7 +43,8 @@ class StatusEffects(
       remainingSeconds = durationSeconds.toFloat(),
       sourceEntityId = sourceEntityId,
       isSyncedToClient = isSyncedToClient,
-      shield = shield
+      shield = shield,
+      polarity = polarity
     )
 
     val existing = activeEffects.firstOrNull { it.definitionId == definitionId }
@@ -139,11 +142,7 @@ class StatusEffects(
           effectId = it.definitionId,
           level = it.level,
           remainingSeconds = it.remainingSeconds,
-          // No server-side source of truth for buff/debuff polarity anymore - the client
-          // classifies icons by looking effectId up in its own local status effect DB (mirrors
-          // how the Godot Attack DB works for skills). Candidate for removal from the wire
-          // message in a later, separate proto change.
-          debuff = false
+          debuff = it.polarity == StatusEffectPolarity.DEBUFF
         )
       }
     )
