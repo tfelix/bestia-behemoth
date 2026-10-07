@@ -251,3 +251,10 @@ kinds:
     variants: 1
     regrow-seconds: 900
     collect: { item-id: 25, amount: 2 }
+
+  # The ward stone is an always-present entity rather than a static prop, so nothing promotes it and `max-hp` is
+  # never read. The row is here because every kind needs one.
+  - kind: WARD_STONE
+    max-hp: 1
+    collider: { half-x: 1, half-y: 1, height: 4 }
+    variants: 1
