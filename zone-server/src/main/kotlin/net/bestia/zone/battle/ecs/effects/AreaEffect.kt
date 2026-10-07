@@ -1,5 +1,7 @@
 package net.bestia.zone.battle.ecs.effects
 
+import net.bestia.zone.battle.Element
+import net.bestia.zone.battle.ElementModifier
 import net.bestia.zone.ecs.core.Component
 import net.bestia.zone.util.EntityId
 import kotlin.math.roundToInt
@@ -43,7 +45,10 @@ data class AreaEffect(
   var sinceLastTick: Float = 0f,
 
   /** Fire on the ground burns its caster too; a consecrated patch should not. */
-  val hitsCaster: Boolean = true
+  val hitsCaster: Boolean = true,
+
+  /** Only items on the ground weigh it so far. A creature takes the same damage whatever the element. */
+  val element: Element = Element.NORMAL
 ) : Component {
 
   init {
@@ -51,6 +56,9 @@ data class AreaEffect(
     require(tickIntervalSeconds > 0f) { "tickIntervalSeconds must be > 0" }
     require(remainingTicks > 0) { "an area effect with no ticks left would never do anything" }
     require(damagePerTick >= 1) { "damagePerTick must be at least 1" }
+    require(ElementModifier.isLegalAttackElement(element)) {
+      "$element cannot be an attack element - only level 1 elements can be"
+    }
   }
 
   companion object {
@@ -67,7 +75,8 @@ data class AreaEffect(
       damagePerTick: Int,
       tickIntervalSeconds: Float,
       durationSeconds: Float,
-      hitsCaster: Boolean = true
+      hitsCaster: Boolean = true,
+      element: Element = Element.NORMAL
     ): AreaEffect = AreaEffect(
       casterId = casterId,
       skillId = skillId,
@@ -76,7 +85,8 @@ data class AreaEffect(
       damagePerTick = damagePerTick,
       tickIntervalSeconds = tickIntervalSeconds,
       remainingTicks = (durationSeconds / tickIntervalSeconds).roundToInt(),
-      hitsCaster = hitsCaster
+      hitsCaster = hitsCaster,
+      element = element
     )
   }
 }
