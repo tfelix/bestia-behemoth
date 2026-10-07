@@ -1,5 +1,6 @@
 package net.bestia.zone.casting.scripts
 
+import net.bestia.zone.battle.Element
 import net.bestia.zone.battle.GroundBattleContext
 import net.bestia.zone.battle.LineOfSightService
 import net.bestia.zone.battle.damage.Damage
@@ -51,7 +52,8 @@ class Ember(
         damagePerTick = perTick,
         tickIntervalSeconds = TICK_INTERVAL_SECONDS,
         durationSeconds = DURATION_SECONDS,
-        hitsCaster = true
+        hitsCaster = true,
+        element = Element.FIRE
       )
     )
 

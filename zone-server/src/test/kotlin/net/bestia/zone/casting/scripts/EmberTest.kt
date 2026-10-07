@@ -1,6 +1,7 @@
 package net.bestia.zone.casting.scripts
 
 import net.bestia.zone.battle.BattleContextFixture
+import net.bestia.zone.battle.Element
 import net.bestia.zone.battle.LineOfSightService
 import net.bestia.zone.casting.RecordingSkillWorld
 import net.bestia.zone.casting.SkillContextFixture
@@ -43,6 +44,11 @@ class EmberTest {
   @Test
   fun `the flames do not care whose side anyone is on`() {
     assertTrue(burn().hitsCaster, "Ember burns its own caster if they stand in it")
+  }
+
+  @Test
+  fun `the patch burns with fire`() {
+    assertEquals(Element.FIRE, burn().element)
   }
 
   @Test

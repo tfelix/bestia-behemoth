@@ -1,5 +1,6 @@
 package net.bestia.zone.battle.ecs.effects
 
+import net.bestia.zone.battle.Element
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
@@ -17,6 +18,23 @@ class AreaEffectTest {
         damagePerTick = 0,
         tickIntervalSeconds = 1f,
         durationSeconds = 1f
+      )
+    }
+  }
+
+  /** The element table only knows level 1 elements on the attacking side. */
+  @Test
+  fun `an effect with a level 2 element is refused`() {
+    assertThrows<IllegalArgumentException> {
+      AreaEffect.lasting(
+        casterId = 1,
+        skillId = 1,
+        skillLevel = 1,
+        radiusTiles = 1,
+        damagePerTick = 1,
+        tickIntervalSeconds = 1f,
+        durationSeconds = 1f,
+        element = Element.FIRE_2
       )
     }
   }

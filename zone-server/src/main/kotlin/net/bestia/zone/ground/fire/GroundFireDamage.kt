@@ -1,5 +1,6 @@
 package net.bestia.zone.ground.fire
 
+import net.bestia.zone.battle.Element
 import net.bestia.zone.battle.ecs.effects.AreaEffect
 import net.bestia.zone.battle.ecs.effects.AreaEffectSpawner
 import net.bestia.zone.ecs.core.World
@@ -91,7 +92,8 @@ class GroundFireDamage(
         tickIntervalSeconds = config.damageIntervalSeconds,
         remainingTicks = REFRESH_TICKS,
         // Fire on the ground burns whoever lit it, which is `AreaEffect.hitsCaster`'s own example.
-        hitsCaster = true
+        hitsCaster = true,
+        element = Element.FIRE
       )
     )
   }
