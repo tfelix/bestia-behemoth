@@ -8,4 +8,7 @@ package net.bestia.zone.battle.status
 enum class HarmShield {
   /** Nothing may harm the bearer. */
   ALL,
+
+  /** No harm passes between the bearer and anything a player owns, in either direction. */
+  PLAYERS,
 }
