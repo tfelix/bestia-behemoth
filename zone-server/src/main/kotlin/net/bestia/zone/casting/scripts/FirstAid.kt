@@ -51,9 +51,7 @@ class FirstAid(
     // Computed before the claim, so the mark can never affect what was healed.
     val healed = Heal(healed(battle))
 
-    // The mark is claimed atomically, and losing the claim is what fizzles the cast: casts resolve off the
-    // tick thread, so two healers who both started channelling on an untreated bestia both pass the snapshot
-    // check above. Exactly one of them gets the mark, and only that one heals.
+    // The live claim, not the snapshot check in `isCastPossible`, decides: only the cast that sets the mark heals.
     val claimed = ctx.world.applyStatusEffectIfAbsent(
       target,
       StatusEffectId.FIRST_AID_COOLDOWN.id,

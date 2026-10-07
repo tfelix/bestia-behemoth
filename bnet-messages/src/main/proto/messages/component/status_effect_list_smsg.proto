@@ -6,9 +6,8 @@ option java_package = "net.bestia.bnet.proto";
 option java_outer_classname = "StatusEffectListSMSGProto";
 
 /**
- * Every currently visible status effect (buff/debuff) active on an entity. Effects marked internal-only
- * (`showIcon = false` server-side) are filtered out before this message is built, so they never
- * appear here.
+ * Every status effect active on an entity that the client is told about. Effects with `isSyncedToClient: false`
+ * in the server's `status_effects.yml` are filtered out before this message is built, so they never appear here.
  */
 message StatusEffectListSMSG {
   fixed64 entity_id = 1;

@@ -20,8 +20,7 @@ import net.bestia.zone.util.EntityId
  * background worker. A script must **never** inject `World` or `WorldView`: it would reach the world
  * without being charged, and the budget is what keeps one cast from holding the tick.
  *
- * Implementations are singletons and must be stateless; several casts resolve concurrently on different
- * workers.
+ * Implementations are singletons shared by every cast, so they must be stateless.
  */
 interface SkillStrategy {
 
