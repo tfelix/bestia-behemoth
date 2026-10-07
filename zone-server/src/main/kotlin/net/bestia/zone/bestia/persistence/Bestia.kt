@@ -153,7 +153,7 @@ class Bestia(
   var eventOnly: Boolean = false,
 
   /**
-   * True when nothing may take this species' health: it is spawned `Invulnerable`.
+   * True when nothing may take this species' health: it is spawned with the `INVULNERABLE` status effect.
    *
    * A property of the species rather than a marker each caller remembers to add, because the *client* needs
    * the same answer. Whether a click means "swing at this" or "talk to this" is decided before anything is

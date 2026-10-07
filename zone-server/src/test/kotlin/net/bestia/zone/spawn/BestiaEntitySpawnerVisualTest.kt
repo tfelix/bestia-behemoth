@@ -35,7 +35,8 @@ class BestiaEntitySpawnerVisualTest {
     bestiaCatalogue = catalogue,
     aiProfileRegistry = mockk<AiProfileRegistry>(relaxed = true),
     aiAgentFactory = mockk<AiAgentFactory>(relaxed = true),
-    movementProfileRegistry = MovementProfileRegistry().apply { load() }
+    movementProfileRegistry = MovementProfileRegistry().apply { load() },
+    statusEffectService = mockk(relaxed = true)
   )
 
   init {

@@ -1,7 +1,6 @@
 package net.bestia.zone.battle.damage
 
 import net.bestia.zone.battle.ecs.effects.StatusEffects
-import net.bestia.zone.battle.ecs.status.Invulnerable
 import net.bestia.zone.battle.status.HarmShield
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.World
@@ -14,7 +13,7 @@ import net.bestia.zone.util.EntityId
 object DamageGate {
 
   /** Folded into the reads of every system that asks, so the scheduler sees what the gate looks at. */
-  val READS: ComponentClassSet = setOf(Invulnerable::class, StatusEffects::class)
+  val READS: ComponentClassSet = setOf(StatusEffects::class)
 
   /**
    * Asked where damage is staged, not only where it is drained: by the drain the client has already been
@@ -30,8 +29,7 @@ object DamageGate {
 
   /** For the paths that have no source to weigh: the drain, the weather, a trap. */
   fun isImmune(world: World, targetId: EntityId): Boolean {
-    return world.has(targetId, Invulnerable::class) ||
-        world.get(targetId, StatusEffects::class)?.hasShield(HarmShield.ALL) == true
+    return world.get(targetId, StatusEffects::class)?.hasShield(HarmShield.ALL) == true
   }
 
   enum class Verdict {
