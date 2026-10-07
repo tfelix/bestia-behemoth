@@ -41,7 +41,7 @@ class StatusEffectService(
         sourceEntityId = sourceEntityId,
         durationSeconds = durationSeconds,
         isSyncedToClient = definition.isSyncedToClient,
-        shield = definition.shield
+        shield = script.shield
       )
     }
 

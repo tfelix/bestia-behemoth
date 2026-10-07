@@ -19,6 +19,10 @@ interface StatusEffectScript {
 
   fun durationSeconds(level: Int): Double
 
+  /** What harm the effect turns away while it is active. See [HarmShield]. */
+  val shield: HarmShield?
+    get() = null
+
   fun apply(
     world: World,
     entityId: EntityId,
