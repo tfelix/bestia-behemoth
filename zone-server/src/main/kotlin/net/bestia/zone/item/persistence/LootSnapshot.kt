@@ -15,4 +15,6 @@ data class LootSnapshot(
   val z: Long,
   /** Null for a unique item, which does not decay, and for rows written before items decayed. */
   val despawnAt: Instant? = null,
+  /** 0 for an unharmed item, and for rows written before items could be damaged. */
+  val integrityLost: Int = 0,
 ) : EntitySnapshot
