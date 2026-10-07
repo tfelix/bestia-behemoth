@@ -32,8 +32,15 @@ class ChunkEditJournal(
       LOG.warn { "Dropped ${stale.size} terrain edits made on another world or pipeline" }
     }
 
+    // Pre-release, so nothing converts them: a carve from before edits named their block is simply lost.
+    val (legacy, readable) = current.partition { it.isLegacyDelta }
+    if (legacy.isNotEmpty()) {
+      repository.deleteAll(legacy)
+      LOG.warn { "Dropped ${legacy.size} terrain edits stored in the old removal-only format" }
+    }
+
     var restored = 0
-    for (row in current) {
+    for (row in readable) {
       // Kept, not deleted: a build that can read it again should get it back.
       runCatching { chunkService.restore(row.toSavedEdit()) }
         .onSuccess { restored++ }
