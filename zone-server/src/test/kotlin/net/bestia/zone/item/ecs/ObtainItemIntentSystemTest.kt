@@ -246,6 +246,25 @@ class ObtainItemIntentSystemTest {
     verify(timeout = 1000) { inventoryService.grantToMaster(MASTER_ID, sword.id, 1, 77L) }
   }
 
+  /** Its destroy can wait for the end of the tick, and it must not end up in an inventory as well. */
+  @Test
+  fun `a stack that was destroyed this tick cannot be looted`() {
+    setUp()
+    stub(sword)
+    val looter = createCarrier(capacityMax = 2475, pos = Vec3L(0, 0, 0))
+    val groundStack = world.createEntity { id ->
+      add(id, Position.fromVec3(Vec3L(0, 0, 0)))
+      add(id, GroundItemStack(itemId = sword.id, amount = 1))
+      add(id, GroundItemIntegrity().also { it.destroyed = true })
+    }
+
+    world.modify(looter) { id -> add(id, ObtainItemIntent.LootItemIntent(sourceEntityItemStackId = groundStack)) }
+    world.tick(0.1f)
+
+    assertTrue(world.get(looter, Inventory::class)!!.isEmpty())
+    verifyNoItemGranted()
+  }
+
   @Test
   fun `loot item intent out of range leaves the ground stack untouched`() {
     setUp()

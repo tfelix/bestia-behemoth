@@ -11,4 +11,8 @@ import net.bestia.zone.ecs.core.Component
  */
 class GroundItemIntegrity(
   var lost: Int = 0
-) : Component
+) : Component {
+
+  /** Set the moment it is used up, because the destroy itself may wait for the end of the tick. */
+  var destroyed: Boolean = false
+}
