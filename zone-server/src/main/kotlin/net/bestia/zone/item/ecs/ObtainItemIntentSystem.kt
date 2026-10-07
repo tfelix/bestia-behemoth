@@ -11,7 +11,6 @@ import net.bestia.zone.ecs.core.World
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.session.NoActiveSessionException
 import net.bestia.zone.movement.ecs.Position
-import net.bestia.zone.persistence.PersistedEntityDeletionQueue
 import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.item.loot.LootItemEntitySpawner
 import net.bestia.zone.util.EntityId
@@ -33,7 +32,7 @@ class ObtainItemIntentSystem(
   private val inventoryService: InventoryService,
   private val asyncJobExecutor: AsyncJobExecutor,
   private val connectionInfoService: ConnectionInfoService,
-  private val deletionQueue: PersistedEntityDeletionQueue,
+  private val groundStackRemoval: GroundStackRemoval,
 ) : System {
   override val phase = Phase.ITEMS
 
@@ -83,7 +82,7 @@ class ObtainItemIntentSystem(
       val lootPos = get(itemStackEntityId, Position::class)?.toVec3L()
       if (lootPos == null) {
         LOG.warn { "$itemStackEntityId had no Position component, can not calculate loot distance; destroying it" }
-        removeGroundStack(itemStackEntityId)
+        groundStackRemoval.remove(this, itemStackEntityId)
         return@modify null
       }
 
@@ -94,7 +93,7 @@ class ObtainItemIntentSystem(
       val item = itemTemplates.templateOf(stack.itemId)
       if (item == null) {
         LOG.error { "Ground item $itemStackEntityId references unknown item ${stack.itemId}; destroying it" }
-        removeGroundStack(itemStackEntityId)
+        groundStackRemoval.remove(this, itemStackEntityId)
         return@modify null
       }
 
@@ -104,7 +103,7 @@ class ObtainItemIntentSystem(
 
       // destroy() alone notifies clients: ZoneEngine broadcasts a vanish to whoever the stack's
       // EntityVisual was synced to.
-      removeGroundStack(itemStackEntityId)
+      groundStackRemoval.remove(this, itemStackEntityId)
 
       ClaimedLoot(item, stack.amount, stack.uniqueId)
     }
@@ -115,12 +114,6 @@ class ObtainItemIntentSystem(
     }
 
     grantItem(world, entityId, claimed.item, claimed.amount, claimed.uniqueId)
-  }
-
-  /** Drops the stack's persisted row too, or the next boot rehydrates it and it can be looted twice. */
-  private fun World.removeGroundStack(itemStackEntityId: EntityId) {
-    deletionQueue.enqueue(itemStackEntityId)
-    destroy(itemStackEntityId)
   }
 
   private fun tryCreateItem(world: World, entityId: EntityId, intent: ObtainItemIntent.CreateItemIntent) {
