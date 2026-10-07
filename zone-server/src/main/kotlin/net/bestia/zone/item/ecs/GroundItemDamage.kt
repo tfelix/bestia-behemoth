@@ -2,6 +2,7 @@ package net.bestia.zone.item.ecs
 
 import net.bestia.zone.battle.Element
 import net.bestia.zone.battle.damage.DamageGate
+import net.bestia.zone.battle.ecs.effects.AreaDamageReceiver
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.entity.ecs.Dead
@@ -24,11 +25,18 @@ class GroundItemDamage(
   private val groundStackRemoval: GroundStackRemoval,
   private val asyncJobExecutor: AsyncJobExecutor,
   private val looseInstanceDisposal: LooseInstanceDisposal,
-) {
+) : AreaDamageReceiver {
 
   /** For a calling system's own declarations. */
-  val reads: ComponentClassSet = setOf(GroundItemStack::class, LootProtection::class) + DamageGate.READS
-  val writes: ComponentClassSet = setOf(GroundItemIntegrity::class, Dead::class)
+  override val reads: ComponentClassSet = setOf(GroundItemStack::class, LootProtection::class) + DamageGate.READS
+  override val writes: ComponentClassSet = setOf(GroundItemIntegrity::class, Dead::class)
+
+  override fun receive(world: World, victimId: EntityId, damage: Int, element: Element): Boolean {
+    if (!world.has(victimId, GroundItemStack::class)) return false
+
+    damage(world, victimId, damage, element)
+    return true
+  }
 
   fun damage(world: World, stackId: EntityId, amount: Int, element: Element) {
     if (DamageGate.isImmune(world, stackId)) return
