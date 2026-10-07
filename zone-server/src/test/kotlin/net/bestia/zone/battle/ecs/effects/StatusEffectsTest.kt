@@ -151,6 +151,19 @@ class StatusEffectsTest {
   }
 
   @Test
+  fun `a held effect is shown until it is gone, so its refresh is not sent`() {
+    val effects = StatusEffects()
+    effects.applyEffect(1L, StackBehavior.REFRESH_DURATION, 1, null, 5.0, true, showsCountdown = false)
+
+    val message = effects.toEntityMessage(entityId = 42L) as StatusEffectsComponentSMSG
+    assertEquals(Float.POSITIVE_INFINITY, message.effects.single().remainingSeconds)
+
+    effects.dirtyFlag.clear()
+    effects.applyEffect(1L, StackBehavior.REFRESH_DURATION, 1, null, 5.0, true, showsCountdown = false)
+    assertFalse(effects.dirtyFlag.isSet, "every pulse of the ward would reach every observer")
+  }
+
+  @Test
   fun `a repeat that is ignored changes nothing at all`() {
     val effects = StatusEffects()
     assertEquals(StatusEffects.Change.CHANGED, effects.applyEffect(1L, StackBehavior.IGNORE_IF_PRESENT, 1, null, 10.0, true))

@@ -16,6 +16,9 @@ class Warded : StatusEffectScript {
   /** Once the bearer leaves the field it runs out within seconds, so a stored copy is never worth restoring. */
   override val isPersisted: Boolean = false
 
+  /** The aura renews it every pulse; its seconds are only how long it outlasts the field. */
+  override val showsCountdown: Boolean = false
+
   override fun durationSeconds(level: Int): Double {
     return DURATION_SECONDS
   }
