@@ -2,7 +2,9 @@ package net.bestia.worldgen.store
 
 import net.bestia.worldgen.core.ChunkPos
 import net.bestia.worldgen.derived.ChunkDelta
+import net.bestia.worldgen.derived.VoxelEdit
 import net.bestia.worldgen.pipeline.StandardWorld
+import net.bestia.worldgen.voxel.BlockType
 import net.bestia.worldgen.voxel.Occupancy
 import net.bestia.worldgen.voxel.RleCodec
 import kotlin.test.Test
@@ -83,24 +85,23 @@ class StorageBudgetTest {
     val config = world.config
     val reference = RleCodec.encode(land).size
 
-    fun deltaOf(removals: Int): ChunkDelta {
-      val delta = ChunkDelta(land.chunk, config.chunkSize, config.chunkHeight)
-      val packed = ArrayList<Int>(removals)
+    fun deltaOf(edits: Int): ChunkDelta {
+      val packed = ArrayList<Long>(edits)
       outer@ for (y in 0 until config.chunkSize) {
         for (x in 0 until config.chunkSize) {
           for (z in 0 until config.chunkHeight) {
-            packed.add(ChunkDelta.pack((y * config.chunkSize + x) * config.chunkHeight + z, Occupancy.EMPTY))
-            if (packed.size >= removals) break@outer
+            val index = (y * config.chunkSize + x) * config.chunkHeight + z
+            packed.add(VoxelEdit.pack(index, BlockType.AIR, Occupancy.EMPTY))
+            if (packed.size >= edits) break@outer
           }
         }
       }
-      delta.carveAll(packed.toIntArray())
-      return delta
+      return ChunkDelta.of(land.chunk, config.chunkSize, config.chunkHeight, packed.toLongArray())
     }
 
     // A gallery is a few thousand voxels and stays a delta; a worked-out orebody does not.
-    assertTrue(!deltaOf(1_000).shouldBake(reference), "a thousand removals should still be a delta")
-    assertTrue(deltaOf(40_000).shouldBake(reference), "forty thousand removals should be baked")
+    assertTrue(!deltaOf(1_000).shouldBake(reference), "a thousand edits should still be a delta")
+    assertTrue(deltaOf(40_000).shouldBake(reference), "forty thousand edits should be baked")
 
     // And the size test is what fires, not the coverage test: the crossover is a few percent of the chunk's
     // voxels, so waiting for thirty percent would mean storing several times the chunk as a delta first. This
@@ -114,23 +115,17 @@ class StorageBudgetTest {
   }
 
   /**
-   * A removal costs less on the wire and in storage than an edit that also had to name a block.
+   * An edit costs three bytes: a one-byte index gap inside a column, the block and the occupancy.
    *
-   * The number this file exists to defend: storage is proportional to what players remove, so the per-removal
-   * cost *is* the storage model. Dropping the block id is sound rather than a saving - under removal-only the
-   * block is derivable from the base, so it is not being omitted, it is being recomputed.
+   * The number this file exists to defend: storage is proportional to what players change, so the per-edit cost
+   * *is* the storage model. `ChunkEditCodecTest` pins what the codec really writes.
    */
   @Test
-  fun `a removal costs three bytes rather than five`() {
-    assertTrue(
-      ChunkDelta.BYTES_PER_REMOVAL < 5,
-      "a removal costs ${ChunkDelta.BYTES_PER_REMOVAL} bytes, which is no better than an edit did"
-    )
+  fun `an edit costs three bytes`() {
+    val edits = LongArray(1_000) { VoxelEdit.pack(it, BlockType.AIR, Occupancy.EMPTY) }
+    val delta = ChunkDelta.of(ChunkPos(0, 0), 32, 256, edits)
 
-    val delta = ChunkDelta(ChunkPos(0, 0), 32, 256)
-    delta.carveAll(IntArray(1_000) { ChunkDelta.pack(it, Occupancy.EMPTY) })
-
-    assertEquals(1_000 * ChunkDelta.BYTES_PER_REMOVAL, delta.estimatedBytes())
+    assertEquals(3_000, delta.estimatedBytes())
   }
 
   @Test

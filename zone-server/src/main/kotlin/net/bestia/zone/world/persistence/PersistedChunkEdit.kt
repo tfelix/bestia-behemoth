@@ -14,15 +14,15 @@ import net.bestia.worldgen.store.DeflatedBlobStore
 import org.hibernate.Length
 import java.io.Serializable
 import java.time.Instant
-import net.bestia.zone.world.stream.ChunkPatchCodec
+import net.bestia.zone.world.stream.ChunkEditCodec
 import net.bestia.zone.world.stream.ChunkService
 
 /**
- * One edited chunk, kept the way [net.bestia.worldgen.store.ChunkStore] holds it: removals over the generated
+ * One edited chunk, kept the way [net.bestia.worldgen.store.ChunkStore] holds it: edits over the generated
  * base, or the whole chunk once it was baked.
  *
- * Both version stamps, for `GroundLayerMark`'s reason: removals only mean something on the base they were taken
- * from, and `pipelineVersion` does not fold the seed.
+ * Both version stamps, for `GroundLayerMark`'s reason: edits only mean something on the base they were made
+ * on, and `pipelineVersion` does not fold the seed.
  */
 @Entity
 @Table(name = "chunk_edit")
@@ -42,6 +42,13 @@ class PersistedChunkEdit(
   @Column(nullable = false, length = Length.LONG32)
   var payload: ByteArray = ByteArray(0),
 
+  /**
+   * Which [ChunkEditCodec] wrote a [Kind.DELTA] payload. A [Kind.BAKED] blob carries its own version, so it is 0
+   * there, and so is every row written before this column existed.
+   */
+  @Column(name = "delta_format", nullable = false)
+  var deltaFormat: Int = 0,
+
   @Column(name = "world_shape_version", nullable = false)
   var worldShapeVersion: Long = 0,
 
@@ -54,7 +61,7 @@ class PersistedChunkEdit(
   var updatedAt: Instant = Instant.now()
 
   enum class Kind {
-    /** [payload] is the removals, as [ChunkPatchCodec] writes them. */
+    /** [payload] is the edits, as [ChunkEditCodec] writes them. */
     DELTA,
 
     /** [payload] is the run-length encoded chunk, framed by [DeflatedBlobStore]. */
@@ -73,10 +80,14 @@ class PersistedChunkEdit(
     var chunkZ: Int = 0,
   ) : Serializable
 
+  /** A delta from before edits named their block: it cannot be read as edits, and nothing converts it. */
+  val isLegacyDelta: Boolean
+    get() = kind == Kind.DELTA && deltaFormat != ChunkEditCodec.FORMAT
+
   fun toSavedEdit(): ChunkService.SavedEdit {
     val chunk = ChunkPos(id.chunkX, id.chunkY, id.chunkZ)
     val edit = when (kind) {
-      Kind.DELTA -> ChunkEdit.Delta(ChunkPatchCodec.decode(payload))
+      Kind.DELTA -> ChunkEdit.Delta(ChunkEditCodec.decode(payload))
       Kind.BAKED -> ChunkEdit.Baked(DeflatedBlobStore.unframe(chunk, payload))
     }
 
@@ -85,13 +96,18 @@ class PersistedChunkEdit(
 
   companion object {
     fun of(saved: ChunkService.SavedEdit, worldShapeVersion: Long, pipelineVersion: Long): PersistedChunkEdit {
-      val (kind, payload) = when (val edit = saved.edit) {
-        is ChunkEdit.Delta -> Kind.DELTA to ChunkPatchCodec.encode(edit.removals)
-        is ChunkEdit.Baked -> Kind.BAKED to DeflatedBlobStore.frame(edit.rle)
-      }
       val key = Key(saved.chunk.x, saved.chunk.y, saved.chunk.z)
 
-      return PersistedChunkEdit(key, saved.revision, kind, payload, worldShapeVersion, pipelineVersion)
+      return when (val edit = saved.edit) {
+        is ChunkEdit.Delta -> PersistedChunkEdit(
+          key, saved.revision, Kind.DELTA, ChunkEditCodec.encode(edit.edits), ChunkEditCodec.FORMAT,
+          worldShapeVersion, pipelineVersion
+        )
+
+        is ChunkEdit.Baked -> PersistedChunkEdit(
+          key, saved.revision, Kind.BAKED, DeflatedBlobStore.frame(edit.rle), 0, worldShapeVersion, pipelineVersion
+        )
+      }
     }
   }
 }
