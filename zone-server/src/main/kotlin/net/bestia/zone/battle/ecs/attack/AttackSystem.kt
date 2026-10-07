@@ -77,6 +77,7 @@ class AttackSystem(
 
     // Out of range and still on the attack delay both keep the order: the player asked for this target and
     // only they, or a death, may take it away.
-    return attackExecutionService.attack(world, attackerId, targetId, basicAttack) == AttackOutcome.IMPOSSIBLE
+    val outcome = attackExecutionService.attack(world, attackerId, targetId, basicAttack)
+    return outcome == AttackOutcome.IMPOSSIBLE || outcome == AttackOutcome.REFUSED
   }
 }

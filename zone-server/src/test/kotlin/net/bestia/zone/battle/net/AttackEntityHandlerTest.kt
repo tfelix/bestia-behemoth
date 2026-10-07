@@ -1,6 +1,13 @@
 package net.bestia.zone.battle.net
 
 import io.mockk.mockk
+import io.mockk.verify
+import net.bestia.bnet.proto.OperationErrorProto.OpError
+import net.bestia.zone.battle.damage.ownByPlayer
+import net.bestia.zone.battle.damage.wardPlayer
+import net.bestia.zone.battle.ecs.attack.AttackTarget
+import net.bestia.zone.message.OperationErrorSMSG
+import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.battle.attack.AttackExecutionService
 import net.bestia.zone.battle.attack.AttackStrategyFactory
 import net.bestia.zone.battle.ecs.status.StatusValues
@@ -30,6 +37,7 @@ import net.bestia.zone.battle.LineOfSightService
 class AttackEntityHandlerTest {
 
   private val world = testWorld()
+  private val messages = mockk<OutMessageProcessor>(relaxed = true)
 
   /** Always draws zero, so every swing lands - the point here is the pathway, not the roll. */
   private val alwaysLands = FixedRandom(0f)
@@ -48,6 +56,7 @@ class AttackEntityHandlerTest {
       logoutCancelService = LogoutCancelService(),
       deadActionGuard = DeadActionGuard(),
       propPromotion = PropPromotionService(mockk(relaxed = true)),
+      outMessageProcessor = messages,
     )
   }
 
@@ -83,6 +92,17 @@ class AttackEntityHandlerTest {
     handlerFor(attacker).handle(world, AttackEntityCMSG(playerId = ACCOUNT_ID, targetEntityId = target))
 
     assertFalse(world.has(attacker, LogoutIntent::class))
+  }
+
+  @Test
+  fun `a click on a warded player is answered with the ward and leaves no order`() {
+    val attacker = world.spawnFighter(at = Vec3L(0, 0, 0)).also { world.ownByPlayer(it) }
+    val target = world.spawnFighter(at = Vec3L(1, 0, 0)).also { world.wardPlayer(it) }
+
+    handlerFor(attacker).handle(world, AttackEntityCMSG(playerId = ACCOUNT_ID, targetEntityId = target))
+
+    assertFalse(world.has(attacker, AttackTarget::class), "a standing order would swing at the shield forever")
+    verify { messages.sendToPlayer(ACCOUNT_ID, OperationErrorSMSG(OpError.COMBAT_TARGET_WARDED)) }
   }
 
   private fun World.spawnFighter(at: Vec3L): EntityId = createEntity { id ->
