@@ -183,9 +183,9 @@ class StatusEffectPersistenceService(
   }
 
   /**
-   * [ActiveStatusEffect.isSyncedToClient] is deliberately not stored: it is a denormalized copy of
-   * the catalog entry, so it is re-derived here and an edit to `status_effects.yml` can never be
-   * contradicted by a stale row.
+   * [ActiveStatusEffect.isSyncedToClient] and [ActiveStatusEffect.shield] are deliberately not stored: they are
+   * denormalized copies of the catalog entry and its script, so they are re-derived here and an edit to either
+   * can never be contradicted by a stale row.
    */
   private fun toActiveEffect(row: PersistedStatusEffect): ActiveStatusEffect? {
     val definition = statusEffectDefinitionRegistry.findById(row.definitionId)
@@ -202,12 +202,14 @@ class StatusEffectPersistenceService(
       remainingSeconds = row.remainingSeconds ?: Float.POSITIVE_INFINITY,
       sourceEntityId = row.sourceEntityId,
       isSyncedToClient = definition.isSyncedToClient,
-      shield = definition.shield
+      shield = statusEffectScriptRegistry.getOrThrow(definition.script).shield
     )
   }
 
   private fun isPersisted(effect: ActiveStatusEffect): Boolean {
-    return statusEffectDefinitionRegistry.findById(effect.definitionId)?.persist != false
+    val definition = statusEffectDefinitionRegistry.findById(effect.definitionId) ?: return true
+
+    return statusEffectScriptRegistry.getOrThrow(definition.script).isPersisted
   }
 
   private fun Float.toNullableSeconds(): Float? = if (isInfinite()) null else this

@@ -23,4 +23,7 @@ data class ActiveStatusEffect(
   val isSyncedToClient: Boolean = true,
   /** Denormalized like [isSyncedToClient], so the damage gate needs no registry on every hit. */
   val shield: HarmShield? = null
-)
+) {
+  /** Runtime only, so it is kept out of `equals`, `copy` and storage. */
+  var sinceLastTick: Float = 0f
+}

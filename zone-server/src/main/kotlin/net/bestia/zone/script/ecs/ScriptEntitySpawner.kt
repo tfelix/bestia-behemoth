@@ -8,7 +8,7 @@ import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
 
-/** Spawns a persistent, non-synced entity carrying a [ScriptComponent] at a fixed world position. */
+/** Spawns a persistent entity carrying a [ScriptComponent] at a fixed world position. */
 @Component
 class ScriptEntitySpawner {
 

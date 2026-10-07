@@ -72,6 +72,11 @@ class AttackExecutionService(
       return AttackOutcome.NOT_READY
     }
 
+    // Before the roll, so a swing that may not land neither shows a miss nor costs the attack delay.
+    if (DamageGate.verdict(world, attackerId, targetId) != DamageGate.Verdict.ADMITTED) {
+      return AttackOutcome.REFUSED
+    }
+
     val ctx = battleContextFactory.create(world, attackerId, attack, targetId, targetPosition = null)
     if (ctx == null) {
       LOG.debug { "Basic attack by $attackerId fizzled: attacker or target no longer resolvable" }

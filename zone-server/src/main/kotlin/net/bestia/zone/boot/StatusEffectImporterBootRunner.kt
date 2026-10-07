@@ -4,9 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.battle.status.HarmShield
 import net.bestia.zone.battle.status.StatusEffectDefinition
 import net.bestia.zone.battle.status.StatusEffectDefinitionRegistry
+import net.bestia.zone.battle.status.StatusEffectPolarity
 import org.springframework.boot.CommandLineRunner
 import org.springframework.core.annotation.Order
 import org.springframework.core.io.ClassPathResource
@@ -32,12 +32,10 @@ class StatusEffectImporterBootRunner(
       val identifier: String,
       val isSyncedToClient: Boolean = true,
       val script: String,
-      val shield: HarmShield? = null,
-      val persist: Boolean = true,
-      // Not read into StatusEffectDefinition - zone-server has no runtime use for buff/debuff
-      // polarity or icon visibility, but these stay parseable here for a possible future
-      // Godot-resource generation step (same relationship skills.yml has to the client Attack DB).
-      val polarity: String? = null,
+      val polarity: StatusEffectPolarity = StatusEffectPolarity.NEUTRAL,
+      // Not read into StatusEffectDefinition - zone-server has no runtime use for icon visibility, but it
+      // stays parseable here for a possible future Godot-resource generation step (same relationship
+      // skills.yml has to the client Attack DB).
       val showIcon: Boolean = true
     )
   }
@@ -62,8 +60,7 @@ class StatusEffectImporterBootRunner(
       identifier = dto.identifier,
       isSyncedToClient = dto.isSyncedToClient,
       script = dto.script,
-      shield = dto.shield,
-      persist = dto.persist
+      polarity = dto.polarity
     )
   }
 

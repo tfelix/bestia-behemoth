@@ -3,6 +3,11 @@ package net.bestia.zone.casting.net
 import io.mockk.mockk
 import io.mockk.every
 import io.mockk.verify
+import net.bestia.bnet.proto.OperationErrorProto.OpError
+import net.bestia.zone.battle.damage.ownByPlayer
+import net.bestia.zone.battle.damage.wardPlayer
+import net.bestia.zone.message.OperationErrorSMSG
+import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.battle.damage.Damage
 import net.bestia.zone.skill.SkillTargetType
 import net.bestia.zone.battle.ecs.skill.Casting
@@ -45,6 +50,7 @@ class ActivateSkillHandlerTest {
 
   private val world = testWorld()
   private val skillExecution = mockk<SkillExecutionService>(relaxed = true)
+  private val messages = mockk<OutMessageProcessor>(relaxed = true)
 
   private fun handlerFor(caster: EntityId, skill: Skill): ActivateSkillHandler {
     val connectionInfoService = ConnectionInfoService()
@@ -60,7 +66,7 @@ class ActivateSkillHandlerTest {
       logoutCancelService = LogoutCancelService(),
       deadActionGuard = DeadActionGuard(),
       propPromotion = PropPromotionService(mockk(relaxed = true)),
-      outMessageProcessor = mockk(relaxed = true),
+      outMessageProcessor = messages,
     )
   }
 
@@ -138,6 +144,17 @@ class ActivateSkillHandlerTest {
     handlerFor(caster, skill(castTime = 0f, targetType = SkillTargetType.ENEMY)).handle(world, activate(NO_TARGET))
 
     verify(exactly = 0) { skillExecution.execute(any(), any(), any(), any(), any(), any()) }
+  }
+
+  @Test
+  fun `an enemy skill aimed at a warded player is refused with the ward`() {
+    val caster = world.spawnCaster().also { world.ownByPlayer(it) }
+    val warded = world.spawnCaster().also { world.wardPlayer(it) }
+
+    handlerFor(caster, skill(castTime = 0f, targetType = SkillTargetType.ENEMY)).handle(world, activate(warded))
+
+    verify(exactly = 0) { skillExecution.execute(any(), any(), any(), any(), any(), any()) }
+    verify { messages.sendToPlayer(ACCOUNT_ID, OperationErrorSMSG(OpError.COMBAT_TARGET_WARDED)) }
   }
 
   /** The Skills window's "Use" button sends no target, and a friendly skill used that way means the caster. */

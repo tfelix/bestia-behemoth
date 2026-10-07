@@ -3,6 +3,7 @@ package net.bestia.zone.battle.net
 import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.zone.battle.attack.AttackExecutionService
 import net.bestia.zone.battle.attack.BattleAttack
+import net.bestia.zone.battle.damage.DamageGate
 import net.bestia.zone.battle.ecs.attack.AttackTarget
 import net.bestia.zone.entity.ecs.DeadActionGuard
 import net.bestia.zone.ecs.core.World
@@ -10,6 +11,7 @@ import net.bestia.zone.ecs.core.modify
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.logout.ecs.LogoutCancelService
 import net.bestia.zone.movement.ecs.Position
+import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.message.TickMessageHandler
 import net.bestia.zone.message.decoder
 import org.springframework.stereotype.Component
@@ -34,6 +36,7 @@ class AttackEntityHandler(
   private val logoutCancelService: LogoutCancelService,
   private val deadActionGuard: DeadActionGuard,
   private val propPromotion: CombatTargetPromotion,
+  private val outMessageProcessor: OutMessageProcessor,
 ) : TickMessageHandler<AttackEntityCMSG> {
   override val wire = decoder(MessageCase.ATTACK_ENTITY) { accountId, envelope ->
     AttackEntityCMSG.fromBnet(accountId, envelope.attackEntity)
@@ -50,6 +53,13 @@ class AttackEntityHandler(
 
     // Swinging at something is player activity - abort any pending logout.
     logoutCancelService.cancelLogout(world, attackerId)
+
+    // Before the order exists, so a shielded target is answered once instead of swung at in silence.
+    val verdict = DamageGate.verdict(world, attackerId, msg.targetEntityId)
+    if (verdict != DamageGate.Verdict.ADMITTED) {
+      HarmRefusal.send(outMessageProcessor, msg.playerId, verdict)
+      return true
+    }
 
     // A tick handler runs between two ticks, so the damage AttackExecutionService stages applies at once
     // rather than being deferred. Does nothing when the attacker is no longer alive.

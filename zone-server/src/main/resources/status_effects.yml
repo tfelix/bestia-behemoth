@@ -5,11 +5,10 @@
 # apart (missing on either side, or an `identifier` that no longer matches the constant name).
 #
 # `script` is the simple class name of the StatusEffectScript bean in
-# net.bestia.zone.battle.status.scripts that implements the behavior.
+# net.bestia.zone.battle.status.scripts that implements the behavior. What an effect shields from, whether it is
+# stored and how long it lasts are the script's to say, not this file's.
 #
-# `shield` (optional) is the harm the effect turns away while active - see HarmShield.
-# `persist: false` keeps an effect out of storage. It is for effects the spawner re-applies, where a stored
-# copy could only contradict the catalogue.
+# `polarity: DEBUFF` makes an effect harm, which the damage gate weighs like a blow. Bookkeeping is NEUTRAL.
 statusEffects:
   - id: 1
     identifier: SWIFTNESS
@@ -33,7 +32,7 @@ statusEffects:
   # encounter. Never shown to the client (isSyncedToClient: false).
   - id: 4
     identifier: RESISTED_ONCE_MARKER
-    polarity: DEBUFF
+    polarity: NEUTRAL
     showIcon: false
     isSyncedToClient: false
     script: ResistedOnceMarker
@@ -58,7 +57,7 @@ statusEffects:
   # Internal bookkeeping only: a bestia may only receive First Aid once a minute (skills.yml id 8).
   - id: 8
     identifier: FIRST_AID_COOLDOWN
-    polarity: DEBUFF
+    polarity: NEUTRAL
     showIcon: false
     isSyncedToClient: false
     script: FirstAidCooldown
@@ -69,7 +68,7 @@ statusEffects:
   # MasterIntroMarker for why it can't just send the dialog from apply().
   - id: 6
     identifier: MASTER_INTRO_MARKER
-    polarity: BUFF
+    polarity: NEUTRAL
     showIcon: false
     isSyncedToClient: false
     script: MasterIntroMarker
@@ -81,6 +80,20 @@ statusEffects:
     polarity: BUFF
     showIcon: false
     isSyncedToClient: false
-    shield: ALL
-    persist: false
     script: InvulnerableEffect
+
+  # Handed out by WARD_AURA to everything a player owns near a ward stone. Hidden.
+  - id: 10
+    identifier: WARDED
+    polarity: BUFF
+    showIcon: false
+    isSyncedToClient: false
+    script: Warded
+
+  # The spell on a ward stone.
+  - id: 11
+    identifier: WARD_AURA
+    polarity: NEUTRAL
+    showIcon: false
+    isSyncedToClient: false
+    script: WardAura
