@@ -21,6 +21,7 @@ import net.bestia.zone.movement.ecs.Speed
 import net.bestia.zone.entity.ecs.EntityVisual
 import net.bestia.zone.entity.ecs.VisualKind
 import net.bestia.zone.entity.ecs.Animation
+import net.bestia.zone.entity.ecs.Living
 import net.bestia.zone.persistence.Persistent
 import net.bestia.zone.spawn.ecs.DenMember
 import net.bestia.zone.util.EntityId
@@ -78,6 +79,7 @@ class BestiaEntitySpawner(
 
     val configure: World.(EntityId) -> Unit = { id ->
       add(id, Position.fromVec3(pos))
+      add(id, Living)
       add(id, visual ?: EntityVisual(VisualKind.BESTIA, bestiaId))
       add(id, Health(bestia.health, bestia.health))
       // The authored pool, like health. Without one a cast costs nothing, because the mana check lets an

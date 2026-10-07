@@ -17,6 +17,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import net.bestia.zone.entity.ecs.Dead
+import net.bestia.zone.entity.ecs.Living
 
 /**
  * Who is gone for good when they die, and who is not.
@@ -48,6 +49,7 @@ class DeathSystemTest {
   ) = createEntity { eid ->
     add(eid, Position.fromVec3(Vec3L(1, 2, 3)))
     add(eid, EntityVisual(VisualKind.BESTIA, 7L))
+    add(eid, Living)
     add(eid, Dead())
     // Every mob `BestiaEntitySpawner` persists carries this, so a fixture without it was modelling a
     // creature that cannot exist - and the deletion assertion below is about exactly that marker.
@@ -128,6 +130,34 @@ class DeathSystemTest {
     sut.update(world, 0f)
 
     assertEquals(listOf(1L to 2L), spilledAt)
+  }
+
+  /** A promoted prop has `Health` and a `Position` too, but a felled tree is not a wound. */
+  @Test
+  fun `a dead prop leaves no blood`() {
+    val world = testWorld()
+    world.createEntity { eid ->
+      add(eid, Position.fromVec3(Vec3L(1, 2, 3)))
+      add(eid, Dead())
+    }
+
+    sut.update(world, 0f)
+
+    assertEquals(emptyList(), spilledAt)
+  }
+
+  @Test
+  fun `a dead construction site leaves no blood`() {
+    val world = testWorld()
+    world.createEntity { eid ->
+      add(eid, Position.fromVec3(Vec3L(1, 2, 3)))
+      add(eid, EntityVisual(VisualKind.STRUCTURE, 3L))
+      add(eid, Dead())
+    }
+
+    sut.update(world, 0f)
+
+    assertEquals(emptyList(), spilledAt)
   }
 
   /**

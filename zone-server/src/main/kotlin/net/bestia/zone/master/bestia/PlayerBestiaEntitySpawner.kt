@@ -27,6 +27,7 @@ import net.bestia.zone.battle.ecs.level.LevelUpExperienceCalculator
 import net.bestia.zone.entity.ecs.EntityVisual
 import net.bestia.zone.entity.ecs.VisualKind
 import net.bestia.zone.entity.ecs.Animation
+import net.bestia.zone.entity.ecs.Living
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.persistence.Persistent
@@ -132,6 +133,7 @@ class PlayerBestiaEntitySpawner(
     val playerBestia = loaded.row
 
     add(id, Position.fromVec3(playerBestia.position))
+    add(id, Living)
     add(id, Level(playerBestia.level))
     add(id, Exp(0, levelUpExpCalculator.getRequiredExperience(playerBestia.level)))
     add(id, Speed())

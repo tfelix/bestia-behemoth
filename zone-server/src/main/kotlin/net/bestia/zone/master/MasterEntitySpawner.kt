@@ -29,6 +29,7 @@ import net.bestia.zone.battle.ecs.level.Level
 import net.bestia.zone.battle.ecs.status.SkillPoints
 import net.bestia.zone.battle.ecs.status.StatusPoints
 import net.bestia.zone.master.ecs.MasterVisual
+import net.bestia.zone.entity.ecs.Living
 import net.bestia.zone.identity.ecs.OwnedBestia
 import net.bestia.zone.battle.ecs.exp.Exp
 import net.bestia.zone.battle.ecs.level.LevelUpExperienceCalculator
@@ -126,6 +127,7 @@ class MasterEntitySpawner(
       add(id, Account(accountId = master.account.id))
       add(id, MasterComponent(master.id, master.name))
       add(id, Position.fromVec3(master.currentPosition))
+      add(id, Living)
       add(id, Level(master.level))
       add(id, Exp(master.exp, levelUpExpCalculator.getRequiredExperience(master.level)))
       add(id, Speed())

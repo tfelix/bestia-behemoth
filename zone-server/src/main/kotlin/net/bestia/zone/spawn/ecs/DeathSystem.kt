@@ -20,6 +20,7 @@ import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component as SpringComponent
 import net.bestia.zone.ecs.core.update
 import net.bestia.zone.entity.ecs.Dead
+import net.bestia.zone.entity.ecs.Living
 import net.bestia.zone.battle.ecs.damage.GroundSpill
 import net.bestia.zone.battle.ecs.damage.PlayerDeathSystem
 import net.bestia.zone.battle.ecs.damage.TakenDamage
@@ -43,7 +44,8 @@ class DeathSystem(
       Position::class,
       Account::class,
       PartyMembership::class,
-      Persistent::class
+      Persistent::class,
+      Living::class
     )
 
   // `Dead` is written rather than read: `bled` is set here, the same way PlayerDeathSystem sets `resolved`.
@@ -54,7 +56,7 @@ class DeathSystem(
       // Before the early return below, because a player bleeds too - and once, because a body lies there for
       // as long as its owner leaves it and this would otherwise deepen every tick.
       val dead = get<Dead>()
-      if (!dead.bled) {
+      if (!dead.bled && world.has(entityId, Living::class)) {
         dead.bled = true
         world.get(entityId, Position::class)?.let { spill.bledAt(it.x, it.y) }
       }
