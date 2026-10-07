@@ -84,3 +84,23 @@ statusEffects:
     shield: ALL
     persist: false
     script: InvulnerableEffect
+
+  # Handed out by WARD_AURA to everything a player owns near a ward stone. Hidden and never stored: once the
+  # bearer leaves the field it runs out within seconds.
+  - id: 10
+    identifier: WARDED
+    polarity: BUFF
+    showIcon: false
+    isSyncedToClient: false
+    shield: PLAYERS
+    persist: false
+    script: Warded
+
+  # The spell on a ward stone. Put on the stone again at every boot, so never stored.
+  - id: 11
+    identifier: WARD_AURA
+    polarity: BUFF
+    showIcon: false
+    isSyncedToClient: false
+    persist: false
+    script: WardAura
