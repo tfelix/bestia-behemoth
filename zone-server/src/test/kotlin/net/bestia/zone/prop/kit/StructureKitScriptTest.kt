@@ -3,6 +3,7 @@ package net.bestia.zone.prop.kit
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.identity.ecs.Master
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.movement.ecs.Position
@@ -34,7 +35,7 @@ class StructureKitScriptTest {
   fun setUp() {
     world = testWorld()
     structures = mockk()
-    every { structures.beginConstruction(any(), any(), any(), any(), any(), any()) } returns 1L
+    every { structures.beginConstruction(any(), any(), any(), any(), any(), any(), any()) } returns 1L
 
     script = object : StructureKitScript(structures, StaticEntityKind.WORKBENCH, BUILD_SECONDS) {
       override val itemId = 26L
@@ -49,7 +50,7 @@ class StructureKitScriptTest {
 
     assertTrue(used, "the kit is spent")
     verify {
-      structures.beginConstruction(world, StaticEntityKind.WORKBENCH, MASTER_ID, standingAt, 1.5f, BUILD_SECONDS)
+      structures.beginConstruction(world, StaticEntityKind.WORKBENCH, MASTER_ID, ACCOUNT_ID, standingAt, 1.5f, BUILD_SECONDS)
     }
   }
 
@@ -59,7 +60,7 @@ class StructureKitScriptTest {
 
     script.execute(world, user, ScriptArgs.of(ScriptArgKeys.POSITION to standingAt))
 
-    verify { structures.beginConstruction(any(), any(), any(), any(), 0f, any()) }
+    verify { structures.beginConstruction(any(), any(), any(), any(), any(), 0f, any()) }
   }
 
   @Test
@@ -68,7 +69,7 @@ class StructureKitScriptTest {
 
     assertFalse(script.execute(world, user, ScriptArgs.EMPTY))
 
-    verify(exactly = 0) { structures.beginConstruction(any(), any(), any(), any(), any(), any()) }
+    verify(exactly = 0) { structures.beginConstruction(any(), any(), any(), any(), any(), any(), any()) }
   }
 
   @Test
@@ -79,7 +80,7 @@ class StructureKitScriptTest {
 
     assertFalse(script.execute(world, user, argsAt(tooFar)))
 
-    verify(exactly = 0) { structures.beginConstruction(any(), any(), any(), any(), any(), any()) }
+    verify(exactly = 0) { structures.beginConstruction(any(), any(), any(), any(), any(), any(), any()) }
   }
 
   @Test
@@ -88,13 +89,13 @@ class StructureKitScriptTest {
 
     assertFalse(script.execute(world, bestia, argsAt(standingAt)))
 
-    verify(exactly = 0) { structures.beginConstruction(any(), any(), any(), any(), any(), any()) }
+    verify(exactly = 0) { structures.beginConstruction(any(), any(), any(), any(), any(), any(), any()) }
   }
 
   @Test
   fun `ground that is already taken leaves the kit in the bag`() {
     val user = spawnMaster()
-    every { structures.beginConstruction(any(), any(), any(), any(), any(), any()) } returns null
+    every { structures.beginConstruction(any(), any(), any(), any(), any(), any(), any()) } returns null
 
     assertFalse(script.execute(world, user, argsAt(standingAt)))
   }
@@ -103,6 +104,7 @@ class StructureKitScriptTest {
     return world.createEntity { id ->
       add(id, Position.fromVec3(standingAt))
       add(id, Master(MASTER_ID))
+      add(id, Account(ACCOUNT_ID))
     }
   }
 
@@ -116,6 +118,7 @@ class StructureKitScriptTest {
 
   private companion object {
     const val MASTER_ID = 7L
+    const val ACCOUNT_ID = 3L
     const val BUILD_SECONDS = 20f
   }
 }

@@ -63,7 +63,7 @@ class DamageGateTest {
 
   @Test
   fun `a warded station cannot be knocked down by a player`() {
-    val workbench = entity(shield = HarmShield.PLAYERS).also { world.add(it, PlayerStructureIdentity(structureId = 7L)) }
+    val workbench = entity(shield = HarmShield.PLAYERS).also { world.add(it, PlayerStructureIdentity(structureId = 7L, ownerAccountId = 70L)) }
 
     assertEquals(DamageGate.Verdict.WARDED, DamageGate.verdict(world, player(), workbench))
   }

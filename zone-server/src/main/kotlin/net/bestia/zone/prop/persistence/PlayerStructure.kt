@@ -39,6 +39,14 @@ class PlayerStructure(
   @Column(name = "owner_master_id", nullable = false)
   val ownerMasterId: Long,
 
+  /**
+   * The account of [ownerMasterId], which is what harm is weighed by. Null only until
+   * [net.bestia.zone.boot.PlayerStructureBootRunner] fills it for a row written before the column existed, or
+   * for good when that master is gone.
+   */
+  @Column(name = "owner_account_id")
+  var ownerAccountId: Long?,
+
   @Column(name = "pos_x", nullable = false)
   val x: Long,
 

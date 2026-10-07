@@ -84,7 +84,9 @@ class BudgetedSkillWorld(
   override fun placeStation(kind: StaticEntityKind, masterId: Long, at: Vec3L, yaw: Float): Boolean {
     budget.charge(SPAWN_OPS)
 
-    return services.structures.place(world, kind, masterId, at, yaw) != null
+    val ownerAccountId = world.get(casterId, Account::class)?.accountId ?: return false
+
+    return services.structures.place(world, kind, masterId, ownerAccountId, at, yaw) != null
   }
 
   override fun igniteGroundFire(centre: Vec3L, radiusTiles: Long): Boolean {

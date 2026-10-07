@@ -1,6 +1,7 @@
 package net.bestia.zone.prop.kit
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.identity.ecs.Master
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.movement.ecs.Position
@@ -49,7 +50,8 @@ abstract class StructureKitScript(
     }
 
     val masterId = world.get(userId, Master::class)?.masterId
-    if (masterId == null) {
+    val accountId = world.get(userId, Account::class)?.accountId
+    if (masterId == null || accountId == null) {
       LOG.debug { "Entity $userId is not a master and cannot put up a $kind" }
       return false
     }
@@ -64,7 +66,7 @@ abstract class StructureKitScript(
 
     val yaw = args.float(ScriptArgKeys.YAW) ?: 0f
 
-    return structures.beginConstruction(world, kind, masterId, at, yaw, buildSeconds) != null
+    return structures.beginConstruction(world, kind, masterId, accountId, at, yaw, buildSeconds) != null
   }
 
   private companion object {
