@@ -12,6 +12,8 @@ import net.bestia.zone.account.persistence.findByIdOrThrow
 import net.bestia.zone.cartography.coverage.CoverageCodec
 import net.bestia.zone.item.persistence.ItemRepository
 import net.bestia.zone.item.container.InventoryService
+import net.bestia.zone.item.container.LooseInstanceDisposal
+import net.bestia.zone.item.persistence.ItemInstanceRepository
 import net.bestia.zone.world.MasterSpawnPointService
 import net.bestia.zone.world.WorldService
 import org.junit.jupiter.api.AfterEach
@@ -71,6 +73,12 @@ class ChartServiceTest {
 
   @Autowired
   private lateinit var masterDeletionService: MasterDeletionService
+
+  @Autowired
+  private lateinit var looseInstanceDisposal: LooseInstanceDisposal
+
+  @Autowired
+  private lateinit var itemInstanceRepository: ItemInstanceRepository
 
   @Autowired
   private lateinit var transactionManager: PlatformTransactionManager
@@ -149,6 +157,21 @@ class ChartServiceTest {
     // The consumed chart is gone from the inventory *and* from the chart table.
     assertNull(inventoryService.heldInstance(master.id, east.uniqueId))
     assertNull(mapChartRepository.findByItemInstanceId(east.uniqueId))
+  }
+
+  /** `map_chart.item_instance_id` is a foreign key, so the chart row has to go first. */
+  @Test
+  fun `a chart destroyed on the ground takes its chart row with it`() {
+    val master = givenMaster()
+    inventoryService.addItem(master.id, ChartService.BLANK_IDENTIFIER, 1)
+    val chart = assertIs<ChartService.Result.Ok>(chartService.mint(master.id, 30_000.0, 30_000.0, 1_000.0))
+    val chartItemId = requireNotNull(itemRepository.findByIdentifier(ChartService.CHART_IDENTIFIER)).id
+    assertNotNull(inventoryService.removeOneFromMaster(master.id, chartItemId, 1, chart.uniqueId))
+
+    looseInstanceDisposal.destroy(chart.uniqueId)
+
+    assertNull(mapChartRepository.findByItemInstanceId(chart.uniqueId))
+    assertFalse(itemInstanceRepository.existsById(chart.uniqueId))
   }
 
   @Test
