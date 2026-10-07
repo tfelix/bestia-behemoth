@@ -45,7 +45,7 @@ class ObtainItemIntentSystem(
   override val reads: ComponentClassSet = setOf(
     ObtainItemIntent.LootItemIntent::class, ObtainItemIntent.CreateItemIntent::class,
     Position::class, Account::class, Master::class, GroundItemStack::class, CarryCapacity::class,
-    Inventory::class
+    Inventory::class, GroundItemIntegrity::class
   )
   override val writes: ComponentClassSet = setOf(
     ObtainItemIntent.LootItemIntent::class, ObtainItemIntent.CreateItemIntent::class, Inventory::class
@@ -79,6 +79,9 @@ class ObtainItemIntentSystem(
     val claimed = world.modify(intent.sourceEntityItemStackId) { itemStackEntityId ->
       val stack = get(itemStackEntityId, GroundItemStack::class)
         ?: return@modify null
+      if (get(itemStackEntityId, GroundItemIntegrity::class)?.destroyed == true) {
+        return@modify null
+      }
       val lootPos = get(itemStackEntityId, Position::class)?.toVec3L()
       if (lootPos == null) {
         LOG.warn { "$itemStackEntityId had no Position component, can not calculate loot distance; destroying it" }
