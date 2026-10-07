@@ -12,6 +12,7 @@ import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.TickBuckets
 import net.bestia.zone.ecs.core.World
+import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.skill.SkillId
 import net.bestia.zone.skill.persistence.SkillRepository
@@ -57,7 +58,7 @@ class EnvironmentalExposureSystem(
 
   override val reads: ComponentClassSet = setOf(Position::class, KnownSkills::class) + DamageGate.READS
 
-  override val writes: ComponentClassSet = setOf(Stamina::class, Health::class)
+  override val writes: ComponentClassSet = setOf(Stamina::class, Health::class, Dead::class)
 
   private var drained = 0L
   private var hurt = 0L
@@ -127,6 +128,11 @@ class EnvironmentalExposureSystem(
         val health = world.get(entityId, Health::class) ?: return@each
         health.current -= (cost * config.healthShare).roundToInt().coerceAtLeast(1)
         hurt++
+
+        // Not staged as `IncomingDamage`: the cold has no attacker to credit and should not start a combat timer.
+        if (health.current == 0 && Dead.markOnce(world, entityId)) {
+          LOG.trace { "$entityId died of exposure." }
+        }
       }
     }
   }
