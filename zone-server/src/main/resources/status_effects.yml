@@ -7,6 +7,8 @@
 # `script` is the simple class name of the StatusEffectScript bean in
 # net.bestia.zone.battle.status.scripts that implements the behavior. What an effect shields from, whether it is
 # stored and how long it lasts are the script's to say, not this file's.
+#
+# `polarity: DEBUFF` makes an effect harm, which the damage gate weighs like a blow. Bookkeeping is NEUTRAL.
 statusEffects:
   - id: 1
     identifier: SWIFTNESS
@@ -30,7 +32,7 @@ statusEffects:
   # encounter. Never shown to the client (isSyncedToClient: false).
   - id: 4
     identifier: RESISTED_ONCE_MARKER
-    polarity: DEBUFF
+    polarity: NEUTRAL
     showIcon: false
     isSyncedToClient: false
     script: ResistedOnceMarker
@@ -55,7 +57,7 @@ statusEffects:
   # Internal bookkeeping only: a bestia may only receive First Aid once a minute (skills.yml id 8).
   - id: 8
     identifier: FIRST_AID_COOLDOWN
-    polarity: DEBUFF
+    polarity: NEUTRAL
     showIcon: false
     isSyncedToClient: false
     script: FirstAidCooldown
@@ -66,7 +68,7 @@ statusEffects:
   # MasterIntroMarker for why it can't just send the dialog from apply().
   - id: 6
     identifier: MASTER_INTRO_MARKER
-    polarity: BUFF
+    polarity: NEUTRAL
     showIcon: false
     isSyncedToClient: false
     script: MasterIntroMarker
@@ -91,7 +93,7 @@ statusEffects:
   # The spell on a ward stone.
   - id: 11
     identifier: WARD_AURA
-    polarity: BUFF
+    polarity: NEUTRAL
     showIcon: false
     isSyncedToClient: false
     script: WardAura

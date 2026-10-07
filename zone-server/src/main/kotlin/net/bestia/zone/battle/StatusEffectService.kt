@@ -1,6 +1,10 @@
 package net.bestia.zone.battle
 
+import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.zone.battle.damage.DamageGate
+import net.bestia.zone.battle.status.StatusEffectDefinition
 import net.bestia.zone.battle.status.StatusEffectDefinitionRegistry
+import net.bestia.zone.battle.status.StatusEffectPolarity
 import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.battle.status.StatusEffectScriptRegistry
 import net.bestia.zone.battle.ecs.effects.StatusEffects
@@ -22,14 +26,20 @@ class StatusEffectService(
   private val statusEffectScriptRegistry: StatusEffectScriptRegistry
 ) {
 
+  /** Returns false when the damage gate turns a harmful effect away. */
   fun applyEffect(
     world: World,
     targetId: EntityId,
     definitionId: Long,
     level: Int,
     sourceEntityId: EntityId? = null
-  ) {
+  ): Boolean {
     val definition = statusEffectDefinitionRegistry.getOrThrow(definitionId)
+    if (isTurnedAway(world, definition, sourceEntityId, targetId)) {
+      LOG.debug { "${definition.identifier} from $sourceEntityId turned away from $targetId" }
+      return false
+    }
+
     val script = statusEffectScriptRegistry.getOrThrow(definition.script)
     val durationSeconds = script.durationSeconds(level)
 
@@ -49,6 +59,19 @@ class StatusEffectService(
     if (change == StatusEffects.Change.CHANGED) {
       world.add(targetId, IsStatusValueDirty)
     }
+
+    return true
+  }
+
+  /** A harmful effect is harm like a blow, so the gate that stops a blow stops it too. */
+  private fun isTurnedAway(
+    world: World,
+    definition: StatusEffectDefinition,
+    sourceEntityId: EntityId?,
+    targetId: EntityId
+  ): Boolean {
+    return definition.polarity == StatusEffectPolarity.DEBUFF &&
+        DamageGate.verdict(world, sourceEntityId, targetId) != DamageGate.Verdict.ADMITTED
   }
 
   /**
@@ -64,4 +87,8 @@ class StatusEffectService(
     level: Int,
     sourceEntityId: EntityId? = null
   ) = applyEffect(world, targetId, effect.id, level, sourceEntityId)
+
+  private companion object {
+    val LOG = KotlinLogging.logger { }
+  }
 }
