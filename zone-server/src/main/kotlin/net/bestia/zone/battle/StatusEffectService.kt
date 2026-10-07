@@ -33,8 +33,9 @@ class StatusEffectService(
     val script = statusEffectScriptRegistry.getOrThrow(definition.script)
     val durationSeconds = script.durationSeconds(level)
 
+    var change = StatusEffects.Change.UNCHANGED
     world.update(targetId, default = { StatusEffects() }) { effects ->
-      effects.applyEffect(
+      change = effects.applyEffect(
         definitionId = definition.id,
         stackBehavior = script.stackBehavior,
         level = level,
@@ -45,7 +46,9 @@ class StatusEffectService(
       )
     }
 
-    world.add(targetId, IsStatusValueDirty)
+    if (change == StatusEffects.Change.CHANGED) {
+      world.add(targetId, IsStatusValueDirty)
+    }
   }
 
   /**

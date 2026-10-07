@@ -33,6 +33,7 @@ import net.bestia.zone.item.equip.EquipmentStatusContributor
 import net.bestia.zone.item.equip.script.EquipmentScriptRegistry
 import net.bestia.zone.util.EntityId
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import net.bestia.zone.ecs.core.EcsWorld
@@ -402,6 +403,21 @@ class StatusEffectSystemsIntegrationTest {
 
     assertEquals(1, world.get(entity, StatusEffects::class)!!.activeEffects.size)
     assertEquals(1.0f, world.get(entity, StatusEffects::class)!!.activeEffects.single().remainingSeconds, 0.001f)
+  }
+
+  @Test
+  fun `refreshing an effect does not rebuild status values`() {
+    val (world, registry) = newWorld(SpeedBuffScript(duration = 5.0))
+    val entity = world.createEntity { }
+    world.add(entity, Speed(2.0f))
+    world.seedStatusValues(entity)
+    val service = StatusEffectService(registry, StatusEffectScriptRegistry(listOf(SpeedBuffScript(duration = 5.0))))
+
+    service.applyEffect(world, entity, definitionId = speedEffect.id, level = 1)
+    world.tick(0.1f)
+    service.applyEffect(world, entity, definitionId = speedEffect.id, level = 1)
+
+    assertFalse(world.has(entity, IsStatusValueDirty::class), "an aura's refresh would rebuild everyone in range")
   }
 
   private companion object {
