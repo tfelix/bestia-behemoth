@@ -44,9 +44,8 @@ namespace Bnet {
   #region Messages
   /// <summary>
   ///*
-  /// Every currently visible status effect (buff/debuff) active on an entity. Effects marked internal-only
-  /// (`showIcon = false` server-side) are filtered out before this message is built, so they never
-  /// appear here.
+  /// Every status effect active on an entity that the client is told about. Effects with `isSyncedToClient: false`
+  /// in the server's `status_effects.yml` are filtered out before this message is built, so they never appear here.
   /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class StatusEffectListSMSG : pb::IMessage<StatusEffectListSMSG>
