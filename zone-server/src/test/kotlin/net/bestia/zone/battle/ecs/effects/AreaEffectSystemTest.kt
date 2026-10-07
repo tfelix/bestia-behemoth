@@ -34,7 +34,7 @@ class AreaEffectSystemTest {
     mockk(relaxed = true) { every { of(any()) } returns null }
   )
 
-  private val sut = AreaEffectSystem(aoi, outMessageProcessor, propPromotion)
+  private val sut = AreaEffectSystem(aoi, outMessageProcessor, propPromotion, AreaDamageReceiver.NONE)
   private val world: EcsWorld = testWorld(systems = listOf(sut))
 
   /** The world's AOI index is fed by ZoneEngine's dirty-position pass, which no test world runs. */

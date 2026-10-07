@@ -40,7 +40,8 @@ import net.bestia.zone.battle.CombatTargetPromotion
 class AreaEffectSystem(
   private val entityAOIService: EntityAOIService,
   private val outMessageProcessor: OutMessageProcessor,
-  private val propPromotionService: CombatTargetPromotion
+  private val propPromotionService: CombatTargetPromotion,
+  private val areaDamageReceiver: AreaDamageReceiver,
 ) : System {
   override val phase = Phase.COMBAT
 
@@ -48,7 +49,8 @@ class AreaEffectSystem(
 
   /** `ActivePlayer` and `Account` are read to address the damage message; see [OutMessageProcessor.sendToObserversOf]. */
   override val reads: ComponentClassSet =
-    setOf(Position::class, Health::class, Dead::class, Invulnerable::class, ActivePlayer::class, Account::class)
+    setOf(Position::class, Health::class, Dead::class, Invulnerable::class, ActivePlayer::class, Account::class) +
+      areaDamageReceiver.reads
   /**
    * Includes what `PropPromotionService` adds to a *victim*, not just what this touches on the effect.
    *
@@ -59,7 +61,7 @@ class AreaEffectSystem(
   override val writes: ComponentClassSet = setOf(
     AreaEffect::class, IncomingDamage::class,
     Position::class, Grounded::class, Health::class, StatusValues::class
-  )
+  ) + areaDamageReceiver.writes
 
   override fun update(world: World, deltaTime: Float) {
     // Collected first: destroying inside the query would mutate what it is iterating.
@@ -108,6 +110,8 @@ class AreaEffectSystem(
         if (!effect.hitsCaster && victimId == effect.casterId) continue
         if (!world.isAlive(victimId)) continue
         if (world.has(victimId, Dead::class)) continue
+        // Items on the ground have no health, show no number, and weigh the element.
+        if (areaDamageReceiver.receive(world, victimId, effect.damagePerTick, effect.element)) continue
 
         // A static prop has no `Health` until something interacts with it, so without this the `AoiLayer.ALL`
         // above bought nothing and the class note's "a fire that spares the trees is the defect" was an
