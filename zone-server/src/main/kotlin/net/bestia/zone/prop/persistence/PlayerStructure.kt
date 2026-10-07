@@ -35,7 +35,7 @@ class PlayerStructure(
   @Column(nullable = false)
   val kind: StaticEntityKind,
 
-  /** Who built it. Unowned structures do not exist, and taking one down is their owner's right. */
+  /** Who built it. Unowned structures do not exist. */
   @Column(name = "owner_master_id", nullable = false)
   val ownerMasterId: Long,
 

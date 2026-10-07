@@ -25,6 +25,10 @@ object DamageGate {
       return Verdict.IMMUNE
     }
 
+    if (isOwn(world, sourceId, targetId)) {
+      return Verdict.OWN
+    }
+
     if (isWarded(world, sourceId, targetId)) {
       return Verdict.WARDED
     }
@@ -35,6 +39,21 @@ object DamageGate {
   /** For the paths that have no source to weigh: the drain, the weather, a trap. */
   fun isImmune(world: World, targetId: EntityId): Boolean {
     return hasShield(world, targetId, HarmShield.ALL)
+  }
+
+  /** Nothing harms itself, nor anything else its owner account owns: a master, its bestias, its stations. */
+  private fun isOwn(world: World, sourceId: EntityId?, targetId: EntityId): Boolean {
+    if (sourceId == null) {
+      return false
+    }
+
+    if (sourceId == targetId) {
+      return true
+    }
+
+    val owner = PlayerOwnership.ownerAccountOf(world, sourceId) ?: return false
+
+    return owner == PlayerOwnership.ownerAccountOf(world, targetId)
   }
 
   /**
@@ -61,6 +80,7 @@ object DamageGate {
   enum class Verdict {
     ADMITTED,
     IMMUNE,
+    OWN,
     WARDED,
   }
 }

@@ -41,11 +41,6 @@ class EmberTest {
   }
 
   @Test
-  fun `the flames do not care whose side anyone is on`() {
-    assertTrue(burn().hitsCaster, "Ember burns its own caster if they stand in it")
-  }
-
-  @Test
   fun `damage per tick scales with intelligence`() {
     val dull = burn(intelligence = 10).damagePerTick
     val smart = burn(intelligence = 100).damagePerTick

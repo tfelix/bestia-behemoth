@@ -105,7 +105,6 @@ class AreaEffectSystem(
     world.defer {
       for (victimId in inside) {
         if (victimId == effectEntityId) continue
-        if (!effect.hitsCaster && victimId == effect.casterId) continue
         if (!world.isAlive(victimId)) continue
         if (world.has(victimId, Dead::class)) continue
 
