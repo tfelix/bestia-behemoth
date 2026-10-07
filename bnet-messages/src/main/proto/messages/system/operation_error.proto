@@ -182,6 +182,10 @@ enum OpError {
   // The server refused a request in a way no honest client can provoke (its UI does not offer it), so there
   // is nothing for the player to read; it only tells the client the request is over.
   REQUEST_REFUSED = 57;
+
+  // An attack or a harmful skill aimed at a player, or at something a player owns, while a ward stone shields
+  // one side. The ward is invisible, so this is how the attacker learns why nothing happened.
+  COMBAT_TARGET_WARDED = 58;
 }
 
 message OperationError {

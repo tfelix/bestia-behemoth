@@ -9,6 +9,7 @@ import net.bestia.zone.aoi.AoiLayer
 import net.bestia.zone.aoi.EntityAOIService
 import net.bestia.zone.config.WorldRulesConfig
 import net.bestia.zone.identity.ecs.Master
+import net.bestia.zone.battle.damage.DamageGate
 import net.bestia.zone.battle.ecs.damage.TakenDamage
 import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.battle.ecs.effects.StatusEffects
@@ -57,7 +58,7 @@ class PerceptionSystem(
     Master::class,
     TakenDamage::class,
     StatusEffects::class,
-  )
+  ) + DamageGate.READS
 
   /**
    * `AiAgent` is declared as written, not read: this system mutates the agent's blackboard on every
@@ -147,7 +148,7 @@ class PerceptionSystem(
     var nearestDistance = Long.MAX_VALUE
 
     aoiService.forEachInCube(selfPos, sightSize, AoiLayer.DYNAMIC_ONLY) { candidate, _, _, _ ->
-      if (candidate == self || !world.has(candidate, Master::class) || isFeigningDeath(world, candidate)) {
+      if (candidate == self || !world.has(candidate, Master::class) || isOutOfReach(world, self, candidate)) {
         return@forEachInCube
       }
 
@@ -172,7 +173,16 @@ class PerceptionSystem(
   private fun recentAttacker(world: World, self: Long, aggroMemoryMs: Long): Long? =
     world.get(self, TakenDamage::class)
       ?.mostRecentAttacker(aggroMemoryMs)
-      ?.takeIf { world.isAlive(it) && !isFeigningDeath(world, it) }
+      ?.takeIf { world.isAlive(it) && !isOutOfReach(world, self, it) }
+
+  /**
+   * A player bestia defending its owner sees every master as hostile. Inside a ward it could hurt none of them, and
+   * a target it could never hit would have it replan forever.
+   */
+  private fun isOutOfReach(world: World, self: Long, candidate: Long): Boolean {
+    return isFeigningDeath(world, candidate) ||
+        DamageGate.verdict(world, self, candidate) != DamageGate.Verdict.ADMITTED
+  }
 
   /**
    * Someone playing dead is not seen and not remembered - dropping them from `recentAttacker` too is

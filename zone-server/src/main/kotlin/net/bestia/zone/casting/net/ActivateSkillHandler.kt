@@ -4,7 +4,9 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.zone.skill.SkillTargetType
 import net.bestia.zone.entity.ecs.DeadActionGuard
+import net.bestia.zone.battle.damage.DamageGate
 import net.bestia.zone.battle.ecs.skill.Casting
+import net.bestia.zone.battle.net.HarmRefusal
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.modify
 import net.bestia.zone.session.ConnectionInfoService
@@ -110,6 +112,12 @@ class ActivateSkillHandler(
       SkillTargetType.ENEMY -> {
         if (pickedEntityId == null) {
           LOG.debug { "Activation of ${skill.identifier} by $activeEntityId refused: no target picked" }
+          return true
+        }
+
+        val verdict = DamageGate.verdict(world, activeEntityId, pickedEntityId)
+        if (verdict != DamageGate.Verdict.ADMITTED) {
+          HarmRefusal.send(outMessageProcessor, msg.playerId, verdict)
           return true
         }
         targetEntityId = pickedEntityId

@@ -79,7 +79,7 @@ class BasicAttack(
       AttackOutcome.SWUNG -> Status.SUCCESS
       // Neither is a reason to replan, and FAILURE would be one: AiActSystem clears the plan on it.
       AttackOutcome.NOT_READY, AttackOutcome.OUT_OF_RANGE -> Status.RUNNING
-      AttackOutcome.IMPOSSIBLE -> Status.FAILURE
+      AttackOutcome.IMPOSSIBLE, AttackOutcome.REFUSED -> Status.FAILURE
     }
   }
 

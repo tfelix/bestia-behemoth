@@ -19,6 +19,8 @@ import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import net.bestia.zone.battle.ecs.damage.IncomingDamage
+import net.bestia.zone.battle.damage.ownByPlayer
+import net.bestia.zone.battle.damage.wardPlayer
 class AttackExecutionServiceTest {
 
   private val world = testWorld()
@@ -37,6 +39,16 @@ class AttackExecutionServiceTest {
   )
 
   private val sut = serviceWith(alwaysLands)
+
+  @Test
+  fun `a swing between players under a ward is refused and costs no delay`() {
+    val attacker = world.spawnFighter(at = Vec3L(0, 0, 0)).also { world.wardPlayer(it) }
+    val target = world.spawnFighter(at = Vec3L(1, 0, 0)).also { world.ownByPlayer(it) }
+
+    assertEquals(AttackOutcome.REFUSED, sut.attack(world, attacker, target, BattleAttack.getBasicMeleeAttack()))
+    assertFalse(world.has(attacker, AttackDelay::class), "a refused swing armed the attack delay")
+    assertFalse(world.has(target, IncomingDamage::class))
+  }
 
   @Test
   fun `a swing in reach stages damage on the target`() {
