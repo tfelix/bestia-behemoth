@@ -172,6 +172,12 @@ class StatusEffectPersistenceService(
     }
   }
 
+  /** Every entity that has stored effects, whether or not it is in the world. */
+  @Transactional(readOnly = true)
+  fun storedOwners(): Set<EntityId> {
+    return persistedStatusEffectRepository.findOwnerEntityIds().toSet()
+  }
+
   /** Drops every stored effect of the given entities, e.g. once they are gone for good. */
   @Transactional
   override fun deleteFor(entityIds: Collection<EntityId>) {

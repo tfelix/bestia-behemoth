@@ -17,6 +17,9 @@ interface PlayerBestiaRepository : JpaRepository<PlayerBestia, Long> {
 
   fun findAllByEntityIdIsNull(): List<PlayerBestia>
 
+  @Query("select b.entityId from PlayerBestia b where b.entityId in :entityIds")
+  fun findEntityIdsIn(@Param("entityIds") entityIds: Collection<Long>): List<Long>
+
   /** Locks the row for a read-modify-write, like `MasterRepository.findByIdForUpdate`. */
   @Lock(LockModeType.PESSIMISTIC_WRITE)
   @Query("select b from PlayerBestia b where b.id = :id")
