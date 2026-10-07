@@ -26,4 +26,11 @@ class IncomingDamage() : Component {
   fun total(): Int {
     return amounts.sumOf { it.amount }
   }
+
+  /** Hands over everything staged so far and keeps this instance for whatever is staged next. */
+  fun drain(): List<DamageAmount> {
+    val drained = amounts.toList()
+    amounts.clear()
+    return drained
+  }
 }
