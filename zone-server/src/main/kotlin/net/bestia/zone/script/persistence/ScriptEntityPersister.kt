@@ -33,13 +33,11 @@ data class ScriptEntitySnapshot(
  * Persists [ScriptComponent] entities into the generic [PersistedEntity]/[PersistedComponent] blob
  * tables, and rebuilds them on startup through [ScriptEntitySpawner].
  *
- * [loadAll] does double duty: if script entities are already persisted (a normal restart), they are
- * rehydrated with their original entity ids, exactly like [net.bestia.zone.spawn.persistence.MobEntityPersister]. If none exist yet (the
- * world was just created), it asks [MasterSpawnPointService] for the settlement spawn point
- * candidates, creates one placeholder script entity per candidate (see [SPAWN_POINT_SCRIPT_ID]), and
- * persists them immediately - not waiting for
- * [net.bestia.zone.persistence.EntityPersistenceService]'s periodic sweep - so a restart minutes
- * after a fresh world does not lose them.
+ * [loadAll] does double duty: persisted script entities are rehydrated with their original entity ids, exactly
+ * like [net.bestia.zone.spawn.persistence.MobEntityPersister], and every settlement spawn point that never had a
+ * ward stone gets one (see [SPAWN_POINT_SCRIPT_ID]). A new stone is persisted immediately - not waiting for
+ * [net.bestia.zone.persistence.EntityPersistenceService]'s periodic sweep - so a restart minutes after a fresh
+ * world does not lose it.
  */
 @Component
 class ScriptEntityPersister(
@@ -78,39 +76,49 @@ class ScriptEntityPersister(
 
   @Transactional
   override fun loadAll(world: World) {
-    val rows = repository.findAllByKind(kind)
-    if (rows.isNotEmpty()) {
-      var loaded = 0
-      for (row in rows) {
-        val json = row.components.firstOrNull()?.data ?: continue
-        val snap = objectMapper.readValue<ScriptEntitySnapshot>(json)
-        scriptEntitySpawner.spawnScript(
-          world = world,
-          position = Vec3L(snap.x, snap.y, snap.z),
-          scriptId = snap.scriptId,
-          entityId = snap.entityId,
-        )
-        loaded++
-      }
-      LOG.info { "Rehydrated $loaded persisted script entities" }
+    val rehydrated = repository.findAllByKind(kind).mapNotNull { row -> rehydrate(world, row) }
+    LOG.info { "Rehydrated ${rehydrated.size} persisted script entities" }
+
+    raiseMissingWards(world, standing = rehydrated.mapTo(HashSet()) { Vec3L(it.x, it.y, it.z) })
+  }
+
+  private fun rehydrate(world: World, row: PersistedEntity): ScriptEntitySnapshot? {
+    val json = row.components.firstOrNull()?.data ?: return null
+    val snap = objectMapper.readValue<ScriptEntitySnapshot>(json)
+    scriptEntitySpawner.spawnScript(
+      world = world,
+      position = Vec3L(snap.x, snap.y, snap.z),
+      scriptId = snap.scriptId,
+      entityId = snap.entityId,
+    )
+
+    return snap
+  }
+
+  /** Each spawn point gets its ward once per world: a stone destroyed later is not raised again. */
+  private fun raiseMissingWards(world: World, standing: Set<Vec3L>) {
+    val neverWarded = masterSpawnPointService.ensureComputed().filterNot { it.wardRaised }
+    if (neverWarded.isEmpty()) {
       return
     }
 
-    val spawnPoints = masterSpawnPointService.ensureComputed()
-    val snapshots = spawnPoints.map { point ->
-      val id = scriptEntitySpawner.spawnScript(
-        world = world,
-        position = point.position,
-        scriptId = SPAWN_POINT_SCRIPT_ID,
-      )
-      ScriptEntitySnapshot(
-        entityId = id,
-        x = point.position.x, y = point.position.y, z = point.position.z,
-        scriptId = SPAWN_POINT_SCRIPT_ID,
-      )
-    }
+    val snapshots = neverWarded
+      .filterNot { it.position in standing }
+      .map { point -> raiseWard(world, point.position) }
     persist(snapshots)
-    LOG.info { "Created and persisted ${snapshots.size} script entities from settlement spawn points" }
+    masterSpawnPointService.markWardRaised(neverWarded)
+
+    LOG.info { "Raised ${snapshots.size} ward stone(s) at settlement spawn points" }
+  }
+
+  private fun raiseWard(world: World, position: Vec3L): ScriptEntitySnapshot {
+    val id = scriptEntitySpawner.spawnScript(world = world, position = position, scriptId = SPAWN_POINT_SCRIPT_ID)
+
+    return ScriptEntitySnapshot(
+      entityId = id,
+      x = position.x, y = position.y, z = position.z,
+      scriptId = SPAWN_POINT_SCRIPT_ID,
+    )
   }
 
   companion object {

@@ -42,6 +42,10 @@ class MasterSpawnPoint(
   )
   val position: Vec3L
 ) {
+  /** Whether this point has had its ward stone. It stays set, so a destroyed stone is gone for the world. */
+  @Column(name = "ward_raised", nullable = false)
+  var wardRaised: Boolean = false
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   val id: Long = 0
