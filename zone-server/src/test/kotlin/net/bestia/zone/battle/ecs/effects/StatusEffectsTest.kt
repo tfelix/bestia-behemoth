@@ -3,6 +3,9 @@ package net.bestia.zone.battle.ecs.effects
 import net.bestia.zone.battle.status.HarmShield
 import net.bestia.zone.battle.status.StackBehavior
 import net.bestia.zone.battle.status.StatusEffectPolarity
+import net.bestia.zone.ecs.core.testWorld
+import net.bestia.zone.identity.ecs.Account
+import net.bestia.zone.sync.SyncTargets
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -96,6 +99,14 @@ class StatusEffectsTest {
     assertEquals(42L, message.entityId)
     assertEquals(1, message.effects.size)
     assertEquals(1L, message.effects.first().effectId)
+  }
+
+  @Test
+  fun `a player's effects are told to everybody in range, not only to the owner`() {
+    val world = testWorld()
+    val player = world.createEntity { id -> add(id, Account(accountId = 3L)) }
+
+    assertEquals(SyncTargets.PublicInRange, StatusEffects().syncTargets(world, player))
   }
 
   @Test

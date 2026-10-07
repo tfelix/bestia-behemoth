@@ -5,7 +5,6 @@ import net.bestia.zone.battle.status.StackBehavior
 import net.bestia.zone.battle.status.StatusEffectPolarity
 import net.bestia.zone.sync.Dirtyable
 import net.bestia.zone.sync.SyncTargets
-import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.sync.DirtyableComponent
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.message.EntitySMSG
@@ -18,6 +17,9 @@ import net.bestia.zone.util.EntityId
  * Sync is driven by this component's own dirty flag: [applyEffect]/[tickDown] mark it dirty as
  * they mutate, and a freshly added instance starts dirty, so changes reach the client without any
  * external bookkeeping.
+ *
+ * Everybody in range is told, not only the owner: that is how a client sees that a ward stone protects
+ * another player before it aims at them.
  */
 class StatusEffects(
   val activeEffects: MutableList<ActiveStatusEffect> = mutableListOf()
@@ -156,8 +158,6 @@ class StatusEffects(
   }
 
   override fun syncTargets(world: World, entityId: EntityId): SyncTargets {
-    val owner = world.get(entityId, Account::class)?.accountId
-      ?: return SyncTargets.PublicInRange
-    return SyncTargets.Accounts(setOf(owner))
+    return SyncTargets.PublicInRange
   }
 }
