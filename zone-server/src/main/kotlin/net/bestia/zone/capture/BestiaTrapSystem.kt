@@ -10,7 +10,7 @@ import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.battle.ecs.damage.TakenDamage
 import net.bestia.zone.skill.ecs.KnownSkills
 import net.bestia.zone.battle.ecs.status.Health
-import net.bestia.zone.battle.ecs.status.Invulnerable
+import net.bestia.zone.battle.damage.DamageGate
 import net.bestia.zone.battle.ecs.status.StatusValues
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Phase
@@ -57,9 +57,9 @@ class BestiaTrapSystem(
   override val schedule: Schedule = Schedule.EveryTick
 
   override val reads: ComponentClassSet = setOf(
-    Position::class, EntityVisual::class, Account::class, Dead::class, Invulnerable::class,
+    Position::class, EntityVisual::class, Account::class, Dead::class,
     Health::class, StatusValues::class, KnownSkills::class, Persistent::class
-  )
+  ) + DamageGate.READS
 
   /** [TakenDamage] is written on the creature that broke free, so it turns on the trapper. */
   override val writes: ComponentClassSet = setOf(BestiaTrap::class, TakenDamage::class)
@@ -179,7 +179,7 @@ class BestiaTrapSystem(
 
     return !world.has(id, Account::class) &&
         !world.has(id, Dead::class) &&
-        !world.has(id, Invulnerable::class) &&
+        !DamageGate.isImmune(world, id) &&
         world.has(id, Health::class)
   }
 

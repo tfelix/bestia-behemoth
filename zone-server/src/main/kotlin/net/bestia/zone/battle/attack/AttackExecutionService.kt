@@ -3,6 +3,7 @@ package net.bestia.zone.battle.attack
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.battle.BattleContextFactory
 import net.bestia.zone.battle.damage.DamageEntitySMSG
+import net.bestia.zone.battle.damage.DamageGate
 import net.bestia.zone.battle.damage.Heal
 import net.bestia.zone.battle.damage.Miss
 import net.bestia.zone.battle.status.AttackSpeed
@@ -12,7 +13,6 @@ import net.bestia.zone.battle.ecs.effects.StatusEffects
 import net.bestia.zone.battle.ecs.level.Level
 import net.bestia.zone.battle.ecs.status.CombatBonus
 import net.bestia.zone.battle.ecs.status.Health
-import net.bestia.zone.battle.ecs.status.Invulnerable
 import net.bestia.zone.battle.ecs.status.Nature
 import net.bestia.zone.battle.ecs.status.StatusValues
 import net.bestia.zone.ecs.core.ComponentClassSet
@@ -134,8 +134,8 @@ class AttackExecutionService(
 
         // ReceivedDamageSystem drains this into Health, and handles death, threat and cast interruption.
         else -> {
-          // This branch only - see Invulnerable: a miss and a heal stay true of a target that cannot be hurt.
-          if (world.has(targetId, Invulnerable::class)) {
+          // This branch only: a miss and a heal stay true of a target the gate shields.
+          if (DamageGate.verdict(world, attackerId, targetId) != DamageGate.Verdict.ADMITTED) {
             return@defer
           }
 
@@ -154,9 +154,9 @@ class AttackExecutionService(
     /** What [attack] reads on both sides, through the battle context and a prop's first promotion. */
     val READS: ComponentClassSet = setOf(
       Position::class, Dead::class, Level::class, Nature::class, StatusEffects::class, StatusValues::class,
-      CombatBonus::class, Invulnerable::class, Health::class, AttackDelay::class,
+      CombatBonus::class, Health::class, AttackDelay::class,
       WorldObjectIdentity::class, PropPose::class, PropVitality::class,
-    )
+    ) + DamageGate.READS
 
     /** What [attack] writes: the staged damage, the attacker's delay, and a prop promoted on its first hit. */
     val WRITES: ComponentClassSet = setOf(
