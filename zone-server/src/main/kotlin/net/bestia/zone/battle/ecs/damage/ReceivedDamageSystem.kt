@@ -26,30 +26,37 @@ class ReceivedDamageSystem : System {
   override val phase = Phase.COMBAT
   override val after = setOf(AttackSystem::class)
 
-  override val reads: ComponentClassSet = setOf(IncomingDamage::class) + DamageGate.READS
+  override val reads: ComponentClassSet = DamageGate.READS
   override val writes: ComponentClassSet =
     setOf(
       Health::class, TakenDamage::class, Dead::class, LogoutIntent::class, Casting::class, Crafting::class,
-      InCombat::class
+      InCombat::class, IncomingDamage::class
     )
 
   override fun update(world: World, deltaTime: Float) {
     world.query(IncomingDamage::class, Health::class).each { id ->
       val receivedDamage = get<IncomingDamage>()
+      val hits = receivedDamage.drain()
       val health = get<Health>()
 
-      world.remove(id, IncomingDamage::class)
+      // Removed only if still empty: the deferred queue is FIFO, so a hit that an earlier system deferred
+      // this tick lands on this same instance first. Removing it unconditionally would delete that hit.
+      world.defer {
+        if (receivedDamage.amounts.isEmpty()) {
+          world.remove(id, IncomingDamage::class)
+        }
+      }
 
-      // Consumed and dropped, not skipped before the removal: leaving the component on would have the blow
+      // Drained and dropped, not skipped before the drain: leaving the hits on would have the blow
       // land again on the next tick, forever. Nothing else follows either - no aggro record, no combat
       // timer - because none of it means anything to something that cannot be hurt.
       if (DamageGate.isImmune(world, id)) return@each
 
       val takenDamage = world.get(id, TakenDamage::class) ?: world.add(id, TakenDamage())
-      receivedDamage.amounts.forEach { takenDamage.addDamage(it.sourceEntityId, it.amount) }
+      hits.forEach { takenDamage.addDamage(it.sourceEntityId, it.amount) }
       takenDamage.removeOldEntries()
 
-      val total = receivedDamage.total()
+      val total = hits.sumOf { it.amount }
       health.current -= total
 
       // Taking damage aborts a pending logout and interrupts a running cast or craft. Removing the
