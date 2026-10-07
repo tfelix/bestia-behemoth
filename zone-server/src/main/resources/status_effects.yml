@@ -73,3 +73,14 @@ statusEffects:
     showIcon: false
     isSyncedToClient: false
     script: MasterIntroMarker
+
+  # Applied to every non-combatant species as it spawns (BestiaEntitySpawner), so it follows the mob
+  # catalogue rather than storage.
+  - id: 9
+    identifier: INVULNERABLE
+    polarity: BUFF
+    showIcon: false
+    isSyncedToClient: false
+    shield: ALL
+    persist: false
+    script: InvulnerableEffect

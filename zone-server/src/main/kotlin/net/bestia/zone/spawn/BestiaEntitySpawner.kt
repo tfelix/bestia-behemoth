@@ -5,12 +5,13 @@ import net.bestia.zone.ai.ecs.AiAgent
 import net.bestia.zone.ai.core.state.Blackboard
 import net.bestia.zone.ai.ecs.AiAgentFactory
 import net.bestia.zone.ai.profile.AiProfileRegistry
+import net.bestia.zone.battle.StatusEffectService
+import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.navigation.MovementCapability
 import net.bestia.zone.navigation.profile.MovementProfileRegistry
 import net.bestia.zone.battle.ecs.status.BaseStatusValues
 import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.battle.ecs.level.Level
-import net.bestia.zone.battle.ecs.status.Invulnerable
 import net.bestia.zone.battle.ecs.status.Mana
 import net.bestia.zone.battle.ecs.status.Nature
 import net.bestia.zone.skill.ecs.KnownSkills
@@ -36,7 +37,8 @@ class BestiaEntitySpawner(
   private val bestiaCatalogue: BestiaCatalogue,
   private val aiProfileRegistry: AiProfileRegistry,
   private val aiAgentFactory: AiAgentFactory,
-  private val movementProfileRegistry: MovementProfileRegistry
+  private val movementProfileRegistry: MovementProfileRegistry,
+  private val statusEffectService: StatusEffectService
 ) {
 
   /**
@@ -114,7 +116,7 @@ class BestiaEntitySpawner(
         )
       )
       if (persistent) add(id, Persistent)
-      if (bestia.nonCombatant) add(id, Invulnerable)
+      if (bestia.nonCombatant) statusEffectService.applyEffect(this, id, StatusEffectId.INVULNERABLE, level = 1)
       // Only when a den made it. Absence is what marks a creature nothing owns; see DenMember.
       den?.let { add(id, it) }
 
