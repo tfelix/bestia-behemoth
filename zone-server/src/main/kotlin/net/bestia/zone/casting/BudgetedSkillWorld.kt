@@ -157,8 +157,6 @@ class BudgetedSkillWorld(
       }
 
       services.statusEffects.applyEffect(this, target, effectId, level, casterId)
-
-      true
     } ?: false
   }
 

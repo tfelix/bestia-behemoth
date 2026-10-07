@@ -12,4 +12,5 @@ data class StatusEffectDefinition(
   val identifier: String,
   val isSyncedToClient: Boolean,
   val script: String,
+  val polarity: StatusEffectPolarity = StatusEffectPolarity.NEUTRAL,
 )
