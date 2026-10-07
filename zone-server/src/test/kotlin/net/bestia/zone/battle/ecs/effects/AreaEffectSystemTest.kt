@@ -12,6 +12,7 @@ import net.bestia.zone.entity.ecs.PropPose
 import net.bestia.zone.entity.ecs.PropVitality
 import net.bestia.zone.entity.ecs.WorldObjectIdentity
 import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.prop.PropPromotionService
@@ -143,6 +144,27 @@ class AreaEffectSystemTest {
   }
 
   @Test
+  fun `a fire that outlives its caster still spares what the caster's account owns`() {
+    val caster = victimAt(CENTER).also { world.add(it, Account(accountId = OWNER)) }
+    val ownBestia = victimAt(CENTER).also { world.add(it, Account(accountId = OWNER)) }
+    val stranger = victimAt(CENTER).also { world.add(it, Account(accountId = OWNER + 1)) }
+    val patch = AreaEffectSpawner().spawn(
+      world, CENTER, visualId = null,
+      effect = AreaEffect.lasting(
+        casterId = caster, skillId = SKILL_ID, skillLevel = 1, radiusTiles = 1,
+        damagePerTick = DAMAGE_PER_TICK, tickIntervalSeconds = TICK_INTERVAL, durationSeconds = DURATION
+      )
+    )
+    aoi.setEntityPosition(patch, CENTER)
+
+    world.destroy(caster)
+    world.tick(TICK_INTERVAL)
+
+    assertEquals(0, stagedDamage(ownBestia))
+    assertEquals(DAMAGE_PER_TICK, stagedDamage(stranger))
+  }
+
+  @Test
   fun `two patches on one target both stage their damage instead of one replacing the other`() {
     val victim = victimAt(CENTER)
     emberAt(CENTER)
@@ -166,6 +188,7 @@ class AreaEffectSystemTest {
   private companion object {
     val CENTER = Vec3L(10, 10, 0)
     const val CASTER_ID = 4242L
+    const val OWNER = 77L
     const val SKILL_ID = 1000L
     const val DAMAGE_PER_TICK = 7
     const val TICK_INTERVAL = 1.2f

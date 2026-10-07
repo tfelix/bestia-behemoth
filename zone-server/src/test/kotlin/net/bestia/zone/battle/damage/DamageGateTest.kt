@@ -88,11 +88,20 @@ class DamageGateTest {
   }
 
   @Test
-  fun `a source that is gone counts as a player against a warded target`() {
+  fun `a source that is gone still answers to the account that made it`() {
+    val warded = player(shield = HarmShield.PLAYERS)
+    val ownBestia = entity().also { world.add(it, Account(accountId = MAKER)) }
+
+    assertEquals(DamageGate.Verdict.WARDED, DamageGate.verdict(world, GONE, warded, sourceOwner = MAKER))
+    assertEquals(DamageGate.Verdict.OWN, DamageGate.verdict(world, GONE, ownBestia, sourceOwner = MAKER))
+    assertEquals(DamageGate.Verdict.ADMITTED, DamageGate.verdict(world, GONE, player(), sourceOwner = MAKER))
+  }
+
+  @Test
+  fun `a gone source nobody owned is a mob's, which the ward does not stop`() {
     val warded = player(shield = HarmShield.PLAYERS)
 
-    assertEquals(DamageGate.Verdict.WARDED, DamageGate.verdict(world, GONE, warded))
-    assertEquals(DamageGate.Verdict.ADMITTED, DamageGate.verdict(world, GONE, player()))
+    assertEquals(DamageGate.Verdict.ADMITTED, DamageGate.verdict(world, GONE, warded, sourceOwner = null))
   }
 
   private fun player(shield: HarmShield? = null): EntityId {
@@ -108,5 +117,8 @@ class DamageGateTest {
   private companion object {
     /** No entity has this id: the caster of a fire that outlived it. */
     const val GONE = 424_242L
+
+    /** The account that [GONE] belonged to. */
+    const val MAKER = 515_151L
   }
 }

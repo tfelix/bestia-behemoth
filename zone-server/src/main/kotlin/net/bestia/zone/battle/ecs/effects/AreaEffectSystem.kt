@@ -120,7 +120,7 @@ class AreaEffectSystem(
         if (!propPromotionService.promoteIfNeeded(world, victimId, center, effect.radiusTiles * 2)) continue
         if (!world.has(victimId, Health::class)) continue
         // Asked here as well as at the drain: a burn the drain drops would still be reported to the client.
-        if (DamageGate.verdict(world, effect.casterId, victimId) != DamageGate.Verdict.ADMITTED) continue
+        if (DamageGate.verdict(world, effect.casterId, victimId, effect.casterAccountId) != DamageGate.Verdict.ADMITTED) continue
 
         val damage = world.get(victimId, IncomingDamage::class) ?: world.add(victimId, IncomingDamage())
         damage.add(effect.damagePerTick, effect.casterId)
