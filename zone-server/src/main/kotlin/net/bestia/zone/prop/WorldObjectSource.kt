@@ -1,5 +1,6 @@
 package net.bestia.zone.prop
 
+import net.bestia.zone.util.AccountId
 import net.bestia.worldgen.core.ChunkPos
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.entity.StaticEntityKind
@@ -32,7 +33,8 @@ data class WorldObjectSite(
   val yaw: Float,
   val halfLengthDm: Int = 0,
   val halfWidthDm: Int = 0,
-  val structureId: Long = 0
+  val structureId: Long = 0,
+  val ownerAccountId: AccountId? = null
 )
 
 /**

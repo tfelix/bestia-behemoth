@@ -1,9 +1,12 @@
 package net.bestia.zone.boot
 
+import net.bestia.zone.account.persistence.MasterRepository
 import net.bestia.zone.prop.PlayerStructureRegistry
+import net.bestia.zone.prop.persistence.PlayerStructureRepository
 import org.springframework.boot.CommandLineRunner
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
+import org.springframework.transaction.annotation.Transactional
 
 /**
  * Loads what players have built, so [net.bestia.zone.prop.PlayerStructureSource] can answer per chunk
@@ -18,9 +21,25 @@ import org.springframework.stereotype.Component
 @Order(4)
 class PlayerStructureBootRunner(
   private val registry: PlayerStructureRegistry,
+  private val structures: PlayerStructureRepository,
+  private val masters: MasterRepository,
 ) : CommandLineRunner {
 
+  @Transactional
   override fun run(vararg args: String?) {
+    nameOwnerAccounts()
     registry.loadAll()
+  }
+
+  /** A structure is given its owner's account when it is placed; rows written before that are named here. */
+  private fun nameOwnerAccounts() {
+    val unnamed = structures.findAllByOwnerAccountIdIsNull()
+    if (unnamed.isEmpty()) {
+      return
+    }
+
+    val accountOfMaster = masters.findAllById(unnamed.map { it.ownerMasterId }.toSet())
+      .associate { it.id to it.account.id }
+    unnamed.forEach { it.ownerAccountId = accountOfMaster[it.ownerMasterId] }
   }
 }

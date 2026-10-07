@@ -67,7 +67,7 @@ class StaticStatusEffectSyncTest {
     val workbench = world.createEntity { id ->
       add(id, PropPose(Vec3L(5, 5, 0), yaw = 0f))
       add(id, StaticSync)
-      add(id, PlayerStructureIdentity(structureId = 1L))
+      add(id, PlayerStructureIdentity(structureId = 1L, ownerAccountId = 10L))
       add(id, StatusEffects(mutableListOf(warded())))
     }
 

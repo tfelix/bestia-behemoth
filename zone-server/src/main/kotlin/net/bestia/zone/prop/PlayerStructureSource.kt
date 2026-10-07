@@ -64,7 +64,8 @@ class PlayerStructureSource(
       // this. The collider is the only statement anywhere of how tall a forge is.
       heightDm = (spec.collider.height * 10).toInt(),
       yaw = entry.yaw,
-      structureId = entry.id
+      structureId = entry.id,
+      ownerAccountId = entry.ownerAccountId
     )
   }
 }
