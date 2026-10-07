@@ -1,6 +1,7 @@
 package net.bestia.zone.battle.ecs.effects
 
 import net.bestia.zone.battle.status.HarmShield
+import net.bestia.zone.battle.status.StatusEffectPolarity
 import net.bestia.zone.util.EntityId
 
 /**
@@ -22,7 +23,9 @@ data class ActiveStatusEffect(
   val sourceEntityId: EntityId? = null,
   val isSyncedToClient: Boolean = true,
   /** Denormalized like [isSyncedToClient], so the damage gate needs no registry on every hit. */
-  val shield: HarmShield? = null
+  val shield: HarmShield? = null,
+  /** Denormalized like [isSyncedToClient], so the client is told a debuff without a registry lookup at sync time. */
+  val polarity: StatusEffectPolarity = StatusEffectPolarity.NEUTRAL
 ) {
   /** Runtime only, so it is kept out of `equals`, `copy` and storage. */
   var sinceLastTick: Float = 0f
