@@ -63,6 +63,23 @@ class WardAuraTest {
   }
 
   @Test
+  fun `a station whose column loads again is warded by the next pulse`() {
+    pulse()
+
+    // Residency spawns a fresh static without the effects the unloaded one carried.
+    val reloaded = world.createEntity { id ->
+      add(id, PropPose(STONE.plus(500), yaw = 0f))
+      add(id, PlayerStructureIdentity(structureId = 1L))
+    }
+    val outsider = playerAt(STONE.plus(9_000))
+    assertEquals(DamageGate.Verdict.ADMITTED, DamageGate.verdict(world, outsider, reloaded), "unwarded until the pulse")
+
+    pulse()
+
+    assertEquals(DamageGate.Verdict.WARDED, DamageGate.verdict(world, outsider, reloaded))
+  }
+
+  @Test
   fun `the ward runs out soon after its bearer leaves`() {
     val wanderer = playerAt(STONE.plus(1_000))
     pulse()
