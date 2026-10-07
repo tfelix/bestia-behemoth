@@ -40,7 +40,8 @@ class StatusEffectService(
         level = level,
         sourceEntityId = sourceEntityId,
         durationSeconds = durationSeconds,
-        isSyncedToClient = definition.isSyncedToClient
+        isSyncedToClient = definition.isSyncedToClient,
+        shield = definition.shield
       )
     }
 

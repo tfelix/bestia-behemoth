@@ -102,13 +102,20 @@ class StatusEffectPersistenceService(
    * Attaches previously [load]ed effects to a live entity and marks it for a status value recalc so
    * [net.bestia.zone.battle.ecs.effects.StatusValueRecalcSystem] folds them into `StatusValues`/`Speed`
    * on the next tick. Called with the world to itself; does no I/O.
+   *
+   * Merges rather than replaces, so an effect the spawner already applied survives the restore.
    */
   fun attach(world: World, entityId: EntityId, effects: List<ActiveStatusEffect>) {
     if (effects.isEmpty()) {
       return
     }
 
-    world.add(entityId, StatusEffects(effects.toMutableList()))
+    val live = world.get(entityId, StatusEffects::class)
+    if (live == null) {
+      world.add(entityId, StatusEffects(effects.toMutableList()))
+    } else {
+      live.restore(effects)
+    }
     world.add(entityId, IsStatusValueDirty)
   }
 
@@ -124,7 +131,7 @@ class StatusEffectPersistenceService(
 
     return StatusEffectsSnapshot(
       entityId = entityId,
-      effects = statusEffects.activeEffects.map {
+      effects = statusEffects.activeEffects.filter(::isPersisted).map {
         StatusEffectsSnapshot.Entry(
           definitionId = it.definitionId,
           level = it.level,
@@ -194,8 +201,13 @@ class StatusEffectPersistenceService(
       level = row.level,
       remainingSeconds = row.remainingSeconds ?: Float.POSITIVE_INFINITY,
       sourceEntityId = row.sourceEntityId,
-      isSyncedToClient = definition.isSyncedToClient
+      isSyncedToClient = definition.isSyncedToClient,
+      shield = definition.shield
     )
+  }
+
+  private fun isPersisted(effect: ActiveStatusEffect): Boolean {
+    return statusEffectDefinitionRegistry.findById(effect.definitionId)?.persist != false
   }
 
   private fun Float.toNullableSeconds(): Float? = if (isInfinite()) null else this

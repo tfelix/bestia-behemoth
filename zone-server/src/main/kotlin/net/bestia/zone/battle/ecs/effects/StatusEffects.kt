@@ -1,5 +1,6 @@
 package net.bestia.zone.battle.ecs.effects
 
+import net.bestia.zone.battle.status.HarmShield
 import net.bestia.zone.battle.status.StackBehavior
 import net.bestia.zone.sync.Dirtyable
 import net.bestia.zone.sync.SyncTargets
@@ -28,14 +29,16 @@ class StatusEffects(
     level: Int,
     sourceEntityId: EntityId?,
     durationSeconds: Double,
-    isSyncedToClient: Boolean
+    isSyncedToClient: Boolean,
+    shield: HarmShield? = null
   ) {
     fun newInstance() = ActiveStatusEffect(
       definitionId = definitionId,
       level = level,
       remainingSeconds = durationSeconds.toFloat(),
       sourceEntityId = sourceEntityId,
-      isSyncedToClient = isSyncedToClient
+      isSyncedToClient = isSyncedToClient,
+      shield = shield
     )
 
     val existing = activeEffects.firstOrNull { it.definitionId == definitionId }
@@ -63,6 +66,23 @@ class StatusEffects(
     markDirty()
   }
 
+  fun hasEffect(definitionId: Long): Boolean = activeEffects.any { it.definitionId == definitionId }
+
+  fun hasShield(shield: HarmShield): Boolean {
+    return activeEffects.any { it.shield == shield }
+  }
+
+  /** Adds stored effects to the live ones. A live effect wins over a stored one with the same id. */
+  fun restore(stored: List<ActiveStatusEffect>) {
+    val missing = stored.filter { restored -> !hasEffect(restored.definitionId) }
+    if (missing.isEmpty()) {
+      return
+    }
+
+    activeEffects.addAll(missing)
+    markDirty()
+  }
+
   /**
    * Drops every instance of [definitionId] and returns whether anything was actually removed.
    *
@@ -70,8 +90,6 @@ class StatusEffects(
    * a one-shot marker removing itself once it has done its job (see
    * [net.bestia.zone.battle.status.scripts.MasterIntroMarker]), a dispel, a skill that consumes a buff.
    */
-  fun hasEffect(definitionId: Long): Boolean = activeEffects.any { it.definitionId == definitionId }
-
   fun removeEffect(definitionId: Long): Boolean {
     val removed = activeEffects.removeAll { it.definitionId == definitionId }
 
