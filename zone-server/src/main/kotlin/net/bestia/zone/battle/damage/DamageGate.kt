@@ -5,6 +5,7 @@ import net.bestia.zone.battle.status.HarmShield
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.entity.ecs.PlayerOwnership
+import net.bestia.zone.util.AccountId
 import net.bestia.zone.util.EntityId
 
 /**
@@ -21,15 +22,20 @@ object DamageGate {
    * shown a number it would never see subtracted.
    */
   fun verdict(world: World, sourceId: EntityId?, targetId: EntityId): Verdict {
+    return verdict(world, sourceId, targetId, sourceOwner = sourceId?.let { PlayerOwnership.ownerAccountOf(world, it) })
+  }
+
+  /** For a source that can outlive whoever made it, like a fire: [sourceOwner] is the account it was made by. */
+  fun verdict(world: World, sourceId: EntityId?, targetId: EntityId, sourceOwner: AccountId?): Verdict {
     if (isImmune(world, targetId)) {
       return Verdict.IMMUNE
     }
 
-    if (isOwn(world, sourceId, targetId)) {
+    if (isOwn(world, sourceId, targetId, sourceOwner)) {
       return Verdict.OWN
     }
 
-    if (isWarded(world, sourceId, targetId)) {
+    if (isWarded(world, sourceId, targetId, sourceOwner)) {
       return Verdict.WARDED
     }
 
@@ -42,35 +48,26 @@ object DamageGate {
   }
 
   /** Nothing harms itself, nor anything else its owner account owns: a master, its bestias, its stations. */
-  private fun isOwn(world: World, sourceId: EntityId?, targetId: EntityId): Boolean {
-    if (sourceId == null) {
-      return false
-    }
-
+  private fun isOwn(world: World, sourceId: EntityId?, targetId: EntityId, sourceOwner: AccountId?): Boolean {
     if (sourceId == targetId) {
       return true
     }
 
-    val owner = PlayerOwnership.ownerAccountOf(world, sourceId) ?: return false
-
-    return owner == PlayerOwnership.ownerAccountOf(world, targetId)
+    return sourceOwner != null && sourceOwner == PlayerOwnership.ownerAccountOf(world, targetId)
   }
 
   /**
-   * Harm between two player-owned sides while either one carries [HarmShield.PLAYERS]. A source that is gone,
-   * like a fire whose caster logged out, is taken for a player's: that errs towards protection.
+   * Harm between two player-owned sides while either one carries [HarmShield.PLAYERS]. A source that is gone can
+   * carry no shield any more, so then only the target's counts.
    */
-  private fun isWarded(world: World, sourceId: EntityId?, targetId: EntityId): Boolean {
-    if (sourceId == null || !PlayerOwnership.isPlayerOwned(world, targetId)) {
+  private fun isWarded(world: World, sourceId: EntityId?, targetId: EntityId, sourceOwner: AccountId?): Boolean {
+    if (sourceOwner == null || !PlayerOwnership.isPlayerOwned(world, targetId)) {
       return false
     }
 
-    if (!world.isAlive(sourceId)) {
-      return hasShield(world, targetId, HarmShield.PLAYERS)
-    }
+    val sourceIsWarded = sourceId != null && hasShield(world, sourceId, HarmShield.PLAYERS)
 
-    return PlayerOwnership.isPlayerOwned(world, sourceId) &&
-        (hasShield(world, targetId, HarmShield.PLAYERS) || hasShield(world, sourceId, HarmShield.PLAYERS))
+    return sourceIsWarded || hasShield(world, targetId, HarmShield.PLAYERS)
   }
 
   private fun hasShield(world: World, id: EntityId, shield: HarmShield): Boolean {
