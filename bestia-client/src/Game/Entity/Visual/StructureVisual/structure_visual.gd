@@ -1,11 +1,11 @@
 extends Visual
 class_name StructureVisual
 
-## Something a player is building, drawn as an ordinary entity.
+## A structure drawn as an ordinary entity: a construction site, or a ward stone.
 ##
 ## A finished station reaches the client on the per-chunk static batch and is drawn by StaticEntityRenderer.
-## This is the other case: a construction site, whose progress and health change while somebody is watching,
-## so it travels the entity channel instead. The art is the same catalogue either way - see PropVisualBuilder.
+## A construction site's progress and health change while somebody is watching, so it travels the entity
+## channel instead. The art is the same catalogue either way - see PropVisualBuilder.
 
 const PropVisualBuilderScript = preload("res://Game/World/PropVisualBuilder.cs")
 
@@ -37,6 +37,11 @@ func get_kind() -> int:
 
 func get_structure_entity_id() -> int:
 	return _entity_id
+
+
+## A ward stone is never sent a ConstructionComponentSMSG.
+func is_construction_site() -> bool:
+	return _total_seconds > 0.0
 
 
 func _ready() -> void:

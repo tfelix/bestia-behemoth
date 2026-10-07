@@ -102,7 +102,7 @@ namespace BestiaBehemothClient.Game.World
         return ordinal;
       }
 
-      // Every buildable kind carries a StructureHeight and nothing else does, which makes this a real check
+      // Every buildable kind carries a StructureHeight and only the ward stone besides, which makes this a real check
       // on the number above rather than a restatement of it.
       if (PropAppearance.Of(ordinal).StructureHeight <= 0f)
       {

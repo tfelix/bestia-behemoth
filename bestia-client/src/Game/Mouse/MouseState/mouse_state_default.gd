@@ -110,7 +110,10 @@ func _action_for(object: Node3D) -> int:
 		return prop_action
 
 	if object is StructureVisual:
-		return DefaultAction.Kind.BUILD
+		if object.is_construction_site():
+			return DefaultAction.Kind.BUILD
+
+		return DefaultAction.Kind.SELECT
 
 	return DefaultAction.Kind.NONE
 

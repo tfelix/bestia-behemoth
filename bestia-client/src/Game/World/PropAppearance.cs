@@ -401,7 +401,14 @@ namespace BestiaBehemothClient.Game.World
         BladeTip = new Color(0.46f, 0.44f, 0.30f), BladeBase = new Color(0.28f, 0.24f, 0.13f),
         PlaceholderWidth = 0.4f, PlaceholderColour = new Color(0.46f, 0.44f, 0.30f), Collectible = true,
         Action = PropAction.Collect
-      }  // BLIGHTED_REED
+      }, // BLIGHTED_REED
+
+      // The ward stone at each home village. Drawn as an entity like a construction site, so it needs a
+      // StructureHeight; no Action, because nothing is done to it with a click.
+      new Kind
+      {
+        PlaceholderWidth = 1.0f, PlaceholderColour = new Color(0.62f, 0.70f, 0.82f), StructureHeight = 4f
+      }  // WARD_STONE
     };
 
     /// <summary>
