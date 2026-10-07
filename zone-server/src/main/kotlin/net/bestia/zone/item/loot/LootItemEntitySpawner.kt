@@ -1,6 +1,7 @@
 package net.bestia.zone.item.loot
 
 import net.bestia.zone.util.EntityId
+import net.bestia.zone.battle.ecs.status.Invulnerable
 import net.bestia.zone.config.WorldRulesConfig
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.entity.ecs.EntityVisual
@@ -53,7 +54,11 @@ class LootItemEntitySpawner(
         )
       )
       add(id, GroundItemIntegrity(lost = integrityLost))
-      lootOwner?.let { add(id, LootProtection(it, zoneConfig.lootProtectionSeconds)) }
+      if (lootOwner != null) {
+        add(id, LootProtection(lootOwner, zoneConfig.lootProtectionSeconds))
+        // So a fire under the kill does not burn the loot before its killer can pick it up.
+        add(id, Invulnerable)
+      }
       add(id, Persistent)
       // A unique item is one of a kind, and its instance would be lost with it, so only plain items decay.
       if (uniqueId == 0L) {

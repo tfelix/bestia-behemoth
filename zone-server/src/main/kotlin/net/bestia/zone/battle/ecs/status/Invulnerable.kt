@@ -18,6 +18,8 @@ import net.bestia.zone.ecs.core.Component
  * needs to know is that this thing cannot be hurt; who it is and why is not its business, and would make
  * the settlement layer a dependency of combat.
  *
+ * Kill loot on the ground carries it while its `LootProtection` lasts, so that `GroundItemDamage` spares it.
+ *
  * Townsfolk carry it because they are non-combatant this release. A settlement's roster comes from the
  * world generator and nothing puts a person back, so a killable baker is a bakery that closes forever the
  * first time somebody idly swings at it.
