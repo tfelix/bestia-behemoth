@@ -7,7 +7,7 @@ import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.battle.ecs.skill.Crafting
 import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.battle.ecs.status.InCombat
-import net.bestia.zone.battle.ecs.status.Invulnerable
+import net.bestia.zone.battle.damage.DamageGate
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
@@ -26,7 +26,7 @@ class ReceivedDamageSystem : System {
   override val phase = Phase.COMBAT
   override val after = setOf(AttackSystem::class)
 
-  override val reads: ComponentClassSet = setOf(IncomingDamage::class, Invulnerable::class)
+  override val reads: ComponentClassSet = setOf(IncomingDamage::class) + DamageGate.READS
   override val writes: ComponentClassSet =
     setOf(
       Health::class, TakenDamage::class, Dead::class, LogoutIntent::class, Casting::class, Crafting::class,
@@ -43,7 +43,7 @@ class ReceivedDamageSystem : System {
       // Consumed and dropped, not skipped before the removal: leaving the component on would have the blow
       // land again on the next tick, forever. Nothing else follows either - no aggro record, no combat
       // timer - because none of it means anything to something that cannot be hurt.
-      if (world.has(id, Invulnerable::class)) return@each
+      if (DamageGate.isImmune(world, id)) return@each
 
       val takenDamage = world.get(id, TakenDamage::class) ?: world.add(id, TakenDamage())
       receivedDamage.amounts.forEach { takenDamage.addDamage(it.sourceEntityId, it.amount) }
