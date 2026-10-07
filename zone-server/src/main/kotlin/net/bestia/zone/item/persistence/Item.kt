@@ -1,8 +1,11 @@
 package net.bestia.zone.item.persistence
 
 import jakarta.persistence.*
+import org.hibernate.annotations.JdbcTypeCode
+import org.hibernate.type.SqlTypes
 import net.bestia.zone.item.equip.ArmorType
 import net.bestia.zone.item.equip.EquipmentSlot
+import net.bestia.zone.item.material.ItemMaterial
 import net.bestia.zone.util.requireValidIdentifier
 
 @Entity
@@ -96,6 +99,17 @@ class Item(
   @Enumerated(EnumType.STRING)
   @Column(name = "armor_type", nullable = true, length = 16)
   var armorType: ArmorType? = null,
+
+  /**
+   * What the item is made of, which decides how it fares lying on the ground. Every catalogue item names one;
+   * null only for a row the importer has not reached yet.
+   *
+   * A varchar rather than the native enum Hibernate makes on MariaDB, which `ddl-auto: update` never widens.
+   */
+  @Enumerated(EnumType.STRING)
+  @JdbcTypeCode(SqlTypes.VARCHAR)
+  @Column(name = "material", nullable = true, length = 16)
+  var material: ItemMaterial? = null,
 
   /**
    * Long-form flavor text, English only.

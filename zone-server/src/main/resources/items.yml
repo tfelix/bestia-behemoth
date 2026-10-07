@@ -12,12 +12,15 @@
 #
 # `armor-type` (CLOTH, LIGHT, MEDIUM or HEAVY) makes gear armor. A bestia only wears the types its mob YML
 # lists under `armor-types`. Weapons and accessories have none, so anyone with the slot can wear them.
+#
+# `material` is required. `item-materials.yml` says how a stack of it fares on the ground in fire and water.
 items:
   - id: 1
     item-db-name: apple
     level: 1
     weight: 15
     type: USABLE
+    material: FOOD
     script: AppleScript
     description: |
       A fresh apple. 
@@ -29,12 +32,14 @@ items:
     level: 1
     weight: 10
     type: ETC
+    material: FOOD
 
   - id: 3
     item-db-name: small_health_potion
     level: 3
     weight: 25
     type: USABLE
+    material: GLASS
     script: SmallHealthPotionScript
     description: |
       A small vial of transparent slight red liquid.
@@ -48,6 +53,7 @@ items:
     level: 1
     weight: 80
     type: EQUIP
+    material: LEATHER
     equip-slot: FOOTGEAR
     armor-type: LIGHT
     max-durability: 120
@@ -62,6 +68,7 @@ items:
     level: 10
     weight: 200
     type: EQUIP
+    material: LEATHER
     equip-slot: FOOTGEAR
     armor-type: MEDIUM
     max-durability: 260
@@ -80,6 +87,7 @@ items:
     level: 5
     weight: 30
     type: ETC
+    material: CRYSTAL
     description: |
       A shard of raw mana crystal, cool to the touch and faintly lit from within.
 
@@ -88,6 +96,7 @@ items:
     level: 10
     weight: 40
     type: ETC
+    material: CRYSTAL
     description: |
       A splinter of aetherite, prised from corrupted rock. It hums faintly against the palm.
 
@@ -104,6 +113,7 @@ items:
     level: 10
     weight: 300
     type: ETC
+    material: STONE
     description: |
       A lump of raw iron ore, streaked with rust-coloured veins.
 
@@ -114,6 +124,7 @@ items:
     level: 12
     weight: 250
     type: ETC
+    material: METAL
     description: |
       A bar of refined iron, still warm from the furnace.
 
@@ -124,6 +135,7 @@ items:
     level: 5
     weight: 100
     type: ETC
+    material: WOOD
     description: |
       A handful of coal. It burns hot enough to melt ore, and dirties everything it touches.
 
@@ -132,6 +144,7 @@ items:
     level: 1
     weight: 150
     type: ETC
+    material: STONE
     description: |
       Wet river clay, kneaded into a ball. It takes a shape and keeps it.
 
@@ -140,6 +153,7 @@ items:
     level: 30
     weight: 5
     type: ETC
+    material: CRYSTAL
     description: |
       A bead of condensed void, cold in a way that has nothing to do with temperature.
 
@@ -148,6 +162,7 @@ items:
     level: 15
     weight: 10
     type: ETC
+    material: CRYSTAL
     description: |
       Mana crystal ground to a fine, faintly glowing powder.
 
@@ -156,6 +171,7 @@ items:
     level: 10
     weight: 50
     type: ETC
+    material: METAL
     description: |
       A roll of fine chisels and gravers.
 
@@ -166,6 +182,7 @@ items:
     level: 15
     weight: 1
     type: ETC
+    material: PAPER
     description: |
       A smith's drawing of a blade, annotated in a hand that assumed the reader already knew how.
 
@@ -174,6 +191,7 @@ items:
     level: 15
     weight: 1
     type: ETC
+    material: PAPER
     description: |
       A smith's drawing of a breastplate, with the hard part - the fitting - left as an exercise.
 
@@ -183,6 +201,7 @@ items:
     level: 5
     weight: 60
     type: USABLE
+    material: FOOD
     script: HeartyStewScript
     description: |
       A thick stew of whatever was to hand, cooked over an open fire.
@@ -198,6 +217,7 @@ items:
     level: 20
     weight: 120
     type: EQUIP
+    material: METAL
     equip-slot: RIGHT_HAND
     max-durability: 200
     script: IronSwordScript
@@ -211,6 +231,7 @@ items:
     level: 25
     weight: 650
     type: EQUIP
+    material: METAL
     equip-slot: ARMOR
     armor-type: HEAVY
     max-durability: 300
@@ -225,6 +246,7 @@ items:
     level: 1
     weight: 1
     type: ETC
+    material: PAPER
     # Never stacks: the surveyed ground lives on a `map_chart` row keyed by this item's instance, so two
     # charts merged into one stack would be one chart and one orphaned row.
     stackable: false
@@ -239,6 +261,7 @@ items:
     level: 1
     weight: 1
     type: ETC
+    material: PAPER
     description: |
       Blank vellum, ruled and ready to be drawn on.
 
@@ -257,6 +280,7 @@ items:
     level: 1
     weight: 5
     type: ETC
+    material: PLANT
     description: |
       A handful of leaves and roots, pulled up at the wayside.
 
@@ -267,6 +291,7 @@ items:
     level: 1
     weight: 10
     type: ETC
+    material: PLANT
     description: |
       Dark berries picked off a thorny shrub, still cold from the shade.
 
@@ -275,6 +300,7 @@ items:
     level: 1
     weight: 20
     type: ETC
+    material: PLANT
     description: |
       A cut reed stalk, hollow and stubbornly straight.
 
@@ -285,6 +311,7 @@ items:
     level: 1
     weight: 800
     type: USABLE
+    material: WOOD
     script: WorkbenchKitScript
     description: |
       A bundle of planks, pegs and a folded vice, tied with cord.
@@ -302,6 +329,7 @@ items:
     # ordinary shopping turns into a logistics puzzle.
     weight: 0
     type: ETC
+    material: METAL
     description: |
       A milled coin of soft gold, worn smooth by hands that were glad of it.
 
@@ -310,6 +338,7 @@ items:
     level: 1
     weight: 30
     type: ETC
+    material: PLANT
     description: |
       A sack of threshed grain, still smelling of the field it came out of.
 
@@ -318,6 +347,7 @@ items:
     level: 1
     weight: 25
     type: ETC
+    material: FOOD
     description: |
       Stone-ground flour, fine enough to take the print of a thumb.
 
@@ -326,6 +356,7 @@ items:
     level: 1
     weight: 40
     type: USABLE
+    material: FOOD
     script: BreadScript
     description: |
       A dark round loaf with a hard crust.
@@ -339,6 +370,7 @@ items:
     level: 15
     weight: 350
     type: ETC
+    material: STONE
     description: |
       A lump of quartz shot through with soft yellow metal.
 
@@ -349,6 +381,7 @@ items:
     level: 17
     weight: 300
     type: ETC
+    material: METAL
     description: |
       A finger of refined gold, still dull from the mould.
 
@@ -370,6 +403,7 @@ items:
     level: 3
     weight: 25
     type: USABLE
+    material: GLASS
     script: SmallManaPotionScript
     description: |
       A small vial of cold blue liquid.
@@ -381,6 +415,7 @@ items:
     level: 1
     weight: 5
     type: USABLE
+    material: CLOTH
     script: BandageScript
     description: |
       A rolled strip of clean linen.
@@ -392,6 +427,7 @@ items:
     level: 1
     weight: 30
     type: ETC
+    material: WOOD
     description: |
       A reed stalk bound with pitch-soaked cloth.
 
@@ -402,6 +438,7 @@ items:
     level: 1
     weight: 40
     type: ETC
+    material: FOOD
     description: |
       A sack of coarse grey salt.
 
@@ -413,6 +450,7 @@ items:
     level: 1
     weight: 120
     type: ETC
+    material: FOOD
     description: |
       A thick cut of meat on the bone, marbled with fat.
 
@@ -423,6 +461,7 @@ items:
     level: 1
     weight: 90
     type: USABLE
+    material: FOOD
     script: SaltedMeatScript
     description: |
       A slab of meat packed hard in salt.
@@ -434,6 +473,7 @@ items:
     level: 1
     weight: 60
     type: USABLE
+    material: GLASS
     script: AleScript
     description: |
       A jug of thin barley beer.
@@ -445,6 +485,7 @@ items:
     level: 5
     weight: 90
     type: USABLE
+    material: GLASS
     script: WineScript
     description: |
       A stoppered bottle of dark red wine.
@@ -456,6 +497,7 @@ items:
     level: 1
     weight: 100
     type: ETC
+    material: FOOD
     description: |
       A silver-scaled fish, caught this morning.
 
@@ -466,6 +508,7 @@ items:
     level: 1
     weight: 150
     type: USABLE
+    material: FOOD
     script: CheeseScript
     description: |
       A hard wheel of cheese off pasture country.
@@ -479,6 +522,7 @@ items:
     level: 1
     weight: 900
     type: ETC
+    material: WOOD
     description: |
       A felled trunk cut to length, bark still on.
 
@@ -489,6 +533,7 @@ items:
     level: 5
     weight: 150
     type: ETC
+    material: WOOD
     description: |
       A sawn board, planed on one face.
 
@@ -499,6 +544,7 @@ items:
     level: 15
     weight: 700
     type: ETC
+    material: WOOD
     description: |
       A long beam of seasoned oak, steamed and bent to a curve.
 
@@ -510,6 +556,7 @@ items:
     level: 5
     weight: 800
     type: ETC
+    material: STONE
     description: |
       A rough block of limestone straight off the quarry face.
 
@@ -520,6 +567,7 @@ items:
     level: 10
     weight: 700
     type: ETC
+    material: STONE
     description: |
       A block dressed square, its faces worked smooth.
 
@@ -530,6 +578,7 @@ items:
     level: 5
     weight: 250
     type: ETC
+    material: STONE
     description: |
       A fired clay brick, sanded and slightly uneven.
 
@@ -540,6 +589,7 @@ items:
     level: 1
     weight: 120
     type: ETC
+    material: GLASS
     description: |
       A fired storage jar with a narrow neck and two small handles.
 
@@ -552,6 +602,7 @@ items:
     level: 1
     weight: 200
     type: ETC
+    material: LEATHER
     description: |
       A green hide, hair still on and heavy with fat.
 
@@ -562,6 +613,7 @@ items:
     level: 5
     weight: 120
     type: ETC
+    material: LEATHER
     description: |
       A rolled sheet of cured leather, supple and evenly cut.
 
@@ -570,6 +622,7 @@ items:
     level: 1
     weight: 80
     type: ETC
+    material: CLOTH
     description: |
       A shorn fleece, greasy and full of burrs.
 
@@ -578,6 +631,7 @@ items:
     level: 1
     weight: 40
     type: ETC
+    material: PLANT
     description: |
       A sheaf of retted flax stems, ready for the wheel.
 
@@ -586,6 +640,7 @@ items:
     level: 5
     weight: 60
     type: ETC
+    material: CLOTH
     description: |
       A bolt of plain woven cloth, sold by the length.
 
@@ -594,6 +649,7 @@ items:
     level: 10
     weight: 40
     type: ETC
+    material: GLASS
     description: |
       A stoppered pot of deep colour, ground from roadside plants.
 
@@ -604,6 +660,7 @@ items:
     level: 5
     weight: 120
     type: EQUIP
+    material: CLOTH
     equip-slot: ARMOR
     armor-type: CLOTH
     max-durability: 100
@@ -619,6 +676,7 @@ items:
     level: 10
     weight: 350
     type: EQUIP
+    material: METAL
     equip-slot: RIGHT_HAND
     max-durability: 180
     description: |
@@ -631,6 +689,7 @@ items:
     level: 5
     weight: 250
     type: EQUIP
+    material: METAL
     equip-slot: RIGHT_HAND
     max-durability: 150
     description: |
@@ -643,6 +702,7 @@ items:
     level: 5
     weight: 60
     type: ETC
+    material: METAL
     description: |
       A twist of hand-forged iron nails, no two quite alike.
 
@@ -653,6 +713,7 @@ items:
     level: 20
     weight: 20
     type: ETC
+    material: CRYSTAL
     description: |
       An uncut stone still held in the rock it came out of.
 
@@ -665,6 +726,7 @@ items:
     level: 25
     weight: 10
     type: EQUIP
+    material: METAL
     equip-slot: ACCESSORY_1
     description: |
       A plain gold band set with a small red stone.
@@ -677,6 +739,7 @@ items:
     level: 10
     weight: 20
     type: USABLE
+    material: GLASS
     script: MedicineScript
     description: |
       A small bottle of bitter herbal draught.
@@ -688,6 +751,7 @@ items:
     level: 25
     weight: 15
     type: ETC
+    material: CRYSTAL
     description: |
       A shard of violet crystal clasped in brass, lit faintly from within.
 
@@ -698,6 +762,7 @@ items:
     level: 20
     weight: 80
     type: ETC
+    material: PAPER
     description: |
       A leather-bound volume with brass corners and a clasp.
 
@@ -716,6 +781,7 @@ items:
     level: 1
     weight: 60
     type: EQUIP
+    material: METAL
     equip-slot: RIGHT_HAND
     max-durability: 80
     novice-only: true
@@ -730,6 +796,7 @@ items:
     level: 1
     weight: 120
     type: EQUIP
+    material: CLOTH
     equip-slot: ARMOR
     armor-type: CLOTH
     max-durability: 100
@@ -745,6 +812,7 @@ items:
     level: 1
     weight: 60
     type: EQUIP
+    material: LEATHER
     equip-slot: FOOTGEAR
     armor-type: LIGHT
     max-durability: 80
@@ -762,6 +830,7 @@ items:
     level: 1
     weight: 150
     type: USABLE
+    material: WOOD
     script: BestiaTrapScript
     description: |
       A cage of bent willow with a mana-dusted trigger plate.
