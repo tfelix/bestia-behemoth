@@ -2,6 +2,7 @@ package net.bestia.zone.casting
 
 import net.bestia.zone.battle.damage.Damage
 import net.bestia.zone.battle.damage.DamageEntitySMSG
+import net.bestia.zone.battle.damage.DamageGate
 import net.bestia.zone.battle.damage.Heal
 import net.bestia.zone.battle.damage.Miss
 import net.bestia.zone.aoi.AoiLayer
@@ -10,7 +11,6 @@ import net.bestia.zone.identity.ecs.Master
 import net.bestia.zone.battle.ecs.effects.AreaEffect
 import net.bestia.zone.battle.ecs.effects.StatusEffects
 import net.bestia.zone.battle.ecs.status.Health
-import net.bestia.zone.battle.ecs.status.Invulnerable
 import net.bestia.zone.battle.ecs.status.Mana
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.movement.ecs.Position
@@ -116,8 +116,8 @@ class BudgetedSkillWorld(
         is Heal -> get(target, Health::class)?.let { it.current += damage.amount }
 
         else -> {
-          // This branch only - see Invulnerable: a miss and a heal stay true of a target that cannot be hurt.
-          if (has(target, Invulnerable::class)) {
+          // This branch only: a miss and a heal stay true of a target the gate shields.
+          if (DamageGate.verdict(this, casterId, target) != DamageGate.Verdict.ADMITTED) {
             return@onEntity false
           }
 

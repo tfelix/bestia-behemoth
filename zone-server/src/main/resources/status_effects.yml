@@ -6,6 +6,10 @@
 #
 # `script` is the simple class name of the StatusEffectScript bean in
 # net.bestia.zone.battle.status.scripts that implements the behavior.
+#
+# `shield` (optional) is the harm the effect turns away while active - see HarmShield.
+# `persist: false` keeps an effect out of storage. It is for effects the spawner re-applies, where a stored
+# copy could only contradict the catalogue.
 statusEffects:
   - id: 1
     identifier: SWIFTNESS
@@ -69,3 +73,34 @@ statusEffects:
     showIcon: false
     isSyncedToClient: false
     script: MasterIntroMarker
+
+  # Applied to every non-combatant species as it spawns (BestiaEntitySpawner), so it follows the mob
+  # catalogue rather than storage.
+  - id: 9
+    identifier: INVULNERABLE
+    polarity: BUFF
+    showIcon: false
+    isSyncedToClient: false
+    shield: ALL
+    persist: false
+    script: InvulnerableEffect
+
+  # Handed out by WARD_AURA to everything a player owns near a ward stone. Hidden and never stored: once the
+  # bearer leaves the field it runs out within seconds.
+  - id: 10
+    identifier: WARDED
+    polarity: BUFF
+    showIcon: false
+    isSyncedToClient: false
+    shield: PLAYERS
+    persist: false
+    script: Warded
+
+  # The spell on a ward stone. Put on the stone again at every boot, so never stored.
+  - id: 11
+    identifier: WARD_AURA
+    polarity: BUFF
+    showIcon: false
+    isSyncedToClient: false
+    persist: false
+    script: WardAura

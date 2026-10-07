@@ -3,7 +3,7 @@ package net.bestia.zone.townsfolk.ecs
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ai.ecs.AiThrottleable
 import net.bestia.zone.identity.ecs.ActivePlayer
-import net.bestia.zone.battle.ecs.status.Invulnerable
+import net.bestia.zone.battle.ecs.effects.StatusEffects
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.Schedule
@@ -35,7 +35,7 @@ import org.springframework.stereotype.Component as SpringComponent
  * ### Two maps, not three
  *
  * `AmbientSpawnerSystem` keeps a third for cells whose creature was killed, so a site stays empty for the
- * respawn delay. Townsfolk are `Invulnerable`, so nothing is ever killed and there is nothing to hold a
+ * respawn delay. Townsfolk are spawned `INVULNERABLE`, so nothing is ever killed and there is nothing to hold a
  * delay against. An entity that vanishes has gone through a door, and [IndoorRegistry] is what decides
  * when it comes back.
  */
@@ -57,7 +57,7 @@ class TownsfolkResidencySystem(
   override val reads: ComponentClassSet = setOf(ActivePlayer::class, Position::class)
 
   /** The markers put on somebody arriving, for `AmbientSpawnerSystem`'s reason - see its own note. */
-  override val writes: ComponentClassSet = setOf(Townsfolk::class, AiThrottleable::class, Invulnerable::class)
+  override val writes: ComponentClassSet = setOf(Townsfolk::class, AiThrottleable::class, StatusEffects::class)
 
   /** Who is standing about, by identity. The single record of what this system has put down. */
   private val live = HashMap<Long, EntityId>()
