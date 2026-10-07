@@ -266,6 +266,42 @@ class ObtainItemIntentSystemTest {
   }
 
   @Test
+  fun `protected kill loot is refused to anyone but its killer`() {
+    setUp()
+    stub(sword)
+    val looter = createCarrier(capacityMax = 2475, pos = Vec3L(0, 0, 0))
+    val groundStack = world.createEntity { id ->
+      add(id, Position.fromVec3(Vec3L(0, 0, 0)))
+      add(id, GroundItemStack(itemId = sword.id, amount = 1))
+      add(id, LootProtection(ownerAccountId = ACCOUNT_ID + 1, remainingSeconds = 6f))
+    }
+
+    world.modify(looter) { id -> add(id, ObtainItemIntent.LootItemIntent(sourceEntityItemStackId = groundStack)) }
+    world.tick(0.1f)
+
+    assertTrue(world.isAlive(groundStack))
+    verifyNoItemGranted()
+  }
+
+  @Test
+  fun `protected kill loot goes to its killer`() {
+    setUp()
+    stub(sword)
+    val looter = createCarrier(capacityMax = 2475, pos = Vec3L(0, 0, 0))
+    val groundStack = world.createEntity { id ->
+      add(id, Position.fromVec3(Vec3L(0, 0, 0)))
+      add(id, GroundItemStack(itemId = sword.id, amount = 1))
+      add(id, LootProtection(ownerAccountId = ACCOUNT_ID, remainingSeconds = 6f))
+    }
+
+    world.modify(looter) { id -> add(id, ObtainItemIntent.LootItemIntent(sourceEntityItemStackId = groundStack)) }
+    world.tick(0.1f)
+
+    assertFalse(world.isAlive(groundStack))
+    verify(timeout = 1000) { inventoryService.grantToMaster(MASTER_ID, sword.id, 1, 0L) }
+  }
+
+  @Test
   fun `loot item intent out of range leaves the ground stack untouched`() {
     setUp()
     val looter = createCarrier(capacityMax = 2475, pos = Vec3L(0, 0, 0))
