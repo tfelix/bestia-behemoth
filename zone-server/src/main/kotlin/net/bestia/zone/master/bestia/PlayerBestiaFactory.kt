@@ -4,6 +4,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.account.persistence.MasterRepository
 import net.bestia.zone.account.PlayerBestiaPolicy
 import net.bestia.zone.account.persistence.findByIdOrThrow
+import net.bestia.zone.ecs.core.EntityIdGenerator
 import net.bestia.zone.geometry.Vec3L
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
@@ -17,7 +18,8 @@ class PlayerBestiaFactory(
   private val masterRepository: MasterRepository,
   private val bestiaRepository: BestiaRepository,
   private val playerBestiaRepository: PlayerBestiaRepository,
-  private val playerBestiaPolicy: PlayerBestiaPolicy
+  private val playerBestiaPolicy: PlayerBestiaPolicy,
+  private val entityIdGenerator: EntityIdGenerator,
 ) {
 
   class PlayerBestiaCreateData(
@@ -51,6 +53,7 @@ class PlayerBestiaFactory(
     pb.position = playerBestiaCreateData.spawnPosition
     pb.spawnPosition = playerBestiaCreateData.spawnPosition
     pb.level = playerBestiaCreateData.level
+    pb.entityId = entityIdGenerator.nextId()
 
     return playerBestiaRepository.save(pb)
   }

@@ -4,7 +4,9 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ai.ecs.AiAgentFactory
 import net.bestia.zone.ai.profile.AiProfileRegistry
 import net.bestia.zone.skill.ecs.KnownSkills
+import net.bestia.zone.battle.ecs.effects.ActiveStatusEffect
 import net.bestia.zone.battle.ecs.status.BaseStatusValues
+import net.bestia.zone.battle.persistence.StatusEffectPersistenceService
 import net.bestia.zone.battle.ecs.status.FormulaDrivenVitals
 import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.battle.ecs.status.IsStatusValueDirty
@@ -49,6 +51,7 @@ class PlayerBestiaEntitySpawner(
   private val conditionValueCalculator: ConditionValueCalculator,
   private val aiProfileRegistry: AiProfileRegistry,
   private val aiAgentFactory: AiAgentFactory,
+  private val statusEffectPersistenceService: StatusEffectPersistenceService,
 ) {
 
   /**
@@ -60,7 +63,13 @@ class PlayerBestiaEntitySpawner(
     val knownSkills: KnownSkills,
     val inventory: Inventory,
     val equipment: Equipment,
-  )
+    val statusEffects: List<ActiveStatusEffect>,
+  ) {
+    val entityId: EntityId
+      get() {
+        return checkNotNull(row.entityId) { "Player bestia ${row.id} has no entity id" }
+      }
+  }
 
   @Transactional(readOnly = true)
   fun spawnPlayerBestia(
@@ -76,7 +85,7 @@ class PlayerBestiaEntitySpawner(
     playerBestia: PlayerBestia,
   ) {
     val loaded = load(playerBestia)
-    val entityId = world.createEntity { id -> addComponents(id, loaded) }
+    val entityId = world.createEntity(loaded.entityId) { id -> addComponents(id, loaded) }
 
     val accountId = playerBestia.master.account.id
     val playerBestiaId = playerBestia.id
@@ -109,7 +118,7 @@ class PlayerBestiaEntitySpawner(
         continue
       }
 
-      val entityId = world.createEntity { id -> addComponents(id, bestia) }
+      val entityId = world.createEntity(bestia.entityId) { id -> addComponents(id, bestia) }
       LOG.info { "Respawned player bestia ${bestia.row.id} of master $masterId with entity id: $entityId" }
     }
   }
@@ -125,6 +134,7 @@ class PlayerBestiaEntitySpawner(
       knownSkills = KnownSkills((fixedAttackIds + customAttackIds).toMutableMap()),
       inventory = buildInventory(playerBestia),
       equipment = buildEquipment(playerBestia),
+      statusEffects = playerBestia.entityId?.let(statusEffectPersistenceService::load).orEmpty(),
     )
   }
 
@@ -195,6 +205,7 @@ class PlayerBestiaEntitySpawner(
 
     add(id, Persistent)
     add(id, OwnedBestia(masterId = playerBestia.master.id, playerBestiaId = playerBestia.id))
+    statusEffectPersistenceService.attach(this, id, loaded.statusEffects)
 
     attachIdleAi(id, playerBestia)
   }
