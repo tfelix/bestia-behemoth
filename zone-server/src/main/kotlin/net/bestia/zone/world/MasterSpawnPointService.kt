@@ -57,6 +57,12 @@ class MasterSpawnPointService(
     return saved
   }
 
+  @Transactional
+  fun markWardRaised(points: List<MasterSpawnPoint>) {
+    points.forEach { it.wardRaised = true }
+    repository.saveAll(points)
+  }
+
   private companion object {
     private val LOG = KotlinLogging.logger { }
   }
