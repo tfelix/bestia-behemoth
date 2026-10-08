@@ -711,20 +711,7 @@ class ChunkService(
       val outcome = loaded.store.carve(chunk, removals)
       if (outcome.changed == 0) continue
 
-      val queued = pending.getOrPut(chunk) { LinkedHashMap() }
-      for (removal in removals) {
-        val index = ChunkDelta.indexOf(removal)
-        val remaining = ChunkDelta.remainingOf(removal)
-        val priorBlock = BlockType.of(before.blocks[index].toInt() and 0xFF)
-        val block = if (remaining == Occupancy.EMPTY) BlockType.AIR else priorBlock
-        queued[index] = VoxelEdit.pack(index, block, remaining)
-      }
-      pendingFrom.putIfAbsent(chunk, from)
-      if (outcome.baked) pendingBaked.add(chunk)
-
-      for (neighbour in apronNeighboursOf(chunk, config.chunkSize, prior)) {
-        touchApronNeighbour(normalise(neighbour))
-      }
+      announce(chunk, from, editsOf(removals, before), outcome.baked)
 
       carved.addAll(prior)
       touched.add(chunk)
@@ -766,6 +753,33 @@ class ChunkService(
     recordEdited(chunk)
   }
 
+  /** What each removal leaves behind, as the voxel's whole state: the same block with less of it, or air. */
+  private fun editsOf(removals: IntArray, before: VoxelChunk): LongArray {
+    return LongArray(removals.size) { at ->
+      val index = ChunkDelta.indexOf(removals[at])
+      val remaining = ChunkDelta.remainingOf(removals[at])
+      val block = if (remaining == Occupancy.EMPTY) BlockType.AIR else VoxelEdit.blockOf(VoxelEdit.of(before, index))
+      VoxelEdit.pack(index, block, remaining)
+    }
+  }
+
+  /**
+   * Queues [edits], already written to [chunk], for the clients that hold it and for the neighbours whose mesh
+   * reads into it.
+   */
+  private fun announce(chunk: ChunkPos, from: Int, edits: LongArray, baked: Boolean) {
+    val queued = pending.getOrPut(chunk) { LinkedHashMap() }
+    for (edit in edits) {
+      queued[VoxelEdit.indexOf(edit)] = edit
+    }
+    pendingFrom.putIfAbsent(chunk, from)
+    if (baked) pendingBaked.add(chunk)
+
+    for (neighbour in apronNeighboursOf(chunk, edits)) {
+      touchApronNeighbour(normalise(neighbour))
+    }
+  }
+
   /** What every edited chunk needs, whether it was carved this run or restored from an earlier one. */
   private fun recordEdited(chunk: ChunkPos) {
     val edited = editedSlabs.getOrPut(chunk.x to chunk.y) { HashSet(2) }
@@ -778,8 +792,8 @@ class ChunkService(
   }
 
   /**
-   * Which of [chunk]'s neighbours have this chunk in their mesher's apron, given the voxels that were actually
-   * carved.
+   * Which of [chunk]'s neighbours have this chunk in their mesher's apron, given the voxels that actually
+   * changed.
    *
    * A neighbour on the low side of an axis reads this chunk's high edge (its [MESH_APRON_HIGH]-cell apron),
    * and a neighbour on the high side reads this chunk's low edge (its [MESH_APRON_LOW]-cell apron) - see
@@ -801,15 +815,17 @@ class ChunkService(
    * three dimensions there are twenty-six of them and the vertical diagonals are real: a voxel in this
    * chunk's high-x *and* high-z aprons is read by `(x + 1, y, z + 1)`.
    */
-  private fun apronNeighboursOf(chunk: ChunkPos, size: Int, carved: List<CarvedVoxel>): Set<ChunkPos> {
+  private fun apronNeighboursOf(chunk: ChunkPos, edits: LongArray): Set<ChunkPos> {
     val neighbours = LinkedHashSet<ChunkPos>()
-    val sizeAsLong = size.toLong()
+    val size = loaded.config.chunkSize
     val height = loaded.config.chunkHeight
 
-    for (voxel in carved) {
-      val xs = apronOffsetsOf(Math.floorMod(voxel.voxelX, sizeAsLong).toInt(), size)
-      val ys = apronOffsetsOf(Math.floorMod(voxel.voxelY, sizeAsLong).toInt(), size)
-      val zs = apronOffsetsOf(Math.floorMod(voxel.voxelZ, height), height)
+    for (edit in edits) {
+      val index = VoxelEdit.indexOf(edit)
+      val column = index / height
+      val xs = apronOffsetsOf(column % size, size)
+      val ys = apronOffsetsOf(column / size, size)
+      val zs = apronOffsetsOf(index % height, height)
 
       for (dz in zs) {
         for (dy in ys) {
