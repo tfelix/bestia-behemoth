@@ -4,6 +4,7 @@ import net.bestia.worldgen.core.ChunkPos
 import net.bestia.worldgen.core.GenRng
 import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.derived.ChunkDelta
+import net.bestia.worldgen.derived.VoxelEdit
 import net.bestia.worldgen.voxel.BlockType
 import net.bestia.worldgen.voxel.Occupancy
 import net.bestia.worldgen.voxel.RleCodec
@@ -97,7 +98,7 @@ class ChunkStore(
     }
 
     val delta = deltas[chunk] ?: return null
-    return ChunkEdit.Delta(delta.packedRemovals())
+    return ChunkEdit.Delta(delta.edits())
   }
 
   /**
@@ -109,9 +110,7 @@ class ChunkStore(
 
     when (edit) {
       is ChunkEdit.Delta -> {
-        val delta = ChunkDelta(chunk, config.chunkSize, config.chunkHeight)
-        delta.carveAll(edit.removals)
-        deltas[chunk] = delta
+        deltas[chunk] = ChunkDelta.of(chunk, config.chunkSize, config.chunkHeight, edit.edits)
       }
 
       is ChunkEdit.Baked -> {
@@ -131,6 +130,22 @@ class ChunkStore(
   fun baseHash(chunk: ChunkPos): Long = BaseHash.of(cache.base(chunk))
 
   /**
+   * Writes a batch of voxels whole, and bakes the chunk if its delta has outgrown its usefulness.
+   *
+   * Unlike [carve] this may add material, which is what lets water fill a pit. Which material may go where is the
+   * caller's rule, not the store's.
+   *
+   * @param edits [VoxelEdit]s sorted ascending, each index at most once
+   * @return how many voxels actually changed; zero means nothing was announced and the revision did not move
+   */
+  fun edit(chunk: ChunkPos, edits: LongArray): EditOutcome {
+    ChunkDelta.requireSorted(edits, config.chunkSize * config.chunkSize * config.chunkHeight)
+    if (edits.isEmpty()) return EditOutcome(0, false)
+
+    return if (chunk in bakedChunks) editBaked(chunk, edits, merged(chunk)) else editDelta(chunk, edits)
+  }
+
+  /**
    * Carves a batch of voxels, and bakes the chunk if its delta has outgrown its usefulness.
    *
    * **A batch, not a voxel**, and that is a requirement rather than an optimisation. One brush application is
@@ -142,90 +157,79 @@ class ChunkStore(
    *
    * This is the only party holding the base, so it is the only one that can compare an offered occupancy
    * against what a voxel currently has. A removal that would *raise* occupancy is refused outright rather than
-   * clamped, because it is a placement system arriving by accident, not a rounding disagreement. A removal that
-   * changes nothing - a voxel already at or below the offered fill, or one the generator left as air - is
-   * dropped silently, which is what keeps `ChunkDelta.removalCount` an honest count of changed voxels and stops
-   * a player grinding at bare rock from bumping the revision.
+   * clamped: digging that adds material is a caller bug, not a rounding disagreement. A removal that changes
+   * nothing - a voxel already at or below the offered fill, or air - is dropped silently, which stops a player
+   * grinding at bare rock from bumping the revision.
    *
    * @param removals packed `(voxelIndex shl 8) or remainingOccupancy`, sorted ascending
    * @return how many voxels actually changed; zero means nothing was announced and the revision did not move
    */
-  fun carve(chunk: ChunkPos, removals: IntArray): CarveOutcome {
-    if (removals.isEmpty()) return CarveOutcome(0, false)
+  fun carve(chunk: ChunkPos, removals: IntArray): EditOutcome {
+    if (removals.isEmpty()) return EditOutcome(0, false)
 
-    if (chunk in bakedChunks) {
-      // Already baked: carve the stored blob directly. There is no delta to grow.
-      val current = merged(chunk)
-      var changed = 0
+    val bakedVoxels = if (chunk in bakedChunks) merged(chunk) else null
+    val base = bakedVoxels ?: cache.base(chunk)
+    val delta = if (bakedVoxels == null) deltas[chunk] else null
 
-      for (entry in removals) {
-        if (applyTo(current, ChunkDelta.indexOf(entry), ChunkDelta.remainingOf(entry))) changed++
-      }
-
-      if (changed == 0) return CarveOutcome(0, false)
-
-      baked.put(bakedKeyOf(chunk), RleCodec.encode(current))
-      onChanged(chunk)
-      return CarveOutcome(changed, false)
-    }
-
-    val base = cache.base(chunk)
-    val delta = deltas[chunk]
-
-    // Filter against what the voxel currently holds before touching the delta, so an offer that changes
-    // nothing never becomes an entry and never widens the batch the wire has to carry.
-    val effective = IntArray(removals.size)
+    val edits = LongArray(removals.size)
     var kept = 0
 
-    for (entry in removals) {
-      val position = ChunkDelta.indexOf(entry)
-      val offered = ChunkDelta.remainingOf(entry)
-      val held = delta?.remainingAt(position)?.takeIf { it >= 0 }
-        ?: (base.occupancy[position].toInt() and 0xFF)
+    for (removal in removals) {
+      val position = ChunkDelta.indexOf(removal)
+      val offered = ChunkDelta.remainingOf(removal)
+      val fromDelta = if (delta == null) ChunkDelta.NONE else delta.editAt(position)
+      val held = if (fromDelta == ChunkDelta.NONE) VoxelEdit.of(base, position) else fromDelta
+      val heldOccupancy = VoxelEdit.occupancyOf(held)
 
-      require(offered <= held) {
-        "$chunk voxel $position is at occupancy $held; a carve to $offered would add material"
+      require(offered <= heldOccupancy) {
+        "$chunk voxel $position is at occupancy $heldOccupancy; a carve to $offered would add material"
       }
 
-      if (offered < held) effective[kept++] = entry
+      if (offered < heldOccupancy) {
+        val block = if (offered == Occupancy.EMPTY) BlockType.AIR else VoxelEdit.blockOf(held)
+        edits[kept++] = VoxelEdit.pack(position, block, offered)
+      }
     }
 
-    if (kept == 0) return CarveOutcome(0, false)
+    if (kept == 0) return EditOutcome(0, false)
 
-    val target = deltas.getOrPut(chunk) { ChunkDelta(chunk, config.chunkSize, config.chunkHeight) }
-    val changed = target.carveAll(if (kept == removals.size) effective else effective.copyOf(kept))
+    val effective = if (kept == edits.size) edits else edits.copyOf(kept)
+    return if (bakedVoxels != null) editBaked(chunk, effective, bakedVoxels) else editDelta(chunk, effective)
+  }
+
+  /** Writes edits straight into a baked chunk's blob. There is no delta to grow. */
+  private fun editBaked(chunk: ChunkPos, edits: LongArray, voxels: VoxelChunk): EditOutcome {
+    var changed = 0
+
+    for (edit in edits) {
+      val position = VoxelEdit.indexOf(edit)
+      if (VoxelEdit.of(voxels, position) == edit) continue
+
+      voxels.blocks[position] = VoxelEdit.blockIdOf(edit).toByte()
+      voxels.occupancy[position] = VoxelEdit.occupancyOf(edit).toByte()
+      changed++
+    }
+
+    if (changed == 0) return EditOutcome(0, false)
+
+    baked.put(bakedKeyOf(chunk), RleCodec.encode(voxels))
     onChanged(chunk)
-
-    return CarveOutcome(changed, compact(chunk))
+    return EditOutcome(changed, false)
   }
 
-  /**
-   * Writes one removal into a chunk in place, returning whether it changed anything.
-   *
-   * Used for the baked path, where there is no delta to compare against and the blob is the truth.
-   */
-  private fun applyTo(chunk: VoxelChunk, position: Int, remaining: Int): Boolean {
-    val held = chunk.occupancy[position].toInt() and 0xFF
+  private fun editDelta(chunk: ChunkPos, edits: LongArray): EditOutcome {
+    val delta = deltas[chunk] ?: ChunkDelta(chunk, config.chunkSize, config.chunkHeight)
+    val changed = delta.editAll(edits, cache.base(chunk))
+    if (changed == 0) return EditOutcome(0, false)
 
-    require(remaining <= held) {
-      "${chunk.chunk} voxel $position is at occupancy $held; a carve to $remaining would add material"
-    }
-
-    if (remaining == held) return false
-
-    if (remaining == Occupancy.EMPTY) {
-      chunk.blocks[position] = BlockType.AIR.id.toByte()
-      chunk.occupancy[position] = Occupancy.EMPTY_BYTE
-    } else {
-      chunk.occupancy[position] = remaining.toByte()
-    }
-
-    return true
+    deltas[chunk] = delta
+    onChanged(chunk)
+    return EditOutcome(changed, compact(chunk))
   }
 
-  /** What one [carve] did, so a caller knows whether to announce it and whether the chunk was rewritten. */
-  data class CarveOutcome(
-    /** Voxels whose occupancy actually fell. Zero means nothing happened. */
+  /** What one [carve] or [edit] did, so a caller knows whether to announce it and whether the chunk was rewritten. */
+  data class EditOutcome(
+    /** Voxels whose content actually changed. Zero means nothing happened. */
     val changed: Int,
     /** The delta outgrew being a delta and the chunk was baked, so its whole content was rewritten. */
     val baked: Boolean
@@ -234,9 +238,8 @@ class ChunkStore(
   /**
    * Bakes a chunk if its delta has grown past the point where keeping it as a delta saves anything.
    *
-   * A removal-only delta *is* bounded - a voxel can only be carved down, so the entry count cannot exceed the
-   * chunk's volume - so this is not the runaway-growth guard the KDoc here used to claim it was. The bound is
-   * simply large and in the wrong direction: a fully worked-out chunk is about a megabyte of packed removals,
+   * A delta *is* bounded - a voxel appears in it at most once - so this is not a runaway-growth guard. The bound
+   * is simply large and in the wrong direction: a fully worked-out chunk is about a megabyte of packed edits,
    * where that same chunk baked is nearly all air and encodes to a few dozen bytes. So heavily mined ground
    * becomes *cheaper* rather than merely smaller, and its reads skip generation entirely.
    *

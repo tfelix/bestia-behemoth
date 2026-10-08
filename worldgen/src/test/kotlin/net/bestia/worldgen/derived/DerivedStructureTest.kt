@@ -310,26 +310,30 @@ class DerivedStructureTest {
 
   // --- Deltas ----------------------------------------------------------------------------------------
 
-  /** A removal of everything in one voxel, packed as the delta stores it. */
-  private fun gone(x: Int, y: Int, z: Int) = ChunkDelta.pack(indexOf(x, y, z), Occupancy.EMPTY)
+  /** Everything taken out of one voxel, as the delta stores it. */
+  private fun gone(x: Int, y: Int, z: Int): Long {
+    return VoxelEdit.pack(indexOf(x, y, z), BlockType.AIR, Occupancy.EMPTY)
+  }
 
   private fun indexOf(x: Int, y: Int, z: Int) = (y * size + x) * height + z
 
-  private fun deltaOf(vararg removals: Int) = ChunkDelta(pos, size, height).apply {
-    carveAll(removals.sorted().toIntArray())
+  private fun deltaOf(vararg edits: Long): ChunkDelta {
+    val delta = ChunkDelta(pos, size, height)
+    delta.editAll(edits.sorted().toLongArray(), flatGround())
+    return delta
   }
 
   /**
    * A partial removal keeps the rock and reduces how much of it is left.
    *
-   * The reason a removal carries an occupancy rather than being a bare index: a brush is a sphere, so the voxels
+   * The reason an edit carries an occupancy rather than being a bare block: a brush is a sphere, so the voxels
    * around its edge are partly taken. Rounding those to solid-or-empty would put the resolution cliff straight
    * back after paying a byte per voxel to remove it.
    */
   @Test
   fun `a partial removal keeps the block and merges the fraction`() {
     val base = flatGround()
-    val delta = deltaOf(ChunkDelta.pack(indexOf(2, 2, 2), Occupancy.of(0.4)))
+    val delta = deltaOf(VoxelEdit.pack(indexOf(2, 2, 2), BlockType.GRANITE, Occupancy.of(0.4)))
 
     val merged = delta.mergedOnto(base)
 
@@ -354,60 +358,83 @@ class DerivedStructureTest {
     assertEquals(BlockType.GRANITE, base[1, 1, 2])
   }
 
-  /**
-   * Working the same voxel over several swings costs one entry, and the lowest offer wins.
-   *
-   * Removal is monotone, so a batch that offers more material than is already left is the no-op it looks like.
-   * `ChunkStore` refuses an increase outright when it has a base to compare against; here, where two removals
-   * meet inside one delta, keeping the smaller is the same rule expressed as a merge.
-   */
   @Test
-  fun `repeatedly carving the same voxel costs one entry and keeps the lowest`() {
+  fun `a delta can put water where there was air`() {
+    val base = flatGround()
+    val delta = deltaOf(VoxelEdit.pack(indexOf(2, 2, 4), BlockType.WATER, 100))
+
+    val merged = delta.mergedOnto(base)
+
+    assertEquals(BlockType.WATER, merged[2, 2, 4])
+    assertEquals(100, merged.occupancyAt(2, 2, 4))
+    merged.validate()
+  }
+
+  /** Working the same voxel again costs one entry, and the last write wins. */
+  @Test
+  fun `editing the same voxel again costs one entry and the last write wins`() {
+    val base = flatGround()
     val delta = ChunkDelta(pos, size, height)
+    val voxel = indexOf(2, 2, 4)
 
-    delta.carveAll(intArrayOf(ChunkDelta.pack(indexOf(2, 2, 2), 200)))
-    delta.carveAll(intArrayOf(ChunkDelta.pack(indexOf(2, 2, 2), 60)))
-    delta.carveAll(intArrayOf(ChunkDelta.pack(indexOf(2, 2, 2), 180)))
+    delta.editAll(longArrayOf(VoxelEdit.pack(voxel, BlockType.WATER, 200)), base)
+    delta.editAll(longArrayOf(VoxelEdit.pack(voxel, BlockType.WATER, 60)), base)
+    delta.editAll(longArrayOf(VoxelEdit.pack(voxel, BlockType.WATER, 180)), base)
 
-    assertEquals(1, delta.removalCount)
-    assertEquals(60, delta.remainingAt(2, 2, 2))
+    assertEquals(1, delta.editCount)
+    assertEquals(VoxelEdit.pack(voxel, BlockType.WATER, 180), delta.editAt(voxel))
   }
 
   /** A batch that changes nothing reports nothing, so a caller knows not to announce it. */
   @Test
-  fun `a batch that lowers nothing is not a change`() {
-    val delta = deltaOf(ChunkDelta.pack(indexOf(2, 2, 2), 60))
+  fun `a batch that repeats what is held is not a change`() {
+    val edit = VoxelEdit.pack(indexOf(2, 2, 2), BlockType.GRANITE, 60)
+    val delta = deltaOf(edit)
 
-    assertEquals(0, delta.carveAll(intArrayOf(ChunkDelta.pack(indexOf(2, 2, 2), 200))))
-    assertEquals(1, delta.removalCount)
+    assertEquals(0, delta.editAll(longArrayOf(edit), flatGround()))
+    assertEquals(1, delta.editCount)
+  }
+
+  /** Water that drains back to air must leave nothing behind, or a delta would only ever grow. */
+  @Test
+  fun `an edit back to the base drops the entry`() {
+    val base = flatGround()
+    val voxel = indexOf(2, 2, 4)
+    val delta = deltaOf(VoxelEdit.pack(voxel, BlockType.WATER, 100))
+
+    assertEquals(1, delta.editAll(longArrayOf(VoxelEdit.of(base, voxel)), base))
+    assertTrue(delta.isEmpty)
+
+    assertEquals(0, delta.editAll(longArrayOf(VoxelEdit.of(base, voxel)), base), "the base again is no change")
+    assertTrue(delta.isEmpty, "and is not stored")
   }
 
   /**
-   * Removals come back in index order however they went in.
+   * Edits come back in index order however they went in.
    *
-   * The wire codec delta-codes against the previous index and persistence will do the same, so the order is a
-   * contract rather than an implementation detail - and it is what makes the merge in [ChunkDelta.carveAll] a
-   * single pass.
+   * The codecs delta-code against the previous index, so the order is a contract rather than an implementation
+   * detail - and it is what makes the merge in [ChunkDelta.editAll] a single pass.
    */
   @Test
-  fun `removals are held in index order`() {
+  fun `edits are held in index order`() {
+    val base = flatGround()
     val delta = ChunkDelta(pos, size, height)
 
-    delta.carveAll(intArrayOf(gone(4, 4, 5)))
-    delta.carveAll(intArrayOf(gone(1, 2, 6)))
-    delta.carveAll(intArrayOf(gone(1, 2, 5)))
+    delta.editAll(longArrayOf(gone(4, 3, 3)), base)
+    delta.editAll(longArrayOf(gone(1, 2, 3)), base)
+    delta.editAll(longArrayOf(gone(1, 2, 2)), base)
 
-    val indices = delta.packedRemovals().map { ChunkDelta.indexOf(it) }
+    val indices = delta.edits().map { VoxelEdit.indexOf(it) }
 
-    assertEquals(indices.sorted(), indices, "the delta must hand its removals back sorted")
+    assertEquals(indices.sorted(), indices, "the delta must hand its edits back sorted")
     assertEquals(3, indices.size)
   }
 
   @Test
   fun `a delta reports which columns it touched`() {
-    val delta = deltaOf(gone(1, 2, 5), gone(1, 2, 6), gone(4, 4, 5))
+    val delta = deltaOf(gone(1, 2, 2), gone(1, 2, 3), gone(4, 3, 3))
 
-    // Two columns, three removals: a derived structure rebuilds per column, not per removal.
+    // Two columns, three edits: a derived structure rebuilds per column, not per edit.
     assertEquals(2, delta.touchedColumns().size)
   }
 
@@ -426,17 +453,17 @@ class DerivedStructureTest {
     assertFalse(ChunkDelta(pos, size, height).shouldBake(RleCodec.encode(base).size), "an empty delta")
 
     val target = (size * size * height * (ChunkDelta.BAKE_COVERAGE + 0.02)).toInt()
-    val removals = ArrayList<Int>()
+    val edits = ArrayList<Long>()
     outer@ for (y in 0 until size) {
       for (x in 0 until size) {
         for (z in 0 until height) {
-          removals.add(gone(x, y, z))
-          if (removals.size >= target) break@outer
+          edits.add(VoxelEdit.pack(indexOf(x, y, z), BlockType.WATER, Occupancy.FULL))
+          if (edits.size >= target) break@outer
         }
       }
     }
 
-    val delta = ChunkDelta(pos, size, height).apply { carveAll(removals.sorted().toIntArray()) }
+    val delta = ChunkDelta.of(pos, size, height, edits.sorted().toLongArray())
 
     assertTrue(delta.coverage >= ChunkDelta.BAKE_COVERAGE)
     // Deliberately given an absurdly generous reference size, so it is the coverage arm being tested.
@@ -454,15 +481,14 @@ class DerivedStructureTest {
     assertEquals(BlockType.GRASS, decoded[0, 0, 3])
   }
 
-  // --- What removal-only guarantees, and what it does not --------------------------------------------
+  // --- What carving guarantees, and what it does not -------------------------------------------------
 
   /**
-   * Carving can only ever lower the ground and open sight lines. Nothing can raise either.
+   * Carving can only ever lower the ground and open sight lines. Nothing it does can raise either.
    *
-   * The one bug class removal-only is supposed to make impossible is a mutation that *adds* material, and these
-   * are the assertions that would catch one: a brush with a sign error, a merge that took the wrong side of a
-   * `min`, an occupancy written rather than reduced. All three would show up here as a derived value moving the
-   * wrong way, on any carve, rather than as a strange-looking hillside months later.
+   * These are the assertions that would catch a carve that *adds* material: a brush with a sign error, an
+   * occupancy written rather than reduced. Either would show up here as a derived value moving the wrong way, on
+   * any carve, rather than as a strange-looking hillside months later.
    *
    * Note what is deliberately **not** asserted - see [carvingCreatesShelterSoThatIsNotMonotone] and
    * [WalkableTile]. Monotonicity holds for two of the six derived quantities, and writing a test for the other
@@ -475,8 +501,8 @@ class DerivedStructureTest {
     // A rough gallery: a couple of columns taken out entirely, and their neighbours partly.
     val delta = deltaOf(
       gone(2, 2, 2), gone(2, 2, 3), gone(3, 2, 2), gone(3, 2, 3),
-      ChunkDelta.pack(indexOf(4, 2, 3), 64),
-      ChunkDelta.pack(indexOf(2, 3, 3), 128)
+      VoxelEdit.pack(indexOf(4, 2, 3), BlockType.GRASS, 64),
+      VoxelEdit.pack(indexOf(2, 3, 3), BlockType.GRASS, 128)
     )
     val carved = delta.mergedOnto(base)
 
@@ -511,8 +537,8 @@ class DerivedStructureTest {
   /**
    * Shelter is *created* by carving, so it is not monotone - and a mine is the obvious case.
    *
-   * Worth an explicit test rather than a comment, because "removal only" invites the assumption that every
-   * derived quantity can only fall. Two of `ColumnSummary`'s cannot: dig into a hillside and a column that had
+   * Worth an explicit test rather than a comment, because carving invites the assumption that every derived
+   * quantity can only fall. Two of `ColumnSummary`'s cannot: dig into a hillside and a column that had
    * no roof over it now has one, so `shelteredFloorHeight` goes from -1.0 to a real height and
    * `voidCeilingHeight` with it. `WalkableTile` is the third non-monotone one, for the opposite reason - remove
    * the floor and a column that was walkable stops being so.
