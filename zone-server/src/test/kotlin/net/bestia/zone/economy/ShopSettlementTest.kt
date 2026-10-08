@@ -2,10 +2,12 @@ package net.bestia.zone.economy
 
 import io.mockk.every
 import io.mockk.mockk
+import kotlin.test.assertNull
 import net.bestia.worldgen.civ.SettlementTier
 import net.bestia.worldgen.pop.PopulationSummary
 import net.bestia.worldgen.vector.Vec2d
 import net.bestia.zone.persistence.AsyncJobExecutor
+import net.bestia.zone.world.settlement.SettlementFates
 import net.bestia.zone.world.time.BestiaClock
 import net.bestia.zone.world.time.BestiaDateTime
 import net.bestia.zone.world.persistence.PersistedWorld
@@ -36,6 +38,9 @@ class ShopSettlementTest {
 
   private var now = BestiaDateTime(year = 1, month = 2, day = 3, hour = 12, minute = 0, second = 0)
 
+  private val fallen = HashSet<Int>()
+  private val fates = mockk<SettlementFates> { every { hasFallen(any()) } answers { firstArg<Int>() in fallen } }
+
   private val service = SettlementEconomyService(
     catalogue = catalogue,
     step = EconomyStep(catalogue, UndamagedCapacity(), UnclaimedProduction()),
@@ -49,6 +54,7 @@ class ShopSettlementTest {
     },
     worldService = worldService,
     clock = clock,
+    fates = fates,
   )
 
   init {
@@ -62,6 +68,13 @@ class ShopSettlementTest {
     every { clock.now() } answers { now }
     every { repository.findAll() } returns emptyList()
     every { repository.save(any()) } answers { firstArg() }
+  }
+
+  @Test
+  fun `a fallen town has no shop to buy from`() {
+    fallen.add(VILLAGE)
+
+    assertNull(service.shopAt(0, 0))
   }
 
   @Test

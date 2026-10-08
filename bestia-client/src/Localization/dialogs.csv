@@ -501,6 +501,9 @@ TALK_SMALL_MILLER_DUST_4,"Less than fire does. Flour dust and a spark do not mix
 RUMOUR_BOSS_SLAIN_ASK,Has anything been happening?
 RUMOUR_BOSS_SLAIN_1,"Something big was killed out past the ridge. Folk went to look and came back quiet."
 RUMOUR_BOSS_SLAIN_2,"There was a thing out there. Somebody put it down. I have not been out that way since."
+RUMOUR_TOWN_FELL_ASK,Is something wrong?
+RUMOUR_TOWN_FELL_1,"A town not far from here is gone. Not a house left standing, they say."
+RUMOUR_TOWN_FELL_2,"People are talking about a town that fell. Nobody knows who will take in the ones who got out."
 DIALOG_4_TITLE,Tracks
 DIALOG_4_TEXT,"{what}, level {level}.
 {passages} prints, heading {heading}.

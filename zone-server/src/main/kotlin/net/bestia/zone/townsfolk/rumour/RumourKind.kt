@@ -19,4 +19,7 @@ enum class RumourKind(
 
   /** Something large killed close enough to the walls that people heard about it. */
   BOSS_SLAIN(baseImportance = 55, lifetimeDays = 20),
+
+  /** A town nearby is gone: its last building fell, to water, fire, beasts or people. */
+  TOWN_FELL(baseImportance = 75, lifetimeDays = 60),
 }
