@@ -122,6 +122,12 @@ data class ChunkStreamConfig(
   /** Whether the `/carve` chat command is honoured at all. Off in production; the authority check applies too. */
   val allowDebugEdits: Boolean = true,
 
+  /**
+   * Whether a carve may open the wall beside water, which the water simulation then floods. Off until players
+   * can swim: more than a metre of water leaves a walker no floor to stand on.
+   */
+  val allowWaterBreach: Boolean = false,
+
   /** How often edited chunks are written out. A crash loses at most this much digging. */
   val editFlushSeconds: Float = 10f,
 
