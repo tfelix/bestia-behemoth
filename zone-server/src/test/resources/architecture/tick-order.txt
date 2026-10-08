@@ -57,3 +57,4 @@
  - PERSIST wave 34: ChunkEditPersistSystem [EverySeconds(seconds=10.0)]
  - PERSIST wave 34: EntityPersistenceSystem [EverySeconds(seconds=1.0)]
  - PERSIST wave 34: PersistAndRemoveSystem [EveryTick]
+ - PERSIST wave 34: WaterPersistSystem [EverySeconds(seconds=10.0)]
