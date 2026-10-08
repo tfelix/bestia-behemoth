@@ -14,9 +14,9 @@ import org.springframework.transaction.annotation.Transactional
  * Where a dead player-owned entity belongs once it gets back up.
  *
  * Reads the database rather than caching the answer on the entity: a save point changes only at
- * character creation and at a world reset, and is needed only on the rare tick somebody actually
- * dies. Every caller runs off the tick thread, so the query is free of the simulation's timing
- * constraints.
+ * character creation, at a world reset and when a master's home town falls, and is needed only on
+ * the rare tick somebody actually dies. Every caller runs off the tick thread, so the query is free
+ * of the simulation's timing constraints.
  */
 @Service
 class SavePointService(

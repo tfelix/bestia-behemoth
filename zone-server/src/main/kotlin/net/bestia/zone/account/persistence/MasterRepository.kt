@@ -3,10 +3,12 @@ package net.bestia.zone.account.persistence
 import jakarta.persistence.LockModeType
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Lock
+import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
+import org.springframework.transaction.annotation.Transactional
 import net.bestia.zone.account.MasterNotFoundException
 
 @Repository
@@ -23,6 +25,24 @@ interface MasterRepository : JpaRepository<Master, Long> {
   @Lock(LockModeType.PESSIMISTIC_WRITE)
   @Query("select m from Master m where m.id = :id")
   fun findByIdForUpdate(@Param("id") id: Long): Master?
+
+  /**
+   * Gives every master at home in [from] the home [to] at ([x], [y], [z]), and returns how many moved.
+   * One statement, so it takes the same row locks as [findByIdForUpdate] and cannot lose a write to it.
+   */
+  @Transactional
+  @Modifying
+  @Query(
+    "update Master m set m.spawnPosition.x = :x, m.spawnPosition.y = :y, m.spawnPosition.z = :z, " +
+      "m.homeSettlementName = :to where m.homeSettlementName = :from"
+  )
+  fun rehome(
+    @Param("from") from: String,
+    @Param("to") to: String,
+    @Param("x") x: Long,
+    @Param("y") y: Long,
+    @Param("z") z: Long,
+  ): Int
 }
 
 fun MasterRepository.findByIdOrThrow(id: Long): Master {

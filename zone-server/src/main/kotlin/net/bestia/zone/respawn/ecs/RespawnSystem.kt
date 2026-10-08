@@ -14,6 +14,8 @@ import net.bestia.zone.movement.ecs.GroundHeight
 import net.bestia.zone.movement.ecs.Grounded
 import net.bestia.zone.movement.ecs.Path
 import net.bestia.zone.movement.ecs.Position
+import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.world.SafeGround
 import org.springframework.stereotype.Component as SpringComponent
 import net.bestia.zone.prop.ecs.construction.ConstructionSystem
 
@@ -37,10 +39,13 @@ import net.bestia.zone.prop.ecs.construction.ConstructionSystem
  * the player now is rather than where they died - the same reasoning that puts the teleport there.
  * That teleport could not have been reused: it only moves entities carrying `ActivePlayer` and is
  * keyed one destination per account, so it cannot move an owned bestia.
+ *
+ * Water can reach a save point after it was set. The body then gets up at a home on dry ground instead.
  */
 @SpringComponent
 class RespawnSystem(
   private val groundHeight: GroundHeight,
+  private val safeGround: SafeGround = SafeGround.NONE,
 ) : System {
   override val phase = Phase.ACTIONS
   override val before = setOf(ConstructionSystem::class)
@@ -54,7 +59,7 @@ class RespawnSystem(
 
   override fun update(world: World, deltaTime: Float) {
     world.query(Respawn::class, Position::class).each { id ->
-      val savePoint = get<Respawn>().position
+      val savePoint = dryOrHome(get<Respawn>().position)
       val position = get<Position>()
 
       position.x = savePoint.x
@@ -84,6 +89,14 @@ class RespawnSystem(
 
       LOG.debug { "Respawned entity $id at (${position.x},${position.y},${position.z})" }
     }
+  }
+
+  private fun dryOrHome(savePoint: Vec3L): Vec3L {
+    if (safeGround.isDry(savePoint.x, savePoint.y)) {
+      return savePoint
+    }
+    // With no dry home left, getting up wet still beats not getting up.
+    return safeGround.dryHome() ?: savePoint
   }
 
   companion object {
