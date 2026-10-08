@@ -7,12 +7,14 @@ import org.springframework.stereotype.Service
 import net.bestia.zone.entity.StaticEntityKind
 import net.bestia.zone.prop.persistence.PlayerStructure
 import net.bestia.zone.prop.persistence.PlayerStructureRepository
+import net.bestia.zone.util.AccountId
 
 /** In-memory mirror of one [PlayerStructure] row, for the tick thread to read without a DB hit. */
 data class StructureEntry(
   val id: Long,
   val kind: StaticEntityKind,
   val ownerMasterId: Long,
+  val ownerAccountId: AccountId?,
   val position: Vec3L,
   val yaw: Float,
 
@@ -76,6 +78,7 @@ class PlayerStructureRegistry(
   fun place(
     kind: StaticEntityKind,
     ownerMasterId: Long,
+    ownerAccountId: AccountId,
     position: Vec3L,
     yaw: Float,
     chunkX: Int,
@@ -88,6 +91,7 @@ class PlayerStructureRegistry(
       PlayerStructure(
         kind = kind,
         ownerMasterId = ownerMasterId,
+        ownerAccountId = ownerAccountId,
         x = position.x,
         y = position.y,
         z = position.z,
@@ -99,7 +103,7 @@ class PlayerStructureRegistry(
       )
     )
 
-    val entry = StructureEntry(saved.id, kind, ownerMasterId, position, yaw, buildSeconds, buildSeconds)
+    val entry = StructureEntry(saved.id, kind, ownerMasterId, ownerAccountId, position, yaw, buildSeconds, buildSeconds)
     index(chunkX, chunkY, entry)
 
     return entry
@@ -170,7 +174,7 @@ class PlayerStructureRegistry(
   fun loadAll() {
     repository.findAll().forEach { row ->
       val entry = StructureEntry(
-        row.id, row.kind, row.ownerMasterId, Vec3L(row.x, row.y, row.z), row.yaw,
+        row.id, row.kind, row.ownerMasterId, row.ownerAccountId, Vec3L(row.x, row.y, row.z), row.yaw,
         row.totalBuildSeconds, row.remainingBuildSeconds
       )
       index(row.chunkX, row.chunkY, entry)

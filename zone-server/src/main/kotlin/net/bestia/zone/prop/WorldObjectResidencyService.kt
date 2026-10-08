@@ -321,7 +321,7 @@ class WorldObjectResidencyService(
       add(id, PropVitality(spec.maxHp))
       add(id, WorldObjectIdentity(site.propId, latticeVersion))
       // Only for something a player built, so a tree carries no half-empty second identity.
-      if (site.structureId != 0L) add(id, PlayerStructureIdentity(site.structureId))
+      if (site.structureId != 0L) add(id, PlayerStructureIdentity(site.structureId, site.ownerAccountId))
       add(id, StaticSync)
     }
 

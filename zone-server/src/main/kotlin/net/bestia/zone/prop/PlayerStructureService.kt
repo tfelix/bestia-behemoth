@@ -8,6 +8,7 @@ import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.entity.ecs.StaticVisual
 import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.util.AccountId
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.world.WorldService
 import org.springframework.stereotype.Service
@@ -56,6 +57,7 @@ class PlayerStructureService(
     world: World,
     kind: StaticEntityKind,
     ownerMasterId: Long,
+    ownerAccountId: AccountId,
     position: Vec3L,
     yaw: Float
   ): StructureEntry? {
@@ -68,6 +70,7 @@ class PlayerStructureService(
     val entry = structures.place(
       kind = kind,
       ownerMasterId = ownerMasterId,
+      ownerAccountId = ownerAccountId,
       position = position,
       yaw = yaw,
       chunkX = Math.floorDiv(position.x, chunkSize).toInt(),
@@ -111,6 +114,7 @@ class PlayerStructureService(
     world: World,
     kind: StaticEntityKind,
     ownerMasterId: Long,
+    ownerAccountId: AccountId,
     position: Vec3L,
     yaw: Float,
     buildSeconds: Float
@@ -124,6 +128,7 @@ class PlayerStructureService(
     val entry = structures.place(
       kind = kind,
       ownerMasterId = ownerMasterId,
+      ownerAccountId = ownerAccountId,
       position = position,
       yaw = yaw,
       chunkX = Math.floorDiv(position.x, chunkSize).toInt(),

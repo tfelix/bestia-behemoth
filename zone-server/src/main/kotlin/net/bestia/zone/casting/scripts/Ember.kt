@@ -51,7 +51,6 @@ class Ember(
         damagePerTick = perTick,
         tickIntervalSeconds = TICK_INTERVAL_SECONDS,
         durationSeconds = DURATION_SECONDS,
-        hitsCaster = true
       )
     )
 

@@ -18,6 +18,8 @@ object HarmRefusal {
         LOG.warn { "Account $playerId aimed harm at an immune target" }
         OpError.REQUEST_REFUSED
       }
+      // The client cannot tell a player's own station from anybody else's, so a skill may snap onto it.
+      DamageGate.Verdict.OWN -> OpError.REQUEST_REFUSED
     }
 
     outMessageProcessor.sendToPlayer(playerId, OperationErrorSMSG(code))

@@ -1,6 +1,7 @@
 package net.bestia.zone.battle.ecs.effects
 
 import net.bestia.zone.ecs.core.Component
+import net.bestia.zone.util.AccountId
 import net.bestia.zone.util.EntityId
 import kotlin.math.roundToInt
 
@@ -42,8 +43,8 @@ data class AreaEffect(
   var remainingTicks: Int,
   var sinceLastTick: Float = 0f,
 
-  /** Fire on the ground burns its caster too; a consecrated patch should not. */
-  val hitsCaster: Boolean = true
+  /** Stamped by [AreaEffectSpawner], so the damage gate still knows whose effect this is once the caster is gone. */
+  val casterAccountId: AccountId? = null,
 ) : Component {
 
   init {
@@ -67,7 +68,6 @@ data class AreaEffect(
       damagePerTick: Int,
       tickIntervalSeconds: Float,
       durationSeconds: Float,
-      hitsCaster: Boolean = true
     ): AreaEffect = AreaEffect(
       casterId = casterId,
       skillId = skillId,
@@ -76,7 +76,6 @@ data class AreaEffect(
       damagePerTick = damagePerTick,
       tickIntervalSeconds = tickIntervalSeconds,
       remainingTicks = (durationSeconds / tickIntervalSeconds).roundToInt(),
-      hitsCaster = hitsCaster
     )
   }
 }

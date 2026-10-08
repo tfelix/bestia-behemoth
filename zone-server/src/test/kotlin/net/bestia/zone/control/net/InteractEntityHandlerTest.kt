@@ -137,7 +137,7 @@ class InteractEntityHandlerTest {
   fun `clicking a finished structure opens its placeholder`() {
     val workbench = world.createEntity { id ->
       add(id, Position.fromVec3(standingAt))
-      add(id, PlayerStructureIdentity(7L))
+      add(id, PlayerStructureIdentity(7L, ownerAccountId = 70L))
     }
 
     handler.handle(world, interactWith(workbench))

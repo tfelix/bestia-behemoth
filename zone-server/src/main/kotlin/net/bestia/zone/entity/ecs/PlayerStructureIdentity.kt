@@ -1,10 +1,11 @@
 package net.bestia.zone.entity.ecs
 
 import net.bestia.zone.ecs.core.Component
+import net.bestia.zone.util.AccountId
 
 /**
  * The durable name of a *player-built* static entity: the row id of its
- * [net.bestia.zone.prop.persistence.PlayerStructure].
+ * [net.bestia.zone.prop.persistence.PlayerStructure], and the account that owns it.
  *
  * The counterpart to [WorldObjectIdentity] and deliberately not the same component. A generated prop is named
  * by where the lattice put it, which is why its name needs a `latticeVersion` to be falsifiable; a structure
@@ -14,4 +15,4 @@ import net.bestia.zone.ecs.core.Component
  * Present only on the three station kinds, and what lets
  * [net.bestia.zone.prop.PlayerStructureDeathSystem] delete the row when the thing is knocked down.
  */
-data class PlayerStructureIdentity(val structureId: Long) : Component
+data class PlayerStructureIdentity(val structureId: Long, val ownerAccountId: AccountId?) : Component

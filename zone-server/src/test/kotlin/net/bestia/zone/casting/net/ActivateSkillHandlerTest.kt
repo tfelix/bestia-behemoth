@@ -73,18 +73,19 @@ class ActivateSkillHandlerTest {
   @Test
   fun `an instant skill resolves at once and puts up no cast bar`() {
     val caster = world.spawnCaster()
-    handlerFor(caster, skill(castTime = 0f)).handle(world, activate(caster))
+    val target = world.spawnCaster()
+    handlerFor(caster, skill(castTime = 0f)).handle(world, activate(target))
 
     assertFalse(world.has(caster, Casting::class), "a skill with no cast time must not attach a cast bar")
     verify(exactly = 1) {
-      skillExecution.execute(any(), caster, SKILL_ID, 1, caster, null)
+      skillExecution.execute(any(), caster, SKILL_ID, 1, target, null)
     }
   }
 
   @Test
   fun `a channelled skill puts up a cast bar and resolves nothing yet`() {
     val caster = world.spawnCaster()
-    handlerFor(caster, skill(castTime = 2f)).handle(world, activate(caster))
+    handlerFor(caster, skill(castTime = 2f)).handle(world, activate(world.spawnCaster()))
 
     assertTrue(world.has(caster, Casting::class), "a skill with a cast time is resolved by CastingSystem later")
     verify(exactly = 0) { skillExecution.execute(any(), any(), any(), any(), any(), any()) }

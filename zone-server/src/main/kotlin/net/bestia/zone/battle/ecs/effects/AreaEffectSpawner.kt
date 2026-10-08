@@ -3,6 +3,7 @@ package net.bestia.zone.battle.ecs.effects
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.entity.ecs.EntityVisual
+import net.bestia.zone.entity.ecs.PlayerOwnership
 import net.bestia.zone.entity.ecs.VisualKind
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.geometry.Vec3L
@@ -33,12 +34,15 @@ class AreaEffectSpawner {
           "${effect.damagePerTick} every ${effect.tickIntervalSeconds}s over ${effect.radiusTiles} tiles"
     }
 
+    // Here rather than by each caller, so no effect forgets whose it is.
+    val stamped = effect.copy(casterAccountId = PlayerOwnership.ownerAccountOf(world, effect.casterId))
+
     return world.createEntity { id ->
       add(id, Position.fromVec3(center))
       // `EntityVisual` is the only Dirtyable here, so an effect without one is also the one that gets no
       // vanish broadcast when it dies - which is right: nothing was told it appeared either.
       visualId?.let { add(id, EntityVisual(VisualKind.EFFECT, it)) }
-      add(id, effect)
+      add(id, stamped)
     }
   }
 

@@ -12,6 +12,7 @@ import net.bestia.zone.entity.ecs.PropPose
 import net.bestia.zone.entity.ecs.PropVitality
 import net.bestia.zone.entity.ecs.WorldObjectIdentity
 import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.prop.PropPromotionService
@@ -131,41 +132,36 @@ class AreaEffectSystemTest {
   }
 
   @Test
-  fun `fire on the ground burns the caster who is standing in it`() {
-    val caster = victimAt(CENTER)
-    emberAt(CENTER, caster = caster)
-
-    world.tick(TICK_INTERVAL)
-
-    assertEquals(DAMAGE_PER_TICK, stagedDamage(caster))
-  }
-
-  @Test
-  fun `an effect that spares its caster leaves them alone but still hits everyone else`() {
+  fun `a patch never burns its own caster but still hits everyone else`() {
     val caster = victimAt(CENTER)
     val bystander = victimAt(Vec3L(CENTER.x + 1, CENTER.y, CENTER.z))
-    val patch = world.createEntity { entityId ->
-      add(entityId, Position.fromVec3(CENTER))
-      add(
-        entityId,
-        AreaEffect.lasting(
-          casterId = caster,
-          skillId = SKILL_ID,
-          skillLevel = 1,
-          radiusTiles = 1,
-          damagePerTick = DAMAGE_PER_TICK,
-          tickIntervalSeconds = TICK_INTERVAL,
-          durationSeconds = DURATION,
-          hitsCaster = false
-        )
-      )
-    }
-    aoi.setEntityPosition(patch, CENTER)
+    emberAt(CENTER, caster = caster)
 
     world.tick(TICK_INTERVAL)
 
     assertEquals(0, stagedDamage(caster))
     assertEquals(DAMAGE_PER_TICK, stagedDamage(bystander))
+  }
+
+  @Test
+  fun `a fire that outlives its caster still spares what the caster's account owns`() {
+    val caster = victimAt(CENTER).also { world.add(it, Account(accountId = OWNER)) }
+    val ownBestia = victimAt(CENTER).also { world.add(it, Account(accountId = OWNER)) }
+    val stranger = victimAt(CENTER).also { world.add(it, Account(accountId = OWNER + 1)) }
+    val patch = AreaEffectSpawner().spawn(
+      world, CENTER, visualId = null,
+      effect = AreaEffect.lasting(
+        casterId = caster, skillId = SKILL_ID, skillLevel = 1, radiusTiles = 1,
+        damagePerTick = DAMAGE_PER_TICK, tickIntervalSeconds = TICK_INTERVAL, durationSeconds = DURATION
+      )
+    )
+    aoi.setEntityPosition(patch, CENTER)
+
+    world.destroy(caster)
+    world.tick(TICK_INTERVAL)
+
+    assertEquals(0, stagedDamage(ownBestia))
+    assertEquals(DAMAGE_PER_TICK, stagedDamage(stranger))
   }
 
   @Test
@@ -192,6 +188,7 @@ class AreaEffectSystemTest {
   private companion object {
     val CENTER = Vec3L(10, 10, 0)
     const val CASTER_ID = 4242L
+    const val OWNER = 77L
     const val SKILL_ID = 1000L
     const val DAMAGE_PER_TICK = 7
     const val TICK_INTERVAL = 1.2f
@@ -216,7 +213,7 @@ class AreaEffectSystemTest {
     world.createEntity { entityId ->
       add(entityId, Position.fromVec3(at))
       add(entityId, AreaEffect.lasting(
-        casterId = 1L, skillId = 1000L, skillLevel = 1, radiusTiles = 2,
+        casterId = CASTER_ID, skillId = 1000L, skillLevel = 1, radiusTiles = 2,
         damagePerTick = 10, tickIntervalSeconds = 0.1f, durationSeconds = 1f
       ))
     }
