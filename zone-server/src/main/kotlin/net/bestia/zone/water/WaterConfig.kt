@@ -20,4 +20,10 @@ data class WaterConfig(
 
   /** Real seconds between two commits of one chunk while its water still moves. */
   val commitIntervalSeconds: Float = 1f,
+
+  /**
+   * Cells one levelling may visit: the body and the space it pours into. A larger body keeps what slope the
+   * automaton left it.
+   */
+  val levelMaxCells: Int = 50_000,
 )

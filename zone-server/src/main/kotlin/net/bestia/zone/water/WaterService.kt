@@ -9,6 +9,7 @@ import net.bestia.worldgen.voxel.VoxelChunk
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.water.sim.Face
 import net.bestia.zone.water.sim.WaterChunk
+import net.bestia.zone.water.sim.WaterLeveller
 import net.bestia.zone.water.sim.WaterStepper
 import net.bestia.zone.water.sim.WaterVolume
 import net.bestia.zone.world.stream.ChunkCoords
@@ -38,6 +39,13 @@ class WaterService(
 
   private val volume by lazy { WaterVolume(chunkService::normalise) }
   private val stepper by lazy { WaterStepper(volume) }
+  private val leveller = WaterLeveller(config.levelMaxCells)
+
+  /** Chunks awake after the last step, to notice the ones that fell asleep in this one. */
+  private var awakeBefore: Set<ChunkPos> = emptySet()
+
+  /** Chunks levelled in their current quiet streak, so one streak levels once. */
+  private val levelled = HashSet<ChunkPos>()
 
   /** Chunks to read in, with the cells to wake once they are. */
   private val pendingLoads = LinkedHashMap<ChunkPos, MutableSet<Int>>()
@@ -86,6 +94,7 @@ class WaterService(
     wakeOpened()
     loadPending()
     stepper.step(config.cellsPerStep)
+    levelSettling()
     commitDue()
     releaseSettled()
   }
@@ -272,6 +281,31 @@ class WaterService(
     }
   }
 
+  /**
+   * Levels the water of each chunk that is settling: quiet for a while, or asleep since this step. The first
+   * catches a wide basin flattening too slowly; the second a U-bend that stopped with its legs at two levels.
+   */
+  private fun levelSettling() {
+    for (chunk in volume.all()) {
+      if (chunk.quietPasses < LEVEL_AFTER_QUIET_PASSES) levelled.remove(chunk.pos)
+
+      val quietLongEnough = chunk.quietPasses >= LEVEL_AFTER_QUIET_PASSES && levelled.add(chunk.pos)
+      val fellAsleep = chunk.isAsleep && chunk.pos in awakeBefore
+      if (quietLongEnough || fellAsleep) levelFirstBodyIn(chunk)
+    }
+
+    awakeBefore = volume.all().filter { !it.isAsleep }.map { it.pos }.toSet()
+  }
+
+  private fun levelFirstBodyIn(chunk: WaterChunk) {
+    for (index in 0 until chunk.volume) {
+      if (chunk.fillAt(index) > 0 && !chunk.isSource(index)) {
+        leveller.level(chunk, index)
+        return
+      }
+    }
+  }
+
   private fun commitDue() {
     val due = volume.all()
       .filter { chunk -> chunk.hasUncommittedEdits && (chunk.isAsleep || isMovingAndDue(chunk)) }
@@ -309,6 +343,7 @@ class WaterService(
     for (chunk in settled) {
       volume.remove(chunk.pos)
       lastCommitAt.remove(chunk.pos)
+      levelled.remove(chunk.pos)
     }
   }
 
@@ -325,5 +360,8 @@ class WaterService(
     const val MAX_POUR_RADIUS = 16
 
     private val WATER_ID = BlockType.WATER.id.toByte()
+
+    /** Quiet passes before a chunk's water is levelled; well before it is put to sleep. */
+    const val LEVEL_AFTER_QUIET_PASSES = 10
   }
 }
