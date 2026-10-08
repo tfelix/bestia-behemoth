@@ -53,7 +53,8 @@ class StatusEffectService(
         durationSeconds = durationSeconds,
         isSyncedToClient = definition.isSyncedToClient,
         shield = script.shield,
-        polarity = definition.polarity
+        polarity = definition.polarity,
+        showsCountdown = script.showsCountdown
       )
     }
 

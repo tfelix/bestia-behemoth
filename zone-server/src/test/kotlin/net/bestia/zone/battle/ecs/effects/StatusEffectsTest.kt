@@ -3,6 +3,9 @@ package net.bestia.zone.battle.ecs.effects
 import net.bestia.zone.battle.status.HarmShield
 import net.bestia.zone.battle.status.StackBehavior
 import net.bestia.zone.battle.status.StatusEffectPolarity
+import net.bestia.zone.ecs.core.testWorld
+import net.bestia.zone.identity.ecs.Account
+import net.bestia.zone.sync.SyncTargets
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -99,6 +102,14 @@ class StatusEffectsTest {
   }
 
   @Test
+  fun `a player's effects are told to everybody in range, not only to the owner`() {
+    val world = testWorld()
+    val player = world.createEntity { id -> add(id, Account(accountId = 3L)) }
+
+    assertEquals(SyncTargets.PublicInRange, StatusEffects().syncTargets(world, player))
+  }
+
+  @Test
   fun `the client is told which effects are debuffs`() {
     val effects = StatusEffects()
     effects.applyEffect(1L, StackBehavior.STACK_INDEPENDENT, 1, null, 10.0, true, polarity = StatusEffectPolarity.DEBUFF)
@@ -137,6 +148,19 @@ class StatusEffectsTest {
 
     assertEquals(StatusEffects.Change.REFRESHED, effects.applyEffect(2L, StackBehavior.REFRESH_DURATION, 1, null, 10.0, true))
     assertTrue(effects.dirtyFlag.isSet, "the client would keep counting down the old clock")
+  }
+
+  @Test
+  fun `a held effect is shown until it is gone, so its refresh is not sent`() {
+    val effects = StatusEffects()
+    effects.applyEffect(1L, StackBehavior.REFRESH_DURATION, 1, null, 5.0, true, showsCountdown = false)
+
+    val message = effects.toEntityMessage(entityId = 42L) as StatusEffectsComponentSMSG
+    assertEquals(Float.POSITIVE_INFINITY, message.effects.single().remainingSeconds)
+
+    effects.dirtyFlag.clear()
+    effects.applyEffect(1L, StackBehavior.REFRESH_DURATION, 1, null, 5.0, true, showsCountdown = false)
+    assertFalse(effects.dirtyFlag.isSet, "every pulse of the ward would reach every observer")
   }
 
   @Test

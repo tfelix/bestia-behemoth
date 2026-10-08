@@ -17,6 +17,7 @@ message StatusEffectListSMSG {
 message StatusEffectEntry {
   uint32 effect_id = 1;
   uint32 level = 2;
+  // Infinity for an effect that lasts until the server says it is gone, like the ward: show it without a timer.
   float remaining_seconds = 3;
   bool debuff = 4;
 }

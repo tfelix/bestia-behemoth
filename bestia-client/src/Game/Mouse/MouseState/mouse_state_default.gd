@@ -131,4 +131,8 @@ func _action_for_bestia(visual: BestiaVisual) -> int:
 	if entity != null and entity_manager.is_entity_friendly(entity):
 		return DefaultAction.Kind.TALK
 
+	# Warded or dead: the server would refuse the blow, so a click only looks.
+	if entity != null and not entity_manager.can_be_harmed(entity):
+		return DefaultAction.Kind.SELECT
+
 	return DefaultAction.Kind.ATTACK

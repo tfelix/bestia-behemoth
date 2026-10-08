@@ -5,7 +5,6 @@ import net.bestia.zone.battle.status.StackBehavior
 import net.bestia.zone.battle.status.StatusEffectPolarity
 import net.bestia.zone.sync.Dirtyable
 import net.bestia.zone.sync.SyncTargets
-import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.sync.DirtyableComponent
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.message.EntitySMSG
@@ -18,6 +17,9 @@ import net.bestia.zone.util.EntityId
  * Sync is driven by this component's own dirty flag: [applyEffect]/[tickDown] mark it dirty as
  * they mutate, and a freshly added instance starts dirty, so changes reach the client without any
  * external bookkeeping.
+ *
+ * Everybody in range is told, not only the owner: that is how a client sees that a ward stone protects
+ * another player before it aims at them.
  */
 class StatusEffects(
   val activeEffects: MutableList<ActiveStatusEffect> = mutableListOf()
@@ -35,7 +37,8 @@ class StatusEffects(
     durationSeconds: Double,
     isSyncedToClient: Boolean,
     shield: HarmShield? = null,
-    polarity: StatusEffectPolarity = StatusEffectPolarity.NEUTRAL
+    polarity: StatusEffectPolarity = StatusEffectPolarity.NEUTRAL,
+    showsCountdown: Boolean = true
   ): Change {
     fun newInstance() = ActiveStatusEffect(
       definitionId = definitionId,
@@ -44,7 +47,8 @@ class StatusEffects(
       sourceEntityId = sourceEntityId,
       isSyncedToClient = isSyncedToClient,
       shield = shield,
-      polarity = polarity
+      polarity = polarity,
+      showsCountdown = showsCountdown
     )
 
     val existing = activeEffects.firstOrNull { it.definitionId == definitionId }
@@ -74,7 +78,7 @@ class StatusEffects(
   private fun refresh(effect: ActiveStatusEffect, durationSeconds: Double): Change {
     effect.remainingSeconds = durationSeconds.toFloat()
     // The client counts a visible effect down from the last sync, so it has to hear about the new clock.
-    if (effect.isSyncedToClient) {
+    if (effect.isSyncedToClient && effect.showsCountdown) {
       markDirty()
     }
 
@@ -141,7 +145,7 @@ class StatusEffects(
         StatusEffectsComponentSMSG.StatusEffectEntry(
           effectId = it.definitionId,
           level = it.level,
-          remainingSeconds = it.remainingSeconds,
+          remainingSeconds = if (it.showsCountdown) it.remainingSeconds else Float.POSITIVE_INFINITY,
           debuff = it.polarity == StatusEffectPolarity.DEBUFF
         )
       }
@@ -156,8 +160,6 @@ class StatusEffects(
   }
 
   override fun syncTargets(world: World, entityId: EntityId): SyncTargets {
-    val owner = world.get(entityId, Account::class)?.accountId
-      ?: return SyncTargets.PublicInRange
-    return SyncTargets.Accounts(setOf(owner))
+    return SyncTargets.PublicInRange
   }
 }

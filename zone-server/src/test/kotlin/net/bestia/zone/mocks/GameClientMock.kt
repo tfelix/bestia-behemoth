@@ -4,6 +4,7 @@ import net.bestia.account.Authority
 import net.bestia.zone.session.AccountConnectedEvent
 import net.bestia.zone.session.AccountDisconnectedEvent
 import net.bestia.zone.message.CMSG
+import net.bestia.zone.message.EntitySMSG
 import net.bestia.zone.message.SMSG
 import net.bestia.zone.master.net.SelectMasterCMSG
 import net.bestia.zone.message.AccountTaskExecutor
@@ -77,6 +78,11 @@ class GameClientMock(
    * may arrive after the message under test. */
   fun <T : SMSG> receivedAny(type: KClass<T>, predicate: (T) -> Boolean): Boolean {
     return received().filterIsInstance(type.java).any(predicate)
+  }
+
+  /** The most recent entity message of [type] about [entityId], when other entities send the same type. */
+  fun <T : EntitySMSG> tryGetLastReceivedFor(type: KClass<T>, entityId: Long): T? {
+    return received().filterIsInstance(type.java).lastOrNull { it.entityId == entityId }
   }
 
   fun <T : SMSG> getLastReceived(type: KClass<T>): T {

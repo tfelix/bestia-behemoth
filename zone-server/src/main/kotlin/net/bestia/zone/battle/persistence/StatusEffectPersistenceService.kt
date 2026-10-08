@@ -201,14 +201,17 @@ class StatusEffectPersistenceService(
       return null
     }
 
+    val script = statusEffectScriptRegistry.getOrThrow(definition.script)
+
     return ActiveStatusEffect(
       definitionId = row.definitionId,
       level = row.level,
       remainingSeconds = row.remainingSeconds ?: Float.POSITIVE_INFINITY,
       sourceEntityId = row.sourceEntityId,
       isSyncedToClient = definition.isSyncedToClient,
-      shield = statusEffectScriptRegistry.getOrThrow(definition.script).shield,
-      polarity = definition.polarity
+      shield = script.shield,
+      polarity = definition.polarity,
+      showsCountdown = script.showsCountdown
     )
   }
 
