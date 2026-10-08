@@ -238,6 +238,12 @@ class ChunkService(
 
   private data class EncodedKey(val chunk: ChunkPos, val revision: Int)
 
+  /**
+   * True while [editFluid] is inside the store. [onChunkChanged] is the store's callback, so this is how it
+   * learns that the change must not track the chunk.
+   */
+  private var writingFluid = false
+
   /** Per chunk, voxel index to the [VoxelEdit] it ended this tick in. */
   private val pending = LinkedHashMap<ChunkPos, MutableMap<Int, Long>>()
   private val pendingFrom = HashMap<ChunkPos, Int>()
@@ -726,6 +732,48 @@ class ChunkService(
   }
 
   /**
+   * Writes fluid into [chunk] or takes it out again. Each edit may only turn air or water into air or water.
+   *
+   * That rule lets a simulation write from a stale copy of the chunk: an edit aimed at a voxel that has since
+   * become rock, or one that would put water into rock, is dropped instead of applied.
+   *
+   * Unlike a carve, this does not make the chunk one whose walkability is kept. A flood far from any player must
+   * not grow the derived store or queue rebuilds nobody reads; a chunk somebody holds is tracked already, and is
+   * invalidated as usual.
+   *
+   * @param edits [VoxelEdit]s sorted ascending
+   * @return how many voxels changed
+   */
+  fun editFluid(chunk: ChunkPos, edits: LongArray): Int {
+    val target = normalise(chunk)
+    val before = loaded.store.merged(target)
+    val allowed = edits.filter { isFluidSwap(before, it) }.toLongArray()
+    if (allowed.isEmpty()) return 0
+
+    val from = revisionOf(target)
+    writingFluid = true
+    val outcome = try {
+      loaded.store.edit(target, allowed)
+    } finally {
+      writingFluid = false
+    }
+    if (outcome.changed == 0) return 0
+
+    announce(target, from, allowed, outcome.baked)
+    return outcome.changed
+  }
+
+  private fun isFluidSwap(before: VoxelChunk, edit: Long): Boolean {
+    val current = VoxelEdit.of(before, VoxelEdit.indexOf(edit))
+
+    return current != edit && isAirOrWater(VoxelEdit.blockOf(current)) && isAirOrWater(VoxelEdit.blockOf(edit))
+  }
+
+  private fun isAirOrWater(block: BlockType): Boolean {
+    return block == BlockType.AIR || block == BlockType.WATER
+  }
+
+  /**
    * Called by [ChunkStore] whenever a chunk's contents change.
    *
    * Bumps the revision, records the slab as one this column now has to be offered, and marks the derived
@@ -746,11 +794,12 @@ class ChunkService(
    *
    * A chunk somebody dug in is a chunk something may walk in, which is the residency argument `track`'s own
    * KDoc makes. It is idempotent, and it costs one entry in the same rebuild queue the invalidation uses.
+   * Fluid is the exception; see [editFluid].
    */
   private fun onChunkChanged(chunk: ChunkPos) {
     revisions[chunk] = revisionOf(chunk) + 1
     unsaved.add(chunk)
-    recordEdited(chunk)
+    recordEdited(chunk, track = !writingFluid)
   }
 
   /** What each removal leaves behind, as the voxel's whole state: the same block with less of it, or air. */
@@ -780,13 +829,13 @@ class ChunkService(
     }
   }
 
-  /** What every edited chunk needs, whether it was carved this run or restored from an earlier one. */
-  private fun recordEdited(chunk: ChunkPos) {
+  /** What every edited chunk needs, whether it was edited this run or restored from an earlier one. */
+  private fun recordEdited(chunk: ChunkPos, track: Boolean = true) {
     val edited = editedSlabs.getOrPut(chunk.x to chunk.y) { HashSet(2) }
     val grew = edited.add(chunk.z) or edited.add(chunk.z - 1)
     if (grew) slabChanges++
 
-    loaded.derived.track(chunk)
+    if (track) loaded.derived.track(chunk)
     loaded.derived.invalidate(chunk)
     for (listener in changeListeners) listener(chunk)
   }
