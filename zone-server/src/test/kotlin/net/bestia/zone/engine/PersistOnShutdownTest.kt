@@ -13,6 +13,7 @@ import net.bestia.zone.ground.GroundLevelStore
 import net.bestia.zone.world.stream.ChunkEditJournal
 import org.junit.jupiter.api.Test
 import net.bestia.zone.persistence.EntityPersistenceService
+import net.bestia.zone.water.WaterService
 
 class PersistOnShutdownTest {
 
@@ -24,13 +25,16 @@ class PersistOnShutdownTest {
   private val persistence = mockk<EntityPersistenceService>(relaxed = true)
   private val economy = mockk<SettlementEconomyService>(relaxed = true)
   private val reserve = mockk<WorldReserve>(relaxed = true)
+  private val water = mockk<WaterService>(relaxed = true)
   private val chunkEdits = mockk<ChunkEditJournal>(relaxed = true)
   private val wear = mockk<GroundLevelStore>(relaxed = true)
   private val blood = mockk<GroundLevelStore>(relaxed = true)
   private val executor = mockk<AsyncJobExecutor>(relaxed = true)
 
   private val sut =
-    PersistOnShutdown(engine, worldView, persistence, economy, reserve, chunkEdits, listOf(wear, blood), executor)
+    PersistOnShutdown(
+      engine, worldView, persistence, economy, reserve, water, chunkEdits, listOf(wear, blood), executor
+    )
 
   @Test
   fun `the tick stops, then everything is saved, then the writes are given time to land`() {
@@ -43,6 +47,7 @@ class PersistOnShutdownTest {
       persistence.syncAll(world)
       economy.flush()
       reserve.flush()
+      water.commitAll()
       chunkEdits.flushDirty()
       wear.flushDirty()
       blood.flushDirty()
