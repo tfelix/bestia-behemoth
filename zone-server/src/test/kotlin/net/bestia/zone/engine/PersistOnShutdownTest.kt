@@ -10,6 +10,7 @@ import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.economy.SettlementEconomyService
 import net.bestia.zone.economy.WorldReserve
 import net.bestia.zone.ground.GroundLevelStore
+import net.bestia.zone.water.WaterJournal
 import net.bestia.zone.world.stream.ChunkEditJournal
 import org.junit.jupiter.api.Test
 import net.bestia.zone.persistence.EntityPersistenceService
@@ -26,6 +27,7 @@ class PersistOnShutdownTest {
   private val economy = mockk<SettlementEconomyService>(relaxed = true)
   private val reserve = mockk<WorldReserve>(relaxed = true)
   private val water = mockk<WaterService>(relaxed = true)
+  private val waterJournal = mockk<WaterJournal>(relaxed = true)
   private val chunkEdits = mockk<ChunkEditJournal>(relaxed = true)
   private val wear = mockk<GroundLevelStore>(relaxed = true)
   private val blood = mockk<GroundLevelStore>(relaxed = true)
@@ -33,7 +35,8 @@ class PersistOnShutdownTest {
 
   private val sut =
     PersistOnShutdown(
-      engine, worldView, persistence, economy, reserve, water, chunkEdits, listOf(wear, blood), executor
+      engine, worldView, persistence, economy, reserve, water, waterJournal, chunkEdits, listOf(wear, blood),
+      executor
     )
 
   @Test
@@ -48,6 +51,7 @@ class PersistOnShutdownTest {
       economy.flush()
       reserve.flush()
       water.commitAll()
+      waterJournal.flush()
       chunkEdits.flushDirty()
       wear.flushDirty()
       blood.flushDirty()
