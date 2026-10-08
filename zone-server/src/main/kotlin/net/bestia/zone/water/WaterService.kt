@@ -90,6 +90,18 @@ class WaterService(
     releaseSettled()
   }
 
+  /** The chunks the simulation holds now. */
+  fun heldPositions(): Set<ChunkPos> {
+    return volume.all().map { it.pos }.toSet()
+  }
+
+  /** Reads [positions] back in and wakes their water, which may still have been moving when it was saved. */
+  fun resume(positions: Collection<ChunkPos>) {
+    for (pos in positions) {
+      pendingLoads.getOrPut(pos) { HashSet() }
+    }
+  }
+
   /** Commits every held chunk's water at once. For shutdown, where nothing may be left behind. */
   fun commitAll() {
     for (chunk in volume.all()) {
