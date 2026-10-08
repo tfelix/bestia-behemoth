@@ -34,7 +34,7 @@ data class ScriptEntitySnapshot(
  * tables, and rebuilds them on startup through [ScriptEntitySpawner].
  *
  * [loadAll] does double duty: persisted script entities are rehydrated with their original entity ids, exactly
- * like [net.bestia.zone.spawn.persistence.MobEntityPersister], and every settlement spawn point that never had a
+ * like [net.bestia.zone.spawn.persistence.MobEntityPersister], and every home offered first that never had a
  * ward stone gets one (see [SPAWN_POINT_SCRIPT_ID]). A new stone is persisted immediately - not waiting for
  * [net.bestia.zone.persistence.EntityPersistenceService]'s periodic sweep - so a restart minutes after a fresh
  * world does not lose it.
@@ -97,7 +97,10 @@ class ScriptEntityPersister(
 
   /** Each spawn point gets its ward once per world: a stone destroyed later is not raised again. */
   private fun raiseMissingWards(world: World, standing: Set<Vec3L>) {
-    val neverWarded = masterSpawnPointService.ensureComputed().filterNot { it.wardRaised }
+    // The homes offered first. A reserve home gets no ward until something decides it should.
+    val neverWarded = masterSpawnPointService.ensureComputed()
+      .take(MasterSpawnPointService.HOMES_OFFERED)
+      .filterNot { it.wardRaised }
     if (neverWarded.isEmpty()) {
       return
     }

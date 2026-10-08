@@ -17,8 +17,8 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 /**
- * Exercises [ScriptEntityPersister.loadAll]'s double duty: raising one ward stone per settlement spawn point
- * that never had one, and rehydrating those exact entity ids - not duplicating them - on a later "restart".
+ * Exercises [ScriptEntityPersister.loadAll]'s double duty: raising one ward stone per home offered first that
+ * never had one, and rehydrating those exact entity ids - not duplicating them - on a later "restart".
  * Uses isolated [World] instances rather than the Spring-managed world, same as
  * [net.bestia.zone.persistence.EntityPersistenceRoundTripTest].
  */
@@ -45,15 +45,15 @@ class ScriptEntityPersisterTest {
   }
 
   @Test
-  fun `creates one script entity per spawn point, and a simulated restart rehydrates the same ids without duplicating`() {
-    val spawnPoints = masterSpawnPointService.ensureComputed()
-    assertTrue(spawnPoints.isNotEmpty(), "no settlement spawn point candidates were computed")
+  fun `creates one script entity per offered home, and a restart rehydrates the same ids without duplicating`() {
+    val homes = masterSpawnPointService.ensureComputed().take(MasterSpawnPointService.HOMES_OFFERED)
+    assertTrue(homes.isNotEmpty(), "no settlement spawn point candidates were computed")
 
     val firstBoot = newWorld()
     scriptEntityPersister.loadAll(firstBoot)
 
     val rowsAfterFirstBoot = persistedEntityRepository.findAllByKind(ScriptComponent.KIND)
-    assertEquals(spawnPoints.size, rowsAfterFirstBoot.size)
+    assertEquals(homes.size, rowsAfterFirstBoot.size)
 
     val idsAfterFirstBoot = rowsAfterFirstBoot.map { it.entityId }.toSet()
     idsAfterFirstBoot.forEach { id ->
@@ -95,7 +95,9 @@ class ScriptEntityPersisterTest {
     scriptEntityPersister.loadAll(newWorld())
 
     assertEquals(stonesBefore, persistedEntityRepository.findAllByKind(ScriptComponent.KIND).map { it.entityId }.toSet())
-    assertTrue(masterSpawnPointService.ensureComputed().all { it.wardRaised })
+    val homes = masterSpawnPointService.ensureComputed()
+    assertTrue(homes.take(MasterSpawnPointService.HOMES_OFFERED).all { it.wardRaised })
+    assertTrue(homes.drop(MasterSpawnPointService.HOMES_OFFERED).none { it.wardRaised }, "a reserve home got a ward")
   }
 
   /**

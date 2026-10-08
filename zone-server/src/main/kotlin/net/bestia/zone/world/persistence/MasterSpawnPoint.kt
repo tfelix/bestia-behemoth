@@ -40,7 +40,14 @@ class MasterSpawnPoint(
     AttributeOverride(name = "y", column = Column(name = "position_y")),
     AttributeOverride(name = "z", column = Column(name = "position_z"))
   )
-  val position: Vec3L
+  val position: Vec3L,
+
+  /**
+   * The order homes are offered in, from 0. Only the first few are offered at once; the rest wait for a town
+   * ahead of them to fall. Rows from before this column read 0 and keep their id order.
+   */
+  @Column(nullable = false)
+  val rank: Int = 0,
 ) {
   /** Whether this point has had its ward stone. It stays set, so a destroyed stone is gone for the world. */
   @Column(name = "ward_raised", nullable = false)

@@ -5,7 +5,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import net.bestia.zone.master.status.EffortValueCostCalculator
 import net.bestia.zone.master.status.StatusAttribute
-import net.bestia.zone.world.MasterSpawnPointService
+import net.bestia.zone.world.SpawnPointAvailability
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.awt.Color
@@ -20,12 +20,12 @@ import net.bestia.zone.master.MasterFactory
 class MasterFactoryTest {
 
   private val accountRepository = mockk<AccountRepository>()
-  private val spawnPoints = mockk<MasterSpawnPointService>(relaxed = true)
+  private val spawnPoints = mockk<SpawnPointAvailability>(relaxed = true)
 
   private val factory = MasterFactory(
     accountRepository = accountRepository,
     masterRepository = mockk(relaxed = true),
-    masterSpawnPointService = spawnPoints,
+    availability = spawnPoints,
     entityIdGenerator = mockk(relaxed = true),
     statusEffectPersistenceService = mockk(relaxed = true),
     effortValueCostCalculator = EffortValueCostCalculator(),
@@ -53,7 +53,7 @@ class MasterFactoryTest {
       factory.create(ACCOUNT_ID, createData(overflowing))
     }
 
-    verify(exactly = 0) { spawnPoints.ensureComputed() }
+    verify(exactly = 0) { spawnPoints.offered() }
   }
 
   /** Other players read a master's name, so it must not reorder or disguise itself. */

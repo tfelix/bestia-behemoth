@@ -6,7 +6,7 @@ import net.bestia.zone.account.persistence.findByIdOrThrow
 import net.bestia.zone.identity.ecs.OwnedBestia
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.util.AccountId
-import net.bestia.zone.world.MasterSpawnPointService
+import net.bestia.zone.world.SpawnPointAvailability
 import org.springframework.stereotype.Component
 
 @Component
@@ -14,7 +14,7 @@ class AvailableMasterResolver(
   private val accountRepository: AccountRepository,
   private val world: WorldView,
   private val bestiaInfoFactory: BestiaInfoFactory,
-  private val masterSpawnPointService: MasterSpawnPointService
+  private val availability: SpawnPointAvailability
 ) {
 
   fun getAvailableMaster(accountId: AccountId): AvailableMasterSMSG {
@@ -42,7 +42,7 @@ class AvailableMasterResolver(
     val maxMasterSlots = Account.DEFAULT_MASTER_SLOT_COUNT + account.additionalMasterSlots
     val maxBestiaSlots = Account.DEFAULT_BESTIA_SLOT_COUNT + account.additionalBestiaSlots
 
-    val spawnPoints = masterSpawnPointService.ensureComputed().map {
+    val spawnPoints = availability.offered().map {
       AvailableMasterSMSG.SpawnPointCandidate(id = it.id.toInt(), settlementName = it.settlementName, tier = it.tier)
     }
 
