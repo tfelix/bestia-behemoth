@@ -11,6 +11,7 @@ import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.session.NoActiveSessionException
 import net.bestia.zone.control.net.MoveActiveEntityCMSG
 import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.identity.ecs.OwnedBestia
 import org.awaitility.Awaitility
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Order
@@ -35,17 +36,18 @@ class BehemothE2EScenarios : BestiaNoSocketScenario(
   @Autowired
   private lateinit var world: WorldView
 
+  /**
+   * Asks the world rather than the session map: a disconnect drops the session, and every scenario sharing this
+   * context connects and disconnects these players, but their bestias stay in the world throughout.
+   */
   @Test
   @Order(1)
-  fun `before connection only owned player bestia are active`() {
-    val masterId1 = testData.account1.masterIds[0]
-    val ownedEntities1 = connectionInfoService.getOwnedEntitiesByMaster(clientPlayer1.connectedPlayerId, masterId1)
+  fun `before connection only owned player bestia are in the world`() {
+    val bestiasOfPlayer1 = world.read { OwnedBestia.ownedBy(this, testData.account1.masterIds[0]) }
+    assertEquals(2, bestiasOfPlayer1.size)
 
-    assertEquals(2, ownedEntities1.size)
-
-    val masterId2 = testData.account2.masterIds[0]
-    val ownedEntities2 = connectionInfoService.getOwnedEntitiesByMaster(clientPlayer2.connectedPlayerId, masterId2)
-    assertTrue(ownedEntities2.isEmpty())
+    val bestiasOfPlayer2 = world.read { OwnedBestia.ownedBy(this, testData.account2.masterIds[0]) }
+    assertTrue(bestiasOfPlayer2.isEmpty())
   }
 
   @Test

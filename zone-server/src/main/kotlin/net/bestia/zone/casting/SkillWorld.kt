@@ -122,10 +122,8 @@ interface SkillWorld {
   fun survey(masterId: Long, accountId: Long?, centre: Vec3L, radiusMetres: Double)
 
   /**
-   * There is deliberately no `async` here, and no message send. A cast already runs on a background worker,
-   * so a script may do its own relational work inline - that is the point of resolving off the tick thread,
-   * and it is why `SurveyService`'s hand-off through `AsyncJobExecutor` is no longer the only way to write a
-   * chart. A script that needs to *order* work against another writer of the same row should say so through
-   * the service that owns that row, which is where the ordering key belongs.
+   * There is deliberately no `async` here. A cast resolves on the tick thread, so relational work belongs to
+   * the service that owns the row, which hands it to `AsyncJobExecutor` under its own ordering key - as
+   * `SurveyService` does for a chart.
    */
 }

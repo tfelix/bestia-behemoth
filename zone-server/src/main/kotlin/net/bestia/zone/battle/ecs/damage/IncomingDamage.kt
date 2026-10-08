@@ -10,17 +10,10 @@ class IncomingDamage() : Component {
   data class DamageAmount(
     val amount: Int,
     val sourceEntityId: EntityId,
-    /**
-     * True if this amount is itself the result of a reflect trigger effect. Lets
-     * [net.bestia.zone.ecs.battle.effects.StatusEffectDamageInterceptSystem] skip re-triggering
-     * reflect effects on damage that was already reflected once, so two reflectors can't bounce
-     * the same hit back and forth forever.
-     */
-    val isReflected: Boolean = false,
   )
 
-  fun add(amount: Int, sourceEntity: EntityId, isReflected: Boolean = false) {
-    amounts.add(DamageAmount(amount, sourceEntity, isReflected))
+  fun add(amount: Int, sourceEntity: EntityId) {
+    amounts.add(DamageAmount(amount, sourceEntity))
   }
 
   fun total(): Int {
