@@ -28,12 +28,13 @@ namespace Bnet {
             "CQoBeBgBIAEoERIJCgF5GAIgASgREgkKAXoYAyABKBEiOQoIQ2h1bmtSZWYS",
             "GwoDcG9zGAEgASgLMg4uYm5ldC5DaHVua1BvcxIQCghyZXZpc2lvbhgCIAEo",
             "DSpKCg1DaHVua0VuY29kaW5nEh4KGkNIVU5LX0VOQ09ESU5HX1VOU1BFQ0lG",
-            "SUVEEAASGQoVQ0hVTktfRU5DT0RJTkdfUkxFX1YyEAEqXwoSQ2h1bmtQYXRj",
-            "aEVuY29kaW5nEiQKIENIVU5LX1BBVENIX0VOQ09ESU5HX1VOU1BFQ0lGSUVE",
-            "EAASIwofQ0hVTktfUEFUQ0hfRU5DT0RJTkdfUkVNT1ZBTF9WMRABKk0KEENo",
-            "dW5rQ29tcHJlc3Npb24SGgoWQ0hVTktfQ09NUFJFU1NJT05fTk9ORRAAEh0K",
-            "GUNIVU5LX0NPTVBSRVNTSU9OX0RFRkxBVEUQAUIjChVuZXQuYmVzdGlhLmJu",
-            "ZXQucHJvdG9CCkNodW5rUHJvdG9iBnByb3RvMw=="));
+            "SUVEEAASGQoVQ0hVTktfRU5DT0RJTkdfUkxFX1YyEAEqgwEKEkNodW5rUGF0",
+            "Y2hFbmNvZGluZxIkCiBDSFVOS19QQVRDSF9FTkNPRElOR19VTlNQRUNJRklF",
+            "RBAAEiAKHENIVU5LX1BBVENIX0VOQ09ESU5HX0VESVRfVjEQAiIECAEQASof",
+            "Q0hVTktfUEFUQ0hfRU5DT0RJTkdfUkVNT1ZBTF9WMSpNChBDaHVua0NvbXBy",
+            "ZXNzaW9uEhoKFkNIVU5LX0NPTVBSRVNTSU9OX05PTkUQABIdChlDSFVOS19D",
+            "T01QUkVTU0lPTl9ERUZMQVRFEAFCIwoVbmV0LmJlc3RpYS5ibmV0LnByb3Rv",
+            "QgpDaHVua1Byb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.ChunkEncoding), typeof(global::Bnet.ChunkPatchEncoding), typeof(global::Bnet.ChunkCompression), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -73,8 +74,8 @@ namespace Bnet {
   /// problems, and they will not change together.
   ///
   /// A patch needs a discriminator more urgently than a snapshot does, which is the reason this enum exists at
-  /// all. Every byte of a packed removal stream is a legal varint continuation, so a decoder reading one format
-  /// as the other does not fail - it produces **plausible garbage**, silently, and neither existing safety net
+  /// all. Every byte of a packed edit stream is a legal varint continuation, so a decoder reading one format as
+  /// the other does not fail - it produces **plausible garbage**, silently, and neither existing safety net
   /// notices: the revision check passes because the revision really did advance, and `base_hash` is only carried
   /// on a snapshot, never re-verified on a patch. The failure would surface as terrain quietly disagreeing
   /// between server and client, which is the one thing this whole subsystem is built to prevent. One byte per
@@ -86,14 +87,9 @@ namespace Bnet {
     /// </summary>
     [pbr::OriginalName("CHUNK_PATCH_ENCODING_UNSPECIFIED")] Unspecified = 0,
     /// <summary>
-    ///*
-    /// Delta-coded voxel removals: `repeated: uvar indexDelta, u8 remainingOccupancy`.
-    ///
-    /// The only format there has ever been in a shipped build, but not numbered zero - a client that reads a
-    /// field it was compiled before seeing gets `UNSPECIFIED` from proto3 and must refuse, and that only works
-    /// if refusing and "the first format" are different values.
+    ///* Delta-coded voxel edits: `repeated: uvar indexDelta, u8 blockId, u8 occupancy`. 
     /// </summary>
-    [pbr::OriginalName("CHUNK_PATCH_ENCODING_REMOVAL_V1")] RemovalV1 = 1,
+    [pbr::OriginalName("CHUNK_PATCH_ENCODING_EDIT_V1")] EditV1 = 2,
   }
 
   /// <summary>

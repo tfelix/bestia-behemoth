@@ -225,7 +225,7 @@ class ChunkDelta(
       }
     }
 
-    /** A removal as `ChunkStore.carve` and the chunk patch take it: `(voxelIndex shl 8) or remainingOccupancy`. */
+    /** A removal as `ChunkStore.carve` takes it: `(voxelIndex shl 8) or remainingOccupancy`. */
     fun pack(voxelIndex: Int, remainingOccupancy: Int): Int {
       require(voxelIndex >= 0) { "Voxel index $voxelIndex is negative" }
       require(remainingOccupancy in 0..255) { "Occupancy must fit a byte, was $remainingOccupancy" }

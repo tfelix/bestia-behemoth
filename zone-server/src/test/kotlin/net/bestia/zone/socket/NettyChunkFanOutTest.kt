@@ -8,10 +8,11 @@ import io.netty.handler.codec.LengthFieldBasedFrameDecoder
 import io.netty.handler.codec.protobuf.ProtobufDecoder
 import net.bestia.bnet.proto.EnvelopeProto
 import net.bestia.worldgen.core.ChunkPos
-import net.bestia.worldgen.derived.ChunkDelta
+import net.bestia.worldgen.derived.VoxelEdit
+import net.bestia.worldgen.voxel.BlockType
 import net.bestia.worldgen.voxel.Occupancy
 import net.bestia.zone.message.SMSG
-import net.bestia.zone.world.stream.ChunkPatchCodec
+import net.bestia.zone.world.stream.ChunkEditCodec
 import net.bestia.zone.world.stream.ChunkPatchSMSG
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -63,7 +64,7 @@ class NettyChunkFanOutTest {
     chunk = ChunkPos(3, -4, 0),
     fromRevision = 0,
     toRevision = 1,
-    removals = IntArray(10) { ChunkDelta.pack(it * 977, Occupancy.EMPTY) }
+    edits = LongArray(10) { VoxelEdit.pack(it * 977, BlockType.AIR, Occupancy.EMPTY) }
   )
 
   @Test
@@ -126,8 +127,8 @@ class NettyChunkFanOutTest {
     assertEquals(3, patch.pos.x)
     assertEquals(-4, patch.pos.y, "a negative coordinate must survive the wire; sint32 exists for this")
     assertEquals(1, patch.toRevision)
-    assertEquals(10, ChunkPatchCodec.decode(patch.removals.toByteArray()).size)
-    assertEquals(10, patch.removalCount, "the count is carried rather than divided out of the byte length")
+    assertEquals(10, ChunkEditCodec.decode(patch.edits.toByteArray()).size)
+    assertEquals(10, patch.editCount, "the count is carried rather than divided out of the byte length")
   }
 
   @Test

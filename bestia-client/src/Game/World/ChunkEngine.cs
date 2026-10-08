@@ -5,8 +5,8 @@ namespace BestiaBehemothClient.Game.World
   /// </summary>
   /// <remarks>
   /// It covers the three things the client does with a chunk: decode it (<see cref="RleCodec"/>), name the
-  /// materials in it (<see cref="Mesh.BlockAppearance.Palette"/>), and apply the removals that arrive
-  /// afterwards (<see cref="ChunkPatchCodec"/>). Any of them changing makes payloads wrong, and none is
+  /// materials in it (<see cref="Mesh.BlockAppearance.Palette"/>), and apply the edits that arrive
+  /// afterwards (<see cref="ChunkEditCodec"/>). Any of them changing makes payloads wrong, and none is
   /// something the client can adapt to at runtime, so there is nothing to gain from knowing which one moved.
   ///
   /// <para>

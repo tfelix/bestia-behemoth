@@ -3,7 +3,8 @@ package net.bestia.zone.world.stream
 import net.bestia.bnet.proto.ChunkProto
 import net.bestia.bnet.proto.EnvelopeProto
 import net.bestia.worldgen.core.ChunkPos
-import net.bestia.worldgen.derived.ChunkDelta
+import net.bestia.worldgen.derived.VoxelEdit
+import net.bestia.worldgen.voxel.BlockType
 import net.bestia.worldgen.voxel.Occupancy
 import net.bestia.worldgen.pipeline.StandardWorld
 import net.bestia.worldgen.store.BaseHash
@@ -163,25 +164,18 @@ class ChunkWireFormatTest {
   fun `a patch is orders of magnitude smaller than the chunk it describes`() {
     val encoded = RleCodec.encode(surfaceChunk)
 
-    val removals = IntArray(10) { ChunkDelta.pack(it * 256, Occupancy.EMPTY) }
-    val patch = ChunkPatchSMSG.of(surfaceChunk.chunk, 0, 1, removals)
+    val edits = LongArray(10) { VoxelEdit.pack(it * 256, BlockType.AIR, Occupancy.EMPTY) }
+    val patch = ChunkPatchSMSG.of(surfaceChunk.chunk, 0, 1, edits)
 
     // The number the change-broadcast design is argued from: thirty players in range of a swing's worth of
-    // mining cost thirty of these rather than thirty of the chunk.
-    //
-    // MAX_BYTES_PER_REMOVAL is an upper bound, so a patch is never larger than the sizing assumed - the
-    // direction that matters, since the patch-versus-snapshot decision is made against the real encoded size.
-    // These indices are 256 apart, so each gap costs two varint bytes; a brush's are adjacent and cost one.
+    // mining cost thirty of these rather than thirty of the chunk. The first index is 0 and costs one varint
+    // byte; the rest are 256 apart and cost two. A brush's are adjacent and cost one.
+    assertEquals(3 + 9 * 4, patch.edits.size)
+    assertEquals(10, ChunkEditCodec.decode(patch.edits).size, "all ten edits must survive")
+    assertEquals(10, patch.editCount)
     assertTrue(
-      patch.removals.size <= 10 * ChunkPatchCodec.MAX_BYTES_PER_REMOVAL,
-      "a ten-voxel patch is ${patch.removals.size} B, over the " +
-          "${10 * ChunkPatchCodec.MAX_BYTES_PER_REMOVAL} B bound"
-    )
-    assertEquals(10, ChunkPatchCodec.decode(patch.removals).size, "all ten removals must survive")
-    assertEquals(10, patch.removalCount)
-    assertTrue(
-      patch.removals.size * 50 < encoded.size,
-      "a ten-voxel patch is ${patch.removals.size} B against ${encoded.size} B of chunk - expected far more " +
+      patch.edits.size * 50 < encoded.size,
+      "a ten-voxel patch is ${patch.edits.size} B against ${encoded.size} B of chunk - expected far more " +
           "than a fiftyfold saving"
     )
   }
