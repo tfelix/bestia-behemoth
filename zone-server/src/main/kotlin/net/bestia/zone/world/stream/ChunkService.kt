@@ -697,9 +697,8 @@ class ChunkService(
         val held = before.occupancy[offer.index].toInt() and 0xFF
         if (offer.ceiling >= held) continue
 
-        // Bedrock-like materials and the wall between a gallery and a lake. See CarveRules for why a breach is
-        // refused rather than flooded: there is no runtime fluid state to flood with, and no way to seal it.
-        if (!CarveRules.mayCarve(before, offer.index)) continue
+        // Bedrock-like materials and the wall beside a fluid that would not run into the hole. See CarveRules.
+        if (!CarveRules.mayCarve(before, offer.index, waterFlows = settings.allowWaterBreach)) continue
 
         effective.add(ChunkDelta.pack(offer.index, offer.ceiling))
         prior.add(
@@ -722,7 +721,9 @@ class ChunkService(
       val outcome = loaded.store.carve(chunk, removals)
       if (outcome.changed == 0) continue
 
-      announce(chunk, from, editsOf(removals, before), outcome.baked)
+      val edits = editsOf(removals, before)
+      announce(chunk, from, edits, outcome.baked)
+      reportOpened(chunk, edits)
 
       carved.addAll(prior)
       touched.add(chunk)
@@ -920,6 +921,26 @@ class ChunkService(
   private fun touchApronNeighbour(chunk: ChunkPos) {
     pending.getOrPut(chunk) { LinkedHashMap() }
     pendingFrom.putIfAbsent(chunk, revisionOf(chunk))
+  }
+
+  /** Callbacks for voxels a carve emptied, with the chunk and the voxel indices. */
+  private val openedListeners = ArrayList<(ChunkPos, IntArray) -> Unit>()
+
+  /**
+   * Registers a callback fired with the voxels each carve emptied completely. Like [onChunkChanged] it runs inside
+   * the carve, so it must mark and return.
+   */
+  fun onVoxelsOpened(handler: (ChunkPos, IntArray) -> Unit) {
+    openedListeners.add(handler)
+  }
+
+  private fun reportOpened(chunk: ChunkPos, edits: LongArray) {
+    if (openedListeners.isEmpty()) return
+
+    val opened = edits.filter { VoxelEdit.blockOf(it) == BlockType.AIR }.map(VoxelEdit::indexOf).toIntArray()
+    if (opened.isEmpty()) return
+
+    for (listener in openedListeners) listener(chunk, opened)
   }
 
   /**

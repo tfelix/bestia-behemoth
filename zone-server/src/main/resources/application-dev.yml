@@ -10,3 +10,7 @@ zone:
   # Public and committed; JwtSecretGuard refuses it outside the dev and test profiles. Must equal
   # login-server's dev `jwt.secret`.
   jwt-auth-secret-key: "your-secret-key-here-change-in-production"
+
+chunk-stream:
+  # Lets a carve open the wall beside water so it floods. Dev only until players can swim.
+  allow-water-breach: true

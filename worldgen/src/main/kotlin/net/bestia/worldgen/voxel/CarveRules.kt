@@ -17,25 +17,22 @@ object CarveRules {
    *
    * @param voxels the **merged** chunk. Asking the base would let a player re-carve their way into a lake they
    *   had already opened a wall towards.
+   * @param waterFlows whether the server simulates water. Then the wall beside water may go, and the water runs
+   *   into the hole.
    */
-  fun mayCarve(voxels: VoxelChunk, index: Int): Boolean {
+  fun mayCarve(voxels: VoxelChunk, index: Int, waterFlows: Boolean = false): Boolean {
     val material = BlockType.ofOrNull(voxels.blocks[index].toInt() and 0xFF) ?: return false
 
-    return material.carvable && !wouldBreachFluid(voxels, index)
+    return material.carvable && !wouldBreachFluid(voxels, index, waterFlows)
   }
 
   /**
-   * Whether removing this voxel would leave a fluid with an open face into the hole.
+   * Whether removing this voxel would leave a fluid with an open face into the hole that nothing would fill.
    *
-   * The wall between a gallery and a lake. **There is no runtime fluid state at all** - `LavaWells`,
-   * `PondWater` and `RiverWater` are generation-time samplers over immutable vector features, and at runtime
-   * water is a block id with the same standing as granite - so a breach would not flood. It would leave a dry
-   * void under a lake, permanently, and with no building system the player could not seal it either.
-   *
-   * So the wall is simply not removable, which is a rule a player can read off the world: rock beside water
-   * behaves like rock beside bedrock. That is a deliberate trade against a fluid simulation, which removal-only
-   * makes *more* attractive rather than less - there is no counterplay to a flood - but which is a subsystem
-   * with a tick budget and cross-chunk propagation, not a precondition.
+   * The wall between a gallery and a lake. Lava never moves at runtime, so a breach beside it would leave a dry
+   * void under the pool, permanently, and the player could not seal it either. The wall is simply not removable,
+   * which is a rule a player can read off the world: rock beside lava behaves like rock beside bedrock. Water is
+   * the same unless [waterFlows], when the simulation floods the hole instead.
    *
    * ### Six face neighbours, and only inside this chunk
    *
@@ -47,7 +44,7 @@ object CarveRules {
    * expected it to go. That is a strange-looking wall, not a hole in a lake - and it is the same trade
    * `ChunkBands` makes about boundaries it cannot see from one chunk's arrays.
    */
-  fun wouldBreachFluid(voxels: VoxelChunk, index: Int): Boolean {
+  fun wouldBreachFluid(voxels: VoxelChunk, index: Int, waterFlows: Boolean = false): Boolean {
     val height = voxels.height
     val size = voxels.size
 
@@ -60,25 +57,25 @@ object CarveRules {
     val columnStride = height
     val rowStride = size * height
 
-    if (localZ > 0 && isFluid(voxels, index - 1)) return true
-    if (localZ < height - 1 && isFluid(voxels, index + 1)) return true
-    if (localX > 0 && isFluid(voxels, index - columnStride)) return true
-    if (localX < size - 1 && isFluid(voxels, index + columnStride)) return true
-    if (localY > 0 && isFluid(voxels, index - rowStride)) return true
-    if (localY < size - 1 && isFluid(voxels, index + rowStride)) return true
+    if (localZ > 0 && isStillFluid(voxels, index - 1, waterFlows)) return true
+    if (localZ < height - 1 && isStillFluid(voxels, index + 1, waterFlows)) return true
+    if (localX > 0 && isStillFluid(voxels, index - columnStride, waterFlows)) return true
+    if (localX < size - 1 && isStillFluid(voxels, index + columnStride, waterFlows)) return true
+    if (localY > 0 && isStillFluid(voxels, index - rowStride, waterFlows)) return true
+    if (localY < size - 1 && isStillFluid(voxels, index + rowStride, waterFlows)) return true
 
     return false
   }
 
   /**
-   * The materials that would run into a hole if one were opened beside them.
+   * The materials that would stand beside a hole opened next to them without running into it.
    *
    * Ice is deliberately not one: it is solid, it is the *surface* of water rather than water, and a mined ice
    * sheet leaving a hole in itself is a hole in a solid, not a breached reservoir.
    */
-  private fun isFluid(voxels: VoxelChunk, index: Int): Boolean {
+  private fun isStillFluid(voxels: VoxelChunk, index: Int, waterFlows: Boolean): Boolean {
     val block = BlockType.ofOrNull(voxels.blocks[index].toInt() and 0xFF) ?: return false
 
-    return block == BlockType.WATER || block == BlockType.LAVA
+    return block == BlockType.LAVA || (block == BlockType.WATER && !waterFlows)
   }
 }
