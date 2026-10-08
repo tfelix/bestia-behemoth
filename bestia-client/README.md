@@ -26,8 +26,17 @@ To get set up:
 
 1. Install the [Godot 4.7 .NET/Mono build](https://godotengine.org/download) and the .NET SDK
    version it requires.
-2. Open `bestia-client/src/project.godot` in the editor (or `bestia-client/src/Bestia Behemoth
-   Client.sln` in your C# IDE) — that's it, no engine compilation step needed.
+2. Build the C# project once. The GDScript code uses the C# message classes (`MasterSMSG`,
+   `ChatCMSG`, ...) as types, and Godot only learns them from the built assembly:
+
+   ```bash
+   dotnet build "bestia-client/src/Bestia Behemoth Client.csproj"
+   ```
+
+   Without it every script that touches a message fails with `Could not find type "…SMSG" in the
+   current scope`. Godot's own *Build* button does the same. Rebuild after pulling C# changes.
+3. Open `bestia-client/src/project.godot` in the editor (or `bestia-client/src/Bestia Behemoth
+   Client.sln` in your C# IDE) — no engine compilation step needed.
 
 For more on how the client is structured internally, see the
 [Client docs](https://docs.bestia-game.net/docs/client/overview).
