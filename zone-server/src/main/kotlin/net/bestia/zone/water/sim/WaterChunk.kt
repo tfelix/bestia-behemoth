@@ -183,9 +183,7 @@ class WaterChunk(val pos: ChunkPos, val size: Int, val height: Int) {
       val wasSource = isSource(index)
       val wasFill = fillAt(index)
 
-      walls.clear(index)
-      sources.clear(index)
-      loadFill(index, Occupancy.EMPTY)
+      loadOpen(index, Occupancy.EMPTY)
       load(index, merged, base)
 
       if (wasWall != isWall(index) || wasSource != isSource(index) || wasFill != fillAt(index)) wake(index)
@@ -214,6 +212,13 @@ class WaterChunk(val pos: ChunkPos, val size: Int, val height: Int) {
     sources.set(index)
     fill[index] = level.toByte()
     committed[index] = level.toByte()
+  }
+
+  /** Makes [index] a cell that holds water, whatever it was. */
+  internal fun loadOpen(index: Int, level: Int) {
+    walls.clear(index)
+    sources.clear(index)
+    loadFill(index, level)
   }
 
   internal fun loadFill(index: Int, level: Int) {
