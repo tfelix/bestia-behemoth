@@ -24,12 +24,12 @@ import net.bestia.zone.chat.ChatCommand
  *
  * ### It takes a radius, and there is no way to ask for one voxel
  *
- * This replaced `/setblock <x> <y> <z> <BLOCK>`, and the shape of the replacement is the interesting part. There
- * is no building system and there never will be, so there is nothing for a block argument to say - every
- * mutation is a removal. And a *single-voxel* removal is not offered either, because the client cannot draw one:
- * surface nets over an eight-cell corner average cannot represent a void thinner than two voxels, so a lone
- * carved voxel renders as nothing at all while the server records air. [CarveBrush.MIN_RADIUS] is the floor,
- * and the brush refuses anything under it rather than leaving it to a caller to remember.
+ * This replaced `/setblock <x> <y> <z> <BLOCK>`, and the shape of the replacement is the interesting part. A carve
+ * only ever removes, so there is nothing for a block argument to say. And a *single-voxel* removal is not offered
+ * either, because the client cannot draw one: surface nets over an eight-cell corner average cannot represent a
+ * void thinner than two voxels, so a lone carved voxel renders as nothing at all while the server records air.
+ * [CarveBrush.MIN_RADIUS] is the floor, and the brush refuses anything under it rather than leaving it to a caller
+ * to remember.
  */
 @Component
 class CarveChatCommand(
