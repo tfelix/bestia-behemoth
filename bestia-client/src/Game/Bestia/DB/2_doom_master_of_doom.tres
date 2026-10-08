@@ -6,7 +6,7 @@
 script = ExtResource("1_script")
 bestia_id = 2
 name_key = "BESTIA_DOOM_MASTER_OF_DOOM"
-equip_slots = 249
+equip_slots = 125
 non_combatant = false
 description_key = "BESTIA_DOOM_MASTER_OF_DOOM_DESC"
 kind = "DEMON"

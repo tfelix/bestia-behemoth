@@ -9,4 +9,4 @@ name_key = "NOVICE_KNIFE"
 description_key = "NOVICE_KNIFE_DESC"
 weight = 60
 type = 1
-equip_slot = 7
+equip_slot = 6

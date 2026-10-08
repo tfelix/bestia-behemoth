@@ -253,7 +253,6 @@ abstract class BestiaDbSyncTask : DefaultTask() {
     private val SLOT_ORDER = listOf(
       "HEAD_UPPER",
       "HEAD_MID",
-      "HEAD_LOWER",
       "ARMOR",
       "GARMENT",
       "FOOTGEAR",

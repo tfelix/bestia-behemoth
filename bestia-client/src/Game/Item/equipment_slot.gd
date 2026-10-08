@@ -1,6 +1,6 @@
 class_name EquipmentSlot
 
-## The equipment slots an entity can wear items in - the classic Ragnarok Online set.
+## The equipment slots an entity can wear items in - the classic Ragnarok Online set without its lower head slot.
 ##
 ## [b]This enum mirrors[/b] net.bestia.zone.item.equip.EquipmentSlot on the server: the values are
 ## that enum's ordinals and are what EquipItemCMSG/UnequipItemCMSG and EquipmentComponentSMSG carry
@@ -8,17 +8,16 @@ class_name EquipmentSlot
 enum Slot {
 	HEAD_UPPER = 0,
 	HEAD_MID = 1,
-	HEAD_LOWER = 2,
-	ARMOR = 3,
-	GARMENT = 4,
-	FOOTGEAR = 5,
-	RIGHT_HAND = 6,
-	LEFT_HAND = 7,
-	ACCESSORY_1 = 8,
-	ACCESSORY_2 = 9,
+	ARMOR = 2,
+	GARMENT = 3,
+	FOOTGEAR = 4,
+	RIGHT_HAND = 5,
+	LEFT_HAND = 6,
+	ACCESSORY_1 = 7,
+	ACCESSORY_2 = 8,
 }
 
-const COUNT := 10
+const COUNT := 9
 
 ## Every slot set - what a master has. A bestia only has the subset its species declares.
 const ALL_MASK := (1 << COUNT) - 1
@@ -39,7 +38,6 @@ static func display_name(slot: int) -> String:
 	match slot:
 		Slot.HEAD_UPPER: return "Upper Head"
 		Slot.HEAD_MID: return "Mid Head"
-		Slot.HEAD_LOWER: return "Lower Head"
 		Slot.ARMOR: return "Armor"
 		Slot.GARMENT: return "Garment"
 		Slot.FOOTGEAR: return "Footgear"

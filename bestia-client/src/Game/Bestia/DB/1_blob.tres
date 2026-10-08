@@ -6,7 +6,7 @@
 script = ExtResource("1_script")
 bestia_id = 1
 name_key = "BESTIA_BLOB"
-equip_slots = 16
+equip_slots = 8
 non_combatant = false
 description_key = "BESTIA_BLOB_DESC"
 kind = "FORMLESS"

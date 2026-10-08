@@ -10,4 +10,4 @@ description_key = "PICKAXE_DESC"
 weight = 350
 level = 10
 type = 1
-equip_slot = 7
+equip_slot = 6

@@ -1,7 +1,8 @@
 package net.bestia.zone.item.equip
 
 /**
- * The equipment slots an entity can wear items in - the classic (pre-renewal) Ragnarok Online set.
+ * The equipment slots an entity can wear items in - the classic (pre-renewal) Ragnarok Online set
+ * without its lower head slot, which bestia does not use.
  *
  * The **declaration order is a contract**: [bit] is derived from the ordinal and that bitmask is
  * what `Bestia.equipSlotMask` stores, what the mob YML importer produces, and what
@@ -12,7 +13,6 @@ package net.bestia.zone.item.equip
 enum class EquipmentSlot {
   HEAD_UPPER,
   HEAD_MID,
-  HEAD_LOWER,
   ARMOR,
   GARMENT,
   FOOTGEAR,

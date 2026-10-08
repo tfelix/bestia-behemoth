@@ -11,6 +11,6 @@ name_key = "SHOES"
 description_key = "SHOES_DESC"
 weight = 80
 type = 1
-equip_slot = 6
+equip_slot = 5
 level = 1
 armor_type = 2

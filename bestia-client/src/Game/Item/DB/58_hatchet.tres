@@ -10,4 +10,4 @@ description_key = "HATCHET_DESC"
 weight = 250
 level = 5
 type = 1
-equip_slot = 7
+equip_slot = 6
