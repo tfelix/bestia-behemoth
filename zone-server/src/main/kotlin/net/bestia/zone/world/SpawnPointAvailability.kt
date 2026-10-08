@@ -22,7 +22,7 @@ import kotlin.math.sin
 class SpawnPointAvailability(
   private val chunkService: ChunkService,
   private val fates: SettlementFates,
-) {
+) : SafeGround {
 
   /** One home on offer. [id] is the spawn point row a client names when it picks this home. */
   data class Offer(val id: Long, val settlementName: String, val tier: String, val position: Vec3L)
@@ -37,6 +37,10 @@ class SpawnPointAvailability(
     return offers
   }
 
+  override fun dryHome(): Vec3L? {
+    return offers.firstOrNull()?.position
+  }
+
   /** The spawn points in rank order. At boot, before the tick decides which are usable. */
   fun load(points: List<MasterSpawnPoint>) {
     this.points = points
@@ -46,7 +50,7 @@ class SpawnPointAvailability(
   /** Decides the offers again. On the tick. */
   fun refresh() {
     val usable = points
-      .filter { !fates.hasFallen(it.settlementIndex) && isDry(it.position) }
+      .filter { !fates.hasFallen(it.settlementIndex) && isDry(it.position.x, it.position.y) }
       .take(MasterSpawnPointService.HOMES_OFFERED)
 
     offers = if (usable.isNotEmpty()) usable.map(::offerOf) else listOfNotNull(fallback())
@@ -67,21 +71,25 @@ class SpawnPointAvailability(
         val angle = 2 * Math.PI * bearing / samples
         val x = centre.x + (radius * cos(angle)).roundToLong()
         val y = centre.y + (radius * sin(angle)).roundToLong()
-        val elevation = chunkService.surfaceElevationAt(x, y) ?: continue
-        val ground = Vec3L(x, y, chunkService.config.voxelZOf(elevation).toLong())
 
-        if (isDry(ground)) return ground
+        if (isDry(x, y)) return Vec3L(x, y, groundZ(x, y)!!)
       }
     }
     return null
   }
 
-  /** Whether the ground at [position] stands above the sea and has no water on it. */
-  private fun isDry(position: Vec3L): Boolean {
+  /** Judged at the generated ground height, so a stored position whose height went stale still reads right. */
+  override fun isDry(x: Long, y: Long): Boolean {
+    val ground = groundZ(x, y) ?: return false
     val config = chunkService.config
-    if (position.z < config.voxelZOf(config.seaLevel)) return false
+    if (ground < config.voxelZOf(config.seaLevel)) return false
 
-    return (position.z..position.z + 2).none { z -> blockAt(position.x, position.y, z) == WATER_ID }
+    return (ground..ground + 2).none { z -> blockAt(x, y, z) == WATER_ID }
+  }
+
+  private fun groundZ(x: Long, y: Long): Long? {
+    val elevation = chunkService.surfaceElevationAt(x, y) ?: return null
+    return chunkService.config.voxelZOf(elevation).toLong()
   }
 
   private fun blockAt(x: Long, y: Long, z: Long): Byte? {
