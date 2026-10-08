@@ -2,10 +2,6 @@ syntax = "proto3";
 
 package bnet;
 
-import "messages/component/position_component.proto";
-import "messages/component/visual_component.proto";
-import "messages/component/exp_component_smsg.proto";
-import "messages/component/level_component_smsg.proto";
 import "messages/system/ping.proto";
 import "messages/system/chat_cmsg.proto";
 import "messages/system/chat_smsg.proto";
@@ -26,21 +22,6 @@ import "messages/master/master.proto";
 import "messages/master/select_master_cmsg.proto";
 import "messages/master/create_master_cmsg.proto";
 import "messages/master/delete_master_cmsg.proto";
-import "messages/component/master_visual_component_smsg.proto";
-import "messages/component/townsfolk_visual_component_smsg.proto";
-import "messages/component/path_component_smsg.proto";
-import "messages/component/speed_component_smsg.proto";
-import "messages/component/health_component_smsg.proto";
-import "messages/component/mana_component_smsg.proto";
-import "messages/component/stamina_component_smsg.proto";
-import "messages/component/carry_capacity_component_smsg.proto";
-import "messages/component/inventory_component_smsg.proto";
-import "messages/component/skill_points_smsg.proto";
-import "messages/component/area_name_component_smsg.proto";
-import "messages/component/place_component_smsg.proto";
-import "messages/component/skill_list_smsg.proto";
-import "messages/component/animation_component_smsg.proto";
-import "messages/component/status_effect_list_smsg.proto";
 import "messages/master/invest_skill_point_cmsg.proto";
 import "messages/master/invest_status_point_cmsg.proto";
 import "messages/master/set_bestia_ai_config_cmsg.proto";
@@ -51,7 +32,7 @@ import "messages/master/bestia_capture_smsg.proto";
 import "messages/master/owned_bestias_smsg.proto";
 import "messages/master/active_entity_smsg.proto";
 import "messages/entity/attack_entity_cmsg.proto";
-import "messages/entity/vanish_entity_smsg.proto";
+import "messages/entity/state_batch_smsg.proto";
 import "messages/entity/damage_entity_smsg.proto";
 import "messages/inventory/get_inventory_cmsg.proto";
 import "messages/inventory/use_item_cmsg.proto";
@@ -59,17 +40,9 @@ import "messages/inventory/drop_item_cmsg.proto";
 import "messages/inventory/loot_item_cmsg.proto";
 import "messages/inventory/equip_item_cmsg.proto";
 import "messages/inventory/unequip_item_cmsg.proto";
-import "messages/component/equipment_component_smsg.proto";
-import "messages/component/status_values_smsg.proto";
-import "messages/component/base_status_values_smsg.proto";
-import "messages/component/dead_component_smsg.proto";
-import "messages/component/status_points_smsg.proto";
 import "messages/system/request_logout_cmsg.proto";
 import "messages/system/respawn_cmsg.proto";
 import "messages/system/dialog_smsg.proto";
-import "messages/component/logout_intent_smsg.proto";
-import "messages/component/casting_component_smsg.proto";
-import "messages/component/construction_component_smsg.proto";
 import "messages/party/accept_party_invite_cmsg.proto";
 import "messages/party/decline_party_invite_cmsg.proto";
 import "messages/party/party_invitation_smsg.proto";
@@ -121,11 +94,17 @@ message Envelope {
   // Field numbers that were in use and must never be reused - a client built against an older schema would
   // read the new message as the old one.
   reserved 502;
+  // 504 was vanish_entity, 505 damage_entity and 510-540 the comp_* messages: entity state now travels in
+  // state_batch, and the damage event moved to a one-byte tag.
+  reserved 504, 505, 510 to 540;
 
   oneof message {
     // SYSTEM & ACCOUNT 100
     OperationSuccess operation_success = 1;
     OperationError operation_error = 2;
+    // The most frequent messages, in the field numbers that take one byte.
+    StateBatchSMSG state_batch = 3;
+    DamageEntitySMSG damage_entity = 4;
 
     Authentication authentication = 100;
     Disconnected disconnected = 101;
@@ -194,36 +173,6 @@ message Envelope {
     // 502 held GetAllEntities, the one-shot login snapshot, and is reserved below. An entity is now
     // announced when the chunk it stands in reaches the client - see ChunkEntityVisibility.
     AttackEntityCMSG attack_entity = 503;
-    VanishEntitySMSG vanish_entity = 504;
-    DamageEntitySMSG damage_entity = 505;
-    PositionComponent comp_position = 510;
-    // 511 and 512 held the BestiaVisualComponent and ItemVisualComponent that comp_visual replaced.
-    VisualComponent comp_visual = 513;
-    MasterVisualComponentSMSG comp_master_visual = 514;
-    PathComponentSMSG comp_path = 515;
-    SpeedComponentSMSG comp_speed = 516;
-    ExpComponentSMSG comp_exp = 517;
-    LevelComponentSMSG comp_level = 518;
-    ManaComponentSMSG comp_mana = 519;
-    HealthComponentSMSG comp_health = 520;
-    InventoryComponentSMSG comp_inventory = 521;
-    SkillPointsSMSG comp_skill_points = 523;
-    SkillListSMSG comp_skill_list = 524;
-    AnimationComponentSMSG comp_animation = 525;
-    StatusEffectListSMSG comp_effects = 526;
-    LogoutIntentSMSG comp_logout_intent = 527;
-    StaminaComponentSMSG comp_stamina = 529;
-    CarryCapacityComponentSMSG comp_carry_capacity = 530;
-    CastingComponentSMSG comp_casting = 531;
-    EquipmentComponentSMSG comp_equipment = 532;
-    StatusValuesSMSG comp_status_values = 533;
-    StatusPointsSMSG comp_status_points = 534;
-    BaseStatusValuesSMSG comp_base_status_values = 535;
-    DeadComponentSMSG comp_dead = 536;
-    PlaceComponentSMSG comp_place = 537;
-    AreaNameComponentSMSG comp_area_name = 538;
-    ConstructionComponentSMSG comp_construction = 539;
-    TownsfolkVisualComponentSMSG comp_townsfolk_visual = 540;
 
     // SOCIAL & PARTY 600
     AcceptPartyInviteCMSG accept_party_invite = 600;

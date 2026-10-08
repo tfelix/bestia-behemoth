@@ -25,15 +25,14 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CihtZXNzYWdlcy9lbnRpdHkvdmFuaXNoX2VudGl0eV9zbXNnLnByb3RvEgRi",
-            "bmV0IkUKEFZhbmlzaEVudGl0eVNNU0cSEQoJZW50aXR5X2lkGAEgASgEEh4K",
-            "BGtpbmQYAiABKA4yEC5ibmV0LlZhbmlzaEtpbmQqMwoKVmFuaXNoS2luZBII",
-            "CgRHT05FEAASCQoFREVBVEgQARIQCgxPVVRfT0ZfU0lHSFQQAkIuChVuZXQu",
-            "YmVzdGlhLmJuZXQucHJvdG9CFVZhbmlzaEVudGl0eVNtc2dQcm90b2IGcHJv",
-            "dG8z"));
+            "bmV0IjgKEFZhbmlzaEVudGl0eVNNU0cSHgoEa2luZBgCIAEoDjIQLmJuZXQu",
+            "VmFuaXNoS2luZEoECAEQAiozCgpWYW5pc2hLaW5kEggKBEdPTkUQABIJCgVE",
+            "RUFUSBABEhAKDE9VVF9PRl9TSUdIVBACQi4KFW5ldC5iZXN0aWEuYm5ldC5w",
+            "cm90b0IVVmFuaXNoRW50aXR5U21zZ1Byb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.VanishKind), }, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.VanishEntitySMSG), global::Bnet.VanishEntitySMSG.Parser, new[]{ "EntityId", "Kind" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.VanishEntitySMSG), global::Bnet.VanishEntitySMSG.Parser, new[]{ "Kind" }, null, null, null, null)
           }));
     }
     #endregion
@@ -99,7 +98,6 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public VanishEntitySMSG(VanishEntitySMSG other) : this() {
-      entityId_ = other.entityId_;
       kind_ = other.kind_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
@@ -108,18 +106,6 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public VanishEntitySMSG Clone() {
       return new VanishEntitySMSG(this);
-    }
-
-    /// <summary>Field number for the "entity_id" field.</summary>
-    public const int EntityIdFieldNumber = 1;
-    private ulong entityId_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public ulong EntityId {
-      get { return entityId_; }
-      set {
-        entityId_ = value;
-      }
     }
 
     /// <summary>Field number for the "kind" field.</summary>
@@ -149,7 +135,6 @@ namespace Bnet {
       if (ReferenceEquals(other, this)) {
         return true;
       }
-      if (EntityId != other.EntityId) return false;
       if (Kind != other.Kind) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
@@ -158,7 +143,6 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
-      if (EntityId != 0UL) hash ^= EntityId.GetHashCode();
       if (Kind != global::Bnet.VanishKind.Gone) hash ^= Kind.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
@@ -178,10 +162,6 @@ namespace Bnet {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
-      if (EntityId != 0UL) {
-        output.WriteRawTag(8);
-        output.WriteUInt64(EntityId);
-      }
       if (Kind != global::Bnet.VanishKind.Gone) {
         output.WriteRawTag(16);
         output.WriteEnum((int) Kind);
@@ -196,10 +176,6 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (EntityId != 0UL) {
-        output.WriteRawTag(8);
-        output.WriteUInt64(EntityId);
-      }
       if (Kind != global::Bnet.VanishKind.Gone) {
         output.WriteRawTag(16);
         output.WriteEnum((int) Kind);
@@ -214,9 +190,6 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
-      if (EntityId != 0UL) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(EntityId);
-      }
       if (Kind != global::Bnet.VanishKind.Gone) {
         size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) Kind);
       }
@@ -231,9 +204,6 @@ namespace Bnet {
     public void MergeFrom(VanishEntitySMSG other) {
       if (other == null) {
         return;
-      }
-      if (other.EntityId != 0UL) {
-        EntityId = other.EntityId;
       }
       if (other.Kind != global::Bnet.VanishKind.Gone) {
         Kind = other.Kind;
@@ -257,10 +227,6 @@ namespace Bnet {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 8: {
-            EntityId = input.ReadUInt64();
-            break;
-          }
           case 16: {
             Kind = (global::Bnet.VanishKind) input.ReadEnum();
             break;
@@ -284,10 +250,6 @@ namespace Bnet {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 8: {
-            EntityId = input.ReadUInt64();
-            break;
-          }
           case 16: {
             Kind = (global::Bnet.VanishKind) input.ReadEnum();
             break;

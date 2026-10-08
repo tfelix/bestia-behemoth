@@ -1,7 +1,7 @@
 package net.bestia.zone.battle.ecs.status
 
-import net.bestia.bnet.proto.EnvelopeProto
 import net.bestia.bnet.proto.SkillPointsSMSGProto
+import net.bestia.bnet.proto.StateBatchSmsgProto
 import net.bestia.zone.message.EntitySMSG
 
 data class SkillPointsComponentSMSG(
@@ -9,13 +9,10 @@ data class SkillPointsComponentSMSG(
   val points: Int
 ) : EntitySMSG {
 
-  override fun toBnetEnvelope(): EnvelopeProto.Envelope {
+  override fun writeTo(update: StateBatchSmsgProto.EntityUpdate.Builder) {
     val skillPoints = SkillPointsSMSGProto.SkillPointsSMSG.newBuilder()
-      .setEntityId(entityId)
       .setPoints(points)
 
-    return EnvelopeProto.Envelope.newBuilder()
-      .setCompSkillPoints(skillPoints)
-      .build()
+    update.addComponents(StateBatchSmsgProto.ComponentDelta.newBuilder().setSkillPoints(skillPoints))
   }
 }

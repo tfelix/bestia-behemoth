@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package bnet;
 
-import "messages/vec3.proto";
+import "messages/delta_path.proto";
 
 option java_package = "net.bestia.bnet.proto";
 option java_outer_classname = "MoveActiveEntityProto";
@@ -11,7 +11,8 @@ option java_outer_classname = "MoveActiveEntityProto";
  * Sends the active selected entity to the server.
  */
 message MoveActiveEntity {
-  repeated Vec3 path = 1;
+  reserved 1; // the path as absolute waypoints, now `path` below
+  DeltaPath path = 3;
   // Continue the walk under way: the path starts next to the current path's last step and is added to it,
   // so the entity does not stop between legs. A path that does not join it is ignored.
   bool append = 2;

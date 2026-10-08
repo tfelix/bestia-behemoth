@@ -1,6 +1,6 @@
 package net.bestia.zone.entity
 
-import net.bestia.bnet.proto.EnvelopeProto
+import net.bestia.bnet.proto.StateBatchSmsgProto
 import net.bestia.bnet.proto.VanishEntitySmsgProto
 import net.bestia.zone.message.EntitySMSG
 import net.bestia.zone.util.EntityId
@@ -26,19 +26,13 @@ data class VanishEntitySMSG(
     OUT_OF_SIGHT
   }
 
-  override fun toBnetEnvelope(): EnvelopeProto.Envelope {
+  override fun writeTo(update: StateBatchSmsgProto.EntityUpdate.Builder) {
     val kind = when (kind) {
       VanishKind.GONE -> VanishEntitySmsgProto.VanishKind.GONE
       VanishKind.DEATH -> VanishEntitySmsgProto.VanishKind.DEATH
       VanishKind.OUT_OF_SIGHT -> VanishEntitySmsgProto.VanishKind.OUT_OF_SIGHT
     }
 
-    val vanishMsg = VanishEntitySmsgProto.VanishEntitySMSG.newBuilder()
-      .setEntityId(entityId)
-      .setKind(kind)
-
-    return EnvelopeProto.Envelope.newBuilder()
-      .setVanishEntity(vanishMsg)
-      .build()
+    update.setVanish(VanishEntitySmsgProto.VanishEntitySMSG.newBuilder().setKind(kind))
   }
 }

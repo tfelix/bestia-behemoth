@@ -1,7 +1,7 @@
 package net.bestia.zone.battle.ecs.skill
 
 import net.bestia.bnet.proto.CastingComponentSmsgProto
-import net.bestia.bnet.proto.EnvelopeProto
+import net.bestia.bnet.proto.StateBatchSmsgProto
 import net.bestia.zone.message.EntitySMSG
 
 /**
@@ -15,16 +15,13 @@ data class CastingComponentSMSG(
   val removed: Boolean = false
 ) : EntitySMSG {
 
-  override fun toBnetEnvelope(): EnvelopeProto.Envelope {
+  override fun writeTo(update: StateBatchSmsgProto.EntityUpdate.Builder) {
     val proto = CastingComponentSmsgProto.CastingComponentSMSG.newBuilder()
-      .setEntityId(entityId)
       .setRemainingSeconds(remainingSeconds)
       .setTotalSeconds(totalSeconds)
       .setRemoved(removed)
       .build()
 
-    return EnvelopeProto.Envelope.newBuilder()
-      .setCompCasting(proto)
-      .build()
+    update.addComponents(StateBatchSmsgProto.ComponentDelta.newBuilder().setCasting(proto))
   }
 }

@@ -1,7 +1,7 @@
 package net.bestia.zone.logout.ecs
 
-import net.bestia.bnet.proto.EnvelopeProto
 import net.bestia.bnet.proto.LogoutIntentSmsgProto
+import net.bestia.bnet.proto.StateBatchSmsgProto
 import net.bestia.zone.message.EntitySMSG
 
 /**
@@ -14,15 +14,12 @@ data class LogoutIntentComponentSMSG(
   val removed: Boolean = false
 ) : EntitySMSG {
 
-  override fun toBnetEnvelope(): EnvelopeProto.Envelope {
+  override fun writeTo(update: StateBatchSmsgProto.EntityUpdate.Builder) {
     val proto = LogoutIntentSmsgProto.LogoutIntentSMSG.newBuilder()
-      .setEntityId(entityId)
       .setRemainingSeconds(remainingSeconds)
       .setRemoved(removed)
       .build()
 
-    return EnvelopeProto.Envelope.newBuilder()
-      .setCompLogoutIntent(proto)
-      .build()
+    update.addComponents(StateBatchSmsgProto.ComponentDelta.newBuilder().setLogoutIntent(proto))
   }
 }

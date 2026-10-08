@@ -1,7 +1,7 @@
 package net.bestia.zone.place.ecs
 
-import net.bestia.bnet.proto.EnvelopeProto
 import net.bestia.bnet.proto.PlaceComponentSMSGProto
+import net.bestia.bnet.proto.StateBatchSmsgProto
 import net.bestia.zone.message.EntitySMSG
 
 data class PlaceComponentSMSG(
@@ -9,14 +9,11 @@ data class PlaceComponentSMSG(
   val name: String
 ) : EntitySMSG {
 
-  override fun toBnetEnvelope(): EnvelopeProto.Envelope {
+  override fun writeTo(update: StateBatchSmsgProto.EntityUpdate.Builder) {
     val component = PlaceComponentSMSGProto.PlaceComponentSMSG.newBuilder()
-      .setEntityId(entityId)
       .setName(name)
       .build()
 
-    return EnvelopeProto.Envelope.newBuilder()
-      .setCompPlace(component)
-      .build()
+    update.addComponents(StateBatchSmsgProto.ComponentDelta.newBuilder().setPlace(component))
   }
 }

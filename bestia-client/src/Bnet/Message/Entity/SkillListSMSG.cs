@@ -20,11 +20,11 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
     /// </summary>
     /// <param name="protoSkillList">The protobuf SkillListSMSG message from the server</param>
     /// <returns>A new SkillListSMSG instance</returns>
-    public static SkillListSMSG FromProto(global::Bnet.SkillListSMSG protoSkillList)
+    public static SkillListSMSG FromProto(ulong entityId, global::Bnet.SkillListSMSG protoSkillList)
     {
       var skillList = new SkillListSMSG()
       {
-        EntityId = protoSkillList.EntityId
+        EntityId = entityId
       };
 
       foreach (var protoSkill in protoSkillList.Skills)

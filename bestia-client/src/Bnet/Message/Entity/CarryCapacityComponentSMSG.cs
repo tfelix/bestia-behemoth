@@ -21,11 +21,11 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
     /// </summary>
     /// <param name="protoCarryCapacityComponent">The protobuf CarryCapacityComponentSMSG message from the server</param>
     /// <returns>A new CarryCapacityComponentSMSG instance</returns>
-    public static CarryCapacityComponentSMSG FromProto(global::Bnet.CarryCapacityComponentSMSG protoCarryCapacityComponent)
+    public static CarryCapacityComponentSMSG FromProto(ulong entityId, global::Bnet.CarryCapacityComponentSMSG protoCarryCapacityComponent)
     {
       return new CarryCapacityComponentSMSG()
       {
-        EntityId = protoCarryCapacityComponent.EntityId,
+        EntityId = entityId,
         Current = protoCarryCapacityComponent.Current,
         Max = protoCarryCapacityComponent.Max
       };

@@ -1,0 +1,88 @@
+syntax = "proto3";
+
+package bnet;
+
+import "messages/component/animation_component_smsg.proto";
+import "messages/component/area_name_component_smsg.proto";
+import "messages/component/base_status_values_smsg.proto";
+import "messages/component/carry_capacity_component_smsg.proto";
+import "messages/component/casting_component_smsg.proto";
+import "messages/component/construction_component_smsg.proto";
+import "messages/component/dead_component_smsg.proto";
+import "messages/component/equipment_component_smsg.proto";
+import "messages/component/exp_component_smsg.proto";
+import "messages/component/health_component_smsg.proto";
+import "messages/component/inventory_component_smsg.proto";
+import "messages/component/level_component_smsg.proto";
+import "messages/component/logout_intent_smsg.proto";
+import "messages/component/mana_component_smsg.proto";
+import "messages/component/master_visual_component_smsg.proto";
+import "messages/component/path_component_smsg.proto";
+import "messages/component/place_component_smsg.proto";
+import "messages/component/position_component.proto";
+import "messages/component/skill_list_smsg.proto";
+import "messages/component/skill_points_smsg.proto";
+import "messages/component/speed_component_smsg.proto";
+import "messages/component/stamina_component_smsg.proto";
+import "messages/component/status_effect_list_smsg.proto";
+import "messages/component/status_points_smsg.proto";
+import "messages/component/status_values_smsg.proto";
+import "messages/component/townsfolk_visual_component_smsg.proto";
+import "messages/component/visual_component.proto";
+import "messages/entity/vanish_entity_smsg.proto";
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "StateBatchSmsgProto";
+
+/**
+ * Every entity state change one client is told about in one server tick, as a single frame.
+ *
+ * Grouped by entity, so an entity id is sent once however many of its components changed. The client applies
+ * the updates in order.
+ */
+message StateBatchSMSG {
+  // The server tick the state is from, counting up from server start. 0 when the state was sent outside the
+  // tick's sync, in answer to a request.
+  uint64 server_tick = 1;
+  repeated EntityUpdate updates = 2;
+}
+
+message EntityUpdate {
+  fixed64 entity_id = 1;
+  repeated ComponentDelta components = 2;
+  // Set when the entity left this client's view or the world; it then carries no components.
+  VanishEntitySMSG vanish = 3;
+}
+
+/** One component's new state. Field numbers 1-15 cost one byte less, so they go to what changes most. */
+message ComponentDelta {
+  oneof component {
+    PositionComponent position = 1;
+    PathComponentSMSG path = 2;
+    HealthComponentSMSG health = 3;
+    AnimationComponentSMSG animation = 4;
+    SpeedComponentSMSG speed = 5;
+    ManaComponentSMSG mana = 6;
+    CastingComponentSMSG casting = 7;
+    DeadComponentSMSG dead = 8;
+    VisualComponent visual = 9;
+    StatusEffectListSMSG effects = 10;
+    StaminaComponentSMSG stamina = 11;
+    MasterVisualComponentSMSG master_visual = 12;
+    TownsfolkVisualComponentSMSG townsfolk_visual = 13;
+    LevelComponentSMSG level = 14;
+    AreaNameComponentSMSG area_name = 15;
+    ExpComponentSMSG exp = 16;
+    InventoryComponentSMSG inventory = 17;
+    SkillPointsSMSG skill_points = 18;
+    SkillListSMSG skill_list = 19;
+    LogoutIntentSMSG logout_intent = 20;
+    CarryCapacityComponentSMSG carry_capacity = 21;
+    EquipmentComponentSMSG equipment = 22;
+    StatusValuesSMSG status_values = 23;
+    StatusPointsSMSG status_points = 24;
+    BaseStatusValuesSMSG base_status_values = 25;
+    PlaceComponentSMSG place = 26;
+    ConstructionComponentSMSG construction = 27;
+  }
+}

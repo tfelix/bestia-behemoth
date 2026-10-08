@@ -17,6 +17,6 @@ enum VanishKind {
 
 /** An entity the client should stop drawing. */
 message VanishEntitySMSG {
-  uint64 entity_id = 1;
+  reserved 1; // entity_id, now on EntityUpdate
   VanishKind kind = 2;
 }

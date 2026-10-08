@@ -35,17 +35,17 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
     [Export]
     public float StartOffset { get; set; }
 
-    public static PathComponentSMSG FromProto(global::Bnet.PathComponentSMSG protoPath)
+    public static PathComponentSMSG FromProto(ulong entityId, global::Bnet.PathComponentSMSG protoPath)
     {
       var pathComponent = new PathComponentSMSG
       {
-        EntityId = protoPath.EntityId,
+        EntityId = entityId,
         Path = new Godot.Collections.Array<Vector3>(),
         HasStopPosition = protoPath.StopPosition != null,
         StartOffset = protoPath.StartOffset
       };
 
-      foreach (var pathPoint in protoPath.Path)
+      foreach (var pathPoint in DeltaPathConvert.Decode(protoPath.Path))
       {
         pathComponent.Path.Add(ToGodot(pathPoint));
       }

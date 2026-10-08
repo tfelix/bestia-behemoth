@@ -25,12 +25,12 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CihtZXNzYWdlcy9lbnRpdHkvbW92ZV9hY3RpdmVfZW50aXR5LnByb3RvEgRi",
-            "bmV0GhNtZXNzYWdlcy92ZWMzLnByb3RvIjwKEE1vdmVBY3RpdmVFbnRpdHkS",
-            "GAoEcGF0aBgBIAMoCzIKLmJuZXQuVmVjMxIOCgZhcHBlbmQYAiABKAhCLgoV",
-            "bmV0LmJlc3RpYS5ibmV0LnByb3RvQhVNb3ZlQWN0aXZlRW50aXR5UHJvdG9i",
-            "BnByb3RvMw=="));
+            "bmV0GhltZXNzYWdlcy9kZWx0YV9wYXRoLnByb3RvIkcKEE1vdmVBY3RpdmVF",
+            "bnRpdHkSHQoEcGF0aBgDIAEoCzIPLmJuZXQuRGVsdGFQYXRoEg4KBmFwcGVu",
+            "ZBgCIAEoCEoECAEQAkIuChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CFU1vdmVB",
+            "Y3RpdmVFbnRpdHlQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
-          new pbr::FileDescriptor[] { global::Bnet.Vec3Reflection.Descriptor, },
+          new pbr::FileDescriptor[] { global::Bnet.DeltaPathReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.MoveActiveEntity), global::Bnet.MoveActiveEntity.Parser, new[]{ "Path", "Append" }, null, null, null, null)
           }));
@@ -78,7 +78,7 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public MoveActiveEntity(MoveActiveEntity other) : this() {
-      path_ = other.path_.Clone();
+      path_ = other.path_ != null ? other.path_.Clone() : null;
       append_ = other.append_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
@@ -90,14 +90,15 @@ namespace Bnet {
     }
 
     /// <summary>Field number for the "path" field.</summary>
-    public const int PathFieldNumber = 1;
-    private static readonly pb::FieldCodec<global::Bnet.Vec3> _repeated_path_codec
-        = pb::FieldCodec.ForMessage(10, global::Bnet.Vec3.Parser);
-    private readonly pbc::RepeatedField<global::Bnet.Vec3> path_ = new pbc::RepeatedField<global::Bnet.Vec3>();
+    public const int PathFieldNumber = 3;
+    private global::Bnet.DeltaPath path_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public pbc::RepeatedField<global::Bnet.Vec3> Path {
+    public global::Bnet.DeltaPath Path {
       get { return path_; }
+      set {
+        path_ = value;
+      }
     }
 
     /// <summary>Field number for the "append" field.</summary>
@@ -131,7 +132,7 @@ namespace Bnet {
       if (ReferenceEquals(other, this)) {
         return true;
       }
-      if(!path_.Equals(other.path_)) return false;
+      if (!object.Equals(Path, other.Path)) return false;
       if (Append != other.Append) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
@@ -140,7 +141,7 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
-      hash ^= path_.GetHashCode();
+      if (path_ != null) hash ^= Path.GetHashCode();
       if (Append != false) hash ^= Append.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
@@ -160,10 +161,13 @@ namespace Bnet {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
-      path_.WriteTo(output, _repeated_path_codec);
       if (Append != false) {
         output.WriteRawTag(16);
         output.WriteBool(Append);
+      }
+      if (path_ != null) {
+        output.WriteRawTag(26);
+        output.WriteMessage(Path);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -175,10 +179,13 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      path_.WriteTo(ref output, _repeated_path_codec);
       if (Append != false) {
         output.WriteRawTag(16);
         output.WriteBool(Append);
+      }
+      if (path_ != null) {
+        output.WriteRawTag(26);
+        output.WriteMessage(Path);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
@@ -190,7 +197,9 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
-      size += path_.CalculateSize(_repeated_path_codec);
+      if (path_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Path);
+      }
       if (Append != false) {
         size += 1 + 1;
       }
@@ -206,7 +215,12 @@ namespace Bnet {
       if (other == null) {
         return;
       }
-      path_.Add(other.path_);
+      if (other.path_ != null) {
+        if (path_ == null) {
+          Path = new global::Bnet.DeltaPath();
+        }
+        Path.MergeFrom(other.Path);
+      }
       if (other.Append != false) {
         Append = other.Append;
       }
@@ -229,12 +243,15 @@ namespace Bnet {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 10: {
-            path_.AddEntriesFrom(input, _repeated_path_codec);
-            break;
-          }
           case 16: {
             Append = input.ReadBool();
+            break;
+          }
+          case 26: {
+            if (path_ == null) {
+              Path = new global::Bnet.DeltaPath();
+            }
+            input.ReadMessage(Path);
             break;
           }
         }
@@ -256,12 +273,15 @@ namespace Bnet {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 10: {
-            path_.AddEntriesFrom(ref input, _repeated_path_codec);
-            break;
-          }
           case 16: {
             Append = input.ReadBool();
+            break;
+          }
+          case 26: {
+            if (path_ == null) {
+              Path = new global::Bnet.DeltaPath();
+            }
+            input.ReadMessage(Path);
             break;
           }
         }

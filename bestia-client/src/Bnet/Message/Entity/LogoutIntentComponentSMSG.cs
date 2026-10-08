@@ -15,11 +15,11 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
     [Export] public float RemainingSeconds { get; set; }
     [Export] public bool Removed { get; set; }
 
-    public static LogoutIntentComponentSMSG FromProto(global::Bnet.LogoutIntentSMSG proto)
+    public static LogoutIntentComponentSMSG FromProto(ulong entityId, global::Bnet.LogoutIntentSMSG proto)
     {
       return new LogoutIntentComponentSMSG()
       {
-        EntityId = proto.EntityId,
+        EntityId = entityId,
         RemainingSeconds = proto.RemainingSeconds,
         Removed = proto.Removed
       };

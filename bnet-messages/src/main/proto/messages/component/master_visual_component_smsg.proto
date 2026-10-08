@@ -8,7 +8,7 @@ option java_package = "net.bestia.bnet.proto";
 option java_outer_classname = "MasterVisualComponentSMSGProto";
 
 message MasterVisualComponentSMSG {
-  fixed64 entity_id = 1;
+  reserved 1; // entity_id, now on EntityUpdate
   Color skin_color = 3;
   Color hair_color = 4;
   Face face = 5;

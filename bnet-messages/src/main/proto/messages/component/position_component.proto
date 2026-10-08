@@ -8,6 +8,6 @@ option java_package = "net.bestia.bnet.proto";
 option java_outer_classname = "PositionComponentProto";
 
 message PositionComponent {
-  fixed64 entity_id = 1;
+  reserved 1; // entity_id, now on EntityUpdate
   Vec3 position = 2;
 }

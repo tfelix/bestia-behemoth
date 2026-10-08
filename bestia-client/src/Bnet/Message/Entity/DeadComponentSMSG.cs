@@ -13,11 +13,11 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
   {
     [Export] public bool Removed { get; set; }
 
-    public static DeadComponentSMSG FromProto(global::Bnet.DeadComponentSMSG proto)
+    public static DeadComponentSMSG FromProto(ulong entityId, global::Bnet.DeadComponentSMSG proto)
     {
       return new DeadComponentSMSG()
       {
-        EntityId = proto.EntityId,
+        EntityId = entityId,
         Removed = proto.Removed
       };
     }

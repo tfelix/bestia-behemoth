@@ -12,7 +12,7 @@ option java_outer_classname = "AreaNameComponentSMSGProto";
 // label on a thing in the world; that is an answer about a player. Sending one and deriving the other
 // would mean either broadcasting a player's location or hiding a town's name from passers-by.
 message AreaNameComponentSMSG {
-  fixed64 entity_id = 1;
+  reserved 1; // entity_id, now on EntityUpdate
   string name = 2;
   // How far the name reaches from the entity, in position units (one unit is one metre).
   uint64 radius = 3;

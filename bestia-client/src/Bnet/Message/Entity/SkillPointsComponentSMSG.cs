@@ -20,11 +20,11 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
     /// </summary>
     /// <param name="protoSkillPoints">The protobuf SkillPointsSMSG message from the server</param>
     /// <returns>A new SkillPointsComponentSMSG instance</returns>
-    public static SkillPointsComponentSMSG FromProto(global::Bnet.SkillPointsSMSG protoSkillPoints)
+    public static SkillPointsComponentSMSG FromProto(ulong entityId, global::Bnet.SkillPointsSMSG protoSkillPoints)
     {
       return new SkillPointsComponentSMSG()
       {
-        EntityId = protoSkillPoints.EntityId,
+        EntityId = entityId,
         Points = protoSkillPoints.Points
       };
     }

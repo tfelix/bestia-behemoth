@@ -1,7 +1,7 @@
 package net.bestia.zone.battle.ecs.status
 
-import net.bestia.bnet.proto.EnvelopeProto
 import net.bestia.bnet.proto.ManaComponentSMSGProto
+import net.bestia.bnet.proto.StateBatchSmsgProto
 import net.bestia.zone.message.EntitySMSG
 
 data class ManaComponentSMSG(
@@ -10,15 +10,12 @@ data class ManaComponentSMSG(
   val max: Int
 ) : EntitySMSG {
 
-  override fun toBnetEnvelope(): EnvelopeProto.Envelope {
+  override fun writeTo(update: StateBatchSmsgProto.EntityUpdate.Builder) {
     val manaComponent = ManaComponentSMSGProto.ManaComponentSMSG.newBuilder()
-      .setEntityId(entityId)
       .setCurrent(current)
       .setMax(max)
       .build()
 
-    return EnvelopeProto.Envelope.newBuilder()
-      .setCompMana(manaComponent)
-      .build()
+    update.addComponents(StateBatchSmsgProto.ComponentDelta.newBuilder().setMana(manaComponent))
   }
 }

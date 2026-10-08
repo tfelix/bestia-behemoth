@@ -1,7 +1,7 @@
 package net.bestia.zone.battle.ecs.status
 
-import net.bestia.bnet.proto.EnvelopeProto
 import net.bestia.bnet.proto.StaminaComponentSMSGProto
+import net.bestia.bnet.proto.StateBatchSmsgProto
 import net.bestia.zone.message.EntitySMSG
 
 data class StaminaComponentSMSG(
@@ -10,15 +10,12 @@ data class StaminaComponentSMSG(
   val max: Int
 ) : EntitySMSG {
 
-  override fun toBnetEnvelope(): EnvelopeProto.Envelope {
+  override fun writeTo(update: StateBatchSmsgProto.EntityUpdate.Builder) {
     val staminaComponent = StaminaComponentSMSGProto.StaminaComponentSMSG.newBuilder()
-      .setEntityId(entityId)
       .setCurrent(current)
       .setMax(max)
       .build()
 
-    return EnvelopeProto.Envelope.newBuilder()
-      .setCompStamina(staminaComponent)
-      .build()
+    update.addComponents(StateBatchSmsgProto.ComponentDelta.newBuilder().setStamina(staminaComponent))
   }
 }

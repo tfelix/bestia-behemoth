@@ -1,7 +1,7 @@
 package net.bestia.zone.battle.ecs.effects
 
 import net.bestia.bnet.proto.StatusEffectListSMSGProto
-import net.bestia.bnet.proto.EnvelopeProto
+import net.bestia.bnet.proto.StateBatchSmsgProto
 import net.bestia.zone.message.EntitySMSG
 
 data class StatusEffectsComponentSMSG(
@@ -16,9 +16,8 @@ data class StatusEffectsComponentSMSG(
     val debuff: Boolean
   )
 
-  override fun toBnetEnvelope(): EnvelopeProto.Envelope {
+  override fun writeTo(update: StateBatchSmsgProto.EntityUpdate.Builder) {
     val effectList = StatusEffectListSMSGProto.StatusEffectListSMSG.newBuilder()
-      .setEntityId(entityId)
       .addAllEffects(
         effects.map { entry ->
           StatusEffectListSMSGProto.StatusEffectEntry.newBuilder()
@@ -30,8 +29,6 @@ data class StatusEffectsComponentSMSG(
         }
       )
 
-    return EnvelopeProto.Envelope.newBuilder()
-      .setCompEffects(effectList)
-      .build()
+    update.addComponents(StateBatchSmsgProto.ComponentDelta.newBuilder().setEffects(effectList))
   }
 }

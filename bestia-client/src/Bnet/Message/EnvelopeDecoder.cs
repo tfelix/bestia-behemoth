@@ -17,46 +17,10 @@ namespace BestiaBehemothClient.Bnet.Message
       [Envelope.MessageOneofCase.Pong] = _ => new Pong(),
       [Envelope.MessageOneofCase.Master] = e => Master.MasterSMSG.FromProto(e.Master),
       [Envelope.MessageOneofCase.DamageEntity] = e => Entity.DamageEntitySMSG.FromProto(e.DamageEntity),
-      [Envelope.MessageOneofCase.CompMana] = e => Entity.ManaComponentSMSG.FromProto(e.CompMana),
-      [Envelope.MessageOneofCase.CompHealth] = e => Entity.HealthComponentSMSG.FromProto(e.CompHealth),
-      [Envelope.MessageOneofCase.CompCasting] = e => Entity.CastingComponentSMSG.FromProto(e.CompCasting),
-      [Envelope.MessageOneofCase.CompConstruction] =
-        e => Entity.ConstructionComponentSMSG.FromProto(e.CompConstruction),
-      [Envelope.MessageOneofCase.CompStamina] = e => Entity.StaminaComponentSMSG.FromProto(e.CompStamina),
-      [Envelope.MessageOneofCase.CompPlace] = e => Entity.PlaceComponentSMSG.FromProto(e.CompPlace),
-      [Envelope.MessageOneofCase.CompAreaName] = e => Entity.AreaNameComponentSMSG.FromProto(e.CompAreaName),
-      [Envelope.MessageOneofCase.CompCarryCapacity] =
-        e => Entity.CarryCapacityComponentSMSG.FromProto(e.CompCarryCapacity),
-      [Envelope.MessageOneofCase.CompEffects] = e => Entity.BuffListSMSG.FromProto(e.CompEffects),
-      [Envelope.MessageOneofCase.CompInventory] = e => Entity.InventoryComponentSMSG.FromProto(e.CompInventory),
-      [Envelope.MessageOneofCase.CompEquipment] = e => Entity.EquipmentComponentSMSG.FromProto(e.CompEquipment),
-      [Envelope.MessageOneofCase.CompSkillList] = e => Entity.SkillListSMSG.FromProto(e.CompSkillList),
-      [Envelope.MessageOneofCase.CompSkillPoints] = e => Entity.SkillPointsComponentSMSG.FromProto(e.CompSkillPoints),
-      [Envelope.MessageOneofCase.CompStatusValues] =
-        e => Entity.StatusValuesComponentSMSG.FromProto(e.CompStatusValues),
-      [Envelope.MessageOneofCase.CompBaseStatusValues] =
-        e => Entity.BaseStatusValuesComponentSMSG.FromProto(e.CompBaseStatusValues),
-      [Envelope.MessageOneofCase.CompStatusPoints] =
-        e => Entity.StatusPointsComponentSMSG.FromProto(e.CompStatusPoints),
-      [Envelope.MessageOneofCase.CompVisual] = e => Entity.VisualComponentSMSG.FromProto(e.CompVisual),
       [Envelope.MessageOneofCase.Self] = e => Master.SelfSMSG.FromProto(e.Self),
       [Envelope.MessageOneofCase.OwnedBestias] = e => Master.OwnedBestiasSMSG.FromProto(e.OwnedBestias),
       [Envelope.MessageOneofCase.ActiveEntity] = e => Master.ActiveEntitySMSG.FromProto(e.ActiveEntity),
       [Envelope.MessageOneofCase.BestiaCapture] = e => Master.BestiaCaptureSMSG.FromProto(e.BestiaCapture),
-      [Envelope.MessageOneofCase.CompLevel] = e => Entity.LevelComponentSMSG.FromBnet(e.CompLevel),
-      [Envelope.MessageOneofCase.CompExp] = e => Entity.ExpComponentSMSG.FromBnet(e.CompExp),
-      [Envelope.MessageOneofCase.CompMasterVisual] =
-        e => Entity.MasterVisualComponentSMSG.FromProto(e.CompMasterVisual),
-      [Envelope.MessageOneofCase.CompTownsfolkVisual] =
-        e => Entity.TownsfolkVisualComponentSMSG.FromProto(e.CompTownsfolkVisual),
-      [Envelope.MessageOneofCase.VanishEntity] = e => Entity.VanishEntitySMSG.FromProto(e.VanishEntity),
-      [Envelope.MessageOneofCase.CompLogoutIntent] =
-        e => Entity.LogoutIntentComponentSMSG.FromProto(e.CompLogoutIntent),
-      [Envelope.MessageOneofCase.CompDead] = e => Entity.DeadComponentSMSG.FromProto(e.CompDead),
-      [Envelope.MessageOneofCase.CompPosition] = e => Entity.PositionComponent.FromProto(e.CompPosition),
-      [Envelope.MessageOneofCase.CompPath] = e => Entity.PathComponentSMSG.FromProto(e.CompPath),
-      [Envelope.MessageOneofCase.CompSpeed] = e => Entity.SpeedComponentSMSG.FromProto(e.CompSpeed),
-      [Envelope.MessageOneofCase.CompAnimation] = e => Entity.AnimationComponentSMSG.FromProto(e.CompAnimation),
       [Envelope.MessageOneofCase.OperationSuccess] = e => OperationSuccess.FromProto(e.OperationSuccess),
       [Envelope.MessageOneofCase.OperationError] = e => OperationError.FromProto(e.OperationError),
       [Envelope.MessageOneofCase.ChatSmsg] = e => System.ChatSMSG.FromProto(e.ChatSmsg),

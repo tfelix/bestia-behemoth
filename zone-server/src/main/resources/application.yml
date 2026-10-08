@@ -450,8 +450,8 @@ socket:
   # The client pings every 10 s, so this is three missed pings.
   read-idle-timeout-seconds: 30
   filter-log-messages:
-    - "!comp_path"
-    - "!comp_position"
+    # Every tick's entity state for every client, mostly positions and paths.
+    - "!state_batch"
     # A few hundred entries per chunk, and one of these follows every chunk payload. It carries its own terse
     # toString, but the filter is what keeps it off the path entirely.
     - "!chunk_static_entities"
