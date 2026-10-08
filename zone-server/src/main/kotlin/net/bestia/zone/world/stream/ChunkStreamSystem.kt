@@ -493,30 +493,28 @@ class ChunkStreamSystem(
       val holders = subscriptions.subscribersOf(change.chunk)
       if (holders.isEmpty()) continue
 
-      // Encoded up front rather than estimated. The patch has to be built to be sent anyway, and now that a
-      // removal is one to four bytes rather than a fixed five there is no multiplication that gets this right -
-      // `MAX_BYTES_PER_REMOVAL` would overstate a column of adjacent removals by nearly four times and send a
-      // snapshot where a patch would comfortably have done.
+      // Encoded up front rather than estimated. The patch has to be built to be sent anyway, and with varint
+      // index gaps no multiplication gets its size right.
       val patch = ChunkPatchSMSG.of(
         chunk = change.chunk,
         fromRevision = change.fromRevision,
         toRevision = change.toRevision,
-        removals = change.removals
+        edits = change.edits
       )
 
       // Measured against the chunk as the holders have it, whose payload is cached, rather than by encoding the
-      // new revision just to compare: most carves send a patch. Unknown means a patch, which is always correct.
+      // new revision just to compare: most carves send a patch.
       val snapshotSize = chunkService.cachedPayloadSize(change.chunk, change.fromRevision)
 
-      // Past the point where the removals cost more than the whole chunk, stop describing the change and just
+      // Past the point where the edits cost more than the whole chunk, stop describing the change and just
       // restate the result - the same trade `ChunkDelta.shouldBake` makes about storage, applied to the wire.
-      if (snapshotSize != null && patch.removals.size >= snapshotSize) {
+      if (prefersSnapshot(patch.edits.size, snapshotSize)) {
         val message = chunkService.dataMessageFor(change.chunk)
         val sent = fanOut.fanOut(holders.toList(), message)
 
         LOG.debug {
-          "Chunk ${change.chunk} rev ${change.toRevision}: ${change.removals.size} removals cost " +
-              "${patch.removals.size} B, sent the ${message.payload.size} B snapshot to $sent clients instead"
+          "Chunk ${change.chunk} rev ${change.toRevision}: ${change.edits.size} edits cost " +
+              "${patch.edits.size} B, sent the ${message.payload.size} B snapshot to $sent clients instead"
         }
         continue
       }
@@ -525,7 +523,7 @@ class ChunkStreamSystem(
 
       LOG.debug {
         "Chunk ${change.chunk} rev ${change.fromRevision}->${change.toRevision}: " +
-            "${change.removals.size} removals, ${patch.removals.size} B to $sent clients"
+            "${change.edits.size} edits, ${patch.edits.size} B to $sent clients"
       }
     }
   }
@@ -742,8 +740,19 @@ class ChunkStreamSystem(
     }
   }
 
-  private companion object {
+  companion object {
     private val LOG = KotlinLogging.logger { }
+
+    /**
+     * Above this a patch is taken to cost more than its chunk when the chunk's encoded size is not cached. A
+     * surface chunk is about three kilobytes on the wire, and a flood can change thousands of voxels in one.
+     */
+    const val BLIND_PATCH_LIMIT_BYTES = 4096
+
+    /** Whether restating the chunk is cheaper than describing the change, given what the chunk costs if known. */
+    internal fun prefersSnapshot(patchBytes: Int, snapshotBytes: Int?): Boolean {
+      return if (snapshotBytes != null) patchBytes >= snapshotBytes else patchBytes > BLIND_PATCH_LIMIT_BYTES
+    }
 
     /** Two signed chunk coordinates in one long, so a column can be a `HashSet` member without allocating. */
     private fun pack(x: Int, y: Int): Long {

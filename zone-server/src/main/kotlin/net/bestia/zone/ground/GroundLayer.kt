@@ -12,10 +12,9 @@ package net.bestia.zone.ground
  *
  * ### None of this can be a `BlockType`
  *
- * `CHUNK_PATCH_ENCODING_REMOVAL_V1` is the only patch encoding the protocol has, so no message can change a
- * voxel's material - a client derives a patched voxel's material locally. Ground history therefore travels
- * beside the ground rather than in it, which is the same argument `ChunkGroundOverlaySMSG` already makes for
- * scorch.
+ * A voxel holds one material, and a mark lies on top of whatever material is there and fades on its own clock.
+ * Ground history therefore travels beside the ground rather than in it, which is the same argument
+ * `ChunkGroundOverlaySMSG` already makes for scorch.
  *
  * ### [channel] is a wire contract
  *

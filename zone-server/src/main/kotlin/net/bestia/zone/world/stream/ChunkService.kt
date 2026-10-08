@@ -10,6 +10,7 @@ import net.bestia.worldgen.core.WorldWrap
 import net.bestia.worldgen.derived.AgentProfile
 import net.bestia.worldgen.derived.ChunkDelta
 import net.bestia.worldgen.derived.DerivedStore
+import net.bestia.worldgen.derived.VoxelEdit
 import net.bestia.worldgen.store.BaseHash
 import net.bestia.worldgen.store.ChunkCache
 import net.bestia.worldgen.store.ChunkEdit
@@ -57,21 +58,20 @@ class ChunkService(
 ) {
 
   /**
-   * One batch of removals applied to one chunk, waiting to be told to the clients that hold it.
+   * One batch of edits applied to one chunk, waiting to be told to the clients that hold it.
    *
-   * An empty [removals] with [fromRevision] equal to [toRevision] is not a no-op: it means this chunk's own
+   * An empty [edits] with [fromRevision] equal to [toRevision] is not a no-op: it means this chunk's own
    * content did not change, but a neighbour's did, and this chunk's mesh reads into that neighbour's edge
    * voxels (the mesher's apron - see [MESH_APRON_LOW]/[MESH_APRON_HIGH]). A holder is told anyway, so it
    * re-meshes off the now-current neighbour instead of leaving a seam at the shared border.
    *
-   * @property removals packed `(voxelIndex shl 8) or remainingOccupancy`, sorted, coalesced - an index appears
-   *   once, at the lowest occupancy it reached during the tick
+   * @property edits [VoxelEdit]s, sorted, coalesced - an index appears once, at the state it ended the tick in
    * @property baked the chunk outgrew its delta and was baked; its whole content was rewritten, so a patch
    *   describes it correctly but a subscriber that has fallen behind cannot be caught up from patches alone
    */
   data class ChunkChange(
     val chunk: ChunkPos,
-    val removals: IntArray,
+    val edits: LongArray,
     val fromRevision: Int,
     val toRevision: Int,
     val baked: Boolean
@@ -84,12 +84,12 @@ class ChunkService(
           fromRevision == other.fromRevision &&
           toRevision == other.toRevision &&
           baked == other.baked &&
-          removals.contentEquals(other.removals)
+          edits.contentEquals(other.edits)
     }
 
     override fun hashCode(): Int {
       var result = chunk.hashCode()
-      result = 31 * result + removals.contentHashCode()
+      result = 31 * result + edits.contentHashCode()
       result = 31 * result + fromRevision
       result = 31 * result + toRevision
       result = 31 * result + baked.hashCode()
@@ -238,8 +238,8 @@ class ChunkService(
 
   private data class EncodedKey(val chunk: ChunkPos, val revision: Int)
 
-  /** Per chunk, voxel index to the lowest occupancy it reached this tick. */
-  private val pending = LinkedHashMap<ChunkPos, MutableMap<Int, Int>>()
+  /** Per chunk, voxel index to the [VoxelEdit] it ended this tick in. */
+  private val pending = LinkedHashMap<ChunkPos, MutableMap<Int, Long>>()
   private val pendingFrom = HashMap<ChunkPos, Int>()
   private val pendingBaked = HashSet<ChunkPos>()
 
@@ -712,8 +712,12 @@ class ChunkService(
       if (outcome.changed == 0) continue
 
       val queued = pending.getOrPut(chunk) { LinkedHashMap() }
-      for (entry in removals) {
-        queued.merge(ChunkDelta.indexOf(entry), ChunkDelta.remainingOf(entry), ::minOf)
+      for (removal in removals) {
+        val index = ChunkDelta.indexOf(removal)
+        val remaining = ChunkDelta.remainingOf(removal)
+        val priorBlock = BlockType.of(before.blocks[index].toInt() and 0xFF)
+        val block = if (remaining == Occupancy.EMPTY) BlockType.AIR else priorBlock
+        queued[index] = VoxelEdit.pack(index, block, remaining)
       }
       pendingFrom.putIfAbsent(chunk, from)
       if (outcome.baked) pendingBaked.add(chunk)
@@ -874,20 +878,17 @@ class ChunkService(
    * Hands over every change since the last call and forgets them.
    *
    * Drained once per tick by [ChunkStreamSystem]. Coalescing happens on the way in - the pending map is keyed
-   * by voxel index and keeps the lowest occupancy - so a player holding a dig key down produces one removal
-   * per voxel per tick rather than one message per swing, and a voxel worked twice in a tick is described by
-   * where it ended up.
+   * by voxel index and the last write wins - so a player holding a dig key down produces one edit per voxel
+   * per tick rather than one message per swing, and a voxel worked twice in a tick is described by where it
+   * ended up.
    */
   fun drainChanges(): List<ChunkChange> {
     if (pending.isEmpty()) return emptyList()
 
-    val changes = pending.map { (chunk, removals) ->
+    val changes = pending.map { (chunk, edits) ->
       ChunkChange(
         chunk = chunk,
-        removals = removals.entries
-          .map { (index, remaining) -> ChunkDelta.pack(index, remaining) }
-          .sorted()
-          .toIntArray(),
+        edits = edits.values.sorted().toLongArray(),
         fromRevision = pendingFrom[chunk] ?: 0,
         toRevision = revisionOf(chunk),
         baked = chunk in pendingBaked

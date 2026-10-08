@@ -4,7 +4,7 @@ package net.bestia.worldgen.voxel
  * The one version number a client that only receives chunks has to agree with the server about.
  *
  * It covers the three things such a client actually does with a chunk: decode it ([RleCodec]), name the
- * materials in it ([BlockType]), and apply the removals that arrive afterwards (`ChunkPatchCodec`). Any of
+ * materials in it ([BlockType]), and apply the edits that arrive afterwards (`ChunkEditCodec`). Any of
  * them changing makes payloads wrong, and none is something the client can adapt to at runtime - so there is
  * nothing to gain from telling it *which* one moved. It gets one number, and if it does not match, it is out
  * of date.
@@ -27,12 +27,15 @@ package net.bestia.worldgen.voxel
 object ChunkEngine {
 
   /**
-   * Bump on any change to [RleCodec]'s format, to `ChunkPatchCodec`'s format, or to [BlockType]'s ids, names,
+   * Bump on any change to [RleCodec]'s format, to `ChunkEditCodec`'s format, or to [BlockType]'s ids, names,
    * or `solid` flag, and change the client's `ChunkEngine.Version` in the same commit.
    *
    * Version 2 is the palette cleanup: the building materials left the palette for props, the four sedimentary
    * rocks became one, peat and clay became one `MUD`, and every id was renumbered densely. Every clause of the
    * rule above at once, which is as clear a case for a bump as this number will ever get.
+   *
+   * Version 3 is the patch format: a patch carries each voxel's block and occupancy instead of only how much is
+   * left, so water can appear where there was air.
    *
    * `BlockType.passability` is deliberately **not** in that list. It decides what a server-side pathfinder
    * will walk into; no client receives it and none could act on it, so bumping for it would force a client
@@ -48,5 +51,5 @@ object ChunkEngine {
    * counterparty. **From the first client release onwards it is append-only**, and the discipline above is
    * what it always was until then. The git history holds the old changelog.
    */
-  const val VERSION = 2
+  const val VERSION = 3
 }

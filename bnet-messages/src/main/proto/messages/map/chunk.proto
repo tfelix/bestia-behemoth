@@ -54,8 +54,8 @@ enum ChunkEncoding {
  * problems, and they will not change together.
  *
  * A patch needs a discriminator more urgently than a snapshot does, which is the reason this enum exists at
- * all. Every byte of a packed removal stream is a legal varint continuation, so a decoder reading one format
- * as the other does not fail - it produces **plausible garbage**, silently, and neither existing safety net
+ * all. Every byte of a packed edit stream is a legal varint continuation, so a decoder reading one format as
+ * the other does not fail - it produces **plausible garbage**, silently, and neither existing safety net
  * notices: the revision check passes because the revision really did advance, and `base_hash` is only carried
  * on a snapshot, never re-verified on a patch. The failure would surface as terrain quietly disagreeing
  * between server and client, which is the one thing this whole subsystem is built to prevent. One byte per
@@ -65,14 +65,12 @@ enum ChunkPatchEncoding {
   /** A patch that does not say how it was encoded cannot be decoded; refuse rather than guess. */
   CHUNK_PATCH_ENCODING_UNSPECIFIED = 0;
 
-  /**
-   * Delta-coded voxel removals: `repeated: uvar indexDelta, u8 remainingOccupancy`.
-   *
-   * The only format there has ever been in a shipped build, but not numbered zero - a client that reads a
-   * field it was compiled before seeing gets `UNSPECIFIED` from proto3 and must refuse, and that only works
-   * if refusing and "the first format" are different values.
-   */
-  CHUNK_PATCH_ENCODING_REMOVAL_V1 = 1;
+  /** Removals only, `uvar indexDelta, u8 remainingOccupancy`. Could not say "this voxel is now water". */
+  reserved 1;
+  reserved "CHUNK_PATCH_ENCODING_REMOVAL_V1";
+
+  /** Delta-coded voxel edits: `repeated: uvar indexDelta, u8 blockId, u8 occupancy`. */
+  CHUNK_PATCH_ENCODING_EDIT_V1 = 2;
 }
 
 /**

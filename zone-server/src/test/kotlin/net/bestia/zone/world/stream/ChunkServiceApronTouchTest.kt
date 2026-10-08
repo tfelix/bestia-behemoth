@@ -90,11 +90,11 @@ class ChunkServiceApronTouchTest {
 
     val real = changes[origin]
     assertNotNull(real, "the carved chunk itself must be reported")
-    assertTrue(real!!.removals.isNotEmpty(), "the carved chunk's own voxels changed")
+    assertTrue(real!!.edits.isNotEmpty(), "the carved chunk's own voxels changed")
 
     val neighbour = changes[origin.copy(x = origin.x + 1)]
     assertNotNull(neighbour, "the +x neighbour reads this chunk's high edge into its mesh apron and must be told")
-    assertTrue(neighbour!!.removals.isEmpty(), "the neighbour's own content did not change")
+    assertTrue(neighbour!!.edits.isEmpty(), "the neighbour's own content did not change")
     assertEquals(neighbour.fromRevision, neighbour.toRevision, "an apron-only touch must not bump a revision")
 
     for (dx in -1..1) {
@@ -145,7 +145,7 @@ class ChunkServiceApronTouchTest {
 
     val diagonal = changes[origin.copy(x = origin.x + 1, y = origin.y + 1)]
     assertNotNull(diagonal, "the diagonal neighbour sharing the corner")
-    assertTrue(diagonal!!.removals.isEmpty(), "the diagonal neighbour's own content did not change")
+    assertTrue(diagonal!!.edits.isEmpty(), "the diagonal neighbour's own content did not change")
 
     val untouchedOffsets = listOf(-1 to 0, 0 to -1, -1 to -1, -1 to 1, 1 to -1)
     for ((dx, dy) in untouchedOffsets) {
@@ -194,11 +194,11 @@ class ChunkServiceApronTouchTest {
 
     val real = changes[origin]
     assertNotNull(real, "the carved chunk itself must be reported")
-    assertTrue(real!!.removals.isNotEmpty(), "the carved chunk's own voxels changed")
+    assertTrue(real!!.edits.isNotEmpty(), "the carved chunk's own voxels changed")
 
     val above = changes[origin.copy(z = origin.z + 1)]
     assertNotNull(above, "the slab above reads this chunk's top cells into its mesh apron and must be told")
-    assertTrue(above!!.removals.isEmpty(), "the slab above's own content did not change")
+    assertTrue(above!!.edits.isEmpty(), "the slab above's own content did not change")
     assertEquals(above.fromRevision, above.toRevision, "an apron-only touch must not bump a revision")
 
     assertNull(
@@ -218,7 +218,7 @@ class ChunkServiceApronTouchTest {
 
     val below = changes[origin.copy(z = origin.z - 1)]
     assertNotNull(below, "a chunk draws the surface at its own floor from the slab beneath, which must be told")
-    assertTrue(below!!.removals.isEmpty(), "the slab below's own content did not change")
+    assertTrue(below!!.edits.isEmpty(), "the slab below's own content did not change")
 
     assertNull(
       changes[origin.copy(z = origin.z + 1)],
