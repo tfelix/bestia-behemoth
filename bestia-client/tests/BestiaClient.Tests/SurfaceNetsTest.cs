@@ -173,6 +173,80 @@ namespace BestiaBehemothClient.Tests
         $"the water sheet stops at x={furthest}, short of the shoreline at 20");
     }
 
+    /// <summary>
+    /// Water thinner than a voxel lying on whole ground voxels, which is how the water simulation leaves a flood
+    /// that has spread out. The generator never writes this: it rounds water that thin away.
+    /// </summary>
+    private static VoxelChunk ShallowWater(int chunkX, int chunkY, Func<int, int, bool> wet, double depth)
+    {
+      var blocks = new byte[Size * Size * TerrainFixtures.Height];
+      var occupancy = new byte[blocks.Length];
+
+      for (var localY = 0; localY < Size; localY++)
+      {
+        for (var localX = 0; localX < Size; localX++)
+        {
+          var offset = (localY * Size + localX) * TerrainFixtures.Height;
+
+          for (var z = 0; z < ShallowGroundTop; z++)
+          {
+            blocks[offset + z] = TerrainFixtures.Sand;
+            occupancy[offset + z] = 255;
+          }
+
+          if (wet(chunkX * Size + localX, chunkY * Size + localY))
+          {
+            blocks[offset + ShallowGroundTop] = TerrainFixtures.Water;
+            occupancy[offset + ShallowGroundTop] = (byte)Math.Round(depth * 255);
+          }
+        }
+      }
+
+      return new VoxelChunk(chunkX, chunkY, 0, Size, TerrainFixtures.Height, blocks, occupancy);
+    }
+
+    private const int ShallowGroundTop = 40;
+
+    [Theory]
+    [InlineData(0.3)]
+    [InlineData(0.6)]
+    [InlineData(1.0)]
+    public void AThinSheetOfWaterOnTheGroundIsDrawnAtItsDepth(double depth)
+    {
+      var source = Surrounded((cx, cy) => ShallowWater(cx, cy, (_, _) => true, depth));
+
+      var mesh = Mesh(source);
+
+      Assert.NotNull(mesh.Water);
+      Assert.All(mesh.Water.Vertices, v => Assert.InRange(v.Y, ShallowGroundTop + depth - 0.02, ShallowGroundTop + depth + 0.02));
+      Assert.All(mesh.Water.Normals, n => Assert.True(n.Y > 0.99f, $"water normal {n} is not up"));
+    }
+
+    [Fact]
+    public void AShallowPuddleStaysInsideItsFootprintAndAboveTheGround()
+    {
+      var source = Surrounded((cx, cy) => ShallowWater(cx, cy, (x, y) => x >= 10 && x < 20 && y >= 10 && y < 20, 0.5));
+
+      var mesh = Mesh(source);
+
+      Assert.NotNull(mesh.Water);
+      Assert.All(mesh.Water.Vertices, v =>
+      {
+        // Godot (x, y, z) is server (x, z, y).
+        Assert.InRange(v.X, 9.0f, 21.0f);
+        Assert.InRange(v.Z, 9.0f, 21.0f);
+        Assert.InRange(v.Y, ShallowGroundTop, ShallowGroundTop + 1.0f);
+      });
+    }
+
+    [Fact]
+    public void DryGroundDrawsNoWater()
+    {
+      var source = Surrounded((cx, cy) => ShallowWater(cx, cy, (_, _) => false, 0.5));
+
+      Assert.Null(Mesh(source).Water);
+    }
+
     /// <summary>Triangles of a surface, as vertex triples.</summary>
     private static IEnumerable<(Vector3 A, Vector3 B, Vector3 C)> Triangles(ChunkSurface surface)
     {

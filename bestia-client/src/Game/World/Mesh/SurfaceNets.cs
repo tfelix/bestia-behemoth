@@ -106,7 +106,8 @@ namespace BestiaBehemothClient.Game.World.Mesh
       var width = patch.Width;
       var depth = patch.Depth;
 
-      var field = BuildField(patch, includeMask, RentField(patch.CellCount));
+      var floorMask = drawsTheBed ? null : appearance.BackedMaskOf(kind);
+      var field = BuildField(patch, includeMask, RentField(patch.CellCount), floorMask);
       if (field == null)
       {
         return null;
@@ -247,7 +248,9 @@ namespace BestiaBehemothClient.Game.World.Mesh
     /// the common case, since most chunks are dry.
     /// </para>
     /// </remarks>
-    private static float[] BuildField(TerrainPatch patch, byte[] includeMask, float[] destination)
+    /// <param name="floorMask">For a fluid pass: the cells a fluid can lie on, which count as full where a partial
+    /// cell of this surface's fluid lies directly on them. Null for the terrain pass.</param>
+    private static float[] BuildField(TerrainPatch patch, byte[] includeMask, float[] destination, byte[] floorMask = null)
     {
       var width = patch.Width;
       var depth = patch.Depth;
@@ -275,6 +278,25 @@ namespace BestiaBehemothClient.Game.World.Mesh
       if (!any)
       {
         return null;
+      }
+
+      // Without this a fluid sheet thinner than a voxel never reaches the isolevel: each corner averages it with
+      // the empty cell below, so a flood that has spread out thin is not drawn at all. The crossings this adds
+      // lie against the ground, so they are backed and suppressed like any other bank. Only under a partial
+      // cell: a full one reaches the isolevel by itself, and filling under it too would hang a one-voxel skirt
+      // off every generated shoreline, whose last wet column stands beside a beach half a voxel lower.
+      if (floorMask != null)
+      {
+        for (var i = 0; i < cells - 1; i++)
+        {
+          var above = i + 1;
+          var hasThinFluidAbove = above % depth != 0 && includeMask[blocks[above]] != 0 && occupancies[above] != 255;
+
+          if (accumulator[i] == 0 && hasThinFluidAbove && floorMask[blocks[i]] != 0)
+          {
+            accumulator[i] = 255;
+          }
+        }
       }
 
       // Pair along z, in place. Descending, so the value at z-1 is still the original when it is read.
