@@ -5,6 +5,8 @@ import net.bestia.worldgen.core.ChunkPos
 import net.bestia.worldgen.derived.VoxelEdit
 import net.bestia.worldgen.voxel.BlockType
 import net.bestia.worldgen.voxel.Occupancy
+import net.bestia.worldgen.voxel.VoxelChunk
+import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.water.sim.Face
 import net.bestia.zone.water.sim.WaterChunk
 import net.bestia.zone.water.sim.WaterStepper
@@ -43,6 +45,9 @@ class WaterService(
   /** Held chunks somebody else edited, to read again before the next step. */
   private val stale = LinkedHashSet<ChunkPos>()
 
+  /** Voxels a carve emptied, per chunk, to wake if they touch water. */
+  private val opened = LinkedHashMap<ChunkPos, MutableSet<Int>>()
+
   private val lastCommitAt = HashMap<ChunkPos, Double>()
   private var clockSeconds = 0.0
 
@@ -53,6 +58,7 @@ class WaterService(
 
   init {
     chunkService.onChunkChanged(::onChunkChanged)
+    chunkService.onVoxelsOpened(::onVoxelsOpened)
   }
 
   val heldChunks: Int
@@ -60,7 +66,7 @@ class WaterService(
 
   /** Nothing to pour, load or move, and every chunk let go of. */
   val isIdle: Boolean
-    get() = requested.isEmpty() && pendingLoads.isEmpty() && stale.isEmpty() && volume.size == 0
+    get() = requested.isEmpty() && pendingLoads.isEmpty() && stale.isEmpty() && opened.isEmpty() && volume.size == 0
 
   /**
    * Asks for a bowl of water around a voxel: the lower half of a sphere, into air only. It is poured on the next
@@ -77,6 +83,7 @@ class WaterService(
 
     drainPours()
     refreshStale()
+    wakeOpened()
     loadPending()
     stepper.step(config.cellsPerStep)
     commitDue()
@@ -137,6 +144,59 @@ class WaterService(
     stale.add(pos)
   }
 
+  /** Called from inside a carve, so it only marks. */
+  private fun onVoxelsOpened(pos: ChunkPos, indices: IntArray) {
+    opened.getOrPut(pos) { HashSet() }.addAll(indices.asList())
+  }
+
+  /**
+   * Wakes each opened voxel that touches water, and the water it touches. Both chunks are read in if they are not
+   * held: a hole whose water lies across a chunk border floods only once both sides are simulated.
+   */
+  private fun wakeOpened() {
+    val config = chunkService.config
+    val merged = HashMap<ChunkPos, VoxelChunk>()
+
+    for ((pos, indices) in opened) {
+      for (index in indices) {
+        val hole = globalOf(pos, index)
+
+        for (face in Face.entries) {
+          val beside = ChunkCoords.localise(config, hole.x + face.dx, hole.y + face.dy, hole.z + face.dz) ?: continue
+          val besidePos = chunkService.normalise(beside.chunk)
+          val besideIndex = ChunkCoords.voxelIndex(config, beside.localX, beside.localY, beside.localZ)
+          val voxels = merged.getOrPut(besidePos) { chunkService.merged(besidePos) }
+          if (voxels.blocks[besideIndex] != WATER_ID) continue
+
+          wakeAt(pos, index)
+          wakeAt(besidePos, besideIndex)
+        }
+      }
+    }
+
+    opened.clear()
+  }
+
+  private fun globalOf(pos: ChunkPos, index: Int): Vec3L {
+    val config = chunkService.config
+    val column = index / config.chunkHeight
+
+    return Vec3L(
+      pos.x.toLong() * config.chunkSize + column % config.chunkSize,
+      pos.y.toLong() * config.chunkSize + column / config.chunkSize,
+      pos.z.toLong() * config.chunkHeight + index % config.chunkHeight
+    )
+  }
+
+  private fun wakeAt(pos: ChunkPos, index: Int) {
+    val held = volume[pos]
+    if (held != null) {
+      held.wake(index)
+    } else {
+      pendingLoads.getOrPut(pos) { HashSet() }.add(index)
+    }
+  }
+
   private fun refreshStale() {
     for (pos in stale) {
       val chunk = volume[pos] ?: continue
@@ -177,8 +237,8 @@ class WaterService(
   }
 
   /**
-   * Wakes the water a newly held chunk brings, and the water beside it that pressed against it while it was not
-   * held: that water stopped as if at a wall, and nothing else would move it again.
+   * Wakes the water a newly held chunk brings, and the cells across its borders that met it as a wall while it
+   * was not held: water there that pressed against it, and open cells beside the water it brings.
    */
   private fun wakeOnArrival(chunk: WaterChunk, wakes: Set<Int>) {
     for (index in 0 until chunk.volume) {
@@ -193,7 +253,9 @@ class WaterService(
         if (!chunk.crossesBorder(index, face)) continue
 
         val across = chunk.neighbourIndex(index, face)
-        if (neighbour.fillAt(across) > 0 && !neighbour.isSource(across)) neighbour.wake(across)
+        val waterHere = chunk.fillAt(index) > 0
+        val waterThere = neighbour.fillAt(across) > 0 && !neighbour.isSource(across)
+        if (waterHere || waterThere) neighbour.wake(across)
       }
     }
   }
@@ -249,5 +311,7 @@ class WaterService(
 
     /** About eight thousand voxels at the cap: plenty to watch, too little to stall a tick. */
     const val MAX_POUR_RADIUS = 16
+
+    private val WATER_ID = BlockType.WATER.id.toByte()
   }
 }

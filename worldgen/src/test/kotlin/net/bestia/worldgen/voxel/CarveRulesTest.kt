@@ -78,6 +78,25 @@ class CarveRulesTest {
     }
   }
 
+  @Test
+  fun `where water flows, rock beside water may go and rock beside lava may not`() {
+    val besideWater = rock()
+    besideWater[4, 4, 9] = BlockType.WATER
+    val besideLava = rock()
+    besideLava[4, 4, 9] = BlockType.LAVA
+
+    assertTrue(CarveRules.mayCarve(besideWater, index(4, 4, 8), waterFlows = true))
+    assertFalse(CarveRules.mayCarve(besideLava, index(4, 4, 8), waterFlows = true))
+  }
+
+  @Test
+  fun `water itself cannot be carved even where it flows`() {
+    val chunk = rock()
+    chunk[4, 4, 8] = BlockType.WATER
+
+    assertFalse(CarveRules.mayCarve(chunk, index(4, 4, 8), waterFlows = true))
+  }
+
   /** A diagonal neighbour shares no face, so nothing could run through it even in a world that simulated flow. */
   @Test
   fun `rock touching a fluid only diagonally can still be carved`() {

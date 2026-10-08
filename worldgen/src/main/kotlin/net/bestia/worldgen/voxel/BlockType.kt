@@ -73,14 +73,12 @@ enum class BlockType(
   /**
    * Whether a player can remove one voxel of this.
    *
-   * Removal is the only terrain mutation the game has, so this is the whole of what a material can say about
+   * Removal is the only terrain mutation a player has, so this is the whole of what a material can say about
    * being changed - there is no matching question about placing it.
    *
-   * The fluids are the reason it exists. There is no runtime fluid state at all: `LavaWells`, `PondWater` and
-   * `RiverWater` are generation-time samplers over immutable vector features, and at runtime water is a block
-   * id with the same standing as granite. So a player who could carve water would leave a hole in a lake that
-   * nothing would ever fill, and with no building system there is not even a way to wall it off afterwards.
-   * Refusing is cheap, is legible to a player as "you cannot dig that", and needs no simulation.
+   * The fluids are the reason it exists: a pick takes material, and a fluid is not material it can take. Lava
+   * never moves at runtime, so a hole dug in it would stay a hole; water the server moves would refill it, which
+   * makes carving it pointless rather than harmful. Refusing both is legible to a player as "you cannot dig that".
    */
   val carvable: Boolean = true
 ) {
