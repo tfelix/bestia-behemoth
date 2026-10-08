@@ -2,6 +2,7 @@ package net.bestia.zone.economy
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.persistence.AsyncJobExecutor
+import net.bestia.zone.world.settlement.SettlementFates
 import net.bestia.zone.world.time.BestiaClock
 import net.bestia.zone.world.WorldService
 import net.bestia.zone.world.settlement.SettlementSiteIndex
@@ -41,6 +42,7 @@ class SettlementEconomyService(
   private val asyncJobExecutor: AsyncJobExecutor,
   private val worldService: WorldService,
   private val clock: BestiaClock,
+  private val fates: SettlementFates = SettlementFates.NONE,
 ) {
 
   /** Only settlements away from their reference. A town at rest is absent, exactly as its row is. */
@@ -112,8 +114,12 @@ class SettlementEconomyService(
     )
   }
 
-  /** The derived path this settlement's ledger is a deviation from, cached per settlement. */
+  /**
+   * The derived path this settlement's ledger is a deviation from, cached per settlement. Null for a fallen
+   * town, which has nobody left to trade: its shops close and its books stop where they were.
+   */
   fun referenceOf(settlement: Int): SettlementReference? {
+    if (fates.hasFallen(settlement)) return null
     references[settlement]?.let { return it }
 
     val summary = sites.siteOf(settlement)?.population ?: return null

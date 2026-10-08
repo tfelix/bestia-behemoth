@@ -11,6 +11,7 @@ import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.spawn.ecs.ambient.AmbientSpawnerSystem
+import net.bestia.zone.world.settlement.SettlementFates
 import net.bestia.zone.world.time.BestiaClock
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
@@ -47,6 +48,7 @@ class TownsfolkResidencySystem(
   private val spawner: TownsfolkEntitySpawner,
   private val clock: BestiaClock,
   private val config: TownsfolkResidencyConfig,
+  private val fates: SettlementFates = SettlementFates.NONE,
 ) : System {
   override val phase = Phase.SPAWN
   override val after = setOf(AmbientSpawnerSystem::class)
@@ -104,6 +106,9 @@ class TownsfolkResidencySystem(
     val wanted = HashMap<Long, Vec3L>()
 
     for ((settlement, coveringPlayers) in settlementsNear(players, radius)) {
+      // Nobody is left in a fallen town to step out of a door.
+      if (fates.hasFallen(settlement)) continue
+
       for (resident in roster.of(settlement)) {
         if (indoors.isIndoors(resident.identity)) continue
 

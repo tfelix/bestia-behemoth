@@ -7,6 +7,7 @@ import net.bestia.zone.townsfolk.domain.Occupation
 import net.bestia.zone.identity.ecs.ActivePlayer
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.movement.ecs.Position
+import net.bestia.zone.world.settlement.SettlementFates
 import net.bestia.zone.world.time.BestiaClock
 import net.bestia.zone.world.time.BestiaDateTime
 import net.bestia.zone.geometry.Vec3L
@@ -88,6 +89,17 @@ class TownsfolkResidencySystemTest {
 
     // Both of them: the field is shut at ten at night, so the farmer's anchor is his own door.
     assertEquals(setOf(farmer.identity, child.identity), built.keys)
+  }
+
+  @Test
+  fun `a fallen town puts nobody on the ground`() {
+    hour = 22
+    player(HOME)
+    val fallen = mockk<SettlementFates> { every { hasFallen(SETTLEMENT) } returns true }
+
+    TownsfolkResidencySystem(roster, sites, indoors, spawner, clock, config, fallen).update(world, DT)
+
+    assertEquals(emptySet(), built.keys)
   }
 
   @Test

@@ -17,3 +17,6 @@ rumours:
   # something large was killed out past the ridge is how one actually sounds. Naming it is a new slot
   # plus a per-species token scheme, and worth doing deliberately rather than by accident.
   BOSS_SLAIN: { variants: 2, slots: [] }
+  # No slots either: naming the town needs a slot whose value is a generated name, which the build check
+  # cannot see. A survivor would say "a town" before they said its name anyway.
+  TOWN_FELL: { variants: 2, slots: [] }
