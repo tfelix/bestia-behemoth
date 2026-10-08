@@ -96,7 +96,8 @@ class ScriptEntityPersister(
       return
     }
 
-    val spawnPoints = masterSpawnPointService.ensureComputed()
+    // The homes offered first. A reserve home gets no ward until something decides it should.
+    val spawnPoints = masterSpawnPointService.ensureComputed().take(MasterSpawnPointService.HOMES_OFFERED)
     val snapshots = spawnPoints.map { point ->
       val id = scriptEntitySpawner.spawnScript(
         world = world,

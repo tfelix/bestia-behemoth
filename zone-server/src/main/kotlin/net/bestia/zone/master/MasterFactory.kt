@@ -17,8 +17,7 @@ import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.item.equip.EquipmentSlot
 import net.bestia.zone.util.AccountId
 import net.bestia.zone.util.DisplayName
-import net.bestia.zone.world.persistence.MasterSpawnPoint
-import net.bestia.zone.world.MasterSpawnPointService
+import net.bestia.zone.world.SpawnPointAvailability
 import net.bestia.zone.world.WorldService
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.stereotype.Component
@@ -33,7 +32,7 @@ import net.bestia.zone.account.persistence.MasterRepository
 
 /**
  * Builds and persists a new [Master] row for a managed [Account] from what the player filled in on the
- * creation screen, resolving the [net.bestia.zone.world.persistence.MasterSpawnPoint] they picked into a world position.
+ * creation screen, resolving the home they picked from [SpawnPointAvailability] into a world position.
  *
  * The database half only - this never touches the ECS. The master becomes a live entity later, when the
  * player selects it and [MasterEntitySpawner] materializes the persisted row into the world.
@@ -46,7 +45,7 @@ import net.bestia.zone.account.persistence.MasterRepository
 class MasterFactory(
   private val accountRepository: AccountRepository,
   private val masterRepository: MasterRepository,
-  private val masterSpawnPointService: MasterSpawnPointService,
+  private val availability: SpawnPointAvailability,
   private val entityIdGenerator: EntityIdGenerator,
   private val statusEffectPersistenceService: StatusEffectPersistenceService,
   private val effortValueCostCalculator: EffortValueCostCalculator,
@@ -106,14 +105,11 @@ class MasterFactory(
 
     createMasterData.effortValues.forEach { (attribute, value) -> newMaster.setEffortValue(attribute, value) }
 
-    // Asked for rather than read straight from the repository so that a create arriving before anyone has
-    // listed the masters still finds candidates, instead of rejecting a perfectly valid id against an
-    // empty table.
-    val candidates = masterSpawnPointService.ensureComputed()
+    // Only a home on offer now: a town that fell or flooded since the list was sent is refused.
+    val candidates = availability.offered()
 
-    // Empty only when the world has no standing settlements at all. `WorldService` refuses to boot a *new*
-    // world in that state, so reaching here means a pre-existing world it warned about rather than
-    // regenerated. Reported apart from a bad id because nothing the player picks could have worked.
+    // Empty only when the world has no settlement and no dry land near its first home. Reported apart from a
+    // bad id because nothing the player picks could have worked.
     if (candidates.isEmpty()) {
       throw GeneralMasterException("The world offers no spawn point to place a new master at")
     }
@@ -190,7 +186,7 @@ class MasterFactory(
    * Failure is logged and swallowed. A missing item template is a broken deployment, and refusing to create the
    * master over it would turn a blank map into an account nobody can play.
    */
-  private fun grantStarterChart(master: Master, spawnPoint: MasterSpawnPoint) {
+  private fun grantStarterChart(master: Master, spawnPoint: SpawnPointAvailability.Offer) {
     val voxelSize = worldService.config.voxelSize
     val result = chartService.grantStarterChart(
       masterId = master.id,

@@ -2,6 +2,7 @@ package net.bestia.zone.boot
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.world.MasterSpawnPointService
+import net.bestia.zone.world.SpawnPointAvailability
 import org.springframework.boot.CommandLineRunner
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
@@ -18,10 +19,15 @@ import org.springframework.stereotype.Component
 @Order(2)
 class SettlementSpawnPointBootRunner(
   private val masterSpawnPointService: MasterSpawnPointService,
+  private val availability: SpawnPointAvailability,
 ) : CommandLineRunner {
 
   override fun run(vararg args: String?) {
+    masterSpawnPointService.ensureComputed()
+    masterSpawnPointService.ensureReserves()
+
     val points = masterSpawnPointService.ensureComputed()
+    availability.load(points)
     LOG.info { "${points.size} master spawn point candidate(s) ready: ${points.joinToString { it.settlementName }}" }
   }
 
