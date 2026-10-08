@@ -34,6 +34,9 @@ object ChunkEngine {
    * rocks became one, peat and clay became one `MUD`, and every id was renumbered densely. Every clause of the
    * rule above at once, which is as clear a case for a bump as this number will ever get.
    *
+   * Version 3 is the patch format: a patch carries each voxel's block and occupancy instead of only how much is
+   * left, so water can appear where there was air.
+   *
    * `BlockType.passability` is deliberately **not** in that list. It decides what a server-side pathfinder
    * will walk into; no client receives it and none could act on it, so bumping for it would force a client
    * release for a number no client can observe. `carvable` is out for the same reason.
@@ -48,5 +51,5 @@ object ChunkEngine {
    * counterparty. **From the first client release onwards it is append-only**, and the discipline above is
    * what it always was until then. The git history holds the old changelog.
    */
-  const val VERSION = 2
+  const val VERSION = 3
 }
