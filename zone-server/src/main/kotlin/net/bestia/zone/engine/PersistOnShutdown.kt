@@ -10,6 +10,7 @@ import net.bestia.zone.world.stream.ChunkEditJournal
 import org.springframework.context.SmartLifecycle
 import org.springframework.stereotype.Component
 import net.bestia.zone.persistence.EntityPersistenceService
+import net.bestia.zone.water.WaterService
 
 /**
  * Saves what changed since the last periodic save when the server stops: the tick is stopped first, so
@@ -25,6 +26,7 @@ class PersistOnShutdown(
   private val persistence: EntityPersistenceService,
   private val economy: SettlementEconomyService,
   private val reserve: WorldReserve,
+  private val water: WaterService,
   private val chunkEdits: ChunkEditJournal,
   private val groundLevels: List<GroundLevelStore>,
   private val asyncJobExecutor: AsyncJobExecutor,
@@ -46,6 +48,8 @@ class PersistOnShutdown(
       persistence.syncAll(this)
       economy.flush()
       reserve.flush()
+      // Into the chunks first, so the edit flush below writes the water the simulation still held.
+      water.commitAll()
       chunkEdits.flushDirty()
       groundLevels.forEach { it.flushDirty() }
     }

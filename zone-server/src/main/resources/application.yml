@@ -205,6 +205,12 @@ ground-stamps:
   # column's whole set, so without this a walked column would re-send all of it on every footfall.
   announce-interval-seconds: 3
 
+water:
+  # Cells the simulation updates per step, ten steps a second. About 95 ns each, so the default is a millisecond.
+  cells-per-step: 10000
+  # Chunks held at most, about 700 kB each. Water pressing past them stops as if against a wall.
+  max-chunks: 64
+
 # Reading tracks: what the world remembers about the things that left prints, and how much of it a rank
 # earns. None of this changes what is stored, so all of it may be retuned on a restart.
 spoor:

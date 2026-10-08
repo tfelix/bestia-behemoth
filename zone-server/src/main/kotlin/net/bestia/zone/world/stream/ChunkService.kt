@@ -461,6 +461,11 @@ class ChunkService(
 
   fun merged(chunk: ChunkPos): VoxelChunk = loaded.store.merged(chunk)
 
+  /** The chunk as generated, with no edits: what tells generated water from water placed since. */
+  fun base(chunk: ChunkPos): VoxelChunk {
+    return loaded.store.base(chunk)
+  }
+
   /**
    * The generated macro navigation graph, straight from the world tier.
    *
