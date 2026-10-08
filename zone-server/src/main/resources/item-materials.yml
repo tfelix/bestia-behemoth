@@ -1,0 +1,52 @@
+# What a stack on the ground can take before it is gone, per material. Shaped right, not balanced.
+#
+# `integrity` is how much damage the whole stack takes; every unit in a pile burns alike.
+# `hardness` comes off every hit, so a hit at or below it does nothing however often it lands.
+# `element-multipliers` is the percent of a hit that lands, per attack element; an element that is not
+# listed lands in full. WATER is for floods, which do not exist yet.
+materials:
+  - material: PAPER
+    integrity: 10
+    element-multipliers: { FIRE: 300, WATER: 300 }
+
+  - material: PLANT
+    integrity: 20
+    element-multipliers: { FIRE: 200 }
+
+  - material: FOOD
+    integrity: 30
+    element-multipliers: { FIRE: 150, WATER: 150 }
+
+  - material: CLOTH
+    integrity: 30
+    element-multipliers: { FIRE: 200, WATER: 50 }
+
+  - material: LEATHER
+    integrity: 80
+    hardness: 2
+    element-multipliers: { WATER: 50 }
+
+  - material: WOOD
+    integrity: 100
+    hardness: 3
+    element-multipliers: { FIRE: 150, WATER: 25 }
+
+  - material: GLASS
+    integrity: 40
+    hardness: 5
+    element-multipliers: { FIRE: 50, WATER: 0 }
+
+  - material: CRYSTAL
+    integrity: 200
+    hardness: 10
+    element-multipliers: { FIRE: 25, WATER: 0 }
+
+  - material: METAL
+    integrity: 400
+    hardness: 15
+    element-multipliers: { FIRE: 0, WATER: 0 }
+
+  - material: STONE
+    integrity: 500
+    hardness: 20
+    element-multipliers: { FIRE: 0, WATER: 0 }
