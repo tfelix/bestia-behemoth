@@ -29,33 +29,15 @@ class ChunkServiceFluidEditTest {
   private class Land(val chunk: ChunkPos, val rockIndex: Int, val airIndex: Int)
 
   private fun findLand(): Land {
-    val size = config.chunkSize
-    val height = config.chunkHeight
-    // The edges are forced ocean, so look outward from the centre.
-    val centre = (config.widthMetres / config.chunkExtent).toInt() / 2
+    val land = DryLand.find(world, service)
+    val rock = ChunkCoords.localise(config, land.voxelX, land.voxelY, land.surfaceZ - 3L)!!
+    val air = ChunkCoords.localise(config, land.voxelX, land.voxelY, land.surfaceZ + 3L)!!
 
-    for (step in 0 until 200) {
-      val chunkX = centre + step * 3
-      for (localX in 0 until size step 7) {
-        val column = ChunkPos(chunkX, chunkX, 0)
-        val elevation = world.columns.heights(column, 0)[localX, localX]
-        if (elevation < DRY_ABOVE_SEA_METRES) continue
-
-        val surfaceZ = config.voxelZOf(elevation)
-        val localZ = Math.floorMod(surfaceZ, height)
-        if (localZ < 4 || localZ > height - 5) continue
-
-        val chunk = ChunkPos(chunkX, chunkX, Math.floorDiv(surfaceZ, height))
-        val voxels = service.merged(chunk)
-        val rock = voxels.index(localX, localX, localZ - 3)
-        val air = voxels.index(localX, localX, localZ + 3)
-        if (VoxelEdit.blockOf(VoxelEdit.of(voxels, rock)).solid && voxels.blocks[air] == BlockType.AIR.id.toByte()) {
-          return Land(chunk, rock, air)
-        }
-      }
-    }
-
-    error("no dry land column found in the fixture world")
+    return Land(
+      rock.chunk,
+      ChunkCoords.voxelIndex(config, rock.localX, rock.localY, rock.localZ),
+      ChunkCoords.voxelIndex(config, air.localX, air.localY, air.localZ)
+    )
   }
 
   private fun water(index: Int, occupancy: Int = Occupancy.FULL): Long {
@@ -122,7 +104,6 @@ class ChunkServiceFluidEditTest {
   private companion object {
     const val SEED = 9001L
     const val WORLD_CELLS = 48
-    const val DRY_ABOVE_SEA_METRES = 6.0
 
     // In the companion so JUnit's per-method instances share one generated world. Read-only here.
     val world = StandardWorld.build(WorldConfig(seed = SEED, widthCells = WORLD_CELLS, heightCells = WORLD_CELLS))

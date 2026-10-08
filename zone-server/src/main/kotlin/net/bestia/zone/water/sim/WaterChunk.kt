@@ -48,6 +48,9 @@ class WaterChunk(val pos: ChunkPos, val size: Int, val height: Int) {
   val isAsleep: Boolean
     get() = active.isEmpty && nextActive.isEmpty
 
+  val hasUncommittedEdits: Boolean
+    get() = !dirty.isEmpty
+
   fun fillAt(index: Int): Int {
     return fill[index].toInt() and 0xFF
   }
@@ -168,6 +171,41 @@ class WaterChunk(val pos: ChunkPos, val size: Int, val height: Int) {
     }
   }
 
+  /**
+   * Reads every cell again from the voxels, as [of] does, and wakes each one that changed. For a chunk somebody
+   * else edited; commit this chunk's own edits first, or the reload throws them away.
+   */
+  internal fun reload(merged: VoxelChunk, base: VoxelChunk) {
+    require(merged.chunk == pos && base.chunk == pos) { "voxels for ${merged.chunk} reloaded into $pos" }
+
+    for (index in 0 until volume) {
+      val wasWall = isWall(index)
+      val wasSource = isSource(index)
+      val wasFill = fillAt(index)
+
+      walls.clear(index)
+      sources.clear(index)
+      loadFill(index, Occupancy.EMPTY)
+      load(index, merged, base)
+
+      if (wasWall != isWall(index) || wasSource != isSource(index) || wasFill != fillAt(index)) wake(index)
+    }
+
+    dirty.clear()
+    hasEditsWorthCommitting = false
+  }
+
+  private fun load(index: Int, merged: VoxelChunk, base: VoxelChunk) {
+    val block = merged.blocks[index]
+    val level = Occupancy.unsigned(merged.occupancy[index])
+
+    when {
+      block == WATER_ID && base.blocks[index] == WATER_ID -> loadSource(index, level)
+      block == WATER_ID -> loadFill(index, level)
+      block != AIR_ID -> loadWall(index)
+    }
+  }
+
   internal fun loadWall(index: Int) {
     walls.set(index)
   }
@@ -205,21 +243,13 @@ class WaterChunk(val pos: ChunkPos, val size: Int, val height: Int) {
       require(merged.chunk == base.chunk) { "merged ${merged.chunk} does not match base ${base.chunk}" }
 
       val chunk = WaterChunk(merged.chunk, merged.size, merged.height)
-      val air = BlockType.AIR.id.toByte()
-      val water = BlockType.WATER.id.toByte()
-
       for (index in 0 until chunk.volume) {
-        val block = merged.blocks[index]
-        val level = Occupancy.unsigned(merged.occupancy[index])
-
-        when {
-          block == water && base.blocks[index] == water -> chunk.loadSource(index, level)
-          block == water -> chunk.loadFill(index, level)
-          block != air -> chunk.loadWall(index)
-        }
+        chunk.load(index, merged, base)
       }
-
       return chunk
     }
+
+    private val AIR_ID = BlockType.AIR.id.toByte()
+    private val WATER_ID = BlockType.WATER.id.toByte()
   }
 }
