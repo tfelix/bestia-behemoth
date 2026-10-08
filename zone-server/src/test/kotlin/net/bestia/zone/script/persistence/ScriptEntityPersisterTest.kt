@@ -16,8 +16,8 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 /**
- * Exercises [ScriptEntityPersister.loadAll]'s double duty: creating one script entity per settlement
- * spawn point candidate when none are persisted yet, and rehydrating those exact entity ids - not
+ * Exercises [ScriptEntityPersister.loadAll]'s double duty: creating one script entity per home offered
+ * first when none are persisted yet, and rehydrating those exact entity ids - not
  * duplicating them - on a later "restart". Uses isolated [World] instances rather than the
  * Spring-managed world, same as [net.bestia.zone.persistence.EntityPersistenceRoundTripTest].
  */
@@ -40,15 +40,15 @@ class ScriptEntityPersisterTest {
   }
 
   @Test
-  fun `creates one script entity per spawn point, and a simulated restart rehydrates the same ids without duplicating`() {
-    val spawnPoints = masterSpawnPointService.ensureComputed()
-    assertTrue(spawnPoints.isNotEmpty(), "no settlement spawn point candidates were computed")
+  fun `creates one script entity per offered home, and a restart rehydrates the same ids without duplicating`() {
+    val homes = masterSpawnPointService.ensureComputed().take(MasterSpawnPointService.HOMES_OFFERED)
+    assertTrue(homes.isNotEmpty(), "no settlement spawn point candidates were computed")
 
     val firstBoot = newWorld()
     scriptEntityPersister.loadAll(firstBoot)
 
     val rowsAfterFirstBoot = persistedEntityRepository.findAllByKind(ScriptComponent.KIND)
-    assertEquals(spawnPoints.size, rowsAfterFirstBoot.size)
+    assertEquals(homes.size, rowsAfterFirstBoot.size)
 
     val idsAfterFirstBoot = rowsAfterFirstBoot.map { it.entityId }.toSet()
     idsAfterFirstBoot.forEach { id ->

@@ -20,30 +20,13 @@ class MasterSpawnPointService(
   private val repository: MasterSpawnPointRepository
 ) {
 
+  /** Every spawn point of this world in the order homes are offered, computing them on first use. */
   @Transactional
   fun ensureComputed(): List<MasterSpawnPoint> {
     val existing = repository.findAll()
-    if (existing.isNotEmpty()) return existing
+    if (existing.isNotEmpty()) return existing.sortedWith(compareBy({ it.rank }, { it.id }))
 
-    val generated = worldService.generated
-    val config = generated.config
-
-    val rows = SettlementSpawnPoints.choose(generated).map { candidate ->
-      val heightMetres = generated.base.heightAt(candidate.position.x, candidate.position.y)
-      val position = Vec3L(
-        x = (candidate.position.x / config.voxelSize).toLong(),
-        y = (candidate.position.y / config.voxelSize).toLong(),
-        z = config.voxelZOf(heightMetres).toLong()
-      )
-
-      MasterSpawnPoint(
-        settlementIndex = candidate.settlementIndex,
-        settlementName = candidate.name,
-        tier = candidate.tier.label,
-        population = candidate.population,
-        position = position
-      )
-    }
+    val rows = rowsFor(SettlementSpawnPoints.choose(worldService.generated, HOMES_HELD), firstRank = 0)
 
     if (rows.isEmpty()) {
       LOG.warn { "No settlement spawn point candidates were computed for world '${worldService.record.name}'" }
@@ -57,7 +40,54 @@ class MasterSpawnPointService(
     return saved
   }
 
-  private companion object {
+  /**
+   * Appends the homes a world computed before it held [HOMES_HELD] of them, behind the ones it has. Once per boot:
+   * choosing runs a land search per town.
+   */
+  @Transactional
+  fun ensureReserves() {
+    val existing = repository.findAll()
+    if (existing.isEmpty() || existing.size >= HOMES_HELD) return
+
+    val known = existing.map { it.settlementIndex }.toSet()
+    val missing = SettlementSpawnPoints.choose(worldService.generated, HOMES_HELD)
+      .filter { it.settlementIndex !in known }
+    if (missing.isEmpty()) return
+
+    repository.saveAll(rowsFor(missing, firstRank = existing.maxOf { it.rank } + 1))
+    LOG.info { "Added ${missing.size} reserve home(s): ${missing.joinToString { it.name }}" }
+  }
+
+  private fun rowsFor(candidates: List<SettlementSpawnPoints.Candidate>, firstRank: Int): List<MasterSpawnPoint> {
+    val generated = worldService.generated
+    val config = generated.config
+
+    return candidates.mapIndexed { offset, candidate ->
+      val heightMetres = generated.base.heightAt(candidate.position.x, candidate.position.y)
+      val position = Vec3L(
+        x = (candidate.position.x / config.voxelSize).toLong(),
+        y = (candidate.position.y / config.voxelSize).toLong(),
+        z = config.voxelZOf(heightMetres).toLong()
+      )
+
+      MasterSpawnPoint(
+        settlementIndex = candidate.settlementIndex,
+        settlementName = candidate.name,
+        tier = candidate.tier.label,
+        population = candidate.population,
+        position = position,
+        rank = firstRank + offset,
+      )
+    }
+  }
+
+  companion object {
+    /** Homes offered at once. */
+    const val HOMES_OFFERED = 3
+
+    /** Homes held in rank order, so a fallen town is replaced by the next largest. */
+    const val HOMES_HELD = 12
+
     private val LOG = KotlinLogging.logger { }
   }
 }

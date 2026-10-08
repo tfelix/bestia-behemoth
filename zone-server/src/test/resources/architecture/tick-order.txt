@@ -53,6 +53,7 @@
  - UPKEEP wave 33: RumourExpirySystem [EverySeconds(seconds=180.0)]
  - UPKEEP wave 33: ScorchRegrowthSystem [EverySeconds(seconds=60.0)]
  - UPKEEP wave 33: SettlementEconomySystem [EverySeconds(seconds=30.0)]
+ - UPKEEP wave 33: SpawnPointWatchSystem [EverySeconds(seconds=30.0)]
  - UPKEEP wave 33: TradeRangeSystem [EverySeconds(seconds=0.5)]
  - PERSIST wave 34: ChunkEditPersistSystem [EverySeconds(seconds=10.0)]
  - PERSIST wave 34: EntityPersistenceSystem [EverySeconds(seconds=1.0)]
