@@ -4,6 +4,9 @@ import net.bestia.zone.account.AccountFactory
 import net.bestia.zone.account.BodyType
 import net.bestia.zone.account.Face
 import net.bestia.zone.account.Hairstyle
+import net.bestia.zone.battle.ecs.effects.StatusEffects
+import net.bestia.zone.battle.persistence.StatusEffectPersistenceService
+import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.master.MasterFactory
 import net.bestia.zone.master.bestia.PlayerBestiaCreateOperation
 import net.bestia.zone.master.bestia.PlayerBestiaCreateOperation.PlayerBestiaCreateData
@@ -23,9 +26,12 @@ import org.springframework.beans.factory.annotation.Autowired
 import java.awt.Color
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
-import kotlin.test.assertNotEquals
+import kotlin.test.assertTrue
 
-/** A restart loses every player bestia from the world; selecting its master brings it back, exactly once. */
+/**
+ * A restart loses every player bestia from the world; selecting its master brings it back, exactly once, under the
+ * same entity id and with the status effects it had.
+ */
 class PlayerBestiaRespawnScenario : BestiaNoSocketScenario(autoClientConnect = false) {
 
   @Autowired
@@ -48,6 +54,9 @@ class PlayerBestiaRespawnScenario : BestiaNoSocketScenario(autoClientConnect = f
 
   @Autowired
   private lateinit var world: WorldView
+
+  @Autowired
+  private lateinit var statusEffectPersistenceService: StatusEffectPersistenceService
 
   private lateinit var client: GameClientMock
 
@@ -94,13 +103,15 @@ class PlayerBestiaRespawnScenario : BestiaNoSocketScenario(autoClientConnect = f
   fun `selecting the master respawns a bestia a restart lost`() {
     val lost = bestiasInWorld().single()
     world.modify(lost.entityId) { id -> destroy(id) }
+    // As the last save before the restart left it.
+    statusEffectPersistenceService.seed(lost.entityId, StatusEffectId.BLESSING)
 
     client.connect(masterId)
 
     respawned = bestiasInWorld().single()
-    assertEquals(lost.playerBestiaId, respawned.playerBestiaId)
-    assertNotEquals(lost.entityId, respawned.entityId)
+    assertEquals(lost, respawned)
     assertEquals(setOf(respawned), connectionInfoService.getOwnedEntitiesByMaster(client.connectedPlayerId, masterId))
+    assertTrue(world.read { get(respawned.entityId, StatusEffects::class)?.hasEffect(StatusEffectId.BLESSING.id) == true })
   }
 
   @Test

@@ -13,6 +13,9 @@ import net.bestia.zone.account.MasterNotFoundException
 interface MasterRepository : JpaRepository<Master, Long> {
   fun findByName(name: String): Master?
 
+  @Query("select m.entityId from Master m where m.entityId in :entityIds")
+  fun findEntityIdsIn(@Param("entityIds") entityIds: Collection<Long>): List<Long>
+
   /**
    * Same lookup as [findByIdOrNull], but takes a `SELECT ... FOR UPDATE` row lock for the rest of
    * the enclosing transaction. Use this instead of a plain find whenever the caller does a
