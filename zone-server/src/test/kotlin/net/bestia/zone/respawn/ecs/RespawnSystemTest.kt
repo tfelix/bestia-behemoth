@@ -11,6 +11,7 @@ import net.bestia.zone.movement.ecs.Grounded
 import net.bestia.zone.movement.ecs.Path
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.world.SafeGround
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -87,6 +88,28 @@ class RespawnSystemTest {
   }
 
   @Test
+  fun `a save point under water sends the body to a dry home`() {
+    val world = testWorld()
+    val id = world.deadBody(Vec3L(10, 20, 30))
+
+    RespawnSystem(surfaceAt77, flooded(home = Vec3L(500, 600, 70))).update(world, 0f)
+
+    val position = world.get(id, Position::class)
+    assertEquals(500L, position?.x)
+    assertEquals(600L, position?.y)
+  }
+
+  @Test
+  fun `with no dry home left the body still gets up at its save point`() {
+    val world = testWorld()
+    val id = world.deadBody(Vec3L(10, 20, 30))
+
+    RespawnSystem(surfaceAt77, flooded(home = null)).update(world, 0f)
+
+    assertEquals(10L, world.get(id, Position::class)?.x)
+  }
+
+  @Test
   fun `whatever it was walking towards is dropped`() {
     val world = testWorld()
     val id = world.createEntity { eid ->
@@ -101,5 +124,18 @@ class RespawnSystemTest {
     world.tick(0f)
 
     assertFalse(world.has(id, Path::class))
+  }
+
+  /** Everything is under water; [home] is the one dry place left, if any. */
+  private fun flooded(home: Vec3L?): SafeGround {
+    return object : SafeGround {
+      override fun isDry(x: Long, y: Long): Boolean {
+        return home != null && x == home.x && y == home.y
+      }
+
+      override fun dryHome(): Vec3L? {
+        return home
+      }
+    }
   }
 }
