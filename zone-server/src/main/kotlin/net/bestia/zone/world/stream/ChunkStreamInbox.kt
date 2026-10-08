@@ -35,8 +35,8 @@ class ChunkStreamInbox {
   /**
    * Remove rock in a sphere around a world voxel.
    *
-   * A radius rather than a block id, because there is no building system: the only terrain mutation the game
-   * has is removal, so what a request has to say is *how much* to take, not what to leave behind.
+   * A radius rather than a block id, because a carve only removes: what a request has to say is *how much* to
+   * take, not what to leave behind.
    *
    * The radius is validated on the tick thread rather than here. It is not a permission question - it is a
    * question about what the client's mesher can draw, and the answer lives beside the terrain.

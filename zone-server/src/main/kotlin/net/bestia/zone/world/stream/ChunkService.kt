@@ -238,6 +238,12 @@ class ChunkService(
 
   private data class EncodedKey(val chunk: ChunkPos, val revision: Int)
 
+  /**
+   * True while [editFluid] is inside the store. [onChunkChanged] is the store's callback, so this is how it
+   * learns that the change must not track the chunk.
+   */
+  private var writingFluid = false
+
   /** Per chunk, voxel index to the [VoxelEdit] it ended this tick in. */
   private val pending = LinkedHashMap<ChunkPos, MutableMap<Int, Long>>()
   private val pendingFrom = HashMap<ChunkPos, Int>()
@@ -711,20 +717,7 @@ class ChunkService(
       val outcome = loaded.store.carve(chunk, removals)
       if (outcome.changed == 0) continue
 
-      val queued = pending.getOrPut(chunk) { LinkedHashMap() }
-      for (removal in removals) {
-        val index = ChunkDelta.indexOf(removal)
-        val remaining = ChunkDelta.remainingOf(removal)
-        val priorBlock = BlockType.of(before.blocks[index].toInt() and 0xFF)
-        val block = if (remaining == Occupancy.EMPTY) BlockType.AIR else priorBlock
-        queued[index] = VoxelEdit.pack(index, block, remaining)
-      }
-      pendingFrom.putIfAbsent(chunk, from)
-      if (outcome.baked) pendingBaked.add(chunk)
-
-      for (neighbour in apronNeighboursOf(chunk, config.chunkSize, prior)) {
-        touchApronNeighbour(normalise(neighbour))
-      }
+      announce(chunk, from, editsOf(removals, before), outcome.baked)
 
       carved.addAll(prior)
       touched.add(chunk)
@@ -736,6 +729,48 @@ class ChunkService(
     }
 
     return if (carved.isEmpty()) CarveResult.NOTHING else CarveResult(carved, touched)
+  }
+
+  /**
+   * Writes fluid into [chunk] or takes it out again. Each edit may only turn air or water into air or water.
+   *
+   * That rule lets a simulation write from a stale copy of the chunk: an edit aimed at a voxel that has since
+   * become rock, or one that would put water into rock, is dropped instead of applied.
+   *
+   * Unlike a carve, this does not make the chunk one whose walkability is kept. A flood far from any player must
+   * not grow the derived store or queue rebuilds nobody reads; a chunk somebody holds is tracked already, and is
+   * invalidated as usual.
+   *
+   * @param edits [VoxelEdit]s sorted ascending
+   * @return how many voxels changed
+   */
+  fun editFluid(chunk: ChunkPos, edits: LongArray): Int {
+    val target = normalise(chunk)
+    val before = loaded.store.merged(target)
+    val allowed = edits.filter { isFluidSwap(before, it) }.toLongArray()
+    if (allowed.isEmpty()) return 0
+
+    val from = revisionOf(target)
+    writingFluid = true
+    val outcome = try {
+      loaded.store.edit(target, allowed)
+    } finally {
+      writingFluid = false
+    }
+    if (outcome.changed == 0) return 0
+
+    announce(target, from, allowed, outcome.baked)
+    return outcome.changed
+  }
+
+  private fun isFluidSwap(before: VoxelChunk, edit: Long): Boolean {
+    val current = VoxelEdit.of(before, VoxelEdit.indexOf(edit))
+
+    return current != edit && isAirOrWater(VoxelEdit.blockOf(current)) && isAirOrWater(VoxelEdit.blockOf(edit))
+  }
+
+  private fun isAirOrWater(block: BlockType): Boolean {
+    return block == BlockType.AIR || block == BlockType.WATER
   }
 
   /**
@@ -759,27 +794,55 @@ class ChunkService(
    *
    * A chunk somebody dug in is a chunk something may walk in, which is the residency argument `track`'s own
    * KDoc makes. It is idempotent, and it costs one entry in the same rebuild queue the invalidation uses.
+   * Fluid is the exception; see [editFluid].
    */
   private fun onChunkChanged(chunk: ChunkPos) {
     revisions[chunk] = revisionOf(chunk) + 1
     unsaved.add(chunk)
-    recordEdited(chunk)
+    recordEdited(chunk, track = !writingFluid)
   }
 
-  /** What every edited chunk needs, whether it was carved this run or restored from an earlier one. */
-  private fun recordEdited(chunk: ChunkPos) {
+  /** What each removal leaves behind, as the voxel's whole state: the same block with less of it, or air. */
+  private fun editsOf(removals: IntArray, before: VoxelChunk): LongArray {
+    return LongArray(removals.size) { at ->
+      val index = ChunkDelta.indexOf(removals[at])
+      val remaining = ChunkDelta.remainingOf(removals[at])
+      val block = if (remaining == Occupancy.EMPTY) BlockType.AIR else VoxelEdit.blockOf(VoxelEdit.of(before, index))
+      VoxelEdit.pack(index, block, remaining)
+    }
+  }
+
+  /**
+   * Queues [edits], already written to [chunk], for the clients that hold it and for the neighbours whose mesh
+   * reads into it.
+   */
+  private fun announce(chunk: ChunkPos, from: Int, edits: LongArray, baked: Boolean) {
+    val queued = pending.getOrPut(chunk) { LinkedHashMap() }
+    for (edit in edits) {
+      queued[VoxelEdit.indexOf(edit)] = edit
+    }
+    pendingFrom.putIfAbsent(chunk, from)
+    if (baked) pendingBaked.add(chunk)
+
+    for (neighbour in apronNeighboursOf(chunk, edits)) {
+      touchApronNeighbour(normalise(neighbour))
+    }
+  }
+
+  /** What every edited chunk needs, whether it was edited this run or restored from an earlier one. */
+  private fun recordEdited(chunk: ChunkPos, track: Boolean = true) {
     val edited = editedSlabs.getOrPut(chunk.x to chunk.y) { HashSet(2) }
     val grew = edited.add(chunk.z) or edited.add(chunk.z - 1)
     if (grew) slabChanges++
 
-    loaded.derived.track(chunk)
+    if (track) loaded.derived.track(chunk)
     loaded.derived.invalidate(chunk)
     for (listener in changeListeners) listener(chunk)
   }
 
   /**
-   * Which of [chunk]'s neighbours have this chunk in their mesher's apron, given the voxels that were actually
-   * carved.
+   * Which of [chunk]'s neighbours have this chunk in their mesher's apron, given the voxels that actually
+   * changed.
    *
    * A neighbour on the low side of an axis reads this chunk's high edge (its [MESH_APRON_HIGH]-cell apron),
    * and a neighbour on the high side reads this chunk's low edge (its [MESH_APRON_LOW]-cell apron) - see
@@ -801,15 +864,17 @@ class ChunkService(
    * three dimensions there are twenty-six of them and the vertical diagonals are real: a voxel in this
    * chunk's high-x *and* high-z aprons is read by `(x + 1, y, z + 1)`.
    */
-  private fun apronNeighboursOf(chunk: ChunkPos, size: Int, carved: List<CarvedVoxel>): Set<ChunkPos> {
+  private fun apronNeighboursOf(chunk: ChunkPos, edits: LongArray): Set<ChunkPos> {
     val neighbours = LinkedHashSet<ChunkPos>()
-    val sizeAsLong = size.toLong()
+    val size = loaded.config.chunkSize
     val height = loaded.config.chunkHeight
 
-    for (voxel in carved) {
-      val xs = apronOffsetsOf(Math.floorMod(voxel.voxelX, sizeAsLong).toInt(), size)
-      val ys = apronOffsetsOf(Math.floorMod(voxel.voxelY, sizeAsLong).toInt(), size)
-      val zs = apronOffsetsOf(Math.floorMod(voxel.voxelZ, height), height)
+    for (edit in edits) {
+      val index = VoxelEdit.indexOf(edit)
+      val column = index / height
+      val xs = apronOffsetsOf(column % size, size)
+      val ys = apronOffsetsOf(column / size, size)
+      val zs = apronOffsetsOf(index % height, height)
 
       for (dz in zs) {
         for (dy in ys) {
