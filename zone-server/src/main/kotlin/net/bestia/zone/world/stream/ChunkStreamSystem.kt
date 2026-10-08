@@ -503,12 +503,12 @@ class ChunkStreamSystem(
       )
 
       // Measured against the chunk as the holders have it, whose payload is cached, rather than by encoding the
-      // new revision just to compare: most carves send a patch. Unknown means a patch, which is always correct.
+      // new revision just to compare: most carves send a patch.
       val snapshotSize = chunkService.cachedPayloadSize(change.chunk, change.fromRevision)
 
       // Past the point where the edits cost more than the whole chunk, stop describing the change and just
       // restate the result - the same trade `ChunkDelta.shouldBake` makes about storage, applied to the wire.
-      if (snapshotSize != null && patch.edits.size >= snapshotSize) {
+      if (prefersSnapshot(patch.edits.size, snapshotSize)) {
         val message = chunkService.dataMessageFor(change.chunk)
         val sent = fanOut.fanOut(holders.toList(), message)
 
@@ -740,8 +740,19 @@ class ChunkStreamSystem(
     }
   }
 
-  private companion object {
+  companion object {
     private val LOG = KotlinLogging.logger { }
+
+    /**
+     * Above this a patch is taken to cost more than its chunk when the chunk's encoded size is not cached. A
+     * surface chunk is about three kilobytes on the wire, and a flood can change thousands of voxels in one.
+     */
+    const val BLIND_PATCH_LIMIT_BYTES = 4096
+
+    /** Whether restating the chunk is cheaper than describing the change, given what the chunk costs if known. */
+    internal fun prefersSnapshot(patchBytes: Int, snapshotBytes: Int?): Boolean {
+      return if (snapshotBytes != null) patchBytes >= snapshotBytes else patchBytes > BLIND_PATCH_LIMIT_BYTES
+    }
 
     /** Two signed chunk coordinates in one long, so a column can be a `HashSet` member without allocating. */
     private fun pack(x: Int, y: Int): Long {
