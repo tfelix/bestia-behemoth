@@ -580,10 +580,10 @@ class ChunkStoreTest {
 
     // Both pins moved together here for the palette cleanup, which is the largest change either has seen: the
     // building materials left for props, the four sedimentary rocks became STONE plus LIMESTONE, peat and clay
-    // became MUD, four gems arrived, and every id was renumbered densely from zero. A codec-only bump, unlike
-    // this one, moves the version pin below without moving this one.
+    // became MUD, four gems arrived, and every id was renumbered densely from zero. A codec-only bump, like the
+    // patch format carrying block ids (3), moves the version pin below without moving this one.
     assertEquals(
-      2, ChunkEngine.VERSION,
+      3, ChunkEngine.VERSION,
       "ChunkEngine.VERSION moved - re-pin this and check the client's constant matches. Both this and the " +
           "palette pin above move together whenever BlockType changes; only a codec-only bump moves this alone."
     )

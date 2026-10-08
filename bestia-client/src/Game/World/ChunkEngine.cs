@@ -33,6 +33,9 @@ namespace BestiaBehemothClient.Game.World
     // 2: the palette cleanup. Building materials left for props, the four sedimentary rocks became STONE plus
     // LIMESTONE, peat and clay became MUD, four gems arrived, and every id was renumbered densely - the ids,
     // the names and the row count all at once, which is every clause of the bump rule in one change.
-    public const uint Version = 2;
+    //
+    // 3: the patch format. A patch carries each voxel's block and occupancy instead of only how much is left, so
+    // water can appear where there was air.
+    public const uint Version = 3;
   }
 }
