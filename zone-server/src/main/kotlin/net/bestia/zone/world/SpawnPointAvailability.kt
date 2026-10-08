@@ -41,6 +41,11 @@ class SpawnPointAvailability(
     return offers.firstOrNull()?.position
   }
 
+  /** The name masters know [settlement] by as a home, or null for a settlement that never was one. */
+  fun homeNameOf(settlement: Int): String? {
+    return points.firstOrNull { it.settlementIndex == settlement }?.settlementName
+  }
+
   /** The spawn points in rank order. At boot, before the tick decides which are usable. */
   fun load(points: List<MasterSpawnPoint>) {
     this.points = points
