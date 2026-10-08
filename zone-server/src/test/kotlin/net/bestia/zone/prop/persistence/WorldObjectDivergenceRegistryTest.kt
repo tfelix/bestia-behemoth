@@ -11,6 +11,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import net.bestia.zone.entity.StaticEntityKind
+import net.bestia.zone.prop.DivergenceEntry
 import net.bestia.zone.prop.WorldObjectDivergenceRegistry
 
 /**
@@ -107,6 +108,18 @@ class WorldObjectDivergenceRegistryTest {
   }
 
   /** Both stamps come off one `record`, so a written row cannot carry a mismatched pair. */
+  @Test
+  fun `a depletion is told to whoever listens, after it is recorded`() {
+    val (sut, repository) = registry(emptyList())
+    every { repository.save(any()) } answers { firstArg() }
+    val heard = ArrayList<Pair<Long, DivergenceEntry?>>()
+    sut.onDepleted { propId, entry -> heard.add(propId to entry) }
+
+    sut.recordDepletion(5L, StaticEntityKind.BUILDING_RESIDENCE, resumeAt = null)
+
+    assertEquals(listOf(5L to sut.of(5L)), heard)
+  }
+
   @Test
   fun `a recorded depletion is stamped with both of this world's versions`() {
     val (sut, repository) = registry(emptyList())
