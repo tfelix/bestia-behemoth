@@ -49,6 +49,21 @@ class WorldObjectDivergenceRegistry(
 
   private val byPropId = HashMap<Long, DivergenceEntry>()
 
+  private val depletedListeners = ArrayList<(Long, DivergenceEntry) -> Unit>()
+
+  /** Every recorded divergence. Tick thread, or at boot before the tick starts. */
+  fun all(): Map<Long, DivergenceEntry> {
+    return byPropId
+  }
+
+  /**
+   * Registers a callback for every prop depleted from now on, whatever depleted it. It runs on the tick inside
+   * the depletion, so it must mark and return.
+   */
+  fun onDepleted(listener: (propId: Long, entry: DivergenceEntry) -> Unit) {
+    depletedListeners.add(listener)
+  }
+
   /** Null for a propId with no recorded divergence - most of them, always, for every kind but a felled tree
    *  or a claimed landmark. Also null for `propId == 0` (a not-yet-generated future non-generated source). */
   fun of(propId: Long): DivergenceEntry? = if (propId == 0L) null else byPropId[propId]
@@ -57,7 +72,8 @@ class WorldObjectDivergenceRegistry(
   fun recordDepletion(propId: Long, kind: StaticEntityKind, resumeAt: Instant?) {
     if (propId == 0L) return
 
-    byPropId[propId] = DivergenceEntry(kind, DivergenceState.DEPLETED, resumeAt)
+    val entry = DivergenceEntry(kind, DivergenceState.DEPLETED, resumeAt)
+    byPropId[propId] = entry
 
     // Read here rather than inside the job, so the row is stamped with the world as it was when the prop was
     // depleted and the job stays pure I/O.
@@ -71,6 +87,8 @@ class WorldObjectDivergenceRegistry(
       row.resumeAt = resumeAt
       repository.save(row)
     }
+
+    for (listener in depletedListeners) listener(propId, entry)
   }
 
   /** A `resumeAt`-passed entry has grown back; forget it so `materialise()` emits it again. */
