@@ -16,7 +16,7 @@ namespace BestiaBehemothClient.Game.World
   /// <list type="number">
   /// <item><b>Answer a manifest.</b> Chunks already held at the announced revision are not requested, which is
   /// what turns a 375 kB re-entry into an area into nothing at all.</item>
-  /// <item><b>Apply patches.</b> A swing's worth of removals is a couple of hundred bytes where the chunk
+  /// <item><b>Apply patches.</b> A swing's worth of edits is a few hundred bytes where the chunk
   /// is three thousand.</item>
   /// <item><b>Notice divergence.</b> A patch whose <c>FromRevision</c> is not what is held means this copy and
   /// the server's have parted company. The chunk is dropped and re-requested rather than patched, because a
@@ -202,7 +202,7 @@ namespace BestiaBehemothClient.Game.World
     /// </summary>
     /// <returns>
     /// <c>true</c> if the patch was applied; <c>false</c> if the chunk is not held, if it has diverged, or
-    /// if the removals would not apply. In the latter two cases it has been dropped and the caller should
+    /// if the edits would not apply. In the latter two cases it has been dropped and the caller should
     /// request it again.
     /// </returns>
     public bool ApplyPatch(ChunkPatchSMSG patch)
@@ -226,19 +226,19 @@ namespace BestiaBehemothClient.Game.World
 
       try
       {
-        foreach (var removal in patch.Decode())
+        foreach (var edit in patch.Decode())
         {
-          held.Chunk.ApplyRemoval(removal.Index, removal.RemainingOccupancy);
+          held.Chunk.ApplyEdit(edit.Index, edit.BlockId, edit.Occupancy);
         }
       }
       catch (Exception ex)
       {
-        // Treated exactly like divergence above, and it has to be. ApplyRemoval throws on an index
-        // outside the chunk and on an occupancy that would *rise*, and it throws mid-loop - so the
-        // voxels are already part-patched by the time we arrive here, while Revision below has not
-        // moved. Leaving that in place would be worse than a visible failure: the next patch would
-        // match FromRevision, apply cleanly on top of corrupt voxels, and the divergence check above
-        // would never fire again. Dropping the chunk is the only outcome that self-heals.
+        // Treated exactly like divergence above, and it has to be. ApplyEdit throws on an index
+        // outside the chunk and on air with material, and it throws mid-loop - so the voxels are
+        // already part-patched by the time we arrive here, while Revision below has not moved.
+        // Leaving that in place would be worse than a visible failure: the next patch would match
+        // FromRevision, apply cleanly on top of corrupt voxels, and the divergence check above would
+        // never fire again. Dropping the chunk is the only outcome that self-heals.
         //
         // The decode sits inside the try as well, so a payload in an encoding this build does not
         // know is caught here rather than escaping into Godot's signal dispatch.
@@ -251,10 +251,10 @@ namespace BestiaBehemothClient.Game.World
 
       held.Revision = patch.ToRevision;
 
-      // A removal moves run boundaries, so the cached scan is now wrong about where the surface can be.
+      // An edit moves run boundaries, so the cached scan is now wrong about where the surface can be.
       // Rescanning the whole chunk is a few dozen microseconds and cannot be subtly incorrect, which patching
-      // the mask in place could easily be. Removal-only does not make an incremental update safe either: a
-      // carve can destroy the last boundary in a column as easily as create one.
+      // the mask in place could easily be: an edit can destroy the last boundary in a column as easily as
+      // create one.
       held.Bands = ChunkBands.Of(held.Chunk, _appearance);
 
       return true;

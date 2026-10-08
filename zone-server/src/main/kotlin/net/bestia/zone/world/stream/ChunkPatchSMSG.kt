@@ -8,22 +8,15 @@ import net.bestia.worldgen.core.ChunkPos
 import net.bestia.zone.message.SMSG
 
 /**
- * The voxels a player removed from one chunk. See the proto for the arithmetic that justifies it existing.
+ * The voxels that changed in one chunk. See the proto for the arithmetic that justifies it existing.
  */
 data class ChunkPatchSMSG(
   val chunk: ChunkPos,
   val fromRevision: Int,
   val toRevision: Int,
-  val removals: ByteArray,
-  /**
-   * How many voxels this describes.
-   *
-   * A stored field rather than `removals.size / bytesPerRemoval`. That division was correct only while every
-   * edit was a fixed five bytes; with delta-coded varint indices a removal is one to four bytes, so dividing
-   * would return a number that merely looks plausible - and it is read by the logging and by the
-   * patch-versus-snapshot decision.
-   */
-  val removalCount: Int
+  val edits: ByteArray,
+  /** Carried rather than divided out of [edits]: varint index gaps make an edit's size vary. */
+  val editCount: Int
 ) : SMSG {
 
   override fun toBnetEnvelope(): EnvelopeProto.Envelope {
@@ -31,9 +24,9 @@ data class ChunkPatchSMSG(
       .setPos(ChunkCoords.toProto(chunk))
       .setFromRevision(fromRevision)
       .setToRevision(toRevision)
-      .setRemovals(ByteString.copyFrom(removals))
-      .setEncoding(ChunkProto.ChunkPatchEncoding.CHUNK_PATCH_ENCODING_REMOVAL_V1)
-      .setRemovalCount(removalCount)
+      .setEdits(ByteString.copyFrom(edits))
+      .setEncoding(ChunkProto.ChunkPatchEncoding.CHUNK_PATCH_ENCODING_EDIT_V1)
+      .setEditCount(editCount)
       .build()
 
     return EnvelopeProto.Envelope.newBuilder()
@@ -48,33 +41,34 @@ data class ChunkPatchSMSG(
     return chunk == other.chunk &&
         fromRevision == other.fromRevision &&
         toRevision == other.toRevision &&
-        removalCount == other.removalCount &&
-        removals.contentEquals(other.removals)
+        editCount == other.editCount &&
+        edits.contentEquals(other.edits)
   }
 
   override fun hashCode(): Int {
     var result = chunk.hashCode()
     result = 31 * result + fromRevision
     result = 31 * result + toRevision
-    result = 31 * result + removalCount
-    result = 31 * result + removals.contentHashCode()
+    result = 31 * result + editCount
+    result = 31 * result + edits.contentHashCode()
     return result
   }
 
-  override fun toString() =
-    "ChunkPatchSMSG[$chunk rev $fromRevision->$toRevision, $removalCount removals, ${removals.size} B]"
+  override fun toString(): String {
+    return "ChunkPatchSMSG[$chunk rev $fromRevision->$toRevision, $editCount edits, ${edits.size} B]"
+  }
 
   companion object {
 
-    /**
-     * @param removals packed `(voxelIndex shl 8) or remainingOccupancy`, sorted ascending
-     */
-    fun of(chunk: ChunkPos, fromRevision: Int, toRevision: Int, removals: IntArray) = ChunkPatchSMSG(
-      chunk = chunk,
-      fromRevision = fromRevision,
-      toRevision = toRevision,
-      removals = ChunkPatchCodec.encode(removals),
-      removalCount = removals.size
-    )
+    /** @param edits [net.bestia.worldgen.derived.VoxelEdit]s, sorted ascending */
+    fun of(chunk: ChunkPos, fromRevision: Int, toRevision: Int, edits: LongArray): ChunkPatchSMSG {
+      return ChunkPatchSMSG(
+        chunk = chunk,
+        fromRevision = fromRevision,
+        toRevision = toRevision,
+        edits = ChunkEditCodec.encode(edits),
+        editCount = edits.size
+      )
+    }
   }
 }

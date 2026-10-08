@@ -730,14 +730,14 @@ namespace BestiaBehemothClient.Game.World
         {
           GD.Print(
             $"[patch] {patch.Key} rev {patch.FromRevision}->{patch.ToRevision}  " +
-            $"{patch.Removals.Length} B, {patch.RemovalCount} removals\n" +
+            $"{patch.Edits.Length} B, {patch.EditCount} edits\n" +
             $"        {Store.Describe(patch.Key)}");
         }
 
         return;
       }
 
-      // Either the chunk was never held, or ApplyPatch dropped it - diverged, or the removals would not
+      // Either the chunk was never held, or ApplyPatch dropped it - diverged, or the edits would not
       // apply. All are fixed the same way, and only if the server still considers it ours.
       if (Store.IsAnnounced(patch.Key) && _socket != null)
       {

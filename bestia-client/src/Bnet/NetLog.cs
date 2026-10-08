@@ -279,7 +279,7 @@ namespace BestiaBehemothClient.Bnet.Message
       {
         var patch = envelope.ChunkPatch;
         return $"ChunkPatch({patch.Pos.X},{patch.Pos.Y},{patch.Pos.Z}) " +
-               $"rev {patch.FromRevision}->{patch.ToRevision}, {patch.Removals.Length} B";
+               $"rev {patch.FromRevision}->{patch.ToRevision}, {patch.Edits.Length} B";
       }
 
       if (envelope.ChunkManifest != null)

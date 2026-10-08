@@ -141,10 +141,9 @@ namespace BestiaBehemothClient.Game.World.Mesh
       /// <remarks>
       /// The material that took this enum to sixteen, and it could not have been a tint over <see cref="Soil"/>
       /// for <see cref="Wetland"/>'s reason: burnt ground is its own grain, not a darker version of somebody
-      /// else's. It also cannot be a <c>BlockType</c>, which is where a reader will expect to find it - the
-      /// server's chunk wire format can only ever *remove* a voxel (<c>CHUNK_PATCH_ENCODING_REMOVAL_V1</c> is
-      /// the only encoding there is), so no message can change a voxel's material. Scorch arrives as its own
-      /// per-chunk mask and is substituted into the weights by the mesher.
+      /// else's. It is also not a <c>BlockType</c>, which is where a reader will expect to find it: scorch lies
+      /// on top of whatever material is there and heals on its own clock, so it arrives as its own per-chunk
+      /// mask and is substituted into the weights by the mesher.
       /// </remarks>
       Scorched = 8,
 

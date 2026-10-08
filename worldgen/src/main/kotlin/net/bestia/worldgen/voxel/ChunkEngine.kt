@@ -4,7 +4,7 @@ package net.bestia.worldgen.voxel
  * The one version number a client that only receives chunks has to agree with the server about.
  *
  * It covers the three things such a client actually does with a chunk: decode it ([RleCodec]), name the
- * materials in it ([BlockType]), and apply the removals that arrive afterwards (`ChunkPatchCodec`). Any of
+ * materials in it ([BlockType]), and apply the edits that arrive afterwards (`ChunkEditCodec`). Any of
  * them changing makes payloads wrong, and none is something the client can adapt to at runtime - so there is
  * nothing to gain from telling it *which* one moved. It gets one number, and if it does not match, it is out
  * of date.
@@ -27,7 +27,7 @@ package net.bestia.worldgen.voxel
 object ChunkEngine {
 
   /**
-   * Bump on any change to [RleCodec]'s format, to `ChunkPatchCodec`'s format, or to [BlockType]'s ids, names,
+   * Bump on any change to [RleCodec]'s format, to `ChunkEditCodec`'s format, or to [BlockType]'s ids, names,
    * or `solid` flag, and change the client's `ChunkEngine.Version` in the same commit.
    *
    * Version 2 is the palette cleanup: the building materials left the palette for props, the four sedimentary

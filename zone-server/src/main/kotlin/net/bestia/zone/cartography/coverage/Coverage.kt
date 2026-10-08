@@ -22,7 +22,7 @@ import java.lang.Long.numberOfTrailingZeros
  * at a time rather than a cell at a time, which is what makes [coverageOf] affordable on a world-map tile that
  * spans four million cells.
  *
- * Hand-rolled rather than a bitmap library, matching `ChunkPatchCodec` and `RleCodec`: the operations are
+ * Hand-rolled rather than a bitmap library, matching `ChunkEditCodec` and `RleCodec`: the operations are
  * `or`, `bitCount` and a bounded scan, and the format has to stay stable across releases because it is
  * persisted.
  *

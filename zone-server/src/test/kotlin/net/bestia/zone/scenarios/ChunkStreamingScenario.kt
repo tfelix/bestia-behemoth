@@ -1,7 +1,7 @@
 package net.bestia.zone.scenarios
 
 import net.bestia.worldgen.core.ChunkPos
-import net.bestia.worldgen.derived.ChunkDelta
+import net.bestia.worldgen.derived.VoxelEdit
 import net.bestia.worldgen.voxel.CarveBrush
 import net.bestia.worldgen.voxel.ChunkEngine
 import net.bestia.worldgen.voxel.RleCodec
@@ -13,9 +13,9 @@ import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.world.stream.ChunkCoords
 import net.bestia.zone.world.WorldService
 import net.bestia.zone.world.stream.ChunkDataSMSG
+import net.bestia.zone.world.stream.ChunkEditCodec
 import net.bestia.zone.world.stream.ChunkEditJournal
 import net.bestia.zone.world.stream.ChunkManifestSMSG
-import net.bestia.zone.world.stream.ChunkPatchCodec
 import net.bestia.zone.world.stream.ChunkPatchSMSG
 import net.bestia.zone.world.net.ChunkRequestCMSG
 import net.bestia.zone.world.stream.ChunkService
@@ -339,15 +339,15 @@ class ChunkStreamingScenario : BestiaNoSocketScenario(
     assertEquals(before, patch.fromRevision, "a patch must state the revision it builds on")
     assertEquals(before + 1, patch.toRevision)
 
-    val removals = ChunkPatchCodec.decode(patch.removals)
-    assertEquals(patch.removalCount, removals.size, "the carried count must match what decodes")
+    val edits = ChunkEditCodec.decode(patch.edits)
+    assertEquals(patch.editCount, edits.size, "the carried count must match what decodes")
 
     // A brush is a sphere, so one swing is many voxels - and the voxel it was aimed at is necessarily one of
     // them, because the centre of a sphere is inside it.
-    assertTrue(removals.size > 1, "a minimum-radius brush took only ${removals.size} voxels")
+    assertTrue(edits.size > 1, "a minimum-radius brush took only ${edits.size} voxels")
 
     assertTrue(
-      removals.any { ChunkDelta.indexOf(it) == carvedIndex },
+      edits.any { VoxelEdit.indexOf(it) == carvedIndex },
       "the voxel the brush was centred on is not in the patch"
     )
 
@@ -360,8 +360,8 @@ class ChunkStreamingScenario : BestiaNoSocketScenario(
     // rather than a theoretical one.
     val chunkBytes = world.read { chunkService.encodedOf(held).payload.size }
     assertTrue(
-      patch.removals.size < chunkBytes,
-      "a ${removals.size}-voxel patch is ${patch.removals.size} B against $chunkBytes B of chunk - it must be " +
+      patch.edits.size < chunkBytes,
+      "a ${edits.size}-voxel patch is ${patch.edits.size} B against $chunkBytes B of chunk - it must be " +
           "the cheaper of the two, or the patch path is not earning its complexity"
     )
 
