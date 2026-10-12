@@ -37,11 +37,14 @@ import net.bestia.worldgen.spawn.VegetationStandStage
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.MarkerFeature
 import net.bestia.worldgen.voxel.BlockType
+import org.junit.jupiter.api.Order
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 
+/** `@Order(2)`: the second-longest class, so it starts early. See `junit-platform.properties`. */
+@Order(2)
 class StandardWorldTest {
 
   /**

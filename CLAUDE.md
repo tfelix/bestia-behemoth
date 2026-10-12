@@ -11,13 +11,15 @@ handoff, read `.claude/skills/architecture/SKILL.md` first instead of re-derivin
 ## Running tests
 
 `./gradlew :zone-server:test` is the default for day-to-day work. It compiles `worldgen` but does
-not run its tests, so it costs ~3 minutes instead of ~25.
+not run its tests, so it costs ~3 minutes instead of ~8.
 
 Run `./gradlew :worldgen:test` only when the change touches `worldgen/`, a `Stage`, a params class,
-or worldgen configuration (`worldgen.*` in an `application.yml`). Run it as a separate invocation,
+or worldgen configuration (`worldgen.*` in an `application.yml`). It takes ~5 minutes and uses most of
+the machine: four test classes run at once on a 6 GB heap. Run it as a separate invocation,
 never together with `:zone-server:test` in one command, and never while another Gradle command is
 running — the worldgen test executor runs out of memory under that load and reports the crash
-against unrelated tests.
+against unrelated tests. A test that needs a generated world asks `TestWorlds.get(...)` rather than
+calling `StandardWorld.build`; `.claude/skills/worldgen/SKILL.md` says why and when not to.
 
 Anything that fans out to every module (`./gradlew test`, `check`, `build`, or a bare `./gradlew`
 task at the root) includes the full worldgen suite. Use it before handing work over, not while

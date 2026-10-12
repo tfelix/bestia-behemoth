@@ -12,6 +12,7 @@ import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.PointMarker
 import net.bestia.worldgen.vector.VectorFeature
 import net.bestia.worldgen.voxel.ChunkMaterializer
+import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.TestInstance
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -64,6 +65,7 @@ import kotlin.test.assertTrue
  * against an expected one and a half on the four old ones.
  */
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@Order(3)
 class OrderHistoryTest {
 
   private val seeds = (1L..16L).toList()
