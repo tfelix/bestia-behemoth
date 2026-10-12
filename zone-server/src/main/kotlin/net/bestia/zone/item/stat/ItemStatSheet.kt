@@ -7,7 +7,8 @@ import net.bestia.zone.battle.status.StatusValueRecalcContext
  * [net.bestia.zone.item.persistence.Item].
  *
  * The four base properties make a weapon a weapon and armor armor. They are what [baseLevel] already stands
- * for, so they never raise the item level. [stats] are bonuses on top, and they do.
+ * for, so they never raise the item level. [stats] are bonuses on top, and they do, as do the stats a copy
+ * rolls from [randomStats] when it is made.
  */
 data class ItemStatSheet(
   val baseLevel: Int = 1,
@@ -16,6 +17,7 @@ data class ItemStatSheet(
   val defense: Int = 0,
   val magicDefense: Int = 0,
   val stats: Map<ItemStat, Int> = emptyMap(),
+  val randomStats: RandomStatTemplate? = null,
 ) {
 
   /** The level of a copy that rolled nothing: base level plus the fixed stats. */
