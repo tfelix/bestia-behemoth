@@ -129,6 +129,18 @@ class GroundItemDamageTest {
     assertEquals(0, world.get(stack, GroundItemIntegrity::class)!!.lost)
   }
 
+  @Test
+  fun `kill loot is untouched while it is protected`() {
+    val world = testWorld()
+    val stack = world.stackOf(blueprint)
+    world.add(stack, LootProtection(ownerAccountId = 1L, remainingSeconds = 6f))
+
+    sut.damage(world, stack, 1000, Element.FIRE)
+
+    assertTrue(world.isAlive(stack))
+    assertEquals(0, world.get(stack, GroundItemIntegrity::class)!!.lost)
+  }
+
   /** Inside a system the destroy waits for the end of the tick, so the second hit still finds the entity. */
   @Test
   fun `a stack used up inside a system is destroyed once`() {

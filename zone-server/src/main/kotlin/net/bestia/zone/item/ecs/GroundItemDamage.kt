@@ -27,11 +27,13 @@ class GroundItemDamage(
 ) {
 
   /** For a calling system's own declarations. */
-  val reads: ComponentClassSet = setOf(GroundItemStack::class) + DamageGate.READS
+  val reads: ComponentClassSet = setOf(GroundItemStack::class, LootProtection::class) + DamageGate.READS
   val writes: ComponentClassSet = setOf(GroundItemIntegrity::class, Dead::class)
 
   fun damage(world: World, stackId: EntityId, amount: Int, element: Element) {
     if (DamageGate.isImmune(world, stackId)) return
+    // So a fire under the kill does not burn the loot before its killer can pick it up.
+    if (world.has(stackId, LootProtection::class)) return
 
     val stack = world.get(stackId, GroundItemStack::class) ?: return
     val integrity = world.get(stackId, GroundItemIntegrity::class) ?: return
