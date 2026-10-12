@@ -2,6 +2,11 @@ package net.bestia.worldgen.pipeline
 
 import net.bestia.worldgen.core.ChunkPos
 import net.bestia.worldgen.core.WorldConfig
+import org.junit.jupiter.api.MethodOrderer
+import org.junit.jupiter.api.Order
+import org.junit.jupiter.api.TestMethodOrder
+import org.junit.jupiter.api.parallel.Execution
+import org.junit.jupiter.api.parallel.ExecutionMode
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -15,7 +20,17 @@ import kotlin.test.assertTrue
  * every other test in this module happens to use round numbers (128, 160, 192, 256, 288, 512), so a bug that
  * only shows up at an awkward size would have nowhere to be caught. This runs the full [Invariants] battery
  * rather than one narrow assertion, because the point is coverage of the *property*, not of any one stage.
+ *
+ * ### Scheduling
+ *
+ * This is the longest class in the module by a wide margin, so it is first in the class order and its five
+ * methods run side by side: each builds a world of its own and shares nothing, and run in sequence they were
+ * the tail the rest of the suite waited for. They start longest first, so the 600-cell world, which alone takes
+ * more than the other four together, is running from the first second.
  */
+@Order(1)
+@Execution(ExecutionMode.CONCURRENT)
+@TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class WorldSizeSanityTest {
 
   private fun config(cells: Int, seed: Long) = WorldConfig(
@@ -34,18 +49,22 @@ class WorldSizeSanityTest {
    * still coarsens - the next size down covers the case where it does not).
    */
   @Test
+  @Order(5)
   fun `a 96-cell world is clean`() = assertWorldIsClean(96, seed = 101L)
 
   /** Neither a multiple of the chunk edge nor of 4: 150 / 32 and 150 / 4 both land on a remainder. */
   @Test
+  @Order(4)
   fun `a 150-cell world is clean`() = assertWorldIsClean(150, seed = 102L)
 
   /** Between Genesis (128) and the 512 km reference world every stage default was tuned against. */
   @Test
+  @Order(3)
   fun `a 200-cell world is clean`() = assertWorldIsClean(200, seed = 103L)
 
   /** Comfortably between 128 and 512, and a prime number, so no divisor below it is shared with anything. */
   @Test
+  @Order(2)
   fun `a 337-cell world is clean`() = assertWorldIsClean(337, seed = 104L)
 
   /**
@@ -57,6 +76,7 @@ class WorldSizeSanityTest {
    * job, in a JVM that isn't also running six hundred other tests.
    */
   @Test
+  @Order(1)
   fun `a 600-cell world is clean`() = assertWorldIsClean(600, seed = 105L)
 
   /**

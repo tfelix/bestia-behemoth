@@ -317,6 +317,34 @@ every newer subsystem (`checkTheWorldHasSpawners`, `checkDistrictsHoldTheirBuild
 explicitly framed as tripwires against a subsystem that runs and silently produces nothing — the failure
 mode this module has shipped more than once.
 
+**How `:worldgen:test` stays near five minutes** (it was seventeen). Nearly all of its time is generating worlds,
+so the suite is shaped around not doing that twice, and a new test should follow the same conventions:
+
+- **A test that reads a world asks `TestWorlds.get(config, params)`** (`src/test/.../pipeline/TestWorlds.kt`), not
+  `StandardWorld.build`. A world is a pure function of its config and params and is never mutated, so ten classes
+  that all wanted seed 7 at 128 cells were generating it ten times. `getAll` builds a seed list side by side and
+  `sweep` reduces each world to a summary without keeping it. **The exception is a test whose claim is that two builds
+  agree** (`the world is reproducible from its seed`, `ParallelDeterminismTest`): given a cached world it would
+  compare a world with itself and pass whatever the generator did. Call `getAll` and `sweep` from a `by lazy` or a
+  test method, never from an eager companion `val` - the pool's threads deadlock on the class being initialised.
+- **`Invariants.check(world, PropScan.SAMPLED)` in tests, exhaustive in sweeps.** Two of its sixty-two checks
+  (`checkVegetationStandsAdvertiseFillableCapacity`, `checkNoTreeStandsInAYard`) build the props of every chunk a
+  stand disc or a town's core covers - about 75 s on a 160-cell world, whatever the world size - and were nearly all
+  of what `check` cost. `SAMPLED` reads a fixed number of chunks instead; the default and the `invariants` task stay
+  exhaustive, and `StandardWorldTest` runs the exhaustive form on a 128-cell world so it cannot rot.
+- **Classes run four at a time, longest first** (`junit-platform.properties`: parallel classes, and a `ClassOrderer`
+  that reads `@Order`). Discovery is alphabetical, so without the order the two longest classes started last and the
+  run waited for them. Give a class that takes more than ~30 s an `@Order`; `WorldSizeSanityTest` is `@Order(1)` and
+  also runs its methods concurrently. JUnit is pinned to 5.11.4 by a BOM in `worldgen/build.gradle` for the orderer.
+- **`testTiming` cannot see class-initialisation time.** Gradle starts a class's clock at its first test, so a world
+  built by an eager companion initialiser is charged to nothing - `PoiStageTest` hid 77 s that way. Look at the gaps
+  between consecutive `<testsuite timestamp>` values in a *serial* run.
+
+What is left is the 600-cell world in `WorldSizeSanityTest`, about 150 s alone, of which the `pond` and `coast` stages
+are most (113 s of a 161 s build on seed 105; much less on other seeds). Both read like linear scans over the whole
+feature list - `PondStage` filters `visible` per trough and per river, `CoastStage` builds one evaluator over every
+height-affecting feature - but neither has been profiled inside, so treat that as a lead and not a finding.
+
 **An open question, not a settled one**: river counts going 512 → 1024 km gave 7.2×, 3.5× and 6.1× for 4×
 the area across three seeds — channel initiation is a threshold on catchment *area*, which should make the
 network scale-free in principle, and the measurement is consistent with that but does not confirm it

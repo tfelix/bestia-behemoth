@@ -51,6 +51,13 @@ description = 'worldgen'
  * through declared stage dependencies, never by calling into one another.
  */
 dependencies {
+    /*
+     * kotlin-test-junit5 1.9.25 drags in JUnit 5.6.3, which predates `ClassOrderer`. This module has no Spring
+     * dependency management to say otherwise, so it names the version the other modules get from Spring Boot's
+     * BOM. `junit-platform.properties` needs the orderer to start the longest classes first: with classes running
+     * concurrently, the one that starts last is the one the whole run waits for.
+     */
+    testImplementation platform('org.junit:junit-bom:5.11.4')
     testImplementation 'org.jetbrains.kotlin:kotlin-test-junit5'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
@@ -89,8 +96,11 @@ tasks.named("test") {
      *
      * Four gigabytes rather than the smallest number that passes, because the suite generates worlds
      * concurrently and the peak depends on how many land in flight together.
+     *
+     * Six now that it does so for real: `junit-platform.properties` runs four test classes at once and
+     * `WorldSizeSanityTest` builds its five worlds, the 600-cell one included, side by side.
      */
-    maxHeapSize = '4g'
+    maxHeapSize = '6g'
 
     // `./gradlew :worldgen:test -Pserial` runs the whole suite on one thread. The first question about any
     // new test failure is whether the work splitting caused it, and this is how that is answered in one run.
