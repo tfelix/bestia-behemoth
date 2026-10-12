@@ -25,27 +25,29 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CiVtZXNzYWdlcy90cmFkZS90cmFkZV9zdGF0ZV9zbXNnLnByb3RvEgRibmV0",
-            "ItkCCg5UcmFkZVN0YXRlU01TRxIQCgh0cmFkZV9pZBgBIAEoBBIhCgZzdGF0",
-            "dXMYAiABKA4yES5ibmV0LlRyYWRlU3RhdHVzEhsKE3BhcnRuZXJfbWFzdGVy",
-            "X25hbWUYAyABKAkSGQoRcGFydG5lcl9lbnRpdHlfaWQYBCABKAQSJwoJb3du",
-            "X29mZmVyGAUgAygLMhQuYm5ldC5UcmFkZU9mZmVySXRlbRIrCg1wYXJ0bmVy",
-            "X29mZmVyGAYgAygLMhQuYm5ldC5UcmFkZU9mZmVySXRlbRIQCghvd25fZ29s",
-            "ZBgHIAEoBBIUCgxwYXJ0bmVyX2dvbGQYCCABKAQSEgoKb3duX2xvY2tlZBgJ",
-            "IAEoCBIWCg5wYXJ0bmVyX2xvY2tlZBgKIAEoCBIVCg1vd25fY29uZmlybWVk",
-            "GAsgASgIEhkKEXBhcnRuZXJfY29uZmlybWVkGAwgASgIIq0BCg5UcmFkZU9m",
-            "ZmVySXRlbRIVCg1vZmZlcl9zbG90X2lkGAEgASgEEg8KB2l0ZW1faWQYAiAB",
-            "KA0SEQoJdW5pcXVlX2lkGAMgASgEEg4KBmFtb3VudBgEIAEoDRISCgpkdXJh",
-            "YmlsaXR5GAUgASgNEhYKDm1heF9kdXJhYmlsaXR5GAYgASgNEg0KBXNsb3Rz",
-            "GAcgASgNEhUKDXVwZ3JhZGVfbGV2ZWwYCCABKA0qdQoLVHJhZGVTdGF0dXMS",
-            "FQoRVFJBREVfU1RBVFVTX09QRU4QABIXChNUUkFERV9TVEFUVVNfTE9DS0VE",
-            "EAESGgoWVFJBREVfU1RBVFVTX0NPTVBMRVRFRBACEhoKFlRSQURFX1NUQVRV",
-            "U19DQU5DRUxMRUQQA0IsChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CE1RyYWRl",
-            "U3RhdGVTbXNnUHJvdG9iBnByb3RvMw=="));
+            "GihtZXNzYWdlcy9jb21wb25lbnQvaXRlbV9zdGF0X3ZhbHVlLnByb3RvItkC",
+            "Cg5UcmFkZVN0YXRlU01TRxIQCgh0cmFkZV9pZBgBIAEoBBIhCgZzdGF0dXMY",
+            "AiABKA4yES5ibmV0LlRyYWRlU3RhdHVzEhsKE3BhcnRuZXJfbWFzdGVyX25h",
+            "bWUYAyABKAkSGQoRcGFydG5lcl9lbnRpdHlfaWQYBCABKAQSJwoJb3duX29m",
+            "ZmVyGAUgAygLMhQuYm5ldC5UcmFkZU9mZmVySXRlbRIrCg1wYXJ0bmVyX29m",
+            "ZmVyGAYgAygLMhQuYm5ldC5UcmFkZU9mZmVySXRlbRIQCghvd25fZ29sZBgH",
+            "IAEoBBIUCgxwYXJ0bmVyX2dvbGQYCCABKAQSEgoKb3duX2xvY2tlZBgJIAEo",
+            "CBIWCg5wYXJ0bmVyX2xvY2tlZBgKIAEoCBIVCg1vd25fY29uZmlybWVkGAsg",
+            "ASgIEhkKEXBhcnRuZXJfY29uZmlybWVkGAwgASgIIuwBCg5UcmFkZU9mZmVy",
+            "SXRlbRIVCg1vZmZlcl9zbG90X2lkGAEgASgEEg8KB2l0ZW1faWQYAiABKA0S",
+            "EQoJdW5pcXVlX2lkGAMgASgEEg4KBmFtb3VudBgEIAEoDRISCgpkdXJhYmls",
+            "aXR5GAUgASgNEhYKDm1heF9kdXJhYmlsaXR5GAYgASgNEg0KBXNsb3RzGAcg",
+            "ASgNEhUKDXVwZ3JhZGVfbGV2ZWwYCCABKA0SEgoKaXRlbV9sZXZlbBgJIAEo",
+            "DRIpCgxyb2xsZWRfc3RhdHMYCiADKAsyEy5ibmV0Lkl0ZW1TdGF0VmFsdWUq",
+            "dQoLVHJhZGVTdGF0dXMSFQoRVFJBREVfU1RBVFVTX09QRU4QABIXChNUUkFE",
+            "RV9TVEFUVVNfTE9DS0VEEAESGgoWVFJBREVfU1RBVFVTX0NPTVBMRVRFRBAC",
+            "EhoKFlRSQURFX1NUQVRVU19DQU5DRUxMRUQQA0IsChVuZXQuYmVzdGlhLmJu",
+            "ZXQucHJvdG9CE1RyYWRlU3RhdGVTbXNnUHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
-          new pbr::FileDescriptor[] { },
+          new pbr::FileDescriptor[] { global::Bnet.ItemStatValueReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.TradeStatus), }, null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.TradeStateSMSG), global::Bnet.TradeStateSMSG.Parser, new[]{ "TradeId", "Status", "PartnerMasterName", "PartnerEntityId", "OwnOffer", "PartnerOffer", "OwnGold", "PartnerGold", "OwnLocked", "PartnerLocked", "OwnConfirmed", "PartnerConfirmed" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.TradeOfferItem), global::Bnet.TradeOfferItem.Parser, new[]{ "OfferSlotId", "ItemId", "UniqueId", "Amount", "Durability", "MaxDurability", "Slots", "UpgradeLevel" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.TradeOfferItem), global::Bnet.TradeOfferItem.Parser, new[]{ "OfferSlotId", "ItemId", "UniqueId", "Amount", "Durability", "MaxDurability", "Slots", "UpgradeLevel", "ItemLevel", "RolledStats" }, null, null, null, null)
           }));
     }
     #endregion
@@ -717,6 +719,8 @@ namespace Bnet {
       maxDurability_ = other.maxDurability_;
       slots_ = other.slots_;
       upgradeLevel_ = other.upgradeLevel_;
+      itemLevel_ = other.itemLevel_;
+      rolledStats_ = other.rolledStats_.Clone();
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -825,6 +829,29 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "item_level" field.</summary>
+    public const int ItemLevelFieldNumber = 9;
+    private uint itemLevel_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint ItemLevel {
+      get { return itemLevel_; }
+      set {
+        itemLevel_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "rolled_stats" field.</summary>
+    public const int RolledStatsFieldNumber = 10;
+    private static readonly pb::FieldCodec<global::Bnet.ItemStatValue> _repeated_rolledStats_codec
+        = pb::FieldCodec.ForMessage(82, global::Bnet.ItemStatValue.Parser);
+    private readonly pbc::RepeatedField<global::Bnet.ItemStatValue> rolledStats_ = new pbc::RepeatedField<global::Bnet.ItemStatValue>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::RepeatedField<global::Bnet.ItemStatValue> RolledStats {
+      get { return rolledStats_; }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -848,6 +875,8 @@ namespace Bnet {
       if (MaxDurability != other.MaxDurability) return false;
       if (Slots != other.Slots) return false;
       if (UpgradeLevel != other.UpgradeLevel) return false;
+      if (ItemLevel != other.ItemLevel) return false;
+      if(!rolledStats_.Equals(other.rolledStats_)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -863,6 +892,8 @@ namespace Bnet {
       if (MaxDurability != 0) hash ^= MaxDurability.GetHashCode();
       if (Slots != 0) hash ^= Slots.GetHashCode();
       if (UpgradeLevel != 0) hash ^= UpgradeLevel.GetHashCode();
+      if (ItemLevel != 0) hash ^= ItemLevel.GetHashCode();
+      hash ^= rolledStats_.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -913,6 +944,11 @@ namespace Bnet {
         output.WriteRawTag(64);
         output.WriteUInt32(UpgradeLevel);
       }
+      if (ItemLevel != 0) {
+        output.WriteRawTag(72);
+        output.WriteUInt32(ItemLevel);
+      }
+      rolledStats_.WriteTo(output, _repeated_rolledStats_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -955,6 +991,11 @@ namespace Bnet {
         output.WriteRawTag(64);
         output.WriteUInt32(UpgradeLevel);
       }
+      if (ItemLevel != 0) {
+        output.WriteRawTag(72);
+        output.WriteUInt32(ItemLevel);
+      }
+      rolledStats_.WriteTo(ref output, _repeated_rolledStats_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -989,6 +1030,10 @@ namespace Bnet {
       if (UpgradeLevel != 0) {
         size += 1 + pb::CodedOutputStream.ComputeUInt32Size(UpgradeLevel);
       }
+      if (ItemLevel != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(ItemLevel);
+      }
+      size += rolledStats_.CalculateSize(_repeated_rolledStats_codec);
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -1025,6 +1070,10 @@ namespace Bnet {
       if (other.UpgradeLevel != 0) {
         UpgradeLevel = other.UpgradeLevel;
       }
+      if (other.ItemLevel != 0) {
+        ItemLevel = other.ItemLevel;
+      }
+      rolledStats_.Add(other.rolledStats_);
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -1076,6 +1125,14 @@ namespace Bnet {
             UpgradeLevel = input.ReadUInt32();
             break;
           }
+          case 72: {
+            ItemLevel = input.ReadUInt32();
+            break;
+          }
+          case 82: {
+            rolledStats_.AddEntriesFrom(input, _repeated_rolledStats_codec);
+            break;
+          }
         }
       }
     #endif
@@ -1125,6 +1182,14 @@ namespace Bnet {
           }
           case 64: {
             UpgradeLevel = input.ReadUInt32();
+            break;
+          }
+          case 72: {
+            ItemLevel = input.ReadUInt32();
+            break;
+          }
+          case 82: {
+            rolledStats_.AddEntriesFrom(ref input, _repeated_rolledStats_codec);
             break;
           }
         }

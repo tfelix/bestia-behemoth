@@ -65,5 +65,7 @@ data class TradeStateSMSG(
       .setMaxDurability(item.maxDurability)
       .setSlots(item.slots)
       .setUpgradeLevel(item.upgradeLevel)
+      .setItemLevel(item.itemLevel)
+      .addAllRolledStats(item.rolledStats.map { it.toProto() })
       .build()
 }

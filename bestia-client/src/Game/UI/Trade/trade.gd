@@ -107,6 +107,8 @@ func _render_offer(grid: GridContainer, offer: Array, own: bool) -> void:
 		row.max_durability = line.MaxDurability
 		row.slots = line.Slots
 		row.upgrade_level = line.UpgradeLevel
+		row.item_level = line.ItemLevel
+		row.rolled_stats = Array(line.RolledStats)
 		row.drag_source = "trade_offer"
 		row.offer_slot_id = line.OfferSlotId
 

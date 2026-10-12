@@ -82,3 +82,32 @@ ERROR_BESTIA_SLOTS_FULL,"Your trap caught a Bestia, but you have no room for ano
 CAPTURE_SUCCESS,Your trap snapped shut. The Bestia is yours!
 CAPTURE_FAILED,A Bestia broke free of your trap.
 BESTIA_PARTY_MASTER,Master
+ITEM_STAT_STR,{value} STR
+ITEM_STAT_AGI,{value} AGI
+ITEM_STAT_VIT,{value} VIT
+ITEM_STAT_INT,{value} INT
+ITEM_STAT_DEX,{value} DEX
+ITEM_STAT_WIL,{value} WIL
+ITEM_STAT_ATK,{value} ATK
+ITEM_STAT_MATK,{value} MATK
+ITEM_STAT_HIT,{value} HIT
+ITEM_STAT_FLEE,{value} FLEE
+ITEM_STAT_CRIT,{value} CRIT
+ITEM_STAT_MAX_HP,{value}% max HP
+ITEM_STAT_MAX_MANA,{value}% max mana
+ITEM_STAT_DEF,{value}% DEF
+ITEM_STAT_MDEF,{value}% MDEF
+ITEM_STAT_HP_REGEN,{value}% HP recovery
+ITEM_STAT_MANA_REGEN,{value}% mana recovery
+ITEM_STAT_STAMINA_REGEN,{value}% stamina recovery
+ITEM_STAT_CAST_TIME,{value}% faster casting
+ITEM_STAT_RESIST_NORMAL,{value}% neutral resistance
+ITEM_STAT_RESIST_WATER,{value}% water resistance
+ITEM_STAT_RESIST_EARTH,{value}% earth resistance
+ITEM_STAT_RESIST_FIRE,{value}% fire resistance
+ITEM_STAT_RESIST_WIND,{value}% wind resistance
+ITEM_STAT_RESIST_POISON,{value}% poison resistance
+ITEM_STAT_RESIST_HOLY,{value}% holy resistance
+ITEM_STAT_RESIST_SHADOW,{value}% shadow resistance
+ITEM_STAT_RESIST_GHOST,{value}% ghost resistance
+ITEM_STAT_RESIST_UNDEAD,{value}% undead resistance

@@ -25,19 +25,21 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CjFtZXNzYWdlcy9jb21wb25lbnQvaW52ZW50b3J5X2NvbXBvbmVudF9zbXNn",
-            "LnByb3RvEgRibmV0Ik8KFkludmVudG9yeUNvbXBvbmVudFNNU0cSEQoJZW50",
-            "aXR5X2lkGAEgASgGEiIKBWl0ZW1zGAIgAygLMhMuYm5ldC5JbnZlbnRvcnlJ",
-            "dGVtIqcBCg1JbnZlbnRvcnlJdGVtEg8KB2l0ZW1faWQYASABKA0SEQoJdW5p",
-            "cXVlX2lkGAIgASgEEg4KBmFtb3VudBgDIAEoDRIQCghlcXVpcHBlZBgEIAEo",
-            "CBISCgpkdXJhYmlsaXR5GAUgASgNEhYKDm1heF9kdXJhYmlsaXR5GAYgASgN",
-            "Eg0KBXNsb3RzGAcgASgNEhUKDXVwZ3JhZGVfbGV2ZWwYCCABKA1CNAoVbmV0",
-            "LmJlc3RpYS5ibmV0LnByb3RvQhtJbnZlbnRvcnlDb21wb25lbnRTTVNHUHJv",
-            "dG9iBnByb3RvMw=="));
+            "LnByb3RvEgRibmV0GihtZXNzYWdlcy9jb21wb25lbnQvaXRlbV9zdGF0X3Zh",
+            "bHVlLnByb3RvIk8KFkludmVudG9yeUNvbXBvbmVudFNNU0cSEQoJZW50aXR5",
+            "X2lkGAEgASgGEiIKBWl0ZW1zGAIgAygLMhMuYm5ldC5JbnZlbnRvcnlJdGVt",
+            "IuYBCg1JbnZlbnRvcnlJdGVtEg8KB2l0ZW1faWQYASABKA0SEQoJdW5pcXVl",
+            "X2lkGAIgASgEEg4KBmFtb3VudBgDIAEoDRIQCghlcXVpcHBlZBgEIAEoCBIS",
+            "CgpkdXJhYmlsaXR5GAUgASgNEhYKDm1heF9kdXJhYmlsaXR5GAYgASgNEg0K",
+            "BXNsb3RzGAcgASgNEhUKDXVwZ3JhZGVfbGV2ZWwYCCABKA0SEgoKaXRlbV9s",
+            "ZXZlbBgJIAEoDRIpCgxyb2xsZWRfc3RhdHMYCiADKAsyEy5ibmV0Lkl0ZW1T",
+            "dGF0VmFsdWVCNAoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQhtJbnZlbnRvcnlD",
+            "b21wb25lbnRTTVNHUHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
-          new pbr::FileDescriptor[] { },
+          new pbr::FileDescriptor[] { global::Bnet.ItemStatValueReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.InventoryComponentSMSG), global::Bnet.InventoryComponentSMSG.Parser, new[]{ "EntityId", "Items" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.InventoryItem), global::Bnet.InventoryItem.Parser, new[]{ "ItemId", "UniqueId", "Amount", "Equipped", "Durability", "MaxDurability", "Slots", "UpgradeLevel" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.InventoryItem), global::Bnet.InventoryItem.Parser, new[]{ "ItemId", "UniqueId", "Amount", "Equipped", "Durability", "MaxDurability", "Slots", "UpgradeLevel", "ItemLevel", "RolledStats" }, null, null, null, null)
           }));
     }
     #endregion
@@ -315,6 +317,8 @@ namespace Bnet {
       maxDurability_ = other.maxDurability_;
       slots_ = other.slots_;
       upgradeLevel_ = other.upgradeLevel_;
+      itemLevel_ = other.itemLevel_;
+      rolledStats_ = other.rolledStats_.Clone();
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -405,7 +409,7 @@ namespace Bnet {
     public const int SlotsFieldNumber = 7;
     private uint slots_;
     /// <summary>
-    /// Rune slots cut into the backing instance by Item Customization; nothing can fill one yet.
+    /// Sockets of the backing instance, opened at the forge or by Item Customization; nothing can fill one yet.
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -432,6 +436,35 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "item_level" field.</summary>
+    public const int ItemLevelFieldNumber = 9;
+    private uint itemLevel_;
+    /// <summary>
+    /// This copy's item level: its base level raised by its stats and sockets. Without the upgrade level.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint ItemLevel {
+      get { return itemLevel_; }
+      set {
+        itemLevel_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "rolled_stats" field.</summary>
+    public const int RolledStatsFieldNumber = 10;
+    private static readonly pb::FieldCodec<global::Bnet.ItemStatValue> _repeated_rolledStats_codec
+        = pb::FieldCodec.ForMessage(82, global::Bnet.ItemStatValue.Parser);
+    private readonly pbc::RepeatedField<global::Bnet.ItemStatValue> rolledStats_ = new pbc::RepeatedField<global::Bnet.ItemStatValue>();
+    /// <summary>
+    /// What this copy rolled when it was made. Fixed stats are static item data and not sent.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::RepeatedField<global::Bnet.ItemStatValue> RolledStats {
+      get { return rolledStats_; }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -455,6 +488,8 @@ namespace Bnet {
       if (MaxDurability != other.MaxDurability) return false;
       if (Slots != other.Slots) return false;
       if (UpgradeLevel != other.UpgradeLevel) return false;
+      if (ItemLevel != other.ItemLevel) return false;
+      if(!rolledStats_.Equals(other.rolledStats_)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -470,6 +505,8 @@ namespace Bnet {
       if (MaxDurability != 0) hash ^= MaxDurability.GetHashCode();
       if (Slots != 0) hash ^= Slots.GetHashCode();
       if (UpgradeLevel != 0) hash ^= UpgradeLevel.GetHashCode();
+      if (ItemLevel != 0) hash ^= ItemLevel.GetHashCode();
+      hash ^= rolledStats_.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -520,6 +557,11 @@ namespace Bnet {
         output.WriteRawTag(64);
         output.WriteUInt32(UpgradeLevel);
       }
+      if (ItemLevel != 0) {
+        output.WriteRawTag(72);
+        output.WriteUInt32(ItemLevel);
+      }
+      rolledStats_.WriteTo(output, _repeated_rolledStats_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -562,6 +604,11 @@ namespace Bnet {
         output.WriteRawTag(64);
         output.WriteUInt32(UpgradeLevel);
       }
+      if (ItemLevel != 0) {
+        output.WriteRawTag(72);
+        output.WriteUInt32(ItemLevel);
+      }
+      rolledStats_.WriteTo(ref output, _repeated_rolledStats_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -596,6 +643,10 @@ namespace Bnet {
       if (UpgradeLevel != 0) {
         size += 1 + pb::CodedOutputStream.ComputeUInt32Size(UpgradeLevel);
       }
+      if (ItemLevel != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(ItemLevel);
+      }
+      size += rolledStats_.CalculateSize(_repeated_rolledStats_codec);
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -632,6 +683,10 @@ namespace Bnet {
       if (other.UpgradeLevel != 0) {
         UpgradeLevel = other.UpgradeLevel;
       }
+      if (other.ItemLevel != 0) {
+        ItemLevel = other.ItemLevel;
+      }
+      rolledStats_.Add(other.rolledStats_);
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -683,6 +738,14 @@ namespace Bnet {
             UpgradeLevel = input.ReadUInt32();
             break;
           }
+          case 72: {
+            ItemLevel = input.ReadUInt32();
+            break;
+          }
+          case 82: {
+            rolledStats_.AddEntriesFrom(input, _repeated_rolledStats_codec);
+            break;
+          }
         }
       }
     #endif
@@ -732,6 +795,14 @@ namespace Bnet {
           }
           case 64: {
             UpgradeLevel = input.ReadUInt32();
+            break;
+          }
+          case 72: {
+            ItemLevel = input.ReadUInt32();
+            break;
+          }
+          case 82: {
+            rolledStats_.AddEntriesFrom(ref input, _repeated_rolledStats_codec);
             break;
           }
         }

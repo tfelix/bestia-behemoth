@@ -61,7 +61,7 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
     [Export] public uint MaxDurability { get; set; }
 
     /// <summary>
-    /// Rune slots cut into the backing instance by Item Customization. Nothing can fill one yet.
+    /// Sockets of the backing instance, opened at the forge or by Item Customization. Nothing can fill one yet.
     /// </summary>
     [Export] public uint Slots { get; set; }
 
@@ -71,6 +71,16 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
     /// repairs the plain one - which is why the number is worth showing rather than folding into the stats.
     /// </summary>
     [Export] public uint UpgradeLevel { get; set; }
+
+    /// <summary>
+    /// This copy's item level: its base level raised by its stats and sockets, without the upgrade level.
+    /// </summary>
+    [Export] public uint ItemLevel { get; set; }
+
+    /// <summary>
+    /// What this copy rolled when it was made. Fixed stats are static item data and not sent.
+    /// </summary>
+    [Export] public Godot.Collections.Array<ItemStatValue> RolledStats { get; set; } = [];
 
     /// <summary>
     /// Creates an InventoryItem from protobuf data
@@ -86,7 +96,9 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
         Durability = protoItem.Durability,
         MaxDurability = protoItem.MaxDurability,
         Slots = protoItem.Slots,
-        UpgradeLevel = protoItem.UpgradeLevel
+        UpgradeLevel = protoItem.UpgradeLevel,
+        ItemLevel = protoItem.ItemLevel,
+        RolledStats = ItemStatValue.FromProto(protoItem.RolledStats)
       };
     }
   }

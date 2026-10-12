@@ -1,11 +1,11 @@
 class_name ItemDetail
 ## Writes an item out for a reader, in BBCode.
 ##
-## One renderer for both places that describe an item: the inventory tooltip, which has a copy of the item in
-## hand, and the chat popup, which knows only the kind. The per-copy arguments default to what "no copy in
-## particular" means, so the kind-only caller passes nothing rather than a null to unpack - a
-## [param max_durability] of 0 already means "does not wear", and the other two already mean "none" and
-## "untouched".
+## One renderer for every place that describes an item: the inventory, trade and equipment tooltips, which have
+## a copy of the item in hand, and the chat popup, which knows only the kind. The per-copy arguments default to
+## what "no copy in particular" means, so the kind-only caller passes nothing rather than a null to unpack - a
+## [param max_durability] of 0 already means "does not wear", an [param item_level] of 0 "the kind's level",
+## and the others "none" and "untouched".
 ##
 ## Static, so the lookups go through [TranslationServer] for the reason [DialogText] gives.
 
@@ -16,7 +16,9 @@ static func as_bbcode(
 	upgrade_level: int = 0,
 	durability: int = 0,
 	max_durability: int = 0,
-	slots: int = 0
+	slots: int = 0,
+	item_level: int = 0,
+	rolled_stats: Array = []
 ) -> String:
 	var title := "[b]%s[/b]" % _translate(item.name_key)
 	if upgrade_level > 0:
@@ -25,15 +27,19 @@ static func as_bbcode(
 	var lines: Array[String] = [title]
 
 	# Tier 1 is the floor and says nothing about an item, so it is left off rather than shown as "Lv. 1".
-	if item.level > 1:
-		lines.append("Lv. %d" % item.level)
+	var level := item_level if item_level > 0 else item.level
+	if level > 1:
+		lines.append("Lv. %d" % level)
+
+	for rolled in rolled_stats:
+		lines.append(_stat_line(rolled.Stat, rolled.Value))
 
 	if max_durability > 0:
 		var broken := " (broken)" if durability <= 0 else ""
 		lines.append("Durability %d/%d%s" % [durability, max_durability, broken])
 
 	if slots > 0:
-		lines.append("%d rune slot(s)" % slots)
+		lines.append("%d socket(s)" % slots)
 
 	var description := _description_of(item)
 	if not description.is_empty():
@@ -55,6 +61,16 @@ static func _description_of(item: ItemResource) -> String:
 	# apart from a real description - the same test [DialogText] uses for an absent title.
 	var translated := _translate(item.description_key)
 	return "" if translated == item.description_key else translated
+
+
+## [code]general.csv[/code] holds one [code]ITEM_STAT_<NAME>[/code] row per stat, with a
+## [code]{value}[/code] placeholder so a language can put the number where it belongs.
+static func _stat_line(stat: String, value: int) -> String:
+	var key := "ITEM_STAT_" + stat
+	var template := _translate(key)
+	if template == key:
+		template = "{value} " + stat
+	return template.format({"value": "%+d" % value})
 
 
 static func _translate(key: String) -> String:

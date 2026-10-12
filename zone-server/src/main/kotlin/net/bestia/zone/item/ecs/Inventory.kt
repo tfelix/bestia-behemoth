@@ -284,7 +284,9 @@ data class Inventory(
           durability = item.durability,
           maxDurability = item.maxDurability,
           slots = item.slots,
-          upgradeLevel = item.upgradeLevel
+          upgradeLevel = item.upgradeLevel,
+          itemLevel = item.itemLevel,
+          rolledStats = item.rolledStats
         )
       }
     )
