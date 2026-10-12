@@ -10,6 +10,7 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 import net.bestia.zone.economy.CommodityItems
 import net.bestia.zone.economy.EconomyCatalogue
+import net.bestia.zone.item.material.ItemMaterial
 
 /**
  * The boot checks that need the item and recipe catalogues.
@@ -29,9 +30,9 @@ class EconomyCoverageTest {
     every { items.findByIdentifier(any()) } returns null
     // Coin has to exist or every check below trips over the one that says so.
     every { items.findByIdentifier(CommodityItems.COIN) } returns
-      Item(id = 26, identifier = CommodityItems.COIN, weight = 0, type = Item.ItemType.ETC)
+      Item(id = 26, identifier = CommodityItems.COIN, weight = 0, type = Item.ItemType.ETC, material = ItemMaterial.METAL)
     KNOWN.forEach { (identifier, id) ->
-      every { items.findByIdentifier(identifier) } returns Item(id = id, identifier = identifier, weight = 1, type = Item.ItemType.ETC)
+      every { items.findByIdentifier(identifier) } returns Item(id = id, identifier = identifier, weight = 1, type = Item.ItemType.ETC, material = ItemMaterial.METAL)
     }
   }
 
@@ -59,7 +60,7 @@ class EconomyCoverageTest {
     // What makes the blocked list prune itself, and it has nothing live to act on: every blocked trade's
     // goods are in items.yml now, so no entry names an item any more. This is the shape of the next one
     // somebody blocks.
-    every { items.findByIdentifier("ale") } returns Item(id = 900, identifier = "ale", weight = 1, type = Item.ItemType.ETC)
+    every { items.findByIdentifier("ale") } returns Item(id = 900, identifier = "ale", weight = 1, type = Item.ItemType.ETC, material = ItemMaterial.FOOD)
     recipes.load(emptyList())
 
     val error = assertFailsWith<IllegalArgumentException> { coverage(stillWaitingFor("brewer", "ale")).validate() }

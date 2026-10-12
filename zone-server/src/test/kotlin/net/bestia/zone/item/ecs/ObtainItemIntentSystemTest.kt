@@ -28,6 +28,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.dao.CannotAcquireLockException
 import net.bestia.zone.ecs.core.EcsWorld
+import net.bestia.zone.item.material.ItemMaterial
 
 @ExtendWith(MockKExtension::class)
 class ObtainItemIntentSystemTest {
@@ -44,8 +45,8 @@ class ObtainItemIntentSystemTest {
   // behavior under test, so it should actually run off-thread instead of being stubbed away.
   private val asyncJobExecutor = AsyncJobExecutor(workerCount = 1)
 
-  private val sword = Item(id = 1L, identifier = "sword", weight = 120, type = Item.ItemType.ETC)
-  private val boulder = Item(id = 2L, identifier = "boulder", weight = 5000, type = Item.ItemType.ETC)
+  private val sword = Item(id = 1L, identifier = "sword", weight = 120, type = Item.ItemType.ETC, material = ItemMaterial.METAL)
+  private val boulder = Item(id = 2L, identifier = "boulder", weight = 5000, type = Item.ItemType.ETC, material = ItemMaterial.STONE)
 
   private lateinit var world: EcsWorld
 

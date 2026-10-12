@@ -18,6 +18,7 @@ import net.bestia.zone.item.net.EquipItemCMSG
 import net.bestia.zone.item.net.EquipItemHandler
 import net.bestia.zone.item.net.UnequipItemCMSG
 import net.bestia.zone.item.net.UnequipItemHandler
+import net.bestia.zone.item.material.ItemMaterial
 
 /** A body waiting to respawn keeps what it wears: changing gear is something only the living do. */
 class DeadEquipmentChangeTest {
@@ -93,7 +94,8 @@ class DeadEquipmentChangeTest {
       weight = 10,
       type = Item.ItemType.EQUIP,
       stackable = false,
-      equipSlot = EquipmentSlot.RIGHT_HAND
+      equipSlot = EquipmentSlot.RIGHT_HAND,
+      material = ItemMaterial.METAL
     )
   }
 }

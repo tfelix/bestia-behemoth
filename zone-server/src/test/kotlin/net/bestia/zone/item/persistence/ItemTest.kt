@@ -4,6 +4,7 @@ import net.bestia.zone.item.equip.ArmorType
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import net.bestia.zone.item.material.ItemMaterial
 
 class ItemTest {
 
@@ -15,7 +16,8 @@ class ItemTest {
         identifier = "apple",
         weight = 1,
         type = Item.ItemType.USABLE,
-        script = null
+        script = null,
+        material = ItemMaterial.FOOD
       )
     }
   }
@@ -27,7 +29,8 @@ class ItemTest {
       identifier = "apple",
       weight = 1,
       type = Item.ItemType.USABLE,
-      script = "AppleScript"
+      script = "AppleScript",
+      material = ItemMaterial.FOOD
     )
 
     assertEquals("AppleScript", item.script)
@@ -39,7 +42,8 @@ class ItemTest {
       id = 2,
       identifier = "jelly",
       weight = 1,
-      type = Item.ItemType.ETC
+      type = Item.ItemType.ETC,
+      material = ItemMaterial.FOOD
     )
 
     assertEquals(null, item.script)
@@ -53,7 +57,8 @@ class ItemTest {
       weight = 1,
       type = Item.ItemType.USABLE,
       script = "SmallHealthPotionScript",
-      description = "Heals a small amount of health."
+      description = "Heals a small amount of health.",
+      material = ItemMaterial.GLASS
     )
 
     assertEquals("Heals a small amount of health.", item.description)
@@ -67,7 +72,8 @@ class ItemTest {
         identifier = "jelly",
         weight = 1,
         type = Item.ItemType.ETC,
-        armorType = ArmorType.CLOTH
+        armorType = ArmorType.CLOTH,
+        material = ItemMaterial.FOOD
       )
     }
   }

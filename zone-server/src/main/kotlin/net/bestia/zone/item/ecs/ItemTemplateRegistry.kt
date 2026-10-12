@@ -26,7 +26,7 @@ class ItemTemplateRegistry(
     val weight: Int,
     val stackable: Boolean,
     val maxDurability: Int,
-    val material: ItemMaterial?,
+    val material: ItemMaterial,
   )
 
   // Lazy: the importer writes the table after this bean exists, so an eager read finds a fresh database empty.

@@ -30,6 +30,7 @@ import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import net.bestia.zone.ecs.core.EcsWorld
+import net.bestia.zone.item.material.ItemMaterial
 
 /**
  * The sweep that takes off gear its wearer no longer qualifies for - Ragnarok Online's `pc_checkitem`.
@@ -72,11 +73,13 @@ class EquipmentRevalidationServiceTest {
 
   private val noviceShirt = Item(
     id = 32L, identifier = "novice_shirt", weight = 120, type = Item.ItemType.EQUIP,
-    equipSlot = EquipmentSlot.ARMOR, level = 1, noviceOnly = true
+    equipSlot = EquipmentSlot.ARMOR, level = 1, noviceOnly = true,
+    material = ItemMaterial.CLOTH
   )
   private val shoes = Item(
     id = 4L, identifier = "shoes", weight = 80, type = Item.ItemType.EQUIP,
-    equipSlot = EquipmentSlot.FOOTGEAR, level = 1
+    equipSlot = EquipmentSlot.FOOTGEAR, level = 1,
+    material = ItemMaterial.LEATHER
   )
 
   init {

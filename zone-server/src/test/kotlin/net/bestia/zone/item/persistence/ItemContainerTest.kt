@@ -9,18 +9,21 @@ import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import net.bestia.zone.item.material.ItemMaterial
 
 class ItemContainerTest {
 
-  private val apple = Item(id = 1L, identifier = "apple", weight = 2, type = Item.ItemType.ETC)
-  private val potion = Item(id = 2L, identifier = "potion", weight = 3, type = Item.ItemType.USABLE, script = "NoopScript")
+  private val apple = Item(id = 1L, identifier = "apple", weight = 2, type = Item.ItemType.ETC, material = ItemMaterial.FOOD)
+  private val potion = Item(id = 2L, identifier = "potion", weight = 3, type = Item.ItemType.USABLE, script = "NoopScript", material = ItemMaterial.GLASS)
   private val sword = Item(
     id = 3L, identifier = "sword", weight = 10, type = Item.ItemType.EQUIP,
-    equipSlot = EquipmentSlot.RIGHT_HAND
+    equipSlot = EquipmentSlot.RIGHT_HAND,
+    material = ItemMaterial.METAL
   )
   private val boots = Item(
     id = 4L, identifier = "boots", weight = 8, type = Item.ItemType.EQUIP,
-    equipSlot = EquipmentSlot.FOOTGEAR
+    equipSlot = EquipmentSlot.FOOTGEAR,
+    material = ItemMaterial.LEATHER
   )
 
   private lateinit var container: ItemContainer

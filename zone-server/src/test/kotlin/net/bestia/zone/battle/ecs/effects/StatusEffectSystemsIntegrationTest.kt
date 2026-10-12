@@ -36,6 +36,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import net.bestia.zone.ecs.core.EcsWorld
+import net.bestia.zone.item.material.ItemMaterial
 
 /**
  * Exercises [StatusEffectDurationSystem] and [StatusValueRecalcSystem] wired together against a
@@ -247,7 +248,8 @@ class StatusEffectSystemsIntegrationTest {
   fun `a passive, worn gear and a status effect all fold into one RegenerationModifiers`() {
     val ringItem = Item(
       id = 6L, identifier = "regen_ring", weight = 1, type = Item.ItemType.EQUIP,
-      script = "RegenRingScript", equipSlot = EquipmentSlot.FOOTGEAR
+      script = "RegenRingScript", equipSlot = EquipmentSlot.FOOTGEAR,
+      material = ItemMaterial.METAL
     )
     val equipmentScriptRegistry = EquipmentScriptRegistry(listOf(RegenRingScript()))
     equipmentScriptRegistry.bind(listOf(ringItem))
@@ -341,7 +343,8 @@ class StatusEffectSystemsIntegrationTest {
   fun `worn equipment raises effective status values and reverts when taken off`() {
     val bootsItem = Item(
       id = 4L, identifier = "boots", weight = 8, type = Item.ItemType.EQUIP,
-      script = "AgilityBootsScript", equipSlot = EquipmentSlot.FOOTGEAR
+      script = "AgilityBootsScript", equipSlot = EquipmentSlot.FOOTGEAR,
+      material = ItemMaterial.LEATHER
     )
     val equipmentScriptRegistry = EquipmentScriptRegistry(listOf(AgilityBootsScript()))
     equipmentScriptRegistry.bind(listOf(bootsItem))
@@ -367,7 +370,8 @@ class StatusEffectSystemsIntegrationTest {
   fun `a status effect stacks on top of the equipment bonus rather than replacing it`() {
     val bootsItem = Item(
       id = 4L, identifier = "boots", weight = 8, type = Item.ItemType.EQUIP,
-      script = "AgilityBootsScript", equipSlot = EquipmentSlot.FOOTGEAR
+      script = "AgilityBootsScript", equipSlot = EquipmentSlot.FOOTGEAR,
+      material = ItemMaterial.LEATHER
     )
     val equipmentScriptRegistry = EquipmentScriptRegistry(listOf(AgilityBootsScript()))
     equipmentScriptRegistry.bind(listOf(bootsItem))

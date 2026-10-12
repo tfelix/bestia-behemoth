@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import net.bestia.zone.item.material.ItemMaterial
 
 /**
  * The rule an offered item has to obey: it stays where it is, and stops being reachable by everything else.
@@ -18,10 +19,11 @@ import org.junit.jupiter.api.Test
  */
 class ItemContainerTradeReservationTest {
 
-  private val apple = Item(id = 1L, identifier = "apple", weight = 2, type = Item.ItemType.ETC)
+  private val apple = Item(id = 1L, identifier = "apple", weight = 2, type = Item.ItemType.ETC, material = ItemMaterial.FOOD)
   private val sword = Item(
     id = 3L, identifier = "sword", weight = 10, type = Item.ItemType.EQUIP,
-    equipSlot = EquipmentSlot.RIGHT_HAND
+    equipSlot = EquipmentSlot.RIGHT_HAND,
+    material = ItemMaterial.METAL
   )
 
   private val tradeId = 42L

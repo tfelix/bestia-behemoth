@@ -101,15 +101,14 @@ class Item(
   var armorType: ArmorType? = null,
 
   /**
-   * What the item is made of, which decides how it fares lying on the ground. Every catalogue item names one;
-   * null only for a row the importer has not reached yet.
+   * What the item is made of, which decides how it fares lying on the ground. Every catalogue item names one.
    *
    * A varchar rather than the native enum Hibernate makes on MariaDB, which `ddl-auto: update` never widens.
    */
   @Enumerated(EnumType.STRING)
   @JdbcTypeCode(SqlTypes.VARCHAR)
-  @Column(name = "material", nullable = true, length = 16)
-  var material: ItemMaterial? = null,
+  @Column(name = "material", nullable = false, length = 16)
+  var material: ItemMaterial,
 
   /**
    * Long-form flavor text, English only.

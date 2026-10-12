@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test
 import java.util.Optional
 import net.bestia.zone.item.persistence.Item
 import net.bestia.zone.item.persistence.ItemRepository
+import net.bestia.zone.item.material.ItemMaterial
 
 /**
  * A used item's effect cannot be taken back, so it only happens once the database has given the item up.
@@ -79,6 +80,6 @@ class UseItemHandlerTest {
   private companion object {
     const val ACCOUNT_ID = 1L
     const val MASTER_ID = 2L
-    val POTION = Item(id = 20L, identifier = "potion", weight = 1, type = Item.ItemType.USABLE, script = "Potion")
+    val POTION = Item(id = 20L, identifier = "potion", weight = 1, type = Item.ItemType.USABLE, script = "Potion", material = ItemMaterial.GLASS)
   }
 }
