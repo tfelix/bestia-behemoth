@@ -1,5 +1,6 @@
 package net.bestia.zone.item.persistence
 
+import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
@@ -7,7 +8,10 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
+import jakarta.persistence.OneToMany
+import jakarta.persistence.OrderBy
 import jakarta.persistence.Table
+import net.bestia.zone.item.stat.StatValue
 
 /**
  * A single, uniquely identifiable item that carries per-instance state (an upgrade level, the
@@ -47,14 +51,33 @@ class ItemInstance(
   var durability: Int = maxDurability,
 
   /**
-   * Rune slots cut into this item by Item Customization; zero for everything untouched.
+   * Sockets for essences: opened when the item was forged, or cut later by Item Customization.
    *
-   * A count rather than a list of what sits in them, because nothing can fill one yet - runes are
-   * Artificer work (`RUNIC_ETCHING`) and that sub-tree is not built. Cutting the slot is the whole of
-   * what the Craftsman tree does, and the docs' table for Item Customization is exactly a slot cap.
+   * A count rather than a list of what sits in them, because nothing can fill one yet - essences are
+   * Artificer work (`RUNIC_ETCHING`) and that sub-tree is not built.
    */
   var slots: Int = 0,
+
+  /** The level this copy rolled to. Null on copies made before item levels existed: read the template's then. */
+  @Column(name = "item_level", nullable = true)
+  var itemLevel: Int? = null,
 ) {
+
+  @OneToMany(mappedBy = "itemInstance", cascade = [CascadeType.ALL], orphanRemoval = true)
+  @OrderBy("ordinal")
+  private val rolledStatRows: MutableList<ItemInstanceStat> = mutableListOf()
+
+  val rolledStats: List<StatValue>
+    get() {
+      return rolledStatRows.map { it.toStatValue() }
+    }
+
+  fun assignRolledStats(stats: List<StatValue>) {
+    rolledStatRows.clear()
+    stats.forEachIndexed { ordinal, rolled ->
+      rolledStatRows.add(ItemInstanceStat(this, ordinal, rolled.stat, rolled.value))
+    }
+  }
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
