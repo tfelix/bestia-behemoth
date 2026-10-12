@@ -272,7 +272,18 @@ class StandardWorldTest {
 
   @Test
   fun `every invariant holds on this world`() {
-    val violations = Invariants.check(world)
+    // Sampled: this world's two prop-scanning checks cost about 75 s exhaustively, which was most of this whole
+    // class. The exhaustive form runs on a smaller world in the test below.
+    val violations = Invariants.check(world, Invariants.PropScan.SAMPLED)
+    assertTrue(violations.isEmpty(), violations.joinToString("\n"))
+  }
+
+  @Test
+  fun `every invariant holds exhaustively on a small world`() {
+    val violations = Invariants.check(
+      StandardWorld.build(config(2L).copy(widthCells = 128, heightCells = 128)),
+      Invariants.PropScan.EXHAUSTIVE
+    )
     assertTrue(violations.isEmpty(), violations.joinToString("\n"))
   }
 
@@ -285,6 +296,7 @@ class StandardWorldTest {
       seeds = 4,
       firstSeed = 700L,
       config = { seed -> config(seed).copy(widthCells = 128, heightCells = 128) },
+      props = Invariants.PropScan.SAMPLED,
       onSeed = { _, _, generated -> lakes.add(Invariants.lakeCount(generated)) }
     )
 
