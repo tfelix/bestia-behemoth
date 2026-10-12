@@ -4,6 +4,7 @@ import net.bestia.worldgen.core.IntLayer
 import net.bestia.worldgen.core.LayerId
 import net.bestia.worldgen.pipeline.GeneratedWorld
 import net.bestia.worldgen.pipeline.StandardWorld
+import net.bestia.worldgen.pipeline.TestWorlds
 import java.util.Locale
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -23,7 +24,7 @@ import kotlin.test.assertTrue
 class BiomeBlendTest {
 
   private companion object {
-    val world: GeneratedWorld = StandardWorld.build(
+    val world: GeneratedWorld = TestWorlds.get(
       StandardWorld.demoConfig(seed = StandardWorld.DEFAULT_SEED).copy(widthCells = 192, heightCells = 192)
     )
   }

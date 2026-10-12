@@ -2,7 +2,7 @@ package net.bestia.worldgen.climate
 
 import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.pipeline.GeneratedWorld
-import net.bestia.worldgen.pipeline.StandardWorld
+import net.bestia.worldgen.pipeline.TestWorlds
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -17,7 +17,7 @@ import kotlin.test.assertTrue
 class WeatherForecastTest {
 
   private val world: GeneratedWorld by lazy {
-    StandardWorld.build(WorldConfig(seed = 7L, widthCells = 128, heightCells = 128))
+    TestWorlds.get(WorldConfig(seed = 7L, widthCells = 128, heightCells = 128))
   }
 
   private val model: WeatherModel by lazy { WeatherModel.of(world) }

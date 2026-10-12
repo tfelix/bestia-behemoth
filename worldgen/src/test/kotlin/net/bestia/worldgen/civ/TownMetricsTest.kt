@@ -2,6 +2,7 @@ package net.bestia.worldgen.civ
 
 import net.bestia.worldgen.pipeline.GeneratedWorld
 import net.bestia.worldgen.pipeline.StandardWorld
+import net.bestia.worldgen.pipeline.TestWorlds
 import net.bestia.worldgen.pipeline.WorldParams
 import kotlin.test.Test
 import kotlin.test.assertTrue
@@ -19,7 +20,7 @@ import kotlin.test.assertTrue
 class TownMetricsTest {
 
   private val generated: GeneratedWorld by lazy {
-    StandardWorld.build(StandardWorld.demoConfig(seed = 909L).copy(widthCells = 160, heightCells = 160))
+    TestWorlds.get(StandardWorld.demoConfig(seed = 909L).copy(widthCells = 160, heightCells = 160))
   }
 
   private val measured by lazy { TownMetrics.of(generated) }

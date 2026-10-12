@@ -4,6 +4,7 @@ import net.bestia.worldgen.core.ChunkPos
 import net.bestia.worldgen.history.HistoryChannels
 import net.bestia.worldgen.pipeline.GeneratedWorld
 import net.bestia.worldgen.pipeline.StandardWorld
+import net.bestia.worldgen.pipeline.TestWorlds
 import net.bestia.worldgen.vector.BlendMode
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.FootprintFeature
@@ -22,7 +23,7 @@ import kotlin.test.assertTrue
 class TownStageTest {
 
   private val generated: GeneratedWorld by lazy {
-    StandardWorld.build(StandardWorld.demoConfig(seed = 909L).copy(widthCells = 160, heightCells = 160))
+    TestWorlds.get(StandardWorld.demoConfig(seed = 909L).copy(widthCells = 160, heightCells = 160))
   }
 
   private val buildings: List<FootprintFeature> by lazy {

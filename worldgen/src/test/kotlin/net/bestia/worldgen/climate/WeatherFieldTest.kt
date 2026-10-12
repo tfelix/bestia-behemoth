@@ -3,7 +3,7 @@ package net.bestia.worldgen.climate
 import net.bestia.worldgen.core.GenRng
 import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.fields.Noise
-import net.bestia.worldgen.pipeline.StandardWorld
+import net.bestia.worldgen.pipeline.TestWorlds
 import kotlin.math.abs
 import kotlin.test.Test
 import kotlin.test.assertTrue
@@ -72,7 +72,7 @@ class WeatherFieldTest {
     // Counted, not derived. `128² / 16²` says 64; Bridson packs at about 0.70 per r², so it is nearer 46.
     // This is the "count the output" step, and the bound is what catches a spacing that got detail-scaled.
     for (seed in listOf(1L, 7L, 42L)) {
-      val world = StandardWorld.build(WorldConfig(seed = seed, widthCells = 128, heightCells = 128))
+      val world = TestWorlds.get(WorldConfig(seed = seed, widthCells = 128, heightCells = 128))
       val regions = WeatherRegions.of(world)
 
       assertTrue(
@@ -90,7 +90,7 @@ class WeatherFieldTest {
 
   @Test
   fun `every land position resolves to a region whose summary is finite`() {
-    val world = StandardWorld.build(WorldConfig(seed = 7L, widthCells = 128, heightCells = 128))
+    val world = TestWorlds.get(WorldConfig(seed = 7L, widthCells = 128, heightCells = 128))
     val regions = WeatherRegions.of(world)
     val config = world.config
 

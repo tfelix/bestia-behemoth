@@ -3,6 +3,7 @@ package net.bestia.worldgen.place
 import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.history.Names
 import net.bestia.worldgen.pipeline.StandardWorld
+import net.bestia.worldgen.pipeline.TestWorlds
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -17,7 +18,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 class PlaceRegionsTest {
 
   private val world by lazy {
-    StandardWorld.build(
+    TestWorlds.get(
       WorldConfig(seed = StandardWorld.DEFAULT_SEED, widthCells = 128, heightCells = 128)
     )
   }

@@ -2,6 +2,7 @@ package net.bestia.worldgen.civ
 
 import net.bestia.worldgen.pipeline.GeneratedWorld
 import net.bestia.worldgen.pipeline.StandardWorld
+import net.bestia.worldgen.pipeline.TestWorlds
 import net.bestia.worldgen.vector.AreaFeature
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.FootprintFeature
@@ -18,7 +19,7 @@ import kotlin.test.assertTrue
 class DistrictTest {
 
   private val generated: GeneratedWorld by lazy {
-    StandardWorld.build(StandardWorld.demoConfig(seed = 909L).copy(widthCells = 160, heightCells = 160))
+    TestWorlds.get(StandardWorld.demoConfig(seed = 909L).copy(widthCells = 160, heightCells = 160))
   }
 
   private val districts: List<AreaFeature> by lazy {

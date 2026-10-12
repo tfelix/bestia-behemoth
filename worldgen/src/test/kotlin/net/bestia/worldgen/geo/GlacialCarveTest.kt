@@ -5,6 +5,7 @@ import net.bestia.worldgen.core.IntLayer
 import net.bestia.worldgen.core.LayerId
 import net.bestia.worldgen.pipeline.GeneratedWorld
 import net.bestia.worldgen.pipeline.StandardWorld
+import net.bestia.worldgen.pipeline.TestWorlds
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.PolylineFeature
 import net.bestia.worldgen.vector.Profiles
@@ -23,7 +24,7 @@ import kotlin.test.assertTrue
 class GlacialCarveTest {
 
   private val generated: GeneratedWorld by lazy {
-    StandardWorld.build(StandardWorld.demoConfig(seed = StandardWorld.DEFAULT_SEED))
+    TestWorlds.get(StandardWorld.demoConfig(seed = StandardWorld.DEFAULT_SEED))
   }
 
   private val troughs: List<PolylineFeature> by lazy {

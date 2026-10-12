@@ -5,6 +5,7 @@ import net.bestia.worldgen.core.LayerId
 import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.fields.Grid
 import net.bestia.worldgen.pipeline.StandardWorld
+import net.bestia.worldgen.pipeline.TestWorlds
 import net.bestia.worldgen.resource.DepositChannels
 import net.bestia.worldgen.resource.ResourceType
 import net.bestia.worldgen.vector.FeatureKind
@@ -32,7 +33,7 @@ class CivilisationStageTest {
      * tests pass vacuously while testing nothing.
      */
     val world by lazy {
-      StandardWorld.build(
+      TestWorlds.get(
         WorldConfig(seed = 0x50FA5L, widthCells = 288, heightCells = 288, chunkSize = 32, voxelSize = 1.0)
       )
     }

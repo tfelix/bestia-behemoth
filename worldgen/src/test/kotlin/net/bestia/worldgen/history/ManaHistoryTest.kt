@@ -8,7 +8,7 @@ import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.mana.CorruptionStage
 import net.bestia.worldgen.pipeline.GeneratedWorld
 import net.bestia.worldgen.pipeline.Invariants
-import net.bestia.worldgen.pipeline.StandardWorld
+import net.bestia.worldgen.pipeline.TestWorlds
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.PointMarker
 import net.bestia.worldgen.voxel.ChunkMaterializer
@@ -32,8 +32,15 @@ class ManaHistoryTest {
 
   private val seeds = listOf(1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L)
 
-  private fun world(seed: Long) =
-    StandardWorld.build(WorldConfig(seed = seed, widthCells = 128, heightCells = 128))
+  /**
+   * All of [seeds], built side by side the first time any test asks and shared by every test after it. Each of
+   * the five tests used to build all eight itself, which was forty worlds to answer questions about eight.
+   */
+  private val worlds by lazy {
+    seeds.zip(TestWorlds.getAll(seeds.map { WorldConfig(seed = it, widthCells = 128, heightCells = 128) })).toMap()
+  }
+
+  private fun world(seed: Long) = worlds.getValue(seed)
 
   private fun corruption(world: GeneratedWorld) =
     world.world.layers.require<FloatLayer>(LayerId.CORRUPTION)

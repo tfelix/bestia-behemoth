@@ -5,7 +5,7 @@ import net.bestia.worldgen.core.FloatLayer
 import net.bestia.worldgen.core.LayerId
 import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.pipeline.GeneratedWorld
-import net.bestia.worldgen.pipeline.StandardWorld
+import net.bestia.worldgen.pipeline.TestWorlds
 import net.bestia.worldgen.resource.DepositChannels
 import net.bestia.worldgen.resource.ResourceType
 import net.bestia.worldgen.vector.FeatureKind
@@ -30,14 +30,15 @@ import kotlin.test.fail
  */
 class AetheriteTest {
 
-  private fun world(seed: Long) =
-    StandardWorld.build(WorldConfig(seed = seed, widthCells = 128, heightCells = 128))
+  private fun config(seed: Long) = WorldConfig(seed = seed, widthCells = 128, heightCells = 128)
+
+  private fun world(seed: Long) = TestWorlds.get(config(seed))
 
   @Test
   fun `some world puts an ore body in corrupted ground`() {
     // The existence claim, over a handful of seeds. This is the count that says the subsystem is reachable
     // at all; the seed-pinned test below is what says it materialises.
-    val worlds = (1L..8L).map { world(it) }
+    val worlds = TestWorlds.getAll((1L..8L).map(::config))
     val corruptedDeposits = worlds.sumOf { corruptedDepositCount(it) }
 
     assertTrue(

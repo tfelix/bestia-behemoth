@@ -6,7 +6,7 @@ import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.geo.VolcanismStage
 import net.bestia.worldgen.civ.SettlementChannels
 import net.bestia.worldgen.pipeline.GeneratedWorld
-import net.bestia.worldgen.pipeline.StandardWorld
+import net.bestia.worldgen.pipeline.TestWorlds
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.PointMarker
 import net.bestia.worldgen.voxel.ChunkMaterializer
@@ -220,12 +220,12 @@ class VolcanicHistoryTest {
       .filterIsInstance<PointMarker>()
       .associate { it.attribute(SettlementChannels.INDEX).toInt() to it.position }
 
-  private val built = HashMap<Long, GeneratedWorld>()
+  private fun configOf(seed: Long) = WorldConfig(seed = seed, widthCells = CELLS, heightCells = CELLS)
 
-  /** Built once per seed and shared, since four of the tests walk the same worlds. */
-  private fun worldOf(seed: Long) = built.getOrPut(seed) {
-    StandardWorld.build(WorldConfig(seed = seed, widthCells = CELLS, heightCells = CELLS))
-  }
+  /** All of [SEEDS], built side by side on first use, since four of the tests walk the same worlds. */
+  private val built by lazy { SEEDS.zip(TestWorlds.getAll(SEEDS.map(::configOf))).toMap() }
+
+  private fun worldOf(seed: Long) = built[seed] ?: TestWorlds.get(configOf(seed))
 
   private companion object {
     /**

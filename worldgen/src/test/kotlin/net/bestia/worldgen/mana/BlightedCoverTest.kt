@@ -5,7 +5,7 @@ import net.bestia.worldgen.core.FloatLayer
 import net.bestia.worldgen.core.LayerId
 import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.pipeline.GeneratedWorld
-import net.bestia.worldgen.pipeline.StandardWorld
+import net.bestia.worldgen.pipeline.TestWorlds
 import net.bestia.worldgen.voxel.BlockType
 import net.bestia.worldgen.voxel.VoxelChunk
 import kotlin.test.Test
@@ -23,7 +23,7 @@ import kotlin.test.assertTrue
 class BlightedCoverTest {
 
   private val world: GeneratedWorld by lazy {
-    StandardWorld.build(WorldConfig(seed = 7L, widthCells = 128, heightCells = 128))
+    TestWorlds.get(WorldConfig(seed = 7L, widthCells = 128, heightCells = 128))
   }
 
   @Test

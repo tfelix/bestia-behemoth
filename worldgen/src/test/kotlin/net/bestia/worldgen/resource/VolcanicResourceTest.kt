@@ -5,7 +5,7 @@ import net.bestia.worldgen.core.LayerId
 import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.history.SiteChannels
 import net.bestia.worldgen.pipeline.GeneratedWorld
-import net.bestia.worldgen.pipeline.StandardWorld
+import net.bestia.worldgen.pipeline.TestWorlds
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.PointMarker
 import net.bestia.worldgen.voxel.BlockType
@@ -166,12 +166,10 @@ class VolcanicResourceTest {
    * decided the seed count, since a robust total needs more seeds than one world's worth of luck.
    */
   private val worlds: List<GeneratedWorld> by lazy {
-    SEEDS.map {
-      StandardWorld.build(
-        WorldConfig(seed = it, widthCells = CELLS, heightCells = CELLS, chunkSize = 32, voxelSize = 1.0),
-        params = RawGeology.PARAMS
-      )
-    }
+    TestWorlds.getAll(
+      SEEDS.map { WorldConfig(seed = it, widthCells = CELLS, heightCells = CELLS, chunkSize = 32, voxelSize = 1.0) },
+      RawGeology.PARAMS
+    )
   }
 
   private fun depositsOf(world: GeneratedWorld) = world.world.features.all()

@@ -3,7 +3,7 @@ package net.bestia.worldgen.geo
 import net.bestia.worldgen.core.FloatLayer
 import net.bestia.worldgen.core.LayerId
 import net.bestia.worldgen.core.WorldConfig
-import net.bestia.worldgen.pipeline.StandardWorld
+import net.bestia.worldgen.pipeline.TestWorlds
 import net.bestia.worldgen.vector.AreaFeature
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.PointMarker
@@ -37,7 +37,7 @@ class VolcanismTest {
     voxelSize = 1.0
   )
 
-  private val world by lazy { StandardWorld.build(config(0xC0FFEEL)) }
+  private val world by lazy { TestWorlds.get(config(0xC0FFEEL)) }
 
   @Test
   fun `the world has craters and they are on dry land`() {

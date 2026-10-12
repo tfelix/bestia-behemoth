@@ -4,7 +4,7 @@ import net.bestia.worldgen.core.FloatLayer
 import net.bestia.worldgen.core.LayerId
 import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.pipeline.GeneratedWorld
-import net.bestia.worldgen.pipeline.StandardWorld
+import net.bestia.worldgen.pipeline.TestWorlds
 import kotlin.test.Test
 import kotlin.test.assertTrue
 
@@ -19,7 +19,7 @@ import kotlin.test.assertTrue
 class ManaStageTest {
 
   private fun world(seed: Long, cells: Int = 128) =
-    StandardWorld.build(WorldConfig(seed = seed, widthCells = cells, heightCells = cells))
+    TestWorlds.get(WorldConfig(seed = seed, widthCells = cells, heightCells = cells))
 
   private fun mana(world: GeneratedWorld) = world.world.layers.require<FloatLayer>(LayerId.MANA_DENSITY)
 
