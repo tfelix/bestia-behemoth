@@ -52,26 +52,26 @@ class AttackExecutionServiceTest {
   @Test
   fun `a basic swing takes real health off`() {
     // Both fighters have every attribute at 10 and no Level component, so BattleContextFactory reads level 1:
-    // ATK = 1/4 + 10 + 10/5 + 10/3 = 15, and `alwaysLands` also wins the crit roll, so the swing bypasses the
-    // target's soft defence for floor(2 * 15 * 1.4) = 42.
+    // ATK = 1/4 + 10 + (10/10)² + 10/5 + 10/3 = 16, and `alwaysLands` also wins the crit roll, so the swing bypasses
+    // the target's soft defence for floor(2 * 16 * 1.4) = 44.
     val attacker = world.spawnFighter(at = Vec3L(0, 0, 0))
     val target = world.spawnFighter(at = Vec3L(1, 0, 0))
 
     sut.attack(world, attacker, target, BattleAttack.getBasicMeleeAttack())
 
-    assertEquals(42, world.get(target, IncomingDamage::class)?.total())
+    assertEquals(44, world.get(target, IncomingDamage::class)?.total())
   }
 
   @Test
   fun `an ordinary hit is smaller than a critical, and pays the target's defence`() {
     // 0.5 clears the hit check (about 0.84 for these two) but not the crit check (about 0.024), and spends half
-    // the variance: floor(2 * 15 * 0.925) - 10/2 = 27 - 5 = 22.
+    // the variance: floor(2 * 16 * 0.925) - 10/2 = 29 - 5 = 24.
     val attacker = world.spawnFighter(at = Vec3L(0, 0, 0))
     val target = world.spawnFighter(at = Vec3L(1, 0, 0))
 
     serviceWith(FixedRandom(0.5f)).attack(world, attacker, target, BattleAttack.getBasicMeleeAttack())
 
-    assertEquals(22, world.get(target, IncomingDamage::class)?.total())
+    assertEquals(24, world.get(target, IncomingDamage::class)?.total())
   }
 
   @Test
