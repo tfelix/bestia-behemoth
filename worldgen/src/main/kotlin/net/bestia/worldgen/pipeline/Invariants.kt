@@ -109,6 +109,33 @@ object Invariants {
   }
 
   /**
+   * How much of the chunk tier the two checks that materialise props read.
+   *
+   * `checkVegetationStandsAdvertiseFillableCapacity` and `checkNoTreeStandsInAYard` are the only checks that
+   * walk chunks one at a time, and they were measured at about 75 s on a 160-cell world and 105 s on a 600-cell
+   * one - nearly all of what [check] costs, against a few seconds for the other sixty. A chunk's props need its
+   * column heights, so there is no cheaper way to ask; what can be bounded is how many chunks are asked about.
+   */
+  enum class PropScan {
+    /**
+     * Every chunk the check's own geometry covers. What a seed sweep wants, because a sweep exists to find the
+     * one world in a few hundred where a single tree stands in a yard.
+     */
+    EXHAUSTIVE,
+
+    /**
+     * A fixed handful of chunks, chosen evenly across that same geometry, so the cost no longer scales with how
+     * big the stand or the town happens to be.
+     *
+     * A tripwire rather than a proof. It cannot say "no tree anywhere", only that none was found in the chunks
+     * it looked at, and a world with no trees near its town passes it instead of failing the way the exhaustive
+     * scan does - a sample that small cannot tell sparse from absent. Tests that only want to know the whole
+     * battery still passes on some world use this; the exhaustive form stays covered by a test of its own.
+     */
+    SAMPLED
+  }
+
+  /**
    * Generates [seeds] worlds from [firstSeed] and checks all of them.
    *
    * ### One world per core, a batch at a time
@@ -159,6 +186,9 @@ object Invariants {
      */
     params: WorldParams = WorldParams.DEFAULT,
 
+    /** Passed on to [check]. Exhaustive unless a caller is trading depth for time. */
+    props: PropScan = PropScan.EXHAUSTIVE,
+
     /**
      * Called once per world, with the world itself so a caller can measure it.
      *
@@ -182,7 +212,7 @@ object Invariants {
       val built = Parallel.map(size) { k ->
         val seed = firstSeed + offset + k
         val generated = StandardWorld.build(config(seed), StageListener.NONE, params)
-        Triple(seed, Report(1, check(generated)), generated)
+        Triple(seed, Report(1, check(generated, props)), generated)
       }
 
       for ((seed, report, generated) in built) {
@@ -213,8 +243,8 @@ object Invariants {
   /** Most the near-town mean corruption may be, as a fraction of the mean over all land. */
   private const val CIVILISATION_SUPPRESSION_RATIO = 0.25
 
-  /** Every check against one world. */
-  fun check(generated: GeneratedWorld): List<Violation> {
+  /** Every check against one world. [props] decides how many chunks the two prop-scanning checks read. */
+  fun check(generated: GeneratedWorld, props: PropScan = PropScan.EXHAUSTIVE): List<Violation> {
     val out = ArrayList<Violation>()
     val seed = generated.config.seed
 
@@ -286,9 +316,9 @@ object Invariants {
     checkVegetationStandsAreOnDryLand(generated, ::fail)
     checkVegetationStandsAreWellFormed(generated, ::fail)
     checkVegetationStandsAreWooded(generated, ::fail)
-    checkVegetationStandsAdvertiseFillableCapacity(generated, ::fail)
+    checkVegetationStandsAdvertiseFillableCapacity(generated, props, ::fail)
     checkPropsAreWellPlaced(generated, ::fail)
-    checkNoTreeStandsInAYard(generated, ::fail)
+    checkNoTreeStandsInAYard(generated, props, ::fail)
     checkPoisBecomeProps(generated, ::fail)
     checkDistrictsHoldTheirBuildings(generated, ::fail)
     checkBuiltTownsHaveStreets(generated, ::fail)
@@ -1336,6 +1366,24 @@ object Invariants {
    * is about 625 chunks - so this is the expensive check in the file and the sample is deliberately small.
    */
   private const val CAPACITY_SAMPLES = 3
+
+  /**
+   * Chunks read per axis, per stand, under [PropScan.SAMPLED]: 64 of a disc's roughly 676.
+   *
+   * Measured rather than chosen. Over 44 stands in five worlds a sample this size read between 0.85 and 1.18 of
+   * the exhaustive count, where four per axis ranged from 0.51 to 1.45 - too loose against a band whose floor is
+   * 0.4. The sample is the middle chunk of each equal stratum, not a lattice from the box's own corner: that was
+   * tried first and read 0.5 to 0.8 of the truth, because its outer rows sit on the corners of the disc's
+   * bounding square, where there is no wood, and were each weighted as a whole stratum.
+   */
+  private const val CAPACITY_CHUNKS_ACROSS = 8
+
+  /**
+   * Chunks the sampled yard scan reads, out of those a building's yard actually reaches into.
+   *
+   * Each one is a props build with a whole town's footprints in its query, which is what makes this check dear.
+   */
+  private const val YARD_CHUNK_BUDGET = 100
 
   /**
    * How far the emitted tree count may sit from what the stands advertised.
@@ -3532,9 +3580,14 @@ object Invariants {
    * covers. Compared with a wide tolerance on purpose: the advertisement is an expectation over a Poisson-ish
    * process and one disc is one sample of it, so this is a check against being wrong by a factor, not against
    * being wrong by a fifth.
+   *
+   * Under [PropScan.SAMPLED] each disc is read through a fixed grid of chunks and the count scaled back up by the
+   * share of the box they stand for. The cost of a disc is very uneven - most take a fifth of a second, one that
+   * sits over a town takes twenty - so capping the chunks per disc is what bounds the worst case.
    */
   private fun checkVegetationStandsAdvertiseFillableCapacity(
     generated: GeneratedWorld,
+    scan: PropScan,
     fail: (String, String) -> Unit
   ) {
     val stands = generated.world.features.all()
@@ -3545,8 +3598,10 @@ object Invariants {
     val extent = generated.config.chunkSize * generated.config.voxelSize
     val stride = maxOf(1, stands.size / CAPACITY_SAMPLES)
 
+    val across = if (scan == PropScan.EXHAUSTIVE) Int.MAX_VALUE else CAPACITY_CHUNKS_ACROSS
+
     var advertised = 0.0
-    var found = 0
+    var found = 0.0
 
     for (i in stands.indices step stride) {
       val stand = stands[i]
@@ -3558,17 +3613,26 @@ object Invariants {
       val fromChunkY = Math.floorDiv(((stand.position.y - radius) / extent).toLong(), 1L).toInt()
       val untilChunkY = Math.floorDiv(((stand.position.y + radius) / extent).toLong(), 1L).toInt()
 
-      for (chunkY in fromChunkY..untilChunkY) {
-        for (chunkX in fromChunkX..untilChunkX) {
-          val props = generated.propsIn(chunkX, chunkY)
-          for (p in props.indices) {
-            if (props.kindAt(p) != PropKind.TREE) continue
-            val dx = props.xAt(p) - stand.position.x
-            val dy = props.yAt(p) - stand.position.y
-            if (dx * dx + dy * dy <= radius * radius) found++
+      val chunksX = untilChunkX - fromChunkX + 1
+      val chunksY = untilChunkY - fromChunkY + 1
+      val columns = strata(chunksX, across)
+      val rows = strata(chunksY, across)
+
+      var counted = 0
+      for (row in rows) {
+        for (column in columns) {
+          val inChunk = generated.propsIn(fromChunkX + column, fromChunkY + row)
+          for (p in inChunk.indices) {
+            if (inChunk.kindAt(p) != PropKind.TREE) continue
+            val dx = inChunk.xAt(p) - stand.position.x
+            val dy = inChunk.yAt(p) - stand.position.y
+            if (dx * dx + dy * dy <= radius * radius) counted++
           }
         }
       }
+
+      // Each chunk read stands for its share of the box: exactly 1.0 when all of them were.
+      found += counted * (chunksX.toDouble() * chunksY / (columns.size * rows.size))
     }
 
     if (advertised <= 0.0) return
@@ -3577,11 +3641,19 @@ object Invariants {
     if (ratio < CAPACITY_MIN_RATIO || ratio > CAPACITY_MAX_RATIO) {
       fail(
         "vegetation stands advertise a fillable capacity",
-        "stands advertise %.0f trees and the chunk tier emits %d, a ratio of %.2f - the two tiers disagree "
-            .format(advertised, found, ratio) + "about the entity lattice"
+        "stands advertise %.0f trees and the chunk tier emits %.0f%s, a ratio of %.2f - the two tiers disagree "
+            .format(advertised, found, if (scan == PropScan.SAMPLED) " (sampled)" else "", ratio) +
+            "about the entity lattice"
       )
     }
   }
+
+  /**
+   * Which of [count] chunks a scan reads: all of them, or the middle one of each of [samples] equal strata
+   * when there are more than that. See [CAPACITY_CHUNKS_ACROSS] for why the middle and not the first.
+   */
+  private fun strata(count: Int, samples: Int): IntArray =
+    if (count <= samples) IntArray(count) { it } else IntArray(samples) { ((it + 0.5) * count / samples).toInt() }
 
   /**
    * Every prop stands on its own ground, in its own chunk, under its own name.
@@ -3611,8 +3683,18 @@ object Invariants {
    *
    * Read off the live tuning rather than a constant here, so a params file that widens the yard widens what
    * is checked instead of failing the sweep.
+   *
+   * Under [PropScan.SAMPLED] only chunks a yard reaches into are candidates - a tree can stand in a yard only in
+   * a chunk the yard overlaps - and [YARD_CHUNK_BUDGET] of those are read, evenly through them. Blind sampling of
+   * the town's window was tried and is useless here: a town thins its trees to about a tenth of one a chunk, so a
+   * hundred chunks picked without looking see none. The window itself is up to 1 681 chunks, which is where the
+   * exhaustive scan's half a minute goes.
    */
-  private fun checkNoTreeStandsInAYard(generated: GeneratedWorld, fail: (String, String) -> Unit) {
+  private fun checkNoTreeStandsInAYard(
+    generated: GeneratedWorld,
+    scan: PropScan,
+    fail: (String, String) -> Unit
+  ) {
     if (generated.world.layers[LayerId.CANOPY_COVER] == null) return
 
     val yard = generated.params.vegetation.buildingYard
@@ -3636,22 +3718,41 @@ object Invariants {
     if (span <= 0) return
 
     var trees = 0
+
+    /** Reads one chunk's trees; false once a violation has been reported. */
+    fun scanChunk(chunkX: Int, chunkY: Int): Boolean {
+      val inChunk = generated.propsIn(chunkX, chunkY)
+      for (i in inChunk.indices) {
+        if (inChunk.kindAt(i) != PropKind.TREE) continue
+        trees++
+        val x = inChunk.xAt(i)
+        val y = inChunk.yAt(i)
+        val inYard = buildings.firstOrNull { it.within(x, y, yard) } ?: continue
+        fail(
+          "no tree stands in the yard of a building",
+          "a tree at ($x,$y) stands inside the ${"%.0f".format(yard)} m yard of building " +
+              "${inYard.id} - the chunk tier is not keeping vegetation off the ground beside a house"
+        )
+        return false
+      }
+      return true
+    }
+
+    if (scan == PropScan.SAMPLED) {
+      // No habit-six guard below: a hundred chunks cannot tell a sparse town from a treeless one.
+      val reached = chunksReachedByAYard(
+        buildings, yard, extent, centreX - span..centreX + span, centreY - span..centreY + span
+      )
+      for (k in strata(reached.size, YARD_CHUNK_BUDGET)) {
+        val key = reached[k]
+        if (!scanChunk(key.toInt(), (key shr 32).toInt())) return
+      }
+      return
+    }
+
     for (chunkY in centreY - span..centreY + span) {
       for (chunkX in centreX - span..centreX + span) {
-        val props = generated.propsIn(chunkX, chunkY)
-        for (i in props.indices) {
-          if (props.kindAt(i) != PropKind.TREE) continue
-          trees++
-          val x = props.xAt(i)
-          val y = props.yAt(i)
-          val inYard = buildings.firstOrNull { it.within(x, y, yard) } ?: continue
-          fail(
-            "no tree stands in the yard of a building",
-            "a tree at ($x,$y) stands inside the ${"%.0f".format(yard)} m yard of building " +
-                "${inYard.id} - the chunk tier is not keeping vegetation off the ground beside a house"
-          )
-          return
-        }
+        if (!scanChunk(chunkX, chunkY)) return
       }
     }
 
@@ -3662,6 +3763,34 @@ object Invariants {
         "the largest settlement has no tree within half its radius, so the yard rule was never exercised"
       )
     }
+  }
+
+  /**
+   * The chunks within [xs] by [ys] that some building's yard overlaps, in row order, each packed as
+   * `chunkY shl 32 or chunkX` so the list sorts without a comparator and holds no boxed pairs.
+   */
+  private fun chunksReachedByAYard(
+    buildings: List<FootprintFeature>,
+    yard: Double,
+    extent: Double,
+    xs: IntRange,
+    ys: IntRange
+  ): LongArray {
+    val reached = java.util.TreeSet<Long>()
+    for (building in buildings) {
+      val box = building.bbox.expanded(yard)
+      val fromX = maxOf(xs.first, floor(box.minX / extent).toInt())
+      val untilX = minOf(xs.last, floor(box.maxX / extent).toInt())
+      val fromY = maxOf(ys.first, floor(box.minY / extent).toInt())
+      val untilY = minOf(ys.last, floor(box.maxY / extent).toInt())
+
+      for (chunkY in fromY..untilY) {
+        for (chunkX in fromX..untilX) {
+          reached.add((chunkY.toLong() shl 32) or (chunkX.toLong() and 0xFFFFFFFFL))
+        }
+      }
+    }
+    return reached.toLongArray()
   }
 
   private fun checkPropsAreWellPlaced(generated: GeneratedWorld, fail: (String, String) -> Unit) {

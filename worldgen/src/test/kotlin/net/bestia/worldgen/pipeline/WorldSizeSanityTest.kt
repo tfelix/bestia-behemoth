@@ -64,6 +64,9 @@ class WorldSizeSanityTest {
    * check alone would not catch: the config actually reports the size asked for, and a chunk at each corner
    * and the centre materialises without throwing - the corners are where an off-by-one in a bounds computation
    * would show up first.
+   *
+   * The two checks that read props chunk by chunk run sampled. Exhaustively they cost about 40 s at 337 cells and
+   * 100 s at 600 whatever the size, and `StandardWorldTest` still runs them exhaustively on a smaller world.
    */
   private fun assertWorldIsClean(cells: Int, seed: Long) {
     val world = StandardWorld.build(config(cells, seed))
@@ -71,7 +74,7 @@ class WorldSizeSanityTest {
     assertEquals(cells, world.config.widthCells)
     assertEquals(cells, world.config.heightCells)
 
-    val violations = Invariants.check(world)
+    val violations = Invariants.check(world, Invariants.PropScan.SAMPLED)
     assertTrue(
       violations.isEmpty(),
       "$cells-cell world (seed $seed): ${violations.joinToString("; ")}"
