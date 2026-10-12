@@ -1,5 +1,6 @@
 package net.bestia.zone.item.ecs
 
+import net.bestia.zone.item.stat.StatValue
 import net.bestia.zone.ecs.core.Component
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.ecs.core.DirtyFlag
@@ -36,11 +37,16 @@ data class Inventory(
     var durability: Int = 0,
     var maxDurability: Int = 0,
 
-    /** Rune slots cut into the backing instance; zero for everything else. */
+    /** Sockets of the backing instance; zero for everything else. */
     var slots: Int = 0,
 
     /** Mirrors [net.bestia.zone.item.persistence.ItemInstance.upgradeLevel]. */
-    var upgradeLevel: Int = 0
+    var upgradeLevel: Int = 0,
+
+    /** This copy's item level, or 0 for a stack and an old copy: their level is the template's. */
+    var itemLevel: Int = 0,
+
+    val rolledStats: List<StatValue> = emptyList()
   ) {
     val isStackable: Boolean get() = stackable && uniqueId == 0L
     val totalWeight get() = amount * weight
@@ -253,13 +259,14 @@ data class Inventory(
    * when [uniqueId] is not held here, which is what tells a resolving craft the item left in the
    * meantime.
    */
-  fun updateInstanceState(uniqueId: Long, durability: Int, slots: Int, upgradeLevel: Int): Boolean {
+  fun updateInstanceState(uniqueId: Long, durability: Int, slots: Int, upgradeLevel: Int, itemLevel: Int): Boolean {
     if (uniqueId == 0L) return false
     val item = items.find { it.uniqueId == uniqueId } ?: return false
 
     item.durability = durability
     item.slots = slots
     item.upgradeLevel = upgradeLevel
+    item.itemLevel = itemLevel
     markDirty()
 
     return true

@@ -1,5 +1,7 @@
 package net.bestia.zone.crafting
 
+import net.bestia.zone.item.stat.ItemStatCatalog
+import net.bestia.zone.item.stat.ItemStatRoller
 import io.mockk.every
 import io.mockk.mockk
 import net.bestia.zone.identity.ecs.Account
@@ -70,6 +72,9 @@ class CraftingFixture(
     every { executor.submit(any<Long>(), any()) } answers { secondArg<() -> Unit>().invoke() }
   }
 
+  /** Empty unless a test loads sheets, so outputs roll nothing. */
+  val itemStats = ItemStatCatalog()
+
   val bonuses: MasterCraftBonusService
 
   val service: CraftingService
@@ -96,6 +101,8 @@ class CraftingFixture(
       itemTemplates = itemTemplates,
       commodities = commodities,
       reserve = reserve,
+      itemStats = itemStats,
+      roller = ItemStatRoller(),
     )
   }
 

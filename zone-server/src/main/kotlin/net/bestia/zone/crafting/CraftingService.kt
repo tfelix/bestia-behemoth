@@ -18,6 +18,11 @@ import net.bestia.zone.item.ecs.ObtainItemIntent
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.item.persistence.ItemInstance
+import net.bestia.zone.item.stat.ItemLevel
+import net.bestia.zone.item.stat.ItemRoll
+import net.bestia.zone.item.stat.ItemStatCatalog
+import net.bestia.zone.item.stat.ItemStatRoller
+import net.bestia.zone.item.stat.StatValue
 import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OperationSuccessSMSG
 import net.bestia.zone.message.OutMessageProcessor
@@ -63,6 +68,8 @@ class CraftingService(
   private val itemTemplates: ItemTemplateRegistry,
   private val commodities: CommodityItems,
   private val reserve: CoinReserve,
+  private val itemStats: ItemStatCatalog,
+  private val roller: ItemStatRoller,
 ) : RecipeOffering {
 
   /**
@@ -198,6 +205,7 @@ class CraftingService(
 
     val chance = bonuses.successChance(known, recipe)
     val succeeded = Random.nextFloat() <= chance
+    val roll = if (succeeded) rollOutput(recipe, known) else null
 
     asyncJobExecutor.submit(masterId) {
       if (!inventoryService.consumeAll(masterId, inputs.toList())) {
@@ -208,7 +216,7 @@ class CraftingService(
 
       val applied = world.modify(entityId) { id ->
         if (succeeded) {
-          succeed(this, id, accountId, masterId, recipe, target, minted, chance)
+          succeed(this, id, accountId, masterId, recipe, target, minted, chance, roll)
         } else {
           fail(this, id, accountId, masterId, recipe, target, known)
         }
@@ -227,7 +235,8 @@ class CraftingService(
     recipe: Recipe,
     target: TargetState?,
     minted: Int,
-    chance: Float
+    chance: Float,
+    roll: ItemRoll?
   ) {
     val inventory = world.get(entityId, Inventory::class) ?: return
 
@@ -236,14 +245,22 @@ class CraftingService(
         val output = recipe.output ?: return
         // Through the intent rather than written here, so the grant goes through the one path that checks carry
         // capacity and persists - see the class note.
-        world.add(entityId, ObtainItemIntent.CreateItemIntent(itemId = output.itemId, amount = output.amount))
+        world.add(
+          entityId,
+          ObtainItemIntent.CreateItemIntent(
+            itemId = output.itemId,
+            amount = output.amount,
+            roll = roll,
+            craftedByMasterId = masterId
+          )
+        )
 
         // Charged even if the grant overflows onto the ground: the coin exists in the world either way,
         // and the reserve is a count of the world's coin rather than of anybody's pack.
         if (minted > 0) reserve.charge(minted.toDouble())
       }
 
-      RecipeEffect.ADD_SLOT -> applyToTarget(inventory, masterId, target!!.copy(slots = target.slots + 1))
+      RecipeEffect.ADD_SLOT -> applyToTarget(inventory, masterId, target!!.withSlots(target.slots + 1))
       RecipeEffect.UPGRADE -> applyToTarget(inventory, masterId, target!!.copy(upgradeLevel = target.upgradeLevel + 1))
       RecipeEffect.REPAIR -> applyToTarget(inventory, masterId, target!!.copy(durability = target.maxDurability))
     }
@@ -283,6 +300,22 @@ class CraftingService(
     accountId?.let { outMessageProcessor.sendToPlayer(it, OperationErrorSMSG(code)) }
   }
 
+  /** Null for an output without a template: it rolls nothing and keeps its template's level. */
+  private fun rollOutput(recipe: Recipe, known: KnownSkills?): ItemRoll? {
+    val output = recipe.output ?: return null
+    val sheet = itemStats.sheetOf(output.itemId)
+    if (recipe.effect != RecipeEffect.PRODUCE || sheet.randomStats == null) return null
+
+    return roller.roll(sheet, bonuses.rollCap(known, recipe, mainMaterialLevel(recipe)))
+  }
+
+  /** The level of the input the recipe needs most of: the iron of an iron sword, not its coal. */
+  private fun mainMaterialLevel(recipe: Recipe): Int {
+    val main = recipe.inputs.maxByOrNull { it.amount } ?: return 1
+
+    return itemTemplates.baseLevelOf(main.itemId) ?: 1
+  }
+
   /**
    * Mirrors the new state onto the live inventory and schedules the durable write.
    *
@@ -294,7 +327,8 @@ class CraftingService(
       uniqueId = updated.uniqueId,
       durability = updated.durability,
       slots = updated.slots,
-      upgradeLevel = updated.upgradeLevel
+      upgradeLevel = updated.upgradeLevel,
+      itemLevel = updated.itemLevel
     )
 
     asyncJobExecutor.submit(masterId) {
@@ -321,7 +355,8 @@ class CraftingService(
     if (held.equipped) return null
 
     // Null for an item the catalogue does not know, which `withinReach` then refuses outright.
-    val templateLevel = itemTemplates.baseLevelOf(held.itemId) ?: return null
+    val baseLevel = itemTemplates.baseLevelOf(held.itemId) ?: return null
+    val stats = itemStats.sheetOf(held.itemId).fixedStats() + held.rolledStats
 
     val state = TargetState(
       uniqueId = uniqueId,
@@ -329,7 +364,10 @@ class CraftingService(
       maxDurability = held.maxDurability,
       slots = held.slots,
       upgradeLevel = held.upgradeLevel,
-      templateLevel = templateLevel
+      // A copy made before item levels has none stored, so it is worked out the same way a roll would.
+      itemLevel = held.itemLevel.takeIf { it > 0 } ?: ItemLevel.of(baseLevel, stats, held.slots),
+      baseLevel = baseLevel,
+      stats = stats
     )
 
     return when (recipe.effect) {
@@ -435,8 +473,12 @@ class CraftingService(
     val slots: Int,
     val upgradeLevel: Int,
 
-    /** The template's own tier, before the upgrade level is added to it. */
-    val templateLevel: Int
+    /** This copy's level, before the upgrade level is added to it. */
+    val itemLevel: Int,
+    val baseLevel: Int,
+
+    /** Fixed and rolled together: what a new socket's level is computed with. */
+    val stats: List<StatValue>
   ) {
     /**
      * What a crafter has to be able to reach to touch this particular copy.
@@ -444,12 +486,21 @@ class CraftingService(
      * Kept as the arithmetic `Item.effectiveLevel` states rather than calling it, because this side of the
      * craft works off the live inventory mirror and never holds the template row.
      */
-    val effectiveLevel: Int get() = templateLevel + upgradeLevel
+    val effectiveLevel: Int
+      get() {
+        return itemLevel + upgradeLevel
+      }
+
+    /** A socket is worth points, so cutting one raises the item level. */
+    fun withSlots(slots: Int): TargetState {
+      return copy(slots = slots, itemLevel = ItemLevel.of(baseLevel, stats, slots))
+    }
 
     fun writeOnto(instance: ItemInstance) {
       instance.durability = durability
       instance.slots = slots
       instance.upgradeLevel = upgradeLevel
+      instance.itemLevel = itemLevel
     }
   }
 

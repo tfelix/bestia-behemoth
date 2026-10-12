@@ -1,5 +1,6 @@
 package net.bestia.zone.item.ecs
 
+import net.bestia.zone.item.stat.ItemRoll
 import net.bestia.zone.ecs.core.Component
 import net.bestia.zone.util.EntityId
 
@@ -26,10 +27,12 @@ sealed class ObtainItemIntent : Component {
 
   /**
    * Creates [amount] of item [itemId] out of thin air (no source entity/stack involved) - e.g. the
-   * `/item` GM command or a quest reward.
+   * `/item` GM command, a quest reward or a forge. A forged copy brings its [roll] and its maker.
    */
   class CreateItemIntent(
     val itemId: Long,
     val amount: Int,
+    val roll: ItemRoll? = null,
+    val craftedByMasterId: Long? = null,
   ) : ObtainItemIntent()
 }
