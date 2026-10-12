@@ -118,7 +118,9 @@ class TradeServiceTest {
       durability = 0,
       maxDurability = 0,
       slots = 0,
-      upgradeLevel = 0
+      upgradeLevel = 0,
+      itemLevel = 1,
+      rolledStats = emptyList()
     )
   }
 }

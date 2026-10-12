@@ -1,5 +1,6 @@
 package net.bestia.zone.item.ecs
 
+import net.bestia.zone.item.stat.ItemStatCatalog
 import net.bestia.zone.item.stat.ItemRoll
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.identity.ecs.Account
@@ -34,6 +35,7 @@ class ObtainItemIntentSystem(
   private val asyncJobExecutor: AsyncJobExecutor,
   private val connectionInfoService: ConnectionInfoService,
   private val groundStackRemoval: GroundStackRemoval,
+  private val itemStats: ItemStatCatalog,
 ) : System {
   override val phase = Phase.ITEMS
 
@@ -205,7 +207,7 @@ class ObtainItemIntentSystem(
         durability = if (item.stackable) 0 else item.maxDurability,
         maxDurability = if (item.stackable) 0 else item.maxDurability,
         slots = roll?.sockets ?: 0,
-        itemLevel = roll?.itemLevel ?: 0,
+        itemLevel = roll?.itemLevel ?: itemStats.itemLevelOf(item.id),
         rolledStats = roll?.stats.orEmpty()
       )
     )

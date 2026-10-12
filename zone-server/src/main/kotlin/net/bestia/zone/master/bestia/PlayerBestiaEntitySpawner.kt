@@ -1,5 +1,6 @@
 package net.bestia.zone.master.bestia
 
+import net.bestia.zone.item.stat.ItemStatCatalog
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ai.ecs.AiAgentFactory
 import net.bestia.zone.ai.profile.AiProfileRegistry
@@ -56,6 +57,7 @@ class PlayerBestiaEntitySpawner(
   private val aiProfileRegistry: AiProfileRegistry,
   private val aiAgentFactory: AiAgentFactory,
   private val statusEffectPersistenceService: StatusEffectPersistenceService,
+  private val itemStats: ItemStatCatalog,
 ) {
 
   /**
@@ -264,7 +266,9 @@ class PlayerBestiaEntitySpawner(
           upgradeLevel = slot.itemInstance?.upgradeLevel ?: 0,
           durability = slot.durability,
           maxDurability = slot.maxDurability,
-          slots = slot.slots
+          slots = slot.slots,
+          itemLevel = itemStats.itemLevelOf(slot),
+          rolledStats = slot.rolledStats
         )
       }.toMutableMap()
     )
@@ -283,7 +287,9 @@ class PlayerBestiaEntitySpawner(
           durability = slot.durability,
           maxDurability = slot.maxDurability,
           slots = slot.slots,
-          upgradeLevel = slot.itemInstance?.upgradeLevel ?: 0
+          upgradeLevel = slot.itemInstance?.upgradeLevel ?: 0,
+          itemLevel = itemStats.itemLevelOf(slot),
+          rolledStats = slot.rolledStats
         )
       }.toMutableList()
     )

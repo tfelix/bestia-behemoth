@@ -1,5 +1,6 @@
 package net.bestia.zone.master
 
+import net.bestia.zone.item.stat.ItemStatCatalog
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.account.persistence.LearnedSkillRepository
 import net.bestia.zone.skill.ecs.KnownSkills
@@ -71,6 +72,7 @@ class MasterEntitySpawner(
   private val statusEffectPersistenceService: StatusEffectPersistenceService,
   private val placeNames: PlaceNameService,
   private val playerBestiaEntitySpawner: PlayerBestiaEntitySpawner,
+  private val itemStats: ItemStatCatalog,
 ) {
 
   /**
@@ -244,7 +246,9 @@ class MasterEntitySpawner(
           upgradeLevel = slot.itemInstance?.upgradeLevel ?: 0,
           durability = slot.durability,
           maxDurability = slot.maxDurability,
-          slots = slot.slots
+          slots = slot.slots,
+          itemLevel = itemStats.itemLevelOf(slot),
+          rolledStats = slot.rolledStats
         )
       }.toMutableMap()
     )
@@ -263,7 +267,9 @@ class MasterEntitySpawner(
           durability = slot.durability,
           maxDurability = slot.maxDurability,
           slots = slot.slots,
-          upgradeLevel = slot.itemInstance?.upgradeLevel ?: 0
+          upgradeLevel = slot.itemInstance?.upgradeLevel ?: 0,
+          itemLevel = itemStats.itemLevelOf(slot),
+          rolledStats = slot.rolledStats
         )
       }.toMutableList()
     )

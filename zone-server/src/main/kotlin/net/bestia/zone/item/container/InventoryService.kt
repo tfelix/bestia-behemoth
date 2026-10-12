@@ -1,5 +1,6 @@
 package net.bestia.zone.item.container
 
+import net.bestia.zone.item.stat.ItemStatCatalog
 import net.bestia.zone.item.stat.ItemRoll
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.item.persistence.Item
@@ -32,6 +33,7 @@ class InventoryService(
   private val owners: ContainerOwners,
   private val itemRepository: ItemRepository,
   private val itemInstanceRepository: ItemInstanceRepository,
+  private val itemStats: ItemStatCatalog,
 ) {
 
   /**
@@ -283,7 +285,7 @@ class InventoryService(
       return null
     }
 
-    return ReservedItem.of(persisted)
+    return ReservedItem.of(persisted, itemStats.itemLevelOf(persisted))
   }
 
   /**
@@ -301,7 +303,7 @@ class InventoryService(
 
     // Read the line before releasing it: releasing may merge the stack away, and the merged-into slot is a
     // different row carrying a different amount.
-    val released = ReservedItem.of(slot)
+    val released = ReservedItem.of(slot, itemStats.itemLevelOf(slot))
 
     master.container.releaseReservation(offerSlotId, tradeId)
     owners.save(master)
@@ -318,7 +320,7 @@ class InventoryService(
   @Transactional
   fun releaseAllTradeReservations(masterId: Long, tradeId: Long): List<ReservedItem> {
     val master = owners.lockedMaster(masterId)
-    val released = master.container.reservedSlots(tradeId).map { ReservedItem.of(it) }
+    val released = master.container.reservedSlots(tradeId).map { ReservedItem.of(it, itemStats.itemLevelOf(it)) }
 
     if (released.isEmpty()) {
       return emptyList()
@@ -408,6 +410,9 @@ class InventoryService(
       maxDurability = detached.instance?.maxDurability ?: 0,
       slots = detached.instance?.slots ?: 0,
       upgradeLevel = detached.instance?.upgradeLevel ?: 0,
+      itemLevel = detached.instance?.itemLevel
+        ?: itemStats.itemLevelOf(detached.template.id, detached.instance?.rolledStats.orEmpty(), detached.instance?.slots ?: 0),
+      rolledStats = detached.instance?.rolledStats.orEmpty(),
     )
   }
 

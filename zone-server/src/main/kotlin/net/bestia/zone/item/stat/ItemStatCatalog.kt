@@ -1,5 +1,6 @@
 package net.bestia.zone.item.stat
 
+import net.bestia.zone.item.persistence.ContainerSlot
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Component
 
@@ -20,6 +21,17 @@ class ItemStatCatalog {
     byItemId = sheets
 
     LOG.debug { "Item stat catalog loaded ${sheets.count { it.value.stats.isNotEmpty() }} item(s) with stats" }
+  }
+
+  /** A copy's level from what it carries, for a copy that has none stored. */
+  fun itemLevelOf(itemId: Long, rolled: List<StatValue> = emptyList(), sockets: Int = 0): Int {
+    val sheet = sheetOf(itemId)
+
+    return ItemLevel.of(sheet.baseLevel, sheet.fixedStats() + rolled, sockets)
+  }
+
+  fun itemLevelOf(slot: ContainerSlot): Int {
+    return slot.storedItemLevel ?: itemLevelOf(slot.template.id, slot.rolledStats, slot.slots)
   }
 
   /** [ItemStatSheet.NONE] for an item that declares nothing, which is most of them. */

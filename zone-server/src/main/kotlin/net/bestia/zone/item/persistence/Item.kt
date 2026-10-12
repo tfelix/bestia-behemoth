@@ -56,9 +56,8 @@ class Item(
   /**
    * The tier this item belongs to before any stat on it is counted: what it takes to have anything to do with it.
    *
-   * One number answering three questions, which is the whole reason it is a property of the *template* rather
-   * than of a use of it. It is the level a wearer needs to put gear on
-   * ([net.bestia.zone.item.equip.EquipmentService]), the reach a crafter needs to make it or work on it
+   * It is where every copy's item level starts ([net.bestia.zone.item.stat.ItemLevel]), which is what a wearer
+   * needs to put gear on. It is also the reach a crafter needs to make the item
    * ([net.bestia.zone.crafting.MasterCraftBonusService.maxItemLevel]), and the tier a material belongs to.
    *
    * **A material's level gates nothing on its own today**, and that is deliberate rather than an oversight:

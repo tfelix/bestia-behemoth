@@ -683,6 +683,8 @@ class TradeService(
     maxDurability = maxDurability,
     slots = slots,
     upgradeLevel = upgradeLevel,
+    itemLevel = itemLevel,
+    rolledStats = rolledStats,
   )
 
   companion object {

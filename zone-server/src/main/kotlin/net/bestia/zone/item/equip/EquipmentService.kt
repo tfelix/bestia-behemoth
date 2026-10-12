@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service
  * which only knows the structural item/slot rules.
  *
  * Two kinds of rule: the structural item/slot ones, which only [checkEquip] asks, and the ones about the
- * *wearer* - their level against [net.bestia.zone.item.persistence.Item.baseLevel], and their novicehood against
+ * *wearer* - their level against the copy's item level, and their novicehood against
  * [net.bestia.zone.item.persistence.Item.noviceOnly] - which are split into [checkStillWearable] because they are the
  * ones that can stop holding for gear already worn. Callers must handle a [Denial] by re-sending the
  * authoritative [Equipment] component
@@ -37,7 +37,7 @@ class EquipmentService {
     /** Structurally fine, but this wearer may not wear this item. */
     NOT_ALLOWED,
 
-    /** The wearer has not reached the item's own level yet - see [net.bestia.zone.item.persistence.Item.baseLevel]. */
+    /** The wearer has not reached the item level of this copy yet. */
     LEVEL_TOO_LOW,
 
     /** Novice-only gear on a wearer who has invested outside the Novice tree. */
@@ -57,6 +57,7 @@ class EquipmentService {
     equipment: Equipment,
     inventory: Inventory,
     item: Item,
+    itemLevel: Int,
     slot: EquipmentSlot,
     heldUniqueId: Long,
     wearerLevel: Int,
@@ -81,7 +82,7 @@ class EquipmentService {
       return Denial.ITEM_NOT_FOUND
     }
 
-    return checkStillWearable(item, wearerLevel, wearerIsNovice)
+    return checkStillWearable(item, itemLevel, wearerLevel, wearerIsNovice)
   }
 
   /**
@@ -91,11 +92,11 @@ class EquipmentService {
    * and cannot call [checkEquip]: that refuses an item it finds already equipped. Two definitions of "may this
    * be worn" would drift, and the one that drifted would be the one nobody tested.
    */
-  fun checkStillWearable(item: Item, wearerLevel: Int, wearerIsNovice: Boolean): Denial? {
-    // Checked against the template's own level and not against the instance's effective one: an upgrade makes
-    // a sword harder to *work on*, not harder to hold, and taking gear away from the player who improved it
-    // would punish exactly the thing the upgrade path is for.
-    if (wearerLevel < item.baseLevel) {
+  fun checkStillWearable(item: Item, itemLevel: Int, wearerLevel: Int, wearerIsNovice: Boolean): Denial? {
+    // The copy's own level, stats included, but without its upgrade level: an upgrade makes a sword harder to
+    // *work on*, not harder to hold, and taking gear away from the player who improved it would punish exactly
+    // the thing the upgrade path is for.
+    if (wearerLevel < itemLevel) {
       return Denial.LEVEL_TOO_LOW
     }
 

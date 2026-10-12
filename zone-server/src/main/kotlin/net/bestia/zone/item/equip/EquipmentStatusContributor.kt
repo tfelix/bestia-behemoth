@@ -22,7 +22,7 @@ class EquipmentStatusContributor(
   override fun contribute(context: StatusValueRecalcContext, world: World, id: EntityId) {
     val worn = world.get(id, Equipment::class)?.getWorn().orEmpty()
     for ((slot, item) in worn) {
-      val stats = ItemStats(itemStatCatalog.sheetOf(item.itemId))
+      val stats = ItemStats(itemStatCatalog.sheetOf(item.itemId), item.rolledStats)
       equipmentScriptRegistry.getByItemId(item.itemId).apply(context, slot, item.upgradeLevel, stats)
     }
 

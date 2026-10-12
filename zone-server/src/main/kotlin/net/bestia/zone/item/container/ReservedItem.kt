@@ -1,5 +1,6 @@
 package net.bestia.zone.item.container
 
+import net.bestia.zone.item.stat.StatValue
 import net.bestia.zone.item.persistence.ContainerSlot
 
 /**
@@ -21,10 +22,12 @@ data class ReservedItem(
   val maxDurability: Int,
   val slots: Int,
   val upgradeLevel: Int,
+  val itemLevel: Int,
+  val rolledStats: List<StatValue>,
 ) {
 
   companion object {
-    fun of(slot: ContainerSlot): ReservedItem {
+    fun of(slot: ContainerSlot, itemLevel: Int): ReservedItem {
       val template = slot.template
 
       return ReservedItem(
@@ -38,6 +41,8 @@ data class ReservedItem(
         maxDurability = slot.maxDurability,
         slots = slot.slots,
         upgradeLevel = slot.itemInstance?.upgradeLevel ?: 0,
+        itemLevel = itemLevel,
+        rolledStats = slot.rolledStats,
       )
     }
   }
