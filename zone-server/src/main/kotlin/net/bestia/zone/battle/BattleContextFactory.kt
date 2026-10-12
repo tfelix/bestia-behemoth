@@ -86,6 +86,7 @@ class BattleContextFactory(
       derivedStatusValues = combat.derived,
       // Armour and buffs that change it do not exist yet, so the species' own element is the whole answer.
       assumedElement = world.get(entityId, Nature::class)?.element ?: Element.NORMAL,
+      elementResistance = combat.elementResistance,
       maxHealth = world.get(entityId, Health::class)?.max ?: 0,
       activeEffectIds = world.get(entityId, StatusEffects::class)
         ?.activeEffects

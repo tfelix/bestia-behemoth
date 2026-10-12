@@ -17,6 +17,12 @@ class ConditionValueCalculatorTest {
   }
 
   @Test
+  fun `a percentage bonus scales the whole pool`() {
+    // floor((15 + 40 + 50) * 1.3 * 1.1): one floor over the product, not one per factor.
+    assertEquals(150, calculator.computeMaxHp(level = 50, vitality = 30, percent = 10))
+  }
+
+  @Test
   fun `max mana grows with intelligence and level`() {
     val base = calculator.computeMaxMana(level = 10, intelligence = 10)
 

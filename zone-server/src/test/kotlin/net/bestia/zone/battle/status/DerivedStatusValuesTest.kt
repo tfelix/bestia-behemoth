@@ -29,6 +29,22 @@ class DerivedStatusValuesTest {
     assertEquals(10 + 70 + 100 + 2, derived.matk)
   }
 
+  @Test
+  fun `bonuses add to hit, flee and crit after the attributes`() {
+    val plain = DerivedStatusValues.fromStatusValues(lv = 40, sv = statusValues())
+    val geared = DerivedStatusValues.fromStatusValues(
+      lv = 40,
+      sv = statusValues(),
+      hitBonus = 15,
+      fleeBonus = 12,
+      critBonus = 3
+    )
+
+    assertEquals(plain.hitrate + 15, geared.hitrate)
+    assertEquals(plain.flee + 12, geared.flee)
+    assertEquals(plain.crit + 3, geared.crit)
+  }
+
   private fun statusValues(strength: Int = 10, dexterity: Int = 10, intelligence: Int = 10) = StatusValues(
     agility = 10,
     strength = strength,

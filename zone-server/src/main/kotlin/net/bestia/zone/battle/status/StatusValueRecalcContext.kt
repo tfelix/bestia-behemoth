@@ -1,5 +1,6 @@
 package net.bestia.zone.battle.status
 
+import net.bestia.zone.battle.Element
 import net.bestia.zone.battle.ecs.status.BaseStatusValues
 
 /**
@@ -49,6 +50,30 @@ class StatusValueRecalcContext(
   var hardMagicDefense: Int = 0
     private set
 
+  var hit: Int = 0
+    private set
+
+  var flee: Int = 0
+    private set
+
+  var crit: Int = 0
+    private set
+
+  /** Percentage points on top of the formula's max HP and max mana: the docs' `HPModPerc` / `ManaModPerc`. */
+  var maxHpPercent: Int = 0
+    private set
+
+  var maxManaPercent: Int = 0
+    private set
+
+  /** Percentage points of damage removed per element, keyed by the element without its level. */
+  var elementResistance: Map<Element, Int> = emptyMap()
+    private set
+
+  /** Percentage points taken off every cast time. */
+  var castTimeReduction: Int = 0
+    private set
+
   /** Refinement of the weapon in hand. It scales the weapon term of the damage formula, not the total. */
   var weaponUpgradeLevel: Int = 0
 
@@ -89,6 +114,27 @@ class StatusValueRecalcContext(
   fun addAttack(atk: Int = 0, matk: Int = 0) {
     attack += atk
     magicAttack += matk
+  }
+
+  /** Adds to the docs' `HitModSum`, `FleeModSum` and the CRIT bonus, on top of the attribute-derived values. */
+  fun addAccuracy(hit: Int = 0, flee: Int = 0, crit: Int = 0) {
+    this.hit += hit
+    this.flee += flee
+    this.crit += crit
+  }
+
+  fun addMaxPools(hpPercent: Int = 0, manaPercent: Int = 0) {
+    maxHpPercent += hpPercent
+    maxManaPercent += manaPercent
+  }
+
+  fun addElementResistance(element: Element, percent: Int) {
+    val base = element.base
+    elementResistance = elementResistance + (base to (elementResistance[base] ?: 0) + percent)
+  }
+
+  fun addCastTimeReduction(percent: Int) {
+    castTimeReduction += percent
   }
 
   /**

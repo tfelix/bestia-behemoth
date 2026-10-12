@@ -1,5 +1,6 @@
 package net.bestia.zone.battle.status
 
+import net.bestia.zone.battle.Element
 import net.bestia.zone.battle.Weapon
 
 /**
@@ -22,6 +23,12 @@ data class CombatValues(
 
   /** [Weapon.NONE] when bare-handed. */
   val weapon: Weapon,
+
+  /** Percentage points of damage removed per base element, see [Element.base]. */
+  val elementResistance: Map<Element, Int> = emptyMap(),
+
+  /** Percentage points taken off every cast time. */
+  val castTimeReduction: Int = 0,
 ) {
 
   companion object {
@@ -56,7 +63,12 @@ data class CombatValues(
         attributes = if (resolved == base) base else resolved,
         weapon = Weapon(atk = context.attack, matk = context.magicAttack, upgradeLevel = context.weaponUpgradeLevel),
         hardDefense = context.hardDefense,
-        hardMagicDefense = context.hardMagicDefense
+        hardMagicDefense = context.hardMagicDefense,
+        hitBonus = context.hit,
+        fleeBonus = context.flee,
+        critBonus = context.crit,
+        elementResistance = context.elementResistance,
+        castTimeReduction = context.castTimeReduction
       )
     }
 
@@ -66,14 +78,21 @@ data class CombatValues(
       attributes: StatusValues,
       weapon: Weapon,
       hardDefense: Int,
-      hardMagicDefense: Int
+      hardMagicDefense: Int,
+      hitBonus: Int = 0,
+      fleeBonus: Int = 0,
+      critBonus: Int = 0,
+      elementResistance: Map<Element, Int> = emptyMap(),
+      castTimeReduction: Int = 0
     ): CombatValues {
       return CombatValues(
         base = base,
         attributes = attributes,
-        derived = DerivedStatusValues.fromStatusValues(level, attributes),
+        derived = DerivedStatusValues.fromStatusValues(level, attributes, hitBonus, fleeBonus, critBonus),
         defense = DefenseValues.fromStatusValues(level, attributes, hardDefense, hardMagicDefense),
-        weapon = if (weapon == Weapon.NONE) Weapon.NONE else weapon
+        weapon = if (weapon == Weapon.NONE) Weapon.NONE else weapon,
+        elementResistance = elementResistance,
+        castTimeReduction = castTimeReduction
       )
     }
   }
