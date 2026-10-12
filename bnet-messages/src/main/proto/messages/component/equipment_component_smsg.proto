@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package bnet;
 
+import "messages/component/item_stat_value.proto";
+
 option java_package = "net.bestia.bnet.proto";
 option java_outer_classname = "EquipmentComponentSMSGProto";
 
@@ -29,10 +31,14 @@ message EquippedItem {
   // bar only when max_durability > 0.
   uint32 durability = 4;
   uint32 max_durability = 5;
-  // Rune slots cut into the backing instance by Item Customization; nothing can fill one yet.
+  // Sockets of the backing instance, opened at the forge or by Item Customization; nothing can fill one yet.
   uint32 slots = 6;
 
   // Upgrade level on the backing instance, 0 for an untouched item and for every plain stack. What
   // Upgrade Equipment raises and what every equip script scales off.
   uint32 upgrade_level = 7;
+
+  // See InventoryItem.item_level and rolled_stats.
+  uint32 item_level = 8;
+  repeated ItemStatValue rolled_stats = 9;
 }

@@ -27,12 +27,15 @@ signal dragged_out()
 @export var durability: int = 0
 @export var max_durability: int = 0
 
-## Rune slots cut into the backing instance by Item Customization. Shown in the tooltip only; nothing
-## can fill one yet.
+## Sockets of the backing instance. Shown in the tooltip only; nothing can fill one yet.
 @export var slots: int = 0
 
 ## How often this copy has been improved. Shown as the familiar [code]+N[/code] after the name.
 @export var upgrade_level: int = 0
+
+## This copy's level and rolled [ItemStatValue]s, for the tooltip.
+@export var item_level: int = 0
+@export var rolled_stats: Array = []
 
 ## Colours for the wear bar, worst state last. Fill is picked by [method _wear_color].
 const _WEAR_FINE := Color(0.36, 0.71, 0.35)
@@ -57,7 +60,9 @@ func _ready() -> void:
 	_count.text = str(amount)
 	_icon.texture = item.get_icon()
 	_update_wear()
-	tooltip_text = ItemDetail.as_bbcode(item, upgrade_level, durability, max_durability, slots)
+	tooltip_text = ItemDetail.as_bbcode(
+		item, upgrade_level, durability, max_durability, slots, item_level, rolled_stats
+	)
 
 
 func _update_wear() -> void:

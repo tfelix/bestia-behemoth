@@ -978,6 +978,12 @@ func update_equipment(msg: EquipmentComponentSMSG) -> void:
 		by_slot[int(equipped.Slot)] = {
 			"item_id": int(equipped.ItemId),
 			"unique_id": int(equipped.UniqueId),
+			"upgrade_level": int(equipped.UpgradeLevel),
+			"durability": int(equipped.Durability),
+			"max_durability": int(equipped.MaxDurability),
+			"slots": int(equipped.Slots),
+			"item_level": int(equipped.ItemLevel),
+			"rolled_stats": Array(equipped.RolledStats),
 		}
 	_equipment = by_slot
 

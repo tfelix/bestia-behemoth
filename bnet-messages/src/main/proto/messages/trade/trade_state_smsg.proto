@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package bnet;
 
+import "messages/component/item_stat_value.proto";
+
 option java_package = "net.bestia.bnet.proto";
 option java_outer_classname = "TradeStateSmsgProto";
 
@@ -59,4 +61,6 @@ message TradeOfferItem {
   uint32 max_durability = 6;
   uint32 slots = 7;
   uint32 upgrade_level = 8;
+  uint32 item_level = 9;
+  repeated ItemStatValue rolled_stats = 10;
 }

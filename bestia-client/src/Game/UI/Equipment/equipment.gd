@@ -87,6 +87,12 @@ func _to_worn_by_slot(items: Array) -> Dictionary:
 		by_slot[int(equipped.Slot)] = {
 			"item_id": int(equipped.ItemId),
 			"unique_id": int(equipped.UniqueId),
+			"upgrade_level": int(equipped.UpgradeLevel),
+			"durability": int(equipped.Durability),
+			"max_durability": int(equipped.MaxDurability),
+			"slots": int(equipped.Slots),
+			"item_level": int(equipped.ItemLevel),
+			"rolled_stats": Array(equipped.RolledStats),
 		}
 	return by_slot
 
@@ -128,7 +134,16 @@ func _render() -> void:
 			slot_node.set_item(null, 0)
 			continue
 
-		slot_node.set_item(item_resource, equipped["unique_id"])
+		var detail := ItemDetail.as_bbcode(
+			item_resource,
+			equipped.get("upgrade_level", 0),
+			equipped.get("durability", 0),
+			equipped.get("max_durability", 0),
+			equipped.get("slots", 0),
+			equipped.get("item_level", 0),
+			equipped.get("rolled_stats", [])
+		)
+		slot_node.set_item(item_resource, equipped["unique_id"], detail)
 
 
 func _on_equip_requested(item_id: int, unique_id: int, slot: int) -> void:

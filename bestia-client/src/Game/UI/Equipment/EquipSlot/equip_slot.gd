@@ -22,6 +22,8 @@ signal unequip_requested(slot: int)
 var _available: bool = true
 var _item: ItemResource = null
 var _unique_id: int = 0
+## The worn copy, written out by [ItemDetail]. Empty for an empty slot.
+var _detail: String = ""
 
 
 func _ready() -> void:
@@ -29,9 +31,10 @@ func _ready() -> void:
 
 
 ## Called by [Equipment] whenever the worn item (or the wearer) changes. Pass null to empty the slot.
-func set_item(item: ItemResource, unique_id: int) -> void:
+func set_item(item: ItemResource, unique_id: int, detail: String = "") -> void:
 	_item = item
 	_unique_id = unique_id
+	_detail = detail
 	if is_node_ready():
 		_refresh()
 
@@ -48,7 +51,27 @@ func _refresh() -> void:
 	_label.visible = _item == null
 	_label.text = EquipmentSlot.display_name(slot)
 	modulate = Color(1, 1, 1, 1) if _available else Color(1, 1, 1, 0.35)
-	tooltip_text = tr(_item.name_key) if _item != null else EquipmentSlot.display_name(slot)
+	if _item == null:
+		tooltip_text = EquipmentSlot.display_name(slot)
+	else:
+		tooltip_text = _detail if not _detail.is_empty() else tr(_item.name_key)
+
+
+## The same BBCode tooltip the inventory uses, so a worn copy reads the way it did in the bag.
+func _make_custom_tooltip(for_text: String) -> Object:
+	if _item == null:
+		return null
+
+	var label := RichTextLabel.new()
+	label.bbcode_enabled = true
+	label.fit_content = true
+	label.scroll_active = false
+	label.custom_minimum_size = Vector2(320, 0)
+	label.text = for_text
+
+	var panel := PanelContainer.new()
+	panel.add_child(label)
+	return panel
 
 
 func _can_drop_data(_at_position: Vector2, data: Variant) -> bool:

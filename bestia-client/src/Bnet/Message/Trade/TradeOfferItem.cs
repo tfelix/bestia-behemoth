@@ -1,3 +1,4 @@
+using BestiaBehemothClient.Bnet.Message.Entity;
 using Godot;
 
 namespace BestiaBehemothClient.Bnet.Message.Trade
@@ -36,6 +37,10 @@ namespace BestiaBehemothClient.Bnet.Message.Trade
 
     [Export] public uint UpgradeLevel { get; set; }
 
+    [Export] public uint ItemLevel { get; set; }
+
+    [Export] public Godot.Collections.Array<ItemStatValue> RolledStats { get; set; } = [];
+
     public static TradeOfferItem FromProto(global::Bnet.TradeOfferItem proto)
     {
       return new TradeOfferItem
@@ -47,7 +52,9 @@ namespace BestiaBehemothClient.Bnet.Message.Trade
         Durability = proto.Durability,
         MaxDurability = proto.MaxDurability,
         Slots = proto.Slots,
-        UpgradeLevel = proto.UpgradeLevel
+        UpgradeLevel = proto.UpgradeLevel,
+        ItemLevel = proto.ItemLevel,
+        RolledStats = ItemStatValue.FromProto(proto.RolledStats)
       };
     }
   }

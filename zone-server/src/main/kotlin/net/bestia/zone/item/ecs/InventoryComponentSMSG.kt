@@ -1,5 +1,6 @@
 package net.bestia.zone.item.ecs
 
+import net.bestia.zone.item.stat.StatValue
 import net.bestia.bnet.proto.InventoryComponentSMSGProto
 import net.bestia.bnet.proto.StateBatchSmsgProto
 import net.bestia.zone.message.EntitySMSG
@@ -20,6 +21,8 @@ data class InventoryComponentSMSG(
         .setMaxDurability(item.maxDurability)
         .setSlots(item.slots)
         .setUpgradeLevel(item.upgradeLevel)
+        .setItemLevel(item.itemLevel)
+        .addAllRolledStats(item.rolledStats.map { it.toProto() })
         .build()
     }
 
@@ -38,6 +41,8 @@ data class InventoryComponentSMSG(
     val durability: Int = 0,
     val maxDurability: Int = 0,
     val slots: Int = 0,
-    val upgradeLevel: Int = 0
+    val upgradeLevel: Int = 0,
+    val itemLevel: Int = 0,
+    val rolledStats: List<StatValue> = emptyList()
   )
 }

@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "ItemStatValueProto";
+
+// One stat a copy of an item rolled when it was made, such as +3 STR.
+message ItemStatValue {
+  // The server's ItemStat name, e.g. "STR" or "RESIST_FIRE". A name rather than an enum, so a new stat reaches
+  // an older client as an unknown label instead of breaking the message.
+  string stat = 1;
+  sint32 value = 2;
+}
