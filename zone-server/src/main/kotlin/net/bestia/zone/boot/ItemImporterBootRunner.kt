@@ -9,6 +9,8 @@ import net.bestia.zone.item.equip.EquipmentSlot
 import net.bestia.zone.item.stat.ItemStat
 import net.bestia.zone.item.stat.ItemStatCatalog
 import net.bestia.zone.item.stat.ItemStatSheet
+import net.bestia.zone.item.stat.RandomStatTemplate
+import net.bestia.zone.item.stat.StatPool
 import org.springframework.boot.CommandLineRunner
 import org.springframework.core.annotation.Order
 import org.springframework.core.io.ClassPathResource
@@ -69,18 +71,58 @@ class ItemImporterBootRunner(
     val magicDefense: Int = 0,
 
     /** Fixed bonuses on top, such as `STR: 4`. They raise the item level. */
-    val stats: Map<ItemStat, Int> = emptyMap()
+    val stats: Map<ItemStat, Int> = emptyMap(),
+
+    /** What a copy may roll when it is made. Only gear rolls. */
+    @JsonProperty("random-stats")
+    val randomStats: RandomStatsDto? = null
   ) {
 
     fun toStatSheet(): ItemStatSheet {
+      require(randomStats == null || type.uppercase() == Item.ItemType.EQUIP.name) {
+        "item '$identifier' has random-stats but is no EQUIP item"
+      }
+
       return ItemStatSheet(
         baseLevel = baseLevel,
         attack = attack,
         magicAttack = magicAttack,
         defense = defense,
         magicDefense = magicDefense,
-        stats = stats
+        stats = stats,
+        randomStats = randomStats?.toTemplate(identifier)
       )
+    }
+  }
+
+  data class RandomStatsDto(
+    val affixes: List<AffixDto> = emptyList(),
+    val sockets: List<Int> = emptyList()
+  ) {
+
+    fun toTemplate(identifier: String): RandomStatTemplate {
+      try {
+        return RandomStatTemplate(affixes.map { it.toSlot() }, sockets)
+      } catch (ex: IllegalArgumentException) {
+        throw IllegalArgumentException("item '$identifier' has invalid random-stats: ${ex.message}", ex)
+      }
+    }
+  }
+
+  /** Names either a [pool] or a single [stat] to roll. */
+  data class AffixDto(
+    val pool: StatPool? = null,
+    val stat: ItemStat? = null,
+    val chance: Int = 100,
+    val min: Int = 1,
+    val max: Int? = null
+  ) {
+
+    fun toSlot(): RandomStatTemplate.Slot {
+      require((pool == null) != (stat == null)) { "an affix names either a pool or a stat, not both or neither" }
+      val candidates = pool?.stats ?: listOf(stat!!)
+
+      return RandomStatTemplate.Slot(candidates, chance, min, max)
     }
   }
 

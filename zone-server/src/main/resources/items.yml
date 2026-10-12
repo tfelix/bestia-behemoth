@@ -16,6 +16,10 @@
 # `attack`, `magic-attack`, `defense` and `magic-defense` are gear's base properties; `base-level` already
 # prices them. `stats` are fixed bonuses on top (`STR: 4`, `HIT: 10`, see `ItemStat`) and raise the item level.
 # An item with no `script` gets `StatBonusEquipmentScript`, which applies exactly these.
+#
+# `random-stats` is what a forged copy may roll. Each `affixes` entry rolls one stat from a `pool` (ATTRIBUTE,
+# OFFENSE, DEFENSE, ARCANE, RESIST - see `StatPool`) or names one `stat`, with a `chance` in percent (default
+# 100) and an optional `min`/`max`. `sockets` holds one chance per socket. The forge caps how high it rolls.
 items:
   - id: 1
     item-db-name: apple
@@ -210,6 +214,13 @@ items:
     stats:
       STR: 4
       DEX: 1
+    # A forged copy always rolls one attribute and sometimes an offensive stat. One in ten opens a socket.
+    random-stats:
+      affixes:
+        - pool: ATTRIBUTE
+        - pool: OFFENSE
+          chance: 30
+      sockets: [10]
     description: |
       A straight iron blade, plain and heavier than it looks.
 
@@ -228,6 +239,12 @@ items:
     stats:
       VIT: 5
       AGI: -2
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 30
+      sockets: [15, 5]
     description: |
       A breastplate beaten out of four ingots and fitted by eye.
 
@@ -620,6 +637,14 @@ items:
     equip-slot: ARMOR
     armor-type: CLOTH
     max-durability: 100
+    # Cloth for casters: a little intelligence at most, but often some arcane stat.
+    random-stats:
+      affixes:
+        - stat: INT
+          chance: 60
+          max: 3
+        - pool: ARCANE
+          chance: 50
     description: |
       A plain linen tunic worn with a narrow belt.
 
@@ -679,6 +704,14 @@ items:
     weight: 10
     type: EQUIP
     equip-slot: ACCESSORY_1
+    random-stats:
+      affixes:
+        - pool: ATTRIBUTE
+        - pool: ATTRIBUTE
+          chance: 50
+        - pool: RESIST
+          chance: 25
+      sockets: [20]
     description: |
       A plain gold band set with a small red stone.
 
