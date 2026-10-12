@@ -321,7 +321,7 @@ class CraftingService(
     if (held.equipped) return null
 
     // Null for an item the catalogue does not know, which `withinReach` then refuses outright.
-    val templateLevel = itemTemplates.levelOf(held.itemId) ?: return null
+    val templateLevel = itemTemplates.baseLevelOf(held.itemId) ?: return null
 
     val state = TargetState(
       uniqueId = uniqueId,
@@ -358,7 +358,7 @@ class CraftingService(
 
   /** The tier of what [recipe] makes, or null when it makes nothing or names an unknown item. */
   private fun outputLevelOf(recipe: Recipe): Int? =
-    recipe.output?.let { itemTemplates.levelOf(it.itemId) }
+    recipe.output?.let { itemTemplates.baseLevelOf(it.itemId) }
 
   /**
    * Coin this recipe would strike, or zero for the ones that make things rather than money.

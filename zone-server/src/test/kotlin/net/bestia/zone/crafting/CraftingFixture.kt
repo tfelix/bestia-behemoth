@@ -62,7 +62,7 @@ class CraftingFixture(
   val commodities = mockk<CommodityItems>().also { every { it.coinItemId() } returns COIN_ITEM_ID }
 
   val itemTemplates = mockk<ItemTemplateRegistry>().also { templates ->
-    every { templates.levelOf(any()) } answers { itemLevels[firstArg<Long>()] ?: DEFAULT_ITEM_LEVEL }
+    every { templates.baseLevelOf(any()) } answers { itemLevels[firstArg<Long>()] ?: DEFAULT_ITEM_LEVEL }
   }
 
   /** Runs submitted jobs immediately, so a test can assert the durable side without waiting on a thread. */

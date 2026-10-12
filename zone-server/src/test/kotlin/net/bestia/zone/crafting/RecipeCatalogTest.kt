@@ -109,7 +109,7 @@ class RecipeCatalogTest {
   /**
    * Every shipped recipe has to be reachable at the rank it asks for.
    *
-   * The two halves of that - `recipes.yml`s `requiredSkill.level` and `items.yml`s `level` - are written in
+   * The two halves of that - `recipes.yml`s `requiredSkill.level` and `items.yml`s `base-level` - are written in
    * different files by hand, and a recipe claiming Carpentry 1 is enough for a tier-15 output would be offered
    * to nobody and refused with `CRAFT_ITEM_TOO_ADVANCED`. Exactly the kind of dead catalogue entry that stays
    * invisible until a player complains.
@@ -118,7 +118,7 @@ class RecipeCatalogTest {
   fun `every producing recipe is reachable at the rank it requires`() {
     load()
 
-    val levelById = identifiers("items.yml", "items", "id", "level").mapKeys { it.key.toLong() }
+    val levelById = identifiers("items.yml", "items", "id", "base-level").mapKeys { it.key.toLong() }
     assertTrue(levelById.isNotEmpty(), "items.yml should declare levels")
 
     val bonuses = MasterCraftBonusService(skillRepository)

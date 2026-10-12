@@ -14,17 +14,17 @@ class EquipmentServiceTest {
 
   private val boots = Item(
     id = 4L, identifier = "boots", weight = 8, type = Item.ItemType.EQUIP,
-    equipSlot = EquipmentSlot.FOOTGEAR, level = BOOTS_LEVEL,
+    equipSlot = EquipmentSlot.FOOTGEAR, baseLevel = BOOTS_LEVEL,
     material = ItemMaterial.LEATHER
   )
   private val noviceBoots = Item(
     id = 33L, identifier = "novice_boots", weight = 8, type = Item.ItemType.EQUIP,
-    equipSlot = EquipmentSlot.FOOTGEAR, level = 1, noviceOnly = true,
+    equipSlot = EquipmentSlot.FOOTGEAR, baseLevel = 1, noviceOnly = true,
     material = ItemMaterial.LEATHER
   )
   private val ironCuirass = Item(
     id = 20L, identifier = "iron_cuirass", weight = 650, type = Item.ItemType.EQUIP,
-    equipSlot = EquipmentSlot.ARMOR, level = 1, armorType = ArmorType.HEAVY,
+    equipSlot = EquipmentSlot.ARMOR, baseLevel = 1, armorType = ArmorType.HEAVY,
     material = ItemMaterial.METAL
   )
   private val apple = Item(id = 1L, identifier = "apple", weight = 1, type = Item.ItemType.ETC, material = ItemMaterial.FOOD)

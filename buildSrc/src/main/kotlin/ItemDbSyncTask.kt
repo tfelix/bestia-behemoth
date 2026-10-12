@@ -62,6 +62,7 @@ abstract class ItemDbSyncTask : DefaultTask() {
     @JsonProperty("item-db-name")
     val identifier: String,
     val weight: Int,
+    @JsonProperty("base-level")
     val level: Int = 1,
     val type: String,
     @JsonProperty("equip-slot")

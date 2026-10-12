@@ -54,7 +54,7 @@ class Item(
   var equipSlot: EquipmentSlot? = null,
 
   /**
-   * The tier this item belongs to: what it takes to have anything to do with it.
+   * The tier this item belongs to before any stat on it is counted: what it takes to have anything to do with it.
    *
    * One number answering three questions, which is the whole reason it is a property of the *template* rather
    * than of a use of it. It is the level a wearer needs to put gear on
@@ -70,7 +70,8 @@ class Item(
    * [net.bestia.zone.item.persistence.ItemInstance.upgradeLevel]. A well-upgraded sword is harder to work on than
    * a plain one of the same kind, which is what makes the two numbers interact rather than merely coexist.
    */
-  var level: Int = 1,
+  @Column(name = "level")
+  var baseLevel: Int = 1,
 
   /**
    * How much wear a fresh [net.bestia.zone.item.persistence.ItemInstance] of this template can take, or
@@ -129,7 +130,7 @@ class Item(
    * who repairs the plain one all day. That is the interaction the two numbers exist for; without it,
    * upgrade level would be a stat bonus and nothing else.
    */
-  fun effectiveLevel(upgradeLevel: Int): Int = level + upgradeLevel
+  fun effectiveLevel(upgradeLevel: Int): Int = baseLevel + upgradeLevel
 
   /**
    * The invariants tying [type] to [script] and [equipSlot].

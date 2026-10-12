@@ -416,7 +416,7 @@ class CraftingServiceTest {
   fun `an output the catalogue has no level for is refused`() {
     val unknown = recipe(id = 23, identifier = "UNKNOWN_OUTPUT")
     val fixture = CraftingFixture(listOf(unknown))
-    every { fixture.itemTemplates.levelOf(any()) } returns null
+    every { fixture.itemTemplates.baseLevelOf(any()) } returns null
 
     val crafter = fixture.givenCrafter(items = listOf(stack(INPUT_ITEM, 5)), knownSkills = mapOf(SKILL_ID to 1))
 
