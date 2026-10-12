@@ -25,7 +25,9 @@ class CombatValuesTest {
     assertEquals(175 + 20 + 10 + 13 / 3, values.derived.hitrate)
     assertEquals(100 + 20 + 6 + 13 / 5, values.derived.flee)
     assertEquals(13 / 3, values.derived.crit)
-    assertEquals(9 + 6 / 5 + 6 / 5 + 5, values.defense.defense)
+    // Soft defence is half the vitality now, and nine vitality rolls nothing on top.
+    assertEquals(9 / 2, values.defense.defense)
+    assertEquals(0, values.defense.defenseSpread)
     assertEquals(Weapon.NONE, values.weapon)
     assertEquals(0, values.defense.hardDefense)
   }

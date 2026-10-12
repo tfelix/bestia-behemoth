@@ -19,7 +19,7 @@ experience: 5
 # crit chance at 1% whatever the attributes say, and a critical ignores armour - so about one swing in a
 # hundred still spikes. `BlobBalanceTest` pins how far.
 attributes:
-  strength: 6
+  strength: 2
   intelligence: 2
   vitality: 6
   dexterity: 5

@@ -44,7 +44,7 @@ class RangedPhysicalDamageCalculator(
     val defender = battleCtx.defender
     val surcharge = defender.statusValues.vitality / 2f + defender.statusValues.strength / 6f
 
-    return max(0f, defender.defense.defense + surcharge)
+    return max(0f, rollSoftDefense(defender.defense) + surcharge)
   }
 
   override fun getHardDefenseModifier(battleCtx: EntityBattleContext): Float =

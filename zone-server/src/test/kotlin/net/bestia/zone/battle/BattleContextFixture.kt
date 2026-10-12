@@ -128,6 +128,8 @@ object BattleContextFixture {
       level = level,
       defense = DefenseValues(
         defense = defense ?: derivedDefense.defense,
+        // A pinned defence is pinned whole, roll included.
+        defenseSpread = if (defense == null) derivedDefense.defenseSpread else 0,
         magicDefense = magicDefense ?: derivedDefense.magicDefense,
         hardDefense = hardDefense,
         hardMagicDefense = hardMagicDefense

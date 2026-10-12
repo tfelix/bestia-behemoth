@@ -298,7 +298,8 @@ class StatusEffectSystemsIntegrationTest {
     val underBuff = world.get(buffed, CombatStats::class)!!.values
     assertEquals(30, underBuff.attributes.vitality)
     assertEquals(10, underBuff.base.vitality)
-    assertEquals(species.defense.defense + 20, underBuff.defense.defense)
+    // Twenty vitality is ten soft defence: half of it.
+    assertEquals(species.defense.defense + 10, underBuff.defense.defense)
     assertSame(underBuff, world.get(twin, CombatStats::class)!!.values)
     assertSame(species, world.get(bystander, CombatStats::class)!!.values)
 

@@ -24,10 +24,10 @@ class PhysicalDamageCalculatorTest {
   @Test
   fun `an unarmed swing works out to twice ATK less the target's soft defence`() {
     // Attacker at Lv.10 with every attribute 10: ATK = 10/4 + 10 + 10/5 + 10/3 = 17, so baseAtk = 34.
-    // Defender's SoftDEF = 10 + 10/5 + 10/5 + 10/4 = 16.
+    // Defender's SoftDEF = 10/2 = 5, and VIT 10 has no roll on top.
     val damage = melee.calculateDamage(ctx(), isCritical = false)
 
-    assertEquals(34 - 16, damage)
+    assertEquals(34 - 5, damage)
   }
 
   /**
@@ -39,8 +39,8 @@ class PhysicalDamageCalculatorTest {
     val barehanded = melee.calculateDamage(ctx(), isCritical = false)
     val armed = melee.calculateDamage(ctx(weaponAtk = 10), isCritical = false)
 
-    assertEquals(34 - 16, barehanded)
-    assertEquals(44 - 16, armed)
+    assertEquals(34 - 5, barehanded)
+    assertEquals(44 - 5, armed)
   }
 
   /** Worn DEF is RO's percentage kind: 25 removes a quarter of the attack before soft defence is subtracted. */
@@ -49,9 +49,9 @@ class PhysicalDamageCalculatorTest {
     val unarmoured = melee.calculateDamage(ctx(weaponAtk = 10), isCritical = false)
     val armoured = melee.calculateDamage(ctx(weaponAtk = 10, defenderHardDefense = 25), isCritical = false)
 
-    assertEquals(44 - 16, unarmoured)
-    // floor(44 * 0.75) - 16
-    assertEquals(33 - 16, armoured)
+    assertEquals(44 - 5, unarmoured)
+    // floor(44 * 0.75) - 5
+    assertEquals(33 - 5, armoured)
   }
 
   /** A critical ignores both kinds of defence, which is what makes one worth building for against armour. */
@@ -115,12 +115,12 @@ class PhysicalDamageCalculatorTest {
     val normal = melee.calculateDamage(ctx(), isCritical = false)
     val critical = melee.calculateDamage(ctx(), isCritical = true)
 
-    // 34 * 1.4 with no subtraction, against 34 - 16 for the ordinary hit.
+    // 34 * 1.4 with no subtraction, against 34 - 5 for the ordinary hit.
     assertEquals(47, critical)
-    assertEquals(18, normal)
+    assertEquals(29, normal)
     assertTrue(
-      critical > normal * 2,
-      "bypassing defence should matter more than the 40% bonus alone ($normal -> $critical)"
+      critical > normal * 1.4f,
+      "bypassing defence should add to the 40% bonus ($normal -> $critical)"
     )
   }
 

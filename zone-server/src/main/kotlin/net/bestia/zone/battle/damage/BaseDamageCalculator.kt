@@ -3,6 +3,7 @@ package net.bestia.zone.battle.damage
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.battle.ElementModifier
 import net.bestia.zone.battle.EntityBattleContext
+import net.bestia.zone.battle.status.DefenseValues
 import net.bestia.zone.util.clamp
 import java.util.Random
 import kotlin.math.floor
@@ -126,6 +127,11 @@ abstract class BaseDamageCalculator(
       battleCtx.usedAttack.attackElement,
       battleCtx.defender.assumedElement
     )
+  }
+
+  /** The fixed part of [defense]'s soft defence plus its per-hit roll. */
+  protected fun rollSoftDefense(defense: DefenseValues): Float {
+    return defense.defense + floor(random.nextFloat() * defense.defenseSpread)
   }
 
   /** A random factor in `[1 - variance, 1]`, so damage varies downward from its ceiling. */

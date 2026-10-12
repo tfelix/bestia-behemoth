@@ -29,12 +29,12 @@ class MeleePhysicalDamageCalculator(
   override fun getAmmoAttack(battleCtx: EntityBattleContext): Float = 0f
 
   /**
-   * `SoftDEF = VIT + STR/5 + AGI/5 + BaseLv/4`, straight off the target - see
+   * `SoftDEF = VIT/2 + rnd(VIT * (VIT - 15) / 150)`, straight off the target - see
    * [net.bestia.zone.battle.status.DefenseValues], which is where that formula lives and is the only place it
    * should. Subtracted flat, so it matters most against a weak attacker and fades against a strong one.
    */
   override fun getSoftDefense(battleCtx: EntityBattleContext): Float =
-    max(0f, battleCtx.defender.defense.defense.toFloat())
+    max(0f, rollSoftDefense(battleCtx.defender.defense))
 
   override fun getHardDefenseModifier(battleCtx: EntityBattleContext): Float =
     physicalDefenseModifier(battleCtx) * hardDefenseFactor(battleCtx.defender.defense.hardDefense)
