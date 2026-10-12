@@ -20,8 +20,9 @@ class CombatValuesTest {
     val values = CombatValues.ofBase(level = 20, base = base)
 
     // Level 20 is 5 of every `BaseLv/4`.
-    assertEquals(5 + 6 + 10 / 5 + 13 / 3, values.derived.atk)
-    assertEquals(5 + 8 + 13 / 5, values.derived.matk)
+    // The squared terms: (STR / 10)² is still 0 at 6 strength, while (INT / 7)² is already 1 at 8 intelligence.
+    assertEquals(5 + 6 + 0 + 10 / 5 + 13 / 3, values.derived.atk)
+    assertEquals(5 + 8 + 1 + 13 / 5, values.derived.matk)
     assertEquals(175 + 20 + 10 + 13 / 3, values.derived.hitrate)
     assertEquals(100 + 20 + 6 + 13 / 5, values.derived.flee)
     assertEquals(13 / 3, values.derived.crit)
@@ -64,7 +65,8 @@ class CombatValuesTest {
 
     assertEquals(6, values.base.strength)
     assertEquals(11, values.attributes.strength)
-    assertEquals(CombatValues.ofBase(20, base).derived.atk + 5, values.derived.atk)
+    // Strength 11 is five more points, and ten of them start the squared term.
+    assertEquals(CombatValues.ofBase(20, base).derived.atk + 5 + 1, values.derived.atk)
     assertNotEquals(CombatValues.ofBase(20, base), values)
   }
 

@@ -142,7 +142,8 @@ class CombatStatsRecalcTest {
     world.get(owner, BaseStatusValues::class)!!.strength = 16
     recalc(owner)
 
-    assertEquals(before + 10, world.get(owner, CombatStats::class)!!.atk())
+    // Ten more strength, and the squared term goes from 0 to 1.
+    assertEquals(before + 10 + 1, world.get(owner, CombatStats::class)!!.atk())
     assertEquals(16, outbound.strength)
     assertTrue(outbound.isDirty())
   }

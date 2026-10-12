@@ -36,12 +36,13 @@ data class DerivedStatusValues(
       lv: Int,
       sv: StatusValues
     ): DerivedStatusValues {
-      // ATK (melee) = BaseLevel/4 + STR + DEX/5 + WIL/3
-      val atk = lv / 4 + sv.strength + sv.dexterity / 5 + sv.willpower / 3
+      // The squared terms are RO pre-renewal's: they let attack outgrow the flat soft defence at high levels.
+      // ATK (melee) = BaseLevel/4 + STR + (STR/10)² + DEX/5 + WIL/3
+      val atk = lv / 4 + sv.strength + square(sv.strength / 10) + sv.dexterity / 5 + sv.willpower / 3
       // ATK (ranged) = the same with STR and DEX swapped
-      val rangedAtk = lv / 4 + sv.dexterity + sv.strength / 5 + sv.willpower / 3
-      // MATK = BaseLevel/4 + INT + WIL/5
-      val matk = lv / 4 + sv.intelligence + sv.willpower / 5
+      val rangedAtk = lv / 4 + sv.dexterity + square(sv.dexterity / 10) + sv.strength / 5 + sv.willpower / 3
+      // MATK = BaseLevel/4 + INT + (INT/7)² + WIL/5
+      val matk = lv / 4 + sv.intelligence + square(sv.intelligence / 7) + sv.willpower / 5
       // HIT = 175 + BaseLv + DEX + WIL/3
       val hitrate = 175 + lv + sv.dexterity + sv.willpower / 3
       // FLEE = 100 + BaseLv + AGI + WIL/5
@@ -57,6 +58,10 @@ data class DerivedStatusValues(
         flee = flee,
         crit = crit
       )
+    }
+
+    private fun square(value: Int): Int {
+      return value * value
     }
   }
 }

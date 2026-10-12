@@ -23,11 +23,11 @@ class PhysicalDamageCalculatorTest {
 
   @Test
   fun `an unarmed swing works out to twice ATK less the target's soft defence`() {
-    // Attacker at Lv.10 with every attribute 10: ATK = 10/4 + 10 + 10/5 + 10/3 = 17, so baseAtk = 34.
+    // Attacker at Lv.10 with every attribute 10: ATK = 10/4 + 10 + (10/10)² + 10/5 + 10/3 = 18, so baseAtk = 36.
     // Defender's SoftDEF = 10/2 = 5, and VIT 10 has no roll on top.
     val damage = melee.calculateDamage(ctx(), isCritical = false)
 
-    assertEquals(34 - 5, damage)
+    assertEquals(36 - 5, damage)
   }
 
   /**
@@ -39,8 +39,8 @@ class PhysicalDamageCalculatorTest {
     val barehanded = melee.calculateDamage(ctx(), isCritical = false)
     val armed = melee.calculateDamage(ctx(weaponAtk = 10), isCritical = false)
 
-    assertEquals(34 - 5, barehanded)
-    assertEquals(44 - 5, armed)
+    assertEquals(36 - 5, barehanded)
+    assertEquals(46 - 5, armed)
   }
 
   /** Worn DEF is RO's percentage kind: 25 removes a quarter of the attack before soft defence is subtracted. */
@@ -49,9 +49,9 @@ class PhysicalDamageCalculatorTest {
     val unarmoured = melee.calculateDamage(ctx(weaponAtk = 10), isCritical = false)
     val armoured = melee.calculateDamage(ctx(weaponAtk = 10, defenderHardDefense = 25), isCritical = false)
 
-    assertEquals(44 - 5, unarmoured)
-    // floor(44 * 0.75) - 5
-    assertEquals(33 - 5, armoured)
+    assertEquals(46 - 5, unarmoured)
+    // floor(46 * 0.75) - 5
+    assertEquals(34 - 5, armoured)
   }
 
   /** A critical ignores both kinds of defence, which is what makes one worth building for against armour. */
@@ -59,8 +59,8 @@ class PhysicalDamageCalculatorTest {
   fun `a critical ignores worn defence as well as soft defence`() {
     val armoured = melee.calculateDamage(ctx(weaponAtk = 10, defenderHardDefense = 25), isCritical = true)
 
-    // floor(44 * 1.0 * 1.4), no soft defence subtracted
-    assertEquals(61, armoured)
+    // floor(46 * 1.0 * 1.4), no soft defence subtracted
+    assertEquals(64, armoured)
   }
 
   /** Nothing becomes unkillable: the factor bottoms out where the script/effect modifier already did. */
@@ -115,9 +115,9 @@ class PhysicalDamageCalculatorTest {
     val normal = melee.calculateDamage(ctx(), isCritical = false)
     val critical = melee.calculateDamage(ctx(), isCritical = true)
 
-    // 34 * 1.4 with no subtraction, against 34 - 5 for the ordinary hit.
-    assertEquals(47, critical)
-    assertEquals(29, normal)
+    // 36 * 1.4 with no subtraction, against 36 - 5 for the ordinary hit.
+    assertEquals(50, critical)
+    assertEquals(31, normal)
     assertTrue(
       critical > normal * 1.4f,
       "bypassing defence should add to the 40% bonus ($normal -> $critical)"
@@ -154,8 +154,8 @@ class PhysicalDamageCalculatorTest {
       isCritical = false
     )
 
-    assertEquals(51, vsFire, "34 * 1.5")
-    assertEquals(8, vsWater, "34 * 0.25, floored")
+    assertEquals(54, vsFire, "36 * 1.5")
+    assertEquals(9, vsWater, "36 * 0.25")
   }
 
   @Test
@@ -195,13 +195,13 @@ class PhysicalDamageCalculatorTest {
   fun `no stack of shields makes an entity immune`() {
     // A strong attacker on purpose: at the fixture's default power the 5% floor and the 1-damage floor land on
     // the same number, so the test would pass with the shield cap removed entirely and prove nothing.
-    // STR 60 gives baseAtk 134, so 5% of it is 6 - distinguishable from the 1 it would be without the cap.
+    // STR 60 gives baseAtk 206, so 5% of it is 10 - distinguishable from the 1 it would be without the cap.
     val damage = melee.calculateDamage(
       ctx(attackerStrength = 60, defenderDefense = 0, physicalDefenseMod = 1000f),
       isCritical = false
     )
 
-    assertEquals(6, damage, "the shield floor lets 5% through, well clear of the minimum-damage floor")
+    assertEquals(10, damage, "the shield floor lets 5% through, well clear of the minimum-damage floor")
   }
 
   @Test
