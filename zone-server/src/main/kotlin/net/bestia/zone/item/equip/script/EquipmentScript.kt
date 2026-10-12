@@ -1,25 +1,18 @@
 package net.bestia.zone.item.equip.script
 
 import net.bestia.zone.battle.status.StatusValueRecalcContext
+import net.bestia.zone.item.stat.ItemStats
 import net.bestia.zone.item.equip.EquipmentSlot
 
 /**
- * What wearing one item does to its wearer: primary attributes, speed and regeneration, and the flat attack
- * and worn ("hard") defence that reach the damage formula through
- * [net.bestia.zone.battle.ecs.status.CombatBonus]. Registered under its simple class name
- * (see [EquipmentScriptRegistry]) and referenced by `Item.script` for
- * [net.bestia.zone.item.persistence.Item.ItemType.EQUIP] items - the same script-name-to-bean pattern as
- * [net.bestia.zone.battle.status.StatusEffectScript] / [net.bestia.zone.battle.status.StatusEffectScriptRegistry].
+ * What wearing one item does to its wearer. Registered under its simple class name (see
+ * [EquipmentScriptRegistry]) and referenced by `Item.script`; an item that names none gets
+ * [StatBonusEquipmentScript], which applies the item's [ItemStats] and nothing else.
  *
- * Applied by [net.bestia.zone.battle.ecs.effects.StatusValueRecalcSystem] on the tick thread while
- * it rebuilds [net.bestia.zone.battle.ecs.status.StatusValues] from scratch, so implementations
- * must be stateless and must only mutate [StatusValueRecalcContext].
- *
- * Equipment without any stat effect simply has no script at all - unlike a status effect, there is
- * nothing else (duration, stacking) an equip script would have to answer.
+ * Applied on the tick thread while [net.bestia.zone.battle.ecs.effects.StatusValueRecalcSystem] rebuilds the
+ * status values, so implementations must be stateless and only mutate [StatusValueRecalcContext].
  */
 interface EquipmentScript {
 
-  /** Mutates [context] to reflect this item being worn in [slot] at [upgradeLevel]. */
-  fun apply(context: StatusValueRecalcContext, slot: EquipmentSlot, upgradeLevel: Int)
+  fun apply(context: StatusValueRecalcContext, slot: EquipmentSlot, upgradeLevel: Int, stats: ItemStats)
 }
