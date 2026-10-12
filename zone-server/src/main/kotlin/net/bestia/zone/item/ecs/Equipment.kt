@@ -1,5 +1,6 @@
 package net.bestia.zone.item.ecs
 
+import net.bestia.zone.item.stat.StatValue
 import net.bestia.zone.ecs.core.DirtyFlag
 import net.bestia.zone.sync.Dirtyable
 import net.bestia.zone.sync.SyncTargets
@@ -42,8 +43,11 @@ data class Equipment(
     val durability: Int = 0,
     val maxDurability: Int = 0,
 
-    /** Rune slots cut into the backing instance. */
-    val slots: Int = 0
+    /** Sockets of the backing instance. */
+    val slots: Int = 0,
+
+    val itemLevel: Int = 0,
+    val rolledStats: List<StatValue> = emptyList()
   )
 
   fun isSlotAvailable(slot: EquipmentSlot): Boolean = availableSlotMask.hasEquipSlot(slot)

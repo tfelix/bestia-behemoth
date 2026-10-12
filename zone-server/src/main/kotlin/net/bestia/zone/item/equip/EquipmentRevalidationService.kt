@@ -70,7 +70,7 @@ class EquipmentRevalidationService(
 
     val refused = wearer.worn.mapNotNull { piece ->
       val template = templates[piece.itemId] ?: return@mapNotNull null
-      val denial = equipmentService.checkStillWearable(template, wearer.level, wearer.isNovice)
+      val denial = equipmentService.checkStillWearable(template, piece.itemLevel, wearer.level, wearer.isNovice)
         ?: return@mapNotNull null
 
       Refused(piece, denial)
@@ -109,7 +109,7 @@ class EquipmentRevalidationService(
         // than as exempt - the same reading EquipItemHandler gives it.
         level = get(entityId, Level::class)?.level ?: 0,
         isNovice = noviceGate.isNovice(get(entityId, KnownSkills::class)),
-        worn = equipment.getWorn().map { (slot, item) -> WornPiece(slot, item.itemId, item.uniqueId) }
+        worn = equipment.getWorn().map { (slot, item) -> WornPiece(slot, item.itemId, item.uniqueId, item.itemLevel) }
       )
     }
   }
@@ -151,7 +151,7 @@ class EquipmentRevalidationService(
     val worn: List<WornPiece>
   )
 
-  private data class WornPiece(val slot: EquipmentSlot, val itemId: Long, val uniqueId: Long)
+  private data class WornPiece(val slot: EquipmentSlot, val itemId: Long, val uniqueId: Long, val itemLevel: Int)
 
   private data class Refused(val piece: WornPiece, val denial: EquipmentService.Denial)
 

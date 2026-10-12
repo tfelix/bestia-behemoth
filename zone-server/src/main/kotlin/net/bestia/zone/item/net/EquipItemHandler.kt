@@ -1,5 +1,6 @@
 package net.bestia.zone.item.net
 
+import net.bestia.zone.item.stat.ItemStatCatalog
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.zone.skill.NoviceGate
@@ -42,7 +43,8 @@ class EquipItemHandler(
   private val asyncJobExecutor: AsyncJobExecutor,
   private val outMessageProcessor: OutMessageProcessor,
   private val deadActionGuard: DeadActionGuard,
-  private val world: WorldView
+  private val world: WorldView,
+  private val itemStats: ItemStatCatalog
 ) : IoMessageHandler<EquipItemCMSG> {
   override val wire = decoder(MessageCase.EQUIP_ITEM) { accountId, envelope ->
     EquipItemCMSG.fromBnet(accountId, envelope.equipItem)
@@ -76,10 +78,12 @@ class EquipItemHandler(
         .filter { it.itemId == item.id && !equipment.isWorn(it.uniqueId) }
         .firstOrNull { msg.uniqueId == 0L || it.uniqueId == msg.uniqueId }
 
+      val itemLevel = held?.itemLevel?.takeIf { it > 0 } ?: itemStats.itemLevelOf(item.id)
       val denial = equipmentService.checkEquip(
         equipment = equipment,
         inventory = inventory,
         item = item,
+        itemLevel = itemLevel,
         slot = msg.slot,
         heldUniqueId = held?.uniqueId ?: msg.uniqueId,
         // Zero for an entity with no Level component at all, which the service reads as unqualified rather
@@ -103,9 +107,12 @@ class EquipItemHandler(
           uniqueId = held?.uniqueId ?: 0L,
           // Carried over from the inventory view rather than re-read from the DB: the wear a client
           // already sees on the item in the bag must be the wear it sees on the item in the slot.
+          upgradeLevel = held?.upgradeLevel ?: 0,
           durability = held?.durability ?: 0,
           maxDurability = held?.maxDurability ?: 0,
-          slots = held?.slots ?: 0
+          slots = held?.slots ?: 0,
+          itemLevel = itemLevel,
+          rolledStats = held?.rolledStats.orEmpty()
         )
       )
 

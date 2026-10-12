@@ -1,5 +1,6 @@
 package net.bestia.zone.item.persistence
 
+import net.bestia.zone.item.stat.StatValue
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
@@ -97,4 +98,8 @@ class ContainerSlot(
   val durability: Int get() = itemInstance?.durability ?: 0
   val maxDurability: Int get() = itemInstance?.maxDurability ?: 0
   val slots: Int get() = itemInstance?.slots ?: 0
+
+  /** Null for a stack and for a copy made before item levels: the template's level applies then. */
+  val storedItemLevel: Int? get() = itemInstance?.itemLevel
+  val rolledStats: List<StatValue> get() = itemInstance?.rolledStats.orEmpty()
 }

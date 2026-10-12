@@ -43,7 +43,7 @@ class EquipmentServiceTest {
     wearerLevel: Int = WELL_ABOVE_ITEM_LEVEL,
     wearerIsNovice: Boolean = true
   ): EquipmentService.Denial? {
-    return service.checkEquip(equipment, inventory, item, slot, heldUniqueId, wearerLevel, wearerIsNovice)
+    return service.checkEquip(equipment, inventory, item, item.baseLevel, slot, heldUniqueId, wearerLevel, wearerIsNovice)
   }
 
   @Test
@@ -165,12 +165,22 @@ class EquipmentServiceTest {
    * item it finds already worn, which is every item the sweep is there to judge.
    */
   @Test
+  fun `the copy's item level decides, not the template's base level`() {
+    val rolledHigh = BOOTS_LEVEL + 20
+
+    assertEquals(
+      EquipmentService.Denial.LEVEL_TOO_LOW,
+      service.checkStillWearable(boots, rolledHigh, wearerLevel = rolledHigh - 1, wearerIsNovice = false)
+    )
+  }
+
+  @Test
   fun `checkStillWearable judges a worn item without minding that it is worn`() {
     assertEquals(
       EquipmentService.Denial.NOVICE_ONLY,
-      service.checkStillWearable(noviceBoots, WELL_ABOVE_ITEM_LEVEL, wearerIsNovice = false)
+      service.checkStillWearable(noviceBoots, itemLevel = 1, WELL_ABOVE_ITEM_LEVEL, wearerIsNovice = false)
     )
-    assertNull(service.checkStillWearable(noviceBoots, WELL_ABOVE_ITEM_LEVEL, wearerIsNovice = true))
+    assertNull(service.checkStillWearable(noviceBoots, itemLevel = 1, WELL_ABOVE_ITEM_LEVEL, wearerIsNovice = true))
   }
 
   private companion object {

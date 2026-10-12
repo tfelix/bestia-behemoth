@@ -1,5 +1,6 @@
 package net.bestia.zone.item.ecs
 
+import net.bestia.zone.item.stat.ItemStatCatalog
 import io.mockk.every
 import io.mockk.andThenJust
 import io.mockk.Runs
@@ -56,6 +57,7 @@ class ObtainItemIntentSystemTest {
     asyncJobExecutor = asyncJobExecutor,
     connectionInfoService = connectionInfoService,
     deletionQueue = PersistedEntityDeletionQueue(),
+    itemStats = ItemStatCatalog(),
   )
 
   private fun setUp() {

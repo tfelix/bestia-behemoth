@@ -1,5 +1,6 @@
 package net.bestia.zone.item.equip
 
+import net.bestia.zone.item.stat.ItemStatCatalog
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -36,7 +37,7 @@ class DeadEquipmentChangeTest {
 
     equipHandler().handle(EquipItemCMSG(ACCOUNT, SWORD.id, uniqueId = 0L, slot = EquipmentSlot.RIGHT_HAND))
 
-    verify(exactly = 0) { equipmentService.checkEquip(any(), any(), any(), any(), any(), any(), any()) }
+    verify(exactly = 0) { equipmentService.checkEquip(any(), any(), any(), any(), any(), any(), any(), any()) }
   }
 
   @Test
@@ -71,7 +72,8 @@ class DeadEquipmentChangeTest {
       asyncJobExecutor = mockk(relaxed = true),
       outMessageProcessor = mockk(relaxed = true),
       deadActionGuard = DeadActionGuard(),
-      world = world
+      world = world,
+      itemStats = ItemStatCatalog()
     )
   }
 
