@@ -65,13 +65,13 @@ class AttackExecutionServiceTest {
   @Test
   fun `an ordinary hit is smaller than a critical, and pays the target's defence`() {
     // 0.5 clears the hit check (about 0.84 for these two) but not the crit check (about 0.024), and spends half
-    // the variance: floor(2 * 15 * 0.925) - 14 = 27 - 14 = 13.
+    // the variance: floor(2 * 15 * 0.925) - 10/2 = 27 - 5 = 22.
     val attacker = world.spawnFighter(at = Vec3L(0, 0, 0))
     val target = world.spawnFighter(at = Vec3L(1, 0, 0))
 
     serviceWith(FixedRandom(0.5f)).attack(world, attacker, target, BattleAttack.getBasicMeleeAttack())
 
-    assertEquals(13, world.get(target, IncomingDamage::class)?.total())
+    assertEquals(22, world.get(target, IncomingDamage::class)?.total())
   }
 
   @Test

@@ -156,7 +156,7 @@ class BlobBalanceTest {
     const val NOVICE_KNIFE_ATK = 10
 
     /**
-     * Floors rather than the current values, which are 5 and 4 against the worst swing a blob can roll. Set a
+     * Floors rather than the current values, which are 6 and 5 against the worst swing a blob can roll. Set a
      * notch below so that ordinary tuning has somewhere to move and only a regression toward the two-swing
      * death this test exists to rule out trips them.
      */
