@@ -18,6 +18,15 @@ data class ItemStatSheet(
   val stats: Map<ItemStat, Int> = emptyMap(),
 ) {
 
+  /** The level of a copy that rolled nothing: base level plus the fixed stats. */
+  val itemLevel: Int by lazy {
+    ItemLevel.of(baseLevel, fixedStats())
+  }
+
+  fun fixedStats(): List<StatValue> {
+    return stats.map { (stat, value) -> StatValue(stat, value) }
+  }
+
   fun applyBasePropertiesTo(context: StatusValueRecalcContext) {
     context.addAttack(atk = attack, matk = magicAttack)
     context.addDefense(hardDefense = defense, hardMagicDefense = magicDefense)
