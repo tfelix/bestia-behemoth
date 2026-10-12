@@ -1,7 +1,7 @@
-# `level` is the item's tier: what it takes to have anything to do with it. It is the level a wearer needs
-# to put gear on, the reach a crafter needs to make it or work on it (see `MasterCraftBonusService`), and for
-# a material the tier of work it belongs to. Defaults to 1, so an item with nothing to say about its tier
-# says nothing.
+# `base-level` is the item's tier before its stats are counted: what it takes to have anything to do with it.
+# It is the level a wearer needs to put gear on, the reach a crafter needs to make it or work on it (see
+# `MasterCraftBonusService`), and for a material the tier of work it belongs to. Defaults to 1, so an item with
+# nothing to say about its tier says nothing.
 #
 # A material's level gates nothing by itself - a recipe already names the skill and rank it needs, and saying
 # it twice would only let the two drift. It is what a player reads off the material and what a future recipe
@@ -15,7 +15,7 @@
 items:
   - id: 1
     item-db-name: apple
-    level: 1
+    base-level: 1
     weight: 15
     type: USABLE
     script: AppleScript
@@ -26,13 +26,13 @@ items:
 
   - id: 2
     item-db-name: jelly
-    level: 1
+    base-level: 1
     weight: 10
     type: ETC
 
   - id: 3
     item-db-name: small_health_potion
-    level: 3
+    base-level: 3
     weight: 25
     type: USABLE
     script: SmallHealthPotionScript
@@ -45,7 +45,7 @@ items:
   # wear. Set here so Weapon Repair has something to act on - see `ItemInstance.maxDurability`.
   - id: 4
     item-db-name: shoes
-    level: 1
+    base-level: 1
     weight: 80
     type: EQUIP
     equip-slot: FOOTGEAR
@@ -59,7 +59,7 @@ items:
 
   - id: 5
     item-db-name: boots
-    level: 10
+    base-level: 10
     weight: 200
     type: EQUIP
     equip-slot: FOOTGEAR
@@ -77,7 +77,7 @@ items:
   # away for the sake of a shorter catalogue.
   - id: 6
     item-db-name: mana_crystal
-    level: 5
+    base-level: 5
     weight: 30
     type: ETC
     description: |
@@ -85,7 +85,7 @@ items:
 
   - id: 7
     item-db-name: aetherite_shard
-    level: 10
+    base-level: 10
     weight: 40
     type: ETC
     description: |
@@ -101,7 +101,7 @@ items:
   # *gain*: two ore plus one coal (700) become one ingot (250).
   - id: 8
     item-db-name: iron_ore
-    level: 10
+    base-level: 10
     weight: 300
     type: ETC
     description: |
@@ -111,7 +111,7 @@ items:
 
   - id: 9
     item-db-name: iron_ingot
-    level: 12
+    base-level: 12
     weight: 250
     type: ETC
     description: |
@@ -121,7 +121,7 @@ items:
 
   - id: 10
     item-db-name: coal
-    level: 5
+    base-level: 5
     weight: 100
     type: ETC
     description: |
@@ -129,7 +129,7 @@ items:
 
   - id: 11
     item-db-name: clay
-    level: 1
+    base-level: 1
     weight: 150
     type: ETC
     description: |
@@ -137,7 +137,7 @@ items:
 
   - id: 12
     item-db-name: void_essence
-    level: 30
+    base-level: 30
     weight: 5
     type: ETC
     description: |
@@ -145,7 +145,7 @@ items:
 
   - id: 13
     item-db-name: mana_dust
-    level: 15
+    base-level: 15
     weight: 10
     type: ETC
     description: |
@@ -153,7 +153,7 @@ items:
 
   - id: 14
     item-db-name: engraving_set
-    level: 10
+    base-level: 10
     weight: 50
     type: ETC
     description: |
@@ -163,7 +163,7 @@ items:
 
   - id: 16
     item-db-name: weapon_blueprint
-    level: 15
+    base-level: 15
     weight: 1
     type: ETC
     description: |
@@ -171,7 +171,7 @@ items:
 
   - id: 17
     item-db-name: armor_blueprint
-    level: 15
+    base-level: 15
     weight: 1
     type: ETC
     description: |
@@ -180,7 +180,7 @@ items:
   # The one thing Cooking makes, and the only crafted item that is USABLE rather than a material.
   - id: 18
     item-db-name: hearty_stew
-    level: 5
+    base-level: 5
     weight: 60
     type: USABLE
     script: HeartyStewScript
@@ -195,7 +195,7 @@ items:
   # level, and both are what Weapon Repair and Upgrade Equipment act on.
   - id: 19
     item-db-name: iron_sword
-    level: 20
+    base-level: 20
     weight: 120
     type: EQUIP
     equip-slot: RIGHT_HAND
@@ -208,7 +208,7 @@ items:
 
   - id: 20
     item-db-name: iron_cuirass
-    level: 25
+    base-level: 25
     weight: 650
     type: EQUIP
     equip-slot: ARMOR
@@ -222,7 +222,7 @@ items:
 
   - id: 21
     item-db-name: chart
-    level: 1
+    base-level: 1
     weight: 1
     type: ETC
     # Never stacks: the surveyed ground lives on a `map_chart` row keyed by this item's instance, so two
@@ -236,7 +236,7 @@ items:
 
   - id: 22
     item-db-name: chart_blank
-    level: 1
+    base-level: 1
     weight: 1
     type: ETC
     description: |
@@ -254,7 +254,7 @@ items:
   # ratio that keeps it a reflex - `ItemCatalogWeightTest` holds these to a tenth of an ore each.
   - id: 23
     item-db-name: wild_herb
-    level: 1
+    base-level: 1
     weight: 5
     type: ETC
     description: |
@@ -264,7 +264,7 @@ items:
 
   - id: 24
     item-db-name: bramble_berries
-    level: 1
+    base-level: 1
     weight: 10
     type: ETC
     description: |
@@ -272,7 +272,7 @@ items:
 
   - id: 25
     item-db-name: reed_stalk
-    level: 1
+    base-level: 1
     weight: 20
     type: ETC
     description: |
@@ -282,7 +282,7 @@ items:
 
   - id: 26
     item-db-name: workbench_kit
-    level: 1
+    base-level: 1
     weight: 800
     type: USABLE
     script: WorkbenchKitScript
@@ -296,7 +296,7 @@ items:
   # end, a consumption sink at the household end, and real spoilage on the perishable.
   - id: 27
     item-db-name: gold_coin
-    level: 1
+    base-level: 1
     # Weightless, and that is a design constraint rather than a rounding. There are no smaller
     # denominations, and a fresh master carries about twenty-five kilos - at any non-zero coin weight
     # ordinary shopping turns into a logistics puzzle.
@@ -307,7 +307,7 @@ items:
 
   - id: 28
     item-db-name: grain
-    level: 1
+    base-level: 1
     weight: 30
     type: ETC
     description: |
@@ -315,7 +315,7 @@ items:
 
   - id: 29
     item-db-name: flour
-    level: 1
+    base-level: 1
     weight: 25
     type: ETC
     description: |
@@ -323,7 +323,7 @@ items:
 
   - id: 30
     item-db-name: bread
-    level: 1
+    base-level: 1
     weight: 40
     type: USABLE
     script: BreadScript
@@ -336,7 +336,7 @@ items:
   # coal (800) come out as a bar (300), and refining is a gain worth walking to a furnace for.
   - id: 31
     item-db-name: gold_ore
-    level: 15
+    base-level: 15
     weight: 350
     type: ETC
     description: |
@@ -346,7 +346,7 @@ items:
 
   - id: 32
     item-db-name: gold_bar
-    level: 17
+    base-level: 17
     weight: 300
     type: ETC
     description: |
@@ -367,7 +367,7 @@ items:
   # trade the whole commodity list, so these are the goods a player can count on finding anywhere.
   - id: 33
     item-db-name: small_mana_potion
-    level: 3
+    base-level: 3
     weight: 25
     type: USABLE
     script: SmallManaPotionScript
@@ -378,7 +378,7 @@ items:
 
   - id: 34
     item-db-name: bandage
-    level: 1
+    base-level: 1
     weight: 5
     type: USABLE
     script: BandageScript
@@ -389,7 +389,7 @@ items:
 
   - id: 35
     item-db-name: torch
-    level: 1
+    base-level: 1
     weight: 30
     type: ETC
     description: |
@@ -399,7 +399,7 @@ items:
 
   - id: 36
     item-db-name: salt
-    level: 1
+    base-level: 1
     weight: 40
     type: ETC
     description: |
@@ -410,7 +410,7 @@ items:
   # Food and drink: butcher, brewer, vintner and fishmonger.
   - id: 37
     item-db-name: raw_meat
-    level: 1
+    base-level: 1
     weight: 120
     type: ETC
     description: |
@@ -420,7 +420,7 @@ items:
 
   - id: 38
     item-db-name: salted_meat
-    level: 1
+    base-level: 1
     weight: 90
     type: USABLE
     script: SaltedMeatScript
@@ -431,7 +431,7 @@ items:
 
   - id: 39
     item-db-name: ale
-    level: 1
+    base-level: 1
     weight: 60
     type: USABLE
     script: AleScript
@@ -442,7 +442,7 @@ items:
 
   - id: 40
     item-db-name: wine
-    level: 5
+    base-level: 5
     weight: 90
     type: USABLE
     script: WineScript
@@ -453,7 +453,7 @@ items:
 
   - id: 41
     item-db-name: raw_fish
-    level: 1
+    base-level: 1
     weight: 100
     type: ETC
     description: |
@@ -463,7 +463,7 @@ items:
 
   - id: 42
     item-db-name: cheese
-    level: 1
+    base-level: 1
     weight: 150
     type: USABLE
     script: CheeseScript
@@ -476,7 +476,7 @@ items:
   # already in the catalogue and a log is the thing it was missing to char.
   - id: 43
     item-db-name: log
-    level: 1
+    base-level: 1
     weight: 900
     type: ETC
     description: |
@@ -486,7 +486,7 @@ items:
 
   - id: 44
     item-db-name: plank
-    level: 5
+    base-level: 5
     weight: 150
     type: ETC
     description: |
@@ -496,7 +496,7 @@ items:
 
   - id: 45
     item-db-name: hull_timber
-    level: 15
+    base-level: 15
     weight: 700
     type: ETC
     description: |
@@ -507,7 +507,7 @@ items:
   # Stone and clay: mason and potter.
   - id: 46
     item-db-name: quarried_stone
-    level: 5
+    base-level: 5
     weight: 800
     type: ETC
     description: |
@@ -517,7 +517,7 @@ items:
 
   - id: 47
     item-db-name: cut_stone
-    level: 10
+    base-level: 10
     weight: 700
     type: ETC
     description: |
@@ -527,7 +527,7 @@ items:
 
   - id: 48
     item-db-name: brick
-    level: 5
+    base-level: 5
     weight: 250
     type: ETC
     description: |
@@ -537,7 +537,7 @@ items:
 
   - id: 49
     item-db-name: clay_pot
-    level: 1
+    base-level: 1
     weight: 120
     type: ETC
     description: |
@@ -549,7 +549,7 @@ items:
   # something a player killed, which is where player supply enters an NPC chain.
   - id: 50
     item-db-name: raw_hide
-    level: 1
+    base-level: 1
     weight: 200
     type: ETC
     description: |
@@ -559,7 +559,7 @@ items:
 
   - id: 51
     item-db-name: leather
-    level: 5
+    base-level: 5
     weight: 120
     type: ETC
     description: |
@@ -567,7 +567,7 @@ items:
 
   - id: 52
     item-db-name: wool
-    level: 1
+    base-level: 1
     weight: 80
     type: ETC
     description: |
@@ -575,7 +575,7 @@ items:
 
   - id: 53
     item-db-name: flax
-    level: 1
+    base-level: 1
     weight: 40
     type: ETC
     description: |
@@ -583,7 +583,7 @@ items:
 
   - id: 54
     item-db-name: cloth
-    level: 5
+    base-level: 5
     weight: 60
     type: ETC
     description: |
@@ -591,7 +591,7 @@ items:
 
   - id: 55
     item-db-name: dye
-    level: 10
+    base-level: 10
     weight: 40
     type: ETC
     description: |
@@ -601,7 +601,7 @@ items:
 
   - id: 56
     item-db-name: linen_tunic
-    level: 5
+    base-level: 5
     weight: 120
     type: EQUIP
     equip-slot: ARMOR
@@ -616,7 +616,7 @@ items:
   # needs rather than one they walk past - ore and timber both come out of the world through them.
   - id: 57
     item-db-name: pickaxe
-    level: 10
+    base-level: 10
     weight: 350
     type: EQUIP
     equip-slot: RIGHT_HAND
@@ -628,7 +628,7 @@ items:
 
   - id: 58
     item-db-name: hatchet
-    level: 5
+    base-level: 5
     weight: 250
     type: EQUIP
     equip-slot: RIGHT_HAND
@@ -640,7 +640,7 @@ items:
 
   - id: 59
     item-db-name: nails
-    level: 5
+    base-level: 5
     weight: 60
     type: ETC
     description: |
@@ -650,7 +650,7 @@ items:
 
   - id: 60
     item-db-name: rough_gem
-    level: 20
+    base-level: 20
     weight: 20
     type: ETC
     description: |
@@ -662,7 +662,7 @@ items:
   # this: coin metal worked into a ring is coin metal out of the supply for good.
   - id: 61
     item-db-name: gold_ring
-    level: 25
+    base-level: 25
     weight: 10
     type: EQUIP
     equip-slot: ACCESSORY_1
@@ -674,7 +674,7 @@ items:
   # Letters and medicine: apothecary, alchemist and bookbinder.
   - id: 62
     item-db-name: medicine
-    level: 10
+    base-level: 10
     weight: 20
     type: USABLE
     script: MedicineScript
@@ -685,7 +685,7 @@ items:
 
   - id: 63
     item-db-name: catalyst
-    level: 25
+    base-level: 25
     weight: 15
     type: ETC
     description: |
@@ -695,7 +695,7 @@ items:
 
   - id: 64
     item-db-name: book
-    level: 20
+    base-level: 20
     weight: 80
     type: ETC
     description: |
@@ -713,7 +713,7 @@ items:
   # would be a cruel joke rather than a tutorial.
   - id: 65
     item-db-name: novice_knife
-    level: 1
+    base-level: 1
     weight: 60
     type: EQUIP
     equip-slot: RIGHT_HAND
@@ -727,7 +727,7 @@ items:
 
   - id: 66
     item-db-name: novice_shirt
-    level: 1
+    base-level: 1
     weight: 120
     type: EQUIP
     equip-slot: ARMOR
@@ -742,7 +742,7 @@ items:
 
   - id: 67
     item-db-name: novice_boots
-    level: 1
+    base-level: 1
     weight: 60
     type: EQUIP
     equip-slot: FOOTGEAR
@@ -759,7 +759,7 @@ items:
   # Set on a tile within reach; the first wild bestia to step on it springs it - see BestiaTrapSystem.
   - id: 68
     item-db-name: bestia_trap
-    level: 1
+    base-level: 1
     weight: 150
     type: USABLE
     script: BestiaTrapScript

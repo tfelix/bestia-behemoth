@@ -35,7 +35,8 @@ class ItemImporterBootRunner(
     val script: String? = null,
     @JsonProperty("equip-slot")
     val equipSlot: String? = null,
-    val level: Int = 1,
+    @JsonProperty("base-level")
+    val baseLevel: Int = 1,
     @JsonProperty("max-durability")
     val maxDurability: Int = 0,
     @JsonProperty("novice-only")
@@ -89,7 +90,7 @@ class ItemImporterBootRunner(
       || entity.type != type
       || entity.script != dto.script
       || entity.equipSlot != equipSlot
-      || entity.level != dto.level
+      || entity.baseLevel != dto.baseLevel
       || entity.maxDurability != dto.maxDurability
       || entity.noviceOnly != dto.noviceOnly
       || entity.armorType != dto.armorType
@@ -104,7 +105,7 @@ class ItemImporterBootRunner(
     entity.type = type
     entity.script = dto.script
     entity.equipSlot = equipSlot
-    entity.level = dto.level
+    entity.baseLevel = dto.baseLevel
     entity.maxDurability = dto.maxDurability
     entity.noviceOnly = dto.noviceOnly
     entity.armorType = dto.armorType
@@ -137,7 +138,7 @@ class ItemImporterBootRunner(
       type = getType(dto),
       script = dto.script,
       equipSlot = getEquipSlot(dto),
-      level = dto.level,
+      baseLevel = dto.baseLevel,
       maxDurability = dto.maxDurability,
       noviceOnly = dto.noviceOnly,
       armorType = dto.armorType,

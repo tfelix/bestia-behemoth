@@ -21,7 +21,7 @@ class ItemTemplateRegistry(
 
   data class Template(
     val id: Long,
-    val level: Int,
+    val baseLevel: Int,
     val weight: Int,
     val stackable: Boolean,
     val maxDurability: Int,
@@ -29,7 +29,7 @@ class ItemTemplateRegistry(
 
   // Lazy: the importer writes the table after this bean exists, so an eager read finds a fresh database empty.
   private val byItemId: Map<Long, Template> by lazy {
-    itemRepository.findAll().associate { it.id to Template(it.id, it.level, it.weight, it.stackable, it.maxDurability) }
+    itemRepository.findAll().associate { it.id to Template(it.id, it.baseLevel, it.weight, it.stackable, it.maxDurability) }
   }
 
   private val idByIdentifier: Map<String, Long> by lazy {
@@ -54,7 +54,7 @@ class ItemTemplateRegistry(
    * a craft treats it as a refusal, and silently calling it tier 1 would let a broken reference through as
    * the easiest possible item.
    */
-  fun levelOf(itemId: Long): Int? = byItemId[itemId]?.level
+  fun baseLevelOf(itemId: Long): Int? = byItemId[itemId]?.baseLevel
 
   fun weightOf(itemId: Long): Int? = byItemId[itemId]?.weight
 

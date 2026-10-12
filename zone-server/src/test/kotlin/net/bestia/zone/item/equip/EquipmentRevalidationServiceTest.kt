@@ -72,11 +72,11 @@ class EquipmentRevalidationServiceTest {
 
   private val noviceShirt = Item(
     id = 32L, identifier = "novice_shirt", weight = 120, type = Item.ItemType.EQUIP,
-    equipSlot = EquipmentSlot.ARMOR, level = 1, noviceOnly = true
+    equipSlot = EquipmentSlot.ARMOR, baseLevel = 1, noviceOnly = true
   )
   private val shoes = Item(
     id = 4L, identifier = "shoes", weight = 80, type = Item.ItemType.EQUIP,
-    equipSlot = EquipmentSlot.FOOTGEAR, level = 1
+    equipSlot = EquipmentSlot.FOOTGEAR, baseLevel = 1
   )
 
   init {
