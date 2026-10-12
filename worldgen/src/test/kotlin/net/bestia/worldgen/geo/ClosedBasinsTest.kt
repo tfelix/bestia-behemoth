@@ -12,6 +12,7 @@ import net.bestia.worldgen.fields.Noise
 import net.bestia.worldgen.pipeline.GeneratedWorld
 import net.bestia.worldgen.pipeline.Invariants
 import net.bestia.worldgen.pipeline.StandardWorld
+import net.bestia.worldgen.pipeline.TestWorlds
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.PointMarker
 import net.bestia.worldgen.vector.Polyline
@@ -207,7 +208,7 @@ class ClosedBasinsTest {
   // --- And on real worlds ----------------------------------------------------------------------------
 
   private val reference: GeneratedWorld by lazy {
-    StandardWorld.build(StandardWorld.demoConfig(seed = StandardWorld.DEFAULT_SEED))
+    TestWorlds.get(StandardWorld.demoConfig(seed = StandardWorld.DEFAULT_SEED))
   }
 
   @Test
@@ -272,7 +273,7 @@ class ClosedBasinsTest {
     // lakes and gave the 128 km world - the one `zone-server` actually boots - none at all: it has thirty-six
     // glacial features, all of them troughs that run to the sea. Asserted at the size that was dry rather than
     // at the size that already worked, because the reference world would have passed this against the bug.
-    val small = StandardWorld.build(
+    val small = TestWorlds.get(
       StandardWorld.demoConfig(seed = StandardWorld.DEFAULT_SEED).copy(widthCells = 128, heightCells = 128)
     )
 

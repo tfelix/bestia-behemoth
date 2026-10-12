@@ -4,6 +4,7 @@ import net.bestia.worldgen.core.FloatLayer
 import net.bestia.worldgen.core.LayerId
 import net.bestia.worldgen.pipeline.GeneratedWorld
 import net.bestia.worldgen.pipeline.StandardWorld
+import net.bestia.worldgen.pipeline.TestWorlds
 import java.util.Locale
 import kotlin.math.abs
 import kotlin.test.Test
@@ -27,7 +28,7 @@ class SeasonalPrecipitationTest {
 
   private companion object {
     /** One world, built once. Twelve stages at 192 cells is a few seconds and every test here reads it. */
-    val world: GeneratedWorld = StandardWorld.build(
+    val world: GeneratedWorld = TestWorlds.get(
       StandardWorld.demoConfig(seed = StandardWorld.DEFAULT_SEED).copy(widthCells = 192, heightCells = 192)
     )
 

@@ -5,6 +5,7 @@ import net.bestia.worldgen.core.IntLayer
 import net.bestia.worldgen.core.LayerId
 import net.bestia.worldgen.pipeline.GeneratedWorld
 import net.bestia.worldgen.pipeline.StandardWorld
+import net.bestia.worldgen.pipeline.TestWorlds
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.PointMarker
 import kotlin.math.roundToInt
@@ -205,13 +206,21 @@ class PoiStageTest {
     class Placed(val kind: PoiKind, val x: Double, val y: Double, val biome: Biome)
 
     /** The sweep, reduced as it is built. See the class KDoc for why the worlds are not kept. */
-    val worlds: List<Pair<Long, List<Placed>>> =
-      (0 until SEEDS).map { i -> (FIRST_SEED + i).let { it to placedIn(it) } }
-
-    fun placedIn(seed: Long): List<Placed> {
-      val world = StandardWorld.build(StandardWorld.demoConfig(seed).copy(widthCells = CELLS, heightCells = CELLS))
-      return read(world)
+    /**
+     * Built side by side, which took this from about 77 s to about 30 s on a sixteen-thread machine. `by lazy`
+     * rather than a plain initialiser, and not for tidiness: an eager one runs inside this
+     * class's static initialiser, where the pool's threads would block on [read] waiting for the class they are
+     * helping to initialise.
+     */
+    val worlds: List<Pair<Long, List<Placed>>> by lazy {
+      val seeds = (0 until SEEDS).map { FIRST_SEED + it }
+      seeds.zip(TestWorlds.sweep(seeds.map(::configOf)) { read(it) })
     }
+
+    fun configOf(seed: Long) = StandardWorld.demoConfig(seed).copy(widthCells = CELLS, heightCells = CELLS)
+
+    /** One fresh build, never from the cache: the determinism test builds the same seed twice to compare them. */
+    fun placedIn(seed: Long): List<Placed> = read(StandardWorld.build(configOf(seed)))
 
     fun read(world: GeneratedWorld): List<Placed> {
       val biome = world.world.layers.require<IntLayer>(LayerId.BIOME)

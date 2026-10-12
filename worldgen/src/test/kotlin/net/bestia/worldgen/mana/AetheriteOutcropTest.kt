@@ -4,6 +4,7 @@ import net.bestia.worldgen.core.FloatLayer
 import net.bestia.worldgen.core.LayerId
 import net.bestia.worldgen.pipeline.GeneratedWorld
 import net.bestia.worldgen.pipeline.StandardWorld
+import net.bestia.worldgen.pipeline.TestWorlds
 import net.bestia.worldgen.resource.DepositChannels
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.PointMarker
@@ -30,7 +31,7 @@ import kotlin.test.assertTrue
 class AetheriteOutcropTest {
 
   private companion object {
-    val world: GeneratedWorld = StandardWorld.build(
+    val world: GeneratedWorld = TestWorlds.get(
       StandardWorld.demoConfig(seed = 11753242L).copy(widthCells = 128, heightCells = 128)
     )
 

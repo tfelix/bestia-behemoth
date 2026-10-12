@@ -3,6 +3,7 @@ package net.bestia.worldgen.hydro
 import net.bestia.worldgen.core.FloatLayer
 import net.bestia.worldgen.core.LayerId
 import net.bestia.worldgen.pipeline.StandardWorld
+import net.bestia.worldgen.pipeline.TestWorlds
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.PolylineFeature
 import net.bestia.worldgen.vector.Profiles
@@ -25,7 +26,7 @@ import kotlin.test.assertTrue
 class RiverMouthTest {
 
   private val world by lazy {
-    StandardWorld.build(
+    TestWorlds.get(
       StandardWorld.demoConfig(seed = 11753242L).copy(widthCells = 128, heightCells = 128)
     )
   }

@@ -2,7 +2,7 @@ package net.bestia.worldgen.resource
 
 import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.pipeline.GeneratedWorld
-import net.bestia.worldgen.pipeline.StandardWorld
+import net.bestia.worldgen.pipeline.TestWorlds
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.PointMarker
 import kotlin.test.Test
@@ -140,13 +140,12 @@ class OreCoverageTest {
      * and the test is that coverage is the one that wins.
      */
     val worlds: List<Pair<String, GeneratedWorld>> by lazy {
-      val big = listOf(1L, 3L, 7L, 11L, 42L, 0xC0FFEEL).map { "seed $it at 128 km" to build(it, 128) }
-      val small = listOf(2L, 11L, 26L).map { "seed $it at 64 km" to build(it, 64) }
-      big + small
+      val sizes = listOf(1L, 3L, 7L, 11L, 42L, 0xC0FFEEL).map { it to 128 } + listOf(2L, 11L, 26L).map { it to 64 }
+      val built = TestWorlds.getAll(sizes.map { (seed, cells) -> config(seed, cells) })
+      sizes.zip(built).map { (size, world) -> "seed ${size.first} at ${size.second} km" to world }
     }
 
-    fun build(seed: Long, cells: Int) = StandardWorld.build(
+    fun config(seed: Long, cells: Int) =
       WorldConfig(seed = seed, widthCells = cells, heightCells = cells, chunkSize = 32, voxelSize = 1.0)
-    )
   }
 }

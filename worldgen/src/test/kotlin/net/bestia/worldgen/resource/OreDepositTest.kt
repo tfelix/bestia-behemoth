@@ -1,7 +1,7 @@
 package net.bestia.worldgen.resource
 
 import net.bestia.worldgen.core.WorldConfig
-import net.bestia.worldgen.pipeline.StandardWorld
+import net.bestia.worldgen.pipeline.TestWorlds
 import net.bestia.worldgen.vector.FeatureId
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.PointMarker
@@ -41,7 +41,7 @@ class OreDepositTest {
      * of the suite for no extra coverage.
      */
     val world by lazy {
-      StandardWorld.build(
+      TestWorlds.get(
         WorldConfig(seed = 0x50FA5L, widthCells = 288, heightCells = 288, chunkSize = 32, voxelSize = 1.0)
       )
     }
@@ -259,7 +259,7 @@ class OreDepositTest {
     //
     // Its own world rather than the shared one above, and worth the couple of seconds: the property is about
     // *small* worlds specifically, and a 288 km world would pass it while the shipped one did not.
-    val small = StandardWorld.build(
+    val small = TestWorlds.get(
       WorldConfig(seed = 11753242L, widthCells = 128, heightCells = 128, chunkSize = 32, voxelSize = 1.0)
     )
 

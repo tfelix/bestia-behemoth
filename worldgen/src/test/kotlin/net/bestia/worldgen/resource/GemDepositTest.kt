@@ -2,7 +2,7 @@ package net.bestia.worldgen.resource
 
 import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.pipeline.GeneratedWorld
-import net.bestia.worldgen.pipeline.StandardWorld
+import net.bestia.worldgen.pipeline.TestWorlds
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.PointMarker
 import net.bestia.worldgen.voxel.BlockType
@@ -176,13 +176,12 @@ class GemDepositTest {
      */
     val SEEDS = listOf(1L, 3L, 7L, 11L, 42L, 0xC0FFEEL)
 
+    /** The same six worlds `VolcanicResourceTest` reads, so whichever class runs second finds them already built. */
     val worlds: List<GeneratedWorld> by lazy {
-      SEEDS.map {
-        StandardWorld.build(
-          WorldConfig(seed = it, widthCells = CELLS, heightCells = CELLS, chunkSize = 32, voxelSize = 1.0),
-          params = RawGeology.PARAMS
-        )
-      }
+      TestWorlds.getAll(
+        SEEDS.map { WorldConfig(seed = it, widthCells = CELLS, heightCells = CELLS, chunkSize = 32, voxelSize = 1.0) },
+        RawGeology.PARAMS
+      )
     }
   }
 }

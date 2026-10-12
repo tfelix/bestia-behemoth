@@ -2,6 +2,7 @@ package net.bestia.worldgen.civ
 
 import net.bestia.worldgen.pipeline.GeneratedWorld
 import net.bestia.worldgen.pipeline.StandardWorld
+import net.bestia.worldgen.pipeline.TestWorlds
 import net.bestia.worldgen.vector.Vec2d
 import kotlin.math.hypot
 import kotlin.test.Test
@@ -12,7 +13,7 @@ import kotlin.test.assertTrue
 class SettlementSpawnPointsTest {
 
   private val generated: GeneratedWorld by lazy {
-    StandardWorld.build(StandardWorld.demoConfig(seed = 909L).copy(widthCells = 160, heightCells = 160))
+    TestWorlds.get(StandardWorld.demoConfig(seed = 909L).copy(widthCells = 160, heightCells = 160))
   }
 
   private fun standingByPopulationDesc(): List<Int> {

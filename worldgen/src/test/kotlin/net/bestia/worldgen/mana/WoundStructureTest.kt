@@ -4,7 +4,7 @@ import net.bestia.worldgen.core.ChunkPos
 import net.bestia.worldgen.core.SiteKind
 import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.pipeline.GeneratedWorld
-import net.bestia.worldgen.pipeline.StandardWorld
+import net.bestia.worldgen.pipeline.TestWorlds
 import net.bestia.worldgen.vector.Vec2d
 import net.bestia.worldgen.voxel.BlockType
 import net.bestia.worldgen.voxel.PropKind
@@ -27,7 +27,7 @@ import kotlin.test.assertTrue
 class WoundStructureTest {
 
   private val world: GeneratedWorld by lazy {
-    StandardWorld.build(WorldConfig(seed = 7L, widthCells = 128, heightCells = 128))
+    TestWorlds.get(WorldConfig(seed = 7L, widthCells = 128, heightCells = 128))
   }
 
   @Test

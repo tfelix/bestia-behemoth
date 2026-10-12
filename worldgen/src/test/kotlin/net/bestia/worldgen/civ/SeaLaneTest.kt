@@ -6,6 +6,7 @@ import net.bestia.worldgen.core.LayerId
 import net.bestia.worldgen.core.WorldWrap
 import net.bestia.worldgen.pipeline.GeneratedWorld
 import net.bestia.worldgen.pipeline.StandardWorld
+import net.bestia.worldgen.pipeline.TestWorlds
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.MarkerFeature
 import net.bestia.worldgen.vector.PointMarker
@@ -176,15 +177,13 @@ class SeaLaneTest {
     // world whose cities all sit on one landmass has none - and the 512 km demo world is one of those. A rate
     // near zero would mean the pass is dead again; a rate of one would mean the road rejection is firing when
     // it should not.
-    var withLanes = 0
     val worlds = 15
 
-    for (seed in 1L..worlds) {
-      val built = StandardWorld.build(
-        StandardWorld.demoConfig(seed).copy(widthCells = 192, heightCells = 192)
-      )
-      if (built.world.features.all().any { it.kind == FeatureKind.SEA_LANE }) withLanes++
-    }
+    val withLanes = TestWorlds.sweep(
+      (1L..worlds).map { seed -> StandardWorld.demoConfig(seed).copy(widthCells = 192, heightCells = 192) }
+    ) { built ->
+      built.world.features.all().any { it.kind == FeatureKind.SEA_LANE }
+    }.count { it }
 
     val share = withLanes.toDouble() / worlds
     assertTrue(

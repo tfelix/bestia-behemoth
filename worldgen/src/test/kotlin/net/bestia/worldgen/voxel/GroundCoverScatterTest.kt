@@ -5,7 +5,7 @@ import net.bestia.worldgen.core.FloatLayer
 import net.bestia.worldgen.core.LayerId
 import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.pipeline.GeneratedWorld
-import net.bestia.worldgen.pipeline.StandardWorld
+import net.bestia.worldgen.pipeline.TestWorlds
 import org.junit.jupiter.api.TestInstance
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -31,7 +31,7 @@ import kotlin.test.assertTrue
 class GroundCoverScatterTest {
 
   private val world: GeneratedWorld by lazy {
-    StandardWorld.build(WorldConfig(seed = 7L, widthCells = 128, heightCells = 128))
+    TestWorlds.get(WorldConfig(seed = 7L, widthCells = 128, heightCells = 128))
   }
 
   /** One emitted plant, copied out of the struct-of-arrays so the sweeps can be shared. */

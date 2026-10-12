@@ -60,7 +60,7 @@ class StandardWorldTest {
     voxelSize = 1.0
   )
 
-  private val world by lazy { StandardWorld.build(config(0xC0FFEEL)) }
+  private val world by lazy { TestWorlds.get(config(0xC0FFEEL)) }
 
   @Test
   fun `the pipeline runs in dependency order and every stage declares what it reads`() {
@@ -281,7 +281,7 @@ class StandardWorldTest {
   @Test
   fun `every invariant holds exhaustively on a small world`() {
     val violations = Invariants.check(
-      StandardWorld.build(config(2L).copy(widthCells = 128, heightCells = 128)),
+      TestWorlds.get(config(2L).copy(widthCells = 128, heightCells = 128)),
       Invariants.PropScan.EXHAUSTIVE
     )
     assertTrue(violations.isEmpty(), violations.joinToString("\n"))
