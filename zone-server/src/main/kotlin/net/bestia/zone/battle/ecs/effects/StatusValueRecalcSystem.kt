@@ -185,8 +185,12 @@ class StatusValueRecalcSystem(
 
     val level = world.get(id, Level::class)?.level ?: 1
 
-    world.get(id, Health::class)?.let { it.max = conditionValueCalculator.computeMaxHp(level, context.vitality) }
-    world.get(id, Mana::class)?.let { it.max = conditionValueCalculator.computeMaxMana(level, context.intelligence) }
+    world.get(id, Health::class)?.let {
+      it.max = conditionValueCalculator.computeMaxHp(level, context.vitality, context.maxHpPercent)
+    }
+    world.get(id, Mana::class)?.let {
+      it.max = conditionValueCalculator.computeMaxMana(level, context.intelligence, context.maxManaPercent)
+    }
     world.get(id, Stamina::class)?.let {
       it.max = conditionValueCalculator.computeMaxStamina(level, context.vitality, context.strength, context.willpower)
     }

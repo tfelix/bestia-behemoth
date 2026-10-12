@@ -20,14 +20,15 @@ import kotlin.math.floor
 @Component
 class ConditionValueCalculator {
 
-  fun computeMaxHp(level: Int, vitality: Int): Int {
+  /** [percent] is the docs' `HPModPerc` in percentage points: 10 means 10% more. */
+  fun computeMaxHp(level: Int, vitality: Int, percent: Int = 0): Int {
     val core = 15.0 + BASE_VALUE_HP * 2.0 * level / 100.0 + level
-    return floor(core * (1.0 + vitality * 0.01)).toInt()
+    return floor(core * (1.0 + vitality * 0.01) * (1.0 + percent * 0.01)).toInt()
   }
 
-  fun computeMaxMana(level: Int, intelligence: Int): Int {
+  fun computeMaxMana(level: Int, intelligence: Int, percent: Int = 0): Int {
     val core = 25.0 + BASE_VALUE_MANA * 2.0 * level / 100.0 + level
-    return floor(core * (1.0 + intelligence * 0.01)).toInt()
+    return floor(core * (1.0 + intelligence * 0.01) * (1.0 + percent * 0.01)).toInt()
   }
 
   fun computeMaxStamina(level: Int, vitality: Int, strength: Int, willpower: Int): Int {

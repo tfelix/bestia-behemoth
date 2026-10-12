@@ -1,5 +1,6 @@
 package net.bestia.zone.battle.ecs.status
 
+import net.bestia.zone.battle.Element
 import net.bestia.zone.battle.status.StatusValueRecalcContext
 import net.bestia.zone.ecs.core.Component
 
@@ -11,7 +12,9 @@ import net.bestia.zone.ecs.core.Component
  * `net.bestia.zone.battle.damage.BaseDamageCalculator`; [hardDefense] and [hardMagicDefense] are Ragnarok
  * Online's *equipment* defence, a percentage reduction applied as a multiplier, as distinct from the flat,
  * attribute-derived soft defence `net.bestia.zone.battle.status.DefenseValues` computes. A critical hit
- * ignores this component's two defence terms and not the soft one - see `BaseDamageCalculator`.
+ * ignores this component's two defence terms and not the soft one - see `BaseDamageCalculator`. [hit],
+ * [flee] and [crit] add to the attribute-derived values, [elementResistance] takes a share off a hit of that
+ * element, and [castTimeReduction] shortens every cast.
  *
  * Named for what it is rather than `EquipmentBonus`: nothing here is structurally tied to gear, and a
  * passive or a status effect that wanted to grant flat attack would contribute through the same fields.
@@ -33,6 +36,11 @@ class CombatBonus(
   var hardDefense: Int = 0,
   var hardMagicDefense: Int = 0,
   var weaponUpgradeLevel: Int = 0,
+  var hit: Int = 0,
+  var flee: Int = 0,
+  var crit: Int = 0,
+  var elementResistance: Map<Element, Int> = emptyMap(),
+  var castTimeReduction: Int = 0,
 ) : Component {
 
   fun copyFrom(context: StatusValueRecalcContext) {
@@ -41,5 +49,10 @@ class CombatBonus(
     hardDefense = context.hardDefense
     hardMagicDefense = context.hardMagicDefense
     weaponUpgradeLevel = context.weaponUpgradeLevel
+    hit = context.hit
+    flee = context.flee
+    crit = context.crit
+    elementResistance = context.elementResistance
+    castTimeReduction = context.castTimeReduction
   }
 }

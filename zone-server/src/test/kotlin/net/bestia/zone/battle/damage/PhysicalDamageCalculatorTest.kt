@@ -159,6 +159,22 @@ class PhysicalDamageCalculatorTest {
   }
 
   @Test
+  fun `a resistance takes its share off a hit of that element only`() {
+    val resistant = mapOf(Element.FIRE to 25)
+    val fire = melee.calculateDamage(
+      ctx(attackElement = Element.FIRE, defenderResistance = resistant, defenderDefense = 0),
+      isCritical = false
+    )
+    val water = melee.calculateDamage(
+      ctx(attackElement = Element.WATER, defenderResistance = resistant, defenderDefense = 0),
+      isCritical = false
+    )
+
+    assertEquals(27, fire, "36 * 0.75")
+    assertEquals(36, water, "fire resistance does nothing against water")
+  }
+
+  @Test
   fun `a shielding defence modifier reduces damage without touching the flat term`() {
     val unshielded = melee.calculateDamage(ctx(defenderDefense = 0), isCritical = false)
     val shielded = melee.calculateDamage(
@@ -243,6 +259,7 @@ class PhysicalDamageCalculatorTest {
     defenderDefense: Int? = null,
     defenderHardDefense: Int = 0,
     defenderElement: Element = Element.NORMAL,
+    defenderResistance: Map<Element, Int> = emptyMap(),
     attackElement: Element = Element.NORMAL,
     physicalDefenseMod: Float = 1f,
     weaponAtk: Int = 0,
@@ -258,6 +275,7 @@ class PhysicalDamageCalculatorTest {
         defense = defenderDefense,
         hardDefense = defenderHardDefense,
         element = defenderElement,
+        elementResistance = defenderResistance,
         id = BattleContextFixture.DEFENDER_ID
       )
     ) as EntityBattleContext

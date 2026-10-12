@@ -104,9 +104,16 @@ class BattleContextFactory(
         hardMagicDefense = combatBonus?.hardMagicDefense ?: 0
       ),
       statusValues = statusValues,
-      derivedStatusValues = DerivedStatusValues.fromStatusValues(level, statusValues),
+      derivedStatusValues = DerivedStatusValues.fromStatusValues(
+        lv = level,
+        sv = statusValues,
+        hitBonus = combatBonus?.hit ?: 0,
+        fleeBonus = combatBonus?.flee ?: 0,
+        critBonus = combatBonus?.crit ?: 0
+      ),
       // Armour and buffs that change it do not exist yet, so the species' own element is the whole answer.
       assumedElement = world.get(entityId, Nature::class)?.element ?: Element.NORMAL,
+      elementResistance = combatBonus?.elementResistance ?: emptyMap(),
       maxHealth = world.get(entityId, Health::class)?.max ?: 0,
       activeEffectIds = world.get(entityId, StatusEffects::class)
         ?.activeEffects

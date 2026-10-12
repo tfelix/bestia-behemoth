@@ -80,6 +80,7 @@ object BattleContextFixture {
     hardDefense: Int = 0,
     hardMagicDefense: Int = 0,
     element: Element = Element.NORMAL,
+    elementResistance: Map<Element, Int> = emptyMap(),
     maxHealth: Int = 0,
     activeEffectIds: Set<Long> = emptySet(),
     id: Long = ATTACKER_ID
@@ -110,6 +111,7 @@ object BattleContextFixture {
       statusValues = statusValues,
       derivedStatusValues = DerivedStatusValues.fromStatusValues(level, statusValues),
       assumedElement = element,
+      elementResistance = elementResistance,
       maxHealth = maxHealth,
       activeEffectIds = activeEffectIds
     )

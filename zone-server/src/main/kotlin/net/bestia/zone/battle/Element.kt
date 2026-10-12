@@ -13,6 +13,16 @@ enum class Element {
   // Level 3
   NORMAL_3, WATER_3, EARTH_3, FIRE_3, WIND_3, POISON_3, HOLY_3, SHADOW_3, GHOST_3, UNDEAD_3,
   // Level 4
-  NORMAL_4, WATER_4, EARTH_4, FIRE_4, WIND_4, POISON_4, HOLY_4, SHADOW_4, GHOST_4, UNDEAD_4
+  NORMAL_4, WATER_4, EARTH_4, FIRE_4, WIND_4, POISON_4, HOLY_4, SHADOW_4, GHOST_4, UNDEAD_4;
+
+  /** The element without its level: FIRE for FIRE_3. */
+  val base: Element
+    get() {
+      return entries[ordinal % BASE_ELEMENT_COUNT]
+    }
+
+  private companion object {
+    const val BASE_ELEMENT_COUNT = 10
+  }
 }
 // @formatter:on

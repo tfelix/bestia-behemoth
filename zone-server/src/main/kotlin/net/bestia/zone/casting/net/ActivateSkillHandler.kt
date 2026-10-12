@@ -5,6 +5,7 @@ import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.zone.skill.SkillTargetType
 import net.bestia.zone.entity.ecs.DeadActionGuard
 import net.bestia.zone.battle.ecs.skill.Casting
+import net.bestia.zone.battle.ecs.status.CombatBonus
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.modify
 import net.bestia.zone.session.ConnectionInfoService
@@ -140,7 +141,7 @@ class ActivateSkillHandler(
             skillLevel = msg.skillLevel,
             targetEntityId = targetEntityId,
             targetPosition = targetPosition,
-            totalSeconds = skill.castTime
+            totalSeconds = reducedCastTime(skill.castTime, get(id, CombatBonus::class)?.castTimeReduction ?: 0)
           )
         )
       }
@@ -162,7 +163,14 @@ class ActivateSkillHandler(
     return true
   }
 
+  private fun reducedCastTime(seconds: Float, reductionPercent: Int): Float {
+    return seconds * (1f - reductionPercent / 100f).coerceAtLeast(MIN_CAST_TIME_SHARE)
+  }
+
   companion object {
     private val LOG = KotlinLogging.logger { }
+
+    /** No amount of gear makes a cast instant: a fifth of it always remains. */
+    private const val MIN_CAST_TIME_SHARE = 0.2f
   }
 }

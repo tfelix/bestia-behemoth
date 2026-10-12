@@ -17,6 +17,9 @@ data class BattleEntity(
    */
   val assumedElement: Element,
 
+  /** Percentage points of damage removed per base element, see [Element.base]. */
+  val elementResistance: Map<Element, Int> = emptyMap(),
+
   /** 0 when the entity has no health at all, which is why a heal has to guard against it. */
   val maxHealth: Int = 0,
 

@@ -6,6 +6,7 @@ import io.mockk.verify
 import net.bestia.zone.battle.damage.Damage
 import net.bestia.zone.skill.SkillTargetType
 import net.bestia.zone.battle.ecs.skill.Casting
+import net.bestia.zone.battle.ecs.status.CombatBonus
 import net.bestia.zone.skill.ecs.KnownSkills
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.session.ConnectionInfoService
@@ -18,6 +19,7 @@ import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.skill.persistence.Skill
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.prop.PropPromotionService
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -82,6 +84,20 @@ class ActivateSkillHandlerTest {
 
     assertTrue(world.has(caster, Casting::class), "a skill with a cast time is resolved by CastingSystem later")
     verify(exactly = 0) { skillExecution.execute(any(), any(), any(), any(), any(), any()) }
+  }
+
+  @Test
+  fun `a cast time reduction shortens the cast bar, but never below a fifth`() {
+    val quick = world.spawnCaster()
+    world.add(quick, CombatBonus(castTimeReduction = 25))
+    val instant = world.spawnCaster()
+    world.add(instant, CombatBonus(castTimeReduction = 150))
+
+    handlerFor(quick, skill(castTime = 2f)).handle(world, activate(quick))
+    handlerFor(instant, skill(castTime = 2f)).handle(world, activate(instant))
+
+    assertEquals(1.5f, world.get(quick, Casting::class)?.totalSeconds)
+    assertEquals(0.4f, world.get(instant, Casting::class)?.totalSeconds)
   }
 
   @Test

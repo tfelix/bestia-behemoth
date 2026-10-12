@@ -116,17 +116,18 @@ abstract class BaseDamageCalculator(
   }
 
   /**
-   * How the attack's element fares against what the target is made of.
+   * How the attack's element fares against what the target is made of, less what the target resists of it.
    *
    * One lookup, not two: the sketch this replaces multiplied by the same table twice, once as a "mod" and once
    * as a "bonus". An elemental *bonus* is an equipment and card concept in RO and belongs with those when they
    * exist, not as a second application of the same table.
    */
   private fun getElementMod(battleCtx: EntityBattleContext): Float {
-    return ElementModifier.getModifierFloat(
-      battleCtx.usedAttack.attackElement,
-      battleCtx.defender.assumedElement
-    )
+    val attackElement = battleCtx.usedAttack.attackElement
+    val resistance = (battleCtx.defender.elementResistance[attackElement.base] ?: 0).coerceAtMost(100)
+
+    return ElementModifier.getModifierFloat(attackElement, battleCtx.defender.assumedElement) *
+        (1f - resistance / 100f)
   }
 
   /** The fixed part of [defense]'s soft defence plus its per-hit roll. */
