@@ -1,5 +1,8 @@
 package net.bestia.zone.crafting
 
+import net.bestia.zone.item.stat.ItemStatSheet
+import net.bestia.zone.item.stat.RandomStatTemplate
+import net.bestia.zone.item.stat.StatPool
 import io.mockk.every
 import io.mockk.verify
 import net.bestia.bnet.proto.OperationErrorProto.OpError
@@ -128,6 +131,20 @@ class CraftingServiceTest {
 
     // Durable removal is handed to the executor keyed on the master, never done inline on the tick thread.
     verify { fixture.inventoryService.consumeAll(MASTER_ID, listOf(INPUT_ITEM to 2)) }
+  }
+
+  @Test
+  fun `a forged copy brings its roll and its maker`() {
+    val fixture = CraftingFixture(listOf(produce))
+    val template = RandomStatTemplate(listOf(RandomStatTemplate.Slot(StatPool.ATTRIBUTE.stats)))
+    fixture.itemStats.load(mapOf(OUTPUT_ITEM to ItemStatSheet(randomStats = template)))
+    val crafter = fixture.givenCrafter(items = listOf(stack(INPUT_ITEM, 5)), knownSkills = mapOf(SKILL_ID to 10))
+
+    fixture.service.resolve(fixture.world, crafter, crafting(produce.id))
+
+    val intent = fixture.world.get(crafter, ObtainItemIntent.CreateItemIntent::class)!!
+    assertEquals(MASTER_ID, intent.craftedByMasterId)
+    assertEquals(1, intent.roll?.stats?.size, "the one slot always rolls")
   }
 
   /** The whole risk in a craft, and what makes the success tables in the design docs worth anything. */

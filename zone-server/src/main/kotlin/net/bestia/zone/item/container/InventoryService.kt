@@ -1,5 +1,6 @@
 package net.bestia.zone.item.container
 
+import net.bestia.zone.item.stat.ItemRoll
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.item.persistence.Item
 import net.bestia.zone.item.ItemNotFoundException
@@ -59,10 +60,17 @@ class InventoryService(
    * is decided from the item template.
    */
   @Transactional
-  fun grantToMaster(masterId: Long, itemId: Long, amount: Int, uniqueId: Long = 0L) {
+  fun grantToMaster(
+    masterId: Long,
+    itemId: Long,
+    amount: Int,
+    uniqueId: Long = 0L,
+    roll: ItemRoll? = null,
+    craftedByMasterId: Long? = null
+  ) {
     val master = owners.lockedMaster(masterId)
     val item = itemRepository.findByIdOrNull(itemId) ?: throw ItemNotFoundException(itemId.toString())
-    grant(master.container, item, amount, uniqueId)
+    grant(master.container, item, amount, uniqueId, roll, craftedByMasterId)
     owners.save(master)
   }
 
@@ -427,7 +435,14 @@ class InventoryService(
     private val LOG = KotlinLogging.logger { }
   }
 
-  private fun grant(container: ItemContainer, item: Item, amount: Int, uniqueId: Long) {
+  private fun grant(
+    container: ItemContainer,
+    item: Item,
+    amount: Int,
+    uniqueId: Long,
+    roll: ItemRoll? = null,
+    craftedByMasterId: Long? = null
+  ) {
     require(amount > 0) { "amount > 0 required, was $amount" }
     when {
       uniqueId != 0L -> {
@@ -438,7 +453,14 @@ class InventoryService(
       item.stackable -> container.addStackable(item, amount)
 
       else -> repeat(amount) {
-        container.addInstance(itemInstanceRepository.save(ItemInstance(item = item)))
+        val instance = ItemInstance(
+          item = item,
+          craftedByMasterId = craftedByMasterId,
+          slots = roll?.sockets ?: 0,
+          itemLevel = roll?.itemLevel
+        )
+        roll?.let { instance.assignRolledStats(it.stats) }
+        container.addInstance(itemInstanceRepository.save(instance))
       }
     }
   }

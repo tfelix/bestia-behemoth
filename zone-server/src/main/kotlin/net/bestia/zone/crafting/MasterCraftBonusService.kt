@@ -138,6 +138,16 @@ class MasterCraftBonusService(
   }
 
   /**
+   * How high the random stats of a copy made through [recipe] may lift its level: the crafter's reliable item
+   * level for the recipe's skill (ten a rank, none at rank ten), and no more than its main material + 20.
+   */
+  fun rollCap(known: KnownSkills?, recipe: Recipe, materialLevel: Int): Int {
+    val reach = ceilingAt(ROLL_ITEM_LEVEL_STEP, ROLL_UNCAPPED_AT, rankIn(known, recipe.requiredSkillId))
+
+    return minOf(reach, materialLevel + MATERIAL_ROLL_HEADROOM)
+  }
+
+  /**
    * A linear ceiling that disappears at [uncappedAt].
    *
    * Rank 0 gets a ceiling of 0 rather than [step], so a crafter who has not taken the skill cannot reach even
@@ -252,6 +262,11 @@ class MasterCraftBonusService(
     /** Carpentry Lv.1-10: item tier 10 rising to "100+", so ten a level and no ceiling at full rank. */
     private const val CARPENTRY_ITEM_LEVEL_STEP = 10
     private const val CARPENTRY_UNCAPPED_AT = 10
+
+    /** Forge Weapon / Forge Armor's "Reliable Item Level": 10 a rank, "100+" at rank ten. */
+    private const val ROLL_ITEM_LEVEL_STEP = 10
+    private const val ROLL_UNCAPPED_AT = 10
+    private const val MATERIAL_ROLL_HEADROOM = 20
 
     /** Weapon Repair Lv.1-5: item tier 20 rising to "100+", so twenty a level and no ceiling at full rank. */
     private const val REPAIR_ITEM_LEVEL_STEP = 20

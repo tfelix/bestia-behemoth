@@ -1,5 +1,6 @@
 package net.bestia.zone.item.ecs
 
+import net.bestia.zone.item.stat.ItemRoll
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.identity.ecs.Master
@@ -131,12 +132,13 @@ class ObtainItemIntentSystem(
     }
 
     if (canObtain(world, entityId, item.weight * intent.amount)) {
-      grantItem(world, entityId, item, intent.amount)
+      grantItem(world, entityId, item, intent.amount, roll = intent.roll, craftedByMasterId = intent.craftedByMasterId)
       return
     }
 
     // Over capacity (or the entity has no inventory at all, e.g. a bestia not wired for one yet):
-    // drop it on the ground at the entity's feet instead of losing it.
+    // drop it on the ground at the entity's feet instead of losing it. A ground stack carries no instance
+    // state, so a forged copy dropped here loses its roll - the same gap loot drops have.
     val pos = world.get(entityId, Position::class)?.toVec3L()
     if (pos == null) {
       LOG.warn { "Entity $entityId can not carry item ${intent.itemId} and has no Position to drop it at; item lost" }
@@ -175,6 +177,8 @@ class ObtainItemIntentSystem(
     item: ItemTemplateRegistry.Template,
     amount: Int,
     uniqueId: Long = 0L,
+    roll: ItemRoll? = null,
+    craftedByMasterId: Long? = null,
   ) {
     val inventory = world.get(entityId, Inventory::class)
     if (inventory == null) {
@@ -193,18 +197,29 @@ class ObtainItemIntentSystem(
         // (uniqueId != 0, an item picked back up off the ground) keeps whatever wear it had, which this
         // cannot see - the client gets the real number on the next full inventory send.
         durability = if (item.stackable) 0 else item.maxDurability,
-        maxDurability = if (item.stackable) 0 else item.maxDurability
+        maxDurability = if (item.stackable) 0 else item.maxDurability,
+        slots = roll?.sockets ?: 0,
+        itemLevel = roll?.itemLevel ?: 0,
+        rolledStats = roll?.stats.orEmpty()
       )
     )
 
-    schedulePersist(world, entityId, item.id, amount, uniqueId)
+    schedulePersist(world, entityId, item.id, amount, uniqueId, roll, craftedByMasterId)
   }
 
   /**
    * The master is resolved here on the tick: a job asking the session later finds none after a logout and the
    * wrong master after a switch. Keyed by master so the grant is ordered against that master's other writes.
    */
-  private fun schedulePersist(world: World, entityId: EntityId, itemId: Long, amount: Int, uniqueId: Long) {
+  private fun schedulePersist(
+    world: World,
+    entityId: EntityId,
+    itemId: Long,
+    amount: Int,
+    uniqueId: Long,
+    roll: ItemRoll?,
+    craftedByMasterId: Long?
+  ) {
     val masterId = masterIdOf(world, entityId)
     if (masterId == null) {
       LOG.warn { "Entity $entityId belongs to no master, granted item $itemId will not be persisted" }
@@ -214,7 +229,9 @@ class ObtainItemIntentSystem(
     // The live inventory already holds the item, so a write lost here is an item gone after a restart.
     asyncJobExecutor.submit(key = masterId) {
       try {
-        retryingTransientFailures { inventoryService.grantToMaster(masterId, itemId, amount, uniqueId) }
+        retryingTransientFailures {
+          inventoryService.grantToMaster(masterId, itemId, amount, uniqueId, roll, craftedByMasterId)
+        }
       } catch (e: Exception) {
         LOG.error { "${amount}x item $itemId for master $masterId was not saved and is gone after a restart" }
         throw e
