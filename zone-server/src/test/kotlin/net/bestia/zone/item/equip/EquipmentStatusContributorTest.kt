@@ -5,12 +5,21 @@ import net.bestia.zone.battle.status.StatusValueRecalcContext
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.item.ecs.Equipment
 import net.bestia.zone.item.equip.script.EquipmentScriptRegistry
+import net.bestia.zone.item.equip.script.IronSwordScript
+import net.bestia.zone.item.equip.script.StatBonusEquipmentScript
+import net.bestia.zone.item.stat.ItemStat
+import net.bestia.zone.item.stat.ItemStatCatalog
+import net.bestia.zone.item.stat.ItemStatSheet
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class EquipmentStatusContributorTest {
 
-  private val sut = EquipmentStatusContributor(EquipmentScriptRegistry(emptyList()))
+  private val catalog = ItemStatCatalog()
+  private val sut = EquipmentStatusContributor(
+    EquipmentScriptRegistry(listOf(StatBonusEquipmentScript(), IronSwordScript())),
+    catalog
+  )
   private val world = testWorld()
   private val context = StatusValueRecalcContext(BaseStatusValues(1, 1, 1, 1, 1, 1), baseSpeed = 1f)
 
@@ -30,6 +39,18 @@ class EquipmentStatusContributorTest {
     sut.contribute(context, world, fighter)
 
     assertEquals(0, context.weaponUpgradeLevel)
+  }
+
+  @Test
+  fun `an item without a script still brings its base properties and stats`() {
+    catalog.load(mapOf(1L to ItemStatSheet(attack = 10, stats = mapOf(ItemStat.STR to 3, ItemStat.HIT to 5))))
+    val fighter = wearing(EquipmentSlot.RIGHT_HAND to 0)
+
+    sut.contribute(context, world, fighter)
+
+    assertEquals(10, context.attack)
+    assertEquals(1 + 3, context.strength)
+    assertEquals(5, context.hit)
   }
 
   private fun wearing(vararg items: Pair<EquipmentSlot, Int>): Long {

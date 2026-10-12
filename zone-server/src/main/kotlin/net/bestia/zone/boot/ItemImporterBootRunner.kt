@@ -7,18 +7,23 @@ import net.bestia.zone.item.persistence.ItemRepository
 import net.bestia.zone.item.equip.ArmorType
 import net.bestia.zone.item.equip.EquipmentSlot
 import net.bestia.zone.item.material.ItemMaterial
+import net.bestia.zone.item.stat.ItemStat
+import net.bestia.zone.item.stat.ItemStatCatalog
+import net.bestia.zone.item.stat.ItemStatSheet
 import org.springframework.boot.CommandLineRunner
 import org.springframework.core.annotation.Order
 import org.springframework.core.io.ClassPathResource
 import org.springframework.stereotype.Component
 
 /**
- * Imports the items from the single `items.yml` resource into the database.
+ * Imports the items from the single `items.yml` resource into the database, and their stats into the
+ * [ItemStatCatalog].
  */
 @Component
 @Order(100)
 class ItemImporterBootRunner(
-  itemRepository: ItemRepository
+  itemRepository: ItemRepository,
+  private val itemStatCatalog: ItemStatCatalog
 ) : CommandLineRunner,
   YmlImporterBootRunner<ItemImporterBootRunner.ItemYamlDto, Item>(
     "Item",
@@ -55,8 +60,31 @@ class ItemImporterBootRunner(
      * lives on a row keyed by its `item_instance`, so two charts that merged into one stack would be one chart
      * and one orphaned row.
      */
-    val stackable: Boolean? = null
-  )
+    val stackable: Boolean? = null,
+
+    /** Base properties: what makes a weapon a weapon and armor armor. They do not raise the item level. */
+    val attack: Int = 0,
+    @JsonProperty("magic-attack")
+    val magicAttack: Int = 0,
+    val defense: Int = 0,
+    @JsonProperty("magic-defense")
+    val magicDefense: Int = 0,
+
+    /** Fixed bonuses on top, such as `STR: 4`. They raise the item level. */
+    val stats: Map<ItemStat, Int> = emptyMap()
+  ) {
+
+    fun toStatSheet(): ItemStatSheet {
+      return ItemStatSheet(
+        baseLevel = baseLevel,
+        attack = attack,
+        magicAttack = magicAttack,
+        defense = defense,
+        magicDefense = magicDefense,
+        stats = stats
+      )
+    }
+  }
 
   /**
    * Wrapper for the single `items.yml` file which holds all items under a top-level `items` list.
@@ -64,6 +92,11 @@ class ItemImporterBootRunner(
   data class ItemsYmlFile(
     val items: List<ItemYamlDto> = emptyList()
   )
+
+  override fun run(vararg args: String?) {
+    super.run(*args)
+    itemStatCatalog.load(loadYmlItems().associate { it.id to it.toStatSheet() })
+  }
 
   override fun loadYmlItems(): List<ItemYamlDto> {
     val objectMapper = createYmlMapper()

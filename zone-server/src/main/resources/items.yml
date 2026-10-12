@@ -14,6 +14,10 @@
 # lists under `armor-types`. Weapons and accessories have none, so anyone with the slot can wear them.
 #
 # `material` is required. `item-materials.yml` says how a stack of it fares on the ground in fire and water.
+#
+# `attack`, `magic-attack`, `defense` and `magic-defense` are gear's base properties; `base-level` already
+# prices them. `stats` are fixed bonuses on top (`STR: 4`, `HIT: 10`, see `ItemStat`) and raise the item level.
+# An item with no `script` gets `StatBonusEquipmentScript`, which applies exactly these.
 items:
   - id: 1
     item-db-name: apple
@@ -57,7 +61,8 @@ items:
     equip-slot: FOOTGEAR
     armor-type: LIGHT
     max-durability: 120
-    script: ShoesScript
+    stats:
+      AGI: 2
     description: |
       A sturdy pair of leather shoes.
 
@@ -72,7 +77,8 @@ items:
     equip-slot: FOOTGEAR
     armor-type: MEDIUM
     max-durability: 260
-    script: BootsScript
+    stats:
+      VIT: 2
     description: |
       A pair of heavy iron-shod boots.
 
@@ -221,6 +227,9 @@ items:
     equip-slot: RIGHT_HAND
     max-durability: 200
     script: IronSwordScript
+    stats:
+      STR: 4
+      DEX: 1
     description: |
       A straight iron blade, plain and heavier than it looks.
 
@@ -236,6 +245,10 @@ items:
     armor-type: HEAVY
     max-durability: 300
     script: IronCuirassScript
+    # The first item heavy enough that wearing it is a decision rather than an upgrade.
+    stats:
+      VIT: 5
+      AGI: -2
     description: |
       A breastplate beaten out of four ingots and fitted by eye.
 
@@ -785,7 +798,7 @@ items:
     equip-slot: RIGHT_HAND
     max-durability: 80
     novice-only: true
-    script: NoviceKnifeScript
+    attack: 10
     description: |
       A short blade with a wrapped handle, more tool than weapon.
 
@@ -801,7 +814,8 @@ items:
     armor-type: CLOTH
     max-durability: 100
     novice-only: true
-    script: NoviceShirtScript
+    defense: 3
+    magic-defense: 3
     description: |
       A plain quilted shirt, mended at one shoulder.
 
@@ -817,7 +831,8 @@ items:
     armor-type: LIGHT
     max-durability: 80
     novice-only: true
-    script: NoviceBootsScript
+    defense: 2
+    magic-defense: 2
     description: |
       Soft leather boots, worn pale at the toes.
 

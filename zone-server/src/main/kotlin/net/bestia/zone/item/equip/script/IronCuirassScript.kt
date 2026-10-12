@@ -2,19 +2,15 @@ package net.bestia.zone.item.equip.script
 
 import net.bestia.zone.battle.status.StatusValueRecalcContext
 import net.bestia.zone.item.equip.EquipmentSlot
+import net.bestia.zone.item.stat.ItemStats
 import org.springframework.stereotype.Component
 
-/**
- * Referenced by `items.yml` id 20 (`iron_cuirass`) - what Forge Armor produces.
- *
- * Costs agility, which no other piece of gear does: a full breastplate is the first item heavy enough
- * that wearing it should be a decision rather than an upgrade.
- */
+/** Referenced by `items.yml` id 20 (`iron_cuirass`) - what Forge Armor produces. Refining it adds vitality. */
 @Component
-class IronCuirassScript : EquipmentScript {
+class IronCuirassScript : StatBonusEquipmentScript() {
 
-  override fun apply(context: StatusValueRecalcContext, slot: EquipmentSlot, upgradeLevel: Int) {
-    context.vitality += 5 + 2 * upgradeLevel
-    context.agility -= 2
+  override fun apply(context: StatusValueRecalcContext, slot: EquipmentSlot, upgradeLevel: Int, stats: ItemStats) {
+    super.apply(context, slot, upgradeLevel, stats)
+    context.vitality += 2 * upgradeLevel
   }
 }

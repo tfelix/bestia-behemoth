@@ -18,6 +18,7 @@ import net.bestia.zone.boot.StatusEffectImporterBootRunner
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.item.equip.EquipmentStatusContributor
 import net.bestia.zone.item.equip.script.EquipmentScriptRegistry
+import net.bestia.zone.item.stat.ItemStatCatalog
 import net.bestia.zone.util.EntityId
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -38,7 +39,7 @@ class BlessingStatusEffectTest {
       StatusValueRecalcSystem(
         catalogue,
         scripts,
-        EquipmentStatusContributor(EquipmentScriptRegistry(emptyList())),
+        EquipmentStatusContributor(EquipmentScriptRegistry(emptyList()), ItemStatCatalog()),
         PassiveSkillScriptRegistry(emptyList()),
         ConditionValueCalculator(),
         CombatValuesPool()

@@ -35,6 +35,8 @@ import net.bestia.zone.item.equip.EquipmentSlots
 import net.bestia.zone.item.equip.script.EquipmentScript
 import net.bestia.zone.item.equip.EquipmentStatusContributor
 import net.bestia.zone.item.equip.script.EquipmentScriptRegistry
+import net.bestia.zone.item.stat.ItemStatCatalog
+import net.bestia.zone.item.stat.ItemStats
 import net.bestia.zone.util.EntityId
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -74,7 +76,7 @@ class StatusEffectSystemsIntegrationTest {
   private class AgilityBootsScript(
     private val agilityBonus: Int = 5
   ) : EquipmentScript {
-    override fun apply(context: StatusValueRecalcContext, slot: EquipmentSlot, upgradeLevel: Int) {
+    override fun apply(context: StatusValueRecalcContext, slot: EquipmentSlot, upgradeLevel: Int, stats: ItemStats) {
       context.agility += agilityBonus
     }
   }
@@ -159,7 +161,7 @@ class StatusEffectSystemsIntegrationTest {
 
   /** A stand-in [EquipmentScript] granting a flat HP regeneration bonus. */
   private class RegenRingScript : EquipmentScript {
-    override fun apply(context: StatusValueRecalcContext, slot: EquipmentSlot, upgradeLevel: Int) {
+    override fun apply(context: StatusValueRecalcContext, slot: EquipmentSlot, upgradeLevel: Int, stats: ItemStats) {
       context.addHpRegen(flat = 2)
     }
   }
@@ -204,7 +206,7 @@ class StatusEffectSystemsIntegrationTest {
         StatusValueRecalcSystem(
           definitionRegistry,
           scriptRegistry,
-          EquipmentStatusContributor(equipmentScriptRegistry),
+          EquipmentStatusContributor(equipmentScriptRegistry, ItemStatCatalog()),
           passiveSkillScriptRegistry,
           conditionValueCalculator,
           combatValuesPool

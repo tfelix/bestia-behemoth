@@ -27,10 +27,7 @@ class EquipmentScriptRegistry(
   @Volatile
   private var byItemId: Map<Long, EquipmentScript> = emptyMap()
 
-  /**
-   * Binds the equip items that actually declare a script to their [EquipmentScript]. Items without
-   * a script (plain gear with no stat effect) are simply absent from the mapping.
-   */
+  /** Binds the equip items that declare a script. The others fall back to [StatBonusEquipmentScript]. */
   fun bind(equipItems: List<Item>) {
     byItemId = equipItems
       .mapNotNull { item -> item.script?.let { name -> byName[name]?.let { item.id to it } } }
@@ -41,8 +38,12 @@ class EquipmentScriptRegistry(
 
   fun get(scriptName: String): EquipmentScript? = byName[scriptName]
 
-  /** The script of the worn item [itemId], or null when that item has no stat effect at all. */
-  fun getByItemId(itemId: Long): EquipmentScript? = byItemId[itemId]
+  private val default: EquipmentScript = byName[StatBonusEquipmentScript::class.simpleName]
+    ?: StatBonusEquipmentScript()
+
+  fun getByItemId(itemId: Long): EquipmentScript {
+    return byItemId[itemId] ?: default
+  }
 
   companion object {
     private val LOG = KotlinLogging.logger { }
