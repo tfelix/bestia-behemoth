@@ -1,0 +1,16 @@
+[gd_resource type="Theme" format=3]
+
+[ext_resource type="FontFile" path="res://Theme/OpenSans-SemiBold.woff2" id="1_font"]
+
+[sub_resource type="FontVariation" id="FontVariation_bold"]
+base_font = ExtResource("1_font")
+variation_embolden = 1.2
+
+[sub_resource type="FontVariation" id="FontVariation_bold_italics"]
+base_font = ExtResource("1_font")
+variation_embolden = 1.2
+variation_transform = Transform2D(1, 0.2, 0, 1, 0, 0)
+
+[resource]
+RichTextLabel/fonts/bold_font = SubResource("FontVariation_bold")
+RichTextLabel/fonts/bold_italics_font = SubResource("FontVariation_bold_italics")
