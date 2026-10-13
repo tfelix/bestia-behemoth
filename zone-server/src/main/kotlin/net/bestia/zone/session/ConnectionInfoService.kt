@@ -246,6 +246,17 @@ class ConnectionInfoService {
     }
   }
 
+  /** What the account was granted on authenticating, master selected or not; [getAuthorities] needs a master. */
+  fun getGrantedAuthorities(
+    accountId: AccountId
+  ): Set<Authority> {
+    return when (val session = sessions[accountId]) {
+      is ActiveConnection -> session.authorities
+      is InactiveConnection -> session.authorities
+      null -> emptySet()
+    }
+  }
+
   @OptIn(ExperimentalContracts::class)
   private final fun requireActiveSession(session: Session?, accountId: AccountId) {
     contract {

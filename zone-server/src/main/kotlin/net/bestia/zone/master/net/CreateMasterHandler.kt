@@ -10,10 +10,12 @@ import net.bestia.zone.master.MasterCreateException
 import net.bestia.zone.master.MasterCreatedSMSG
 import net.bestia.zone.master.MasterErrorSMSG
 import net.bestia.zone.master.MasterFactory
+import net.bestia.zone.master.bestia.GmBestiaGrant
 
 @Component
 class CreateMasterHandler(
   private val masterFactory: MasterFactory,
+  private val gmBestiaGrant: GmBestiaGrant,
   private val outMessageProcessor: OutMessageProcessor
 ) : IoMessageHandler<CreateMasterCMSG> {
   override val wire = decoder(MessageCase.CREATE_MASTER) { accountId, envelope ->
@@ -39,7 +41,8 @@ class CreateMasterHandler(
         effortValues = msg.effortValues
       )
 
-      masterFactory.create(msg.playerId, masterCreateData)
+      val master = masterFactory.create(msg.playerId, masterCreateData)
+      gmBestiaGrant.grantIfGm(msg.playerId, master.id, master.currentPosition)
 
       // Only acknowledge the creation. The client re-fetches the master list via GetMaster
       // when it navigates back to the selection screen, so pushing it here would be redundant.

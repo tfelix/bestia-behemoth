@@ -1,6 +1,7 @@
 package net.bestia.zone.mocks
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.account.Authority
 import net.bestia.zone.account.persistence.AccountRepository
 import net.bestia.zone.message.SMSG
 import net.bestia.zone.message.AccountTaskExecutor
@@ -72,6 +73,7 @@ class GameClientMockFactory(
   @Transactional
   fun getGameClient(
     accountId: Long,
+    authorities: Set<Authority> = Authority.entries.toSet(),
   ): GameClientMock {
     val account = accountRepository.findByIdOrNull(accountId)
 
@@ -86,7 +88,8 @@ class GameClientMockFactory(
       inMessageProcessor,
       inbox,
       applicationEventPublisher,
-      buffer
+      buffer,
+      authorities
     )
   }
 

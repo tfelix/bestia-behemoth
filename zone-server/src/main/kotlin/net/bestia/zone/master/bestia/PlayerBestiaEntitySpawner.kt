@@ -156,13 +156,15 @@ class PlayerBestiaEntitySpawner(
     add(id, loaded.inventory)
     add(id, loaded.equipment)
 
+    // The species' own six, as for a wild one (`BestiaEntitySpawner`).
+    val species = playerBestia.bestia
     val baseStatusValues = BaseStatusValues(
-      strength = 10,
-      intelligence = 10,
-      vitality = 10,
-      dexterity = 10,
-      willpower = 10,
-      agility = 10
+      strength = species.strength,
+      intelligence = species.intelligence,
+      vitality = species.vitality,
+      dexterity = species.dexterity,
+      willpower = species.willpower,
+      agility = species.agility
     )
     add(id, baseStatusValues)
     add(

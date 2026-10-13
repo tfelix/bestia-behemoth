@@ -8,3 +8,6 @@ BESTIA_KIND_DEMON,Demon
 BESTIA_TOWNSFOLK_COMMONER,Townsperson
 BESTIA_TOWNSFOLK_COMMONER_DESC,"An ordinary resident of a settlement, going about their day."
 BESTIA_KIND_HUMANOID,Humanoid
+BESTIA_GM_BESTIA,GM Bestia
+BESTIA_GM_BESTIA_DESC,"A creature made for game masters to try things on. It is strong, wears every piece of gear and knows every attack a bestia can learn. It never appears in the wild."
+BESTIA_KIND_DRAGON,Dragon

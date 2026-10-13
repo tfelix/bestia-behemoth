@@ -38,6 +38,17 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import net.bestia.zone.ecs.core.EcsWorld
+import net.bestia.zone.ecs.core.WorldView
+import net.bestia.zone.account.persistence.PlayerBestiaRepository
+import net.bestia.zone.battle.ecs.level.Level
+import net.bestia.zone.battle.ecs.status.BaseStatusValues
+import net.bestia.zone.identity.ecs.OwnedBestia
+import net.bestia.zone.item.ecs.Equipment
+import net.bestia.zone.item.equip.ArmorType
+import net.bestia.zone.item.equip.EquipmentSlot
+import net.bestia.zone.master.bestia.GmBestiaGrant
+import net.bestia.zone.skill.ecs.KnownSkills
+import net.bestia.zone.skill.persistence.SkillRepository
 
 /**
  * Scenario: Spawns a blob bestia entity, connects, sends a kill message, and provides a placeholder for post-kill checks.
@@ -64,6 +75,15 @@ class MasterCreateScenario : BestiaNoSocketScenario(autoClientConnect = false) {
 
   @Autowired
   private lateinit var world: EcsWorld
+
+  @Autowired
+  private lateinit var worldView: WorldView
+
+  @Autowired
+  private lateinit var playerBestiaRepository: PlayerBestiaRepository
+
+  @Autowired
+  private lateinit var skillRepository: SkillRepository
 
   private lateinit var accountNoMaster: Account
 
@@ -400,6 +420,81 @@ class MasterCreateScenario : BestiaNoSocketScenario(autoClientConnect = false) {
     } finally {
       client.disconnect()
     }
+  }
+
+  @Test
+  @Order(13)
+  fun `a master created on a GM account owns the GM bestia with its level, stats, attacks and gear`() {
+    val account = accountFactory.createAccount(11L)
+    val client = gameClientFactory.getGameClient(accountId = account.id)
+    var masterId = 0L
+
+    try {
+      // Connecting is what puts the account's authorities into the session the grant reads them from.
+      client.connect()
+      client.sendMessage(CreateMasterCMSG.test(client.connectedPlayerId, "gmowner", anySpawnPointId()))
+      await { client.getLastReceived(MasterCreatedSMSG::class) }
+
+      masterId = masterRepository.findByName("gmowner")!!.id
+      val owned = playerBestiaRepository.findAllByMasterId(masterId).single()
+      assertEquals(GmBestiaGrant.SPECIES, owned.bestia.identifier)
+      assertEquals(owned.bestia.level, owned.level)
+
+      // The bestia enters the world with the master, as any bestia the master already owns does.
+      client.sendMessage(SelectMasterCMSG(client.connectedPlayerId, masterId))
+      await { assertEquals(1, bestiaEntitiesOf(masterId).size) }
+      val entityId = bestiaEntitiesOf(masterId).single().entityId
+
+      val bestiaSkillIds = skillRepository.findAll().map { it.id }.filter { it >= FIRST_BESTIA_SKILL_ID }
+      worldView.read {
+        assertEquals(owned.bestia.level, get(entityId, Level::class)!!.level)
+
+        val skills = get(entityId, KnownSkills::class)!!
+        bestiaSkillIds.forEach { assertTrue(skills.levelOf(it) > 0, "the GM bestia does not know skill $it") }
+
+        val base = get(entityId, BaseStatusValues::class)!!
+        assertEquals(
+          listOf(owned.bestia.strength, owned.bestia.intelligence, owned.bestia.vitality, owned.bestia.dexterity, owned.bestia.willpower, owned.bestia.agility),
+          listOf(base.strength, base.intelligence, base.vitality, base.dexterity, base.willpower, base.agility)
+        )
+
+        val equipment = get(entityId, Equipment::class)!!
+        EquipmentSlot.entries.forEach { assertTrue(equipment.isSlotAvailable(it), "no $it slot") }
+        ArmorType.entries.forEach { assertTrue(equipment.canWearArmorType(it), "cannot wear $it") }
+      }
+    } finally {
+      client.disconnect()
+      // A bestia outlives its owner's session, and a later master may reuse this master's id.
+      bestiaEntitiesOf(masterId).forEach { bestia -> worldView.modify(bestia.entityId) { id -> destroy(id) } }
+    }
+  }
+
+  @Test
+  @Order(14)
+  fun `a master created on an ordinary account owns no bestia`() {
+    val account = accountFactory.createAccount(12L)
+    val client = gameClientFactory.getGameClient(accountId = account.id, authorities = emptySet())
+
+    try {
+      client.connect()
+      client.sendMessage(CreateMasterCMSG.test(client.connectedPlayerId, "plainowner", anySpawnPointId()))
+      await { client.getLastReceived(MasterCreatedSMSG::class) }
+
+      val master = masterRepository.findByName("plainowner")!!
+
+      assertTrue(playerBestiaRepository.findAllByMasterId(master.id).isEmpty())
+    } finally {
+      client.disconnect()
+    }
+  }
+
+  private fun bestiaEntitiesOf(masterId: Long): Set<ConnectionInfoService.PlayerEntity> {
+    return worldView.read { OwnedBestia.ownedBy(this, masterId) }
+  }
+
+  private companion object {
+    /** `skills.yml` reserves 1000 and up for the skills of bestia species. */
+    const val FIRST_BESTIA_SKILL_ID = 1000L
   }
 }
 

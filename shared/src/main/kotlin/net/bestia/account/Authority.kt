@@ -32,5 +32,11 @@ enum class Authority {
   KICK,
 
   /** Keeping another account from signing in, for a while or for good. */
-  BAN
+  BAN,
+
+  /**
+   * Being handed the GM test bestia when a master is created. Not [SPAWN], so a role that moderates but has no
+   * use for a cheat creature can leave it out.
+   */
+  TEST_BESTIA
 }

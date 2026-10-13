@@ -1,0 +1,50 @@
+id: 4
+identifier: gm_bestia
+level: 80
+# English source text for the client. syncBestiaDb copies it into bestias.csv, where it is translated.
+name: GM Bestia
+description: >-
+  A creature made for game masters to try things on. It is strong, wears every piece of gear and knows every
+  attack a bestia can learn. It never appears in the wild.
+kind: DRAGON
+# An owned bestia's pools come from its level, VITALITY and INTELLIGENCE, so these two only count when a GM
+# spawns the species as a creature of its own with `/spawn`.
+health: 20000
+mana: 5000
+experience: 0
+# The classic ceiling of 99; each point past the first few costs a master `value / 3` effort points, so no
+# player build comes close. An owned bestia seeds its six attributes from these (`PlayerBestiaEntitySpawner`).
+attributes:
+  strength: 99
+  intelligence: 99
+  vitality: 99
+  dexterity: 99
+  willpower: 99
+  agility: 99
+# Never placed by a wild den or an ambient site; `GmBestiaGrant` hands it to GM accounts. An empty `habitat`
+# alone would mean "anywhere".
+event-only: true
+spawn-weight: 0
+habitat: []
+# Every slot and weight class. Level 80 is above the highest item in `items.yml` and a bestia always counts as a
+# novice (`NoviceGate`), so no item is held back.
+equip-slots:
+  - HEAD_UPPER
+  - HEAD_MID
+  - ARMOR
+  - GARMENT
+  - FOOTGEAR
+  - RIGHT_HAND
+  - LEFT_HAND
+  - ACCESSORY_1
+  - ACCESSORY_2
+armor-types:
+  - CLOTH
+  - LIGHT
+  - MEDIUM
+  - HEAVY
+# Every attack in the bestia range of `skills.yml` (ids 1000 and up); `GmBestiaSpeciesTest` fails when one is missing.
+learnset:
+  - skill: ember
+    level: 1
+loot: []

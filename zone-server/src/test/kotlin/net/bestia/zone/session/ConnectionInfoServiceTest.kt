@@ -1,5 +1,6 @@
 package net.bestia.zone.session
 
+import net.bestia.account.Authority
 import net.bestia.zone.identity.ecs.OwnedBestia
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.session.ConnectionInfoService.PlayerEntity
@@ -31,6 +32,20 @@ class ConnectionInfoServiceTest {
 
     assertEquals(0, sut.sessionCount)
     assertThrows<NoActiveSessionException> { sut.getMasterId(ACCOUNT) }
+  }
+
+  @Test
+  fun `granted authorities are known before a master is selected, active ones only after`() {
+    sut.registerAuthenticatedConnection(ACCOUNT, setOf(Authority.TEST_BESTIA))
+
+    assertEquals(setOf(Authority.TEST_BESTIA), sut.getGrantedAuthorities(ACCOUNT))
+    assertTrue(sut.getAuthorities(ACCOUNT).isEmpty())
+
+    sut.activateSession(ACCOUNT, MASTER, MASTER_ENTITY)
+
+    assertEquals(setOf(Authority.TEST_BESTIA), sut.getGrantedAuthorities(ACCOUNT))
+    assertEquals(setOf(Authority.TEST_BESTIA), sut.getAuthorities(ACCOUNT))
+    assertTrue(sut.getGrantedAuthorities(STRANGER).isEmpty())
   }
 
   /** The bestias stayed in the world while their owner was away; their component is how they are found. */
