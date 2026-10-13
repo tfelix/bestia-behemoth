@@ -198,6 +198,35 @@ class MasterSkillTreeServiceTest {
     assertEquals(1, levelOf(entityId, ORE_REFINEMENT_ID))
   }
 
+  @Test
+  fun `grantAll takes every node to its max level through every gate and spends no point`() {
+    val entityId = givenMaster(skillPoints = 3)
+
+    val changed = service.grantAll(world, ACCOUNT_ID, entityId)
+
+    assertEquals(mapOf(BASIC_SKILL_ID to 5, CARPENTRY_ID to 10, ORE_REFINEMENT_ID to 3), changed)
+    assertEquals(10, levelOf(entityId, CARPENTRY_ID))
+    assertEquals(3, pointsOf(entityId))
+    verify(exactly = 1) { writeBehind.persist(world, listOf(entityId), withStatusEffects = false) }
+    assertEquals(1, publishedEvents.filterIsInstance<MasterSkillsChangedEvent>().size)
+  }
+
+  @Test
+  fun `grantAll leaves a node the master is already past alone, and a second call does nothing`() {
+    val entityId = givenMaster()
+    world.get(entityId, KnownSkills::class)!!.learnOrUpdate(CARPENTRY_ID, 12)
+
+    val first = service.grantAll(world, ACCOUNT_ID, entityId)
+    publishedEvents.clear()
+    val second = service.grantAll(world, ACCOUNT_ID, entityId)
+
+    assertEquals(mapOf(BASIC_SKILL_ID to 5, ORE_REFINEMENT_ID to 3), first)
+    assertEquals(12, levelOf(entityId, CARPENTRY_ID))
+    assertTrue(second.isEmpty())
+    assertTrue(publishedEvents.isEmpty())
+    verify(exactly = 1) { writeBehind.persist(any(), any(), any(), any()) }
+  }
+
   companion object {
     private const val ACCOUNT_ID = 1L
     private const val MASTER_ID = 7L

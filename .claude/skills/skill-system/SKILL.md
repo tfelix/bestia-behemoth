@@ -308,6 +308,20 @@ A skill with no `description` in `skills.yml` yet still needs a `description_key
 the `.tres` schema is uniform), but its `skills.csv` row is hand-authored/placeholder
 until someone backfills a `skills.yml` description for it.
 
+## Granting everything: `/allskills`
+
+A GM chat command (`Authority.SKILLS`, `chat/net/AllSkillsChatCommand.kt`) for testing without the points or
+levels a skill costs. It acts on the active entity and then pushes a fresh `SkillListSMSG`:
+
+- **Master:** `MasterSkillTreeService.grantAll` takes every node of the tree to `maxLevel`. No point is spent;
+  it persists through the master's write-behind exactly like a spend.
+- **Bestia:** `PlayerBestiaSkillService.learnWholeLearnset` writes a level-1 custom `learned_skill` row for each
+  skill of the species learnset up to level 100, whatever the bestia's own level, then the command raises the live
+  `KnownSkills`. That service is the only writer of a bestia's custom rows.
+- `SkillListService` (shared with `GetSkillsHandler`) lists a species skill as learned when the level gate passes
+  **or** a custom row exists, at the higher of the two. A bestia's level-gated skills are not stored: they are
+  derived at spawn and are not refreshed on level-up, so only a respawn picks up a newly unlocked one.
+
 ## Adding a new skill end-to-end
 
 1. Add the entry to `skills.yml` with a fresh unused `id`, plus an English `description`

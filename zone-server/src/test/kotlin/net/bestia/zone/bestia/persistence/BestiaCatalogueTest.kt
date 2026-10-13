@@ -45,6 +45,19 @@ class BestiaCatalogueTest {
   }
 
   @Test
+  fun `learnsetUpTo keeps the skills gated at or below the level`() {
+    every { bestiaSkillRepository.findAllLearned() } returns listOf(
+      LearnedSkill(1, 1000, 3),
+      LearnedSkill(1, 1001, 4),
+      LearnedSkill(1, 1002, 100)
+    )
+
+    assertEquals(emptyList<Long>(), sut.learnsetUpTo(1, 2).map { it.skillId })
+    assertEquals(listOf(1000L), sut.learnsetUpTo(1, 3).map { it.skillId })
+    assertEquals(listOf(1000L, 1001L, 1002L), sut.learnsetUpTo(1, 100).map { it.skillId })
+  }
+
+  @Test
   fun `byId returns the matching species`() {
     assertEquals("blob", sut.byId(1).identifier)
   }

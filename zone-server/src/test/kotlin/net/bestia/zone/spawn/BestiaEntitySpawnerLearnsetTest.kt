@@ -13,12 +13,18 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import net.bestia.zone.bestia.persistence.Bestia
 import net.bestia.zone.bestia.BestiaCatalogue
+import net.bestia.zone.bestia.persistence.BestiaRepository
+import net.bestia.zone.bestia.persistence.BestiaSkillRepository
 import net.bestia.zone.bestia.persistence.LearnedSkill
 
 /** A wild bestia can only cast the attack skills its AI profile lists if it knows them. */
 class BestiaEntitySpawnerLearnsetTest {
 
-  private val catalogue = mockk<BestiaCatalogue>()
+  private val bestiaRepository = mockk<BestiaRepository>()
+  private val bestiaSkillRepository = mockk<BestiaSkillRepository>()
+
+  /** Real, so the level cut is the catalogue's own rather than whatever a stub was told to return. */
+  private val catalogue = BestiaCatalogue(bestiaRepository, bestiaSkillRepository)
 
   private val sut = BestiaEntitySpawner(
     bestiaCatalogue = catalogue,
@@ -29,14 +35,14 @@ class BestiaEntitySpawnerLearnsetTest {
   )
 
   init {
-    every { catalogue.byId(any()) } answers {
-      Bestia(id = firstArg(), identifier = "blob", level = 3, experienceReward = 5, health = 10, mana = 8)
-    }
+    every { bestiaRepository.findAll() } returns listOf(
+      Bestia(id = 1L, identifier = "blob", level = 3, experienceReward = 5, health = 10, mana = 8)
+    )
   }
 
   @Test
   fun `a mob knows the skills its species learns up to its level`() {
-    every { catalogue.learnset(1L) } returns listOf(LearnedSkill(1, EMBER, 3), LearnedSkill(1, LATER, 4))
+    every { bestiaSkillRepository.findAllLearned() } returns listOf(LearnedSkill(1, EMBER, 3), LearnedSkill(1, LATER, 4))
 
     val world = testWorld()
 
@@ -49,7 +55,7 @@ class BestiaEntitySpawnerLearnsetTest {
 
   @Test
   fun `a mob without a learnset gets no KnownSkills at all`() {
-    every { catalogue.learnset(1L) } returns emptyList()
+    every { bestiaSkillRepository.findAllLearned() } returns emptyList()
     val world = testWorld()
 
     val id = sut.spawnMob(world, bestiaId = 1L, pos = Vec3L(0, 0, 0))

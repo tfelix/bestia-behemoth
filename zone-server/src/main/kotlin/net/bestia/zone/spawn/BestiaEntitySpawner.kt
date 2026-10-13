@@ -142,8 +142,7 @@ class BestiaEntitySpawner(
    * Like an owned bestia, a wild one knows its learnset up to its level, each skill at level 1. See
    * `PlayerBestiaEntitySpawner`.
    */
-  private fun learnedSkills(bestia: Bestia): MutableMap<Long, Int> = bestiaCatalogue.learnset(bestia.id)
-    .filter { it.requiredLevel <= bestia.level }
+  private fun learnedSkills(bestia: Bestia): MutableMap<Long, Int> = bestiaCatalogue.learnsetUpTo(bestia.id, bestia.level)
     .associate { it.skillId to 1 }
     .toMutableMap()
 

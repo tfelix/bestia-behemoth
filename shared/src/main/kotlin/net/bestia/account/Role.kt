@@ -16,6 +16,7 @@ enum class Role(val authorities: Set<Authority>) {
       Authority.TERRAIN,
       Authority.DIALOG,
       Authority.WORLD_TIME,
+      Authority.SKILLS,
       Authority.KICK,
       Authority.BAN,
       Authority.TEST_BESTIA

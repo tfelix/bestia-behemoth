@@ -79,6 +79,11 @@ class BestiaCatalogue(
     return learnsets[bestiaId] ?: emptyList()
   }
 
+  /** The part of the learnset a creature of [level] has learned: everything gated at or below it. */
+  fun learnsetUpTo(bestiaId: Long, level: Int): List<LearnedSkill> {
+    return learnset(bestiaId).filter { it.requiredLevel <= level }
+  }
+
   fun byIdentifier(identifier: String): Bestia {
     return byIdentifier[identifier] ?: throw BestiaNotFoundException(identifier)
   }

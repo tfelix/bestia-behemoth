@@ -74,16 +74,51 @@ class MasterSkillTreeService(
 
     if (changed.isEmpty()) return changed
 
-    changed.forEach { (skillId, level) -> known.learnOrUpdate(skillId, level) }
     points.value = remaining
+    commit(world, accountId, masterId, entityId, known, changed)
+
+    return changed
+  }
+
+  /**
+   * Takes every node to its max level without spending a point, for the GM's `/allskills`. Nothing is checked,
+   * since every node at its max satisfies every gate by construction.
+   *
+   * @return every skill that moved, with its new level
+   */
+  fun grantAll(world: World, accountId: AccountId, entityId: EntityId): Map<Long, Int> {
+    val masterId = world.get(entityId, MasterComponent::class)?.masterId ?: throw MasterNotFoundException()
+    val known = world.get(entityId, KnownSkills::class) ?: throw MasterNotFoundException()
+
+    val changed = LinkedHashMap<Long, Int>()
+    for (node in masterSkillTreeRegistry.all()) {
+      if (known.levelOf(node.skillId) < node.maxLevel) {
+        changed[node.skillId] = node.maxLevel
+      }
+    }
+
+    if (changed.isEmpty()) return changed
+
+    commit(world, accountId, masterId, entityId, known, changed)
+
+    return changed
+  }
+
+  private fun commit(
+    world: World,
+    accountId: AccountId,
+    masterId: Long,
+    entityId: EntityId,
+    known: KnownSkills,
+    changed: Map<Long, Int>
+  ) {
+    changed.forEach { (skillId, level) -> known.learnOrUpdate(skillId, level) }
     // A newly learned or levelled passive feeds the status recalc, so the effective values are now stale.
     world.add(entityId, IsStatusValueDirty)
 
     writeBehind.persist(world, listOf(entityId), withStatusEffects = false)
     // Off the tick: the listener takes off gear the master outgrew, and that reads the database.
     accountTasks.onIo(accountId) { events.publishEvent(MasterSkillsChangedEvent(this, masterId, entityId)) }
-
-    return changed
   }
 
   /**

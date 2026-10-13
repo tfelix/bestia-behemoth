@@ -28,6 +28,12 @@ enum class Authority {
    */
   WORLD_TIME,
 
+  /**
+   * Giving the caller's own master or active bestia every skill, without the points or levels they cost.
+   * Separate from [EXP] because the grant is written to the database and stays.
+   */
+  SKILLS,
+
   /** Ending another account's game session. It may sign in again. */
   KICK,
 
