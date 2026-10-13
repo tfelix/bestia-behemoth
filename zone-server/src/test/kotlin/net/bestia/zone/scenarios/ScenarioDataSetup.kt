@@ -84,6 +84,18 @@ class ScenarioDataSetup(
   }
 
   /**
+   * Puts a master back on its ward stone. A new master is scattered around the stone, which can leave two
+   * fixture players 14 tiles apart and outside the ten-tile range that trade, chat and party scenarios assume.
+   *
+   * Public for the reason [grantFullBasicSkill] is: a scenario creating its own master needs it too.
+   */
+  fun standOnWardStone(masterId: Long) {
+    val master = masterRepository.findByIdOrThrow(masterId)
+    master.currentPosition = master.spawnPosition
+    masterRepository.save(master)
+  }
+
+  /**
    * We need to do it like this because our YML loader needs to run first to setup the mob
    * data so we can not initialize the test data inside a bean because the YML would not be loaded
    * in time.
@@ -159,6 +171,7 @@ class ScenarioDataSetup(
     val master1 = masterFactory.create(account1.id, createMasterData1)
 
     grantFullBasicSkill(master1.id)
+    standOnWardStone(master1.id)
 
     LOG.info { "Account 1 (ID: ${account1.id}) created" }
 
@@ -192,6 +205,7 @@ class ScenarioDataSetup(
     )
     val master2 = masterFactory.create(account1.id, createMasterData2)
     grantFullBasicSkill(master2.id)
+    standOnWardStone(master2.id)
 
     // add bestia to second master.
     playerBestiaCreateOperation.createAndSpawn(
@@ -231,6 +245,7 @@ class ScenarioDataSetup(
     )
     val master = masterFactory.create(account2.id, createMasterData)
     grantFullBasicSkill(master.id)
+    standOnWardStone(master.id)
 
     return TestFixture.AccountData(
       account = account2,
@@ -255,6 +270,7 @@ class ScenarioDataSetup(
     )
     val master = masterFactory.create(account3.id, createMasterData)
     grantFullBasicSkill(master.id)
+    standOnWardStone(master.id)
 
     LOG.info { "Account 3 (ID: ${account3.id}) created" }
 

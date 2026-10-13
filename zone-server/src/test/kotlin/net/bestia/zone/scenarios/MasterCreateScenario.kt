@@ -23,6 +23,7 @@ import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.mocks.GameClientMock
 import net.bestia.zone.mocks.GameClientMockFactory
 import net.bestia.zone.world.persistence.MasterSpawnPointRepository
+import net.bestia.zone.world.ArrivalScatter
 import net.bestia.zone.world.MasterSpawnPointService
 import net.bestia.zone.world.persistence.findByIdOrThrow
 import org.junit.jupiter.api.AfterAll
@@ -32,6 +33,7 @@ import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import java.awt.Color
+import kotlin.math.abs
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
@@ -304,7 +306,8 @@ class MasterCreateScenario : BestiaNoSocketScenario(autoClientConnect = false) {
 
       assertEquals(candidate.settlementName, master.homeSettlementName)
       assertEquals(spawnPoint.position, master.spawnPosition)
-      assertEquals(spawnPoint.position, master.currentPosition)
+      assertTrue(abs(master.currentPosition.x - spawnPoint.position.x) <= ArrivalScatter.RADIUS_TILES)
+      assertTrue(abs(master.currentPosition.y - spawnPoint.position.y) <= ArrivalScatter.RADIUS_TILES)
     } finally {
       client.disconnect()
     }

@@ -11,12 +11,14 @@ import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.cartography.CartographyConfig
 import net.bestia.zone.cartography.chart.ChartService
 import net.bestia.zone.ecs.core.EntityIdGenerator
+import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.battle.persistence.StatusEffectPersistenceService
 import net.bestia.zone.item.persistence.ItemRepository
 import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.item.equip.EquipmentSlot
 import net.bestia.zone.util.AccountId
 import net.bestia.zone.util.DisplayName
+import net.bestia.zone.world.ArrivalScatter
 import net.bestia.zone.world.SpawnPointAvailability
 import net.bestia.zone.world.WorldService
 import org.springframework.dao.DataIntegrityViolationException
@@ -24,6 +26,7 @@ import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 import java.awt.Color
+import kotlin.random.Random
 import net.bestia.zone.account.BodyType
 import net.bestia.zone.account.Face
 import net.bestia.zone.account.Hairstyle
@@ -123,7 +126,8 @@ class MasterFactory(
 
     newMaster.spawnPosition = spawnPoint.position
     newMaster.homeSettlementName = spawnPoint.settlementName
-    newMaster.currentPosition = newMaster.spawnPosition
+    // The save point stays on the ward stone; only the first appearance is scattered around it.
+    newMaster.currentPosition = arrivalNear(spawnPoint)
 
     // Taken from the zone's one shared generator, so this id can never collide with one the ECS hands
     // out at runtime. It is the master's entity id for the rest of its life, across every spawn.
@@ -269,6 +273,17 @@ class MasterFactory(
           "but exactly ${EffortValueCostCalculator.CREATION_EFFORT_POINTS} must be spent"
       )
     }
+  }
+
+  /** Where a new master first stands around [home]'s ward stone; see [ArrivalScatter]. */
+  private fun arrivalNear(home: SpawnPointAvailability.Offer): Vec3L {
+    val arrival = ArrivalScatter.pick(worldService.generated, home.position, Random.Default)
+
+    if (arrival == home.position) {
+      LOG.warn { "No dry tile found around the ward stone of '${home.settlementName}'; the master starts on it" }
+    }
+
+    return arrival
   }
 
   companion object {

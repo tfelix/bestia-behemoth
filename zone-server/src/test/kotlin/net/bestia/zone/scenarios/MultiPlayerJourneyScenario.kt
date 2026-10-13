@@ -152,6 +152,9 @@ class MultiPlayerJourneyScenario : BestiaNoSocketScenario(autoClientConnect = fa
     // chat and parties. The fixture masters get the same grant for the same reason.
     scenarioDataSetup.grantFullBasicSkill(newMasterId)
 
+    // Next to the fixture player, whose public chat and party invites only reach so far.
+    scenarioDataSetup.standOnWardStone(newMasterId)
+
     clientPlayer1.sendMessage(SelectMasterCMSG(clientPlayer1.connectedPlayerId, newMasterId))
     await {
       assertEquals(newMasterId, connectionInfoService.getMasterId(clientPlayer1.connectedPlayerId))
