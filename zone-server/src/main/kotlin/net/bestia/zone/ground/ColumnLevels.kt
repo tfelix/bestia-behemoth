@@ -5,13 +5,14 @@ package net.bestia.zone.ground
  *
  * The graded sibling of [ColumnMask]: same lattice, same index order, a byte per cell instead of a bit.
  *
- * ### A byte here, a nibble on the wire
+ * ### A byte here, and a nibble or a byte on the wire
  *
  * Sixteen levels is the right resolution to *draw* and the wrong one to *accumulate*. One footfall has to be
  * worth far less than one visible step, or the first creature across a meadow leaves a path; with sixteen
  * levels the smallest increment it could make is a sixteenth of the way to bare earth. So traffic accumulates
- * in 0..255 and [toNibbles] quantises at the wire boundary, which is the only place the saving is worth
- * having - a level is sent every time a path deepens, and stored once per flush.
+ * in 0..255. A layer nobody adds to is sent as [toNibbles]. A layer a client keeps adding to itself is sent as
+ * [toSparseLevels], exact, because a client seeded from nibbles would cross the visible threshold at a
+ * different footfall than the server did.
  *
  * ### Decay is subtraction, and uniform is correct
  *
@@ -20,7 +21,7 @@ package net.bestia.zone.ground
  * rather than fading evenly - which is what a real desire path does. It also means no per-cell clock, the
  * saving `ScorchMark` makes for the same reason.
  *
- * ### Index order and nibble order are wire contracts
+ * ### Index order and both byte layouts are wire contracts
  *
  * Cells are `localY * size + localX`, as [ColumnMask] and `ColumnSummary` both are. Cell `i`'s nibble lives in
  * byte `i / 2`, low nibble first. Any byte string is a legal payload, so a decoder that disagrees draws a
@@ -60,7 +61,7 @@ class ColumnLevels(val size: Int) {
    * Adds [amount] to one cell, saturating at 255.
    *
    * @return true if the *drawn* level changed, so a caller can tell a deepening path from one merely walked
-   *   again and skip re-announcing the column.
+   *   again and skip queueing the column for a resync.
    */
   fun add(index: Int, amount: Int): Boolean {
     require(amount >= 0) { "wear is added, never subtracted one cell at a time; use decayBy" }
@@ -81,7 +82,7 @@ class ColumnLevels(val size: Int) {
   /**
    * Takes [amount] off every marked cell, clamped at zero.
    *
-   * @return true if any drawn level changed, which is the only thing worth re-announcing a column for.
+   * @return true if any drawn level changed
    */
   fun decayBy(amount: Int): Boolean {
     if (amount <= 0 || isEmpty) return false
@@ -125,6 +126,26 @@ class ColumnLevels(val size: Int) {
     return packed
   }
 
+  /**
+   * The wire form for a layer the client adds to itself: `(cell index u16 little endian, level u8)` for every
+   * non-zero cell, ascending. Sub-threshold cells are included - see the class note.
+   */
+  fun toSparseLevels(): ByteArray {
+    val out = ByteArray(markedCells * SPARSE_BYTES_PER_CELL)
+    var write = 0
+
+    for (index in levels.indices) {
+      val level = this[index]
+      if (level == 0) continue
+
+      out[write++] = (index and 0xFF).toByte()
+      out[write++] = ((index ushr 8) and 0xFF).toByte()
+      out[write++] = level.toByte()
+    }
+
+    return out
+  }
+
   fun toBytes(): ByteArray {
     return levels.copyOf()
   }
@@ -133,6 +154,9 @@ class ColumnLevels(val size: Int) {
 
     /** The strongest a cell can be marked, being every bit of the byte it is stored in. */
     const val MAX_LEVEL = 255
+
+    /** Cell index (two bytes) and level, per cell of [toSparseLevels]. */
+    const val SPARSE_BYTES_PER_CELL = 3
 
     fun nibbleLength(size: Int): Int {
       return (size * size + 1) / 2

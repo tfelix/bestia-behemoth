@@ -7,10 +7,9 @@ import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.world.time.BestiaClock
 import net.bestia.zone.world.WorldService
 import org.junit.jupiter.api.Test
+import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
-import kotlin.test.assertNotNull
-import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import net.bestia.zone.ground.persistence.GroundLayerMark
 import net.bestia.zone.ground.persistence.GroundLayerMarkRepository
@@ -30,14 +29,14 @@ class GroundWearRegistryTest {
   private val config = GroundWearConfig()
 
   private lateinit var repository: GroundLayerMarkRepository
-  private lateinit var clockSecond: () -> Long
+  /** What the registry's clock reads, so a test can move time on after building it. */
+  private var clockSecond = 0L
 
   private fun registry(
     rows: List<GroundLayerMark> = emptyList(),
     now: Long = 0,
   ): GroundWearRegistry {
-    var second = now
-    clockSecond = { second }
+    clockSecond = now
 
     repository = mockk(relaxed = true) {
       every { findByIdColumnKey(any()) } answers { rows.filter { it.id.columnKey == firstArg<Long>() } }
@@ -60,7 +59,7 @@ class GroundWearRegistryTest {
     }
 
     val clock = mockk<BestiaClock> {
-      every { now() } answers { mockk { every { absoluteSecond } returns second } }
+      every { now() } answers { mockk { every { absoluteSecond } returns clockSecond } }
     }
 
     return GroundWearRegistry(repository, executor, worldService, config, clock)
@@ -176,28 +175,69 @@ class GroundWearRegistryTest {
     verify { repository.delete(any<GroundLayerMark>()) }
   }
 
+  /**
+   * Below the threshold nothing is drawn, but a client that lays wear itself has to start from the same levels
+   * as the server or it will cross the threshold a footfall early or late - so faint wandering is sent too.
+   */
   @Test
-  fun `a column holding only faint wandering is not sent at all`() {
+  fun `a column holding only faint wandering is sent at its exact levels`() {
     val registry = registry()
     registry.track(ColumnKey.of(0, 0))
     registry.wear(5, 5, config.visibleThreshold - 1, 0)
 
-    // The spread of random wandering, below notice. Sending it would be half a kilobyte to say "nothing".
-    assertNull(registry.nibblesAt(ColumnKey.of(0, 0)))
+    val entry = registry.entryAt(ColumnKey.of(0, 0))
+
+    assertEquals(GroundLayerEncoding.LEVELS_SPARSE_V1, entry.encoding)
+    assertContentEquals(
+      byteArrayOf((5 * 32 + 5 and 0xFF).toByte(), 0x00, (config.visibleThreshold - 1).toByte()),
+      entry.cells
+    )
   }
 
   @Test
-  fun `a walked path is sent`() {
+  fun `a walked path is sent with the clock its levels have faded to`() {
+    val registry = registry(now = 5_000)
+    registry.track(ColumnKey.of(0, 0))
+    registry.wear(5, 5, 255, 5_000)
+
+    val entry = registry.entryAt(ColumnKey.of(0, 0))
+
+    assertEquals(GroundLayer.WORN, entry.layer)
+    assertEquals(ColumnLevels.SPARSE_BYTES_PER_CELL, entry.cells.size)
+    assertEquals(5_000L, entry.lastDecayedSecond)
+  }
+
+  /** A client continues the fade from `lastDecayedSecond`, so levels that disagree with it fade the same time twice. */
+  @Test
+  fun `the levels are aged to now before they are sent`() {
     val registry = registry()
     registry.track(ColumnKey.of(0, 0))
     registry.wear(5, 5, 255, 0)
 
-    val nibbles = assertNotNull(registry.nibblesAt(ColumnKey.of(0, 0)))
-    assertEquals(ColumnLevels.nibbleLength(chunkSize), nibbles.size)
+    clockSecond = config.fadeSeconds / 2
+
+    val entry = registry.entryAt(ColumnKey.of(0, 0))
+
+    assertEquals(128, entry.cells[2].toInt() and 0xFF)
+    assertEquals(129_091L, entry.lastDecayedSecond)
   }
 
   @Test
   fun `an untracked column has nothing to send`() {
-    assertNull(registry().nibblesAt(ColumnKey.of(3, 4)))
+    assertTrue(registry().entryAt(ColumnKey.of(3, 4)).isEmpty)
+  }
+
+  @Test
+  fun `a column that has faded away is an empty entry that retires the layer`() {
+    val registry = registry()
+    registry.track(ColumnKey.of(0, 0))
+    registry.wear(5, 5, 100, 0)
+
+    clockSecond = config.fadeSeconds
+
+    val entry = registry.entryAt(ColumnKey.of(0, 0))
+
+    assertTrue(entry.isEmpty)
+    assertEquals(GroundLayerEncoding.LEVELS_SPARSE_V1, entry.encoding)
   }
 }

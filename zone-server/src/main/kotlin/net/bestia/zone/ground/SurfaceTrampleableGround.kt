@@ -33,15 +33,17 @@ class SurfaceTrampleableGround(
     return surface.blockAt(voxelX, voxelY)?.let { CAP_IMPRESSION[it] } ?: 0.0
   }
 
-  private companion object {
+  companion object {
 
     /**
      * The only surface blocks that wear bare, and how readily.
      *
      * A map rather than a set, because living grass gives way faster than what is left of it in a drought -
      * the same distinction `CAP_FUEL` already draws for fire, read the other way round.
+     *
+     * Public and read-only, because `GroundMarkRulesSMSG` sends it to clients that lay wear themselves.
      */
-    val CAP_WEAR = mapOf(
+    val CAP_WEAR: Map<BlockType, Double> = mapOf(
       BlockType.GRASS to 1.0,
       BlockType.DRY_GRASS to 0.8,
       // Dead matter over corrupted soil: it breaks down readily, and a track through blight staying visible
@@ -60,8 +62,10 @@ class SurfaceTrampleableGround(
      * The ordering is what makes tracking a skill worth having somewhere rather than everywhere: snow and mud
      * record a crossing that happened hours ago, a meadow shows the grass bent for a while, and a hard track
      * shows almost nothing - which is the same reason a road is the sensible way to travel unseen.
+     *
+     * Public and read-only, because `GroundMarkRulesSMSG` sends its keys to clients that lay prints themselves.
      */
-    val CAP_IMPRESSION = mapOf(
+    val CAP_IMPRESSION: Map<BlockType, Double> = mapOf(
       BlockType.SNOW to 1.0,
       BlockType.MUD to 1.0,
       BlockType.SAND to 0.8,

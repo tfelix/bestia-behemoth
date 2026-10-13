@@ -28,6 +28,17 @@ enum ChunkGroundLayerEncoding {
    * since one footfall has to be worth far less than one visible step.
    */
   CHUNK_GROUND_LAYER_ENCODING_NIBBLE_V1 = 1;
+
+  /**
+   * The exact levels of every non-zero cell, **including those below the layer's visible threshold**: repeated
+   * `(cell index u16 little endian, level u8)`, ascending by index, 3 bytes each. The index is
+   * `localY * chunk_size + localX`.
+   *
+   * For the layers a client keeps adding to itself (`WORN`, `BLOODIED`). A nibble payload would not do: it drops
+   * the low four bits and every cell under the threshold, so a client seeded from it would cross the threshold
+   * at a different footfall than the server did. Pair with `last_decayed_second`.
+   */
+  CHUNK_GROUND_LAYER_ENCODING_LEVELS_SPARSE_V1 = 2;
 }
 
 /** Which kind of mark a set of cells describes. Mirrors the server's `GroundLayer`; never renumbered. */
@@ -39,15 +50,26 @@ enum GroundLayerId {
   GROUND_LAYER_DISTURBED = 4;
 }
 
-/** One layer's worth of cells for one column. */
+/**
+ * One layer's worth of cells for one column.
+ *
+ * Replaces whatever the client held for this layer. Empty `cells` retires it.
+ */
 message GroundLayerCells {
   GroundLayerId layer = 1;
   ChunkGroundLayerEncoding encoding = 2;
   bytes cells = 3;
+
+  /**
+   * The Bestia second, on `WorldTimeSMSG.world_age_bestia_seconds`'s axis, up to which these levels have
+   * already faded. A client continues the fade from here with the same integer arithmetic as the server, so
+   * it is the whole of the decay state. Zero for an encoding that does not decay (`NIBBLE_V1`).
+   */
+  int64 last_decayed_second = 4;
 }
 
 /**
- * Everything lasting that has happened to the ground of one chunk column.
+ * What lasting has happened to the ground of one chunk column.
  *
  * ### Why this is not part of the chunk, and not `ChunkGroundOverlaySMSG` either
  *
@@ -59,19 +81,25 @@ message GroundLayerCells {
  * moves several times a second - and this carries what the column **is**, which changes rarely. Sharing one
  * message would re-send every worn cell on every step of a grass fire.
  *
- * ### Every layer in one message, deliberately
+ * ### Each layer is replaced on its own
  *
- * The client composites the layers together against a single remaining budget, so it needs a consistent set.
- * Split across messages, a column would spend a frame showing blood with no path beneath it.
+ * A message names the layers it speaks about, and the client replaces exactly those. A layer that is not
+ * named is untouched, and one named with empty cells is retired. A scorch can therefore go out alone while a
+ * fire burns, without re-sending the wear and blood beside it.
+ *
+ * ### Who lays what
+ *
+ * `WORN` and `BLOODIED` are laid by the client itself from what it sees walk and die (see
+ * `GroundMarkRulesSMSG`), so they are sent on arrival and then only as a rare resync that corrects drift.
+ * `SCORCHED` follows the fire, which a client cannot simulate, so it is sent whenever it changes.
  *
  * ### Not in the manifest, not requested, and not a delta
  *
  * Pushed behind the terrain and dropped when the manifest withdraws the column, exactly as
  * `ChunkStaticEntitiesSMSG` and `ChunkGroundOverlaySMSG` are.
  *
- * **Each message carries the whole column, never a diff.** A lost one self-heals on the next send, applying
- * the same one twice changes nothing, and an empty one is how a path that has finally faded is retired -
- * there is no removal message and none is needed.
+ * **Each layer entry is the whole layer for the column, never a diff.** A lost one self-heals on the next send
+ * and applying the same one twice changes nothing.
  */
 message ChunkGroundLayersSMSG {
   /**
@@ -80,7 +108,7 @@ message ChunkGroundLayersSMSG {
    */
   ChunkPos pos = 1;
 
-  /** Absent for a layer this column has nothing of, which is almost every layer almost always. */
+  /** The layers this message speaks about. See the message note on what a missing layer means. */
   repeated GroundLayerCells layers = 2;
 
   /**

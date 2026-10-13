@@ -13,7 +13,7 @@ import net.bestia.zone.world.stream.ChunkCoords
  * Rides behind the chunk payload and is dropped with it, as [ChunkGroundLayersSMSG] is. See the proto for the
  * byte layout and for why stamps travel apart from the layers.
  *
- * @property stamps packed stamps, or null for a column whose tracks have all faded - which is how they retire
+ * @property stamps packed stamps, or null when the column has none, which replaces whatever the client laid there
  */
 data class ChunkGroundStampsSMSG(
   val chunk: ChunkPos,

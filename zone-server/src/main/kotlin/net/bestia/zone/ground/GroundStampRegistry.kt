@@ -53,6 +53,7 @@ class GroundStampRegistry(
    * @param octant the eight-connected heading, 0 towards +x and counting towards +y
    * @param seed a shape variant; see [MarkingGroundTrample] for what makes one walk differ from the next
    * @param actorId who left it, which is what a tracker asks about afterwards
+   * @return the column the print landed in, or null when the store is full and refuses a new column
    */
   fun stamp(
     voxelX: Long,
@@ -62,51 +63,42 @@ class GroundStampRegistry(
     seed: Int,
     actorId: EntityId,
     nowSecond: Long
-  ) {
+  ): Long? {
     val size = chunkSize.toLong()
     val columnKey = ColumnKey.of(
       Math.floorDiv(voxelX, size).toInt(),
       Math.floorDiv(voxelY, size).toInt()
     )
 
-    val column = byColumn[columnKey] ?: newColumn(columnKey) ?: return
+    val column = byColumn[columnKey] ?: newColumn(columnKey) ?: return null
 
     val localX = Math.floorMod(voxelX, size).toInt()
     val localY = Math.floorMod(voxelY, size).toInt()
 
     column.add(localY * chunkSize + localX, kind, octant, seed, actorId, nowSecond)
+
+    return columnKey
   }
 
   /**
-   * Expires what has faded and names the columns due to be put on the wire.
+   * Expires what has faded and drops a column whose last print has gone.
    *
-   * Both in one pass because both are about the same set and it runs every tick - see [GroundStampSystem].
-   *
-   * @return the columns to announce, which is how a column that has just lost its last print is retired
+   * Nothing is announced: a client ages its own copy of a print over the same lifetime, so a print passing out
+   * of the store needs no message. The store still expires on its own clock because `SpoorService` reads it
+   * with no age filter.
    */
-  fun sweep(nowSecond: Long): List<Long> {
-    if (byColumn.isEmpty()) return emptyList()
+  fun sweep(nowSecond: Long) {
+    if (byColumn.isEmpty()) return
 
-    val due = mutableListOf<Long>()
-    val columns = byColumn.entries.iterator()
+    val columns = byColumn.values.iterator()
 
     while (columns.hasNext()) {
-      val entry = columns.next()
-      val column = entry.value
+      val column = columns.next()
 
       column.expire(nowSecond, config.footprintTtlSeconds)
 
-      if (!column.pending || nowSecond < column.announceDueSecond) continue
-
-      column.pending = false
-      column.announceDueSecond = nowSecond + config.announceIntervalSeconds
-      due.add(entry.key)
-
-      // Dropped only after it has been announced, or the client would keep drawing prints that have expired.
       if (column.isEmpty) columns.remove()
     }
-
-    return due
   }
 
   override fun stampsAt(columnKey: Long): ByteArray? {

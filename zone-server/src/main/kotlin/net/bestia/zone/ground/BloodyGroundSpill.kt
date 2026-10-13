@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service
  * Turns a death into a stain on the ground.
  *
  * `MarkingGroundTrample`'s sibling, and the thin half of the same pattern: the store decides the shape of the
- * pool and this decides who is told about it.
+ * pool and this queues the columns it reached for a resync. The client lays the pool itself on seeing the death.
  */
 @Service
 class BloodyGroundSpill(
@@ -18,7 +18,9 @@ class BloodyGroundSpill(
 ) : GroundSpill {
 
   override fun bledAt(voxelX: Long, voxelY: Long) {
-    registry.spill(voxelX, voxelY, clock.now().absoluteSecond)
-      .forEach { overlay.markLayersDirty(it) }
+    val nowSecond = clock.now().absoluteSecond
+
+    registry.spill(voxelX, voxelY, nowSecond)
+      .forEach { overlay.markLevelsDirty(it, GroundLayer.BLOODIED, nowSecond) }
   }
 }

@@ -6,6 +6,7 @@ import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
+import net.bestia.zone.ground.GroundLayer
 import net.bestia.zone.ground.GroundOverlayService
 import org.springframework.stereotype.Component
 
@@ -71,8 +72,8 @@ class ScorchRegrowthSystem(
       if (scar.visible.count == before) continue
 
       // Re-announce it either way: a client holding this column is drawing a scar that just got smaller, and
-      // the message carries the whole column so one settles it.
-      overlay.markLayersDirty(columnKey)
+      // the entry carries the whole layer so one settles it.
+      overlay.markLayerDirty(columnKey, GroundLayer.SCORCHED)
 
       if (scar.visible.isEmpty) {
         registry.forget(columnKey)

@@ -15,7 +15,8 @@ import org.springframework.core.annotation.Order
  *
  * Sent on connect rather than on master selection, because none of it depends on having an entity: a client
  * needs the world's extent to fold an address across a seam, and getting it out of the way early means the
- * first manifest can be acted on the moment it arrives.
+ * first manifest can be acted on the moment it arrives. Whatever the slices above `world` want a client to
+ * have by then follows, through [ConnectMessageSource].
  */
 @Component
 class WorldInfoSender(
@@ -25,6 +26,7 @@ class WorldInfoSender(
   private val outMessageProcessor: OutMessageProcessor,
   private val bestiaClock: BestiaClock,
   private val settings: ChunkStreamConfig,
+  private val connectMessageSources: List<ConnectMessageSource>,
 ) {
 
   /**
@@ -50,6 +52,10 @@ class WorldInfoSender(
         settings.viewRadiusChunks
       )
     )
+
+    connectMessageSources.forEach { source ->
+      outMessageProcessor.sendToPlayer(event.accountId, source.connectMessages())
+    }
 
     LOG.debug { "Sent world info to account ${event.accountId}" }
   }

@@ -161,7 +161,7 @@ ground-wear:
   # Added to the four cells beside the one stepped on. Without it an eight-connected walk leaves a one metre
   # staircase, which reads as a scratch rather than as a trail.
   neighbour-weight: 2
-  # The level below which nothing is sent to clients. Load bearing rather than cosmetic: creatures wandering at
+  # The level below which a cell is not drawn. Load bearing rather than cosmetic: creatures wandering at
   # random spread their wear thinly over a wide area, and this is what keeps that below notice so only
   # genuinely repeated routes ever show. Raise it if an idling player grows a faint halo.
   visible-threshold: 32
@@ -182,8 +182,8 @@ ground-blood:
   spill-weight: 220
   # How far the pool reaches, with a falloff to nothing just past its edge.
   spill-radius-tiles: 2
-  # The level below which nothing is sent. Lower than wear's: there is no diffuse background of blood to keep
-  # under notice - a stain is either there or it is not.
+  # The level below which a cell is not drawn. Lower than wear's: there is no diffuse background of blood to
+  # keep under notice - a stain is either there or it is not.
   visible-threshold: 16
   flush-interval-seconds: 120
   max-resident-columns: 4096
@@ -201,9 +201,14 @@ ground-stamps:
   # Columns holding prints at once. Unlike wear this is not tied to what players hold - creatures leave tracks
   # where nobody is watching, and finding those later is the point of tracking at all.
   max-columns: 8192
-  # Bestia seconds between putting one column's prints on the wire. Load bearing: each message carries the
-  # column's whole set, so without this a walked column would re-send all of it on every footfall.
-  announce-interval-seconds: 3
+
+# How clients are kept in step with the footprints, wear and blood they lay down themselves from what they see.
+# A client is sent a column's marks as it comes into view, and then only a resync that corrects drift.
+ground-sync:
+  # Bestia seconds after the first change a client was not told about before the column is re-sent; changes
+  # inside that window share the send. 180 is one real minute at SPEED_FACTOR 3. 0 never resyncs, so a client
+  # only learns a column's marks as it enters view.
+  resync-interval-seconds: 180
 
 water:
   # Cells the simulation updates per step, ten steps a second. About 95 ns each, so the default is a millisecond.
@@ -466,9 +471,10 @@ socket:
     # 128 bytes of bitmask, and protobuf's own toString escapes every byte of it - so a kilobyte of log per
     # send, several times a second per column for the length of a fire.
     - "!chunk_ground_overlay"
-    # Half a kilobyte per layer, and one of these follows every chunk that has ever been burnt or walked on.
+    # Up to three kilobytes per layer, and one of these follows every chunk that has ever been burnt or walked
+    # on.
     - "!chunk_ground_layers"
-    # One per walked column per second, for as long as anything is moving on it.
+    # Up to 240 bytes, and one of these follows every chunk with prints on it.
     - "!chunk_ground_stamps"
 
 logging:

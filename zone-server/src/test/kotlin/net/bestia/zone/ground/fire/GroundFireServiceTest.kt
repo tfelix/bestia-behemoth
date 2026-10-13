@@ -3,6 +3,7 @@ package net.bestia.zone.ground.fire
 import net.bestia.zone.ground.ColumnKey
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import net.bestia.worldgen.climate.WeatherKind
 import net.bestia.worldgen.climate.WeatherModel
 import net.bestia.zone.persistence.AsyncJobExecutor
@@ -11,6 +12,7 @@ import net.bestia.zone.world.time.BestiaClock
 import net.bestia.zone.weather.WeatherAt
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.world.WorldService
+import net.bestia.zone.ground.GroundLayer
 import net.bestia.zone.ground.GroundOverlayService
 import org.junit.jupiter.api.Test
 import kotlin.math.PI
@@ -159,6 +161,18 @@ class GroundFireServiceTest {
       burntCells().all { it.first in -half..half && it.second in -half..half },
       "the fire burnt ground that had no fuel"
     )
+  }
+
+  /** A scar is something a client cannot work out, so it takes the immediate layer path, not the paced resync. */
+  @Test
+  fun `a burnt-out column is marked as the scorched layer`() {
+    val sut = service(fuel = island(8L))
+    assertNotNull(ignite(sut))
+
+    run(sut, steps = 80)
+
+    verify(atLeast = 1) { overlay.markLayerDirty(any(), GroundLayer.SCORCHED) }
+    verify(exactly = 0) { overlay.markLevelsDirty(any(), any(), any()) }
   }
 
   /** The per-fire cell cap stops it *igniting* but not burning down what it holds, so it still ends. */

@@ -64,6 +64,8 @@ abstract class GroundLevelStore(
 
   private class Loaded(val columnKey: Long, val levels: ColumnLevels, val lastDecayedSecond: Long)
 
+  private val retired = GroundLayerEntry.retired(layer, GroundLayerEncoding.LEVELS_SPARSE_V1)
+
   protected val chunkSize: Int get() = worldService.config.chunkSize
 
   val fadeSeconds: Long get() = config.fadeSeconds
@@ -87,8 +89,7 @@ abstract class GroundLevelStore(
   /**
    * Adds to one tile.
    *
-   * @return true if a level the client would draw changed, so a writer can mark the column dirty without
-   *   re-announcing it on every single step
+   * @return true if a level the client would draw changed, which is what makes the column worth a resync
    */
   protected fun mark(voxelX: Long, voxelY: Long, amount: Int, nowSecond: Long): Boolean {
     if (amount <= 0) return false
@@ -110,7 +111,7 @@ abstract class GroundLevelStore(
     column.dirty = true
 
     // Crossing the threshold is a change even when the nibble did not move, and the nibble moving below the
-    // threshold is not - what is announced is what is drawn, and below the threshold nothing is.
+    // threshold is not - what is drawn is what counts, and below the threshold nothing is.
     return before != after || (moved && after)
   }
 
@@ -200,23 +201,19 @@ abstract class GroundLevelStore(
     return written
   }
 
-  override fun nibblesAt(columnKey: Long): ByteArray? {
-    val column = byColumn[columnKey] ?: return null
-    if (column.isEmpty) return null
+  override fun entryAt(columnKey: Long): GroundLayerEntry {
+    val column = byColumn[columnKey] ?: return retired
 
-    // Below the threshold nothing is drawn, so a column holding only the thin spread of random wandering sends
-    // nothing at all rather than half a kilobyte of zeroes - see GroundWearConfig.visibleThreshold.
-    val visible = ColumnLevels(chunkSize)
-    var any = false
+    // Aged first, so the levels and the clock a client resumes the fade from describe the same moment.
+    column.ageTo(nowSecond(), config.fadeSeconds)
+    if (column.isEmpty) return retired
 
-    column.levels.forEachMarked { x, y, level ->
-      if (level >= config.visibleThreshold) {
-        visible.add(x, y, level)
-        any = true
-      }
-    }
-
-    return if (any) visible.toNibbles() else null
+    return GroundLayerEntry(
+      layer,
+      GroundLayerEncoding.LEVELS_SPARSE_V1,
+      column.levels.toSparseLevels(),
+      column.lastDecayedSecond
+    )
   }
 
   protected fun nowSecond(): Long {

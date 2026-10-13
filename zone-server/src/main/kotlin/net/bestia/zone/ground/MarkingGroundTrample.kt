@@ -63,16 +63,15 @@ class MarkingGroundTrample(
   }
 
   /**
-   * Leaves one print, if the ground here holds one.
+   * Leaves one print, if the ground here holds one, and queues the column for a resync.
    *
-   * The column is not announced from here. `GroundStampSystem` decides that a tick later against
-   * `GroundStampConfig.announceIntervalSeconds`, because otherwise a single walker would re-send a column's
-   * whole stamp set several times a second.
+   * Every print queues it, because the client lays the same print itself and the overlay only sends what is
+   * left of the difference a minute later.
    */
   private fun printOn(entityId: EntityId, fromX: Long, fromY: Long, toX: Long, toY: Long, nowSecond: Long) {
     if (trampleable.impressionAt(toX, toY) <= 0.0) return
 
-    stamps.stamp(
+    val column = stamps.stamp(
       toX,
       toY,
       GroundStampKind.FOOTPRINT,
@@ -80,20 +79,22 @@ class MarkingGroundTrample(
       seedOf(entityId, toX, toY),
       entityId,
       nowSecond
-    )
+    ) ?: return
+
+    overlay.markStampsDirty(column, nowSecond)
   }
 
   /**
-   * Wears one cell and announces its column if that changed what a client would draw.
+   * Wears one cell and queues its column for a resync if that changed what a client would draw.
    *
    * Per cell rather than once per step, because the smear reaches across a chunk boundary every thirty-two
-   * metres: announcing only the column stepped in would leave the strip beside the seam a step behind, and it
+   * metres: queueing only the column stepped in would leave the strip beside the seam a step behind, and it
    * would look like the path thinning exactly on the boundary.
    */
   private fun wear(voxelX: Long, voxelY: Long, amount: Double, nowSecond: Long) {
     if (!registry.wear(voxelX, voxelY, amount.toInt(), nowSecond)) return
 
-    overlay.markLayersDirty(registry.columnKeyOf(voxelX, voxelY))
+    overlay.markLevelsDirty(registry.columnKeyOf(voxelX, voxelY), GroundLayer.WORN, nowSecond)
   }
 
   companion object {

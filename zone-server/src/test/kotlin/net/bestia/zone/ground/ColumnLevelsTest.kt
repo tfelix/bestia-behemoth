@@ -114,6 +114,56 @@ class ColumnLevelsTest {
     assertEquals(0xF1, packed[0].toInt() and 0xFF)
   }
 
+  /**
+   * **Cross-language fixture.** Mirrored by the client's `GroundLayerCellsTest`: the second cell is index 33
+   * (localX 1, localY 1), the last is 1023, and both the faintest and the fullest level survive.
+   */
+  @Test
+  fun `the sparse wire form is exactly what the client is promised`() {
+    val levels = ColumnLevels(size)
+    levels.add(1023, 16)
+    levels.add(0, 1)
+    levels.add(33, 255)
+
+    assertContentEquals(
+      byteArrayOf(
+        0x00, 0x00, 0x01,
+        0x21, 0x00, 0xFF.toByte(),
+        0xFF.toByte(), 0x03, 0x10,
+      ),
+      levels.toSparseLevels()
+    )
+  }
+
+  /** The reason this encoding exists: a client seeded from nibbles would cross the threshold a footfall late. */
+  @Test
+  fun `the sparse form keeps cells far below anything drawn`() {
+    val levels = ColumnLevels(size)
+    levels.add(5, 7, 1)
+
+    val sparse = levels.toSparseLevels()
+
+    assertEquals(ColumnLevels.SPARSE_BYTES_PER_CELL, sparse.size)
+    assertEquals(1, sparse[2].toInt(), "the level itself, not its nibble")
+    assertContentEquals(ByteArray(ColumnLevels.nibbleLength(size)), levels.toNibbles(), "the nibble form loses it")
+  }
+
+  @Test
+  fun `a cell that has faded to nothing is not in the sparse form`() {
+    val levels = ColumnLevels(size)
+    levels.add(0, 10)
+    levels.add(1, 200)
+
+    levels.decayBy(50)
+
+    assertContentEquals(byteArrayOf(0x01, 0x00, 150.toByte()), levels.toSparseLevels())
+  }
+
+  @Test
+  fun `an unmarked column has an empty sparse form`() {
+    assertEquals(0, ColumnLevels(size).toSparseLevels().size)
+  }
+
   @Test
   fun `the wire form is half the stored form`() {
     assertEquals(size * size / 2, ColumnLevels.nibbleLength(size))

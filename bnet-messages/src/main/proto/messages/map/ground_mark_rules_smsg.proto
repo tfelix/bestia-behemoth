@@ -1,0 +1,71 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "GroundMarkRulesSMSGProto";
+
+/** How much one footfall wears the four ground blocks it can wear, and every other block not at all. */
+message GroundBlockWeight {
+  /** The block id the chunk payload uses. */
+  uint32 block_id = 1;
+
+  /** Multiplies `step_weight` and `neighbour_weight`. A block that is absent wears by nothing. */
+  double weight = 2;
+}
+
+/** What a footfall does to the `WORN` layer. */
+message GroundWearRules {
+  /** Bestia seconds for a full cell to fade to nothing, untouched. */
+  uint32 fade_seconds = 1;
+
+  /** Cells below this level are not drawn, and `NIBBLE` payloads send them as zero. */
+  uint32 visible_threshold = 2;
+
+  /** Added to the cell stepped onto, before the block's weight and truncated to an integer. */
+  uint32 step_weight = 3;
+
+  /** Added the same way to each of the four cells beside it, each judged on its own block. */
+  uint32 neighbour_weight = 4;
+
+  repeated GroundBlockWeight block_weights = 5;
+}
+
+/** What a death does to the `BLOODIED` layer. */
+message GroundBloodRules {
+  uint32 fade_seconds = 1;
+  uint32 visible_threshold = 2;
+
+  /** Level added at the tile something died on. */
+  uint32 spill_weight = 3;
+
+  /** Reach of the pool, falling to nothing just past this many tiles. */
+  uint32 spill_radius_tiles = 4;
+}
+
+/**
+ * The server's settings for the marks a client lays down itself.
+ *
+ * ### Why a message rather than constants in the client
+ *
+ * A client that derives footprints, wear and blood from what it already sees has to apply the same numbers
+ * as the server, and every one of them is a runtime setting that may be retuned on a restart. Pinning them in
+ * the client would make a retune silently wrong until the next resync. What is still mirrored by hand is
+ * *code* - the heading and shape formulas and the decay arithmetic - which a fixture on both sides pins.
+ *
+ * Sent once, right after `WorldInfoSMSG`. A client that has not received it lays nothing down.
+ */
+message GroundMarkRulesSMSG {
+  /** Real milliseconds a fresh footprint lasts before it is gone. */
+  uint32 stamp_lifetime_millis = 1;
+
+  /** Footprints held per column, the oldest dropped first. */
+  uint32 stamp_ring_capacity = 2;
+
+  /** The block ids a footfall leaves a print in. Every other block takes none. */
+  repeated uint32 stamp_blocks = 3;
+
+  GroundWearRules wear = 4;
+
+  GroundBloodRules blood = 5;
+}

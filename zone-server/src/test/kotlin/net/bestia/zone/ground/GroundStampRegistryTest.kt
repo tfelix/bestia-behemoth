@@ -11,11 +11,10 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 /**
- * The stamp store: where it records tracks, how fast it will talk about them, and when it forgets them.
+ * The stamp store: where it records tracks and when it forgets them.
  *
- * The pacing is the design property here rather than an optimisation. Each message carries a column's whole
- * stamp set, so a registry that announced every footfall would re-send half a kilobyte twenty times a second
- * behind one walker.
+ * It says nothing about what clients are told - that is `GroundOverlayService`'s - so the sweep is only about
+ * expiry, which `SpoorService` depends on because it reads the store with no age filter.
  */
 class GroundStampRegistryTest {
 
@@ -43,8 +42,8 @@ class GroundStampRegistryTest {
     voxelY: Long,
     atSecond: Long = clockSecond,
     actorId: Long = 1,
-  ) {
-    stamp(voxelX, voxelY, GroundStampKind.FOOTPRINT, octant = 2, seed = 7, actorId = actorId, nowSecond = atSecond)
+  ): Long? {
+    return stamp(voxelX, voxelY, GroundStampKind.FOOTPRINT, octant = 2, seed = 7, actorId = actorId, nowSecond = atSecond)
   }
 
   @Test
@@ -81,47 +80,61 @@ class GroundStampRegistryTest {
     assertNotNull(sut.stampsAt(ColumnKey.of(156, 156)))
   }
 
+  /** What `MarkingGroundTrample` hands to the overlay, so the overlay never has to work the column out again. */
   @Test
-  fun `a walked column is announced once, not once per footfall`() {
+  fun `a footfall reports the column it landed in`() {
     val sut = registry()
 
-    sut.walk(1, 1)
-    assertEquals(listOf(ColumnKey.of(0, 0)), sut.sweep(nowSecond = 0))
-
-    sut.walk(2, 2)
-    sut.walk(3, 3)
-    assertEquals(emptyList(), sut.sweep(nowSecond = 1), "the column was announced again inside its interval")
-
-    assertEquals(
-      listOf(ColumnKey.of(0, 0)),
-      sut.sweep(nowSecond = config.announceIntervalSeconds),
-      "the column was never announced again after its interval"
-    )
+    assertEquals(ColumnKey.of(1, 2), sut.walk(voxelX = 35, voxelY = 70))
+    assertEquals(ColumnKey.of(-1, -1), sut.walk(voxelX = -1, voxelY = -1))
   }
 
   @Test
-  fun `a column nothing has happened to is not announced at all`() {
+  fun `a footfall in a column the full store refuses reports none`() {
     val sut = registry()
 
-    sut.walk(1, 1)
-    sut.sweep(nowSecond = 0)
+    for (chunk in 0 until config.maxColumns) {
+      sut.walk(voxelX = chunk * chunkSize.toLong(), voxelY = 0)
+    }
 
-    assertEquals(emptyList(), sut.sweep(nowSecond = config.announceIntervalSeconds + 1))
+    assertNull(sut.walk(voxelX = config.maxColumns * chunkSize.toLong(), voxelY = 0))
+    assertNotNull(sut.walk(voxelX = 1, voxelY = 1), "a column the store already holds still takes prints")
   }
 
-  /** The empty message is what retires the tracks on the client, so it must go out before the column does. */
   @Test
-  fun `a column whose last print expires is announced and only then forgotten`() {
+  fun `a sweep keeps what has not expired and drops what has`() {
     val sut = registry()
 
     sut.walk(1, 1, atSecond = 0)
-    sut.sweep(nowSecond = 0)
+    sut.walk(2, 2, atSecond = config.footprintTtlSeconds / 2)
 
-    val expired = config.footprintTtlSeconds
+    sut.sweep(nowSecond = config.footprintTtlSeconds)
 
-    assertEquals(listOf(ColumnKey.of(0, 0)), sut.sweep(nowSecond = expired))
+    val remaining = assertNotNull(sut.stampsAt(ColumnKey.of(0, 0)))
+    assertEquals(ColumnStamps.BYTES_PER_STAMP, remaining.size, "only the younger print should be left")
+  }
+
+  /** Nothing tells a client its tracks are gone: it ages them itself, so the store has no reason to wait. */
+  @Test
+  fun `a column whose last print expires is forgotten at once`() {
+    val sut = registry()
+
+    sut.walk(1, 1, atSecond = 0)
+    sut.sweep(nowSecond = config.footprintTtlSeconds)
+
     assertEquals(0, sut.stampedColumns)
     assertNull(sut.stampsAt(ColumnKey.of(0, 0)))
+  }
+
+  @Test
+  fun `a sweep before anything has expired forgets nothing`() {
+    val sut = registry()
+
+    sut.walk(1, 1, atSecond = 0)
+    sut.sweep(nowSecond = config.footprintTtlSeconds - 1)
+
+    assertEquals(1, sut.stampedColumns)
+    assertNotNull(sut.stampsAt(ColumnKey.of(0, 0)))
   }
 
   @Test

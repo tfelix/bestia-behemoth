@@ -69,6 +69,33 @@ class GroundBloodRegistryTest {
     assertTrue(levels[12, 10] in 1 until levels[10, 10], "the rim is faint rather than absent")
   }
 
+  /**
+   * **Cross-language fixture.** A client lays the same pool when it sees a death, so these thirteen cells and
+   * their levels are mirrored in its `ClientColumnLevelsTest`. Literals, at the shipped spill weight of 220
+   * and radius of 2.
+   */
+  @Test
+  fun `a pool is thirteen cells at exactly the levels the client is promised`() {
+    val sut = held()
+
+    sut.spill(voxelX = 10, voxelY = 10, nowSecond = 0)
+
+    val levels = assertNotNull(sut.columnAt(ColumnKey.of(0, 0))).levels
+
+    assertEquals(13, levels.markedCells)
+    assertEquals(220, levels[10, 10], "centre")
+    for ((x, y) in listOf(11 to 10, 9 to 10, 10 to 11, 10 to 9)) {
+      assertEquals(146, levels[x, y], "one tile out at $x,$y")
+    }
+    for ((x, y) in listOf(11 to 11, 9 to 9, 11 to 9, 9 to 11)) {
+      assertEquals(116, levels[x, y], "diagonal at $x,$y")
+    }
+    for ((x, y) in listOf(12 to 10, 8 to 10, 10 to 12, 10 to 8)) {
+      assertEquals(73, levels[x, y], "two tiles out at $x,$y")
+    }
+    assertEquals(0, levels[12, 11], "just past the radius")
+  }
+
   @Test
   fun `the pool is round, not square`() {
     val sut = held()

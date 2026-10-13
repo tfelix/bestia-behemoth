@@ -8,6 +8,7 @@ import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.world.WorldService
 import net.bestia.zone.ground.ColumnMask
+import net.bestia.zone.ground.GroundLayer
 import net.bestia.zone.ground.GroundOverlayService
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -103,6 +104,33 @@ class ScorchRegrowthSystemTest {
     assertEquals(burnt, scar.mask.count, "the stored mask shrank; only `visible` may")
     verify(exactly = 1) { repository.save(any<ScorchMark>()) }
     verify(exactly = 0) { repository.deleteById(any()) }
+  }
+
+  /** A client cannot work a scar out, so it goes out as its own layer on the next flush, not on the resync. */
+  @Test
+  fun `a scar that shrinks is re-announced as the scorched layer`() {
+    val registry = registry()
+    val key = ColumnKey.of(1, 1)
+    burn(registry, key)
+    val overlay = overlay()
+
+    val sut = ScorchRegrowthSystem(registry = registry, rain = rain(mmPerSweep = healRainMm / 6.0), overlay = overlay)
+    sut.update(testWorld(), 0f)
+
+    verify(exactly = 1) { overlay.markLayerDirty(key, GroundLayer.SCORCHED) }
+    verify(exactly = 0) { overlay.markLevelsDirty(any(), any(), any()) }
+  }
+
+  @Test
+  fun `a scar that did not change is not re-announced`() {
+    val registry = registry()
+    burn(registry, ColumnKey.of(1, 1))
+    val overlay = overlay()
+
+    val sut = ScorchRegrowthSystem(registry = registry, rain = rain(mmPerSweep = 0.0), overlay = overlay)
+    sut.update(testWorld(), 0f)
+
+    verify(exactly = 0) { overlay.markLayerDirty(any(), any()) }
   }
 
   @Test

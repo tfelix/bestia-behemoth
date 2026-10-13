@@ -16,6 +16,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties
  * [maxColumns] fills - the whole subsystem's footprint, and the reason both numbers are here rather than
  * chosen by whoever walks furthest.
  *
+ * How often a client is re-sent a column's prints is `GroundSyncConfig`'s.
+ *
  * @property footprintTtlSeconds Bestia seconds a print lasts. Twenty real minutes at `SPEED_FACTOR` 3, which
  *   is long enough to follow something that has walked out of sight and short enough that a crossroads does
  *   not silt up. The knob a tracking skill's usefulness is set by.
@@ -23,24 +25,17 @@ import org.springframework.boot.context.properties.ConfigurationProperties
  *   crossings, so a busy column shows the most recent tracks rather than every track.
  * @property maxColumns columns holding stamps at once. Unlike wear this is not tied to what players hold:
  *   creatures leave tracks where nobody is watching, and finding those later is the point of tracking at all.
- * @property announceIntervalSeconds Bestia seconds between putting one column's stamps on the wire. **Load
- *   bearing**: each message carries the column's whole stamp set, so without this a walked column would re-send
- *   all of it on every footfall. One real second, which is behind the walker and not noticed.
  */
 @ConfigurationProperties(prefix = "ground-stamps")
 data class GroundStampConfig(
   val footprintTtlSeconds: Long = 3_600,
   val maxStampsPerColumn: Int = 48,
   val maxColumns: Int = 8_192,
-  val announceIntervalSeconds: Long = 3,
 ) {
 
   init {
     require(footprintTtlSeconds > 0) { "footprintTtlSeconds must be positive, was $footprintTtlSeconds" }
     require(maxStampsPerColumn > 0) { "maxStampsPerColumn must be positive, was $maxStampsPerColumn" }
     require(maxColumns > 0) { "maxColumns must be positive, was $maxColumns" }
-    require(announceIntervalSeconds >= 0) {
-      "announceIntervalSeconds cannot be negative, was $announceIntervalSeconds"
-    }
   }
 }

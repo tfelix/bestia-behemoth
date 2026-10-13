@@ -49,17 +49,6 @@ class ColumnStamps(private val capacity: Int) {
   var count: Int = 0
     private set
 
-  /**
-   * The second this column's stamps may next be put on the wire.
-   *
-   * Held here rather than in the registry because it is per column, and it is what keeps a walked column from
-   * re-sending its whole stamp set on every single footfall - see `GroundStampConfig.announceIntervalSeconds`.
-   */
-  var announceDueSecond: Long = Long.MIN_VALUE
-
-  /** Whether anything has happened here that clients have not been told about yet. */
-  var pending: Boolean = false
-
   val isEmpty: Boolean get() = count == 0
 
   /**
@@ -85,8 +74,6 @@ class ColumnStamps(private val capacity: Int) {
       // Full: the write above landed on the oldest entry, so the ring simply starts one later.
       oldest = (oldest + 1) % capacity
     }
-
-    pending = true
   }
 
   /**
@@ -94,7 +81,7 @@ class ColumnStamps(private val capacity: Int) {
    *
    * A walk from the old end rather than a scan, which is the whole reason the ring is kept in time order.
    *
-   * @return whether anything went, so a caller knows to re-announce the column
+   * @return whether anything went
    */
   fun expire(nowSecond: Long, ttlSeconds: Long): Boolean {
     var dropped = 0
@@ -107,7 +94,6 @@ class ColumnStamps(private val capacity: Int) {
 
     oldest = (oldest + dropped) % capacity
     count -= dropped
-    pending = true
 
     return true
   }
@@ -162,11 +148,10 @@ class ColumnStamps(private val capacity: Int) {
     const val MAX_CELL_INDEX = 0xFFFF
 
     /**
-     * How many strengths a stamp can be sent at.
+     * How many strengths a stamp can be sent at, which is how many steps a client ages a print through.
      *
-     * Quantised rather than continuous so that a print fading is a handful of re-sends over its whole life
-     * instead of one per sweep for ever. Sixteen is the same resolution the layer nibbles carry, and for the
-     * same reason: past that nobody can see the difference.
+     * Sixteen is the same resolution the layer nibbles carry, and for the same reason: past that nobody can see
+     * the difference.
      */
     const val STRENGTH_LEVELS = 16
 

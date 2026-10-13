@@ -10,6 +10,7 @@ import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.world.WorldService
 import net.bestia.zone.ground.ColumnMask
+import net.bestia.zone.ground.GroundLayer
 import net.bestia.zone.ground.GroundOverlayService
 import org.springframework.stereotype.Service
 import kotlin.math.cos
@@ -309,9 +310,9 @@ class GroundFireService(
 
     byColumn.forEach { (column, mask) ->
       scorch.burn(column, mask, fire.startedAtSecond)
-      // A scar is a lasting mark, not something alight, so it rides the slow queue.
-      overlay.markLayersDirty(column)
-      // The same cells just stopped burning, and that is the fast queue's business.
+      // A scar is a lasting mark rather than something alight, so it goes out as its own layer.
+      overlay.markLayerDirty(column, GroundLayer.SCORCHED)
+      // The same cells just stopped burning, and that is the burning mask's business.
       overlay.markDirty(column)
     }
   }

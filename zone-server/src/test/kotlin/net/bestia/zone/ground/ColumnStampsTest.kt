@@ -69,13 +69,12 @@ class ColumnStampsTest {
   }
 
   @Test
-  fun `expiring nothing is not a change`() {
+  fun `expiring nothing drops nothing`() {
     val stamps = ColumnStamps(capacity = 8)
     stamps.add(cellIndex = 1, kind = GroundStampKind.FOOTPRINT, octant = 0, seed = 0, actorId = 1, atSecond = 100)
-    stamps.pending = false
 
     assertFalse(stamps.expire(nowSecond = 200, ttlSeconds = ttl))
-    assertFalse(stamps.pending, "a sweep that removed nothing announced the column anyway")
+    assertEquals(1, stamps.count)
   }
 
   @Test
@@ -158,10 +157,7 @@ class ColumnStampsTest {
     assertTrue(old in 1..254, "an aged print came back at $old")
   }
 
-  /**
-   * Quantised, so a fading print is a handful of re-sends over its whole life rather than one per sweep. A
-   * continuous strength here would make every column with a print on it dirty on every single pass.
-   */
+  /** Sixteen steps, because the client recovers a level of 1..16 from the byte and ages the print through them. */
   @Test
   fun `strength moves in steps rather than continuously`() {
     val steps = (0..ttl step 7)
@@ -169,6 +165,23 @@ class ColumnStampsTest {
       .distinct()
 
     assertTrue(steps.size <= ColumnStamps.STRENGTH_LEVELS, "strength took ${steps.size} distinct values")
+  }
+
+  /**
+   * The client ages a snapshot print from the level it recovers as `(byte + 1) >> 4`, so these sixteen values
+   * are the other half of its `GroundStampCellsTest`.
+   */
+  @Test
+  fun `a level of one to sixteen travels as level times 255 over 16 and comes back`() {
+    val bytes = (1..16).map { level ->
+      ColumnStamps.strengthOf(laidAtSecond = 0, nowSecond = (16 - level).toLong(), ttlSeconds = 16)
+    }
+
+    assertEquals(
+      listOf(15, 31, 47, 63, 79, 95, 111, 127, 143, 159, 175, 191, 207, 223, 239, 255),
+      bytes
+    )
+    assertEquals((1..16).toList(), bytes.map { (it + 1) shr 4 })
   }
 
   @Test

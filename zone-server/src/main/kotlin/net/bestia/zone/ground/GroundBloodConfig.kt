@@ -15,7 +15,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties
  * @property spillWeight how much lands on the tile something died on, out of the 255 a cell holds. High, and
  *   deliberately: unlike wear this is written once and never topped up, so the first stain is the whole stain.
  * @property spillRadiusTiles how far the pool reaches, with a falloff to nothing at its edge.
- * @property visibleThreshold the level below which a cell is not sent. Lower than wear's, because there is no
+ * @property visibleThreshold the level below which a cell is not drawn. Lower than wear's, because there is no
  *   diffuse background of blood to keep under notice - a stain is either there or it is not.
  * @property flushIntervalSeconds how often changed columns are written out.
  * @property maxResidentColumns bloodied columns held in memory at once.

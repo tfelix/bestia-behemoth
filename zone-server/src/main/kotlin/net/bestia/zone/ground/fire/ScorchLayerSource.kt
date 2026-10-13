@@ -3,6 +3,8 @@ package net.bestia.zone.ground.fire
 import net.bestia.zone.world.WorldService
 import net.bestia.zone.ground.ColumnLevels
 import net.bestia.zone.ground.GroundLayer
+import net.bestia.zone.ground.GroundLayerEncoding
+import net.bestia.zone.ground.GroundLayerEntry
 import net.bestia.zone.ground.GroundLayerSource
 import org.springframework.stereotype.Service
 
@@ -27,15 +29,17 @@ class ScorchLayerSource(
 
   override val layer = GroundLayer.SCORCHED
 
-  override fun nibblesAt(columnKey: Long): ByteArray? {
+  private val retired = GroundLayerEntry.retired(layer, GroundLayerEncoding.NIBBLE_V1)
+
+  override fun entryAt(columnKey: Long): GroundLayerEntry {
     // `visible`, not `mask`: the stored mask is the original burn and a healing scar is smaller than it.
-    val visible = scorch.scarOf(columnKey)?.visible ?: return null
-    if (visible.isEmpty) return null
+    val visible = scorch.scarOf(columnKey)?.visible ?: return retired
+    if (visible.isEmpty) return retired
 
     val levels = ColumnLevels(worldService.config.chunkSize)
     visible.forEachSet { x, y -> levels.add(x, y, FULLY_BURNT) }
 
-    return levels.toNibbles()
+    return GroundLayerEntry(layer, GroundLayerEncoding.NIBBLE_V1, levels.toNibbles())
   }
 
   private companion object {

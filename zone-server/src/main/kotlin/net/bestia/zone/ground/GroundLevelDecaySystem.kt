@@ -61,10 +61,10 @@ class GroundLevelDecaySystem(
   override fun update(world: World, deltaTime: Float) {
     val now = clock.now().absoluteSecond
 
-    // A column just read in is ground the player has been looking at clean since they arrived, so it is
-    // announced the moment it lands rather than waiting for the next sweep.
+    // A column just read in is ground the player has been looking at clean since they arrived, and the client
+    // cannot work that out, so it is sent the moment it lands.
     stores.forEach { store ->
-      store.drainLoaded(now).forEach { overlay.markLayersDirty(it) }
+      store.drainLoaded(now).forEach { overlay.markLayerDirty(it, store.layer) }
     }
 
     secondsSinceSweep += deltaTime
@@ -88,10 +88,7 @@ class GroundLevelDecaySystem(
 
       if (!column.ageTo(nowSecond, store.fadeSeconds)) continue
 
-      // Re-announce either way: a client holding this column is drawing a mark that just got fainter, and the
-      // message carries the whole column so one settles it.
-      overlay.markLayersDirty(columnKey)
-
+      // Not announced: a client fades its own copy from the clock it was sent, with the same arithmetic.
       if (column.isEmpty) cleared++ else faded++
     }
 

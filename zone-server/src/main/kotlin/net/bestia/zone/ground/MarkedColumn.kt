@@ -33,7 +33,7 @@ class MarkedColumn(
   /**
    * Ages the column forward to [nowSecond], given how long a full level takes to fade.
    *
-   * @return true if a level the client would draw changed, which is the only thing worth re-announcing for
+   * @return true if a level the client would draw changed
    */
   fun ageTo(nowSecond: Long, fadeSeconds: Long): Boolean {
     val elapsed = nowSecond - lastDecayedSecond

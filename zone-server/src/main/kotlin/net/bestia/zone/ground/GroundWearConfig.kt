@@ -16,7 +16,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties
  *   decides how many passes it takes before a route shows at all, independently of how fast it fades.
  * @property neighbourWeight added to the four cells beside the one stepped on. Without this an eight-connected
  *   walk leaves a one metre staircase, which reads as a scratch rather than as a path.
- * @property visibleThreshold the level below which a cell is not sent to clients at all.
+ * @property visibleThreshold the level below which a cell is not drawn. Clients are still sent the cell, so
+ *   what they lay for themselves matches the server's.
  *   **Load bearing rather than cosmetic**: creatures wandering at random spread their wear thinly over a wide
  *   area, and this is what keeps that below notice so only genuinely repeated routes ever show. Raise it if
  *   idling players grow faint haloes; do not reach for an exclusion list first.

@@ -9,7 +9,7 @@ import net.bestia.zone.ground.fire.GroundFireSystem
 import org.springframework.stereotype.Component
 
 /**
- * Flushes the ground overlay once per tick, behind the terrain it describes.
+ * Flushes what has fallen due in the ground overlay once per tick, behind the terrain it describes.
  *
  * After `ChunkStreamSystem` has served the chunk payloads and `WorldObjectResidencySystem` has announced what
  * stands on them, so a client is told about the ground, then the things on it, then what has happened to it -
@@ -34,6 +34,9 @@ class GroundOverlaySystem(
 
   override fun update(world: World, deltaTime: Float) {
     if (overlay.pending == 0) return
+
+    // Columns waiting out a resync keep this non-zero for a minute at a time, and that is fine: a flush with
+    // nothing due is a clock read and a comparison, so no schedule of its own is needed.
     overlay.flush()
   }
 }

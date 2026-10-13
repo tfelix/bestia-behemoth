@@ -5,6 +5,7 @@ import net.bestia.zone.message.SMSG
 import net.bestia.zone.message.ChunkFanOut
 import net.bestia.zone.ground.fire.GroundFireService
 import net.bestia.zone.world.stream.ChunkSubscriptionService
+import net.bestia.zone.world.time.BestiaClock
 import org.springframework.context.annotation.Lazy
 import org.springframework.stereotype.Service
 import java.util.concurrent.ConcurrentHashMap
@@ -17,8 +18,8 @@ import java.util.concurrent.ConcurrentHashMap
  * `ChunkSubscriptionService` is tick-thread state owned by `ChunkStreamSystem`, and `ScorchRegrowthSystem` reads
  * this service too, from another phase. So [holders] is this service's **own** map, maintained only from the subscription callbacks - which run on
  * the tick thread inside `ChunkStreamSystem` itself and are therefore safe by construction. Concurrent maps
- * make a read from another wave safe rather than merely lucky, and the staleness that buys is harmless: the
- * message carries the whole mask and is idempotent, so a newcomer is served by `onChunkSent` and a departed
+ * make a read from another wave safe rather than merely lucky, and the staleness that buys is harmless: every
+ * message carries a whole column and is idempotent, so a newcomer is served by `onChunkSent` and a departed
  * client is sent one message it throws away. Both this and `ScorchRegrowthSystem` can then declare no
  * components at all and mean it.
  *
@@ -33,6 +34,14 @@ import java.util.concurrent.ConcurrentHashMap
  * into a burnt field gets no first-subscriber callback**, because somebody else already holds that column.
  * Keying on every recipient rather than the first is what tells them about the scar.
  *
+ * ### What is due when
+ *
+ * A fire and its scar follow something a client cannot simulate, so a change to either goes out on the next
+ * flush. Footprints, wear and blood are laid by the client itself (see `GroundMarkRulesSMSG`), so a change only
+ * queues a resync, due [GroundSyncConfig.resyncIntervalSeconds] after the first change the client was not told
+ * about; changes inside that window share the one send. A newcomer's snapshot is always due at once, and takes
+ * a resync already waiting for that column out with it.
+ *
  * ### Silence means clean, and that is a deliberate difference from the static-entity batch
  *
  * `ChunkStaticEntitiesSMSG` sends an empty batch for a column with nothing on it, because a client has to know
@@ -41,9 +50,9 @@ import java.util.concurrent.ConcurrentHashMap
  * login - a hundred and twenty-odd for a view volume, for ever, to say "nothing happened here". There is also
  * nothing to wait for: un-scorched is what the terrain already draws.
  *
- * An *empty* message is still sent when a column that had something no longer does, because that is the only
- * way a healed scar retires. So the rule is: a column that **changed** is always announced, and a column
- * merely served is announced only if there is something to say.
+ * An *empty* entry is still sent when a column that was changed no longer has anything in a layer, because
+ * that is the only way a healed scar retires. So the rule is: a column that **changed** is always announced, and
+ * a column merely served is announced only if there is something to say.
  */
 @Service
 class GroundOverlayService(
@@ -59,37 +68,34 @@ class GroundOverlayService(
    * Every layer that can mark the ground, collected by Spring. This service never learns what any of them
    * means - see [GroundLayerSource]. Empty is legal and means nothing lasting is modelled yet.
    */
-  private val layerSources: List<GroundLayerSource>,
+  layerSources: List<GroundLayerSource>,
   /**
    * Every store of marks that have a shape and a heading. Separate from [layerSources] because they travel in
-   * a different message at a different rate - see `ChunkGroundStampsSMSG`.
+   * a different message - see `ChunkGroundStampsSMSG`.
    */
   private val stampSources: List<GroundStampSource>,
+  private val sync: GroundSyncConfig,
+  private val clock: BestiaClock,
 ) {
 
   /** Column -> the accounts holding its terrain. This service's own record; see the class note. */
   private val holders = ConcurrentHashMap<Long, MutableSet<Long>>()
 
-  /** Column -> the accounts owed a message about what is alight there. */
-  private val owed = ConcurrentHashMap<Long, MutableSet<Long>>()
+  private val sourceOf: Map<GroundLayer, GroundLayerSource> = layerSources.associateBy { it.layer }
+
+  /** The accounts owed a message about what is alight. Always due at once. */
+  private val owedBurning = OwedColumns()
 
   /**
-   * Column -> the accounts owed a message about its lasting marks.
-   *
-   * A second set rather than a second service, because [holders] is the hard-won part and one copy of it is
-   * the point. Separate from [owed] because the two messages move at different speeds: a fire re-sends what
-   * is alight several times a second, and re-sending half a kilobyte of worn cells at that rate for the whole
-   * length of a burn is the cost this split exists to avoid.
+   * Per layer rather than per column, because the layers fall due at different times: a scar goes out the
+   * moment it changes while the wear beside it waits for its resync, and one queue per column could not send
+   * the first without dragging the second along.
    */
-  private val owedLayers = ConcurrentHashMap<Long, MutableSet<Long>>()
+  private val owedLayers: Map<GroundLayer, OwedColumns> = layerSources.associate { it.layer to OwedColumns() }
 
-  /**
-   * Column -> the accounts owed a message about what has passed over it.
-   *
-   * A third set for the same reason there is a second: prints arrive several times a second while anything is
-   * walking, and dragging half a kilobyte of worn cells along behind each footstep is what this avoids.
-   */
-  private val owedStamps = ConcurrentHashMap<Long, MutableSet<Long>>()
+  private val owedStamps = OwedColumns()
+
+  private val queues: List<OwedColumns> = listOf(owedBurning, owedStamps) + owedLayers.values
 
   init {
     subscriptions.onChunkSent { accountId, chunk ->
@@ -97,14 +103,16 @@ class GroundOverlayService(
       holders.computeIfAbsent(column) { ConcurrentHashMap.newKeySet() }.add(accountId)
 
       // Told about the ground only if there is something to say about it - see the class note.
+      val newcomer = listOf(accountId)
+
       if (isBurning(chunk.x, chunk.y)) {
-        owed.computeIfAbsent(column) { ConcurrentHashMap.newKeySet() }.add(accountId)
+        owedBurning.owe(column, newcomer, DUE_NOW)
       }
-      if (hasMarks(column)) {
-        owedLayers.computeIfAbsent(column) { ConcurrentHashMap.newKeySet() }.add(accountId)
+      for ((layer, owed) in owedLayers) {
+        if (!sourceOf.getValue(layer).entryAt(column).isEmpty) owed.owe(column, newcomer, DUE_NOW)
       }
       if (hasStamps(column)) {
-        owedStamps.computeIfAbsent(column) { ConcurrentHashMap.newKeySet() }.add(accountId)
+        owedStamps.owe(column, newcomer, DUE_NOW)
       }
     }
 
@@ -114,99 +122,142 @@ class GroundOverlayService(
       val remaining = subscriptions.subscribersOfColumn(chunk.x, chunk.y)
 
       if (remaining.isEmpty()) {
-        // Nothing is owed to nobody, and leaving the entries would grow both maps for the whole life of a fire
-        // burning in a region every player has walked out of.
+        // Nothing is owed to nobody, and leaving the entries would grow every queue for the whole life of a
+        // fire burning in a region every player has walked out of.
         holders.remove(column)
-        owed.remove(column)
-        owedLayers.remove(column)
-        owedStamps.remove(column)
+        queues.forEach { it.forget(column) }
       } else {
         holders[column]?.retainAll(remaining)
-        owed[column]?.retainAll(remaining)
-        owedLayers[column]?.retainAll(remaining)
-        owedStamps[column]?.retainAll(remaining)
+        queues.forEach { it.retainOnly(column, remaining) }
       }
     }
   }
 
-  val pending get() = owed.size + owedLayers.size + owedStamps.size
+  /** Columns with something waiting to be sent, whether or not it has fallen due yet. */
+  val pending: Int
+    get() {
+      return queues.sumOf { it.size }
+    }
 
   /**
-   * Marks a column's overlay stale for everyone currently holding it.
+   * Marks what is alight in a column stale for everyone currently holding it.
    *
    * Reads only [holders], so it is safe from any wave. Cheap and idempotent, so a fire may call it once per
    * changed cell.
    */
   fun markDirty(columnKey: Long) {
-    val watchers = holders[columnKey] ?: return
-    if (watchers.isEmpty()) return
+    val watchers = watchersOf(columnKey) ?: return
 
-    owed.computeIfAbsent(columnKey) { ConcurrentHashMap.newKeySet() }.addAll(watchers)
+    owedBurning.owe(columnKey, watchers, DUE_NOW)
   }
 
   /**
-   * Marks a column's lasting marks stale for everyone currently holding it.
+   * Marks one layer of a column stale for everyone currently holding it, to be sent on the next flush.
    *
-   * [markDirty]'s twin, and safe from any wave for the same reason. Per column rather than per layer: the
-   * message carries every layer anyway, so knowing which one moved would buy nothing and cost a second index.
+   * For a layer the client cannot work out for itself - a scar - and for a column whose stored marks have just
+   * arrived. [markLevelsDirty] is the one for layers the client lays down itself. Safe from any wave, like
+   * [markDirty].
    */
-  fun markLayersDirty(columnKey: Long) {
-    val watchers = holders[columnKey] ?: return
-    if (watchers.isEmpty()) return
+  fun markLayerDirty(columnKey: Long, layer: GroundLayer) {
+    val owed = owedLayers[layer] ?: return
+    val watchers = watchersOf(columnKey) ?: return
 
-    owedLayers.computeIfAbsent(columnKey) { ConcurrentHashMap.newKeySet() }.addAll(watchers)
+    owed.owe(columnKey, watchers, DUE_NOW)
   }
 
   /**
-   * Marks what has passed over a column stale for everyone currently holding it.
+   * Marks a layer the client lays down itself - wear, blood - stale, to be resynced
+   * [GroundSyncConfig.resyncIntervalSeconds] after the first change nobody was told about.
    *
-   * [markDirty]'s twin, and safe from any wave for the same reason. Paced by the caller rather than here - see
-   * `GroundStampRegistry.sweep`, which is what keeps one walker from announcing a column twenty times a second.
+   * A no-op when resyncing is switched off: the client is then left with what it worked out and what it was
+   * sent on arrival.
    */
-  fun markStampsDirty(columnKey: Long) {
-    val watchers = holders[columnKey] ?: return
-    if (watchers.isEmpty()) return
+  fun markLevelsDirty(columnKey: Long, layer: GroundLayer, nowSecond: Long) {
+    if (!sync.resyncs) return
 
-    owedStamps.computeIfAbsent(columnKey) { ConcurrentHashMap.newKeySet() }.addAll(watchers)
+    val owed = owedLayers[layer] ?: return
+    val watchers = watchersOf(columnKey) ?: return
+
+    owed.owe(columnKey, watchers, nowSecond + sync.resyncIntervalSeconds)
   }
 
   /**
-   * Sends what is owed. Touches no shared state but the fan-out itself.
+   * Marks what has passed over a column stale, to be resynced like [markLevelsDirty].
    *
-   * @return how many messages were encoded, which is one per column however many recipients it had
+   * Called for every footfall, so it is a map insert and nothing more.
+   */
+  fun markStampsDirty(columnKey: Long, nowSecond: Long) {
+    if (!sync.resyncs) return
+
+    val watchers = watchersOf(columnKey) ?: return
+
+    owedStamps.owe(columnKey, watchers, nowSecond + sync.resyncIntervalSeconds)
+  }
+
+  /**
+   * Sends what has fallen due. Touches no shared state but the fan-out itself, and costs a clock read and a
+   * comparison per queue on a tick where nothing has.
+   *
+   * @return how many messages were encoded, which is one per column and recipient group however many were in it
    */
   fun flush(): Int {
+    val nowSecond = clock.now().absoluteSecond
+
     var sent = 0
-    sent += drain(owed) { messageFor(it) }
-    sent += drain(owedLayers) { layersMessageFor(it) }
-    sent += drain(owedStamps) { stampsMessageFor(it) }
+    sent += owedBurning.drainDue(nowSecond) { column, accounts -> fanOut.fanOut(accounts, burningMessageFor(column)) }
+    sent += flushLayers(nowSecond)
+    sent += owedStamps.drainDue(nowSecond) { column, accounts -> fanOut.fanOut(accounts, stampsMessageFor(column)) }
+
     return sent
   }
 
-  private fun drain(queue: ConcurrentHashMap<Long, MutableSet<Long>>, message: (Long) -> SMSG): Int {
-    if (queue.isEmpty()) return 0
+  /**
+   * Layers falling due for one column go in one message when the same accounts are owed them, so a newcomer's
+   * scar, wear and blood arrive together.
+   */
+  private fun flushLayers(nowSecond: Long): Int {
+    if (owedLayers.values.none { it.isDue(nowSecond) }) return 0
+
+    val due = HashMap<Long, MutableMap<Set<Long>, MutableList<GroundLayerEntry>>>()
+
+    for ((layer, owed) in owedLayers) {
+      val source = sourceOf.getValue(layer)
+
+      owed.drainDue(nowSecond) { column, accounts ->
+        due.getOrPut(column) { HashMap() }
+          .getOrPut(HashSet(accounts)) { ArrayList() }
+          .add(source.entryAt(column))
+      }
+    }
 
     var sent = 0
-    for ((column, accounts) in queue) {
-      if (accounts.isEmpty()) continue
-      fanOut.fanOut(accounts, message(column))
-      sent++
+
+    for ((column, byAccounts) in due) {
+      for ((accounts, entries) in byAccounts) {
+        fanOut.fanOut(accounts, ChunkGroundLayersSMSG(chunkOf(column), entries))
+        sent++
+      }
     }
-    queue.clear()
 
     return sent
+  }
+
+  private fun watchersOf(columnKey: Long): Set<Long>? {
+    val watchers = holders[columnKey] ?: return null
+
+    return if (watchers.isEmpty()) null else watchers
   }
 
   private fun isBurning(chunkX: Int, chunkY: Int): Boolean {
     return fire.burningIn(chunkX, chunkY)?.isEmpty == false
   }
 
-  private fun hasMarks(column: Long): Boolean {
-    return layerSources.any { it.nibblesAt(column) != null }
-  }
-
   private fun hasStamps(column: Long): Boolean {
     return stampSources.any { it.stampsAt(column) != null }
+  }
+
+  private fun chunkOf(column: Long): ChunkPos {
+    return ChunkPos(ColumnKey.chunkXOf(column), ColumnKey.chunkYOf(column), 0)
   }
 
   /**
@@ -215,43 +266,31 @@ class GroundOverlayService(
    * The mask may come back null, and that message is not wasted: it is how a fire that has gone out is
    * retired, since the client replaces a column's overlay outright and an empty one means "nothing here now".
    */
-  private fun messageFor(column: Long): ChunkGroundOverlaySMSG {
-    val chunkX = ColumnKey.chunkXOf(column)
-    val chunkY = ColumnKey.chunkYOf(column)
+  private fun burningMessageFor(column: Long): SMSG {
+    val chunk = chunkOf(column)
 
     return ChunkGroundOverlaySMSG(
-      chunk = ChunkPos(chunkX, chunkY, 0),
-      burning = fire.burningIn(chunkX, chunkY)?.takeIf { !it.isEmpty }?.toBytes()
+      chunk = chunk,
+      burning = fire.burningIn(chunk.x, chunk.y)?.takeIf { !it.isEmpty }?.toBytes()
     )
   }
 
   /**
-   * Every lasting mark on one column, never a diff.
+   * The whole of one column's prints, never a diff.
    *
-   * May come back with no layers at all, and that message is not wasted either: it is how a healed scar or a
-   * path that has finally faded is retired.
+   * May come back empty, and that message is not wasted: when every print has expired since the change that
+   * queued this, an empty message is what tells a client its own prints there are gone.
    */
-  private fun layersMessageFor(column: Long): ChunkGroundLayersSMSG {
-    val cells = layerSources.mapNotNull { source ->
-      source.nibblesAt(column)?.let { source.layer to it }
-    }.toMap()
-
-    return ChunkGroundLayersSMSG(
-      chunk = ChunkPos(ColumnKey.chunkXOf(column), ColumnKey.chunkYOf(column), 0),
-      cells = cells
-    )
-  }
-
-  /**
-   * What has passed over one column, never a diff.
-   *
-   * May come back empty, and that message is not wasted either: it is the only way tracks that have faded are
-   * retired, since the client replaces a column's stamps outright.
-   */
-  private fun stampsMessageFor(column: Long): ChunkGroundStampsSMSG {
+  private fun stampsMessageFor(column: Long): SMSG {
     return ChunkGroundStampsSMSG(
-      chunk = ChunkPos(ColumnKey.chunkXOf(column), ColumnKey.chunkYOf(column), 0),
+      chunk = chunkOf(column),
       stamps = stampSources.firstNotNullOfOrNull { it.stampsAt(column) }
     )
+  }
+
+  private companion object {
+
+    /** Lower than any second there is, so an entry owed at once is due at the next flush and wins every `minOf`. */
+    const val DUE_NOW = Long.MIN_VALUE
   }
 }

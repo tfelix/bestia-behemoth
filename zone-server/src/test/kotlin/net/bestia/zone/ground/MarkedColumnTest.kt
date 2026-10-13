@@ -84,6 +84,58 @@ class MarkedColumnTest {
     assertTrue(column.dirty)
   }
 
+  private fun full(at: Long = 0): MarkedColumn {
+    val levels = ColumnLevels(size)
+    for (index in 0 until size * size) levels.add(index, ColumnLevels.MAX_LEVEL)
+    return MarkedColumn(levels, at)
+  }
+
+  private fun MarkedColumn.everyCell(): Set<Int> {
+    return (0 until size * size).map { levels[it] }.toSet()
+  }
+
+  /**
+   * **Cross-language fixture.** A client continues the fade from `lastDecayedSecond` with this same integer
+   * arithmetic, so the steps taken, the remainder kept and the clock it leaves behind are all pinned here from
+   * literals and mirrored in the client's `ClientColumnLevelsTest`.
+   */
+  @Test
+  fun `a short wait removes nothing and does not move the clock`() {
+    val column = full()
+
+    assertFalse(column.ageTo(180, fadeSeconds))
+
+    assertEquals(0L, column.lastDecayedSecond)
+    assertEquals(setOf(255), column.everyCell())
+  }
+
+  @Test
+  fun `half the fade takes 127 levels and leaves the clock at 129091`() {
+    val column = full()
+
+    column.ageTo(129_600, fadeSeconds)
+
+    assertEquals(129_091L, column.lastDecayedSecond)
+    assertEquals(setOf(128), column.everyCell())
+  }
+
+  @Test
+  fun `the seconds a level did not pay for are kept for the next pass`() {
+    val column = full()
+
+    column.ageTo(1_017, fadeSeconds)
+    assertEquals(1_016L, column.lastDecayedSecond)
+    assertEquals(setOf(254), column.everyCell())
+
+    column.ageTo(2_032, fadeSeconds)
+    assertEquals(1_016L, column.lastDecayedSecond, "a second short of a level moved the clock")
+    assertEquals(setOf(254), column.everyCell())
+
+    column.ageTo(2_033, fadeSeconds)
+    assertEquals(2_032L, column.lastDecayedSecond)
+    assertEquals(setOf(253), column.everyCell())
+  }
+
   @Test
   fun `a busy line outlives the ground beside it`() {
     val levels = ColumnLevels(size)
