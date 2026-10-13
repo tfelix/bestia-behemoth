@@ -36,6 +36,8 @@ namespace BestiaBehemothClient.Bnet.Message
         e => Entity.StatusValuesComponentSMSG.FromProto(e.CompStatusValues),
       [Envelope.MessageOneofCase.CompBaseStatusValues] =
         e => Entity.BaseStatusValuesComponentSMSG.FromProto(e.CompBaseStatusValues),
+      [Envelope.MessageOneofCase.CompCombatStats] =
+        e => Entity.CombatStatsComponentSMSG.FromProto(e.CompCombatStats),
       [Envelope.MessageOneofCase.CompStatusPoints] =
         e => Entity.StatusPointsComponentSMSG.FromProto(e.CompStatusPoints),
       [Envelope.MessageOneofCase.CompVisual] = e => Entity.VisualComponentSMSG.FromProto(e.CompVisual),

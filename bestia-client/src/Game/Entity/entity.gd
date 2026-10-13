@@ -50,6 +50,11 @@ var _status_values: Dictionary = {}
 # Unbuffed status values, same keys - the next point's cost is priced off these, not the buffed ones.
 var _base_status_values: Dictionary = {}
 
+# What the attributes, level and gear add up to in a fight, resolved by the server (owner only): {"atk": int,
+# "weapon_atk": int, "matk", "weapon_matk", "hit", "flee", "crit", "soft_defense", "hard_defense", "aspd"}.
+# Empty until the first push.
+var _combat_stats: Dictionary = {}
+
 # Status points (masters only).
 var _status_points: int = 0
 
@@ -932,6 +937,31 @@ func update_base_status_values(msg: BaseStatusValuesComponentSMSG) -> void:
 
 func get_base_status_values() -> Dictionary:
 	return _base_status_values
+
+
+## The wire message as the dictionary this entity caches. Static so the status window, which is handed the
+## message straight off the socket, reads the very same keys.
+static func combat_stats_of(msg: CombatStatsComponentSMSG) -> Dictionary:
+	return {
+		"atk": msg.Atk,
+		"weapon_atk": msg.WeaponAtk,
+		"matk": msg.Matk,
+		"weapon_matk": msg.WeaponMatk,
+		"hit": msg.Hit,
+		"flee": msg.Flee,
+		"crit": msg.Crit,
+		"soft_defense": msg.SoftDefense,
+		"hard_defense": msg.HardDefense,
+		"aspd": msg.Aspd,
+	}
+
+
+func update_combat_stats(msg: CombatStatsComponentSMSG) -> void:
+	_combat_stats = combat_stats_of(msg)
+
+
+func get_combat_stats() -> Dictionary:
+	return _combat_stats
 
 
 func update_status_points(msg: StatusPointsComponentSMSG) -> void:

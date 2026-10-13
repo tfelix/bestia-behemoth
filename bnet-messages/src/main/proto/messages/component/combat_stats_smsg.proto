@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "CombatStatsSMSGProto";
+
+/**
+ * What an entity's effective status values, level and worn gear add up to in a fight - the secondary stats of
+ * Ragnarok Online's status window. Resolved by the server, so the client shows the numbers a swing actually
+ * spends rather than formulas of its own that could drift from them.
+ *
+ * Sent to the owner only. ATK and MATK are split the way RO shows them: the part the attributes give, and the
+ * part the weapon in hand adds on top. DEF is split too, but into unlike halves - [soft_defense] is flat and
+ * comes from attributes, [hard_defense] is the worn kind, percentage points of damage removed.
+ */
+message CombatStatsSMSG {
+  fixed64 entity_id = 1;
+
+  int32 atk = 2;
+  int32 weapon_atk = 3;
+  int32 matk = 4;
+  int32 weapon_matk = 5;
+  int32 hit = 6;
+  int32 flee = 7;
+
+  // Percent, before the target's own CRIT shields against it.
+  int32 crit = 8;
+
+  int32 soft_defense = 9;
+  int32 hard_defense = 10;
+
+  // Attack speed as displayed, 0-190: the reading of the swing interval, higher is faster.
+  int32 aspd = 11;
+}

@@ -1,7 +1,35 @@
 extends PanelContainer
 class_name StatusPoints
 
+## The combat stats shown beside the attributes, in the order of Ragnarok Online's status window. [code]id[/code]
+## is the row (and, for all but ATK/MATK/DEF, the key in Entity.get_combat_stats()), [code]tip[/code] says what the
+## number does, since the abbreviations are not self-explanatory.
+##
+## All of it is resolved by the server (CombatStats): the client holds no formulas, so what is shown is what a
+## swing actually spends.
+const _COMBAT_ROWS: Array[Dictionary] = [
+	{"id": "atk", "label": "ATK", "tip": "Physical attack: what your attributes give + what your weapon adds."},
+	{"id": "matk", "label": "MATK", "tip": "Magic attack: what your attributes give + what your weapon adds."},
+	{
+		"id": "def", "label": "DEF",
+		"tip": "Defense: flat damage taken off every physical hit, plus the share of damage your armor blocks. "
+			+ "Critical hits ignore both.",
+	},
+	{"id": "hit", "label": "HIT", "tip": "Accuracy. The higher it is above the target's FLEE, the more of your attacks land."},
+	{"id": "flee", "label": "FLEE", "tip": "Evasion. The higher it is above the attacker's HIT, the more attacks miss you."},
+	{
+		"id": "crit", "label": "CRIT",
+		"tip": "Chance for an attack to be a critical hit: it deals more damage and ignores defense. "
+			+ "The target's own CRIT lowers it.",
+	},
+	{"id": "aspd", "label": "ASPD", "tip": "Attack speed. Higher swings faster."},
+]
+
+## Shown until the server has said anything, so an empty window reads as "not yet" and not as zero.
+const _NO_VALUE := "-"
+
 @onready var _rows: Array = _collect_rows()
+@onready var _stats_grid: GridContainer = %StatsGrid
 @onready var _status_points_label: Label = %StatusPointsLabel
 @onready var _confirm_button: Button = %ConfirmButton
 @onready var _cancel_button: Button = %CancelButton
@@ -10,6 +38,9 @@ class_name StatusPoints
 # the master, mirroring Skills._master_entity_id.
 var _master_entity_id: int = 0
 var _available_status_points: int = 0
+
+# Combat stat row id -> the Label holding its value, filled by _build_combat_rows.
+var _combat_value_labels: Dictionary = {}
 
 
 func _ready() -> void:
@@ -21,6 +52,7 @@ func _ready() -> void:
 	for row in _rows:
 		row.investment_changed.connect(_on_row_investment_changed)
 
+	_build_combat_rows()
 	_update_row_buttons()
 
 
@@ -54,6 +86,8 @@ func _on_entity_received(msg: EntitySMSG) -> void:
 	# equipment-inflated one would disagree with what it charges.
 	if msg is BaseStatusValuesComponentSMSG:
 		_apply_base_status_values(msg)
+	elif msg is CombatStatsComponentSMSG:
+		_show_combat_stats(Entity.combat_stats_of(msg))
 	elif msg is StatusPointsComponentSMSG:
 		_available_status_points = msg.Points
 		_update_row_buttons()
@@ -76,7 +110,56 @@ func _seed_from_cache() -> void:
 		if values.has(key):
 			row.set_base_value(values[key])
 
+	_show_combat_stats(entity.get_combat_stats())
 	_update_row_buttons()
+
+
+## One label pair per [constant _COMBAT_ROWS] entry. Built here rather than hand-placed in the scene because
+## every row is the same two labels and the table above is already the list of what is shown.
+func _build_combat_rows() -> void:
+	for row in _COMBAT_ROWS:
+		var name_label := Label.new()
+		name_label.text = row["label"]
+		var value_label := Label.new()
+		value_label.text = _NO_VALUE
+		value_label.custom_minimum_size = Vector2(70, 0)
+
+		# A Label ignores the mouse by default, which would swallow its tooltip.
+		for label in [name_label, value_label]:
+			label.tooltip_text = row["tip"]
+			label.mouse_filter = Control.MOUSE_FILTER_STOP
+			_stats_grid.add_child(label)
+
+		_combat_value_labels[row["id"]] = value_label
+
+
+## Fills the combat stat labels from [param stats] (Entity.combat_stats_of's shape). Empty means the server has
+## not sent any yet, which leaves the placeholders in place.
+func _show_combat_stats(stats: Dictionary) -> void:
+	if stats.is_empty():
+		return
+
+	for row in _COMBAT_ROWS:
+		var value_label: Label = _combat_value_labels[row["id"]]
+		value_label.text = _format_combat_stat(row["id"], stats)
+
+
+## ATK and MATK read "from attributes + from weapon" the way RO shows them. DEF is flat soft defense, with the
+## armor's percentage appended only when something is worn, so a bare fighter is not shown a "+ 0%".
+func _format_combat_stat(id: String, stats: Dictionary) -> String:
+	match id:
+		"atk":
+			return "%d + %d" % [stats["atk"], stats["weapon_atk"]]
+		"matk":
+			return "%d + %d" % [stats["matk"], stats["weapon_matk"]]
+		"def":
+			if stats["hard_defense"] != 0:
+				return "%d + %d%%" % [stats["soft_defense"], stats["hard_defense"]]
+			return "%d" % stats["soft_defense"]
+		"crit":
+			return "%d%%" % stats["crit"]
+		_:
+			return "%d" % stats[id]
 
 
 func _apply_base_status_values(msg: BaseStatusValuesComponentSMSG) -> void:

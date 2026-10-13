@@ -279,6 +279,8 @@ func _on_entity_message_received(msg: EntitySMSG) -> void:
 		entity.update_status_values(msg)
 	elif msg is BaseStatusValuesComponentSMSG:
 		entity.update_base_status_values(msg)
+	elif msg is CombatStatsComponentSMSG:
+		entity.update_combat_stats(msg)
 	elif msg is StatusPointsComponentSMSG:
 		entity.update_status_points(msg)
 	else:
