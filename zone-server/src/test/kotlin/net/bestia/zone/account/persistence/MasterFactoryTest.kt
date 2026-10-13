@@ -64,9 +64,53 @@ class MasterFactoryTest {
     }
   }
 
+  /** An account only has so many slots, and the client only ever offers the ones it has. */
+  @Test
+  fun `a slot beyond the account's slot count is refused before a spawn point is looked up`() {
+    val evenly = MasterFactory.evenlySpreadEffortValues()
+
+    listOf(-1, Account.DEFAULT_MASTER_SLOT_COUNT, Int.MAX_VALUE).forEach { slot ->
+      assertThrows<GeneralMasterException>("slot $slot") {
+        factory.create(ACCOUNT_ID, createData(evenly, slot = slot))
+      }
+    }
+
+    verify(exactly = 0) { spawnPoints.offered() }
+  }
+
+  /** The point of pinning: a taken slot is never quietly given to a second master. */
+  @Test
+  fun `a slot that already holds a master is refused`() {
+    every { accountRepository.findById(ACCOUNT_ID) } returns Optional.of(accountWithMasterInSlot(1))
+
+    assertThrows<GeneralMasterException> {
+      factory.create(ACCOUNT_ID, createData(MasterFactory.evenlySpreadEffortValues(), slot = 1))
+    }
+
+    verify(exactly = 0) { spawnPoints.offered() }
+  }
+
+  private fun accountWithMasterInSlot(slot: Int): Account {
+    val account = Account(ACCOUNT_ID)
+    account.master.add(
+      Master(
+        account = account,
+        slot = slot,
+        name = "Resident",
+        hairColor = Color.BLACK,
+        skinColor = Color.WHITE,
+        hair = Hairstyle.HAIR_1,
+        face = Face.FACE_1,
+        body = BodyType.BODY_M_1
+      )
+    )
+    return account
+  }
+
   private fun createData(
     effortValues: Map<StatusAttribute, Int>,
-    name: String = "Tester"
+    name: String = "Tester",
+    slot: Int = 0
   ): MasterFactory.CreateMasterData {
     return MasterFactory.CreateMasterData(
       name = name,
@@ -76,6 +120,7 @@ class MasterFactoryTest {
       face = Face.FACE_1,
       body = BodyType.BODY_M_1,
       spawnPointId = 1,
+      slot = slot,
       effortValues = effortValues
     )
   }

@@ -17,6 +17,13 @@ namespace BestiaBehemothClient.Bnet.Message.Master
     [Export]
     public uint Level { get; set; }
 
+    /// <summary>
+    /// The account slot this master is pinned to, counted from 0. The selection screen draws the master
+    /// there, so a slot freed by a deletion stays empty.
+    /// </summary>
+    [Export]
+    public uint Slot { get; set; }
+
     [Export]
     public Vector3 Position { get; set; }
 
@@ -50,6 +57,7 @@ namespace BestiaBehemothClient.Bnet.Message.Master
         MasterId = protoMasterInfo.MasterId,
         Name = protoMasterInfo.Name,
         Level = protoMasterInfo.Level,
+        Slot = protoMasterInfo.Slot,
         BodyType = (int)protoMasterInfo.Body,
         Face = (int)protoMasterInfo.Face,
         Hair = (int)protoMasterInfo.Hair

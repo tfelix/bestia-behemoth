@@ -21,13 +21,23 @@ import net.bestia.zone.account.PlayerBestiaPolicy
 @Table(
   name = "master",
   indexes = [
-    Index(columnList = "name", unique = true)
+    Index(columnList = "name", unique = true),
+    Index(name = "uk_master_account_slot", columnList = "account_id, slot", unique = true)
   ]
 )
 class Master(
   @ManyToOne
   @JoinColumn(name = "account_id", nullable = false)
   val account: Account,
+
+  /**
+   * The account slot this master occupies, counted from 0 and below
+   * [Account.DEFAULT_MASTER_SLOT_COUNT] plus [Account.additionalMasterSlots]. Taken from the empty slot the
+   * player clicked and never changed afterwards, so deleting a master leaves its slot free instead of
+   * shuffling the ones after it. Unique per account, so two masters can never claim the same one.
+   */
+  @Column(name = "slot", nullable = false)
+  val slot: Int,
 
   @Column(length = 20)
   var name: String,

@@ -38,6 +38,7 @@ class CreateMasterHandler(
         face = msg.face,
         body = msg.body,
         spawnPointId = msg.spawnPointId,
+        slot = msg.slot,
         effortValues = msg.effortValues
       )
 

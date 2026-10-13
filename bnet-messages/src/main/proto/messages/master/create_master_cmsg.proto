@@ -26,4 +26,8 @@ message CreateMasterCMSG {
   // creation screen keeps its Create button disabled until the distribution is valid, so only a
   // broken or hand-crafted client can get here.
   EffortValues effort_values = 8;
+  // The account slot (from 0) the new master is pinned to: the empty slot the player clicked. Required: the
+  // selection screen only offers free slots, so one that is out of range or already taken can only come from
+  // a broken or hand-crafted client and is refused with MASTER_GENERAL_ERROR.
+  uint32 slot = 9;
 }

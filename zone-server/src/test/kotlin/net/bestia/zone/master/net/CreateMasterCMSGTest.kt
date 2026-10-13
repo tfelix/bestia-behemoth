@@ -25,6 +25,7 @@ class CreateMasterCMSGTest {
       .setHairColor(MasterProto.Color.newBuilder().setR(10).setG(20).setB(30))
       .setSkinColor(MasterProto.Color.newBuilder().setR(200).setG(150).setB(100))
       .setSpawnPointId(7)
+      .setSlot(2)
       .setEffortValues(
         MasterProto.EffortValues.newBuilder()
           .setStrength(1)
@@ -47,6 +48,8 @@ class CreateMasterCMSGTest {
     assertEquals(Color(200, 150, 100), result.skinColor)
     // Passed through verbatim, including the unset 0 - the factory is what refuses an id no spawn point has.
     assertEquals(7, result.spawnPointId)
+    // Passed through verbatim too - the factory is what refuses a slot the account does not have or has filled.
+    assertEquals(2, result.slot)
     // Mapped per attribute rather than positionally, so a proto field reorder can't silently swap two
     // attributes. The distribution itself is nonsense here on purpose - validation lives in the factory.
     assertEquals(

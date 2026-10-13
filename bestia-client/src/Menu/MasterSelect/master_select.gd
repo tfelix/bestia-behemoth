@@ -32,19 +32,25 @@ func _on_master_received(master: MasterSMSG) -> void:
 	_loading_label.hide()
 	_clear_master_list()
 
-	var masters = master.Masters
-	# Render one slot per available server slot: existing masters first, the
-	# remainder as empty creation slots.
-	var total_slots = int(max(master.MaxAvailableMasterSlots, masters.size()))
+	# Render one slot per available server slot, each master in the slot the server pinned it to and every
+	# other slot as an empty creation slot. A slot a deleted master left behind stays empty, so the ones
+	# after it do not close up and a new master lands where the player clicked.
+	var master_by_slot := {}
+	var last_slot := -1
+	for info in master.Masters:
+		master_by_slot[int(info.Slot)] = info
+		last_slot = maxi(last_slot, int(info.Slot))
+
+	var total_slots := maxi(int(master.MaxAvailableMasterSlots), last_slot + 1)
 
 	for slot_index in range(total_slots):
-		if slot_index < masters.size():
-			var master_info_scene = MasterInfoScn.create(masters[slot_index])
+		if master_by_slot.has(slot_index):
+			var master_info_scene = MasterInfoScn.create(master_by_slot[slot_index])
 			master_info_scene.delete_requested.connect(_on_delete_requested)
 			_master_slots.add_child(master_info_scene)
 		else:
 			var empty_slot = EmptyMasterSlotScn.instantiate()
-			empty_slot.setup(slot_index + 1)
+			empty_slot.setup(slot_index)
 			_master_slots.add_child(empty_slot)
 
 

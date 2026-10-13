@@ -39,6 +39,7 @@ class MasterEntityPersisterTest {
 
   private val row = Master(
     account = mockk(relaxed = true),
+    slot = 0,
     name = "Tester",
     hairColor = Color.BLACK,
     skinColor = Color.WHITE,

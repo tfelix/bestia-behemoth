@@ -20,7 +20,8 @@ class AvailableMasterResolver(
   fun getAvailableMaster(accountId: AccountId): AvailableMasterSMSG {
     val account = accountRepository.findByIdOrThrow(accountId)
 
-    val masterInfos = account.master.map { master ->
+    // The account holds its masters in a set, which has no order of its own.
+    val masterInfos = account.master.sortedBy { it.slot }.map { master ->
       // From the world: this runs before a master is selected, when the session knows no bestias.
       val masterBestiaEntities = world.read { OwnedBestia.ownedBy(this, master.id) }
       val masterBestiaInfos = bestiaInfoFactory.getBestiaInfo(masterBestiaEntities)
@@ -29,6 +30,7 @@ class AvailableMasterResolver(
         id = master.id,
         name = master.name,
         level = master.level,
+        slot = master.slot,
         hairColor = master.hairColor,
         skinColor = master.skinColor,
         hair = master.hair,

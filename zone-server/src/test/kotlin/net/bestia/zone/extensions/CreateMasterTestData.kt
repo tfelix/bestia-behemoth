@@ -13,7 +13,8 @@ fun CreateMasterCMSG.Companion.test(
   playerId: Long,
   name: String = "master",
   spawnPointId: Int,
-  effortValues: Map<StatusAttribute, Int> = MasterFactory.evenlySpreadEffortValues()
+  effortValues: Map<StatusAttribute, Int> = MasterFactory.evenlySpreadEffortValues(),
+  slot: Int = 0
 ): CMSG {
   return CreateMasterCMSG(
     playerId = playerId,
@@ -24,6 +25,7 @@ fun CreateMasterCMSG.Companion.test(
     face = Face.FACE_1,
     body = BodyType.BODY_M_1,
     spawnPointId = spawnPointId,
+    slot = slot,
     effortValues = effortValues
   )
 }

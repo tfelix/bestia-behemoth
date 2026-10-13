@@ -124,8 +124,9 @@ class MultiPlayerJourneyScenario : BestiaNoSocketScenario(autoClientConnect = fa
     // a spawn point at all.
     val spawnPointId = masterSpawnPointService.ensureComputed().first().id.toInt()
 
+    // Account 1 of the fixture already holds a master in slots 0 and 1.
     clientPlayer1.sendMessage(
-      CreateMasterCMSG.test(clientPlayer1.connectedPlayerId, newMasterName, spawnPointId)
+      CreateMasterCMSG.test(clientPlayer1.connectedPlayerId, newMasterName, spawnPointId, slot = 2)
     )
     await {
       clientPlayer1.getLastReceived(MasterCreatedSMSG::class)

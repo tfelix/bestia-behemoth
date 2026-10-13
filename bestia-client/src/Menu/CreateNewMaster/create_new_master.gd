@@ -17,6 +17,11 @@ const EFFORT_POINT_BUDGET := 84
 ## screen therefore opens with 78 of the 84 left rather than the full amount.
 const MIN_EFFORT_VALUE := 1
 
+## The account slot, counted from 0, the character is created in. Set by the empty slot that opens this
+## screen, which is the only way in: SceneManager.goto_scene hands a scene no arguments. The server pins the
+## character to it, and refuses one the account does not have or that already holds a character.
+static var slot_to_fill := 0
+
 # Mirrors the proto OpSuccess / OpError enum values (see operation_success.proto / operation_error.proto).
 const OP_SUCCESS_MASTER_CREATED := 0
 const OP_ERROR_NAME_ALREADY_TAKEN := 0
@@ -291,7 +296,7 @@ func _on_create_button_pressed() -> void:
 	_refresh_create_button()
 	_show_status("Creating character...", false)
 	ConnectionManager.create_master(
-		character_name, body, face, hair, hair_color, skin_color, spawn_point_id, _collect_effort_values()
+		character_name, body, face, hair, hair_color, skin_color, spawn_point_id, slot_to_fill, _collect_effort_values()
 	)
 
 

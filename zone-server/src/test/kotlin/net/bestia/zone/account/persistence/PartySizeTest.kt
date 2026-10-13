@@ -48,8 +48,8 @@ class PartySizeTest {
 
   @Test
   fun `a party read back from the database counts each master once`() {
-    val owner = createMaster("sizeOwner")
-    val member = createMaster("sizeMember")
+    val owner = createMaster("sizeOwner", slot = 1)
+    val member = createMaster("sizeMember", slot = 2)
     try {
       val partyId = transactionTemplate.execute {
         val managedOwner = masterRepository.findByIdOrThrow(owner.id)
@@ -71,7 +71,7 @@ class PartySizeTest {
     }
   }
 
-  private fun createMaster(name: String): Master {
+  private fun createMaster(name: String, slot: Int): Master {
     return masterFactory.create(
       ACCOUNT_ID,
       MasterFactory.CreateMasterData(
@@ -81,7 +81,8 @@ class PartySizeTest {
         hair = Hairstyle.HAIR_1,
         face = Face.FACE_1,
         body = BodyType.BODY_M_1,
-        spawnPointId = masterSpawnPointService.ensureComputed().first().id.toInt()
+        spawnPointId = masterSpawnPointService.ensureComputed().first().id.toInt(),
+        slot = slot
       )
     )
   }

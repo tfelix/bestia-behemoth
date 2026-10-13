@@ -64,6 +64,8 @@ class MasterFactory(
     val face: Face,
     val body: BodyType,
     val spawnPointId: Int,
+    /** The account slot the master is pinned to, counted from 0. See [Master.slot]. */
+    val slot: Int,
     /**
      * Starting effort value per attribute. Defaults to an even spread at the creation cap, which is
      * exactly what the budget buys - so fixtures and tests that don't care about the build get a
@@ -91,10 +93,12 @@ class MasterFactory(
       throw MaxMastersReachedException()
     }
 
+    requireFreeSlot(account, createMasterData.slot, maxSlots)
     validateEffortValues(createMasterData.effortValues)
 
     val newMaster = Master(
       account = account,
+      slot = createMasterData.slot,
       name = name,
       hairColor = createMasterData.hairColor,
       skinColor = createMasterData.skinColor,
@@ -204,6 +208,25 @@ class MasterFactory(
         "Master ${master.id} could not be given a starter chart (${result.error}); their map will be blank"
       }
     }
+  }
+
+  /**
+   * Refuses a slot the account does not have or that already holds a master.
+   *
+   * Reported as a plain [GeneralMasterException] rather than getting its own error code on purpose: the
+   * selection screen only lets the player click a slot it drew as empty, so only a broken or hand-crafted
+   * client can land here. The detail goes to the log, since the player has no message to read. See
+   * `.claude/skills/error-messages/SKILL.md`.
+   */
+  private fun requireFreeSlot(account: Account, slot: Int, maxSlots: Int) {
+    val reason = when {
+      slot !in 0 until maxSlots -> "is outside the account's $maxSlots slots"
+      account.master.any { it.slot == slot } -> "already holds a master"
+      else -> return
+    }
+
+    LOG.warn { "Account ${account.id} asked to create a master in slot $slot, which $reason" }
+    throw GeneralMasterException("Master slot $slot $reason")
   }
 
   /**

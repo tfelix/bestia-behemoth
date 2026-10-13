@@ -150,7 +150,8 @@ class ScenarioDataSetup(
       hair = Hairstyle.HAIR_1,
       face = Face.FACE_1,
       body = BodyType.BODY_M_1,
-      spawnPointId = defaultSpawnPointId()
+      spawnPointId = defaultSpawnPointId(),
+      slot = 0
     )
     // Taken from the return value rather than from `account1.master`: without a surrounding transaction
     // that collection is a detached lazy proxy, and the master was written by a different persistence
@@ -186,7 +187,8 @@ class ScenarioDataSetup(
       hair = Hairstyle.HAIR_1,
       face = Face.FACE_1,
       body = BodyType.BODY_M_1,
-      spawnPointId = defaultSpawnPointId()
+      spawnPointId = defaultSpawnPointId(),
+      slot = 1
     )
     val master2 = masterFactory.create(account1.id, createMasterData2)
     grantFullBasicSkill(master2.id)
@@ -224,7 +226,8 @@ class ScenarioDataSetup(
       hair = Hairstyle.HAIR_1,
       face = Face.FACE_1,
       body = BodyType.BODY_M_1,
-      spawnPointId = defaultSpawnPointId()
+      spawnPointId = defaultSpawnPointId(),
+      slot = 0
     )
     val master = masterFactory.create(account2.id, createMasterData)
     grantFullBasicSkill(master.id)
@@ -247,7 +250,8 @@ class ScenarioDataSetup(
       hair = Hairstyle.HAIR_1,
       face = Face.FACE_1,
       body = BodyType.BODY_M_1,
-      spawnPointId = defaultSpawnPointId()
+      spawnPointId = defaultSpawnPointId(),
+      slot = 0
     )
     val master = masterFactory.create(account3.id, createMasterData)
     grantFullBasicSkill(master.id)

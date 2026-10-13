@@ -184,7 +184,8 @@ class MasterDeletionServiceTest {
         hair = Hairstyle.HAIR_1,
         face = Face.FACE_1,
         body = BodyType.BODY_M_1,
-        spawnPointId = masterSpawnPointService.ensureComputed().first().id.toInt()
+        spawnPointId = masterSpawnPointService.ensureComputed().first().id.toInt(),
+        slot = FREE_SLOT
       )
     )
   }
@@ -192,6 +193,9 @@ class MasterDeletionServiceTest {
   private companion object {
     /** Account 3 of the fixture: it starts with a single master, so there are free slots to create into. */
     const val ACCOUNT_ID = 3L
+
+    /** The fixture's own master holds slot 0, and each test deletes the one it makes. */
+    const val FREE_SLOT = 1
 
     /**
      * How many `ItemInstance` rows `MasterFactory.create` mints: the starter map chart, plus the three pieces

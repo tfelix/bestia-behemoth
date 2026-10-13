@@ -25,18 +25,18 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CihtZXNzYWdlcy9tYXN0ZXIvY3JlYXRlX21hc3Rlcl9jbXNnLnByb3RvEgRi",
-            "bmV0GhxtZXNzYWdlcy9tYXN0ZXIvbWFzdGVyLnByb3RvIvwBChBDcmVhdGVN",
+            "bmV0GhxtZXNzYWdlcy9tYXN0ZXIvbWFzdGVyLnByb3RvIooCChBDcmVhdGVN",
             "YXN0ZXJDTVNHEgwKBG5hbWUYASABKAkSHAoEYm9keRgCIAEoDjIOLmJuZXQu",
             "Qm9keVR5cGUSGAoEZmFjZRgDIAEoDjIKLmJuZXQuRmFjZRIdCgRoYWlyGAQg",
             "ASgOMg8uYm5ldC5IYWlyc3R5bGUSHwoKc2tpbl9jb2xvchgFIAEoCzILLmJu",
             "ZXQuQ29sb3ISHwoKaGFpcl9jb2xvchgGIAEoCzILLmJuZXQuQ29sb3ISFgoO",
             "c3Bhd25fcG9pbnRfaWQYByABKA0SKQoNZWZmb3J0X3ZhbHVlcxgIIAEoCzIS",
-            "LmJuZXQuRWZmb3J0VmFsdWVzQioKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0IR",
-            "Q3JlYXRlTWFzdGVyUHJvdG9iBnByb3RvMw=="));
+            "LmJuZXQuRWZmb3J0VmFsdWVzEgwKBHNsb3QYCSABKA1CKgoVbmV0LmJlc3Rp",
+            "YS5ibmV0LnByb3RvQhFDcmVhdGVNYXN0ZXJQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Bnet.MasterReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.CreateMasterCMSG), global::Bnet.CreateMasterCMSG.Parser, new[]{ "Name", "Body", "Face", "Hair", "SkinColor", "HairColor", "SpawnPointId", "EffortValues" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.CreateMasterCMSG), global::Bnet.CreateMasterCMSG.Parser, new[]{ "Name", "Body", "Face", "Hair", "SkinColor", "HairColor", "SpawnPointId", "EffortValues", "Slot" }, null, null, null, null)
           }));
     }
     #endregion
@@ -91,6 +91,7 @@ namespace Bnet {
       hairColor_ = other.hairColor_ != null ? other.hairColor_.Clone() : null;
       spawnPointId_ = other.spawnPointId_;
       effortValues_ = other.effortValues_ != null ? other.effortValues_.Clone() : null;
+      slot_ = other.slot_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -206,6 +207,23 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "slot" field.</summary>
+    public const int SlotFieldNumber = 9;
+    private uint slot_;
+    /// <summary>
+    /// The account slot (from 0) the new master is pinned to: the empty slot the player clicked. Required: the
+    /// selection screen only offers free slots, so one that is out of range or already taken can only come from
+    /// a broken or hand-crafted client and is refused with MASTER_GENERAL_ERROR.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint Slot {
+      get { return slot_; }
+      set {
+        slot_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -229,6 +247,7 @@ namespace Bnet {
       if (!object.Equals(HairColor, other.HairColor)) return false;
       if (SpawnPointId != other.SpawnPointId) return false;
       if (!object.Equals(EffortValues, other.EffortValues)) return false;
+      if (Slot != other.Slot) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -244,6 +263,7 @@ namespace Bnet {
       if (hairColor_ != null) hash ^= HairColor.GetHashCode();
       if (SpawnPointId != 0) hash ^= SpawnPointId.GetHashCode();
       if (effortValues_ != null) hash ^= EffortValues.GetHashCode();
+      if (Slot != 0) hash ^= Slot.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -294,6 +314,10 @@ namespace Bnet {
         output.WriteRawTag(66);
         output.WriteMessage(EffortValues);
       }
+      if (Slot != 0) {
+        output.WriteRawTag(72);
+        output.WriteUInt32(Slot);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -336,6 +360,10 @@ namespace Bnet {
         output.WriteRawTag(66);
         output.WriteMessage(EffortValues);
       }
+      if (Slot != 0) {
+        output.WriteRawTag(72);
+        output.WriteUInt32(Slot);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -369,6 +397,9 @@ namespace Bnet {
       }
       if (effortValues_ != null) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(EffortValues);
+      }
+      if (Slot != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Slot);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -414,6 +445,9 @@ namespace Bnet {
           EffortValues = new global::Bnet.EffortValues();
         }
         EffortValues.MergeFrom(other.EffortValues);
+      }
+      if (other.Slot != 0) {
+        Slot = other.Slot;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -475,6 +509,10 @@ namespace Bnet {
             input.ReadMessage(EffortValues);
             break;
           }
+          case 72: {
+            Slot = input.ReadUInt32();
+            break;
+          }
         }
       }
     #endif
@@ -533,6 +571,10 @@ namespace Bnet {
               EffortValues = new global::Bnet.EffortValues();
             }
             input.ReadMessage(EffortValues);
+            break;
+          }
+          case 72: {
+            Slot = input.ReadUInt32();
             break;
           }
         }

@@ -30,6 +30,8 @@ data class AvailableMasterSMSG(
     val body: BodyType,
     val position: Vec3L,
     val level: Int,
+    /** The account slot the master is pinned to, counted from 0. See [net.bestia.zone.account.persistence.Master.slot]. */
+    val slot: Int,
     val bestias: List<SelfSMSG.BestiaInfo>
   )
 
@@ -77,6 +79,7 @@ data class AvailableMasterSMSG(
         .setMasterId(masterInfo.id)
         .setName(masterInfo.name)
         .setLevel(masterInfo.level)
+        .setSlot(masterInfo.slot)
         .setPosition(position)
         .setBody(mapBodyType(masterInfo.body))
         .setSkinColor(skinColor)

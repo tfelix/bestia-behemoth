@@ -659,10 +659,12 @@ func select_active_entity(entity_id: int) -> void:
 ## [param body], [param face] and [param hair] are the proto enum values. [param spawn_point_id] is
 ## the id of a MasterSpawnPointCandidate from [signal master_info_received]'s SpawnPoints and is
 ## mandatory - there is no world-default spawn, the server refuses a request that names none.
+## [param slot] is the account slot, counted from 0, the master is pinned to for good - the empty slot the
+## player clicked. The server refuses one the account does not have or that already holds a master.
 ## [param effort_values] is the starting status value per attribute, keyed by
 ## StatusAttribute.field_key(). It must spend the creation budget exactly, or the server refuses the
 ## request - CreateNewMaster keeps its Create button disabled until it does.
-func create_master(character_name: String, body: int, face: int, hair: int, hair_color: Color, skin_color: Color, spawn_point_id: int, effort_values: Dictionary) -> void:
+func create_master(character_name: String, body: int, face: int, hair: int, hair_color: Color, skin_color: Color, spawn_point_id: int, slot: int, effort_values: Dictionary) -> void:
 	assert(is_ready_to_send())
 	var msg = CreateMasterCMSG.new()
 	msg.Name = character_name
@@ -672,6 +674,7 @@ func create_master(character_name: String, body: int, face: int, hair: int, hair
 	msg.HairColor = hair_color
 	msg.SkinColor = skin_color
 	msg.SpawnPointId = spawn_point_id
+	msg.Slot = slot
 	msg.Strength = effort_values.get("strength", 0)
 	msg.Agility = effort_values.get("agility", 0)
 	msg.Vitality = effort_values.get("vitality", 0)

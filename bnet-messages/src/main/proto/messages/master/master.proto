@@ -79,5 +79,8 @@ message MasterInfo {
   Color hair_color = 9;
   repeated BestiaInfo bestias = 10;
   Hairstyle hair = 11;
+  // The account slot this master is pinned to, counted from 0. Chosen once, at creation, and never changed:
+  // the selection screen draws the master in this slot, so a gap left by a deletion stays a gap.
+  uint32 slot = 12;
   // TODO add an equipment list
 }

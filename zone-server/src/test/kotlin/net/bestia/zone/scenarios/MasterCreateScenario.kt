@@ -159,6 +159,7 @@ class MasterCreateScenario : BestiaNoSocketScenario(autoClientConnect = false) {
       assertEquals(Hairstyle.HAIR_1, master.hair)
       assertEquals(Face.FACE_1, master.face)
       assertEquals(BodyType.BODY_M_1, master.body)
+      assertEquals(0, master.slot)
 
       listedMasterId = master.id
     }
@@ -211,8 +212,9 @@ class MasterCreateScenario : BestiaNoSocketScenario(autoClientConnect = false) {
   @Test
   @Order(5)
   fun `creating a master with same name fails`() {
+    // Slot 0 holds the first mast0r, so a free slot is what lets the name be the thing that is refused.
     clientPlayerNoMaster.sendMessage(
-      CreateMasterCMSG.test(clientPlayerNoMaster.connectedPlayerId, "mast0r", anySpawnPointId())
+      CreateMasterCMSG.test(clientPlayerNoMaster.connectedPlayerId, "mast0r", anySpawnPointId(), slot = 1)
     )
 
     await {
@@ -225,10 +227,11 @@ class MasterCreateScenario : BestiaNoSocketScenario(autoClientConnect = false) {
   @Test
   @Order(6)
   fun `creating more than the allowed master fails`() {
-    // we have already created one master with this we effectively create maxMasters + 1
+    // we have already created one master in slot 0 with this we effectively create maxMasters + 1. The last one
+    // asks for a slot past the end, which is still reported as "too many": that check comes first.
     (1..Account.DEFAULT_MASTER_SLOT_COUNT).forEach { i ->
       clientPlayerNoMaster.sendMessage(
-        CreateMasterCMSG.test(clientPlayerNoMaster.connectedPlayerId, "mast0r-number-$i", anySpawnPointId())
+        CreateMasterCMSG.test(clientPlayerNoMaster.connectedPlayerId, "mast0r-number-$i", anySpawnPointId(), slot = i)
       )
 
       if (i < Account.DEFAULT_MASTER_SLOT_COUNT) {
@@ -483,6 +486,85 @@ class MasterCreateScenario : BestiaNoSocketScenario(autoClientConnect = false) {
       val master = masterRepository.findByName("plainowner")!!
 
       assertTrue(playerBestiaRepository.findAllByMasterId(master.id).isEmpty())
+    } finally {
+      client.disconnect()
+    }
+  }
+
+  /**
+   * The reported bug: a master created into the second slot of an empty account turned up first in the list.
+   * Made out of order on purpose, so neither creation order nor the set the account keeps them in can pass this.
+   */
+  @Test
+  @Order(15)
+  fun `masters are listed in the slot they were created in, not in the order they were made`() {
+    val account = accountFactory.createAccount(13L)
+    val client = gameClientFactory.getGameClient(accountId = account.id)
+
+    try {
+      listOf("slotlast" to 2, "slotfirst" to 0, "slotmiddle" to 1).forEach { (name, slot) ->
+        client.clearMessages()
+        client.sendMessage(CreateMasterCMSG.test(client.connectedPlayerId, name, anySpawnPointId(), slot = slot))
+        await { client.getLastReceived(MasterCreatedSMSG::class) }
+      }
+
+      client.clearMessages()
+      client.sendMessage(GetMasterCMSG(client.connectedPlayerId))
+
+      await {
+        val masters = client.getLastReceived(AvailableMasterSMSG::class).master
+
+        assertEquals(listOf("slotfirst" to 0, "slotmiddle" to 1, "slotlast" to 2), masters.map { it.name to it.slot })
+      }
+    } finally {
+      client.disconnect()
+    }
+  }
+
+  @Test
+  @Order(16)
+  fun `creating a master in a slot that already holds one fails`() {
+    val account = accountFactory.createAccount(14L)
+    val client = gameClientFactory.getGameClient(accountId = account.id)
+
+    try {
+      client.sendMessage(CreateMasterCMSG.test(client.connectedPlayerId, "slotowner", anySpawnPointId(), slot = 1))
+      await { client.getLastReceived(MasterCreatedSMSG::class) }
+
+      client.clearMessages()
+      client.sendMessage(CreateMasterCMSG.test(client.connectedPlayerId, "slotthief", anySpawnPointId(), slot = 1))
+
+      await {
+        val error = client.getLastReceived(MasterErrorSMSG::class)
+
+        assertEquals(MasterErrorSMSG.MasterErrorCode.GENERAL_ERROR, error.error)
+      }
+
+      assertNull(masterRepository.findByName("slotthief"), "the taken slot must not be given to a second master")
+      assertEquals(1, masterRepository.findByName("slotowner")!!.slot)
+    } finally {
+      client.disconnect()
+    }
+  }
+
+  @Test
+  @Order(17)
+  fun `creating a master in a slot the account does not have fails`() {
+    val account = accountFactory.createAccount(15L)
+    val client = gameClientFactory.getGameClient(accountId = account.id)
+
+    try {
+      client.sendMessage(
+        CreateMasterCMSG.test(client.connectedPlayerId, "slotbeyond", anySpawnPointId(), slot = Account.DEFAULT_MASTER_SLOT_COUNT)
+      )
+
+      await {
+        val error = client.getLastReceived(MasterErrorSMSG::class)
+
+        assertEquals(MasterErrorSMSG.MasterErrorCode.GENERAL_ERROR, error.error)
+      }
+
+      assertNull(masterRepository.findByName("slotbeyond"), "no master must have been written")
     } finally {
       client.disconnect()
     }

@@ -26,6 +26,12 @@ data class CreateMasterCMSG(
    */
   val spawnPointId: Int,
   /**
+   * The account slot (from 0) the new master is pinned to. Checked by [net.bestia.zone.master.MasterFactory] against
+   * the account's slot count and its existing masters - a client that leaves the presence-less `uint32` unset
+   * sends 0, which is a perfectly good slot and is refused only when a master already holds it.
+   */
+  val slot: Int,
+  /**
    * The starting effort value per attribute as picked on the creation screen. Validated by
    * [net.bestia.zone.master.MasterFactory] against the creation budget - a distribution that does not spend it exactly is
    * refused, including the all-zero one a client that leaves the message unset sends.
@@ -43,6 +49,7 @@ data class CreateMasterCMSG(
         face = mapFace(msg.face),
         body = mapBodyType(msg.body),
         spawnPointId = msg.spawnPointId,
+        slot = msg.slot,
         effortValues = mapEffortValues(msg.effortValues)
       )
     }

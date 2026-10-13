@@ -35,6 +35,13 @@ namespace BestiaBehemothClient.Bnet.Message.Master
     public uint SpawnPointId { get; set; } = 0;
 
     /// <summary>
+    /// The account slot, counted from 0, the new master is pinned to: the empty slot the player clicked.
+    /// The server refuses a slot the account does not have or that already holds a master.
+    /// </summary>
+    [Export]
+    public uint Slot { get; set; } = 0;
+
+    /// <summary>
     /// The starting effort value per attribute, as distributed on the creation screen. The server
     /// re-validates that these spend the creation budget exactly and refuses the request otherwise,
     /// so the creation screen must not send a partial distribution.
@@ -68,6 +75,7 @@ namespace BestiaBehemothClient.Bnet.Message.Master
         SkinColor = ToProtoColor(SkinColor),
         HairColor = ToProtoColor(HairColor),
         SpawnPointId = SpawnPointId,
+        Slot = Slot,
         EffortValues = new global::Bnet.EffortValues
         {
           Strength = (uint)Strength,

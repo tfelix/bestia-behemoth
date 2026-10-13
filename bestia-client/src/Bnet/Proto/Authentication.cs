@@ -28,7 +28,7 @@ namespace Bnet {
             "UQoOQXV0aGVudGljYXRpb24SDQoFdG9rZW4YASABKAkSFgoOY2xpZW50X3Zl",
             "cnNpb24YAiABKAkSGAoQcHJvdG9jb2xfdmVyc2lvbhgDIAEoDSpRCg9Qcm90",
             "b2NvbFZlcnNpb24SIAocUFJPVE9DT0xfVkVSU0lPTl9VTlNQRUNJRklFRBAA",
-            "EhwKGFBST1RPQ09MX1ZFUlNJT05fQ1VSUkVOVBABQiwKFW5ldC5iZXN0aWEu",
+            "EhwKGFBST1RPQ09MX1ZFUlNJT05fQ1VSUkVOVBACQiwKFW5ldC5iZXN0aWEu",
             "Ym5ldC5wcm90b0ITQXV0aGVudGljYXRpb25Qcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
@@ -46,7 +46,7 @@ namespace Bnet {
   /// </summary>
   public enum ProtocolVersion {
     [pbr::OriginalName("PROTOCOL_VERSION_UNSPECIFIED")] Unspecified = 0,
-    [pbr::OriginalName("PROTOCOL_VERSION_CURRENT")] Current = 1,
+    [pbr::OriginalName("PROTOCOL_VERSION_CURRENT")] Current = 2,
   }
 
   #endregion

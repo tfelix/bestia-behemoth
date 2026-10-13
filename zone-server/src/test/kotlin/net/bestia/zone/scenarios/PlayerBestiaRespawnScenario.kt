@@ -77,6 +77,7 @@ class PlayerBestiaRespawnScenario : BestiaNoSocketScenario(autoClientConnect = f
         face = Face.FACE_1,
         body = BodyType.BODY_M_1,
         spawnPointId = masterSpawnPointService.ensureComputed().first().id.toInt(),
+        slot = 0,
       )
     ).id
     playerBestiaCreateOperation.createAndSpawn(masterId, PlayerBestiaCreateData("blob", Vec3L.ZERO))
