@@ -7,8 +7,8 @@ import net.bestia.zone.aoi.AoiLayer
 import net.bestia.zone.aoi.EntityAOIService
 import net.bestia.zone.battle.ecs.damage.IncomingDamage
 import net.bestia.zone.entity.ecs.Dead
+import net.bestia.zone.battle.ecs.status.CombatStats
 import net.bestia.zone.battle.ecs.status.Health
-import net.bestia.zone.battle.ecs.status.StatusValues
 import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.movement.ecs.Grounded
 import net.bestia.zone.ecs.core.ComponentClassSet
@@ -60,7 +60,7 @@ class AreaEffectSystem(
    */
   override val writes: ComponentClassSet = setOf(
     AreaEffect::class, IncomingDamage::class,
-    Position::class, Grounded::class, Health::class, StatusValues::class
+    Position::class, Grounded::class, Health::class, CombatStats::class
   ) + areaDamageReceiver.writes
 
   override fun update(world: World, deltaTime: Float) {

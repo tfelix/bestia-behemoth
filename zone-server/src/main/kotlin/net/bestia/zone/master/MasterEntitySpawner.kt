@@ -4,8 +4,11 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.account.persistence.LearnedSkillRepository
 import net.bestia.zone.skill.ecs.KnownSkills
 import net.bestia.zone.battle.ecs.status.BaseStatusValues
+import net.bestia.zone.battle.ecs.status.CombatStats
 import net.bestia.zone.battle.ecs.status.FormulaDrivenVitals
+import net.bestia.zone.battle.ecs.status.OwnerCombatStats
 import net.bestia.zone.battle.ecs.status.StatusValues
+import net.bestia.zone.battle.status.CombatValues
 import net.bestia.zone.item.ecs.CarryCapacity
 import net.bestia.zone.item.ecs.WeightLimitCalculator
 import net.bestia.zone.battle.ecs.status.Health
@@ -170,6 +173,12 @@ class MasterEntitySpawner(
           agility = baseStatusValues.agility
         )
       )
+
+      // Seeded from base like the pools below: until the first recalc folds in gear a master must already be a valid
+      // target.
+      val combatValues = CombatValues.ofBase(master.level, baseStatusValues.toAttributes())
+      add(id, CombatStats(combatValues))
+      add(id, OwnerCombatStats(combatValues))
 
       val maxHp = conditionValueCalculator.computeMaxHp(master.level, baseStatusValues.vitality)
       val maxMana = conditionValueCalculator.computeMaxMana(master.level, baseStatusValues.intelligence)

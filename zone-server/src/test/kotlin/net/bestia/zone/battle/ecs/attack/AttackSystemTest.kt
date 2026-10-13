@@ -7,7 +7,7 @@ import net.bestia.zone.battle.LineOfSightService
 import net.bestia.zone.battle.attack.AttackExecutionService
 import net.bestia.zone.battle.attack.AttackStrategyFactory
 import net.bestia.zone.entity.ecs.Dead
-import net.bestia.zone.battle.ecs.status.StatusValues
+import net.bestia.zone.battle.BattleContextFixture
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.movement.ecs.Position
@@ -145,7 +145,7 @@ class AttackSystemTest {
 
   private fun World.spawnFighter(at: Vec3L): EntityId = createEntity { id ->
     add(id, Position.fromVec3(at))
-    add(id, StatusValues(strength = 10, intelligence = 10, vitality = 10, dexterity = 10, willpower = 10, agility = 10))
+    add(id, BattleContextFixture.combatStats())
   }
 
   private companion object {

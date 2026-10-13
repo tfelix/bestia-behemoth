@@ -5,7 +5,8 @@ import net.bestia.zone.battle.ecs.status.BaseStatusValues
 /**
  * Mutable working set a [StatusEffectScript] writes into while
  * [net.bestia.zone.battle.ecs.effects.StatusValueRecalcSystem] rebuilds an entity's effective
- * status values from scratch. Seeded from [BaseStatusValues] plus whatever other base values feed
+ * status values from scratch. Seeded from the entity's permanent attributes - a master's
+ * [BaseStatusValues], a mob's species - plus whatever other base values feed
  * into the recalc (currently just [baseSpeed]); starts equal to the unbuffed values, then every
  * learned passive skill, worn item and active effect mutates it in turn.
  *
@@ -21,9 +22,13 @@ import net.bestia.zone.battle.ecs.status.BaseStatusValues
  * separately, and armour that is not worn contributes nothing rather than a baseline.
  */
 class StatusValueRecalcContext(
-  base: BaseStatusValues,
+  base: StatusValues,
   baseSpeed: Float
 ) {
+
+  /** For an owner, whose permanent attributes live in a [BaseStatusValues] component of their own. */
+  constructor(base: BaseStatusValues, baseSpeed: Float) : this(base.toAttributes(), baseSpeed)
+
   var strength: Int = base.strength
   var intelligence: Int = base.intelligence
   var vitality: Int = base.vitality
@@ -77,10 +82,9 @@ class StatusValueRecalcContext(
   /**
    * Adds flat attack power, the term a weapon carries.
    *
-   * **Un-refined**: `BaseDamageCalculator.calculateWeaponAtk` already adds
-   * `upgradeLevel * REFINE_ATTACK_PER_LEVEL` on top, so a script that scaled this by its own upgrade level
-   * would charge for refinement twice, and the curve would then live in as many places as there are
-   * weapons.
+   * **Un-refined**: `Weapon.physicalAtk` already adds the refinement on top, so a script that scaled this by its
+   * own upgrade level would charge for refinement twice, and the curve would then live in as many places as there
+   * are weapons.
    */
   fun addAttack(atk: Int = 0, matk: Int = 0) {
     attack += atk

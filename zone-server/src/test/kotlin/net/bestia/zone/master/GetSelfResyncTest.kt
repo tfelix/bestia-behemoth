@@ -5,6 +5,9 @@ import io.mockk.mockk
 import net.bestia.zone.battle.ecs.exp.Exp
 import net.bestia.zone.battle.ecs.level.Level
 import net.bestia.zone.battle.ecs.status.BaseStatusValues
+import net.bestia.zone.battle.ecs.status.OwnerCombatStats
+import net.bestia.zone.battle.status.CombatValues
+import net.bestia.zone.battle.status.StatusValues as Attributes
 import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.battle.ecs.status.Mana
 import net.bestia.zone.battle.ecs.status.SkillPoints
@@ -64,7 +67,7 @@ class GetSelfResyncTest {
   /** Every owner-only component a selected master carries that its own windows read. */
   private val resyncedComponents: List<KClass<out net.bestia.zone.ecs.core.Component>> = listOf(
     Health::class, Mana::class, Stamina::class, CarryCapacity::class, Exp::class, Level::class,
-    StatusValues::class, BaseStatusValues::class, StatusPoints::class, SkillPoints::class,
+    StatusValues::class, BaseStatusValues::class, OwnerCombatStats::class, StatusPoints::class, SkillPoints::class,
     Equipment::class, Place::class
   )
 
@@ -78,6 +81,7 @@ class GetSelfResyncTest {
       add(id, Level(1))
       add(id, StatusValues(9, 9, 9, 9, 9, 9))
       add(id, BaseStatusValues(9, 9, 9, 9, 9, 9))
+      add(id, OwnerCombatStats(CombatValues.ofBase(level = 1, base = Attributes(9, 9, 9, 9, 9, 9))))
       add(id, StatusPoints(0))
       add(id, SkillPoints(0))
       add(id, Equipment(availableSlotMask = EquipmentSlots.ALL))

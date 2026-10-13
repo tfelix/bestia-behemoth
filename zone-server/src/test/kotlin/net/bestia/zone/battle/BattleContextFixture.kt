@@ -4,6 +4,8 @@ import net.bestia.zone.battle.attack.AttackType
 import net.bestia.zone.battle.attack.BattleAttack
 import net.bestia.zone.battle.damage.DamageVariables
 import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.battle.ecs.status.CombatStats
+import net.bestia.zone.battle.status.CombatValues
 import net.bestia.zone.battle.status.DefenseValues
 import net.bestia.zone.battle.status.DerivedStatusValues
 import net.bestia.zone.battle.status.StatusValues
@@ -60,6 +62,31 @@ object BattleContextFixture {
       weapon = Weapon(atk = 10, upgradeLevel = 0, matk = 0),
       targetPosition = targetPosition
     )
+  }
+
+  /**
+   * The [CombatStats] a spawner would give a fighter with these attributes, for a test that puts one straight into
+   * a world. [level] is 1 because a fighter with no `Level` component is read as level 1.
+   */
+  fun combatStats(
+    level: Int = 1,
+    strength: Int = 10,
+    vitality: Int = 10,
+    intelligence: Int = 10,
+    agility: Int = 10,
+    willpower: Int = 10,
+    dexterity: Int = 10
+  ): CombatStats {
+    val attributes = StatusValues(
+      strength = strength,
+      vitality = vitality,
+      intelligence = intelligence,
+      agility = agility,
+      willpower = willpower,
+      dexterity = dexterity
+    )
+
+    return CombatStats(CombatValues.ofBase(level, attributes))
   }
 
   /**

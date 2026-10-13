@@ -2,7 +2,7 @@ package net.bestia.zone.item.ecs
 
 import net.bestia.zone.battle.ecs.exp.GainExpSystem
 import net.bestia.zone.battle.ecs.level.Level
-import net.bestia.zone.battle.ecs.status.StatusValues
+import net.bestia.zone.battle.ecs.status.CombatStats
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.System
@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component as SpringComponent
  * against. A session had no carry limit at all.
  *
  * It runs after [ObtainItemIntentSystem] (writes [Inventory]) and `GainExpSystem` (writes [Level]), and in a
- * later phase than `StatusValueRecalcSystem` (writes [StatusValues]) - so a pickup, a level-up and an equipment
+ * later phase than `StatusValueRecalcSystem` (writes [CombatStats]) - so a pickup, a level-up and an equipment
  * recalc are each reflected in the component the owner is sent on the same tick they happen.
  */
 @SpringComponent
@@ -32,7 +32,7 @@ class CarryCapacitySystem(
 
   override val reads: ComponentClassSet = setOf(
     Inventory::class,
-    StatusValues::class,
+    CombatStats::class,
     Level::class
   )
   override val writes: ComponentClassSet = setOf(CarryCapacity::class)
@@ -55,12 +55,12 @@ class CarryCapacitySystem(
   }
 
   /**
-   * Reads the *effective* [StatusValues] rather than `BaseStatusValues`, so a strength buff or a piece of
-   * gear that grants strength actually lets its wearer carry more - the same choice
+   * Reads the *effective* attributes of [CombatStats] rather than `BaseStatusValues`, so a strength buff or a
+   * piece of gear that grants strength actually lets its wearer carry more - the same choice
    * `StatusValueRecalcSystem` makes for maximum health, mana and stamina. The spawners still seed from the
    * base values, which is why an entity never enters the world with a zero limit.
    *
-   * Fetched, not joined into the query: an entity with a [CarryCapacity] but no [StatusValues] must keep the
+   * Fetched, not joined into the query: an entity with a [CarryCapacity] but no [CombatStats] must keep the
    * limit it was spawned with instead of dropping out of the loop entirely.
    *
    * For one tick after a level-up this sees the new [Level] against the previous effective attributes -
@@ -69,7 +69,7 @@ class CarryCapacitySystem(
    * there is nothing to see in between.
    */
   private fun recomputeMax(world: World, id: EntityId, capacity: CarryCapacity) {
-    val status = world.get(id, StatusValues::class) ?: return
+    val status = world.get(id, CombatStats::class)?.values?.attributes ?: return
     val level = world.get(id, Level::class)?.level ?: return
 
     if (capacity.lastKnownStrength == status.strength &&

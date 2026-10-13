@@ -1,5 +1,6 @@
 package net.bestia.zone.battle.ecs.status
 
+import net.bestia.zone.battle.BattleContextFixture
 import net.bestia.zone.battle.status.RegenModifier
 import net.bestia.zone.battle.status.RegenerationCalculator
 import net.bestia.zone.ecs.core.World
@@ -35,13 +36,19 @@ class RegenSystemsTest {
     )
   )
 
+  private fun balancedStats(): CombatStats {
+    return BattleContextFixture.combatStats(
+      strength = 9, vitality = 9, intelligence = 9, agility = 9, willpower = 9, dexterity = 9
+    )
+  }
+
   /**
    * A wounded entity with the attributes of a balanced level-1 master, so the expected amounts are
    * the documented 2 HP / 2 mana / 3 stamina per tick.
    */
   private fun World.woundedEntity(): EntityId {
     val id = createEntity { }
-    add(id, StatusValues(strength = 9, intelligence = 9, vitality = 9, dexterity = 9, willpower = 9, agility = 9))
+    add(id, balancedStats())
     add(id, Health(current = 1, max = 18))
     add(id, Mana(current = 1, max = 28))
     add(id, Stamina(current = 1, max = 27))
@@ -91,7 +98,7 @@ class RegenSystemsTest {
   fun `regen resumes once the combat timer expires`() {
     val world = testWorld(systems = listOf(InCombatSystem(), HpRegenSystem(calculator)))
     val entity = world.createEntity { }
-    world.add(entity, StatusValues(9, 9, 9, 9, 9, 9))
+    world.add(entity, balancedStats())
     world.add(entity, Health(current = 1, max = 18))
     world.add(entity, InCombat())
 
@@ -113,7 +120,7 @@ class RegenSystemsTest {
   fun `a full pool is left alone`() {
     val world = newWorld()
     val entity = world.createEntity { }
-    world.add(entity, StatusValues(9, 9, 9, 9, 9, 9))
+    world.add(entity, balancedStats())
     world.add(entity, Health(current = 18, max = 18))
 
     world.tick(allDue)
@@ -125,7 +132,7 @@ class RegenSystemsTest {
   fun `regen never overshoots the maximum`() {
     val world = newWorld()
     val entity = world.createEntity { }
-    world.add(entity, StatusValues(9, 9, 9, 9, 9, 9))
+    world.add(entity, balancedStats())
     // One point missing, two points of regen due.
     world.add(entity, Health(current = 17, max = 18))
 

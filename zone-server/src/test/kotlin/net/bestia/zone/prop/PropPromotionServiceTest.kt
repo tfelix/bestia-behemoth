@@ -2,8 +2,9 @@ package net.bestia.zone.prop
 
 import io.mockk.every
 import io.mockk.mockk
+import net.bestia.zone.battle.ecs.status.CombatStats
 import net.bestia.zone.battle.ecs.status.Health
-import net.bestia.zone.battle.ecs.status.StatusValues
+import net.bestia.zone.battle.status.CombatValues
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.movement.ecs.Position
@@ -15,6 +16,7 @@ import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import net.bestia.zone.entity.StaticEntityKind
@@ -48,7 +50,7 @@ class PropPromotionServiceTest {
   }
 
   @Test
-  fun `promoting a pristine prop adds Position, Health and StatusValues`() {
+  fun `promoting a pristine prop adds Position, Health and the shared baseline CombatStats`() {
     val world = testWorld()
     val service = PropPromotionService(noDivergence())
     val id = propEntity(world)
@@ -58,7 +60,11 @@ class PropPromotionServiceTest {
     assertEquals(Vec3L(1, 2, 3), world.get(id, Position::class)?.toVec3L())
     assertEquals(50, world.get(id, Health::class)?.current)
     assertEquals(50, world.get(id, Health::class)?.max)
-    assertTrue(world.get(id, StatusValues::class) != null, "a promoted prop needs StatusValues to fight at all")
+    assertSame(
+      CombatValues.OBJECT_BASELINE,
+      world.get(id, CombatStats::class)?.values,
+      "a promoted prop needs CombatStats to fight at all"
+    )
   }
 
   @Test

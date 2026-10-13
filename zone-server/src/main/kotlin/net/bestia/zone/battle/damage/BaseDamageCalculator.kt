@@ -134,16 +134,12 @@ abstract class BaseDamageCalculator(
   /**
    * Attack from the weapon itself, refinement included. Zero for anything holding nothing.
    *
-   * **This is the only place refinement is priced.** An equipment script contributes its un-refined attack
-   * through `StatusValueRecalcContext.addAttack`, so the curve lives here rather than once per weapon.
-   *
-   * Refinement is linear rather than the quadratic over-refine curve RO uses: without weapon levels there is
-   * nothing to scale the per-refine step by, and inventing a curve would be a balance decision made blind.
+   * **Refinement is priced in [net.bestia.zone.battle.Weapon.physicalAtk], and nowhere else.** An equipment script
+   * contributes its un-refined attack through `StatusValueRecalcContext.addAttack`, so the curve lives there
+   * rather than once per weapon.
    */
   protected open fun calculateWeaponAtk(battleCtx: EntityBattleContext): Float {
-    val weapon = battleCtx.weapon
-
-    return weapon.atk + weapon.upgradeLevel * REFINE_ATTACK_PER_LEVEL
+    return battleCtx.weapon.physicalAtk.toFloat()
   }
 
   /** Attack derived purely from the attacker's own attributes - the term that carries an unarmed fighter. */
@@ -227,7 +223,5 @@ abstract class BaseDamageCalculator(
      * script that set the mod to a small fraction - or to zero, and divided - would one-shot anything.
      */
     private const val MAX_HARD_DEFENSE_MULTIPLIER = 4f
-
-    private const val REFINE_ATTACK_PER_LEVEL = 2f
   }
 }

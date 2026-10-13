@@ -23,7 +23,7 @@ class ManaRegenSystem(
 
   override val schedule: Schedule = Schedule.EverySeconds(8f)
   override val reads: ComponentClassSet = setOf(
-    StatusValues::class,
+    CombatStats::class,
     InCombat::class,
     Dead::class,
     RegenerationModifiers::class
@@ -41,7 +41,7 @@ class ManaRegenSystem(
 
       // Same reasoning as HpRegenSystem, for both of these: no attributes means no passive
       // regeneration, and a missing RegenerationModifiers means an unmodified rate.
-      val intelligence = world.get(id, StatusValues::class)?.intelligence ?: return@each
+      val intelligence = world.get(id, CombatStats::class)?.values?.attributes?.intelligence ?: return@each
 
       val modifier = world.get(id, RegenerationModifiers::class)?.mana
       val base = regenerationCalculator.manaRegen(mana.max, intelligence)

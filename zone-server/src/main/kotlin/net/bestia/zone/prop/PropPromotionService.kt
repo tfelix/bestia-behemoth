@@ -1,8 +1,9 @@
 package net.bestia.zone.prop
 
 import net.bestia.zone.battle.CombatTargetPromotion
+import net.bestia.zone.battle.ecs.status.CombatStats
 import net.bestia.zone.battle.ecs.status.Health
-import net.bestia.zone.battle.ecs.status.StatusValues
+import net.bestia.zone.battle.status.CombatValues
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.movement.ecs.Grounded
 import net.bestia.zone.movement.ecs.Position
@@ -66,16 +67,8 @@ class PropPromotionService(
     // Low but non-zero: PhysicalSkillStrategy divides the attacker's DEX/AGI by the defender's, so a defender
     // stat of exactly 0 degenerates that ratio to Infinity (clamped, not a crash, but not the intent either).
     // Shaped right rather than balanced, the same disclaimer prop-kinds.yml already carries for max-hp.
-    world.add(
-      entityId,
-      StatusValues(strength = BASELINE_STAT, intelligence = BASELINE_STAT, vitality = BASELINE_STAT,
-        dexterity = BASELINE_STAT, willpower = BASELINE_STAT, agility = BASELINE_STAT)
-    )
+    world.add(entityId, CombatStats(CombatValues.OBJECT_BASELINE))
 
     return true
-  }
-
-  companion object {
-    private const val BASELINE_STAT = 1
   }
 }

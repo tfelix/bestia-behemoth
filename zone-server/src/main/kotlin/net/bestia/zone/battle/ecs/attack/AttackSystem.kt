@@ -19,7 +19,7 @@ import org.springframework.stereotype.Component as SpringComponent
  * Both passes live here because a mob has an attack delay without ever holding a standing order, so the
  * countdown cannot hang off the target query.
  *
- * In the combat phase: after `StatusValueRecalcSystem`, which rebuilds the `StatusValues` the delay is
+ * In the combat phase: after `StatusValueRecalcSystem`, which rebuilds the `CombatStats` the delay is
  * derived from, after `RespawnSystem` so a body revived this tick does not swing on it, and before
  * `DeathSystem` - the deferred queue is FIFO and `World.addNow` rejects a dead entity, so [IncomingDamage]
  * enqueued after a destroy would throw out of `applyDeferred` and take the rest of the queue with it.

@@ -11,7 +11,7 @@ import net.bestia.zone.battle.ecs.damage.TakenDamage
 import net.bestia.zone.skill.ecs.KnownSkills
 import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.battle.damage.DamageGate
-import net.bestia.zone.battle.ecs.status.StatusValues
+import net.bestia.zone.battle.ecs.status.CombatStats
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.Schedule
@@ -58,7 +58,7 @@ class BestiaTrapSystem(
 
   override val reads: ComponentClassSet = setOf(
     Position::class, EntityVisual::class, Account::class, Dead::class,
-    Health::class, StatusValues::class, KnownSkills::class, Persistent::class
+    Health::class, CombatStats::class, KnownSkills::class, Persistent::class
   ) + DamageGate.READS
 
   /** [TakenDamage] is written on the creature that broke free, so it turns on the trapper. */
@@ -143,7 +143,7 @@ class BestiaTrapSystem(
     val health = world.getOrThrow(targetId, Health::class)
 
     // A trapper who has logged out since setting it adds nothing but the trap itself.
-    val willpower = world.get(trap.trapperEntityId, StatusValues::class)?.willpower ?: 0
+    val willpower = world.get(trap.trapperEntityId, CombatStats::class)?.values?.attributes?.willpower ?: 0
     val beastfriend = beastfriendSkillId
       ?.let { world.get(trap.trapperEntityId, KnownSkills::class)?.levelOf(it) }
       ?: 0

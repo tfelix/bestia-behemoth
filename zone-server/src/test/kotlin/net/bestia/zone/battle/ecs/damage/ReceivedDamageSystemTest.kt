@@ -11,7 +11,7 @@ import net.bestia.zone.battle.damage.DamageEntitySMSG
 import net.bestia.zone.battle.ecs.attack.AttackSystem
 import net.bestia.zone.battle.ecs.attack.AttackTarget
 import net.bestia.zone.battle.ecs.status.Health
-import net.bestia.zone.battle.ecs.status.StatusValues
+import net.bestia.zone.battle.BattleContextFixture
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.geometry.Vec3L
@@ -120,7 +120,7 @@ class ReceivedDamageSystemTest {
     return createEntity { id ->
       add(id, Position.fromVec3(at))
       add(id, Health(FULL_HEALTH, FULL_HEALTH))
-      add(id, StatusValues(strength = 10, intelligence = 10, vitality = 10, dexterity = 10, willpower = 10, agility = 10))
+      add(id, BattleContextFixture.combatStats())
     }
   }
 

@@ -9,10 +9,9 @@ import net.bestia.zone.message.EntitySMSG
 import net.bestia.zone.util.EntityId
 
 /**
- * An entity's current, effective status values - [BaseStatusValues] with every learned passive, worn item
- * and active status effect applied. Written only by
- * `net.bestia.zone.battle.ecs.effects.StatusValueRecalcSystem`; everything else (regen systems,
- * [net.bestia.zone.battle.BattleContextFactory]) only ever reads it.
+ * The owner's outbound copy of its effective attributes - [BaseStatusValues] with passives, gear and effects applied.
+ * Only masters and owned bestias carry one. **Nothing on the server reads it:** systems read the same numbers from
+ * [CombatStats], which every fighter has.
  */
 data class StatusValues(
   var strength: Int,

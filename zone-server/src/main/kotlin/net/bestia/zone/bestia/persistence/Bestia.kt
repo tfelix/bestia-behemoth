@@ -48,8 +48,8 @@ class Bestia(
 
   /**
    * The species' primary attributes - the mob counterpart of a master's six, seeded into
-   * [net.bestia.zone.battle.ecs.status.BaseStatusValues] by `BestiaEntitySpawner` and from there into every
-   * derived combat value (`DerivedStatusValues`, `DefenseValues`).
+   * [net.bestia.zone.battle.status.CombatValues.base] by `BestiaEntitySpawner` and from there into every
+   * derived combat value (`DerivedStatusValues`, `DefenseValues`), shared by every creature of the species.
    *
    * [health] and [mana] stay authored beside them rather than being derived from `vitality`/`intelligence`:
    * a mob carries no `FormulaDrivenVitals` marker, which is what keeps `StatusValueRecalcSystem` from

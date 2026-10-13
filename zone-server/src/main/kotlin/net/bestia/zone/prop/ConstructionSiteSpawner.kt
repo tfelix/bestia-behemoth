@@ -1,8 +1,9 @@
 package net.bestia.zone.prop
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.zone.battle.ecs.status.CombatStats
 import net.bestia.zone.battle.ecs.status.Health
-import net.bestia.zone.battle.ecs.status.StatusValues
+import net.bestia.zone.battle.status.CombatValues
 import net.bestia.zone.prop.ecs.construction.ConstructionSite
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.entity.ecs.EntityVisual
@@ -36,7 +37,7 @@ class ConstructionSiteSpawner {
       add(id, EntityVisual(VisualKind.STRUCTURE, entry.kind.ordinal.toLong()))
       add(id, Health(current = ConstructionSite.START_HP, max = ConstructionSite.START_HP))
       // The same baseline, for the same reason, that `PropPromotionService` gives a tree it makes attackable.
-      add(id, StatusValues(strength = 1, intelligence = 1, vitality = 1, dexterity = 1, willpower = 1, agility = 1))
+      add(id, CombatStats(CombatValues.OBJECT_BASELINE))
       add(id, PlayerStructureIdentity(entry.id, entry.ownerAccountId))
       add(
         id,

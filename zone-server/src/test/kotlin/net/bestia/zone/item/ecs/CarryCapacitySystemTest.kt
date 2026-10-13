@@ -1,7 +1,8 @@
 package net.bestia.zone.item.ecs
 
 import net.bestia.zone.battle.ecs.level.Level
-import net.bestia.zone.battle.ecs.status.StatusValues
+import net.bestia.zone.battle.BattleContextFixture
+import net.bestia.zone.battle.ecs.status.CombatStats
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.util.EntityId
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -58,10 +59,10 @@ class CarryCapacitySystemTest {
 
   /**
    * Attributes are fetched rather than joined into the query. Joined, an entity that was never given
-   * [StatusValues] would drop out of the loop and stop tracking its inventory as well.
+   * [CombatStats] would drop out of the loop and stop tracking its inventory as well.
    */
   @Test
-  fun `an entity without status values keeps the max it was spawned with and still tracks its load`() {
+  fun `an entity without combat stats keeps the max it was spawned with and still tracks its load`() {
     val entity = world.createEntity { id ->
       add(id, Inventory(mutableListOf()))
       add(id, CarryCapacity(current = 0, max = 2475))
@@ -96,17 +97,7 @@ class CarryCapacitySystemTest {
     return world.createEntity { id ->
       add(id, Inventory(mutableListOf()))
       add(id, CarryCapacity(current = 0, max = 0))
-      add(
-        id,
-        StatusValues(
-          strength = strength,
-          intelligence = 10,
-          vitality = vitality,
-          dexterity = 10,
-          willpower = 10,
-          agility = 10
-        )
-      )
+      add(id, BattleContextFixture.combatStats(level = level, strength = strength, vitality = vitality))
       add(id, Level(level))
     }
   }

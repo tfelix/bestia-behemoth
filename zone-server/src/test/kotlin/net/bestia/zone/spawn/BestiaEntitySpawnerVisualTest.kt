@@ -1,5 +1,6 @@
 package net.bestia.zone.spawn
 
+import net.bestia.zone.battle.status.CombatValuesPool
 import io.mockk.every
 import io.mockk.mockk
 import net.bestia.zone.ai.ecs.AiAgentFactory
@@ -36,7 +37,8 @@ class BestiaEntitySpawnerVisualTest {
     aiProfileRegistry = mockk<AiProfileRegistry>(relaxed = true),
     aiAgentFactory = mockk<AiAgentFactory>(relaxed = true),
     movementProfileRegistry = MovementProfileRegistry().apply { load() },
-    statusEffectService = mockk(relaxed = true)
+    statusEffectService = mockk(relaxed = true),
+    combatValuesPool = CombatValuesPool()
   )
 
   init {

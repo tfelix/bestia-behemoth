@@ -7,12 +7,15 @@ import net.bestia.zone.skill.ecs.KnownSkills
 import net.bestia.zone.battle.ecs.effects.ActiveStatusEffect
 import net.bestia.zone.battle.ecs.status.BaseStatusValues
 import net.bestia.zone.battle.persistence.StatusEffectPersistenceService
+import net.bestia.zone.battle.ecs.status.CombatStats
 import net.bestia.zone.battle.ecs.status.FormulaDrivenVitals
 import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.battle.ecs.status.IsStatusValueDirty
 import net.bestia.zone.battle.ecs.status.Mana
+import net.bestia.zone.battle.ecs.status.OwnerCombatStats
 import net.bestia.zone.battle.ecs.status.Stamina
 import net.bestia.zone.battle.ecs.status.StatusValues
+import net.bestia.zone.battle.status.CombatValues
 import net.bestia.zone.item.ecs.CarryCapacity
 import net.bestia.zone.battle.status.ConditionValueCalculator
 import net.bestia.zone.item.ecs.WeightLimitCalculator
@@ -178,6 +181,11 @@ class PlayerBestiaEntitySpawner(
         agility = baseStatusValues.agility
       )
     )
+
+    // Seeded from base until the first recalc folds in gear; see MasterEntitySpawner.
+    val combatValues = CombatValues.ofBase(playerBestia.level, baseStatusValues.toAttributes())
+    add(id, CombatStats(combatValues))
+    add(id, OwnerCombatStats(combatValues))
 
     // Formula-driven pools, kept fresh by StatusValueRecalcSystem - which is what the
     // FormulaDrivenVitals marker below opts this entity into.

@@ -6,17 +6,19 @@ import net.bestia.zone.ai.core.state.Blackboard
 import net.bestia.zone.ai.ecs.AiAgentFactory
 import net.bestia.zone.ai.profile.AiProfileRegistry
 import net.bestia.zone.battle.StatusEffectService
+import net.bestia.zone.battle.status.CombatValues
+import net.bestia.zone.battle.status.CombatValuesPool
 import net.bestia.zone.battle.status.StatusEffectId
+import net.bestia.zone.battle.status.StatusValues
 import net.bestia.zone.navigation.MovementCapability
 import net.bestia.zone.navigation.profile.MovementProfileRegistry
-import net.bestia.zone.battle.ecs.status.BaseStatusValues
+import net.bestia.zone.battle.ecs.status.CombatStats
 import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.battle.ecs.level.Level
 import net.bestia.zone.battle.ecs.status.Mana
 import net.bestia.zone.battle.ecs.status.Nature
 import net.bestia.zone.skill.ecs.KnownSkills
 import net.bestia.zone.battle.ecs.status.Stamina
-import net.bestia.zone.battle.ecs.status.StatusValues
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.movement.ecs.Speed
 import net.bestia.zone.entity.ecs.EntityVisual
@@ -39,7 +41,8 @@ class BestiaEntitySpawner(
   private val aiProfileRegistry: AiProfileRegistry,
   private val aiAgentFactory: AiAgentFactory,
   private val movementProfileRegistry: MovementProfileRegistry,
-  private val statusEffectService: StatusEffectService
+  private val statusEffectService: StatusEffectService,
+  private val combatValuesPool: CombatValuesPool
 ) {
 
   /**
@@ -97,24 +100,25 @@ class BestiaEntitySpawner(
       if (skills.isNotEmpty()) add(id, KnownSkills(skills))
       // Deliberately no FormulaDrivenVitals marker, which is what keeps the authored Bestia.health above
       // from being overwritten by the player pool formula on the next StatusValueRecalcSystem pass.
-      val baseStatusValues = BaseStatusValues(
-        strength = bestia.strength,
-        intelligence = bestia.intelligence,
-        vitality = bestia.vitality,
-        dexterity = bestia.dexterity,
-        willpower = bestia.willpower,
-        agility = bestia.agility
-      )
-      add(id, baseStatusValues)
+      //
+      // One block shared by every creature of the species that is not under an effect, instead of per-creature
+      // attribute components a creature has no client to send.
       add(
         id,
-        StatusValues(
-          strength = baseStatusValues.strength,
-          intelligence = baseStatusValues.intelligence,
-          vitality = baseStatusValues.vitality,
-          dexterity = baseStatusValues.dexterity,
-          willpower = baseStatusValues.willpower,
-          agility = baseStatusValues.agility
+        CombatStats(
+          combatValuesPool.share(
+            CombatValues.ofBase(
+              level = bestia.level,
+              base = StatusValues(
+                strength = bestia.strength,
+                vitality = bestia.vitality,
+                intelligence = bestia.intelligence,
+                agility = bestia.agility,
+                willpower = bestia.willpower,
+                dexterity = bestia.dexterity
+              )
+            )
+          )
         )
       )
       if (persistent) add(id, Persistent)

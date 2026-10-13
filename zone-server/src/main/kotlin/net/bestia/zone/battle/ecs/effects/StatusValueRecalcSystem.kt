@@ -10,7 +10,8 @@ import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.identity.ecs.Master
 import net.bestia.zone.battle.ecs.level.Level
 import net.bestia.zone.skill.ecs.KnownSkills
-import net.bestia.zone.battle.ecs.status.CombatBonus
+import net.bestia.zone.battle.ecs.status.CombatStats
+import net.bestia.zone.battle.ecs.status.OwnerCombatStats
 import net.bestia.zone.battle.ecs.status.RegenerationModifiers
 import net.bestia.zone.battle.ecs.status.BaseStatusValues
 import net.bestia.zone.battle.ecs.status.FormulaDrivenVitals
@@ -19,6 +20,8 @@ import net.bestia.zone.battle.ecs.status.IsStatusValueDirty
 import net.bestia.zone.battle.ecs.status.Mana
 import net.bestia.zone.battle.ecs.status.Stamina
 import net.bestia.zone.battle.ecs.status.StatusValues
+import net.bestia.zone.battle.status.CombatValues
+import net.bestia.zone.battle.status.CombatValuesPool
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.System
@@ -30,12 +33,17 @@ import org.springframework.stereotype.Component as SpringComponent
 import net.bestia.zone.ecs.core.update
 
 /**
- * Rebuilds [StatusValues] (and [Speed.speed], and [RegenerationModifiers]) from scratch for every
- * entity marked [IsStatusValueDirty]: starts from [BaseStatusValues] (and [Speed.baseSpeed]), folds
+ * Rebuilds an entity's [CombatStats] (and [Speed.speed], and [RegenerationModifiers]) from scratch for every
+ * entity marked [IsStatusValueDirty]: starts from its permanent attributes - an owner's [BaseStatusValues], or the
+ * species' own that a mob keeps in its [CombatStats] - and [Speed.baseSpeed], folds
  * in every learned [net.bestia.zone.battle.passive.PassiveSkillScript], then every worn item's
  * [net.bestia.zone.item.equip.script.EquipmentScript.apply], then runs every active [StatusEffects]
  * instance's [net.bestia.zone.battle.status.StatusEffectScript.apply] over the result in turn, then
  * writes the final values back and clears the dirty marker.
+ *
+ * The result is a [CombatValues] assigned into the entity's [CombatStats] in place, so later systems see it this tick.
+ * An owner's is its own and also goes to its [OwnerCombatStats]; anything else's goes through [CombatValuesPool], so
+ * mobs under equal buffs - or none - share one.
  *
  * Passives and equipment are applied before effects because effect scripts are the multiplicative
  * ones (`context.speed *= …`), and a percentage buff should scale the innate, geared value rather
@@ -53,7 +61,8 @@ class StatusValueRecalcSystem(
   private val statusEffectScriptRegistry: StatusEffectScriptRegistry,
   private val equipment: StatusValueContributor,
   private val passiveSkillScriptRegistry: PassiveSkillScriptRegistry,
-  private val conditionValueCalculator: ConditionValueCalculator
+  private val conditionValueCalculator: ConditionValueCalculator,
+  private val combatValuesPool: CombatValuesPool
 ) : System {
   override val phase = Phase.STATUS
   override val after = setOf(StatusEffectDurationSystem::class)
@@ -77,16 +86,21 @@ class StatusValueRecalcSystem(
     Mana::class,
     Stamina::class,
     RegenerationModifiers::class,
-    CombatBonus::class
+    CombatStats::class,
+    OwnerCombatStats::class
   )
 
   override fun update(world: World, deltaTime: Float) {
     world.query(IsStatusValueDirty::class).each { id ->
-      val base = world.get(id, BaseStatusValues::class) ?: run {
-        world.remove(id, IsStatusValueDirty::class)
-        return@each
-      }
+      // A mob or prop keeps its permanent attributes in the block it was spawned with.
+      val base = world.get(id, BaseStatusValues::class)?.toAttributes()
+        ?: world.get(id, CombatStats::class)?.values?.base
+        ?: run {
+          world.remove(id, IsStatusValueDirty::class)
+          return@each
+        }
       val baseSpeed = world.get(id, Speed::class)?.baseSpeed ?: 0f
+      val level = world.get(id, Level::class)?.level ?: 1
 
       val context = StatusValueRecalcContext(base, baseSpeed)
 
@@ -94,18 +108,8 @@ class StatusValueRecalcSystem(
       equipment.contribute(context, world, id)
       applyStatusEffects(context, world, id)
 
-      world.update(
-        id,
-        default = {
-          StatusValues(
-            context.strength,
-            context.intelligence,
-            context.vitality,
-            context.dexterity,
-            context.willpower,
-            context.agility
-          )
-        }) { values ->
+      // Only an owner carries this outbound copy; nothing on the server reads it.
+      world.get(id, StatusValues::class)?.let { values ->
         values.strength = context.strength
         values.intelligence = context.intelligence
         values.vitality = context.vitality
@@ -125,8 +129,7 @@ class StatusValueRecalcSystem(
       // which is why the spawners deliberately do not pre-seed it.
       world.update(id, default = { RegenerationModifiers() }) { it.copyFrom(context) }
 
-      // Same contract as the line above, and for the same reasons - see CombatBonus.
-      world.update(id, default = { CombatBonus() }) { it.copyFrom(context) }
+      publishCombatValues(world, id, CombatValues.fromContext(level, base, context))
 
       recomputeConditionMaxima(world, id, context)
 
@@ -168,6 +171,19 @@ class StatusValueRecalcSystem(
       val script = statusEffectScriptRegistry.get(definition.script) ?: continue
       script.apply(world, id, context, active.level, active.sourceEntityId)
     }
+  }
+
+  /**
+   * Pooled for anything unowned, so a mob that took a buff and lost it holds its species' block again rather than an
+   * equal copy. [CombatStats] is assigned in place: replacing it would defer to the end of the tick.
+   */
+  private fun publishCombatValues(world: World, id: EntityId, resolved: CombatValues) {
+    val owner = world.get(id, OwnerCombatStats::class)
+    owner?.update(resolved)
+
+    val values = if (owner == null) combatValuesPool.share(resolved) else resolved
+
+    world.update(id, default = { CombatStats(values) }) { it.values = values }
   }
 
   /**

@@ -1,5 +1,6 @@
 package net.bestia.zone.battle.ecs.effects
 
+import net.bestia.zone.battle.status.CombatValuesPool
 import net.bestia.zone.battle.StatusEffectService
 import net.bestia.zone.skill.SkillTargetType
 import net.bestia.zone.battle.passive.PassiveSkillScript
@@ -15,6 +16,8 @@ import net.bestia.zone.battle.status.ConditionValueCalculator
 import net.bestia.zone.battle.status.StatusValueRecalcContext
 import net.bestia.zone.skill.ecs.KnownSkills
 import net.bestia.zone.battle.ecs.status.BaseStatusValues
+import net.bestia.zone.battle.ecs.status.CombatStats
+import net.bestia.zone.battle.status.CombatValues
 import net.bestia.zone.battle.ecs.status.FormulaDrivenVitals
 import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.battle.ecs.status.IsStatusValueDirty
@@ -35,6 +38,7 @@ import net.bestia.zone.item.equip.script.EquipmentScriptRegistry
 import net.bestia.zone.util.EntityId
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import net.bestia.zone.ecs.core.EcsWorld
@@ -170,6 +174,8 @@ class StatusEffectSystemsIntegrationTest {
 
   private val conditionValueCalculator = ConditionValueCalculator()
 
+  private val combatValuesPool = CombatValuesPool()
+
   private val passiveSkill = Skill(
     id = PASSIVE_SKILL_ID,
     identifier = SkillId.INNER_PEACE.name,
@@ -200,7 +206,8 @@ class StatusEffectSystemsIntegrationTest {
           scriptRegistry,
           EquipmentStatusContributor(equipmentScriptRegistry),
           passiveSkillScriptRegistry,
-          conditionValueCalculator
+          conditionValueCalculator,
+          combatValuesPool
         )
       )
     )
@@ -266,6 +273,39 @@ class StatusEffectSystemsIntegrationTest {
     world.tick(1.0f) // fully expires the 1s duration
     world.tick(0.1f) // recalc picks up the dirty marker deferred by the expiry tick
     assertEquals(baseMaxHp, world.get(entity, Health::class)!!.max)
+  }
+
+  @Test
+  fun `a mob under a buff gets a block of its own, shared with an equally buffed one, and gets the species' back when it ends`() {
+    val (world, registry) = newWorld(VitalityBuffScript(vitalityBonus = 20, duration = 1.0))
+    val species = combatValuesPool.share(
+      CombatValues.ofBase(
+        level = 1,
+        base = net.bestia.zone.battle.status.StatusValues(
+          strength = 10, vitality = 10, intelligence = 10, agility = 10, willpower = 10, dexterity = 10
+        )
+      )
+    )
+    val buffed = world.createEntity { add(it, CombatStats(species)) }
+    val twin = world.createEntity { add(it, CombatStats(species)) }
+    val bystander = world.createEntity { add(it, CombatStats(species)) }
+
+    val service = StatusEffectService(registry, StatusEffectScriptRegistry(listOf(VitalityBuffScript(duration = 1.0))))
+    service.applyEffect(world, buffed, definitionId = vitalityEffect.id, level = 1)
+    service.applyEffect(world, twin, definitionId = vitalityEffect.id, level = 1)
+
+    world.tick(0.1f)
+    val underBuff = world.get(buffed, CombatStats::class)!!.values
+    assertEquals(30, underBuff.attributes.vitality)
+    assertEquals(10, underBuff.base.vitality)
+    assertEquals(species.defense.defense + 20, underBuff.defense.defense)
+    assertSame(underBuff, world.get(twin, CombatStats::class)!!.values)
+    assertSame(species, world.get(bystander, CombatStats::class)!!.values)
+
+    world.tick(1.0f) // fully expires the 1s duration
+    world.tick(0.1f) // recalc picks up the dirty marker deferred by the expiry tick
+    assertSame(species, world.get(buffed, CombatStats::class)!!.values)
+    assertSame(species, world.get(twin, CombatStats::class)!!.values)
   }
 
   @Test

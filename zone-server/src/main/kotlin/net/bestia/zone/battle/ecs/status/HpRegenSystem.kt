@@ -23,7 +23,7 @@ class HpRegenSystem(
 
   override val schedule: Schedule = Schedule.EverySeconds(6f)
   override val reads: ComponentClassSet = setOf(
-    StatusValues::class,
+    CombatStats::class,
     InCombat::class,
     Dead::class,
     RegenerationModifiers::class
@@ -40,10 +40,10 @@ class HpRegenSystem(
       val health = get<Health>()
       if (health.current >= health.max) return@each
 
-      // No attributes, no passive regeneration - an entity that was never given StatusValues has no
+      // No attributes, no passive regeneration - an entity that was never given CombatStats has no
       // vitality to regenerate from. Explicit rather than defaulting VIT to 0, which used to come
       // out as a zero amount only by accident of rounding and would now be a floor of 1 per tick.
-      val vitality = world.get(id, StatusValues::class)?.vitality ?: return@each
+      val vitality = world.get(id, CombatStats::class)?.values?.attributes?.vitality ?: return@each
 
       // Fetched rather than queried on: an entity with nothing modifying its regeneration has no
       // RegenerationModifiers at all, and joining it into the query above would restrict

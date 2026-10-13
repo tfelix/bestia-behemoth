@@ -18,6 +18,9 @@ import net.bestia.zone.util.EntityId
  * value, not the effective one - see
  * [net.bestia.zone.master.status.EffortValueCostCalculator]. Pricing off the effective value
  * would make a point cost more for as long as a buff happened to be running.
+ *
+ * Only masters and owned bestias carry one: their attributes are invested and persisted. A mob's are its species',
+ * kept in the shared [net.bestia.zone.battle.status.CombatValues.base] of its [CombatStats].
  */
 data class BaseStatusValues(
   var strength: Int,
@@ -42,4 +45,16 @@ data class BaseStatusValues(
   }
 
   override fun syncTargets(world: World, entityId: EntityId): SyncTargets = SyncTargets.OwnerOnly
+
+  /** These attributes as the immutable value the recalc and [CombatStats] work with. */
+  fun toAttributes(): net.bestia.zone.battle.status.StatusValues {
+    return net.bestia.zone.battle.status.StatusValues(
+      strength = strength,
+      vitality = vitality,
+      intelligence = intelligence,
+      agility = agility,
+      willpower = willpower,
+      dexterity = dexterity
+    )
+  }
 }

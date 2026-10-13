@@ -6,7 +6,7 @@ import net.bestia.zone.battle.BattleContextFactory
 import net.bestia.zone.battle.damage.Damage
 import net.bestia.zone.battle.damage.HitDamage
 import net.bestia.zone.battle.ecs.status.Mana
-import net.bestia.zone.battle.ecs.status.StatusValues
+import net.bestia.zone.battle.BattleContextFixture
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.movement.ecs.Position
@@ -244,7 +244,7 @@ class SkillExecutionServiceTest {
 
   private fun World.spawnFighter(mana: Int = 0, at: Vec3L = Vec3L(1, 0, 0)): EntityId = createEntity { id ->
     add(id, Position.fromVec3(at))
-    add(id, StatusValues(strength = 10, intelligence = 10, vitality = 10, dexterity = 10, willpower = 10, agility = 10))
+    add(id, BattleContextFixture.combatStats())
     if (mana > 0) add(id, Mana(mana, mana))
   }
 

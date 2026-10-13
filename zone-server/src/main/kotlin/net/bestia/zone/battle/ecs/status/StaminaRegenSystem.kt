@@ -33,7 +33,7 @@ class StaminaRegenSystem(
 
   override val schedule: Schedule = Schedule.EverySeconds(10f)
   override val reads: ComponentClassSet =
-    setOf(StatusValues::class, Dead::class, RegenerationModifiers::class)
+    setOf(CombatStats::class, Dead::class, RegenerationModifiers::class)
   override val writes: ComponentClassSet = setOf(Stamina::class)
 
   override fun update(world: World, deltaTime: Float) {
@@ -47,13 +47,13 @@ class StaminaRegenSystem(
 
       // Same reasoning as HpRegenSystem, for both of these: no attributes means no passive
       // regeneration, and a missing RegenerationModifiers means an unmodified rate.
-      val statusValues = world.get(id, StatusValues::class) ?: return@each
+      val attributes = world.get(id, CombatStats::class)?.values?.attributes ?: return@each
 
       val modifier = world.get(id, RegenerationModifiers::class)?.stamina
       val base = regenerationCalculator.staminaRegen(
         stamina.max,
-        statusValues.vitality,
-        statusValues.willpower
+        attributes.vitality,
+        attributes.willpower
       )
 
       stamina.current += regenerationCalculator.applyModifier(base, modifier)

@@ -11,10 +11,9 @@ import net.bestia.zone.battle.ecs.attack.AttackDelay
 import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.battle.ecs.effects.StatusEffects
 import net.bestia.zone.battle.ecs.level.Level
-import net.bestia.zone.battle.ecs.status.CombatBonus
+import net.bestia.zone.battle.ecs.status.CombatStats
 import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.battle.ecs.status.Nature
-import net.bestia.zone.battle.ecs.status.StatusValues
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.movement.ecs.Grounded
@@ -158,15 +157,15 @@ class AttackExecutionService(
 
     /** What [attack] reads on both sides, through the battle context and a prop's first promotion. */
     val READS: ComponentClassSet = setOf(
-      Position::class, Dead::class, Level::class, Nature::class, StatusEffects::class, StatusValues::class,
-      CombatBonus::class, Health::class, AttackDelay::class,
+      Position::class, Dead::class, Level::class, Nature::class, StatusEffects::class, CombatStats::class,
+      Health::class, AttackDelay::class,
       WorldObjectIdentity::class, PropPose::class, PropVitality::class,
     ) + DamageGate.READS
 
     /** What [attack] writes: the staged damage, the attacker's delay, and a prop promoted on its first hit. */
     val WRITES: ComponentClassSet = setOf(
       IncomingDamage::class, AttackDelay::class, Position::class, Grounded::class, Health::class,
-      StatusValues::class,
+      CombatStats::class,
     )
   }
 }

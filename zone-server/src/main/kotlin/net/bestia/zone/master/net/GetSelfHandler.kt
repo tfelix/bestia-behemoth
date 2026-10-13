@@ -7,6 +7,7 @@ import net.bestia.zone.battle.ecs.level.Level
 import net.bestia.zone.battle.ecs.status.BaseStatusValues
 import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.battle.ecs.status.Mana
+import net.bestia.zone.battle.ecs.status.OwnerCombatStats
 import net.bestia.zone.battle.ecs.status.SkillPoints
 import net.bestia.zone.battle.ecs.status.Stamina
 import net.bestia.zone.battle.ecs.status.StatusPoints
@@ -87,6 +88,7 @@ class GetSelfHandler(
       get(id, Level::class)?.markDirty()
       get(id, StatusValues::class)?.markDirty()
       get(id, BaseStatusValues::class)?.markDirty()
+      get(id, OwnerCombatStats::class)?.markDirty()
       get(id, StatusPoints::class)?.markDirty()
       get(id, SkillPoints::class)?.markDirty()
       get(id, Equipment::class)?.markDirty()

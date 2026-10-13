@@ -1,15 +1,14 @@
 package net.bestia.zone.battle.status
 
 /**
- * Secondary combat values derived on demand from a character's level + effective primary
- * [StatusValues]. Because they are recomputed from the (already recalc-fresh) attributes each time
- * a fight is set up, a buff/debuff that changed the primaries automatically flows through here
- * without any stored/synced component of its own.
+ * Secondary combat values derived from an entity's level + effective primary [StatusValues]. Resolved once, with
+ * the rest of its [CombatValues], whenever something that feeds them changes - a buff/debuff that changed the
+ * primaries therefore flows through here when the recalc runs, and a fight just reads the result.
  *
  * Formulas follow the game docs (https://docs.bestia-game.net/docs/mechanics/statusvalues/),
  * simplified to the parts expressible today: the docs' additive `Mod`/multiplicative `ModPerc` terms are
  * omitted here (`ModSum = 0`, `ModPerc = 1`). That is not the same as saying equipment does nothing - gear
- * reaches the damage formula through [net.bestia.zone.battle.ecs.status.CombatBonus] and through the
+ * reaches the damage formula through [CombatValues.weapon] and [DefenseValues] and through the
  * primary attributes these are derived from, just not as a modifier on the derived value itself.
  */
 data class DerivedStatusValues(
