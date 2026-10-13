@@ -13,6 +13,7 @@ import net.bestia.zone.battle.damage.DamageEntitySMSG
 import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.chat.net.ChatCMSG
 import net.bestia.zone.chat.ChatSMSG
+import net.bestia.zone.battle.ecs.effects.StatusEffects
 import net.bestia.zone.battle.ecs.effects.StatusEffectsComponentSMSG
 import net.bestia.zone.battle.ecs.level.LevelComponentSMSG
 import net.bestia.zone.battle.ecs.status.SkillPointsComponentSMSG
@@ -497,9 +498,15 @@ class MultiPlayerJourneyScenario : BestiaNoSocketScenario(autoClientConnect = fa
     // Kept in the same test as the appearance check (rather than a separate @Test) so the
     // per-test message-buffer clear in between two tests can't wipe the expiry evidence if it
     // arrives faster than the next test method starts polling.
-    // status_effects.yml gives BLESSING a short 4s duration precisely so this doesn't need to
-    // block for a real minute; StatusEffectDurationSystem ticks on a real 1s schedule, so this is
-    // a genuine (bounded) wall-clock wait, not a simulated one.
+    // Blessing lasts 40 s plus 20 s per level, so the buff is cut down to one second here instead of waiting
+    // out a real minute; StatusEffectDurationSystem ticks on a real 1s schedule, so what follows is still a
+    // genuine (bounded) wall-clock wait, not a simulated one.
+    world.modify(activeEntityId) { id ->
+      get(id, StatusEffects::class)!!.activeEffects
+        .single { it.definitionId == StatusEffectId.BLESSING.id }
+        .remainingSeconds = 1f
+    }
+
     await {
       val effects = clientPlayer1.tryGetLastReceivedFor(StatusEffectsComponentSMSG::class, activeEntityId)
       assertFalse(effects?.effects.orEmpty().any { it.effectId == StatusEffectId.BLESSING.id })

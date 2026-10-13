@@ -9,12 +9,10 @@ import net.bestia.zone.battle.status.StatusEffectId
 import org.springframework.stereotype.Component
 
 /**
- * Blessing (`skills.yml` id 1).
+ * Blessing (`skills.yml` id 6).
  *
- * The description talks about boosting STR/DEX/INT/HIT, but only speed is modeled as a buffable stat so far -
- * this applies the `BLESSING` status effect (`status_effects.yml` id 5), whose script
- * (`net.bestia.zone.battle.status.scripts.Blessing`) reuses the same speed-multiplier shape as `SWIFTNESS`
- * until a broader stat-modifier is needed.
+ * Applies the `BLESSING` status effect (`status_effects.yml` id 5) at the cast level. What the effect does to
+ * the target's stats, and for how long, is `net.bestia.zone.battle.status.scripts.BlessingStatusEffect`.
  */
 @Component
 class Blessing(

@@ -18,6 +18,7 @@ import net.bestia.zone.battle.ecs.status.FormulaDrivenVitals
 import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.battle.ecs.status.IsStatusValueDirty
 import net.bestia.zone.battle.ecs.status.Mana
+import net.bestia.zone.battle.ecs.status.Nature
 import net.bestia.zone.battle.ecs.status.Stamina
 import net.bestia.zone.battle.ecs.status.StatusValues
 import net.bestia.zone.battle.status.CombatValues
@@ -76,7 +77,9 @@ class StatusValueRecalcSystem(
     KnownSkills::class,
     // A status effect script may address the entity's owner (MasterIntroMarker greets them).
     Account::class,
-    Master::class
+    Master::class,
+    // ... and may weigh what the entity is made of (Blessing turns on Undead).
+    Nature::class
   ) + equipment.reads
   override val writes: ComponentClassSet = setOf(
     StatusValues::class,
