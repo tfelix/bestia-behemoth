@@ -205,6 +205,12 @@ namespace BestiaBehemothClient.Game.World
     public bool IsAnchored() => _anchored;
 
     /// <summary>
+    /// The whole Bestia second now, on the axis the server's decay clocks run on (<c>last_decayed_second</c>).
+    /// Meaningless before <see cref="IsAnchored"/>.
+    /// </summary>
+    public long AbsoluteSecond => (long)_bestiaSeconds;
+
+    /// <summary>
     /// The shape of one day, as the server stated it. Not <see cref="DayCycle.IsValid"/> until anchored.
     /// </summary>
     /// <remarks>

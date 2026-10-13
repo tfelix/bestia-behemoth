@@ -1,3 +1,5 @@
+using System.IO;
+using System.Linq;
 using BestiaBehemothClient.Game.World;
 using Xunit;
 
@@ -83,6 +85,102 @@ namespace BestiaBehemothClient.Tests
     {
       Assert.Equal(-1, GroundLayers.ChannelOf(GroundLayers.Id.Unspecified));
       Assert.Equal(-1, GroundLayers.ChannelOf((GroundLayers.Id)99));
+    }
+
+    /// <summary>The fixture the server's encoding test builds: cells 0, 33 and 1023 at levels 1, 255 and 16.</summary>
+    private static readonly byte[] ThreeCells =
+    {
+      0x00, 0x00, 0x01,
+      0x21, 0x00, 0xFF,
+      0xFF, 0x03, 0x10,
+    };
+
+    [Fact]
+    public void SparseCellsAreAnIndexLittleEndianAndALevel()
+    {
+      var levels = GroundLayerCells.DecodeSparse(ThreeCells, ChunkSize);
+
+      Assert.Equal(ChunkSize * ChunkSize, levels.Length);
+      Assert.Equal(1, levels[0]);
+      Assert.Equal(255, levels[33]);
+      Assert.Equal(16, levels[1023]);
+    }
+
+    [Fact]
+    public void SparseCellsThePayloadDoesNotNameAreZero()
+    {
+      var levels = GroundLayerCells.DecodeSparse(ThreeCells, ChunkSize);
+
+      Assert.Equal(3, levels.Count(level => level != 0));
+    }
+
+    [Fact]
+    public void ASparsePayloadThatIsNotWholeCellsIsRefused()
+    {
+      Assert.Throws<InvalidDataException>(() => GroundLayerCells.DecodeSparse(new byte[] { 0, 0, 1, 33 }, ChunkSize));
+    }
+
+    [Fact]
+    public void ASparseCellOutsideTheColumnIsRefused()
+    {
+      // Index 1024 in a column of 1024 cells.
+      Assert.Throws<InvalidDataException>(
+        () => GroundLayerCells.DecodeSparse(new byte[] { 0x00, 0x04, 0x01 }, ChunkSize));
+    }
+
+    [Fact]
+    public void AnEntryWithNoCellsRetiresItsLayerWhateverTheEncoding()
+    {
+      var entry = GroundLayerCells.ReadEntry(GroundLayers.Id.Worn, 0, new byte[0], 0, ChunkSize);
+
+      Assert.True(entry.Retires);
+      Assert.Equal(GroundLayers.Id.Worn, entry.Layer);
+    }
+
+    [Fact]
+    public void AGradedLayerReadsItsExactLevelsAndTheDecayClock()
+    {
+      var entry = GroundLayerCells.ReadEntry(
+        GroundLayers.Id.Bloodied, GroundLayerCells.LevelsSparseV1, ThreeCells, 123_456, ChunkSize);
+
+      Assert.False(entry.Retires);
+      Assert.Equal(255, entry.Levels[33]);
+      Assert.Equal(123_456, entry.LastDecayedSecond);
+      Assert.Null(entry.Nibbles);
+    }
+
+    [Fact]
+    public void ScorchIsDrawnAsSentFromItsNibbles()
+    {
+      var nibbles = new byte[GroundLayerCells.ByteLength(ChunkSize)];
+      nibbles[0] = 0xF1;
+
+      var entry = GroundLayerCells.ReadEntry(
+        GroundLayers.Id.Scorched, GroundLayerCells.NibbleV1, nibbles, 0, ChunkSize);
+
+      Assert.Same(nibbles, entry.Nibbles);
+      Assert.Null(entry.Levels);
+    }
+
+    /// <summary>A nibble copy would seed wear that crosses the threshold at the wrong footfall.</summary>
+    [Theory]
+    [InlineData(GroundLayers.Id.Worn, GroundLayerCells.NibbleV1)]
+    [InlineData(GroundLayers.Id.Bloodied, GroundLayerCells.NibbleV1)]
+    [InlineData(GroundLayers.Id.Scorched, GroundLayerCells.LevelsSparseV1)]
+    [InlineData(GroundLayers.Id.Worn, 9u)]
+    public void AnEncodingThatDoesNotSuitItsLayerIsRefused(GroundLayers.Id layer, uint encoding)
+    {
+      var cells = new byte[GroundLayerCells.ByteLength(ChunkSize)];
+      cells[0] = 1;
+
+      Assert.Throws<InvalidDataException>(() => GroundLayerCells.ReadEntry(layer, encoding, cells, 0, ChunkSize));
+    }
+
+    [Fact]
+    public void NibblesOfTheWrongLengthAreRefused()
+    {
+      Assert.Throws<InvalidDataException>(
+        () => GroundLayerCells.ReadEntry(GroundLayers.Id.Scorched, GroundLayerCells.NibbleV1, new byte[10], 0, ChunkSize));
     }
 
     [Fact]

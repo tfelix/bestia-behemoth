@@ -64,13 +64,12 @@ namespace Bnet {
     /// - `0..1` cell index, little endian - `localY * chunk_size + localX`, the order every ground message uses
     /// - `2` kind in the high nibble, heading octant in the low three bits
     /// - `3` shape seed
-    /// - `4` how strongly to draw it, 0..255
+    /// - `4` how much of its life is left, as `level * 255 / 16` for a level of 1..16, so a fresh print is 255.
+    ///   `level = (byte + 1) >> 4` recovers it, and the print has `level / 16` of
+    ///   `GroundMarkRulesSMSG.stamp_lifetime_millis` to run. The client ages it from there on its own clock.
     ///
     /// The octant is 0 towards +x counting towards +y, which is eight-connected movement's own resolution - a
     /// smoother heading comes from a run of stamps by one walker, not from a finer angle on each.
-    ///
-    /// Strength is quantised to sixteen steps so a print fading costs a handful of re-sends over its whole life
-    /// rather than one per sweep for ever.
     /// </summary>
     [pbr::OriginalName("CHUNK_GROUND_STAMP_ENCODING_PACKED_V1")] PackedV1 = 1,
   }
@@ -85,12 +84,14 @@ namespace Bnet {
   /// ### Why this is not part of `ChunkGroundLayersSMSG`
   ///
   /// That message carries what the ground **is** - a grid of levels, changing over days. This carries discrete
-  /// events, arriving several times a second while anything is walking. Sharing a message would re-send half a
-  /// kilobyte of worn cells behind every footstep, which is the same split, for the same reason, that already
-  /// separates `ChunkGroundOverlaySMSG` from `ChunkGroundLayersSMSG`.
+  /// events with a heading, which are drawn from a separate near-camera height field entirely, so the two do not
+  /// need to arrive together.
   ///
-  /// They also do not need to arrive together: the layers composite against one shared budget, and stamps are
-  /// drawn from a separate near-camera height field entirely.
+  /// ### The client lays footprints itself
+  ///
+  /// It sees every walker in the columns it holds, so it derives each print from the path it is walking (see
+  /// `GroundMarkRulesSMSG`) and ages it locally. This message is only the column's existing prints when it comes
+  /// into view, and a rare resync that corrects whatever the client got wrong.
   ///
   /// ### Not in the manifest, not requested, and not a delta
   ///
@@ -98,9 +99,7 @@ namespace Bnet {
   /// `ChunkStaticEntitiesSMSG` and `ChunkGroundLayersSMSG` are.
   ///
   /// **Each message carries the whole column, never a diff.** A lost one self-heals on the next send, applying
-  /// the same one twice changes nothing, and an empty one is how tracks that have faded are retired. The server
-  /// paces these per column - see `GroundStampConfig.announceIntervalSeconds` - which is what stops the whole set
-  /// going out on every footfall.
+  /// the same one twice changes nothing, and it replaces what the client derived. An empty one retires the column.
   /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class ChunkGroundStampsSMSG : pb::IMessage<ChunkGroundStampsSMSG>

@@ -25,23 +25,25 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CittZXNzYWdlcy9tYXAvY2h1bmtfZ3JvdW5kX2xheWVyc19zbXNnLnByb3Rv",
-            "EgRibmV0GhhtZXNzYWdlcy9tYXAvY2h1bmsucHJvdG8idwoQR3JvdW5kTGF5",
-            "ZXJDZWxscxIiCgVsYXllchgBIAEoDjITLmJuZXQuR3JvdW5kTGF5ZXJJZBIw",
-            "CghlbmNvZGluZxgCIAEoDjIeLmJuZXQuQ2h1bmtHcm91bmRMYXllckVuY29k",
-            "aW5nEg0KBWNlbGxzGAMgASgMImIKFUNodW5rR3JvdW5kTGF5ZXJzU01TRxIb",
-            "CgNwb3MYASABKAsyDi5ibmV0LkNodW5rUG9zEiYKBmxheWVycxgCIAMoCzIW",
-            "LmJuZXQuR3JvdW5kTGF5ZXJDZWxsc0oECAMQBCpyChhDaHVua0dyb3VuZExh",
-            "eWVyRW5jb2RpbmcSKwonQ0hVTktfR1JPVU5EX0xBWUVSX0VOQ09ESU5HX1VO",
-            "U1BFQ0lGSUVEEAASKQolQ0hVTktfR1JPVU5EX0xBWUVSX0VOQ09ESU5HX05J",
-            "QkJMRV9WMRABKpYBCg1Hcm91bmRMYXllcklkEhwKGEdST1VORF9MQVlFUl9V",
-            "TlNQRUNJRklFRBAAEhkKFUdST1VORF9MQVlFUl9TQ09SQ0hFRBABEhUKEUdS",
-            "T1VORF9MQVlFUl9XT1JOEAISGQoVR1JPVU5EX0xBWUVSX0JMT09ESUVEEAMS",
-            "GgoWR1JPVU5EX0xBWUVSX0RJU1RVUkJFRBAEQjMKFW5ldC5iZXN0aWEuYm5l",
-            "dC5wcm90b0IaQ2h1bmtHcm91bmRMYXllcnNTTVNHUHJvdG9iBnByb3RvMw=="));
+            "EgRibmV0GhhtZXNzYWdlcy9tYXAvY2h1bmsucHJvdG8ilAEKEEdyb3VuZExh",
+            "eWVyQ2VsbHMSIgoFbGF5ZXIYASABKA4yEy5ibmV0Lkdyb3VuZExheWVySWQS",
+            "MAoIZW5jb2RpbmcYAiABKA4yHi5ibmV0LkNodW5rR3JvdW5kTGF5ZXJFbmNv",
+            "ZGluZxINCgVjZWxscxgDIAEoDBIbChNsYXN0X2RlY2F5ZWRfc2Vjb25kGAQg",
+            "ASgDImIKFUNodW5rR3JvdW5kTGF5ZXJzU01TRxIbCgNwb3MYASABKAsyDi5i",
+            "bmV0LkNodW5rUG9zEiYKBmxheWVycxgCIAMoCzIWLmJuZXQuR3JvdW5kTGF5",
+            "ZXJDZWxsc0oECAMQBCqkAQoYQ2h1bmtHcm91bmRMYXllckVuY29kaW5nEisK",
+            "J0NIVU5LX0dST1VORF9MQVlFUl9FTkNPRElOR19VTlNQRUNJRklFRBAAEikK",
+            "JUNIVU5LX0dST1VORF9MQVlFUl9FTkNPRElOR19OSUJCTEVfVjEQARIwCixD",
+            "SFVOS19HUk9VTkRfTEFZRVJfRU5DT0RJTkdfTEVWRUxTX1NQQVJTRV9WMRAC",
+            "KpYBCg1Hcm91bmRMYXllcklkEhwKGEdST1VORF9MQVlFUl9VTlNQRUNJRklF",
+            "RBAAEhkKFUdST1VORF9MQVlFUl9TQ09SQ0hFRBABEhUKEUdST1VORF9MQVlF",
+            "Ul9XT1JOEAISGQoVR1JPVU5EX0xBWUVSX0JMT09ESUVEEAMSGgoWR1JPVU5E",
+            "X0xBWUVSX0RJU1RVUkJFRBAEQjMKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0Ia",
+            "Q2h1bmtHcm91bmRMYXllcnNTTVNHUHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Bnet.ChunkReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.ChunkGroundLayerEncoding), typeof(global::Bnet.GroundLayerId), }, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.GroundLayerCells), global::Bnet.GroundLayerCells.Parser, new[]{ "Layer", "Encoding", "Cells" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.GroundLayerCells), global::Bnet.GroundLayerCells.Parser, new[]{ "Layer", "Encoding", "Cells", "LastDecayedSecond" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.ChunkGroundLayersSMSG), global::Bnet.ChunkGroundLayersSMSG.Parser, new[]{ "Pos", "Layers" }, null, null, null, null)
           }));
     }
@@ -73,6 +75,17 @@ namespace Bnet {
     /// since one footfall has to be worth far less than one visible step.
     /// </summary>
     [pbr::OriginalName("CHUNK_GROUND_LAYER_ENCODING_NIBBLE_V1")] NibbleV1 = 1,
+    /// <summary>
+    ///*
+    /// The exact levels of every non-zero cell, **including those below the layer's visible threshold**: repeated
+    /// `(cell index u16 little endian, level u8)`, ascending by index, 3 bytes each. The index is
+    /// `localY * chunk_size + localX`.
+    ///
+    /// For the layers a client keeps adding to itself (`WORN`, `BLOODIED`). A nibble payload would not do: it drops
+    /// the low four bits and every cell under the threshold, so a client seeded from it would cross the threshold
+    /// at a different footfall than the server did. Pair with `last_decayed_second`.
+    /// </summary>
+    [pbr::OriginalName("CHUNK_GROUND_LAYER_ENCODING_LEVELS_SPARSE_V1")] LevelsSparseV1 = 2,
   }
 
   /// <summary>
@@ -90,7 +103,10 @@ namespace Bnet {
 
   #region Messages
   /// <summary>
-  ///* One layer's worth of cells for one column. 
+  ///*
+  /// One layer's worth of cells for one column.
+  ///
+  /// Replaces whatever the client held for this layer. Empty `cells` retires it.
   /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class GroundLayerCells : pb::IMessage<GroundLayerCells>
@@ -130,6 +146,7 @@ namespace Bnet {
       layer_ = other.layer_;
       encoding_ = other.encoding_;
       cells_ = other.cells_;
+      lastDecayedSecond_ = other.lastDecayedSecond_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -175,6 +192,24 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "last_decayed_second" field.</summary>
+    public const int LastDecayedSecondFieldNumber = 4;
+    private long lastDecayedSecond_;
+    /// <summary>
+    ///*
+    /// The Bestia second, on `WorldTimeSMSG.world_age_bestia_seconds`'s axis, up to which these levels have
+    /// already faded. A client continues the fade from here with the same integer arithmetic as the server, so
+    /// it is the whole of the decay state. Zero for an encoding that does not decay (`NIBBLE_V1`).
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public long LastDecayedSecond {
+      get { return lastDecayedSecond_; }
+      set {
+        lastDecayedSecond_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -193,6 +228,7 @@ namespace Bnet {
       if (Layer != other.Layer) return false;
       if (Encoding != other.Encoding) return false;
       if (Cells != other.Cells) return false;
+      if (LastDecayedSecond != other.LastDecayedSecond) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -203,6 +239,7 @@ namespace Bnet {
       if (Layer != global::Bnet.GroundLayerId.GroundLayerUnspecified) hash ^= Layer.GetHashCode();
       if (Encoding != global::Bnet.ChunkGroundLayerEncoding.Unspecified) hash ^= Encoding.GetHashCode();
       if (Cells.Length != 0) hash ^= Cells.GetHashCode();
+      if (LastDecayedSecond != 0L) hash ^= LastDecayedSecond.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -233,6 +270,10 @@ namespace Bnet {
         output.WriteRawTag(26);
         output.WriteBytes(Cells);
       }
+      if (LastDecayedSecond != 0L) {
+        output.WriteRawTag(32);
+        output.WriteInt64(LastDecayedSecond);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -255,6 +296,10 @@ namespace Bnet {
         output.WriteRawTag(26);
         output.WriteBytes(Cells);
       }
+      if (LastDecayedSecond != 0L) {
+        output.WriteRawTag(32);
+        output.WriteInt64(LastDecayedSecond);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -273,6 +318,9 @@ namespace Bnet {
       }
       if (Cells.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeBytesSize(Cells);
+      }
+      if (LastDecayedSecond != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeInt64Size(LastDecayedSecond);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -294,6 +342,9 @@ namespace Bnet {
       }
       if (other.Cells.Length != 0) {
         Cells = other.Cells;
+      }
+      if (other.LastDecayedSecond != 0L) {
+        LastDecayedSecond = other.LastDecayedSecond;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -324,6 +375,10 @@ namespace Bnet {
           }
           case 26: {
             Cells = input.ReadBytes();
+            break;
+          }
+          case 32: {
+            LastDecayedSecond = input.ReadInt64();
             break;
           }
         }
@@ -357,6 +412,10 @@ namespace Bnet {
             Cells = input.ReadBytes();
             break;
           }
+          case 32: {
+            LastDecayedSecond = input.ReadInt64();
+            break;
+          }
         }
       }
     }
@@ -366,7 +425,7 @@ namespace Bnet {
 
   /// <summary>
   ///*
-  /// Everything lasting that has happened to the ground of one chunk column.
+  /// What lasting has happened to the ground of one chunk column.
   ///
   /// ### Why this is not part of the chunk, and not `ChunkGroundOverlaySMSG` either
   ///
@@ -378,19 +437,25 @@ namespace Bnet {
   /// moves several times a second - and this carries what the column **is**, which changes rarely. Sharing one
   /// message would re-send every worn cell on every step of a grass fire.
   ///
-  /// ### Every layer in one message, deliberately
+  /// ### Each layer is replaced on its own
   ///
-  /// The client composites the layers together against a single remaining budget, so it needs a consistent set.
-  /// Split across messages, a column would spend a frame showing blood with no path beneath it.
+  /// A message names the layers it speaks about, and the client replaces exactly those. A layer that is not
+  /// named is untouched, and one named with empty cells is retired. A scorch can therefore go out alone while a
+  /// fire burns, without re-sending the wear and blood beside it.
+  ///
+  /// ### Who lays what
+  ///
+  /// `WORN` and `BLOODIED` are laid by the client itself from what it sees walk and die (see
+  /// `GroundMarkRulesSMSG`), so they are sent on arrival and then only as a rare resync that corrects drift.
+  /// `SCORCHED` follows the fire, which a client cannot simulate, so it is sent whenever it changes.
   ///
   /// ### Not in the manifest, not requested, and not a delta
   ///
   /// Pushed behind the terrain and dropped when the manifest withdraws the column, exactly as
   /// `ChunkStaticEntitiesSMSG` and `ChunkGroundOverlaySMSG` are.
   ///
-  /// **Each message carries the whole column, never a diff.** A lost one self-heals on the next send, applying
-  /// the same one twice changes nothing, and an empty one is how a path that has finally faded is retired -
-  /// there is no removal message and none is needed.
+  /// **Each layer entry is the whole layer for the column, never a diff.** A lost one self-heals on the next send
+  /// and applying the same one twice changes nothing.
   /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class ChunkGroundLayersSMSG : pb::IMessage<ChunkGroundLayersSMSG>
@@ -461,7 +526,7 @@ namespace Bnet {
         = pb::FieldCodec.ForMessage(18, global::Bnet.GroundLayerCells.Parser);
     private readonly pbc::RepeatedField<global::Bnet.GroundLayerCells> layers_ = new pbc::RepeatedField<global::Bnet.GroundLayerCells>();
     /// <summary>
-    ///* Absent for a layer this column has nothing of, which is almost every layer almost always. 
+    ///* The layers this message speaks about. See the message note on what a missing layer means. 
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]

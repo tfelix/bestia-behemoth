@@ -123,6 +123,16 @@ namespace BestiaBehemothClient.Game.World
       _dirty = true;
     }
 
+    /// <summary>
+    /// Sets one channel of one square metre, for a mark that moved a single cell.
+    /// </summary>
+    /// <param name="level">The drawn level, 0 to <see cref="GroundLayerCells.MaxLevel"/>.</param>
+    public void SetLevel(long worldX, long worldY, int channel, int level)
+    {
+      _pixels[TexelAt(worldX, worldY) + channel] = Texel(level);
+      _dirty = true;
+    }
+
     /// <summary>Uploads if anything changed. Cheap and idempotent when nothing did.</summary>
     /// <returns>whether an upload actually happened, which is what a caller logs rather than guesses at</returns>
     public bool Flush()
@@ -165,10 +175,13 @@ namespace BestiaBehemothClient.Game.World
         return 0;
       }
 
-      // Scaled so the strongest level is a full byte: 15 becomes 255, not 15/256th of the way up. The shader
-      // reads this as 0..1 and a mark that never exceeded 6% would be invisible.
-      return (byte)(GroundLayerCells.LevelAt(cells[channel], chunkSize, localX, localY) * 255
-        / GroundLayerCells.MaxLevel);
+      return Texel(GroundLayerCells.LevelAt(cells[channel], chunkSize, localX, localY));
     }
+
+    /// <summary>
+    /// A level as the byte a texel holds, scaled so the strongest is a full byte: 15 becomes 255, not 15/256th
+    /// of the way up. The shader reads it as 0..1 and a mark that never exceeded 6% would be invisible.
+    /// </summary>
+    private static byte Texel(int level) => (byte)(level * 255 / GroundLayerCells.MaxLevel);
   }
 }

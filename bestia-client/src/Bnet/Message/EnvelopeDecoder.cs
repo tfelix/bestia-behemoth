@@ -87,6 +87,8 @@ namespace BestiaBehemothClient.Bnet.Message
         e => Map.ChunkGroundLayersSMSG.FromProto(e.ChunkGroundLayers, WorldLayout.ChunkSize),
       // Also a MapSMSG: what walked over the ground, not an entity.
       [Envelope.MessageOneofCase.ChunkGroundStamps] = e => Map.ChunkGroundStampsSMSG.FromProto(e.ChunkGroundStamps),
+      // Also a MapSMSG: the numbers those marks are laid by, which describe the world rather than an entity.
+      [Envelope.MessageOneofCase.GroundMarkRules] = e => Map.GroundMarkRulesSMSG.FromProto(e.GroundMarkRules),
       // Also a MapSMSG, and for the same reason: it names a prop, not an entity the client ever spawned.
       [Envelope.MessageOneofCase.StaticEntityRemoved] =
         e => Map.StaticEntityRemovedSMSG.FromProto(e.StaticEntityRemoved),

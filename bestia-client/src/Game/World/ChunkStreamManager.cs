@@ -81,15 +81,17 @@ namespace BestiaBehemothClient.Game.World
 
         // Same argument, and the marks need it more: the server re-sends a column's layers only when its
         // ground changes again, which for a burn scar left years ago in world time is never.
-        foreach (var (column, layers) in _groundLayers)
+        foreach (var column in _marks.Columns)
         {
-          value.WriteGroundMarks(column.X, column.Y, layers.Cells);
+          var cells = _marks.CellsOf(column);
+          if (cells != null)
+          {
+            value.WriteGroundMarks(column.X, column.Y, cells);
+          }
         }
 
-        foreach (var (column, stamps) in _groundStamps)
-        {
-          value.WriteGroundStamps(column.X, column.Y, stamps.Stamps);
-        }
+        // The prints are read from the ring itself, so handing it over redraws them.
+        value.StampSource = _marks;
       }
     }
 
@@ -173,24 +175,39 @@ namespace BestiaBehemothClient.Game.World
     private readonly Dictionary<ChunkKey, ChunkGroundOverlaySMSG> _burnMasks = new();
 
     /// <summary>
-    /// The lasting marks for the columns this client holds.
+    /// The footprints, wear, blood and scorch of the columns this client holds.
     /// </summary>
     /// <remarks>
-    /// Retained as well as written into the mark texture, because the renderer may attach long after the
-    /// message arrived and the server sends no more until the ground changes again. Without this a player who
-    /// logged in looking at a burnt field would see it clean until something set fire to it a second time.
+    /// Kept as records as well as drawn into the textures, because the renderer may attach long after the
+    /// message arrived and the server sends little more: a snapshot on entry, then a rare resync. It also
+    /// lays the marks the client can derive itself - see <see cref="RecordFootfall"/> and
+    /// <see cref="RecordDeath"/>.
     /// </remarks>
-    private readonly Dictionary<ChunkKey, ChunkGroundLayersSMSG> _groundLayers = new();
+    private readonly ClientGroundMarks _marks;
+
+    /// <summary>Where the marks' Bestia second comes from. Null in a headless test, which then derives no wear.</summary>
+    private WorldClock _clock;
+
+    private double _stampSweepIn = StampSweepSeconds;
+    private double _levelSweepIn = LevelSweepSeconds;
+
+    /// <summary>So a layers message that beat the rules is complained about once, not per column.</summary>
+    private bool _warnedNoRules;
 
     /// <summary>
-    /// What has passed over the columns this client holds.
+    /// Real seconds between looks for prints that expired or faded a step. A print fades in sixteenths of
+    /// its lifetime, so looking more often finds nothing new.
     /// </summary>
-    /// <remarks>
-    /// Retained for <see cref="_groundLayers"/>'s reason - a renderer attaching later gets no re-send - and for
-    /// one of its own: the server paces these, so the next message about a column somebody stopped walking on
-    /// may be minutes away.
-    /// </remarks>
-    private readonly Dictionary<ChunkKey, ChunkGroundStampsSMSG> _groundStamps = new();
+    private const double StampSweepSeconds = 5.0;
+
+    /// <summary>Real seconds between fading wear and blood, as often as the server's own sweep.</summary>
+    private const double LevelSweepSeconds = 60.0;
+
+    public ChunkStreamManager()
+    {
+      var host = new GroundHost(this);
+      _marks = new ClientGroundMarks(WorldLayout.ChunkSize, host, host);
+    }
 
     /// <summary>
     /// What is alight in one column, or null when nothing is.
@@ -201,14 +218,6 @@ namespace BestiaBehemothClient.Game.World
     /// </remarks>
     public ChunkGroundOverlaySMSG BurnMaskOf(ChunkKey key) =>
       _burnMasks.TryGetValue(key.Column, out var mask) ? mask : null;
-
-    /// <summary>What has lasted on one column's ground, or null when nothing has.</summary>
-    public ChunkGroundLayersSMSG GroundLayersOf(ChunkKey key) =>
-      _groundLayers.TryGetValue(key.Column, out var layers) ? layers : null;
-
-    /// <summary>What has passed over one column, or null when nothing has.</summary>
-    public ChunkGroundStampsSMSG GroundStampsOf(ChunkKey key) =>
-      _groundStamps.TryGetValue(key.Column, out var stamps) ? stamps : null;
 
     /// <summary>The world's chunk grid, for the addresses this class derives rather than receives.</summary>
     private ChunkWrap _wrap = ChunkWrap.None;
@@ -345,6 +354,14 @@ namespace BestiaBehemothClient.Game.World
       _socket.MessageReceived += OnMessageReceived;
     }
 
+    /// <summary>
+    /// Gives the marks a Bestia second to age wear and blood by. Without one only footprints are laid.
+    /// </summary>
+    public void AttachClock(WorldClock clock)
+    {
+      _clock = clock;
+    }
+
     public override void _ExitTree()
     {
       if (_socket != null)
@@ -363,6 +380,27 @@ namespace BestiaBehemothClient.Game.World
       }
 
       AgeAnnouncedQuiet(delta);
+      SweepMarks(delta);
+    }
+
+    /// <summary>
+    /// Expires prints and fades wear and blood, and redraws only the columns where that changed what is seen.
+    /// </summary>
+    private void SweepMarks(double delta)
+    {
+      _stampSweepIn -= delta;
+      if (_stampSweepIn <= 0.0)
+      {
+        _stampSweepIn = StampSweepSeconds;
+        _marks.AgeStamps();
+      }
+
+      _levelSweepIn -= delta;
+      if (_levelSweepIn <= 0.0)
+      {
+        _levelSweepIn = LevelSweepSeconds;
+        _marks.AgeLevels();
+      }
     }
 
     /// <summary>
@@ -418,37 +456,20 @@ namespace BestiaBehemothClient.Game.World
           }
           break;
 
+        case GroundMarkRulesSMSG rules:
+          _marks.SetRules(rules.Rules);
+          break;
+
         case ChunkGroundLayersSMSG layers:
-          // Written to the mark texture immediately and kept for a renderer that attaches later. Unlike a
-          // static batch this does not wait for the chunk to decode: the cells are a grid over a lattice this
-          // client already knows the shape of, and the shader samples the texture by world position rather
-          // than off the mesh - so a mark needs no geometry and costs no remesh.
-          if (layers.IsClean)
-          {
-            _groundLayers.Remove(layers.Key.Column);
-            Renderer?.ClearGroundMarks(layers.Key.Column.X, layers.Key.Column.Y);
-          }
-          else
-          {
-            _groundLayers[layers.Key.Column] = layers;
-            Renderer?.WriteGroundMarks(layers.Key.Column.X, layers.Key.Column.Y, layers.Cells);
-          }
+          // Drawn immediately and kept for a renderer that attaches later. Unlike a static batch this does not
+          // wait for the chunk to decode: the cells are a grid over a lattice this client already knows the
+          // shape of, and the shader samples the texture by world position rather than off the mesh - so a
+          // mark needs no geometry and costs no remesh.
+          OnGroundLayers(layers);
           break;
 
         case ChunkGroundStampsSMSG stamps:
-          // The same shape as the layers above, and for the same reasons. The difference is upstream: the
-          // server sends these no faster than once a second per column, so what arrives here is a batch of
-          // footfalls rather than one.
-          if (stamps.IsClean)
-          {
-            _groundStamps.Remove(stamps.Key.Column);
-            Renderer?.ClearGroundStamps(stamps.Key.Column.X, stamps.Key.Column.Y);
-          }
-          else
-          {
-            _groundStamps[stamps.Key.Column] = stamps;
-            Renderer?.WriteGroundStamps(stamps.Key.Column.X, stamps.Key.Column.Y, stamps.Stamps);
-          }
+          OnGroundStamps(stamps);
           break;
 
         case ChunkStaticEntitiesSMSG statics:
@@ -472,6 +493,87 @@ namespace BestiaBehemothClient.Game.World
           OnStaticEntityRemoved(removed);
           break;
       }
+    }
+
+    private void OnGroundLayers(ChunkGroundLayersSMSG layers)
+    {
+      var column = layers.Key.Column;
+      var merge = _marks.ApplyLayers(column, layers.Layers);
+
+      if (_marks.Rules == null && NeedsRules(layers))
+      {
+        WarnIfNoRules();
+      }
+
+      if (!VerboseChunkLog)
+      {
+        return;
+      }
+
+      LogLevelsDrift("worn", column, merge.Worn);
+      LogLevelsDrift("bloodied", column, merge.Bloodied);
+    }
+
+    private void OnGroundStamps(ChunkGroundStampsSMSG stamps)
+    {
+      if (_marks.Rules == null)
+      {
+        WarnIfNoRules();
+
+        return;
+      }
+
+      var column = stamps.Key.Column;
+      var merge = _marks.ApplyStamps(column, stamps.Stamps);
+
+      if (VerboseChunkLog && merge.Prior > 0)
+      {
+        GD.Print(
+          $"[ground] stamps {column}: {merge.LocalDropped} local-only print(s) dropped, " +
+          $"{merge.SnapshotNew} new from the snapshot, {merge.Prior} held before");
+      }
+    }
+
+    /// <summary>Whether a message names a layer the client keeps exact levels for, which only the rules can seed.</summary>
+    private static bool NeedsRules(ChunkGroundLayersSMSG layers)
+    {
+      foreach (var entry in layers.Layers)
+      {
+        if (entry.Layer == GroundLayers.Id.Worn || entry.Layer == GroundLayers.Id.Bloodied)
+        {
+          return true;
+        }
+      }
+
+      return false;
+    }
+
+    /// <summary>
+    /// Logs how far the levels this client derived had drifted from a snapshot, when it had any to compare.
+    /// </summary>
+    private static void LogLevelsDrift(string layer, ChunkKey column, LevelsMerge merge)
+    {
+      if (merge.Prior > 0)
+      {
+        GD.Print(
+          $"[ground] {layer} {column}: {merge.Drifted} cell(s) more than 1 level off the snapshot, " +
+          $"{merge.Prior} marked before");
+      }
+    }
+
+    /// <summary>
+    /// Says once that a message needing the rules arrived without them. The server sends them right behind the
+    /// world info, so this means the stream was cut or the server is older than this client.
+    /// </summary>
+    private void WarnIfNoRules()
+    {
+      if (_marks.Rules != null || _warnedNoRules)
+      {
+        return;
+      }
+
+      _warnedNoRules = true;
+      GD.PushWarning("[ground] marks arrived before GroundMarkRulesSMSG; footprints, wear and blood are ignored.");
     }
 
     /// <summary>
@@ -569,6 +671,7 @@ namespace BestiaBehemothClient.Game.World
 
       // Cached rather than derived per call: GroundYAt is asked once per entity per frame by entity.gd.
       _wrap = ChunkWrap.Of(info);
+      _marks.Wrap = _wrap;
 
       // Clamped by the world's own width, or a world narrower than the view would name columns twice and
       // leave the loading screen waiting for ground that has already arrived under another spelling.
@@ -611,8 +714,7 @@ namespace BestiaBehemothClient.Game.World
       _staticBatches.Clear();
       _appliedStatics.Clear();
       _burnMasks.Clear();
-      _groundLayers.Clear();
-      _groundStamps.Clear();
+      _marks.Clear();
       StaticEntities?.Clear();
     }
 
@@ -658,15 +760,7 @@ namespace BestiaBehemothClient.Game.World
 
         // The mark texture wraps, so a column left set would show its marks again on ground half a kilometre
         // away that nothing has ever happened to. Dropping the entry is not enough; the texels have to go.
-        if (_groundLayers.Remove(column))
-        {
-          Renderer?.ClearGroundMarks(column.X, column.Y);
-        }
-
-        if (_groundStamps.Remove(column))
-        {
-          Renderer?.ClearGroundStamps(column.X, column.Y);
-        }
+        _marks.Drop(column);
       }
 
       if (VerboseChunkLog)
@@ -801,6 +895,97 @@ namespace BestiaBehemothClient.Game.World
         WorldLayout.ChunkSize, WorldLayout.ChunkHeight, _wrap);
 
       return double.IsNaN(surface) ? float.NaN : (float)(surface * voxelSize);
+    }
+
+    /// <summary>
+    /// Lays what one footstep leaves on the ground: a print, and wear on the tile and the four beside it.
+    /// </summary>
+    /// <remarks>
+    /// Called by <c>entity.gd</c> once per tile node a walker reaches, from the node it left to the node it
+    /// entered. Arguments are in Godot's axes like <see cref="GroundYAt"/>'s: the server's horizontal x and y
+    /// are Godot's x and z, and its up is Godot's y. Does nothing until the server's rules have arrived, or
+    /// where the ground under the step is not held.
+    /// </remarks>
+    public void RecordFootfall(long entityId, float fromX, float fromZ, float toX, float toZ, float nearY)
+    {
+      _marks.Footfall(entityId, VoxelOf(fromX), VoxelOf(fromZ), VoxelOf(toX), VoxelOf(toZ), (int)VoxelOf(nearY));
+    }
+
+    /// <summary>
+    /// Soaks the pool a death leaves into the ground around a tile. Axes as in <see cref="RecordFootfall"/>.
+    /// </summary>
+    public void RecordDeath(float worldX, float worldZ)
+    {
+      _marks.Death(VoxelOf(worldX), VoxelOf(worldZ));
+    }
+
+    /// <summary>The voxel a position in metres falls on, rounded to the nearest like the server's tile.</summary>
+    private static long VoxelOf(float metres) => (long)Math.Floor(metres / WorldLayout.VoxelSizeMetres + 0.5);
+
+    /// <summary>
+    /// What <see cref="ClientGroundMarks"/> asks of this manager, and where it sends what it changed.
+    /// </summary>
+    /// <remarks>
+    /// Separate from the node so its methods are not offered to GDScript, which would see them as part of the
+    /// manager.
+    /// </remarks>
+    private sealed class GroundHost : IGroundWorld, IGroundMarkSink
+    {
+      private readonly ChunkStreamManager _owner;
+
+      internal GroundHost(ChunkStreamManager owner)
+      {
+        _owner = owner;
+      }
+
+      public long NowMillis => (long)Time.GetTicksMsec();
+
+      public long NowSecond =>
+        _owner._clock != null && _owner._clock.IsAnchored() ? _owner._clock.AbsoluteSecond : -1;
+
+      public bool HoldsColumn(ChunkKey column) => _owner.Store.HoldsColumn(column.X, column.Y);
+
+      public int SurfaceBlockAt(long voxelX, long voxelY, int nearZ) => SurfaceProbe.BlockAt(
+        _owner.Store, voxelX, voxelY, nearZ, WorldLayout.ChunkSize, WorldLayout.ChunkHeight, _owner._wrap);
+
+      public void StampPressed(ChunkKey column, GroundStamp stamp) =>
+        _owner.Renderer?.PressGroundStamp(column, stamp);
+
+      public void StampsChanged(ChunkKey column) => _owner.Renderer?.RefreshGroundStamps(column.X, column.Y);
+
+      public void LevelChanged(ChunkKey column, int cellIndex, GroundLayers.Id layer, int level)
+      {
+        const int size = WorldLayout.ChunkSize;
+
+        _owner.Renderer?.SetGroundLevel(
+          (long)column.X * size + cellIndex % size, (long)column.Y * size + cellIndex / size,
+          GroundLayers.ChannelOf(layer), level);
+      }
+
+      public void LevelsChanged(ChunkKey column)
+      {
+        var renderer = _owner.Renderer;
+        if (renderer == null)
+        {
+          return;
+        }
+
+        var cells = _owner._marks.CellsOf(column);
+        if (cells == null)
+        {
+          renderer.ClearGroundMarks(column.X, column.Y);
+        }
+        else
+        {
+          renderer.WriteGroundMarks(column.X, column.Y, cells);
+        }
+      }
+
+      public void ColumnDropped(ChunkKey column)
+      {
+        _owner.Renderer?.ClearGroundMarks(column.X, column.Y);
+        _owner.Renderer?.RefreshGroundStamps(column.X, column.Y);
+      }
     }
 
     /// <summary>A one-line summary of the session so far, for a debug overlay or the console.</summary>

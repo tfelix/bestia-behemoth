@@ -69,6 +69,12 @@ var _last_health_msg: HealthComponentSMSG = null
 # True while lying dead awaiting respawn (player bodies only; mobs vanish). Gates the walk/idle pose.
 var _is_dead: bool = false
 
+# What decides whether a death bleeds, see _bleed. A body that arrives already dead is in its column's ground
+# snapshot, so only one seen alive for a frame first adds blood of its own.
+var _has_position: bool = false      # the server has said where this is, as opposed to the origin it starts at
+var _seen_alive: bool = false
+var _bled: bool = false
+
 ## Where this entity is, in words. Owner-only on the wire, so null on all but the local master.
 var _place: PlaceComponentSMSG = null
 
@@ -93,6 +99,9 @@ var _error: float = 0.0              # outstanding server correction, in metres
 var _is_moving: bool = false
 var _seg: int = 0                    # cursor into _nodes, so _segment_at need not rescan from zero
 var _faced_seg: int = -1
+# Highest index of _nodes whose tile the ground has been told about, see _emit_footfalls. Node 0 is the anchor the
+# walk was joined at, not a step, so it starts there.
+var _footfall_node: int = 0
 
 # Visual facing rotation, held as quaternions rather than as bases. The visual carries a scale of its
 # own - a child townsperson is drawn at 0.72 - and interpolating whole bases drags that scale along:
@@ -164,6 +173,10 @@ func _process(delta: float) -> void:
 	_update_visual_rotation()
 	_update_ground_offset(delta)
 
+	# After a whole frame, so everything an appear snapshot says about a body has been applied by now.
+	if _has_position and not _is_dead:
+		_seen_alive = true
+
 
 func _update_movement(delta: float) -> void:
 	# A corpse neither walks nor idles - its pose belongs to the visual.
@@ -215,6 +228,8 @@ func _update_movement(delta: float) -> void:
 	_logical_position = _nodes[seg].lerp(_nodes[seg + 1], frac)
 	_apply_position()
 
+	_emit_footfalls(_nodes.size() - 1 if _travelled >= total else seg)
+
 	if seg != _faced_seg:
 		_face_direction(_nodes[seg + 1] - _nodes[seg])
 		_faced_seg = seg
@@ -241,6 +256,36 @@ func _segment_at(distance: float) -> int:
 		_seg -= 1
 
 	return _seg
+
+
+## Tells the ground about every tile node the walk has reached since the last call, one footfall each, so it can
+## wear and take a print. Reads the walk and never changes it.
+##
+## Every node crossed in a frame counts, a forward snap included, because the server stepped on each of them. A
+## backward snap reports nothing and leaves the cursor where it was, so no tile is reported twice.
+func _emit_footfalls(reached: int) -> void:
+	# Our own click is a guess until the server answers: path_calculator.gd ignores terrain, so a print could land
+	# in a column the server never touches and nothing would correct it. Confirmation releases them all at once.
+	if reached <= _footfall_node or not _predicted_path.is_empty():
+		return
+
+	for node in range(_footfall_node + 1, reached + 1):
+		_report_footfall(node)
+
+	_footfall_node = reached
+
+
+## One footfall onto [member _nodes] [param node], from the node before it.
+func _report_footfall(node: int) -> void:
+	if ConnectionManager.chunk_stream == null:
+		return
+
+	# The anchor is wherever the walk was joined, which is between tiles when that was mid-step.
+	var stepped_from: Vector3 = _nodes[node - 1].round() if node == 1 else _nodes[node - 1]
+	var stepped_to: Vector3 = _nodes[node]
+
+	ConnectionManager.chunk_stream.RecordFootfall(
+		entity_id, stepped_from.x, stepped_from.z, stepped_to.x, stepped_to.z, stepped_to.y)
 
 
 ## Ground distance between two logical positions, ignoring height - the same measure MoveSystem charges a
@@ -511,6 +556,7 @@ func on_interact() -> void:
 func update_position(msg: PositionComponent) -> void:
 	var new_position: Vector3 = msg.Position
 	_server_position = new_position
+	_has_position = true
 
 	if not _is_moving:
 		# Mid-way reports of a walk we predicted and have already finished. They are a trip old, so they
@@ -536,6 +582,7 @@ func update_position(msg: PositionComponent) -> void:
 		_arc.clear()
 		_arc.append(0.0)
 		_seg = 0
+		_footfall_node = 0
 		_travelled = 0.0
 		_is_moving = false
 		_is_predicted_walk = false
@@ -577,11 +624,16 @@ func update_path(msg: PathComponentSMSG) -> void:
 	#
 	# Deliberately not conditional on still being under way: a short click on a slow connection finishes
 	# before its own echo arrives, and re-anchoring then would walk the path a second time from the far end
-	# of it. There is simply nothing left to adopt in that case.
+	# of it. There is simply nothing left to walk in that case.
 	if _confirms_prediction(msg.Path):
-		if _is_moving:
-			_adopt_heights(msg.Path)
+		# The heights are adopted even by a walk that has finished: its footfalls are reported on these, not on
+		# the interpolated ones it was predicted with.
+		_adopt_heights(msg.Path)
 		_predicted_path.clear()
+
+		# A walk that finished while it waited has no frames left to report its footfalls in.
+		if not _is_moving:
+			_emit_footfalls(_nodes.size() - 1)
 		return
 
 	_predicted_path.clear()
@@ -652,6 +704,7 @@ func _abandon_prediction() -> void:
 	_nodes.clear()
 	_arc.clear()
 	_seg = 0
+	_footfall_node = 0
 	_travelled = 0.0
 	_error = 0.0
 	_faced_seg = -1
@@ -685,6 +738,7 @@ func _follow_path(waypoints: Array[Vector3], start_offset: float = 0.0) -> void:
 		_arc[i] = _arc[i - 1] + _ground_distance(_nodes[i - 1], _nodes[i])
 
 	_seg = 0
+	_footfall_node = 0
 
 	# Not zero: the server may be telling us about a walk already under way, and _nodes[0] is the tile it
 	# last reached rather than where it stands. StartOffset is the share of that first step already walked,
@@ -711,8 +765,10 @@ func _stop_at(msg: PathComponentSMSG) -> void:
 	_error = 0.0
 	_faced_seg = -1
 	_seg = 0
+	_footfall_node = 0
 
 	if msg.HasStopPosition:
+		_has_position = true
 		_logical_position = msg.StopPosition
 		_snap_ground_offset()   # applies the position too
 
@@ -738,6 +794,13 @@ func update_dead(msg: DeadComponentSMSG) -> void:
 		_is_moving = false
 		_driven_pose = ""
 
+		# Only a fall that was watched. A body that arrives dead is already part of its column's blood.
+		if _seen_alive:
+			_bleed()
+	else:
+		# Back on its feet, so the next death is a new one.
+		_bled = false
+
 	var visual = get_node_or_null(_VISUAL_NODE_NAME)
 	if visual != null and visual.has_method("set_dead"):
 		visual.set_dead(_is_dead)
@@ -746,6 +809,20 @@ func update_dead(msg: DeadComponentSMSG) -> void:
 ## Whether this entity is a body waiting to respawn.
 func is_dead() -> bool:
 	return _is_dead
+
+
+## Soaks the blood of this entity's death into the ground under it, once per death.
+##
+## Only a creature bleeds - props and structures also vanish on death - and only where it was really seen: an
+## entity made for an id the server never announced sits at the origin.
+func _bleed() -> void:
+	if _bled or not _is_creature or not _has_position or ConnectionManager.chunk_stream == null:
+		return
+
+	_bled = true
+
+	var tile := _logical_position.round()
+	ConnectionManager.chunk_stream.RecordDeath(tile.x, tile.z)
 
 
 ## A posture from the server: a pose no observer could work out for itself. Walk and idle are not
@@ -990,6 +1067,11 @@ func _get_visual_for_method(method_name: String) -> Visual:
 
 
 func vanish(msg: VanishEntitySMSG) -> void:
+	# A body already dead has either bled when it fell or arrived in its column's blood. Only a mob dying as it
+	# vanishes still has a death to add.
+	if msg.IsDead() and not _is_dead:
+		_bleed()
+
 	var visual = get_node_or_null(_VISUAL_NODE_NAME)
 	if visual != null && visual.has_method("vanish"):
 		visual.vanish(msg)

@@ -29,7 +29,7 @@ namespace BestiaBehemothClient.Game.World
     /// <summary>A shape variant, so two creatures on one trail leave two lines of tracks.</summary>
     public int Seed { get; }
 
-    /// <summary>How strongly to draw it, which is how far through its life it is.</summary>
+    /// <summary>How strongly to draw it, which is the share of its life left: <c>level * 255 / 16</c> for 1..16.</summary>
     public byte Strength { get; }
 
     public int LocalX(int chunkSize) => CellIndex % chunkSize;

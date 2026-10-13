@@ -8,13 +8,13 @@ namespace BestiaBehemothClient.Bnet.Message.Map
   /// What has passed over one chunk column, with a shape and a heading.
   /// </summary>
   /// <remarks>
-  /// Arrives behind the chunk payload and is dropped with it, as <see cref="ChunkGroundLayersSMSG"/> is. That
-  /// message carries what the ground <i>is</i> - a grid of levels changing over days - and this carries
-  /// discrete events arriving several times a second, which is why they do not share one.
+  /// Arrives behind the chunk payload and is dropped with it, as <see cref="ChunkGroundLayersSMSG"/> is. It is
+  /// the column's prints on entry and then a rare resync: the client lays the rest itself, from the walkers it
+  /// sees.
   ///
   /// <para>
-  /// <b>Each message is the whole truth about its column, never a diff.</b> Applying one twice changes nothing,
-  /// a lost one self-heals on the next send, and an empty one is how faded tracks retire.
+  /// <b>Each message is the whole truth about its column, never a diff.</b> It replaces what the client laid,
+  /// applying one twice changes nothing, and an empty one is how faded tracks retire.
   /// </para>
   /// </remarks>
   [GlobalClass]

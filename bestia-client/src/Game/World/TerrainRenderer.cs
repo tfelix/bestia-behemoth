@@ -236,17 +236,32 @@ namespace BestiaBehemothClient.Game.World
     private GroundDisturbanceTexture _groundDisturbance;
 
     /// <summary>
-    /// The stamps held per column, kept as records rather than only as pixels.
+    /// Where the prints come from, which is <c>ChunkStreamManager</c>'s ring and not a copy of it.
     /// </summary>
     /// <remarks>
     /// <see cref="GroundDisturbanceTexture"/> covers only the ground near the camera and is cleared whenever
     /// that moves, so the records are what it is rebuilt from. Marks need no equivalent: that texture spans
     /// more than the whole view and nothing ever scrolls out of it.
     /// </remarks>
-    private readonly Dictionary<ChunkKey, GroundStamp[]> _groundStamps = new();
+    private IGroundStampSource _stampSource;
 
     /// <summary>
-    /// Whether the disturbance field no longer matches <see cref="_groundStamps"/>.
+    /// Where the disturbance field is rebuilt from. Setting it redraws the field, for a renderer that attaches
+    /// after the prints arrived.
+    /// </summary>
+    public IGroundStampSource StampSource
+    {
+      get => _stampSource;
+
+      set
+      {
+        _stampSource = value;
+        _disturbanceStale = true;
+      }
+    }
+
+    /// <summary>
+    /// Whether the disturbance field no longer matches <see cref="StampSource"/>.
     /// </summary>
     /// <remarks>
     /// A flag rather than rebuilding where the change arrives, because changes arrive in bursts:
@@ -342,7 +357,6 @@ namespace BestiaBehemothClient.Game.World
       // marks do not merely linger, they land on whatever ground now has those coordinates.
       _groundMarks?.Clear();
 
-      _groundStamps.Clear();
       _groundDisturbance?.Clear();
       _disturbanceStale = false;
 
@@ -516,25 +530,59 @@ namespace BestiaBehemothClient.Game.World
       _groundMarks?.ClearColumn(chunkX, chunkY, WorldLayout.ChunkSize);
     }
 
-    /// <summary>Records what has passed over one column, for the next rebuild to press in.</summary>
-    /// <remarks>
-    /// The whole column every time, never a diff - so the records are replaced rather than merged, and the
-    /// field is rebuilt rather than patched: a stamp that has expired has to stop being drawn, and a height
-    /// field cannot have one print taken back out of it.
-    /// </remarks>
-    public void WriteGroundStamps(int chunkX, int chunkY, GroundStamp[] stamps)
+    /// <summary>Sets one square metre of one layer, for a mark that moved a single cell.</summary>
+    /// <param name="channel">Which layer, by <see cref="GroundLayers.ChannelOf"/>.</param>
+    /// <param name="level">The drawn level, 0 to <see cref="GroundLayerCells.MaxLevel"/>.</param>
+    public void SetGroundLevel(long worldX, long worldY, int channel, int level)
     {
-      _groundStamps[new ChunkKey(chunkX, chunkY, 0)] = stamps;
-      _disturbanceStale = true;
-    }
-
-    public void ClearGroundStamps(int chunkX, int chunkY)
-    {
-      _disturbanceStale |= _groundStamps.Remove(new ChunkKey(chunkX, chunkY, 0));
+      _groundMarks?.SetLevel(worldX, worldY, channel, level);
     }
 
     /// <summary>
-    /// Presses every held stamp that is in reach back into a cleared field.
+    /// Presses one new print into the field without rebuilding it.
+    /// </summary>
+    /// <remarks>
+    /// The print is also in <see cref="StampSource"/>, which is what the next rebuild reads, so nothing is lost
+    /// when the window moves.
+    /// </remarks>
+    public void PressGroundStamp(ChunkKey column, GroundStamp stamp)
+    {
+      var size = WorldLayout.ChunkSize;
+
+      var worldX = (long)column.X * size + stamp.LocalX(size);
+      var worldY = (long)column.Y * size + stamp.LocalY(size);
+
+      if (_groundDisturbance == null || !_groundDisturbance.Covers(worldX, worldY))
+      {
+        return;
+      }
+
+      _groundDisturbance.Stamp(worldX, worldY, stamp.Octant, stamp.Seed, stamp.Strength);
+    }
+
+    /// <summary>
+    /// Says one column's prints changed, so the field is rebuilt if that column is in reach.
+    /// </summary>
+    /// <remarks>
+    /// A print that has expired or been replaced has to stop being drawn, and a height field cannot have one
+    /// print taken back out of it - so a change is a rebuild, not a patch. A column outside the window is not
+    /// worth one.
+    /// </remarks>
+    public void RefreshGroundStamps(int chunkX, int chunkY)
+    {
+      if (_groundDisturbance == null)
+      {
+        return;
+      }
+
+      var size = WorldLayout.ChunkSize;
+
+      _disturbanceStale |= _groundDisturbance.Overlaps(
+        (double)chunkX * size, (double)chunkY * size, (double)(chunkX + 1) * size, (double)(chunkY + 1) * size);
+    }
+
+    /// <summary>
+    /// Presses every held print that is in reach back into a cleared field.
     /// </summary>
     /// <remarks>
     /// A memset and a few hundred small brushes, which is cheaper than it sounds and much simpler than
@@ -550,28 +598,7 @@ namespace BestiaBehemothClient.Game.World
       _disturbanceStale = false;
       _groundDisturbance.Clear();
 
-      foreach (var (column, stamps) in _groundStamps)
-      {
-        PressStamps(column, stamps);
-      }
-    }
-
-    private void PressStamps(ChunkKey column, GroundStamp[] stamps)
-    {
-      var size = WorldLayout.ChunkSize;
-
-      foreach (var stamp in stamps)
-      {
-        var worldX = (long)column.X * size + stamp.LocalX(size);
-        var worldY = (long)column.Y * size + stamp.LocalY(size);
-
-        if (!_groundDisturbance.Covers(worldX, worldY))
-        {
-          continue;
-        }
-
-        _groundDisturbance.Stamp(worldX, worldY, stamp.Octant, stamp.Seed, stamp.Strength);
-      }
+      _stampSource?.ForEachStamp(PressGroundStamp);
     }
 
     private static readonly StringName ToggleDebugShading = "toggle_terrain_debug";

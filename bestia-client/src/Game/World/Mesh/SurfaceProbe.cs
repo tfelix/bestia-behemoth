@@ -133,6 +133,50 @@ namespace BestiaBehemothClient.Game.World.Mesh
     }
 
     /// <summary>
+    /// The raw id of the highest block at one tile within <see cref="SearchVoxels"/> of
+    /// <paramref name="nearZ"/>, or -1 if a chunk the search needs is not held or the tile is all air there.
+    /// </summary>
+    /// <remarks>
+    /// The id as the chunk stores it, not <see cref="BlockAppearance.SlotOf"/>: grass and blighted grass share a
+    /// slot and wear at different rates. Water counts as a block like any other, so a lake bed reads as water -
+    /// what the server's <c>SurfaceBlockLookup</c> says too - and a footfall in it marks nothing.
+    /// </remarks>
+    public static int BlockAt(
+      IChunkSource source, long voxelX, long voxelY, int nearZ, int chunkSize, int chunkHeight, ChunkWrap wrap)
+    {
+      if (source == null || chunkSize <= 0 || chunkHeight <= 0)
+      {
+        return -1;
+      }
+
+      var x = (int)voxelX;
+      var y = (int)voxelY;
+      var chunkX = FloorDiv(x, chunkSize);
+      var chunkY = FloorDiv(y, chunkSize);
+
+      var cursor = new Cursor(wrap);
+
+      for (var z = nearZ + SearchVoxels; z >= nearZ - SearchVoxels; z--)
+      {
+        var chunkZ = FloorDiv(z, chunkHeight);
+
+        var chunk = cursor.Get(source, new ChunkKey(chunkX, chunkY, chunkZ));
+        if (chunk == null)
+        {
+          return -1;
+        }
+
+        var block = chunk.BlockAt(x - chunkX * chunkSize, y - chunkY * chunkSize, z - chunkZ * chunkHeight);
+        if (block != VoxelChunk.AirBlockId)
+        {
+          return block;
+        }
+      }
+
+      return -1;
+    }
+
+    /// <summary>
     /// Where the surface crosses the vertical lattice line at (<paramref name="latticeX"/>,
     /// <paramref name="latticeY"/>), searching downward from <paramref name="nearZ"/>.
     /// </summary>

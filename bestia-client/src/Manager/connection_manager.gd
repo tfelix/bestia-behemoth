@@ -184,6 +184,8 @@ func _ready() -> void:
 	world_clock.name = "WorldClock"
 	add_child(world_clock)
 	world_clock.Attach(_socket)
+	# The ground marks fade on the world's calendar, so the stream reads the second off this clock.
+	chunk_stream.AttachClock(world_clock)
 
 	world_load.attach(self)
 

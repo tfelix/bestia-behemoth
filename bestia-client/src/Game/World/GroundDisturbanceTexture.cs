@@ -141,6 +141,15 @@ namespace BestiaBehemothClient.Game.World
       return System.Math.Abs(worldX - _centre.X) <= half && System.Math.Abs(worldZ - _centre.Y) <= half;
     }
 
+    /// <summary>Whether a square of world, given by its two corners, reaches into the window at all.</summary>
+    public bool Overlaps(double fromX, double fromZ, double toX, double toZ)
+    {
+      var half = ExtentMetres * 0.5f;
+
+      return fromX <= _centre.X + half && toX >= _centre.X - half &&
+             fromZ <= _centre.Y + half && toZ >= _centre.Y - half;
+    }
+
     /// <summary>
     /// Presses one print into the field.
     /// </summary>
