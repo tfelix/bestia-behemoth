@@ -7,10 +7,7 @@ import net.bestia.zone.item.ecs.EquipmentComponentSMSG
 import net.bestia.zone.movement.ecs.SpeedSMSG
 import net.bestia.zone.place.ecs.PlaceComponentSMSG
 import net.bestia.zone.message.SelfSMSG
-import net.bestia.zone.mocks.GameClientMock
 import net.bestia.zone.world.stream.ChunkCoords
-import net.bestia.zone.world.stream.ChunkManifestSMSG
-import net.bestia.zone.world.net.ChunkRequestCMSG
 import net.bestia.zone.world.stream.ChunkService
 import net.bestia.zone.world.stream.ChunkSubscriptionService
 import net.bestia.zone.session.ConnectionInfoService
@@ -42,11 +39,6 @@ import kotlin.test.assertTrue
  */
 class EntityVisibilityScenario : BestiaNoSocketScenario(clearMessagesBetweenTests = false) {
 
-  private companion object {
-    /** Enough passes to walk the request budget through a view volume; the loop stops early once served. */
-    const val REQUEST_ROUNDS = 40
-  }
-
   @Autowired
   private lateinit var world: WorldView
 
@@ -58,28 +50,6 @@ class EntityVisibilityScenario : BestiaNoSocketScenario(clearMessagesBetweenTest
 
   @Autowired
   private lateinit var chunkService: ChunkService
-
-  /**
-   * Gets terrain into the client's hands, because that is what visibility is now keyed on: an entity is
-   * announced to an account that holds the chunk it stands in, and nothing is held until the client has asked
-   * for what the manifest offered and been served it.
-   */
-  private fun holdTerrain(client: GameClientMock) {
-    await {
-      assertTrue(
-        client.tryGetLastReceived(ChunkManifestSMSG::class) != null,
-        "the manifest is what authorises a request"
-      )
-    }
-
-    repeat(REQUEST_ROUNDS) {
-      val offered = client.getLastReceived(ChunkManifestSMSG::class).added.map { it.chunk }
-      if (offered.isEmpty()) return@repeat
-
-      client.sendMessage(ChunkRequestCMSG(client.connectedPlayerId, offered))
-      await { assertTrue(subscriptions.sentTo(client.connectedPlayerId).isNotEmpty()) }
-    }
-  }
 
   @Test
   @Order(1)
