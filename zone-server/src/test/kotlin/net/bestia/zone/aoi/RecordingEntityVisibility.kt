@@ -12,9 +12,14 @@ class RecordingEntityVisibility : EntityVisibility {
   val moves = mutableListOf<Pair<EntityId, Vec3L>>()
   val forgotten = mutableListOf<EntityId>()
   val reannounced = mutableListOf<Long>()
+  val introduced = mutableListOf<Pair<Long, Collection<EntityId>>>()
 
   override fun reannounce(accountId: Long) {
     reannounced.add(accountId)
+  }
+
+  override fun introduce(accountId: Long, entityIds: Collection<EntityId>) {
+    introduced.add(accountId to entityIds)
   }
 
   override fun moved(entityId: EntityId, position: Vec3L) {

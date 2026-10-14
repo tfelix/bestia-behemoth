@@ -16,7 +16,7 @@ import java.util.concurrent.ConcurrentLinkedQueue
  * Chunks are stored **normalised**, because that is how [ChunkSubscriptionService] keys the subscription - on
  * a wrapping world an un-normalised key matches no holder.
  *
- * Tick thread only, like the rest of the streaming layer - except [reannounce], which only enqueues.
+ * Tick thread only, like the rest of the streaming layer - except [reannounce] and [introduce], which only enqueue.
  */
 @Component
 class ChunkEntityVisibility(
@@ -51,6 +51,7 @@ class ChunkEntityVisibility(
    * [EntityVisibility.reannounce].
    */
   private val pendingReannounce = ConcurrentLinkedQueue<AccountId>()
+  private val pendingIntroductions = ConcurrentLinkedQueue<Pair<AccountId, List<EntityId>>>()
 
   override fun moved(entityId: EntityId, position: Vec3L) {
     val move = reindex(entityId, position) ?: return
@@ -84,8 +85,13 @@ class ChunkEntityVisibility(
     pendingReannounce.add(accountId)
   }
 
+  override fun introduce(accountId: AccountId, entityIds: Collection<EntityId>) {
+    pendingIntroductions.add(accountId to entityIds.toList())
+  }
+
   override fun drain(): List<EntityVisibility.Delivery> {
     takeReannouncements()
+    takeIntroductions()
 
     if (pendingAppear.isEmpty() && pendingVanish.isEmpty()) return emptyList()
 
@@ -119,6 +125,15 @@ class ChunkEntityVisibility(
       subscriptions.sentTo(accountId).forEach { chunk ->
         residents[chunk]?.forEach { entityId -> appear(accountId, entityId) }
       }
+    }
+  }
+
+  /** Only entities still indexed: one destroyed since the request has nothing left to snapshot. */
+  private fun takeIntroductions() {
+    while (true) {
+      val (accountId, entityIds) = pendingIntroductions.poll() ?: break
+
+      entityIds.filter { it in chunkOfEntity }.forEach { appear(accountId, it) }
     }
   }
 

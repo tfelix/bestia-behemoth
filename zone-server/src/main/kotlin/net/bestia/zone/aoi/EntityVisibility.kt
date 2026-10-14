@@ -11,8 +11,8 @@ import net.bestia.zone.util.EntityId
  * subscription a client holds for its terrain, which lives in `world.stream`, and `ZoneEngine` is the only
  * place that knows when an entity moved. This lets it say so without pointing `ecs/` at `world/stream/`.
  *
- * **Only safe to call from the tick thread** - the implementation reads the streaming layer. [reannounce] is
- * the one exception, and says so.
+ * **Only safe to call from the tick thread** - the implementation reads the streaming layer. [reannounce] and
+ * [introduce] are the exceptions, and say so.
  */
 interface EntityVisibility {
 
@@ -55,6 +55,14 @@ interface EntityVisibility {
    * is served by the next [drain] on the tick thread.
    */
   fun reannounce(accountId: AccountId)
+
+  /**
+   * Asks for [accountId] to be told about [entityIds] wherever they stand, as if each had just come into view.
+   * For the player's own master and bestias, which their client keeps in sight beyond the terrain it holds.
+   *
+   * **Safe to call from any thread**, like [reannounce].
+   */
+  fun introduce(accountId: AccountId, entityIds: Collection<EntityId>)
 
   /**
    * Takes the visibility changes accumulated since the last call, and clears them.
