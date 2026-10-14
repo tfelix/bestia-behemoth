@@ -16,6 +16,7 @@ import net.bestia.zone.item.loot.LootItemEntitySpawner
 import net.bestia.zone.message.TickMessageHandler
 import net.bestia.zone.message.decoder
 import net.bestia.zone.util.EntityId
+import net.bestia.zone.util.PlayerBestiaId
 import org.springframework.stereotype.Component
 import kotlin.random.Random
 import net.bestia.zone.ecs.core.WorldView
@@ -48,6 +49,7 @@ class DropItemHandler(
       return true
     }
     val masterId = connectionInfoService.getMasterId(msg.playerId)
+    val playerBestiaId = connectionInfoService.getActivePlayerBestiaId(msg.playerId)
 
     val inventory = world.get(activeEntityId, Inventory::class)
     val holdsIt = inventory != null && holdsDroppable(inventory, world.get(activeEntityId, Equipment::class), msg)
@@ -58,15 +60,20 @@ class DropItemHandler(
 
     // Keyed by the master like every other write to its container, so a concurrent use or trade of the same
     // item queues behind this one and finds it gone.
-    asyncJobExecutor.submit(masterId) { dropDurably(msg, masterId, activeEntityId) }
+    asyncJobExecutor.submit(masterId) { dropDurably(msg, masterId, playerBestiaId, activeEntityId) }
 
     return true
   }
 
-  private fun dropDurably(msg: DropItemCMSG, masterId: Long, activeEntityId: EntityId) {
-    val removed = inventoryService.removeOneFromMaster(masterId, msg.itemId, msg.amount, msg.uniqueId)
+  private fun dropDurably(
+    msg: DropItemCMSG,
+    masterId: Long,
+    playerBestiaId: PlayerBestiaId?,
+    activeEntityId: EntityId
+  ) {
+    val removed = inventoryService.removeOneFromOwner(masterId, playerBestiaId, msg.itemId, msg.amount, msg.uniqueId)
     if (removed == null) {
-      LOG.warn { "Could not remove ${msg.amount} of item ${msg.itemId} (uniqueId ${msg.uniqueId}) from master $masterId in DB" }
+      LOG.warn { "Could not remove ${msg.amount} of item ${msg.itemId} (uniqueId ${msg.uniqueId}) from entity $activeEntityId in DB" }
       return
     }
 
