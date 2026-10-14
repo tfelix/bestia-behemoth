@@ -81,7 +81,7 @@ abstract class BestiaNoSocketScenario(
   }
 
   protected fun await(fn: () -> Unit) {
-    Awaitility.await().untilAsserted {
+    Awaitility.await().atMost(GameClientMock.SERVER_TIMEOUT).untilAsserted {
       fn()
     }
   }
