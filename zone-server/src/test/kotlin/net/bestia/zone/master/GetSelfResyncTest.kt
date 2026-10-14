@@ -34,6 +34,8 @@ import kotlin.reflect.KClass
 import net.bestia.zone.ecs.core.EcsWorld
 import net.bestia.zone.master.net.GetSelfCMSG
 import net.bestia.zone.master.net.GetSelfHandler
+import net.bestia.zone.message.SelfSMSG
+import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.account.AvailableBestiaSlotService
 
 /**
@@ -136,6 +138,17 @@ class GetSelfResyncTest {
     handler.handle(GetSelfCMSG(playerId = accountId))
 
     assertEquals(listOf(accountId), entityVisibility.reannounced)
+  }
+
+  @Test
+  fun `getting self introduces the master and its bestias wherever they stand`() {
+    val masterEntityId = givenSelectedMaster()
+    val bestia = SelfSMSG.BestiaInfo(entityId = 55L, mobId = 1, name = null, level = 1, position = Vec3L(0, 0, 0))
+    every { bestiaInfoFactory.getBestiaInfo(any()) } returns listOf(bestia)
+
+    handler.handle(GetSelfCMSG(playerId = accountId))
+
+    assertEquals(listOf(accountId to listOf(masterEntityId, 55L)), entityVisibility.introduced)
   }
 
   @Test

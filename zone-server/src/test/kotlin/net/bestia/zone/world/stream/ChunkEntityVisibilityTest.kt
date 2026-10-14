@@ -213,6 +213,29 @@ class ChunkEntityVisibilityTest {
   }
 
   @Test
+  fun `an introduction reaches an entity in a chunk the account does not hold`() {
+    visibility.moved(1L, Vec3L(5, 5, 0))
+
+    visibility.introduce(observer, listOf(1L))
+
+    assertEquals(
+      listOf(EntityVisibility.Delivery(observer, appeared = listOf(1L), vanished = emptyList())),
+      visibility.drain()
+    )
+    assertEquals(emptyList(), visibility.drain(), "and is served once")
+  }
+
+  @Test
+  fun `an introduction skips an entity forgotten before the drain`() {
+    visibility.moved(1L, Vec3L(5, 5, 0))
+
+    visibility.introduce(observer, listOf(1L))
+    visibility.forgot(1L)
+
+    assertEquals(emptyList(), visibility.drain())
+  }
+
+  @Test
   fun `drain clears what it handed out`() {
     hold(observer, ChunkPos(0, 0, 0))
     visibility.moved(1L, Vec3L(5, 5, 0))
