@@ -228,9 +228,6 @@ namespace BestiaBehemothClient.Bnet.Message
         _tcpClient.Connect(ServerName, Port);
         _networkStream = _tcpClient.GetStream();
 
-        // Set a read timeout so the thread can check for exit requests
-        _tcpClient.ReceiveTimeout = 500; // 500 ms timeout
-
         GD.Print("Successfully connected to server");
         SetConnectionStatus(ConnectionStatus.Connected);
 
@@ -243,7 +240,15 @@ namespace BestiaBehemothClient.Bnet.Message
         {
           try
           {
-            // Blocking read with timeout
+            // Wake up twice a second to check _shouldStop. This waits with Poll rather than a ReceiveTimeout on
+            // the read: on Windows a timed-out read can come back as "Overlapped I/O operation is in progress"
+            // (997) instead of a timeout, which is not told apart from a dead connection and dropped the client.
+            if (!_tcpClient.Client.Poll(500_000, SelectMode.SelectRead))
+            {
+              continue;
+            }
+
+            // Readable (or closed), so this returns at once.
             int bytesRead = _networkStream.Read(buffer, 0, buffer.Length);
             if (bytesRead > 0)
             {
@@ -255,12 +260,6 @@ namespace BestiaBehemothClient.Bnet.Message
               GD.Print("Connection closed by remote host");
               break;
             }
-          }
-          catch (IOException ex) when (ex.InnerException is SocketException socketEx &&
-                                       socketEx.SocketErrorCode == SocketError.TimedOut)
-          {
-            // Timeout occurred - this is normal, just continue the loop to check _shouldStop
-            continue;
           }
           catch (InvalidDataException ex)
           {
