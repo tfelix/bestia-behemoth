@@ -167,11 +167,18 @@ var _server_position: Vector3 = Vector3.ZERO
 # Height correction that puts the feet on the drawn terrain - see _update_ground_offset.
 var _ground_offset: float = 0.0
 
+## Kind and id of the body built by [method update_visual], so a repeated snapshot can leave it standing.
+var _visual_key: String = ""
+
+const _HELD_GROUND_CHECK_SECONDS: float = 0.25
+var _since_held_ground_check: float = _HELD_GROUND_CHECK_SECONDS
+
 
 func _process(delta: float) -> void:
 	_update_movement(delta)
 	_update_visual_rotation()
 	_update_ground_offset(delta)
+	_update_visible_on_held_ground(delta)
 
 	# After a whole frame, so everything an appear snapshot says about a body has been applied by now.
 	if _has_position and not _is_dead:
@@ -357,6 +364,24 @@ func _probe_ground_offset() -> float:
 	return clampf(ground - _logical_position.y, -_GROUND_MAX_OFFSET, _GROUND_MAX_OFFSET)
 
 
+## The player's own entities are still sent beyond the streamed terrain, so the map can show them. There the body
+## would float over empty ground, and its billboards would draw through nearer hills.
+func _update_visible_on_held_ground(delta: float) -> void:
+	_since_held_ground_check += delta
+	if _since_held_ground_check < _HELD_GROUND_CHECK_SECONDS:
+		return
+	_since_held_ground_check = 0.0
+
+	var stream = ConnectionManager.chunk_stream
+	if stream == null or _camera != null:
+		visible = true
+		return
+
+	visible = stream.HoldsGroundAt(
+		_logical_position.x + TileSpace.CENTRE_OFFSET.x,
+		_logical_position.z + TileSpace.CENTRE_OFFSET.z)
+
+
 ## Puts the entity on the ground this frame instead of easing onto it - for teleports.
 func _snap_ground_offset() -> void:
 	var target := _probe_ground_offset()
@@ -429,11 +454,17 @@ func update_visual(msg: VisualComponentSMSG) -> void:
 	_bestia_id = msg.VisualId if msg.Kind == VisualKind.BESTIA else 0
 	_is_creature = msg.Kind == VisualKind.BESTIA
 
+	# An owned entity coming back into view is snapshotted again; rebuilding would replay its fade-in.
+	var key := "%s:%s" % [msg.Kind, msg.VisualId]
+	if key == _visual_key and has_node(_VISUAL_NODE_NAME):
+		return
+
 	var scene: PackedScene = _visual_scene_for(msg)
 	if scene == null:
 		return
 
 	_release_visual()
+	_visual_key = key
 
 	# Untyped on purpose: each kind's visual declares its own setup_visual, taking its own message.
 	var visual = scene.instantiate()
@@ -535,6 +566,7 @@ func get_display_name() -> String:
 ## name still taken - Godot renames the newcomer, and _VISUAL_NODE_NAME then resolves to the node that is
 ## about to disappear, and to null after that.
 func _release_visual() -> void:
+	_visual_key = ""
 	var existing = get_node_or_null(_VISUAL_NODE_NAME)
 	if existing == null:
 		return
