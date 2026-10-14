@@ -18,6 +18,10 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import net.bestia.zone.control.ActiveEntitySMSG
+import net.bestia.zone.battle.ecs.exp.Exp
+import net.bestia.zone.battle.ecs.level.Level
+import net.bestia.zone.ecs.core.modify
+import net.bestia.zone.item.ecs.CarryCapacity
 
 class SelectEntityHandlerTest {
 
@@ -54,6 +58,26 @@ class SelectEntityHandlerTest {
     assertFalse(world.has(master, ActivePlayer::class))
     assertEquals(setOf(ACCOUNT_ID), playerAoi.queryEntitiesInCube(BESTIA_AT, 2))
     verify { out.sendToPlayer(ACCOUNT_ID, ActiveEntitySMSG(bestia)) }
+  }
+
+  @Test
+  fun `selecting a bestia sends its window state again`() {
+    val exp = Exp(0, 100)
+    val level = Level(1)
+    val capacity = CarryCapacity(current = 0, max = 400)
+    world.modify(bestia) { id ->
+      add(id, exp)
+      add(id, level)
+      add(id, capacity)
+    }
+    // Settled long ago: the push at spawn went out before the player ever looked at this bestia.
+    listOf(exp, level, capacity).forEach { it.clearDirty() }
+
+    sut.handle(world, SelectEntityCMSG(ACCOUNT_ID, bestia))
+
+    assertTrue(exp.isDirty())
+    assertTrue(level.isDirty())
+    assertTrue(capacity.isDirty())
   }
 
   @Test

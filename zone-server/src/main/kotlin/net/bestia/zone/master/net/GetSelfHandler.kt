@@ -2,21 +2,9 @@ package net.bestia.zone.master.net
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
-import net.bestia.zone.battle.ecs.exp.Exp
-import net.bestia.zone.battle.ecs.level.Level
-import net.bestia.zone.battle.ecs.status.BaseStatusValues
-import net.bestia.zone.battle.ecs.status.Health
-import net.bestia.zone.battle.ecs.status.Mana
-import net.bestia.zone.battle.ecs.status.OwnerCombatStats
-import net.bestia.zone.battle.ecs.status.SkillPoints
-import net.bestia.zone.battle.ecs.status.Stamina
-import net.bestia.zone.battle.ecs.status.StatusPoints
-import net.bestia.zone.battle.ecs.status.StatusValues
+import net.bestia.zone.master.OwnerComponentResync
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.session.ConnectionInfoService
-import net.bestia.zone.item.ecs.CarryCapacity
-import net.bestia.zone.item.ecs.Equipment
-import net.bestia.zone.place.ecs.Place
 import net.bestia.zone.aoi.EntityVisibility
 import net.bestia.zone.message.IoMessageHandler
 import net.bestia.zone.message.SelfSMSG
@@ -61,41 +49,9 @@ class GetSelfHandler(
     return true
   }
 
-  /**
-   * Re-pushes every owner-only component the master's own windows are built from. They are all
-   * [net.bestia.zone.sync.Dirtyable] and pushed on change, but a master spawns with pools
-   * already full and attributes already settled, so that first push at spawn is the *only* one -
-   * and it races the client still loading its game scene. A lost push is otherwise never made good
-   * on, leaving the UI showing its scene placeholders indefinitely.
-   *
-   * Same sanctioned resync as [net.bestia.zone.item.net.GetInventoryHandler]: nothing
-   * changed, so `markDirty()` is what requests the resend.
-   *
-   * Owner-only components and no others, because that is the half of the split
-   * [net.bestia.zone.engine.EntitySnapshotBuilder] deliberately leaves alone. The public half -
-   * position, visual, speed - is lost to the same race and is made good by
-   * [EntityVisibility.reannounce] through that builder, so listing it here as well would send it twice.
-   *
-   * The list is opt-in rather than a scan over every [net.bestia.zone.sync.Dirtyable] the entity
-   * carries, because re-sending is not harmless for all of them: a repeated `LogoutIntent`, for one,
-   * restarts the client's logout countdown.
-   */
   private fun resyncOwnerComponents(masterEntityId: EntityId) {
-    world.modify(masterEntityId) { id ->
-      get(id, Health::class)?.markDirty()
-      get(id, Mana::class)?.markDirty()
-      get(id, Stamina::class)?.markDirty()
-      get(id, CarryCapacity::class)?.markDirty()
-      get(id, Exp::class)?.markDirty()
-      get(id, Level::class)?.markDirty()
-      get(id, StatusValues::class)?.markDirty()
-      get(id, BaseStatusValues::class)?.markDirty()
-      get(id, OwnerCombatStats::class)?.markDirty()
-      get(id, StatusPoints::class)?.markDirty()
-      get(id, SkillPoints::class)?.markDirty()
-      get(id, Equipment::class)?.markDirty()
-      get(id, Place::class)?.markDirty()
-    } ?: LOG.warn { "Cannot resync components, master entity $masterEntityId is not alive" }
+    world.modify(masterEntityId) { id -> OwnerComponentResync.resync(this, id) }
+      ?: LOG.warn { "Cannot resync components, master entity $masterEntityId is not alive" }
   }
 
   private fun getSelfInfo(accountId: AccountId): SelfSMSG {
