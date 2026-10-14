@@ -68,19 +68,21 @@ offset_left = -168.0
 offset_top = -136.0
 offset_right = 168.0
 
-[node name="MasterProfile" parent="." unique_id=1531017005 instance=ExtResource("1_tk4wv")]
+[node name="TopLeftColumn" type="VBoxContainer" parent="."]
 layout_mode = 1
 offset_left = 8.0
 offset_top = 7.0
 offset_right = 375.0
-offset_bottom = 169.0
+offset_bottom = 7.0
+mouse_filter = 2
+theme_override_constants/separation = 7
 
-[node name="BestiaParty" parent="." instance=ExtResource("28_party")]
-layout_mode = 1
-offset_left = 8.0
-offset_top = 176.0
-offset_right = 188.0
-offset_bottom = 176.0
+[node name="MasterProfile" parent="TopLeftColumn" unique_id=1531017005 instance=ExtResource("1_tk4wv")]
+layout_mode = 2
+
+[node name="BestiaParty" parent="TopLeftColumn" instance=ExtResource("28_party")]
+layout_mode = 2
+size_flags_horizontal = 0
 
 [node name="Chat" parent="." unique_id=2020462949 instance=ExtResource("3_owqpw")]
 layout_mode = 1
@@ -161,7 +163,7 @@ layout_mode = 1
 [node name="MessageDialog" parent="." unique_id=1957725178 instance=ExtResource("13_dialog")]
 oversampling_override = 1.0
 
-[connection signal="equipment_win_toggled" from="MasterProfile" to="." method="_on_master_profile_equipment_win_toggled"]
-[connection signal="inventory_win_toggled" from="MasterProfile" to="." method="_on_master_profile_inventory_win_toggled"]
-[connection signal="skills_win_toggled" from="MasterProfile" to="." method="_on_master_profile_skills_win_toggled"]
-[connection signal="status_win_toggled" from="MasterProfile" to="." method="_on_master_profile_status_win_toggled"]
+[connection signal="equipment_win_toggled" from="TopLeftColumn/MasterProfile" to="." method="_on_master_profile_equipment_win_toggled"]
+[connection signal="inventory_win_toggled" from="TopLeftColumn/MasterProfile" to="." method="_on_master_profile_inventory_win_toggled"]
+[connection signal="skills_win_toggled" from="TopLeftColumn/MasterProfile" to="." method="_on_master_profile_skills_win_toggled"]
+[connection signal="status_win_toggled" from="TopLeftColumn/MasterProfile" to="." method="_on_master_profile_status_win_toggled"]
