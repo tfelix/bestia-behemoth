@@ -1,9 +1,10 @@
 extends PanelContainer
+## The entity the player drives right now: their master, or the bestia they took control of.
 
 const WEIGHT_UNITS_PER_KG := 100.0
 
 var _master_info: MasterInfo
-var _master_entity_id: int = 0
+var _shown_entity_id: int = 0
 
 # Last tile written to the position label, and whether anything has been written yet.
 var _shown_tile: Vector3i = Vector3i.ZERO
@@ -29,9 +30,13 @@ signal status_win_toggled
 
 func _ready() -> void:
 	add_to_group("world_blocking_ui")
-	ConnectionManager.connect("self_received", _on_self_received)
 	ConnectionManager.connect("entity_received", _on_entity_received)
 	_master_info = ConnectionManager.selected_master_info
+
+	# Also fires for the master on the first SelfSMSG.
+	var entity_manager := EntityManager.get_instance()
+	if entity_manager != null:
+		entity_manager.controlled_entity_changed.connect(_on_controlled_entity_changed)
 
 	if _master_info == null:
 		printerr("No master info available")
@@ -42,19 +47,67 @@ func _ready() -> void:
 	_update_position(_master_info.Position)
 
 
-func _on_self_received(msg: SelfSMSG) -> void:
-	_master_entity_id = msg.MasterEntityId
+func _on_controlled_entity_changed(_previous_id: int, entity_id: int) -> void:
+	_shown_entity_id = entity_id
+	_has_shown_tile = false
+	_clear_entity_values()
+
+	var bestia := _owned_bestia(entity_id)
+	if bestia == null:
+		_show_master_identity()
+	else:
+		_show_bestia_identity(bestia)
+
 	_seed_from_cache()
 
 
-## Seeds the condition bars from the master Entity's cache (kept up to date by
-## entity_manager.gd/entity.gd), because _on_entity_received below has to drop everything that
-## arrives before _master_entity_id is known - and a master spawns with full pools, so the server's
-## push at spawn is the only one it will get until something damages it. Mirrors
-## StatusPoints._seed_from_cache.
+## The bars of the previous entity must not pass for this one's. The server resends this one's own values
+## on every switch, so they are back within a tick.
+func _clear_entity_values() -> void:
+	for bar in [[_health_bar, _hp_value], [_mana_bar, _mana_value], [_stamina_bar, _stamina_value]]:
+		_clear_bar(bar[0], bar[1])
+	_clear_bar(_exp_bar, null)
+
+
+## A maximum of 0 would draw the bar full.
+func _clear_bar(bar: ProgressBar, value_label: Label) -> void:
+	bar.max_value = 1
+	bar.value = 0
+	if value_label != null:
+		value_label.text = "0 / 0"
+
+
+func _show_master_identity() -> void:
+	_profile_portrait.show_master()
+	if _master_info == null:
+		return
+	_master_name.text = _master_info.Name
+	_update_level(_master_info.Level)
+
+
+func _show_bestia_identity(bestia: BestiaInfo) -> void:
+	_profile_portrait.show_bestia(bestia.MobId)
+	_master_name.text = OwnedSlots.name_of(bestia)
+	_update_level(bestia.Level)
+
+
+func _owned_bestia(entity_id: int) -> BestiaInfo:
+	var entity_manager := EntityManager.get_instance()
+	if entity_manager == null:
+		return null
+	for bestia in entity_manager.get_owned_bestias():
+		if bestia.EntityId == entity_id:
+			return bestia
+	return null
+
+
+## Seeds the condition bars from the shown Entity's cache (kept up to date by
+## entity_manager.gd/entity.gd), because _on_entity_received below drops everything that
+## arrives for another entity, and pools that are full are not pushed again until they change.
+## Mirrors StatusPoints._seed_from_cache.
 func _seed_from_cache() -> void:
 	var entity_manager := EntityManager.get_instance()
-	var entity: Entity = entity_manager.get_entity(_master_entity_id) if entity_manager else null
+	var entity: Entity = entity_manager.get_entity(_shown_entity_id) if entity_manager else null
 	if entity == null:
 		return
 
@@ -72,8 +125,12 @@ func _seed_bar(bar: ProgressBar, value_label: Label, pool: ConditionPool) -> voi
 
 
 func _on_entity_received(msg: EntitySMSG) -> void:
-	# Skip when it is not adressing our own entity.
-	if msg.EntityId != _master_entity_id:
+	# The master's portrait is kept current while a bestia is shown, so switching back needs no resend.
+	if msg is MasterVisualComponentSMSG and msg.EntityId == _owned_master_entity_id():
+		_profile_portrait.apply_visual(msg)
+		return
+
+	if msg.EntityId != _shown_entity_id:
 		return
 	if msg is LevelComponentSMSG:
 		_update_level(msg.Level)
@@ -87,8 +144,11 @@ func _on_entity_received(msg: EntitySMSG) -> void:
 		_update_exp(msg.Exp, msg.RequiredExpNextLevel)
 	if msg is CarryCapacityComponentSMSG:
 		_update_weight(msg.Current, msg.Max)
-	if msg is MasterVisualComponentSMSG:
-		_profile_portrait.apply_visual(msg)
+
+
+func _owned_master_entity_id() -> int:
+	var entity_manager := EntityManager.get_instance()
+	return entity_manager.get_owned_master_entity_id() if entity_manager else 0
 
 
 func _update_level(level: int) -> void:
@@ -110,12 +170,12 @@ func _update_position(pos: Vector3) -> void:
 	_position.text = "X: %s, Y: %s, Z: %s" % [tile.x, tile.y, tile.z]
 
 
-## Reads the position off our own entity rather than waiting for a PositionComponent: the server
+## Reads the position off the shown entity rather than waiting for a PositionComponent: the server
 ## sends one on a spawn or teleport and then only every MoveSystem.POSITION_RESYNC_STEPS tiles, so
 ## a walk shorter than that delivers none and the readout would sit on where it started.
 func _poll_position() -> void:
 	var entity_manager := EntityManager.get_instance()
-	var entity: Entity = entity_manager.get_master_entity() if entity_manager else null
+	var entity: Entity = entity_manager.get_entity(_shown_entity_id) if entity_manager else null
 	if entity == null:
 		return
 
