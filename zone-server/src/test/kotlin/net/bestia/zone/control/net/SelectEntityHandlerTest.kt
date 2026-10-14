@@ -22,6 +22,7 @@ import net.bestia.zone.battle.ecs.exp.Exp
 import net.bestia.zone.battle.ecs.level.Level
 import net.bestia.zone.ecs.core.modify
 import net.bestia.zone.item.ecs.CarryCapacity
+import net.bestia.zone.item.ecs.Inventory
 
 class SelectEntityHandlerTest {
 
@@ -65,19 +66,22 @@ class SelectEntityHandlerTest {
     val exp = Exp(0, 100)
     val level = Level(1)
     val capacity = CarryCapacity(current = 0, max = 400)
+    val inventory = Inventory(mutableListOf())
     world.modify(bestia) { id ->
       add(id, exp)
       add(id, level)
       add(id, capacity)
+      add(id, inventory)
     }
     // Settled long ago: the push at spawn went out before the player ever looked at this bestia.
-    listOf(exp, level, capacity).forEach { it.clearDirty() }
+    listOf(exp, level, capacity, inventory).forEach { it.clearDirty() }
 
     sut.handle(world, SelectEntityCMSG(ACCOUNT_ID, bestia))
 
     assertTrue(exp.isDirty())
     assertTrue(level.isDirty())
     assertTrue(capacity.isDirty())
+    assertTrue(inventory.isDirty(), "the client counts a bag it sees first as a seed, not as a pickup")
   }
 
   @Test
