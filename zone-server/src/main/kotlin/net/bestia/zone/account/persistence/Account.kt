@@ -31,6 +31,5 @@ class Account(
 
   companion object {
     const val DEFAULT_MASTER_SLOT_COUNT = 3
-    const val DEFAULT_BESTIA_SLOT_COUNT = 4
   }
 }
