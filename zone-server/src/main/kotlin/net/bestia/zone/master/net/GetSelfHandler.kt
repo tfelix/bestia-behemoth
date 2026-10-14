@@ -45,6 +45,8 @@ class GetSelfHandler(
     // from this SelfSMSG.
     resyncOwnerComponents(selfInfo.masterEntityId)
     entityVisibility.reannounce(msg.playerId)
+    val ownedEntityIds = listOf(selfInfo.masterEntityId) + selfInfo.availableBestias.map { it.entityId }
+    entityVisibility.introduce(msg.playerId, ownedEntityIds)
 
     return true
   }
