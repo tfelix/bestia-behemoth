@@ -420,6 +420,9 @@ class ZoneEngine(
       }
 
       for (entityId in delivery.vanished) {
+        // The player keeps their own entities in sight, wherever these walk.
+        if (entityAudience.ownerOf(world, entityId) == delivery.accountId) continue
+
         val vanish = VanishEntitySMSG(entityId, VanishEntitySMSG.VanishKind.OUT_OF_SIGHT)
         batches.add(delivery.accountId, EntityUpdate(entityId, listOf(vanish)))
       }
