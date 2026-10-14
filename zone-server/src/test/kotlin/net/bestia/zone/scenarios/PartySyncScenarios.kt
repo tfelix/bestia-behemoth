@@ -14,7 +14,6 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
-import kotlin.test.assertTrue
 import net.bestia.zone.ecs.core.EcsWorld
 
 /**
@@ -42,30 +41,29 @@ class PartySyncScenarios : BestiaNoSocketScenario() {
 
     val player1EntityId = connectionInfoService.getSelectedMasterEntityId(clientPlayer1.connectedPlayerId)
 
-    val (healthBefore, manaBefore) = world.modify(player1EntityId) { id ->
-      val health = world.get(id, Health::class)!!
-      val healthBefore = health.current
-      health.current -= 1 // the setter marks Health dirty itself
+    world.modify(player1EntityId) { id ->
+      world.get(id, Health::class)!!.current -= 1 // the setter marks Health dirty itself
 
       // No game content attaches Mana to a master yet - add one directly to exercise the sync path.
       val mana = world.get(id, Mana::class) ?: world.add(id, Mana(current = 10, max = 10))
-      val manaBefore = mana.current
       mana.current -= 1 // the setter marks Mana dirty itself
+    }
 
-      healthBefore to manaBefore
-    }!!
-
+    // Compared with what the entity holds now, not with "before - 1": a sync carries only the value at the end
+    // of its tick, so a regeneration that runs in the same tick as the change above replaces it on the wire.
     await {
-      assertTrue(
-        clientPlayer2.receivedAny(HealthComponentSMSG::class) {
-          it.entityId == player1EntityId && it.current == healthBefore - 1
-        },
+      val (health, mana) = world.read {
+        get(player1EntityId, Health::class)!!.current to get(player1EntityId, Mana::class)!!.current
+      }
+
+      assertEquals(
+        health,
+        clientPlayer2.tryGetLastReceivedFor(HealthComponentSMSG::class, player1EntityId)?.current,
         "party member should have received player1's Health update"
       )
-      assertTrue(
-        clientPlayer2.receivedAny(ManaComponentSMSG::class) {
-          it.entityId == player1EntityId && it.current == manaBefore - 1
-        },
+      assertEquals(
+        mana,
+        clientPlayer2.tryGetLastReceivedFor(ManaComponentSMSG::class, player1EntityId)?.current,
         "party member should have received player1's Mana update"
       )
     }
