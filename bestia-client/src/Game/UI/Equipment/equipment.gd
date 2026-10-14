@@ -33,6 +33,10 @@ func _ready() -> void:
 	ConnectionManager.connect("self_received", _on_self_received)
 	ConnectionManager.connect("entity_received", _on_entity_received)
 
+	var entity_manager := EntityManager.get_instance()
+	if entity_manager != null:
+		entity_manager.controlled_entity_changed.connect(_on_controlled_entity_changed)
+
 	for slot_node in _slot_nodes:
 		slot_node.equip_requested.connect(_on_equip_requested)
 		slot_node.unequip_requested.connect(_on_unequip_requested)
@@ -48,14 +52,15 @@ func _collect_slot_nodes() -> Array:
 	return found
 
 
+func _on_self_received(msg: SelfSMSG) -> void:
+	_master_entity_id = msg.MasterEntityId
+
+
 ## Seeds from whatever the Entity node already has cached (see entity.gd/entity_manager.gd) so
 ## this is correct immediately, without waiting for the next live EquipmentComponentSMSG -
 ## mirrors Skills._seed_skill_points_from_cache / BuffList._on_self_received.
-func _on_self_received(msg: SelfSMSG) -> void:
-	_master_entity_id = msg.MasterEntityId
-	# TODO Follow the actually selected entity once entity selection exists client side; until then
-	#   the master is always the acting entity, matching what the server resolves.
-	_selected_entity_id = msg.MasterEntityId
+func _on_controlled_entity_changed(_previous_id: int, entity_id: int) -> void:
+	_selected_entity_id = entity_id
 	_seed_worn_from_cache()
 	_render()
 
