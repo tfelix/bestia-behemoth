@@ -24,9 +24,9 @@ extends Control
 ## window.
 const _FOG := Color(0.11, 0.095, 0.08)
 
-## The player marker: a dark hull with a lighter one inside it, so it reads over any tile.
+## The player marker: a dark hull with a lighter one inside it, so it reads over any tile. The light one is the
+## driven entity's slot colour from [OwnedSlots], as are the dots of the player's other entities.
 const _MARKER_OUTLINE := Color(0.15, 0.11, 0.08)
-const _MARKER_FILL := Color(1.0, 0.86, 0.35)
 
 ## The arrow head, in pixels from the player's own position at [member marker_scale] 1. The notch is what
 ## stops it reading as a plain triangle, which at this size is the difference between "facing" and "here".
@@ -164,11 +164,12 @@ var _tile_pixels: int = 256
 var _world_width: float = 0.0
 var _world_height: float = 0.0
 
-## Where the player was the last time this view redrew on their account, and which way they faced. Null
-## until the first frame that sees them. Only [method _process] reads or writes them - see there for why a
+## Where the player was the last time this view redrew on their account, which way they faced, and where their
+## other entities stood. Null until the first frame that sees them. Only [method _process] reads or writes them - see there for why a
 ## view that does not follow the player still has to watch them.
 var _marker_at: Variant = null
 var _marker_forward := Vector2.ZERO
+var _owned_dots_drawn: Array[Dictionary] = []
 
 var _dragging := false
 
@@ -252,11 +253,13 @@ func _process(_delta: float) -> void:
 	# time one is open, then costs nothing.
 	var at: Variant = player_metres()
 	var forward := _player_forward()
-	if at == _marker_at and forward == _marker_forward:
+	var owned_dots := _owned_dots()
+	if at == _marker_at and forward == _marker_forward and owned_dots == _owned_dots_drawn:
 		return
 
 	_marker_at = at
 	_marker_forward = forward
+	_owned_dots_drawn = owned_dots
 	queue_redraw()
 
 
@@ -306,6 +309,7 @@ func _draw() -> void:
 	_visible_places = places
 	_draw_places()
 	_draw_marks()
+	_draw_owned_entities()
 	_draw_player()
 	_draw_north()
 
@@ -519,6 +523,36 @@ func _place_at(at: Vector2) -> Dictionary:
 	return best
 
 
+func _draw_owned_entities() -> void:
+	var bounds := Rect2(Vector2.ZERO, size)
+
+	for dot in _owned_dots():
+		var at := _to_screen(dot["at"])
+		if not bounds.has_point(at):
+			continue
+
+		draw_circle(at, _DOT_OUTLINE_RADIUS * marker_scale, _MARKER_OUTLINE)
+		draw_circle(at, _DOT_FILL_RADIUS * marker_scale, OwnedSlots.color_of(dot["slot"]))
+
+
+## The master while a bestia is driven, and every other bestia, as [code]{slot, at}[/code] in world metres.
+func _owned_dots() -> Array[Dictionary]:
+	var dots: Array[Dictionary] = []
+	if entity_manager == null:
+		return dots
+
+	var controlled_id: int = entity_manager.get_controlled_entity_id()
+	var owned_ids: Array[int] = entity_manager.get_owned_entity_ids()
+
+	for slot in owned_ids.size():
+		var entity = entity_manager.get_entity(owned_ids[slot])
+		if entity == null or owned_ids[slot] == controlled_id:
+			continue
+		dots.append({"slot": slot, "at": _metres_of(entity)})
+
+	return dots
+
+
 func _draw_player() -> void:
 	var at: Variant = player_metres()
 	if at == null:
@@ -528,6 +562,7 @@ func _draw_player() -> void:
 	if not Rect2(Vector2.ZERO, size).has_point(screen):
 		return
 
+	var fill := _controlled_slot_color()
 	var forward := _player_forward()
 
 	# A dot until the character has turned at all. An arrow needs a direction to be honest about, and a
@@ -535,13 +570,18 @@ func _draw_player() -> void:
 	# one.
 	if forward.is_zero_approx():
 		draw_circle(screen, _DOT_OUTLINE_RADIUS * marker_scale, _MARKER_OUTLINE)
-		draw_circle(screen, _DOT_FILL_RADIUS * marker_scale, _MARKER_FILL)
+		draw_circle(screen, _DOT_FILL_RADIUS * marker_scale, fill)
 		return
 
 	# Dark under light, the same two passes the dot used: a chart tile can be any brightness, and a
 	# single-colour marker disappears into half of them.
 	_draw_arrow(screen, forward, marker_scale, _MARKER_OUTLINE)
-	_draw_arrow(screen, forward, marker_scale * _ARROW_FILL_RATIO, _MARKER_FILL)
+	_draw_arrow(screen, forward, marker_scale * _ARROW_FILL_RATIO, fill)
+
+
+func _controlled_slot_color() -> Color:
+	var slot: int = entity_manager.get_owned_entity_ids().find(entity_manager.get_controlled_entity_id())
+	return OwnedSlots.color_of(maxi(slot, 0))
 
 
 ## An arrow head pointing along [param forward], scaled about [param at] rather than about its own centroid.
@@ -745,4 +785,8 @@ func player_metres() -> Variant:
 	if player == null:
 		return null
 
-	return Vector2(player.global_position.x, player.global_position.z) * _metres_per_voxel
+	return _metres_of(player)
+
+
+func _metres_of(entity: Node3D) -> Vector2:
+	return Vector2(entity.global_position.x, entity.global_position.z) * _metres_per_voxel
