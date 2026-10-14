@@ -7,6 +7,7 @@ import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
 import net.bestia.zone.identity.ecs.Account
+import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.System
@@ -65,6 +66,7 @@ class ZoneEngineTest {
 
   /** Records what it is told, so the position sweep's static/dynamic split can be asserted. */
   private val entityVisibility = RecordingEntityVisibility()
+  private val sessions = ConnectionInfoService()
 
   /** An account that holds the chunk an entity stands in, and is therefore its audience. */
   private val watcher = 90_002L
@@ -96,7 +98,7 @@ class ZoneEngineTest {
       outMessageProcessor = outMessageProcessor,
       outbox = outbox,
       entityVisibility = entityVisibility,
-      entityAudience = EntityAudience(entityVisibility),
+      entityAudience = EntityAudience(entityVisibility, sessions),
       snapshotBuilder = EntitySnapshotBuilder(),
       tickMetrics = TickMetrics(meters, WorldRulesConfig(tickRate = 20)),
     )

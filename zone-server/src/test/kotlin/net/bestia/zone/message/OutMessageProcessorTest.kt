@@ -5,7 +5,8 @@ import net.bestia.bnet.proto.EnvelopeProto
 import net.bestia.zone.aoi.ActivePlayerAOIService
 import net.bestia.zone.aoi.RecordingEntityVisibility
 import net.bestia.zone.identity.ecs.Account
-import net.bestia.zone.identity.ecs.ActivePlayer
+import net.bestia.zone.identity.ecs.Master
+import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.aoi.EntityAudience
 import net.bestia.zone.world.stream.InterestRecipients
@@ -17,6 +18,7 @@ class OutMessageProcessorTest {
 
   private val world = testWorld()
   private val visibility = RecordingEntityVisibility()
+  private val sessions = ConnectionInfoService()
 
   private val sent = mutableListOf<Pair<Long, SMSG>>()
   private val handler = object : OutMessageHandler {
@@ -27,7 +29,7 @@ class OutMessageProcessorTest {
 
   /** Off the tick the outbox takes nothing, so every send goes straight to the handler. */
   private val processor = OutMessageProcessor(
-    recipients = InterestRecipients(EntityAudience(visibility), ActivePlayerAOIService(), mockk(relaxed = true)),
+    recipients = InterestRecipients(EntityAudience(visibility, sessions), ActivePlayerAOIService(), mockk(relaxed = true)),
     outMessageHandler = handler,
     outbox = TickOutbox(handler),
   )
@@ -51,8 +53,9 @@ class OutMessageProcessorTest {
   fun `a player hears about its own entity even before it holds the chunk`() {
     val player = world.createEntity { id ->
       add(id, Account(OWNER))
-      add(id, ActivePlayer)
+      add(id, Master(MASTER_ID))
     }
+    sessions.activateSession(OWNER, MASTER_ID, player)
     visibility.observers[player] = setOf(WATCHER)
 
     processor.sendToObserversOf(world, player, event)
@@ -64,5 +67,6 @@ class OutMessageProcessorTest {
     const val OWNER = 1L
     const val WATCHER = 2L
     const val OTHER_WATCHER = 3L
+    const val MASTER_ID = 7L
   }
 }
