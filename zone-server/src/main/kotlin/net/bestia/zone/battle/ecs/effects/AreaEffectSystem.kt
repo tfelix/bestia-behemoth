@@ -15,8 +15,7 @@ import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.identity.ecs.Account
-import net.bestia.zone.identity.ecs.ActivePlayer
+import net.bestia.zone.aoi.EntityAudience
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.OutMessageProcessor
@@ -47,9 +46,9 @@ class AreaEffectSystem(
 
   override val schedule: Schedule = Schedule.EveryTick
 
-  /** `ActivePlayer` and `Account` are read to address the damage message; see [OutMessageProcessor.sendToObserversOf]. */
+  /** [EntityAudience.READS] address the damage message; see [OutMessageProcessor.sendToObserversOf]. */
   override val reads: ComponentClassSet =
-    setOf(Position::class, Health::class, Dead::class, ActivePlayer::class, Account::class) + DamageGate.READS +
+    setOf(Position::class, Health::class, Dead::class) + EntityAudience.READS + DamageGate.READS +
       areaDamageReceiver.reads
   /**
    * Includes what `PropPromotionService` adds to a *victim*, not just what this touches on the effect.

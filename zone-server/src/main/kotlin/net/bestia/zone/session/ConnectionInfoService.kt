@@ -136,6 +136,11 @@ class ConnectionInfoService {
     return sessions[accountId] is ActiveConnection
   }
 
+  /** The selected master of [accountId], or null without an active session. One map read, so fine on the tick. */
+  fun activeMasterIdOf(accountId: AccountId): Long? {
+    return (sessions[accountId] as? ActiveConnection)?.master?.masterId
+  }
+
   fun deactivateSession(accountId: Long) {
     LOG.info { "Deactivated session for account: $accountId" }
 

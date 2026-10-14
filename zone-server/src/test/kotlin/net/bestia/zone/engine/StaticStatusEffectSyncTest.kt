@@ -9,6 +9,7 @@ import net.bestia.worldgen.core.WorldConfig
 import net.bestia.zone.aoi.ActivePlayerAOIService
 import net.bestia.zone.aoi.EntityAOIService
 import net.bestia.zone.aoi.EntityAudience
+import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.battle.ecs.effects.ActiveStatusEffect
 import net.bestia.zone.battle.ecs.effects.StatusEffects
 import net.bestia.zone.battle.ecs.effects.StatusEffectsComponentSMSG
@@ -55,7 +56,7 @@ class StaticStatusEffectSyncTest {
     outMessageProcessor = outMessageProcessor,
     outbox = TickOutbox(mockk(relaxed = true)),
     entityVisibility = visibility,
-    entityAudience = EntityAudience(visibility),
+    entityAudience = EntityAudience(visibility, ConnectionInfoService()),
     snapshotBuilder = EntitySnapshotBuilder(),
     tickMetrics = TickMetrics(SimpleMeterRegistry(), WorldRulesConfig(tickRate = 20)),
   )
