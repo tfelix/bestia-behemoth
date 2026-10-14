@@ -299,6 +299,11 @@ func _drive_pose(pose: String) -> void:
 	if _driven_pose == pose:
 		return
 
+	# An entity can idle or walk a frame before its visual arrives. Latching the pose now would leave the
+	# visual never hearing it, so wait for the visual instead of reporting it missing.
+	if get_node_or_null(_VISUAL_NODE_NAME) == null:
+		return
+
 	_driven_pose = pose
 	_update_animation_from_client(pose)
 
