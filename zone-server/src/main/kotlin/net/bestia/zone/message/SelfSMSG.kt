@@ -9,7 +9,8 @@ import net.bestia.zone.geometry.Vec3L
 data class SelfSMSG(
   val masterId: Long,
   val masterEntityId: Long,
-  val availableBestias: List<BestiaInfo>
+  val availableBestias: List<BestiaInfo>,
+  val bestiaSlotCount: Int
 ) : SMSG {
 
   data class BestiaInfo(
@@ -46,6 +47,7 @@ data class SelfSMSG(
     val selfBuilder = SelfSMSGProto.SelfSMSG.newBuilder()
       .setMasterId(masterId)
       .setMasterEntityId(masterEntityId)
+      .setBestiaSlotCount(bestiaSlotCount)
 
     availableBestias.forEach { bestia ->
       selfBuilder.addAvailableBestias(bestia.toBnet())

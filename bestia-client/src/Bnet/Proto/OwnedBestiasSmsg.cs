@@ -25,14 +25,14 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CihtZXNzYWdlcy9tYXN0ZXIvb3duZWRfYmVzdGlhc19zbXNnLnByb3RvEgRi",
-            "bmV0GiFtZXNzYWdlcy9tYXN0ZXIvYmVzdGlhX2luZm8ucHJvdG8iNQoQT3du",
+            "bmV0GiFtZXNzYWdlcy9tYXN0ZXIvYmVzdGlhX2luZm8ucHJvdG8iUAoQT3du",
             "ZWRCZXN0aWFzU01TRxIhCgdiZXN0aWFzGAEgAygLMhAuYm5ldC5CZXN0aWFJ",
-            "bmZvQi4KFW5ldC5iZXN0aWEuYm5ldC5wcm90b0IVT3duZWRCZXN0aWFzU21z",
-            "Z1Byb3RvYgZwcm90bzM="));
+            "bmZvEhkKEWJlc3RpYV9zbG90X2NvdW50GAIgASgNQi4KFW5ldC5iZXN0aWEu",
+            "Ym5ldC5wcm90b0IVT3duZWRCZXN0aWFzU21zZ1Byb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Bnet.BestiaInfoReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.OwnedBestiasSMSG), global::Bnet.OwnedBestiasSMSG.Parser, new[]{ "Bestias" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.OwnedBestiasSMSG), global::Bnet.OwnedBestiasSMSG.Parser, new[]{ "Bestias", "BestiaSlotCount" }, null, null, null, null)
           }));
     }
     #endregion
@@ -80,6 +80,7 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public OwnedBestiasSMSG(OwnedBestiasSMSG other) : this() {
       bestias_ = other.bestias_.Clone();
+      bestiaSlotCount_ = other.bestiaSlotCount_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -94,10 +95,28 @@ namespace Bnet {
     private static readonly pb::FieldCodec<global::Bnet.BestiaInfo> _repeated_bestias_codec
         = pb::FieldCodec.ForMessage(10, global::Bnet.BestiaInfo.Parser);
     private readonly pbc::RepeatedField<global::Bnet.BestiaInfo> bestias_ = new pbc::RepeatedField<global::Bnet.BestiaInfo>();
+    /// <summary>
+    /// Ordered by when the master took each bestia in, so a client can key a slot's look on its index.
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public pbc::RepeatedField<global::Bnet.BestiaInfo> Bestias {
       get { return bestias_; }
+    }
+
+    /// <summary>Field number for the "bestia_slot_count" field.</summary>
+    public const int BestiaSlotCountFieldNumber = 2;
+    private uint bestiaSlotCount_;
+    /// <summary>
+    /// How many bestia this master may own, filled or not.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint BestiaSlotCount {
+      get { return bestiaSlotCount_; }
+      set {
+        bestiaSlotCount_ = value;
+      }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -116,6 +135,7 @@ namespace Bnet {
         return true;
       }
       if(!bestias_.Equals(other.bestias_)) return false;
+      if (BestiaSlotCount != other.BestiaSlotCount) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -124,6 +144,7 @@ namespace Bnet {
     public override int GetHashCode() {
       int hash = 1;
       hash ^= bestias_.GetHashCode();
+      if (BestiaSlotCount != 0) hash ^= BestiaSlotCount.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -143,6 +164,10 @@ namespace Bnet {
       output.WriteRawMessage(this);
     #else
       bestias_.WriteTo(output, _repeated_bestias_codec);
+      if (BestiaSlotCount != 0) {
+        output.WriteRawTag(16);
+        output.WriteUInt32(BestiaSlotCount);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -154,6 +179,10 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
       bestias_.WriteTo(ref output, _repeated_bestias_codec);
+      if (BestiaSlotCount != 0) {
+        output.WriteRawTag(16);
+        output.WriteUInt32(BestiaSlotCount);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -165,6 +194,9 @@ namespace Bnet {
     public int CalculateSize() {
       int size = 0;
       size += bestias_.CalculateSize(_repeated_bestias_codec);
+      if (BestiaSlotCount != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(BestiaSlotCount);
+      }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -178,6 +210,9 @@ namespace Bnet {
         return;
       }
       bestias_.Add(other.bestias_);
+      if (other.BestiaSlotCount != 0) {
+        BestiaSlotCount = other.BestiaSlotCount;
+      }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -201,6 +236,10 @@ namespace Bnet {
             bestias_.AddEntriesFrom(input, _repeated_bestias_codec);
             break;
           }
+          case 16: {
+            BestiaSlotCount = input.ReadUInt32();
+            break;
+          }
         }
       }
     #endif
@@ -222,6 +261,10 @@ namespace Bnet {
             break;
           case 10: {
             bestias_.AddEntriesFrom(ref input, _repeated_bestias_codec);
+            break;
+          }
+          case 16: {
+            BestiaSlotCount = input.ReadUInt32();
             break;
           }
         }

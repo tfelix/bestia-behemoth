@@ -17,6 +17,9 @@ namespace BestiaBehemothClient.Bnet.Message.Master
     [Export]
     public Godot.Collections.Array<BestiaInfo> AvailableBestias { get; set; } = [];
 
+    [Export]
+    public int BestiaSlotCount { get; set; }
+
     /// <summary>
     /// Creates a SelfSMSG message from protobuf data
     /// </summary>
@@ -27,7 +30,8 @@ namespace BestiaBehemothClient.Bnet.Message.Master
       var selfSmsg = new SelfSMSG
       {
         MasterId = protoSelf.MasterId,
-        MasterEntityId = protoSelf.MasterEntityId
+        MasterEntityId = protoSelf.MasterEntityId,
+        BestiaSlotCount = (int)protoSelf.BestiaSlotCount
       };
 
       foreach (var bestia in protoSelf.AvailableBestias)

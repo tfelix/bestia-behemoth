@@ -23,4 +23,7 @@ message SelfSMSG {
   // when a SelfSMSG happens to arrive.
   reserved 4;
   reserved "has_performed_master_ritual";
+
+  // Same as OwnedBestiasSMSG.bestia_slot_count.
+  uint32 bestia_slot_count = 5;
 }

@@ -27,6 +27,7 @@ import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 import net.bestia.zone.master.BestiaInfoFactory
+import net.bestia.zone.account.AvailableBestiaSlotService
 
 
 @Component
@@ -34,6 +35,7 @@ class GetSelfHandler(
   private val outMessageProcessor: OutMessageProcessor,
   private val connectionInfoService: ConnectionInfoService,
   private val bestiaInfoFactory: BestiaInfoFactory,
+  private val bestiaSlots: AvailableBestiaSlotService,
   private val world: WorldView,
   private val entityVisibility: EntityVisibility
 ) : IoMessageHandler<GetSelfCMSG> {
@@ -107,7 +109,8 @@ class GetSelfHandler(
     return SelfSMSG(
       masterId = masterId,
       masterEntityId = selectedMasterEntityId,
-      availableBestias = bestiaInfos
+      availableBestias = bestiaInfos,
+      bestiaSlotCount = bestiaSlots.getTotalSlotCount(accountId)
     )
   }
 
