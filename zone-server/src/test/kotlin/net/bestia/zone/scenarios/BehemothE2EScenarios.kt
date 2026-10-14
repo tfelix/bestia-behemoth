@@ -12,7 +12,6 @@ import net.bestia.zone.session.NoActiveSessionException
 import net.bestia.zone.control.net.MoveActiveEntityCMSG
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.identity.ecs.OwnedBestia
-import org.awaitility.Awaitility
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
@@ -124,7 +123,7 @@ class BehemothE2EScenarios : BestiaNoSocketScenario(
     // passed whether or not the walk was accepted, because every nearby entity's traffic lands in the same
     // mailbox - and a three-tile walk publishes no position of its own at all: MoveSystem sends one every
     // POSITION_RESYNC_STEPS tiles and the arrival rides the stop notification instead.
-    Awaitility.await().untilAsserted {
+    await {
       val arrived = world.read { get(entityId, Position::class)!!.toVec3L() }
       assertEquals(from.y + 3, arrived.y, "the walk did not move the entity")
 

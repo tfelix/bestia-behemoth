@@ -11,6 +11,7 @@ import net.bestia.zone.message.AccountTaskExecutor
 import net.bestia.zone.message.InMessageProcessor
 import org.springframework.context.ApplicationEventPublisher
 import java.lang.IllegalStateException
+import java.time.Duration
 import java.util.concurrent.TimeUnit
 import kotlin.reflect.KClass
 
@@ -48,13 +49,13 @@ class GameClientMock(
 
   /** Through the account's inbox like a real connection, and back once the handler has run. */
   fun sendMessage(msg: CMSG) {
-    inMessageProcessor.submit(msg).get(5, TimeUnit.SECONDS)
+    inMessageProcessor.submit(msg).get(SERVER_TIMEOUT.toSeconds(), TimeUnit.SECONDS)
   }
 
   /** What [net.bestia.zone.socket.ClientMessageHandler] does with a connection event. */
   private fun publishInOrder(event: Any) {
     inbox.onIo(connectedPlayerId) { applicationEventPublisher.publishEvent(event) }
-      .get(5, TimeUnit.SECONDS)
+      .get(SERVER_TIMEOUT.toSeconds(), TimeUnit.SECONDS)
   }
 
   fun clearMessages() {
@@ -94,5 +95,15 @@ class GameClientMock(
       publishInOrder(AccountDisconnectedEvent(this, connectedPlayerId))
       isConnected = false
     }
+  }
+
+  companion object {
+    /**
+     * How long a test waits for the server, for a reply and for a condition alike.
+     *
+     * Ticks stretch to seconds when another build shares the machine, and a handler needs one tick per world
+     * lease. Generous on purpose: it only costs time when a test fails anyway.
+     */
+    val SERVER_TIMEOUT: Duration = Duration.ofSeconds(30)
   }
 }
