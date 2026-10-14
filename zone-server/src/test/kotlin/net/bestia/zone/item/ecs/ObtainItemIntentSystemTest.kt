@@ -9,9 +9,8 @@ import io.mockk.mockk
 import io.mockk.verify
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.identity.ecs.Master
+import net.bestia.zone.identity.ecs.OwnedBestia
 import net.bestia.zone.persistence.AsyncJobExecutor
-import net.bestia.zone.session.ConnectionInfoService
-import net.bestia.zone.session.NoActiveSessionException
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.persistence.PersistedEntityDeletionQueue
@@ -40,7 +39,6 @@ class ObtainItemIntentSystemTest {
   private val catalogue = mutableListOf<Item>()
   private val lootItemEntitySpawner = mockk<LootItemEntitySpawner>(relaxed = true)
   private val inventoryService = mockk<InventoryService>(relaxed = true)
-  private val connectionInfoService = mockk<ConnectionInfoService>()
 
   // A real executor (single worker) rather than a mock: the async persist hand-off is exactly the
   // behavior under test, so it should actually run off-thread instead of being stubbed away.
@@ -56,14 +54,12 @@ class ObtainItemIntentSystemTest {
     lootItemEntitySpawner = lootItemEntitySpawner,
     inventoryService = inventoryService,
     asyncJobExecutor = asyncJobExecutor,
-    connectionInfoService = connectionInfoService,
     groundStackRemoval = GroundStackRemoval(PersistedEntityDeletionQueue()),
     itemStats = ItemStatCatalog(),
   )
 
   private fun setUp() {
     world = testWorld(systems = listOf(newSystem()))
-    every { connectionInfoService.getMasterId(any()) } returns MASTER_ID
     every { itemRepository.findAll() } answers { catalogue.toList() }
   }
 
@@ -72,7 +68,7 @@ class ObtainItemIntentSystemTest {
   }
 
   private fun verifyNoItemGranted() {
-    verify(exactly = 0) { inventoryService.grantToMaster(any(), any(), any(), any()) }
+    verify(exactly = 0) { inventoryService.grantToOwner(any(), any(), any(), any(), any()) }
   }
 
   private fun verifyNoGroundDrop() {
@@ -86,6 +82,7 @@ class ObtainItemIntentSystemTest {
       add(id, Inventory(mutableListOf()))
       add(id, CarryCapacity(current = 0, max = capacityMax))
       add(id, Account(ACCOUNT_ID))
+      add(id, Master(MASTER_ID))
       add(id, Position.fromVec3(pos))
     }
   }
@@ -103,7 +100,7 @@ class ObtainItemIntentSystemTest {
     assertEquals(3, granted?.amount)
     assertFalse(world.has(entity, ObtainItemIntent.CreateItemIntent::class))
 
-    verify(timeout = 1000) { inventoryService.grantToMaster(MASTER_ID, sword.id, 3, 0L) }
+    verify(timeout = 1000) { inventoryService.grantToOwner(MASTER_ID, null, sword.id, 3, 0L) }
     verifyNoGroundDrop()
   }
 
@@ -112,7 +109,7 @@ class ObtainItemIntentSystemTest {
   fun `a grant that lost a lock race is written on the next try`() {
     setUp()
     stub(sword)
-    every { inventoryService.grantToMaster(MASTER_ID, sword.id, 1, 0L) } throws
+    every { inventoryService.grantToOwner(MASTER_ID, null, sword.id, 1, 0L) } throws
       CannotAcquireLockException("lock wait timeout") andThenJust Runs
     val entity = createCarrier(capacityMax = 2475)
 
@@ -120,7 +117,7 @@ class ObtainItemIntentSystemTest {
     world.tick(0.1f)
     asyncJobExecutor.awaitPending(MASTER_ID)
 
-    verify(exactly = 2) { inventoryService.grantToMaster(MASTER_ID, sword.id, 1, 0L) }
+    verify(exactly = 2) { inventoryService.grantToOwner(MASTER_ID, null, sword.id, 1, 0L) }
     assertEquals(0L, asyncJobExecutor.failedJobs)
   }
 
@@ -128,33 +125,30 @@ class ObtainItemIntentSystemTest {
   fun `a grant that fails for good is counted as a failed job`() {
     setUp()
     stub(sword)
-    every { inventoryService.grantToMaster(MASTER_ID, sword.id, 1, 0L) } throws IllegalStateException("broken")
+    every { inventoryService.grantToOwner(MASTER_ID, null, sword.id, 1, 0L) } throws IllegalStateException("broken")
     val entity = createCarrier(capacityMax = 2475)
 
     world.modify(entity) { id -> add(id, ObtainItemIntent.CreateItemIntent(itemId = sword.id, amount = 1)) }
     world.tick(0.1f)
     asyncJobExecutor.awaitPending(MASTER_ID)
 
-    verify(exactly = 1) { inventoryService.grantToMaster(MASTER_ID, sword.id, 1, 0L) }
+    verify(exactly = 1) { inventoryService.grantToOwner(MASTER_ID, null, sword.id, 1, 0L) }
     assertEquals(1L, asyncJobExecutor.failedJobs)
   }
 
-  /**
-   * Resolved at grant time on the tick: a job that asks the session later finds none after a logout, and the
-   * wrong master after a switch.
-   */
+  /** Its live bag is loaded from its own container, so a save into the master's would move the item on restart. */
   @Test
-  fun `a granted item is persisted to the carrier's master even when the session is gone`() {
+  fun `a bestia's item is persisted to its own container`() {
     setUp()
     stub(sword)
-    every { connectionInfoService.getMasterId(any()) } throws NoActiveSessionException(ACCOUNT_ID)
-    val entity = createCarrier(capacityMax = 2475)
-    world.add(entity, Master(MASTER_ID, "carrier"))
+    val bestia = createCarrier(capacityMax = 2475)
+    world.remove(bestia, Master::class)
+    world.add(bestia, OwnedBestia(MASTER_ID, PLAYER_BESTIA_ID))
 
-    world.modify(entity) { id -> add(id, ObtainItemIntent.CreateItemIntent(itemId = sword.id, amount = 3)) }
+    world.modify(bestia) { id -> add(id, ObtainItemIntent.CreateItemIntent(itemId = sword.id, amount = 3)) }
     world.tick(0.1f)
 
-    verify(timeout = 1000) { inventoryService.grantToMaster(MASTER_ID, sword.id, 3, 0L) }
+    verify(timeout = 1000) { inventoryService.grantToOwner(MASTER_ID, PLAYER_BESTIA_ID, sword.id, 3, 0L) }
   }
 
   @Test
@@ -179,7 +173,6 @@ class ObtainItemIntentSystemTest {
   fun `create item intent drops the item on the ground when the entity has no inventory at all`() {
     setUp()
     stub(sword)
-    // Mirrors a player bestia entity today: no Inventory/CarryCapacity component.
     val entity = world.createEntity { id ->
       add(id, Account(ACCOUNT_ID))
       add(id, Position.fromVec3(Vec3L(1, 2, 0)))
@@ -228,7 +221,7 @@ class ObtainItemIntentSystemTest {
     assertEquals(2, world.get(looter, Inventory::class)!!.getItem(sword.id.toInt())?.amount)
     assertFalse(world.has(looter, ObtainItemIntent.LootItemIntent::class))
 
-    verify(timeout = 1000) { inventoryService.grantToMaster(MASTER_ID, sword.id, 2, 0L) }
+    verify(timeout = 1000) { inventoryService.grantToOwner(MASTER_ID, null, sword.id, 2, 0L) }
   }
 
   @Test
@@ -246,7 +239,7 @@ class ObtainItemIntentSystemTest {
 
     val granted = world.get(looter, Inventory::class)!!.getItem(sword.id.toInt())
     assertEquals(77L, granted?.uniqueId)
-    verify(timeout = 1000) { inventoryService.grantToMaster(MASTER_ID, sword.id, 1, 77L) }
+    verify(timeout = 1000) { inventoryService.grantToOwner(MASTER_ID, null, sword.id, 1, 77L) }
   }
 
   /** Its destroy can wait for the end of the tick, and it must not end up in an inventory as well. */
@@ -301,7 +294,7 @@ class ObtainItemIntentSystemTest {
     world.tick(0.1f)
 
     assertFalse(world.isAlive(groundStack))
-    verify(timeout = 1000) { inventoryService.grantToMaster(MASTER_ID, sword.id, 1, 0L) }
+    verify(timeout = 1000) { inventoryService.grantToOwner(MASTER_ID, null, sword.id, 1, 0L) }
   }
 
   @Test
@@ -397,5 +390,6 @@ class ObtainItemIntentSystemTest {
   companion object {
     private const val ACCOUNT_ID = 100L
     private const val MASTER_ID = 55L
+    private const val PLAYER_BESTIA_ID = 21L
   }
 }

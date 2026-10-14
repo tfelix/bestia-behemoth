@@ -60,9 +60,10 @@ class UseItemHandler(
     // database has given the item up. Taking it from the live inventory alone let a copy the database no longer
     // held be used again and again.
     val masterId = connectionInfoService.getMasterId(msg.playerId)
-    val removed = inventoryService.removeOneFromMaster(masterId, item.id, 1)
+    val playerBestiaId = connectionInfoService.getActivePlayerBestiaId(msg.playerId)
+    val removed = inventoryService.removeOneFromOwner(masterId, playerBestiaId, item.id, 1)
     if (removed == null) {
-      LOG.warn { "Master $masterId holds no ${item.identifier} in the database, refusing to use it" }
+      LOG.warn { "Entity $activeEntityId holds no ${item.identifier} in the database, refusing to use it" }
       return true
     }
 
@@ -73,7 +74,7 @@ class UseItemHandler(
 
     if (consumed.getOrNull() != true) {
       asyncJobExecutor.submit(key = masterId) {
-        inventoryService.grantToMaster(masterId, item.id, 1, removed.uniqueId)
+        inventoryService.grantToOwner(masterId, playerBestiaId, item.id, 1, removed.uniqueId)
       }
     }
     consumed.getOrThrow()
