@@ -312,8 +312,12 @@ func _on_place_selected(_place: Dictionary) -> void:
 ## different one when its owner charts more land, so charting does not throw away the part of the map that
 ## was already complete.
 func _on_inventory_updated(inventory: Inventory) -> void:
+	# The master's bag whoever is driven: the server reads charts off the master's container.
+	var entities := EntityManager.get_instance()
+	var master_entity_id := entities.get_owned_master_entity_id() if entities != null else 0
+
 	var held: Array[String] = []
-	for item in inventory.held_instances():
+	for item in inventory.held_instances(master_entity_id):
 		if item.item.item_id in _CHART_ENABLING_ITEM_IDS:
 			held.append("%d:%d" % [item.item.item_id, item.player_item_id])
 

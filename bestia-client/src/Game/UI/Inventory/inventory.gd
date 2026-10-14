@@ -27,11 +27,12 @@ var equipment_window: WidgetWindow = null
 var _items: Dictionary[int, Array]
 
 func _ready() -> void:
-	# TODO this must be replaced when you can select entities to point to the
-	# currently selected entity instead.
-	ConnectionManager.connect("self_received", _on_self_received)
 	ConnectionManager.connect("entity_received", _on_entity_received)
-	
+
+	var entity_manager := EntityManager.get_instance()
+	if entity_manager != null:
+		entity_manager.controlled_entity_changed.connect(_on_controlled_entity_changed)
+
 	# We usually overlook the first inventory update because we did not yet
 	# fully load but the server already send it out. So we request it again to be
 	# sure.
@@ -41,8 +42,8 @@ func _ready() -> void:
 	_render_items()
 
 
-## The master entity id, which is what every read of this inventory is keyed on - and so, in practice, the
-## moment the items the server already sent become reachable at all.
+## The entity the player drives, which is what every read of this inventory is keyed on. On login that is the
+## master, and the moment the items the server already sent become reachable at all.
 ##
 ## The order is not a race: the UI subtree readies before EntityManager, so `getInventory` goes out before
 ## `getSelf` and the zone answers in that order. Until this runs, [member selected_entity_id] is 0 and both
@@ -53,8 +54,8 @@ func _ready() -> void:
 ## now, so a listener that concluded "nothing carried" from it is never told otherwise for the rest of the
 ## session. That is what hid the minimap and made M do nothing while a chart sat in the inventory window,
 ## and what left the shortcut bar reading zero for items in hand.
-func _on_self_received(msg: SelfSMSG) -> void:
-	selected_entity_id = msg.MasterEntityId
+func _on_controlled_entity_changed(_previous_id: int, entity_id: int) -> void:
+	selected_entity_id = entity_id
 	_render_items()
 	inventory_updated.emit()
 
@@ -96,8 +97,8 @@ func _on_entity_received(msg: EntitySMSG) -> void:
 		_render_items()
 		inventory_updated.emit()
 
-		# Gated on the player's own entity: an Inventory is synced to whoever owns it, not to the master, so
-		# a player bestia's bag arrives here too and is not what "you obtained something" means.
+		# Gated on the entity the player drives: every owned entity's bag is synced here, and only that one's
+		# gains are something the player just did.
 		if seeded and msg.EntityId == selected_entity_id:
 			_announce_gains(held_before, _count_by_item(selected_entity_items))
 
@@ -144,13 +145,13 @@ func refresh() -> void:
 
 
 func _render_items() -> void:
-	if !_items.has(selected_entity_id):
-		# Items for this entity are probably not loaded yet.
-		return
-
+	# Cleared first, so a switch to an entity whose bag has not arrived yet does not show the previous one's.
 	for grid in [_usable_grid, _equip_grid, _etc_grid]:
 		for child in grid.get_children():
 			child.queue_free()
+
+	if !_items.has(selected_entity_id):
+		return
 
 	var selected_entity_items = _items[selected_entity_id]
 
@@ -202,11 +203,11 @@ func is_initialized_for_current_entity() -> bool:
 ## Worn gear is excluded because the server refuses it: you take a piece off to work on it, the same rule the
 ## item container applies to dropping and consuming. A plain stack is excluded because it has no instance at
 ## all, so there is nothing per-item to change.
-func held_instances() -> Array:
-	if not _items.has(selected_entity_id):
+func held_instances(entity_id: int = selected_entity_id) -> Array:
+	if not _items.has(entity_id):
 		return []
 
-	return _items[selected_entity_id].filter(
+	return _items[entity_id].filter(
 		func(item): return item.player_item_id != 0 and not item.equipped
 	)
 
