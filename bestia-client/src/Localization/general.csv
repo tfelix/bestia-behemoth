@@ -84,6 +84,8 @@ ERROR_BESTIA_SLOTS_FULL,"Your trap caught a Bestia, but you have no room for ano
 CAPTURE_SUCCESS,Your trap snapped shut. The Bestia is yours!
 CAPTURE_FAILED,A Bestia broke free of your trap.
 BESTIA_PARTY_MASTER,Master
+BESTIA_PARTY_EMPTY_SLOT,Empty
+BESTIA_PARTY_EMPTY_SLOT_HINT,Catch a Bestia to fill the empty slot.
 ITEM_STAT_STR,{value} STR
 ITEM_STAT_AGI,{value} AGI
 ITEM_STAT_VIT,{value} VIT

@@ -17,10 +17,12 @@ var _owned_master_entity_id: int = 0
 var _controlled_entity_id: int = 0
 ## The master's bestia, as the last SelfSMSG or OwnedBestiasSMSG listed them.
 var _owned_bestias: Array[BestiaInfo] = []
+## How many bestia the master may own, filled or not.
+var _bestia_slot_count: int = 0
 
 ## The player took control of another of their entities. [param previous_id] is 0 on the first one.
 signal controlled_entity_changed(previous_id: int, entity_id: int)
-## The list of bestia the master owns was replaced.
+## The list of bestia the master owns, or the number of slots for them, was replaced.
 signal owned_bestias_changed(bestias: Array[BestiaInfo])
 
 
@@ -73,6 +75,18 @@ func get_master_entity() -> Entity:
 
 func get_owned_bestias() -> Array[BestiaInfo]:
 	return _owned_bestias
+
+
+func get_bestia_slot_count() -> int:
+	return _bestia_slot_count
+
+
+## The master first, then its bestia in the server's order. An entity's index here is its slot, see [OwnedSlots].
+func get_owned_entity_ids() -> Array[int]:
+	var ids: Array[int] = [_owned_master_entity_id]
+	for bestia in _owned_bestias:
+		ids.append(bestia.EntityId)
+	return ids
 
 
 ## True for the master and for every bestia it owns.
@@ -168,19 +182,20 @@ func _on_self_message_received(msg: SelfSMSG) -> void:
 	_owned_master_id = msg.MasterId
 	# A fresh self message means a fresh session, which the server always starts on the master.
 	_set_controlled_entity(msg.MasterEntityId)
-	_replace_owned_bestias(msg.AvailableBestias)
+	_replace_owned_bestias(msg.AvailableBestias, msg.BestiaSlotCount)
 
 
 func _on_owned_bestias_received(msg: OwnedBestiasSMSG) -> void:
-	_replace_owned_bestias(msg.Bestias)
+	_replace_owned_bestias(msg.Bestias, msg.BestiaSlotCount)
 
 
 func _on_active_entity_received(msg: ActiveEntitySMSG) -> void:
 	_set_controlled_entity(msg.EntityId)
 
 
-func _replace_owned_bestias(bestias: Array[BestiaInfo]) -> void:
+func _replace_owned_bestias(bestias: Array[BestiaInfo], slot_count: int) -> void:
 	_owned_bestias = bestias.duplicate()
+	_bestia_slot_count = slot_count
 	owned_bestias_changed.emit(_owned_bestias)
 
 
