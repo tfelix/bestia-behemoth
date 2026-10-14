@@ -18,13 +18,14 @@ import net.bestia.zone.util.AccountId
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
 import net.bestia.zone.control.ActiveEntitySMSG
+import net.bestia.zone.master.OwnerComponentResync
 
 /**
  * Hands the player's control to another entity they own - one of their bestia, or their master again.
  *
  * Three things move together: the session's active entity (what every handler acts on), [PlayerControlled]
  * (what the AI leaves alone) and [ActivePlayer] (what chunk streaming, visibility and spawning follow). The
- * client only switches once [ActiveEntitySMSG] arrives.
+ * client only switches once [ActiveEntitySMSG] arrives, and then shows the new entity in its own windows.
  */
 @Component
 class SelectEntityHandler(
@@ -55,6 +56,8 @@ class SelectEntityHandler(
     }
 
     outMessageProcessor.sendToPlayer(msg.playerId, ActiveEntitySMSG(msg.entityId))
+    // After the send, so the client already shows this entity when its components arrive on the flush.
+    OwnerComponentResync.resync(world, msg.entityId)
 
     return true
   }
