@@ -38,7 +38,7 @@ class UseItemHandlerTest {
 
   @Test
   fun `an item the database no longer holds has no effect`() {
-    every { inventoryService.removeOneFromMaster(MASTER_ID, POTION.id, 1, 0L) } returns null
+    every { inventoryService.removeOneFromOwner(MASTER_ID, null, POTION.id, 1, 0L) } returns null
     val user = user()
 
     handler(user).handle(UseItemCMSG(ACCOUNT_ID, POTION.id, ScriptArgs.EMPTY))
@@ -48,14 +48,14 @@ class UseItemHandlerTest {
 
   @Test
   fun `an item whose script refuses it is given back durably`() {
-    every { inventoryService.removeOneFromMaster(MASTER_ID, POTION.id, 1, 0L) } returns
+    every { inventoryService.removeOneFromOwner(MASTER_ID, null, POTION.id, 1, 0L) } returns
       ItemContainer.RemovedItem(uniqueId = 0L, instance = null)
     every { scripts.useItem(any(), any(), POTION, any()) } returns false
     val user = user()
 
     handler(user).handle(UseItemCMSG(ACCOUNT_ID, POTION.id, ScriptArgs.EMPTY))
 
-    verify { inventoryService.grantToMaster(MASTER_ID, POTION.id, 1, 0L) }
+    verify { inventoryService.grantToOwner(MASTER_ID, null, POTION.id, 1, 0L) }
   }
 
   private fun user(): EntityId {

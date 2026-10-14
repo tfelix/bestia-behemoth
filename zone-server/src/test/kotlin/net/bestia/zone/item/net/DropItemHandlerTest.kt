@@ -57,13 +57,13 @@ class DropItemHandlerTest {
     sut.handle(world, drop)
 
     assertNotNull(pending)
-    verify(exactly = 0) { inventoryService.removeOneFromMaster(any(), any(), any(), any()) }
+    verify(exactly = 0) { inventoryService.removeOneFromOwner(any(), any(), any(), any(), any()) }
     verify(exactly = 0) { spawner.spawnLootItem(any(), any(), any(), any(), any(), any()) }
   }
 
   @Test
   fun `a removal the database refuses spawns nothing and leaves the bag alone`() {
-    every { inventoryService.removeOneFromMaster(MASTER_ID, ARROW, 4, 0L) } returns null
+    every { inventoryService.removeOneFromOwner(MASTER_ID, null, ARROW, 4, 0L) } returns null
 
     sut.handle(world, drop)
     pending!!.invoke()
@@ -74,7 +74,7 @@ class DropItemHandlerTest {
 
   @Test
   fun `a removal the live bag cannot mirror spawns nothing`() {
-    every { inventoryService.removeOneFromMaster(MASTER_ID, ARROW, 4, 0L) } returns
+    every { inventoryService.removeOneFromOwner(MASTER_ID, null, ARROW, 4, 0L) } returns
       ItemContainer.RemovedItem(uniqueId = 0L, instance = null)
 
     sut.handle(world, drop)
@@ -87,7 +87,7 @@ class DropItemHandlerTest {
 
   @Test
   fun `a confirmed removal leaves the bag and lands on the ground`() {
-    every { inventoryService.removeOneFromMaster(MASTER_ID, ARROW, 4, 0L) } returns
+    every { inventoryService.removeOneFromOwner(MASTER_ID, null, ARROW, 4, 0L) } returns
       ItemContainer.RemovedItem(uniqueId = 0L, instance = null)
 
     sut.handle(world, drop)
@@ -95,6 +95,23 @@ class DropItemHandlerTest {
 
     assertEquals(6, world.get(entity, Inventory::class)!!.getItem(ARROW.toInt())?.amount)
     verify { spawner.spawnLootItem(world, itemId = ARROW, amount = 4, pos = any(), uniqueId = 0L) }
+  }
+
+  @Test
+  fun `a bestia drops from its own container`() {
+    val bestia = world.createEntity { id ->
+      add(id, Position(5, 5, 0))
+      add(id, Inventory(mutableListOf(Inventory.Item(itemId = ARROW, amount = 10))))
+    }
+    connections.registerPlayerBestiaEntity(ACCOUNT_ID, MASTER_ID, PLAYER_BESTIA_ID, bestia)
+    connections.activateEntity(ACCOUNT_ID, bestia)
+    every { inventoryService.removeOneFromOwner(MASTER_ID, PLAYER_BESTIA_ID, ARROW, 4, 0L) } returns
+      ItemContainer.RemovedItem(uniqueId = 0L, instance = null)
+
+    sut.handle(world, drop)
+    pending!!.invoke()
+
+    assertEquals(6, world.get(bestia, Inventory::class)!!.getItem(ARROW.toInt())?.amount)
   }
 
   @Test
@@ -107,7 +124,7 @@ class DropItemHandlerTest {
   /** A looted instance is minted in the database after the live copy was added, which still reads uniqueId 0. */
   @Test
   fun `a freshly looted item leaves the bag when it is dropped`() {
-    every { inventoryService.removeOneFromMaster(MASTER_ID, SWORD, 1, 0L) } returns
+    every { inventoryService.removeOneFromOwner(MASTER_ID, null, SWORD, 1, 0L) } returns
       ItemContainer.RemovedItem(uniqueId = 77L, instance = null)
     world.get(entity, Inventory::class)!!.addItem(Inventory.Item(SWORD, amount = 1, uniqueId = 0L, stackable = false))
 
@@ -141,6 +158,7 @@ class DropItemHandlerTest {
   private companion object {
     const val ACCOUNT_ID = 1L
     const val MASTER_ID = 9L
+    const val PLAYER_BESTIA_ID = 21L
     const val ARROW = 40L
     const val SWORD = 11L
   }

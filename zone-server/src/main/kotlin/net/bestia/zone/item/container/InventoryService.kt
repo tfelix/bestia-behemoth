@@ -70,10 +70,24 @@ class InventoryService(
     roll: ItemRoll? = null,
     craftedByMasterId: Long? = null
   ) {
-    val master = owners.lockedMaster(masterId)
-    val item = itemRepository.findByIdOrNull(itemId) ?: throw ItemNotFoundException(itemId.toString())
-    grant(master.container, item, amount, uniqueId, roll, craftedByMasterId)
-    owners.save(master)
+    grantToOwner(masterId, null, itemId, amount, uniqueId, roll, craftedByMasterId)
+  }
+
+  /** [grantToMaster] for whichever entity holds the item: the master when [playerBestiaId] is null. */
+  @Transactional
+  fun grantToOwner(
+    masterId: Long,
+    playerBestiaId: PlayerBestiaId?,
+    itemId: Long,
+    amount: Int,
+    uniqueId: Long = 0L,
+    roll: ItemRoll? = null,
+    craftedByMasterId: Long? = null
+  ) {
+    withOwnerContainer(masterId, playerBestiaId) { container ->
+      val item = itemRepository.findByIdOrNull(itemId) ?: throw ItemNotFoundException(itemId.toString())
+      grant(container, item, amount, uniqueId, roll, craftedByMasterId)
+    }
   }
 
   /**
@@ -115,10 +129,19 @@ class InventoryService(
     amount: Int,
     uniqueId: Long = 0L
   ): ItemContainer.RemovedItem? {
-    val master = owners.lockedMaster(masterId)
-    val removed = master.container.removeOne(itemId, amount, uniqueId) ?: return null
-    owners.save(master)
-    return removed
+    return removeOneFromOwner(masterId, null, itemId, amount, uniqueId)
+  }
+
+  /** [removeOneFromMaster] for whichever entity holds the item: the master when [playerBestiaId] is null. */
+  @Transactional
+  fun removeOneFromOwner(
+    masterId: Long,
+    playerBestiaId: PlayerBestiaId?,
+    itemId: Long,
+    amount: Int,
+    uniqueId: Long = 0L
+  ): ItemContainer.RemovedItem? {
+    return withOwnerContainer(masterId, playerBestiaId) { container -> container.removeOne(itemId, amount, uniqueId) }
   }
 
   /**

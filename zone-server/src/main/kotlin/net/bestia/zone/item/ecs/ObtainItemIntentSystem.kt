@@ -5,17 +5,17 @@ import net.bestia.zone.item.stat.ItemRoll
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.identity.ecs.Master
+import net.bestia.zone.identity.ecs.OwnedBestia
 import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.session.ConnectionInfoService
-import net.bestia.zone.session.NoActiveSessionException
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.item.loot.LootItemEntitySpawner
 import net.bestia.zone.util.EntityId
+import net.bestia.zone.util.PlayerBestiaId
 import org.springframework.stereotype.Component
 import net.bestia.zone.ecs.core.modify
 import net.bestia.zone.persistence.retryingTransientFailures
@@ -33,7 +33,6 @@ class ObtainItemIntentSystem(
   private val lootItemEntitySpawner: LootItemEntitySpawner,
   private val inventoryService: InventoryService,
   private val asyncJobExecutor: AsyncJobExecutor,
-  private val connectionInfoService: ConnectionInfoService,
   private val groundStackRemoval: GroundStackRemoval,
   private val itemStats: ItemStatCatalog,
 ) : System {
@@ -45,9 +44,15 @@ class ObtainItemIntentSystem(
     val uniqueId: Long,
   )
 
+  /** Whose container the item is saved to: the master's own when [playerBestiaId] is null. */
+  private data class ItemOwner(
+    val masterId: Long,
+    val playerBestiaId: PlayerBestiaId?,
+  )
+
   override val reads: ComponentClassSet = setOf(
     ObtainItemIntent.LootItemIntent::class, ObtainItemIntent.CreateItemIntent::class,
-    Position::class, Account::class, Master::class, GroundItemStack::class, CarryCapacity::class,
+    Position::class, Account::class, Master::class, OwnedBestia::class, GroundItemStack::class, CarryCapacity::class,
     Inventory::class, GroundItemIntegrity::class, LootProtection::class
   )
   override val writes: ComponentClassSet = setOf(
@@ -144,7 +149,7 @@ class ObtainItemIntentSystem(
       return
     }
 
-    // Over capacity (or the entity has no inventory at all, e.g. a bestia not wired for one yet):
+    // Over capacity (or the entity has no inventory at all):
     // drop it on the ground at the entity's feet instead of losing it. A ground stack carries no instance
     // state, so a forged copy dropped here loses its roll - the same gap loot drops have.
     val pos = world.get(entityId, Position::class)?.toVec3L()
@@ -216,8 +221,8 @@ class ObtainItemIntentSystem(
   }
 
   /**
-   * The master is resolved here on the tick: a job asking the session later finds none after a logout and the
-   * wrong master after a switch. Keyed by master so the grant is ordered against that master's other writes.
+   * The owner is read off the entity on the tick, which still knows it after a logout. Keyed by master so the
+   * grant is ordered against the other writes of that master and its bestias.
    */
   private fun schedulePersist(
     world: World,
@@ -228,36 +233,32 @@ class ObtainItemIntentSystem(
     roll: ItemRoll?,
     craftedByMasterId: Long?
   ) {
-    val masterId = masterIdOf(world, entityId)
-    if (masterId == null) {
+    val owner = itemOwnerOf(world, entityId)
+    if (owner == null) {
       LOG.warn { "Entity $entityId belongs to no master, granted item $itemId will not be persisted" }
       return
     }
 
     // The live inventory already holds the item, so a write lost here is an item gone after a restart.
-    asyncJobExecutor.submit(key = masterId) {
+    asyncJobExecutor.submit(key = owner.masterId) {
       try {
         retryingTransientFailures {
-          inventoryService.grantToMaster(masterId, itemId, amount, uniqueId, roll, craftedByMasterId)
+          inventoryService.grantToOwner(
+            owner.masterId, owner.playerBestiaId, itemId, amount, uniqueId, roll, craftedByMasterId
+          )
         }
       } catch (e: Exception) {
-        LOG.error { "${amount}x item $itemId for master $masterId was not saved and is gone after a restart" }
+        LOG.error { "${amount}x item $itemId for $owner was not saved and is gone after a restart" }
         throw e
       }
     }
   }
 
-  /** A master carries its own id; an owned bestia persists into its owner's container. */
-  private fun masterIdOf(world: World, entityId: EntityId): Long? {
-    world.get(entityId, Master::class)?.let { return it.masterId }
+  private fun itemOwnerOf(world: World, entityId: EntityId): ItemOwner? {
+    world.get(entityId, Master::class)?.let { return ItemOwner(it.masterId, null) }
+    world.get(entityId, OwnedBestia::class)?.let { return ItemOwner(it.masterId, it.playerBestiaId) }
 
-    val accountId = world.get(entityId, Account::class)?.accountId ?: return null
-
-    return try {
-      connectionInfoService.getMasterId(accountId)
-    } catch (_: NoActiveSessionException) {
-      null
-    }
+    return null
   }
 
   companion object {
