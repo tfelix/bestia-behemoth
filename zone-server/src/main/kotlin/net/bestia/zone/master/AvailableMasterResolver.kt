@@ -1,5 +1,6 @@
 package net.bestia.zone.master
 
+import net.bestia.zone.account.AvailableBestiaSlotService
 import net.bestia.zone.account.persistence.Account
 import net.bestia.zone.account.persistence.AccountRepository
 import net.bestia.zone.account.persistence.findByIdOrThrow
@@ -14,6 +15,7 @@ class AvailableMasterResolver(
   private val accountRepository: AccountRepository,
   private val world: WorldView,
   private val bestiaInfoFactory: BestiaInfoFactory,
+  private val bestiaSlots: AvailableBestiaSlotService,
   private val availability: SpawnPointAvailability
 ) {
 
@@ -42,7 +44,7 @@ class AvailableMasterResolver(
     }
 
     val maxMasterSlots = Account.DEFAULT_MASTER_SLOT_COUNT + account.additionalMasterSlots
-    val maxBestiaSlots = Account.DEFAULT_BESTIA_SLOT_COUNT + account.additionalBestiaSlots
+    val maxBestiaSlots = bestiaSlots.getTotalSlotCount(accountId)
 
     val spawnPoints = availability.offered().map {
       AvailableMasterSMSG.SpawnPointCandidate(id = it.id.toInt(), settlementName = it.settlementName, tier = it.tier)
