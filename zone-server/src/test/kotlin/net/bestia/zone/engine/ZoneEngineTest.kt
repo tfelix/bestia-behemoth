@@ -7,6 +7,7 @@ import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
 import net.bestia.zone.identity.ecs.Account
+import net.bestia.zone.identity.ecs.OwnedBestia
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.ecs.core.Phase
@@ -208,6 +209,32 @@ class ZoneEngineTest {
 
     verify(timeout = 1000) {
       outMessageProcessor.sendToPlayer(watcher, batchWith(VanishEntitySMSG(entity, VanishEntitySMSG.VanishKind.OUT_OF_SIGHT)))
+    }
+  }
+
+  @Test
+  fun `a player's own bestia leaving their view is not vanished for them`() {
+    val masterId = 7L
+    val owner = 90_003L
+    val master = world.createEntity { id -> add(id, Position(0, 0, 0)) }
+    sessions.activateSession(owner, masterId, master)
+    val bestia = world.createEntity { id ->
+      add(id, Position(1, 2, 0))
+      add(id, Account(owner))
+      add(id, OwnedBestia(masterId, playerBestiaId = 21L))
+    }
+    entityVisibility.queued = listOf(
+      EntityVisibility.Delivery(accountId = owner, appeared = emptyList(), vanished = listOf(bestia)),
+      EntityVisibility.Delivery(accountId = watcher, appeared = emptyList(), vanished = listOf(bestia)),
+    )
+
+    zoneEngine.tickOnce(0.05f)
+
+    verify(timeout = 1000) {
+      outMessageProcessor.sendToPlayer(watcher, batchWith(VanishEntitySMSG(bestia, VanishEntitySMSG.VanishKind.OUT_OF_SIGHT)))
+    }
+    verify(exactly = 0) {
+      outMessageProcessor.sendToPlayer(owner, batchWith(VanishEntitySMSG(bestia, VanishEntitySMSG.VanishKind.OUT_OF_SIGHT)))
     }
   }
 
