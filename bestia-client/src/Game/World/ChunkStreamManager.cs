@@ -880,6 +880,21 @@ namespace BestiaBehemothClient.Game.World
     }
 
     /// <summary>
+    /// Whether the client holds the terrain column under (<paramref name="worldX"/>, <paramref name="worldZ"/>).
+    /// </summary>
+    /// <remarks>
+    /// Unlike <see cref="GroundYAt"/>, this does not answer "unknown" for an entity that is swimming, so
+    /// <c>entity.gd</c> can hide a body that stands beyond the streamed terrain and leave a swimmer alone.
+    /// </remarks>
+    public bool HoldsGroundAt(float worldX, float worldZ)
+    {
+      var extent = WorldLayout.ChunkExtentMetres;
+      var column = _wrap.Normalise(new ChunkKey((int)Math.Floor(worldX / extent), (int)Math.Floor(worldZ / extent), 0));
+
+      return Store.HoldsColumn(column.X, column.Y);
+    }
+
+    /// <summary>
     /// Lays what one footstep leaves on the ground: a print, and wear on the tile and the four beside it.
     /// </summary>
     /// <remarks>
