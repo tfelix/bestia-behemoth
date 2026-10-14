@@ -34,6 +34,7 @@ import kotlin.reflect.KClass
 import net.bestia.zone.ecs.core.EcsWorld
 import net.bestia.zone.master.net.GetSelfCMSG
 import net.bestia.zone.master.net.GetSelfHandler
+import net.bestia.zone.account.AvailableBestiaSlotService
 
 /**
  * Pins the resync half of [GetSelfHandler] against a real (system-less) [World], mocking only the
@@ -55,11 +56,15 @@ class GetSelfResyncTest {
   private val bestiaInfoFactory = mockk<BestiaInfoFactory>()
   private val outMessageProcessor = mockk<OutMessageProcessor>(relaxed = true)
   private val entityVisibility = RecordingEntityVisibility()
+  private val bestiaSlots = mockk<AvailableBestiaSlotService> {
+    every { getTotalSlotCount(any()) } returns 4
+  }
 
   private val handler = GetSelfHandler(
     outMessageProcessor = outMessageProcessor,
     connectionInfoService = connectionInfoService,
     bestiaInfoFactory = bestiaInfoFactory,
+    bestiaSlots = bestiaSlots,
     world = world,
     entityVisibility = entityVisibility
   )

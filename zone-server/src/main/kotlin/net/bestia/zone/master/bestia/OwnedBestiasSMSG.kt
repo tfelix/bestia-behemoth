@@ -6,11 +6,13 @@ import net.bestia.zone.message.SMSG
 import net.bestia.zone.message.SelfSMSG
 
 data class OwnedBestiasSMSG(
-  val bestias: List<SelfSMSG.BestiaInfo>
+  val bestias: List<SelfSMSG.BestiaInfo>,
+  val bestiaSlotCount: Int
 ) : SMSG {
 
   override fun toBnetEnvelope(): EnvelopeProto.Envelope {
     val owned = OwnedBestiasSmsgProto.OwnedBestiasSMSG.newBuilder()
+      .setBestiaSlotCount(bestiaSlotCount)
     bestias.forEach { owned.addBestias(it.toBnet()) }
 
     return EnvelopeProto.Envelope.newBuilder()

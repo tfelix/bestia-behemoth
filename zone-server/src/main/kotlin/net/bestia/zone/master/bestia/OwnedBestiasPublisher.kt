@@ -1,5 +1,6 @@
 package net.bestia.zone.master.bestia
 
+import net.bestia.zone.account.AvailableBestiaSlotService
 import net.bestia.zone.master.BestiaInfoFactory
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.session.NoActiveSessionException
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Component
 class OwnedBestiasPublisher(
   private val connectionInfoService: ConnectionInfoService,
   private val bestiaInfoFactory: BestiaInfoFactory,
+  private val bestiaSlots: AvailableBestiaSlotService,
   private val outMessageProcessor: OutMessageProcessor,
 ) {
 
@@ -28,6 +30,6 @@ class OwnedBestiasPublisher(
     val owned = connectionInfoService.getOwnedEntitiesByMaster(accountId, masterId)
     val infos = bestiaInfoFactory.getBestiaInfo(owned)
 
-    outMessageProcessor.sendToPlayer(accountId, OwnedBestiasSMSG(infos))
+    outMessageProcessor.sendToPlayer(accountId, OwnedBestiasSMSG(infos, bestiaSlots.getTotalSlotCount(accountId)))
   }
 }

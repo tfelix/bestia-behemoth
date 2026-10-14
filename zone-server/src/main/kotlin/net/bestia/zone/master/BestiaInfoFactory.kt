@@ -20,8 +20,8 @@ class BestiaInfoFactory(
     val playerBestiasById = playerBestiaRepository.findAllById(playerEntities.map { it.playerBestiaId })
       .associateBy { it.id }
 
-    // Get available bestias by combining entity info with player bestia data
-    return playerEntities.map { (playerBestiaId, entityId) ->
+    // Sorted because the session hands over a set, and a client keys each slot's colour on its index.
+    return playerEntities.sortedBy { it.playerBestiaId }.map { (playerBestiaId, entityId) ->
       val playerBestia = playerBestiasById[playerBestiaId]
         ?: throw PlayerBestiaNotFoundException(playerBestiaId)
 

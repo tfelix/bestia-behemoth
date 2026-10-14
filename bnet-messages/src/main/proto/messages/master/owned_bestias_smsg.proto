@@ -12,5 +12,8 @@ option java_outer_classname = "OwnedBestiasSmsgProto";
  * rather than a delta, so a client that missed one is correct again on the next.
  */
 message OwnedBestiasSMSG {
+  // Ordered by when the master took each bestia in, so a client can key a slot's look on its index.
   repeated BestiaInfo bestias = 1;
+  // How many bestia this master may own, filled or not.
+  uint32 bestia_slot_count = 2;
 }
