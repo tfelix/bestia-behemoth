@@ -235,6 +235,9 @@ namespace BestiaBehemothClient.Game.World
     /// <summary>How deeply the ground near the camera has been pressed in. Null until <see cref="Configure"/>.</summary>
     private GroundDisturbanceTexture _groundDisturbance;
 
+    /// <summary>What is burning nearby, and since when. Null until <see cref="Configure"/> has run.</summary>
+    private GroundFireTexture _groundFire;
+
     /// <summary>
     /// Where the prints come from, which is <c>ChunkStreamManager</c>'s ring and not a copy of it.
     /// </summary>
@@ -329,6 +332,8 @@ namespace BestiaBehemothClient.Game.World
         _materials?.SetGroundDisturbance(_groundDisturbance.Texture);
       }
 
+      _groundFire ??= new GroundFireTexture();
+
       // Null when the shader would not compile, which deliberately leaves the flat vertex-colour material in
       // place rather than an unassigned one - see TerrainMaterials.
       TerrainMaterial ??= _materials?.Shipping ?? DefaultTerrainMaterial();
@@ -359,6 +364,8 @@ namespace BestiaBehemothClient.Game.World
 
       _groundDisturbance?.Clear();
       _disturbanceStale = false;
+
+      _groundFire?.Clear();
 
       _tiles.Clear();
       _pending.Clear();
@@ -480,6 +487,9 @@ namespace BestiaBehemothClient.Game.World
       // megabyte per column.
       _groundMarks?.Flush();
       _groundDisturbance?.Flush();
+      _groundFire?.Flush();
+
+      GroundFireClock.Publish();
     }
 
     /// <summary>
@@ -528,6 +538,12 @@ namespace BestiaBehemothClient.Game.World
     public void ClearGroundMarks(int chunkX, int chunkY)
     {
       _groundMarks?.ClearColumn(chunkX, chunkY, WorldLayout.ChunkSize);
+    }
+
+    /// <summary>Replaces what is burning in one column. An empty list clears it.</summary>
+    public void WriteGroundFire(ChunkKey column, IReadOnlyList<FireCell> cells)
+    {
+      _groundFire?.WriteColumn(column.X, column.Y, WorldLayout.ChunkSize, cells);
     }
 
     /// <summary>Sets one square metre of one layer, for a mark that moved a single cell.</summary>

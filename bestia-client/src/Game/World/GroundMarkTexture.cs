@@ -155,16 +155,19 @@ namespace BestiaBehemothClient.Game.World
     }
 
     /// <summary>Where one square metre of the world lives in <see cref="_pixels"/>.</summary>
+    private static int TexelAt(long worldX, long worldY) => TexelIndexAt(worldX, worldY) * 4;
+
+    /// <summary>Which texel holds one square metre of the world, in any texture laid out like this one.</summary>
     /// <remarks>
     /// Modulo rather than an offset, because the addressing is toroidal - see the class note. Kept positive by
     /// hand: C# <c>%</c> keeps the sign of the dividend, and half this world has negative coordinates.
     /// </remarks>
-    private static int TexelAt(long worldX, long worldY)
+    internal static int TexelIndexAt(long worldX, long worldY)
     {
       var x = (int)(((worldX % Size) + Size) % Size);
       var y = (int)(((worldY % Size) + Size) % Size);
 
-      return (y * Size + x) * 4;
+      return y * Size + x;
     }
 
     /// <summary>One channel's level at a cell, as the 0..255 a texel holds.</summary>
