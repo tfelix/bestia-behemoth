@@ -11,6 +11,9 @@ render_mode unshaded, blend_premul_alpha, depth_draw_never, cull_disabled, shado
 global uniform float ground_fire_clock;
 global uniform float ground_fire_burn_seconds;
 
+// The wind the grass sways in, in m/s and Godot's axes. See `grass.gdshader`.
+global uniform vec3 weather_wind;
+
 uniform vec3 core_colour : source_color = vec3(1.0, 0.86, 0.5);
 uniform vec3 mid_colour : source_color = vec3(1.0, 0.5, 0.1);
 uniform vec3 outer_colour : source_color = vec3(0.75, 0.13, 0.02);
@@ -29,6 +32,12 @@ uniform float fade_seconds : hint_range(0.05, 3.0) = 1.4;
 // What is left of the flame once its ground has burnt down, as a share of its peak. A grass fire is a
 // tall front with smouldering ground behind it, not a field of equal flames.
 uniform float burnt_down : hint_range(0.0, 1.0) = 0.0;
+
+// Downwind lean at the tip, in metres per metre of flame, once the wind is strong enough to saturate it.
+uniform float wind_max_lean : hint_range(0.0, 2.0) = 1.1;
+
+// The wind speed, in m/s, at which the lean reaches about 63% of `wind_max_lean`.
+uniform float wind_reference_speed : hint_range(0.5, 40.0) = 8.0;
 
 uniform float scroll_speed : hint_range(0.0, 6.0) = 1.6;
 uniform float opacity : hint_range(0.0, 1.0) = 0.85;
@@ -80,7 +89,15 @@ void vertex() {
 	vec3 right = INV_VIEW_MATRIX[0].xyz;
 	vec3 up = normalize(mix(vec3(0.0, 1.0, 0.0), INV_VIEW_MATRIX[1].xyz, camera_lean));
 
-	VERTEX = MODEL_MATRIX[3].xyz + right * (UV.x - 0.5) * height * aspect + up * (1.0 - UV.y) * height;
+	// Bent rather than tilted, so the base stays on its ground and the tip goes furthest.
+	float speed = length(weather_wind.xz);
+	vec3 downwind = vec3(weather_wind.x, 0.0, weather_wind.z) / max(speed, 0.001);
+	float gust = 1.0 + 0.2 * sin(TIME * 2.7 + v_seed * 20.0);
+	float lean = wind_max_lean * (1.0 - exp(-speed / max(wind_reference_speed, 0.001))) * gust;
+	float along = 1.0 - UV.y;
+
+	VERTEX = MODEL_MATRIX[3].xyz + right * (UV.x - 0.5) * height * aspect + up * along * height
+		+ downwind * lean * height * along * along;
 }
 
 void fragment() {
