@@ -3,6 +3,14 @@ extends PanelContainer
 
 const WEIGHT_UNITS_PER_KG := 100.0
 
+## The menu buttons show only an icon, so their tooltips name the key that opens the same window.
+const _MENU_HOTKEYS := {
+	"Status": "toggle_status",
+	"Items": "toggle_inventory",
+	"Equip": "toggle_equipment",
+	"Skills": "toggle_skills",
+}
+
 var _master_info: MasterInfo
 var _shown_entity_id: int = 0
 
@@ -19,9 +27,10 @@ var _has_shown_tile: bool = false
 @onready var _mana_value: Label = %ManaValue
 @onready var _stamina_bar: ProgressBar = %StaminaBar
 @onready var _stamina_value: Label = %StaminaValue
-@onready var _exp_bar: ProgressBar = %ExpBar
+@onready var _exp_ring: Range = %ExpRing
 @onready var _weight_label: Label = %WeightLabel
 @onready var _profile_portrait = %ProfileImage
+@onready var _menu: Container = %Menu
 
 signal inventory_win_toggled
 signal skills_win_toggled
@@ -30,6 +39,7 @@ signal status_win_toggled
 
 func _ready() -> void:
 	add_to_group("world_blocking_ui")
+	_name_hotkeys_in_tooltips()
 	ConnectionManager.connect("entity_received", _on_entity_received)
 	_master_info = ConnectionManager.selected_master_info
 
@@ -66,11 +76,11 @@ func _on_controlled_entity_changed(_previous_id: int, entity_id: int) -> void:
 func _clear_entity_values() -> void:
 	for bar in [[_health_bar, _hp_value], [_mana_bar, _mana_value], [_stamina_bar, _stamina_value]]:
 		_clear_bar(bar[0], bar[1])
-	_clear_bar(_exp_bar, null)
+	_clear_bar(_exp_ring, null)
 
 
 ## A maximum of 0 would draw the bar full.
-func _clear_bar(bar: ProgressBar, value_label: Label) -> void:
+func _clear_bar(bar: Range, value_label: Label) -> void:
 	bar.max_value = 1
 	bar.value = 0
 	if value_label != null:
@@ -156,18 +166,16 @@ func _update_level(level: int) -> void:
 
 
 func _update_position(pos: Vector3) -> void:
-	# Labelled with the server's axis names, not Godot's. A player reads these numbers straight back
-	# into /carve and /mm, and both take x/y horizontal with z as the height - printing Godot's y-up
-	# vector verbatim called the height "Y", and a triple copied out of here aimed a carve kilometres
-	# into the sky. Whole numbers for the same reason: a position is a voxel index, and /carve's
-	# parser accepts integers only.
+	# In the server's axes, not Godot's y-up ones: x and y horizontal, z the height, in the order
+	# /carve takes them, so a player can paste the triple straight into it. Whole numbers because a
+	# position is a voxel index and /carve accepts integers only.
 	var tile := Vector3i(TileSpace.to_server_axes(pos))
 	if _has_shown_tile and tile == _shown_tile:
 		return
 
 	_shown_tile = tile
 	_has_shown_tile = true
-	_position.text = "X: %s, Y: %s, Z: %s" % [tile.x, tile.y, tile.z]
+	_position.text = "%s %s %s" % [tile.x, tile.y, tile.z]
 
 
 ## Reads the position off the shown entity rather than waiting for a PositionComponent: the server
@@ -194,14 +202,30 @@ func _update_bar(bar: ProgressBar, value_label: Label, current: int, max_value: 
 ## decimal is deliberate: a chart weighs 10g and should show as 0.0, while a lump of ore moves the
 ## number by 3.0.
 func _update_weight(current: int, max_weight: int) -> void:
-	_weight_label.text = "Weight: %.1f / %.1f kg" % [
+	_weight_label.text = "%.1f/%.1f" % [
 		current / WEIGHT_UNITS_PER_KG, max_weight / WEIGHT_UNITS_PER_KG
 	]
 
 
 func _update_exp(exp: int, required_exp_next_level: int) -> void:
-	_exp_bar.max_value = required_exp_next_level
-	_exp_bar.value = exp
+	_exp_ring.max_value = required_exp_next_level
+	_exp_ring.value = exp
+
+
+func _name_hotkeys_in_tooltips() -> void:
+	for button_name in _MENU_HOTKEYS:
+		var hotkey := _hotkey_of(_MENU_HOTKEYS[button_name])
+		if hotkey.is_empty():
+			continue
+		var button: Button = _menu.get_node(button_name)
+		button.tooltip_text = "%s (%s)" % [button.tooltip_text, hotkey]
+
+
+func _hotkey_of(action: StringName) -> String:
+	for event in InputMap.action_get_events(action):
+		if event is InputEventKey:
+			return event.as_text_physical_keycode()
+	return ""
 
 
 func _process(_delta: float) -> void:
