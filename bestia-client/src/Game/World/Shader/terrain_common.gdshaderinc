@@ -254,6 +254,12 @@ uniform float ground_marks_worn_snow : hint_range(0.0, 1.0) = 0.6;
 // curve, so it is already black when the scar replaces its fire record. Nearest, because times do not blend.
 uniform sampler2D ground_fire : filter_nearest, repeat_enable, hint_default_transparent;
 
+// Embers glowing through the char while the ground burns, cooling once it is out. The fade has to end
+// before `ClientGroundFire.KeptAfterOutSeconds` drops the record.
+uniform vec3 ember_colour : source_color = vec3(1.0, 0.3, 0.04);
+uniform float ember_energy : hint_range(0.0, 16.0) = 1.6;
+uniform float ember_cool_seconds : hint_range(0.1, 5.0) = 2.0;
+
 group_uniforms;
 
 global uniform float ground_fire_clock;
@@ -397,6 +403,8 @@ struct TerrainSurface {
 
 	float ao;
 
+	vec3 emission;
+
 	// Everything below is for the debug shader. It is computed anyway on the way to the albedo, so carrying it
 	// out costs registers in a shader that is already register-bound and nothing at all in the shipping one,
 	// where it is dead and removed.
@@ -451,19 +459,66 @@ struct SlotSample {
 	float ao;
 };
 
-// How charred burning ground is, 0 to 1, blended across texels by hand so its edge matches the scar's.
-float terrain_fire_char(vec2 world_xz) {
+// One value per texel of a textureGather footprint, blended as a linear filter would.
+float terrain_bilinear(vec4 gathered, vec2 f) {
+	// textureGather order: (0,1), (1,1), (1,0), (0,0) of the footprint.
+	return mix(mix(gathered.w, gathered.z, f.x), mix(gathered.x, gathered.y, f.x), f.y);
+}
+
+float terrain_hash(vec2 p) {
+	vec3 p3 = fract(vec3(p.xyx) * 0.1031);
+	p3 += dot(p3, p3.yzx + 33.33);
+	return fract((p3.x + p3.y) * p3.z);
+}
+
+float terrain_value_noise(vec2 p) {
+	vec2 i = floor(p);
+	vec2 f = fract(p);
+	vec2 u = f * f * (3.0 - 2.0 * f);
+	return mix(
+		mix(terrain_hash(i), terrain_hash(i + vec2(1.0, 0.0)), u.x),
+		mix(terrain_hash(i + vec2(0.0, 1.0)), terrain_hash(i + vec2(1.0, 1.0)), u.x),
+		u.y);
+}
+
+// How charred burning ground is (x) and how hot its embers are (y), 0 to 1 each. Blended across texels by
+// hand, because times do not blend, so the edge still matches the scar's linear one.
+vec2 terrain_fire(vec2 world_xz) {
 	vec2 size = vec2(textureSize(ground_fire, 0));
 	vec2 texel = world_xz / max(ground_marks_extent, 0.001) * size - 0.5;
 	vec2 base = floor(texel);
 	vec2 f = texel - base;
+	vec2 uv = (base + 1.0) / size;
 
-	// textureGather order: (0,1), (1,1), (1,0), (0,0) of the footprint.
-	vec4 ignited = textureGather(ground_fire, (base + 1.0) / size, 0);
+	vec4 ignited = textureGather(ground_fire, uv, 0);
+	vec4 recorded = step(0.001, ignited);
+	if (dot(recorded, vec4(1.0)) == 0.0) {
+		return vec2(0.0);
+	}
+
+	vec4 out_at = textureGather(ground_fire, uv, 1);
 	vec4 burn = clamp((ground_fire_clock - ignited) / max(ground_fire_burn_seconds, 0.001), 0.0, 1.0);
-	vec4 charred = step(0.001, ignited) * smoothstep(0.1, 0.8, burn);
+	vec4 cooled = step(0.001, out_at) * smoothstep(0.0, ember_cool_seconds, ground_fire_clock - out_at);
 
-	return mix(mix(charred.w, charred.z, f.x), mix(charred.x, charred.y, f.x), f.y);
+	vec4 charred = recorded * smoothstep(0.1, 0.8, burn);
+	vec4 hot = recorded * smoothstep(0.05, 0.4, burn) * (1.0 - 0.6 * smoothstep(0.6, 1.0, burn)) * (1.0 - cooled);
+
+	return vec2(terrain_bilinear(charred, f), terrain_bilinear(hot, f));
+}
+
+// Sparse glowing specks in the char, where two noises happen to peak together.
+float terrain_embers(vec2 world_xz) {
+	vec2 at = world_xz * 8.1;
+	float specks = terrain_value_noise(at) * terrain_value_noise(world_xz * 17.3 + 3.1);
+
+	// Each speck flickers on its own random curve, so no wave of light rolls across the ground. A speck
+	// forms around a lattice point of the coarser noise, so the cell centred on that point holds all of it.
+	float speck = terrain_hash(floor(at + 0.5));
+	float flicker = 0.55 + 0.45 * terrain_value_noise(vec2(ground_fire_clock * 4.0, speck * 251.0));
+
+	// A hard edge, widened only by a pixel's footprint so distant specks do not shimmer.
+	float edge = max(fwidth(specks), 0.01);
+	return smoothstep(0.5 - edge, 0.5 + edge, specks) * flicker;
 }
 
 SlotSample terrain_sample_slot(int slot, vec3 geometric, vec3 ddx, vec3 ddy, vec3 blend) {
@@ -740,7 +795,8 @@ TerrainSurface terrain_surface(vec3 tint) {
 	// branches out before any of the rest.
 	vec4 marks = texture(ground_marks, v_world_pos.xz / max(ground_marks_extent, 0.001))
 		* ground_marks_strength;
-	marks.r = max(marks.r, terrain_fire_char(v_world_pos.xz) * ground_marks_strength);
+	vec2 fire = terrain_fire(v_world_pos.xz);
+	marks.r = max(marks.r, fire.x * ground_marks_strength);
 
 	float mark_levels[3] = { marks.r, marks.g, marks.b };
 	int mark_slots[3] = { TERRAIN_SLOT_SCORCHED, TERRAIN_SLOT_TRODDEN, TERRAIN_SLOT_BLOODIED };
@@ -891,6 +947,7 @@ TerrainSurface terrain_surface(vec3 tint) {
 	surface.world_normal = world_normal;
 	surface.roughness = roughness;
 	surface.ao = ao;
+	surface.emission = fire.y > 0.0 ? ember_colour * ember_energy * fire.y * terrain_embers(v_world_pos.xz) : vec3(0.0);
 	surface.snow = snow;
 	surface.wetness = wet;
 
