@@ -208,3 +208,7 @@ ground_fire_clock={
 "type": "float",
 "value": 0.0
 }
+ground_fire_burn_seconds={
+"type": "float",
+"value": 4.0
+}

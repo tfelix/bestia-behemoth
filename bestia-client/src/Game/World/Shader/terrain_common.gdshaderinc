@@ -250,7 +250,14 @@ uniform vec3 mark_bloodied_colour : source_color = vec3(0.29, 0.05, 0.05);
 // legible across a white field from further than any print can be resolved.
 uniform float ground_marks_worn_snow : hint_range(0.0, 1.0) = 0.6;
 
+// When each square metre caught fire, from `GroundFireTexture`. Burning ground chars on the grass's clock and
+// curve, so it is already black when the scar replaces its fire record. Nearest, because times do not blend.
+uniform sampler2D ground_fire : filter_nearest, repeat_enable, hint_default_transparent;
+
 group_uniforms;
+
+global uniform float ground_fire_clock;
+global uniform float ground_fire_burn_seconds;
 
 group_uniforms GroundTracks;
 
@@ -443,6 +450,21 @@ struct SlotSample {
 	float roughness;
 	float ao;
 };
+
+// How charred burning ground is, 0 to 1, blended across texels by hand so its edge matches the scar's.
+float terrain_fire_char(vec2 world_xz) {
+	vec2 size = vec2(textureSize(ground_fire, 0));
+	vec2 texel = world_xz / max(ground_marks_extent, 0.001) * size - 0.5;
+	vec2 base = floor(texel);
+	vec2 f = texel - base;
+
+	// textureGather order: (0,1), (1,1), (1,0), (0,0) of the footprint.
+	vec4 ignited = textureGather(ground_fire, (base + 1.0) / size, 0);
+	vec4 burn = clamp((ground_fire_clock - ignited) / max(ground_fire_burn_seconds, 0.001), 0.0, 1.0);
+	vec4 charred = step(0.001, ignited) * smoothstep(0.1, 0.8, burn);
+
+	return mix(mix(charred.w, charred.z, f.x), mix(charred.x, charred.y, f.x), f.y);
+}
 
 SlotSample terrain_sample_slot(int slot, vec3 geometric, vec3 ddx, vec3 ddy, vec3 blend) {
 	float inv_scale = 1.0 / max(slot_uv_scale[slot], 0.0001);
@@ -718,6 +740,7 @@ TerrainSurface terrain_surface(vec3 tint) {
 	// branches out before any of the rest.
 	vec4 marks = texture(ground_marks, v_world_pos.xz / max(ground_marks_extent, 0.001))
 		* ground_marks_strength;
+	marks.r = max(marks.r, terrain_fire_char(v_world_pos.xz) * ground_marks_strength);
 
 	float mark_levels[3] = { marks.r, marks.g, marks.b };
 	int mark_slots[3] = { TERRAIN_SLOT_SCORCHED, TERRAIN_SLOT_TRODDEN, TERRAIN_SLOT_BLOODIED };
