@@ -79,6 +79,7 @@ theme_override_constants/separation = 7
 
 [node name="MasterProfile" parent="TopLeftColumn" unique_id=1531017005 instance=ExtResource("1_tk4wv")]
 layout_mode = 2
+size_flags_horizontal = 0
 
 [node name="BestiaParty" parent="TopLeftColumn" instance=ExtResource("28_party")]
 layout_mode = 2
