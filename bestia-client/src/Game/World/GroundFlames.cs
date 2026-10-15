@@ -9,11 +9,20 @@ namespace BestiaBehemothClient.Game.World
   /// </summary>
   public partial class GroundFlames : Node3D
   {
-    private const float PlaceholderHeight = 0.6f;
+    private const string ShaderPath = "res://Game/VFX/GroundFire/ground_flame.gdshader";
+
+    /// <summary>Two overlapping flames per square metre, so a burning field reads as one sheet of fire.</summary>
+    private const int FlamesPerCell = 2;
+
+    /// <summary>How far a flame may stand from its cell's centre, in metres.</summary>
+    private const float Jitter = 0.3f;
+
+    private const float MinHeight = 0.8f;
+    private const float MaxHeight = 1.9f;
 
     private readonly Dictionary<ChunkKey, MultiMeshInstance3D> _drawn = new();
     private readonly List<int> _slabsTopDown = new();
-    private readonly List<Vector3> _bases = new();
+    private readonly List<(Vector3 Base, FireCell Cell)> _bases = new();
 
     private ClientChunkStore _store;
     private ChunkWrap _wrap = ChunkWrap.None;
@@ -23,7 +32,7 @@ namespace BestiaBehemothClient.Game.World
     {
       _store = store;
       _wrap = wrap;
-      _mesh ??= Placeholder();
+      _mesh ??= new QuadMesh { Material = new ShaderMaterial { Shader = GD.Load<Shader>(ShaderPath) } };
       Clear();
     }
 
@@ -42,7 +51,12 @@ namespace BestiaBehemothClient.Game.World
       {
         node = new MultiMeshInstance3D
         {
-          Multimesh = new MultiMesh { TransformFormat = MultiMesh.TransformFormatEnum.Transform3D, Mesh = _mesh },
+          Multimesh = new MultiMesh
+          {
+            TransformFormat = MultiMesh.TransformFormatEnum.Transform3D,
+            UseCustomData = true,
+            Mesh = _mesh
+          },
           CastShadow = GeometryInstance3D.ShadowCastingSetting.Off
         };
         AddChild(node);
@@ -50,14 +64,34 @@ namespace BestiaBehemothClient.Game.World
       }
 
       var multimesh = node.Multimesh;
-      multimesh.InstanceCount = _bases.Count;
+      multimesh.InstanceCount = _bases.Count * FlamesPerCell;
 
-      for (var i = 0; i < _bases.Count; i++)
+      var low = float.PositiveInfinity;
+      var high = float.NegativeInfinity;
+      var instance = 0;
+
+      foreach (var (ground, cell) in _bases)
       {
-        // Lifted by half its height, so the box stands on the ground rather than in it.
-        var centre = _bases[i] + Vector3.Up * (PlaceholderHeight * 0.5f);
-        multimesh.SetInstanceTransform(i, new Transform3D(Basis.Identity, centre));
+        for (var flame = 0; flame < FlamesPerCell; flame++)
+        {
+          var seed = Hash(ground, flame);
+          var offset = new Vector3((Unit(seed, 1) - 0.5f) * 2f * Jitter, 0f, (Unit(seed, 2) - 0.5f) * 2f * Jitter);
+          var height = Mathf.Lerp(MinHeight, MaxHeight, Unit(seed, 3));
+
+          multimesh.SetInstanceTransform(instance, new Transform3D(Basis.Identity, ground + offset));
+          multimesh.SetInstanceCustomData(instance, new Color(cell.IgnitedAt, cell.OutAt, Unit(seed, 4), height));
+          instance++;
+        }
+
+        low = Mathf.Min(low, ground.Y);
+        high = Mathf.Max(high, ground.Y);
       }
+
+      // The shader builds each billboard itself, so the mesh's own bounds say nothing about where it draws.
+      var corner = new Vector3(
+        column.X * WorldLayout.ChunkSize - 2f, low - 1f, column.Y * WorldLayout.ChunkSize - 2f);
+      node.CustomAabb = new Aabb(
+        corner, new Vector3(WorldLayout.ChunkSize + 4f, high - low + MaxHeight + 3f, WorldLayout.ChunkSize + 4f));
     }
 
     public void Clear()
@@ -78,7 +112,7 @@ namespace BestiaBehemothClient.Game.World
       }
     }
 
-    /// <summary>Where each burning cell's ground is, skipping cells whose chunk has not arrived yet.</summary>
+    /// <summary>Where each recorded cell's ground is, skipping cells whose chunk has not arrived yet.</summary>
     private void CollectBases(ChunkKey column, IReadOnlyList<FireCell> cells)
     {
       _bases.Clear();
@@ -93,11 +127,6 @@ namespace BestiaBehemothClient.Game.World
       const int size = WorldLayout.ChunkSize;
       foreach (var cell in cells)
       {
-        if (!cell.IsBurning)
-        {
-          continue;
-        }
-
         var voxelX = (long)column.X * size + cell.Index % size;
         var voxelY = (long)column.Y * size + cell.Index / size;
         var z = SurfaceZ(column, cell.Index % size, cell.Index / size, voxelX, voxelY);
@@ -105,7 +134,7 @@ namespace BestiaBehemothClient.Game.World
         if (!double.IsNaN(z))
         {
           var metres = (float)WorldLayout.VoxelSizeMetres;
-          _bases.Add(new Vector3((voxelX + 0.5f) * metres, (float)z * metres, (voxelY + 0.5f) * metres));
+          _bases.Add((new Vector3((voxelX + 0.5f) * metres, (float)z * metres, (voxelY + 0.5f) * metres), cell));
         }
       }
     }
@@ -150,16 +179,29 @@ namespace BestiaBehemothClient.Game.World
       return double.NaN;
     }
 
-    /// <summary>A translucent red box on each burning square metre, until there is fire art.</summary>
-    private static Godot.Mesh Placeholder() => new BoxMesh
+    /// <summary>The same flame on every client and after every rebuild, so a step does not reshuffle the fire.</summary>
+    private static uint Hash(Vector3 ground, int flame)
     {
-      Size = new Vector3(1.0f, PlaceholderHeight, 1.0f),
-      Material = new StandardMaterial3D
-      {
-        Transparency = BaseMaterial3D.TransparencyEnum.Alpha,
-        ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded,
-        AlbedoColor = new Color(1.0f, 0.1f, 0.05f, 0.45f)
-      }
-    };
+      var x = (uint)Mathf.FloorToInt(ground.X) * 73856093u ^ (uint)Mathf.FloorToInt(ground.Z) * 19349663u ^
+              (uint)flame * 83492791u;
+      x ^= x >> 16;
+      x *= 0x7FEB352Du;
+      x ^= x >> 15;
+      x *= 0x846CA68Bu;
+      x ^= x >> 16;
+
+      return x;
+    }
+
+    /// <summary>One of several independent values in [0, 1) drawn from a seed.</summary>
+    private static float Unit(uint seed, uint which)
+    {
+      var x = seed ^ (which * 0x9E3779B9u);
+      x ^= x >> 15;
+      x *= 0x2C1B3C6Du;
+      x ^= x >> 12;
+
+      return (x >> 8) * (1.0f / 16777216.0f);
+    }
   }
 }
