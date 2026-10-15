@@ -238,6 +238,8 @@ namespace BestiaBehemothClient.Game.World
     /// <summary>What is burning nearby, and since when. Null until <see cref="Configure"/> has run.</summary>
     private GroundFireTexture _groundFire;
 
+    private GroundFlames _flames;
+
     /// <summary>
     /// Where the prints come from, which is <c>ChunkStreamManager</c>'s ring and not a copy of it.
     /// </summary>
@@ -351,6 +353,14 @@ namespace BestiaBehemothClient.Game.World
         _wrap = ChunkWrap.Of(worldInfo);
       }
 
+      if (_flames == null)
+      {
+        _flames = new GroundFlames { Name = "Flames" };
+        AddChild(_flames);
+      }
+
+      _flames.Configure(store, _wrap);
+
       Clear();
     }
 
@@ -372,6 +382,7 @@ namespace BestiaBehemothClient.Game.World
       _disturbanceStale = false;
 
       _groundFire?.Clear();
+      _flames?.Clear();
 
       _tiles.Clear();
       _pending.Clear();
@@ -550,6 +561,7 @@ namespace BestiaBehemothClient.Game.World
     public void WriteGroundFire(ChunkKey column, IReadOnlyList<FireCell> cells)
     {
       _groundFire?.WriteColumn(column.X, column.Y, WorldLayout.ChunkSize, cells);
+      _flames?.Write(column, cells);
     }
 
     /// <summary>Sets one square metre of one layer, for a mark that moved a single cell.</summary>
