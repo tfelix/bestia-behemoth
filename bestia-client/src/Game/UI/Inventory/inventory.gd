@@ -9,6 +9,12 @@ signal inventory_updated()
 ## re-emit and from the local mutators - and so cannot say what changed.
 signal items_gained(gains: Array[Dictionary])
 
+## The gold coins the controlled entity carries, each time that number changes.
+signal gold_changed(amount: int)
+
+## Gold is carried as coins like any other item; items.yml `gold_coin`, the server's shop currency.
+const GOLD_COIN_ITEM_ID := 27
+
 var InventoryItem = preload("res://Game/UI/Inventory/InventoryItem/InventoryItem.tscn")
 
 ## This is only for testing. In reality you will receive the items from the server.
@@ -25,9 +31,12 @@ var equipment_window: WidgetWindow = null
 @onready var _etc_grid: GridContainer = %EtcGrid
 
 var _items: Dictionary[int, Array]
+var _reported_gold := 0
 
 func _ready() -> void:
 	ConnectionManager.connect("entity_received", _on_entity_received)
+	# Every change to a bag, and every switch of the controlled entity, already goes out as this signal.
+	inventory_updated.connect(_report_gold_change)
 
 	var entity_manager := EntityManager.get_instance()
 	if entity_manager != null:
@@ -210,6 +219,19 @@ func held_instances(entity_id: int = selected_entity_id) -> Array:
 	return _items[entity_id].filter(
 		func(item): return item.player_item_id != 0 and not item.equipped
 	)
+
+
+func gold() -> int:
+	return _count_by_item(_items.get(selected_entity_id, [])).get(GOLD_COIN_ITEM_ID, 0)
+
+
+func _report_gold_change() -> void:
+	var amount := gold()
+	if amount == _reported_gold:
+		return
+
+	_reported_gold = amount
+	gold_changed.emit(amount)
 
 
 func get_item_count(item_id: int) -> int:

@@ -12,6 +12,7 @@ const _BASIC_SKILL_PRIMER := "BASIC_SKILL_PRIMER"
 @onready var _trade_win: WidgetWindow = $TradeWin
 @onready var _shop_win: WidgetWindow = $ShopWin
 @onready var _ground_drop_zone: GroundDropZone = $GroundDropZone
+@onready var _master_profile: MasterProfile = $TopLeftColumn/MasterProfile
 @onready var _shortcuts: Shortcuts = $Shortcuts
 @onready var _map_source: MapSource = $MapSource
 @onready var _minimap: Minimap = $Minimap
@@ -102,6 +103,10 @@ func _ready() -> void:
 	shop.inventory = inventory
 	shop.shop_opened.connect(_on_shop_opened)
 	shop.shop_closed.connect(_on_shop_closed)
+
+	# Gold is coins in the bag, so the inventory is what knows how much the profile should show.
+	inventory.gold_changed.connect(_master_profile.show_gold)
+	_master_profile.show_gold(inventory.gold())
 
 	# The map lives beside the game rather than inside it: both views draw from one MapSource, so panning
 	# the overlay warms the minimap. EntityManager is a sibling of this node under Game and is what the
