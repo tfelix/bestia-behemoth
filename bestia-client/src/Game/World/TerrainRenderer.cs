@@ -333,6 +333,7 @@ namespace BestiaBehemothClient.Game.World
       }
 
       _groundFire ??= new GroundFireTexture();
+      Grass?.SetGroundTextures(_groundMarks.Texture, _groundFire.Texture);
 
       // Null when the shader would not compile, which deliberately leaves the flat vertex-colour material in
       // place rather than an unassigned one - see TerrainMaterials.

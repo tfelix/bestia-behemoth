@@ -146,13 +146,64 @@ instance uniform float grass_reveal = 0.0;
 // width suggests: at 0.06 the tuft band is short by at most 0.03 of a cell. See `GrassLod.RevealedFraction`.
 uniform float grass_reveal_span : hint_range(0.005, 0.2) = 0.06;
 
+group_uniforms burning;
+
+// Set by `TerrainGrass` only. The herbs, shrubs and reeds drawn with this shader are server props that the
+// fire kills on its own, so they must not burn down a second time here.
+uniform bool burns_with_ground = false;
+
+// `GroundMarkTexture` (scorch is R) and `GroundFireTexture`, sampled at the plant's own square metre.
+uniform sampler2D ground_marks : filter_nearest, repeat_enable, hint_default_transparent;
+uniform sampler2D ground_fire : filter_nearest, repeat_enable, hint_default_transparent;
+uniform float ground_marks_extent = 512.0;
+
+// From catching fire to gone. Under the server's 4.8 s burn (`GroundFireConfig`), so a tuft is gone before
+// the scorch replaces its fire record.
+uniform float grass_burn_seconds : hint_range(0.5, 10.0) = 4.0;
+uniform vec3 burnt_colour : source_color = vec3(0.035, 0.03, 0.025);
+uniform vec3 ember_colour : source_color = vec3(1.0, 0.36, 0.06);
+uniform float ember_energy : hint_range(0.0, 16.0) = 4.0;
+
+group_uniforms;
+
+// Seconds on the clock fire records are stamped in. See `GroundFireClock`.
+global uniform float ground_fire_clock;
+
 varying vec3 worldPos;
+
+// 0 for a plant untouched by fire, 1 for one burnt away.
+varying flat float burn;
+
+// 1 while the plant's square metre is alight, which is when the edge of the char glows.
+varying flat float alight;
+
+// A random number per plant, so each one's embers flicker on their own and no wave rolls across the field.
+varying flat float plant_seed;
 
 // 0 at the base of a blade and 1 at its tip, whichever way this mesh was unwrapped.
 varying float blade_v;
 
 void vertex() {
 	blade_v = uv_v_at_tip ? 1.0 - UV.y : UV.y;
+
+	burn = 0.0;
+	alight = 0.0;
+	plant_seed = 0.0;
+	if (burns_with_ground) {
+		vec3 p3 = fract(vec3(mod(MODEL_MATRIX[3].xz, 256.0).xyx) * 0.1031);
+		p3 += dot(p3, p3.yzx + 33.33);
+		plant_seed = fract((p3.x + p3.y) * p3.z);
+
+		vec2 cell = MODEL_MATRIX[3].xz / ground_marks_extent;
+		vec2 fire = texture(ground_fire, cell).rg;
+
+		if (fire.r > 0.0) {
+			burn = clamp((ground_fire_clock - fire.r) / grass_burn_seconds, 0.0, 1.0);
+			alight = fire.g > 0.0 ? 0.0 : 1.0;
+		} else if (texture(ground_marks, cell).r > 0.5) {
+			burn = 1.0;
+		}
+	}
 
 	// How grown this blade is: nothing at the reveal front, full size a span behind it. The half-instance
 	// offset centres a blade in its own slot, which is what makes this agree with the count the multimesh was
@@ -174,7 +225,7 @@ void vertex() {
 	// is what a shorter blade should do. At `grow` of nought the offset is zero, which the length-preserving
 	// drop below already guards for. Uniformly, never a squash in y - that would flatten the splayed blades of
 	// a clump into a disc lying on the ground, which from this camera is worse than the pop it would fix.
-	VERTEX *= grow * (1.0 + grass_extra_scale);
+	VERTEX *= grow * (1.0 + grass_extra_scale) * (1.0 - smoothstep(0.25, 1.0, burn));
 
 	// Where this vertex would stand in dead calm. Kept, because the offset has to be turned back into model
 	// space at the end and because the albedo noise below is a property of the ground, not of the blade.
@@ -272,6 +323,15 @@ void vertex() {
 void fragment() {
 	vec3 noiseLevel = texture(noise, worldPos.xz / noiseScale).rgb;
 	ALBEDO = mix(color, color2, 1.0 - blade_v) * mix(color, color2, noiseLevel.r);
+
+	// The char climbs from the root and reaches the tip at 60% of the burn, with embers along its edge.
+	float char_front = burn * 1.6;
+	float charred = 1.0 - smoothstep(char_front - 0.2, char_front, blade_v);
+	float edge = charred * (1.0 - charred) * 4.0;
+	float flicker = 0.6 + 0.4 * sin(TIME * (9.0 + 6.0 * plant_seed) + plant_seed * 40.0);
+
+	ALBEDO = mix(ALBEDO, burnt_colour, charred);
+	EMISSION = ember_colour * ember_energy * edge * alight * flicker;
 	if (!FRONT_FACING) {
 		NORMAL = -NORMAL;
 	}

@@ -684,6 +684,41 @@ namespace BestiaBehemothClient.Game.World
     /// <summary>The ramp's width. A material uniform, so it is set once for the whole field.</summary>
     private static readonly StringName RevealSpanParameter = "grass_reveal_span";
 
+    private static readonly StringName BurnsWithGroundParameter = "burns_with_ground";
+    private static readonly StringName GroundMarksParameter = "ground_marks";
+    private static readonly StringName GroundFireParameter = "ground_fire";
+    private static readonly StringName GroundMarksExtentParameter = "ground_marks_extent";
+
+    /// <summary>What the field burns down from. Kept here because the material loads lazily, on the first build.</summary>
+    private Texture2D _groundMarks;
+
+    private Texture2D _groundFire;
+
+    /// <summary>Lets the field burn down where the ground is burning or burnt.</summary>
+    public void SetGroundTextures(Texture2D marks, Texture2D fire)
+    {
+      _groundMarks = marks;
+      _groundFire = fire;
+
+      if (_material is ShaderMaterial shader)
+      {
+        BindGround(shader);
+      }
+
+      foreach (var scaled in _scaled.Values)
+      {
+        BindGround(scaled);
+      }
+    }
+
+    private void BindGround(ShaderMaterial material)
+    {
+      material.SetShaderParameter(BurnsWithGroundParameter, _groundMarks != null && _groundFire != null);
+      material.SetShaderParameter(GroundMarksParameter, _groundMarks);
+      material.SetShaderParameter(GroundFireParameter, _groundFire);
+      material.SetShaderParameter(GroundMarksExtentParameter, GroundMarkTexture.ExtentMetres);
+    }
+
     /// <summary>
     /// Tells the field where the player is, so the level of detail can be measured from them.
     /// </summary>
@@ -1598,6 +1633,7 @@ namespace BestiaBehemothClient.Game.World
       // material however many cells carry it.
       var own = (ShaderMaterial)authored.Duplicate();
       own.SetShaderParameter(UvVAtTip, true);
+      BindGround(own);
       _material = own;
 
       return true;
