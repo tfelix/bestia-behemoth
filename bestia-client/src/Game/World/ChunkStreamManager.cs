@@ -92,6 +92,12 @@ namespace BestiaBehemothClient.Game.World
 
         // The prints are read from the ring itself, so handing it over redraws them.
         value.StampSource = _marks;
+
+        foreach (var column in _fire.Columns)
+        {
+          _fire.CellsOf(column, _fireCells);
+          value.WriteGroundFire(column, _fireCells);
+        }
       }
     }
 
@@ -165,14 +171,11 @@ namespace BestiaBehemothClient.Game.World
     /// </remarks>
     private readonly Dictionary<ChunkKey, int> _appliedStatics = new();
 
-    /// <summary>
-    /// The fire masks for the columns this client holds.
-    /// </summary>
-    /// <remarks>
-    /// Sparse and usually empty: the server sends nothing for ground where nothing is alight. A clean message
-    /// removes its entry rather than storing an empty one, which is how a fire that went out retires.
-    /// </remarks>
-    private readonly Dictionary<ChunkKey, ChunkGroundOverlaySMSG> _burnMasks = new();
+    /// <summary>What is burning in the columns this client holds. Usually nothing.</summary>
+    private readonly ClientGroundFire _fire;
+
+    /// <summary>Reused for every column handed to the renderer, so a fire step allocates nothing.</summary>
+    private readonly List<FireCell> _fireCells = new();
 
     /// <summary>
     /// The footprints, wear, blood and scorch of the columns this client holds.
@@ -207,17 +210,8 @@ namespace BestiaBehemothClient.Game.World
     {
       var host = new GroundHost(this);
       _marks = new ClientGroundMarks(WorldLayout.ChunkSize, host, host);
+      _fire = new ClientGroundFire(WorldLayout.ChunkSize, host);
     }
-
-    /// <summary>
-    /// What is alight in one column, or null when nothing is.
-    /// </summary>
-    /// <remarks>
-    /// Takes any chunk of the column and reduces it, so a caller holding a slab address - which is what a
-    /// renderer has - cannot silently ask about slab zero and be told the ground is clean.
-    /// </remarks>
-    public ChunkGroundOverlaySMSG BurnMaskOf(ChunkKey key) =>
-      _burnMasks.TryGetValue(key.Column, out var mask) ? mask : null;
 
     /// <summary>The world's chunk grid, for the addresses this class derives rather than receives.</summary>
     private ChunkWrap _wrap = ChunkWrap.None;
@@ -381,6 +375,7 @@ namespace BestiaBehemothClient.Game.World
 
       AgeAnnouncedQuiet(delta);
       SweepMarks(delta);
+      _fire.Sweep(GroundFireClock.Now);
     }
 
     /// <summary>
@@ -440,20 +435,7 @@ namespace BestiaBehemothClient.Game.World
           break;
 
         case ChunkGroundOverlaySMSG overlay:
-          // Retained for the same reason a static batch is: the renderer may attach long after the message
-          // arrived, and the server sends no more until the ground changes again.
-          //
-          // Unlike a static batch this does *not* wait for the chunk to decode. The masks are two bitmasks over
-          // a lattice this client already knows the shape of, so there is nothing to read off the terrain -
-          // whoever draws them needs the mesh, and gets it when the chunk lands.
-          if (overlay.IsClean)
-          {
-            _burnMasks.Remove(overlay.Key.Column);
-          }
-          else
-          {
-            _burnMasks[overlay.Key.Column] = overlay;
-          }
+          _fire.Apply(overlay.Key, overlay.Burning, GroundFireClock.Now);
           break;
 
         case GroundMarkRulesSMSG rules:
@@ -713,7 +695,7 @@ namespace BestiaBehemothClient.Game.World
       _toDecode.Clear();
       _staticBatches.Clear();
       _appliedStatics.Clear();
-      _burnMasks.Clear();
+      _fire.Clear();
       _marks.Clear();
       StaticEntities?.Clear();
     }
@@ -754,7 +736,7 @@ namespace BestiaBehemothClient.Game.World
         }
 
         _staticBatches.Remove(column);
-        _burnMasks.Remove(column);
+        _fire.Drop(column);
         _appliedStatics.Remove(column);
         StaticEntities?.Remove(column);
 
@@ -929,7 +911,7 @@ namespace BestiaBehemothClient.Game.World
     /// Separate from the node so its methods are not offered to GDScript, which would see them as part of the
     /// manager.
     /// </remarks>
-    private sealed class GroundHost : IGroundWorld, IGroundMarkSink
+    private sealed class GroundHost : IGroundWorld, IGroundMarkSink, IGroundFireSink
     {
       private readonly ChunkStreamManager _owner;
 
@@ -985,6 +967,18 @@ namespace BestiaBehemothClient.Game.World
       {
         _owner.Renderer?.ClearGroundMarks(column.X, column.Y);
         _owner.Renderer?.RefreshGroundStamps(column.X, column.Y);
+      }
+
+      public void FireChanged(ChunkKey column)
+      {
+        var renderer = _owner.Renderer;
+        if (renderer == null)
+        {
+          return;
+        }
+
+        _owner._fire.CellsOf(column, _owner._fireCells);
+        renderer.WriteGroundFire(column, _owner._fireCells);
       }
     }
 

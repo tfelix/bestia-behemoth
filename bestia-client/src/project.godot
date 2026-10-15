@@ -204,3 +204,7 @@ weather_gust_drift={
 "type": "vec2",
 "value": Vector2(0, 0)
 }
+ground_fire_clock={
+"type": "float",
+"value": 0.0
+}

@@ -82,29 +82,6 @@ namespace BestiaBehemothClient.Bnet.Message.Map
       return mask;
     }
 
-    /// <summary>Whether nothing here is alight, which is the retire signal rather than a no-op.</summary>
-    public bool IsClean => Burning == null;
-
-    /// <summary>
-    /// Whether cell <c>(localX, localY)</c> is set in <paramref name="mask"/>.
-    /// </summary>
-    /// <remarks>
-    /// <c>localY * chunkSize + localX</c>, that index's bit in byte <c>index / 8</c> counting from the least
-    /// significant. This is the half of the wire contract that lives on this side, and
-    /// <c>ColumnMaskTest</c> on the server pins the same layout from a hand-written fixture.
-    /// </remarks>
-    public static bool IsSet(byte[] mask, int chunkSize, int localX, int localY)
-    {
-      if (mask == null)
-      {
-        return false;
-      }
-
-      var index = localY * chunkSize + localX;
-
-      return (mask[index >> 3] >> (index & 7) & 1) == 1;
-    }
-
     public override string ToString() =>
       $"ChunkGroundOverlaySMSG({Key}) {Burning?.Length ?? 0}B burning";
   }
