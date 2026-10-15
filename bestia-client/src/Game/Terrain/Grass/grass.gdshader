@@ -157,9 +157,6 @@ uniform sampler2D ground_marks : filter_nearest, repeat_enable, hint_default_tra
 uniform sampler2D ground_fire : filter_nearest, repeat_enable, hint_default_transparent;
 uniform float ground_marks_extent = 512.0;
 
-// From catching fire to gone. Under the server's 4.8 s burn (`GroundFireConfig`), so a tuft is gone before
-// the scorch replaces its fire record.
-uniform float grass_burn_seconds : hint_range(0.5, 10.0) = 4.0;
 uniform vec3 burnt_colour : source_color = vec3(0.035, 0.03, 0.025);
 uniform vec3 ember_colour : source_color = vec3(1.0, 0.36, 0.06);
 uniform float ember_energy : hint_range(0.0, 16.0) = 4.0;
@@ -168,6 +165,10 @@ group_uniforms;
 
 // Seconds on the clock fire records are stamped in. See `GroundFireClock`.
 global uniform float ground_fire_clock;
+
+// From catching fire to gone, shared with the terrain so ground and grass char together. Under the server's
+// 4.8 s burn (`GroundFireConfig`), so both are done before the scar replaces the fire record.
+global uniform float ground_fire_burn_seconds;
 
 varying vec3 worldPos;
 
@@ -198,7 +199,7 @@ void vertex() {
 		vec2 fire = texture(ground_fire, cell).rg;
 
 		if (fire.r > 0.0) {
-			burn = clamp((ground_fire_clock - fire.r) / grass_burn_seconds, 0.0, 1.0);
+			burn = clamp((ground_fire_clock - fire.r) / max(ground_fire_burn_seconds, 0.001), 0.0, 1.0);
 			alight = fire.g > 0.0 ? 0.0 : 1.0;
 		} else if (texture(ground_marks, cell).r > 0.5) {
 			burn = 1.0;

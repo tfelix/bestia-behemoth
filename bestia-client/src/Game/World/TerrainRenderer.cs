@@ -332,7 +332,12 @@ namespace BestiaBehemothClient.Game.World
         _materials?.SetGroundDisturbance(_groundDisturbance.Texture);
       }
 
-      _groundFire ??= new GroundFireTexture();
+      if (_groundFire == null)
+      {
+        _groundFire = new GroundFireTexture();
+        _materials?.SetGroundFire(_groundFire.Texture);
+      }
+
       Grass?.SetGroundTextures(_groundMarks.Texture, _groundFire.Texture);
 
       // Null when the shader would not compile, which deliberately leaves the flat vertex-colour material in

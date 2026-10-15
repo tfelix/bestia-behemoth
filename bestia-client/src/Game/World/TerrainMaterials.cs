@@ -134,6 +134,13 @@ namespace BestiaBehemothClient.Game.World
       Debug?.SetShaderParameter(GroundMarksExtent, GroundMarkTexture.ExtentMetres);
     }
 
+    /// <summary>Hands the shader what is burning, laid out like the marks. Set once, like them.</summary>
+    public void SetGroundFire(Texture2D fire)
+    {
+      Shipping?.SetShaderParameter(GroundFire, fire);
+      Debug?.SetShaderParameter(GroundFire, fire);
+    }
+
     /// <summary>
     /// Hands the shader the near-camera height field, and the numbers it has to read it with.
     /// </summary>
@@ -175,6 +182,7 @@ namespace BestiaBehemothClient.Game.World
 
     private static readonly StringName GroundMarks = "ground_marks";
     private static readonly StringName GroundMarksExtent = "ground_marks_extent";
+    private static readonly StringName GroundFire = "ground_fire";
     private static readonly StringName GroundDisturb = "ground_disturb";
     private static readonly StringName GroundDisturbExtent = "ground_disturb_extent";
     private static readonly StringName GroundDisturbTexel = "ground_disturb_texel";
