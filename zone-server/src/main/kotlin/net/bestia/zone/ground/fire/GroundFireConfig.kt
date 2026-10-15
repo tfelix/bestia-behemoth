@@ -17,7 +17,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties
  *
  * @property stepSeconds how often a fire's cells advance. 0.6 s at the defaults, which with [burnSteps] gives
  *   a cell about five seconds alight - long enough to see, short enough that a front is a line rather than a
- *   filled disc.
+ *   filled disc. The client chars grass and ground over `ground_fire_burn_seconds` (4 s, its `project.godot`),
+ *   which must stay under this burn time. Shorten the burn and lower that too, or the scar arrives early and
+ *   the ground goes black ahead of its burning grass.
  * @property burnSteps how many steps a cell burns before it is scorched and out. Also what makes a fire with
  *   nowhere left to go die on its own rather than needing a rule for it.
  * @property damageIntervalSeconds how often the effect covering a burning cluster ticks. Independent of
