@@ -3,6 +3,16 @@
 [ext_resource type="Script" uid="uid://dcv74etn3ylxs" path="res://Game/UI/MasterProfile/master_profile.gd" id="1_c5uss"]
 [ext_resource type="Script" uid="uid://fjwopidr1lhd" path="res://Game/UI/MasterProfile/ProfileBar/profile_bar.gd" id="2_c5uss"]
 [ext_resource type="PackedScene" path="res://Game/UI/MasterProfile/ProfilePortrait/ProfilePortrait.tscn" id="3_pp01"]
+[ext_resource type="Script" path="res://Game/UI/MasterProfile/ExpRing/exp_ring.gd" id="4_ring"]
+[ext_resource type="Texture2D" path="res://Theme/Icons/map-pin.svg" id="5_pin"]
+[ext_resource type="Texture2D" path="res://Theme/Icons/chart-bar.svg" id="6_stat"]
+[ext_resource type="Texture2D" path="res://Theme/Icons/backpack.svg" id="7_item"]
+[ext_resource type="Texture2D" path="res://Theme/Icons/shield.svg" id="8_equi"]
+[ext_resource type="Texture2D" path="res://Theme/Icons/flame.svg" id="9_skil"]
+[ext_resource type="Texture2D" path="res://Theme/Icons/settings.svg" id="10_opti"]
+[ext_resource type="Texture2D" path="res://Theme/Icons/users.svg" id="11_frie"]
+[ext_resource type="Texture2D" path="res://Theme/Icons/scale.svg" id="12_scal"]
+[ext_resource type="Texture2D" path="res://Theme/Icons/coin.svg" id="13_coin"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_c5uss"]
 content_margin_left = 2.0
@@ -28,47 +38,148 @@ content_margin_bottom = 2.0
 bg_color = Color(0.101960786, 0.7411765, 0.09411765, 0.4)
 corner_detail = 6
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_expbar"]
-content_margin_left = 2.0
-content_margin_top = 2.0
-content_margin_right = 2.0
-content_margin_bottom = 2.0
-bg_color = Color(0.101960786, 0.7411765, 0.09411765, 0.4)
-corner_detail = 6
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_mask"]
+bg_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 29
+corner_radius_top_right = 29
+corner_radius_bottom_right = 29
+corner_radius_bottom_left = 29
+corner_detail = 16
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tag"]
+content_margin_left = 4.0
+content_margin_right = 4.0
+bg_color = Color(0.165, 0.165, 0.165, 0.95)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
+[sub_resource type="LabelSettings" id="LabelSettings_inbar"]
+font_size = 11
+outline_size = 6
+outline_color = Color(0, 0, 0, 0.85)
+
+[sub_resource type="LabelSettings" id="LabelSettings_small"]
+font_size = 11
+font_color = Color(0.66, 0.66, 0.66, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_tag"]
+font_size = 11
 
 [node name="MasterProfile" type="PanelContainer" unique_id=294850145]
-offset_right = 470.0
-offset_bottom = 234.0
+custom_minimum_size = Vector2(282, 0)
+offset_right = 282.0
+offset_bottom = 110.0
 script = ExtResource("1_c5uss")
 
-[node name="TopMargin" type="MarginContainer" parent="." unique_id=1732914836]
+[node name="Margin" type="MarginContainer" parent="." unique_id=1732914836]
 layout_mode = 2
-theme_override_constants/margin_left = 8
-theme_override_constants/margin_top = 8
-theme_override_constants/margin_right = 8
-theme_override_constants/margin_bottom = 8
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 6
 
-[node name="ProfileDetails" type="VBoxContainer" parent="TopMargin" unique_id=465862432]
+[node name="Layout" type="VBoxContainer" parent="Margin" unique_id=465862432]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Top" type="HBoxContainer" parent="Margin/Layout" unique_id=926103515]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Portrait" type="Control" parent="Margin/Layout/Top" unique_id=1309442871]
+custom_minimum_size = Vector2(68, 73)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="ExpRing" type="Range" parent="Margin/Layout/Top/Portrait" unique_id=1448991662]
+unique_name_in_owner = true
+layout_mode = 0
+offset_right = 68.0
+offset_bottom = 68.0
+mouse_filter = 2
+script = ExtResource("4_ring")
+
+[node name="PortraitMask" type="Panel" parent="Margin/Layout/Top/Portrait" unique_id=845203917]
+clip_children = 1
+layout_mode = 0
+offset_left = 5.0
+offset_top = 5.0
+offset_right = 63.0
+offset_bottom = 63.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_mask")
+
+[node name="ProfileImage" parent="Margin/Layout/Top/Portrait/PortraitMask" unique_id=1688068968 instance=ExtResource("3_pp01")]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 0.0
+offset_bottom = 0.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+stretch_mode = 6
+
+[node name="LevelTag" type="PanelContainer" parent="Margin/Layout/Top/Portrait" unique_id=1977320564]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -15.0
+offset_top = 58.0
+offset_right = 15.0
+offset_bottom = 73.0
+grow_horizontal = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_tag")
+
+[node name="Level" type="Label" parent="Margin/Layout/Top/Portrait/LevelTag" unique_id=1859372384]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Lv. 1"
+label_settings = SubResource("LabelSettings_tag")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Vitals" type="VBoxContainer" parent="Margin/Layout/Top" unique_id=1514887576]
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_override_constants/separation = 3
 
-[node name="ProfilContainer" type="HBoxContainer" parent="TopMargin/ProfileDetails" unique_id=926103515]
+[node name="Header" type="HBoxContainer" parent="Margin/Layout/Top/Vitals" unique_id=841104501]
 layout_mode = 2
-theme_override_constants/separation = 10
+theme_override_constants/separation = 3
 
-[node name="ProfileImage" parent="TopMargin/ProfileDetails/ProfilContainer" unique_id=1688068968 instance=ExtResource("3_pp01")]
+[node name="MasterName" type="Label" parent="Margin/Layout/Top/Vitals/Header" unique_id=681617612]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(100, 100)
-custom_maximum_size = Vector2(100, 120)
 layout_mode = 2
-expand_mode = 5
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 14
+text = "Master Name"
+clip_text = true
+text_overrun_behavior = 3
+
+[node name="PositionIcon" type="TextureRect" parent="Margin/Layout/Top/Vitals/Header" unique_id=1092384756]
+self_modulate = Color(0.66, 0.66, 0.66, 1)
+custom_minimum_size = Vector2(12, 12)
+layout_mode = 2
+size_flags_vertical = 4
+texture = ExtResource("5_pin")
+expand_mode = 1
 stretch_mode = 5
 
-[node name="BarContainer" type="VBoxContainer" parent="TopMargin/ProfileDetails/ProfilContainer" unique_id=1514887576]
+[node name="Position" type="Label" parent="Margin/Layout/Top/Vitals/Header" unique_id=303128313]
+unique_name_in_owner = true
 layout_mode = 2
-size_flags_horizontal = 3
+text = "100 200 300"
+label_settings = SubResource("LabelSettings_small")
 
-[node name="HealthBar" type="ProgressBar" parent="TopMargin/ProfileDetails/ProfilContainer/BarContainer" unique_id=1891134381]
+[node name="HealthBar" type="ProgressBar" parent="Margin/Layout/Top/Vitals" unique_id=1891134381]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 14)
 layout_mode = 2
@@ -78,25 +189,33 @@ show_percentage = false
 script = ExtResource("2_c5uss")
 color = Color(0.6963682, 0, 0.10344406, 0.7411765)
 
-[node name="HPMargin" type="MarginContainer" parent="TopMargin/ProfileDetails/ProfilContainer/BarContainer" unique_id=162073938]
-layout_mode = 2
-theme_override_constants/margin_bottom = 2
+[node name="HPRow" type="HBoxContainer" parent="Margin/Layout/Top/Vitals/HealthBar" unique_id=302516368]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 5.0
+offset_right = -5.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
 
-[node name="HPLabelRow" type="HBoxContainer" parent="TopMargin/ProfileDetails/ProfilContainer/BarContainer/HPMargin" unique_id=302516368]
-layout_mode = 2
-
-[node name="HPLabel" type="Label" parent="TopMargin/ProfileDetails/ProfilContainer/BarContainer/HPMargin/HPLabelRow" unique_id=1715700812]
+[node name="HPLabel" type="Label" parent="Margin/Layout/Top/Vitals/HealthBar/HPRow" unique_id=1715700812]
 layout_mode = 2
 text = "HP"
+label_settings = SubResource("LabelSettings_inbar")
+vertical_alignment = 1
 
-[node name="HPValue" type="Label" parent="TopMargin/ProfileDetails/ProfilContainer/BarContainer/HPMargin/HPLabelRow" unique_id=1128937717]
+[node name="HPValue" type="Label" parent="Margin/Layout/Top/Vitals/HealthBar/HPRow" unique_id=1128937717]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 text = "0 / 0"
+label_settings = SubResource("LabelSettings_inbar")
 horizontal_alignment = 2
+vertical_alignment = 1
 
-[node name="ManaBar" type="ProgressBar" parent="TopMargin/ProfileDetails/ProfilContainer/BarContainer" unique_id=271089587]
+[node name="ManaBar" type="ProgressBar" parent="Margin/Layout/Top/Vitals" unique_id=271089587]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 14)
 layout_mode = 2
@@ -106,25 +225,33 @@ show_percentage = false
 script = ExtResource("2_c5uss")
 color = Color(0.15658718, 0.4828896, 0.82301164, 0.6509804)
 
-[node name="ManaMargin" type="MarginContainer" parent="TopMargin/ProfileDetails/ProfilContainer/BarContainer" unique_id=1716906562]
-layout_mode = 2
-theme_override_constants/margin_bottom = 2
+[node name="MPRow" type="HBoxContainer" parent="Margin/Layout/Top/Vitals/ManaBar" unique_id=2047934082]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 5.0
+offset_right = -5.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
 
-[node name="ManaLabelRow" type="HBoxContainer" parent="TopMargin/ProfileDetails/ProfilContainer/BarContainer/ManaMargin" unique_id=2047934082]
+[node name="ManaLabel" type="Label" parent="Margin/Layout/Top/Vitals/ManaBar/MPRow" unique_id=717480926]
 layout_mode = 2
+text = "MP"
+label_settings = SubResource("LabelSettings_inbar")
+vertical_alignment = 1
 
-[node name="ManaLabel" type="Label" parent="TopMargin/ProfileDetails/ProfilContainer/BarContainer/ManaMargin/ManaLabelRow" unique_id=717480926]
-layout_mode = 2
-text = "Mana"
-
-[node name="ManaValue" type="Label" parent="TopMargin/ProfileDetails/ProfilContainer/BarContainer/ManaMargin/ManaLabelRow" unique_id=2098229289]
+[node name="ManaValue" type="Label" parent="Margin/Layout/Top/Vitals/ManaBar/MPRow" unique_id=2098229289]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 text = "0 / 0"
+label_settings = SubResource("LabelSettings_inbar")
 horizontal_alignment = 2
+vertical_alignment = 1
 
-[node name="StaminaBar" type="ProgressBar" parent="TopMargin/ProfileDetails/ProfilContainer/BarContainer" unique_id=1649866667]
+[node name="StaminaBar" type="ProgressBar" parent="Margin/Layout/Top/Vitals" unique_id=1649866667]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 14)
 layout_mode = 2
@@ -134,112 +261,138 @@ show_percentage = false
 script = ExtResource("2_c5uss")
 color = Color(0.9254902, 0.92941177, 0.93333334, 0.8235294)
 
-[node name="StaminaMargin" type="MarginContainer" parent="TopMargin/ProfileDetails/ProfilContainer/BarContainer" unique_id=1217882401]
-layout_mode = 2
-theme_override_constants/margin_bottom = 2
+[node name="STRow" type="HBoxContainer" parent="Margin/Layout/Top/Vitals/StaminaBar" unique_id=78481295]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 5.0
+offset_right = -5.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
 
-[node name="ManaLabelRow" type="HBoxContainer" parent="TopMargin/ProfileDetails/ProfilContainer/BarContainer/StaminaMargin" unique_id=78481295]
+[node name="StaminaLabel" type="Label" parent="Margin/Layout/Top/Vitals/StaminaBar/STRow" unique_id=1694934697]
 layout_mode = 2
+text = "ST"
+label_settings = SubResource("LabelSettings_inbar")
+vertical_alignment = 1
 
-[node name="StaminaLabel" type="Label" parent="TopMargin/ProfileDetails/ProfilContainer/BarContainer/StaminaMargin/ManaLabelRow" unique_id=1694934697]
-layout_mode = 2
-text = "Stamina"
-
-[node name="StaminaValue" type="Label" parent="TopMargin/ProfileDetails/ProfilContainer/BarContainer/StaminaMargin/ManaLabelRow" unique_id=58232129]
+[node name="StaminaValue" type="Label" parent="Margin/Layout/Top/Vitals/StaminaBar/STRow" unique_id=58232129]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 text = "0 / 0"
+label_settings = SubResource("LabelSettings_inbar")
 horizontal_alignment = 2
+vertical_alignment = 1
 
-[node name="MenuGrid2" type="GridContainer" parent="TopMargin/ProfileDetails/ProfilContainer" unique_id=746667595]
+[node name="Bottom" type="HBoxContainer" parent="Margin/Layout" unique_id=74707409]
 layout_mode = 2
-columns = 2
+theme_override_constants/separation = 8
 
-[node name="Status" type="Button" parent="TopMargin/ProfileDetails/ProfilContainer/MenuGrid2" unique_id=574212427]
+[node name="Menu" type="HBoxContainer" parent="Margin/Layout/Bottom" unique_id=746667595]
+unique_name_in_owner = true
 layout_mode = 2
-text = "Status"
+theme_override_constants/separation = 3
 
-[node name="Option" type="Button" parent="TopMargin/ProfileDetails/ProfilContainer/MenuGrid2" unique_id=404043903]
+[node name="Status" type="Button" parent="Margin/Layout/Bottom/Menu" unique_id=574212427]
+custom_minimum_size = Vector2(22, 22)
 layout_mode = 2
+tooltip_text = "Status"
+theme_override_constants/icon_max_width = 14
+icon = ExtResource("6_stat")
+icon_alignment = 1
+
+[node name="Items" type="Button" parent="Margin/Layout/Bottom/Menu" unique_id=764782362]
+custom_minimum_size = Vector2(22, 22)
+layout_mode = 2
+tooltip_text = "Items"
+theme_override_constants/icon_max_width = 14
+icon = ExtResource("7_item")
+icon_alignment = 1
+
+[node name="Equip" type="Button" parent="Margin/Layout/Bottom/Menu" unique_id=1407597260]
+custom_minimum_size = Vector2(22, 22)
+layout_mode = 2
+tooltip_text = "Equip"
+theme_override_constants/icon_max_width = 14
+icon = ExtResource("8_equi")
+icon_alignment = 1
+
+[node name="Skills" type="Button" parent="Margin/Layout/Bottom/Menu" unique_id=292675588]
+custom_minimum_size = Vector2(22, 22)
+layout_mode = 2
+tooltip_text = "Skills"
+theme_override_constants/icon_max_width = 14
+icon = ExtResource("9_skil")
+icon_alignment = 1
+
+[node name="Option" type="Button" parent="Margin/Layout/Bottom/Menu" unique_id=404043903]
+custom_minimum_size = Vector2(22, 22)
+layout_mode = 2
+tooltip_text = "Option"
 disabled = true
-text = "Option
-"
+theme_override_constants/icon_max_width = 14
+icon = ExtResource("10_opti")
+icon_alignment = 1
 
-[node name="Items" type="Button" parent="TopMargin/ProfileDetails/ProfilContainer/MenuGrid2" unique_id=764782362]
+[node name="Friend" type="Button" parent="Margin/Layout/Bottom/Menu" unique_id=2000562676]
+custom_minimum_size = Vector2(22, 22)
 layout_mode = 2
-text = "Items"
-
-[node name="Equip" type="Button" parent="TopMargin/ProfileDetails/ProfilContainer/MenuGrid2" unique_id=1407597260]
-layout_mode = 2
-text = "Equip"
-
-[node name="Skills" type="Button" parent="TopMargin/ProfileDetails/ProfilContainer/MenuGrid2" unique_id=292675588]
-layout_mode = 2
-text = "Skill"
-
-[node name="Friend" type="Button" parent="TopMargin/ProfileDetails/ProfilContainer/MenuGrid2" unique_id=2000562676]
-layout_mode = 2
+tooltip_text = "Friend"
 disabled = true
-text = "Friend"
+theme_override_constants/icon_max_width = 14
+icon = ExtResource("11_frie")
+icon_alignment = 1
 
-[node name="VBoxContainer" type="VBoxContainer" parent="TopMargin/ProfileDetails" unique_id=74707409]
-layout_mode = 2
-
-[node name="HBoxContainer" type="HBoxContainer" parent="TopMargin/ProfileDetails/VBoxContainer" unique_id=841104501]
-layout_mode = 2
-theme_override_constants/separation = 20
-
-[node name="MasterName" type="Label" parent="TopMargin/ProfileDetails/VBoxContainer/HBoxContainer" unique_id=681617612]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Master Name"
-
-[node name="Position" type="Label" parent="TopMargin/ProfileDetails/VBoxContainer/HBoxContainer" unique_id=303128313]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_font_sizes/font_size = 14
-text = "X: 100, Y: 200, Z: 300"
-
-[node name="ExpDetails" type="HBoxContainer" parent="TopMargin/ProfileDetails/VBoxContainer" unique_id=2051564463]
-layout_mode = 2
-
-[node name="Level" type="Label" parent="TopMargin/ProfileDetails/VBoxContainer/ExpDetails" unique_id=1859372384]
-unique_name_in_owner = true
+[node name="Spacer" type="Control" parent="Margin/Layout/Bottom" unique_id=1630184722]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.5609549, 0.5609549, 0.5609549, 1)
-text = "Lv 1"
+mouse_filter = 2
 
-[node name="ExpBar" type="ProgressBar" parent="TopMargin/ProfileDetails/VBoxContainer/ExpDetails" unique_id=1448991662]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 8)
+[node name="Carry" type="HBoxContainer" parent="Margin/Layout/Bottom" unique_id=1388967445]
 layout_mode = 2
-size_flags_horizontal = 3
+theme_override_constants/separation = 2
+
+[node name="WeightIcon" type="TextureRect" parent="Margin/Layout/Bottom/Carry" unique_id=1205763380]
+self_modulate = Color(0.66, 0.66, 0.66, 1)
+custom_minimum_size = Vector2(12, 12)
+layout_mode = 2
 size_flags_vertical = 4
-size_flags_stretch_ratio = 5.0
-theme_override_styles/fill = SubResource("StyleBoxFlat_expbar")
-value = 10.0
-show_percentage = false
-script = ExtResource("2_c5uss")
-color = Color(0.9529412, 0.9647059, 1, 0.89411765)
+texture = ExtResource("12_scal")
+expand_mode = 1
+stretch_mode = 5
 
-[node name="InventoryDetails" type="HBoxContainer" parent="TopMargin/ProfileDetails/VBoxContainer" unique_id=1388967445]
-layout_mode = 2
-theme_override_constants/separation = 18
-
-[node name="WeightLabel" type="Label" parent="TopMargin/ProfileDetails/VBoxContainer/InventoryDetails" unique_id=39569458]
+[node name="WeightLabel" type="Label" parent="Margin/Layout/Bottom/Carry" unique_id=39569458]
 unique_name_in_owner = true
 layout_mode = 2
-size_flags_horizontal = 3
-text = "Weight: 0.0 / 0.0 kg"
+tooltip_text = "Weight (kg)"
+mouse_filter = 1
+text = "0.0/0.0"
+label_settings = SubResource("LabelSettings_small")
 
-[node name="GoldLabel" type="Label" parent="TopMargin/ProfileDetails/VBoxContainer/InventoryDetails" unique_id=238750136]
+[node name="Gold" type="HBoxContainer" parent="Margin/Layout/Bottom" unique_id=1951047388]
 layout_mode = 2
-size_flags_horizontal = 3
-text = "Gold: 1.067"
+theme_override_constants/separation = 2
 
-[connection signal="pressed" from="TopMargin/ProfileDetails/ProfilContainer/MenuGrid2/Items" to="." method="_on_inventory_pressed"]
-[connection signal="pressed" from="TopMargin/ProfileDetails/ProfilContainer/MenuGrid2/Equip" to="." method="_on_equipment_pressed"]
-[connection signal="pressed" from="TopMargin/ProfileDetails/ProfilContainer/MenuGrid2/Skills" to="." method="_on_skills_pressed"]
-[connection signal="pressed" from="TopMargin/ProfileDetails/ProfilContainer/MenuGrid2/Status" to="." method="_on_status_pressed"]
+[node name="GoldIcon" type="TextureRect" parent="Margin/Layout/Bottom/Gold" unique_id=812736455]
+self_modulate = Color(0.66, 0.66, 0.66, 1)
+custom_minimum_size = Vector2(12, 12)
+layout_mode = 2
+size_flags_vertical = 4
+texture = ExtResource("13_coin")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="GoldLabel" type="Label" parent="Margin/Layout/Bottom/Gold" unique_id=238750136]
+layout_mode = 2
+tooltip_text = "Gold"
+mouse_filter = 1
+text = "1.067"
+label_settings = SubResource("LabelSettings_small")
+
+[connection signal="pressed" from="Margin/Layout/Bottom/Menu/Items" to="." method="_on_inventory_pressed"]
+[connection signal="pressed" from="Margin/Layout/Bottom/Menu/Equip" to="." method="_on_equipment_pressed"]
+[connection signal="pressed" from="Margin/Layout/Bottom/Menu/Skills" to="." method="_on_skills_pressed"]
+[connection signal="pressed" from="Margin/Layout/Bottom/Menu/Status" to="." method="_on_status_pressed"]
