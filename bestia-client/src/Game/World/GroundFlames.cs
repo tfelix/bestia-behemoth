@@ -23,16 +23,19 @@ namespace BestiaBehemothClient.Game.World
     private readonly Dictionary<ChunkKey, MultiMeshInstance3D> _drawn = new();
     private readonly List<int> _slabsTopDown = new();
     private readonly List<(Vector3 Base, FireCell Cell)> _bases = new();
+    private readonly List<Vector3> _burning = new();
 
     private ClientChunkStore _store;
     private ChunkWrap _wrap = ChunkWrap.None;
     private Godot.Mesh _mesh;
+    private GroundSmoke _smoke;
 
     public void Configure(ClientChunkStore store, ChunkWrap wrap)
     {
       _store = store;
       _wrap = wrap;
       _mesh ??= new QuadMesh { Material = new ShaderMaterial { Shader = GD.Load<Shader>(ShaderPath) } };
+      _smoke ??= new GroundSmoke(this);
       Clear();
     }
 
@@ -92,6 +95,17 @@ namespace BestiaBehemothClient.Game.World
         column.X * WorldLayout.ChunkSize - 2f, low - 1f, column.Y * WorldLayout.ChunkSize - 2f);
       node.CustomAabb = new Aabb(
         corner, new Vector3(WorldLayout.ChunkSize + 4f, high - low + MaxHeight + 3f, WorldLayout.ChunkSize + 4f));
+
+      _burning.Clear();
+      foreach (var (ground, cell) in _bases)
+      {
+        if (cell.IsBurning)
+        {
+          _burning.Add(ground);
+        }
+      }
+
+      _smoke?.Write(column, _burning);
     }
 
     public void Clear()
@@ -102,6 +116,7 @@ namespace BestiaBehemothClient.Game.World
       }
 
       _drawn.Clear();
+      _smoke?.Clear();
     }
 
     private void Remove(ChunkKey column)
@@ -110,6 +125,8 @@ namespace BestiaBehemothClient.Game.World
       {
         node.QueueFree();
       }
+
+      _smoke?.Remove(column);
     }
 
     /// <summary>Where each recorded cell's ground is, skipping cells whose chunk has not arrived yet.</summary>
