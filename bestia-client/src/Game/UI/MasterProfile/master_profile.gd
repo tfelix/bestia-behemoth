@@ -1,4 +1,5 @@
 extends PanelContainer
+class_name MasterProfile
 ## The entity the player drives right now: their master, or the bestia they took control of.
 
 const WEIGHT_UNITS_PER_KG := 100.0
@@ -29,6 +30,7 @@ var _has_shown_tile: bool = false
 @onready var _stamina_value: Label = %StaminaValue
 @onready var _exp_ring: Range = %ExpRing
 @onready var _weight_label: Label = %WeightLabel
+@onready var _gold_label: Label = %GoldLabel
 @onready var _profile_portrait = %ProfileImage
 @onready var _menu: Container = %Menu
 
@@ -205,6 +207,20 @@ func _update_weight(current: int, max_weight: int) -> void:
 	_weight_label.text = "%.1f/%.1f" % [
 		current / WEIGHT_UNITS_PER_KG, max_weight / WEIGHT_UNITS_PER_KG
 	]
+
+
+func show_gold(amount: int) -> void:
+	_gold_label.text = _group_digits(amount)
+
+
+## English grouping, the only locale the client ships: 1067 reads 1,067.
+func _group_digits(amount: int) -> String:
+	var digits := str(amount)
+	var grouped := ""
+	while digits.length() > 3:
+		grouped = "," + digits.right(3) + grouped
+		digits = digits.left(-3)
+	return digits + grouped
 
 
 func _update_exp(exp: int, required_exp_next_level: int) -> void:
