@@ -20,6 +20,7 @@ void fragment() {
 	TerrainSurface surface = terrain_surface(COLOR.rgb);
 
 	ALBEDO = surface.albedo;
+	EMISSION = surface.emission;
 	ROUGHNESS = surface.roughness;
 	AO = surface.ao;
 	// AO is a texture-space term - the crevices between pebbles and the gaps under grass, baked into the
