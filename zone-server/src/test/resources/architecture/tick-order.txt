@@ -37,6 +37,7 @@
  - RECOVERY wave 22: StaminaRegenSystem [EverySeconds(seconds=10.0)]
  - ITEMS wave 23: GainExpSystem [EveryTick]
  - ITEMS wave 23: ObtainItemIntentSystem [EveryTick]
+ - ITEMS wave 23: WornGearSystem [EveryTick]
  - ITEMS wave 24: CarryCapacitySystem [EveryTick]
  - ITEMS wave 25: ShopTradeIntentSystem [EveryTick]
  - ITEMS wave 26: CollectPropIntentSystem [EveryTick]
