@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ItemResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Item/item_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+item_id = 71
+name_key = "IRON_HELMET"
+description_key = "IRON_HELMET_DESC"
+weight = 250
+level = 15
+type = 1
+equip_slot = 1
+armor_type = 3
+worn_part = "Gear_IronHelmet"
+hides_hair = true

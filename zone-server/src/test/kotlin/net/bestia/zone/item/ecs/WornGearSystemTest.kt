@@ -55,6 +55,6 @@ class WornGearSystemTest {
   }
 
   companion object {
-    private const val IRON_HELMET = 69L
+    private const val IRON_HELMET = 71L
   }
 }

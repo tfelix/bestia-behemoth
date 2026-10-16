@@ -12,6 +12,14 @@ const _BODY_SUFFIXES := ["", "_F"]
 ## Shared by every master with the same colour, so a crowd of masters costs a few materials, not one each.
 static var _tinted_materials: Dictionary = {}
 
+var _look_parts: Array[String] = []
+## The hair and any beard: what a helmet hides.
+var _hair_parts: Array[String] = []
+var _hair_color := Color.WHITE
+var _skin_color := Color.WHITE
+var _worn_parts: Array[String] = []
+var _hair_hidden := false
+
 
 func _init() -> void:
 	var source := _PARTS.instantiate()
@@ -30,18 +38,36 @@ func show_look(body: int, face: int, hair: int, hair_color: Color, skin_color: C
 	if body < 0 or body >= _BODY_SUFFIXES.size():
 		printerr("MasterParts: unknown body %s, showing the first" % body)
 		body = 0
-	var face_part := "Face_%d" % (face + 1)
-	if not has_node(face_part):
+	var face_number := face + 1
+	if not has_node("Face_%d" % face_number):
 		printerr("MasterParts: unknown face %s, showing the first" % face)
-		face_part = "Face_1"
-	var shown := ["Head", face_part, "Hair_%d" % (hair + 1)]
+		face_number = 1
+	_look_parts = ["Head", "Face_%d" % face_number]
 	for part in _BODY_PARTS:
-		shown.append(part + _BODY_SUFFIXES[body])
+		_look_parts.append(part + _BODY_SUFFIXES[body])
+	_hair_parts = ["Hair_%d" % (hair + 1), "FacialHair_%d" % face_number]
+	_hair_color = hair_color
+	_skin_color = skin_color
+	_refresh()
+
+
+## [param parts] are the parts of the worn items. [param hide_hair] is true when one of them covers the hair,
+## so the two cannot clip.
+func wear(parts: Array[String], hide_hair: bool) -> void:
+	_worn_parts = parts
+	_hair_hidden = hide_hair
+	_refresh()
+
+
+func _refresh() -> void:
+	var shown := _look_parts + _worn_parts
+	if not _hair_hidden:
+		shown.append_array(_hair_parts)
 
 	for part: MeshInstance3D in get_children():
 		part.visible = part.name in shown
 		if part.visible:
-			_tint(part, hair_color, skin_color)
+			_tint(part, _hair_color, _skin_color)
 
 
 func _tint(part: MeshInstance3D, hair_color: Color, skin_color: Color) -> void:
