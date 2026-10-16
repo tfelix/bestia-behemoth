@@ -35,12 +35,10 @@ const OP_ERROR_GENERAL := 3
 const OP_ERROR_INVALID_SPAWN_POINT := 7
 
 # Gender -> list of selectable body types. The body value is the proto BodyType enum int.
-# Only BODY_M_1 (0) exists so far, so every gender currently maps to that single body.
-# Adding real per-gender bodies later is just extending these lists (and the proto enum).
 const GENDER_BODIES := {
 	0: [{"label": "Type 1", "body": 0}], # Male
-	1: [{"label": "Type 1", "body": 0}], # Female
-	2: [{"label": "Type 1", "body": 0}], # Diverse
+	1: [{"label": "Type 1", "body": 1}], # Female
+	2: [{"label": "Male", "body": 0}, {"label": "Female", "body": 1}], # Diverse
 }
 
 @onready var _gender_button: OptionButton = %GenderButton
@@ -104,6 +102,7 @@ func _ready() -> void:
 	_connect_arrows(_face_left, _face_right, _face_button, false)
 	_connect_arrows(_hair_left, _hair_right, _hair_button, false)
 
+	_body_button.item_selected.connect(func(_i): _refresh_preview())
 	_face_button.item_selected.connect(func(_i): _refresh_preview())
 	_hair_button.item_selected.connect(func(_i): _refresh_preview())
 	_turn_left.pressed.connect(_preview.turn_left)
@@ -258,6 +257,7 @@ func _populate_body_for_gender() -> void:
 		_body_button.set_item_metadata(i, bodies[i]["body"])
 	if bodies.size() > 0:
 		_body_button.select(0)
+	_refresh_preview()
 
 
 func _connect_arrows(left: Button, right: Button, option: OptionButton, is_gender: bool) -> void:
@@ -318,11 +318,17 @@ func _select_swatch(swatch: ColorRect, is_hair: bool) -> void:
 
 func _refresh_preview() -> void:
 	_preview.show_look(
+		_selected_body(),
 		_face_button.get_selected_id(),
 		_hair_button.get_selected_id(),
 		_swatch_color(_selected_hair_swatch),
 		_swatch_color(_selected_skin_swatch)
 	)
+
+
+func _selected_body() -> int:
+	var body = _body_button.get_selected_metadata()
+	return int(body) if body != null else 0
 
 
 func _swatch_color(swatch: ColorRect) -> Color:
@@ -340,7 +346,7 @@ func _on_create_button_pressed() -> void:
 		_show_status("Please enter a character name.", true)
 		return
 
-	var body := int(_body_button.get_selected_metadata()) if _body_button.get_selected_metadata() != null else 0
+	var body := _selected_body()
 	var face := _face_button.get_selected_id()
 	var hair := _hair_button.get_selected_id()
 	var hair_color := _swatch_color(_selected_hair_swatch)

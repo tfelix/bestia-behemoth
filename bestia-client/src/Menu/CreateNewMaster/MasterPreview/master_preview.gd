@@ -6,8 +6,9 @@ const _TURN_STEP_DEGREES := 45.0
 @onready var _master_visual: MasterVisual = %MasterVisual
 
 
-func show_look(face: int, hair: int, hair_color: Color, skin_color: Color) -> void:
+func show_look(body: int, face: int, hair: int, hair_color: Color, skin_color: Color) -> void:
 	var look := MasterVisualComponentSMSG.new()
+	look.Body = body
 	look.Face = face
 	look.Hair = hair
 	look.HairColor = hair_color
