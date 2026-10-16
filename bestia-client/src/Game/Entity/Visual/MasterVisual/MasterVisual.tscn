@@ -75,11 +75,20 @@ bones/40/rotation = Quaternion(-0.5517425, 0.44224465, 0.5517423, -0.44224462)
 [node name="handslot_l" parent="Mage/Rig/Skeleton3D" index="0"]
 transform = Transform3D(3.5307468e-07, 5.736947e-07, 0.9999991, 0.95998067, 0.28006348, -8.50361e-08, -0.2800634, 0.95998085, -5.52618e-07, 0.51555115, 0.72977614, -0.14031264)
 
+[node name="Spellbook" parent="Mage/Rig/Skeleton3D/handslot_l" index="0"]
+visible = false
+
 [node name="Spellbook_open" parent="Mage/Rig/Skeleton3D/handslot_l" index="1"]
 visible = false
 
 [node name="handslot_r" parent="Mage/Rig/Skeleton3D" index="1"]
 transform = Transform3D(1.8916204e-07, -1.4901163e-07, -0.99999934, -0.21767856, 0.9760201, -1.1821819e-07, 0.9760195, 0.21767853, -1.5159279e-07, -0.49023563, 0.9121785, 0.37755555)
+
+[node name="1H_Wand" parent="Mage/Rig/Skeleton3D/handslot_r" index="0"]
+visible = false
+
+[node name="2H_Staff" parent="Mage/Rig/Skeleton3D/handslot_r" index="1"]
+visible = false
 
 [node name="head" parent="Mage/Rig/Skeleton3D" index="2"]
 transform = Transform3D(1, 7.450581e-09, 1.9817037e-11, -1.6283107e-17, 1, -4.5362825e-10, -1.9818813e-11, 4.5362852e-10, 1, 0.032682363, 1.1946466, -6.9788134e-11)
