@@ -195,9 +195,17 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 selected = 0
-item_count = 1
-popup/item_0/text = "Type 1"
+item_count = 5
+popup/item_0/text = "Face 1"
 popup/item_0/id = 0
+popup/item_1/text = "Face 2"
+popup/item_1/id = 1
+popup/item_2/text = "Face 3"
+popup/item_2/id = 2
+popup/item_3/text = "Face 4"
+popup/item_3/id = 3
+popup/item_4/text = "Face 5"
+popup/item_4/id = 4
 
 [node name="FaceButtonRight" type="Button" parent="Margin/Layout/Body/StepPanel/Content/Pages/LookPage/FaceRow"]
 unique_name_in_owner = true
@@ -224,9 +232,17 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 selected = 0
-item_count = 1
-popup/item_0/text = "Type 1"
+item_count = 5
+popup/item_0/text = "Short"
 popup/item_0/id = 0
+popup/item_1/text = "Swept"
+popup/item_1/id = 1
+popup/item_2/text = "Long"
+popup/item_2/id = 2
+popup/item_3/text = "Long with earring"
+popup/item_3/id = 3
+popup/item_4/text = "Bald"
+popup/item_4/id = 4
 
 [node name="HairButtonRight" type="Button" parent="Margin/Layout/Body/StepPanel/Content/Pages/LookPage/HairRow"]
 unique_name_in_owner = true
@@ -247,42 +263,57 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/h_separation = 8
 theme_override_constants/v_separation = 8
-columns = 8
+columns = 5
 
 [node name="Swatch1" type="ColorRect" parent="Margin/Layout/Body/StepPanel/Content/Pages/LookPage/HairColor/HairColorGrid"]
 custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
+color = Color(0.1176, 0.102, 0.09412, 1)
 
 [node name="Swatch2" type="ColorRect" parent="Margin/Layout/Body/StepPanel/Content/Pages/LookPage/HairColor/HairColorGrid"]
 custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
-color = Color(0.49398458, 0.99999994, 0.8300373, 1)
+color = Color(0.2745, 0.1765, 0.1176, 1)
 
 [node name="Swatch3" type="ColorRect" parent="Margin/Layout/Body/StepPanel/Content/Pages/LookPage/HairColor/HairColorGrid"]
 custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
-color = Color(1, 0, 0, 1)
+color = Color(0.4902, 0.3059, 0.1765, 1)
 
 [node name="Swatch4" type="ColorRect" parent="Margin/Layout/Body/StepPanel/Content/Pages/LookPage/HairColor/HairColorGrid"]
 custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
-color = Color(0.3689821, 0.21426192, 0.0357328, 1)
+color = Color(0.549, 0.2157, 0.1373, 1)
 
 [node name="Swatch5" type="ColorRect" parent="Margin/Layout/Body/StepPanel/Content/Pages/LookPage/HairColor/HairColorGrid"]
 custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
+color = Color(0.6471, 0.1569, 0.1176, 1)
 
 [node name="Swatch6" type="ColorRect" parent="Margin/Layout/Body/StepPanel/Content/Pages/LookPage/HairColor/HairColorGrid"]
 custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
+color = Color(0.8039, 0.4118, 0.1765, 1)
 
 [node name="Swatch7" type="ColorRect" parent="Margin/Layout/Body/StepPanel/Content/Pages/LookPage/HairColor/HairColorGrid"]
 custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
+color = Color(0.9216, 0.8039, 0.549, 1)
 
 [node name="Swatch8" type="ColorRect" parent="Margin/Layout/Body/StepPanel/Content/Pages/LookPage/HairColor/HairColorGrid"]
 custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
+color = Color(0.9412, 0.9098, 0.8235, 1)
+
+[node name="Swatch9" type="ColorRect" parent="Margin/Layout/Body/StepPanel/Content/Pages/LookPage/HairColor/HairColorGrid"]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+color = Color(0.5882, 0.5765, 0.5608, 1)
+
+[node name="Swatch10" type="ColorRect" parent="Margin/Layout/Body/StepPanel/Content/Pages/LookPage/HairColor/HairColorGrid"]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+color = Color(0.9216, 0.9216, 0.9098, 1)
 
 [node name="SkinColor" type="VBoxContainer" parent="Margin/Layout/Body/StepPanel/Content/Pages/LookPage"]
 layout_mode = 2
@@ -297,42 +328,57 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/h_separation = 8
 theme_override_constants/v_separation = 8
-columns = 8
+columns = 5
 
 [node name="Swatch1" type="ColorRect" parent="Margin/Layout/Body/StepPanel/Content/Pages/LookPage/SkinColor/SkinColorGrid"]
 custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
+color = Color(1, 0.8941, 0.8078, 1)
 
 [node name="Swatch2" type="ColorRect" parent="Margin/Layout/Body/StepPanel/Content/Pages/LookPage/SkinColor/SkinColorGrid"]
 custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
-color = Color(0.49398458, 0.99999994, 0.8300373, 1)
+color = Color(0.9804, 0.8392, 0.7216, 1)
 
 [node name="Swatch3" type="ColorRect" parent="Margin/Layout/Body/StepPanel/Content/Pages/LookPage/SkinColor/SkinColorGrid"]
 custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
-color = Color(1, 0, 0, 1)
+color = Color(0.9412, 0.7608, 0.6275, 1)
 
 [node name="Swatch4" type="ColorRect" parent="Margin/Layout/Body/StepPanel/Content/Pages/LookPage/SkinColor/SkinColorGrid"]
 custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
-color = Color(0.3689821, 0.21426192, 0.0357328, 1)
+color = Color(0.8863, 0.6745, 0.5098, 1)
 
 [node name="Swatch5" type="ColorRect" parent="Margin/Layout/Body/StepPanel/Content/Pages/LookPage/SkinColor/SkinColorGrid"]
 custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
+color = Color(0.8039, 0.5804, 0.4118, 1)
 
 [node name="Swatch6" type="ColorRect" parent="Margin/Layout/Body/StepPanel/Content/Pages/LookPage/SkinColor/SkinColorGrid"]
 custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
+color = Color(0.6902, 0.4706, 0.3216, 1)
 
 [node name="Swatch7" type="ColorRect" parent="Margin/Layout/Body/StepPanel/Content/Pages/LookPage/SkinColor/SkinColorGrid"]
 custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
+color = Color(0.5686, 0.3725, 0.2471, 1)
 
 [node name="Swatch8" type="ColorRect" parent="Margin/Layout/Body/StepPanel/Content/Pages/LookPage/SkinColor/SkinColorGrid"]
 custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
+color = Color(0.451, 0.2902, 0.1882, 1)
+
+[node name="Swatch9" type="ColorRect" parent="Margin/Layout/Body/StepPanel/Content/Pages/LookPage/SkinColor/SkinColorGrid"]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+color = Color(0.3451, 0.2196, 0.1451, 1)
+
+[node name="Swatch10" type="ColorRect" parent="Margin/Layout/Body/StepPanel/Content/Pages/LookPage/SkinColor/SkinColorGrid"]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+color = Color(0.2588, 0.1647, 0.1137, 1)
 
 [node name="AttributesPage" type="VBoxContainer" parent="Margin/Layout/Body/StepPanel/Content/Pages"]
 unique_name_in_owner = true
