@@ -2,7 +2,6 @@ package net.bestia.zone.townsfolk.conversation
 
 import net.bestia.bnet.proto.ConversationSmsgProto
 import net.bestia.bnet.proto.EnvelopeProto
-import net.bestia.zone.dialog.toBnet
 import net.bestia.zone.message.SMSG
 import net.bestia.zone.util.EntityId
 
@@ -30,13 +29,6 @@ data class ConversationSMSG(
     return EnvelopeProto.Envelope.newBuilder()
       .setConversation(conversation.build())
       .build()
-  }
-
-  private fun Line.toBnet(): ConversationSmsgProto.Line {
-    val line = ConversationSmsgProto.Line.newBuilder().setKey(key)
-    args.forEach { (name, arg) -> line.putArgs(name, arg.toBnet()) }
-
-    return line.build()
   }
 
   private fun ConversationOption.toBnet(): ConversationSmsgProto.ConversationOption {
