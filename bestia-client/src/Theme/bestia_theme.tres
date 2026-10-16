@@ -162,6 +162,49 @@ corner_radius_top_right = 3
 corner_radius_bottom_right = 3
 corner_radius_bottom_left = 3
 
+[sub_resource type="StyleBoxFlat" id="StyleBox_home_card"]
+content_margin_left = 14.0
+content_margin_top = 10.0
+content_margin_right = 14.0
+content_margin_bottom = 10.0
+bg_color = Color(0.11, 0.11, 0.105, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.11, 0.11, 0.105, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_home_card_selected"]
+content_margin_left = 14.0
+content_margin_top = 10.0
+content_margin_right = 14.0
+content_margin_bottom = 10.0
+bg_color = Color(0.11, 0.11, 0.105, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.365, 0.792, 0.647, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_tier_badge"]
+content_margin_left = 8.0
+content_margin_top = 1.0
+content_margin_right = 8.0
+content_margin_bottom = 1.0
+bg_color = Color(0.365, 0.792, 0.647, 0.18)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
 [resource]
 ChipButton/base_type = &"Button"
 ChipButton/colors/font_color = Color(0.827, 0.82, 0.78, 1)
@@ -177,6 +220,10 @@ DangerAlert/base_type = &"PanelContainer"
 DangerAlert/styles/panel = SubResource("StyleBox_alert_danger")
 DangerAlertLabel/base_type = &"Label"
 DangerAlertLabel/colors/font_color = Color(0.957, 0.714, 0.714, 1)
+HomeCard/base_type = &"PanelContainer"
+HomeCard/styles/panel = SubResource("StyleBox_home_card")
+HomeCardSelected/base_type = &"PanelContainer"
+HomeCardSelected/styles/panel = SubResource("StyleBox_home_card_selected")
 InfoAlert/base_type = &"PanelContainer"
 InfoAlert/styles/panel = SubResource("StyleBox_alert_info")
 InfoAlertLabel/base_type = &"Label"
@@ -199,5 +246,10 @@ PrimaryButton/styles/pressed = SubResource("StyleBox_primary_pressed")
 StatBar/base_type = &"ProgressBar"
 StatBar/styles/background = SubResource("StyleBox_stat_bar_background")
 StatBar/styles/fill = SubResource("StyleBox_stat_bar_fill")
+TierBadge/base_type = &"PanelContainer"
+TierBadge/styles/panel = SubResource("StyleBox_tier_badge")
+TierBadgeLabel/base_type = &"Label"
+TierBadgeLabel/colors/font_color = Color(0.624, 0.882, 0.796, 1)
+TierBadgeLabel/font_sizes/font_size = 12
 RichTextLabel/fonts/bold_font = SubResource("FontVariation_bold")
 RichTextLabel/fonts/bold_italics_font = SubResource("FontVariation_bold_italics")
