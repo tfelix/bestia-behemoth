@@ -5,6 +5,7 @@
 [ext_resource type="PackedScene" path="res://Menu/CreateNewMaster/StepBar/StepBar.tscn" id="3_stepbar"]
 [ext_resource type="Texture2D" uid="uid://6agwh7nujv76" path="res://Menu/Main/Background/landscape-nature-clouds-cloudy.jpg" id="4_bg"]
 [ext_resource type="LabelSettings" uid="uid://k7yxyg5xi86r" path="res://Menu/Shared/muted_text_label_settings.tres" id="5_muted"]
+[ext_resource type="PackedScene" path="res://Menu/CreateNewMaster/MasterPreview/MasterPreview.tscn" id="6_mprev"]
 
 [node name="CreateNewMaster" type="Control"]
 layout_mode = 3
@@ -73,12 +74,31 @@ custom_minimum_size = Vector2(300, 420)
 layout_mode = 2
 theme_type_variation = &"MenuPanel"
 
-[node name="PreviewHint" type="Label" parent="Margin/Layout/Body/Preview/PreviewFrame"]
+[node name="PreviewColumn" type="VBoxContainer" parent="Margin/Layout/Body/Preview/PreviewFrame"]
 layout_mode = 2
-text = "Your master appears here"
-label_settings = ExtResource("5_muted")
-horizontal_alignment = 1
-vertical_alignment = 1
+theme_override_constants/separation = 12
+
+[node name="MasterPreview" parent="Margin/Layout/Body/Preview/PreviewFrame/PreviewColumn" instance=ExtResource("6_mprev")]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="TurnRow" type="HBoxContainer" parent="Margin/Layout/Body/Preview/PreviewFrame/PreviewColumn"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = 16
+
+[node name="TurnLeft" type="Button" parent="Margin/Layout/Body/Preview/PreviewFrame/PreviewColumn/TurnRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+text = "->"
+
+[node name="TurnRight" type="Button" parent="Margin/Layout/Body/Preview/PreviewFrame/PreviewColumn/TurnRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+text = "<-"
 
 [node name="StepPanel" type="PanelContainer" parent="Margin/Layout/Body"]
 custom_minimum_size = Vector2(480, 0)
