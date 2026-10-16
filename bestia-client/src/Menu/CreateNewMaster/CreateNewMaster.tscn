@@ -215,7 +215,7 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 selected = 0
-item_count = 5
+item_count = 10
 popup/item_0/text = "Face 1"
 popup/item_0/id = 0
 popup/item_1/text = "Face 2"
@@ -226,6 +226,16 @@ popup/item_3/text = "Face 4"
 popup/item_3/id = 3
 popup/item_4/text = "Face 5"
 popup/item_4/id = 4
+popup/item_5/text = "Face 6"
+popup/item_5/id = 5
+popup/item_6/text = "Face 7"
+popup/item_6/id = 6
+popup/item_7/text = "Face 8"
+popup/item_7/id = 7
+popup/item_8/text = "Face 9"
+popup/item_8/id = 8
+popup/item_9/text = "Face 10"
+popup/item_9/id = 9
 
 [node name="FaceButtonRight" type="Button" parent="Margin/Layout/Body/StepPanel/Content/Pages/LookPage/FaceRow"]
 unique_name_in_owner = true
