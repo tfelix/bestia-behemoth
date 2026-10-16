@@ -6,16 +6,18 @@ Writes bestia-client/src/Game/Master/Parts/master_parts.glb: the pack's rig, whi
 bone for bone, with one skinned mesh per part:
 - Head (the bald base), Face_1..Face_10 (6 to 10 are feminine) with FacialHair_<n> where a face has a beard,
   and Hair_1..Hair_4 (bald has no Hair part)
-- worn gear, named Gear_<Item>, such as Gear_IronHelmet
+- worn gear, named Gear_<Item>, such as Gear_IronHelmet and Gear_IronSword
 - the base body in underwear: Body, ArmLeft, ArmRight, LegLeft, LegRight, and the same with _F for the female
 """
+import json
 import math
+import struct
 import sys
 from pathlib import Path
 
 import bmesh
 import bpy
-from mathutils import Vector
+from mathutils import Matrix, Quaternion, Vector
 from mathutils.bvhtree import BVHTree
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -27,11 +29,31 @@ RIG_SOURCE = Path("Animations") / "gltf" / "Rig_Medium" / "Rig_Medium_General.gl
 FACE_SOURCES = ["Knight", "Mage", "Ranger", "Barbarian", "Rogue"]
 HAIR_SOURCES = ["Knight", "Ranger", "Mage", "Rogue"]
 
-# Worn gear: part name -> (character, the character's meshes that make it up). An item's client resource
-# names the part it shows when worn.
+
+
+class GearSource:
+    """Where a worn part comes from, and the bone that carries it.
+
+    A character's own gear already sits where it is worn. A loose asset, such as a weapon, is authored for the
+    joint that holds it; [seat] turns it the way the Mage file seats its own held items under that joint.
+    """
+
+    def __init__(self, file, meshes, bone, seat=None):
+        self.file, self.meshes, self.bone, self.seat = file, meshes, bone, seat
+
+
+# The Mage file's wand and staff hang under the right hand slot turned half around the joint's Y axis.
+RIGHT_HAND_SEAT = Matrix.Rotation(math.pi, 4, "Y")
+
+
+# By part name. An item's client resource names the part it shows when worn.
 GEAR_SOURCES = {
-    "Gear_IronHelmet": ("Knight", ["Knight_Helmet", "Knight_HelmetVisor"]),
+    "Gear_IronHelmet": GearSource("Characters/gltf/Knight.glb", ["Knight_Helmet", "Knight_HelmetVisor"], "head"),
+    "Gear_IronSword": GearSource("Assets/gltf/sword_1handed.gltf", ["sword_1handed"], "handslot.r", RIGHT_HAND_SEAT),
 }
+
+# glTF is Y-up, Blender Z-up.
+Y_UP_TO_Z_UP = Matrix(((1, 0, 0, 0), (0, 0, -1, 0), (0, 1, 0, 0), (0, 0, 0, 1)))
 
 # Mage and Rogue share this face shell, and the other hairstyles were modelled around a near copy of it.
 SLIM_FACE_SOURCE = "Mage"
@@ -92,20 +114,46 @@ def load_head_parts(pack: Path, character: str):
     return parts
 
 
-def load_gear(pack: Path, character: str, mesh_names):
-    """Imports a character and returns copies of the named meshes, which keep their own colours."""
+def load_gear(pack: Path, source: GearSource):
+    """Copies of the source's meshes in model space. They keep their own colours."""
     before = set(bpy.data.objects)
-    bpy.ops.import_scene.gltf(filepath=str(pack / "Characters" / "gltf" / f"{character}.glb"))
+    bpy.ops.import_scene.gltf(filepath=str(pack / source.file))
     imported = {o.name: o for o in set(bpy.data.objects) - before}
     pieces = []
-    for name in mesh_names:
+    for name in source.meshes:
         piece = duplicate(imported[name])
+        if source.seat is not None:
+            piece.data.transform(joint_rest_frame(pack, source.bone, source.seat))
         piece["texture"] = source_texture(imported[name]).name
         piece["kind"] = "gear"
         pieces.append(piece)
     for obj in imported.values():
         bpy.data.objects.remove(obj)
     return pieces
+
+
+def joint_rest_frame(pack: Path, joint_name: str, seat):
+    """Where a held item sits at rest, in Blender's model space: the joint's rest transform, composed from the
+    rig file's glTF nodes, followed by the [seat] under it."""
+    data = (pack / RIG_SOURCE).read_bytes()
+    json_length = struct.unpack_from("<I", data, 12)[0]
+    nodes = json.loads(data[20:20 + json_length])["nodes"]
+    parent_of = {child: index for index, node in enumerate(nodes) for child in node.get("children", [])}
+
+    index = next(i for i, node in enumerate(nodes) if node.get("name") == joint_name)
+    frame = seat.copy()
+    while index is not None:
+        frame = node_matrix(nodes[index]) @ frame
+        index = parent_of.get(index)
+    return Y_UP_TO_Z_UP @ frame @ Y_UP_TO_Z_UP.inverted()
+
+
+def node_matrix(node):
+    if "matrix" in node:
+        return Matrix([node["matrix"][column::4] for column in range(4)])
+    x, y, z, w = node.get("rotation", (0, 0, 0, 1))
+    return Matrix.LocRotScale(Vector(node.get("translation", (0, 0, 0))), Quaternion((w, x, y, z)),
+                              Vector(node.get("scale", (1, 1, 1))))
 
 
 def source_texture(obj):
@@ -564,8 +612,9 @@ def paint_body_part(obj, atlas, materials):
 # --- skinning --------------------------------------------------------------------------------------------
 
 
-def rig_to_head(obj, rig):
-    group = obj.vertex_groups.new(name="head")
+def rig_to_bone(obj, rig, bone="head"):
+    """Rigid on one bone: every vertex follows it fully, as the pack's heads and held items do."""
+    group = obj.vertex_groups.new(name=bone)
     group.add(range(len(obj.data.vertices)), 1.0, "REPLACE")
     attach(obj, rig)
 
@@ -783,8 +832,12 @@ def main(pack: Path):
         head_parts.append(join(feminine_face(recipe, parts_of, slim_face, atlas, materials), f"Face_{number}"))
     for number, character in enumerate(HAIR_SOURCES, start=1):
         head_parts.append(join(parts_of(character, "hair"), f"Hair_{number}"))
-    for part_name, (character, mesh_names) in GEAR_SOURCES.items():
-        head_parts.append(join(prepared(load_gear(pack, character, mesh_names), character), part_name))
+    gear_parts = {}
+    for part_name, source in GEAR_SOURCES.items():
+        pieces = load_gear(pack, source)
+        for piece in pieces:
+            assign_roles(piece, atlas, materials, hair_colour=None)
+        gear_parts[join(pieces, part_name)] = source.bone
 
     all_body_parts = BODY_PARTS + [part.feminine() for part in BODY_PARTS]
     body_parts = [build_body_part(part, mannequin) for part in all_body_parts]
@@ -792,16 +845,18 @@ def main(pack: Path):
         paint_body_part(obj, atlas, materials)
 
     for obj in head_parts:
-        rig_to_head(obj, rig)
+        rig_to_bone(obj, rig)
+    for obj, bone in gear_parts.items():
+        rig_to_bone(obj, rig, bone)
     for obj, part in zip(body_parts, all_body_parts):
         rig_like(obj, mannequin[part.source], rig)
 
-    kept = set(head_parts + body_parts + [rig])
+    kept = set(head_parts + list(gear_parts) + body_parts + [rig])
     for obj in list(bpy.data.objects):
         if obj not in kept:
             bpy.data.objects.remove(obj)
 
-    atlas.finish_uvs(head_parts + body_parts)
+    atlas.finish_uvs(head_parts + list(gear_parts) + body_parts)
     baked = atlas.bake("master_parts")
     for material in materials.values():
         material.node_tree.nodes["Image Texture"].image = baked
