@@ -11,6 +11,7 @@ option java_outer_classname = "MasterProto";
 
 enum BodyType {
   BODY_M_1 = 0;
+  BODY_F_1 = 1;
 }
 
 // Faces and hairstyles are parts of the client's master_head_parts.glb, in the same order.

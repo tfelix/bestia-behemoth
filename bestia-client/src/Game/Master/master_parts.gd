@@ -5,6 +5,9 @@ class_name MasterParts extends Node3D
 const _PARTS := preload("res://Game/Master/Parts/master_parts.glb")
 const _HAIR_MATERIAL := "master_hair"
 const _SKIN_MATERIAL := "master_skin"
+const _BODY_PARTS := ["Body", "ArmLeft", "ArmRight", "LegLeft", "LegRight"]
+## Part name suffix per proto BodyType.
+const _BODY_SUFFIXES := ["", "_F"]
 
 ## Shared by every master with the same colour, so a crowd of masters costs a few materials, not one each.
 static var _tinted_materials: Dictionary = {}
@@ -21,13 +24,19 @@ func _init() -> void:
 	source.free()
 
 
-## [param face] and [param hair] are proto Face and Hairstyle values. A hairstyle without a part is bald.
-func show_look(face: int, hair: int, hair_color: Color, skin_color: Color) -> void:
+## [param body], [param face] and [param hair] are proto BodyType, Face and Hairstyle values. A hairstyle
+## without a part is bald.
+func show_look(body: int, face: int, hair: int, hair_color: Color, skin_color: Color) -> void:
+	if body < 0 or body >= _BODY_SUFFIXES.size():
+		printerr("MasterParts: unknown body %s, showing the first" % body)
+		body = 0
 	var face_part := "Face_%d" % (face + 1)
 	if not has_node(face_part):
 		printerr("MasterParts: unknown face %s, showing the first" % face)
 		face_part = "Face_1"
 	var shown := ["Head", face_part, "Hair_%d" % (hair + 1)]
+	for part in _BODY_PARTS:
+		shown.append(part + _BODY_SUFFIXES[body])
 
 	for part: MeshInstance3D in get_children():
 		part.visible = part.name in shown

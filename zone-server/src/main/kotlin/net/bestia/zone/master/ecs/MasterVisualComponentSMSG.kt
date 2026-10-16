@@ -47,6 +47,7 @@ data class MasterVisualComponentSMSG(
   private fun mapBodyType(bodyType: BodyType): MasterProto.BodyType {
     return when (bodyType) {
       BodyType.BODY_M_1 -> MasterProto.BodyType.BODY_M_1
+      BodyType.BODY_F_1 -> MasterProto.BodyType.BODY_F_1
     }
   }
 
