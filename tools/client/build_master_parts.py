@@ -6,7 +6,8 @@ Writes bestia-client/src/Game/Master/Parts/master_parts.glb: the pack's rig, whi
 bone for bone, with one skinned mesh per part:
 - Head (the bald base), Face_1..Face_10 (6 to 10 are feminine) with FacialHair_<n> where a face has a beard,
   and Hair_1..Hair_4 (bald has no Hair part)
-- worn gear, named Gear_<Item>, such as Gear_IronHelmet and Gear_IronSword; Gear_NoviceArmor has a _F twin
+- worn gear, named Gear_<Item>, such as Gear_IronHelmet and Gear_IronSword; Gear_NoviceArmor and
+  Gear_NoviceBoots have an _F twin
 - the base body in underwear: Body, ArmLeft, ArmRight, LegLeft, LegRight, and the same with _F for the female
 """
 import json
@@ -716,9 +717,12 @@ def equal_width_angles(section, roundness, first_angle, last_angle, count, sampl
 
 
 def shell_patch(bm, uv, sections, roundness, start_angle, end_angle, height, inner, outer, atlas_cell,
-                columns, rows, lean=0.0):
-    """A slab that follows the torso: between [inner] and [outer] off its surface, over an arc of angles and
-    the heights height(u, v) gives for u across and v up the slab, both 0..1. [lean] turns it as it rises."""
+                columns, rows, lean=0.0, closed=False):
+    """A slab that follows a body part: between [inner] and [outer] off its surface, over an arc of angles and
+    the heights height(u, v) gives for u across and v up the slab, both 0..1. [lean] turns it as it rises.
+
+    [atlas_cell] is a cell, or a function of a face's centre that picks one. A [closed] slab goes all the
+    way round, so it has no side walls. Returns the outer grid, rows of vertices from the bottom up."""
     def point(u, v, grow):
         level = height(u, v)
         angle = start_angle + (end_angle - start_angle) * u + lean * v
@@ -730,8 +734,9 @@ def shell_patch(bm, uv, sections, roundness, start_angle, end_angle, height, inn
     def face(corners, shades):
         f = bm.faces.new(corners)
         f.smooth = False
+        cell = atlas_cell(f.calc_center_median()) if callable(atlas_cell) else atlas_cell
         for loop, shade in zip(f.loops, shades):
-            loop[uv].uv = (atlas_cell, 0.15 + 0.8 * shade)
+            loop[uv].uv = (cell, 0.15 + 0.8 * shade)
 
     outside, inside = grid(outer), grid(inner)
     for r in range(rows):
@@ -739,6 +744,15 @@ def shell_patch(bm, uv, sections, roundness, start_angle, end_angle, height, inn
             shades = [r / rows, r / rows, (r + 1) / rows, (r + 1) / rows]
             face([outside[r][c], outside[r][c + 1], outside[r + 1][c + 1], outside[r + 1][c]], shades)
             face([inside[r][c + 1], inside[r][c], inside[r + 1][c], inside[r + 1][c + 1]], shades)
+
+    def walls(edge_outside, edge_inside, v):
+        for i in range(len(edge_outside) - 1):
+            face([edge_outside[i + 1], edge_outside[i], edge_inside[i], edge_inside[i + 1]], [v] * 4)
+
+    if closed:
+        walls(outside[0], inside[0], 0.0)
+        walls(outside[rows][::-1], inside[rows][::-1], 1.0)
+        return outside
     rim = ([outside[0][c] for c in range(columns + 1)] + [outside[r][columns] for r in range(1, rows + 1)]
            + [outside[rows][c] for c in range(columns - 1, -1, -1)] + [outside[r][0] for r in range(rows - 1, 0, -1)])
     rim_inside = ([inside[0][c] for c in range(columns + 1)] + [inside[r][columns] for r in range(1, rows + 1)]
@@ -746,6 +760,64 @@ def shell_patch(bm, uv, sections, roundness, start_angle, end_angle, height, inn
     for i in range(len(rim)):
         j = (i + 1) % len(rim)
         face([rim[j], rim[i], rim_inside[i], rim_inside[j]], [0.5] * 4)
+    return outside
+
+
+# --- novice boots ----------------------------------------------------------------------------------------
+
+
+# Soft leather boots, worn pale at the toes: a shell over each foot and shin, with a sole and a turned-down cuff.
+NOVICE_BOOTS = "Gear_NoviceBoots"
+BOOT_TOP = 0.25
+BOOT_STANDOFF, BOOT_THICKNESS = 0.006, 0.012
+CUFF_HEIGHT, CUFF_THICKNESS = 0.05, 0.016
+SOLE_HEIGHT = 0.022
+# Where the leather is worn pale: the front of the foot, this far ahead of the shin (the front is -y).
+TOE_REACH = 0.1
+BOOT_LEATHER = ((0.56, 0.39, 0.25), (0.41, 0.27, 0.17))
+BOOT_LEATHER_PALE = ((0.74, 0.58, 0.42), (0.6, 0.45, 0.31))
+BOOT_CUFF = ((0.48, 0.33, 0.21), (0.35, 0.23, 0.15))
+BOOT_SOLE = ((0.27, 0.2, 0.15), (0.19, 0.14, 0.1))
+
+
+def build_boot(sections, roundness, atlas, materials):
+    """One boot, fitted to the leg whose [sections] are given."""
+    bm = bmesh.new()
+    uv = bm.loops.layers.uv.new("UVMap")
+    leather, pale = atlas.synthetic("boot_leather", BOOT_LEATHER), atlas.synthetic("boot_leather_pale", BOOT_LEATHER_PALE)
+    sole = atlas.synthetic("boot_sole", BOOT_SOLE)
+
+    def shaft_height(u, v):
+        return BOOT_TOP * v
+
+    shin_front = section_at(sections, BOOT_TOP)[3]
+
+    def worn_toes(centre):
+        if centre.z < SOLE_HEIGHT:
+            return sole
+        return pale if centre.y < shin_front - TOE_REACH else leather
+
+    outside = shell_patch(bm, uv, sections, roundness, 0.0, 2 * math.pi, shaft_height, BOOT_STANDOFF,
+                          BOOT_STANDOFF + BOOT_THICKNESS, worn_toes, columns=24, rows=10, closed=True)
+    sole_centre = bm.verts.new(sum((v.co for v in outside[0]), Vector()) / len(outside[0]))
+    for a, b in zip(outside[0], outside[0][1:]):
+        face = bm.faces.new([b, a, sole_centre])
+        for loop in face.loops:
+            loop[uv].uv = (sole, 0.2)
+
+    shell_patch(bm, uv, sections, roundness, 0.0, 2 * math.pi, lambda u, v: BOOT_TOP - CUFF_HEIGHT + (CUFF_HEIGHT + 0.006) * v,
+                BOOT_STANDOFF + BOOT_THICKNESS, BOOT_STANDOFF + BOOT_THICKNESS + CUFF_THICKNESS,
+                atlas.synthetic("boot_cuff", BOOT_CUFF), columns=24, rows=2, closed=True)
+
+    bmesh.ops.remove_doubles(bm, verts=bm.verts, dist=1e-5)
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    mesh = bpy.data.meshes.new(NOVICE_BOOTS)
+    bm.to_mesh(mesh)
+    bm.free()
+    boot = bpy.data.objects.new(NOVICE_BOOTS, mesh)
+    bpy.context.collection.objects.link(boot)
+    boot.data.materials.append(materials[FIXED])
+    return boot
 
 
 # --- skinning --------------------------------------------------------------------------------------------
@@ -986,11 +1058,15 @@ def main(pack: Path):
 
     # Body armor is made per body, so it fits the female body's waist and bust too.
     armor_parts = {}
+    boots = {"": [], FEMALE_SUFFIX: []}  # by body suffix: (boot, the leg it fits)
     for (torso, sections), part in zip(built, all_body_parts):
         if part.name.startswith("Body"):
             armor = build_stave_armor(sections, part.roundness, atlas, materials)
             armor.name = armor.data.name = STAVE_ARMOR + part.name.removeprefix("Body")
             armor_parts[armor] = torso
+        elif part.name.startswith("Leg"):
+            boots[part.name.removeprefix("LegLeft").removeprefix("LegRight")].append(
+                (build_boot(sections, part.roundness, atlas, materials), torso))
 
     for obj in head_parts:
         rig_to_bone(obj, rig)
@@ -1000,6 +1076,11 @@ def main(pack: Path):
         rig_like(obj, mannequin[part.source], rig)
     for armor, torso in armor_parts.items():
         rig_like(armor, torso, rig)
+    # A boot is fitted and weighted per leg, but worn as a pair.
+    for suffix, fitted in boots.items():
+        for boot, leg in fitted:
+            rig_like(boot, leg, rig)
+        armor_parts[join([boot for boot, _ in fitted], NOVICE_BOOTS + suffix)] = None
 
     kept = set(head_parts + list(gear_parts) + body_parts + list(armor_parts) + [rig])
     for obj in list(bpy.data.objects):
