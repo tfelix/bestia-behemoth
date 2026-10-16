@@ -2,11 +2,11 @@
 
 [ext_resource type="Script" uid="uid://d0wgy6dui6vqy" path="res://Menu/CreateNewMaster/create_new_master.gd" id="1_83cya"]
 [ext_resource type="PackedScene" path="res://Menu/CreateNewMaster/EffortValueRow/EffortValueRow.tscn" id="2_evrow"]
+[ext_resource type="PackedScene" path="res://Menu/CreateNewMaster/StepBar/StepBar.tscn" id="3_stepbar"]
+[ext_resource type="Texture2D" uid="uid://6agwh7nujv76" path="res://Menu/Main/Background/landscape-nature-clouds-cloudy.jpg" id="4_bg"]
+[ext_resource type="LabelSettings" uid="uid://k7yxyg5xi86r" path="res://Menu/Shared/muted_text_label_settings.tres" id="5_muted"]
 
-[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_83cya"]
-size = Vector2(250, 300)
-
-[node name="CreateNewMaster" type="Control" unique_id=766961055]
+[node name="CreateNewMaster" type="Control"]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -15,58 +15,121 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_83cya")
 
-[node name="CenterContainer" type="CenterContainer" parent="." unique_id=1524643216]
+[node name="Background" type="TextureRect" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+texture = ExtResource("4_bg")
+expand_mode = 1
+stretch_mode = 6
 
-[node name="P" type="PanelContainer" parent="CenterContainer" unique_id=163614746]
-layout_mode = 2
+[node name="Dim" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.05, 0.05, 0.05, 0.6)
 
-[node name="M" type="MarginContainer" parent="CenterContainer/P" unique_id=611122242]
-layout_mode = 2
-theme_override_constants/margin_left = 14
-theme_override_constants/margin_top = 14
-theme_override_constants/margin_right = 14
-theme_override_constants/margin_bottom = 14
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 40
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 40
+theme_override_constants/margin_bottom = 32
 
-[node name="Main" type="VBoxContainer" parent="CenterContainer/P/M" unique_id=2124865086]
-layout_mode = 2
-theme_override_constants/separation = 40
-
-[node name="Title" type="Label" parent="CenterContainer/P/M/Main" unique_id=1879486540]
-layout_mode = 2
-theme_override_font_sizes/font_size = 36
-text = "Create A New Character"
-
-[node name="Creation" type="HBoxContainer" parent="CenterContainer/P/M/Main" unique_id=2146038547]
-layout_mode = 2
-theme_override_constants/separation = 80
-
-[node name="Left" type="VBoxContainer" parent="CenterContainer/P/M/Main/Creation" unique_id=2029040470]
+[node name="Layout" type="VBoxContainer" parent="Margin"]
 layout_mode = 2
 theme_override_constants/separation = 20
 
-[node name="Entry1" type="VBoxContainer" parent="CenterContainer/P/M/Main/Creation/Left" unique_id=340082265]
+[node name="StepBar" parent="Margin/Layout" instance=ExtResource("3_stepbar")]
+unique_name_in_owner = true
 layout_mode = 2
-theme_override_constants/separation = 8
+size_flags_horizontal = 4
+titles = PackedStringArray("Look", "Attributes", "Home", "Name")
 
-[node name="GenderLabel" type="Label" parent="CenterContainer/P/M/Main/Creation/Left/Entry1" unique_id=291076695]
+[node name="Body" type="HBoxContainer" parent="Margin/Layout"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 24
+
+[node name="Preview" type="CenterContainer" parent="Margin/Layout/Body"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="PreviewFrame" type="PanelContainer" parent="Margin/Layout/Body/Preview"]
+self_modulate = Color(1, 1, 1, 0.5)
+custom_minimum_size = Vector2(300, 420)
+layout_mode = 2
+theme_type_variation = &"MenuPanel"
+
+[node name="PreviewHint" type="Label" parent="Margin/Layout/Body/Preview/PreviewFrame"]
+layout_mode = 2
+text = "Your master appears here"
+label_settings = ExtResource("5_muted")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="StepPanel" type="PanelContainer" parent="Margin/Layout/Body"]
+custom_minimum_size = Vector2(480, 0)
+layout_mode = 2
+theme_type_variation = &"MenuPanel"
+
+[node name="Content" type="VBoxContainer" parent="Margin/Layout/Body/StepPanel"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="Pages" type="VBoxContainer" parent="Margin/Layout/Body/StepPanel/Content"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="LookPage" type="VBoxContainer" parent="Margin/Layout/Body/StepPanel/Content/Pages"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 14
+
+[node name="LookPageHeading" type="VBoxContainer" parent="Margin/Layout/Body/StepPanel/Content/Pages/LookPage"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="Title" type="Label" parent="Margin/Layout/Body/StepPanel/Content/Pages/LookPage/LookPageHeading"]
+layout_mode = 2
+theme_type_variation = &"PageTitle"
+text = "Choose your look"
+
+[node name="Hint" type="Label" parent="Margin/Layout/Body/StepPanel/Content/Pages/LookPage/LookPageHeading"]
+layout_mode = 2
+text = "You can't change your look after you create your master."
+label_settings = ExtResource("5_muted")
+autowrap_mode = 3
+
+[node name="GenderRow" type="HBoxContainer" parent="Margin/Layout/Body/StepPanel/Content/Pages/LookPage"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Margin/Layout/Body/StepPanel/Content/Pages/LookPage/GenderRow"]
+custom_minimum_size = Vector2(90, 0)
 layout_mode = 2
 text = "Gender"
 
-[node name="Row" type="HBoxContainer" parent="CenterContainer/P/M/Main/Creation/Left/Entry1" unique_id=858480941]
-layout_mode = 2
-
-[node name="L" type="Button" parent="CenterContainer/P/M/Main/Creation/Left/Entry1/Row" unique_id=245881920]
-custom_minimum_size = Vector2(30, 0)
+[node name="GenderButtonLeft" type="Button" parent="Margin/Layout/Body/StepPanel/Content/Pages/LookPage/GenderRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(32, 0)
 layout_mode = 2
 text = "<"
 
-[node name="GenderButton" type="OptionButton" parent="CenterContainer/P/M/Main/Creation/Left/Entry1/Row" unique_id=1741139395]
+[node name="GenderButton" type="OptionButton" parent="Margin/Layout/Body/StepPanel/Content/Pages/LookPage/GenderRow"]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 selected = 0
@@ -78,28 +141,28 @@ popup/item_1/id = 1
 popup/item_2/text = "Diverse"
 popup/item_2/id = 2
 
-[node name="R" type="Button" parent="CenterContainer/P/M/Main/Creation/Left/Entry1/Row" unique_id=1928968746]
-custom_minimum_size = Vector2(30, 0)
+[node name="GenderButtonRight" type="Button" parent="Margin/Layout/Body/StepPanel/Content/Pages/LookPage/GenderRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(32, 0)
 layout_mode = 2
 text = ">"
 
-[node name="Entry2" type="VBoxContainer" parent="CenterContainer/P/M/Main/Creation/Left" unique_id=1015903529]
+[node name="BodyRow" type="HBoxContainer" parent="Margin/Layout/Body/StepPanel/Content/Pages/LookPage"]
 layout_mode = 2
-theme_override_constants/separation = 8
 
-[node name="Body" type="Label" parent="CenterContainer/P/M/Main/Creation/Left/Entry2" unique_id=913697262]
+[node name="Label" type="Label" parent="Margin/Layout/Body/StepPanel/Content/Pages/LookPage/BodyRow"]
+custom_minimum_size = Vector2(90, 0)
 layout_mode = 2
 text = "Body"
 
-[node name="Row2" type="HBoxContainer" parent="CenterContainer/P/M/Main/Creation/Left/Entry2" unique_id=743232284]
-layout_mode = 2
-
-[node name="L" type="Button" parent="CenterContainer/P/M/Main/Creation/Left/Entry2/Row2" unique_id=424496201]
-custom_minimum_size = Vector2(30, 0)
+[node name="BodyButtonLeft" type="Button" parent="Margin/Layout/Body/StepPanel/Content/Pages/LookPage/BodyRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(32, 0)
 layout_mode = 2
 text = "<"
 
-[node name="Body" type="OptionButton" parent="CenterContainer/P/M/Main/Creation/Left/Entry2/Row2" unique_id=1963993979]
+[node name="BodyButton" type="OptionButton" parent="Margin/Layout/Body/StepPanel/Content/Pages/LookPage/BodyRow"]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 selected = 0
@@ -107,28 +170,28 @@ item_count = 1
 popup/item_0/text = "Type 1"
 popup/item_0/id = 0
 
-[node name="R" type="Button" parent="CenterContainer/P/M/Main/Creation/Left/Entry2/Row2" unique_id=1922800378]
-custom_minimum_size = Vector2(30, 0)
+[node name="BodyButtonRight" type="Button" parent="Margin/Layout/Body/StepPanel/Content/Pages/LookPage/BodyRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(32, 0)
 layout_mode = 2
 text = ">"
 
-[node name="Entry3" type="VBoxContainer" parent="CenterContainer/P/M/Main/Creation/Left" unique_id=398748436]
+[node name="FaceRow" type="HBoxContainer" parent="Margin/Layout/Body/StepPanel/Content/Pages/LookPage"]
 layout_mode = 2
-theme_override_constants/separation = 8
 
-[node name="Body" type="Label" parent="CenterContainer/P/M/Main/Creation/Left/Entry3" unique_id=1648909028]
+[node name="Label" type="Label" parent="Margin/Layout/Body/StepPanel/Content/Pages/LookPage/FaceRow"]
+custom_minimum_size = Vector2(90, 0)
 layout_mode = 2
 text = "Face"
 
-[node name="Row2" type="HBoxContainer" parent="CenterContainer/P/M/Main/Creation/Left/Entry3" unique_id=1406986408]
-layout_mode = 2
-
-[node name="L" type="Button" parent="CenterContainer/P/M/Main/Creation/Left/Entry3/Row2" unique_id=2007769454]
-custom_minimum_size = Vector2(30, 0)
+[node name="FaceButtonLeft" type="Button" parent="Margin/Layout/Body/StepPanel/Content/Pages/LookPage/FaceRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(32, 0)
 layout_mode = 2
 text = "<"
 
-[node name="Body" type="OptionButton" parent="CenterContainer/P/M/Main/Creation/Left/Entry3/Row2" unique_id=448479495]
+[node name="FaceButton" type="OptionButton" parent="Margin/Layout/Body/StepPanel/Content/Pages/LookPage/FaceRow"]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 selected = 0
@@ -136,28 +199,28 @@ item_count = 1
 popup/item_0/text = "Type 1"
 popup/item_0/id = 0
 
-[node name="R" type="Button" parent="CenterContainer/P/M/Main/Creation/Left/Entry3/Row2" unique_id=1533178037]
-custom_minimum_size = Vector2(30, 0)
+[node name="FaceButtonRight" type="Button" parent="Margin/Layout/Body/StepPanel/Content/Pages/LookPage/FaceRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(32, 0)
 layout_mode = 2
 text = ">"
 
-[node name="Entry4" type="VBoxContainer" parent="CenterContainer/P/M/Main/Creation/Left" unique_id=1136699241]
+[node name="HairRow" type="HBoxContainer" parent="Margin/Layout/Body/StepPanel/Content/Pages/LookPage"]
 layout_mode = 2
-theme_override_constants/separation = 8
 
-[node name="Title" type="Label" parent="CenterContainer/P/M/Main/Creation/Left/Entry4" unique_id=1543104546]
+[node name="Label" type="Label" parent="Margin/Layout/Body/StepPanel/Content/Pages/LookPage/HairRow"]
+custom_minimum_size = Vector2(90, 0)
 layout_mode = 2
 text = "Hair"
 
-[node name="Row2" type="HBoxContainer" parent="CenterContainer/P/M/Main/Creation/Left/Entry4" unique_id=1254061637]
-layout_mode = 2
-
-[node name="L" type="Button" parent="CenterContainer/P/M/Main/Creation/Left/Entry4/Row2" unique_id=788519822]
-custom_minimum_size = Vector2(30, 0)
+[node name="HairButtonLeft" type="Button" parent="Margin/Layout/Body/StepPanel/Content/Pages/LookPage/HairRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(32, 0)
 layout_mode = 2
 text = "<"
 
-[node name="Options" type="OptionButton" parent="CenterContainer/P/M/Main/Creation/Left/Entry4/Row2" unique_id=1847950495]
+[node name="HairButton" type="OptionButton" parent="Margin/Layout/Body/StepPanel/Content/Pages/LookPage/HairRow"]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 selected = 0
@@ -165,213 +228,263 @@ item_count = 1
 popup/item_0/text = "Type 1"
 popup/item_0/id = 0
 
-[node name="R" type="Button" parent="CenterContainer/P/M/Main/Creation/Left/Entry4/Row2" unique_id=1699725810]
-custom_minimum_size = Vector2(30, 0)
+[node name="HairButtonRight" type="Button" parent="Margin/Layout/Body/StepPanel/Content/Pages/LookPage/HairRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(32, 0)
 layout_mode = 2
 text = ">"
 
-[node name="Middle" type="VBoxContainer" parent="CenterContainer/P/M/Main/Creation" unique_id=1472622708]
+[node name="HairColor" type="VBoxContainer" parent="Margin/Layout/Body/StepPanel/Content/Pages/LookPage"]
 layout_mode = 2
-theme_override_constants/separation = 40
+theme_override_constants/separation = 6
 
-[node name="Preview" type="HBoxContainer" parent="CenterContainer/P/M/Main/Creation/Middle" unique_id=126258200]
+[node name="Label" type="Label" parent="Margin/Layout/Body/StepPanel/Content/Pages/LookPage/HairColor"]
 layout_mode = 2
+text = "Hair colour"
 
-[node name="RotL" type="Button" parent="CenterContainer/P/M/Main/Creation/Middle/Preview" unique_id=625566897]
-custom_minimum_size = Vector2(50, 50)
-layout_mode = 2
-size_flags_vertical = 0
-text = "->"
-
-[node name="Image" type="TextureRect" parent="CenterContainer/P/M/Main/Creation/Middle/Preview" unique_id=554157855]
-layout_mode = 2
-texture = SubResource("PlaceholderTexture2D_83cya")
-
-[node name="RotR" type="Button" parent="CenterContainer/P/M/Main/Creation/Middle/Preview" unique_id=1542793231]
-custom_minimum_size = Vector2(50, 50)
-layout_mode = 2
-size_flags_vertical = 0
-text = "<-"
-
-[node name="Name" type="VBoxContainer" parent="CenterContainer/P/M/Main/Creation/Middle" unique_id=684218007]
-layout_mode = 2
-
-[node name="NameLabel" type="Label" parent="CenterContainer/P/M/Main/Creation/Middle/Name" unique_id=1015359337]
-layout_mode = 2
-text = "Character Name"
-
-[node name="NameEdit" type="LineEdit" parent="CenterContainer/P/M/Main/Creation/Middle/Name" unique_id=374935857]
-layout_mode = 2
-placeholder_text = "Enter Name"
-
-[node name="SpawnPoint" type="VBoxContainer" parent="CenterContainer/P/M/Main/Creation/Middle" unique_id=1322592938]
-layout_mode = 2
-
-[node name="SpawnPointLabel" type="Label" parent="CenterContainer/P/M/Main/Creation/Middle/SpawnPoint" unique_id=1824059791]
-layout_mode = 2
-text = "Home Settlement"
-
-[node name="SpawnPointButton" type="OptionButton" parent="CenterContainer/P/M/Main/Creation/Middle/SpawnPoint" unique_id=2048333050]
-layout_mode = 2
-disabled = true
-
-[node name="Right" type="VBoxContainer" parent="CenterContainer/P/M/Main/Creation" unique_id=877922377]
-layout_mode = 2
-theme_override_constants/separation = 20
-
-[node name="Entry1" type="VBoxContainer" parent="CenterContainer/P/M/Main/Creation/Right" unique_id=1706292419]
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="HairCLabel" type="Label" parent="CenterContainer/P/M/Main/Creation/Right/Entry1" unique_id=1461824934]
-layout_mode = 2
-text = "Hair Color"
-
-[node name="GridContainer" type="GridContainer" parent="CenterContainer/P/M/Main/Creation/Right/Entry1" unique_id=1345002155]
+[node name="HairColorGrid" type="GridContainer" parent="Margin/Layout/Body/StepPanel/Content/Pages/LookPage/HairColor"]
+unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/h_separation = 8
 theme_override_constants/v_separation = 8
-columns = 5
+columns = 8
 
-[node name="ColorRect" type="ColorRect" parent="CenterContainer/P/M/Main/Creation/Right/Entry1/GridContainer" unique_id=1993804115]
-custom_minimum_size = Vector2(40, 40)
+[node name="Swatch1" type="ColorRect" parent="Margin/Layout/Body/StepPanel/Content/Pages/LookPage/HairColor/HairColorGrid"]
+custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
 
-[node name="ColorRect2" type="ColorRect" parent="CenterContainer/P/M/Main/Creation/Right/Entry1/GridContainer" unique_id=383400892]
-custom_minimum_size = Vector2(40, 40)
+[node name="Swatch2" type="ColorRect" parent="Margin/Layout/Body/StepPanel/Content/Pages/LookPage/HairColor/HairColorGrid"]
+custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
 color = Color(0.49398458, 0.99999994, 0.8300373, 1)
 
-[node name="ColorRect3" type="ColorRect" parent="CenterContainer/P/M/Main/Creation/Right/Entry1/GridContainer" unique_id=2079419083]
-custom_minimum_size = Vector2(40, 40)
+[node name="Swatch3" type="ColorRect" parent="Margin/Layout/Body/StepPanel/Content/Pages/LookPage/HairColor/HairColorGrid"]
+custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
 color = Color(1, 0, 0, 1)
 
-[node name="ColorRect4" type="ColorRect" parent="CenterContainer/P/M/Main/Creation/Right/Entry1/GridContainer" unique_id=1585880332]
-custom_minimum_size = Vector2(40, 40)
+[node name="Swatch4" type="ColorRect" parent="Margin/Layout/Body/StepPanel/Content/Pages/LookPage/HairColor/HairColorGrid"]
+custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
 color = Color(0.3689821, 0.21426192, 0.0357328, 1)
 
-[node name="ColorRect5" type="ColorRect" parent="CenterContainer/P/M/Main/Creation/Right/Entry1/GridContainer" unique_id=1847718639]
-custom_minimum_size = Vector2(40, 40)
+[node name="Swatch5" type="ColorRect" parent="Margin/Layout/Body/StepPanel/Content/Pages/LookPage/HairColor/HairColorGrid"]
+custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
 
-[node name="ColorRect6" type="ColorRect" parent="CenterContainer/P/M/Main/Creation/Right/Entry1/GridContainer" unique_id=477522567]
-custom_minimum_size = Vector2(40, 40)
+[node name="Swatch6" type="ColorRect" parent="Margin/Layout/Body/StepPanel/Content/Pages/LookPage/HairColor/HairColorGrid"]
+custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
 
-[node name="ColorRect7" type="ColorRect" parent="CenterContainer/P/M/Main/Creation/Right/Entry1/GridContainer" unique_id=1344050906]
-custom_minimum_size = Vector2(40, 40)
+[node name="Swatch7" type="ColorRect" parent="Margin/Layout/Body/StepPanel/Content/Pages/LookPage/HairColor/HairColorGrid"]
+custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
 
-[node name="ColorRect8" type="ColorRect" parent="CenterContainer/P/M/Main/Creation/Right/Entry1/GridContainer" unique_id=1868768381]
-custom_minimum_size = Vector2(40, 40)
+[node name="Swatch8" type="ColorRect" parent="Margin/Layout/Body/StepPanel/Content/Pages/LookPage/HairColor/HairColorGrid"]
+custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
 
-[node name="Entry2" type="VBoxContainer" parent="CenterContainer/P/M/Main/Creation/Right" unique_id=831219291]
+[node name="SkinColor" type="VBoxContainer" parent="Margin/Layout/Body/StepPanel/Content/Pages/LookPage"]
 layout_mode = 2
-theme_override_constants/separation = 8
+theme_override_constants/separation = 6
 
-[node name="SkinCLabel" type="Label" parent="CenterContainer/P/M/Main/Creation/Right/Entry2" unique_id=1677680310]
+[node name="Label" type="Label" parent="Margin/Layout/Body/StepPanel/Content/Pages/LookPage/SkinColor"]
 layout_mode = 2
 text = "Skin"
 
-[node name="GridContainer" type="GridContainer" parent="CenterContainer/P/M/Main/Creation/Right/Entry2" unique_id=1531215877]
+[node name="SkinColorGrid" type="GridContainer" parent="Margin/Layout/Body/StepPanel/Content/Pages/LookPage/SkinColor"]
+unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/h_separation = 8
 theme_override_constants/v_separation = 8
-columns = 5
+columns = 8
 
-[node name="ColorRect" type="ColorRect" parent="CenterContainer/P/M/Main/Creation/Right/Entry2/GridContainer" unique_id=1287461296]
-custom_minimum_size = Vector2(40, 40)
+[node name="Swatch1" type="ColorRect" parent="Margin/Layout/Body/StepPanel/Content/Pages/LookPage/SkinColor/SkinColorGrid"]
+custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
 
-[node name="ColorRect2" type="ColorRect" parent="CenterContainer/P/M/Main/Creation/Right/Entry2/GridContainer" unique_id=525395348]
-custom_minimum_size = Vector2(40, 40)
+[node name="Swatch2" type="ColorRect" parent="Margin/Layout/Body/StepPanel/Content/Pages/LookPage/SkinColor/SkinColorGrid"]
+custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
 color = Color(0.49398458, 0.99999994, 0.8300373, 1)
 
-[node name="ColorRect3" type="ColorRect" parent="CenterContainer/P/M/Main/Creation/Right/Entry2/GridContainer" unique_id=839641676]
-custom_minimum_size = Vector2(40, 40)
+[node name="Swatch3" type="ColorRect" parent="Margin/Layout/Body/StepPanel/Content/Pages/LookPage/SkinColor/SkinColorGrid"]
+custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
 color = Color(1, 0, 0, 1)
 
-[node name="ColorRect4" type="ColorRect" parent="CenterContainer/P/M/Main/Creation/Right/Entry2/GridContainer" unique_id=579698267]
-custom_minimum_size = Vector2(40, 40)
+[node name="Swatch4" type="ColorRect" parent="Margin/Layout/Body/StepPanel/Content/Pages/LookPage/SkinColor/SkinColorGrid"]
+custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
 color = Color(0.3689821, 0.21426192, 0.0357328, 1)
 
-[node name="ColorRect5" type="ColorRect" parent="CenterContainer/P/M/Main/Creation/Right/Entry2/GridContainer" unique_id=1844336850]
-custom_minimum_size = Vector2(40, 40)
+[node name="Swatch5" type="ColorRect" parent="Margin/Layout/Body/StepPanel/Content/Pages/LookPage/SkinColor/SkinColorGrid"]
+custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
 
-[node name="ColorRect6" type="ColorRect" parent="CenterContainer/P/M/Main/Creation/Right/Entry2/GridContainer" unique_id=1161099314]
-custom_minimum_size = Vector2(40, 40)
+[node name="Swatch6" type="ColorRect" parent="Margin/Layout/Body/StepPanel/Content/Pages/LookPage/SkinColor/SkinColorGrid"]
+custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
 
-[node name="ColorRect7" type="ColorRect" parent="CenterContainer/P/M/Main/Creation/Right/Entry2/GridContainer" unique_id=1041878567]
-custom_minimum_size = Vector2(40, 40)
+[node name="Swatch7" type="ColorRect" parent="Margin/Layout/Body/StepPanel/Content/Pages/LookPage/SkinColor/SkinColorGrid"]
+custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
 
-[node name="ColorRect8" type="ColorRect" parent="CenterContainer/P/M/Main/Creation/Right/Entry2/GridContainer" unique_id=1875435773]
-custom_minimum_size = Vector2(40, 40)
+[node name="Swatch8" type="ColorRect" parent="Margin/Layout/Body/StepPanel/Content/Pages/LookPage/SkinColor/SkinColorGrid"]
+custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
 
-[node name="Stats" type="VBoxContainer" parent="CenterContainer/P/M/Main/Creation" unique_id=1175545082]
+[node name="AttributesPage" type="VBoxContainer" parent="Margin/Layout/Body/StepPanel/Content/Pages"]
+unique_name_in_owner = true
 layout_mode = 2
-theme_override_constants/separation = 12
+size_flags_vertical = 3
+theme_override_constants/separation = 14
+visible = false
 
-[node name="StatsLabel" type="Label" parent="CenterContainer/P/M/Main/Creation/Stats" unique_id=95803308]
+[node name="AttributesPageHeading" type="VBoxContainer" parent="Margin/Layout/Body/StepPanel/Content/Pages/AttributesPage"]
 layout_mode = 2
-text = "Effort Values"
+theme_override_constants/separation = 2
 
-[node name="Rows" type="VBoxContainer" parent="CenterContainer/P/M/Main/Creation/Stats" unique_id=1849984589]
+[node name="Title" type="Label" parent="Margin/Layout/Body/StepPanel/Content/Pages/AttributesPage/AttributesPageHeading"]
+layout_mode = 2
+theme_type_variation = &"PageTitle"
+text = "Shape your strengths"
+
+[node name="Hint" type="Label" parent="Margin/Layout/Body/StepPanel/Content/Pages/AttributesPage/AttributesPageHeading"]
+layout_mode = 2
+text = "Spend all effort points. Higher values cost more points per step."
+label_settings = ExtResource("5_muted")
+autowrap_mode = 3
+
+[node name="Rows" type="VBoxContainer" parent="Margin/Layout/Body/StepPanel/Content/Pages/AttributesPage"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="StrengthRow" parent="CenterContainer/P/M/Main/Creation/Stats/Rows" unique_id=192678209 instance=ExtResource("2_evrow")]
+[node name="StrengthRow" parent="Margin/Layout/Body/StepPanel/Content/Pages/AttributesPage/Rows" instance=ExtResource("2_evrow")]
 layout_mode = 2
 
-[node name="AgilityRow" parent="CenterContainer/P/M/Main/Creation/Stats/Rows" unique_id=834461666 instance=ExtResource("2_evrow")]
+[node name="AgilityRow" parent="Margin/Layout/Body/StepPanel/Content/Pages/AttributesPage/Rows" instance=ExtResource("2_evrow")]
 layout_mode = 2
 attribute = 1
 
-[node name="VitalityRow" parent="CenterContainer/P/M/Main/Creation/Stats/Rows" unique_id=1265146782 instance=ExtResource("2_evrow")]
+[node name="VitalityRow" parent="Margin/Layout/Body/StepPanel/Content/Pages/AttributesPage/Rows" instance=ExtResource("2_evrow")]
 layout_mode = 2
 attribute = 2
 
-[node name="IntelligenceRow" parent="CenterContainer/P/M/Main/Creation/Stats/Rows" unique_id=1412177253 instance=ExtResource("2_evrow")]
+[node name="IntelligenceRow" parent="Margin/Layout/Body/StepPanel/Content/Pages/AttributesPage/Rows" instance=ExtResource("2_evrow")]
 layout_mode = 2
 attribute = 3
 
-[node name="DexterityRow" parent="CenterContainer/P/M/Main/Creation/Stats/Rows" unique_id=987409991 instance=ExtResource("2_evrow")]
+[node name="DexterityRow" parent="Margin/Layout/Body/StepPanel/Content/Pages/AttributesPage/Rows" instance=ExtResource("2_evrow")]
 layout_mode = 2
 attribute = 4
 
-[node name="WillpowerRow" parent="CenterContainer/P/M/Main/Creation/Stats/Rows" unique_id=2077495446 instance=ExtResource("2_evrow")]
+[node name="WillpowerRow" parent="Margin/Layout/Body/StepPanel/Content/Pages/AttributesPage/Rows" instance=ExtResource("2_evrow")]
 layout_mode = 2
 attribute = 5
 
-[node name="PointsLabel" type="Label" parent="CenterContainer/P/M/Main/Creation/Stats" unique_id=1412573702]
+[node name="PointsLabel" type="Label" parent="Margin/Layout/Body/StepPanel/Content/Pages/AttributesPage"]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Effort Points: 78 / 78 left"
 
-[node name="Bottom" type="HBoxContainer" parent="CenterContainer/P/M/Main" unique_id=1224116185]
+[node name="HomePage" type="VBoxContainer" parent="Margin/Layout/Body/StepPanel/Content/Pages"]
+unique_name_in_owner = true
 layout_mode = 2
-size_flags_horizontal = 8
-theme_override_constants/separation = 18
+size_flags_vertical = 3
+theme_override_constants/separation = 14
+visible = false
 
-[node name="CreateButton" type="Button" parent="CenterContainer/P/M/Main/Bottom" unique_id=257219940]
-custom_minimum_size = Vector2(150, 40)
+[node name="HomePageHeading" type="VBoxContainer" parent="Margin/Layout/Body/StepPanel/Content/Pages/HomePage"]
 layout_mode = 2
-text = "Create"
+theme_override_constants/separation = 2
 
-[node name="CancelButton" type="Button" parent="CenterContainer/P/M/Main/Bottom" unique_id=1001774840]
-custom_minimum_size = Vector2(150, 40)
+[node name="Title" type="Label" parent="Margin/Layout/Body/StepPanel/Content/Pages/HomePage/HomePageHeading"]
+layout_mode = 2
+theme_type_variation = &"PageTitle"
+text = "Where do you begin?"
+
+[node name="Hint" type="Label" parent="Margin/Layout/Body/StepPanel/Content/Pages/HomePage/HomePageHeading"]
+layout_mode = 2
+text = "Your home settlement is where your journey starts."
+label_settings = ExtResource("5_muted")
+autowrap_mode = 3
+
+[node name="SpawnPointButton" type="OptionButton" parent="Margin/Layout/Body/StepPanel/Content/Pages/HomePage"]
+unique_name_in_owner = true
+layout_mode = 2
+disabled = true
+
+[node name="NamePage" type="VBoxContainer" parent="Margin/Layout/Body/StepPanel/Content/Pages"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 14
+visible = false
+
+[node name="NamePageHeading" type="VBoxContainer" parent="Margin/Layout/Body/StepPanel/Content/Pages/NamePage"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="Title" type="Label" parent="Margin/Layout/Body/StepPanel/Content/Pages/NamePage/NamePageHeading"]
+layout_mode = 2
+theme_type_variation = &"PageTitle"
+text = "Name your master"
+
+[node name="Hint" type="Label" parent="Margin/Layout/Body/StepPanel/Content/Pages/NamePage/NamePageHeading"]
+layout_mode = 2
+text = "Other players see this name. It must be unique."
+label_settings = ExtResource("5_muted")
+autowrap_mode = 3
+
+[node name="NameEdit" type="LineEdit" parent="Margin/Layout/Body/StepPanel/Content/Pages/NamePage"]
+unique_name_in_owner = true
+layout_mode = 2
+placeholder_text = "Enter a name"
+max_length = 20
+
+[node name="NameRules" type="Label" parent="Margin/Layout/Body/StepPanel/Content/Pages/NamePage"]
+layout_mode = 2
+text = "Up to 20 letters, numbers, spaces and basic punctuation."
+label_settings = ExtResource("5_muted")
+autowrap_mode = 3
+
+[node name="StatusLabel" type="Label" parent="Margin/Layout/Body/StepPanel/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 3
+
+[node name="Footer" type="HBoxContainer" parent="Margin/Layout/Body/StepPanel/Content"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="BackButton" type="Button" parent="Margin/Layout/Body/StepPanel/Content/Footer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(110, 38)
 layout_mode = 2
 text = "Cancel"
 
-[connection signal="pressed" from="CenterContainer/P/M/Main/Bottom/CreateButton" to="." method="_on_create_button_pressed"]
-[connection signal="pressed" from="CenterContainer/P/M/Main/Bottom/CancelButton" to="." method="_on_cancel_button_pressed"]
+[node name="Spacer" type="Control" parent="Margin/Layout/Body/StepPanel/Content/Footer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="NextButton" type="Button" parent="Margin/Layout/Body/StepPanel/Content/Footer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(110, 38)
+layout_mode = 2
+theme_type_variation = &"PrimaryButton"
+text = "Next"
+
+[node name="CreateButton" type="Button" parent="Margin/Layout/Body/StepPanel/Content/Footer"]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(150, 38)
+layout_mode = 2
+theme_type_variation = &"PrimaryButton"
+text = "Create master"
+
+[connection signal="pressed" from="Margin/Layout/Body/StepPanel/Content/Footer/BackButton" to="." method="_on_back_button_pressed"]
+[connection signal="pressed" from="Margin/Layout/Body/StepPanel/Content/Footer/NextButton" to="." method="_on_next_button_pressed"]
+[connection signal="pressed" from="Margin/Layout/Body/StepPanel/Content/Footer/CreateButton" to="." method="_on_create_button_pressed"]
+[connection signal="step_pressed" from="Margin/Layout/StepBar" to="." method="_on_step_bar_step_pressed"]

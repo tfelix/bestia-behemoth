@@ -1,11 +1,13 @@
 extends Control
 ## Master (character) creation screen.
 ##
-## Lets the player pick gender, body, face, hair and the hair/skin color, distribute the starting
-## effort values, enter a name and create the character. The request is sent to the server and the
-## result (success or error) is reported back via the ConnectionManager operation signals.
+## Walks the player through four steps - look, attributes, home and name - and then creates the
+## character. The request is sent to the server and the result (success or error) is reported back via
+## the ConnectionManager operation signals.
 
 const MASTER_SELECT_SCENE := "res://Menu/MasterSelect/MasterSelect.tscn"
+
+enum Step { LOOK, ATTRIBUTES, HOME, NAME }
 
 ## Effort points a new master gets to distribute. Mirrors
 ## EffortValueCostCalculator.CREATION_EFFORT_POINTS on the server, which refuses any distribution not
@@ -39,28 +41,33 @@ const GENDER_BODIES := {
 	2: [{"label": "Type 1", "body": 0}], # Diverse
 }
 
-@onready var _gender_button: OptionButton = $"CenterContainer/P/M/Main/Creation/Left/Entry1/Row/GenderButton"
-@onready var _gender_left: Button = $"CenterContainer/P/M/Main/Creation/Left/Entry1/Row/L"
-@onready var _gender_right: Button = $"CenterContainer/P/M/Main/Creation/Left/Entry1/Row/R"
+@onready var _gender_button: OptionButton = %GenderButton
+@onready var _gender_left: Button = %GenderButtonLeft
+@onready var _gender_right: Button = %GenderButtonRight
 
-@onready var _body_button: OptionButton = $"CenterContainer/P/M/Main/Creation/Left/Entry2/Row2/Body"
-@onready var _body_left: Button = $"CenterContainer/P/M/Main/Creation/Left/Entry2/Row2/L"
-@onready var _body_right: Button = $"CenterContainer/P/M/Main/Creation/Left/Entry2/Row2/R"
+@onready var _body_button: OptionButton = %BodyButton
+@onready var _body_left: Button = %BodyButtonLeft
+@onready var _body_right: Button = %BodyButtonRight
 
-@onready var _face_button: OptionButton = $"CenterContainer/P/M/Main/Creation/Left/Entry3/Row2/Body"
-@onready var _face_left: Button = $"CenterContainer/P/M/Main/Creation/Left/Entry3/Row2/L"
-@onready var _face_right: Button = $"CenterContainer/P/M/Main/Creation/Left/Entry3/Row2/R"
+@onready var _face_button: OptionButton = %FaceButton
+@onready var _face_left: Button = %FaceButtonLeft
+@onready var _face_right: Button = %FaceButtonRight
 
-@onready var _hair_button: OptionButton = $"CenterContainer/P/M/Main/Creation/Left/Entry4/Row2/Options"
-@onready var _hair_left: Button = $"CenterContainer/P/M/Main/Creation/Left/Entry4/Row2/L"
-@onready var _hair_right: Button = $"CenterContainer/P/M/Main/Creation/Left/Entry4/Row2/R"
+@onready var _hair_button: OptionButton = %HairButton
+@onready var _hair_left: Button = %HairButtonLeft
+@onready var _hair_right: Button = %HairButtonRight
 
-@onready var _name_edit: LineEdit = $"CenterContainer/P/M/Main/Creation/Middle/Name/NameEdit"
-@onready var _spawn_point_button: OptionButton = $"CenterContainer/P/M/Main/Creation/Middle/SpawnPoint/SpawnPointButton"
-@onready var _hair_color_grid: GridContainer = $"CenterContainer/P/M/Main/Creation/Right/Entry1/GridContainer"
-@onready var _skin_color_grid: GridContainer = $"CenterContainer/P/M/Main/Creation/Right/Entry2/GridContainer"
-@onready var _create_button: Button = $"CenterContainer/P/M/Main/Bottom/CreateButton"
-@onready var _main: VBoxContainer = $"CenterContainer/P/M/Main"
+@onready var _name_edit: LineEdit = %NameEdit
+@onready var _spawn_point_button: OptionButton = %SpawnPointButton
+@onready var _hair_color_grid: GridContainer = %HairColorGrid
+@onready var _skin_color_grid: GridContainer = %SkinColorGrid
+
+@onready var _step_bar: StepBar = %StepBar
+@onready var _pages: Array[Control] = [%LookPage, %AttributesPage, %HomePage, %NamePage]
+@onready var _back_button: Button = %BackButton
+@onready var _next_button: Button = %NextButton
+@onready var _create_button: Button = %CreateButton
+@onready var _status_label: Label = %StatusLabel
 
 @onready var _effort_rows: Array = _collect_effort_rows()
 @onready var _points_label: Label = %PointsLabel
@@ -69,17 +76,15 @@ var _selected_hair_swatch: ColorRect = null
 var _selected_skin_swatch: ColorRect = null
 var _hair_border: Panel = null
 var _skin_border: Panel = null
-var _status_label: Label = null
+var _current_step := Step.LOOK
 
 # True between sending a create request and its success/error reply. Without this, any later
-# _refresh_create_button() - a keystroke in the name field is enough - would re-enable the button
+# _refresh_navigation() - a keystroke in the name field is enough - would re-enable the button
 # mid-flight and let a second character be submitted.
 var _create_in_flight: bool = false
 
 
 func _ready() -> void:
-	_status_label = _make_status_label()
-
 	_setup_color_grid(_hair_color_grid, true)
 	_setup_color_grid(_skin_color_grid, false)
 
@@ -95,11 +100,12 @@ func _ready() -> void:
 		row.set_value(MIN_EFFORT_VALUE)
 		row.value_changed.connect(_on_effort_value_changed)
 
-	# The Create button is gated on the whole form being valid, so anything that can change validity has
-	# to re-evaluate it - not just the effort rows.
-	_name_edit.text_changed.connect(func(_t): _refresh_create_button())
-	_spawn_point_button.item_selected.connect(func(_i): _refresh_create_button())
+	# Next and Create are gated on the steps being complete, so anything that can change that has to
+	# re-evaluate them - not just the effort rows.
+	_name_edit.text_changed.connect(func(_t): _refresh_navigation())
+	_spawn_point_button.item_selected.connect(func(_i): _refresh_navigation())
 	_refresh_effort_ui()
+	_go_to_step(Step.LOOK)
 
 	ConnectionManager.operation_success.connect(_on_operation_success)
 	ConnectionManager.operation_error.connect(_on_operation_error)
@@ -131,7 +137,7 @@ func _on_master_info_received(message: MasterSMSG) -> void:
 		_spawn_point_button.disabled = false
 		_spawn_point_button.select(randi() % candidates.size())
 
-	_refresh_create_button()
+	_refresh_navigation()
 
 
 func _collect_effort_rows() -> Array:
@@ -171,23 +177,54 @@ func _refresh_effort_ui() -> void:
 		var can_decrease: bool = row.value > MIN_EFFORT_VALUE
 		row.set_steppable(can_increase, can_decrease)
 
-	_refresh_create_button()
+	_refresh_navigation()
 
 
-## The server refuses a partly spent budget, so there is no point letting the request leave: gate
-## Create on the whole form instead, the way DeleteMasterDialog gates its confirm button.
-func _refresh_create_button() -> void:
+func _go_to_step(step: Step) -> void:
+	_current_step = step
+	for i in _pages.size():
+		_pages[i].visible = i == step
+	_refresh_navigation()
+
+
+## The server refuses a partly spent budget or a missing home, so there is no point letting the
+## player past a step that is not complete: Next is gated per step, Create on the whole form, the way
+## DeleteMasterDialog gates its confirm button.
+func _refresh_navigation() -> void:
+	var is_last_step := _current_step == Step.NAME
+	_back_button.text = "Cancel" if _current_step == Step.LOOK else "Back"
+	_next_button.visible = not is_last_step
+	_next_button.disabled = not _is_step_complete(_current_step)
+	_create_button.visible = is_last_step
 	_create_button.disabled = not _is_form_complete()
+	_step_bar.show_progress(_current_step, _furthest_reachable_step())
+
+
+func _is_step_complete(step: Step) -> bool:
+	match step:
+		Step.ATTRIBUTES:
+			return _remaining_effort_points() == 0
+		Step.HOME:
+			return _spawn_point_button.get_selected_metadata() != null
+		Step.NAME:
+			return not _name_edit.text.strip_edges().is_empty()
+		_:
+			return true
+
+
+## The first step that is not complete yet. Every step after it stays locked, so going back and
+## un-spending points re-locks the later steps too.
+func _furthest_reachable_step() -> Step:
+	for step in Step.values():
+		if not _is_step_complete(step):
+			return step as Step
+	return Step.NAME
 
 
 func _is_form_complete() -> bool:
 	if _create_in_flight:
 		return false
-	if _name_edit.text.strip_edges().is_empty():
-		return false
-	if _spawn_point_button.get_selected_metadata() == null:
-		return false
-	return _remaining_effort_points() == 0
+	return Step.values().all(_is_step_complete)
 
 
 ## The effort value per attribute, keyed the way the server's EffortValues message expects.
@@ -264,7 +301,7 @@ func _select_swatch(swatch: ColorRect, is_hair: bool) -> void:
 		_selected_skin_swatch = swatch
 
 
-## Every guard here is also enforced by _refresh_create_button() disabling the button - kept as a
+## Every guard here is also enforced by _refresh_navigation() disabling the button - kept as a
 ## re-check because `ui_accept` can fire a disabled button.
 func _on_create_button_pressed() -> void:
 	if _create_in_flight:
@@ -293,15 +330,28 @@ func _on_create_button_pressed() -> void:
 		return
 
 	_create_in_flight = true
-	_refresh_create_button()
+	_refresh_navigation()
 	_show_status("Creating character...", false)
 	ConnectionManager.create_master(
 		character_name, body, face, hair, hair_color, skin_color, spawn_point_id, slot_to_fill, _collect_effort_values()
 	)
 
 
-func _on_cancel_button_pressed() -> void:
-	_goto_master_selection()
+func _on_back_button_pressed() -> void:
+	if _current_step == Step.LOOK:
+		_goto_master_selection()
+	else:
+		_go_to_step((_current_step - 1) as Step)
+
+
+func _on_next_button_pressed() -> void:
+	if _is_step_complete(_current_step):
+		_go_to_step((_current_step + 1) as Step)
+
+
+func _on_step_bar_step_pressed(index: int) -> void:
+	if index <= _furthest_reachable_step():
+		_go_to_step(index as Step)
 
 
 func _on_operation_success(message) -> void:
@@ -311,7 +361,7 @@ func _on_operation_success(message) -> void:
 
 func _on_operation_error(message) -> void:
 	_create_in_flight = false
-	_refresh_create_button()
+	_refresh_navigation()
 	match message.Code:
 		OP_ERROR_NAME_ALREADY_TAKEN:
 			_show_status("That name is already taken.", true)
@@ -320,6 +370,7 @@ func _on_operation_error(message) -> void:
 		OP_ERROR_INVALID_NAME:
 			_show_status("That name is not valid.", true)
 		OP_ERROR_INVALID_SPAWN_POINT:
+			_go_to_step(Step.HOME)
 			_show_status("That home settlement is no longer available. Please pick another.", true)
 		_:
 			_show_status("Could not create the character. Please try again.", true)
@@ -334,13 +385,6 @@ func _show_status(text: String, is_error: bool) -> void:
 	_status_label.modulate = Color(1, 0.5, 0.5) if is_error else Color(1, 1, 1)
 
 
-func _make_status_label() -> Label:
-	var label := Label.new()
-	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_main.add_child(label)
-	return label
-
-
 ## Creates a reusable selection outline shown on the currently selected color swatch.
 func _make_border() -> Panel:
 	var panel := Panel.new()
@@ -349,6 +393,6 @@ func _make_border() -> Panel:
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color(0, 0, 0, 0)
 	style.set_border_width_all(3)
-	style.border_color = Color(1, 1, 1)
+	style.border_color = Color("#5dcaa5")
 	panel.add_theme_stylebox_override("panel", style)
 	return panel
