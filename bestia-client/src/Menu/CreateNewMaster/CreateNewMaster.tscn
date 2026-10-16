@@ -456,9 +456,22 @@ visible = false
 layout_mode = 2
 theme_type_variation = &"DangerAlert"
 
-[node name="StatusLabel" type="Label" parent="Margin/Layout/Body/StepPanel/Content/StatusBox"]
+[node name="StatusRow" type="HBoxContainer" parent="Margin/Layout/Body/StepPanel/Content/StatusBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="StatusIcon" type="TextureRect" parent="Margin/Layout/Body/StepPanel/Content/StatusBox/StatusRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 2
+size_flags_vertical = 0
+expand_mode = 1
+stretch_mode = 5
+
+[node name="StatusLabel" type="Label" parent="Margin/Layout/Body/StepPanel/Content/StatusBox/StatusRow"]
 unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 3
 theme_type_variation = &"DangerAlertLabel"
 autowrap_mode = 3
 
