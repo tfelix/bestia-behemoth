@@ -64,7 +64,8 @@ class DeathSystem(
       // A player-owned body is not gone for good: it stays where it fell until its owner respawns it,
       // driven by PlayerDeathSystem and RespawnSystem. Skipping it here also stops an
       // owned bestia paying out species EXP and loot when another player kills it - it carries
-      // EntityVisual(BESTIA) exactly like the wild version, which is all `bestiaSpeciesOf` looks at.
+      // EntityVisual(BESTIA) exactly like the wild version, which is all `bestiaSpeciesOf` looks at. Its own
+      // bag drops instead, in BestiaBagDropSystem.
       if (world.has(entityId, Account::class)) {
         return@each
       }

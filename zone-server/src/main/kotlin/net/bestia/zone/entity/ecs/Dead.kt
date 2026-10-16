@@ -40,6 +40,9 @@ class Dead : DirtyableComponent(), Removable {
    */
   var bled: Boolean = false
 
+  /** Whether [net.bestia.zone.spawn.ecs.BestiaBagDropSystem] has already dropped this body's bag. */
+  var bagDropped: Boolean = false
+
   override fun toEntityMessage(entityId: Long, removed: Boolean): EntitySMSG {
     return DeadComponentSMSG(entityId = entityId, removed = removed)
   }
