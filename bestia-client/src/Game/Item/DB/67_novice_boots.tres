@@ -11,3 +11,4 @@ weight = 60
 type = 1
 equip_slot = 5
 armor_type = 2
+worn_part = "Gear_NoviceBoots"
