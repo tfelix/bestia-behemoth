@@ -1,0 +1,100 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://Menu/CreateNewMaster/HomeCard/home_card.gd" id="1_card"]
+[ext_resource type="LabelSettings" uid="uid://k7yxyg5xi86r" path="res://Menu/Shared/muted_text_label_settings.tres" id="2_muted"]
+[ext_resource type="Texture2D" path="res://Theme/Icons/users.svg" id="3_users"]
+[ext_resource type="Texture2D" path="res://Theme/Icons/map-pin.svg" id="4_pin"]
+
+[node name="HomeCard" type="PanelContainer"]
+mouse_default_cursor_shape = 2
+theme_type_variation = &"HomeCard"
+script = ExtResource("1_card")
+
+[node name="Content" type="VBoxContainer" parent="."]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="Header" type="HBoxContainer" parent="Content"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 8
+
+[node name="NameLabel" type="Label" parent="Content/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 17
+text = "Ashford"
+
+[node name="SuggestedLabel" type="Label" parent="Content/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Suggested"
+label_settings = ExtResource("2_muted")
+
+[node name="TierBadge" type="PanelContainer" parent="Content/Header"]
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+theme_type_variation = &"TierBadge"
+
+[node name="TierLabel" type="Label" parent="Content/Header/TierBadge"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"TierBadgeLabel"
+text = "Village"
+
+[node name="HistoryLabel" type="Label" parent="Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(1, 0)
+layout_mode = 2
+autowrap_mode = 3
+
+[node name="Facts" type="HBoxContainer" parent="Content"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="PopulationIcon" type="TextureRect" parent="Content/Facts"]
+modulate = Color(0.72, 0.72, 0.72, 1)
+custom_minimum_size = Vector2(16, 16)
+layout_mode = 2
+size_flags_vertical = 4
+texture = ExtResource("3_users")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="PopulationLabel" type="Label" parent="Content/Facts"]
+unique_name_in_owner = true
+layout_mode = 2
+label_settings = ExtResource("2_muted")
+
+[node name="Gap" type="Control" parent="Content/Facts"]
+custom_minimum_size = Vector2(8, 0)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="PositionIcon" type="TextureRect" parent="Content/Facts"]
+modulate = Color(0.72, 0.72, 0.72, 1)
+custom_minimum_size = Vector2(16, 16)
+layout_mode = 2
+size_flags_vertical = 4
+texture = ExtResource("4_pin")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="PositionLabel" type="Label" parent="Content/Facts"]
+unique_name_in_owner = true
+layout_mode = 2
+label_settings = ExtResource("2_muted")
+
+[node name="Gap2" type="Control" parent="Content/Facts"]
+custom_minimum_size = Vector2(8, 0)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="BiomeLabel" type="Label" parent="Content/Facts"]
+unique_name_in_owner = true
+layout_mode = 2
+label_settings = ExtResource("2_muted")
