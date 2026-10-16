@@ -59,6 +59,10 @@ const GENDER_BODIES := {
 @onready var _hair_left: Button = %HairButtonLeft
 @onready var _hair_right: Button = %HairButtonRight
 
+@onready var _preview: MasterPreview = %MasterPreview
+@onready var _turn_left: Button = %TurnLeft
+@onready var _turn_right: Button = %TurnRight
+
 @onready var _name_edit: LineEdit = %NameEdit
 @onready var _spawn_point_button: OptionButton = %SpawnPointButton
 @onready var _hair_color_grid: GridContainer = %HairColorGrid
@@ -99,6 +103,11 @@ func _ready() -> void:
 	_connect_arrows(_body_left, _body_right, _body_button, false)
 	_connect_arrows(_face_left, _face_right, _face_button, false)
 	_connect_arrows(_hair_left, _hair_right, _hair_button, false)
+
+	_face_button.item_selected.connect(func(_i): _refresh_preview())
+	_hair_button.item_selected.connect(func(_i): _refresh_preview())
+	_turn_left.pressed.connect(_preview.turn_left)
+	_turn_right.pressed.connect(_preview.turn_right)
 
 	for row in _effort_rows:
 		row.set_value(MIN_EFFORT_VALUE)
@@ -265,6 +274,7 @@ func _step_option(option: OptionButton, direction: int, is_gender: bool) -> void
 	option.select(next)
 	if is_gender:
 		_populate_body_for_gender()
+	_refresh_preview()
 
 
 func _setup_color_grid(grid: GridContainer, is_hair: bool) -> void:
@@ -303,6 +313,20 @@ func _select_swatch(swatch: ColorRect, is_hair: bool) -> void:
 		_selected_hair_swatch = swatch
 	else:
 		_selected_skin_swatch = swatch
+	_refresh_preview()
+
+
+func _refresh_preview() -> void:
+	_preview.show_look(
+		_face_button.get_selected_id(),
+		_hair_button.get_selected_id(),
+		_swatch_color(_selected_hair_swatch),
+		_swatch_color(_selected_skin_swatch)
+	)
+
+
+func _swatch_color(swatch: ColorRect) -> Color:
+	return swatch.color if swatch != null else Color.BLACK
 
 
 ## Every guard here is also enforced by _refresh_navigation() disabling the button - kept as a
@@ -319,8 +343,8 @@ func _on_create_button_pressed() -> void:
 	var body := int(_body_button.get_selected_metadata()) if _body_button.get_selected_metadata() != null else 0
 	var face := _face_button.get_selected_id()
 	var hair := _hair_button.get_selected_id()
-	var hair_color := _selected_hair_swatch.color if _selected_hair_swatch != null else Color.BLACK
-	var skin_color := _selected_skin_swatch.color if _selected_skin_swatch != null else Color.BLACK
+	var hair_color := _swatch_color(_selected_hair_swatch)
+	var skin_color := _swatch_color(_selected_skin_swatch)
 	# A spawn point is mandatory server-side, so stop here instead of sending a request that can only
 	# come back as an error.
 	if _spawn_point_button.get_selected_metadata() == null:
