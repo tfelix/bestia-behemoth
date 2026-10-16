@@ -11,7 +11,6 @@ import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.entity.ecs.DeadActionGuard
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.item.container.InventoryService
-import net.bestia.zone.item.persistence.ItemContainer
 import net.bestia.zone.item.loot.LootItemEntitySpawner
 import net.bestia.zone.message.TickMessageHandler
 import net.bestia.zone.message.decoder
@@ -79,7 +78,7 @@ class DropItemHandler(
 
     val dropped = worldView.modify(activeEntityId) { id ->
       val inventory = get(id, Inventory::class) ?: return@modify null
-      val amount = inventory.mirrorRemoval(msg, removed) ?: return@modify null
+      val amount = inventory.mirrorRemoval(msg.itemId, msg.amount, removed.uniqueId) ?: return@modify null
       val pos = get(id, Position::class)?.toVec3L() ?: return@modify null
 
       Dropped(amount, Vec3L(pos.x + Random.nextLong(-1, 2), pos.y + Random.nextLong(-1, 2), pos.z))
@@ -117,18 +116,6 @@ class DropItemHandler(
     }
 
     return copies.any { !it.isStackable } || copies.filter { it.isStackable }.sumOf { it.amount } >= msg.amount
-  }
-
-  /** Takes off the live inventory what the database just removed; the amount that left, or null if it was not there. */
-  private fun Inventory.mirrorRemoval(msg: DropItemCMSG, removed: ItemContainer.RemovedItem): Int? {
-    if (removed.uniqueId == 0L) {
-      return if (removeFromStack(msg.itemId, msg.amount)) msg.amount else null
-    }
-
-    // An instance minted this session is still 0 in the live mirror, so it can only be found by template.
-    val mirrored = removeByUniqueId(removed.uniqueId) || removeInstanceOf(msg.itemId)
-
-    return if (mirrored) 1 else null
   }
 
   private data class Dropped(
