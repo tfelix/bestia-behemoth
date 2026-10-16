@@ -55,3 +55,16 @@ A round of 4 candidates costs about $0.10. The run stops when `SPEND_LIMIT_USD` 
 ```bash
 cd tools/client && python3 -m unittest
 ```
+
+## client/build_master_parts.py
+
+Builds the swappable master parts (bald head, faces, hairstyles) from the free
+[KayKit Adventurers 2.0](https://kaylousberg.itch.io/kaykit-adventurers) pack. Runs inside Blender:
+
+```bash
+blender -b --factory-startup --python tools/client/build_master_parts.py -- ~/Downloads/KayKit_Adventurers_2.0_FREE
+```
+
+It writes `bestia-client/src/Game/Master/Parts/master_parts.glb`. Open the Godot editor once (or run
+`godot --headless --import`) so it re-imports the file. New faces and hairstyles go at the end of
+`FACE_SOURCES` and `HAIR_SOURCES`, so stored masters keep theirs.
