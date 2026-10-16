@@ -58,8 +58,8 @@ cd tools/client && python3 -m unittest
 
 ## client/build_master_parts.py
 
-Builds the swappable master parts (bald head, faces, hairstyles, and the male and female base body in
-underwear) from the free
+Builds the swappable master parts (bald head, masculine and feminine faces, hairstyles, and the male and
+female base body in underwear) from the free
 [KayKit Adventurers 2.0](https://kaylousberg.itch.io/kaykit-adventurers) pack. Runs inside Blender:
 
 ```bash

@@ -4,7 +4,7 @@
 
 Writes bestia-client/src/Game/Master/Parts/master_parts.glb: the pack's rig, which matches the client's Mage rig
 bone for bone, with one skinned mesh per part:
-- Head (the bald base), Face_1..Face_5 and Hair_1..Hair_4 (bald has no Hair part)
+- Head (the bald base), Face_1..Face_10 (6 to 10 are feminine) and Hair_1..Hair_4 (bald has no Hair part)
 - the base body in underwear: Body, ArmLeft, ArmRight, LegLeft, LegRight, and the same with _F for the female
 """
 import math
@@ -224,6 +224,109 @@ def join(objects, name=None):
         joined.name = name
         joined.data.name = name
     return joined
+
+
+# --- feminine faces --------------------------------------------------------------------------------------
+
+
+class FaceRecipe:
+    """A face put together from other faces' eyes, brows and nose, plus the touches that soften it."""
+
+    def __init__(self, eyes, brows, nose, eye_scale=1.0, thin_brows=False, lips=False, freckles=False):
+        self.eyes, self.brows, self.nose = eyes, brows, nose
+        self.eye_scale, self.thin_brows = eye_scale, thin_brows
+        self.lips, self.freckles = lips, freckles
+
+
+# FACE_6 to FACE_10. Only the Mage's and the Rogue's eyes have lashes, so every feminine face uses one of them.
+FEMININE_FACES = [
+    FaceRecipe(eyes="Rogue", brows="Rogue", nose="Rogue", lips=True),
+    FaceRecipe(eyes="Mage", brows="Rogue", nose="Mage"),
+    FaceRecipe(eyes="Rogue", brows="Knight", nose="Mage", eye_scale=1.15, thin_brows=True, lips=True),
+    FaceRecipe(eyes="Mage", brows="Ranger", nose="Rogue", thin_brows=True),
+    FaceRecipe(eyes="Rogue", brows="Rogue", nose="Rogue", freckles=True),
+]
+LIPS_GRADIENT = ((0.88, 0.62, 0.62), (0.76, 0.5, 0.52))
+FRECKLE_GRADIENT = ((0.74, 0.55, 0.48), (0.68, 0.5, 0.44))
+# Left cheek, mirrored for the right.
+FRECKLE_SPOTS = [(0.16, 1.47), (0.2, 1.49), (0.185, 1.515), (0.225, 1.465)]
+MOUTH_HEIGHT = 1.415
+
+
+def feminine_face(recipe, parts_of, slim_face, atlas, materials):
+    eyes = parts_of(recipe.eyes, "eye")
+    brows = parts_of(recipe.brows, "brow")
+    parts = eyes + brows + parts_of(recipe.nose, "nose_mouth")
+    for eye in eyes:
+        scale_about(eye, eye_centre(eyes, eye), recipe.eye_scale)
+    if recipe.thin_brows:
+        for brow in brows:
+            thin(brow)
+    surface = face_surface(slim_face)
+    if recipe.lips:
+        parts.append(skin_dot(surface, (0.0, MOUTH_HEIGHT), (0.065, 0.012, 0.015), "lips", LIPS_GRADIENT, atlas, materials))
+    if recipe.freckles:
+        for x, z in FRECKLE_SPOTS:
+            for side in (1, -1):
+                parts.append(skin_dot(surface, (side * x, z), (0.009, 0.003, 0.009), "freckle", FRECKLE_GRADIENT, atlas, materials))
+    return parts
+
+
+def centroid(obj):
+    return sum((v.co for v in obj.data.vertices), Vector()) / len(obj.data.vertices)
+
+
+def eye_centre(eyes, eye):
+    """An eye and its highlight scale about the same point, so the highlight stays on the eye."""
+    side = [e for e in eyes if (centroid(e).x > 0) == (centroid(eye).x > 0)]
+    return centroid(max(side, key=lambda e: len(e.data.vertices)))
+
+
+def scale_about(obj, centre, factor):
+    for vertex in obj.data.vertices:
+        vertex.co = centre + (vertex.co - centre) * factor
+
+
+def thin(brow, height=0.55, width=0.92, lift=0.012):
+    middle = centroid(brow)
+    for vertex in brow.data.vertices:
+        offset = vertex.co - middle
+        vertex.co = middle + Vector((offset.x * width, offset.y, offset.z * height + lift))
+
+
+def face_surface(slim_face):
+    bm = bmesh.new()
+    bm.from_mesh(slim_face.data)
+    bm.transform(slim_face.matrix_world)
+    surface = BVHTree.FromBMesh(bm)
+    bm.free()
+    return surface
+
+
+def skin_dot(surface, position, size, name, gradient, atlas, materials):
+    """A small lens on the face, such as lips or a freckle. It is skin-tinted, so it suits every skin colour."""
+    x, z = position
+    hit, _, _, _ = surface.ray_cast(Vector((x, -1, z)), Vector((0, 1, 0)))
+    if hit is None:
+        # The shell is open at the mouth, where each face brings its own; the shell's depth around it serves.
+        nearest, _, _, _ = surface.find_nearest(Vector((x, -0.6, z)))
+        hit = Vector((x, nearest.y, z))
+    bm = bmesh.new()
+    bmesh.ops.create_uvsphere(bm, u_segments=12, v_segments=6, radius=1.0)
+    bmesh.ops.scale(bm, vec=Vector(size), verts=bm.verts)
+    bmesh.ops.translate(bm, vec=hit + Vector((0, size[1] * 0.3, 0)), verts=bm.verts)
+    mesh = bpy.data.meshes.new(name)
+    bm.to_mesh(mesh)
+    bm.free()
+    dot = bpy.data.objects.new(name, mesh)
+    bpy.context.collection.objects.link(dot)
+    dot.data.materials.append(materials[SKIN])
+    cell = atlas.synthetic(name, gradient)
+    for uv in dot.data.uv_layers.new(name="UVMap").data:
+        uv.uv = (cell, 0.6)
+    for polygon in dot.data.polygons:
+        polygon.use_smooth = True
+    return dot
 
 
 # --- the base body ---------------------------------------------------------------------------------------
@@ -649,6 +752,8 @@ def main(pack: Path):
     head_parts = [join(skull + parts_of(SLIM_FACE_SOURCE, "ear"), "Head")]
     for number, character in enumerate(FACE_SOURCES, start=1):
         head_parts.append(join(parts_of(character, "eye", "brow", "nose_mouth", "facial_hair"), f"Face_{number}"))
+    for number, recipe in enumerate(FEMININE_FACES, start=len(FACE_SOURCES) + 1):
+        head_parts.append(join(feminine_face(recipe, parts_of, slim_face, atlas, materials), f"Face_{number}"))
     for number, character in enumerate(HAIR_SOURCES, start=1):
         head_parts.append(join(parts_of(character, "hair"), f"Hair_{number}"))
 
