@@ -21,6 +21,12 @@ enum Face {
   FACE_3 = 2;
   FACE_4 = 3;
   FACE_5 = 4;
+  // FACE_6 to FACE_10 are feminine. Every face goes with every body.
+  FACE_6 = 5;
+  FACE_7 = 6;
+  FACE_8 = 7;
+  FACE_9 = 8;
+  FACE_10 = 9;
 }
 
 enum Hairstyle {

@@ -84,6 +84,11 @@ data class CreateMasterCMSG(
         MasterProto.Face.FACE_3 -> Face.FACE_3
         MasterProto.Face.FACE_4 -> Face.FACE_4
         MasterProto.Face.FACE_5 -> Face.FACE_5
+        MasterProto.Face.FACE_6 -> Face.FACE_6
+        MasterProto.Face.FACE_7 -> Face.FACE_7
+        MasterProto.Face.FACE_8 -> Face.FACE_8
+        MasterProto.Face.FACE_9 -> Face.FACE_9
+        MasterProto.Face.FACE_10 -> Face.FACE_10
         MasterProto.Face.UNRECOGNIZED -> throw GeneralMasterException("Unrecognized enum value in create master request")
       }
     }

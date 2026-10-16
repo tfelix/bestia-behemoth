@@ -42,12 +42,13 @@ namespace Bnet {
             "bG9yGAggASgLMgsuYm5ldC5Db2xvchIfCgpoYWlyX2NvbG9yGAkgASgLMgsu",
             "Ym5ldC5Db2xvchIhCgdiZXN0aWFzGAogAygLMhAuYm5ldC5CZXN0aWFJbmZv",
             "Eh0KBGhhaXIYCyABKA4yDy5ibmV0LkhhaXJzdHlsZRIMCgRzbG90GAwgASgN",
-            "KiYKCEJvZHlUeXBlEgwKCEJPRFlfTV8xEAASDAoIQk9EWV9GXzEQASpCCgRG",
+            "KiYKCEJvZHlUeXBlEgwKCEJPRFlfTV8xEAASDAoIQk9EWV9GXzEQASp/CgRG",
             "YWNlEgoKBkZBQ0VfMRAAEgoKBkZBQ0VfMhABEgoKBkZBQ0VfMxACEgoKBkZB",
-            "Q0VfNBADEgoKBkZBQ0VfNRAEKkcKCUhhaXJzdHlsZRIKCgZIQUlSXzEQABIK",
-            "CgZIQUlSXzIQARIKCgZIQUlSXzMQAhIKCgZIQUlSXzQQAxIKCgZIQUlSXzUQ",
-            "BEIkChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CC01hc3RlclByb3RvYgZwcm90",
-            "bzM="));
+            "Q0VfNBADEgoKBkZBQ0VfNRAEEgoKBkZBQ0VfNhAFEgoKBkZBQ0VfNxAGEgoK",
+            "BkZBQ0VfOBAHEgoKBkZBQ0VfORAIEgsKB0ZBQ0VfMTAQCSpHCglIYWlyc3R5",
+            "bGUSCgoGSEFJUl8xEAASCgoGSEFJUl8yEAESCgoGSEFJUl8zEAISCgoGSEFJ",
+            "Ul80EAMSCgoGSEFJUl81EARCJAoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQgtN",
+            "YXN0ZXJQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Bnet.Vec3Reflection.Descriptor, global::Bnet.BestiaInfoReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.BodyType), typeof(global::Bnet.Face), typeof(global::Bnet.Hairstyle), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -76,6 +77,14 @@ namespace Bnet {
     [pbr::OriginalName("FACE_3")] _3 = 2,
     [pbr::OriginalName("FACE_4")] _4 = 3,
     [pbr::OriginalName("FACE_5")] _5 = 4,
+    /// <summary>
+    /// FACE_6 to FACE_10 are feminine. Every face goes with every body.
+    /// </summary>
+    [pbr::OriginalName("FACE_6")] _6 = 5,
+    [pbr::OriginalName("FACE_7")] _7 = 6,
+    [pbr::OriginalName("FACE_8")] _8 = 7,
+    [pbr::OriginalName("FACE_9")] _9 = 8,
+    [pbr::OriginalName("FACE_10")] _10 = 9,
   }
 
   public enum Hairstyle {
