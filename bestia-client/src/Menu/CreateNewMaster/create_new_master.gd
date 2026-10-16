@@ -78,9 +78,7 @@ const GENDER_BODIES := {
 @onready var _hair_left: Button = %HairButtonLeft
 @onready var _hair_right: Button = %HairButtonRight
 
-@onready var _preview: MasterPreview = %MasterPreview
-@onready var _turn_left: Button = %TurnLeft
-@onready var _turn_right: Button = %TurnRight
+@onready var _preview: CharacterPreview = %CharacterPreview
 
 @onready var _name_edit: LineEdit = %NameEdit
 @onready var _spawn_point_button: OptionButton = %SpawnPointButton
@@ -130,8 +128,6 @@ func _ready() -> void:
 	_body_button.item_selected.connect(func(_i): _refresh_preview())
 	_face_button.item_selected.connect(func(_i): _refresh_preview())
 	_hair_button.item_selected.connect(func(_i): _refresh_preview())
-	_turn_left.pressed.connect(_preview.turn_left)
-	_turn_right.pressed.connect(_preview.turn_right)
 
 	for preset in PRESETS.values():
 		assert(_cost_of(preset["build"]) == EFFORT_POINT_BUDGET, "A preset must spend exactly the whole budget")
