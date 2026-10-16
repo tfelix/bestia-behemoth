@@ -16,7 +16,8 @@ class AvailableMasterResolver(
   private val world: WorldView,
   private val bestiaInfoFactory: BestiaInfoFactory,
   private val bestiaSlots: AvailableBestiaSlotService,
-  private val availability: SpawnPointAvailability
+  private val availability: SpawnPointAvailability,
+  private val homeFacts: HomeFacts,
 ) {
 
   fun getAvailableMaster(accountId: AccountId): AvailableMasterSMSG {
@@ -47,7 +48,15 @@ class AvailableMasterResolver(
     val maxBestiaSlots = bestiaSlots.getTotalSlotCount(accountId)
 
     val spawnPoints = availability.offered().map {
-      AvailableMasterSMSG.SpawnPointCandidate(id = it.id.toInt(), settlementName = it.settlementName, tier = it.tier)
+      AvailableMasterSMSG.SpawnPointCandidate(
+        id = it.id.toInt(),
+        settlementName = it.settlementName,
+        tier = it.tier,
+        population = it.population,
+        position = it.position,
+        biomeToken = homeFacts.biomeTokenAt(it.position),
+        history = homeFacts.historyOf(it.settlementIndex),
+      )
     }
 
     return AvailableMasterSMSG(

@@ -26,36 +26,39 @@ namespace Bnet {
           string.Concat(
             "ChxtZXNzYWdlcy9tYXN0ZXIvbWFzdGVyLnByb3RvEgRibmV0GhNtZXNzYWdl",
             "cy92ZWMzLnByb3RvGiFtZXNzYWdlcy9tYXN0ZXIvYmVzdGlhX2luZm8ucHJv",
-            "dG8iKAoFQ29sb3ISCQoBchgBIAEoDRIJCgFnGAIgASgNEgkKAWIYAyABKA0i",
-            "fwoMRWZmb3J0VmFsdWVzEhAKCHN0cmVuZ3RoGAEgASgNEg8KB2FnaWxpdHkY",
-            "AiABKA0SEAoIdml0YWxpdHkYAyABKA0SFAoMaW50ZWxsaWdlbmNlGAQgASgN",
-            "EhEKCWRleHRlcml0eRgFIAEoDRIRCgl3aWxscG93ZXIYBiABKA0iqQEKBk1h",
-            "c3RlchIiChptYXhfYXZhaWxhYmxlX21hc3Rlcl9zbG90cxgBIAEoDRIiChpt",
-            "YXhfYXZhaWxhYmxlX2Jlc3RpYV9zbG90cxgCIAEoDRIgCgZtYXN0ZXIYAyAD",
-            "KAsyEC5ibmV0Lk1hc3RlckluZm8SNQoMc3Bhd25fcG9pbnRzGAQgAygLMh8u",
-            "Ym5ldC5NYXN0ZXJTcGF3blBvaW50Q2FuZGlkYXRlIk4KGU1hc3RlclNwYXdu",
-            "UG9pbnRDYW5kaWRhdGUSCgoCaWQYASABKA0SFwoPc2V0dGxlbWVudF9uYW1l",
-            "GAIgASgJEgwKBHRpZXIYAyABKAkipAIKCk1hc3RlckluZm8SEQoJbWFzdGVy",
-            "X2lkGAEgASgEEgwKBG5hbWUYAyABKAkSDQoFbGV2ZWwYBCABKA0SHAoIcG9z",
-            "aXRpb24YBSABKAsyCi5ibmV0LlZlYzMSHAoEYm9keRgGIAEoDjIOLmJuZXQu",
-            "Qm9keVR5cGUSGAoEZmFjZRgHIAEoDjIKLmJuZXQuRmFjZRIfCgpza2luX2Nv",
-            "bG9yGAggASgLMgsuYm5ldC5Db2xvchIfCgpoYWlyX2NvbG9yGAkgASgLMgsu",
-            "Ym5ldC5Db2xvchIhCgdiZXN0aWFzGAogAygLMhAuYm5ldC5CZXN0aWFJbmZv",
-            "Eh0KBGhhaXIYCyABKA4yDy5ibmV0LkhhaXJzdHlsZRIMCgRzbG90GAwgASgN",
-            "KiYKCEJvZHlUeXBlEgwKCEJPRFlfTV8xEAASDAoIQk9EWV9GXzEQASp/CgRG",
-            "YWNlEgoKBkZBQ0VfMRAAEgoKBkZBQ0VfMhABEgoKBkZBQ0VfMxACEgoKBkZB",
-            "Q0VfNBADEgoKBkZBQ0VfNRAEEgoKBkZBQ0VfNhAFEgoKBkZBQ0VfNxAGEgoK",
-            "BkZBQ0VfOBAHEgoKBkZBQ0VfORAIEgsKB0ZBQ0VfMTAQCSpHCglIYWlyc3R5",
-            "bGUSCgoGSEFJUl8xEAASCgoGSEFJUl8yEAESCgoGSEFJUl8zEAISCgoGSEFJ",
-            "Ul80EAMSCgoGSEFJUl81EARCJAoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQgtN",
-            "YXN0ZXJQcm90b2IGcHJvdG8z"));
+            "dG8aJ21lc3NhZ2VzL3N5c3RlbS9jb252ZXJzYXRpb25fc21zZy5wcm90byIo",
+            "CgVDb2xvchIJCgFyGAEgASgNEgkKAWcYAiABKA0SCQoBYhgDIAEoDSJ/CgxF",
+            "ZmZvcnRWYWx1ZXMSEAoIc3RyZW5ndGgYASABKA0SDwoHYWdpbGl0eRgCIAEo",
+            "DRIQCgh2aXRhbGl0eRgDIAEoDRIUCgxpbnRlbGxpZ2VuY2UYBCABKA0SEQoJ",
+            "ZGV4dGVyaXR5GAUgASgNEhEKCXdpbGxwb3dlchgGIAEoDSKpAQoGTWFzdGVy",
+            "EiIKGm1heF9hdmFpbGFibGVfbWFzdGVyX3Nsb3RzGAEgASgNEiIKGm1heF9h",
+            "dmFpbGFibGVfYmVzdGlhX3Nsb3RzGAIgASgNEiAKBm1hc3RlchgDIAMoCzIQ",
+            "LmJuZXQuTWFzdGVySW5mbxI1CgxzcGF3bl9wb2ludHMYBCADKAsyHy5ibmV0",
+            "Lk1hc3RlclNwYXduUG9pbnRDYW5kaWRhdGUiqgEKGU1hc3RlclNwYXduUG9p",
+            "bnRDYW5kaWRhdGUSCgoCaWQYASABKA0SFwoPc2V0dGxlbWVudF9uYW1lGAIg",
+            "ASgJEgwKBHRpZXIYAyABKAkSEgoKcG9wdWxhdGlvbhgEIAEoDRIJCgF4GAUg",
+            "ASgDEgkKAXkYBiABKAMSEwoLYmlvbWVfdG9rZW4YByABKAkSGwoHaGlzdG9y",
+            "eRgIIAMoCzIKLmJuZXQuTGluZSKkAgoKTWFzdGVySW5mbxIRCgltYXN0ZXJf",
+            "aWQYASABKAQSDAoEbmFtZRgDIAEoCRINCgVsZXZlbBgEIAEoDRIcCghwb3Np",
+            "dGlvbhgFIAEoCzIKLmJuZXQuVmVjMxIcCgRib2R5GAYgASgOMg4uYm5ldC5C",
+            "b2R5VHlwZRIYCgRmYWNlGAcgASgOMgouYm5ldC5GYWNlEh8KCnNraW5fY29s",
+            "b3IYCCABKAsyCy5ibmV0LkNvbG9yEh8KCmhhaXJfY29sb3IYCSABKAsyCy5i",
+            "bmV0LkNvbG9yEiEKB2Jlc3RpYXMYCiADKAsyEC5ibmV0LkJlc3RpYUluZm8S",
+            "HQoEaGFpchgLIAEoDjIPLmJuZXQuSGFpcnN0eWxlEgwKBHNsb3QYDCABKA0q",
+            "JgoIQm9keVR5cGUSDAoIQk9EWV9NXzEQABIMCghCT0RZX0ZfMRABKn8KBEZh",
+            "Y2USCgoGRkFDRV8xEAASCgoGRkFDRV8yEAESCgoGRkFDRV8zEAISCgoGRkFD",
+            "RV80EAMSCgoGRkFDRV81EAQSCgoGRkFDRV82EAUSCgoGRkFDRV83EAYSCgoG",
+            "RkFDRV84EAcSCgoGRkFDRV85EAgSCwoHRkFDRV8xMBAJKkcKCUhhaXJzdHls",
+            "ZRIKCgZIQUlSXzEQABIKCgZIQUlSXzIQARIKCgZIQUlSXzMQAhIKCgZIQUlS",
+            "XzQQAxIKCgZIQUlSXzUQBEIkChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CC01h",
+            "c3RlclByb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
-          new pbr::FileDescriptor[] { global::Bnet.Vec3Reflection.Descriptor, global::Bnet.BestiaInfoReflection.Descriptor, },
+          new pbr::FileDescriptor[] { global::Bnet.Vec3Reflection.Descriptor, global::Bnet.BestiaInfoReflection.Descriptor, global::Bnet.ConversationSmsgReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.BodyType), typeof(global::Bnet.Face), typeof(global::Bnet.Hairstyle), }, null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.Color), global::Bnet.Color.Parser, new[]{ "R", "G", "B" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.EffortValues), global::Bnet.EffortValues.Parser, new[]{ "Strength", "Agility", "Vitality", "Intelligence", "Dexterity", "Willpower" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.Master), global::Bnet.Master.Parser, new[]{ "MaxAvailableMasterSlots", "MaxAvailableBestiaSlots", "Master_", "SpawnPoints" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.MasterSpawnPointCandidate), global::Bnet.MasterSpawnPointCandidate.Parser, new[]{ "Id", "SettlementName", "Tier" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.MasterSpawnPointCandidate), global::Bnet.MasterSpawnPointCandidate.Parser, new[]{ "Id", "SettlementName", "Tier", "Population", "X", "Y", "BiomeToken", "History" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.MasterInfo), global::Bnet.MasterInfo.Parser, new[]{ "MasterId", "Name", "Level", "Position", "Body", "Face", "SkinColor", "HairColor", "Bestias", "Hair", "Slot" }, null, null, null, null)
           }));
     }
@@ -1103,6 +1106,11 @@ namespace Bnet {
       id_ = other.id_;
       settlementName_ = other.settlementName_;
       tier_ = other.tier_;
+      population_ = other.population_;
+      x_ = other.x_;
+      y_ = other.y_;
+      biomeToken_ = other.biomeToken_;
+      history_ = other.history_.Clone();
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -1148,6 +1156,74 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "population" field.</summary>
+    public const int PopulationFieldNumber = 4;
+    private uint population_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint Population {
+      get { return population_; }
+      set {
+        population_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "x" field.</summary>
+    public const int XFieldNumber = 5;
+    private long x_;
+    /// <summary>
+    /// Voxel coordinates of the spawn point.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public long X {
+      get { return x_; }
+      set {
+        x_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "y" field.</summary>
+    public const int YFieldNumber = 6;
+    private long y_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public long Y {
+      get { return y_; }
+      set {
+        y_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "biome_token" field.</summary>
+    public const int BiomeTokenFieldNumber = 7;
+    private string biomeToken_ = "";
+    /// <summary>
+    /// Translation key of the biome at the spawn point, e.g. BIOME_TEMPERATE_FOREST.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string BiomeToken {
+      get { return biomeToken_; }
+      set {
+        biomeToken_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "history" field.</summary>
+    public const int HistoryFieldNumber = 8;
+    private static readonly pb::FieldCodec<global::Bnet.Line> _repeated_history_codec
+        = pb::FieldCodec.ForMessage(66, global::Bnet.Line.Parser);
+    private readonly pbc::RepeatedField<global::Bnet.Line> history_ = new pbc::RepeatedField<global::Bnet.Line>();
+    /// <summary>
+    /// What the town's history says about it. Lines rather than text, so the client can translate them.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::RepeatedField<global::Bnet.Line> History {
+      get { return history_; }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -1166,6 +1242,11 @@ namespace Bnet {
       if (Id != other.Id) return false;
       if (SettlementName != other.SettlementName) return false;
       if (Tier != other.Tier) return false;
+      if (Population != other.Population) return false;
+      if (X != other.X) return false;
+      if (Y != other.Y) return false;
+      if (BiomeToken != other.BiomeToken) return false;
+      if(!history_.Equals(other.history_)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -1176,6 +1257,11 @@ namespace Bnet {
       if (Id != 0) hash ^= Id.GetHashCode();
       if (SettlementName.Length != 0) hash ^= SettlementName.GetHashCode();
       if (Tier.Length != 0) hash ^= Tier.GetHashCode();
+      if (Population != 0) hash ^= Population.GetHashCode();
+      if (X != 0L) hash ^= X.GetHashCode();
+      if (Y != 0L) hash ^= Y.GetHashCode();
+      if (BiomeToken.Length != 0) hash ^= BiomeToken.GetHashCode();
+      hash ^= history_.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -1206,6 +1292,23 @@ namespace Bnet {
         output.WriteRawTag(26);
         output.WriteString(Tier);
       }
+      if (Population != 0) {
+        output.WriteRawTag(32);
+        output.WriteUInt32(Population);
+      }
+      if (X != 0L) {
+        output.WriteRawTag(40);
+        output.WriteInt64(X);
+      }
+      if (Y != 0L) {
+        output.WriteRawTag(48);
+        output.WriteInt64(Y);
+      }
+      if (BiomeToken.Length != 0) {
+        output.WriteRawTag(58);
+        output.WriteString(BiomeToken);
+      }
+      history_.WriteTo(output, _repeated_history_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -1228,6 +1331,23 @@ namespace Bnet {
         output.WriteRawTag(26);
         output.WriteString(Tier);
       }
+      if (Population != 0) {
+        output.WriteRawTag(32);
+        output.WriteUInt32(Population);
+      }
+      if (X != 0L) {
+        output.WriteRawTag(40);
+        output.WriteInt64(X);
+      }
+      if (Y != 0L) {
+        output.WriteRawTag(48);
+        output.WriteInt64(Y);
+      }
+      if (BiomeToken.Length != 0) {
+        output.WriteRawTag(58);
+        output.WriteString(BiomeToken);
+      }
+      history_.WriteTo(ref output, _repeated_history_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -1247,6 +1367,19 @@ namespace Bnet {
       if (Tier.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(Tier);
       }
+      if (Population != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Population);
+      }
+      if (X != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeInt64Size(X);
+      }
+      if (Y != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeInt64Size(Y);
+      }
+      if (BiomeToken.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(BiomeToken);
+      }
+      size += history_.CalculateSize(_repeated_history_codec);
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -1268,6 +1401,19 @@ namespace Bnet {
       if (other.Tier.Length != 0) {
         Tier = other.Tier;
       }
+      if (other.Population != 0) {
+        Population = other.Population;
+      }
+      if (other.X != 0L) {
+        X = other.X;
+      }
+      if (other.Y != 0L) {
+        Y = other.Y;
+      }
+      if (other.BiomeToken.Length != 0) {
+        BiomeToken = other.BiomeToken;
+      }
+      history_.Add(other.history_);
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -1299,6 +1445,26 @@ namespace Bnet {
             Tier = input.ReadString();
             break;
           }
+          case 32: {
+            Population = input.ReadUInt32();
+            break;
+          }
+          case 40: {
+            X = input.ReadInt64();
+            break;
+          }
+          case 48: {
+            Y = input.ReadInt64();
+            break;
+          }
+          case 58: {
+            BiomeToken = input.ReadString();
+            break;
+          }
+          case 66: {
+            history_.AddEntriesFrom(input, _repeated_history_codec);
+            break;
+          }
         }
       }
     #endif
@@ -1328,6 +1494,26 @@ namespace Bnet {
           }
           case 26: {
             Tier = input.ReadString();
+            break;
+          }
+          case 32: {
+            Population = input.ReadUInt32();
+            break;
+          }
+          case 40: {
+            X = input.ReadInt64();
+            break;
+          }
+          case 48: {
+            Y = input.ReadInt64();
+            break;
+          }
+          case 58: {
+            BiomeToken = input.ReadString();
+            break;
+          }
+          case 66: {
+            history_.AddEntriesFrom(ref input, _repeated_history_codec);
             break;
           }
         }

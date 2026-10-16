@@ -11,6 +11,8 @@ import net.bestia.zone.message.SelfSMSG
 import net.bestia.zone.account.BodyType
 import net.bestia.zone.account.Face
 import net.bestia.zone.account.Hairstyle
+import net.bestia.zone.townsfolk.conversation.Line
+import net.bestia.zone.townsfolk.conversation.toBnet
 
 data class AvailableMasterSMSG(
   val master: List<MasterInfo>,
@@ -38,7 +40,12 @@ data class AvailableMasterSMSG(
   data class SpawnPointCandidate(
     val id: Int,
     val settlementName: String,
-    val tier: String
+    val tier: String,
+    val population: Int,
+    val position: Vec3L,
+    /** See [HomeFacts]. */
+    val biomeToken: String,
+    val history: List<Line>,
   )
 
   override fun toBnetEnvelope(): EnvelopeProto.Envelope {
@@ -52,6 +59,11 @@ data class AvailableMasterSMSG(
           .setId(candidate.id)
           .setSettlementName(candidate.settlementName)
           .setTier(candidate.tier)
+          .setPopulation(candidate.population)
+          .setX(candidate.position.x)
+          .setY(candidate.position.y)
+          .setBiomeToken(candidate.biomeToken)
+          .addAllHistory(candidate.history.map { it.toBnet() })
           .build()
       )
     }
