@@ -13,6 +13,7 @@ const _BODY_SUFFIXES := ["", "_F"]
 static var _tinted_materials: Dictionary = {}
 
 var _look_parts: Array[String] = []
+var _body_suffix := ""
 ## The hair and any beard: what a helmet hides.
 var _hair_parts: Array[String] = []
 var _hair_color := Color.WHITE
@@ -42,9 +43,10 @@ func show_look(body: int, face: int, hair: int, hair_color: Color, skin_color: C
 	if not has_node("Face_%d" % face_number):
 		printerr("MasterParts: unknown face %s, showing the first" % face)
 		face_number = 1
+	_body_suffix = _BODY_SUFFIXES[body]
 	_look_parts = ["Head", "Face_%d" % face_number]
 	for part in _BODY_PARTS:
-		_look_parts.append(part + _BODY_SUFFIXES[body])
+		_look_parts.append(part + _body_suffix)
 	_hair_parts = ["Hair_%d" % (hair + 1), "FacialHair_%d" % face_number]
 	_hair_color = hair_color
 	_skin_color = skin_color
@@ -60,7 +62,9 @@ func wear(parts: Array[String], hide_hair: bool) -> void:
 
 
 func _refresh() -> void:
-	var shown := _look_parts + _worn_parts
+	var shown := _look_parts.duplicate()
+	for part in _worn_parts:
+		shown.append(_fitted(part))
 	if not _hair_hidden:
 		shown.append_array(_hair_parts)
 
@@ -68,6 +72,12 @@ func _refresh() -> void:
 		part.visible = part.name in shown
 		if part.visible:
 			_tint(part, _hair_color, _skin_color)
+
+
+## Body armor comes in one part per body; the female body's has the body's suffix.
+func _fitted(part: String) -> String:
+	var for_this_body := part + _body_suffix
+	return for_this_body if has_node(for_this_body) else part
 
 
 func _tint(part: MeshInstance3D, hair_color: Color, skin_color: Color) -> void:
