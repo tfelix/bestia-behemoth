@@ -100,7 +100,79 @@ corner_radius_top_right = 6
 corner_radius_bottom_right = 6
 corner_radius_bottom_left = 6
 
+[sub_resource type="StyleBoxFlat" id="StyleBox_chip_normal"]
+content_margin_left = 12.0
+content_margin_top = 4.0
+content_margin_right = 12.0
+content_margin_bottom = 4.0
+bg_color = Color(0, 0, 0, 0)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.373, 0.369, 0.353, 1)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_chip_hover"]
+content_margin_left = 12.0
+content_margin_top = 4.0
+content_margin_right = 12.0
+content_margin_bottom = 4.0
+bg_color = Color(1, 1, 1, 0.05)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.533, 0.529, 0.502, 1)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_chip_pressed"]
+content_margin_left = 12.0
+content_margin_top = 4.0
+content_margin_right = 12.0
+content_margin_bottom = 4.0
+bg_color = Color(0.365, 0.792, 0.647, 0.15)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.365, 0.792, 0.647, 1)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_stat_bar_background"]
+bg_color = Color(0.11, 0.11, 0.105, 1)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_stat_bar_fill"]
+bg_color = Color(0.365, 0.792, 0.647, 1)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
 [resource]
+ChipButton/base_type = &"Button"
+ChipButton/colors/font_color = Color(0.827, 0.82, 0.78, 1)
+ChipButton/colors/font_hover_color = Color(0.945, 0.937, 0.91, 1)
+ChipButton/colors/font_hover_pressed_color = Color(0.624, 0.882, 0.796, 1)
+ChipButton/colors/font_pressed_color = Color(0.624, 0.882, 0.796, 1)
+ChipButton/styles/focus = SubResource("StyleBox_primary_focus")
+ChipButton/styles/hover = SubResource("StyleBox_chip_hover")
+ChipButton/styles/hover_pressed = SubResource("StyleBox_chip_pressed")
+ChipButton/styles/normal = SubResource("StyleBox_chip_normal")
+ChipButton/styles/pressed = SubResource("StyleBox_chip_pressed")
 DangerAlert/base_type = &"PanelContainer"
 DangerAlert/styles/panel = SubResource("StyleBox_alert_danger")
 DangerAlertLabel/base_type = &"Label"
@@ -124,5 +196,8 @@ PrimaryButton/styles/focus = SubResource("StyleBox_primary_focus")
 PrimaryButton/styles/hover = SubResource("StyleBox_primary_hover")
 PrimaryButton/styles/normal = SubResource("StyleBox_primary_normal")
 PrimaryButton/styles/pressed = SubResource("StyleBox_primary_pressed")
+StatBar/base_type = &"ProgressBar"
+StatBar/styles/background = SubResource("StyleBox_stat_bar_background")
+StatBar/styles/fill = SubResource("StyleBox_stat_bar_fill")
 RichTextLabel/fonts/bold_font = SubResource("FontVariation_bold")
 RichTextLabel/fonts/bold_italics_font = SubResource("FontVariation_bold_italics")

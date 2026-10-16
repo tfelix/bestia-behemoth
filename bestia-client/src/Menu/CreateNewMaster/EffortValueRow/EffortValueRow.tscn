@@ -1,9 +1,10 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://Menu/CreateNewMaster/EffortValueRow/effort_value_row.gd" id="1_ev_row"]
+[ext_resource type="LabelSettings" uid="uid://k7yxyg5xi86r" path="res://Menu/Shared/muted_text_label_settings.tres" id="2_muted"]
 
 [node name="EffortValueRow" type="HBoxContainer"]
-offset_right = 190.0
+offset_right = 420.0
 offset_bottom = 31.0
 theme_override_constants/separation = 8
 script = ExtResource("1_ev_row")
@@ -14,11 +15,23 @@ custom_minimum_size = Vector2(40, 0)
 layout_mode = 2
 text = "STR"
 
+[node name="StatBar" type="ProgressBar" parent="."]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 6)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+mouse_filter = 2
+theme_type_variation = &"StatBar"
+max_value = 20.0
+value = 1.0
+show_percentage = false
+
 [node name="MinusButton" type="Button" parent="."]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(30, 0)
 layout_mode = 2
-text = "<"
+text = "-"
 
 [node name="ValueLabel" type="Label" parent="."]
 unique_name_in_owner = true
@@ -31,13 +44,15 @@ text = "1"
 unique_name_in_owner = true
 custom_minimum_size = Vector2(30, 0)
 layout_mode = 2
-text = ">"
+text = "+"
 
 [node name="CostLabel" type="Label" parent="."]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(30, 0)
+custom_minimum_size = Vector2(60, 0)
 layout_mode = 2
-text = "(1)"
+text = "costs 1"
+label_settings = ExtResource("2_muted")
 
+[connection signal="mouse_entered" from="." to="." method="_on_mouse_entered"]
 [connection signal="pressed" from="MinusButton" to="." method="_on_minus_button_pressed"]
 [connection signal="pressed" from="PlusButton" to="." method="_on_plus_button_pressed"]

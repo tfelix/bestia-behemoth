@@ -12,9 +12,13 @@ class_name EffortValueRow
 ## and re-gate every row (a row does not know what the others have spent).
 signal value_changed(row)
 
+## Emitted when the pointer enters the row, so the screen can explain the attribute.
+signal hovered(row)
+
 @export var attribute: StatusAttribute.Attribute = StatusAttribute.Attribute.STRENGTH
 
 @onready var _attribute_label: Label = %AttributeLabel
+@onready var _stat_bar: ProgressBar = %StatBar
 @onready var _minus_button: Button = %MinusButton
 @onready var _value_label: Label = %ValueLabel
 @onready var _plus_button: Button = %PlusButton
@@ -38,6 +42,11 @@ func _ready() -> void:
 ## The value one "+" would buy, i.e. what step_cost() has to be asked about.
 func next_value() -> int:
 	return value + 1
+
+
+## The value a full bar stands for. The screen knows the budget, so it works this out.
+func set_bar_max(bar_max: int) -> void:
+	_stat_bar.max_value = bar_max
 
 
 func set_value(new_value: int) -> void:
@@ -71,8 +80,13 @@ func _on_plus_button_pressed() -> void:
 
 func _refresh_display() -> void:
 	_value_label.text = "%s" % value
+	_stat_bar.value = value
 	_minus_button.disabled = not _can_decrease
 	_plus_button.disabled = not _can_increase
 	# What the next point would cost, so the escalating curve is visible before spending rather than
 	# only as a budget that suddenly drains faster.
-	_cost_label.text = "(%s)" % StatusAttribute.step_cost(next_value())
+	_cost_label.text = "costs %s" % StatusAttribute.step_cost(next_value())
+
+
+func _on_mouse_entered() -> void:
+	hovered.emit(self)

@@ -36,6 +36,19 @@ static func short_code(attribute: Attribute) -> String:
 		_: return "???"
 
 
+## One line on what the attribute does, condensed from
+## https://docs.bestia-game.net/docs/mechanics/statusvalues/ for players picking their first values.
+static func summary(attribute: Attribute) -> String:
+	match attribute:
+		Attribute.STRENGTH: return "Melee damage and carry capacity, a little HP and stamina."
+		Attribute.AGILITY: return "Attack rate, walking speed and dodge chance."
+		Attribute.VITALITY: return "Max HP and stamina, regeneration, less physical damage, cold and heat resistance."
+		Attribute.INTELLIGENCE: return "Magic damage, max mana and longer spell effects."
+		Attribute.DEXTERITY: return "Hit and critical chance, ranged damage, upgrade and crafting success."
+		Attribute.WILLPOWER: return "Spell resistance, mana regeneration, faster casting and refining success."
+		_: return ""
+
+
 ## Effort points needed to raise an attribute from [param next_value] - 1 to [param next_value].
 ##
 ## Mirrors net.bestia.zone.account.master.status.EffortValueCostCalculator.stepCost on the server -
