@@ -20,6 +20,7 @@ import net.bestia.zone.battle.status.ConditionValueCalculator
 import net.bestia.zone.master.bestia.PlayerBestiaEntitySpawner
 import net.bestia.zone.item.ecs.Equipment
 import net.bestia.zone.item.ecs.Inventory
+import net.bestia.zone.item.ecs.WornGear
 import net.bestia.zone.item.equip.EquipmentSlots
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.movement.ecs.Speed
@@ -153,6 +154,7 @@ class MasterEntitySpawner(
       )
       add(id, inventory)
       add(id, equipment)
+      add(id, WornGear())
       partyMembership?.let { add(id, it) }
 
       val baseStatusValues = BaseStatusValues(
