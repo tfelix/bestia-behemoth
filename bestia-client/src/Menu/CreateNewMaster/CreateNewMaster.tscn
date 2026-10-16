@@ -6,6 +6,7 @@
 [ext_resource type="Texture2D" uid="uid://6agwh7nujv76" path="res://Menu/Main/Background/landscape-nature-clouds-cloudy.jpg" id="4_bg"]
 [ext_resource type="LabelSettings" uid="uid://k7yxyg5xi86r" path="res://Menu/Shared/muted_text_label_settings.tres" id="5_muted"]
 [ext_resource type="PackedScene" path="res://Menu/CreateNewMaster/MasterPreview/MasterPreview.tscn" id="6_mprev"]
+[ext_resource type="Texture2D" path="res://Theme/Icons/info-circle.svg" id="6_info"]
 
 [node name="CreateNewMaster" type="Control"]
 layout_mode = 3
@@ -428,8 +429,40 @@ text = "Shape your strengths"
 
 [node name="Hint" type="Label" parent="Margin/Layout/Body/StepPanel/Content/Pages/AttributesPage/AttributesPageHeading"]
 layout_mode = 2
-text = "Spend all effort points. Higher values cost more points per step."
+text = "Your starting attributes. You can raise every one of them later as you play."
 label_settings = ExtResource("5_muted")
+autowrap_mode = 3
+
+[node name="PresetChips" type="HBoxContainer" parent="Margin/Layout/Body/StepPanel/Content/Pages/AttributesPage"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="PresetHelp" type="PanelContainer" parent="Margin/Layout/Body/StepPanel/Content/Pages/AttributesPage"]
+custom_minimum_size = Vector2(0, 168)
+layout_mode = 2
+theme_type_variation = &"InfoAlert"
+
+[node name="PresetHelpRow" type="HBoxContainer" parent="Margin/Layout/Body/StepPanel/Content/Pages/AttributesPage/PresetHelp"]
+layout_mode = 2
+size_flags_vertical = 0
+theme_override_constants/separation = 10
+
+[node name="PresetHelpIcon" type="TextureRect" parent="Margin/Layout/Body/StepPanel/Content/Pages/AttributesPage/PresetHelp/PresetHelpRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 2
+size_flags_vertical = 0
+texture = ExtResource("6_info")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="PresetHelpLabel" type="Label" parent="Margin/Layout/Body/StepPanel/Content/Pages/AttributesPage/PresetHelp/PresetHelpRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(1, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"InfoAlertLabel"
 autowrap_mode = 3
 
 [node name="Rows" type="VBoxContainer" parent="Margin/Layout/Body/StepPanel/Content/Pages/AttributesPage"]
@@ -460,10 +493,18 @@ attribute = 4
 layout_mode = 2
 attribute = 5
 
+[node name="StatHint" type="Label" parent="Margin/Layout/Body/StepPanel/Content/Pages/AttributesPage"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(1, 36)
+layout_mode = 2
+text = "Point at an attribute to see what it does."
+label_settings = ExtResource("5_muted")
+autowrap_mode = 3
+
 [node name="PointsLabel" type="Label" parent="Margin/Layout/Body/StepPanel/Content/Pages/AttributesPage"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Effort Points: 78 / 78 left"
+text = "Points left: 78 / 78"
 
 [node name="HomePage" type="VBoxContainer" parent="Margin/Layout/Body/StepPanel/Content/Pages"]
 unique_name_in_owner = true

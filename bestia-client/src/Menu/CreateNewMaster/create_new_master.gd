@@ -21,6 +21,27 @@ const EFFORT_POINT_BUDGET := 84
 ## screen therefore opens with 78 of the 84 left rather than the full amount.
 const MIN_EFFORT_VALUE := 1
 
+## Ready-made starting builds. A build lists its values in StatusAttribute.Attribute order (STR, AGI, VIT, INT,
+## DEX, WIL), and each spends exactly EFFORT_POINT_BUDGET - _ready asserts it - so a beginner can take
+## one and go straight on.
+const PRESETS := {
+	"Brawler": {
+		"build": [13, 8, 11, 6, 7, 7],
+		"summary": "Melee fighter. Hits hard with STR and takes hits with VIT.",
+	},
+	"Scout": {
+		"build": [6, 12, 12, 4, 9, 8],
+		"summary": "Wilderness survivalist. Moves fast with AGI, endures cold and heat with VIT, crafts in the field with DEX.",
+	},
+	"Scholar": {
+		"build": [6, 7, 8, 13, 7, 11],
+		"summary": "Magic user. INT for spell power and mana, WIL for faster casting and resistance.",
+	},
+}
+const CUSTOM_PRESET := "Custom"
+const CUSTOM_HELP := "New here? Pick Brawler, Scout or Scholar for a ready-made build. You can still change any value afterwards. Or spend the points yourself: each + raises an attribute, and higher values cost more points per step. Next unlocks once every point is spent."
+const PRESET_HELP_SUFFIX := " Change any value to make it your own."
+
 ## The account slot, counted from 0, the character is created in. Set by the empty slot that opens this
 ## screen, which is the only way in: SceneManager.goto_scene hands a scene no arguments. The server pins the
 ## character to it, and refuses one the account does not have or that already holds a character.
@@ -77,6 +98,10 @@ const GENDER_BODIES := {
 
 @onready var _effort_rows: Array = _collect_effort_rows()
 @onready var _points_label: Label = %PointsLabel
+@onready var _preset_chips: HBoxContainer = %PresetChips
+@onready var _preset_help_icon: TextureRect = %PresetHelpIcon
+@onready var _preset_help_label: Label = %PresetHelpLabel
+@onready var _stat_hint: Label = %StatHint
 
 var _selected_hair_swatch: ColorRect = null
 var _selected_skin_swatch: ColorRect = null
@@ -108,9 +133,18 @@ func _ready() -> void:
 	_turn_left.pressed.connect(_preview.turn_left)
 	_turn_right.pressed.connect(_preview.turn_right)
 
+	for preset in PRESETS.values():
+		assert(_cost_of(preset["build"]) == EFFORT_POINT_BUDGET, "A preset must spend exactly the whole budget")
+
+	var bar_max := _highest_affordable_value()
 	for row in _effort_rows:
-		row.set_value(MIN_EFFORT_VALUE)
+		row.set_bar_max(bar_max)
 		row.value_changed.connect(_on_effort_value_changed)
+		row.hovered.connect(_on_effort_row_hovered)
+
+	_preset_help_icon.modulate = _preset_help_label.get_theme_color("font_color")
+	_build_preset_chips()
+	_apply_preset(CUSTOM_PRESET)
 
 	# Next and Create are gated on the steps being complete, so anything that can change that has to
 	# re-evaluate them - not just the effort rows.
@@ -163,18 +197,70 @@ func _collect_effort_rows() -> Array:
 ## Effort points consumed by the current distribution, counted from 0 - so the six mandatory starting
 ## 1s are included, exactly as the server counts them.
 func _spent_effort_points() -> int:
+	return _cost_of(_effort_rows.map(func(row): return row.value))
+
+
+func _cost_of(values: Array) -> int:
 	var total := 0
-	for row in _effort_rows:
-		total += StatusAttribute.cumulative_cost(row.value)
+	for value in values:
+		total += StatusAttribute.cumulative_cost(value)
 	return total
+
+
+## The highest value one attribute can reach when every other one stays at the minimum. It is what a
+## full stat bar stands for.
+func _highest_affordable_value() -> int:
+	var others_cost := (_effort_rows.size() - 1) * StatusAttribute.cumulative_cost(MIN_EFFORT_VALUE)
+	var value := MIN_EFFORT_VALUE
+	while others_cost + StatusAttribute.cumulative_cost(value + 1) <= EFFORT_POINT_BUDGET:
+		value += 1
+	return value
 
 
 func _remaining_effort_points() -> int:
 	return EFFORT_POINT_BUDGET - _spent_effort_points()
 
 
+## A hand-made change turns the chosen preset into the player's own build.
 func _on_effort_value_changed(_row) -> void:
+	_show_preset(CUSTOM_PRESET)
 	_refresh_effort_ui()
+
+
+func _on_effort_row_hovered(row) -> void:
+	_stat_hint.text = "%s: %s" % [StatusAttribute.short_code(row.attribute), StatusAttribute.summary(row.attribute)]
+
+
+func _build_preset_chips() -> void:
+	for preset_name in PRESETS.keys() + [CUSTOM_PRESET]:
+		var chip := Button.new()
+		chip.text = preset_name
+		chip.toggle_mode = true
+		chip.focus_mode = Control.FOCUS_NONE
+		chip.theme_type_variation = "ChipButton"
+		chip.pressed.connect(_apply_preset.bind(preset_name))
+		_preset_chips.add_child(chip)
+
+
+## Custom starts every attribute at the minimum, so the player spends the whole budget by hand.
+func _apply_preset(preset_name: String) -> void:
+	var is_custom := not PRESETS.has(preset_name)
+	for row in _effort_rows:
+		row.set_value(MIN_EFFORT_VALUE if is_custom else PRESETS[preset_name]["build"][row.attribute])
+	_show_preset(preset_name)
+	_refresh_effort_ui()
+
+
+## Marks the chip and explains the choice. Pressing is synced by hand rather than with a ButtonGroup:
+## a second click on the pressed chip must re-apply the preset, not un-press it.
+func _show_preset(preset_name: String) -> void:
+	for chip in _preset_chips.get_children():
+		chip.set_pressed_no_signal(chip.text == preset_name)
+
+	if PRESETS.has(preset_name):
+		_preset_help_label.text = PRESETS[preset_name]["summary"] + PRESET_HELP_SUFFIX
+	else:
+		_preset_help_label.text = CUSTOM_HELP
 
 
 ## Re-totals the budget and re-gates every row's arrows. A row can only go up while the budget still
@@ -182,7 +268,7 @@ func _on_effort_value_changed(_row) -> void:
 func _refresh_effort_ui() -> void:
 	var remaining := _remaining_effort_points()
 	var starting_budget := EFFORT_POINT_BUDGET - 6
-	_points_label.text = "Effort Points: %s / %s left" % [remaining, starting_budget]
+	_points_label.text = "Points left: %s / %s" % [remaining, starting_budget]
 
 	for row in _effort_rows:
 		var can_increase: bool = remaining >= StatusAttribute.step_cost(row.next_value())
