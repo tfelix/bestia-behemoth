@@ -144,6 +144,12 @@ class InventoryService(
     return withOwnerContainer(masterId, playerBestiaId) { container -> container.removeOne(itemId, amount, uniqueId) }
   }
 
+  /** Empties an owner's bag of everything not worn or promised, and answers what left. See [ItemContainer.removeAllFree]. */
+  @Transactional
+  fun removeAllFreeFromOwner(masterId: Long, playerBestiaId: PlayerBestiaId?): List<ItemContainer.DetachedItem> {
+    return withOwnerContainer(masterId, playerBestiaId) { container -> container.removeAllFree() }
+  }
+
   /**
    * Durably marks an item as worn in [slot] by the given owner - a master when
    * [playerBestiaId] is null, otherwise that player bestia. The ECS

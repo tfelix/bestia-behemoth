@@ -221,4 +221,21 @@ class ItemContainerTest {
     assertEquals(sword.id, container.equipped()[EquipmentSlot.RIGHT_HAND]?.template?.id)
     assertEquals(boots.id, container.equipped()[EquipmentSlot.FOOTGEAR]?.template?.id)
   }
+
+  @Test
+  fun `removeAllFree takes every pile and instance but leaves worn and promised items`() {
+    container.addStackable(apple, 5)
+    container.addInstance(ItemInstance(item = sword))
+    container.addInstance(ItemInstance(item = sword))
+    container.addInstance(ItemInstance(item = boots))
+    container.equip(sword.id, uniqueId = 0L, slot = EquipmentSlot.RIGHT_HAND)
+    container.reserveAnyInstance(boots.id, tradeId = 1L)
+
+    val removed = container.removeAllFree()
+
+    assertEquals(listOf(apple.id to 5, sword.id to 1), removed.map { it.template.id to it.amount }.sortedBy { it.first })
+    assertNotNull(removed.single { it.template.id == sword.id }.instance)
+    assertEquals(setOf(sword.id, boots.id), container.slots.map { it.template.id }.toSet())
+    assertTrue(container.slots.none { it.isFree })
+  }
 }

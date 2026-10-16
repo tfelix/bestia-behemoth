@@ -173,6 +173,14 @@ class ItemContainer(
     return if (removeStackable(itemId, amount)) RemovedItem(uniqueId = 0L, instance = null) else null
   }
 
+  /** Detaches every free slot and answers what left; worn and promised items stay. Instance rows stay alive. */
+  fun removeAllFree(): List<DetachedItem> {
+    val free = _slots.filter { it.isFree }
+    _slots.removeAll(free.toSet())
+
+    return free.map { DetachedItem(template = it.template, amount = it.amount, instance = it.itemInstance) }
+  }
+
   /** How much of [itemId] is actually available to spend - worn and promised copies do not count. */
   fun hasItem(itemId: Long, minAmount: Int = 1): Boolean {
     val held = _slots.filter { it.isFree && it.template.id == itemId }.sumOf { it.amount }
