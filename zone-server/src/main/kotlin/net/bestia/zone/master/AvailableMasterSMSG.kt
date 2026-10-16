@@ -123,12 +123,20 @@ data class AvailableMasterSMSG(
   private fun mapFace(face: Face): MasterProto.Face {
     return when (face) {
       Face.FACE_1 -> MasterProto.Face.FACE_1
+      Face.FACE_2 -> MasterProto.Face.FACE_2
+      Face.FACE_3 -> MasterProto.Face.FACE_3
+      Face.FACE_4 -> MasterProto.Face.FACE_4
+      Face.FACE_5 -> MasterProto.Face.FACE_5
     }
   }
 
   private fun mapHairstyle(hair: Hairstyle): MasterProto.Hairstyle {
     return when (hair) {
       Hairstyle.HAIR_1 -> MasterProto.Hairstyle.HAIR_1
+      Hairstyle.HAIR_2 -> MasterProto.Hairstyle.HAIR_2
+      Hairstyle.HAIR_3 -> MasterProto.Hairstyle.HAIR_3
+      Hairstyle.HAIR_4 -> MasterProto.Hairstyle.HAIR_4
+      Hairstyle.HAIR_5 -> MasterProto.Hairstyle.HAIR_5
     }
   }
 }
