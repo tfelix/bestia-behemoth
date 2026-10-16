@@ -500,10 +500,16 @@ text = "Your home settlement is where your journey starts."
 label_settings = ExtResource("5_muted")
 autowrap_mode = 3
 
-[node name="SpawnPointButton" type="OptionButton" parent="Margin/Layout/Body/StepPanel/Content/Pages/HomePage"]
+[node name="HomeLoading" type="Label" parent="Margin/Layout/Body/StepPanel/Content/Pages/HomePage"]
 unique_name_in_owner = true
 layout_mode = 2
-disabled = true
+text = "Looking for homes..."
+label_settings = ExtResource("5_muted")
+
+[node name="HomeCards" type="VBoxContainer" parent="Margin/Layout/Body/StepPanel/Content/Pages/HomePage"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 8
 
 [node name="NamePage" type="VBoxContainer" parent="Margin/Layout/Body/StepPanel/Content/Pages"]
 unique_name_in_owner = true

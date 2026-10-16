@@ -6,6 +6,7 @@ extends Control
 ## the ConnectionManager operation signals.
 
 const MASTER_SELECT_SCENE := "res://Menu/MasterSelect/MasterSelect.tscn"
+const HOME_CARD_SCENE := preload("res://Menu/CreateNewMaster/HomeCard/HomeCard.tscn")
 const DANGER_ICON := preload("res://Theme/Icons/alert-triangle.svg")
 const INFO_ICON := preload("res://Theme/Icons/info-circle.svg")
 
@@ -81,7 +82,8 @@ const GENDER_BODIES := {
 @onready var _preview: CharacterPreview = %CharacterPreview
 
 @onready var _name_edit: LineEdit = %NameEdit
-@onready var _spawn_point_button: OptionButton = %SpawnPointButton
+@onready var _home_cards: VBoxContainer = %HomeCards
+@onready var _home_loading: Label = %HomeLoading
 @onready var _hair_color_grid: GridContainer = %HairColorGrid
 @onready var _skin_color_grid: GridContainer = %SkinColorGrid
 
@@ -106,6 +108,9 @@ var _selected_skin_swatch: ColorRect = null
 var _hair_border: Panel = null
 var _skin_border: Panel = null
 var _current_step := Step.LOOK
+
+# The spawn point id of the chosen home card, or null before the server has offered any.
+var _selected_spawn_point_id = null
 
 # True between sending a create request and its success/error reply. Without this, any later
 # _refresh_navigation() - a keystroke in the name field is enough - would re-enable the button
@@ -145,7 +150,6 @@ func _ready() -> void:
 	# Next and Create are gated on the steps being complete, so anything that can change that has to
 	# re-evaluate them - not just the effort rows.
 	_name_edit.text_changed.connect(func(_t): _refresh_navigation())
-	_spawn_point_button.item_selected.connect(func(_i): _refresh_navigation())
 	_refresh_effort_ui()
 	_go_to_step(Step.LOOK)
 
@@ -164,21 +168,32 @@ func _exit_tree() -> void:
 		ConnectionManager.master_info_received.disconnect(_on_master_info_received)
 
 
-## Populates the home settlement picker from the master list response's spawn point candidates and
-## pre-selects one at random, so a player who does not care where they start can just hit Create.
+## Shows a card per home on offer and pre-selects one at random, marked as suggested, so a player who
+## does not care where they start can just go on.
 func _on_master_info_received(message: MasterSMSG) -> void:
-	_spawn_point_button.clear()
+	for card in _home_cards.get_children():
+		_home_cards.remove_child(card)
+		card.queue_free()
+	_selected_spawn_point_id = null
 
 	var candidates: Array = message.SpawnPoints
+	var suggested := randi() % candidates.size() if candidates.size() > 0 else -1
 	for i in candidates.size():
-		var candidate = candidates[i]
-		_spawn_point_button.add_item("%s (%s)" % [candidate.SettlementName, candidate.Tier], i)
-		_spawn_point_button.set_item_metadata(i, candidate.Id)
+		var card: HomeCard = HOME_CARD_SCENE.instantiate()
+		_home_cards.add_child(card)
+		card.show_candidate(candidates[i], i == suggested)
+		card.chosen.connect(_select_home)
+		if i == suggested:
+			_select_home(card)
 
-	if candidates.size() > 0:
-		_spawn_point_button.disabled = false
-		_spawn_point_button.select(randi() % candidates.size())
+	_home_loading.visible = candidates.is_empty()
+	_refresh_navigation()
 
+
+func _select_home(chosen: HomeCard) -> void:
+	for card in _home_cards.get_children():
+		card.set_selected(card == chosen)
+	_selected_spawn_point_id = chosen.spawn_point_id
 	_refresh_navigation()
 
 
@@ -299,7 +314,7 @@ func _is_step_complete(step: Step) -> bool:
 		Step.ATTRIBUTES:
 			return _remaining_effort_points() == 0
 		Step.HOME:
-			return _spawn_point_button.get_selected_metadata() != null
+			return _selected_spawn_point_id != null
 		Step.NAME:
 			return not _name_edit.text.strip_edges().is_empty()
 		_:
@@ -435,10 +450,10 @@ func _on_create_button_pressed() -> void:
 	var skin_color := _swatch_color(_selected_skin_swatch)
 	# A spawn point is mandatory server-side, so stop here instead of sending a request that can only
 	# come back as an error.
-	if _spawn_point_button.get_selected_metadata() == null:
+	if _selected_spawn_point_id == null:
 		_show_status("Please choose a starting location.", true)
 		return
-	var spawn_point_id := int(_spawn_point_button.get_selected_metadata())
+	var spawn_point_id := int(_selected_spawn_point_id)
 
 	var remaining := _remaining_effort_points()
 	if remaining != 0:
