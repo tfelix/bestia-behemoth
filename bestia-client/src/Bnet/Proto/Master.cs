@@ -42,9 +42,11 @@ namespace Bnet {
             "bG9yGAggASgLMgsuYm5ldC5Db2xvchIfCgpoYWlyX2NvbG9yGAkgASgLMgsu",
             "Ym5ldC5Db2xvchIhCgdiZXN0aWFzGAogAygLMhAuYm5ldC5CZXN0aWFJbmZv",
             "Eh0KBGhhaXIYCyABKA4yDy5ibmV0LkhhaXJzdHlsZRIMCgRzbG90GAwgASgN",
-            "KhgKCEJvZHlUeXBlEgwKCEJPRFlfTV8xEAAqEgoERmFjZRIKCgZGQUNFXzEQ",
-            "ACoXCglIYWlyc3R5bGUSCgoGSEFJUl8xEABCJAoVbmV0LmJlc3RpYS5ibmV0",
-            "LnByb3RvQgtNYXN0ZXJQcm90b2IGcHJvdG8z"));
+            "KhgKCEJvZHlUeXBlEgwKCEJPRFlfTV8xEAAqQgoERmFjZRIKCgZGQUNFXzEQ",
+            "ABIKCgZGQUNFXzIQARIKCgZGQUNFXzMQAhIKCgZGQUNFXzQQAxIKCgZGQUNF",
+            "XzUQBCpHCglIYWlyc3R5bGUSCgoGSEFJUl8xEAASCgoGSEFJUl8yEAESCgoG",
+            "SEFJUl8zEAISCgoGSEFJUl80EAMSCgoGSEFJUl81EARCJAoVbmV0LmJlc3Rp",
+            "YS5ibmV0LnByb3RvQgtNYXN0ZXJQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Bnet.Vec3Reflection.Descriptor, global::Bnet.BestiaInfoReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.BodyType), typeof(global::Bnet.Face), typeof(global::Bnet.Hairstyle), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -63,12 +65,26 @@ namespace Bnet {
     [pbr::OriginalName("BODY_M_1")] BodyM1 = 0,
   }
 
+  /// <summary>
+  /// Faces and hairstyles are parts of the client's master_head_parts.glb, in the same order.
+  /// </summary>
   public enum Face {
     [pbr::OriginalName("FACE_1")] _1 = 0,
+    [pbr::OriginalName("FACE_2")] _2 = 1,
+    [pbr::OriginalName("FACE_3")] _3 = 2,
+    [pbr::OriginalName("FACE_4")] _4 = 3,
+    [pbr::OriginalName("FACE_5")] _5 = 4,
   }
 
   public enum Hairstyle {
     [pbr::OriginalName("HAIR_1")] Hair1 = 0,
+    [pbr::OriginalName("HAIR_2")] Hair2 = 1,
+    [pbr::OriginalName("HAIR_3")] Hair3 = 2,
+    [pbr::OriginalName("HAIR_4")] Hair4 = 3,
+    /// <summary>
+    /// bald
+    /// </summary>
+    [pbr::OriginalName("HAIR_5")] Hair5 = 4,
   }
 
   #endregion

@@ -79,6 +79,10 @@ data class CreateMasterCMSG(
     private fun mapFace(face: MasterProto.Face): Face {
       return when (face) {
         MasterProto.Face.FACE_1 -> Face.FACE_1
+        MasterProto.Face.FACE_2 -> Face.FACE_2
+        MasterProto.Face.FACE_3 -> Face.FACE_3
+        MasterProto.Face.FACE_4 -> Face.FACE_4
+        MasterProto.Face.FACE_5 -> Face.FACE_5
         MasterProto.Face.UNRECOGNIZED -> throw GeneralMasterException("Unrecognized enum value in create master request")
       }
     }
@@ -86,6 +90,10 @@ data class CreateMasterCMSG(
     private fun mapHairstyle(hair: MasterProto.Hairstyle): Hairstyle {
       return when (hair) {
         MasterProto.Hairstyle.HAIR_1 -> Hairstyle.HAIR_1
+        MasterProto.Hairstyle.HAIR_2 -> Hairstyle.HAIR_2
+        MasterProto.Hairstyle.HAIR_3 -> Hairstyle.HAIR_3
+        MasterProto.Hairstyle.HAIR_4 -> Hairstyle.HAIR_4
+        MasterProto.Hairstyle.HAIR_5 -> Hairstyle.HAIR_5
         MasterProto.Hairstyle.UNRECOGNIZED -> throw GeneralMasterException("Unrecognized enum value in create master request")
       }
     }

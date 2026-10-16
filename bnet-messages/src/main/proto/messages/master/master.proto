@@ -13,12 +13,21 @@ enum BodyType {
   BODY_M_1 = 0;
 }
 
+// Faces and hairstyles are parts of the client's master_head_parts.glb, in the same order.
 enum Face {
   FACE_1 = 0;
+  FACE_2 = 1;
+  FACE_3 = 2;
+  FACE_4 = 3;
+  FACE_5 = 4;
 }
 
 enum Hairstyle {
   HAIR_1 = 0;
+  HAIR_2 = 1;
+  HAIR_3 = 2;
+  HAIR_4 = 3;
+  HAIR_5 = 4; // bald
 }
 
 message Color {
