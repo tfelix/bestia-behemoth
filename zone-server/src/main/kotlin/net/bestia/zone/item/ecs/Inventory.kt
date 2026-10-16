@@ -138,6 +138,21 @@ data class Inventory(
     return true
   }
 
+  /**
+   * Takes off this live bag what the database just removed: [amount] of a pile when [uniqueId] is 0, else one
+   * instance. Answers the amount that left, or null if it was not here.
+   */
+  fun mirrorRemoval(itemId: Long, amount: Int, uniqueId: Long): Int? {
+    if (uniqueId == 0L) {
+      return if (removeFromStack(itemId, amount)) amount else null
+    }
+
+    // An instance minted this session is still 0 in the live mirror, so it can only be found by template.
+    val mirrored = removeByUniqueId(uniqueId) || removeInstanceOf(itemId)
+
+    return if (mirrored) 1 else null
+  }
+
   // Remove items matching predicate
   fun removeItemsIf(predicate: (Item) -> Boolean): Boolean {
     val removed = items.removeIf(predicate)
