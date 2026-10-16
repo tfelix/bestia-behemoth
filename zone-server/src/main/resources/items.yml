@@ -850,9 +850,9 @@ items:
     defense: 3
     magic-defense: 3
     description: |
-      A plain quilted shirt, mended at one shoulder.
+      Barrel staves strapped over a quilted shirt with two belts and a fistful of nails.
 
-      It will turn a blow that was never going to land well anyway.
+      It creaks with every breath, and it will turn a blow that was never going to land well anyway.
 
   - id: 67
     item-db-name: novice_boots
