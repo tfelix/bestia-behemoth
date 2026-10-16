@@ -32,8 +32,8 @@ class MasterHomesTest {
   @Test
   fun `the masters of a fallen town move to the first home still on offer`() {
     every { availability.offered() } returns listOf(
-      Offer(7, "New Town", "village", Vec3L(1, 2, 3)),
-      Offer(8, "Far Town", "village", Vec3L(9, 9, 9)),
+      Offer(7, "New Town", "village", Vec3L(1, 2, 3), settlementIndex = 1, population = 100),
+      Offer(8, "Far Town", "village", Vec3L(9, 9, 9), settlementIndex = 2, population = 100),
     )
 
     fell.captured(FALLEN)

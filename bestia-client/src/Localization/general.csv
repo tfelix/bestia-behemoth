@@ -115,3 +115,28 @@ ITEM_STAT_RESIST_HOLY,{value}% holy resistance
 ITEM_STAT_RESIST_SHADOW,{value}% shadow resistance
 ITEM_STAT_RESIST_GHOST,{value}% ghost resistance
 ITEM_STAT_RESIST_UNDEAD,{value}% undead resistance
+HOME_FACT_FOUNDED,Founded in the year {year}.
+HOME_FACT_WALLED,Walled since the year {year}.
+HOME_FACT_SACKED_ONCE,Sacked once and rebuilt.
+HOME_FACT_SACKED_MANY,Sacked {times} times and rebuilt each time.
+BIOME_OCEAN,Ocean
+BIOME_LAKE,Lake
+BIOME_ICE_SHEET,Ice sheet
+BIOME_TUNDRA,Tundra
+BIOME_TAIGA,Taiga
+BIOME_COLD_DESERT,Cold desert
+BIOME_ALPINE,Alpine
+BIOME_TEMPERATE_FOREST,Temperate forest
+BIOME_TEMPERATE_RAINFOREST,Temperate rainforest
+BIOME_GRASSLAND,Grassland
+BIOME_DRYLAND,Dryland
+BIOME_DESERT,Desert
+BIOME_TROPICAL_SEASONAL_FOREST,Tropical seasonal forest
+BIOME_TROPICAL_RAINFOREST,Tropical rainforest
+BIOME_BOG,Bog
+BIOME_SWAMP,Swamp
+BIOME_RIPARIAN,Riverbank
+BIOME_BEACH,Beach
+BIOME_BADLANDS,Badlands
+BIOME_VOLCANIC_FIELD,Volcanic field
+BIOME_GEOTHERMAL_BASIN,Geothermal basin

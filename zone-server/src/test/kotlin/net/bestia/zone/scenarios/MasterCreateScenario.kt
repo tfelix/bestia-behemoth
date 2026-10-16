@@ -268,6 +268,9 @@ class MasterCreateScenario : BestiaNoSocketScenario(autoClientConnect = false) {
         response.spawnPoints.forEach { candidate ->
           assertTrue(candidate.settlementName.isNotBlank())
           assertTrue(candidate.tier.isNotBlank())
+          assertTrue(candidate.population > 0)
+          assertTrue(candidate.biomeToken.startsWith("BIOME_"), "biome token was '${candidate.biomeToken}'")
+          assertTrue(candidate.history.isNotEmpty(), "a home on offer has to have been founded")
         }
       }
     } finally {

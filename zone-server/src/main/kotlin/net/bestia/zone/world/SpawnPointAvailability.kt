@@ -25,7 +25,14 @@ class SpawnPointAvailability(
 ) : SafeGround {
 
   /** One home on offer. [id] is the spawn point row a client names when it picks this home. */
-  data class Offer(val id: Long, val settlementName: String, val tier: String, val position: Vec3L)
+  data class Offer(
+    val id: Long,
+    val settlementName: String,
+    val tier: String,
+    val position: Vec3L,
+    val settlementIndex: Int,
+    val population: Int,
+  )
 
   @Volatile
   private var points: List<MasterSpawnPoint> = emptyList()
@@ -106,7 +113,7 @@ class SpawnPointAvailability(
   }
 
   private fun offerOf(point: MasterSpawnPoint): Offer {
-    return Offer(point.id, point.settlementName, point.tier, point.position)
+    return Offer(point.id, point.settlementName, point.tier, point.position, point.settlementIndex, point.population)
   }
 
   private companion object {
