@@ -1,0 +1,76 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://Menu/CreateNewMaster/CharacterPreview/character_preview.gd" id="1_preview"]
+[ext_resource type="PackedScene" uid="uid://lv2fhhdrpcii" path="res://Game/Entity/Visual/MasterVisual/MasterVisual.tscn" id="2_visual"]
+[ext_resource type="LabelSettings" uid="uid://k7yxyg5xi86r" path="res://Menu/Shared/muted_text_label_settings.tres" id="3_muted"]
+
+[sub_resource type="Environment" id="Environment_stage"]
+ambient_light_source = 2
+ambient_light_color = Color(0.78, 0.8, 0.86, 1)
+ambient_light_energy = 0.6
+tonemap_mode = 2
+
+[sub_resource type="World3D" id="World3D_stage"]
+environment = SubResource("Environment_stage")
+
+[sub_resource type="StandardMaterial3D" id="Material_platform"]
+albedo_color = Color(0.16, 0.16, 0.155, 1)
+roughness = 0.9
+
+[sub_resource type="CylinderMesh" id="Mesh_platform"]
+material = SubResource("Material_platform")
+top_radius = 0.75
+bottom_radius = 0.82
+height = 0.12
+radial_segments = 48
+
+[node name="CharacterPreview" type="VBoxContainer"]
+theme_override_constants/separation = 4
+script = ExtResource("1_preview")
+
+[node name="ViewportContainer" type="SubViewportContainer" parent="."]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(560, 600)
+layout_mode = 2
+size_flags_vertical = 3
+mouse_default_cursor_shape = 13
+stretch = true
+
+[node name="Viewport" type="SubViewport" parent="ViewportContainer"]
+own_world_3d = true
+world_3d = SubResource("World3D_stage")
+transparent_bg = true
+handle_input_locally = false
+msaa_3d = 2
+size = Vector2i(560, 600)
+render_target_update_mode = 4
+
+[node name="Camera" type="Camera3D" parent="ViewportContainer/Viewport"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 3.4)
+fov = 35.0
+
+[node name="KeyLight" type="DirectionalLight3D" parent="ViewportContainer/Viewport"]
+rotation_degrees = Vector3(-40, -30, 0)
+light_energy = 1.2
+shadow_enabled = true
+
+[node name="RimLight" type="DirectionalLight3D" parent="ViewportContainer/Viewport"]
+rotation_degrees = Vector3(-25, 150, 0)
+light_color = Color(0.8, 0.88, 1, 1)
+light_energy = 1.4
+
+[node name="Platform" type="MeshInstance3D" parent="ViewportContainer/Viewport"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.06, 0)
+mesh = SubResource("Mesh_platform")
+
+[node name="Turntable" type="Node3D" parent="ViewportContainer/Viewport"]
+unique_name_in_owner = true
+
+[node name="MasterVisual" parent="ViewportContainer/Viewport/Turntable" instance=ExtResource("2_visual")]
+unique_name_in_owner = true
+
+[node name="DragHint" type="Label" parent="."]
+layout_mode = 2
+text = "Drag to turn"
+label_settings = ExtResource("3_muted")
+horizontal_alignment = 1
