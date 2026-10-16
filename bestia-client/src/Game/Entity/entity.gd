@@ -63,8 +63,10 @@ var _health: ConditionPool = null
 var _mana: ConditionPool = null
 var _stamina: ConditionPool = null
 
-# The last health push, replayed into a visual that was built after it arrived - see _seed_visual.
+# The last health and worn gear pushes, replayed into a visual that was built after they arrived - see
+# _seed_visual.
 var _last_health_msg: HealthComponentSMSG = null
+var _last_worn_gear_msg: WornGearComponentSMSG = null
 
 # True while lying dead awaiting respawn (player bodies only; mobs vanish). Gates the walk/idle pose.
 var _is_dead: bool = false
@@ -579,6 +581,8 @@ func _release_visual() -> void:
 func _seed_visual(visual: Node) -> void:
 	if _last_health_msg != null and visual.has_method("update_health"):
 		visual.update_health(_last_health_msg)
+	if _last_worn_gear_msg != null and visual.has_method("update_worn_gear"):
+		visual.update_worn_gear(_last_worn_gear_msg)
 
 
 func set_selected(is_selected: bool) -> void:
@@ -1027,6 +1031,13 @@ func update_equipment(msg: EquipmentComponentSMSG) -> void:
 
 func get_equipment() -> Dictionary:
 	return _equipment
+
+
+func update_worn_gear(msg: WornGearComponentSMSG) -> void:
+	_last_worn_gear_msg = msg
+	var visual = _get_visual_for_method("update_worn_gear")
+	if visual != null:
+		visual.update_worn_gear(msg)
 
 
 func update_status_values(msg: StatusValuesComponentSMSG) -> void:

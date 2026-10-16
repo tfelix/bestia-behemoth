@@ -4,7 +4,9 @@
 
 Writes bestia-client/src/Game/Master/Parts/master_parts.glb: the pack's rig, which matches the client's Mage rig
 bone for bone, with one skinned mesh per part:
-- Head (the bald base), Face_1..Face_10 (6 to 10 are feminine) and Hair_1..Hair_4 (bald has no Hair part)
+- Head (the bald base), Face_1..Face_10 (6 to 10 are feminine) with FacialHair_<n> where a face has a beard,
+  and Hair_1..Hair_4 (bald has no Hair part)
+- worn gear, named Gear_<Item>, such as Gear_IronHelmet
 - the base body in underwear: Body, ArmLeft, ArmRight, LegLeft, LegRight, and the same with _F for the female
 """
 import math
@@ -24,6 +26,12 @@ RIG_SOURCE = Path("Animations") / "gltf" / "Rig_Medium" / "Rig_Medium_General.gl
 # Proto enum order: FACE_1 is index 0 and so on. Appending keeps stored masters on their part.
 FACE_SOURCES = ["Knight", "Mage", "Ranger", "Barbarian", "Rogue"]
 HAIR_SOURCES = ["Knight", "Ranger", "Mage", "Rogue"]
+
+# Worn gear: part name -> (character, the character's meshes that make it up). An item's client resource
+# names the part it shows when worn.
+GEAR_SOURCES = {
+    "Gear_IronHelmet": ("Knight", ["Knight_Helmet", "Knight_HelmetVisor"]),
+}
 
 # Mage and Rogue share this face shell, and the other hairstyles were modelled around a near copy of it.
 SLIM_FACE_SOURCE = "Mage"
@@ -82,6 +90,22 @@ def load_head_parts(pack: Path, character: str):
         part["kind"] = part_kind(part, texture)
         part["texture"] = texture.name
     return parts
+
+
+def load_gear(pack: Path, character: str, mesh_names):
+    """Imports a character and returns copies of the named meshes, which keep their own colours."""
+    before = set(bpy.data.objects)
+    bpy.ops.import_scene.gltf(filepath=str(pack / "Characters" / "gltf" / f"{character}.glb"))
+    imported = {o.name: o for o in set(bpy.data.objects) - before}
+    pieces = []
+    for name in mesh_names:
+        piece = duplicate(imported[name])
+        piece["texture"] = source_texture(imported[name]).name
+        piece["kind"] = "gear"
+        pieces.append(piece)
+    for obj in imported.values():
+        bpy.data.objects.remove(obj)
+    return pieces
 
 
 def source_texture(obj):
@@ -674,7 +698,7 @@ def neutralised(gradient):
 def face_role(part_kind_, cell_colour, hair_colour):
     if part_kind_ in ("skull", "ear", "nose_mouth", "skin_other"):
         return SKIN
-    if part_kind_ == "eye":
+    if part_kind_ in ("eye", "gear"):
         return FIXED
     # Hair can carry trinkets, such as the Rogue's earring. They keep their own colour.
     distance = math.dist(cell_colour, hair_colour)
@@ -751,11 +775,16 @@ def main(pack: Path):
     skull = prepared(build_bald_skull(closed_skull, slim_face), SLIM_FACE_SOURCE)
     head_parts = [join(skull + parts_of(SLIM_FACE_SOURCE, "ear"), "Head")]
     for number, character in enumerate(FACE_SOURCES, start=1):
-        head_parts.append(join(parts_of(character, "eye", "brow", "nose_mouth", "facial_hair"), f"Face_{number}"))
+        head_parts.append(join(parts_of(character, "eye", "brow", "nose_mouth"), f"Face_{number}"))
+        # Its own part, so a helmet can hide it together with the hair.
+        if of_kind(heads[character], "facial_hair"):
+            head_parts.append(join(parts_of(character, "facial_hair"), f"FacialHair_{number}"))
     for number, recipe in enumerate(FEMININE_FACES, start=len(FACE_SOURCES) + 1):
         head_parts.append(join(feminine_face(recipe, parts_of, slim_face, atlas, materials), f"Face_{number}"))
     for number, character in enumerate(HAIR_SOURCES, start=1):
         head_parts.append(join(parts_of(character, "hair"), f"Hair_{number}"))
+    for part_name, (character, mesh_names) in GEAR_SOURCES.items():
+        head_parts.append(join(prepared(load_gear(pack, character, mesh_names), character), part_name))
 
     all_body_parts = BODY_PARTS + [part.feminine() for part in BODY_PARTS]
     body_parts = [build_body_part(part, mannequin) for part in all_body_parts]

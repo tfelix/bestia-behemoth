@@ -40,6 +40,12 @@ const MISSING_VISUAL: PackedScene = preload("res://Game/Entity/Visual/ItemVisual
 ## "not armor", which anyone with the slot may wear. Kept in sync with items.yml by './gradlew syncItemDb'.
 @export var armor_type: int = 0
 
+## The part of master_parts.glb a master shows while wearing this item; empty for gear not drawn yet.
+@export var worn_part: String = ""
+
+## Whether wearing this item hides the hair, so a full helmet cannot clip through it.
+@export var hides_hair: bool = false
+
 ## Cache for instantiated ItemUse objects. Key: GDScript path, Value: ItemUse instance
 static var _script_instance_cache: Dictionary = {}
 

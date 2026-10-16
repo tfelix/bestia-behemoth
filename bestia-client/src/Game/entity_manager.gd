@@ -290,6 +290,8 @@ func _on_entity_message_received(msg: EntitySMSG) -> void:
 		entity.update_skill_points(msg)
 	elif msg is EquipmentComponentSMSG:
 		entity.update_equipment(msg)
+	elif msg is WornGearComponentSMSG:
+		entity.update_worn_gear(msg)
 	elif msg is StatusValuesComponentSMSG:
 		entity.update_status_values(msg)
 	elif msg is BaseStatusValuesComponentSMSG:

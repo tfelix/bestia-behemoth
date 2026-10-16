@@ -14,6 +14,7 @@ var _selected: bool = false
 @onready var _skeleton: Skeleton3D = $Mage/Rig/Skeleton3D
 
 var _look: MasterVisualComponentSMSG = null
+var _worn_gear: WornGearComponentSMSG = null
 var _parts: MasterParts = null
 
 
@@ -42,6 +43,28 @@ func _apply_look() -> void:
 		_parts = MasterParts.new()
 		_skeleton.add_child(_parts)
 	_parts.show_look(_look.Body, _look.Face, _look.Hair, _look.HairColor, _look.SkinColor)
+	_apply_worn_gear()
+
+
+func update_worn_gear(msg: WornGearComponentSMSG) -> void:
+	_worn_gear = msg
+	_apply_worn_gear()
+
+
+## Gear whose item names no part is not drawn yet, but it can still hide the hair.
+func _apply_worn_gear() -> void:
+	if _worn_gear == null or _parts == null:
+		return
+	var parts: Array[String] = []
+	var hide_hair := false
+	for item_id in _worn_gear.ItemIds:
+		var item := ItemDB.get_instance().get_item(item_id)
+		if item == null:
+			continue
+		if item.worn_part != "":
+			parts.append(item.worn_part)
+		hide_hair = hide_hair or item.hides_hair
+	_parts.wear(parts, hide_hair)
 
 
 func _apply_name_tag() -> void:

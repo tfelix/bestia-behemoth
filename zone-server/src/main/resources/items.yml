@@ -884,3 +884,20 @@ items:
       A cage of bent willow with a mana-dusted trigger plate.
 
       Reliable against young Bestia, and hopeless against anything grown.
+
+  # --- Headgear -------------------------------------------------------------------------------------
+  - id: 69
+    item-db-name: iron_helmet
+    base-level: 15
+    weight: 250
+    type: EQUIP
+    material: METAL
+    equip-slot: HEAD_UPPER
+    armor-type: MEDIUM
+    max-durability: 200
+    defense: 5
+    magic-defense: 1
+    description: |
+      An iron cap riveted to a mail hood that hangs down to the shoulders.
+
+      It hides the hair, which is the least of what it is for.
