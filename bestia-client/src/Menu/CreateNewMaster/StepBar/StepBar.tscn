@@ -1,0 +1,8 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://Menu/CreateNewMaster/StepBar/step_bar.gd" id="1_stepbar"]
+
+[node name="StepBar" type="HBoxContainer"]
+theme_override_constants/separation = 10
+alignment = 1
+script = ExtResource("1_stepbar")

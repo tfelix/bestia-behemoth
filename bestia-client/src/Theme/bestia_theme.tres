@@ -11,6 +11,78 @@ base_font = ExtResource("1_font")
 variation_embolden = 1.2
 variation_transform = Transform2D(1, 0.2, 0, 1, 0, 0)
 
+[sub_resource type="StyleBoxFlat" id="StyleBox_menu_panel"]
+content_margin_left = 20.0
+content_margin_top = 18.0
+content_margin_right = 20.0
+content_margin_bottom = 18.0
+bg_color = Color(0.17, 0.17, 0.165, 0.94)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_primary_normal"]
+content_margin_left = 18.0
+content_margin_top = 8.0
+content_margin_right = 18.0
+content_margin_bottom = 8.0
+bg_color = Color(0.365, 0.792, 0.647, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_primary_hover"]
+content_margin_left = 18.0
+content_margin_top = 8.0
+content_margin_right = 18.0
+content_margin_bottom = 8.0
+bg_color = Color(0.624, 0.882, 0.796, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_primary_pressed"]
+content_margin_left = 18.0
+content_margin_top = 8.0
+content_margin_right = 18.0
+content_margin_bottom = 8.0
+bg_color = Color(0.114, 0.62, 0.459, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_primary_disabled"]
+content_margin_left = 18.0
+content_margin_top = 8.0
+content_margin_right = 18.0
+content_margin_bottom = 8.0
+bg_color = Color(0.365, 0.792, 0.647, 0.3)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxEmpty" id="StyleBox_primary_focus"]
+
 [resource]
+MenuPanel/base_type = &"PanelContainer"
+MenuPanel/styles/panel = SubResource("StyleBox_menu_panel")
+PageTitle/base_type = &"Label"
+PageTitle/font_sizes/font_size = 22
+PrimaryButton/base_type = &"Button"
+PrimaryButton/colors/font_color = Color(0.016, 0.204, 0.173, 1)
+PrimaryButton/colors/font_disabled_color = Color(0.016, 0.204, 0.173, 0.6)
+PrimaryButton/colors/font_focus_color = Color(0.016, 0.204, 0.173, 1)
+PrimaryButton/colors/font_hover_color = Color(0.016, 0.204, 0.173, 1)
+PrimaryButton/colors/font_pressed_color = Color(0.016, 0.204, 0.173, 1)
+PrimaryButton/styles/disabled = SubResource("StyleBox_primary_disabled")
+PrimaryButton/styles/focus = SubResource("StyleBox_primary_focus")
+PrimaryButton/styles/hover = SubResource("StyleBox_primary_hover")
+PrimaryButton/styles/normal = SubResource("StyleBox_primary_normal")
+PrimaryButton/styles/pressed = SubResource("StyleBox_primary_pressed")
 RichTextLabel/fonts/bold_font = SubResource("FontVariation_bold")
 RichTextLabel/fonts/bold_italics_font = SubResource("FontVariation_bold_italics")
