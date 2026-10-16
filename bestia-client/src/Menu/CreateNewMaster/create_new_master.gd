@@ -67,6 +67,7 @@ const GENDER_BODIES := {
 @onready var _back_button: Button = %BackButton
 @onready var _next_button: Button = %NextButton
 @onready var _create_button: Button = %CreateButton
+@onready var _status_box: PanelContainer = %StatusBox
 @onready var _status_label: Label = %StatusLabel
 
 @onready var _effort_rows: Array = _collect_effort_rows()
@@ -381,8 +382,11 @@ func _goto_master_selection() -> void:
 
 
 func _show_status(text: String, is_error: bool) -> void:
+	var alert := "DangerAlert" if is_error else "InfoAlert"
+	_status_box.theme_type_variation = alert
+	_status_label.theme_type_variation = alert + "Label"
 	_status_label.text = text
-	_status_label.modulate = Color(1, 0.5, 0.5) if is_error else Color(1, 1, 1)
+	_status_box.visible = true
 
 
 ## Creates a reusable selection outline shown on the currently selected color swatch.

@@ -450,9 +450,16 @@ text = "Up to 20 letters, numbers, spaces and basic punctuation."
 label_settings = ExtResource("5_muted")
 autowrap_mode = 3
 
-[node name="StatusLabel" type="Label" parent="Margin/Layout/Body/StepPanel/Content"]
+[node name="StatusBox" type="PanelContainer" parent="Margin/Layout/Body/StepPanel/Content"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_type_variation = &"DangerAlert"
+
+[node name="StatusLabel" type="Label" parent="Margin/Layout/Body/StepPanel/Content/StatusBox"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_type_variation = &"DangerAlertLabel"
 autowrap_mode = 3
 
 [node name="Footer" type="HBoxContainer" parent="Margin/Layout/Body/StepPanel/Content"]
