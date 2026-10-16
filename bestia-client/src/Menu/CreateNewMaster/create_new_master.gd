@@ -6,6 +6,8 @@ extends Control
 ## the ConnectionManager operation signals.
 
 const MASTER_SELECT_SCENE := "res://Menu/MasterSelect/MasterSelect.tscn"
+const DANGER_ICON := preload("res://Theme/Icons/alert-triangle.svg")
+const INFO_ICON := preload("res://Theme/Icons/info-circle.svg")
 
 enum Step { LOOK, ATTRIBUTES, HOME, NAME }
 
@@ -68,6 +70,7 @@ const GENDER_BODIES := {
 @onready var _next_button: Button = %NextButton
 @onready var _create_button: Button = %CreateButton
 @onready var _status_box: PanelContainer = %StatusBox
+@onready var _status_icon: TextureRect = %StatusIcon
 @onready var _status_label: Label = %StatusLabel
 
 @onready var _effort_rows: Array = _collect_effort_rows()
@@ -386,6 +389,8 @@ func _show_status(text: String, is_error: bool) -> void:
 	_status_box.theme_type_variation = alert
 	_status_label.theme_type_variation = alert + "Label"
 	_status_label.text = text
+	_status_icon.texture = DANGER_ICON if is_error else INFO_ICON
+	_status_icon.modulate = _status_label.get_theme_color("font_color")
 	_status_box.visible = true
 
 
