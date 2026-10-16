@@ -11,12 +11,15 @@ var _selected: bool = false
 @onready var _anim_player: AnimationPlayer = $Mage/AnimationPlayer
 @onready var _cast_bar: CastBar = $CastBar
 @onready var _name_tag = $NameTag
+@onready var _skeleton: Skeleton3D = $Mage/Rig/Skeleton3D
+
+var _look: MasterVisualComponentSMSG = null
+var _parts: MasterParts = null
 
 
 ## Only BodyType.BODY_M_1 (0) exists today, so this always resolves to the static $Mage
 ## child - the match is structured so a future body can be added as its own branch without
-## touching the dispatch here. Skin/hair color application (msg.SkinColor/msg.HairColor) is
-## deferred until there's more than one body to apply them to.
+## touching the dispatch here.
 func setup_visual(msg: MasterVisualComponentSMSG) -> void:
 	_master_entity_id = msg.EntityId
 	_master_name = msg.Name
@@ -30,15 +33,27 @@ func setup_visual(msg: MasterVisualComponentSMSG) -> void:
 			_apply_mage_body(msg)
 
 
-func _apply_mage_body(_msg: MasterVisualComponentSMSG) -> void:
-	pass
+func _apply_mage_body(msg: MasterVisualComponentSMSG) -> void:
+	_look = msg
+	_apply_look()
 
 
 ## [Entity] calls setup_visual on a freshly instantiated visual, before it is added to the tree - so
-## the @onready children are still null there. The name is kept and written again from here, which is
-## the first moment $NameTag exists.
+## the @onready children are still null there. The name and look are kept and applied again from here,
+## the first moment their nodes exist.
 func _ready() -> void:
 	_apply_name_tag()
+	_apply_look()
+
+
+## The Mage's own head and hat are hidden in the scene; these parts replace them.
+func _apply_look() -> void:
+	if _look == null or _skeleton == null:
+		return
+	if _parts == null:
+		_parts = MasterParts.new()
+		_skeleton.add_child(_parts)
+	_parts.show_look(_look.Face, _look.Hair, _look.HairColor, _look.SkinColor)
 
 
 func _apply_name_tag() -> void:

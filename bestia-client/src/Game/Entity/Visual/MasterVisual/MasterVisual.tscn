@@ -84,8 +84,14 @@ transform = Transform3D(1.8916204e-07, -1.4901163e-07, -0.99999934, -0.21767856,
 [node name="head" parent="Mage/Rig/Skeleton3D" index="2"]
 transform = Transform3D(1, 7.450581e-09, 1.9817037e-11, -1.6283107e-17, 1, -4.5362825e-10, -1.9818813e-11, 4.5362852e-10, 1, 0.032682363, 1.1946466, -6.9788134e-11)
 
+[node name="Mage_Hat" parent="Mage/Rig/Skeleton3D/head" index="0"]
+visible = false
+
 [node name="chest" parent="Mage/Rig/Skeleton3D" index="3"]
 transform = Transform3D(1, 7.450581e-09, 1.9817037e-11, -1.6283107e-17, 1, -4.5362825e-10, -1.9818813e-11, 4.5362852e-10, 1, 0.03268236, 0.92585003, -1.9172192e-10)
+
+[node name="Mage_Head" parent="Mage/Rig/Skeleton3D" index="7"]
+visible = false
 
 [node name="AnimationPlayer" parent="Mage" index="1"]
 autoplay = &"Idle"
