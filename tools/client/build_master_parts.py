@@ -6,7 +6,7 @@ Writes bestia-client/src/Game/Master/Parts/master_parts.glb: the pack's rig, whi
 bone for bone, with one skinned mesh per part:
 - Head (the bald base), Face_1..Face_10 (6 to 10 are feminine) with FacialHair_<n> where a face has a beard,
   and Hair_1..Hair_4 (bald has no Hair part)
-- worn gear, named Gear_<Item>, such as Gear_IronHelmet and Gear_IronSword
+- worn gear, named Gear_<Item>, such as Gear_IronHelmet and Gear_IronSword; Gear_NoviceArmor has a _F twin
 - the base body in underwear: Body, ArmLeft, ArmRight, LegLeft, LegRight, and the same with _F for the female
 """
 import json
@@ -533,19 +533,31 @@ def loft(part, sections, axis, first, second):
 
 
 def section_ring(bm, part, section, axis, first, second):
-    """A rounded rectangle (superellipse) through the section's four extents."""
+    return [bm.verts.new(section_point(section, 2 * math.pi * side / part.sides, part.roundness, axis, first, second))
+            for side in range(part.sides)]
+
+
+def section_point(section, angle, roundness, axis, first, second, grow=0.0):
+    """A point on the rounded rectangle (superellipse) through the section's four extents, [grow] further out.
+    The angle runs from the first axis towards the second."""
     level, first_min, first_max, second_min, second_max = section
+    first_min, second_min, first_max, second_max = first_min - grow, second_min - grow, first_max + grow, second_max + grow
     first_mid, second_mid = (first_min + first_max) / 2, (second_min + second_max) / 2
-    ring = []
-    for side in range(part.sides):
-        angle = 2 * math.pi * side / part.sides
-        c, s = math.cos(angle), math.sin(angle)
-        co = Vector((0, 0, 0))
-        co[axis] = level
-        co[first] = first_mid + math.copysign(abs(c) ** (2 / part.roundness), c) * ((first_max - first_mid) if c > 0 else (first_mid - first_min))
-        co[second] = second_mid + math.copysign(abs(s) ** (2 / part.roundness), s) * ((second_max - second_mid) if s > 0 else (second_mid - second_min))
-        ring.append(bm.verts.new(co))
-    return ring
+    c, s = math.cos(angle), math.sin(angle)
+    co = Vector((0, 0, 0))
+    co[axis] = level
+    co[first] = first_mid + math.copysign(abs(c) ** (2 / roundness), c) * ((first_max - first_mid) if c > 0 else (first_mid - first_min))
+    co[second] = second_mid + math.copysign(abs(s) ** (2 / roundness), s) * ((second_max - second_mid) if s > 0 else (second_mid - second_min))
+    return co
+
+
+def section_at(sections, level):
+    """The section at any height, interpolated between the two lofted ones around it."""
+    for below, above in zip(sections, sections[1:]):
+        if below[0] <= level <= above[0]:
+            t = (level - below[0]) / (above[0] - below[0])
+            return [b + (a - b) * t for b, a in zip(below, above)]
+    return list(sections[0] if level < sections[0][0] else sections[-1])
 
 
 def bridge(bm, lower, upper):
@@ -575,8 +587,9 @@ def dome(bm, ring, axis, depth, steps=3):
 
 
 def build_body_part(part, sources):
+    """The lofted part, and the sections it was lofted through, for gear that has to fit it."""
     sections, axis, first, second = cross_sections(watertight(sources[part.source]), part)
-    return loft(part, sections, axis, first, second)
+    return loft(part, sections, axis, first, second), sections
 
 
 def underwear_region(part_name, centre):
@@ -607,6 +620,132 @@ def paint_body_part(obj, atlas, materials):
         for loop, vertex in zip(polygon.loop_indices, polygon.vertices):
             shade = 0.3 + 0.65 * (obj.data.vertices[vertex].co.z - bottom) / max(top - bottom, 1e-6)
             uv_layer[loop].uv = (atlas_index, shade)
+
+
+# --- novice armor ----------------------------------------------------------------------------------------
+
+
+# Improvised armor: barrel staves strapped to the torso with two leather bands, nailed where they cross.
+STAVE_ARMOR = "Gear_NoviceArmor"
+# Front and back arcs, leaving the sides open for the arms. The angle runs from +x towards +y; the front is -y.
+STAVE_ARCS = [(math.radians(208), math.radians(332)), (math.radians(28), math.radians(152))]
+# Odd, so one stave covers the centre line.
+STAVES_PER_ARC = 7
+STAVE_GAP = 0.12  # of each stave's share of the arc
+STAVE_BOTTOM, STAVE_TOP = 0.69, 1.12
+STAVE_STANDOFF, STAVE_THICKNESS = 0.012, 0.03
+BAND_LEVELS = [0.79, 1.0]
+BAND_HEIGHT, BAND_THICKNESS = 0.04, 0.012
+NAIL_SIZE = 0.011
+WOOD_GRADIENTS = [
+    ((0.74, 0.54, 0.33), (0.56, 0.39, 0.23)),
+    ((0.66, 0.46, 0.28), (0.48, 0.32, 0.19)),
+    ((0.8, 0.62, 0.4), (0.62, 0.45, 0.28)),
+]
+LEATHER_GRADIENT = ((0.38, 0.25, 0.16), (0.26, 0.17, 0.11))
+NAIL_GRADIENT = ((0.62, 0.62, 0.64), (0.4, 0.4, 0.43))
+# The same "random" staves every build, and on both bodies.
+STAVE_SEED = 7
+
+
+def build_stave_armor(sections, roundness, atlas, materials):
+    import random
+    rng = random.Random(STAVE_SEED)
+    bm = bmesh.new()
+    uv = bm.loops.layers.uv.new("UVMap")
+
+    def cell(name, gradient):
+        return atlas.synthetic(name, gradient)
+
+    middle_section = section_at(sections, (STAVE_BOTTOM + STAVE_TOP) / 2)
+    for first_angle, last_angle in STAVE_ARCS:
+        bounds = equal_width_angles(middle_section, roundness, first_angle, last_angle, STAVES_PER_ARC)
+        for stave in range(STAVES_PER_ARC):
+            share = bounds[stave + 1] - bounds[stave]
+            start = bounds[stave] + share * STAVE_GAP / 2
+            end = bounds[stave + 1] - share * STAVE_GAP / 2
+            # Sawn by hand: each stave a little longer or shorter, its top cut a little askew, and leaning.
+            bottom = STAVE_BOTTOM + rng.uniform(-0.02, 0.015)
+            top_left, top_right = (STAVE_TOP + rng.uniform(-0.03, 0.02) for _ in range(2))
+            lean = rng.uniform(-0.04, 0.04)
+            wood = rng.randrange(len(WOOD_GRADIENTS))
+            shell_patch(bm, uv, sections, roundness, start, end, lambda u, v: (bottom + (top_left + (top_right - top_left) * u - bottom) * v),
+                        STAVE_STANDOFF, STAVE_STANDOFF + STAVE_THICKNESS, cell(f"wood_{wood}", WOOD_GRADIENTS[wood]),
+                        columns=2, rows=6, lean=lean)
+
+            for band in BAND_LEVELS:
+                middle = (start + end) / 2 + lean * (band - STAVE_BOTTOM) / (STAVE_TOP - STAVE_BOTTOM)
+                nail_reach = NAIL_SIZE / 0.3  # an angle, roughly the nail's width on the torso
+                shell_patch(bm, uv, sections, roundness, middle - nail_reach / 2, middle + nail_reach / 2,
+                            lambda u, v, band=band: band - NAIL_SIZE / 2 + NAIL_SIZE * v,
+                            STAVE_STANDOFF + STAVE_THICKNESS + BAND_THICKNESS,
+                            STAVE_STANDOFF + STAVE_THICKNESS + BAND_THICKNESS + 0.006,
+                            cell("nail", NAIL_GRADIENT), columns=1, rows=1)
+
+    for band in BAND_LEVELS:
+        shell_patch(bm, uv, sections, roundness, 0.0, 2 * math.pi, lambda u, v, band=band: band - BAND_HEIGHT / 2 + BAND_HEIGHT * v,
+                    STAVE_STANDOFF + STAVE_THICKNESS, STAVE_STANDOFF + STAVE_THICKNESS + BAND_THICKNESS,
+                    cell("leather", LEATHER_GRADIENT), columns=32, rows=1)
+
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    mesh = bpy.data.meshes.new(STAVE_ARMOR)
+    bm.to_mesh(mesh)
+    bm.free()
+    armor = bpy.data.objects.new(STAVE_ARMOR, mesh)
+    bpy.context.collection.objects.link(armor)
+    armor.data.materials.append(materials[FIXED])
+    return armor
+
+
+def equal_width_angles(section, roundness, first_angle, last_angle, count, samples=400):
+    """Angles that cut the arc into [count] pieces of equal width around the torso. Equal angles would not:
+    the rounded section stretches the angles near the front and back into much wider pieces."""
+    angles = [first_angle + (last_angle - first_angle) * i / samples for i in range(samples + 1)]
+    points = [section_point(section, a, roundness, 2, 0, 1) for a in angles]
+    lengths = [0.0]
+    for before, after in zip(points, points[1:]):
+        lengths.append(lengths[-1] + (after - before).length)
+    bounds, i = [], 0
+    for piece in range(count + 1):
+        wanted = lengths[-1] * piece / count
+        while i < samples and lengths[i + 1] < wanted:
+            i += 1
+        bounds.append(angles[min(i + 1, samples)] if piece else first_angle)
+    bounds[-1] = last_angle
+    return bounds
+
+
+def shell_patch(bm, uv, sections, roundness, start_angle, end_angle, height, inner, outer, atlas_cell,
+                columns, rows, lean=0.0):
+    """A slab that follows the torso: between [inner] and [outer] off its surface, over an arc of angles and
+    the heights height(u, v) gives for u across and v up the slab, both 0..1. [lean] turns it as it rises."""
+    def point(u, v, grow):
+        level = height(u, v)
+        angle = start_angle + (end_angle - start_angle) * u + lean * v
+        return section_point(section_at(sections, level), angle, roundness, 2, 0, 1, grow)
+
+    def grid(grow):
+        return [[bm.verts.new(point(c / columns, r / rows, grow)) for c in range(columns + 1)] for r in range(rows + 1)]
+
+    def face(corners, shades):
+        f = bm.faces.new(corners)
+        f.smooth = False
+        for loop, shade in zip(f.loops, shades):
+            loop[uv].uv = (atlas_cell, 0.15 + 0.8 * shade)
+
+    outside, inside = grid(outer), grid(inner)
+    for r in range(rows):
+        for c in range(columns):
+            shades = [r / rows, r / rows, (r + 1) / rows, (r + 1) / rows]
+            face([outside[r][c], outside[r][c + 1], outside[r + 1][c + 1], outside[r + 1][c]], shades)
+            face([inside[r][c + 1], inside[r][c], inside[r + 1][c], inside[r + 1][c + 1]], shades)
+    rim = ([outside[0][c] for c in range(columns + 1)] + [outside[r][columns] for r in range(1, rows + 1)]
+           + [outside[rows][c] for c in range(columns - 1, -1, -1)] + [outside[r][0] for r in range(rows - 1, 0, -1)])
+    rim_inside = ([inside[0][c] for c in range(columns + 1)] + [inside[r][columns] for r in range(1, rows + 1)]
+                  + [inside[rows][c] for c in range(columns - 1, -1, -1)] + [inside[r][0] for r in range(rows - 1, 0, -1)])
+    for i in range(len(rim)):
+        j = (i + 1) % len(rim)
+        face([rim[j], rim[i], rim_inside[i], rim_inside[j]], [0.5] * 4)
 
 
 # --- skinning --------------------------------------------------------------------------------------------
@@ -840,9 +979,18 @@ def main(pack: Path):
         gear_parts[join(pieces, part_name)] = source.bone
 
     all_body_parts = BODY_PARTS + [part.feminine() for part in BODY_PARTS]
-    body_parts = [build_body_part(part, mannequin) for part in all_body_parts]
+    built = [build_body_part(part, mannequin) for part in all_body_parts]
+    body_parts = [obj for obj, _ in built]
     for obj in body_parts:
         paint_body_part(obj, atlas, materials)
+
+    # Body armor is made per body, so it fits the female body's waist and bust too.
+    armor_parts = {}
+    for (torso, sections), part in zip(built, all_body_parts):
+        if part.name.startswith("Body"):
+            armor = build_stave_armor(sections, part.roundness, atlas, materials)
+            armor.name = armor.data.name = STAVE_ARMOR + part.name.removeprefix("Body")
+            armor_parts[armor] = torso
 
     for obj in head_parts:
         rig_to_bone(obj, rig)
@@ -850,13 +998,15 @@ def main(pack: Path):
         rig_to_bone(obj, rig, bone)
     for obj, part in zip(body_parts, all_body_parts):
         rig_like(obj, mannequin[part.source], rig)
+    for armor, torso in armor_parts.items():
+        rig_like(armor, torso, rig)
 
-    kept = set(head_parts + list(gear_parts) + body_parts + [rig])
+    kept = set(head_parts + list(gear_parts) + body_parts + list(armor_parts) + [rig])
     for obj in list(bpy.data.objects):
         if obj not in kept:
             bpy.data.objects.remove(obj)
 
-    atlas.finish_uvs(head_parts + list(gear_parts) + body_parts)
+    atlas.finish_uvs(head_parts + list(gear_parts) + body_parts + list(armor_parts))
     baked = atlas.bake("master_parts")
     for material in materials.values():
         material.node_tree.nodes["Image Texture"].image = baked
