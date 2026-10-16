@@ -72,6 +72,7 @@ data class CreateMasterCMSG(
     private fun mapBodyType(body: MasterProto.BodyType): BodyType {
       return when (body) {
         MasterProto.BodyType.BODY_M_1 -> BodyType.BODY_M_1
+        MasterProto.BodyType.BODY_F_1 -> BodyType.BODY_F_1
         MasterProto.BodyType.UNRECOGNIZED -> throw GeneralMasterException("Unrecognized enum value in create master request")
       }
     }

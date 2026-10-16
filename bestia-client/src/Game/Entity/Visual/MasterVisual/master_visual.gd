@@ -17,24 +17,12 @@ var _look: MasterVisualComponentSMSG = null
 var _parts: MasterParts = null
 
 
-## Only BodyType.BODY_M_1 (0) exists today, so this always resolves to the static $Mage
-## child - the match is structured so a future body can be added as its own branch without
-## touching the dispatch here.
+## Every body type is a set of parts on the Mage's rig, so the Mage's skeleton and animations serve all.
 func setup_visual(msg: MasterVisualComponentSMSG) -> void:
 	_master_entity_id = msg.EntityId
 	_master_name = msg.Name
-	_apply_name_tag()
-
-	match msg.Body:
-		0: # BodyType.BODY_M_1
-			_apply_mage_body(msg)
-		_:
-			printerr("MasterVisual: unhandled BodyType %s, falling back to Mage" % [msg.Body])
-			_apply_mage_body(msg)
-
-
-func _apply_mage_body(msg: MasterVisualComponentSMSG) -> void:
 	_look = msg
+	_apply_name_tag()
 	_apply_look()
 
 
@@ -46,14 +34,14 @@ func _ready() -> void:
 	_apply_look()
 
 
-## The Mage's own head and hat are hidden in the scene; these parts replace them.
+## The Mage's own meshes are hidden in the scene; these parts replace them.
 func _apply_look() -> void:
 	if _look == null or _skeleton == null:
 		return
 	if _parts == null:
 		_parts = MasterParts.new()
 		_skeleton.add_child(_parts)
-	_parts.show_look(_look.Face, _look.Hair, _look.HairColor, _look.SkinColor)
+	_parts.show_look(_look.Body, _look.Face, _look.Hair, _look.HairColor, _look.SkinColor)
 
 
 func _apply_name_tag() -> void:

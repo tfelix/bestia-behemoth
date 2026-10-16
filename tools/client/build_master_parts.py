@@ -5,6 +5,7 @@
 Writes bestia-client/src/Game/Master/Parts/master_parts.glb: the pack's rig, which matches the client's Mage rig
 bone for bone, with one skinned mesh per part:
 - Head (the bald base), Face_1..Face_5 and Hair_1..Hair_4 (bald has no Hair part)
+- the base body in underwear: Body, ArmLeft, ArmRight, LegLeft, LegRight, and the same with _F for the female
 """
 import math
 import sys
@@ -17,6 +18,7 @@ from mathutils.bvhtree import BVHTree
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 OUTPUT = REPO_ROOT / "bestia-client" / "src" / "Game" / "Master" / "Parts" / "master_parts.glb"
+# Holds the rig and the Mannequin, the plain body every KayKit outfit is modelled over.
 RIG_SOURCE = Path("Animations") / "gltf" / "Rig_Medium" / "Rig_Medium_General.glb"
 
 # Proto enum order: FACE_1 is index 0 and so on. Appending keeps stored masters on their part.
@@ -38,6 +40,18 @@ SKIN_RGB = (0.96, 0.73, 0.57)
 
 HAIR, SKIN, FIXED = "hair", "skin", "fixed"
 
+# Underwear on the base body, in model space metres. The shirt has short sleeves to cover the shoulder seam.
+WAISTBAND_TOP = 0.665
+WAISTBAND_BOTTOM = 0.625
+NECKLINE = 1.235
+SLEEVE_END = 0.34
+BRIEFS_LEG_OPENING = 0.40
+UNDERWEAR_GRADIENTS = {
+    "shirt": ((1.0, 1.0, 1.0), (0.84, 0.85, 0.88)),
+    "briefs": ((0.86, 0.87, 0.9), (0.7, 0.72, 0.76)),
+    "waistband": ((0.62, 0.64, 0.7), (0.48, 0.5, 0.56)),
+}
+FEMALE_SUFFIX = "_F"
 
 
 # --- reading the pack ------------------------------------------------------------------------------------
@@ -212,6 +226,214 @@ def join(objects, name=None):
     return joined
 
 
+# --- the base body ---------------------------------------------------------------------------------------
+
+
+AXES = {"x": 0, "y": 1, "z": 2}
+
+
+class BodyPart:
+    """A part of the base body: lofted along one axis through cross-sections of a Mannequin part.
+
+    The Mannequin has the right volume but a plated surface. Fitting a rounded section to each slice and
+    smoothing the profile keeps the volume and drops the plates.
+    """
+
+    def __init__(self, name, source, axis, start, end, rings, sides, smoothing, roundness=2.6, cap_start=0.0, cap_end=0.0, reshape=None):
+        self.name, self.source, self.axis = name, source, axis
+        self.start, self.end, self.rings, self.sides = start, end, rings, sides
+        self.smoothing, self.roundness = smoothing, roundness
+        self.cap_start, self.cap_end = cap_start, cap_end
+        self.reshape = reshape
+
+    def feminine(self):
+        reshape = {"Body": feminine_torso, "Arm": slimmer(0.9), "Leg": slimmer_above_feet(0.92)}
+        kind = next(k for k in reshape if self.name.startswith(k))
+        return BodyPart(self.name + FEMALE_SUFFIX, self.source, self.axis, self.start, self.end, self.rings, self.sides,
+                        self.smoothing, self.roundness, self.cap_start, self.cap_end, reshape[kind])
+
+
+BODY_PARTS = [
+    BodyPart("Body", "Mannequin_Body", "z", 0.40, 1.20, 22, 16, 3, cap_start=0.03, cap_end=0.07),
+    BodyPart("ArmLeft", "Mannequin_ArmLeft", "x", 0.10, 0.94, 24, 12, 1, cap_start=0.02, cap_end=0.05),
+    BodyPart("ArmRight", "Mannequin_ArmRight", "x", -0.10, -0.94, 24, 12, 1, cap_start=0.02, cap_end=0.05),
+    BodyPart("LegLeft", "Mannequin_LegLeft", "z", 0.015, 0.50, 20, 12, 2, roundness=2.4, cap_start=0.012, cap_end=0.03),
+    BodyPart("LegRight", "Mannequin_LegRight", "z", 0.015, 0.50, 20, 12, 2, roundness=2.4, cap_start=0.012, cap_end=0.03),
+]
+
+
+def bump(level, centre, width):
+    return math.exp(-((level - centre) / width) ** 2)
+
+
+def feminine_torso(section):
+    """Narrower shoulders and waist, wider hips, a flatter belly and a bust pushed forward (the front is -y)."""
+    level, x_min, x_max, y_min, y_max = section
+    width = 1 - 0.12 * bump(level, 1.16, 0.08) - 0.26 * bump(level, 0.8, 0.14) + 0.1 * bump(level, 0.5, 0.1)
+    x_mid = (x_min + x_max) / 2
+    belly = 0.04 * bump(level, 0.78, 0.12)
+    bust = 0.085 * bump(level, 1.04, 0.085)
+    return [level, x_mid + (x_min - x_mid) * width, x_mid + (x_max - x_mid) * width,
+            y_min + belly - bust, y_max - belly / 2]
+
+
+def slimmer(factor):
+    def reshape(section):
+        level, first_min, first_max, second_min, second_max = section
+        first_mid, second_mid = (first_min + first_max) / 2, (second_min + second_max) / 2
+        return [level, first_mid + (first_min - first_mid) * factor, first_mid + (first_max - first_mid) * factor,
+                second_mid + (second_min - second_mid) * factor, second_mid + (second_max - second_mid) * factor]
+    return reshape
+
+
+def slimmer_above_feet(factor, ankle=0.16):
+    """The feet keep their size, so both bodies stand the same."""
+    def reshape(section):
+        blend = smoothstep((section[0] - ankle + 0.04) / 0.08)
+        return slimmer(1 - (1 - factor) * blend)(section)
+    return reshape
+
+
+def watertight(obj, voxel_size=0.02):
+    """The plates are separate shells with gaps between them; slicing needs one closed surface."""
+    copy = duplicate(obj)
+    remesh = copy.modifiers.new("remesh", "REMESH")
+    remesh.mode = "VOXEL"
+    remesh.voxel_size = voxel_size
+    bpy.context.view_layer.objects.active = copy
+    bpy.ops.object.modifier_apply(modifier=remesh.name)
+    return copy
+
+
+def cross_sections(obj, part):
+    """Per level along the axis: the section's extent on the two other axes, each side measured apart."""
+    axis = AXES[part.axis]
+    first, second = [i for i in range(3) if i != axis]
+    normal = Vector((0, 0, 0))
+    normal[axis] = 1
+    sections = []
+    for ring in range(part.rings):
+        level = part.start + (part.end - part.start) * ring / (part.rings - 1)
+        bm = bmesh.new()
+        bm.from_mesh(obj.data)
+        origin = Vector((0, 0, 0))
+        origin[axis] = level
+        cut = bmesh.ops.bisect_plane(bm, geom=bm.verts[:] + bm.edges[:] + bm.faces[:], plane_co=origin, plane_no=normal)
+        points = [g.co.copy() for g in cut["geom_cut"] if isinstance(g, bmesh.types.BMVert)]
+        bm.free()
+        sections.append([level, min(p[first] for p in points), max(p[first] for p in points),
+                         min(p[second] for p in points), max(p[second] for p in points)])
+    sections = smoothed(sections, part.smoothing)
+    if part.reshape:
+        sections = [part.reshape(section) for section in sections]
+    return sections, axis, first, second
+
+
+def smoothed(sections, passes):
+    """Irons out the plates' ridges. The end sections stay, so the part keeps its length."""
+    for _ in range(passes):
+        sections = [sections[0]] + [
+            [here[0]] + [(before[k] + 2 * here[k] + after[k]) / 4 for k in range(1, 5)]
+            for before, here, after in zip(sections, sections[1:], sections[2:])
+        ] + [sections[-1]]
+    return sections
+
+
+def loft(part, sections, axis, first, second):
+    bm = bmesh.new()
+    rings = [section_ring(bm, part, section, axis, first, second) for section in sections]
+    for lower, upper in zip(rings, rings[1:]):
+        bridge(bm, lower, upper)
+    toward_start = -1 if part.end > part.start else 1
+    dome(bm, rings[0], axis, part.cap_start * toward_start)
+    dome(bm, rings[-1], axis, -part.cap_end * toward_start)
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    mesh = bpy.data.meshes.new(part.name)
+    bm.to_mesh(mesh)
+    for polygon in mesh.polygons:
+        polygon.use_smooth = True
+    obj = bpy.data.objects.new(part.name, mesh)
+    bpy.context.collection.objects.link(obj)
+    return obj
+
+
+def section_ring(bm, part, section, axis, first, second):
+    """A rounded rectangle (superellipse) through the section's four extents."""
+    level, first_min, first_max, second_min, second_max = section
+    first_mid, second_mid = (first_min + first_max) / 2, (second_min + second_max) / 2
+    ring = []
+    for side in range(part.sides):
+        angle = 2 * math.pi * side / part.sides
+        c, s = math.cos(angle), math.sin(angle)
+        co = Vector((0, 0, 0))
+        co[axis] = level
+        co[first] = first_mid + math.copysign(abs(c) ** (2 / part.roundness), c) * ((first_max - first_mid) if c > 0 else (first_mid - first_min))
+        co[second] = second_mid + math.copysign(abs(s) ** (2 / part.roundness), s) * ((second_max - second_mid) if s > 0 else (second_mid - second_min))
+        ring.append(bm.verts.new(co))
+    return ring
+
+
+def bridge(bm, lower, upper):
+    sides = len(lower)
+    for side in range(sides):
+        bm.faces.new([lower[side], lower[(side + 1) % sides], upper[(side + 1) % sides], upper[side]])
+
+
+def dome(bm, ring, axis, depth, steps=3):
+    """Closes an open end with a rounded cap, so hands, feet and shoulders are not cut off flat."""
+    centre = sum((v.co for v in ring), Vector()) / len(ring)
+    previous = ring
+    for step in range(1, steps):
+        angle = math.pi / 2 * step / steps
+        next_ring = []
+        for vertex in ring:
+            co = centre + (vertex.co - centre) * math.cos(angle)
+            co[axis] += depth * math.sin(angle)
+            next_ring.append(bm.verts.new(co))
+        bridge(bm, previous, next_ring)
+        previous = next_ring
+    tip = centre.copy()
+    tip[axis] += depth
+    tip_vertex = bm.verts.new(tip)
+    for side in range(len(previous)):
+        bm.faces.new([previous[side], previous[(side + 1) % len(previous)], tip_vertex])
+
+
+def build_body_part(part, sources):
+    sections, axis, first, second = cross_sections(watertight(sources[part.source]), part)
+    return loft(part, sections, axis, first, second)
+
+
+def underwear_region(part_name, centre):
+    """Which piece of underwear, if any, covers a face of the base body."""
+    if part_name.startswith("Body"):
+        if centre.z > NECKLINE:
+            return None
+        if centre.z > WAISTBAND_TOP:
+            return "shirt"
+        return "waistband" if centre.z > WAISTBAND_BOTTOM else "briefs"
+    if part_name.startswith("Arm"):
+        return "shirt" if abs(centre.x) < SLEEVE_END else None
+    return "briefs" if centre.z > BRIEFS_LEG_OPENING else None
+
+
+def paint_body_part(obj, atlas, materials):
+    """Skin or underwear per face. The gradient runs from the part's top (light) to its bottom (dark)."""
+    obj.data.materials.clear()
+    obj.data.materials.append(materials[SKIN])
+    obj.data.materials.append(materials[FIXED])
+    z_values = [v.co.z for v in obj.data.vertices]
+    bottom, top = min(z_values), max(z_values)
+    uv_layer = obj.data.uv_layers.new(name="UVMap").data
+    for polygon in obj.data.polygons:
+        region = underwear_region(obj.name, polygon.center)
+        polygon.material_index = 0 if region is None else 1
+        atlas_index = atlas.cell_for(SKIN, None, None) if region is None else atlas.synthetic(region, UNDERWEAR_GRADIENTS[region])
+        for loop, vertex in zip(polygon.loop_indices, polygon.vertices):
+            shade = 0.3 + 0.65 * (obj.data.vertices[vertex].co.z - bottom) / max(top - bottom, 1e-6)
+            uv_layer[loop].uv = (atlas_index, shade)
+
+
 # --- skinning --------------------------------------------------------------------------------------------
 
 
@@ -219,6 +441,48 @@ def rig_to_head(obj, rig):
     group = obj.vertex_groups.new(name="head")
     group.add(range(len(obj.data.vertices)), 1.0, "REPLACE")
     attach(obj, rig)
+
+
+def rig_like(obj, source, rig):
+    """Copies the Mannequin part's weights onto the lofted part, which sits where the Mannequin's does."""
+    transfer = obj.modifiers.new("weights", "DATA_TRANSFER")
+    transfer.object = source
+    transfer.use_vert_data = True
+    transfer.data_types_verts = {"VGROUP_WEIGHTS"}
+    transfer.vert_mapping = "POLYINTERP_NEAREST"
+    bpy.ops.object.select_all(action="DESELECT")
+    bpy.context.view_layer.objects.active = obj
+    obj.select_set(True)
+    bpy.ops.object.datalayout_transfer(modifier=transfer.name)
+    bpy.ops.object.modifier_apply(modifier=transfer.name)
+    # The Mannequin's plates are weighted one bone each, so weights step at every plate edge and the
+    # lofted surface creases there when posed.
+    smooth_weights(obj, passes=6)
+    bpy.ops.object.vertex_group_limit_total(limit=4)
+    bpy.ops.object.vertex_group_normalize_all(lock_active=False)
+    attach(obj, rig)
+
+
+def smooth_weights(obj, passes):
+    """Averages each vertex's weights with its neighbours', half and half."""
+    groups = range(len(obj.vertex_groups))
+    weights = [[0.0] * len(obj.vertex_groups) for _ in obj.data.vertices]
+    for vertex in obj.data.vertices:
+        for element in vertex.groups:
+            weights[vertex.index][element.group] = element.weight
+    neighbours = [[] for _ in obj.data.vertices]
+    for edge in obj.data.edges:
+        a, b = edge.vertices
+        neighbours[a].append(b)
+        neighbours[b].append(a)
+    for _ in range(passes):
+        weights = [
+            [0.5 * own[g] + 0.5 * sum(weights[n][g] for n in near) / len(near) for g in groups] if near else own
+            for own, near in zip(weights, neighbours)
+        ]
+    for group in obj.vertex_groups:
+        for index, row in enumerate(weights):
+            group.add([index], row[group.index], "REPLACE")
 
 
 def attach(obj, rig):
@@ -248,6 +512,14 @@ class Atlas:
             neutral = role != FIXED
             self.index[key] = len(self.cells)
             self.cells.append(lambda: neutralised(vertical_gradient(image, cell)) if neutral else vertical_gradient(image, cell))
+        return self.index[key]
+
+    def synthetic(self, key, top_and_bottom):
+        """A cell for a colour the pack does not have, such as the underwear."""
+        if key not in self.index:
+            top, bottom = top_and_bottom
+            self.index[key] = len(self.cells)
+            self.cells.append(lambda: [tuple(b + (t - b) * y / (ATLAS_HEIGHT - 1) for t, b in zip(top, bottom)) for y in range(ATLAS_HEIGHT)])
         return self.index[key]
 
     def finish_uvs(self, objects):
@@ -354,6 +626,7 @@ def main(pack: Path):
     bpy.ops.import_scene.gltf(filepath=str(pack / RIG_SOURCE))
     rig = next(o for o in bpy.data.objects if o.type == "ARMATURE")
     rig.animation_data_clear()
+    mannequin = {o.name: o for o in bpy.data.objects if o.type == "MESH"}
 
     characters = sorted(set(FACE_SOURCES + HAIR_SOURCES + [SLIM_FACE_SOURCE, CLOSED_SKULL_SOURCE]))
     heads = {c: load_head_parts(pack, c) for c in characters}
@@ -379,15 +652,22 @@ def main(pack: Path):
     for number, character in enumerate(HAIR_SOURCES, start=1):
         head_parts.append(join(parts_of(character, "hair"), f"Hair_{number}"))
 
+    all_body_parts = BODY_PARTS + [part.feminine() for part in BODY_PARTS]
+    body_parts = [build_body_part(part, mannequin) for part in all_body_parts]
+    for obj in body_parts:
+        paint_body_part(obj, atlas, materials)
+
     for obj in head_parts:
         rig_to_head(obj, rig)
+    for obj, part in zip(body_parts, all_body_parts):
+        rig_like(obj, mannequin[part.source], rig)
 
-    kept = set(head_parts + [rig])
+    kept = set(head_parts + body_parts + [rig])
     for obj in list(bpy.data.objects):
         if obj not in kept:
             bpy.data.objects.remove(obj)
 
-    atlas.finish_uvs(head_parts)
+    atlas.finish_uvs(head_parts + body_parts)
     baked = atlas.bake("master_parts")
     for material in materials.values():
         material.node_tree.nodes["Image Texture"].image = baked

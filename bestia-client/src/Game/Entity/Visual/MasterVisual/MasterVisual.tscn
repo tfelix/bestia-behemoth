@@ -90,7 +90,25 @@ visible = false
 [node name="chest" parent="Mage/Rig/Skeleton3D" index="3"]
 transform = Transform3D(1, 7.450581e-09, 1.9817037e-11, -1.6283107e-17, 1, -4.5362825e-10, -1.9818813e-11, 4.5362852e-10, 1, 0.03268236, 0.92585003, -1.9172192e-10)
 
+[node name="Mage_Cape" parent="Mage/Rig/Skeleton3D/chest" index="0"]
+visible = false
+
+[node name="Mage_ArmLeft" parent="Mage/Rig/Skeleton3D" index="4"]
+visible = false
+
+[node name="Mage_ArmRight" parent="Mage/Rig/Skeleton3D" index="5"]
+visible = false
+
+[node name="Mage_Body" parent="Mage/Rig/Skeleton3D" index="6"]
+visible = false
+
 [node name="Mage_Head" parent="Mage/Rig/Skeleton3D" index="7"]
+visible = false
+
+[node name="Mage_LegLeft" parent="Mage/Rig/Skeleton3D" index="8"]
+visible = false
+
+[node name="Mage_LegRight" parent="Mage/Rig/Skeleton3D" index="9"]
 visible = false
 
 [node name="AnimationPlayer" parent="Mage" index="1"]

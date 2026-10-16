@@ -42,11 +42,12 @@ namespace Bnet {
             "bG9yGAggASgLMgsuYm5ldC5Db2xvchIfCgpoYWlyX2NvbG9yGAkgASgLMgsu",
             "Ym5ldC5Db2xvchIhCgdiZXN0aWFzGAogAygLMhAuYm5ldC5CZXN0aWFJbmZv",
             "Eh0KBGhhaXIYCyABKA4yDy5ibmV0LkhhaXJzdHlsZRIMCgRzbG90GAwgASgN",
-            "KhgKCEJvZHlUeXBlEgwKCEJPRFlfTV8xEAAqQgoERmFjZRIKCgZGQUNFXzEQ",
-            "ABIKCgZGQUNFXzIQARIKCgZGQUNFXzMQAhIKCgZGQUNFXzQQAxIKCgZGQUNF",
-            "XzUQBCpHCglIYWlyc3R5bGUSCgoGSEFJUl8xEAASCgoGSEFJUl8yEAESCgoG",
-            "SEFJUl8zEAISCgoGSEFJUl80EAMSCgoGSEFJUl81EARCJAoVbmV0LmJlc3Rp",
-            "YS5ibmV0LnByb3RvQgtNYXN0ZXJQcm90b2IGcHJvdG8z"));
+            "KiYKCEJvZHlUeXBlEgwKCEJPRFlfTV8xEAASDAoIQk9EWV9GXzEQASpCCgRG",
+            "YWNlEgoKBkZBQ0VfMRAAEgoKBkZBQ0VfMhABEgoKBkZBQ0VfMxACEgoKBkZB",
+            "Q0VfNBADEgoKBkZBQ0VfNRAEKkcKCUhhaXJzdHlsZRIKCgZIQUlSXzEQABIK",
+            "CgZIQUlSXzIQARIKCgZIQUlSXzMQAhIKCgZIQUlSXzQQAxIKCgZIQUlSXzUQ",
+            "BEIkChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CC01hc3RlclByb3RvYgZwcm90",
+            "bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Bnet.Vec3Reflection.Descriptor, global::Bnet.BestiaInfoReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.BodyType), typeof(global::Bnet.Face), typeof(global::Bnet.Hairstyle), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -63,6 +64,7 @@ namespace Bnet {
   #region Enums
   public enum BodyType {
     [pbr::OriginalName("BODY_M_1")] BodyM1 = 0,
+    [pbr::OriginalName("BODY_F_1")] BodyF1 = 1,
   }
 
   /// <summary>
