@@ -39,7 +39,7 @@ class Master(
   @Column(name = "slot", nullable = false)
   val slot: Int,
 
-  @Column(length = 20)
+  @Column(length = MAX_NAME_LENGTH)
   var name: String,
 
   @Column(name = "hairColor", columnDefinition = "CHAR(6)")
@@ -231,6 +231,7 @@ class Master(
   }
 
   companion object {
-    private const val MAX_NAME_LENGTH = 20
+    /** The length of the `master.name` column. The create screen's name field and its counter show the same number. */
+    const val MAX_NAME_LENGTH = 24
   }
 }

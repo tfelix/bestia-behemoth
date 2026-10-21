@@ -64,6 +64,37 @@ class MasterFactoryTest {
     }
   }
 
+  @Test
+  fun `a name with punctuation is refused`() {
+    listOf("Bob!", "Bob-Bob", "Bob_2", "O'Neil").forEach { name ->
+      assertThrows<InvalidMasterNameException>(name) {
+        factory.create(ACCOUNT_ID, createData(StatusAttribute.entries.associateWith { 1 }, name = name))
+      }
+    }
+  }
+
+  /** The column is [Master.MAX_NAME_LENGTH] wide: one more is refused, and exactly that many is not. */
+  @Test
+  fun `a name is limited to the width of its column`() {
+    val evenly = MasterFactory.evenlySpreadEffortValues()
+
+    assertThrows<InvalidMasterNameException> {
+      factory.create(ACCOUNT_ID, createData(evenly, name = "a".repeat(Master.MAX_NAME_LENGTH + 1)))
+    }
+
+    // Past the name check, this stops at the world offering no spawn point, which the relaxed mock leaves empty.
+    assertThrows<GeneralMasterException> {
+      factory.create(ACCOUNT_ID, createData(evenly, name = "a".repeat(Master.MAX_NAME_LENGTH)))
+    }
+  }
+
+  @Test
+  fun `a name with an accent is not refused as invalid`() {
+    assertThrows<GeneralMasterException> {
+      factory.create(ACCOUNT_ID, createData(MasterFactory.evenlySpreadEffortValues(), name = "René Zoë"))
+    }
+  }
+
   /** An account only has so many slots, and the client only ever offers the ones it has. */
   @Test
   fun `a slot beyond the account's slot count is refused before a spawn point is looked up`() {

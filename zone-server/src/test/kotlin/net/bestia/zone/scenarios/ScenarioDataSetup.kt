@@ -194,7 +194,7 @@ class ScenarioDataSetup(
     )
 
     val createMasterData2 = MasterFactory.CreateMasterData(
-      name = "player1-alt",
+      name = "player1alt",
       hairColor = Color.BLUE,
       skinColor = Color.BLUE,
       hair = Hairstyle.HAIR_1,

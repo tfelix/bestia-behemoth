@@ -87,7 +87,7 @@ class MasterFactory(
   ): Master {
     val account = accountRepository.findByIdOrThrow(accountId)
 
-    val name = DisplayName.normalizeOrNull(createMasterData.name, MAX_NAME_LENGTH)
+    val name = DisplayName.normalizeWordsOrNull(createMasterData.name, Master.MAX_NAME_LENGTH)
       ?: throw InvalidMasterNameException()
 
     // Check master count limit
@@ -308,9 +308,6 @@ class MasterFactory(
 
   companion object {
     private val LOG = KotlinLogging.logger { }
-
-    /** The length of the `master.name` column. */
-    private const val MAX_NAME_LENGTH = 20
 
     /**
      * What a new master is created wearing, by `items.yml` identifier and the slot it goes in.

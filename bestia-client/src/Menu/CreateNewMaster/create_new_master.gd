@@ -82,6 +82,7 @@ const GENDER_BODIES := {
 @onready var _preview: CharacterPreview = %CharacterPreview
 
 @onready var _name_edit: LineEdit = %NameEdit
+@onready var _name_counter: Label = %NameCounter
 @onready var _home_cards: VBoxContainer = %HomeCards
 @onready var _home_loading: Label = %HomeLoading
 @onready var _hair_color_grid: GridContainer = %HairColorGrid
@@ -102,6 +103,11 @@ const GENDER_BODIES := {
 @onready var _preset_help_icon: TextureRect = %PresetHelpIcon
 @onready var _preset_help_label: Label = %PresetHelpLabel
 @onready var _stat_hint: Label = %StatHint
+
+# Everything the name field refuses: all but letters, digits, spaces and Latin accents. Mirrors
+# DisplayName.normalizeWordsOrNull on the server, which refuses the same names. The accent ranges leave out the
+# multiplication and division signs (U+00D7, U+00F7) that sit among the accented letters.
+var _name_disallowed := RegEx.create_from_string("[^A-Za-z0-9 \\x{C0}-\\x{D6}\\x{D8}-\\x{F6}\\x{F8}-\\x{17E}]")
 
 var _selected_hair_swatch: ColorRect = null
 var _selected_skin_swatch: ColorRect = null
@@ -149,7 +155,8 @@ func _ready() -> void:
 
 	# Next and Create are gated on the steps being complete, so anything that can change that has to
 	# re-evaluate them - not just the effort rows.
-	_name_edit.text_changed.connect(func(_t): _refresh_navigation())
+	_name_edit.text_changed.connect(_on_name_text_changed)
+	_refresh_name_counter()
 	_refresh_effort_ui()
 	_go_to_step(Step.LOOK)
 
@@ -307,6 +314,23 @@ func _refresh_navigation() -> void:
 	_create_button.visible = is_last_step
 	_create_button.disabled = not _is_form_complete()
 	_step_bar.show_progress(_current_step, _furthest_reachable_step())
+
+
+## Drops what a name may not contain as it is typed or pasted, so the player never holds a name the server
+## would refuse, and the caret stays where it was in the text that is left.
+func _on_name_text_changed(text: String) -> void:
+	var cleaned := _name_disallowed.sub(text, "", true)
+	if cleaned != text:
+		var caret := _name_edit.caret_column - (text.length() - cleaned.length())
+		_name_edit.text = cleaned
+		_name_edit.caret_column = maxi(caret, 0)
+	_refresh_name_counter()
+	_refresh_navigation()
+
+
+## "typed/allowed", so the player sees how many letters are left. The allowed number is the field's own limit.
+func _refresh_name_counter() -> void:
+	_name_counter.text = "%d/%d" % [_name_edit.text.length(), _name_edit.max_length]
 
 
 func _is_step_complete(step: Step) -> bool:

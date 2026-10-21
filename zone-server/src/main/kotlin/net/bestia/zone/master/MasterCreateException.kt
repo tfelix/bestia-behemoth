@@ -8,7 +8,7 @@ abstract class MasterCreateException(
 ) : MasterException(code = errorCode.name, message)
 
 /**
- * Thrown when a master name is invalid (blank or too long)
+ * Thrown when a master name is invalid (blank, too long, or more than letters, digits and spaces)
  */
 class InvalidMasterNameException
   : MasterCreateException(MasterErrorSMSG.MasterErrorCode.INVALID_NAME, "Master name is invalid")
