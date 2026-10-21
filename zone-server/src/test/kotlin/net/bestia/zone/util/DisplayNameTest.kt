@@ -34,8 +34,14 @@ class DisplayNameTest {
   }
 
   @Test
-  fun `words keep letters, digits and single spaces`() {
-    assertEquals("Big Bob 2", DisplayName.normalizeWordsOrNull("  Big   Bob 2 ", MAX))
+  fun `words keep letters, digits and one space between them`() {
+    assertEquals("Big Bob2", DisplayName.normalizeWordsOrNull("  Big   Bob2 ", MAX))
+    assertEquals("Bob", DisplayName.normalizeWordsOrNull(" Bob ", MAX))
+  }
+
+  @Test
+  fun `words refuse a second space`() {
+    listOf("Big Bob 2", "a b c", "René Zoë Åsa").forEach { assertNull(DisplayName.normalizeWordsOrNull(it, MAX), it) }
   }
 
   @Test

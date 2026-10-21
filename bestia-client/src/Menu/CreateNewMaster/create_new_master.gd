@@ -318,8 +318,14 @@ func _refresh_navigation() -> void:
 
 ## Drops what a name may not contain as it is typed or pasted, so the player never holds a name the server
 ## would refuse, and the caret stays where it was in the text that is left.
+##
+## A name is at most two words, so a leading space and every space after the first are dropped too. The space
+## after the first word is kept while it is the last thing typed: it is how the second word gets started.
 func _on_name_text_changed(text: String) -> void:
-	var cleaned := _name_disallowed.sub(text, "", true)
+	var cleaned := _name_disallowed.sub(text, "", true).lstrip(" ")
+	var first_space := cleaned.find(" ")
+	if first_space >= 0:
+		cleaned = cleaned.substr(0, first_space + 1) + cleaned.substr(first_space + 1).replace(" ", "")
 	if cleaned != text:
 		var caret := _name_edit.caret_column - (text.length() - cleaned.length())
 		_name_edit.text = cleaned
