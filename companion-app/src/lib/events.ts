@@ -19,7 +19,8 @@ export function describe(event: LiveEvent): { title: string; body: string } | nu
 	}
 }
 
-/** Whether [event] changes what the pages of [masterId] show, so they should fetch again. */
+/** Whether [event] changes what the pages of [masterId] show, so they should fetch again. Chat changes nothing fetched. */
 export function touchesMaster(event: LiveEvent, masterId: number): boolean {
+	if (event.type === 'ChatLine') return false;
 	return event.type === 'Presence' || event.data.masterId === masterId;
 }

@@ -298,6 +298,46 @@ class ApiServiceScenarioTest {
     assertTrue(push.sent.single().second.contains("Ashfen has fallen"))
   }
 
+  @Test
+  fun `a chat line from the app is said in the zone, and its refusals become statuses`() {
+    var refusal: String? = null
+    answer = { BusReply.ok(it.correlationId, ZoneAnswer.ChatSent(refusal)) }
+    val line = mapOf("channel" to "PARTY", "text" to "on my way")
+
+    assertEquals(204, post("/v1/companion/masters/5/chat", line, accountId = 50, idempotencyKey = UUID.randomUUID().toString()).statusCode.value())
+    assertEquals(ZoneQuery.SendChat(5, "PARTY", "on my way"), asked.single().query)
+    assertEquals(50L, asked.single().accountId)
+
+    refusal = ZoneAnswer.ChatSent.NOT_IN_PARTY
+    assertEquals(409, post("/v1/companion/masters/5/chat", line, accountId = 50, idempotencyKey = UUID.randomUUID().toString()).statusCode.value())
+
+    refusal = ZoneAnswer.ChatSent.CHAT_LOCKED
+    assertEquals(403, post("/v1/companion/masters/5/chat", line, accountId = 50, idempotencyKey = UUID.randomUUID().toString()).statusCode.value())
+  }
+
+  @Test
+  fun `chat reaches the socket and is never pushed`() {
+    val subscription = mapOf(
+      "endpoint" to "https://fcm.googleapis.com/fcm/send/${UUID.randomUUID()}",
+      "keys" to mapOf("p256dh" to "BPC8EVmzvqSQvPRBDi7FjAQqyAJGZsxH9jKT16aTDbUK79Vg4h1rwiPXhadB5_X6i1fOj0--Na1QGZJdQgNlfko", "auth" to "AAAAAAAAAAAAAAAAAAAAAA"),
+    )
+    assertEquals(201, post("/v1/companion/push/subscriptions", subscription, accountId = 51).statusCode.value())
+    val frames = CopyOnWriteArrayList<JsonNode>()
+    connect(51, lastEventId = null, frames).use {
+      await().atMost(Duration.ofSeconds(5)).until { frames.any { it["type"].asText() == "ready" } }
+
+      events.publish(ZoneEvent.ChatLine(accountId = 51, masterId = 5, channel = "GUILD", senderName = "Ayla", text = "hi", sentAtEpochMs = 1))
+
+      await().atMost(Duration.ofSeconds(5)).until { frames.any { it["type"].asText() == "event" } }
+      val event = frames.first { it["type"].asText() == "event" }["event"]
+      assertEquals("ChatLine", event["type"].asText())
+      assertEquals("hi", event["data"]["text"].asText())
+      assertEquals("GUILD", event["data"]["channel"].asText())
+    }
+    Thread.sleep(500)
+    assertTrue(push.sent.none { it.first == 51L })
+  }
+
   private fun connect(accountId: Long, lastEventId: String?, frames: MutableList<JsonNode>): WebSocketSession {
     val handler = object : TextWebSocketHandler() {
       override fun handleTextMessage(session: WebSocketSession, message: TextMessage) {
@@ -313,8 +353,9 @@ class ApiServiceScenarioTest {
     return rest.exchange(path, HttpMethod.GET, HttpEntity<Void>(headers(token)), String::class.java)
   }
 
-  private fun post(path: String, body: Any, accountId: Long): ResponseEntity<String> {
-    return rest.exchange(path, HttpMethod.POST, HttpEntity(body, headers(token(accountId))), String::class.java)
+  private fun post(path: String, body: Any, accountId: Long, idempotencyKey: String? = null): ResponseEntity<String> {
+    val headers = headers(token(accountId)).apply { idempotencyKey?.let { set("Idempotency-Key", it) } }
+    return rest.exchange(path, HttpMethod.POST, HttpEntity(body, headers), String::class.java)
   }
 
   private fun put(path: String, body: Any, accountId: Long, idempotencyKey: String): ResponseEntity<String> {

@@ -17,6 +17,7 @@ class BusFrameTest {
       ZoneQuery.ListMasters,
       ZoneQuery.MapTile(masterId = 7, level = 3, x = -2, y = 9, ifNoneMatch = "\"w1-3/-2/9\""),
       ZoneQuery.SetStance(masterId = 7, playerBestiaId = 11, stance = "HOLD", aggression = 20),
+      ZoneQuery.SendChat(masterId = 7, channel = "PARTY", text = "on my way"),
     )
 
     for (query in queries) {
@@ -55,6 +56,8 @@ class BusFrameTest {
       ZoneAnswer.Services("\"s\"", listOf(ZoneAnswer.Services.Service(9, "INN", "The Boar", 1.0, 2.0, "Ashfen", 6, 22))),
       ZoneAnswer.TicketOwner(42),
       ZoneAnswer.Stance(2, "HOLD", 20),
+      ZoneAnswer.ChatSent(null),
+      ZoneAnswer.ChatSent(ZoneAnswer.ChatSent.NOT_IN_GUILD),
     )
 
     for (answer in answers) {
@@ -65,10 +68,15 @@ class BusFrameTest {
 
   @Test
   fun `events decode to their own type`() {
-    val event = ZoneEvent.BestiaDiedAway(accountId = 1, masterId = 2, playerBestiaId = 3, bestiaName = null, species = "blob")
+    val events = listOf(
+      ZoneEvent.BestiaDiedAway(accountId = 1, masterId = 2, playerBestiaId = 3, bestiaName = null, species = "blob"),
+      ZoneEvent.ChatLine(accountId = 1, masterId = 2, channel = "GUILD", senderName = "Ayla", text = "hi", sentAtEpochMs = 5),
+    )
 
-    val json = BusJson.mapper.writeValueAsString(event)
+    for (event in events) {
+      val json = BusJson.mapper.writeValueAsString(event)
 
-    assertEquals(event, BusJson.mapper.readValue(json, ZoneEvent::class.java))
+      assertEquals(event, BusJson.mapper.readValue(json, ZoneEvent::class.java))
+    }
   }
 }

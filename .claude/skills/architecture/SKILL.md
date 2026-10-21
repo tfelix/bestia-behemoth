@@ -444,6 +444,12 @@ Design and reasons: bestia-docs `server/api-service.md`. Where things are:
   cached 30 s, dropped on `Presence(inWorld=false)`). The zone serves no HTTP.
 - **Stance.** `master/bestia/BestiaAiConfigService` is the one place a standing order is applied, for the socket
   handler and the bus alike; it finds the live entity by `player_bestia.entity_id`, not by session.
+- **Party and guild chat.** `chat/GroupChat.deliver` is the one place a group line goes out, for `ChatHandler` (game)
+  and `companion/query/ChatCommand` (`ZoneQuery.SendChat`, app) alike: a `ChatSMSG` to every member being played,
+  and a `ZoneEvent.ChatLine` per member account (offline ones and the sender included) for the app's socket.
+  `PartyAudience`/`GuildAudience` return all members (`identity.GroupMember`, kept below both for the tier rule);
+  `ofMaster` reads the DB for a master nobody plays, and `ChatCommand` reads that master's stored Basic Skill rank
+  (`skill` sits below `account`, so `BasicSkillGate` cannot). Chat is never pushed and never evicts the answer cache.
 - **Tests without Docker.** zone tests run with `bus.enabled: false` (`NoBusConfiguration`: no-op directory and
   publisher, no request server); `CompanionRequestDispatcherTest` drives the dispatcher directly.
 - **Jackson trap on the bus.** A Kotlin property like `xMetres` serializes as `xmetres` and silently read back as

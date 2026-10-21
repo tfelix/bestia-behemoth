@@ -40,4 +40,17 @@ sealed interface ZoneEvent {
 
   /** What [masterId] can see of the map may have changed. */
   data class ChartsChanged(override val accountId: Long, val masterId: Long) : ZoneEvent
+
+  /**
+   * A line of party or guild chat ([channel] PARTY or GUILD) that reached [masterId], a member of the group, whether
+   * it was typed in the game or in an app. One event per member, the sender's own master included.
+   */
+  data class ChatLine(
+    override val accountId: Long,
+    val masterId: Long,
+    val channel: String,
+    val senderName: String,
+    val text: String,
+    val sentAtEpochMs: Long,
+  ) : ZoneEvent
 }

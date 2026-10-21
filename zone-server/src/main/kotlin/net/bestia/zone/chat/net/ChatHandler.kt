@@ -14,11 +14,13 @@ import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.message.decoder
 import net.bestia.zone.guild.GuildAudience
 import net.bestia.zone.party.PartyAudience
-import net.bestia.zone.util.AccountId
 import org.springframework.stereotype.Component
 import net.bestia.zone.chat.ChatCommandHandler
 import net.bestia.zone.chat.ChatSMSG
+import net.bestia.zone.chat.ChatText
 import net.bestia.zone.chat.ChatType
+import net.bestia.zone.chat.GroupChat
+import net.bestia.zone.identity.GroupMember
 
 @Component
 class ChatHandler(
@@ -30,16 +32,16 @@ class ChatHandler(
   private val basicSkillGate: BasicSkillGate,
   private val partyAudience: PartyAudience,
   private val guildAudience: GuildAudience,
+  private val groupChat: GroupChat,
 ) : IoMessageHandler<ChatCMSG> {
   override val wire = decoder(MessageCase.CHAT_CMSG) { accountId, envelope ->
     ChatCMSG.fromBnet(accountId, envelope.chatCmsg)
   }
 
   override fun handle(msg: ChatCMSG): Boolean {
-    val text = withoutControlCharacters(msg.text)
+    val text = ChatText.withoutControlCharacters(msg.text)
 
-    // The client caps its input at the same length, so a longer line is a forged one.
-    if (text.codePointCount(0, text.length) > MAX_TEXT_LENGTH) {
+    if (ChatText.isTooLong(text)) {
       LOG.debug { "Dropping chat line of ${text.length} characters from player ${msg.playerId}" }
       return true
     }
@@ -118,41 +120,22 @@ class ChatHandler(
     )
   }
 
-  /**
-   * Party and guild chat: everyone in the group who is being played hears it wherever they stand, the sender
-   * too, so the sender sees the line land. No speech bubble, so no entity id.
-   */
-  private fun handleGroupChat(msg: ChatCMSG, audience: Set<AccountId>?, notInGroup: OpError) {
-    if (audience == null) {
+  /** Party and guild chat, as [GroupChat] delivers it. */
+  private fun handleGroupChat(msg: ChatCMSG, members: List<GroupMember>?, notInGroup: OpError) {
+    if (members == null) {
       outMessageProcessor.sendToPlayer(msg.playerId, OperationErrorSMSG(notInGroup))
       return
     }
 
-    val line = ChatSMSG(
-      text = msg.text,
-      type = msg.type,
-      senderUsername = masterOperations.getSelectedMasterByAccountId(msg.playerId).name
-    )
-
-    audience.forEach { outMessageProcessor.sendToPlayer(it, line) }
+    val senderName = masterOperations.getSelectedMasterByAccountId(msg.playerId).name
+    groupChat.deliver(msg.type, senderName, msg.text, members)
   }
 
   private fun handleChatCommand(msg: ChatCMSG) {
     chatCommandHandler.handleChatCommand(msg.playerId, msg.text)
   }
 
-  /** Control and direction-override characters only ever garble, or disguise, someone else's chat window. */
-  private fun withoutControlCharacters(text: String): String {
-    return text.filterNot { Character.isISOControl(it) || it in INVISIBLE_FORMATTING }
-  }
-
   companion object {
     private val LOG = KotlinLogging.logger { }
-
-    /** Must match `max_length` of the ChatInput in the client's Chat.tscn. */
-    const val MAX_TEXT_LENGTH = 200
-
-    private val INVISIBLE_FORMATTING =
-      ('\u200B'..'\u200F') + ('\u202A'..'\u202E') + ('\u2066'..'\u2069') + '\uFEFF'
   }
 }

@@ -8,7 +8,8 @@
 		{ href: `/m/${masterId}`, label: 'Master', icon: 'chart-bar' },
 		{ href: `/m/${masterId}/bestia`, label: 'Bestia', icon: 'shield' },
 		{ href: `/m/${masterId}/bag`, label: 'Bag', icon: 'backpack' },
-		{ href: `/m/${masterId}/map`, label: 'Map', icon: 'map-pin' }
+		{ href: `/m/${masterId}/map`, label: 'Map', icon: 'map-pin' },
+		{ href: `/m/${masterId}/chat`, label: 'Chat', icon: 'message-circle' }
 	]);
 </script>
 
@@ -27,7 +28,7 @@
 		inset: auto 0 0 0;
 		z-index: 1000;
 		display: grid;
-		grid-template-columns: repeat(4, 1fr);
+		grid-template-columns: repeat(5, 1fr);
 		height: calc(var(--nav-height) + env(safe-area-inset-bottom));
 		padding-bottom: env(safe-area-inset-bottom);
 		border-top: 1px solid var(--edge);

@@ -16,6 +16,7 @@ export type Catalog = Schemas['Catalog'];
 export type MapMeta = Schemas['MapMeta'];
 export type Place = Schemas['Place'];
 export type StanceOrder = Schemas['StanceOrder'];
+export type ChatOrder = Schemas['ChatOrder'];
 export type Preferences = Schemas['Preferences'];
 
 export const STANCES = ['HOLD', 'PATROL', 'FORAGE', 'DEFEND'] as const;

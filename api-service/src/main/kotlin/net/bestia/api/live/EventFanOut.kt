@@ -11,8 +11,8 @@ import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
 
 /**
- * Follows the zone's event stream: every event drops the account's cached answers and goes to its open sockets.
- * Each instance follows the whole stream, because any of them may hold a socket of the account.
+ * Follows the zone's event stream: every event goes to the account's open sockets, and all but chat drop its cached
+ * answers. Each instance follows the whole stream, because any of them may hold a socket of the account.
  */
 @Component
 class EventFanOut(
@@ -30,7 +30,10 @@ class EventFanOut(
 
   fun deliver(streamed: StreamEntry<ZoneEvent>) {
     val event = streamed.payload
-    answers.forget(event.accountId)
+    // A chat line changes no answer, and a busy guild would otherwise keep its members' caches empty.
+    if (event !is ZoneEvent.ChatLine) {
+      answers.forget(event.accountId)
+    }
     if (event is ZoneEvent.ChartsChanged) {
       tiles.forgetMaster(event.masterId)
     }

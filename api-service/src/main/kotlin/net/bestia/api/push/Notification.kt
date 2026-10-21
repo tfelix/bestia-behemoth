@@ -33,7 +33,8 @@ data class Notification(val title: String, val body: String, val url: String, va
           tag = "construction-${event.masterId}",
         )
 
-        is ZoneEvent.StanceChanged, is ZoneEvent.Presence, is ZoneEvent.ChartsChanged -> null
+        // Chat is read in the app, never pushed: a busy guild would spend the hourly budget in a minute.
+        is ZoneEvent.StanceChanged, is ZoneEvent.Presence, is ZoneEvent.ChartsChanged, is ZoneEvent.ChatLine -> null
       }
     }
   }

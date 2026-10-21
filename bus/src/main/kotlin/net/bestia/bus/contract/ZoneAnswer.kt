@@ -147,4 +147,16 @@ sealed interface ZoneAnswer {
 
   /** The config as stored, which may differ from the one asked for: aggression is clamped. */
   data class Stance(val playerBestiaId: Long, val stance: String, val aggression: Int) : ZoneAnswer
+
+  /**
+   * Whether a chat line went out. [refusal] is null when it did, else why not: CHAT_LOCKED (Basic Skill below the
+   * chat rank), NOT_IN_PARTY or NOT_IN_GUILD.
+   */
+  data class ChatSent(val refusal: String?) : ZoneAnswer {
+    companion object {
+      const val CHAT_LOCKED = "CHAT_LOCKED"
+      const val NOT_IN_PARTY = "NOT_IN_PARTY"
+      const val NOT_IN_GUILD = "NOT_IN_GUILD"
+    }
+  }
 }

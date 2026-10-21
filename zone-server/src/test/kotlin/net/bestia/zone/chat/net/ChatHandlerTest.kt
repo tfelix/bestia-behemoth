@@ -16,6 +16,8 @@ import net.bestia.zone.chat.ChatSMSG
 import net.bestia.zone.guild.GuildAudience
 import net.bestia.zone.party.PartyAudience
 import net.bestia.zone.chat.ChatType
+import net.bestia.zone.chat.GroupChat
+import net.bestia.zone.identity.GroupMember
 
 /**
  * A whisper that goes nowhere has to say so. It is the one chat line nothing will ever send again, so a
@@ -28,6 +30,7 @@ class ChatHandlerTest {
   private val skillGate = mockk<BasicSkillGate>()
   private val partyAudience = mockk<PartyAudience>()
   private val guildAudience = mockk<GuildAudience>()
+  private val groupChat = mockk<GroupChat>(relaxed = true)
 
   private val handler = ChatHandler(
     outMessageProcessor = out,
@@ -38,6 +41,7 @@ class ChatHandlerTest {
     basicSkillGate = skillGate,
     partyAudience = partyAudience,
     guildAudience = guildAudience,
+    groupChat = groupChat,
   )
 
   private fun whisper(target: String, text: String = "helloworld") {
@@ -131,16 +135,13 @@ class ChatHandlerTest {
     handler.handle(ChatCMSG(playerId = SENDER, type = type, text = text, targetUsername = null))
   }
 
-  /** The sender is in the audience too, so they see their own line land. */
   @Test
-  fun `a party line reaches every member being played, the sender included`() {
-    every { partyAudience.of(SENDER) } returns setOf(SENDER, TARGET)
+  fun `a party line goes to the whole party`() {
+    every { partyAudience.of(SENDER) } returns MEMBERS
 
     groupLine(ChatType.PARTY)
 
-    val line = ChatSMSG(type = ChatType.PARTY, text = "together", senderUsername = "sender")
-    verify { out.sendToPlayer(SENDER, line) }
-    verify { out.sendToPlayer(TARGET, line) }
+    verify { groupChat.deliver(ChatType.PARTY, "sender", "together", MEMBERS) }
   }
 
   @Test
@@ -150,15 +151,16 @@ class ChatHandlerTest {
     groupLine(ChatType.PARTY)
 
     verify { out.sendToPlayer(SENDER, OperationErrorSMSG(OpError.PARTY_NOT_IN_PARTY)) }
+    verify(exactly = 0) { groupChat.deliver(any(), any(), any(), any()) }
   }
 
   @Test
-  fun `a guild line reaches every member being played`() {
-    every { guildAudience.of(SENDER) } returns setOf(SENDER, TARGET)
+  fun `a guild line goes to the whole guild`() {
+    every { guildAudience.of(SENDER) } returns MEMBERS
 
     groupLine(ChatType.GUILD)
 
-    verify { out.sendToPlayer(TARGET, ChatSMSG(type = ChatType.GUILD, text = "together", senderUsername = "sender")) }
+    verify { groupChat.deliver(ChatType.GUILD, "sender", "together", MEMBERS) }
   }
 
   @Test
@@ -173,5 +175,6 @@ class ChatHandlerTest {
   companion object {
     private const val SENDER = 1L
     private const val TARGET = 2L
+    private val MEMBERS = listOf(GroupMember(SENDER, 10), GroupMember(TARGET, 20))
   }
 }

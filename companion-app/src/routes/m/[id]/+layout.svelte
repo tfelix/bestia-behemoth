@@ -3,6 +3,8 @@
 	import { page } from '$app/state';
 	import TabBar from '$lib/components/TabBar.svelte';
 	import { live } from '$lib/live.svelte';
+	// Imported for its listener: the chat log has to be listening before the socket replays what it missed.
+	import '$lib/chat.svelte';
 
 	let { children } = $props();
 	const masterId = $derived(Number(page.params.id));

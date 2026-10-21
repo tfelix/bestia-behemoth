@@ -42,4 +42,7 @@ sealed interface ZoneQuery {
     val stance: String,
     val aggression: Int,
   ) : ZoneQuery
+
+  /** A line of party or guild chat ([channel] PARTY or GUILD), said as [masterId]. A write: send it with an idempotency key. */
+  data class SendChat(val masterId: Long, val channel: String, val text: String) : ZoneQuery
 }
