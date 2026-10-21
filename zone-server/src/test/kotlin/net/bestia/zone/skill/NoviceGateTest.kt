@@ -1,6 +1,9 @@
 package net.bestia.zone.skill
 
+import net.bestia.zone.ecs.core.testWorld
+import net.bestia.zone.identity.ecs.Master
 import net.bestia.zone.skill.ecs.KnownSkills
+import net.bestia.zone.util.EntityId
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -22,13 +25,22 @@ class NoviceGateTest {
 
   private val gate = NoviceGate(registry)
 
-  private fun knowing(vararg levels: Pair<Long, Int>): KnownSkills {
-    return KnownSkills(levels.toMap().toMutableMap())
+  private val world = testWorld()
+
+  private fun masterKnowing(vararg levels: Pair<Long, Int>): EntityId {
+    return world.createEntity { id ->
+      add(id, Master(MASTER_ID))
+      add(id, KnownSkills(levels.toMap().toMutableMap()))
+    }
+  }
+
+  private fun isNovice(entityId: EntityId): Boolean {
+    return world.read { gate.isNovice(this, entityId) }
   }
 
   @Test
   fun `a master who has learned nothing is a novice`() {
-    assertTrue(gate.isNovice(knowing()))
+    assertTrue(isNovice(masterKnowing()))
   }
 
   /**
@@ -38,40 +50,46 @@ class NoviceGateTest {
    */
   @Test
   fun `the Novice tree does not end novicehood, even maxed`() {
-    assertTrue(gate.isNovice(knowing(BASIC_SKILL_ID to 5, FIRST_AID_ID to 3)))
+    assertTrue(isNovice(masterKnowing(BASIC_SKILL_ID to 5, FIRST_AID_ID to 3)))
   }
 
   @Test
   fun `one point in another tree ends it`() {
-    assertFalse(gate.isNovice(knowing(BASIC_SKILL_ID to 5, CARPENTRY_ID to 1)))
+    assertFalse(isNovice(masterKnowing(BASIC_SKILL_ID to 5, CARPENTRY_ID to 1)))
   }
 
   @Test
   fun `a sub-tree counts as its tree`() {
-    assertFalse(gate.isNovice(knowing(ORE_REFINEMENT_ID to 1)))
+    assertFalse(isNovice(masterKnowing(ORE_REFINEMENT_ID to 1)))
   }
 
   /** A catalogued skill nobody has invested in is not an investment - `levelOf` answers 0, not "present". */
   @Test
   fun `a known non-Novice skill at level zero does not end it`() {
-    assertTrue(gate.isNovice(knowing(CARPENTRY_ID to 0)))
+    assertTrue(isNovice(masterKnowing(CARPENTRY_ID to 0)))
   }
 
-  /**
-   * A player bestia's item-taught skills are catalogued at 1000+ and have no tree node at all, so they cannot
-   * end a novicehood the bestia was never really in.
-   */
+  /** Item-taught skills are catalogued at 1000+ and have no tree node, so they say nothing about a tree. */
   @Test
   fun `a skill outside the tree entirely is ignored`() {
-    assertTrue(gate.isNovice(knowing(BESTIA_SKILL_ID to 1)))
+    assertTrue(isNovice(masterKnowing(BESTIA_SKILL_ID to 1)))
   }
 
   @Test
-  fun `no component at all reads as a novice`() {
-    assertTrue(gate.isNovice(null))
+  fun `a master without known skills is a novice`() {
+    assertTrue(isNovice(world.createEntity { id -> add(id, Master(MASTER_ID)) }))
+  }
+
+  /** Novicehood is the master's training; a bestia must not share the master's starter kit. */
+  @Test
+  fun `a player bestia is never a novice`() {
+    val bestia = world.createEntity { id -> add(id, KnownSkills(mutableMapOf())) }
+
+    assertFalse(isNovice(bestia))
   }
 
   private companion object {
+    const val MASTER_ID = 7L
     const val BASIC_SKILL_ID = 1L
     const val FIRST_AID_ID = 8L
     const val CARPENTRY_ID = 20L

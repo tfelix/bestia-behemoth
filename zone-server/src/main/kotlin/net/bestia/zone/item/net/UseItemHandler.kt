@@ -14,7 +14,6 @@ import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.message.decoder
 import net.bestia.zone.skill.NoviceGate
-import net.bestia.zone.skill.ecs.KnownSkills
 import net.bestia.zone.util.EntityId
 import net.bestia.bnet.proto.OperationErrorProto
 import org.springframework.data.repository.findByIdOrNull
@@ -97,7 +96,7 @@ class UseItemHandler(
   }
 
   private fun isNovice(entityId: EntityId): Boolean {
-    return world.read { noviceGate.isNovice(get(entityId, KnownSkills::class)) }
+    return world.read { noviceGate.isNovice(this, entityId) }
   }
 
   companion object {

@@ -26,8 +26,8 @@ attributes:
 event-only: true
 spawn-weight: 0
 habitat: []
-# Every slot and weight class. Level 80 is above the highest item in `items.yml` and a bestia always counts as a
-# novice (`NoviceGate`), so no item is held back.
+# Every slot and weight class. Level 80 is above the highest item in `items.yml`, so no item is held back but the
+# novice-only kit, which is for masters alone (`NoviceGate`).
 equip-slots:
   - HEAD_UPPER
   - HEAD_MID

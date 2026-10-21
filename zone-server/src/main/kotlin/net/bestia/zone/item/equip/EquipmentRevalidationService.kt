@@ -4,7 +4,6 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.skill.NoviceGate
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.battle.ecs.level.Level
-import net.bestia.zone.skill.ecs.KnownSkills
 import net.bestia.zone.battle.ecs.status.IsStatusValueDirty
 import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.ecs.core.WorldView
@@ -108,7 +107,7 @@ class EquipmentRevalidationService(
         // Zero for an entity with no Level component, which checkStillWearable reads as unqualified rather
         // than as exempt - the same reading EquipItemHandler gives it.
         level = get(entityId, Level::class)?.level ?: 0,
-        isNovice = noviceGate.isNovice(get(entityId, KnownSkills::class)),
+        isNovice = noviceGate.isNovice(this, entityId),
         worn = equipment.getWorn().map { (slot, item) -> WornPiece(slot, item.itemId, item.uniqueId, item.itemLevel) }
       )
     }

@@ -83,8 +83,8 @@ class Item(
   var maxDurability: Int = 0,
 
   /**
-   * True for gear only a novice may wear, or a consumable only a novice may use - a novice being one that has
-   * invested no skill point outside the Novice tree.
+   * True for gear only a novice may wear, or a consumable only a novice may use - a novice being a master that
+   * has invested no skill point outside the Novice tree. A player bestia never is one.
    *
    * Gear is checked on the way on by [net.bestia.zone.item.equip.EquipmentService.checkStillWearable] and taken
    * back off by `EquipmentRevalidationService` once the wearer stops qualifying; a consumable is checked by
