@@ -233,7 +233,7 @@ class MasterCreateScenario : BestiaNoSocketScenario(autoClientConnect = false) {
     // asks for a slot past the end, which is still reported as "too many": that check comes first.
     (1..Account.DEFAULT_MASTER_SLOT_COUNT).forEach { i ->
       clientPlayerNoMaster.sendMessage(
-        CreateMasterCMSG.test(clientPlayerNoMaster.connectedPlayerId, "mast0r-number-$i", anySpawnPointId(), slot = i)
+        CreateMasterCMSG.test(clientPlayerNoMaster.connectedPlayerId, "mast0rNumber$i", anySpawnPointId(), slot = i)
       )
 
       if (i < Account.DEFAULT_MASTER_SLOT_COUNT) {
