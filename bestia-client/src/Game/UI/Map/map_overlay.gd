@@ -151,6 +151,7 @@ func open() -> void:
 	# the map opens is the moment they are about to be read.
 	_view.revalidate_services()
 	_update_scale()
+	_update_legend()
 	_update_title()
 
 
@@ -161,6 +162,19 @@ func close() -> void:
 func _process(_delta: float) -> void:
 	if visible:
 		_update_scale()
+		_update_legend()
+
+
+## Shows the legend only at the zooms that draw services, so it never offers toggles for icons the map is
+## not showing.
+##
+## The entries are hidden rather than the row: the row keeps its height, so zooming across the boundary does
+## not resize the map under the cursor and shift the ground the player was zooming towards.
+func _update_legend() -> void:
+	var shown := _view.draws_services()
+	for entry in _legend.get_children():
+		if entry is CanvasItem and entry.visible != shown:
+			entry.visible = shown
 
 
 func _update_scale() -> void:

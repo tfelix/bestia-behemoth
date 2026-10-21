@@ -77,6 +77,7 @@ can_travel = true
 marker_scale = 2.0
 
 [node name="Legend" type="HBoxContainer" parent="Panel/Margin/Rows" unique_id=1873402219]
+custom_minimum_size = Vector2(0, 26)
 layout_mode = 2
 theme_override_constants/separation = 4
 

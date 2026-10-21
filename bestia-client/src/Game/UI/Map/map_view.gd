@@ -146,7 +146,8 @@ const _SERVICE_SELECTED_GAP := 2.5
 const _SERVICE_CLOSED_ALPHA := 0.4
 
 ## The finest-detail levels are the only ones the server lists services at. Asking at coarser levels would be
-## a request per tile that exists only to be answered with nothing.
+## a request per tile that exists only to be answered with nothing - and drawing them coarser than this, from
+## the tiles underneath, piles a town's services into one heap of glyphs.
 const _SERVICES_MAX_LEVEL := 3
 
 ## How far ahead of its due time a tile's services may be re-asked for.
@@ -337,6 +338,12 @@ func revalidate_services() -> void:
 	queue_redraw()
 
 
+## Whether this view draws services at its current zoom. What the overlay shows its legend by, so the legend
+## is only there when there is something on the map for it to switch.
+func draws_services() -> bool:
+	return level <= _SERVICES_MAX_LEVEL
+
+
 ## Centres on the player, if there is one to centre on.
 func centre_on_player() -> void:
 	var at: Variant = player_metres()
@@ -396,7 +403,7 @@ func _draw() -> void:
 	var places: Array = []
 	var services: Array = []
 
-	var lists_services := level <= _SERVICES_MAX_LEVEL
+	var lists_services := draws_services()
 	var services_since := maxi(
 		now - int(services_refresh_seconds * 1000.0) + _SERVICES_SLACK_MSEC, _services_since_msec
 	)
