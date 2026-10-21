@@ -1,19 +1,24 @@
 package net.bestia.zone.cartography.tools
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.sun.net.httpserver.HttpExchange
 import com.sun.net.httpserver.HttpServer
 import net.bestia.worldgen.core.WorldWrap
 import net.bestia.worldgen.pipeline.StandardWorld
+import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.zone.cartography.coverage.AreaCoverage
 import net.bestia.zone.cartography.coverage.Coverage
 import net.bestia.zone.cartography.coverage.CoverageCodec
 import net.bestia.zone.cartography.coverage.SurveyGrid
+import net.bestia.zone.cartography.poi.ServiceCandidates
+import net.bestia.zone.cartography.render.MapVisibility
 import net.bestia.zone.cartography.render.TileInputs
 import net.bestia.zone.cartography.tile.FogMask
 import net.bestia.zone.cartography.tile.MapWorldKey
 import net.bestia.zone.cartography.tile.TileId
 import net.bestia.zone.cartography.tile.TileRenderer
 import net.bestia.zone.cartography.tile.TileStore
+import net.bestia.zone.townsfolk.domain.OccupationCatalogue
 import java.net.InetSocketAddress
 import java.util.Locale
 import java.util.concurrent.Executors
@@ -64,6 +69,8 @@ object MapServeMain {
 
   private val FLAGS = setOf(PORT, OUT, FOG)
 
+  private val JSON = jacksonObjectMapper()
+
   @JvmStatic
   fun main(argv: Array<String>) {
     val args = MapToolArgs.parse(argv, FLAGS)
@@ -78,6 +85,8 @@ object MapServeMain {
     val fit = TileId.fitLevel(config.widthMetres)
     val port = args.int(PORT, DEFAULT_PORT)
     val fog = args.string(FOG)?.let { syntheticCoverage(it, SurveyGrid(WorldWrap(config))) }
+    // The generator's services only: nothing has been knocked down in a world nobody has played.
+    val services = ServiceCandidates(generated.world, OccupationCatalogue().apply { load() }.hoursByTrade())
 
     val server = HttpServer.create(InetSocketAddress(LOOPBACK, port), BACKLOG)
     server.executor = Executors.newFixedThreadPool(THREADS) { runnable ->
@@ -88,6 +97,7 @@ object MapServeMain {
       when {
         exchange.requestURI.path == "/" -> respond(exchange, "text/html; charset=utf-8", viewerHtml(config.widthMetres, config.heightMetres, fit).toByteArray())
         exchange.requestURI.path.startsWith("/t/") -> tile(exchange, store, renderer, fit, fog)
+        exchange.requestURI.path.startsWith("/s/") -> services(exchange, services, fit, fog)
         else -> respond(exchange, "text/plain", "not found".toByteArray(), 404)
       }
     }
@@ -155,6 +165,37 @@ object MapServeMain {
     val encoded = renderer.get().encode(id)
     store.write(id, encoded)
     respond(exchange, "image/png", encoded)
+  }
+
+  /**
+   * `/s/{level}/{tx}/{ty}`, the services the server's `/map/v1/s` would list for the same tile.
+   *
+   * The same gates in the same order - a 404 for uncharted ground, the zoom band, then the fog per point - so
+   * `-Pfog` shows exactly where a player's map stops listing shops. Without it every service in the tile is
+   * listed, as every tile is drawn unmasked.
+   */
+  private fun services(exchange: HttpExchange, services: ServiceCandidates, fit: Int, fog: Coverage?) {
+    val parts = exchange.requestURI.path.removePrefix("/s/").split('/')
+    val id = try {
+      require(parts.size == 3) { "expected /s/{level}/{tx}/{ty}" }
+      TileId(parts[0].toInt(), parts[1].toLong(), parts[2].toLong()).also { require(it.level <= fit) { "level above $fit" } }
+    } catch (e: Exception) {
+      respond(exchange, "text/plain", "bad tile id: ${e.message}".toByteArray(), 400)
+      return
+    }
+
+    if (fog != null && fog.coverageOf(id.bounds) == AreaCoverage.None) {
+      respond(exchange, "text/plain", "uncharted".toByteArray(), 404)
+      return
+    }
+
+    val listed = if (MapVisibility.draws(FeatureKind.BUSINESS, id.metresPerPixel)) {
+      services.within(id.bounds).filter { fog == null || fog.contains(it.x, it.y) }
+    } else {
+      emptyList()
+    }
+
+    respond(exchange, "application/json", JSON.writeValueAsBytes(mapOf("services" to listed)))
   }
 
   /**

@@ -9,6 +9,8 @@ import net.bestia.zone.cartography.chart.ChartService
 import net.bestia.zone.cartography.chart.ChartsChangedEvent
 import net.bestia.zone.cartography.coverage.AreaCoverage
 import net.bestia.zone.cartography.coverage.Coverage
+import net.bestia.zone.cartography.poi.MapPoi
+import net.bestia.zone.cartography.poi.MapPoiIndex
 import net.bestia.zone.cartography.render.MapVisibility
 import net.bestia.zone.cartography.render.PlaceNames
 import net.bestia.zone.cartography.render.PlaceNames.visibleTo
@@ -52,6 +54,7 @@ class MapTileService(
   private val worldService: WorldService,
   private val chartService: ChartService,
   private val config: CartographyConfig,
+  private val pois: MapPoiIndex,
 ) {
 
   /** A tile ready to send, and how the client is allowed to cache it. */
@@ -101,6 +104,9 @@ class MapTileService(
 
   /** The places in one tile, and how the client is allowed to cache them. Mirrors [Tile]. */
   data class Places(val places: List<Place>, val etag: String, val shared: Boolean)
+
+  /** The services in one tile. Never shared and never immutable - see [services]. */
+  data class Services(val services: List<MapPoi>, val etag: String)
 
   private val pool = TileRenderPool(
     threads = RENDER_THREADS,
@@ -277,6 +283,52 @@ class MapTileService(
       etag = "\"${resources.key}-p-$suffix\"",
       shared = shared
     )
+  }
+
+  /**
+   * The services inside a tile - shops, inns, ward stones - or null when the master has charted nothing in it.
+   *
+   * ### Why this is not part of [places]
+   *
+   * A place is the generator's and stays put, so a wholly charted tile's places are `immutable`. A service can
+   * be knocked down, and the map shows the world as it is: [MapPoiIndex] knows what still stands, and its
+   * [MapPoiIndex.revision] is in the ETag. So these are always revalidated, and the answer is a 304 until
+   * something in the world changed or the asker's charts did.
+   *
+   * The fog test is [places]' own - the tile's bounds, then [Coverage.contains] per point - and so is the 404.
+   * Below the zoom a glyph per shop has room for, the list is empty rather than absent: the tile is charted,
+   * there is just nothing to draw on it at that scale.
+   *
+   * @throws IllegalArgumentException for a level outside the pyramid, which is a malformed request rather than
+   *   an empty answer
+   */
+  fun services(masterId: Long, id: TileId): Services? {
+    require(id.level in 0..resources.fitLevel) {
+      "Level ${id.level} is outside 0..${resources.fitLevel}"
+    }
+
+    if (!holdsTile(id)) return null
+
+    val coverage = coverageFor(masterId)
+
+    val (wholly, digest) = when (val over = coverage.coverageOf(id.bounds)) {
+      AreaCoverage.None -> return null
+      AreaCoverage.Full -> true to UNKEYED_DIGEST
+      is AreaCoverage.Partial -> false to over.digest
+    }
+
+    // Read before the list, never after: an ETag naming an older state than its body only costs the client one
+    // more download, while one naming a newer state would pin a stale body behind a 304 indefinitely.
+    val revision = pois.revision
+
+    val services = if (MapVisibility.draws(FeatureKind.BUSINESS, id.metresPerPixel)) {
+      pois.liveIn(id.bounds).filter { wholly || coverage.contains(it.x, it.y) }
+    } else {
+      emptyList()
+    }
+
+    val suffix = if (wholly) id.path() else "${id.path()}#$digest"
+    return Services(services, etag = "\"${resources.key}-s-$suffix-r$revision\"")
   }
 
   /**

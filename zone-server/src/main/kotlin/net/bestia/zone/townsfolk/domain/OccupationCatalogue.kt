@@ -8,6 +8,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.annotation.PostConstruct
 import net.bestia.worldgen.core.EventKind
 import net.bestia.zone.ai.core.state.HourWindow
+import net.bestia.zone.cartography.poi.StaffedTrades
 import net.bestia.zone.townsfolk.knowledge.KnowledgeProfile
 import org.springframework.core.io.ClassPathResource
 import org.springframework.stereotype.Service
@@ -21,7 +22,7 @@ import org.springframework.stereotype.Service
  * they live in [OccupationCoverage].
  */
 @Service
-class OccupationCatalogue {
+class OccupationCatalogue : StaffedTrades {
 
   private val byId = LinkedHashMap<String, Occupation>()
 
@@ -64,6 +65,17 @@ class OccupationCatalogue {
 
   fun unstaffedTrades(): Set<String> {
     return unstaffed
+  }
+
+  /** The first occupation declared for a trade wins. None share one today, and the map only reads the hours. */
+  override fun hoursByTrade(): Map<String, HourWindow?> {
+    val hours = LinkedHashMap<String, HourWindow?>()
+    for (occupation in byId.values) {
+      val business = occupation.businessType ?: continue
+      if (business !in hours) hours[business] = occupation.shift
+    }
+
+    return hours
   }
 
   /**

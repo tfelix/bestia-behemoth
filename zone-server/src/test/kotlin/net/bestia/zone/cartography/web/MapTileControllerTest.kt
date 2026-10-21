@@ -1,7 +1,11 @@
 package net.bestia.zone.cartography.web
 
+import net.bestia.worldgen.vector.Aabb
 import net.bestia.zone.session.HttpTicketService
 import net.bestia.zone.cartography.chart.ChartService
+import net.bestia.zone.cartography.coverage.SurveyGrid
+import net.bestia.zone.cartography.poi.MapPoi
+import net.bestia.zone.cartography.poi.MapPoiIndex
 import net.bestia.zone.cartography.tile.TileId
 import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.mocks.GameClientMock
@@ -22,6 +26,8 @@ import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.test.context.ActiveProfiles
 import java.net.URI
+import kotlin.math.hypot
+import kotlin.math.sqrt
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
@@ -72,6 +78,9 @@ class MapTileControllerTest {
 
   @Autowired
   private lateinit var httpTickets: HttpTicketService
+
+  @Autowired
+  private lateinit var pois: MapPoiIndex
 
   private lateinit var client: GameClientMock
   private var accountId: Long = 0
@@ -311,6 +320,64 @@ class MapTileControllerTest {
   }
 
   @Test
+  fun `services are listed only where they are charted`() {
+    val shop = someService(0)
+    // 200 m buries the shop's own 64 m cell and little else, so its neighbours in a 2 km tile stay in the fog.
+    chartedAt(shop.x, shop.y, radiusMetres = 200.0)
+    val tile = TileId.of(3, shop.x, shop.y)
+
+    val listed = servicesIn(tile)
+
+    assertTrue(listed.any { (it["id"] as Number).toLong() == shop.id }, "the charted service is not listed")
+    for (service in listed) {
+      val distance = hypot((service["x"] as Number).toDouble() - shop.x, (service["y"] as Number).toDouble() - shop.y)
+      assertTrue(distance < 200.0 + CELL_DIAGONAL, "$service is listed from uncharted ground ($distance m out)")
+    }
+  }
+
+  @Test
+  fun `uncharted services are a 404 and too coarse a zoom lists none`() {
+    val far = TileId.of(3, 110_000.0, 110_000.0)
+    assertEquals(
+      HttpStatus.NOT_FOUND,
+      rest.exchange(servicesUrl(far), HttpMethod.GET, signed(), String::class.java).statusCode
+    )
+
+    val shop = someService(1)
+    chartedAt(shop.x, shop.y, radiusMetres = 1_000.0)
+
+    assertEquals(emptyList(), servicesIn(TileId.of(4, shop.x, shop.y)), "L4 has no room for a glyph per shop")
+  }
+
+  @Test
+  fun `services revalidate until something in the world changes`() {
+    val shop = someService(2)
+    chartedAt(shop.x, shop.y, radiusMetres = 1_000.0)
+    val tile = TileId.of(2, shop.x, shop.y)
+
+    val first = rest.exchange(servicesUrl(tile), HttpMethod.GET, signed(), Map::class.java)
+    assertEquals(HttpStatus.OK, first.statusCode)
+    val cacheControl = assertNotNull(first.headers.cacheControl)
+    assertTrue(cacheControl.contains("no-cache") && cacheControl.contains("private"), "got $cacheControl")
+    val etag = assertNotNull(first.headers.eTag)
+
+    assertEquals(
+      HttpStatus.NOT_MODIFIED,
+      rest.exchange(servicesUrl(tile), HttpMethod.GET, signed(ifNoneMatch = etag), Map::class.java).statusCode
+    )
+
+    // A ward stone raised inside the tile and then broken: each is a change every map covering it must see.
+    val stone = Long.MAX_VALUE - 7
+    pois.onWardStoneRaised(stone, shop.x, shop.y)
+    val raised = rest.exchange(servicesUrl(tile), HttpMethod.GET, signed(ifNoneMatch = etag), Map::class.java)
+    assertEquals(HttpStatus.OK, raised.statusCode, "a stone was raised and the old ETag still matched")
+    assertTrue(servicesIn(tile).any { (it["id"] as Number).toLong() == stone && it["kind"] == "WARD_STONE" })
+
+    pois.onWardStoneDestroyed(stone)
+    assertTrue(servicesIn(tile).none { (it["id"] as Number).toLong() == stone }, "a broken stone is still listed")
+  }
+
+  @Test
   fun `a level above the pyramid is a bad request rather than a rendered void`() {
     assertEquals(
       HttpStatus.BAD_REQUEST,
@@ -356,6 +423,32 @@ class MapTileControllerTest {
     return HttpEntity(headers)
   }
 
+  /**
+   * A staffed service in the [nth] settlement north of the strip the other tests chart along.
+   *
+   * One settlement per test, because the fixture master is shared and a 1 km survey for one test would answer
+   * "only where charted" for another. Settlements are kilometres apart; a town's own shops are not.
+   */
+  private fun someService(nth: Int): MapPoi {
+    val width = worldMetres("worldWidthMetres")
+    val height = worldMetres("worldHeightMetres")
+    val towns = pois.liveIn(Aabb(0.0, CHARTED_STRIP_NORTH, width, height))
+      .filter { it.business != null }
+      .distinctBy { it.settlement }
+
+    return assertNotNull(towns.getOrNull(nth), "the test world has fewer than ${nth + 1} towns with a service")
+  }
+
+  @Suppress("UNCHECKED_CAST")
+  private fun servicesIn(tile: TileId): List<Map<String, Any?>> {
+    val response = rest.exchange(servicesUrl(tile), HttpMethod.GET, signed(), Map::class.java)
+    assertEquals(HttpStatus.OK, response.statusCode, "services of $tile")
+
+    return assertNotNull(response.body)["services"] as List<Map<String, Any?>>
+  }
+
+  private fun servicesUrl(tile: TileId) = "/map/v1/s/${tile.level}/${tile.tx}/${tile.ty}"
+
   private fun url(tile: TileId) = url(tile.level, tile.tx, tile.ty)
 
   private fun url(level: Int, tx: Long, ty: Long) = "/map/v1/t/$level/$tx/$ty.png"
@@ -366,5 +459,11 @@ class MapTileControllerTest {
   private companion object {
     /** Keeps each test's survey on its own ground, since the fixture master is shared. */
     var NEXT_SPOT = 0
+
+    /** Every other test charts at y = 20 km or 44 km, at most 6 km across. */
+    const val CHARTED_STRIP_NORTH = 52_000.0
+
+    /** How far past a disc's edge a charted 64 m cell can still reach. */
+    val CELL_DIAGONAL = SurveyGrid.CELL_METRES * sqrt(2.0)
   }
 }

@@ -67,6 +67,17 @@ class MapVisibilityTest {
   }
 
   @Test
+  fun `a business is a service, drawn by the client up close and never baked as a place`() {
+    // Not a place: `PlaceInk` would bake a symbol into an immutable tile, and the building can be knocked down.
+    assertEquals(MapVisibility.SERVICE, MapVisibility.of(FeatureKind.BUSINESS))
+    assertFalse(MapVisibility.SERVICE.isPlace)
+
+    // L3 is 8 m per pixel and still has room for a glyph per shop; L4 does not.
+    assertTrue(MapVisibility.draws(FeatureKind.BUSINESS, 8.0))
+    assertFalse(MapVisibility.draws(FeatureKind.BUSINESS, 16.0))
+  }
+
+  @Test
   fun `the bands generalise as you zoom out`() {
     // A landmark is worth a mark up close and noise on a world map; a city is worth one at every zoom. If
     // these ever invert, the map either loses its towns or fills with waystones.

@@ -51,6 +51,14 @@ enum class MapVisibility(
   TOWN_DETAIL(12.0),
 
   /**
+   * Somewhere a player can use - a shop, an inn, a temple. Never baked into a tile and never a [isPlace]: the
+   * client draws these from `MapTileService.services`, because the building can be knocked down and a symbol
+   * in an immutable tile would outlive it. Finer than [TOWN_DETAIL], because a town is a few hundred metres
+   * across and a glyph per shop needs room the streets do not.
+   */
+  SERVICE(8.0),
+
+  /**
    * Never drawn at any zoom, because knowing it is worth more than a map should give away.
    *
    * Ore, buried hoards, cave systems and creature dens. All of them are content a player is meant to find by
@@ -141,7 +149,10 @@ enum class MapVisibility(
       FeatureKind.SETTLEMENT_HISTORY -> OMITTED
       FeatureKind.SETTLEMENT_ECONOMY -> OMITTED
       FeatureKind.SETTLEMENT_GRADING -> OMITTED
-      FeatureKind.BUSINESS -> OMITTED
+
+      // On its host building's centre. Which trades reach a map, and only while the building stands, is
+      // `MapService` and `MapPoiIndex`'s decision; this only says how far out one is worth a glyph.
+      FeatureKind.BUSINESS -> SERVICE
 
       // Structures in the heightfield rather than things on the ground. The relief already shows them.
       FeatureKind.FAULT -> OMITTED

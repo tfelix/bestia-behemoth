@@ -2,6 +2,7 @@ package net.bestia.zone.cartography.web
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.servlet.http.HttpServletRequest
+import net.bestia.zone.cartography.poi.MapPoi
 import net.bestia.zone.cartography.tile.MapTileService
 import net.bestia.zone.cartography.tile.TileRenderPool
 import net.bestia.zone.cartography.tile.TileId
@@ -155,6 +156,49 @@ class MapTileController(
       .cacheControl(cacheControl)
       .contentType(MediaType.APPLICATION_JSON)
       .body(places.places)
+  }
+
+  /**
+   * The services inside a tile - shops, inns, markets, ward stones - for the client to draw as glyphs of its own.
+   *
+   * Addressed like the tile and with its 404, but never cached for keeps: a service can be destroyed, so this
+   * is always `private, no-cache` and the ETag carries both the coverage digest and the world's service
+   * revision. A client revalidating an area where nothing fell gets a 304.
+   *
+   * No file extension, unlike `/t` and `/p`: those two name files the client stores on disk, and this one is a
+   * live answer it keeps in memory only.
+   */
+  @GetMapping("/s/{level}/{tx}/{ty}")
+  fun services(
+    @PathVariable level: Int,
+    @PathVariable tx: Long,
+    @PathVariable ty: Long,
+    request: HttpServletRequest
+  ): ResponseEntity<Map<String, List<MapPoi>>> {
+    val masterId = request.getAttribute(MapAuthFilter.MASTER_ID) as? Long
+      ?: throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "No master on the request")
+
+    val id = try {
+      TileId(level, tx, ty)
+    } catch (e: IllegalArgumentException) {
+      throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
+    }
+
+    val services = try {
+      tiles.services(masterId, id)
+    } catch (e: IllegalArgumentException) {
+      throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
+    } ?: return ResponseEntity.notFound().build()
+
+    if (request.getHeader("If-None-Match") == services.etag) {
+      return ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(services.etag).build()
+    }
+
+    return ResponseEntity.ok()
+      .eTag(services.etag)
+      .cacheControl(CacheControl.noCache().cachePrivate())
+      .contentType(MediaType.APPLICATION_JSON)
+      .body(mapOf("services" to services.services))
   }
 
   private companion object {
