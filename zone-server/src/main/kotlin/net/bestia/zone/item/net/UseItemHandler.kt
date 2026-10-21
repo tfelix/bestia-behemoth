@@ -10,7 +10,13 @@ import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.item.script.ItemScriptExecutionService
 import net.bestia.zone.message.IoMessageHandler
+import net.bestia.zone.message.OperationErrorSMSG
+import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.message.decoder
+import net.bestia.zone.skill.NoviceGate
+import net.bestia.zone.skill.ecs.KnownSkills
+import net.bestia.zone.util.EntityId
+import net.bestia.bnet.proto.OperationErrorProto
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
 import net.bestia.zone.item.persistence.Item
@@ -24,6 +30,8 @@ class UseItemHandler(
   private val inventoryService: InventoryService,
   private val asyncJobExecutor: AsyncJobExecutor,
   private val deadActionGuard: DeadActionGuard,
+  private val noviceGate: NoviceGate,
+  private val outMessageProcessor: OutMessageProcessor,
   private val world: WorldView
 ) : IoMessageHandler<UseItemCMSG> {
   override val wire = decoder(MessageCase.USE_ITEM) { accountId, envelope ->
@@ -56,6 +64,12 @@ class UseItemHandler(
       return true
     }
 
+    // Asked before the database gives the item up, so a refusal costs nothing and needs nothing given back.
+    if (item.noviceOnly && !isNovice(activeEntityId)) {
+      outMessageProcessor.sendToPlayer(msg.playerId, OperationErrorSMSG(OperationErrorProto.OpError.ITEM_NOVICE_ONLY))
+      return true
+    }
+
     // Durable first and outside the world lock: an effect cannot be taken back, so it only happens once the
     // database has given the item up. Taking it from the live inventory alone let a copy the database no longer
     // held be used again and again.
@@ -80,6 +94,10 @@ class UseItemHandler(
     consumed.getOrThrow()
 
     return true
+  }
+
+  private fun isNovice(entityId: EntityId): Boolean {
+    return world.read { noviceGate.isNovice(get(entityId, KnownSkills::class)) }
   }
 
   companion object {
