@@ -132,7 +132,95 @@ class FogMaskTest {
     val clearing = FogMask.clearingArea(tile)
 
     assertTrue(clearing.minX < tile.bounds.minX && clearing.maxX > tile.bounds.maxX)
-    assertEquals(FogMask.FALLOFF_METRES, tile.bounds.minX - clearing.minX)
+    assertEquals(FogMask.REACH_METRES, tile.bounds.minX - clearing.minX)
+  }
+
+  @Test
+  fun `the edge follows the chart and not the survey grid`() {
+    // A disc drawn on 64 m cells is a staircase. A fade that is only interpolated between lattice values keeps
+    // that staircase as a ripple round the whole edge, which is what close zoom showed. Smoothed, the alpha on a
+    // circle a fixed distance inside the edge is much more nearly one value all the way round.
+    val coverage = Coverage(grid).apply { fillDisc(64_000.0, 64_000.0, 3_000.0) }
+    val alphas = (0 until 120).map { step ->
+      val angle = 0.05 + step * (Math.PI / 2 - 0.1) / 119
+      alphaOfPoint(coverage, 1, 64_000.0 + 2_900.0 * Math.cos(angle), 64_000.0 + 2_900.0 * Math.sin(angle))
+    }
+
+    // The lattice fade it replaced spreads by about 68 at this depth; this one by about 36.
+    val spread = alphas.max() - alphas.min()
+    assertTrue(spread <= 50, "alpha varies by $spread round a circle of constant depth: the grid is showing")
+  }
+
+  @Test
+  fun `a pixel in an uncharted cell is never revealed`() {
+    // Smoothing alone puts a faint alpha across the corners of a staircase. The fringe must stay inside the
+    // chart, so a pixel whose own cell is not charted is zero however much of its neighbourhood is.
+    val coverage = Coverage(grid).apply {
+      fillDisc(64_000.0, 64_000.0, 2_000.0)
+      fillDisc(66_500.0, 64_700.0, 1_200.0)
+      fillDisc(63_000.0, 61_900.0, 900.0)
+    }
+    val tile = TileId.of(2, 66_000.0, 63_000.0)
+    val masked = FogMask.forTile(tile, coverage).applyTo(filled(0xFFFFFF))
+
+    var uncharted = 0
+    var revealed = 0
+    for (py in 0 until masked.height) {
+      for (px in 0 until masked.width) {
+        val worldX = tile.bounds.minX + (px + 0.5) * tile.metresPerPixel
+        val worldY = tile.bounds.maxY - (py + 0.5) * tile.metresPerPixel
+        val alpha = masked.getRGB(px, py) ushr 24
+
+        if (coverage.contains(worldX, worldY)) {
+          if (alpha > 0) revealed++
+        } else {
+          uncharted++
+          assertEquals(0, alpha, "an uncharted pixel at $worldX, $worldY is partly revealed")
+        }
+      }
+    }
+
+    assertTrue(uncharted > 0 && revealed > 0, "the tile chosen does not cross a chart's edge, so the test proves nothing")
+  }
+
+  @Test
+  fun `the fade is not banded where it spans many pixels`() {
+    // 160 m of fade at 2 m per pixel is 80 pixels; sixteen alpha values over that show as stripes.
+    val coverage = Coverage(grid).apply { fillDisc(64_000.0, 64_000.0, 3_000.0) }
+    // 64 100 and not 64 000, which is the boundary between two L1 tiles and so a row this one does not have.
+    val tile = TileId.of(1, 67_000.0, 64_100.0)
+    val masked = FogMask.forTile(tile, coverage).applyTo(filled(0xFFFFFF))
+
+    val row = ((tile.bounds.maxY - 64_100.0) / tile.metresPerPixel).toInt()
+    val distinct = (0 until masked.width).map { masked.getRGB(it, row) ushr 24 }.toSet().size
+
+    assertTrue(distinct > FogMask.ALPHA_LEVELS, "only $distinct alpha values across the fade")
+  }
+
+  @Test
+  fun `the fine and the coarse regime agree where they meet`() {
+    // L6 is the last level drawn from smoothed cells and L7 the first drawn from the lattice. A tile at each, over
+    // the same charted ground, must not put the edge in different places by more than a pixel of the coarser.
+    val coverage = Coverage(grid).apply { fillDisc(64_000.0, 64_000.0, 30_000.0) }
+    val edge = 64_000.0 + 30_000.0
+
+    val fine = revealedUntil(coverage, 6, edge)
+    val coarse = revealedUntil(coverage, 7, edge)
+
+    assertTrue(abs(fine - coarse) <= 2 * 128.0, "the edge is at $fine on L6 and $coarse on L7")
+  }
+
+  /** The easternmost world x at which a tile's row through the chart's centre is still more than half revealed. */
+  private fun revealedUntil(coverage: Coverage, level: Int, near: Double): Double {
+    val tile = TileId.of(level, near, 64_000.0)
+    val masked = FogMask.forTile(tile, coverage).applyTo(filled(0xFFFFFF))
+    val row = ((tile.bounds.maxY - 64_000.0) / tile.metresPerPixel).toInt()
+
+    var last = tile.bounds.minX
+    for (px in 0 until masked.width) {
+      if (masked.getRGB(px, row) ushr 24 > 127) last = tile.bounds.minX + (px + 0.5) * tile.metresPerPixel
+    }
+    return last
   }
 
   private fun alphaOfPoint(coverage: Coverage, level: Int, worldX: Double, worldY: Double): Int {
