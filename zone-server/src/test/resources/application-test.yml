@@ -4,12 +4,6 @@ zone:
   sql-on-tick: fail
 
 spring:
-  # Pinned back to `none`: eleven test classes use a bare `@SpringBootTest`, which defaults to a MOCK web
-  # environment and binds no port, so there is no collision to avoid - but building a servlet context the suite
-  # never calls into is pure boot time. The one test that does want HTTP overrides this property itself.
-  main:
-    web-application-type: none
-
   datasource:
     url: jdbc:h2:mem:behemoth-test
     driver-class-name: org.h2.Driver
@@ -70,10 +64,9 @@ chunk-stream:
 world:
   undeclared-access: fail
 
-# The one HTTP test would otherwise start a second server for the metrics.
-management:
-  server:
-    port: -1
+# Every Spring context in the suite would otherwise bind the same port; PrometheusEndpointTest starts its own.
+metrics:
+  port: -1
 
 # No Valkey in the test suite: the bus beans are replaced by a no-op event publisher, and no request server runs.
 bus:

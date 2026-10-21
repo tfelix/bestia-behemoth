@@ -33,16 +33,23 @@ class ZoneDefaultConfigTest {
     assertNull(load("application.yml").getProperty("zone.jwt-auth-secret-key"))
   }
 
-  /** The metrics show what the zone does; they belong on loopback, apart from the tiles and the game socket. */
+  /** The api-service is the world's HTTP face; the zone serves its game socket and nothing else to the outside. */
   @Test
-  fun `metrics are served on a loopback port of their own, and nothing else is exposed`() {
+  fun `the zone runs no web server`() {
     val config = load("application.yml")
-    val port = config.getProperty("management.server.port")
 
-    assertEquals("127.0.0.1", config.getProperty("management.server.address"))
-    assertNotEquals(config.getProperty("server.port"), port)
-    assertNotEquals(config.getProperty("socket.port"), port)
-    assertEquals("health,prometheus", config.getProperty("management.endpoints.web.exposure.include"))
+    assertEquals("none", config.getProperty("spring.main.web-application-type"))
+    assertNull(config.getProperty("server.port"))
+    assertNull(config.getProperty("management.server.port"))
+  }
+
+  /** The metrics show what the zone does; they belong on loopback, apart from the game socket. */
+  @Test
+  fun `metrics are served on a loopback port of their own`() {
+    val config = load("application.yml")
+
+    assertEquals("127.0.0.1", config.getProperty("metrics.address"))
+    assertNotEquals(config.getProperty("socket.port"), config.getProperty("metrics.port"))
   }
 
   private fun load(name: String): Properties {

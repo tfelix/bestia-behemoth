@@ -20,19 +20,15 @@ dependencies {
 	implementation 'io.github.oshai:kotlin-logging-jvm:7.0.3'
 	implementation 'org.springframework.boot:spring-boot-starter'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	// Serves the map tile pyramid and the internal API the login server calls. The game itself talks over the
-	// Netty socket; tiles are bulk binary asset traffic with their own caching and conditional-request
-	// semantics, which is what HTTP is for and what a message envelope is not.
-	//
-	// `spring-boot-starter-security` used to sit here marked `// needed?`, imported by exactly zero Kotlin
-	// files. It was inert only because there was no web layer: adding this line activates its auto-config,
-	// which installs a default `SecurityFilterChain` demanding HTTP Basic with a password printed at boot and
-	// would have 401'd every tile request. Removed rather than configured around - the map's own auth is a
-	// plain `OncePerRequestFilter` over the login JWT, and `jjwt` below is independent of it.
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	// Metrics on their own loopback port (`management.server` in application.yml), scraped as Prometheus text.
+	// No web server: the zone serves its Netty socket, answers the bus and exports metrics (below), and the
+	// api-service is its HTTP face. The JSON starter is here for the `ObjectMapper` the persisters inject - Boot
+	// builds it with spring-web's builder, so that jar comes along, but nothing in it is served.
+	implementation 'org.springframework.boot:spring-boot-starter-json'
+	// The meter registry only; actuator serves nothing without a web server. The scrape is the Prometheus
+	// client's own exporter on a loopback port (metrics/PrometheusEndpoint, `zone.metrics` in application.yml).
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	implementation 'io.micrometer:micrometer-registry-prometheus'
+	implementation 'io.prometheus:prometheus-metrics-exporter-httpserver'
 	implementation 'org.jetbrains.kotlin:kotlin-reflect'
 	implementation 'org.reflections:reflections:0.10.2'
 	implementation 'com.fasterxml.jackson.module:jackson-module-kotlin:2.17.0'

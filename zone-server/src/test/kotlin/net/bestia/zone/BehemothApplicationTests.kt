@@ -10,6 +10,9 @@ import org.springframework.test.context.TestPropertySource
 		"spring.datasource.url=jdbc:h2:mem:behemoth-application-tests",
 		"spring.datasource.driver-class-name=org.h2.Driver",
 		"zone.jwt-auth-secret-key=behemoth-application-test-secret-long-enough",
+		// The dev profile's bus and metrics port would tie the test to a running Valkey and a free port 8092.
+		"bus.enabled=false",
+		"metrics.port=-1",
 	]
 )
 class BehemothApplicationTests {
