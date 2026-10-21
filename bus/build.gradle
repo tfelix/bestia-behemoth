@@ -1,0 +1,34 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm'
+    id 'io.spring.dependency-management'
+}
+
+group = 'net.bestia.bus'
+description = 'bus'
+
+// The message bus between zone-server and api-service: the contract both sides speak, and its Valkey transport.
+// A plain library, not a Spring Boot app - each service wires the pieces it needs in its own configuration.
+dependencyManagement {
+    imports {
+        mavenBom 'org.springframework.boot:spring-boot-dependencies:3.4.2'
+    }
+}
+
+dependencies {
+    api 'io.lettuce:lettuce-core'
+    api 'com.fasterxml.jackson.module:jackson-module-kotlin'
+    implementation 'io.github.oshai:kotlin-logging-jvm:7.0.3'
+    implementation 'org.jetbrains.kotlin:kotlin-reflect'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation 'org.jetbrains.kotlin:kotlin-test-junit5'
+    testImplementation 'org.testcontainers:junit-jupiter'
+    testImplementation 'org.testcontainers:testcontainers'
+    testImplementation 'org.awaitility:awaitility:4.2.2'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testRuntimeOnly 'org.slf4j:slf4j-simple'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}

@@ -1,0 +1,3 @@
+user default off
+user zone on >zone-dev-password ~dir:* ~events ~bus:idem:* &zone:*:requests &api:*:replies +@all -@admin -@dangerous
+user api on >api-dev-password ~dir:* ~events &zone:*:requests &api:*:replies +@connection +@pubsub +@stream +@read

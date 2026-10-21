@@ -2,3 +2,4 @@ rootProject.name = 'bestia-behemoth'
 
 include 'zone-server', 'bnet-messages', 'login-server', 'shared'
 include 'worldgen'
+include 'bus'

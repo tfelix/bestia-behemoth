@@ -12,5 +12,19 @@ services:
     volumes:
       - 'zone-mariadb-data:/var/lib/mysql'
 
+  # The bus between the zones and the api-service. Owned by the zone: a cluster of zone nodes needs it anyway, and
+  # the api-service is only one of its clients. Users and what each may touch are in valkey/users.acl.
+  valkey:
+    image: 'valkey/valkey:8.1'
+    command: ['valkey-server', '--aclfile', '/etc/valkey/users.acl']
+    labels:
+      # Connected through `bus.*` in application-dev.yml, with its own user, not through a Spring Data Redis
+      # connection Spring Boot would derive from the container.
+      org.springframework.boot.ignore: true
+    ports:
+      - '127.0.0.1:6379:6379'
+    volumes:
+      - './valkey/users.acl:/etc/valkey/users.acl:ro'
+
 volumes:
   zone-mariadb-data:
