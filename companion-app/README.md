@@ -14,6 +14,8 @@ Start the servers first, zone before api-service (the zone's compose file brings
 ./gradlew :api-service:bootRun
 ```
 
+The game client needs the api-service as well: its map comes from there, not from the zone.
+
 Then the app on http://localhost:5173, whose dev server proxies `/api/v1/auth` and `/v1/companion` to the servers:
 
 ```

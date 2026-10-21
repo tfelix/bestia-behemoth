@@ -4,8 +4,10 @@ Kotlin/Spring Boot MMORPG monorepo: `login-server` (auth) + `zone-server` (game 
 Netty socket + ECS) talk to a Godot/C# client (`bestia-client`) over protobuf
 (`bnet-messages`). World generation by `worldgen`. No shared DB between servers.
 Shared code between servers, mostly login and inter-server communication related lives in `shared`.
-The companion web app (`companion-app/`, SvelteKit, npm) talks JSON to `api-service`, which asks the
-zone over the Valkey bus in `bus` (the zone owns Valkey: `zone-server/compose.yaml`).
+The companion web app (`companion-app/`, SvelteKit, npm) talks JSON to `api-service`, which also serves the game
+client's map and asks the zone over the Valkey bus in `bus` (the zone owns Valkey: `zone-server/compose.yaml`).
+The login server kicks players over the same bus. The zone runs no web server: it listens on its game socket and a
+loopback metrics port only.
 
 For message flow, protobuf/envelope routing, the ECS game loop, or the login↔zone
 handoff, read `.claude/skills/architecture/SKILL.md` first instead of re-deriving it.

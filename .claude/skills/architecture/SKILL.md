@@ -238,8 +238,9 @@ Do not start threads or executors: `ThreadingRulesTest` lists the classes that m
 `@Scheduled` sweep that hands due work to a DB job, an account's inbox or `world.post` (trade request
 expiry), or state that expires when it is next touched (party invitations).
 
-**Metrics.** Prometheus text on `127.0.0.1:8092/actuator/prometheus` (`management.server` in
-`application.yml`). A source keeps plain counters (`SystemScheduler`'s per-system totals,
+**Metrics.** Prometheus text on `127.0.0.1:8092/metrics`, liveness on `/-/healthy` (`metrics.*` in
+`application.yml`). The zone runs no Spring web server (`web-application-type: none`): `metrics/PrometheusEndpoint`
+is the Prometheus client's own JDK HTTP server over the actuator-built `PrometheusMeterRegistry`. A source keeps plain counters (`SystemScheduler`'s per-system totals,
 `AsyncJobExecutor`, `AccountInbox`); `zone/metrics/` binds them to Micrometer when scraped, so
 `ecs/core` never imports Micrometer and the tick never pays for a meter. Tags stay bounded: never an
 account or entity id.
@@ -357,32 +358,32 @@ startup guard refuses the placeholder. The shared HMAC secret is meant to move t
 production.
 There is no DB call between the two servers; trust is entirely in the JWT signature.
 
-Five tokens, each with an audience matched exactly so none stands in for another; all but the companion token are signed with that one secret:
+Four tokens, each with an audience matched exactly so none stands in for another; all but the companion token are signed with that one secret:
 
 | Token | Audience | Lifetime | Used for |
 |---|---|---|---|
 | zone login token | `zone` | `jwt.login-token-minutes` (2) | the socket handshake, once (`jti`) |
 | refresh token | - (opaque, stored as a digest) | `game-login.refresh-token-days` | `/refresh`, rotated on every use |
 | api token | `login-api` | `jwt.api-token-minutes` (15) | the client's calls to `/api/v1/admin/**` |
-| service token | `zone-internal` | 30 s (`ServiceTokens` in `shared`) | login → zone calls, once, one account and scope |
 | companion token | `companion` | `jwt.companion-token-minutes` (15) | the companion app's calls to api-service; signed with `jwt.companion-secret`, not the zone secret |
 
 Login sessions and refresh tokens carry a `client` (`GAME`/`COMPANION`); `LoginGrants` refuses a grant for the other
 client, so nothing from a companion login opens a zone. The companion refresh token is an httpOnly cookie on
 `/api/v1/auth/companion` (`CompanionLoginController`), and its redirect must be one of `companion-login.redirect-uris`.
 
-The one call between the servers goes login → zone. `AccountSessionTerminator` ends every way into an account
-(refresh tokens, signed-in login sessions, open codes, passkey enrolments) on a recovery, a ban or a GM kick, and
-after the commit `ZoneKickListener` posts `ServiceTokens.KICK_PATH` to every zone `ZoneDirectory` names - today
-all of `zone-directory.zones`, because the login server cannot see which zone a player is on. On the zone,
-`InternalApiFilter` checks the service token, `InternalAccountController` disconnects the account through
-`ConnectionTerminator`, and `KickedAccounts` refuses its login tokens issued before the kick. The internal API
-shares the map tile port, so a proxy in front of the tiles must never route `/internal/`.
+The one message between the servers goes login → zone, over the zone's Valkey. `AccountSessionTerminator` ends
+every way into an account (refresh tokens, signed-in login sessions, open codes, passkey enrolments) on a recovery,
+a ban or a GM kick, and after the commit `ZoneKickListener` appends a `KickOrder` (account, reason, kick time) to the
+`kicks` stream as the `login` Valkey user, which may do nothing else; best effort, 2 s timeout
+(`bus.command-timeout-millis`). Every zone node reads the stream in a consumer group of its own (`kicks-<nodeId>`),
+so each sees every kick and catches up after a restart: `account/authentication/KickOrderListener` calls
+`KickedAccounts.remember` (refuses login tokens issued before the kick time, which is the login server's clock like
+the token's) and, for a kick newer than the node's start, `ConnectionTerminator.disconnect`.
 
 A GM action from the client is `POST /api/v1/admin/accounts/{id}/ban|kick` with the api token. `GmActionService`
 re-reads the actor on every call, needs the action's `Authority`, needs the actor to outrank the target
 (`Role.outranks`), and writes a `gm_action` row. A new GM action is a new `Authority` and a new endpoint there;
-if it acts inside the game, also a new service token scope and `/internal/v1/...` endpoint on the zone.
+if it acts inside the game, also a contract in `bus/.../contract/` that the zone reads, as `KickOrder` is.
 
 Passkeys / WebAuthn are the only login method, and they never touch the game client. The client calls
 `POST /api/v1/auth/game/start` with a loopback `redirect_uri` and a PKCE challenge,
@@ -423,7 +424,10 @@ master respawns the missing ones from their `player_bestia` rows
 Design and reasons: bestia-docs `server/api-service.md`. Where things are:
 
 - **Valkey is the zone's.** `zone-server/compose.yaml` runs it with `zone-server/valkey/users.acl` (users `zone`,
-  `api`); `ValkeyAclTest` proves each user can do its part. Keys and channels are all in `bus/.../BusKeys.kt`.
+  `api`, `login`); `ValkeyAclTest` proves each user can do its part. Keys and channels are all in
+  `bus/.../BusKeys.kt`. Streams are written by `ValkeyStreamAppender` and read by `ValkeyStreamReader` (tail,
+  replay, consumer group); `ValkeyEventPublisher` puts a non-blocking outbox in front of the appender for the tick.
+  The zone's bus beans are in `zone/bus/` (`BusConfiguration`, or `NoBusConfiguration` under `bus.enabled: false`).
 - **Request/reply.** api-service `ZoneClient` → `ValkeyNodeBus.ask` (directory lookup, `zone:{node}:requests`,
   reply on `api:{instance}:replies`, 5 s timeout) → zone `BusRequestServer` (starts on `ApplicationReadyEvent`) →
   `ValkeyRequestServer` (virtual threads, 64 in flight, idempotency keys) → `CompanionRequestDispatcher` →
@@ -434,6 +438,10 @@ Design and reasons: bestia-docs `server/api-service.md`. Where things are:
   `companion/ZoneEventRelay` turns them into `ZoneEvent`s on the `ValkeyEventPublisher` outbox (never blocks; DB
   lookups go to a DB job first). `PresenceHeartbeat` writes the directory every 10 s and emits `Presence`.
   api-service reads the stream in `EventFanOut` (WebSocket + cache eviction) and `PushNotifier` (consumer group).
+- **The game client's map** comes from the api-service too, on the same `/v1/companion/masters/{id}/map/...`
+  routes: the client sends `Authorization: Ticket <http_ticket>` from its socket handshake, `CompanionAuthFilter`
+  accepts a ticket on map routes only, and `TicketOwners` asks the zone whose it is (`ZoneQuery.WhoseTicket`,
+  cached 30 s, dropped on `Presence(inWorld=false)`). The zone serves no HTTP.
 - **Stance.** `master/bestia/BestiaAiConfigService` is the one place a standing order is applied, for the socket
   handler and the bus alike; it finds the live entity by `player_bestia.entity_id`, not by session.
 - **Tests without Docker.** zone tests run with `bus.enabled: false` (`NoBusConfiguration`: no-op directory and
