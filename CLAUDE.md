@@ -4,6 +4,8 @@ Kotlin/Spring Boot MMORPG monorepo: `login-server` (auth) + `zone-server` (game 
 Netty socket + ECS) talk to a Godot/C# client (`bestia-client`) over protobuf
 (`bnet-messages`). World generation by `worldgen`. No shared DB between servers.
 Shared code between servers, mostly login and inter-server communication related lives in `shared`.
+The companion web app (`companion-app/`, SvelteKit, npm) talks JSON to `api-service`, which asks the
+zone over the Valkey bus in `bus` (the zone owns Valkey: `zone-server/compose.yaml`).
 
 For message flow, protobuf/envelope routing, the ECS game loop, or the login↔zone
 handoff, read `.claude/skills/architecture/SKILL.md` first instead of re-deriving it.
@@ -20,6 +22,11 @@ never together with `:zone-server:test` in one command, and never while another 
 running — the worldgen test executor runs out of memory under that load and reports the crash
 against unrelated tests. A test that needs a generated world asks `TestWorlds.get(...)` rather than
 calling `StandardWorld.build`; `.claude/skills/worldgen/SKILL.md` says why and when not to.
+
+`./gradlew :bus:test` and `:api-service:test` need Docker (Testcontainers runs Valkey and MariaDB).
+`./gradlew companionCheck` type-checks and unit-tests the companion app; it needs Node 22+. After
+changing a REST DTO, regenerate the app's types: `:api-service:test --tests
+net.bestia.api.OpenApiDocumentTest`, then `npm run gen:api` in `companion-app/`.
 
 Anything that fans out to every module (`./gradlew test`, `check`, `build`, or a bare `./gradlew`
 task at the root) includes the full worldgen suite. Use it before handing work over, not while
