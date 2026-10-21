@@ -43,14 +43,19 @@ const _SWATCH_SIZE := 14.0
 var _toggles: Dictionary = {}
 
 ## Level the map opens at [i]the first time[/i]; after that the view keeps whatever the wheel left it on.
-## Level 4 is 16 m to the pixel, so the panel shows about 16 km of ground across.
+## Level 3 is 8 m to the pixel, so the panel shows about 8 km of ground across - room for the widest single
+## survey with some of its surroundings.
 ##
 ## Deliberately not the whole world, which was the first answer and the wrong one. Charts are the only source
 ## of map knowledge, so the whole world at a glance is almost entirely fog: the widest single survey is 5 km,
 ## which at world scale is a couple of dozen pixels and reads as a broken window rather than as an unexplored
 ## one. This opens at a zoom where the ground a player actually has is legible, and leaves the wheel to go out
 ## from there.
-const _OPEN_LEVEL := 4
+##
+## Level 3 rather than the 16 km of level 4 because it is the coarsest level that draws services (see
+## [method MapView.draws_services]): opening one step further out would open on a map with its shops, inns and
+## ward stones missing, and the legend for them hidden.
+const _OPEN_LEVEL := 3
 
 var _has_chart: bool = false
 
