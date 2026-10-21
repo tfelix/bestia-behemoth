@@ -5,6 +5,7 @@ import net.bestia.zone.account.persistence.MasterRepository
 import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.world.SpawnPointAvailability
 import net.bestia.zone.world.settlement.SettlementFates
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 
 /**
@@ -16,6 +17,7 @@ class MasterHomes(
   private val masterRepository: MasterRepository,
   private val availability: SpawnPointAvailability,
   private val jobs: AsyncJobExecutor,
+  private val events: ApplicationEventPublisher,
   fates: SettlementFates,
 ) {
 
@@ -36,8 +38,11 @@ class MasterHomes(
 
     val (x, y, z) = home.position
     jobs.submit(JOB_KEY) {
+      // Read before the update: afterwards these masters already name the new home.
+      val rehomed = masterRepository.findAllByHomeSettlementName(fallen).map { HomeFellEvent.Rehomed(it.account.id, it.id, it.name) }
       val moved = masterRepository.rehome(fallen, home.settlementName, x, y, z)
       LOG.info { "Town '$fallen' fell; $moved masters now live in '${home.settlementName}'" }
+      events.publishEvent(HomeFellEvent(this, rehomed, fallen, home.settlementName))
     }
   }
 

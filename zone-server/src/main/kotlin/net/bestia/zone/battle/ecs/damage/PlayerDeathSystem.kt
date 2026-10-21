@@ -3,6 +3,7 @@ package net.bestia.zone.battle.ecs.damage
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.config.WorldRulesConfig
 import net.bestia.zone.identity.ecs.Account
+import net.bestia.zone.identity.ecs.OwnedBestia
 import net.bestia.zone.battle.ecs.attack.AttackTarget
 import net.bestia.zone.battle.ecs.exp.Exp
 import net.bestia.zone.ecs.core.ComponentClassSet
@@ -10,6 +11,7 @@ import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.movement.ecs.Path
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Component as SpringComponent
 import kotlin.math.floor
 import net.bestia.zone.entity.ecs.Dead
@@ -26,10 +28,11 @@ import net.bestia.zone.entity.ecs.Dead
 @SpringComponent
 class PlayerDeathSystem(
   private val zoneConfig: WorldRulesConfig,
+  private val events: ApplicationEventPublisher,
 ) : System {
   override val phase = Phase.DEATH
 
-  override val reads: ComponentClassSet = setOf(Account::class)
+  override val reads: ComponentClassSet = setOf(Account::class, OwnedBestia::class)
   override val writes: ComponentClassSet = setOf(Dead::class, Exp::class, Path::class, AttackTarget::class)
 
   override fun update(world: World, deltaTime: Float) {
@@ -40,6 +43,11 @@ class PlayerDeathSystem(
         return@each
       }
       dead.resolved = true
+
+      world.get(id, OwnedBestia::class)?.let { owned ->
+        val accountId = get<Account>().accountId
+        events.publishEvent(OwnedBestiaDiedEvent(this@PlayerDeathSystem, accountId, owned.masterId, owned.playerBestiaId))
+      }
 
       // Whatever it was walking towards, it is not going there.
       world.remove(id, Path::class)

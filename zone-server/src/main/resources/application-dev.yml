@@ -14,3 +14,10 @@ zone:
 chunk-stream:
   # Lets a carve open the wall beside water so it floods. Dev only until players can swim.
   allow-water-breach: true
+
+# The Valkey from compose.yaml, as the `zone` user of valkey/users.acl. Public and committed, like the secret above.
+bus:
+  host: 127.0.0.1
+  port: 6379
+  username: zone
+  password: zone-dev-password

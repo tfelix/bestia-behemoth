@@ -6,6 +6,7 @@ import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.item.container.ContainerOwner
 import net.bestia.zone.item.persistence.ItemContainer
 import net.bestia.zone.bestia.persistence.Bestia
+import org.hibernate.annotations.ColumnDefault
 
 @Entity
 @Table(
@@ -66,6 +67,12 @@ class PlayerBestia(
    */
   @Embedded
   var aiConfig: AiConfig = AiConfig()
+
+  /** When the write-behind last saved the live state into this row, in epoch milliseconds; 0 until it first has. */
+  @Column(name = "persisted_at", nullable = false)
+  // A database default, so a server built from older code can still insert rows into a schema that has it.
+  @ColumnDefault("0")
+  var persistedAtEpochMs: Long = 0
 
   /**
    * The ECS [net.bestia.zone.util.EntityId] this bestia occupies whenever it is in the world, the same across

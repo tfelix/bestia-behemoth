@@ -5,6 +5,7 @@ import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
 import io.mockk.verifyOrder
+import net.bestia.zone.account.persistence.Master
 import net.bestia.zone.account.persistence.MasterRepository
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.persistence.AsyncJobExecutor
@@ -12,10 +13,14 @@ import net.bestia.zone.world.SpawnPointAvailability
 import net.bestia.zone.world.SpawnPointAvailability.Offer
 import net.bestia.zone.world.settlement.SettlementFates
 import org.junit.jupiter.api.Test
+import org.springframework.context.ApplicationEventPublisher
 
 class MasterHomesTest {
 
-  private val masters = mockk<MasterRepository>(relaxed = true)
+  private val masters = mockk<MasterRepository>(relaxed = true) {
+    every { findAllByHomeSettlementName(any()) } returns emptyList()
+  }
+  private val events = mockk<ApplicationEventPublisher>(relaxed = true)
   private val availability = mockk<SpawnPointAvailability>(relaxed = true) {
     every { homeNameOf(any()) } returns null
     every { homeNameOf(FALLEN) } returns "Old Town"
@@ -26,7 +31,7 @@ class MasterHomesTest {
   private val fell = slot<(Int) -> Unit>()
 
   init {
-    MasterHomes(masters, availability, jobs, mockk<SettlementFates> { every { onFell(capture(fell)) } returns Unit })
+    MasterHomes(masters, availability, jobs, events, mockk<SettlementFates> { every { onFell(capture(fell)) } returns Unit })
   }
 
   @Test
@@ -41,6 +46,27 @@ class MasterHomesTest {
     verifyOrder {
       availability.refresh()
       masters.rehome("Old Town", "New Town", 1, 2, 3)
+    }
+  }
+
+  @Test
+  fun `the masters of a fallen town are announced with their new home`() {
+    every { availability.offered() } returns listOf(
+      Offer(7, "New Town", "village", Vec3L(1, 2, 3), settlementIndex = 1, population = 100),
+    )
+    val master = mockk<Master> {
+      every { id } returns 5L
+      every { name } returns "Ayla"
+      every { account.id } returns 9L
+    }
+    every { masters.findAllByHomeSettlementName("Old Town") } returns listOf(master)
+
+    fell.captured(FALLEN)
+
+    verify {
+      events.publishEvent(match<HomeFellEvent> {
+        it.fallen == "Old Town" && it.newHome == "New Town" && it.masters == listOf(HomeFellEvent.Rehomed(9L, 5L, "Ayla"))
+      })
     }
   }
 

@@ -139,6 +139,7 @@ class MasterEntityPersister(
       master.dexterity = snap.dexterity
       master.willpower = snap.willpower
       master.agility = snap.agility
+      master.persistedAtEpochMs = System.currentTimeMillis()
       masterRepository.save(master)
       saveLearnedSkills(master, snap.learnedSkills)
       LOG.debug { "Persisted master ${master.id} at ${master.currentPosition} (level ${master.level})" }

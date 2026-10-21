@@ -141,6 +141,17 @@ class ConnectionInfoService {
     return (sessions[accountId] as? ActiveConnection)?.master?.masterId
   }
 
+  /** Every account playing a master right now, with that master's id. A snapshot; it does not follow later changes. */
+  fun activeMasters(): Map<AccountId, Long> {
+    val active = HashMap<AccountId, Long>()
+    for ((accountId, session) in sessions) {
+      if (session is ActiveConnection) {
+        active[accountId] = session.master.masterId
+      }
+    }
+    return active
+  }
+
   fun deactivateSession(accountId: Long) {
     LOG.info { "Deactivated session for account: $accountId" }
 

@@ -5,6 +5,7 @@ import net.bestia.zone.bestia.persistence.Bestia
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.item.container.ContainerOwner
 import net.bestia.zone.item.persistence.ItemContainer
+import org.hibernate.annotations.ColumnDefault
 import org.hibernate.annotations.DynamicUpdate
 import java.awt.Color
 import net.bestia.zone.account.BodyType
@@ -211,6 +212,12 @@ class Master(
   /** Name of the settlement this master chose to spawn near at creation, or blank if none was chosen. */
   @Column(nullable = false, length = 64)
   var homeSettlementName: String = ""
+
+  /** When the write-behind last saved the live state into this row, in epoch milliseconds; 0 until it first has. */
+  @Column(name = "persisted_at", nullable = false)
+  // A database default, so a server built from older code can still insert rows into a schema that has it.
+  @ColumnDefault("0")
+  var persistedAtEpochMs: Long = 0
 
   @OneToOne(cascade = [CascadeType.ALL], orphanRemoval = true)
   @JoinColumn(name = "container_id", nullable = false)

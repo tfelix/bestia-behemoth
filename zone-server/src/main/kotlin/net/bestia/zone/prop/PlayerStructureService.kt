@@ -11,6 +11,7 @@ import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.AccountId
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.world.WorldService
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 import net.bestia.zone.entity.StaticEntityKind
 
@@ -30,7 +31,8 @@ class PlayerStructureService(
   private val source: PlayerStructureSource,
   private val sites: ConstructionSiteSpawner,
   private val aoi: EntityAOIService,
-  private val worldService: WorldService
+  private val worldService: WorldService,
+  private val events: ApplicationEventPublisher,
 ) {
 
   /**
@@ -173,6 +175,8 @@ class PlayerStructureService(
     residency.placeNow(world, source.siteOf(entry))
 
     LOG.info { "Master ${site.ownerMasterId} finished a ${site.kind} at $settled (structure ${entry.id})" }
+
+    entry.ownerAccountId?.let { events.publishEvent(StructureCompletedEvent(this, it, site.ownerMasterId, site.kind.name)) }
   }
 
   companion object {

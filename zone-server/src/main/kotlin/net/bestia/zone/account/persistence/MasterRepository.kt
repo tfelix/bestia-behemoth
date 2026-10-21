@@ -15,6 +15,10 @@ import net.bestia.zone.account.MasterNotFoundException
 interface MasterRepository : JpaRepository<Master, Long> {
   fun findByName(name: String): Master?
 
+  fun findAllByAccountIdOrderBySlot(accountId: Long): List<Master>
+
+  fun findAllByHomeSettlementName(homeSettlementName: String): List<Master>
+
   @Query("select m.entityId from Master m where m.entityId in :entityIds")
   fun findEntityIdsIn(@Param("entityIds") entityIds: Collection<Long>): List<Long>
 

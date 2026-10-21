@@ -1,12 +1,16 @@
 package net.bestia.zone.battle.ecs.damage
 
 import net.bestia.zone.config.WorldRulesConfig
+import io.mockk.mockk
+import io.mockk.verify
 import net.bestia.zone.identity.ecs.Account
+import net.bestia.zone.identity.ecs.OwnedBestia
 import net.bestia.zone.battle.ecs.exp.Exp
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.movement.ecs.Path
 import net.bestia.zone.geometry.Vec3L
 import org.junit.jupiter.api.Test
+import org.springframework.context.ApplicationEventPublisher
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import net.bestia.zone.entity.ecs.Dead
@@ -14,7 +18,8 @@ import net.bestia.zone.entity.ecs.Dead
 /** What dying costs a player, and that it costs it exactly once. */
 class PlayerDeathSystemTest {
 
-  private val sut = PlayerDeathSystem(WorldRulesConfig(tickRate = 10))
+  private val events = mockk<ApplicationEventPublisher>(relaxed = true)
+  private val sut = PlayerDeathSystem(WorldRulesConfig(tickRate = 10), events)
 
   @Test
   fun `a dead player forfeits one percent of its current exp`() {
@@ -72,6 +77,23 @@ class PlayerDeathSystemTest {
     sut.update(world, 0f)
 
     assertFalse(world.has(id, Path::class))
+  }
+
+  @Test
+  fun `a bestia's death is announced once, with its owner`() {
+    val world = testWorld()
+    world.createEntity { eid ->
+      add(eid, Account(1L))
+      add(eid, OwnedBestia(masterId = 7L, playerBestiaId = 11L))
+      add(eid, Exp(100, 5000))
+      add(eid, Dead())
+    }
+
+    repeat(3) { sut.update(world, 0f) }
+
+    verify(exactly = 1) {
+      events.publishEvent(match<OwnedBestiaDiedEvent> { it.accountId == 1L && it.masterId == 7L && it.playerBestiaId == 11L })
+    }
   }
 
   /** A wild mob is DeathSystem's business; this stage must not touch anything without an owner. */

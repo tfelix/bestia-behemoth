@@ -43,7 +43,8 @@ class LoginTokenValidator(
         throw JwtLoginException("Wrong issuer: ${claims.issuer}")
       }
 
-      if (!claims.audience.contains("zone")) {
+      // Exactly, so a token minted for several audiences cannot stand in for a zone login.
+      if (claims.audience != setOf("zone")) {
         throw JwtLoginException("Wrong audience: ${claims.audience}")
       }
 

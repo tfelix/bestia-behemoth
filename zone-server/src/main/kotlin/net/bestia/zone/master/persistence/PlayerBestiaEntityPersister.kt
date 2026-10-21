@@ -83,6 +83,7 @@ class PlayerBestiaEntityPersister(
         snap.position
       }
       playerBestia.level = snap.level
+      playerBestia.persistedAtEpochMs = System.currentTimeMillis()
       playerBestiaRepository.save(playerBestia)
     }
   }
