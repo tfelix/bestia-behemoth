@@ -15,11 +15,12 @@ import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.skill.MasterSkillsChangedEvent
 import net.bestia.zone.util.EntityId
+import net.bestia.zone.util.PlayerBestiaId
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Service
 
 /**
- * Takes off whatever a master is wearing but no longer qualifies for.
+ * Takes off whatever a master or one of their bestias is wearing but no longer qualifies for.
  *
  * Ragnarok Online's `pc_checkitem`: rather than letting each item subscribe to the events that might
  * invalidate it, the one rule - [EquipmentService.checkStillWearable] - is simply re-asked over the worn gear
@@ -27,8 +28,9 @@ import org.springframework.stereotype.Service
  * does not have to know which of the many ways its wearer can change applies to it, and a new trigger (a
  * respec, a GM skill reset, a content edit) costs one call rather than an audit of every script.
  *
- * Invoked today from the skill investment that can end a novicehood, and once more when a master enters the
- * world, which is what catches gear that became illegal while nobody was holding it.
+ * Invoked today from the skill investment that can end a novicehood, and once more for the master and each
+ * of their bestias when the master enters the world, which is what catches gear that became illegal while
+ * nobody was holding it.
  *
  * ### Why it is split into phases
  *
@@ -57,7 +59,8 @@ class EquipmentRevalidationService(
     revalidate(event.masterId, event.entityId)
   }
 
-  fun revalidate(masterId: Long, entityId: EntityId) {
+  /** [playerBestiaId] names the wearer's container when [entityId] is a bestia; null means the master's own. */
+  fun revalidate(masterId: Long, entityId: EntityId, playerBestiaId: PlayerBestiaId? = null) {
     val wearer = readWearer(entityId) ?: return
 
     if (wearer.worn.isEmpty()) {
@@ -85,7 +88,7 @@ class EquipmentRevalidationService(
     }
 
     asyncJobExecutor.submit(key = masterId) {
-      removed.forEach { inventoryService.unequip(masterId, playerBestiaId = null, slot = it.piece.slot) }
+      removed.forEach { inventoryService.unequip(masterId, playerBestiaId, slot = it.piece.slot) }
     }
 
     // One message per distinct reason, not per slot: losing the whole starter kit to one skill point is a
@@ -94,7 +97,7 @@ class EquipmentRevalidationService(
       outMessageProcessor.sendToPlayer(wearer.accountId, OperationErrorSMSG(denial.toOpError()))
     }
 
-    LOG.debug { "Master $masterId lost ${removed.size} worn item(s) on revalidation: ${removed.map { it.denial }}" }
+    LOG.debug { "Entity $entityId of master $masterId lost ${removed.size} worn item(s) on revalidation: ${removed.map { it.denial }}" }
   }
 
   private fun readWearer(entityId: EntityId): Wearer? {
