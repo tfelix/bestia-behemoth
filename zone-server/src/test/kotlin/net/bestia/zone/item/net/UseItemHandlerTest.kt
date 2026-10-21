@@ -6,6 +6,7 @@ import io.mockk.verify
 import net.bestia.zone.entity.ecs.DeadActionGuard
 import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.session.ConnectionInfoService
+import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.item.ecs.Inventory
 import net.bestia.zone.item.container.InventoryService
@@ -22,6 +23,7 @@ import net.bestia.bnet.proto.OperationErrorProto
 import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.skill.NoviceGate
+import net.bestia.zone.identity.ecs.Master
 import net.bestia.zone.skill.ecs.KnownSkills
 import net.bestia.zone.skill.tree.MasterSkillTreeNode
 import net.bestia.zone.skill.tree.MasterSkillTreeRegistry
@@ -95,13 +97,30 @@ class UseItemHandlerTest {
     verify { scripts.useItem(any(), any(), NOVICE_POTION, any()) }
   }
 
-  private fun user(knownSkills: KnownSkills? = null): EntityId {
+  @Test
+  fun `a novice-only item is refused to a player bestia`() {
+    val bestia = holder()
+
+    handler(bestia).handle(UseItemCMSG(ACCOUNT_ID, NOVICE_POTION.id, ScriptArgs.EMPTY))
+
+    verify(exactly = 0) { inventoryService.removeOneFromOwner(any(), any(), any(), any(), any()) }
+    verify { messages.sendToPlayer(ACCOUNT_ID, OperationErrorSMSG(OperationErrorProto.OpError.ITEM_NOVICE_ONLY)) }
+  }
+
+  private fun user(knownSkills: KnownSkills = KnownSkills(mutableMapOf())): EntityId {
+    return holder { id ->
+      add(id, Master(MASTER_ID))
+      add(id, knownSkills)
+    }
+  }
+
+  private fun holder(configure: World.(EntityId) -> Unit = {}): EntityId {
     return world.createEntity { id ->
       add(
         id,
         Inventory(mutableListOf(Inventory.Item(POTION.id, amount = 3), Inventory.Item(NOVICE_POTION.id, amount = 3)))
       )
-      knownSkills?.let { add(id, it) }
+      configure(id)
     }
   }
 

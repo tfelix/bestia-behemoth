@@ -5,7 +5,6 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.zone.skill.NoviceGate
 import net.bestia.zone.battle.ecs.level.Level
-import net.bestia.zone.skill.ecs.KnownSkills
 import net.bestia.zone.battle.ecs.status.IsStatusValueDirty
 import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.ecs.core.WorldView
@@ -89,7 +88,7 @@ class EquipItemHandler(
         // Zero for an entity with no Level component at all, which the service reads as unqualified rather
         // than as exempt.
         wearerLevel = get(id, Level::class)?.level ?: 0,
-        wearerIsNovice = noviceGate.isNovice(get(id, KnownSkills::class))
+        wearerIsNovice = noviceGate.isNovice(this, id)
       )
 
       if (denial != null) {

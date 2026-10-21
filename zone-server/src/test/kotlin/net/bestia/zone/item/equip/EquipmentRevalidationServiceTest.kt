@@ -9,6 +9,7 @@ import net.bestia.zone.skill.tree.MasterSkillTreeNode
 import net.bestia.zone.skill.tree.MasterSkillTreeRegistry
 import net.bestia.zone.skill.NoviceGate
 import net.bestia.zone.identity.ecs.Account
+import net.bestia.zone.identity.ecs.Master
 import net.bestia.zone.battle.ecs.level.Level
 import net.bestia.zone.skill.ecs.KnownSkills
 import net.bestia.zone.battle.ecs.status.IsStatusValueDirty
@@ -94,6 +95,7 @@ class EquipmentRevalidationServiceTest {
   private fun givenWearer(vararg learned: Pair<Long, Int>): EntityId {
     return world.createEntity { id ->
       add(id, Account(ACCOUNT_ID))
+      add(id, Master(MASTER_ID))
       add(id, Level(10))
       add(id, KnownSkills(learned.toMap().toMutableMap()))
       add(
