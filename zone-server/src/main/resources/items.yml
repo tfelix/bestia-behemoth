@@ -815,10 +815,11 @@ items:
       Somebody's collected notes, bound well enough to outlive them.
 
   # --- Novice starter kit -------------------------------------------------------------------------
-  # What a master is created holding and wearing. `novice-only` is the whole point of the set: it comes off
-  # by itself the moment its wearer invests a skill point outside the Novice tree, so the kit is something
-  # to be outgrown rather than a permanent floor under every build. See `EquipmentService.checkStillWearable`
-  # for the rule and `EquipmentRevalidationService` for what takes it off.
+  # What a master is created holding and wearing. `novice-only` is the whole point of the set: the gear comes
+  # off by itself and the potions stop working the moment their owner invests a skill point outside the Novice
+  # tree, so the kit is something to be outgrown rather than a permanent floor under every build. See
+  # `EquipmentService.checkStillWearable` for the rule, `EquipmentRevalidationService` for what takes gear off
+  # and `UseItemHandler` for what refuses a potion.
   #
   # Level 1 throughout, because a fresh master is level 1 and gear they cannot wear on their first login
   # would be a cruel joke rather than a tutorial.
@@ -870,6 +871,34 @@ items:
       Soft leather boots, worn pale at the toes.
 
       They have walked further than you have.
+
+  # Light enough that the starting stack weighs nothing worth noticing - a new master should not have to
+  # choose between their potions and their first haul of ore.
+  - id: 69
+    item-db-name: novice_health_potion
+    base-level: 1
+    weight: 1
+    type: USABLE
+    material: GLASS
+    script: NoviceHealthPotionScript
+    novice-only: true
+    description: |
+      A thimble-sized vial of pale red liquid, the cork stamped with a beginner's mark.
+
+      Heals a little health. Only a novice may drink it.
+
+  - id: 70
+    item-db-name: novice_mana_potion
+    base-level: 1
+    weight: 1
+    type: USABLE
+    material: GLASS
+    script: NoviceManaPotionScript
+    novice-only: true
+    description: |
+      A thimble-sized vial of pale blue liquid, the cork stamped with a beginner's mark.
+
+      Restores a little mana. Only a novice may drink it.
 
   # --- Capture --------------------------------------------------------------------------------------
   # Set on a tile within reach; the first wild bestia to step on it springs it - see BestiaTrapSystem.

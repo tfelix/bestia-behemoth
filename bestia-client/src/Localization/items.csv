@@ -234,3 +234,11 @@ BESTIA_TRAP,Bestia Trap
 BESTIA_TRAP_DESC,"A cage of bent willow with a mana-dusted trigger plate. Set it within ten paces and wait for a Bestia to step on it.
 
 Reliable against young Bestia, and hopeless against anything grown."
+NOVICE_HEALTH_POTION,Novice Health Potion
+NOVICE_HEALTH_POTION_DESC,"A thimble-sized vial of pale red liquid, the cork stamped with a beginner's mark.
+
+Heals a little health. Only a novice may drink it."
+NOVICE_MANA_POTION,Novice Mana Potion
+NOVICE_MANA_POTION_DESC,"A thimble-sized vial of pale blue liquid, the cork stamped with a beginner's mark.
+
+Restores a little mana. Only a novice may drink it."
