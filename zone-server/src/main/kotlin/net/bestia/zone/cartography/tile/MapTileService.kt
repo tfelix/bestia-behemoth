@@ -222,7 +222,8 @@ class MapTileService(
       else -> UNKEYED_DIGEST
     }
 
-    val cacheKey = "${id.path()}#$digest"
+    // The mask's revision is part of the key, and so of the ETag: the digest names the charts, not how they are drawn.
+    val cacheKey = "${id.path()}#${FogMask.REVISION}.$digest"
     masked[cacheKey]?.let { return Tile(it, etag = "\"${resources.key}-$cacheKey\"", shared = false) }
 
     val mask = FogMask.forTile(id, coverage)
