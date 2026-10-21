@@ -13,6 +13,8 @@ jwt:
   # Public and committed; LoginDeploymentGuard refuses it outside the dev and test profiles. Must equal
   # zone-server's dev `zone.jwt-auth-secret-key`.
   secret: "your-secret-key-here-change-in-production"
+  # Public and committed too, and refused outside dev and test. Must equal api-service's dev companion.jwt-secret.
+  companion-secret: "dev-companion-secret-shared-with-api-service"
 
 zone-directory:
   zones:
@@ -25,3 +27,8 @@ webauthn:
     - "http://localhost:8080"
   # The page is on http://localhost:8080 rather than the implicit https://<rp-id>:443.
   allow-origin-port: true
+
+companion-login:
+  # The Vite dev server of companion-app/.
+  redirect-uris:
+    - "http://localhost:5173/auth/callback"

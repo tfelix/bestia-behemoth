@@ -38,8 +38,8 @@ class RefreshTokenService(
 
   /** Starts a new family. Returns the raw token, which exists in that form only here and in transit. */
   @Transactional
-  fun issueForNewSession(accountId: Long): String {
-    return issue(accountId, SecureTokens.randomToken(FAMILY_ID_BYTES))
+  fun issueForNewSession(accountId: Long, client: LoginClient = LoginClient.GAME): String {
+    return issue(accountId, SecureTokens.randomToken(FAMILY_ID_BYTES), client)
   }
 
   /**
@@ -50,9 +50,16 @@ class RefreshTokenService(
    * that revocation survives resting on Spring's default rollback rules.
    */
   @Transactional
-  fun rotate(rawToken: String): Rotation {
+  fun rotate(rawToken: String, client: LoginClient = LoginClient.GAME): Rotation {
     val now = LocalDateTime.now()
     val tokenHash = hash(rawToken)
+
+    // Checked before anything is spent: a companion token sent to the game's endpoint is refused and stays usable.
+    val presented = tokens.findById(tokenHash).orElse(null)
+    if (presented != null && presented.client != client) {
+      LOG.debug { "Refused a ${presented.client} refresh token presented as $client" }
+      return Rotation.Refused
+    }
 
     if (tokens.consume(tokenHash, now) != 1) {
       return refuse(tokenHash, now)
@@ -62,7 +69,7 @@ class RefreshTokenService(
       ?: return Rotation.Refused
 
     return Rotation.Rotated(
-      token = issue(consumed.accountId, consumed.familyId),
+      token = issue(consumed.accountId, consumed.familyId, consumed.client),
       accountId = consumed.accountId
     )
   }
@@ -99,7 +106,7 @@ class RefreshTokenService(
     return tokens.countByAccountIdAndRevokedAtIsNullAndConsumedAtIsNull(accountId)
   }
 
-  private fun issue(accountId: Long, familyId: String): String {
+  private fun issue(accountId: Long, familyId: String, client: LoginClient): String {
     val token = SecureTokens.randomToken()
 
     tokens.save(
@@ -107,7 +114,8 @@ class RefreshTokenService(
         tokenHash = hash(token),
         accountId = accountId,
         familyId = familyId,
-        expiresAt = LocalDateTime.now().plusDays(config.refreshTokenDays)
+        expiresAt = LocalDateTime.now().plusDays(config.refreshTokenDays),
+        client = client,
       )
     )
 

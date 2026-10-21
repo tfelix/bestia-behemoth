@@ -2,9 +2,13 @@ package net.bestia.login.gamelogin
 
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
 import jakarta.persistence.Id
 import jakarta.persistence.Index
 import jakarta.persistence.Table
+import org.hibernate.annotations.JdbcTypeCode
+import org.hibernate.type.SqlTypes
 import java.time.LocalDateTime
 
 /**
@@ -49,7 +53,13 @@ class RefreshToken(
   val createdAt: LocalDateTime = LocalDateTime.now(),
 
   @Column(nullable = false)
-  val expiresAt: LocalDateTime
+  val expiresAt: LocalDateTime,
+
+  /** The client this chain mints tokens for; a refresh never crosses from one client to the other. */
+  @JdbcTypeCode(SqlTypes.VARCHAR)
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false, length = 16)
+  val client: LoginClient = LoginClient.GAME
 ) {
 
   /** Set when the token is rotated. A consumed token presented again is evidence of a copy. */

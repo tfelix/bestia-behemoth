@@ -10,13 +10,14 @@ import java.nio.charset.StandardCharsets
 import java.time.LocalDateTime
 
 /**
- * A game login from the game's side: started with PKCE, authenticated by whichever method the player uses, and
- * redeemed for one authorization code. [BrowserLoginService] holds the browser half.
+ * A login from the client's side - the game's or the companion app's: started with PKCE, authenticated by whichever
+ * method the player uses, and redeemed for one authorization code. [BrowserLoginService] holds the browser half.
  */
 @Service
 class LoginSessionService(
   private val sessions: LoginSessionRepository,
   private val redirectUriValidator: RedirectUriValidator,
+  private val companionRedirectValidator: CompanionRedirectValidator,
   private val config: GameLoginConfig
 ) {
 
@@ -26,9 +27,13 @@ class LoginSessionService(
     codeChallenge: String,
     challengeMethod: String,
     clientState: String,
-    intent: LoginIntent
+    intent: LoginIntent,
+    client: LoginClient = LoginClient.GAME,
   ): StartedSession {
-    redirectUriValidator.validate(redirectUri)
+    when (client) {
+      LoginClient.GAME -> redirectUriValidator.validate(redirectUri)
+      LoginClient.COMPANION -> companionRedirectValidator.validate(redirectUri)
+    }
 
     if (challengeMethod != Pkce.METHOD_S256) {
       throw GameLoginException(
@@ -49,7 +54,8 @@ class LoginSessionService(
         codeChallenge = codeChallenge,
         challengeMethod = challengeMethod,
         clientState = clientState,
-        expiresAt = LocalDateTime.now().plusSeconds(config.sessionTtlSeconds)
+        expiresAt = LocalDateTime.now().plusSeconds(config.sessionTtlSeconds),
+        client = client,
       )
     )
 

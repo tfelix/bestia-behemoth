@@ -59,9 +59,9 @@ abstract class BasePasskeyScenario : BaseLoginScenario() {
 
   protected fun register(
     authenticator: VirtualAuthenticator,
-    displayName: String = uniqueDisplayName()
+    displayName: String = uniqueDisplayName(),
+    session: StartedSession = start(),
   ): Completed {
-    val session = start()
 
     val options = post(
       "/api/v1/webauthn/register/options",
@@ -173,14 +173,14 @@ abstract class BasePasskeyScenario : BaseLoginScenario() {
     )
   }
 
-  protected fun start(): StartedSession {
+  protected fun start(
+    path: String = "/api/v1/auth/game/start",
+    redirectUri: String = "http://127.0.0.1:$LOOPBACK_PORT/callback",
+  ): StartedSession {
     val verifier = SecureTokens.randomToken()
     val state = SecureTokens.randomToken()
 
-    val response = post(
-      "/api/v1/auth/game/start",
-      startBody("http://127.0.0.1:$LOOPBACK_PORT/callback", state, verifier)
-    )
+    val response = post(path, startBody(redirectUri, state, verifier))
 
     val loginUrl = response.get("login_url").asText()
     assertTrue(loginUrl.contains("/game-login"))

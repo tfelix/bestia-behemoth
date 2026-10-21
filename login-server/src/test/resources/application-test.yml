@@ -3,6 +3,7 @@ server:
 
 jwt:
   secret: "login-test-secret-that-is-long-enough-for-hmac"
+  companion-secret: "login-test-companion-secret-long-enough-for-hmac"
 
 webauthn:
   rp-id: "localhost"
@@ -12,3 +13,7 @@ webauthn:
 
 game-login:
   public-base-url: "http://localhost:8080"
+
+companion-login:
+  redirect-uris:
+    - "http://localhost:5173/auth/callback"

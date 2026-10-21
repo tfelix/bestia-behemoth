@@ -43,6 +43,10 @@ jwt:
   # Validity (minutes) of the token a game client calls this server's REST API with. Renewed on every refresh,
   # so a stolen one is useful only briefly.
   api-token-minutes: 15
+  # companion-secret (JWT_COMPANION_SECRET): signs the companion app's tokens and is shared with the api-service only.
+  # Must differ from secret, so the api-service cannot mint zone tokens; LoginDeploymentGuard checks both.
+  # Validity (minutes) of a companion access token. The app renews it from its refresh cookie.
+  companion-token-minutes: 15
 
 zone-directory:
   # The zones a ban or a recovery kicks the account from: every one of them, because the login server cannot see
@@ -80,3 +84,8 @@ game-login:
   # public-base-url (GAME_LOGIN_PUBLIC_BASE_URL): what the game is told to open. Must be one of `webauthn.origins`.
   # Recovery codes handed out once when an account is created.
   recovery-code-count: 10
+
+companion-login:
+  # redirect-uris (COMPANION_LOGIN_REDIRECT_URIS_0, ...): the companion app's login callback page(s), compared exactly.
+  # Empty turns companion login off. Production: https://app.bestia.game/auth/callback
+  redirect-uris: []

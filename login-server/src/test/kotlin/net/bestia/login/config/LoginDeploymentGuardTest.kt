@@ -2,6 +2,7 @@ package net.bestia.login.config
 
 import net.bestia.account.Role
 import net.bestia.login.account.AccountConfig
+import net.bestia.login.gamelogin.CompanionLoginConfig
 import net.bestia.login.jwt.JwtConfig
 import net.bestia.login.webauthn.WebAuthnConfig
 import org.junit.jupiter.api.Test
@@ -40,23 +41,36 @@ class LoginDeploymentGuardTest {
   @Test
   fun `a deployment configuration is accepted`() {
     assertDoesNotThrow { guard() }
+    assertDoesNotThrow { guard(companionSecret = "another-secret-only-the-api-service-holds") }
+  }
+
+  /** The api-service holds the companion key; if it were the zone's, it could mint zone tokens. */
+  @Test
+  fun `with companion login on, its key must be its own and not the development one`() {
+    assertThrows<IllegalStateException> { guard(companionSecret = LoginDeploymentGuard.DEV_COMPANION_SECRET) }
+    assertThrows<IllegalStateException> { guard(companionSecret = "too-short") }
+    assertThrows<IllegalStateException> { guard(companionSecret = "a-deployment-secret-nobody-has-seen-before") }
   }
 
   private fun guard(
     signUpRole: Role = Role.USER,
     secret: String = "a-deployment-secret-nobody-has-seen-before",
     allowOriginPort: Boolean = false,
-    profile: String? = null
+    profile: String? = null,
+    companionSecret: String? = null,
   ): LoginDeploymentGuard {
+    val companion = companionSecret?.let { CompanionLoginConfig(redirectUris = listOf("https://app.bestia.game/auth/callback")) }
+
     return LoginDeploymentGuard(
       AccountConfig(signUpRole),
-      JwtConfig(secret = secret, loginTokenMinutes = 2),
+      JwtConfig(secret = secret, loginTokenMinutes = 2, companionSecret = companionSecret.orEmpty()),
       WebAuthnConfig(
         rpId = "bestia.game",
         rpName = "Bestia",
         origins = listOf("https://auth.bestia.game"),
         allowOriginPort = allowOriginPort
       ),
+      companion ?: CompanionLoginConfig(),
       MockEnvironment().apply { profile?.let { setActiveProfiles(it) } }
     )
   }

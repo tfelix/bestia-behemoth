@@ -4,10 +4,6 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import com.fasterxml.jackson.databind.annotation.JsonNaming
 import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.servlet.http.HttpServletRequest
-import net.bestia.account.KickReason
-import net.bestia.login.account.AccountLoginGuard
-import net.bestia.login.account.AccountRepository
-import net.bestia.login.account.AccountSessionTerminator
 import net.bestia.login.jwt.JwtService
 import net.bestia.login.ratelimit.RateLimiter
 import org.springframework.http.HttpStatus
@@ -17,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import java.time.Duration
-import java.time.LocalDateTime
 
 /**
  * The calls the game itself makes. Everything between /start and /exchange happens in the system
@@ -31,11 +26,8 @@ import java.time.LocalDateTime
 @RequestMapping("/api/v1/auth/game")
 class GameLoginController(
   private val loginSessionService: LoginSessionService,
-  private val authorizationCodeService: AuthorizationCodeService,
-  private val accounts: AccountRepository,
-  private val accountLoginGuard: AccountLoginGuard,
+  private val loginGrants: LoginGrants,
   private val refreshTokenService: RefreshTokenService,
-  private val accountSessionTerminator: AccountSessionTerminator,
   private val jwtService: JwtService,
   private val rateLimiter: RateLimiter
 ) {
@@ -133,38 +125,12 @@ class GameLoginController(
     }
 
     return try {
-      // Claim first. If the same code arrives twice, only one caller gets past this line, and it
-      // happens before the verifier is examined so a wrong verifier still burns the code.
-      val code = authorizationCodeService.consume(request.code)
-
-      val session = loginSessionService.findByHash(code.loginSessionIdHash)
-        ?: throw GameLoginException(GameLoginError.INVALID_GRANT, "code has no login session")
-
-      if (!Pkce.verify(request.codeVerifier, session.codeChallenge, session.challengeMethod)) {
-        throw GameLoginException(GameLoginError.INVALID_GRANT, "PKCE verifier does not match")
-      }
-
-      if (session.accountId != code.accountId) {
-        throw GameLoginException(GameLoginError.INVALID_GRANT, "code and login session name different accounts")
-      }
-
-      val account = accounts.findById(code.accountId).orElseThrow {
-        GameLoginException(GameLoginError.INVALID_GRANT, "code refers to a missing account")
-      }
-
-      accountLoginGuard.denialReason(account)?.let { reason ->
-        throw GameLoginException(GameLoginError.ACCOUNT_UNAVAILABLE, reason)
-      }
-
-      loginSessionService.markConsumed(session.idHash)
-
-      account.lastLogin = LocalDateTime.now()
-      accounts.save(account)
+      val account = loginGrants.redeemCode(request.code, request.codeVerifier, LoginClient.GAME)
 
       ResponseEntity.ok(
         ExchangeResponse(
           token = jwtService.createLoginToken(account.id, account.role),
-          refreshToken = refreshTokenService.issueForNewSession(account.id),
+          refreshToken = refreshTokenService.issueForNewSession(account.id, LoginClient.GAME),
           apiToken = jwtService.createApiToken(account.id)
         )
       )
@@ -176,11 +142,8 @@ class GameLoginController(
 
   /**
    * The whole point of the exercise: a client that already has a refresh token starts the game
-   * without a browser, a loopback listener or a passkey prompt.
-   *
-   * Nothing about the passkey ceremony is repeated here, so everything that could have changed since
-   * it happened has to be re-examined: the token may have been revoked, and the account may have
-   * been banned. Both are checked before a zone token is minted.
+   * without a browser, a loopback listener or a passkey prompt. [LoginGrants.refresh] re-examines the
+   * token and the account before a zone token is minted.
    */
   @PostMapping("/refresh")
   fun refresh(
@@ -192,31 +155,12 @@ class GameLoginController(
     }
 
     return try {
-      val rotated = refreshTokenService.rotate(request.refreshToken)
-
-      if (rotated !is RefreshTokenService.Rotation.Rotated) {
-        throw GameLoginException(GameLoginError.INVALID_GRANT, "refresh token could not be rotated")
-      }
-
-      val account = accounts.findById(rotated.accountId).orElseThrow {
-        GameLoginException(GameLoginError.INVALID_GRANT, "refresh token refers to a missing account")
-      }
-
-      accountLoginGuard.denialReason(account)?.let { reason ->
-        // The successor minted a moment ago goes too. An account that may not log in has no business
-        // holding a standing invitation to do so on any of its devices.
-        accountSessionTerminator.terminate(account.id, KickReason.BANNED)
-
-        throw GameLoginException(GameLoginError.ACCOUNT_UNAVAILABLE, reason)
-      }
-
-      account.lastLogin = LocalDateTime.now()
-      accounts.save(account)
+      val (account, refreshToken) = loginGrants.refresh(request.refreshToken, LoginClient.GAME)
 
       ResponseEntity.ok(
         ExchangeResponse(
           token = jwtService.createLoginToken(account.id, account.role),
-          refreshToken = rotated.token,
+          refreshToken = refreshToken,
           apiToken = jwtService.createApiToken(account.id)
         )
       )

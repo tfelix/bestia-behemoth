@@ -32,7 +32,7 @@ class LoginSession(
   @Column(name = "id_hash", length = 64)
   val idHash: String,
 
-  /** Always a literal loopback address; see [RedirectUriValidator] for why that is enforced. */
+  /** A loopback literal for the game ([RedirectUriValidator]), an allowlisted page for the companion app. */
   @Column(nullable = false, length = 255)
   val redirectUri: String,
 
@@ -50,7 +50,12 @@ class LoginSession(
   val createdAt: LocalDateTime = LocalDateTime.now(),
 
   @Column(nullable = false)
-  val expiresAt: LocalDateTime
+  val expiresAt: LocalDateTime,
+
+  @JdbcTypeCode(SqlTypes.VARCHAR)
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false, length = 16)
+  val client: LoginClient = LoginClient.GAME
 ) {
 
   // VARCHAR, not the native ENUM the MariaDB dialect would otherwise pick: an ENUM column

@@ -2,6 +2,7 @@ package net.bestia.login.config
 
 import net.bestia.account.Role
 import net.bestia.login.account.AccountConfig
+import net.bestia.login.gamelogin.CompanionLoginConfig
 import net.bestia.login.jwt.JwtConfig
 import net.bestia.login.webauthn.WebAuthnConfig
 import org.springframework.core.env.Environment
@@ -18,6 +19,7 @@ class LoginDeploymentGuard(
   accountConfig: AccountConfig,
   jwtConfig: JwtConfig,
   webAuthnConfig: WebAuthnConfig,
+  companionLoginConfig: CompanionLoginConfig,
   environment: Environment
 ) {
 
@@ -31,11 +33,23 @@ class LoginDeploymentGuard(
         "jwt.secret must be at least $MIN_SECRET_BYTES bytes"
       }
       check(!webAuthnConfig.allowOriginPort) { "webauthn.allow-origin-port is only correct for local development" }
+      if (companionLoginConfig.redirectUris.isNotEmpty()) {
+        check(jwtConfig.companionSecret != DEV_COMPANION_SECRET) {
+          "jwt.companion-secret is the committed development secret; set JWT_COMPANION_SECRET"
+        }
+        check(jwtConfig.companionSecret.toByteArray(StandardCharsets.UTF_8).size >= MIN_SECRET_BYTES) {
+          "jwt.companion-secret must be at least $MIN_SECRET_BYTES bytes"
+        }
+        check(jwtConfig.companionSecret != jwtConfig.secret) {
+          "jwt.companion-secret must differ from jwt.secret, or the api-service could mint zone tokens"
+        }
+      }
     }
   }
 
   companion object {
     const val DEV_SECRET = "your-secret-key-here-change-in-production"
+    const val DEV_COMPANION_SECRET = "dev-companion-secret-shared-with-api-service"
 
     /** HMAC-SHA256 needs a key at least as long as its output. */
     private const val MIN_SECRET_BYTES = 32
