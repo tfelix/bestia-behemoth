@@ -17,13 +17,16 @@ object DisplayName {
   }
 
   /**
-   * The name as it is stored, or null when it is blank, longer than [maxLength] or more than words: only letters,
-   * digits and spaces, no punctuation or symbols. A letter may carry a Latin accent, so "René" and "Åsa" pass while
-   * "Вob" with a Cyrillic "В" does not.
+   * The name as it is stored, or null when it is blank, longer than [maxLength] or more than one or two words:
+   * only letters and digits, with at most one space between two words, and no punctuation or symbols. A letter may
+   * carry a Latin accent, so "René" and "Åsa Lind" pass while "Вob" with a Cyrillic "В" and "Big Bob 2" do not.
    */
   fun normalizeWordsOrNull(raw: String, maxLength: Int): String? {
     // Composed first, so an "e" followed by a combining grave is the one letter "è" and not a refused mark.
-    return normalize(Normalizer.normalize(raw, Normalizer.Form.NFC), maxLength, ::isWordChar)
+    val name = normalize(Normalizer.normalize(raw, Normalizer.Form.NFC), maxLength, ::isWordChar)
+
+    // Trimmed and collapsed by now, so a space left over can only be between two words.
+    return name?.takeIf { it.count { c -> c == ' ' } <= 1 }
   }
 
   private fun normalize(raw: String, maxLength: Int, isAllowed: (Char) -> Boolean): String? {

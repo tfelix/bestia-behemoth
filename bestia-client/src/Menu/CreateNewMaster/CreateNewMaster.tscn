@@ -554,7 +554,7 @@ horizontal_alignment = 2
 
 [node name="NameRules" type="Label" parent="Margin/Layout/Body/StepPanel/Content/Pages/NamePage"]
 layout_mode = 2
-text = "Letters (accents are fine), numbers and spaces. No punctuation."
+text = "Letters (accents are fine) and numbers, with at most one space between two words. No punctuation."
 label_settings = ExtResource("5_muted")
 autowrap_mode = 3
 
