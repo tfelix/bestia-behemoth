@@ -83,6 +83,11 @@ func _on_operation_success(message) -> void:
 
 
 func _on_operation_error(message) -> void:
+	# By name and with its wording from general.csv, as the chat voices refusals: it names the guild.
+	if message.CodeName == "guild_leader_must_disband" and message.Args.size() > 0:
+		_show_status(tr("ERROR_GUILD_LEADER_MUST_DISBAND") % message.Args[0], true)
+		return
+
 	match message.Code:
 		OP_ERROR_MASTER_NOT_OWNED:
 			_show_status("That character is no longer available.", true)

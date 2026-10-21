@@ -25,14 +25,14 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CjJtZXNzYWdlcy9wYXJ0eS9yZXF1ZXN0X3BhcnR5X2ludml0YXRpb25fY21z",
-            "Zy5wcm90bxIEYm5ldCI4ChpSZXF1ZXN0UGFydHlJbnZpdGF0aW9uQ01TRxIa",
-            "ChJpbnZpdGVkX2FjY291bnRfaWQYASABKARCOAoVbmV0LmJlc3RpYS5ibmV0",
-            "LnByb3RvQh9SZXF1ZXN0UGFydHlJbnZpdGF0aW9uQ21zZ1Byb3RvYgZwcm90",
-            "bzM="));
+            "Zy5wcm90bxIEYm5ldCI5ChpSZXF1ZXN0UGFydHlJbnZpdGF0aW9uQ01TRxIb",
+            "ChNpbnZpdGVkX21hc3Rlcl9uYW1lGAEgASgJQjgKFW5ldC5iZXN0aWEuYm5l",
+            "dC5wcm90b0IfUmVxdWVzdFBhcnR5SW52aXRhdGlvbkNtc2dQcm90b2IGcHJv",
+            "dG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.RequestPartyInvitationCMSG), global::Bnet.RequestPartyInvitationCMSG.Parser, new[]{ "InvitedAccountId" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.RequestPartyInvitationCMSG), global::Bnet.RequestPartyInvitationCMSG.Parser, new[]{ "InvitedMasterName" }, null, null, null, null)
           }));
     }
     #endregion
@@ -40,7 +40,8 @@ namespace Bnet {
   }
   #region Messages
   /// <summary>
-  /// The party owner invites another player, who is answered with a PartyInvitationSMSG.
+  /// The party owner invites another player by master name. The invited player is asked with a
+  /// PartyInvitationSMSG, the owner is told with OperationSuccess PARTY_INVITATION_SENT.
   /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class RequestPartyInvitationCMSG : pb::IMessage<RequestPartyInvitationCMSG>
@@ -77,7 +78,7 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public RequestPartyInvitationCMSG(RequestPartyInvitationCMSG other) : this() {
-      invitedAccountId_ = other.invitedAccountId_;
+      invitedMasterName_ = other.invitedMasterName_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -87,15 +88,15 @@ namespace Bnet {
       return new RequestPartyInvitationCMSG(this);
     }
 
-    /// <summary>Field number for the "invited_account_id" field.</summary>
-    public const int InvitedAccountIdFieldNumber = 1;
-    private ulong invitedAccountId_;
+    /// <summary>Field number for the "invited_master_name" field.</summary>
+    public const int InvitedMasterNameFieldNumber = 1;
+    private string invitedMasterName_ = "";
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public ulong InvitedAccountId {
-      get { return invitedAccountId_; }
+    public string InvitedMasterName {
+      get { return invitedMasterName_; }
       set {
-        invitedAccountId_ = value;
+        invitedMasterName_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
       }
     }
 
@@ -114,7 +115,7 @@ namespace Bnet {
       if (ReferenceEquals(other, this)) {
         return true;
       }
-      if (InvitedAccountId != other.InvitedAccountId) return false;
+      if (InvitedMasterName != other.InvitedMasterName) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -122,7 +123,7 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
-      if (InvitedAccountId != 0UL) hash ^= InvitedAccountId.GetHashCode();
+      if (InvitedMasterName.Length != 0) hash ^= InvitedMasterName.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -141,9 +142,9 @@ namespace Bnet {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
-      if (InvitedAccountId != 0UL) {
-        output.WriteRawTag(8);
-        output.WriteUInt64(InvitedAccountId);
+      if (InvitedMasterName.Length != 0) {
+        output.WriteRawTag(10);
+        output.WriteString(InvitedMasterName);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -155,9 +156,9 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (InvitedAccountId != 0UL) {
-        output.WriteRawTag(8);
-        output.WriteUInt64(InvitedAccountId);
+      if (InvitedMasterName.Length != 0) {
+        output.WriteRawTag(10);
+        output.WriteString(InvitedMasterName);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
@@ -169,8 +170,8 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
-      if (InvitedAccountId != 0UL) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(InvitedAccountId);
+      if (InvitedMasterName.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(InvitedMasterName);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -184,8 +185,8 @@ namespace Bnet {
       if (other == null) {
         return;
       }
-      if (other.InvitedAccountId != 0UL) {
-        InvitedAccountId = other.InvitedAccountId;
+      if (other.InvitedMasterName.Length != 0) {
+        InvitedMasterName = other.InvitedMasterName;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -206,8 +207,8 @@ namespace Bnet {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 8: {
-            InvitedAccountId = input.ReadUInt64();
+          case 10: {
+            InvitedMasterName = input.ReadString();
             break;
           }
         }
@@ -229,8 +230,8 @@ namespace Bnet {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 8: {
-            InvitedAccountId = input.ReadUInt64();
+          case 10: {
+            InvitedMasterName = input.ReadString();
             break;
           }
         }

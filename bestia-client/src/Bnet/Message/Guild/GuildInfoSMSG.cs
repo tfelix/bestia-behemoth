@@ -1,0 +1,79 @@
+using Godot;
+
+namespace BestiaBehemothClient.Bnet.Message.Guild
+{
+  /// <summary>
+  /// The whole guild as this player sees it, pushed whenever any of it changes. <see cref="GuildId"/> 0 with no
+  /// members means this player is in no guild.
+  /// </summary>
+  [GlobalClass]
+  public partial class GuildInfoSMSG : GuildSMSG
+  {
+    [Export] public ulong GuildId { get; set; }
+
+    [Export] public string Name { get; set; } = string.Empty;
+
+    [Export] public uint Level { get; set; }
+
+    [Export] public ulong Exp { get; set; }
+
+    /// <summary>0 once the guild is at its highest level.</summary>
+    [Export] public ulong ExpNextLevel { get; set; }
+
+    [Export] public uint SkillPoints { get; set; }
+
+    [Export] public uint ExtensionLevel { get; set; }
+
+    [Export] public uint MaxMembers { get; set; }
+
+    /// <summary>The leader's rank first, then down the hierarchy.</summary>
+    [Export] public Godot.Collections.Array<GuildRankInfo> Ranks { get; set; } = [];
+
+    [Export] public Godot.Collections.Array<GuildMemberInfo> Members { get; set; } = [];
+
+    /// <summary>This player's own master, so the window can tell which member it is.</summary>
+    [Export] public ulong OwnMasterId { get; set; }
+
+    [Export] public uint MaxExtensionLevel { get; set; }
+
+    [Export] public uint MaxRanks { get; set; }
+
+    [Export] public uint MinTaxPercent { get; set; }
+
+    [Export] public uint MaxTaxPercent { get; set; }
+
+    public static GuildInfoSMSG FromProto(global::Bnet.GuildInfoSMSG proto)
+    {
+      var ranks = new Godot.Collections.Array<GuildRankInfo>();
+      foreach (var rank in proto.Ranks)
+      {
+        ranks.Add(GuildRankInfo.FromProto(rank));
+      }
+
+      var members = new Godot.Collections.Array<GuildMemberInfo>();
+      foreach (var member in proto.Members)
+      {
+        members.Add(GuildMemberInfo.FromProto(member));
+      }
+
+      return new GuildInfoSMSG
+      {
+        GuildId = proto.GuildId,
+        Name = proto.Name,
+        Level = proto.Level,
+        Exp = proto.Exp,
+        ExpNextLevel = proto.ExpNextLevel,
+        SkillPoints = proto.SkillPoints,
+        ExtensionLevel = proto.ExtensionLevel,
+        MaxMembers = proto.MaxMembers,
+        Ranks = ranks,
+        Members = members,
+        OwnMasterId = proto.OwnMasterId,
+        MaxExtensionLevel = proto.MaxExtensionLevel,
+        MaxRanks = proto.MaxRanks,
+        MinTaxPercent = proto.MinTaxPercent,
+        MaxTaxPercent = proto.MaxTaxPercent
+      };
+    }
+  }
+}

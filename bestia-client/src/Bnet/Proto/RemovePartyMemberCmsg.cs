@@ -25,14 +25,13 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "Ci1tZXNzYWdlcy9wYXJ0eS9yZW1vdmVfcGFydHlfbWVtYmVyX2Ntc2cucHJv",
-            "dG8SBGJuZXQiRAoVUmVtb3ZlUGFydHlNZW1iZXJDTVNHEhAKCHBhcnR5X2lk",
-            "GAEgASgEEhkKEW1lbWJlcl9hY2NvdW50X2lkGAIgASgEQjMKFW5ldC5iZXN0",
-            "aWEuYm5ldC5wcm90b0IaUmVtb3ZlUGFydHlNZW1iZXJDbXNnUHJvdG9iBnBy",
-            "b3RvMw=="));
+            "dG8SBGJuZXQiMQoVUmVtb3ZlUGFydHlNZW1iZXJDTVNHEhgKEG1lbWJlcl9t",
+            "YXN0ZXJfaWQYASABKARCMwoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQhpSZW1v",
+            "dmVQYXJ0eU1lbWJlckNtc2dQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.RemovePartyMemberCMSG), global::Bnet.RemovePartyMemberCMSG.Parser, new[]{ "PartyId", "MemberAccountId" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.RemovePartyMemberCMSG), global::Bnet.RemovePartyMemberCMSG.Parser, new[]{ "MemberMasterId" }, null, null, null, null)
           }));
     }
     #endregion
@@ -40,7 +39,7 @@ namespace Bnet {
   }
   #region Messages
   /// <summary>
-  /// The party owner removes a member.
+  /// The party owner removes a member from their own party.
   /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class RemovePartyMemberCMSG : pb::IMessage<RemovePartyMemberCMSG>
@@ -77,8 +76,7 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public RemovePartyMemberCMSG(RemovePartyMemberCMSG other) : this() {
-      partyId_ = other.partyId_;
-      memberAccountId_ = other.memberAccountId_;
+      memberMasterId_ = other.memberMasterId_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -88,27 +86,15 @@ namespace Bnet {
       return new RemovePartyMemberCMSG(this);
     }
 
-    /// <summary>Field number for the "party_id" field.</summary>
-    public const int PartyIdFieldNumber = 1;
-    private ulong partyId_;
+    /// <summary>Field number for the "member_master_id" field.</summary>
+    public const int MemberMasterIdFieldNumber = 1;
+    private ulong memberMasterId_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public ulong PartyId {
-      get { return partyId_; }
+    public ulong MemberMasterId {
+      get { return memberMasterId_; }
       set {
-        partyId_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "member_account_id" field.</summary>
-    public const int MemberAccountIdFieldNumber = 2;
-    private ulong memberAccountId_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public ulong MemberAccountId {
-      get { return memberAccountId_; }
-      set {
-        memberAccountId_ = value;
+        memberMasterId_ = value;
       }
     }
 
@@ -127,8 +113,7 @@ namespace Bnet {
       if (ReferenceEquals(other, this)) {
         return true;
       }
-      if (PartyId != other.PartyId) return false;
-      if (MemberAccountId != other.MemberAccountId) return false;
+      if (MemberMasterId != other.MemberMasterId) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -136,8 +121,7 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
-      if (PartyId != 0UL) hash ^= PartyId.GetHashCode();
-      if (MemberAccountId != 0UL) hash ^= MemberAccountId.GetHashCode();
+      if (MemberMasterId != 0UL) hash ^= MemberMasterId.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -156,13 +140,9 @@ namespace Bnet {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
-      if (PartyId != 0UL) {
+      if (MemberMasterId != 0UL) {
         output.WriteRawTag(8);
-        output.WriteUInt64(PartyId);
-      }
-      if (MemberAccountId != 0UL) {
-        output.WriteRawTag(16);
-        output.WriteUInt64(MemberAccountId);
+        output.WriteUInt64(MemberMasterId);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -174,13 +154,9 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (PartyId != 0UL) {
+      if (MemberMasterId != 0UL) {
         output.WriteRawTag(8);
-        output.WriteUInt64(PartyId);
-      }
-      if (MemberAccountId != 0UL) {
-        output.WriteRawTag(16);
-        output.WriteUInt64(MemberAccountId);
+        output.WriteUInt64(MemberMasterId);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
@@ -192,11 +168,8 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
-      if (PartyId != 0UL) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(PartyId);
-      }
-      if (MemberAccountId != 0UL) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(MemberAccountId);
+      if (MemberMasterId != 0UL) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(MemberMasterId);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -210,11 +183,8 @@ namespace Bnet {
       if (other == null) {
         return;
       }
-      if (other.PartyId != 0UL) {
-        PartyId = other.PartyId;
-      }
-      if (other.MemberAccountId != 0UL) {
-        MemberAccountId = other.MemberAccountId;
+      if (other.MemberMasterId != 0UL) {
+        MemberMasterId = other.MemberMasterId;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -236,11 +206,7 @@ namespace Bnet {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
           case 8: {
-            PartyId = input.ReadUInt64();
-            break;
-          }
-          case 16: {
-            MemberAccountId = input.ReadUInt64();
+            MemberMasterId = input.ReadUInt64();
             break;
           }
         }
@@ -263,11 +229,7 @@ namespace Bnet {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
           case 8: {
-            PartyId = input.ReadUInt64();
-            break;
-          }
-          case 16: {
-            MemberAccountId = input.ReadUInt64();
+            MemberMasterId = input.ReadUInt64();
             break;
           }
         }

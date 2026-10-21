@@ -158,3 +158,96 @@ SETTLEMENT_TIER_CITY,City
 SETTLEMENT_TIER_TOWN,Town
 SETTLEMENT_TIER_VILLAGE,Village
 SETTLEMENT_TIER_HAMLET,Hamlet
+ERROR_PARTY_NOT_IN_PARTY,You are not in a party.
+ERROR_PARTY_PLAYER_NOT_FOUND,No player named %s is online.
+ERROR_PARTY_INVITE_EXPIRED,That party invitation has expired.
+ERROR_PARTY_NO_PERMISSION,Only the party owner can do that.
+ERROR_PARTY_ALREADY_IN_PARTY,You are already in a party.
+ERROR_PARTY_TARGET_IN_PARTY,%s is already in a party.
+ERROR_PARTY_NAME_IN_USE,That party name is taken.
+ERROR_PARTY_INVALID_NAME,"A party name is up to 20 plain letters, digits and single spaces."
+ERROR_PARTY_FULL,The party is full.
+ERROR_PARTY_NOT_A_MEMBER,%s is not in your party.
+ERROR_PARTY_INVITE_DECLINED,%s declined the party invitation.
+ERROR_GUILD_NAME_TAKEN,That guild name is taken. Your Founder's Seal is kept.
+ERROR_GUILD_INVALID_NAME,"That name cannot be used: plain letters, digits and single spaces only."
+ERROR_GUILD_NOT_A_MEMBER,You are not in a guild.
+ERROR_GUILD_TARGET_UNAVAILABLE,No player named %s is online.
+ERROR_GUILD_TARGET_IN_GUILD,%s is already in a guild.
+ERROR_GUILD_FULL,The guild is full. Guild Extension seats more members.
+ERROR_GUILD_INVITE_EXPIRED,That guild invitation has expired.
+ERROR_GUILD_INVITE_DECLINED,%s declined the guild invitation.
+ERROR_GUILD_LEADER_MUST_DISBAND,This master leads the guild %s. Disband it before deleting the master.
+CHAT_LINE_PARTY,[Party] %s: %s
+CHAT_LINE_GUILD,[Guild] %s: %s
+INVITATION_ACCEPT,Yes
+INVITATION_DECLINE,No
+PARTY_NONE_HINT,"You are in no party. Found one, or wait for an invitation."
+PARTY_NAME_PLACEHOLDER,Party name
+PARTY_DEFAULT_NAME,%s's party
+PARTY_CREATE,Create
+PARTY_EXP_MODE,EXP
+PARTY_EXP_EACH_TAKE,Each take
+PARTY_EXP_EVEN_SHARE,Even share
+PARTY_EXP_EACH_TAKE_HINT,Every member keeps the EXP their own damage earned.
+PARTY_EXP_EVEN_SHARE_HINT,"EXP is split evenly between the members within 100 m of the kill, with a 30% bonus when shared."
+PARTY_INVITE_PLACEHOLDER,Master name
+PARTY_INVITE,Invite
+PARTY_INVITE_PROMPT,%s invites you to join the party %s.
+PARTY_INVITE_SENT,Party invitation sent to %s.
+PARTY_LEAVE,Leave
+PARTY_DISBAND,Disband
+PARTY_DISBAND_HINT,"There is no new owner: leaving ends the party for everyone."
+PARTY_OWNER,Party owner
+PARTY_KICK,Remove from the party
+PARTY_MEMBER_OFFLINE,Offline
+PARTY_LEVEL,Lv. %d
+PARTY_JOINED,You joined the party %s.
+PARTY_MEMBER_JOINED,%s joined the party.
+PARTY_MEMBER_LEFT,%s left the party.
+PARTY_LEFT,You are no longer in a party.
+GUILD_TAB_OVERVIEW,Overview
+GUILD_TAB_MEMBERS,Members
+GUILD_TAB_RANKS,Ranks
+GUILD_LEVEL,Lv. %d
+GUILD_EXP,EXP
+GUILD_EXP_MAX,Highest level
+GUILD_MEMBERS_COUNT,Members
+GUILD_SKILL_POINTS,Skill points
+GUILD_EXTENSION,Guild Extension
+GUILD_EXTENSION_DESC,Each level seats two more members. Spending a skill point takes it one level further.
+GUILD_EXTENSION_LEVEL,Lv. %d / %d
+GUILD_INVEST,Invest
+GUILD_COL_NAME,Rank
+GUILD_COL_TAX,Tax on kill EXP
+GUILD_COL_PERMISSIONS,Invite · Kick · Ranks
+GUILD_COL_EXP,EXP paid in
+GUILD_PERM_INVITE,May invite
+GUILD_PERM_KICK,May kick members of lower ranks
+GUILD_PERM_MANAGE_RANKS,May manage the ranks below their own
+GUILD_LEADER,Guild master
+GUILD_MEMBER_ONLINE,Online
+GUILD_MEMBER_OFFLINE,Offline
+GUILD_KICK,Remove from the guild
+GUILD_RANK_ADD,Add rank
+GUILD_RANK_DEFAULT_NAME,New rank
+GUILD_RANK_SAVE,Save
+GUILD_RANK_DELETE,Delete this rank
+GUILD_RANK_LEADER_LOCKED,The guild master's rank keeps every permission.
+GUILD_INVITE_PLACEHOLDER,Master name
+GUILD_INVITE,Invite
+GUILD_INVITE_PROMPT,%s invites you to join the guild %s.
+GUILD_INVITE_SENT,Guild invitation sent to %s.
+GUILD_LEAVE,Leave
+GUILD_DISBAND,Disband
+GUILD_DISBAND_TITLE,Disband the guild
+GUILD_DISBAND_TEXT,"This ends %s for every member and cannot be undone. Type the guild's name to confirm."
+GUILD_FOUND_TITLE,Found a guild
+GUILD_FOUND_PROMPT,Name your guild. The Founder's Seal is spent when the guild is founded.
+GUILD_FOUND_CONFIRM,Found
+GUILD_FOUND_CANCEL,Cancel
+GUILD_ALREADY_IN_GUILD,You are already in a guild.
+GUILD_JOINED,You joined the guild %s.
+GUILD_LEFT_REASON_LEFT,You left the guild %s.
+GUILD_LEFT_REASON_KICKED,You were removed from the guild %s.
+GUILD_LEFT_REASON_DISBANDED,The guild %s was disbanded.

@@ -48,8 +48,7 @@ func _process(delta: float) -> void:
 		return
 
 	for entity_id in _rows:
-		var entity: Entity = entity_manager.get_entity(entity_id)
-		var health: ConditionPool = entity.get_health() if entity != null else null
+		var health: ConditionPool = entity_manager.get_health_of(entity_id)
 		var bar: ProgressBar = _rows[entity_id]["hp"]
 		if health == null or health.maximum <= 0:
 			bar.value = bar.max_value

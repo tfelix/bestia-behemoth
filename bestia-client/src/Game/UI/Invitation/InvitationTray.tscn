@@ -1,0 +1,15 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://Game/UI/Invitation/invitation_tray.gd" id="1_tray"]
+
+[node name="InvitationTray" type="VBoxContainer"]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -160.0
+offset_top = 96.0
+offset_right = 160.0
+offset_bottom = 96.0
+grow_horizontal = 2
+mouse_filter = 2
+script = ExtResource("1_tray")

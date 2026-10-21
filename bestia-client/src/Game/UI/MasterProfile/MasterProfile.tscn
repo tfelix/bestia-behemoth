@@ -13,6 +13,7 @@
 [ext_resource type="Texture2D" path="res://Theme/Icons/users.svg" id="11_frie"]
 [ext_resource type="Texture2D" path="res://Theme/Icons/scale.svg" id="12_scal"]
 [ext_resource type="Texture2D" path="res://Theme/Icons/coin.svg" id="13_coin"]
+[ext_resource type="Texture2D" path="res://Theme/Icons/flag.svg" id="14_flag"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_c5uss"]
 content_margin_left = 2.0
@@ -337,13 +338,21 @@ theme_override_constants/icon_max_width = 14
 icon = ExtResource("10_opti")
 icon_alignment = 1
 
-[node name="Friend" type="Button" parent="Margin/Layout/Bottom/Menu" unique_id=2000562676]
+[node name="Party" type="Button" parent="Margin/Layout/Bottom/Menu" unique_id=2000562676]
 custom_minimum_size = Vector2(22, 22)
 layout_mode = 2
-tooltip_text = "Friend"
-disabled = true
+tooltip_text = "Party"
 theme_override_constants/icon_max_width = 14
 icon = ExtResource("11_frie")
+icon_alignment = 1
+
+[node name="Guild" type="Button" parent="Margin/Layout/Bottom/Menu" unique_id=2000562677]
+custom_minimum_size = Vector2(22, 22)
+layout_mode = 2
+tooltip_text = "Guild"
+disabled = true
+theme_override_constants/icon_max_width = 14
+icon = ExtResource("14_flag")
 icon_alignment = 1
 
 [node name="Spacer" type="Control" parent="Margin/Layout/Bottom" unique_id=1630184722]
@@ -397,3 +406,5 @@ label_settings = SubResource("LabelSettings_small")
 [connection signal="pressed" from="Margin/Layout/Bottom/Menu/Equip" to="." method="_on_equipment_pressed"]
 [connection signal="pressed" from="Margin/Layout/Bottom/Menu/Skills" to="." method="_on_skills_pressed"]
 [connection signal="pressed" from="Margin/Layout/Bottom/Menu/Status" to="." method="_on_status_pressed"]
+[connection signal="pressed" from="Margin/Layout/Bottom/Menu/Party" to="." method="_on_party_pressed"]
+[connection signal="pressed" from="Margin/Layout/Bottom/Menu/Guild" to="." method="_on_guild_pressed"]

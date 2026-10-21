@@ -19,6 +19,11 @@ var _controlled_entity_id: int = 0
 var _owned_bestias: Array[BestiaInfo] = []
 ## How many bestia the master may own, filled or not.
 var _bestia_slot_count: int = 0
+## The last Health and Mana heard for an entity with no node here - a party member out of view, whose vitals
+## the server sends wherever it stands. Kept apart rather than given a node, which would be a visual-less
+## Entity sitting at the world origin; replayed onto the node should the entity come into view.
+## Keyed by entity id, then "health" / "mana" to the last message of that kind.
+var _detached_vitals: Dictionary[int, Dictionary] = {}
 
 ## The player took control of another of their entities. [param previous_id] is 0 on the first one.
 signal controlled_entity_changed(previous_id: int, entity_id: int)
@@ -114,10 +119,27 @@ func get_entity(entity_id: int) -> Entity:
 	return _entities.get(entity_id)
 
 
+## The last health heard for [param entity_id], in view or not, or null before any arrived.
+func get_health_of(entity_id: int) -> ConditionPool:
+	var entity: Entity = _entities.get(entity_id)
+	if entity != null:
+		return entity.get_health()
+	var msg = _detached_vitals.get(entity_id, {}).get("health")
+	return ConditionPool.new(msg.Current, msg.Max) if msg != null else null
+
+
+## The last mana heard for [param entity_id], in view or not, or null before any arrived.
+func get_mana_of(entity_id: int) -> ConditionPool:
+	var entity: Entity = _entities.get(entity_id)
+	if entity != null:
+		return entity.get_mana()
+	var msg = _detached_vitals.get(entity_id, {}).get("mana")
+	return ConditionPool.new(msg.Current, msg.Max) if msg != null else null
+
+
 ## Client-side friend/enemy heuristic: the local player's own entities, and anything of a species
 ## nothing may damage - a townsperson is somebody to talk to, not a target to snap onto.
-## TODO(party/guild): once bestias carry a party/guild flag, fold that check in here (e.g. matching
-## party/guild id against the local player's).
+## TODO(party/guild): fold party members in here - the party window knows their master and bestia entity ids.
 ## This is the ONLY place disposition should be decided - no other code should inline
 ## its own friend/enemy check.
 func is_entity_friendly(entity: Entity) -> bool:
@@ -170,9 +192,40 @@ func _get_or_create_entity(entity_id: int) -> Entity:
 		_entities[entity_id] = new_entity
 		new_entity.entity_id = entity_id
 		add_child(new_entity)
+		_replay_detached_vitals(new_entity)
 		_check_player_controllable_entity()
-	
+
 	return _entities[entity_id]
+
+
+## What arrived for the entity while it was out of view, so its bars are right the moment it is in it. Older
+## than anything the spawn batch brings, so a value from that batch, applied after, still wins.
+func _replay_detached_vitals(entity: Entity) -> void:
+	var vitals: Dictionary = _detached_vitals.get(entity.entity_id, {})
+	_detached_vitals.erase(entity.entity_id)
+	if vitals.has("health"):
+		entity.update_health(vitals["health"])
+	if vitals.has("mana"):
+		entity.update_mana(vitals["mana"])
+
+
+## True when [param msg] is a vital for an entity with no node, or that entity's vanish, and was dealt with
+## without making one.
+func _keep_detached(msg: EntitySMSG) -> bool:
+	if _entities.has(msg.EntityId):
+		return false
+
+	if msg is HealthComponentSMSG:
+		_detached_vitals.get_or_add(msg.EntityId, {})["health"] = msg
+		return true
+	if msg is ManaComponentSMSG:
+		_detached_vitals.get_or_add(msg.EntityId, {})["mana"] = msg
+		return true
+	if msg is VanishEntitySMSG:
+		# The vanish of an entity never in view: nothing to remove but what was kept for it.
+		_detached_vitals.erase(msg.EntityId)
+		return true
+	return false
 
 
 # Returns information who currently is the controllable player and which bestia we control.
@@ -215,6 +268,9 @@ func _set_controlled_entity(entity_id: int) -> void:
 
 
 func _on_entity_message_received(msg: EntitySMSG) -> void:
+	if _keep_detached(msg):
+		return
+
 	var entity = _get_or_create_entity(msg.EntityId)
 	
 	if msg is PositionComponent:
@@ -315,5 +371,6 @@ func _on_chat_message_received(msg: ChatSMSG) -> void:
 
 func resync_entities() -> void:
 	_entities.clear()
+	_detached_vitals.clear()
 	for child in get_children():
 		child.queue_free()

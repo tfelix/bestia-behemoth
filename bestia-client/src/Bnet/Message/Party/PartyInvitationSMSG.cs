@@ -14,6 +14,9 @@ namespace BestiaBehemothClient.Bnet.Message.Party
 
     [Export] public ulong InvitationId { get; set; }
 
+    /// <summary>How long the server keeps the invitation open; an answer after that is refused.</summary>
+    [Export] public uint ExpiresInSeconds { get; set; }
+
     public static PartyInvitationSMSG FromProto(global::Bnet.PartyInvitationSMSG proto)
     {
       return new PartyInvitationSMSG
@@ -21,7 +24,8 @@ namespace BestiaBehemothClient.Bnet.Message.Party
         InvitedByMaster = proto.InvitedByMaster,
         PartyId = proto.PartyId,
         PartyName = proto.PartyName,
-        InvitationId = proto.InvitationId
+        InvitationId = proto.InvitationId,
+        ExpiresInSeconds = proto.ExpiresInSeconds
       };
     }
   }

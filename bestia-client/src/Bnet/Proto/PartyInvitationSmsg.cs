@@ -25,14 +25,15 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CiptZXNzYWdlcy9wYXJ0eS9wYXJ0eV9pbnZpdGF0aW9uX3Ntc2cucHJvdG8S",
-            "BGJuZXQibQoTUGFydHlJbnZpdGF0aW9uU01TRxIZChFpbnZpdGVkX2J5X21h",
-            "c3RlchgBIAEoCRIQCghwYXJ0eV9pZBgCIAEoBBISCgpwYXJ0eV9uYW1lGAMg",
-            "ASgJEhUKDWludml0YXRpb25faWQYBCABKARCMQoVbmV0LmJlc3RpYS5ibmV0",
-            "LnByb3RvQhhQYXJ0eUludml0YXRpb25TbXNnUHJvdG9iBnByb3RvMw=="));
+            "BGJuZXQiiQEKE1BhcnR5SW52aXRhdGlvblNNU0cSGQoRaW52aXRlZF9ieV9t",
+            "YXN0ZXIYASABKAkSEAoIcGFydHlfaWQYAiABKAQSEgoKcGFydHlfbmFtZRgD",
+            "IAEoCRIVCg1pbnZpdGF0aW9uX2lkGAQgASgEEhoKEmV4cGlyZXNfaW5fc2Vj",
+            "b25kcxgFIAEoDUIxChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CGFBhcnR5SW52",
+            "aXRhdGlvblNtc2dQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.PartyInvitationSMSG), global::Bnet.PartyInvitationSMSG.Parser, new[]{ "InvitedByMaster", "PartyId", "PartyName", "InvitationId" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.PartyInvitationSMSG), global::Bnet.PartyInvitationSMSG.Parser, new[]{ "InvitedByMaster", "PartyId", "PartyName", "InvitationId", "ExpiresInSeconds" }, null, null, null, null)
           }));
     }
     #endregion
@@ -83,6 +84,7 @@ namespace Bnet {
       partyId_ = other.partyId_;
       partyName_ = other.partyName_;
       invitationId_ = other.invitationId_;
+      expiresInSeconds_ = other.expiresInSeconds_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -140,6 +142,21 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "expires_in_seconds" field.</summary>
+    public const int ExpiresInSecondsFieldNumber = 5;
+    private uint expiresInSeconds_;
+    /// <summary>
+    /// How long the server keeps the invitation open; an answer after that is refused.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint ExpiresInSeconds {
+      get { return expiresInSeconds_; }
+      set {
+        expiresInSeconds_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -159,6 +176,7 @@ namespace Bnet {
       if (PartyId != other.PartyId) return false;
       if (PartyName != other.PartyName) return false;
       if (InvitationId != other.InvitationId) return false;
+      if (ExpiresInSeconds != other.ExpiresInSeconds) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -170,6 +188,7 @@ namespace Bnet {
       if (PartyId != 0UL) hash ^= PartyId.GetHashCode();
       if (PartyName.Length != 0) hash ^= PartyName.GetHashCode();
       if (InvitationId != 0UL) hash ^= InvitationId.GetHashCode();
+      if (ExpiresInSeconds != 0) hash ^= ExpiresInSeconds.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -204,6 +223,10 @@ namespace Bnet {
         output.WriteRawTag(32);
         output.WriteUInt64(InvitationId);
       }
+      if (ExpiresInSeconds != 0) {
+        output.WriteRawTag(40);
+        output.WriteUInt32(ExpiresInSeconds);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -230,6 +253,10 @@ namespace Bnet {
         output.WriteRawTag(32);
         output.WriteUInt64(InvitationId);
       }
+      if (ExpiresInSeconds != 0) {
+        output.WriteRawTag(40);
+        output.WriteUInt32(ExpiresInSeconds);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -251,6 +278,9 @@ namespace Bnet {
       }
       if (InvitationId != 0UL) {
         size += 1 + pb::CodedOutputStream.ComputeUInt64Size(InvitationId);
+      }
+      if (ExpiresInSeconds != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(ExpiresInSeconds);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -275,6 +305,9 @@ namespace Bnet {
       }
       if (other.InvitationId != 0UL) {
         InvitationId = other.InvitationId;
+      }
+      if (other.ExpiresInSeconds != 0) {
+        ExpiresInSeconds = other.ExpiresInSeconds;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -311,6 +344,10 @@ namespace Bnet {
             InvitationId = input.ReadUInt64();
             break;
           }
+          case 40: {
+            ExpiresInSeconds = input.ReadUInt32();
+            break;
+          }
         }
       }
     #endif
@@ -344,6 +381,10 @@ namespace Bnet {
           }
           case 32: {
             InvitationId = input.ReadUInt64();
+            break;
+          }
+          case 40: {
+            ExpiresInSeconds = input.ReadUInt32();
             break;
           }
         }

@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSr9CwoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSrwDwoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -60,8 +60,19 @@ namespace Bnet {
             "EhUKEVRSQVBfT1VUX09GX1JBTkdFEDUSEAoMVFJBUF9OT19ST09NEDYSFgoS",
             "VFJBUF9MSU1JVF9SRUFDSEVEEDcSFQoRQkVTVElBX1NMT1RTX0ZVTEwQOBIT",
             "Cg9SRVFVRVNUX1JFRlVTRUQQORIYChRDT01CQVRfVEFSR0VUX1dBUkRFRBA6",
-            "EhQKEElURU1fTk9WSUNFX09OTFkQO0IsChVuZXQuYmVzdGlhLmJuZXQucHJv",
-            "dG9CE09wZXJhdGlvbkVycm9yUHJvdG9iBnByb3RvMw=="));
+            "EhQKEElURU1fTk9WSUNFX09OTFkQOxIWChJQQVJUWV9OT1RfSU5fUEFSVFkQ",
+            "PBIaChZQQVJUWV9QTEFZRVJfTk9UX0ZPVU5EED0SGAoUUEFSVFlfSU5WSVRF",
+            "X0VYUElSRUQQPhIXChNQQVJUWV9OT19QRVJNSVNTSU9OED8SGgoWUEFSVFlf",
+            "QUxSRUFEWV9JTl9QQVJUWRBAEhkKFVBBUlRZX1RBUkdFVF9JTl9QQVJUWRBB",
+            "EhUKEVBBUlRZX05BTUVfSU5fVVNFEEISFgoSUEFSVFlfSU5WQUxJRF9OQU1F",
+            "EEMSDgoKUEFSVFlfRlVMTBBEEhYKElBBUlRZX05PVF9BX01FTUJFUhBFEhkK",
+            "FVBBUlRZX0lOVklURV9ERUNMSU5FRBBGEhQKEEdVSUxEX05BTUVfVEFLRU4Q",
+            "RxIWChJHVUlMRF9JTlZBTElEX05BTUUQSBIWChJHVUlMRF9OT1RfQV9NRU1C",
+            "RVIQSRIcChhHVUlMRF9UQVJHRVRfVU5BVkFJTEFCTEUQShIZChVHVUlMRF9U",
+            "QVJHRVRfSU5fR1VJTEQQSxIOCgpHVUlMRF9GVUxMEEwSGAoUR1VJTERfSU5W",
+            "SVRFX0VYUElSRUQQTRIZChVHVUlMRF9JTlZJVEVfREVDTElORUQQThIdChlH",
+            "VUlMRF9MRUFERVJfTVVTVF9ESVNCQU5EEE9CLAoVbmV0LmJlc3RpYS5ibmV0",
+            "LnByb3RvQhNPcGVyYXRpb25FcnJvclByb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -314,6 +325,64 @@ namespace Bnet {
     /// the Novice tree. The item stays in the bag.
     /// </summary>
     [pbr::OriginalName("ITEM_NOVICE_ONLY")] ItemNoviceOnly = 59,
+    /// <summary>
+    /// Parties. One code for "no master of that name" and "that master is not being played", on the reasoning
+    /// CHAT_WHISPER_TARGET_UNAVAILABLE gives. The codes that name somebody carry that master's name in args[0].
+    /// Also what party chat answers when the sender is in no party.
+    /// </summary>
+    [pbr::OriginalName("PARTY_NOT_IN_PARTY")] PartyNotInParty = 60,
+    [pbr::OriginalName("PARTY_PLAYER_NOT_FOUND")] PartyPlayerNotFound = 61,
+    /// <summary>
+    /// The invitation timed out, or was answered already.
+    /// </summary>
+    [pbr::OriginalName("PARTY_INVITE_EXPIRED")] PartyInviteExpired = 62,
+    /// <summary>
+    /// Only the owner may invite, kick or change the EXP mode. Reachable through the chat commands, which the
+    /// party window's hidden buttons do not guard.
+    /// </summary>
+    [pbr::OriginalName("PARTY_NO_PERMISSION")] PartyNoPermission = 63,
+    [pbr::OriginalName("PARTY_ALREADY_IN_PARTY")] PartyAlreadyInParty = 64,
+    [pbr::OriginalName("PARTY_TARGET_IN_PARTY")] PartyTargetInParty = 65,
+    [pbr::OriginalName("PARTY_NAME_IN_USE")] PartyNameInUse = 66,
+    /// <summary>
+    /// Blank, too long, or not printable ASCII - see DisplayName.
+    /// </summary>
+    [pbr::OriginalName("PARTY_INVALID_NAME")] PartyInvalidName = 67,
+    /// <summary>
+    /// Every seat is taken, open invitations included.
+    /// </summary>
+    [pbr::OriginalName("PARTY_FULL")] PartyFull = 68,
+    [pbr::OriginalName("PARTY_NOT_A_MEMBER")] PartyNotAMember = 69,
+    [pbr::OriginalName("PARTY_INVITE_DECLINED")] PartyInviteDeclined = 70,
+    /// <summary>
+    /// Guilds. The rules on who may do what to whom are enforced too, but the guild window only offers what the
+    /// recipient's rank allows, so breaking one answers REQUEST_REFUSED rather than a code of its own.
+    /// </summary>
+    [pbr::OriginalName("GUILD_NAME_TAKEN")] GuildNameTaken = 71,
+    /// <summary>
+    /// Blank, too long, or not printable ASCII - see DisplayName. Also a rank name.
+    /// </summary>
+    [pbr::OriginalName("GUILD_INVALID_NAME")] GuildInvalidName = 72,
+    /// <summary>
+    /// Also what guild chat answers when the sender is in no guild.
+    /// </summary>
+    [pbr::OriginalName("GUILD_NOT_A_MEMBER")] GuildNotAMember = 73,
+    /// <summary>
+    /// No master of that name, or not being played - one code, as for whispers. Carries the name in args[0].
+    /// </summary>
+    [pbr::OriginalName("GUILD_TARGET_UNAVAILABLE")] GuildTargetUnavailable = 74,
+    [pbr::OriginalName("GUILD_TARGET_IN_GUILD")] GuildTargetInGuild = 75,
+    /// <summary>
+    /// Every seat is taken, open invitations included. Guild Extension seats more.
+    /// </summary>
+    [pbr::OriginalName("GUILD_FULL")] GuildFull = 76,
+    [pbr::OriginalName("GUILD_INVITE_EXPIRED")] GuildInviteExpired = 77,
+    [pbr::OriginalName("GUILD_INVITE_DECLINED")] GuildInviteDeclined = 78,
+    /// <summary>
+    /// A master leading a guild cannot be deleted while the guild stands, since nobody could take it over.
+    /// Carries the guild's name in args[0].
+    /// </summary>
+    [pbr::OriginalName("GUILD_LEADER_MUST_DISBAND")] GuildLeaderMustDisband = 79,
   }
 
   #endregion

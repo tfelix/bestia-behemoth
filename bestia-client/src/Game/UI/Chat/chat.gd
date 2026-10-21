@@ -40,6 +40,11 @@ const _SYSTEM_COLOR := Color(0.95, 0.82, 0.35)
 ## their own marks in.
 const _ITEM_COLOR := Color(0.62, 0.85, 1.0)
 
+## Green for the party and violet for the guild, so a line says who heard it before it is read. Kept clear of
+## the red, yellow and blue above.
+const _PARTY_COLOR := Color(0.55, 0.88, 0.55)
+const _GUILD_COLOR := Color(0.80, 0.66, 1.0)
+
 
 func _ready() -> void:
 	add_to_group("world_blocking_ui")
@@ -51,6 +56,10 @@ func _ready() -> void:
 func _input(event):
 	if event is InputEventKey and event.pressed:
 		if event.keycode == KEY_ENTER:
+			# Another text field has the keyboard - the party window's invite field, say - and Enter is its own.
+			var focused := get_viewport().gui_get_focus_owner()
+			if focused is LineEdit and focused != chat_input and focused != user_whisper_input:
+				return
 			_handle_enter()
 			get_viewport().set_input_as_handled()
 		elif chat_input.has_focus() and _history.size() > 0:
@@ -107,8 +116,9 @@ func _handle_chat_send() -> void:
 	if chat_text == "/clear":
 		_handle_clear_chat()
 	elif chat_text.begins_with("/"):
-		# Mode 7 is the command type as this is a command for the server.
-		ConnectionManager.send_chat(chat_input.text, 7)
+		# Mode 7 is the command type as this is a command for the server. The text with any mode prefix taken
+		# off, so "/p /help" asks for help rather than for a command called "/p".
+		ConnectionManager.send_chat(chat_text, 7)
 	else:
 		# Regular send to the server
 		var bnet_mode = BNET_MODE_MAP[chat_mode_option.selected]
@@ -293,8 +303,12 @@ func _on_bestia_capture(message: BestiaCaptureSMSG) -> void:
 
 
 func _on_chat_received(message: ChatSMSG) -> void:
-	# TODO handle different colors for different chat modes and error code translations.
-	if message.SenderName != "":
+	# Tagged as well as coloured, so the mode reads without telling the colours apart.
+	if message.IsParty():
+		_add_chat_line(tr("CHAT_LINE_PARTY") % [message.SenderName, message.Text], _PARTY_COLOR)
+	elif message.IsGuild():
+		_add_chat_line(tr("CHAT_LINE_GUILD") % [message.SenderName, message.Text], _GUILD_COLOR)
+	elif message.SenderName != "":
 		_add_chat_line("%s: %s" % [message.SenderName, message.Text])
 	else:
 		_add_chat_line(message.Text)

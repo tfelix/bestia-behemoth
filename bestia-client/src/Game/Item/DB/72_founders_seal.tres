@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ItemResource" load_steps=3 format=3]
+
+[ext_resource type="Script" uid="uid://bn4gvq3ayku4r" path="res://Game/Item/item_resource.gd" id="1_script"]
+[ext_resource type="Script" path="res://Game/Item/UseScripts/founders_seal_use.gd" id="2_seal_use"]
+
+[resource]
+script = ExtResource("1_script")
+item_id = 72
+name_key = "FOUNDERS_SEAL"
+description_key = "FOUNDERS_SEAL_DESC"
+weight = 50
+level = 45
+item_script = ExtResource("2_seal_use")

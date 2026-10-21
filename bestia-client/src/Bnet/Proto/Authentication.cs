@@ -28,7 +28,7 @@ namespace Bnet {
             "UQoOQXV0aGVudGljYXRpb24SDQoFdG9rZW4YASABKAkSFgoOY2xpZW50X3Zl",
             "cnNpb24YAiABKAkSGAoQcHJvdG9jb2xfdmVyc2lvbhgDIAEoDSpRCg9Qcm90",
             "b2NvbFZlcnNpb24SIAocUFJPVE9DT0xfVkVSU0lPTl9VTlNQRUNJRklFRBAA",
-            "EhwKGFBST1RPQ09MX1ZFUlNJT05fQ1VSUkVOVBADQiwKFW5ldC5iZXN0aWEu",
+            "EhwKGFBST1RPQ09MX1ZFUlNJT05fQ1VSUkVOVBABQiwKFW5ldC5iZXN0aWEu",
             "Ym5ldC5wcm90b0ITQXV0aGVudGljYXRpb25Qcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
@@ -41,12 +41,13 @@ namespace Bnet {
   }
   #region Enums
   /// <summary>
-  /// Raise CURRENT with every change that an older client or server would read wrongly. The zone refuses a
-  /// client whose version differs, so both sides read this one value.
+  /// The zone refuses a client whose version differs, so both sides read this one value. It stays at 1 until the
+  /// first release: nothing older is out there to protect, so wire changes are made in place. Raise it with every
+  /// incompatible change from then on.
   /// </summary>
   public enum ProtocolVersion {
     [pbr::OriginalName("PROTOCOL_VERSION_UNSPECIFIED")] Unspecified = 0,
-    [pbr::OriginalName("PROTOCOL_VERSION_CURRENT")] Current = 3,
+    [pbr::OriginalName("PROTOCOL_VERSION_CURRENT")] Current = 1,
   }
 
   #endregion

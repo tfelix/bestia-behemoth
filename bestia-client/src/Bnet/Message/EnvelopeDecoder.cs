@@ -58,13 +58,11 @@ namespace BestiaBehemothClient.Bnet.Message
       [Envelope.MessageOneofCase.TradeState] = e => Trade.TradeStateSMSG.FromProto(e.TradeState),
       [Envelope.MessageOneofCase.ShopOffer] = e => Shop.ShopOfferSMSG.FromProto(e.ShopOffer),
       [Envelope.MessageOneofCase.PartyInvitation] = e => Party.PartyInvitationSMSG.FromProto(e.PartyInvitation),
-      [Envelope.MessageOneofCase.PartyInvitationCreated] =
-        e => Party.PartyInvitationCreatedSMSG.FromProto(e.PartyInvitationCreated),
-      [Envelope.MessageOneofCase.PartyInviteDeclined] =
-        e => Party.PartyInviteDeclinedSMSG.FromProto(e.PartyInviteDeclined),
       [Envelope.MessageOneofCase.PartyInfo] = e => Party.PartyInfoSMSG.FromProto(e.PartyInfo),
-      [Envelope.MessageOneofCase.PartyError] = e => Party.PartyErrorSMSG.FromProto(e.PartyError),
       [Envelope.MessageOneofCase.DisbandParty] = e => Party.DisbandPartySMSG.FromProto(e.DisbandParty),
+      [Envelope.MessageOneofCase.GuildInfo] = e => Guild.GuildInfoSMSG.FromProto(e.GuildInfo),
+      [Envelope.MessageOneofCase.GuildInvitation] = e => Guild.GuildInvitationSMSG.FromProto(e.GuildInvitation),
+      [Envelope.MessageOneofCase.GuildLeft] = e => Guild.GuildLeftSMSG.FromProto(e.GuildLeft),
     };
 
     public static IReadOnlyCollection<Envelope.MessageOneofCase> RoutedCases => Routes.Keys;

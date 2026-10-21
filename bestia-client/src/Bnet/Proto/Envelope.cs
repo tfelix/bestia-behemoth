@@ -64,148 +64,173 @@ namespace Bnet {
             "eXN0ZW0vZGlhbG9nX3Ntc2cucHJvdG8aLW1lc3NhZ2VzL3BhcnR5L2FjY2Vw",
             "dF9wYXJ0eV9pbnZpdGVfY21zZy5wcm90bxoubWVzc2FnZXMvcGFydHkvZGVj",
             "bGluZV9wYXJ0eV9pbnZpdGVfY21zZy5wcm90bxoqbWVzc2FnZXMvcGFydHkv",
-            "cGFydHlfaW52aXRhdGlvbl9zbXNnLnByb3RvGjJtZXNzYWdlcy9wYXJ0eS9w",
-            "YXJ0eV9pbnZpdGF0aW9uX2NyZWF0ZWRfc21zZy5wcm90bxovbWVzc2FnZXMv",
-            "cGFydHkvcGFydHlfaW52aXRlX2RlY2xpbmVkX3Ntc2cucHJvdG8aJG1lc3Nh",
-            "Z2VzL3BhcnR5L3BhcnR5X2luZm9fc21zZy5wcm90bxolbWVzc2FnZXMvcGFy",
-            "dHkvcGFydHlfZXJyb3Jfc21zZy5wcm90bxonbWVzc2FnZXMvcGFydHkvZGlz",
-            "YmFuZF9wYXJ0eV9zbXNnLnByb3RvGiZtZXNzYWdlcy9wYXJ0eS9jcmVhdGVf",
-            "cGFydHlfY21zZy5wcm90bxolbWVzc2FnZXMvcGFydHkvbGVhdmVfcGFydHlf",
-            "Y21zZy5wcm90bxotbWVzc2FnZXMvcGFydHkvcmVtb3ZlX3BhcnR5X21lbWJl",
-            "cl9jbXNnLnByb3RvGi9tZXNzYWdlcy9wYXJ0eS9yZXF1ZXN0X2Rpc2JhbmRf",
-            "cGFydHlfY21zZy5wcm90bxoybWVzc2FnZXMvcGFydHkvcmVxdWVzdF9wYXJ0",
-            "eV9pbnZpdGF0aW9uX2Ntc2cucHJvdG8aLG1lc3NhZ2VzL3BhcnR5L3JlcXVl",
-            "c3RfcGFydHlfaW5mb19jbXNnLnByb3RvGiJtZXNzYWdlcy9tYXAvd29ybGRf",
-            "aW5mb19zbXNnLnByb3RvGiZtZXNzYWdlcy9tYXAvY2h1bmtfbWFuaWZlc3Rf",
-            "c21zZy5wcm90bxolbWVzc2FnZXMvbWFwL2NodW5rX3JlcXVlc3RfY21zZy5w",
-            "cm90bxoibWVzc2FnZXMvbWFwL2NodW5rX2RhdGFfc21zZy5wcm90bxojbWVz",
-            "c2FnZXMvbWFwL2NodW5rX3BhdGNoX3Ntc2cucHJvdG8aLW1lc3NhZ2VzL21h",
-            "cC9jaHVua19zdGF0aWNfZW50aXRpZXNfc21zZy5wcm90bxosbWVzc2FnZXMv",
-            "bWFwL2NodW5rX2dyb3VuZF9vdmVybGF5X3Ntc2cucHJvdG8aK21lc3NhZ2Vz",
-            "L21hcC9jaHVua19ncm91bmRfbGF5ZXJzX3Ntc2cucHJvdG8aK21lc3NhZ2Vz",
-            "L21hcC9jaHVua19ncm91bmRfc3RhbXBzX3Ntc2cucHJvdG8aKW1lc3NhZ2Vz",
-            "L21hcC9ncm91bmRfbWFya19ydWxlc19zbXNnLnByb3RvGi1tZXNzYWdlcy9t",
-            "YXAvc3RhdGljX2VudGl0eV9yZW1vdmVkX3Ntc2cucHJvdG8aJG1lc3NhZ2Vz",
-            "L21hcC9jb2xsZWN0X3Byb3BfY21zZy5wcm90bxonbWVzc2FnZXMvbWFwL2lu",
-            "dGVyYWN0X2VudGl0eV9jbXNnLnByb3RvGiJtZXNzYWdlcy9zaG9wL29wZW5f",
-            "c2hvcF9jbXNnLnByb3RvGiNtZXNzYWdlcy9zaG9wL3Nob3Bfb2ZmZXJfc21z",
-            "Zy5wcm90bxojbWVzc2FnZXMvc2hvcC9zaG9wX3RyYWRlX2Ntc2cucHJvdG8a",
-            "H21lc3NhZ2VzL21hcC93ZWF0aGVyX3Ntc2cucHJvdG8aIm1lc3NhZ2VzL21h",
-            "cC93b3JsZF90aW1lX3Ntc2cucHJvdG8aJ21lc3NhZ2VzL3RyYWRlL3JlcXVl",
-            "c3RfdHJhZGVfY21zZy5wcm90bxoubWVzc2FnZXMvdHJhZGUvYW5zd2VyX3Ry",
-            "YWRlX3JlcXVlc3RfY21zZy5wcm90bxoqbWVzc2FnZXMvdHJhZGUvb2ZmZXJf",
-            "dHJhZGVfaXRlbV9jbXNnLnByb3RvGixtZXNzYWdlcy90cmFkZS9yZXRyYWN0",
-            "X3RyYWRlX2l0ZW1fY21zZy5wcm90bxoobWVzc2FnZXMvdHJhZGUvc2V0X3Ry",
-            "YWRlX2xvY2tfY21zZy5wcm90bxonbWVzc2FnZXMvdHJhZGUvY29uZmlybV90",
-            "cmFkZV9jbXNnLnByb3RvGiZtZXNzYWdlcy90cmFkZS9jYW5jZWxfdHJhZGVf",
-            "Y21zZy5wcm90bxonbWVzc2FnZXMvdHJhZGUvdHJhZGVfcmVxdWVzdF9zbXNn",
-            "LnByb3RvGiVtZXNzYWdlcy90cmFkZS90cmFkZV9zdGF0ZV9zbXNnLnByb3Rv",
-            "GiNtZXNzYWdlcy9zeXN0ZW0vaW50ZXJhY3RfY21zZy5wcm90bxonbWVzc2Fn",
-            "ZXMvc3lzdGVtL2NvbnZlcnNhdGlvbl9zbXNnLnByb3RvGi5tZXNzYWdlcy9z",
-            "eXN0ZW0vY29udmVyc2F0aW9uX2Nob2ljZV9jbXNnLnByb3RvIpgiCghFbnZl",
-            "bG9wZRIzChFvcGVyYXRpb25fc3VjY2VzcxgBIAEoCzIWLmJuZXQuT3BlcmF0",
-            "aW9uU3VjY2Vzc0gAEi8KD29wZXJhdGlvbl9lcnJvchgCIAEoCzIULmJuZXQu",
-            "T3BlcmF0aW9uRXJyb3JIABIrCgtzdGF0ZV9iYXRjaBgDIAEoCzIULmJuZXQu",
-            "U3RhdGVCYXRjaFNNU0dIABIvCg1kYW1hZ2VfZW50aXR5GAQgASgLMhYuYm5l",
-            "dC5EYW1hZ2VFbnRpdHlTTVNHSAASLgoOYXV0aGVudGljYXRpb24YZCABKAsy",
-            "FC5ibmV0LkF1dGhlbnRpY2F0aW9uSAASKgoMZGlzY29ubmVjdGVkGGUgASgL",
-            "MhIuYm5ldC5EaXNjb25uZWN0ZWRIABI9ChZhdXRoZW50aWNhdGlvbl9zdWNj",
-            "ZXNzGGYgASgLMhsuYm5ldC5BdXRoZW50aWNhdGlvblN1Y2Nlc3NIABIaCgRw",
-            "aW5nGHggASgLMgouYm5ldC5QaW5nSAASGgoEcG9uZxh5IAEoCzIKLmJuZXQu",
-            "UG9uZ0gAEiMKCWNoYXRfY21zZxh6IAEoCzIOLmJuZXQuQ2hhdENNU0dIABIj",
-            "CgljaGF0X3Ntc2cYeyABKAsyDi5ibmV0LkNoYXRTTVNHSAASMQoOcmVxdWVz",
-            "dF9sb2dvdXQYfCABKAsyFy5ibmV0LlJlcXVlc3RMb2dvdXRDTVNHSAASIgoG",
-            "ZGlhbG9nGH0gASgLMhAuYm5ldC5EaWFsb2dTTVNHSAASOwoTY29udmVyc2F0",
-            "aW9uX2Nob2ljZRh+IAEoCzIcLmJuZXQuQ29udmVyc2F0aW9uQ2hvaWNlQ01T",
-            "R0gAEiQKB3Jlc3Bhd24YfyABKAsyES5ibmV0LlJlc3Bhd25DTVNHSAASJwoI",
-            "aW50ZXJhY3QYgAEgASgLMhIuYm5ldC5JbnRlcmFjdENNU0dIABIvCgxjb252",
-            "ZXJzYXRpb24YgQEgASgLMhYuYm5ldC5Db252ZXJzYXRpb25TTVNHSAASKgoK",
-            "d29ybGRfaW5mbxjIASABKAsyEy5ibmV0LldvcmxkSW5mb1NNU0dIABIyCg5j",
-            "aHVua19tYW5pZmVzdBjJASABKAsyFy5ibmV0LkNodW5rTWFuaWZlc3RTTVNH",
-            "SAASMAoNY2h1bmtfcmVxdWVzdBjKASABKAsyFi5ibmV0LkNodW5rUmVxdWVz",
-            "dENNU0dIABIqCgpjaHVua19kYXRhGMsBIAEoCzITLmJuZXQuQ2h1bmtEYXRh",
-            "U01TR0gAEiwKC2NodW5rX3BhdGNoGMwBIAEoCzIULmJuZXQuQ2h1bmtQYXRj",
-            "aFNNU0dIABIlCgd3ZWF0aGVyGM0BIAEoCzIRLmJuZXQuV2VhdGhlclNNU0dI",
-            "ABI/ChVjaHVua19zdGF0aWNfZW50aXRpZXMYzgEgASgLMh0uYm5ldC5DaHVu",
-            "a1N0YXRpY0VudGl0aWVzU01TR0gAEj8KFXN0YXRpY19lbnRpdHlfcmVtb3Zl",
-            "ZBjPASABKAsyHS5ibmV0LlN0YXRpY0VudGl0eVJlbW92ZWRTTVNHSAASLgoM",
-            "Y29sbGVjdF9wcm9wGNABIAEoCzIVLmJuZXQuQ29sbGVjdFByb3BDTVNHSAAS",
-            "KgoKd29ybGRfdGltZRjRASABKAsyEy5ibmV0LldvcmxkVGltZVNNU0dIABI9",
-            "ChRjaHVua19ncm91bmRfb3ZlcmxheRjSASABKAsyHC5ibmV0LkNodW5rR3Jv",
-            "dW5kT3ZlcmxheVNNU0dIABI0Cg9pbnRlcmFjdF9lbnRpdHkY0wEgASgLMhgu",
-            "Ym5ldC5JbnRlcmFjdEVudGl0eUNNU0dIABI7ChNjaHVua19ncm91bmRfbGF5",
-            "ZXJzGNQBIAEoCzIbLmJuZXQuQ2h1bmtHcm91bmRMYXllcnNTTVNHSAASOwoT",
-            "Y2h1bmtfZ3JvdW5kX3N0YW1wcxjVASABKAsyGy5ibmV0LkNodW5rR3JvdW5k",
-            "U3RhbXBzU01TR0gAEjcKEWdyb3VuZF9tYXJrX3J1bGVzGNYBIAEoCzIZLmJu",
-            "ZXQuR3JvdW5kTWFya1J1bGVzU01TR0gAEjAKDWdldF9pbnZlbnRvcnkYrQIg",
-            "ASgLMhYuYm5ldC5HZXRJbnZlbnRvcnlDTVNHSAASJgoIdXNlX2l0ZW0YrgIg",
-            "ASgLMhEuYm5ldC5Vc2VJdGVtQ01TR0gAEigKCWRyb3BfaXRlbRivAiABKAsy",
-            "Ei5ibmV0LkRyb3BJdGVtQ01TR0gAEigKCWxvb3RfaXRlbRiwAiABKAsyEi5i",
-            "bmV0Lkxvb3RJdGVtQ01TR0gAEioKCmVxdWlwX2l0ZW0YsQIgASgLMhMuYm5l",
-            "dC5FcXVpcEl0ZW1DTVNHSAASLgoMdW5lcXVpcF9pdGVtGLICIAEoCzIVLmJu",
-            "ZXQuVW5lcXVpcEl0ZW1DTVNHSAASKgoKZ2V0X21hc3RlchiRAyABKAsyEy5i",
-            "bmV0LkdldE1hc3RlckNNU0dIABIfCgZtYXN0ZXIYkgMgASgLMgwuYm5ldC5N",
-            "YXN0ZXJIABIwCg1zZWxlY3RfbWFzdGVyGJMDIAEoCzIWLmJuZXQuU2VsZWN0",
-            "TWFzdGVyQ01TR0gAEiYKCGdldF9zZWxmGJQDIAEoCzIRLmJuZXQuR2V0U2Vs",
-            "ZkNNU0dIABIfCgRzZWxmGJUDIAEoCzIOLmJuZXQuU2VsZlNNU0dIABI5ChJp",
-            "bnZlc3Rfc2tpbGxfcG9pbnQYlgMgASgLMhouYm5ldC5JbnZlc3RTa2lsbFBv",
-            "aW50Q01TR0gAEioKCmdldF9za2lsbHMYlwMgASgLMhMuYm5ldC5HZXRTa2ls",
-            "bHNDTVNHSAASMgoOYWN0aXZhdGVfc2tpbGwYmAMgASgLMhcuYm5ldC5BY3Rp",
-            "dmF0ZVNraWxsQ01TR0gAEjAKDWNyZWF0ZV9tYXN0ZXIYmQMgASgLMhYuYm5l",
-            "dC5DcmVhdGVNYXN0ZXJDTVNHSAASOwoTaW52ZXN0X3N0YXR1c19wb2ludBia",
-            "AyABKAsyGy5ibmV0LkludmVzdFN0YXR1c1BvaW50Q01TR0gAEjwKFHNldF9i",
-            "ZXN0aWFfYWlfY29uZmlnGJsDIAEoCzIbLmJuZXQuU2V0QmVzdGlhQWlDb25m",
-            "aWdDTVNHSAASNQoQYmVzdGlhX2FpX2NvbmZpZxicAyABKAsyGC5ibmV0LkJl",
-            "c3RpYUFpQ29uZmlnU01TR0gAEjAKDWRlbGV0ZV9tYXN0ZXIYnQMgASgLMhYu",
-            "Ym5ldC5EZWxldGVNYXN0ZXJDTVNHSAASMgoOYmVzdGlhX2NhcHR1cmUYngMg",
-            "ASgLMhcuYm5ldC5CZXN0aWFDYXB0dXJlU01TR0gAEjAKDW93bmVkX2Jlc3Rp",
-            "YXMYnwMgASgLMhYuYm5ldC5Pd25lZEJlc3RpYXNTTVNHSAASMAoNYWN0aXZl",
-            "X2VudGl0eRigAyABKAsyFi5ibmV0LkFjdGl2ZUVudGl0eVNNU0dIABI5ChRz",
-            "ZWxlY3RfYWN0aXZlX2VudGl0eRj0AyABKAsyGC5ibmV0LlNlbGVjdEFjdGl2",
-            "ZUVudGl0eUgAEjUKEm1vdmVfYWN0aXZlX2VudGl0eRj1AyABKAsyFi5ibmV0",
-            "Lk1vdmVBY3RpdmVFbnRpdHlIABIwCg1hdHRhY2tfZW50aXR5GPcDIAEoCzIW",
-            "LmJuZXQuQXR0YWNrRW50aXR5Q01TR0gAEjsKE2FjY2VwdF9wYXJ0eV9pbnZp",
-            "dGUY2AQgASgLMhsuYm5ldC5BY2NlcHRQYXJ0eUludml0ZUNNU0dIABI9ChRk",
-            "ZWNsaW5lX3BhcnR5X2ludml0ZRjZBCABKAsyHC5ibmV0LkRlY2xpbmVQYXJ0",
-            "eUludml0ZUNNU0dIABI2ChBwYXJ0eV9pbnZpdGF0aW9uGNoEIAEoCzIZLmJu",
-            "ZXQuUGFydHlJbnZpdGF0aW9uU01TR0gAEkUKGHBhcnR5X2ludml0YXRpb25f",
-            "Y3JlYXRlZBjbBCABKAsyIC5ibmV0LlBhcnR5SW52aXRhdGlvbkNyZWF0ZWRT",
-            "TVNHSAASPwoVcGFydHlfaW52aXRlX2RlY2xpbmVkGNwEIAEoCzIdLmJuZXQu",
-            "UGFydHlJbnZpdGVEZWNsaW5lZFNNU0dIABIqCgpwYXJ0eV9pbmZvGN0EIAEo",
-            "CzITLmJuZXQuUGFydHlJbmZvU01TR0gAEiwKC3BhcnR5X2Vycm9yGN4EIAEo",
-            "CzIULmJuZXQuUGFydHlFcnJvclNNU0dIABIwCg1kaXNiYW5kX3BhcnR5GN8E",
-            "IAEoCzIWLmJuZXQuRGlzYmFuZFBhcnR5U01TR0gAEi4KDGNyZWF0ZV9wYXJ0",
-            "eRjgBCABKAsyFS5ibmV0LkNyZWF0ZVBhcnR5Q01TR0gAEiwKC2xlYXZlX3Bh",
-            "cnR5GOEEIAEoCzIULmJuZXQuTGVhdmVQYXJ0eUNNU0dIABI7ChNyZW1vdmVf",
-            "cGFydHlfbWVtYmVyGOIEIAEoCzIbLmJuZXQuUmVtb3ZlUGFydHlNZW1iZXJD",
-            "TVNHSAASPwoVcmVxdWVzdF9kaXNiYW5kX3BhcnR5GOMEIAEoCzIdLmJuZXQu",
-            "UmVxdWVzdERpc2JhbmRQYXJ0eUNNU0dIABJFChhyZXF1ZXN0X3BhcnR5X2lu",
-            "dml0YXRpb24Y5AQgASgLMiAuYm5ldC5SZXF1ZXN0UGFydHlJbnZpdGF0aW9u",
-            "Q01TR0gAEjkKEnJlcXVlc3RfcGFydHlfaW5mbxjlBCABKAsyGi5ibmV0LlJl",
-            "cXVlc3RQYXJ0eUluZm9DTVNHSAASOAoRY3JhZnRhYmxlX3JlY2lwZXMYvAUg",
-            "ASgLMhouYm5ldC5DcmFmdGFibGVSZWNpcGVzU01TR0gAEioKCmNyYWZ0X2l0",
-            "ZW0YvQUgASgLMhMuYm5ldC5DcmFmdEl0ZW1DTVNHSAASLgoMY2FuY2VsX2Ny",
-            "YWZ0GL4FIAEoCzIVLmJuZXQuQ2FuY2VsQ3JhZnRDTVNHSAASMAoNcmVxdWVz",
-            "dF90cmFkZRigBiABKAsyFi5ibmV0LlJlcXVlc3RUcmFkZUNNU0dIABI9ChRh",
-            "bnN3ZXJfdHJhZGVfcmVxdWVzdBihBiABKAsyHC5ibmV0LkFuc3dlclRyYWRl",
-            "UmVxdWVzdENNU0dIABI1ChBvZmZlcl90cmFkZV9pdGVtGKIGIAEoCzIYLmJu",
-            "ZXQuT2ZmZXJUcmFkZUl0ZW1DTVNHSAASOQoScmV0cmFjdF90cmFkZV9pdGVt",
-            "GKMGIAEoCzIaLmJuZXQuUmV0cmFjdFRyYWRlSXRlbUNNU0dIABIxCg5zZXRf",
-            "dHJhZGVfbG9jaxikBiABKAsyFi5ibmV0LlNldFRyYWRlTG9ja0NNU0dIABIw",
-            "Cg1jb25maXJtX3RyYWRlGKUGIAEoCzIWLmJuZXQuQ29uZmlybVRyYWRlQ01T",
-            "R0gAEi4KDGNhbmNlbF90cmFkZRimBiABKAsyFS5ibmV0LkNhbmNlbFRyYWRl",
-            "Q01TR0gAEjAKDXRyYWRlX3JlcXVlc3QYqgYgASgLMhYuYm5ldC5UcmFkZVJl",
-            "cXVlc3RTTVNHSAASLAoLdHJhZGVfc3RhdGUYqwYgASgLMhQuYm5ldC5UcmFk",
-            "ZVN0YXRlU01TR0gAEigKCW9wZW5fc2hvcBi0BiABKAsyEi5ibmV0Lk9wZW5T",
-            "aG9wQ01TR0gAEioKCnNob3BfdHJhZGUYtQYgASgLMhMuYm5ldC5TaG9wVHJh",
-            "ZGVDTVNHSAASKgoKc2hvcF9vZmZlchi2BiABKAsyEy5ibmV0LlNob3BPZmZl",
-            "clNNU0dIAEIJCgdtZXNzYWdlSgYI9gMQ9wNKBgj4AxD5A0oGCPkDEPoDSgYI",
-            "/gMQngRCJgoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQg1FbnZlbG9wZVByb3Rv",
-            "YgZwcm90bzM="));
+            "cGFydHlfaW52aXRhdGlvbl9zbXNnLnByb3RvGiRtZXNzYWdlcy9wYXJ0eS9w",
+            "YXJ0eV9pbmZvX3Ntc2cucHJvdG8aJ21lc3NhZ2VzL3BhcnR5L2Rpc2JhbmRf",
+            "cGFydHlfc21zZy5wcm90bxombWVzc2FnZXMvcGFydHkvY3JlYXRlX3BhcnR5",
+            "X2Ntc2cucHJvdG8aJW1lc3NhZ2VzL3BhcnR5L2xlYXZlX3BhcnR5X2Ntc2cu",
+            "cHJvdG8aLW1lc3NhZ2VzL3BhcnR5L3JlbW92ZV9wYXJ0eV9tZW1iZXJfY21z",
+            "Zy5wcm90bxovbWVzc2FnZXMvcGFydHkvcmVxdWVzdF9kaXNiYW5kX3BhcnR5",
+            "X2Ntc2cucHJvdG8aMm1lc3NhZ2VzL3BhcnR5L3JlcXVlc3RfcGFydHlfaW52",
+            "aXRhdGlvbl9jbXNnLnByb3RvGixtZXNzYWdlcy9wYXJ0eS9yZXF1ZXN0X3Bh",
+            "cnR5X2luZm9fY21zZy5wcm90bxotbWVzc2FnZXMvcGFydHkvc2V0X3BhcnR5",
+            "X2V4cF9zaGFyZV9jbXNnLnByb3RvGiZtZXNzYWdlcy9ndWlsZC9jcmVhdGVf",
+            "Z3VpbGRfY21zZy5wcm90bxosbWVzc2FnZXMvZ3VpbGQvcmVxdWVzdF9ndWls",
+            "ZF9pbmZvX2Ntc2cucHJvdG8aKW1lc3NhZ2VzL2d1aWxkL2ludml0ZV90b19n",
+            "dWlsZF9jbXNnLnByb3RvGi1tZXNzYWdlcy9ndWlsZC9hbnN3ZXJfZ3VpbGRf",
+            "aW52aXRlX2Ntc2cucHJvdG8aJW1lc3NhZ2VzL2d1aWxkL2xlYXZlX2d1aWxk",
+            "X2Ntc2cucHJvdG8aK21lc3NhZ2VzL2d1aWxkL2tpY2tfZ3VpbGRfbWVtYmVy",
+            "X2Ntc2cucHJvdG8aL21lc3NhZ2VzL2d1aWxkL3NldF9ndWlsZF9tZW1iZXJf",
+            "cmFua19jbXNnLnByb3RvGiltZXNzYWdlcy9ndWlsZC9zYXZlX2d1aWxkX3Jh",
+            "bmtfY21zZy5wcm90bxorbWVzc2FnZXMvZ3VpbGQvZGVsZXRlX2d1aWxkX3Jh",
+            "bmtfY21zZy5wcm90bxosbWVzc2FnZXMvZ3VpbGQvaW52ZXN0X2d1aWxkX3Nr",
+            "aWxsX2Ntc2cucHJvdG8aJ21lc3NhZ2VzL2d1aWxkL2Rpc2JhbmRfZ3VpbGRf",
+            "Y21zZy5wcm90bxokbWVzc2FnZXMvZ3VpbGQvZ3VpbGRfaW5mb19zbXNnLnBy",
+            "b3RvGiptZXNzYWdlcy9ndWlsZC9ndWlsZF9pbnZpdGF0aW9uX3Ntc2cucHJv",
+            "dG8aJG1lc3NhZ2VzL2d1aWxkL2d1aWxkX2xlZnRfc21zZy5wcm90bxoibWVz",
+            "c2FnZXMvbWFwL3dvcmxkX2luZm9fc21zZy5wcm90bxombWVzc2FnZXMvbWFw",
+            "L2NodW5rX21hbmlmZXN0X3Ntc2cucHJvdG8aJW1lc3NhZ2VzL21hcC9jaHVu",
+            "a19yZXF1ZXN0X2Ntc2cucHJvdG8aIm1lc3NhZ2VzL21hcC9jaHVua19kYXRh",
+            "X3Ntc2cucHJvdG8aI21lc3NhZ2VzL21hcC9jaHVua19wYXRjaF9zbXNnLnBy",
+            "b3RvGi1tZXNzYWdlcy9tYXAvY2h1bmtfc3RhdGljX2VudGl0aWVzX3Ntc2cu",
+            "cHJvdG8aLG1lc3NhZ2VzL21hcC9jaHVua19ncm91bmRfb3ZlcmxheV9zbXNn",
+            "LnByb3RvGittZXNzYWdlcy9tYXAvY2h1bmtfZ3JvdW5kX2xheWVyc19zbXNn",
+            "LnByb3RvGittZXNzYWdlcy9tYXAvY2h1bmtfZ3JvdW5kX3N0YW1wc19zbXNn",
+            "LnByb3RvGiltZXNzYWdlcy9tYXAvZ3JvdW5kX21hcmtfcnVsZXNfc21zZy5w",
+            "cm90bxotbWVzc2FnZXMvbWFwL3N0YXRpY19lbnRpdHlfcmVtb3ZlZF9zbXNn",
+            "LnByb3RvGiRtZXNzYWdlcy9tYXAvY29sbGVjdF9wcm9wX2Ntc2cucHJvdG8a",
+            "J21lc3NhZ2VzL21hcC9pbnRlcmFjdF9lbnRpdHlfY21zZy5wcm90bxoibWVz",
+            "c2FnZXMvc2hvcC9vcGVuX3Nob3BfY21zZy5wcm90bxojbWVzc2FnZXMvc2hv",
+            "cC9zaG9wX29mZmVyX3Ntc2cucHJvdG8aI21lc3NhZ2VzL3Nob3Avc2hvcF90",
+            "cmFkZV9jbXNnLnByb3RvGh9tZXNzYWdlcy9tYXAvd2VhdGhlcl9zbXNnLnBy",
+            "b3RvGiJtZXNzYWdlcy9tYXAvd29ybGRfdGltZV9zbXNnLnByb3RvGidtZXNz",
+            "YWdlcy90cmFkZS9yZXF1ZXN0X3RyYWRlX2Ntc2cucHJvdG8aLm1lc3NhZ2Vz",
+            "L3RyYWRlL2Fuc3dlcl90cmFkZV9yZXF1ZXN0X2Ntc2cucHJvdG8aKm1lc3Nh",
+            "Z2VzL3RyYWRlL29mZmVyX3RyYWRlX2l0ZW1fY21zZy5wcm90bxosbWVzc2Fn",
+            "ZXMvdHJhZGUvcmV0cmFjdF90cmFkZV9pdGVtX2Ntc2cucHJvdG8aKG1lc3Nh",
+            "Z2VzL3RyYWRlL3NldF90cmFkZV9sb2NrX2Ntc2cucHJvdG8aJ21lc3NhZ2Vz",
+            "L3RyYWRlL2NvbmZpcm1fdHJhZGVfY21zZy5wcm90bxombWVzc2FnZXMvdHJh",
+            "ZGUvY2FuY2VsX3RyYWRlX2Ntc2cucHJvdG8aJ21lc3NhZ2VzL3RyYWRlL3Ry",
+            "YWRlX3JlcXVlc3Rfc21zZy5wcm90bxolbWVzc2FnZXMvdHJhZGUvdHJhZGVf",
+            "c3RhdGVfc21zZy5wcm90bxojbWVzc2FnZXMvc3lzdGVtL2ludGVyYWN0X2Nt",
+            "c2cucHJvdG8aJ21lc3NhZ2VzL3N5c3RlbS9jb252ZXJzYXRpb25fc21zZy5w",
+            "cm90bxoubWVzc2FnZXMvc3lzdGVtL2NvbnZlcnNhdGlvbl9jaG9pY2VfY21z",
+            "Zy5wcm90byKNJwoIRW52ZWxvcGUSMwoRb3BlcmF0aW9uX3N1Y2Nlc3MYASAB",
+            "KAsyFi5ibmV0Lk9wZXJhdGlvblN1Y2Nlc3NIABIvCg9vcGVyYXRpb25fZXJy",
+            "b3IYAiABKAsyFC5ibmV0Lk9wZXJhdGlvbkVycm9ySAASKwoLc3RhdGVfYmF0",
+            "Y2gYAyABKAsyFC5ibmV0LlN0YXRlQmF0Y2hTTVNHSAASLwoNZGFtYWdlX2Vu",
+            "dGl0eRgEIAEoCzIWLmJuZXQuRGFtYWdlRW50aXR5U01TR0gAEi4KDmF1dGhl",
+            "bnRpY2F0aW9uGGQgASgLMhQuYm5ldC5BdXRoZW50aWNhdGlvbkgAEioKDGRp",
+            "c2Nvbm5lY3RlZBhlIAEoCzISLmJuZXQuRGlzY29ubmVjdGVkSAASPQoWYXV0",
+            "aGVudGljYXRpb25fc3VjY2VzcxhmIAEoCzIbLmJuZXQuQXV0aGVudGljYXRp",
+            "b25TdWNjZXNzSAASGgoEcGluZxh4IAEoCzIKLmJuZXQuUGluZ0gAEhoKBHBv",
+            "bmcYeSABKAsyCi5ibmV0LlBvbmdIABIjCgljaGF0X2Ntc2cYeiABKAsyDi5i",
+            "bmV0LkNoYXRDTVNHSAASIwoJY2hhdF9zbXNnGHsgASgLMg4uYm5ldC5DaGF0",
+            "U01TR0gAEjEKDnJlcXVlc3RfbG9nb3V0GHwgASgLMhcuYm5ldC5SZXF1ZXN0",
+            "TG9nb3V0Q01TR0gAEiIKBmRpYWxvZxh9IAEoCzIQLmJuZXQuRGlhbG9nU01T",
+            "R0gAEjsKE2NvbnZlcnNhdGlvbl9jaG9pY2UYfiABKAsyHC5ibmV0LkNvbnZl",
+            "cnNhdGlvbkNob2ljZUNNU0dIABIkCgdyZXNwYXduGH8gASgLMhEuYm5ldC5S",
+            "ZXNwYXduQ01TR0gAEicKCGludGVyYWN0GIABIAEoCzISLmJuZXQuSW50ZXJh",
+            "Y3RDTVNHSAASLwoMY29udmVyc2F0aW9uGIEBIAEoCzIWLmJuZXQuQ29udmVy",
+            "c2F0aW9uU01TR0gAEioKCndvcmxkX2luZm8YyAEgASgLMhMuYm5ldC5Xb3Js",
+            "ZEluZm9TTVNHSAASMgoOY2h1bmtfbWFuaWZlc3QYyQEgASgLMhcuYm5ldC5D",
+            "aHVua01hbmlmZXN0U01TR0gAEjAKDWNodW5rX3JlcXVlc3QYygEgASgLMhYu",
+            "Ym5ldC5DaHVua1JlcXVlc3RDTVNHSAASKgoKY2h1bmtfZGF0YRjLASABKAsy",
+            "Ey5ibmV0LkNodW5rRGF0YVNNU0dIABIsCgtjaHVua19wYXRjaBjMASABKAsy",
+            "FC5ibmV0LkNodW5rUGF0Y2hTTVNHSAASJQoHd2VhdGhlchjNASABKAsyES5i",
+            "bmV0LldlYXRoZXJTTVNHSAASPwoVY2h1bmtfc3RhdGljX2VudGl0aWVzGM4B",
+            "IAEoCzIdLmJuZXQuQ2h1bmtTdGF0aWNFbnRpdGllc1NNU0dIABI/ChVzdGF0",
+            "aWNfZW50aXR5X3JlbW92ZWQYzwEgASgLMh0uYm5ldC5TdGF0aWNFbnRpdHlS",
+            "ZW1vdmVkU01TR0gAEi4KDGNvbGxlY3RfcHJvcBjQASABKAsyFS5ibmV0LkNv",
+            "bGxlY3RQcm9wQ01TR0gAEioKCndvcmxkX3RpbWUY0QEgASgLMhMuYm5ldC5X",
+            "b3JsZFRpbWVTTVNHSAASPQoUY2h1bmtfZ3JvdW5kX292ZXJsYXkY0gEgASgL",
+            "MhwuYm5ldC5DaHVua0dyb3VuZE92ZXJsYXlTTVNHSAASNAoPaW50ZXJhY3Rf",
+            "ZW50aXR5GNMBIAEoCzIYLmJuZXQuSW50ZXJhY3RFbnRpdHlDTVNHSAASOwoT",
+            "Y2h1bmtfZ3JvdW5kX2xheWVycxjUASABKAsyGy5ibmV0LkNodW5rR3JvdW5k",
+            "TGF5ZXJzU01TR0gAEjsKE2NodW5rX2dyb3VuZF9zdGFtcHMY1QEgASgLMhsu",
+            "Ym5ldC5DaHVua0dyb3VuZFN0YW1wc1NNU0dIABI3ChFncm91bmRfbWFya19y",
+            "dWxlcxjWASABKAsyGS5ibmV0Lkdyb3VuZE1hcmtSdWxlc1NNU0dIABIwCg1n",
+            "ZXRfaW52ZW50b3J5GK0CIAEoCzIWLmJuZXQuR2V0SW52ZW50b3J5Q01TR0gA",
+            "EiYKCHVzZV9pdGVtGK4CIAEoCzIRLmJuZXQuVXNlSXRlbUNNU0dIABIoCglk",
+            "cm9wX2l0ZW0YrwIgASgLMhIuYm5ldC5Ecm9wSXRlbUNNU0dIABIoCglsb290",
+            "X2l0ZW0YsAIgASgLMhIuYm5ldC5Mb290SXRlbUNNU0dIABIqCgplcXVpcF9p",
+            "dGVtGLECIAEoCzITLmJuZXQuRXF1aXBJdGVtQ01TR0gAEi4KDHVuZXF1aXBf",
+            "aXRlbRiyAiABKAsyFS5ibmV0LlVuZXF1aXBJdGVtQ01TR0gAEioKCmdldF9t",
+            "YXN0ZXIYkQMgASgLMhMuYm5ldC5HZXRNYXN0ZXJDTVNHSAASHwoGbWFzdGVy",
+            "GJIDIAEoCzIMLmJuZXQuTWFzdGVySAASMAoNc2VsZWN0X21hc3RlchiTAyAB",
+            "KAsyFi5ibmV0LlNlbGVjdE1hc3RlckNNU0dIABImCghnZXRfc2VsZhiUAyAB",
+            "KAsyES5ibmV0LkdldFNlbGZDTVNHSAASHwoEc2VsZhiVAyABKAsyDi5ibmV0",
+            "LlNlbGZTTVNHSAASOQoSaW52ZXN0X3NraWxsX3BvaW50GJYDIAEoCzIaLmJu",
+            "ZXQuSW52ZXN0U2tpbGxQb2ludENNU0dIABIqCgpnZXRfc2tpbGxzGJcDIAEo",
+            "CzITLmJuZXQuR2V0U2tpbGxzQ01TR0gAEjIKDmFjdGl2YXRlX3NraWxsGJgD",
+            "IAEoCzIXLmJuZXQuQWN0aXZhdGVTa2lsbENNU0dIABIwCg1jcmVhdGVfbWFz",
+            "dGVyGJkDIAEoCzIWLmJuZXQuQ3JlYXRlTWFzdGVyQ01TR0gAEjsKE2ludmVz",
+            "dF9zdGF0dXNfcG9pbnQYmgMgASgLMhsuYm5ldC5JbnZlc3RTdGF0dXNQb2lu",
+            "dENNU0dIABI8ChRzZXRfYmVzdGlhX2FpX2NvbmZpZxibAyABKAsyGy5ibmV0",
+            "LlNldEJlc3RpYUFpQ29uZmlnQ01TR0gAEjUKEGJlc3RpYV9haV9jb25maWcY",
+            "nAMgASgLMhguYm5ldC5CZXN0aWFBaUNvbmZpZ1NNU0dIABIwCg1kZWxldGVf",
+            "bWFzdGVyGJ0DIAEoCzIWLmJuZXQuRGVsZXRlTWFzdGVyQ01TR0gAEjIKDmJl",
+            "c3RpYV9jYXB0dXJlGJ4DIAEoCzIXLmJuZXQuQmVzdGlhQ2FwdHVyZVNNU0dI",
+            "ABIwCg1vd25lZF9iZXN0aWFzGJ8DIAEoCzIWLmJuZXQuT3duZWRCZXN0aWFz",
+            "U01TR0gAEjAKDWFjdGl2ZV9lbnRpdHkYoAMgASgLMhYuYm5ldC5BY3RpdmVF",
+            "bnRpdHlTTVNHSAASOQoUc2VsZWN0X2FjdGl2ZV9lbnRpdHkY9AMgASgLMhgu",
+            "Ym5ldC5TZWxlY3RBY3RpdmVFbnRpdHlIABI1ChJtb3ZlX2FjdGl2ZV9lbnRp",
+            "dHkY9QMgASgLMhYuYm5ldC5Nb3ZlQWN0aXZlRW50aXR5SAASMAoNYXR0YWNr",
+            "X2VudGl0eRj3AyABKAsyFi5ibmV0LkF0dGFja0VudGl0eUNNU0dIABI7ChNh",
+            "Y2NlcHRfcGFydHlfaW52aXRlGNgEIAEoCzIbLmJuZXQuQWNjZXB0UGFydHlJ",
+            "bnZpdGVDTVNHSAASPQoUZGVjbGluZV9wYXJ0eV9pbnZpdGUY2QQgASgLMhwu",
+            "Ym5ldC5EZWNsaW5lUGFydHlJbnZpdGVDTVNHSAASNgoQcGFydHlfaW52aXRh",
+            "dGlvbhjaBCABKAsyGS5ibmV0LlBhcnR5SW52aXRhdGlvblNNU0dIABIqCgpw",
+            "YXJ0eV9pbmZvGN0EIAEoCzITLmJuZXQuUGFydHlJbmZvU01TR0gAEjAKDWRp",
+            "c2JhbmRfcGFydHkY3wQgASgLMhYuYm5ldC5EaXNiYW5kUGFydHlTTVNHSAAS",
+            "LgoMY3JlYXRlX3BhcnR5GOAEIAEoCzIVLmJuZXQuQ3JlYXRlUGFydHlDTVNH",
+            "SAASLAoLbGVhdmVfcGFydHkY4QQgASgLMhQuYm5ldC5MZWF2ZVBhcnR5Q01T",
+            "R0gAEjsKE3JlbW92ZV9wYXJ0eV9tZW1iZXIY4gQgASgLMhsuYm5ldC5SZW1v",
+            "dmVQYXJ0eU1lbWJlckNNU0dIABI/ChVyZXF1ZXN0X2Rpc2JhbmRfcGFydHkY",
+            "4wQgASgLMh0uYm5ldC5SZXF1ZXN0RGlzYmFuZFBhcnR5Q01TR0gAEkUKGHJl",
+            "cXVlc3RfcGFydHlfaW52aXRhdGlvbhjkBCABKAsyIC5ibmV0LlJlcXVlc3RQ",
+            "YXJ0eUludml0YXRpb25DTVNHSAASOQoScmVxdWVzdF9wYXJ0eV9pbmZvGOUE",
+            "IAEoCzIaLmJuZXQuUmVxdWVzdFBhcnR5SW5mb0NNU0dIABI6ChNzZXRfcGFy",
+            "dHlfZXhwX3NoYXJlGOYEIAEoCzIaLmJuZXQuU2V0UGFydHlFeHBTaGFyZUNN",
+            "U0dIABIuCgxjcmVhdGVfZ3VpbGQY7AQgASgLMhUuYm5ldC5DcmVhdGVHdWls",
+            "ZENNU0dIABI5ChJyZXF1ZXN0X2d1aWxkX2luZm8Y7QQgASgLMhouYm5ldC5S",
+            "ZXF1ZXN0R3VpbGRJbmZvQ01TR0gAEjMKD2ludml0ZV90b19ndWlsZBjuBCAB",
+            "KAsyFy5ibmV0Lkludml0ZVRvR3VpbGRDTVNHSAASOwoTYW5zd2VyX2d1aWxk",
+            "X2ludml0ZRjvBCABKAsyGy5ibmV0LkFuc3dlckd1aWxkSW52aXRlQ01TR0gA",
+            "EiwKC2xlYXZlX2d1aWxkGPAEIAEoCzIULmJuZXQuTGVhdmVHdWlsZENNU0dI",
+            "ABI3ChFraWNrX2d1aWxkX21lbWJlchjxBCABKAsyGS5ibmV0LktpY2tHdWls",
+            "ZE1lbWJlckNNU0dIABI+ChVzZXRfZ3VpbGRfbWVtYmVyX3JhbmsY8gQgASgL",
+            "MhwuYm5ldC5TZXRHdWlsZE1lbWJlclJhbmtDTVNHSAASMwoPc2F2ZV9ndWls",
+            "ZF9yYW5rGPMEIAEoCzIXLmJuZXQuU2F2ZUd1aWxkUmFua0NNU0dIABI3ChFk",
+            "ZWxldGVfZ3VpbGRfcmFuaxj0BCABKAsyGS5ibmV0LkRlbGV0ZUd1aWxkUmFu",
+            "a0NNU0dIABI5ChJpbnZlc3RfZ3VpbGRfc2tpbGwY9QQgASgLMhouYm5ldC5J",
+            "bnZlc3RHdWlsZFNraWxsQ01TR0gAEjAKDWRpc2JhbmRfZ3VpbGQY9gQgASgL",
+            "MhYuYm5ldC5EaXNiYW5kR3VpbGRDTVNHSAASKgoKZ3VpbGRfaW5mbxj3BCAB",
+            "KAsyEy5ibmV0Lkd1aWxkSW5mb1NNU0dIABI2ChBndWlsZF9pbnZpdGF0aW9u",
+            "GPgEIAEoCzIZLmJuZXQuR3VpbGRJbnZpdGF0aW9uU01TR0gAEioKCmd1aWxk",
+            "X2xlZnQY+QQgASgLMhMuYm5ldC5HdWlsZExlZnRTTVNHSAASOAoRY3JhZnRh",
+            "YmxlX3JlY2lwZXMYvAUgASgLMhouYm5ldC5DcmFmdGFibGVSZWNpcGVzU01T",
+            "R0gAEioKCmNyYWZ0X2l0ZW0YvQUgASgLMhMuYm5ldC5DcmFmdEl0ZW1DTVNH",
+            "SAASLgoMY2FuY2VsX2NyYWZ0GL4FIAEoCzIVLmJuZXQuQ2FuY2VsQ3JhZnRD",
+            "TVNHSAASMAoNcmVxdWVzdF90cmFkZRigBiABKAsyFi5ibmV0LlJlcXVlc3RU",
+            "cmFkZUNNU0dIABI9ChRhbnN3ZXJfdHJhZGVfcmVxdWVzdBihBiABKAsyHC5i",
+            "bmV0LkFuc3dlclRyYWRlUmVxdWVzdENNU0dIABI1ChBvZmZlcl90cmFkZV9p",
+            "dGVtGKIGIAEoCzIYLmJuZXQuT2ZmZXJUcmFkZUl0ZW1DTVNHSAASOQoScmV0",
+            "cmFjdF90cmFkZV9pdGVtGKMGIAEoCzIaLmJuZXQuUmV0cmFjdFRyYWRlSXRl",
+            "bUNNU0dIABIxCg5zZXRfdHJhZGVfbG9jaxikBiABKAsyFi5ibmV0LlNldFRy",
+            "YWRlTG9ja0NNU0dIABIwCg1jb25maXJtX3RyYWRlGKUGIAEoCzIWLmJuZXQu",
+            "Q29uZmlybVRyYWRlQ01TR0gAEi4KDGNhbmNlbF90cmFkZRimBiABKAsyFS5i",
+            "bmV0LkNhbmNlbFRyYWRlQ01TR0gAEjAKDXRyYWRlX3JlcXVlc3QYqgYgASgL",
+            "MhYuYm5ldC5UcmFkZVJlcXVlc3RTTVNHSAASLAoLdHJhZGVfc3RhdGUYqwYg",
+            "ASgLMhQuYm5ldC5UcmFkZVN0YXRlU01TR0gAEigKCW9wZW5fc2hvcBi0BiAB",
+            "KAsyEi5ibmV0Lk9wZW5TaG9wQ01TR0gAEioKCnNob3BfdHJhZGUYtQYgASgL",
+            "MhMuYm5ldC5TaG9wVHJhZGVDTVNHSAASKgoKc2hvcF9vZmZlchi2BiABKAsy",
+            "Ey5ibmV0LlNob3BPZmZlclNNU0dIAEIJCgdtZXNzYWdlSgYI9gMQ9wNKBgj4",
+            "AxD5A0oGCPkDEPoDSgYI/gMQngRCJgoVbmV0LmJlc3RpYS5ibmV0LnByb3Rv",
+            "Qg1FbnZlbG9wZVByb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
-          new pbr::FileDescriptor[] { global::Bnet.PingReflection.Descriptor, global::Bnet.ChatCmsgReflection.Descriptor, global::Bnet.ChatSmsgReflection.Descriptor, global::Bnet.AuthenticationReflection.Descriptor, global::Bnet.OperationErrorReflection.Descriptor, global::Bnet.OperationSuccessReflection.Descriptor, global::Bnet.CraftItemCmsgReflection.Descriptor, global::Bnet.CancelCraftCmsgReflection.Descriptor, global::Bnet.CraftableRecipesSmsgReflection.Descriptor, global::Bnet.MoveActiveEntityReflection.Descriptor, global::Bnet.SelectActiveEntityReflection.Descriptor, global::Bnet.AuthenticationSuccessReflection.Descriptor, global::Bnet.DisconnectedReflection.Descriptor, global::Bnet.GetMasterCmsgReflection.Descriptor, global::Bnet.GetSelfCmsgReflection.Descriptor, global::Bnet.SelfSmsgReflection.Descriptor, global::Bnet.MasterReflection.Descriptor, global::Bnet.SelectMasterCmsgReflection.Descriptor, global::Bnet.CreateMasterCmsgReflection.Descriptor, global::Bnet.DeleteMasterCmsgReflection.Descriptor, global::Bnet.InvestSkillPointCmsgReflection.Descriptor, global::Bnet.InvestStatusPointCmsgReflection.Descriptor, global::Bnet.SetBestiaAiConfigCmsgReflection.Descriptor, global::Bnet.BestiaAiConfigSmsgReflection.Descriptor, global::Bnet.GetSkillsCmsgReflection.Descriptor, global::Bnet.ActivateSkillCmsgReflection.Descriptor, global::Bnet.BestiaCaptureSmsgReflection.Descriptor, global::Bnet.OwnedBestiasSmsgReflection.Descriptor, global::Bnet.ActiveEntitySmsgReflection.Descriptor, global::Bnet.AttackEntityCmsgReflection.Descriptor, global::Bnet.StateBatchSmsgReflection.Descriptor, global::Bnet.DamageEntitySmsgReflection.Descriptor, global::Bnet.GetInventoryCmsgReflection.Descriptor, global::Bnet.UseItemCmsgReflection.Descriptor, global::Bnet.DropItemCmsgReflection.Descriptor, global::Bnet.LootItemCmsgReflection.Descriptor, global::Bnet.EquipItemCmsgReflection.Descriptor, global::Bnet.UnequipItemCmsgReflection.Descriptor, global::Bnet.RequestLogoutCmsgReflection.Descriptor, global::Bnet.RespawnCmsgReflection.Descriptor, global::Bnet.DialogSmsgReflection.Descriptor, global::Bnet.AcceptPartyInviteCmsgReflection.Descriptor, global::Bnet.DeclinePartyInviteCmsgReflection.Descriptor, global::Bnet.PartyInvitationSmsgReflection.Descriptor, global::Bnet.PartyInvitationCreatedSmsgReflection.Descriptor, global::Bnet.PartyInviteDeclinedSmsgReflection.Descriptor, global::Bnet.PartyInfoSmsgReflection.Descriptor, global::Bnet.PartyErrorSmsgReflection.Descriptor, global::Bnet.DisbandPartySmsgReflection.Descriptor, global::Bnet.CreatePartyCmsgReflection.Descriptor, global::Bnet.LeavePartyCmsgReflection.Descriptor, global::Bnet.RemovePartyMemberCmsgReflection.Descriptor, global::Bnet.RequestDisbandPartyCmsgReflection.Descriptor, global::Bnet.RequestPartyInvitationCmsgReflection.Descriptor, global::Bnet.RequestPartyInfoCmsgReflection.Descriptor, global::Bnet.WorldInfoSmsgReflection.Descriptor, global::Bnet.ChunkManifestSmsgReflection.Descriptor, global::Bnet.ChunkRequestCmsgReflection.Descriptor, global::Bnet.ChunkDataSmsgReflection.Descriptor, global::Bnet.ChunkPatchSmsgReflection.Descriptor, global::Bnet.ChunkStaticEntitiesSmsgReflection.Descriptor, global::Bnet.ChunkGroundOverlaySmsgReflection.Descriptor, global::Bnet.ChunkGroundLayersSmsgReflection.Descriptor, global::Bnet.ChunkGroundStampsSmsgReflection.Descriptor, global::Bnet.GroundMarkRulesSmsgReflection.Descriptor, global::Bnet.StaticEntityRemovedSmsgReflection.Descriptor, global::Bnet.CollectPropCmsgReflection.Descriptor, global::Bnet.InteractEntityCmsgReflection.Descriptor, global::Bnet.OpenShopCmsgReflection.Descriptor, global::Bnet.ShopOfferSmsgReflection.Descriptor, global::Bnet.ShopTradeCmsgReflection.Descriptor, global::Bnet.WeatherSmsgReflection.Descriptor, global::Bnet.WorldTimeSmsgReflection.Descriptor, global::Bnet.RequestTradeCmsgReflection.Descriptor, global::Bnet.AnswerTradeRequestCmsgReflection.Descriptor, global::Bnet.OfferTradeItemCmsgReflection.Descriptor, global::Bnet.RetractTradeItemCmsgReflection.Descriptor, global::Bnet.SetTradeLockCmsgReflection.Descriptor, global::Bnet.ConfirmTradeCmsgReflection.Descriptor, global::Bnet.CancelTradeCmsgReflection.Descriptor, global::Bnet.TradeRequestSmsgReflection.Descriptor, global::Bnet.TradeStateSmsgReflection.Descriptor, global::Bnet.InteractCmsgReflection.Descriptor, global::Bnet.ConversationSmsgReflection.Descriptor, global::Bnet.ConversationChoiceCmsgReflection.Descriptor, },
+          new pbr::FileDescriptor[] { global::Bnet.PingReflection.Descriptor, global::Bnet.ChatCmsgReflection.Descriptor, global::Bnet.ChatSmsgReflection.Descriptor, global::Bnet.AuthenticationReflection.Descriptor, global::Bnet.OperationErrorReflection.Descriptor, global::Bnet.OperationSuccessReflection.Descriptor, global::Bnet.CraftItemCmsgReflection.Descriptor, global::Bnet.CancelCraftCmsgReflection.Descriptor, global::Bnet.CraftableRecipesSmsgReflection.Descriptor, global::Bnet.MoveActiveEntityReflection.Descriptor, global::Bnet.SelectActiveEntityReflection.Descriptor, global::Bnet.AuthenticationSuccessReflection.Descriptor, global::Bnet.DisconnectedReflection.Descriptor, global::Bnet.GetMasterCmsgReflection.Descriptor, global::Bnet.GetSelfCmsgReflection.Descriptor, global::Bnet.SelfSmsgReflection.Descriptor, global::Bnet.MasterReflection.Descriptor, global::Bnet.SelectMasterCmsgReflection.Descriptor, global::Bnet.CreateMasterCmsgReflection.Descriptor, global::Bnet.DeleteMasterCmsgReflection.Descriptor, global::Bnet.InvestSkillPointCmsgReflection.Descriptor, global::Bnet.InvestStatusPointCmsgReflection.Descriptor, global::Bnet.SetBestiaAiConfigCmsgReflection.Descriptor, global::Bnet.BestiaAiConfigSmsgReflection.Descriptor, global::Bnet.GetSkillsCmsgReflection.Descriptor, global::Bnet.ActivateSkillCmsgReflection.Descriptor, global::Bnet.BestiaCaptureSmsgReflection.Descriptor, global::Bnet.OwnedBestiasSmsgReflection.Descriptor, global::Bnet.ActiveEntitySmsgReflection.Descriptor, global::Bnet.AttackEntityCmsgReflection.Descriptor, global::Bnet.StateBatchSmsgReflection.Descriptor, global::Bnet.DamageEntitySmsgReflection.Descriptor, global::Bnet.GetInventoryCmsgReflection.Descriptor, global::Bnet.UseItemCmsgReflection.Descriptor, global::Bnet.DropItemCmsgReflection.Descriptor, global::Bnet.LootItemCmsgReflection.Descriptor, global::Bnet.EquipItemCmsgReflection.Descriptor, global::Bnet.UnequipItemCmsgReflection.Descriptor, global::Bnet.RequestLogoutCmsgReflection.Descriptor, global::Bnet.RespawnCmsgReflection.Descriptor, global::Bnet.DialogSmsgReflection.Descriptor, global::Bnet.AcceptPartyInviteCmsgReflection.Descriptor, global::Bnet.DeclinePartyInviteCmsgReflection.Descriptor, global::Bnet.PartyInvitationSmsgReflection.Descriptor, global::Bnet.PartyInfoSmsgReflection.Descriptor, global::Bnet.DisbandPartySmsgReflection.Descriptor, global::Bnet.CreatePartyCmsgReflection.Descriptor, global::Bnet.LeavePartyCmsgReflection.Descriptor, global::Bnet.RemovePartyMemberCmsgReflection.Descriptor, global::Bnet.RequestDisbandPartyCmsgReflection.Descriptor, global::Bnet.RequestPartyInvitationCmsgReflection.Descriptor, global::Bnet.RequestPartyInfoCmsgReflection.Descriptor, global::Bnet.SetPartyExpShareCmsgReflection.Descriptor, global::Bnet.CreateGuildCmsgReflection.Descriptor, global::Bnet.RequestGuildInfoCmsgReflection.Descriptor, global::Bnet.InviteToGuildCmsgReflection.Descriptor, global::Bnet.AnswerGuildInviteCmsgReflection.Descriptor, global::Bnet.LeaveGuildCmsgReflection.Descriptor, global::Bnet.KickGuildMemberCmsgReflection.Descriptor, global::Bnet.SetGuildMemberRankCmsgReflection.Descriptor, global::Bnet.SaveGuildRankCmsgReflection.Descriptor, global::Bnet.DeleteGuildRankCmsgReflection.Descriptor, global::Bnet.InvestGuildSkillCmsgReflection.Descriptor, global::Bnet.DisbandGuildCmsgReflection.Descriptor, global::Bnet.GuildInfoSmsgReflection.Descriptor, global::Bnet.GuildInvitationSmsgReflection.Descriptor, global::Bnet.GuildLeftSmsgReflection.Descriptor, global::Bnet.WorldInfoSmsgReflection.Descriptor, global::Bnet.ChunkManifestSmsgReflection.Descriptor, global::Bnet.ChunkRequestCmsgReflection.Descriptor, global::Bnet.ChunkDataSmsgReflection.Descriptor, global::Bnet.ChunkPatchSmsgReflection.Descriptor, global::Bnet.ChunkStaticEntitiesSmsgReflection.Descriptor, global::Bnet.ChunkGroundOverlaySmsgReflection.Descriptor, global::Bnet.ChunkGroundLayersSmsgReflection.Descriptor, global::Bnet.ChunkGroundStampsSmsgReflection.Descriptor, global::Bnet.GroundMarkRulesSmsgReflection.Descriptor, global::Bnet.StaticEntityRemovedSmsgReflection.Descriptor, global::Bnet.CollectPropCmsgReflection.Descriptor, global::Bnet.InteractEntityCmsgReflection.Descriptor, global::Bnet.OpenShopCmsgReflection.Descriptor, global::Bnet.ShopOfferSmsgReflection.Descriptor, global::Bnet.ShopTradeCmsgReflection.Descriptor, global::Bnet.WeatherSmsgReflection.Descriptor, global::Bnet.WorldTimeSmsgReflection.Descriptor, global::Bnet.RequestTradeCmsgReflection.Descriptor, global::Bnet.AnswerTradeRequestCmsgReflection.Descriptor, global::Bnet.OfferTradeItemCmsgReflection.Descriptor, global::Bnet.RetractTradeItemCmsgReflection.Descriptor, global::Bnet.SetTradeLockCmsgReflection.Descriptor, global::Bnet.ConfirmTradeCmsgReflection.Descriptor, global::Bnet.CancelTradeCmsgReflection.Descriptor, global::Bnet.TradeRequestSmsgReflection.Descriptor, global::Bnet.TradeStateSmsgReflection.Descriptor, global::Bnet.InteractCmsgReflection.Descriptor, global::Bnet.ConversationSmsgReflection.Descriptor, global::Bnet.ConversationChoiceCmsgReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.Envelope), global::Bnet.Envelope.Parser, new[]{ "OperationSuccess", "OperationError", "StateBatch", "DamageEntity", "Authentication", "Disconnected", "AuthenticationSuccess", "Ping", "Pong", "ChatCmsg", "ChatSmsg", "RequestLogout", "Dialog", "ConversationChoice", "Respawn", "Interact", "Conversation", "WorldInfo", "ChunkManifest", "ChunkRequest", "ChunkData", "ChunkPatch", "Weather", "ChunkStaticEntities", "StaticEntityRemoved", "CollectProp", "WorldTime", "ChunkGroundOverlay", "InteractEntity", "ChunkGroundLayers", "ChunkGroundStamps", "GroundMarkRules", "GetInventory", "UseItem", "DropItem", "LootItem", "EquipItem", "UnequipItem", "GetMaster", "Master", "SelectMaster", "GetSelf", "Self", "InvestSkillPoint", "GetSkills", "ActivateSkill", "CreateMaster", "InvestStatusPoint", "SetBestiaAiConfig", "BestiaAiConfig", "DeleteMaster", "BestiaCapture", "OwnedBestias", "ActiveEntity", "SelectActiveEntity", "MoveActiveEntity", "AttackEntity", "AcceptPartyInvite", "DeclinePartyInvite", "PartyInvitation", "PartyInvitationCreated", "PartyInviteDeclined", "PartyInfo", "PartyError", "DisbandParty", "CreateParty", "LeaveParty", "RemovePartyMember", "RequestDisbandParty", "RequestPartyInvitation", "RequestPartyInfo", "CraftableRecipes", "CraftItem", "CancelCraft", "RequestTrade", "AnswerTradeRequest", "OfferTradeItem", "RetractTradeItem", "SetTradeLock", "ConfirmTrade", "CancelTrade", "TradeRequest", "TradeState", "OpenShop", "ShopTrade", "ShopOffer" }, new[]{ "Message" }, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.Envelope), global::Bnet.Envelope.Parser, new[]{ "OperationSuccess", "OperationError", "StateBatch", "DamageEntity", "Authentication", "Disconnected", "AuthenticationSuccess", "Ping", "Pong", "ChatCmsg", "ChatSmsg", "RequestLogout", "Dialog", "ConversationChoice", "Respawn", "Interact", "Conversation", "WorldInfo", "ChunkManifest", "ChunkRequest", "ChunkData", "ChunkPatch", "Weather", "ChunkStaticEntities", "StaticEntityRemoved", "CollectProp", "WorldTime", "ChunkGroundOverlay", "InteractEntity", "ChunkGroundLayers", "ChunkGroundStamps", "GroundMarkRules", "GetInventory", "UseItem", "DropItem", "LootItem", "EquipItem", "UnequipItem", "GetMaster", "Master", "SelectMaster", "GetSelf", "Self", "InvestSkillPoint", "GetSkills", "ActivateSkill", "CreateMaster", "InvestStatusPoint", "SetBestiaAiConfig", "BestiaAiConfig", "DeleteMaster", "BestiaCapture", "OwnedBestias", "ActiveEntity", "SelectActiveEntity", "MoveActiveEntity", "AttackEntity", "AcceptPartyInvite", "DeclinePartyInvite", "PartyInvitation", "PartyInfo", "DisbandParty", "CreateParty", "LeaveParty", "RemovePartyMember", "RequestDisbandParty", "RequestPartyInvitation", "RequestPartyInfo", "SetPartyExpShare", "CreateGuild", "RequestGuildInfo", "InviteToGuild", "AnswerGuildInvite", "LeaveGuild", "KickGuildMember", "SetGuildMemberRank", "SaveGuildRank", "DeleteGuildRank", "InvestGuildSkill", "DisbandGuild", "GuildInfo", "GuildInvitation", "GuildLeft", "CraftableRecipes", "CraftItem", "CancelCraft", "RequestTrade", "AnswerTradeRequest", "OfferTradeItem", "RetractTradeItem", "SetTradeLock", "ConfirmTrade", "CancelTrade", "TradeRequest", "TradeState", "OpenShop", "ShopTrade", "ShopOffer" }, new[]{ "Message" }, null, null, null)
           }));
     }
     #endregion
@@ -428,17 +453,8 @@ namespace Bnet {
         case MessageOneofCase.PartyInvitation:
           PartyInvitation = other.PartyInvitation.Clone();
           break;
-        case MessageOneofCase.PartyInvitationCreated:
-          PartyInvitationCreated = other.PartyInvitationCreated.Clone();
-          break;
-        case MessageOneofCase.PartyInviteDeclined:
-          PartyInviteDeclined = other.PartyInviteDeclined.Clone();
-          break;
         case MessageOneofCase.PartyInfo:
           PartyInfo = other.PartyInfo.Clone();
-          break;
-        case MessageOneofCase.PartyError:
-          PartyError = other.PartyError.Clone();
           break;
         case MessageOneofCase.DisbandParty:
           DisbandParty = other.DisbandParty.Clone();
@@ -460,6 +476,51 @@ namespace Bnet {
           break;
         case MessageOneofCase.RequestPartyInfo:
           RequestPartyInfo = other.RequestPartyInfo.Clone();
+          break;
+        case MessageOneofCase.SetPartyExpShare:
+          SetPartyExpShare = other.SetPartyExpShare.Clone();
+          break;
+        case MessageOneofCase.CreateGuild:
+          CreateGuild = other.CreateGuild.Clone();
+          break;
+        case MessageOneofCase.RequestGuildInfo:
+          RequestGuildInfo = other.RequestGuildInfo.Clone();
+          break;
+        case MessageOneofCase.InviteToGuild:
+          InviteToGuild = other.InviteToGuild.Clone();
+          break;
+        case MessageOneofCase.AnswerGuildInvite:
+          AnswerGuildInvite = other.AnswerGuildInvite.Clone();
+          break;
+        case MessageOneofCase.LeaveGuild:
+          LeaveGuild = other.LeaveGuild.Clone();
+          break;
+        case MessageOneofCase.KickGuildMember:
+          KickGuildMember = other.KickGuildMember.Clone();
+          break;
+        case MessageOneofCase.SetGuildMemberRank:
+          SetGuildMemberRank = other.SetGuildMemberRank.Clone();
+          break;
+        case MessageOneofCase.SaveGuildRank:
+          SaveGuildRank = other.SaveGuildRank.Clone();
+          break;
+        case MessageOneofCase.DeleteGuildRank:
+          DeleteGuildRank = other.DeleteGuildRank.Clone();
+          break;
+        case MessageOneofCase.InvestGuildSkill:
+          InvestGuildSkill = other.InvestGuildSkill.Clone();
+          break;
+        case MessageOneofCase.DisbandGuild:
+          DisbandGuild = other.DisbandGuild.Clone();
+          break;
+        case MessageOneofCase.GuildInfo:
+          GuildInfo = other.GuildInfo.Clone();
+          break;
+        case MessageOneofCase.GuildInvitation:
+          GuildInvitation = other.GuildInvitation.Clone();
+          break;
+        case MessageOneofCase.GuildLeft:
+          GuildLeft = other.GuildLeft.Clone();
           break;
         case MessageOneofCase.CraftableRecipes:
           CraftableRecipes = other.CraftableRecipes.Clone();
@@ -1267,30 +1328,6 @@ namespace Bnet {
       }
     }
 
-    /// <summary>Field number for the "party_invitation_created" field.</summary>
-    public const int PartyInvitationCreatedFieldNumber = 603;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Bnet.PartyInvitationCreatedSMSG PartyInvitationCreated {
-      get { return messageCase_ == MessageOneofCase.PartyInvitationCreated ? (global::Bnet.PartyInvitationCreatedSMSG) message_ : null; }
-      set {
-        message_ = value;
-        messageCase_ = value == null ? MessageOneofCase.None : MessageOneofCase.PartyInvitationCreated;
-      }
-    }
-
-    /// <summary>Field number for the "party_invite_declined" field.</summary>
-    public const int PartyInviteDeclinedFieldNumber = 604;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Bnet.PartyInviteDeclinedSMSG PartyInviteDeclined {
-      get { return messageCase_ == MessageOneofCase.PartyInviteDeclined ? (global::Bnet.PartyInviteDeclinedSMSG) message_ : null; }
-      set {
-        message_ = value;
-        messageCase_ = value == null ? MessageOneofCase.None : MessageOneofCase.PartyInviteDeclined;
-      }
-    }
-
     /// <summary>Field number for the "party_info" field.</summary>
     public const int PartyInfoFieldNumber = 605;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1300,18 +1337,6 @@ namespace Bnet {
       set {
         message_ = value;
         messageCase_ = value == null ? MessageOneofCase.None : MessageOneofCase.PartyInfo;
-      }
-    }
-
-    /// <summary>Field number for the "party_error" field.</summary>
-    public const int PartyErrorFieldNumber = 606;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Bnet.PartyErrorSMSG PartyError {
-      get { return messageCase_ == MessageOneofCase.PartyError ? (global::Bnet.PartyErrorSMSG) message_ : null; }
-      set {
-        message_ = value;
-        messageCase_ = value == null ? MessageOneofCase.None : MessageOneofCase.PartyError;
       }
     }
 
@@ -1396,6 +1421,189 @@ namespace Bnet {
       set {
         message_ = value;
         messageCase_ = value == null ? MessageOneofCase.None : MessageOneofCase.RequestPartyInfo;
+      }
+    }
+
+    /// <summary>Field number for the "set_party_exp_share" field.</summary>
+    public const int SetPartyExpShareFieldNumber = 614;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Bnet.SetPartyExpShareCMSG SetPartyExpShare {
+      get { return messageCase_ == MessageOneofCase.SetPartyExpShare ? (global::Bnet.SetPartyExpShareCMSG) message_ : null; }
+      set {
+        message_ = value;
+        messageCase_ = value == null ? MessageOneofCase.None : MessageOneofCase.SetPartyExpShare;
+      }
+    }
+
+    /// <summary>Field number for the "create_guild" field.</summary>
+    public const int CreateGuildFieldNumber = 620;
+    /// <summary>
+    /// GUILD 620
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Bnet.CreateGuildCMSG CreateGuild {
+      get { return messageCase_ == MessageOneofCase.CreateGuild ? (global::Bnet.CreateGuildCMSG) message_ : null; }
+      set {
+        message_ = value;
+        messageCase_ = value == null ? MessageOneofCase.None : MessageOneofCase.CreateGuild;
+      }
+    }
+
+    /// <summary>Field number for the "request_guild_info" field.</summary>
+    public const int RequestGuildInfoFieldNumber = 621;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Bnet.RequestGuildInfoCMSG RequestGuildInfo {
+      get { return messageCase_ == MessageOneofCase.RequestGuildInfo ? (global::Bnet.RequestGuildInfoCMSG) message_ : null; }
+      set {
+        message_ = value;
+        messageCase_ = value == null ? MessageOneofCase.None : MessageOneofCase.RequestGuildInfo;
+      }
+    }
+
+    /// <summary>Field number for the "invite_to_guild" field.</summary>
+    public const int InviteToGuildFieldNumber = 622;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Bnet.InviteToGuildCMSG InviteToGuild {
+      get { return messageCase_ == MessageOneofCase.InviteToGuild ? (global::Bnet.InviteToGuildCMSG) message_ : null; }
+      set {
+        message_ = value;
+        messageCase_ = value == null ? MessageOneofCase.None : MessageOneofCase.InviteToGuild;
+      }
+    }
+
+    /// <summary>Field number for the "answer_guild_invite" field.</summary>
+    public const int AnswerGuildInviteFieldNumber = 623;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Bnet.AnswerGuildInviteCMSG AnswerGuildInvite {
+      get { return messageCase_ == MessageOneofCase.AnswerGuildInvite ? (global::Bnet.AnswerGuildInviteCMSG) message_ : null; }
+      set {
+        message_ = value;
+        messageCase_ = value == null ? MessageOneofCase.None : MessageOneofCase.AnswerGuildInvite;
+      }
+    }
+
+    /// <summary>Field number for the "leave_guild" field.</summary>
+    public const int LeaveGuildFieldNumber = 624;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Bnet.LeaveGuildCMSG LeaveGuild {
+      get { return messageCase_ == MessageOneofCase.LeaveGuild ? (global::Bnet.LeaveGuildCMSG) message_ : null; }
+      set {
+        message_ = value;
+        messageCase_ = value == null ? MessageOneofCase.None : MessageOneofCase.LeaveGuild;
+      }
+    }
+
+    /// <summary>Field number for the "kick_guild_member" field.</summary>
+    public const int KickGuildMemberFieldNumber = 625;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Bnet.KickGuildMemberCMSG KickGuildMember {
+      get { return messageCase_ == MessageOneofCase.KickGuildMember ? (global::Bnet.KickGuildMemberCMSG) message_ : null; }
+      set {
+        message_ = value;
+        messageCase_ = value == null ? MessageOneofCase.None : MessageOneofCase.KickGuildMember;
+      }
+    }
+
+    /// <summary>Field number for the "set_guild_member_rank" field.</summary>
+    public const int SetGuildMemberRankFieldNumber = 626;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Bnet.SetGuildMemberRankCMSG SetGuildMemberRank {
+      get { return messageCase_ == MessageOneofCase.SetGuildMemberRank ? (global::Bnet.SetGuildMemberRankCMSG) message_ : null; }
+      set {
+        message_ = value;
+        messageCase_ = value == null ? MessageOneofCase.None : MessageOneofCase.SetGuildMemberRank;
+      }
+    }
+
+    /// <summary>Field number for the "save_guild_rank" field.</summary>
+    public const int SaveGuildRankFieldNumber = 627;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Bnet.SaveGuildRankCMSG SaveGuildRank {
+      get { return messageCase_ == MessageOneofCase.SaveGuildRank ? (global::Bnet.SaveGuildRankCMSG) message_ : null; }
+      set {
+        message_ = value;
+        messageCase_ = value == null ? MessageOneofCase.None : MessageOneofCase.SaveGuildRank;
+      }
+    }
+
+    /// <summary>Field number for the "delete_guild_rank" field.</summary>
+    public const int DeleteGuildRankFieldNumber = 628;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Bnet.DeleteGuildRankCMSG DeleteGuildRank {
+      get { return messageCase_ == MessageOneofCase.DeleteGuildRank ? (global::Bnet.DeleteGuildRankCMSG) message_ : null; }
+      set {
+        message_ = value;
+        messageCase_ = value == null ? MessageOneofCase.None : MessageOneofCase.DeleteGuildRank;
+      }
+    }
+
+    /// <summary>Field number for the "invest_guild_skill" field.</summary>
+    public const int InvestGuildSkillFieldNumber = 629;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Bnet.InvestGuildSkillCMSG InvestGuildSkill {
+      get { return messageCase_ == MessageOneofCase.InvestGuildSkill ? (global::Bnet.InvestGuildSkillCMSG) message_ : null; }
+      set {
+        message_ = value;
+        messageCase_ = value == null ? MessageOneofCase.None : MessageOneofCase.InvestGuildSkill;
+      }
+    }
+
+    /// <summary>Field number for the "disband_guild" field.</summary>
+    public const int DisbandGuildFieldNumber = 630;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Bnet.DisbandGuildCMSG DisbandGuild {
+      get { return messageCase_ == MessageOneofCase.DisbandGuild ? (global::Bnet.DisbandGuildCMSG) message_ : null; }
+      set {
+        message_ = value;
+        messageCase_ = value == null ? MessageOneofCase.None : MessageOneofCase.DisbandGuild;
+      }
+    }
+
+    /// <summary>Field number for the "guild_info" field.</summary>
+    public const int GuildInfoFieldNumber = 631;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Bnet.GuildInfoSMSG GuildInfo {
+      get { return messageCase_ == MessageOneofCase.GuildInfo ? (global::Bnet.GuildInfoSMSG) message_ : null; }
+      set {
+        message_ = value;
+        messageCase_ = value == null ? MessageOneofCase.None : MessageOneofCase.GuildInfo;
+      }
+    }
+
+    /// <summary>Field number for the "guild_invitation" field.</summary>
+    public const int GuildInvitationFieldNumber = 632;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Bnet.GuildInvitationSMSG GuildInvitation {
+      get { return messageCase_ == MessageOneofCase.GuildInvitation ? (global::Bnet.GuildInvitationSMSG) message_ : null; }
+      set {
+        message_ = value;
+        messageCase_ = value == null ? MessageOneofCase.None : MessageOneofCase.GuildInvitation;
+      }
+    }
+
+    /// <summary>Field number for the "guild_left" field.</summary>
+    public const int GuildLeftFieldNumber = 633;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Bnet.GuildLeftSMSG GuildLeft {
+      get { return messageCase_ == MessageOneofCase.GuildLeft ? (global::Bnet.GuildLeftSMSG) message_ : null; }
+      set {
+        message_ = value;
+        messageCase_ = value == null ? MessageOneofCase.None : MessageOneofCase.GuildLeft;
       }
     }
 
@@ -1652,10 +1860,7 @@ namespace Bnet {
       AcceptPartyInvite = 600,
       DeclinePartyInvite = 601,
       PartyInvitation = 602,
-      PartyInvitationCreated = 603,
-      PartyInviteDeclined = 604,
       PartyInfo = 605,
-      PartyError = 606,
       DisbandParty = 607,
       CreateParty = 608,
       LeaveParty = 609,
@@ -1663,6 +1868,21 @@ namespace Bnet {
       RequestDisbandParty = 611,
       RequestPartyInvitation = 612,
       RequestPartyInfo = 613,
+      SetPartyExpShare = 614,
+      CreateGuild = 620,
+      RequestGuildInfo = 621,
+      InviteToGuild = 622,
+      AnswerGuildInvite = 623,
+      LeaveGuild = 624,
+      KickGuildMember = 625,
+      SetGuildMemberRank = 626,
+      SaveGuildRank = 627,
+      DeleteGuildRank = 628,
+      InvestGuildSkill = 629,
+      DisbandGuild = 630,
+      GuildInfo = 631,
+      GuildInvitation = 632,
+      GuildLeft = 633,
       CraftableRecipes = 700,
       CraftItem = 701,
       CancelCraft = 702,
@@ -1768,10 +1988,7 @@ namespace Bnet {
       if (!object.Equals(AcceptPartyInvite, other.AcceptPartyInvite)) return false;
       if (!object.Equals(DeclinePartyInvite, other.DeclinePartyInvite)) return false;
       if (!object.Equals(PartyInvitation, other.PartyInvitation)) return false;
-      if (!object.Equals(PartyInvitationCreated, other.PartyInvitationCreated)) return false;
-      if (!object.Equals(PartyInviteDeclined, other.PartyInviteDeclined)) return false;
       if (!object.Equals(PartyInfo, other.PartyInfo)) return false;
-      if (!object.Equals(PartyError, other.PartyError)) return false;
       if (!object.Equals(DisbandParty, other.DisbandParty)) return false;
       if (!object.Equals(CreateParty, other.CreateParty)) return false;
       if (!object.Equals(LeaveParty, other.LeaveParty)) return false;
@@ -1779,6 +1996,21 @@ namespace Bnet {
       if (!object.Equals(RequestDisbandParty, other.RequestDisbandParty)) return false;
       if (!object.Equals(RequestPartyInvitation, other.RequestPartyInvitation)) return false;
       if (!object.Equals(RequestPartyInfo, other.RequestPartyInfo)) return false;
+      if (!object.Equals(SetPartyExpShare, other.SetPartyExpShare)) return false;
+      if (!object.Equals(CreateGuild, other.CreateGuild)) return false;
+      if (!object.Equals(RequestGuildInfo, other.RequestGuildInfo)) return false;
+      if (!object.Equals(InviteToGuild, other.InviteToGuild)) return false;
+      if (!object.Equals(AnswerGuildInvite, other.AnswerGuildInvite)) return false;
+      if (!object.Equals(LeaveGuild, other.LeaveGuild)) return false;
+      if (!object.Equals(KickGuildMember, other.KickGuildMember)) return false;
+      if (!object.Equals(SetGuildMemberRank, other.SetGuildMemberRank)) return false;
+      if (!object.Equals(SaveGuildRank, other.SaveGuildRank)) return false;
+      if (!object.Equals(DeleteGuildRank, other.DeleteGuildRank)) return false;
+      if (!object.Equals(InvestGuildSkill, other.InvestGuildSkill)) return false;
+      if (!object.Equals(DisbandGuild, other.DisbandGuild)) return false;
+      if (!object.Equals(GuildInfo, other.GuildInfo)) return false;
+      if (!object.Equals(GuildInvitation, other.GuildInvitation)) return false;
+      if (!object.Equals(GuildLeft, other.GuildLeft)) return false;
       if (!object.Equals(CraftableRecipes, other.CraftableRecipes)) return false;
       if (!object.Equals(CraftItem, other.CraftItem)) return false;
       if (!object.Equals(CancelCraft, other.CancelCraft)) return false;
@@ -1862,10 +2094,7 @@ namespace Bnet {
       if (messageCase_ == MessageOneofCase.AcceptPartyInvite) hash ^= AcceptPartyInvite.GetHashCode();
       if (messageCase_ == MessageOneofCase.DeclinePartyInvite) hash ^= DeclinePartyInvite.GetHashCode();
       if (messageCase_ == MessageOneofCase.PartyInvitation) hash ^= PartyInvitation.GetHashCode();
-      if (messageCase_ == MessageOneofCase.PartyInvitationCreated) hash ^= PartyInvitationCreated.GetHashCode();
-      if (messageCase_ == MessageOneofCase.PartyInviteDeclined) hash ^= PartyInviteDeclined.GetHashCode();
       if (messageCase_ == MessageOneofCase.PartyInfo) hash ^= PartyInfo.GetHashCode();
-      if (messageCase_ == MessageOneofCase.PartyError) hash ^= PartyError.GetHashCode();
       if (messageCase_ == MessageOneofCase.DisbandParty) hash ^= DisbandParty.GetHashCode();
       if (messageCase_ == MessageOneofCase.CreateParty) hash ^= CreateParty.GetHashCode();
       if (messageCase_ == MessageOneofCase.LeaveParty) hash ^= LeaveParty.GetHashCode();
@@ -1873,6 +2102,21 @@ namespace Bnet {
       if (messageCase_ == MessageOneofCase.RequestDisbandParty) hash ^= RequestDisbandParty.GetHashCode();
       if (messageCase_ == MessageOneofCase.RequestPartyInvitation) hash ^= RequestPartyInvitation.GetHashCode();
       if (messageCase_ == MessageOneofCase.RequestPartyInfo) hash ^= RequestPartyInfo.GetHashCode();
+      if (messageCase_ == MessageOneofCase.SetPartyExpShare) hash ^= SetPartyExpShare.GetHashCode();
+      if (messageCase_ == MessageOneofCase.CreateGuild) hash ^= CreateGuild.GetHashCode();
+      if (messageCase_ == MessageOneofCase.RequestGuildInfo) hash ^= RequestGuildInfo.GetHashCode();
+      if (messageCase_ == MessageOneofCase.InviteToGuild) hash ^= InviteToGuild.GetHashCode();
+      if (messageCase_ == MessageOneofCase.AnswerGuildInvite) hash ^= AnswerGuildInvite.GetHashCode();
+      if (messageCase_ == MessageOneofCase.LeaveGuild) hash ^= LeaveGuild.GetHashCode();
+      if (messageCase_ == MessageOneofCase.KickGuildMember) hash ^= KickGuildMember.GetHashCode();
+      if (messageCase_ == MessageOneofCase.SetGuildMemberRank) hash ^= SetGuildMemberRank.GetHashCode();
+      if (messageCase_ == MessageOneofCase.SaveGuildRank) hash ^= SaveGuildRank.GetHashCode();
+      if (messageCase_ == MessageOneofCase.DeleteGuildRank) hash ^= DeleteGuildRank.GetHashCode();
+      if (messageCase_ == MessageOneofCase.InvestGuildSkill) hash ^= InvestGuildSkill.GetHashCode();
+      if (messageCase_ == MessageOneofCase.DisbandGuild) hash ^= DisbandGuild.GetHashCode();
+      if (messageCase_ == MessageOneofCase.GuildInfo) hash ^= GuildInfo.GetHashCode();
+      if (messageCase_ == MessageOneofCase.GuildInvitation) hash ^= GuildInvitation.GetHashCode();
+      if (messageCase_ == MessageOneofCase.GuildLeft) hash ^= GuildLeft.GetHashCode();
       if (messageCase_ == MessageOneofCase.CraftableRecipes) hash ^= CraftableRecipes.GetHashCode();
       if (messageCase_ == MessageOneofCase.CraftItem) hash ^= CraftItem.GetHashCode();
       if (messageCase_ == MessageOneofCase.CancelCraft) hash ^= CancelCraft.GetHashCode();
@@ -2147,21 +2391,9 @@ namespace Bnet {
         output.WriteRawTag(210, 37);
         output.WriteMessage(PartyInvitation);
       }
-      if (messageCase_ == MessageOneofCase.PartyInvitationCreated) {
-        output.WriteRawTag(218, 37);
-        output.WriteMessage(PartyInvitationCreated);
-      }
-      if (messageCase_ == MessageOneofCase.PartyInviteDeclined) {
-        output.WriteRawTag(226, 37);
-        output.WriteMessage(PartyInviteDeclined);
-      }
       if (messageCase_ == MessageOneofCase.PartyInfo) {
         output.WriteRawTag(234, 37);
         output.WriteMessage(PartyInfo);
-      }
-      if (messageCase_ == MessageOneofCase.PartyError) {
-        output.WriteRawTag(242, 37);
-        output.WriteMessage(PartyError);
       }
       if (messageCase_ == MessageOneofCase.DisbandParty) {
         output.WriteRawTag(250, 37);
@@ -2190,6 +2422,66 @@ namespace Bnet {
       if (messageCase_ == MessageOneofCase.RequestPartyInfo) {
         output.WriteRawTag(170, 38);
         output.WriteMessage(RequestPartyInfo);
+      }
+      if (messageCase_ == MessageOneofCase.SetPartyExpShare) {
+        output.WriteRawTag(178, 38);
+        output.WriteMessage(SetPartyExpShare);
+      }
+      if (messageCase_ == MessageOneofCase.CreateGuild) {
+        output.WriteRawTag(226, 38);
+        output.WriteMessage(CreateGuild);
+      }
+      if (messageCase_ == MessageOneofCase.RequestGuildInfo) {
+        output.WriteRawTag(234, 38);
+        output.WriteMessage(RequestGuildInfo);
+      }
+      if (messageCase_ == MessageOneofCase.InviteToGuild) {
+        output.WriteRawTag(242, 38);
+        output.WriteMessage(InviteToGuild);
+      }
+      if (messageCase_ == MessageOneofCase.AnswerGuildInvite) {
+        output.WriteRawTag(250, 38);
+        output.WriteMessage(AnswerGuildInvite);
+      }
+      if (messageCase_ == MessageOneofCase.LeaveGuild) {
+        output.WriteRawTag(130, 39);
+        output.WriteMessage(LeaveGuild);
+      }
+      if (messageCase_ == MessageOneofCase.KickGuildMember) {
+        output.WriteRawTag(138, 39);
+        output.WriteMessage(KickGuildMember);
+      }
+      if (messageCase_ == MessageOneofCase.SetGuildMemberRank) {
+        output.WriteRawTag(146, 39);
+        output.WriteMessage(SetGuildMemberRank);
+      }
+      if (messageCase_ == MessageOneofCase.SaveGuildRank) {
+        output.WriteRawTag(154, 39);
+        output.WriteMessage(SaveGuildRank);
+      }
+      if (messageCase_ == MessageOneofCase.DeleteGuildRank) {
+        output.WriteRawTag(162, 39);
+        output.WriteMessage(DeleteGuildRank);
+      }
+      if (messageCase_ == MessageOneofCase.InvestGuildSkill) {
+        output.WriteRawTag(170, 39);
+        output.WriteMessage(InvestGuildSkill);
+      }
+      if (messageCase_ == MessageOneofCase.DisbandGuild) {
+        output.WriteRawTag(178, 39);
+        output.WriteMessage(DisbandGuild);
+      }
+      if (messageCase_ == MessageOneofCase.GuildInfo) {
+        output.WriteRawTag(186, 39);
+        output.WriteMessage(GuildInfo);
+      }
+      if (messageCase_ == MessageOneofCase.GuildInvitation) {
+        output.WriteRawTag(194, 39);
+        output.WriteMessage(GuildInvitation);
+      }
+      if (messageCase_ == MessageOneofCase.GuildLeft) {
+        output.WriteRawTag(202, 39);
+        output.WriteMessage(GuildLeft);
       }
       if (messageCase_ == MessageOneofCase.CraftableRecipes) {
         output.WriteRawTag(226, 43);
@@ -2501,21 +2793,9 @@ namespace Bnet {
         output.WriteRawTag(210, 37);
         output.WriteMessage(PartyInvitation);
       }
-      if (messageCase_ == MessageOneofCase.PartyInvitationCreated) {
-        output.WriteRawTag(218, 37);
-        output.WriteMessage(PartyInvitationCreated);
-      }
-      if (messageCase_ == MessageOneofCase.PartyInviteDeclined) {
-        output.WriteRawTag(226, 37);
-        output.WriteMessage(PartyInviteDeclined);
-      }
       if (messageCase_ == MessageOneofCase.PartyInfo) {
         output.WriteRawTag(234, 37);
         output.WriteMessage(PartyInfo);
-      }
-      if (messageCase_ == MessageOneofCase.PartyError) {
-        output.WriteRawTag(242, 37);
-        output.WriteMessage(PartyError);
       }
       if (messageCase_ == MessageOneofCase.DisbandParty) {
         output.WriteRawTag(250, 37);
@@ -2544,6 +2824,66 @@ namespace Bnet {
       if (messageCase_ == MessageOneofCase.RequestPartyInfo) {
         output.WriteRawTag(170, 38);
         output.WriteMessage(RequestPartyInfo);
+      }
+      if (messageCase_ == MessageOneofCase.SetPartyExpShare) {
+        output.WriteRawTag(178, 38);
+        output.WriteMessage(SetPartyExpShare);
+      }
+      if (messageCase_ == MessageOneofCase.CreateGuild) {
+        output.WriteRawTag(226, 38);
+        output.WriteMessage(CreateGuild);
+      }
+      if (messageCase_ == MessageOneofCase.RequestGuildInfo) {
+        output.WriteRawTag(234, 38);
+        output.WriteMessage(RequestGuildInfo);
+      }
+      if (messageCase_ == MessageOneofCase.InviteToGuild) {
+        output.WriteRawTag(242, 38);
+        output.WriteMessage(InviteToGuild);
+      }
+      if (messageCase_ == MessageOneofCase.AnswerGuildInvite) {
+        output.WriteRawTag(250, 38);
+        output.WriteMessage(AnswerGuildInvite);
+      }
+      if (messageCase_ == MessageOneofCase.LeaveGuild) {
+        output.WriteRawTag(130, 39);
+        output.WriteMessage(LeaveGuild);
+      }
+      if (messageCase_ == MessageOneofCase.KickGuildMember) {
+        output.WriteRawTag(138, 39);
+        output.WriteMessage(KickGuildMember);
+      }
+      if (messageCase_ == MessageOneofCase.SetGuildMemberRank) {
+        output.WriteRawTag(146, 39);
+        output.WriteMessage(SetGuildMemberRank);
+      }
+      if (messageCase_ == MessageOneofCase.SaveGuildRank) {
+        output.WriteRawTag(154, 39);
+        output.WriteMessage(SaveGuildRank);
+      }
+      if (messageCase_ == MessageOneofCase.DeleteGuildRank) {
+        output.WriteRawTag(162, 39);
+        output.WriteMessage(DeleteGuildRank);
+      }
+      if (messageCase_ == MessageOneofCase.InvestGuildSkill) {
+        output.WriteRawTag(170, 39);
+        output.WriteMessage(InvestGuildSkill);
+      }
+      if (messageCase_ == MessageOneofCase.DisbandGuild) {
+        output.WriteRawTag(178, 39);
+        output.WriteMessage(DisbandGuild);
+      }
+      if (messageCase_ == MessageOneofCase.GuildInfo) {
+        output.WriteRawTag(186, 39);
+        output.WriteMessage(GuildInfo);
+      }
+      if (messageCase_ == MessageOneofCase.GuildInvitation) {
+        output.WriteRawTag(194, 39);
+        output.WriteMessage(GuildInvitation);
+      }
+      if (messageCase_ == MessageOneofCase.GuildLeft) {
+        output.WriteRawTag(202, 39);
+        output.WriteMessage(GuildLeft);
       }
       if (messageCase_ == MessageOneofCase.CraftableRecipes) {
         output.WriteRawTag(226, 43);
@@ -2795,17 +3135,8 @@ namespace Bnet {
       if (messageCase_ == MessageOneofCase.PartyInvitation) {
         size += 2 + pb::CodedOutputStream.ComputeMessageSize(PartyInvitation);
       }
-      if (messageCase_ == MessageOneofCase.PartyInvitationCreated) {
-        size += 2 + pb::CodedOutputStream.ComputeMessageSize(PartyInvitationCreated);
-      }
-      if (messageCase_ == MessageOneofCase.PartyInviteDeclined) {
-        size += 2 + pb::CodedOutputStream.ComputeMessageSize(PartyInviteDeclined);
-      }
       if (messageCase_ == MessageOneofCase.PartyInfo) {
         size += 2 + pb::CodedOutputStream.ComputeMessageSize(PartyInfo);
-      }
-      if (messageCase_ == MessageOneofCase.PartyError) {
-        size += 2 + pb::CodedOutputStream.ComputeMessageSize(PartyError);
       }
       if (messageCase_ == MessageOneofCase.DisbandParty) {
         size += 2 + pb::CodedOutputStream.ComputeMessageSize(DisbandParty);
@@ -2827,6 +3158,51 @@ namespace Bnet {
       }
       if (messageCase_ == MessageOneofCase.RequestPartyInfo) {
         size += 2 + pb::CodedOutputStream.ComputeMessageSize(RequestPartyInfo);
+      }
+      if (messageCase_ == MessageOneofCase.SetPartyExpShare) {
+        size += 2 + pb::CodedOutputStream.ComputeMessageSize(SetPartyExpShare);
+      }
+      if (messageCase_ == MessageOneofCase.CreateGuild) {
+        size += 2 + pb::CodedOutputStream.ComputeMessageSize(CreateGuild);
+      }
+      if (messageCase_ == MessageOneofCase.RequestGuildInfo) {
+        size += 2 + pb::CodedOutputStream.ComputeMessageSize(RequestGuildInfo);
+      }
+      if (messageCase_ == MessageOneofCase.InviteToGuild) {
+        size += 2 + pb::CodedOutputStream.ComputeMessageSize(InviteToGuild);
+      }
+      if (messageCase_ == MessageOneofCase.AnswerGuildInvite) {
+        size += 2 + pb::CodedOutputStream.ComputeMessageSize(AnswerGuildInvite);
+      }
+      if (messageCase_ == MessageOneofCase.LeaveGuild) {
+        size += 2 + pb::CodedOutputStream.ComputeMessageSize(LeaveGuild);
+      }
+      if (messageCase_ == MessageOneofCase.KickGuildMember) {
+        size += 2 + pb::CodedOutputStream.ComputeMessageSize(KickGuildMember);
+      }
+      if (messageCase_ == MessageOneofCase.SetGuildMemberRank) {
+        size += 2 + pb::CodedOutputStream.ComputeMessageSize(SetGuildMemberRank);
+      }
+      if (messageCase_ == MessageOneofCase.SaveGuildRank) {
+        size += 2 + pb::CodedOutputStream.ComputeMessageSize(SaveGuildRank);
+      }
+      if (messageCase_ == MessageOneofCase.DeleteGuildRank) {
+        size += 2 + pb::CodedOutputStream.ComputeMessageSize(DeleteGuildRank);
+      }
+      if (messageCase_ == MessageOneofCase.InvestGuildSkill) {
+        size += 2 + pb::CodedOutputStream.ComputeMessageSize(InvestGuildSkill);
+      }
+      if (messageCase_ == MessageOneofCase.DisbandGuild) {
+        size += 2 + pb::CodedOutputStream.ComputeMessageSize(DisbandGuild);
+      }
+      if (messageCase_ == MessageOneofCase.GuildInfo) {
+        size += 2 + pb::CodedOutputStream.ComputeMessageSize(GuildInfo);
+      }
+      if (messageCase_ == MessageOneofCase.GuildInvitation) {
+        size += 2 + pb::CodedOutputStream.ComputeMessageSize(GuildInvitation);
+      }
+      if (messageCase_ == MessageOneofCase.GuildLeft) {
+        size += 2 + pb::CodedOutputStream.ComputeMessageSize(GuildLeft);
       }
       if (messageCase_ == MessageOneofCase.CraftableRecipes) {
         size += 2 + pb::CodedOutputStream.ComputeMessageSize(CraftableRecipes);
@@ -3246,29 +3622,11 @@ namespace Bnet {
           }
           PartyInvitation.MergeFrom(other.PartyInvitation);
           break;
-        case MessageOneofCase.PartyInvitationCreated:
-          if (PartyInvitationCreated == null) {
-            PartyInvitationCreated = new global::Bnet.PartyInvitationCreatedSMSG();
-          }
-          PartyInvitationCreated.MergeFrom(other.PartyInvitationCreated);
-          break;
-        case MessageOneofCase.PartyInviteDeclined:
-          if (PartyInviteDeclined == null) {
-            PartyInviteDeclined = new global::Bnet.PartyInviteDeclinedSMSG();
-          }
-          PartyInviteDeclined.MergeFrom(other.PartyInviteDeclined);
-          break;
         case MessageOneofCase.PartyInfo:
           if (PartyInfo == null) {
             PartyInfo = new global::Bnet.PartyInfoSMSG();
           }
           PartyInfo.MergeFrom(other.PartyInfo);
-          break;
-        case MessageOneofCase.PartyError:
-          if (PartyError == null) {
-            PartyError = new global::Bnet.PartyErrorSMSG();
-          }
-          PartyError.MergeFrom(other.PartyError);
           break;
         case MessageOneofCase.DisbandParty:
           if (DisbandParty == null) {
@@ -3311,6 +3669,96 @@ namespace Bnet {
             RequestPartyInfo = new global::Bnet.RequestPartyInfoCMSG();
           }
           RequestPartyInfo.MergeFrom(other.RequestPartyInfo);
+          break;
+        case MessageOneofCase.SetPartyExpShare:
+          if (SetPartyExpShare == null) {
+            SetPartyExpShare = new global::Bnet.SetPartyExpShareCMSG();
+          }
+          SetPartyExpShare.MergeFrom(other.SetPartyExpShare);
+          break;
+        case MessageOneofCase.CreateGuild:
+          if (CreateGuild == null) {
+            CreateGuild = new global::Bnet.CreateGuildCMSG();
+          }
+          CreateGuild.MergeFrom(other.CreateGuild);
+          break;
+        case MessageOneofCase.RequestGuildInfo:
+          if (RequestGuildInfo == null) {
+            RequestGuildInfo = new global::Bnet.RequestGuildInfoCMSG();
+          }
+          RequestGuildInfo.MergeFrom(other.RequestGuildInfo);
+          break;
+        case MessageOneofCase.InviteToGuild:
+          if (InviteToGuild == null) {
+            InviteToGuild = new global::Bnet.InviteToGuildCMSG();
+          }
+          InviteToGuild.MergeFrom(other.InviteToGuild);
+          break;
+        case MessageOneofCase.AnswerGuildInvite:
+          if (AnswerGuildInvite == null) {
+            AnswerGuildInvite = new global::Bnet.AnswerGuildInviteCMSG();
+          }
+          AnswerGuildInvite.MergeFrom(other.AnswerGuildInvite);
+          break;
+        case MessageOneofCase.LeaveGuild:
+          if (LeaveGuild == null) {
+            LeaveGuild = new global::Bnet.LeaveGuildCMSG();
+          }
+          LeaveGuild.MergeFrom(other.LeaveGuild);
+          break;
+        case MessageOneofCase.KickGuildMember:
+          if (KickGuildMember == null) {
+            KickGuildMember = new global::Bnet.KickGuildMemberCMSG();
+          }
+          KickGuildMember.MergeFrom(other.KickGuildMember);
+          break;
+        case MessageOneofCase.SetGuildMemberRank:
+          if (SetGuildMemberRank == null) {
+            SetGuildMemberRank = new global::Bnet.SetGuildMemberRankCMSG();
+          }
+          SetGuildMemberRank.MergeFrom(other.SetGuildMemberRank);
+          break;
+        case MessageOneofCase.SaveGuildRank:
+          if (SaveGuildRank == null) {
+            SaveGuildRank = new global::Bnet.SaveGuildRankCMSG();
+          }
+          SaveGuildRank.MergeFrom(other.SaveGuildRank);
+          break;
+        case MessageOneofCase.DeleteGuildRank:
+          if (DeleteGuildRank == null) {
+            DeleteGuildRank = new global::Bnet.DeleteGuildRankCMSG();
+          }
+          DeleteGuildRank.MergeFrom(other.DeleteGuildRank);
+          break;
+        case MessageOneofCase.InvestGuildSkill:
+          if (InvestGuildSkill == null) {
+            InvestGuildSkill = new global::Bnet.InvestGuildSkillCMSG();
+          }
+          InvestGuildSkill.MergeFrom(other.InvestGuildSkill);
+          break;
+        case MessageOneofCase.DisbandGuild:
+          if (DisbandGuild == null) {
+            DisbandGuild = new global::Bnet.DisbandGuildCMSG();
+          }
+          DisbandGuild.MergeFrom(other.DisbandGuild);
+          break;
+        case MessageOneofCase.GuildInfo:
+          if (GuildInfo == null) {
+            GuildInfo = new global::Bnet.GuildInfoSMSG();
+          }
+          GuildInfo.MergeFrom(other.GuildInfo);
+          break;
+        case MessageOneofCase.GuildInvitation:
+          if (GuildInvitation == null) {
+            GuildInvitation = new global::Bnet.GuildInvitationSMSG();
+          }
+          GuildInvitation.MergeFrom(other.GuildInvitation);
+          break;
+        case MessageOneofCase.GuildLeft:
+          if (GuildLeft == null) {
+            GuildLeft = new global::Bnet.GuildLeftSMSG();
+          }
+          GuildLeft.MergeFrom(other.GuildLeft);
           break;
         case MessageOneofCase.CraftableRecipes:
           if (CraftableRecipes == null) {
@@ -3963,24 +4411,6 @@ namespace Bnet {
             PartyInvitation = subBuilder;
             break;
           }
-          case 4826: {
-            global::Bnet.PartyInvitationCreatedSMSG subBuilder = new global::Bnet.PartyInvitationCreatedSMSG();
-            if (messageCase_ == MessageOneofCase.PartyInvitationCreated) {
-              subBuilder.MergeFrom(PartyInvitationCreated);
-            }
-            input.ReadMessage(subBuilder);
-            PartyInvitationCreated = subBuilder;
-            break;
-          }
-          case 4834: {
-            global::Bnet.PartyInviteDeclinedSMSG subBuilder = new global::Bnet.PartyInviteDeclinedSMSG();
-            if (messageCase_ == MessageOneofCase.PartyInviteDeclined) {
-              subBuilder.MergeFrom(PartyInviteDeclined);
-            }
-            input.ReadMessage(subBuilder);
-            PartyInviteDeclined = subBuilder;
-            break;
-          }
           case 4842: {
             global::Bnet.PartyInfoSMSG subBuilder = new global::Bnet.PartyInfoSMSG();
             if (messageCase_ == MessageOneofCase.PartyInfo) {
@@ -3988,15 +4418,6 @@ namespace Bnet {
             }
             input.ReadMessage(subBuilder);
             PartyInfo = subBuilder;
-            break;
-          }
-          case 4850: {
-            global::Bnet.PartyErrorSMSG subBuilder = new global::Bnet.PartyErrorSMSG();
-            if (messageCase_ == MessageOneofCase.PartyError) {
-              subBuilder.MergeFrom(PartyError);
-            }
-            input.ReadMessage(subBuilder);
-            PartyError = subBuilder;
             break;
           }
           case 4858: {
@@ -4060,6 +4481,141 @@ namespace Bnet {
             }
             input.ReadMessage(subBuilder);
             RequestPartyInfo = subBuilder;
+            break;
+          }
+          case 4914: {
+            global::Bnet.SetPartyExpShareCMSG subBuilder = new global::Bnet.SetPartyExpShareCMSG();
+            if (messageCase_ == MessageOneofCase.SetPartyExpShare) {
+              subBuilder.MergeFrom(SetPartyExpShare);
+            }
+            input.ReadMessage(subBuilder);
+            SetPartyExpShare = subBuilder;
+            break;
+          }
+          case 4962: {
+            global::Bnet.CreateGuildCMSG subBuilder = new global::Bnet.CreateGuildCMSG();
+            if (messageCase_ == MessageOneofCase.CreateGuild) {
+              subBuilder.MergeFrom(CreateGuild);
+            }
+            input.ReadMessage(subBuilder);
+            CreateGuild = subBuilder;
+            break;
+          }
+          case 4970: {
+            global::Bnet.RequestGuildInfoCMSG subBuilder = new global::Bnet.RequestGuildInfoCMSG();
+            if (messageCase_ == MessageOneofCase.RequestGuildInfo) {
+              subBuilder.MergeFrom(RequestGuildInfo);
+            }
+            input.ReadMessage(subBuilder);
+            RequestGuildInfo = subBuilder;
+            break;
+          }
+          case 4978: {
+            global::Bnet.InviteToGuildCMSG subBuilder = new global::Bnet.InviteToGuildCMSG();
+            if (messageCase_ == MessageOneofCase.InviteToGuild) {
+              subBuilder.MergeFrom(InviteToGuild);
+            }
+            input.ReadMessage(subBuilder);
+            InviteToGuild = subBuilder;
+            break;
+          }
+          case 4986: {
+            global::Bnet.AnswerGuildInviteCMSG subBuilder = new global::Bnet.AnswerGuildInviteCMSG();
+            if (messageCase_ == MessageOneofCase.AnswerGuildInvite) {
+              subBuilder.MergeFrom(AnswerGuildInvite);
+            }
+            input.ReadMessage(subBuilder);
+            AnswerGuildInvite = subBuilder;
+            break;
+          }
+          case 4994: {
+            global::Bnet.LeaveGuildCMSG subBuilder = new global::Bnet.LeaveGuildCMSG();
+            if (messageCase_ == MessageOneofCase.LeaveGuild) {
+              subBuilder.MergeFrom(LeaveGuild);
+            }
+            input.ReadMessage(subBuilder);
+            LeaveGuild = subBuilder;
+            break;
+          }
+          case 5002: {
+            global::Bnet.KickGuildMemberCMSG subBuilder = new global::Bnet.KickGuildMemberCMSG();
+            if (messageCase_ == MessageOneofCase.KickGuildMember) {
+              subBuilder.MergeFrom(KickGuildMember);
+            }
+            input.ReadMessage(subBuilder);
+            KickGuildMember = subBuilder;
+            break;
+          }
+          case 5010: {
+            global::Bnet.SetGuildMemberRankCMSG subBuilder = new global::Bnet.SetGuildMemberRankCMSG();
+            if (messageCase_ == MessageOneofCase.SetGuildMemberRank) {
+              subBuilder.MergeFrom(SetGuildMemberRank);
+            }
+            input.ReadMessage(subBuilder);
+            SetGuildMemberRank = subBuilder;
+            break;
+          }
+          case 5018: {
+            global::Bnet.SaveGuildRankCMSG subBuilder = new global::Bnet.SaveGuildRankCMSG();
+            if (messageCase_ == MessageOneofCase.SaveGuildRank) {
+              subBuilder.MergeFrom(SaveGuildRank);
+            }
+            input.ReadMessage(subBuilder);
+            SaveGuildRank = subBuilder;
+            break;
+          }
+          case 5026: {
+            global::Bnet.DeleteGuildRankCMSG subBuilder = new global::Bnet.DeleteGuildRankCMSG();
+            if (messageCase_ == MessageOneofCase.DeleteGuildRank) {
+              subBuilder.MergeFrom(DeleteGuildRank);
+            }
+            input.ReadMessage(subBuilder);
+            DeleteGuildRank = subBuilder;
+            break;
+          }
+          case 5034: {
+            global::Bnet.InvestGuildSkillCMSG subBuilder = new global::Bnet.InvestGuildSkillCMSG();
+            if (messageCase_ == MessageOneofCase.InvestGuildSkill) {
+              subBuilder.MergeFrom(InvestGuildSkill);
+            }
+            input.ReadMessage(subBuilder);
+            InvestGuildSkill = subBuilder;
+            break;
+          }
+          case 5042: {
+            global::Bnet.DisbandGuildCMSG subBuilder = new global::Bnet.DisbandGuildCMSG();
+            if (messageCase_ == MessageOneofCase.DisbandGuild) {
+              subBuilder.MergeFrom(DisbandGuild);
+            }
+            input.ReadMessage(subBuilder);
+            DisbandGuild = subBuilder;
+            break;
+          }
+          case 5050: {
+            global::Bnet.GuildInfoSMSG subBuilder = new global::Bnet.GuildInfoSMSG();
+            if (messageCase_ == MessageOneofCase.GuildInfo) {
+              subBuilder.MergeFrom(GuildInfo);
+            }
+            input.ReadMessage(subBuilder);
+            GuildInfo = subBuilder;
+            break;
+          }
+          case 5058: {
+            global::Bnet.GuildInvitationSMSG subBuilder = new global::Bnet.GuildInvitationSMSG();
+            if (messageCase_ == MessageOneofCase.GuildInvitation) {
+              subBuilder.MergeFrom(GuildInvitation);
+            }
+            input.ReadMessage(subBuilder);
+            GuildInvitation = subBuilder;
+            break;
+          }
+          case 5066: {
+            global::Bnet.GuildLeftSMSG subBuilder = new global::Bnet.GuildLeftSMSG();
+            if (messageCase_ == MessageOneofCase.GuildLeft) {
+              subBuilder.MergeFrom(GuildLeft);
+            }
+            input.ReadMessage(subBuilder);
+            GuildLeft = subBuilder;
             break;
           }
           case 5602: {
@@ -4756,24 +5312,6 @@ namespace Bnet {
             PartyInvitation = subBuilder;
             break;
           }
-          case 4826: {
-            global::Bnet.PartyInvitationCreatedSMSG subBuilder = new global::Bnet.PartyInvitationCreatedSMSG();
-            if (messageCase_ == MessageOneofCase.PartyInvitationCreated) {
-              subBuilder.MergeFrom(PartyInvitationCreated);
-            }
-            input.ReadMessage(subBuilder);
-            PartyInvitationCreated = subBuilder;
-            break;
-          }
-          case 4834: {
-            global::Bnet.PartyInviteDeclinedSMSG subBuilder = new global::Bnet.PartyInviteDeclinedSMSG();
-            if (messageCase_ == MessageOneofCase.PartyInviteDeclined) {
-              subBuilder.MergeFrom(PartyInviteDeclined);
-            }
-            input.ReadMessage(subBuilder);
-            PartyInviteDeclined = subBuilder;
-            break;
-          }
           case 4842: {
             global::Bnet.PartyInfoSMSG subBuilder = new global::Bnet.PartyInfoSMSG();
             if (messageCase_ == MessageOneofCase.PartyInfo) {
@@ -4781,15 +5319,6 @@ namespace Bnet {
             }
             input.ReadMessage(subBuilder);
             PartyInfo = subBuilder;
-            break;
-          }
-          case 4850: {
-            global::Bnet.PartyErrorSMSG subBuilder = new global::Bnet.PartyErrorSMSG();
-            if (messageCase_ == MessageOneofCase.PartyError) {
-              subBuilder.MergeFrom(PartyError);
-            }
-            input.ReadMessage(subBuilder);
-            PartyError = subBuilder;
             break;
           }
           case 4858: {
@@ -4853,6 +5382,141 @@ namespace Bnet {
             }
             input.ReadMessage(subBuilder);
             RequestPartyInfo = subBuilder;
+            break;
+          }
+          case 4914: {
+            global::Bnet.SetPartyExpShareCMSG subBuilder = new global::Bnet.SetPartyExpShareCMSG();
+            if (messageCase_ == MessageOneofCase.SetPartyExpShare) {
+              subBuilder.MergeFrom(SetPartyExpShare);
+            }
+            input.ReadMessage(subBuilder);
+            SetPartyExpShare = subBuilder;
+            break;
+          }
+          case 4962: {
+            global::Bnet.CreateGuildCMSG subBuilder = new global::Bnet.CreateGuildCMSG();
+            if (messageCase_ == MessageOneofCase.CreateGuild) {
+              subBuilder.MergeFrom(CreateGuild);
+            }
+            input.ReadMessage(subBuilder);
+            CreateGuild = subBuilder;
+            break;
+          }
+          case 4970: {
+            global::Bnet.RequestGuildInfoCMSG subBuilder = new global::Bnet.RequestGuildInfoCMSG();
+            if (messageCase_ == MessageOneofCase.RequestGuildInfo) {
+              subBuilder.MergeFrom(RequestGuildInfo);
+            }
+            input.ReadMessage(subBuilder);
+            RequestGuildInfo = subBuilder;
+            break;
+          }
+          case 4978: {
+            global::Bnet.InviteToGuildCMSG subBuilder = new global::Bnet.InviteToGuildCMSG();
+            if (messageCase_ == MessageOneofCase.InviteToGuild) {
+              subBuilder.MergeFrom(InviteToGuild);
+            }
+            input.ReadMessage(subBuilder);
+            InviteToGuild = subBuilder;
+            break;
+          }
+          case 4986: {
+            global::Bnet.AnswerGuildInviteCMSG subBuilder = new global::Bnet.AnswerGuildInviteCMSG();
+            if (messageCase_ == MessageOneofCase.AnswerGuildInvite) {
+              subBuilder.MergeFrom(AnswerGuildInvite);
+            }
+            input.ReadMessage(subBuilder);
+            AnswerGuildInvite = subBuilder;
+            break;
+          }
+          case 4994: {
+            global::Bnet.LeaveGuildCMSG subBuilder = new global::Bnet.LeaveGuildCMSG();
+            if (messageCase_ == MessageOneofCase.LeaveGuild) {
+              subBuilder.MergeFrom(LeaveGuild);
+            }
+            input.ReadMessage(subBuilder);
+            LeaveGuild = subBuilder;
+            break;
+          }
+          case 5002: {
+            global::Bnet.KickGuildMemberCMSG subBuilder = new global::Bnet.KickGuildMemberCMSG();
+            if (messageCase_ == MessageOneofCase.KickGuildMember) {
+              subBuilder.MergeFrom(KickGuildMember);
+            }
+            input.ReadMessage(subBuilder);
+            KickGuildMember = subBuilder;
+            break;
+          }
+          case 5010: {
+            global::Bnet.SetGuildMemberRankCMSG subBuilder = new global::Bnet.SetGuildMemberRankCMSG();
+            if (messageCase_ == MessageOneofCase.SetGuildMemberRank) {
+              subBuilder.MergeFrom(SetGuildMemberRank);
+            }
+            input.ReadMessage(subBuilder);
+            SetGuildMemberRank = subBuilder;
+            break;
+          }
+          case 5018: {
+            global::Bnet.SaveGuildRankCMSG subBuilder = new global::Bnet.SaveGuildRankCMSG();
+            if (messageCase_ == MessageOneofCase.SaveGuildRank) {
+              subBuilder.MergeFrom(SaveGuildRank);
+            }
+            input.ReadMessage(subBuilder);
+            SaveGuildRank = subBuilder;
+            break;
+          }
+          case 5026: {
+            global::Bnet.DeleteGuildRankCMSG subBuilder = new global::Bnet.DeleteGuildRankCMSG();
+            if (messageCase_ == MessageOneofCase.DeleteGuildRank) {
+              subBuilder.MergeFrom(DeleteGuildRank);
+            }
+            input.ReadMessage(subBuilder);
+            DeleteGuildRank = subBuilder;
+            break;
+          }
+          case 5034: {
+            global::Bnet.InvestGuildSkillCMSG subBuilder = new global::Bnet.InvestGuildSkillCMSG();
+            if (messageCase_ == MessageOneofCase.InvestGuildSkill) {
+              subBuilder.MergeFrom(InvestGuildSkill);
+            }
+            input.ReadMessage(subBuilder);
+            InvestGuildSkill = subBuilder;
+            break;
+          }
+          case 5042: {
+            global::Bnet.DisbandGuildCMSG subBuilder = new global::Bnet.DisbandGuildCMSG();
+            if (messageCase_ == MessageOneofCase.DisbandGuild) {
+              subBuilder.MergeFrom(DisbandGuild);
+            }
+            input.ReadMessage(subBuilder);
+            DisbandGuild = subBuilder;
+            break;
+          }
+          case 5050: {
+            global::Bnet.GuildInfoSMSG subBuilder = new global::Bnet.GuildInfoSMSG();
+            if (messageCase_ == MessageOneofCase.GuildInfo) {
+              subBuilder.MergeFrom(GuildInfo);
+            }
+            input.ReadMessage(subBuilder);
+            GuildInfo = subBuilder;
+            break;
+          }
+          case 5058: {
+            global::Bnet.GuildInvitationSMSG subBuilder = new global::Bnet.GuildInvitationSMSG();
+            if (messageCase_ == MessageOneofCase.GuildInvitation) {
+              subBuilder.MergeFrom(GuildInvitation);
+            }
+            input.ReadMessage(subBuilder);
+            GuildInvitation = subBuilder;
+            break;
+          }
+          case 5066: {
+            global::Bnet.GuildLeftSMSG subBuilder = new global::Bnet.GuildLeftSMSG();
+            if (messageCase_ == MessageOneofCase.GuildLeft) {
+              subBuilder.MergeFrom(GuildLeft);
+            }
+            input.ReadMessage(subBuilder);
+            GuildLeft = subBuilder;
             break;
           }
           case 5602: {

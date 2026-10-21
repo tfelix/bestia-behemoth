@@ -10,6 +10,8 @@ const _MENU_HOTKEYS := {
 	"Items": "toggle_inventory",
 	"Equip": "toggle_equipment",
 	"Skills": "toggle_skills",
+	"Party": "toggle_party",
+	"Guild": "toggle_guild",
 }
 
 var _master_info: MasterInfo
@@ -38,6 +40,8 @@ signal inventory_win_toggled
 signal skills_win_toggled
 signal equipment_win_toggled
 signal status_win_toggled
+signal party_win_toggled
+signal guild_win_toggled
 
 func _ready() -> void:
 	add_to_group("world_blocking_ui")
@@ -258,6 +262,16 @@ func _process(_delta: float) -> void:
 		_toggle_equipment()
 	if Input.is_action_just_pressed("toggle_status"):
 		_toggle_status()
+	if Input.is_action_just_pressed("toggle_party"):
+		party_win_toggled.emit()
+	# Gated on the button, so being in a guild is decided in one place: set_guild_available.
+	if Input.is_action_just_pressed("toggle_guild") and not _menu.get_node("Guild").disabled:
+		guild_win_toggled.emit()
+
+
+## The guild window has nothing to show outside a guild, so its button is only offered inside one.
+func set_guild_available(available: bool) -> void:
+	_menu.get_node("Guild").disabled = not available
 
 
 func _toggle_inventory() -> void:
@@ -290,3 +304,11 @@ func _on_equipment_pressed() -> void:
 
 func _on_status_pressed() -> void:
 	_toggle_status()
+
+
+func _on_party_pressed() -> void:
+	party_win_toggled.emit()
+
+
+func _on_guild_pressed() -> void:
+	guild_win_toggled.emit()

@@ -11,6 +11,9 @@ const _BASIC_SKILL_PRIMER := "BASIC_SKILL_PRIMER"
 @onready var _crafting_win: WidgetWindow = $CraftingWin
 @onready var _trade_win: WidgetWindow = $TradeWin
 @onready var _shop_win: WidgetWindow = $ShopWin
+@onready var _party_win: WidgetWindow = $PartyWin
+@onready var _guild_win: WidgetWindow = $GuildWin
+@onready var _invitations: InvitationTray = $Invitations
 @onready var _ground_drop_zone: GroundDropZone = $GroundDropZone
 @onready var _master_profile: MasterProfile = $TopLeftColumn/MasterProfile
 @onready var _shortcuts: Shortcuts = $Shortcuts
@@ -107,6 +110,18 @@ func _ready() -> void:
 	shop.inventory = inventory
 	shop.shop_opened.connect(_on_shop_opened)
 	shop.shop_closed.connect(_on_shop_closed)
+
+	# The party and guild windows exist from the start, hidden: they listen for their rosters and invitations
+	# whether open or not. Both speak through the chat, which is the client's one channel for notices.
+	var party := _party_win.get_content() as PartyPanel
+	party.invitations = _invitations
+	party.notice.connect(_chat.system_line)
+
+	var guild := _guild_win.get_content() as GuildPanel
+	guild.invitations = _invitations
+	guild.notice.connect(_chat.system_line)
+	guild.refused.connect(_chat.error_line)
+	guild.membership_changed.connect(_on_guild_membership_changed)
 
 	# Gold is coins in the bag, so the inventory is what knows how much the profile should show.
 	inventory.gold_changed.connect(_master_profile.show_gold)
@@ -436,6 +451,25 @@ func _on_shop_opened() -> void:
 
 func _on_shop_closed() -> void:
 	_shop_win.visible = false
+
+
+## Neither closes another window: the party and guild windows are looked at beside whatever else is open.
+func _on_master_profile_party_win_toggled() -> void:
+	_party_win.visible = !_party_win.visible
+
+
+func _on_master_profile_guild_win_toggled() -> void:
+	var guild := _guild_win.get_content() as GuildPanel
+	if guild == null or not guild.is_in_guild():
+		return
+	_guild_win.visible = !_guild_win.visible
+
+
+## A guild window open on a guild the player has just left would show a guild that no longer has them.
+func _on_guild_membership_changed(in_guild: bool) -> void:
+	_master_profile.set_guild_available(in_guild)
+	if not in_guild:
+		_guild_win.visible = false
 
 
 func _on_master_profile_status_win_toggled() -> void:

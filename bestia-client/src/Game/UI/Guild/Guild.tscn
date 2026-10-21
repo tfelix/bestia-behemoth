@@ -1,0 +1,9 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://Game/UI/Guild/guild.gd" id="1_guild"]
+
+[node name="Guild" type="PanelContainer"]
+custom_minimum_size = Vector2(520, 420)
+offset_right = 520.0
+offset_bottom = 420.0
+script = ExtResource("1_guild")

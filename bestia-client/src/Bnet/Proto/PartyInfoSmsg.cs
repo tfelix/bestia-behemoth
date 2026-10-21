@@ -25,31 +25,61 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CiRtZXNzYWdlcy9wYXJ0eS9wYXJ0eV9pbmZvX3Ntc2cucHJvdG8SBGJuZXQa",
-            "E21lc3NhZ2VzL3ZlYzMucHJvdG8iWAoNUGFydHlJbmZvU01TRxIQCghwYXJ0",
-            "eV9pZBgBIAEoBBISCgpwYXJ0eV9uYW1lGAIgASgJEiEKBm1lbWJlchgDIAMo",
-            "CzIRLmJuZXQuUGFydHlNZW1iZXIiaQoLUGFydHlNZW1iZXISEwoLbWFzdGVy",
-            "X25hbWUYASABKAkSNQoLb25saW5lX2RhdGEYAiABKAsyGy5ibmV0LlBhcnR5",
-            "TWVtYmVyT25saW5lRGF0YUgAiAEBQg4KDF9vbmxpbmVfZGF0YSJ/ChVQYXJ0",
-            "eU1lbWJlck9ubGluZURhdGESEQoJZW50aXR5X2lkGAEgASgGEhEKCWFyZWFf",
-            "bmFtZRgCIAEoCRIcCghwb3NpdGlvbhgDIAEoCzIKLmJuZXQuVmVjMxISCgpo",
-            "cF9jdXJyZW50GAQgASgNEg4KBmhwX21heBgFIAEoDUIrChVuZXQuYmVzdGlh",
-            "LmJuZXQucHJvdG9CElBhcnR5SW5mb1Ntc2dQcm90b2IGcHJvdG8z"));
+            "E21lc3NhZ2VzL3ZlYzMucHJvdG8imQEKDVBhcnR5SW5mb1NNU0cSEAoIcGFy",
+            "dHlfaWQYASABKAQSEgoKcGFydHlfbmFtZRgCIAEoCRIhCgZtZW1iZXIYAyAD",
+            "KAsyES5ibmV0LlBhcnR5TWVtYmVyEiYKCWV4cF9zaGFyZRgEIAEoDjITLmJu",
+            "ZXQuUGFydHlFeHBTaGFyZRIXCg9vd25lcl9tYXN0ZXJfaWQYBSABKAQinwEK",
+            "C1BhcnR5TWVtYmVyEhMKC21hc3Rlcl9uYW1lGAEgASgJEjUKC29ubGluZV9k",
+            "YXRhGAIgASgLMhsuYm5ldC5QYXJ0eU1lbWJlck9ubGluZURhdGFIAIgBARIS",
+            "CgphY2NvdW50X2lkGAMgASgEEhEKCW1hc3Rlcl9pZBgEIAEoBBINCgVsZXZl",
+            "bBgFIAEoDUIOCgxfb25saW5lX2RhdGEi7gEKFVBhcnR5TWVtYmVyT25saW5l",
+            "RGF0YRIRCgllbnRpdHlfaWQYASABKAYSEQoJYXJlYV9uYW1lGAIgASgJEhwK",
+            "CHBvc2l0aW9uGAMgASgLMgouYm5ldC5WZWMzEhIKCmhwX2N1cnJlbnQYBCAB",
+            "KA0SDgoGaHBfbWF4GAUgASgNEhQKDG1hbmFfY3VycmVudBgGIAEoDRIQCght",
+            "YW5hX21heBgHIAEoDRIzCg1hY3RpdmVfYmVzdGlhGAggASgLMhcuYm5ldC5Q",
+            "YXJ0eU1lbWJlckJlc3RpYUgAiAEBQhAKDl9hY3RpdmVfYmVzdGlhIqMBChFQ",
+            "YXJ0eU1lbWJlckJlc3RpYRIRCgllbnRpdHlfaWQYASABKAYSEgoKc3BlY2ll",
+            "c19pZBgCIAEoBBIMCgRuYW1lGAMgASgJEg0KBWxldmVsGAQgASgNEhIKCmhw",
+            "X2N1cnJlbnQYBSABKA0SDgoGaHBfbWF4GAYgASgNEhQKDG1hbmFfY3VycmVu",
+            "dBgHIAEoDRIQCghtYW5hX21heBgIIAEoDSpvCg1QYXJ0eUV4cFNoYXJlEh8K",
+            "G1BBUlRZX0VYUF9TSEFSRV9VTlNQRUNJRklFRBAAEh0KGVBBUlRZX0VYUF9T",
+            "SEFSRV9FQUNIX1RBS0UQARIeChpQQVJUWV9FWFBfU0hBUkVfRVZFTl9TSEFS",
+            "RRACQisKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0ISUGFydHlJbmZvU21zZ1By",
+            "b3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Bnet.Vec3Reflection.Descriptor, },
-          new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.PartyInfoSMSG), global::Bnet.PartyInfoSMSG.Parser, new[]{ "PartyId", "PartyName", "Member" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.PartyMember), global::Bnet.PartyMember.Parser, new[]{ "MasterName", "OnlineData" }, new[]{ "OnlineData" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.PartyMemberOnlineData), global::Bnet.PartyMemberOnlineData.Parser, new[]{ "EntityId", "AreaName", "Position", "HpCurrent", "HpMax" }, null, null, null, null)
+          new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.PartyExpShare), }, null, new pbr::GeneratedClrTypeInfo[] {
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.PartyInfoSMSG), global::Bnet.PartyInfoSMSG.Parser, new[]{ "PartyId", "PartyName", "Member", "ExpShare", "OwnerMasterId" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.PartyMember), global::Bnet.PartyMember.Parser, new[]{ "MasterName", "OnlineData", "AccountId", "MasterId", "Level" }, new[]{ "OnlineData" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.PartyMemberOnlineData), global::Bnet.PartyMemberOnlineData.Parser, new[]{ "EntityId", "AreaName", "Position", "HpCurrent", "HpMax", "ManaCurrent", "ManaMax", "ActiveBestia" }, new[]{ "ActiveBestia" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.PartyMemberBestia), global::Bnet.PartyMemberBestia.Parser, new[]{ "EntityId", "SpeciesId", "Name", "Level", "HpCurrent", "HpMax", "ManaCurrent", "ManaMax" }, null, null, null, null)
           }));
     }
     #endregion
 
   }
+  #region Enums
+  public enum PartyExpShare {
+    [pbr::OriginalName("PARTY_EXP_SHARE_UNSPECIFIED")] Unspecified = 0,
+    /// <summary>
+    /// Every attacker keeps the EXP its own damage earned.
+    /// </summary>
+    [pbr::OriginalName("PARTY_EXP_SHARE_EACH_TAKE")] EachTake = 1,
+    /// <summary>
+    /// An attacker's EXP is pooled with a bonus and split evenly among the members near the kill.
+    /// </summary>
+    [pbr::OriginalName("PARTY_EXP_SHARE_EVEN_SHARE")] EvenShare = 2,
+  }
+
+  #endregion
+
   #region Messages
   /// <summary>
-  /// The full party roster, sent to a member whenever the party or one of its members' online state
-  /// changes (creation, join, leave, kick). Offline members are included without online_data so the
-  /// client can still list them.
+  /// The full party roster, pushed to every playing member whenever it changes: the party is created, a member
+  /// joins, leaves or is kicked, the EXP mode changes, a member comes online or goes offline, levels up, or
+  /// switches the entity they play. Offline members are listed without online_data.
+  ///
+  /// Also the answer to RequestPartyInfoCMSG, where party_id 0 and no members means "in no party".
   /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class PartyInfoSMSG : pb::IMessage<PartyInfoSMSG>
@@ -89,6 +119,8 @@ namespace Bnet {
       partyId_ = other.partyId_;
       partyName_ = other.partyName_;
       member_ = other.member_.Clone();
+      expShare_ = other.expShare_;
+      ownerMasterId_ = other.ownerMasterId_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -133,6 +165,30 @@ namespace Bnet {
       get { return member_; }
     }
 
+    /// <summary>Field number for the "exp_share" field.</summary>
+    public const int ExpShareFieldNumber = 4;
+    private global::Bnet.PartyExpShare expShare_ = global::Bnet.PartyExpShare.Unspecified;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Bnet.PartyExpShare ExpShare {
+      get { return expShare_; }
+      set {
+        expShare_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "owner_master_id" field.</summary>
+    public const int OwnerMasterIdFieldNumber = 5;
+    private ulong ownerMasterId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ulong OwnerMasterId {
+      get { return ownerMasterId_; }
+      set {
+        ownerMasterId_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -151,6 +207,8 @@ namespace Bnet {
       if (PartyId != other.PartyId) return false;
       if (PartyName != other.PartyName) return false;
       if(!member_.Equals(other.member_)) return false;
+      if (ExpShare != other.ExpShare) return false;
+      if (OwnerMasterId != other.OwnerMasterId) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -161,6 +219,8 @@ namespace Bnet {
       if (PartyId != 0UL) hash ^= PartyId.GetHashCode();
       if (PartyName.Length != 0) hash ^= PartyName.GetHashCode();
       hash ^= member_.GetHashCode();
+      if (ExpShare != global::Bnet.PartyExpShare.Unspecified) hash ^= ExpShare.GetHashCode();
+      if (OwnerMasterId != 0UL) hash ^= OwnerMasterId.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -188,6 +248,14 @@ namespace Bnet {
         output.WriteString(PartyName);
       }
       member_.WriteTo(output, _repeated_member_codec);
+      if (ExpShare != global::Bnet.PartyExpShare.Unspecified) {
+        output.WriteRawTag(32);
+        output.WriteEnum((int) ExpShare);
+      }
+      if (OwnerMasterId != 0UL) {
+        output.WriteRawTag(40);
+        output.WriteUInt64(OwnerMasterId);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -207,6 +275,14 @@ namespace Bnet {
         output.WriteString(PartyName);
       }
       member_.WriteTo(ref output, _repeated_member_codec);
+      if (ExpShare != global::Bnet.PartyExpShare.Unspecified) {
+        output.WriteRawTag(32);
+        output.WriteEnum((int) ExpShare);
+      }
+      if (OwnerMasterId != 0UL) {
+        output.WriteRawTag(40);
+        output.WriteUInt64(OwnerMasterId);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -224,6 +300,12 @@ namespace Bnet {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(PartyName);
       }
       size += member_.CalculateSize(_repeated_member_codec);
+      if (ExpShare != global::Bnet.PartyExpShare.Unspecified) {
+        size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) ExpShare);
+      }
+      if (OwnerMasterId != 0UL) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(OwnerMasterId);
+      }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -243,6 +325,12 @@ namespace Bnet {
         PartyName = other.PartyName;
       }
       member_.Add(other.member_);
+      if (other.ExpShare != global::Bnet.PartyExpShare.Unspecified) {
+        ExpShare = other.ExpShare;
+      }
+      if (other.OwnerMasterId != 0UL) {
+        OwnerMasterId = other.OwnerMasterId;
+      }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -274,6 +362,14 @@ namespace Bnet {
             member_.AddEntriesFrom(input, _repeated_member_codec);
             break;
           }
+          case 32: {
+            ExpShare = (global::Bnet.PartyExpShare) input.ReadEnum();
+            break;
+          }
+          case 40: {
+            OwnerMasterId = input.ReadUInt64();
+            break;
+          }
         }
       }
     #endif
@@ -303,6 +399,14 @@ namespace Bnet {
           }
           case 26: {
             member_.AddEntriesFrom(ref input, _repeated_member_codec);
+            break;
+          }
+          case 32: {
+            ExpShare = (global::Bnet.PartyExpShare) input.ReadEnum();
+            break;
+          }
+          case 40: {
+            OwnerMasterId = input.ReadUInt64();
             break;
           }
         }
@@ -349,6 +453,9 @@ namespace Bnet {
     public PartyMember(PartyMember other) : this() {
       masterName_ = other.masterName_;
       onlineData_ = other.onlineData_ != null ? other.onlineData_.Clone() : null;
+      accountId_ = other.accountId_;
+      masterId_ = other.masterId_;
+      level_ = other.level_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -373,12 +480,51 @@ namespace Bnet {
     /// <summary>Field number for the "online_data" field.</summary>
     public const int OnlineDataFieldNumber = 2;
     private global::Bnet.PartyMemberOnlineData onlineData_;
+    /// <summary>
+    /// Present while this member's master is the one its account is playing.
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public global::Bnet.PartyMemberOnlineData OnlineData {
       get { return onlineData_; }
       set {
         onlineData_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "account_id" field.</summary>
+    public const int AccountIdFieldNumber = 3;
+    private ulong accountId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ulong AccountId {
+      get { return accountId_; }
+      set {
+        accountId_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "master_id" field.</summary>
+    public const int MasterIdFieldNumber = 4;
+    private ulong masterId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ulong MasterId {
+      get { return masterId_; }
+      set {
+        masterId_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "level" field.</summary>
+    public const int LevelFieldNumber = 5;
+    private uint level_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint Level {
+      get { return level_; }
+      set {
+        level_ = value;
       }
     }
 
@@ -399,6 +545,9 @@ namespace Bnet {
       }
       if (MasterName != other.MasterName) return false;
       if (!object.Equals(OnlineData, other.OnlineData)) return false;
+      if (AccountId != other.AccountId) return false;
+      if (MasterId != other.MasterId) return false;
+      if (Level != other.Level) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -408,6 +557,9 @@ namespace Bnet {
       int hash = 1;
       if (MasterName.Length != 0) hash ^= MasterName.GetHashCode();
       if (onlineData_ != null) hash ^= OnlineData.GetHashCode();
+      if (AccountId != 0UL) hash ^= AccountId.GetHashCode();
+      if (MasterId != 0UL) hash ^= MasterId.GetHashCode();
+      if (Level != 0) hash ^= Level.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -434,6 +586,18 @@ namespace Bnet {
         output.WriteRawTag(18);
         output.WriteMessage(OnlineData);
       }
+      if (AccountId != 0UL) {
+        output.WriteRawTag(24);
+        output.WriteUInt64(AccountId);
+      }
+      if (MasterId != 0UL) {
+        output.WriteRawTag(32);
+        output.WriteUInt64(MasterId);
+      }
+      if (Level != 0) {
+        output.WriteRawTag(40);
+        output.WriteUInt32(Level);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -452,6 +616,18 @@ namespace Bnet {
         output.WriteRawTag(18);
         output.WriteMessage(OnlineData);
       }
+      if (AccountId != 0UL) {
+        output.WriteRawTag(24);
+        output.WriteUInt64(AccountId);
+      }
+      if (MasterId != 0UL) {
+        output.WriteRawTag(32);
+        output.WriteUInt64(MasterId);
+      }
+      if (Level != 0) {
+        output.WriteRawTag(40);
+        output.WriteUInt32(Level);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -467,6 +643,15 @@ namespace Bnet {
       }
       if (onlineData_ != null) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(OnlineData);
+      }
+      if (AccountId != 0UL) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(AccountId);
+      }
+      if (MasterId != 0UL) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(MasterId);
+      }
+      if (Level != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Level);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -488,6 +673,15 @@ namespace Bnet {
           OnlineData = new global::Bnet.PartyMemberOnlineData();
         }
         OnlineData.MergeFrom(other.OnlineData);
+      }
+      if (other.AccountId != 0UL) {
+        AccountId = other.AccountId;
+      }
+      if (other.MasterId != 0UL) {
+        MasterId = other.MasterId;
+      }
+      if (other.Level != 0) {
+        Level = other.Level;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -519,6 +713,18 @@ namespace Bnet {
             input.ReadMessage(OnlineData);
             break;
           }
+          case 24: {
+            AccountId = input.ReadUInt64();
+            break;
+          }
+          case 32: {
+            MasterId = input.ReadUInt64();
+            break;
+          }
+          case 40: {
+            Level = input.ReadUInt32();
+            break;
+          }
         }
       }
     #endif
@@ -547,6 +753,18 @@ namespace Bnet {
               OnlineData = new global::Bnet.PartyMemberOnlineData();
             }
             input.ReadMessage(OnlineData);
+            break;
+          }
+          case 24: {
+            AccountId = input.ReadUInt64();
+            break;
+          }
+          case 32: {
+            MasterId = input.ReadUInt64();
+            break;
+          }
+          case 40: {
+            Level = input.ReadUInt32();
             break;
           }
         }
@@ -596,6 +814,9 @@ namespace Bnet {
       position_ = other.position_ != null ? other.position_.Clone() : null;
       hpCurrent_ = other.hpCurrent_;
       hpMax_ = other.hpMax_;
+      manaCurrent_ = other.manaCurrent_;
+      manaMax_ = other.manaMax_;
+      activeBestia_ = other.activeBestia_ != null ? other.activeBestia_.Clone() : null;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -608,6 +829,9 @@ namespace Bnet {
     /// <summary>Field number for the "entity_id" field.</summary>
     public const int EntityIdFieldNumber = 1;
     private ulong entityId_;
+    /// <summary>
+    /// The master's entity, whose Health and Mana deltas reach every member whatever the distance.
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public ulong EntityId {
@@ -665,6 +889,45 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "mana_current" field.</summary>
+    public const int ManaCurrentFieldNumber = 6;
+    private uint manaCurrent_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint ManaCurrent {
+      get { return manaCurrent_; }
+      set {
+        manaCurrent_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "mana_max" field.</summary>
+    public const int ManaMaxFieldNumber = 7;
+    private uint manaMax_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint ManaMax {
+      get { return manaMax_; }
+      set {
+        manaMax_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "active_bestia" field.</summary>
+    public const int ActiveBestiaFieldNumber = 8;
+    private global::Bnet.PartyMemberBestia activeBestia_;
+    /// <summary>
+    /// The bestia the member is playing, when it is not the master.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Bnet.PartyMemberBestia ActiveBestia {
+      get { return activeBestia_; }
+      set {
+        activeBestia_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -685,6 +948,9 @@ namespace Bnet {
       if (!object.Equals(Position, other.Position)) return false;
       if (HpCurrent != other.HpCurrent) return false;
       if (HpMax != other.HpMax) return false;
+      if (ManaCurrent != other.ManaCurrent) return false;
+      if (ManaMax != other.ManaMax) return false;
+      if (!object.Equals(ActiveBestia, other.ActiveBestia)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -697,6 +963,9 @@ namespace Bnet {
       if (position_ != null) hash ^= Position.GetHashCode();
       if (HpCurrent != 0) hash ^= HpCurrent.GetHashCode();
       if (HpMax != 0) hash ^= HpMax.GetHashCode();
+      if (ManaCurrent != 0) hash ^= ManaCurrent.GetHashCode();
+      if (ManaMax != 0) hash ^= ManaMax.GetHashCode();
+      if (activeBestia_ != null) hash ^= ActiveBestia.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -735,6 +1004,18 @@ namespace Bnet {
         output.WriteRawTag(40);
         output.WriteUInt32(HpMax);
       }
+      if (ManaCurrent != 0) {
+        output.WriteRawTag(48);
+        output.WriteUInt32(ManaCurrent);
+      }
+      if (ManaMax != 0) {
+        output.WriteRawTag(56);
+        output.WriteUInt32(ManaMax);
+      }
+      if (activeBestia_ != null) {
+        output.WriteRawTag(66);
+        output.WriteMessage(ActiveBestia);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -765,6 +1046,18 @@ namespace Bnet {
         output.WriteRawTag(40);
         output.WriteUInt32(HpMax);
       }
+      if (ManaCurrent != 0) {
+        output.WriteRawTag(48);
+        output.WriteUInt32(ManaCurrent);
+      }
+      if (ManaMax != 0) {
+        output.WriteRawTag(56);
+        output.WriteUInt32(ManaMax);
+      }
+      if (activeBestia_ != null) {
+        output.WriteRawTag(66);
+        output.WriteMessage(ActiveBestia);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -789,6 +1082,15 @@ namespace Bnet {
       }
       if (HpMax != 0) {
         size += 1 + pb::CodedOutputStream.ComputeUInt32Size(HpMax);
+      }
+      if (ManaCurrent != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(ManaCurrent);
+      }
+      if (ManaMax != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(ManaMax);
+      }
+      if (activeBestia_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(ActiveBestia);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -819,6 +1121,18 @@ namespace Bnet {
       }
       if (other.HpMax != 0) {
         HpMax = other.HpMax;
+      }
+      if (other.ManaCurrent != 0) {
+        ManaCurrent = other.ManaCurrent;
+      }
+      if (other.ManaMax != 0) {
+        ManaMax = other.ManaMax;
+      }
+      if (other.activeBestia_ != null) {
+        if (activeBestia_ == null) {
+          ActiveBestia = new global::Bnet.PartyMemberBestia();
+        }
+        ActiveBestia.MergeFrom(other.ActiveBestia);
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -862,6 +1176,21 @@ namespace Bnet {
             HpMax = input.ReadUInt32();
             break;
           }
+          case 48: {
+            ManaCurrent = input.ReadUInt32();
+            break;
+          }
+          case 56: {
+            ManaMax = input.ReadUInt32();
+            break;
+          }
+          case 66: {
+            if (activeBestia_ == null) {
+              ActiveBestia = new global::Bnet.PartyMemberBestia();
+            }
+            input.ReadMessage(ActiveBestia);
+            break;
+          }
         }
       }
     #endif
@@ -902,6 +1231,484 @@ namespace Bnet {
           }
           case 40: {
             HpMax = input.ReadUInt32();
+            break;
+          }
+          case 48: {
+            ManaCurrent = input.ReadUInt32();
+            break;
+          }
+          case 56: {
+            ManaMax = input.ReadUInt32();
+            break;
+          }
+          case 66: {
+            if (activeBestia_ == null) {
+              ActiveBestia = new global::Bnet.PartyMemberBestia();
+            }
+            input.ReadMessage(ActiveBestia);
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
+  public sealed partial class PartyMemberBestia : pb::IMessage<PartyMemberBestia>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<PartyMemberBestia> _parser = new pb::MessageParser<PartyMemberBestia>(() => new PartyMemberBestia());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<PartyMemberBestia> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Bnet.PartyInfoSmsgReflection.Descriptor.MessageTypes[3]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public PartyMemberBestia() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public PartyMemberBestia(PartyMemberBestia other) : this() {
+      entityId_ = other.entityId_;
+      speciesId_ = other.speciesId_;
+      name_ = other.name_;
+      level_ = other.level_;
+      hpCurrent_ = other.hpCurrent_;
+      hpMax_ = other.hpMax_;
+      manaCurrent_ = other.manaCurrent_;
+      manaMax_ = other.manaMax_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public PartyMemberBestia Clone() {
+      return new PartyMemberBestia(this);
+    }
+
+    /// <summary>Field number for the "entity_id" field.</summary>
+    public const int EntityIdFieldNumber = 1;
+    private ulong entityId_;
+    /// <summary>
+    /// Its Health and Mana deltas reach every member while it stays the played entity.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ulong EntityId {
+      get { return entityId_; }
+      set {
+        entityId_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "species_id" field.</summary>
+    public const int SpeciesIdFieldNumber = 2;
+    private ulong speciesId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ulong SpeciesId {
+      get { return speciesId_; }
+      set {
+        speciesId_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "name" field.</summary>
+    public const int NameFieldNumber = 3;
+    private string name_ = "";
+    /// <summary>
+    /// The name its master gave it, empty when it has none.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string Name {
+      get { return name_; }
+      set {
+        name_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "level" field.</summary>
+    public const int LevelFieldNumber = 4;
+    private uint level_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint Level {
+      get { return level_; }
+      set {
+        level_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "hp_current" field.</summary>
+    public const int HpCurrentFieldNumber = 5;
+    private uint hpCurrent_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint HpCurrent {
+      get { return hpCurrent_; }
+      set {
+        hpCurrent_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "hp_max" field.</summary>
+    public const int HpMaxFieldNumber = 6;
+    private uint hpMax_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint HpMax {
+      get { return hpMax_; }
+      set {
+        hpMax_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "mana_current" field.</summary>
+    public const int ManaCurrentFieldNumber = 7;
+    private uint manaCurrent_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint ManaCurrent {
+      get { return manaCurrent_; }
+      set {
+        manaCurrent_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "mana_max" field.</summary>
+    public const int ManaMaxFieldNumber = 8;
+    private uint manaMax_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint ManaMax {
+      get { return manaMax_; }
+      set {
+        manaMax_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as PartyMemberBestia);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(PartyMemberBestia other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (EntityId != other.EntityId) return false;
+      if (SpeciesId != other.SpeciesId) return false;
+      if (Name != other.Name) return false;
+      if (Level != other.Level) return false;
+      if (HpCurrent != other.HpCurrent) return false;
+      if (HpMax != other.HpMax) return false;
+      if (ManaCurrent != other.ManaCurrent) return false;
+      if (ManaMax != other.ManaMax) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (EntityId != 0UL) hash ^= EntityId.GetHashCode();
+      if (SpeciesId != 0UL) hash ^= SpeciesId.GetHashCode();
+      if (Name.Length != 0) hash ^= Name.GetHashCode();
+      if (Level != 0) hash ^= Level.GetHashCode();
+      if (HpCurrent != 0) hash ^= HpCurrent.GetHashCode();
+      if (HpMax != 0) hash ^= HpMax.GetHashCode();
+      if (ManaCurrent != 0) hash ^= ManaCurrent.GetHashCode();
+      if (ManaMax != 0) hash ^= ManaMax.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (EntityId != 0UL) {
+        output.WriteRawTag(9);
+        output.WriteFixed64(EntityId);
+      }
+      if (SpeciesId != 0UL) {
+        output.WriteRawTag(16);
+        output.WriteUInt64(SpeciesId);
+      }
+      if (Name.Length != 0) {
+        output.WriteRawTag(26);
+        output.WriteString(Name);
+      }
+      if (Level != 0) {
+        output.WriteRawTag(32);
+        output.WriteUInt32(Level);
+      }
+      if (HpCurrent != 0) {
+        output.WriteRawTag(40);
+        output.WriteUInt32(HpCurrent);
+      }
+      if (HpMax != 0) {
+        output.WriteRawTag(48);
+        output.WriteUInt32(HpMax);
+      }
+      if (ManaCurrent != 0) {
+        output.WriteRawTag(56);
+        output.WriteUInt32(ManaCurrent);
+      }
+      if (ManaMax != 0) {
+        output.WriteRawTag(64);
+        output.WriteUInt32(ManaMax);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (EntityId != 0UL) {
+        output.WriteRawTag(9);
+        output.WriteFixed64(EntityId);
+      }
+      if (SpeciesId != 0UL) {
+        output.WriteRawTag(16);
+        output.WriteUInt64(SpeciesId);
+      }
+      if (Name.Length != 0) {
+        output.WriteRawTag(26);
+        output.WriteString(Name);
+      }
+      if (Level != 0) {
+        output.WriteRawTag(32);
+        output.WriteUInt32(Level);
+      }
+      if (HpCurrent != 0) {
+        output.WriteRawTag(40);
+        output.WriteUInt32(HpCurrent);
+      }
+      if (HpMax != 0) {
+        output.WriteRawTag(48);
+        output.WriteUInt32(HpMax);
+      }
+      if (ManaCurrent != 0) {
+        output.WriteRawTag(56);
+        output.WriteUInt32(ManaCurrent);
+      }
+      if (ManaMax != 0) {
+        output.WriteRawTag(64);
+        output.WriteUInt32(ManaMax);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (EntityId != 0UL) {
+        size += 1 + 8;
+      }
+      if (SpeciesId != 0UL) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(SpeciesId);
+      }
+      if (Name.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Name);
+      }
+      if (Level != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Level);
+      }
+      if (HpCurrent != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(HpCurrent);
+      }
+      if (HpMax != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(HpMax);
+      }
+      if (ManaCurrent != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(ManaCurrent);
+      }
+      if (ManaMax != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(ManaMax);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(PartyMemberBestia other) {
+      if (other == null) {
+        return;
+      }
+      if (other.EntityId != 0UL) {
+        EntityId = other.EntityId;
+      }
+      if (other.SpeciesId != 0UL) {
+        SpeciesId = other.SpeciesId;
+      }
+      if (other.Name.Length != 0) {
+        Name = other.Name;
+      }
+      if (other.Level != 0) {
+        Level = other.Level;
+      }
+      if (other.HpCurrent != 0) {
+        HpCurrent = other.HpCurrent;
+      }
+      if (other.HpMax != 0) {
+        HpMax = other.HpMax;
+      }
+      if (other.ManaCurrent != 0) {
+        ManaCurrent = other.ManaCurrent;
+      }
+      if (other.ManaMax != 0) {
+        ManaMax = other.ManaMax;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 9: {
+            EntityId = input.ReadFixed64();
+            break;
+          }
+          case 16: {
+            SpeciesId = input.ReadUInt64();
+            break;
+          }
+          case 26: {
+            Name = input.ReadString();
+            break;
+          }
+          case 32: {
+            Level = input.ReadUInt32();
+            break;
+          }
+          case 40: {
+            HpCurrent = input.ReadUInt32();
+            break;
+          }
+          case 48: {
+            HpMax = input.ReadUInt32();
+            break;
+          }
+          case 56: {
+            ManaCurrent = input.ReadUInt32();
+            break;
+          }
+          case 64: {
+            ManaMax = input.ReadUInt32();
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 9: {
+            EntityId = input.ReadFixed64();
+            break;
+          }
+          case 16: {
+            SpeciesId = input.ReadUInt64();
+            break;
+          }
+          case 26: {
+            Name = input.ReadString();
+            break;
+          }
+          case 32: {
+            Level = input.ReadUInt32();
+            break;
+          }
+          case 40: {
+            HpCurrent = input.ReadUInt32();
+            break;
+          }
+          case 48: {
+            HpMax = input.ReadUInt32();
+            break;
+          }
+          case 56: {
+            ManaCurrent = input.ReadUInt32();
+            break;
+          }
+          case 64: {
+            ManaMax = input.ReadUInt32();
             break;
           }
         }

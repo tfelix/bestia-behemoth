@@ -29,6 +29,9 @@
 [ext_resource type="PackedScene" path="res://Game/UI/ObtainedItems/ObtainedItems.tscn" id="26_obtained"]
 [ext_resource type="PackedScene" path="res://Game/UI/Chat/ItemInfoPopup.tscn" id="27_iteminfo"]
 [ext_resource type="PackedScene" path="res://Game/UI/BestiaParty/BestiaParty.tscn" id="28_party"]
+[ext_resource type="PackedScene" path="res://Game/UI/Party/Party.tscn" id="29_partywin"]
+[ext_resource type="PackedScene" path="res://Game/UI/Guild/Guild.tscn" id="30_guildwin"]
+[ext_resource type="PackedScene" path="res://Game/UI/Invitation/InvitationTray.tscn" id="31_invites"]
 
 [node name="UI" type="Control" unique_id=549600065]
 layout_mode = 3
@@ -126,6 +129,21 @@ layout_mode = 1
 content = ExtResource("23_shop")
 window_title = "Shop"
 
+[node name="PartyWin" parent="." instance=ExtResource("8_wdgtw")]
+visible = false
+layout_mode = 1
+content = ExtResource("29_partywin")
+window_title = "Party"
+
+[node name="GuildWin" parent="." instance=ExtResource("8_wdgtw")]
+visible = false
+layout_mode = 1
+content = ExtResource("30_guildwin")
+window_title = "Guild"
+
+[node name="Invitations" parent="." instance=ExtResource("31_invites")]
+layout_mode = 1
+
 [node name="ObtainedItems" parent="." unique_id=1390602606 instance=ExtResource("26_obtained")]
 layout_mode = 1
 
@@ -168,3 +186,5 @@ oversampling_override = 1.0
 [connection signal="inventory_win_toggled" from="TopLeftColumn/MasterProfile" to="." method="_on_master_profile_inventory_win_toggled"]
 [connection signal="skills_win_toggled" from="TopLeftColumn/MasterProfile" to="." method="_on_master_profile_skills_win_toggled"]
 [connection signal="status_win_toggled" from="TopLeftColumn/MasterProfile" to="." method="_on_master_profile_status_win_toggled"]
+[connection signal="party_win_toggled" from="TopLeftColumn/MasterProfile" to="." method="_on_master_profile_party_win_toggled"]
+[connection signal="guild_win_toggled" from="TopLeftColumn/MasterProfile" to="." method="_on_master_profile_guild_win_toggled"]

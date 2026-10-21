@@ -26,10 +26,12 @@ namespace Bnet {
           string.Concat(
             "CidtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX3N1Y2Nlc3MucHJvdG8SBGJu",
             "ZXQiMQoQT3BlcmF0aW9uU3VjY2VzcxIdCgRjb2RlGAEgASgOMg8uYm5ldC5P",
-            "cFN1Y2Nlc3MqcQoJT3BTdWNjZXNzEhIKDk1BU1RFUl9DUkVBVEVEEAASEgoO",
-            "TUFTVEVSX0RFTEVURUQQARITCg9DUkFGVF9TVUNDRUVERUQQAhIUChBTVFJV",
-            "Q1RVUkVfUExBQ0VEEAMSEQoNQ0hBUlRfV1JJVFRFThAEQi4KFW5ldC5iZXN0",
-            "aWEuYm5ldC5wcm90b0IVT3BlcmF0aW9uU3VjY2Vzc1Byb3RvYgZwcm90bzM="));
+            "cFN1Y2Nlc3MqpwEKCU9wU3VjY2VzcxISCg5NQVNURVJfQ1JFQVRFRBAAEhIK",
+            "Dk1BU1RFUl9ERUxFVEVEEAESEwoPQ1JBRlRfU1VDQ0VFREVEEAISFAoQU1RS",
+            "VUNUVVJFX1BMQUNFRBADEhEKDUNIQVJUX1dSSVRURU4QBBIZChVQQVJUWV9J",
+            "TlZJVEFUSU9OX1NFTlQQBRIZChVHVUlMRF9JTlZJVEFUSU9OX1NFTlQQBkIu",
+            "ChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CFU9wZXJhdGlvblN1Y2Nlc3NQcm90",
+            "b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpSuccess), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -55,6 +57,11 @@ namespace Bnet {
     /// player had already charted looks identical to one that failed.
     /// </summary>
     [pbr::OriginalName("CHART_WRITTEN")] ChartWritten = 4,
+    /// <summary>
+    /// An invitation went out. Whether it is taken up arrives later: a roster push, or a *_INVITE_DECLINED error.
+    /// </summary>
+    [pbr::OriginalName("PARTY_INVITATION_SENT")] PartyInvitationSent = 5,
+    [pbr::OriginalName("GUILD_INVITATION_SENT")] GuildInvitationSent = 6,
   }
 
   #endregion

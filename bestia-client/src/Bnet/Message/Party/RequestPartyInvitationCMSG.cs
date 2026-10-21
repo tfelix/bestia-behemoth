@@ -2,10 +2,10 @@ using Bnet;
 
 namespace BestiaBehemothClient.Bnet.Message.Party
 {
-  /// <summary>The party owner invites another player.</summary>
+  /// <summary>The party owner invites another player by master name.</summary>
   public partial class RequestPartyInvitationCMSG : ICMSG
   {
-    public ulong InvitedAccountId { get; set; }
+    public string InvitedMasterName { get; set; } = string.Empty;
 
     public override Envelope ToEnvelope()
     {
@@ -13,7 +13,7 @@ namespace BestiaBehemothClient.Bnet.Message.Party
       {
         RequestPartyInvitation = new global::Bnet.RequestPartyInvitationCMSG
         {
-          InvitedAccountId = InvitedAccountId
+          InvitedMasterName = InvitedMasterName
         }
       };
     }

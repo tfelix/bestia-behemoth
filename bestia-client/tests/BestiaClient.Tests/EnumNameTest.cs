@@ -80,17 +80,40 @@ namespace BestiaBehemothClient.Tests
     }
 
     /// <summary>
+    /// <c>guild.gd</c> words a departure as <c>"GUILD_LEFT_REASON_%s" % ReasonName.to_upper()</c>, so every
+    /// reason the server can send needs its row - the reverse of the check above, because here no other window
+    /// words them, and a missing row would show the raw key.
+    /// </summary>
+    [Fact]
+    public void EveryGuildLeftReasonHasARow()
+    {
+      var rows = KeysInGeneralCsv("GUILD_LEFT_REASON_").ToHashSet();
+      var missing = Enum.GetValues<global::Bnet.GuildLeftReason>()
+        .Where(reason => reason != global::Bnet.GuildLeftReason.Unspecified)
+        .Select(reason => "GUILD_LEFT_REASON_" + EnumName.Of(reason).ToUpperInvariant())
+        .Where(key => !rows.Contains(key))
+        .ToList();
+
+      Assert.True(missing.Count == 0, "general.csv lacks rows for: " + string.Join(", ", missing));
+    }
+
+    /// <summary>
     /// The keys of every <c>ERROR_*</c> row in the shipped translation table. Godot's CSV format is
     /// <c>key,locale...</c> with the key first and unescaped (<c>general.csv.import</c> sets
     /// <c>unescape_keys=false</c>), so the key is everything up to the first comma.
     /// </summary>
     private static List<string> ErrorKeysInGeneralCsv()
     {
+      return KeysInGeneralCsv("ERROR_");
+    }
+
+    private static List<string> KeysInGeneralCsv(string prefix)
+    {
       var csv = Path.Combine(AppContext.BaseDirectory, "general.csv");
 
       return File.ReadAllLines(csv)
         .Select(line => line.Split(',', 2)[0])
-        .Where(key => key.StartsWith("ERROR_", StringComparison.Ordinal))
+        .Where(key => key.StartsWith(prefix, StringComparison.Ordinal))
         .ToList();
     }
   }

@@ -36,8 +36,10 @@ signal trade_state_received(message: TradeStateSMSG)
 ## Emitted whenever a merchant's counter is (re)drawn. A full snapshot each time - it opens the window and
 ## updates it, and it arrives again after every trade so the price shown is the price that was just moved.
 signal shop_offer_received(message: ShopOfferSMSG)
-## Every party message. Nothing listens yet; a party window will.
+## Every party message: the roster, an invitation, the party ending for us. The party window listens.
 signal party_message_received(message: PartySMSG)
+## Every guild message: the guild, an invitation, leaving it. The guild window listens.
+signal guild_message_received(message: GuildSMSG)
 ## Emitted whenever the server re-syncs the pending logout countdown (seconds until despawn).
 signal logout_countdown_received(remaining_seconds: float)
 ## Emitted when the server aborts a pending logout (player moved / used a skill / took damage).
@@ -102,6 +104,25 @@ var ConfirmTradeCMSG = load("res://Bnet/Message/Trade/ConfirmTradeCMSG.cs")
 var CancelTradeCMSG = load("res://Bnet/Message/Trade/CancelTradeCMSG.cs")
 var OpenShopCMSG = load("res://Bnet/Message/Shop/OpenShopCMSG.cs")
 var ShopTradeCMSG = load("res://Bnet/Message/Shop/ShopTradeCMSG.cs")
+var RequestPartyInfoCMSG = load("res://Bnet/Message/Party/RequestPartyInfoCMSG.cs")
+var CreatePartyCMSG = load("res://Bnet/Message/Party/CreatePartyCMSG.cs")
+var RequestPartyInvitationCMSG = load("res://Bnet/Message/Party/RequestPartyInvitationCMSG.cs")
+var AcceptPartyInviteCMSG = load("res://Bnet/Message/Party/AcceptPartyInviteCMSG.cs")
+var DeclinePartyInviteCMSG = load("res://Bnet/Message/Party/DeclinePartyInviteCMSG.cs")
+var LeavePartyCMSG = load("res://Bnet/Message/Party/LeavePartyCMSG.cs")
+var RemovePartyMemberCMSG = load("res://Bnet/Message/Party/RemovePartyMemberCMSG.cs")
+var SetPartyExpShareCMSG = load("res://Bnet/Message/Party/SetPartyExpShareCMSG.cs")
+var RequestGuildInfoCMSG = load("res://Bnet/Message/Guild/RequestGuildInfoCMSG.cs")
+var CreateGuildCMSG = load("res://Bnet/Message/Guild/CreateGuildCMSG.cs")
+var InviteToGuildCMSG = load("res://Bnet/Message/Guild/InviteToGuildCMSG.cs")
+var AnswerGuildInviteCMSG = load("res://Bnet/Message/Guild/AnswerGuildInviteCMSG.cs")
+var LeaveGuildCMSG = load("res://Bnet/Message/Guild/LeaveGuildCMSG.cs")
+var KickGuildMemberCMSG = load("res://Bnet/Message/Guild/KickGuildMemberCMSG.cs")
+var SetGuildMemberRankCMSG = load("res://Bnet/Message/Guild/SetGuildMemberRankCMSG.cs")
+var SaveGuildRankCMSG = load("res://Bnet/Message/Guild/SaveGuildRankCMSG.cs")
+var DeleteGuildRankCMSG = load("res://Bnet/Message/Guild/DeleteGuildRankCMSG.cs")
+var InvestGuildSkillCMSG = load("res://Bnet/Message/Guild/InvestGuildSkillCMSG.cs")
+var DisbandGuildCMSG = load("res://Bnet/Message/Guild/DisbandGuildCMSG.cs")
 var Ping = load("res://Bnet/Message/Ping.cs")
 var ChunkStreamManagerScript = load("res://Game/World/ChunkStreamManager.cs")
 var WeatherStateScript = load("res://Game/World/WeatherState.cs")
@@ -629,6 +650,142 @@ func cancel_trade(trade_id: int) -> void:
 	_socket.SendMessage(msg)
 
 
+## Asks for our party's roster; answered with a PartyInfoSMSG, an empty one when we are in no party.
+func request_party_info() -> void:
+	assert(is_ready_to_send())
+	_socket.SendMessage(RequestPartyInfoCMSG.new())
+
+
+## Founds a party with us as its owner. Answered with the roster, or an OperationError for a bad name.
+func create_party(party_name: String) -> void:
+	assert(is_ready_to_send())
+	var msg = CreatePartyCMSG.new()
+	msg.PartyName = party_name
+	_socket.SendMessage(msg)
+
+
+## Invites the master named [param master_name]. We are told it went out with OperationSuccess.
+func invite_to_party(master_name: String) -> void:
+	assert(is_ready_to_send())
+	var msg = RequestPartyInvitationCMSG.new()
+	msg.InvitedMasterName = master_name
+	_socket.SendMessage(msg)
+
+
+## Answers the prompt a PartyInvitationSMSG raised.
+func answer_party_invite(invitation_id: int, accept: bool) -> void:
+	assert(is_ready_to_send())
+	var msg = AcceptPartyInviteCMSG.new() if accept else DeclinePartyInviteCMSG.new()
+	msg.InvitationId = invitation_id
+	_socket.SendMessage(msg)
+
+
+## Leaves our party. The owner leaving disbands it, since there is no ownership transfer.
+func leave_party() -> void:
+	assert(is_ready_to_send())
+	_socket.SendMessage(LeavePartyCMSG.new())
+
+
+## The owner removes the member playing [param master_id] from the party.
+func kick_party_member(master_id: int) -> void:
+	assert(is_ready_to_send())
+	var msg = RemovePartyMemberCMSG.new()
+	msg.MemberMasterId = master_id
+	_socket.SendMessage(msg)
+
+
+## The owner picks Even share or Each take. Nothing is applied locally: the roster that answers it is.
+func set_party_exp_share(even_share: bool) -> void:
+	assert(is_ready_to_send())
+	var msg = SetPartyExpShareCMSG.new()
+	msg.EvenShare = even_share
+	_socket.SendMessage(msg)
+
+
+## Asks for our guild; answered with a GuildInfoSMSG, an empty one when we are in no guild.
+func request_guild_info() -> void:
+	assert(is_ready_to_send())
+	_socket.SendMessage(RequestGuildInfoCMSG.new())
+
+
+## Founds a guild named [param guild_name], spending a Founder's Seal from the master's bag.
+func create_guild(guild_name: String) -> void:
+	assert(is_ready_to_send())
+	var msg = CreateGuildCMSG.new()
+	msg.Name = guild_name
+	_socket.SendMessage(msg)
+
+
+func invite_to_guild(master_name: String) -> void:
+	assert(is_ready_to_send())
+	var msg = InviteToGuildCMSG.new()
+	msg.MasterName = master_name
+	_socket.SendMessage(msg)
+
+
+## Answers the prompt a GuildInvitationSMSG raised.
+func answer_guild_invite(invitation_id: int, accept: bool) -> void:
+	assert(is_ready_to_send())
+	var msg = AnswerGuildInviteCMSG.new()
+	msg.InvitationId = invitation_id
+	msg.Accept = accept
+	_socket.SendMessage(msg)
+
+
+func leave_guild() -> void:
+	assert(is_ready_to_send())
+	_socket.SendMessage(LeaveGuildCMSG.new())
+
+
+func kick_guild_member(master_id: int) -> void:
+	assert(is_ready_to_send())
+	var msg = KickGuildMemberCMSG.new()
+	msg.MasterId = master_id
+	_socket.SendMessage(msg)
+
+
+func set_guild_member_rank(master_id: int, rank_id: int) -> void:
+	assert(is_ready_to_send())
+	var msg = SetGuildMemberRankCMSG.new()
+	msg.MasterId = master_id
+	msg.RankId = rank_id
+	_socket.SendMessage(msg)
+
+
+## Edits a rank, or adds one at the bottom when [param rank_id] is 0.
+func save_guild_rank(rank_id: int, rank_name: String, tax_percent: int, can_invite: bool, can_kick: bool, can_manage_ranks: bool) -> void:
+	assert(is_ready_to_send())
+	var msg = SaveGuildRankCMSG.new()
+	msg.RankId = rank_id
+	msg.Name = rank_name
+	msg.TaxPercent = tax_percent
+	msg.CanInvite = can_invite
+	msg.CanKick = can_kick
+	msg.CanManageRanks = can_manage_ranks
+	_socket.SendMessage(msg)
+
+
+func delete_guild_rank(rank_id: int) -> void:
+	assert(is_ready_to_send())
+	var msg = DeleteGuildRankCMSG.new()
+	msg.RankId = rank_id
+	_socket.SendMessage(msg)
+
+
+## The leader spends a guild skill point on Guild Extension.
+func invest_guild_extension() -> void:
+	assert(is_ready_to_send())
+	_socket.SendMessage(InvestGuildSkillCMSG.new())
+
+
+## The leader ends the guild. [param confirm_name] is the name the player typed, compared by the server.
+func disband_guild(confirm_name: String) -> void:
+	assert(is_ready_to_send())
+	var msg = DisbandGuildCMSG.new()
+	msg.ConfirmName = confirm_name
+	_socket.SendMessage(msg)
+
+
 func send_chat(text: String, mode: int = 3, target_player: String = "") -> void:
 	assert(is_ready_to_send())
 	var msg = ChatCMSG.new()
@@ -767,6 +924,8 @@ func _on_bnet_socket_message_received(message: Object) -> void:
 		shop_offer_received.emit(message)
 	elif message is PartySMSG:
 		party_message_received.emit(message)
+	elif message is GuildSMSG:
+		guild_message_received.emit(message)
 	elif message is MapSMSG:
 		# Terrain traffic. ChunkStreamManager subscribes to MessageReceived itself, and a signal fans out to
 		# every listener, so these reach this handler too and have to be ignored rather than reported.

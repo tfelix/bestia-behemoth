@@ -35,7 +35,9 @@ func _ready() -> void:
 
 
 func _shortcut_input(event: InputEvent) -> void:
-	if event.is_action_pressed(_prompt_action):
+	# Exact, so a slot's bare key does not also fire under a modifier: Alt+G opens the guild window, it does not
+	# use what sits on G.
+	if event.is_action_pressed(_prompt_action, false, true):
 		trigger_shortcut()
 		get_viewport().set_input_as_handled()
 
