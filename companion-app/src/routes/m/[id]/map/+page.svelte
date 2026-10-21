@@ -6,6 +6,7 @@
 	import type { Bestia, MapMeta, MasterSheet } from '$lib/api/model';
 	import { guarded } from '$lib/guard';
 	import { live } from '$lib/live.svelte';
+	import { ChartCache } from '$lib/map/chartCache';
 	import { chartLayer, MAX_ZOOM, placeLabels } from '$lib/map/chartLayer';
 	import { speciesName } from '$lib/names';
 
@@ -20,6 +21,8 @@
 
 		let map: L.Map | null = null;
 		const markers = L.layerGroup();
+		// Per visit: tiles and place lists already asked for, so zooming and panning back over them costs nothing.
+		const cache = new ChartCache();
 
 		const placeMarkers = async () => {
 			const [sheet, bestias] = await Promise.all([
@@ -47,8 +50,8 @@
 					[meta.worldHeightMetres * 1.1, meta.worldWidthMetres * 1.1]
 				]
 			});
-			chartLayer(id, meta).addTo(map);
-			placeLabels(id, map, meta).addTo(map);
+			chartLayer(id, meta, cache).addTo(map);
+			placeLabels(id, map, meta, cache).addTo(map);
 			markers.addTo(map);
 
 			const sheet = await placeMarkers();
@@ -57,7 +60,7 @@
 
 		const unsubscribe = live.on((event) => {
 			if (event.data.masterId !== id) return;
-			if (event.type === 'ChartsChanged') map?.eachLayer((layer) => layer instanceof L.GridLayer && layer.redraw());
+			if (event.type === 'ChartsChanged') cache.clear();
 			void placeMarkers().catch(() => {});
 		});
 
