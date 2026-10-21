@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSrnCwoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSr9CwoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -60,8 +60,8 @@ namespace Bnet {
             "EhUKEVRSQVBfT1VUX09GX1JBTkdFEDUSEAoMVFJBUF9OT19ST09NEDYSFgoS",
             "VFJBUF9MSU1JVF9SRUFDSEVEEDcSFQoRQkVTVElBX1NMT1RTX0ZVTEwQOBIT",
             "Cg9SRVFVRVNUX1JFRlVTRUQQORIYChRDT01CQVRfVEFSR0VUX1dBUkRFRBA6",
-            "QiwKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0ITT3BlcmF0aW9uRXJyb3JQcm90",
-            "b2IGcHJvdG8z"));
+            "EhQKEElURU1fTk9WSUNFX09OTFkQO0IsChVuZXQuYmVzdGlhLmJuZXQucHJv",
+            "dG9CE09wZXJhdGlvbkVycm9yUHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -309,6 +309,11 @@ namespace Bnet {
     /// one side. The ward is invisible, so this is how the attacker learns why nothing happened.
     /// </summary>
     [pbr::OriginalName("COMBAT_TARGET_WARDED")] CombatTargetWarded = 58,
+    /// <summary>
+    /// A novice-only consumable, such as a novice potion, used by a master who has invested a skill point outside
+    /// the Novice tree. The item stays in the bag.
+    /// </summary>
+    [pbr::OriginalName("ITEM_NOVICE_ONLY")] ItemNoviceOnly = 59,
   }
 
   #endregion

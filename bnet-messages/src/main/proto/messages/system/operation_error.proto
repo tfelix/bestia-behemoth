@@ -186,6 +186,10 @@ enum OpError {
   // An attack or a harmful skill aimed at a player, or at something a player owns, while a ward stone shields
   // one side. The ward is invisible, so this is how the attacker learns why nothing happened.
   COMBAT_TARGET_WARDED = 58;
+
+  // A novice-only consumable, such as a novice potion, used by a master who has invested a skill point outside
+  // the Novice tree. The item stays in the bag.
+  ITEM_NOVICE_ONLY = 59;
 }
 
 message OperationError {

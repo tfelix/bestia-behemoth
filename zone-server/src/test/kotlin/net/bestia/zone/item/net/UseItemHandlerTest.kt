@@ -18,6 +18,13 @@ import java.util.Optional
 import net.bestia.zone.item.persistence.Item
 import net.bestia.zone.item.persistence.ItemRepository
 import net.bestia.zone.item.material.ItemMaterial
+import net.bestia.bnet.proto.OperationErrorProto
+import net.bestia.zone.message.OperationErrorSMSG
+import net.bestia.zone.message.OutMessageProcessor
+import net.bestia.zone.skill.NoviceGate
+import net.bestia.zone.skill.ecs.KnownSkills
+import net.bestia.zone.skill.tree.MasterSkillTreeNode
+import net.bestia.zone.skill.tree.MasterSkillTreeRegistry
 
 /**
  * A used item's effect cannot be taken back, so it only happens once the database has given the item up.
@@ -30,6 +37,13 @@ class UseItemHandlerTest {
 
   private val itemRepository = mockk<ItemRepository> {
     every { findById(POTION.id) } returns Optional.of(POTION)
+    every { findById(NOVICE_POTION.id) } returns Optional.of(NOVICE_POTION)
+  }
+
+  private val messages = mockk<OutMessageProcessor>(relaxed = true)
+
+  private val skillTree = MasterSkillTreeRegistry().apply {
+    load(listOf(MasterSkillTreeNode(skillId = CARPENTRY_ID, identifier = "CARPENTRY", maxLevel = 5, tree = "CRAFTSMAN")))
   }
 
   private val inlineJobs = mockk<AsyncJobExecutor> {
@@ -58,8 +72,37 @@ class UseItemHandlerTest {
     verify { inventoryService.grantToOwner(MASTER_ID, null, POTION.id, 1, 0L) }
   }
 
-  private fun user(): EntityId {
-    return world.createEntity { id -> add(id, Inventory(mutableListOf(Inventory.Item(POTION.id, amount = 3)))) }
+  @Test
+  fun `a novice-only item is refused to a specialised master, before the database gives it up`() {
+    val user = user(KnownSkills(mutableMapOf(CARPENTRY_ID to 1)))
+
+    handler(user).handle(UseItemCMSG(ACCOUNT_ID, NOVICE_POTION.id, ScriptArgs.EMPTY))
+
+    verify(exactly = 0) { inventoryService.removeOneFromOwner(any(), any(), any(), any(), any()) }
+    verify(exactly = 0) { scripts.useItem(any(), any(), any(), any()) }
+    verify { messages.sendToPlayer(ACCOUNT_ID, OperationErrorSMSG(OperationErrorProto.OpError.ITEM_NOVICE_ONLY)) }
+  }
+
+  @Test
+  fun `a novice may use a novice-only item`() {
+    every { inventoryService.removeOneFromOwner(MASTER_ID, null, NOVICE_POTION.id, 1, 0L) } returns
+      ItemContainer.RemovedItem(uniqueId = 0L, instance = null)
+    every { scripts.useItem(any(), any(), NOVICE_POTION, any()) } returns true
+    val user = user(KnownSkills(mutableMapOf()))
+
+    handler(user).handle(UseItemCMSG(ACCOUNT_ID, NOVICE_POTION.id, ScriptArgs.EMPTY))
+
+    verify { scripts.useItem(any(), any(), NOVICE_POTION, any()) }
+  }
+
+  private fun user(knownSkills: KnownSkills? = null): EntityId {
+    return world.createEntity { id ->
+      add(
+        id,
+        Inventory(mutableListOf(Inventory.Item(POTION.id, amount = 3), Inventory.Item(NOVICE_POTION.id, amount = 3)))
+      )
+      knownSkills?.let { add(id, it) }
+    }
   }
 
   private fun handler(user: EntityId): UseItemHandler {
@@ -73,6 +116,8 @@ class UseItemHandlerTest {
       inventoryService = inventoryService,
       asyncJobExecutor = inlineJobs,
       deadActionGuard = DeadActionGuard(),
+      noviceGate = NoviceGate(skillTree),
+      outMessageProcessor = messages,
       world = world
     )
   }
@@ -80,6 +125,11 @@ class UseItemHandlerTest {
   private companion object {
     const val ACCOUNT_ID = 1L
     const val MASTER_ID = 2L
+    const val CARPENTRY_ID = 30L
     val POTION = Item(id = 20L, identifier = "potion", weight = 1, type = Item.ItemType.USABLE, script = "Potion", material = ItemMaterial.GLASS)
+    val NOVICE_POTION = Item(
+      id = 21L, identifier = "novice_potion", weight = 1, type = Item.ItemType.USABLE, script = "NovicePotion",
+      material = ItemMaterial.GLASS, noviceOnly = true
+    )
   }
 }
