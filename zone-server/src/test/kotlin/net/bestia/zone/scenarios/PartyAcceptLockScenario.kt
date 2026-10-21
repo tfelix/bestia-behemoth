@@ -38,7 +38,7 @@ class PartyAcceptLockScenario : BestiaNoSocketScenario() {
     val invitedId = clientPlayer2.connectedPlayerId
     val party = partyService.createParty(ownerId, "lockParty")
     partyId = party.id
-    val invitation = partyService.invitePlayerToParty(ownerId, invitedId)
+    val invitation = partyService.invitePlayerToParty(ownerId, "player2").invitation
     val holderLocked = CountDownLatch(1)
     val releaseHolder = CountDownLatch(1)
     val threads = Executors.newFixedThreadPool(2)

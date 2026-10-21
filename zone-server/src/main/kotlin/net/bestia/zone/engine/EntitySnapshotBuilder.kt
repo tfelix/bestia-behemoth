@@ -1,5 +1,6 @@
 package net.bestia.zone.engine
 
+import net.bestia.zone.aoi.EntityAudience
 import net.bestia.zone.sync.SyncTargets
 import net.bestia.zone.master.ecs.MasterVisual
 import net.bestia.zone.sync.Dirtyable
@@ -24,7 +25,9 @@ import kotlin.reflect.KClass
  * component is in a snapshot the moment it exists.
  */
 @Component
-class EntitySnapshotBuilder {
+class EntitySnapshotBuilder(
+  private val audience: EntityAudience,
+) {
 
   /**
    * Component types whose message has to arrive before the others, in this order; the rest follow in whatever
@@ -66,11 +69,18 @@ class EntitySnapshotBuilder {
    * countdown. `GetSelfHandler.resyncOwnerComponents` owns that channel.
    */
   fun snapshotOf(world: World, entityId: EntityId): Snapshot {
+    val ownerAndParty by lazy(LazyThreadSafetyMode.NONE) {
+      SyncTargets.Accounts(audience.ownerAndParty(world, entityId))
+    }
+
     val entries = orderedTypes.mapNotNull { type ->
       val component = world.get(entityId, type) as? Dirtyable ?: return@mapNotNull null
 
-      val targets = component.syncTargets(world, entityId)
-      if (targets is SyncTargets.OwnerOnly) return@mapNotNull null
+      val targets = when (val declared = component.syncTargets(world, entityId)) {
+        is SyncTargets.OwnerOnly -> return@mapNotNull null
+        is SyncTargets.OwnerAndParty -> ownerAndParty
+        else -> declared
+      }
 
       targets to component.toEntityMessage(entityId)
     }
@@ -84,7 +94,8 @@ class EntitySnapshotBuilder {
         val visible = when (targets) {
           is SyncTargets.PublicInRange -> true
           is SyncTargets.Accounts -> accountId in targets.accountIds
-          is SyncTargets.OwnerOnly -> false
+          // Resolved to Accounts in snapshotOf, or left out.
+          is SyncTargets.OwnerOnly, is SyncTargets.OwnerAndParty -> false
         }
         if (visible) message else null
       }

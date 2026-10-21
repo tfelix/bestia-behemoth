@@ -1,19 +1,19 @@
 package net.bestia.zone.party.net
 
-import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.zone.message.IoMessageHandler
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.message.decoder
-import net.bestia.zone.party.DisbandPartySMSG
-import net.bestia.zone.party.NotPartyException
-import net.bestia.zone.party.PartyErrorSMSG
+import net.bestia.zone.party.PartyException
+import net.bestia.zone.party.PartyRosterPublisher
 import net.bestia.zone.party.PartyService
 import org.springframework.stereotype.Component
 
+/** A member leaves; the owner leaving disbands the party, since there is no ownership transfer. */
 @Component
 class LeavePartyHandler(
   private val partyService: PartyService,
+  private val rosterPublisher: PartyRosterPublisher,
   private val outMessageProcessor: OutMessageProcessor
 ) : IoMessageHandler<LeavePartyCMSG> {
 
@@ -21,35 +21,16 @@ class LeavePartyHandler(
     LeavePartyCMSG.fromBnet(accountId, envelope.leaveParty)
   }
 
-
   override fun handle(msg: LeavePartyCMSG): Boolean {
     try {
       when (val result = partyService.leaveParty(msg.playerId)) {
-        is PartyService.LeavePartyResult.Disbanded -> {
-          val disbandMsg = DisbandPartySMSG(result.partyId)
-          outMessageProcessor.sendToPlayer(msg.playerId, disbandMsg)
-          result.notifiedAccountIds.forEach { outMessageProcessor.sendToPlayer(it, disbandMsg) }
-        }
-
-        is PartyService.LeavePartyResult.Left -> {
-          outMessageProcessor.sendToPlayer(msg.playerId, DisbandPartySMSG(result.partyId))
-
-          result.remainingMemberAccountIds.forEach { accountId ->
-            val partyInfo = partyService.getPartyInfoForAccount(accountId) ?: return@forEach
-            outMessageProcessor.sendToPlayer(accountId, partyInfo)
-          }
-        }
+        is PartyService.LeavePartyResult.Disbanded -> rosterPublisher.disbanded(result.partyId, result.members)
+        is PartyService.LeavePartyResult.Left -> rosterPublisher.removed(result.partyId, result.member)
       }
-    } catch (_: NotPartyException) {
-      outMessageProcessor.sendToPlayer(msg.playerId, PartyErrorSMSG(PartyErrorSMSG.PartyErrorCode.NO_PARTY))
-    } catch (e: Exception) {
-      LOG.error(e) { "Failed to process party leave for player ${msg.playerId}" }
+    } catch (e: PartyException) {
+      outMessageProcessor.sendToPlayer(msg.playerId, e.toOperationError())
     }
 
     return true
-  }
-
-  companion object {
-    private val LOG = KotlinLogging.logger { }
   }
 }

@@ -930,3 +930,18 @@ items:
       An iron cap riveted to a mail hood that hangs down to the shoulders.
 
       It hides the hair, which is the least of what it is for.
+
+  # --- Guilds ---------------------------------------------------------------------------------------
+  # Spent by founding a guild, which the client asks for with a name rather than by using the seal - see
+  # FoundersSealScript, which only refuses.
+  - id: 72
+    item-db-name: founders_seal
+    base-level: 45
+    weight: 50
+    type: USABLE
+    material: METAL
+    script: FoundersSealScript
+    description: |
+      A heavy signet of gold and aetherite, its face still blank, waiting for a name.
+
+      Pressed into the wax of a charter, it founds a guild with its bearer as its master. The seal is spent.

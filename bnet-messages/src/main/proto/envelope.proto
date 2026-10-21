@@ -46,10 +46,7 @@ import "messages/system/dialog_smsg.proto";
 import "messages/party/accept_party_invite_cmsg.proto";
 import "messages/party/decline_party_invite_cmsg.proto";
 import "messages/party/party_invitation_smsg.proto";
-import "messages/party/party_invitation_created_smsg.proto";
-import "messages/party/party_invite_declined_smsg.proto";
 import "messages/party/party_info_smsg.proto";
-import "messages/party/party_error_smsg.proto";
 import "messages/party/disband_party_smsg.proto";
 import "messages/party/create_party_cmsg.proto";
 import "messages/party/leave_party_cmsg.proto";
@@ -57,6 +54,21 @@ import "messages/party/remove_party_member_cmsg.proto";
 import "messages/party/request_disband_party_cmsg.proto";
 import "messages/party/request_party_invitation_cmsg.proto";
 import "messages/party/request_party_info_cmsg.proto";
+import "messages/party/set_party_exp_share_cmsg.proto";
+import "messages/guild/create_guild_cmsg.proto";
+import "messages/guild/request_guild_info_cmsg.proto";
+import "messages/guild/invite_to_guild_cmsg.proto";
+import "messages/guild/answer_guild_invite_cmsg.proto";
+import "messages/guild/leave_guild_cmsg.proto";
+import "messages/guild/kick_guild_member_cmsg.proto";
+import "messages/guild/set_guild_member_rank_cmsg.proto";
+import "messages/guild/save_guild_rank_cmsg.proto";
+import "messages/guild/delete_guild_rank_cmsg.proto";
+import "messages/guild/invest_guild_skill_cmsg.proto";
+import "messages/guild/disband_guild_cmsg.proto";
+import "messages/guild/guild_info_smsg.proto";
+import "messages/guild/guild_invitation_smsg.proto";
+import "messages/guild/guild_left_smsg.proto";
 import "messages/map/world_info_smsg.proto";
 import "messages/map/chunk_manifest_smsg.proto";
 import "messages/map/chunk_request_cmsg.proto";
@@ -180,10 +192,7 @@ message Envelope {
     AcceptPartyInviteCMSG accept_party_invite = 600;
     DeclinePartyInviteCMSG decline_party_invite = 601;
     PartyInvitationSMSG party_invitation = 602;
-    PartyInvitationCreatedSMSG party_invitation_created = 603;
-    PartyInviteDeclinedSMSG party_invite_declined = 604;
     PartyInfoSMSG party_info = 605;
-    PartyErrorSMSG party_error = 606;
     DisbandPartySMSG disband_party = 607;
     CreatePartyCMSG create_party = 608;
     LeavePartyCMSG leave_party = 609;
@@ -191,6 +200,23 @@ message Envelope {
     RequestDisbandPartyCMSG request_disband_party = 611;
     RequestPartyInvitationCMSG request_party_invitation = 612;
     RequestPartyInfoCMSG request_party_info = 613;
+    SetPartyExpShareCMSG set_party_exp_share = 614;
+
+    // GUILD 620
+    CreateGuildCMSG create_guild = 620;
+    RequestGuildInfoCMSG request_guild_info = 621;
+    InviteToGuildCMSG invite_to_guild = 622;
+    AnswerGuildInviteCMSG answer_guild_invite = 623;
+    LeaveGuildCMSG leave_guild = 624;
+    KickGuildMemberCMSG kick_guild_member = 625;
+    SetGuildMemberRankCMSG set_guild_member_rank = 626;
+    SaveGuildRankCMSG save_guild_rank = 627;
+    DeleteGuildRankCMSG delete_guild_rank = 628;
+    InvestGuildSkillCMSG invest_guild_skill = 629;
+    DisbandGuildCMSG disband_guild = 630;
+    GuildInfoSMSG guild_info = 631;
+    GuildInvitationSMSG guild_invitation = 632;
+    GuildLeftSMSG guild_left = 633;
 
     // CRAFTING & BUILDING 700
     CraftableRecipesSMSG craftable_recipes = 700;

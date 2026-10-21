@@ -18,6 +18,10 @@ enum OpSuccess {
   // inventory sync; this is what lets the window say the cast did something, since a survey over ground the
   // player had already charted looks identical to one that failed.
   CHART_WRITTEN = 4;
+
+  // An invitation went out. Whether it is taken up arrives later: a roster push, or a *_INVITE_DECLINED error.
+  PARTY_INVITATION_SENT = 5;
+  GUILD_INVITATION_SENT = 6;
 }
 
 message OperationSuccess {

@@ -16,6 +16,8 @@ import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 import net.bestia.zone.master.BestiaInfoFactory
 import net.bestia.zone.account.AvailableBestiaSlotService
+import net.bestia.zone.guild.GuildInfoPublisher
+import net.bestia.zone.party.PartyRosterPublisher
 
 
 @Component
@@ -25,7 +27,9 @@ class GetSelfHandler(
   private val bestiaInfoFactory: BestiaInfoFactory,
   private val bestiaSlots: AvailableBestiaSlotService,
   private val world: WorldView,
-  private val entityVisibility: EntityVisibility
+  private val entityVisibility: EntityVisibility,
+  private val partyRosterPublisher: PartyRosterPublisher,
+  private val guildInfoPublisher: GuildInfoPublisher,
 ) : IoMessageHandler<GetSelfCMSG> {
   override val wire = decoder(MessageCase.GET_SELF) { accountId, _ -> GetSelfCMSG(accountId) }
 
@@ -47,6 +51,10 @@ class GetSelfHandler(
     entityVisibility.reannounce(msg.playerId)
     val ownedEntityIds = listOf(selfInfo.masterEntityId) + selfInfo.availableBestias.map { it.entityId }
     entityVisibility.introduce(msg.playerId, ownedEntityIds)
+
+    // The client's party and guild windows ask again once they load; this covers the scene that is ready first.
+    partyRosterPublisher.sendTo(msg.playerId)
+    guildInfoPublisher.sendTo(msg.playerId)
 
     return true
   }

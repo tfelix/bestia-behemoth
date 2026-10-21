@@ -1,20 +1,15 @@
 package net.bestia.zone.party.net
 
-import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.bnet.proto.OperationErrorProto.OpError
-import net.bestia.zone.account.MasterNotFoundException
+import net.bestia.bnet.proto.OperationSuccessProto.OpSuccess
 import net.bestia.zone.skill.BasicSkillGate
 import net.bestia.zone.message.IoMessageHandler
 import net.bestia.zone.message.OperationErrorSMSG
+import net.bestia.zone.message.OperationSuccessSMSG
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.message.decoder
-import net.bestia.zone.party.AlreadyInPartyException
-import net.bestia.zone.party.NotPartyException
-import net.bestia.zone.party.NotPartyOwnerException
-import net.bestia.zone.party.PartyErrorSMSG
-import net.bestia.zone.party.PartyFullException
-import net.bestia.zone.party.PartyInvitationCreatedSMSG
+import net.bestia.zone.party.PartyException
 import net.bestia.zone.party.PartyService
 import org.springframework.stereotype.Component
 
@@ -29,7 +24,6 @@ class RequestInvitePlayerToPartyHandler(
     RequestPartyInvitationCMSG.fromBnet(accountId, envelope.requestPartyInvitation)
   }
 
-
   override fun handle(msg: RequestPartyInvitationCMSG): Boolean {
     // The inviter's rank, not the invitee's: joining a party is not what Basic Skill rank 5 unlocks, growing
     // one is - and refusing an invitation because the person invited has not bought a novice skill would make
@@ -40,47 +34,14 @@ class RequestInvitePlayerToPartyHandler(
     }
 
     try {
-      val invitation = partyService.invitePlayerToParty(
-        msg.playerId,
-        msg.invitedAccountId
-      )
+      val sent = partyService.invitePlayerToParty(msg.playerId, msg.invitedMasterName)
 
-      outMessageProcessor.sendToPlayer(msg.invitedAccountId, invitation)
-      outMessageProcessor.sendToPlayer(
-        msg.playerId,
-        PartyInvitationCreatedSMSG(
-          invitationId = invitation.invitationId,
-          invitedAccountId = msg.invitedAccountId,
-          status = PartyInvitationCreatedSMSG.InvitationStatus.CREATED
-        )
-      )
-    } catch (_: MasterNotFoundException) {
-      LOG.error { "Failed to process party invitation: master for account ${msg.invitedAccountId} not found" }
-      outMessageProcessor.sendToPlayer(msg.playerId, PartyErrorSMSG(PartyErrorSMSG.PartyErrorCode.PLAYER_NOT_FOUND))
-    } catch (_: NotPartyException) {
-      LOG.error { "Failed to process party invitation: account ${msg.playerId} not member of a party" }
-      outMessageProcessor.sendToPlayer(msg.playerId, PartyErrorSMSG(PartyErrorSMSG.PartyErrorCode.NO_PARTY))
-    } catch (_: NotPartyOwnerException) {
-      outMessageProcessor.sendToPlayer(msg.playerId, PartyErrorSMSG(PartyErrorSMSG.PartyErrorCode.NO_PERMISSION))
-    } catch (_: PartyFullException) {
-      outMessageProcessor.sendToPlayer(msg.playerId, PartyErrorSMSG(PartyErrorSMSG.PartyErrorCode.PARTY_FULL))
-    } catch (_: AlreadyInPartyException) {
-      outMessageProcessor.sendToPlayer(
-        msg.playerId,
-        PartyInvitationCreatedSMSG(
-          invitationId = 0,
-          invitedAccountId = msg.invitedAccountId,
-          status = PartyInvitationCreatedSMSG.InvitationStatus.ALREADY_IN_PARTY
-        )
-      )
-    } catch (e: Exception) {
-      LOG.error(e) { "Failed to process party invitation from player ${msg.playerId} to account ${msg.invitedAccountId}" }
+      outMessageProcessor.sendToPlayer(sent.invitedAccountId, sent.invitation)
+      outMessageProcessor.sendToPlayer(msg.playerId, OperationSuccessSMSG(OpSuccess.PARTY_INVITATION_SENT))
+    } catch (e: PartyException) {
+      outMessageProcessor.sendToPlayer(msg.playerId, e.toOperationError())
     }
 
     return true
-  }
-
-  companion object {
-    private val LOG = KotlinLogging.logger { }
   }
 }

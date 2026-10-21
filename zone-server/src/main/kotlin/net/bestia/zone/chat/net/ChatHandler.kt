@@ -12,6 +12,9 @@ import net.bestia.zone.message.IoMessageHandler
 import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.message.decoder
+import net.bestia.zone.guild.GuildAudience
+import net.bestia.zone.party.PartyAudience
+import net.bestia.zone.util.AccountId
 import org.springframework.stereotype.Component
 import net.bestia.zone.chat.ChatCommandHandler
 import net.bestia.zone.chat.ChatSMSG
@@ -24,7 +27,9 @@ class ChatHandler(
   private val connectionInfoService: ConnectionInfoService,
   private val world: WorldView,
   private val chatCommandHandler: ChatCommandHandler,
-  private val basicSkillGate: BasicSkillGate
+  private val basicSkillGate: BasicSkillGate,
+  private val partyAudience: PartyAudience,
+  private val guildAudience: GuildAudience,
 ) : IoMessageHandler<ChatCMSG> {
   override val wire = decoder(MessageCase.CHAT_CMSG) { accountId, envelope ->
     ChatCMSG.fromBnet(accountId, envelope.chatCmsg)
@@ -55,8 +60,8 @@ class ChatHandler(
     when (line.type) {
       ChatType.PUBLIC -> handlePublicChat(line)
       ChatType.WHISPER -> handleWhisperChat(line)
-      ChatType.PARTY -> sendNotYetSupported(line.playerId)
-      ChatType.GUILD -> sendNotYetSupported(line.playerId)
+      ChatType.PARTY -> handleGroupChat(line, partyAudience.of(line.playerId), OpError.PARTY_NOT_IN_PARTY)
+      ChatType.GUILD -> handleGroupChat(line, guildAudience.of(line.playerId), OpError.GUILD_NOT_A_MEMBER)
       ChatType.COMMAND -> handleChatCommand(line)
       else -> {
         LOG.warn { "Received unsupported chat type: ${line.type} from player ${line.playerId}" }
@@ -113,12 +118,27 @@ class ChatHandler(
     )
   }
 
-  private fun handleChatCommand(msg: ChatCMSG) {
-    chatCommandHandler.handleChatCommand(msg.playerId, msg.text)
+  /**
+   * Party and guild chat: everyone in the group who is being played hears it wherever they stand, the sender
+   * too, so the sender sees the line land. No speech bubble, so no entity id.
+   */
+  private fun handleGroupChat(msg: ChatCMSG, audience: Set<AccountId>?, notInGroup: OpError) {
+    if (audience == null) {
+      outMessageProcessor.sendToPlayer(msg.playerId, OperationErrorSMSG(notInGroup))
+      return
+    }
+
+    val line = ChatSMSG(
+      text = msg.text,
+      type = msg.type,
+      senderUsername = masterOperations.getSelectedMasterByAccountId(msg.playerId).name
+    )
+
+    audience.forEach { outMessageProcessor.sendToPlayer(it, line) }
   }
 
-  private fun sendNotYetSupported(playerId: Long) {
-    outMessageProcessor.sendToPlayer(playerId, ChatSMSG.ERROR_NOT_SUPPORTED)
+  private fun handleChatCommand(msg: ChatCMSG) {
+    chatCommandHandler.handleChatCommand(msg.playerId, msg.text)
   }
 
   /** Control and direction-override characters only ever garble, or disguise, someone else's chat window. */

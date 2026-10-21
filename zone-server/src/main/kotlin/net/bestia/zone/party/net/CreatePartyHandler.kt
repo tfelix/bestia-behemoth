@@ -8,16 +8,15 @@ import net.bestia.zone.message.IoMessageHandler
 import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.message.decoder
+import net.bestia.zone.party.PartyException
+import net.bestia.zone.party.PartyRosterPublisher
 import net.bestia.zone.party.PartyService
-import net.bestia.zone.party.PartyErrorSMSG
-import net.bestia.zone.party.AlreadyInPartyException
-import net.bestia.zone.party.InvalidPartyNameException
-import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.stereotype.Component
 
 @Component
 class CreatePartyHandler(
   private val partyService: PartyService,
+  private val rosterPublisher: PartyRosterPublisher,
   private val outMessageProcessor: OutMessageProcessor,
   private val basicSkillGate: BasicSkillGate
 ) : IoMessageHandler<CreatePartyCMSG> {
@@ -26,11 +25,9 @@ class CreatePartyHandler(
     CreatePartyCMSG.fromBnet(accountId, envelope.createParty)
   }
 
-
   override fun handle(msg: CreatePartyCMSG): Boolean {
-    // Parties are Basic Skill rank 5. Refused through the shared OperationError rather than a PartyErrorCode:
-    // the reason has nothing to do with parties, and the same denial has to read the same whether it comes
-    // from here or from an invite.
+    // Parties are Basic Skill rank 5. Its own code rather than a party one: the same denial has to read the same
+    // whether it comes from here or from an invite.
     if (!basicSkillGate.mayParty(msg.playerId)) {
       outMessageProcessor.sendToPlayer(msg.playerId, OperationErrorSMSG(OpError.BASIC_SKILL_PARTY_LOCKED))
       return true
@@ -38,24 +35,12 @@ class CreatePartyHandler(
 
     try {
       val party = partyService.createParty(msg.playerId, msg.partyName)
-      // Send party info back to the creator
-      val partyInfo = partyService.getPartyInfo(party.id)
+      LOG.debug { "Player ${msg.playerId} created party '${party.name}' with ID ${party.id}" }
 
-      if (partyInfo != null) {
-        LOG.debug { "Player ${msg.playerId} created party '${msg.partyName}' with ID ${party.id}" }
-        outMessageProcessor.sendToPlayer(msg.playerId, partyInfo)
-      } else {
-        outMessageProcessor.sendToPlayer(msg.playerId, PartyErrorSMSG(PartyErrorSMSG.PartyErrorCode.NO_PARTY))
-      }
-    } catch (_: AlreadyInPartyException) {
-      LOG.debug { "Player ${msg.playerId} tried to create a party but is already in one." }
-      outMessageProcessor.sendToPlayer(msg.playerId, PartyErrorSMSG(PartyErrorSMSG.PartyErrorCode.ALREADY_IN_PARTY))
-    } catch (_: InvalidPartyNameException) {
-      LOG.debug { "Player ${msg.playerId} tried to create a party with invalid name '${msg.partyName}'." }
-      outMessageProcessor.sendToPlayer(msg.playerId, PartyErrorSMSG(PartyErrorSMSG.PartyErrorCode.INVALID_PARTY_NAME))
-    } catch (_: DataIntegrityViolationException) {
-      LOG.debug { "Player ${msg.playerId} tried to create a party but name ${msg.partyName} is already in use." }
-      outMessageProcessor.sendToPlayer(msg.playerId, PartyErrorSMSG(PartyErrorSMSG.PartyErrorCode.PARTY_NAME_IN_USE))
+      rosterPublisher.request(party.id)
+    } catch (e: PartyException) {
+      LOG.debug { "Player ${msg.playerId} could not create party '${msg.partyName}': ${e.message}" }
+      outMessageProcessor.sendToPlayer(msg.playerId, e.toOperationError())
     }
 
     return true

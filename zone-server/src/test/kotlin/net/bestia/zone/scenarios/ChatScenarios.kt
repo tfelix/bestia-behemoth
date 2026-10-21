@@ -4,6 +4,8 @@ import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.chat.net.ChatCMSG
 import net.bestia.zone.chat.ChatSMSG
 import net.bestia.zone.message.OperationErrorSMSG
+import net.bestia.zone.party.PartyService
+import org.springframework.beans.factory.annotation.Autowired
 import net.bestia.zone.socket.net.PingCMSG
 import net.bestia.zone.socket.PongSMSG
 import org.junit.jupiter.api.Test
@@ -13,6 +15,9 @@ import kotlin.test.assertNull
 import net.bestia.zone.chat.ChatType
 
 class ChatScenarios : BestiaNoSocketScenario() {
+
+  @Autowired
+  private lateinit var partyService: PartyService
 
   @Test
   fun `send public chat sends message to all nearby players`() {
@@ -63,20 +68,32 @@ class ChatScenarios : BestiaNoSocketScenario() {
   }
 
   @Test
-  fun `send party chat delivers message to online party players`() {
-    clientPlayer1.sendMessage(
-      ChatCMSG(
-        playerId = clientPlayer1.connectedPlayerId,
-        type = ChatType.PARTY,
-        text = "helloworld",
-      )
-    )
+  fun `send party chat delivers message to every party member being played, the sender included`() {
+    val owner = clientPlayer1.connectedPlayerId
+    partyService.createParty(owner, "chatParty")
 
-    val whisperChatErrorRx = clientPlayer1.getLastReceived(ChatSMSG::class)
+    try {
+      val sent = partyService.invitePlayerToParty(owner, "player2")
+      partyService.acceptInvitation(clientPlayer2.connectedPlayerId, sent.invitation.invitationId)
 
-    assertEquals("error.not_supported", whisperChatErrorRx.text)
-    assertNull(whisperChatErrorRx.senderUsername)
-    assertEquals(ChatType.ERROR, whisperChatErrorRx.type)
+      // The membership reaches the master entities once the change has committed, from the IO lane.
+      await {
+        clientPlayer1.sendMessage(
+          ChatCMSG(
+            playerId = owner,
+            type = ChatType.PARTY,
+            text = "helloworld",
+          )
+        )
+
+        val expected = ChatSMSG(type = ChatType.PARTY, text = "helloworld", senderUsername = "player1")
+        assertEquals(expected, clientPlayer2.tryGetLastReceived(ChatSMSG::class))
+        assertEquals(expected, clientPlayer1.tryGetLastReceived(ChatSMSG::class))
+      }
+      assertNull(clientPlayer3.tryGetLastReceived(ChatSMSG::class), "not in the party")
+    } finally {
+      partyService.leaveParty(owner)
+    }
   }
 
   @Test
@@ -89,30 +106,11 @@ class ChatScenarios : BestiaNoSocketScenario() {
       )
     )
 
-    val whisperChatErrorRx = clientPlayer3.getLastReceived(ChatSMSG::class)
-
-    assertEquals("error.not_supported", whisperChatErrorRx.text)
-    assertNull(whisperChatErrorRx.senderUsername)
-    assertEquals(ChatType.ERROR, whisperChatErrorRx.type)
+    assertNull(clientPlayer3.tryGetLastReceived(ChatSMSG::class))
+    assertEquals(OperationErrorSMSG(OpError.PARTY_NOT_IN_PARTY), clientPlayer3.getLastReceived(OperationErrorSMSG::class))
   }
 
-  @Test
-  fun `send guild chat delivers message to online guild players`() {
-    clientPlayer1.sendMessage(
-      ChatCMSG(
-        playerId = clientPlayer1.connectedPlayerId,
-        type = ChatType.GUILD,
-        text = "helloworld",
-      )
-    )
-
-    val guildChatErrorRx = clientPlayer1.getLastReceived(ChatSMSG::class)
-
-    assertEquals("error.not_supported", guildChatErrorRx.text)
-    assertNull(guildChatErrorRx.senderUsername)
-    assertEquals(ChatType.ERROR, guildChatErrorRx.type)
-  }
-
+  /** Delivery inside a guild is in [GuildScenarios], which founds one. */
   @Test
   fun `send guild chat when not in a guild echos with error`() {
     clientPlayer3.sendMessage(
@@ -123,11 +121,8 @@ class ChatScenarios : BestiaNoSocketScenario() {
       )
     )
 
-    val whisperChatErrorRx = clientPlayer3.getLastReceived(ChatSMSG::class)
-
-    assertEquals("error.not_supported", whisperChatErrorRx.text)
-    assertNull(whisperChatErrorRx.senderUsername)
-    assertEquals(ChatType.ERROR, whisperChatErrorRx.type)
+    assertNull(clientPlayer3.tryGetLastReceived(ChatSMSG::class))
+    assertEquals(OperationErrorSMSG(OpError.GUILD_NOT_A_MEMBER), clientPlayer3.getLastReceived(OperationErrorSMSG::class))
   }
 
   /**

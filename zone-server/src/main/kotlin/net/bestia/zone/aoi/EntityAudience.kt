@@ -2,10 +2,13 @@ package net.bestia.zone.aoi
 
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.identity.ecs.Account
+import net.bestia.zone.identity.ecs.ActivePlayer
 import net.bestia.zone.identity.ecs.Master
 import net.bestia.zone.identity.ecs.OwnedBestia
+import net.bestia.zone.identity.ecs.PartyMembership
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.session.ConnectionInfoService
+import net.bestia.zone.session.NoActiveSessionException
 import net.bestia.zone.util.AccountId
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
@@ -44,6 +47,46 @@ class EntityAudience(
       ?: return null
 
     return if (sessions.activeMasterIdOf(accountId) == masterId) accountId else null
+  }
+
+  /**
+   * Who hears a [net.bestia.zone.sync.SyncTargets.OwnerAndParty] change: the owner, plus every party member
+   * playing the master the party lists, wherever they stand. A master is heard by its party while it is being
+   * played; a bestia only while it is the entity its owner plays, so the party's window can show what each
+   * member is fighting with. Tick thread, or under the world lock.
+   */
+  fun ownerAndParty(world: World, entityId: EntityId): Set<AccountId> {
+    val owner = world.get(entityId, Account::class)?.accountId ?: return emptySet()
+    val masterEntityId = partyAnchorOf(world, entityId, owner) ?: return setOf(owner)
+    val membership = world.get(masterEntityId, PartyMembership::class) ?: return setOf(owner)
+
+    val audience = HashSet<AccountId>(membership.members.size + 1)
+    audience.add(owner)
+    for (member in membership.members) {
+      if (sessions.isPlaying(member.accountId, member.masterId)) {
+        audience.add(member.accountId)
+      }
+    }
+    return audience
+  }
+
+  /** The master entity whose party hears about [entityId], or null when no party should. */
+  private fun partyAnchorOf(world: World, entityId: EntityId, owner: AccountId): EntityId? {
+    val master = world.get(entityId, Master::class)
+    if (master != null) {
+      return if (sessions.isPlaying(owner, master.masterId)) entityId else null
+    }
+
+    val ownedBestia = world.get(entityId, OwnedBestia::class) ?: return null
+    if (!world.has(entityId, ActivePlayer::class) || !sessions.isPlaying(owner, ownedBestia.masterId)) {
+      return null
+    }
+
+    return try {
+      sessions.getSelectedMasterEntityId(owner)
+    } catch (_: NoActiveSessionException) {
+      null
+    }
   }
 
   companion object {

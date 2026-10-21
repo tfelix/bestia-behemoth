@@ -6,6 +6,7 @@ import net.bestia.zone.util.AccountId
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.util.MasterEntityId
 import net.bestia.zone.util.PlayerBestiaId
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.contracts.ExperimentalContracts
@@ -18,10 +19,15 @@ import kotlin.contracts.contract
  * Read and changed from the tick, the IO lane and HTTP threads, so every change to a session is one atomic
  * `compute` and its collections are concurrent.
  *
+ * Every time a master starts or stops being played it publishes a [MasterPresenceChangedEvent], after the
+ * change, on the thread that made it.
+ *
  * TODO this should later probably also be in the Redis service?
  */
 @Service
-class ConnectionInfoService {
+class ConnectionInfoService(
+  private val events: ApplicationEventPublisher = ApplicationEventPublisher { },
+) {
 
   private sealed class Session {
     abstract val playerEntitiesByMaster: MutableMap<Long, MutableSet<PlayerEntity>>
@@ -119,17 +125,39 @@ class ConnectionInfoService {
   ) {
     LOG.info { "Activate session for account: $accountId with master entity id: $masterEntityId" }
 
+    var replaced: MasterEntity? = null
+    var changed = false
     sessions.compute(accountId) { _, session ->
       when (session) {
-        null -> InactiveConnection().activate(masterId, masterEntityId)
-        is InactiveConnection -> session.activate(masterId, masterEntityId)
+        null -> InactiveConnection().activate(masterId, masterEntityId).also { changed = true }
+        is InactiveConnection -> session.activate(masterId, masterEntityId).also { changed = true }
         is ActiveConnection ->
-          if (session.master.entityId == masterEntityId) session else session.deactivate().activate(masterId, masterEntityId)
+          if (session.master.entityId == masterEntityId) {
+            session
+          } else {
+            replaced = session.master
+            changed = true
+            session.deactivate().activate(masterId, masterEntityId)
+          }
       }
     }
 
     val owned = ConcurrentHashMap.newKeySet<PlayerEntity>().apply { addAll(ownedBestias) }
     sessions[accountId]?.playerEntitiesByMaster?.set(masterId, owned)
+
+    replaced?.let { publishPresence(accountId, it.masterId, online = false) }
+    if (changed) {
+      publishPresence(accountId, masterId, online = true)
+    }
+  }
+
+  /**
+   * True while [accountId] plays [masterId]. The guard for every hop from an account to "its" entity: an
+   * account that switched to another master must not get that master the party's EXP or vitals. One map read,
+   * so fine on the tick.
+   */
+  fun isPlaying(accountId: AccountId, masterId: Long): Boolean {
+    return activeMasterIdOf(accountId) == masterId
   }
 
   fun hasActiveSession(accountId: AccountId): Boolean {
@@ -155,16 +183,31 @@ class ConnectionInfoService {
   fun deactivateSession(accountId: Long) {
     LOG.info { "Deactivated session for account: $accountId" }
 
+    var left: MasterEntity? = null
     sessions.computeIfPresent(accountId) { _, session ->
-      if (session is ActiveConnection) session.deactivate() else session
+      if (session is ActiveConnection) {
+        left = session.master
+        session.deactivate()
+      } else {
+        session
+      }
     }
+
+    left?.let { publishPresence(accountId, it.masterId, online = false) }
   }
 
   /** Forgets the account entirely, on disconnect. Its bestias stay in the world and keep their `OwnedBestia`. */
   fun removeSession(accountId: AccountId) {
     LOG.info { "Removed session for account: $accountId" }
 
-    sessions.remove(accountId)
+    val removed = sessions.remove(accountId)
+    if (removed is ActiveConnection) {
+      publishPresence(accountId, removed.master.masterId, online = false)
+    }
+  }
+
+  private fun publishPresence(accountId: AccountId, masterId: Long, online: Boolean) {
+    events.publishEvent(MasterPresenceChangedEvent(this, accountId, masterId, online))
   }
 
   fun registerPlayerBestiaEntity(

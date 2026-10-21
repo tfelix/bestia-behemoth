@@ -13,6 +13,8 @@ import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OutMessageProcessor
 import org.junit.jupiter.api.Test
 import net.bestia.zone.chat.ChatSMSG
+import net.bestia.zone.guild.GuildAudience
+import net.bestia.zone.party.PartyAudience
 import net.bestia.zone.chat.ChatType
 
 /**
@@ -24,6 +26,8 @@ class ChatHandlerTest {
   private val out = mockk<OutMessageProcessor>(relaxed = true)
   private val masters = mockk<MasterResolver>()
   private val skillGate = mockk<BasicSkillGate>()
+  private val partyAudience = mockk<PartyAudience>()
+  private val guildAudience = mockk<GuildAudience>()
 
   private val handler = ChatHandler(
     outMessageProcessor = out,
@@ -31,7 +35,9 @@ class ChatHandlerTest {
     connectionInfoService = mockk(relaxed = true),
     world = mockk<WorldView>(relaxed = true),
     chatCommandHandler = mockk(relaxed = true),
-    basicSkillGate = skillGate
+    basicSkillGate = skillGate,
+    partyAudience = partyAudience,
+    guildAudience = guildAudience,
   )
 
   private fun whisper(target: String, text: String = "helloworld") {
@@ -114,6 +120,54 @@ class ChatHandlerTest {
     verify {
       out.sendToPlayer(TARGET, ChatSMSG(type = ChatType.WHISPER, text = "helloworld", senderUsername = "sender"))
     }
+  }
+
+  private fun groupLine(type: ChatType, text: String = "together") {
+    every { skillGate.mayChat(SENDER) } returns true
+    every { masters.getSelectedMasterByAccountId(SENDER) } returns mockk<Master> {
+      every { name } returns "sender"
+    }
+
+    handler.handle(ChatCMSG(playerId = SENDER, type = type, text = text, targetUsername = null))
+  }
+
+  /** The sender is in the audience too, so they see their own line land. */
+  @Test
+  fun `a party line reaches every member being played, the sender included`() {
+    every { partyAudience.of(SENDER) } returns setOf(SENDER, TARGET)
+
+    groupLine(ChatType.PARTY)
+
+    val line = ChatSMSG(type = ChatType.PARTY, text = "together", senderUsername = "sender")
+    verify { out.sendToPlayer(SENDER, line) }
+    verify { out.sendToPlayer(TARGET, line) }
+  }
+
+  @Test
+  fun `a party line from outside a party is refused`() {
+    every { partyAudience.of(SENDER) } returns null
+
+    groupLine(ChatType.PARTY)
+
+    verify { out.sendToPlayer(SENDER, OperationErrorSMSG(OpError.PARTY_NOT_IN_PARTY)) }
+  }
+
+  @Test
+  fun `a guild line reaches every member being played`() {
+    every { guildAudience.of(SENDER) } returns setOf(SENDER, TARGET)
+
+    groupLine(ChatType.GUILD)
+
+    verify { out.sendToPlayer(TARGET, ChatSMSG(type = ChatType.GUILD, text = "together", senderUsername = "sender")) }
+  }
+
+  @Test
+  fun `a guild line from outside a guild is refused`() {
+    every { guildAudience.of(SENDER) } returns null
+
+    groupLine(ChatType.GUILD)
+
+    verify { out.sendToPlayer(SENDER, OperationErrorSMSG(OpError.GUILD_NOT_A_MEMBER)) }
   }
 
   companion object {

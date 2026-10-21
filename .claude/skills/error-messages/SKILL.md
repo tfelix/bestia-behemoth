@@ -103,10 +103,11 @@ exception that escapes is a bug and closes the connection.
 
 ## Exception: a genuinely distinct payload
 
-[`PartyErrorSMSG`](../../../zone-server/src/main/kotlin/net/bestia/zone/party/PartyErrorSMSG.kt)
-has its **own** proto message (`PartyErrorSmsgProto`), not `OperationError`. That's justified only
-when the error needs its own wire shape/payload beyond a single code, or is conceptually its own
-message family. A plain "this was refused, here's why" enum is not that - it belongs in `OpError`.
+A dedicated proto message is justified only when the error needs its own wire shape/payload beyond a code and a
+few `args`, or is conceptually its own message family. A plain "this was refused, here's why" enum is not that -
+it belongs in `OpError`. `PartyErrorSMSG` was exactly that kind of duplicate and has been folded into `OpError` as
+the `PARTY_*` values. `PartyException.toOperationError()` and `GuildException.toOperationError()` show the shape
+for a slice whose refusals are exceptions that carry their own code.
 
 ## Rule of thumb
 

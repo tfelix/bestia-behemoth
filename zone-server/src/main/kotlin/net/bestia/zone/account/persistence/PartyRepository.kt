@@ -13,6 +13,10 @@ interface PartyRepository : JpaRepository<Party, Long> {
 
   fun findByMember(master: Master): Party?
 
+  /** The party [masterId] is in, owner or member, without loading either. */
+  @Query("select m.party.id from Master m where m.id = :masterId")
+  fun findPartyIdOfMaster(@Param("masterId") masterId: Long): Long?
+
   /** Holds the party row until the transaction ends, so a change that counts its members sees every other one. */
   @Lock(LockModeType.PESSIMISTIC_WRITE)
   @Query("select p from Party p where p.id = :id")

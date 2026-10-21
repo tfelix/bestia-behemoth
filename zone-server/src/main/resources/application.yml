@@ -11,7 +11,6 @@ zone:
   # Must be different for every zone which starts. So this probably needs to be overwritten
   # during deployment. This hard coded value is for development purposes.
   shard-id: 1
-  party-name-max-length: 20
   # A kicked account's login tokens issued before the kick stay refused this long. Must outlast login-server's
   # `jwt.login-token-minutes`.
   kick-memory-seconds: 300
@@ -21,6 +20,36 @@ zone:
 persistence:
   # Each persistent entity is saved this often if it changed; the population is spread over the interval.
   interval-ms: 90000
+
+party:
+  # Seats in a party, the owner's included. Open invitations hold a seat each.
+  max-size: 12
+  name-max-length: 20
+  # Even share: who stands within this many metres of a kill (flat on the map, from their master or the entity
+  # they play) shares its EXP. The bonus is added to the shared EXP when at least two members share it.
+  exp-share-range-metres: 100
+  even-share-bonus-percent: 30
+  invitation-timeout-seconds: 60
+
+guild:
+  name-max-length: 24
+  rank-name-max-length: 20
+  # Seats in a new guild; each Guild Extension level adds members-per-extension-level more.
+  base-max-members: 32
+  members-per-extension-level: 2
+  max-extension-level: 10
+  max-level: 50
+  # Guild EXP to reach the next level is exp-unit * (L * (L + 1) / 2 + 1): Ragnarok Online's guild table, scaled
+  # down to Bestia's EXP. 2000 makes Lv 10 (where Guild Extension can be maxed) 348k guild EXP.
+  exp-unit: 2000
+  max-ranks: 10
+  # The share of a member's kill EXP the rank funnels into the guild, in percent.
+  default-tax-percent: 5
+  min-tax-percent: 1
+  max-tax-percent: 80
+  invitation-timeout-seconds: 60
+  # Taxed EXP is gathered in memory and written to the guild this often. A crash loses at most this much.
+  exp-flush-seconds: 30
 
 # Settings a *new* world is born with. Ignored once a world exists: what gets generated then comes from the
 # stored record, because that is what its chunks and any player edits were built against.

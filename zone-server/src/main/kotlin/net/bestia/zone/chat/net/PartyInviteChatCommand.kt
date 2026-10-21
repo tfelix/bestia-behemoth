@@ -1,20 +1,14 @@
 package net.bestia.zone.chat.net
 
-import net.bestia.zone.account.MasterNotFoundException
-import net.bestia.zone.account.MasterResolver
-import net.bestia.zone.message.OutMessageProcessor
-import net.bestia.zone.party.PartyErrorSMSG
 import net.bestia.zone.party.net.RequestPartyInvitationCMSG
 import net.bestia.zone.party.net.RequestInvitePlayerToPartyHandler
 import org.springframework.stereotype.Component
 import net.bestia.zone.chat.ChatCommand
 
-/** `/invite <username>` - invites the named master's account into the sender's party. */
+/** `/invite <username>` - invites the named master into the sender's party. */
 @Component
 class PartyInviteChatCommand(
   private val requestInvitePlayerToPartyHandler: RequestInvitePlayerToPartyHandler,
-  private val masterResolver: MasterResolver,
-  private val outMessageProcessor: OutMessageProcessor,
 ) : ChatCommand() {
 
   companion object {
@@ -31,16 +25,8 @@ class PartyInviteChatCommand(
 
   override fun execute(playerId: Long, cmdText: String): Boolean {
     val match = CMD_REGEX.find(cmdText.trim()) ?: return false
-    val targetMasterName = match.groupValues[1]
 
-    val targetAccountId = try {
-      masterResolver.getAccountIdByMasterName(targetMasterName)
-    } catch (_: MasterNotFoundException) {
-      outMessageProcessor.sendToPlayer(playerId, PartyErrorSMSG(PartyErrorSMSG.PartyErrorCode.PLAYER_NOT_FOUND))
-      return true
-    }
-
-    requestInvitePlayerToPartyHandler.handle(RequestPartyInvitationCMSG(playerId, targetAccountId))
+    requestInvitePlayerToPartyHandler.handle(RequestPartyInvitationCMSG(playerId, match.groupValues[1]))
 
     return true
   }

@@ -7,24 +7,58 @@ import "messages/vec3.proto";
 option java_package = "net.bestia.bnet.proto";
 option java_outer_classname = "PartyInfoSmsgProto";
 
-// The full party roster, sent to a member whenever the party or one of its members' online state
-// changes (creation, join, leave, kick). Offline members are included without online_data so the
-// client can still list them.
+// The full party roster, pushed to every playing member whenever it changes: the party is created, a member
+// joins, leaves or is kicked, the EXP mode changes, a member comes online or goes offline, levels up, or
+// switches the entity they play. Offline members are listed without online_data.
+//
+// Also the answer to RequestPartyInfoCMSG, where party_id 0 and no members means "in no party".
 message PartyInfoSMSG {
   uint64 party_id = 1;
   string party_name = 2;
   repeated PartyMember member = 3;
+  PartyExpShare exp_share = 4;
+  uint64 owner_master_id = 5;
+}
+
+enum PartyExpShare {
+  PARTY_EXP_SHARE_UNSPECIFIED = 0;
+  // Every attacker keeps the EXP its own damage earned.
+  PARTY_EXP_SHARE_EACH_TAKE = 1;
+  // An attacker's EXP is pooled with a bonus and split evenly among the members near the kill.
+  PARTY_EXP_SHARE_EVEN_SHARE = 2;
 }
 
 message PartyMember {
   string master_name = 1;
+  // Present while this member's master is the one its account is playing.
   optional PartyMemberOnlineData online_data = 2;
+  uint64 account_id = 3;
+  uint64 master_id = 4;
+  uint32 level = 5;
 }
 
 message PartyMemberOnlineData {
+  // The master's entity, whose Health and Mana deltas reach every member whatever the distance.
   fixed64 entity_id = 1;
   string area_name = 2;
   Vec3 position = 3;
   uint32 hp_current = 4;
   uint32 hp_max = 5;
+  uint32 mana_current = 6;
+  uint32 mana_max = 7;
+  // The bestia the member is playing, when it is not the master.
+  optional PartyMemberBestia active_bestia = 8;
+}
+
+message PartyMemberBestia {
+  // Its Health and Mana deltas reach every member while it stays the played entity.
+  fixed64 entity_id = 1;
+  uint64 species_id = 2;
+  // The name its master gave it, empty when it has none.
+  string name = 3;
+  uint32 level = 4;
+  uint32 hp_current = 5;
+  uint32 hp_max = 6;
+  uint32 mana_current = 7;
+  uint32 mana_max = 8;
 }

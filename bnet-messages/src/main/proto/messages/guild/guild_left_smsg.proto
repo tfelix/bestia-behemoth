@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "GuildLeftSmsgProto";
+
+// The recipient is no longer in the guild.
+message GuildLeftSMSG {
+  uint64 guild_id = 1;
+  GuildLeftReason reason = 2;
+}
+
+enum GuildLeftReason {
+  GUILD_LEFT_REASON_UNSPECIFIED = 0;
+  GUILD_LEFT_REASON_LEFT = 1;
+  GUILD_LEFT_REASON_KICKED = 2;
+  GUILD_LEFT_REASON_DISBANDED = 3;
+}

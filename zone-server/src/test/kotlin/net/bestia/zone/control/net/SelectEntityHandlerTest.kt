@@ -31,7 +31,7 @@ class SelectEntityHandlerTest {
   private val playerAoi = ActivePlayerAOIService()
   private val out = mockk<OutMessageProcessor>(relaxed = true)
 
-  private val sut = SelectEntityHandler(sessions, mockk(relaxed = true), playerAoi, out)
+  private val sut = SelectEntityHandler(sessions, mockk(relaxed = true), playerAoi, out, mockk(relaxed = true))
 
   private var master: EntityId = 0
   private var bestia: EntityId = 0

@@ -1,10 +1,9 @@
 package net.bestia.zone.chat.net
 
-import net.bestia.zone.account.MasterNotFoundException
-import net.bestia.zone.account.MasterResolver
+import net.bestia.bnet.proto.OperationErrorProto.OpError
+import net.bestia.zone.account.persistence.MasterRepository
+import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OutMessageProcessor
-import net.bestia.zone.party.PartyErrorSMSG
-import net.bestia.zone.party.PartyService
 import net.bestia.zone.party.net.RemovePartyMemberCMSG
 import net.bestia.zone.party.net.RemovePartyMemberHandler
 import org.springframework.stereotype.Component
@@ -14,8 +13,7 @@ import net.bestia.zone.chat.ChatCommand
 @Component
 class PartyKickChatCommand(
   private val removePartyMemberHandler: RemovePartyMemberHandler,
-  private val masterResolver: MasterResolver,
-  private val partyService: PartyService,
+  private val masterRepository: MasterRepository,
   private val outMessageProcessor: OutMessageProcessor,
 ) : ChatCommand() {
 
@@ -35,20 +33,17 @@ class PartyKickChatCommand(
     val match = CMD_REGEX.find(cmdText.trim()) ?: return false
     val targetMasterName = match.groupValues[1]
 
-    val partyId = partyService.findPartyOfAccount(playerId)?.id
-    if (partyId == null) {
-      outMessageProcessor.sendToPlayer(playerId, PartyErrorSMSG(PartyErrorSMSG.PartyErrorCode.NO_PARTY))
+    // A member need not be online to be kicked, so the name is looked up rather than asked of the session.
+    val target = masterRepository.findByName(targetMasterName)
+    if (target == null) {
+      outMessageProcessor.sendToPlayer(
+        playerId,
+        OperationErrorSMSG(OpError.PARTY_NOT_A_MEMBER, listOf(targetMasterName))
+      )
       return true
     }
 
-    val targetAccountId = try {
-      masterResolver.getAccountIdByMasterName(targetMasterName)
-    } catch (_: MasterNotFoundException) {
-      outMessageProcessor.sendToPlayer(playerId, PartyErrorSMSG(PartyErrorSMSG.PartyErrorCode.PLAYER_NOT_FOUND))
-      return true
-    }
-
-    removePartyMemberHandler.handle(RemovePartyMemberCMSG(playerId, partyId, targetAccountId))
+    removePartyMemberHandler.handle(RemovePartyMemberCMSG(playerId, target.id))
 
     return true
   }

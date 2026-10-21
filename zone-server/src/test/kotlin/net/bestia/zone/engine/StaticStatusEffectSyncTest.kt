@@ -57,7 +57,7 @@ class StaticStatusEffectSyncTest {
     outbox = TickOutbox(mockk(relaxed = true)),
     entityVisibility = visibility,
     entityAudience = EntityAudience(visibility, ConnectionInfoService()),
-    snapshotBuilder = EntitySnapshotBuilder(),
+    snapshotBuilder = EntitySnapshotBuilder(EntityAudience(visibility, ConnectionInfoService())),
     tickMetrics = TickMetrics(SimpleMeterRegistry(), WorldRulesConfig(tickRate = 20)),
   )
 

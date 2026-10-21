@@ -361,6 +361,8 @@ class ZoneEngine(
   ) {
     val broadcastMsgs = mutableListOf<EntitySMSG>()
     val byAccountMsgs = LinkedHashMap<Long, MutableList<EntitySMSG>>()
+    // Health and Mana usually change together; the party is resolved once for both.
+    val ownerAndParty by lazy(LazyThreadSafetyMode.NONE) { entityAudience.ownerAndParty(world, entityId) }
 
     // Position leads deliberately: the client reconciles an arriving path against where it believes the entity
     // is, so it has to be told where the entity *is* before it is told where it is *going*. The dirty log is in
@@ -376,6 +378,10 @@ class ZoneEngine(
             ?.accountId
             ?: continue
           byAccountMsgs.getOrPut(ownerAccountId) { mutableListOf() }.add(msg)
+        }
+
+        is SyncTargets.OwnerAndParty -> ownerAndParty.forEach { accountId ->
+          byAccountMsgs.getOrPut(accountId) { ArrayList() }.add(msg)
         }
 
         is SyncTargets.Accounts -> target.accountIds.forEach { accountId ->
@@ -447,6 +453,9 @@ class ZoneEngine(
           batches.add(owner, update)
         }
 
+        is SyncTargets.OwnerAndParty ->
+          entityAudience.ownerAndParty(world, record.entityId).forEach { batches.add(it, update) }
+
         is SyncTargets.Accounts -> targets.accountIds.forEach { batches.add(it, update) }
       }
     }
@@ -477,7 +486,8 @@ class ZoneEngine(
     val accountIds = when (targets) {
       is SyncTargets.PublicInRange -> publicAudienceOf(entityId).toList()
       is SyncTargets.Accounts -> targets.accountIds.toList()
-      is SyncTargets.OwnerOnly -> emptyList() // never produced by mergeSyncTargets, kept for exhaustiveness
+      // Never produced by mergeSyncTargets, kept for exhaustiveness.
+      is SyncTargets.OwnerOnly, is SyncTargets.OwnerAndParty -> emptyList()
     }
 
     vanishOutbox.add(VanishRecord(update, accountIds))
@@ -486,8 +496,9 @@ class ZoneEngine(
   /**
    * Collapses several components' [SyncTargets] into one: [SyncTargets.PublicInRange] subsumes
    * everything else, so it wins outright; otherwise every [SyncTargets.OwnerOnly] (resolved via the
-   * entity's [Account]) and [SyncTargets.Accounts] are unioned into a single [SyncTargets.Accounts].
-   * Returns null if nothing resolves to an actual target (e.g. `OwnerOnly` with no `Account`).
+   * entity's [Account]), [SyncTargets.OwnerAndParty] (via [EntityAudience]) and [SyncTargets.Accounts] are
+   * unioned into a single [SyncTargets.Accounts]. Returns null if nothing resolves to an actual target (e.g.
+   * `OwnerOnly` with no `Account`).
    */
   private fun mergeSyncTargets(entityId: EntityId, targets: List<SyncTargets>): SyncTargets? {
     if (targets.any { it is SyncTargets.PublicInRange }) return SyncTargets.PublicInRange
@@ -496,6 +507,7 @@ class ZoneEngine(
     for (target in targets) {
       when (target) {
         is SyncTargets.OwnerOnly -> world.get(entityId, Account::class)?.accountId?.let { accountIds.add(it) }
+        is SyncTargets.OwnerAndParty -> accountIds.addAll(entityAudience.ownerAndParty(world, entityId))
         is SyncTargets.Accounts -> accountIds.addAll(target.accountIds)
         is SyncTargets.PublicInRange -> Unit
       }

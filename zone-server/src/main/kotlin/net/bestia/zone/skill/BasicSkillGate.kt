@@ -21,12 +21,12 @@ import net.bestia.zone.skill.tree.MasterSkillTreeRegistry
  * and sitting is not a mechanic - so ranks 3 and 4 have nothing to gate and are deliberately not represented
  * here. A constant for a subsystem that does not exist would read as an implemented rule.
  *
- * ### It answers off the live entity
+ * ### It answers off the live master
  *
- * [KnownSkills] on whichever entity the account currently controls, which is the same component
- * `ActivateSkillHandler` validates against - so a rank bought this session counts immediately, and nothing
- * here touches the database on the calling thread. A master with no `KnownSkills` at all (or an account with
- * no live entity) reads as rank 0.
+ * [KnownSkills] on the account's master entity - so a rank bought this session counts immediately, and nothing
+ * here touches the database on the calling thread. The master's, not whichever entity the account controls:
+ * Basic Skill is a master skill, and a player driving a bestia is still the master who learned it. A master
+ * with no `KnownSkills` at all (or an account with no live master) reads as rank 0.
  */
 @Service
 class BasicSkillGate(
@@ -61,7 +61,7 @@ class BasicSkillGate(
     }
 
     val entityId = try {
-      connectionInfoService.getActiveEntityId(accountId)
+      connectionInfoService.getSelectedMasterEntityId(accountId)
     } catch (_: Exception) {
       return 0
     }

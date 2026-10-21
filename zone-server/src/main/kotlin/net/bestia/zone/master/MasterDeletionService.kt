@@ -6,6 +6,7 @@ import net.bestia.zone.identity.ecs.OwnedBestia
 import net.bestia.zone.battle.persistence.StatusEffectPersistenceService
 import net.bestia.zone.cartography.persistence.MapChartRepository
 import net.bestia.zone.item.persistence.ItemInstanceRepository
+import net.bestia.zone.guild.GuildService
 import net.bestia.zone.party.PartyService
 import net.bestia.zone.util.AccountId
 import org.springframework.data.repository.findByIdOrNull
@@ -29,6 +30,8 @@ import net.bestia.zone.account.persistence.MasterRepository
  *
  * - **Party membership** ([PartyService.detachDeletedMaster]) - `Party.owner` is a non-null FK, so a master
  *   that owns a party cannot simply be deleted underneath it.
+ * - **Guild membership** ([GuildService.detachDeletedMaster]) - a member row points at the master. A guild's
+ *   leader is not deleted at all ([Denial.LEADS_GUILD]): nobody could take the guild over.
  * - **Crafted items** ([ItemInstanceRepository.clearCraftedByMaster]) - an item this master forged may be in
  *   somebody else's hands and must outlive its maker, so the reference is nulled rather than followed.
  * - **Held item instances** - the container cascade deletes the *slots* but deliberately not the
@@ -44,6 +47,7 @@ import net.bestia.zone.account.persistence.MasterRepository
 class MasterDeletionService(
   private val masterRepository: MasterRepository,
   private val partyService: PartyService,
+  private val guildService: GuildService,
   private val itemInstanceRepository: ItemInstanceRepository,
   private val mapChartRepository: MapChartRepository,
   private val statusEffectPersistenceService: StatusEffectPersistenceService,
@@ -54,20 +58,25 @@ class MasterDeletionService(
     /** The master does not exist, or exists but belongs to a different account - reported as one reason. */
     NOT_OWNED,
     NAME_MISMATCH,
-    IN_USE
+    IN_USE,
+    /** The master leads a guild, which has to be disbanded first. Carries the guild's name. */
+    LEADS_GUILD
   }
 
   sealed interface Result {
     /**
-     * [partyResult] is what the master's party membership turned into, or null when it had none. The caller
-     * owns telling the remaining members - this service does not send messages.
+     * [partyResult] is what the master's party membership turned into, or null when it had none, and [guildId]
+     * the guild it left, if any. The caller owns telling the remaining members - this service does not send
+     * messages.
      */
     data class Deleted(
       val masterName: String,
-      val partyResult: PartyService.LeavePartyResult?
+      val partyResult: PartyService.LeavePartyResult?,
+      val guildId: Long? = null,
     ) : Result
 
-    data class Denied(val reason: Denial) : Result
+    /** [args] fill the refusal's wording, see [Denial.LEADS_GUILD]. */
+    data class Denied(val reason: Denial, val args: List<String> = emptyList()) : Result
   }
 
   @Transactional
@@ -94,6 +103,10 @@ class MasterDeletionService(
       return Result.Denied(Denial.IN_USE)
     }
 
+    guildService.guildNameLedBy(master.id)?.let { guildName ->
+      return Result.Denied(Denial.LEADS_GUILD, listOf(guildName))
+    }
+
     // Everything the log line and the reply need is read out now: once the delete below has been flushed,
     // touching the master's lazy associations again is reaching into a row that is gone.
     val masterName = master.name
@@ -106,6 +119,7 @@ class MasterDeletionService(
       .mapNotNull { slot -> slot.itemInstance?.id }
 
     val partyResult = partyService.detachDeletedMaster(master)
+    val guildId = guildService.detachDeletedMaster(master.id)
 
     itemInstanceRepository.clearCraftedByMaster(masterId)
 
@@ -131,7 +145,7 @@ class MasterDeletionService(
           "including ${ownedBestias.size} bestias and ${heldInstanceIds.size} item instances"
     }
 
-    return Result.Deleted(masterName, partyResult)
+    return Result.Deleted(masterName, partyResult, guildId)
   }
 
   /**

@@ -138,8 +138,8 @@ class FeatureSliceRulesTest {
       "root", "util", "geometry", "ecs", "config", "bus", "message", "session", "sync", "persistence",
       "identity", "aoi", "entity", "logout", "navigation", "movement", "world", "water", "script", "place", "skill",
       "dialog", "battle", "weather", "ground", "item", "bestia", "spoor", "prop", "casting", "ai", "spawn",
-      "account", "party", "economy", "crafting", "cartography", "townsfolk", "master", "respawn", "trade", "capture",
-      "chat", "control", "companion", "socket", "metrics", "engine", "boot",
+      "account", "party", "guild", "economy", "crafting", "cartography", "townsfolk", "master", "respawn", "trade",
+      "capture", "chat", "control", "companion", "socket", "metrics", "engine", "boot",
     )
   }
 }

@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "DisbandGuildCmsgProto";
+
+// The leader ends the guild for every member. confirm_name must be the guild's name, typed by the player.
+message DisbandGuildCMSG {
+  string confirm_name = 1;
+}

@@ -2,6 +2,7 @@ package net.bestia.zone.spawn.ecs
 
 import io.mockk.mockk
 import io.mockk.verify
+import net.bestia.zone.config.PartyRulesConfig
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.testWorld
@@ -39,7 +40,7 @@ class DeathSystemTest {
     experienceGainCalculator = mockk<ExperienceGainCalculator>(relaxed = true),
     mobLootSpawner = lootSpawner,
     deletionQueue = deletionQueue,
-    connectionInfoService = ConnectionInfoService(),
+    expSplitter = KillExpSplitter(ConnectionInfoService(), PartyRulesConfig()),
     notableKills = mockk<KillReporter>(relaxed = true),
     spill = { x, y -> spilledAt += x to y },
   )

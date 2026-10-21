@@ -100,7 +100,7 @@ class ZoneEngineTest {
       outbox = outbox,
       entityVisibility = entityVisibility,
       entityAudience = EntityAudience(entityVisibility, sessions),
-      snapshotBuilder = EntitySnapshotBuilder(),
+      snapshotBuilder = EntitySnapshotBuilder(EntityAudience(entityVisibility, sessions)),
       tickMetrics = TickMetrics(meters, WorldRulesConfig(tickRate = 20)),
     )
   }

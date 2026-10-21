@@ -51,6 +51,9 @@ import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 import net.bestia.zone.account.persistence.Master
 import net.bestia.zone.account.persistence.MasterRepository
+import net.bestia.zone.guild.GuildMemberships
+import net.bestia.zone.identity.ecs.GuildMembership
+import net.bestia.zone.identity.ecs.PartyMembership
 import net.bestia.zone.party.membership
 
 /**
@@ -74,6 +77,7 @@ class MasterEntitySpawner(
   private val placeNames: PlaceNameService,
   private val playerBestiaEntitySpawner: PlayerBestiaEntitySpawner,
   private val itemStats: ItemStatCatalog,
+  private val guildMemberships: GuildMemberships,
 ) {
 
   /**
@@ -92,6 +96,11 @@ class MasterEntitySpawner(
       return null
     }
 
+    // Read before any world scope: a party or guild change made while the master was away was not applied to
+    // a body nobody played, so the memberships it carries may be stale.
+    val partyMembership = master.party?.membership()
+    val guildMembership = guildMemberships.of(masterId)
+
     // Still in the world after a logout or disconnect that has not finished: picked up as it is, because a
     // reload from the database would roll it back to its last save and revive it if it died since.
     val reattached = world.modify(master.entityId) { id ->
@@ -99,6 +108,8 @@ class MasterEntitySpawner(
       remove(id, LogoutIntent::class)
       remove(id, DisconnectProtection::class)
       remove(id, PersistAndRemove::class)
+      if (partyMembership != null) add(id, partyMembership) else remove(id, PartyMembership::class)
+      if (guildMembership != null) add(id, guildMembership) else remove(id, GuildMembership::class)
       id
     }
     if (reattached != null) {
@@ -117,7 +128,6 @@ class MasterEntitySpawner(
     val inventory = buildInventory(master)
     val equipment = buildEquipment(master)
     val bestias = playerBestiaEntitySpawner.loadOwnedBy(masterId)
-    val partyMembership = master.party?.membership()
 
     return world.createEntity(master.entityId) { id ->
       // Before the session is read from the world, so it also gets the bestias a restart lost.
@@ -156,6 +166,7 @@ class MasterEntitySpawner(
       add(id, equipment)
       add(id, WornGear())
       partyMembership?.let { add(id, it) }
+      guildMembership?.let { add(id, it) }
 
       val baseStatusValues = BaseStatusValues(
         strength = master.strength,

@@ -7,7 +7,6 @@ import net.bestia.zone.sync.SyncTargets
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.message.EntitySMSG
 import net.bestia.zone.battle.status.CurMax
-import net.bestia.zone.identity.ecs.PartyMembership
 
 class Mana(
   current: Int,
@@ -23,9 +22,7 @@ class Mana(
   }
 
   override fun syncTargets(world: World, entityId: EntityId): SyncTargets {
-    val owner = world.get(entityId, Account::class)?.accountId
-      ?: return SyncTargets.Accounts(emptySet())
-    val partyMemberAccountIds = world.get(entityId, PartyMembership::class)?.memberAccountIds ?: emptySet()
-    return SyncTargets.Accounts(partyMemberAccountIds + owner)
+    // A mob's mana is nobody's business.
+    return if (world.has(entityId, Account::class)) SyncTargets.OwnerAndParty else SyncTargets.Accounts(emptySet())
   }
 }

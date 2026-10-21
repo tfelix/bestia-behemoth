@@ -5,9 +5,12 @@ import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
+import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.identity.ecs.Master
+import net.bestia.zone.identity.ecs.OwnedBestia
 import net.bestia.zone.battle.ecs.level.Level
 import net.bestia.zone.battle.ecs.level.LevelUpExperienceCalculator
+import net.bestia.zone.battle.ecs.level.LevelUpListener
 import net.bestia.zone.battle.ecs.status.IsStatusValueDirty
 import net.bestia.zone.battle.ecs.status.SkillPoints
 import net.bestia.zone.battle.ecs.status.StatusPoints
@@ -19,11 +22,14 @@ import org.springframework.stereotype.Component as SpringComponent
 class GainExpSystem(
   private val levelUpExpCalc: LevelUpExperienceCalculator,
   private val writeBehind: EntityWriteBehind,
+  private val levelUpListeners: List<LevelUpListener> = emptyList(),
 ) : System {
   override val phase = Phase.ITEMS
 
   override val reads: ComponentClassSet = setOf(
     Master::class,
+    Account::class,
+    OwnedBestia::class,
     GainExp::class
   ) + writeBehind.reads
 
@@ -74,6 +80,7 @@ class GainExpSystem(
       // StatusValueRecalcSystem rebuilds max HP/Mana/Stamina from the new level next tick.
       if (leveledUp) {
         world.add(entityId, IsStatusValueDirty)
+        announceLevelUp(world, entityId, isMaster)
       }
 
       if (isMaster) {
@@ -85,6 +92,19 @@ class GainExpSystem(
     if (gainedMasters.isNotEmpty()) {
       writeBehind.persist(world, gainedMasters, withStatusEffects = false)
     }
+  }
+
+  private fun announceLevelUp(world: World, entityId: EntityId, isMaster: Boolean) {
+    if (levelUpListeners.isEmpty()) {
+      return
+    }
+
+    val accountId = world.get(entityId, Account::class)?.accountId ?: return
+    val masterId = world.get(entityId, Master::class)?.masterId
+      ?: world.get(entityId, OwnedBestia::class)?.masterId
+      ?: return
+
+    levelUpListeners.forEach { it.leveledUp(accountId, masterId, isMaster) }
   }
 
   companion object {

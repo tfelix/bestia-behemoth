@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package bnet;
+
+import "messages/party/party_info_smsg.proto";
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "SetPartyExpShareCmsgProto";
+
+// The party owner picks how kill EXP is shared. Every member is sent the new roster.
+message SetPartyExpShareCMSG {
+  PartyExpShare exp_share = 1;
+}

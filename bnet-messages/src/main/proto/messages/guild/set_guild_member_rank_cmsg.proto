@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "SetGuildMemberRankCmsgProto";
+
+// A member whose rank may manage ranks moves a member of a lower rank onto another rank below its own.
+message SetGuildMemberRankCMSG {
+  uint64 master_id = 1;
+  uint64 rank_id = 2;
+}

@@ -5,6 +5,8 @@ import io.mockk.verify
 import net.bestia.zone.identity.ecs.Master
 import net.bestia.zone.battle.ecs.level.Level
 import net.bestia.zone.battle.ecs.level.LevelUpExperienceCalculator
+import net.bestia.zone.battle.ecs.level.LevelUpListener
+import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.persistence.EntityWriteBehind
@@ -14,7 +16,8 @@ import org.junit.jupiter.api.Test
 class GainExpSystemTest {
 
   private val writeBehind = mockk<EntityWriteBehind>(relaxed = true)
-  private val world = testWorld(systems = listOf(GainExpSystem(LevelUpExperienceCalculator(), writeBehind)))
+  private val levelUps = mockk<LevelUpListener>(relaxed = true)
+  private val world = testWorld(systems = listOf(GainExpSystem(LevelUpExperienceCalculator(), writeBehind, listOf(levelUps))))
 
   private fun World.masterGaining(masterId: Long, exp: Int): EntityId {
     return createEntity { id ->
@@ -53,5 +56,30 @@ class GainExpSystemTest {
     world.tick(0.05f)
 
     verify(exactly = 0) { writeBehind.persist(any(), any(), any()) }
+  }
+
+  /** What a party roster or a guild window shows has to follow a level-up, so the slices above are told. */
+  @Test
+  fun `a level-up is told once, with the master it belongs to`() {
+    val master = world.masterGaining(masterId = 7L, exp = 2_500)
+    world.add(master, Account(ACCOUNT))
+
+    world.tick(0.05f)
+
+    verify(exactly = 1) { levelUps.leveledUp(ACCOUNT, 7L, true) }
+  }
+
+  @Test
+  fun `a gain short of a level tells nobody`() {
+    val master = world.masterGaining(masterId = 7L, exp = 10)
+    world.add(master, Account(ACCOUNT))
+
+    world.tick(0.05f)
+
+    verify(exactly = 0) { levelUps.leveledUp(any(), any(), any()) }
+  }
+
+  private companion object {
+    const val ACCOUNT = 42L
   }
 }

@@ -5,8 +5,7 @@ package bnet;
 option java_package = "net.bestia.bnet.proto";
 option java_outer_classname = "RemovePartyMemberCmsgProto";
 
-// The party owner removes a member.
+// The party owner removes a member from their own party.
 message RemovePartyMemberCMSG {
-  uint64 party_id = 1;
-  uint64 member_account_id = 2;
+  uint64 member_master_id = 1;
 }

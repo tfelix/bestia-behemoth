@@ -5,12 +5,11 @@ import net.bestia.zone.message.CMSG
 
 data class RemovePartyMemberCMSG(
   override val playerId: Long,
-  val partyId: Long,
-  val memberAccountId: Long
+  val memberMasterId: Long
 ) : CMSG {
   companion object {
     fun fromBnet(accountId: Long, proto: RemovePartyMemberCmsgProto.RemovePartyMemberCMSG): RemovePartyMemberCMSG {
-      return RemovePartyMemberCMSG(playerId = accountId, partyId = proto.partyId, memberAccountId = proto.memberAccountId)
+      return RemovePartyMemberCMSG(playerId = accountId, memberMasterId = proto.memberMasterId)
     }
   }
 }

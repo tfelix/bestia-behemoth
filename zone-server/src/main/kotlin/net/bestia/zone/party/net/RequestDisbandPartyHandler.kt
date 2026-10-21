@@ -5,15 +5,15 @@ import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.zone.message.IoMessageHandler
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.message.decoder
-import net.bestia.zone.party.DisbandPartySMSG
-import net.bestia.zone.party.PartyErrorSMSG
-import net.bestia.zone.party.PartyNotFoundException
+import net.bestia.zone.party.PartyException
+import net.bestia.zone.party.PartyRosterPublisher
 import net.bestia.zone.party.PartyService
 import org.springframework.stereotype.Component
 
 @Component
 class RequestDisbandPartyHandler(
   private val partyService: PartyService,
+  private val rosterPublisher: PartyRosterPublisher,
   private val outMessageProcessor: OutMessageProcessor
 ) : IoMessageHandler<RequestDisbandPartyCMSG> {
 
@@ -21,22 +21,14 @@ class RequestDisbandPartyHandler(
     RequestDisbandPartyCMSG.fromBnet(accountId, envelope.requestDisbandParty)
   }
 
-
   override fun handle(msg: RequestDisbandPartyCMSG): Boolean {
     try {
-      val oldPartyMemberAccountIds = partyService.disbandParty(msg.playerId, msg.partyId)
-      val disbandMsg = DisbandPartySMSG(msg.partyId)
-
-      oldPartyMemberAccountIds.forEach { oldPartyMemberAccountId ->
-        outMessageProcessor.sendToPlayer(oldPartyMemberAccountId, disbandMsg)
-      }
+      val disbanded = partyService.disbandParty(msg.playerId, msg.partyId)
+      rosterPublisher.disbanded(disbanded.partyId, disbanded.members)
 
       LOG.debug { "Player ${msg.playerId} disbanded party ${msg.partyId}" }
-    } catch (_: PartyNotFoundException) {
-      LOG.error { "Failed to disband party ${msg.partyId} for player ${msg.playerId}: party not found" }
-      outMessageProcessor.sendToPlayer(msg.playerId, PartyErrorSMSG(PartyErrorSMSG.PartyErrorCode.NO_PARTY))
-    } catch (e: Exception) {
-      LOG.error(e) { "Failed to disband party ${msg.partyId} for player ${msg.playerId}" }
+    } catch (e: PartyException) {
+      outMessageProcessor.sendToPlayer(msg.playerId, e.toOperationError())
     }
 
     return true

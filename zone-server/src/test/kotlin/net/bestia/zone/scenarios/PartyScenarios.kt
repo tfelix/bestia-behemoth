@@ -1,101 +1,128 @@
 package net.bestia.zone.scenarios
 
-import net.bestia.zone.party.*
+import net.bestia.bnet.proto.OperationErrorProto.OpError
+import net.bestia.bnet.proto.OperationSuccessProto.OpSuccess
+import net.bestia.zone.identity.ecs.PartyExpShare
+import net.bestia.zone.message.OperationErrorSMSG
+import net.bestia.zone.message.OperationSuccessSMSG
+import net.bestia.zone.party.DisbandPartySMSG
+import net.bestia.zone.party.PartyException
+import net.bestia.zone.party.PartyInfoSMSG
+import net.bestia.zone.party.PartyInvitationSMSG
+import net.bestia.zone.party.PartyService
+import net.bestia.zone.party.net.AcceptPartyInviteCMSG
+import net.bestia.zone.party.net.CreatePartyCMSG
+import net.bestia.zone.party.net.DeclinePartyInviteCMSG
+import net.bestia.zone.party.net.LeavePartyCMSG
+import net.bestia.zone.party.net.RemovePartyMemberCMSG
+import net.bestia.zone.party.net.RequestDisbandPartyCMSG
+import net.bestia.zone.party.net.RequestPartyInfoCMSG
+import net.bestia.zone.party.net.RequestPartyInvitationCMSG
+import net.bestia.zone.party.net.SetPartyExpShareCMSG
 import net.bestia.zone.session.ConnectionInfoService
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
-import net.bestia.zone.party.net.CreatePartyCMSG
-import net.bestia.zone.party.net.DeclinePartyInviteCMSG
-import net.bestia.zone.party.net.RequestDisbandPartyCMSG
-import net.bestia.zone.party.net.RequestPartyInfoCMSG
-import net.bestia.zone.party.net.RequestPartyInvitationCMSG
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
+/**
+ * A party's life from the wire, in order: the tests share one party, created in one test and ended in the last.
+ *
+ * Rosters go out on a background job, so anything waiting for one is asserted inside [await].
+ */
 class PartyScenarios : BestiaNoSocketScenario() {
 
   @Autowired
   private lateinit var connectionInfoService: ConnectionInfoService
 
-  private var partyInvitationSMSGToDeclined: PartyInvitationSMSG? = null
-  private var partyInvitationCreatedSMSG: PartyInvitationCreatedSMSG? = null
-  private var createdPartyInfoSMSG: PartyInfoSMSG? = null
+  @Autowired
+  private lateinit var partyService: PartyService
+
+  private var declinedInvitation: PartyInvitationSMSG? = null
+  private var partyId: Long = 0
+
+  private val player2MasterId by lazy { testData.account2.masterIds.first() }
+
+  @AfterAll
+  fun leaveWhateverIsLeft() {
+    // The Spring context is shared with every other scenario: a failure halfway must not leave a party behind.
+    listOf(clientPlayer1, clientPlayer2, clientPlayer3).forEach { client ->
+      try {
+        partyService.leaveParty(client.connectedPlayerId)
+      } catch (_: PartyException) {
+        // Not in one.
+      }
+    }
+  }
 
   @Test
   @Order(1)
-  fun `requesting a party info while not part of a party returns an error`() {
+  fun `requesting the party info outside a party answers with an empty roster`() {
     clientPlayer1.sendMessage(RequestPartyInfoCMSG(clientPlayer1.connectedPlayerId))
 
-    val response = clientPlayer1.tryGetLastReceived(PartyErrorSMSG::class)
+    val response = clientPlayer1.tryGetLastReceived(PartyInfoSMSG::class)
 
     assertNotNull(response)
-    assertEquals(PartyErrorSMSG.PartyErrorCode.NO_PARTY, response.error)
+    assertEquals(0L, response.partyId)
+    assertTrue(response.member.isEmpty())
+    assertNull(clientPlayer1.tryGetLastReceived(OperationErrorSMSG::class), "being in no party is not an error")
   }
 
   @Test
   @Order(2)
-  fun `requesting a party disband while not part of a party returns an error`() {
-    clientPlayer1.sendMessage(RequestDisbandPartyCMSG(clientPlayer1.connectedPlayerId, 1L))
+  fun `disbanding a party that does not exist is refused`() {
+    clientPlayer1.sendMessage(RequestDisbandPartyCMSG(clientPlayer1.connectedPlayerId, 999_999L))
 
-    val response = clientPlayer1.tryGetLastReceived(PartyErrorSMSG::class)
-
-    assertNotNull(response)
-    assertEquals(PartyErrorSMSG.PartyErrorCode.NO_PARTY, response.error)
+    assertEquals(OperationErrorSMSG(OpError.PARTY_NOT_IN_PARTY), clientPlayer1.tryGetLastReceived(OperationErrorSMSG::class))
   }
 
   @Test
   @Order(3)
-  fun `inviting a party member while not part of a party returns an error`() {
-    clientPlayer1.sendMessage(RequestPartyInvitationCMSG(clientPlayer1.connectedPlayerId, 100L))
+  fun `inviting outside a party is refused`() {
+    clientPlayer1.sendMessage(RequestPartyInvitationCMSG(clientPlayer1.connectedPlayerId, "player2"))
 
-    val response = clientPlayer1.tryGetLastReceived(PartyErrorSMSG::class)
-
-    assertNotNull(response)
-    assertEquals(PartyErrorSMSG.PartyErrorCode.NO_PARTY, response.error)
+    assertEquals(OperationErrorSMSG(OpError.PARTY_NOT_IN_PARTY), clientPlayer1.tryGetLastReceived(OperationErrorSMSG::class))
   }
 
   @Test
   @Order(4)
-  fun `creating a party creates a party returns the info`() {
-    clientPlayer1.sendMessage(
-      CreatePartyCMSG(
-        clientPlayer1.connectedPlayerId,
-        "myParty"
-      )
-    )
+  fun `creating a party sends its founder the roster`() {
+    clientPlayer1.sendMessage(CreatePartyCMSG(clientPlayer1.connectedPlayerId, "myParty"))
 
-    val response = clientPlayer1.tryGetLastReceived(PartyInfoSMSG::class)
+    await {
+      val response = clientPlayer1.tryGetLastReceived(PartyInfoSMSG::class)
 
-    assertNotNull(response)
-    assertEquals("myParty", response.partyName)
-    assertEquals(1, response.member.size, "Must only contain owner")
+      assertNotNull(response)
+      assertEquals("myParty", response.partyName)
+      assertEquals(1, response.member.size, "Must only contain owner")
+      assertEquals(PartyExpShare.EVEN_SHARE, response.expShare, "a new party shares")
 
-    val masterEntityId = connectionInfoService.getSelectedMasterEntityId(clientPlayer1.connectedPlayerId)
-    assertEquals(masterEntityId, response.member[0].onlineData?.entityId)
+      val masterEntityId = connectionInfoService.getSelectedMasterEntityId(clientPlayer1.connectedPlayerId)
+      assertEquals(masterEntityId, response.member[0].onlineData?.entityId)
+      assertEquals(response.member[0].masterId, response.ownerMasterId)
 
-    createdPartyInfoSMSG = response
+      partyId = response.partyId
+    }
   }
 
   @Test
   @Order(5)
-  fun `creating another party while already in one returns an error`() {
-    clientPlayer1.sendMessage(
-      CreatePartyCMSG(
-        clientPlayer1.connectedPlayerId,
-        "myParty-again"
-      )
+  fun `creating another party while already in one is refused`() {
+    clientPlayer1.sendMessage(CreatePartyCMSG(clientPlayer1.connectedPlayerId, "myParty-again"))
+
+    assertEquals(
+      OperationErrorSMSG(OpError.PARTY_ALREADY_IN_PARTY),
+      clientPlayer1.tryGetLastReceived(OperationErrorSMSG::class)
     )
-
-    val response = clientPlayer1.tryGetLastReceived(PartyErrorSMSG::class)
-
-    assertNotNull(response)
-    assertEquals(PartyErrorSMSG.PartyErrorCode.ALREADY_IN_PARTY, response.error)
   }
 
   @Test
   @Order(6)
-  fun `requesting a party info while inside a part returns the info`() {
+  fun `requesting the party info inside a party returns the roster`() {
     clientPlayer1.sendMessage(RequestPartyInfoCMSG(clientPlayer1.connectedPlayerId))
 
     val response = clientPlayer1.tryGetLastReceived(PartyInfoSMSG::class)
@@ -103,215 +130,132 @@ class PartyScenarios : BestiaNoSocketScenario() {
     assertNotNull(response)
     assertEquals("myParty", response.partyName)
     assertEquals(1, response.member.size, "Must only contain owner")
-
-    val masterEntityId = connectionInfoService.getSelectedMasterEntityId(clientPlayer1.connectedPlayerId)
-    assertEquals(masterEntityId, response.member[0].onlineData?.entityId)
   }
 
   @Test
   @Order(7)
-  fun `inviting a player while inside a party forwards invite to player`() {
-    clientPlayer1.sendMessage(
-      RequestPartyInvitationCMSG(
-        clientPlayer1.connectedPlayerId,
-        clientPlayer2.connectedPlayerId
-      )
+  fun `inviting a player by name asks them and tells the owner it went out`() {
+    clientPlayer1.sendMessage(RequestPartyInvitationCMSG(clientPlayer1.connectedPlayerId, "player2"))
+
+    assertEquals(
+      OperationSuccessSMSG(OpSuccess.PARTY_INVITATION_SENT),
+      clientPlayer1.tryGetLastReceived(OperationSuccessSMSG::class)
     )
 
-    partyInvitationCreatedSMSG = clientPlayer1.tryGetLastReceived(PartyInvitationCreatedSMSG::class)
-    assertNotNull(partyInvitationCreatedSMSG)
-    assertEquals(clientPlayer2.connectedPlayerId, partyInvitationCreatedSMSG!!.invitedAccountId)
-    assertEquals(PartyInvitationCreatedSMSG.InvitationStatus.CREATED, partyInvitationCreatedSMSG!!.status)
+    declinedInvitation = clientPlayer2.tryGetLastReceived(PartyInvitationSMSG::class)
 
-    partyInvitationSMSGToDeclined = clientPlayer2.tryGetLastReceived(PartyInvitationSMSG::class)
-
-    assertNotNull(partyInvitationSMSGToDeclined)
-    assertEquals("myParty", partyInvitationSMSGToDeclined!!.partyName)
-    assertEquals("player1", partyInvitationSMSGToDeclined!!.invitedByMaster)
+    assertNotNull(declinedInvitation)
+    assertEquals("myParty", declinedInvitation!!.partyName)
+    assertEquals("player1", declinedInvitation!!.invitedByMaster)
+    assertEquals(60, declinedInvitation!!.expiresInSeconds)
   }
 
   @Test
   @Order(8)
-  fun `when player declines invitation an error is send to original requester`() {
-    clientPlayer2.sendMessage(
-      DeclinePartyInviteCMSG(
-        playerId = clientPlayer2.connectedPlayerId,
-        invitationId = partyInvitationSMSGToDeclined!!.invitationId
-      )
+  fun `a declined invitation tells the owner who declined`() {
+    clientPlayer2.sendMessage(DeclinePartyInviteCMSG(clientPlayer2.connectedPlayerId, declinedInvitation!!.invitationId))
+
+    assertEquals(
+      OperationErrorSMSG(OpError.PARTY_INVITE_DECLINED, listOf("player2")),
+      clientPlayer1.tryGetLastReceived(OperationErrorSMSG::class)
     )
-
-    val response = clientPlayer1.tryGetLastReceived(PartyInviteDeclinedSMSG::class)
-
-    assertNotNull(response)
-    assertEquals(partyInvitationCreatedSMSG!!.invitationId, response.invitationId)
   }
 
   @Test
   @Order(9)
-  fun `when player waits for too long and the invitation expired he gets an error on accept`() {
-    clientPlayer1.sendMessage(
-      RequestPartyInvitationCMSG(
-        clientPlayer1.connectedPlayerId,
-        clientPlayer2.connectedPlayerId
-      )
+  fun `an invitation already answered cannot be answered again`() {
+    clientPlayer2.sendMessage(DeclinePartyInviteCMSG(clientPlayer2.connectedPlayerId, declinedInvitation!!.invitationId))
+
+    assertEquals(
+      OperationErrorSMSG(OpError.PARTY_INVITE_EXPIRED),
+      clientPlayer2.tryGetLastReceived(OperationErrorSMSG::class)
     )
-
-    // TODO simulate the timeout.
-
-    clientPlayer2.sendMessage(
-      DeclinePartyInviteCMSG(
-        playerId = clientPlayer2.connectedPlayerId,
-        invitationId = partyInvitationSMSGToDeclined!!.invitationId
-      )
-    )
-
-    val response = clientPlayer2.tryGetLastReceived(PartyErrorSMSG::class)
-
-    assertNotNull(response)
-    assertEquals(PartyErrorSMSG.PartyErrorCode.INVITE_EXPIRED, response.error)
-  }
-
-  /*
-  @Test
-  @Order(9)
-  fun `when player accepts party invitation in time he gets added to the party`() {
-    clientPlayer1.sendMessage(
-      RequestPartyInvitation(
-        clientPlayer1.connectedPlayerId,
-        clientPlayer2.connectedPlayerId
-      )
-    )
-
-    clientPlayer2.sendMessage(
-      AcceptPartyInvite(
-        playerId = clientPlayer2.connectedPlayerId,
-        invitationId = partyInvitationToDeclined!!.invitationId
-      )
-    )
-
-    // Party info is send to all clients so it updates the party information with the new user.
-    val player1PartyInfo = clientPlayer1.tryGetLastReceived(PartyInfo::class)
-    val player2PartyInfo = clientPlayer2.tryGetLastReceived(PartyInfo::class)
-
-    assertNotNull(player1PartyInfo)
-    assertNotNull(player2PartyInfo)
-
-    assertEquals("myParty", player2PartyInfo.partyName)
-    assertEquals(1L, player2PartyInfo.partyId)
-    assertEquals(2, player2PartyInfo.member.size)
-    // first one is owner of party.
-    assertEquals("master name", player2PartyInfo.member[0].masterName)
-    assertEquals("area name", player2PartyInfo.member[0].areaName)
-    assertEquals(Vec3.ZERO, player2PartyInfo.member[0].position)
-    assertEquals(10, player2PartyInfo.member[0].hp.max)
-    assertEquals(10, player2PartyInfo.member[0].hp.current)
   }
 
   @Test
   @Order(10)
-  fun `when a non party member requests the removal of a party member it returns an error`() {
-    clientPlayer3.sendMessage(
-      RequestPartyMemberRemoval(
-        clientPlayer3.connectedPlayerId,
-        createdPartyInfo!!.partyId,
-        123
-      )
+  fun `inviting a name nobody plays is refused with the name`() {
+    clientPlayer1.sendMessage(RequestPartyInvitationCMSG(clientPlayer1.connectedPlayerId, "nobody"))
+
+    assertEquals(
+      OperationErrorSMSG(OpError.PARTY_PLAYER_NOT_FOUND, listOf("nobody")),
+      clientPlayer1.tryGetLastReceived(OperationErrorSMSG::class)
     )
-
-    // Party info is to all clients so it updates the party information with the new user.
-    val response = clientPlayer3.tryGetLastReceived(PartyError::class)
-
-    assertNotNull(response)
-    assertEquals(PartyError.PartyErrorCode.NO_PERMISSION, response.error)
   }
 
+  /** The owner is told as well as the newcomer: a join used to refresh only the joiner. */
   @Test
   @Order(11)
-  fun `when a non party member requests to disband of a party member it is declined`() {
-    clientPlayer3.sendMessage(
-      RequestDisbandParty(
-        clientPlayer3.connectedPlayerId,
-        createdPartyInfo!!.partyId
-      )
-    )
+  fun `an accepted invitation gives every member the new roster`() {
+    clientPlayer1.sendMessage(RequestPartyInvitationCMSG(clientPlayer1.connectedPlayerId, "player2"))
+    val invitation = clientPlayer2.getLastReceived(PartyInvitationSMSG::class)
 
-    // Party info is send to all clients so it updates the party information with the new user.
-    val response = clientPlayer3.tryGetLastReceived(PartyError::class)
+    clientPlayer2.sendMessage(AcceptPartyInviteCMSG(clientPlayer2.connectedPlayerId, invitation.invitationId))
 
-    assertNotNull(response)
-    assertEquals(PartyError.PartyErrorCode.NO_PERMISSION, response.error)
+    await {
+      listOf(clientPlayer1, clientPlayer2).forEach { client ->
+        val roster = client.tryGetLastReceived(PartyInfoSMSG::class)
+        assertNotNull(roster)
+        assertEquals(2, roster.member.size)
+        assertEquals(listOf("player1", "player2"), roster.member.map { it.masterName }, "the owner first")
+      }
+    }
   }
 
   @Test
   @Order(12)
-  fun `when a party member requests to remove another party member it is declined`() {
-    // Add the third user
-    clientPlayer1.sendMessage(
-      RequestPartyInvitation(
-        clientPlayer1.connectedPlayerId,
-        clientPlayer3.connectedPlayerId
-      )
+  fun `only the owner picks the EXP mode`() {
+    clientPlayer2.sendMessage(SetPartyExpShareCMSG(clientPlayer2.connectedPlayerId, PartyExpShare.EACH_TAKE))
+
+    assertEquals(
+      OperationErrorSMSG(OpError.PARTY_NO_PERMISSION),
+      clientPlayer2.tryGetLastReceived(OperationErrorSMSG::class)
     )
-
-    val invitation = clientPlayer3.tryGetLastReceived(PartyInvitation::class)
-
-    assertNotNull(invitation)
-
-    clientPlayer3.sendMessage(
-      AcceptPartyInvite(
-        playerId = clientPlayer3.connectedPlayerId,
-        invitationId = invitation.partyId
-      )
-    )
-
-    clientPlayer3.sendMessage(
-      RequestPartyMemberRemoval(
-        clientPlayer3.connectedPlayerId,
-        createdPartyInfo!!.partyId,
-        clientPlayer2.connectedPlayerId
-      )
-    )
-
-    // Should be declined
-    val response = clientPlayer3.tryGetLastReceived(PartyError::class)
-
-    assertNotNull(response)
-    assertEquals(PartyError.PartyErrorCode.NO_PERMISSION, response.error)
   }
 
   @Test
   @Order(13)
-  fun `when the party owner requests party info it works`() {
-    // TODO()
+  fun `the owner's EXP mode reaches every member`() {
+    clientPlayer1.sendMessage(SetPartyExpShareCMSG(clientPlayer1.connectedPlayerId, PartyExpShare.EACH_TAKE))
+
+    await {
+      listOf(clientPlayer1, clientPlayer2).forEach { client ->
+        assertEquals(PartyExpShare.EACH_TAKE, client.tryGetLastReceived(PartyInfoSMSG::class)?.expShare)
+      }
+    }
   }
 
   @Test
   @Order(14)
-  fun `when a party member requests party info it works`() {
-    // TODO()
+  fun `a kick from outside the party is refused`() {
+    clientPlayer3.sendMessage(RemovePartyMemberCMSG(clientPlayer3.connectedPlayerId, player2MasterId))
+
+    assertEquals(
+      OperationErrorSMSG(OpError.PARTY_NOT_IN_PARTY),
+      clientPlayer3.tryGetLastReceived(OperationErrorSMSG::class)
+    )
   }
 
+  /** The rest of the party is told too: a kick used to refresh only the owner. */
   @Test
   @Order(15)
-  fun `when a non party member requests party info it is declined`() {
-    // TODO()
+  fun `a kicked member is told the party is over for them and the rest get the roster without them`() {
+    clientPlayer1.sendMessage(RemovePartyMemberCMSG(clientPlayer1.connectedPlayerId, player2MasterId))
+
+    await {
+      assertEquals(DisbandPartySMSG(partyId), clientPlayer2.tryGetLastReceived(DisbandPartySMSG::class))
+      assertEquals(1, clientPlayer1.tryGetLastReceived(PartyInfoSMSG::class)?.member?.size)
+    }
   }
 
   @Test
   @Order(16)
-  fun `when the party owner removes another member it works`() {
-    // TODO()
-  }
+  fun `the owner leaving disbands the party`() {
+    clientPlayer1.sendMessage(LeavePartyCMSG(clientPlayer1.connectedPlayerId))
 
-  @Test
-  @Order(17)
-  fun `when a party member removes himself it works`() {
-    // TODO()
+    await {
+      assertEquals(DisbandPartySMSG(partyId), clientPlayer1.tryGetLastReceived(DisbandPartySMSG::class))
+    }
+    assertNull(partyService.findPartyIdOfAccount(clientPlayer1.connectedPlayerId))
   }
-
-  @Test
-  @Order(18)
-  fun `when the party owner disbands a party existing members are removed and notified`() {
-    // TODO()
-  }*/
 }

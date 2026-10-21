@@ -56,15 +56,5 @@ data class ChatSMSG(
       ChatType.GUILD,
       ChatType.GM
     )
-
-    val ERROR_NO_PARTY = ChatSMSG(
-      text = "error.no_party",
-      type = ChatType.ERROR,
-    )
-
-    val ERROR_NOT_SUPPORTED = ChatSMSG(
-      text = "error.not_supported",
-      type = ChatType.ERROR,
-    )
   }
 }

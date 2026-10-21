@@ -5,6 +5,8 @@ import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.zone.ai.ecs.PlayerControlled
 import net.bestia.zone.aoi.ActivePlayerAOIService
 import net.bestia.zone.identity.ecs.ActivePlayer
+import net.bestia.zone.identity.ecs.PartyMembership
+import net.bestia.zone.party.PartyRosterPublisher
 import net.bestia.zone.battle.ecs.attack.AttackCancelService
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.modify
@@ -33,6 +35,7 @@ class SelectEntityHandler(
   private val attackCancelService: AttackCancelService,
   private val playerAOIService: ActivePlayerAOIService,
   private val outMessageProcessor: OutMessageProcessor,
+  private val partyRosterPublisher: PartyRosterPublisher,
 ) : TickMessageHandler<SelectEntityCMSG> {
   override val wire = decoder(MessageCase.SELECT_ACTIVE_ENTITY) { accountId, envelope ->
     SelectEntityCMSG(accountId, envelope.selectActiveEntity.entityId)
@@ -53,6 +56,7 @@ class SelectEntityHandler(
     if (previous != msg.entityId) {
       moveControlMarker(world, from = previous, to = msg.entityId)
       moveViewAnchor(world, msg.playerId, from = previous, to = msg.entityId)
+      tellParty(world, msg.playerId)
     }
 
     outMessageProcessor.sendToPlayer(msg.playerId, ActiveEntitySMSG(msg.entityId))
@@ -92,6 +96,14 @@ class SelectEntityHandler(
       get(id, Position::class)?.toVec3L()
     }
     at?.let { playerAOIService.setEntityPosition(accountId, it) }
+  }
+
+  /** The party's window shows what each member plays, so a switch is a roster change. */
+  private fun tellParty(world: World, accountId: AccountId) {
+    val masterEntityId = runCatching { connectionInfoService.getSelectedMasterEntityId(accountId) }.getOrNull() ?: return
+    val partyId = world.get(masterEntityId, PartyMembership::class)?.partyId ?: return
+
+    partyRosterPublisher.request(partyId)
   }
 
   companion object {

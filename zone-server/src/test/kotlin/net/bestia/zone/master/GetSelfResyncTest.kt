@@ -68,7 +68,9 @@ class GetSelfResyncTest {
     bestiaInfoFactory = bestiaInfoFactory,
     bestiaSlots = bestiaSlots,
     world = world,
-    entityVisibility = entityVisibility
+    entityVisibility = entityVisibility,
+    partyRosterPublisher = mockk(relaxed = true),
+    guildInfoPublisher = mockk(relaxed = true),
   )
 
   /** Every owner-only component a selected master carries that its own windows read. */

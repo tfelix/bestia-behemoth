@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "RequestGuildInfoCmsgProto";
+
+// The client asks for its guild, answered with a GuildInfoSMSG (guild_id 0 when in no guild).
+message RequestGuildInfoCMSG {
+}

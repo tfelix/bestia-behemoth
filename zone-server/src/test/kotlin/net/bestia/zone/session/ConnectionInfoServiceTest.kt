@@ -7,11 +7,59 @@ import net.bestia.zone.session.ConnectionInfoService.PlayerEntity
 import org.junit.jupiter.api.assertThrows
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class ConnectionInfoServiceTest {
 
   private val sut = ConnectionInfoService()
+
+  private val presence = mutableListOf<Triple<Long, Long, Boolean>>()
+  private val recording = ConnectionInfoService { event ->
+    if (event is MasterPresenceChangedEvent) presence += Triple(event.accountId, event.masterId, event.online)
+  }
+
+  @Test
+  fun `selecting a master and losing the connection are both told`() {
+    recording.activateSession(ACCOUNT, MASTER, MASTER_ENTITY)
+    recording.removeSession(ACCOUNT)
+
+    assertEquals(listOf(Triple(ACCOUNT, MASTER, true), Triple(ACCOUNT, MASTER, false)), presence)
+  }
+
+  @Test
+  fun `a logout is told once, and a repeated one not at all`() {
+    recording.activateSession(ACCOUNT, MASTER, MASTER_ENTITY)
+    presence.clear()
+
+    recording.deactivateSession(ACCOUNT)
+    recording.deactivateSession(ACCOUNT)
+    recording.removeSession(ACCOUNT)
+
+    assertEquals(listOf(Triple(ACCOUNT, MASTER, false)), presence)
+  }
+
+  /** Re-attaching to the master already selected changes nobody's presence, so nothing is told. */
+  @Test
+  fun `re-activating the same master is not told again`() {
+    recording.activateSession(ACCOUNT, MASTER, MASTER_ENTITY)
+    recording.activateSession(ACCOUNT, MASTER, MASTER_ENTITY)
+
+    assertEquals(listOf(Triple(ACCOUNT, MASTER, true)), presence)
+  }
+
+  @Test
+  fun `switching straight to another master tells both`() {
+    recording.activateSession(ACCOUNT, MASTER, MASTER_ENTITY)
+    recording.activateSession(ACCOUNT, OTHER_MASTER, OTHER_MASTER_ENTITY)
+
+    assertEquals(
+      listOf(Triple(ACCOUNT, MASTER, true), Triple(ACCOUNT, MASTER, false), Triple(ACCOUNT, OTHER_MASTER, true)),
+      presence
+    )
+    assertTrue(recording.isPlaying(ACCOUNT, OTHER_MASTER))
+    assertFalse(recording.isPlaying(ACCOUNT, MASTER))
+  }
 
   @Test
   fun `asking about an account that never connected leaves nothing behind`() {
@@ -72,5 +120,6 @@ class ConnectionInfoServiceTest {
     const val MASTER = 10L
     const val OTHER_MASTER = 11L
     const val MASTER_ENTITY = 1_000L
+    const val OTHER_MASTER_ENTITY = 1_001L
   }
 }

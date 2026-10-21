@@ -7,6 +7,13 @@ sealed interface SyncTargets {
   /** Sends this component only to the owner of the entity. Only works for PlayerBestia and Master */
   data object OwnerOnly : SyncTargets
 
-  /** Send only to these specific accounts (e.g. the owner, plus party members). */
+  /**
+   * The owner, plus the party of the master it belongs to while that master or this entity is the one being
+   * played, wherever they stand. Resolved by [net.bestia.zone.aoi.EntityAudience.ownerAndParty], because who is
+   * playing what lives in the session, which a component cannot see.
+   */
+  data object OwnerAndParty : SyncTargets
+
+  /** Send only to these specific accounts. */
   data class Accounts(val accountIds: Set<Long>) : SyncTargets
 }

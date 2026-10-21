@@ -4,6 +4,11 @@ import net.bestia.zone.master.bestia.PlayerBestiaFactory
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.item.persistence.ItemInstanceRepository
+import net.bestia.zone.guild.persistence.Guild
+import net.bestia.zone.guild.persistence.GuildMember
+import net.bestia.zone.guild.persistence.GuildRank
+import net.bestia.zone.guild.persistence.GuildRepository
+import net.bestia.zone.identity.ecs.PartyMembership
 import net.bestia.zone.party.PartyService
 import net.bestia.zone.scenarios.ScenarioDataSetup
 import net.bestia.zone.world.MasterSpawnPointService
@@ -62,6 +67,9 @@ class MasterDeletionServiceTest {
 
   @Autowired
   private lateinit var partyRepository: PartyRepository
+
+  @Autowired
+  private lateinit var guildRepository: GuildRepository
 
   @Autowired
   private lateinit var testFixture: ScenarioDataSetup.TestFixture
@@ -135,8 +143,10 @@ class MasterDeletionServiceTest {
 
     val result = masterDeletionService.delete(ACCOUNT_ID, master.id, master.name)
 
+    // The deleted master is listed too; nobody plays it, so the roster publisher tells it nothing.
+    val members = setOf(PartyMembership.Member(accountId = ACCOUNT_ID, masterId = master.id))
     assertEquals(
-      MasterDeletionService.Result.Deleted(master.name, PartyService.LeavePartyResult.Disbanded(partyId, emptyList())),
+      MasterDeletionService.Result.Deleted(master.name, PartyService.LeavePartyResult.Disbanded(partyId, members)),
       result
     )
     assertNull(partyRepository.findByIdOrNull(partyId))
@@ -171,6 +181,43 @@ class MasterDeletionServiceTest {
     assertNotNull(masterRepository.findByIdOrNull(master.id))
 
     masterDeletionService.delete(ACCOUNT_ID, master.id, master.name)
+  }
+
+  /** Nobody could take the guild over, so its leader has to disband it before it can go. */
+  @Test
+  fun `refuses to delete a guild's leader and names the guild`() {
+    val master = createThrowawayMaster()
+    val guildName = "Kept${master.id}"
+    var guildId: Long? = null
+
+    try {
+      guildId = transactionTemplate.execute {
+        val guild = guildRepository.saveAndFlush(Guild(name = guildName, leader = masterRepository.findByIdOrThrow(master.id)))
+        val rank = GuildRank(guild, GuildRank.LEADER_POSITION, "Guild Master", taxPercent = 5)
+        guild.ranks.add(rank)
+        guildRepository.flush()
+        guild.members.add(GuildMember(guild, guild.leader, rank))
+        guild.id
+      }
+
+      val result = masterDeletionService.delete(ACCOUNT_ID, master.id, master.name)
+
+      assertEquals(
+        MasterDeletionService.Result.Denied(MasterDeletionService.Denial.LEADS_GUILD, listOf(guildName)),
+        result
+      )
+      assertNotNull(masterRepository.findByIdOrNull(master.id))
+    } finally {
+      // The account has only so many slots, and every other test here creates its master in the same one.
+      transactionTemplate.execute {
+        guildId?.let { guildRepository.findByIdOrNull(it) }?.let { guild ->
+          guild.members.clear()
+          guildRepository.flush()
+          guildRepository.delete(guild)
+        }
+      }
+      masterDeletionService.delete(ACCOUNT_ID, master.id, master.name)
+    }
   }
 
   /** Named uniquely per call because the master name carries a unique index. */

@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "DeleteGuildRankCmsgProto";
+
+// A member whose rank may manage ranks deletes an empty rank below its own. The leader's rank and the last
+// rank below it cannot be deleted.
+message DeleteGuildRankCMSG {
+  uint64 rank_id = 1;
+}

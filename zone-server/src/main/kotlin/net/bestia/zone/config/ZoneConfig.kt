@@ -8,7 +8,6 @@ data class ZoneConfig(
   val bestiaMaxSlotCount: Int,
   val jwtAuthSecretKey: String,
   val shardId: Int,
-  val partyNameMaxLength: Int = 20,
   /** How long a kick refuses older login tokens. Must outlast the login token's lifetime. */
   val kickMemorySeconds: Long = 300
 )

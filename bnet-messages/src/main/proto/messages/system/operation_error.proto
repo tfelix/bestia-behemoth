@@ -190,6 +190,44 @@ enum OpError {
   // A novice-only consumable, such as a novice potion, used by a master who has invested a skill point outside
   // the Novice tree. The item stays in the bag.
   ITEM_NOVICE_ONLY = 59;
+
+  // Parties. One code for "no master of that name" and "that master is not being played", on the reasoning
+  // CHAT_WHISPER_TARGET_UNAVAILABLE gives. The codes that name somebody carry that master's name in args[0].
+  // Also what party chat answers when the sender is in no party.
+  PARTY_NOT_IN_PARTY = 60;
+  PARTY_PLAYER_NOT_FOUND = 61;
+  // The invitation timed out, or was answered already.
+  PARTY_INVITE_EXPIRED = 62;
+  // Only the owner may invite, kick or change the EXP mode. Reachable through the chat commands, which the
+  // party window's hidden buttons do not guard.
+  PARTY_NO_PERMISSION = 63;
+  PARTY_ALREADY_IN_PARTY = 64;
+  PARTY_TARGET_IN_PARTY = 65;
+  PARTY_NAME_IN_USE = 66;
+  // Blank, too long, or not printable ASCII - see DisplayName.
+  PARTY_INVALID_NAME = 67;
+  // Every seat is taken, open invitations included.
+  PARTY_FULL = 68;
+  PARTY_NOT_A_MEMBER = 69;
+  PARTY_INVITE_DECLINED = 70;
+
+  // Guilds. The rules on who may do what to whom are enforced too, but the guild window only offers what the
+  // recipient's rank allows, so breaking one answers REQUEST_REFUSED rather than a code of its own.
+  GUILD_NAME_TAKEN = 71;
+  // Blank, too long, or not printable ASCII - see DisplayName. Also a rank name.
+  GUILD_INVALID_NAME = 72;
+  // Also what guild chat answers when the sender is in no guild.
+  GUILD_NOT_A_MEMBER = 73;
+  // No master of that name, or not being played - one code, as for whispers. Carries the name in args[0].
+  GUILD_TARGET_UNAVAILABLE = 74;
+  GUILD_TARGET_IN_GUILD = 75;
+  // Every seat is taken, open invitations included. Guild Extension seats more.
+  GUILD_FULL = 76;
+  GUILD_INVITE_EXPIRED = 77;
+  GUILD_INVITE_DECLINED = 78;
+  // A master leading a guild cannot be deleted while the guild stands, since nobody could take it over.
+  // Carries the guild's name in args[0].
+  GUILD_LEADER_MUST_DISBAND = 79;
 }
 
 message OperationError {

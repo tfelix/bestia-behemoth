@@ -42,8 +42,9 @@ import net.bestia.zone.party.net.CreatePartyCMSG
 import net.bestia.zone.party.DisbandPartySMSG
 import net.bestia.zone.party.net.LeavePartyCMSG
 import net.bestia.zone.party.PartyInfoSMSG
-import net.bestia.zone.party.PartyInvitationCreatedSMSG
 import net.bestia.zone.party.PartyInvitationSMSG
+import net.bestia.zone.message.OperationSuccessSMSG
+import net.bestia.bnet.proto.OperationSuccessProto.OpSuccess
 import net.bestia.zone.party.net.RequestDisbandPartyCMSG
 import net.bestia.zone.party.net.RequestPartyInvitationCMSG
 import net.bestia.zone.master.net.GetSkillsCMSG
@@ -282,12 +283,12 @@ class MultiPlayerJourneyScenario : BestiaNoSocketScenario(autoClientConnect = fa
     }
 
     clientPlayer1.sendMessage(
-      RequestPartyInvitationCMSG(clientPlayer1.connectedPlayerId, clientPlayer2.connectedPlayerId)
+      RequestPartyInvitationCMSG(clientPlayer1.connectedPlayerId, "player2")
     )
 
     await {
-      val created = clientPlayer1.getLastReceived(PartyInvitationCreatedSMSG::class)
-      assertEquals(PartyInvitationCreatedSMSG.InvitationStatus.CREATED, created.status)
+      val sent = clientPlayer1.getLastReceived(OperationSuccessSMSG::class)
+      assertEquals(OpSuccess.PARTY_INVITATION_SENT, sent.code)
     }
 
     await {

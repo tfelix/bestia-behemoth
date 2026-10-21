@@ -1,6 +1,9 @@
 package net.bestia.zone.engine
 
+import io.mockk.mockk
+import net.bestia.zone.aoi.EntityAudience
 import net.bestia.zone.identity.ecs.Account
+import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.entity.ecs.EntityVisual
@@ -21,7 +24,7 @@ import kotlin.test.assertTrue
 
 class EntitySnapshotBuilderTest {
 
-  private val builder = EntitySnapshotBuilder()
+  private val builder = EntitySnapshotBuilder(EntityAudience(mockk(relaxed = true), ConnectionInfoService()))
   private val observer = 42L
 
   @Test

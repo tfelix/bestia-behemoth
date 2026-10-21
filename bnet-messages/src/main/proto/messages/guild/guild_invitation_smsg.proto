@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "GuildInvitationSmsgProto";
+
+// Asks the invited player whether they want to join. Answered with AnswerGuildInviteCMSG.
+message GuildInvitationSMSG {
+  uint64 invitation_id = 1;
+  string guild_name = 2;
+  string invited_by_master = 3;
+  // How long the server keeps the invitation open; an answer after that is refused.
+  uint32 expires_in_seconds = 4;
+}

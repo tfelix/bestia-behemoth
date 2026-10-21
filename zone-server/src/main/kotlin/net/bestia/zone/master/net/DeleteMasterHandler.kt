@@ -7,7 +7,8 @@ import net.bestia.zone.message.IoMessageHandler
 import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.message.decoder
-import net.bestia.zone.party.DisbandPartySMSG
+import net.bestia.zone.guild.GuildInfoPublisher
+import net.bestia.zone.party.PartyRosterPublisher
 import net.bestia.zone.party.PartyService
 import org.springframework.stereotype.Component
 import net.bestia.zone.master.MasterDeletedSMSG
@@ -17,13 +18,15 @@ import net.bestia.zone.master.MasterDeletionService
  * Deletes one of the account's masters at its request. Everything that decides whether that is allowed lives
  * in [MasterDeletionService]; this only turns its answer into a wire message.
  *
- * Deliberately not `@Transactional`: the deletion commits inside the service, so the party members notified
- * afterwards are told about something that has actually happened, and a failure to reach them cannot undo it.
+ * Deliberately not `@Transactional`: the deletion commits inside the service, so the party and guild members
+ * notified afterwards are told about something that has actually happened, and a failure to reach them cannot
+ * undo it.
  */
 @Component
 class DeleteMasterHandler(
   private val masterDeletionService: MasterDeletionService,
-  private val partyService: PartyService,
+  private val partyRosterPublisher: PartyRosterPublisher,
+  private val guildInfoPublisher: GuildInfoPublisher,
   private val outMessageProcessor: OutMessageProcessor
 ) : IoMessageHandler<DeleteMasterCMSG> {
   override val wire = decoder(MessageCase.DELETE_MASTER) { accountId, envelope ->
@@ -46,7 +49,7 @@ class DeleteMasterHandler(
 
     when (result) {
       is MasterDeletionService.Result.Denied -> {
-        outMessageProcessor.sendToPlayer(msg.playerId, OperationErrorSMSG(result.reason.toOpError()))
+        outMessageProcessor.sendToPlayer(msg.playerId, OperationErrorSMSG(result.reason.toOpError(), result.args))
       }
 
       is MasterDeletionService.Result.Deleted -> {
@@ -54,7 +57,7 @@ class DeleteMasterHandler(
         // acknowledgement is pushed - same as master creation.
         outMessageProcessor.sendToPlayer(msg.playerId, MasterDeletedSMSG)
 
-        notifyFormerParty(result.partyResult)
+        notifyFormerGroups(result)
       }
     }
 
@@ -62,37 +65,24 @@ class DeleteMasterHandler(
   }
 
   /**
-   * Brings whoever shared a party with the deleted master back in sync. The deleting player is not among
-   * them: they are sitting on the character selection screen with no party UI to correct.
+   * Brings whoever shared a party or a guild with the deleted master back in sync. The deleting player is not
+   * among them: the master is not being played, so the publishers leave it out.
    */
-  private fun notifyFormerParty(partyResult: PartyService.LeavePartyResult?) {
-    try {
-      when (partyResult) {
-        null -> Unit
-
-        is PartyService.LeavePartyResult.Disbanded -> {
-          val disbandMsg = DisbandPartySMSG(partyResult.partyId)
-          partyResult.notifiedAccountIds.forEach { outMessageProcessor.sendToPlayer(it, disbandMsg) }
-        }
-
-        is PartyService.LeavePartyResult.Left -> {
-          partyResult.remainingMemberAccountIds.forEach { accountId ->
-            val partyInfo = partyService.getPartyInfoForAccount(accountId) ?: return@forEach
-            outMessageProcessor.sendToPlayer(accountId, partyInfo)
-          }
-        }
-      }
-    } catch (e: Exception) {
-      // The master is already gone; a party roster that failed to refresh is worth a log line, not a
-      // failure reported back to a player whose deletion succeeded.
-      LOG.warn(e) { "Could not notify the former party of a deleted master" }
+  private fun notifyFormerGroups(result: MasterDeletionService.Result.Deleted) {
+    when (val partyResult = result.partyResult) {
+      null -> Unit
+      is PartyService.LeavePartyResult.Disbanded -> partyRosterPublisher.disbanded(partyResult.partyId, partyResult.members)
+      is PartyService.LeavePartyResult.Left -> partyRosterPublisher.removed(partyResult.partyId, partyResult.member)
     }
+
+    result.guildId?.let { guildInfoPublisher.request(it) }
   }
 
   private fun MasterDeletionService.Denial.toOpError(): OperationErrorProto.OpError = when (this) {
     MasterDeletionService.Denial.NOT_OWNED -> OperationErrorProto.OpError.MASTER_NOT_OWNED
     MasterDeletionService.Denial.NAME_MISMATCH -> OperationErrorProto.OpError.MASTER_NAME_MISMATCH
     MasterDeletionService.Denial.IN_USE -> OperationErrorProto.OpError.MASTER_IN_USE
+    MasterDeletionService.Denial.LEADS_GUILD -> OperationErrorProto.OpError.GUILD_LEADER_MUST_DISBAND
   }
 
   companion object {

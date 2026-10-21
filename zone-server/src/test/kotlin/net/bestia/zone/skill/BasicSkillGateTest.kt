@@ -42,7 +42,7 @@ class BasicSkillGateTest {
 
   @Test
   fun `a fresh master may neither chat nor party`() {
-    givenActiveEntity(basicSkillLevel = 0)
+    givenMaster(basicSkillLevel = 0)
 
     assertEquals(0, gate.rankOf(ACCOUNT_ID))
     assertFalse(gate.mayChat(ACCOUNT_ID))
@@ -51,14 +51,14 @@ class BasicSkillGateTest {
 
   @Test
   fun `rank one buys trading and still no chat`() {
-    givenActiveEntity(basicSkillLevel = 1)
+    givenMaster(basicSkillLevel = 1)
 
     assertFalse(gate.mayChat(ACCOUNT_ID))
   }
 
   @Test
   fun `chat opens at rank two`() {
-    givenActiveEntity(basicSkillLevel = 2)
+    givenMaster(basicSkillLevel = 2)
 
     assertTrue(gate.mayChat(ACCOUNT_ID))
     assertFalse(gate.mayParty(ACCOUNT_ID))
@@ -66,26 +66,36 @@ class BasicSkillGateTest {
 
   @Test
   fun `parties open at rank five`() {
-    givenActiveEntity(basicSkillLevel = 4)
+    givenMaster(basicSkillLevel = 4)
     assertFalse(gate.mayParty(ACCOUNT_ID))
 
-    givenActiveEntity(basicSkillLevel = 5)
+    givenMaster(basicSkillLevel = 5)
     assertTrue(gate.mayParty(ACCOUNT_ID))
   }
 
-  /** A bestia has a `KnownSkills` of its own and no Basic Skill in it, so the gate is closed while riding it. */
+  /** A bestia has a `KnownSkills` of its own with no Basic Skill in it; driving one must not close the gates. */
   @Test
-  fun `an entity with no Basic Skill at all reads as rank zero`() {
+  fun `driving a bestia keeps the master's rank`() {
+    givenMaster(basicSkillLevel = 5)
+    val bestiaId = world.createEntity { id -> add(id, KnownSkills(mutableMapOf(999L to 5))) }
+    every { connectionInfoService.getActiveEntityId(ACCOUNT_ID) } returns bestiaId
+
+    assertTrue(gate.mayChat(ACCOUNT_ID))
+    assertTrue(gate.mayParty(ACCOUNT_ID))
+  }
+
+  @Test
+  fun `a master with no Basic Skill at all reads as rank zero`() {
     val entityId = world.createEntity { id -> add(id, KnownSkills(mutableMapOf(999L to 5))) }
-    every { connectionInfoService.getActiveEntityId(ACCOUNT_ID) } returns entityId
+    every { connectionInfoService.getSelectedMasterEntityId(ACCOUNT_ID) } returns entityId
 
     assertEquals(0, gate.rankOf(ACCOUNT_ID))
   }
 
   @Test
-  fun `an entity with no KnownSkills component reads as rank zero`() {
+  fun `a master with no KnownSkills component reads as rank zero`() {
     val entityId = world.createEntity { }
-    every { connectionInfoService.getActiveEntityId(ACCOUNT_ID) } returns entityId
+    every { connectionInfoService.getSelectedMasterEntityId(ACCOUNT_ID) } returns entityId
 
     assertEquals(0, gate.rankOf(ACCOUNT_ID))
   }
@@ -93,7 +103,7 @@ class BasicSkillGateTest {
   /** A message can arrive from a connection that has just gone away; "no" is the right answer, not a throw. */
   @Test
   fun `an account with no live session is refused rather than failing`() {
-    every { connectionInfoService.getActiveEntityId(ACCOUNT_ID) } throws IllegalStateException("gone")
+    every { connectionInfoService.getSelectedMasterEntityId(ACCOUNT_ID) } throws IllegalStateException("gone")
 
     assertFalse(gate.mayChat(ACCOUNT_ID))
     assertFalse(gate.mayParty(ACCOUNT_ID))
@@ -111,11 +121,11 @@ class BasicSkillGateTest {
     assertTrue(openGate.mayParty(ACCOUNT_ID))
   }
 
-  private fun givenActiveEntity(basicSkillLevel: Int): EntityId {
+  private fun givenMaster(basicSkillLevel: Int): EntityId {
     val entityId = world.createEntity { id ->
       add(id, KnownSkills(mutableMapOf(BASIC_SKILL_ID to basicSkillLevel)))
     }
-    every { connectionInfoService.getActiveEntityId(ACCOUNT_ID) } returns entityId
+    every { connectionInfoService.getSelectedMasterEntityId(ACCOUNT_ID) } returns entityId
 
     return entityId
   }

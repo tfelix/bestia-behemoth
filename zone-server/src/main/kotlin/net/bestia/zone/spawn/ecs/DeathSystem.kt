@@ -11,11 +11,8 @@ import net.bestia.zone.entity.ecs.VisualKind
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.session.ConnectionInfoService
-import net.bestia.zone.session.NoActiveSessionException
 import net.bestia.zone.persistence.PersistedEntityDeletionQueue
 import net.bestia.zone.persistence.Persistent
-import net.bestia.zone.identity.ecs.PartyMembership
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component as SpringComponent
 import net.bestia.zone.ecs.core.update
@@ -30,9 +27,10 @@ class DeathSystem(
   private val experienceGainCalculator: ExperienceGainCalculator,
   private val mobLootSpawner: MobLootSpawner,
   private val deletionQueue: PersistedEntityDeletionQueue,
-  private val connectionInfoService: ConnectionInfoService,
+  private val expSplitter: KillExpSplitter,
   private val notableKills: KillReporter,
   private val spill: GroundSpill,
+  private val levies: List<KillExpLevy> = emptyList(),
 ) : System {
   override val phase = Phase.DEATH
   override val after = setOf(PlayerDeathSystem::class)
@@ -43,10 +41,9 @@ class DeathSystem(
       EntityVisual::class,
       Position::class,
       Account::class,
-      PartyMembership::class,
       Persistent::class,
       Living::class
-    )
+    ) + expSplitter.reads + levies.flatMap { it.reads }
 
   // `Dead` is written rather than read: `bled` is set here, the same way PlayerDeathSystem sets `resolved`.
   override val writes: ComponentClassSet = setOf(Dead::class, Exp::class)
@@ -114,6 +111,9 @@ class DeathSystem(
     val species = world.bestiaSpeciesOf(entityId)
       ?: return
 
+    // Read now: the entity is destroyed long before the deferred block below runs.
+    val killedAt = world.get(entityId, Position::class)?.toVec3L()
+
     // Check which of those are an actual player. Every player bestia has an Account component.
     val attackingPlayerCount = damageDealer.keys
       .mapNotNull { world.get(it, Account::class)?.accountId }
@@ -128,44 +128,17 @@ class DeathSystem(
         attackingPlayerCount
       )
 
-      earnedExp.forEach { (attackerEntityId, receivedExp) ->
-        val recipients = resolvePartyExpRecipients(world, attackerEntityId)
-        val share = receivedExp / recipients.size
+      expSplitter.split(world, killedAt, earnedExp).forEach { credit ->
+        val kept = credit.masterEntityId
+          ?.let { master -> levies.fold(credit.amount) { amount, levy -> levy.levy(world, master, amount) } }
+          ?: credit.amount
 
-        recipients.forEach { recipientEntityId ->
-          LOG.debug { "Entity $recipientEntityId received $share EXP (party share of $receivedExp)" }
-          world.update(recipientEntityId, { GainExp() }) { exp -> exp.value += share }
+        if (kept > 0) {
+          LOG.debug { "Entity ${credit.entityId} received $kept EXP (of ${credit.amount})" }
+          world.update(credit.entityId, { GainExp() }) { exp -> exp.value += kept }
         }
       }
     }
-  }
-
-  /** If [attackerEntityId]'s owner is in a party, splits its earned EXP share evenly across every
-   * online party member's active master instead of granting it only to the attacker itself. Falls
-   * back to the attacker alone when it has no owner, the owner isn't in a party, or no party
-   * member (including the attacker) currently has an online master. */
-  private fun resolvePartyExpRecipients(world: World, attackerEntityId: EntityId): Set<EntityId> {
-    val ownerAccountId = world.get(attackerEntityId, Account::class)?.accountId
-      ?: return setOf(attackerEntityId)
-
-    val ownerMasterEntityId = try {
-      connectionInfoService.getSelectedMasterEntityId(ownerAccountId)
-    } catch (_: NoActiveSessionException) {
-      return setOf(attackerEntityId)
-    }
-
-    val memberAccountIds = world.get(ownerMasterEntityId, PartyMembership::class)?.memberAccountIds
-      ?: return setOf(attackerEntityId)
-
-    val recipientEntityIds = memberAccountIds.mapNotNullTo(mutableSetOf()) { accountId ->
-      try {
-        connectionInfoService.getSelectedMasterEntityId(accountId)
-      } catch (_: NoActiveSessionException) {
-        null
-      }
-    }
-
-    return recipientEntityIds.ifEmpty { setOf(attackerEntityId) }
   }
 
   private fun spawnLoot(

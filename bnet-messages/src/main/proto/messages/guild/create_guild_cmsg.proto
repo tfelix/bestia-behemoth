@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "CreateGuildCmsgProto";
+
+// The player founds a guild by spending a Founder's Seal from the master's inventory, and becomes its leader.
+// Answered with a GuildInfoSMSG, or an OperationError when the name is taken or invalid.
+message CreateGuildCMSG {
+  string name = 1;
+}

@@ -5,7 +5,8 @@ package bnet;
 option java_package = "net.bestia.bnet.proto";
 option java_outer_classname = "RequestPartyInvitationCmsgProto";
 
-// The party owner invites another player, who is answered with a PartyInvitationSMSG.
+// The party owner invites another player by master name. The invited player is asked with a
+// PartyInvitationSMSG, the owner is told with OperationSuccess PARTY_INVITATION_SENT.
 message RequestPartyInvitationCMSG {
-  uint64 invited_account_id = 1;
+  string invited_master_name = 1;
 }

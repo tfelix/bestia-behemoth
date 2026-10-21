@@ -13,4 +13,6 @@ message PartyInvitationSMSG {
   uint64 party_id = 2;
   string party_name = 3;
   uint64 invitation_id = 4;
+  // How long the server keeps the invitation open; an answer after that is refused.
+  uint32 expires_in_seconds = 5;
 }

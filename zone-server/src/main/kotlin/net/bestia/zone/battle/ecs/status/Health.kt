@@ -8,7 +8,6 @@ import net.bestia.zone.ecs.core.World
 import net.bestia.zone.sync.SyncTargets
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.message.EntitySMSG
-import net.bestia.zone.identity.ecs.PartyMembership
 
 class Health(
   current: Int,
@@ -24,9 +23,7 @@ class Health(
   }
 
   override fun syncTargets(world: World, entityId: EntityId): SyncTargets {
-    val owner = world.get(entityId, Account::class)?.accountId
-      ?: return SyncTargets.PublicInRange // mobs have no owner: HP stays visible to everyone nearby
-    val partyMemberAccountIds = world.get(entityId, PartyMembership::class)?.memberAccountIds ?: emptySet()
-    return SyncTargets.Accounts(partyMemberAccountIds + owner)
+    // Mobs have no owner: HP stays visible to everyone nearby.
+    return if (world.has(entityId, Account::class)) SyncTargets.OwnerAndParty else SyncTargets.PublicInRange
   }
 }

@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "GuildInfoSmsgProto";
+
+// The whole guild, pushed to every playing member whenever it changes: a member joins, leaves, is kicked or
+// moved, a rank changes, a skill is invested, a member comes online or goes offline or levels up, or the
+// guild's EXP moved since the last push (at most once per EXP flush).
+//
+// Also the answer to RequestGuildInfoCMSG, where guild_id 0 and no members means "in no guild".
+message GuildInfoSMSG {
+  uint64 guild_id = 1;
+  string name = 2;
+  uint32 level = 3;
+  uint64 exp = 4;
+  // 0 once the guild is at its highest level.
+  uint64 exp_next_level = 5;
+  uint32 skill_points = 6;
+  uint32 extension_level = 7;
+  uint32 max_members = 8;
+  repeated GuildRank ranks = 9;
+  repeated GuildMember members = 10;
+  // The recipient's own master, so the client can tell which member it is.
+  uint64 own_master_id = 11;
+  // The rules the window offers, so it never offers what the server would refuse.
+  uint32 max_extension_level = 12;
+  uint32 max_ranks = 13;
+  uint32 min_tax_percent = 14;
+  uint32 max_tax_percent = 15;
+}
+
+message GuildRank {
+  uint64 rank_id = 1;
+  // 0 is the leader's rank; a higher number is a lower rank.
+  uint32 position = 2;
+  string name = 3;
+  uint32 tax_percent = 4;
+  bool can_invite = 5;
+  bool can_kick = 6;
+  bool can_manage_ranks = 7;
+}
+
+message GuildMember {
+  uint64 master_id = 1;
+  string master_name = 2;
+  uint32 level = 3;
+  uint64 rank_id = 4;
+  bool online = 5;
+  uint64 exp_contributed = 6;
+  bool is_leader = 7;
+}
