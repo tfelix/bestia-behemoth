@@ -19,9 +19,10 @@ import net.bestia.zone.account.Hairstyle
 import net.bestia.zone.account.persistence.Master
 import net.bestia.zone.account.persistence.MasterRepository
 import net.bestia.zone.account.persistence.findByIdOrThrow
+import net.bestia.zone.item.persistence.Item
 
 /**
- * A new master is created *wearing* the novice kit, not merely carrying it.
+ * A new master is created *wearing* the novice kit, not merely carrying it, and with novice potions in the pack.
  *
  * Worth an integration test rather than a unit one because the grant is only half the story: minting an
  * instance and marking a container slot as worn are separate writes, and `MasterEntitySpawner` builds the
@@ -94,6 +95,19 @@ class StarterGearTest {
         worn.values.all { it.noviceOnly },
         "every piece of the starter kit should be flagged novice-only"
       )
+    }
+  }
+
+  @Test
+  fun `a new master carries novice potions`() {
+    withFreshMaster { master ->
+      val carried = transactionTemplate.execute {
+        masterRepository.findByIdOrThrow(master.id).container.slots
+          .filter { it.template.noviceOnly && it.template.type == Item.ItemType.USABLE }
+          .associate { it.template.identifier to it.amount }
+      }
+
+      assertEquals(mapOf("novice_health_potion" to 20, "novice_mana_potion" to 10), carried)
     }
   }
 
