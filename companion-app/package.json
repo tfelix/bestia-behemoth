@@ -1,0 +1,31 @@
+{
+  "name": "bestia-companion",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "dev": "vite dev",
+    "build": "vite build",
+    "preview": "vite preview",
+    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --fail-on-warnings",
+    "test": "vitest run",
+    "gen:api": "openapi-typescript ../api-service/build/openapi/companion.json -o src/lib/api/schema.d.ts"
+  },
+  "devDependencies": {
+    "@sveltejs/adapter-static": "3.0.10",
+    "@sveltejs/kit": "2.70.3",
+    "@sveltejs/vite-plugin-svelte": "6.2.4",
+    "@types/leaflet": "1.9.22",
+    "@types/node": "22.20.5",
+    "openapi-typescript": "7.13.0",
+    "svelte": "5.57.2",
+    "svelte-check": "4.7.7",
+    "typescript": "5.9.3",
+    "vite": "7.3.7",
+    "vitest": "3.2.7"
+  },
+  "dependencies": {
+    "@fontsource/cinzel": "5.2.8",
+    "leaflet": "1.9.4"
+  }
+}

@@ -1,0 +1,198 @@
+/*
+ * The ledger: a dark leather desk, pages with a brass rule, the warm accent of the login page. One look only,
+ * because it is a game's look and not a document's.
+ */
+@font-face {
+	font-family: 'Open Sans';
+	font-weight: 600;
+	font-display: swap;
+	src: url('/fonts/OpenSans-SemiBold.woff2') format('woff2');
+}
+
+:root {
+	color-scheme: dark;
+	--bg: #14110f;
+	--leather: #1a1613;
+	--card: #211c18;
+	--card-hi: #2b2420;
+	--edge: #3a322c;
+	--brass: #c9a45c;
+	--brass-dim: #7d6638;
+	--ink: #f0e9e1;
+	--muted: #a2968a;
+	--accent: #c2703a;
+	--accent-ink: #14110f;
+	--good: #8fbf6a;
+	--warn: #e0b050;
+	--bad: #e07a6a;
+
+	--display: 'Cinzel', 'Georgia', serif;
+	--label: 'Open Sans', system-ui, sans-serif;
+	--body: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+	--radius: 0.6rem;
+	--gutter: 1rem;
+	--nav-height: 4rem;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+html,
+body {
+	margin: 0;
+	min-height: 100%;
+	background:
+		radial-gradient(120% 80% at 50% 0%, #241d18 0%, transparent 60%),
+		var(--bg);
+	color: var(--ink);
+	font-family: var(--body);
+	line-height: 1.45;
+	-webkit-tap-highlight-color: transparent;
+}
+
+body {
+	padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
+h1,
+h2,
+h3 {
+	font-family: var(--display);
+	font-weight: 600;
+	letter-spacing: 0.04em;
+	margin: 0;
+}
+
+h1 {
+	font-size: 1.5rem;
+}
+
+h2 {
+	font-size: 1.05rem;
+	color: var(--brass);
+}
+
+a {
+	color: inherit;
+	text-decoration: none;
+}
+
+button {
+	font: inherit;
+	color: inherit;
+}
+
+/* A page of the ledger: a card with a brass rule inset from its edge. */
+.panel {
+	position: relative;
+	padding: 1rem;
+	border: 1px solid var(--edge);
+	border-radius: var(--radius);
+	background: linear-gradient(180deg, var(--card-hi), var(--card));
+	box-shadow:
+		inset 0 0 0 3px var(--card),
+		inset 0 0 0 4px color-mix(in srgb, var(--brass) 35%, transparent),
+		0 6px 18px rgb(0 0 0 / 35%);
+}
+
+.panel + .panel {
+	margin-top: 0.85rem;
+}
+
+.label {
+	font-family: var(--label);
+	font-weight: 600;
+	font-size: 0.72rem;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: var(--muted);
+}
+
+.muted {
+	color: var(--muted);
+}
+
+.btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	min-height: 2.75rem;
+	padding: 0.6rem 1.1rem;
+	border: 1px solid var(--brass-dim);
+	border-radius: 0.5rem;
+	background: var(--card-hi);
+	font-family: var(--label);
+	font-weight: 600;
+	cursor: pointer;
+}
+
+.btn.primary {
+	border-color: #e09a62;
+	background: linear-gradient(180deg, #d4824a, var(--accent));
+	color: var(--accent-ink);
+	box-shadow: 0 2px 0 #7a3f1b, inset 0 1px 0 rgb(255 255 255 / 25%);
+}
+
+.btn:active {
+	transform: translateY(1px);
+}
+
+.btn:disabled {
+	opacity: 0.5;
+	cursor: progress;
+}
+
+.chip {
+	display: inline-flex;
+	flex: none;
+	white-space: nowrap;
+	align-items: center;
+	gap: 0.3rem;
+	padding: 0.15rem 0.55rem;
+	border: 1px solid var(--edge);
+	border-radius: 999px;
+	font-family: var(--label);
+	font-weight: 600;
+	font-size: 0.72rem;
+	color: var(--muted);
+}
+
+.chip.live {
+	border-color: color-mix(in srgb, var(--good) 60%, transparent);
+	color: var(--good);
+}
+
+.page {
+	max-width: 40rem;
+	margin: 0 auto;
+	padding: var(--gutter) var(--gutter) calc(var(--nav-height) + var(--gutter) + env(safe-area-inset-bottom));
+}
+
+.grid-2 {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 0.6rem;
+}
+
+.alert {
+	padding: 0.75rem 1rem;
+	border-radius: var(--radius);
+	background: rgb(242 153 153 / 12%);
+	color: #f4b6b6;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	.rise {
+		animation: rise 260ms ease-out both;
+	}
+
+	@keyframes rise {
+		from {
+			opacity: 0;
+			transform: translateY(6px);
+		}
+	}
+}

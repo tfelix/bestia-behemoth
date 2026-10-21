@@ -1,0 +1,54 @@
+/// <reference types="vitest/config" />
+import { sveltekit } from '@sveltejs/kit/vite';
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { defineConfig, type Plugin } from 'vite';
+import { parseCsv } from './src/lib/csv';
+
+const LOCALIZATION = fileURLToPath(new URL('../bestia-client/src/Localization/', import.meta.url));
+const NAMES_MODULE = 'virtual:bestia-names';
+
+/**
+ * The English names of items and bestias, from the game client's own translation tables, so the app and the
+ * game never disagree on what a thing is called. Read at build time; the server only ever sends identifiers.
+ */
+function bestiaNames(): Plugin {
+	return {
+		name: 'bestia-names',
+		resolveId(id) {
+			return id === NAMES_MODULE ? '\0' + NAMES_MODULE : null;
+		},
+		load(id) {
+			if (id !== '\0' + NAMES_MODULE) return null;
+
+			const names: Record<string, string> = {};
+			for (const table of ['items.csv', 'bestias.csv']) {
+				const path = LOCALIZATION + table;
+				this.addWatchFile(path);
+				for (const [key, english] of parseCsv(readFileSync(path, 'utf8')).slice(1)) {
+					if (key && english) names[key] = english;
+				}
+			}
+			return `export default ${JSON.stringify(names)};`;
+		}
+	};
+}
+
+// The dev server stands in for the production proxy: one origin for the app, the login server and the
+// api-service, so no request is cross-origin and the refresh cookie is first-party. IPv4 literals, because
+// `localhost` may resolve to ::1 where the servers are not listening.
+export default defineConfig({
+	plugins: [sveltekit(), bestiaNames()],
+	server: {
+		port: 5173,
+		strictPort: true,
+		proxy: {
+			'/api/v1/auth': 'http://127.0.0.1:8080',
+			'/v1/companion/ws': { target: 'ws://127.0.0.1:8095', ws: true },
+			'/v1/companion': 'http://127.0.0.1:8095'
+		}
+	},
+	test: {
+		include: ['src/**/*.test.ts']
+	}
+});

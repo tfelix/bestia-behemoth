@@ -88,11 +88,59 @@ tasks.register('clientBenchmark', Exec) {
 			'-l', 'console;verbosity=detailed'
 }
 
+// --- Companion app ------------------------------------------------------------------------------------------
+//
+// companion-app is a SvelteKit PWA built by npm, not a Gradle subproject: `subprojects {}` above would give it
+// the Kotlin and JPA plugins. These tasks make it reachable from here, as the client is. They need Node 22+.
+
+def npmExecutable = org.gradle.internal.os.OperatingSystem.current().windows ? 'npm.cmd' : 'npm'
+def companionDir = layout.projectDirectory.dir('companion-app')
+
+tasks.register('companionInstall', Exec) {
+	group = 'build'
+	description = 'Installs the companion app dependencies, exactly as package-lock.json pins them.'
+	workingDir companionDir
+	commandLine npmExecutable, 'ci', '--no-audit', '--no-fund'
+	inputs.file(companionDir.file('package-lock.json'))
+	outputs.dir(companionDir.dir('node_modules'))
+}
+
+tasks.register('companionTypeCheck', Exec) {
+	group = 'verification'
+	description = 'Type-checks the companion app (svelte-check).'
+	dependsOn 'companionInstall'
+	workingDir companionDir
+	commandLine npmExecutable, 'run', 'check'
+}
+
+tasks.register('companionTest', Exec) {
+	group = 'verification'
+	description = 'Runs the companion app unit tests (vitest).'
+	dependsOn 'companionInstall'
+	workingDir companionDir
+	commandLine npmExecutable, 'test'
+}
+
+tasks.register('companionCheck') {
+	group = 'verification'
+	description = 'Type-checks the companion app and runs its unit tests.'
+	dependsOn 'companionTypeCheck', 'companionTest'
+}
+
+tasks.register('companionBuild', Exec) {
+	group = 'build'
+	description = 'Builds the companion app into companion-app/build, a static site for the app origin.'
+	dependsOn 'companionInstall'
+	workingDir companionDir
+	commandLine npmExecutable, 'run', 'build'
+}
+
 // So `./gradlew check` covers the client too once a CI job exists to run it.
 tasks.register('check') {
 	group = 'verification'
-	description = 'Runs all checks, including the Godot client tests.'
+	description = 'Runs all checks, including the Godot client tests and the companion app.'
 
 	dependsOn subprojects.collect { ":${it.name}:check" }
 	dependsOn 'clientTest'
+	dependsOn 'companionCheck'
 }
