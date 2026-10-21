@@ -2,7 +2,8 @@ package net.bestia.bus.valkey
 
 import io.lettuce.core.RedisClient
 import net.bestia.bus.Directory
-import net.bestia.bus.StreamedEvent
+import net.bestia.bus.BusKeys
+import net.bestia.bus.StreamEntry
 import net.bestia.bus.ZoneUnavailableException
 import net.bestia.bus.contract.BusReply
 import net.bestia.bus.contract.ZoneAnswer
@@ -133,9 +134,9 @@ class ValkeyBusTest {
 
   @Test
   fun `events reach a live tail, a consumer group and a replay`() {
-    val reader = ValkeyEventReader(client)
-    val tailed = CopyOnWriteArrayList<StreamedEvent>()
-    val consumed = CopyOnWriteArrayList<StreamedEvent>()
+    val reader = ValkeyStreamReader(client, BusKeys.EVENTS, ZoneEvent::class.java)
+    val tailed = CopyOnWriteArrayList<StreamEntry<ZoneEvent>>()
+    val consumed = CopyOnWriteArrayList<StreamEntry<ZoneEvent>>()
     val before = reader.newestId()
 
     reader.tail("test") { tailed += it }
@@ -149,8 +150,8 @@ class ValkeyBusTest {
     publisher.publish(ZoneEvent.ConstructionDone(accountId = 99, masterId = 6, kind = "WORKBENCH"))
 
     await().atMost(Duration.ofSeconds(10)).until { tailed.size == 2 && consumed.size == 2 }
-    assertEquals(event, tailed.first().event)
-    assertEquals(listOf(event), reader.since(before, accountId).map { it.event })
+    assertEquals(event, tailed.first().payload)
+    assertEquals(listOf(event), reader.since(before, accountId).map { it.payload })
 
     publisher.close()
     reader.close()

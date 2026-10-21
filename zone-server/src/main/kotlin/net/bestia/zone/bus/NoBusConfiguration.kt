@@ -1,4 +1,4 @@
-package net.bestia.zone.companion
+package net.bestia.zone.bus
 
 import net.bestia.bus.Directory
 import net.bestia.bus.EventPublisher

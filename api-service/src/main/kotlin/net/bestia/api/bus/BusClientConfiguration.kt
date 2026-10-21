@@ -2,11 +2,13 @@ package net.bestia.api.bus
 
 import io.lettuce.core.RedisClient
 import io.lettuce.core.RedisURI
+import net.bestia.bus.BusKeys
 import net.bestia.bus.Directory
 import net.bestia.bus.NodeBus
+import net.bestia.bus.contract.ZoneEvent
 import net.bestia.bus.valkey.ValkeyDirectory
-import net.bestia.bus.valkey.ValkeyEventReader
 import net.bestia.bus.valkey.ValkeyNodeBus
+import net.bestia.bus.valkey.ValkeyStreamReader
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
@@ -33,7 +35,7 @@ class BusClientConfiguration(private val properties: BusClientProperties) {
   }
 
   @Bean(destroyMethod = "close")
-  fun eventReader(busClient: RedisClient): ValkeyEventReader {
-    return ValkeyEventReader(busClient)
+  fun eventReader(busClient: RedisClient): ValkeyStreamReader<ZoneEvent> {
+    return ValkeyStreamReader(busClient, BusKeys.EVENTS, ZoneEvent::class.java)
   }
 }

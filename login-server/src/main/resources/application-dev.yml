@@ -16,10 +16,12 @@ jwt:
   # Public and committed too, and refused outside dev and test. Must equal api-service's dev companion.jwt-secret.
   companion-secret: "dev-companion-secret-shared-with-api-service"
 
-zone-directory:
-  zones:
-    - name: dev
-      base-url: "http://127.0.0.1:8091"
+# The Valkey of zone-server/compose.yaml. Public and committed; LoginDeploymentGuard refuses it outside dev and test.
+bus:
+  host: 127.0.0.1
+  port: 6379
+  username: login
+  password: login-dev-password
 
 webauthn:
   rp-id: "localhost"

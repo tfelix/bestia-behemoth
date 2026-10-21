@@ -3,7 +3,8 @@ package net.bestia.api.live
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import net.bestia.api.auth.CompanionTokenVerifier
-import net.bestia.bus.valkey.ValkeyEventReader
+import net.bestia.bus.contract.ZoneEvent
+import net.bestia.bus.valkey.ValkeyStreamReader
 import org.springframework.stereotype.Component
 import org.springframework.web.socket.CloseStatus
 import org.springframework.web.socket.TextMessage
@@ -21,7 +22,7 @@ import org.springframework.web.socket.handler.TextWebSocketHandler
 class CompanionSocketHandler(
   private val verifier: CompanionTokenVerifier,
   private val sessions: LiveSessions,
-  private val events: ValkeyEventReader,
+  private val events: ValkeyStreamReader<ZoneEvent>,
 ) : TextWebSocketHandler() {
 
   private data class Hello(val type: String, val token: String?, val lastEventId: String?)

@@ -1,4 +1,4 @@
-package net.bestia.zone.companion
+package net.bestia.zone.bus
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 

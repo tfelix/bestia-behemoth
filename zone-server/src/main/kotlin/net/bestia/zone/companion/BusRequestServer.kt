@@ -4,6 +4,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.lettuce.core.RedisClient
 import jakarta.annotation.PreDestroy
 import net.bestia.bus.valkey.ValkeyRequestServer
+import net.bestia.zone.bus.BusProperties
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.event.EventListener

@@ -567,8 +567,8 @@ cartography:
   starter-chart-radius-metres: 5000
   survey-radius-per-level-metres: 1000
 
-# The Valkey bus to the api-service (see bus/ and compose.yaml). The zone answers the api-service's questions about
-# an account, keeps the directory of who is in the world, and appends events to the stream.
+# The Valkey bus (see bus/ and compose.yaml). The zone answers the api-service's questions about an account, keeps
+# the directory of who is in the world, appends events to the stream, and reads the login server's kicks.
 bus:
   enabled: true
   # host, port, username, password: no defaults on purpose, the dev profile carries the compose values.

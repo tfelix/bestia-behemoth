@@ -6,9 +6,9 @@ import net.bestia.api.bus.BusClientProperties
 import net.bestia.api.live.LiveSessions
 import net.bestia.bus.BusKeys
 import net.bestia.bus.Directory
-import net.bestia.bus.StreamedEvent
+import net.bestia.bus.StreamEntry
 import net.bestia.bus.contract.ZoneEvent
-import net.bestia.bus.valkey.ValkeyEventReader
+import net.bestia.bus.valkey.ValkeyStreamReader
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.event.EventListener
 import org.springframework.scheduling.annotation.Scheduled
@@ -28,7 +28,7 @@ import java.util.concurrent.atomic.AtomicInteger
  */
 @Component
 class PushNotifier(
-  private val events: ValkeyEventReader,
+  private val events: ValkeyStreamReader<ZoneEvent>,
   private val directory: Directory,
   private val sessions: LiveSessions,
   private val subscriptions: PushSubscriptionRepository,
@@ -46,8 +46,8 @@ class PushNotifier(
     events.consume(BusKeys.WEBPUSH_GROUP, bus.instanceId, ::handle)
   }
 
-  fun handle(streamed: StreamedEvent) {
-    val event = streamed.event
+  fun handle(streamed: StreamEntry<ZoneEvent>) {
+    val event = streamed.payload
     val notification = Notification.of(event) ?: return
     if (!wanted(event)) {
       return

@@ -3,7 +3,6 @@ package net.bestia.login.jwt
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
 import net.bestia.account.Role
-import net.bestia.internal.ServiceTokens
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -98,11 +97,6 @@ class JwtServiceTest {
     @Test
     fun `a zone login token is not an api token`() {
         assertNull(jwtService.validateApiToken(jwtService.createLoginToken(789L, Role.SUPER_GM)))
-    }
-
-    @Test
-    fun `a service token is not an api token`() {
-        assertNull(jwtService.validateApiToken(jwtService.createServiceToken(789L, ServiceTokens.KICK_SCOPE)))
     }
 
     @Test

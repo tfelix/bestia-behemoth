@@ -1,10 +1,8 @@
 package net.bestia.login.scenario
 
-import net.bestia.internal.ServiceTokens
 import net.bestia.login.webauthn.VirtualAuthenticator
-import net.bestia.login.zone.ZoneStub
+import net.bestia.login.zone.KickStream
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
@@ -16,7 +14,7 @@ import org.springframework.http.ResponseEntity
 class AccountTerminationScenario : BasePasskeyScenario() {
 
   @Autowired
-  private lateinit var zone: ZoneStub
+  private lateinit var kicks: KickStream
 
   /** A thief already in the game keeps playing until the zone ends the connection. */
   @Test
@@ -27,10 +25,7 @@ class AccountTerminationScenario : BasePasskeyScenario() {
 
     recover(VirtualAuthenticator(), displayName, owner.recoveryCodes.first())
 
-    assertTrue(
-      zone.calls.any { it.path == ServiceTokens.kickPath(accountId) && it.body.contains("RECOVERED") },
-      "zone calls: ${zone.calls}"
-    )
+    assertEquals(listOf("RECOVERED"), kicks.ordersFor(accountId).map { it.reason })
   }
 
   @Test

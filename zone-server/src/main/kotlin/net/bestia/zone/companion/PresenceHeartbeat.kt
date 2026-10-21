@@ -4,6 +4,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bus.Directory
 import net.bestia.bus.EventPublisher
 import net.bestia.bus.contract.ZoneEvent
+import net.bestia.zone.bus.BusProperties
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.util.AccountId
 import org.springframework.scheduling.annotation.Scheduled

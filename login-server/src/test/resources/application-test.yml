@@ -17,3 +17,8 @@ game-login:
 companion-login:
   redirect-uris:
     - "http://localhost:5173/auth/callback"
+
+# host and port come from the Valkey container (KickStreamConfiguration); the `login` user of zone-server/valkey/users.acl.
+bus:
+  username: login
+  password: login-dev-password

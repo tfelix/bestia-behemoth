@@ -48,13 +48,13 @@ jwt:
   # Validity (minutes) of a companion access token. The app renews it from its refresh cookie.
   companion-token-minutes: 15
 
-zone-directory:
-  # The zones a ban or a recovery kicks the account from: every one of them, because the login server cannot see
-  # which one the player is on. Each entry is a zone's HTTP port (`server.port` there), not its game socket:
-  #   - name: zone-1
-  #     base-url: http://zone-1.internal:8091
-  zones: []
-  request-timeout-millis: 3000
+bus:
+  # The zones' Valkey, where a ban, a GM kick or a recovery is appended to the `kicks` stream that every zone node
+  # reads; the login server cannot see which one the player is on.
+  # host, port, username, password (BUS_PASSWORD): the `login` user of zone-server/valkey/users.acl, which may
+  # append kicks and nothing else. The dev profile has them; LoginDeploymentGuard refuses the dev password.
+  # How long a kick may wait for Valkey, inside the request that caused it.
+  command-timeout-millis: 2000
 
 account:
   # Role every newly registered account is created with. Registration is unauthenticated, so

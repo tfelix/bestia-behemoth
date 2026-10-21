@@ -1,4 +1,4 @@
-package net.bestia.zone.companion
+package net.bestia.zone.bus
 
 import io.lettuce.core.RedisClient
 import io.lettuce.core.RedisURI

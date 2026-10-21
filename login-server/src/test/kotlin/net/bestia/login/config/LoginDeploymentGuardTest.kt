@@ -5,6 +5,7 @@ import net.bestia.login.account.AccountConfig
 import net.bestia.login.gamelogin.CompanionLoginConfig
 import net.bestia.login.jwt.JwtConfig
 import net.bestia.login.webauthn.WebAuthnConfig
+import net.bestia.login.zone.BusConfig
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
@@ -32,9 +33,20 @@ class LoginDeploymentGuardTest {
   }
 
   @Test
+  fun `the development bus password is refused outside development`() {
+    assertThrows<IllegalStateException> { guard(busPassword = LoginDeploymentGuard.DEV_BUS_PASSWORD) }
+  }
+
+  @Test
   fun `development settings are accepted under the dev profile`() {
     assertDoesNotThrow {
-      guard(signUpRole = Role.SUPER_GM, secret = DEV_SECRET, allowOriginPort = true, profile = "dev")
+      guard(
+        signUpRole = Role.SUPER_GM,
+        secret = DEV_SECRET,
+        allowOriginPort = true,
+        busPassword = LoginDeploymentGuard.DEV_BUS_PASSWORD,
+        profile = "dev",
+      )
     }
   }
 
@@ -58,6 +70,7 @@ class LoginDeploymentGuardTest {
     allowOriginPort: Boolean = false,
     profile: String? = null,
     companionSecret: String? = null,
+    busPassword: String = "a-deployment-password",
   ): LoginDeploymentGuard {
     val companion = companionSecret?.let { CompanionLoginConfig(redirectUris = listOf("https://app.bestia.game/auth/callback")) }
 
@@ -71,6 +84,7 @@ class LoginDeploymentGuardTest {
         allowOriginPort = allowOriginPort
       ),
       companion ?: CompanionLoginConfig(),
+      BusConfig(host = "valkey", username = "login", password = busPassword),
       MockEnvironment().apply { profile?.let { setActiveProfiles(it) } }
     )
   }

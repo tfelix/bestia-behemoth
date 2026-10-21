@@ -3,9 +3,9 @@ package net.bestia.api.live
 import net.bestia.api.auth.TicketOwners
 import net.bestia.api.cache.AnswerCache
 import net.bestia.api.cache.TileCache
-import net.bestia.bus.StreamedEvent
+import net.bestia.bus.StreamEntry
 import net.bestia.bus.contract.ZoneEvent
-import net.bestia.bus.valkey.ValkeyEventReader
+import net.bestia.bus.valkey.ValkeyStreamReader
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component
  */
 @Component
 class EventFanOut(
-  private val events: ValkeyEventReader,
+  private val events: ValkeyStreamReader<ZoneEvent>,
   private val sessions: LiveSessions,
   private val answers: AnswerCache,
   private val tiles: TileCache,
@@ -28,8 +28,8 @@ class EventFanOut(
     events.tail("fan-out", ::deliver)
   }
 
-  fun deliver(streamed: StreamedEvent) {
-    val event = streamed.event
+  fun deliver(streamed: StreamEntry<ZoneEvent>) {
+    val event = streamed.payload
     answers.forget(event.accountId)
     if (event is ZoneEvent.ChartsChanged) {
       tiles.forgetMaster(event.masterId)

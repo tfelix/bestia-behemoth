@@ -1,11 +1,9 @@
 package net.bestia.login.scenario
 
 import net.bestia.account.Role
-import net.bestia.internal.ServiceTokens
 import net.bestia.login.webauthn.VirtualAuthenticator
-import net.bestia.login.zone.ZoneStub
+import net.bestia.login.zone.KickStream
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpEntity
@@ -21,7 +19,7 @@ import org.springframework.transaction.support.TransactionTemplate
 class AdminAccountScenario : BasePasskeyScenario() {
 
   @Autowired
-  private lateinit var zone: ZoneStub
+  private lateinit var kicks: KickStream
 
   @Autowired
   private lateinit var jdbc: JdbcTemplate
@@ -39,7 +37,7 @@ class AdminAccountScenario : BasePasskeyScenario() {
     assertEquals(204, response.statusCode.value())
     // 400, not 403: the ban revoked the refresh token before any account check could see the ban.
     assertEquals(400, rawRefresh(player.refreshToken).statusCode.value())
-    assertTrue(zone.calls.any { it.path == ServiceTokens.kickPath(player.accountId) && it.body.contains("BANNED") })
+    assertEquals(listOf("BANNED"), kicks.ordersFor(player.accountId).map { it.reason })
   }
 
   @Test
@@ -50,7 +48,7 @@ class AdminAccountScenario : BasePasskeyScenario() {
     val response = admin("kick", gm, player.accountId, mapOf("note" to "stuck"))
 
     assertEquals(204, response.statusCode.value())
-    assertTrue(zone.calls.any { it.path == ServiceTokens.kickPath(player.accountId) && it.body.contains("GM_KICK") })
+    assertEquals(listOf("GM_KICK"), kicks.ordersFor(player.accountId).map { it.reason })
   }
 
   @Test

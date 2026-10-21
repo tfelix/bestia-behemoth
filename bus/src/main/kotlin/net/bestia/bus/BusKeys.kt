@@ -9,6 +9,14 @@ object BusKeys {
   /** The consumer group that turns events into Web Push notifications. */
   const val WEBPUSH_GROUP = "webpush"
 
+  /** The stream the login server appends its kick orders to. */
+  const val KICKS = "kicks"
+
+  /** Every zone node reads [KICKS] in a group of its own, because every node has to see every kick. */
+  fun kickGroup(nodeId: String): String {
+    return "kicks-$nodeId"
+  }
+
   fun requests(nodeId: String): String {
     return "zone:$nodeId:requests"
   }

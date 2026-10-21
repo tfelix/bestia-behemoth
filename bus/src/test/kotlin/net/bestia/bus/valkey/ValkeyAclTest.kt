@@ -1,14 +1,19 @@
 package net.bestia.bus.valkey
 
+import io.lettuce.core.Range
 import io.lettuce.core.RedisClient
+import io.lettuce.core.RedisCommandExecutionException
 import io.lettuce.core.RedisURI
-import net.bestia.bus.StreamedEvent
+import net.bestia.bus.BusKeys
+import net.bestia.bus.StreamEntry
 import net.bestia.bus.contract.BusReply
+import net.bestia.bus.contract.KickOrder
 import net.bestia.bus.contract.ZoneAnswer
 import net.bestia.bus.contract.ZoneEvent
 import net.bestia.bus.contract.ZoneQuery
 import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
@@ -34,8 +39,8 @@ class ValkeyAclTest {
     val publisher = ValkeyEventPublisher(zone)
 
     val bus = ValkeyNodeBus(api, ValkeyDirectory(api), defaultNode = "acl-node", instanceId = "acl-api")
-    val reader = ValkeyEventReader(api)
-    val consumed = CopyOnWriteArrayList<StreamedEvent>()
+    val reader = ValkeyStreamReader(api, BusKeys.EVENTS, ZoneEvent::class.java)
+    val consumed = CopyOnWriteArrayList<StreamEntry<ZoneEvent>>()
     reader.consume("acl-group", "c1") { consumed += it }
 
     val write = ZoneQuery.SetStance(masterId = 1, playerBestiaId = 1, stance = "HOLD", aggression = 5)
@@ -48,6 +53,32 @@ class ValkeyAclTest {
     listOf(reader, bus, publisher, server, directory).forEach { it.close() }
     zone.shutdown()
     api.shutdown()
+  }
+
+  @Test
+  fun `the login user can append a kick for the zone, and do nothing else`() {
+    val login = connect("login", "login-dev-password")
+    val zone = connect("zone", "zone-dev-password")
+
+    val kicks = ValkeyStreamReader(zone, BusKeys.KICKS, KickOrder::class.java)
+    val received = CopyOnWriteArrayList<StreamEntry<KickOrder>>()
+    kicks.consume(BusKeys.kickGroup("acl-node"), "acl-node") { received += it }
+    Thread.sleep(500)
+
+    val appender = ValkeyStreamAppender<KickOrder>(login, BusKeys.KICKS, { it.accountId })
+    val order = KickOrder(accountId = 7L, reason = "BANNED", kickedAtEpochMs = 1_000L)
+    appender.append(order)
+    await().atMost(Duration.ofSeconds(10)).until { received.size == 1 }
+    assertEquals(order, received.single().payload)
+
+    login.connect().use { connection ->
+      assertThrows<RedisCommandExecutionException> { connection.sync().xrange(BusKeys.KICKS, Range.unbounded()) }
+      assertThrows<RedisCommandExecutionException> { connection.sync().xadd(BusKeys.EVENTS, mapOf("a" to "b")) }
+    }
+
+    listOf(kicks, appender).forEach { it.close() }
+    login.shutdown()
+    zone.shutdown()
   }
 
   private fun connect(user: String, password: String): RedisClient {

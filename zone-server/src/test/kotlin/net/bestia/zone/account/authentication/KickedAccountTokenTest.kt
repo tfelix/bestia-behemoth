@@ -24,7 +24,7 @@ class KickedAccountTokenTest {
 
   @Test
   fun `a token issued before the kick is refused`() {
-    kickedAccounts.remember(ACCOUNT)
+    kickedAccounts.remember(ACCOUNT, System.currentTimeMillis())
 
     val result = processorAccepting(issuedAt = Date(System.currentTimeMillis() - 10_000)).authenticate(envelope())
 
@@ -33,11 +33,43 @@ class KickedAccountTokenTest {
 
   @Test
   fun `a token issued after the kick is accepted`() {
-    kickedAccounts.remember(ACCOUNT)
+    kickedAccounts.remember(ACCOUNT, System.currentTimeMillis())
 
     val result = processorAccepting(issuedAt = Date(System.currentTimeMillis() + 5_000)).authenticate(envelope())
 
     assertIs<AuthenticationProcessor.AuthenticationSuccess>(result)
+  }
+
+  @Test
+  fun `a kick read late is judged by when it was made, not when it arrived`() {
+    val kickedAt = System.currentTimeMillis() - 60_000
+    kickedAccounts.remember(ACCOUNT, kickedAt)
+
+    val before = processorAccepting(issuedAt = Date(kickedAt - 1_000)).authenticate(envelope())
+    val after = processorAccepting(issuedAt = Date(kickedAt + 1_000)).authenticate(envelope())
+
+    assertEquals(AuthenticationProcessor.AuthenticationFailed, before)
+    assertIs<AuthenticationProcessor.AuthenticationSuccess>(after)
+  }
+
+  @Test
+  fun `a kick older than the zone remembers is not kept`() {
+    kickedAccounts.remember(ACCOUNT, System.currentTimeMillis() - 301_000)
+
+    val result = processorAccepting(issuedAt = Date(System.currentTimeMillis() - 400_000)).authenticate(envelope())
+
+    assertIs<AuthenticationProcessor.AuthenticationSuccess>(result)
+  }
+
+  @Test
+  fun `an earlier kick read after a later one does not shorten it`() {
+    val later = System.currentTimeMillis() - 10_000
+    kickedAccounts.remember(ACCOUNT, later)
+    kickedAccounts.remember(ACCOUNT, later - 50_000)
+
+    val result = processorAccepting(issuedAt = Date(later - 20_000)).authenticate(envelope())
+
+    assertEquals(AuthenticationProcessor.AuthenticationFailed, result)
   }
 
   private fun processorAccepting(issuedAt: Date): JwtAuthenticationProcessor {
