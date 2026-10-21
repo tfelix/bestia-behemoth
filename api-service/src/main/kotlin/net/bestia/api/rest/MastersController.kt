@@ -1,0 +1,161 @@
+package net.bestia.api.rest
+
+import net.bestia.api.auth.CompanionAuthFilter.Companion.ACCOUNT_ID
+import net.bestia.api.bus.ZoneClient
+import net.bestia.api.cache.AnswerCache
+import net.bestia.bus.contract.ZoneAnswer
+import net.bestia.bus.contract.ZoneQuery
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.RequestAttribute
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
+
+/**
+ * The account's masters, and for each its sheet, bestias, bags and party. Every figure that can go stale carries
+ * `asOf`, when it was last true, in epoch milliseconds.
+ */
+@RestController
+@RequestMapping("/v1/companion/masters")
+class MastersController(
+  private val zone: ZoneClient,
+  private val cache: AnswerCache,
+) {
+
+  data class MasterSummary(val id: Long, val slot: Int, val name: String, val level: Int, val home: String, val inWorld: Boolean)
+
+  data class Position(val eastMetres: Double, val northMetres: Double)
+
+  data class Stats(
+    val strength: Int,
+    val vitality: Int,
+    val intelligence: Int,
+    val dexterity: Int,
+    val willpower: Int,
+    val agility: Int,
+  )
+
+  data class MasterSheet(
+    val id: Long,
+    val name: String,
+    val level: Int,
+    val exp: Int,
+    val skillPoints: Int,
+    val statusPoints: Int,
+    val stats: Stats,
+    val currentHealth: Int?,
+    val home: String,
+    val position: Position,
+    val inWorld: Boolean,
+    val asOf: Long,
+  )
+
+  data class Bestia(
+    val id: Long,
+    val name: String?,
+    val speciesId: Long,
+    val species: String,
+    val level: Int,
+    val stance: String,
+    val aggression: Int,
+    val inWorld: Boolean,
+    val position: Position,
+    val asOf: Long,
+  )
+
+  data class Slot(
+    val itemId: Long,
+    val item: String,
+    val amount: Int,
+    val equippedIn: String?,
+    val durability: Int,
+    val maxDurability: Int,
+    val upgradeLevel: Int,
+  )
+
+  /** [kind] is MASTER or BESTIA. */
+  data class Holder(val kind: String, val id: Long, val name: String?, val slots: List<Slot>)
+
+  data class PartyMember(val masterId: Long, val name: String, val level: Int, val online: Boolean)
+
+  data class Party(val name: String, val ownerMasterId: Long, val members: List<PartyMember>)
+
+  /** [party] is null when the master is in none. */
+  data class PartyView(val party: Party?)
+
+  @GetMapping
+  fun list(@RequestAttribute(ACCOUNT_ID) accountId: Long): List<MasterSummary> {
+    val masters: ZoneAnswer.Masters = ask(accountId, ZoneQuery.ListMasters)
+
+    return masters.masters.map { MasterSummary(it.id, it.slot, it.name, it.level, it.home, it.inWorld) }
+  }
+
+  @GetMapping("/{masterId}")
+  fun sheet(@RequestAttribute(ACCOUNT_ID) accountId: Long, @PathVariable masterId: Long): MasterSheet {
+    val s: ZoneAnswer.Sheet = ask(accountId, ZoneQuery.MasterSheet(masterId))
+
+    return MasterSheet(
+      id = s.id,
+      name = s.name,
+      level = s.level,
+      exp = s.exp,
+      skillPoints = s.skillPoints,
+      statusPoints = s.statusPoints,
+      stats = Stats(s.strength, s.vitality, s.intelligence, s.dexterity, s.willpower, s.agility),
+      currentHealth = s.currentHealth,
+      home = s.home,
+      position = Position(s.eastMetres, s.northMetres),
+      inWorld = s.inWorld,
+      asOf = s.asOfEpochMs,
+    )
+  }
+
+  @GetMapping("/{masterId}/bestias")
+  fun bestias(@RequestAttribute(ACCOUNT_ID) accountId: Long, @PathVariable masterId: Long): List<Bestia> {
+    val roster: ZoneAnswer.Roster = ask(accountId, ZoneQuery.BestiaRoster(masterId))
+
+    return roster.bestias.map {
+      Bestia(
+        id = it.id,
+        name = it.name,
+        speciesId = it.speciesId,
+        species = it.species,
+        level = it.level,
+        stance = it.stance,
+        aggression = it.aggression,
+        inWorld = it.inWorld,
+        position = Position(it.eastMetres, it.northMetres),
+        asOf = it.asOfEpochMs,
+      )
+    }
+  }
+
+  @GetMapping("/{masterId}/inventory")
+  fun inventory(@RequestAttribute(ACCOUNT_ID) accountId: Long, @PathVariable masterId: Long): List<Holder> {
+    val bag: ZoneAnswer.Bag = ask(accountId, ZoneQuery.Inventory(masterId))
+
+    return bag.holders.map { holder ->
+      Holder(
+        holder.kind,
+        holder.id,
+        holder.name,
+        holder.slots.map { Slot(it.itemId, it.item, it.amount, it.equippedIn, it.durability, it.maxDurability, it.upgradeLevel) },
+      )
+    }
+  }
+
+  @GetMapping("/{masterId}/party")
+  fun party(@RequestAttribute(ACCOUNT_ID) accountId: Long, @PathVariable masterId: Long): PartyView {
+    val info: ZoneAnswer.PartyInfo = ask(accountId, ZoneQuery.PartyRoster(masterId))
+
+    return PartyView(
+      info.party?.let { party ->
+        Party(party.name, party.ownerMasterId, party.members.map { PartyMember(it.masterId, it.name, it.level, it.online) })
+      }
+    )
+  }
+
+  private inline fun <reified T : ZoneAnswer> ask(accountId: Long, query: ZoneQuery): T {
+    return cache.get(accountId, query) { zone.ask(accountId, query).answerOrThrow<T>() }
+  }
+}

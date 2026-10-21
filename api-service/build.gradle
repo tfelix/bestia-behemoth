@@ -1,0 +1,62 @@
+plugins {
+    id 'org.springframework.boot'
+    id 'io.spring.dependency-management'
+    id 'org.jetbrains.kotlin.jvm'
+    id 'org.jetbrains.kotlin.plugin.spring'
+    id 'org.jetbrains.kotlin.plugin.jpa'
+}
+
+group = 'net.bestia.api'
+description = 'api-service'
+
+// The companion app's REST API and WebSocket. It never reads the zone's database: every question about the world
+// goes to the zone over the bus (see bus/), and the answers are cached here.
+dependencies {
+    implementation project(':shared')
+    implementation project(':bus')
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'io.github.oshai:kotlin-logging-jvm:7.0.3'
+    implementation 'org.jetbrains.kotlin:kotlin-reflect'
+    implementation 'com.fasterxml.jackson.module:jackson-module-kotlin'
+    implementation 'com.github.ben-manes.caffeine:caffeine'
+    implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
+    // The OpenAPI document of /v1/companion/**, which companion-app generates its TypeScript types from.
+    // 2.7.x is the line built against Spring Boot 3.4.
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-api:2.7.0'
+
+    implementation 'org.flywaydb:flyway-core'
+    implementation 'org.flywaydb:flyway-mysql'
+
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
+    runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
+
+    developmentOnly 'org.springframework.boot:spring-boot-docker-compose'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.boot:spring-boot-testcontainers'
+    testImplementation 'org.testcontainers:junit-jupiter'
+    testImplementation 'org.testcontainers:mariadb'
+    testImplementation 'io.mockk:mockk:1.14.5'
+    testImplementation 'org.jetbrains.kotlin:kotlin-test-junit5'
+    testImplementation 'org.awaitility:awaitility:4.2.2'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+allOpen {
+    annotation 'jakarta.persistence.Entity'
+    annotation 'jakarta.persistence.MappedSuperclass'
+    annotation 'jakarta.persistence.Embeddable'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+processResources {
+    filesMatching("**/application.yml") {
+        expand(version: project.version)
+    }
+}

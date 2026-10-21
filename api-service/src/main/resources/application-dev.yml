@@ -1,0 +1,17 @@
+# Loaded under the `dev` profile, the default. Every value here is public and committed.
+companion:
+  # Must equal login-server's dev `jwt.companion-secret`.
+  jwt-secret: "dev-companion-secret-shared-with-api-service"
+  # The Vite dev server of companion-app/, whose proxy forwards the socket here.
+  allowed-origins:
+    - "http://localhost:5173"
+
+bus:
+  host: 127.0.0.1
+  port: 6379
+  username: api
+  password: api-dev-password
+
+push:
+  vapid-public-key: "BPC8EVmzvqSQvPRBDi7FjAQqyAJGZsxH9jKT16aTDbUK79Vg4h1rwiPXhadB5_X6i1fOj0--Na1QGZJdQgNlfko"
+  vapid-private-key: "9LkI9jzU2xuenKlS-a1-YjSER1TZ8cJ77fLoehGzHZw"

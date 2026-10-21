@@ -1,0 +1,18 @@
+services:
+  # Web-side data only: push subscriptions and notification preferences. Nothing about the world lives here.
+  # Valkey is not in this file: the zone owns it (zone-server/compose.yaml), so start the zone first.
+  mariadb:
+    image: 'mariadb:11'
+    environment:
+      - 'MARIADB_DATABASE=bestia_api'
+      - 'MARIADB_USER=bestia'
+      - 'MARIADB_PASSWORD=bestia'
+      - 'MARIADB_ROOT_PASSWORD=bestia-root'
+    ports:
+      # 3308: zone-server and login-server already hold 3306 and 3307. Loopback only, the credentials are public.
+      - '127.0.0.1:3308:3306'
+    volumes:
+      - 'api-mariadb-data:/var/lib/mysql'
+
+volumes:
+  api-mariadb-data:

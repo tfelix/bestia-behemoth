@@ -1,0 +1,60 @@
+server:
+  port: 8095
+  # Behind the same TLS proxy as the login server, which forwards the client's address.
+  forward-headers-strategy: native
+
+spring:
+  application:
+    name: api-service
+  # `dev` when no profile is set, as for the other servers; ApiDeploymentGuard refuses the dev-only values elsewhere.
+  profiles:
+    default: dev
+  threads:
+    virtual:
+      # A request waiting on the zone over the bus then holds no platform thread.
+      enabled: true
+  datasource:
+    # Matches compose.yaml; `bootRun` starts that container and rewires this.
+    url: jdbc:mariadb://localhost:3308/bestia_api
+    driver-class-name: org.mariadb.jdbc.Driver
+    username: bestia
+    password: bestia
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    open-in-view: false
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+companion:
+  # jwt-secret (COMPANION_JWT_SECRET): login-server's `jwt.companion-secret`. No value here on purpose.
+  # How many REST calls one account may make per minute.
+  requests-per-minute: 600
+
+bus:
+  # host, port, username, password: the `api` user of zone-server/valkey/users.acl; the dev profile has them.
+  # Where a request goes for an account that is not in the world. One zone node today.
+  default-node: zone-1
+  # This instance's reply channel. Must differ for every api-service instance.
+  instance-id: api-1
+  request-timeout-millis: 5000
+
+push:
+  # vapid-public-key, vapid-private-key (PUSH_VAPID_*): base64url, the uncompressed P-256 point and the scalar.
+  # subject: who push services contact about this sender.
+  subject: "mailto:admin@bestia.game"
+  # Notifications one account may receive per hour; the rest of that hour's events are dropped.
+  per-account-per-hour: 6
+
+springdoc:
+  paths-to-match: /v1/companion/**
+  api-docs:
+    path: /v1/companion/openapi.json
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
