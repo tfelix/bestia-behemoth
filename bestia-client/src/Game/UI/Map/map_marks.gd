@@ -16,9 +16,16 @@ extends Node
 ##
 ## Marks are per master under that: two characters on one account keep separate notes, which is what "my map"
 ## means when the charts are per master too.
+##
+## The service kinds the master has switched off in the map's legend are kept here as well, in a file beside
+## the marks: they are the same sort of thing - how this player has chosen to annotate their own map - and
+## want the same key and the same sweep.
 
 ## The set changed: added, renamed, removed, or reloaded for a different master or world.
 signal marks_changed()
+
+## The hidden service kinds changed: set from the legend, or reloaded for a different master or world.
+signal hidden_services_changed(kinds: Array[String])
 
 const _ROOT := "user://mapmarks/"
 
@@ -32,6 +39,8 @@ const MAX_NAME_LENGTH := 32
 
 var _marks: Array[Dictionary] = []
 
+var _hidden_services: Array[String] = []
+
 var _version: String = ""
 var _master_id: int = 0
 
@@ -44,15 +53,34 @@ func use(version: String, master_id: int) -> void:
 	_version = version
 	_master_id = master_id
 	_marks.clear()
+	# A new array rather than a cleared one: the views were handed the old one through the signal.
+	_hidden_services = []
 
 	if _version.is_empty() or _master_id == 0:
 		marks_changed.emit()
+		hidden_services_changed.emit(_hidden_services)
 		return
 
 	DirAccess.make_dir_recursive_absolute(_dir())
 	_discard_other_versions()
 	_load()
+	_load_hidden_services()
 	marks_changed.emit()
+	hidden_services_changed.emit(_hidden_services)
+
+
+## The service kinds switched off in the legend. Empty - everything shown - for a master who never touched it.
+func hidden_services() -> Array[String]:
+	return _hidden_services
+
+
+func set_hidden_services(kinds: Array[String]) -> void:
+	if kinds == _hidden_services:
+		return
+
+	_hidden_services = kinds.duplicate()
+	_save_hidden_services()
+	hidden_services_changed.emit(_hidden_services)
 
 
 ## Every mark, as [code]{name, x, y}[/code] with the position in world metres.
@@ -119,6 +147,10 @@ func _path() -> String:
 	return "%s%d.json" % [_dir(), _master_id]
 
 
+func _hidden_services_path() -> String:
+	return "%s%d.legend.json" % [_dir(), _master_id]
+
+
 ## Drops the marks of every other world.
 ##
 ## The same sweep [MapSource] performs on its tile directories, for a stronger reason: a stale tile is only
@@ -180,3 +212,35 @@ func _save() -> void:
 		return
 
 	file.store_string(JSON.stringify(_marks))
+
+
+## Reads the hidden kinds, leaving everything shown when there is no file or it will not read.
+##
+## Shown is the safe side to fail to: a legend that lost its settings costs the player a click, while one that
+## came back hiding everything would look like a map with no services on it.
+func _load_hidden_services() -> void:
+	var file := FileAccess.open(_hidden_services_path(), FileAccess.READ)
+	if file == null:
+		return
+
+	var json := JSON.new()
+	if json.parse(file.get_as_text()) != OK or typeof(json.data) != TYPE_ARRAY:
+		push_warning("MapMarks: %s was not readable; showing every service" % _hidden_services_path())
+		return
+
+	for entry in json.data:
+		if typeof(entry) == TYPE_STRING and entry not in _hidden_services:
+			_hidden_services.append(entry)
+
+
+func _save_hidden_services() -> void:
+	if _version.is_empty() or _master_id == 0:
+		return
+
+	DirAccess.make_dir_recursive_absolute(_dir())
+	var file := FileAccess.open(_hidden_services_path(), FileAccess.WRITE)
+	if file == null:
+		push_warning("MapMarks: could not write %s; the legend will reset" % _hidden_services_path())
+		return
+
+	file.store_string(JSON.stringify(_hidden_services))

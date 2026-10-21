@@ -29,6 +29,13 @@ signal tile_absent(key: String)
 ## [method places_of] returns them.
 signal places_ready(key: String, places: Array)
 
+## The services on a tile arrived, or changed since they were last asked about. [param services] is an
+## [Array] of [Dictionary], as [method services_of] returns them.
+##
+## Not emitted for an answer that says nothing changed, which is most of them: a listener can treat every
+## firing as news.
+signal services_ready(key: String, services: Array)
+
 ## World geometry and the level range, from [code]/map/v1/meta[/code]. Nothing can be addressed before it.
 signal meta_ready(meta: Dictionary)
 
@@ -70,15 +77,24 @@ const _META_ATTEMPTS := 10
 const _META_RETRY_SECONDS := 1.5
 
 ## What is being asked about a tile: [code]t[/code] for the picture, [code]p[/code] for the names of what
-## stands on it.
+## stands on it, [code]s[/code] for the services that are open for business on it.
 ##
-## One queue and one pool serve both, because they are the same request pattern against the same addressing -
-## and because a screen of map wants both at once, so a second pool would race this one for the same six
-## connections instead of sharing them. Everything keyed per request - the queue, what is in flight, what is
-## known absent, what is backing off - is keyed by this rather than by the bare tile key, so a picture and a
-## name list can be in flight, absent or backing off independently.
+## One queue and one pool serve all three, because they are the same request pattern against the same
+## addressing - and because a screen of map wants them all at once, so a second pool would race this one for
+## the same six connections instead of sharing them. Everything keyed per request - the queue, what is in
+## flight, what is known absent, what is backing off - is keyed by this rather than by the bare tile key, so a
+## picture and a name list can be in flight, absent or backing off independently.
 const _WANT_TILE := "t"
 const _WANT_PLACES := "p"
+const _WANT_SERVICES := "s"
+
+## What each kind's path ends in. The services endpoint has no extension: it is a live answer rather than a
+## file, and the server routes it as one.
+const _SUFFIXES := {
+	_WANT_TILE: ".png",
+	_WANT_PLACES: ".json",
+	_WANT_SERVICES: "",
+}
 
 const _CACHE_ROOT := "user://mapcache/"
 
@@ -95,6 +111,22 @@ var _shared: Dictionary = {}
 ## the argument does not transfer and neither does the complexity - no index, no write-through, no directory
 ## to sweep when the chart set changes. They are re-asked for once per session and that is the whole cost.
 var _places: Dictionary = {}
+
+## The services on each tile, as key -> [Array] of [Dictionary].
+##
+## [b]Memory only, and never trusted for long.[/b] A place is a fact about the generated world; a service is a
+## fact about the world as it is now - a shop whose building is knocked down is gone from every map that
+## covers it. So these are kept with the [code]ETag[/code] they came with and re-asked for on a schedule the
+## view sets (see [method want_services]), and the disk cache never sees them: a stored answer would be a
+## picture of a town that may since have burned.
+var _services: Dictionary = {}
+
+## The [code]ETag[/code] each tile's services came with, sent back as [code]If-None-Match[/code] so an
+## unchanged tile costs a 304 and no body.
+var _service_etags: Dictionary = {}
+
+## When each tile's services were last confirmed - a 200 or a 304 - in [method Time.get_ticks_msec].
+var _services_checked: Dictionary = {}
 
 ## Tiles masked to this player's charts. Dropped whenever those change - see [method set_chart_signature].
 var _personal: Dictionary = {}
@@ -199,20 +231,60 @@ func places_of(key: String) -> Array:
 ## Nearest-first and capped because the consumer is a strip a few hundred pixels wide - a player standing in a
 ## district of a city is near dozens of places, and all of them at once is not a reading.
 func places_near(at: Vector2, radius: float, limit: int) -> Array:
+	var all: Array = []
+	for key in _places:
+		all.append_array(_places[key])
+
+	return _nearest(all, at, radius, limit)
+
+
+## The services on [param key], as an [Array] of [Dictionary], or an empty one if none have arrived.
+##
+## Each entry carries [code]id[/code], [code]kind[/code] (a [code]MapService[/code] enum name such as
+## [code]MERCHANT[/code] or [code]WARD_STONE[/code]), and [code]x[/code] and [code]y[/code] in world metres;
+## then [code]business[/code], [code]settlement[/code], [code]openFrom[/code] and [code]openTo[/code], any of
+## which may be JSON null. The hours are in-game hours of the day.
+func services_of(key: String) -> Array:
+	return _services.get(key, [])
+
+
+## Services within [param radius] metres of [param at], nearest first, at most [param limit] of them.
+##
+## [method places_near] for services, with one difference: the same service is listed by the tile of every
+## level that covers it, and the minimap and the overlay look at different levels - so it is counted once.
+func services_near(at: Vector2, radius: float, limit: int) -> Array:
+	var seen := {}
+	var once: Array = []
+	for key in _services:
+		for service in _services[key]:
+			var identity := service_identity(service)
+			if not seen.has(identity):
+				seen[identity] = true
+				once.append(service)
+
+	return _nearest(once, at, radius, limit)
+
+
+## What makes two service entries the same service. The kind as well as the id, because a building's id and a
+## ward stone's are numbered by different things and are not promised not to meet.
+static func service_identity(service: Dictionary) -> String:
+	return "%s:%s" % [service.get("kind"), service.get("id")]
+
+
+func _nearest(entries: Array, at: Vector2, radius: float, limit: int) -> Array:
 	var found: Array = []
 
-	for key in _places:
-		for place in _places[key]:
-			var to := Vector2(float(place.get("x", 0.0)), float(place.get("y", 0.0)))
-			var distance := to.distance_to(at)
-			if distance <= radius:
-				found.append({"place": place, "distance": distance})
+	for entry in entries:
+		var to := Vector2(float(entry.get("x", 0.0)), float(entry.get("y", 0.0)))
+		var distance := to.distance_to(at)
+		if distance <= radius:
+			found.append({"entry": entry, "distance": distance})
 
 	found.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a["distance"] < b["distance"])
 
 	var nearest: Array = []
 	for entry in found.slice(0, limit):
-		nearest.append(entry["place"])
+		nearest.append(entry["entry"])
 
 	return nearest
 
@@ -227,12 +299,31 @@ func want_places(level: int, tx: int, ty: int) -> void:
 	_want(_WANT_PLACES, key_of(level, tx, ty))
 
 
+## Requests the services on [param key] unless they were confirmed at or after [param checked_since_msec], on
+## the [method Time.get_ticks_msec] clock - otherwise under the same conditions as [method want].
+##
+## The caller says how fresh is fresh enough, because the answer differs per view: the overlay is being read
+## and re-asks every half minute, the minimap is glanced at and can wait a couple. A tile asked for again is
+## asked with its [code]ETag[/code], so the usual answer is a 304 with nothing in it.
+func want_services(level: int, tx: int, ty: int, checked_since_msec: int) -> void:
+	var key := key_of(level, tx, ty)
+	if _services_checked.has(key) and int(_services_checked[key]) >= checked_since_msec:
+		return
+
+	_want(_WANT_SERVICES, key)
+
+
 func _want(kind: String, key: String) -> void:
 	if not _may_request():
 		return
 
 	var id := kind + ":" + key
-	var have := _places.has(key) if kind == _WANT_PLACES else cached(key) != null
+	# Services are never "had": whether they are fresh enough was decided by want_services.
+	var have := false
+	if kind == _WANT_TILE:
+		have = cached(key) != null
+	elif kind == _WANT_PLACES:
+		have = _places.has(key)
 	if have or _absent.has(id) or _in_flight.has(id) or _queue.has(id):
 		return
 	if Time.get_ticks_msec() < int(_retry_after.get(id, 0)):
@@ -272,6 +363,7 @@ func set_chart_signature(signature: String) -> void:
 	_chart_key = key
 	_personal.clear()
 	_places.clear()
+	_forget_services()
 	_absent.clear()
 	_retry_after.clear()
 	_use_chart_set()
@@ -340,9 +432,8 @@ func _pump() -> void:
 
 		var kind := id.substr(0, 1)
 		var parts := id.substr(2).split("/")
-		var url := "%s/map/v1/%s/%s/%s/%s.%s" % [
-			_base(), kind, parts[0], parts[1], parts[2],
-			"png" if kind == _WANT_TILE else "json"
+		var url := "%s/map/v1/%s/%s/%s/%s%s" % [
+			_base(), kind, parts[0], parts[1], parts[2], _SUFFIXES[kind]
 		]
 
 		var handler := func(
@@ -354,7 +445,11 @@ func _pump() -> void:
 		# connected would deliver the next tile to every closure that had ever used this node.
 		request.request_completed.connect(handler, CONNECT_ONE_SHOT)
 
-		if request.request(url, _headers()) != OK:
+		var headers := _headers()
+		if kind == _WANT_SERVICES and _service_etags.has(id.substr(2)):
+			headers.append("If-None-Match: " + str(_service_etags[id.substr(2)]))
+
+		if request.request(url, headers) != OK:
 			request.request_completed.disconnect(handler)
 			_back_off(id)
 			_release(id, request)
@@ -373,7 +468,7 @@ func _on_completed(
 	_release(id, request)
 
 	var key := id.substr(2)
-	var is_tile := id.begins_with(_WANT_TILE + ":")
+	var kind := id.substr(0, 1)
 
 	if result != HTTPRequest.RESULT_SUCCESS:
 		# A transport failure, not an answer. Backed off rather than simply left uncached: the next attempt
@@ -386,7 +481,7 @@ func _on_completed(
 		# storm, and forgotten as soon as the player's charts change.
 		if _absent.size() < _MAX_ABSENT:
 			_absent[id] = true
-		if is_tile:
+		if kind == _WANT_TILE:
 			tile_absent.emit(key)
 		return
 
@@ -403,15 +498,23 @@ func _on_completed(
 		_back_off(id)
 		return
 
+	if code == 304 and kind == _WANT_SERVICES:
+		# Nothing changed since the ETag we sent, which is the ordinary answer: only the time is news.
+		_services_checked[key] = Time.get_ticks_msec()
+		return
+
 	if code != 200:
 		push_warning("MapSource: %s returned %s" % [id, code])
 		_back_off(id)
 		return
 
-	if is_tile:
-		_accept_tile(key, headers, body)
-	else:
-		_accept_places(key, body)
+	match kind:
+		_WANT_TILE:
+			_accept_tile(key, headers, body)
+		_WANT_PLACES:
+			_accept_places(key, body)
+		_WANT_SERVICES:
+			_accept_services(key, headers, body)
 
 
 func _accept_tile(key: String, headers: PackedStringArray, body: PackedByteArray) -> void:
@@ -441,6 +544,55 @@ func _accept_places(key: String, body: PackedByteArray) -> void:
 
 	_places[key] = json.data
 	places_ready.emit(key, json.data)
+
+
+func _accept_services(key: String, headers: PackedStringArray, body: PackedByteArray) -> void:
+	var json := JSON.new()
+	if (
+		json.parse(body.get_string_from_utf8()) != OK
+		or typeof(json.data) != TYPE_DICTIONARY
+		or typeof(json.data.get("services")) != TYPE_ARRAY
+	):
+		push_warning("MapSource: services %s was not an object with a services array" % key)
+		_back_off(_WANT_SERVICES + ":" + key)
+		return
+
+	# Entries that are not objects are dropped here rather than in every reader: the view draws these every
+	# frame, and one malformed entry would otherwise be an error per frame rather than one missing icon.
+	var services: Array = []
+	for entry in json.data["services"]:
+		if typeof(entry) == TYPE_DICTIONARY:
+			services.append(entry)
+
+	_services[key] = services
+	_services_checked[key] = Time.get_ticks_msec()
+
+	var etag := _header(headers, "etag")
+	if etag.is_empty():
+		_service_etags.erase(key)
+	else:
+		_service_etags[key] = etag
+
+	services_ready.emit(key, services)
+
+
+## Drops every tile's services, their ETags and when they were checked.
+##
+## Together, always: an ETag kept past the answer it belongs to would have the server say "unchanged" about
+## something this no longer holds, and the tile would stay empty until it really did change.
+func _forget_services() -> void:
+	_services.clear()
+	_service_etags.clear()
+	_services_checked.clear()
+
+
+## The value of the response header [param wanted] (lower case), or "" when it was not sent.
+static func _header(headers: PackedStringArray, wanted: String) -> String:
+	for header in headers:
+		var colon := header.find(":")
+		if colon > 0 and header.substr(0, colon).strip_edges().to_lower() == wanted:
+			return header.substr(colon + 1).strip_edges()
+	return ""
 
 
 ## Whether the server said this picture is the same for everybody.
@@ -500,6 +652,7 @@ func _use_version(version: String) -> void:
 	_shared.clear()
 	_personal.clear()
 	_places.clear()
+	_forget_services()
 	_absent.clear()
 	_retry_after.clear()
 	DirAccess.make_dir_recursive_absolute(dir)

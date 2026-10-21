@@ -66,6 +66,10 @@ var _marks_loaded_version: String = ""
 
 var _compass_refresh_countdown: float = 0.0
 
+## The service picked on the map, or empty. Kept here rather than asked of the map each refresh because it is
+## a waypoint: it stays on the compass however far the player walks from it, and while the map is closed.
+var _selected_service: Dictionary = {}
+
 
 ## GroundDropZone and Shortcuts can't get their Inventory reference from an editor-wired
 ## NodePath: the Inventory node only comes into existence at runtime, when WidgetWindow
@@ -134,6 +138,12 @@ func _ready() -> void:
 	_map_overlay.mark_requested.connect(_on_mark_requested)
 	_map_overlay.mark_clicked.connect(_on_mark_clicked)
 	_map_overlay.place_selected.connect(_on_place_selected)
+	_map_overlay.service_selected.connect(_on_service_selected)
+
+	# The legend's settings are the master's, stored beside their marks: the overlay reports a change, the
+	# marks keep it, and whatever the marks hold - stored or just set - is what both views filter by.
+	_map_overlay.hidden_services_changed.connect(_map_marks.set_hidden_services)
+	_map_marks.hidden_services_changed.connect(_on_hidden_services_changed)
 
 	_map_source.fetch_meta()
 	_load_marks()
@@ -179,6 +189,7 @@ func _update_compass_marks() -> void:
 	if at == null:
 		compass.clear_marks(&"places")
 		compass.clear_marks(&"marks")
+		compass.clear_marks(&"service")
 		return
 
 	var here: Vector2 = at
@@ -199,8 +210,20 @@ func _update_compass_marks() -> void:
 		if own_marks.size() >= _COMPASS_MAX_MARKS:
 			break
 
+	# The selected service is a waypoint rather than a reading of the neighbourhood, so neither the radius nor
+	# the cap applies to it.
+	var service_marks: Array = []
+	if not _selected_service.is_empty():
+		service_marks.append(_bearing_mark(
+			here,
+			_selected_service,
+			_map_overlay.service_label(_selected_service),
+			MapView.service_colour(str(_selected_service.get("kind", "")))
+		))
+
 	compass.set_marks(&"places", place_marks)
 	compass.set_marks(&"marks", own_marks)
+	compass.set_marks(&"service", service_marks)
 
 
 ## One strip entry for something at a map position.
@@ -304,6 +327,18 @@ func _listen_once(subject: Signal, handler: Callable) -> void:
 ## waiting out the refresh interval - a click is the one moment the player is looking for the answer.
 func _on_place_selected(_place: Dictionary) -> void:
 	_update_compass_marks()
+
+
+## A service picked on the map goes on the compass, or comes off it - an empty [param service] is the map
+## saying the selection went away: the player picked something else or hid its kind, or its building is gone.
+func _on_service_selected(service: Dictionary) -> void:
+	_selected_service = service
+	_update_compass_marks()
+
+
+func _on_hidden_services_changed(kinds: Array[String]) -> void:
+	_map_overlay.set_hidden_services(kinds)
+	_minimap.set_hidden_services(kinds)
 
 
 ## Shows or hides both map views, and drops the tiles that depended on the old charts.

@@ -96,9 +96,76 @@ const _LABEL_OFFSET := 11.3
 ## pixels across: this is a click on a name, and the name is what the player is aiming at.
 const _PLACE_HIT_RADIUS := 14.0
 
+## The service kinds there is a glyph for, in the order the legend lists them. The server's
+## [code]MapService[/code] enum names; one it adds later still draws, as a plain dot, until it is given a
+## glyph here.
+const SERVICE_KINDS: Array[String] = ["MERCHANT", "MARKET", "INN", "TEMPLE", "GUARD", "WARD_STONE"]
+
+## Ink per service kind. Each kind also has its own silhouette - see [constant _SERVICE_SHAPES] - so the
+## colour is a second cue rather than the only one, and none of them is the cool blue that means "mine".
+const _SERVICE_COLOURS := {
+	"MERCHANT": Color(0.96, 0.78, 0.30),
+	"MARKET": Color(0.94, 0.55, 0.24),
+	"INN": Color(0.58, 0.80, 0.40),
+	"TEMPLE": Color(0.96, 0.95, 0.88),
+	"GUARD": Color(0.86, 0.30, 0.28),
+	"WARD_STONE": Color(0.72, 0.58, 0.96),
+}
+
+## Each kind's outline, as points around its centre at radius one, screen y down. A kind with no entry - the
+## merchant among them - is a round coin.
+##
+## Drawn by this view rather than baked into the tile like a town's symbol is, because a service is live: a
+## baked icon would outlive the building it marks, and could not be selected, filtered or shown as closed.
+const _SERVICE_SHAPES := {
+	# A market stall's diamond.
+	"MARKET": [Vector2(0.0, -1.1), Vector2(1.1, 0.0), Vector2(0.0, 1.1), Vector2(-1.1, 0.0)],
+	# A house: a roof on a box.
+	"INN": [
+		Vector2(0.0, -1.1), Vector2(1.0, -0.15), Vector2(1.0, 0.95), Vector2(-1.0, 0.95), Vector2(-1.0, -0.15),
+	],
+	# A spire.
+	"TEMPLE": [Vector2(0.0, -1.25), Vector2(0.9, 0.95), Vector2(-0.9, 0.95)],
+	# A shield.
+	"GUARD": [
+		Vector2(-0.95, -0.95), Vector2(0.95, -0.95), Vector2(0.95, 0.15), Vector2(0.0, 1.1), Vector2(-0.95, 0.15),
+	],
+	# A standing stone, narrower at the top.
+	"WARD_STONE": [Vector2(-0.35, -1.2), Vector2(0.35, -1.2), Vector2(0.55, 1.0), Vector2(-0.55, 1.0)],
+}
+
+## Glyph size in pixels, and the dark rim drawn under it so it reads over any tile - the player marker's trick.
+const _SERVICE_RADIUS := 4.5
+const _SERVICE_RIM := 1.5
+
+## The ring around the selected service, in the selected label's ink.
+const _SERVICE_SELECTED_GAP := 2.5
+
+## How much of a closed service's ink is left. Dimmed rather than hidden: a baker that is shut is still where
+## the bakery is, and a player planning a trip wants to know that.
+const _SERVICE_CLOSED_ALPHA := 0.4
+
+## The finest-detail levels are the only ones the server lists services at. Asking at coarser levels would be
+## a request per tile that exists only to be answered with nothing.
+const _SERVICES_MAX_LEVEL := 3
+
+## How far ahead of its due time a tile's services may be re-asked for.
+##
+## A tile is confirmed a moment after the redraw that asked for it, and the redraw that finds it stale again
+## comes exactly one interval after that redraw - so without some slack it is a few milliseconds short of
+## stale and waits a whole second interval, making every refresh twice as slow as it says.
+const _SERVICES_SLACK_MSEC := 1000
+
 ## The player picked a place on the map. Carries the whole entry - see [method MapSource.places_of] - so a
 ## listener can put it on the compass without asking anything back.
 signal place_selected(place: Dictionary)
+
+## The player picked a service on the map, or the selected one went away - an empty [param service] says
+## that. Carries the whole entry, as [method MapSource.services_of] returns it.
+##
+## "Went away" covers a refresh that no longer lists it - its building has been knocked down - the player
+## hiding its kind, and the player picking a place instead.
+signal service_selected(service: Dictionary)
 
 ## The player right-clicked empty ground at [param at] world metres, asking for a mark there.
 ##
@@ -140,6 +207,22 @@ signal mark_clicked(index: int)
 @export_range(0.25, 4.0, 0.05, "or_greater") var marker_scale: float = 1.0:
 	set(value):
 		marker_scale = value
+		queue_redraw()
+
+## How old a tile's services may get before this view asks again, in seconds.
+##
+## Per view because the answer is: the overlay is being read and wants a building that burned down a minute
+## ago gone from it, the minimap is glanced at and can wait a couple. A re-ask is a conditional request, so
+## an unchanged tile costs a 304.
+@export var services_refresh_seconds: float = 120.0
+
+## Service kinds the player has switched off in the legend. Filters both what is drawn and what a click can
+## hit, so a hidden kind cannot be selected by clicking where it would have been.
+var hidden_services: Array[String] = []:
+	set(value):
+		hidden_services = value
+		if not _selected_service.is_empty() and _text_of(_selected_service, "kind") in value:
+			_deselect_service()
 		queue_redraw()
 
 ## Where the player's own marker is drawn, and what [member follow_player] follows.
@@ -184,6 +267,23 @@ var _visible_places: Array = []
 ## frame from the source's cache, so holding one would keep highlighting a copy after the real one moved.
 var _selected_id: int = 0
 
+## The services drawn on the last frame, for [method _place_at] - the same reason [member _visible_places]
+## exists. Hidden kinds are already left out.
+var _visible_services: Array = []
+
+## The selected service, or empty. The entry itself rather than only an id, unlike a place: it is what the
+## label and the compass are written from, and it may be off screen or at a level that lists no services while
+## it stays selected. Replaced by the fresh copy whenever its tile is answered again.
+var _selected_service: Dictionary = {}
+var _selected_service_identity: String = ""
+
+## Tiles whose services were confirmed before this are re-asked for, however recently. Moved by
+## [method revalidate_services].
+var _services_since_msec: int = 0
+
+## When this view last asked after its services, so [method _process] can wake a still map to ask again.
+var _services_swept_msec: int = 0
+
 ## The player's own marks, or null for a view that does not show them. Assigned rather than fetched so
 ## that both views share one set without this knowing where it is stored.
 var marks: MapMarks = null
@@ -200,6 +300,7 @@ func setup(map_source: MapSource, entities: Node) -> void:
 	source.tile_ready.connect(func(_key: String, _texture: Texture2D) -> void: queue_redraw())
 	source.tile_absent.connect(func(_key: String) -> void: queue_redraw())
 	source.places_ready.connect(func(_key: String, _places: Array) -> void: queue_redraw())
+	source.services_ready.connect(_on_services_ready)
 	source.meta_ready.connect(_on_meta_ready)
 
 	if not source.meta.is_empty():
@@ -227,6 +328,15 @@ func go_to_level(to_level: int) -> void:
 	queue_redraw()
 
 
+## Re-asks for the services of every tile in view from now on, however recently they were confirmed.
+##
+## What opening the overlay calls: it is the moment the player is about to read the map, and the last answer
+## for this ground may be from before they walked away from it.
+func revalidate_services() -> void:
+	_services_since_msec = Time.get_ticks_msec()
+	queue_redraw()
+
+
 ## Centres on the player, if there is one to centre on.
 func centre_on_player() -> void:
 	var at: Variant = player_metres()
@@ -240,6 +350,11 @@ func _process(_delta: float) -> void:
 	# no chart, and its view underneath stays `visible` - so following would redraw a widget nobody can see.
 	if not is_visible_in_tree():
 		return
+
+	# The services under a map left open on a standing player go stale with nothing on screen moving, so the
+	# refresh cannot wait for a redraw to happen for some other reason. A redraw is what asks.
+	if Time.get_ticks_msec() - _services_swept_msec >= int(services_refresh_seconds * 1000.0):
+		queue_redraw()
 
 	if follow_player:
 		centre_on_player()
@@ -268,6 +383,9 @@ func _draw() -> void:
 	# it, or the map spends its first frames as a window onto the terrain.
 	draw_rect(Rect2(Vector2.ZERO, size), _FOG)
 
+	var now := Time.get_ticks_msec()
+	_services_swept_msec = now
+
 	if source == null or source.meta.is_empty():
 		return
 
@@ -276,6 +394,12 @@ func _draw() -> void:
 	var half := size * 0.5
 
 	var places: Array = []
+	var services: Array = []
+
+	var lists_services := level <= _SERVICES_MAX_LEVEL
+	var services_since := maxi(
+		now - int(services_refresh_seconds * 1000.0) + _SERVICES_SLACK_MSEC, _services_since_msec
+	)
 
 	var west := centre.x - half.x * mpp
 	var east := centre.x + half.x * mpp
@@ -306,8 +430,16 @@ func _draw() -> void:
 			source.want_places(level, tx, ty)
 			places.append_array(source.places_of(key))
 
+			if lists_services:
+				source.want_services(level, tx, ty, services_since)
+				for service in source.services_of(key):
+					if _text_of(service, "kind") not in hidden_services:
+						services.append(service)
+
 	_visible_places = places
+	_visible_services = services
 	_draw_places()
+	_draw_services()
 	_draw_marks()
 	_draw_owned_entities()
 	_draw_player()
@@ -320,18 +452,16 @@ func _draw() -> void:
 ## everywhere else on the map is everywhere else. Clicking the same name twice is how they then travel to it,
 ## which is the one case where "select" and "go" want the same gesture and can have it.
 func _on_click(at: Vector2) -> void:
-	var place := _place_at(at)
+	var hit := _place_at(at)
 
-	if not place.is_empty():
-		var id := int(place.get("id", 0))
-		if id != _selected_id:
-			_selected_id = id
-			place_selected.emit(place)
-			queue_redraw()
+	if not hit.is_empty():
+		var entry: Dictionary = hit["entry"]
+		if not _is_selected(hit):
+			_select(hit)
 			return
 
 		# Already selected, so this is the second click: go there.
-		_travel_to(Vector2(float(place.get("x", 0.0)), float(place.get("y", 0.0))))
+		_travel_to(_position_of(entry))
 		return
 
 	# Ground the player has no tile for is not a destination. The server refuses it anyway - it has the
@@ -342,6 +472,79 @@ func _on_click(at: Vector2) -> void:
 		return
 
 	_travel_to(world)
+
+
+func _is_selected(hit: Dictionary) -> bool:
+	var entry: Dictionary = hit["entry"]
+	if hit["service"]:
+		return MapSource.service_identity(entry) == _selected_service_identity
+
+	return int(entry.get("id", 0)) == _selected_id
+
+
+## Makes [param hit] - a [method _place_at] answer - the one selected thing on the map.
+##
+## One selection across places and services, because there is one second click: with a town and a shop both
+## highlighted, which of them it travels to would be a guess.
+func _select(hit: Dictionary) -> void:
+	var entry: Dictionary = hit["entry"]
+
+	if hit["service"]:
+		_selected_id = 0
+		_selected_service = entry
+		_selected_service_identity = MapSource.service_identity(entry)
+		service_selected.emit(entry)
+	else:
+		_selected_id = int(entry.get("id", 0))
+		_deselect_service()
+		place_selected.emit(entry)
+
+	queue_redraw()
+
+
+func _deselect_service() -> void:
+	if _selected_service.is_empty():
+		return
+
+	_selected_service = {}
+	_selected_service_identity = ""
+	service_selected.emit({})
+	queue_redraw()
+
+
+## A tile's services were answered again: drop the selection if its service is no longer among them.
+##
+## Judged by where the service stands rather than by which key was asked: the minimap and the overlay list
+## the same service under tiles of different levels, and whichever of them hears first that it is gone should
+## be enough to let go of it.
+func _on_services_ready(key: String, services: Array) -> void:
+	if not _selected_service.is_empty() and _tile_holds(key, _position_of(_selected_service)):
+		var fresh := {}
+		for service in services:
+			if MapSource.service_identity(service) == _selected_service_identity:
+				fresh = service
+				break
+
+		if fresh.is_empty():
+			_deselect_service()
+		else:
+			_selected_service = fresh
+
+	queue_redraw()
+
+
+## Whether the tile [param key] names - at its own level, not this view's - covers [param world].
+func _tile_holds(key: String, world: Vector2) -> bool:
+	var parts := key.split("/")
+	if parts.size() != 3:
+		return false
+
+	var span := _tile_pixels * pow(2.0, int(parts[0]))
+	return floori(world.x / span) == int(parts[1]) and floori(world.y / span) == int(parts[2])
+
+
+static func _position_of(entry: Dictionary) -> Vector2:
+	return Vector2(float(entry.get("x", 0.0)), float(entry.get("y", 0.0)))
 
 
 ## Sets off for a point on the map, if this view is one that may and the world has said how big a voxel is.
@@ -409,6 +612,172 @@ func _draw_places() -> void:
 				)
 
 		draw_string(font, origin, text, HORIZONTAL_ALIGNMENT_LEFT, -1, points, ink)
+
+
+## A glyph per service in view, dimmed where it is shut, and the selected one's name and hours over it.
+func _draw_services() -> void:
+	var bounds := Rect2(Vector2.ZERO, size).grow(_SERVICE_RADIUS)
+	var hour := _hour_of_day()
+	var selected_at: Variant = null
+
+	for service in _visible_services:
+		var at := _to_screen(_position_of(service))
+		if not bounds.has_point(at):
+			continue
+
+		var selected := MapSource.service_identity(service) == _selected_service_identity
+		draw_service_glyph(self, at, _text_of(service, "kind"), _SERVICE_RADIUS, is_open(service, hour), selected)
+		if selected:
+			selected_at = at
+
+	if selected_at != null:
+		_draw_service_label(selected_at, _selected_service)
+
+
+## The selected service's name, and under it its hours, above its glyph.
+##
+## Only for the selected one. A town is a dozen services within a few pixels of each other, so a name on each
+## would be a pile of text over the town's own; the glyph says what kind it is, and a click says the rest.
+func _draw_service_label(at: Vector2, service: Dictionary) -> void:
+	var font := get_theme_default_font()
+	if font == null:
+		return
+
+	var lines: Array[String] = [service_label(service)]
+	var hours := service_hours(service)
+	if not hours.is_empty():
+		lines.append(hours)
+
+	var line_height := font.get_height(_LABEL_SIZE_DEFAULT)
+	var baseline := at.y - _SERVICE_RADIUS - _SERVICE_RIM - _SERVICE_SELECTED_GAP - 3.0
+	baseline -= line_height * (lines.size() - 1)
+
+	for text in lines:
+		var width := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, _LABEL_SIZE_DEFAULT).x
+		_draw_haloed(font, Vector2(at.x - width * 0.5, baseline), text, _LABEL_SIZE_DEFAULT, _LABEL_SELECTED)
+		baseline += line_height
+
+
+## Text with a halo of the fog colour behind it, the way [method _draw_places] writes a name.
+func _draw_haloed(font: Font, origin: Vector2, text: String, points: int, ink: Color) -> void:
+	for dx in [-1, 0, 1]:
+		for dy in [-1, 0, 1]:
+			if dx == 0 and dy == 0:
+				continue
+			draw_string(font, origin + Vector2(dx, dy), text, HORIZONTAL_ALIGNMENT_LEFT, -1, points, _LABEL_HALO)
+
+	draw_string(font, origin, text, HORIZONTAL_ALIGNMENT_LEFT, -1, points, ink)
+
+
+## Draws one service glyph onto [param canvas], centred on [param at].
+##
+## Static and canvas-agnostic so the overlay's legend draws its swatches with exactly what the map draws:
+## a key whose symbols were drawn by a second copy of this would sooner or later stop matching the map.
+static func draw_service_glyph(
+	canvas: CanvasItem, at: Vector2, kind: String, radius: float, open: bool = true, selected: bool = false
+) -> void:
+	var fill := service_colour(kind)
+	var rim := _MARKER_OUTLINE
+	if not open:
+		fill.a = _SERVICE_CLOSED_ALPHA
+		rim.a = _SERVICE_CLOSED_ALPHA
+
+	if selected:
+		canvas.draw_arc(
+			at, radius + _SERVICE_RIM + _SERVICE_SELECTED_GAP, 0.0, TAU, 24, _LABEL_SELECTED, 1.5, true
+		)
+
+	var shape: Array = _SERVICE_SHAPES.get(kind, [])
+	if shape.is_empty():
+		canvas.draw_circle(at, radius + _SERVICE_RIM, rim)
+		canvas.draw_circle(at, radius, fill)
+		return
+
+	# Scaled about the centre rather than inset, like the player arrow: these are all convex enough that the
+	# larger copy is a rim of near enough even width.
+	canvas.draw_colored_polygon(_shape_at(shape, at, radius + _SERVICE_RIM), rim)
+	canvas.draw_colored_polygon(_shape_at(shape, at, radius), fill)
+
+
+## The ink a service kind is drawn in, so whatever else shows one - the compass - shows it in the same colour.
+static func service_colour(kind: String) -> Color:
+	return _SERVICE_COLOURS.get(kind, _LABEL_COLOUR)
+
+
+static func _shape_at(shape: Array, at: Vector2, radius: float) -> PackedVector2Array:
+	var points := PackedVector2Array()
+	for point: Vector2 in shape:
+		points.append(at + point * radius)
+	return points
+
+
+## Whether [param service] is open at [param hour] of the in-game day.
+##
+## Always open when it keeps no hours - a ward stone does not shut - and when [param hour] is negative, which
+## is how [method _hour_of_day] says the world clock has not been set: dimming every shop for want of a time
+## would read as the whole map being shut. Hours that run past midnight wrap.
+static func is_open(service: Dictionary, hour: float) -> bool:
+	var from: Variant = service.get("openFrom")
+	var to: Variant = service.get("openTo")
+	if from == null or to == null or hour < 0.0 or float(from) == float(to):
+		return true
+
+	if float(from) < float(to):
+		return hour >= float(from) and hour < float(to)
+
+	return hour >= float(from) or hour < float(to)
+
+
+## The hour of the in-game day from the world clock, or -1 while it has not been set.
+func _hour_of_day() -> float:
+	var clock: Node = ConnectionManager.world_clock
+	if clock == null or not clock.IsAnchored():
+		return -1.0
+
+	var hour: float = clock.HourOfDay
+	return hour
+
+
+## What to print for a service: what it is, and in which settlement.
+##
+## The trade wins over the kind when there is one - "Bakery" says more than "Merchant" - and is printed through
+## [method Object.tr] for the reason [method label_of] prints a landmark's kind that way: it arrives as an id,
+## not as the server's English. A trade nobody has written a line for falls back to the kind.
+func service_label(service: Dictionary) -> String:
+	var what := ""
+
+	var business := _text_of(service, "business")
+	if not business.is_empty():
+		var business_key := "BUSINESS_" + business.to_upper()
+		var text := tr(business_key)
+		if text != business_key:
+			what = text
+
+	if what.is_empty():
+		var kind := _text_of(service, "kind")
+		var kind_key := "SERVICE_" + kind
+		what = tr(kind_key)
+		if what == kind_key:
+			what = kind.capitalize()
+
+	var settlement := _text_of(service, "settlement")
+	return what if settlement.is_empty() else "%s · %s" % [what, settlement]
+
+
+## A service's opening hours as a line to print, or "" for one that keeps none.
+func service_hours(service: Dictionary) -> String:
+	var from: Variant = service.get("openFrom")
+	var to: Variant = service.get("openTo")
+	if from == null or to == null:
+		return ""
+
+	# A missing line comes back as the key, and the key has no placeholders - formatting it would be an error
+	# rather than an ugly label. See the translation binaries next to general.csv.
+	var format := tr("MAP_OPEN_HOURS")
+	if format == "MAP_OPEN_HOURS":
+		return ""
+
+	return format % [int(from), int(to)]
 
 
 ## The player's own marks: a pin and a name, in their own ink.
@@ -505,7 +874,9 @@ static func _text_of(place: Dictionary, key: String) -> String:
 	return "" if value == null else str(value)
 
 
-## The place under [param at], or an empty [Dictionary]. Nearest wins, so overlapping labels are reachable.
+## The place or service under [param at], as [code]{"entry": Dictionary, "service": bool}[/code], or an
+## empty [Dictionary]. Nearest wins, across both, so overlapping labels are reachable and a shop beside a
+## town's name is as easy to hit as the name.
 func _place_at(at: Vector2) -> Dictionary:
 	var best := {}
 	var best_distance := _PLACE_HIT_RADIUS
@@ -514,11 +885,16 @@ func _place_at(at: Vector2) -> Dictionary:
 		if label_of(place).is_empty():
 			continue
 
-		var screen := _to_screen(Vector2(float(place.get("x", 0.0)), float(place.get("y", 0.0))))
-		var distance := screen.distance_to(at)
+		var distance := _to_screen(_position_of(place)).distance_to(at)
 		if distance < best_distance:
 			best_distance = distance
-			best = place
+			best = {"entry": place, "service": false}
+
+	for service in _visible_services:
+		var distance := _to_screen(_position_of(service)).distance_to(at)
+		if distance < best_distance:
+			best_distance = distance
+			best = {"entry": service, "service": true}
 
 	return best
 

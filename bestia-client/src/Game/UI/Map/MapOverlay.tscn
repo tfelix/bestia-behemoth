@@ -76,6 +76,10 @@ show_north = true
 can_travel = true
 marker_scale = 2.0
 
+[node name="Legend" type="HBoxContainer" parent="Panel/Margin/Rows" unique_id=1873402219]
+layout_mode = 2
+theme_override_constants/separation = 4
+
 [node name="Footer" type="HBoxContainer" parent="Panel/Margin/Rows" unique_id=1106611452]
 layout_mode = 2
 

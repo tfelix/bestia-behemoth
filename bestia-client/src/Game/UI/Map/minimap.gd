@@ -14,6 +14,10 @@ extends PanelContainer
 ## that the plan style is drawing streets and buildings rather than the atlas drawing terrain.
 const _LEVEL := 2
 
+## How often the services in view are re-asked after. A glance at a corner of the screen can wait a couple of
+## minutes to learn a shop has gone; the overlay, which is read, asks more often.
+const _SERVICES_REFRESH_SECONDS := 120.0
+
 @onready var _view: MapView = $Margin/View
 @onready var _hint: Label = $Margin/Hint
 
@@ -22,6 +26,7 @@ func setup(source: MapSource, entities: Node) -> void:
 	_view.follow_player = true
 	_view.interactive = false
 	_view.can_travel = true
+	_view.services_refresh_seconds = _SERVICES_REFRESH_SECONDS
 	_view.setup(source, entities)
 	_view.go_to_level(_LEVEL)
 
@@ -42,6 +47,12 @@ func _ready() -> void:
 ## Shown but not editable: this view takes no input at all, which is the same reason it does not pan.
 func set_marks(marks: MapMarks) -> void:
 	_view.marks = marks
+
+
+## The service kinds switched off in the overlay's legend. The minimap has no legend of its own; it follows
+## that one, because "my map" is one map however many windows show it.
+func set_hidden_services(kinds: Array[String]) -> void:
+	_view.hidden_services = kinds.duplicate()
 
 
 ## The player's position in world metres, or null. Forwarded so callers that need it - the compass, which
