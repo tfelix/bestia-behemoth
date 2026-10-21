@@ -533,15 +533,28 @@ text = "Other players see this name. It must be unique."
 label_settings = ExtResource("5_muted")
 autowrap_mode = 3
 
-[node name="NameEdit" type="LineEdit" parent="Margin/Layout/Body/StepPanel/Content/Pages/NamePage"]
+[node name="NameRow" type="HBoxContainer" parent="Margin/Layout/Body/StepPanel/Content/Pages/NamePage"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="NameEdit" type="LineEdit" parent="Margin/Layout/Body/StepPanel/Content/Pages/NamePage/NameRow"]
 unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 3
 placeholder_text = "Enter a name"
-max_length = 20
+max_length = 24
+
+[node name="NameCounter" type="Label" parent="Margin/Layout/Body/StepPanel/Content/Pages/NamePage/NameRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(48, 0)
+layout_mode = 2
+text = "0/24"
+label_settings = ExtResource("5_muted")
+horizontal_alignment = 2
 
 [node name="NameRules" type="Label" parent="Margin/Layout/Body/StepPanel/Content/Pages/NamePage"]
 layout_mode = 2
-text = "Up to 20 letters, numbers, spaces and basic punctuation."
+text = "Letters (accents are fine), numbers and spaces. No punctuation."
 label_settings = ExtResource("5_muted")
 autowrap_mode = 3
 
