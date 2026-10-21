@@ -53,6 +53,10 @@ class SelectMasterHandler(
     equipmentRevalidationService.revalidate(msg.selectedMasterId, masterEntityId)
 
     ownedBestiaSpawnService.bringBack(msg.playerId, msg.selectedMasterId)
+    // A bestia's spawn replays its container the same way, so its gear needs the same second look.
+    connectionInfoService.getOwnedEntitiesByMaster(msg.playerId, msg.selectedMasterId).forEach { bestia ->
+      equipmentRevalidationService.revalidate(msg.selectedMasterId, bestia.entityId, bestia.playerBestiaId)
+    }
     ownedBestiasPublisher.publish(msg.playerId)
 
     return true

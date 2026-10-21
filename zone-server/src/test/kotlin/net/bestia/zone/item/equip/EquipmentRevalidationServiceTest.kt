@@ -31,6 +31,7 @@ import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import net.bestia.zone.ecs.core.EcsWorld
+import net.bestia.zone.ecs.core.World
 import net.bestia.zone.item.material.ItemMaterial
 
 /**
@@ -93,11 +94,22 @@ class EquipmentRevalidationServiceTest {
 
   /** A master wearing both pieces, knowing whatever [learned] says. */
   private fun givenWearer(vararg learned: Pair<Long, Int>): EntityId {
+    return wearingBoth { id ->
+      add(id, Master(MASTER_ID))
+      add(id, KnownSkills(learned.toMap().toMutableMap()))
+    }
+  }
+
+  /** A player bestia of the master, wearing both pieces. */
+  private fun givenBestiaWearer(): EntityId {
+    return wearingBoth { id -> add(id, KnownSkills(mutableMapOf())) }
+  }
+
+  private fun wearingBoth(identity: World.(EntityId) -> Unit): EntityId {
     return world.createEntity { id ->
       add(id, Account(ACCOUNT_ID))
-      add(id, Master(MASTER_ID))
       add(id, Level(10))
-      add(id, KnownSkills(learned.toMap().toMutableMap()))
+      identity(id)
       add(
         id,
         Inventory(
@@ -197,8 +209,19 @@ class EquipmentRevalidationServiceTest {
     assertEquals(OperationErrorProto.OpError.EQUIP_NOVICE_ONLY, (sent.captured as OperationErrorSMSG).code)
   }
 
+  @Test
+  fun `novice-only gear comes off a player bestia, back into its own container`() {
+    val entityId = givenBestiaWearer()
+
+    service.revalidate(MASTER_ID, entityId, PLAYER_BESTIA_ID)
+
+    assertNull(equipmentOf(entityId).get(EquipmentSlot.ARMOR), "the shirt should be off")
+    verify(exactly = 1) { inventoryService.unequip(MASTER_ID, PLAYER_BESTIA_ID, EquipmentSlot.ARMOR) }
+  }
+
   private companion object {
     const val MASTER_ID = 7L
+    const val PLAYER_BESTIA_ID = 9L
     const val ACCOUNT_ID = 1L
     const val BASIC_SKILL_ID = 1L
     const val CARPENTRY_ID = 20L
