@@ -10,9 +10,8 @@ import org.springframework.core.annotation.Order
 /**
  * The credential the client's HTTP requests carry, minted per socket session.
  *
- * Named for what it authenticates rather than for its one current caller: the map is the only thing served
- * over HTTP today, but nothing about a session credential is map-shaped, and anything else put behind HTTP
- * wants this same ticket rather than a second scheme of its own.
+ * The requests go to the api-service, which asks the zone over the bus whose ticket it is. Named for what it
+ * authenticates rather than for its one current use, the map: nothing about a session credential is map-shaped.
  *
  * ### Why not the login token
  *
@@ -26,12 +25,12 @@ import org.springframework.core.annotation.Order
  * owns it goes away, which is the only lifetime an HTTP caller ever wanted. That it is opaque rather than
  * signed is the same reasoning - there is nothing to verify when the store *is* the authority.
  *
- * The ticket names an *account*, never a master. A caller that needs to know which master is asking reads
- * that from the live session, so a client cannot act as a character it is not playing by editing a request.
+ * The ticket names an *account*, never a master. A request names its master, and the zone checks the master is
+ * that account's, so editing a request reaches no character but the player's own.
  *
  * ### Its own store rather than a field on the session
  *
- * This is read from Tomcat's thread pool and written from Netty's event loops and the IO lane, with no world-thread
+ * This is read from the bus's worker threads and written from Netty's event loops and the IO lane, with no world-thread
  * convention to lean on - so it holds its own concurrent maps. `ConnectionInfoService` also never removes
  * its entries, and a credential has to actually go away when the connection does.
  */

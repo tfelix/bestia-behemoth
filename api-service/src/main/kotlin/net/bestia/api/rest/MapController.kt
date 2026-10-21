@@ -20,9 +20,12 @@ import org.springframework.web.bind.annotation.RestController
 import java.time.Duration
 
 /**
- * A master's map, asked of the zone, which renders it from the live world and the master's charts. The rules are
- * the game client's: a 404 means nothing of this tile is charted, a fully charted tile is the same bytes for
- * everyone and immutable, a partly charted one revalidates against its ETag.
+ * A master's map, for the companion app and the game client: asked of the zone, which renders it from the live
+ * world and the master's charts. A 404 means nothing of this tile is charted; a fully charted tile is the same
+ * bytes for everyone and immutable; a partly charted one revalidates against its ETag.
+ *
+ * Tiles and places end in `.png` and `.json` because the game client stores them as files; services have no
+ * extension, because they are a live answer kept in memory and revalidated.
  */
 @RestController
 @RequestMapping("/v1/companion/masters/{masterId}/map")
@@ -38,7 +41,22 @@ class MapController(
     val maxLevel: Int,
     val worldWidthMetres: Double,
     val worldHeightMetres: Double,
+    val metresPerVoxel: Double,
   )
+
+  /** [openFrom] and [openTo] are game hours, null for something with no hours. */
+  data class Service(
+    val id: Long,
+    val kind: String,
+    val business: String?,
+    val x: Double,
+    val y: Double,
+    val settlement: String?,
+    val openFrom: Int?,
+    val openTo: Int?,
+  )
+
+  data class Services(val services: List<Service>)
 
   data class Place(
     val id: Long,
@@ -61,7 +79,32 @@ class MapController(
       info.maxLevel,
       info.worldWidthMetres,
       info.worldHeightMetres,
+      info.metresPerVoxel,
     )
+  }
+
+  /** Always `private, no-cache`: a service can be knocked down, and the ETag names the world's state. */
+  @GetMapping("/s/{level}/{x}/{y}")
+  fun services(
+    @RequestAttribute(ACCOUNT_ID) accountId: Long,
+    @PathVariable masterId: Long,
+    @PathVariable level: Int,
+    @PathVariable x: Long,
+    @PathVariable y: Long,
+    @RequestHeader(HttpHeaders.IF_NONE_MATCH, required = false) ifNoneMatch: String?,
+  ): ResponseEntity<Services> {
+    val reply = zone.ask(accountId, ZoneQuery.MapServices(masterId, level, x, y, ifNoneMatch))
+    val services = reply.answerOrThrow<ZoneAnswer.Services>()
+    val revalidate = CacheControl.noCache().cachePrivate()
+
+    if (reply.status == BusReply.Status.NOT_MODIFIED) {
+      return ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(services.etag).cacheControl(revalidate).build()
+    }
+
+    val listed = services.services.map {
+      Service(it.id, it.kind, it.business, it.x, it.y, it.settlement, it.openFrom, it.openTo)
+    }
+    return ResponseEntity.ok().eTag(services.etag).cacheControl(revalidate).body(Services(listed))
   }
 
   @GetMapping("/t/{level}/{x}/{y}.png")

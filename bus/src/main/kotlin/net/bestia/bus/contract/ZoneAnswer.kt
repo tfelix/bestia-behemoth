@@ -100,6 +100,7 @@ sealed interface ZoneAnswer {
     data class Species(val id: Long, val identifier: String, val kind: String, val element: String, val level: Int)
   }
 
+  /** [metresPerVoxel] is for a reader that places entities by their voxel position, as the game client does. */
   data class MapInfo(
     val worldMapVersion: String,
     val tileSize: Int,
@@ -107,6 +108,7 @@ sealed interface ZoneAnswer {
     val maxLevel: Int,
     val worldWidthMetres: Double,
     val worldHeightMetres: Double,
+    val metresPerVoxel: Double,
   ) : ZoneAnswer
 
   /** The PNG itself travels as the reply's body, not in the JSON. */
@@ -123,6 +125,25 @@ sealed interface ZoneAnswer {
       val poi: String?,
     )
   }
+
+  /**
+   * What a tile's services are: shops, inns, markets, ward stones, as they stand now. [openFrom] and [openTo] are
+   * game hours, null for something with no hours.
+   */
+  data class Services(val etag: String, val services: List<Service>) : ZoneAnswer {
+    data class Service(
+      val id: Long,
+      val kind: String,
+      val business: String?,
+      val x: Double,
+      val y: Double,
+      val settlement: String?,
+      val openFrom: Int?,
+      val openTo: Int?,
+    )
+  }
+
+  data class TicketOwner(val accountId: Long) : ZoneAnswer
 
   /** The config as stored, which may differ from the one asked for: aggression is clamped. */
   data class Stance(val playerBestiaId: Long, val stance: String, val aggression: Int) : ZoneAnswer

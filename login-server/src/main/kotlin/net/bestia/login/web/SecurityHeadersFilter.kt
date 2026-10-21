@@ -7,9 +7,9 @@ import org.springframework.stereotype.Component
 import org.springframework.web.filter.OncePerRequestFilter
 
 /**
- * A plain filter rather than Spring Security, following the same reasoning as zone-server's
- * `MapAuthFilter`: there is one rule, it applies to every response, and pulling in the security
- * starter would install a default filter chain that 401s everything else on the way past.
+ * A plain filter rather than Spring Security: there is one rule, it applies to every response, and
+ * pulling in the security starter would install a default filter chain that 401s everything else on
+ * the way past.
  */
 @Component
 class SecurityHeadersFilter : OncePerRequestFilter() {

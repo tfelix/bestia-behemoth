@@ -50,8 +50,10 @@ class BusFrameTest {
       ZoneAnswer.PartyInfo(ZoneAnswer.PartyInfo.Party("P", 1, listOf(ZoneAnswer.PartyInfo.Member(1, "Ayla", 3, true)))),
       ZoneAnswer.CatalogData("v", listOf(ZoneAnswer.CatalogData.Item(1, "apple", "USABLE", 15, null, true)),
         listOf(ZoneAnswer.CatalogData.Species(1, "blob", "FORMLESS", "WATER", 1))),
-      ZoneAnswer.MapInfo("w", 256, 0, 9, 128000.0, 128000.0),
+      ZoneAnswer.MapInfo("w", 256, 0, 9, 128000.0, 128000.0, 1.0),
       ZoneAnswer.Places("\"e\"", false, listOf(ZoneAnswer.Places.Place(1, "SETTLEMENT", 3.5, 4.5, "Ashfen", "TOWN", null))),
+      ZoneAnswer.Services("\"s\"", listOf(ZoneAnswer.Services.Service(9, "INN", "The Boar", 1.0, 2.0, "Ashfen", 6, 22))),
+      ZoneAnswer.TicketOwner(42),
       ZoneAnswer.Stance(2, "HOLD", 20),
     )
 

@@ -12,6 +12,7 @@ import net.bestia.zone.companion.query.MapQueries
 import net.bestia.zone.companion.query.MasterQueries
 import net.bestia.zone.companion.query.PartyQueries
 import net.bestia.zone.companion.query.StanceCommand
+import net.bestia.zone.companion.query.TicketQueries
 import org.springframework.stereotype.Component
 
 /** Routes each question from the api-service to the query that answers it. Runs on a bus worker thread. */
@@ -24,6 +25,7 @@ class CompanionRequestDispatcher(
   private val catalog: CatalogQueries,
   private val map: MapQueries,
   private val stance: StanceCommand,
+  private val tickets: TicketQueries,
 ) : RequestHandler {
 
   override fun handle(request: BusRequest): BusReply {
@@ -40,6 +42,8 @@ class CompanionRequestDispatcher(
       ZoneQuery.MapMeta -> map.meta(id)
       is ZoneQuery.MapTile -> map.tile(id, account, query)
       is ZoneQuery.MapPlaces -> map.places(id, account, query)
+      is ZoneQuery.MapServices -> map.services(id, account, query)
+      is ZoneQuery.WhoseTicket -> tickets.owner(id, query)
       is ZoneQuery.SetStance -> stance.apply(id, account, query)
     }
   }

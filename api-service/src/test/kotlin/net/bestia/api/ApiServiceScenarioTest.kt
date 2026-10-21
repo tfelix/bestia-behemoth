@@ -202,6 +202,60 @@ class ApiServiceScenarioTest {
   }
 
   @Test
+  fun `a game client's ticket opens the map as its account, and nothing else`() {
+    answer = { request ->
+      when (val query = request.query) {
+        is ZoneQuery.WhoseTicket ->
+          if (query.ticket == "live-ticket") BusReply.ok(request.correlationId, ZoneAnswer.TicketOwner(47))
+          else BusReply.of(request.correlationId, BusReply.Status.NOT_FOUND)
+        ZoneQuery.MapMeta -> BusReply.ok(request.correlationId, ZoneAnswer.MapInfo("w", 256, 0, 9, 128000.0, 128000.0, 1.0))
+        else -> BusReply.ok(request.correlationId, ZoneAnswer.Masters(emptyList()))
+      }
+    }
+
+    val meta = rest.exchange("/v1/companion/masters/5/map/meta", HttpMethod.GET, ticketed("live-ticket"), String::class.java)
+    assertEquals(200, meta.statusCode.value())
+    assertEquals(1.0, json(meta)["metresPerVoxel"].asDouble())
+    assertEquals(47L, asked.last().accountId, "the map was asked for as the ticket's account")
+
+    assertEquals(401, rest.exchange("/v1/companion/masters/5/map/meta", HttpMethod.GET, ticketed("dead-ticket"), String::class.java).statusCode.value())
+    // A ticket is no companion token: everything off the map routes refuses it, however the path is spelled.
+    for (path in listOf("/v1/companion/masters", "/v1/companion/masters/5/bestias", "/v1/companion/masters/5/map/../bestias")) {
+      assertEquals(401, rest.exchange(path, HttpMethod.GET, ticketed("live-ticket"), String::class.java).statusCode.value(), path)
+    }
+  }
+
+  @Test
+  fun `services are a live answer, never cached for keeps`() {
+    answer = { request ->
+      val query = request.query as ZoneQuery.MapServices
+      if (query.ifNoneMatch == "\"s1\"") {
+        BusReply(request.correlationId, BusReply.Status.NOT_MODIFIED, ZoneAnswer.Services("\"s1\"", emptyList()))
+      } else {
+        BusReply.ok(request.correlationId, ZoneAnswer.Services("\"s1\"", listOf(ZoneAnswer.Services.Service(9, "INN", "The Boar", 1.0, 2.0, "Ashfen", 6, 22))))
+      }
+    }
+
+    val first = rest.exchange("/v1/companion/masters/5/map/s/2/1/1", HttpMethod.GET, entity(48), String::class.java)
+    assertEquals(200, first.statusCode.value())
+    assertEquals("INN", json(first)["services"][0]["kind"].asText())
+    assertTrue(first.headers.cacheControl!!.contains("no-cache") && first.headers.cacheControl!!.contains("private"))
+
+    val again = rest.exchange("/v1/companion/masters/5/map/s/2/1/1", HttpMethod.GET, entity(48, mapOf(HttpHeaders.IF_NONE_MATCH to "\"s1\"")), String::class.java)
+    assertEquals(304, again.statusCode.value())
+  }
+
+  @Test
+  fun `a fully charted tile is public and immutable`() {
+    answer = { BusReply.ok(it.correlationId, ZoneAnswer.Tile("\"shared\"", shared = true), byteArrayOf(1, 2, 3)) }
+
+    val tile = rest.exchange("/v1/companion/masters/5/map/t/9/0/0.png", HttpMethod.GET, entity(49), ByteArray::class.java)
+
+    val cacheControl = tile.headers.cacheControl!!
+    assertTrue(cacheControl.contains("public") && cacheControl.contains("immutable"), cacheControl)
+  }
+
+  @Test
   fun `the socket carries the account's events, including those it missed`() {
     val frames = CopyOnWriteArrayList<JsonNode>()
     val socket = connect(45, lastEventId = null, frames)
@@ -270,6 +324,10 @@ class ApiServiceScenarioTest {
 
   private fun entity(accountId: Long, extra: Map<String, String> = emptyMap()): HttpEntity<Void> {
     return HttpEntity(headers(token(accountId)).apply { extra.forEach { (name, value) -> set(name, value) } })
+  }
+
+  private fun ticketed(ticket: String): HttpEntity<Void> {
+    return HttpEntity(HttpHeaders().apply { set(HttpHeaders.AUTHORIZATION, "Ticket $ticket") })
   }
 
   private fun headers(token: String): HttpHeaders {

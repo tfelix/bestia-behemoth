@@ -27,6 +27,14 @@ sealed interface ZoneQuery {
 
   data class MapPlaces(val masterId: Long, val level: Int, val x: Long, val y: Long, val ifNoneMatch: String?) : ZoneQuery
 
+  data class MapServices(val masterId: Long, val level: Int, val x: Long, val y: Long, val ifNoneMatch: String?) : ZoneQuery
+
+  /**
+   * Whose game connection holds [ticket], the HTTP ticket the zone hands its client at the socket handshake. The
+   * one query sent before the asker is known, so its request carries account 0 and the zone ignores it.
+   */
+  data class WhoseTicket(val ticket: String) : ZoneQuery
+
   /** A standing order for an owned bestia. A write: send it with an idempotency key. */
   data class SetStance(
     val masterId: Long,

@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1_script")
 login_server_url = "http://localhost:8080"
-map_server_url = "http://127.0.0.1:8091"
+api_server_url = "http://127.0.0.1:8095"
 game_server_host = "localhost"
 game_server_port = 8090
 net_log_mode = "detail"

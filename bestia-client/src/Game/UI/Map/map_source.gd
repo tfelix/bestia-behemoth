@@ -10,10 +10,11 @@ extends Node
 ## re-requested every time the window opens. Conditional requests, a cache that survives a restart and a
 ## transfer that cannot delay a movement packet are all things HTTP already does.
 ##
-## [b]Authentication.[/b] The map ticket the zone hands over in [code]AuthenticationSuccess[/code], which
-## lives exactly as long as the connection. Deliberately not the login JWT this used to send: that expires an
-## hour after the login server issued it and the socket only checks it once, so the map quietly stopped
-## working an hour into every session while the game carried on. See [method ConnectionManager.http_ticket].
+## [b]Where and how.[/b] From the api-service, the companion app's server, under the selected master's id. It
+## is sent the ticket the zone hands over in [code]AuthenticationSuccess[/code], which lives exactly as long as
+## the connection, and asks the zone whose ticket it is. Deliberately not the login JWT this once sent: that
+## expires minutes after the login server issued it and the socket only checks it once, so the map quietly
+## stopped working partway into a session. See [method ConnectionManager.http_ticket].
 ##
 ## [b]What the server never sends.[/b] Nothing tells this when the player's charts change. A chart is an
 ## item, so the inventory sync already carries the news - see [method set_chart_signature], called from
@@ -36,7 +37,7 @@ signal places_ready(key: String, places: Array)
 ## firing as news.
 signal services_ready(key: String, services: Array)
 
-## World geometry and the level range, from [code]/map/v1/meta[/code]. Nothing can be addressed before it.
+## World geometry and the level range, from the map's [code]/meta[/code]. Nothing can be addressed before it.
 signal meta_ready(meta: Dictionary)
 
 ## The server refused this client's ticket, so nothing more will be asked for.
@@ -67,12 +68,11 @@ const _RETRY_AFTER_SECONDS := 5.0
 
 const _MAX_RETRY_AFTER := 4096
 
-## Attempts at [code]/map/v1/meta[/code], and the wait between them.
+## Attempts at the map's [code]/meta[/code], and the wait between them.
 ##
-## Retried because it can legitimately fail at the moment it is first asked: the client switches to the game
-## scene the instant it [i]sends[/i] its master selection, so this can reach the zone before the session it
-## identifies itself with exists, and be told so. Nothing else asks again, and without a map version nothing
-## can be addressed - so one lost race would mean no map for the whole session.
+## Retried because it can legitimately fail at the moment it is first asked - the api-service or the zone
+## behind it busy or still starting - and nothing else asks again: without a map version nothing can be
+## addressed, so one lost request would mean no map for the whole session.
 const _META_ATTEMPTS := 10
 const _META_RETRY_SECONDS := 1.5
 
@@ -163,10 +163,6 @@ var _chart_key: String = ""
 ## retrying the same ticket is asking the same question and expecting a different answer. A reconnect gets a
 ## fresh one because it also gets a fresh Game scene, and so a fresh one of these.
 var _refused: bool = false
-
-## Whether the one-off "no master selected yet" line has been logged. A 409 is transient, so the requests keep
-## backing off and retrying; only the noise is suppressed.
-var _warned_no_master: bool = false
 
 
 static func key_of(level: int, tx: int, ty: int) -> String:
@@ -336,10 +332,10 @@ func _want(kind: String, key: String) -> void:
 ## Whether there is any point sending a request at all.
 ##
 ## An empty ticket is the case that used to produce the second kind of 401: the map can be drawn before the
-## zone has authenticated the connection, and sending [code]"Bearer "[/code] with nothing after it asks the
-## server to refuse us. Not having a credential yet is worth waiting out rather than asking about.
+## zone has authenticated the connection, and sending [code]"Ticket "[/code] with nothing after it asks the
+## server to refuse us. Not having a credential or a master yet is worth waiting out rather than asking about.
 func _may_request() -> bool:
-	return not _refused and not ConnectionManager.http_ticket().is_empty()
+	return not _refused and not ConnectionManager.http_ticket().is_empty() and _master_id() >= 0
 
 
 ## Points this at the chart set the player is now holding, dropping everything that depended on the old one.
@@ -379,7 +375,7 @@ func _fetch_meta_once(attempt: int) -> void:
 				_retry_meta(attempt)
 	)
 
-	var err := request.request(_base() + "/map/v1/meta", _headers())
+	var err := request.request(_map_base() + "/meta", _headers())
 	if err != OK:
 		push_warning("MapSource: could not start /meta request: %s" % err)
 		request.queue_free()
@@ -432,9 +428,7 @@ func _pump() -> void:
 
 		var kind := id.substr(0, 1)
 		var parts := id.substr(2).split("/")
-		var url := "%s/map/v1/%s/%s/%s/%s%s" % [
-			_base(), kind, parts[0], parts[1], parts[2], _SUFFIXES[kind]
-		]
+		var url := "%s/%s/%s/%s/%s%s" % [_map_base(), kind, parts[0], parts[1], parts[2], _SUFFIXES[kind]]
 
 		var handler := func(
 			result: int, code: int, headers: PackedStringArray, body: PackedByteArray
@@ -487,15 +481,6 @@ func _on_completed(
 
 	if code == 401:
 		_refuse()
-		return
-
-	if code == 409:
-		# The session exists but has no master yet, which resolves itself - so this keeps retrying and only
-		# stops saying so.
-		if not _warned_no_master:
-			_warned_no_master = true
-			push_warning("MapSource: the zone has no master selected for this account yet; still trying")
-		_back_off(id)
 		return
 
 	if code == 304 and kind == _WANT_SERVICES:
@@ -765,9 +750,17 @@ func _write_through(key: String, png: PackedByteArray, dir_path: String, index: 
 	index.erase(key)
 
 
-func _base() -> String:
-	return SettingsManager.get_instance().map_server_url
+## The selected master's map on the api-service. The master is in the path, as for the companion app, and the
+## api-service checks it is the ticket's account's.
+func _map_base() -> String:
+	return "%s/v1/companion/masters/%d/map" % [SettingsManager.get_instance().api_server_url, _master_id()]
+
+
+## The selected master's id, or -1 before one is selected.
+func _master_id() -> int:
+	var master = ConnectionManager.selected_master_info
+	return -1 if master == null else int(master.MasterId)
 
 
 func _headers() -> PackedStringArray:
-	return PackedStringArray(["Authorization: Bearer " + ConnectionManager.http_ticket()])
+	return PackedStringArray(["Authorization: Ticket " + ConnectionManager.http_ticket()])

@@ -1,5 +1,6 @@
 package net.bestia.api.live
 
+import net.bestia.api.auth.TicketOwners
 import net.bestia.api.cache.AnswerCache
 import net.bestia.api.cache.TileCache
 import net.bestia.bus.StreamedEvent
@@ -19,6 +20,7 @@ class EventFanOut(
   private val sessions: LiveSessions,
   private val answers: AnswerCache,
   private val tiles: TileCache,
+  private val tickets: TicketOwners,
 ) {
 
   @EventListener(ApplicationReadyEvent::class)
@@ -31,6 +33,10 @@ class EventFanOut(
     answers.forget(event.accountId)
     if (event is ZoneEvent.ChartsChanged) {
       tiles.forgetMaster(event.masterId)
+    }
+    // Leaving the world closed the socket, and its ticket died with it.
+    if (event is ZoneEvent.Presence && !event.inWorld) {
+      tickets.forgetAccount(event.accountId)
     }
 
     sessions.send(event.accountId, CompanionSocketHandler.EventFrame(event = LiveEvent.of(streamed)))

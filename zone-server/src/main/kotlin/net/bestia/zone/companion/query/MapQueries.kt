@@ -10,8 +10,12 @@ import net.bestia.zone.cartography.tile.TileRenderPool
 import org.springframework.stereotype.Service
 
 /**
- * The map for the companion app, from the same [MapTileService] as the game client's: the same tiles, the same
- * ETags, the same fog. A 404 means the same thing too - the master has charted none of this tile.
+ * The map, for the companion app and the game client alike: tiles, the places on them and the services in them,
+ * all masked to what the master has charted. A NOT_FOUND means the master has charted none of this tile - and,
+ * indistinguishably, that the master is not the asker's.
+ *
+ * An uncharted tile is never rendered, so nothing about that ground leaves the zone: not its imagery, and not
+ * the size of a file that would hint at what is drawn on it.
  */
 @Service
 class MapQueries(
@@ -31,6 +35,7 @@ class MapQueries(
         maxLevel = meta.getValue("maxLevel") as Int,
         worldWidthMetres = meta.getValue("worldWidthMetres") as Double,
         worldHeightMetres = meta.getValue("worldHeightMetres") as Double,
+        metresPerVoxel = meta.getValue("metresPerVoxel") as Double,
       )
     )
   }
@@ -68,5 +73,25 @@ class MapQueries(
 
     val listed = places.places.map { ZoneAnswer.Places.Place(it.id, it.kind, it.x, it.y, it.name, it.tier, it.poi) }
     return BusReply.ok(correlationId, ZoneAnswer.Places(places.etag, places.shared, listed))
+  }
+
+  /** Never cached for keeps: a service can be destroyed, so its ETag carries the world's service revision. */
+  fun services(correlationId: String, accountId: Long, query: ZoneQuery.MapServices): BusReply {
+    owned.find(accountId, query.masterId) ?: return BusReply.of(correlationId, Status.NOT_FOUND)
+
+    val services = try {
+      tiles.services(query.masterId, TileId(query.level, query.x, query.y))
+    } catch (e: IllegalArgumentException) {
+      return BusReply.of(correlationId, Status.INVALID, e.message)
+    } ?: return BusReply.of(correlationId, Status.NOT_FOUND)
+
+    if (query.ifNoneMatch == services.etag) {
+      return BusReply(correlationId, Status.NOT_MODIFIED, ZoneAnswer.Services(services.etag, emptyList()))
+    }
+
+    val listed = services.services.map {
+      ZoneAnswer.Services.Service(it.id, it.kind.name, it.business, it.x, it.y, it.settlement, it.openFrom, it.openTo)
+    }
+    return BusReply.ok(correlationId, ZoneAnswer.Services(services.etag, listed))
   }
 }

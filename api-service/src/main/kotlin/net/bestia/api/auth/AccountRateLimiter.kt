@@ -5,14 +5,21 @@ import org.springframework.stereotype.Component
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
 
-/** A fixed one-minute window of calls per account, so one app cannot flood the zone with questions. */
+/**
+ * A fixed one-minute window of calls per account, so one app cannot flood the zone with questions. Map calls count
+ * apart and get more room: a map opening asks for dozens of tiles at once, and the zone's render pool already
+ * bounds what they cost it.
+ */
 @Component
 class AccountRateLimiter(private val properties: CompanionProperties) {
 
-  private val counts = ConcurrentHashMap<Long, AtomicInteger>()
+  private data class Bucket(val accountId: Long, val map: Boolean)
 
-  fun tryAcquire(accountId: Long): Boolean {
-    return counts.computeIfAbsent(accountId) { AtomicInteger() }.incrementAndGet() <= properties.requestsPerMinute
+  private val counts = ConcurrentHashMap<Bucket, AtomicInteger>()
+
+  fun tryAcquire(accountId: Long, map: Boolean): Boolean {
+    val limit = if (map) properties.mapRequestsPerMinute else properties.requestsPerMinute
+    return counts.computeIfAbsent(Bucket(accountId, map)) { AtomicInteger() }.incrementAndGet() <= limit
   }
 
   @Scheduled(fixedRate = 60_000)

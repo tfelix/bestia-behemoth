@@ -15,21 +15,20 @@ const FORMAT_VERSION := 1
 ## exchange the resulting one-time code for a signed JWT.
 @export var login_server_url: String = "http://localhost:8080"
 
-## Zone-server's map tile endpoint. A different port from the game socket on purpose: tiles are bulk
-## PNG traffic with their own caching, and the two are meant to be firewalled and scaled apart. See
-## `zone-server/src/main/resources/application.yml`.
+## The api-service, which serves the map: tiles, the names on them and the services in them. Its own server,
+## apart from the game socket: tiles are bulk PNG traffic with their own caching. Renamed from
+## `map_server_url` when the map moved off the zone, so a settings file that still names the zone's old port
+## is ignored for this value rather than obeyed.
 ##
-## An IPv4 literal rather than `localhost`, and it is load-bearing rather than cosmetic:
-## `server.address` in that file pins Tomcat to 127.0.0.1, so nothing answers on `::1` at all. Godot
-## resolves `localhost` to `::1` first and [HTTPRequest] tries exactly one resolved address, so the
-## wrong spelling here would not fail - every tile request would pay a connect timeout, which reads
-## as a map filling in one row every half minute rather than as a connection problem. This line and
-## `server.address` move together or not at all.
-@export var map_server_url: String = "http://127.0.0.1:8091"
+## An IPv4 literal rather than `localhost`, and it is load-bearing rather than cosmetic: Godot resolves
+## `localhost` to `::1` first and [HTTPRequest] tries exactly one resolved address, so a server listening on
+## 127.0.0.1 only would cost every tile request a connect timeout - a map filling in one row every half
+## minute rather than an error.
+@export var api_server_url: String = "http://127.0.0.1:8095"
 
 ## The game socket [BnetSocket] connects to, applied by [ConnectionManager] before it dials.
 ##
-## Spelled separately from [member map_server_url] rather than sharing one host, because the two
+## Spelled separately from [member api_server_url] rather than sharing one host, because the two
 ## reach their server by different clients: .NET's `TcpClient` tries every address a name resolves
 ## to, so `localhost` is safe here in a way it is not there.
 @export var game_server_host: String = "localhost"

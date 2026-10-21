@@ -4,7 +4,7 @@ class_name SettingsManager
 ##
 ## Not an autoload and not a node. It has no lifetime to speak of - reading it is what loads it -
 ## so it is the same lazy singleton [AttackDB] and [ItemDB] use, and callers reach it the same way:
-## [code]SettingsManager.get_instance().map_server_url[/code].
+## [code]SettingsManager.get_instance().api_server_url[/code].
 ##
 ## [b]The user file is sparse.[/b] It names only what has been changed, so a file written by an
 ## older build still loads under a newer one that has since added settings - the missing ones keep

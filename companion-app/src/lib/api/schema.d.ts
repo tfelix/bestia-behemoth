@@ -148,6 +148,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/companion/masters/{masterId}/map/s/{level}/{x}/{y}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["services"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/companion/masters/{masterId}/map/p/{level}/{x}/{y}.json": {
         parameters: {
             query?: never;
@@ -325,6 +341,24 @@ export interface components {
         PartyView: {
             party?: components["schemas"]["Party"];
         };
+        Service: {
+            /** Format: int64 */
+            id: number;
+            kind: string;
+            business?: string;
+            /** Format: double */
+            x: number;
+            /** Format: double */
+            y: number;
+            settlement?: string;
+            /** Format: int32 */
+            openFrom?: number;
+            /** Format: int32 */
+            openTo?: number;
+        };
+        Services: {
+            services: components["schemas"]["Service"][];
+        };
         Place: {
             /** Format: int64 */
             id: number;
@@ -349,6 +383,8 @@ export interface components {
             worldWidthMetres: number;
             /** Format: double */
             worldHeightMetres: number;
+            /** Format: double */
+            metresPerVoxel: number;
         };
         Holder: {
             kind: string;
@@ -666,6 +702,33 @@ export interface operations {
                 };
                 content: {
                     "*/*": string;
+                };
+            };
+        };
+    };
+    services: {
+        parameters: {
+            query?: never;
+            header?: {
+                "If-None-Match"?: string;
+            };
+            path: {
+                masterId: number;
+                level: number;
+                x: number;
+                y: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["Services"];
                 };
             };
         };
