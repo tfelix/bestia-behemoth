@@ -149,6 +149,7 @@ class MasterFactory(
     statusEffectPersistenceService.seed(savedMaster.entityId, StatusEffectId.MASTER_INTRO_MARKER)
     grantStarterChart(savedMaster, spawnPoint)
     grantStarterGear(savedMaster)
+    grantStarterPotions(savedMaster)
 
     return savedMaster
   }
@@ -181,6 +182,25 @@ class MasterFactory(
       if (!inventoryService.equip(master.id, playerBestiaId = null, item.id, instance.id, slot)) {
         LOG.warn { "Master ${master.id} could not wear starter '$identifier'; it stays in their pack" }
       }
+    }
+  }
+
+  /**
+   * Fills a new master's pack with novice potions, enough to survive the first fights while learning how
+   * combat works. Being novice-only, they stop working once the master specialises.
+   *
+   * Failure is logged and swallowed, for the reason [grantStarterChart] gives.
+   */
+  private fun grantStarterPotions(master: Master) {
+    STARTER_POTIONS.forEach { (identifier, amount) ->
+      val item = itemRepository.findByIdentifier(identifier)
+
+      if (item == null) {
+        LOG.error { "Starter potion '$identifier' is not in the catalogue; master ${master.id} goes without" }
+        return@forEach
+      }
+
+      inventoryService.grantToMaster(master.id, item.id, amount)
     }
   }
 
@@ -303,6 +323,12 @@ class MasterFactory(
       "novice_knife" to EquipmentSlot.RIGHT_HAND,
       "novice_shirt" to EquipmentSlot.ARMOR,
       "novice_boots" to EquipmentSlot.FOOTGEAR
+    )
+
+    /** What a new master is created carrying to drink, by `items.yml` identifier and amount. */
+    private val STARTER_POTIONS = listOf(
+      "novice_health_potion" to 20,
+      "novice_mana_potion" to 10
     )
 
     /**
