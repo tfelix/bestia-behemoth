@@ -19,8 +19,8 @@ import net.bestia.zone.skill.SkillId
 import java.time.Instant
 
 /**
- * A guild, founded by spending a Founder's Seal. Its [leader] stays its leader: there is no transfer yet, and
- * the leader can neither be kicked nor leave, only disband it.
+ * A guild, founded by spending a Founder's Seal. Its [leader] can neither be kicked nor leave, only hand the guild
+ * to another member or disband it.
  *
  * Nothing on [Master] points here: who is in which guild is [GuildMember]'s, so a guild change never writes a
  * master row the persister is writing too.
@@ -36,7 +36,7 @@ class Guild(
 
   @OneToOne(optional = false)
   @JoinColumn(name = "leader_master_id", nullable = false, unique = true)
-  val leader: Master,
+  var leader: Master,
 ) {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

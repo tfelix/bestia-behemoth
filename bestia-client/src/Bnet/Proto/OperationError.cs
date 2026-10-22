@@ -382,7 +382,7 @@ namespace Bnet {
     [pbr::OriginalName("GUILD_INVITE_EXPIRED")] GuildInviteExpired = 77,
     [pbr::OriginalName("GUILD_INVITE_DECLINED")] GuildInviteDeclined = 78,
     /// <summary>
-    /// A master leading a guild cannot be deleted while the guild stands, since nobody could take it over.
+    /// A master leading a guild cannot be deleted while the guild stands: it hands the guild over or disbands it.
     /// Carries the guild's name in args[0].
     /// </summary>
     [pbr::OriginalName("GUILD_LEADER_MUST_DISBAND")] GuildLeaderMustDisband = 79,

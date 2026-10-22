@@ -8,6 +8,7 @@ extends PanelContainer
 
 signal rank_chosen(master_id: int, rank_id: int)
 signal kick_requested(master_id: int)
+signal hand_over_requested(master_id: int)
 
 var master_id: int = 0
 
@@ -22,6 +23,7 @@ var _mana: ProgressBar
 var _rank_label: Label
 var _rank_select: OptionButton
 var _exp: Label
+var _hand_over: Button
 var _kick: Button
 ## The rank ids in [member _rank_select], by item index.
 var _offered_rank_ids: Array[int] = []
@@ -84,13 +86,17 @@ func _init() -> void:
 	_exp.mouse_filter = Control.MOUSE_FILTER_PASS
 	line.add_child(_exp)
 
+	_hand_over = UiStyle.glyph_button("♛", tr("GUILD_HAND_OVER"))
+	_hand_over.pressed.connect(func() -> void: hand_over_requested.emit(master_id))
+	line.add_child(_hand_over)
+
 	_kick = UiStyle.glyph_button("✕", tr("GUILD_KICK"))
 	_kick.pressed.connect(func() -> void: kick_requested.emit(master_id))
 	line.add_child(_kick)
 
 
 ## [param assignable] are the ranks the viewer may put this member on, empty when they may not move them.
-func show_member(member: GuildMemberInfo, rank: GuildRankInfo, is_self: bool, assignable: Array[GuildRankInfo], can_kick: bool) -> void:
+func show_member(member: GuildMemberInfo, rank: GuildRankInfo, is_self: bool, assignable: Array[GuildRankInfo], can_kick: bool, can_hand_over: bool) -> void:
 	master_id = member.MasterId
 
 	var border := 1 if is_self else 0
@@ -111,6 +117,7 @@ func show_member(member: GuildMemberInfo, rank: GuildRankInfo, is_self: bool, as
 	else:
 		show_whereabouts(member.LastAreaName, _seen_ago(member.LastSeenEpochMs))
 	_kick.visible = can_kick
+	_hand_over.visible = can_hand_over
 
 	var rank_name := rank.Name if rank != null else "?"
 	_rank_label.text = rank_name

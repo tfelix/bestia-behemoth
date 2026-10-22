@@ -129,6 +129,7 @@ var DisbandGuildCMSG = load("res://Bnet/Message/Guild/DisbandGuildCMSG.cs")
 var RequestGuildLogCMSG = load("res://Bnet/Message/Guild/RequestGuildLogCMSG.cs")
 var SetGuildMotdCMSG = load("res://Bnet/Message/Guild/SetGuildMotdCMSG.cs")
 var SetGuildEmblemCMSG = load("res://Bnet/Message/Guild/SetGuildEmblemCMSG.cs")
+var TransferGuildLeadershipCMSG = load("res://Bnet/Message/Guild/TransferGuildLeadershipCMSG.cs")
 var Ping = load("res://Bnet/Message/Ping.cs")
 var ChunkStreamManagerScript = load("res://Game/World/ChunkStreamManager.cs")
 var WeatherStateScript = load("res://Game/World/WeatherState.cs")
@@ -752,6 +753,14 @@ func leave_guild() -> void:
 func kick_guild_member(master_id: int) -> void:
 	assert(is_ready_to_send())
 	var msg = KickGuildMemberCMSG.new()
+	msg.MasterId = master_id
+	_socket.SendMessage(msg)
+
+
+## The leader hands the guild to [param master_id] and takes that member's rank.
+func transfer_guild_leadership(master_id: int) -> void:
+	assert(is_ready_to_send())
+	var msg = TransferGuildLeadershipCMSG.new()
 	msg.MasterId = master_id
 	_socket.SendMessage(msg)
 

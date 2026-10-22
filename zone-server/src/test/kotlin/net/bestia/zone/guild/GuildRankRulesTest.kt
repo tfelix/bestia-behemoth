@@ -85,6 +85,13 @@ class GuildRankRulesTest {
   }
 
   @Test
+  fun `only the leader hands the guild over, and not to themself`() {
+    assertTrue(GuildRankRules.mayTransferLeadership(leader, officer))
+    assertFalse(GuildRankRules.mayTransferLeadership(leader, leader))
+    assertFalse(GuildRankRules.mayTransferLeadership(officer, member))
+  }
+
+  @Test
   fun `the leader may always edit the message of the day, others only by their rank`() {
     val herald = GuildMember(guild, master(6), rank(4, "Herald", editMotd = true))
 
