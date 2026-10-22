@@ -49,6 +49,13 @@ class Guild(
   @Column(nullable = false)
   var exp: Long = 0
 
+  /** The message of the day, shown to every member after each loading screen. Plain text, empty when unset. */
+  @Column(name = "motd_title", nullable = false, length = 60)
+  var motdTitle: String = ""
+
+  @Column(name = "motd_body", nullable = false, length = 240)
+  var motdBody: String = ""
+
   /** Guild skill levels by `skills.yml` identifier; a skill never invested in has no entry. */
   @ElementCollection
   @CollectionTable(name = "guild_skill_level", joinColumns = [JoinColumn(name = "guild_id")])

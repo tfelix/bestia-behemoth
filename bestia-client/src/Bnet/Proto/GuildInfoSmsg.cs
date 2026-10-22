@@ -25,35 +25,37 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CiRtZXNzYWdlcy9ndWlsZC9ndWlsZF9pbmZvX3Ntc2cucHJvdG8SBGJuZXQi",
-            "4AIKDUd1aWxkSW5mb1NNU0cSEAoIZ3VpbGRfaWQYASABKAQSDAoEbmFtZRgC",
+            "xAMKDUd1aWxkSW5mb1NNU0cSEAoIZ3VpbGRfaWQYASABKAQSDAoEbmFtZRgC",
             "IAEoCRINCgVsZXZlbBgDIAEoDRILCgNleHAYBCABKAQSFgoOZXhwX25leHRf",
             "bGV2ZWwYBSABKAQSFAoMc2tpbGxfcG9pbnRzGAYgASgNEhMKC21heF9tZW1i",
             "ZXJzGAggASgNEh4KBXJhbmtzGAkgAygLMg8uYm5ldC5HdWlsZFJhbmsSIgoH",
             "bWVtYmVycxgKIAMoCzIRLmJuZXQuR3VpbGRNZW1iZXISFQoNb3duX21hc3Rl",
             "cl9pZBgLIAEoBBIRCgltYXhfcmFua3MYDSABKA0SFwoPbWluX3RheF9wZXJj",
             "ZW50GA4gASgNEhcKD21heF90YXhfcGVyY2VudBgPIAEoDRIkCgZza2lsbHMY",
-            "ECADKAsyFC5ibmV0Lkd1aWxkU2tpbGxOb2RlSgQIBxAISgQIDBANIpgBCg5H",
-            "dWlsZFNraWxsTm9kZRIQCghza2lsbF9pZBgBIAEoBBINCgVsZXZlbBgCIAEo",
-            "DRIRCgltYXhfbGV2ZWwYAyABKA0SMwoNcHJlcmVxdWlzaXRlcxgEIAMoCzIc",
-            "LmJuZXQuR3VpbGRTa2lsbFByZXJlcXVpc2l0ZRIdChVjb29sZG93bl9yZW1h",
-            "aW5pbmdfbXMYBSABKAQiOQoWR3VpbGRTa2lsbFByZXJlcXVpc2l0ZRIQCghz",
-            "a2lsbF9pZBgBIAEoBBINCgVsZXZlbBgCIAEoDSKvAQoJR3VpbGRSYW5rEg8K",
-            "B3JhbmtfaWQYASABKAQSEAoIcG9zaXRpb24YAiABKA0SDAoEbmFtZRgDIAEo",
-            "CRITCgt0YXhfcGVyY2VudBgEIAEoDRISCgpjYW5faW52aXRlGAUgASgIEhAK",
-            "CGNhbl9raWNrGAYgASgIEhgKEGNhbl9tYW5hZ2VfcmFua3MYByABKAgSHAoU",
-            "Y2FuX3VzZV9ndWlsZF9za2lsbHMYCCABKAgikQEKC0d1aWxkTWVtYmVyEhEK",
-            "CW1hc3Rlcl9pZBgBIAEoBBITCgttYXN0ZXJfbmFtZRgCIAEoCRINCgVsZXZl",
-            "bBgDIAEoDRIPCgdyYW5rX2lkGAQgASgEEg4KBm9ubGluZRgFIAEoCBIXCg9l",
-            "eHBfY29udHJpYnV0ZWQYBiABKAQSEQoJaXNfbGVhZGVyGAcgASgIQisKFW5l",
-            "dC5iZXN0aWEuYm5ldC5wcm90b0ISR3VpbGRJbmZvU21zZ1Byb3RvYgZwcm90",
-            "bzM="));
+            "ECADKAsyFC5ibmV0Lkd1aWxkU2tpbGxOb2RlEhIKCm1vdGRfdGl0bGUYESAB",
+            "KAkSEQoJbW90ZF9ib2R5GBIgASgJEh0KFW1vdGRfdGl0bGVfbWF4X2xlbmd0",
+            "aBgTIAEoDRIcChRtb3RkX2JvZHlfbWF4X2xlbmd0aBgUIAEoDUoECAcQCEoE",
+            "CAwQDSKYAQoOR3VpbGRTa2lsbE5vZGUSEAoIc2tpbGxfaWQYASABKAQSDQoF",
+            "bGV2ZWwYAiABKA0SEQoJbWF4X2xldmVsGAMgASgNEjMKDXByZXJlcXVpc2l0",
+            "ZXMYBCADKAsyHC5ibmV0Lkd1aWxkU2tpbGxQcmVyZXF1aXNpdGUSHQoVY29v",
+            "bGRvd25fcmVtYWluaW5nX21zGAUgASgEIjkKFkd1aWxkU2tpbGxQcmVyZXF1",
+            "aXNpdGUSEAoIc2tpbGxfaWQYASABKAQSDQoFbGV2ZWwYAiABKA0ixgEKCUd1",
+            "aWxkUmFuaxIPCgdyYW5rX2lkGAEgASgEEhAKCHBvc2l0aW9uGAIgASgNEgwK",
+            "BG5hbWUYAyABKAkSEwoLdGF4X3BlcmNlbnQYBCABKA0SEgoKY2FuX2ludml0",
+            "ZRgFIAEoCBIQCghjYW5fa2ljaxgGIAEoCBIYChBjYW5fbWFuYWdlX3Jhbmtz",
+            "GAcgASgIEhwKFGNhbl91c2VfZ3VpbGRfc2tpbGxzGAggASgIEhUKDWNhbl9l",
+            "ZGl0X21vdGQYCSABKAgikQEKC0d1aWxkTWVtYmVyEhEKCW1hc3Rlcl9pZBgB",
+            "IAEoBBITCgttYXN0ZXJfbmFtZRgCIAEoCRINCgVsZXZlbBgDIAEoDRIPCgdy",
+            "YW5rX2lkGAQgASgEEg4KBm9ubGluZRgFIAEoCBIXCg9leHBfY29udHJpYnV0",
+            "ZWQYBiABKAQSEQoJaXNfbGVhZGVyGAcgASgIQisKFW5ldC5iZXN0aWEuYm5l",
+            "dC5wcm90b0ISR3VpbGRJbmZvU21zZ1Byb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.GuildInfoSMSG), global::Bnet.GuildInfoSMSG.Parser, new[]{ "GuildId", "Name", "Level", "Exp", "ExpNextLevel", "SkillPoints", "MaxMembers", "Ranks", "Members", "OwnMasterId", "MaxRanks", "MinTaxPercent", "MaxTaxPercent", "Skills" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.GuildInfoSMSG), global::Bnet.GuildInfoSMSG.Parser, new[]{ "GuildId", "Name", "Level", "Exp", "ExpNextLevel", "SkillPoints", "MaxMembers", "Ranks", "Members", "OwnMasterId", "MaxRanks", "MinTaxPercent", "MaxTaxPercent", "Skills", "MotdTitle", "MotdBody", "MotdTitleMaxLength", "MotdBodyMaxLength" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.GuildSkillNode), global::Bnet.GuildSkillNode.Parser, new[]{ "SkillId", "Level", "MaxLevel", "Prerequisites", "CooldownRemainingMs" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.GuildSkillPrerequisite), global::Bnet.GuildSkillPrerequisite.Parser, new[]{ "SkillId", "Level" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.GuildRank), global::Bnet.GuildRank.Parser, new[]{ "RankId", "Position", "Name", "TaxPercent", "CanInvite", "CanKick", "CanManageRanks", "CanUseGuildSkills" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.GuildRank), global::Bnet.GuildRank.Parser, new[]{ "RankId", "Position", "Name", "TaxPercent", "CanInvite", "CanKick", "CanManageRanks", "CanUseGuildSkills", "CanEditMotd" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.GuildMember), global::Bnet.GuildMember.Parser, new[]{ "MasterId", "MasterName", "Level", "RankId", "Online", "ExpContributed", "IsLeader" }, null, null, null, null)
           }));
     }
@@ -117,6 +119,10 @@ namespace Bnet {
       minTaxPercent_ = other.minTaxPercent_;
       maxTaxPercent_ = other.maxTaxPercent_;
       skills_ = other.skills_.Clone();
+      motdTitle_ = other.motdTitle_;
+      motdBody_ = other.motdBody_;
+      motdTitleMaxLength_ = other.motdTitleMaxLength_;
+      motdBodyMaxLength_ = other.motdBodyMaxLength_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -303,6 +309,57 @@ namespace Bnet {
       get { return skills_; }
     }
 
+    /// <summary>Field number for the "motd_title" field.</summary>
+    public const int MotdTitleFieldNumber = 17;
+    private string motdTitle_ = "";
+    /// <summary>
+    /// The guild's message of the day, shown to every member after each loading screen. Plain text; both empty when unset.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string MotdTitle {
+      get { return motdTitle_; }
+      set {
+        motdTitle_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "motd_body" field.</summary>
+    public const int MotdBodyFieldNumber = 18;
+    private string motdBody_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string MotdBody {
+      get { return motdBody_; }
+      set {
+        motdBody_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "motd_title_max_length" field.</summary>
+    public const int MotdTitleMaxLengthFieldNumber = 19;
+    private uint motdTitleMaxLength_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint MotdTitleMaxLength {
+      get { return motdTitleMaxLength_; }
+      set {
+        motdTitleMaxLength_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "motd_body_max_length" field.</summary>
+    public const int MotdBodyMaxLengthFieldNumber = 20;
+    private uint motdBodyMaxLength_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint MotdBodyMaxLength {
+      get { return motdBodyMaxLength_; }
+      set {
+        motdBodyMaxLength_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -332,6 +389,10 @@ namespace Bnet {
       if (MinTaxPercent != other.MinTaxPercent) return false;
       if (MaxTaxPercent != other.MaxTaxPercent) return false;
       if(!skills_.Equals(other.skills_)) return false;
+      if (MotdTitle != other.MotdTitle) return false;
+      if (MotdBody != other.MotdBody) return false;
+      if (MotdTitleMaxLength != other.MotdTitleMaxLength) return false;
+      if (MotdBodyMaxLength != other.MotdBodyMaxLength) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -353,6 +414,10 @@ namespace Bnet {
       if (MinTaxPercent != 0) hash ^= MinTaxPercent.GetHashCode();
       if (MaxTaxPercent != 0) hash ^= MaxTaxPercent.GetHashCode();
       hash ^= skills_.GetHashCode();
+      if (MotdTitle.Length != 0) hash ^= MotdTitle.GetHashCode();
+      if (MotdBody.Length != 0) hash ^= MotdBody.GetHashCode();
+      if (MotdTitleMaxLength != 0) hash ^= MotdTitleMaxLength.GetHashCode();
+      if (MotdBodyMaxLength != 0) hash ^= MotdBodyMaxLength.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -418,6 +483,22 @@ namespace Bnet {
         output.WriteUInt32(MaxTaxPercent);
       }
       skills_.WriteTo(output, _repeated_skills_codec);
+      if (MotdTitle.Length != 0) {
+        output.WriteRawTag(138, 1);
+        output.WriteString(MotdTitle);
+      }
+      if (MotdBody.Length != 0) {
+        output.WriteRawTag(146, 1);
+        output.WriteString(MotdBody);
+      }
+      if (MotdTitleMaxLength != 0) {
+        output.WriteRawTag(152, 1);
+        output.WriteUInt32(MotdTitleMaxLength);
+      }
+      if (MotdBodyMaxLength != 0) {
+        output.WriteRawTag(160, 1);
+        output.WriteUInt32(MotdBodyMaxLength);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -475,6 +556,22 @@ namespace Bnet {
         output.WriteUInt32(MaxTaxPercent);
       }
       skills_.WriteTo(ref output, _repeated_skills_codec);
+      if (MotdTitle.Length != 0) {
+        output.WriteRawTag(138, 1);
+        output.WriteString(MotdTitle);
+      }
+      if (MotdBody.Length != 0) {
+        output.WriteRawTag(146, 1);
+        output.WriteString(MotdBody);
+      }
+      if (MotdTitleMaxLength != 0) {
+        output.WriteRawTag(152, 1);
+        output.WriteUInt32(MotdTitleMaxLength);
+      }
+      if (MotdBodyMaxLength != 0) {
+        output.WriteRawTag(160, 1);
+        output.WriteUInt32(MotdBodyMaxLength);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -521,6 +618,18 @@ namespace Bnet {
         size += 1 + pb::CodedOutputStream.ComputeUInt32Size(MaxTaxPercent);
       }
       size += skills_.CalculateSize(_repeated_skills_codec);
+      if (MotdTitle.Length != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeStringSize(MotdTitle);
+      }
+      if (MotdBody.Length != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeStringSize(MotdBody);
+      }
+      if (MotdTitleMaxLength != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeUInt32Size(MotdTitleMaxLength);
+      }
+      if (MotdBodyMaxLength != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeUInt32Size(MotdBodyMaxLength);
+      }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -569,6 +678,18 @@ namespace Bnet {
         MaxTaxPercent = other.MaxTaxPercent;
       }
       skills_.Add(other.skills_);
+      if (other.MotdTitle.Length != 0) {
+        MotdTitle = other.MotdTitle;
+      }
+      if (other.MotdBody.Length != 0) {
+        MotdBody = other.MotdBody;
+      }
+      if (other.MotdTitleMaxLength != 0) {
+        MotdTitleMaxLength = other.MotdTitleMaxLength;
+      }
+      if (other.MotdBodyMaxLength != 0) {
+        MotdBodyMaxLength = other.MotdBodyMaxLength;
+      }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -644,6 +765,22 @@ namespace Bnet {
             skills_.AddEntriesFrom(input, _repeated_skills_codec);
             break;
           }
+          case 138: {
+            MotdTitle = input.ReadString();
+            break;
+          }
+          case 146: {
+            MotdBody = input.ReadString();
+            break;
+          }
+          case 152: {
+            MotdTitleMaxLength = input.ReadUInt32();
+            break;
+          }
+          case 160: {
+            MotdBodyMaxLength = input.ReadUInt32();
+            break;
+          }
         }
       }
     #endif
@@ -717,6 +854,22 @@ namespace Bnet {
           }
           case 130: {
             skills_.AddEntriesFrom(ref input, _repeated_skills_codec);
+            break;
+          }
+          case 138: {
+            MotdTitle = input.ReadString();
+            break;
+          }
+          case 146: {
+            MotdBody = input.ReadString();
+            break;
+          }
+          case 152: {
+            MotdTitleMaxLength = input.ReadUInt32();
+            break;
+          }
+          case 160: {
+            MotdBodyMaxLength = input.ReadUInt32();
             break;
           }
         }
@@ -1345,6 +1498,7 @@ namespace Bnet {
       canKick_ = other.canKick_;
       canManageRanks_ = other.canManageRanks_;
       canUseGuildSkills_ = other.canUseGuildSkills_;
+      canEditMotd_ = other.canEditMotd_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -1453,6 +1607,18 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "can_edit_motd" field.</summary>
+    public const int CanEditMotdFieldNumber = 9;
+    private bool canEditMotd_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool CanEditMotd {
+      get { return canEditMotd_; }
+      set {
+        canEditMotd_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -1476,6 +1642,7 @@ namespace Bnet {
       if (CanKick != other.CanKick) return false;
       if (CanManageRanks != other.CanManageRanks) return false;
       if (CanUseGuildSkills != other.CanUseGuildSkills) return false;
+      if (CanEditMotd != other.CanEditMotd) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -1491,6 +1658,7 @@ namespace Bnet {
       if (CanKick != false) hash ^= CanKick.GetHashCode();
       if (CanManageRanks != false) hash ^= CanManageRanks.GetHashCode();
       if (CanUseGuildSkills != false) hash ^= CanUseGuildSkills.GetHashCode();
+      if (CanEditMotd != false) hash ^= CanEditMotd.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -1541,6 +1709,10 @@ namespace Bnet {
         output.WriteRawTag(64);
         output.WriteBool(CanUseGuildSkills);
       }
+      if (CanEditMotd != false) {
+        output.WriteRawTag(72);
+        output.WriteBool(CanEditMotd);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -1583,6 +1755,10 @@ namespace Bnet {
         output.WriteRawTag(64);
         output.WriteBool(CanUseGuildSkills);
       }
+      if (CanEditMotd != false) {
+        output.WriteRawTag(72);
+        output.WriteBool(CanEditMotd);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -1615,6 +1791,9 @@ namespace Bnet {
         size += 1 + 1;
       }
       if (CanUseGuildSkills != false) {
+        size += 1 + 1;
+      }
+      if (CanEditMotd != false) {
         size += 1 + 1;
       }
       if (_unknownFields != null) {
@@ -1652,6 +1831,9 @@ namespace Bnet {
       }
       if (other.CanUseGuildSkills != false) {
         CanUseGuildSkills = other.CanUseGuildSkills;
+      }
+      if (other.CanEditMotd != false) {
+        CanEditMotd = other.CanEditMotd;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -1704,6 +1886,10 @@ namespace Bnet {
             CanUseGuildSkills = input.ReadBool();
             break;
           }
+          case 72: {
+            CanEditMotd = input.ReadBool();
+            break;
+          }
         }
       }
     #endif
@@ -1753,6 +1939,10 @@ namespace Bnet {
           }
           case 64: {
             CanUseGuildSkills = input.ReadBool();
+            break;
+          }
+          case 72: {
+            CanEditMotd = input.ReadBool();
             break;
           }
         }

@@ -13,6 +13,7 @@ data class SaveGuildRankCMSG(
   val canKick: Boolean,
   val canManageRanks: Boolean,
   val canUseGuildSkills: Boolean,
+  val canEditMotd: Boolean,
 ) : CMSG {
   companion object {
     fun fromBnet(accountId: Long, proto: SaveGuildRankCmsgProto.SaveGuildRankCMSG): SaveGuildRankCMSG {
@@ -25,6 +26,7 @@ data class SaveGuildRankCMSG(
         canKick = proto.canKick,
         canManageRanks = proto.canManageRanks,
         canUseGuildSkills = proto.canUseGuildSkills,
+        canEditMotd = proto.canEditMotd,
       )
     }
   }

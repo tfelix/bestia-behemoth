@@ -49,6 +49,9 @@ class GuildRank(
   /** May cast the guild's active skills. */
   @Column(name = "can_use_guild_skills", nullable = false)
   var canUseGuildSkills: Boolean = false,
+
+  @Column(name = "can_edit_motd", nullable = false)
+  var canEditMotd: Boolean = false,
 ) {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

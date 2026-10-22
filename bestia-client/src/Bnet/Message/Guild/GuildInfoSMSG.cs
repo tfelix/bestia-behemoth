@@ -41,6 +41,15 @@ namespace BestiaBehemothClient.Bnet.Message.Guild
     /// <summary>The whole guild skill tree with the guild's level in each skill.</summary>
     [Export] public Godot.Collections.Array<GuildSkillInfo> Skills { get; set; } = [];
 
+    /// <summary>The guild's message of the day, plain text; both empty when unset.</summary>
+    [Export] public string MotdTitle { get; set; } = string.Empty;
+
+    [Export] public string MotdBody { get; set; } = string.Empty;
+
+    [Export] public uint MotdTitleMaxLength { get; set; }
+
+    [Export] public uint MotdBodyMaxLength { get; set; }
+
     public static GuildInfoSMSG FromProto(global::Bnet.GuildInfoSMSG proto)
     {
       var ranks = new Godot.Collections.Array<GuildRankInfo>();
@@ -76,7 +85,11 @@ namespace BestiaBehemothClient.Bnet.Message.Guild
         MaxRanks = proto.MaxRanks,
         MinTaxPercent = proto.MinTaxPercent,
         MaxTaxPercent = proto.MaxTaxPercent,
-        Skills = skills
+        Skills = skills,
+        MotdTitle = proto.MotdTitle,
+        MotdBody = proto.MotdBody,
+        MotdTitleMaxLength = proto.MotdTitleMaxLength,
+        MotdBodyMaxLength = proto.MotdBodyMaxLength
       };
     }
   }

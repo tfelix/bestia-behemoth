@@ -29,6 +29,7 @@ import net.bestia.zone.guild.net.RequestGuildInfoCMSG
 import net.bestia.zone.guild.net.RequestGuildLogCMSG
 import net.bestia.zone.guild.persistence.GuildLogKind
 import net.bestia.zone.guild.net.SaveGuildRankCMSG
+import net.bestia.zone.guild.net.SetGuildMotdCMSG
 import net.bestia.zone.guild.skill.GuildSkillTree
 import net.bestia.zone.identity.ecs.GuildMembership
 import net.bestia.zone.item.container.InventoryService
@@ -220,7 +221,7 @@ class GuildScenarios : BestiaNoSocketScenario() {
   @Order(10)
   fun `a rank's new tax reaches its members' masters`() {
     clientPlayer1.sendMessage(
-      SaveGuildRankCMSG(clientPlayer1.connectedPlayerId, memberRankId, "Recruit", 20, false, false, false, false)
+      SaveGuildRankCMSG(clientPlayer1.connectedPlayerId, memberRankId, "Recruit", 20, false, false, false, false, false)
     )
 
     await {
@@ -233,7 +234,7 @@ class GuildScenarios : BestiaNoSocketScenario() {
   @Order(11)
   fun `a tax outside the bounds is refused`() {
     clientPlayer1.sendMessage(
-      SaveGuildRankCMSG(clientPlayer1.connectedPlayerId, memberRankId, "Recruit", 81, false, false, false, false)
+      SaveGuildRankCMSG(clientPlayer1.connectedPlayerId, memberRankId, "Recruit", 51, false, false, false, false, false)
     )
 
     assertEquals(OperationErrorSMSG(OpError.REQUEST_REFUSED), clientPlayer1.tryGetLastReceived(OperationErrorSMSG::class))
@@ -326,6 +327,21 @@ class GuildScenarios : BestiaNoSocketScenario() {
 
   @Test
   @Order(16)
+  fun `the message of the day is set by a rank allowed to, and reaches every member`() {
+    clientPlayer2.sendMessage(SetGuildMotdCMSG(clientPlayer2.connectedPlayerId, "Mine now", ""))
+    assertEquals(OperationErrorSMSG(OpError.REQUEST_REFUSED), clientPlayer2.tryGetLastReceived(OperationErrorSMSG::class))
+
+    clientPlayer1.sendMessage(SetGuildMotdCMSG(clientPlayer1.connectedPlayerId, "Raid tonight", "Meet\u202E at the gate."))
+
+    await {
+      val info = clientPlayer2.tryGetLastReceived(GuildInfoSMSG::class)
+      assertEquals("Raid tonight", info?.motdTitle)
+      assertEquals("Meet at the gate.", info?.motdBody, "a direction override must not reach other members")
+    }
+  }
+
+  @Test
+  @Order(17)
   fun `a member who leaves is told, and the rest get the guild without them`() {
     clientPlayer2.sendMessage(LeaveGuildCMSG(clientPlayer2.connectedPlayerId))
 
@@ -337,7 +353,7 @@ class GuildScenarios : BestiaNoSocketScenario() {
   }
 
   @Test
-  @Order(17)
+  @Order(18)
   fun `the log tells members what happened, newest first, and is for members only`() {
     clientPlayer1.sendMessage(RequestGuildLogCMSG(clientPlayer1.connectedPlayerId))
 
@@ -352,7 +368,7 @@ class GuildScenarios : BestiaNoSocketScenario() {
   }
 
   @Test
-  @Order(18)
+  @Order(19)
   fun `disbanding needs the guild's name typed`() {
     clientPlayer1.sendMessage(DisbandGuildCMSG(clientPlayer1.connectedPlayerId, "wrong name"))
     assertEquals(OperationErrorSMSG(OpError.REQUEST_REFUSED), clientPlayer1.tryGetLastReceived(OperationErrorSMSG::class))
