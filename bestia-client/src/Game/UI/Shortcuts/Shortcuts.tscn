@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://bmx0alwocm62s" path="res://Game/UI/Shortcuts/shortcuts.gd" id="1_2k0wl"]
 [ext_resource type="PackedScene" uid="uid://bj2gh3l07bh1s" path="res://Game/UI/Shortcuts/ShortcutContainer/ShortcutContainer.tscn" id="1_s6d63"]
 
-[node name="Shortcuts" type="VBoxContainer"]
+[node name="Shortcuts" type="HBoxContainer"]
 anchors_preset = 7
 anchor_left = 0.5
 anchor_top = 1.0
@@ -16,60 +16,72 @@ grow_horizontal = 2
 grow_vertical = 0
 script = ExtResource("1_2k0wl")
 
-[node name="Row1" type="HBoxContainer" parent="."]
+[node name="Pager" type="PanelContainer" parent="."]
 layout_mode = 2
 
-[node name="ShortcutContainer" parent="Row1" instance=ExtResource("1_s6d63")]
+[node name="PagerButtons" type="VBoxContainer" parent="Pager"]
+unique_name_in_owner = true
+layout_mode = 2
+alignment = 1
+
+[node name="Rows" type="VBoxContainer" parent="."]
+unique_name_in_owner = true
 layout_mode = 2
 
-[node name="ShortcutContainer2" parent="Row1" instance=ExtResource("1_s6d63")]
+[node name="Row1" type="HBoxContainer" parent="Rows"]
+layout_mode = 2
+
+[node name="ShortcutContainer" parent="Rows/Row1" instance=ExtResource("1_s6d63")]
+layout_mode = 2
+
+[node name="ShortcutContainer2" parent="Rows/Row1" instance=ExtResource("1_s6d63")]
 layout_mode = 2
 shortcut_number = 1
 
-[node name="ShortcutContainer3" parent="Row1" instance=ExtResource("1_s6d63")]
+[node name="ShortcutContainer3" parent="Rows/Row1" instance=ExtResource("1_s6d63")]
 layout_mode = 2
 shortcut_number = 2
 
-[node name="ShortcutContainer4" parent="Row1" instance=ExtResource("1_s6d63")]
+[node name="ShortcutContainer4" parent="Rows/Row1" instance=ExtResource("1_s6d63")]
 layout_mode = 2
 shortcut_number = 3
 
-[node name="ShortcutContainer5" parent="Row1" instance=ExtResource("1_s6d63")]
+[node name="ShortcutContainer5" parent="Rows/Row1" instance=ExtResource("1_s6d63")]
 layout_mode = 2
 shortcut_number = 4
 
-[node name="ShortcutContainer6" parent="Row1" instance=ExtResource("1_s6d63")]
+[node name="ShortcutContainer6" parent="Rows/Row1" instance=ExtResource("1_s6d63")]
 layout_mode = 2
 shortcut_number = 5
 
-[node name="Row2" type="HBoxContainer" parent="."]
+[node name="Row2" type="HBoxContainer" parent="Rows"]
 layout_mode = 2
 
-[node name="ShortcutContainer" parent="Row2" instance=ExtResource("1_s6d63")]
+[node name="ShortcutContainer" parent="Rows/Row2" instance=ExtResource("1_s6d63")]
 layout_mode = 2
 shortcut_row = 1
 
-[node name="ShortcutContainer2" parent="Row2" instance=ExtResource("1_s6d63")]
+[node name="ShortcutContainer2" parent="Rows/Row2" instance=ExtResource("1_s6d63")]
 layout_mode = 2
 shortcut_row = 1
 shortcut_number = 1
 
-[node name="ShortcutContainer3" parent="Row2" instance=ExtResource("1_s6d63")]
+[node name="ShortcutContainer3" parent="Rows/Row2" instance=ExtResource("1_s6d63")]
 layout_mode = 2
 shortcut_row = 1
 shortcut_number = 2
 
-[node name="ShortcutContainer4" parent="Row2" instance=ExtResource("1_s6d63")]
+[node name="ShortcutContainer4" parent="Rows/Row2" instance=ExtResource("1_s6d63")]
 layout_mode = 2
 shortcut_row = 1
 shortcut_number = 3
 
-[node name="ShortcutContainer5" parent="Row2" instance=ExtResource("1_s6d63")]
+[node name="ShortcutContainer5" parent="Rows/Row2" instance=ExtResource("1_s6d63")]
 layout_mode = 2
 shortcut_row = 1
 shortcut_number = 4
 
-[node name="ShortcutContainer6" parent="Row2" instance=ExtResource("1_s6d63")]
+[node name="ShortcutContainer6" parent="Rows/Row2" instance=ExtResource("1_s6d63")]
 layout_mode = 2
 shortcut_row = 1
 shortcut_number = 5
