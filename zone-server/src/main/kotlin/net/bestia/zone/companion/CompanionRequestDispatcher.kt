@@ -10,6 +10,7 @@ import net.bestia.zone.companion.query.CatalogQueries
 import net.bestia.zone.companion.query.ChatCommand
 import net.bestia.zone.companion.query.CompendiumQueries
 import net.bestia.zone.companion.query.GuildEmblemQueries
+import net.bestia.zone.companion.query.GuildQueries
 import net.bestia.zone.companion.query.InventoryQueries
 import net.bestia.zone.companion.query.MapQueries
 import net.bestia.zone.companion.query.MasterQueries
@@ -32,6 +33,7 @@ class CompanionRequestDispatcher(
   private val chat: ChatCommand,
   private val compendium: CompendiumQueries,
   private val emblems: GuildEmblemQueries,
+  private val guilds: GuildQueries,
 ) : RequestHandler {
 
   override fun handle(request: BusRequest): BusReply {
@@ -45,6 +47,7 @@ class CompanionRequestDispatcher(
       is ZoneQuery.Inventory -> found(id, inventory.bag(account, query.masterId))
       is ZoneQuery.PartyRoster -> found(id, parties.party(account, query.masterId))
       is ZoneQuery.Compendium -> found(id, compendium.compendium(account, query.masterId))
+      is ZoneQuery.GuildRoster -> found(id, guilds.guild(account, query.masterId))
       ZoneQuery.Catalog -> BusReply.ok(id, catalog.catalog())
       ZoneQuery.MapMeta -> map.meta(id)
       is ZoneQuery.MapTile -> map.tile(id, account, query)
