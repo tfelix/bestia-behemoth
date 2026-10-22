@@ -31,6 +31,7 @@ var _counter: Label
 var _no_match: Label
 ## The portrait, and beside it the live model.
 var _pictures: HBoxContainer
+var _model_view: CompendiumModelView
 var _detail_portrait: TextureRect
 var _detail_name: Label
 var _detail_subtitle: Label
@@ -119,6 +120,10 @@ func _build_detail() -> Control:
 	_detail_portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	frame.add_child(_detail_portrait)
 	_pictures.add_child(frame)
+
+	_model_view = CompendiumModelView.new()
+	_model_view.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_pictures.add_child(_model_view)
 
 	_detail_name = UiStyle.label("", 18, UiStyle.ACCENT)
 	detail.add_child(_detail_name)
@@ -223,6 +228,7 @@ func _show_detail() -> void:
 	_detail_portrait.texture = species.get_portrait()
 
 	if entry == null:
+		_model_view.clear()
 		_detail_portrait.modulate = SILHOUETTE
 		_detail_name.text = tr("COMPENDIUM_UNKNOWN")
 		_detail_subtitle.text = number_label
@@ -232,6 +238,8 @@ func _show_detail() -> void:
 		return
 
 	_detail_portrait.modulate = Color.WHITE
+	if _model_view.shown_species_id() != _selected_id:
+		_model_view.show_species(species)
 	_detail_name.text = tr(species.name_key)
 	_detail_subtitle.text = "%s · %s" % [number_label, tr("BESTIA_KIND_" + species.kind)]
 	_detail_caught.text = tr("COMPENDIUM_CAUGHT") if entry.Caught else tr("COMPENDIUM_NOT_CAUGHT")
