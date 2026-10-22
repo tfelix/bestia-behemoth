@@ -18,7 +18,7 @@ class GuildMemberships(
     return memberRepository.findByMasterId(masterId)?.let { of(it) }
   }
 
-  /** Copies the skill levels, so the component stays valid once the transaction has ended. */
+  /** Copies the skill levels and the roster, so the component stays valid once the transaction has ended. */
   fun of(member: GuildMember): GuildMembership {
     return GuildMembership(
       guildId = member.guild.id,
@@ -26,6 +26,7 @@ class GuildMemberships(
       isLeader = member.isLeader,
       mayUseGuildSkills = GuildRankRules.mayUseGuildSkills(member),
       skillLevels = member.guild.skillLevels.toMap(),
+      members = member.guild.members.mapTo(HashSet()) { GuildMembership.Member(it.master.account.id, it.master.id) },
     )
   }
 }

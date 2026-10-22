@@ -78,6 +78,9 @@ func _ready() -> void:
 	ConnectionManager.operation_success.connect(_on_operation_success)
 	visibility_changed.connect(_refresh_log)
 	SceneManager.loading_finished.connect(_on_loading_finished)
+	var entities := EntityManager.get_instance()
+	if entities != null:
+		entities.guild_beacon_changed.connect(_on_guild_beacon_changed)
 	# Asked once loaded: a guild pushed while the game scene was still coming up reached nobody.
 	if ConnectionManager.is_ready_to_send():
 		ConnectionManager.request_guild_info()
@@ -542,11 +545,16 @@ func _show_members(info: GuildInfoSMSG, is_leader: bool, may_kick: bool, may_man
 					assignable.append(offered)
 
 		row.show_member(member, rank, is_self, assignable, may_kick and below_me)
+		var beacon := _beacon_of(member)
+		if beacon != null:
+			row.show_beacon(beacon)
 
 	for master_id in _member_rows.keys():
 		if not seen.has(master_id):
 			_member_rows[master_id].queue_free()
 			_member_rows.erase(master_id)
+
+	_keep_beacons_of_online_members(info)
 
 
 func _show_ranks(info: GuildInfoSMSG, is_leader: bool, may_manage: bool, my_position: int) -> void:
@@ -605,9 +613,39 @@ func _clear(announce: bool, reason: String) -> void:
 
 	if announce and was_in_guild and not reason.is_empty():
 		notice.emit(tr("GUILD_LEFT_REASON_%s" % reason.to_upper()) % guild_name)
+	_keep_beacons_of_online_members(null)
 	if was_in_guild:
 		membership_changed.emit(false)
 	_synced = true
+
+
+func _on_guild_beacon_changed(entity_id: int) -> void:
+	if _info == null:
+		return
+	for member in _info.Members:
+		if member.EntityId == entity_id and member.IsOnline and _member_rows.has(member.MasterId):
+			_member_rows[member.MasterId].show_beacon(EntityManager.get_instance().get_guild_beacon(entity_id))
+			return
+
+
+func _beacon_of(member: GuildMemberInfo) -> GuildMemberBeaconComponentSMSG:
+	var entities := EntityManager.get_instance()
+	if entities == null or not member.IsOnline:
+		return null
+	return entities.get_guild_beacon(member.EntityId)
+
+
+## [param info] null forgets every beacon: the player is in no guild.
+func _keep_beacons_of_online_members(info: GuildInfoSMSG) -> void:
+	var entities := EntityManager.get_instance()
+	if entities == null:
+		return
+	var online: Array[int] = []
+	if info != null:
+		for member in info.Members:
+			if member.IsOnline:
+				online.append(member.EntityId)
+	entities.keep_guild_beacons(online)
 
 
 func _member(master_id: int) -> GuildMemberInfo:

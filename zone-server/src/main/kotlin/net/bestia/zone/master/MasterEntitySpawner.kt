@@ -52,6 +52,7 @@ import org.springframework.transaction.annotation.Transactional
 import net.bestia.zone.account.persistence.Master
 import net.bestia.zone.account.persistence.MasterRepository
 import net.bestia.zone.guild.GuildMemberships
+import net.bestia.zone.guild.ecs.GuildMemberBeacon
 import net.bestia.zone.identity.ecs.GuildMembership
 import net.bestia.zone.identity.ecs.PartyMembership
 import net.bestia.zone.party.membership
@@ -235,6 +236,7 @@ class MasterEntitySpawner(
       // there the message arrives before the HUD, here the HUD would arrive before the message.
       val spawn = master.currentPosition
       add(id, Place(placeNames.resolve(spawn.x, spawn.y)))
+      add(id, GuildMemberBeacon())
 
       // Whatever the master was carrying when it last left the world, plus anything seeded for it
       // before it ever entered - MasterFactory puts MASTER_INTRO_MARKER here at creation. Nothing is

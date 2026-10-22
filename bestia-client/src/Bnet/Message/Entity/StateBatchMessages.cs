@@ -59,6 +59,7 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
         case global::Bnet.ComponentDelta.ComponentOneofCase.Construction: return ConstructionComponentSMSG.FromProto(entityId, delta.Construction);
         case global::Bnet.ComponentDelta.ComponentOneofCase.CombatStats: return CombatStatsComponentSMSG.FromProto(entityId, delta.CombatStats);
         case global::Bnet.ComponentDelta.ComponentOneofCase.WornGear: return WornGearComponentSMSG.FromProto(entityId, delta.WornGear);
+        case global::Bnet.ComponentDelta.ComponentOneofCase.GuildMemberBeacon: return GuildMemberBeaconComponentSMSG.FromProto(entityId, delta.GuildMemberBeacon);
         default:
           GD.PrintErr($"StateBatchMessages: component '{delta.ComponentCase}' of entity {entityId} was not handled!");
           return null;

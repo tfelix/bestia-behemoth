@@ -72,6 +72,9 @@ class EntitySnapshotBuilder(
     val ownerAndParty by lazy(LazyThreadSafetyMode.NONE) {
       SyncTargets.Accounts(audience.ownerAndParty(world, entityId))
     }
+    val ownerAndGuild by lazy(LazyThreadSafetyMode.NONE) {
+      SyncTargets.Accounts(audience.ownerAndGuild(world, entityId))
+    }
 
     val entries = orderedTypes.mapNotNull { type ->
       val component = world.get(entityId, type) as? Dirtyable ?: return@mapNotNull null
@@ -79,6 +82,7 @@ class EntitySnapshotBuilder(
       val targets = when (val declared = component.syncTargets(world, entityId)) {
         is SyncTargets.OwnerOnly -> return@mapNotNull null
         is SyncTargets.OwnerAndParty -> ownerAndParty
+        is SyncTargets.OwnerAndGuild -> ownerAndGuild
         else -> declared
       }
 
@@ -95,7 +99,7 @@ class EntitySnapshotBuilder(
           is SyncTargets.PublicInRange -> true
           is SyncTargets.Accounts -> accountId in targets.accountIds
           // Resolved to Accounts in snapshotOf, or left out.
-          is SyncTargets.OwnerOnly, is SyncTargets.OwnerAndParty -> false
+          is SyncTargets.OwnerOnly, is SyncTargets.OwnerAndParty, is SyncTargets.OwnerAndGuild -> false
         }
         if (visible) message else null
       }

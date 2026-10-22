@@ -3,6 +3,7 @@ package net.bestia.zone.aoi
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.identity.ecs.ActivePlayer
+import net.bestia.zone.identity.ecs.GuildMembership
 import net.bestia.zone.identity.ecs.Master
 import net.bestia.zone.identity.ecs.OwnedBestia
 import net.bestia.zone.identity.ecs.PartyMembership
@@ -60,11 +61,33 @@ class EntityAudience(
     val masterEntityId = partyAnchorOf(world, entityId, owner) ?: return setOf(owner)
     val membership = world.get(masterEntityId, PartyMembership::class) ?: return setOf(owner)
 
-    val audience = HashSet<AccountId>(membership.members.size + 1)
+    return ownerAndPlaying(owner, membership.members) { it.accountId to it.masterId }
+  }
+
+  /**
+   * Who hears a [net.bestia.zone.sync.SyncTargets.OwnerAndGuild] change: the owner, plus every guild member
+   * playing the master the guild lists, wherever they stand. Only a master is in a guild. Tick thread, or under
+   * the world lock.
+   */
+  fun ownerAndGuild(world: World, entityId: EntityId): Set<AccountId> {
+    val owner = world.get(entityId, Account::class)?.accountId ?: return emptySet()
+    val membership = world.get(entityId, GuildMembership::class) ?: return setOf(owner)
+
+    return ownerAndPlaying(owner, membership.members) { it.accountId to it.masterId }
+  }
+
+  /** [owner], plus the account of each of [members] whose account plays that member's master. */
+  private fun <T> ownerAndPlaying(
+    owner: AccountId,
+    members: Collection<T>,
+    accountAndMaster: (T) -> Pair<AccountId, Long>,
+  ): Set<AccountId> {
+    val audience = HashSet<AccountId>(members.size + 1)
     audience.add(owner)
-    for (member in membership.members) {
-      if (sessions.isPlaying(member.accountId, member.masterId)) {
-        audience.add(member.accountId)
+    for (member in members) {
+      val (accountId, masterId) = accountAndMaster(member)
+      if (sessions.isPlaying(accountId, masterId)) {
+        audience.add(accountId)
       }
     }
     return audience

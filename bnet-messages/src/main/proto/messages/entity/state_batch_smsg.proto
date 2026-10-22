@@ -12,6 +12,7 @@ import "messages/component/construction_component_smsg.proto";
 import "messages/component/dead_component_smsg.proto";
 import "messages/component/equipment_component_smsg.proto";
 import "messages/component/exp_component_smsg.proto";
+import "messages/component/guild_member_beacon_smsg.proto";
 import "messages/component/health_component_smsg.proto";
 import "messages/component/inventory_component_smsg.proto";
 import "messages/component/level_component_smsg.proto";
@@ -88,5 +89,6 @@ message ComponentDelta {
     ConstructionComponentSMSG construction = 27;
     CombatStatsSMSG combat_stats = 28;
     WornGearComponentSMSG worn_gear = 29;
+    GuildMemberBeaconSMSG guild_member_beacon = 30;
   }
 }
