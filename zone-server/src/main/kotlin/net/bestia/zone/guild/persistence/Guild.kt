@@ -56,6 +56,10 @@ class Guild(
   @Column(name = "motd_body", nullable = false, length = 240)
   var motdBody: String = ""
 
+  /** Names the guild's [GuildEmblem]; empty while it has none. */
+  @Column(name = "emblem_hash", nullable = false, length = 64)
+  var emblemHash: String = ""
+
   /** Guild skill levels by `skills.yml` identifier; a skill never invested in has no entry. */
   @ElementCollection
   @CollectionTable(name = "guild_skill_level", joinColumns = [JoinColumn(name = "guild_id")])

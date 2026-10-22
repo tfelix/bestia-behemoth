@@ -25,14 +25,15 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CjFtZXNzYWdlcy9jb21wb25lbnQvZ3VpbGRfdGFnX2NvbXBvbmVudF9zbXNn",
-            "LnByb3RvEgRibmV0ImIKFUd1aWxkVGFnQ29tcG9uZW50U01TRxIQCghndWls",
+            "LnByb3RvEgRibmV0IncKFUd1aWxkVGFnQ29tcG9uZW50U01TRxIQCghndWls",
             "ZF9pZBgBIAEoBBISCgpndWlsZF9uYW1lGAIgASgJEhIKCnJhbmtfdGl0bGUY",
-            "AyABKAkSDwoHcmVtb3ZlZBgEIAEoCEIzChVuZXQuYmVzdGlhLmJuZXQucHJv",
-            "dG9CGkd1aWxkVGFnQ29tcG9uZW50U01TR1Byb3RvYgZwcm90bzM="));
+            "AyABKAkSDwoHcmVtb3ZlZBgEIAEoCBITCgtlbWJsZW1faGFzaBgFIAEoCUIz",
+            "ChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CGkd1aWxkVGFnQ29tcG9uZW50U01T",
+            "R1Byb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.GuildTagComponentSMSG), global::Bnet.GuildTagComponentSMSG.Parser, new[]{ "GuildId", "GuildName", "RankTitle", "Removed" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.GuildTagComponentSMSG), global::Bnet.GuildTagComponentSMSG.Parser, new[]{ "GuildId", "GuildName", "RankTitle", "Removed", "EmblemHash" }, null, null, null, null)
           }));
     }
     #endregion
@@ -82,6 +83,7 @@ namespace Bnet {
       guildName_ = other.guildName_;
       rankTitle_ = other.rankTitle_;
       removed_ = other.removed_;
+      emblemHash_ = other.emblemHash_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -139,6 +141,21 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "emblem_hash" field.</summary>
+    public const int EmblemHashFieldNumber = 5;
+    private string emblemHash_ = "";
+    /// <summary>
+    /// Names the guild's emblem PNG at the api-service; empty while the guild has none.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string EmblemHash {
+      get { return emblemHash_; }
+      set {
+        emblemHash_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -158,6 +175,7 @@ namespace Bnet {
       if (GuildName != other.GuildName) return false;
       if (RankTitle != other.RankTitle) return false;
       if (Removed != other.Removed) return false;
+      if (EmblemHash != other.EmblemHash) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -169,6 +187,7 @@ namespace Bnet {
       if (GuildName.Length != 0) hash ^= GuildName.GetHashCode();
       if (RankTitle.Length != 0) hash ^= RankTitle.GetHashCode();
       if (Removed != false) hash ^= Removed.GetHashCode();
+      if (EmblemHash.Length != 0) hash ^= EmblemHash.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -203,6 +222,10 @@ namespace Bnet {
         output.WriteRawTag(32);
         output.WriteBool(Removed);
       }
+      if (EmblemHash.Length != 0) {
+        output.WriteRawTag(42);
+        output.WriteString(EmblemHash);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -229,6 +252,10 @@ namespace Bnet {
         output.WriteRawTag(32);
         output.WriteBool(Removed);
       }
+      if (EmblemHash.Length != 0) {
+        output.WriteRawTag(42);
+        output.WriteString(EmblemHash);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -250,6 +277,9 @@ namespace Bnet {
       }
       if (Removed != false) {
         size += 1 + 1;
+      }
+      if (EmblemHash.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(EmblemHash);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -274,6 +304,9 @@ namespace Bnet {
       }
       if (other.Removed != false) {
         Removed = other.Removed;
+      }
+      if (other.EmblemHash.Length != 0) {
+        EmblemHash = other.EmblemHash;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -310,6 +343,10 @@ namespace Bnet {
             Removed = input.ReadBool();
             break;
           }
+          case 42: {
+            EmblemHash = input.ReadString();
+            break;
+          }
         }
       }
     #endif
@@ -343,6 +380,10 @@ namespace Bnet {
           }
           case 32: {
             Removed = input.ReadBool();
+            break;
+          }
+          case 42: {
+            EmblemHash = input.ReadString();
             break;
           }
         }

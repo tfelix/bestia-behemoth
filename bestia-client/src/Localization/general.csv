@@ -225,6 +225,11 @@ GUILD_EXP,EXP
 GUILD_EXP_MAX,Highest level
 GUILD_MEMBERS_COUNT,Members
 GUILD_SKILL_POINTS,Skill points
+GUILD_EMBLEM,Emblem
+GUILD_EMBLEM_CHOOSE,Choose a picture
+GUILD_EMBLEM_HINT,Any picture works: its middle square is shrunk to 32 × 32 pixels. Drawn at that size it stays crisp.
+GUILD_EMBLEM_FILES,Pictures
+GUILD_EMBLEM_UNREADABLE,That file is no picture the game can read.
 GUILD_MOTD,Message of the day
 GUILD_MOTD_NONE,No message of the day yet.
 GUILD_MOTD_EDIT,Edit
@@ -237,7 +242,6 @@ GUILD_SKILL_PICK,Pick a skill to see what it does.
 GUILD_SKILL_REQUIRES,Requires %s
 GUILD_SKILL_NEEDS_STRONGHOLD,Works once the guild holds a Guild Stronghold. Strongholds come in a later update.
 GUILD_SKILL_DRAG_TO_BAR,Drag it onto the shortcut bar to cast it.
-GUILD_SKILL_EFFECT_LATER,The emblem itself comes in a later update.
 GUILD_COL_NAME,Rank
 GUILD_COL_TAX,Tax on kill EXP
 GUILD_COL_PERMISSIONS,Invite · Kick · Ranks · Skills · Message
@@ -291,3 +295,4 @@ GUILD_LOG_RANK_EDITED,{actor} changed the rank {detail}.
 GUILD_LOG_RANK_DELETED,{actor} deleted the rank {detail}.
 GUILD_LOG_SKILL_LEARNED,{actor} raised the guild skill {detail}.
 GUILD_LOG_MOTD_CHANGED,{actor} changed the message of the day.
+GUILD_LOG_EMBLEM_CHANGED,{actor} gave the guild a new emblem.

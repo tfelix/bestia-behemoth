@@ -25,7 +25,7 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CiRtZXNzYWdlcy9ndWlsZC9ndWlsZF9pbmZvX3Ntc2cucHJvdG8SBGJuZXQi",
-            "xAMKDUd1aWxkSW5mb1NNU0cSEAoIZ3VpbGRfaWQYASABKAQSDAoEbmFtZRgC",
+            "2QMKDUd1aWxkSW5mb1NNU0cSEAoIZ3VpbGRfaWQYASABKAQSDAoEbmFtZRgC",
             "IAEoCRINCgVsZXZlbBgDIAEoDRILCgNleHAYBCABKAQSFgoOZXhwX25leHRf",
             "bGV2ZWwYBSABKAQSFAoMc2tpbGxfcG9pbnRzGAYgASgNEhMKC21heF9tZW1i",
             "ZXJzGAggASgNEh4KBXJhbmtzGAkgAygLMg8uYm5ldC5HdWlsZFJhbmsSIgoH",
@@ -34,27 +34,27 @@ namespace Bnet {
             "ZW50GA4gASgNEhcKD21heF90YXhfcGVyY2VudBgPIAEoDRIkCgZza2lsbHMY",
             "ECADKAsyFC5ibmV0Lkd1aWxkU2tpbGxOb2RlEhIKCm1vdGRfdGl0bGUYESAB",
             "KAkSEQoJbW90ZF9ib2R5GBIgASgJEh0KFW1vdGRfdGl0bGVfbWF4X2xlbmd0",
-            "aBgTIAEoDRIcChRtb3RkX2JvZHlfbWF4X2xlbmd0aBgUIAEoDUoECAcQCEoE",
-            "CAwQDSKYAQoOR3VpbGRTa2lsbE5vZGUSEAoIc2tpbGxfaWQYASABKAQSDQoF",
-            "bGV2ZWwYAiABKA0SEQoJbWF4X2xldmVsGAMgASgNEjMKDXByZXJlcXVpc2l0",
-            "ZXMYBCADKAsyHC5ibmV0Lkd1aWxkU2tpbGxQcmVyZXF1aXNpdGUSHQoVY29v",
-            "bGRvd25fcmVtYWluaW5nX21zGAUgASgEIjkKFkd1aWxkU2tpbGxQcmVyZXF1",
-            "aXNpdGUSEAoIc2tpbGxfaWQYASABKAQSDQoFbGV2ZWwYAiABKA0ixgEKCUd1",
-            "aWxkUmFuaxIPCgdyYW5rX2lkGAEgASgEEhAKCHBvc2l0aW9uGAIgASgNEgwK",
-            "BG5hbWUYAyABKAkSEwoLdGF4X3BlcmNlbnQYBCABKA0SEgoKY2FuX2ludml0",
-            "ZRgFIAEoCBIQCghjYW5fa2ljaxgGIAEoCBIYChBjYW5fbWFuYWdlX3Jhbmtz",
-            "GAcgASgIEhwKFGNhbl91c2VfZ3VpbGRfc2tpbGxzGAggASgIEhUKDWNhbl9l",
-            "ZGl0X21vdGQYCSABKAgi2AEKC0d1aWxkTWVtYmVyEhEKCW1hc3Rlcl9pZBgB",
-            "IAEoBBITCgttYXN0ZXJfbmFtZRgCIAEoCRINCgVsZXZlbBgDIAEoDRIPCgdy",
-            "YW5rX2lkGAQgASgEEg4KBm9ubGluZRgFIAEoCBIXCg9leHBfY29udHJpYnV0",
-            "ZWQYBiABKAQSEQoJaXNfbGVhZGVyGAcgASgIEhEKCWVudGl0eV9pZBgIIAEo",
-            "BhIWCg5sYXN0X2FyZWFfbmFtZRgJIAEoCRIaChJsYXN0X3NlZW5fZXBvY2hf",
-            "bXMYCiABKANCKwoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQhJHdWlsZEluZm9T",
-            "bXNnUHJvdG9iBnByb3RvMw=="));
+            "aBgTIAEoDRIcChRtb3RkX2JvZHlfbWF4X2xlbmd0aBgUIAEoDRITCgtlbWJs",
+            "ZW1faGFzaBgVIAEoCUoECAcQCEoECAwQDSKYAQoOR3VpbGRTa2lsbE5vZGUS",
+            "EAoIc2tpbGxfaWQYASABKAQSDQoFbGV2ZWwYAiABKA0SEQoJbWF4X2xldmVs",
+            "GAMgASgNEjMKDXByZXJlcXVpc2l0ZXMYBCADKAsyHC5ibmV0Lkd1aWxkU2tp",
+            "bGxQcmVyZXF1aXNpdGUSHQoVY29vbGRvd25fcmVtYWluaW5nX21zGAUgASgE",
+            "IjkKFkd1aWxkU2tpbGxQcmVyZXF1aXNpdGUSEAoIc2tpbGxfaWQYASABKAQS",
+            "DQoFbGV2ZWwYAiABKA0ixgEKCUd1aWxkUmFuaxIPCgdyYW5rX2lkGAEgASgE",
+            "EhAKCHBvc2l0aW9uGAIgASgNEgwKBG5hbWUYAyABKAkSEwoLdGF4X3BlcmNl",
+            "bnQYBCABKA0SEgoKY2FuX2ludml0ZRgFIAEoCBIQCghjYW5fa2ljaxgGIAEo",
+            "CBIYChBjYW5fbWFuYWdlX3JhbmtzGAcgASgIEhwKFGNhbl91c2VfZ3VpbGRf",
+            "c2tpbGxzGAggASgIEhUKDWNhbl9lZGl0X21vdGQYCSABKAgi2AEKC0d1aWxk",
+            "TWVtYmVyEhEKCW1hc3Rlcl9pZBgBIAEoBBITCgttYXN0ZXJfbmFtZRgCIAEo",
+            "CRINCgVsZXZlbBgDIAEoDRIPCgdyYW5rX2lkGAQgASgEEg4KBm9ubGluZRgF",
+            "IAEoCBIXCg9leHBfY29udHJpYnV0ZWQYBiABKAQSEQoJaXNfbGVhZGVyGAcg",
+            "ASgIEhEKCWVudGl0eV9pZBgIIAEoBhIWCg5sYXN0X2FyZWFfbmFtZRgJIAEo",
+            "CRIaChJsYXN0X3NlZW5fZXBvY2hfbXMYCiABKANCKwoVbmV0LmJlc3RpYS5i",
+            "bmV0LnByb3RvQhJHdWlsZEluZm9TbXNnUHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.GuildInfoSMSG), global::Bnet.GuildInfoSMSG.Parser, new[]{ "GuildId", "Name", "Level", "Exp", "ExpNextLevel", "SkillPoints", "MaxMembers", "Ranks", "Members", "OwnMasterId", "MaxRanks", "MinTaxPercent", "MaxTaxPercent", "Skills", "MotdTitle", "MotdBody", "MotdTitleMaxLength", "MotdBodyMaxLength" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.GuildInfoSMSG), global::Bnet.GuildInfoSMSG.Parser, new[]{ "GuildId", "Name", "Level", "Exp", "ExpNextLevel", "SkillPoints", "MaxMembers", "Ranks", "Members", "OwnMasterId", "MaxRanks", "MinTaxPercent", "MaxTaxPercent", "Skills", "MotdTitle", "MotdBody", "MotdTitleMaxLength", "MotdBodyMaxLength", "EmblemHash" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.GuildSkillNode), global::Bnet.GuildSkillNode.Parser, new[]{ "SkillId", "Level", "MaxLevel", "Prerequisites", "CooldownRemainingMs" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.GuildSkillPrerequisite), global::Bnet.GuildSkillPrerequisite.Parser, new[]{ "SkillId", "Level" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.GuildRank), global::Bnet.GuildRank.Parser, new[]{ "RankId", "Position", "Name", "TaxPercent", "CanInvite", "CanKick", "CanManageRanks", "CanUseGuildSkills", "CanEditMotd" }, null, null, null, null),
@@ -125,6 +125,7 @@ namespace Bnet {
       motdBody_ = other.motdBody_;
       motdTitleMaxLength_ = other.motdTitleMaxLength_;
       motdBodyMaxLength_ = other.motdBodyMaxLength_;
+      emblemHash_ = other.emblemHash_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -362,6 +363,21 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "emblem_hash" field.</summary>
+    public const int EmblemHashFieldNumber = 21;
+    private string emblemHash_ = "";
+    /// <summary>
+    /// Names the guild's emblem PNG at the api-service; empty while the guild has none.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string EmblemHash {
+      get { return emblemHash_; }
+      set {
+        emblemHash_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -395,6 +411,7 @@ namespace Bnet {
       if (MotdBody != other.MotdBody) return false;
       if (MotdTitleMaxLength != other.MotdTitleMaxLength) return false;
       if (MotdBodyMaxLength != other.MotdBodyMaxLength) return false;
+      if (EmblemHash != other.EmblemHash) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -420,6 +437,7 @@ namespace Bnet {
       if (MotdBody.Length != 0) hash ^= MotdBody.GetHashCode();
       if (MotdTitleMaxLength != 0) hash ^= MotdTitleMaxLength.GetHashCode();
       if (MotdBodyMaxLength != 0) hash ^= MotdBodyMaxLength.GetHashCode();
+      if (EmblemHash.Length != 0) hash ^= EmblemHash.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -501,6 +519,10 @@ namespace Bnet {
         output.WriteRawTag(160, 1);
         output.WriteUInt32(MotdBodyMaxLength);
       }
+      if (EmblemHash.Length != 0) {
+        output.WriteRawTag(170, 1);
+        output.WriteString(EmblemHash);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -574,6 +596,10 @@ namespace Bnet {
         output.WriteRawTag(160, 1);
         output.WriteUInt32(MotdBodyMaxLength);
       }
+      if (EmblemHash.Length != 0) {
+        output.WriteRawTag(170, 1);
+        output.WriteString(EmblemHash);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -631,6 +657,9 @@ namespace Bnet {
       }
       if (MotdBodyMaxLength != 0) {
         size += 2 + pb::CodedOutputStream.ComputeUInt32Size(MotdBodyMaxLength);
+      }
+      if (EmblemHash.Length != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeStringSize(EmblemHash);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -691,6 +720,9 @@ namespace Bnet {
       }
       if (other.MotdBodyMaxLength != 0) {
         MotdBodyMaxLength = other.MotdBodyMaxLength;
+      }
+      if (other.EmblemHash.Length != 0) {
+        EmblemHash = other.EmblemHash;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -783,6 +815,10 @@ namespace Bnet {
             MotdBodyMaxLength = input.ReadUInt32();
             break;
           }
+          case 170: {
+            EmblemHash = input.ReadString();
+            break;
+          }
         }
       }
     #endif
@@ -872,6 +908,10 @@ namespace Bnet {
           }
           case 160: {
             MotdBodyMaxLength = input.ReadUInt32();
+            break;
+          }
+          case 170: {
+            EmblemHash = input.ReadString();
             break;
           }
         }
