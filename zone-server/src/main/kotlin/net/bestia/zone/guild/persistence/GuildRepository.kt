@@ -3,6 +3,7 @@ package net.bestia.zone.guild.persistence
 import jakarta.persistence.LockModeType
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Lock
+import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 
@@ -18,4 +19,9 @@ interface GuildRepository : JpaRepository<Guild, Long> {
 
   @Query("select g.name from Guild g where g.leader.id = :masterId")
   fun findNameLedBy(@Param("masterId") masterId: Long): String?
+
+  /** Lowers every rank taxed above [maxPercent] to it. @return how many ranks it lowered */
+  @Modifying
+  @Query("update GuildRank r set r.taxPercent = :maxPercent where r.taxPercent > :maxPercent")
+  fun capRankTaxes(@Param("maxPercent") maxPercent: Int): Int
 }

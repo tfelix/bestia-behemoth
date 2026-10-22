@@ -19,6 +19,8 @@ namespace BestiaBehemothClient.Bnet.Message.Guild
 
     public bool CanUseGuildSkills { get; set; }
 
+    public bool CanEditMotd { get; set; }
+
     public override Envelope ToEnvelope()
     {
       return new Envelope
@@ -31,7 +33,8 @@ namespace BestiaBehemothClient.Bnet.Message.Guild
           CanInvite = CanInvite,
           CanKick = CanKick,
           CanManageRanks = CanManageRanks,
-          CanUseGuildSkills = CanUseGuildSkills
+          CanUseGuildSkills = CanUseGuildSkills,
+          CanEditMotd = CanEditMotd
         }
       };
     }

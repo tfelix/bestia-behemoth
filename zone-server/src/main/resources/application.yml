@@ -45,7 +45,9 @@ guild:
   # The share of a member's kill EXP the rank funnels into the guild, in percent.
   default-tax-percent: 5
   min-tax-percent: 1
-  max-tax-percent: 80
+  max-tax-percent: 50
+  motd-title-max-length: 60
+  motd-body-max-length: 240
   invitation-timeout-seconds: 60
   # Taxed EXP is gathered in memory and written to the guild this often. A crash loses at most this much.
   exp-flush-seconds: 30

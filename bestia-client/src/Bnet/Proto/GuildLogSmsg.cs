@@ -29,15 +29,15 @@ namespace Bnet {
             "b2dFbnRyeSJ/Cg1HdWlsZExvZ0VudHJ5EiAKBGtpbmQYASABKA4yEi5ibmV0",
             "Lkd1aWxkTG9nS2luZBITCgthdF9lcG9jaF9tcxgCIAEoAxISCgphY3Rvcl9u",
             "YW1lGAMgASgJEhMKC3RhcmdldF9uYW1lGAQgASgJEg4KBmRldGFpbBgFIAEo",
-            "CSq4AgoMR3VpbGRMb2dLaW5kEh4KGkdVSUxEX0xPR19LSU5EX1VOU1BFQ0lG",
+            "CSrZAgoMR3VpbGRMb2dLaW5kEh4KGkdVSUxEX0xPR19LSU5EX1VOU1BFQ0lG",
             "SUVEEAASGgoWR1VJTERfTE9HX0tJTkRfRk9VTkRFRBABEhkKFUdVSUxEX0xP",
             "R19LSU5EX0pPSU5FRBACEhcKE0dVSUxEX0xPR19LSU5EX0xFRlQQAxIZChVH",
             "VUlMRF9MT0dfS0lORF9LSUNLRUQQBBIbChdHVUlMRF9MT0dfS0lORF9SQU5L",
             "X1NFVBAFEh0KGUdVSUxEX0xPR19LSU5EX1JBTktfQURERUQQBhIeChpHVUlM",
             "RF9MT0dfS0lORF9SQU5LX0VESVRFRBAHEh8KG0dVSUxEX0xPR19LSU5EX1JB",
             "TktfREVMRVRFRBAIEiAKHEdVSUxEX0xPR19LSU5EX1NLSUxMX0xFQVJORUQQ",
-            "CUIqChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CEUd1aWxkTG9nU21zZ1Byb3Rv",
-            "YgZwcm90bzM="));
+            "CRIfChtHVUlMRF9MT0dfS0lORF9NT1REX0NIQU5HRUQQCkIqChVuZXQuYmVz",
+            "dGlhLmJuZXQucHJvdG9CEUd1aWxkTG9nU21zZ1Byb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.GuildLogKind), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -60,6 +60,7 @@ namespace Bnet {
     [pbr::OriginalName("GUILD_LOG_KIND_RANK_EDITED")] RankEdited = 7,
     [pbr::OriginalName("GUILD_LOG_KIND_RANK_DELETED")] RankDeleted = 8,
     [pbr::OriginalName("GUILD_LOG_KIND_SKILL_LEARNED")] SkillLearned = 9,
+    [pbr::OriginalName("GUILD_LOG_KIND_MOTD_CHANGED")] MotdChanged = 10,
   }
 
   #endregion

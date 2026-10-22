@@ -56,6 +56,7 @@ class GuildInfoReader(
           canKick = rank.canKick,
           canManageRanks = rank.canManageRanks,
           canUseGuildSkills = rank.canUseGuildSkills,
+          canEditMotd = rank.canEditMotd,
         )
       },
       members = members.map { member ->
@@ -82,6 +83,10 @@ class GuildInfoReader(
           cooldownRemainingMillis = cooldowns.remainingMillis(guild.id, node.skillId),
         )
       },
+      motdTitle = guild.motdTitle,
+      motdBody = guild.motdBody,
+      motdTitleMaxLength = config.motdTitleMaxLength,
+      motdBodyMaxLength = config.motdBodyMaxLength,
     )
 
     return Snapshot(info, members.map { GuildMemberRef(it.master.account.id, it.master.id) })

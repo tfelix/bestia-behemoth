@@ -124,6 +124,7 @@ var DeleteGuildRankCMSG = load("res://Bnet/Message/Guild/DeleteGuildRankCMSG.cs"
 var InvestGuildSkillCMSG = load("res://Bnet/Message/Guild/InvestGuildSkillCMSG.cs")
 var DisbandGuildCMSG = load("res://Bnet/Message/Guild/DisbandGuildCMSG.cs")
 var RequestGuildLogCMSG = load("res://Bnet/Message/Guild/RequestGuildLogCMSG.cs")
+var SetGuildMotdCMSG = load("res://Bnet/Message/Guild/SetGuildMotdCMSG.cs")
 var Ping = load("res://Bnet/Message/Ping.cs")
 var ChunkStreamManagerScript = load("res://Game/World/ChunkStreamManager.cs")
 var WeatherStateScript = load("res://Game/World/WeatherState.cs")
@@ -754,7 +755,7 @@ func set_guild_member_rank(master_id: int, rank_id: int) -> void:
 
 
 ## Edits a rank, or adds one at the bottom when [param rank_id] is 0.
-func save_guild_rank(rank_id: int, rank_name: String, tax_percent: int, can_invite: bool, can_kick: bool, can_manage_ranks: bool, can_use_guild_skills: bool) -> void:
+func save_guild_rank(rank_id: int, rank_name: String, tax_percent: int, can_invite: bool, can_kick: bool, can_manage_ranks: bool, can_use_guild_skills: bool, can_edit_motd: bool) -> void:
 	assert(is_ready_to_send())
 	var msg = SaveGuildRankCMSG.new()
 	msg.RankId = rank_id
@@ -764,6 +765,7 @@ func save_guild_rank(rank_id: int, rank_name: String, tax_percent: int, can_invi
 	msg.CanKick = can_kick
 	msg.CanManageRanks = can_manage_ranks
 	msg.CanUseGuildSkills = can_use_guild_skills
+	msg.CanEditMotd = can_edit_motd
 	_socket.SendMessage(msg)
 
 
@@ -779,6 +781,15 @@ func invest_guild_skill(skill_id: int) -> void:
 	assert(is_ready_to_send())
 	var msg = InvestGuildSkillCMSG.new()
 	msg.SkillId = skill_id
+	_socket.SendMessage(msg)
+
+
+## Replaces the guild's message of the day; both empty clears it.
+func set_guild_motd(title: String, body: String) -> void:
+	assert(is_ready_to_send())
+	var msg = SetGuildMotdCMSG.new()
+	msg.Title = title
+	msg.Body = body
 	_socket.SendMessage(msg)
 
 

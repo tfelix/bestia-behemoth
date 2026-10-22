@@ -16,4 +16,5 @@ message SaveGuildRankCMSG {
   bool can_kick = 5;
   bool can_manage_ranks = 6;
   bool can_use_guild_skills = 7;
+  bool can_edit_motd = 8;
 }

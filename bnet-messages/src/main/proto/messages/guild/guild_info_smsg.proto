@@ -30,6 +30,11 @@ message GuildInfoSMSG {
   uint32 max_tax_percent = 15;
   // The whole guild skill tree with the guild's level in each skill, in the server's tree order.
   repeated GuildSkillNode skills = 16;
+  // The guild's message of the day, shown to every member after each loading screen. Plain text; both empty when unset.
+  string motd_title = 17;
+  string motd_body = 18;
+  uint32 motd_title_max_length = 19;
+  uint32 motd_body_max_length = 20;
 }
 
 message GuildSkillNode {
@@ -57,6 +62,7 @@ message GuildRank {
   bool can_kick = 6;
   bool can_manage_ranks = 7;
   bool can_use_guild_skills = 8;
+  bool can_edit_motd = 9;
 }
 
 message GuildMember {

@@ -8,7 +8,8 @@ extends PanelContainer
 ## everyone, anybody else only on members and ranks below their own. The server checks again, and the guild it
 ## pushes back is what the window then draws, so a refusal puts it right by itself.
 ##
-## Also where a guild is founded: using a Founder's Seal asks [method ask_to_found].
+## Also where a guild is founded: using a Founder's Seal asks [method ask_to_found]. And it greets the member with
+## the guild's message of the day after every loading screen - the login's and each teleport's - as Ragnarok Online does.
 
 signal notice(text: String)
 signal refused(text: String)
@@ -23,6 +24,8 @@ var _synced := false
 var _member_rows: Dictionary[int, GuildMemberRow] = {}
 var _rank_rows: Dictionary[int, GuildRankRow] = {}
 var _last_invited := ""
+## A loading screen ended before the first guild arrived, so the message of the day is shown when it does.
+var _motd_due := false
 
 var _name: Label
 var _level_badge: Label
@@ -32,6 +35,12 @@ var _exp_bar: ProgressBar
 var _exp_value: Label
 var _members_value: Label
 var _points_value: Label
+var _motd_title: Label
+var _motd_body: Label
+var _edit_motd: Button
+var _motd_popup: PopupPanel
+var _motd_title_edit: LineEdit
+var _motd_body_edit: TextEdit
 var _skills: GuildSkillsPage
 var _log: GuildLogPage
 var _members: VBoxContainer
@@ -63,10 +72,12 @@ func _ready() -> void:
 	_build()
 	_build_found_popup()
 	_build_disband_dialog()
+	_build_motd_popup()
 
 	ConnectionManager.guild_message_received.connect(_on_guild_message)
 	ConnectionManager.operation_success.connect(_on_operation_success)
 	visibility_changed.connect(_refresh_log)
+	SceneManager.loading_finished.connect(_on_loading_finished)
 	# Asked once loaded: a guild pushed while the game scene was still coming up reached nobody.
 	if ConnectionManager.is_ready_to_send():
 		ConnectionManager.request_guild_info()
@@ -173,6 +184,24 @@ func _build_overview() -> Control:
 	_points_value = UiStyle.label("", 12)
 	facts.add_child(_points_value)
 	overview.add_child(facts)
+
+	overview.add_child(HSeparator.new())
+	var motd_header := UiStyle.hbox(8)
+	var motd_label := UiStyle.label(tr("GUILD_MOTD"), 12, UiStyle.MUTED)
+	motd_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	motd_header.add_child(motd_label)
+	_edit_motd = Button.new()
+	_edit_motd.text = tr("GUILD_MOTD_EDIT")
+	_edit_motd.theme_type_variation = &"ChipButton"
+	_edit_motd.pressed.connect(_ask_for_motd)
+	motd_header.add_child(_edit_motd)
+	overview.add_child(motd_header)
+	_motd_title = UiStyle.label("", 14, UiStyle.ACCENT)
+	_motd_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	overview.add_child(_motd_title)
+	_motd_body = UiStyle.label("", 12)
+	_motd_body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	overview.add_child(_motd_body)
 	return UiStyle.margin(overview, 6, 8, 6, 6)
 
 
@@ -244,6 +273,78 @@ func _build_found_popup() -> void:
 	add_child(_found_popup)
 
 
+func _build_motd_popup() -> void:
+	_motd_popup = PopupPanel.new()
+	_motd_popup.add_theme_stylebox_override("panel", UiStyle.flat(UiStyle.PANEL_BG, 6, 12, UiStyle.ACCENT, 1))
+	var rows := UiStyle.vbox(8)
+	rows.custom_minimum_size = Vector2(360, 0)
+	rows.add_child(UiStyle.label(tr("GUILD_MOTD_EDIT_TITLE"), 15, UiStyle.ACCENT))
+	_motd_title_edit = LineEdit.new()
+	_motd_title_edit.placeholder_text = tr("GUILD_MOTD_TITLE_PLACEHOLDER")
+	rows.add_child(_motd_title_edit)
+	_motd_body_edit = TextEdit.new()
+	_motd_body_edit.placeholder_text = tr("GUILD_MOTD_BODY_PLACEHOLDER")
+	_motd_body_edit.wrap_mode = TextEdit.LINE_WRAPPING_BOUNDARY
+	_motd_body_edit.custom_minimum_size = Vector2(0, 110)
+	_motd_body_edit.text_changed.connect(_limit_motd_body)
+	rows.add_child(_motd_body_edit)
+	var buttons := UiStyle.hbox(8)
+	buttons.alignment = BoxContainer.ALIGNMENT_END
+	var cancel := Button.new()
+	cancel.text = tr("GUILD_FOUND_CANCEL")
+	cancel.pressed.connect(_motd_popup.hide)
+	buttons.add_child(cancel)
+	var save := Button.new()
+	save.text = tr("GUILD_RANK_SAVE")
+	save.theme_type_variation = &"PrimaryButton"
+	save.pressed.connect(_save_motd)
+	buttons.add_child(save)
+	rows.add_child(buttons)
+	_motd_popup.add_child(rows)
+	_motd_popup.about_to_popup.connect(func() -> void: _motd_title_edit.call_deferred("grab_focus"))
+	add_child(_motd_popup)
+
+
+func _ask_for_motd() -> void:
+	if _info == null:
+		return
+	_motd_title_edit.max_length = int(_info.MotdTitleMaxLength)
+	_motd_title_edit.text = _info.MotdTitle
+	_motd_body_edit.text = _info.MotdBody
+	_motd_popup.popup_centered()
+
+
+## TextEdit has no max_length of its own, and the server refuses a message of the day that is too long.
+func _limit_motd_body() -> void:
+	var limit := int(_info.MotdBodyMaxLength) if _info != null else 0
+	if limit > 0 and _motd_body_edit.text.length() > limit:
+		_motd_body_edit.text = _motd_body_edit.text.left(limit)
+		_motd_body_edit.set_caret_line(_motd_body_edit.get_line_count() - 1)
+		_motd_body_edit.set_caret_column(_motd_body_edit.get_line(_motd_body_edit.get_line_count() - 1).length())
+
+
+func _save_motd() -> void:
+	_motd_popup.hide()
+	ConnectionManager.set_guild_motd(_motd_title_edit.text.strip_edges(), _motd_body_edit.text.strip_edges())
+
+
+## The guild may not have been pushed yet when the login's loading screen ends; then it is shown on arrival.
+func _on_loading_finished() -> void:
+	if _info != null:
+		_show_motd_dialog()
+	elif not _synced:
+		_motd_due = true
+
+
+func _show_motd_dialog() -> void:
+	if _info.MotdTitle.is_empty() and _info.MotdBody.is_empty():
+		return
+	var content := DialogContent.new("")
+	content.title_override = _info.MotdTitle if not _info.MotdTitle.is_empty() else _info.Name
+	content.text_override = _info.MotdBody
+	DialogManager.show_content(content)
+
+
 func _found() -> void:
 	var guild_name := _found_name.text.strip_edges()
 	_found_popup.hide()
@@ -304,7 +405,7 @@ func _invite() -> void:
 func _add_new_rank() -> void:
 	if _info == null:
 		return
-	ConnectionManager.save_guild_rank(0, tr("GUILD_RANK_DEFAULT_NAME"), int(_info.MinTaxPercent), false, false, false, false)
+	ConnectionManager.save_guild_rank(0, tr("GUILD_RANK_DEFAULT_NAME"), int(_info.MinTaxPercent), false, false, false, false, false)
 
 
 ## Every change to the guild may have added an entry, so an open Log tab asks again whenever the guild is pushed.
@@ -364,6 +465,7 @@ func _show_guild(info: GuildInfoSMSG) -> void:
 	var may_kick := is_leader or (my_rank != null and my_rank.CanKick)
 	var may_manage := is_leader or (my_rank != null and my_rank.CanManageRanks)
 	var may_cast := is_leader or (my_rank != null and my_rank.CanUseGuildSkills)
+	var may_edit_motd := is_leader or (my_rank != null and my_rank.CanEditMotd)
 	var my_position: int = my_rank.Position if my_rank != null else 1 << 30
 
 	for skill in info.Skills:
@@ -374,7 +476,7 @@ func _show_guild(info: GuildInfoSMSG) -> void:
 	_level_badge.text = tr("GUILD_LEVEL") % info.Level
 	_member_count.text = "%d / %d" % [info.Members.size(), info.MaxMembers]
 
-	_show_overview(info)
+	_show_overview(info, may_edit_motd)
 	_skills.show_skills(info, is_leader, may_cast)
 	_show_members(info, is_leader, may_kick, may_manage, my_position)
 	_show_ranks(info, is_leader, may_manage, my_position)
@@ -383,6 +485,9 @@ func _show_guild(info: GuildInfoSMSG) -> void:
 	_leave.visible = not is_leader
 	_disband.visible = is_leader
 	_refresh_log()
+	if _motd_due:
+		_motd_due = false
+		_show_motd_dialog()
 
 	if joined:
 		if _synced:
@@ -391,7 +496,7 @@ func _show_guild(info: GuildInfoSMSG) -> void:
 	_synced = true
 
 
-func _show_overview(info: GuildInfoSMSG) -> void:
+func _show_overview(info: GuildInfoSMSG, may_edit_motd: bool) -> void:
 	if info.ExpNextLevel > 0:
 		UiStyle.set_bar(_exp_bar, int(info.Exp), int(info.ExpNextLevel))
 		_exp_value.text = "%s / %s" % [UiStyle.group_digits(info.Exp), UiStyle.group_digits(info.ExpNextLevel)]
@@ -401,6 +506,13 @@ func _show_overview(info: GuildInfoSMSG) -> void:
 
 	_members_value.text = "%d / %d" % [info.Members.size(), info.MaxMembers]
 	_points_value.text = str(info.SkillPoints)
+
+	var has_motd := not (info.MotdTitle.is_empty() and info.MotdBody.is_empty())
+	_motd_title.text = info.MotdTitle if has_motd else tr("GUILD_MOTD_NONE")
+	_motd_title.modulate = Color.WHITE if has_motd else Color(1, 1, 1, 0.6)
+	_motd_body.text = info.MotdBody
+	_motd_body.visible = not info.MotdBody.is_empty()
+	_edit_motd.visible = may_edit_motd
 
 
 func _show_members(info: GuildInfoSMSG, is_leader: bool, may_kick: bool, may_manage: bool, my_position: int) -> void:
@@ -482,6 +594,7 @@ func _clear(announce: bool, reason: String) -> void:
 	var was_in_guild := _info != null
 	var guild_name := _info.Name if _info != null else ""
 	_info = null
+	_motd_due = false
 
 	for row in _member_rows.values():
 		row.queue_free()

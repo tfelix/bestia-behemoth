@@ -105,6 +105,7 @@ class GuildService(
       canKick = true,
       canManageRanks = true,
       canUseGuildSkills = true,
+      canEditMotd = true,
     )
     guild.ranks.add(leaderRank)
     guild.ranks.add(GuildRank(guild = guild, position = 1, name = MEMBER_RANK_NAME, taxPercent = config.defaultTaxPercent))
@@ -272,6 +273,7 @@ class GuildService(
     canKick: Boolean,
     canManageRanks: Boolean,
     canUseGuildSkills: Boolean,
+    canEditMotd: Boolean,
   ): Long {
     val (guild, actor) = lockedGuildOf(playedMasterId(accountId))
     val name = DisplayName.normalizeOrNull(rawName, config.rankNameMaxLength) ?: throw GuildInvalidNameException()
@@ -286,7 +288,9 @@ class GuildService(
       }
 
       val position = guild.ranks.maxOf { it.position } + 1
-      val rank = GuildRank(guild, position, name, taxPercent, canInvite, canKick, canManageRanks, canUseGuildSkills)
+      val rank = GuildRank(
+        guild, position, name, taxPercent, canInvite, canKick, canManageRanks, canUseGuildSkills, canEditMotd
+      )
       guild.ranks.add(rank)
       log.record(guild, GuildLogKind.RANK_ADDED, actor.master.name, detail = name)
 
@@ -305,6 +309,7 @@ class GuildService(
       rank.canKick = canKick
       rank.canManageRanks = canManageRanks
       rank.canUseGuildSkills = canUseGuildSkills
+      rank.canEditMotd = canEditMotd
     }
 
     guild.members.filter { it.rank.id == rank.id }.forEach { refreshMembership(it) }
@@ -330,6 +335,28 @@ class GuildService(
 
     guild.ranks.remove(rank)
     log.record(guild, GuildLogKind.RANK_DELETED, actor.master.name, detail = rank.name)
+
+    return guild.id
+  }
+
+  /** Replaces the guild's message of the day; blank clears it. The window limits the lengths, so a longer one is refused. */
+  @Transactional
+  fun setMotd(accountId: AccountId, rawTitle: String, rawBody: String): Long {
+    val (guild, actor) = lockedGuildOf(playedMasterId(accountId))
+
+    if (!GuildRankRules.mayEditMotd(actor)) {
+      throw GuildRequestRefused("master ${actor.master.id} may not edit the message of the day of guild ${guild.id}")
+    }
+
+    val title = GuildMotdText.cleanOrNull(rawTitle, config.motdTitleMaxLength, allowLineBreaks = false)
+    val body = GuildMotdText.cleanOrNull(rawBody, config.motdBodyMaxLength, allowLineBreaks = true)
+    if (title == null || body == null) {
+      throw GuildRequestRefused("the message of the day for guild ${guild.id} is too long")
+    }
+
+    guild.motdTitle = title
+    guild.motdBody = body
+    log.record(guild, GuildLogKind.MOTD_CHANGED, actor.master.name)
 
     return guild.id
   }
