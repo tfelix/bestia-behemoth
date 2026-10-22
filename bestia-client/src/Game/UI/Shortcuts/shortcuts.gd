@@ -1,4 +1,4 @@
-extends VBoxContainer
+extends HBoxContainer
 class_name Shortcuts
 
 const SHORTCUTS_SAVE_PATH = "user://shortcuts_config.json"
@@ -12,19 +12,85 @@ const SHORTCUTS_SAVE_PATH = "user://shortcuts_config.json"
 		if is_node_ready():
 			_connect_inventory_signal()
 
-var _shortcut_containers: Array[ShortcutContainer] = []
+@onready var _rows: VBoxContainer = %Rows
+@onready var _pager: VBoxContainer = %PagerButtons
 
-## The whole save file: master id (as string, JSON object keys always are) -> the slot array of
-## that master. Kept in memory so saving the selected master never has to re-read the file and
-## can't drop the entries of the masters that aren't currently loaded.
+var _shortcut_containers: Array[ShortcutContainer] = []
+var _layer_label: Label
+
+## The whole save file: master id (as string, JSON object keys always are) -> that master's
+## [method ShortcutLayout.to_dict]. Kept in memory so saving the selected master never has to re-read
+## the file and can't drop the entries of the masters that aren't currently loaded.
 var _all_shortcuts: Dictionary = {}
+var _layout := ShortcutLayout.new()
+## Whose layers the bar shows: the master's, or those of the bestia the player controls.
+var _entity_key := ShortcutLayout.MASTER_KEY
 
 
 func _ready() -> void:
 	add_to_group("world_blocking_ui")
+	_build_pager()
 	_collect_shortcut_containers()
 	_connect_signals()
 	load_shortcuts()
+
+
+func _shortcut_input(event: InputEvent) -> void:
+	for layer in ShortcutLayout.LAYER_COUNT:
+		if event.is_action_pressed(_layer_action(layer), false, true):
+			select_layer(layer)
+			get_viewport().set_input_as_handled()
+			return
+
+
+func select_layer(layer: int) -> void:
+	_layout.set_active_layer(_entity_key, layer)
+	_show_active_layer()
+	save_shortcuts()
+
+
+func _cycle_layer(step: int) -> void:
+	select_layer(posmod(_active_layer() + step, ShortcutLayout.LAYER_COUNT))
+
+
+func _active_layer() -> int:
+	return _layout.active_layer_of(_entity_key)
+
+
+func _build_pager() -> void:
+	var up := _pager_button("▲", "Next bar", 1)
+	_layer_label = UiStyle.label("", 16, UiStyle.TEXT)
+	_layer_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_layer_label.mouse_filter = Control.MOUSE_FILTER_PASS
+	var down := _pager_button("▼", "Previous bar", -1)
+	for control in [up, _layer_label, down]:
+		_pager.add_child(control)
+
+
+func _pager_button(glyph: String, tooltip: String, step: int) -> Button:
+	var button := UiStyle.glyph_button(glyph, tooltip)
+	button.add_theme_color_override("font_hover_color", UiStyle.TEXT)
+	button.pressed.connect(_cycle_layer.bind(step))
+	return button
+
+
+func _update_pager() -> void:
+	_layer_label.text = str(_active_layer() + 1)
+	var first := _hotkey_of(_layer_action(0))
+	var last := _hotkey_of(_layer_action(ShortcutLayout.LAYER_COUNT - 1))
+	_layer_label.tooltip_text = "Bar %d of %d (%s to %s)\nYour master and every bestia have their own bars." % [
+		_active_layer() + 1, ShortcutLayout.LAYER_COUNT, first, last]
+
+
+static func _layer_action(layer: int) -> StringName:
+	return StringName("shortcut_layer_%d" % [layer + 1])
+
+
+static func _hotkey_of(action: StringName) -> String:
+	for event in InputMap.action_get_events(action):
+		if event is InputEventKey:
+			return event.as_text_physical_keycode()
+	return ""
 
 
 func _collect_shortcut_containers() -> void:
@@ -33,8 +99,7 @@ func _collect_shortcut_containers() -> void:
 
 
 func _find_shortcut_containers() -> void:
-	var rows = get_children()
-	for row in rows:
+	for row in _rows.get_children():
 		for child in row.get_children():
 			if child.get_script() and child.get_script().get_global_name() == "ShortcutContainer":
 				_shortcut_containers.append(child)
@@ -48,6 +113,15 @@ func _connect_signals() -> void:
 			container.item_count_requested.connect(_on_item_count_requested)
 	_connect_inventory_signal()
 
+	var entity_manager := EntityManager.get_instance()
+	if entity_manager != null:
+		entity_manager.controlled_entity_changed.connect(_on_controlled_entity_changed)
+
+
+func _on_controlled_entity_changed(_previous_id: int, entity_id: int) -> void:
+	_entity_key = ShortcutLayout.entity_key_of(entity_id, EntityManager.get_instance().get_owned_master_entity_id())
+	_show_active_layer()
+
 
 func _connect_inventory_signal() -> void:
 	if inventory and not inventory.inventory_updated.is_connected(_on_inventory_updated):
@@ -55,7 +129,8 @@ func _connect_inventory_signal() -> void:
 		print_debug("Shortcuts: Inventory update signal connected")
 
 
-func _on_shortcut_changed(_row: int, _number: int, _data: ShortcutData) -> void:
+func _on_shortcut_changed(row: int, number: int, data: ShortcutData) -> void:
+	_layout.set_slot(_entity_key, _active_layer(), row, number, data)
 	save_shortcuts()
 
 
@@ -98,17 +173,7 @@ func save_shortcuts() -> void:
 		push_warning("Shortcuts: no master selected, not persisting the bar")
 		return
 
-	var shortcuts_data = []
-
-	for container in _shortcut_containers:
-		var data = container.get_shortcut_data()
-		shortcuts_data.append({
-			"row": container.shortcut_row,
-			"number": container.shortcut_number,
-			"data": data.to_dict()
-		})
-
-	_all_shortcuts[master_key] = shortcuts_data
+	_all_shortcuts[master_key] = _layout.to_dict()
 
 	var json_string = JSON.stringify(_all_shortcuts, "\t")
 	var file = FileAccess.open(SHORTCUTS_SAVE_PATH, FileAccess.WRITE)
@@ -122,7 +187,8 @@ func save_shortcuts() -> void:
 
 func load_shortcuts() -> void:
 	_read_store_from_disk()
-	_apply_shortcuts_for_current_master()
+	_layout = ShortcutLayout.from_dict(_all_shortcuts.get(ConnectionManager.current_master_key()))
+	_show_active_layer()
 
 
 func _read_store_from_disk() -> void:
@@ -157,30 +223,13 @@ func _read_store_from_disk() -> void:
 	print("Shortcuts loaded from: %s" % [SHORTCUTS_SAVE_PATH])
 
 
-func _apply_shortcuts_for_current_master() -> void:
-	# Reset via set_shortcut_data() rather than clear_shortcut(): the latter emits shortcut_changed,
-	# which saves - so it would overwrite this master's stored bar before it has been read back.
+func _show_active_layer() -> void:
+	# Through set_shortcut_data() rather than set_shortcut(): the latter emits shortcut_changed, which would
+	# write every slot shown straight back into the layout.
+	var layer := _active_layer()
 	for container in _shortcut_containers:
-		container.set_shortcut_data(ShortcutData.new())
-
-	var master_key = ConnectionManager.current_master_key()
-	if master_key.is_empty() or not _all_shortcuts.has(master_key):
-		return
-
-	var shortcuts_data = _all_shortcuts[master_key]
-	if typeof(shortcuts_data) != TYPE_ARRAY:
-		push_error("Invalid shortcuts data format for master %s" % [master_key])
-		return
-
-	for shortcut_config in shortcuts_data:
-		var row = shortcut_config["row"]
-		var number = shortcut_config["number"]
-		var data_dict = shortcut_config["data"]
-
-		var container = _find_container(row, number)
-		if container:
-			var shortcut_data = ShortcutData.from_dict(data_dict)
-			container.set_shortcut_data(shortcut_data)
+		container.set_shortcut_data(_layout.get_slot(_entity_key, layer, container.shortcut_row, container.shortcut_number))
+	_update_pager()
 
 
 func clear_all_shortcuts() -> void:
