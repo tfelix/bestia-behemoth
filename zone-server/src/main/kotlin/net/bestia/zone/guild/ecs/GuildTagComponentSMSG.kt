@@ -9,6 +9,7 @@ data class GuildTagComponentSMSG(
   val guildId: Long,
   val guildName: String,
   val rankTitle: String,
+  val emblemHash: String,
   val removed: Boolean,
 ) : EntitySMSG {
 
@@ -18,6 +19,7 @@ data class GuildTagComponentSMSG(
       .setGuildName(guildName)
       .setRankTitle(rankTitle)
       .setRemoved(removed)
+      .setEmblemHash(emblemHash)
       .build()
 
     update.addComponents(StateBatchSmsgProto.ComponentDelta.newBuilder().setGuildTag(tag))

@@ -24,7 +24,7 @@ class GuildTagSystemTest {
 
     pulse()
 
-    val tag = GuildTag(7, "Moonlit Order", "Officer")
+    val tag = GuildTag(7, "Moonlit Order", "Officer", emblemHash = "")
     assertEquals(tag, world.read { get(master, GuildTag::class) })
     assertEquals(tag, world.read { get(bestia, GuildTag::class) })
   }

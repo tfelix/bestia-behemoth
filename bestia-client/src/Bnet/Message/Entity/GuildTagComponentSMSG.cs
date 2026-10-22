@@ -17,6 +17,9 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
 
     [Export] public bool Removed { get; set; }
 
+    /// <summary>Names the guild's emblem at the api-service; empty while it has none.</summary>
+    [Export] public string EmblemHash { get; set; } = "";
+
     public static GuildTagComponentSMSG FromProto(ulong entityId, global::Bnet.GuildTagComponentSMSG proto)
     {
       return new GuildTagComponentSMSG
@@ -25,7 +28,8 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
         GuildId = proto.GuildId,
         GuildName = proto.GuildName,
         RankTitle = proto.RankTitle,
-        Removed = proto.Removed
+        Removed = proto.Removed,
+        EmblemHash = proto.EmblemHash
       };
     }
 

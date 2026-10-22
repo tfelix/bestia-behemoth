@@ -76,6 +76,7 @@ import "messages/guild/guild_notice_smsg.proto";
 import "messages/guild/request_guild_log_cmsg.proto";
 import "messages/guild/guild_log_smsg.proto";
 import "messages/guild/set_guild_motd_cmsg.proto";
+import "messages/guild/set_guild_emblem_cmsg.proto";
 import "messages/map/world_info_smsg.proto";
 import "messages/map/chunk_manifest_smsg.proto";
 import "messages/map/chunk_request_cmsg.proto";
@@ -231,6 +232,7 @@ message Envelope {
     RequestGuildLogCMSG request_guild_log = 636;
     GuildLogSMSG guild_log = 637;
     SetGuildMotdCMSG set_guild_motd = 638;
+    SetGuildEmblemCMSG set_guild_emblem = 639;
 
     // CRAFTING & BUILDING 700
     CraftableRecipesSMSG craftable_recipes = 700;

@@ -12,4 +12,5 @@ enum class GuildLogKind {
   RANK_DELETED,
   SKILL_LEARNED,
   MOTD_CHANGED,
+  EMBLEM_CHANGED,
 }

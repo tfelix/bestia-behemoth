@@ -7,6 +7,8 @@ import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.guild.persistence.Guild
 import net.bestia.zone.guild.persistence.GuildMember
 import net.bestia.zone.guild.persistence.GuildMemberRef
+import net.bestia.zone.guild.persistence.GuildEmblem
+import net.bestia.zone.guild.persistence.GuildEmblemRepository
 import net.bestia.zone.guild.persistence.GuildLogKind
 import net.bestia.zone.guild.persistence.GuildMemberRepository
 import net.bestia.zone.guild.persistence.GuildRank
@@ -20,6 +22,7 @@ import net.bestia.zone.item.persistence.ItemRepository
 import net.bestia.zone.persistence.afterCommit
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.session.NoActiveSessionException
+import net.bestia.zone.skill.SkillId
 import net.bestia.zone.util.AccountId
 import net.bestia.zone.util.DisplayName
 import net.bestia.zone.util.EntityId
@@ -54,6 +57,7 @@ class GuildService(
   private val memberships: GuildMemberships,
   private val cooldowns: GuildSkillCooldowns,
   private val log: GuildLog,
+  private val emblemRepository: GuildEmblemRepository,
 ) {
 
   data class SentInvitation(val invitedAccountId: AccountId, val invitation: GuildInvitationSMSG)
@@ -363,6 +367,34 @@ class GuildService(
     return guild.id
   }
 
+  /**
+   * The leader of a guild that learned Guild Emblem replaces its emblem with [upload]. The window only offers a
+   * 32x32 PNG it made itself, so anything else is refused. @return the guild
+   */
+  @Transactional
+  fun setEmblem(accountId: AccountId, upload: ByteArray): Long {
+    val emblem = EmblemImage.cleanOrNull(upload)
+      ?: throw GuildRequestRefused("account $accountId sent no valid emblem")
+    val (guild, actor) = lockedGuildOf(playedMasterId(accountId))
+
+    if (!actor.isLeader || guild.skillLevel(SkillId.GUILD_EMBLEM.name) < 1) {
+      throw GuildRequestRefused("master ${actor.master.id} may not set the emblem of guild ${guild.id}")
+    }
+
+    val stored = emblemRepository.findByIdOrNull(guild.id)
+    if (stored == null) {
+      emblemRepository.save(GuildEmblem(guild.id, emblem.hash, emblem.png))
+    } else {
+      stored.hash = emblem.hash
+      stored.png = emblem.png
+    }
+    guild.emblemHash = emblem.hash
+    guild.members.forEach { refreshMembership(it) }
+    log.record(guild, GuildLogKind.EMBLEM_CHANGED, actor.master.name)
+
+    return guild.id
+  }
+
   /** The leader spends a skill point on the guild skill [skillId]. @return the guild */
   @Transactional
   fun investSkill(accountId: AccountId, skillId: Long): Long {
@@ -401,6 +433,7 @@ class GuildService(
     guild.members.clear()
     guildRepository.flush()
     log.forget(guildId)
+    emblemRepository.deleteById(guildId)
     guildRepository.delete(guild)
 
     members.forEach { clearMembership(it) }

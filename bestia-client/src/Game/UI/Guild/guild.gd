@@ -35,6 +35,10 @@ var _exp_bar: ProgressBar
 var _exp_value: Label
 var _members_value: Label
 var _points_value: Label
+var _emblem_row: Control
+var _emblem_preview: TextureRect
+var _choose_emblem: Button
+var _emblem_dialog: FileDialog
 var _motd_title: Label
 var _motd_body: Label
 var _edit_motd: Button
@@ -73,6 +77,7 @@ func _ready() -> void:
 	_build_found_popup()
 	_build_disband_dialog()
 	_build_motd_popup()
+	_build_emblem_dialog()
 
 	ConnectionManager.guild_message_received.connect(_on_guild_message)
 	ConnectionManager.operation_success.connect(_on_operation_success)
@@ -187,6 +192,20 @@ func _build_overview() -> Control:
 	_points_value = UiStyle.label("", 12)
 	facts.add_child(_points_value)
 	overview.add_child(facts)
+
+	var emblem_row := UiStyle.hbox(10)
+	emblem_row.add_child(UiStyle.label(tr("GUILD_EMBLEM"), 12, UiStyle.MUTED))
+	_emblem_preview = EmblemPicture.frame(2)
+	emblem_row.add_child(_emblem_preview)
+	_choose_emblem = Button.new()
+	_choose_emblem.text = tr("GUILD_EMBLEM_CHOOSE")
+	_choose_emblem.theme_type_variation = &"ChipButton"
+	_choose_emblem.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	_choose_emblem.tooltip_text = tr("GUILD_EMBLEM_HINT")
+	_choose_emblem.pressed.connect(func() -> void: _emblem_dialog.popup_centered_ratio(0.6))
+	emblem_row.add_child(_choose_emblem)
+	overview.add_child(emblem_row)
+	_emblem_row = emblem_row
 
 	overview.add_child(HSeparator.new())
 	var motd_header := UiStyle.hbox(8)
@@ -306,6 +325,26 @@ func _build_motd_popup() -> void:
 	_motd_popup.add_child(rows)
 	_motd_popup.about_to_popup.connect(func() -> void: _motd_title_edit.call_deferred("grab_focus"))
 	add_child(_motd_popup)
+
+
+func _build_emblem_dialog() -> void:
+	_emblem_dialog = FileDialog.new()
+	_emblem_dialog.title = tr("GUILD_EMBLEM_CHOOSE")
+	_emblem_dialog.file_mode = FileDialog.FILE_MODE_OPEN_FILE
+	_emblem_dialog.access = FileDialog.ACCESS_FILESYSTEM
+	_emblem_dialog.use_native_dialog = true
+	_emblem_dialog.filters = PackedStringArray(["*.png, *.jpg, *.jpeg, *.webp ; %s" % tr("GUILD_EMBLEM_FILES")])
+	_emblem_dialog.file_selected.connect(_upload_emblem)
+	add_child(_emblem_dialog)
+
+
+func _upload_emblem(path: String) -> void:
+	var png := EmblemPicture.png_from_file(path)
+	if png.is_empty():
+		refused.emit(tr("GUILD_EMBLEM_UNREADABLE"))
+		return
+	_emblem_preview.texture = EmblemPicture.texture_of(png)
+	ConnectionManager.set_guild_emblem(png)
 
 
 func _ask_for_motd() -> void:
@@ -480,6 +519,7 @@ func _show_guild(info: GuildInfoSMSG) -> void:
 	_member_count.text = "%d / %d" % [info.Members.size(), info.MaxMembers]
 
 	_show_overview(info, may_edit_motd)
+	_show_emblem_controls(info, is_leader)
 	_skills.show_skills(info, is_leader, may_cast)
 	_show_members(info, is_leader, may_kick, may_manage, my_position)
 	_show_ranks(info, is_leader, may_manage, my_position)
@@ -516,6 +556,15 @@ func _show_overview(info: GuildInfoSMSG, may_edit_motd: bool) -> void:
 	_motd_body.text = info.MotdBody
 	_motd_body.visible = not info.MotdBody.is_empty()
 	_edit_motd.visible = may_edit_motd
+
+
+func _show_emblem_controls(info: GuildInfoSMSG, is_leader: bool) -> void:
+	var learned := false
+	for skill in info.Skills:
+		if skill.SkillId == EmblemPicture.GUILD_EMBLEM_SKILL_ID and skill.Level > 0:
+			learned = true
+	_emblem_row.visible = learned
+	_choose_emblem.visible = is_leader
 
 
 func _show_members(info: GuildInfoSMSG, is_leader: bool, may_kick: bool, may_manage: bool, my_position: int) -> void:

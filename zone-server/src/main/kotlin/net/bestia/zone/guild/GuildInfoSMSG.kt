@@ -24,6 +24,7 @@ data class GuildInfoSMSG(
   val motdBody: String,
   val motdTitleMaxLength: Int,
   val motdBodyMaxLength: Int,
+  val emblemHash: String,
 ) : SMSG {
 
   data class Rank(
@@ -121,6 +122,7 @@ data class GuildInfoSMSG(
       .setMotdBody(motdBody)
       .setMotdTitleMaxLength(motdTitleMaxLength)
       .setMotdBodyMaxLength(motdBodyMaxLength)
+      .setEmblemHash(emblemHash)
       .build()
 
     return EnvelopeProto.Envelope.newBuilder()
@@ -149,6 +151,7 @@ data class GuildInfoSMSG(
       motdBody = "",
       motdTitleMaxLength = 0,
       motdBodyMaxLength = 0,
+      emblemHash = "",
     )
   }
 }

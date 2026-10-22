@@ -19,7 +19,10 @@ import net.bestia.zone.guild.GuildInfoSMSG
 import net.bestia.zone.guild.GuildInvitationSMSG
 import net.bestia.zone.guild.GuildLeftSMSG
 import net.bestia.zone.guild.GuildLogSMSG
+import net.bestia.zone.guild.EmblemImage
+import net.bestia.zone.guild.EmblemImageTest
 import net.bestia.zone.guild.GuildService
+import net.bestia.zone.guild.ecs.GuildTag
 import net.bestia.zone.guild.ecs.GuildMemberBeaconComponentSMSG
 import net.bestia.zone.guild.net.AnswerGuildInviteCMSG
 import net.bestia.zone.guild.net.CreateGuildCMSG
@@ -32,6 +35,7 @@ import net.bestia.zone.guild.net.RequestGuildInfoCMSG
 import net.bestia.zone.guild.net.RequestGuildLogCMSG
 import net.bestia.zone.guild.persistence.GuildLogKind
 import net.bestia.zone.guild.net.SaveGuildRankCMSG
+import net.bestia.zone.guild.net.SetGuildEmblemCMSG
 import net.bestia.zone.guild.net.SetGuildMotdCMSG
 import net.bestia.zone.guild.skill.GuildSkillTree
 import net.bestia.zone.identity.ecs.GuildMembership
@@ -399,6 +403,28 @@ class GuildScenarios : BestiaNoSocketScenario() {
 
   @Test
   @Order(20)
+  fun `the leader sets an emblem once the guild learned Guild Emblem, and members wear it`() {
+    val emblemSkillId = assertNotNull(skillTree.find(SkillId.GUILD_EMBLEM)).skillId
+    val png = EmblemImageTest.png(EmblemImage.SIZE, EmblemImage.SIZE)
+
+    clientPlayer1.sendMessage(SetGuildEmblemCMSG(clientPlayer1.connectedPlayerId, png))
+    assertEquals(OperationErrorSMSG(OpError.REQUEST_REFUSED), clientPlayer1.tryGetLastReceived(OperationErrorSMSG::class))
+
+    clientPlayer1.sendMessage(InvestGuildSkillCMSG(clientPlayer1.connectedPlayerId, emblemSkillId))
+    await { assertEquals(1, membershipOf(clientPlayer1.connectedPlayerId)?.skillLevel(SkillId.GUILD_EMBLEM.name)) }
+
+    clientPlayer1.sendMessage(SetGuildEmblemCMSG(clientPlayer1.connectedPlayerId, png))
+
+    val leader = connectionInfoService.getSelectedMasterEntityId(clientPlayer1.connectedPlayerId)
+    await {
+      val hash = clientPlayer1.tryGetLastReceived(GuildInfoSMSG::class)?.emblemHash
+      assertEquals(64, hash?.length)
+      assertEquals(hash, world.read { get(leader, GuildTag::class)?.emblemHash })
+    }
+  }
+
+  @Test
+  @Order(21)
   fun `disbanding needs the guild's name typed`() {
     clientPlayer1.sendMessage(DisbandGuildCMSG(clientPlayer1.connectedPlayerId, "wrong name"))
     assertEquals(OperationErrorSMSG(OpError.REQUEST_REFUSED), clientPlayer1.tryGetLastReceived(OperationErrorSMSG::class))
