@@ -21,6 +21,8 @@ var _prompt_action: String = ""
 var _shortcut_data: ShortcutData = ShortcutData.new()
 var _is_dragging_self: bool = false
 var _disabled: bool = false
+## Seconds left on a skill that is recovering, over the icon.
+var _cooldown: Label
 
 
 func _ready() -> void:
@@ -31,7 +33,28 @@ func _ready() -> void:
 		var key_string = OS.get_keycode_string(key_action.physical_keycode)
 		shortcut.text = str(key_string)
 
+	_cooldown = Label.new()
+	_cooldown.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_cooldown.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_cooldown.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_cooldown.add_theme_font_size_override("font_size", 18)
+	_cooldown.add_theme_constant_override("outline_size", 4)
+	_cooldown.add_theme_color_override("font_outline_color", Color.BLACK)
+	_cooldown.visible = false
+	add_child(_cooldown)
+
 	_update_display()
+
+
+func _process(_delta: float) -> void:
+	var left := 0.0
+	if _shortcut_data.type == ShortcutData.ShortcutType.SKILL:
+		left = SkillCooldowns.remaining_seconds(_shortcut_data.reference_id)
+
+	_cooldown.visible = left > 0.0
+	if _cooldown.visible:
+		_cooldown.text = "%d" % ceili(left)
+	_icon.modulate = DISABLED_MODULATE if _disabled or left > 0.0 else Color.WHITE
 
 
 func _shortcut_input(event: InputEvent) -> void:
