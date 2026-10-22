@@ -29,7 +29,7 @@ namespace Bnet {
             "b2dFbnRyeSJ/Cg1HdWlsZExvZ0VudHJ5EiAKBGtpbmQYASABKA4yEi5ibmV0",
             "Lkd1aWxkTG9nS2luZBITCgthdF9lcG9jaF9tcxgCIAEoAxISCgphY3Rvcl9u",
             "YW1lGAMgASgJEhMKC3RhcmdldF9uYW1lGAQgASgJEg4KBmRldGFpbBgFIAEo",
-            "CSqjAwoMR3VpbGRMb2dLaW5kEh4KGkdVSUxEX0xPR19LSU5EX1VOU1BFQ0lG",
+            "CSrIAwoMR3VpbGRMb2dLaW5kEh4KGkdVSUxEX0xPR19LSU5EX1VOU1BFQ0lG",
             "SUVEEAASGgoWR1VJTERfTE9HX0tJTkRfRk9VTkRFRBABEhkKFUdVSUxEX0xP",
             "R19LSU5EX0pPSU5FRBACEhcKE0dVSUxEX0xPR19LSU5EX0xFRlQQAxIZChVH",
             "VUlMRF9MT0dfS0lORF9LSUNLRUQQBBIbChdHVUlMRF9MT0dfS0lORF9SQU5L",
@@ -38,8 +38,9 @@ namespace Bnet {
             "TktfREVMRVRFRBAIEiAKHEdVSUxEX0xPR19LSU5EX1NLSUxMX0xFQVJORUQQ",
             "CRIfChtHVUlMRF9MT0dfS0lORF9NT1REX0NIQU5HRUQQChIhCh1HVUlMRF9M",
             "T0dfS0lORF9FTUJMRU1fQ0hBTkdFRBALEiUKIUdVSUxEX0xPR19LSU5EX0xF",
-            "QURFUl9UUkFOU0ZFUlJFRBAMQioKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0IR",
-            "R3VpbGRMb2dTbXNnUHJvdG9iBnByb3RvMw=="));
+            "QURFUl9UUkFOU0ZFUlJFRBAMEiMKH0dVSUxEX0xPR19LSU5EX0VYUFVMU0lP",
+            "Tl9MSUZURUQQDUIqChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CEUd1aWxkTG9n",
+            "U21zZ1Byb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.GuildLogKind), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -65,6 +66,7 @@ namespace Bnet {
     [pbr::OriginalName("GUILD_LOG_KIND_MOTD_CHANGED")] MotdChanged = 10,
     [pbr::OriginalName("GUILD_LOG_KIND_EMBLEM_CHANGED")] EmblemChanged = 11,
     [pbr::OriginalName("GUILD_LOG_KIND_LEADER_TRANSFERRED")] LeaderTransferred = 12,
+    [pbr::OriginalName("GUILD_LOG_KIND_EXPULSION_LIFTED")] ExpulsionLifted = 13,
   }
 
   #endregion
@@ -367,7 +369,7 @@ namespace Bnet {
     public const int DetailFieldNumber = 5;
     private string detail_ = "";
     /// <summary>
-    /// What the kind needs besides the names: a rank's name, or a skills.yml id for SKILL_LEARNED.
+    /// What the kind needs besides the names: a rank's name, a skills.yml id for SKILL_LEARNED, the reason for KICKED.
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]

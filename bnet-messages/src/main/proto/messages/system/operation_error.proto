@@ -237,6 +237,9 @@ enum OpError {
   // Planting a War Banner needs Rally to the Banner and a rank that may use guild skills.
   GUILD_BANNER_NOT_ALLOWED = 83;
   GUILD_BANNER_OUT_OF_RANGE = 84;
+  // The master was expelled from the guild and stays out until a rank that may kick lifts it. Carries the name
+  // in args[0].
+  GUILD_TARGET_EXPELLED = 85;
 }
 
 message OperationError {

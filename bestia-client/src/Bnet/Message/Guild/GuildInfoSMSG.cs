@@ -53,6 +53,9 @@ namespace BestiaBehemothClient.Bnet.Message.Guild
     /// <summary>Names the guild's emblem at the api-service; empty while it has none.</summary>
     [Export] public string EmblemHash { get; set; } = string.Empty;
 
+    /// <summary>Masters kicked out, newest first; none of them can be invited until it is lifted.</summary>
+    [Export] public Godot.Collections.Array<GuildExpulsionInfo> Expulsions { get; set; } = [];
+
     public static GuildInfoSMSG FromProto(global::Bnet.GuildInfoSMSG proto)
     {
       var ranks = new Godot.Collections.Array<GuildRankInfo>();
@@ -65,6 +68,12 @@ namespace BestiaBehemothClient.Bnet.Message.Guild
       foreach (var member in proto.Members)
       {
         members.Add(GuildMemberInfo.FromProto(member));
+      }
+
+      var expulsions = new Godot.Collections.Array<GuildExpulsionInfo>();
+      foreach (var expulsion in proto.Expulsions)
+      {
+        expulsions.Add(GuildExpulsionInfo.FromProto(expulsion));
       }
 
       var skills = new Godot.Collections.Array<GuildSkillInfo>();
@@ -93,7 +102,8 @@ namespace BestiaBehemothClient.Bnet.Message.Guild
         MotdBody = proto.MotdBody,
         MotdTitleMaxLength = proto.MotdTitleMaxLength,
         MotdBodyMaxLength = proto.MotdBodyMaxLength,
-        EmblemHash = proto.EmblemHash
+        EmblemHash = proto.EmblemHash,
+        Expulsions = expulsions
       };
     }
   }

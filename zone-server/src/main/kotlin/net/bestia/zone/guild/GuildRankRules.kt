@@ -38,6 +38,11 @@ object GuildRankRules {
 
   fun mayManageRanks(actor: GuildMember): Boolean = actor.isLeader || actor.rank.canManageRanks
 
+  /** Letting an expelled master be invited again: whoever may kick, since kicking is what put it there. */
+  fun mayLiftExpulsion(actor: GuildMember): Boolean {
+    return actor.isLeader || actor.rank.canKick
+  }
+
   fun mayTransferLeadership(actor: GuildMember, target: GuildMember): Boolean {
     return actor.isLeader && actor.master.id != target.master.id
   }

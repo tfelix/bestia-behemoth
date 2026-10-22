@@ -85,6 +85,13 @@ class GuildRankRulesTest {
   }
 
   @Test
+  fun `whoever may kick may lift an expulsion`() {
+    assertTrue(GuildRankRules.mayLiftExpulsion(leader))
+    assertTrue(GuildRankRules.mayLiftExpulsion(officer))
+    assertFalse(GuildRankRules.mayLiftExpulsion(member))
+  }
+
+  @Test
   fun `only the leader hands the guild over, and not to themself`() {
     assertTrue(GuildRankRules.mayTransferLeadership(leader, officer))
     assertFalse(GuildRankRules.mayTransferLeadership(leader, leader))

@@ -25,7 +25,7 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CiRtZXNzYWdlcy9ndWlsZC9ndWlsZF9pbmZvX3Ntc2cucHJvdG8SBGJuZXQi",
-            "2QMKDUd1aWxkSW5mb1NNU0cSEAoIZ3VpbGRfaWQYASABKAQSDAoEbmFtZRgC",
+            "gwQKDUd1aWxkSW5mb1NNU0cSEAoIZ3VpbGRfaWQYASABKAQSDAoEbmFtZRgC",
             "IAEoCRINCgVsZXZlbBgDIAEoDRILCgNleHAYBCABKAQSFgoOZXhwX25leHRf",
             "bGV2ZWwYBSABKAQSFAoMc2tpbGxfcG9pbnRzGAYgASgNEhMKC21heF9tZW1i",
             "ZXJzGAggASgNEh4KBXJhbmtzGAkgAygLMg8uYm5ldC5HdWlsZFJhbmsSIgoH",
@@ -35,26 +35,30 @@ namespace Bnet {
             "ECADKAsyFC5ibmV0Lkd1aWxkU2tpbGxOb2RlEhIKCm1vdGRfdGl0bGUYESAB",
             "KAkSEQoJbW90ZF9ib2R5GBIgASgJEh0KFW1vdGRfdGl0bGVfbWF4X2xlbmd0",
             "aBgTIAEoDRIcChRtb3RkX2JvZHlfbWF4X2xlbmd0aBgUIAEoDRITCgtlbWJs",
-            "ZW1faGFzaBgVIAEoCUoECAcQCEoECAwQDSKYAQoOR3VpbGRTa2lsbE5vZGUS",
-            "EAoIc2tpbGxfaWQYASABKAQSDQoFbGV2ZWwYAiABKA0SEQoJbWF4X2xldmVs",
-            "GAMgASgNEjMKDXByZXJlcXVpc2l0ZXMYBCADKAsyHC5ibmV0Lkd1aWxkU2tp",
-            "bGxQcmVyZXF1aXNpdGUSHQoVY29vbGRvd25fcmVtYWluaW5nX21zGAUgASgE",
-            "IjkKFkd1aWxkU2tpbGxQcmVyZXF1aXNpdGUSEAoIc2tpbGxfaWQYASABKAQS",
-            "DQoFbGV2ZWwYAiABKA0ixgEKCUd1aWxkUmFuaxIPCgdyYW5rX2lkGAEgASgE",
-            "EhAKCHBvc2l0aW9uGAIgASgNEgwKBG5hbWUYAyABKAkSEwoLdGF4X3BlcmNl",
-            "bnQYBCABKA0SEgoKY2FuX2ludml0ZRgFIAEoCBIQCghjYW5fa2ljaxgGIAEo",
-            "CBIYChBjYW5fbWFuYWdlX3JhbmtzGAcgASgIEhwKFGNhbl91c2VfZ3VpbGRf",
-            "c2tpbGxzGAggASgIEhUKDWNhbl9lZGl0X21vdGQYCSABKAgi2AEKC0d1aWxk",
-            "TWVtYmVyEhEKCW1hc3Rlcl9pZBgBIAEoBBITCgttYXN0ZXJfbmFtZRgCIAEo",
-            "CRINCgVsZXZlbBgDIAEoDRIPCgdyYW5rX2lkGAQgASgEEg4KBm9ubGluZRgF",
-            "IAEoCBIXCg9leHBfY29udHJpYnV0ZWQYBiABKAQSEQoJaXNfbGVhZGVyGAcg",
-            "ASgIEhEKCWVudGl0eV9pZBgIIAEoBhIWCg5sYXN0X2FyZWFfbmFtZRgJIAEo",
-            "CRIaChJsYXN0X3NlZW5fZXBvY2hfbXMYCiABKANCKwoVbmV0LmJlc3RpYS5i",
-            "bmV0LnByb3RvQhJHdWlsZEluZm9TbXNnUHJvdG9iBnByb3RvMw=="));
+            "ZW1faGFzaBgVIAEoCRIoCgpleHB1bHNpb25zGBYgAygLMhQuYm5ldC5HdWls",
+            "ZEV4cHVsc2lvbkoECAcQCEoECAwQDSJdCg5HdWlsZEV4cHVsc2lvbhIRCglt",
+            "YXN0ZXJfaWQYASABKAQSEwoLbWFzdGVyX25hbWUYAiABKAkSDgoGcmVhc29u",
+            "GAMgASgJEhMKC2F0X2Vwb2NoX21zGAQgASgDIpgBCg5HdWlsZFNraWxsTm9k",
+            "ZRIQCghza2lsbF9pZBgBIAEoBBINCgVsZXZlbBgCIAEoDRIRCgltYXhfbGV2",
+            "ZWwYAyABKA0SMwoNcHJlcmVxdWlzaXRlcxgEIAMoCzIcLmJuZXQuR3VpbGRT",
+            "a2lsbFByZXJlcXVpc2l0ZRIdChVjb29sZG93bl9yZW1haW5pbmdfbXMYBSAB",
+            "KAQiOQoWR3VpbGRTa2lsbFByZXJlcXVpc2l0ZRIQCghza2lsbF9pZBgBIAEo",
+            "BBINCgVsZXZlbBgCIAEoDSLGAQoJR3VpbGRSYW5rEg8KB3JhbmtfaWQYASAB",
+            "KAQSEAoIcG9zaXRpb24YAiABKA0SDAoEbmFtZRgDIAEoCRITCgt0YXhfcGVy",
+            "Y2VudBgEIAEoDRISCgpjYW5faW52aXRlGAUgASgIEhAKCGNhbl9raWNrGAYg",
+            "ASgIEhgKEGNhbl9tYW5hZ2VfcmFua3MYByABKAgSHAoUY2FuX3VzZV9ndWls",
+            "ZF9za2lsbHMYCCABKAgSFQoNY2FuX2VkaXRfbW90ZBgJIAEoCCLYAQoLR3Vp",
+            "bGRNZW1iZXISEQoJbWFzdGVyX2lkGAEgASgEEhMKC21hc3Rlcl9uYW1lGAIg",
+            "ASgJEg0KBWxldmVsGAMgASgNEg8KB3JhbmtfaWQYBCABKAQSDgoGb25saW5l",
+            "GAUgASgIEhcKD2V4cF9jb250cmlidXRlZBgGIAEoBBIRCglpc19sZWFkZXIY",
+            "ByABKAgSEQoJZW50aXR5X2lkGAggASgGEhYKDmxhc3RfYXJlYV9uYW1lGAkg",
+            "ASgJEhoKEmxhc3Rfc2Vlbl9lcG9jaF9tcxgKIAEoA0IrChVuZXQuYmVzdGlh",
+            "LmJuZXQucHJvdG9CEkd1aWxkSW5mb1Ntc2dQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.GuildInfoSMSG), global::Bnet.GuildInfoSMSG.Parser, new[]{ "GuildId", "Name", "Level", "Exp", "ExpNextLevel", "SkillPoints", "MaxMembers", "Ranks", "Members", "OwnMasterId", "MaxRanks", "MinTaxPercent", "MaxTaxPercent", "Skills", "MotdTitle", "MotdBody", "MotdTitleMaxLength", "MotdBodyMaxLength", "EmblemHash" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.GuildInfoSMSG), global::Bnet.GuildInfoSMSG.Parser, new[]{ "GuildId", "Name", "Level", "Exp", "ExpNextLevel", "SkillPoints", "MaxMembers", "Ranks", "Members", "OwnMasterId", "MaxRanks", "MinTaxPercent", "MaxTaxPercent", "Skills", "MotdTitle", "MotdBody", "MotdTitleMaxLength", "MotdBodyMaxLength", "EmblemHash", "Expulsions" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.GuildExpulsion), global::Bnet.GuildExpulsion.Parser, new[]{ "MasterId", "MasterName", "Reason", "AtEpochMs" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.GuildSkillNode), global::Bnet.GuildSkillNode.Parser, new[]{ "SkillId", "Level", "MaxLevel", "Prerequisites", "CooldownRemainingMs" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.GuildSkillPrerequisite), global::Bnet.GuildSkillPrerequisite.Parser, new[]{ "SkillId", "Level" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.GuildRank), global::Bnet.GuildRank.Parser, new[]{ "RankId", "Position", "Name", "TaxPercent", "CanInvite", "CanKick", "CanManageRanks", "CanUseGuildSkills", "CanEditMotd" }, null, null, null, null),
@@ -126,6 +130,7 @@ namespace Bnet {
       motdTitleMaxLength_ = other.motdTitleMaxLength_;
       motdBodyMaxLength_ = other.motdBodyMaxLength_;
       emblemHash_ = other.emblemHash_;
+      expulsions_ = other.expulsions_.Clone();
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -378,6 +383,20 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "expulsions" field.</summary>
+    public const int ExpulsionsFieldNumber = 22;
+    private static readonly pb::FieldCodec<global::Bnet.GuildExpulsion> _repeated_expulsions_codec
+        = pb::FieldCodec.ForMessage(178, global::Bnet.GuildExpulsion.Parser);
+    private readonly pbc::RepeatedField<global::Bnet.GuildExpulsion> expulsions_ = new pbc::RepeatedField<global::Bnet.GuildExpulsion>();
+    /// <summary>
+    /// Masters kicked out, newest first; none of them can be invited until a rank that may kick lifts it.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::RepeatedField<global::Bnet.GuildExpulsion> Expulsions {
+      get { return expulsions_; }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -412,6 +431,7 @@ namespace Bnet {
       if (MotdTitleMaxLength != other.MotdTitleMaxLength) return false;
       if (MotdBodyMaxLength != other.MotdBodyMaxLength) return false;
       if (EmblemHash != other.EmblemHash) return false;
+      if(!expulsions_.Equals(other.expulsions_)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -438,6 +458,7 @@ namespace Bnet {
       if (MotdTitleMaxLength != 0) hash ^= MotdTitleMaxLength.GetHashCode();
       if (MotdBodyMaxLength != 0) hash ^= MotdBodyMaxLength.GetHashCode();
       if (EmblemHash.Length != 0) hash ^= EmblemHash.GetHashCode();
+      hash ^= expulsions_.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -523,6 +544,7 @@ namespace Bnet {
         output.WriteRawTag(170, 1);
         output.WriteString(EmblemHash);
       }
+      expulsions_.WriteTo(output, _repeated_expulsions_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -600,6 +622,7 @@ namespace Bnet {
         output.WriteRawTag(170, 1);
         output.WriteString(EmblemHash);
       }
+      expulsions_.WriteTo(ref output, _repeated_expulsions_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -661,6 +684,7 @@ namespace Bnet {
       if (EmblemHash.Length != 0) {
         size += 2 + pb::CodedOutputStream.ComputeStringSize(EmblemHash);
       }
+      size += expulsions_.CalculateSize(_repeated_expulsions_codec);
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -724,6 +748,7 @@ namespace Bnet {
       if (other.EmblemHash.Length != 0) {
         EmblemHash = other.EmblemHash;
       }
+      expulsions_.Add(other.expulsions_);
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -817,6 +842,10 @@ namespace Bnet {
           }
           case 170: {
             EmblemHash = input.ReadString();
+            break;
+          }
+          case 178: {
+            expulsions_.AddEntriesFrom(input, _repeated_expulsions_codec);
             break;
           }
         }
@@ -914,6 +943,319 @@ namespace Bnet {
             EmblemHash = input.ReadString();
             break;
           }
+          case 178: {
+            expulsions_.AddEntriesFrom(ref input, _repeated_expulsions_codec);
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
+  public sealed partial class GuildExpulsion : pb::IMessage<GuildExpulsion>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<GuildExpulsion> _parser = new pb::MessageParser<GuildExpulsion>(() => new GuildExpulsion());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<GuildExpulsion> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Bnet.GuildInfoSmsgReflection.Descriptor.MessageTypes[1]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public GuildExpulsion() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public GuildExpulsion(GuildExpulsion other) : this() {
+      masterId_ = other.masterId_;
+      masterName_ = other.masterName_;
+      reason_ = other.reason_;
+      atEpochMs_ = other.atEpochMs_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public GuildExpulsion Clone() {
+      return new GuildExpulsion(this);
+    }
+
+    /// <summary>Field number for the "master_id" field.</summary>
+    public const int MasterIdFieldNumber = 1;
+    private ulong masterId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ulong MasterId {
+      get { return masterId_; }
+      set {
+        masterId_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "master_name" field.</summary>
+    public const int MasterNameFieldNumber = 2;
+    private string masterName_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string MasterName {
+      get { return masterName_; }
+      set {
+        masterName_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "reason" field.</summary>
+    public const int ReasonFieldNumber = 3;
+    private string reason_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string Reason {
+      get { return reason_; }
+      set {
+        reason_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "at_epoch_ms" field.</summary>
+    public const int AtEpochMsFieldNumber = 4;
+    private long atEpochMs_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public long AtEpochMs {
+      get { return atEpochMs_; }
+      set {
+        atEpochMs_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as GuildExpulsion);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(GuildExpulsion other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (MasterId != other.MasterId) return false;
+      if (MasterName != other.MasterName) return false;
+      if (Reason != other.Reason) return false;
+      if (AtEpochMs != other.AtEpochMs) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (MasterId != 0UL) hash ^= MasterId.GetHashCode();
+      if (MasterName.Length != 0) hash ^= MasterName.GetHashCode();
+      if (Reason.Length != 0) hash ^= Reason.GetHashCode();
+      if (AtEpochMs != 0L) hash ^= AtEpochMs.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (MasterId != 0UL) {
+        output.WriteRawTag(8);
+        output.WriteUInt64(MasterId);
+      }
+      if (MasterName.Length != 0) {
+        output.WriteRawTag(18);
+        output.WriteString(MasterName);
+      }
+      if (Reason.Length != 0) {
+        output.WriteRawTag(26);
+        output.WriteString(Reason);
+      }
+      if (AtEpochMs != 0L) {
+        output.WriteRawTag(32);
+        output.WriteInt64(AtEpochMs);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (MasterId != 0UL) {
+        output.WriteRawTag(8);
+        output.WriteUInt64(MasterId);
+      }
+      if (MasterName.Length != 0) {
+        output.WriteRawTag(18);
+        output.WriteString(MasterName);
+      }
+      if (Reason.Length != 0) {
+        output.WriteRawTag(26);
+        output.WriteString(Reason);
+      }
+      if (AtEpochMs != 0L) {
+        output.WriteRawTag(32);
+        output.WriteInt64(AtEpochMs);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (MasterId != 0UL) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(MasterId);
+      }
+      if (MasterName.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(MasterName);
+      }
+      if (Reason.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Reason);
+      }
+      if (AtEpochMs != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeInt64Size(AtEpochMs);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(GuildExpulsion other) {
+      if (other == null) {
+        return;
+      }
+      if (other.MasterId != 0UL) {
+        MasterId = other.MasterId;
+      }
+      if (other.MasterName.Length != 0) {
+        MasterName = other.MasterName;
+      }
+      if (other.Reason.Length != 0) {
+        Reason = other.Reason;
+      }
+      if (other.AtEpochMs != 0L) {
+        AtEpochMs = other.AtEpochMs;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 8: {
+            MasterId = input.ReadUInt64();
+            break;
+          }
+          case 18: {
+            MasterName = input.ReadString();
+            break;
+          }
+          case 26: {
+            Reason = input.ReadString();
+            break;
+          }
+          case 32: {
+            AtEpochMs = input.ReadInt64();
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 8: {
+            MasterId = input.ReadUInt64();
+            break;
+          }
+          case 18: {
+            MasterName = input.ReadString();
+            break;
+          }
+          case 26: {
+            Reason = input.ReadString();
+            break;
+          }
+          case 32: {
+            AtEpochMs = input.ReadInt64();
+            break;
+          }
         }
       }
     }
@@ -936,7 +1278,7 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Bnet.GuildInfoSmsgReflection.Descriptor.MessageTypes[1]; }
+      get { return global::Bnet.GuildInfoSmsgReflection.Descriptor.MessageTypes[2]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1277,7 +1619,7 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Bnet.GuildInfoSmsgReflection.Descriptor.MessageTypes[2]; }
+      get { return global::Bnet.GuildInfoSmsgReflection.Descriptor.MessageTypes[3]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1512,7 +1854,7 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Bnet.GuildInfoSmsgReflection.Descriptor.MessageTypes[3]; }
+      get { return global::Bnet.GuildInfoSmsgReflection.Descriptor.MessageTypes[4]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2009,7 +2351,7 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Bnet.GuildInfoSmsgReflection.Descriptor.MessageTypes[4]; }
+      get { return global::Bnet.GuildInfoSmsgReflection.Descriptor.MessageTypes[5]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]

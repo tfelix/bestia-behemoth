@@ -9,6 +9,8 @@ import net.bestia.zone.guild.persistence.GuildMember
 import net.bestia.zone.guild.persistence.GuildMemberRef
 import net.bestia.zone.guild.persistence.GuildEmblem
 import net.bestia.zone.guild.persistence.GuildEmblemRepository
+import net.bestia.zone.guild.persistence.GuildExpulsion
+import net.bestia.zone.guild.persistence.GuildExpulsionRepository
 import net.bestia.zone.guild.persistence.GuildLogKind
 import net.bestia.zone.guild.persistence.GuildMemberRepository
 import net.bestia.zone.guild.persistence.GuildRank
@@ -30,6 +32,7 @@ import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.Instant
 
 /**
  * Founding, joining, leaving and running a guild.
@@ -58,6 +61,7 @@ class GuildService(
   private val cooldowns: GuildSkillCooldowns,
   private val log: GuildLog,
   private val emblemRepository: GuildEmblemRepository,
+  private val expulsionRepository: GuildExpulsionRepository,
 ) {
 
   data class SentInvitation(val invitedAccountId: AccountId, val invitation: GuildInvitationSMSG)
@@ -156,6 +160,10 @@ class GuildService(
       throw GuildTargetInGuildException(target.name)
     }
 
+    if (expulsionRepository.find(guild.id, target.id) != null) {
+      throw GuildTargetExpelledException(target.name)
+    }
+
     val open = invitations.open(
       guildId = guild.id,
       guildName = guild.name,
@@ -190,6 +198,11 @@ class GuildService(
       throw GuildRequestRefused("master ${open.invitedMasterId} joined another guild meanwhile")
     }
 
+    // Expelled after the invitation went out: to the invited player, it simply lapsed.
+    if (expulsionRepository.find(guild.id, open.invitedMasterId) != null) {
+      throw GuildInvitationExpiredException()
+    }
+
     val master = masterRepository.findByIdOrNull(open.invitedMasterId) ?: throw GuildInvitationExpiredException()
     val rank = guild.lowestRank
     val member = GuildMember(guild = guild, master = master, rank = rank)
@@ -222,19 +235,52 @@ class GuildService(
     return remove(guild, actor)
   }
 
+  /** Removes a member of a lower rank and expels it, giving [rawReason]. */
   @Transactional
-  fun kick(accountId: AccountId, targetMasterId: Long): Departed {
+  fun kick(accountId: AccountId, targetMasterId: Long, rawReason: String): Departed {
     val (guild, actor) = lockedGuildOf(playedMasterId(accountId))
     val target = guild.memberOf(targetMasterId)
       ?: throw GuildRequestRefused("master $targetMasterId is not in guild ${guild.id}")
+    val reason = GuildMotdText.cleanOrNull(rawReason, config.expulsionReasonMaxLength, allowLineBreaks = false)
+      ?: throw GuildRequestRefused("the reason to kick master $targetMasterId is too long")
 
     if (!GuildRankRules.mayKick(actor, target)) {
       throw GuildRequestRefused("master ${actor.master.id} may not kick master $targetMasterId")
     }
 
-    log.record(guild, GuildLogKind.KICKED, actor.master.name, target.master.name)
+    expel(guild, target, reason)
+    log.record(guild, GuildLogKind.KICKED, actor.master.name, target.master.name, reason)
 
     return remove(guild, target)
+  }
+
+  private fun expel(guild: Guild, target: GuildMember, reason: String) {
+    val existing = expulsionRepository.find(guild.id, target.master.id)
+    if (existing != null) {
+      existing.reason = reason
+      existing.at = Instant.now()
+      return
+    }
+
+    expulsionRepository.save(GuildExpulsion(guild, target.master.id, target.master.name, reason))
+    expulsionRepository.findNewest(guild.id).drop(MAX_EXPULSIONS).forEach { expulsionRepository.delete(it) }
+  }
+
+  /** Lets the expelled master [masterId] be invited again. @return the guild changed */
+  @Transactional
+  fun liftExpulsion(accountId: AccountId, masterId: Long): Long {
+    val (guild, actor) = lockedGuildOf(playedMasterId(accountId))
+    val expulsion = expulsionRepository.find(guild.id, masterId)
+      ?: throw GuildRequestRefused("master $masterId is not expelled from guild ${guild.id}")
+
+    if (!GuildRankRules.mayLiftExpulsion(actor)) {
+      throw GuildRequestRefused("master ${actor.master.id} may not lift expulsions in guild ${guild.id}")
+    }
+
+    expulsionRepository.delete(expulsion)
+    log.record(guild, GuildLogKind.EXPULSION_LIFTED, actor.master.name, expulsion.masterName)
+
+    return guild.id
   }
 
   private fun remove(guild: Guild, member: GuildMember): Departed {
@@ -461,6 +507,7 @@ class GuildService(
     guildRepository.flush()
     log.forget(guildId)
     emblemRepository.deleteById(guildId)
+    expulsionRepository.deleteByGuildId(guildId)
     guildRepository.delete(guild)
 
     members.forEach { clearMembership(it) }
@@ -552,6 +599,9 @@ class GuildService(
 
     /** The item a guild is founded with, by its `item-db-name`. */
     const val FOUNDERS_SEAL = "founders_seal"
+
+    /** As many as Ragnarok Online's guild window lists; the oldest goes first. */
+    const val MAX_EXPULSIONS = 32
 
     /** [saveRank]'s rank id for "a new one". */
     const val NEW_RANK = 0L

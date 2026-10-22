@@ -35,6 +35,7 @@ import net.bestia.zone.guild.net.InvestGuildSkillCMSG
 import net.bestia.zone.guild.net.InviteToGuildCMSG
 import net.bestia.zone.guild.net.KickGuildMemberCMSG
 import net.bestia.zone.guild.net.LeaveGuildCMSG
+import net.bestia.zone.guild.net.LiftGuildExpulsionCMSG
 import net.bestia.zone.guild.net.RequestGuildInfoCMSG
 import net.bestia.zone.guild.net.RequestGuildLogCMSG
 import net.bestia.zone.guild.persistence.GuildLogKind
@@ -407,6 +408,31 @@ class GuildScenarios : BestiaNoSocketScenario() {
 
   @Test
   @Order(19)
+  fun `a kicked member stays out until the expulsion is lifted`() {
+    clientPlayer1.sendMessage(KickGuildMemberCMSG(clientPlayer1.connectedPlayerId, player2MasterId, "Too loud"))
+    await {
+      assertEquals(GuildLeftSMSG(guildId, GuildLeftSMSG.Reason.KICKED), clientPlayer2.tryGetLastReceived(GuildLeftSMSG::class))
+      val expelled = clientPlayer1.tryGetLastReceived(GuildInfoSMSG::class)?.expulsions?.singleOrNull()
+      assertEquals(player2MasterId to "Too loud", expelled?.let { it.masterId to it.reason })
+    }
+
+    clientPlayer1.sendMessage(InviteToGuildCMSG(clientPlayer1.connectedPlayerId, "player2"))
+    assertEquals(
+      OperationErrorSMSG(OpError.GUILD_TARGET_EXPELLED, listOf("player2")),
+      clientPlayer1.tryGetLastReceived(OperationErrorSMSG::class),
+    )
+
+    clientPlayer1.sendMessage(LiftGuildExpulsionCMSG(clientPlayer1.connectedPlayerId, player2MasterId))
+    await { assertEquals(emptyList(), clientPlayer1.tryGetLastReceived(GuildInfoSMSG::class)?.expulsions) }
+
+    clientPlayer1.sendMessage(InviteToGuildCMSG(clientPlayer1.connectedPlayerId, "player2"))
+    val invitation = clientPlayer2.getLastReceived(GuildInvitationSMSG::class)
+    clientPlayer2.sendMessage(AnswerGuildInviteCMSG(clientPlayer2.connectedPlayerId, invitation.invitationId, accept = true))
+    await { assertEquals(2, clientPlayer1.tryGetLastReceived(GuildInfoSMSG::class)?.members?.size) }
+  }
+
+  @Test
+  @Order(20)
   fun `a member who leaves is told, and the rest get the guild without them`() {
     clientPlayer2.sendMessage(LeaveGuildCMSG(clientPlayer2.connectedPlayerId))
 
@@ -418,7 +444,7 @@ class GuildScenarios : BestiaNoSocketScenario() {
   }
 
   @Test
-  @Order(20)
+  @Order(21)
   fun `the log tells members what happened, newest first, and is for members only`() {
     clientPlayer1.sendMessage(RequestGuildLogCMSG(clientPlayer1.connectedPlayerId))
 
@@ -433,7 +459,7 @@ class GuildScenarios : BestiaNoSocketScenario() {
   }
 
   @Test
-  @Order(21)
+  @Order(22)
   fun `the leader sets an emblem once the guild learned Guild Emblem, and members wear it`() {
     val emblemSkillId = assertNotNull(skillTree.find(SkillId.GUILD_EMBLEM)).skillId
     val png = EmblemImageTest.png(EmblemImage.SIZE, EmblemImage.SIZE)
@@ -466,7 +492,7 @@ class GuildScenarios : BestiaNoSocketScenario() {
   }
 
   @Test
-  @Order(22)
+  @Order(23)
   fun `disbanding needs the guild's name typed`() {
     clientPlayer1.sendMessage(DisbandGuildCMSG(clientPlayer1.connectedPlayerId, "wrong name"))
     assertEquals(OperationErrorSMSG(OpError.REQUEST_REFUSED), clientPlayer1.tryGetLastReceived(OperationErrorSMSG::class))

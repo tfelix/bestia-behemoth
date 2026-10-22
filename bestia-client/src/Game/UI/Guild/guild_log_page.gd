@@ -46,7 +46,11 @@ func _describe(entry: GuildLogEntryInfo) -> String:
 		if attack != null:
 			detail = attack.name
 
-	return tr("GUILD_LOG_%s" % entry.KindName.to_upper()).format({
+	var key := "GUILD_LOG_%s" % entry.KindName.to_upper()
+	if entry.KindName == "kicked" and not detail.is_empty():
+		key = "GUILD_LOG_KICKED_FOR"
+
+	return tr(key).format({
 		"actor": entry.ActorName,
 		"target": entry.TargetName,
 		"detail": detail,
