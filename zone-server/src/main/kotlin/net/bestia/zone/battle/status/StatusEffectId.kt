@@ -25,7 +25,8 @@ enum class StatusEffectId(val id: Long) {
   FIRST_AID_COOLDOWN(8),
   INVULNERABLE(9),
   WARDED(10),
-  WARD_AURA(11);
+  WARD_AURA(11),
+  GUILD_AURA(12);
 
   companion object {
     private val byId = entries.associateBy { it.id }

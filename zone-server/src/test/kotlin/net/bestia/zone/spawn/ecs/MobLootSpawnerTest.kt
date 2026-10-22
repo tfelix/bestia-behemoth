@@ -17,7 +17,10 @@ import net.bestia.zone.item.loot.LootItemEntitySpawner
 class MobLootSpawnerTest {
 
   private val repository = mockk<LootItemRepository>().also {
-    every { it.findAllDrops() } returns listOf(LootDrop(bestiaId = 1L, itemId = 50L, dropChance = 10_000))
+    every { it.findAllDrops() } returns listOf(
+      LootDrop(bestiaId = 1L, itemId = 50L, dropChance = 10_000),
+      LootDrop(bestiaId = 3L, itemId = 51L, dropChance = 5_000),
+    )
   }
 
   private val sut = MobLootSpawner(repository, LootItemEntitySpawner(WorldRulesConfig(tickRate = 20)))
@@ -51,5 +54,16 @@ class MobLootSpawnerTest {
     val protection = world.get(dropped, LootProtection::class)
     assertEquals(9L, protection?.ownerAccountId)
     assertEquals(6f, protection?.remainingSeconds)
+  }
+
+  @Test
+  fun `a chance factor raises every drop's chance`() {
+    val world = testWorld()
+
+    val dropped = (1..50).flatMap {
+      sut.spawnLoot(world, bestiaId = 3L, pos = Vec3L(0, 0, 0), lootOwner = null, chanceFactor = 2.0)
+    }
+
+    assertEquals(50, dropped.size, "a 50% drop doubled always drops")
   }
 }

@@ -98,3 +98,12 @@ statusEffects:
     showIcon: false
     isSyncedToClient: false
     script: WardAura
+
+  # Kept on the members around their guild leader by GuildAuraSystem. What it adds is the guild's levels in
+  # its six stat auras, read off the leader that gave it.
+  - id: 12
+    identifier: GUILD_AURA
+    polarity: BUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: GuildAura

@@ -120,7 +120,10 @@ class GuildScenarios : BestiaNoSocketScenario() {
       memberRankId = info.ranks.single { it.position == 1 }.rankId
     }
 
-    assertEquals(GuildMembership(guildId, 5), membershipOf(clientPlayer1.connectedPlayerId))
+    assertEquals(
+      GuildMembership(guildId, 5, isLeader = true, mayUseGuildSkills = true),
+      membershipOf(clientPlayer1.connectedPlayerId),
+    )
   }
 
   @Test
@@ -250,6 +253,7 @@ class GuildScenarios : BestiaNoSocketScenario() {
       assertEquals(1, info?.skills?.single { it.skillId == extensionId }?.level)
       assertEquals(20, info?.maxMembers)
       assertEquals(0, info?.skillPoints)
+      assertEquals(1, membershipOf(clientPlayer2.connectedPlayerId)?.skillLevel(SkillId.GUILD_EXTENSION.name))
     }
 
     clientPlayer1.sendMessage(InvestGuildSkillCMSG(clientPlayer1.connectedPlayerId, extensionId))
