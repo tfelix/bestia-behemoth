@@ -118,16 +118,15 @@ func _show_selected() -> void:
 	_requirements.visible = skill.PrerequisiteSkillIds.size() > 0
 	_invest.disabled = not _may_raise(skill)
 
-	var attack_castable := attack != null and not attack.is_passive
-	if attack_castable and skill.Level > 0 and _may_cast:
-		_note.text = tr("GUILD_SKILL_DRAG_TO_BAR")
-		_note.add_theme_color_override("font_color", UiStyle.MUTED)
-		return
+	var castable := attack != null and not attack.is_passive and skill.Level > 0 and _may_cast
 	_note.add_theme_color_override("font_color", UiStyle.DANGER)
 	if NEEDS_STRONGHOLD.has(int(skill.SkillId)):
 		_note.text = tr("GUILD_SKILL_NEEDS_STRONGHOLD")
 	elif EFFECT_LATER.has(int(skill.SkillId)):
 		_note.text = tr("GUILD_SKILL_EFFECT_LATER")
+	elif castable:
+		_note.text = tr("GUILD_SKILL_DRAG_TO_BAR")
+		_note.add_theme_color_override("font_color", UiStyle.MUTED)
 	else:
 		_note.text = ""
 
