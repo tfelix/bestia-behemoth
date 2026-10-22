@@ -5,6 +5,7 @@ import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.account.OwnedBestiaPolicyViolationException
 import net.bestia.zone.bestia.persistence.Bestia
 import net.bestia.zone.bestia.BestiaCatalogue
+import net.bestia.zone.compendium.CompendiumRecorder
 import net.bestia.zone.spawn.BestiaEntitySpawner
 import net.bestia.zone.master.bestia.OwnedBestiasPublisher
 import net.bestia.zone.master.bestia.PlayerBestiaCreateOperation
@@ -24,6 +25,7 @@ import org.springframework.stereotype.Component
 @Component
 class BestiaAdoptionService(
   private val bestiaCatalogue: BestiaCatalogue,
+  private val compendiumRecorder: CompendiumRecorder,
   private val asyncJobExecutor: AsyncJobExecutor,
   private val playerBestiaCreateOperation: PlayerBestiaCreateOperation,
   private val bestiaEntitySpawner: BestiaEntitySpawner,
@@ -35,6 +37,9 @@ class BestiaAdoptionService(
   /** Published from the tick, so it only hands the work on. */
   @EventListener
   fun onCaptured(event: BestiaCapturedEvent) {
+    // Recorded even when no slot is free and the creature is released again: it was still caught.
+    compendiumRecorder.caught(event.ownerAccountId, event.masterId, event.speciesId)
+
     asyncJobExecutor.submit(key = event.ownerAccountId) {
       adopt(event.ownerAccountId, event.masterId, bestiaCatalogue.byId(event.speciesId), event.at)
     }

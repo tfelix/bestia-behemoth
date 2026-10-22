@@ -1,6 +1,7 @@
 package net.bestia.zone.bestia.persistence
 
 import jakarta.persistence.*
+import org.hibernate.annotations.ColumnDefault
 import net.bestia.zone.battle.Element
 import net.bestia.zone.battle.Size
 import net.bestia.zone.battle.status.AttackSpeed
@@ -161,6 +162,11 @@ class Bestia(
    */
   @Column(name = "non_combatant", nullable = false)
   var nonCombatant: Boolean = false,
+
+  /** False for townsfolk and test creatures: the Bestia Compendium neither lists nor records them. */
+  @Column(name = "in_compendium", nullable = false)
+  @ColumnDefault("true")
+  var inCompendium: Boolean = true,
 
   /**
    * Mean annual air temperature in degrees Celsius this species prefers, or null for no preference. Both

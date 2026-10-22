@@ -23,7 +23,11 @@ namespace BestiaBehemothClient.Bnet.Message
 
     /// <summary>Sent by the server, and deliberately not acted on by this client yet.</summary>
     public static readonly IReadOnlyCollection<Envelope.MessageOneofCase> NotUsedYet =
-      new HashSet<Envelope.MessageOneofCase> { Envelope.MessageOneofCase.BestiaAiConfig };
+      new HashSet<Envelope.MessageOneofCase>
+      {
+        Envelope.MessageOneofCase.BestiaAiConfig,
+        Envelope.MessageOneofCase.Compendium,
+      };
 
     public static IEnumerable<Envelope.MessageOneofCase> SentByServer()
     {
