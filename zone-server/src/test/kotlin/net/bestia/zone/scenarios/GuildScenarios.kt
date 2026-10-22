@@ -21,11 +21,13 @@ import net.bestia.zone.guild.net.KickGuildMemberCMSG
 import net.bestia.zone.guild.net.LeaveGuildCMSG
 import net.bestia.zone.guild.net.RequestGuildInfoCMSG
 import net.bestia.zone.guild.net.SaveGuildRankCMSG
+import net.bestia.zone.guild.skill.GuildSkillTree
 import net.bestia.zone.identity.ecs.GuildMembership
 import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OperationSuccessSMSG
 import net.bestia.zone.session.ConnectionInfoService
+import net.bestia.zone.skill.SkillId
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
@@ -56,8 +58,12 @@ class GuildScenarios : BestiaNoSocketScenario() {
   @Autowired
   private lateinit var world: EcsWorld
 
+  @Autowired
+  private lateinit var skillTree: GuildSkillTree
+
   private val player1MasterId by lazy { testData.account1.masterIds.first() }
   private val player2MasterId by lazy { testData.account2.masterIds.first() }
+  private val extensionId by lazy { assertNotNull(skillTree.find(SkillId.GUILD_EXTENSION)).skillId }
 
   private var guildId: Long = 0
   private var memberRankId: Long = 0
@@ -103,7 +109,7 @@ class GuildScenarios : BestiaNoSocketScenario() {
       assertNotNull(info)
       assertEquals(GUILD_NAME, info.name)
       assertEquals(1, info.level)
-      assertEquals(32, info.maxMembers)
+      assertEquals(16, info.maxMembers)
       assertEquals(1, info.skillPoints)
       assertEquals(listOf("Guild Master", "Member"), info.ranks.map { it.name })
       assertEquals(listOf(player1MasterId), info.members.map { it.masterId })
@@ -203,7 +209,7 @@ class GuildScenarios : BestiaNoSocketScenario() {
   @Order(10)
   fun `a rank's new tax reaches its members' masters`() {
     clientPlayer1.sendMessage(
-      SaveGuildRankCMSG(clientPlayer1.connectedPlayerId, memberRankId, "Recruit", 20, false, false, false)
+      SaveGuildRankCMSG(clientPlayer1.connectedPlayerId, memberRankId, "Recruit", 20, false, false, false, false)
     )
 
     await {
@@ -216,7 +222,7 @@ class GuildScenarios : BestiaNoSocketScenario() {
   @Order(11)
   fun `a tax outside the bounds is refused`() {
     clientPlayer1.sendMessage(
-      SaveGuildRankCMSG(clientPlayer1.connectedPlayerId, memberRankId, "Recruit", 81, false, false, false)
+      SaveGuildRankCMSG(clientPlayer1.connectedPlayerId, memberRankId, "Recruit", 81, false, false, false, false)
     )
 
     assertEquals(OperationErrorSMSG(OpError.REQUEST_REFUSED), clientPlayer1.tryGetLastReceived(OperationErrorSMSG::class))
@@ -236,17 +242,17 @@ class GuildScenarios : BestiaNoSocketScenario() {
 
   @Test
   @Order(13)
-  fun `investing the founding skill point extends the guild by two seats`() {
-    clientPlayer1.sendMessage(InvestGuildSkillCMSG(clientPlayer1.connectedPlayerId, InvestGuildSkillCMSG.GuildSkill.EXTENSION))
+  fun `investing the founding skill point extends the guild by four seats`() {
+    clientPlayer1.sendMessage(InvestGuildSkillCMSG(clientPlayer1.connectedPlayerId, extensionId))
 
     await {
       val info = clientPlayer1.tryGetLastReceived(GuildInfoSMSG::class)
-      assertEquals(1, info?.extensionLevel)
-      assertEquals(34, info?.maxMembers)
+      assertEquals(1, info?.skills?.single { it.skillId == extensionId }?.level)
+      assertEquals(20, info?.maxMembers)
       assertEquals(0, info?.skillPoints)
     }
 
-    clientPlayer1.sendMessage(InvestGuildSkillCMSG(clientPlayer1.connectedPlayerId, InvestGuildSkillCMSG.GuildSkill.EXTENSION))
+    clientPlayer1.sendMessage(InvestGuildSkillCMSG(clientPlayer1.connectedPlayerId, extensionId))
     assertEquals(OperationErrorSMSG(OpError.REQUEST_REFUSED), clientPlayer1.tryGetLastReceived(OperationErrorSMSG::class))
   }
 
@@ -263,6 +269,14 @@ class GuildScenarios : BestiaNoSocketScenario() {
       assertEquals(5_000L, info?.members?.single { it.masterId == player2MasterId }?.expContributed)
       assertEquals(1, info?.skillPoints, "a level brings a skill point")
     }
+
+    val approvalId = assertNotNull(skillTree.find(SkillId.OFFICIAL_GUILD_APPROVAL)).skillId
+    clientPlayer1.sendMessage(InvestGuildSkillCMSG(clientPlayer1.connectedPlayerId, approvalId))
+    assertEquals(
+      OperationErrorSMSG(OpError.REQUEST_REFUSED),
+      clientPlayer1.tryGetLastReceived(OperationErrorSMSG::class),
+      "Approval needs the Guild Emblem first",
+    )
   }
 
   @Test

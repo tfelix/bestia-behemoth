@@ -14,7 +14,7 @@ import jakarta.persistence.UniqueConstraint
  * A step in a guild's hierarchy. [position] 0 is the leader's rank, which keeps every permission; a higher
  * position is a lower rank. Positions are not renumbered when a rank goes, so they may have gaps.
  *
- * The permissions are three columns rather than an enum set: an `@Enumerated` column would become a native ENUM
+ * The permissions are columns rather than an enum set: an `@Enumerated` column would become a native ENUM
  * that `ddl-auto: update` never widens.
  */
 @Entity
@@ -45,6 +45,10 @@ class GuildRank(
 
   @Column(name = "can_manage_ranks", nullable = false)
   var canManageRanks: Boolean = false,
+
+  /** May cast the guild's active skills. */
+  @Column(name = "can_use_guild_skills", nullable = false)
+  var canUseGuildSkills: Boolean = false,
 ) {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

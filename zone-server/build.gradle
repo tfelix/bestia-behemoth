@@ -108,6 +108,7 @@ tasks.register('checkSkillDb', SkillDbSyncTask) {
     description = 'Fails if skills.yml/master_skill_tree.yml and the client Attack DB (.tres + skills.csv) disagree on ids, max levels, or descriptions.'
     skillsYml = layout.projectDirectory.file('src/main/resources/skills.yml')
     masterSkillTreeYml = layout.projectDirectory.file('src/main/resources/master_skill_tree.yml')
+    guildSkillTreeYml = layout.projectDirectory.file('src/main/resources/guild_skill_tree.yml')
     clientDbDir = rootProject.layout.projectDirectory.dir('bestia-client/src/Game/Attack/DB')
     skillsCsv = rootProject.layout.projectDirectory.file('bestia-client/src/Localization/skills.csv')
     fix = false
@@ -118,6 +119,7 @@ tasks.register('syncSkillDb', SkillDbSyncTask) {
     description = 'Patches max_level/description_key in existing client .tres files, syncs English descriptions into skills.csv, and creates stubs for missing skills, from skills.yml/master_skill_tree.yml.'
     skillsYml = layout.projectDirectory.file('src/main/resources/skills.yml')
     masterSkillTreeYml = layout.projectDirectory.file('src/main/resources/master_skill_tree.yml')
+    guildSkillTreeYml = layout.projectDirectory.file('src/main/resources/guild_skill_tree.yml')
     clientDbDir = rootProject.layout.projectDirectory.dir('bestia-client/src/Game/Attack/DB')
     skillsCsv = rootProject.layout.projectDirectory.file('bestia-client/src/Localization/skills.csv')
     fix = true

@@ -48,16 +48,16 @@ class GuildLevelsTest {
   }
 
   @Test
-  fun `Guild Extension seats two more per level, from 32 to 52`() {
-    assertEquals(32, sut.maxMembers(0))
-    assertEquals(34, sut.maxMembers(1))
-    assertEquals(52, sut.maxMembers(config.maxExtensionLevel))
+  fun `Guild Extension seats four more per level, from 16 to 56`() {
+    assertEquals(16, sut.maxMembers(0))
+    assertEquals(20, sut.maxMembers(1))
+    assertEquals(56, sut.maxMembers(10))
   }
 
   @Test
   fun `a guild has a skill point per level, founding included, less what it spent`() {
-    assertEquals(1, sut.skillPoints(level = 1, extensionLevel = 0))
-    assertEquals(0, sut.skillPoints(level = 1, extensionLevel = 1))
-    assertEquals(3, sut.skillPoints(level = 5, extensionLevel = 2))
+    assertEquals(1, sut.skillPoints(level = 1, spentSkillPoints = 0))
+    assertEquals(0, sut.skillPoints(level = 1, spentSkillPoints = 1))
+    assertEquals(3, sut.skillPoints(level = 5, spentSkillPoints = 2))
   }
 }

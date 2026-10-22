@@ -15,7 +15,7 @@ import java.io.File
 
 /**
  * Cross-checks (and optionally fixes) skill ids/max levels/descriptions/target types between the
- * server's skill config (`skills.yml` + `master_skill_tree.yml`) and the Godot client's Attack DB
+ * server's skill config (`skills.yml` + `master_skill_tree.yml` + `guild_skill_tree.yml`) and the Godot client's Attack DB
  * (`*.tres` files under `bestia-client/src/Game/Attack/DB/`). See
  * `.claude/skills/skill-system/SKILL.md` for the full relationship between these files.
  *
@@ -43,6 +43,7 @@ abstract class SkillDbSyncTask : DefaultTask() {
     const val DEFAULT_MAX_LEVEL = 1
     const val DEFAULT_TARGET_TYPE = "GROUND"
     const val DEFAULT_IS_PASSIVE = false
+    const val GUILD_TREE = "GUILD"
   }
 
   @get:InputFile
@@ -50,6 +51,9 @@ abstract class SkillDbSyncTask : DefaultTask() {
 
   @get:InputFile
   abstract val masterSkillTreeYml: RegularFileProperty
+
+  @get:InputFile
+  abstract val guildSkillTreeYml: RegularFileProperty
 
   @get:InputDirectory
   abstract val clientDbDir: DirectoryProperty
@@ -113,10 +117,13 @@ abstract class SkillDbSyncTask : DefaultTask() {
 
     val skills = mapper.readValue(skillsYml.get().asFile, SkillsFile::class.java).skills
     val tree = mapper.readValue(masterSkillTreeYml.get().asFile, TreeFile::class.java).skills
-    val nodeByIdentifier = tree.associateBy { it.skill }
+    // A guild node is grouped under GUILD, which the master's Skills window never lists.
+    val guildTree = mapper.readValue(guildSkillTreeYml.get().asFile, TreeFile::class.java).skills
+      .map { it.copy(tree = GUILD_TREE) }
+    val nodeByIdentifier = (tree + guildTree).associateBy { it.skill }
 
     val expectedById = skills.associate { skill ->
-      // A skill absent from master_skill_tree.yml is not master-investable (e.g. a bestia-only
+      // A skill absent from both trees is not investable (e.g. a bestia-only
       // skill) and is always single-rank client-side.
       val node = nodeByIdentifier[skill.identifier]
 

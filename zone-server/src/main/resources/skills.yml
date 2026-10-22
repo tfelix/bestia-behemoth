@@ -505,7 +505,7 @@ skills:
       Level 3 names what made it, and how strong it was
       Level 4 names another master by name
 
-# BESTIA SKILLS (reserved 1000+, see master_skill_tree.yml / skill-system SKILL.md)
+# BESTIA SKILLS (reserved 1000-8999, see master_skill_tree.yml / skill-system SKILL.md)
   - id: 1000
     identifier: ember
     script: Ember
@@ -521,3 +521,165 @@ skills:
       Aimed at the ground rather than at a creature, and it does not care whose side anyone is on:
       the flames burn the caster too.
 
+
+# GUILD SKILLS (reserved 9000+). The guild learns these with its own skill points, not a master; see
+# guild_skill_tree.yml for the tree.
+  - id: 9001
+    identifier: GUILD_EMBLEM
+    targetType: FRIENDLY
+    description: |
+      The guild may carry an emblem. It shows on its members, its Stronghold and its banners.
+
+  - id: 9002
+    identifier: OFFICIAL_GUILD_APPROVAL
+    targetType: FRIENDLY
+    description: |
+      The guild is recognised by the realm. It may found a Guild Stronghold and attack the
+      installations of other guilds - and its own Stronghold may be attacked in turn.
+
+  - id: 9003
+    identifier: STEWARD_CONTRACT
+    targetType: FRIENDLY
+    description: |
+      Hires a steward for the Guild Stronghold. Members can open the guild storage at the
+      steward and return to the Stronghold when they fall.
+
+  - id: 9004
+    identifier: GUILD_STORAGE
+    targetType: FRIENDLY
+    description: |
+      A storage every member with the right rank can use, kept by the steward.
+
+      Each level adds more storage space.
+
+  - id: 9005
+    identifier: WATCHER_RESEARCH
+    targetType: FRIENDLY
+    description: |
+      Allows the guild to call watchers, Bestia that guard the Guild Stronghold.
+
+  - id: 9006
+    identifier: STRENGTHEN_WATCHERS
+    targetType: FRIENDLY
+    description: |
+      The watchers of the Guild Stronghold hit harder and attack faster.
+
+  - id: 9007
+    identifier: PERMANENT_DEVELOPMENT
+    targetType: FRIENDLY
+    description: |
+      Investing in the Guild Stronghold has a 50% chance to give one free extra point.
+
+  - id: 9008
+    identifier: GUILD_EXTENSION
+    targetType: FRIENDLY
+    description: |
+      More members can join the guild.
+
+      `+4 members/lv`
+
+  - id: 9009
+    identifier: GREAT_LEADERSHIP
+    targetType: FRIENDLY
+    description: |
+      Members near the guild master fight with more strength.
+
+      `+1 STR/lv` within 15 m of the guild master
+
+  - id: 9010
+    identifier: SHARP_GAZE
+    targetType: FRIENDLY
+    description: |
+      Members near the guild master aim more precisely.
+
+      `+1 DEX/lv` within 15 m of the guild master
+
+  - id: 9011
+    identifier: GLORIOUS_WOUNDS
+    targetType: FRIENDLY
+    description: |
+      Members near the guild master endure more.
+
+      `+1 VIT/lv` within 15 m of the guild master
+
+  - id: 9012
+    identifier: COLD_HEART
+    targetType: FRIENDLY
+    description: |
+      Members near the guild master move and react faster.
+
+      `+1 AGI/lv` within 15 m of the guild master
+
+  - id: 9013
+    identifier: ARCANE_ACCORD
+    targetType: FRIENDLY
+    description: |
+      Members near the guild master channel more magic.
+
+      `+1 INT/lv` within 15 m of the guild master
+
+  - id: 9014
+    identifier: STEADFAST_MIND
+    targetType: FRIENDLY
+    description: |
+      Members near the guild master resist magic better.
+
+      `+1 WIL/lv` within 15 m of the guild master
+
+  - id: 9015
+    identifier: FORTUNES_FAVOR
+    targetType: FRIENDLY
+    description: |
+      Everything a member of the guild defeats is more likely to drop its items.
+
+      `+5%/lv` of each drop's own chance - at Lv.5 a 10% drop becomes 12.5%
+
+  - id: 9016
+    identifier: EMERGENCY_MOVE
+    targetType: FRIENDLY
+    description: |
+      The members around the caster move faster for a short time.
+
+      `+25%` movement speed for 10s, within 15 m. Cooldown 60s for the whole guild.
+
+  - id: 9017
+    identifier: BATTLE_ORDERS
+    targetType: FRIENDLY
+    description: |
+      The members around the caster gain strength, dexterity and intelligence.
+
+      `+5 STR, DEX and INT` for 180s, within 30 m. Cooldown 180s for the whole guild.
+
+  - id: 9018
+    identifier: GUILD_REGENERATION
+    targetType: FRIENDLY
+    description: |
+      The members around the caster recover HP, Mana and stamina faster.
+
+      `+50%/lv` regeneration for 60s, within 30 m. Cooldown 300s for the whole guild.
+
+  - id: 9019
+    identifier: RESTORATION
+    targetType: FRIENDLY
+    description: |
+      Restores 90% of the HP and Mana of the members around the caster, within 30 m.
+
+      Cooldown 180s for the whole guild.
+
+  - id: 9020
+    identifier: EMERGENCY_RECALL
+    targetType: FRIENDLY
+    description: |
+      Calls every member of the guild to the caster. Works only inside the guild's own
+      Stronghold.
+
+      Cooldown 300s for the whole guild.
+
+  - id: 9021
+    identifier: RALLY_TO_THE_BANNER
+    targetType: FRIENDLY
+    description: |
+      Members may plant a War Banner. Casting the skill calls every member of the guild to the
+      banner - even into an enemy Stronghold. Enemies can cut the banner down.
+
+      Cooldown 900s for the whole guild, separate from Emergency Recall.

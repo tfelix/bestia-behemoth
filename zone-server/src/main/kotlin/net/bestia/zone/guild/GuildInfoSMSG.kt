@@ -12,15 +12,14 @@ data class GuildInfoSMSG(
   val exp: Long,
   val expNextLevel: Long,
   val skillPoints: Int,
-  val extensionLevel: Int,
   val maxMembers: Int,
   val ranks: List<Rank>,
   val members: List<Member>,
   val ownMasterId: Long,
-  val maxExtensionLevel: Int,
   val maxRanks: Int,
   val minTaxPercent: Int,
   val maxTaxPercent: Int,
+  val skills: List<Skill>,
 ) : SMSG {
 
   data class Rank(
@@ -31,7 +30,17 @@ data class GuildInfoSMSG(
     val canInvite: Boolean,
     val canKick: Boolean,
     val canManageRanks: Boolean,
+    val canUseGuildSkills: Boolean,
   )
+
+  data class Skill(
+    val skillId: Long,
+    val level: Int,
+    val maxLevel: Int,
+    val prerequisites: List<Prerequisite>,
+  )
+
+  data class Prerequisite(val skillId: Long, val level: Int)
 
   data class Member(
     val masterId: Long,
@@ -51,7 +60,6 @@ data class GuildInfoSMSG(
       .setExp(exp)
       .setExpNextLevel(expNextLevel)
       .setSkillPoints(skillPoints)
-      .setExtensionLevel(extensionLevel)
       .setMaxMembers(maxMembers)
       .addAllRanks(ranks.map { rank ->
         GuildInfoSmsgProto.GuildRank.newBuilder()
@@ -62,6 +70,7 @@ data class GuildInfoSMSG(
           .setCanInvite(rank.canInvite)
           .setCanKick(rank.canKick)
           .setCanManageRanks(rank.canManageRanks)
+          .setCanUseGuildSkills(rank.canUseGuildSkills)
           .build()
       })
       .addAllMembers(members.map { member ->
@@ -76,10 +85,22 @@ data class GuildInfoSMSG(
           .build()
       })
       .setOwnMasterId(ownMasterId)
-      .setMaxExtensionLevel(maxExtensionLevel)
       .setMaxRanks(maxRanks)
       .setMinTaxPercent(minTaxPercent)
       .setMaxTaxPercent(maxTaxPercent)
+      .addAllSkills(skills.map { skill ->
+        GuildInfoSmsgProto.GuildSkillNode.newBuilder()
+          .setSkillId(skill.skillId)
+          .setLevel(skill.level)
+          .setMaxLevel(skill.maxLevel)
+          .addAllPrerequisites(skill.prerequisites.map { prerequisite ->
+            GuildInfoSmsgProto.GuildSkillPrerequisite.newBuilder()
+              .setSkillId(prerequisite.skillId)
+              .setLevel(prerequisite.level)
+              .build()
+          })
+          .build()
+      })
       .build()
 
     return EnvelopeProto.Envelope.newBuilder()
@@ -96,15 +117,14 @@ data class GuildInfoSMSG(
       exp = 0,
       expNextLevel = 0,
       skillPoints = 0,
-      extensionLevel = 0,
       maxMembers = 0,
       ranks = emptyList(),
       members = emptyList(),
       ownMasterId = ownMasterId,
-      maxExtensionLevel = 0,
       maxRanks = 0,
       minTaxPercent = 0,
       maxTaxPercent = 0,
+      skills = emptyList(),
     )
   }
 }

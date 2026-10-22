@@ -22,8 +22,6 @@ namespace BestiaBehemothClient.Bnet.Message.Guild
 
     [Export] public uint SkillPoints { get; set; }
 
-    [Export] public uint ExtensionLevel { get; set; }
-
     [Export] public uint MaxMembers { get; set; }
 
     /// <summary>The leader's rank first, then down the hierarchy.</summary>
@@ -34,13 +32,14 @@ namespace BestiaBehemothClient.Bnet.Message.Guild
     /// <summary>This player's own master, so the window can tell which member it is.</summary>
     [Export] public ulong OwnMasterId { get; set; }
 
-    [Export] public uint MaxExtensionLevel { get; set; }
-
     [Export] public uint MaxRanks { get; set; }
 
     [Export] public uint MinTaxPercent { get; set; }
 
     [Export] public uint MaxTaxPercent { get; set; }
+
+    /// <summary>The whole guild skill tree with the guild's level in each skill.</summary>
+    [Export] public Godot.Collections.Array<GuildSkillInfo> Skills { get; set; } = [];
 
     public static GuildInfoSMSG FromProto(global::Bnet.GuildInfoSMSG proto)
     {
@@ -56,6 +55,12 @@ namespace BestiaBehemothClient.Bnet.Message.Guild
         members.Add(GuildMemberInfo.FromProto(member));
       }
 
+      var skills = new Godot.Collections.Array<GuildSkillInfo>();
+      foreach (var skill in proto.Skills)
+      {
+        skills.Add(GuildSkillInfo.FromProto(skill));
+      }
+
       return new GuildInfoSMSG
       {
         GuildId = proto.GuildId,
@@ -64,15 +69,14 @@ namespace BestiaBehemothClient.Bnet.Message.Guild
         Exp = proto.Exp,
         ExpNextLevel = proto.ExpNextLevel,
         SkillPoints = proto.SkillPoints,
-        ExtensionLevel = proto.ExtensionLevel,
         MaxMembers = proto.MaxMembers,
         Ranks = ranks,
         Members = members,
         OwnMasterId = proto.OwnMasterId,
-        MaxExtensionLevel = proto.MaxExtensionLevel,
         MaxRanks = proto.MaxRanks,
         MinTaxPercent = proto.MinTaxPercent,
-        MaxTaxPercent = proto.MaxTaxPercent
+        MaxTaxPercent = proto.MaxTaxPercent,
+        Skills = skills
       };
     }
   }

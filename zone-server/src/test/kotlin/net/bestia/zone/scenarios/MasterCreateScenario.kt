@@ -454,7 +454,7 @@ class MasterCreateScenario : BestiaNoSocketScenario(autoClientConnect = false) {
       await { assertEquals(1, bestiaEntitiesOf(masterId).size) }
       val entityId = bestiaEntitiesOf(masterId).single().entityId
 
-      val bestiaSkillIds = skillRepository.findAll().map { it.id }.filter { it >= FIRST_BESTIA_SKILL_ID }
+      val bestiaSkillIds = skillRepository.findAll().map { it.id }.filter { it in BESTIA_SKILL_IDS }
       worldView.read {
         assertEquals(owned.bestia.level, get(entityId, Level::class)!!.level)
 
@@ -581,8 +581,8 @@ class MasterCreateScenario : BestiaNoSocketScenario(autoClientConnect = false) {
   }
 
   private companion object {
-    /** `skills.yml` reserves 1000 and up for the skills of bestia species. */
-    const val FIRST_BESTIA_SKILL_ID = 1000L
+    /** `skills.yml` reserves 1000 up to the guild skills at 9000 for the skills of bestia species. */
+    val BESTIA_SKILL_IDS = 1000L until 9000L
   }
 }
 

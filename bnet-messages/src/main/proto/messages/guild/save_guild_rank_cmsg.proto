@@ -15,4 +15,5 @@ message SaveGuildRankCMSG {
   bool can_invite = 4;
   bool can_kick = 5;
   bool can_manage_ranks = 6;
+  bool can_use_guild_skills = 7;
 }

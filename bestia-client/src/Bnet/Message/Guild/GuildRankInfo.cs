@@ -21,6 +21,8 @@ namespace BestiaBehemothClient.Bnet.Message.Guild
 
     [Export] public bool CanManageRanks { get; set; }
 
+    [Export] public bool CanUseGuildSkills { get; set; }
+
     public static GuildRankInfo FromProto(global::Bnet.GuildRank proto)
     {
       return new GuildRankInfo
@@ -31,7 +33,8 @@ namespace BestiaBehemothClient.Bnet.Message.Guild
         TaxPercent = proto.TaxPercent,
         CanInvite = proto.CanInvite,
         CanKick = proto.CanKick,
-        CanManageRanks = proto.CanManageRanks
+        CanManageRanks = proto.CanManageRanks,
+        CanUseGuildSkills = proto.CanUseGuildSkills
       };
     }
   }
