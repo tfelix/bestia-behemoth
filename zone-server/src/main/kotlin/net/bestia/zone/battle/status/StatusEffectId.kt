@@ -26,7 +26,10 @@ enum class StatusEffectId(val id: Long) {
   INVULNERABLE(9),
   WARDED(10),
   WARD_AURA(11),
-  GUILD_AURA(12);
+  GUILD_AURA(12),
+  BATTLE_ORDERS(13),
+  GUILD_REGENERATION(14),
+  EMERGENCY_MOVE(15);
 
   companion object {
     private val byId = entries.associateBy { it.id }

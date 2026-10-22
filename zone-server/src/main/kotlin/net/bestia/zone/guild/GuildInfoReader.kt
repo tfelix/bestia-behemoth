@@ -3,6 +3,7 @@ package net.bestia.zone.guild
 import net.bestia.zone.guild.persistence.GuildMemberRef
 import net.bestia.zone.guild.persistence.GuildMemberRepository
 import net.bestia.zone.guild.persistence.GuildRepository
+import net.bestia.zone.guild.skill.GuildSkillCooldowns
 import net.bestia.zone.guild.skill.GuildSkillTree
 import net.bestia.zone.session.ConnectionInfoService
 import org.springframework.data.repository.findByIdOrNull
@@ -21,6 +22,7 @@ class GuildInfoReader(
   private val levels: GuildLevels,
   private val config: GuildConfig,
   private val skillTree: GuildSkillTree,
+  private val cooldowns: GuildSkillCooldowns,
 ) {
 
   /** [info] with no recipient set yet, and every member to send it to. */
@@ -77,6 +79,7 @@ class GuildInfoReader(
           level = guild.skillLevel(node.identifier),
           maxLevel = node.maxLevel,
           prerequisites = node.prerequisites.map { GuildInfoSMSG.Prerequisite(it.skillId, it.level) },
+          cooldownRemainingMillis = cooldowns.remainingMillis(guild.id, node.skillId),
         )
       },
     )

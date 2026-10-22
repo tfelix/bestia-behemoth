@@ -2,6 +2,11 @@ package net.bestia.zone.scenarios
 
 import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.bnet.proto.OperationSuccessProto.OpSuccess
+import net.bestia.zone.casting.net.ActivateSkillCMSG
+import net.bestia.zone.battle.ecs.effects.StatusEffects
+import net.bestia.zone.battle.status.StatusEffectId
+import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.guild.GuildSkillCooldownSMSG
 import net.bestia.zone.chat.ChatSMSG
 import net.bestia.zone.chat.ChatType
 import net.bestia.zone.chat.net.ChatCMSG
@@ -285,6 +290,39 @@ class GuildScenarios : BestiaNoSocketScenario() {
 
   @Test
   @Order(15)
+  fun `the leader casts Battle Orders for the guild, which then recovers for everyone`() {
+    ledger.add(guildId, player2MasterId, 30_000)
+    ledger.flush()
+    await { assertEquals(4, clientPlayer1.tryGetLastReceived(GuildInfoSMSG::class)?.level) }
+
+    val battleOrdersId = assertNotNull(skillTree.find(SkillId.BATTLE_ORDERS)).skillId
+    clientPlayer1.sendMessage(InvestGuildSkillCMSG(clientPlayer1.connectedPlayerId, extensionId))
+    clientPlayer1.sendMessage(InvestGuildSkillCMSG(clientPlayer1.connectedPlayerId, battleOrdersId))
+    await { assertEquals(1, membershipOf(clientPlayer1.connectedPlayerId)?.skillLevel(SkillId.BATTLE_ORDERS.name)) }
+
+    val leader = connectionInfoService.getActiveEntityId(clientPlayer1.connectedPlayerId)
+    castBattleOrders(battleOrdersId, leader)
+
+    await {
+      val effects = world.read { get(leader, StatusEffects::class) }
+      assertTrue(effects?.hasEffect(StatusEffectId.BATTLE_ORDERS.id) == true)
+      assertEquals(
+        GuildSkillCooldownSMSG(battleOrdersId, 180_000),
+        clientPlayer2.tryGetLastReceived(GuildSkillCooldownSMSG::class),
+      )
+    }
+
+    castBattleOrders(battleOrdersId, leader)
+    await {
+      assertEquals(
+        OperationErrorSMSG(OpError.GUILD_SKILL_COOLDOWN),
+        clientPlayer1.tryGetLastReceived(OperationErrorSMSG::class),
+      )
+    }
+  }
+
+  @Test
+  @Order(16)
   fun `a member who leaves is told, and the rest get the guild without them`() {
     clientPlayer2.sendMessage(LeaveGuildCMSG(clientPlayer2.connectedPlayerId))
 
@@ -296,7 +334,7 @@ class GuildScenarios : BestiaNoSocketScenario() {
   }
 
   @Test
-  @Order(16)
+  @Order(17)
   fun `disbanding needs the guild's name typed`() {
     clientPlayer1.sendMessage(DisbandGuildCMSG(clientPlayer1.connectedPlayerId, "wrong name"))
     assertEquals(OperationErrorSMSG(OpError.REQUEST_REFUSED), clientPlayer1.tryGetLastReceived(OperationErrorSMSG::class))
@@ -307,6 +345,12 @@ class GuildScenarios : BestiaNoSocketScenario() {
       assertEquals(GuildLeftSMSG(guildId, GuildLeftSMSG.Reason.DISBANDED), clientPlayer1.tryGetLastReceived(GuildLeftSMSG::class))
       assertNull(membershipOf(clientPlayer1.connectedPlayerId))
     }
+  }
+
+  private fun castBattleOrders(battleOrdersId: Long, leader: Long) {
+    clientPlayer1.sendMessage(
+      ActivateSkillCMSG(clientPlayer1.connectedPlayerId, battleOrdersId, 1, Vec3L.ZERO, targetEntityId = leader)
+    )
   }
 
   private fun membershipOf(accountId: Long): GuildMembership? {

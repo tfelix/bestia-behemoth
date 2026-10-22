@@ -38,6 +38,8 @@ message GuildSkillNode {
   uint32 level = 2;
   uint32 max_level = 3;
   repeated GuildSkillPrerequisite prerequisites = 4;
+  // Until the skill can be cast again, 0 when it can. See GuildSkillCooldownSMSG.
+  uint64 cooldown_remaining_ms = 5;
 }
 
 message GuildSkillPrerequisite {

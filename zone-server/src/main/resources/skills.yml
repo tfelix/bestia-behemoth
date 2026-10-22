@@ -636,6 +636,7 @@ skills:
 
   - id: 9016
     identifier: EMERGENCY_MOVE
+    script: EmergencyMove
     targetType: FRIENDLY
     description: |
       The members around the caster move faster for a short time.
@@ -644,6 +645,7 @@ skills:
 
   - id: 9017
     identifier: BATTLE_ORDERS
+    script: BattleOrders
     targetType: FRIENDLY
     description: |
       The members around the caster gain strength, dexterity and intelligence.
@@ -652,6 +654,7 @@ skills:
 
   - id: 9018
     identifier: GUILD_REGENERATION
+    script: GuildRegeneration
     targetType: FRIENDLY
     description: |
       The members around the caster recover HP, Mana and stamina faster.
@@ -660,6 +663,7 @@ skills:
 
   - id: 9019
     identifier: RESTORATION
+    script: Restoration
     targetType: FRIENDLY
     description: |
       Restores 90% of the HP and Mana of the members around the caster, within 30 m.

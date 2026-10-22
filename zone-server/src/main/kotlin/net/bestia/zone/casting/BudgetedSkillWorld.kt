@@ -7,6 +7,8 @@ import net.bestia.zone.battle.damage.Heal
 import net.bestia.zone.battle.damage.Miss
 import net.bestia.zone.aoi.AoiLayer
 import net.bestia.zone.identity.ecs.Account
+import net.bestia.zone.identity.ecs.GuildMembership
+import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.identity.ecs.Master
 import net.bestia.zone.battle.ecs.effects.AreaEffect
 import net.bestia.zone.battle.ecs.effects.StatusEffects
@@ -15,6 +17,8 @@ import net.bestia.zone.battle.ecs.status.Mana
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.message.SMSG
+import net.bestia.zone.skill.GuildMates
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.entity.StaticEntityKind
 import net.bestia.zone.spoor.TrackReading
@@ -58,6 +62,12 @@ class BudgetedSkillWorld(
     budget.charge()
 
     return world.get(entityId, Account::class)?.accountId
+  }
+
+  override fun guildMembershipOf(entityId: EntityId): GuildMembership? {
+    budget.charge()
+
+    return world.get(entityId, GuildMembership::class)
   }
 
   override fun entitiesInCube(centre: Vec3L, edge: Long, layers: Set<AoiLayer>): Set<EntityId> {
@@ -160,6 +170,40 @@ class BudgetedSkillWorld(
 
       services.statusEffects.applyEffect(this, target, effectId, level, casterId)
     } ?: false
+  }
+
+  override fun applyStatusEffectToGuildNear(
+    guildId: Long,
+    centre: Vec3L,
+    radiusMetres: Long,
+    effectId: Long,
+    level: Int,
+  ) {
+    budget.charge()
+
+    for (member in GuildMates.near(world, guildId, centre, radiusMetres)) {
+      services.statusEffects.applyEffect(world, member, effectId, level, casterId)
+    }
+  }
+
+  override fun restoreGuildNear(guildId: Long, centre: Vec3L, radiusMetres: Long, percent: Int) {
+    budget.charge()
+
+    for (member in GuildMates.near(world, guildId, centre, radiusMetres)) {
+      if (world.has(member, Dead::class)) {
+        continue
+      }
+      world.get(member, Health::class)?.let { it.current += it.max * percent / 100 }
+      world.get(member, Mana::class)?.let { it.current += it.max * percent / 100 }
+    }
+  }
+
+  override fun tellGuild(guildId: Long, message: SMSG) {
+    budget.charge()
+
+    for (accountId in GuildMates.playedBy(world, guildId).keys) {
+      services.messages.sendToPlayer(accountId, message)
+    }
   }
 
   override fun consumeCasterMana(cost: Int): Boolean {
