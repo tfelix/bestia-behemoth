@@ -26,6 +26,8 @@ var _disabled: bool = false
 ## Shows the shared layer's slot because this layer's own slot is empty. Such a slot is edited on the shared layer
 ## only, so a drag here cannot move it away.
 var _from_shared: bool = false
+## The level the controlled entity can cast the slot's skill at. 0 when it does not know the skill.
+var _usable_skill_level: int = 1
 
 
 func _ready() -> void:
@@ -160,6 +162,7 @@ func set_shortcut(data: Dictionary) -> void:
 		_shortcut_data.type = ShortcutData.ShortcutType.SKILL
 		_shortcut_data.reference_id = data["id"]
 		_shortcut_data.skill_level = data.get("level", 1)
+		_usable_skill_level = _shortcut_data.skill_level
 
 	_update_display()
 	shortcut_changed.emit(shortcut_row, shortcut_number, _shortcut_data)
@@ -171,6 +174,7 @@ func get_shortcut_data() -> ShortcutData:
 
 func set_shortcut_data(data: ShortcutData, from_shared: bool = false) -> void:
 	_shortcut_data = data
+	_usable_skill_level = data.skill_level
 	_from_shared = from_shared
 	_shared_mark.visible = from_shared
 	tooltip_text = ("Shared slot %s: your master and every bestia use it.\n"
@@ -183,6 +187,12 @@ func update_item_count(count: int) -> void:
 		_count.text = str(count)
 		_count_bg.visible = count > 0
 		set_disabled(count <= 0)
+
+
+func set_usable_skill_level(level: int) -> void:
+	if _shortcut_data.type == ShortcutData.ShortcutType.SKILL:
+		_usable_skill_level = level
+		set_disabled(level <= 0)
 
 
 # Grays out the icon and blocks trigger_shortcut() while keeping the
@@ -241,4 +251,4 @@ func _use_skill() -> void:
 	if attack == null:
 		printerr("ShortcutContainer: Can not use skill, no attack returned for ID: %s" % [_shortcut_data.reference_id])
 		return
-	attack.use_skill(_shortcut_data.skill_level)
+	attack.use_skill(_usable_skill_level)
