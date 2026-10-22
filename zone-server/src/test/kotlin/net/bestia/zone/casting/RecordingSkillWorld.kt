@@ -4,6 +4,8 @@ import net.bestia.zone.battle.damage.Damage
 import net.bestia.zone.aoi.AoiLayer
 import net.bestia.zone.battle.ecs.effects.AreaEffect
 import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.identity.ecs.GuildMembership
+import net.bestia.zone.message.SMSG
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.entity.StaticEntityKind
 import net.bestia.zone.spoor.TrackReading
@@ -27,6 +29,8 @@ class RecordingSkillWorld(
 
   /** What [consumeCasterMana] answers - false models a caster who cannot pay. */
   var manaAvailable: Boolean = true,
+
+  private val memberships: MutableMap<EntityId, GuildMembership> = mutableMapOf(),
 ) : SkillWorld {
 
   val spawnedAreaEffects = mutableListOf<SpawnedAreaEffect>()
@@ -36,6 +40,9 @@ class RecordingSkillWorld(
   val recipeOffers = mutableListOf<Long>()
   val surveys = mutableListOf<Survey>()
   val manaSpent = mutableListOf<Int>()
+  val guildEffects = mutableListOf<GuildEffect>()
+  val guildRestorations = mutableListOf<GuildRestoration>()
+  val guildMessages = mutableListOf<Pair<Long, SMSG>>()
 
   override val remainingOps: Int = Int.MAX_VALUE
 
@@ -47,6 +54,22 @@ class RecordingSkillWorld(
   }
 
   fun putStation(kind: StaticEntityKind, entityId: EntityId) = apply { stations[kind] = entityId }
+
+  fun putMembership(entityId: EntityId, membership: GuildMembership) = apply { memberships[entityId] = membership }
+
+  override fun guildMembershipOf(entityId: EntityId): GuildMembership? = memberships[entityId]
+
+  override fun applyStatusEffectToGuildNear(guildId: Long, centre: Vec3L, radiusMetres: Long, effectId: Long, level: Int) {
+    guildEffects += GuildEffect(guildId, centre, radiusMetres, effectId, level)
+  }
+
+  override fun restoreGuildNear(guildId: Long, centre: Vec3L, radiusMetres: Long, percent: Int) {
+    guildRestorations += GuildRestoration(guildId, centre, radiusMetres, percent)
+  }
+
+  override fun tellGuild(guildId: Long, message: SMSG) {
+    guildMessages += guildId to message
+  }
 
   override fun isAlive(entityId: EntityId): Boolean = true
 
@@ -137,6 +160,10 @@ class RecordingSkillWorld(
   data class PlacedStation(val kind: StaticEntityKind, val masterId: Long, val at: Vec3L)
 
   data class AppliedEffect(val targetEntityId: EntityId, val effectId: Long, val level: Int)
+
+  data class GuildEffect(val guildId: Long, val centre: Vec3L, val radiusMetres: Long, val effectId: Long, val level: Int)
+
+  data class GuildRestoration(val guildId: Long, val centre: Vec3L, val radiusMetres: Long, val percent: Int)
 
   data class Survey(val masterId: Long, val accountId: Long?, val centre: Vec3L, val radiusMetres: Double)
 

@@ -5,6 +5,8 @@ import net.bestia.zone.aoi.AoiLayer
 import net.bestia.zone.battle.ecs.effects.AreaEffect
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.identity.ecs.GuildMembership
+import net.bestia.zone.message.SMSG
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.entity.StaticEntityKind
 import net.bestia.zone.spoor.TrackReading
@@ -45,6 +47,8 @@ interface SkillWorld {
   fun masterIdOf(entityId: EntityId): Long?
 
   fun accountIdOf(entityId: EntityId): Long?
+
+  fun guildMembershipOf(entityId: EntityId): GuildMembership?
 
   // ----------------------------------------------------------------- queries
 
@@ -96,6 +100,18 @@ interface SkillWorld {
    * act on a stale answer. First Aid's once-a-minute limit is exactly this and nothing else.
    */
   fun applyStatusEffectIfAbsent(targetEntityId: EntityId, effectId: Long, level: Int): Boolean
+
+  /**
+   * Puts [effectId] on everything [guildId]'s members have within [radiusMetres] of [centre]. One operation
+   * however big the guild: a guild skill reaches every member, which no per-member budget could afford.
+   */
+  fun applyStatusEffectToGuildNear(guildId: Long, centre: Vec3L, radiusMetres: Long, effectId: Long, level: Int)
+
+  /** Heals [percent] of the HP and mana of everything living of [guildId]'s members near [centre]. One operation. */
+  fun restoreGuildNear(guildId: Long, centre: Vec3L, radiusMetres: Long, percent: Int)
+
+  /** Sends [message] to every member of [guildId] being played. One operation. */
+  fun tellGuild(guildId: Long, message: SMSG)
 
   /** Drains the caster's mana, or false when it cannot pay - in which case nothing is spent. */
   fun consumeCasterMana(cost: Int): Boolean

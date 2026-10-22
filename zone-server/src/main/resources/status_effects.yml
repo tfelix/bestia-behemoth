@@ -107,3 +107,25 @@ statusEffects:
     showIcon: true
     isSyncedToClient: true
     script: GuildAura
+
+  # The guild skills a member casts for the members around them.
+  - id: 13
+    identifier: BATTLE_ORDERS
+    polarity: BUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: BattleOrdersEffect
+
+  - id: 14
+    identifier: GUILD_REGENERATION
+    polarity: BUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: GuildRegenerationEffect
+
+  - id: 15
+    identifier: EMERGENCY_MOVE
+    polarity: BUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: EmergencyMoveEffect

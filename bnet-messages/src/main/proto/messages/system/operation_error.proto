@@ -228,6 +228,8 @@ enum OpError {
   // A master leading a guild cannot be deleted while the guild stands, since nobody could take it over.
   // Carries the guild's name in args[0].
   GUILD_LEADER_MUST_DISBAND = 79;
+  // A guild skill recovers for the whole guild after one member cast it.
+  GUILD_SKILL_COOLDOWN = 80;
 }
 
 message OperationError {

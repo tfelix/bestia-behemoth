@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSrwDwoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSqKEAoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -71,8 +71,9 @@ namespace Bnet {
             "RVIQSRIcChhHVUlMRF9UQVJHRVRfVU5BVkFJTEFCTEUQShIZChVHVUlMRF9U",
             "QVJHRVRfSU5fR1VJTEQQSxIOCgpHVUlMRF9GVUxMEEwSGAoUR1VJTERfSU5W",
             "SVRFX0VYUElSRUQQTRIZChVHVUlMRF9JTlZJVEVfREVDTElORUQQThIdChlH",
-            "VUlMRF9MRUFERVJfTVVTVF9ESVNCQU5EEE9CLAoVbmV0LmJlc3RpYS5ibmV0",
-            "LnByb3RvQhNPcGVyYXRpb25FcnJvclByb3RvYgZwcm90bzM="));
+            "VUlMRF9MRUFERVJfTVVTVF9ESVNCQU5EEE8SGAoUR1VJTERfU0tJTExfQ09P",
+            "TERPV04QUEIsChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CE09wZXJhdGlvbkVy",
+            "cm9yUHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -383,6 +384,10 @@ namespace Bnet {
     /// Carries the guild's name in args[0].
     /// </summary>
     [pbr::OriginalName("GUILD_LEADER_MUST_DISBAND")] GuildLeaderMustDisband = 79,
+    /// <summary>
+    /// A guild skill recovers for the whole guild after one member cast it.
+    /// </summary>
+    [pbr::OriginalName("GUILD_SKILL_COOLDOWN")] GuildSkillCooldown = 80,
   }
 
   #endregion

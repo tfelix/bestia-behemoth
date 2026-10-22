@@ -6,8 +6,8 @@ import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Service
 
 /**
- * Answers "may this entity cast this skill at this level" off the live [KnownSkills] component, for callers
- * that only have a skill id and no lock-held scope of their own.
+ * Answers "may this entity cast this skill at this level" off the live [KnownSkills] component, or a
+ * [SkillGrant] such as the guild's, for callers that only have a skill id and no lock-held scope of their own.
  *
  * Keyed on the catalogue id rather than a [net.bestia.zone.skill.SkillId] constant: the component is keyed on
  * the id, and a constant carries no number to key with - a caller that names a skill in code resolves it
@@ -19,7 +19,8 @@ import org.springframework.stereotype.Service
  */
 @Service
 class SkillCheckService(
-  private val world: WorldView
+  private val world: WorldView,
+  private val grants: List<SkillGrant> = emptyList(),
 ) {
 
   fun knowsSkill(entityId: EntityId, skillId: Long, minLevel: Int): Boolean {
@@ -29,7 +30,9 @@ class SkillCheckService(
     }
 
     return world.read {
-      get(entityId, KnownSkills::class)?.knowsSkill(skillId, minLevel) ?: false
+      val learned = get(entityId, KnownSkills::class)?.knowsSkill(skillId, minLevel) ?: false
+
+      learned || grants.any { it.grantedLevel(this, entityId, skillId) >= minLevel }
     }
   }
 }

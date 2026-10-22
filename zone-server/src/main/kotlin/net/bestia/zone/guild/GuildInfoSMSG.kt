@@ -38,6 +38,8 @@ data class GuildInfoSMSG(
     val level: Int,
     val maxLevel: Int,
     val prerequisites: List<Prerequisite>,
+    /** Until the guild may cast it again; 0 when it may. */
+    val cooldownRemainingMillis: Long = 0,
   )
 
   data class Prerequisite(val skillId: Long, val level: Int)
@@ -99,6 +101,7 @@ data class GuildInfoSMSG(
               .setLevel(prerequisite.level)
               .build()
           })
+          .setCooldownRemainingMs(skill.cooldownRemainingMillis)
           .build()
       })
       .build()
