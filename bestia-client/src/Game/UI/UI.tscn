@@ -67,9 +67,9 @@ window_title = "Inventory"
 
 [node name="Shortcuts" parent="." unique_id=2132139166 instance=ExtResource("4_i53xh")]
 layout_mode = 1
-offset_left = -168.0
+offset_left = -202.0
 offset_top = -136.0
-offset_right = 168.0
+offset_right = 202.0
 
 [node name="TopLeftColumn" type="VBoxContainer" parent="."]
 layout_mode = 1

@@ -27,9 +27,11 @@ func _ready() -> void:
 	# assigning your input action from Project Settings Input Map
 	_prompt_action = "shortcut_%s_%s" % [shortcut_row, shortcut_number]
 	if InputMap.has_action(_prompt_action):
+		# Bindings are physical (US positions), so the label is translated to what the player's own layout prints
+		# on that key: the key right of T reads Z on a German keyboard, not Y.
 		var key_action = InputMap.action_get_events(_prompt_action)[0]
-		var key_string = OS.get_keycode_string(key_action.physical_keycode)
-		shortcut.text = str(key_string)
+		var layout_keycode = DisplayServer.keyboard_get_keycode_from_physical(key_action.physical_keycode)
+		shortcut.text = OS.get_keycode_string(layout_keycode)
 
 	_update_display()
 
