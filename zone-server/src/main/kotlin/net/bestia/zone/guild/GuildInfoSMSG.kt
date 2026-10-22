@@ -57,6 +57,10 @@ data class GuildInfoSMSG(
     val online: Boolean,
     val expContributed: Long,
     val isLeader: Boolean,
+    val entityId: Long,
+    /** Empty while the member is online: its beacon says where it is then. */
+    val lastAreaName: String,
+    val lastSeenEpochMillis: Long,
   )
 
   override fun toBnetEnvelope(): EnvelopeProto.Envelope {
@@ -90,6 +94,9 @@ data class GuildInfoSMSG(
           .setOnline(member.online)
           .setExpContributed(member.expContributed)
           .setIsLeader(member.isLeader)
+          .setEntityId(member.entityId)
+          .setLastAreaName(member.lastAreaName)
+          .setLastSeenEpochMs(member.lastSeenEpochMillis)
           .build()
       })
       .setOwnMasterId(ownMasterId)

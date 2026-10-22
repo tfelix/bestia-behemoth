@@ -16,6 +16,7 @@ import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.battle.ecs.exp.Exp
 import net.bestia.zone.skill.ecs.KnownSkills
 import net.bestia.zone.battle.ecs.status.Health
+import net.bestia.zone.battle.ecs.status.Mana
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.movement.ecs.Position
@@ -69,11 +70,12 @@ class MasterEntityPersisterTest {
     add(eid, MasterComponent(masterId, "Tester"))
     add(eid, Position(70, 71, 72))
     add(eid, Health(current = if (dead) 0 else 123, max = 200))
+    add(eid, Mana(current = 45, max = 90))
     if (dead) add(eid, Dead())
   }
 
   @Test
-  fun `a living master keeps where it stood and the health it had`() {
+  fun `a living master keeps where it stood and the health and mana it had`() {
     val world = testWorld()
     val id = world.master(dead = false)
 
@@ -81,6 +83,7 @@ class MasterEntityPersisterTest {
 
     assertEquals(Vec3L(70, 71, 72), row.currentPosition)
     assertEquals(123, row.currentHealth)
+    assertEquals(45, row.currentMana)
   }
 
   @Test

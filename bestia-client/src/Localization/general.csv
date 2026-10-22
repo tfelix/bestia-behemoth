@@ -250,6 +250,10 @@ GUILD_PERM_EDIT_MOTD,May edit the message of the day
 GUILD_LEADER,Guild master
 GUILD_MEMBER_ONLINE,Online
 GUILD_MEMBER_OFFLINE,Offline
+GUILD_SEEN_JUST_NOW,just now
+GUILD_SEEN_MINUTES,%d min ago
+GUILD_SEEN_HOURS,%d h ago
+GUILD_SEEN_DAYS,%d d ago
 GUILD_KICK,Remove from the guild
 GUILD_RANK_ADD,Add rank
 GUILD_RANK_DEFAULT_NAME,New rank
