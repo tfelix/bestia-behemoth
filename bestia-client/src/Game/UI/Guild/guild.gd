@@ -59,6 +59,8 @@ var _found_popup: PopupPanel
 var _found_name: LineEdit
 var _disband_dialog: ConfirmationDialog
 var _disband_name: LineEdit
+var _hand_over_dialog: ConfirmationDialog
+var _hand_over_to: int = 0
 
 
 ## The guild window wherever it is, for the seal's use script; null before the game scene exists.
@@ -77,6 +79,7 @@ func _ready() -> void:
 	_build()
 	_build_found_popup()
 	_build_disband_dialog()
+	_build_hand_over_dialog()
 	_build_motd_popup()
 	_build_emblem_dialog()
 
@@ -442,6 +445,25 @@ func _on_disband_confirmed() -> void:
 		ConnectionManager.disband_guild(typed)
 
 
+func _build_hand_over_dialog() -> void:
+	_hand_over_dialog = ConfirmationDialog.new()
+	_hand_over_dialog.title = tr("GUILD_HAND_OVER")
+	_hand_over_dialog.ok_button_text = tr("GUILD_HAND_OVER_CONFIRM")
+	_hand_over_dialog.confirmed.connect(func() -> void: ConnectionManager.transfer_guild_leadership(_hand_over_to))
+	add_child(_hand_over_dialog)
+
+
+func _ask_to_hand_over(master_id: int) -> void:
+	var member := _member(master_id)
+	var me := _member(_info.OwnMasterId) if _info != null else null
+	if member == null or me == null:
+		return
+	var their_rank := _rank(member.RankId)
+	_hand_over_to = master_id
+	_hand_over_dialog.dialog_text = tr("GUILD_HAND_OVER_TEXT") % [_info.Name, member.MasterName, their_rank.Name if their_rank != null else "?"]
+	_hand_over_dialog.popup_centered()
+
+
 func _invite() -> void:
 	var master_name := _invite_name.text.strip_edges()
 	if master_name.is_empty():
@@ -595,6 +617,7 @@ func _show_members(info: GuildInfoSMSG, is_leader: bool, may_kick: bool, may_man
 			row = GuildMemberRow.new()
 			row.rank_chosen.connect(ConnectionManager.set_guild_member_rank)
 			row.kick_requested.connect(ConnectionManager.kick_guild_member)
+			row.hand_over_requested.connect(_ask_to_hand_over)
 			_members.add_child(row)
 			_member_rows[member.MasterId] = row
 		_members.move_child(row, i)
@@ -609,7 +632,7 @@ func _show_members(info: GuildInfoSMSG, is_leader: bool, may_kick: bool, may_man
 				if offered.Position != 0 and (is_leader or offered.Position > my_position):
 					assignable.append(offered)
 
-		row.show_member(member, rank, is_self, assignable, may_kick and below_me)
+		row.show_member(member, rank, is_self, assignable, may_kick and below_me, is_leader and not is_self)
 		var beacon := _beacon_of(member)
 		if beacon != null:
 			row.show_beacon(beacon)

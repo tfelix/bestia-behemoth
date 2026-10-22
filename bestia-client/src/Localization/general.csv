@@ -186,7 +186,7 @@ ERROR_GUILD_NOT_IN_STRONGHOLD,Emergency Recall works only inside your guild's ow
 ERROR_GUILD_NO_BANNER,Your guild has no War Banner standing.
 ERROR_GUILD_BANNER_NOT_ALLOWED,Only a guild that knows Rally to the Banner can plant a War Banner - and only a rank that may use guild skills.
 ERROR_GUILD_BANNER_OUT_OF_RANGE,That spot is too far away to plant the banner.
-ERROR_GUILD_LEADER_MUST_DISBAND,This master leads the guild %s. Disband it before deleting the master.
+ERROR_GUILD_LEADER_MUST_DISBAND,This master leads the guild %s. Hand it over or disband it before deleting the master.
 CHAT_LINE_PARTY,[Party] %s: %s
 CHAT_LINE_GUILD,[Guild] %s: %s
 INVITATION_ACCEPT,Yes
@@ -259,6 +259,9 @@ GUILD_SEEN_MINUTES,%d min ago
 GUILD_SEEN_HOURS,%d h ago
 GUILD_SEEN_DAYS,%d d ago
 GUILD_KICK,Remove from the guild
+GUILD_HAND_OVER,Make guild master
+GUILD_HAND_OVER_CONFIRM,Hand over
+GUILD_HAND_OVER_TEXT,"Hand %s to %s? They lead it from now on, and you take their rank, %s."
 GUILD_RANK_ADD,Add rank
 GUILD_RANK_DEFAULT_NAME,New rank
 GUILD_RANK_SAVE,Save
@@ -296,3 +299,4 @@ GUILD_LOG_RANK_DELETED,{actor} deleted the rank {detail}.
 GUILD_LOG_SKILL_LEARNED,{actor} raised the guild skill {detail}.
 GUILD_LOG_MOTD_CHANGED,{actor} changed the message of the day.
 GUILD_LOG_EMBLEM_CHANGED,{actor} gave the guild a new emblem.
+GUILD_LOG_LEADER_TRANSFERRED,{actor} handed the guild to {target}.
