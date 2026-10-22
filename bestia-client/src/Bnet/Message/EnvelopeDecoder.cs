@@ -66,6 +66,7 @@ namespace BestiaBehemothClient.Bnet.Message
       [Envelope.MessageOneofCase.Compendium] = e => Compendium.CompendiumSMSG.FromProto(e.Compendium),
       [Envelope.MessageOneofCase.GuildSkillCooldown] = e => Guild.GuildSkillCooldownSMSG.FromProto(e.GuildSkillCooldown),
       [Envelope.MessageOneofCase.GuildNotice] = e => Guild.GuildNoticeSMSG.FromProto(e.GuildNotice),
+      [Envelope.MessageOneofCase.GuildLog] = e => Guild.GuildLogSMSG.FromProto(e.GuildLog),
     };
 
     public static IReadOnlyCollection<Envelope.MessageOneofCase> RoutedCases => Routes.Keys;

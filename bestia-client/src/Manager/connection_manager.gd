@@ -126,6 +126,7 @@ var SaveGuildRankCMSG = load("res://Bnet/Message/Guild/SaveGuildRankCMSG.cs")
 var DeleteGuildRankCMSG = load("res://Bnet/Message/Guild/DeleteGuildRankCMSG.cs")
 var InvestGuildSkillCMSG = load("res://Bnet/Message/Guild/InvestGuildSkillCMSG.cs")
 var DisbandGuildCMSG = load("res://Bnet/Message/Guild/DisbandGuildCMSG.cs")
+var RequestGuildLogCMSG = load("res://Bnet/Message/Guild/RequestGuildLogCMSG.cs")
 var Ping = load("res://Bnet/Message/Ping.cs")
 var ChunkStreamManagerScript = load("res://Game/World/ChunkStreamManager.cs")
 var WeatherStateScript = load("res://Game/World/WeatherState.cs")
@@ -788,6 +789,12 @@ func invest_guild_skill(skill_id: int) -> void:
 	var msg = InvestGuildSkillCMSG.new()
 	msg.SkillId = skill_id
 	_socket.SendMessage(msg)
+
+
+## Asks for the guild's newest log entries; answered with a GuildLogSMSG.
+func request_guild_log() -> void:
+	assert(is_ready_to_send())
+	_socket.SendMessage(RequestGuildLogCMSG.new())
 
 
 ## The leader ends the guild. [param confirm_name] is the name the player typed, compared by the server.

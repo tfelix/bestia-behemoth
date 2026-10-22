@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "RequestGuildLogCmsgProto";
+
+// Any member asks for the guild's newest log entries, answered with a GuildLogSMSG.
+message RequestGuildLogCMSG {
+}
