@@ -62,7 +62,7 @@ class GmBestiaSpeciesTest {
 
   @Test
   fun `it learns every attack in the bestia range at a level it already has`() {
-    val bestiaAttacks = readSkills().filter { it.id >= FIRST_BESTIA_SKILL_ID }.map { it.identifier }.toSet()
+    val bestiaAttacks = readSkills().filter { it.id in BESTIA_SKILL_IDS }.map { it.identifier }.toSet()
 
     assertTrue(bestiaAttacks.isNotEmpty(), "skills.yml no longer has a bestia range, so this test checks nothing")
     assertEquals(bestiaAttacks, species.learnset.map { it.skill }.toSet())
@@ -90,7 +90,7 @@ class GmBestiaSpeciesTest {
   private companion object {
     const val MIN_ATTRIBUTE = 80
 
-    /** `skills.yml` reserves 1000 and up for the skills of bestia species. */
-    const val FIRST_BESTIA_SKILL_ID = 1000L
+    /** `skills.yml` reserves 1000 up to the guild skills at 9000 for the skills of bestia species. */
+    val BESTIA_SKILL_IDS = 1000L until 9000L
   }
 }

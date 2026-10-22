@@ -3,6 +3,7 @@ package net.bestia.zone.guild
 import net.bestia.zone.guild.persistence.GuildMemberRef
 import net.bestia.zone.guild.persistence.GuildMemberRepository
 import net.bestia.zone.guild.persistence.GuildRepository
+import net.bestia.zone.guild.skill.GuildSkillTree
 import net.bestia.zone.session.ConnectionInfoService
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
@@ -19,6 +20,7 @@ class GuildInfoReader(
   private val sessions: ConnectionInfoService,
   private val levels: GuildLevels,
   private val config: GuildConfig,
+  private val skillTree: GuildSkillTree,
 ) {
 
   /** [info] with no recipient set yet, and every member to send it to. */
@@ -40,8 +42,7 @@ class GuildInfoReader(
       level = guild.level,
       exp = guild.exp,
       expNextLevel = levels.requiredExp(guild.level),
-      skillPoints = levels.skillPoints(guild.level, guild.extensionLevel),
-      extensionLevel = guild.extensionLevel,
+      skillPoints = levels.skillPoints(guild.level, guild.spentSkillPoints),
       maxMembers = levels.maxMembers(guild.extensionLevel),
       ranks = ranks.map { rank ->
         GuildInfoSMSG.Rank(
@@ -52,6 +53,7 @@ class GuildInfoReader(
           canInvite = rank.canInvite,
           canKick = rank.canKick,
           canManageRanks = rank.canManageRanks,
+          canUseGuildSkills = rank.canUseGuildSkills,
         )
       },
       members = members.map { member ->
@@ -66,10 +68,17 @@ class GuildInfoReader(
         )
       },
       ownMasterId = 0,
-      maxExtensionLevel = config.maxExtensionLevel,
       maxRanks = config.maxRanks,
       minTaxPercent = config.minTaxPercent,
       maxTaxPercent = config.maxTaxPercent,
+      skills = skillTree.all().map { node ->
+        GuildInfoSMSG.Skill(
+          skillId = node.skillId,
+          level = guild.skillLevel(node.identifier),
+          maxLevel = node.maxLevel,
+          prerequisites = node.prerequisites.map { GuildInfoSMSG.Prerequisite(it.skillId, it.level) },
+        )
+      },
     )
 
     return Snapshot(info, members.map { GuildMemberRef(it.master.account.id, it.master.id) })

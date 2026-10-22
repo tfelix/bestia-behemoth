@@ -38,6 +38,10 @@ object GuildRankRules {
 
   fun mayManageRanks(actor: GuildMember): Boolean = actor.isLeader || actor.rank.canManageRanks
 
+  fun mayUseGuildSkills(member: GuildMember): Boolean {
+    return member.isLeader || member.rank.canUseGuildSkills
+  }
+
   /** The leader outranks everyone else; anyone else only those on a lower rank. Never oneself. */
   fun outranks(actor: GuildMember, target: GuildMember): Boolean {
     if (actor.master.id == target.master.id || target.isLeader) {

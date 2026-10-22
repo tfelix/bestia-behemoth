@@ -36,11 +36,17 @@ game (master-castable, bestia-species, item-taught) gets one entry here, loaded 
 
 Convention in the file: master skills are grouped first under `# MASTER SKILLS`, bestia
 skills after under `# BESTIA SKILLS`, by ascending id (**bestia-species/item skills are
-reserved at id 1000+**; master skills use the open range below that, currently 1-44, with
+reserved at id 1000-8999**; master skills use the open range below that, currently 1-44, with
 id 9 a hole where `MASTER_RITUAL` used to be) — not enforced by code, just keep following
 it. The 1000+ split was chosen when the master skill tree grew past the original
 "masters 1-99" convention (see `docs/mechanics/master.md` for the full master skill tree
 design).
+
+**Guild skills are 9000+**, last in the file under `# GUILD SKILLS`. The guild learns them, not a master:
+`guild_skill_tree.yml` is their tree (loaded into `GuildSkillTree`), the guild's levels live in
+`guild_skill_level`, and a master casts an active one through the `SkillGrant` port when its rank may use guild
+skills. `syncSkillDb` reads that tree too and puts their Attack DB entries under `tree = "GUILD"`, which the
+master's Skills window never lists; the guild window's Skills tab draws them.
 
 **Two ids are load-bearing outside the content files, so renumbering is no longer free:**
 
