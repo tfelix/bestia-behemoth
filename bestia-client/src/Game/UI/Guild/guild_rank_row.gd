@@ -7,7 +7,7 @@ extends PanelContainer
 ## A row with unsaved edits keeps them when the guild is pushed again - EXP flushes push it every half minute,
 ## and losing a half-typed name to one would make the window unusable.
 
-signal save_requested(rank_id: int, rank_name: String, tax_percent: int, can_invite: bool, can_kick: bool, can_manage_ranks: bool)
+signal save_requested(rank_id: int, rank_name: String, tax_percent: int, can_invite: bool, can_kick: bool, can_manage_ranks: bool, can_use_guild_skills: bool)
 signal delete_requested(rank_id: int)
 
 var rank_id: int = 0
@@ -17,6 +17,7 @@ var _tax: SpinBox
 var _invite: CheckBox
 var _kick: CheckBox
 var _manage: CheckBox
+var _use_skills: CheckBox
 var _save: Button
 var _delete: Button
 var _dirty := false
@@ -43,9 +44,11 @@ func _init() -> void:
 	_invite = _permission(tr("GUILD_PERM_INVITE"))
 	_kick = _permission(tr("GUILD_PERM_KICK"))
 	_manage = _permission(tr("GUILD_PERM_MANAGE_RANKS"))
+	_use_skills = _permission(tr("GUILD_PERM_USE_SKILLS"))
 	line.add_child(_invite)
 	line.add_child(_kick)
 	line.add_child(_manage)
+	line.add_child(_use_skills)
 
 	_save = Button.new()
 	_save.text = tr("GUILD_RANK_SAVE")
@@ -79,7 +82,7 @@ func show_rank(rank: GuildRankInfo, editable: bool, deletable: bool, min_tax: in
 	_tax.min_value = min_tax
 	_tax.max_value = max_tax
 	# The leader's rank keeps every permission, whatever is sent; only its name and tax are the leader's to set.
-	for box in [_invite, _kick, _manage]:
+	for box in [_invite, _kick, _manage, _use_skills]:
 		box.disabled = not editable or is_leader_rank
 		if is_leader_rank:
 			box.tooltip_text = tr("GUILD_RANK_LEADER_LOCKED")
@@ -93,6 +96,7 @@ func show_rank(rank: GuildRankInfo, editable: bool, deletable: bool, min_tax: in
 		_invite.button_pressed = rank.CanInvite
 		_kick.button_pressed = rank.CanKick
 		_manage.button_pressed = rank.CanManageRanks
+		_use_skills.button_pressed = rank.CanUseGuildSkills
 		_save.disabled = true
 	_drawing = false
 
@@ -112,4 +116,4 @@ func _on_save() -> void:
 	# Cleared on send, so the guild that answers it is drawn over the row - accepted or refused.
 	_dirty = false
 	_save.disabled = true
-	save_requested.emit(rank_id, rank_name, int(_tax.value), _invite.button_pressed, _kick.button_pressed, _manage.button_pressed)
+	save_requested.emit(rank_id, rank_name, int(_tax.value), _invite.button_pressed, _kick.button_pressed, _manage.button_pressed, _use_skills.button_pressed)
