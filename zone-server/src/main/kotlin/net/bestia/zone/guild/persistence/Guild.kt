@@ -1,17 +1,21 @@
 package net.bestia.zone.guild.persistence
 
 import jakarta.persistence.CascadeType
+import jakarta.persistence.CollectionTable
 import jakarta.persistence.Column
+import jakarta.persistence.ElementCollection
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Index
 import jakarta.persistence.JoinColumn
+import jakarta.persistence.MapKeyColumn
 import jakarta.persistence.OneToMany
 import jakarta.persistence.OneToOne
 import jakarta.persistence.Table
 import net.bestia.zone.account.persistence.Master
+import net.bestia.zone.skill.SkillId
 import java.time.Instant
 
 /**
@@ -45,9 +49,12 @@ class Guild(
   @Column(nullable = false)
   var exp: Long = 0
 
-  /** Guild Extension, the one guild skill: each level seats more members. */
-  @Column(name = "extension_level", nullable = false)
-  var extensionLevel: Int = 0
+  /** Guild skill levels by `skills.yml` identifier; a skill never invested in has no entry. */
+  @ElementCollection
+  @CollectionTable(name = "guild_skill_level", joinColumns = [JoinColumn(name = "guild_id")])
+  @MapKeyColumn(name = "skill", length = 64)
+  @Column(name = "level", nullable = false)
+  val skillLevels: MutableMap<String, Int> = mutableMapOf()
 
   @Column(name = "created_at", nullable = false)
   val createdAt: Instant = Instant.now()
@@ -57,6 +64,17 @@ class Guild(
 
   @OneToMany(mappedBy = "guild", cascade = [CascadeType.ALL], orphanRemoval = true)
   val members: MutableList<GuildMember> = mutableListOf()
+
+  /** Seats more members; see `GuildLevels.maxMembers`. */
+  val extensionLevel: Int
+    get() = skillLevel(SkillId.GUILD_EXTENSION.name)
+
+  val spentSkillPoints: Int
+    get() = skillLevels.values.sum()
+
+  fun skillLevel(identifier: String): Int {
+    return skillLevels[identifier] ?: 0
+  }
 
   fun memberOf(masterId: Long): GuildMember? = members.firstOrNull { it.master.id == masterId }
 

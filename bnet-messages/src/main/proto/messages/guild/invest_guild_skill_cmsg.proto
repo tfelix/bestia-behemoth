@@ -7,11 +7,6 @@ option java_outer_classname = "InvestGuildSkillCmsgProto";
 
 // The leader spends one of the guild's skill points on a guild skill.
 message InvestGuildSkillCMSG {
-  GuildSkill skill = 1;
-}
-
-enum GuildSkill {
-  GUILD_SKILL_UNSPECIFIED = 0;
-  // Each level seats more members.
-  GUILD_SKILL_EXTENSION = 1;
+  // A skill of the guild skill tree, by its skills.yml id.
+  uint64 skill_id = 1;
 }

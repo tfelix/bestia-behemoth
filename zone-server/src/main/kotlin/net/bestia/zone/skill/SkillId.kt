@@ -63,5 +63,9 @@ enum class SkillId {
   INNER_PEACE,
 
   // Capture: its level adds to every catch roll in net.bestia.zone.capture.BestiaTrapSystem.
-  BEASTFRIEND
+  BEASTFRIEND,
+
+  // Guild skills a guild learns, not a master: net.bestia.zone.guild reads the guild's level of each.
+  OFFICIAL_GUILD_APPROVAL,
+  GUILD_EXTENSION,
 }

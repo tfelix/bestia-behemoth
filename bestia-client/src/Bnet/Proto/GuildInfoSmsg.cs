@@ -25,27 +25,34 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CiRtZXNzYWdlcy9ndWlsZC9ndWlsZF9pbmZvX3Ntc2cucHJvdG8SBGJuZXQi",
-            "5AIKDUd1aWxkSW5mb1NNU0cSEAoIZ3VpbGRfaWQYASABKAQSDAoEbmFtZRgC",
+            "4AIKDUd1aWxkSW5mb1NNU0cSEAoIZ3VpbGRfaWQYASABKAQSDAoEbmFtZRgC",
             "IAEoCRINCgVsZXZlbBgDIAEoDRILCgNleHAYBCABKAQSFgoOZXhwX25leHRf",
-            "bGV2ZWwYBSABKAQSFAoMc2tpbGxfcG9pbnRzGAYgASgNEhcKD2V4dGVuc2lv",
-            "bl9sZXZlbBgHIAEoDRITCgttYXhfbWVtYmVycxgIIAEoDRIeCgVyYW5rcxgJ",
-            "IAMoCzIPLmJuZXQuR3VpbGRSYW5rEiIKB21lbWJlcnMYCiADKAsyES5ibmV0",
-            "Lkd1aWxkTWVtYmVyEhUKDW93bl9tYXN0ZXJfaWQYCyABKAQSGwoTbWF4X2V4",
-            "dGVuc2lvbl9sZXZlbBgMIAEoDRIRCgltYXhfcmFua3MYDSABKA0SFwoPbWlu",
-            "X3RheF9wZXJjZW50GA4gASgNEhcKD21heF90YXhfcGVyY2VudBgPIAEoDSKR",
-            "AQoJR3VpbGRSYW5rEg8KB3JhbmtfaWQYASABKAQSEAoIcG9zaXRpb24YAiAB",
-            "KA0SDAoEbmFtZRgDIAEoCRITCgt0YXhfcGVyY2VudBgEIAEoDRISCgpjYW5f",
-            "aW52aXRlGAUgASgIEhAKCGNhbl9raWNrGAYgASgIEhgKEGNhbl9tYW5hZ2Vf",
-            "cmFua3MYByABKAgikQEKC0d1aWxkTWVtYmVyEhEKCW1hc3Rlcl9pZBgBIAEo",
-            "BBITCgttYXN0ZXJfbmFtZRgCIAEoCRINCgVsZXZlbBgDIAEoDRIPCgdyYW5r",
-            "X2lkGAQgASgEEg4KBm9ubGluZRgFIAEoCBIXCg9leHBfY29udHJpYnV0ZWQY",
-            "BiABKAQSEQoJaXNfbGVhZGVyGAcgASgIQisKFW5ldC5iZXN0aWEuYm5ldC5w",
-            "cm90b0ISR3VpbGRJbmZvU21zZ1Byb3RvYgZwcm90bzM="));
+            "bGV2ZWwYBSABKAQSFAoMc2tpbGxfcG9pbnRzGAYgASgNEhMKC21heF9tZW1i",
+            "ZXJzGAggASgNEh4KBXJhbmtzGAkgAygLMg8uYm5ldC5HdWlsZFJhbmsSIgoH",
+            "bWVtYmVycxgKIAMoCzIRLmJuZXQuR3VpbGRNZW1iZXISFQoNb3duX21hc3Rl",
+            "cl9pZBgLIAEoBBIRCgltYXhfcmFua3MYDSABKA0SFwoPbWluX3RheF9wZXJj",
+            "ZW50GA4gASgNEhcKD21heF90YXhfcGVyY2VudBgPIAEoDRIkCgZza2lsbHMY",
+            "ECADKAsyFC5ibmV0Lkd1aWxkU2tpbGxOb2RlSgQIBxAISgQIDBANInkKDkd1",
+            "aWxkU2tpbGxOb2RlEhAKCHNraWxsX2lkGAEgASgEEg0KBWxldmVsGAIgASgN",
+            "EhEKCW1heF9sZXZlbBgDIAEoDRIzCg1wcmVyZXF1aXNpdGVzGAQgAygLMhwu",
+            "Ym5ldC5HdWlsZFNraWxsUHJlcmVxdWlzaXRlIjkKFkd1aWxkU2tpbGxQcmVy",
+            "ZXF1aXNpdGUSEAoIc2tpbGxfaWQYASABKAQSDQoFbGV2ZWwYAiABKA0irwEK",
+            "CUd1aWxkUmFuaxIPCgdyYW5rX2lkGAEgASgEEhAKCHBvc2l0aW9uGAIgASgN",
+            "EgwKBG5hbWUYAyABKAkSEwoLdGF4X3BlcmNlbnQYBCABKA0SEgoKY2FuX2lu",
+            "dml0ZRgFIAEoCBIQCghjYW5fa2ljaxgGIAEoCBIYChBjYW5fbWFuYWdlX3Jh",
+            "bmtzGAcgASgIEhwKFGNhbl91c2VfZ3VpbGRfc2tpbGxzGAggASgIIpEBCgtH",
+            "dWlsZE1lbWJlchIRCgltYXN0ZXJfaWQYASABKAQSEwoLbWFzdGVyX25hbWUY",
+            "AiABKAkSDQoFbGV2ZWwYAyABKA0SDwoHcmFua19pZBgEIAEoBBIOCgZvbmxp",
+            "bmUYBSABKAgSFwoPZXhwX2NvbnRyaWJ1dGVkGAYgASgEEhEKCWlzX2xlYWRl",
+            "chgHIAEoCEIrChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CEkd1aWxkSW5mb1Nt",
+            "c2dQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.GuildInfoSMSG), global::Bnet.GuildInfoSMSG.Parser, new[]{ "GuildId", "Name", "Level", "Exp", "ExpNextLevel", "SkillPoints", "ExtensionLevel", "MaxMembers", "Ranks", "Members", "OwnMasterId", "MaxExtensionLevel", "MaxRanks", "MinTaxPercent", "MaxTaxPercent" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.GuildRank), global::Bnet.GuildRank.Parser, new[]{ "RankId", "Position", "Name", "TaxPercent", "CanInvite", "CanKick", "CanManageRanks" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.GuildInfoSMSG), global::Bnet.GuildInfoSMSG.Parser, new[]{ "GuildId", "Name", "Level", "Exp", "ExpNextLevel", "SkillPoints", "MaxMembers", "Ranks", "Members", "OwnMasterId", "MaxRanks", "MinTaxPercent", "MaxTaxPercent", "Skills" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.GuildSkillNode), global::Bnet.GuildSkillNode.Parser, new[]{ "SkillId", "Level", "MaxLevel", "Prerequisites" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.GuildSkillPrerequisite), global::Bnet.GuildSkillPrerequisite.Parser, new[]{ "SkillId", "Level" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.GuildRank), global::Bnet.GuildRank.Parser, new[]{ "RankId", "Position", "Name", "TaxPercent", "CanInvite", "CanKick", "CanManageRanks", "CanUseGuildSkills" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.GuildMember), global::Bnet.GuildMember.Parser, new[]{ "MasterId", "MasterName", "Level", "RankId", "Online", "ExpContributed", "IsLeader" }, null, null, null, null)
           }));
     }
@@ -101,15 +108,14 @@ namespace Bnet {
       exp_ = other.exp_;
       expNextLevel_ = other.expNextLevel_;
       skillPoints_ = other.skillPoints_;
-      extensionLevel_ = other.extensionLevel_;
       maxMembers_ = other.maxMembers_;
       ranks_ = other.ranks_.Clone();
       members_ = other.members_.Clone();
       ownMasterId_ = other.ownMasterId_;
-      maxExtensionLevel_ = other.maxExtensionLevel_;
       maxRanks_ = other.maxRanks_;
       minTaxPercent_ = other.minTaxPercent_;
       maxTaxPercent_ = other.maxTaxPercent_;
+      skills_ = other.skills_.Clone();
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -194,18 +200,6 @@ namespace Bnet {
       }
     }
 
-    /// <summary>Field number for the "extension_level" field.</summary>
-    public const int ExtensionLevelFieldNumber = 7;
-    private uint extensionLevel_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public uint ExtensionLevel {
-      get { return extensionLevel_; }
-      set {
-        extensionLevel_ = value;
-      }
-    }
-
     /// <summary>Field number for the "max_members" field.</summary>
     public const int MaxMembersFieldNumber = 8;
     private uint maxMembers_;
@@ -255,24 +249,12 @@ namespace Bnet {
       }
     }
 
-    /// <summary>Field number for the "max_extension_level" field.</summary>
-    public const int MaxExtensionLevelFieldNumber = 12;
-    private uint maxExtensionLevel_;
-    /// <summary>
-    /// The rules the window offers, so it never offers what the server would refuse.
-    /// </summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public uint MaxExtensionLevel {
-      get { return maxExtensionLevel_; }
-      set {
-        maxExtensionLevel_ = value;
-      }
-    }
-
     /// <summary>Field number for the "max_ranks" field.</summary>
     public const int MaxRanksFieldNumber = 13;
     private uint maxRanks_;
+    /// <summary>
+    /// The rules the window offers, so it never offers what the server would refuse.
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public uint MaxRanks {
@@ -306,6 +288,20 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "skills" field.</summary>
+    public const int SkillsFieldNumber = 16;
+    private static readonly pb::FieldCodec<global::Bnet.GuildSkillNode> _repeated_skills_codec
+        = pb::FieldCodec.ForMessage(130, global::Bnet.GuildSkillNode.Parser);
+    private readonly pbc::RepeatedField<global::Bnet.GuildSkillNode> skills_ = new pbc::RepeatedField<global::Bnet.GuildSkillNode>();
+    /// <summary>
+    /// The whole guild skill tree with the guild's level in each skill, in the server's tree order.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::RepeatedField<global::Bnet.GuildSkillNode> Skills {
+      get { return skills_; }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -327,15 +323,14 @@ namespace Bnet {
       if (Exp != other.Exp) return false;
       if (ExpNextLevel != other.ExpNextLevel) return false;
       if (SkillPoints != other.SkillPoints) return false;
-      if (ExtensionLevel != other.ExtensionLevel) return false;
       if (MaxMembers != other.MaxMembers) return false;
       if(!ranks_.Equals(other.ranks_)) return false;
       if(!members_.Equals(other.members_)) return false;
       if (OwnMasterId != other.OwnMasterId) return false;
-      if (MaxExtensionLevel != other.MaxExtensionLevel) return false;
       if (MaxRanks != other.MaxRanks) return false;
       if (MinTaxPercent != other.MinTaxPercent) return false;
       if (MaxTaxPercent != other.MaxTaxPercent) return false;
+      if(!skills_.Equals(other.skills_)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -349,15 +344,14 @@ namespace Bnet {
       if (Exp != 0UL) hash ^= Exp.GetHashCode();
       if (ExpNextLevel != 0UL) hash ^= ExpNextLevel.GetHashCode();
       if (SkillPoints != 0) hash ^= SkillPoints.GetHashCode();
-      if (ExtensionLevel != 0) hash ^= ExtensionLevel.GetHashCode();
       if (MaxMembers != 0) hash ^= MaxMembers.GetHashCode();
       hash ^= ranks_.GetHashCode();
       hash ^= members_.GetHashCode();
       if (OwnMasterId != 0UL) hash ^= OwnMasterId.GetHashCode();
-      if (MaxExtensionLevel != 0) hash ^= MaxExtensionLevel.GetHashCode();
       if (MaxRanks != 0) hash ^= MaxRanks.GetHashCode();
       if (MinTaxPercent != 0) hash ^= MinTaxPercent.GetHashCode();
       if (MaxTaxPercent != 0) hash ^= MaxTaxPercent.GetHashCode();
+      hash ^= skills_.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -400,10 +394,6 @@ namespace Bnet {
         output.WriteRawTag(48);
         output.WriteUInt32(SkillPoints);
       }
-      if (ExtensionLevel != 0) {
-        output.WriteRawTag(56);
-        output.WriteUInt32(ExtensionLevel);
-      }
       if (MaxMembers != 0) {
         output.WriteRawTag(64);
         output.WriteUInt32(MaxMembers);
@@ -413,10 +403,6 @@ namespace Bnet {
       if (OwnMasterId != 0UL) {
         output.WriteRawTag(88);
         output.WriteUInt64(OwnMasterId);
-      }
-      if (MaxExtensionLevel != 0) {
-        output.WriteRawTag(96);
-        output.WriteUInt32(MaxExtensionLevel);
       }
       if (MaxRanks != 0) {
         output.WriteRawTag(104);
@@ -430,6 +416,7 @@ namespace Bnet {
         output.WriteRawTag(120);
         output.WriteUInt32(MaxTaxPercent);
       }
+      skills_.WriteTo(output, _repeated_skills_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -464,10 +451,6 @@ namespace Bnet {
         output.WriteRawTag(48);
         output.WriteUInt32(SkillPoints);
       }
-      if (ExtensionLevel != 0) {
-        output.WriteRawTag(56);
-        output.WriteUInt32(ExtensionLevel);
-      }
       if (MaxMembers != 0) {
         output.WriteRawTag(64);
         output.WriteUInt32(MaxMembers);
@@ -477,10 +460,6 @@ namespace Bnet {
       if (OwnMasterId != 0UL) {
         output.WriteRawTag(88);
         output.WriteUInt64(OwnMasterId);
-      }
-      if (MaxExtensionLevel != 0) {
-        output.WriteRawTag(96);
-        output.WriteUInt32(MaxExtensionLevel);
       }
       if (MaxRanks != 0) {
         output.WriteRawTag(104);
@@ -494,6 +473,7 @@ namespace Bnet {
         output.WriteRawTag(120);
         output.WriteUInt32(MaxTaxPercent);
       }
+      skills_.WriteTo(ref output, _repeated_skills_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -522,9 +502,6 @@ namespace Bnet {
       if (SkillPoints != 0) {
         size += 1 + pb::CodedOutputStream.ComputeUInt32Size(SkillPoints);
       }
-      if (ExtensionLevel != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(ExtensionLevel);
-      }
       if (MaxMembers != 0) {
         size += 1 + pb::CodedOutputStream.ComputeUInt32Size(MaxMembers);
       }
@@ -532,9 +509,6 @@ namespace Bnet {
       size += members_.CalculateSize(_repeated_members_codec);
       if (OwnMasterId != 0UL) {
         size += 1 + pb::CodedOutputStream.ComputeUInt64Size(OwnMasterId);
-      }
-      if (MaxExtensionLevel != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(MaxExtensionLevel);
       }
       if (MaxRanks != 0) {
         size += 1 + pb::CodedOutputStream.ComputeUInt32Size(MaxRanks);
@@ -545,6 +519,7 @@ namespace Bnet {
       if (MaxTaxPercent != 0) {
         size += 1 + pb::CodedOutputStream.ComputeUInt32Size(MaxTaxPercent);
       }
+      size += skills_.CalculateSize(_repeated_skills_codec);
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -575,9 +550,6 @@ namespace Bnet {
       if (other.SkillPoints != 0) {
         SkillPoints = other.SkillPoints;
       }
-      if (other.ExtensionLevel != 0) {
-        ExtensionLevel = other.ExtensionLevel;
-      }
       if (other.MaxMembers != 0) {
         MaxMembers = other.MaxMembers;
       }
@@ -585,9 +557,6 @@ namespace Bnet {
       members_.Add(other.members_);
       if (other.OwnMasterId != 0UL) {
         OwnMasterId = other.OwnMasterId;
-      }
-      if (other.MaxExtensionLevel != 0) {
-        MaxExtensionLevel = other.MaxExtensionLevel;
       }
       if (other.MaxRanks != 0) {
         MaxRanks = other.MaxRanks;
@@ -598,6 +567,7 @@ namespace Bnet {
       if (other.MaxTaxPercent != 0) {
         MaxTaxPercent = other.MaxTaxPercent;
       }
+      skills_.Add(other.skills_);
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -641,10 +611,6 @@ namespace Bnet {
             SkillPoints = input.ReadUInt32();
             break;
           }
-          case 56: {
-            ExtensionLevel = input.ReadUInt32();
-            break;
-          }
           case 64: {
             MaxMembers = input.ReadUInt32();
             break;
@@ -661,10 +627,6 @@ namespace Bnet {
             OwnMasterId = input.ReadUInt64();
             break;
           }
-          case 96: {
-            MaxExtensionLevel = input.ReadUInt32();
-            break;
-          }
           case 104: {
             MaxRanks = input.ReadUInt32();
             break;
@@ -675,6 +637,10 @@ namespace Bnet {
           }
           case 120: {
             MaxTaxPercent = input.ReadUInt32();
+            break;
+          }
+          case 130: {
+            skills_.AddEntriesFrom(input, _repeated_skills_codec);
             break;
           }
         }
@@ -720,10 +686,6 @@ namespace Bnet {
             SkillPoints = input.ReadUInt32();
             break;
           }
-          case 56: {
-            ExtensionLevel = input.ReadUInt32();
-            break;
-          }
           case 64: {
             MaxMembers = input.ReadUInt32();
             break;
@@ -740,10 +702,6 @@ namespace Bnet {
             OwnMasterId = input.ReadUInt64();
             break;
           }
-          case 96: {
-            MaxExtensionLevel = input.ReadUInt32();
-            break;
-          }
           case 104: {
             MaxRanks = input.ReadUInt32();
             break;
@@ -754,6 +712,546 @@ namespace Bnet {
           }
           case 120: {
             MaxTaxPercent = input.ReadUInt32();
+            break;
+          }
+          case 130: {
+            skills_.AddEntriesFrom(ref input, _repeated_skills_codec);
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
+  public sealed partial class GuildSkillNode : pb::IMessage<GuildSkillNode>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<GuildSkillNode> _parser = new pb::MessageParser<GuildSkillNode>(() => new GuildSkillNode());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<GuildSkillNode> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Bnet.GuildInfoSmsgReflection.Descriptor.MessageTypes[1]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public GuildSkillNode() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public GuildSkillNode(GuildSkillNode other) : this() {
+      skillId_ = other.skillId_;
+      level_ = other.level_;
+      maxLevel_ = other.maxLevel_;
+      prerequisites_ = other.prerequisites_.Clone();
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public GuildSkillNode Clone() {
+      return new GuildSkillNode(this);
+    }
+
+    /// <summary>Field number for the "skill_id" field.</summary>
+    public const int SkillIdFieldNumber = 1;
+    private ulong skillId_;
+    /// <summary>
+    /// The skills.yml id; the client's Attack DB has its name, icon and description.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ulong SkillId {
+      get { return skillId_; }
+      set {
+        skillId_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "level" field.</summary>
+    public const int LevelFieldNumber = 2;
+    private uint level_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint Level {
+      get { return level_; }
+      set {
+        level_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "max_level" field.</summary>
+    public const int MaxLevelFieldNumber = 3;
+    private uint maxLevel_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint MaxLevel {
+      get { return maxLevel_; }
+      set {
+        maxLevel_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "prerequisites" field.</summary>
+    public const int PrerequisitesFieldNumber = 4;
+    private static readonly pb::FieldCodec<global::Bnet.GuildSkillPrerequisite> _repeated_prerequisites_codec
+        = pb::FieldCodec.ForMessage(34, global::Bnet.GuildSkillPrerequisite.Parser);
+    private readonly pbc::RepeatedField<global::Bnet.GuildSkillPrerequisite> prerequisites_ = new pbc::RepeatedField<global::Bnet.GuildSkillPrerequisite>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::RepeatedField<global::Bnet.GuildSkillPrerequisite> Prerequisites {
+      get { return prerequisites_; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as GuildSkillNode);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(GuildSkillNode other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (SkillId != other.SkillId) return false;
+      if (Level != other.Level) return false;
+      if (MaxLevel != other.MaxLevel) return false;
+      if(!prerequisites_.Equals(other.prerequisites_)) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (SkillId != 0UL) hash ^= SkillId.GetHashCode();
+      if (Level != 0) hash ^= Level.GetHashCode();
+      if (MaxLevel != 0) hash ^= MaxLevel.GetHashCode();
+      hash ^= prerequisites_.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (SkillId != 0UL) {
+        output.WriteRawTag(8);
+        output.WriteUInt64(SkillId);
+      }
+      if (Level != 0) {
+        output.WriteRawTag(16);
+        output.WriteUInt32(Level);
+      }
+      if (MaxLevel != 0) {
+        output.WriteRawTag(24);
+        output.WriteUInt32(MaxLevel);
+      }
+      prerequisites_.WriteTo(output, _repeated_prerequisites_codec);
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (SkillId != 0UL) {
+        output.WriteRawTag(8);
+        output.WriteUInt64(SkillId);
+      }
+      if (Level != 0) {
+        output.WriteRawTag(16);
+        output.WriteUInt32(Level);
+      }
+      if (MaxLevel != 0) {
+        output.WriteRawTag(24);
+        output.WriteUInt32(MaxLevel);
+      }
+      prerequisites_.WriteTo(ref output, _repeated_prerequisites_codec);
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (SkillId != 0UL) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(SkillId);
+      }
+      if (Level != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Level);
+      }
+      if (MaxLevel != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(MaxLevel);
+      }
+      size += prerequisites_.CalculateSize(_repeated_prerequisites_codec);
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(GuildSkillNode other) {
+      if (other == null) {
+        return;
+      }
+      if (other.SkillId != 0UL) {
+        SkillId = other.SkillId;
+      }
+      if (other.Level != 0) {
+        Level = other.Level;
+      }
+      if (other.MaxLevel != 0) {
+        MaxLevel = other.MaxLevel;
+      }
+      prerequisites_.Add(other.prerequisites_);
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 8: {
+            SkillId = input.ReadUInt64();
+            break;
+          }
+          case 16: {
+            Level = input.ReadUInt32();
+            break;
+          }
+          case 24: {
+            MaxLevel = input.ReadUInt32();
+            break;
+          }
+          case 34: {
+            prerequisites_.AddEntriesFrom(input, _repeated_prerequisites_codec);
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 8: {
+            SkillId = input.ReadUInt64();
+            break;
+          }
+          case 16: {
+            Level = input.ReadUInt32();
+            break;
+          }
+          case 24: {
+            MaxLevel = input.ReadUInt32();
+            break;
+          }
+          case 34: {
+            prerequisites_.AddEntriesFrom(ref input, _repeated_prerequisites_codec);
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
+  public sealed partial class GuildSkillPrerequisite : pb::IMessage<GuildSkillPrerequisite>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<GuildSkillPrerequisite> _parser = new pb::MessageParser<GuildSkillPrerequisite>(() => new GuildSkillPrerequisite());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<GuildSkillPrerequisite> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Bnet.GuildInfoSmsgReflection.Descriptor.MessageTypes[2]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public GuildSkillPrerequisite() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public GuildSkillPrerequisite(GuildSkillPrerequisite other) : this() {
+      skillId_ = other.skillId_;
+      level_ = other.level_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public GuildSkillPrerequisite Clone() {
+      return new GuildSkillPrerequisite(this);
+    }
+
+    /// <summary>Field number for the "skill_id" field.</summary>
+    public const int SkillIdFieldNumber = 1;
+    private ulong skillId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ulong SkillId {
+      get { return skillId_; }
+      set {
+        skillId_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "level" field.</summary>
+    public const int LevelFieldNumber = 2;
+    private uint level_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint Level {
+      get { return level_; }
+      set {
+        level_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as GuildSkillPrerequisite);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(GuildSkillPrerequisite other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (SkillId != other.SkillId) return false;
+      if (Level != other.Level) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (SkillId != 0UL) hash ^= SkillId.GetHashCode();
+      if (Level != 0) hash ^= Level.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (SkillId != 0UL) {
+        output.WriteRawTag(8);
+        output.WriteUInt64(SkillId);
+      }
+      if (Level != 0) {
+        output.WriteRawTag(16);
+        output.WriteUInt32(Level);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (SkillId != 0UL) {
+        output.WriteRawTag(8);
+        output.WriteUInt64(SkillId);
+      }
+      if (Level != 0) {
+        output.WriteRawTag(16);
+        output.WriteUInt32(Level);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (SkillId != 0UL) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(SkillId);
+      }
+      if (Level != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Level);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(GuildSkillPrerequisite other) {
+      if (other == null) {
+        return;
+      }
+      if (other.SkillId != 0UL) {
+        SkillId = other.SkillId;
+      }
+      if (other.Level != 0) {
+        Level = other.Level;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 8: {
+            SkillId = input.ReadUInt64();
+            break;
+          }
+          case 16: {
+            Level = input.ReadUInt32();
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 8: {
+            SkillId = input.ReadUInt64();
+            break;
+          }
+          case 16: {
+            Level = input.ReadUInt32();
             break;
           }
         }
@@ -778,7 +1276,7 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Bnet.GuildInfoSmsgReflection.Descriptor.MessageTypes[1]; }
+      get { return global::Bnet.GuildInfoSmsgReflection.Descriptor.MessageTypes[3]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -805,6 +1303,7 @@ namespace Bnet {
       canInvite_ = other.canInvite_;
       canKick_ = other.canKick_;
       canManageRanks_ = other.canManageRanks_;
+      canUseGuildSkills_ = other.canUseGuildSkills_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -901,6 +1400,18 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "can_use_guild_skills" field.</summary>
+    public const int CanUseGuildSkillsFieldNumber = 8;
+    private bool canUseGuildSkills_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool CanUseGuildSkills {
+      get { return canUseGuildSkills_; }
+      set {
+        canUseGuildSkills_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -923,6 +1434,7 @@ namespace Bnet {
       if (CanInvite != other.CanInvite) return false;
       if (CanKick != other.CanKick) return false;
       if (CanManageRanks != other.CanManageRanks) return false;
+      if (CanUseGuildSkills != other.CanUseGuildSkills) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -937,6 +1449,7 @@ namespace Bnet {
       if (CanInvite != false) hash ^= CanInvite.GetHashCode();
       if (CanKick != false) hash ^= CanKick.GetHashCode();
       if (CanManageRanks != false) hash ^= CanManageRanks.GetHashCode();
+      if (CanUseGuildSkills != false) hash ^= CanUseGuildSkills.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -983,6 +1496,10 @@ namespace Bnet {
         output.WriteRawTag(56);
         output.WriteBool(CanManageRanks);
       }
+      if (CanUseGuildSkills != false) {
+        output.WriteRawTag(64);
+        output.WriteBool(CanUseGuildSkills);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -1021,6 +1538,10 @@ namespace Bnet {
         output.WriteRawTag(56);
         output.WriteBool(CanManageRanks);
       }
+      if (CanUseGuildSkills != false) {
+        output.WriteRawTag(64);
+        output.WriteBool(CanUseGuildSkills);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -1050,6 +1571,9 @@ namespace Bnet {
         size += 1 + 1;
       }
       if (CanManageRanks != false) {
+        size += 1 + 1;
+      }
+      if (CanUseGuildSkills != false) {
         size += 1 + 1;
       }
       if (_unknownFields != null) {
@@ -1084,6 +1608,9 @@ namespace Bnet {
       }
       if (other.CanManageRanks != false) {
         CanManageRanks = other.CanManageRanks;
+      }
+      if (other.CanUseGuildSkills != false) {
+        CanUseGuildSkills = other.CanUseGuildSkills;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -1130,6 +1657,10 @@ namespace Bnet {
           }
           case 56: {
             CanManageRanks = input.ReadBool();
+            break;
+          }
+          case 64: {
+            CanUseGuildSkills = input.ReadBool();
             break;
           }
         }
@@ -1179,6 +1710,10 @@ namespace Bnet {
             CanManageRanks = input.ReadBool();
             break;
           }
+          case 64: {
+            CanUseGuildSkills = input.ReadBool();
+            break;
+          }
         }
       }
     }
@@ -1201,7 +1736,7 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Bnet.GuildInfoSmsgReflection.Descriptor.MessageTypes[2]; }
+      get { return global::Bnet.GuildInfoSmsgReflection.Descriptor.MessageTypes[4]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]

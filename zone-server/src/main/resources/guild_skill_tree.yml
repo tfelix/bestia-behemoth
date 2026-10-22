@@ -1,0 +1,128 @@
+# The guild's skill tree, after Ragnarok Online's Renewal guild skills. A guild earns one point per guild level
+# and spends them here; the master skill tree is a different tree with different points. Every skill must be in
+# the guild block of skills.yml, and a prerequisite must be a node of this file.
+skills:
+  - skill: GUILD_EMBLEM
+    maxLevel: 1
+
+  - skill: OFFICIAL_GUILD_APPROVAL
+    maxLevel: 1
+    prerequisites:
+      - skill: GUILD_EMBLEM
+        level: 1
+
+  - skill: STEWARD_CONTRACT
+    maxLevel: 1
+    prerequisites:
+      - skill: OFFICIAL_GUILD_APPROVAL
+        level: 1
+
+  - skill: GUILD_STORAGE
+    maxLevel: 5
+    prerequisites:
+      - skill: STEWARD_CONTRACT
+        level: 1
+      - skill: GUILD_EXTENSION
+        level: 5
+      - skill: COLD_HEART
+        level: 1
+      - skill: SHARP_GAZE
+        level: 1
+
+  - skill: WATCHER_RESEARCH
+    maxLevel: 1
+    prerequisites:
+      - skill: OFFICIAL_GUILD_APPROVAL
+        level: 1
+
+  - skill: STRENGTHEN_WATCHERS
+    maxLevel: 3
+    prerequisites:
+      - skill: WATCHER_RESEARCH
+        level: 1
+
+  - skill: PERMANENT_DEVELOPMENT
+    maxLevel: 1
+    prerequisites:
+      - skill: OFFICIAL_GUILD_APPROVAL
+        level: 1
+
+  - skill: GUILD_EXTENSION
+    maxLevel: 10
+
+  - skill: GREAT_LEADERSHIP
+    maxLevel: 5
+
+  - skill: SHARP_GAZE
+    maxLevel: 5
+    prerequisites:
+      - skill: GREAT_LEADERSHIP
+        level: 1
+
+  - skill: GLORIOUS_WOUNDS
+    maxLevel: 5
+
+  - skill: COLD_HEART
+    maxLevel: 5
+    prerequisites:
+      - skill: GLORIOUS_WOUNDS
+        level: 1
+
+  - skill: ARCANE_ACCORD
+    maxLevel: 5
+
+  - skill: STEADFAST_MIND
+    maxLevel: 5
+    prerequisites:
+      - skill: ARCANE_ACCORD
+        level: 1
+
+  - skill: FORTUNES_FAVOR
+    maxLevel: 5
+    prerequisites:
+      - skill: SHARP_GAZE
+        level: 1
+      - skill: GUILD_EXTENSION
+        level: 3
+
+  - skill: EMERGENCY_MOVE
+    maxLevel: 1
+    prerequisites:
+      - skill: GREAT_LEADERSHIP
+        level: 1
+      - skill: GLORIOUS_WOUNDS
+        level: 1
+
+  - skill: BATTLE_ORDERS
+    maxLevel: 1
+    prerequisites:
+      - skill: GUILD_EXTENSION
+        level: 2
+
+  - skill: GUILD_REGENERATION
+    maxLevel: 3
+    prerequisites:
+      - skill: GUILD_EXTENSION
+        level: 5
+      - skill: BATTLE_ORDERS
+        level: 1
+
+  - skill: RESTORATION
+    maxLevel: 1
+    prerequisites:
+      - skill: GUILD_REGENERATION
+        level: 1
+
+  - skill: EMERGENCY_RECALL
+    maxLevel: 1
+    prerequisites:
+      - skill: OFFICIAL_GUILD_APPROVAL
+        level: 1
+      - skill: GUILD_REGENERATION
+        level: 1
+
+  - skill: RALLY_TO_THE_BANNER
+    maxLevel: 1
+    prerequisites:
+      - skill: EMERGENCY_RECALL
+        level: 1

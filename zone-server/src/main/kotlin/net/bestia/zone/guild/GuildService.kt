@@ -10,6 +10,7 @@ import net.bestia.zone.guild.persistence.GuildMemberRef
 import net.bestia.zone.guild.persistence.GuildMemberRepository
 import net.bestia.zone.guild.persistence.GuildRank
 import net.bestia.zone.guild.persistence.GuildRepository
+import net.bestia.zone.guild.skill.GuildSkillTree
 import net.bestia.zone.identity.ecs.GuildMembership
 import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.item.ecs.Inventory
@@ -47,6 +48,7 @@ class GuildService(
   private val levels: GuildLevels,
   private val invitations: GuildInvitations,
   private val ledger: GuildExpLedger,
+  private val skillTree: GuildSkillTree,
 ) {
 
   data class SentInvitation(val invitedAccountId: AccountId, val invitation: GuildInvitationSMSG)
@@ -97,6 +99,7 @@ class GuildService(
       canInvite = true,
       canKick = true,
       canManageRanks = true,
+      canUseGuildSkills = true,
     )
     guild.ranks.add(leaderRank)
     guild.ranks.add(GuildRank(guild = guild, position = 1, name = MEMBER_RANK_NAME, taxPercent = config.defaultTaxPercent))
@@ -255,6 +258,7 @@ class GuildService(
     canInvite: Boolean,
     canKick: Boolean,
     canManageRanks: Boolean,
+    canUseGuildSkills: Boolean,
   ): Long {
     val (guild, actor) = lockedGuildOf(playedMasterId(accountId))
     val name = DisplayName.normalizeOrNull(rawName, config.rankNameMaxLength) ?: throw GuildInvalidNameException()
@@ -269,7 +273,8 @@ class GuildService(
       }
 
       val position = guild.ranks.maxOf { it.position } + 1
-      guild.ranks.add(GuildRank(guild, position, name, taxPercent, canInvite, canKick, canManageRanks))
+      val rank = GuildRank(guild, position, name, taxPercent, canInvite, canKick, canManageRanks, canUseGuildSkills)
+      guild.ranks.add(rank)
 
       return guild.id
     }
@@ -285,6 +290,7 @@ class GuildService(
       rank.canInvite = canInvite
       rank.canKick = canKick
       rank.canManageRanks = canManageRanks
+      rank.canUseGuildSkills = canUseGuildSkills
     }
 
     guild.members.filter { it.rank.id == rank.id }.forEach { refreshMembership(it, taxPercent) }
@@ -312,20 +318,22 @@ class GuildService(
     return guild.id
   }
 
-  /** The leader spends a skill point on Guild Extension. @return the guild */
+  /** The leader spends a skill point on the guild skill [skillId]. @return the guild */
   @Transactional
-  fun investExtension(accountId: AccountId): Long {
+  fun investSkill(accountId: AccountId, skillId: Long): Long {
     val (guild, actor) = lockedGuildOf(playedMasterId(accountId))
+    val node = skillTree.find(skillId) ?: throw GuildRequestRefused("skill $skillId is no guild skill")
 
+    // The window offers only what these allow, so a refusal is a stale window or no client of ours.
     val allowed = actor.isLeader &&
-      levels.skillPoints(guild.level, guild.extensionLevel) > 0 &&
-      guild.extensionLevel < config.maxExtensionLevel
+      levels.skillPoints(guild.level, guild.spentSkillPoints) > 0 &&
+      skillTree.mayRaise(node, guild::skillLevel)
 
     if (!allowed) {
-      throw GuildRequestRefused("master ${actor.master.id} may not invest in guild ${guild.id}'s extension")
+      throw GuildRequestRefused("master ${actor.master.id} may not raise ${node.identifier} of guild ${guild.id}")
     }
 
-    guild.extensionLevel += 1
+    guild.skillLevels[node.identifier] = guild.skillLevel(node.identifier) + 1
 
     return guild.id
   }

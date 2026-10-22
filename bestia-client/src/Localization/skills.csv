@@ -218,3 +218,58 @@ no print - rock, paving, ice - keeps no tracks at all, at any rank.
 Level 2 reads which way the trail led
 Level 3 names what made it, and how strong it was
 Level 4 names another master by name"
+SKILL_9001_DESC,"The guild may carry an emblem. It shows on its members, its Stronghold and its banners."
+SKILL_9002_DESC,"The guild is recognised by the realm. It may found a Guild Stronghold and attack the
+installations of other guilds - and its own Stronghold may be attacked in turn."
+SKILL_9003_DESC,"Hires a steward for the Guild Stronghold. Members can open the guild storage at the
+steward and return to the Stronghold when they fall."
+SKILL_9004_DESC,"A storage every member with the right rank can use, kept by the steward.
+
+Each level adds more storage space."
+SKILL_9005_DESC,"Allows the guild to call watchers, Bestia that guard the Guild Stronghold."
+SKILL_9006_DESC,The watchers of the Guild Stronghold hit harder and attack faster.
+SKILL_9007_DESC,Investing in the Guild Stronghold has a 50% chance to give one free extra point.
+SKILL_9008_DESC,"More members can join the guild.
+
+`+4 members/lv`"
+SKILL_9009_DESC,"Members near the guild master fight with more strength.
+
+`+1 STR/lv` within 15 m of the guild master"
+SKILL_9010_DESC,"Members near the guild master aim more precisely.
+
+`+1 DEX/lv` within 15 m of the guild master"
+SKILL_9011_DESC,"Members near the guild master endure more.
+
+`+1 VIT/lv` within 15 m of the guild master"
+SKILL_9012_DESC,"Members near the guild master move and react faster.
+
+`+1 AGI/lv` within 15 m of the guild master"
+SKILL_9013_DESC,"Members near the guild master channel more magic.
+
+`+1 INT/lv` within 15 m of the guild master"
+SKILL_9014_DESC,"Members near the guild master resist magic better.
+
+`+1 WIL/lv` within 15 m of the guild master"
+SKILL_9015_DESC,"Everything a member of the guild defeats is more likely to drop its items.
+
+`+5%/lv` of each drop's own chance - at Lv.5 a 10% drop becomes 12.5%"
+SKILL_9016_DESC,"The members around the caster move faster for a short time.
+
+`+25%` movement speed for 10s, within 15 m. Cooldown 60s for the whole guild."
+SKILL_9017_DESC,"The members around the caster gain strength, dexterity and intelligence.
+
+`+5 STR, DEX and INT` for 180s, within 30 m. Cooldown 180s for the whole guild."
+SKILL_9018_DESC,"The members around the caster recover HP, Mana and stamina faster.
+
+`+50%/lv` regeneration for 60s, within 30 m. Cooldown 300s for the whole guild."
+SKILL_9019_DESC,"Restores 90% of the HP and Mana of the members around the caster, within 30 m.
+
+Cooldown 180s for the whole guild."
+SKILL_9020_DESC,"Calls every member of the guild to the caster. Works only inside the guild's own
+Stronghold.
+
+Cooldown 300s for the whole guild."
+SKILL_9021_DESC,"Members may plant a War Banner. Casting the skill calls every member of the guild to the
+banner - even into an enemy Stronghold. Enemies can cut the banner down.
+
+Cooldown 900s for the whole guild, separate from Emergency Recall."

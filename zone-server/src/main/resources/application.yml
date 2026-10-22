@@ -35,9 +35,8 @@ guild:
   name-max-length: 24
   rank-name-max-length: 20
   # Seats in a new guild; each Guild Extension level adds members-per-extension-level more.
-  base-max-members: 32
-  members-per-extension-level: 2
-  max-extension-level: 10
+  base-max-members: 16
+  members-per-extension-level: 4
   max-level: 50
   # Guild EXP to reach the next level is exp-unit * (L * (L + 1) / 2 + 1): Ragnarok Online's guild table, scaled
   # down to Bestia's EXP. 2000 makes Lv 10 (where Guild Extension can be maxed) 348k guild EXP.

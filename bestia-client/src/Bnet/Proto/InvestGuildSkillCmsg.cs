@@ -25,31 +25,18 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CixtZXNzYWdlcy9ndWlsZC9pbnZlc3RfZ3VpbGRfc2tpbGxfY21zZy5wcm90",
-            "bxIEYm5ldCI3ChRJbnZlc3RHdWlsZFNraWxsQ01TRxIfCgVza2lsbBgBIAEo",
-            "DjIQLmJuZXQuR3VpbGRTa2lsbCpECgpHdWlsZFNraWxsEhsKF0dVSUxEX1NL",
-            "SUxMX1VOU1BFQ0lGSUVEEAASGQoVR1VJTERfU0tJTExfRVhURU5TSU9OEAFC",
-            "MgoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQhlJbnZlc3RHdWlsZFNraWxsQ21z",
-            "Z1Byb3RvYgZwcm90bzM="));
+            "bxIEYm5ldCIoChRJbnZlc3RHdWlsZFNraWxsQ01TRxIQCghza2lsbF9pZBgB",
+            "IAEoBEIyChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CGUludmVzdEd1aWxkU2tp",
+            "bGxDbXNnUHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
-          new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.GuildSkill), }, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.InvestGuildSkillCMSG), global::Bnet.InvestGuildSkillCMSG.Parser, new[]{ "Skill" }, null, null, null, null)
+          new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.InvestGuildSkillCMSG), global::Bnet.InvestGuildSkillCMSG.Parser, new[]{ "SkillId" }, null, null, null, null)
           }));
     }
     #endregion
 
   }
-  #region Enums
-  public enum GuildSkill {
-    [pbr::OriginalName("GUILD_SKILL_UNSPECIFIED")] Unspecified = 0,
-    /// <summary>
-    /// Each level seats more members.
-    /// </summary>
-    [pbr::OriginalName("GUILD_SKILL_EXTENSION")] Extension = 1,
-  }
-
-  #endregion
-
   #region Messages
   /// <summary>
   /// The leader spends one of the guild's skill points on a guild skill.
@@ -89,7 +76,7 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public InvestGuildSkillCMSG(InvestGuildSkillCMSG other) : this() {
-      skill_ = other.skill_;
+      skillId_ = other.skillId_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -99,15 +86,18 @@ namespace Bnet {
       return new InvestGuildSkillCMSG(this);
     }
 
-    /// <summary>Field number for the "skill" field.</summary>
-    public const int SkillFieldNumber = 1;
-    private global::Bnet.GuildSkill skill_ = global::Bnet.GuildSkill.Unspecified;
+    /// <summary>Field number for the "skill_id" field.</summary>
+    public const int SkillIdFieldNumber = 1;
+    private ulong skillId_;
+    /// <summary>
+    /// A skill of the guild skill tree, by its skills.yml id.
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Bnet.GuildSkill Skill {
-      get { return skill_; }
+    public ulong SkillId {
+      get { return skillId_; }
       set {
-        skill_ = value;
+        skillId_ = value;
       }
     }
 
@@ -126,7 +116,7 @@ namespace Bnet {
       if (ReferenceEquals(other, this)) {
         return true;
       }
-      if (Skill != other.Skill) return false;
+      if (SkillId != other.SkillId) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -134,7 +124,7 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
-      if (Skill != global::Bnet.GuildSkill.Unspecified) hash ^= Skill.GetHashCode();
+      if (SkillId != 0UL) hash ^= SkillId.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -153,9 +143,9 @@ namespace Bnet {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
-      if (Skill != global::Bnet.GuildSkill.Unspecified) {
+      if (SkillId != 0UL) {
         output.WriteRawTag(8);
-        output.WriteEnum((int) Skill);
+        output.WriteUInt64(SkillId);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -167,9 +157,9 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (Skill != global::Bnet.GuildSkill.Unspecified) {
+      if (SkillId != 0UL) {
         output.WriteRawTag(8);
-        output.WriteEnum((int) Skill);
+        output.WriteUInt64(SkillId);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
@@ -181,8 +171,8 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
-      if (Skill != global::Bnet.GuildSkill.Unspecified) {
-        size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) Skill);
+      if (SkillId != 0UL) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(SkillId);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -196,8 +186,8 @@ namespace Bnet {
       if (other == null) {
         return;
       }
-      if (other.Skill != global::Bnet.GuildSkill.Unspecified) {
-        Skill = other.Skill;
+      if (other.SkillId != 0UL) {
+        SkillId = other.SkillId;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -219,7 +209,7 @@ namespace Bnet {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
           case 8: {
-            Skill = (global::Bnet.GuildSkill) input.ReadEnum();
+            SkillId = input.ReadUInt64();
             break;
           }
         }
@@ -242,7 +232,7 @@ namespace Bnet {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
           case 8: {
-            Skill = (global::Bnet.GuildSkill) input.ReadEnum();
+            SkillId = input.ReadUInt64();
             break;
           }
         }

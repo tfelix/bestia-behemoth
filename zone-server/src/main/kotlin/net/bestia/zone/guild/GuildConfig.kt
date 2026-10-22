@@ -8,10 +8,9 @@ data class GuildConfig(
   val nameMaxLength: Int = 24,
   val rankNameMaxLength: Int = 20,
   /** Seats in a new guild. */
-  val baseMaxMembers: Int = 32,
+  val baseMaxMembers: Int = 16,
   /** Seats each Guild Extension level adds. */
-  val membersPerExtensionLevel: Int = 2,
-  val maxExtensionLevel: Int = 10,
+  val membersPerExtensionLevel: Int = 4,
   val maxLevel: Int = 50,
   /** Scales the whole level curve; see [GuildLevels.requiredExp]. */
   val expUnit: Long = 2_000,
@@ -29,7 +28,6 @@ data class GuildConfig(
     require(rankNameMaxLength > 0) { "guild.rank-name-max-length must be positive, was $rankNameMaxLength" }
     require(baseMaxMembers >= 1) { "guild.base-max-members must seat the leader, was $baseMaxMembers" }
     require(membersPerExtensionLevel >= 0) { "guild.members-per-extension-level must not be negative" }
-    require(maxExtensionLevel >= 0) { "guild.max-extension-level must not be negative" }
     require(maxLevel >= 1) { "guild.max-level must be at least 1, was $maxLevel" }
     require(expUnit > 0) { "guild.exp-unit must be positive, was $expUnit" }
     require(maxRanks >= 2) { "guild.max-ranks must leave a rank below the leader's, was $maxRanks" }

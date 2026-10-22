@@ -75,8 +75,34 @@ class GuildRankRulesTest {
     assertFalse(GuildRankRules.maySetRank(officer, member, officerRank), "that would be a promotion to their own rank")
   }
 
-  private fun rank(position: Int, name: String, invite: Boolean = false, kick: Boolean = false, manage: Boolean = false) =
-    GuildRank(guild, position, name, taxPercent = 5, canInvite = invite, canKick = kick, canManageRanks = manage)
+  @Test
+  fun `the leader may always use guild skills, others only by their rank`() {
+    val caster = GuildMember(guild, master(5), rank(3, "Caster", useSkills = true))
+
+    assertTrue(GuildRankRules.mayUseGuildSkills(leader))
+    assertTrue(GuildRankRules.mayUseGuildSkills(caster))
+    assertFalse(GuildRankRules.mayUseGuildSkills(officer))
+  }
+
+  private fun rank(
+    position: Int,
+    name: String,
+    invite: Boolean = false,
+    kick: Boolean = false,
+    manage: Boolean = false,
+    useSkills: Boolean = false,
+  ): GuildRank {
+    return GuildRank(
+      guild,
+      position,
+      name,
+      taxPercent = 5,
+      canInvite = invite,
+      canKick = kick,
+      canManageRanks = manage,
+      canUseGuildSkills = useSkills,
+    )
+  }
 
   private fun master(id: Long): Master = mockk(relaxed = true) {
     every { this@mockk.id } returns id

@@ -54,8 +54,8 @@ class GuildLevels(
     return config.baseMaxMembers + extensionLevel * config.membersPerExtensionLevel
   }
 
-  /** One point per level, the founding level included, less those spent on Guild Extension. */
-  fun skillPoints(level: Int, extensionLevel: Int): Int {
-    return (level - extensionLevel).coerceAtLeast(0)
+  /** One point per level, the founding level included, less those already spent on guild skills. */
+  fun skillPoints(level: Int, spentSkillPoints: Int): Int {
+    return (level - spentSkillPoints).coerceAtLeast(0)
   }
 }
