@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSr5EAoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSqUEQoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -74,8 +74,9 @@ namespace Bnet {
             "VUlMRF9MRUFERVJfTVVTVF9ESVNCQU5EEE8SGAoUR1VJTERfU0tJTExfQ09P",
             "TERPV04QUBIbChdHVUlMRF9OT1RfSU5fU1RST05HSE9MRBBREhMKD0dVSUxE",
             "X05PX0JBTk5FUhBSEhwKGEdVSUxEX0JBTk5FUl9OT1RfQUxMT1dFRBBTEh0K",
-            "GUdVSUxEX0JBTk5FUl9PVVRfT0ZfUkFOR0UQVEIsChVuZXQuYmVzdGlhLmJu",
-            "ZXQucHJvdG9CE09wZXJhdGlvbkVycm9yUHJvdG9iBnByb3RvMw=="));
+            "GUdVSUxEX0JBTk5FUl9PVVRfT0ZfUkFOR0UQVBIZChVHVUlMRF9UQVJHRVRf",
+            "RVhQRUxMRUQQVUIsChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CE09wZXJhdGlv",
+            "bkVycm9yUHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -403,6 +404,11 @@ namespace Bnet {
     /// </summary>
     [pbr::OriginalName("GUILD_BANNER_NOT_ALLOWED")] GuildBannerNotAllowed = 83,
     [pbr::OriginalName("GUILD_BANNER_OUT_OF_RANGE")] GuildBannerOutOfRange = 84,
+    /// <summary>
+    /// The master was expelled from the guild and stays out until a rank that may kick lifts it. Carries the name
+    /// in args[0].
+    /// </summary>
+    [pbr::OriginalName("GUILD_TARGET_EXPELLED")] GuildTargetExpelled = 85,
   }
 
   #endregion

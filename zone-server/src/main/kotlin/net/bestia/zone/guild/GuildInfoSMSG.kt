@@ -25,7 +25,11 @@ data class GuildInfoSMSG(
   val motdTitleMaxLength: Int,
   val motdBodyMaxLength: Int,
   val emblemHash: String,
+  val expulsions: List<Expulsion>,
 ) : SMSG {
+
+  data class Expulsion(val masterId: Long, val masterName: String, val reason: String, val atEpochMillis: Long)
+
 
   data class Rank(
     val rankId: Long,
@@ -123,6 +127,14 @@ data class GuildInfoSMSG(
       .setMotdTitleMaxLength(motdTitleMaxLength)
       .setMotdBodyMaxLength(motdBodyMaxLength)
       .setEmblemHash(emblemHash)
+      .addAllExpulsions(expulsions.map { expulsion ->
+        GuildInfoSmsgProto.GuildExpulsion.newBuilder()
+          .setMasterId(expulsion.masterId)
+          .setMasterName(expulsion.masterName)
+          .setReason(expulsion.reason)
+          .setAtEpochMs(expulsion.atEpochMillis)
+          .build()
+      })
       .build()
 
     return EnvelopeProto.Envelope.newBuilder()
@@ -152,6 +164,7 @@ data class GuildInfoSMSG(
       motdTitleMaxLength = 0,
       motdBodyMaxLength = 0,
       emblemHash = "",
+      expulsions = emptyList(),
     )
   }
 }

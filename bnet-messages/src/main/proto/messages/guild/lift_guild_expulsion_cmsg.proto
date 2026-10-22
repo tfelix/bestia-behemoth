@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "LiftGuildExpulsionCmsgProto";
+
+// A member whose rank may kick lets an expelled master be invited again.
+message LiftGuildExpulsionCMSG {
+  uint64 master_id = 1;
+}

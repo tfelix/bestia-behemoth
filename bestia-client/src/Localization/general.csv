@@ -178,6 +178,7 @@ ERROR_GUILD_INVALID_NAME,"That name cannot be used: plain letters, digits and si
 ERROR_GUILD_NOT_A_MEMBER,You are not in a guild.
 ERROR_GUILD_TARGET_UNAVAILABLE,No player named %s is online.
 ERROR_GUILD_TARGET_IN_GUILD,%s is already in a guild.
+ERROR_GUILD_TARGET_EXPELLED,%s was expelled from your guild. Lift the expulsion on the Members tab first.
 ERROR_GUILD_FULL,The guild is full. Guild Extension seats more members.
 ERROR_GUILD_INVITE_EXPIRED,That guild invitation has expired.
 ERROR_GUILD_INVITE_DECLINED,%s declined the guild invitation.
@@ -259,6 +260,11 @@ GUILD_SEEN_MINUTES,%d min ago
 GUILD_SEEN_HOURS,%d h ago
 GUILD_SEEN_DAYS,%d d ago
 GUILD_KICK,Remove from the guild
+GUILD_KICK_PROMPT,Remove %s from the guild? They cannot be invited again until the expulsion is lifted.
+GUILD_KICK_REASON,Reason (optional)
+GUILD_KICK_CONFIRM,Remove
+GUILD_EXPELLED,Expelled
+GUILD_EXPULSION_LIFT,Lift the expulsion: they may be invited again
 GUILD_HAND_OVER,Make guild master
 GUILD_HAND_OVER_CONFIRM,Hand over
 GUILD_HAND_OVER_TEXT,"Hand %s to %s? They lead it from now on, and you take their rank, %s."
@@ -292,6 +298,8 @@ GUILD_LOG_FOUNDED,{actor} founded the guild.
 GUILD_LOG_JOINED,{actor} joined the guild.
 GUILD_LOG_LEFT,{actor} left the guild.
 GUILD_LOG_KICKED,{actor} removed {target} from the guild.
+GUILD_LOG_KICKED_FOR,{actor} removed {target} from the guild: {detail}
+GUILD_LOG_EXPULSION_LIFTED,{actor} lifted the expulsion of {target}.
 GUILD_LOG_RANK_SET,{actor} made {target} {detail}.
 GUILD_LOG_RANK_ADDED,{actor} added the rank {detail}.
 GUILD_LOG_RANK_EDITED,{actor} changed the rank {detail}.

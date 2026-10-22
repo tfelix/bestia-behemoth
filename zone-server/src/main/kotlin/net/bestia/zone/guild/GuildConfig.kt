@@ -21,6 +21,7 @@ data class GuildConfig(
   val maxTaxPercent: Int = 50,
   val motdTitleMaxLength: Int = 60,
   val motdBodyMaxLength: Int = 240,
+  val expulsionReasonMaxLength: Int = 60,
   val invitationTimeoutSeconds: Long = 60,
   /** How often taxed EXP is written to the guilds; a crash loses at most this much. */
   val expFlushSeconds: Long = 30,
@@ -46,6 +47,7 @@ data class GuildConfig(
     require(defaultTaxPercent in minTaxPercent..maxTaxPercent) {
       "guild.default-tax-percent must lie within the tax bounds, was $defaultTaxPercent"
     }
+    require(expulsionReasonMaxLength > 0) { "guild.expulsion-reason-max-length must be positive" }
     require(motdTitleMaxLength > 0 && motdBodyMaxLength > 0) { "guild message of the day lengths must be positive" }
     require(invitationTimeoutSeconds > 0) { "guild.invitation-timeout-seconds must be positive" }
     require(expFlushSeconds > 0) { "guild.exp-flush-seconds must be positive" }

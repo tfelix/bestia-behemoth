@@ -48,6 +48,7 @@ guild:
   max-tax-percent: 50
   motd-title-max-length: 60
   motd-body-max-length: 240
+  expulsion-reason-max-length: 60
   invitation-timeout-seconds: 60
   # Taxed EXP is gathered in memory and written to the guild this often. A crash loses at most this much.
   exp-flush-seconds: 30

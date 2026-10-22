@@ -6,12 +6,14 @@ import net.bestia.zone.message.CMSG
 data class KickGuildMemberCMSG(
   override val playerId: Long,
   val masterId: Long,
+  val reason: String = "",
 ) : CMSG {
   companion object {
     fun fromBnet(accountId: Long, proto: KickGuildMemberCmsgProto.KickGuildMemberCMSG): KickGuildMemberCMSG {
       return KickGuildMemberCMSG(
         playerId = accountId,
         masterId = proto.masterId,
+        reason = proto.reason,
       )
     }
   }

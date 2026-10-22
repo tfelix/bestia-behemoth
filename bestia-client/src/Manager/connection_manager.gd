@@ -127,6 +127,7 @@ var RequestGuildLogCMSG = load("res://Bnet/Message/Guild/RequestGuildLogCMSG.cs"
 var SetGuildMotdCMSG = load("res://Bnet/Message/Guild/SetGuildMotdCMSG.cs")
 var SetGuildEmblemCMSG = load("res://Bnet/Message/Guild/SetGuildEmblemCMSG.cs")
 var TransferGuildLeadershipCMSG = load("res://Bnet/Message/Guild/TransferGuildLeadershipCMSG.cs")
+var LiftGuildExpulsionCMSG = load("res://Bnet/Message/Guild/LiftGuildExpulsionCMSG.cs")
 var Ping = load("res://Bnet/Message/Ping.cs")
 var ChunkStreamManagerScript = load("res://Game/World/ChunkStreamManager.cs")
 var WeatherStateScript = load("res://Game/World/WeatherState.cs")
@@ -741,9 +742,18 @@ func leave_guild() -> void:
 	_socket.SendMessage(LeaveGuildCMSG.new())
 
 
-func kick_guild_member(master_id: int) -> void:
+## Kicks and expels [param master_id]; it cannot be invited again until [method lift_guild_expulsion].
+func kick_guild_member(master_id: int, reason: String) -> void:
 	assert(is_ready_to_send())
 	var msg = KickGuildMemberCMSG.new()
+	msg.MasterId = master_id
+	msg.Reason = reason
+	_socket.SendMessage(msg)
+
+
+func lift_guild_expulsion(master_id: int) -> void:
+	assert(is_ready_to_send())
+	var msg = LiftGuildExpulsionCMSG.new()
 	msg.MasterId = master_id
 	_socket.SendMessage(msg)
 
