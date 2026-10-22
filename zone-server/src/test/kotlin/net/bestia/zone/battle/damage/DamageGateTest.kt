@@ -6,6 +6,8 @@ import net.bestia.zone.battle.status.HarmShield
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.entity.ecs.PlayerStructureIdentity
 import net.bestia.zone.identity.ecs.Account
+import net.bestia.zone.identity.ecs.GuildMembership
+import net.bestia.zone.identity.ecs.GuildOwned
 import net.bestia.zone.util.EntityId
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -104,6 +106,28 @@ class DamageGateTest {
     assertEquals(DamageGate.Verdict.ADMITTED, DamageGate.verdict(world, GONE, warded, sourceOwner = null))
   }
 
+  @Test
+  fun `a guild's banner is safe from its own members and their bestias, not from other guilds`() {
+    val banner = world.createEntity { id -> add(id, GuildOwned(GUILD)) }
+    val member = player().also { world.add(it, GuildMembership(GUILD, taxPercent = 5)) }
+    val membersBestia = world.createEntity { id -> add(id, Account(accountId = member)) }
+    val enemy = player().also { world.add(it, GuildMembership(OTHER_GUILD, taxPercent = 5)) }
+
+    assertEquals(DamageGate.Verdict.OWN, DamageGate.verdict(world, member, banner))
+    assertEquals(DamageGate.Verdict.OWN, DamageGate.verdict(world, membersBestia, banner))
+    assertEquals(DamageGate.Verdict.ADMITTED, DamageGate.verdict(world, enemy, banner))
+  }
+
+  @Test
+  fun `a ward protects a guild's banner like anything else a player owns`() {
+    val banner = world.createEntity { id ->
+      add(id, GuildOwned(GUILD))
+      add(id, StatusEffects(mutableListOf(ActiveStatusEffect(1L, 1, 10f, shield = HarmShield.PLAYERS))))
+    }
+
+    assertEquals(DamageGate.Verdict.WARDED, DamageGate.verdict(world, player(), banner))
+  }
+
   private fun player(shield: HarmShield? = null): EntityId {
     return entity(shield).also { world.add(it, Account(accountId = it)) }
   }
@@ -115,6 +139,9 @@ class DamageGateTest {
   }
 
   private companion object {
+    const val GUILD = 1L
+    const val OTHER_GUILD = 2L
+
     /** No entity has this id: the caster of a fire that outlived it. */
     const val GONE = 424_242L
 

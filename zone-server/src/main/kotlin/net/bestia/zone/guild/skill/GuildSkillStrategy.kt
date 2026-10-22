@@ -25,6 +25,11 @@ abstract class GuildSkillStrategy(
   /** What the cast does once the cooldown is claimed. */
   protected abstract fun land(ctx: SkillContext, guildId: Long)
 
+  /** A reason of the skill's own to refuse the cast before it starts. */
+  protected open fun refusal(world: World, casterId: EntityId, membership: GuildMembership): OpError? {
+    return null
+  }
+
   override fun checkCastStart(world: World, casterId: EntityId, skillLevel: Int): OpError? {
     val membership = world.get(casterId, GuildMembership::class) ?: return OpError.GUILD_NOT_A_MEMBER
     val skillId = tree.find(skill)?.skillId ?: return OpError.REQUEST_REFUSED
@@ -33,7 +38,7 @@ abstract class GuildSkillStrategy(
       return OpError.GUILD_SKILL_COOLDOWN
     }
 
-    return null
+    return refusal(world, casterId, membership)
   }
 
   override fun isCastPossible(ctx: SkillContext): Boolean {

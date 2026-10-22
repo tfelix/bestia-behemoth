@@ -81,7 +81,10 @@ enum class StaticEntityKind {
 
   // The ward stone at each home village. An always-present entity the client draws as a structure, so this names
   // its model; it never travels the static channel.
-  WARD_STONE;
+  WARD_STONE,
+
+  // A guild's War Banner, drawn like the ward stone: an ordinary entity, never on the static channel.
+  WAR_BANNER;
 
   /**
    * Whether this is a building, whose walls are voxels rather than something drawn from the prop alone.

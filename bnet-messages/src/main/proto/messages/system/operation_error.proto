@@ -230,6 +230,13 @@ enum OpError {
   GUILD_LEADER_MUST_DISBAND = 79;
   // A guild skill recovers for the whole guild after one member cast it.
   GUILD_SKILL_COOLDOWN = 80;
+  // Emergency Recall works only inside the guild's own Stronghold.
+  GUILD_NOT_IN_STRONGHOLD = 81;
+  // Rally to the Banner needs the guild's War Banner standing.
+  GUILD_NO_BANNER = 82;
+  // Planting a War Banner needs Rally to the Banner and a rank that may use guild skills.
+  GUILD_BANNER_NOT_ALLOWED = 83;
+  GUILD_BANNER_OUT_OF_RANGE = 84;
 }
 
 message OperationError {

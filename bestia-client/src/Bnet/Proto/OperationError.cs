@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSqKEAoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSr5EAoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -72,8 +72,10 @@ namespace Bnet {
             "QVJHRVRfSU5fR1VJTEQQSxIOCgpHVUlMRF9GVUxMEEwSGAoUR1VJTERfSU5W",
             "SVRFX0VYUElSRUQQTRIZChVHVUlMRF9JTlZJVEVfREVDTElORUQQThIdChlH",
             "VUlMRF9MRUFERVJfTVVTVF9ESVNCQU5EEE8SGAoUR1VJTERfU0tJTExfQ09P",
-            "TERPV04QUEIsChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CE09wZXJhdGlvbkVy",
-            "cm9yUHJvdG9iBnByb3RvMw=="));
+            "TERPV04QUBIbChdHVUlMRF9OT1RfSU5fU1RST05HSE9MRBBREhMKD0dVSUxE",
+            "X05PX0JBTk5FUhBSEhwKGEdVSUxEX0JBTk5FUl9OT1RfQUxMT1dFRBBTEh0K",
+            "GUdVSUxEX0JBTk5FUl9PVVRfT0ZfUkFOR0UQVEIsChVuZXQuYmVzdGlhLmJu",
+            "ZXQucHJvdG9CE09wZXJhdGlvbkVycm9yUHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -388,6 +390,19 @@ namespace Bnet {
     /// A guild skill recovers for the whole guild after one member cast it.
     /// </summary>
     [pbr::OriginalName("GUILD_SKILL_COOLDOWN")] GuildSkillCooldown = 80,
+    /// <summary>
+    /// Emergency Recall works only inside the guild's own Stronghold.
+    /// </summary>
+    [pbr::OriginalName("GUILD_NOT_IN_STRONGHOLD")] GuildNotInStronghold = 81,
+    /// <summary>
+    /// Rally to the Banner needs the guild's War Banner standing.
+    /// </summary>
+    [pbr::OriginalName("GUILD_NO_BANNER")] GuildNoBanner = 82,
+    /// <summary>
+    /// Planting a War Banner needs Rally to the Banner and a rank that may use guild skills.
+    /// </summary>
+    [pbr::OriginalName("GUILD_BANNER_NOT_ALLOWED")] GuildBannerNotAllowed = 83,
+    [pbr::OriginalName("GUILD_BANNER_OUT_OF_RANGE")] GuildBannerOutOfRange = 84,
   }
 
   #endregion

@@ -672,6 +672,7 @@ skills:
 
   - id: 9020
     identifier: EMERGENCY_RECALL
+    script: EmergencyRecall
     targetType: FRIENDLY
     description: |
       Calls every member of the guild to the caster. Works only inside the guild's own
@@ -681,6 +682,7 @@ skills:
 
   - id: 9021
     identifier: RALLY_TO_THE_BANNER
+    script: RallyToTheBanner
     targetType: FRIENDLY
     description: |
       Members may plant a War Banner. Casting the skill calls every member of the guild to the
