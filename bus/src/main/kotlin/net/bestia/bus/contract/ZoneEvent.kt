@@ -38,6 +38,9 @@ sealed interface ZoneEvent {
   /** The account entered the world with [masterId], or left it ([inWorld] false, [masterId] null). */
   data class Presence(override val accountId: Long, val masterId: Long?, val inWorld: Boolean) : ZoneEvent
 
+  /** [masterId] saw or caught a species for the first time. */
+  data class CompendiumChanged(override val accountId: Long, val masterId: Long) : ZoneEvent
+
   /** What [masterId] can see of the map may have changed. */
   data class ChartsChanged(override val accountId: Long, val masterId: Long) : ZoneEvent
 

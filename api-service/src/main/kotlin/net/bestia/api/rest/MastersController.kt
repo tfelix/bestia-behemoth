@@ -155,6 +155,16 @@ class MastersController(
     )
   }
 
+  /** Only species the master has seen; every other number in the catalogue is unseen. */
+  data class CompendiumEntry(val speciesId: Long, val caught: Boolean, val firstSeen: Long)
+
+  @GetMapping("/{masterId}/compendium")
+  fun compendium(@RequestAttribute(ACCOUNT_ID) accountId: Long, @PathVariable masterId: Long): List<CompendiumEntry> {
+    val data: ZoneAnswer.CompendiumData = ask(accountId, ZoneQuery.Compendium(masterId))
+
+    return data.entries.map { CompendiumEntry(it.speciesId, it.caught, it.firstSeenEpochMs) }
+  }
+
   private inline fun <reified T : ZoneAnswer> ask(accountId: Long, query: ZoneQuery): T {
     return cache.get(accountId, query) { zone.ask(accountId, query).answerOrThrow<T>() }
   }

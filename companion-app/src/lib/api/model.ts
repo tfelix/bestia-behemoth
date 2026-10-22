@@ -18,6 +18,7 @@ export type Place = Schemas['Place'];
 export type StanceOrder = Schemas['StanceOrder'];
 export type ChatOrder = Schemas['ChatOrder'];
 export type Preferences = Schemas['Preferences'];
+export type CompendiumEntry = Schemas['CompendiumEntry'];
 
 export const STANCES = ['HOLD', 'PATROL', 'FORAGE', 'DEFEND'] as const;
 export type Stance = (typeof STANCES)[number];

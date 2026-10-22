@@ -9,17 +9,18 @@ import { inWorld, serverTileOf, type ServerTile } from './tiles';
 export const MAX_ZOOM = 1;
 
 /**
- * The master's charted map as a Leaflet layer. Tiles are fetched with the session's token, so they cannot be
- * plain <img> URLs. Every request is spent from the account's budget, so a tile already fetched is taken from
- * the [cache], a failure that may pass (over budget, a busy world) is asked again, and a tile that has left the
- * view stops being asked for. Only a 404 is uncharted ground, drawn as fog.
+ * The master's charted map as a Leaflet layer, or an overlay drawn on the same tiles. Tiles are fetched with the
+ * session's token, so they cannot be plain <img> URLs. Every request is spent from the account's budget, so a
+ * tile already fetched is taken from the [cache], a failure that may pass (over budget, a busy world) is asked
+ * again, and a tile that has left the view stops being asked for. Only a 404 is uncharted ground, drawn as fog.
  */
 class ChartLayer extends L.GridLayer {
 	private readonly urls = new Map<string, string>();
 	private readonly requests = new Map<string, AbortController>();
 
 	constructor(
-		private readonly masterId: number,
+		/** The server path of a tile, such as `/v1/companion/masters/5/map/t/3/1/2.png`. */
+		private readonly pathOf: (tile: ServerTile) => string,
 		private readonly meta: MapMeta,
 		private readonly cache: ChartCache
 	) {
@@ -62,7 +63,7 @@ class ChartLayer extends L.GridLayer {
 	}
 
 	private async fetchTile(tile: ServerTile, coords: L.Coords, img: HTMLImageElement, signal: AbortSignal): Promise<void> {
-		const path = `/v1/companion/masters/${this.masterId}/map/t/${tile.level}/${tile.x}/${tile.y}.png`;
+		const path = this.pathOf(tile);
 
 		const known = this.cache.tiles.get(path);
 		if (known !== undefined) {
@@ -119,7 +120,17 @@ class ChartLayer extends L.GridLayer {
 }
 
 export function chartLayer(masterId: number, meta: MapMeta, cache: ChartCache): L.GridLayer {
-	return new ChartLayer(masterId, meta, cache);
+	return new ChartLayer((t) => `/v1/companion/masters/${masterId}/map/t/${t.level}/${t.x}/${t.y}.png`, meta, cache);
+}
+
+/** Where a species the master has seen lives, over the charted tiles. Uncharted ground stays empty. */
+export function habitatLayer(masterId: number, speciesId: number, meta: MapMeta, cache: ChartCache): L.GridLayer {
+	const layer = new ChartLayer(
+		(t) => `/v1/companion/masters/${masterId}/map/h/${speciesId}/${t.level}/${t.x}/${t.y}.png`,
+		meta,
+		cache
+	);
+	return layer.setZIndex(2);
 }
 
 /** The named places of the tiles in view, as labels over the symbols the tiles already draw. */

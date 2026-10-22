@@ -9,7 +9,7 @@ const LOCALIZATION = fileURLToPath(new URL('../bestia-client/src/Localization/',
 const NAMES_MODULE = 'virtual:bestia-names';
 
 /**
- * The English names of items and bestias, from the game client's own translation tables, so the app and the
+ * The English names of items, bestias and biomes, from the game client's own translation tables, so the app and the
  * game never disagree on what a thing is called. Read at build time; the server only ever sends identifiers.
  */
 function bestiaNames(): Plugin {
@@ -22,11 +22,12 @@ function bestiaNames(): Plugin {
 			if (id !== '\0' + NAMES_MODULE) return null;
 
 			const names: Record<string, string> = {};
-			for (const table of ['items.csv', 'bestias.csv']) {
+			// general.csv is the client's UI text; only its biome names are wanted here.
+			for (const [table, wanted] of [['items.csv', ''], ['bestias.csv', ''], ['general.csv', 'BIOME_']]) {
 				const path = LOCALIZATION + table;
 				this.addWatchFile(path);
 				for (const [key, english] of parseCsv(readFileSync(path, 'utf8')).slice(1)) {
-					if (key && english) names[key] = english;
+					if (key?.startsWith(wanted) && english) names[key] = english;
 				}
 			}
 			return `export default ${JSON.stringify(names)};`;
@@ -40,6 +41,8 @@ function bestiaNames(): Plugin {
 export default defineConfig({
 	plugins: [sveltekit(), bestiaNames()],
 	server: {
+		// The bestia portraits are the game client's own files, imported from beside this app.
+		fs: { allow: ['.', '../bestia-client/src/Game/Bestia'] },
 		port: 5173,
 		strictPort: true,
 		proxy: {

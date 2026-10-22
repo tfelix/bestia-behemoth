@@ -8,6 +8,7 @@ import net.bestia.bus.contract.ZoneQuery
 import net.bestia.zone.account.persistence.MasterRepository
 import net.bestia.zone.account.persistence.PlayerBestiaRepository
 import net.bestia.zone.ai.profile.IdleStance
+import net.bestia.zone.compendium.CompendiumStore
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -34,6 +35,9 @@ class CompanionRequestDispatcherTest {
   @Autowired
   private lateinit var playerBestias: PlayerBestiaRepository
 
+  @Autowired
+  private lateinit var compendium: CompendiumStore
+
   @Test
   fun `an account sees its own masters and nobody else's`() {
     val answer = ask(1L, ZoneQuery.ListMasters).answer
@@ -51,6 +55,7 @@ class CompanionRequestDispatcherTest {
       ZoneQuery.BestiaRoster(foreign.id),
       ZoneQuery.Inventory(foreign.id),
       ZoneQuery.PartyRoster(foreign.id),
+      ZoneQuery.Compendium(foreign.id),
       ZoneQuery.MapTile(foreign.id, level = 0, x = 0, y = 0, ifNoneMatch = null),
     )) {
       assertEquals(Status.NOT_FOUND, ask(1L, query).status, "for $query")
@@ -102,6 +107,26 @@ class CompanionRequestDispatcherTest {
   }
 
   @Test
+  fun `the compendium lists what the master has seen, and the catalogue the habitat`() {
+    // A master of account 2 owns no bestias, so nothing else in the shared context writes to its book.
+    val master = masters.findAllByAccountIdOrderBySlot(2L).first()
+    try {
+      compendium.recordSeen(master.id, BLOB)
+
+      val book = ask(2L, ZoneQuery.Compendium(master.id)).answer
+      assertIs<ZoneAnswer.CompendiumData>(book)
+      assertEquals(listOf(BLOB), book.entries.map { it.speciesId })
+      assertEquals(false, book.entries.single().caught)
+
+      val catalog = assertIs<ZoneAnswer.CatalogData>(ask(2L, ZoneQuery.Catalog).answer)
+      val blob = catalog.bestias.single { it.id == BLOB }
+      assertTrue("GRASSLAND" in blob.habitat && blob.inCompendium)
+    } finally {
+      compendium.deleteAllOf(master.id)
+    }
+  }
+
+  @Test
   fun `the map meta describes the pyramid`() {
     val meta = ask(1L, ZoneQuery.MapMeta).answer
 
@@ -111,5 +136,9 @@ class CompanionRequestDispatcherTest {
 
   private fun ask(accountId: Long, query: ZoneQuery): BusReply {
     return dispatcher.handle(BusRequest("c", "r", Long.MAX_VALUE, accountId, idempotencyKey = null, query = query))
+  }
+
+  private companion object {
+    const val BLOB = 1L
   }
 }

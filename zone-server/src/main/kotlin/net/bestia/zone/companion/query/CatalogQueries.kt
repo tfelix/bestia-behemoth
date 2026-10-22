@@ -28,7 +28,15 @@ class CatalogQueries(
       ZoneAnswer.CatalogData.Item(it.id, it.identifier, it.type.name, it.weight, it.equipSlot?.name, it.stackable)
     }
     val species = bestias.all().sortedBy { it.id }.map {
-      ZoneAnswer.CatalogData.Species(it.id, it.identifier, it.kind.name, it.element.name, it.level)
+      ZoneAnswer.CatalogData.Species(
+        it.id,
+        it.identifier,
+        it.kind.name,
+        it.element.name,
+        it.level,
+        it.habitat.split(',').filter { biome -> biome.isNotEmpty() },
+        it.inCompendium,
+      )
     }
 
     return ZoneAnswer.CatalogData(version(itemRows, species), itemRows, species)

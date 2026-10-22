@@ -19,6 +19,9 @@ sealed interface ZoneQuery {
 
   data class PartyRoster(val masterId: Long) : ZoneQuery
 
+  /** The species [masterId] has seen, from its Bestia Compendium. */
+  data class Compendium(val masterId: Long) : ZoneQuery
+
   data object Catalog : ZoneQuery
 
   data object MapMeta : ZoneQuery

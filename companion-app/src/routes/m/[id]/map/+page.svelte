@@ -3,20 +3,36 @@
 	import L from 'leaflet';
 	import { page } from '$app/state';
 	import { getJson } from '$lib/api/client';
-	import type { Bestia, MapMeta, MasterSheet } from '$lib/api/model';
+	import type { Bestia, Catalog, MapMeta, MasterSheet } from '$lib/api/model';
 	import { guarded } from '$lib/guard';
 	import { live } from '$lib/live.svelte';
 	import { ChartCache } from '$lib/map/chartCache';
-	import { chartLayer, MAX_ZOOM, placeLabels } from '$lib/map/chartLayer';
+	import { chartLayer, habitatLayer, MAX_ZOOM, placeLabels } from '$lib/map/chartLayer';
 	import { speciesName } from '$lib/names';
 
 	const masterId = $derived(Number(page.params.id));
+	/** The species whose habitat is laid over the map, picked in the compendium; 0 for none. */
+	const habitat = $derived(Number(page.url.searchParams.get('habitat')) || 0);
+	let habitatName = $state<string | null>(null);
 	let container = $state<HTMLDivElement>();
 	let failure = $state<string | null>(null);
 
 	$effect(() => {
+		const id = habitat;
+		habitatName = null;
+		if (id === 0) return;
+		void getJson<Catalog>('/v1/companion/catalog')
+			.then((catalog) => {
+				const species = catalog.bestias.find((s) => s.id === id);
+				if (species && id === habitat) habitatName = speciesName(species.identifier);
+			})
+			.catch(() => {});
+	});
+
+	$effect(() => {
 		const id = masterId;
 		const element = container;
+		const species = habitat;
 		if (!element) return;
 
 		let map: L.Map | null = null;
@@ -51,6 +67,7 @@
 				]
 			});
 			chartLayer(id, meta, cache).addTo(map);
+			if (species !== 0) habitatLayer(id, species, meta, cache).addTo(map);
 			placeLabels(id, map, meta, cache).addTo(map);
 			markers.addTo(map);
 
@@ -60,7 +77,7 @@
 
 		const unsubscribe = live.on((event) => {
 			if (event.data.masterId !== id) return;
-			if (event.type === 'ChartsChanged') cache.clear();
+			if (event.type === 'ChartsChanged' || event.type === 'CompendiumChanged') cache.clear();
 			void placeMarkers().catch(() => {});
 		});
 
@@ -80,6 +97,9 @@
 
 <main class="map-page">
 	{#if failure}<p class="alert">{failure}</p>{/if}
+	{#if habitat !== 0}
+		<a class="chip habitat" href={`/m/${masterId}/map`} title="Stop showing this habitat">Habitat: {habitatName ?? '…'} ✕</a>
+	{/if}
 	<div class="map" bind:this={container}></div>
 	<p class="legend label"><span class="dot master"></span> your Master <span class="dot bestia"></span> your Bestia · fog is ground you have not charted</p>
 </main>
@@ -129,6 +149,16 @@
 
 	.map :global(.pin-bestia) {
 		background: var(--good);
+	}
+
+	.habitat {
+		position: absolute;
+		top: 0.5rem;
+		left: 50%;
+		z-index: 500;
+		transform: translateX(-50%);
+		background: var(--card);
+		color: var(--brass);
 	}
 
 	.legend {

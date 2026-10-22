@@ -6,6 +6,7 @@ import net.bestia.zone.account.persistence.MasterRepository
 import net.bestia.zone.account.persistence.PlayerBestiaRepository
 import net.bestia.zone.battle.ecs.damage.OwnedBestiaDiedEvent
 import net.bestia.zone.cartography.chart.ChartsChangedEvent
+import net.bestia.zone.compendium.CompendiumChangedEvent
 import net.bestia.zone.master.HomeFellEvent
 import net.bestia.zone.master.bestia.BestiaAiConfigChangedEvent
 import net.bestia.zone.persistence.AsyncJobExecutor
@@ -68,6 +69,12 @@ class ZoneEventRelay(
         event.config.aggression,
       )
     )
+  }
+
+  /** Published by the compendium's own job, after its write committed. */
+  @EventListener
+  fun onCompendiumChanged(event: CompendiumChangedEvent) {
+    events.publish(ZoneEvent.CompendiumChanged(event.accountId, event.masterId))
   }
 
   /** After the commit, so an app that refetches the map at once sees the new charts. */

@@ -55,7 +55,8 @@ const MISSING_PORTRAIT: Texture2D = preload("res://Game/Bestia/missing_portrait.
 ## False for species the Bestia Compendium leaves out, such as townsfolk.
 @export var in_compendium: bool = true
 
-## The hand-drawn picture in the Bestia Compendium. Read it through [method get_portrait].
+## The hand-drawn picture in the Bestia Compendium. Read it through [method get_portrait]. Kept as
+## DB/<bestia_id>_<identifier>.png, the name the companion app finds it by.
 @export var portrait: Texture2D
 
 

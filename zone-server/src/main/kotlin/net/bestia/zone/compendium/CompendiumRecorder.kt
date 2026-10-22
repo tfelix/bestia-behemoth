@@ -3,6 +3,7 @@ package net.bestia.zone.compendium
 import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.session.MasterPresenceChangedEvent
 import net.bestia.zone.util.AccountId
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
 
@@ -16,6 +17,7 @@ class CompendiumRecorder(
   private val store: CompendiumStore,
   private val publisher: CompendiumPublisher,
   private val jobs: AsyncJobExecutor,
+  private val events: ApplicationEventPublisher,
 ) {
 
   @EventListener
@@ -35,7 +37,7 @@ class CompendiumRecorder(
     }
 
     jobs.submit(key = accountId) {
-      if (store.recordSeen(masterId, speciesId)) publisher.publish(accountId, masterId)
+      if (store.recordSeen(masterId, speciesId)) changed(accountId, masterId)
     }
   }
 
@@ -43,7 +45,12 @@ class CompendiumRecorder(
     ledger.markSeen(masterId, speciesId)
 
     jobs.submit(key = accountId) {
-      if (store.recordCaught(masterId, speciesId)) publisher.publish(accountId, masterId)
+      if (store.recordCaught(masterId, speciesId)) changed(accountId, masterId)
     }
+  }
+
+  private fun changed(accountId: AccountId, masterId: Long) {
+    publisher.publish(accountId, masterId)
+    events.publishEvent(CompendiumChangedEvent(accountId, masterId))
   }
 }
