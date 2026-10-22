@@ -44,6 +44,7 @@
  - ITEMS wave 27: CollectPropIntentSystem [EveryTick]
  - DEATH wave 28: PlayerStructureDeathSystem [EveryTick]
  - DEATH wave 28: PropDeathDivergenceSystem [EveryTick]
+ - DEATH wave 28: WarBannerSystem [EveryTick]
  - DEATH wave 29: PlayerDeathSystem [EveryTick]
  - DEATH wave 30: DeathSystem [EveryTick]
  - DEATH wave 31: BestiaBagDropSystem [EveryTick]

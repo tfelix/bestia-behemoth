@@ -26,6 +26,9 @@ data class GuildConfig(
   val auraRadiusMetres: Int = 15,
   /** Fortune's Favor raises each drop's own chance by this share per level. */
   val fortunePercentPerLevel: Int = 5,
+  val warBannerHp: Int = 1_500,
+  /** How long a planted War Banner stands before it fades. */
+  val warBannerSeconds: Int = 300,
 ) {
   init {
     require(nameMaxLength > 0) { "guild.name-max-length must be positive, was $nameMaxLength" }
@@ -45,5 +48,7 @@ data class GuildConfig(
     require(expFlushSeconds > 0) { "guild.exp-flush-seconds must be positive" }
     require(auraRadiusMetres > 0) { "guild.aura-radius-metres must be positive" }
     require(fortunePercentPerLevel >= 0) { "guild.fortune-percent-per-level must not be negative" }
+    require(warBannerHp > 0) { "guild.war-banner-hp must be positive" }
+    require(warBannerSeconds > 0) { "guild.war-banner-seconds must be positive" }
   }
 }

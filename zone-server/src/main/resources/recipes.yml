@@ -181,3 +181,18 @@ recipes:
     skill: { skill: UPGRADE_EQUIPMENT, level: 1 }
     craftSeconds: 8.0
     baseSuccessChance: 0.3
+
+  # A guild's War Banner: forged for the iron fittings and the weighted hem, so it sits with the weapons.
+  - id: 27
+    identifier: WAR_BANNER
+    effect: PRODUCE
+    output: { item: war_banner, amount: 1 }
+    inputs:
+      - { item: plank, amount: 2 }
+      - { item: cloth, amount: 3 }
+      - { item: dye, amount: 1 }
+      - { item: iron_ingot, amount: 1 }
+    skill: { skill: FORGE_WEAPON, level: 3 }
+    station: FORGE
+    craftSeconds: 30.0
+    baseSuccessChance: 0.6

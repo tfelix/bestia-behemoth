@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "GuildNoticeSmsgProto";
+
+// Something happened to the guild that every member being played should read about.
+message GuildNoticeSMSG {
+  GuildNotice notice = 1;
+}
+
+enum GuildNotice {
+  GUILD_NOTICE_UNSPECIFIED = 0;
+  // A member planted the guild's War Banner.
+  GUILD_NOTICE_BANNER_PLANTED = 1;
+  // Enemies cut the War Banner down.
+  GUILD_NOTICE_BANNER_FALLEN = 2;
+  // The War Banner's time ran out.
+  GUILD_NOTICE_BANNER_FADED = 3;
+}
