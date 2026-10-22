@@ -38,6 +38,10 @@ object GuildRankRules {
 
   fun mayManageRanks(actor: GuildMember): Boolean = actor.isLeader || actor.rank.canManageRanks
 
+  fun mayTransferLeadership(actor: GuildMember, target: GuildMember): Boolean {
+    return actor.isLeader && actor.master.id != target.master.id
+  }
+
   fun mayEditMotd(member: GuildMember): Boolean {
     return member.isLeader || member.rank.canEditMotd
   }

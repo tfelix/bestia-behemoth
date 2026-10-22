@@ -13,4 +13,5 @@ enum class GuildLogKind {
   SKILL_LEARNED,
   MOTD_CHANGED,
   EMBLEM_CHANGED,
+  LEADER_TRANSFERRED,
 }

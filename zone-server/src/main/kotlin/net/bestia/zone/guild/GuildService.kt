@@ -208,7 +208,7 @@ class GuildService(
     return Declined(open.inviterAccountId, open.invitedMasterName)
   }
 
-  /** A member leaves. The leader cannot: with no transfer, the guild would be left without one. */
+  /** A member leaves. The leader cannot, or the guild would be left without one: it hands the guild over first. */
   @Transactional
   fun leave(accountId: AccountId): Departed {
     val (guild, actor) = lockedGuildOf(playedMasterId(accountId))
@@ -244,6 +244,33 @@ class GuildService(
     guild.members.forEach { refreshMembership(it) }
 
     return Departed(guild.id, ref)
+  }
+
+  /**
+   * The leader hands the guild to the member playing [targetMasterId], who takes the leader's rank; the old
+   * leader takes the rank the new one had. @return the guild changed
+   */
+  @Transactional
+  fun transferLeadership(accountId: AccountId, targetMasterId: Long): Long {
+    val (guild, actor) = lockedGuildOf(playedMasterId(accountId))
+    val target = guild.memberOf(targetMasterId)
+      ?: throw GuildRequestRefused("master $targetMasterId is not in guild ${guild.id}")
+
+    if (!GuildRankRules.mayTransferLeadership(actor, target)) {
+      throw GuildRequestRefused("master ${actor.master.id} may not hand guild ${guild.id} to master $targetMasterId")
+    }
+
+    val leaderRank = actor.rank
+    actor.rank = target.rank
+    target.rank = leaderRank
+    guild.leader = target.master
+
+    refreshMembership(actor)
+    refreshMembership(target)
+    log.record(guild, GuildLogKind.LEADER_TRANSFERRED, actor.master.name, target.master.name)
+    LOG.info { "Guild ${guild.id} handed from master ${actor.master.id} to master $targetMasterId" }
+
+    return guild.id
   }
 
   /** @return the guild changed */
