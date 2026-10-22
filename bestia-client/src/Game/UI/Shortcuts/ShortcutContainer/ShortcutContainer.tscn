@@ -23,6 +23,18 @@ texture = SubResource("PlaceholderTexture2D_3hfsk")
 expand_mode = 1
 stretch_mode = 5
 
+[node name="SharedMark" type="Label" parent="MOuter"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 0
+theme_override_colors/font_color = Color(1, 0.82, 0.35, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 14
+text = "★"
+
 [node name="ShortcutBg" type="PanelContainer" parent="MOuter"]
 unique_name_in_owner = true
 layout_mode = 2

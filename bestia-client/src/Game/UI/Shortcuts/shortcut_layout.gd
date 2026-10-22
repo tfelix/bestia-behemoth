@@ -2,9 +2,12 @@ extends RefCounted
 class_name ShortcutLayout
 
 ## What sits on the shortcut bar of one master: a few layers for the master and for each of its bestias, so every
-## entity keeps its own attacks.
+## entity keeps its own attacks. Below them lies one shared layer, which shows wherever an entity's own slot is
+## empty, so a potion or the like sits on the same key for all of them.
 
 const LAYER_COUNT := 3
+## The shared layer is shown and edited like one more layer after the entity's own ones.
+const SHARED_LAYER := LAYER_COUNT
 const MASTER_KEY := "master"
 const FORMAT_VERSION := 2
 ## The bar had seven slots per row before layers. The seventh one moves to the second layer.
@@ -12,12 +15,25 @@ const _LEGACY_SLOT_NUMBER := 6
 
 ## Entity key -> { "active_layer": int, "layers": Array of { "row:number" -> ShortcutData } }.
 var _entities: Dictionary = {}
+var _shared: Dictionary = {}
 
 
 static func entity_key_of(entity_id: int, master_entity_id: int) -> String:
 	if entity_id == 0 or entity_id == master_entity_id:
 		return MASTER_KEY
 	return str(entity_id)
+
+
+## What the slot does: its own content, or the shared slot below it when it is empty.
+func resolve(entity_key: String, layer: int, row: int, number: int) -> ShortcutData:
+	var own := get_slot(entity_key, layer, row, number)
+	return own if not own.is_empty() else get_slot(entity_key, SHARED_LAYER, row, number)
+
+
+func shows_shared(entity_key: String, layer: int, row: int, number: int) -> bool:
+	return layer != SHARED_LAYER \
+		and get_slot(entity_key, layer, row, number).is_empty() \
+		and not get_slot(entity_key, SHARED_LAYER, row, number).is_empty()
 
 
 func get_slot(entity_key: String, layer: int, row: int, number: int) -> ShortcutData:
@@ -50,7 +66,7 @@ func to_dict() -> Dictionary:
 		for slots in entity["layers"]:
 			layers.append(_slots_to_list(slots))
 		entities[key] = {"active_layer": entity["active_layer"], "layers": layers}
-	return {"version": FORMAT_VERSION, "entities": entities}
+	return {"version": FORMAT_VERSION, "entities": entities, "shared": _slots_to_list(_shared)}
 
 
 ## Also reads the bar of one master as it was saved before layers: a flat list of slots.
@@ -62,6 +78,7 @@ static func from_dict(saved: Variant) -> ShortcutLayout:
 		var entities: Dictionary = saved.get("entities", {})
 		for key in entities:
 			layout._read_entity(key, entities[key])
+		layout._read_slots(MASTER_KEY, SHARED_LAYER, saved.get("shared", []))
 	return layout
 
 
@@ -69,7 +86,7 @@ func _read_entity(key: String, saved: Dictionary) -> void:
 	var saved_layers: Array = saved.get("layers", [])
 	for layer in mini(saved_layers.size(), LAYER_COUNT):
 		_read_slots(key, layer, saved_layers[layer])
-	set_active_layer(key, clampi(int(saved.get("active_layer", 0)), 0, LAYER_COUNT - 1))
+	set_active_layer(key, clampi(int(saved.get("active_layer", 0)), 0, SHARED_LAYER))
 
 
 func _migrate_single_bar(saved_slots: Array) -> void:
@@ -108,4 +125,6 @@ func _entity(key: String) -> Dictionary:
 
 
 func _layer(entity_key: String, layer: int) -> Dictionary:
+	if layer == SHARED_LAYER:
+		return _shared
 	return _entity(entity_key)["layers"][layer]

@@ -2,6 +2,7 @@ extends HBoxContainer
 class_name Shortcuts
 
 const SHORTCUTS_SAVE_PATH = "user://shortcuts_config.json"
+const SHARED_MARK := ShortcutContainer.SHARED_MARK
 
 ## Assigned by Game/UI/ui.gd after WidgetWindow instantiates the Inventory content, which
 ## happens later than this node's own _ready() - so the signal connection can't happen
@@ -36,7 +37,7 @@ func _ready() -> void:
 
 
 func _shortcut_input(event: InputEvent) -> void:
-	for layer in ShortcutLayout.LAYER_COUNT:
+	for layer in ShortcutLayout.SHARED_LAYER + 1:
 		if event.is_action_pressed(_layer_action(layer), false, true):
 			select_layer(layer)
 			get_viewport().set_input_as_handled()
@@ -50,7 +51,7 @@ func select_layer(layer: int) -> void:
 
 
 func _cycle_layer(step: int) -> void:
-	select_layer(posmod(_active_layer() + step, ShortcutLayout.LAYER_COUNT))
+	select_layer(posmod(_active_layer() + step, ShortcutLayout.SHARED_LAYER + 1))
 
 
 func _active_layer() -> int:
@@ -75,14 +76,26 @@ func _pager_button(glyph: String, tooltip: String, step: int) -> Button:
 
 
 func _update_pager() -> void:
-	_layer_label.text = str(_active_layer() + 1)
+	var shared_hotkey := _hotkey_of(_layer_action(ShortcutLayout.SHARED_LAYER))
+	if _active_layer() == ShortcutLayout.SHARED_LAYER:
+		_layer_label.text = SHARED_MARK
+		_layer_label.add_theme_color_override("font_color", UiStyle.ACCENT)
+		_layer_label.tooltip_text = ("Shared bar (%s)\nYour master and every bestia use these slots. "
+			+ "They fill every empty slot on the other bars.") % [shared_hotkey]
+		return
+
 	var first := _hotkey_of(_layer_action(0))
 	var last := _hotkey_of(_layer_action(ShortcutLayout.LAYER_COUNT - 1))
-	_layer_label.tooltip_text = "Bar %d of %d (%s to %s)\nYour master and every bestia have their own bars." % [
-		_active_layer() + 1, ShortcutLayout.LAYER_COUNT, first, last]
+	_layer_label.text = str(_active_layer() + 1)
+	_layer_label.add_theme_color_override("font_color", UiStyle.TEXT)
+	_layer_label.tooltip_text = ("Bar %d of %d (%s to %s)\nYour master and every bestia have their own bars. "
+		+ "Empty slots show the shared bar %s (%s).") % [
+		_active_layer() + 1, ShortcutLayout.LAYER_COUNT, first, last, SHARED_MARK, shared_hotkey]
 
 
 static func _layer_action(layer: int) -> StringName:
+	if layer == ShortcutLayout.SHARED_LAYER:
+		return &"shortcut_layer_shared"
 	return StringName("shortcut_layer_%d" % [layer + 1])
 
 
@@ -131,6 +144,8 @@ func _connect_inventory_signal() -> void:
 
 func _on_shortcut_changed(row: int, number: int, data: ShortcutData) -> void:
 	_layout.set_slot(_entity_key, _active_layer(), row, number, data)
+	# A cleared slot may now show the shared slot below it.
+	_show_slot(_find_container(row, number))
 	save_shortcuts()
 
 
@@ -226,10 +241,18 @@ func _read_store_from_disk() -> void:
 func _show_active_layer() -> void:
 	# Through set_shortcut_data() rather than set_shortcut(): the latter emits shortcut_changed, which would
 	# write every slot shown straight back into the layout.
-	var layer := _active_layer()
 	for container in _shortcut_containers:
-		container.set_shortcut_data(_layout.get_slot(_entity_key, layer, container.shortcut_row, container.shortcut_number))
+		_show_slot(container)
 	_update_pager()
+
+
+func _show_slot(container: ShortcutContainer) -> void:
+	var layer := _active_layer()
+	var row := container.shortcut_row
+	var number := container.shortcut_number
+	container.set_shortcut_data(
+		_layout.resolve(_entity_key, layer, row, number),
+		_layout.shows_shared(_entity_key, layer, row, number))
 
 
 func clear_all_shortcuts() -> void:

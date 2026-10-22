@@ -14,13 +14,18 @@ var shortcut_number: int = 0
 @onready var _icon: TextureRect = %Icon
 @onready var _count: Label = %Count
 @onready var _count_bg: PanelContainer = %ShortcutBg
+@onready var _shared_mark: Label = %SharedMark
 
 const DISABLED_MODULATE: Color = Color(0.4, 0.4, 0.4, 0.6)
+const SHARED_MARK := "★"
 
 var _prompt_action: String = ""
 var _shortcut_data: ShortcutData = ShortcutData.new()
 var _is_dragging_self: bool = false
 var _disabled: bool = false
+## Shows the shared layer's slot because this layer's own slot is empty. Such a slot is edited on the shared layer
+## only, so a drag here cannot move it away.
+var _from_shared: bool = false
 
 
 func _ready() -> void:
@@ -51,9 +56,10 @@ func _drop_data(_at_position: Vector2, data: Variant) -> void:
 	# is already occupied, instead of leaving a copy behind.
 	if source_container is ShortcutContainer and source_container != self:
 		var previous_data: ShortcutData = _shortcut_data.duplicate()
+		var previous_was_shared := _from_shared
 		set_shortcut(data)
 
-		if previous_data.is_empty():
+		if previous_data.is_empty() or previous_was_shared:
 			source_container.clear_shortcut()
 		else:
 			source_container.set_shortcut(_to_shortcut_dict(previous_data))
@@ -83,7 +89,7 @@ func _is_passive_skill(skill_id: int) -> bool:
 
 # Allows an assigned shortcut to be picked up and dragged elsewhere.
 func _get_drag_data(_at_position: Vector2) -> Variant:
-	if _shortcut_data.is_empty():
+	if _shortcut_data.is_empty() or _from_shared:
 		return null
 
 	var preview: TextureRect = TextureRect.new()
@@ -163,8 +169,12 @@ func get_shortcut_data() -> ShortcutData:
 	return _shortcut_data
 
 
-func set_shortcut_data(data: ShortcutData) -> void:
+func set_shortcut_data(data: ShortcutData, from_shared: bool = false) -> void:
 	_shortcut_data = data
+	_from_shared = from_shared
+	_shared_mark.visible = from_shared
+	tooltip_text = ("Shared slot %s: your master and every bestia use it.\n"
+		+ "Drop something here to replace it on this bar only.") % [SHARED_MARK] if from_shared else ""
 	_update_display()
 
 
