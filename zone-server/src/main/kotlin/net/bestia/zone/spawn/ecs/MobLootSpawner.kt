@@ -27,14 +27,17 @@ class MobLootSpawner(
     dropsBySpecies.size
   }
 
-  /** [lootOwner] is the account of the killer, which alone may pick the loot up for a few seconds. */
-  fun spawnLoot(world: World, bestiaId: Long, pos: Vec3L, lootOwner: Long?): List<EntityId> {
+  /**
+   * [lootOwner] is the account of the killer, which alone may pick the loot up for a few seconds. Every drop's
+   * chance is multiplied by [chanceFactor].
+   */
+  fun spawnLoot(world: World, bestiaId: Long, pos: Vec3L, lootOwner: Long?, chanceFactor: Double = 1.0): List<EntityId> {
     val lootItems = dropsBySpecies[bestiaId] ?: emptyList()
 
     val spawnItems = lootItems.filter { lootItem ->
       val roll = Random.nextInt(1, 1_0001) // 1 to 10000 inclusive
 
-      roll <= lootItem.dropChance
+      roll <= lootItem.dropChance * chanceFactor
     }
 
     LOG.debug { "Spawning loot $spawnItems from bestia $bestiaId ($lootItems) on pos $pos" }

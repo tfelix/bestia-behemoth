@@ -49,6 +49,10 @@ guild:
   invitation-timeout-seconds: 60
   # Taxed EXP is gathered in memory and written to the guild this often. A crash loses at most this much.
   exp-flush-seconds: 30
+  # The stat auras (Great Leadership and its kin) reach this far from the guild leader.
+  aura-radius-metres: 15
+  # Fortune's Favor multiplies each drop's chance by 1 + this * level / 100: Lv.5 turns a 10% drop into 12.5%.
+  fortune-percent-per-level: 5
 
 # Settings a *new* world is born with. Ignored once a world exists: what gets generated then comes from the
 # stored record, because that is what its chunks and any player edits were built against.

@@ -30,7 +30,7 @@ import org.springframework.transaction.annotation.Transactional
  * Founding, joining, leaving and running a guild.
  *
  * Every change takes the guild's row lock first, so the rank checks below see the guild as it is, not as an
- * officer's window last saw it. What the live world mirrors - the [GuildMembership] tax on a member's master,
+ * officer's window last saw it. What the live world mirrors - the [GuildMembership] on a member's master,
  * the seal leaving the bag - is applied once the change has committed.
  *
  * Tells nobody: the handlers hand what changed to [GuildInfoPublisher].
@@ -49,6 +49,7 @@ class GuildService(
   private val invitations: GuildInvitations,
   private val ledger: GuildExpLedger,
   private val skillTree: GuildSkillTree,
+  private val memberships: GuildMemberships,
 ) {
 
   data class SentInvitation(val invitedAccountId: AccountId, val invitation: GuildInvitationSMSG)
@@ -107,9 +108,10 @@ class GuildService(
     // already has an id merges it, which would persist copies of the ranks and leave these instances transient.
     guildRepository.flush()
 
-    guild.members.add(GuildMember(guild = guild, master = master, rank = leaderRank))
+    val leader = GuildMember(guild = guild, master = master, rank = leaderRank)
+    guild.members.add(leader)
 
-    val membership = GuildMembership(guild.id, leaderRank.taxPercent)
+    val membership = memberships.of(leader)
     afterCommit {
       onPlayedMaster(GuildMemberRef(accountId, masterId)) { id ->
         get(id, Inventory::class)?.mirrorRemoval(sealId, 1, 0L)
@@ -183,7 +185,7 @@ class GuildService(
     val member = GuildMember(guild = guild, master = master, rank = rank)
     guild.members.add(member)
 
-    refreshMembership(member, rank.taxPercent)
+    refreshMembership(member)
 
     return guild.id
   }
@@ -240,7 +242,7 @@ class GuildService(
     }
 
     target.rank = rank
-    refreshMembership(target, rank.taxPercent)
+    refreshMembership(target)
 
     return guild.id
   }
@@ -293,7 +295,7 @@ class GuildService(
       rank.canUseGuildSkills = canUseGuildSkills
     }
 
-    guild.members.filter { it.rank.id == rank.id }.forEach { refreshMembership(it, taxPercent) }
+    guild.members.filter { it.rank.id == rank.id }.forEach { refreshMembership(it) }
 
     return guild.id
   }
@@ -334,6 +336,7 @@ class GuildService(
     }
 
     guild.skillLevels[node.identifier] = guild.skillLevel(node.identifier) + 1
+    guild.members.forEach { refreshMembership(it) }
 
     return guild.id
   }
@@ -408,9 +411,9 @@ class GuildService(
 
   private fun refOf(member: GuildMember) = GuildMemberRef(member.master.account.id, member.master.id)
 
-  private fun refreshMembership(member: GuildMember, taxPercent: Int) {
+  private fun refreshMembership(member: GuildMember) {
     val ref = refOf(member)
-    val membership = GuildMembership(member.guild.id, taxPercent)
+    val membership = memberships.of(member)
 
     afterCommit {
       onPlayedMaster(ref) { id -> add(id, membership) }
