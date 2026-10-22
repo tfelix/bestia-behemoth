@@ -26,6 +26,10 @@ var _all_shortcuts: Dictionary = {}
 var _layout := ShortcutLayout.new()
 ## Whose layers the bar shows: the master's, or those of the bestia the player controls.
 var _entity_key := ShortcutLayout.MASTER_KEY
+var _controlled_entity_id := 0
+## Entity id -> { skill id -> level } from the last skill list of that entity. A shared slot can hold a skill the
+## controlled entity does not know, or knows at a lower level.
+var _known_skills: Dictionary = {}
 
 
 func _ready() -> void:
@@ -129,11 +133,34 @@ func _connect_signals() -> void:
 	var entity_manager := EntityManager.get_instance()
 	if entity_manager != null:
 		entity_manager.controlled_entity_changed.connect(_on_controlled_entity_changed)
+	ConnectionManager.entity_received.connect(_on_entity_received)
 
 
 func _on_controlled_entity_changed(_previous_id: int, entity_id: int) -> void:
+	_controlled_entity_id = entity_id
 	_entity_key = ShortcutLayout.entity_key_of(entity_id, EntityManager.get_instance().get_owned_master_entity_id())
 	_show_active_layer()
+	# The server answers for the controlled entity, so this fetches the skills of the one just switched to.
+	if ConnectionManager.is_ready_to_send():
+		ConnectionManager.get_skills()
+
+
+func _on_entity_received(msg: EntitySMSG) -> void:
+	if not msg is SkillListSMSG:
+		return
+	var levels := {}
+	for entry in msg.Skills:
+		levels[entry.SkillId] = entry.Level
+	_known_skills[msg.EntityId] = levels
+	if msg.EntityId == _controlled_entity_id:
+		_show_active_layer()
+
+
+## Until the controlled entity's skill list has arrived, every skill counts as known at the slot's level.
+func _usable_skill_level(slot: ShortcutData) -> int:
+	if not _known_skills.has(_controlled_entity_id):
+		return slot.skill_level
+	return mini(slot.skill_level, _known_skills[_controlled_entity_id].get(slot.reference_id, 0))
 
 
 func _connect_inventory_signal() -> void:
@@ -250,9 +277,9 @@ func _show_slot(container: ShortcutContainer) -> void:
 	var layer := _active_layer()
 	var row := container.shortcut_row
 	var number := container.shortcut_number
-	container.set_shortcut_data(
-		_layout.resolve(_entity_key, layer, row, number),
-		_layout.shows_shared(_entity_key, layer, row, number))
+	var slot := _layout.resolve(_entity_key, layer, row, number)
+	container.set_shortcut_data(slot, _layout.shows_shared(_entity_key, layer, row, number))
+	container.set_usable_skill_level(_usable_skill_level(slot))
 
 
 func clear_all_shortcuts() -> void:
