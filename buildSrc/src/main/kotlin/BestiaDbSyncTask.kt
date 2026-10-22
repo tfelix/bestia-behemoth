@@ -23,7 +23,8 @@ import java.io.File
  * These are static content, not per-player state, so they are never streamed over the wire - the client
  * reads them from these resources while the server independently enforces the same values from the
  * `bestia` table. Today that is which equipment slots and armor types a species has, so the UI can grey
- * out the rest, whether it is a non-combatant, so a click can mean talking rather than swinging, and its kind.
+ * out the rest, whether it is a non-combatant, so a click can mean talking rather than swinging, its kind, and
+ * what the Bestia Compendium shows: its habitat and whether it is listed at all.
  *
  * A species' **text** lives in the client, because that is where it is translated. The mob YML holds the
  * English source (`name`, `description`) beside the stats, and this task writes it into the `en` column of
@@ -63,6 +64,8 @@ abstract class BestiaDbSyncTask : DefaultTask() {
     val armorTypes: List<String> = emptyList(),
     @JsonProperty("non-combatant")
     val nonCombatant: Boolean = false,
+    val habitat: List<String> = emptyList(),
+    val compendium: Boolean = true,
     val kind: String,
     val name: String,
     val description: String? = null
@@ -90,7 +93,10 @@ abstract class BestiaDbSyncTask : DefaultTask() {
     "kind" to quoted(mob.kind.uppercase()),
     "equip_slots" to maskOf(mob).toString(),
     "armor_types" to armorTypeMaskOf(mob).toString(),
-    "non_combatant" to mob.nonCombatant.toString()
+    "non_combatant" to mob.nonCombatant.toString(),
+    // Joined without spaces: a field value is matched up to the first whitespace.
+    "habitat" to quoted(mob.habitat.joinToString(",") { it.uppercase() }),
+    "in_compendium" to mob.compendium.toString()
   )
 
   private fun quoted(value: String) = "\"$value\""

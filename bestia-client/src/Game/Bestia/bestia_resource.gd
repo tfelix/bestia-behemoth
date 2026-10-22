@@ -4,15 +4,20 @@ class_name BestiaResource
 ## Static, per-species bestia data the client keeps locally instead of receiving it from the server.
 ##
 ## Generated/kept in sync from zone-server's mob YMLs by './gradlew syncBestiaDb', which owns [member
-## bestia_id], the two text keys, [member kind], [member equip_slots], [member armor_types] and [member
-## non_combatant]. The English text behind the keys is synced into Localization/bestias.csv, where it is
-## translated. Anything else here is pure presentation with no server equivalent and is hand-authored.
+## bestia_id], the two text keys, [member kind], [member equip_slots], [member armor_types], [member
+## non_combatant], [member habitat] and [member in_compendium]. The English text behind the keys is synced
+## into Localization/bestias.csv, where it is translated. Anything else here is pure presentation with no
+## server equivalent and is hand-authored.
 
 ## The body to spawn for a species whose art is not authored yet - the orange placeholder every mob used
 ## to get. Read it through [method get_bestia_visual] rather than [member bestia_visual] directly, so the
 ## fallback lives in one place; without it an unknown species gets no visual child at all, and since the
 ## clickable Area3D lives on the visual it would be invisible *and* unclickable.
 const MISSING_VISUAL: PackedScene = preload("res://Game/Entity/Visual/BestiaVisual/BestiaVisual.tscn")
+
+## The Bestia Compendium picture of a species with no art yet. Drawn on a transparent ground, so a black
+## modulate turns it into the silhouette an unseen species shows.
+const MISSING_PORTRAIT: Texture2D = preload("res://Game/Bestia/missing_portrait.png")
 
 @export var bestia_id: int
 
@@ -43,8 +48,26 @@ const MISSING_VISUAL: PackedScene = preload("res://Game/Entity/Visual/BestiaVisu
 ## so a hand-crafted attack gets nowhere either.
 @export var non_combatant: bool = false
 
+## The biomes this species spawns in, comma-separated as the mob YAML names them. Empty means anywhere on
+## land. Read it through [method get_habitat].
+@export var habitat: String = ""
+
+## False for species the Bestia Compendium leaves out, such as townsfolk.
+@export var in_compendium: bool = true
+
+## The hand-drawn picture in the Bestia Compendium. Read it through [method get_portrait].
+@export var portrait: Texture2D
+
 
 ## The scene to spawn for this species' body. Always prefer this over [member bestia_visual], for the
 ## reason [constant MISSING_VISUAL] gives.
 func get_bestia_visual() -> PackedScene:
 	return bestia_visual if bestia_visual != null else MISSING_VISUAL
+
+
+func get_portrait() -> Texture2D:
+	return portrait if portrait != null else MISSING_PORTRAIT
+
+
+func get_habitat() -> PackedStringArray:
+	return habitat.split(",", false)

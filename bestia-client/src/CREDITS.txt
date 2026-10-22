@@ -8,7 +8,7 @@ Author: Kenney
 Source: https://kenney-assets.itch.io/cursor-pack
 License: CC0 1.0
 
-Title: Tabler Icons (chart-bar, backpack, shield, flame, settings, users, scale, coin, map-pin, check, alert-triangle, info-circle, flag)
+Title: Tabler Icons (chart-bar, backpack, shield, flame, settings, users, scale, coin, map-pin, check, alert-triangle, info-circle, flag, book)
 Author: codecalm
 Source: https://tabler.io/icons
 License: MIT

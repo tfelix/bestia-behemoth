@@ -32,6 +32,7 @@
 [ext_resource type="PackedScene" path="res://Game/UI/Party/Party.tscn" id="29_partywin"]
 [ext_resource type="PackedScene" path="res://Game/UI/Guild/Guild.tscn" id="30_guildwin"]
 [ext_resource type="PackedScene" path="res://Game/UI/Invitation/InvitationTray.tscn" id="31_invites"]
+[ext_resource type="PackedScene" path="res://Game/UI/Compendium/Compendium.tscn" id="32_compendium"]
 
 [node name="UI" type="Control" unique_id=549600065]
 layout_mode = 3
@@ -141,6 +142,12 @@ layout_mode = 1
 content = ExtResource("30_guildwin")
 window_title = "Guild"
 
+[node name="CompendiumWin" parent="." instance=ExtResource("8_wdgtw")]
+visible = false
+layout_mode = 1
+content = ExtResource("32_compendium")
+window_title = "Bestia Compendium"
+
 [node name="Invitations" parent="." instance=ExtResource("31_invites")]
 layout_mode = 1
 
@@ -188,3 +195,4 @@ oversampling_override = 1.0
 [connection signal="status_win_toggled" from="TopLeftColumn/MasterProfile" to="." method="_on_master_profile_status_win_toggled"]
 [connection signal="party_win_toggled" from="TopLeftColumn/MasterProfile" to="." method="_on_master_profile_party_win_toggled"]
 [connection signal="guild_win_toggled" from="TopLeftColumn/MasterProfile" to="." method="_on_master_profile_guild_win_toggled"]
+[connection signal="compendium_win_toggled" from="TopLeftColumn/MasterProfile" to="." method="_on_master_profile_compendium_win_toggled"]
