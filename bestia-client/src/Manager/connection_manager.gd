@@ -40,6 +40,8 @@ signal shop_offer_received(message: ShopOfferSMSG)
 signal party_message_received(message: PartySMSG)
 ## Every guild message: the guild, an invitation, leaving it. The guild window listens.
 signal guild_message_received(message: GuildSMSG)
+## The selected master's Bestia Compendium, on request and after every new sighting or catch.
+signal compendium_received(message: CompendiumSMSG)
 ## Emitted whenever the server re-syncs the pending logout countdown (seconds until despawn).
 signal logout_countdown_received(remaining_seconds: float)
 ## Emitted when the server aborts a pending logout (player moved / used a skill / took damage).
@@ -113,6 +115,7 @@ var LeavePartyCMSG = load("res://Bnet/Message/Party/LeavePartyCMSG.cs")
 var RemovePartyMemberCMSG = load("res://Bnet/Message/Party/RemovePartyMemberCMSG.cs")
 var SetPartyExpShareCMSG = load("res://Bnet/Message/Party/SetPartyExpShareCMSG.cs")
 var RequestGuildInfoCMSG = load("res://Bnet/Message/Guild/RequestGuildInfoCMSG.cs")
+var RequestCompendiumCMSG = load("res://Bnet/Message/Compendium/RequestCompendiumCMSG.cs")
 var CreateGuildCMSG = load("res://Bnet/Message/Guild/CreateGuildCMSG.cs")
 var InviteToGuildCMSG = load("res://Bnet/Message/Guild/InviteToGuildCMSG.cs")
 var AnswerGuildInviteCMSG = load("res://Bnet/Message/Guild/AnswerGuildInviteCMSG.cs")
@@ -708,6 +711,12 @@ func request_guild_info() -> void:
 	_socket.SendMessage(RequestGuildInfoCMSG.new())
 
 
+## Asks for the selected master's Bestia Compendium; answered with a CompendiumSMSG.
+func request_compendium() -> void:
+	assert(is_ready_to_send())
+	_socket.SendMessage(RequestCompendiumCMSG.new())
+
+
 ## Founds a guild named [param guild_name], spending a Founder's Seal from the master's bag.
 func create_guild(guild_name: String) -> void:
 	assert(is_ready_to_send())
@@ -926,6 +935,8 @@ func _on_bnet_socket_message_received(message: Object) -> void:
 		party_message_received.emit(message)
 	elif message is GuildSMSG:
 		guild_message_received.emit(message)
+	elif message is CompendiumSMSG:
+		compendium_received.emit(message)
 	elif message is MapSMSG:
 		# Terrain traffic. ChunkStreamManager subscribes to MessageReceived itself, and a signal fans out to
 		# every listener, so these reach this handler too and have to be ignored rather than reported.

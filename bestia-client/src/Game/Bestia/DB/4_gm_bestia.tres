@@ -11,3 +11,5 @@ kind = "DRAGON"
 equip_slots = 511
 armor_types = 15
 non_combatant = false
+habitat = ""
+in_compendium = false

@@ -11,3 +11,5 @@ non_combatant = false
 description_key = "BESTIA_DOOM_MASTER_OF_DOOM_DESC"
 kind = "DEMON"
 armor_types = 15
+habitat = ""
+in_compendium = true

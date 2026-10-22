@@ -251,3 +251,17 @@ GUILD_JOINED,You joined the guild %s.
 GUILD_LEFT_REASON_LEFT,You left the guild %s.
 GUILD_LEFT_REASON_KICKED,You were removed from the guild %s.
 GUILD_LEFT_REASON_DISBANDED,The guild %s was disbanded.
+COMPENDIUM_SEARCH,Search name or number
+COMPENDIUM_TAB_ALL,All
+COMPENDIUM_TAB_SEEN,Seen
+COMPENDIUM_TAB_CAUGHT,Caught
+COMPENDIUM_COUNT,Seen %d · Caught %d · %d species
+COMPENDIUM_NO_MATCH,No species match.
+COMPENDIUM_UNKNOWN,???
+COMPENDIUM_UNSEEN_HINT,Not seen yet. Bring your master or one of your bestias close to one.
+COMPENDIUM_CAUGHT,Caught
+COMPENDIUM_NOT_CAUGHT,Not caught yet
+COMPENDIUM_HABITAT,Habitat
+COMPENDIUM_HABITAT_ANYWHERE,anywhere on land
+COMPENDIUM_FIRST_SEEN,First seen on %s.
+COMPENDIUM_NEW_ENTRY,New in your Bestia Compendium: %s

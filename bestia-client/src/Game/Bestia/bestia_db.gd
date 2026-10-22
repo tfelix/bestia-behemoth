@@ -56,3 +56,13 @@ func get_equip_slots(bestia_id: int) -> int:
 		printerr("BestiaDB: Bestia with ID %s not found" % [bestia_id])
 		return 0
 	return bestia.equip_slots
+
+
+## Every species the Bestia Compendium lists, by number.
+func listed_species() -> Array[BestiaResource]:
+	var listed: Array[BestiaResource] = []
+	for bestia: BestiaResource in _bestias.values():
+		if bestia.in_compendium:
+			listed.append(bestia)
+	listed.sort_custom(func(a: BestiaResource, b: BestiaResource) -> bool: return a.bestia_id < b.bestia_id)
+	return listed
