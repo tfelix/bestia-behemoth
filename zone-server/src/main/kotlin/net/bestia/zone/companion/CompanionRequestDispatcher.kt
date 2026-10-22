@@ -9,6 +9,7 @@ import net.bestia.zone.companion.query.BestiaQueries
 import net.bestia.zone.companion.query.CatalogQueries
 import net.bestia.zone.companion.query.ChatCommand
 import net.bestia.zone.companion.query.CompendiumQueries
+import net.bestia.zone.companion.query.GuildEmblemQueries
 import net.bestia.zone.companion.query.InventoryQueries
 import net.bestia.zone.companion.query.MapQueries
 import net.bestia.zone.companion.query.MasterQueries
@@ -30,6 +31,7 @@ class CompanionRequestDispatcher(
   private val tickets: TicketQueries,
   private val chat: ChatCommand,
   private val compendium: CompendiumQueries,
+  private val emblems: GuildEmblemQueries,
 ) : RequestHandler {
 
   override fun handle(request: BusRequest): BusReply {
@@ -50,6 +52,7 @@ class CompanionRequestDispatcher(
       is ZoneQuery.MapServices -> map.services(id, account, query)
       is ZoneQuery.HabitatTile -> map.habitat(id, account, query)
       is ZoneQuery.WhoseTicket -> tickets.owner(id, query)
+      is ZoneQuery.GuildEmblem -> emblems.emblem(id, query)
       is ZoneQuery.SetStance -> stance.apply(id, account, query)
       is ZoneQuery.SendChat -> chat.send(id, account, query)
     }

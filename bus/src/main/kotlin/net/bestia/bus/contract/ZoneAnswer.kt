@@ -128,6 +128,9 @@ sealed interface ZoneAnswer {
   /** The PNG itself travels as the reply's body, not in the JSON. */
   data class Tile(val etag: String, val shared: Boolean) : ZoneAnswer
 
+  /** A guild emblem's PNG, in the reply's body. Never changes under its [hash]. */
+  data class Emblem(val hash: String) : ZoneAnswer
+
   data class Places(val etag: String, val shared: Boolean, val places: List<Place>) : ZoneAnswer {
     data class Place(
       val id: Long,

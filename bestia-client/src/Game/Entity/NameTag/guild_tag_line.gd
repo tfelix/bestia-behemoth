@@ -9,6 +9,17 @@ static func of(tag: GuildTagComponentSMSG) -> String:
 	return "%s [%s]" % [tag.GuildName, tag.RankTitle]
 
 
+## The emblem beside [param label]'s guild line; made on first use. @return what to keep as [param emblem]
+static func show_emblem(label: Label3D, emblem: NameTagEmblem, hash: String) -> NameTagEmblem:
+	if emblem == null:
+		if hash.is_empty():
+			return null
+		emblem = NameTagEmblem.new()
+		label.add_child(emblem)
+	emblem.show_beside(label, hash)
+	return emblem
+
+
 static func under(entity_name: String, guild_line: String) -> String:
 	if guild_line.is_empty():
 		return entity_name
