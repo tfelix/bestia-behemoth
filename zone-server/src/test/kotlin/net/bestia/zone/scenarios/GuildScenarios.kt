@@ -137,7 +137,7 @@ class GuildScenarios : BestiaNoSocketScenario() {
     }
 
     assertEquals(
-      GuildMembership(guildId, 5, isLeader = true, mayUseGuildSkills = true),
+      GuildMembership(guildId, 5, GUILD_NAME, "Guild Master", isLeader = true, mayUseGuildSkills = true),
       membershipOf(clientPlayer1.connectedPlayerId)?.copy(members = emptySet()),
     )
   }
@@ -203,7 +203,7 @@ class GuildScenarios : BestiaNoSocketScenario() {
         assertEquals(2, info?.members?.size)
         assertEquals(memberRankId, info?.members?.single { it.masterId == player2MasterId }?.rankId)
       }
-      assertEquals(GuildMembership(guildId, 5), membershipOf(clientPlayer2.connectedPlayerId)?.copy(members = emptySet()))
+      assertEquals(GuildMembership(guildId, 5, GUILD_NAME, "Member"), membershipOf(clientPlayer2.connectedPlayerId)?.copy(members = emptySet()))
       val roster = setOf(
         GuildMembership.Member(clientPlayer1.connectedPlayerId, player1MasterId),
         GuildMembership.Member(clientPlayer2.connectedPlayerId, player2MasterId),
@@ -239,7 +239,7 @@ class GuildScenarios : BestiaNoSocketScenario() {
 
     await {
       assertEquals("Recruit", clientPlayer2.tryGetLastReceived(GuildInfoSMSG::class)?.ranks?.single { it.rankId == memberRankId }?.name)
-      assertEquals(GuildMembership(guildId, 20), membershipOf(clientPlayer2.connectedPlayerId)?.copy(members = emptySet()))
+      assertEquals(GuildMembership(guildId, 20, GUILD_NAME, "Recruit"), membershipOf(clientPlayer2.connectedPlayerId)?.copy(members = emptySet()))
     }
   }
 
