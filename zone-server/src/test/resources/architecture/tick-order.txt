@@ -54,6 +54,7 @@
  - SPAWN wave 34: IndoorEmergenceSystem [EverySeconds(seconds=20.0)]
  - UPKEEP wave 35: EnvironmentalExposureSystem [EveryTick]
  - UPKEEP wave 35: GroundLevelDecaySystem [EveryTick]
+ - UPKEEP wave 35: GuildTagSystem [EverySeconds(seconds=1.0)]
  - UPKEEP wave 35: LogoutSystem [EverySeconds(seconds=1.0)]
  - UPKEEP wave 35: RumourExpirySystem [EverySeconds(seconds=180.0)]
  - UPKEEP wave 35: ScorchRegrowthSystem [EverySeconds(seconds=60.0)]

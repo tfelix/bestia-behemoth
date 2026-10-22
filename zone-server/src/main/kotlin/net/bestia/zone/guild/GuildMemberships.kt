@@ -23,6 +23,8 @@ class GuildMemberships(
     return GuildMembership(
       guildId = member.guild.id,
       taxPercent = member.rank.taxPercent,
+      guildName = member.guild.name,
+      rankTitle = member.rank.name,
       isLeader = member.isLeader,
       mayUseGuildSkills = GuildRankRules.mayUseGuildSkills(member),
       skillLevels = member.guild.skillLevels.toMap(),

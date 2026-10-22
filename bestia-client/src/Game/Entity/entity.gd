@@ -63,10 +63,11 @@ var _health: ConditionPool = null
 var _mana: ConditionPool = null
 var _stamina: ConditionPool = null
 
-# The last health and worn gear pushes, replayed into a visual that was built after they arrived - see
-# _seed_visual.
+# The last health, worn gear and guild tag pushes, replayed into a visual that was built after they arrived - see
+# _seed_visual. The guild tag is null while the entity's master is in no guild.
 var _last_health_msg: HealthComponentSMSG = null
 var _last_worn_gear_msg: WornGearComponentSMSG = null
+var _guild_tag: GuildTagComponentSMSG = null
 
 # True while lying dead awaiting respawn (player bodies only; mobs vanish). Gates the walk/idle pose.
 var _is_dead: bool = false
@@ -583,6 +584,8 @@ func _seed_visual(visual: Node) -> void:
 		visual.update_health(_last_health_msg)
 	if _last_worn_gear_msg != null and visual.has_method("update_worn_gear"):
 		visual.update_worn_gear(_last_worn_gear_msg)
+	if _guild_tag != null and visual.has_method("set_guild_tag"):
+		visual.set_guild_tag(_guild_tag)
 
 
 func set_selected(is_selected: bool) -> void:
@@ -1038,6 +1041,17 @@ func update_worn_gear(msg: WornGearComponentSMSG) -> void:
 	var visual = _get_visual_for_method("update_worn_gear")
 	if visual != null:
 		visual.update_worn_gear(msg)
+
+
+func update_guild_tag(msg: GuildTagComponentSMSG) -> void:
+	_guild_tag = null if msg.Removed else msg
+	var visual = _get_visual_for_method("set_guild_tag")
+	if visual != null:
+		visual.set_guild_tag(_guild_tag)
+
+
+func get_guild_tag() -> GuildTagComponentSMSG:
+	return _guild_tag
 
 
 func update_status_values(msg: StatusValuesComponentSMSG) -> void:
