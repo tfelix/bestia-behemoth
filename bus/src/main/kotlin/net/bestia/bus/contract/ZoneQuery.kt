@@ -22,6 +22,8 @@ sealed interface ZoneQuery {
   /** The species [masterId] has seen, from its Bestia Compendium. */
   data class Compendium(val masterId: Long) : ZoneQuery
 
+  data class GuildRoster(val masterId: Long) : ZoneQuery
+
   data object Catalog : ZoneQuery
 
   data object MapMeta : ZoneQuery

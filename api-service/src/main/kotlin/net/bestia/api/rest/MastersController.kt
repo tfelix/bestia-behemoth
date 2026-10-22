@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 /**
- * The account's masters, and for each its sheet, bestias, bags and party. Every figure that can go stale carries
+ * The account's masters, and for each its sheet, bestias, bags, party and guild. Every figure that can go stale carries
  * `asOf`, when it was last true, in epoch milliseconds.
  */
 @RestController
@@ -82,6 +82,31 @@ class MastersController(
 
   /** [party] is null when the master is in none. */
   data class PartyView(val party: Party?)
+
+  /** [lastAreaName] and [lastSeen], epoch milliseconds, say where and when an offline member left the world. */
+  data class GuildMember(
+    val masterId: Long,
+    val name: String,
+    val level: Int,
+    val rankTitle: String,
+    val isLeader: Boolean,
+    val online: Boolean,
+    val lastAreaName: String,
+    val lastSeen: Long,
+  )
+
+  /** [emblemHash] names the picture at `/v1/companion/emblems/{emblemHash}.png`; empty while it has none. */
+  data class Guild(
+    val name: String,
+    val level: Int,
+    val motdTitle: String,
+    val motdBody: String,
+    val emblemHash: String,
+    val members: List<GuildMember>,
+  )
+
+  /** [guild] is null when the master is in none. */
+  data class GuildView(val guild: Guild?)
 
   @GetMapping
   fun list(@RequestAttribute(ACCOUNT_ID) accountId: Long): List<MasterSummary> {
@@ -163,6 +188,26 @@ class MastersController(
     val data: ZoneAnswer.CompendiumData = ask(accountId, ZoneQuery.Compendium(masterId))
 
     return data.entries.map { CompendiumEntry(it.speciesId, it.caught, it.firstSeenEpochMs) }
+  }
+
+  @GetMapping("/{masterId}/guild")
+  fun guild(@RequestAttribute(ACCOUNT_ID) accountId: Long, @PathVariable masterId: Long): GuildView {
+    val info: ZoneAnswer.GuildInfo = ask(accountId, ZoneQuery.GuildRoster(masterId))
+
+    return GuildView(
+      info.guild?.let { guild ->
+        Guild(
+          name = guild.name,
+          level = guild.level,
+          motdTitle = guild.motdTitle,
+          motdBody = guild.motdBody,
+          emblemHash = guild.emblemHash,
+          members = guild.members.map {
+            GuildMember(it.masterId, it.name, it.level, it.rankTitle, it.isLeader, it.online, it.lastAreaName, it.lastSeenEpochMillis)
+          },
+        )
+      }
+    )
   }
 
   private inline fun <reified T : ZoneAnswer> ask(accountId: Long, query: ZoneQuery): T {

@@ -12,6 +12,7 @@ export type Bestia = Schemas['Bestia'];
 export type Holder = Schemas['Holder'];
 export type Slot = Schemas['Slot'];
 export type PartyView = Schemas['PartyView'];
+export type GuildView = Schemas['GuildView'];
 export type Catalog = Schemas['Catalog'];
 export type MapMeta = Schemas['MapMeta'];
 export type Place = Schemas['Place'];

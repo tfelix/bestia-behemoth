@@ -246,6 +246,20 @@ class ApiServiceScenarioTest {
   }
 
   @Test
+  fun `a master's guild comes from the zone, with its offline members' whereabouts`() {
+    val member = ZoneAnswer.GuildInfo.Member(6, "Cela", 19, "Member", isLeader = false, online = false, "Glimmerwood", 1_700_000_000_000)
+    answer = {
+      BusReply.ok(it.correlationId, ZoneAnswer.GuildInfo(ZoneAnswer.GuildInfo.Guild("Moonlit Order", 4, "Raid", "", "", listOf(member))))
+    }
+
+    val guild = json(get("/v1/companion/masters/5/guild", accountId = 51))["guild"]
+
+    assertEquals("Moonlit Order", guild["name"].asText())
+    assertEquals("Glimmerwood", guild["members"][0]["lastAreaName"].asText())
+    assertEquals(ZoneQuery.GuildRoster(5), asked.single().query)
+  }
+
+  @Test
   fun `an emblem crosses the bus once, is immutable, and opens to a game client's ticket`() {
     val png = byteArrayOf(0x89.toByte(), 'P'.code.toByte(), 'N'.code.toByte(), 'G'.code.toByte())
     val hash = "ab".repeat(32)
