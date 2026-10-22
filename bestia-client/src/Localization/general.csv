@@ -225,6 +225,12 @@ GUILD_EXP,EXP
 GUILD_EXP_MAX,Highest level
 GUILD_MEMBERS_COUNT,Members
 GUILD_SKILL_POINTS,Skill points
+GUILD_MOTD,Message of the day
+GUILD_MOTD_NONE,No message of the day yet.
+GUILD_MOTD_EDIT,Edit
+GUILD_MOTD_EDIT_TITLE,Message of the day
+GUILD_MOTD_TITLE_PLACEHOLDER,Headline
+GUILD_MOTD_BODY_PLACEHOLDER,"What every member should read when they log in or travel"
 GUILD_SKILL_LEVEL,Lv. %d / %d
 GUILD_SKILL_LEARN,Learn
 GUILD_SKILL_PICK,Pick a skill to see what it does.
@@ -234,12 +240,13 @@ GUILD_SKILL_DRAG_TO_BAR,Drag it onto the shortcut bar to cast it.
 GUILD_SKILL_EFFECT_LATER,The emblem itself comes in a later update.
 GUILD_COL_NAME,Rank
 GUILD_COL_TAX,Tax on kill EXP
-GUILD_COL_PERMISSIONS,Invite · Kick · Ranks · Skills
+GUILD_COL_PERMISSIONS,Invite · Kick · Ranks · Skills · Message
 GUILD_COL_EXP,EXP paid in
 GUILD_PERM_INVITE,May invite
 GUILD_PERM_KICK,May kick members of lower ranks
 GUILD_PERM_MANAGE_RANKS,May manage the ranks below their own
 GUILD_PERM_USE_SKILLS,May use the guild skills
+GUILD_PERM_EDIT_MOTD,May edit the message of the day
 GUILD_LEADER,Guild master
 GUILD_MEMBER_ONLINE,Online
 GUILD_MEMBER_OFFLINE,Offline
@@ -297,3 +304,4 @@ GUILD_LOG_RANK_ADDED,{actor} added the rank {detail}.
 GUILD_LOG_RANK_EDITED,{actor} changed the rank {detail}.
 GUILD_LOG_RANK_DELETED,{actor} deleted the rank {detail}.
 GUILD_LOG_SKILL_LEARNED,{actor} raised the guild skill {detail}.
+GUILD_LOG_MOTD_CHANGED,{actor} changed the message of the day.

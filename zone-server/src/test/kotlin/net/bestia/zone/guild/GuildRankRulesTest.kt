@@ -84,6 +84,15 @@ class GuildRankRulesTest {
     assertFalse(GuildRankRules.mayUseGuildSkills(officer))
   }
 
+  @Test
+  fun `the leader may always edit the message of the day, others only by their rank`() {
+    val herald = GuildMember(guild, master(6), rank(4, "Herald", editMotd = true))
+
+    assertTrue(GuildRankRules.mayEditMotd(leader))
+    assertTrue(GuildRankRules.mayEditMotd(herald))
+    assertFalse(GuildRankRules.mayEditMotd(officer))
+  }
+
   private fun rank(
     position: Int,
     name: String,
@@ -91,6 +100,7 @@ class GuildRankRulesTest {
     kick: Boolean = false,
     manage: Boolean = false,
     useSkills: Boolean = false,
+    editMotd: Boolean = false,
   ): GuildRank {
     return GuildRank(
       guild,
@@ -101,6 +111,7 @@ class GuildRankRulesTest {
       canKick = kick,
       canManageRanks = manage,
       canUseGuildSkills = useSkills,
+      canEditMotd = editMotd,
     )
   }
 

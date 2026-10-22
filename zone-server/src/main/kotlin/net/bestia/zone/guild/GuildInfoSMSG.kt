@@ -20,6 +20,10 @@ data class GuildInfoSMSG(
   val minTaxPercent: Int,
   val maxTaxPercent: Int,
   val skills: List<Skill>,
+  val motdTitle: String,
+  val motdBody: String,
+  val motdTitleMaxLength: Int,
+  val motdBodyMaxLength: Int,
 ) : SMSG {
 
   data class Rank(
@@ -31,6 +35,7 @@ data class GuildInfoSMSG(
     val canKick: Boolean,
     val canManageRanks: Boolean,
     val canUseGuildSkills: Boolean,
+    val canEditMotd: Boolean,
   )
 
   data class Skill(
@@ -73,6 +78,7 @@ data class GuildInfoSMSG(
           .setCanKick(rank.canKick)
           .setCanManageRanks(rank.canManageRanks)
           .setCanUseGuildSkills(rank.canUseGuildSkills)
+          .setCanEditMotd(rank.canEditMotd)
           .build()
       })
       .addAllMembers(members.map { member ->
@@ -104,6 +110,10 @@ data class GuildInfoSMSG(
           .setCooldownRemainingMs(skill.cooldownRemainingMillis)
           .build()
       })
+      .setMotdTitle(motdTitle)
+      .setMotdBody(motdBody)
+      .setMotdTitleMaxLength(motdTitleMaxLength)
+      .setMotdBodyMaxLength(motdBodyMaxLength)
       .build()
 
     return EnvelopeProto.Envelope.newBuilder()
@@ -128,6 +138,10 @@ data class GuildInfoSMSG(
       minTaxPercent = 0,
       maxTaxPercent = 0,
       skills = emptyList(),
+      motdTitle = "",
+      motdBody = "",
+      motdTitleMaxLength = 0,
+      motdBodyMaxLength = 0,
     )
   }
 }

@@ -25,16 +25,16 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CiltZXNzYWdlcy9ndWlsZC9zYXZlX2d1aWxkX3JhbmtfY21zZy5wcm90bxIE",
-            "Ym5ldCKlAQoRU2F2ZUd1aWxkUmFua0NNU0cSDwoHcmFua19pZBgBIAEoBBIM",
+            "Ym5ldCK8AQoRU2F2ZUd1aWxkUmFua0NNU0cSDwoHcmFua19pZBgBIAEoBBIM",
             "CgRuYW1lGAIgASgJEhMKC3RheF9wZXJjZW50GAMgASgNEhIKCmNhbl9pbnZp",
             "dGUYBCABKAgSEAoIY2FuX2tpY2sYBSABKAgSGAoQY2FuX21hbmFnZV9yYW5r",
-            "cxgGIAEoCBIcChRjYW5fdXNlX2d1aWxkX3NraWxscxgHIAEoCEIvChVuZXQu",
-            "YmVzdGlhLmJuZXQucHJvdG9CFlNhdmVHdWlsZFJhbmtDbXNnUHJvdG9iBnBy",
-            "b3RvMw=="));
+            "cxgGIAEoCBIcChRjYW5fdXNlX2d1aWxkX3NraWxscxgHIAEoCBIVCg1jYW5f",
+            "ZWRpdF9tb3RkGAggASgIQi8KFW5ldC5iZXN0aWEuYm5ldC5wcm90b0IWU2F2",
+            "ZUd1aWxkUmFua0Ntc2dQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.SaveGuildRankCMSG), global::Bnet.SaveGuildRankCMSG.Parser, new[]{ "RankId", "Name", "TaxPercent", "CanInvite", "CanKick", "CanManageRanks", "CanUseGuildSkills" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.SaveGuildRankCMSG), global::Bnet.SaveGuildRankCMSG.Parser, new[]{ "RankId", "Name", "TaxPercent", "CanInvite", "CanKick", "CanManageRanks", "CanUseGuildSkills", "CanEditMotd" }, null, null, null, null)
           }));
     }
     #endregion
@@ -88,6 +88,7 @@ namespace Bnet {
       canKick_ = other.canKick_;
       canManageRanks_ = other.canManageRanks_;
       canUseGuildSkills_ = other.canUseGuildSkills_;
+      canEditMotd_ = other.canEditMotd_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -181,6 +182,18 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "can_edit_motd" field.</summary>
+    public const int CanEditMotdFieldNumber = 8;
+    private bool canEditMotd_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool CanEditMotd {
+      get { return canEditMotd_; }
+      set {
+        canEditMotd_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -203,6 +216,7 @@ namespace Bnet {
       if (CanKick != other.CanKick) return false;
       if (CanManageRanks != other.CanManageRanks) return false;
       if (CanUseGuildSkills != other.CanUseGuildSkills) return false;
+      if (CanEditMotd != other.CanEditMotd) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -217,6 +231,7 @@ namespace Bnet {
       if (CanKick != false) hash ^= CanKick.GetHashCode();
       if (CanManageRanks != false) hash ^= CanManageRanks.GetHashCode();
       if (CanUseGuildSkills != false) hash ^= CanUseGuildSkills.GetHashCode();
+      if (CanEditMotd != false) hash ^= CanEditMotd.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -263,6 +278,10 @@ namespace Bnet {
         output.WriteRawTag(56);
         output.WriteBool(CanUseGuildSkills);
       }
+      if (CanEditMotd != false) {
+        output.WriteRawTag(64);
+        output.WriteBool(CanEditMotd);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -301,6 +320,10 @@ namespace Bnet {
         output.WriteRawTag(56);
         output.WriteBool(CanUseGuildSkills);
       }
+      if (CanEditMotd != false) {
+        output.WriteRawTag(64);
+        output.WriteBool(CanEditMotd);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -330,6 +353,9 @@ namespace Bnet {
         size += 1 + 1;
       }
       if (CanUseGuildSkills != false) {
+        size += 1 + 1;
+      }
+      if (CanEditMotd != false) {
         size += 1 + 1;
       }
       if (_unknownFields != null) {
@@ -364,6 +390,9 @@ namespace Bnet {
       }
       if (other.CanUseGuildSkills != false) {
         CanUseGuildSkills = other.CanUseGuildSkills;
+      }
+      if (other.CanEditMotd != false) {
+        CanEditMotd = other.CanEditMotd;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -412,6 +441,10 @@ namespace Bnet {
             CanUseGuildSkills = input.ReadBool();
             break;
           }
+          case 64: {
+            CanEditMotd = input.ReadBool();
+            break;
+          }
         }
       }
     #endif
@@ -457,6 +490,10 @@ namespace Bnet {
           }
           case 56: {
             CanUseGuildSkills = input.ReadBool();
+            break;
+          }
+          case 64: {
+            CanEditMotd = input.ReadBool();
             break;
           }
         }
