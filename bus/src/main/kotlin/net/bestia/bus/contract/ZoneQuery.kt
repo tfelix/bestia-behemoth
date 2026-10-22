@@ -19,6 +19,8 @@ sealed interface ZoneQuery {
 
   data class PartyRoster(val masterId: Long) : ZoneQuery
 
+  data class GuildRoster(val masterId: Long) : ZoneQuery
+
   data object Catalog : ZoneQuery
 
   data object MapMeta : ZoneQuery

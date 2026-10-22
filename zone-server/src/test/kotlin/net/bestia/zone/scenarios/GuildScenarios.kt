@@ -11,6 +11,7 @@ import net.bestia.bus.contract.BusReply
 import net.bestia.bus.contract.ZoneQuery
 import net.bestia.zone.aoi.EntityAudience
 import net.bestia.zone.companion.query.GuildEmblemQueries
+import net.bestia.zone.companion.query.GuildQueries
 import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.chat.ChatSMSG
 import net.bestia.zone.chat.ChatType
@@ -87,6 +88,9 @@ class GuildScenarios : BestiaNoSocketScenario() {
 
   @Autowired
   private lateinit var emblemQueries: GuildEmblemQueries
+
+  @Autowired
+  private lateinit var guildQueries: GuildQueries
 
   private val player1MasterId by lazy { testData.account1.masterIds.first() }
   private val player2MasterId by lazy { testData.account2.masterIds.first() }
@@ -433,6 +437,12 @@ class GuildScenarios : BestiaNoSocketScenario() {
     val served = emblemQueries.emblem("emblem", ZoneQuery.GuildEmblem(hash))
     assertEquals(BusReply.Status.OK, served.status)
     assertEquals(EmblemImage.SIZE, ImageIO.read(served.body.inputStream()).width, "the api-service gets the stored PNG")
+
+    val forApp = assertNotNull(guildQueries.guild(clientPlayer1.connectedPlayerId, player1MasterId)?.guild)
+    assertEquals(hash, forApp.emblemHash)
+    assertEquals("Raid tonight", forApp.motdTitle)
+    assertEquals(listOf("player1" to "Guild Master"), forApp.members.map { it.name to it.rankTitle })
+    assertNull(guildQueries.guild(clientPlayer3.connectedPlayerId, player1MasterId), "not player3's master")
   }
 
   @Test

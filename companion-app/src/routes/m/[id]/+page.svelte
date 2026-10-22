@@ -1,8 +1,9 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { getJson } from '$lib/api/client';
-	import type { MasterSheet, PartyView } from '$lib/api/model';
+	import type { GuildView, MasterSheet, PartyView } from '$lib/api/model';
 	import Age from '$lib/components/Age.svelte';
+	import Emblem from '$lib/components/Emblem.svelte';
 	import { touchesMaster } from '$lib/events';
 	import { guarded } from '$lib/guard';
 	import { live } from '$lib/live.svelte';
@@ -10,12 +11,17 @@
 	const masterId = $derived(Number(page.params.id));
 	let sheet = $state<MasterSheet | null>(null);
 	let party = $state<PartyView | null>(null);
+	let guild = $state<GuildView | null>(null);
 	let failure = $state<string | null>(null);
 
 	async function load(id: number) {
 		try {
-			[sheet, party] = await guarded(() =>
-				Promise.all([getJson<MasterSheet>(`/v1/companion/masters/${id}`), getJson<PartyView>(`/v1/companion/masters/${id}/party`)])
+			[sheet, party, guild] = await guarded(() =>
+				Promise.all([
+					getJson<MasterSheet>(`/v1/companion/masters/${id}`),
+					getJson<PartyView>(`/v1/companion/masters/${id}/party`),
+					getJson<GuildView>(`/v1/companion/masters/${id}/guild`)
+				])
 			);
 			failure = null;
 		} catch (e) {
@@ -28,6 +34,16 @@
 		void load(id);
 		return live.on((event) => touchesMaster(event, id) && void load(id));
 	});
+
+	/** As the game's guild window words it: minutes, then hours, then days. */
+	function seenAgo(epochMillis: number): string {
+		if (epochMillis <= 0) return '';
+		const minutes = Math.max(0, Math.floor((Date.now() - epochMillis) / 60_000));
+		if (minutes < 1) return 'just now';
+		if (minutes < 60) return `${minutes} min ago`;
+		if (minutes < 60 * 24) return `${Math.floor(minutes / 60)} h ago`;
+		return `${Math.floor(minutes / (60 * 24))} d ago`;
+	}
 
 	const stats = $derived(
 		sheet
@@ -92,6 +108,40 @@
 				<p class="muted">Travelling alone.</p>
 			{/if}
 		</section>
+
+		<section class="panel rise">
+			<h2>Guild</h2>
+			{#if guild?.guild}
+				<div class="guild-head">
+					<Emblem hash={guild.guild.emblemHash} />
+					<div>
+						<strong>{guild.guild.name}</strong>
+						<span class="muted">Level {guild.guild.level}</span>
+					</div>
+				</div>
+				{#if guild.guild.motdTitle || guild.guild.motdBody}
+					<blockquote class="motd">
+						{#if guild.guild.motdTitle}<strong>{guild.guild.motdTitle}</strong>{/if}
+						{#if guild.guild.motdBody}<p>{guild.guild.motdBody}</p>{/if}
+					</blockquote>
+				{/if}
+				<ul class="members">
+					{#each guild.guild.members as member (member.masterId)}
+						<li>
+							<span>{member.name}{member.isLeader ? ' ★' : ''}</span>
+							<span class="muted">{member.rankTitle} · Lv {member.level}</span>
+							{#if member.online}
+								<span class="chip live">online</span>
+							{:else}
+								<span class="muted">{[member.lastAreaName, seenAgo(member.lastSeen)].filter(Boolean).join(' · ')}</span>
+							{/if}
+						</li>
+					{/each}
+				</ul>
+			{:else}
+				<p class="muted">In no guild.</p>
+			{/if}
+		</section>
 	{/if}
 </main>
 
@@ -141,5 +191,27 @@
 
 	.members li span:first-child {
 		flex: 1;
+	}
+
+	.guild-head {
+		display: flex;
+		gap: 0.75rem;
+		align-items: center;
+		margin-top: 0.4rem;
+	}
+
+	.guild-head div {
+		display: grid;
+	}
+
+	.motd {
+		margin: 0.6rem 0;
+		padding: 0.5rem 0.75rem;
+		border-left: 3px solid var(--muted);
+	}
+
+	.motd p {
+		margin: 0.25rem 0 0;
+		white-space: pre-line;
 	}
 </style>

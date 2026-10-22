@@ -228,6 +228,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/companion/masters/{masterId}/guild": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["guild"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/companion/masters/{masterId}/bestias": {
         parameters: {
             query?: never;
@@ -442,6 +458,31 @@ export interface components {
             maxDurability: number;
             /** Format: int32 */
             upgradeLevel: number;
+        };
+        Guild: {
+            name: string;
+            /** Format: int32 */
+            level: number;
+            motdTitle: string;
+            motdBody: string;
+            emblemHash: string;
+            members: components["schemas"]["GuildMember"][];
+        };
+        GuildMember: {
+            /** Format: int64 */
+            masterId: number;
+            name: string;
+            /** Format: int32 */
+            level: number;
+            rankTitle: string;
+            isLeader: boolean;
+            online: boolean;
+            lastAreaName: string;
+            /** Format: int64 */
+            lastSeen: number;
+        };
+        GuildView: {
+            guild?: components["schemas"]["Guild"];
         };
         Bestia: {
             /** Format: int64 */
@@ -862,6 +903,28 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["Holder"][];
+                };
+            };
+        };
+    };
+    guild: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                masterId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["GuildView"];
                 };
             };
         };

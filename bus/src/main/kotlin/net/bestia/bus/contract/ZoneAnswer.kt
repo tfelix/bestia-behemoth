@@ -86,6 +86,30 @@ sealed interface ZoneAnswer {
     data class Member(val masterId: Long, val name: String, val level: Int, val online: Boolean)
   }
 
+  data class GuildInfo(val guild: Guild?) : ZoneAnswer {
+    /** [emblemHash] names the PNG at `/v1/companion/emblems/{hash}.png`; empty while the guild has none. */
+    data class Guild(
+      val name: String,
+      val level: Int,
+      val motdTitle: String,
+      val motdBody: String,
+      val emblemHash: String,
+      val members: List<Member>,
+    )
+
+    /** [lastAreaName] and [lastSeenEpochMillis] say where and when an offline member left the world. */
+    data class Member(
+      val masterId: Long,
+      val name: String,
+      val level: Int,
+      val rankTitle: String,
+      val isLeader: Boolean,
+      val online: Boolean,
+      val lastAreaName: String,
+      val lastSeenEpochMillis: Long,
+    )
+  }
+
   /** Identifiers, not display names: names are translated by the reader, from the same tables as the client. */
   data class CatalogData(val version: String, val items: List<Item>, val bestias: List<Species>) : ZoneAnswer {
     data class Item(
