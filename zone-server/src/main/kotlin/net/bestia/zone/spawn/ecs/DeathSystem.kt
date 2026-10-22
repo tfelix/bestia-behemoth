@@ -31,6 +31,7 @@ class DeathSystem(
   private val notableKills: KillReporter,
   private val spill: GroundSpill,
   private val levies: List<KillExpLevy> = emptyList(),
+  private val lootChanceModifiers: List<LootChanceModifier> = emptyList(),
 ) : System {
   override val phase = Phase.DEATH
   override val after = setOf(PlayerDeathSystem::class)
@@ -43,7 +44,7 @@ class DeathSystem(
       Account::class,
       Persistent::class,
       Living::class
-    ) + expSplitter.reads + levies.flatMap { it.reads }
+    ) + expSplitter.reads + levies.flatMap { it.reads } + lootChanceModifiers.flatMap { it.reads }
 
   // `Dead` is written rather than read: `bled` is set here, the same way PlayerDeathSystem sets `resolved`.
   override val writes: ComponentClassSet = setOf(Dead::class, Exp::class)
@@ -152,7 +153,10 @@ class DeathSystem(
       ?: return
 
     val killer = world.get(entityId, TakenDamage::class)?.topAccount(world)
-    mobLootSpawner.spawnLoot(world, species, position, lootOwner = killer)
+    val chanceFactor = killer
+      ?.let { account -> lootChanceModifiers.fold(1.0) { factor, modifier -> factor * modifier.factor(world, account) } }
+      ?: 1.0
+    mobLootSpawner.spawnLoot(world, species, position, lootOwner = killer, chanceFactor = chanceFactor)
   }
 
   /**

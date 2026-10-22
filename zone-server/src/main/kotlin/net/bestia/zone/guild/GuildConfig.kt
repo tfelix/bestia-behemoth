@@ -22,6 +22,10 @@ data class GuildConfig(
   val invitationTimeoutSeconds: Long = 60,
   /** How often taxed EXP is written to the guilds; a crash loses at most this much. */
   val expFlushSeconds: Long = 30,
+  /** How far from the guild leader the stat auras reach, measured flat. */
+  val auraRadiusMetres: Int = 15,
+  /** Fortune's Favor raises each drop's own chance by this share per level. */
+  val fortunePercentPerLevel: Int = 5,
 ) {
   init {
     require(nameMaxLength > 0) { "guild.name-max-length must be positive, was $nameMaxLength" }
@@ -39,5 +43,7 @@ data class GuildConfig(
     }
     require(invitationTimeoutSeconds > 0) { "guild.invitation-timeout-seconds must be positive" }
     require(expFlushSeconds > 0) { "guild.exp-flush-seconds must be positive" }
+    require(auraRadiusMetres > 0) { "guild.aura-radius-metres must be positive" }
+    require(fortunePercentPerLevel >= 0) { "guild.fortune-percent-per-level must not be negative" }
   }
 }
