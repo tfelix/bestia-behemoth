@@ -62,7 +62,8 @@ enum class MapVisibility(
    * Never drawn at any zoom, because knowing it is worth more than a map should give away.
    *
    * Ore, buried hoards, cave systems and creature dens. All of them are content a player is meant to find by
-   * going there, and all of them are in the feature store because the *generator* needs them.
+   * going there, and all of them are in the feature store because the *generator* needs them. The one exception
+   * is `HabitatLayer`, which blurs and offsets dens on purpose so it never marks one.
    */
   SECRET(0.0),
 

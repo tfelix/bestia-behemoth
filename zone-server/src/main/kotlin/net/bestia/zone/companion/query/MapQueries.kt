@@ -4,7 +4,9 @@ import net.bestia.bus.contract.BusReply
 import net.bestia.bus.contract.BusReply.Status
 import net.bestia.bus.contract.ZoneAnswer
 import net.bestia.bus.contract.ZoneQuery
+import net.bestia.zone.bestia.BestiaCatalogue
 import net.bestia.zone.cartography.tile.MapTileService
+import net.bestia.zone.compendium.CompendiumStore
 import net.bestia.zone.cartography.tile.TileId
 import net.bestia.zone.cartography.tile.TileRenderPool
 import org.springframework.stereotype.Service
@@ -21,6 +23,8 @@ import org.springframework.stereotype.Service
 class MapQueries(
   private val tiles: MapTileService,
   private val owned: OwnedMasters,
+  private val compendium: CompendiumStore,
+  private val catalogue: BestiaCatalogue,
 ) {
 
   fun meta(correlationId: String): BusReply {
@@ -45,6 +49,27 @@ class MapQueries(
 
     val tile = try {
       tiles.tile(query.masterId, TileId(query.level, query.x, query.y))
+    } catch (e: IllegalArgumentException) {
+      return BusReply.of(correlationId, Status.INVALID, e.message)
+    } catch (_: TileRenderPool.Unavailable) {
+      return BusReply.of(correlationId, Status.BUSY)
+    } ?: return BusReply.of(correlationId, Status.NOT_FOUND)
+
+    val answer = ZoneAnswer.Tile(tile.etag, tile.shared)
+    if (query.ifNoneMatch == tile.etag) {
+      return BusReply(correlationId, Status.NOT_MODIFIED, answer)
+    }
+    return BusReply.ok(correlationId, answer, tile.bytes)
+  }
+
+  /** A NOT_FOUND too when the master has not seen the species: its habitat is part of what seeing one teaches. */
+  fun habitat(correlationId: String, accountId: Long, query: ZoneQuery.HabitatTile): BusReply {
+    owned.find(accountId, query.masterId) ?: return BusReply.of(correlationId, Status.NOT_FOUND)
+    if (!compendium.hasSeen(query.masterId, query.speciesId)) return BusReply.of(correlationId, Status.NOT_FOUND)
+    val species = catalogue.find(query.speciesId) ?: return BusReply.of(correlationId, Status.NOT_FOUND)
+
+    val tile = try {
+      tiles.habitat(query.masterId, species, TileId(query.level, query.x, query.y))
     } catch (e: IllegalArgumentException) {
       return BusReply.of(correlationId, Status.INVALID, e.message)
     } catch (_: TileRenderPool.Unavailable) {

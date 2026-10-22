@@ -107,6 +107,22 @@ class FogMask private constructor(
     return masked
   }
 
+  /** Like [applyTo], for an overlay with an alpha of its own, such as a habitat layer: the two alphas multiply. */
+  fun applyToOverlay(overlay: BufferedImage): BufferedImage {
+    require(overlay.type == BufferedImage.TYPE_INT_ARGB) { "An overlay is ARGB, not image type ${overlay.type}" }
+
+    val masked = BufferedImage(overlay.width, overlay.height, BufferedImage.TYPE_INT_ARGB)
+    val source = (overlay.raster.dataBuffer as DataBufferInt).data
+    val target = (masked.raster.dataBuffer as DataBufferInt).data
+
+    for (i in target.indices) {
+      val a = (source[i] ushr 24) * alpha[i] / 255
+      target[i] = if (a == 0) 0 else (a shl 24) or (source[i] and 0xFFFFFF)
+    }
+
+    return masked
+  }
+
   /**
    * The tile's colours as packed ints.
    *

@@ -256,6 +256,25 @@ class ApiServiceScenarioTest {
   }
 
   @Test
+  fun `a habitat overlay opens to a game client's ticket and is never public`() {
+    answer = { request ->
+      when (val query = request.query) {
+        is ZoneQuery.WhoseTicket -> BusReply.ok(request.correlationId, ZoneAnswer.TicketOwner(50))
+        is ZoneQuery.HabitatTile ->
+          BusReply.ok(request.correlationId, ZoneAnswer.Tile("\"h${query.speciesId}\"", shared = true), byteArrayOf(1, 2, 3))
+        else -> BusReply.of(request.correlationId, BusReply.Status.NOT_FOUND)
+      }
+    }
+
+    val tile = rest.exchange("/v1/companion/masters/5/map/h/1/2/3/-4.png", HttpMethod.GET, ticketed("t"), ByteArray::class.java)
+
+    assertEquals(200, tile.statusCode.value())
+    assertEquals(ZoneQuery.HabitatTile(5, 1, 2, 3, -4, null), asked.last().query)
+    val cacheControl = tile.headers.cacheControl!!
+    assertTrue(cacheControl.contains("private") && cacheControl.contains("no-cache"), cacheControl)
+  }
+
+  @Test
   fun `the socket carries the account's events, including those it missed`() {
     val frames = CopyOnWriteArrayList<JsonNode>()
     val socket = connect(45, lastEventId = null, frames)

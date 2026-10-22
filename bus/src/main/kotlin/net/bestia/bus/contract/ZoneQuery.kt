@@ -29,6 +29,16 @@ sealed interface ZoneQuery {
 
   data class MapServices(val masterId: Long, val level: Int, val x: Long, val y: Long, val ifNoneMatch: String?) : ZoneQuery
 
+  /** Where a species the master has seen lives, as an overlay for a map tile. Answered like [MapTile]. */
+  data class HabitatTile(
+    val masterId: Long,
+    val speciesId: Long,
+    val level: Int,
+    val x: Long,
+    val y: Long,
+    val ifNoneMatch: String?,
+  ) : ZoneQuery
+
   /**
    * Whose game connection holds [ticket], the HTTP ticket the zone hands its client at the socket handshake. The
    * one query sent before the asker is known, so its request carries account 0 and the zone ignores it.

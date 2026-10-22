@@ -2,7 +2,10 @@ package net.bestia.zone.cartography.tile
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.annotation.PreDestroy
+import net.bestia.worldgen.bio.Biome
 import net.bestia.worldgen.vector.FeatureKind
+import net.bestia.zone.bestia.persistence.Bestia
+import net.bestia.zone.cartography.habitat.HabitatLayer
 import net.bestia.worldgen.vector.PointMarker
 import net.bestia.zone.cartography.CartographyConfig
 import net.bestia.zone.cartography.chart.ChartService
@@ -15,12 +18,14 @@ import net.bestia.zone.cartography.render.MapVisibility
 import net.bestia.zone.cartography.render.PlaceNames
 import net.bestia.zone.cartography.render.PlaceNames.visibleTo
 import net.bestia.zone.cartography.render.TileInputs
+import net.bestia.zone.spawn.ecs.WildSpawnerService
 import net.bestia.zone.world.WorldService
 import org.springframework.stereotype.Service
 import org.springframework.transaction.event.TransactionPhase
 import org.springframework.transaction.event.TransactionalEventListener
 import java.awt.image.BufferedImage
 import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.IOException
 import java.util.concurrent.ConcurrentHashMap
@@ -55,6 +60,7 @@ class MapTileService(
   private val chartService: ChartService,
   private val config: CartographyConfig,
   private val pois: MapPoiIndex,
+  private val wildSpawner: WildSpawnerService,
 ) {
 
   /** A tile ready to send, and how the client is allowed to cache it. */
@@ -124,6 +130,12 @@ class MapTileService(
 
   /** Masked tiles, keyed by tile and coverage digest. Bounded by count; a tile is tens of kilobytes. */
   private val masked = ConcurrentHashMap<String, ByteArray>()
+
+  /** Habitat tiles, keyed like [masked] with the species in front. */
+  private val habitatTiles = ConcurrentHashMap<String, ByteArray>()
+
+  /** One per species asked about, built on first use: the den list is only walked once per species. */
+  private val habitatLayers = ConcurrentHashMap<Long, HabitatLayer>()
 
   /**
    * The coverage a master can see, remembered briefly.
@@ -235,6 +247,66 @@ class MapTileService(
     if (masked.size < MAX_MASKED_TILES) masked[cacheKey] = bytes
 
     return Tile(bytes, etag = "\"${resources.key}-$cacheKey\"", shared = false)
+  }
+
+  /**
+   * Where [species] lives inside a tile, masked to the master's charts, or null when the master has charted
+   * nothing in it. Whether the master may see this species' habitat at all is the caller's question.
+   *
+   * @throws IllegalArgumentException for a level outside the pyramid
+   */
+  fun habitat(masterId: Long, species: Bestia, id: TileId): Tile? {
+    require(id.level in 0..resources.fitLevel) {
+      "Level ${id.level} is outside 0..${resources.fitLevel}"
+    }
+
+    if (!holdsTile(id)) return null
+
+    val coverage = coverageFor(masterId)
+    val wholly = coverage.coverageOf(FogMask.clearingArea(id)) == AreaCoverage.Full
+    if (!wholly && coverage.coverageOf(id.bounds) == AreaCoverage.None) return null
+
+    val digest = (coverage.coverageOf(FogMask.readArea(id)) as? AreaCoverage.Partial)?.digest ?: UNKEYED_DIGEST
+    val fog = if (wholly) "" else "#${FogMask.REVISION}.$digest"
+    val cacheKey = "h${species.id}.${HabitatLayer.REVISION}.${species.habitat.hashCode()}/${id.path()}$fog"
+    val etag = "\"${resources.key}-$cacheKey\""
+    habitatTiles[cacheKey]?.let { return Tile(it, etag, shared = wholly) }
+
+    val mask = if (wholly) null else FogMask.forTile(id, coverage)
+    if (mask?.isFullyHidden == true) return null
+
+    val layer = habitatLayers.computeIfAbsent(species.id) { habitatLayerOf(species) }
+    val bytes = pool.render(masterId) {
+      val image = layer.render(id)
+      val out = ByteArrayOutputStream()
+      ImageIO.write(mask?.applyToOverlay(image) ?: image, "png", out)
+      out.toByteArray()
+    }
+    if (habitatTiles.size < MAX_MASKED_TILES) habitatTiles[cacheKey] = bytes
+
+    return Tile(bytes, etag, shared = wholly)
+  }
+
+  private fun habitatLayerOf(species: Bestia): HabitatLayer {
+    val metresPerVoxel = worldService.config.voxelSize
+    val seed = resources.inputs.seed
+    val hazeCentres = wildSpawner.dens
+      .filter { it.bestiaId == species.id }
+      .map { den ->
+        HabitatLayer.hazeCentre(
+          seed,
+          den.identity.featureId,
+          species.id,
+          den.position.x * metresPerVoxel,
+          den.position.y * metresPerVoxel
+        )
+      }
+
+    return HabitatLayer(resources.inputs.biome, habitatOf(species), hazeCentres)
+  }
+
+  private fun habitatOf(species: Bestia): Set<Biome> {
+    return species.habitat.split(',').filter { it.isNotEmpty() }.mapTo(HashSet()) { Biome.valueOf(it) }
   }
 
   /**

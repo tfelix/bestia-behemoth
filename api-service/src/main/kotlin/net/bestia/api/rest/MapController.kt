@@ -138,6 +138,31 @@ class MapController(
     return png(tile, bytes)
   }
 
+  /**
+   * Where a species the master has seen lives, to lay over the tile of the same path. Never cached publicly: who may
+   * see it depends on the master's compendium, not only on the charts.
+   */
+  @GetMapping("/h/{speciesId}/{level}/{x}/{y}.png")
+  fun habitat(
+    @RequestAttribute(ACCOUNT_ID) accountId: Long,
+    @PathVariable masterId: Long,
+    @PathVariable speciesId: Long,
+    @PathVariable level: Int,
+    @PathVariable x: Long,
+    @PathVariable y: Long,
+    @RequestHeader(HttpHeaders.IF_NONE_MATCH, required = false) ifNoneMatch: String?,
+  ): ResponseEntity<ByteArray> {
+    val reply = zone.ask(accountId, ZoneQuery.HabitatTile(masterId, speciesId, level, x, y, ifNoneMatch))
+    val tile = reply.answerOrThrow<ZoneAnswer.Tile>()
+    val revalidate = CacheControl.noCache().cachePrivate()
+
+    if (reply.status == BusReply.Status.NOT_MODIFIED) {
+      return ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(tile.etag).cacheControl(revalidate).build()
+    }
+
+    return ResponseEntity.ok().eTag(tile.etag).cacheControl(revalidate).contentType(MediaType.IMAGE_PNG).body(reply.body)
+  }
+
   @GetMapping("/p/{level}/{x}/{y}.json")
   fun places(
     @RequestAttribute(ACCOUNT_ID) accountId: Long,

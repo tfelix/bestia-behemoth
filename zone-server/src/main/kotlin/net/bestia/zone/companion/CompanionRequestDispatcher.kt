@@ -45,6 +45,7 @@ class CompanionRequestDispatcher(
       is ZoneQuery.MapTile -> map.tile(id, account, query)
       is ZoneQuery.MapPlaces -> map.places(id, account, query)
       is ZoneQuery.MapServices -> map.services(id, account, query)
+      is ZoneQuery.HabitatTile -> map.habitat(id, account, query)
       is ZoneQuery.WhoseTicket -> tickets.owner(id, query)
       is ZoneQuery.SetStance -> stance.apply(id, account, query)
       is ZoneQuery.SendChat -> chat.send(id, account, query)
