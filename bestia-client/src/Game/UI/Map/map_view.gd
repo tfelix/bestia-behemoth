@@ -301,6 +301,8 @@ func setup(map_source: MapSource, entities: Node) -> void:
 	source.tile_ready.connect(func(_key: String, _texture: Texture2D) -> void: queue_redraw())
 	source.tile_absent.connect(func(_key: String) -> void: queue_redraw())
 	source.places_ready.connect(func(_key: String, _places: Array) -> void: queue_redraw())
+	source.habitat_ready.connect(func(_key: String) -> void: queue_redraw())
+	source.habitat_species_changed.connect(func(_species_id: int) -> void: queue_redraw())
 	source.services_ready.connect(_on_services_ready)
 	source.meta_ready.connect(_on_meta_ready)
 
@@ -431,6 +433,7 @@ func _draw() -> void:
 			# of a tile is its ty+1 boundary.
 			var corner := _to_screen(Vector2(tx * span, (ty + 1) * span))
 			draw_texture_rect(texture, Rect2(corner, Vector2(_tile_pixels, _tile_pixels)), false)
+			_draw_habitat(key, corner, tx, ty)
 
 			# Asked for only once the picture is here. A tile the player has charted none of answers 404
 			# for both, so asking on the fog path would double the requests that exist to be refused.
@@ -451,6 +454,19 @@ func _draw() -> void:
 	_draw_owned_entities()
 	_draw_player()
 	_draw_north()
+
+
+## The species the player is hunting, over the tile it lives on. Under the names and marks, which stay readable.
+func _draw_habitat(key: String, corner: Vector2, tx: int, ty: int) -> void:
+	if source.habitat_species == 0:
+		return
+
+	var overlay := source.habitat_of(key)
+	if overlay == null:
+		source.want_habitat(level, tx, ty)
+		return
+
+	draw_texture_rect(overlay, Rect2(corner, Vector2(_tile_pixels, _tile_pixels)), false)
 
 
 ## A left click that was not a pan: pick the place under it, or set off for the ground.

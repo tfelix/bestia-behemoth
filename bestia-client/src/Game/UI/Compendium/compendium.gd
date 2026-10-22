@@ -8,6 +8,8 @@ extends PanelContainer
 
 ## Something the player should be told, in the chat's notice colour.
 signal notice(text: String)
+## The player wants the map to show where [param species_id] lives, or nothing for 0.
+signal habitat_requested(species_id: int)
 
 const PARCHMENT := Color(0.91, 0.86, 0.74)
 ## An unseen species' portrait is modulated to this, which leaves its outline on the parchment.
@@ -24,6 +26,9 @@ var _known: Dictionary[int, CompendiumEntry] = {}
 var _has_book := false
 var _rows: Dictionary[int, CompendiumRow] = {}
 var _selected_id := 0
+var _has_chart := false
+## The species the map shows the habitat of, or 0.
+var _habitat_species := 0
 
 var _search: LineEdit
 var _tabs: TabBar
@@ -38,6 +43,7 @@ var _detail_subtitle: Label
 var _detail_caught: Label
 var _detail_habitat: Label
 var _detail_description: Label
+var _habitat_button: Button
 
 
 func _ready() -> void:
@@ -131,8 +137,20 @@ func _build_detail() -> Control:
 	_detail_subtitle = UiStyle.label("", 11, UiStyle.MUTED)
 	detail.add_child(_detail_subtitle)
 
+	var status := UiStyle.hbox(8)
+	detail.add_child(status)
+
 	_detail_caught = UiStyle.label("", 12)
-	detail.add_child(_detail_caught)
+	_detail_caught.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	status.add_child(_detail_caught)
+
+	_habitat_button = Button.new()
+	_habitat_button.toggle_mode = true
+	_habitat_button.focus_mode = Control.FOCUS_NONE
+	_habitat_button.add_theme_font_size_override("font_size", 12)
+	_habitat_button.text = tr("COMPENDIUM_SHOW_HABITAT")
+	_habitat_button.toggled.connect(_on_habitat_toggled)
+	status.add_child(_habitat_button)
 
 	var text_scroll := ScrollContainer.new()
 	text_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -152,6 +170,23 @@ func _build_detail() -> Control:
 	text.add_child(_detail_description)
 
 	return detail
+
+
+## Whether a map is carried: the habitat can only be shown on one.
+func set_has_chart(has_chart: bool) -> void:
+	_has_chart = has_chart
+	_show_detail()
+
+
+## What the map shows now, which the map itself can also clear.
+func show_habitat_species(species_id: int) -> void:
+	_habitat_species = species_id
+	_show_detail()
+
+
+func _on_habitat_toggled(on: bool) -> void:
+	if on != (_habitat_species == _selected_id):
+		habitat_requested.emit(_selected_id if on else 0)
 
 
 func _on_visibility_changed() -> void:
@@ -226,6 +261,11 @@ func _show_detail() -> void:
 	var entry: CompendiumEntry = _known.get(_selected_id)
 	var number_label := _searcher.NumberLabel(_selected_id)
 	_detail_portrait.texture = species.get_portrait()
+
+	_habitat_button.visible = entry != null
+	_habitat_button.disabled = not _has_chart
+	_habitat_button.tooltip_text = "" if _has_chart else tr("COMPENDIUM_HABITAT_NEEDS_CHART")
+	_habitat_button.set_pressed_no_signal(_habitat_species == _selected_id)
 
 	if entry == null:
 		_model_view.clear()

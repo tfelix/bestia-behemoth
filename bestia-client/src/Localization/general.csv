@@ -265,3 +265,7 @@ COMPENDIUM_HABITAT,Habitat
 COMPENDIUM_HABITAT_ANYWHERE,anywhere on land
 COMPENDIUM_FIRST_SEEN,First seen on %s.
 COMPENDIUM_NEW_ENTRY,New in your Bestia Compendium: %s
+COMPENDIUM_SHOW_HABITAT,Show on map
+COMPENDIUM_HABITAT_NEEDS_CHART,Carry a map to see where it lives.
+MAP_HABITAT_CHIP,Habitat: %s  ✕
+MAP_HABITAT_CLEAR,Stop showing this habitat

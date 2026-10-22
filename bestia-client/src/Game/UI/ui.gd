@@ -126,6 +126,8 @@ func _ready() -> void:
 
 	var compendium := _compendium_win.get_content() as CompendiumPanel
 	compendium.notice.connect(_chat.system_line)
+	compendium.habitat_requested.connect(_on_habitat_requested)
+	_map_source.habitat_species_changed.connect(compendium.show_habitat_species)
 
 	# Gold is coins in the bag, so the inventory is what knows how much the profile should show.
 	inventory.gold_changed.connect(_master_profile.show_gold)
@@ -388,6 +390,7 @@ func _on_inventory_updated(inventory: Inventory) -> void:
 	_chart_signature = signature
 	_minimap.set_has_chart(not held.is_empty())
 	_map_overlay.set_has_chart(not held.is_empty())
+	(_compendium_win.get_content() as CompendiumPanel).set_has_chart(not held.is_empty())
 	_map_source.set_chart_signature(signature)
 
 
@@ -471,6 +474,13 @@ func _on_master_profile_guild_win_toggled() -> void:
 
 func _on_master_profile_compendium_win_toggled() -> void:
 	_compendium_win.visible = !_compendium_win.visible
+
+
+## Opens the map on the species, which is what the player asked to see.
+func _on_habitat_requested(species_id: int) -> void:
+	_map_source.set_habitat_species(species_id)
+	if species_id != 0:
+		_map_overlay.open()
 
 
 ## A guild window open on a guild the player has just left would show a guild that no longer has them.

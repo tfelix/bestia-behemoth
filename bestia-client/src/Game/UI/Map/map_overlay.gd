@@ -59,6 +59,9 @@ const _OPEN_LEVEL := 3
 
 var _has_chart: bool = false
 
+## Names the species whose habitat is shown, and clears it when pressed. Hidden while none is.
+var _habitat_chip: Button
+
 
 func setup(source: MapSource, entities: Node) -> void:
 	_view.mark_requested.connect(func(at: Vector2) -> void: mark_requested.emit(at))
@@ -71,11 +74,15 @@ func setup(source: MapSource, entities: Node) -> void:
 	_view.setup(source, entities)
 	_view.go_to_level(_OPEN_LEVEL)
 
+	_habitat_chip.pressed.connect(func() -> void: source.set_habitat_species(0))
+	source.habitat_species_changed.connect(_show_habitat_chip)
+
 
 func _ready() -> void:
 	add_to_group("world_blocking_ui")
 	visible = false
 	_build_legend()
+	_build_habitat_chip()
 
 
 ## One toggle per service kind, each beside the glyph the map draws for it.
@@ -102,6 +109,23 @@ func _build_legend() -> void:
 		_legend.add_child(swatch)
 		_legend.add_child(toggle)
 		_toggles[kind] = toggle
+
+
+func _build_habitat_chip() -> void:
+	_habitat_chip = Button.new()
+	_habitat_chip.visible = false
+	_habitat_chip.focus_mode = Control.FOCUS_NONE
+	_habitat_chip.add_theme_font_size_override("font_size", 12)
+	_habitat_chip.tooltip_text = tr("MAP_HABITAT_CLEAR")
+	_title.get_parent().add_child(_habitat_chip)
+	_title.get_parent().move_child(_habitat_chip, _title.get_index() + 1)
+
+
+func _show_habitat_chip(species_id: int) -> void:
+	var species := BestiaDB.get_instance().get_bestia(species_id) if species_id != 0 else null
+	_habitat_chip.visible = species != null
+	if species != null:
+		_habitat_chip.text = tr("MAP_HABITAT_CHIP") % tr(species.name_key)
 
 
 func _on_legend_toggled() -> void:
