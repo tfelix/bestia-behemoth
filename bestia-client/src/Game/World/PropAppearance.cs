@@ -408,7 +408,13 @@ namespace BestiaBehemothClient.Game.World
       new Kind
       {
         PlaceholderWidth = 1.0f, PlaceholderColour = new Color(0.62f, 0.70f, 0.82f), StructureHeight = 4f
-      }  // WARD_STONE
+      },  // WARD_STONE
+
+      // A guild's War Banner, an entity like the ward stone: a tall, thin pole in banner red until it has a model.
+      new Kind
+      {
+        PlaceholderWidth = 0.4f, PlaceholderColour = new Color(0.78f, 0.16f, 0.16f), StructureHeight = 3f
+      }  // WAR_BANNER
     };
 
     /// <summary>
