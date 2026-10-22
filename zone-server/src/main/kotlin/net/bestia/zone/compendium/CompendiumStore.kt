@@ -72,6 +72,11 @@ class CompendiumStore(
       .sortedBy { it.speciesId }
   }
 
+  @Transactional(readOnly = true)
+  fun hasSeen(masterId: Long, speciesId: Long): Boolean {
+    return isListed(speciesId) && entries.findByMasterIdAndSpeciesId(masterId, speciesId) != null
+  }
+
   @Transactional
   fun deleteAllOf(masterId: Long) {
     entries.deleteAllByMasterId(masterId)

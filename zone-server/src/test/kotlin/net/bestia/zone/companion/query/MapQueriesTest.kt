@@ -15,6 +15,7 @@ import net.bestia.zone.cartography.poi.MapPoi
 import net.bestia.zone.cartography.poi.MapPoiIndex
 import net.bestia.zone.cartography.tile.TileId
 import net.bestia.zone.companion.CompanionRequestDispatcher
+import net.bestia.zone.compendium.CompendiumStore
 import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.master.MasterDeletionService
 import net.bestia.zone.master.MasterFactory
@@ -79,6 +80,9 @@ class MapQueriesTest {
 
   @Autowired
   private lateinit var masterDeletion: MasterDeletionService
+
+  @Autowired
+  private lateinit var compendium: CompendiumStore
 
   private lateinit var client: GameClientMock
   private var accountId: Long = 0
@@ -288,6 +292,23 @@ class MapQueriesTest {
   }
 
   @Test
+  fun `a species' habitat is shown only once the master has seen it, and only where it is charted`() {
+    // A row of its own: another spot on the strip would push the last test's spot off the world's east edge.
+    val centre = chartedAt(40_000.0, 32_000.0, radiusMetres = 3_000.0)
+    val tile = TileId.of(2, centre.first, centre.second)
+    assertEquals(Status.NOT_FOUND, ask(habitatQuery(tile)).status, "an unseen species gives its habitat away")
+
+    compendium.recordSeen(masterId, BLOB)
+
+    val first = ask(habitatQuery(tile))
+    assertEquals(Status.OK, first.status)
+    assertTrue(isPng(first.body), "the body is not a PNG (${first.body.size} bytes)")
+    val etag = assertIs<ZoneAnswer.Tile>(first.answer).etag
+    assertEquals(Status.NOT_MODIFIED, ask(habitatQuery(tile, ifNoneMatch = etag)).status)
+    assertEquals(Status.NOT_FOUND, ask(habitatQuery(TileId.of(0, 110_000.0, 110_000.0))).status, "uncharted ground")
+  }
+
+  @Test
   fun `a level above the pyramid is invalid rather than a rendered void`() {
     assertEquals(Status.INVALID, ask(tileQuery(TileId(20, 0, 0))).status)
   }
@@ -328,6 +349,10 @@ class MapQueriesTest {
     return ZoneQuery.MapTile(masterId, tile.level, tile.tx, tile.ty, ifNoneMatch)
   }
 
+  private fun habitatQuery(tile: TileId, ifNoneMatch: String? = null): ZoneQuery {
+    return ZoneQuery.HabitatTile(masterId, BLOB, tile.level, tile.tx, tile.ty, ifNoneMatch)
+  }
+
   private fun servicesQuery(tile: TileId, ifNoneMatch: String? = null): ZoneQuery {
     return ZoneQuery.MapServices(masterId, tile.level, tile.tx, tile.ty, ifNoneMatch)
   }
@@ -345,6 +370,7 @@ class MapQueriesTest {
     var NEXT_SPOT = 0
 
     const val MASTER_NAME = "cartographer"
+    const val BLOB = 1L
 
     /** The fixture master holds slot 0; ChartServiceTest uses slot 1 too, one master at a time. */
     const val FREE_SLOT = 1

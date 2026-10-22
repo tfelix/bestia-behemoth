@@ -16,6 +16,7 @@ class BusFrameTest {
     val queries = listOf(
       ZoneQuery.ListMasters,
       ZoneQuery.MapTile(masterId = 7, level = 3, x = -2, y = 9, ifNoneMatch = "\"w1-3/-2/9\""),
+      ZoneQuery.HabitatTile(masterId = 7, speciesId = 1, level = 3, x = -2, y = 9, ifNoneMatch = null),
       ZoneQuery.SetStance(masterId = 7, playerBestiaId = 11, stance = "HOLD", aggression = 20),
       ZoneQuery.SendChat(masterId = 7, channel = "PARTY", text = "on my way"),
     )
