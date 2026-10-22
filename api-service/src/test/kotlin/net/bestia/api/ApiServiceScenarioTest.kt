@@ -246,6 +246,31 @@ class ApiServiceScenarioTest {
   }
 
   @Test
+  fun `an emblem crosses the bus once, is immutable, and opens to a game client's ticket`() {
+    val png = byteArrayOf(0x89.toByte(), 'P'.code.toByte(), 'N'.code.toByte(), 'G'.code.toByte())
+    val hash = "ab".repeat(32)
+    answer = { request ->
+      when (val query = request.query) {
+        is ZoneQuery.WhoseTicket -> BusReply.ok(request.correlationId, ZoneAnswer.TicketOwner(50))
+        is ZoneQuery.GuildEmblem -> BusReply.ok(request.correlationId, ZoneAnswer.Emblem(query.hash), png)
+        else -> BusReply.of(request.correlationId, BusReply.Status.NOT_FOUND)
+      }
+    }
+
+    val first = rest.exchange("/v1/companion/emblems/$hash.png", HttpMethod.GET, ticketed("live-ticket"), ByteArray::class.java)
+    assertEquals(200, first.statusCode.value())
+    assertContentEquals(png, first.body)
+    assertTrue(first.headers.cacheControl!!.contains("immutable"))
+    assertEquals("nosniff", first.headers.getFirst("X-Content-Type-Options"))
+
+    val again = rest.exchange("/v1/companion/emblems/$hash.png", HttpMethod.GET, entity(50), ByteArray::class.java)
+    assertContentEquals(png, again.body)
+    assertEquals(1, asked.count { it.query is ZoneQuery.GuildEmblem })
+
+    assertEquals(400, rest.exchange("/v1/companion/emblems/not-a-hash.png", HttpMethod.GET, entity(50), String::class.java).statusCode.value())
+  }
+
+  @Test
   fun `a fully charted tile is public and immutable`() {
     answer = { BusReply.ok(it.correlationId, ZoneAnswer.Tile("\"shared\"", shared = true), byteArrayOf(1, 2, 3)) }
 

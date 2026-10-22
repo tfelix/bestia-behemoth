@@ -12,6 +12,8 @@ var _species_name: String = ""
 ## wolf is a Wolf.
 var _display_name: String = ""
 var _guild_line: String = ""
+var _emblem_hash: String = ""
+var _emblem: NameTagEmblem = null
 var _hovered: bool = false
 var _selected: bool = false
 
@@ -46,6 +48,7 @@ func set_display_name(display_name: String) -> void:
 ## there. The name is kept and written again from here, which is the first moment $NameTag exists.
 func set_guild_tag(tag: GuildTagComponentSMSG) -> void:
 	_guild_line = GuildTagLine.of(tag)
+	_emblem_hash = tag.EmblemHash if tag != null else ""
 	_apply_name_tag()
 
 
@@ -54,6 +57,7 @@ func _apply_name_tag() -> void:
 		return
 	var bestia_name := _display_name if not _display_name.is_empty() else _species_name
 	_name_tag.text = GuildTagLine.under(bestia_name, _guild_line)
+	_emblem = GuildTagLine.show_emblem(_name_tag, _emblem, _emblem_hash)
 
 
 func show_damage(msg: DamageEntitySMSG) -> void:
