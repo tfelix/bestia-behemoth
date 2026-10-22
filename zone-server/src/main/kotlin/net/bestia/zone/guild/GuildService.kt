@@ -10,6 +10,7 @@ import net.bestia.zone.guild.persistence.GuildMemberRef
 import net.bestia.zone.guild.persistence.GuildMemberRepository
 import net.bestia.zone.guild.persistence.GuildRank
 import net.bestia.zone.guild.persistence.GuildRepository
+import net.bestia.zone.guild.skill.GuildSkillCooldowns
 import net.bestia.zone.guild.skill.GuildSkillTree
 import net.bestia.zone.identity.ecs.GuildMembership
 import net.bestia.zone.item.container.InventoryService
@@ -50,6 +51,7 @@ class GuildService(
   private val ledger: GuildExpLedger,
   private val skillTree: GuildSkillTree,
   private val memberships: GuildMemberships,
+  private val cooldowns: GuildSkillCooldowns,
 ) {
 
   data class SentInvitation(val invitedAccountId: AccountId, val invitation: GuildInvitationSMSG)
@@ -362,6 +364,7 @@ class GuildService(
     afterCommit {
       ledger.discard(guildId)
       invitations.dropFor(guildId)
+      cooldowns.forget(guildId)
     }
 
     LOG.info { "Guild $guildId disbanded by its leader" }

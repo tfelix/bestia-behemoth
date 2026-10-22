@@ -12,6 +12,9 @@ namespace BestiaBehemothClient.Bnet.Message.Guild
 
     [Export] public uint MaxLevel { get; set; }
 
+    /// <summary>Until the guild may cast it again, 0 when it may.</summary>
+    [Export] public ulong CooldownRemainingMs { get; set; }
+
     /// <summary>Pairs of skill id and required level, flattened because GDScript reads no nested C# types.</summary>
     [Export] public Godot.Collections.Array<ulong> PrerequisiteSkillIds { get; set; } = [];
 
@@ -23,7 +26,8 @@ namespace BestiaBehemothClient.Bnet.Message.Guild
       {
         SkillId = proto.SkillId,
         Level = proto.Level,
-        MaxLevel = proto.MaxLevel
+        MaxLevel = proto.MaxLevel,
+        CooldownRemainingMs = proto.CooldownRemainingMs
       };
 
       foreach (var prerequisite in proto.Prerequisites)

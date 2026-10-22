@@ -32,25 +32,26 @@ namespace Bnet {
             "bWVtYmVycxgKIAMoCzIRLmJuZXQuR3VpbGRNZW1iZXISFQoNb3duX21hc3Rl",
             "cl9pZBgLIAEoBBIRCgltYXhfcmFua3MYDSABKA0SFwoPbWluX3RheF9wZXJj",
             "ZW50GA4gASgNEhcKD21heF90YXhfcGVyY2VudBgPIAEoDRIkCgZza2lsbHMY",
-            "ECADKAsyFC5ibmV0Lkd1aWxkU2tpbGxOb2RlSgQIBxAISgQIDBANInkKDkd1",
-            "aWxkU2tpbGxOb2RlEhAKCHNraWxsX2lkGAEgASgEEg0KBWxldmVsGAIgASgN",
-            "EhEKCW1heF9sZXZlbBgDIAEoDRIzCg1wcmVyZXF1aXNpdGVzGAQgAygLMhwu",
-            "Ym5ldC5HdWlsZFNraWxsUHJlcmVxdWlzaXRlIjkKFkd1aWxkU2tpbGxQcmVy",
-            "ZXF1aXNpdGUSEAoIc2tpbGxfaWQYASABKAQSDQoFbGV2ZWwYAiABKA0irwEK",
-            "CUd1aWxkUmFuaxIPCgdyYW5rX2lkGAEgASgEEhAKCHBvc2l0aW9uGAIgASgN",
-            "EgwKBG5hbWUYAyABKAkSEwoLdGF4X3BlcmNlbnQYBCABKA0SEgoKY2FuX2lu",
-            "dml0ZRgFIAEoCBIQCghjYW5fa2ljaxgGIAEoCBIYChBjYW5fbWFuYWdlX3Jh",
-            "bmtzGAcgASgIEhwKFGNhbl91c2VfZ3VpbGRfc2tpbGxzGAggASgIIpEBCgtH",
-            "dWlsZE1lbWJlchIRCgltYXN0ZXJfaWQYASABKAQSEwoLbWFzdGVyX25hbWUY",
-            "AiABKAkSDQoFbGV2ZWwYAyABKA0SDwoHcmFua19pZBgEIAEoBBIOCgZvbmxp",
-            "bmUYBSABKAgSFwoPZXhwX2NvbnRyaWJ1dGVkGAYgASgEEhEKCWlzX2xlYWRl",
-            "chgHIAEoCEIrChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CEkd1aWxkSW5mb1Nt",
-            "c2dQcm90b2IGcHJvdG8z"));
+            "ECADKAsyFC5ibmV0Lkd1aWxkU2tpbGxOb2RlSgQIBxAISgQIDBANIpgBCg5H",
+            "dWlsZFNraWxsTm9kZRIQCghza2lsbF9pZBgBIAEoBBINCgVsZXZlbBgCIAEo",
+            "DRIRCgltYXhfbGV2ZWwYAyABKA0SMwoNcHJlcmVxdWlzaXRlcxgEIAMoCzIc",
+            "LmJuZXQuR3VpbGRTa2lsbFByZXJlcXVpc2l0ZRIdChVjb29sZG93bl9yZW1h",
+            "aW5pbmdfbXMYBSABKAQiOQoWR3VpbGRTa2lsbFByZXJlcXVpc2l0ZRIQCghz",
+            "a2lsbF9pZBgBIAEoBBINCgVsZXZlbBgCIAEoDSKvAQoJR3VpbGRSYW5rEg8K",
+            "B3JhbmtfaWQYASABKAQSEAoIcG9zaXRpb24YAiABKA0SDAoEbmFtZRgDIAEo",
+            "CRITCgt0YXhfcGVyY2VudBgEIAEoDRISCgpjYW5faW52aXRlGAUgASgIEhAK",
+            "CGNhbl9raWNrGAYgASgIEhgKEGNhbl9tYW5hZ2VfcmFua3MYByABKAgSHAoU",
+            "Y2FuX3VzZV9ndWlsZF9za2lsbHMYCCABKAgikQEKC0d1aWxkTWVtYmVyEhEK",
+            "CW1hc3Rlcl9pZBgBIAEoBBITCgttYXN0ZXJfbmFtZRgCIAEoCRINCgVsZXZl",
+            "bBgDIAEoDRIPCgdyYW5rX2lkGAQgASgEEg4KBm9ubGluZRgFIAEoCBIXCg9l",
+            "eHBfY29udHJpYnV0ZWQYBiABKAQSEQoJaXNfbGVhZGVyGAcgASgIQisKFW5l",
+            "dC5iZXN0aWEuYm5ldC5wcm90b0ISR3VpbGRJbmZvU21zZ1Byb3RvYgZwcm90",
+            "bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.GuildInfoSMSG), global::Bnet.GuildInfoSMSG.Parser, new[]{ "GuildId", "Name", "Level", "Exp", "ExpNextLevel", "SkillPoints", "MaxMembers", "Ranks", "Members", "OwnMasterId", "MaxRanks", "MinTaxPercent", "MaxTaxPercent", "Skills" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.GuildSkillNode), global::Bnet.GuildSkillNode.Parser, new[]{ "SkillId", "Level", "MaxLevel", "Prerequisites" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.GuildSkillNode), global::Bnet.GuildSkillNode.Parser, new[]{ "SkillId", "Level", "MaxLevel", "Prerequisites", "CooldownRemainingMs" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.GuildSkillPrerequisite), global::Bnet.GuildSkillPrerequisite.Parser, new[]{ "SkillId", "Level" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.GuildRank), global::Bnet.GuildRank.Parser, new[]{ "RankId", "Position", "Name", "TaxPercent", "CanInvite", "CanKick", "CanManageRanks", "CanUseGuildSkills" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.GuildMember), global::Bnet.GuildMember.Parser, new[]{ "MasterId", "MasterName", "Level", "RankId", "Online", "ExpContributed", "IsLeader" }, null, null, null, null)
@@ -764,6 +765,7 @@ namespace Bnet {
       level_ = other.level_;
       maxLevel_ = other.maxLevel_;
       prerequisites_ = other.prerequisites_.Clone();
+      cooldownRemainingMs_ = other.cooldownRemainingMs_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -823,6 +825,21 @@ namespace Bnet {
       get { return prerequisites_; }
     }
 
+    /// <summary>Field number for the "cooldown_remaining_ms" field.</summary>
+    public const int CooldownRemainingMsFieldNumber = 5;
+    private ulong cooldownRemainingMs_;
+    /// <summary>
+    /// Until the skill can be cast again, 0 when it can. See GuildSkillCooldownSMSG.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ulong CooldownRemainingMs {
+      get { return cooldownRemainingMs_; }
+      set {
+        cooldownRemainingMs_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -842,6 +859,7 @@ namespace Bnet {
       if (Level != other.Level) return false;
       if (MaxLevel != other.MaxLevel) return false;
       if(!prerequisites_.Equals(other.prerequisites_)) return false;
+      if (CooldownRemainingMs != other.CooldownRemainingMs) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -853,6 +871,7 @@ namespace Bnet {
       if (Level != 0) hash ^= Level.GetHashCode();
       if (MaxLevel != 0) hash ^= MaxLevel.GetHashCode();
       hash ^= prerequisites_.GetHashCode();
+      if (CooldownRemainingMs != 0UL) hash ^= CooldownRemainingMs.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -884,6 +903,10 @@ namespace Bnet {
         output.WriteUInt32(MaxLevel);
       }
       prerequisites_.WriteTo(output, _repeated_prerequisites_codec);
+      if (CooldownRemainingMs != 0UL) {
+        output.WriteRawTag(40);
+        output.WriteUInt64(CooldownRemainingMs);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -907,6 +930,10 @@ namespace Bnet {
         output.WriteUInt32(MaxLevel);
       }
       prerequisites_.WriteTo(ref output, _repeated_prerequisites_codec);
+      if (CooldownRemainingMs != 0UL) {
+        output.WriteRawTag(40);
+        output.WriteUInt64(CooldownRemainingMs);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -927,6 +954,9 @@ namespace Bnet {
         size += 1 + pb::CodedOutputStream.ComputeUInt32Size(MaxLevel);
       }
       size += prerequisites_.CalculateSize(_repeated_prerequisites_codec);
+      if (CooldownRemainingMs != 0UL) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(CooldownRemainingMs);
+      }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -949,6 +979,9 @@ namespace Bnet {
         MaxLevel = other.MaxLevel;
       }
       prerequisites_.Add(other.prerequisites_);
+      if (other.CooldownRemainingMs != 0UL) {
+        CooldownRemainingMs = other.CooldownRemainingMs;
+      }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -984,6 +1017,10 @@ namespace Bnet {
             prerequisites_.AddEntriesFrom(input, _repeated_prerequisites_codec);
             break;
           }
+          case 40: {
+            CooldownRemainingMs = input.ReadUInt64();
+            break;
+          }
         }
       }
     #endif
@@ -1017,6 +1054,10 @@ namespace Bnet {
           }
           case 34: {
             prerequisites_.AddEntriesFrom(ref input, _repeated_prerequisites_codec);
+            break;
+          }
+          case 40: {
+            CooldownRemainingMs = input.ReadUInt64();
             break;
           }
         }

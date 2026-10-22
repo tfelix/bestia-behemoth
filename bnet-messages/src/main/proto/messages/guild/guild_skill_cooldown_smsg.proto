@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "GuildSkillCooldownSmsgProto";
+
+// A guild skill was cast and now recovers for the whole guild. Sent once to every member being played; the
+// client counts it down by itself. A duration rather than a clock time, because the two clocks differ.
+message GuildSkillCooldownSMSG {
+  uint64 skill_id = 1;
+  uint64 remaining_ms = 2;
+}
