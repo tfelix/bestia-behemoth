@@ -19,6 +19,7 @@ import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.SMSG
 import net.bestia.zone.skill.GuildMates
+import net.bestia.zone.world.stream.ChunkStreamInbox
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.entity.StaticEntityKind
 import net.bestia.zone.spoor.TrackReading
@@ -198,6 +199,20 @@ class BudgetedSkillWorld(
     }
   }
 
+  override fun summonGuild(guildId: Long, to: Vec3L, includeCaster: Boolean) {
+    budget.charge()
+
+    val casterAccount = world.get(casterId, Account::class)?.accountId
+    val summoned = GuildMates.playedBy(world, guildId)
+      .filter { (accountId, played) -> !world.has(played, Dead::class) && (includeCaster || accountId != casterAccount) }
+      .keys
+
+    summoned.forEachIndexed { i, accountId ->
+      val spot = SUMMON_SPOTS[i % SUMMON_SPOTS.size]
+      services.chunkStream.offerTeleport(ChunkStreamInbox.Teleport(accountId, to.x + spot.first, to.y + spot.second))
+    }
+  }
+
   override fun tellGuild(guildId: Long, message: SMSG) {
     budget.charge()
 
@@ -277,5 +292,11 @@ class BudgetedSkillWorld(
      * order of magnitude sooner than one that only looks around.
      */
     const val SPAWN_OPS = 8
+
+    /** Rings of tiles around a summoning point, nearest first, so a summoned guild does not stand in one spot. */
+    val SUMMON_SPOTS: List<Pair<Long, Long>> = (1L..4L).flatMap { ring ->
+      (-ring..ring).flatMap { dx -> (-ring..ring).map { dy -> dx to dy } }
+        .filter { (dx, dy) -> maxOf(kotlin.math.abs(dx), kotlin.math.abs(dy)) == ring }
+    }
   }
 }

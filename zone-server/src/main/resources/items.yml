@@ -945,3 +945,16 @@ items:
       A heavy signet of gold and aetherite, its face still blank, waiting for a name.
 
       Pressed into the wax of a charter, it founds a guild with its bearer as its master. The seal is spent.
+
+  # Planted on a tile within reach by a member whose guild knows Rally to the Banner - see WarBannerScript.
+  - id: 73
+    item-db-name: war_banner
+    base-level: 30
+    weight: 300
+    type: USABLE
+    material: WOOD
+    script: WarBannerScript
+    description: |
+      A tall oak pole and a banner in the guild's colours, its hem weighted with iron.
+
+      Planted in the ground, it is where Rally to the Banner calls the guild. Enemies can cut it down.

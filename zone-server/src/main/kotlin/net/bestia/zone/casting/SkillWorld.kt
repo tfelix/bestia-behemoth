@@ -110,6 +110,12 @@ interface SkillWorld {
   /** Heals [percent] of the HP and mana of everything living of [guildId]'s members near [centre]. One operation. */
   fun restoreGuildNear(guildId: Long, centre: Vec3L, radiusMetres: Long, percent: Int)
 
+  /**
+   * Moves what every member of [guildId] plays to [to], spread over the tiles around it, the caster included
+   * only when [includeCaster]. The dead stay where they fell. One operation.
+   */
+  fun summonGuild(guildId: Long, to: Vec3L, includeCaster: Boolean)
+
   /** Sends [message] to every member of [guildId] being played. One operation. */
   fun tellGuild(guildId: Long, message: SMSG)
 

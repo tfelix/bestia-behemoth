@@ -5,6 +5,9 @@ import net.bestia.zone.battle.status.HarmShield
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.entity.ecs.PlayerOwnership
+import net.bestia.zone.identity.ecs.Account
+import net.bestia.zone.identity.ecs.GuildMembership
+import net.bestia.zone.identity.ecs.GuildOwned
 import net.bestia.zone.util.AccountId
 import net.bestia.zone.util.EntityId
 
@@ -15,7 +18,7 @@ import net.bestia.zone.util.EntityId
 object DamageGate {
 
   /** Folded into the reads of every system that asks, so the scheduler sees what the gate looks at. */
-  val READS: ComponentClassSet = setOf(StatusEffects::class) + PlayerOwnership.READS
+  val READS: ComponentClassSet = setOf(StatusEffects::class, GuildMembership::class) + PlayerOwnership.READS
 
   /**
    * Asked where damage is staged, not only where it is drained: by the drain the client has already been
@@ -31,7 +34,7 @@ object DamageGate {
       return Verdict.IMMUNE
     }
 
-    if (isOwn(world, sourceId, targetId, sourceOwner)) {
+    if (isOwn(world, sourceId, targetId, sourceOwner) || isOwnGuilds(world, sourceId, targetId, sourceOwner)) {
       return Verdict.OWN
     }
 
@@ -54,6 +57,30 @@ object DamageGate {
     }
 
     return sourceOwner != null && sourceOwner == PlayerOwnership.ownerAccountOf(world, targetId)
+  }
+
+  /** A guild's members do not harm what the guild owns. */
+  private fun isOwnGuilds(world: World, sourceId: EntityId?, targetId: EntityId, sourceOwner: AccountId?): Boolean {
+    val guildId = world.get(targetId, GuildOwned::class)?.guildId ?: return false
+
+    return guildOf(world, sourceId, sourceOwner) == guildId
+  }
+
+  /** A master carries its guild; a bestia's is its owner's, found among the masters in the world. */
+  private fun guildOf(world: World, sourceId: EntityId?, sourceOwner: AccountId?): Long? {
+    sourceId?.let { world.get(it, GuildMembership::class) }?.let { return it.guildId }
+    if (sourceOwner == null) {
+      return null
+    }
+
+    var guildId: Long? = null
+    world.query(GuildMembership::class, Account::class).each { _ ->
+      if (get<Account>().accountId == sourceOwner) {
+        guildId = get<GuildMembership>().guildId
+      }
+    }
+
+    return guildId
   }
 
   /**

@@ -67,6 +67,14 @@ class RecordingSkillWorld(
     guildRestorations += GuildRestoration(guildId, centre, radiusMetres, percent)
   }
 
+  val summons = mutableListOf<Summon>()
+
+  data class Summon(val guildId: Long, val to: Vec3L, val includeCaster: Boolean)
+
+  override fun summonGuild(guildId: Long, to: Vec3L, includeCaster: Boolean) {
+    summons += Summon(guildId, to, includeCaster)
+  }
+
   override fun tellGuild(guildId: Long, message: SMSG) {
     guildMessages += guildId to message
   }

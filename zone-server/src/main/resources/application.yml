@@ -53,6 +53,9 @@ guild:
   aura-radius-metres: 15
   # Fortune's Favor multiplies each drop's chance by 1 + this * level / 100: Lv.5 turns a 10% drop into 12.5%.
   fortune-percent-per-level: 5
+  # A planted War Banner: what enemies must cut through, and how long it stands otherwise.
+  war-banner-hp: 1500
+  war-banner-seconds: 300
 
 # Settings a *new* world is born with. Ignored once a world exists: what gets generated then comes from the
 # stored record, because that is what its chunks and any player edits were built against.

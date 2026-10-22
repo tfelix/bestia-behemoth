@@ -6,6 +6,7 @@ import net.bestia.zone.config.PartyRulesConfig
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.testWorld
+import net.bestia.zone.entity.StaticEntityKind
 import net.bestia.zone.entity.ecs.EntityVisual
 import net.bestia.zone.entity.ecs.VisualKind
 import net.bestia.zone.movement.ecs.Position
@@ -123,6 +124,20 @@ class DeathSystemTest {
     sut.update(world, 0f)
 
     verify(exactly = 0) { lootSpawner.spawnLoot(any(), any(), any(), any()) }
+  }
+
+  @Test
+  fun `a cut-down war banner drops no loot`() {
+    val world = testWorld()
+    world.createEntity { eid ->
+      add(eid, Position.fromVec3(Vec3L(1, 2, 3)))
+      add(eid, EntityVisual(VisualKind.STRUCTURE, StaticEntityKind.WAR_BANNER.ordinal.toLong()))
+      add(eid, Dead())
+    }
+
+    sut.update(world, 0f)
+
+    verify(exactly = 0) { lootSpawner.spawnLoot(any(), any(), any(), any(), any()) }
   }
 
   @Test

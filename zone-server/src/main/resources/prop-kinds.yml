@@ -258,3 +258,9 @@ kinds:
     max-hp: 1
     collider: { half-x: 1, half-y: 1, height: 4 }
     variants: 1
+
+  # Like the ward stone, an entity rather than a static prop: its health comes from guild.war-banner-hp.
+  - kind: WAR_BANNER
+    max-hp: 1
+    collider: { half-x: 1, half-y: 1, height: 3 }
+    variants: 1

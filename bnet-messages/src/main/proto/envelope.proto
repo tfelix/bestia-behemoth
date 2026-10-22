@@ -72,6 +72,7 @@ import "messages/guild/guild_info_smsg.proto";
 import "messages/guild/guild_invitation_smsg.proto";
 import "messages/guild/guild_left_smsg.proto";
 import "messages/guild/guild_skill_cooldown_smsg.proto";
+import "messages/guild/guild_notice_smsg.proto";
 import "messages/map/world_info_smsg.proto";
 import "messages/map/chunk_manifest_smsg.proto";
 import "messages/map/chunk_request_cmsg.proto";
@@ -223,6 +224,7 @@ message Envelope {
     GuildInvitationSMSG guild_invitation = 632;
     GuildLeftSMSG guild_left = 633;
     GuildSkillCooldownSMSG guild_skill_cooldown = 634;
+    GuildNoticeSMSG guild_notice = 635;
 
     // CRAFTING & BUILDING 700
     CraftableRecipesSMSG craftable_recipes = 700;

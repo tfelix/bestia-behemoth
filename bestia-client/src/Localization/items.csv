@@ -231,7 +231,7 @@ NOVICE_BOOTS_DESC,"Soft leather boots, worn pale at the toes.
 
 They have walked further than you have."
 BESTIA_TRAP,Bestia Trap
-BESTIA_TRAP_DESC,"A cage of bent willow with a mana-dusted trigger plate. Set it within ten paces and wait for a Bestia to step on it.
+BESTIA_TRAP_DESC,"A cage of bent willow with a mana-dusted trigger plate.
 
 Reliable against young Bestia, and hopeless against anything grown."
 NOVICE_HEALTH_POTION,Novice Health Potion
@@ -250,3 +250,7 @@ FOUNDERS_SEAL,Founder's Seal
 FOUNDERS_SEAL_DESC,"A heavy signet of gold and aetherite, its face still blank, waiting for a name.
 
 Pressed into the wax of a charter, it founds a guild with its bearer as its master. The seal is spent."
+WAR_BANNER,War Banner
+WAR_BANNER_DESC,"A tall oak pole and a banner in the guild's colours, its hem weighted with iron.
+
+Planted in the ground, it is where Rally to the Banner calls the guild. Enemies can cut it down."

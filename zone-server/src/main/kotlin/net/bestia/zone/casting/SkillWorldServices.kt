@@ -6,6 +6,7 @@ import net.bestia.zone.battle.ecs.effects.AreaEffectSpawner
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.prop.PlayerStructureService
 import net.bestia.zone.spoor.SpoorService
+import net.bestia.zone.world.stream.ChunkStreamInbox
 import org.springframework.stereotype.Component
 
 /**
@@ -30,4 +31,5 @@ class SkillWorldServices(
   val crafting: RecipeOffering,
   val survey: Surveying,
   val spoor: SpoorService,
+  val chunkStream: ChunkStreamInbox,
 )
