@@ -319,6 +319,8 @@ func _on_guild_message(message: GuildSMSG) -> void:
 		_offer_invitation(message)
 	elif message is GuildSkillCooldownSMSG:
 		SkillCooldowns.start(message.SkillId, message.RemainingMs)
+	elif message is GuildNoticeSMSG:
+		notice.emit(tr("GUILD_NOTICE_%s" % message.NoticeName.to_upper()))
 
 
 func _offer_invitation(message: GuildInvitationSMSG) -> void:
