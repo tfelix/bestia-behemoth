@@ -27,6 +27,7 @@ var _last_invited := ""
 ## A loading screen ended before the first guild arrived, so the message of the day is shown when it does.
 var _motd_due := false
 
+var _header_emblem: TextureRect
 var _name: Label
 var _level_badge: Label
 var _member_count: Label
@@ -83,6 +84,10 @@ func _ready() -> void:
 	ConnectionManager.operation_success.connect(_on_operation_success)
 	visibility_changed.connect(_refresh_log)
 	SceneManager.loading_finished.connect(_on_loading_finished)
+	EmblemCache.emblem_ready.connect(func(hash: String) -> void:
+		if _info != null and hash == _info.EmblemHash:
+			_show_emblem(hash)
+	)
 	var entities := EntityManager.get_instance()
 	if entities != null:
 		entities.guild_beacon_changed.connect(_on_guild_beacon_changed)
@@ -111,6 +116,8 @@ func _build() -> void:
 	add_child(UiStyle.margin(body, 10, 8, 10, 10))
 
 	var header := UiStyle.hbox(8)
+	_header_emblem = EmblemPicture.frame(1)
+	header.add_child(_header_emblem)
 	_name = UiStyle.label("", 17)
 	_name.clip_text = true
 	_name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -520,6 +527,7 @@ func _show_guild(info: GuildInfoSMSG) -> void:
 
 	_show_overview(info, may_edit_motd)
 	_show_emblem_controls(info, is_leader)
+	_show_emblem(info.EmblemHash)
 	_skills.show_skills(info, is_leader, may_cast)
 	_show_members(info, is_leader, may_kick, may_manage, my_position)
 	_show_ranks(info, is_leader, may_manage, my_position)
@@ -565,6 +573,14 @@ func _show_emblem_controls(info: GuildInfoSMSG, is_leader: bool) -> void:
 			learned = true
 	_emblem_row.visible = learned
 	_choose_emblem.visible = is_leader
+
+
+## Until the picture arrives, the frames stay empty rather than showing the previous guild's.
+func _show_emblem(hash: String) -> void:
+	var texture := EmblemCache.texture_of(hash)
+	_header_emblem.texture = texture
+	_header_emblem.visible = not hash.is_empty()
+	_emblem_preview.texture = texture
 
 
 func _show_members(info: GuildInfoSMSG, is_leader: bool, may_kick: bool, may_manage: bool, my_position: int) -> void:

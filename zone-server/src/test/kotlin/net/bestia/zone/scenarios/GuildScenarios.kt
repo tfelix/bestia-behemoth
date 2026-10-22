@@ -7,7 +7,10 @@ import net.bestia.zone.battle.ecs.effects.StatusEffects
 import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.guild.GuildSkillCooldownSMSG
+import net.bestia.bus.contract.BusReply
+import net.bestia.bus.contract.ZoneQuery
 import net.bestia.zone.aoi.EntityAudience
+import net.bestia.zone.companion.query.GuildEmblemQueries
 import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.chat.ChatSMSG
 import net.bestia.zone.chat.ChatType
@@ -48,6 +51,7 @@ import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import javax.imageio.ImageIO
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
@@ -80,6 +84,9 @@ class GuildScenarios : BestiaNoSocketScenario() {
 
   @Autowired
   private lateinit var entityAudience: EntityAudience
+
+  @Autowired
+  private lateinit var emblemQueries: GuildEmblemQueries
 
   private val player1MasterId by lazy { testData.account1.masterIds.first() }
   private val player2MasterId by lazy { testData.account2.masterIds.first() }
@@ -416,11 +423,16 @@ class GuildScenarios : BestiaNoSocketScenario() {
     clientPlayer1.sendMessage(SetGuildEmblemCMSG(clientPlayer1.connectedPlayerId, png))
 
     val leader = connectionInfoService.getSelectedMasterEntityId(clientPlayer1.connectedPlayerId)
+    var hash = ""
     await {
-      val hash = clientPlayer1.tryGetLastReceived(GuildInfoSMSG::class)?.emblemHash
-      assertEquals(64, hash?.length)
+      hash = assertNotNull(clientPlayer1.tryGetLastReceived(GuildInfoSMSG::class)?.emblemHash)
+      assertEquals(64, hash.length)
       assertEquals(hash, world.read { get(leader, GuildTag::class)?.emblemHash })
     }
+
+    val served = emblemQueries.emblem("emblem", ZoneQuery.GuildEmblem(hash))
+    assertEquals(BusReply.Status.OK, served.status)
+    assertEquals(EmblemImage.SIZE, ImageIO.read(served.body.inputStream()).width, "the api-service gets the stored PNG")
   }
 
   @Test

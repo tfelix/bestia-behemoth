@@ -3,7 +3,7 @@ package net.bestia.bus.contract
 /**
  * A zone's reply to one [BusRequest]. [answer] is set when [status] is [Status.OK], and on
  * [Status.NOT_MODIFIED] for what the caller needs to answer conditionally (an ETag and how to cache it).
- * [body] carries binary content that has no place in JSON, a map tile's PNG.
+ * [body] carries binary content that has no place in JSON, a map tile's or a guild emblem's PNG.
  */
 class BusReply(
   val correlationId: String,

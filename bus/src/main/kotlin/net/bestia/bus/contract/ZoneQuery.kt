@@ -35,6 +35,12 @@ sealed interface ZoneQuery {
    */
   data class WhoseTicket(val ticket: String) : ZoneQuery
 
+  /**
+   * A guild emblem by the hash that names it. Not checked against the asker: an emblem shows on every member's
+   * name tag, so whoever can see one may see the picture.
+   */
+  data class GuildEmblem(val hash: String) : ZoneQuery
+
   /** A standing order for an owned bestia. A write: send it with an idempotency key. */
   data class SetStance(
     val masterId: Long,

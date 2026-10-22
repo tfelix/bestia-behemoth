@@ -13,7 +13,8 @@ import org.springframework.web.server.ResponseStatusException
  * Every call under `/v1/companion/` names the one account it acts for, in one of two ways:
  *
  * - `Bearer <companion token>`, the companion app's, good for everything;
- * - `Ticket <ticket>`, the game client's HTTP ticket from its socket handshake, good for the map routes only.
+ * - `Ticket <ticket>`, the game client's HTTP ticket from its socket handshake, good for the map and the guild
+ *   emblems only.
  *
  * The OpenAPI document and the push key are public, and the socket authenticates in its first frame, because a
  * browser cannot put a header on a WebSocket handshake. Paths are judged as the servlet decoded and normalised
@@ -32,9 +33,11 @@ class CompanionAuthFilter(
   }
 
   override fun doFilterInternal(request: HttpServletRequest, response: HttpServletResponse, chain: FilterChain) {
-    val map = MAP_ROUTE.matches(pathOf(request))
+    val path = pathOf(request)
+    val map = MAP_ROUTE.matches(path)
+    val ticketRoute = map || EMBLEM_ROUTE.matches(path)
     val accountId = try {
-      accountOf(request.getHeader(HttpHeaders.AUTHORIZATION), map)
+      accountOf(request.getHeader(HttpHeaders.AUTHORIZATION), ticketRoute)
     } catch (e: ResponseStatusException) {
       response.status = e.statusCode.value()
       return
@@ -55,7 +58,7 @@ class CompanionAuthFilter(
     chain.doFilter(request, response)
   }
 
-  private fun accountOf(authorization: String?, map: Boolean): Long? {
+  private fun accountOf(authorization: String?, ticketRoute: Boolean): Long? {
     val (scheme, credential) = authorization?.split(' ', limit = 2)?.takeIf { it.size == 2 } ?: return null
     if (credential.isBlank()) {
       return null
@@ -63,7 +66,7 @@ class CompanionAuthFilter(
 
     return when {
       scheme.equals(BEARER, ignoreCase = true) -> verifier.verify(credential)?.accountId
-      scheme.equals(TICKET, ignoreCase = true) && map -> tickets.accountFor(credential)
+      scheme.equals(TICKET, ignoreCase = true) && ticketRoute -> tickets.accountFor(credential)
       else -> null
     }
   }
@@ -80,7 +83,9 @@ class CompanionAuthFilter(
     private const val TICKET = "Ticket"
     private val PUBLIC_PATHS = setOf("/v1/companion/ws", "/v1/companion/openapi.json", "/v1/companion/push/key")
 
-    /** The map routes of `MapController`, and nothing else: the only routes a game client's ticket opens. */
+    /** The map routes of `MapController`; with [EMBLEM_ROUTE], the only routes a game client's ticket opens. */
     private val MAP_ROUTE = Regex("""^/v1/companion/masters/\d+/map/(meta|[tps]/\d+/-?\d+/-?\d+(\.png|\.json)?)$""")
+
+    private val EMBLEM_ROUTE = Regex("""^/v1/companion/emblems/[0-9a-f]{64}\.png$""")
   }
 }
