@@ -11,6 +11,7 @@ const EFFECT_LATER: Array[int] = [9001]
 
 var _info: GuildInfoSMSG
 var _is_leader := false
+var _may_cast := false
 
 var _points: Label
 var _tree: GuildSkillTree
@@ -85,11 +86,12 @@ func _rich_text() -> RichTextLabel:
 	return text
 
 
-func show_skills(info: GuildInfoSMSG, is_leader: bool) -> void:
+func show_skills(info: GuildInfoSMSG, is_leader: bool, may_cast: bool) -> void:
 	_info = info
 	_is_leader = is_leader
+	_may_cast = may_cast
 	_points.text = str(info.SkillPoints)
-	_tree.show_tree(info.Skills, _may_raise)
+	_tree.show_tree(info.Skills, _may_raise, may_cast)
 	_show_selected()
 
 
@@ -116,6 +118,12 @@ func _show_selected() -> void:
 	_requirements.visible = skill.PrerequisiteSkillIds.size() > 0
 	_invest.disabled = not _may_raise(skill)
 
+	var attack_castable := attack != null and not attack.is_passive
+	if attack_castable and skill.Level > 0 and _may_cast:
+		_note.text = tr("GUILD_SKILL_DRAG_TO_BAR")
+		_note.add_theme_color_override("font_color", UiStyle.MUTED)
+		return
+	_note.add_theme_color_override("font_color", UiStyle.DANGER)
 	if NEEDS_STRONGHOLD.has(int(skill.SkillId)):
 		_note.text = tr("GUILD_SKILL_NEEDS_STRONGHOLD")
 	elif EFFECT_LATER.has(int(skill.SkillId)):

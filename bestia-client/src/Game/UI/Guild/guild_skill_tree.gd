@@ -32,11 +32,27 @@ var _skills: Array = []
 var _levels: Dictionary[int, int] = {}
 var _tiles: Dictionary[int, Button] = {}
 var _cells: Dictionary[int, Vector2i] = {}
+var _may_cast := false
 
 
-## [param may_raise] answers for one [GuildSkillInfo] whether the viewer could spend a point on it now.
-func show_tree(skills: Array, may_raise: Callable) -> void:
+## A recovering skill shows its seconds left where its level would be.
+func _process(_delta: float) -> void:
+	if not is_visible_in_tree():
+		return
+	for skill in _skills:
+		var tile: Button = _tiles.get(skill.SkillId)
+		if tile == null:
+			continue
+		var left := SkillCooldowns.remaining_seconds(skill.SkillId)
+		var level := tile.get_node("Level") as Label
+		level.text = ("%ds" % ceili(left)) if left > 0.0 else "%d/%d" % [skill.Level, skill.MaxLevel]
+
+
+## [param may_raise] answers for one [GuildSkillInfo] whether the viewer could spend a point on it now;
+## [param may_cast] whether the viewer's rank may cast guild skills, and so drag them to the shortcut bar.
+func show_tree(skills: Array, may_raise: Callable, may_cast: bool) -> void:
 	_skills = skills
+	_may_cast = may_cast
 	_levels.clear()
 	for skill in skills:
 		_levels[skill.SkillId] = skill.Level
@@ -99,6 +115,7 @@ func _new_tile(skill_id: int) -> Button:
 	tile.focus_mode = Control.FOCUS_NONE
 	tile.size = TILE_SIZE
 	tile.pressed.connect(select.bind(skill_id))
+	tile.set_drag_forwarding(_drag_data.bind(skill_id), Callable(), Callable())
 
 	# A label rather than the button's own text, which would grow the tile to fit a long name.
 	var title := UiStyle.label("", 11)
@@ -122,6 +139,20 @@ func _new_tile(skill_id: int) -> Button:
 	add_child(tile)
 	_tiles[skill_id] = tile
 	return tile
+
+
+## A learned guild skill the viewer may cast goes onto the shortcut bar like any other skill.
+func _drag_data(_at_position: Vector2, skill_id: int) -> Variant:
+	var attack := AttackDB.get_instance().get_attack(skill_id)
+	if not _may_cast or attack == null or attack.is_passive or level_of(skill_id) == 0:
+		return null
+
+	var preview := TextureRect.new()
+	preview.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	preview.size = Vector2(40, 40)
+	preview.texture = attack.get_icon()
+	set_drag_preview(preview)
+	return {"type": "skill", "id": skill_id, "level": level_of(skill_id)}
 
 
 func _style_tile(tile: Button, skill: GuildSkillInfo, raisable: bool) -> void:
