@@ -35,7 +35,7 @@ func show_bestia(mob_id: int) -> void:
 	_bestia_visual = scene.instantiate()
 	_master_visual.get_parent().add_child(_bestia_visual)
 	_finish_appear_animation(_bestia_visual)
-	_frame(_mesh_bounds(_bestia_visual))
+	_frame(VisualBounds.of_meshes(_bestia_visual))
 	_render_once()
 
 
@@ -52,17 +52,6 @@ func _finish_appear_animation(visual: Node3D) -> void:
 	var player := visual.get_node_or_null("AnimationPlayer") as AnimationPlayer
 	if player != null and player.is_playing():
 		player.advance(player.current_animation_length)
-
-
-## Meshes only: the health bar and name tag are billboards that would stretch the frame.
-func _mesh_bounds(visual: Node3D) -> AABB:
-	var bounds := AABB()
-	var first := true
-	for mesh in visual.find_children("*", "MeshInstance3D", true, false):
-		var mesh_bounds: AABB = mesh.global_transform * mesh.get_aabb()
-		bounds = mesh_bounds if first else bounds.merge(mesh_bounds)
-		first = false
-	return bounds
 
 
 ## Backs the camera off along its view axis until the whole body fits both the height and the width.
