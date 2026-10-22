@@ -7,6 +7,8 @@ import net.bestia.zone.battle.ecs.effects.StatusEffects
 import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.guild.GuildSkillCooldownSMSG
+import net.bestia.zone.aoi.EntityAudience
+import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.chat.ChatSMSG
 import net.bestia.zone.chat.ChatType
 import net.bestia.zone.chat.net.ChatCMSG
@@ -18,6 +20,7 @@ import net.bestia.zone.guild.GuildInvitationSMSG
 import net.bestia.zone.guild.GuildLeftSMSG
 import net.bestia.zone.guild.GuildLogSMSG
 import net.bestia.zone.guild.GuildService
+import net.bestia.zone.guild.ecs.GuildMemberBeaconComponentSMSG
 import net.bestia.zone.guild.net.AnswerGuildInviteCMSG
 import net.bestia.zone.guild.net.CreateGuildCMSG
 import net.bestia.zone.guild.net.DisbandGuildCMSG
@@ -42,6 +45,7 @@ import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
@@ -69,6 +73,9 @@ class GuildScenarios : BestiaNoSocketScenario() {
 
   @Autowired
   private lateinit var skillTree: GuildSkillTree
+
+  @Autowired
+  private lateinit var entityAudience: EntityAudience
 
   private val player1MasterId by lazy { testData.account1.masterIds.first() }
   private val player2MasterId by lazy { testData.account2.masterIds.first() }
@@ -131,7 +138,7 @@ class GuildScenarios : BestiaNoSocketScenario() {
 
     assertEquals(
       GuildMembership(guildId, 5, isLeader = true, mayUseGuildSkills = true),
-      membershipOf(clientPlayer1.connectedPlayerId),
+      membershipOf(clientPlayer1.connectedPlayerId)?.copy(members = emptySet()),
     )
   }
 
@@ -196,7 +203,13 @@ class GuildScenarios : BestiaNoSocketScenario() {
         assertEquals(2, info?.members?.size)
         assertEquals(memberRankId, info?.members?.single { it.masterId == player2MasterId }?.rankId)
       }
-      assertEquals(GuildMembership(guildId, 5), membershipOf(clientPlayer2.connectedPlayerId))
+      assertEquals(GuildMembership(guildId, 5), membershipOf(clientPlayer2.connectedPlayerId)?.copy(members = emptySet()))
+      val roster = setOf(
+        GuildMembership.Member(clientPlayer1.connectedPlayerId, player1MasterId),
+        GuildMembership.Member(clientPlayer2.connectedPlayerId, player2MasterId),
+      )
+      assertEquals(roster, membershipOf(clientPlayer1.connectedPlayerId)?.members, "the leader's roster gains the newcomer")
+      assertEquals(roster, membershipOf(clientPlayer2.connectedPlayerId)?.members)
     }
   }
 
@@ -226,7 +239,7 @@ class GuildScenarios : BestiaNoSocketScenario() {
 
     await {
       assertEquals("Recruit", clientPlayer2.tryGetLastReceived(GuildInfoSMSG::class)?.ranks?.single { it.rankId == memberRankId }?.name)
-      assertEquals(GuildMembership(guildId, 20), membershipOf(clientPlayer2.connectedPlayerId))
+      assertEquals(GuildMembership(guildId, 20), membershipOf(clientPlayer2.connectedPlayerId)?.copy(members = emptySet()))
     }
   }
 
@@ -327,6 +340,23 @@ class GuildScenarios : BestiaNoSocketScenario() {
 
   @Test
   @Order(16)
+  fun `members hear each other's beacon wherever they stand, and nobody else does`() {
+    val player2Master = connectionInfoService.getSelectedMasterEntityId(clientPlayer2.connectedPlayerId)
+
+    await {
+      val beacon = clientPlayer1.tryGetLastReceivedFor(GuildMemberBeaconComponentSMSG::class, player2Master)
+      assertEquals(world.read { get(player2Master, Health::class)?.max }, beacon?.hpMax)
+    }
+    assertEquals(
+      setOf(clientPlayer1.connectedPlayerId, clientPlayer2.connectedPlayerId),
+      world.read { entityAudience.ownerAndGuild(this, player2Master) },
+      "a guild hears its members at any distance",
+    )
+    assertFalse(clientPlayer3.receivedAny(GuildMemberBeaconComponentSMSG::class) { true })
+  }
+
+  @Test
+  @Order(17)
   fun `the message of the day is set by a rank allowed to, and reaches every member`() {
     clientPlayer2.sendMessage(SetGuildMotdCMSG(clientPlayer2.connectedPlayerId, "Mine now", ""))
     assertEquals(OperationErrorSMSG(OpError.REQUEST_REFUSED), clientPlayer2.tryGetLastReceived(OperationErrorSMSG::class))
@@ -341,7 +371,7 @@ class GuildScenarios : BestiaNoSocketScenario() {
   }
 
   @Test
-  @Order(17)
+  @Order(18)
   fun `a member who leaves is told, and the rest get the guild without them`() {
     clientPlayer2.sendMessage(LeaveGuildCMSG(clientPlayer2.connectedPlayerId))
 
@@ -353,7 +383,7 @@ class GuildScenarios : BestiaNoSocketScenario() {
   }
 
   @Test
-  @Order(18)
+  @Order(19)
   fun `the log tells members what happened, newest first, and is for members only`() {
     clientPlayer1.sendMessage(RequestGuildLogCMSG(clientPlayer1.connectedPlayerId))
 
@@ -368,7 +398,7 @@ class GuildScenarios : BestiaNoSocketScenario() {
   }
 
   @Test
-  @Order(19)
+  @Order(20)
   fun `disbanding needs the guild's name typed`() {
     clientPlayer1.sendMessage(DisbandGuildCMSG(clientPlayer1.connectedPlayerId, "wrong name"))
     assertEquals(OperationErrorSMSG(OpError.REQUEST_REFUSED), clientPlayer1.tryGetLastReceived(OperationErrorSMSG::class))

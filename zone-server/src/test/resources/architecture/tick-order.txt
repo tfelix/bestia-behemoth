@@ -61,6 +61,7 @@
  - UPKEEP wave 35: SpawnPointWatchSystem [EverySeconds(seconds=30.0)]
  - UPKEEP wave 35: TradeRangeSystem [EverySeconds(seconds=0.5)]
  - UPKEEP wave 36: CompendiumSightingSystem [EverySeconds(seconds=1.0)]
+ - UPKEEP wave 36: GuildMemberBeaconSystem [EverySeconds(seconds=1.0)]
  - PERSIST wave 37: ChunkEditPersistSystem [EverySeconds(seconds=10.0)]
  - PERSIST wave 37: EntityPersistenceSystem [EverySeconds(seconds=1.0)]
  - PERSIST wave 37: PersistAndRemoveSystem [EveryTick]

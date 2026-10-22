@@ -1,8 +1,8 @@
 class_name GuildMemberRow
 extends PanelContainer
 
-## One member in the guild window: online light, the leader's crown, name, level, where they are (or were, and
-## when, while offline), rank and the EXP paid in.
+## One member in the guild window: online light, the leader's crown, name, level, where they are and their
+## master's health and mana (or, while offline, where they were and when), rank and the EXP paid in.
 ## The rank becomes a selector and a kick cross appears only where the viewer's own rank allows it - the
 ## window decides that, see [method show_member]; the server checks it again.
 
@@ -16,6 +16,9 @@ var _crown: Label
 var _name: Label
 var _level: Label
 var _where: Label
+var _vitals: Control
+var _hp: ProgressBar
+var _mana: ProgressBar
 var _rank_label: Label
 var _rank_select: OptionButton
 var _exp: Label
@@ -52,6 +55,16 @@ func _init() -> void:
 	_where.clip_text = true
 	_where.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	line.add_child(_where)
+
+	var vitals := UiStyle.vbox(2)
+	vitals.custom_minimum_size = Vector2(60, 0)
+	vitals.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	_hp = UiStyle.bar(UiStyle.HP_FILL, 4)
+	_mana = UiStyle.bar(UiStyle.MANA_FILL, 4)
+	vitals.add_child(_hp)
+	vitals.add_child(_mana)
+	line.add_child(vitals)
+	_vitals = vitals
 
 	_rank_label = UiStyle.label("", 12, UiStyle.MUTED)
 	_rank_label.custom_minimum_size = Vector2(110, 0)
@@ -90,6 +103,9 @@ func show_member(member: GuildMemberInfo, rank: GuildRankInfo, is_self: bool, as
 	_name.text = member.MasterName
 	_level.text = tr("GUILD_LEVEL") % member.Level
 	_exp.text = UiStyle.group_digits(member.ExpContributed)
+	# Until the member's first beacon, an online row shows no whereabouts rather than stale ones. Transparent
+	# rather than hidden, so the columns stay aligned.
+	_vitals.modulate = Color.TRANSPARENT
 	if member.IsOnline:
 		show_whereabouts("", "")
 	else:
@@ -109,6 +125,13 @@ func show_member(member: GuildMemberInfo, rank: GuildRankInfo, is_self: bool, as
 		if rank != null and offered.RankId == rank.RankId:
 			# select() does not emit item_selected, so drawing the current rank sends nothing.
 			_rank_select.select(_offered_rank_ids.size() - 1)
+
+
+func show_beacon(beacon: GuildMemberBeaconComponentSMSG) -> void:
+	show_whereabouts(beacon.AreaName, "")
+	_vitals.modulate = Color.WHITE
+	UiStyle.set_bar(_hp, int(beacon.HpCurrent), int(beacon.HpMax))
+	UiStyle.set_bar(_mana, int(beacon.ManaCurrent), int(beacon.ManaMax))
 
 
 ## [param detail] follows the area, such as how long ago an offline member was seen.

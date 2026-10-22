@@ -254,6 +254,7 @@ var _world_height: float = 0.0
 var _marker_at: Variant = null
 var _marker_forward := Vector2.ZERO
 var _owned_dots_drawn: Array[Dictionary] = []
+var _guild_dots_drawn: Array[Vector2] = []
 
 var _dragging := false
 
@@ -378,12 +379,14 @@ func _process(_delta: float) -> void:
 	var at: Variant = player_metres()
 	var forward := _player_forward()
 	var owned_dots := _owned_dots()
-	if at == _marker_at and forward == _marker_forward and owned_dots == _owned_dots_drawn:
+	var guild_dots := _guild_dots()
+	if at == _marker_at and forward == _marker_forward and owned_dots == _owned_dots_drawn and guild_dots == _guild_dots_drawn:
 		return
 
 	_marker_at = at
 	_marker_forward = forward
 	_owned_dots_drawn = owned_dots
+	_guild_dots_drawn = guild_dots
 	queue_redraw()
 
 
@@ -451,6 +454,7 @@ func _draw() -> void:
 	_draw_places()
 	_draw_services()
 	_draw_marks()
+	_draw_guild_members()
 	_draw_owned_entities()
 	_draw_player()
 	_draw_north()
@@ -948,6 +952,37 @@ func _owned_dots() -> Array[Dictionary]:
 		if entity == null or owned_ids[slot] == controlled_id:
 			continue
 		dots.append({"slot": slot, "at": _metres_of(entity)})
+
+	return dots
+
+
+## Under the player's own dots, which matter more when they overlap.
+func _draw_guild_members() -> void:
+	var bounds := Rect2(Vector2.ZERO, size)
+
+	for world_at in _guild_dots():
+		var at := _to_screen(world_at)
+		if not bounds.has_point(at):
+			continue
+
+		draw_circle(at, _DOT_OUTLINE_RADIUS * marker_scale, _MARKER_OUTLINE)
+		draw_circle(at, _DOT_FILL_RADIUS * marker_scale, UiStyle.GUILD)
+
+
+## Every other guild member being played, in world metres, as its beacon last said: a few metres behind at
+## most, and where the entity it plays is, master or bestia.
+func _guild_dots() -> Array[Vector2]:
+	var dots: Array[Vector2] = []
+	if entity_manager == null:
+		return dots
+
+	var own_master_id: int = entity_manager.get_owned_master_entity_id()
+	var beacons: Dictionary = entity_manager.get_guild_beacons()
+	for entity_id in beacons:
+		if entity_id == own_master_id:
+			continue
+		var beacon: GuildMemberBeaconComponentSMSG = beacons[entity_id]
+		dots.append(Vector2(beacon.Position.x, beacon.Position.z) * _metres_per_voxel)
 
 	return dots
 

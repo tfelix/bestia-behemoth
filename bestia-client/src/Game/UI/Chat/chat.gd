@@ -43,7 +43,7 @@ const _ITEM_COLOR := Color(0.62, 0.85, 1.0)
 ## Green for the party and violet for the guild, so a line says who heard it before it is read. Kept clear of
 ## the red, yellow and blue above.
 const _PARTY_COLOR := Color(0.55, 0.88, 0.55)
-const _GUILD_COLOR := Color(0.80, 0.66, 1.0)
+const _GUILD_COLOR := UiStyle.GUILD
 
 
 func _ready() -> void:
