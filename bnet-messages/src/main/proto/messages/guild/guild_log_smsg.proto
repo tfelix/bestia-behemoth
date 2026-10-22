@@ -17,7 +17,7 @@ message GuildLogEntry {
   string actor_name = 3;
   // Empty when the entry is about the actor alone.
   string target_name = 4;
-  // What the kind needs besides the names: a rank's name, or a skills.yml id for SKILL_LEARNED.
+  // What the kind needs besides the names: a rank's name, a skills.yml id for SKILL_LEARNED, the reason for KICKED.
   string detail = 5;
 }
 
@@ -35,4 +35,5 @@ enum GuildLogKind {
   GUILD_LOG_KIND_MOTD_CHANGED = 10;
   GUILD_LOG_KIND_EMBLEM_CHANGED = 11;
   GUILD_LOG_KIND_LEADER_TRANSFERRED = 12;
+  GUILD_LOG_KIND_EXPULSION_LIFTED = 13;
 }

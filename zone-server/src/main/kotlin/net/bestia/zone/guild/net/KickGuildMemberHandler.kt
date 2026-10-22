@@ -23,7 +23,7 @@ class KickGuildMemberHandler(
 
   override fun handle(msg: KickGuildMemberCMSG): Boolean {
     try {
-      val departed = guildService.kick(msg.playerId, msg.masterId)
+      val departed = guildService.kick(msg.playerId, msg.masterId, msg.reason)
 
       publisher.left(departed.guildId, departed.member, GuildLeftSMSG.Reason.KICKED)
     } catch (e: GuildException) {

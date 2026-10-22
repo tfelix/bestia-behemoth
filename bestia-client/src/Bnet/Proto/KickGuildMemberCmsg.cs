@@ -25,13 +25,13 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CittZXNzYWdlcy9ndWlsZC9raWNrX2d1aWxkX21lbWJlcl9jbXNnLnByb3Rv",
-            "EgRibmV0IigKE0tpY2tHdWlsZE1lbWJlckNNU0cSEQoJbWFzdGVyX2lkGAEg",
-            "ASgEQjEKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0IYS2lja0d1aWxkTWVtYmVy",
-            "Q21zZ1Byb3RvYgZwcm90bzM="));
+            "EgRibmV0IjgKE0tpY2tHdWlsZE1lbWJlckNNU0cSEQoJbWFzdGVyX2lkGAEg",
+            "ASgEEg4KBnJlYXNvbhgCIAEoCUIxChVuZXQuYmVzdGlhLmJuZXQucHJvdG9C",
+            "GEtpY2tHdWlsZE1lbWJlckNtc2dQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.KickGuildMemberCMSG), global::Bnet.KickGuildMemberCMSG.Parser, new[]{ "MasterId" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.KickGuildMemberCMSG), global::Bnet.KickGuildMemberCMSG.Parser, new[]{ "MasterId", "Reason" }, null, null, null, null)
           }));
     }
     #endregion
@@ -39,7 +39,8 @@ namespace Bnet {
   }
   #region Messages
   /// <summary>
-  /// A member whose rank may kick removes a member of a lower rank. The leader can never be kicked.
+  /// A member whose rank may kick removes a member of a lower rank, who is then expelled: no invitation reaches it
+  /// until the expulsion is lifted. The leader can never be kicked.
   /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class KickGuildMemberCMSG : pb::IMessage<KickGuildMemberCMSG>
@@ -77,6 +78,7 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public KickGuildMemberCMSG(KickGuildMemberCMSG other) : this() {
       masterId_ = other.masterId_;
+      reason_ = other.reason_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -98,6 +100,21 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "reason" field.</summary>
+    public const int ReasonFieldNumber = 2;
+    private string reason_ = "";
+    /// <summary>
+    /// Plain text, up to 60 characters; may be empty.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string Reason {
+      get { return reason_; }
+      set {
+        reason_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -114,6 +131,7 @@ namespace Bnet {
         return true;
       }
       if (MasterId != other.MasterId) return false;
+      if (Reason != other.Reason) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -122,6 +140,7 @@ namespace Bnet {
     public override int GetHashCode() {
       int hash = 1;
       if (MasterId != 0UL) hash ^= MasterId.GetHashCode();
+      if (Reason.Length != 0) hash ^= Reason.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -144,6 +163,10 @@ namespace Bnet {
         output.WriteRawTag(8);
         output.WriteUInt64(MasterId);
       }
+      if (Reason.Length != 0) {
+        output.WriteRawTag(18);
+        output.WriteString(Reason);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -158,6 +181,10 @@ namespace Bnet {
         output.WriteRawTag(8);
         output.WriteUInt64(MasterId);
       }
+      if (Reason.Length != 0) {
+        output.WriteRawTag(18);
+        output.WriteString(Reason);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -170,6 +197,9 @@ namespace Bnet {
       int size = 0;
       if (MasterId != 0UL) {
         size += 1 + pb::CodedOutputStream.ComputeUInt64Size(MasterId);
+      }
+      if (Reason.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Reason);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -185,6 +215,9 @@ namespace Bnet {
       }
       if (other.MasterId != 0UL) {
         MasterId = other.MasterId;
+      }
+      if (other.Reason.Length != 0) {
+        Reason = other.Reason;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -209,6 +242,10 @@ namespace Bnet {
             MasterId = input.ReadUInt64();
             break;
           }
+          case 18: {
+            Reason = input.ReadString();
+            break;
+          }
         }
       }
     #endif
@@ -230,6 +267,10 @@ namespace Bnet {
             break;
           case 8: {
             MasterId = input.ReadUInt64();
+            break;
+          }
+          case 18: {
+            Reason = input.ReadString();
             break;
           }
         }

@@ -37,6 +37,15 @@ message GuildInfoSMSG {
   uint32 motd_body_max_length = 20;
   // Names the guild's emblem PNG at the api-service; empty while the guild has none.
   string emblem_hash = 21;
+  // Masters kicked out, newest first; none of them can be invited until a rank that may kick lifts it.
+  repeated GuildExpulsion expulsions = 22;
+}
+
+message GuildExpulsion {
+  uint64 master_id = 1;
+  string master_name = 2;
+  string reason = 3;
+  int64 at_epoch_ms = 4;
 }
 
 message GuildSkillNode {

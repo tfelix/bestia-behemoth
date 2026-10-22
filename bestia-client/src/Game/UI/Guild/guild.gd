@@ -49,6 +49,12 @@ var _motd_body_edit: TextEdit
 var _skills: GuildSkillsPage
 var _log: GuildLogPage
 var _members: VBoxContainer
+var _expelled_section: Control
+var _expelled: VBoxContainer
+var _kick_popup: PopupPanel
+var _kick_prompt: Label
+var _kick_reason: LineEdit
+var _kick_target: int = 0
 var _ranks: VBoxContainer
 var _add_rank: Button
 var _invite_row: Control
@@ -80,6 +86,7 @@ func _ready() -> void:
 	_build_found_popup()
 	_build_disband_dialog()
 	_build_hand_over_dialog()
+	_build_kick_popup()
 	_build_motd_popup()
 	_build_emblem_dialog()
 
@@ -240,9 +247,19 @@ func _build_overview() -> Control:
 func _build_members() -> Control:
 	var scroll := ScrollContainer.new()
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	var page := UiStyle.vbox(10)
+	page.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.add_child(page)
+
 	_members = UiStyle.vbox(4)
-	_members.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	scroll.add_child(_members)
+	page.add_child(_members)
+
+	var expelled_section := UiStyle.vbox(4)
+	expelled_section.add_child(UiStyle.label(tr("GUILD_EXPELLED"), 12, UiStyle.MUTED))
+	_expelled = UiStyle.vbox(2)
+	expelled_section.add_child(_expelled)
+	page.add_child(expelled_section)
+	_expelled_section = expelled_section
 	return UiStyle.margin(scroll, 4, 6, 4, 4)
 
 
@@ -445,6 +462,53 @@ func _on_disband_confirmed() -> void:
 		ConnectionManager.disband_guild(typed)
 
 
+func _build_kick_popup() -> void:
+	_kick_popup = PopupPanel.new()
+	_kick_popup.add_theme_stylebox_override("panel", UiStyle.flat(UiStyle.PANEL_BG, 6, 12, UiStyle.DANGER, 1))
+	var rows := UiStyle.vbox(8)
+	_kick_prompt = UiStyle.label("", 13)
+	_kick_prompt.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	# A wrapping label measures itself at its own width; without one the popup grows as tall as the screen.
+	_kick_prompt.custom_minimum_size = Vector2(300, 0)
+	rows.add_child(_kick_prompt)
+	_kick_reason = LineEdit.new()
+	_kick_reason.max_length = 60
+	_kick_reason.placeholder_text = tr("GUILD_KICK_REASON")
+	_kick_reason.text_submitted.connect(func(_text: String) -> void: _kick())
+	rows.add_child(_kick_reason)
+	var buttons := UiStyle.hbox(8)
+	buttons.alignment = BoxContainer.ALIGNMENT_END
+	var cancel := Button.new()
+	cancel.text = tr("GUILD_FOUND_CANCEL")
+	cancel.pressed.connect(_kick_popup.hide)
+	buttons.add_child(cancel)
+	var confirm := Button.new()
+	confirm.text = tr("GUILD_KICK_CONFIRM")
+	confirm.add_theme_color_override("font_color", UiStyle.DANGER)
+	confirm.pressed.connect(_kick)
+	buttons.add_child(confirm)
+	rows.add_child(buttons)
+	_kick_popup.add_child(rows)
+	_kick_popup.about_to_popup.connect(func() -> void: _kick_reason.call_deferred("grab_focus"))
+	add_child(_kick_popup)
+
+
+## Kicking expels too, as in Ragnarok Online, so the window asks why: the reason stays on the expelled list.
+func _ask_to_kick(master_id: int) -> void:
+	var member := _member(master_id)
+	if member == null:
+		return
+	_kick_target = master_id
+	_kick_prompt.text = tr("GUILD_KICK_PROMPT") % member.MasterName
+	_kick_reason.text = ""
+	_kick_popup.popup_centered()
+
+
+func _kick() -> void:
+	_kick_popup.hide()
+	ConnectionManager.kick_guild_member(_kick_target, _kick_reason.text.strip_edges())
+
+
 func _build_hand_over_dialog() -> void:
 	_hand_over_dialog = ConfirmationDialog.new()
 	_hand_over_dialog.title = tr("GUILD_HAND_OVER")
@@ -616,7 +680,7 @@ func _show_members(info: GuildInfoSMSG, is_leader: bool, may_kick: bool, may_man
 		if row == null:
 			row = GuildMemberRow.new()
 			row.rank_chosen.connect(ConnectionManager.set_guild_member_rank)
-			row.kick_requested.connect(ConnectionManager.kick_guild_member)
+			row.kick_requested.connect(_ask_to_kick)
 			row.hand_over_requested.connect(_ask_to_hand_over)
 			_members.add_child(row)
 			_member_rows[member.MasterId] = row
@@ -643,6 +707,32 @@ func _show_members(info: GuildInfoSMSG, is_leader: bool, may_kick: bool, may_man
 			_member_rows.erase(master_id)
 
 	_keep_beacons_of_online_members(info)
+	_show_expelled(info, may_kick)
+
+
+func _show_expelled(info: GuildInfoSMSG, may_lift: bool) -> void:
+	for child in _expelled.get_children():
+		child.queue_free()
+	_expelled_section.visible = not info.Expulsions.is_empty()
+
+	for expulsion in info.Expulsions:
+		var line := UiStyle.hbox(8)
+		var who := UiStyle.label(expulsion.MasterName, 12)
+		who.custom_minimum_size = Vector2(140, 0)
+		line.add_child(who)
+		var reason := UiStyle.label(expulsion.Reason, 12, UiStyle.MUTED)
+		reason.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		reason.clip_text = true
+		reason.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		reason.tooltip_text = expulsion.Reason
+		line.add_child(reason)
+		line.add_child(UiStyle.label(Time.get_date_string_from_unix_time(expulsion.AtEpochMs / 1000), 11, UiStyle.MUTED))
+		if may_lift:
+			var master_id: int = expulsion.MasterId
+			var lift := UiStyle.glyph_button("↺", tr("GUILD_EXPULSION_LIFT"))
+			lift.pressed.connect(func() -> void: ConnectionManager.lift_guild_expulsion(master_id))
+			line.add_child(lift)
+		_expelled.add_child(line)
 
 
 func _show_ranks(info: GuildInfoSMSG, is_leader: bool, may_manage: bool, my_position: int) -> void:

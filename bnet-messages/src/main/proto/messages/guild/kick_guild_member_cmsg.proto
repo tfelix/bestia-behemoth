@@ -5,7 +5,10 @@ package bnet;
 option java_package = "net.bestia.bnet.proto";
 option java_outer_classname = "KickGuildMemberCmsgProto";
 
-// A member whose rank may kick removes a member of a lower rank. The leader can never be kicked.
+// A member whose rank may kick removes a member of a lower rank, who is then expelled: no invitation reaches it
+// until the expulsion is lifted. The leader can never be kicked.
 message KickGuildMemberCMSG {
   uint64 master_id = 1;
+  // Plain text, up to 60 characters; may be empty.
+  string reason = 2;
 }

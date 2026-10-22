@@ -1,5 +1,6 @@
 package net.bestia.zone.guild
 
+import net.bestia.zone.guild.persistence.GuildExpulsionRepository
 import net.bestia.zone.guild.persistence.GuildMemberRef
 import net.bestia.zone.guild.persistence.GuildMemberRepository
 import net.bestia.zone.guild.persistence.GuildRepository
@@ -26,6 +27,7 @@ class GuildInfoReader(
   private val skillTree: GuildSkillTree,
   private val cooldowns: GuildSkillCooldowns,
   private val placeNames: PlaceNameService,
+  private val expulsionRepository: GuildExpulsionRepository,
 ) {
 
   /** [info] with no recipient set yet, and every member to send it to. */
@@ -97,6 +99,9 @@ class GuildInfoReader(
       motdTitleMaxLength = config.motdTitleMaxLength,
       motdBodyMaxLength = config.motdBodyMaxLength,
       emblemHash = guild.emblemHash,
+      expulsions = expulsionRepository.findNewest(guild.id).map {
+        GuildInfoSMSG.Expulsion(it.masterId, it.masterName, it.reason, it.at.toEpochMilli())
+      },
     )
 
     return Snapshot(info, members.map { GuildMemberRef(it.master.account.id, it.master.id) })

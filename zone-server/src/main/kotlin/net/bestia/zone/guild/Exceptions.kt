@@ -57,6 +57,13 @@ class GuildTargetInGuildException(masterName: String) : GuildException(
   args = listOf(masterName),
 )
 
+class GuildTargetExpelledException(masterName: String) : GuildException(
+  code = "GUILD_TARGET_EXPELLED",
+  message = "$masterName was expelled from the guild",
+  opError = OpError.GUILD_TARGET_EXPELLED,
+  args = listOf(masterName),
+)
+
 class GuildFullException : GuildException(
   code = "GUILD_FULL",
   message = "Every seat of the guild is taken",
