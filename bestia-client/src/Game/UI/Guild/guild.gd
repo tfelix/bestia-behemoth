@@ -317,6 +317,8 @@ func _on_guild_message(message: GuildSMSG) -> void:
 			_clear(true, message.ReasonName)
 	elif message is GuildInvitationSMSG:
 		_offer_invitation(message)
+	elif message is GuildSkillCooldownSMSG:
+		SkillCooldowns.start(message.SkillId, message.RemainingMs)
 
 
 func _offer_invitation(message: GuildInvitationSMSG) -> void:
@@ -341,14 +343,19 @@ func _show_guild(info: GuildInfoSMSG) -> void:
 	var may_invite := is_leader or (my_rank != null and my_rank.CanInvite)
 	var may_kick := is_leader or (my_rank != null and my_rank.CanKick)
 	var may_manage := is_leader or (my_rank != null and my_rank.CanManageRanks)
+	var may_cast := is_leader or (my_rank != null and my_rank.CanUseGuildSkills)
 	var my_position: int = my_rank.Position if my_rank != null else 1 << 30
+
+	for skill in info.Skills:
+		if skill.CooldownRemainingMs > 0:
+			SkillCooldowns.start(skill.SkillId, skill.CooldownRemainingMs)
 
 	_name.text = info.Name
 	_level_badge.text = tr("GUILD_LEVEL") % info.Level
 	_member_count.text = "%d / %d" % [info.Members.size(), info.MaxMembers]
 
 	_show_overview(info)
-	_skills.show_skills(info, is_leader)
+	_skills.show_skills(info, is_leader, may_cast)
 	_show_members(info, is_leader, may_kick, may_manage, my_position)
 	_show_ranks(info, is_leader, may_manage, my_position)
 

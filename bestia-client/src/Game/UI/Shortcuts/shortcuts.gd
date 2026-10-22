@@ -156,11 +156,19 @@ func _on_entity_received(msg: EntitySMSG) -> void:
 		_show_active_layer()
 
 
-## Until the controlled entity's skill list has arrived, every skill counts as known at the slot's level.
+## Until the controlled entity's skill list has arrived, every skill counts as known at the slot's level. A guild skill
+## always does: it is on no entity's list, and the server checks the member's rank when it is cast.
 func _usable_skill_level(slot: ShortcutData) -> int:
-	if not _known_skills.has(_controlled_entity_id):
+	if not _known_skills.has(_controlled_entity_id) or _is_guild_skill(slot):
 		return slot.skill_level
 	return mini(slot.skill_level, _known_skills[_controlled_entity_id].get(slot.reference_id, 0))
+
+
+func _is_guild_skill(slot: ShortcutData) -> bool:
+	if slot.type != ShortcutData.ShortcutType.SKILL:
+		return false
+	var attack: AttackResource = AttackDB.get_instance().get_attack(slot.reference_id)
+	return attack != null and attack.tree == "GUILD"
 
 
 func _connect_inventory_signal() -> void:

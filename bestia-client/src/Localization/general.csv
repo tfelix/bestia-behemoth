@@ -23,6 +23,9 @@ ERROR_CHAT_COMMAND_FAILED,That command went wrong and did nothing.
 ERROR_COMBAT_TARGET_WARDED,A ward stone's magic keeps you from harming them.
 STATUS_EFFECT_10,Warded: a ward stone's magic keeps other players from harming you and you from harming them.
 STATUS_EFFECT_12,Guild aura: your guild master is near and lends you strength.
+STATUS_EFFECT_13,"Battle Orders: +5 STR, DEX and INT."
+STATUS_EFFECT_14,"Regeneration: HP, Mana and stamina recover faster."
+STATUS_EFFECT_15,Emergency Move: you move 25% faster.
 ERROR_CHAT_WHISPER_TARGET_UNAVAILABLE,No player named %s is online.
 DEATH_TITLE,You have died.
 DEATH_TEXT,Your body lies where it fell. Return to your save point, or stay a while longer.
@@ -178,6 +181,7 @@ ERROR_GUILD_TARGET_IN_GUILD,%s is already in a guild.
 ERROR_GUILD_FULL,The guild is full. Guild Extension seats more members.
 ERROR_GUILD_INVITE_EXPIRED,That guild invitation has expired.
 ERROR_GUILD_INVITE_DECLINED,%s declined the guild invitation.
+ERROR_GUILD_SKILL_COOLDOWN,That guild skill is still recovering.
 ERROR_GUILD_LEADER_MUST_DISBAND,This master leads the guild %s. Disband it before deleting the master.
 CHAT_LINE_PARTY,[Party] %s: %s
 CHAT_LINE_GUILD,[Guild] %s: %s
@@ -221,6 +225,7 @@ GUILD_SKILL_LEARN,Learn
 GUILD_SKILL_PICK,Pick a skill to see what it does.
 GUILD_SKILL_REQUIRES,Requires %s
 GUILD_SKILL_NEEDS_STRONGHOLD,Works once the guild holds a Guild Stronghold. Strongholds come in a later update.
+GUILD_SKILL_DRAG_TO_BAR,Drag it onto the shortcut bar to cast it.
 GUILD_SKILL_EFFECT_LATER,The emblem itself comes in a later update.
 GUILD_COL_NAME,Rank
 GUILD_COL_TAX,Tax on kill EXP
