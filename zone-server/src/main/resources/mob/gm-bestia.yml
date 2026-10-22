@@ -24,6 +24,8 @@ attributes:
 # Never placed by a wild den or an ambient site; `GmBestiaGrant` hands it to GM accounts. An empty `habitat`
 # alone would mean "anywhere".
 event-only: true
+# Not a creature a master would study, so the Bestia Compendium leaves it out.
+compendium: false
 spawn-weight: 0
 habitat: []
 # Every slot and weight class. Level 80 is above the highest item in `items.yml`, so no item is held back but the

@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "CompendiumSmsgProto";
+
+/**
+ * Every species the selected master has seen, sent on request and again whenever one is added or caught. Species
+ * the master has not seen are not listed: the client knows every species number from its own bestia DB.
+ */
+message CompendiumSMSG {
+  repeated CompendiumEntry entries = 1;
+}
+
+message CompendiumEntry {
+  uint64 species_id = 1;
+  bool caught = 2;
+  // When the master or one of its bestias first saw this species, in milliseconds since the Unix epoch.
+  int64 first_seen_epoch_ms = 3;
+}

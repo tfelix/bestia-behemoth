@@ -30,6 +30,8 @@ import "messages/master/get_skills_cmsg.proto";
 import "messages/master/activate_skill_cmsg.proto";
 import "messages/master/bestia_capture_smsg.proto";
 import "messages/master/owned_bestias_smsg.proto";
+import "messages/compendium/request_compendium_cmsg.proto";
+import "messages/compendium/compendium_smsg.proto";
 import "messages/master/active_entity_smsg.proto";
 import "messages/entity/attack_entity_cmsg.proto";
 import "messages/entity/state_batch_smsg.proto";
@@ -180,6 +182,8 @@ message Envelope {
     BestiaCaptureSMSG bestia_capture = 414;
     OwnedBestiasSMSG owned_bestias = 415;
     ActiveEntitySMSG active_entity = 416;
+    RequestCompendiumCMSG request_compendium = 417;
+    CompendiumSMSG compendium = 418;
 
     // ENTITY & COMPONENTS 500
     SelectActiveEntity select_active_entity = 500;

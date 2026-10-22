@@ -96,6 +96,9 @@ class MobImporterBootRunner(
     @JsonProperty("non-combatant")
     val nonCombatant: Boolean = false,
 
+    /** False keeps the species out of the Bestia Compendium - see `Bestia.inCompendium`. */
+    val compendium: Boolean = true,
+
     /** Mean annual temperature window in degrees Celsius, or neither for no preference. */
     @JsonProperty("temperature-min")
     val temperatureMin: Double? = null,
@@ -158,6 +161,7 @@ class MobImporterBootRunner(
       spawnWeight = dto.spawnWeight,
       eventOnly = dto.eventOnly,
       nonCombatant = dto.nonCombatant,
+      inCompendium = dto.compendium,
       temperatureMinCelsius = dto.temperatureMin,
       temperatureMaxCelsius = dto.temperatureMax
     )
@@ -220,6 +224,7 @@ class MobImporterBootRunner(
         entity.spawnWeight != dto.spawnWeight ||
         entity.eventOnly != dto.eventOnly ||
         entity.nonCombatant != dto.nonCombatant ||
+        entity.inCompendium != dto.compendium ||
         entity.temperatureMinCelsius != dto.temperatureMin ||
         entity.temperatureMaxCelsius != dto.temperatureMax
 
@@ -251,6 +256,7 @@ class MobImporterBootRunner(
     entity.spawnWeight = dto.spawnWeight
     entity.eventOnly = dto.eventOnly
     entity.nonCombatant = dto.nonCombatant
+    entity.inCompendium = dto.compendium
     entity.temperatureMinCelsius = dto.temperatureMin
     entity.temperatureMaxCelsius = dto.temperatureMax
 

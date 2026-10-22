@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "RequestCompendiumCmsgProto";
+
+// The client asks for the selected master's Bestia Compendium, answered with a CompendiumSMSG.
+message RequestCompendiumCMSG {
+}

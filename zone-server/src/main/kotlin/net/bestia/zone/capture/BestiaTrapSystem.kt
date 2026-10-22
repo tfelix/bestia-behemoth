@@ -3,10 +3,9 @@ package net.bestia.zone.capture
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.battle.attack.ThreadLocalRandomSource
 import net.bestia.zone.bestia.BestiaCatalogue
+import net.bestia.zone.bestia.WildBestia
 import net.bestia.zone.aoi.AoiLayer
 import net.bestia.zone.aoi.EntityAOIService
-import net.bestia.zone.identity.ecs.Account
-import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.battle.ecs.damage.TakenDamage
 import net.bestia.zone.skill.ecs.KnownSkills
 import net.bestia.zone.battle.ecs.status.Health
@@ -21,7 +20,6 @@ import net.bestia.zone.ecs.core.update
 import net.bestia.zone.prop.ecs.construction.ConstructionSystem
 import net.bestia.zone.respawn.ecs.RespawnSystem
 import net.bestia.zone.entity.ecs.EntityVisual
-import net.bestia.zone.entity.ecs.VisualKind
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.persistence.PersistedEntityDeletionQueue
 import net.bestia.zone.persistence.Persistent
@@ -57,9 +55,8 @@ class BestiaTrapSystem(
   override val schedule: Schedule = Schedule.EveryTick
 
   override val reads: ComponentClassSet = setOf(
-    Position::class, EntityVisual::class, Account::class, Dead::class,
-    Health::class, CombatStats::class, KnownSkills::class, Persistent::class
-  ) + DamageGate.READS
+    Position::class, EntityVisual::class, Health::class, CombatStats::class, KnownSkills::class, Persistent::class
+  ) + WildBestia.READS + DamageGate.READS
 
   /** [TakenDamage] is written on the creature that broke free, so it turns on the trapper. */
   override val writes: ComponentClassSet = setOf(BestiaTrap::class, TakenDamage::class)
@@ -174,13 +171,7 @@ class BestiaTrapSystem(
   }
 
   private fun isWildBestia(world: World, id: EntityId): Boolean {
-    if (!world.isAlive(id)) return false
-    if (world.get(id, EntityVisual::class)?.kind != VisualKind.BESTIA) return false
-
-    return !world.has(id, Account::class) &&
-        !world.has(id, Dead::class) &&
-        !DamageGate.isImmune(world, id) &&
-        world.has(id, Health::class)
+    return WildBestia.isWild(world, id) && !DamageGate.isImmune(world, id) && world.has(id, Health::class)
   }
 
   private companion object {

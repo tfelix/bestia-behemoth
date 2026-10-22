@@ -5,6 +5,7 @@ import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.identity.ecs.OwnedBestia
 import net.bestia.zone.battle.persistence.StatusEffectPersistenceService
 import net.bestia.zone.cartography.persistence.MapChartRepository
+import net.bestia.zone.compendium.CompendiumStore
 import net.bestia.zone.item.persistence.ItemInstanceRepository
 import net.bestia.zone.guild.GuildService
 import net.bestia.zone.party.PartyService
@@ -39,6 +40,7 @@ import net.bestia.zone.account.persistence.MasterRepository
  *   survives being moved). With their owner gone nothing can ever reach them again, so they are deleted
  *   here, after the slots that pointed at them.
  * - **Persisted status effects** - stored against [Master.entityId], which is not a foreign key to anything.
+ * - **Compendium entries** ([CompendiumStore.deleteAllOf]) - each row is a foreign key to the master.
  * - **Map charts** ([MapChartRepository]) - a chart row *is* keyed by a real foreign key to the item instance
  *   that carries it, so it has to go before the instance does. Every master holds at least one, since one is
  *   granted at creation.
@@ -50,6 +52,7 @@ class MasterDeletionService(
   private val guildService: GuildService,
   private val itemInstanceRepository: ItemInstanceRepository,
   private val mapChartRepository: MapChartRepository,
+  private val compendiumStore: CompendiumStore,
   private val statusEffectPersistenceService: StatusEffectPersistenceService,
   private val world: WorldView,
 ) {
@@ -122,6 +125,7 @@ class MasterDeletionService(
     val guildId = guildService.detachDeletedMaster(master.id)
 
     itemInstanceRepository.clearCraftedByMaster(masterId)
+    compendiumStore.deleteAllOf(masterId)
 
     // Removed from the account's collection as well as deleted: `Account.master` cascades ALL but has no
     // orphanRemoval, so a still-listed master would be cascade-persisted again on flush - after we deleted it.
