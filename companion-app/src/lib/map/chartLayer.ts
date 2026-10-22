@@ -187,7 +187,8 @@ export function placeLabels(masterId: number, map: L.Map, meta: MapMeta, cache: 
 	map.on('zoomend', restart);
 	map.on('moveend', refresh);
 	map.on('unload', cache.onClear(restart));
-	queueMicrotask(refresh);
+	// The map may not have a view yet, and getBounds() throws until it has one.
+	map.whenReady(refresh);
 	return group;
 }
 
