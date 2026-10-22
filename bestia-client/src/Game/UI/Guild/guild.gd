@@ -1,7 +1,7 @@
 class_name GuildPanel
 extends PanelContainer
 
-## The guild window: its level and EXP, its members, its ranks and its skill tree. Only offered while the
+## The guild window: its level and EXP, its members, its ranks, its skill tree and its log. Only offered while the
 ## player is in a guild - [signal membership_changed] tells ui.gd when that changes.
 ##
 ## Every control shows only what the player's own rank may do, by the server's rules: the leader acts on
@@ -33,6 +33,7 @@ var _exp_value: Label
 var _members_value: Label
 var _points_value: Label
 var _skills: GuildSkillsPage
+var _log: GuildLogPage
 var _members: VBoxContainer
 var _ranks: VBoxContainer
 var _add_rank: Button
@@ -65,6 +66,7 @@ func _ready() -> void:
 
 	ConnectionManager.guild_message_received.connect(_on_guild_message)
 	ConnectionManager.operation_success.connect(_on_operation_success)
+	visibility_changed.connect(_refresh_log)
 	# Asked once loaded: a guild pushed while the game scene was still coming up reached nobody.
 	if ConnectionManager.is_ready_to_send():
 		ConnectionManager.request_guild_info()
@@ -110,10 +112,14 @@ func _build() -> void:
 	_tabs.add_child(_build_ranks())
 	_skills = GuildSkillsPage.new()
 	_tabs.add_child(UiStyle.margin(_skills, 4, 6, 4, 4))
+	_log = GuildLogPage.new()
+	_tabs.add_child(UiStyle.margin(_log, 4, 6, 4, 4))
 	_tabs.set_tab_title(0, tr("GUILD_TAB_OVERVIEW"))
 	_tabs.set_tab_title(1, tr("GUILD_TAB_MEMBERS"))
 	_tabs.set_tab_title(2, tr("GUILD_TAB_RANKS"))
 	_tabs.set_tab_title(3, tr("GUILD_TAB_SKILLS"))
+	_tabs.set_tab_title(4, tr("GUILD_TAB_LOG"))
+	_tabs.tab_changed.connect(func(_tab: int) -> void: _refresh_log())
 	body.add_child(_tabs)
 
 	var footer := UiStyle.hbox(6)
@@ -301,6 +307,16 @@ func _add_new_rank() -> void:
 	ConnectionManager.save_guild_rank(0, tr("GUILD_RANK_DEFAULT_NAME"), int(_info.MinTaxPercent), false, false, false, false)
 
 
+## Every change to the guild may have added an entry, so an open Log tab asks again whenever the guild is pushed.
+func _refresh_log() -> void:
+	if _info != null and _is_log_shown() and ConnectionManager.is_ready_to_send():
+		ConnectionManager.request_guild_log()
+
+
+func _is_log_shown() -> bool:
+	return is_visible_in_tree() and _tabs.get_current_tab_control() == _log.get_parent()
+
+
 func _on_operation_success(message: OperationSuccess) -> void:
 	if message.CodeName == "guild_invitation_sent":
 		notice.emit(tr("GUILD_INVITE_SENT") % _last_invited)
@@ -321,6 +337,8 @@ func _on_guild_message(message: GuildSMSG) -> void:
 		SkillCooldowns.start(message.SkillId, message.RemainingMs)
 	elif message is GuildNoticeSMSG:
 		notice.emit(tr("GUILD_NOTICE_%s" % message.NoticeName.to_upper()))
+	elif message is GuildLogSMSG:
+		_log.show_log(message)
 
 
 func _offer_invitation(message: GuildInvitationSMSG) -> void:
@@ -364,6 +382,7 @@ func _show_guild(info: GuildInfoSMSG) -> void:
 	_invite_row.visible = may_invite
 	_leave.visible = not is_leader
 	_disband.visible = is_leader
+	_refresh_log()
 
 	if joined:
 		if _synced:

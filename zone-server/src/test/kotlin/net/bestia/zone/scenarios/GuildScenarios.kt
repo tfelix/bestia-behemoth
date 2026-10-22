@@ -16,6 +16,7 @@ import net.bestia.zone.guild.GuildExpLedger
 import net.bestia.zone.guild.GuildInfoSMSG
 import net.bestia.zone.guild.GuildInvitationSMSG
 import net.bestia.zone.guild.GuildLeftSMSG
+import net.bestia.zone.guild.GuildLogSMSG
 import net.bestia.zone.guild.GuildService
 import net.bestia.zone.guild.net.AnswerGuildInviteCMSG
 import net.bestia.zone.guild.net.CreateGuildCMSG
@@ -25,6 +26,8 @@ import net.bestia.zone.guild.net.InviteToGuildCMSG
 import net.bestia.zone.guild.net.KickGuildMemberCMSG
 import net.bestia.zone.guild.net.LeaveGuildCMSG
 import net.bestia.zone.guild.net.RequestGuildInfoCMSG
+import net.bestia.zone.guild.net.RequestGuildLogCMSG
+import net.bestia.zone.guild.persistence.GuildLogKind
 import net.bestia.zone.guild.net.SaveGuildRankCMSG
 import net.bestia.zone.guild.skill.GuildSkillTree
 import net.bestia.zone.identity.ecs.GuildMembership
@@ -335,6 +338,21 @@ class GuildScenarios : BestiaNoSocketScenario() {
 
   @Test
   @Order(17)
+  fun `the log tells members what happened, newest first, and is for members only`() {
+    clientPlayer1.sendMessage(RequestGuildLogCMSG(clientPlayer1.connectedPlayerId))
+
+    val entries = clientPlayer1.getLastReceived(GuildLogSMSG::class).entries
+    assertEquals(GuildLogKind.LEFT to "player2", entries.first().let { it.kind to it.actorName })
+    assertEquals(GuildLogKind.FOUNDED to "player1", entries.last().let { it.kind to it.actorName })
+    assertTrue(entries.any { it.kind == GuildLogKind.RANK_EDITED && it.detail == "Recruit" })
+    assertTrue(entries.any { it.kind == GuildLogKind.SKILL_LEARNED && it.detail == extensionId.toString() })
+
+    clientPlayer3.sendMessage(RequestGuildLogCMSG(clientPlayer3.connectedPlayerId))
+    assertEquals(OperationErrorSMSG(OpError.GUILD_NOT_A_MEMBER), clientPlayer3.tryGetLastReceived(OperationErrorSMSG::class))
+  }
+
+  @Test
+  @Order(18)
   fun `disbanding needs the guild's name typed`() {
     clientPlayer1.sendMessage(DisbandGuildCMSG(clientPlayer1.connectedPlayerId, "wrong name"))
     assertEquals(OperationErrorSMSG(OpError.REQUEST_REFUSED), clientPlayer1.tryGetLastReceived(OperationErrorSMSG::class))
