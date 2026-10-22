@@ -50,6 +50,9 @@ namespace BestiaBehemothClient.Bnet.Message.Guild
 
     [Export] public uint MotdBodyMaxLength { get; set; }
 
+    /// <summary>Names the guild's emblem at the api-service; empty while it has none.</summary>
+    [Export] public string EmblemHash { get; set; } = string.Empty;
+
     public static GuildInfoSMSG FromProto(global::Bnet.GuildInfoSMSG proto)
     {
       var ranks = new Godot.Collections.Array<GuildRankInfo>();
@@ -89,7 +92,8 @@ namespace BestiaBehemothClient.Bnet.Message.Guild
         MotdTitle = proto.MotdTitle,
         MotdBody = proto.MotdBody,
         MotdTitleMaxLength = proto.MotdTitleMaxLength,
-        MotdBodyMaxLength = proto.MotdBodyMaxLength
+        MotdBodyMaxLength = proto.MotdBodyMaxLength,
+        EmblemHash = proto.EmblemHash
       };
     }
   }

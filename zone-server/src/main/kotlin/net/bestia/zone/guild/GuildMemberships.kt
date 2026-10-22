@@ -25,6 +25,7 @@ class GuildMemberships(
       taxPercent = member.rank.taxPercent,
       guildName = member.guild.name,
       rankTitle = member.rank.name,
+      emblemHash = member.guild.emblemHash,
       isLeader = member.isLeader,
       mayUseGuildSkills = GuildRankRules.mayUseGuildSkills(member),
       skillLevels = member.guild.skillLevels.toMap(),

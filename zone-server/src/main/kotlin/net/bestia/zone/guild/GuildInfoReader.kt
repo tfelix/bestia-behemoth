@@ -96,6 +96,7 @@ class GuildInfoReader(
       motdBody = guild.motdBody,
       motdTitleMaxLength = config.motdTitleMaxLength,
       motdBodyMaxLength = config.motdBodyMaxLength,
+      emblemHash = guild.emblemHash,
     )
 
     return Snapshot(info, members.map { GuildMemberRef(it.master.account.id, it.master.id) })

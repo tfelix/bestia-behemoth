@@ -6,8 +6,6 @@ extends HBoxContainer
 
 ## Skills whose effect lives in a Guild Stronghold, which does not exist yet.
 const NEEDS_STRONGHOLD: Array[int] = [9002, 9003, 9004, 9005, 9006, 9007, 9020]
-## Learnable now, but what it unlocks comes with a later update.
-const EFFECT_LATER: Array[int] = [9001]
 
 var _info: GuildInfoSMSG
 var _is_leader := false
@@ -122,8 +120,6 @@ func _show_selected() -> void:
 	_note.add_theme_color_override("font_color", UiStyle.DANGER)
 	if NEEDS_STRONGHOLD.has(int(skill.SkillId)):
 		_note.text = tr("GUILD_SKILL_NEEDS_STRONGHOLD")
-	elif EFFECT_LATER.has(int(skill.SkillId)):
-		_note.text = tr("GUILD_SKILL_EFFECT_LATER")
 	elif castable:
 		_note.text = tr("GUILD_SKILL_DRAG_TO_BAR")
 		_note.add_theme_color_override("font_color", UiStyle.MUTED)

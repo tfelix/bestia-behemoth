@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "SetGuildEmblemCmsgProto";
+
+// The leader of a guild that learned Guild Emblem replaces its emblem: a 32x32 PNG of at most 8 KiB. The client
+// scales whatever image the leader picks down to that; the server decodes it and stores a fresh copy.
+message SetGuildEmblemCMSG {
+  bytes png = 1;
+}

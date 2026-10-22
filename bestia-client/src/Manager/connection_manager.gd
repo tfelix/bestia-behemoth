@@ -128,6 +128,7 @@ var InvestGuildSkillCMSG = load("res://Bnet/Message/Guild/InvestGuildSkillCMSG.c
 var DisbandGuildCMSG = load("res://Bnet/Message/Guild/DisbandGuildCMSG.cs")
 var RequestGuildLogCMSG = load("res://Bnet/Message/Guild/RequestGuildLogCMSG.cs")
 var SetGuildMotdCMSG = load("res://Bnet/Message/Guild/SetGuildMotdCMSG.cs")
+var SetGuildEmblemCMSG = load("res://Bnet/Message/Guild/SetGuildEmblemCMSG.cs")
 var Ping = load("res://Bnet/Message/Ping.cs")
 var ChunkStreamManagerScript = load("res://Game/World/ChunkStreamManager.cs")
 var WeatherStateScript = load("res://Game/World/WeatherState.cs")
@@ -799,6 +800,14 @@ func set_guild_motd(title: String, body: String) -> void:
 	var msg = SetGuildMotdCMSG.new()
 	msg.Title = title
 	msg.Body = body
+	_socket.SendMessage(msg)
+
+
+## Replaces the guild's emblem with [param png], a 32x32 PNG made by [EmblemPicture].
+func set_guild_emblem(png: PackedByteArray) -> void:
+	assert(is_ready_to_send())
+	var msg = SetGuildEmblemCMSG.new()
+	msg.Png = png
 	_socket.SendMessage(msg)
 
 
