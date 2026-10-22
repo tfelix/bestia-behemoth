@@ -40,6 +40,11 @@ signal services_ready(key: String, services: Array)
 ## World geometry and the level range, from the map's [code]/meta[/code]. Nothing can be addressed before it.
 signal meta_ready(meta: Dictionary)
 
+## A habitat overlay for [param key] arrived, for the species set with [method set_habitat_species].
+signal habitat_ready(key: String)
+## The species whose habitat is shown changed; 0 when none is.
+signal habitat_species_changed(species_id: int)
+
 ## The server refused this client's ticket, so nothing more will be asked for.
 ##
 ## Exists because the alternative is what this used to do: treat a 401 as a transient failure and re-ask every
@@ -87,6 +92,8 @@ const _META_RETRY_SECONDS := 1.5
 const _WANT_TILE := "t"
 const _WANT_PLACES := "p"
 const _WANT_SERVICES := "s"
+## Where one species lives, laid over the picture. Its key carries the species in front of the tile key.
+const _WANT_HABITAT := "h"
 
 ## What each kind's path ends in. The services endpoint has no extension: it is a live answer rather than a
 ## file, and the server routes it as one.
@@ -94,6 +101,7 @@ const _SUFFIXES := {
 	_WANT_TILE: ".png",
 	_WANT_PLACES: ".json",
 	_WANT_SERVICES: "",
+	_WANT_HABITAT: ".png",
 }
 
 const _CACHE_ROOT := "user://mapcache/"
@@ -130,6 +138,13 @@ var _services_checked: Dictionary = {}
 
 ## Tiles masked to this player's charts. Dropped whenever those change - see [method set_chart_signature].
 var _personal: Dictionary = {}
+
+## The species whose habitat the map shows, or 0.
+var habitat_species: int = 0
+
+## Habitat overlays, as "species/level/x/y" -> [Texture2D]. Memory only: they change with the charts and are
+## only wanted while the player is hunting one species.
+var _habitat: Dictionary = {}
 
 var _absent: Dictionary = {}
 
@@ -290,6 +305,32 @@ func want(level: int, tx: int, ty: int) -> void:
 	_want(_WANT_TILE, key_of(level, tx, ty))
 
 
+## Shows where [param species_id] lives on the map, or nothing for 0. The server answers only for a species
+## the master has seen.
+func set_habitat_species(species_id: int) -> void:
+	if species_id == habitat_species:
+		return
+
+	habitat_species = species_id
+	_habitat.clear()
+	habitat_species_changed.emit(species_id)
+
+
+## The habitat overlay for [param key], or null when there is none yet or no species is shown.
+func habitat_of(key: String) -> Texture2D:
+	return _habitat.get(_habitat_key(key))
+
+
+## Requests the habitat overlay for a tile, under the same conditions as [method want].
+func want_habitat(level: int, tx: int, ty: int) -> void:
+	if habitat_species != 0:
+		_want(_WANT_HABITAT, _habitat_key(key_of(level, tx, ty)))
+
+
+func _habitat_key(key: String) -> String:
+	return "%d/%s" % [habitat_species, key]
+
+
 ## Requests the names of what stands on [param key], under the same conditions as [method want].
 func want_places(level: int, tx: int, ty: int) -> void:
 	_want(_WANT_PLACES, key_of(level, tx, ty))
@@ -320,6 +361,8 @@ func _want(kind: String, key: String) -> void:
 		have = cached(key) != null
 	elif kind == _WANT_PLACES:
 		have = _places.has(key)
+	elif kind == _WANT_HABITAT:
+		have = _habitat.has(key)
 	if have or _absent.has(id) or _in_flight.has(id) or _queue.has(id):
 		return
 	if Time.get_ticks_msec() < int(_retry_after.get(id, 0)):
@@ -358,6 +401,7 @@ func set_chart_signature(signature: String) -> void:
 
 	_chart_key = key
 	_personal.clear()
+	_habitat.clear()
 	_places.clear()
 	_forget_services()
 	_absent.clear()
@@ -427,8 +471,7 @@ func _pump() -> void:
 		_in_flight[id] = request
 
 		var kind := id.substr(0, 1)
-		var parts := id.substr(2).split("/")
-		var url := "%s/%s/%s/%s/%s%s" % [_map_base(), kind, parts[0], parts[1], parts[2], _SUFFIXES[kind]]
+		var url := "%s/%s/%s%s" % [_map_base(), kind, id.substr(2), _SUFFIXES[kind]]
 
 		var handler := func(
 			result: int, code: int, headers: PackedStringArray, body: PackedByteArray
@@ -500,6 +543,8 @@ func _on_completed(
 			_accept_places(key, body)
 		_WANT_SERVICES:
 			_accept_services(key, headers, body)
+		_WANT_HABITAT:
+			_accept_habitat(key, body)
 
 
 func _accept_tile(key: String, headers: PackedStringArray, body: PackedByteArray) -> void:
@@ -518,6 +563,22 @@ func _accept_tile(key: String, headers: PackedStringArray, body: PackedByteArray
 		_write_through(key, body, _personal_dir, _disk_personal)
 
 	tile_ready.emit(key, texture)
+
+
+## Dropped when it belongs to a species the map no longer shows: the player switched while it was in flight.
+func _accept_habitat(key: String, body: PackedByteArray) -> void:
+	var tile_key := key.substr(key.find("/") + 1)
+	if key != _habitat_key(tile_key):
+		return
+
+	var image := Image.new()
+	if image.load_png_from_buffer(body) != OK:
+		push_warning("MapSource: habitat %s was not a readable PNG" % key)
+		_back_off(_WANT_HABITAT + ":" + key)
+		return
+
+	_habitat[key] = ImageTexture.create_from_image(image)
+	habitat_ready.emit(tile_key)
 
 
 func _accept_places(key: String, body: PackedByteArray) -> void:
