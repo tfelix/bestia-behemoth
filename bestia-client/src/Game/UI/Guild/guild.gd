@@ -1,7 +1,7 @@
 class_name GuildPanel
 extends PanelContainer
 
-## The guild window: its level and EXP and Guild Extension, its members and its ranks. Only offered while the
+## The guild window: its level and EXP, its members, its ranks and its skill tree. Only offered while the
 ## player is in a guild - [signal membership_changed] tells ui.gd when that changes.
 ##
 ## Every control shows only what the player's own rank may do, by the server's rules: the leader acts on
@@ -32,9 +32,7 @@ var _exp_bar: ProgressBar
 var _exp_value: Label
 var _members_value: Label
 var _points_value: Label
-var _extension_level: Label
-var _extension_pips: HBoxContainer
-var _invest: Button
+var _skills: GuildSkillsPage
 var _members: VBoxContainer
 var _ranks: VBoxContainer
 var _add_rank: Button
@@ -60,7 +58,7 @@ func _enter_tree() -> void:
 
 func _ready() -> void:
 	add_theme_stylebox_override("panel", UiStyle.flat(UiStyle.PANEL_BG, 0, 0))
-	custom_minimum_size = Vector2(520, 420)
+	custom_minimum_size = Vector2(800, 620)
 	_build()
 	_build_found_popup()
 	_build_disband_dialog()
@@ -110,9 +108,12 @@ func _build() -> void:
 	_tabs.add_child(_build_overview())
 	_tabs.add_child(_build_members())
 	_tabs.add_child(_build_ranks())
+	_skills = GuildSkillsPage.new()
+	_tabs.add_child(UiStyle.margin(_skills, 4, 6, 4, 4))
 	_tabs.set_tab_title(0, tr("GUILD_TAB_OVERVIEW"))
 	_tabs.set_tab_title(1, tr("GUILD_TAB_MEMBERS"))
 	_tabs.set_tab_title(2, tr("GUILD_TAB_RANKS"))
+	_tabs.set_tab_title(3, tr("GUILD_TAB_SKILLS"))
 	body.add_child(_tabs)
 
 	var footer := UiStyle.hbox(6)
@@ -166,36 +167,6 @@ func _build_overview() -> Control:
 	_points_value = UiStyle.label("", 12)
 	facts.add_child(_points_value)
 	overview.add_child(facts)
-
-	var card := PanelContainer.new()
-	card.add_theme_stylebox_override("panel", UiStyle.flat(UiStyle.ROW_BG, 6, 10))
-	var card_rows := UiStyle.vbox(6)
-	card.add_child(card_rows)
-
-	var title_row := UiStyle.hbox(8)
-	var title := UiStyle.label(tr("GUILD_EXTENSION"), 14, UiStyle.ACCENT)
-	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	title_row.add_child(title)
-	_extension_level = UiStyle.label("", 12, UiStyle.MUTED)
-	title_row.add_child(_extension_level)
-	card_rows.add_child(title_row)
-
-	var description := UiStyle.label(tr("GUILD_EXTENSION_DESC"), 12, UiStyle.MUTED)
-	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	card_rows.add_child(description)
-
-	var pips_row := UiStyle.hbox(8)
-	_extension_pips = UiStyle.hbox(3)
-	_extension_pips.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	pips_row.add_child(_extension_pips)
-	_invest = Button.new()
-	_invest.text = tr("GUILD_INVEST")
-	_invest.theme_type_variation = &"PrimaryButton"
-	_invest.pressed.connect(ConnectionManager.invest_guild_extension)
-	pips_row.add_child(_invest)
-	card_rows.add_child(pips_row)
-
-	overview.add_child(card)
 	return UiStyle.margin(overview, 6, 8, 6, 6)
 
 
@@ -327,7 +298,7 @@ func _invite() -> void:
 func _add_new_rank() -> void:
 	if _info == null:
 		return
-	ConnectionManager.save_guild_rank(0, tr("GUILD_RANK_DEFAULT_NAME"), int(_info.MinTaxPercent), false, false, false)
+	ConnectionManager.save_guild_rank(0, tr("GUILD_RANK_DEFAULT_NAME"), int(_info.MinTaxPercent), false, false, false, false)
 
 
 func _on_operation_success(message: OperationSuccess) -> void:
@@ -376,7 +347,8 @@ func _show_guild(info: GuildInfoSMSG) -> void:
 	_level_badge.text = tr("GUILD_LEVEL") % info.Level
 	_member_count.text = "%d / %d" % [info.Members.size(), info.MaxMembers]
 
-	_show_overview(info, is_leader)
+	_show_overview(info)
+	_skills.show_skills(info, is_leader)
 	_show_members(info, is_leader, may_kick, may_manage, my_position)
 	_show_ranks(info, is_leader, may_manage, my_position)
 
@@ -391,7 +363,7 @@ func _show_guild(info: GuildInfoSMSG) -> void:
 	_synced = true
 
 
-func _show_overview(info: GuildInfoSMSG, is_leader: bool) -> void:
+func _show_overview(info: GuildInfoSMSG) -> void:
 	if info.ExpNextLevel > 0:
 		UiStyle.set_bar(_exp_bar, int(info.Exp), int(info.ExpNextLevel))
 		_exp_value.text = "%s / %s" % [UiStyle.group_digits(info.Exp), UiStyle.group_digits(info.ExpNextLevel)]
@@ -401,19 +373,6 @@ func _show_overview(info: GuildInfoSMSG, is_leader: bool) -> void:
 
 	_members_value.text = "%d / %d" % [info.Members.size(), info.MaxMembers]
 	_points_value.text = str(info.SkillPoints)
-	_extension_level.text = tr("GUILD_EXTENSION_LEVEL") % [info.ExtensionLevel, info.MaxExtensionLevel]
-
-	for pip in _extension_pips.get_children():
-		pip.queue_free()
-	for i in info.MaxExtensionLevel:
-		var pip := Panel.new()
-		pip.custom_minimum_size = Vector2(14, 8)
-		pip.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-		pip.add_theme_stylebox_override("panel", UiStyle.flat(UiStyle.ACCENT if i < info.ExtensionLevel else UiStyle.BAR_BG, 2, 0))
-		_extension_pips.add_child(pip)
-
-	_invest.visible = is_leader
-	_invest.disabled = info.SkillPoints == 0 or info.ExtensionLevel >= info.MaxExtensionLevel
 
 
 func _show_members(info: GuildInfoSMSG, is_leader: bool, may_kick: bool, may_manage: bool, my_position: int) -> void:

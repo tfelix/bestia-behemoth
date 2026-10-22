@@ -762,7 +762,7 @@ func set_guild_member_rank(master_id: int, rank_id: int) -> void:
 
 
 ## Edits a rank, or adds one at the bottom when [param rank_id] is 0.
-func save_guild_rank(rank_id: int, rank_name: String, tax_percent: int, can_invite: bool, can_kick: bool, can_manage_ranks: bool) -> void:
+func save_guild_rank(rank_id: int, rank_name: String, tax_percent: int, can_invite: bool, can_kick: bool, can_manage_ranks: bool, can_use_guild_skills: bool) -> void:
 	assert(is_ready_to_send())
 	var msg = SaveGuildRankCMSG.new()
 	msg.RankId = rank_id
@@ -771,6 +771,7 @@ func save_guild_rank(rank_id: int, rank_name: String, tax_percent: int, can_invi
 	msg.CanInvite = can_invite
 	msg.CanKick = can_kick
 	msg.CanManageRanks = can_manage_ranks
+	msg.CanUseGuildSkills = can_use_guild_skills
 	_socket.SendMessage(msg)
 
 
@@ -781,10 +782,12 @@ func delete_guild_rank(rank_id: int) -> void:
 	_socket.SendMessage(msg)
 
 
-## The leader spends a guild skill point on Guild Extension.
-func invest_guild_extension() -> void:
+## The leader spends a guild skill point on the guild skill [param skill_id].
+func invest_guild_skill(skill_id: int) -> void:
 	assert(is_ready_to_send())
-	_socket.SendMessage(InvestGuildSkillCMSG.new())
+	var msg = InvestGuildSkillCMSG.new()
+	msg.SkillId = skill_id
+	_socket.SendMessage(msg)
 
 
 ## The leader ends the guild. [param confirm_name] is the name the player typed, compared by the server.
