@@ -5,6 +5,7 @@ class_name MasterVisual extends Visual
 
 var _master_entity_id: int = 0
 var _master_name: String = ""
+var _guild_line: String = ""
 var _hovered: bool = false
 var _selected: bool = false
 
@@ -67,10 +68,15 @@ func _apply_worn_gear() -> void:
 	_parts.wear(parts, hide_hair)
 
 
+func set_guild_tag(tag: GuildTagComponentSMSG) -> void:
+	_guild_line = GuildTagLine.of(tag)
+	_apply_name_tag()
+
+
 func _apply_name_tag() -> void:
 	if _name_tag == null:
 		return
-	_name_tag.text = _master_name
+	_name_tag.text = GuildTagLine.under(_master_name, _guild_line)
 
 
 ## Named for the method [MouseManager] duck-types across every clickable visual, not for bestias - a master

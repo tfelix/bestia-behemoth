@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "GuildTagComponentSMSGProto";
+
+// The guild a master is in, and its rank's title, for its name tag. On the master and its bestias, sent to
+// everyone in range. Removed, with removed = true, when it leaves the guild.
+message GuildTagComponentSMSG {
+  uint64 guild_id = 1;
+  string guild_name = 2;
+  string rank_title = 3;
+  bool removed = 4;
+}
