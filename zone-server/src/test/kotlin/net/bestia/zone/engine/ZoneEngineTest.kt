@@ -42,6 +42,7 @@ import java.time.Duration
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 import net.bestia.zone.ecs.core.EcsWorld
 import net.bestia.zone.sync.SyncTargets
 import net.bestia.zone.config.WorldRulesConfig
@@ -425,6 +426,35 @@ class ZoneEngineTest {
     }
 
     assertEquals(setOf(0.05f), deltas.toSet())
+  }
+
+  @Test
+  fun `the steps a slow tick costs reach the next tick as skipped time`() {
+    // Clients walk every entity on their own clocks, so time the world drops is ground the server's walks fall
+    // behind them by. MoveSystem makes it up from World.skippedTime, which therefore has to account for every
+    // dropped step exactly once.
+    val skipped = ConcurrentLinkedQueue<Float>()
+    val ticks = AtomicInteger()
+    val hitch = object : System {
+      override val phase = Phase.UPKEEP
+      override fun update(world: World, deltaTime: Float) {
+        skipped.add(world.skippedTime)
+        // One tick far over its budget, the way a tick that streams fresh terrain runs: 400 ms against 50.
+        if (ticks.getAndIncrement() == 0) Thread.sleep(400)
+      }
+    }
+    val engine = engineFor(testWorld(systems = listOf(hitch)))
+
+    engine.start()
+    try {
+      await().atMost(Duration.ofSeconds(5)).until { skipped.size >= 10 }
+    } finally {
+      engine.stop()
+    }
+
+    val dropped = meters.get("zone.tick.dropped.steps").counter().count()
+    assertTrue(dropped >= 5, "400 ms is 8 steps and the loop catches up 3, yet only $dropped were dropped")
+    assertEquals(dropped * 0.05, skipped.sumOf { it.toDouble() }, 0.001, "every dropped step, handed on once")
   }
 
   @Test

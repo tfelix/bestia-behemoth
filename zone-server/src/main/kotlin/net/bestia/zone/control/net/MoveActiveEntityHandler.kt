@@ -85,11 +85,22 @@ class MoveActiveEntityHandler(
         return@modify
       }
 
+      // Capped before anything is checked: every step costs a check under the world lock and goes to every viewer.
+      val requested = msg.path.take(zoneConfig.maxMovePathSteps)
+
+      // A route picked mid-walk starts on the walk under way, at the tile the client is stepping onto. Measured
+      // from the last tile reached instead - all the position says - a click straight ahead was two tiles away by
+      // the middle of every step and was refused, which snapped the client back. Joined where it touches the
+      // walk, neither side cuts the step under way, and a client a trip ahead of this one joins further along.
+      val joinAt = existing?.indexOfColumn(requested.first()) ?: -1
+      if (existing != null && joinAt >= 0) {
+        existing.rerouteAfter(joinAt, walkableStepsOf(existing.path[joinAt], requested.drop(1)))
+        return@modify
+      }
+
       // Without a known position there is nothing to validate a step against, so the path is trusted as it
       // used to be unconditionally. With one, the path is walked and cut at the first step that is not
       // horizontally adjacent or crosses too steep a rise - see walkableStepsOf.
-      // Capped before anything is checked: every step costs a check under the world lock and goes to every viewer.
-      val requested = msg.path.take(zoneConfig.maxMovePathSteps)
       val validPath = if (position == null) requested else walkableStepsOf(position.toVec3L(), requested)
 
       if (validPath.isEmpty()) {

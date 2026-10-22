@@ -420,10 +420,17 @@ func move_to(destination: Vector3) -> void:
 	if owned_entity.is_casting():
 		return
 
-	# The logical position, not the rendered one: the path is rounded to whole tiles on the way out
-	# (Vec3Convert), and the rendered position carries a sub-voxel ground correction that can round
-	# the starting tile to the wrong side of a boundary.
-	var path := PathCalculator.calculate_tile_path(owned_entity.get_logical_position(), destination)
+	# Mid-walk the route starts on the tile being stepped onto, and goes out with that tile in front so the
+	# server joins it onto the walk there - see Entity.joining_tile. Otherwise from the logical position, not
+	# the rendered one: the path is rounded to whole tiles on the way out (Vec3Convert), and the rendered
+	# position carries a sub-voxel ground correction that can round the starting tile to the wrong side of a
+	# boundary.
+	var join: Vector3 = owned_entity.joining_tile()
+	var walking := join.is_finite()
+	var start: Vector3 = join if walking else owned_entity.get_logical_position()
+	var path := PathCalculator.calculate_tile_path(start, destination)
+	if walking:
+		path.push_front(join)
 	if path.is_empty():
 		return
 

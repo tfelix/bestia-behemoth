@@ -13,6 +13,15 @@ interface World {
   /** Ticks since the world was created, for "not before a while from now" without a wall clock. */
   val tickCount: Long
 
+  /**
+   * Seconds the engine dropped just before this tick instead of replaying them, 0 on a tick that ran on time.
+   *
+   * Dropping is what stops one overrun from snowballing, and nearly everything can afford the world running slow
+   * for a moment. Whatever a client extrapolates on its own clock cannot: the client is already that far along, so
+   * a system that leaves this out falls behind every client watching it.
+   */
+  val skippedTime: Float
+
   fun isAlive(id: EntityId): Boolean
 
   /** Creates an entity and runs [configure] on it, typically a batch of [add]s. */

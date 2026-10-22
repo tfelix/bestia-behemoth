@@ -3,8 +3,9 @@ class_name Entity extends Node3D
 # Movement prediction
 # ===================
 # Entities follow server-sent paths client-side with the same integrator as the server's MoveSystem.
-# Waypoints arrive once per walk (PathComponentSMSG; an empty one means "stopped" and says where),
-# plus a resync position every MoveSystem.POSITION_RESYNC_STEPS tiles and a speed in tiles/second.
+# Waypoints arrive when a walk starts or changes (PathComponentSMSG; an empty one means "stopped" and says
+# where), plus a resync position every MoveSystem.POSITION_RESYNC_STEPS tiles and a speed in tiles/second.
+# A change that continues the walk under way is spliced onto it - see _join_index.
 #
 # `position` is _logical_position plus half a tile horizontally (a tile coordinate names its corner,
 # see TileSpace) and _ground_offset vertically. Everything else here works in logical space, so use
@@ -657,23 +658,31 @@ func update_position(msg: PositionComponent) -> void:
 	_error = e
 
 
-## A walk, or - with an empty path - the end of one. Sent once per walk, not per tile step.
+## A walk, or - with an empty path - the end of one. Sent when a walk starts and whenever the server changes it
+## (a leg appended, a route picked mid-walk), not per tile step.
 func update_path(msg: PathComponentSMSG) -> void:
 	if msg.Path.is_empty():
 		_stop_at(msg)
 		return
 
-	# Our own click, confirmed. Rebuilding here would zero _travelled and re-anchor the chain on ground we
-	# have already covered - a hitch on every click, which is the thing predicting exists to remove.
+	# The walk under way, continued: our own click confirmed, a leg appended, a route picked mid-walk. The server
+	# is a trip behind us on it, so rebuilding here would re-anchor the chain where we stand and walk back to the
+	# tile it is stepping onto - a hitch on every click and every leg, which is the thing predicting exists to
+	# remove.
 	#
 	# Deliberately not conditional on still being under way: a short click on a slow connection finishes
 	# before its own echo arrives, and re-anchoring then would walk the path a second time from the far end
 	# of it. There is simply nothing left to walk in that case.
-	if _confirms_prediction(msg.Path):
-		# The heights are adopted even by a walk that has finished: its footfalls are reported on these, not on
-		# the interpolated ones it was predicted with.
-		_adopt_heights(msg.Path)
+	var at := _join_index(msg.Path)
+	if at >= 0:
+		# While our own order is unanswered, a path that contradicts it answers an earlier one it overtook.
+		if not _predicted_path.is_empty() and not _agrees(msg.Path, at):
+			return
+
 		_predicted_path.clear()
+		_continue_from(_joining_node(), msg.Path, at)
+		if _awaiting_arrival:
+			_predicted_destination = _nodes[_nodes.size() - 1]
 
 		# A walk that finished while it waited has no frames left to report its footfalls in.
 		if not _is_moving:
@@ -689,15 +698,113 @@ func update_path(msg: PathComponentSMSG) -> void:
 ## The server stays the authority and will answer: with the same path if it accepted it, with a shorter one
 ## if it cut the walk at something `path_calculator.gd` walked into - that file ignores terrain, so clicking
 ## past a rock is routine rather than hostile - and with nothing at all if it refused the first step
-## outright. [method update_path] adopts a matching answer without disturbing this walk and re-anchors on
-## one that differs; an answer that never comes expires, see [method _prediction_grace_msec].
+## outright. [method update_path] adopts an answer that continues this walk without disturbing it; an answer
+## that never comes expires, see [method _prediction_grace_msec].
+##
+## A path that starts on [method joining_tile] continues the walk under way from there, as the server does.
 func predict_path(waypoints: Array[Vector3]) -> void:
 	_predicted_path = waypoints.duplicate()
 	_prediction_deadline_msec = Time.get_ticks_msec() + _prediction_grace_msec()
-	_follow_path(waypoints)
+
+	var node := _joining_node()
+	if node >= 0 and _same_column(_nodes[node], waypoints[0]):
+		_continue_from(node, waypoints, 0)
+	else:
+		_follow_path(waypoints)
+
 	_is_predicted_walk = true
 	_awaiting_arrival = true
 	_predicted_destination = waypoints[waypoints.size() - 1]
+
+
+## Where a route picked now has to start for the server to join it onto the walk under way - the tile this entity
+## is stepping onto - or [constant Vector3.INF] when there is no walk, and a route starts where it stands.
+##
+## A route drawn from the nearest tile instead got clicks refused mid-walk: by the middle of every step that tile
+## is two from the last one the server reached, which is all it measures from. See MoveActiveEntityHandler.
+func joining_tile() -> Vector3:
+	var node := _joining_node()
+	return Vector3.INF if node < 0 else _nodes[node]
+
+
+## The node of [member _nodes] a route continues from: the one being walked towards, or the last of a walk that
+## finished here while the server, a trip behind, may still be on it. -1 when there is no walk to continue.
+##
+## Measured on [member _travelled] rather than [member _is_moving], which a speed of zero also clears mid-step.
+func _joining_node() -> int:
+	if _nodes.size() < 2:
+		return -1
+	if _travelled < _arc[_arc.size() - 1]:
+		return _seg + 1
+	return _nodes.size() - 1
+
+
+## Where [param waypoints], the server's account of a walk, reaches the node we continue from (see
+## [method _joining_node]), or -1 when it is not the walk under way.
+##
+## It is when it runs through that tile and, up to there, retraces the tiles we walked to get there: the server
+## is behind us on the same walk, and everything after that tile is what it has decided since.
+func _join_index(waypoints: Array[Vector3]) -> int:
+	var node := _joining_node()
+	if node < 0:
+		return -1
+
+	for at in waypoints.size():
+		if _same_column(waypoints[at], _nodes[node]) and _retraces(waypoints, at, node):
+			return at
+
+	return -1
+
+
+## Whether [param waypoints] up to [param at] are the walk's own tiles up to [param node], read backwards. Node 0
+## is not one of them - it is wherever the walk was joined - so a path that began before it matches as far as the
+## walk goes back.
+func _retraces(waypoints: Array[Vector3], at: int, node: int) -> bool:
+	for back in range(1, at + 1):
+		if node - back < 1:
+			return true
+		if not _same_column(waypoints[at - back], _nodes[node - back]):
+			return false
+
+	return true
+
+
+## Whether [param waypoints] from [param at] go where our walk goes from the node it joins at, for as far as both
+## go. A walk the server cut short at a wall agrees; one heading somewhere else does not.
+func _agrees(waypoints: Array[Vector3], at: int) -> bool:
+	var node := _joining_node()
+	for i in mini(waypoints.size() - at, _nodes.size() - node):
+		if not _same_column(waypoints[at + i], _nodes[node + i]):
+			return false
+
+	return true
+
+
+## Keeps the walk up to [param node] and goes on along [param waypoints] after [param at], the waypoint on the same
+## tile. What has been walked stays walked: [member _travelled] and the cursor are left alone.
+func _continue_from(node: int, waypoints: Array[Vector3], at: int) -> void:
+	# The server's heights for the tiles both have, which footfalls are reported on rather than the ones
+	# path_calculator.gd interpolated. The columns already agree, so no distance along the chain changes.
+	for back in range(0, at + 1):
+		if node - back < 1:
+			break
+		_nodes[node - back] = waypoints[at - back]
+
+	_nodes.resize(node + 1)
+	_arc.resize(node + 1)
+	for i in range(at + 1, waypoints.size()):
+		var from: Vector3 = _nodes[_nodes.size() - 1]
+		_nodes.append(waypoints[i])
+		_arc.append(_arc[_arc.size() - 1] + _ground_distance(from, waypoints[i]))
+
+	# A walk that had finished resumes, one that is cut short at the tile ahead still reaches it.
+	_is_moving = _travelled < _arc[_arc.size() - 1]
+
+
+## Whether two logical positions are on the same tile. Horizontal, because the height is the one thing the server
+## changes - it replaces every waypoint's with the ground's, see Path.resolveGround.
+func _same_column(a: Vector3, b: Vector3) -> bool:
+	return _ground_distance(a, b) <= 0.001
 
 
 ## How long to keep walking a path the server has not answered for.
@@ -714,32 +821,6 @@ func _prediction_grace_msec() -> int:
 	var budget: float = 2.0 * (ConnectionManager.latency_msec + ConnectionManager.latency_jitter_msec) + 100.0
 
 	return maxi(_PREDICTION_GRACE_FLOOR_MSEC, int(budget))
-
-
-## Whether [param waypoints] is the path we are currently predicting.
-##
-## Horizontally only, because the vertical is the one thing that legitimately differs: the client
-## interpolates it and ignores terrain, and `MoveSystem` replaces every waypoint's height with the ground's
-## before echoing the path back. See [method _adopt_heights].
-func _confirms_prediction(waypoints: Array[Vector3]) -> bool:
-	if _predicted_path.size() != waypoints.size():
-		return false
-
-	for i in _predicted_path.size():
-		if _ground_distance(_predicted_path[i], waypoints[i]) > 0.001:
-			return false
-
-	return true
-
-
-## Takes the server's heights for a path we are already walking.
-##
-## Costs no timing: the node chain is paced by [member _arc], which is ground distance and ignores height,
-## so replacing the vertical changes where the entity is drawn and nothing else. The anchor at index 0 keeps
-## its own height - it is where we are, not a waypoint.
-func _adopt_heights(waypoints: Array[Vector3]) -> void:
-	for i in waypoints.size():
-		_nodes[i + 1] = waypoints[i]
 
 
 ## Gives up on an unconfirmed prediction and returns to where the server last said we were.

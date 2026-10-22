@@ -277,10 +277,14 @@ class EcsWorld(
   override var tickCount: Long = 0L
     private set
 
+  override var skippedTime: Float = 0f
+    private set
+
   // -------------------------------------------------------------- tick pipeline
-  fun tick(deltaTime: Float) = owner.withWorld {
+  fun tick(deltaTime: Float, skippedTime: Float = 0f) = owner.withWorld {
     owner.runQueued()        // posted work: tick-lane messages, leases, skill resolutions
     tickCount++
+    this.skippedTime = skippedTime
     iterating = true
     try {
       scheduler.tick(this, deltaTime) // due systems (parallel waves)

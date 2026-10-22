@@ -293,6 +293,79 @@ class MoveSystemTest {
     assertEquals(0, position.y, "half a step into a fresh path is not a whole step")
   }
 
+  @Test
+  fun `an appended leg keeps the step under way`() {
+    // The client walks straight on into the leg, so a reset here was a part of a step lost on every leg - and the
+    // client, walking on, read that as the server falling behind it.
+    val world = testWorld(systems = listOf(MoveSystem(flat, GroundTrample.NONE, TestNavigation.flatGround())))
+    val id = world.createEntity { }
+    val position = Position(0, 0, 100)
+    val path = Path(straightPath(1))
+    world.add(id, position)
+    world.add(id, Speed(1.0f))
+    world.add(id, path)
+
+    world.tick(0.9f)
+    path.appendPath(listOf(Vec3L(2, 0, 100)))
+    world.tick(0.2f)
+
+    assertEquals(1, position.x, "nine tenths of the step and two more tenths reach the tile")
+  }
+
+  @Test
+  fun `a route picked mid-walk keeps the step under way`() {
+    val world = testWorld(systems = listOf(MoveSystem(flat, GroundTrample.NONE, TestNavigation.flatGround())))
+    val id = world.createEntity { }
+    val position = Position(0, 0, 100)
+    val path = Path(straightPath(3))
+    world.add(id, position)
+    world.add(id, Speed(1.0f))
+    world.add(id, path)
+
+    world.tick(0.9f)
+    path.rerouteAfter(0, listOf(Vec3L(1, 1, 100)))
+    world.tick(0.2f)
+
+    assertEquals(1, position.x, "the tile being stepped onto is still reached on time")
+    assertEquals(listOf(Vec3L(1, 1, 100)), path.path, "and the walk turns there")
+  }
+
+  @Test
+  fun `a walk makes up the time a slow tick skipped`() {
+    // The reported rubber-banding: a tick that streamed fresh terrain ran for seconds, the engine dropped the
+    // backlog, and the walk lost every step of it while the client walked on. The next resync then snapped the
+    // client back by the whole gap - several tiles.
+    val world = testWorld(systems = listOf(MoveSystem(flat, GroundTrample.NONE, TestNavigation.flatGround())))
+    val id = world.createEntity { }
+    val position = Position(0, 0, 100)
+    world.add(id, position)
+    world.add(id, Speed(1.0f))
+    world.add(id, Path(straightPath(6)))
+
+    world.tick(0.5f)
+    world.tick(0.5f, skippedTime = 3.0f)
+
+    assertEquals(4, position.x, "one second of ticks and three skipped are four tiles at a metre a second")
+  }
+
+  @Test
+  fun `a walker nobody can see does not make up skipped time`() {
+    // A coarse walker moves on its own turns only, so a skip landing between them would be lost to it anyway -
+    // and no client is ahead of a walker nobody can see.
+    val world = testWorld(systems = listOf(MoveSystem(flat, GroundTrample.NONE, TestNavigation.flatGround())))
+    val id = world.createEntity { }
+    val position = Position(0, 0, 100)
+    world.add(id, position)
+    world.add(id, Speed(1.0f))
+    world.add(id, Path(straightPath(6)))
+    world.add(id, CoarseMovement(1))
+
+    world.tick(0.5f)
+    world.tick(0.5f, skippedTime = 3.0f)
+
+    assertEquals(1, position.x)
+  }
+
   /** Simulated seconds a walk down [path] takes at one metre a second. */
   private fun secondsToWalk(path: List<Vec3L>): Float {
     val world = testWorld(systems = listOf(MoveSystem(flat, GroundTrample.NONE, TestNavigation.flatGround())))

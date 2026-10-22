@@ -28,6 +28,13 @@ import org.springframework.stereotype.Component as SpringComponent
  * The pathfinder never did. `LocalWalkGraph.cost` has always charged sqrt(2) for a diagonal, so A* was
  * optimising for a cost model movement did not use and NPCs preferred straight routes that took longer.
  *
+ * ### A slow tick does not slow the walk
+ *
+ * Clients walk every entity on their own clocks, so the server's walk has to cover the same ground in the same real
+ * time. The engine drops the backlog of a long tick rather than replaying it, and a walk that lost those steps fell
+ * further behind every client with each one - several tiles after a single chunk-streaming tick, until the next
+ * resync yanked the client back. [World.skippedTime] is added back here, see [coarseElapsed].
+ *
  * `z` is recomputed here from the heightfield rather than taken from the waypoint, so the character follows
  * the ground and a client cannot choose its own altitude - `path_calculator.gd` interpolates the vertical
  * linearly and ignores terrain. One column lookup per tile stepped, not per tick.
@@ -61,6 +68,10 @@ class MoveSystem(
       // Path.groundResolved.
       if (!movementPath.groundResolved) {
         movementPath.resolveGround { ground.standingZAt(it) }
+      }
+
+      if (movementPath.restartsStep) {
+        movementPath.stepRestarted()
 
         // A fresh path is a fresh walk, so the resync counter starts over with it.
         position.stepsSinceSync = 0
@@ -167,11 +178,13 @@ class MoveSystem(
   }
 
   /**
-   * The time this entity is moved by now: one tick, or for a [CoarseMovement] walker everything since its last
-   * turn - or null when this is not its turn.
+   * The time this entity is moved by now: one tick plus whatever the engine skipped before it, or for a
+   * [CoarseMovement] walker everything since its last turn - or null when this is not its turn.
+   *
+   * A coarse walker goes without the skipped time. Nobody can see it, so no client is ahead of it.
    */
   private fun coarseElapsed(world: World, id: EntityId, deltaTime: Float): Float? {
-    val coarse = world.get(id, CoarseMovement::class) ?: return deltaTime
+    val coarse = world.get(id, CoarseMovement::class) ?: return deltaTime + world.skippedTime
     val tick = world.tickCount
 
     if (!TickBuckets.isDue(tick, id, coarse.everyTicks)) return null

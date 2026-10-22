@@ -3,7 +3,8 @@ package net.bestia.zone.engine
 /**
  * Decides how many fixed steps the tick loop owes. Every step is exactly [stepNanos] long, so systems
  * always see the same delta. A backlog longer than [maxCatchUpSteps] is dropped instead of replayed:
- * after a long pause the world runs slow for a moment rather than racing to catch up.
+ * after a long pause the world runs slow for a moment rather than racing to catch up. Walking does not, see
+ * [net.bestia.zone.ecs.core.World.skippedTime].
  */
 class FixedStepClock(
   val stepNanos: Long,

@@ -15,6 +15,7 @@ import net.bestia.zone.util.EntityId
 import kotlin.math.abs
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import net.bestia.zone.ecs.core.EcsWorld
@@ -136,6 +137,92 @@ class MoveActiveEntityHandlerTest {
     handler.handle(world, MoveActiveEntityCMSG(playerId = accountId, path = leg, append = true))
 
     assertEquals(leg, world.get(id, Path::class)?.path)
+  }
+
+  /** A walk east from the origin, one waypoint per tile, as the server holds it once a click is accepted. */
+  private fun walkingEast(world: EcsWorld, handler: MoveActiveEntityHandler, tiles: Long) {
+    handler.handle(world, MoveActiveEntityCMSG(playerId = accountId, path = (1L..tiles).map { Vec3L(it, 0, 0) }))
+  }
+
+  @Test
+  fun `a route picked mid-walk joins the walk at the tile it starts on, keeping the step under way`() {
+    // The client draws it from the tile it is stepping onto and sends that tile first, so both sides finish the
+    // step they are on and turn there. Starting over instead stood the entity back on the tile it was leaving.
+    val world = testWorld()
+    val id = world.createEntity { }
+    world.add(id, Position(0, 0, 0))
+    val handler = handlerFor(world, id, OpenWalkQuery())
+    walkingEast(world, handler, 4)
+    val walk = world.getOrThrow(id, Path::class)
+    walk.stepRestarted()   // MoveSystem has set off on it
+
+    val route = listOf(Vec3L(1, 0, 0), Vec3L(2, 1, 0), Vec3L(3, 2, 0))
+    handler.handle(world, MoveActiveEntityCMSG(playerId = accountId, path = route))
+
+    assertEquals(route, walk.path)
+    assertFalse(walk.restartsStep, "the step towards (1, 0) is the one under way")
+  }
+
+  @Test
+  fun `a client a few tiles ahead joins further along the walk`() {
+    // Its prediction runs a trip ahead of this side, more after a slow tick. Measured from the position - the last
+    // tile reached - this route starts three tiles away and used to be refused, which snapped the client back.
+    val world = testWorld()
+    val id = world.createEntity { }
+    world.add(id, Position(0, 0, 0))
+    val handler = handlerFor(world, id, OpenWalkQuery())
+    walkingEast(world, handler, 6)
+
+    handler.handle(world, MoveActiveEntityCMSG(playerId = accountId, path = listOf(Vec3L(3, 0, 0), Vec3L(3, 1, 0))))
+
+    assertEquals(
+      listOf(Vec3L(1, 0, 0), Vec3L(2, 0, 0), Vec3L(3, 0, 0), Vec3L(3, 1, 0)),
+      world.get(id, Path::class)?.path,
+      "the tiles the client already walked are walked here too"
+    )
+  }
+
+  @Test
+  fun `a route that joins the walk is checked from where it joins`() {
+    val world = testWorld()
+    val id = world.createEntity { }
+    world.add(id, Position(0, 0, 0))
+    val handler = handlerFor(world, id, WalledWalkQuery(blockedTo = Vec3L(2, 1, 0)))
+    walkingEast(world, handler, 4)
+
+    handler.handle(world, MoveActiveEntityCMSG(playerId = accountId, path = listOf(Vec3L(1, 0, 0), Vec3L(2, 1, 0))))
+
+    assertEquals(listOf(Vec3L(1, 0, 0)), world.get(id, Path::class)?.path, "the walk ends where the new route is walled")
+  }
+
+  @Test
+  fun `a route that does not touch the walk starts from the entity's tile`() {
+    val world = testWorld()
+    val id = world.createEntity { }
+    world.add(id, Position(0, 0, 0))
+    val handler = handlerFor(world, id, OpenWalkQuery())
+    walkingEast(world, handler, 4)
+
+    val route = listOf(Vec3L(0, 1, 0), Vec3L(0, 2, 0))
+    handler.handle(world, MoveActiveEntityCMSG(playerId = accountId, path = route))
+
+    assertEquals(route, world.get(id, Path::class)?.path)
+  }
+
+  @Test
+  fun `a route that joins the walk is answered even when it changes nothing`() {
+    // The client is already walking it and expects the echo; without one its prediction expires and snaps.
+    val world = testWorld()
+    val id = world.createEntity { }
+    world.add(id, Position(0, 0, 0))
+    val handler = handlerFor(world, id, OpenWalkQuery())
+    walkingEast(world, handler, 3)
+    val path = world.getOrThrow(id, Path::class)
+    path.clearDirty()
+
+    handler.handle(world, MoveActiveEntityCMSG(playerId = accountId, path = path.path))
+
+    assertTrue(path.isDirty())
   }
 
   @Test

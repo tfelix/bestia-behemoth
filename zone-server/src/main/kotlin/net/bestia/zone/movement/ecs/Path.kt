@@ -39,6 +39,22 @@ data class Path(
     private set
 
   /**
+   * Whether the walk starts over from the entity's tile, which [MoveSystem] answers by dropping the progress made
+   * into the step it was on. True for a new path and a replaced one.
+   *
+   * An appended leg or a [rerouteAfter] keeps the step under way. Dropping it there stood the entity back on the
+   * tile it was leaving, a part of a step lost on every leg - and the client, walking on, read that as the server
+   * falling behind.
+   */
+  var restartsStep: Boolean = true
+    private set
+
+  /** [MoveSystem] has started the walk over. */
+  fun stepRestarted() {
+    restartsStep = false
+  }
+
+  /**
    * How far past its last reached tile the entity stands, 0..1, refreshed by [MoveSystem] each tick.
    *
    * On the wire so a client told about a walk already under way joins it where the entity actually is.
@@ -72,6 +88,7 @@ data class Path(
       _path.addAll(newPath)
       markDirty()
       groundResolved = false
+      restartsStep = true
     }
   }
 
@@ -80,6 +97,28 @@ data class Path(
     get() = _path.lastOrNull()
 
   fun appendPath(points: List<Vec3L>) {
+    _path.addAll(points)
+    markDirty()
+    groundResolved = false
+  }
+
+  /**
+   * Where the walk first crosses [tile]'s column, or -1. Horizontal, because a waypoint's height is the ground's
+   * rather than the one it was sent with - see [resolveGround].
+   */
+  fun indexOfColumn(tile: Vec3L): Int = _path.indexOfFirst { it.x == tile.x && it.y == tile.y }
+
+  /**
+   * Keeps the waypoints up to and including [index] and walks on along [points] instead of the rest: a new
+   * destination picked mid-walk, joined where the old route passes. The step under way is kept, see [restartsStep].
+   *
+   * Announced even when the route comes out the same, unlike [setPath]: the client that picked it is walking it
+   * already and waits for this answer, and one that never comes makes it give the walk up - see `entity.gd`.
+   */
+  fun rerouteAfter(index: Int, points: List<Vec3L>) {
+    require(index in _path.indices) { "No waypoint $index to reroute after, the walk has ${_path.size}." }
+
+    _path.subList(index + 1, _path.size).clear()
     _path.addAll(points)
     markDirty()
     groundResolved = false

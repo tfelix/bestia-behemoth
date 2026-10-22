@@ -149,7 +149,10 @@ class ZoneEngine(
     }
   }
 
-  /** Every step hands the systems the same delta; time lost to a long pause is dropped, see [FixedStepClock]. */
+  /**
+   * Every step hands the systems the same delta; time lost to a long pause is dropped, see [FixedStepClock]. The
+   * first step after a drop says how much went, see [World.skippedTime].
+   */
   private fun runTickLoop() {
     LOG.info { "Zone ECS engine started @ ${config.tickRate}Hz" }
     world.bindTickThread()
@@ -157,9 +160,10 @@ class ZoneEngine(
       while (running) {
         val droppedBefore = clock.droppedSteps
         val due = clock.dueSteps(System.nanoTime())
-        tickMetrics.stepsDropped(clock.droppedSteps - droppedBefore)
+        val dropped = clock.droppedSteps - droppedBefore
+        tickMetrics.stepsDropped(dropped)
 
-        repeat(due) { tickSafely() }
+        repeat(due) { step -> tickSafely(if (step == 0) dropped * stepSeconds else 0f) }
         awaitNextStep()
       }
     } finally {
@@ -167,11 +171,11 @@ class ZoneEngine(
     }
   }
 
-  private fun tickSafely() {
+  private fun tickSafely(skippedTime: Float) {
     val started = System.nanoTime()
 
     try {
-      tickOnce(stepSeconds)
+      tickOnce(stepSeconds, skippedTime)
     } catch (e: Throwable) {
       if (e.isFatal()) throw e
       LOG.error(e) { "Error in zone tick: ${e.message}" }
@@ -252,10 +256,10 @@ class ZoneEngine(
    * Ticks the world once and flushes; exposed for manual/in-process driving (e.g. tests) without
    * the background loop.
    */
-  fun tickOnce(deltaTime: Float) {
+  fun tickOnce(deltaTime: Float, skippedTime: Float = 0f) {
     outbox.collect {
       val started = System.nanoTime()
-      world.tick(deltaTime)
+      world.tick(deltaTime, skippedTime)
 
       val ticked = System.nanoTime()
       syncDirtyComponents()
