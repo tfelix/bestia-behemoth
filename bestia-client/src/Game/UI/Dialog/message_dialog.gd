@@ -45,7 +45,7 @@ func _exit_tree() -> void:
 func show_dialog(content: DialogContent) -> void:
 	_current = content
 
-	_body.text = DialogText.resolve(content) if content.text_override.is_empty() else _as_plain_text(content.text_override)
+	_body.text = DialogText.resolve(content)
 
 	_build_choices(content)
 
@@ -69,11 +69,6 @@ func _build_choices(content: DialogContent) -> void:
 		button.text = DialogText.resolve_line(option.Line.Key, Array(option.Line.Args))
 		button.pressed.connect(_on_option_pressed.bind(option.TopicId))
 		_choices.add_child(button)
-
-
-## RichTextLabel reads "[lb]" as a plain bracket, so no tag a player wrote is ever interpreted.
-func _as_plain_text(text: String) -> String:
-	return text.replace("[", "[lb]")
 
 
 ## A speaker's name wins over a title key, and both over the default.

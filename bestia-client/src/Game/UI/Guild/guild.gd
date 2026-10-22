@@ -9,7 +9,8 @@ extends PanelContainer
 ## pushes back is what the window then draws, so a refusal puts it right by itself.
 ##
 ## Also where a guild is founded: using a Founder's Seal asks [method ask_to_found]. And it greets the member with
-## the guild's message of the day after every loading screen - the login's and each teleport's - as Ragnarok Online does.
+## the guild's message of the day in the chat after every loading screen - the login's and each teleport's - as
+## Ragnarok Online does.
 
 signal notice(text: String)
 signal refused(text: String)
@@ -400,18 +401,21 @@ func _save_motd() -> void:
 ## The guild may not have been pushed yet when the login's loading screen ends; then it is shown on arrival.
 func _on_loading_finished() -> void:
 	if _info != null:
-		_show_motd_dialog()
+		_announce_motd()
 	elif not _synced:
 		_motd_due = true
 
 
-func _show_motd_dialog() -> void:
-	if _info.MotdTitle.is_empty() and _info.MotdBody.is_empty():
+## A notice in the chat rather than a window: it is something to read in passing, not something to click away.
+## The chat writes it as a plain label, so markup a member typed is shown as typed.
+func _announce_motd() -> void:
+	var parts := PackedStringArray()
+	for part: String in [_info.MotdTitle, _info.MotdBody]:
+		if not part.is_empty():
+			parts.append(part)
+	if parts.is_empty():
 		return
-	var content := DialogContent.new("")
-	content.title_override = _info.MotdTitle if not _info.MotdTitle.is_empty() else _info.Name
-	content.text_override = _info.MotdBody
-	DialogManager.show_content(content)
+	notice.emit(tr("GUILD_MOTD_CHAT") % "\n".join(parts))
 
 
 func _found() -> void:
@@ -624,7 +628,7 @@ func _show_guild(info: GuildInfoSMSG) -> void:
 	_refresh_log()
 	if _motd_due:
 		_motd_due = false
-		_show_motd_dialog()
+		_announce_motd()
 
 	if joined:
 		if _synced:

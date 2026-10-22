@@ -31,10 +31,6 @@ var options: Array = []
 ## generator and belongs to no language. Empty for every dialog whose title comes from [member title_key].
 var title_override: String = ""
 
-## A body that is already text rather than a key - a guild's message of the day, written by a player in no particular
-## language. Shown as typed, never parsed as BBCode. Empty for every dialog whose body comes from [member text_key].
-var text_override: String = ""
-
 ## Called with an option's topic id when the player picks one.
 ##
 ## Carried here rather than known by the window, so the window stays a window: it renders options and
