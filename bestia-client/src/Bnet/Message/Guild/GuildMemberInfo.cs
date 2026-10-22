@@ -21,6 +21,15 @@ namespace BestiaBehemothClient.Bnet.Message.Guild
 
     [Export] public bool IsLeader { get; set; }
 
+    /// <summary>The master's entity; its beacon says where it is and how it fares while online.</summary>
+    [Export] public ulong EntityId { get; set; }
+
+    /// <summary>Offline only: where the master left the world.</summary>
+    [Export] public string LastAreaName { get; set; } = string.Empty;
+
+    /// <summary>When the master was last in the world, 0 if never.</summary>
+    [Export] public long LastSeenEpochMs { get; set; }
+
     public static GuildMemberInfo FromProto(global::Bnet.GuildMember proto)
     {
       return new GuildMemberInfo
@@ -31,7 +40,10 @@ namespace BestiaBehemothClient.Bnet.Message.Guild
         RankId = proto.RankId,
         IsOnline = proto.Online,
         ExpContributed = proto.ExpContributed,
-        IsLeader = proto.IsLeader
+        IsLeader = proto.IsLeader,
+        EntityId = proto.EntityId,
+        LastAreaName = proto.LastAreaName,
+        LastSeenEpochMs = proto.LastSeenEpochMs
       };
     }
   }

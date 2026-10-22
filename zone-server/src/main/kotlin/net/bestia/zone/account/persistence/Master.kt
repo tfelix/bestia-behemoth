@@ -169,6 +169,10 @@ class Master(
   @Column(name = "current_health")
   var currentHealth: Int? = null
 
+  /** Mana this master last left the world with, or null to enter it at full; nullable as [currentHealth] is. */
+  @Column(name = "current_mana")
+  var currentMana: Int? = null
+
   @OneToMany(mappedBy = "master", cascade = [CascadeType.ALL], orphanRemoval = true)
   val learnedSkills: MutableSet<LearnedSkill> = mutableSetOf()
 
