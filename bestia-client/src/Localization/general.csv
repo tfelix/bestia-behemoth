@@ -209,22 +209,26 @@ PARTY_LEFT,You are no longer in a party.
 GUILD_TAB_OVERVIEW,Overview
 GUILD_TAB_MEMBERS,Members
 GUILD_TAB_RANKS,Ranks
+GUILD_TAB_SKILLS,Skills
 GUILD_LEVEL,Lv. %d
 GUILD_EXP,EXP
 GUILD_EXP_MAX,Highest level
 GUILD_MEMBERS_COUNT,Members
 GUILD_SKILL_POINTS,Skill points
-GUILD_EXTENSION,Guild Extension
-GUILD_EXTENSION_DESC,Each level seats two more members. Spending a skill point takes it one level further.
-GUILD_EXTENSION_LEVEL,Lv. %d / %d
-GUILD_INVEST,Invest
+GUILD_SKILL_LEVEL,Lv. %d / %d
+GUILD_SKILL_LEARN,Learn
+GUILD_SKILL_PICK,Pick a skill to see what it does.
+GUILD_SKILL_REQUIRES,Requires %s
+GUILD_SKILL_NEEDS_STRONGHOLD,Works once the guild holds a Guild Stronghold. Strongholds come in a later update.
+GUILD_SKILL_EFFECT_LATER,The emblem itself comes in a later update.
 GUILD_COL_NAME,Rank
 GUILD_COL_TAX,Tax on kill EXP
-GUILD_COL_PERMISSIONS,Invite · Kick · Ranks
+GUILD_COL_PERMISSIONS,Invite · Kick · Ranks · Skills
 GUILD_COL_EXP,EXP paid in
 GUILD_PERM_INVITE,May invite
 GUILD_PERM_KICK,May kick members of lower ranks
 GUILD_PERM_MANAGE_RANKS,May manage the ranks below their own
+GUILD_PERM_USE_SKILLS,May use the guild skills
 GUILD_LEADER,Guild master
 GUILD_MEMBER_ONLINE,Online
 GUILD_MEMBER_OFFLINE,Offline
