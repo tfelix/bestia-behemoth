@@ -5,6 +5,7 @@ import net.bestia.zone.guild.persistence.GuildMemberRepository
 import net.bestia.zone.guild.persistence.GuildRepository
 import net.bestia.zone.guild.skill.GuildSkillCooldowns
 import net.bestia.zone.guild.skill.GuildSkillTree
+import net.bestia.zone.place.ecs.PlaceNameService
 import net.bestia.zone.session.ConnectionInfoService
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
@@ -12,7 +13,8 @@ import org.springframework.transaction.annotation.Transactional
 
 /**
  * A guild as plain values, read in one transaction so [GuildInfoPublisher] can send it after the transaction
- * has ended. No world read: a member's level comes off the master row, which the persister keeps current.
+ * has ended. No world read: a member's level and last whereabouts come off the master row, which the persister
+ * keeps current.
  */
 @Component
 class GuildInfoReader(
@@ -23,6 +25,7 @@ class GuildInfoReader(
   private val config: GuildConfig,
   private val skillTree: GuildSkillTree,
   private val cooldowns: GuildSkillCooldowns,
+  private val placeNames: PlaceNameService,
 ) {
 
   /** [info] with no recipient set yet, and every member to send it to. */
@@ -60,14 +63,20 @@ class GuildInfoReader(
         )
       },
       members = members.map { member ->
+        val master = member.master
+        val online = sessions.isPlaying(master.account.id, master.id)
+
         GuildInfoSMSG.Member(
-          masterId = member.master.id,
-          masterName = member.master.name,
-          level = member.master.level,
+          masterId = master.id,
+          masterName = master.name,
+          level = master.level,
           rankId = member.rank.id,
-          online = sessions.isPlaying(member.master.account.id, member.master.id),
+          online = online,
           expContributed = member.expContributed,
           isLeader = member.isLeader,
+          entityId = master.entityId,
+          lastAreaName = if (online) "" else placeNames.resolve(master.currentPosition.x, master.currentPosition.y).name,
+          lastSeenEpochMillis = master.persistedAtEpochMs,
         )
       },
       ownMasterId = 0,

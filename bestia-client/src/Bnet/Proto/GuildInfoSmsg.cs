@@ -44,11 +44,13 @@ namespace Bnet {
             "BG5hbWUYAyABKAkSEwoLdGF4X3BlcmNlbnQYBCABKA0SEgoKY2FuX2ludml0",
             "ZRgFIAEoCBIQCghjYW5fa2ljaxgGIAEoCBIYChBjYW5fbWFuYWdlX3Jhbmtz",
             "GAcgASgIEhwKFGNhbl91c2VfZ3VpbGRfc2tpbGxzGAggASgIEhUKDWNhbl9l",
-            "ZGl0X21vdGQYCSABKAgikQEKC0d1aWxkTWVtYmVyEhEKCW1hc3Rlcl9pZBgB",
+            "ZGl0X21vdGQYCSABKAgi2AEKC0d1aWxkTWVtYmVyEhEKCW1hc3Rlcl9pZBgB",
             "IAEoBBITCgttYXN0ZXJfbmFtZRgCIAEoCRINCgVsZXZlbBgDIAEoDRIPCgdy",
             "YW5rX2lkGAQgASgEEg4KBm9ubGluZRgFIAEoCBIXCg9leHBfY29udHJpYnV0",
-            "ZWQYBiABKAQSEQoJaXNfbGVhZGVyGAcgASgIQisKFW5ldC5iZXN0aWEuYm5l",
-            "dC5wcm90b0ISR3VpbGRJbmZvU21zZ1Byb3RvYgZwcm90bzM="));
+            "ZWQYBiABKAQSEQoJaXNfbGVhZGVyGAcgASgIEhEKCWVudGl0eV9pZBgIIAEo",
+            "BhIWCg5sYXN0X2FyZWFfbmFtZRgJIAEoCRIaChJsYXN0X3NlZW5fZXBvY2hf",
+            "bXMYCiABKANCKwoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQhJHdWlsZEluZm9T",
+            "bXNnUHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
@@ -56,7 +58,7 @@ namespace Bnet {
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.GuildSkillNode), global::Bnet.GuildSkillNode.Parser, new[]{ "SkillId", "Level", "MaxLevel", "Prerequisites", "CooldownRemainingMs" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.GuildSkillPrerequisite), global::Bnet.GuildSkillPrerequisite.Parser, new[]{ "SkillId", "Level" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.GuildRank), global::Bnet.GuildRank.Parser, new[]{ "RankId", "Position", "Name", "TaxPercent", "CanInvite", "CanKick", "CanManageRanks", "CanUseGuildSkills", "CanEditMotd" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.GuildMember), global::Bnet.GuildMember.Parser, new[]{ "MasterId", "MasterName", "Level", "RankId", "Online", "ExpContributed", "IsLeader" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.GuildMember), global::Bnet.GuildMember.Parser, new[]{ "MasterId", "MasterName", "Level", "RankId", "Online", "ExpContributed", "IsLeader", "EntityId", "LastAreaName", "LastSeenEpochMs" }, null, null, null, null)
           }));
     }
     #endregion
@@ -1994,6 +1996,9 @@ namespace Bnet {
       online_ = other.online_;
       expContributed_ = other.expContributed_;
       isLeader_ = other.isLeader_;
+      entityId_ = other.entityId_;
+      lastAreaName_ = other.lastAreaName_;
+      lastSeenEpochMs_ = other.lastSeenEpochMs_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -2087,6 +2092,48 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "entity_id" field.</summary>
+    public const int EntityIdFieldNumber = 8;
+    private ulong entityId_;
+    /// <summary>
+    /// The master's entity; its GuildMemberBeacon carries where it is and how it fares while online.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ulong EntityId {
+      get { return entityId_; }
+      set {
+        entityId_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "last_area_name" field.</summary>
+    public const int LastAreaNameFieldNumber = 9;
+    private string lastAreaName_ = "";
+    /// <summary>
+    /// Offline only: where the master left the world, and when (0 if it never was).
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string LastAreaName {
+      get { return lastAreaName_; }
+      set {
+        lastAreaName_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "last_seen_epoch_ms" field.</summary>
+    public const int LastSeenEpochMsFieldNumber = 10;
+    private long lastSeenEpochMs_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public long LastSeenEpochMs {
+      get { return lastSeenEpochMs_; }
+      set {
+        lastSeenEpochMs_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -2109,6 +2156,9 @@ namespace Bnet {
       if (Online != other.Online) return false;
       if (ExpContributed != other.ExpContributed) return false;
       if (IsLeader != other.IsLeader) return false;
+      if (EntityId != other.EntityId) return false;
+      if (LastAreaName != other.LastAreaName) return false;
+      if (LastSeenEpochMs != other.LastSeenEpochMs) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -2123,6 +2173,9 @@ namespace Bnet {
       if (Online != false) hash ^= Online.GetHashCode();
       if (ExpContributed != 0UL) hash ^= ExpContributed.GetHashCode();
       if (IsLeader != false) hash ^= IsLeader.GetHashCode();
+      if (EntityId != 0UL) hash ^= EntityId.GetHashCode();
+      if (LastAreaName.Length != 0) hash ^= LastAreaName.GetHashCode();
+      if (LastSeenEpochMs != 0L) hash ^= LastSeenEpochMs.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -2169,6 +2222,18 @@ namespace Bnet {
         output.WriteRawTag(56);
         output.WriteBool(IsLeader);
       }
+      if (EntityId != 0UL) {
+        output.WriteRawTag(65);
+        output.WriteFixed64(EntityId);
+      }
+      if (LastAreaName.Length != 0) {
+        output.WriteRawTag(74);
+        output.WriteString(LastAreaName);
+      }
+      if (LastSeenEpochMs != 0L) {
+        output.WriteRawTag(80);
+        output.WriteInt64(LastSeenEpochMs);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -2207,6 +2272,18 @@ namespace Bnet {
         output.WriteRawTag(56);
         output.WriteBool(IsLeader);
       }
+      if (EntityId != 0UL) {
+        output.WriteRawTag(65);
+        output.WriteFixed64(EntityId);
+      }
+      if (LastAreaName.Length != 0) {
+        output.WriteRawTag(74);
+        output.WriteString(LastAreaName);
+      }
+      if (LastSeenEpochMs != 0L) {
+        output.WriteRawTag(80);
+        output.WriteInt64(LastSeenEpochMs);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -2237,6 +2314,15 @@ namespace Bnet {
       }
       if (IsLeader != false) {
         size += 1 + 1;
+      }
+      if (EntityId != 0UL) {
+        size += 1 + 8;
+      }
+      if (LastAreaName.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(LastAreaName);
+      }
+      if (LastSeenEpochMs != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeInt64Size(LastSeenEpochMs);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -2270,6 +2356,15 @@ namespace Bnet {
       }
       if (other.IsLeader != false) {
         IsLeader = other.IsLeader;
+      }
+      if (other.EntityId != 0UL) {
+        EntityId = other.EntityId;
+      }
+      if (other.LastAreaName.Length != 0) {
+        LastAreaName = other.LastAreaName;
+      }
+      if (other.LastSeenEpochMs != 0L) {
+        LastSeenEpochMs = other.LastSeenEpochMs;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -2318,6 +2413,18 @@ namespace Bnet {
             IsLeader = input.ReadBool();
             break;
           }
+          case 65: {
+            EntityId = input.ReadFixed64();
+            break;
+          }
+          case 74: {
+            LastAreaName = input.ReadString();
+            break;
+          }
+          case 80: {
+            LastSeenEpochMs = input.ReadInt64();
+            break;
+          }
         }
       }
     #endif
@@ -2363,6 +2470,18 @@ namespace Bnet {
           }
           case 56: {
             IsLeader = input.ReadBool();
+            break;
+          }
+          case 65: {
+            EntityId = input.ReadFixed64();
+            break;
+          }
+          case 74: {
+            LastAreaName = input.ReadString();
+            break;
+          }
+          case 80: {
+            LastSeenEpochMs = input.ReadInt64();
             break;
           }
         }

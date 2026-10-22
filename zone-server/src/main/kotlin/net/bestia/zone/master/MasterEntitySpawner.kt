@@ -203,7 +203,7 @@ class MasterEntitySpawner(
       // Coerced to at least 1: a master must never materialise already dead, with no way back out.
       // Null is a row written before the column existed, and enters the world at full.
       add(id, Health(current = master.currentHealth?.coerceIn(1, maxHp) ?: maxHp, max = maxHp))
-      add(id, Mana(current = maxMana, max = maxMana))
+      add(id, Mana(current = master.currentMana?.coerceIn(0, maxMana) ?: maxMana, max = maxMana))
       add(id, Stamina(current = maxStamina, max = maxStamina))
       add(id, FormulaDrivenVitals)
 

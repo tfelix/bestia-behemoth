@@ -10,6 +10,7 @@ import net.bestia.zone.battle.ecs.exp.Exp
 import net.bestia.zone.battle.ecs.level.Level
 import net.bestia.zone.skill.ecs.KnownSkills
 import net.bestia.zone.battle.ecs.status.Health
+import net.bestia.zone.battle.ecs.status.Mana
 import net.bestia.zone.battle.ecs.status.BaseStatusValues
 import net.bestia.zone.battle.ecs.status.SkillPoints
 import net.bestia.zone.battle.ecs.status.StatusPoints
@@ -44,6 +45,7 @@ data class MasterSnapshot(
   val willpower: Int,
   val agility: Int,
   val currentHealth: Int?,
+  val currentMana: Int?,
   /** Left the world dead, so the write-back resolves the respawn instead of storing where it fell. */
   val died: Boolean,
   /** Skill id to invested level, from `KnownSkills`. */
@@ -76,7 +78,7 @@ class MasterEntityPersister(
 
   override val reads: ComponentClassSet = setOf(
     MasterComponent::class, Position::class, Level::class, Exp::class, SkillPoints::class,
-    StatusPoints::class, BaseStatusValues::class, Health::class, Dead::class, KnownSkills::class,
+    StatusPoints::class, BaseStatusValues::class, Health::class, Mana::class, Dead::class, KnownSkills::class,
   )
 
   override fun supports(world: World, id: EntityId): Boolean =
@@ -105,6 +107,7 @@ class MasterEntityPersister(
       willpower = baseStatusValues?.willpower ?: 10,
       agility = baseStatusValues?.agility ?: 10,
       currentHealth = world.get(id, Health::class)?.current,
+      currentMana = world.get(id, Mana::class)?.current,
       died = world.has(id, Dead::class),
       learnedSkills = world.get(id, KnownSkills::class)?.levels().orEmpty(),
     )
@@ -129,6 +132,7 @@ class MasterEntityPersister(
         master.currentPosition = Vec3L(snap.x, snap.y, snap.z)
         master.currentHealth = snap.currentHealth
       }
+      master.currentMana = snap.currentMana
       master.level = snap.level
       master.exp = snap.exp
       master.skillPoints = snap.skillPoints

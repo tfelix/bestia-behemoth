@@ -1,7 +1,8 @@
 class_name GuildMemberRow
 extends PanelContainer
 
-## One member in the guild window: online light, the leader's crown, name, level, rank and the EXP paid in.
+## One member in the guild window: online light, the leader's crown, name, level, where they are (or were, and
+## when, while offline), rank and the EXP paid in.
 ## The rank becomes a selector and a kick cross appears only where the viewer's own rank allows it - the
 ## window decides that, see [method show_member]; the server checks it again.
 
@@ -14,6 +15,7 @@ var _dot: Panel
 var _crown: Label
 var _name: Label
 var _level: Label
+var _where: Label
 var _rank_label: Label
 var _rank_select: OptionButton
 var _exp: Label
@@ -44,6 +46,12 @@ func _init() -> void:
 	_level = UiStyle.label("", 11, UiStyle.MUTED)
 	_level.custom_minimum_size = Vector2(44, 0)
 	line.add_child(_level)
+
+	_where = UiStyle.label("", 11, UiStyle.MUTED)
+	_where.custom_minimum_size = Vector2(170, 0)
+	_where.clip_text = true
+	_where.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	line.add_child(_where)
 
 	_rank_label = UiStyle.label("", 12, UiStyle.MUTED)
 	_rank_label.custom_minimum_size = Vector2(110, 0)
@@ -82,6 +90,10 @@ func show_member(member: GuildMemberInfo, rank: GuildRankInfo, is_self: bool, as
 	_name.text = member.MasterName
 	_level.text = tr("GUILD_LEVEL") % member.Level
 	_exp.text = UiStyle.group_digits(member.ExpContributed)
+	if member.IsOnline:
+		show_whereabouts("", "")
+	else:
+		show_whereabouts(member.LastAreaName, _seen_ago(member.LastSeenEpochMs))
 	_kick.visible = can_kick
 
 	var rank_name := rank.Name if rank != null else "?"
@@ -97,6 +109,29 @@ func show_member(member: GuildMemberInfo, rank: GuildRankInfo, is_self: bool, as
 		if rank != null and offered.RankId == rank.RankId:
 			# select() does not emit item_selected, so drawing the current rank sends nothing.
 			_rank_select.select(_offered_rank_ids.size() - 1)
+
+
+## [param detail] follows the area, such as how long ago an offline member was seen.
+func show_whereabouts(area_name: String, detail: String) -> void:
+	var parts := PackedStringArray()
+	for part in [area_name, detail]:
+		if not part.is_empty():
+			parts.append(part)
+	_where.text = " · ".join(parts)
+	_where.tooltip_text = _where.text
+
+
+func _seen_ago(epoch_ms: int) -> String:
+	if epoch_ms <= 0:
+		return ""
+	var minutes := maxi(0, int(Time.get_unix_time_from_system()) - epoch_ms / 1000) / 60
+	if minutes < 1:
+		return tr("GUILD_SEEN_JUST_NOW")
+	if minutes < 60:
+		return tr("GUILD_SEEN_MINUTES") % minutes
+	if minutes < 60 * 24:
+		return tr("GUILD_SEEN_HOURS") % (minutes / 60)
+	return tr("GUILD_SEEN_DAYS") % (minutes / (60 * 24))
 
 
 func _on_rank_selected(index: int) -> void:
