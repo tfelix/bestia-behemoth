@@ -24,11 +24,16 @@ var _bestia_slot_count: int = 0
 ## Entity sitting at the world origin; replayed onto the node should the entity come into view.
 ## Keyed by entity id, then "health" / "mana" to the last message of that kind.
 var _detached_vitals: Dictionary[int, Dictionary] = {}
+## The last beacon of each guild member's master, by entity id. Apart from the nodes for the reason
+## [member _detached_vitals] is: most of them stand far out of view.
+var _guild_beacons: Dictionary[int, GuildMemberBeaconComponentSMSG] = {}
 
 ## The player took control of another of their entities. [param previous_id] is 0 on the first one.
 signal controlled_entity_changed(previous_id: int, entity_id: int)
 ## The list of bestia the master owns, or the number of slots for them, was replaced.
 signal owned_bestias_changed(bestias: Array[BestiaInfo])
+## A guild member's beacon arrived; see [method get_guild_beacon].
+signal guild_beacon_changed(entity_id: int)
 
 
 ## EntityManager isn't an autoload (see the TODO above - its lifecycle is tied to the
@@ -268,6 +273,11 @@ func _set_controlled_entity(entity_id: int) -> void:
 
 
 func _on_entity_message_received(msg: EntitySMSG) -> void:
+	if msg is GuildMemberBeaconComponentSMSG:
+		_guild_beacons[msg.EntityId] = msg
+		guild_beacon_changed.emit(msg.EntityId)
+		return
+
 	if _keep_detached(msg):
 		return
 
@@ -361,6 +371,22 @@ func _on_entity_message_received(msg: EntitySMSG) -> void:
 	# Server sends vanish information -> remove the node + potentially buffered stuff
 	# Server sends damage -> lookup entity node and attach damage scn to entity node
 	# server sends chat -> lookup entity node and attach chat scn to entity
+
+
+func get_guild_beacon(entity_id: int) -> GuildMemberBeaconComponentSMSG:
+	return _guild_beacons.get(entity_id)
+
+
+func get_guild_beacons() -> Dictionary[int, GuildMemberBeaconComponentSMSG]:
+	return _guild_beacons
+
+
+## Drops the beacons of every master but [param entity_ids]. The guild window calls it with the members being
+## played: the server sends no beacon for a member who leaves or logs out far away.
+func keep_guild_beacons(entity_ids: Array[int]) -> void:
+	for entity_id in _guild_beacons.keys():
+		if entity_id not in entity_ids:
+			_guild_beacons.erase(entity_id)
 
 
 func _on_chat_message_received(msg: ChatSMSG) -> void:

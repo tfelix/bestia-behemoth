@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package bnet;
+
+import "messages/vec3.proto";
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "GuildMemberBeaconSMSGProto";
+
+// Where a guild member is and how its master fares. On the master's entity, sent to every guild member being
+// played wherever they stand, at most once a second. For the map and the guild window.
+message GuildMemberBeaconSMSG {
+  // Of the entity the member plays: its master, or the bestia it controls.
+  Vec3 position = 1;
+  string area_name = 2;
+  uint32 hp_current = 3;
+  uint32 hp_max = 4;
+  uint32 mana_current = 5;
+  uint32 mana_max = 6;
+}

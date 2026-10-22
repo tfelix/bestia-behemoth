@@ -14,6 +14,12 @@ sealed interface SyncTargets {
    */
   data object OwnerAndParty : SyncTargets
 
+  /**
+   * The owner, plus every member of its master's guild that is being played, wherever they stand. Resolved by
+   * [net.bestia.zone.aoi.EntityAudience.ownerAndGuild] for the same reason as [OwnerAndParty].
+   */
+  data object OwnerAndGuild : SyncTargets
+
   /** Send only to these specific accounts. */
   data class Accounts(val accountIds: Set<Long>) : SyncTargets
 }

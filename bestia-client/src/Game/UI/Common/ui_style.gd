@@ -21,6 +21,8 @@ const MUTED := Color(0.60, 0.60, 0.66)
 const ACCENT := Color(1.0, 0.82, 0.35)
 const ONLINE := Color(0.45, 0.85, 0.45)
 const OFFLINE := Color(0.40, 0.40, 0.44)
+## Guild chat, and guild members on the map.
+const GUILD := Color(0.80, 0.66, 1.0)
 const DANGER := Color(0.90, 0.38, 0.38)
 
 

@@ -192,7 +192,8 @@ class GuildService(
     guild.members.add(member)
     log.record(guild, GuildLogKind.JOINED, master.name)
 
-    refreshMembership(member)
+    // Everyone's roster gains the newcomer, so they hear each other's beacons.
+    guild.members.forEach { refreshMembership(it) }
 
     return guild.id
   }
@@ -236,6 +237,7 @@ class GuildService(
     val ref = refOf(member)
     guild.members.remove(member)
     clearMembership(ref)
+    guild.members.forEach { refreshMembership(it) }
 
     return Departed(guild.id, ref)
   }
