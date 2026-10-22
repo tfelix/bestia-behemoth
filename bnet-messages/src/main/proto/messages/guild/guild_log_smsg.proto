@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "GuildLogSmsgProto";
+
+// The guild's newest log entries, newest first. Only sent when asked, see RequestGuildLogCMSG.
+message GuildLogSMSG {
+  repeated GuildLogEntry entries = 1;
+}
+
+// Names, not ids: the masters named may have left the guild or been deleted since.
+message GuildLogEntry {
+  GuildLogKind kind = 1;
+  int64 at_epoch_ms = 2;
+  string actor_name = 3;
+  // Empty when the entry is about the actor alone.
+  string target_name = 4;
+  // What the kind needs besides the names: a rank's name, or a skills.yml id for SKILL_LEARNED.
+  string detail = 5;
+}
+
+enum GuildLogKind {
+  GUILD_LOG_KIND_UNSPECIFIED = 0;
+  GUILD_LOG_KIND_FOUNDED = 1;
+  GUILD_LOG_KIND_JOINED = 2;
+  GUILD_LOG_KIND_LEFT = 3;
+  GUILD_LOG_KIND_KICKED = 4;
+  GUILD_LOG_KIND_RANK_SET = 5;
+  GUILD_LOG_KIND_RANK_ADDED = 6;
+  GUILD_LOG_KIND_RANK_EDITED = 7;
+  GUILD_LOG_KIND_RANK_DELETED = 8;
+  GUILD_LOG_KIND_SKILL_LEARNED = 9;
+}

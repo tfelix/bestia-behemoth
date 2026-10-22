@@ -7,6 +7,7 @@ import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.guild.persistence.Guild
 import net.bestia.zone.guild.persistence.GuildMember
 import net.bestia.zone.guild.persistence.GuildMemberRef
+import net.bestia.zone.guild.persistence.GuildLogKind
 import net.bestia.zone.guild.persistence.GuildMemberRepository
 import net.bestia.zone.guild.persistence.GuildRank
 import net.bestia.zone.guild.persistence.GuildRepository
@@ -52,6 +53,7 @@ class GuildService(
   private val skillTree: GuildSkillTree,
   private val memberships: GuildMemberships,
   private val cooldowns: GuildSkillCooldowns,
+  private val log: GuildLog,
 ) {
 
   data class SentInvitation(val invitedAccountId: AccountId, val invitation: GuildInvitationSMSG)
@@ -112,6 +114,7 @@ class GuildService(
 
     val leader = GuildMember(guild = guild, master = master, rank = leaderRank)
     guild.members.add(leader)
+    log.record(guild, GuildLogKind.FOUNDED, master.name)
 
     val membership = memberships.of(leader)
     afterCommit {
@@ -186,6 +189,7 @@ class GuildService(
     val rank = guild.lowestRank
     val member = GuildMember(guild = guild, master = master, rank = rank)
     guild.members.add(member)
+    log.record(guild, GuildLogKind.JOINED, master.name)
 
     refreshMembership(member)
 
@@ -207,6 +211,8 @@ class GuildService(
       throw GuildRequestRefused("the leader of guild ${guild.id} cannot leave it")
     }
 
+    log.record(guild, GuildLogKind.LEFT, actor.master.name)
+
     return remove(guild, actor)
   }
 
@@ -219,6 +225,8 @@ class GuildService(
     if (!GuildRankRules.mayKick(actor, target)) {
       throw GuildRequestRefused("master ${actor.master.id} may not kick master $targetMasterId")
     }
+
+    log.record(guild, GuildLogKind.KICKED, actor.master.name, target.master.name)
 
     return remove(guild, target)
   }
@@ -245,6 +253,7 @@ class GuildService(
 
     target.rank = rank
     refreshMembership(target)
+    log.record(guild, GuildLogKind.RANK_SET, actor.master.name, target.master.name, rank.name)
 
     return guild.id
   }
@@ -279,6 +288,7 @@ class GuildService(
       val position = guild.ranks.maxOf { it.position } + 1
       val rank = GuildRank(guild, position, name, taxPercent, canInvite, canKick, canManageRanks, canUseGuildSkills)
       guild.ranks.add(rank)
+      log.record(guild, GuildLogKind.RANK_ADDED, actor.master.name, detail = name)
 
       return guild.id
     }
@@ -298,6 +308,7 @@ class GuildService(
     }
 
     guild.members.filter { it.rank.id == rank.id }.forEach { refreshMembership(it) }
+    log.record(guild, GuildLogKind.RANK_EDITED, actor.master.name, detail = name)
 
     return guild.id
   }
@@ -318,6 +329,7 @@ class GuildService(
     }
 
     guild.ranks.remove(rank)
+    log.record(guild, GuildLogKind.RANK_DELETED, actor.master.name, detail = rank.name)
 
     return guild.id
   }
@@ -339,6 +351,7 @@ class GuildService(
 
     guild.skillLevels[node.identifier] = guild.skillLevel(node.identifier) + 1
     guild.members.forEach { refreshMembership(it) }
+    log.record(guild, GuildLogKind.SKILL_LEARNED, actor.master.name, detail = node.skillId.toString())
 
     return guild.id
   }
@@ -358,6 +371,7 @@ class GuildService(
     // Members before ranks, since every member row points at a rank; left to the cascade, the order is not ours.
     guild.members.clear()
     guildRepository.flush()
+    log.forget(guildId)
     guildRepository.delete(guild)
 
     members.forEach { clearMembership(it) }

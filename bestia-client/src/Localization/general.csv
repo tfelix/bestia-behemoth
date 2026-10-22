@@ -219,6 +219,7 @@ GUILD_TAB_OVERVIEW,Overview
 GUILD_TAB_MEMBERS,Members
 GUILD_TAB_RANKS,Ranks
 GUILD_TAB_SKILLS,Skills
+GUILD_TAB_LOG,Log
 GUILD_LEVEL,Lv. %d
 GUILD_EXP,EXP
 GUILD_EXP_MAX,Highest level
@@ -268,3 +269,13 @@ GUILD_JOINED,You joined the guild %s.
 GUILD_LEFT_REASON_LEFT,You left the guild %s.
 GUILD_LEFT_REASON_KICKED,You were removed from the guild %s.
 GUILD_LEFT_REASON_DISBANDED,The guild %s was disbanded.
+GUILD_LOG_EMPTY,Nothing has happened in the guild yet.
+GUILD_LOG_FOUNDED,{actor} founded the guild.
+GUILD_LOG_JOINED,{actor} joined the guild.
+GUILD_LOG_LEFT,{actor} left the guild.
+GUILD_LOG_KICKED,{actor} removed {target} from the guild.
+GUILD_LOG_RANK_SET,{actor} made {target} {detail}.
+GUILD_LOG_RANK_ADDED,{actor} added the rank {detail}.
+GUILD_LOG_RANK_EDITED,{actor} changed the rank {detail}.
+GUILD_LOG_RANK_DELETED,{actor} deleted the rank {detail}.
+GUILD_LOG_SKILL_LEARNED,{actor} raised the guild skill {detail}.
