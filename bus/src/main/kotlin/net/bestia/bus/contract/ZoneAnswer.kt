@@ -97,7 +97,21 @@ sealed interface ZoneAnswer {
       val stackable: Boolean,
     )
 
-    data class Species(val id: Long, val identifier: String, val kind: String, val element: String, val level: Int)
+    /** [habitat] holds biome names, empty for any land. [inCompendium] is false for townsfolk and test creatures. */
+    data class Species(
+      val id: Long,
+      val identifier: String,
+      val kind: String,
+      val element: String,
+      val level: Int,
+      val habitat: List<String>,
+      val inCompendium: Boolean,
+    )
+  }
+
+  /** Only the species the master has seen; the rest of the catalogue is unseen. */
+  data class CompendiumData(val entries: List<Entry>) : ZoneAnswer {
+    data class Entry(val speciesId: Long, val caught: Boolean, val firstSeenEpochMs: Long)
   }
 
   /** [metresPerVoxel] is for a reader that places entities by their voxel position, as the game client does. */

@@ -212,6 +212,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/companion/masters/{masterId}/map/h/{speciesId}/{level}/{x}/{y}.png": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["habitat"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/companion/masters/{masterId}/inventory": {
         parameters: {
             query?: never;
@@ -220,6 +236,22 @@ export interface paths {
             cookie?: never;
         };
         get: operations["inventory"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/companion/masters/{masterId}/compendium": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["compendium"];
         put?: never;
         post?: never;
         delete?: never;
@@ -427,6 +459,13 @@ export interface components {
             /** Format: int32 */
             upgradeLevel: number;
         };
+        CompendiumEntry: {
+            /** Format: int64 */
+            speciesId: number;
+            caught: boolean;
+            /** Format: int64 */
+            firstSeen: number;
+        };
         Bestia: {
             /** Format: int64 */
             id: number;
@@ -467,6 +506,8 @@ export interface components {
             element: string;
             /** Format: int32 */
             level: number;
+            habitat: string[];
+            inCompendium: boolean;
         };
         Unsubscribe: {
             endpoint: string;
@@ -828,6 +869,34 @@ export interface operations {
             };
         };
     };
+    habitat: {
+        parameters: {
+            query?: never;
+            header?: {
+                "If-None-Match"?: string;
+            };
+            path: {
+                masterId: number;
+                speciesId: number;
+                level: number;
+                x: number;
+                y: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
     inventory: {
         parameters: {
             query?: never;
@@ -846,6 +915,28 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["Holder"][];
+                };
+            };
+        };
+    };
+    compendium: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                masterId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["CompendiumEntry"][];
                 };
             };
         };

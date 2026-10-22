@@ -6,6 +6,7 @@ import io.mockk.verify
 import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.session.MasterPresenceChangedEvent
 import org.junit.jupiter.api.Test
+import org.springframework.context.ApplicationEventPublisher
 
 class CompendiumRecorderTest {
 
@@ -20,7 +21,8 @@ class CompendiumRecorderTest {
   private val jobs = mockk<AsyncJobExecutor> {
     every { submit(any(), any()) } answers { secondArg<() -> Unit>().invoke() }
   }
-  private val sut = CompendiumRecorder(CompendiumLedger(), store, publisher, jobs)
+  private val events = mockk<ApplicationEventPublisher>(relaxed = true)
+  private val sut = CompendiumRecorder(CompendiumLedger(), store, publisher, jobs, events)
 
   @Test
   fun `a first sighting is stored and published once`() {
@@ -31,6 +33,7 @@ class CompendiumRecorderTest {
 
     verify(exactly = 1) { store.recordSeen(MASTER_ID, NEW_SPECIES) }
     verify(exactly = 1) { publisher.publish(ACCOUNT_ID, MASTER_ID) }
+    verify(exactly = 1) { events.publishEvent(CompendiumChangedEvent(ACCOUNT_ID, MASTER_ID) as Any) }
   }
 
   @Test
