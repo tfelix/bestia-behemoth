@@ -22,6 +22,7 @@
  - WORLD wave 13: ChunkStreamSystem [EveryTick]
  - WORLD wave 14: AnchorResidencySystem [EveryTick]
  - WORLD wave 14: PlaceSystem [EveryTick]
+ - WORLD wave 14: VicinitySystem [EveryTick]
  - WORLD wave 14: WeatherSystem [EverySeconds(seconds=10.0)]
  - WORLD wave 14: WorldObjectResidencySystem [EveryTick]
  - WORLD wave 15: GroundOverlaySystem [EveryTick]
