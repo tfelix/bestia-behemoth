@@ -33,10 +33,25 @@ data class Notification(val title: String, val body: String, val url: String, va
           tag = "construction-${event.masterId}",
         )
 
+        // Told in the game already when the player was in it.
+        is ZoneEvent.JourneyEnded -> if (event.whilePlaying) null else journeyEnded(event)
+
         // Chat is read in the app, never pushed: a busy guild would spend the hourly budget in a minute.
         is ZoneEvent.StanceChanged, is ZoneEvent.Presence, is ZoneEvent.ChartsChanged, is ZoneEvent.ChatLine,
         is ZoneEvent.CompendiumChanged -> null
       }
+    }
+
+    private fun journeyEnded(event: ZoneEvent.JourneyEnded): Notification {
+      val who = event.bestiaName ?: event.species
+      val (title, body) = when (event.failure) {
+        null -> "$who has arrived" to (event.journeyName ?: "It is where you sent it.")
+        "NO_ROUTE" -> "$who knows no way on" to "Every way it knows of is blocked."
+        "DIED" -> "$who died on the way" to "It lies where it fell until you return."
+        else -> "$who is stuck" to "It found no way on and stopped."
+      }
+
+      return Notification(title, body, "/m/${event.masterId}/map", "journey-${event.playerBestiaId}")
     }
   }
 }

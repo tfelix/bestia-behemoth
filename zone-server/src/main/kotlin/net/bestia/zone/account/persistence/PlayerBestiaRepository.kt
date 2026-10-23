@@ -17,6 +17,8 @@ interface PlayerBestiaRepository : JpaRepository<PlayerBestia, Long> {
 
   fun findAllByEntityIdIsNull(): List<PlayerBestia>
 
+  fun findByEntityId(entityId: Long): PlayerBestia?
+
   @Query("select b.entityId from PlayerBestia b where b.entityId in :entityIds")
   fun findEntityIdsIn(@Param("entityIds") entityIds: Collection<Long>): List<Long>
 

@@ -3,6 +3,7 @@ package net.bestia.bus
 import net.bestia.bus.contract.BusReply
 import net.bestia.bus.contract.BusRequest
 import net.bestia.bus.contract.ZoneAnswer
+import net.bestia.bus.contract.MapPoint
 import net.bestia.bus.contract.ZoneEvent
 import net.bestia.bus.contract.ZoneQuery
 import org.junit.jupiter.api.Test
@@ -20,6 +21,13 @@ class BusFrameTest {
       ZoneQuery.SetStance(masterId = 7, playerBestiaId = 11, stance = "HOLD", aggression = 20),
       ZoneQuery.SendChat(masterId = 7, channel = "PARTY", text = "on my way"),
       ZoneQuery.Compendium(masterId = 7),
+      ZoneQuery.SendOnJourney(masterId = 7, playerBestiaId = 11, waypoints = listOf(MapPoint(1.5, 2.5))),
+      ZoneQuery.SendOnJourney(7, playerBestiaId = 11, waypoints = emptyList(), savedRouteId = 3, reverse = true),
+      ZoneQuery.StopJourney(masterId = 7, playerBestiaId = 11),
+      ZoneQuery.SavedRoutes(masterId = 7),
+      ZoneQuery.SaveRoute(masterId = 7, waypoints = listOf(MapPoint(1.0, 2.0), MapPoint(3.0, 4.0)), name = ""),
+      ZoneQuery.RenameRoute(masterId = 7, routeId = 3, name = "Ore run"),
+      ZoneQuery.DeleteRoute(masterId = 7, routeId = 3),
     )
 
     for (query in queries) {
@@ -61,6 +69,16 @@ class BusFrameTest {
       ZoneAnswer.Stance(2, "HOLD", 20),
       ZoneAnswer.ChatSent(null),
       ZoneAnswer.ChatSent(ZoneAnswer.ChatSent.NOT_IN_GUILD),
+      ZoneAnswer.Roster(
+        listOf(
+          ZoneAnswer.Roster.Bestia(
+            2, "Blobby", 1, "blob", 4, "HOLD", 20, true, 1.5, 2.5, 7,
+            ZoneAnswer.Journey("Ore run", listOf(MapPoint(9.0, 9.0)), 0, listOf(MapPoint(5.0, 5.0))),
+          )
+        )
+      ),
+      ZoneAnswer.RouteList(listOf(ZoneAnswer.RouteList.Route(3, "Ore run", true, listOf(MapPoint(1.0, 2.0))))),
+      ZoneAnswer.Done,
     )
 
     for (answer in answers) {
@@ -75,6 +93,7 @@ class BusFrameTest {
       ZoneEvent.BestiaDiedAway(accountId = 1, masterId = 2, playerBestiaId = 3, bestiaName = null, species = "blob"),
       ZoneEvent.ChatLine(accountId = 1, masterId = 2, channel = "GUILD", senderName = "Ayla", text = "hi", sentAtEpochMs = 5),
       ZoneEvent.CompendiumChanged(accountId = 1, masterId = 2),
+      ZoneEvent.JourneyEnded(1, 2, 3, "Rex", "wolf", "Ore run", "STUCK", MapPoint(1.0, 2.0), whilePlaying = false),
     )
 
     for (event in events) {

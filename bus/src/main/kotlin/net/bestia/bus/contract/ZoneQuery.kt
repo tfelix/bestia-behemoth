@@ -66,4 +66,30 @@ sealed interface ZoneQuery {
 
   /** A line of party or guild chat ([channel] PARTY or GUILD), said as [masterId]. A write: send it with an idempotency key. */
   data class SendChat(val masterId: Long, val channel: String, val text: String) : ZoneQuery
+
+  /**
+   * Sends an owned bestia through [waypoints], or along the saved route [savedRouteId] - from its last point back
+   * when [reverse]. A write: send it with an idempotency key.
+   */
+  data class SendOnJourney(
+    val masterId: Long,
+    val playerBestiaId: Long,
+    val waypoints: List<MapPoint>,
+    val savedRouteId: Long? = null,
+    val reverse: Boolean = false,
+  ) : ZoneQuery
+
+  /** Stops an owned bestia where it stands. A write: send it with an idempotency key. */
+  data class StopJourney(val masterId: Long, val playerBestiaId: Long) : ZoneQuery
+
+  data class SavedRoutes(val masterId: Long) : ZoneQuery
+
+  /** A blank [name] lets the zone name the route from where it starts and ends. A write. */
+  data class SaveRoute(val masterId: Long, val waypoints: List<MapPoint>, val name: String) : ZoneQuery
+
+  /** A blank [name] gives the route its made name back. A write. */
+  data class RenameRoute(val masterId: Long, val routeId: Long, val name: String) : ZoneQuery
+
+  /** A write. */
+  data class DeleteRoute(val masterId: Long, val routeId: Long) : ZoneQuery
 }

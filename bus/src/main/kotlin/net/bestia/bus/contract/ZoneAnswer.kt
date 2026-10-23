@@ -57,8 +57,27 @@ sealed interface ZoneAnswer {
       val eastMetres: Double,
       val northMetres: Double,
       val asOfEpochMs: Long,
+      /** Where it is travelling, null when it stands. */
+      val journey: Journey? = null,
     )
   }
+
+  /** [route] is the way still ahead as planned, coarsely; [waypoints] from [nextIndex] on are still to visit. */
+  data class Journey(
+    val name: String?,
+    val waypoints: List<MapPoint>,
+    val nextIndex: Int,
+    val route: List<MapPoint>,
+  ) : ZoneAnswer
+
+  /** The master's routes, oldest first. */
+  data class RouteList(val routes: List<Route>) : ZoneAnswer {
+    /** [customName] is false while [name] is the one made from where it starts and ends. */
+    data class Route(val id: Long, val name: String, val customName: Boolean, val waypoints: List<MapPoint>)
+  }
+
+  /** A write that has nothing to say back but that it was done. */
+  data object Done : ZoneAnswer
 
   data class Bag(val holders: List<Holder>) : ZoneAnswer {
     data class Holder(

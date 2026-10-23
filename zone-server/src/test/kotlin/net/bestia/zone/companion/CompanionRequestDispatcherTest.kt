@@ -3,6 +3,7 @@ package net.bestia.zone.companion
 import net.bestia.bus.contract.BusReply
 import net.bestia.bus.contract.BusReply.Status
 import net.bestia.bus.contract.BusRequest
+import net.bestia.bus.contract.MapPoint
 import net.bestia.bus.contract.ZoneAnswer
 import net.bestia.bus.contract.ZoneQuery
 import net.bestia.zone.account.persistence.MasterRepository
@@ -104,6 +105,36 @@ class CompanionRequestDispatcherTest {
     } finally {
       ask(1L, ZoneQuery.SetStance(master.id, bestia.id, before.stance.name, before.aggression))
     }
+  }
+
+  @Test
+  fun `a master keeps, renames and forgets routes, and a stranger touches none`() {
+    val master = masters.findAllByAccountIdOrderBySlot(1L).first()
+    val points = listOf(MapPoint(100.0, 200.0), MapPoint(900.0, 950.0))
+
+    val saved = ask(1L, ZoneQuery.SaveRoute(master.id, points, name = "")).answer as ZoneAnswer.RouteList
+    val route = saved.routes.last()
+    assertEquals(false, route.customName)
+    assertEquals(points, route.waypoints)
+
+    try {
+      val renamed = ask(1L, ZoneQuery.RenameRoute(master.id, route.id, "Ore run")).answer as ZoneAnswer.RouteList
+      assertEquals("Ore run", renamed.routes.single { it.id == route.id }.name)
+      assertEquals(Status.NOT_FOUND, ask(2L, ZoneQuery.RenameRoute(master.id, route.id, "Mine")).status)
+    } finally {
+      val left = ask(1L, ZoneQuery.DeleteRoute(master.id, route.id)).answer as ZoneAnswer.RouteList
+      assertTrue(left.routes.none { it.id == route.id })
+    }
+  }
+
+  @Test
+  fun `a bestia that is not in the world cannot be sent off, and a stranger's never`() {
+    val master = masters.findAllByAccountIdOrderBySlot(1L).first()
+    val bestia = playerBestias.findAllByMasterId(master.id).first()
+    val order = ZoneQuery.SendOnJourney(master.id, bestia.id, listOf(MapPoint(10.0, 10.0)))
+
+    assertEquals(Status.NOT_FOUND, ask(2L, order).status)
+    if (bestia.entityId == null) assertEquals(Status.NOT_FOUND, ask(1L, order).status)
   }
 
   @Test

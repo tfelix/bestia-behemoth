@@ -12,6 +12,9 @@ import net.bestia.zone.master.bestia.BestiaAiConfigChangedEvent
 import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.prop.StructureCompletedEvent
 import net.bestia.zone.session.ConnectionInfoService
+import net.bestia.zone.travel.JourneyEndedEvent
+import net.bestia.zone.travel.JourneyOrder
+import net.bestia.zone.companion.query.MapPlane
 import org.springframework.context.event.EventListener
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
@@ -29,6 +32,7 @@ class ZoneEventRelay(
   private val masters: MasterRepository,
   private val playerBestias: PlayerBestiaRepository,
   private val jobs: AsyncJobExecutor,
+  private val plane: MapPlane,
 ) {
 
   /** Only while nobody plays the master: a player at the keyboard has just watched it happen. */
@@ -42,6 +46,32 @@ class ZoneEventRelay(
       val bestia = playerBestias.findByIdOrNull(event.playerBestiaId) ?: return@submit
       events.publish(
         ZoneEvent.BestiaDiedAway(event.accountId, event.masterId, event.playerBestiaId, bestia.name, bestia.bestia.identifier)
+      )
+    }
+  }
+
+  /** A bestia's, ordered by its player; a master's own journey is only ever walked while it is played. */
+  @EventListener
+  fun onJourneyEnded(event: JourneyEndedEvent) {
+    if (event.order != JourneyOrder.PLAYER) return
+    val accountId = event.accountId ?: return
+    val whilePlaying = connections.hasActiveSession(accountId)
+    val position = plane.pointOf(event.position)
+
+    jobs.submit(accountId) {
+      val bestia = playerBestias.findByEntityId(event.entityId) ?: return@submit
+      events.publish(
+        ZoneEvent.JourneyEnded(
+          accountId = accountId,
+          masterId = bestia.master.id,
+          playerBestiaId = bestia.id,
+          bestiaName = bestia.name,
+          species = bestia.bestia.identifier,
+          journeyName = event.name,
+          failure = event.failure?.name,
+          position = position,
+          whilePlaying = whilePlaying,
+        )
       )
     }
   }

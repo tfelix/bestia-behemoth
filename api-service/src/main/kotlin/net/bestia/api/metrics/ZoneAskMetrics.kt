@@ -28,6 +28,12 @@ enum class ZoneQueryKind {
   GUILD_EMBLEM,
   SET_STANCE,
   SEND_CHAT,
+  SEND_ON_JOURNEY,
+  STOP_JOURNEY,
+  SAVED_ROUTES,
+  SAVE_ROUTE,
+  RENAME_ROUTE,
+  DELETE_ROUTE,
   ;
 
   companion object {
@@ -50,6 +56,12 @@ enum class ZoneQueryKind {
         is ZoneQuery.GuildEmblem -> GUILD_EMBLEM
         is ZoneQuery.SetStance -> SET_STANCE
         is ZoneQuery.SendChat -> SEND_CHAT
+        is ZoneQuery.SendOnJourney -> SEND_ON_JOURNEY
+        is ZoneQuery.StopJourney -> STOP_JOURNEY
+        is ZoneQuery.SavedRoutes -> SAVED_ROUTES
+        is ZoneQuery.SaveRoute -> SAVE_ROUTE
+        is ZoneQuery.RenameRoute -> RENAME_ROUTE
+        is ZoneQuery.DeleteRoute -> DELETE_ROUTE
       }
     }
   }

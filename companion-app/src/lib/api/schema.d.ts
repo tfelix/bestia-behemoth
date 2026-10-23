@@ -36,6 +36,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/companion/masters/{masterId}/bestias/{bestiaId}/journey": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["send"];
+        post?: never;
+        delete: operations["stop"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/companion/push/test": {
         parameters: {
             query?: never;
@@ -68,6 +84,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/companion/masters/{masterId}/routes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["list"];
+        put?: never;
+        post: operations["save"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/companion/masters/{masterId}/chat": {
         parameters: {
             query?: never;
@@ -77,11 +109,27 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["send"];
+        post: operations["send_1"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
+        trace?: never;
+    };
+    "/v1/companion/masters/{masterId}/routes/{routeId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["delete"];
+        options?: never;
+        head?: never;
+        patch: operations["rename"];
         trace?: never;
     };
     "/v1/companion/push/key": {
@@ -107,7 +155,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["list"];
+        get: operations["list_1"];
         put?: never;
         post?: never;
         delete?: never;
@@ -335,11 +383,24 @@ export interface components {
             quietFrom?: string;
             quietTo?: string;
             timeZone: string;
+            journeyEnded: boolean;
         };
         StanceOrder: {
             stance: string;
             /** Format: int32 */
             aggression: number;
+        };
+        JourneyOrder: {
+            waypoints: components["schemas"]["Position"][];
+            /** Format: int64 */
+            savedRouteId?: number;
+            reverse: boolean;
+        };
+        Position: {
+            /** Format: double */
+            eastMetres: number;
+            /** Format: double */
+            northMetres: number;
         };
         Keys: {
             p256dh: string;
@@ -349,9 +410,23 @@ export interface components {
             endpoint: string;
             keys: components["schemas"]["Keys"];
         };
+        NewRoute: {
+            waypoints: components["schemas"]["Position"][];
+            name: string;
+        };
+        Route: {
+            /** Format: int64 */
+            id: number;
+            name: string;
+            customName: boolean;
+            waypoints: components["schemas"]["Position"][];
+        };
         ChatOrder: {
             channel: string;
             text: string;
+        };
+        Rename: {
+            name: string;
         };
         PublicKey: {
             publicKey: string;
@@ -387,12 +462,6 @@ export interface components {
             inWorld: boolean;
             /** Format: int64 */
             asOf: number;
-        };
-        Position: {
-            /** Format: double */
-            eastMetres: number;
-            /** Format: double */
-            northMetres: number;
         };
         Stats: {
             /** Format: int32 */
@@ -539,6 +608,14 @@ export interface components {
             position: components["schemas"]["Position"];
             /** Format: int64 */
             asOf: number;
+            journey?: components["schemas"]["Journey"];
+        };
+        Journey: {
+            name?: string;
+            waypoints: components["schemas"]["Position"][];
+            /** Format: int32 */
+            nextIndex: number;
+            route: components["schemas"]["Position"][];
         };
         Catalog: {
             version: string;
@@ -651,6 +728,56 @@ export interface operations {
             };
         };
     };
+    send: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                masterId: number;
+                bestiaId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["JourneyOrder"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    stop: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                masterId: number;
+                bestiaId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     test: {
         parameters: {
             query?: never;
@@ -713,7 +840,57 @@ export interface operations {
             };
         };
     };
-    send: {
+    list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                masterId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["Route"][];
+                };
+            };
+        };
+    };
+    save: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                masterId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NewRoute"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["Route"][];
+                };
+            };
+        };
+    };
+    send_1: {
         parameters: {
             query?: never;
             header: {
@@ -739,6 +916,60 @@ export interface operations {
             };
         };
     };
+    delete: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                masterId: number;
+                routeId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["Route"][];
+                };
+            };
+        };
+    };
+    rename: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                masterId: number;
+                routeId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Rename"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["Route"][];
+                };
+            };
+        };
+    };
     key: {
         parameters: {
             query?: never;
@@ -759,7 +990,7 @@ export interface operations {
             };
         };
     };
-    list: {
+    list_1: {
         parameters: {
             query?: never;
             header?: never;

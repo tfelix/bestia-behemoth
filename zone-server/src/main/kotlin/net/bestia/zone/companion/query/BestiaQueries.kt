@@ -5,6 +5,7 @@ import net.bestia.zone.account.persistence.PlayerBestiaRepository
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.movement.ecs.Position
+import net.bestia.zone.travel.Journey
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -29,6 +30,9 @@ class BestiaQueries(
     val live: Map<Long, Vec3L> = world.read {
       entityIds.mapNotNull { id -> get(id, Position::class)?.let { id to it.toVec3L() } }.toMap()
     }
+    val travelling: Map<Long, ZoneAnswer.Journey> = world.read {
+      entityIds.mapNotNull { id -> get(id, Journey::class)?.let { id to journeyOf(it) } }.toMap()
+    }
     val now = System.currentTimeMillis()
 
     return ZoneAnswer.Roster(
@@ -48,8 +52,18 @@ class BestiaQueries(
           eastMetres = plane.eastMetres(position),
           northMetres = plane.northMetres(position),
           asOfEpochMs = if (here != null) now else row.persistedAtEpochMs,
+          journey = row.entityId?.let { travelling[it] },
         )
       }
+    )
+  }
+
+  private fun journeyOf(journey: Journey): ZoneAnswer.Journey {
+    return ZoneAnswer.Journey(
+      name = journey.name,
+      waypoints = journey.waypoints.map { plane.pointOf(it) },
+      nextIndex = journey.nextIndex,
+      route = journey.route.map { plane.pointOf(it) },
     )
   }
 }

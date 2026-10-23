@@ -26,6 +26,9 @@ class PushPreference(
   @Column(name = "construction_done", nullable = false, columnDefinition = "BIT(1)")
   var constructionDone: Boolean = true,
 
+  @Column(name = "journey_ended", nullable = false, columnDefinition = "BIT(1)")
+  var journeyEnded: Boolean = true,
+
   /** Minutes after midnight in [timeZone]. May wrap past midnight: 22:00 to 07:00 is 1320 to 420. */
   @Column(name = "quiet_from", nullable = true)
   var quietFrom: Short? = null,

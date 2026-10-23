@@ -9,6 +9,7 @@ import io.lettuce.core.RedisURI
 import net.bestia.bus.contract.BusReply
 import net.bestia.bus.contract.BusRequest
 import net.bestia.bus.contract.ZoneAnswer
+import net.bestia.bus.contract.MapPoint
 import net.bestia.bus.contract.ZoneEvent
 import net.bestia.bus.contract.ZoneQuery
 import net.bestia.bus.valkey.ValkeyEventPublisher
@@ -139,6 +140,45 @@ class ApiServiceScenarioTest : ApiScenarioTestBase() {
     assertEquals(json(first), json(second))
     assertEquals("HOLD", json(first)["stance"].asText())
     assertEquals(1, runs.get())
+  }
+
+  @Test
+  fun `a bestia is sent along a saved route backwards, and a resting one is a 404`() {
+    val orders = ArrayList<ZoneQuery.SendOnJourney>()
+    answer = { request ->
+      val order = request.query as ZoneQuery.SendOnJourney
+      orders.add(order)
+      if (order.playerBestiaId == 8L) {
+        BusReply.of(request.correlationId, BusReply.Status.NOT_FOUND, "not in the world until its master returns")
+      } else {
+        BusReply.ok(request.correlationId, ZoneAnswer.Done)
+      }
+    }
+    val route = mapOf("savedRouteId" to 3, "reverse" to true)
+
+    val sent = put("/v1/companion/masters/5/bestias/7/journey", route, 47, UUID.randomUUID().toString())
+    val resting = put("/v1/companion/masters/5/bestias/8/journey", route, 47, UUID.randomUUID().toString())
+
+    assertEquals(204, sent.statusCode.value())
+    assertEquals(ZoneQuery.SendOnJourney(5, 7, emptyList(), savedRouteId = 3, reverse = true), orders.first())
+    assertEquals(404, resting.statusCode.value())
+  }
+
+  @Test
+  fun `a saved route answers with the master's whole list, in metres`() {
+    answer = { request ->
+      val save = request.query as ZoneQuery.SaveRoute
+      val route = ZoneAnswer.RouteList.Route(3, "Ironhill → Ashford", false, save.waypoints)
+      BusReply.ok(request.correlationId, ZoneAnswer.RouteList(listOf(route)))
+    }
+    val points = listOf(mapOf("eastMetres" to 1.0, "northMetres" to 2.0), mapOf("eastMetres" to 3.0, "northMetres" to 4.0))
+
+    val saved = post("/v1/companion/masters/5/routes", mapOf("waypoints" to points), 47, UUID.randomUUID().toString())
+
+    assertEquals(201, saved.statusCode.value())
+    val first = json(saved)[0]
+    assertEquals("Ironhill → Ashford", first["name"].asText())
+    assertEquals(3.0, first["waypoints"][1]["eastMetres"].asDouble())
   }
 
   @Test
@@ -320,11 +360,15 @@ class ApiServiceScenarioTest : ApiScenarioTestBase() {
 
     events.publish(ZoneEvent.HomeFell(accountId = 46, masterId = 5, masterName = "Ayla", fallen = "Ashfen", newHome = "Brook"))
     events.publish(ZoneEvent.StanceChanged(accountId = 46, masterId = 5, playerBestiaId = 7, stance = "HOLD", aggression = 1))
+    val stuck = MapPoint(1.0, 2.0)
+    events.publish(ZoneEvent.JourneyEnded(46, 5, 7, "Rex", "wolf", null, "STUCK", stuck, whilePlaying = false))
+    events.publish(ZoneEvent.JourneyEnded(46, 5, 7, "Rex", "wolf", null, null, stuck, whilePlaying = true))
 
-    await().atMost(Duration.ofSeconds(10)).until { push.sent.isNotEmpty() }
+    await().atMost(Duration.ofSeconds(10)).until { push.sent.size >= 2 }
     Thread.sleep(500)
-    assertEquals(1, push.sent.size)
-    assertTrue(push.sent.single().second.contains("Ashfen has fallen"))
+    assertEquals(2, push.sent.size, "the arrival seen in the game is not pushed")
+    assertTrue(push.sent[0].second.contains("Ashfen has fallen"))
+    assertTrue(push.sent[1].second.contains("Rex is stuck"))
   }
 
   @Test

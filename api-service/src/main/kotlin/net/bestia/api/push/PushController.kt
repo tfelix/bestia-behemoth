@@ -46,6 +46,8 @@ class PushController(
     val quietFrom: String?,
     val quietTo: String?,
     val timeZone: String,
+    /** Defaulted, so an app from before it existed still saves the rest. */
+    val journeyEnded: Boolean = true,
   )
 
   /** What a page needs to call `pushManager.subscribe`. Public: it is the same for everybody. */
@@ -91,6 +93,7 @@ class PushController(
       stored.quietFrom?.let { format(it) },
       stored.quietTo?.let { format(it) },
       stored.timeZone,
+      stored.journeyEnded,
     )
   }
 
@@ -107,6 +110,7 @@ class PushController(
     stored.homeFell = body.homeFell
     stored.bestiaDied = body.bestiaDied
     stored.constructionDone = body.constructionDone
+    stored.journeyEnded = body.journeyEnded
     stored.quietFrom = body.quietFrom?.let { parse(it) }
     stored.quietTo = body.quietTo?.let { parse(it) }
     stored.timeZone = zone.id

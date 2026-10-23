@@ -61,6 +61,16 @@ class MastersController(
     val inWorld: Boolean,
     val position: Position,
     val asOf: Long,
+    /** Where it is travelling, null when it stands. */
+    val journey: Journey?,
+  )
+
+  /** [route] is the way still ahead as planned; [waypoints] from [nextIndex] on are still to visit. */
+  data class Journey(
+    val name: String?,
+    val waypoints: List<Position>,
+    val nextIndex: Int,
+    val route: List<Position>,
   )
 
   data class Slot(
@@ -151,6 +161,14 @@ class MastersController(
         inWorld = it.inWorld,
         position = Position(it.eastMetres, it.northMetres),
         asOf = it.asOfEpochMs,
+        journey = it.journey?.let { journey ->
+          Journey(
+            name = journey.name,
+            waypoints = journey.waypoints.map { point -> Position(point.east, point.north) },
+            nextIndex = journey.nextIndex,
+            route = journey.route.map { point -> Position(point.east, point.north) },
+          )
+        },
       )
     }
   }

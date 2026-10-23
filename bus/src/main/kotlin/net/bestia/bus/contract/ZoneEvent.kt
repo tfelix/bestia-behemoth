@@ -56,4 +56,20 @@ sealed interface ZoneEvent {
     val text: String,
     val sentAtEpochMs: Long,
   ) : ZoneEvent
+
+  /**
+   * An owned bestia's journey ended, where it stands now. [failure] is null when it arrived, else NO_ROUTE, STUCK
+   * or DIED. [whilePlaying] is true when the player was in the game and was told there.
+   */
+  data class JourneyEnded(
+    override val accountId: Long,
+    val masterId: Long,
+    val playerBestiaId: Long,
+    val bestiaName: String?,
+    val species: String,
+    val journeyName: String?,
+    val failure: String?,
+    val position: MapPoint,
+    val whilePlaying: Boolean,
+  ) : ZoneEvent
 }
