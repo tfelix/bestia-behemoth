@@ -1,6 +1,6 @@
 {
   "uid": "bestia-api",
-  "title": "API Service & Companion",
+  "title": "API Server & Companion",
   "description": "The companion app's REST API and WebSocket: asks to the zone over the bus, auth, map caches, live sockets, web push.",
   "tags": [
     "bestia",
