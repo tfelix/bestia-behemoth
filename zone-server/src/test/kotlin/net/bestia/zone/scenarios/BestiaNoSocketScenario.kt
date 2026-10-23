@@ -84,8 +84,9 @@ abstract class BestiaNoSocketScenario(
     }
   }
 
+  /** Retries on any exception: a message not received yet throws from `getLastReceived`, not an assertion. */
   protected fun await(fn: () -> Unit) {
-    Awaitility.await().atMost(GameClientMock.SERVER_TIMEOUT).untilAsserted {
+    Awaitility.await().ignoreExceptions().atMost(GameClientMock.SERVER_TIMEOUT).untilAsserted {
       fn()
     }
   }
