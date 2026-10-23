@@ -27,7 +27,8 @@ signal service_selected(service: Dictionary)
 signal hidden_services_changed(kinds: Array[String])
 
 
-@onready var _view: MapView = $Panel/Margin/Rows/View
+@onready var _view: MapView = $Panel/Margin/Rows/Body/View
+@onready var _travel: TravelPanel = $Panel/Margin/Rows/Body/Travel
 @onready var _title: Label = $Panel/Margin/Rows/Header/Title
 @onready var _scale_label: Label = $Panel/Margin/Rows/Footer/Scale
 @onready var _legend: HBoxContainer = $Panel/Margin/Rows/Legend
@@ -73,9 +74,39 @@ func setup(source: MapSource, entities: Node) -> void:
 	_view.services_refresh_seconds = _SERVICES_REFRESH_SECONDS
 	_view.setup(source, entities)
 	_view.go_to_level(_OPEN_LEVEL)
+	_wire_travel(entities)
 
 	_habitat_chip.pressed.connect(func() -> void: source.set_habitat_species(0))
 	source.habitat_species_changed.connect(_show_habitat_chip)
+
+
+## The panel picks who the map's orders go to; the view drafts the stops and draws every journey.
+func _wire_travel(entities: EntityManager) -> void:
+	_travel.entity_chosen.connect(func(entity_id: int) -> void:
+		_view.order_entity_id = entity_id
+		_travel.show_journey(entities.get_journey(entity_id))
+		_view.queue_redraw()
+	)
+	_travel.go_pressed.connect(_view.send_draft)
+	_travel.clear_pressed.connect(_view.clear_draft)
+	_travel.stop_pressed.connect(func(entity_id: int) -> void:
+		var none: Array[Vector3] = []
+		ConnectionManager.send_on_journey(entity_id, none)
+	)
+	_view.draft_changed.connect(func() -> void: _travel.show_draft(_view.draft))
+	entities.journey_changed.connect(func(entity_id: int) -> void:
+		if entity_id == _travel.chosen_entity_id():
+			_travel.show_journey(entities.get_journey(entity_id))
+	)
+	entities.owned_bestias_changed.connect(func(_bestias: Array[BestiaInfo]) -> void: _show_travellers(entities))
+	entities.controlled_entity_changed.connect(func(_previous: int, _now: int) -> void: _show_travellers(entities))
+
+
+## Orders go to the entity being driven until the player picks another, and again whenever it changes hands.
+func _show_travellers(entities: EntityManager) -> void:
+	var chosen := entities.get_controlled_entity_id()
+	_view.order_entity_id = chosen
+	_travel.show_entities(entities, chosen)
 
 
 func _ready() -> void:
@@ -170,6 +201,9 @@ func open() -> void:
 		return
 
 	visible = true
+	var entities := EntityManager.get_instance()
+	if entities != null:
+		_show_travellers(entities)
 	# The zoom is deliberately left alone - see [constant _OPEN_LEVEL]. It is set once in [method setup] and
 	# is the view's own from then on.
 	_view.centre_on_player()
@@ -215,9 +249,13 @@ func _input(event: InputEvent) -> void:
 	if not visible:
 		return
 
-	# Escape closes, and is consumed so it does not also reach whatever else listens for it.
+	# Escape drops a draft first and closes after, and is consumed so it does not also reach whatever else
+	# listens for it.
 	if event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
-		close()
+		if _view.draft.is_empty():
+			close()
+		else:
+			_view.clear_draft()
 		get_viewport().set_input_as_handled()
 
 

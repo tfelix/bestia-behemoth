@@ -66,6 +66,17 @@ const _LABEL_HALO := Color(0.11, 0.095, 0.08, 0.8)
 const _MARK_COLOUR := Color(0.62, 0.85, 1.0)
 const _MARK_PIN_RADIUS := 2.6
 
+## Routes are drawn in the entity's slot colour from [OwnedSlots], over a dark edge like the marker's.
+const _ROUTE_WIDTH := 2.0
+const _DRAFT_DASH := 6.0
+const _STOP_RADIUS := 3.0
+const _DESTINATION_RADIUS := 4.5
+const _STOP_FONT_SIZE := 10
+## Stops are numbered only where a pin is big enough to hold a digit: the overlay, not the minimap.
+const _NUMBERED_FROM_SCALE := 1.5
+const _FAILURE_COLOUR := Color(0.92, 0.26, 0.22)
+const _FAILURE_ARM := 4.0
+
 ## Point size per settlement tier, and for everything that is not a settlement. A city's name carries further
 ## than a hamlet's for the same reason its symbol does.
 const _LABEL_SIZES := {
@@ -177,6 +188,9 @@ signal mark_requested(at: Vector2)
 ## The player right-clicked one of their own marks. [param index] indexes [member marks].
 signal mark_clicked(index: int)
 
+## The stops drafted with Shift+click changed; see [member draft].
+signal draft_changed
+
 ## Metres per pixel is 2^level, so 0 is one metre to the pixel and 9 is 512.
 @export var level: int = 2
 
@@ -199,6 +213,9 @@ signal mark_clicked(index: int)
 ## without the other: it is deliberately fixed to the player and deliberately still a place you can point
 ## at and say 'there'. Keeping them as one flag was what made a minimap click do nothing at all.
 @export var can_travel: bool = false
+
+## Whether Shift+click drafts stops instead of sending at once. Only on a map that can be panned to them.
+@export var can_draft: bool = false
 
 ## Size of the player marker, as a multiple of the size the minimap is tuned for.
 ##
@@ -290,6 +307,16 @@ var _services_swept_msec: int = 0
 ## that both views share one set without this knowing where it is stored.
 var marks: MapMarks = null
 
+## Which of the player's entities an order on this map goes to; 0 for the one being driven.
+var order_entity_id: int = 0
+
+## Stops drafted for the next order, in world metres, sent together by [method send_draft].
+var draft: Array[Vector2] = []
+
+## Where a journey of one of the player's entities last gave up, by entity id, in world metres; shown until it
+## sets off again.
+var _failed_at: Dictionary[int, Vector2] = {}
+
 
 func _ready() -> void:
 	clip_contents = true
@@ -306,6 +333,8 @@ func setup(map_source: MapSource, entities: Node) -> void:
 	source.habitat_species_changed.connect(func(_species_id: int) -> void: queue_redraw())
 	source.services_ready.connect(_on_services_ready)
 	source.meta_ready.connect(_on_meta_ready)
+	entities.journey_changed.connect(_on_journey_changed)
+	ConnectionManager.journey_ended.connect(_on_journey_ended)
 
 	if not source.meta.is_empty():
 		_on_meta_ready(source.meta)
@@ -454,6 +483,9 @@ func _draw() -> void:
 	_draw_places()
 	_draw_services()
 	_draw_marks()
+	_draw_journeys()
+	_draw_draft()
+	_draw_failures()
 	_draw_guild_members()
 	_draw_owned_entities()
 	_draw_player()
@@ -496,6 +528,10 @@ func _on_click(at: Vector2) -> void:
 	# that comes back as an error line.
 	var world := _to_world(at)
 	if source != null and source.is_absent(_key_at(world)):
+		return
+
+	if can_draft and Input.is_key_pressed(KEY_SHIFT):
+		_add_to_draft(world)
 		return
 
 	_travel_to(world)
@@ -574,8 +610,8 @@ static func _position_of(entry: Dictionary) -> Vector2:
 	return Vector2(float(entry.get("x", 0.0)), float(entry.get("y", 0.0)))
 
 
-## Sends the controlled entity to a point on the map, if this view is one that may and the world has said how
-## big a voxel is.
+## Sends the entity orders go to straight to a point on the map, if this view is one that may and the world has
+## said how big a voxel is. Any draft is dropped: a plain click is an order of its own.
 ##
 ## The [code]/meta[/code] check is not belt and braces: [member _metres_per_voxel] defaults to one, and a
 ## click landing before the answer would convert the destination against a guess. The map is nothing but fog
@@ -586,17 +622,57 @@ func _travel_to(at: Vector2) -> void:
 	if not can_travel or source == null or source.meta.is_empty():
 		return
 
-	var entity_manager := EntityManager.get_instance()
-	var entity: Entity = entity_manager.get_controlled_entity() if entity_manager else null
+	_clear_draft_silently()
+	_send([at])
+
+
+## Sends the drafted stops as one journey, and starts a fresh draft.
+func send_draft() -> void:
+	if draft.is_empty():
+		return
+
+	var stops := draft.duplicate()
+	_clear_draft_silently()
+	_send(stops)
+
+
+func clear_draft() -> void:
+	_clear_draft_silently()
+	draft_changed.emit()
+	queue_redraw()
+
+
+func _clear_draft_silently() -> void:
+	draft.clear()
+
+
+func _add_to_draft(at: Vector2) -> void:
+	draft.append(at)
+	draft_changed.emit()
+	queue_redraw()
+
+
+## Metres to tiles, the exact inverse of [method _metres_of]. The map's northing is the entity's z, hence the y
+## here landing in z there. The height is the entity's own; the server finds the ground's.
+func _send(stops: Array[Vector2]) -> void:
+	var entity := _order_entity()
 	if entity == null:
 		return
 
-	# Metres to tiles, the exact inverse of [method player_metres], which reads the entity's position in
-	# tiles and multiplies. The map's northing is the entity's z, hence the y here landing in z there. The
-	# height is the entity's own; the server finds the ground's.
-	var tile := at / _metres_per_voxel
-	var waypoints: Array[Vector3] = [Vector3(tile.x, entity.get_logical_position().y, tile.y)]
+	var height: float = entity.get_logical_position().y
+	var waypoints: Array[Vector3] = []
+	for stop in stops:
+		var tile := stop / _metres_per_voxel
+		waypoints.append(Vector3(tile.x, height, tile.y))
 	ConnectionManager.send_on_journey(entity.entity_id, waypoints)
+
+
+func _order_entity() -> Entity:
+	if entity_manager == null:
+		return null
+	if order_entity_id != 0:
+		return entity_manager.get_entity(order_entity_id)
+	return entity_manager.get_controlled_entity()
 
 
 ## The tile key covering a world position at this view's level.
@@ -964,6 +1040,103 @@ func _owned_dots() -> Array[Dictionary]:
 	return dots
 
 
+## Every journey of the player's own entities, in their slot colours: from where the entity stands along the
+## way still ahead, with a pin at each stop and a larger one at the destination.
+func _draw_journeys() -> void:
+	if entity_manager == null:
+		return
+
+	var owned_ids: Array[int] = entity_manager.get_owned_entity_ids()
+	var journeys: Dictionary = entity_manager.get_journeys()
+	for entity_id in journeys:
+		var slot := owned_ids.find(entity_id)
+		if slot < 0:
+			continue
+		_draw_journey(journeys[entity_id], entity_manager.get_entity(entity_id), OwnedSlots.color_of(slot))
+
+
+func _draw_journey(journey: JourneyComponentSMSG, entity: Entity, colour: Color) -> void:
+	var line := PackedVector2Array()
+	if entity != null:
+		line.append(_to_screen(_metres_of(entity)))
+	for point in journey.Route:
+		line.append(_to_screen(_metres_of_tile(point)))
+
+	if line.size() >= 2:
+		draw_polyline(line, _MARKER_OUTLINE, (_ROUTE_WIDTH + 2.0) * marker_scale, true)
+		draw_polyline(line, colour, _ROUTE_WIDTH * marker_scale, true)
+
+	var stops := journey.Waypoints
+	for i in range(journey.NextIndex, stops.size()):
+		var is_destination := i == stops.size() - 1
+		_draw_stop(_to_screen(_metres_of_tile(stops[i])), i - journey.NextIndex + 1, colour, is_destination)
+
+
+## The draft, dashed, from the entity it is for through every stop so far.
+func _draw_draft() -> void:
+	if draft.is_empty():
+		return
+
+	var entity := _order_entity()
+	var colour := _order_colour()
+	var previous: Variant = _to_screen(_metres_of(entity)) if entity != null else null
+	for i in draft.size():
+		var at := _to_screen(draft[i])
+		if previous != null:
+			draw_dashed_line(previous, at, colour, _ROUTE_WIDTH * marker_scale, _DRAFT_DASH * marker_scale)
+		_draw_stop(at, i + 1, colour, i == draft.size() - 1)
+		previous = at
+
+
+## A cross where a journey gave up, so the player can see where the bestia is stuck.
+func _draw_failures() -> void:
+	var arm := _FAILURE_ARM * marker_scale
+	for entity_id in _failed_at:
+		var at := _to_screen(_failed_at[entity_id])
+		draw_line(at - Vector2(arm, arm), at + Vector2(arm, arm), _MARKER_OUTLINE, 4.0 * marker_scale)
+		draw_line(at - Vector2(arm, -arm), at + Vector2(arm, -arm), _MARKER_OUTLINE, 4.0 * marker_scale)
+		draw_line(at - Vector2(arm, arm), at + Vector2(arm, arm), _FAILURE_COLOUR, 2.0 * marker_scale)
+		draw_line(at - Vector2(arm, -arm), at + Vector2(arm, -arm), _FAILURE_COLOUR, 2.0 * marker_scale)
+
+
+## A stop's pin, numbered on a map big enough to read it. The destination is a size up.
+func _draw_stop(at: Vector2, number: int, colour: Color, is_destination: bool) -> void:
+	var radius := (_DESTINATION_RADIUS if is_destination else _STOP_RADIUS) * marker_scale
+	draw_circle(at, radius + marker_scale, _MARKER_OUTLINE)
+	draw_circle(at, radius, colour)
+
+	if marker_scale < _NUMBERED_FROM_SCALE:
+		return
+
+	var font := get_theme_default_font()
+	var text := str(number)
+	var points := int(_STOP_FONT_SIZE * marker_scale * 0.5)
+	var width := font.get_string_size(text, HORIZONTAL_ALIGNMENT_CENTER, -1, points).x
+	var baseline := at + Vector2(-width * 0.5, points * 0.35)
+	draw_string(font, baseline, text, HORIZONTAL_ALIGNMENT_CENTER, -1, points, _MARKER_OUTLINE)
+
+
+func _order_colour() -> Color:
+	if entity_manager == null:
+		return OwnedSlots.color_of(0)
+	var id: int = order_entity_id if order_entity_id != 0 else entity_manager.get_controlled_entity_id()
+	return OwnedSlots.color_of(maxi(entity_manager.get_owned_entity_ids().find(id), 0))
+
+
+func _on_journey_changed(entity_id: int) -> void:
+	if entity_manager.get_journey(entity_id) != null:
+		_failed_at.erase(entity_id)
+	queue_redraw()
+
+
+func _on_journey_ended(message: JourneyEndedSMSG) -> void:
+	if message.FailureName == "none":
+		_failed_at.erase(message.EntityId)
+	else:
+		_failed_at[message.EntityId] = _metres_of_tile(message.Position)
+	queue_redraw()
+
+
 ## Under the player's own dots, which matter more when they overlap.
 func _draw_guild_members() -> void:
 	var bounds := Rect2(Vector2.ZERO, size)
@@ -1232,3 +1405,8 @@ func player_metres() -> Variant:
 
 func _metres_of(entity: Node3D) -> Vector2:
 	return Vector2(entity.global_position.x, entity.global_position.z) * _metres_per_voxel
+
+
+## A server position in tiles, as the journey messages carry them, in world metres.
+func _metres_of_tile(tile: Vector3) -> Vector2:
+	return Vector2(tile.x, tile.z) * _metres_per_voxel

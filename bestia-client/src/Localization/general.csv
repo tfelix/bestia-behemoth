@@ -335,3 +335,13 @@ JOURNEY_BESTIA_NONE,%s has arrived.
 JOURNEY_BESTIA_NO_ROUTE,%s knows no way there that is not blocked.
 JOURNEY_BESTIA_STUCK,%s found no way on and stopped.
 JOURNEY_BESTIA_DIED,%s died on the way.
+TRAVEL_TITLE,Travel
+TRAVEL_MASTER,Master
+TRAVEL_STANDING,Standing where it is.
+TRAVEL_UNNAMED,a place on the map
+TRAVEL_UNDER_WAY,"On the way to %s, %d stop(s) left."
+TRAVEL_STOP,Stop here
+TRAVEL_DRAFT,Stops
+TRAVEL_HINT,Click the map to send it there. Shift+click to add stops.
+TRAVEL_GO,Go
+TRAVEL_CLEAR,Clear

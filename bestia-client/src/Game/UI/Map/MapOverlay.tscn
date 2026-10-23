@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://bcvqse2g4dnhl" path="res://Game/UI/Map/map_overlay.gd" id="1_overlay"]
 [ext_resource type="Script" uid="uid://d2afck03i4iyo" path="res://Game/UI/Map/map_view.gd" id="2_mapview"]
+[ext_resource type="Script" uid="uid://b0g2fpmrc33hb" path="res://Game/UI/Map/travel_panel.gd" id="3_travel"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_mappanel"]
 bg_color = Color(0.075, 0.065, 0.055, 1)
@@ -25,14 +26,12 @@ color = Color(0, 0, 0, 0.58)
 
 [node name="Panel" type="PanelContainer" parent="." unique_id=2112606484]
 layout_mode = 0
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -512.0
-offset_top = -384.0
-offset_right = 512.0
-offset_bottom = 384.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 24.0
+offset_top = 24.0
+offset_right = -24.0
+offset_bottom = -24.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_mappanel")
@@ -65,7 +64,12 @@ text = "M or Esc to close"
 horizontal_alignment = 2
 vertical_alignment = 2
 
-[node name="View" type="Control" parent="Panel/Margin/Rows" unique_id=923263590]
+[node name="Body" type="HBoxContainer" parent="Panel/Margin/Rows"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="View" type="Control" parent="Panel/Margin/Rows/Body" unique_id=923263590]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -74,7 +78,12 @@ interactive = true
 follow_player = true
 show_north = true
 can_travel = true
+can_draft = true
 marker_scale = 2.0
+
+[node name="Travel" type="VBoxContainer" parent="Panel/Margin/Rows/Body"]
+layout_mode = 2
+script = ExtResource("3_travel")
 
 [node name="Legend" type="HBoxContainer" parent="Panel/Margin/Rows" unique_id=1873402219]
 custom_minimum_size = Vector2(0, 26)
