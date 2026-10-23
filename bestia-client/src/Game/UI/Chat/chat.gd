@@ -303,10 +303,13 @@ func _on_bestia_capture(message: BestiaCaptureSMSG) -> void:
 	system_line(tr("CAPTURE_SUCCESS") if message.Success else tr("CAPTURE_FAILED"))
 
 
-## The master's own journey is told as the player's, a bestia's under its name.
+## The master's own journey is told as the player's, a bestia's under its name. A plain walk that got there is
+## not announced: the player watched it arrive. A saved route's arrival and every failure still are.
 func _on_journey_ended(message: JourneyEndedSMSG) -> void:
 	var entity_manager := EntityManager.get_instance()
 	if entity_manager == null:
+		return
+	if message.FailureName == "none" and message.Name == "":
 		return
 
 	var failure := message.FailureName.to_upper()
