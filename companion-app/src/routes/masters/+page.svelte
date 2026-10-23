@@ -3,11 +3,15 @@
 	import { getJson } from '$lib/api/client';
 	import type { MasterSummary } from '$lib/api/model';
 	import Icon from '$lib/components/Icon.svelte';
+	import TabBar from '$lib/components/TabBar.svelte';
 	import { guarded } from '$lib/guard';
 	import { live } from '$lib/live.svelte';
 
 	let masters = $state<MasterSummary[] | null>(null);
 	let failure = $state<string | null>(null);
+
+	// Masters are only created in the game, so a new account starts there.
+	const GAME_CLIENT_URL = 'https://github.com/tfelix/bestia-behemoth/releases';
 
 	async function load() {
 		try {
@@ -35,9 +39,21 @@
 	{:else if masters === null}
 		<p class="muted">Asking the world…</p>
 	{:else if masters.length === 0}
-		<section class="panel">
-			<p>You have no Masters yet. Create one in the game, and it will appear here.</p>
+		<section class="panel rise welcome">
+			<h2>Welcome to Bestia</h2>
+			<p>
+				This app looks in on your Masters. You have none yet, and a Master can only be created in the game. Before you
+				continue:
+			</p>
+			<ol>
+				<li>Get the game client for your computer.</li>
+				<li>Sign in there with this same account.</li>
+				<li>Create your first Master.</li>
+			</ol>
+			<a class="btn primary" href={GAME_CLIENT_URL} target="_blank" rel="noopener">Get the game client</a>
+			<p class="muted">Your Master appears here as soon as it enters the world. The tabs below open then.</p>
 		</section>
+		<TabBar masterId={null} />
 	{:else}
 		{#each masters as master, i (master.id)}
 			<a class="panel master rise" href="/m/{master.id}" style:animation-delay="{i * 60}ms">
@@ -81,6 +97,23 @@
 		font-family: var(--display);
 		font-weight: 700;
 		color: var(--brass);
+	}
+
+	.welcome {
+		display: grid;
+		gap: 0.75rem;
+	}
+
+	.welcome h2,
+	.welcome p,
+	.welcome ol {
+		margin: 0;
+	}
+
+	.welcome ol {
+		display: grid;
+		gap: 0.35rem;
+		padding-left: 1.4rem;
 	}
 
 	.who {
