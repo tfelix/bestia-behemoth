@@ -62,7 +62,7 @@ class MoveEntityHandler(
     when {
       msg.waypoints.isEmpty() -> stop(world, id)
       msg.append && journeys.append(world, id, msg.waypoints) -> Unit
-      journeys.start(world, id, msg.waypoints, JourneyOrder.PLAYER) == null -> clientLeg.adopt(world, id, msg.firstLeg)
+      startJourney(world, msg) -> clientLeg.adopt(world, id, msg.firstLeg)
     }
 
     return true
@@ -80,6 +80,12 @@ class MoveEntityHandler(
     attackCancelService.cancelAttack(world, id)
   }
 
+  /** @return whether it set off */
+  private fun startJourney(world: World, msg: MoveEntityCMSG): Boolean {
+    val name = msg.name.trim().take(MAX_NAME_LENGTH).ifEmpty { null }
+    return journeys.start(world, msg.entityId, msg.waypoints, JourneyOrder.PLAYER, name, msg.savedRouteId) == null
+  }
+
   private fun stop(world: World, id: EntityId) {
     journeys.cancel(world, id)
     world.remove(id, Path::class)
@@ -93,5 +99,8 @@ class MoveEntityHandler(
 
   private companion object {
     private val LOG = KotlinLogging.logger { }
+
+    /** Matches what a saved route may be called. */
+    const val MAX_NAME_LENGTH = 40
   }
 }

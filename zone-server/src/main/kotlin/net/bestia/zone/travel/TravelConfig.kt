@@ -11,6 +11,7 @@ import java.time.Duration
  * @property stallAfter how long without getting nearer before the traveller decides the way ahead is blocked.
  * @property giveUpAfter how long without getting nearer before the journey fails as stuck.
  * @property maxWaypoints the most stops one journey may have.
+ * @property maxSavedRoutes the most routes one master keeps.
  */
 @ConfigurationProperties(prefix = "travel")
 data class TravelConfig(
@@ -21,6 +22,7 @@ data class TravelConfig(
   val stallAfter: Duration = Duration.ofSeconds(10),
   val giveUpAfter: Duration = Duration.ofSeconds(30),
   val maxWaypoints: Int = 16,
+  val maxSavedRoutes: Int = 32,
 ) {
   init {
     require(!knowledgeTtl.isNegative && !failureTtl.isNegative) { "Route knowledge cannot lapse before it is learned" }

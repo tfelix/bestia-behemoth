@@ -15,6 +15,9 @@ data class MoveEntityCMSG(
   val append: Boolean = false,
   /** The steps the client already walks towards the first waypoint; see [net.bestia.zone.control.ClientLeg]. */
   val firstLeg: List<Vec3L> = emptyList(),
+  /** What the journey is called on the map; the saved route's name when it follows one. */
+  val name: String = "",
+  val savedRouteId: Long? = null,
 ) : CMSG {
   companion object {
     fun fromBnet(accountId: Long, move: MoveEntityProto.MoveEntity): MoveEntityCMSG {
@@ -24,6 +27,8 @@ data class MoveEntityCMSG(
         waypoints = move.waypointsList.map { Vec3L(it.x, it.y, it.z) },
         append = move.append,
         firstLeg = if (move.hasFirstLeg()) DeltaPaths.decode(move.firstLeg) else emptyList(),
+        name = move.name,
+        savedRouteId = move.savedRouteId.takeIf { it != 0L },
       )
     }
   }

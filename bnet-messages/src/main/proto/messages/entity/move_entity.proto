@@ -20,4 +20,8 @@ message MoveEntity {
   // The steps this client already walks towards the first waypoint. Walked as sent when every step is valid,
   // so a click is not corrected a round trip later; otherwise the server plans the leg itself.
   DeltaPath first_leg = 4;
+  // What the journey is called on the map, the saved route's name when it follows one.
+  string name = 5;
+  // The saved route the waypoints were taken from, 0 for none.
+  uint64 saved_route_id = 6;
 }

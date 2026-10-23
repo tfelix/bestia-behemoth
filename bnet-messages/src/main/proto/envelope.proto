@@ -13,6 +13,7 @@ import "messages/crafting/cancel_craft_cmsg.proto";
 import "messages/crafting/craftable_recipes_smsg.proto";
 import "messages/entity/move_entity.proto";
 import "messages/entity/journey_ended_smsg.proto";
+import "messages/travel/saved_routes.proto";
 import "messages/entity/select_active_entity.proto";
 import "messages/system/authentication_success.proto";
 import "messages/system/disconnected.proto";
@@ -262,6 +263,13 @@ message Envelope {
     OpenShopCMSG open_shop = 820;
     ShopTradeCMSG shop_trade = 821;
     ShopOfferSMSG shop_offer = 822;
+
+    // TRAVEL 900
+    RequestSavedRoutesCMSG request_saved_routes = 900;
+    SavedRoutesSMSG saved_routes = 901;
+    SaveRouteCMSG save_route = 902;
+    RenameRouteCMSG rename_route = 903;
+    DeleteRouteCMSG delete_route = 904;
 
     // MISC
   }

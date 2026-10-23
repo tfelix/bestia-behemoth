@@ -19,12 +19,20 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
     /// <summary>The tile steps this client already walks to the first waypoint; walked as sent when valid.</summary>
     [Export] public Godot.Collections.Array<Vector3> FirstLeg { get; set; } = new Godot.Collections.Array<Vector3>();
 
+    /// <summary>What the journey is called on the map; the saved route's name when it follows one.</summary>
+    [Export] public string Name { get; set; } = "";
+
+    /// <summary>The saved route the waypoints come from, 0 for none.</summary>
+    [Export] public ulong SavedRouteId { get; set; }
+
     public override Envelope ToEnvelope()
     {
       var move = new global::Bnet.MoveEntity
       {
         EntityId = EntityId,
-        Append = Append
+        Append = Append,
+        Name = Name,
+        SavedRouteId = SavedRouteId
       };
 
       foreach (var waypoint in Waypoints)

@@ -21,6 +21,7 @@ namespace BestiaBehemothClient.Bnet.Message
       [Envelope.MessageOneofCase.OwnedBestias] = e => Master.OwnedBestiasSMSG.FromProto(e.OwnedBestias),
       [Envelope.MessageOneofCase.ActiveEntity] = e => Master.ActiveEntitySMSG.FromProto(e.ActiveEntity),
       [Envelope.MessageOneofCase.JourneyEnded] = e => Entity.JourneyEndedSMSG.FromProto(e.JourneyEnded),
+      [Envelope.MessageOneofCase.SavedRoutes] = e => Travel.SavedRoutesSMSG.FromProto(e.SavedRoutes),
       [Envelope.MessageOneofCase.BestiaCapture] = e => Master.BestiaCaptureSMSG.FromProto(e.BestiaCapture),
       [Envelope.MessageOneofCase.OperationSuccess] = e => OperationSuccess.FromProto(e.OperationSuccess),
       [Envelope.MessageOneofCase.OperationError] = e => OperationError.FromProto(e.OperationError),

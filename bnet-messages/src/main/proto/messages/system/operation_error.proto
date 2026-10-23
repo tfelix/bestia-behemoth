@@ -240,6 +240,8 @@ enum OpError {
   // The master was expelled from the guild and stays out until a rank that may kick lifts it. Carries the name
   // in args[0].
   GUILD_TARGET_EXPELLED = 85;
+  // The master keeps as many routes as it may; one has to go before another is saved.
+  ROUTE_LIMIT = 86;
 }
 
 message OperationError {
