@@ -50,6 +50,16 @@ class AiBehaviorScenarioTest {
   }
 
   @Test
+  fun `a wild mob hunts a player's bestia that stands alone`() {
+    val mob = ai.spawnMob("aggressive_melee", Vec3L(0, 0, 0))
+    val bestia = ai.spawnOwnedBestia(Vec3L(4, 0, 0))
+
+    ai.tickUntilGoal(mob, "KillEnemy")
+
+    assertEquals(bestia, ai.agentOf(mob).memory.get(BestiaDomain.TARGET_ID))
+  }
+
+  @Test
   fun `the mob paths toward the player it decided to attack`() {
     val mob = ai.spawnMob("aggressive_melee", Vec3L(0, 0, 0))
     ai.spawnPlayer(Vec3L(4, 0, 0))

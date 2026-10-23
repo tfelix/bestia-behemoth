@@ -8,7 +8,6 @@ import net.bestia.zone.ai.profile.AiProfileRegistry
 import net.bestia.zone.aoi.AoiLayer
 import net.bestia.zone.aoi.EntityAOIService
 import net.bestia.zone.config.WorldRulesConfig
-import net.bestia.zone.identity.ecs.Master
 import net.bestia.zone.battle.damage.DamageGate
 import net.bestia.zone.battle.ecs.damage.TakenDamage
 import net.bestia.zone.battle.status.StatusEffectId
@@ -55,10 +54,9 @@ class PerceptionSystem(
   override val reads: ComponentClassSet = setOf(
     Position::class,
     Health::class,
-    Master::class,
     TakenDamage::class,
     StatusEffects::class,
-  ) + DamageGate.READS
+  ) + Hostility.READS + DamageGate.READS
 
   /**
    * `AiAgent` is declared as written, not read: this system mutates the agent's blackboard on every
@@ -134,12 +132,7 @@ class PerceptionSystem(
     }
   }
 
-  /**
-   * Nearest hostile within [sightRadius].
-   *
-   * Hostility is still "has a `Master` component", i.e. is a player. Real factions are a separate piece
-   * of work; the profile already carries a faction name that nothing consults yet.
-   */
+  /** Nearest [Hostility.isHostile] candidate within [sightRadius]. */
   private fun nearestHostile(world: World, self: Long, selfPos: Vec3L, sightRadius: Int): Long? {
     // Dynamic only: a mob in a dense wood is inside the sight radius of hundreds of trees and has
     // nothing to think about any of them.
@@ -148,7 +141,7 @@ class PerceptionSystem(
     var nearestDistance = Long.MAX_VALUE
 
     aoiService.forEachInCube(selfPos, sightSize, AoiLayer.DYNAMIC_ONLY) { candidate, _, _, _ ->
-      if (candidate == self || !world.has(candidate, Master::class) || isOutOfReach(world, self, candidate)) {
+      if (candidate == self || !Hostility.isHostile(world, self, candidate) || isOutOfReach(world, self, candidate)) {
         return@forEachInCube
       }
 

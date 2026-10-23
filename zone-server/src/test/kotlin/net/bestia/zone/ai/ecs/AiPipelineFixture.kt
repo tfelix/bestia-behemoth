@@ -1,5 +1,6 @@
 package net.bestia.zone.ai.ecs
 
+import net.bestia.zone.identity.ecs.OwnedBestia
 import net.bestia.zone.movement.ecs.GroundTrample
 import io.mockk.every
 import io.mockk.mockk
@@ -305,6 +306,17 @@ class AiPipelineFixture(
     }
     aoi.setEntityPosition(id, pos)
     playerAoi.place(id, pos)
+    return id
+  }
+
+  /** A player's bestia standing on its own, with no master anywhere near. */
+  fun spawnOwnedBestia(pos: Vec3L, masterId: Long = 1L): EntityId {
+    val id = world.createEntity { eid ->
+      world.add(eid, Position.fromVec3(pos))
+      world.add(eid, Health(30, 30))
+      world.add(eid, OwnedBestia(masterId = masterId, playerBestiaId = eid))
+    }
+    aoi.setEntityPosition(id, pos)
     return id
   }
 
