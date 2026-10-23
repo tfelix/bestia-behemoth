@@ -2,7 +2,8 @@
 	import { page } from '$app/state';
 	import Icon from './Icon.svelte';
 
-	let { masterId }: { masterId: number } = $props();
+	/** Without a Master every tab is locked: each one shows a Master's own things. */
+	let { masterId }: { masterId: number | null } = $props();
 
 	const tabs = $derived([
 		{ href: `/m/${masterId}`, label: 'Master', icon: 'chart-bar' },
@@ -15,11 +16,18 @@
 </script>
 
 <nav>
-	{#each tabs as tab (tab.href)}
-		<a href={tab.href} class:active={page.url.pathname === tab.href} aria-current={page.url.pathname === tab.href ? 'page' : undefined}>
-			<Icon name={tab.icon} size={22} />
-			<span>{tab.label}</span>
-		</a>
+	{#each tabs as tab (tab.label)}
+		{#if masterId === null}
+			<span class="tab locked" aria-disabled="true">
+				<Icon name={tab.icon} size={22} />
+				<span>{tab.label}</span>
+			</span>
+		{:else}
+			<a href={tab.href} class="tab" class:active={page.url.pathname === tab.href} aria-current={page.url.pathname === tab.href ? 'page' : undefined}>
+				<Icon name={tab.icon} size={22} />
+				<span>{tab.label}</span>
+			</a>
+		{/if}
 	{/each}
 </nav>
 
@@ -37,7 +45,7 @@
 		box-shadow: 0 -6px 18px rgb(0 0 0 / 45%);
 	}
 
-	a {
+	.tab {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
@@ -51,7 +59,11 @@
 		color: var(--muted);
 	}
 
-	a.active {
+	.tab.active {
 		color: var(--brass);
+	}
+
+	.tab.locked {
+		opacity: 0.35;
 	}
 </style>
