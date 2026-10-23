@@ -9,6 +9,7 @@ import net.bestia.login.account.AccountRepository
 import net.bestia.login.account.AccountSessionTerminator
 import net.bestia.login.account.AccountStatus
 import net.bestia.login.admin.GmActionRefusedException.Refusal
+import net.bestia.login.metrics.LoginMetrics
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Duration
@@ -23,16 +24,18 @@ class GmActionService(
   private val accounts: AccountRepository,
   private val accountLoginGuard: AccountLoginGuard,
   private val accountSessionTerminator: AccountSessionTerminator,
-  private val gmActions: GmActionRepository
+  private val gmActions: GmActionRepository,
+  private val metrics: LoginMetrics = LoginMetrics()
 ) {
 
   /** Ends every session of the target, so it has to sign in with its passkey again. A ban keeps it out. */
   @Transactional
   fun kick(actorId: Long, targetId: Long, note: String) {
-    val (actor, target) = authorize(actorId, targetId, Authority.KICK)
+    val (actor, target) = authorize(actorId, targetId, Authority.KICK, LoginMetrics.GmAction.KICK)
 
     gmActions.save(GmAction(actor.id, target.id, GmActionType.KICK, note))
     accountSessionTerminator.terminate(target.id, KickReason.GM_KICK)
+    metrics.gmAction(LoginMetrics.GmAction.KICK, allowed = true)
 
     LOG.info { "GM ${actor.id} kicked account ${target.id}: $note" }
   }
@@ -40,7 +43,7 @@ class GmActionService(
   /** A [duration] of null bans for good. */
   @Transactional
   fun ban(actorId: Long, targetId: Long, note: String, duration: Duration?) {
-    val (actor, target) = authorize(actorId, targetId, Authority.BAN)
+    val (actor, target) = authorize(actorId, targetId, Authority.BAN, LoginMetrics.GmAction.BAN)
     val until = duration?.let { LocalDateTime.now().plus(it) }
 
     // The status first: the sessions ended below must not be replaced by a login the ban has not reached yet.
@@ -50,12 +53,27 @@ class GmActionService(
 
     gmActions.save(GmAction(actor.id, target.id, GmActionType.BAN, note, until))
     accountSessionTerminator.terminate(target.id, KickReason.BANNED)
+    metrics.gmAction(LoginMetrics.GmAction.BAN, allowed = true)
 
     LOG.warn { "GM ${actor.id} banned account ${target.id} until ${until ?: "forever"}: $note" }
   }
 
   /** The actor is checked before the target is looked up, so nobody without the authority can probe for ids. */
-  private fun authorize(actorId: Long, targetId: Long, authority: Authority): AuthorizedParties {
+  private fun authorize(
+    actorId: Long,
+    targetId: Long,
+    authority: Authority,
+    action: LoginMetrics.GmAction
+  ): AuthorizedParties {
+    try {
+      return checkParties(actorId, targetId, authority)
+    } catch (e: GmActionRefusedException) {
+      metrics.gmAction(action, allowed = false)
+      throw e
+    }
+  }
+
+  private fun checkParties(actorId: Long, targetId: Long, authority: Authority): AuthorizedParties {
     val actor = accounts.findById(actorId).orElse(null)
       ?: throw GmActionRefusedException(Refusal.NOT_ALLOWED, "acting account $actorId does not exist")
 

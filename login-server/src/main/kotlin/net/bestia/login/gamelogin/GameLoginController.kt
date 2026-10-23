@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming
 import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.servlet.http.HttpServletRequest
 import net.bestia.login.jwt.JwtService
+import net.bestia.login.metrics.LoginMetrics
+import net.bestia.login.metrics.LoginMetrics.GrantFlow
 import net.bestia.login.ratelimit.RateLimiter
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -29,7 +31,8 @@ class GameLoginController(
   private val loginGrants: LoginGrants,
   private val refreshTokenService: RefreshTokenService,
   private val jwtService: JwtService,
-  private val rateLimiter: RateLimiter
+  private val rateLimiter: RateLimiter,
+  private val metrics: LoginMetrics
 ) {
 
   @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
@@ -102,6 +105,8 @@ class GameLoginController(
         intent = request.intent
       )
 
+      metrics.grantOk(LoginClient.GAME, GrantFlow.START)
+
       ResponseEntity.ok(
         StartResponse(
           sessionId = started.sessionId,
@@ -111,7 +116,7 @@ class GameLoginController(
       )
     } catch (e: GameLoginException) {
       LOG.debug(e) { "Rejected game login start" }
-      failure(e)
+      failure(e, GrantFlow.START)
     }
   }
 
@@ -126,6 +131,7 @@ class GameLoginController(
 
     return try {
       val account = loginGrants.redeemCode(request.code, request.codeVerifier, LoginClient.GAME)
+      metrics.grantOk(LoginClient.GAME, GrantFlow.EXCHANGE)
 
       ResponseEntity.ok(
         ExchangeResponse(
@@ -136,7 +142,7 @@ class GameLoginController(
       )
     } catch (e: GameLoginException) {
       LOG.debug(e) { "Rejected game login exchange" }
-      failure(e)
+      failure(e, GrantFlow.EXCHANGE)
     }
   }
 
@@ -156,6 +162,7 @@ class GameLoginController(
 
     return try {
       val (account, refreshToken) = loginGrants.refresh(request.refreshToken, LoginClient.GAME)
+      metrics.grantOk(LoginClient.GAME, GrantFlow.REFRESH)
 
       ResponseEntity.ok(
         ExchangeResponse(
@@ -166,7 +173,7 @@ class GameLoginController(
       )
     } catch (e: GameLoginException) {
       LOG.debug(e) { "Rejected refresh" }
-      failure(e)
+      failure(e, GrantFlow.REFRESH)
     }
   }
 
@@ -205,7 +212,9 @@ class GameLoginController(
       .body(GameLoginFailure(GameLoginError.INVALID_REQUEST, "Too many requests"))
   }
 
-  private fun failure(e: GameLoginException): ResponseEntity<GameLoginFailure> {
+  private fun failure(e: GameLoginException, flow: GrantFlow): ResponseEntity<GameLoginFailure> {
+    metrics.grantRefused(LoginClient.GAME, flow, e.reason)
+
     val status = when (e.error) {
       GameLoginError.INVALID_REQUEST -> HttpStatus.BAD_REQUEST
       GameLoginError.INVALID_GRANT -> HttpStatus.BAD_REQUEST

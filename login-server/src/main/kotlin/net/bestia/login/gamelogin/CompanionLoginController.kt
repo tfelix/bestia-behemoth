@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming
 import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.servlet.http.HttpServletRequest
 import net.bestia.login.jwt.JwtService
+import net.bestia.login.metrics.LoginMetrics
+import net.bestia.login.metrics.LoginMetrics.GrantFlow
 import net.bestia.login.ratelimit.RateLimiter
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
@@ -34,6 +36,7 @@ class CompanionLoginController(
   private val gameLoginConfig: GameLoginConfig,
   private val companionConfig: CompanionLoginConfig,
   private val rateLimiter: RateLimiter,
+  private val metrics: LoginMetrics,
 ) {
 
   @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
@@ -72,10 +75,11 @@ class CompanionLoginController(
         intent = request.intent,
         client = LoginClient.COMPANION,
       )
+      metrics.grantOk(LoginClient.COMPANION, GrantFlow.START)
       ResponseEntity.ok(StartResponse(started.sessionId, started.loginUrl, started.expiresInSeconds))
     } catch (e: GameLoginException) {
       LOG.debug(e) { "Rejected companion login start" }
-      failure(e)
+      failure(e, GrantFlow.START)
     }
   }
 
@@ -87,10 +91,11 @@ class CompanionLoginController(
 
     return try {
       val account = loginGrants.redeemCode(request.code, request.codeVerifier, LoginClient.COMPANION)
+      metrics.grantOk(LoginClient.COMPANION, GrantFlow.EXCHANGE)
       tokens(account.id, refreshTokenService.issueForNewSession(account.id, LoginClient.COMPANION))
     } catch (e: GameLoginException) {
       LOG.debug(e) { "Rejected companion login exchange" }
-      failure(e)
+      failure(e, GrantFlow.EXCHANGE)
     }
   }
 
@@ -109,10 +114,11 @@ class CompanionLoginController(
 
     return try {
       val (account, successor) = loginGrants.refresh(refreshToken, LoginClient.COMPANION)
+      metrics.grantOk(LoginClient.COMPANION, GrantFlow.REFRESH)
       tokens(account.id, successor)
     } catch (e: GameLoginException) {
       LOG.debug(e) { "Rejected companion refresh" }
-      failure(e, clearCookie = true)
+      failure(e, GrantFlow.REFRESH, clearCookie = true)
     }
   }
 
@@ -151,7 +157,9 @@ class CompanionLoginController(
   }
 
   /** As at the game's endpoints, the enum is all the client is told; the reason is in the log. */
-  private fun failure(e: GameLoginException, clearCookie: Boolean = false): ResponseEntity<Failure> {
+  private fun failure(e: GameLoginException, flow: GrantFlow, clearCookie: Boolean = false): ResponseEntity<Failure> {
+    metrics.grantRefused(LoginClient.COMPANION, flow, e.reason)
+
     val status = when (e.error) {
       GameLoginError.INVALID_REQUEST -> HttpStatus.BAD_REQUEST
       GameLoginError.INVALID_GRANT -> HttpStatus.UNAUTHORIZED

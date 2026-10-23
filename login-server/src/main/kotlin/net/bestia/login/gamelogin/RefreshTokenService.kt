@@ -1,6 +1,7 @@
 package net.bestia.login.gamelogin
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.login.metrics.LoginMetrics
 import net.bestia.login.util.SecureTokens
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
@@ -18,7 +19,8 @@ import java.time.LocalDateTime
 @Service
 class RefreshTokenService(
   private val tokens: RefreshTokenRepository,
-  private val config: GameLoginConfig
+  private val config: GameLoginConfig,
+  private val metrics: LoginMetrics = LoginMetrics()
 ) {
 
   sealed interface Rotation {
@@ -58,6 +60,7 @@ class RefreshTokenService(
     val presented = tokens.findById(tokenHash).orElse(null)
     if (presented != null && presented.client != client) {
       LOG.debug { "Refused a ${presented.client} refresh token presented as $client" }
+      metrics.refreshRefused(LoginMetrics.RefreshRefusal.WRONG_CLIENT)
       return Rotation.Refused
     }
 
@@ -67,6 +70,8 @@ class RefreshTokenService(
 
     val consumed = tokens.findById(tokenHash).orElse(null)
       ?: return Rotation.Refused
+
+    metrics.refreshRotated()
 
     return Rotation.Rotated(
       token = issue(consumed.accountId, consumed.familyId, consumed.client),
@@ -80,6 +85,7 @@ class RefreshTokenService(
     val revoked = tokens.revokeAllForAccount(accountId, LocalDateTime.now())
 
     if (revoked > 0) {
+      metrics.refreshRevoked(LoginMetrics.RefreshRevocation.ACCOUNT_TERMINATED)
       LOG.info { "Revoked $revoked refresh token(s) for account $accountId" }
     }
 
@@ -95,6 +101,7 @@ class RefreshTokenService(
   fun revokeFamilyOf(rawToken: String): Boolean {
     val presented = tokens.findById(hash(rawToken)).orElse(null) ?: return false
     val revoked = tokens.revokeFamily(presented.familyId, LocalDateTime.now())
+    metrics.refreshRevoked(LoginMetrics.RefreshRevocation.SIGN_OUT)
 
     LOG.info { "Signed out account ${presented.accountId}, revoking $revoked token(s) in one chain" }
 
@@ -108,6 +115,7 @@ class RefreshTokenService(
 
   private fun issue(accountId: Long, familyId: String, client: LoginClient): String {
     val token = SecureTokens.randomToken()
+    metrics.tokenIssued(LoginMetrics.TokenType.REFRESH)
 
     tokens.save(
       RefreshToken(
@@ -132,17 +140,20 @@ class RefreshTokenService(
 
     if (presented == null) {
       LOG.debug { "Refused an unknown refresh token" }
+      metrics.refreshRefused(LoginMetrics.RefreshRefusal.UNKNOWN)
       return Rotation.Refused
     }
 
     if (presented.consumedAt != null && presented.revokedAt == null) {
       val revoked = tokens.revokeFamily(presented.familyId, now)
+      metrics.refreshReused()
       LOG.warn {
         "Refresh token for account ${presented.accountId} was presented after being spent - " +
                 "revoked $revoked token(s) in its family"
       }
     } else {
       LOG.debug { "Refused a refresh token for account ${presented.accountId}: revoked or expired" }
+      metrics.refreshRefused(LoginMetrics.RefreshRefusal.REVOKED_OR_EXPIRED)
     }
 
     return Rotation.Refused
@@ -155,9 +166,12 @@ class RefreshTokenService(
   @Scheduled(fixedDelayString = "PT1H")
   @Transactional
   fun sweepExpired() {
-    val removed = tokens.deleteExpired(LocalDateTime.now())
-    if (removed > 0) {
-      LOG.debug { "Swept $removed expired refresh tokens" }
+    metrics.sweep(LoginMetrics.SweepJob.REFRESH_TOKEN) {
+      val removed = tokens.deleteExpired(LocalDateTime.now())
+      if (removed > 0) {
+        LOG.debug { "Swept $removed expired refresh tokens" }
+      }
+      removed
     }
   }
 

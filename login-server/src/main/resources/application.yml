@@ -5,6 +5,12 @@ server:
   # client talking to this server directly cannot pick its own address with the header.
   forward-headers-strategy: native
 
+management:
+  metrics:
+    tags:
+      # Tells this service's series apart from the zone's and the api-service's in the one Prometheus.
+      application: login-server
+
 spring:
   # `dev` when no profile is set, so a local start needs no setup. To change before production: a server started
   # without a profile is a dev server, with the public secret and every sign-up a SUPER_GM. Any profile a

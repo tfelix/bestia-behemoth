@@ -6,6 +6,7 @@ import net.bestia.login.account.AccountLoginGuard
 import net.bestia.login.account.AccountRepository
 import net.bestia.login.account.AccountSessionTerminator
 import net.bestia.login.account.DisplayNames
+import net.bestia.login.metrics.LoginMetrics
 import net.bestia.login.webauthn.WebAuthnException
 import net.bestia.login.webauthn.WebAuthnRegistrationService
 import org.springframework.stereotype.Service
@@ -25,7 +26,8 @@ class AccountRecoveryService(
   private val recoveryCodeService: RecoveryCodeService,
   private val registrationService: WebAuthnRegistrationService,
   private val accountLoginGuard: AccountLoginGuard,
-  private val accountSessionTerminator: AccountSessionTerminator
+  private val accountSessionTerminator: AccountSessionTerminator,
+  private val metrics: LoginMetrics = LoginMetrics()
 ) {
 
   @Transactional
@@ -40,15 +42,18 @@ class AccountRecoveryService(
     // out which display names exist.
     if (account == null || !recoveryCodeService.redeem(account.id, recoveryCode)) {
       LOG.info { "Rejected recovery attempt for display name of length ${displayName.trim().length}" }
+      metrics.recovery(LoginMetrics.RecoveryResult.REJECTED)
       throw WebAuthnException("Recovery failed")
     }
 
     accountLoginGuard.denialReason(account)?.let { reason ->
       LOG.info { "Refusing recovery: $reason" }
+      metrics.recovery(LoginMetrics.RecoveryResult.BANNED)
       throw WebAuthnException("Recovery failed")
     }
 
     LOG.warn { "Account ${account.id} is being recovered with a recovery code" }
+    metrics.recovery(LoginMetrics.RecoveryResult.STARTED)
 
     // A player recovering has lost control of their passkeys, so a client still resuming this account
     // without one is as likely to be whoever took them as the owner. Done on the spent code rather

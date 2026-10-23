@@ -68,6 +68,54 @@ class AdminAccountScenario : BasePasskeyScenario() {
   }
 
   @Test
+  fun `a GM ban and kick are counted with the kick orders they publish`() {
+    val banned = watch("login.gm.action", "action", "ban", "result", "ok")
+    val kicked = watch("login.gm.action", "action", "kick", "result", "ok")
+    val banKick = watch("login.kick.published", "reason", "BANNED", "result", "ok")
+    val gmKick = watch("login.kick.published", "reason", "GM_KICK", "result", "ok")
+    val revoked = watch("login.refresh.revocations", "cause", "account_terminated")
+    val appended = busAppends("ok")
+    val timings = kickPublishTimings()
+    val gm = signedIn(Role.GM)
+    val player = signedIn(Role.USER)
+
+    admin("kick", gm, player.accountId, mapOf("note" to "stuck"))
+    admin("ban", gm, player.accountId, mapOf("note" to "botting", "duration_hours" to 24))
+
+    assertEquals(1.0, kicked.moved())
+    assertEquals(1.0, banned.moved())
+    assertEquals(1.0, gmKick.moved())
+    assertEquals(1.0, banKick.moved())
+    assertEquals(1.0, revoked.moved(), "the kick revoked the chain; the ban found nothing left to revoke")
+    assertEquals(2.0, busAppends("ok") - appended, "the appender's own tally agrees with the listener's")
+    assertEquals(2L, kickPublishTimings() - timings)
+  }
+
+  @Test
+  fun `a refused GM action is counted as refused, and publishes no kick`() {
+    val refused = watch("login.gm.action", "action", "ban", "result", "refused")
+    val kicks = watch("login.kick.published", "reason", "BANNED")
+    val player = signedIn(Role.USER)
+    val other = signedIn(Role.USER)
+
+    assertEquals(403, admin("ban", player, other.accountId, mapOf("note" to "x")).statusCode.value())
+
+    assertEquals(1.0, refused.moved())
+    assertEquals(0.0, kicks.moved())
+  }
+
+  @Test
+  fun `an api token that is not one is counted as invalid`() {
+    val invalid = watch("login.token.invalid")
+    val gm = signedIn(Role.GM)
+    val player = signedIn(Role.USER)
+
+    assertEquals(401, admin("ban", gm.copy(apiToken = gm.zoneToken), player.accountId, mapOf("note" to "x")).statusCode.value())
+
+    assertEquals(1.0, invalid.moved())
+  }
+
+  @Test
   fun `a player cannot ban anyone`() {
     val player = signedIn(Role.USER)
     val other = signedIn(Role.USER)
@@ -101,6 +149,14 @@ class AdminAccountScenario : BasePasskeyScenario() {
     val response = admin("ban", gm.copy(apiToken = gm.zoneToken), player.accountId, mapOf("note" to "x"))
 
     assertEquals(401, response.statusCode.value())
+  }
+
+  private fun kickPublishTimings(): Long {
+    return meters.get("login.kick.publish.duration").tag("result", "ok").timers().sumOf { it.count() }
+  }
+
+  private fun busAppends(result: String): Double {
+    return meters.get("login.bus.append").tag("result", result).functionCounters().sumOf { it.count() }
   }
 
   private data class SignedIn(

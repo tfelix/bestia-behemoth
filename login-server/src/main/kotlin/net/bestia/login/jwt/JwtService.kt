@@ -5,6 +5,7 @@ import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
 import net.bestia.account.Role
 import net.bestia.internal.CompanionTokens
+import net.bestia.login.metrics.LoginMetrics
 import org.springframework.stereotype.Service
 import java.nio.charset.StandardCharsets
 import java.time.LocalDateTime
@@ -15,7 +16,8 @@ import javax.crypto.SecretKey
 
 @Service
 class JwtService(
-  private val jwtConfig: JwtConfig
+  private val jwtConfig: JwtConfig,
+  private val metrics: LoginMetrics = LoginMetrics()
 ) {
 
   fun createLoginToken(
@@ -27,6 +29,8 @@ class JwtService(
     val expiration = Date.from(
       expirationDate.atZone(ZoneId.systemDefault()).toInstant()
     )
+
+    metrics.tokenIssued(LoginMetrics.TokenType.ZONE)
 
     val jwt = Jwts.builder()
       // The zone accepts each token once, by this id.
@@ -49,6 +53,7 @@ class JwtService(
    */
   fun createApiToken(accountId: Long): String {
     val now = Date()
+    metrics.tokenIssued(LoginMetrics.TokenType.API)
 
     return Jwts.builder()
       .id(UUID.randomUUID().toString())
@@ -64,6 +69,7 @@ class JwtService(
   /** Lets the companion app call the api-service as [accountId]. Signed with the companion key, not [secretKey]. */
   fun createCompanionToken(accountId: Long): String {
     val now = Date()
+    metrics.tokenIssued(LoginMetrics.TokenType.COMPANION)
 
     return Jwts.builder()
       .id(UUID.randomUUID().toString())
@@ -83,6 +89,16 @@ class JwtService(
 
   /** The account an api token names, or null for anything else - a zone token included. */
   fun validateApiToken(token: String): Long? {
+    val accountId = parseApiToken(token)
+
+    if (accountId == null) {
+      metrics.tokenInvalid()
+    }
+
+    return accountId
+  }
+
+  private fun parseApiToken(token: String): Long? {
     val claims = try {
       Jwts.parser()
         .verifyWith(secretKey)

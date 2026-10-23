@@ -3,6 +3,7 @@ package net.bestia.login.webauthn
 import com.yubico.webauthn.AssertionRequest
 import com.yubico.webauthn.data.PublicKeyCredentialCreationOptions
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.login.metrics.LoginMetrics
 import net.bestia.login.util.SecureTokens
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
@@ -19,7 +20,8 @@ import java.time.LocalDateTime
 @Service
 class CeremonyStore(
   private val ceremonies: WebAuthnCeremonyRepository,
-  private val config: WebAuthnConfig
+  private val config: WebAuthnConfig,
+  private val metrics: LoginMetrics = LoginMetrics()
 ) {
 
   @Transactional
@@ -114,9 +116,12 @@ class CeremonyStore(
   @Scheduled(fixedDelayString = "PT5M")
   @Transactional
   fun sweepExpired() {
-    val removed = ceremonies.deleteExpired(LocalDateTime.now())
-    if (removed > 0) {
-      LOG.debug { "Swept $removed expired WebAuthn ceremonies" }
+    metrics.sweep(LoginMetrics.SweepJob.WEBAUTHN_CEREMONY) {
+      val removed = ceremonies.deleteExpired(LocalDateTime.now())
+      if (removed > 0) {
+        LOG.debug { "Swept $removed expired WebAuthn ceremonies" }
+      }
+      removed
     }
   }
 

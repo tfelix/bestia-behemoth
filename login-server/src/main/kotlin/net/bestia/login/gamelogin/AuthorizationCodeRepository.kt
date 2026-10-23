@@ -30,4 +30,6 @@ interface AuthorizationCodeRepository : JpaRepository<AuthorizationCode, String>
   @Modifying
   @Query("DELETE FROM AuthorizationCode c WHERE c.expiresAt < :cutoff")
   fun deleteExpired(@Param("cutoff") cutoff: LocalDateTime): Int
+
+  fun countByConsumedAtIsNullAndExpiresAtAfter(now: LocalDateTime): Long
 }

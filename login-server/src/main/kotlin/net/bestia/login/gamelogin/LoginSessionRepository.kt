@@ -12,6 +12,8 @@ interface LoginSessionRepository : JpaRepository<LoginSession, String> {
   @Query("DELETE FROM LoginSession s WHERE s.expiresAt < :cutoff")
   fun deleteExpired(@Param("cutoff") cutoff: LocalDateTime): Int
 
+  fun countByExpiresAtAfter(now: LocalDateTime): Long
+
   /** The sessions that passed their ceremony and could still hand out or redeem a code. */
   @Modifying
   @Query(

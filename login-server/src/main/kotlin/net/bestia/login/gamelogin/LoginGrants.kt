@@ -30,26 +30,26 @@ class LoginGrants(
     val claimed = authorizationCodeService.consume(code)
 
     val session = loginSessionService.findByHash(claimed.loginSessionIdHash)
-      ?: throw GameLoginException(GameLoginError.INVALID_GRANT, "code has no login session")
+      ?: throw GameLoginException(GameLoginReason.NO_SESSION, "code has no login session")
 
     if (session.client != client) {
-      throw GameLoginException(GameLoginError.INVALID_GRANT, "code belongs to a ${session.client} login, not $client")
+      throw GameLoginException(GameLoginReason.WRONG_CLIENT, "code belongs to a ${session.client} login, not $client")
     }
 
     if (!Pkce.verify(codeVerifier, session.codeChallenge, session.challengeMethod)) {
-      throw GameLoginException(GameLoginError.INVALID_GRANT, "PKCE verifier does not match")
+      throw GameLoginException(GameLoginReason.PKCE_MISMATCH, "PKCE verifier does not match")
     }
 
     if (session.accountId != claimed.accountId) {
-      throw GameLoginException(GameLoginError.INVALID_GRANT, "code and login session name different accounts")
+      throw GameLoginException(GameLoginReason.ACCOUNT_MISMATCH, "code and login session name different accounts")
     }
 
     val account = accounts.findById(claimed.accountId).orElseThrow {
-      GameLoginException(GameLoginError.INVALID_GRANT, "code refers to a missing account")
+      GameLoginException(GameLoginReason.MISSING_ACCOUNT, "code refers to a missing account")
     }
 
     accountLoginGuard.denialReason(account)?.let { reason ->
-      throw GameLoginException(GameLoginError.ACCOUNT_UNAVAILABLE, reason)
+      throw GameLoginException(GameLoginReason.BANNED, reason)
     }
 
     loginSessionService.markConsumed(session.idHash)
@@ -65,11 +65,11 @@ class LoginGrants(
     val rotated = refreshTokenService.rotate(rawToken, client)
 
     if (rotated !is RefreshTokenService.Rotation.Rotated) {
-      throw GameLoginException(GameLoginError.INVALID_GRANT, "refresh token could not be rotated")
+      throw GameLoginException(GameLoginReason.REFRESH_REFUSED, "refresh token could not be rotated")
     }
 
     val account = accounts.findById(rotated.accountId).orElseThrow {
-      GameLoginException(GameLoginError.INVALID_GRANT, "refresh token refers to a missing account")
+      GameLoginException(GameLoginReason.MISSING_ACCOUNT, "refresh token refers to a missing account")
     }
 
     accountLoginGuard.denialReason(account)?.let { reason ->
@@ -77,7 +77,7 @@ class LoginGrants(
       // holding a standing invitation to do so on any of its devices.
       accountSessionTerminator.terminate(account.id, KickReason.BANNED)
 
-      throw GameLoginException(GameLoginError.ACCOUNT_UNAVAILABLE, reason)
+      throw GameLoginException(GameLoginReason.BANNED, reason)
     }
 
     touch(account)
