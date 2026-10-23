@@ -45,9 +45,8 @@ class AiThinkSystem(
 
   override val reads: ComponentClassSet = setOf(
     Position::class,
-    PlayerControlled::class,
     Dead::class,
-  )
+  ) + PlayerHold.READS
 
   /** Written: the goal/plan/behaviour-tree fields and the agent's memory snapshot. */
   override val writes: ComponentClassSet = setOf(AiAgent::class)
@@ -71,12 +70,18 @@ class AiThinkSystem(
         return@each
       }
 
-      // The player is driving this one; it has no business making up its own mind. Its plan is dropped rather
-      // than frozen, so when control is handed back it decides afresh from the world as it is then, instead of
-      // resuming an errand chosen before the player took over.
-      if (world.has(id, PlayerControlled::class)) {
+      // The player is driving this one, or sent it somewhere; it has no business making up its own mind. Its plan
+      // is dropped rather than frozen, so when it is handed back it decides afresh from the world as it is then,
+      // instead of resuming an errand chosen before the player took over.
+      if (PlayerHold.isHeld(world, id)) {
         if (agent.hasActivePlan()) agent.clearPlan()
+        agent.wasLeftToPlayer = true
         return@each
+      }
+
+      if (agent.wasLeftToPlayer) {
+        agent.wasLeftToPlayer = false
+        PlayerHold.settleHome(agent, get<Position>().toVec3L())
       }
 
       // Never reason from a memory nothing has been observed into — see AiAgent.hasPerceived. The think tick

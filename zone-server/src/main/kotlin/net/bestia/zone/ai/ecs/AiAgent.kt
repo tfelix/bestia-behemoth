@@ -49,6 +49,9 @@ class AiAgent(
   /** How much processing it gets right now; set by [AiDetailSystem], read by every AI stage. */
   var detail: AiDetail = AiDetail.FULL
 
+  /** A player had it last think: when it does not any more, it settles where it was left. */
+  var wasLeftToPlayer: Boolean = false
+
   var currentGoal: Goal? = null
     private set
 

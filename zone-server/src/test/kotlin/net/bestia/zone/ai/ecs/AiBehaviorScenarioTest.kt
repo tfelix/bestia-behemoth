@@ -7,6 +7,8 @@ import net.bestia.zone.battle.attack.AttackType
 import net.bestia.zone.bestia.DefaultAttack
 import net.bestia.zone.movement.ecs.Path
 import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.travel.Journey
+import net.bestia.zone.travel.JourneyOrder
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -57,6 +59,31 @@ class AiBehaviorScenarioTest {
     ai.tickUntilGoal(mob, "KillEnemy")
 
     assertEquals(bestia, ai.agentOf(mob).memory.get(BestiaDomain.TARGET_ID))
+  }
+
+  @Test
+  fun `a creature on a journey a player ordered does not stop to fight`() {
+    val mob = ai.spawnMob("aggressive_melee", Vec3L(0, 0, 0))
+    ai.spawnPlayer(Vec3L(4, 0, 0))
+    ai.world.add(mob, Journey(listOf(Vec3L(500, 0, 0)), JourneyOrder.PLAYER))
+
+    ai.tick(times = 20 * 3)
+
+    assertEquals(null, ai.agentOf(mob).currentPlan, "it keeps walking where it was sent")
+  }
+
+  @Test
+  fun `handed back by the player, it makes its home where it was left`() {
+    val mob = ai.spawnMob("aggressive_melee", Vec3L(0, 0, 0))
+    ai.world.add(mob, Journey(listOf(Vec3L(500, 0, 0)), JourneyOrder.PLAYER))
+    ai.tick(times = 20)
+
+    ai.teleport(mob, Vec3L(300, 0, 0))
+    ai.world.remove(mob, Journey::class)
+
+    ai.tickUntil(describe = { "home never moved" }) {
+      ai.agentOf(mob).memory.get(BestiaDomain.HOME_POSITION) == Vec3L(300, 0, 0)
+    }
   }
 
   @Test

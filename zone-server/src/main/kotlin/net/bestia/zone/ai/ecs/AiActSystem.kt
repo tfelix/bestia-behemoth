@@ -59,8 +59,8 @@ class AiActSystem(
   override val after = setOf(AiThinkSystem::class)
 
   override val reads: ComponentClassSet = setOf(
-    Position::class, PlayerControlled::class, Dead::class, KnownSkills::class
-  ) + AttackExecutionService.READS + runtimes.flatMap { it.reads }
+    Position::class, Dead::class, KnownSkills::class
+  ) + PlayerHold.READS + AttackExecutionService.READS + runtimes.flatMap { it.reads }
 
   /**
    * Everything the behaviour trees can touch, directly or through the services their leaves hold.
@@ -95,15 +95,15 @@ class AiActSystem(
       // First: an agent with nothing due - a waiting leaf, or a lower tier between its turns - costs a compare.
       if (tick < agent.nextActTick) return@each
 
-      // Same belt-and-braces pairing with the think stage as the PlayerControlled check below, for the
+      // Same belt-and-braces pairing with the think stage as the PlayerHold check below, for the
       // same reason: a step adopted on the tick before the creature died must not still be carried out
       // by its corpse.
       if (world.has(id, Dead::class)) return@each
 
-      // Belt and braces alongside the same check in the think stage: think drops the plan of a controlled
-      // entity, but a plan adopted on the tick before control was taken must not get one more step executed
-      // underneath the player's hands.
-      if (world.has(id, PlayerControlled::class)) return@each
+      // Belt and braces alongside the same check in the think stage: think drops the plan of a held entity, but
+      // a plan adopted on the tick before the player took it must not get one more step executed underneath
+      // the player's hands.
+      if (PlayerHold.isHeld(world, id)) return@each
 
       val action = agent.currentAction()
       // Before the two early returns: an agent that has just run out of plan is standing about doing nothing,
