@@ -26,7 +26,6 @@ import net.bestia.zone.townsfolk.perception.ShelterSense
 import net.bestia.zone.ai.profile.AiProfileRegistry
 import net.bestia.zone.battle.attack.AttackExecutionService
 import net.bestia.zone.casting.SkillExecutionService
-import net.bestia.zone.aoi.ActivePlayerAOIService
 import net.bestia.zone.aoi.EntityAOIService
 import net.bestia.zone.config.WorldRulesConfig
 import net.bestia.zone.identity.ecs.Master
@@ -38,6 +37,7 @@ import net.bestia.zone.entity.ecs.Animation
 import net.bestia.zone.movement.ecs.MoveSystem
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.movement.ecs.Speed
+import net.bestia.zone.world.anchor.SimulationAnchorIndex
 import net.bestia.zone.world.time.BestiaClock
 import net.bestia.zone.world.time.BestiaDateTime
 import net.bestia.zone.battle.status.AttackSpeed
@@ -87,7 +87,7 @@ class AiPipelineFixture(
   private val random = Random(randomSeed)
 
   val aoi = EntityAOIService()
-  val playerAoi = ActivePlayerAOIService()
+  val playerAoi = SimulationAnchorIndex()
 
   /** Accounts that hold each entity's chunk. Nobody by default, so an agent away from players is unseen. */
   val observers = mutableMapOf<EntityId, Set<AccountId>>()
@@ -304,7 +304,7 @@ class AiPipelineFixture(
       world.add(eid, Master(1L))
     }
     aoi.setEntityPosition(id, pos)
-    playerAoi.setEntityPosition(id, pos)
+    playerAoi.place(id, pos)
     return id
   }
 
@@ -316,7 +316,7 @@ class AiPipelineFixture(
       z = to.z
     }
     aoi.setEntityPosition(id, to)
-    if (world.has(id, Master::class)) playerAoi.setEntityPosition(id, to)
+    if (world.has(id, Master::class)) playerAoi.place(id, to)
   }
 
   /** Records [attacker] having hit [victim], the signal retaliation is gated on. */

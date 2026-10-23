@@ -20,6 +20,7 @@
  - WORLD wave 12: MacroGraphMaintenanceSystem [EveryTick]
  - WORLD wave 12: WaterSystem [EveryTicks(n=2)]
  - WORLD wave 13: ChunkStreamSystem [EveryTick]
+ - WORLD wave 14: AnchorResidencySystem [EveryTick]
  - WORLD wave 14: PlaceSystem [EveryTick]
  - WORLD wave 14: WeatherSystem [EverySeconds(seconds=10.0)]
  - WORLD wave 14: WorldObjectResidencySystem [EveryTick]

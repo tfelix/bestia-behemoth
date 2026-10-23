@@ -11,6 +11,8 @@ import net.bestia.zone.ecs.core.EcsWorld
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.message.AccountInbox
 import net.bestia.zone.socket.ChannelRegistry
+import net.bestia.zone.world.anchor.SimulationAnchorIndex
+import net.bestia.zone.world.residency.ChunkResidency
 import net.bestia.zone.world.stream.ChunkStreamInbox
 import org.springframework.beans.factory.ObjectProvider
 import org.springframework.stereotype.Component
@@ -28,6 +30,8 @@ class ZoneMeters(
   private val sessions: ConnectionInfoService,
   private val chunkInbox: ChunkStreamInbox,
   private val mapTiles: MapTileService,
+  private val residency: ChunkResidency,
+  private val anchors: SimulationAnchorIndex,
   // Absent under the `no-socket` profile.
   private val channels: ObjectProvider<ChannelRegistry>,
 ) : MeterBinder {
@@ -112,6 +116,12 @@ class ZoneMeters(
       .register(registry)
     Gauge.builder("zone.map.renders.queued", mapTiles) { it.queuedRenders.toDouble() }
       .description("Map tiles waiting for a render thread")
+      .register(registry)
+    Gauge.builder("zone.chunks.resident", residency) { it.residentChunks.toDouble() }
+      .description("Chunks simulated for a client or an anchor")
+      .register(registry)
+    Gauge.builder("zone.anchors.holding", anchors) { it.size.toDouble() }
+      .description("Simulation anchors that keep their surroundings resident")
       .register(registry)
   }
 }

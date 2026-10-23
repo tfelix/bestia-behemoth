@@ -57,8 +57,12 @@ worldgen:
   enforce-client-layout: false
 
 # Chunks are encoded at once on the tick, so a scenario sees them in the tick it asked.
+#
+# A quarter of the decoded chunks: every master and bestia holds its view volume resident, so each context
+# fills the cache, and several contexts share one test heap.
 chunk-stream:
   encode-workers: 0
+  hot-chunk-capacity: 32
 
 # A system that touches a component it did not declare breaks the wave scheduler's ordering silently.
 world:

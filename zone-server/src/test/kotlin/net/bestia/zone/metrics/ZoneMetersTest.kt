@@ -17,6 +17,8 @@ import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.message.AccountInbox
 import net.bestia.zone.message.TickOutbox
 import net.bestia.zone.socket.ChannelRegistry
+import net.bestia.zone.world.anchor.SimulationAnchorIndex
+import net.bestia.zone.world.residency.ChunkResidency
 import net.bestia.zone.world.stream.ChunkStreamInbox
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
@@ -45,6 +47,8 @@ class ZoneMetersTest {
     sessions = ConnectionInfoService(),
     chunkInbox = ChunkStreamInbox(),
     mapTiles = mapTiles,
+    residency = ChunkResidency(),
+    anchors = SimulationAnchorIndex(),
     channels = provider(channels),
   )
 

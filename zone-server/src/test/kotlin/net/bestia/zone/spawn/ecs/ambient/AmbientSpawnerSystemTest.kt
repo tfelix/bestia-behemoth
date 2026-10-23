@@ -5,12 +5,12 @@ import io.mockk.mockk
 import io.mockk.verify
 import net.bestia.zone.ai.ecs.AiThrottleable
 import net.bestia.zone.spawn.BestiaEntitySpawner
-import net.bestia.zone.identity.ecs.ActivePlayer
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.persistence.PersistedEntityDeletionQueue
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
+import net.bestia.zone.world.anchor.SimulationAnchor
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -228,7 +228,7 @@ class AmbientSpawnerSystemTest {
   private fun player(at: Vec3L): EntityId {
     return world.createEntity { id ->
       add(id, Position.fromVec3(at))
-      add(id, ActivePlayer)
+      add(id, SimulationAnchor())
     }
   }
 

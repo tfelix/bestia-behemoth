@@ -2,7 +2,6 @@ package net.bestia.zone.ai.ecs
 
 import net.bestia.zone.ai.core.state.Blackboard
 import net.bestia.zone.ai.domain.bestia.BestiaDomain
-import net.bestia.zone.aoi.ActivePlayerAOIService
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.movement.ecs.Position
@@ -12,6 +11,7 @@ import net.bestia.zone.util.AccountId
 import net.bestia.zone.util.EntityId
 import io.mockk.every
 import io.mockk.mockk
+import net.bestia.zone.world.anchor.SimulationAnchorIndex
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test
 class AiThrottleTest {
 
   private val config = AiThrottleConfig()
-  private val players = ActivePlayerAOIService()
+  private val players = SimulationAnchorIndex()
   private val observers = mutableMapOf<EntityId, Set<AccountId>>()
   private val visibility = mockk<EntityVisibility>().also {
     every { it.observersOf(any()) } answers { observers[firstArg()] ?: emptySet() }
@@ -35,7 +35,7 @@ class AiThrottleTest {
   private val world = testWorld()
 
   init {
-    players.setEntityPosition(PLAYER, Vec3L(0, 0, 0))
+    players.place(PLAYER, Vec3L(0, 0, 0))
   }
 
   @Test

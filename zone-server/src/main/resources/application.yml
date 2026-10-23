@@ -185,6 +185,15 @@ chunk-stream:
   # shutdown writes the rest.
   edit-flush-seconds: 10
 
+# Masters and player bestias hold the walk data around them resident, as a client's view does, so dens,
+# wildlife and pathing work where they stand with no player near. Props and townsfolk stay where clients look.
+# One anchor alone holds about 180 chunks, 2 MB of walk data.
+simulation-anchors:
+  # Past this many, the least important anchors (resting before travelling) hold nothing.
+  max-holding-anchors: 512
+  # New slab ranges computed per tick for all anchors together; see `slab-computations-per-tick` above.
+  slab-computations-per-tick: 4
+
 # Ground wearing down under traffic. Runtime settings in `chunk-stream`'s sense: none decides what the terrain
 # is, and what is stored is a level rather than a rate, so retuning these reshapes how existing paths fade
 # rather than invalidating them.

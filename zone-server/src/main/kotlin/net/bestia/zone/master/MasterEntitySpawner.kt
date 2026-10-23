@@ -46,6 +46,7 @@ import net.bestia.zone.battle.persistence.StatusEffectPersistenceService
 import net.bestia.zone.util.AccountId
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.ecs.core.WorldView
+import net.bestia.zone.world.anchor.SimulationAnchor
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
@@ -229,6 +230,7 @@ class MasterEntitySpawner(
       )
 
       add(id, ActivePlayer)
+      add(id, SimulationAnchor())
       add(id, Persistent)
 
       // Resolved here rather than left to PlaceSystem's first tick, which would leave a player looking at

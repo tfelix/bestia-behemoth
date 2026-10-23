@@ -85,7 +85,8 @@ tasks.named('test') {
 	// vector features, a chunk cache - and several contexts can be alive at once. The suite had been passing
 	// with almost nothing to spare and would OOM on a new entity or a handful of extra beans, taking a whole
 	// test worker with it and reporting the crash against whichever unrelated test happened to be running.
-	maxHeapSize = '2g'
+	// Every master and bestia now keeps the walk data around it resident, so each context holds more.
+	maxHeapSize = '3g'
 }
 
 /**

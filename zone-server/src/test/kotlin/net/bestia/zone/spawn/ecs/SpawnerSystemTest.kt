@@ -4,12 +4,12 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import net.bestia.zone.spawn.BestiaEntitySpawner
-import net.bestia.zone.identity.ecs.ActivePlayer
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.persistence.PersistedEntityDeletionQueue
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
+import net.bestia.zone.world.anchor.SimulationAnchor
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -82,7 +82,7 @@ class SpawnerSystemTest {
     val pos = Position.fromVec3(position)
     world.createEntity { id ->
       world.add(id, pos)
-      world.add(id, ActivePlayer)
+      world.add(id, SimulationAnchor())
     }
     return pos
   }

@@ -39,6 +39,7 @@ import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.persistence.Persistent
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.util.PlayerBestiaId
+import net.bestia.zone.world.anchor.SimulationAnchor
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 import net.bestia.zone.account.persistence.PlayerBestia
@@ -218,6 +219,8 @@ class PlayerBestiaEntitySpawner(
     )
 
     add(id, Persistent)
+    // Its surroundings live while it does, master online or not, so the wild can find it.
+    add(id, SimulationAnchor())
     add(id, OwnedBestia(masterId = playerBestia.master.id, playerBestiaId = playerBestia.id))
     statusEffectPersistenceService.attach(this, id, loaded.statusEffects)
 

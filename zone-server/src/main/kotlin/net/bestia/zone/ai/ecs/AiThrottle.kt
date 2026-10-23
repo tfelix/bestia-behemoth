@@ -1,11 +1,11 @@
 package net.bestia.zone.ai.ecs
 
 import net.bestia.zone.ai.core.state.CommonKeys
-import net.bestia.zone.aoi.ActivePlayerAOIService
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.aoi.EntityVisibility
 import net.bestia.zone.util.EntityId
+import net.bestia.zone.world.anchor.SimulationAnchorIndex
 import org.springframework.stereotype.Service
 
 /**
@@ -21,7 +21,7 @@ import org.springframework.stereotype.Service
 @Service
 class AiThrottle(
   private val config: AiThrottleConfig,
-  private val players: ActivePlayerAOIService,
+  private val anchors: SimulationAnchorIndex,
   private val visibility: EntityVisibility,
 ) {
 
@@ -33,7 +33,7 @@ class AiThrottle(
 
     val position = world.get(id, Position::class) ?: return AiDetail.FULL
     val seen = when {
-      players.anyWithinHorizontal(position.x, position.y, FULL_DETAIL_TILES) -> AiDetail.FULL
+      anchors.anyWithinHorizontal(position.x, position.y, FULL_DETAIL_TILES) -> AiDetail.FULL
       visibility.observersOf(id).isNotEmpty() -> AiDetail.REDUCED
       else -> AiDetail.BACKGROUND
     }

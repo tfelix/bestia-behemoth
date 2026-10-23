@@ -2,7 +2,6 @@ package net.bestia.zone.spawn.ecs.ambient
 
 import net.bestia.zone.ai.ecs.AiThrottleable
 import net.bestia.zone.spawn.BestiaEntitySpawner
-import net.bestia.zone.identity.ecs.ActivePlayer
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.Schedule
@@ -11,6 +10,8 @@ import net.bestia.zone.ecs.core.World
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
+import net.bestia.zone.world.anchor.AnchorPositions
+import net.bestia.zone.world.anchor.SimulationAnchor
 import org.springframework.stereotype.Component as SpringComponent
 
 /**
@@ -52,7 +53,7 @@ class AmbientSpawnerSystem(
   /** Matches `SpawnerSystem`: activation is a coarse gate and a quarter second disappears into the margin. */
   override val schedule: Schedule = Schedule.EverySeconds(0.25f)
 
-  override val reads: ComponentClassSet = setOf(ActivePlayer::class, Position::class)
+  override val reads: ComponentClassSet = setOf(SimulationAnchor::class, Position::class)
 
   /**
    * Both markers this system puts on a creature, not just its own.
@@ -91,7 +92,7 @@ class AmbientSpawnerSystem(
     // compares against is behaviour-preserving - an expired stamp already means "restock freely".
     emptiedAt.entries.removeIf { elapsed - it.value >= config.respawnDelaySeconds }
 
-    val players = activePlayerPositions(world)
+    val players = AnchorPositions.of(world)
     if (players.isEmpty()) {
       expireIdle(world)
       return
@@ -204,14 +205,6 @@ class AmbientSpawnerSystem(
       // No deletion-queue entry: an ambient creature was never persisted. See the class KDoc.
       if (world.isAlive(id)) world.destroy(id)
     }
-  }
-
-  private fun activePlayerPositions(world: World): List<Vec3L> {
-    val positions = ArrayList<Vec3L>()
-    world.query(Position::class, ActivePlayer::class).each {
-      positions.add(get<Position>().toVec3L())
-    }
-    return positions
   }
 
   /** Creatures this system currently keeps alive, for the debug command. */

@@ -2,7 +2,6 @@ package net.bestia.zone.spawn.ecs
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.spawn.BestiaEntitySpawner
-import net.bestia.zone.identity.ecs.ActivePlayer
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.Schedule
@@ -13,6 +12,8 @@ import net.bestia.zone.persistence.PersistedEntityDeletionQueue
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
 import kotlin.random.Random
+import net.bestia.zone.world.anchor.AnchorPositions
+import net.bestia.zone.world.anchor.SimulationAnchor
 import org.springframework.stereotype.Component as SpringComponent
 
 /**
@@ -95,11 +96,11 @@ class SpawnerSystem(
   override val schedule: Schedule = Schedule.EverySeconds(0.25f)
 
   /**
-   * [Position] is read by [activePlayerPositions] and has to be declared, not just used: `SystemScheduler`
+   * [Position] is read by [AnchorPositions] and has to be declared, not just used: `SystemScheduler`
    * decides what may run in parallel purely from these sets, and it is this entry that keeps `MoveSystem`,
    * which writes `Position`, out of the same wave.
    */
-  override val reads: ComponentClassSet = setOf(ActivePlayer::class, Position::class)
+  override val reads: ComponentClassSet = setOf(SimulationAnchor::class, Position::class)
   override val writes: ComponentClassSet = setOf(Spawner::class)
 
   /**
@@ -136,7 +137,7 @@ class SpawnerSystem(
 
     // Collected once per pass rather than queried per den. With a thousand dens and a handful of players, the
     // other order asks the same question a thousand times.
-    val players = activePlayerPositions(world)
+    val players = AnchorPositions.of(world)
 
     // Broad phase per player, then the exact per-den test against that player only: a den in some other
     // player's range is found by that player's own broad phase. `desired` is the single producer of "this den
@@ -185,20 +186,6 @@ class SpawnerSystem(
       stocked.remove(id)
       world.get(id, Spawner::class)?.let { despawnPack(it, world) }
     }
-  }
-
-  /**
-   * Where the players who have actually picked a master are standing.
-   *
-   * The same set `ChunkStreamSystem` anchors chunk streaming on, and queried the same way: an account that has
-   * not chosen one is not standing anywhere, so it must not wake a den.
-   */
-  private fun activePlayerPositions(world: World): List<Vec3L> {
-    val positions = ArrayList<Vec3L>()
-    world.query(Position::class, ActivePlayer::class).each {
-      positions.add(get<Position>().toVec3L())
-    }
-    return positions
   }
 
   /**
