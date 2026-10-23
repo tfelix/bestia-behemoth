@@ -4,7 +4,7 @@ import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.session.NoActiveSessionException
 import net.bestia.zone.logout.ecs.LogoutIntentComponentSMSG
 import net.bestia.zone.logout.net.RequestLogoutCMSG
-import net.bestia.zone.control.net.MoveActiveEntityCMSG
+import net.bestia.zone.control.net.MoveEntityCMSG
 import net.bestia.zone.entity.VanishEntitySMSG
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
@@ -69,7 +69,7 @@ class LogoutScenario : BestiaNoSocketScenario(autoClientConnect = false) {
 
     // An empty-path move ("stop where I stand") is exactly what the client's Cancel button sends.
     clientPlayer2.clearMessages()
-    clientPlayer2.sendMessage(MoveActiveEntityCMSG(clientPlayer2.connectedPlayerId, emptyList()))
+    clientPlayer2.sendMessage(MoveEntityCMSG(clientPlayer2.connectedPlayerId, masterEntityId, emptyList()))
 
     // Cancellation is signalled by a LogoutIntentComponentSMSG with removed = true.
     await {

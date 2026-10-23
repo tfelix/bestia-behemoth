@@ -1,13 +1,20 @@
 package net.bestia.zone.travel
 
 import net.bestia.zone.ecs.core.Component
+import net.bestia.zone.ecs.core.DirtyFlag
+import net.bestia.zone.ecs.core.World
 import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.message.EntitySMSG
+import net.bestia.zone.sync.Removable
+import net.bestia.zone.sync.SyncTargets
+import net.bestia.zone.util.EntityId
 
 /**
  * An order to travel through [waypoints] in turn; the last one is the destination.
  *
  * Whoever gave it - a player, the companion app or a creature's own AI - [TravelSystem] carries it out the same
  * way: it plans a course with what the traveller knows, walks it leg by leg, and ends it as arrived or failed.
+ * The owner sees it on its map wherever the entity is.
  */
 class Journey(
   waypoints: List<Vec3L>,
@@ -15,9 +22,14 @@ class Journey(
   val name: String? = null,
   val savedRouteId: Long? = null,
   leaseExpiresAt: Long? = null,
-) : Component {
+) : Component, Removable {
 
-  val waypoints: List<Vec3L> = waypoints.toList()
+  override val dirtyFlag = DirtyFlag()
+
+  private val stops: MutableList<Vec3L> = waypoints.toMutableList()
+
+  val waypoints: List<Vec3L>
+    get() = stops
 
   init {
     require(waypoints.isNotEmpty()) { "A journey needs a destination" }
@@ -32,6 +44,20 @@ class Journey(
 
   val isOnLastLeg: Boolean
     get() = nextIndex == waypoints.lastIndex
+
+  /** The way still ahead as planned, coarsely, for the owner's map. Set whenever a course is planned. */
+  var route: List<Vec3L> = emptyList()
+    set(value) {
+      if (field == value) return
+      field = value
+      markDirty()
+    }
+
+  /** Further stops after the destination: the journey goes on from there. */
+  fun append(more: List<Vec3L>) {
+    stops.addAll(more)
+    markDirty()
+  }
 
   /**
    * The tick an [JourneyOrder.AI] journey is dropped at unless its AI renews it, which is how a creature that
@@ -58,5 +84,14 @@ class Journey(
     nextIndex++
     plan = null
     progress.reachedAim()
+    markDirty()
+  }
+
+  override fun toEntityMessage(entityId: Long, removed: Boolean): EntitySMSG {
+    return JourneyComponentSMSG(entityId, waypoints.toList(), nextIndex, name.orEmpty(), route, removed)
+  }
+
+  override fun syncTargets(world: World, entityId: EntityId): SyncTargets {
+    return SyncTargets.OwnerOnly
   }
 }

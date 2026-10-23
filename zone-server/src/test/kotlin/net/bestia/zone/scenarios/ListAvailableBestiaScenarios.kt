@@ -3,7 +3,7 @@ package net.bestia.zone.scenarios
 import net.bestia.zone.master.net.GetSelfCMSG
 import net.bestia.zone.control.net.SelectEntityCMSG
 import net.bestia.zone.session.ConnectionInfoService
-import net.bestia.zone.control.net.MoveActiveEntityCMSG
+import net.bestia.zone.control.net.MoveEntityCMSG
 import net.bestia.zone.message.SelfSMSG
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
@@ -85,9 +85,10 @@ class ListAvailableBestiaScenarios : BestiaNoSocketScenario() {
 
   private fun movingSelectedBestiaWorks() {
     clientPlayer1.sendMessage(
-      MoveActiveEntityCMSG(
+      MoveEntityCMSG(
         playerId = testData.account1.account.id,
-        path = emptyList()
+        entityId = connectionInfoService.getActiveEntityId(testData.account1.account.id),
+        waypoints = emptyList(),
       )
     )
   }

@@ -1,73 +1,41 @@
 class_name MovementPilot
 extends Node
 
-## Walks the player to a goal, one leg at a time.
+## Walks the player to something and acts on arrival: a prop to collect, a thing to talk to, a target to hit.
 ##
-## [b]Entirely client-side, and that is the design.[/b] The server has no notion of a destination: it
-## takes a path of adjacent steps, validates it and walks it (`MoveActiveEntityHandler`). So a long
-## walk is not a message - it is this, sending the next short stretch shortly before the last one
-## runs out, until the player arrives, gets stuck, or takes over. The server appends that stretch to
-## the walk under way, so the player does not stop between them.
+## The walk is the server's: one [method ConnectionManager.move_to] to the goal is a journey it plans and walks
+## however far. What is left here is noticing arrival, and noticing a walk that got nowhere.
 ##
-## [b]Why legs and not one long path.[/b] [PathCalculator] says outright that it ignores terrain, and
-## the server cuts a path at the first step it cannot walk. A kilometre of straight line sent in one
-## message would therefore be truncated at the first hillside and the player would stop dead with no
-## idea why. A short leg, re-aimed from wherever they actually got to, walks round obstacles by
-## repetition instead - each leg starts from the truth of where the server put them.
-##
-## [b]One goal at a time.[/b] Walking to a map pin and walking to a prop are the same act, so they
-## are one mechanism: setting a goal is what cancels the one before it, and no two can steer the
-## player at once. See [PilotGoal].
+## [b]One goal at a time.[/b] Setting a goal is what cancels the one before it, and no two can steer the
+## player at once. Switching to another entity cancels it too: the goal was that entity's. See [PilotGoal].
 
 const _GROUP := "movement_pilot"
 
-## Tiles per leg.
+## How much closer a walk has to bring us to count as progress, in tiles.
 ##
-## Long enough that the round trip per leg is not the dominant cost of the walk, short enough that a
-## leg truncated against terrain has not wasted much - and it is deliberately near the server's own
-## `NavigationConfig.localSearchSpan` of 32, which is one chunk and the distance that side considers
-## "nearby".
-const _LEG_TILES := 24.0
-
-## How much closer a leg has to bring us to count as progress, in tiles.
-##
-## Not zero: a leg cut short by the server still moves the player a little, and a walk that ends
-## against a wall would otherwise look like progress forever.
+## Not zero: a walk cut short by the server still moves the player a little, and one that ends against a
+## wall would otherwise look like progress forever.
 const _PROGRESS_TILES := 1.0
 
-## Legs that achieved nothing before the goal is abandoned.
+## Walks that achieved nothing before the goal is abandoned.
 ##
-## Two rather than one because a single leg can legitimately stall - the path crosses a chunk the
-## server has not finished tracking, and `MoveActiveEntityHandler` says it treats an unvouched-for
-## step as walkable rather than blocked. The second identical failure is the one that means a wall.
+## Two rather than one because a single walk can legitimately stall on a step the server refused, and the
+## second identical failure is the one that means a wall.
 const _MAX_STALLS := 2
 
-## Seconds to wait after sending a leg before considering the next one.
+## Seconds to wait after sending a walk before looking at it again.
 ##
-## The gap this covers is the round trip: the entity is not moving from the moment the leg is sent
-## until `PathComponentSMSG` comes back, and without a wait every one of those frames would send
-## another leg.
-const _LEG_COOLDOWN := 0.4
-
-## Tile steps of slack, on top of one round trip, left on a walk when the next leg is sent.
-## Covers the server tick and jitter, so the leg is appended before the walk runs out.
-const _EXTEND_MARGIN_STEPS := 2.0
-
-## Assumed until the first pong measures one.
-const _DEFAULT_RTT_SECONDS := 0.2
+## The gap this covers is the round trip: the entity may not be moving from the moment the walk is sent
+## until `PathComponentSMSG` comes back, and without a wait every one of those frames would send another.
+const _WALK_COOLDOWN := 0.4
 
 var _goal: PilotGoal = null
 var _stalls := 0
 var _cooldown := 0.0
 
-## The nearest we have ever been to the goal, in tiles. A leg that fails to beat it walked into
+## The nearest we have ever been to the goal, in tiles. A walk that fails to beat it walked into
 ## something - see [constant _MAX_STALLS].
 var _closest := INF
-
-## The walk end the last leg was appended to. The server's longer path moves the end, which allows the
-## next one; an append it refused leaves the end in place, and the walk ends and starts afresh.
-var _extended_from := Vector3.INF
-
 
 ## The one in the current scene, or null before [code]Game.tscn[/code] exists, so guard the result.
 static func get_instance() -> MovementPilot:
@@ -79,13 +47,10 @@ func _enter_tree() -> void:
 	add_to_group(_GROUP)
 
 
-## Sets off for [param tile_xz] - the destination in tile coordinates, x and z, which is what the
-## entity's own logical position is in.
-##
-## No height: [PathCalculator] interpolates one and the server overwrites it from the heightfield
-## anyway, so a caller that has only a map position is not being asked to invent one.
-func travel_to(tile_xz: Vector2) -> void:
-	_start(TravelGoal.new(tile_xz))
+func _ready() -> void:
+	var entity_manager := EntityManager.get_instance()
+	if entity_manager != null:
+		entity_manager.controlled_entity_changed.connect(func(_previous: int, _now: int) -> void: cancel())
 
 
 ## Collects [param picker], walking to it first if it is out of reach.
@@ -131,7 +96,7 @@ func _process(delta: float) -> void:
 		cancel()
 		return
 
-	# Both the leg and the arrival action assert on this - see ConnectionManager.move_to and
+	# Both the walk and the arrival action assert on this - see ConnectionManager.move_to and
 	# collect_prop. A socket dropped mid-goal is a frame or two ahead of the scene change.
 	if not ConnectionManager.is_ready_to_send():
 		return
@@ -147,7 +112,7 @@ func _process(delta: float) -> void:
 
 	# Moving cancels a cast server-side, so ConnectionManager.move_to is swallowed while channelling.
 	# Holding is the difference between a walk that waits the cast out and one that counts its own
-	# swallowed legs as walking into a wall.
+	# swallowed walks as walking into a wall.
 	if entity.is_casting():
 		return
 
@@ -155,15 +120,13 @@ func _process(delta: float) -> void:
 		_cooldown -= delta
 		return
 
-	# The leg is still being walked. The next one goes out before it runs out, so the walk does not
-	# pause for a round trip at every leg.
+	# The server is still walking it there.
 	if entity.is_moving():
-		_extend_in_time(entity)
 		return
 
-	# A leg that got no closer is a leg that walked into something. Measured against the best we have
-	# ever managed rather than against where this leg began, so a leg that slides along a wall counts
-	# as the failure it is.
+	# A walk that got no closer walked into something. Measured against the best we have ever managed
+	# rather than against where this walk began, so one that slides along a wall counts as the failure
+	# it is.
 	if gap > _closest - _PROGRESS_TILES:
 		_stalls += 1
 		if _stalls >= _MAX_STALLS:
@@ -173,20 +136,19 @@ func _process(delta: float) -> void:
 		_stalls = 0
 	_closest = minf(_closest, gap)
 
-	_send_leg(entity, here)
+	_send_walk(entity)
 
 
 func _start(goal: PilotGoal) -> void:
-	# A leg is only ever sent when the gap is larger than this, so the leg vector is at least this
-	# long, so at least one of its axes spans a whole tile. That is what makes PathCalculator's
-	# empty-path case unreachable from _send_leg, and it is worth an assert rather than a paragraph.
+	# A walk is only ever sent when the gap is larger than this, so at least one of its axes spans a
+	# whole tile. That is what makes PathCalculator's empty-path case unreachable from _send_walk, and it
+	# is worth an assert rather than a paragraph.
 	assert(goal.arrival_tiles() >= sqrt(2))
 
 	_goal = goal
 	_stalls = 0
 	_cooldown = 0.0
 	_closest = INF
-	_extended_from = Vector3.INF
 
 
 func _arrive() -> void:
@@ -195,42 +157,17 @@ func _arrive() -> void:
 	goal.on_arrival()
 
 
-## Aims the next leg at a point along the line to the goal, and hands it to the ordinary move path.
-func _send_leg(entity: Entity, here: Vector2) -> void:
-	var to_goal := _goal.destination() - here
-	var target := here + to_goal.limit_length(_LEG_TILES)
-	_cooldown = _LEG_COOLDOWN
-
-	# Through ConnectionManager.move_to like any other walk, so the leg gets the same cast check, the
-	# same PathCalculator and the same message.
-	#
-	# Handed over as a world position, because that is what move_to takes: it floors its argument
-	# into a tile, so a raw tile coordinate would aim every leg up to a whole tile short. The height
-	# is the player's own - PathCalculator lerps between the endpoints, so giving it the one they are
-	# standing at keeps the invented vertical flat instead of sloping towards a guess.
+## Sends the player walking to the goal, through the ordinary move path so the walk gets the same cast
+## check and the same prediction as a click.
+##
+## Handed over as a world position, because that is what move_to takes: it floors its argument into a tile,
+## so a raw tile coordinate would aim up to a whole tile short. The height is the player's own; the server
+## puts each step on the ground anyway.
+func _send_walk(entity: Entity) -> void:
+	_cooldown = _WALK_COOLDOWN
+	var goal := _goal.destination()
 	var at: Vector3 = entity.get_logical_position()
-	ConnectionManager.move_to(TileSpace.tile_centre(Vector3(target.x, at.y, target.y)))
-
-
-## Appends the next leg once the walk is about one round trip from its end.
-func _extend_in_time(entity: Entity) -> void:
-	var end := entity.path_end()
-	if end == _extended_from:
-		return
-
-	var rtt_seconds := _DEFAULT_RTT_SECONDS
-	if ConnectionManager.rtt_ms >= 0:
-		rtt_seconds = ConnectionManager.rtt_ms / 1000.0
-	if entity.remaining_path_steps() > rtt_seconds * entity.speed() + _EXTEND_MARGIN_STEPS:
-		return
-
-	var end_xz := _horizontal(end)
-	if end_xz.distance_to(_goal.destination()) <= _goal.arrival_tiles():
-		return
-
-	_extended_from = end
-	var target := end_xz + (_goal.destination() - end_xz).limit_length(_LEG_TILES)
-	ConnectionManager.extend_move(end, TileSpace.tile_centre(Vector3(target.x, end.y, target.y)))
+	ConnectionManager.move_to(TileSpace.tile_centre(Vector3(goal.x, at.y, goal.y)))
 
 
 ## The x and z of a logical position, as the plane everything here reasons in. Godot is Y-up, so the

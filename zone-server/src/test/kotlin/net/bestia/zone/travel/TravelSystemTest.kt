@@ -86,6 +86,19 @@ class TravelSystemTest {
   }
 
   @Test
+  fun `the owner's map is told the way ahead, bridge and all`() {
+    val h = inBridgeCountry()
+    val bestia = h.bestiaAt(MASTER_ID, BridgeCountry.WEST)
+
+    h.journeys.start(h.world, bestia, listOf(BridgeCountry.EAST), JourneyOrder.PLAYER)
+    h.tick()
+
+    val route = h.world.getOrThrow(bestia, Journey::class).route
+    assertTrue(BridgeCountry.BRIDGE_WEST in route && BridgeCountry.BRIDGE_EAST in route, "route was $route")
+    assertEquals(BridgeCountry.EAST, route.last())
+  }
+
+  @Test
   fun `with every way it knows blocked there is no route`() {
     val h = inBridgeCountry()
     knowledge.observe(master, country.bridgeEdge, blocked = true)

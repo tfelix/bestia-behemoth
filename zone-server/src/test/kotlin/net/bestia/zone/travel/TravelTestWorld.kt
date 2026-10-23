@@ -6,6 +6,7 @@ import net.bestia.worldgen.core.WorldConfig
 import net.bestia.zone.battle.ecs.attack.AttackCancelService
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.identity.ecs.OwnedBestia
 import net.bestia.zone.movement.ecs.GroundTrample
 import net.bestia.zone.movement.ecs.MoveSystem
@@ -66,6 +67,8 @@ class TravelTestWorld(
       world.add(id, Position.fromVec3(position))
       world.add(id, Speed())
       world.add(id, OwnedBestia(masterId = masterId, playerBestiaId = id))
+      // As in the game: MoveSystem re-checks a player's every step against the ground.
+      world.add(id, Account(masterId))
     }
   }
 

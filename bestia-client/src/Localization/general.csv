@@ -327,3 +327,11 @@ GUILD_LOG_SKILL_LEARNED,{actor} raised the guild skill {detail}.
 GUILD_LOG_MOTD_CHANGED,{actor} changed the message of the day.
 GUILD_LOG_EMBLEM_CHANGED,{actor} gave the guild a new emblem.
 GUILD_LOG_LEADER_TRANSFERRED,{actor} handed the guild to {target}.
+JOURNEY_SELF_NONE,You have arrived.
+JOURNEY_SELF_NO_ROUTE,You know no way there that is not blocked.
+JOURNEY_SELF_STUCK,You found no way on and stopped.
+JOURNEY_SELF_DIED,You died on the way.
+JOURNEY_BESTIA_NONE,%s has arrived.
+JOURNEY_BESTIA_NO_ROUTE,%s knows no way there that is not blocked.
+JOURNEY_BESTIA_STUCK,%s found no way on and stopped.
+JOURNEY_BESTIA_DIED,%s died on the way.

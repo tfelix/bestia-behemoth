@@ -49,6 +49,20 @@ class JourneyService(
     return null
   }
 
+  /**
+   * Adds [waypoints] after the destination of the journey [entity] is on; past [TravelConfig.maxWaypoints] they
+   * are dropped.
+   *
+   * @return false when it is on no journey, which a caller answers by starting one
+   */
+  fun append(world: World, entity: EntityId, waypoints: List<Vec3L>): Boolean {
+    val journey = world.get(entity, Journey::class) ?: return false
+
+    val room = config.maxWaypoints - journey.waypoints.size
+    if (room > 0) journey.append(waypoints.take(room))
+    return true
+  }
+
   /** Stops [entity] where it stands. */
   fun cancel(world: World, entity: EntityId) {
     if (!world.has(entity, Journey::class)) return

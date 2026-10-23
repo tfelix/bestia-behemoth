@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package bnet;
+
+import "messages/delta_path.proto";
+import "messages/vec3.proto";
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "MoveEntityProto";
+
+/**
+ * Sends one of the account's own entities - its master or any of its bestias - through waypoints. The server
+ * plans the way; no waypoints stops the entity where it stands.
+ */
+message MoveEntity {
+  uint64 entity_id = 1;
+  repeated Vec3 waypoints = 2;
+  // Adds the waypoints to the journey under way instead of replacing it.
+  bool append = 3;
+  // The steps this client already walks towards the first waypoint. Walked as sent when every step is valid,
+  // so a click is not corrected a round trip later; otherwise the server plans the leg itself.
+  DeltaPath first_leg = 4;
+}

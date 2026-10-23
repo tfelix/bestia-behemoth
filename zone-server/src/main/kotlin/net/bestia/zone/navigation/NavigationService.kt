@@ -77,6 +77,12 @@ class NavigationService(
     return macroGraph.graph.nodePositions[node]
   }
 
+  /** The bends of [edge] in the order a traveller meets them walking to [node], one of its ends. */
+  fun bendsTowards(edge: Int, node: Int): List<Vec3L> {
+    val runtimeEdge = macroGraph.graph.edges[edge]
+    return if (runtimeEdge.b == node) runtimeEdge.waypoints else runtimeEdge.waypoints.asReversed()
+  }
+
   fun profileFor(profileId: String?): MovementProfile = profiles.getOrDefault(profileId)
 
   private companion object {

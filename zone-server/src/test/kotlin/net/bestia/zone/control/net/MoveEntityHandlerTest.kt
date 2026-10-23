@@ -19,11 +19,16 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import net.bestia.zone.ecs.core.EcsWorld
+import net.bestia.zone.control.ClientLeg
 import net.bestia.zone.control.MoveRequestRateLimit
+import net.bestia.zone.travel.Journey
+import net.bestia.zone.travel.JourneyService
+import net.bestia.zone.travel.TravelConfig
 
-class MoveActiveEntityHandlerTest {
+class MoveEntityHandlerTest {
 
   private val accountId = 1L
+  private val connectionInfoService = ConnectionInfoService()
 
   /** Every step allowed: adjacency and slope both pass. Stands in for a NoQuery world's open floor. */
   private class OpenWalkQuery : LocalWalkQuery {
@@ -65,20 +70,24 @@ class MoveActiveEntityHandlerTest {
     entityId: EntityId,
     walkQuery: LocalWalkQuery,
     rateLimit: MoveRequestRateLimit = MoveRequestRateLimit(WorldRulesConfig(tickRate = 20)),
-  ): MoveActiveEntityHandler {
-    val connectionInfoService = ConnectionInfoService()
+  ): MoveEntityHandler {
     connectionInfoService.activateSession(accountId, masterId = 1L, masterEntityId = entityId)
 
-    return MoveActiveEntityHandler(
+    return MoveEntityHandler(
       connectionInfoService = connectionInfoService,
       logoutCancelService = LogoutCancelService(),
       castCancelService = CastCancelService(),
       attackCancelService = AttackCancelService(),
       deadActionGuard = DeadActionGuard(),
-      walkQuery = walkQuery,
-      zoneConfig = WorldRulesConfig(tickRate = 20),
       rateLimit = rateLimit,
+      journeys = JourneyService(TravelConfig(), AttackCancelService()),
+      clientLeg = ClientLeg(walkQuery, WorldRulesConfig(tickRate = 20)),
     )
+  }
+
+  /** A click the way the client sends one: to the last tile, with the steps it already walks there. */
+  private fun moveAlong(id: EntityId, path: List<Vec3L>): MoveEntityCMSG {
+    return MoveEntityCMSG(accountId, id, waypoints = listOfNotNull(path.lastOrNull()), firstLeg = path)
   }
 
   @Test
@@ -89,59 +98,14 @@ class MoveActiveEntityHandlerTest {
     val handler = handlerFor(world, id, OpenWalkQuery())
 
     val path = listOf(Vec3L(1, 0, 0), Vec3L(2, 0, 0), Vec3L(3, 0, 0))
-    handler.handle(world, MoveActiveEntityCMSG(playerId = accountId, path = path))
+    handler.handle(world, moveAlong(id, path))
 
     assertEquals(path, world.get(id, Path::class)?.path)
   }
 
-  @Test
-  fun `an appended leg extends the walk under way from its last step`() {
-    val world = testWorld()
-    val id = world.createEntity { }
-    world.add(id, Position(0, 0, 0))
-    val handler = handlerFor(world, id, OpenWalkQuery())
-    handler.handle(world, MoveActiveEntityCMSG(playerId = accountId, path = listOf(Vec3L(1, 0, 0), Vec3L(2, 0, 0))))
-
-    handler.handle(world, 
-      MoveActiveEntityCMSG(playerId = accountId, path = listOf(Vec3L(3, 0, 0), Vec3L(4, 0, 0)), append = true)
-    )
-
-    assertEquals(
-      listOf(Vec3L(1, 0, 0), Vec3L(2, 0, 0), Vec3L(3, 0, 0), Vec3L(4, 0, 0)),
-      world.get(id, Path::class)?.path
-    )
-  }
-
-  @Test
-  fun `an appended leg that does not join the walk is ignored`() {
-    val world = testWorld()
-    val id = world.createEntity { }
-    world.add(id, Position(0, 0, 0))
-    val handler = handlerFor(world, id, OpenWalkQuery())
-    val walk = listOf(Vec3L(1, 0, 0), Vec3L(2, 0, 0))
-    handler.handle(world, MoveActiveEntityCMSG(playerId = accountId, path = walk))
-
-    handler.handle(world, MoveActiveEntityCMSG(playerId = accountId, path = listOf(Vec3L(9, 0, 0)), append = true))
-
-    assertEquals(walk, world.get(id, Path::class)?.path)
-  }
-
-  @Test
-  fun `an appended leg after the walk ended starts a new walk from the position`() {
-    val world = testWorld()
-    val id = world.createEntity { }
-    world.add(id, Position(0, 0, 0))
-    val handler = handlerFor(world, id, OpenWalkQuery())
-
-    val leg = listOf(Vec3L(1, 0, 0), Vec3L(2, 0, 0))
-    handler.handle(world, MoveActiveEntityCMSG(playerId = accountId, path = leg, append = true))
-
-    assertEquals(leg, world.get(id, Path::class)?.path)
-  }
-
   /** A walk east from the origin, one waypoint per tile, as the server holds it once a click is accepted. */
-  private fun walkingEast(world: EcsWorld, handler: MoveActiveEntityHandler, tiles: Long) {
-    handler.handle(world, MoveActiveEntityCMSG(playerId = accountId, path = (1L..tiles).map { Vec3L(it, 0, 0) }))
+  private fun walkingEast(world: EcsWorld, handler: MoveEntityHandler, id: EntityId, tiles: Long) {
+    handler.handle(world, moveAlong(id, (1L..tiles).map { Vec3L(it, 0, 0) }))
   }
 
   @Test
@@ -152,12 +116,12 @@ class MoveActiveEntityHandlerTest {
     val id = world.createEntity { }
     world.add(id, Position(0, 0, 0))
     val handler = handlerFor(world, id, OpenWalkQuery())
-    walkingEast(world, handler, 4)
+    walkingEast(world, handler, id, 4)
     val walk = world.getOrThrow(id, Path::class)
     walk.stepRestarted()   // MoveSystem has set off on it
 
     val route = listOf(Vec3L(1, 0, 0), Vec3L(2, 1, 0), Vec3L(3, 2, 0))
-    handler.handle(world, MoveActiveEntityCMSG(playerId = accountId, path = route))
+    handler.handle(world, moveAlong(id, route))
 
     assertEquals(route, walk.path)
     assertFalse(walk.restartsStep, "the step towards (1, 0) is the one under way")
@@ -171,9 +135,9 @@ class MoveActiveEntityHandlerTest {
     val id = world.createEntity { }
     world.add(id, Position(0, 0, 0))
     val handler = handlerFor(world, id, OpenWalkQuery())
-    walkingEast(world, handler, 6)
+    walkingEast(world, handler, id, 6)
 
-    handler.handle(world, MoveActiveEntityCMSG(playerId = accountId, path = listOf(Vec3L(3, 0, 0), Vec3L(3, 1, 0))))
+    handler.handle(world, moveAlong(id, listOf(Vec3L(3, 0, 0), Vec3L(3, 1, 0))))
 
     assertEquals(
       listOf(Vec3L(1, 0, 0), Vec3L(2, 0, 0), Vec3L(3, 0, 0), Vec3L(3, 1, 0)),
@@ -188,9 +152,9 @@ class MoveActiveEntityHandlerTest {
     val id = world.createEntity { }
     world.add(id, Position(0, 0, 0))
     val handler = handlerFor(world, id, WalledWalkQuery(blockedTo = Vec3L(2, 1, 0)))
-    walkingEast(world, handler, 4)
+    walkingEast(world, handler, id, 4)
 
-    handler.handle(world, MoveActiveEntityCMSG(playerId = accountId, path = listOf(Vec3L(1, 0, 0), Vec3L(2, 1, 0))))
+    handler.handle(world, moveAlong(id, listOf(Vec3L(1, 0, 0), Vec3L(2, 1, 0))))
 
     assertEquals(listOf(Vec3L(1, 0, 0)), world.get(id, Path::class)?.path, "the walk ends where the new route is walled")
   }
@@ -201,10 +165,10 @@ class MoveActiveEntityHandlerTest {
     val id = world.createEntity { }
     world.add(id, Position(0, 0, 0))
     val handler = handlerFor(world, id, OpenWalkQuery())
-    walkingEast(world, handler, 4)
+    walkingEast(world, handler, id, 4)
 
     val route = listOf(Vec3L(0, 1, 0), Vec3L(0, 2, 0))
-    handler.handle(world, MoveActiveEntityCMSG(playerId = accountId, path = route))
+    handler.handle(world, moveAlong(id, route))
 
     assertEquals(route, world.get(id, Path::class)?.path)
   }
@@ -216,11 +180,11 @@ class MoveActiveEntityHandlerTest {
     val id = world.createEntity { }
     world.add(id, Position(0, 0, 0))
     val handler = handlerFor(world, id, OpenWalkQuery())
-    walkingEast(world, handler, 3)
+    walkingEast(world, handler, id, 3)
     val path = world.getOrThrow(id, Path::class)
     path.clearDirty()
 
-    handler.handle(world, MoveActiveEntityCMSG(playerId = accountId, path = path.path))
+    handler.handle(world, moveAlong(id, path.path))
 
     assertTrue(path.isDirty())
   }
@@ -233,7 +197,7 @@ class MoveActiveEntityHandlerTest {
     val handler = handlerFor(world, id, WalledWalkQuery(blockedTo = Vec3L(2, 0, 0)))
 
     val path = listOf(Vec3L(1, 0, 0), Vec3L(2, 0, 0), Vec3L(3, 0, 0))
-    handler.handle(world, MoveActiveEntityCMSG(playerId = accountId, path = path))
+    handler.handle(world, moveAlong(id, path))
 
     assertEquals(listOf(Vec3L(1, 0, 0)), world.get(id, Path::class)?.path)
   }
@@ -247,7 +211,7 @@ class MoveActiveEntityHandlerTest {
     val handler = handlerFor(world, id, OpenWalkQuery())
 
     val path = (1L..100L).map { Vec3L(it, 0, 0) }
-    handler.handle(world, MoveActiveEntityCMSG(playerId = accountId, path = path))
+    handler.handle(world, moveAlong(id, path))
 
     assertEquals(path.take(WorldRulesConfig(tickRate = 20).maxMovePathSteps), world.get(id, Path::class)?.path)
   }
@@ -260,7 +224,7 @@ class MoveActiveEntityHandlerTest {
     val handler = handlerFor(world, id, GroundLevelWalkQuery(wallX = 2))
 
     val path = listOf(Vec3L(1, 0, 0), Vec3L(2, 0, 9999), Vec3L(3, 0, 0))
-    handler.handle(world, MoveActiveEntityCMSG(playerId = accountId, path = path))
+    handler.handle(world, moveAlong(id, path))
 
     assertEquals(listOf(Vec3L(1, 0, 0)), world.get(id, Path::class)?.path)
   }
@@ -273,7 +237,7 @@ class MoveActiveEntityHandlerTest {
     val handler = handlerFor(world, id, WalledWalkQuery(blockedTo = Vec3L(1, 0, 0)))
 
     val path = listOf(Vec3L(1, 0, 0), Vec3L(2, 0, 0))
-    handler.handle(world, MoveActiveEntityCMSG(playerId = accountId, path = path))
+    handler.handle(world, moveAlong(id, path))
 
     assertNull(world.get(id, Path::class))
   }
@@ -286,7 +250,7 @@ class MoveActiveEntityHandlerTest {
     val handler = handlerFor(world, id, NeverResidentWalkQuery())
 
     val path = listOf(Vec3L(1, 0, 0), Vec3L(2, 0, 0))
-    handler.handle(world, MoveActiveEntityCMSG(playerId = accountId, path = path))
+    handler.handle(world, moveAlong(id, path))
 
     assertEquals(path, world.get(id, Path::class)?.path)
   }
@@ -299,7 +263,7 @@ class MoveActiveEntityHandlerTest {
     val handler = handlerFor(world, id, OpenWalkQuery())
 
     val path = listOf(Vec3L(5, 5, 0))
-    handler.handle(world, MoveActiveEntityCMSG(playerId = accountId, path = path))
+    handler.handle(world, moveAlong(id, path))
 
     assertNull(world.get(id, Path::class))
   }
@@ -320,7 +284,7 @@ class MoveActiveEntityHandlerTest {
     position.clearDirty()
 
     val handler = handlerFor(world, id, OpenWalkQuery())
-    handler.handle(world, MoveActiveEntityCMSG(playerId = accountId, path = listOf(Vec3L(5, 5, 0))))
+    handler.handle(world, moveAlong(id, listOf(Vec3L(5, 5, 0))))
 
     assertNull(world.get(id, Path::class))
     assertTrue(position.isDirty(), "the entity's real position has to go out, or the next click fails too")
@@ -334,7 +298,7 @@ class MoveActiveEntityHandlerTest {
     world.add(id, Path(mutableListOf(Vec3L(1, 0, 0))))
     val handler = handlerFor(world, id, OpenWalkQuery())
 
-    handler.handle(world, MoveActiveEntityCMSG(playerId = accountId, path = emptyList()))
+    handler.handle(world, moveAlong(id, emptyList()))
 
     assertNull(world.get(id, Path::class))
   }
@@ -352,11 +316,11 @@ class MoveActiveEntityHandlerTest {
     val handler = handlerFor(world, id, OpenWalkQuery(), exhausted)
 
     repeat(2) {
-      handler.handle(world, MoveActiveEntityCMSG(playerId = accountId, path = listOf(Vec3L(1, 0, 0))))
+      handler.handle(world, moveAlong(id, listOf(Vec3L(1, 0, 0))))
     }
     world.remove(id, Path::class)
 
-    handler.handle(world, MoveActiveEntityCMSG(playerId = accountId, path = listOf(Vec3L(1, 0, 0))))
+    handler.handle(world, moveAlong(id, listOf(Vec3L(1, 0, 0))))
 
     assertNull(world.get(id, Path::class), "the request past the burst never reached the world")
   }
@@ -369,9 +333,69 @@ class MoveActiveEntityHandlerTest {
     val handler = handlerFor(world, id, OpenWalkQuery())
 
     repeat(10) {
-      handler.handle(world, MoveActiveEntityCMSG(playerId = accountId, path = listOf(Vec3L(1, 0, 0))))
+      handler.handle(world, moveAlong(id, listOf(Vec3L(1, 0, 0))))
     }
 
     assertTrue(world.get(id, Path::class) != null, "ten clicks is a person, not an attack")
+  }
+
+  @Test
+  fun `an entity the account does not own is not moved`() {
+    val world = testWorld()
+    val master = world.createEntity { }
+    world.add(master, Position(0, 0, 0))
+    val stranger = world.createEntity { }
+    world.add(stranger, Position(5, 0, 0))
+    val handler = handlerFor(world, master, OpenWalkQuery())
+
+    handler.handle(world, moveAlong(stranger, listOf(Vec3L(6, 0, 0))))
+
+    assertFalse(world.has(stranger, Journey::class))
+    assertFalse(world.has(stranger, Path::class))
+  }
+
+  @Test
+  fun `an owned bestia is sent off without being the one driven`() {
+    val world = testWorld()
+    val master = world.createEntity { }
+    world.add(master, Position(0, 0, 0))
+    val bestia = world.createEntity { }
+    world.add(bestia, Position(10, 0, 0))
+    val handler = handlerFor(world, master, OpenWalkQuery())
+    connectionInfoService.registerPlayerBestiaEntity(accountId, masterId = 1L, playerBestiaId = 7L, playerBestiaEntityId = bestia)
+
+    handler.handle(world, MoveEntityCMSG(accountId, bestia, waypoints = listOf(Vec3L(500, 0, 0))))
+
+    assertEquals(listOf(Vec3L(500, 0, 0)), world.get(bestia, Journey::class)?.waypoints)
+    assertFalse(world.has(master, Journey::class), "the master stays where it is")
+  }
+
+  @Test
+  fun `an appended waypoint goes on after the destination`() {
+    val world = testWorld()
+    val id = world.createEntity { }
+    world.add(id, Position(0, 0, 0))
+    val handler = handlerFor(world, id, OpenWalkQuery())
+    handler.handle(world, moveAlong(id, listOf(Vec3L(1, 0, 0), Vec3L(2, 0, 0))))
+
+    handler.handle(world, MoveEntityCMSG(accountId, id, waypoints = listOf(Vec3L(9, 9, 0)), append = true))
+
+    assertEquals(listOf(Vec3L(2, 0, 0), Vec3L(9, 9, 0)), world.get(id, Journey::class)?.waypoints)
+    val walk = world.get(id, Path::class)?.path
+    assertEquals(listOf(Vec3L(1, 0, 0), Vec3L(2, 0, 0)), walk, "the walk under way goes on")
+  }
+
+  @Test
+  fun `a stop ends the journey as well as the walk`() {
+    val world = testWorld()
+    val id = world.createEntity { }
+    world.add(id, Position(0, 0, 0))
+    val handler = handlerFor(world, id, OpenWalkQuery())
+    handler.handle(world, moveAlong(id, listOf(Vec3L(1, 0, 0), Vec3L(2, 0, 0))))
+
+    handler.handle(world, MoveEntityCMSG(accountId, id, waypoints = emptyList()))
+
+    assertFalse(world.has(id, Journey::class))
+    assertFalse(world.has(id, Path::class))
   }
 }

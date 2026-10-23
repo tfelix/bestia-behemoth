@@ -23,6 +23,9 @@ class TravelPlan(
   val remainingNodes: List<Int>
     get() = course.nodes.drop(passed)
 
+  val remainingEdges: List<Int>
+    get() = course.edges.drop(passed)
+
   fun passNode() {
     passed++
   }

@@ -11,6 +11,8 @@ import net.bestia.zone.util.EntityId
 class JourneyEndedEvent(
   source: Any,
   val entityId: EntityId,
+  /** Whose entity it is, null for a creature nobody owns. */
+  val accountId: Long?,
   val order: JourneyOrder,
   val name: String?,
   val position: Vec3L,

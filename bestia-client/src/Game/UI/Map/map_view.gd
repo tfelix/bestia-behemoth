@@ -574,21 +574,29 @@ static func _position_of(entry: Dictionary) -> Vector2:
 	return Vector2(float(entry.get("x", 0.0)), float(entry.get("y", 0.0)))
 
 
-## Sets off for a point on the map, if this view is one that may and the world has said how big a voxel is.
+## Sends the controlled entity to a point on the map, if this view is one that may and the world has said how
+## big a voxel is.
 ##
 ## The [code]/meta[/code] check is not belt and braces: [member _metres_per_voxel] defaults to one, and a
 ## click landing before the answer would convert the destination against a guess. The map is nothing but fog
 ## until meta arrives, so there is nothing worth clicking on either.
 ##
-## The walk itself is [MovementPilot]'s, and is a client-side affair from end to end - the server is only ever
-## sent the ordinary short paths it already understands.
+## The walk is a journey the server plans and keeps walking, however far and whoever the player looks at next.
 func _travel_to(at: Vector2) -> void:
 	if not can_travel or source == null or source.meta.is_empty():
 		return
 
+	var entity_manager := EntityManager.get_instance()
+	var entity: Entity = entity_manager.get_controlled_entity() if entity_manager else null
+	if entity == null:
+		return
+
 	# Metres to tiles, the exact inverse of [method player_metres], which reads the entity's position in
-	# tiles and multiplies. The map's northing is the entity's z, hence the y here landing in z there.
-	MovementPilot.get_instance().travel_to(at / _metres_per_voxel)
+	# tiles and multiplies. The map's northing is the entity's z, hence the y here landing in z there. The
+	# height is the entity's own; the server finds the ground's.
+	var tile := at / _metres_per_voxel
+	var waypoints: Array[Vector3] = [Vector3(tile.x, entity.get_logical_position().y, tile.y)]
+	ConnectionManager.send_on_journey(entity.entity_id, waypoints)
 
 
 ## The tile key covering a world position at this view's level.

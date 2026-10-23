@@ -15,6 +15,7 @@ import net.bestia.zone.item.ecs.CarryCapacity
 import net.bestia.zone.item.ecs.Equipment
 import net.bestia.zone.item.ecs.Inventory
 import net.bestia.zone.place.ecs.Place
+import net.bestia.zone.travel.Journey
 import net.bestia.zone.util.EntityId
 
 /**
@@ -43,5 +44,6 @@ object OwnerComponentResync {
     world.get(entityId, Equipment::class)?.markDirty()
     world.get(entityId, Inventory::class)?.markDirty()
     world.get(entityId, Place::class)?.markDirty()
+    world.get(entityId, Journey::class)?.markDirty()
   }
 }

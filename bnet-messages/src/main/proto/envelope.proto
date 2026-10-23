@@ -11,7 +11,8 @@ import "messages/system/operation_success.proto";
 import "messages/crafting/craft_item_cmsg.proto";
 import "messages/crafting/cancel_craft_cmsg.proto";
 import "messages/crafting/craftable_recipes_smsg.proto";
-import "messages/entity/move_active_entity.proto";
+import "messages/entity/move_entity.proto";
+import "messages/entity/journey_ended_smsg.proto";
 import "messages/entity/select_active_entity.proto";
 import "messages/system/authentication_success.proto";
 import "messages/system/disconnected.proto";
@@ -120,6 +121,8 @@ message Envelope {
   // 504 was vanish_entity, 505 damage_entity and 510-541 the comp_* messages: entity state now travels in
   // state_batch, and the damage event moved to a one-byte tag.
   reserved 504, 505, 510 to 541;
+  // 501 was move_active_entity, which could only move the entity being driven.
+  reserved 501;
 
   oneof message {
     // SYSTEM & ACCOUNT 100
@@ -195,7 +198,8 @@ message Envelope {
 
     // ENTITY & COMPONENTS 500
     SelectActiveEntity select_active_entity = 500;
-    MoveActiveEntity move_active_entity = 501;
+    MoveEntity move_entity = 506;
+    JourneyEndedSMSG journey_ended = 507;
     // 502 held GetAllEntities, the one-shot login snapshot, and is reserved below. An entity is now
     // announced when the chunk it stands in reaches the client - see ChunkEntityVisibility.
     AttackEntityCMSG attack_entity = 503;

@@ -9,7 +9,7 @@ import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.movement.ecs.PathSMSG
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.session.NoActiveSessionException
-import net.bestia.zone.control.net.MoveActiveEntityCMSG
+import net.bestia.zone.control.net.MoveEntityCMSG
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.identity.ecs.OwnedBestia
 import org.junit.jupiter.api.Assertions.*
@@ -108,13 +108,16 @@ class BehemothE2EScenarios : BestiaNoSocketScenario(
     val entityId = connectionInfoService.getSelectedMasterEntityId(clientPlayer1.connectedPlayerId)
     val from = world.read { get(entityId, Position::class)!!.toVec3L() }
 
-    val msg = MoveActiveEntityCMSG(
+    val steps = listOf(
+      Vec3L(from.x, from.y + 1, from.z),
+      Vec3L(from.x, from.y + 2, from.z),
+      Vec3L(from.x, from.y + 3, from.z)
+    )
+    val msg = MoveEntityCMSG(
       playerId = clientPlayer1.connectedPlayerId,
-      path = listOf(
-        Vec3L(from.x, from.y + 1, from.z),
-        Vec3L(from.x, from.y + 2, from.z),
-        Vec3L(from.x, from.y + 3, from.z)
-      )
+      entityId = entityId,
+      waypoints = listOf(steps.last()),
+      firstLeg = steps,
     )
 
     clientPlayer1.sendMessage(msg)

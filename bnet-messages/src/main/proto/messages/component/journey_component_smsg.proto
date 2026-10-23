@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package bnet;
+
+import "messages/vec3.proto";
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "JourneyComponentSMSGProto";
+
+// Where one of the player's own entities is travelling, for its map. Sent to the owner only, at any distance;
+// removed, with removed = true, when the journey ends.
+message JourneyComponentSMSG {
+  repeated Vec3 waypoints = 1;
+  // The waypoint travelled to now; the ones before it are behind.
+  uint32 next_index = 2;
+  string name = 3;
+  // The way still ahead as planned, coarsely: road bends and junctions to the current waypoint.
+  repeated Vec3 route = 4;
+  bool removed = 5;
+}

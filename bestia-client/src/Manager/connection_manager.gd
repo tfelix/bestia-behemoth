@@ -12,6 +12,8 @@ signal self_received(message: SelfSMSG)
 signal owned_bestias_received(message: OwnedBestiasSMSG)
 ## The server confirmed which entity the player now controls.
 signal active_entity_received(message: ActiveEntitySMSG)
+## One of the player's own entities ended a journey, arrived or not.
+signal journey_ended(message: JourneyEndedSMSG)
 ## A trap was sprung near us and the catch was rolled.
 signal bestia_capture_received(message: BestiaCaptureSMSG)
 signal chat_received(message: ChatSMSG)
@@ -76,7 +78,7 @@ var SelectMasterCMSG = load("res://Bnet/Message/Master/SelectMasterCMSG.cs")
 var CreateMasterCMSG = load("res://Bnet/Message/Master/CreateMasterCMSG.cs")
 var DeleteMasterCMSG = load("res://Bnet/Message/Master/DeleteMasterCMSG.cs")
 var AttackEntityCMSG = load("res://Bnet/Message/Entity/AttackEntityCMSG.cs")
-var MoveActiveEntityCMSG = load("res://Bnet/Message/Entity/MoveActiveEntityCMSG.cs")
+var MoveEntityCMSG = load("res://Bnet/Message/Entity/MoveEntityCMSG.cs")
 var SelectActiveEntityCMSG = load("res://Bnet/Message/Entity/SelectActiveEntityCMSG.cs")
 var GetInventoryCMSG = load("res://Bnet/Message/Inventory/GetInventoryCMSG.cs")
 var GetSkillsCMSG = load("res://Bnet/Message/Master/GetSkillsCMSG.cs")
@@ -248,7 +250,12 @@ func request_logout() -> void:
 ## already treats as player activity and so removes the logout intent — no dedicated message needed.
 func cancel_logout() -> void:
 	assert(is_ready_to_send())
-	_socket.SendMessage(MoveActiveEntityCMSG.new())
+	var entity_manager := EntityManager.get_instance()
+	if entity_manager == null:
+		return
+	var msg = MoveEntityCMSG.new()
+	msg.EntityId = entity_manager.get_controlled_entity_id()
+	_socket.SendMessage(msg)
 
 
 ## Asks the server to revive the active entity at its save point. Only meaningful while that entity
@@ -403,7 +410,7 @@ func invest_status_points(investments: Array) -> void:
 	_socket.SendMessage(msg)
 
 
-## Moves the active entity towards a ground position, walking there tile by tile.
+## Moves the controlled entity to a ground position it can see, walking there tile by tile at once.
 ## TODO this is bullshit to do this in the connection manager !!! do this in the game and only send the path.
 func move_to(destination: Vector3) -> void:
 	assert(is_ready_to_send())
@@ -416,7 +423,7 @@ func move_to(destination: Vector3) -> void:
 
 	# Moving cancels a cast server-side, so movement clicks are swallowed while channelling rather
 	# than silently throwing the cast away. Gated here rather than in the mouse state so every caller
-	# is covered; cancel_logout() sends its empty-path stop directly and is deliberately unaffected.
+	# is covered; cancel_logout() sends its empty stop directly and is deliberately unaffected.
 	if owned_entity.is_casting():
 		return
 
@@ -434,29 +441,29 @@ func move_to(destination: Vector3) -> void:
 	if path.is_empty():
 		return
 
-	var msg = MoveActiveEntityCMSG.new()
-	msg.Path = path
+	var waypoints: Array[Vector3] = [destination]
+	var msg = MoveEntityCMSG.new()
+	msg.EntityId = owned_entity.entity_id
+	msg.Waypoints = waypoints
+	msg.FirstLeg = path
 	_socket.SendMessage(msg)
 
 	# Walk it now rather than a round trip from now. Waiting for the server's own PathComponentSMSG before
 	# moving put the whole round trip between the click and the first step, which is what made movement feel
-	# unresponsive however well the interpolation behaved. The server remains the authority - see
-	# Entity.predict_path for what happens when it disagrees, or does not answer.
+	# unresponsive however well the interpolation behaved. The server walks these steps as sent when they are
+	# valid - see Entity.predict_path for what happens when it disagrees, or does not answer.
 	owned_entity.predict_path(path)
 
 
-## Adds a leg to the walk under way. The leg starts next to [param path_end], the walk's last tile, so the
-## server can append it and the entity walks on without stopping.
-func extend_move(path_end: Vector3, destination: Vector3) -> void:
+## Sends one of the player's own entities through [param waypoints], however far: the server plans the way and
+## keeps walking it while the player looks elsewhere. [param append] adds them to the journey under way.
+func send_on_journey(entity_id: int, waypoints: Array[Vector3], append: bool = false) -> void:
 	assert(is_ready_to_send())
 
-	var path := PathCalculator.calculate_tile_path(path_end, destination)
-	if path.is_empty():
-		return
-
-	var msg = MoveActiveEntityCMSG.new()
-	msg.Path = path
-	msg.Append = true
+	var msg = MoveEntityCMSG.new()
+	msg.EntityId = entity_id
+	msg.Waypoints = waypoints
+	msg.Append = append
 	_socket.SendMessage(msg)
 
 
@@ -967,6 +974,8 @@ func _on_bnet_socket_message_received(message: Object) -> void:
 		owned_bestias_received.emit(message)
 	elif message is ActiveEntitySMSG:
 		active_entity_received.emit(message)
+	elif message is JourneyEndedSMSG:
+		journey_ended.emit(message)
 	elif message is BestiaCaptureSMSG:
 		bestia_capture_received.emit(message)
 	elif message is ChatSMSG:

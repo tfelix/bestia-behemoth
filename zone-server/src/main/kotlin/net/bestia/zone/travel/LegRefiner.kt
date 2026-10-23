@@ -23,9 +23,19 @@ class LegRefiner(
   private val navigationConfig: NavigationConfig,
 ) {
 
-  fun isDue(journey: Journey, path: Path?): Boolean {
-    if (path == null || path.remainingSteps <= LOOKAHEAD_STEPS) return true
-    return journey.secondsSinceRefined >= config.repathInterval.toMillis() / 1000f
+  /**
+   * A leg that ends on the aim is left alone: [net.bestia.zone.movement.ecs.MoveSystem] still refuses a step
+   * somebody built a wall on, and the walk then runs out and is refined. Searching it again on the interval
+   * would only replace a client's own first leg with an equally good one it never asked for.
+   */
+  fun isDue(journey: Journey, path: Path?, aim: Vec3L): Boolean {
+    if (path == null || path.isEmpty) return true
+
+    val endsOnAim = path.lastWaypoint?.let { it.x == aim.x && it.y == aim.y } == true
+    if (endsOnAim) return false
+
+    return path.remainingSteps <= LOOKAHEAD_STEPS ||
+      journey.secondsSinceRefined >= config.repathInterval.toMillis() / 1000f
   }
 
   /** Does nothing when this tick's searches are spent: the traveller keeps its leg and asks again next tick. */
@@ -41,7 +51,8 @@ class LegRefiner(
 
     if (path == null) {
       world.add(entity, Path(leg.toMutableList()))
-    } else {
+    } else if (leg != path.path.drop(1)) {
+      // Only a different way is announced; the same way found again is not news to anyone watching.
       path.rerouteAfter(0, leg)
     }
   }
@@ -53,13 +64,16 @@ class LegRefiner(
       ?: emptyList()
   }
 
-  /** [aim] itself when a search can reach it, otherwise as far towards it in a straight line as one can. */
+  /**
+   * [aim] itself when a search can reach it, otherwise as far towards it in a straight line as one can. At the
+   * traveller's own height: a map click and a macro node do not know the ground's, and the search finds it.
+   */
   private fun withinSearchSpan(from: Vec3L, aim: Vec3L): Vec3L {
     val dx = aim.x - from.x
     val dy = aim.y - from.y
     val distance = maxOf(Math.abs(dx), Math.abs(dy))
     val span = navigationConfig.localSearchSpan
-    if (distance <= span) return aim
+    if (distance <= span) return Vec3L(aim.x, aim.y, from.z)
 
     val stride = span.toDouble() / distance
     return Vec3L(from.x + Math.round(dx * stride), from.y + Math.round(dy * stride), from.z)

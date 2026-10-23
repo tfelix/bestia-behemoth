@@ -27,6 +27,9 @@ var _detached_vitals: Dictionary[int, Dictionary] = {}
 ## The last beacon of each guild member's master, by entity id. Apart from the nodes for the reason
 ## [member _detached_vitals] is: most of them stand far out of view.
 var _guild_beacons: Dictionary[int, GuildMemberBeaconComponentSMSG] = {}
+## Where the player's own entities are travelling, by entity id. Apart from the nodes as well: a bestia sent
+## far off has a route on the map and no body in the scene.
+var _journeys: Dictionary[int, JourneyComponentSMSG] = {}
 
 ## The player took control of another of their entities. [param previous_id] is 0 on the first one.
 signal controlled_entity_changed(previous_id: int, entity_id: int)
@@ -34,6 +37,8 @@ signal controlled_entity_changed(previous_id: int, entity_id: int)
 signal owned_bestias_changed(bestias: Array[BestiaInfo])
 ## A guild member's beacon arrived; see [method get_guild_beacon].
 signal guild_beacon_changed(entity_id: int)
+## One of the player's own entities set off, got on, or ended a journey; see [method get_journey].
+signal journey_changed(entity_id: int)
 
 
 ## EntityManager isn't an autoload (see the TODO above - its lifecycle is tied to the
@@ -278,6 +283,14 @@ func _on_entity_message_received(msg: EntitySMSG) -> void:
 		guild_beacon_changed.emit(msg.EntityId)
 		return
 
+	if msg is JourneyComponentSMSG:
+		if msg.Removed:
+			_journeys.erase(msg.EntityId)
+		else:
+			_journeys[msg.EntityId] = msg
+		journey_changed.emit(msg.EntityId)
+		return
+
 	if _keep_detached(msg):
 		return
 
@@ -373,6 +386,23 @@ func _on_entity_message_received(msg: EntitySMSG) -> void:
 	# Server sends vanish information -> remove the node + potentially buffered stuff
 	# Server sends damage -> lookup entity node and attach damage scn to entity node
 	# server sends chat -> lookup entity node and attach chat scn to entity
+
+
+## The journey [param entity_id] is on, or null when it is on none.
+func get_journey(entity_id: int) -> JourneyComponentSMSG:
+	return _journeys.get(entity_id)
+
+
+func get_journeys() -> Dictionary[int, JourneyComponentSMSG]:
+	return _journeys
+
+
+## The name the player knows one of its own bestias by: its own or its species'. Empty for anything else.
+func owned_name_of(entity_id: int) -> String:
+	for bestia in _owned_bestias:
+		if bestia.EntityId == entity_id:
+			return OwnedSlots.name_of(bestia)
+	return ""
 
 
 func get_guild_beacon(entity_id: int) -> GuildMemberBeaconComponentSMSG:

@@ -732,7 +732,7 @@ func predict_path(waypoints: Array[Vector3]) -> void:
 ## is stepping onto - or [constant Vector3.INF] when there is no walk, and a route starts where it stands.
 ##
 ## A route drawn from the nearest tile instead got clicks refused mid-walk: by the middle of every step that tile
-## is two from the last one the server reached, which is all it measures from. See MoveActiveEntityHandler.
+## is two from the last one the server reached, which is all it measures from. See ClientLeg on the server.
 func joining_tile() -> Vector3:
 	var node := _joining_node()
 	return Vector3.INF if node < 0 else _nodes[node]

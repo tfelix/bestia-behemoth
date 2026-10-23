@@ -16,6 +16,7 @@ import "messages/component/guild_member_beacon_smsg.proto";
 import "messages/component/guild_tag_component_smsg.proto";
 import "messages/component/health_component_smsg.proto";
 import "messages/component/inventory_component_smsg.proto";
+import "messages/component/journey_component_smsg.proto";
 import "messages/component/level_component_smsg.proto";
 import "messages/component/logout_intent_smsg.proto";
 import "messages/component/mana_component_smsg.proto";
@@ -92,5 +93,6 @@ message ComponentDelta {
     WornGearComponentSMSG worn_gear = 29;
     GuildMemberBeaconSMSG guild_member_beacon = 30;
     GuildTagComponentSMSG guild_tag = 31;
+    JourneyComponentSMSG journey = 32;
   }
 }

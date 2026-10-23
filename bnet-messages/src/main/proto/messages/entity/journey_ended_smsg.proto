@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package bnet;
+
+import "messages/vec3.proto";
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "JourneyEndedSMSGProto";
+
+// One of the player's own entities ended a journey, arrived or not. Sent to the owner once.
+message JourneyEndedSMSG {
+  enum Failure {
+    NONE = 0;
+    // Every way it knows of is blocked.
+    NO_ROUTE = 1;
+    // It made no headway for too long: walled in or in a dead end.
+    STUCK = 2;
+    DIED = 3;
+  }
+
+  uint64 entity_id = 1;
+  Failure failure = 2;
+  Vec3 position = 3;
+  string name = 4;
+}

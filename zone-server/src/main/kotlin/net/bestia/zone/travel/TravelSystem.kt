@@ -6,6 +6,7 @@ import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.movement.ecs.MoveSystem
 import net.bestia.zone.movement.ecs.Path
 import net.bestia.zone.movement.ecs.Position
@@ -35,7 +36,7 @@ class TravelSystem(
   /** A leg laid this tick is walked this tick, and signed before it is walked. */
   override val before = setOf(ActorSignatureSystem::class, MoveSystem::class)
 
-  override val reads: ComponentClassSet = setOf(Position::class, Dead::class) + Knower.READS
+  override val reads: ComponentClassSet = setOf(Position::class, Dead::class, Account::class) + Knower.READS
 
   override val writes: ComponentClassSet = setOf(Journey::class, Path::class, SimulationAnchor::class)
 
@@ -62,10 +63,11 @@ class TravelSystem(
     val knower = Knower.of(world, id)
     if (planner.needsPlan(journey, knower)) {
       journey.plan = planner.plan(position, journey, knower) ?: return end(world, id, journey, JourneyFailure.NO_ROUTE)
+      journey.route = planner.outline(journey)
     }
 
     val aim = planner.nextAim(journey, position)
-    if (refiner.isDue(journey, world.get(id, Path::class))) refiner.refineNextLeg(world, id, journey, position, aim)
+    if (refiner.isDue(journey, world.get(id, Path::class), aim)) refiner.refineNextLeg(world, id, journey, position, aim)
 
     watchdog.check(journey, knower, position, aim, deltaTime)?.let { return end(world, id, journey, it) }
   }
@@ -92,7 +94,8 @@ class TravelSystem(
     world.get(id, SimulationAnchor::class)?.priority = AnchorPriority.RESTING
 
     val position = world.getOrThrow(id, Position::class).toVec3L()
-    events.publishEvent(JourneyEndedEvent(this, id, journey.order, journey.name, position, failure))
+    val accountId = world.get(id, Account::class)?.accountId
+    events.publishEvent(JourneyEndedEvent(this, id, accountId, journey.order, journey.name, position, failure))
   }
 
   private companion object {

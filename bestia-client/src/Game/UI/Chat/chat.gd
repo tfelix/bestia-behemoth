@@ -51,6 +51,7 @@ func _ready() -> void:
 	ConnectionManager.connect("chat_received", _on_chat_received)
 	ConnectionManager.operation_error.connect(_on_operation_error)
 	ConnectionManager.bestia_capture_received.connect(_on_bestia_capture)
+	ConnectionManager.journey_ended.connect(_on_journey_ended)
 
 
 func _input(event):
@@ -300,6 +301,25 @@ func _on_bestia_capture(message: BestiaCaptureSMSG) -> void:
 		return
 
 	system_line(tr("CAPTURE_SUCCESS") if message.Success else tr("CAPTURE_FAILED"))
+
+
+## The master's own journey is told as the player's, a bestia's under its name.
+func _on_journey_ended(message: JourneyEndedSMSG) -> void:
+	var entity_manager := EntityManager.get_instance()
+	if entity_manager == null:
+		return
+
+	var failure := message.FailureName.to_upper()
+	var bestia_name := entity_manager.owned_name_of(message.EntityId)
+	var line: String
+	if bestia_name == "":
+		line = tr("JOURNEY_SELF_%s" % failure)
+	else:
+		line = tr("JOURNEY_BESTIA_%s" % failure) % bestia_name
+	if message.FailureName == "none":
+		system_line(line)
+	else:
+		error_line(line)
 
 
 func _on_chat_received(message: ChatSMSG) -> void:

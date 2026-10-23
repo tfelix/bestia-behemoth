@@ -26,7 +26,7 @@ import net.bestia.zone.logout.ecs.LogoutIntentComponentSMSG
 import net.bestia.zone.logout.net.RequestLogoutCMSG
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.movement.ecs.PathSMSG
-import net.bestia.zone.control.net.MoveActiveEntityCMSG
+import net.bestia.zone.control.net.MoveEntityCMSG
 import net.bestia.zone.entity.VanishEntitySMSG
 import net.bestia.zone.extensions.test
 import net.bestia.zone.geometry.Vec3L
@@ -174,15 +174,16 @@ class MultiPlayerJourneyScenario : BestiaNoSocketScenario(autoClientConnect = fa
       "the selected master has to be in the world before it can walk anywhere"
     )
 
-    // A path carries absolute world coordinates and MoveActiveEntityHandler drops one whose first step is
-    // not adjacent to where the entity actually stands, so the step has to be read off the entity rather
-    // than written down: a master spawns in the middle of the map, not at the origin.
+    // Waypoints carry absolute world coordinates, so the step has to be read off the entity rather than
+    // written down: a master spawns in the middle of the map, not at the origin.
     val step = start.copy(y = start.y + 1)
 
     clientPlayer1.sendMessage(
-      MoveActiveEntityCMSG(
+      MoveEntityCMSG(
         playerId = clientPlayer1.connectedPlayerId,
-        path = listOf(step)
+        entityId = activeEntityId,
+        waypoints = listOf(step),
+        firstLeg = listOf(step),
       )
     )
 

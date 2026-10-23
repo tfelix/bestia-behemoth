@@ -177,7 +177,7 @@ class MoveSystemTest {
     //
     // Worth a test rather than a null check because the throw left the walk unfinished: the client was never
     // told it had ended, kept predicting from where it thought the entity was, and the next click produced a
-    // path `MoveActiveEntityHandler` had to refuse.
+    // path `ClientLeg` had to refuse.
     val world = testWorld(systems = listOf(MoveSystem(flat, GroundTrample.NONE, TestNavigation.flatGround())))
     val id = world.createEntity { }
 

@@ -48,7 +48,24 @@ class RoutePlanner(
 
       plan.passNode()
       journey.progress.reachedAim()
+      journey.route = outline(journey)
     }
+  }
+
+  /** The way still ahead, coarsely: each road bend and junction, then every waypoint still to visit. */
+  fun outline(journey: Journey): List<Vec3L> {
+    val points = ArrayList<Vec3L>()
+    val plan = journey.plan
+
+    if (plan != null) {
+      for ((node, edge) in plan.remainingNodes.zip(plan.remainingEdges)) {
+        points.addAll(navigation.bendsTowards(edge, node))
+        points.add(navigation.nodePosition(node))
+      }
+    }
+
+    points.addAll(journey.waypoints.drop(journey.nextIndex))
+    return points
   }
 
   /** Near enough that walking to a road junction first would be a detour. */

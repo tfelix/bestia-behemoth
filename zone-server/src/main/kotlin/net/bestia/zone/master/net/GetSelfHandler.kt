@@ -10,6 +10,7 @@ import net.bestia.zone.message.IoMessageHandler
 import net.bestia.zone.message.SelfSMSG
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.message.decoder
+import net.bestia.zone.travel.Journey
 import net.bestia.zone.util.AccountId
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
@@ -51,6 +52,7 @@ class GetSelfHandler(
     entityVisibility.reannounce(msg.playerId)
     val ownedEntityIds = listOf(selfInfo.masterEntityId) + selfInfo.availableBestias.map { it.entityId }
     entityVisibility.introduce(msg.playerId, ownedEntityIds)
+    resyncJourneys(ownedEntityIds)
 
     // The client's party and guild windows ask again once they load; this covers the scene that is ready first.
     partyRosterPublisher.sendTo(msg.playerId)
@@ -62,6 +64,13 @@ class GetSelfHandler(
   private fun resyncOwnerComponents(masterEntityId: EntityId) {
     world.modify(masterEntityId) { id -> OwnerComponentResync.resync(this, id) }
       ?: LOG.warn { "Cannot resync components, master entity $masterEntityId is not alive" }
+  }
+
+  /** A bestia may be far off on its way somewhere, and the map shows where. */
+  private fun resyncJourneys(ownedEntityIds: List<EntityId>) {
+    for (entityId in ownedEntityIds) {
+      world.modify(entityId) { id -> get(id, Journey::class)?.markDirty() }
+    }
   }
 
   private fun getSelfInfo(accountId: AccountId): SelfSMSG {
