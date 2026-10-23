@@ -8,7 +8,7 @@ import net.bestia.zone.guild.persistence.GuildEmblemRepository
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
-/** Serves a guild's emblem to the api-service, which keeps it for good: the hash names one picture forever. */
+/** Serves a guild's emblem to the api-server, which keeps it for good: the hash names one picture forever. */
 @Component
 class GuildEmblemQueries(private val emblems: GuildEmblemRepository) {
 

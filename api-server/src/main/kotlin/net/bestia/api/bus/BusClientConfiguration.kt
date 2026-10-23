@@ -13,7 +13,7 @@ import net.bestia.bus.valkey.ValkeyStreamReader
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
-/** The api-service's end of the bus, as the `api` user of the zone's Valkey. */
+/** The api-server's end of the bus, as the `api` user of the zone's Valkey. */
 @Configuration
 class BusClientConfiguration(private val properties: BusClientProperties) {
 

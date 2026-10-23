@@ -3,10 +3,10 @@ package net.bestia.bus.contract
 /**
  * One question on its way to a zone.
  *
- * [accountId] is the caller as the api-service authenticated it. The zone trusts it because only the api-service
+ * [accountId] is the caller as the api-server authenticated it. The zone trusts it because only the api-server
  * can publish to a zone's request channel (Valkey ACL), and checks every master in [query] against it.
  *
- * @property replyTo the channel of the api-service instance that is waiting
+ * @property replyTo the channel of the api-server instance that is waiting
  * @property deadlineEpochMs past this the caller has given up, so the zone does not start the work
  * @property idempotencyKey set on writes; a repeat within the key's lifetime gets the first reply back
  */

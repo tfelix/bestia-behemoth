@@ -1,6 +1,6 @@
 /**
- * The api-service's resources, as named in its OpenAPI document. `npm run gen:api` regenerates schema.d.ts from
- * a running api-service; these names keep the rest of the app off its generated paths.
+ * The api-server's resources, as named in its OpenAPI document. `npm run gen:api` regenerates schema.d.ts from
+ * a running api-server; these names keep the rest of the app off its generated paths.
  */
 import type { components } from './schema';
 

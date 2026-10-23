@@ -7,7 +7,7 @@ plugins {
 }
 
 group = 'net.bestia.api'
-description = 'api-service'
+description = 'api-server'
 
 // The companion app's REST API and WebSocket. It never reads the zone's database: every question about the world
 // goes to the zone over the bus (see bus/), and the answers are cached here.

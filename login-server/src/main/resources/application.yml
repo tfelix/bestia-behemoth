@@ -8,7 +8,7 @@ server:
 management:
   metrics:
     tags:
-      # Tells this service's series apart from the zone's and the api-service's in the one Prometheus.
+      # Tells this service's series apart from the zone's and the api-server's in the one Prometheus.
       application: login-server
 
 spring:
@@ -49,8 +49,8 @@ jwt:
   # Validity (minutes) of the token a game client calls this server's REST API with. Renewed on every refresh,
   # so a stolen one is useful only briefly.
   api-token-minutes: 15
-  # companion-secret (JWT_COMPANION_SECRET): signs the companion app's tokens and is shared with the api-service only.
-  # Must differ from secret, so the api-service cannot mint zone tokens; LoginDeploymentGuard checks both.
+  # companion-secret (JWT_COMPANION_SECRET): signs the companion app's tokens and is shared with the api-server only.
+  # Must differ from secret, so the api-server cannot mint zone tokens; LoginDeploymentGuard checks both.
   # Validity (minutes) of a companion access token. The app renews it from its refresh cookie.
   companion-token-minutes: 15
 

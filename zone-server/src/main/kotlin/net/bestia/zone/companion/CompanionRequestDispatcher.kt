@@ -21,7 +21,7 @@ import net.bestia.zone.companion.query.StanceCommand
 import net.bestia.zone.companion.query.TicketQueries
 import org.springframework.stereotype.Component
 
-/** Routes each question from the api-service to the query that answers it. Runs on a bus worker thread. */
+/** Routes each question from the api-server to the query that answers it. Runs on a bus worker thread. */
 @Component
 class CompanionRequestDispatcher(
   private val masters: MasterQueries,

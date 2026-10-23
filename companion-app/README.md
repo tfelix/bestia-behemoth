@@ -1,20 +1,20 @@
 # Bestia Companion
 
 The companion web app: an installable PWA for looking in on your Masters and Bestia while you are away from the
-game. It talks JSON to `api-service` (`/v1/companion/...`) and signs in through `login-server`
-(`/api/v1/auth/companion/...`). Design: bestia-docs `mechanics/companion-app.md` and `server/api-service.md`.
+game. It talks JSON to `api-server` (`/v1/companion/...`) and signs in through `login-server`
+(`/api/v1/auth/companion/...`). Design: bestia-docs `mechanics/companion-app.md` and `server/api-server.md`.
 
 ## Running it
 
-Start the servers first, zone before api-service (the zone's compose file brings up Valkey):
+Start the servers first, zone before api-server (the zone's compose file brings up Valkey):
 
 ```
 ./gradlew :zone-server:bootRun
 ./gradlew :login-server:bootRun
-./gradlew :api-service:bootRun
+./gradlew :api-server:bootRun
 ```
 
-The game client needs the api-service as well: its map comes from there, not from the zone.
+The game client needs the api-server as well: its map comes from there, not from the zone.
 
 Then the app on http://localhost:5173, whose dev server proxies `/api/v1/auth` and `/v1/companion` to the servers:
 
@@ -30,10 +30,10 @@ allows them; on iPhone and iPad only once the app is on the Home Screen.
 
 `npm run check` (svelte-check) and `npm test` (vitest), or `./gradlew companionCheck` from the repository root.
 
-`src/lib/api/schema.d.ts` is generated from the api-service's OpenAPI document. After changing a REST DTO:
+`src/lib/api/schema.d.ts` is generated from the api-server's OpenAPI document. After changing a REST DTO:
 
 ```
-./gradlew :api-service:test --tests net.bestia.api.OpenApiDocumentTest
+./gradlew :api-server:test --tests net.bestia.api.OpenApiDocumentTest
 npm run gen:api
 ```
 

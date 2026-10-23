@@ -1,6 +1,6 @@
 extends Node
 ## Guild emblems by the hash that names them: in memory, then on disk under [constant CACHE_DIR], then asked of
-## the api-service once. A hash names one picture forever, so no copy is ever checked again.
+## the api-server once. A hash names one picture forever, so no copy is ever checked again.
 ##
 ## An autoload, because name tags and the guild window both draw emblems and either may ask first.
 

@@ -24,8 +24,8 @@ jwt:
   # Public and committed; LoginDeploymentGuard refuses it outside the dev and test profiles. Must equal
   # zone-server's dev `zone.jwt-auth-secret-key`.
   secret: "your-secret-key-here-change-in-production"
-  # Public and committed too, and refused outside dev and test. Must equal api-service's dev companion.jwt-secret.
-  companion-secret: "dev-companion-secret-shared-with-api-service"
+  # Public and committed too, and refused outside dev and test. Must equal api-server's dev companion.jwt-secret.
+  companion-secret: "dev-companion-secret-shared-with-api-server"
 
 # The Valkey of zone-server/compose.yaml. Public and committed; LoginDeploymentGuard refuses it outside dev and test.
 bus:

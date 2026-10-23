@@ -33,7 +33,7 @@ class ZoneDefaultConfigTest {
     assertNull(load("application.yml").getProperty("zone.jwt-auth-secret-key"))
   }
 
-  /** The api-service is the world's HTTP face; the zone serves its game socket and nothing else to the outside. */
+  /** The api-server is the world's HTTP face; the zone serves its game socket and nothing else to the outside. */
   @Test
   fun `the zone runs no web server`() {
     val config = load("application.yml")

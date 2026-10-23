@@ -40,7 +40,7 @@ export function appendLine(lines: ChatLine[], line: ChatLine, cap: number = MAX_
 	return [...lines, line].slice(-cap);
 }
 
-/** What to tell the writer when the api-service refused their line. */
+/** What to tell the writer when the api-server refused their line. */
 export function refusalText(status: number, channel: Channel): string | null {
 	switch (status) {
 		case 403:

@@ -23,8 +23,8 @@ architecture questions, this file and the source are more authoritative than the
 | `login-server` | Spring Boot REST auth service, issues JWTs |
 | `shared` | small Kotlin types shared by both servers: `Role`/`Authority` (`shared/src/main/kotlin/net/bestia/account/`). **Not** shared DB entities — each server defines its own JPA `Account` |
 | `zone-server` | Spring Boot game server: Netty TCP socket, message dispatch, ECS game loop, AI |
-| `bus` | the Valkey bus between zone and api-service: contract (`net.bestia.bus.contract`), framing, Lettuce transport. Not a Spring app |
-| `api-service` | Spring Boot REST (JSON) + WebSocket for the companion app; asks the zone over the bus, never reads its DB |
+| `bus` | the Valkey bus between zone and api-server: contract (`net.bestia.bus.contract`), framing, Lettuce transport. Not a Spring app |
+| `api-server` | Spring Boot REST (JSON) + WebSocket for the companion app; asks the zone over the bus, never reads its DB |
 | `companion-app` | SvelteKit PWA (npm, root Gradle tasks `companionCheck`/`companionBuild`), not a Gradle subproject |
 
 Gradle multi-module build (`settings.gradle`); each server is its own Spring Boot app
@@ -365,7 +365,7 @@ Four tokens, each with an audience matched exactly so none stands in for another
 | zone login token | `zone` | `jwt.login-token-minutes` (2) | the socket handshake, once (`jti`) |
 | refresh token | - (opaque, stored as a digest) | `game-login.refresh-token-days` | `/refresh`, rotated on every use |
 | api token | `login-api` | `jwt.api-token-minutes` (15) | the client's calls to `/api/v1/admin/**` |
-| companion token | `companion` | `jwt.companion-token-minutes` (15) | the companion app's calls to api-service; signed with `jwt.companion-secret`, not the zone secret |
+| companion token | `companion` | `jwt.companion-token-minutes` (15) | the companion app's calls to api-server; signed with `jwt.companion-secret`, not the zone secret |
 
 Login sessions and refresh tokens carry a `client` (`GAME`/`COMPANION`); `LoginGrants` refuses a grant for the other
 client, so nothing from a companion login opens a zone. The companion refresh token is an httpOnly cookie on
@@ -419,26 +419,26 @@ world; their `OwnedBestia` component (`identity/ecs/`) is the source of truth fo
 master respawns the missing ones from their `player_bestia` rows
 (`PlayerBestiaEntitySpawner.respawnMissing`), which `PlayerBestiaEntityPersister` keeps current.
 
-## The companion app: api-service ↔ bus ↔ zone
+## The companion app: api-server ↔ bus ↔ zone
 
-Design and reasons: bestia-docs `server/api-service.md`. Where things are:
+Design and reasons: bestia-docs `server/api-server.md`. Where things are:
 
 - **Valkey is the zone's.** `zone-server/compose.yaml` runs it with `zone-server/valkey/users.acl` (users `zone`,
   `api`, `login`); `ValkeyAclTest` proves each user can do its part. Keys and channels are all in
   `bus/.../BusKeys.kt`. Streams are written by `ValkeyStreamAppender` and read by `ValkeyStreamReader` (tail,
   replay, consumer group); `ValkeyEventPublisher` puts a non-blocking outbox in front of the appender for the tick.
   The zone's bus beans are in `zone/bus/` (`BusConfiguration`, or `NoBusConfiguration` under `bus.enabled: false`).
-- **Request/reply.** api-service `ZoneClient` → `ValkeyNodeBus.ask` (directory lookup, `zone:{node}:requests`,
+- **Request/reply.** api-server `ZoneClient` → `ValkeyNodeBus.ask` (directory lookup, `zone:{node}:requests`,
   reply on `api:{instance}:replies`, 5 s timeout) → zone `BusRequestServer` (starts on `ApplicationReadyEvent`) →
   `ValkeyRequestServer` (virtual threads, 64 in flight, idempotency keys) → `CompanionRequestDispatcher` →
   `companion/query/*`. Every query checks ownership through `OwnedMasters`. Bus answers map to HTTP in
-  `api-service/.../rest/ZoneReplies.kt`.
+  `api-server/.../rest/ZoneReplies.kt`.
 - **Events.** Slices publish Spring events (`OwnedBestiaDiedEvent` from `PlayerDeathSystem` on the tick,
   `StructureCompletedEvent`, `HomeFellEvent`, `BestiaAiConfigChangedEvent`, `ChartsChangedEvent`);
   `companion/ZoneEventRelay` turns them into `ZoneEvent`s on the `ValkeyEventPublisher` outbox (never blocks; DB
   lookups go to a DB job first). `PresenceHeartbeat` writes the directory every 10 s and emits `Presence`.
-  api-service reads the stream in `EventFanOut` (WebSocket + cache eviction) and `PushNotifier` (consumer group).
-- **The game client's map** comes from the api-service too, on the same `/v1/companion/masters/{id}/map/...`
+  api-server reads the stream in `EventFanOut` (WebSocket + cache eviction) and `PushNotifier` (consumer group).
+- **The game client's map** comes from the api-server too, on the same `/v1/companion/masters/{id}/map/...`
   routes: the client sends `Authorization: Ticket <http_ticket>` from its socket handshake, `CompanionAuthFilter`
   accepts a ticket on map routes only, and `TicketOwners` asks the zone whose it is (`ZoneQuery.WhoseTicket`,
   cached 30 s, dropped on `Presence(inWorld=false)`). The zone serves no HTTP.

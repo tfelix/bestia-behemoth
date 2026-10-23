@@ -12,6 +12,6 @@ message GuildTagComponentSMSG {
   string guild_name = 2;
   string rank_title = 3;
   bool removed = 4;
-  // Names the guild's emblem PNG at the api-service; empty while the guild has none.
+  // Names the guild's emblem PNG at the api-server; empty while the guild has none.
   string emblem_hash = 5;
 }

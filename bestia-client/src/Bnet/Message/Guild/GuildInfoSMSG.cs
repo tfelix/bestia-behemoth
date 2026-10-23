@@ -50,7 +50,7 @@ namespace BestiaBehemothClient.Bnet.Message.Guild
 
     [Export] public uint MotdBodyMaxLength { get; set; }
 
-    /// <summary>Names the guild's emblem at the api-service; empty while it has none.</summary>
+    /// <summary>Names the guild's emblem at the api-server; empty while it has none.</summary>
     [Export] public string EmblemHash { get; set; } = string.Empty;
 
     /// <summary>Masters kicked out, newest first; none of them can be invited until it is lifted.</summary>

@@ -482,7 +482,7 @@ class GuildScenarios : BestiaNoSocketScenario() {
 
     val served = emblemQueries.emblem("emblem", ZoneQuery.GuildEmblem(hash))
     assertEquals(BusReply.Status.OK, served.status)
-    assertEquals(EmblemImage.SIZE, ImageIO.read(served.body.inputStream()).width, "the api-service gets the stored PNG")
+    assertEquals(EmblemImage.SIZE, ImageIO.read(served.body.inputStream()).width, "the api-server gets the stored PNG")
 
     val forApp = assertNotNull(guildQueries.guild(clientPlayer1.connectedPlayerId, player1MasterId)?.guild)
     assertEquals(hash, forApp.emblemHash)

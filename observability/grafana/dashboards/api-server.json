@@ -4,7 +4,7 @@
   "description": "The companion app's REST API and WebSocket: asks to the zone over the bus, auth, map caches, live sockets, web push.",
   "tags": [
     "bestia",
-    "api-service"
+    "api-server"
   ],
   "timezone": "browser",
   "editable": true,

@@ -4,7 +4,7 @@ Kotlin/Spring Boot MMORPG monorepo: `login-server` (auth) + `zone-server` (game 
 Netty socket + ECS) talk to a Godot/C# client (`bestia-client`) over protobuf
 (`bnet-messages`). World generation by `worldgen`. No shared DB between servers.
 Shared code between servers, mostly login and inter-server communication related lives in `shared`.
-The companion web app (`companion-app/`, SvelteKit, npm) talks JSON to `api-service`, which also serves the game
+The companion web app (`companion-app/`, SvelteKit, npm) talks JSON to `api-server`, which also serves the game
 client's map and asks the zone over the Valkey bus in `bus` (the zone owns Valkey: `zone-server/compose.yaml`).
 The login server kicks players over the same bus. The zone runs no web server: it listens on its game socket and a
 loopback metrics port only.
@@ -25,9 +25,9 @@ running — the worldgen test executor runs out of memory under that load and re
 against unrelated tests. A test that needs a generated world asks `TestWorlds.get(...)` rather than
 calling `StandardWorld.build`; `.claude/skills/worldgen/SKILL.md` says why and when not to.
 
-`./gradlew :bus:test` and `:api-service:test` need Docker (Testcontainers runs Valkey and MariaDB).
+`./gradlew :bus:test` and `:api-server:test` need Docker (Testcontainers runs Valkey and MariaDB).
 `./gradlew companionCheck` type-checks and unit-tests the companion app; it needs Node 22+. After
-changing a REST DTO, regenerate the app's types: `:api-service:test --tests
+changing a REST DTO, regenerate the app's types: `:api-server:test --tests
 net.bestia.api.OpenApiDocumentTest`, then `npm run gen:api` in `companion-app/`.
 
 Anything that fans out to every module (`./gradlew test`, `check`, `build`, or a bare `./gradlew`

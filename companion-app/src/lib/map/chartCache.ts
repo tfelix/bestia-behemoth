@@ -50,7 +50,7 @@ export class TtlMap<V> {
 }
 
 /**
- * What the map has already asked the api-service this visit, so that zooming out and back in, or panning over
+ * What the map has already asked the api-server this visit, so that zooming out and back in, or panning over
  * ground just left, does not spend the account's request budget again. A tile is the bytes, or null for ground
  * that is not charted (a 404); a failure is never stored.
  *

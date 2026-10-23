@@ -6,7 +6,7 @@ import java.time.Duration
 import java.util.concurrent.CompletableFuture
 
 /**
- * The api-service's side of request/reply: ask the zone that holds an account, and wait for its answer.
+ * The api-server's side of request/reply: ask the zone that holds an account, and wait for its answer.
  *
  * The future fails with [ZoneUnavailableException] when no zone is listening, and with a
  * [java.util.concurrent.TimeoutException] when the zone did not answer in time. A write that timed out may or

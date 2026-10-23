@@ -5,7 +5,7 @@ server:
 
 spring:
   application:
-    name: api-service
+    name: api-server
   # `dev` when no profile is set, as for the other servers; ApiDeploymentGuard refuses the dev-only values elsewhere.
   profiles:
     default: dev
@@ -37,7 +37,7 @@ bus:
   # host, port, username, password: the `api` user of zone-server/valkey/users.acl; the dev profile has them.
   # Where a request goes for an account that is not in the world. One zone node today.
   default-node: zone-1
-  # This instance's reply channel. Must differ for every api-service instance.
+  # This instance's reply channel. Must differ for every api-server instance.
   instance-id: api-1
   request-timeout-millis: 5000
 
@@ -61,7 +61,7 @@ management:
       default: none
   metrics:
     tags:
-      application: api-service
+      application: api-server
     distribution:
       percentiles-histogram:
         http.server.requests: true

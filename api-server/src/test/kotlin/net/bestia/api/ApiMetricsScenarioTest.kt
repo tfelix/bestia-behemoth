@@ -42,7 +42,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 /**
- * The api-service's meters after real traffic: the same stand-in zone as [ApiServiceScenarioTest], and a read of the
+ * The api-server's meters after real traffic: the same stand-in zone as [ApiServerScenarioTest], and a read of the
  * context's own registry. The registry outlives a test, so every check compares against the value from before.
  */
 class ApiMetricsScenarioTest : ApiScenarioTestBase() {

@@ -1,6 +1,6 @@
 import { accessToken, refresh } from '$lib/auth';
 
-/** An event from the world, as the api-service relays it. */
+/** An event from the world, as the api-server relays it. */
 export type LiveEvent = { id: string; type: string; data: Record<string, unknown> };
 
 type Frame = { type: 'ready'; lastEventId: string } | { type: 'event'; event: LiveEvent };
@@ -10,7 +10,7 @@ const TOKEN_EXPIRED = 4001;
 const UNAUTHORIZED = 4000;
 
 /**
- * The socket to the api-service: connected while signed in, reconnecting with backoff, and resuming from the
+ * The socket to the api-server: connected while signed in, reconnecting with backoff, and resuming from the
  * last event it saw, so a phone that slept through an event still hears about it on waking.
  */
 class Live {

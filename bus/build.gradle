@@ -6,7 +6,7 @@ plugins {
 group = 'net.bestia.bus'
 description = 'bus'
 
-// The message bus between zone-server and api-service: the contract both sides speak, and its Valkey transport.
+// The message bus between zone-server and api-server: the contract both sides speak, and its Valkey transport.
 // A plain library, not a Spring Boot app - each service wires the pieces it needs in its own configuration.
 dependencyManagement {
     imports {

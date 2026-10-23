@@ -33,7 +33,7 @@ class DashboardMetricsTest : ApiScenarioTestBase() {
         .map { "${dashboard.fileName}: $it" }
     }.distinct()
 
-    assertTrue(missing.isEmpty(), "Not exported by api-service: $missing")
+    assertTrue(missing.isEmpty(), "Not exported by api-server: $missing")
   }
 
   @Test

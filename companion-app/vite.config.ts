@@ -36,7 +36,7 @@ function bestiaNames(): Plugin {
 }
 
 // The dev server stands in for the production proxy: one origin for the app, the login server and the
-// api-service, so no request is cross-origin and the refresh cookie is first-party. IPv4 literals, because
+// api-server, so no request is cross-origin and the refresh cookie is first-party. IPv4 literals, because
 // `localhost` may resolve to ::1 where the servers are not listening.
 export default defineConfig({
 	plugins: [sveltekit(), bestiaNames()],

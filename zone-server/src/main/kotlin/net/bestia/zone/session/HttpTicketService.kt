@@ -10,7 +10,7 @@ import org.springframework.core.annotation.Order
 /**
  * The credential the client's HTTP requests carry, minted per socket session.
  *
- * The requests go to the api-service, which asks the zone over the bus whose ticket it is. Named for what it
+ * The requests go to the api-server, which asks the zone over the bus whose ticket it is. Named for what it
  * authenticates rather than for its one current use, the map: nothing about a session credential is map-shaped.
  *
  * ### Why not the login token

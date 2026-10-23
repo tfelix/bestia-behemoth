@@ -10,7 +10,7 @@ extends Node
 ## re-requested every time the window opens. Conditional requests, a cache that survives a restart and a
 ## transfer that cannot delay a movement packet are all things HTTP already does.
 ##
-## [b]Where and how.[/b] From the api-service, the companion app's server, under the selected master's id. It
+## [b]Where and how.[/b] From the api-server, the companion app's server, under the selected master's id. It
 ## is sent the ticket the zone hands over in [code]AuthenticationSuccess[/code], which lives exactly as long as
 ## the connection, and asks the zone whose ticket it is. Deliberately not the login JWT this once sent: that
 ## expires minutes after the login server issued it and the socket only checks it once, so the map quietly
@@ -75,7 +75,7 @@ const _MAX_RETRY_AFTER := 4096
 
 ## Attempts at the map's [code]/meta[/code], and the wait between them.
 ##
-## Retried because it can legitimately fail at the moment it is first asked - the api-service or the zone
+## Retried because it can legitimately fail at the moment it is first asked - the api-server or the zone
 ## behind it busy or still starting - and nothing else asks again: without a map version nothing can be
 ## addressed, so one lost request would mean no map for the whole session.
 const _META_ATTEMPTS := 10
@@ -811,8 +811,8 @@ func _write_through(key: String, png: PackedByteArray, dir_path: String, index: 
 	index.erase(key)
 
 
-## The selected master's map on the api-service. The master is in the path, as for the companion app, and the
-## api-service checks it is the ticket's account's.
+## The selected master's map on the api-server. The master is in the path, as for the companion app, and the
+## api-server checks it is the ticket's account's.
 func _map_base() -> String:
 	return "%s/v1/companion/masters/%d/map" % [SettingsManager.get_instance().api_server_url, _master_id()]
 

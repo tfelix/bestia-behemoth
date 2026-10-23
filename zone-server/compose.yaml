@@ -12,7 +12,7 @@ services:
     volumes:
       - 'zone-mariadb-data:/var/lib/mysql'
 
-  # The bus between the zones, the api-service and the login server. Owned by the zone: a cluster of zone nodes
+  # The bus between the zones, the api-server and the login server. Owned by the zone: a cluster of zone nodes
   # needs it anyway, and the others are only its clients. Users and what each may touch are in valkey/users.acl.
   valkey:
     image: 'valkey/valkey:8.1'

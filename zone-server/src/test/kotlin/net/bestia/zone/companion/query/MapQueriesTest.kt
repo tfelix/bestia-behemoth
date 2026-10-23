@@ -40,7 +40,7 @@ import kotlin.test.assertTrue
 
 /**
  * The map as the bus serves it, to the companion app and the game client alike: what is charted, what is fog,
- * what revalidates, and whose ticket is whose. The HTTP side of the same rules is the api-service's MapController.
+ * what revalidates, and whose ticket is whose. The HTTP side of the same rules is the api-server's MapController.
  *
  * It charts on a master of its own, made here and deleted afterwards, rather than on a fixture master: the shared
  * context's other tests count the fixture masters' inventories. A context of its own would cost a whole generated

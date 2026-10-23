@@ -13,7 +13,7 @@ dependencies {
 	// Deterministic world generation and the chunk representation. Pure functions over data, no I/O -
 	// see worldgen/build.gradle. This module owns the persistence and the sockets; worldgen owns the voxels.
 	implementation project(':worldgen')
-	// The Valkey bus the api-service asks this zone through, and the event stream it reads.
+	// The Valkey bus the api-server asks this zone through, and the event stream it reads.
 	implementation project(':bus')
 
 	implementation 'io.netty:netty-all:4.1.118.Final'
@@ -21,7 +21,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	// No web server: the zone serves its Netty socket, answers the bus and exports metrics (below), and the
-	// api-service is its HTTP face. The JSON starter is here for the `ObjectMapper` the persisters inject - Boot
+	// api-server is its HTTP face. The JSON starter is here for the `ObjectMapper` the persisters inject - Boot
 	// builds it with spring-web's builder, so that jar comes along, but nothing in it is served.
 	implementation 'org.springframework.boot:spring-boot-starter-json'
 	// The meter registry only; actuator serves nothing without a web server. The scrape is the Prometheus

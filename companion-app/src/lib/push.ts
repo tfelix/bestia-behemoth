@@ -24,7 +24,7 @@ export async function currentSubscription(): Promise<PushSubscription | null> {
 	return registration.pushManager.getSubscription();
 }
 
-/** Asks for permission (from a tap, as browsers require), subscribes, and tells the api-service where to send. */
+/** Asks for permission (from a tap, as browsers require), subscribes, and tells the api-server where to send. */
 export async function enablePush(): Promise<void> {
 	if ((await Notification.requestPermission()) !== 'granted') throw new Error('Notifications were not allowed.');
 

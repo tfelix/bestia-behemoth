@@ -15,7 +15,7 @@ const FORMAT_VERSION := 1
 ## exchange the resulting one-time code for a signed JWT.
 @export var login_server_url: String = "http://localhost:8080"
 
-## The api-service, which serves the map: tiles, the names on them and the services in them. Its own server,
+## The api-server, which serves the map: tiles, the names on them and the services in them. Its own server,
 ## apart from the game socket: tiles are bulk PNG traffic with their own caching. Renamed from
 ## `map_server_url` when the map moved off the zone, so a settings file that still names the zone's old port
 ## is ignored for this value rather than obeyed.

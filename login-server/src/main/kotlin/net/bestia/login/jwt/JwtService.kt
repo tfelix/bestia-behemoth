@@ -66,7 +66,7 @@ class JwtService(
       .compact()
   }
 
-  /** Lets the companion app call the api-service as [accountId]. Signed with the companion key, not [secretKey]. */
+  /** Lets the companion app call the api-server as [accountId]. Signed with the companion key, not [secretKey]. */
   fun createCompanionToken(accountId: Long): String {
     val now = Date()
     metrics.tokenIssued(LoginMetrics.TokenType.COMPANION)

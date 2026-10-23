@@ -9,7 +9,7 @@
     "preview": "vite preview",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --fail-on-warnings",
     "test": "vitest run",
-    "gen:api": "openapi-typescript ../api-service/build/openapi/companion.json -o src/lib/api/schema.d.ts"
+    "gen:api": "openapi-typescript ../api-server/build/openapi/companion.json -o src/lib/api/schema.d.ts"
   },
   "devDependencies": {
     "@sveltejs/adapter-static": "3.0.10",

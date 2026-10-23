@@ -17,7 +17,7 @@ export class SignedOut extends ApiError {
 }
 
 /**
- * A call to the api-service as the signed-in account. A 401 is answered once with a refresh and a retry, since
+ * A call to the api-server as the signed-in account. A 401 is answered once with a refresh and a retry, since
  * the token may have expired on the way; a second 401 means the session itself is over.
  */
 export async function call(path: string, init: RequestInit = {}): Promise<Response> {

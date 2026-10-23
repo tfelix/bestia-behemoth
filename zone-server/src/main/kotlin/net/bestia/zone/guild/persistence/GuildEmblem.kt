@@ -7,7 +7,7 @@ import jakarta.persistence.Table
 
 /**
  * A guild's emblem, a PNG already cleaned by `EmblemImage`. Apart from [Guild] so reading a guild never loads it;
- * the api-service asks for it by [hash], which [Guild.emblemHash] mirrors.
+ * the api-server asks for it by [hash], which [Guild.emblemHash] mirrors.
  */
 @Entity
 @Table(name = "guild_emblem")

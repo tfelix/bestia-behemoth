@@ -8,9 +8,9 @@ import net.bestia.zone.session.HttpTicketService
 import org.springframework.stereotype.Component
 
 /**
- * Whose game connection a ticket belongs to, so the api-service can serve the game client's map. A ticket is
+ * Whose game connection a ticket belongs to, so the api-server can serve the game client's map. A ticket is
  * minted at the socket handshake and dropped when the socket closes, so it proves a live connection and nothing
- * more; the api-service accepts it for the map only.
+ * more; the api-server accepts it for the map only.
  */
 @Component
 class TicketQueries(private val tickets: HttpTicketService) {

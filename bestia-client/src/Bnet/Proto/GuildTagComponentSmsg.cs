@@ -145,7 +145,7 @@ namespace Bnet {
     public const int EmblemHashFieldNumber = 5;
     private string emblemHash_ = "";
     /// <summary>
-    /// Names the guild's emblem PNG at the api-service; empty while the guild has none.
+    /// Names the guild's emblem PNG at the api-server; empty while the guild has none.
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]

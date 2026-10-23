@@ -53,10 +53,10 @@ class LoginDeploymentGuardTest {
   @Test
   fun `a deployment configuration is accepted`() {
     assertDoesNotThrow { guard() }
-    assertDoesNotThrow { guard(companionSecret = "another-secret-only-the-api-service-holds") }
+    assertDoesNotThrow { guard(companionSecret = "another-secret-only-the-api-server-holds") }
   }
 
-  /** The api-service holds the companion key; if it were the zone's, it could mint zone tokens. */
+  /** The api-server holds the companion key; if it were the zone's, it could mint zone tokens. */
   @Test
   fun `with companion login on, its key must be its own and not the development one`() {
     assertThrows<IllegalStateException> { guard(companionSecret = LoginDeploymentGuard.DEV_COMPANION_SECRET) }

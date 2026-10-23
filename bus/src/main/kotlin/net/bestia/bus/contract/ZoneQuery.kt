@@ -3,7 +3,7 @@ package net.bestia.bus.contract
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 
 /**
- * What the api-service may ask a zone on behalf of an account. The account travels on the [BusRequest], never in
+ * What the api-server may ask a zone on behalf of an account. The account travels on the [BusRequest], never in
  * here, so a query cannot name somebody else's; every master id in a query is checked against it by the zone.
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")

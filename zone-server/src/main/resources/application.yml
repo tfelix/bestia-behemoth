@@ -566,7 +566,7 @@ spring:
 
   main:
     # No web server. The zone serves its game socket (`socket.port`), answers the bus, and exports metrics on a
-    # port of their own (`metrics` below); its HTTP face is the api-service.
+    # port of their own (`metrics` below); its HTTP face is the api-server.
     web-application-type: none
 
 # The Prometheus scrape (`/metrics`) and a liveness probe (`/-/healthy`), served by the Prometheus client's own
@@ -591,7 +591,7 @@ cartography:
   starter-chart-radius-metres: 5000
   survey-radius-per-level-metres: 1000
 
-# The Valkey bus (see bus/ and compose.yaml). The zone answers the api-service's questions about an account, keeps
+# The Valkey bus (see bus/ and compose.yaml). The zone answers the api-server's questions about an account, keeps
 # the directory of who is in the world, appends events to the stream, and reads the login server's kicks.
 bus:
   enabled: true

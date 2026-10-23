@@ -30,7 +30,7 @@ class ApiDeploymentGuard(
   }
 
   companion object {
-    const val DEV_COMPANION_SECRET = "dev-companion-secret-shared-with-api-service"
+    const val DEV_COMPANION_SECRET = "dev-companion-secret-shared-with-api-server"
     const val DEV_VAPID_PUBLIC_KEY = "BPC8EVmzvqSQvPRBDi7FjAQqyAJGZsxH9jKT16aTDbUK79Vg4h1rwiPXhadB5_X6i1fOj0--Na1QGZJdQgNlfko"
 
     /** HMAC-SHA256 needs a key at least as long as its output. */

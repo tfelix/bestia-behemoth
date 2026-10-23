@@ -29,7 +29,7 @@ import kotlin.test.assertEquals
 class ValkeyAclTest {
 
   @Test
-  fun `the zone and the api-service users can each play their part`() {
+  fun `the zone and the api-server users can each play their part`() {
     val zone = connect("zone", "zone-dev-password")
     val api = connect("api", "api-dev-password")
 

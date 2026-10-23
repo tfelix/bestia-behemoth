@@ -43,10 +43,10 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 /**
- * The api-service end to end against a stand-in zone: a request server on the real bus whose answers each test
+ * The api-server end to end against a stand-in zone: a request server on the real bus whose answers each test
  * sets, and an event publisher with the zone's own Valkey user.
  */
-class ApiServiceScenarioTest : ApiScenarioTestBase() {
+class ApiServerScenarioTest : ApiScenarioTestBase() {
 
   @Autowired
   private lateinit var rest: TestRestTemplate

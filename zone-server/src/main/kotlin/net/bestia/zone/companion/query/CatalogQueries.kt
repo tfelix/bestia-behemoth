@@ -8,7 +8,7 @@ import java.security.MessageDigest
 
 /**
  * The item and bestia catalogue, whose content is imported at boot and fixed until the next. The version is a
- * digest of the content, so the api-service can cache it until it actually changes.
+ * digest of the content, so the api-server can cache it until it actually changes.
  */
 @Service
 class CatalogQueries(

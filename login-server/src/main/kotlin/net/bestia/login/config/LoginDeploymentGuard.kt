@@ -44,7 +44,7 @@ class LoginDeploymentGuard(
           "jwt.companion-secret must be at least $MIN_SECRET_BYTES bytes"
         }
         check(jwtConfig.companionSecret != jwtConfig.secret) {
-          "jwt.companion-secret must differ from jwt.secret, or the api-service could mint zone tokens"
+          "jwt.companion-secret must differ from jwt.secret, or the api-server could mint zone tokens"
         }
       }
     }
@@ -52,7 +52,7 @@ class LoginDeploymentGuard(
 
   companion object {
     const val DEV_SECRET = "your-secret-key-here-change-in-production"
-    const val DEV_COMPANION_SECRET = "dev-companion-secret-shared-with-api-service"
+    const val DEV_COMPANION_SECRET = "dev-companion-secret-shared-with-api-server"
     const val DEV_BUS_PASSWORD = "login-dev-password"
 
     /** HMAC-SHA256 needs a key at least as long as its output. */

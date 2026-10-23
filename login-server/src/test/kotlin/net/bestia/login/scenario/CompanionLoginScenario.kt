@@ -110,7 +110,7 @@ class CompanionLoginScenario : BasePasskeyScenario() {
       ?: fail("no refresh cookie in ${response.headers}")
   }
 
-  /** Verified as the api-service verifies it: the companion key, and exactly the companion audience. */
+  /** Verified as the api-server verifies it: the companion key, and exactly the companion audience. */
   private fun companionAccountOf(token: String): Long {
     val key = Keys.hmacShaKeyFor(jwt.companionSecret.toByteArray(StandardCharsets.UTF_8))
     val claims = Jwts.parser().verifyWith(key).build().parseSignedClaims(token).payload

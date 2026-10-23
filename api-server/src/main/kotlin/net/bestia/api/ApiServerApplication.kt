@@ -9,8 +9,8 @@ import org.springframework.scheduling.annotation.EnableScheduling
 @SpringBootApplication
 @ConfigurationPropertiesScan("net.bestia.api")
 @EnableScheduling
-class ApiServiceApplication
+class ApiServerApplication
 
 fun main(args: Array<String>) {
-  runApplication<ApiServiceApplication>(*args)
+  runApplication<ApiServerApplication>(*args)
 }

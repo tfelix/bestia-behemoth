@@ -1,7 +1,7 @@
 # Loaded under the `dev` profile, the default. Every value here is public and committed.
 companion:
   # Must equal login-server's dev `jwt.companion-secret`.
-  jwt-secret: "dev-companion-secret-shared-with-api-service"
+  jwt-secret: "dev-companion-secret-shared-with-api-server"
   # The Vite dev server of companion-app/, whose proxy forwards the socket here.
   allowed-origins:
     - "http://localhost:5173"
