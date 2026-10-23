@@ -37,8 +37,10 @@ import net.bestia.zone.entity.ecs.Living
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.persistence.Persistent
+import net.bestia.zone.travel.StoredJourney
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.util.PlayerBestiaId
+import net.bestia.zone.world.anchor.AnchorPriority
 import net.bestia.zone.world.anchor.SimulationAnchor
 import net.bestia.zone.world.vicinity.Vicinity
 import org.springframework.stereotype.Component
@@ -220,8 +222,11 @@ class PlayerBestiaEntitySpawner(
     )
 
     add(id, Persistent)
+    // Sent off before a restart, it carries on.
+    val journey = StoredJourney.decode(playerBestia.journey)?.toJourney()
+    journey?.let { add(id, it) }
     // Its surroundings live while it does, master online or not, so the wild can find it.
-    add(id, SimulationAnchor())
+    add(id, SimulationAnchor(if (journey != null) AnchorPriority.TRAVELLER else AnchorPriority.RESTING))
     // What it sees of the routes is its master's knowledge too.
     add(id, Vicinity())
     add(id, OwnedBestia(masterId = playerBestia.master.id, playerBestiaId = playerBestia.id))

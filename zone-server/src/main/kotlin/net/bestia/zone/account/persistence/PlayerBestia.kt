@@ -6,6 +6,7 @@ import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.item.container.ContainerOwner
 import net.bestia.zone.item.persistence.ItemContainer
 import net.bestia.zone.bestia.persistence.Bestia
+import org.hibernate.Length
 import org.hibernate.annotations.ColumnDefault
 
 @Entity
@@ -67,6 +68,14 @@ class PlayerBestia(
    */
   @Embedded
   var aiConfig: AiConfig = AiConfig()
+
+  /**
+   * The journey it is on, as [net.bestia.zone.travel.StoredJourney] writes it, so a bestia sent off keeps going
+   * after a restart. Null when it is on none.
+   */
+  @Lob
+  @Column(name = "journey", length = Length.LONG32)
+  var journey: String? = null
 
   /** When the write-behind last saved the live state into this row, in epoch milliseconds; 0 until it first has. */
   @Column(name = "persisted_at", nullable = false)

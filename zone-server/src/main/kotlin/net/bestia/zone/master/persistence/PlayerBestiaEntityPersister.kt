@@ -12,6 +12,8 @@ import net.bestia.zone.persistence.EntityPersister
 import net.bestia.zone.persistence.EntitySnapshot
 import net.bestia.zone.account.SavePointService
 import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.travel.Journey
+import net.bestia.zone.travel.StoredJourney
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.util.PlayerBestiaId
 import org.springframework.stereotype.Component
@@ -34,6 +36,7 @@ class PlayerBestiaEntityPersister(
     val position: Vec3L,
     val level: Int,
     val died: Boolean,
+    val journey: String?,
   ) : EntitySnapshot {
 
     /** The master's key, so selecting the master waits for this write before it reads the row. */
@@ -46,7 +49,8 @@ class PlayerBestiaEntityPersister(
   override val kind = "player-bestia"
   override val loadsAtStartup = false
 
-  override val reads: ComponentClassSet = setOf(OwnedBestia::class, Position::class, Level::class, Dead::class)
+  override val reads: ComponentClassSet =
+    setOf(OwnedBestia::class, Position::class, Level::class, Dead::class, Journey::class)
 
   override fun supports(world: World, id: EntityId): Boolean {
     return world.has(id, OwnedBestia::class)
@@ -63,6 +67,7 @@ class PlayerBestiaEntityPersister(
       position = position.toVec3L(),
       level = world.get(id, Level::class)?.level ?: 1,
       died = world.has(id, Dead::class),
+      journey = world.get(id, Journey::class)?.let { StoredJourney.of(it) }?.encode(),
     )
   }
 
@@ -83,6 +88,7 @@ class PlayerBestiaEntityPersister(
         snap.position
       }
       playerBestia.level = snap.level
+      playerBestia.journey = if (snap.died) null else snap.journey
       playerBestia.persistedAtEpochMs = System.currentTimeMillis()
       playerBestiaRepository.save(playerBestia)
     }
