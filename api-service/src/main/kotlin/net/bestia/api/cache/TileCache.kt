@@ -2,6 +2,8 @@ package net.bestia.api.cache
 
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
+import io.micrometer.core.instrument.MeterRegistry
+import io.micrometer.core.instrument.binder.cache.CaffeineCacheMetrics
 import org.springframework.stereotype.Component
 
 /**
@@ -9,16 +11,20 @@ import org.springframework.stereotype.Component
  * conditional one, and a 304 from the zone is enough to answer from here: the PNG crosses the bus once.
  */
 @Component
-class TileCache {
+class TileCache(registry: MeterRegistry) {
 
   private val bytesByEtag: Cache<String, ByteArray> = Caffeine.newBuilder()
     .maximumWeight(MAX_BYTES)
     .weigher<String, ByteArray> { _, bytes -> bytes.size }
-    .build()
+    .recordStats()
+    .build<String, ByteArray>()
+    .also { CaffeineCacheMetrics.monitor(registry, it, "tile_bytes") }
 
   private val etagByTile: Cache<String, String> = Caffeine.newBuilder()
     .maximumSize(MAX_TILES)
-    .build()
+    .recordStats()
+    .build<String, String>()
+    .also { CaffeineCacheMetrics.monitor(registry, it, "tile_etags") }
 
   fun knownEtag(masterId: Long, path: String): String? {
     return etagByTile.getIfPresent("$masterId:$path")

@@ -3,6 +3,7 @@ package net.bestia.api.live
 import net.bestia.api.auth.TicketOwners
 import net.bestia.api.cache.AnswerCache
 import net.bestia.api.cache.TileCache
+import net.bestia.api.metrics.LiveMetrics
 import net.bestia.bus.StreamEntry
 import net.bestia.bus.contract.ZoneEvent
 import net.bestia.bus.valkey.ValkeyStreamReader
@@ -21,6 +22,7 @@ class EventFanOut(
   private val answers: AnswerCache,
   private val tiles: TileCache,
   private val tickets: TicketOwners,
+  private val metrics: LiveMetrics,
 ) {
 
   @EventListener(ApplicationReadyEvent::class)
@@ -31,15 +33,19 @@ class EventFanOut(
   fun deliver(streamed: StreamEntry<ZoneEvent>) {
     val event = streamed.payload
     // A chat line changes no answer, and a busy guild would otherwise keep its members' caches empty.
+    metrics.event(event::class.simpleName.orEmpty())
     if (event !is ZoneEvent.ChatLine) {
       answers.forget(event.accountId)
+      metrics.invalidated(LiveMetrics.Invalidation.ANSWERS)
     }
     if (event is ZoneEvent.ChartsChanged) {
       tiles.forgetMaster(event.masterId)
+      metrics.invalidated(LiveMetrics.Invalidation.TILES)
     }
     // Leaving the world closed the socket, and its ticket died with it.
     if (event is ZoneEvent.Presence && !event.inWorld) {
       tickets.forgetAccount(event.accountId)
+      metrics.invalidated(LiveMetrics.Invalidation.TICKETS)
     }
 
     sessions.send(event.accountId, CompanionSocketHandler.EventFrame(event = LiveEvent.of(streamed)))

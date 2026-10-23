@@ -3,6 +3,7 @@ package net.bestia.api.live
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import net.bestia.api.auth.CompanionTokenVerifier
+import net.bestia.api.metrics.LiveMetrics
 import net.bestia.bus.contract.ZoneEvent
 import net.bestia.bus.valkey.ValkeyStreamReader
 import org.springframework.stereotype.Component
@@ -23,6 +24,7 @@ class CompanionSocketHandler(
   private val verifier: CompanionTokenVerifier,
   private val sessions: LiveSessions,
   private val events: ValkeyStreamReader<ZoneEvent>,
+  private val metrics: LiveMetrics,
 ) : TextWebSocketHandler() {
 
   private data class Hello(val type: String, val token: String?, val lastEventId: String?)
@@ -46,15 +48,19 @@ class CompanionSocketHandler(
     }
     val verified = hello?.takeIf { it.type == "auth" }?.token?.let { verifier.verify(it) }
     if (verified == null) {
+      metrics.socketAuth(LiveMetrics.SocketAuth.UNAUTHORIZED)
       socket.close(UNAUTHORIZED)
       return
     }
 
+    metrics.socketAuth(LiveMetrics.SocketAuth.OK)
     socket.attributes[ACCOUNT] = verified.accountId
     val safe = sessions.add(verified.accountId, socket, verified.expiresAt)
 
     hello.lastEventId?.let { last ->
-      events.since(last, verified.accountId).forEach { sessions.send(safe, EventFrame(event = LiveEvent.of(it))) }
+      val missed = events.since(last, verified.accountId)
+      metrics.replayed(missed.size)
+      missed.forEach { sessions.send(safe, EventFrame(event = LiveEvent.of(it))) }
     }
     sessions.send(safe, Ready(lastEventId = events.newestId()))
   }

@@ -3,6 +3,8 @@ package net.bestia.api.auth
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import net.bestia.api.metrics.ApiRoute
+import net.bestia.api.metrics.AuthMetrics
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
@@ -25,6 +27,7 @@ class CompanionAuthFilter(
   private val verifier: CompanionTokenVerifier,
   private val tickets: TicketOwners,
   private val rateLimiter: AccountRateLimiter,
+  private val metrics: AuthMetrics,
 ) : OncePerRequestFilter() {
 
   override fun shouldNotFilter(request: HttpServletRequest): Boolean {
@@ -36,19 +39,24 @@ class CompanionAuthFilter(
     val path = pathOf(request)
     val map = MAP_ROUTE.matches(path)
     val ticketRoute = map || EMBLEM_ROUTE.matches(path)
+    val authorization = request.getHeader(HttpHeaders.AUTHORIZATION)
+    val scheme = AuthMetrics.Scheme.of(authorization)
     val accountId = try {
-      accountOf(request.getHeader(HttpHeaders.AUTHORIZATION), ticketRoute)
+      accountOf(authorization, ticketRoute)
     } catch (e: ResponseStatusException) {
+      metrics.rejected(scheme, AuthMetrics.Rejection.ZONE_ERROR, ApiRoute.of(path))
       response.status = e.statusCode.value()
       return
     }
 
     if (accountId == null) {
+      metrics.rejected(scheme, AuthMetrics.Rejection.UNAUTHORIZED, ApiRoute.of(path))
       response.status = HttpStatus.UNAUTHORIZED.value()
       return
     }
 
     if (!rateLimiter.tryAcquire(accountId, map)) {
+      metrics.rejected(scheme, AuthMetrics.Rejection.RATE_LIMITED, ApiRoute.of(path))
       response.status = HttpStatus.TOO_MANY_REQUESTS.value()
       response.setHeader(HttpHeaders.RETRY_AFTER, "60")
       return

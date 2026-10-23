@@ -3,6 +3,8 @@ package net.bestia.api.rest
 import net.bestia.api.auth.CompanionAuthFilter.Companion.ACCOUNT_ID
 import net.bestia.api.bus.ZoneClient
 import net.bestia.api.cache.EmblemCache
+import net.bestia.api.metrics.ApiRoute
+import net.bestia.api.metrics.EndpointMetrics
 import net.bestia.bus.contract.ZoneAnswer
 import net.bestia.bus.contract.ZoneQuery
 import org.springframework.http.CacheControl
@@ -24,6 +26,7 @@ import java.time.Duration
 class EmblemController(
   private val zone: ZoneClient,
   private val emblems: EmblemCache,
+  private val metrics: EndpointMetrics,
 ) {
 
   @GetMapping("/v1/companion/emblems/{hash}.png")
@@ -35,7 +38,10 @@ class EmblemController(
       throw ResponseStatusException(HttpStatus.BAD_REQUEST, "not an emblem hash")
     }
 
-    val png = emblems.png(hash) ?: fetch(accountId, hash)
+    val held = emblems.png(hash)
+    val png = held ?: fetch(accountId, hash)
+    metrics.outcome(ApiRoute.EMBLEM, if (held != null) EndpointMetrics.Outcome.CACHE_HIT else EndpointMetrics.Outcome.SERVED_FROM_ZONE)
+    metrics.bodySent(ApiRoute.EMBLEM, png.size)
 
     return ResponseEntity.ok()
       .cacheControl(CacheControl.maxAge(Duration.ofDays(IMMUTABLE_DAYS)).cachePublic().immutable())

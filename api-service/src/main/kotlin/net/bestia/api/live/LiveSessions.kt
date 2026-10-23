@@ -2,6 +2,9 @@ package net.bestia.api.live
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.micrometer.core.instrument.Gauge
+import io.micrometer.core.instrument.MeterRegistry
+import net.bestia.api.metrics.LiveMetrics
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import org.springframework.web.socket.CloseStatus
@@ -9,6 +12,7 @@ import org.springframework.web.socket.PingMessage
 import org.springframework.web.socket.TextMessage
 import org.springframework.web.socket.WebSocketSession
 import org.springframework.web.socket.handler.ConcurrentWebSocketSessionDecorator
+import org.springframework.web.socket.handler.SessionLimitExceededException
 import java.time.Instant
 import java.util.concurrent.ConcurrentHashMap
 
@@ -17,12 +21,21 @@ import java.util.concurrent.ConcurrentHashMap
  * expires it is closed with [TOKEN_EXPIRED], and the app reconnects with a fresh one.
  */
 @Component
-class LiveSessions {
+class LiveSessions(private val metrics: LiveMetrics, registry: MeterRegistry) {
 
   private class Live(val socket: WebSocketSession, val expiresAt: Instant)
 
   private val byAccount = ConcurrentHashMap<Long, MutableMap<String, Live>>()
   private val mapper = jacksonObjectMapper()
+
+  init {
+    Gauge.builder("api.ws.sessions", byAccount) { accounts -> accounts.values.sumOf { it.size }.toDouble() }
+      .description("Companion sockets open on this instance")
+      .register(registry)
+    Gauge.builder("api.ws.accounts", byAccount) { it.size.toDouble() }
+      .description("Accounts with at least one companion socket open on this instance")
+      .register(registry)
+  }
 
   fun add(accountId: Long, socket: WebSocketSession, expiresAt: Instant): WebSocketSession {
     val safe = ConcurrentWebSocketSessionDecorator(socket, SEND_TIME_LIMIT_MILLIS, SEND_BUFFER_BYTES)
@@ -63,10 +76,12 @@ class LiveSessions {
         try {
           if (live.expiresAt.isBefore(now)) {
             live.socket.close(TOKEN_EXPIRED)
+            metrics.expired()
           } else {
             live.socket.sendMessage(PingMessage())
           }
         } catch (e: Exception) {
+          metrics.keepAliveFailed()
           LOG.debug { "Keep-alive on socket ${live.socket.id} failed: ${e.message}" }
         }
       }
@@ -76,7 +91,9 @@ class LiveSessions {
   private fun send(socket: WebSocketSession, text: TextMessage) {
     try {
       socket.sendMessage(text)
+      metrics.frameSent()
     } catch (e: Exception) {
+      metrics.sendFailed(if (e is SessionLimitExceededException) LiveMetrics.SendFailure.OVERFLOW else LiveMetrics.SendFailure.OTHER)
       LOG.debug { "Sending to socket ${socket.id} failed: ${e.message}" }
     }
   }

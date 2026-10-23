@@ -11,6 +11,7 @@ import io.lettuce.core.XGroupCreateArgs
 import io.lettuce.core.XReadArgs
 import net.bestia.bus.BusJson
 import net.bestia.bus.StreamEntry
+import java.util.concurrent.atomic.LongAdder
 
 /**
  * Reads one stream written by a [ValkeyStreamAppender], three ways: [tail] follows it live, [since] replays what
@@ -31,6 +32,23 @@ class ValkeyStreamReader<T : Any>(
 
   @Volatile
   private var running = true
+
+  private val delivered = LongAdder()
+  private val listenerFailures = LongAdder()
+  private val decodeFailures = LongAdder()
+  private val readFailures = LongAdder()
+
+  /** Entries handed to a listener without it failing. For a metrics binder to read. */
+  val deliveredCount: Long get() = delivered.sum()
+
+  /** Entries whose listener threw. They are logged and skipped. */
+  val listenerFailureCount: Long get() = listenerFailures.sum()
+
+  /** Entries that could not be decoded, and were skipped. */
+  val decodeFailureCount: Long get() = decodeFailures.sum()
+
+  /** Reads that failed and were retried after a pause. */
+  val readFailureCount: Long get() = readFailures.sum()
 
   /** Calls [listener] for every entry appended from now on. */
   fun tail(name: String, listener: (StreamEntry<T>) -> Unit) {
@@ -114,7 +132,9 @@ class ValkeyStreamReader<T : Any>(
     val entry = decode(message) ?: return
     try {
       listener(entry)
+      delivered.increment()
     } catch (e: Exception) {
+      listenerFailures.increment()
       LOG.error(e) { "Handling $stream entry ${message.id} failed" }
     }
   }
@@ -124,6 +144,7 @@ class ValkeyStreamReader<T : Any>(
     return try {
       StreamEntry(message.id, BusJson.mapper.readValue(json, type))
     } catch (e: Exception) {
+      decodeFailures.increment()
       LOG.warn(e) { "Skipped unreadable $stream entry ${message.id}" }
       null
     }
@@ -134,6 +155,7 @@ class ValkeyStreamReader<T : Any>(
       read()
     } catch (e: Exception) {
       if (running) {
+        readFailures.increment()
         LOG.warn { "Reading $stream failed (${e.message}); retrying" }
         Thread.sleep(RETRY_PAUSE_MILLIS)
       }
