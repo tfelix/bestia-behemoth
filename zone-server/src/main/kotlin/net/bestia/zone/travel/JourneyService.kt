@@ -1,6 +1,7 @@
 package net.bestia.zone.travel
 
 import net.bestia.zone.battle.ecs.attack.AttackCancelService
+import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.geometry.Vec3L
@@ -22,6 +23,7 @@ class JourneyService(
   /**
    * Sends [entity] through [waypoints], replacing any journey it was on.
    *
+   * @param leaseExpiresAt for an AI's journey, the tick it lapses at unless renewed; see [Journey.renewLease]
    * @return why it cannot go, or null when it set off
    */
   fun start(
@@ -31,6 +33,7 @@ class JourneyService(
     order: JourneyOrder,
     name: String? = null,
     savedRouteId: Long? = null,
+    leaseExpiresAt: Long? = null,
   ): JourneyRefusal? {
     if (waypoints.isEmpty()) return JourneyRefusal.NO_DESTINATION
     if (waypoints.size > config.maxWaypoints) return JourneyRefusal.TOO_MANY_WAYPOINTS
@@ -39,7 +42,7 @@ class JourneyService(
 
     if (order == JourneyOrder.PLAYER) attackCancel.cancelAttack(world, entity)
 
-    world.add(entity, Journey(waypoints, order, name, savedRouteId))
+    world.add(entity, Journey(waypoints, order, name, savedRouteId, leaseExpiresAt))
     if (!world.has(entity, Vicinity::class)) world.add(entity, Vicinity())
     world.get(entity, SimulationAnchor::class)?.priority = AnchorPriority.TRAVELLER
 
@@ -53,5 +56,10 @@ class JourneyService(
     world.remove(entity, Journey::class)
     world.remove(entity, Path::class)
     world.get(entity, SimulationAnchor::class)?.priority = AnchorPriority.RESTING
+  }
+
+  companion object {
+    /** What [start] and [cancel] write, for a system that calls them from inside the tick. */
+    val WRITES: ComponentClassSet = setOf(Journey::class, Path::class, Vicinity::class, SimulationAnchor::class)
   }
 }

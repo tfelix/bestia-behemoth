@@ -14,6 +14,7 @@ class Journey(
   val order: JourneyOrder,
   val name: String? = null,
   val savedRouteId: Long? = null,
+  leaseExpiresAt: Long? = null,
 ) : Component {
 
   val waypoints: List<Vec3L> = waypoints.toList()
@@ -31,6 +32,21 @@ class Journey(
 
   val isOnLastLeg: Boolean
     get() = nextIndex == waypoints.lastIndex
+
+  /**
+   * The tick an [JourneyOrder.AI] journey is dropped at unless its AI renews it, which is how a creature that
+   * turned to something else stops travelling without having to say so. Null for a player's order.
+   */
+  var leaseExpiresAt: Long? = leaseExpiresAt
+    private set
+
+  fun renewLease(untilTick: Long) {
+    leaseExpiresAt = untilTick
+  }
+
+  fun isAbandonedAt(tick: Long): Boolean {
+    return leaseExpiresAt?.let { tick > it } ?: false
+  }
 
   /** Working state of [TravelSystem]; nothing else reads it. */
   var plan: TravelPlan? = null

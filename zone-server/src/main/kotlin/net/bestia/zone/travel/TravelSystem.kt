@@ -49,6 +49,7 @@ class TravelSystem(
   }
 
   private fun travel(world: World, id: EntityId, journey: Journey, deltaTime: Float) {
+    if (journey.isAbandonedAt(world.tickCount)) return abandon(world, id)
     if (world.has(id, Dead::class)) return end(world, id, journey, JourneyFailure.DIED)
 
     val position = world.getOrThrow(id, Position::class).toVec3L()
@@ -77,6 +78,12 @@ class TravelSystem(
 
   private fun hasReached(position: Vec3L, target: Vec3L): Boolean {
     return Math.abs(position.x - target.x) <= ARRIVAL_TILES && Math.abs(position.y - target.y) <= ARRIVAL_TILES
+  }
+
+  /** Its AI moved on; nobody is told, there is nobody who waits for it. */
+  private fun abandon(world: World, id: EntityId) {
+    world.remove(id, Journey::class)
+    world.remove(id, Path::class)
   }
 
   private fun end(world: World, id: EntityId, journey: Journey, failure: JourneyFailure?) {
