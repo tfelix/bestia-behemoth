@@ -4,6 +4,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.navigation.graph.AStar
 import net.bestia.zone.navigation.graph.MacroGraphService
+import net.bestia.zone.navigation.graph.MacroPathfinder
 import net.bestia.zone.navigation.local.LocalPathfindingService
 import net.bestia.zone.navigation.profile.MovementProfile
 import net.bestia.zone.navigation.profile.MovementProfileRegistry
@@ -42,6 +43,39 @@ class NavigationService(
 
   /** One walkable step towards [to]. The fallback when a considered path is unavailable this tick. */
   fun stepToward(from: Vec3L, to: Vec3L): Vec3L? = local.step(from, to)
+
+  /** [pathTo] for a caller that budgets its own searches; see [LocalPathfindingService.pathOutsideBudget]. */
+  fun pathOutsideBudget(from: Vec3L, to: Vec3L): List<Vec3L>? {
+    return local.pathOutsideBudget(from, to)
+  }
+
+  /**
+   * A course from [from] to [destination] that avoids every edge [isBlocked] names, or null when there is none
+   * for this creature.
+   *
+   * Empty when there is nothing to steer by - no graph, or both ends nearest the same node - so the traveller
+   * walks straight. Which edges count as blocked is the caller's: a traveller avoids what it believes, not
+   * what is true.
+   */
+  fun planCourse(from: Vec3L, destination: Vec3L, profileId: String?, isBlocked: (Int) -> Boolean): MacroCourse? {
+    macroGraph.ensureLoaded()
+    val graph = macroGraph.graph
+    if (graph.isEmpty) return MacroCourse(emptyList(), emptyList())
+
+    val start = graph.nearestNode(from) ?: return null
+    val goal = graph.nearestNode(destination) ?: return null
+    if (start == goal) return MacroCourse(emptyList(), emptyList())
+
+    val pathfinder = MacroPathfinder(graph, profiles.getOrDefault(profileId), isBlocked)
+    val nodes = AStar.findPath(pathfinder, start, goal) ?: return null
+    val edges = nodes.zipWithNext { a, b -> pathfinder.cheapestEdge(a, b) ?: return null }
+
+    return MacroCourse(nodes.drop(1), edges)
+  }
+
+  fun nodePosition(node: Int): Vec3L {
+    return macroGraph.graph.nodePositions[node]
+  }
 
   /**
    * A macro route from [from] to [destination], or null when the two are not connected for this creature.

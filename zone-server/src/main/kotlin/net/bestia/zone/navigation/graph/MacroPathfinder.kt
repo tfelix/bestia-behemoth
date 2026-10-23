@@ -43,7 +43,14 @@ class MacroPathfinder(
    * class exists to make.
    */
   override fun cost(from: Int, to: Int): Double {
-    var best = Double.MAX_VALUE
+    val edgeIndex = cheapestEdge(from, to) ?: return UNREACHABLE
+    return weightOf(graph.edges[edgeIndex])
+  }
+
+  /** The edge [cost] chose between two adjacent nodes, or null when none is usable. */
+  fun cheapestEdge(from: Int, to: Int): Int? {
+    var best: Int? = null
+    var bestWeight = Double.MAX_VALUE
 
     for (edgeIndex in graph.incidentEdges[from]) {
       if (isBlocked(edgeIndex)) continue
@@ -52,11 +59,18 @@ class MacroPathfinder(
       if (edge.other(from) != to) continue
       if (!profile.canTraverse(edge.modes, edge.maxAgentHalfWidth)) continue
 
-      val weighted = edge.baseCost * profile.costMultiplier(edge.isMadeSurface)
-      if (weighted < best) best = weighted
+      val weighted = weightOf(edge)
+      if (weighted < bestWeight) {
+        best = edgeIndex
+        bestWeight = weighted
+      }
     }
 
-    return if (best == Double.MAX_VALUE) UNREACHABLE else best
+    return best
+  }
+
+  private fun weightOf(edge: RuntimeNavEdge): Double {
+    return edge.baseCost * profile.costMultiplier(edge.isMadeSurface)
   }
 
   /**

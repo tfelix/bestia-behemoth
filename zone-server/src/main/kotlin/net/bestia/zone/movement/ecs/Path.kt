@@ -75,6 +75,10 @@ data class Path(
   val isEmpty: Boolean
     get() = _path.isEmpty()
 
+  /** Waypoints still to reach, without copying them as [path] does. */
+  val remainingSteps: Int
+    get() = _path.size
+
   /** The waypoint being walked towards. Only meaningful while this is not [isEmpty]. */
   val next: Vec3L
     get() = _path.first()

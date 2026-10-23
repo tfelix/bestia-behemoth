@@ -49,11 +49,28 @@ class LocalPathfindingService(private val walkQuery: LocalWalkQuery, private val
 
     // Refused before the budget is charged: a target on the far side of the world is a caller mistake or a
     // job for the macro tier, and either way expanding a few thousand columns to discover that is waste.
-    val span = maxOf(Math.abs(to.x - from.x), Math.abs(to.y - from.y))
-    if (span > config.localSearchSpan) return null
+    if (!isWithinSpan(from, to)) return null
 
     spentThisTick++
+    return search(from, to)
+  }
 
+  /**
+   * [path] for a caller that keeps its own budget, so it neither spends nor is refused this tick's: travel
+   * re-paths on a schedule of its own and must not starve creatures that only look around them.
+   */
+  fun pathOutsideBudget(from: Vec3L, to: Vec3L): List<Vec3L>? {
+    if (from.x == to.x && from.y == to.y) return null
+    if (!isWithinSpan(from, to)) return null
+
+    return search(from, to)
+  }
+
+  private fun isWithinSpan(from: Vec3L, to: Vec3L): Boolean {
+    return maxOf(Math.abs(to.x - from.x), Math.abs(to.y - from.y)) <= config.localSearchSpan
+  }
+
+  private fun search(from: Vec3L, to: Vec3L): List<Vec3L>? {
     val start = walkQuery.surfaceAt(from)?.let { Vec3L(from.x, from.y, it) } ?: from
     val goal = walkQuery.surfaceAt(to)?.let { Vec3L(to.x, to.y, it) } ?: return null
 
