@@ -1,6 +1,7 @@
 package net.bestia.zone.world.stream
 
 import net.bestia.worldgen.core.ChunkPos
+import net.bestia.zone.world.residency.ChunkResidency
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -8,7 +9,7 @@ import kotlin.test.assertTrue
 
 class ChunkSubscriptionServiceTest {
 
-  private val subscriptions = ChunkSubscriptionService()
+  private val subscriptions = ChunkSubscriptionService(ChunkResidency())
 
   private val a = ChunkPos(0, 0, 0)
   private val b = ChunkPos(1, 0, 0)

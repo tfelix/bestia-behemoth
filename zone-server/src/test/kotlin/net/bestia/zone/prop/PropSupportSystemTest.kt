@@ -14,6 +14,7 @@ import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.SMSG
 import net.bestia.zone.message.ChunkFanOut
 import net.bestia.zone.world.WorldService
+import net.bestia.zone.world.residency.ChunkResidency
 import net.bestia.zone.world.stream.ChunkService
 import net.bestia.zone.world.stream.ChunkSubscriptionService
 import net.bestia.zone.world.stream.StaticEntityRemovedSMSG
@@ -81,7 +82,7 @@ class PropSupportSystemTest {
   }
 
   private fun systemFor(kind: StaticEntityKind = StaticEntityKind.TREE): PropSupportSystem {
-    subscriptions = ChunkSubscriptionService()
+    subscriptions = ChunkSubscriptionService(ChunkResidency())
     divergence = RecordingDivergence()
     removals = ArrayList()
 

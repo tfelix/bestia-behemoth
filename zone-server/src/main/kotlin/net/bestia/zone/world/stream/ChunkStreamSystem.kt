@@ -18,6 +18,7 @@ import net.bestia.zone.entity.ecs.PropPose
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.ChunkFanOut
 import net.bestia.zone.util.EntityId
+import net.bestia.zone.world.residency.ChunkResidency
 import org.springframework.stereotype.Component as SpringComponent
 
 /**
@@ -49,6 +50,7 @@ import org.springframework.stereotype.Component as SpringComponent
 class ChunkStreamSystem(
   private val chunkService: ChunkService,
   private val subscriptions: ChunkSubscriptionService,
+  private val residency: ChunkResidency,
   private val inbox: ChunkStreamInbox,
   private val fanOut: ChunkFanOut,
   private val settings: ChunkStreamConfig,
@@ -72,26 +74,14 @@ class ChunkStreamSystem(
     setOf(Position::class, Path::class, Grounded::class) + carveYield.writes
 
   /**
-   * Gives the derived structures their residency, which nothing used to.
+   * Walk data exists for exactly the resident chunks: a chunk somebody holds is a chunk something may walk in.
    *
-   * `DerivedStore` builds on demand and its production callers all guard on `isTracked` first, so nothing ever
-   * put a chunk into it: walkability, line of sight and ground height answered "unknown" for the whole life of
-   * the process, and movement fell back to whatever height the client claimed. The subscription set is the
-   * right scope for it - a chunk somebody is holding is a chunk something may walk in - and these two hooks
-   * are the one place that already knows when a chunk enters and leaves it, refcounted across login, walking,
-   * a `reset` manifest, master deselection and disconnect alike.
-   *
-   * Wired here rather than in [ChunkService] because this is where both beans already meet, and because the
-   * lambdas must not touch the world until they fire: `derived()` forces world generation, and at bean
-   * construction time there is no world. They can only fire from inside [update], which is behind the
-   * `isReady` guard.
-   *
-   * Marking only, as both hooks require - `track` queues a build and returns, and the budget in step five pays
-   * for it.
+   * Wired here because `derived()` forces world generation, so the lambdas must not run before [update]'s
+   * `isReady` guard - and they only fire from inside it. `track` queues a build that step five pays for.
    */
   init {
-    subscriptions.onFirstSubscriber { chunkService.derived().track(it) }
-    subscriptions.onLastSubscriber { chunkService.derived().forget(it) }
+    residency.onFirstHolder { chunkService.derived().track(it) }
+    residency.onLastHolder { chunkService.derived().forget(it) }
   }
 
   /** Chunks a client has asked for and not yet been sent, nearest first. */

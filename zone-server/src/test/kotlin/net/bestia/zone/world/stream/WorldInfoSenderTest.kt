@@ -8,6 +8,7 @@ import net.bestia.worldgen.core.ChunkPos
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.message.SMSG
 import net.bestia.zone.session.AccountConnectedEvent
+import net.bestia.zone.world.residency.ChunkResidency
 import org.junit.jupiter.api.Test
 import kotlin.test.assertTrue
 
@@ -17,7 +18,8 @@ import kotlin.test.assertTrue
  */
 class WorldInfoSenderTest {
 
-  private val subscriptions = ChunkSubscriptionService()
+  private val chunkResidency = ChunkResidency()
+  private val subscriptions = ChunkSubscriptionService(chunkResidency)
   private val inbox = ChunkStreamInbox()
 
   private val sender = WorldInfoSender(
@@ -33,6 +35,7 @@ class WorldInfoSenderTest {
   private val system = ChunkStreamSystem(
     chunkService = mockk(relaxed = true) { every { normalise(any()) } answers { firstArg() } },
     subscriptions = subscriptions,
+    residency = chunkResidency,
     inbox = inbox,
     fanOut = mockk(relaxed = true),
     settings = ChunkStreamConfig(),

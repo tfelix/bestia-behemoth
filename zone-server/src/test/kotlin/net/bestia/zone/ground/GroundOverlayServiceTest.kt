@@ -6,6 +6,7 @@ import net.bestia.worldgen.core.ChunkPos
 import net.bestia.zone.ground.fire.GroundFireService
 import net.bestia.zone.message.ChunkFanOut
 import net.bestia.zone.message.SMSG
+import net.bestia.zone.world.residency.ChunkResidency
 import net.bestia.zone.world.stream.ChunkSubscriptionService
 import net.bestia.zone.world.time.BestiaClock
 import org.junit.jupiter.api.Test
@@ -34,7 +35,7 @@ class GroundOverlayServiceTest {
 
   private var clockSecond = 1_000L
 
-  private val subscriptions = ChunkSubscriptionService()
+  private val subscriptions = ChunkSubscriptionService(ChunkResidency())
   private val fanOut = RecordingFanOut()
 
   private val fire = mockk<GroundFireService> {

@@ -11,6 +11,7 @@ import net.bestia.zone.entity.ecs.StaticVisual
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.ChunkFanOut
 import net.bestia.zone.world.WorldService
+import net.bestia.zone.world.residency.ChunkResidency
 import net.bestia.zone.world.stream.ChunkStaticEntitiesSMSG
 import net.bestia.zone.world.stream.ChunkStreamConfig
 import net.bestia.zone.world.stream.ChunkSubscriptionService
@@ -68,7 +69,7 @@ class WorldObjectResidencyTest {
 
   @BeforeEach
   fun setup() {
-    subscriptions = ChunkSubscriptionService()
+    subscriptions = ChunkSubscriptionService(ChunkResidency())
     aoi = EntityAOIService()
     source = StubSource()
     sent = ArrayList()

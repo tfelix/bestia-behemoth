@@ -27,6 +27,7 @@ import net.bestia.zone.message.StateBatchSMSG
 import net.bestia.zone.message.TickOutbox
 import net.bestia.zone.metrics.TickMetrics
 import net.bestia.zone.movement.ecs.Position
+import net.bestia.zone.world.residency.ChunkResidency
 import net.bestia.zone.world.stream.ChunkEntityVisibility
 import net.bestia.zone.world.stream.ChunkService
 import net.bestia.zone.world.stream.ChunkSubscriptionService
@@ -43,7 +44,7 @@ class StaticStatusEffectSyncTest {
     every { config } returns WorldConfig(seed = 1L, widthCells = 128, heightCells = 128)
     every { normalise(any()) } answers { firstArg() }
   }
-  private val subscriptions = ChunkSubscriptionService()
+  private val subscriptions = ChunkSubscriptionService(ChunkResidency())
   private val visibility = ChunkEntityVisibility(chunkService, subscriptions)
   private val outMessageProcessor = mockk<OutMessageProcessor>(relaxed = true)
   private val world = testWorld()

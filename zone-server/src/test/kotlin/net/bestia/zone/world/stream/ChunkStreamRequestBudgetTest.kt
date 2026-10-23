@@ -3,6 +3,7 @@ package net.bestia.zone.world.stream
 import io.mockk.every
 import io.mockk.mockk
 import net.bestia.worldgen.core.ChunkPos
+import net.bestia.zone.world.residency.ChunkResidency
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
@@ -12,12 +13,14 @@ import kotlin.test.assertEquals
  */
 class ChunkStreamRequestBudgetTest {
 
-  private val subscriptions = ChunkSubscriptionService()
+  private val chunkResidency = ChunkResidency()
+  private val subscriptions = ChunkSubscriptionService(chunkResidency)
   private val inbox = ChunkStreamInbox()
 
   private val system = ChunkStreamSystem(
     chunkService = mockk(relaxed = true) { every { normalise(any()) } answers { firstArg() } },
     subscriptions = subscriptions,
+    residency = chunkResidency,
     inbox = inbox,
     fanOut = mockk(relaxed = true),
     settings = ChunkStreamConfig(requestBurst = 4, requestRefillPerTick = 1),

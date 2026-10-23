@@ -6,6 +6,7 @@ import net.bestia.worldgen.core.ChunkPos
 import net.bestia.worldgen.core.WorldConfig
 import net.bestia.zone.aoi.EntityVisibility
 import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.world.residency.ChunkResidency
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -23,7 +24,7 @@ class ChunkEntityVisibilityTest {
 
   private val observer = 42L
 
-  private val subscriptions = ChunkSubscriptionService()
+  private val subscriptions = ChunkSubscriptionService(ChunkResidency())
   private val visibility = ChunkEntityVisibility(chunkService, subscriptions)
 
   /** Puts [accountId] in possession of [chunk]'s terrain, the way a served manifest would. */

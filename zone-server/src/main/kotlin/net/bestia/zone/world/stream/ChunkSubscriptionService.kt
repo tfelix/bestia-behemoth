@@ -2,6 +2,7 @@ package net.bestia.zone.world.stream
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.worldgen.core.ChunkPos
+import net.bestia.zone.world.residency.ChunkResidency
 import org.springframework.stereotype.Service
 
 /**
@@ -31,7 +32,10 @@ import org.springframework.stereotype.Service
  * Not thread safe; lives on the `zone-tick` thread with the rest of the streaming layer.
  */
 @Service
-class ChunkSubscriptionService {
+class ChunkSubscriptionService(
+  /** All clients together are one holder, beside the simulation anchors. */
+  private val residency: ChunkResidency
+) {
 
   private val announced = HashMap<Long, MutableSet<ChunkPos>>()
   private val sent = HashMap<Long, MutableSet<ChunkPos>>()
@@ -67,7 +71,10 @@ class ChunkSubscriptionService {
   private val chunkUnsent = ArrayList<(Long, ChunkPos) -> Unit>()
 
   /**
-   * Called when a chunk goes from held by nobody to held by somebody, and back.
+   * Called when a chunk goes from held by no client to held by some client, and back.
+   *
+   * For state scoped to what clients see, such as props. Whether a chunk is simulated at all is
+   * [ChunkResidency]'s question, since an anchor may hold it with no client watching.
    *
    * These exist so that anything scoped to "chunks a client is actually holding" can be driven from the one
    * place that already knows it. [subscribers] is a refcount over every path a chunk can enter or leave a
@@ -199,7 +206,10 @@ class ChunkSubscriptionService {
     val column = columnSubscribers.getOrPut(packColumn(chunk.x, chunk.y)) { HashMap() }
     column[accountId] = (column[accountId] ?: 0) + 1
 
-    if (wasUnheld) firstSubscriber.forEach { it(chunk) }
+    if (wasUnheld) {
+      residency.hold(chunk)
+      firstSubscriber.forEach { it(chunk) }
+    }
     chunkSent.forEach { it(accountId, chunk) }
   }
 
@@ -238,6 +248,7 @@ class ChunkSubscriptionService {
     if (holders.isEmpty()) {
       subscribers.remove(chunk)
       lastSubscriber.forEach { it(chunk) }
+      residency.release(chunk)
     }
   }
 
