@@ -94,12 +94,45 @@ func _wire_travel(entities: EntityManager) -> void:
 		ConnectionManager.send_on_journey(entity_id, none)
 	)
 	_view.draft_changed.connect(func() -> void: _travel.show_draft(_view.draft))
+	_travel.save_draft_pressed.connect(_save_draft_as_route)
+	_travel.route_sent.connect(_send_along_route)
+	_travel.route_renamed.connect(func(route: SavedRouteInfo, new_name: String) -> void:
+		ConnectionManager.rename_route(route.Id, new_name)
+	)
+	_travel.route_deleted.connect(func(route: SavedRouteInfo) -> void: ConnectionManager.delete_route(route.Id))
+	ConnectionManager.saved_routes_received.connect(func(message: SavedRoutesSMSG) -> void:
+		_travel.show_routes(message.Routes)
+	)
 	entities.journey_changed.connect(func(entity_id: int) -> void:
 		if entity_id == _travel.chosen_entity_id():
 			_travel.show_journey(entities.get_journey(entity_id))
 	)
 	entities.owned_bestias_changed.connect(func(_bestias: Array[BestiaInfo]) -> void: _show_travellers(entities))
 	entities.controlled_entity_changed.connect(func(_previous: int, _now: int) -> void: _show_travellers(entities))
+
+
+## A route starts where the entity it was planned for stands, so it can be walked back the other way too.
+func _save_draft_as_route() -> void:
+	var entity := _view.order_entity()
+	if entity == null or _view.draft.is_empty():
+		return
+
+	var waypoints: Array[Vector3] = [entity.get_logical_position()]
+	waypoints.append_array(_view.draft_waypoints())
+	ConnectionManager.save_route(waypoints)
+	_view.clear_draft()
+
+
+func _send_along_route(route: SavedRouteInfo, backwards: bool) -> void:
+	var entity := _view.order_entity()
+	if entity == null:
+		return
+
+	var waypoints: Array[Vector3] = []
+	waypoints.assign(route.Waypoints)
+	if backwards:
+		waypoints.reverse()
+	ConnectionManager.send_on_journey(entity.entity_id, waypoints, false, route.Name, route.Id)
 
 
 ## Orders go to the entity being driven until the player picks another, and again whenever it changes hands.
@@ -204,6 +237,8 @@ func open() -> void:
 	var entities := EntityManager.get_instance()
 	if entities != null:
 		_show_travellers(entities)
+	if ConnectionManager.is_ready_to_send():
+		ConnectionManager.request_saved_routes()
 	# The zoom is deliberately left alone - see [constant _OPEN_LEVEL]. It is set once in [method setup] and
 	# is the view's own from then on.
 	_view.centre_on_player()

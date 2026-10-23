@@ -9,9 +9,16 @@ signal go_pressed
 signal clear_pressed
 ## Asks to stop [param entity_id] where it stands.
 signal stop_pressed(entity_id: int)
+signal save_draft_pressed
+## Asks to send the chosen entity along [param route], from its last waypoint back when [param backwards].
+signal route_sent(route: SavedRouteInfo, backwards: bool)
+signal route_renamed(route: SavedRouteInfo, new_name: String)
+signal route_deleted(route: SavedRouteInfo)
 
 const _SWATCH_SIZE := 12.0
 const _FONT_SIZE := 13
+## What the server keeps of a route's name.
+const _MAX_NAME_LENGTH := 40
 
 var _entity_rows: VBoxContainer
 var _status: Label
@@ -19,6 +26,8 @@ var _stop: Button
 var _stops: VBoxContainer
 var _go: Button
 var _clear: Button
+var _save: Button
+var _routes: VBoxContainer
 var _chosen_id := 0
 var _entity_group := ButtonGroup.new()
 
@@ -51,8 +60,15 @@ func _ready() -> void:
 	buttons.add_child(_go)
 	buttons.add_child(_clear)
 	add_child(buttons)
+	_save = _button(tr("TRAVEL_SAVE_ROUTE"), func() -> void: save_draft_pressed.emit())
+	add_child(_save)
+
+	_add_heading(tr("TRAVEL_ROUTES"))
+	_routes = VBoxContainer.new()
+	add_child(_routes)
 
 	show_draft([])
+	show_routes([])
 
 
 ## One row per owned entity, master first, each in its slot colour. Keeps [param chosen_id] chosen.
@@ -100,6 +116,49 @@ func show_draft(stops: Array[Vector2]) -> void:
 
 	_go.disabled = stops.is_empty()
 	_clear.disabled = stops.is_empty()
+	_save.disabled = stops.is_empty()
+
+
+## The routes the master keeps, each with send, send back, rename and forget.
+func show_routes(routes: Array[SavedRouteInfo]) -> void:
+	for row in _routes.get_children():
+		row.queue_free()
+
+	if routes.is_empty():
+		_routes.add_child(_label(tr("TRAVEL_NO_ROUTES")))
+	for route in routes:
+		_routes.add_child(_route_row(route))
+
+
+func _route_row(route: SavedRouteInfo) -> HBoxContainer:
+	var row := HBoxContainer.new()
+	var title := _label(route.Name)
+	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	title.clip_text = true
+	title.tooltip_text = route.Name
+	title.mouse_filter = Control.MOUSE_FILTER_PASS
+	row.add_child(title)
+
+	row.add_child(_icon_button("→", tr("TRAVEL_SEND_ROUTE"), func() -> void: route_sent.emit(route, false)))
+	row.add_child(_icon_button("←", tr("TRAVEL_SEND_BACK"), func() -> void: route_sent.emit(route, true)))
+	row.add_child(_icon_button("✎", tr("TRAVEL_RENAME"), func() -> void: _start_rename(row, title, route)))
+	row.add_child(_icon_button("✕", tr("TRAVEL_DELETE"), func() -> void: route_deleted.emit(route)))
+	return row
+
+
+## Swaps the name for a field in place; Enter keeps the new name, an empty one asks for the made name back.
+func _start_rename(row: HBoxContainer, title: Label, route: SavedRouteInfo) -> void:
+	var field := LineEdit.new()
+	field.text = route.Name if route.CustomName else ""
+	field.placeholder_text = route.Name
+	field.max_length = _MAX_NAME_LENGTH
+	field.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	field.add_theme_font_size_override("font_size", _FONT_SIZE)
+	field.text_submitted.connect(func(text: String) -> void: route_renamed.emit(route, text.strip_edges()))
+	title.visible = false
+	row.add_child(field)
+	row.move_child(field, 0)
+	field.grab_focus()
 
 
 func _entity_row(entity_id: int, slot: int, text: String) -> Button:
@@ -143,6 +202,13 @@ func _label(text: String) -> Label:
 	label.text = text
 	label.add_theme_font_size_override("font_size", _FONT_SIZE)
 	return label
+
+
+func _icon_button(glyph: String, tooltip: String, on_pressed: Callable) -> Button:
+	var button := _button(glyph, on_pressed)
+	button.tooltip_text = tooltip
+	button.flat = true
+	return button
 
 
 func _button(text: String, on_pressed: Callable) -> Button:

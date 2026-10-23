@@ -14,6 +14,8 @@ signal owned_bestias_received(message: OwnedBestiasSMSG)
 signal active_entity_received(message: ActiveEntitySMSG)
 ## One of the player's own entities ended a journey, arrived or not.
 signal journey_ended(message: JourneyEndedSMSG)
+## Every route the selected master keeps, after asking or after one changed.
+signal saved_routes_received(message: SavedRoutesSMSG)
 ## A trap was sprung near us and the catch was rolled.
 signal bestia_capture_received(message: BestiaCaptureSMSG)
 signal chat_received(message: ChatSMSG)
@@ -79,6 +81,10 @@ var CreateMasterCMSG = load("res://Bnet/Message/Master/CreateMasterCMSG.cs")
 var DeleteMasterCMSG = load("res://Bnet/Message/Master/DeleteMasterCMSG.cs")
 var AttackEntityCMSG = load("res://Bnet/Message/Entity/AttackEntityCMSG.cs")
 var MoveEntityCMSG = load("res://Bnet/Message/Entity/MoveEntityCMSG.cs")
+var RequestSavedRoutesCMSG = load("res://Bnet/Message/Travel/RequestSavedRoutesCMSG.cs")
+var SaveRouteCMSG = load("res://Bnet/Message/Travel/SaveRouteCMSG.cs")
+var RenameRouteCMSG = load("res://Bnet/Message/Travel/RenameRouteCMSG.cs")
+var DeleteRouteCMSG = load("res://Bnet/Message/Travel/DeleteRouteCMSG.cs")
 var SelectActiveEntityCMSG = load("res://Bnet/Message/Entity/SelectActiveEntityCMSG.cs")
 var GetInventoryCMSG = load("res://Bnet/Message/Inventory/GetInventoryCMSG.cs")
 var GetSkillsCMSG = load("res://Bnet/Message/Master/GetSkillsCMSG.cs")
@@ -456,14 +462,49 @@ func move_to(destination: Vector3) -> void:
 
 
 ## Sends one of the player's own entities through [param waypoints], however far: the server plans the way and
-## keeps walking it while the player looks elsewhere. [param append] adds them to the journey under way.
-func send_on_journey(entity_id: int, waypoints: Array[Vector3], append: bool = false) -> void:
+## keeps walking it while the player looks elsewhere. [param append] adds them to the journey under way;
+## [param journey_name] and [param saved_route_id] say which saved route it follows, if any.
+func send_on_journey(
+	entity_id: int, waypoints: Array[Vector3], append: bool = false, journey_name: String = "", saved_route_id: int = 0
+) -> void:
 	assert(is_ready_to_send())
 
 	var msg = MoveEntityCMSG.new()
 	msg.EntityId = entity_id
 	msg.Waypoints = waypoints
 	msg.Append = append
+	msg.Name = journey_name
+	msg.SavedRouteId = saved_route_id
+	_socket.SendMessage(msg)
+
+
+func request_saved_routes() -> void:
+	assert(is_ready_to_send())
+	_socket.SendMessage(RequestSavedRoutesCMSG.new())
+
+
+## An empty [param route_name] lets the server name it from where it starts and ends.
+func save_route(waypoints: Array[Vector3], route_name: String = "") -> void:
+	assert(is_ready_to_send())
+	var msg = SaveRouteCMSG.new()
+	msg.Waypoints = waypoints
+	msg.Name = route_name
+	_socket.SendMessage(msg)
+
+
+## An empty [param route_name] gives the route its server-made name back.
+func rename_route(route_id: int, route_name: String) -> void:
+	assert(is_ready_to_send())
+	var msg = RenameRouteCMSG.new()
+	msg.RouteId = route_id
+	msg.Name = route_name
+	_socket.SendMessage(msg)
+
+
+func delete_route(route_id: int) -> void:
+	assert(is_ready_to_send())
+	var msg = DeleteRouteCMSG.new()
+	msg.RouteId = route_id
 	_socket.SendMessage(msg)
 
 
@@ -976,6 +1017,8 @@ func _on_bnet_socket_message_received(message: Object) -> void:
 		active_entity_received.emit(message)
 	elif message is JourneyEndedSMSG:
 		journey_ended.emit(message)
+	elif message is SavedRoutesSMSG:
+		saved_routes_received.emit(message)
 	elif message is BestiaCaptureSMSG:
 		bestia_capture_received.emit(message)
 	elif message is ChatSMSG:

@@ -652,22 +652,35 @@ func _add_to_draft(at: Vector2) -> void:
 	queue_redraw()
 
 
-## Metres to tiles, the exact inverse of [method _metres_of]. The map's northing is the entity's z, hence the y
-## here landing in z there. The height is the entity's own; the server finds the ground's.
 func _send(stops: Array[Vector2]) -> void:
-	var entity := _order_entity()
+	var entity := order_entity()
 	if entity == null:
 		return
 
+	ConnectionManager.send_on_journey(entity.entity_id, _waypoints_of(stops, entity))
+
+
+## The draft as the server takes waypoints.
+func draft_waypoints() -> Array[Vector3]:
+	var entity := order_entity()
+	if entity == null:
+		var none: Array[Vector3] = []
+		return none
+	return _waypoints_of(draft, entity)
+
+
+## Metres to tiles, the exact inverse of [method _metres_of]. The map's northing is the entity's z, hence the y
+## here landing in z there. The height is the entity's own; the server finds the ground's.
+func _waypoints_of(stops: Array[Vector2], entity: Entity) -> Array[Vector3]:
 	var height: float = entity.get_logical_position().y
 	var waypoints: Array[Vector3] = []
 	for stop in stops:
 		var tile := stop / _metres_per_voxel
 		waypoints.append(Vector3(tile.x, height, tile.y))
-	ConnectionManager.send_on_journey(entity.entity_id, waypoints)
+	return waypoints
 
 
-func _order_entity() -> Entity:
+func order_entity() -> Entity:
 	if entity_manager == null:
 		return null
 	if order_entity_id != 0:
@@ -1077,7 +1090,7 @@ func _draw_draft() -> void:
 	if draft.is_empty():
 		return
 
-	var entity := _order_entity()
+	var entity := order_entity()
 	var colour := _order_colour()
 	var previous: Variant = _to_screen(_metres_of(entity)) if entity != null else null
 	for i in draft.size():

@@ -345,3 +345,11 @@ TRAVEL_DRAFT,Stops
 TRAVEL_HINT,Click the map to send it there. Shift+click to add stops.
 TRAVEL_GO,Go
 TRAVEL_CLEAR,Clear
+ERROR_ROUTE_LIMIT,You keep as many routes as you may. Delete one first.
+TRAVEL_ROUTES,Routes
+TRAVEL_NO_ROUTES,No routes kept yet.
+TRAVEL_SAVE_ROUTE,Keep as route
+TRAVEL_SEND_ROUTE,Send along it
+TRAVEL_SEND_BACK,Send back the other way
+TRAVEL_RENAME,Rename (empty for the made name)
+TRAVEL_DELETE,Forget this route
