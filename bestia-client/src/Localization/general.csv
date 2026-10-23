@@ -237,7 +237,7 @@ GUILD_MOTD_EDIT,Edit
 GUILD_MOTD_EDIT_TITLE,Message of the day
 GUILD_MOTD_TITLE_PLACEHOLDER,Headline
 GUILD_MOTD_BODY_PLACEHOLDER,"What every member should read when they log in or travel"
-GUILD_MOTD_CHAT,Message of the day: %s
+GUILD_MOTD_CHAT,MOTD: %s
 GUILD_SKILL_LEVEL,Lv. %d / %d
 GUILD_SKILL_LEARN,Learn
 GUILD_SKILL_PICK,Pick a skill to see what it does.
