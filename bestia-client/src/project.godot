@@ -41,8 +41,8 @@ project/assembly_name="Bestia Behemoth Client"
 [gui]
 
 timers/tooltip_delay_sec=1.0
-theme/custom="res://Theme/bestia_theme.tres"
 theme/default_font_multichannel_signed_distance_field=true
+theme/custom="res://Theme/bestia_theme.tres"
 
 [input]
 

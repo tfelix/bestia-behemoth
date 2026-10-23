@@ -25,6 +25,20 @@ class RouteKnowledge(
   private val memories = HashMap<Knower, Memory>()
   private val learned = ArrayList<(Knower, Int, Instant?) -> Unit>()
 
+  /** Kept as it changes because the metrics scrape reads it off the tick, where summing the maps could throw. */
+  private var beliefs = 0
+
+  val knowerCount: Int
+    get() {
+      return memories.size
+    }
+
+  /** Blocked edges held over all knowers, lapsed ones included until they are seen open or forgotten. */
+  val beliefCount: Int
+    get() {
+      return beliefs
+    }
+
   /** Called when [observe] changes or renews a belief: the edge, and when the blockage lapses, null for open. */
   fun onLearned(listener: (knower: Knower, edge: Int, lapsesAt: Instant?) -> Unit) {
     learned.add(listener)
@@ -53,9 +67,10 @@ class RouteKnowledge(
 
     if (blocked) {
       val lapsesAt = clock.instant().plus(lasting)
-      memoryOf(knower).blockedUntil[edge] = lapsesAt
+      if (memoryOf(knower).blockedUntil.put(edge, lapsesAt) == null) beliefs++
       learned.forEach { it(knower, edge, lapsesAt) }
     } else if (memories[knower]?.blockedUntil?.remove(edge) != null) {
+      beliefs--
       learned.forEach { it(knower, edge, null) }
     }
 
@@ -66,11 +81,12 @@ class RouteKnowledge(
 
   /** Puts back a belief read from storage, without telling [onLearned] about it. */
   fun restore(knower: Knower, edge: Int, lapsesAt: Instant) {
-    if (!isLapsed(lapsesAt)) memoryOf(knower).blockedUntil[edge] = lapsesAt
+    if (isLapsed(lapsesAt)) return
+    if (memoryOf(knower).blockedUntil.put(edge, lapsesAt) == null) beliefs++
   }
 
   fun forget(knower: Knower) {
-    memories.remove(knower)
+    memories.remove(knower)?.let { beliefs -= it.blockedUntil.size }
   }
 
   fun knowers(): Set<Knower> {

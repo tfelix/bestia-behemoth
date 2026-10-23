@@ -17,9 +17,14 @@ import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.message.AccountInbox
 import net.bestia.zone.message.TickOutbox
 import net.bestia.zone.socket.ChannelRegistry
+import net.bestia.zone.travel.TravelConfig
+import net.bestia.zone.travel.knowledge.Knower
+import net.bestia.zone.travel.knowledge.RouteKnowledge
+import net.bestia.zone.world.anchor.AnchorResidencySystem
 import net.bestia.zone.world.anchor.SimulationAnchorIndex
 import net.bestia.zone.world.residency.ChunkResidency
 import net.bestia.zone.world.stream.ChunkStreamInbox
+import net.bestia.zone.world.vicinity.VicinityIndex
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.ObjectProvider
@@ -39,6 +44,8 @@ class ZoneMetersTest {
   private val channels = mockk<ChannelRegistry> { every { connectedCount } returns 3 }
   private val inbox = AccountInbox(world, TickOutbox(mockk(relaxed = true)), provider(channels))
   private val mapTiles = mockk<MapTileService> { every { queuedRenders } returns 0 }
+  private val anchorResidency = mockk<AnchorResidencySystem> { every { heldChunks } returns 27 }
+  private val routeKnowledge = RouteKnowledge(TravelConfig())
 
   private val zoneMeters = ZoneMeters(
     world = world,
@@ -49,6 +56,9 @@ class ZoneMetersTest {
     mapTiles = mapTiles,
     residency = ChunkResidency(),
     anchors = SimulationAnchorIndex(),
+    anchorResidency = anchorResidency,
+    routeKnowledge = routeKnowledge,
+    vicinity = VicinityIndex(),
     channels = provider(channels),
   )
 
@@ -71,6 +81,20 @@ class ZoneMetersTest {
     assertEquals(1.0, meters.get("zone.db.job.duration").tag("stage", "run").functionTimer().count())
     assertEquals(2, meters.find("zone.db.jobs.pending").gauges().size, "one gauge per worker")
     assertEquals(3, meters.find("zone.chunk.inbox.pending").gauges().size)
+  }
+
+  @Test
+  fun `world memory is counted in entries`() {
+    val meters = SimpleMeterRegistry()
+    zoneMeters.bindTo(meters)
+
+    routeKnowledge.observe(Knower.Player(1L), 7, blocked = true)
+    routeKnowledge.observe(Knower.Player(1L), 8, blocked = true)
+
+    assertEquals(27.0, meters.get("zone.anchors.chunks.held").gauge().value())
+    assertEquals(1.0, meters.get("zone.travel.knowers").gauge().value())
+    assertEquals(2.0, meters.get("zone.travel.beliefs").gauge().value())
+    assertEquals(0.0, meters.get("zone.vicinity.sensors").gauge().value())
   }
 
   @Test

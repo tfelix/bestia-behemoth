@@ -50,6 +50,24 @@ class RouteKnowledgeTest {
   }
 
   @Test
+  fun `knowers and their beliefs are counted as they come and go`() {
+    knowledge.observe(master, 7, blocked = true)
+    knowledge.observe(master, 8, blocked = true)
+    knowledge.observe(master, 7, blocked = true)
+    knowledge.observe(stranger, 7, blocked = true)
+
+    assertEquals(2, knowledge.knowerCount)
+    assertEquals(3, knowledge.beliefCount, "seeing it blocked again renews the belief, it is not a second one")
+
+    knowledge.observe(master, 8, blocked = false)
+    knowledge.forget(stranger)
+    knowledge.restore(master, 9, now.plus(Duration.ofDays(1)))
+
+    assertEquals(1, knowledge.knowerCount)
+    assertEquals(2, knowledge.beliefCount)
+  }
+
+  @Test
   fun `a blockage lapses after the configured weeks`() {
     knowledge.observe(master, 7, blocked = true)
 

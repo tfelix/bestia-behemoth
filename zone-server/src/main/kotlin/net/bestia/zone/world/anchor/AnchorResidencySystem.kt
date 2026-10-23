@@ -48,6 +48,14 @@ class AnchorResidencySystem(
       return holdings.size
     }
 
+  /** Kept as it changes because the metrics scrape reads it off the tick, where summing the holdings could throw. */
+  private var heldTotal = 0
+
+  val heldChunks: Int
+    get() {
+      return heldTotal
+    }
+
   override fun update(world: World, deltaTime: Float) {
     if (!chunkService.isReady) return
 
@@ -109,13 +117,17 @@ class AnchorResidencySystem(
       val kept = viewVolume.columnsAround(anchor, streamSettings.viewRadiusChunks + streamSettings.releaseMarginChunks)
 
       for (chunk in desired) {
-        if (held.add(chunk)) residency.hold(chunk)
+        if (held.add(chunk)) {
+          residency.hold(chunk)
+          heldTotal++
+        }
       }
 
       val left = held.filter { it !in desired && (it.x to it.y) !in kept }
       for (chunk in left) {
         held.remove(chunk)
         residency.release(chunk)
+        heldTotal--
       }
 
       settled = if (complete) basis else null
@@ -123,6 +135,7 @@ class AnchorResidencySystem(
 
     fun releaseAll() {
       held.forEach { residency.release(it) }
+      heldTotal -= held.size
       held.clear()
     }
   }

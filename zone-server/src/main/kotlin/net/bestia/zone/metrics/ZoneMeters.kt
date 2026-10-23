@@ -11,9 +11,12 @@ import net.bestia.zone.ecs.core.EcsWorld
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.message.AccountInbox
 import net.bestia.zone.socket.ChannelRegistry
+import net.bestia.zone.travel.knowledge.RouteKnowledge
+import net.bestia.zone.world.anchor.AnchorResidencySystem
 import net.bestia.zone.world.anchor.SimulationAnchorIndex
 import net.bestia.zone.world.residency.ChunkResidency
 import net.bestia.zone.world.stream.ChunkStreamInbox
+import net.bestia.zone.world.vicinity.VicinityIndex
 import org.springframework.beans.factory.ObjectProvider
 import org.springframework.stereotype.Component
 import java.util.concurrent.TimeUnit
@@ -32,6 +35,9 @@ class ZoneMeters(
   private val mapTiles: MapTileService,
   private val residency: ChunkResidency,
   private val anchors: SimulationAnchorIndex,
+  private val anchorResidency: AnchorResidencySystem,
+  private val routeKnowledge: RouteKnowledge,
+  private val vicinity: VicinityIndex,
   // Absent under the `no-socket` profile.
   private val channels: ObjectProvider<ChannelRegistry>,
 ) : MeterBinder {
@@ -42,6 +48,7 @@ class ZoneMeters(
     bindJobs(registry)
     bindPlayers(registry)
     bindStreaming(registry)
+    bindWorldMemory(registry)
   }
 
   private fun bindTick(registry: MeterRegistry) {
@@ -122,6 +129,22 @@ class ZoneMeters(
       .register(registry)
     Gauge.builder("zone.anchors.holding", anchors) { it.size.toDouble() }
       .description("Simulation anchors that keep their surroundings resident")
+      .register(registry)
+  }
+
+  /** Entries, not bytes: these grow with players and travellers, and a count that only climbs is a leak. */
+  private fun bindWorldMemory(registry: MeterRegistry) {
+    Gauge.builder("zone.anchors.chunks.held", anchorResidency) { it.heldChunks.toDouble() }
+      .description("Chunks held by simulation anchors, once per anchor that holds them")
+      .register(registry)
+    Gauge.builder("zone.travel.knowers", routeKnowledge) { it.knowerCount.toDouble() }
+      .description("Masters and creatures that remember blocked routes")
+      .register(registry)
+    Gauge.builder("zone.travel.beliefs", routeKnowledge) { it.beliefCount.toDouble() }
+      .description("Blocked route edges remembered, over all knowers")
+      .register(registry)
+    Gauge.builder("zone.vicinity.sensors", vicinity) { it.size.toDouble() }
+      .description("Entities that sense what comes near them")
       .register(registry)
   }
 }

@@ -81,6 +81,20 @@ class AnchorResidencySystemTest {
   }
 
   @Test
+  fun `held chunks are counted once per anchor that holds them`() {
+    val first = anchorAt(Vec3L(0, 0, 0))
+    anchorAt(Vec3L(0, 0, 0))
+    tick()
+
+    assertEquals(18, system.heldChunks)
+
+    world.destroy(first)
+    tick()
+
+    assertEquals(9, system.heldChunks)
+  }
+
+  @Test
   fun `walking on keeps the margin behind and releases past it`() {
     val anchor = anchorAt(Vec3L(0, 0, 0))
     tick()
