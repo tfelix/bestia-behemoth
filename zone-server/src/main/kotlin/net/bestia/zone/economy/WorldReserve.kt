@@ -1,5 +1,6 @@
 package net.bestia.zone.economy
 
+import net.bestia.zone.entity.GameMetrics
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.world.WorldRecreatedEvent
@@ -29,6 +30,7 @@ class WorldReserve(
   private val repository: WorldTreasuryRepository,
   private val worldService: WorldService,
   private val asyncJobExecutor: AsyncJobExecutor,
+  private val metrics: GameMetrics = GameMetrics(),
 ) : CoinReserve {
 
   private var balance: Double = 0.0
@@ -51,6 +53,7 @@ class WorldReserve(
 
     balance -= coins
     dirty = true
+    metrics.reserveCharged(coins)
   }
 
   fun flush() {

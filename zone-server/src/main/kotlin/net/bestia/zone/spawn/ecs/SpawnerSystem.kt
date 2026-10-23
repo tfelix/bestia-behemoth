@@ -1,5 +1,6 @@
 package net.bestia.zone.spawn.ecs
 
+import net.bestia.zone.entity.GameMetrics
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.spawn.BestiaEntitySpawner
 import net.bestia.zone.ecs.core.ComponentClassSet
@@ -85,6 +86,7 @@ class SpawnerSystem(
   private val bestiaEntitySpawner: BestiaEntitySpawner,
   private val cellIndex: SpawnerCellIndex,
   private val deletionQueue: PersistedEntityDeletionQueue,
+  private val metrics: GameMetrics = GameMetrics(),
 ) : System {
   override val phase = Phase.SPAWN
 
@@ -243,6 +245,7 @@ class SpawnerSystem(
       deletionQueue.enqueue(entityId)
       if (world.isAlive(entityId)) world.destroy(entityId)
     }
+    metrics.despawned(GameMetrics.Despawn.DEN_PACK, spawner.spawnedEntities.size)
     spawner.spawnedEntities.clear()
   }
 

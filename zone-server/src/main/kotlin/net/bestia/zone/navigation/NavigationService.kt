@@ -29,7 +29,8 @@ class NavigationService(
   private val macroGraph: MacroGraphService,
   private val local: LocalPathfindingService,
   private val profiles: MovementProfileRegistry,
-  private val config: NavigationConfig
+  private val config: NavigationConfig,
+  private val metrics: NavigationMetrics = NavigationMetrics(),
 ) {
 
   /**
@@ -60,16 +61,19 @@ class NavigationService(
   fun planCourse(from: Vec3L, destination: Vec3L, profileId: String?, isBlocked: (Int) -> Boolean): MacroCourse? {
     macroGraph.ensureLoaded()
     val graph = macroGraph.graph
-    if (graph.isEmpty) return MacroCourse(emptyList(), emptyList())
+    if (graph.isEmpty) return ended(NavigationMetrics.Macro.NO_GRAPH, MacroCourse(emptyList(), emptyList()))
 
-    val start = graph.nearestNode(from) ?: return null
-    val goal = graph.nearestNode(destination) ?: return null
-    if (start == goal) return MacroCourse(emptyList(), emptyList())
+    val start = graph.nearestNode(from) ?: return ended(NavigationMetrics.Macro.NO_START)
+    val goal = graph.nearestNode(destination) ?: return ended(NavigationMetrics.Macro.NO_GOAL)
+    if (start == goal) return ended(NavigationMetrics.Macro.SAME_NODE, MacroCourse(emptyList(), emptyList()))
 
     val pathfinder = MacroPathfinder(graph, profiles.getOrDefault(profileId), isBlocked)
-    val nodes = AStar.findPath(pathfinder, start, goal) ?: return null
-    val edges = nodes.zipWithNext { a, b -> pathfinder.cheapestEdge(a, b) ?: return null }
+    val nodes = AStar.findPath(pathfinder, start, goal) ?: return ended(NavigationMetrics.Macro.NO_ROUTE)
+    val edges = nodes.zipWithNext { a, b ->
+      pathfinder.cheapestEdge(a, b) ?: return ended(NavigationMetrics.Macro.NO_ROUTE)
+    }
 
+    metrics.macro(NavigationMetrics.Macro.PLANNED)
     return MacroCourse(nodes.drop(1), edges)
   }
 
@@ -81,6 +85,12 @@ class NavigationService(
   fun bendsTowards(edge: Int, node: Int): List<Vec3L> {
     val runtimeEdge = macroGraph.graph.edges[edge]
     return if (runtimeEdge.b == node) runtimeEdge.waypoints else runtimeEdge.waypoints.asReversed()
+  }
+
+  private fun ended(outcome: NavigationMetrics.Macro, course: MacroCourse? = null): MacroCourse? {
+    metrics.macro(outcome)
+
+    return course
   }
 
   fun profileFor(profileId: String?): MovementProfile = profiles.getOrDefault(profileId)

@@ -35,6 +35,12 @@ class SystemMeters(
         .tags("system", system.name, "phase", system.phase.name.lowercase())
         .description("Time one system spent in its updates")
         .register(registry)
+      Gauge.builder("zone.system.duration.max", system) { it.maxNanosLastWindow / NANOS_PER_SECOND }
+        .tags("system", system.name, "phase", system.phase.name.lowercase())
+        .baseUnit("seconds")
+        .description("Longest single update of one system in the last ten seconds; 0 when it did not run")
+        .strongReference(true)
+        .register(registry)
       FunctionCounter.builder("zone.system.failures", system) { it.failures.toDouble() }
         .tag("system", system.name)
         .description("Updates of one system that threw")

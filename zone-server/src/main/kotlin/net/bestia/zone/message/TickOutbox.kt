@@ -4,6 +4,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.core.RateLimitedLog
 import net.bestia.zone.util.AccountId
 import org.springframework.stereotype.Component
+import java.util.concurrent.atomic.LongAdder
 
 /**
  * Collects what the tick sends and writes it per account at the end, so a client gets one flush per
@@ -22,6 +23,14 @@ class TickOutbox(
   private val afterFlush = ArrayList<() -> Unit>()
 
   private val failureLog = RateLimitedLog()
+
+  private val failures = LongAdder()
+
+  /** Batches that could not be sent, since start. */
+  val failedBatches: Long
+    get() {
+      return failures.sum()
+    }
 
   /** Runs [block] and then sends everything it offered, one batch per account in the order offered. */
   fun <T> collect(block: () -> T): T {
@@ -64,6 +73,7 @@ class TickOutbox(
       try {
         outMessageHandler.sendMessages(accountId, msgs)
       } catch (e: Exception) {
+        failures.increment()
         failureLog.emit { held -> LOG.error(e) { "Could not send a batch to account $accountId (+$held more)" } }
       }
     }

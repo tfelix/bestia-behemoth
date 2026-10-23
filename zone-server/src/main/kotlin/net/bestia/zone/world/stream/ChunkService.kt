@@ -55,6 +55,7 @@ class ChunkService(
   private val worldService: WorldService,
   private val settings: ChunkStreamConfig,
   private val workers: ChunkWorkers = ChunkWorkers(settings),
+  private val metrics: ChunkStreamMetrics = ChunkStreamMetrics(),
 ) {
 
   /**
@@ -331,6 +332,7 @@ class ChunkService(
     val key = column.x to column.y
     val generated = slabs.getOrPut(key) {
       computed++
+      metrics.slabComputed()
       slabChanges++
       computeSurfaceSlabs(column)
     }
@@ -486,9 +488,13 @@ class ChunkService(
       loaded.store.editOf(chunk)?.let { SavedEdit(chunk, revisionOf(chunk), it) }
     }
     unsaved.clear()
+    metrics.journal(0, 0L)
 
     return saved
   }
+
+  /** When the oldest edit now in [unsaved] was made; meaningful only while it is not empty. */
+  private var firstUnsavedNanos = 0L
 
   /**
    * Puts back the edits an earlier run saved, before anything has read or edited those chunks. The revision
@@ -514,7 +520,11 @@ class ChunkService(
    */
   fun encodedOf(chunk: ChunkPos): Encoded {
     val revision = revisionOf(chunk)
-    encoded[EncodedKey(chunk, revision)]?.let { return it }
+    encoded[EncodedKey(chunk, revision)]?.let {
+      metrics.encodedCache(hit = true)
+      return it
+    }
+    metrics.encodedCache(hit = false)
 
     val result = encode(chunk, revision, loaded.store.merged(chunk), baseHashOf(chunk))
 
@@ -547,10 +557,19 @@ class ChunkService(
    */
   fun readyDataMessage(chunk: ChunkPos): ChunkDataSMSG? {
     val revision = revisionOf(chunk)
-    encoded[EncodedKey(chunk, revision)]?.let { return messageOf(it) }
+    encoded[EncodedKey(chunk, revision)]?.let {
+      metrics.encodedCache(hit = true)
+      return messageOf(it)
+    }
+    metrics.encodedCache(hit = false)
 
-    if (chunk in inFlight || encodesLeft <= 0) return null
+    if (chunk in inFlight) return null
+    if (encodesLeft <= 0) {
+      metrics.exhausted(ChunkStreamMetrics.Allowance.ENCODE)
+      return null
+    }
     encodesLeft--
+    metrics.spent(ChunkStreamMetrics.Allowance.ENCODE, 1)
 
     if (revision > 0) return dataMessageFor(chunk)
 
@@ -558,7 +577,7 @@ class ChunkService(
     val hotBase = loaded.cache.peek(chunk)
     val materializer = worldService.generated.materializer
     workers.submit(
-      work = { encodeBase(chunk, hotBase ?: materializer.materialize(chunk)) },
+      work = { metrics.worked(generated = hotBase == null) { encodeBase(chunk, hotBase ?: materializer.materialize(chunk)) } },
       deliver = { result -> takeEncoded(chunk, generated = hotBase == null, result) }
     )
 
@@ -804,7 +823,9 @@ class ChunkService(
    */
   private fun onChunkChanged(chunk: ChunkPos) {
     revisions[chunk] = revisionOf(chunk) + 1
+    if (unsaved.isEmpty()) firstUnsavedNanos = System.nanoTime()
     unsaved.add(chunk)
+    metrics.journal(unsaved.size, firstUnsavedNanos)
     recordEdited(chunk, track = !writingFluid)
   }
 

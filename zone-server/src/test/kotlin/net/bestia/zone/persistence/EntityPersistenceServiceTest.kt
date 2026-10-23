@@ -15,10 +15,14 @@ class EntityPersistenceServiceTest {
     every { it.persist(any(), any(), any(), any()) } answers { saved.addAll(secondArg<Collection<EntityId>>()) }
   }
   private val deletionQueue = PersistedEntityDeletionQueue()
+  private var queueFull = false
+  private val executor = mockk<AsyncJobExecutor>(relaxed = true).also {
+    every { it.trySubmit(any(), any()) } answers { !queueFull }
+  }
 
   private val sut = EntityPersistenceService(
     writeBehind = writeBehind,
-    asyncJobExecutor = mockk(relaxed = true),
+    asyncJobExecutor = executor,
     deletionQueue = deletionQueue,
     persistedEntityRepository = mockk(relaxed = true),
     statusEffectPersistenceService = mockk(relaxed = true),
@@ -52,6 +56,26 @@ class EntityPersistenceServiceTest {
     sut.syncAll(testWorld())
 
     verify { writeBehind.forget(listOf(REMOVED)) }
+  }
+
+  @Test
+  fun `rows whose delete the executor dropped are queued again`() {
+    queueFull = true
+    deletionQueue.enqueue(REMOVED)
+
+    sut.syncAll(testWorld())
+
+    assertEquals(1, deletionQueue.pending, "the id waits for the next sweep, or its rows would stay for good")
+  }
+
+  @Test
+  fun `rows queued for deletion are no longer waiting`() {
+    deletionQueue.enqueue(REMOVED)
+    assertEquals(1, deletionQueue.pending)
+
+    sut.syncAll(testWorld())
+
+    assertEquals(0, deletionQueue.pending)
   }
 
   private companion object {

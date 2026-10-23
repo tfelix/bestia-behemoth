@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component as SpringComponent
 @SpringComponent
 class PersistAndRemoveSystem(
   private val writeBehind: EntityWriteBehind,
+  private val metrics: PersistenceMetrics = PersistenceMetrics(),
 ) : System {
   override val phase = Phase.PERSIST
 
@@ -24,6 +25,7 @@ class PersistAndRemoveSystem(
     val toRemove = world.query(PersistAndRemove::class).map { id -> id }
     if (toRemove.isEmpty()) return
 
+    metrics.leaving(toRemove.size)
     writeBehind.persist(world, toRemove)
     toRemove.forEach(world::destroy)
   }

@@ -31,14 +31,17 @@ class AccountInbox(
   private val world: WorldView,
   private val outbox: TickOutbox,
   private val connections: ObjectProvider<ConnectionTerminator>,
+  private val metrics: MessageMetrics = MessageMetrics(),
 ) : AccountTaskExecutor {
 
-  private sealed class Item {
+  private sealed class Item(val lane: MessageMetrics.Lane) {
     val done = CompletableFuture<Unit>()
 
-    class OnTick(val task: World.() -> Unit) : Item()
+    val enqueuedAt = System.nanoTime()
 
-    class OnIo(val task: () -> Unit) : Item()
+    class OnTick(val task: World.() -> Unit) : Item(MessageMetrics.Lane.TICK)
+
+    class OnIo(val task: () -> Unit) : Item(MessageMetrics.Lane.IO)
   }
 
   private class Mailbox {
@@ -48,6 +51,9 @@ class AccountInbox(
 
   private val mailboxes = ConcurrentHashMap<AccountId, Mailbox>()
   private val waiting = AtomicInteger()
+
+  /** Everything that arrived and has not started, which is a mailbox, the world's post queue or the IO lane. */
+  private val unstarted = ConcurrentHashMap.newKeySet<Item>()
   private val overflows = AtomicLong()
 
   private val ioThreads = AtomicInteger()
@@ -65,6 +71,17 @@ class AccountInbox(
   val overflowCount: Long
     get() {
       return overflows.get()
+    }
+
+  /**
+   * How long the oldest message that has not started has been waiting, 0 when none is. A wait timer only learns
+   * of a message once it starts, so this is the one that shows a lane that has stopped.
+   */
+  val oldestWaitingNanos: Long
+    get() {
+      val oldest = unstarted.minOfOrNull { it.enqueuedAt } ?: return 0L
+
+      return System.nanoTime() - oldest
     }
 
   /** IO-lane messages whose account is next, waiting for a free IO thread. */
@@ -91,6 +108,7 @@ class AccountInbox(
         overflow = true
       } else {
         waiting.incrementAndGet()
+        unstarted.add(item)
         box.items.addLast(item)
         start = !box.running
         box.running = true
@@ -133,11 +151,15 @@ class AccountInbox(
   }
 
   private fun runItem(accountId: AccountId, item: Item, task: () -> Unit) {
+    unstarted.remove(item)
+    metrics.waited(item.lane, System.nanoTime() - item.enqueuedAt)
+
     try {
       withLoggingContext("account" to accountId.toString()) { task() }
       // Done once the replies have left too, so whoever waits for the message sees what it sent.
       outbox.afterFlush { item.done.complete(Unit) }
     } catch (e: Throwable) {
+      metrics.inboxFailed(item.lane)
       val errorCode = (e as? MessageHandlingFailedException)?.errorCode ?: UUID.randomUUID().toString()
       if (e !is MessageHandlingFailedException) {
         LOG.error(e) { "Work for account $accountId failed [errorCode=$errorCode]" }

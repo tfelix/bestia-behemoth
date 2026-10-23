@@ -40,28 +40,28 @@ class LoginTokenValidator(
         .payload
 
       if (claims.issuer != "login") {
-        throw JwtLoginException("Wrong issuer: ${claims.issuer}")
+        throw JwtLoginException("Wrong issuer: ${claims.issuer}", reason = AuthMetrics.Refusal.WRONG_ISSUER)
       }
 
       // Exactly, so a token minted for several audiences cannot stand in for a zone login.
       if (claims.audience != setOf("zone")) {
-        throw JwtLoginException("Wrong audience: ${claims.audience}")
+        throw JwtLoginException("Wrong audience: ${claims.audience}", reason = AuthMetrics.Refusal.WRONG_AUDIENCE)
       }
 
       val roleName = claims.get("role", String::class.java)
-        ?: throw JwtLoginException("Missing role claim")
+        ?: throw JwtLoginException("Missing role claim", reason = AuthMetrics.Refusal.BAD_CLAIMS)
 
       val role = try {
         Role.valueOf(roleName)
       } catch (e: IllegalArgumentException) {
-        throw JwtLoginException("Unknown role: $roleName")
+        throw JwtLoginException("Unknown role: $roleName", reason = AuthMetrics.Refusal.BAD_CLAIMS)
       }
 
-      val tokenId = claims.id ?: throw JwtLoginException("Missing token id")
-      val expiresAt = claims.expiration ?: throw JwtLoginException("Missing expiry")
-      val issuedAt = claims.issuedAt ?: throw JwtLoginException("Missing issue time")
+      val tokenId = claims.id ?: throw JwtLoginException("Missing token id", reason = AuthMetrics.Refusal.BAD_CLAIMS)
+      val expiresAt = claims.expiration ?: throw JwtLoginException("Missing expiry", reason = AuthMetrics.Refusal.BAD_CLAIMS)
+      val issuedAt = claims.issuedAt ?: throw JwtLoginException("Missing issue time", reason = AuthMetrics.Refusal.BAD_CLAIMS)
       if (!usedTokenIds.acceptOnce(tokenId, expiresAt)) {
-        throw JwtLoginException("Token already used")
+        throw JwtLoginException("Token already used", reason = AuthMetrics.Refusal.TOKEN_REUSED)
       }
 
       return LoginTokenClaims(

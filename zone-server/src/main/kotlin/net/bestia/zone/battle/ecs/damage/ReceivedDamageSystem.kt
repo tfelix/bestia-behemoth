@@ -1,5 +1,6 @@
 package net.bestia.zone.battle.ecs.damage
 
+import net.bestia.zone.entity.GameMetrics
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.battle.ecs.attack.AttackSystem
 import net.bestia.zone.battle.ecs.skill.Casting
@@ -22,7 +23,9 @@ import net.bestia.zone.entity.ecs.Dead
  * handle also damage this directly came from ecs entities e.g. like AOE attacks.
  */
 @SpringComponent
-class ReceivedDamageSystem : System {
+class ReceivedDamageSystem(
+  private val metrics: GameMetrics = GameMetrics(),
+) : System {
   override val phase = Phase.COMBAT
   override val after = setOf(AttackSystem::class)
 
@@ -57,6 +60,7 @@ class ReceivedDamageSystem : System {
       takenDamage.removeOldEntries()
 
       val total = hits.sumOf { it.amount }
+      metrics.hits(hits.size, total.toLong())
       health.current -= total
 
       // Taking damage aborts a pending logout and interrupts a running cast or craft. Removing the

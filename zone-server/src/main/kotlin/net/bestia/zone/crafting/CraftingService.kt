@@ -1,5 +1,6 @@
 package net.bestia.zone.crafting
 
+import net.bestia.zone.entity.GameMetrics
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.bnet.proto.OperationSuccessProto.OpSuccess
@@ -70,6 +71,7 @@ class CraftingService(
   private val reserve: CoinReserve,
   private val itemStats: ItemStatCatalog,
   private val roller: ItemStatRoller,
+  private val metrics: GameMetrics = GameMetrics(),
 ) : RecipeOffering {
 
   /**
@@ -239,6 +241,7 @@ class CraftingService(
     roll: ItemRoll?
   ) {
     val inventory = world.get(entityId, Inventory::class) ?: return
+    metrics.crafted(GameMetrics.Craft.SUCCESS)
 
     when (recipe.effect) {
       RecipeEffect.PRODUCE -> {
@@ -289,10 +292,12 @@ class CraftingService(
       asyncJobExecutor.submit(masterId) { inventoryService.destroyInstance(masterId, target.uniqueId) }
 
       LOG.debug { "A failed slot cut destroyed instance ${target.uniqueId} of master $masterId" }
+      metrics.crafted(GameMetrics.Craft.ITEM_DESTROYED)
       return refuse(accountId, OpError.CRAFT_ITEM_DESTROYED)
     }
 
     LOG.debug { "Master $masterId failed ${recipe.identifier}" }
+    metrics.crafted(GameMetrics.Craft.FAILED)
     refuse(accountId, OpError.CRAFT_FAILED)
   }
 

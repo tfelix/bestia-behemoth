@@ -37,6 +37,7 @@ class AiThinkSystem(
   private val planner: Planner,
   private val sharedMemory: SharedMemoryService,
   private val throttle: AiThrottle,
+  private val metrics: AiMetrics = AiMetrics(),
 ) : System {
   override val phase = Phase.AI
   override val after = setOf(AiDriveSystem::class)
@@ -101,29 +102,43 @@ class AiThinkSystem(
           // Nothing worth doing. Dropping the plan is right: holding a stale one would have the act stage
           // keep executing a goal the agent no longer has any reason to pursue.
           if (agent.hasActivePlan()) agent.clearPlan()
+          metrics.think(AiMetrics.Think.NO_GOAL)
           return@each
         }
 
         val goalUnchanged = agent.currentGoal?.name == goal.name
-        if (goalUnchanged && agent.hasActivePlan()) return@each
+        if (goalUnchanged && agent.hasActivePlan()) {
+          metrics.think(AiMetrics.Think.PLAN_KEPT)
+          return@each
+        }
 
         // The search is the expensive part, so one tick only gets so much of it; whoever is left thinks next tick.
         if (budget.isSpent) {
           agent.nextThinkTick = tick + 1
+          metrics.think(AiMetrics.Think.DEFERRED)
           return@each
         }
 
+        val before = budget.remaining
         val plan = planner.planFor(agent, goal, state, budget)
-        if (plan != null && !plan.isEmpty) {
+        val found = plan != null && !plan.isEmpty
+        metrics.planned(before - budget.remaining, found)
+
+        if (plan != null && found) {
+          // A goal still held means its plan was running when another goal won, which is a change of mind.
+          metrics.adopted(goal.name, preempted = agent.currentGoal != null)
+          metrics.think(AiMetrics.Think.ADOPTED)
           agent.adopt(goal, plan, state)
           LOG.trace { "Entity $id adopts goal '${goal.name}' with plan ${plan.actions.map { it.name }}" }
           return@each
         }
 
+        metrics.goalBlocked()
         agent.blockGoal(goal.name, untilTick = tick + GOAL_RETRY_TICKS)
       }
 
       // Out of attempts. The next think goes on down the list, with these goals set aside.
+      metrics.think(AiMetrics.Think.EXHAUSTED)
       agent.clearPlan()
     }
   }

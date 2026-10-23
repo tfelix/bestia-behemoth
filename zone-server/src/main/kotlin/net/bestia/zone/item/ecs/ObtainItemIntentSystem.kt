@@ -1,5 +1,6 @@
 package net.bestia.zone.item.ecs
 
+import net.bestia.zone.entity.GameMetrics
 import net.bestia.zone.item.stat.ItemStatCatalog
 import net.bestia.zone.item.stat.ItemRoll
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -35,6 +36,7 @@ class ObtainItemIntentSystem(
   private val asyncJobExecutor: AsyncJobExecutor,
   private val groundStackRemoval: GroundStackRemoval,
   private val itemStats: ItemStatCatalog,
+  private val metrics: GameMetrics = GameMetrics(),
 ) : System {
   override val phase = Phase.ITEMS
 
@@ -217,6 +219,7 @@ class ObtainItemIntentSystem(
       )
     )
 
+    metrics.itemsGranted(amount)
     schedulePersist(world, entityId, item.id, amount, uniqueId, roll, craftedByMasterId)
   }
 

@@ -6,6 +6,7 @@ import net.bestia.zone.BestiaException
 import org.springframework.stereotype.Component
 import java.util.UUID
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.TimeUnit
 import kotlin.reflect.KClass
 
 /**
@@ -19,9 +20,20 @@ class InMessageProcessor(
   handlers: List<IncomingMessageHandler<*>>,
   private val inbox: AccountTaskExecutor,
   private val outMessageProcessor: OutMessageProcessor,
+  metrics: MessageMetrics = MessageMetrics(),
 ) {
 
   private val handlerByMessage: Map<KClass<*>, IncomingMessageHandler<*>> = handlers.associateBy { it.handles }
+
+  /** Made up front, so a message looks its meters up in a map and registers nothing. */
+  private val metersByMessage: Map<KClass<*>, MessageMetrics.Handler> = handlers.associate { handler ->
+    val lane = when (handler) {
+      is TickMessageHandler -> MessageMetrics.Lane.TICK
+      is IoMessageHandler -> MessageMetrics.Lane.IO
+    }
+
+    handler.handles to metrics.forHandler(handler.handles.simpleName ?: "unknown", lane)
+  }
 
   init {
     val shared = handlers.groupBy { it.handles }.filterValues { it.size > 1 }.keys
@@ -45,27 +57,38 @@ class InMessageProcessor(
   }
 
   private fun process(handler: IncomingMessageHandler<*>, msg: CMSG, handle: () -> Boolean) {
-    val handled = try {
-      handle()
-    } catch (e: BestiaException) {
-      LOG.warn { "Refused ${msg::class.simpleName} from account ${msg.playerId}: ${e.message}" }
-      outMessageProcessor.sendToPlayer(msg.playerId, OperationErrorSMSG(OpError.REQUEST_REFUSED))
-      return
-    } catch (e: Exception) {
-      // A bug: fail the connection rather than leave the client waiting for an answer. errorCode ties this
-      // log entry to the generic error the client ends up displaying.
-      val errorCode = UUID.randomUUID().toString()
-      LOG.error(e) {
-        "Error during message handling [errorCode=$errorCode] handler=${handler::class.simpleName} " +
-          "message=${msg::class.simpleName}"
-      }
-      throw MessageHandlingFailedException(errorCode, e)
-    }
+    val meters = metersByMessage.getValue(msg::class)
+    val started = System.nanoTime()
 
-    if (handled) {
-      LOG.trace { "Message ${msg::class.simpleName} handled by ${handler::class.java.simpleName}" }
-    } else {
-      LOG.warn { "${handler::class.java.simpleName} did not handle message ${msg::class.java.simpleName}" }
+    try {
+      val handled = try {
+        handle()
+      } catch (e: BestiaException) {
+        meters.refused.increment()
+        LOG.warn { "Refused ${msg::class.simpleName} from account ${msg.playerId}: ${e.message}" }
+        outMessageProcessor.sendToPlayer(msg.playerId, OperationErrorSMSG(OpError.REQUEST_REFUSED))
+        return
+      } catch (e: Exception) {
+        // A bug: fail the connection rather than leave the client waiting for an answer. errorCode ties this
+        // log entry to the generic error the client ends up displaying.
+        meters.failed.increment()
+        val errorCode = UUID.randomUUID().toString()
+        LOG.error(e) {
+          "Error during message handling [errorCode=$errorCode] handler=${handler::class.simpleName} " +
+            "message=${msg::class.simpleName}"
+        }
+        throw MessageHandlingFailedException(errorCode, e)
+      }
+
+      if (handled) {
+        meters.handled.increment()
+        LOG.trace { "Message ${msg::class.simpleName} handled by ${handler::class.java.simpleName}" }
+      } else {
+        meters.unhandled.increment()
+        LOG.warn { "${handler::class.java.simpleName} did not handle message ${msg::class.java.simpleName}" }
+      }
+    } finally {
+      meters.duration.record(System.nanoTime() - started, TimeUnit.NANOSECONDS)
     }
   }
 

@@ -31,6 +31,9 @@ class WorldOwnership {
   private val posted = LinkedBlockingQueue<() -> Unit>()
   private val failureLog = RateLimitedLog()
 
+  /** What posted work and leases have cost so far; see [OwnershipStats]. */
+  val stats = OwnershipStats()
+
   val pendingPosts: Int
     get() {
       return posted.size
@@ -100,10 +103,10 @@ class WorldOwnership {
   }
 
   /** Runs what is queued right now; tasks queued meanwhile wait for the next call. Owner only. */
-  fun runQueued() {
+  fun runQueued(betweenSteps: Boolean = false) {
     repeat(posted.size) {
       val task = posted.poll() ?: return
-      runSafely(task)
+      runSafely(task, betweenSteps)
     }
   }
 
@@ -113,16 +116,21 @@ class WorldOwnership {
     if (wait <= 0) return
 
     val first = posted.poll(wait, TimeUnit.NANOSECONDS) ?: return
-    runSafely(first)
-    runQueued()
+    runSafely(first, betweenSteps = true)
+    runQueued(betweenSteps = true)
   }
 
-  private fun runSafely(task: () -> Unit) {
+  /** Times only the task, never the wait for one above, so the time is work and not idling. */
+  private fun runSafely(task: () -> Unit, betweenSteps: Boolean) {
+    val started = java.lang.System.nanoTime()
     try {
       task()
     } catch (e: Throwable) {
       if (e.isFatal()) throw e
+      stats.postedFailed()
       failureLog.emit { held -> LOG.error(e) { "A task posted to the world failed (+$held more)" } }
+    } finally {
+      stats.posted(betweenSteps, java.lang.System.nanoTime() - started)
     }
   }
 
@@ -139,10 +147,12 @@ class WorldOwnership {
       }
 
       if (java.lang.System.nanoTime() - started > LEASE_TIMEOUT_NANOS && lease.cancel()) {
+        stats.timedOut()
         throw IllegalStateException("The tick thread did not lend the world within 5 s")
       }
     }
 
+    stats.borrowed(java.lang.System.nanoTime() - started)
     insideLease.set(true)
     try {
       return block()
@@ -159,11 +169,13 @@ class WorldOwnership {
     if (!lease.grant()) return
 
     lentTo = lease.borrower
+    val lent = java.lang.System.nanoTime()
     try {
       lease.granted.countDown()
       lease.returned.await()
     } finally {
       lentTo = null
+      stats.lent(java.lang.System.nanoTime() - lent)
     }
   }
 

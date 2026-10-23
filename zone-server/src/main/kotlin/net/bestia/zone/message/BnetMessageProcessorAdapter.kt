@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component
 class BnetMessageProcessorAdapter(
   handlers: List<IncomingMessageHandler<*>>,
   private val inMessageProcessor: InMessageProcessor,
+  private val metrics: MessageMetrics = MessageMetrics(),
 ) {
 
   private val decoders: Map<MessageCase, WireDecoder<*>> = handlers.associate { it.wire.case to it.wire }
@@ -38,6 +39,7 @@ class BnetMessageProcessorAdapter(
     val internalMessage = decoder.decode(accountId, envelope)
 
     if (internalMessage == null) {
+      metrics.unreadable()
       LOG.warn { "handleMessageEnvelopeReceived: dropping unparsable message from account $accountId" }
       return
     }

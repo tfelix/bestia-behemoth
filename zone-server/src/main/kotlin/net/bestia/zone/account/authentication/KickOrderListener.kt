@@ -28,6 +28,7 @@ class KickOrderListener(
   private val properties: BusProperties,
   private val kickedAccounts: KickedAccounts,
   private val connections: ConnectionTerminator,
+  private val metrics: AuthMetrics = AuthMetrics(),
 ) {
 
   private val startedAt = System.currentTimeMillis()
@@ -44,12 +45,15 @@ class KickOrderListener(
 
   fun handle(order: KickOrder) {
     kickedAccounts.remember(order.accountId, order.kickedAtEpochMs)
+    metrics.kick(AuthMetrics.Kick.RECEIVED)
 
     if (order.kickedAtEpochMs < startedAt) {
+      metrics.kick(AuthMetrics.Kick.PREDATES_NODE)
       LOG.info { "Kick of account ${order.accountId} predates this node; its connection, if any, is newer" }
       return
     }
-    connections.disconnect(order.accountId, order.reason)
+    val closed = connections.disconnect(order.accountId, order.reason)
+    metrics.kick(if (closed) AuthMetrics.Kick.CLOSED else AuthMetrics.Kick.NO_CONNECTION)
   }
 
   @PreDestroy

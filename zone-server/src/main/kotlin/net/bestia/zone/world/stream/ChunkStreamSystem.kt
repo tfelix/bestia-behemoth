@@ -17,6 +17,9 @@ import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.entity.ecs.PropPose
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.ChunkFanOut
+import net.bestia.zone.world.stream.ChunkStreamMetrics.Allowance
+import net.bestia.zone.world.stream.ChunkStreamMetrics.Kind
+import net.bestia.zone.world.stream.ChunkStreamMetrics.Step
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.world.residency.ChunkResidency
 import org.springframework.stereotype.Component as SpringComponent
@@ -58,6 +61,7 @@ class ChunkStreamSystem(
   private val carveYield: CarveYield,
   private val connections: ConnectionInfoService,
   private val workers: ChunkWorkers,
+  private val metrics: ChunkStreamMetrics = ChunkStreamMetrics(),
 ) : System {
   override val phase = Phase.WORLD
 
@@ -105,22 +109,31 @@ class ChunkStreamSystem(
     if (!chunkService.isReady) return
 
     applyResets()
-    workers.drain()
+    metrics.timed(Step.WORKERS) { workers.drain() }
     chunkService.beginTick()
 
-    applyCarves(world)
+    metrics.timed(Step.CARVES) { applyCarves(world) }
 
     // Before the subscriptions, so a teleport and the manifest that answers it happen in the same tick. The
     // other order would offer the player a view volume around where they used to be and correct it one tick
     // later, which is a visible flash of the wrong terrain.
-    groundNewcomers(world)
-    applyTeleports(world)
+    metrics.timed(Step.TELEPORTS) {
+      groundNewcomers(world)
+      applyTeleports(world)
+    }
 
-    updateSubscriptions(world)
-    broadcastChanges()
-    serveRequests()
-    chunkService.rebuildDerived()
-    regroundCarvedColumns(world)
+    metrics.timed(Step.SUBSCRIPTIONS) { updateSubscriptions(world) }
+    metrics.timed(Step.BROADCAST) { broadcastChanges() }
+    metrics.timed(Step.REQUESTS) { serveRequests() }
+    metrics.timed(Step.DERIVED) { rebuildDerived() }
+    metrics.timed(Step.REGROUND) { regroundCarvedColumns(world) }
+  }
+
+  private fun rebuildDerived() {
+    val rebuilt = chunkService.rebuildDerived()
+
+    metrics.spent(Allowance.DERIVED, rebuilt)
+    if (settings.derivedRebuildsPerTick in 1..rebuilt) metrics.exhausted(Allowance.DERIVED)
   }
 
   // ---------------------------------------------------------------- step 1
@@ -131,6 +144,7 @@ class ChunkStreamSystem(
 
     for (carve in carves) {
       if (carve.radius < CarveBrush.MIN_RADIUS) {
+        metrics.carveRejected()
         LOG.warn {
           "Account ${carve.accountId} asked for a bore radius of ${carve.radius}, below the " +
               "${CarveBrush.MIN_RADIUS} the client can render"
@@ -150,6 +164,7 @@ class ChunkStreamSystem(
 
       val result = chunkService.carve(brush)
       carvedChunks.addAll(result.chunks)
+      metrics.carved(result.voxels.size, result.chunks.size)
 
       bank(result, carve.accountId)
 
@@ -288,6 +303,11 @@ class ChunkStreamSystem(
       val settled = sendManifest(accountId, anchor, reset = previous == null, budget = budget)
       if (settled) settledManifests[accountId] = basis else settledManifests.remove(accountId)
     }
+
+    metrics.spent(Allowance.SLAB, settings.slabComputationsPerTick - budget.remaining)
+    if (budget.refused) metrics.exhausted(Allowance.SLAB)
+    metrics.unsettled(anchors.keys.count { it !in settledManifests })
+    metrics.carvedPending(carvedChunks.size)
   }
 
   /** What an account's last manifest was computed from, when it left nothing outstanding. */
@@ -339,9 +359,11 @@ class ChunkStreamSystem(
     // again and the client holds a hole for the rest of the session.
     if (!fanOut.sendToIfWritable(accountId, ChunkManifestSMSG(reset = reset, added = refs, removed = removed))) {
       LOG.debug { "Manifest for $accountId could not be written; leaving its subscription untouched" }
+      metrics.manifest(sent = false)
       return false
     }
 
+    metrics.manifest(sent = true, added = added.size, removed = removed.size)
     subscriptions.applyManifest(accountId, added, removed, reset)
 
     // Withdrawn chunks must also leave the send queue, or a client would be handed terrain it has just been
@@ -397,6 +419,7 @@ class ChunkStreamSystem(
       if (prefersSnapshot(patch.edits.size, snapshotSize)) {
         val message = chunkService.dataMessageFor(change.chunk)
         val sent = fanOut.fanOut(holders.toList(), message)
+        metrics.sent(Kind.SNAPSHOT, sent, message.payload.size.toLong() * sent)
 
         LOG.debug {
           "Chunk ${change.chunk} rev ${change.toRevision}: ${change.edits.size} edits cost " +
@@ -406,6 +429,7 @@ class ChunkStreamSystem(
       }
 
       val sent = fanOut.fanOut(holders.toList(), patch)
+      metrics.sent(Kind.PATCH, sent, patch.edits.size.toLong() * sent)
 
       LOG.debug {
         "Chunk ${change.chunk} rev ${change.fromRevision}->${change.toRevision}: " +
@@ -431,6 +455,8 @@ class ChunkStreamSystem(
           inbox.requeue(ChunkStreamInbox.Request(request.accountId, deferred))
 
           LOG.debug { "Account ${request.accountId} is out of request tokens; deferring ${deferred.size}" }
+          metrics.requests(deferred = deferred.size)
+          metrics.exhausted(Allowance.REQUEST_TOKENS)
           break
         }
 
@@ -443,12 +469,15 @@ class ChunkStreamSystem(
         // terrain, without needing any separate notion of a "legal" coordinate.
         if (!subscriptions.isAnnouncedTo(request.accountId, normalised)) {
           LOG.debug { "Account ${request.accountId} asked for $normalised, which it was not offered" }
+          metrics.requests(unannounced = 1)
           continue
         }
 
         queued.getOrPut(request.accountId) { LinkedHashSet() }.add(normalised)
+        metrics.requests(queued = 1)
       }
 
+      metrics.spent(Allowance.REQUEST_TOKENS, spent)
       tokens[request.accountId] = budget - spent
     }
 
@@ -462,7 +491,10 @@ class ChunkStreamSystem(
   }
 
   private fun sendQueued() {
-    if (queued.isEmpty()) return
+    if (queued.isEmpty()) {
+      metrics.sendQueue(0)
+      return
+    }
 
     val emptied = ArrayList<Long>()
 
@@ -488,16 +520,22 @@ class ChunkStreamSystem(
         // Kept on a failed write, because nothing else would bring it back - the manifest offers what was not
         // announced, not what did not arrive. A channel that is gone or full will refuse the rest of this
         // tick's writes too, so stop rather than spend the budget finding that out chunk by chunk.
-        if (!push(accountId, chunk, message)) break
+        if (!push(accountId, chunk, message)) {
+          metrics.sendRefused()
+          break
+        }
 
+        metrics.sent(if (chunk == ground) Kind.GROUND else Kind.FULL, 1, message.payload.size.toLong())
         iterator.remove()
         sent++
       }
 
+      if (sent >= settings.chunksPerTickPerPlayer && iterator.hasNext()) metrics.exhausted(Allowance.PER_PLAYER)
       if (pending.isEmpty()) emptied.add(accountId)
     }
 
     emptied.forEach { queued.remove(it) }
+    metrics.sendQueue(queued.values.sumOf { it.size })
   }
 
   /** Puts a chunk at the head of an account's send queue, so it goes out before anything already waiting. */

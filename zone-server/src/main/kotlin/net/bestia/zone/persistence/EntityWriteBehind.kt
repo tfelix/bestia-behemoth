@@ -17,6 +17,7 @@ class EntityWriteBehind(
   foundPersisters: List<EntityPersister>,
   private val statusEffects: EntitySidecar,
   private val asyncJobExecutor: AsyncJobExecutor,
+  private val metrics: PersistenceMetrics = PersistenceMetrics(),
 ) {
 
   private val persisters = foundPersisters.inClassNameOrder()
@@ -52,7 +53,10 @@ class EntityWriteBehind(
       val effects = if (withStatusEffects) statusEffects.snapshot(world, id) else null
 
       val queued = Queued(snapshot, effects)
-      if (onlyChanged && lastQueued[id] == queued) continue
+      if (onlyChanged && lastQueued[id] == queued) {
+        metrics.unchanged()
+        continue
+      }
       if (snapshot == null && effects == null) continue
       lastQueued[id] = queued
 
@@ -65,7 +69,14 @@ class EntityWriteBehind(
     }
 
     for ((key, job) in jobs) {
-      asyncJobExecutor.submit(key) { write(job) }
+      val pending = metrics.queued(job.ids.size)
+
+      // A write the executor dropped must not stay remembered as queued, or the entity is skipped as unchanged
+      // until it next changes and a crash loses it.
+      if (!asyncJobExecutor.trySubmit(key) { write(job, pending) }) {
+        metrics.rejected(pending)
+        forget(job.ids)
+      }
     }
   }
 
@@ -74,12 +85,18 @@ class EntityWriteBehind(
     ids.forEach(lastQueued::remove)
   }
 
-  private fun write(job: WriteJob) {
+  private fun write(job: WriteJob, pending: PersistenceMetrics.Pending) {
+    val started = System.nanoTime()
+    var ok = false
+
     try {
       job.write(statusEffects)
+      ok = true
     } catch (e: Exception) {
       forget(job.ids)
       throw e
+    } finally {
+      metrics.finished(pending, ok, System.nanoTime() - started)
     }
   }
 

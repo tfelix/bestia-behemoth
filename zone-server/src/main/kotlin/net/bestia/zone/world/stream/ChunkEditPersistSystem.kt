@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component
 class ChunkEditPersistSystem(
   private val journal: ChunkEditJournal,
   settings: ChunkStreamConfig,
+  private val metrics: ChunkStreamMetrics = ChunkStreamMetrics(),
 ) : System {
   override val phase = Phase.PERSIST
 
@@ -22,6 +23,6 @@ class ChunkEditPersistSystem(
   override val writes: ComponentClassSet = emptySet()
 
   override fun update(world: World, deltaTime: Float) {
-    journal.flushDirty()
+    metrics.journalFlushed(journal.flushDirty())
   }
 }

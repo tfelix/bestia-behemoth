@@ -3,6 +3,8 @@ package net.bestia.zone.ecs.core
 import io.github.oshai.kotlinlogging.KotlinLogging
 import java.util.Locale
 import java.util.concurrent.ForkJoinPool
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicLongArray
 
 /**
  * Owns the registered systems, decides which are due each tick, and executes
@@ -14,7 +16,10 @@ import java.util.concurrent.ForkJoinPool
  * conflicting system that comes before it in the [TickOrder], which preserves ordering for dependent
  * systems while still allowing independent ones to share a wave.
  */
-class SystemScheduler(private val parallel: Boolean = false) {
+class SystemScheduler(
+  private val parallel: Boolean = false,
+  private val maxWindowNanos: Long = MAX_WINDOW_NANOS,
+) {
 
   // One thread runs an entry at a time, so volatile totals are enough for the reader on another thread.
   private class Entry(val system: System) : SystemStats {
@@ -24,6 +29,20 @@ class SystemScheduler(private val parallel: Boolean = false) {
     @Volatile override var runs = 0L
     @Volatile override var totalNanos = 0L
     @Volatile override var failures = 0L
+
+    /** The longest update of the window in progress; only the thread that runs this entry touches it. */
+    private var windowMax = 0L
+
+    @Volatile override var maxNanosLastWindow = 0L
+
+    fun noteDuration(nanos: Long) {
+      if (nanos > windowMax) windowMax = nanos
+    }
+
+    fun rollWindow() {
+      maxNanosLastWindow = windowMax
+      windowMax = 0L
+    }
 
     var tickCounter = 0
 
@@ -60,7 +79,20 @@ class SystemScheduler(private val parallel: Boolean = false) {
 
   private val running = ThreadLocal<System?>()
 
+  /** Wall time spent running each phase's waves since start, indexed by [Phase.ordinal]. One writer, the tick thread. */
+  private val phaseTotals = AtomicLongArray(Phase.entries.size)
+
+  private var windowStartedAt = java.lang.System.nanoTime()
+
   val systemCount: Int get() = entries.size
+
+  /**
+   * Wall time all of [phase]'s waves have taken since start. What is left of the scheduler's own total after
+   * these is the cost of deciding what is due, which is not in any system's own timer.
+   */
+  fun phaseNanos(phase: Phase): Long {
+    return phaseTotals.get(phase.ordinal)
+  }
 
   /** The system whose update the calling thread is in, or null outside of one. */
   fun runningSystem(): System? {
@@ -100,6 +132,12 @@ class SystemScheduler(private val parallel: Boolean = false) {
     // about *this* tick.
     for (e in entries) e.lastNanos = 0L
 
+    val now = java.lang.System.nanoTime()
+    if (now - windowStartedAt >= maxWindowNanos) {
+      for (e in entries) e.rollWindow()
+      windowStartedAt = now
+    }
+
     // Evaluate due-ness exactly once per entry (this mutates cadence counters).
     val due = HashSet<Entry>()
     for (e in entries) {
@@ -111,6 +149,7 @@ class SystemScheduler(private val parallel: Boolean = false) {
       val toRun = wave.filter { it in due }
       if (toRun.isEmpty()) continue
 
+      val waveStarted = java.lang.System.nanoTime()
       if (pool == null || toRun.size == 1) {
         toRun.forEach { it.run(world) }
       } else {
@@ -120,6 +159,8 @@ class SystemScheduler(private val parallel: Boolean = false) {
           toRun.parallelStream().forEach { it.run(world) }
         }.get()
       }
+      // A wave never spans phases, see recomputeWaves.
+      phaseTotals.addAndGet(toRun[0].system.phase.ordinal, java.lang.System.nanoTime() - waveStarted)
     }
   }
 
@@ -146,6 +187,7 @@ class SystemScheduler(private val parallel: Boolean = false) {
       lastNanos = elapsed
       totalNanos += elapsed
       runs++
+      noteDuration(elapsed)
     }
   }
 
@@ -257,5 +299,8 @@ class SystemScheduler(private val parallel: Boolean = false) {
     private val LOG = KotlinLogging.logger { }
 
     const val MAX_CONSECUTIVE_FAILURES = 5
+
+    /** How long a [SystemStats.maxNanosLastWindow] window is: twice a scrape every five seconds, so none is missed. */
+    val MAX_WINDOW_NANOS = TimeUnit.SECONDS.toNanos(10)
   }
 }

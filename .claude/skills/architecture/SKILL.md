@@ -243,7 +243,9 @@ expiry), or state that expires when it is next touched (party invitations).
 is the Prometheus client's own JDK HTTP server over the actuator-built `PrometheusMeterRegistry`. A source keeps plain counters (`SystemScheduler`'s per-system totals,
 `AsyncJobExecutor`, `AccountInbox`); `zone/metrics/` binds them to Micrometer when scraped, so
 `ecs/core` never imports Micrometer and the tick never pays for a meter. Tags stay bounded: never an
-account or entity id.
+account or entity id. A dev Prometheus + Grafana (compose profile `observability`, dashboards in
+`observability/`) draws these together with login-server's and api-service's; `.claude/skills/observability/SKILL.md`
+says how to start it and query it.
 
 ## AI module
 

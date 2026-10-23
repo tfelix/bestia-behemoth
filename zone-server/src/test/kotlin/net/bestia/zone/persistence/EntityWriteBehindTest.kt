@@ -1,5 +1,6 @@
 package net.bestia.zone.persistence
 
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -14,12 +15,22 @@ class EntityWriteBehindTest {
 
   /** Runs every job at once and remembers its key, so the grouping can be asserted. */
   private val keys = mutableListOf<Any>()
+  private var queueFull = false
   private val executor = mockk<AsyncJobExecutor>().also {
-    every { it.submit(any(), any()) } answers {
+    every { it.trySubmit(any(), any()) } answers {
       keys.add(firstArg())
+      if (queueFull) return@answers false
+
       // Like the executor: a failed job is logged, not thrown at the caller.
       runCatching { secondArg<() -> Unit>().invoke() }
+      true
     }
+  }
+
+  private val meters = SimpleMeterRegistry()
+
+  private fun entities(outcome: String): Double {
+    return meters.get("zone.persist.entities").tag("outcome", outcome).counter().count()
   }
 
   private val written = mutableListOf<List<EntitySnapshot>>()
@@ -56,7 +67,7 @@ class EntityWriteBehindTest {
     every { it.snapshot(any(), any()) } returns null
   }
 
-  private val sut = EntityWriteBehind(listOf(persister), statusEffects, executor)
+  private val sut = EntityWriteBehind(listOf(persister), statusEffects, executor, PersistenceMetrics(meters))
 
   @Test
   fun `snapshots sharing a key are written in one job, each owner in its own`() {
@@ -121,6 +132,46 @@ class EntityWriteBehindTest {
     sut.persist(world, listOf(1L), onlyChanged = true)
 
     assertEquals(2, written.size)
+  }
+
+  @Test
+  fun `a write the executor dropped is not remembered as saved`() {
+    val world = testWorld()
+    queueFull = true
+
+    sut.persist(world, listOf(1L), onlyChanged = true)
+    queueFull = false
+    sut.persist(world, listOf(1L), onlyChanged = true)
+
+    assertEquals(1, written.size, "the entity was written once the queue had room, though it had not changed")
+    assertEquals(1.0, entities("rejected"))
+  }
+
+  @Test
+  fun `what is waiting for the database is counted until its write ends`() {
+    val world = testWorld()
+    queueFull = true
+
+    sut.persist(world, listOf(1L, 3L))
+
+    assertEquals(0.0, meters.get("zone.persist.pending").gauge().value(), "a dropped write is not waiting")
+    assertEquals(0.0, meters.get("zone.persist.oldest.age").gauge().value())
+  }
+
+  @Test
+  fun `entities are counted by what became of them`() {
+    val world = testWorld()
+    failingWrites = 1
+
+    sut.persist(world, listOf(1L), onlyChanged = true)
+    sut.persist(world, listOf(1L), onlyChanged = true)
+    sut.persist(world, listOf(1L), onlyChanged = true)
+
+    assertEquals(2.0, entities("queued"))
+    assertEquals(1.0, entities("failed"))
+    assertEquals(1.0, entities("written"))
+    assertEquals(1.0, entities("unchanged"))
+    assertEquals(0.0, meters.get("zone.persist.pending").gauge().value())
   }
 
   private data class Snapshot(

@@ -4,6 +4,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.util.EntityId
 
 import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.LongAdder
 import kotlin.reflect.KClass
 
 /**
@@ -77,6 +78,7 @@ class Query internal constructor(
       action()
     } catch (e: Throwable) {
       if (e.isFatal() || failures.incrementAndGet() > MAX_FAILURES_PER_PASS) throw e
+      skippedEntities.increment()
       FAILURE_LOG.emit { held -> LOG.error(e) { "Entity $id failed in a query and was skipped (+$held more)" } }
     }
   }
@@ -84,6 +86,12 @@ class Query internal constructor(
   companion object {
     private val LOG = KotlinLogging.logger { }
     private val FAILURE_LOG = RateLimitedLog()
+
+    /**
+     * Entities a query skipped because their callback threw, since start. Shared by every query in the process, like
+     * the log above: the meter wants the total, not which query it was.
+     */
+    val skippedEntities = LongAdder()
 
     const val MAX_FAILURES_PER_PASS = 8
   }

@@ -38,6 +38,9 @@ class ValkeyRequestServer(
   private val workers = Executors.newThreadPerTaskExecutor(Thread.ofVirtual().name("bus-request-", 0).factory())
   private val rejected = AtomicLong()
 
+  /** What this server has done, for whoever exports metrics; `bus` itself depends on no metrics library. */
+  val stats = RequestServerStats()
+
   private val commands = client.connect(codec)
   private val subscriber = client.connectPubSub(codec).apply {
     addListener(object : RedisPubSubAdapter<String, ByteArray>() {
@@ -60,9 +63,12 @@ class ValkeyRequestServer(
     }
 
   private fun onRequest(message: ByteArray) {
+    stats.received.increment()
+
     val request = try {
       BusFrame.decodeRequest(message)
     } catch (e: Exception) {
+      stats.unreadable.increment()
       LOG.warn(e) { "Dropped an unreadable request" }
       return
     }
@@ -77,6 +83,9 @@ class ValkeyRequestServer(
       try {
         if (System.currentTimeMillis() < request.deadlineEpochMs) {
           send(request, answer(request))
+        } else {
+          // The caller has given up, so nobody is waiting for an answer.
+          stats.expired.increment()
         }
       } finally {
         inFlight.release()
@@ -89,16 +98,22 @@ class ValkeyRequestServer(
     if (key != null) {
       val earlier = commands.sync().get(key)
       if (earlier != null) {
+        stats.replayed.increment()
         val stored = BusFrame.decodeReply(earlier)
         return BusReply(request.correlationId, stored.status, stored.answer, stored.detail, stored.body)
       }
     }
 
+    val type = stats.of(request.query::class.simpleName ?: "unknown")
+    val started = System.nanoTime()
     val reply = try {
       handler.handle(request)
     } catch (e: Exception) {
+      stats.failed.increment()
       LOG.error(e) { "Request ${request.query::class.simpleName} for account ${request.accountId} failed" }
       return BusReply.of(request.correlationId, BusReply.Status.BUSY, "internal error")
+    } finally {
+      type.record(System.nanoTime() - started)
     }
 
     if (key != null && reply.status != BusReply.Status.BUSY) {

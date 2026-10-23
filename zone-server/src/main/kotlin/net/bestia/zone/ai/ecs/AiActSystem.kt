@@ -54,6 +54,7 @@ class AiActSystem(
   private val zoneConfig: WorldRulesConfig,
   private val throttle: AiThrottle,
   runtimes: List<AiDomainRuntime>,
+  private val metrics: AiMetrics = AiMetrics(),
 ) : System {
   override val phase = Phase.AI
   override val after = setOf(AiThinkSystem::class)
@@ -147,12 +148,17 @@ class AiActSystem(
 
           if (agent.advancePlan() == null) {
             LOG.trace { "Entity $id finished its plan" }
+            metrics.act(AiMetrics.Act.PLAN_FINISHED)
             agent.clearPlan()
+          } else {
+            metrics.act(AiMetrics.Act.STEP_DONE)
           }
         }
 
         Status.FAILURE -> {
           LOG.trace { "Entity $id action '${action.name}' failed; clearing plan for replan" }
+          metrics.act(AiMetrics.Act.FAILED)
+          metrics.actionFailed(action.name)
           agent.clearPlan()
         }
 

@@ -9,8 +9,15 @@ package net.bestia.zone.world.stream
  */
 class SlabBudget(private var remaining: Int) {
 
+  /** Set once a spend was refused: the tick had more to cost than it could afford. */
+  var refused = false
+    private set
+
   fun trySpend(): Boolean {
-    if (remaining <= 0) return false
+    if (remaining <= 0) {
+      refused = true
+      return false
+    }
     remaining--
     return true
   }

@@ -17,6 +17,8 @@ class EntityRegistry(
 ) {
   private val alive = Long2IntOpenHashMap()
 
+  // Volatile because the metrics export reads it from another thread; only the tick thread writes it.
+  @Volatile
   var count: Int = 0
     private set
 

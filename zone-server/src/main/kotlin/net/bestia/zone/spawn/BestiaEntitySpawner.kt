@@ -1,5 +1,6 @@
 package net.bestia.zone.spawn
 
+import net.bestia.zone.entity.GameMetrics
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ai.ecs.AiAgent
 import net.bestia.zone.ai.core.state.Blackboard
@@ -42,7 +43,8 @@ class BestiaEntitySpawner(
   private val aiAgentFactory: AiAgentFactory,
   private val movementProfileRegistry: MovementProfileRegistry,
   private val statusEffectService: StatusEffectService,
-  private val combatValuesPool: CombatValuesPool
+  private val combatValuesPool: CombatValuesPool,
+  private val metrics: GameMetrics = GameMetrics(),
 ) {
 
   /**
@@ -137,6 +139,8 @@ class BestiaEntitySpawner(
 
       attachAi(id, bestia, homePosition ?: pos, aiMemory)
     }
+
+    metrics.mobSpawned()
 
     // Rehydrated mobs keep their persisted id; freshly spawned ones get a new one.
     return if (entityId != null) world.createEntity(entityId, configure) else world.createEntity(configure)

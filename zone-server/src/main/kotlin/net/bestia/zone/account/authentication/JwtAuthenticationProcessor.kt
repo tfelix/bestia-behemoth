@@ -9,7 +9,8 @@ import net.bestia.zone.session.AuthenticationProcessor
 @Component
 class JwtAuthenticationProcessor(
   private val loginTokenValidator: LoginTokenValidator,
-  private val kickedAccounts: KickedAccounts
+  private val kickedAccounts: KickedAccounts,
+  private val metrics: AuthMetrics = AuthMetrics(),
 ) : AuthenticationProcessor {
 
   private data class AuthData(
@@ -20,7 +21,10 @@ class JwtAuthenticationProcessor(
 
   override fun authenticate(msg: EnvelopeProto.Envelope): AuthenticationProcessor.Authentication {
     val authRequest = msg.authentication
-      ?: return AuthenticationProcessor.AuthenticationFailed
+    if (!msg.hasAuthentication()) {
+      metrics.refused(AuthMetrics.Refusal.NO_PAYLOAD)
+      return AuthenticationProcessor.AuthenticationFailed
+    }
 
     // Never logged: the token is a bearer credential until it expires.
     val jwtToken = authRequest.token
@@ -28,15 +32,18 @@ class JwtAuthenticationProcessor(
     val data = try {
       validateAndExtract(jwtToken)
     } catch (e: Exception) {
+      metrics.refused((e as? JwtLoginException)?.reason ?: AuthMetrics.Refusal.INVALID_TOKEN)
       LOG.debug(e) { "Authentication failed." }
       return AuthenticationProcessor.AuthenticationFailed
     }
 
     if (data.kickedSince) {
+      metrics.refused(AuthMetrics.Refusal.KICKED)
       LOG.info { "Refused a login token for account ${data.accountId} that was issued before its kick" }
       return AuthenticationProcessor.AuthenticationFailed
     }
 
+    metrics.accepted()
     LOG.debug { "Authenticated account ${data.accountId}" }
 
     return AuthenticationProcessor.AuthenticationSuccess(

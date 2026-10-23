@@ -22,6 +22,7 @@ class EntityPersistenceService(
   private val deletionQueue: PersistedEntityDeletionQueue,
   private val persistedEntityRepository: PersistedEntityRepository,
   private val statusEffectPersistenceService: EntitySidecar,
+  private val metrics: PersistenceMetrics = PersistenceMetrics(),
 ) {
 
   /** What a sweep reads, see [EntityWriteBehind.reads]. */
@@ -32,15 +33,18 @@ class EntityPersistenceService(
 
   /** Saves the share of entities due on this [sweep], so one interval spreads the whole population over its sweeps. */
   fun syncDue(world: World, sweep: Long, sweepsPerInterval: Long) {
-    pruneRemovedEntities()
-
     val due = ArrayList<EntityId>()
-    world.query(Persistent::class).each { id ->
-      if (TickBuckets.isDue(sweep, id, sweepsPerInterval)) due.add(id)
-    }
 
-    if (due.isNotEmpty()) {
-      writeBehind.persist(world, due, onlyChanged = true)
+    metrics.swept({ due.size }) {
+      pruneRemovedEntities()
+
+      world.query(Persistent::class).each { id ->
+        if (TickBuckets.isDue(sweep, id, sweepsPerInterval)) due.add(id)
+      }
+
+      if (due.isNotEmpty()) {
+        writeBehind.persist(world, due, onlyChanged = true)
+      }
     }
   }
 
@@ -63,7 +67,7 @@ class EntityPersistenceService(
     writeBehind.forget(removed)
 
     // On the shared row key, so the delete lands after any write of the same rows queued before it.
-    asyncJobExecutor.submit(EntitySnapshot.SHARED_WRITE_KEY) {
+    val submitted = asyncJobExecutor.trySubmit(EntitySnapshot.SHARED_WRITE_KEY) {
       try {
         persistedEntityRepository.deleteAllByEntityIdIn(removed)
         statusEffectPersistenceService.deleteFor(removed)
@@ -72,6 +76,10 @@ class EntityPersistenceService(
         LOG.error(e) { "Failed to prune ${removed.size} persisted row(s) for removed entities: ${e.message}" }
       }
     }
+
+    metrics.deletions(removed.size, submitted)
+    // Back on the queue, or the rows of these entities would stay in the database for good.
+    if (!submitted) removed.forEach(deletionQueue::enqueue)
   }
 
   companion object {

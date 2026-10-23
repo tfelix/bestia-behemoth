@@ -34,6 +34,7 @@ import net.bestia.zone.message.TickOutbox
 import net.bestia.zone.message.SMSG
 import net.bestia.zone.metrics.TickMetrics
 import org.awaitility.Awaitility.await
+import net.bestia.bnet.proto.StateBatchSmsgProto
 import net.bestia.zone.message.EntitySMSG
 import net.bestia.zone.message.StateBatchSMSG
 import org.junit.jupiter.api.BeforeEach
@@ -82,6 +83,12 @@ class ZoneEngineTest {
 
   private val meters = SimpleMeterRegistry()
 
+  private object ProbeSMSG : EntitySMSG {
+    override val entityId = 1L
+
+    override fun writeTo(update: StateBatchSmsgProto.EntityUpdate.Builder) {}
+  }
+
   private lateinit var world: EcsWorld
   private lateinit var zoneEngine: ZoneEngine
 
@@ -112,6 +119,41 @@ class ZoneEngineTest {
 
     assertEquals(1L, meters.get("zone.tick.duration").tag("part", "systems").timer().count())
     assertEquals(1L, meters.get("zone.tick.duration").tag("part", "sync").timer().count())
+  }
+
+  @Test
+  fun `an entity message is counted by its type for each receiver`() {
+    val metrics = TickMetrics(meters, WorldRulesConfig(tickRate = 20))
+    val message = ProbeSMSG
+
+    metrics.entityMessage(message, 3)
+    metrics.entityMessage(message, 2)
+
+    assertEquals(5.0, meters.get("zone.sync.messages").tag("type", "ProbeSMSG").counter().count())
+  }
+
+  @Test
+  fun `SQL on the tick thread is exported as an anomaly`() {
+    val before = meters.get("zone.anomalies").tag("kind", "tick_sql").functionCounter().count()
+
+    TickSqlGuard.violations.incrementAndGet()
+
+    assertEquals(before + 1, meters.get("zone.anomalies").tag("kind", "tick_sql").functionCounter().count())
+  }
+
+  @Test
+  fun `what the sync half drained is counted`() {
+    world.createEntity { id ->
+      add(id, Position.fromVec3(Vec3L(1, 2, 0)))
+      add(id, EntityVisual(VisualKind.ITEM, 1L))
+    }
+
+    zoneEngine.tickOnce(0.05f)
+
+    val live = meters.get("zone.sync.dirty").tag("outcome", "live").counter().count()
+    val stale = meters.get("zone.sync.dirty").tag("outcome", "stale").counter().count()
+    assertTrue(live + stale > 0, "a new entity has components to send")
+    assertEquals(1.0, meters.get("zone.sync.entities").counter().count())
   }
 
   @Test

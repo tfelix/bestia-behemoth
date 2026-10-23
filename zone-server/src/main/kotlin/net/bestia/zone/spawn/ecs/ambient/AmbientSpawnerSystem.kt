@@ -1,5 +1,6 @@
 package net.bestia.zone.spawn.ecs.ambient
 
+import net.bestia.zone.entity.GameMetrics
 import net.bestia.zone.ai.ecs.AiThrottleable
 import net.bestia.zone.spawn.BestiaEntitySpawner
 import net.bestia.zone.ecs.core.ComponentClassSet
@@ -46,7 +47,8 @@ import org.springframework.stereotype.Component as SpringComponent
 class AmbientSpawnerSystem(
   private val bestiaEntitySpawner: BestiaEntitySpawner,
   private val resolver: AmbientSiteResolver,
-  private val config: AmbientSpawnConfig
+  private val config: AmbientSpawnConfig,
+  private val metrics: GameMetrics = GameMetrics(),
 ) : System {
   override val phase = Phase.SPAWN
 
@@ -203,7 +205,10 @@ class AmbientSpawnerSystem(
       val id = live.remove(cell) ?: continue
 
       // No deletion-queue entry: an ambient creature was never persisted. See the class KDoc.
-      if (world.isAlive(id)) world.destroy(id)
+      if (world.isAlive(id)) {
+        metrics.despawned(GameMetrics.Despawn.AMBIENT)
+        world.destroy(id)
+      }
     }
   }
 

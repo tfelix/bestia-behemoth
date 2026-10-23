@@ -1,5 +1,6 @@
 package net.bestia.zone.battle.ecs.damage
 
+import net.bestia.zone.entity.GameMetrics
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.config.WorldRulesConfig
 import net.bestia.zone.identity.ecs.Account
@@ -29,6 +30,7 @@ import net.bestia.zone.entity.ecs.Dead
 class PlayerDeathSystem(
   private val zoneConfig: WorldRulesConfig,
   private val events: ApplicationEventPublisher,
+  private val metrics: GameMetrics = GameMetrics(),
 ) : System {
   override val phase = Phase.DEATH
 
@@ -43,6 +45,7 @@ class PlayerDeathSystem(
         return@each
       }
       dead.resolved = true
+      metrics.died(player = true)
 
       world.get(id, OwnedBestia::class)?.let { owned ->
         val accountId = get<Account>().accountId

@@ -13,7 +13,7 @@ class ZoneChannelInitializer(
 ) : ChannelInitializer<Channel>() {
 
   private val config = handlerContext.socketConfig
-  private val connectionLimit = ConnectionLimitHandler(config.maxConnectionsPerAddress)
+  private val connectionLimit = ConnectionLimitHandler(config.maxConnectionsPerAddress, handlerContext.traffic)
 
   override fun initChannel(ch: Channel) {
     ch.pipeline().addLast(

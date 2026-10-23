@@ -7,6 +7,7 @@ import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.Executor
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import java.util.concurrent.ThreadPoolExecutor
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -38,6 +39,24 @@ class ChunkWorkers internal constructor(private val pool: Executor?) {
       delivered.add { deliver(result) }
     }
   }
+
+  /** Jobs waiting for a free worker. */
+  val queued: Int
+    get() {
+      return (pool as? ThreadPoolExecutor)?.queue?.size ?: 0
+    }
+
+  /** Workers busy right now. */
+  val active: Int
+    get() {
+      return (pool as? ThreadPoolExecutor)?.activeCount ?: 0
+    }
+
+  /** Finished jobs whose result the tick has not taken yet. */
+  val undelivered: Int
+    get() {
+      return delivered.size
+    }
 
   /** Hands finished work back to whoever asked for it. Tick thread only. */
   fun drain() {

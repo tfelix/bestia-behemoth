@@ -65,6 +65,7 @@ class ClientMessageHandler(
 
   override fun channelRead0(ctx: ChannelHandlerContext, msg: EnvelopeProto.Envelope) {
     if (closing) {
+      handlerCtx.traffic.ignoredAfterClose()
       return
     }
 
@@ -80,6 +81,7 @@ class ClientMessageHandler(
     if (currentAccountId != null) {
       // A newer login took the account over. Until this connection is closed, it must not act for the account.
       if (handlerCtx.channelRegistry.getChannel(currentAccountId) !== ctx.channel()) {
+        handlerCtx.traffic.ignoredAfterTakeover()
         return
       }
 
@@ -167,6 +169,7 @@ class ClientMessageHandler(
     }
 
     accountId = result.accountId
+    handlerCtx.traffic.loggedIn()
     takeOverAccount(ctx, result.accountId)
     ctx.pipeline().fireUserEventTriggered(EnvelopeFrameDecoder.Authenticated)
 
@@ -231,6 +234,7 @@ class ClientMessageHandler(
               "${displaced.remoteAddress()} - terminating the older connection"
     }
 
+    handlerCtx.traffic.tookOver()
     publishInOrder(accountId, AccountDisconnectedEvent(this, accountId))
     sendDisconnectMessageAndClose(displaced, reason = "OTHER_CONNECTION")
   }
@@ -256,7 +260,7 @@ class ClientMessageHandler(
   }
 
   private fun sendDisconnectMessageAndClose(channel: io.netty.channel.Channel, reason: String = "AUTH_FAILED") {
-    DisconnectNotice.sendAndClose(channel, reason)
+    DisconnectNotice.sendAndClose(channel, reason, handlerCtx.traffic)
   }
 
   companion object {

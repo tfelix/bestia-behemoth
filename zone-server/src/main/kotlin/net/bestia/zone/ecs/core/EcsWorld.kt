@@ -6,6 +6,7 @@ import net.bestia.zone.util.EntityId
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.atomic.AtomicLongArray
 import kotlin.reflect.KClass
 
 /**
@@ -123,16 +124,35 @@ class EcsWorld(
   fun lastTickBreakdown(limit: Int = 5): String = scheduler.lastTickBreakdown(limit)
 
   // ---------------------------------------------------------------- entities
+  /** Entities created and destroyed since start. Written on the tick thread, read by the metrics export. */
+  @Volatile
+  var created = 0L
+    private set
+
+  @Volatile
+  var destroyed = 0L
+    private set
+
+  /**
+   * How many entities carry a [type] component, without creating its store when it has none. Read from any thread by
+   * the metrics export: an int that may be a tick stale, which is all a gauge asks for.
+   */
+  fun componentCount(type: KClass<out Component>): Int {
+    return stores[type]?.size ?: 0
+  }
+
   override fun isAlive(id: EntityId): Boolean = owner.requireOwned { entities.isAlive(id) }
 
   override fun createEntity(configure: World.(EntityId) -> Unit): EntityId = owner.withWorld {
     val id = entities.create()
+    created++
     this.configure(id)
     id
   }
 
   override fun createEntity(id: EntityId, configure: World.(EntityId) -> Unit): EntityId = owner.withWorld {
     entities.create(id)
+    created++
     this.configure(id)
     id
   }
@@ -145,6 +165,7 @@ class EcsWorld(
 
   private fun destroyNow(id: EntityId) {
     if (!entities.destroy(id)) return
+    destroyed++
     // Notify before wiping: listeners (e.g. the vanish-broadcast hook) need to inspect which
     // components the entity still carries and read its last known state.
     for (listener in destroyListeners) {
@@ -267,6 +288,7 @@ class EcsWorld(
         job()
       } catch (e: Throwable) {
         if (e.isFatal()) throw e
+        deferredFailures++
         deferredFailureLog.emit { held -> LOG.error(e) { "A deferred change failed, the rest still apply (+$held more)" } }
       }
     }
@@ -274,6 +296,13 @@ class EcsWorld(
 
   private val deferredFailureLog = RateLimitedLog()
 
+  /** Deferred structural changes that threw, since start. Written on the tick thread, read by the metrics export. */
+  @Volatile
+  var deferredFailures = 0L
+    private set
+
+  // Read by the metrics export as the count of ticks the stage totals above add up over.
+  @Volatile
   override var tickCount: Long = 0L
     private set
 
@@ -282,7 +311,9 @@ class EcsWorld(
 
   // -------------------------------------------------------------- tick pipeline
   fun tick(deltaTime: Float, skippedTime: Float = 0f) = owner.withWorld {
+    val started = java.lang.System.nanoTime()
     owner.runQueued()        // posted work: tick-lane messages, leases, skill resolutions
+    val posted = java.lang.System.nanoTime()
     tickCount++
     this.skippedTime = skippedTime
     iterating = true
@@ -291,8 +322,31 @@ class EcsWorld(
     } finally {
       iterating = false
     }
+    val scheduled = java.lang.System.nanoTime()
     applyDeferred()          // structural changes emitted by systems
+
+    stageTotals.addAndGet(TickStage.POSTED.ordinal, posted - started)
+    stageTotals.addAndGet(TickStage.SYSTEMS.ordinal, scheduled - posted)
+    stageTotals.addAndGet(TickStage.DEFERRED.ordinal, java.lang.System.nanoTime() - scheduled)
   }
+
+  /** Wall time each [TickStage] of [tick] has taken since start; one writer, the tick thread. */
+  private val stageTotals = AtomicLongArray(TickStage.entries.size)
+
+  fun stageNanos(stage: TickStage): Long {
+    return stageTotals.get(stage.ordinal)
+  }
+
+  /** Wall time all of [phase]'s systems have taken since start; see [SystemScheduler.phaseNanos]. */
+  fun phaseNanos(phase: Phase): Long {
+    return scheduler.phaseNanos(phase)
+  }
+
+  /** What posted work and leases have cost; see [OwnershipStats]. */
+  val ownershipStats: OwnershipStats
+    get() {
+      return owner.stats
+    }
 
   companion object {
     private val LOG = KotlinLogging.logger { }

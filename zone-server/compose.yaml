@@ -26,5 +26,51 @@ services:
     volumes:
       - './valkey/users.acl:/etc/valkey/users.acl:ro'
 
+  # Dev observability: Prometheus scrapes the zone, login-server and api-service running on the host, Grafana draws
+  # them (config and dashboards in ../observability). In a compose profile so that `bootRun`'s start-and-stop of
+  # this file leaves them alone: they outlive a restart of the zone, which is when you want the graphs.
+  #   docker compose -f zone-server/compose.yaml --profile observability up -d prometheus grafana
+  # Loopback only. Grafana lets anyone on this machine in as admin; that is for a developer machine, not a deployment.
+  prometheus:
+    image: 'prom/prometheus:v3.1.0'
+    profiles: ['observability']
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.retention.time=14d'
+      - '--web.enable-lifecycle'
+    labels:
+      org.springframework.boot.ignore: true
+    extra_hosts:
+      # The services under scrape run on the host, not in a container.
+      - 'host.docker.internal:host-gateway'
+    ports:
+      - '127.0.0.1:9090:9090'
+    volumes:
+      - '../observability/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro'
+      - 'prometheus-data:/prometheus'
+
+  grafana:
+    image: 'grafana/grafana-oss:11.4.0'
+    profiles: ['observability']
+    depends_on:
+      - prometheus
+    labels:
+      org.springframework.boot.ignore: true
+    environment:
+      - 'GF_AUTH_ANONYMOUS_ENABLED=true'
+      - 'GF_AUTH_ANONYMOUS_ORG_ROLE=Admin'
+      - 'GF_SECURITY_ADMIN_PASSWORD=admin'
+      - 'GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH=/var/lib/grafana/dashboards/overview.json'
+      - 'GF_ANALYTICS_REPORTING_ENABLED=false'
+      - 'GF_ANALYTICS_CHECK_FOR_UPDATES=false'
+    ports:
+      - '127.0.0.1:3000:3000'
+    volumes:
+      - '../observability/grafana/provisioning:/etc/grafana/provisioning:ro'
+      - '../observability/grafana/dashboards:/var/lib/grafana/dashboards:ro'
+      - 'grafana-data:/var/lib/grafana'
+
 volumes:
   zone-mariadb-data:
+  prometheus-data:
+  grafana-data:

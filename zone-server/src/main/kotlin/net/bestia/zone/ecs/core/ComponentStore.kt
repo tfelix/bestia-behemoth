@@ -41,6 +41,8 @@ class ComponentStore<T : Component>(
   @Suppress("UNCHECKED_CAST")
   private var components = arrayOfNulls<Component>(initialCapacity) as Array<T?>
 
+  // Volatile because the metrics export reads the size from another thread; only the tick thread writes it.
+  @Volatile
   private var count = 0
 
   val size: Int get() = count

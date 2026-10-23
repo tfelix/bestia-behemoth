@@ -1,5 +1,6 @@
 package net.bestia.zone.townsfolk.ecs
 
+import net.bestia.zone.entity.GameMetrics
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ai.ecs.AiThrottleable
 import net.bestia.zone.identity.ecs.ActivePlayer
@@ -49,6 +50,7 @@ class TownsfolkResidencySystem(
   private val clock: BestiaClock,
   private val config: TownsfolkResidencyConfig,
   private val fates: SettlementFates = SettlementFates.NONE,
+  private val metrics: GameMetrics = GameMetrics(),
 ) : System {
   override val phase = Phase.SPAWN
   override val after = setOf(AmbientSpawnerSystem::class)
@@ -159,7 +161,10 @@ class TownsfolkResidencySystem(
       val id = live.remove(identity) ?: continue
 
       // No deletion queued: a townsperson was never persisted, and nothing about them is written down.
-      if (world.isAlive(id)) world.destroy(id)
+      if (world.isAlive(id)) {
+        metrics.despawned(GameMetrics.Despawn.TOWNSFOLK)
+        world.destroy(id)
+      }
       LOG.trace { "Unloaded ${TownsfolkIdentity.describe(identity)}" }
     }
   }

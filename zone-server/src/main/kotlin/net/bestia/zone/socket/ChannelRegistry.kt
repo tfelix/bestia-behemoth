@@ -4,6 +4,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.netty.buffer.ByteBuf
 import io.netty.buffer.ByteBufAllocator
 import io.netty.channel.Channel
+import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.zone.message.SMSG
 import net.bestia.zone.message.StateBatchSMSG
 import org.springframework.context.annotation.Profile
@@ -15,7 +16,8 @@ import net.bestia.zone.message.OutMessageHandler
 @Component
 @Profile("!no-socket")
 class ChannelRegistry(
-  config: SocketServerConfig
+  config: SocketServerConfig,
+  private val traffic: SocketTraffic = SocketTraffic(),
 ) : OutMessageHandler, ConnectionTerminator {
 
   private val logFilter = EnvelopeLogFilter(config.filterLogMessages)
@@ -71,7 +73,7 @@ class ChannelRegistry(
   override fun disconnect(accountId: Long, reason: String): Boolean {
     val channel = getChannel(accountId) ?: return false
 
-    DisconnectNotice.sendAndClose(channel, reason)
+    DisconnectNotice.sendAndClose(channel, reason, traffic)
     LOG.info { "Disconnected account $accountId: $reason" }
 
     return true
@@ -121,7 +123,10 @@ class ChannelRegistry(
     if (playerIds.isEmpty()) return
 
     val envelope = outMessage.toBnetEnvelope()
-    writeFramed(playerIds, EnvelopeFraming.frame(ByteBufAllocator.DEFAULT, envelope), skipBusy = false)
+    val framed = EnvelopeFraming.frame(ByteBufAllocator.DEFAULT, envelope)
+    val bytes = framed.readableBytes()
+    val recipients = writeFramed(playerIds, framed, skipBusy = false)
+    repeat(recipients) { traffic.sent(envelope.messageCase, bytes) }
 
     if (LOG.isTraceEnabled() && logFilter.allows(envelope)) {
       LOG.trace { "TX players: $playerIds: $envelope" }
@@ -164,9 +169,13 @@ class ChannelRegistry(
 
   private fun write(playerId: Long, channel: Channel, outMessage: SMSG) {
     if (outMessage is StateBatchSMSG) {
-      channel.write(EnvelopeFraming.frame(channel.alloc(), outMessage))
+      val framed = EnvelopeFraming.frame(channel.alloc(), outMessage)
+      traffic.sent(MessageCase.STATE_BATCH, framed.readableBytes())
+      channel.write(framed)
     } else {
-      channel.write(outMessage.toBnetEnvelope())
+      val envelope = outMessage.toBnetEnvelope()
+      traffic.sent(envelope.messageCase, EnvelopeFraming.frameSize(envelope))
+      channel.write(envelope)
     }
 
     if (LOG.isTraceEnabled()) {

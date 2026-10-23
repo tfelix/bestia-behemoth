@@ -11,6 +11,11 @@ zone:
   # login-server's dev `jwt.secret`.
   jwt-auth-secret-key: "your-secret-key-here-change-in-production"
 
+# Prometheus runs in a container (compose.yaml, profile `observability`) and reaches the zone through
+# host.docker.internal, which a loopback bind does not answer. Any interface, dev only; the default is loopback.
+metrics:
+  address: 0.0.0.0
+
 chunk-stream:
   # Lets a carve open the wall beside water so it floods. Dev only until players can swim.
   allow-water-breach: true

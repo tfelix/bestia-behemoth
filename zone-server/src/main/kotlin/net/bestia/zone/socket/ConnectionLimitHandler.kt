@@ -18,7 +18,8 @@ import java.util.concurrent.ConcurrentHashMap
  */
 @ChannelHandler.Sharable
 class ConnectionLimitHandler(
-  private val maxPerAddress: Int
+  private val maxPerAddress: Int,
+  private val traffic: SocketTraffic = SocketTraffic(),
 ) : ChannelInboundHandlerAdapter() {
 
   private val connectionsByAddress = ConcurrentHashMap<String, Int>()
@@ -39,6 +40,7 @@ class ConnectionLimitHandler(
 
     if (!admitted) {
       LOG.warn { "Refusing connection from $address: it already holds $maxPerAddress" }
+      traffic.refusedPerAddress()
       ctx.close()
       return
     }

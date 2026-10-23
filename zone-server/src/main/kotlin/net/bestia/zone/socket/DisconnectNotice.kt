@@ -14,7 +14,9 @@ object DisconnectNotice {
   /** Long enough for an honest client to read the reason. */
   private const val CLOSE_TIMEOUT_SECONDS = 2L
 
-  fun sendAndClose(channel: Channel, reason: String) {
+  fun sendAndClose(channel: Channel, reason: String, traffic: SocketTraffic) {
+    traffic.disconnected(reason)
+
     // The close waits for the notice to be written. Nothing the client sends meanwhile may act any more.
     channel.config().isAutoRead = false
 

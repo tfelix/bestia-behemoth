@@ -1,0 +1,22 @@
+# Dev scrape config, mounted by zone-server/compose.yaml. The three services run on the host (from the IDE), so they
+# are reached through host.docker.internal; each exposes its meters on a port of its own (see the `metrics` block of
+# zone-server's application.yml and `management.server.port` in login-server's and api-service's application-dev.yml).
+global:
+  scrape_interval: 5s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: zone
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['host.docker.internal:8092']
+
+  - job_name: login-server
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ['host.docker.internal:8093']
+
+  - job_name: api-service
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ['host.docker.internal:8094']

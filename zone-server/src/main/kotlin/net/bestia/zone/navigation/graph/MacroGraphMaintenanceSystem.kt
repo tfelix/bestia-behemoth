@@ -7,6 +7,7 @@ import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.navigation.NavigationConfig
+import net.bestia.zone.navigation.NavigationMetrics
 import net.bestia.zone.navigation.local.LocalPathfindingService
 import org.springframework.stereotype.Component as SpringComponent
 
@@ -30,7 +31,8 @@ import org.springframework.stereotype.Component as SpringComponent
 class MacroGraphMaintenanceSystem(
   private val macroGraph: MacroGraphService,
   private val localPathfinding: LocalPathfindingService,
-  private val config: NavigationConfig
+  private val config: NavigationConfig,
+  private val metrics: NavigationMetrics = NavigationMetrics(),
 ) : System {
   override val phase = Phase.WORLD
 
@@ -45,6 +47,8 @@ class MacroGraphMaintenanceSystem(
     macroGraph.ensureLoaded()
     if (!macroGraph.isReady) return
 
+    metrics.graph(macroGraph.version, macroGraph.pendingRevalidations)
+
     secondsSinceRevalidation += deltaTime
     if (secondsSinceRevalidation < config.macroRevalidateSeconds) return
     secondsSinceRevalidation = 0f
@@ -53,6 +57,7 @@ class MacroGraphMaintenanceSystem(
     if (pending == 0) return
 
     val done = macroGraph.revalidate()
+    metrics.revalidated(done)
     LOG.debug { "Revalidated $done of $pending stale macro edges" }
   }
 

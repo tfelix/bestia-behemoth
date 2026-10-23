@@ -1,5 +1,6 @@
 package net.bestia.zone.spawn.ecs
 
+import net.bestia.zone.entity.GameMetrics
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.movement.ecs.Position
@@ -32,6 +33,7 @@ class DeathSystem(
   private val spill: GroundSpill,
   private val levies: List<KillExpLevy> = emptyList(),
   private val lootChanceModifiers: List<LootChanceModifier> = emptyList(),
+  private val metrics: GameMetrics = GameMetrics(),
 ) : System {
   override val phase = Phase.DEATH
   override val after = setOf(PlayerDeathSystem::class)
@@ -82,6 +84,7 @@ class DeathSystem(
         deletionQueue.enqueue(entityId)
       }
 
+      metrics.died(player = false)
       world.destroy(entityId)
     }
   }

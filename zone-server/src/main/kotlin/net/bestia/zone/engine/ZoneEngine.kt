@@ -88,6 +88,16 @@ class ZoneEngine(
     fun forEach(action: (AccountId, List<EntityUpdate>) -> Unit) {
       byAccount.forEach(action)
     }
+
+    val accounts: Int
+      get() {
+        return byAccount.size
+      }
+
+    val updates: Int
+      get() {
+        return byAccount.values.sumOf { it.size }
+      }
   }
 
   @Volatile
@@ -98,6 +108,8 @@ class ZoneEngine(
   private var clock = FixedStepClock(stepNanos, MAX_CATCH_UP_STEPS, System.nanoTime())
 
   init {
+    tickMetrics.anomalySource("tick_sql") { TickSqlGuard.violations.get().toLong() }
+
     // Clean the area-of-interest services when an entity leaves the world, and broadcast a vanish
     // to whoever the entity was ever synced to (see notifyVanishOnDestroy).
     world.onDestroy { entityId ->
@@ -178,6 +190,7 @@ class ZoneEngine(
       tickOnce(stepSeconds, skippedTime)
     } catch (e: Throwable) {
       if (e.isFatal()) throw e
+      tickMetrics.tickFailed()
       LOG.error(e) { "Error in zone tick: ${e.message}" }
     }
 
@@ -193,6 +206,7 @@ class ZoneEngine(
         outbox.collect { world.runPostedUntil(clock.nextStepAt) }
       } catch (e: Throwable) {
         if (e.isFatal()) throw e
+        tickMetrics.postedLoopFailed()
         LOG.error(e) { "Error while running posted work: ${e.message}" }
       }
     }
@@ -271,13 +285,19 @@ class ZoneEngine(
   }
 
   private fun syncDirtyComponents() {
-    reindexMoved()
+    val moved = reindexMoved()
 
+    var drained = 0
+    var stale = 0
     val perEntity = LinkedHashMap<EntityId, MutableList<Dirtyable>>()
     world.dirtyLog.drainDirtied { id, type ->
+      drained++
       // A stale entry is normal: the component may since have been removed, replaced or already sent.
-      val component = world.get(id, type) as? Dirtyable ?: return@drainDirtied
-      if (!component.isDirty()) return@drainDirtied
+      val component = world.get(id, type) as? Dirtyable
+      if (component == null || !component.isDirty()) {
+        stale++
+        return@drainDirtied
+      }
 
       perEntity.getOrPut(id) { mutableListOf() }.add(component)
       component.clearDirty()
@@ -295,6 +315,7 @@ class ZoneEngine(
         sendChanges(entityId, comps, snapshotReceivers[entityId].orEmpty(), batches)
       } catch (e: Exception) {
         // One component that cannot describe itself must not cost every other entity its update.
+        tickMetrics.syncFailed()
         syncFailureLog.emit { held -> LOG.error(e) { "Could not sync entity $entityId (+$held more)" } }
       }
     }
@@ -303,6 +324,19 @@ class ZoneEngine(
     addVanishes(batches)
     addVisibilityChanges(deliveries, batches)
     send(batches)
+
+    tickMetrics.recordSync(
+      TickMetrics.SyncSample(
+        drained = drained,
+        stale = stale,
+        entities = perEntity.size,
+        components = perEntity.values.sumOf { it.size },
+        moved = moved,
+        batches = batches.accounts,
+        updates = batches.updates,
+        snapshots = deliveries.sumOf { it.appeared.size },
+      )
+    )
   }
 
   private fun send(batches: StateBatches) {
@@ -329,11 +363,13 @@ class ZoneEngine(
    * by the sync flag: a walking entity publishes one step in `MoveSystem.POSITION_RESYNC_STEPS` but has to be
    * indexed on every one of them.
    */
-  private fun reindexMoved() {
+  private fun reindexMoved(): Int {
+    var moved = 0
     world.dirtyLog.drainMoved { id ->
       val position = world.get(id, Position::class) ?: return@drainMoved
       if (!position.moved) return@drainMoved
 
+      moved++
       position.clearMoved()
       val pos = position.toVec3L()
 
@@ -353,6 +389,8 @@ class ZoneEngine(
         if (accountId != null) playerAOIService.setEntityPosition(accountId, pos)
       }
     }
+
+    return moved
   }
 
   private val syncFailureLog = RateLimitedLog()
@@ -403,9 +441,14 @@ class ZoneEngine(
       // One instance in every viewer's batch, so it is serialised once for all of them.
       val publicUpdate = EntityUpdate(entityId, broadcastMsgs)
 
-      publicAudienceOf(entityId).filterNot { it in gettingSnapshot }.forEach { batches.add(it, publicUpdate) }
+      val audience = publicAudienceOf(entityId).filterNot { it in gettingSnapshot }
+      broadcastMsgs.forEach { tickMetrics.entityMessage(it, audience.size) }
+      audience.forEach { batches.add(it, publicUpdate) }
     }
-    byAccountMsgs.forEach { (accountId, msgs) -> batches.add(accountId, EntityUpdate(entityId, msgs)) }
+    byAccountMsgs.forEach { (accountId, msgs) ->
+      msgs.forEach { tickMetrics.entityMessage(it, 1) }
+      batches.add(accountId, EntityUpdate(entityId, msgs))
+    }
   }
 
   /** Who is told about a [SyncTargets.PublicInRange] change to [entityId]; see [EntityAudience]. */

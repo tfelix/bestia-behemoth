@@ -1,5 +1,6 @@
 package net.bestia.zone.ai.ecs
 
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import io.mockk.mockk
 import net.bestia.zone.ai.core.action.Action
 import net.bestia.zone.ai.core.action.ActionResolver
@@ -30,7 +31,10 @@ class AiThinkGoalFallbackTest {
   private val actions = mutableListOf(Action(name = "rest", effects = listOf(Effects.set(rested, true))))
 
   private val throttle = AiThrottle(AiThrottleConfig(), SimulationAnchorIndex(), mockk(relaxed = true))
-  private val world = testWorld(systems = listOf(AiThinkSystem(Planner(), SharedMemoryService(), throttle)))
+  private val meters = SimpleMeterRegistry()
+  private val world = testWorld(
+    systems = listOf(AiThinkSystem(Planner(), SharedMemoryService(), throttle, AiMetrics(meters)))
+  )
 
   @Test
   fun `an unplannable goal gives way to the next one`() {
@@ -39,6 +43,20 @@ class AiThinkGoalFallbackTest {
     world.tick(0.05f)
 
     assertEquals("Rest", agentOf(id).currentGoal?.name, "it does something rather than nothing")
+  }
+
+  @Test
+  fun `a think is counted by how it ended, and what the planner did`() {
+    agent(listOf(goal("Eat", 90f, fed), goal("Rest", 10f, rested)))
+
+    world.tick(0.05f)
+
+    assertEquals(1.0, meters.get("zone.ai.thinks").tag("outcome", "adopted").counter().count())
+    assertEquals(1.0, meters.get("zone.ai.goals.blocked").counter().count(), "Eat had no plan")
+    assertEquals(1.0, meters.get("zone.ai.plan.searches").tag("result", "found").counter().count())
+    assertEquals(1.0, meters.get("zone.ai.plan.searches").tag("result", "none").counter().count())
+    assertEquals(1.0, meters.get("zone.ai.goals.adopted").tag("goal", "Rest").counter().count())
+    assertEquals(0.0, meters.get("zone.ai.goals.preempted").counter().count())
   }
 
   @Test

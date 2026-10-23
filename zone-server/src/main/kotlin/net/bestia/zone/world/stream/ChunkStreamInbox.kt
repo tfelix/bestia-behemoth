@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.LongAdder
 
 /**
  * Carries client-originated chunk work to [ChunkStreamSystem], which serves it once per tick.
@@ -71,12 +72,21 @@ class ChunkStreamInbox {
 
   val pendingTeleports get() = teleportCount.get()
 
+  private val droppedRequests = LongAdder()
+  private val droppedCarves = LongAdder()
+  private val droppedTeleports = LongAdder()
+
+  /** Work dropped because an inbox was over its cap, since start, by what it was. Chunks for requests. */
+  val dropped: Map<String, Long>
+    get() = mapOf("requests" to droppedRequests.sum(), "carves" to droppedCarves.sum(), "teleports" to droppedTeleports.sum())
+
   fun offerRequest(request: Request) {
     if (request.chunks.isEmpty()) return
 
     val pending = pendingChunksOf(request.accountId)
     if (pending.addAndGet(request.chunks.size) > MAX_PENDING_CHUNKS_PER_ACCOUNT) {
       pending.addAndGet(-request.chunks.size)
+      droppedRequests.add(request.chunks.size.toLong())
       LOG.warn { "Account ${request.accountId} has too many chunks pending; dropped ${request.chunks.size}" }
       return
     }
@@ -94,12 +104,12 @@ class ChunkStreamInbox {
 
   fun offerCarve(carve: Carve) {
     carves.add(carve)
-    trim(carves, carveCount, "debug carves")
+    trim(carves, carveCount, "debug carves", droppedCarves)
   }
 
   fun offerTeleport(teleport: Teleport) {
     teleports.add(teleport)
-    trim(teleports, teleportCount, "teleports")
+    trim(teleports, teleportCount, "teleports", droppedTeleports)
   }
 
   fun offerReset(accountId: Long) {
@@ -138,7 +148,7 @@ class ChunkStreamInbox {
     return pendingChunksByAccount.computeIfAbsent(accountId) { AtomicInteger() }
   }
 
-  private fun <T> trim(queue: ConcurrentLinkedQueue<T>, counter: AtomicInteger, what: String) {
+  private fun <T> trim(queue: ConcurrentLinkedQueue<T>, counter: AtomicInteger, what: String, total: LongAdder) {
     if (counter.incrementAndGet() <= MAX_PENDING) return
 
     var dropped = 0
@@ -147,6 +157,7 @@ class ChunkStreamInbox {
       dropped++
     }
 
+    total.add(dropped.toLong())
     if (dropped > 0) LOG.warn { "Inbox over $MAX_PENDING $what; dropped $dropped oldest" }
   }
 

@@ -67,6 +67,10 @@ class ZoneMeters(
     Gauge.builder("zone.inbox.io.queued", inbox) { it.ioQueued.toDouble() }
       .description("IO-lane messages waiting for a free IO thread")
       .register(registry)
+    Gauge.builder("zone.inbox.oldest.age", inbox) { it.oldestWaitingNanos / NANOS_PER_SECOND }
+      .baseUnit("seconds")
+      .description("How long the oldest client message that has not started has waited; 0 when none waits")
+      .register(registry)
     FunctionCounter.builder("zone.inbox.overflows", inbox) { it.overflowCount.toDouble() }
       .description("Connections closed because their inbox was full")
       .register(registry)

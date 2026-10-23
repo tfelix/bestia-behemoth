@@ -1,5 +1,6 @@
 package net.bestia.zone.economy.shop
 
+import net.bestia.zone.entity.GameMetrics
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.OperationErrorProto
 import net.bestia.zone.identity.ecs.Account
@@ -56,6 +57,7 @@ class ShopTradeIntentSystem(
   private val offers: ShopOfferPublisher,
   private val outMessageProcessor: OutMessageProcessor,
   private val itemRepository: ItemRepository,
+  private val metrics: GameMetrics = GameMetrics(),
 ) : System {
   override val phase = Phase.ITEMS
   override val after = setOf(CarryCapacitySystem::class)
@@ -100,12 +102,18 @@ class ShopTradeIntentSystem(
       shop.quoteBuy(commodity, intent.amount)
     }
 
-    quote.refusal?.let { return deny(world, traderId, codeFor(it)) }
+    quote.refusal?.let {
+      metrics.shopRefused(it.name)
+      return deny(world, traderId, codeFor(it))
+    }
     // Only ever null when the quote was refused, and the line above returned.
     val good = commodity ?: return
 
     // Prices are summed in Long, but coins are counted in Int.
-    if (quote.coins > Int.MAX_VALUE) return deny(world, traderId, OperationErrorProto.OpError.SHOP_CANNOT_AFFORD)
+    if (quote.coins > Int.MAX_VALUE) {
+      metrics.shopRefused("CANNOT_AFFORD")
+      return deny(world, traderId, OperationErrorProto.OpError.SHOP_CANNOT_AFFORD)
+    }
     val coins = quote.coins.toInt()
 
     val moved = if (intent.selling) {
@@ -113,9 +121,13 @@ class ShopTradeIntentSystem(
     } else {
       buy(world, traderId, good, intent.amount, coins)
     }
-    if (!moved) return deny(world, traderId, OperationErrorProto.OpError.SHOP_CANNOT_AFFORD)
+    if (!moved) {
+      metrics.shopRefused("CANNOT_AFFORD")
+      return deny(world, traderId, OperationErrorProto.OpError.SHOP_CANNOT_AFFORD)
+    }
 
     economy.settle(settlement, good.id, intent.amount, quote.coins, intent.selling)
+    metrics.shopTrade(intent.selling, intent.amount, quote.coins)
     offers.publish(world, traderId, intent.merchantEntityId, settlement, shop, intent.stocked)
 
     LOG.debug {

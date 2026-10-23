@@ -1,5 +1,6 @@
 package net.bestia.zone.trade
 
+import net.bestia.zone.entity.GameMetrics
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.session.AccountDisconnectedEvent
@@ -65,6 +66,7 @@ class TradeService(
   private val basicSkillGate: BasicSkillGate,
   private val asyncJobExecutor: AsyncJobExecutor,
   private val deadActionGuard: DeadActionGuard,
+  private val metrics: GameMetrics = GameMetrics(),
 ) {
 
   private val sessions = ConcurrentHashMap<Long, TradeSession>()
@@ -471,6 +473,7 @@ class TradeService(
       pushFinalState(session, TradeStateSMSG.Status.COMPLETED)
     }
 
+    metrics.tradeEnded("completed")
     LOG.debug { "Trade ${session.tradeId} settled between ${requester.masterId} and ${target.masterId}" }
   }
 
@@ -496,6 +499,7 @@ class TradeService(
     releaseHolds(session)
     pushFinalState(session, TradeStateSMSG.Status.CANCELLED)
     report(session, reason, byAccountId)
+    metrics.tradeEnded(reason.name)
 
     LOG.debug { "Trade ${session.tradeId} ended: $reason" }
   }

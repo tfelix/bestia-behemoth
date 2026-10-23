@@ -64,6 +64,7 @@
  - UPKEEP wave 36: SettlementEconomySystem [EverySeconds(seconds=30.0)]
  - UPKEEP wave 36: SpawnPointWatchSystem [EverySeconds(seconds=30.0)]
  - UPKEEP wave 36: TradeRangeSystem [EverySeconds(seconds=0.5)]
+ - UPKEEP wave 36: WorldStateSampler [EverySeconds(seconds=5.0)]
  - UPKEEP wave 37: CompendiumSightingSystem [EverySeconds(seconds=1.0)]
  - UPKEEP wave 37: GuildMemberBeaconSystem [EverySeconds(seconds=1.0)]
  - PERSIST wave 38: ChunkEditPersistSystem [EverySeconds(seconds=10.0)]

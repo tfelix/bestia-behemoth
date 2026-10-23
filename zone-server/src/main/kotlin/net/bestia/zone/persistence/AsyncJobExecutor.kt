@@ -98,6 +98,14 @@ class AsyncJobExecutor(
 
   /** Runs [job] on a background worker, keeping jobs sharing [key] strictly ordered. */
   fun submit(key: Any, job: () -> Unit) {
+    trySubmit(key, job)
+  }
+
+  /**
+   * [submit], saying whether the job was taken. False means it was dropped because its worker's queue was full,
+   * which a caller that records the work as done must take back.
+   */
+  fun trySubmit(key: Any, job: () -> Unit): Boolean {
     val worker = workerFor(key.hashCode())
     val queuedAt = System.nanoTime()
 
@@ -106,12 +114,14 @@ class AsyncJobExecutor(
     } catch (_: RejectedExecutionException) {
       val total = rejected.incrementAndGet()
       rejectionLog.emit { held -> LOG.error { "DB job for $key dropped, its queue is full ($total dropped so far, +$held)" } }
-      return
+      return false
     }
 
     if (worker.queue.size > queueCapacity / 2) {
       backlogLog.emit { _ -> LOG.warn { "DB jobs are backing up: $pendingJobs waiting" } }
     }
+
+    return true
   }
 
   /**
