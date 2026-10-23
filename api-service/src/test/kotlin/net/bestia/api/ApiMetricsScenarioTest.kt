@@ -54,7 +54,7 @@ class ApiMetricsScenarioTest : ApiScenarioTestBase() {
   private lateinit var registry: MeterRegistry
 
   @Autowired
-  private lateinit var push: ApiServiceScenarioTest.RecordingPush
+  private lateinit var push: RecordingPush
 
   @LocalServerPort
   private var port: Int = 0

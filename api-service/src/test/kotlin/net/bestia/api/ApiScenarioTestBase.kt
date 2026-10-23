@@ -13,7 +13,7 @@ import org.springframework.test.context.DynamicPropertySource
  * and take half of its replies and push events.
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Import(ApiTestContainers::class, ApiServiceScenarioTest.RecordingPush::class)
+@Import(ApiTestContainers::class, RecordingPush::class)
 @ActiveProfiles("test")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 abstract class ApiScenarioTestBase {

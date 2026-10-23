@@ -3,12 +3,7 @@ package net.bestia.api
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.client.TestRestTemplate
-import org.springframework.context.annotation.Import
-import org.springframework.test.context.ActiveProfiles
-import org.springframework.test.context.DynamicPropertyRegistry
-import org.springframework.test.context.DynamicPropertySource
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.test.assertEquals
@@ -17,11 +12,11 @@ import kotlin.test.assertTrue
 /**
  * Writes the OpenAPI document to `build/openapi/companion.json`, which companion-app generates its TypeScript
  * types from (`npm run gen:api`), and checks that every resource the app names is in it.
+ *
+ * On the shared context like the scenario tests: a context of its own joined the push consumer group too, and took
+ * half of their push events.
  */
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Import(ApiTestContainers::class)
-@ActiveProfiles("test")
-class OpenApiDocumentTest {
+class OpenApiDocumentTest : ApiScenarioTestBase() {
 
   @Autowired
   private lateinit var rest: TestRestTemplate
@@ -48,12 +43,5 @@ class OpenApiDocumentTest {
       "MasterSummary", "MasterSheet", "Bestia", "Holder", "Slot", "PartyView", "Catalog", "MapMeta", "Place",
       "StanceOrder", "ChatOrder", "Preferences", "CompendiumEntry",
     )
-
-    @JvmStatic
-    @DynamicPropertySource
-    fun bus(registry: DynamicPropertyRegistry) {
-      registry.add("bus.host") { ApiTestContainers.valkey.host }
-      registry.add("bus.port") { ApiTestContainers.valkey.getMappedPort(6379) }
-    }
   }
 }

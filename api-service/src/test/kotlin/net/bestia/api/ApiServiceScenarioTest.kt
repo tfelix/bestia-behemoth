@@ -6,8 +6,6 @@ import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
 import io.lettuce.core.RedisClient
 import io.lettuce.core.RedisURI
-import net.bestia.api.push.PushSubscription
-import net.bestia.api.push.WebPushSender
 import net.bestia.bus.contract.BusReply
 import net.bestia.bus.contract.BusRequest
 import net.bestia.bus.contract.ZoneAnswer
@@ -21,11 +19,8 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.boot.test.web.server.LocalServerPort
-import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Primary
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
@@ -51,20 +46,6 @@ import kotlin.test.assertTrue
  * sets, and an event publisher with the zone's own Valkey user.
  */
 class ApiServiceScenarioTest : ApiScenarioTestBase() {
-
-  @TestConfiguration(proxyBeanMethods = false)
-  class RecordingPush {
-    val sent = CopyOnWriteArrayList<Pair<Long, String>>()
-
-    @Bean
-    @Primary
-    fun recordingSender(): WebPushSender {
-      return WebPushSender { subscription: PushSubscription, payload: ByteArray ->
-        sent += subscription.accountId to String(payload)
-        WebPushSender.Outcome.DELIVERED
-      }
-    }
-  }
 
   @Autowired
   private lateinit var rest: TestRestTemplate
