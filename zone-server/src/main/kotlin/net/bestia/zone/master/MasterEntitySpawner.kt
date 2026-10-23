@@ -47,6 +47,7 @@ import net.bestia.zone.util.AccountId
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.world.anchor.SimulationAnchor
+import net.bestia.zone.world.vicinity.Vicinity
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
@@ -231,6 +232,8 @@ class MasterEntitySpawner(
 
       add(id, ActivePlayer)
       add(id, SimulationAnchor())
+      // Sees the routes it passes, for itself and its bestias.
+      add(id, Vicinity())
       add(id, Persistent)
 
       // Resolved here rather than left to PlaceSystem's first tick, which would leave a player looking at
