@@ -315,6 +315,11 @@ navigation:
 # SkillExecutionService), but it reaches the world through the same lock the tick holds - so what these limit
 # is lock occupancy, not tick time. A script that trips either of them has a bug: the cast fizzles and the
 # overrun is logged at ERROR with the skill and the caster.
+# Long journeys of masters, bestias and NPCs.
+travel:
+  # How long a master and its bestias trust a blockage they saw. After it they try the route again.
+  knowledge-ttl: 21d
+
 skill:
   # World operations one cast may spend - a component read, a spatial query, a spawn, a message. Each is one
   # short lock scope, so this is the number that bounds how long a cast can keep the tick waiting. The

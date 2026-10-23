@@ -70,6 +70,12 @@ class MacroGraphService(
    */
   private var edgesByChunk: Map<ChunkPos, IntArray> = emptyMap()
 
+  /** [edgesByChunk] by column and back, for what a traveller can see: it sees a bridge whatever its height. */
+  private var edgesByColumn: Map<Long, IntArray> = emptyMap()
+  private var columnsByEdge: Map<Int, LongArray> = emptyMap()
+
+  private val edgeChanged = ArrayList<(Int) -> Unit>()
+
   /**
    * Builds the runtime graph and subscribes to chunk edits.
    *
@@ -85,6 +91,7 @@ class MacroGraphService(
     graphOrNull = runtime
     blocked = BooleanArray(runtime.edges.size)
     edgesByChunk = indexStructuralEdges(runtime)
+    indexColumns()
 
     world.onChunkChanged { chunk -> onChunkChanged(chunk) }
 
@@ -95,6 +102,20 @@ class MacroGraphService(
   }
 
   fun isBlocked(edgeIndex: Int): Boolean = blocked.getOrNull(edgeIndex) ?: false
+
+  /** The structural edges that pass through a chunk column. */
+  fun structuralEdgesInColumn(chunkX: Int, chunkY: Int): IntArray {
+    return edgesByColumn[packColumn(chunkX, chunkY)] ?: EMPTY_EDGES
+  }
+
+  fun forEachColumnOf(edgeIndex: Int, action: (chunkX: Int, chunkY: Int) -> Unit) {
+    columnsByEdge[edgeIndex]?.forEach { action((it shr 32).toInt(), it.toInt()) }
+  }
+
+  /** Called with an edge whose usability [revalidate] just flipped. Mark and return; it fires on the tick. */
+  fun onEdgeChanged(listener: (Int) -> Unit) {
+    edgeChanged.add(listener)
+  }
 
   /** A pathfinder over the current graph for one creature. */
   fun pathfinderFor(profile: MovementProfile): MacroPathfinder =
@@ -130,6 +151,7 @@ class MacroGraphService(
       if (blocked[edgeIndex] != nowBlocked) {
         blocked[edgeIndex] = nowBlocked
         changed = true
+        edgeChanged.forEach { it(edgeIndex) }
         LOG.debug { "Macro edge $edgeIndex ($edge) is now ${if (nowBlocked) "blocked" else "open"}" }
       }
     }
@@ -202,8 +224,30 @@ class MacroGraphService(
     return buckets.mapValues { (_, list) -> list.distinct().toIntArray() }
   }
 
+  private fun indexColumns() {
+    val byColumn = HashMap<Long, MutableSet<Int>>()
+    val byEdge = HashMap<Int, MutableSet<Long>>()
+
+    for ((chunk, edges) in edgesByChunk) {
+      val column = packColumn(chunk.x, chunk.y)
+      for (edge in edges) {
+        byColumn.getOrPut(column) { HashSet() }.add(edge)
+        byEdge.getOrPut(edge) { HashSet() }.add(column)
+      }
+    }
+
+    edgesByColumn = byColumn.mapValues { (_, edges) -> edges.toIntArray() }
+    columnsByEdge = byEdge.mapValues { (_, columns) -> columns.toLongArray() }
+  }
+
   private companion object {
     private val LOG = KotlinLogging.logger { }
+
+    private val EMPTY_EDGES = IntArray(0)
+
+    fun packColumn(x: Int, y: Int): Long {
+      return (x.toLong() shl 32) or (y.toLong() and 0xFFFFFFFFL)
+    }
   }
 }
 
