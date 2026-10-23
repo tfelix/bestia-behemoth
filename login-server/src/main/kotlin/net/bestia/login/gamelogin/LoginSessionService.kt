@@ -1,6 +1,7 @@
 package net.bestia.login.gamelogin
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.login.metrics.LoginMetrics
 import net.bestia.login.util.SecureTokens
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
@@ -18,7 +19,8 @@ class LoginSessionService(
   private val sessions: LoginSessionRepository,
   private val redirectUriValidator: RedirectUriValidator,
   private val companionRedirectValidator: CompanionRedirectValidator,
-  private val config: GameLoginConfig
+  private val config: GameLoginConfig,
+  private val metrics: LoginMetrics = LoginMetrics()
 ) {
 
   @Transactional
@@ -37,7 +39,7 @@ class LoginSessionService(
 
     if (challengeMethod != Pkce.METHOD_S256) {
       throw GameLoginException(
-        GameLoginError.INVALID_REQUEST,
+        GameLoginReason.MALFORMED_PARAMETER,
         "unsupported code_challenge_method '$challengeMethod'"
       )
     }
@@ -73,11 +75,11 @@ class LoginSessionService(
   @Transactional(readOnly = true)
   fun requireUsable(sessionId: String): LoginSession {
     val session = sessions.findById(hash(sessionId)).orElse(null)
-      ?: throw GameLoginException(GameLoginError.INVALID_GRANT, "no such login session")
+      ?: throw GameLoginException(GameLoginReason.NO_SESSION, "no such login session")
 
     if (!session.isUsable(LocalDateTime.now())) {
       throw GameLoginException(
-        GameLoginError.INVALID_GRANT,
+        GameLoginReason.SESSION_NOT_USABLE,
         "login session is ${session.status} and expires at ${session.expiresAt}"
       )
     }
@@ -97,7 +99,7 @@ class LoginSessionService(
   @Transactional
   fun markAuthenticated(session: LoginSession, accountId: Long) {
     if (sessions.authenticate(session.idHash, accountId, LocalDateTime.now()) != 1) {
-      throw GameLoginException(GameLoginError.INVALID_GRANT, "login session is ${session.status}, not PENDING")
+      throw GameLoginException(GameLoginReason.SESSION_STATE, "login session is ${session.status}, not PENDING")
     }
   }
 
@@ -114,7 +116,7 @@ class LoginSessionService(
 
   private fun advance(idHash: String, from: LoginSessionStatus, to: LoginSessionStatus) {
     if (sessions.advance(idHash, from, to, LocalDateTime.now()) != 1) {
-      throw GameLoginException(GameLoginError.INVALID_GRANT, "login session is not $from")
+      throw GameLoginException(GameLoginReason.SESSION_STATE, "login session is not $from")
     }
   }
 
@@ -125,9 +127,12 @@ class LoginSessionService(
   @Scheduled(fixedDelayString = "PT5M")
   @Transactional
   fun sweepExpired() {
-    val removed = sessions.deleteExpired(LocalDateTime.now())
-    if (removed > 0) {
-      LOG.debug { "Swept $removed expired login sessions" }
+    metrics.sweep(LoginMetrics.SweepJob.LOGIN_SESSION) {
+      val removed = sessions.deleteExpired(LocalDateTime.now())
+      if (removed > 0) {
+        LOG.debug { "Swept $removed expired login sessions" }
+      }
+      removed
     }
   }
 
@@ -138,11 +143,11 @@ class LoginSessionService(
    */
   private fun requireOpaque(value: String, expectedLength: IntRange, field: String) {
     if (value.length !in expectedLength) {
-      throw GameLoginException(GameLoginError.INVALID_REQUEST, "$field has invalid length ${value.length}")
+      throw GameLoginException(GameLoginReason.MALFORMED_PARAMETER, "$field has invalid length ${value.length}")
     }
 
     if (!value.all(::isBase64Url)) {
-      throw GameLoginException(GameLoginError.INVALID_REQUEST, "$field is not base64url")
+      throw GameLoginException(GameLoginReason.MALFORMED_PARAMETER, "$field is not base64url")
     }
   }
 

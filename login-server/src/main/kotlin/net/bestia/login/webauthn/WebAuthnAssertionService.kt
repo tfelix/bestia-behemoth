@@ -9,6 +9,7 @@ import com.yubico.webauthn.data.UserVerificationRequirement
 import com.yubico.webauthn.exception.AssertionFailedException
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.login.account.loginmethod.WebAuthnCredentialRepository
+import net.bestia.login.metrics.LoginMetrics
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
@@ -18,7 +19,8 @@ class WebAuthnAssertionService(
   private val relyingParty: RelyingPartyV2<StoredCredential>,
   private val ceremonyStore: CeremonyStore,
   private val credentials: WebAuthnCredentialRepository,
-  private val config: WebAuthnConfig
+  private val config: WebAuthnConfig,
+  private val metrics: LoginMetrics = LoginMetrics()
 ) {
 
   /**
@@ -51,18 +53,34 @@ class WebAuthnAssertionService(
    */
   @Transactional
   fun finish(ceremonyId: String, credentialJson: String): FinishedAssertion {
+    try {
+      return verify(ceremonyId, credentialJson).also { metrics.assertion(LoginMetrics.AssertionResult.OK) }
+    } catch (e: UnknownCredentialException) {
+      metrics.assertion(LoginMetrics.AssertionResult.UNKNOWN_CREDENTIAL)
+      throw e
+    } catch (e: MalformedAssertionException) {
+      metrics.assertion(LoginMetrics.AssertionResult.MALFORMED)
+      throw e
+    } catch (e: WebAuthnException) {
+      metrics.assertion(LoginMetrics.AssertionResult.FAILED)
+      throw e
+    }
+  }
+
+  private fun verify(ceremonyId: String, credentialJson: String): FinishedAssertion {
     val taken = ceremonyStore.takeAssertion(ceremonyId)
 
     val response = try {
       PublicKeyCredential.parseAssertionResponseJson(credentialJson)
     } catch (e: Exception) {
-      throw WebAuthnException("Malformed assertion response", e)
+      throw MalformedAssertionException(e)
     }
 
     if (!credentials.existsByCredentialId(response.id.bytes)) {
       throw UnknownCredentialException()
     }
 
+    val startedAt = System.nanoTime()
     val result = try {
       relyingParty.finishAssertion(
         FinishAssertionOptions.builder()
@@ -72,6 +90,8 @@ class WebAuthnAssertionService(
       )
     } catch (e: AssertionFailedException) {
       throw WebAuthnException("Assertion ceremony failed", e)
+    } finally {
+      metrics.assertionVerified(System.nanoTime() - startedAt)
     }
 
     if (!result.isSuccess) {
@@ -104,6 +124,9 @@ class WebAuthnAssertionService(
       loginSessionIdHash = taken.ceremony.loginSessionIdHash
     )
   }
+
+  private class MalformedAssertionException(cause: Exception) :
+    WebAuthnException("Malformed assertion response", cause)
 
   data class StartedCeremony(
     val ceremonyId: String,

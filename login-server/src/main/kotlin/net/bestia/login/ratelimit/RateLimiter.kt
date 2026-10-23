@@ -1,5 +1,6 @@
 package net.bestia.login.ratelimit
 
+import net.bestia.login.metrics.LoginMetrics
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import java.time.Duration
@@ -19,9 +20,15 @@ import java.util.concurrent.atomic.AtomicReference
  * addresses turns the limiter itself into the memory leak.
  */
 @Component
-class RateLimiter {
+class RateLimiter(
+  private val metrics: LoginMetrics = LoginMetrics()
+) {
 
   private val buckets = ConcurrentHashMap<String, AtomicReference<Window>>()
+
+  /** Windows held right now: the limiter's memory, which [sweep] keeps bounded. */
+  val bucketCount: Int
+    get() = buckets.size
 
   /** True when the call is allowed. */
   fun tryAcquire(key: String, limit: Int, window: Duration, now: Instant = Instant.now()): Boolean {
@@ -37,6 +44,7 @@ class RateLimiter {
       }
 
       if (next.count > limit) {
+        metrics.rateLimitDenied(key)
         return false
       }
 
@@ -48,11 +56,15 @@ class RateLimiter {
 
   @Scheduled(fixedDelayString = "PT10M")
   fun sweepStale() {
-    sweep(STALE_AFTER)
+    metrics.sweep(LoginMetrics.SweepJob.RATE_LIMIT) { sweep(STALE_AFTER) }
   }
 
-  fun sweep(olderThan: Duration, now: Instant = Instant.now()) {
+  /** Answers how many windows it dropped. */
+  fun sweep(olderThan: Duration, now: Instant = Instant.now()): Int {
+    val before = buckets.size
     buckets.entries.removeIf { Duration.between(it.value.get().startedAt, now) > olderThan }
+
+    return maxOf(0, before - buckets.size)
   }
 
   fun reset() {

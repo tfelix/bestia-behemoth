@@ -12,6 +12,9 @@ import net.bestia.login.account.AccountRepository
 import net.bestia.login.gamelogin.BrowserLoginService
 import net.bestia.login.gamelogin.GameLoginException
 import net.bestia.login.gamelogin.LoginSession
+import net.bestia.login.metrics.LoginMetrics
+import net.bestia.login.metrics.LoginMetrics.CeremonyResult
+import net.bestia.login.metrics.LoginMetrics.CeremonyStep
 import net.bestia.login.recovery.AccountRecoveryService
 import net.bestia.login.ratelimit.RateLimiter
 import org.springframework.http.HttpStatus
@@ -41,7 +44,8 @@ class WebAuthnController(
   private val accountLoginGuard: AccountLoginGuard,
   private val rateLimiter: RateLimiter,
   private val objectMapper: ObjectMapper,
-  private val webAuthnConfig: WebAuthnConfig
+  private val webAuthnConfig: WebAuthnConfig,
+  private val metrics: LoginMetrics
 ) {
 
   @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
@@ -110,7 +114,7 @@ class WebAuthnController(
       return tooManyRequests()
     }
 
-    return handle {
+    return handle(CeremonyStep.ASSERT_OPTIONS) {
       val session = browserLogin.requireUsable(request.sessionId, browserBinding)
       val started = assertionService.start(session.idHash)
 
@@ -131,7 +135,7 @@ class WebAuthnController(
       return tooManyRequests()
     }
 
-    return handle {
+    return handle(CeremonyStep.ASSERT_VERIFY) {
       val finished = assertionService.finish(
         request.ceremonyId,
         objectMapper.writeValueAsString(request.credential)
@@ -153,7 +157,7 @@ class WebAuthnController(
       return tooManyRequests()
     }
 
-    return handle {
+    return handle(CeremonyStep.REGISTER_OPTIONS) {
       val session = browserLogin.requireUsable(request.sessionId, browserBinding)
       val started = registrationService.startAccountRegistration(request.displayName, session.idHash)
 
@@ -174,7 +178,7 @@ class WebAuthnController(
       return tooManyRequests()
     }
 
-    return handle {
+    return handle(CeremonyStep.REGISTER_VERIFY) {
       val finished = registrationService.finishRegistration(
         request.ceremonyId,
         objectMapper.writeValueAsString(request.credential),
@@ -204,7 +208,7 @@ class WebAuthnController(
       return tooManyRequests()
     }
 
-    return handle {
+    return handle(CeremonyStep.CREDENTIAL_OPTIONS) {
       val session = browserLogin.requireAuthenticated(request.sessionId, browserBinding)
       requireEnrolmentWindow(session)
 
@@ -230,7 +234,7 @@ class WebAuthnController(
       return tooManyRequests()
     }
 
-    return handle {
+    return handle(CeremonyStep.CREDENTIAL_VERIFY) {
       registrationService.finishRegistration(
         request.ceremonyId,
         objectMapper.writeValueAsString(request.credential),
@@ -258,7 +262,7 @@ class WebAuthnController(
       return tooManyRequests()
     }
 
-    return handle {
+    return handle(CeremonyStep.RECOVER_OPTIONS) {
       val session = browserLogin.requireUsable(request.sessionId, browserBinding)
 
       val started = recoveryService.startRecovery(
@@ -345,17 +349,21 @@ class WebAuthnController(
    * One failure string for every way a ceremony can fail. Telling the page whether the credential
    * was unknown, the challenge stale, or the signature wrong hands a probe to whoever is guessing.
    */
-  private fun <T : Any> handle(block: () -> T): ResponseEntity<*> {
+  private fun <T : Any> handle(step: CeremonyStep, block: () -> T): ResponseEntity<*> {
     return try {
-      ResponseEntity.ok(block())
+      ResponseEntity.ok(block()).also { metrics.ceremony(step, CeremonyResult.OK) }
     } catch (e: UnknownCredentialException) {
       LOG.warn(e) { "WebAuthn ceremony rejected" }
+      metrics.ceremony(step, CeremonyResult.UNKNOWN_CREDENTIAL)
       ResponseEntity.status(HttpStatus.BAD_REQUEST).body(WebAuthnFailure(UNKNOWN_CREDENTIAL_ERROR))
     } catch (e: WebAuthnException) {
       LOG.warn(e) { "WebAuthn ceremony rejected" }
+      metrics.ceremony(step, CeremonyResult.REJECTED)
       badRequest()
     } catch (e: GameLoginException) {
       LOG.warn(e) { "WebAuthn ceremony rejected" }
+      metrics.ceremony(step, CeremonyResult.SESSION_REFUSED)
+      metrics.sessionRefused(e.reason)
       badRequest()
     }
   }

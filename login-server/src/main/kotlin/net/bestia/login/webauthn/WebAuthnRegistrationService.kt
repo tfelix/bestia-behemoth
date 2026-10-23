@@ -19,6 +19,7 @@ import net.bestia.login.account.DisplayNames
 import net.bestia.login.account.loginmethod.WebAuthnCredential
 import net.bestia.login.account.loginmethod.WebAuthnCredentialRepository
 import net.bestia.login.gamelogin.GameLoginConfig
+import net.bestia.login.metrics.LoginMetrics
 import net.bestia.login.recovery.RecoveryCodeService
 import net.bestia.login.util.SecureTokens
 import org.springframework.stereotype.Service
@@ -36,7 +37,8 @@ class WebAuthnRegistrationService(
   private val recoveryCodeService: RecoveryCodeService,
   private val webAuthnConfig: WebAuthnConfig,
   private val gameLoginConfig: GameLoginConfig,
-  private val accountConfig: AccountConfig
+  private val accountConfig: AccountConfig,
+  private val metrics: LoginMetrics = LoginMetrics()
 ) {
 
   /**
@@ -203,6 +205,14 @@ class WebAuthnRegistrationService(
       "Registered credential ${stored.id} for account ${account.id} " +
         "(backupEligible=${stored.backupEligible}, discoverable=${stored.discoverable})"
     }
+
+    metrics.registration(
+      when {
+        pendingName != null -> LoginMetrics.RegistrationKind.ACCOUNT
+        ceremony.ceremonyType == CeremonyType.RECOVERY -> LoginMetrics.RegistrationKind.RECOVERY
+        else -> LoginMetrics.RegistrationKind.ADD_CREDENTIAL
+      }
+    )
 
     // A recovery means the owner lost the old passkeys, and whoever has them now must not keep a way in.
     if (ceremony.ceremonyType == CeremonyType.RECOVERY) {

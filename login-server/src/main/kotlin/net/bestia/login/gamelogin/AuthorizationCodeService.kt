@@ -1,6 +1,7 @@
 package net.bestia.login.gamelogin
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.login.metrics.LoginMetrics
 import net.bestia.login.util.SecureTokens
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
@@ -10,7 +11,8 @@ import java.time.LocalDateTime
 @Service
 class AuthorizationCodeService(
   private val codes: AuthorizationCodeRepository,
-  private val config: GameLoginConfig
+  private val config: GameLoginConfig,
+  private val metrics: LoginMetrics = LoginMetrics()
 ) {
 
   /** Returns the raw code. It is the only time it exists outside the browser's redirect. */
@@ -27,6 +29,8 @@ class AuthorizationCodeService(
       )
     )
 
+    metrics.authCode(LoginMetrics.AuthCodeEvent.ISSUED)
+
     return code
   }
 
@@ -40,11 +44,14 @@ class AuthorizationCodeService(
     val claimed = codes.consume(codeHash, LocalDateTime.now())
 
     if (claimed != 1) {
-      throw GameLoginException(GameLoginError.INVALID_GRANT, "authorization code is unknown, expired or spent")
+      metrics.authCode(LoginMetrics.AuthCodeEvent.REFUSED)
+      throw GameLoginException(GameLoginReason.CODE_NOT_REDEEMABLE, "authorization code is unknown, expired or spent")
     }
 
+    metrics.authCode(LoginMetrics.AuthCodeEvent.CONSUMED)
+
     return codes.findById(codeHash).orElseThrow {
-      GameLoginException(GameLoginError.INVALID_GRANT, "authorization code vanished after being claimed")
+      GameLoginException(GameLoginReason.CODE_NOT_REDEEMABLE, "authorization code vanished after being claimed")
     }
   }
 
@@ -55,9 +62,12 @@ class AuthorizationCodeService(
   @Scheduled(fixedDelayString = "PT5M")
   @Transactional
   fun sweepExpired() {
-    val removed = codes.deleteExpired(LocalDateTime.now())
-    if (removed > 0) {
-      LOG.debug { "Swept $removed expired authorization codes" }
+    metrics.sweep(LoginMetrics.SweepJob.AUTHORIZATION_CODE) {
+      val removed = codes.deleteExpired(LocalDateTime.now())
+      if (removed > 0) {
+        LOG.debug { "Swept $removed expired authorization codes" }
+      }
+      removed
     }
   }
 

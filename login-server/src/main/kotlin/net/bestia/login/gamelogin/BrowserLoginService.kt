@@ -59,12 +59,12 @@ class BrowserLoginService(
   @Transactional(readOnly = true)
   fun requireAuthenticatedByHash(sessionIdHash: String, browserBinding: String?): LoginSession {
     val session = loginSessions.findByHash(sessionIdHash)
-      ?: throw GameLoginException(GameLoginError.INVALID_GRANT, "no such login session")
+      ?: throw GameLoginException(GameLoginReason.NO_SESSION, "no such login session")
 
     requireBoundTo(session, browserBinding)
 
     if (!session.isAuthenticated(LocalDateTime.now())) {
-      throw GameLoginException(GameLoginError.INVALID_GRANT, "login session is ${session.status} or expired")
+      throw GameLoginException(GameLoginReason.SESSION_NOT_USABLE, "login session is ${session.status} or expired")
     }
 
     return session
@@ -77,16 +77,16 @@ class BrowserLoginService(
   @Transactional
   fun authenticate(sessionIdHash: String, accountId: Long, browserBinding: String?) {
     val session = loginSessions.findByHash(sessionIdHash)
-      ?: throw GameLoginException(GameLoginError.INVALID_GRANT, "login session no longer exists")
+      ?: throw GameLoginException(GameLoginReason.NO_SESSION, "login session no longer exists")
 
     requireBoundTo(session, browserBinding)
 
     val account = accounts.findById(accountId).orElseThrow {
-      GameLoginException(GameLoginError.INVALID_GRANT, "authenticated account no longer exists")
+      GameLoginException(GameLoginReason.MISSING_ACCOUNT, "authenticated account no longer exists")
     }
 
     accountLoginGuard.denialReason(account)?.let { reason ->
-      throw GameLoginException(GameLoginError.ACCOUNT_UNAVAILABLE, reason)
+      throw GameLoginException(GameLoginReason.BANNED, reason)
     }
 
     loginSessions.markAuthenticated(session, accountId)
@@ -94,7 +94,7 @@ class BrowserLoginService(
 
   private fun requireBoundTo(session: LoginSession, browserBinding: String?) {
     if (browserBinding == null || !isBoundTo(session, browserBinding)) {
-      throw GameLoginException(GameLoginError.INVALID_GRANT, "login session is not bound to this browser")
+      throw GameLoginException(GameLoginReason.BROWSER_BINDING, "login session is not bound to this browser")
     }
   }
 

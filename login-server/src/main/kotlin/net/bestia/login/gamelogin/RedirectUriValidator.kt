@@ -16,42 +16,42 @@ class RedirectUriValidator {
 
   fun validate(raw: String): URI {
     if (raw.length > MAX_LENGTH) {
-      throw GameLoginException(GameLoginError.INVALID_REQUEST, "redirect_uri exceeds $MAX_LENGTH characters")
+      throw GameLoginException(GameLoginReason.REDIRECT_REJECTED, "redirect_uri exceeds $MAX_LENGTH characters")
     }
 
     val uri = try {
       URI(raw)
     } catch (e: URISyntaxException) {
-      throw GameLoginException(GameLoginError.INVALID_REQUEST, "redirect_uri is not a URI", e)
+      throw GameLoginException(GameLoginReason.REDIRECT_REJECTED, "redirect_uri is not a URI", e)
     }
 
     // Loopback redirects are the one place RFC 8252 permits plain http, because the response never
     // leaves the machine.
     if (uri.scheme != "http") {
-      throw GameLoginException(GameLoginError.INVALID_REQUEST, "redirect_uri must use http, was ${uri.scheme}")
+      throw GameLoginException(GameLoginReason.REDIRECT_REJECTED, "redirect_uri must use http, was ${uri.scheme}")
     }
 
     // "localhost" is rejected deliberately: it is a name, and a hosts file or a DNS search domain
     // can point it somewhere off-box. The literals cannot be redirected.
     if (uri.host !in LOOPBACK_HOSTS) {
       throw GameLoginException(
-        GameLoginError.INVALID_REQUEST,
+        GameLoginReason.REDIRECT_REJECTED,
         "redirect_uri host must be a loopback literal, was ${uri.host}"
       )
     }
 
     if (uri.port !in MIN_PORT..MAX_PORT) {
-      throw GameLoginException(GameLoginError.INVALID_REQUEST, "redirect_uri port ${uri.port} out of range")
+      throw GameLoginException(GameLoginReason.REDIRECT_REJECTED, "redirect_uri port ${uri.port} out of range")
     }
 
     if (uri.userInfo != null) {
-      throw GameLoginException(GameLoginError.INVALID_REQUEST, "redirect_uri must not carry user info")
+      throw GameLoginException(GameLoginReason.REDIRECT_REJECTED, "redirect_uri must not carry user info")
     }
 
     // The code and state are appended by us. Anything already there would either be dropped or
     // silently merged, and neither is worth the ambiguity.
     if (uri.rawQuery != null || uri.rawFragment != null) {
-      throw GameLoginException(GameLoginError.INVALID_REQUEST, "redirect_uri must not carry a query or fragment")
+      throw GameLoginException(GameLoginReason.REDIRECT_REJECTED, "redirect_uri must not carry a query or fragment")
     }
 
     return uri

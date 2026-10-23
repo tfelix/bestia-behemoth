@@ -12,7 +12,7 @@ class CompanionRedirectValidator(private val config: CompanionLoginConfig) {
 
   fun validate(raw: String) {
     if (raw !in config.redirectUris) {
-      throw GameLoginException(GameLoginError.INVALID_REQUEST, "redirect_uri is not an allowed companion page")
+      throw GameLoginException(GameLoginReason.REDIRECT_REJECTED, "redirect_uri is not an allowed companion page")
     }
   }
 }

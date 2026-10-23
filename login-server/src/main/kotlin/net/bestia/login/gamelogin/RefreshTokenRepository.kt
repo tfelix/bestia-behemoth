@@ -48,6 +48,8 @@ interface RefreshTokenRepository : JpaRepository<RefreshToken, String> {
 
   fun countByAccountIdAndRevokedAtIsNullAndConsumedAtIsNull(accountId: Long): Long
 
+  fun countByRevokedAtIsNullAndConsumedAtIsNullAndExpiresAtAfter(now: LocalDateTime): Long
+
   /**
    * Consumed and revoked rows keep their original expiry, so they are swept by the same cutoff as
    * the ones that simply ran out. Nothing needs them once they can no longer be presented.

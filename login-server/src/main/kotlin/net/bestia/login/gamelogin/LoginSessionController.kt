@@ -7,6 +7,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.servlet.http.HttpServletRequest
 import net.bestia.login.account.AccountLoginGuard
 import net.bestia.login.account.AccountRepository
+import net.bestia.login.metrics.LoginMetrics
 import net.bestia.login.ratelimit.RateLimiter
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -34,7 +35,8 @@ class LoginSessionController(
   private val authorizationCodeService: AuthorizationCodeService,
   private val accounts: AccountRepository,
   private val accountLoginGuard: AccountLoginGuard,
-  private val rateLimiter: RateLimiter
+  private val rateLimiter: RateLimiter,
+  private val metrics: LoginMetrics
 ) {
 
   @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
@@ -66,13 +68,13 @@ class LoginSessionController(
       val accountId = session.accountId!!
 
       val account = accounts.findById(accountId).orElseThrow {
-        GameLoginException(GameLoginError.INVALID_GRANT, "session refers to a missing account")
+        GameLoginException(GameLoginReason.MISSING_ACCOUNT, "session refers to a missing account")
       }
 
       // Re-checked here and not only at authentication time: a ban applied while the player was
       // reading their recovery codes should still take effect.
       accountLoginGuard.denialReason(account)?.let { reason ->
-        throw GameLoginException(GameLoginError.ACCOUNT_UNAVAILABLE, reason)
+        throw GameLoginException(GameLoginReason.BANNED, reason)
       }
 
       loginSessionService.markCodeIssued(session.idHash)
@@ -87,6 +89,7 @@ class LoginSessionController(
       )
     } catch (e: GameLoginException) {
       LOG.debug(e) { "Refusing to complete login session" }
+      metrics.sessionRefused(e.reason)
       ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CompleteFailure("Sign-in could not be completed"))
     }
   }

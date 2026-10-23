@@ -4,6 +4,17 @@
 account:
   sign-up-role: SUPER_GM
 
+# Scraped by the dev Prometheus of zone-server/compose.yaml. A separate port, so /actuator is never on the public one
+# and exists only under this profile; 0.0.0.0 because the scraper is a container reaching the host.
+management:
+  server:
+    port: 8093
+    address: 0.0.0.0
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus
+
 game-login:
   public-base-url: "http://localhost:8080"
   # A dev host serves the login page over plain http, where a browser refuses to store a Secure cookie.
