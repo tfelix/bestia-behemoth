@@ -7,6 +7,7 @@
 	import { guarded } from '$lib/guard';
 	import { live } from '$lib/live.svelte';
 	import { speciesName, STANCE_TEXT } from '$lib/names';
+	import { stopJourney, travelStatus } from '$lib/travel';
 
 	type Draft = { stance: string; aggression: number; key: string; sending: boolean; note: string | null };
 
@@ -39,6 +40,20 @@
 	function changed(b: Bestia): boolean {
 		const d = drafts[b.id];
 		return !!d && (d.stance !== b.stance || d.aggression !== b.aggression);
+	}
+
+	let stopping = $state<number | null>(null);
+
+	async function stop(b: Bestia) {
+		stopping = b.id;
+		try {
+			await guarded(() => stopJourney(masterId, b.id, crypto.randomUUID()));
+			await load(masterId);
+		} catch (e) {
+			failure = e instanceof Error ? e.message : String(e);
+		} finally {
+			stopping = null;
+		}
 	}
 
 	async function give(b: Bestia) {
@@ -86,6 +101,15 @@
 					<Age asOf={b.asOf} live={b.inWorld} />
 				</div>
 
+				<p class="travel">
+					<span class="muted small">{travelStatus(b)}</span>
+					{#if b.journey}
+						<button class="btn" disabled={stopping === b.id} onclick={() => stop(b)}>Stop</button>
+					{:else if b.inWorld}
+						<a class="btn" href={`/m/${masterId}/map`}>Send…</a>
+					{/if}
+				</p>
+
 				{#if draft}
 					<div class="label">Standing order</div>
 					<div class="stances" role="radiogroup" aria-label="Stance">
@@ -129,6 +153,14 @@
 		align-items: flex-start;
 		gap: 0.75rem;
 		margin-bottom: 0.8rem;
+	}
+
+	.travel {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.5rem;
+		margin: 0 0 0.8rem;
 	}
 
 	.stances {
