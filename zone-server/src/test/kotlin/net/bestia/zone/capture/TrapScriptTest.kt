@@ -97,12 +97,8 @@ class TrapScriptTest {
     assertFalse(script.execute(world, spawnMaster(), ScriptArgs.EMPTY))
   }
 
-  private fun trapPositions(): List<Vec3L> {
-    val found = mutableListOf<Vec3L>()
-    world.query(BestiaTrap::class, Position::class).each { found.add(get<Position>().toVec3L()) }
-
-    return found
-  }
+  private fun trapPositions(): List<Vec3L> =
+    world.query(BestiaTrap::class, Position::class).map { get<Position>().toVec3L() }
 
   private fun spawnMaster(): EntityId {
     return world.createEntity { id ->

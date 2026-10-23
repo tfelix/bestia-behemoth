@@ -43,8 +43,7 @@ class WorldTest {
       if (it < 3) world.add(e, Velocity(1f, 0f))
     }
 
-    val visited = mutableListOf<EntityId>()
-    world.query(Position::class, Velocity::class).each { id -> visited.add(id) }
+    val visited = world.query(Position::class, Velocity::class).map { id -> id }
 
     assertEquals(3, visited.size)
   }

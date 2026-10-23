@@ -3,7 +3,6 @@ package net.bestia.zone.persistence
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.System
-import net.bestia.zone.util.EntityId
 import net.bestia.zone.ecs.core.World
 
 import org.springframework.stereotype.Component as SpringComponent
@@ -22,8 +21,7 @@ class PersistAndRemoveSystem(
   override val reads: ComponentClassSet = setOf(PersistAndRemove::class) + writeBehind.reads
 
   override fun update(world: World, deltaTime: Float) {
-    val toRemove = mutableListOf<EntityId>()
-    world.query(PersistAndRemove::class).each { id -> toRemove.add(id) }
+    val toRemove = world.query(PersistAndRemove::class).map { id -> id }
     if (toRemove.isEmpty()) return
 
     writeBehind.persist(world, toRemove)

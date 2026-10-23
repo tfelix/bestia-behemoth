@@ -172,13 +172,8 @@ class TownsfolkResidencySystem(
   }
 
   /** The same anchor set the other spawners use: only a player who has picked a master. */
-  private fun activePlayerPositions(world: World): List<Vec3L> {
-    val positions = ArrayList<Vec3L>()
-    world.query(Position::class, ActivePlayer::class).each {
-      positions.add(get<Position>().toVec3L())
-    }
-    return positions
-  }
+  private fun activePlayerPositions(world: World): List<Vec3L> =
+    world.query(Position::class, ActivePlayer::class).map { get<Position>().toVec3L() }
 
   private companion object {
     val LOG = KotlinLogging.logger { }

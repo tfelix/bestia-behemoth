@@ -48,8 +48,7 @@ class EntityPersistenceService(
   fun syncAll(world: World) {
     pruneRemovedEntities()
 
-    val ids = ArrayList<EntityId>()
-    world.query(Persistent::class).each { id -> ids.add(id) }
+    val ids = world.query(Persistent::class).map { id -> id }
 
     writeBehind.persist(world, ids, onlyChanged = true)
     LOG.debug { "Entity persistence sync queued ${ids.size} entities" }

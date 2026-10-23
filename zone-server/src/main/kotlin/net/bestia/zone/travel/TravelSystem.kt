@@ -73,8 +73,7 @@ class TravelSystem(
   }
 
   private fun journeysLongestWaitingFirst(world: World): List<Pair<EntityId, Journey>> {
-    val journeys = ArrayList<Pair<EntityId, Journey>>()
-    world.query(Journey::class, Position::class).each { id -> journeys.add(id to get<Journey>()) }
+    val journeys = world.query(Journey::class, Position::class).map { id -> id to get<Journey>() }
     return journeys.sortedByDescending { (_, journey) -> journey.secondsSinceRefined }
   }
 

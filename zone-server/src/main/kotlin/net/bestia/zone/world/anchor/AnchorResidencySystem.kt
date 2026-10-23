@@ -63,17 +63,12 @@ class AnchorResidencySystem(
     }
   }
 
-  private fun anchorsIn(world: World): List<AnchorAt> {
-    val anchors = ArrayList<AnchorAt>()
-
-    world.query(Position::class, SimulationAnchor::class).each { id ->
+  private fun anchorsIn(world: World): List<AnchorAt> =
+    world.query(Position::class, SimulationAnchor::class).map { id ->
       val position = get<Position>().toVec3L()
       val priority = if (world.has(id, ActivePlayer::class)) AnchorPriority.PLAYER else get<SimulationAnchor>().priority
-      anchors.add(AnchorAt(id, position, ChunkCoords.chunkOf(chunkService.config, position), priority))
+      AnchorAt(id, position, ChunkCoords.chunkOf(chunkService.config, position), priority)
     }
-
-    return anchors
-  }
 
   private fun mostImportant(anchors: List<AnchorAt>): List<AnchorAt> {
     if (anchors.size <= config.maxHoldingAnchors) return anchors

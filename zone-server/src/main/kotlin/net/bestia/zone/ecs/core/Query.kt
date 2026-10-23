@@ -13,11 +13,11 @@ import kotlin.reflect.KClass
  * do not have all of them. This keeps iteration proportional to the rarest
  * component rather than the whole world.
  *
- * Component values inside [each] are read via [Row.get], e.g.
+ * Component values inside [each] and [map] are read via [Row.get], e.g.
  * `world.query(Position::class, Speed::class).each { id -> val p = get<Position>() }`.
  *
  * [each] allocates a single [Row] for the whole call (not per entity), mutated
- * in place per matching entity.
+ * in place per matching entity. [map] builds on [each] and returns one new list.
  *
  * With [isolateFailures] (set while a tick runs) an entity whose action throws is logged and
  * skipped, so one bad entity does not end its system's whole update.
@@ -51,6 +51,16 @@ class Query internal constructor(
       row.currentId = id
       runIsolated(id, failures) { row.action(id) }
     }
+  }
+
+  /**
+   * Collects one value per matching entity into a new list. The [Row] is still reused, so [transform] must
+   * return what it read, never the row. An entity skipped by [isolateFailures] has no entry.
+   */
+  fun <R> map(transform: Row.(EntityId) -> R): List<R> {
+    val result = ArrayList<R>()
+    each { id -> result.add(transform(id)) }
+    return result
   }
 
   /**
