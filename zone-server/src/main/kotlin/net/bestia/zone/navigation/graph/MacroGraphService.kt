@@ -25,8 +25,8 @@ import org.springframework.stereotype.Service
  *
  * An edit only *queues* the edges over it. [revalidate] spends a bounded budget, called every few seconds
  * rather than every tick, because a bridge collapsing is a rare discrete event and not the per-tick stream of
- * voxel edits `DerivedStore` was written for. NPCs therefore learn about it within seconds - which is what the
- * requirements ask for - and the population adopts it staggered on top of that, see [version].
+ * voxel edits `DerivedStore` was written for. This is the truth; a traveller only learns it by coming near,
+ * see `travel.knowledge.RouteSense`.
  */
 @Service
 class MacroGraphService(
@@ -41,19 +41,6 @@ class MacroGraphService(
   val graph: RuntimeNavGraph get() = graphOrNull ?: RuntimeNavGraph.EMPTY
 
   val isReady get() = graphOrNull != null
-
-  /**
-   * How many times the usable set has changed.
-   *
-   * An NPC records this on the route it planned. When the two differ its route is *stale*, which is not the
-   * same as wrong - the change may be nowhere near it - so it does not replan on the spot; it schedules one
-   * for a random moment inside [NavigationConfig.macroReplanJitterSeconds]. That is what stops every traveller
-   * in the world from replanning on the tick a single bridge falls, and it is also why NPCs visibly disagree
-   * about the news for a while, which is the behaviour that was asked for.
-   */
-  private var currentVersion = 0L
-
-  val version: Long get() = currentVersion
 
   private var blocked = BooleanArray(0)
 
@@ -137,7 +124,6 @@ class MacroGraphService(
     if (graphOrNull == null || budget <= 0 || staleEdges.isEmpty()) return 0
 
     var done = 0
-    var changed = false
     val iterator = staleEdges.iterator()
 
     while (done < budget && iterator.hasNext()) {
@@ -150,15 +136,10 @@ class MacroGraphService(
 
       if (blocked[edgeIndex] != nowBlocked) {
         blocked[edgeIndex] = nowBlocked
-        changed = true
         edgeChanged.forEach { it(edgeIndex) }
         LOG.debug { "Macro edge $edgeIndex ($edge) is now ${if (nowBlocked) "blocked" else "open"}" }
       }
     }
-
-    // One bump per pass rather than per edge: a collapsing bridge is several edges at once, and a version per
-    // edge would make every traveller schedule several replans for what is one piece of news.
-    if (changed) currentVersion++
 
     return done
   }

@@ -306,10 +306,6 @@ navigation:
   # Stale edges re-tested per pass. Bounded for the same reason derived-rebuilds-per-tick is: mining along a
   # riverbank can invalidate a batch at once, and draining over two or three passes is invisible.
   macro-revalidations-per-pass: 8
-  # How long an individual NPC may keep planning against a graph version it knows is out of date. Without this
-  # every traveller in the world replans on the tick the graph moves, which is both a spike and a tell - a
-  # hundred NPCs changing their minds together reads as a system reacting rather than creatures finding out.
-  macro-replan-jitter-seconds: 60
 
 # Bounds on what one skill script may do to the world. A script runs off the tick thread (see
 # SkillExecutionService), but it reaches the world through the same lock the tick holds - so what these limit

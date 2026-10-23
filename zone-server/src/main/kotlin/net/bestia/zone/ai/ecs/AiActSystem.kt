@@ -21,7 +21,6 @@ import net.bestia.zone.ecs.core.TickBuckets
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.movement.ecs.Path
 import net.bestia.zone.movement.ecs.Position
-import net.bestia.zone.navigation.MacroRoute
 import net.bestia.zone.travel.JourneyService
 import org.springframework.stereotype.Component as SpringComponent
 import net.bestia.zone.ai.domain.AiDomainRuntime
@@ -66,7 +65,7 @@ class AiActSystem(
   /**
    * Everything the behaviour trees can touch, directly or through the services their leaves hold.
    *
-   * `Path`/`MacroRoute` come from locomotion, a journey's set from the travel leaf, the attack's own set from the basic-attack leaf, and `Mana`
+   * `Path` comes from locomotion, a journey's set from the travel leaf, the attack's own set from the basic-attack leaf, and `Mana`
    * from casting a skill, which reaches further than this system's own code does. Naming them is what keeps this out of the same scheduler
    * wave as the movement and combat systems that consume them — the previous declaration listed only
    * `Path` and put the AI in a wave with everything it feeds.
@@ -78,7 +77,6 @@ class AiActSystem(
   override val writes: ComponentClassSet = setOf(
     AiAgent::class,
     Path::class,
-    MacroRoute::class,
     IncomingDamage::class,
     Health::class,
     Mana::class,

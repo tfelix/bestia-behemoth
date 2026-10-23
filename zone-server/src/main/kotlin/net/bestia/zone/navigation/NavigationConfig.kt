@@ -31,9 +31,6 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesScan
  * @property macroRevalidationsPerPass how many stale edges one pass re-tests. Bounded for the same reason
  *   `derived-rebuilds-per-tick` is: a player mining along a riverbank can invalidate a batch of edges at once,
  *   and draining them over two or three passes is invisible while a spike on the tick thread is not.
- * @property macroReplanJitterSeconds how long after the graph changes an individual NPC may keep planning
- *   against the old version. The staggering the requirements ask for - without it, every traveller in the
- *   world replans on the same tick the graph moves. Each NPC picks its own delay in `0..this` once.
  */
 @ConfigurationProperties(prefix = "navigation")
 @ConfigurationPropertiesScan
@@ -44,7 +41,6 @@ data class NavigationConfig(
   val localExpansionLimit: Int = 2_048,
   val macroRevalidateSeconds: Float = 5f,
   val macroRevalidationsPerPass: Int = 8,
-  val macroReplanJitterSeconds: Float = 60f
 ) {
 
   init {
@@ -54,6 +50,5 @@ data class NavigationConfig(
     require(localExpansionLimit > 0) { "localExpansionLimit must be positive" }
     require(macroRevalidateSeconds > 0f) { "macroRevalidateSeconds must be positive" }
     require(macroRevalidationsPerPass >= 0) { "macroRevalidationsPerPass must not be negative" }
-    require(macroReplanJitterSeconds >= 0f) { "macroReplanJitterSeconds must not be negative" }
   }
 }
