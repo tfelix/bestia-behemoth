@@ -66,7 +66,10 @@ class AnchorResidencySystem(
   private fun anchorsIn(world: World): List<AnchorAt> =
     world.query(Position::class, SimulationAnchor::class).map { id ->
       val position = get<Position>().toVec3L()
-      val priority = if (world.has(id, ActivePlayer::class)) AnchorPriority.PLAYER else get<SimulationAnchor>().priority
+      val priority = when {
+        world.has(id, ActivePlayer::class) -> AnchorPriority.ACTIVE_CLIENT
+        else -> get<SimulationAnchor>().priority
+      }
       AnchorAt(id, position, ChunkCoords.chunkOf(chunkService.config, position), priority)
     }
 
