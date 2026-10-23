@@ -98,7 +98,7 @@ class NavigationMetricsTest {
       metrics = metrics,
     )
 
-    navigation.planRoute(Vec3L(0, 0, 0), Vec3L(500, 0, 0), null)
+    navigation.planCourse(Vec3L(0, 0, 0), Vec3L(500, 0, 0), null) { false }
 
     assertEquals(1.0, meters.get("zone.nav.macro.routes").tag("result", "no_graph").counter().count())
     assertEquals(0.0, meters.get("zone.nav.macro.routes").tag("result", "planned").counter().count())

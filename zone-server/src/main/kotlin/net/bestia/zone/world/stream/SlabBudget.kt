@@ -7,7 +7,10 @@ package net.bestia.zone.world.stream
  * of a column hold a surface ([ChunkService.surfaceSlabsOf], cached per column after that). [ViewVolume] says
  * which slabs are offered.
  */
-class SlabBudget(private var remaining: Int) {
+class SlabBudget(remaining: Int) {
+
+  var remaining = remaining
+    private set
 
   /** Set once a spend was refused: the tick had more to cost than it could afford. */
   var refused = false

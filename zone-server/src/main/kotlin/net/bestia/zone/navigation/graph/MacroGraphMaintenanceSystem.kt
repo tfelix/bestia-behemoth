@@ -47,7 +47,7 @@ class MacroGraphMaintenanceSystem(
     macroGraph.ensureLoaded()
     if (!macroGraph.isReady) return
 
-    metrics.graph(macroGraph.version, macroGraph.pendingRevalidations)
+    metrics.pendingRevalidations(macroGraph.pendingRevalidations)
 
     secondsSinceRevalidation += deltaTime
     if (secondsSinceRevalidation < config.macroRevalidateSeconds) return

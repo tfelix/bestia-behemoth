@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component
 import java.time.Duration
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
-import java.util.concurrent.atomic.AtomicLong
 
 /**
  * What pathfinding costs and how often it says no. The local tier shares [NavigationConfig.localPathfindsPerTick]
@@ -79,13 +78,9 @@ class NavigationMetrics(private val registry: MeterRegistry = SimpleMeterRegistr
     .description("Macro edges re-tested against the ground after a terrain edit")
     .register(registry)
 
-  private val graphVersion = AtomicLong()
   private val pendingRevalidations = AtomicInteger()
 
   init {
-    Gauge.builder("zone.nav.macro.graph.version", graphVersion) { it.get().toDouble() }
-      .description("Version of the macro graph; every change that makes routes stale bumps it")
-      .register(registry)
     Gauge.builder("zone.nav.macro.pending.revalidations", pendingRevalidations) { it.get().toDouble() }
       .description("Macro edges waiting to be re-tested")
       .register(registry)
@@ -122,8 +117,7 @@ class NavigationMetrics(private val registry: MeterRegistry = SimpleMeterRegistr
     if (edges > 0) revalidated.increment(edges.toDouble())
   }
 
-  fun graph(version: Long, pending: Int) {
-    graphVersion.set(version)
+  fun pendingRevalidations(pending: Int) {
     pendingRevalidations.set(pending)
   }
 }
