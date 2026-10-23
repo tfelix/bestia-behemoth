@@ -55,6 +55,13 @@ springdoc:
 
 management:
   endpoints:
-    web:
-      exposure:
-        include: health
+    # No actuator endpoint is reachable unless a profile opens it: the dev profile serves `health` and `prometheus`
+    # on a port of its own, so nothing here is ever on the public app port.
+    access:
+      default: none
+  metrics:
+    tags:
+      application: api-service
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true

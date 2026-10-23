@@ -2,6 +2,8 @@ package net.bestia.api.cache
 
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
+import io.micrometer.core.instrument.MeterRegistry
+import io.micrometer.core.instrument.binder.cache.CaffeineCacheMetrics
 import net.bestia.bus.contract.ZoneAnswer
 import net.bestia.bus.contract.ZoneQuery
 import org.springframework.stereotype.Component
@@ -12,14 +14,16 @@ import java.time.Duration
  * dropped for an account as soon as an event says something of its changed.
  */
 @Component
-class AnswerCache {
+class AnswerCache(registry: MeterRegistry) {
 
   private data class Key(val accountId: Long, val query: ZoneQuery)
 
   private val answers: Cache<Key, ZoneAnswer> = Caffeine.newBuilder()
     .expireAfterWrite(TIME_TO_LIVE)
     .maximumSize(MAX_ANSWERS)
-    .build()
+    .recordStats()
+    .build<Key, ZoneAnswer>()
+    .also { CaffeineCacheMetrics.monitor(registry, it, "answers") }
 
   fun <T : ZoneAnswer> get(accountId: Long, query: ZoneQuery, ask: () -> T): T {
     @Suppress("UNCHECKED_CAST")

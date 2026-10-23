@@ -20,23 +20,17 @@ import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Import
 import org.springframework.context.annotation.Primary
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
-import org.springframework.test.context.ActiveProfiles
-import org.springframework.test.context.DynamicPropertyRegistry
-import org.springframework.test.context.DynamicPropertySource
 import org.springframework.web.socket.TextMessage
 import org.springframework.web.socket.WebSocketSession
 import org.springframework.web.socket.client.standard.StandardWebSocketClient
@@ -56,11 +50,7 @@ import kotlin.test.assertTrue
  * The api-service end to end against a stand-in zone: a request server on the real bus whose answers each test
  * sets, and an event publisher with the zone's own Valkey user.
  */
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Import(ApiTestContainers::class, ApiServiceScenarioTest.RecordingPush::class)
-@ActiveProfiles("test")
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class ApiServiceScenarioTest {
+class ApiServiceScenarioTest : ApiScenarioTestBase() {
 
   @TestConfiguration(proxyBeanMethods = false)
   class RecordingPush {
@@ -450,14 +440,5 @@ class ApiServiceScenarioTest {
       .expiration(Date(System.currentTimeMillis() + 600_000))
       .signWith(key)
       .compact()
-  }
-
-  companion object {
-    @JvmStatic
-    @DynamicPropertySource
-    fun bus(registry: DynamicPropertyRegistry) {
-      registry.add("bus.host") { ApiTestContainers.valkey.host }
-      registry.add("bus.port") { ApiTestContainers.valkey.getMappedPort(6379) }
-    }
   }
 }

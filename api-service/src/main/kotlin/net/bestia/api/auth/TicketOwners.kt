@@ -2,7 +2,10 @@ package net.bestia.api.auth
 
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
+import io.micrometer.core.instrument.MeterRegistry
+import io.micrometer.core.instrument.binder.cache.CaffeineCacheMetrics
 import net.bestia.api.bus.ZoneClient
+import net.bestia.api.metrics.AuthMetrics
 import net.bestia.bus.contract.BusReply
 import net.bestia.bus.contract.ZoneAnswer
 import net.bestia.bus.contract.ZoneQuery
@@ -15,20 +18,34 @@ import java.time.Duration
  * keep a dead ticket working.
  */
 @Component
-class TicketOwners(private val zone: ZoneClient) {
+class TicketOwners(
+  private val zone: ZoneClient,
+  private val metrics: AuthMetrics,
+  registry: MeterRegistry,
+) {
 
   private val owners: Cache<String, Long> = Caffeine.newBuilder()
     .expireAfterWrite(TIME_TO_LIVE)
     .maximumSize(MAX_TICKETS)
-    .build()
+    .recordStats()
+    .build<String, Long>()
+    .also { CaffeineCacheMetrics.monitor(registry, it, "ticket_owners") }
 
   /** The ticket's account, or null when no live connection holds it. */
   fun accountFor(ticket: String): Long? {
-    owners.getIfPresent(ticket)?.let { return it }
+    owners.getIfPresent(ticket)?.let {
+      metrics.ticketLookup(AuthMetrics.TicketLookup.CACHE_HIT)
+      return it
+    }
 
     val reply = zone.ask(NO_ACCOUNT_YET, ZoneQuery.WhoseTicket(ticket))
-    val owner = (reply.answer as? ZoneAnswer.TicketOwner)?.takeIf { reply.status == BusReply.Status.OK } ?: return null
+    val owner = (reply.answer as? ZoneAnswer.TicketOwner)?.takeIf { reply.status == BusReply.Status.OK }
+    if (owner == null) {
+      metrics.ticketLookup(AuthMetrics.TicketLookup.ZONE_MISS)
+      return null
+    }
 
+    metrics.ticketLookup(AuthMetrics.TicketLookup.ZONE_HIT)
     owners.put(ticket, owner.accountId)
     return owner.accountId
   }

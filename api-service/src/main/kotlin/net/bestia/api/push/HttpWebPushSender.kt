@@ -1,6 +1,7 @@
 package net.bestia.api.push
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.api.metrics.PushMetrics
 import org.springframework.stereotype.Component
 import java.net.URI
 import java.net.http.HttpClient
@@ -9,7 +10,7 @@ import java.net.http.HttpResponse
 import java.time.Duration
 
 @Component
-class HttpWebPushSender(private val vapid: Vapid) : WebPushSender {
+class HttpWebPushSender(private val vapid: Vapid, private val metrics: PushMetrics) : WebPushSender {
 
   private val http = HttpClient.newBuilder().connectTimeout(TIMEOUT).build()
 
@@ -27,8 +28,10 @@ class HttpWebPushSender(private val vapid: Vapid) : WebPushSender {
       .POST(HttpRequest.BodyPublishers.ofByteArray(body))
       .build()
 
+    val started = System.nanoTime()
     return try {
       val status = http.send(request, HttpResponse.BodyHandlers.discarding()).statusCode()
+      metrics.sent(status, started)
       when (status) {
         in 200..299 -> WebPushSender.Outcome.DELIVERED
         404, 410 -> WebPushSender.Outcome.GONE
@@ -38,6 +41,7 @@ class HttpWebPushSender(private val vapid: Vapid) : WebPushSender {
         }
       }
     } catch (e: Exception) {
+      metrics.sent(null, started)
       LOG.warn { "Push to ${endpoint.host} failed: ${e.message}" }
       WebPushSender.Outcome.FAILED
     }

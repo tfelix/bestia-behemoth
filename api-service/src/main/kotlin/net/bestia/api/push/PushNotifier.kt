@@ -4,6 +4,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.api.bus.BusClientProperties
 import net.bestia.api.live.LiveSessions
+import net.bestia.api.metrics.PushMetrics
 import net.bestia.bus.BusKeys
 import net.bestia.bus.Directory
 import net.bestia.bus.StreamEntry
@@ -36,6 +37,7 @@ class PushNotifier(
   private val sender: WebPushSender,
   private val properties: PushProperties,
   private val bus: BusClientProperties,
+  private val metrics: PushMetrics,
 ) {
 
   private val sentThisHour = ConcurrentHashMap<Long, AtomicInteger>()
@@ -50,12 +52,15 @@ class PushNotifier(
     val event = streamed.payload
     val notification = Notification.of(event) ?: return
     if (!wanted(event)) {
+      metrics.dropped(PushMetrics.Dropped.UNWANTED)
       return
     }
     if (sessions.isConnected(event.accountId) || directory.nodeOf(event.accountId) != null) {
+      metrics.dropped(PushMetrics.Dropped.ONLINE)
       return
     }
     if (sentThisHour.computeIfAbsent(event.accountId) { AtomicInteger() }.incrementAndGet() > properties.perAccountPerHour) {
+      metrics.dropped(PushMetrics.Dropped.RATE_LIMIT)
       return
     }
 
@@ -84,7 +89,9 @@ class PushNotifier(
     val payload = mapper.writeValueAsBytes(notification)
 
     for (subscription in subscriptions.findAllByAccountId(accountId)) {
-      when (sender.send(subscription, payload)) {
+      val outcome = sender.send(subscription, payload)
+      metrics.outcome(outcome)
+      when (outcome) {
         WebPushSender.Outcome.DELIVERED -> {
           subscription.lastOkAt = LocalDateTime.now()
           subscriptions.save(subscription)

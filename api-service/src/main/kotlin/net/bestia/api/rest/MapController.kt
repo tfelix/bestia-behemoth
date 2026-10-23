@@ -3,6 +3,8 @@ package net.bestia.api.rest
 import net.bestia.api.auth.CompanionAuthFilter.Companion.ACCOUNT_ID
 import net.bestia.api.bus.ZoneClient
 import net.bestia.api.cache.TileCache
+import net.bestia.api.metrics.ApiRoute
+import net.bestia.api.metrics.EndpointMetrics
 import net.bestia.bus.contract.BusReply
 import net.bestia.bus.contract.ZoneAnswer
 import net.bestia.bus.contract.ZoneQuery
@@ -32,6 +34,7 @@ import java.time.Duration
 class MapController(
   private val zone: ZoneClient,
   private val tiles: TileCache,
+  private val metrics: EndpointMetrics,
 ) {
 
   data class MapMeta(
@@ -71,6 +74,7 @@ class MapController(
   @GetMapping("/meta")
   fun meta(@RequestAttribute(ACCOUNT_ID) accountId: Long, @PathVariable masterId: Long): MapMeta {
     val info = zone.ask(accountId, ZoneQuery.MapMeta).answerOrThrow<ZoneAnswer.MapInfo>()
+    metrics.outcome(ApiRoute.MAP_META, EndpointMetrics.Outcome.SERVED_FROM_ZONE)
 
     return MapMeta(
       info.worldMapVersion,
@@ -98,9 +102,11 @@ class MapController(
     val revalidate = CacheControl.noCache().cachePrivate()
 
     if (reply.status == BusReply.Status.NOT_MODIFIED) {
+      metrics.outcome(ApiRoute.MAP_SERVICES, EndpointMetrics.Outcome.CLIENT_304)
       return ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(services.etag).cacheControl(revalidate).build()
     }
 
+    metrics.outcome(ApiRoute.MAP_SERVICES, EndpointMetrics.Outcome.SERVED_FROM_ZONE)
     val listed = services.services.map {
       Service(it.id, it.kind, it.business, it.x, it.y, it.settlement, it.openFrom, it.openTo)
     }
@@ -123,17 +129,23 @@ class MapController(
 
     if (reply.status == BusReply.Status.OK) {
       tiles.remember(masterId, path, tile.etag, reply.body)
+      metrics.outcome(ApiRoute.MAP_TILE, EndpointMetrics.Outcome.SERVED_FROM_ZONE)
+      metrics.bodySent(ApiRoute.MAP_TILE, reply.body.size)
       return png(tile, reply.body)
     }
 
     if (ifNoneMatch == tile.etag) {
+      metrics.outcome(ApiRoute.MAP_TILE, EndpointMetrics.Outcome.CLIENT_304)
       return ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(tile.etag).cacheControl(cacheControl(tile.shared)).build()
     }
 
     // Not modified against the copy this service holds, so the bytes are here - unless the cache let them go
     // between the check above and now, in which case the zone is asked once more, unconditionally.
-    val bytes = tiles.bytes(tile.etag)
+    val cached = tiles.bytes(tile.etag)
+    val bytes = cached
       ?: zone.ask(accountId, ZoneQuery.MapTile(masterId, level, x, y, null)).also { it.answerOrThrow<ZoneAnswer.Tile>() }.body
+    metrics.outcome(ApiRoute.MAP_TILE, if (cached != null) EndpointMetrics.Outcome.CACHE_REVALIDATED else EndpointMetrics.Outcome.EVICTED_REFETCH)
+    metrics.bodySent(ApiRoute.MAP_TILE, bytes.size)
     tiles.remember(masterId, path, tile.etag, bytes)
     return png(tile, bytes)
   }
@@ -157,9 +169,12 @@ class MapController(
     val revalidate = CacheControl.noCache().cachePrivate()
 
     if (reply.status == BusReply.Status.NOT_MODIFIED) {
+      metrics.outcome(ApiRoute.MAP_HABITAT, EndpointMetrics.Outcome.CLIENT_304)
       return ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(tile.etag).cacheControl(revalidate).build()
     }
 
+    metrics.outcome(ApiRoute.MAP_HABITAT, EndpointMetrics.Outcome.SERVED_FROM_ZONE)
+    metrics.bodySent(ApiRoute.MAP_HABITAT, reply.body.size)
     return ResponseEntity.ok().eTag(tile.etag).cacheControl(revalidate).contentType(MediaType.IMAGE_PNG).body(reply.body)
   }
 
@@ -176,9 +191,11 @@ class MapController(
     val places = reply.answerOrThrow<ZoneAnswer.Places>()
 
     if (reply.status == BusReply.Status.NOT_MODIFIED) {
+      metrics.outcome(ApiRoute.MAP_PLACES, EndpointMetrics.Outcome.CLIENT_304)
       return ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(places.etag).cacheControl(cacheControl(places.shared)).build()
     }
 
+    metrics.outcome(ApiRoute.MAP_PLACES, EndpointMetrics.Outcome.SERVED_FROM_ZONE)
     return ResponseEntity.ok()
       .eTag(places.etag)
       .cacheControl(cacheControl(places.shared))
