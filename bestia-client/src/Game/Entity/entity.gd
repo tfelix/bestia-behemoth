@@ -118,6 +118,9 @@ var _visual_rotation_target: Quaternion = Quaternion.IDENTITY
 # entity but our own, and cleared the moment the server answers. See predict_path.
 var _predicted_path: Array[Vector3] = []
 var _prediction_deadline_msec: int = 0
+# Whether that walk set off from standing rather than continuing one, which decides what a position push means
+# while it waits - see update_position.
+var _predicted_from_standing: bool = false
 
 # Whether the walk currently running is one we started ourselves, as opposed to one the server handed us for
 # somebody else's entity. Outlives _predicted_path, which only covers the wait for confirmation: we stay a
@@ -603,6 +606,13 @@ func update_position(msg: PositionComponent) -> void:
 	_server_position = new_position
 	_has_position = true
 
+	# A walk set off on from standing is answered by its own path or, refused, by this push and nothing else:
+	# a standing entity sends no resyncs. So this is the refusal. Waiting out the prediction's deadline instead
+	# walked on into the slope or wall that refused it, and snapped back from there - on every click at it.
+	if _predicted_from_standing and not _predicted_path.is_empty():
+		_abandon_prediction()
+		return
+
 	if not _is_moving:
 		# Mid-way reports of a walk we predicted and have already finished. They are a trip old, so they
 		# describe tiles this entity has left; snapping to one walks it backwards and then forwards again.
@@ -707,10 +717,11 @@ func predict_path(waypoints: Array[Vector3]) -> void:
 	_prediction_deadline_msec = Time.get_ticks_msec() + _prediction_grace_msec()
 
 	var node := _joining_node()
-	if node >= 0 and _same_column(_nodes[node], waypoints[0]):
-		_continue_from(node, waypoints, 0)
-	else:
+	_predicted_from_standing = node < 0 or not _same_column(_nodes[node], waypoints[0])
+	if _predicted_from_standing:
 		_follow_path(waypoints)
+	else:
+		_continue_from(node, waypoints, 0)
 
 	_is_predicted_walk = true
 	_awaiting_arrival = true

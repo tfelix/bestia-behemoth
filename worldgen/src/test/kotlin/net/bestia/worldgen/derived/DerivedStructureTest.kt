@@ -680,4 +680,77 @@ class DerivedStructureTest {
       "flat ground either side of a border should connect"
     )
   }
+
+  // --- Slab boundaries -------------------------------------------------------------------------------
+
+  /** Rock up to the very top of the slab in every column: ground whose surface is this slab's ceiling. */
+  private fun solidToTheTop(at: ChunkPos): VoxelChunk {
+    val chunk = VoxelChunk(at, size, height)
+    for (y in 0 until size) {
+      for (x in 0 until size) {
+        for (z in 0 until height) chunk[x, y, z] = BlockType.GRANITE
+      }
+    }
+    return chunk
+  }
+
+  @Test
+  fun `a floor in the top voxel of a slab stands with its head in the slab above`() {
+    // Sea level is a slab boundary, so dry lowland a metre under it is ground like this: the top voxel solid and no
+    // room above it inside the slab. Without the slab above, the floor had no span here and none up there either -
+    // drawn as dirt, refused as a wall.
+    val open = VoxelChunk(pos.copy(z = 1), size, height)
+
+    val tile = WalkableTile.of(solidToTheTop(pos), AgentProfile(height = 2)) { open }
+
+    assertEquals(listOf(height.toDouble()), tile.surfacesAt(3, 3).toList(), "standing on the slab's ceiling")
+  }
+
+  @Test
+  fun `a top floor under rock in the slab above is still no floor`() {
+    val above = VoxelChunk(pos.copy(z = 1), size, height)
+    above[3, 3, 0] = BlockType.GRANITE
+
+    val tile = WalkableTile.of(solidToTheTop(pos), AgentProfile(height = 2)) { above }
+
+    assertEquals(0, tile.spanCountAt(3, 3), "its headroom is rock")
+    assertEquals(1, tile.spanCountAt(4, 4), "while the column beside it is open")
+  }
+
+  @Test
+  fun `the slab above is not asked for when no floor reaches it`() {
+    var asked = false
+
+    WalkableTile.of(flatGround()) {
+      asked = true
+      VoxelChunk(pos.copy(z = 1), size, height)
+    }
+
+    assertFalse(asked, "merging a second chunk for every tile would double what a rebuild costs")
+  }
+
+  @Test
+  fun `an edit invalidates the slab below, whose top floors stand in it`() {
+    val below = pos.copy(z = -1)
+    val store = DerivedStore(voxels = { at -> if (at == below) solidToTheTop(below) else VoxelChunk(at, size, height) })
+
+    store.walkableOf(pos)
+    store.walkableOf(below)
+    store.invalidate(pos)
+
+    assertEquals(setOf(pos, below), store.staleChunks())
+  }
+
+  @Test
+  fun `a step across a slab boundary is compared in one frame`() {
+    // A beach one voxel up in this slab beside lowland at the ceiling of the slab below: one step apart, and every
+    // coast looks like this, because sea level is where the two slabs meet.
+    val below = pos.copy(z = -1)
+    val beach = VoxelChunk(pos, size, height)
+    beach[1, 0, 0] = BlockType.SAND
+    val store = DerivedStore(voxels = { at -> if (at == below) solidToTheTop(below) else beach })
+
+    assertTrue(store.canStep(pos, 1, 0, 1.0, below, 0, 0, slabShift = height.toDouble()), "down onto the lowland")
+    assertFalse(store.canStep(pos, 1, 0, 1.0, below, 0, 0), "measured from two floors the lowland is a slab away")
+  }
 }

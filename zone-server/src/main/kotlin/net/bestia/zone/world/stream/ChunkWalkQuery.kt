@@ -51,26 +51,32 @@ class ChunkWalkQuery(private val chunkService: ChunkService) : LocalWalkQuery {
 
     val origin = footingAt(from) ?: return false
 
-    // The target column is resolved in the *origin's* slab rather than its own. `DerivedStore.canStep`
-    // compares the two tiles' surface heights directly, and two tiles at different slabs measure from
-    // different floors - so the frame the step starts in is the only one the comparison means anything in.
-    // A step is at most one voxel of rise, so the two ends differ by a slab only right at a boundary, and
-    // treating that as "cannot vouch for it" is the same trade `MoveActiveEntityHandler` already makes.
-    val target = ChunkCoords.localise(config, to.x, to.y, config.voxelBaseOf(origin.chunk).toLong())
-      ?: return false
-    val targetChunk = chunkService.normalise(target.chunk)
+    // The target column in the origin's slab, and failing that in the slabs either side of it, with the
+    // origin's surface moved into the target's frame: two tiles at different slabs measure from different
+    // floors. A step is at most one voxel of rise, so the other slabs can only answer right at a boundary -
+    // and sea level is one. Asking the origin's slab alone walled every beach off from the lowland a metre
+    // under it: the two are one step apart and two slabs.
+    for (slabOffset in SLAB_OFFSETS) {
+      val slabBase = config.voxelBaseOf(origin.chunk) + slabOffset * config.chunkHeight
+      val target = ChunkCoords.localise(config, to.x, to.y, slabBase.toLong()) ?: continue
+      val targetChunk = chunkService.normalise(target.chunk)
 
-    if (!derived.isTracked(targetChunk)) return false
+      if (!derived.isTracked(targetChunk)) continue
 
-    return derived.canStep(
-      from = origin.chunk,
-      fromLocalX = origin.localX,
-      fromLocalY = origin.localY,
-      fromSurface = origin.surface,
-      to = targetChunk,
-      toLocalX = target.localX,
-      toLocalY = target.localY
-    )
+      val stepped = derived.canStep(
+        from = origin.chunk,
+        fromLocalX = origin.localX,
+        fromLocalY = origin.localY,
+        fromSurface = origin.surface,
+        to = targetChunk,
+        toLocalX = target.localX,
+        toLocalY = target.localY,
+        slabShift = (config.voxelBaseOf(origin.chunk) - config.voxelBaseOf(targetChunk)).toDouble()
+      )
+      if (stepped) return true
+    }
+
+    return false
   }
 
   override fun surfaceAt(position: Vec3L): Long? {
@@ -137,6 +143,11 @@ class ChunkWalkQuery(private val chunkService: ChunkService) : LocalWalkQuery {
 
   /** Global voxel z of a position. Named rather than inlined for the reason [ChunkCoords] gives. */
   private fun voxelZOf(position: Vec3L) = position.z * ChunkCoords.VOXELS_PER_POSITION_UNIT
+
+  private companion object {
+    /** The origin's own slab first, since nearly every step stays in it; then the one below and the one above. */
+    val SLAB_OFFSETS = intArrayOf(0, -1, 1)
+  }
 
   /**
    * The standable surface in a column closest to where the entity thinks it is.

@@ -126,18 +126,28 @@ class DerivedStore(
   /**
    * Marks a chunk's structures stale after a delta was applied to it.
    *
-   * Only this chunk. Cross-chunk walkability is resolved at query time from two tiles rather than stored,
-   * so an edit never invalidates a neighbour - which is what keeps the blast radius of placing one block
-   * to exactly one tile.
+   * This chunk and the slab under it, and no horizontal neighbour. Cross-chunk walkability is resolved at query
+   * time from two tiles rather than stored, so an edit never invalidates the chunk beside it - which is what keeps
+   * the blast radius of placing one block small. The slab under it is the exception: its topmost floors stand
+   * with their heads in this chunk (see [WalkableTile.of]), so a block placed here can close them.
    *
    * An edit to a chunk nobody is tracking is dropped, deliberately: there is nothing to keep current, and
    * whenever the chunk is tracked it will be built from the merged voxels the delta is already part of.
    */
   fun invalidate(chunk: ChunkPos) {
+    markStale(chunk)
+    markStale(chunk.copy(z = chunk.z - 1))
+  }
+
+  private fun markStale(chunk: ChunkPos) {
     val entry = entries[chunk] ?: return
     entry.stale = true
     queue.add(chunk)
   }
+
+  /** The walkable surfaces of [merged], whose topmost floors take their headroom from the slab above. */
+  private fun walkableTileOf(chunk: ChunkPos, merged: VoxelChunk): WalkableTile =
+    WalkableTile.of(merged, agent) { voxels(chunk.copy(z = chunk.z + 1)) }
 
   fun forget(chunk: ChunkPos) {
     entries.remove(chunk)
@@ -162,7 +172,7 @@ class DerivedStore(
       // rebuild - so an absent entry is inserted rather than skipped. An existing one is updated in place so
       // that anything holding the entry keeps seeing the current structures.
       val merged = voxels(chunk)
-      val walkable = WalkableTile.of(merged, agent)
+      val walkable = walkableTileOf(chunk, merged)
       val entry = entries[chunk]
 
       if (entry == null) {
@@ -194,6 +204,9 @@ class DerivedStore(
    * numbers, and it never needed either tile to know about the other when it was built.
    *
    * @param fromSurface the surface height being stepped off, in voxel units - see [WalkableTile]
+   * @param slabShift what turns [fromSurface] into a height in [to]'s own frame: 0 when both are one slab, a slab's
+   *   height when [to] is the slab below, minus that when it is the one above. Each tile measures its surfaces
+   *   from its own floor, so a step across a slab boundary compares nothing until one side is moved.
    */
   fun canStep(
     from: ChunkPos,
@@ -202,9 +215,10 @@ class DerivedStore(
     fromSurface: Double,
     to: ChunkPos,
     toLocalX: Int,
-    toLocalY: Int
+    toLocalY: Int,
+    slabShift: Double = 0.0
   ): Boolean {
-    val target = walkableOf(to).stepTarget(toLocalX, toLocalY, fromSurface)
+    val target = walkableOf(to).stepTarget(toLocalX, toLocalY, fromSurface + slabShift)
     if (target < 0.0) return false
     return walkableOf(from).isWalkable(fromLocalX, fromLocalY, ColumnSummary.voxelOf(fromSurface))
   }
@@ -220,7 +234,7 @@ class DerivedStore(
     if (chunk in entries) return null
 
     val merged = voxels(chunk)
-    entries[chunk] = Entry(walkable = WalkableTile.of(merged, agent))
+    entries[chunk] = Entry(walkable = walkableTileOf(chunk, merged))
 
     return merged
   }

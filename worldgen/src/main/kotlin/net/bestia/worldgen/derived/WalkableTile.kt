@@ -181,12 +181,26 @@ class WalkableTile(
      * Nothing here names a material. Both questions it asks - can this bear weight, can I move through it -
      * are answered by a declared property on [BlockType], so a new material's behaviour is decided where it
      * is declared rather than by whether somebody remembered to add it to a `when` in here.
+     *
+     * [above] is the slab on top of this one, and it holds the headroom of every floor in this slab's last
+     * [AgentProfile.height] voxels. Without it those floors had no headroom at all, and the slab above has no
+     * floor of theirs either, so ground just under a slab boundary was walkable in neither. Sea level is one:
+     * dry lowland a metre under it was drawn as ground and refused as a wall. Asked for only when such a floor
+     * comes up; null keeps the old answer, for a caller with no slab above to offer.
      */
-    fun of(voxels: VoxelChunk, agent: AgentProfile = AgentProfile()): WalkableTile {
+    fun of(
+      voxels: VoxelChunk,
+      agent: AgentProfile = AgentProfile(),
+      above: (() -> VoxelChunk)? = null
+    ): WalkableTile {
       val size = voxels.size
       val columns = size * size
       val spanStart = IntArray(columns + 1)
       val found = ArrayList<Double>(columns)
+      val upper = above?.let { lazy(LazyThreadSafetyMode.NONE, it) }
+
+      // The top voxel is a floor only when there is a slab above it to stand in.
+      val floors = if (upper == null) voxels.height - 1 else voxels.height
 
       for (localY in 0 until size) {
         for (localX in 0 until size) {
@@ -195,14 +209,14 @@ class WalkableTile(
           val offset = voxels.columnOffset(localX, localY)
 
           var z = 0
-          while (z < voxels.height - 1) {
+          while (z < floors) {
             val here = BlockType.ofOrNull(voxels.blocks[offset + z].toInt() and 0xFF)
             if (here == null || !here.solid) {
               z++
               continue
             }
 
-            if (hasClearance(voxels, offset, z + 1, agent)) {
+            if (hasClearance(voxels, offset, z + 1, agent, upper)) {
               found.add(z + Occupancy.fractionOf(voxels.occupancy[offset + z].toInt() and 0xFF))
               // Skip the clearance we just verified: the blocks inside an agent's own headroom cannot
               // themselves be floors, and re-testing them is the difference between one pass and several.
@@ -218,27 +232,36 @@ class WalkableTile(
       return WalkableTile(voxels.chunk, size, agent, spanStart, found.toDoubleArray())
     }
 
-    /** Whether an agent standing at [fromZ] has room, allowing for a shallow fluid to wade through. */
+    /**
+     * Whether an agent standing at [fromZ] has room, allowing for a shallow fluid to wade through. Headroom past
+     * this slab's top is read from [above], at the same [offset]: chunks of one world share a shape, so a column
+     * starts at the same index in both.
+     */
     private fun hasClearance(
       voxels: VoxelChunk,
       offset: Int,
       fromZ: Int,
-      agent: AgentProfile
+      agent: AgentProfile,
+      above: Lazy<VoxelChunk>?
     ): Boolean {
-      if (fromZ + agent.height > voxels.height) return false
+      val top = fromZ + agent.height
+      if (top > voxels.height && above == null) return false
 
       // Summed as fractions rather than counted, because the topmost fluid voxel is partly full: an agent
       // whose wading limit is one voxel can stand in 1.0 of water but not 1.3, and counting voxels cannot
       // tell those apart.
       var wade = 0.0
-      for (z in fromZ until fromZ + agent.height) {
-        val block = BlockType.ofOrNull(voxels.blocks[offset + z].toInt() and 0xFF) ?: return false
+      for (z in fromZ until top) {
+        val slab = if (z < voxels.height) voxels else above!!.value
+        val index = offset + if (z < voxels.height) z else z - voxels.height
+
+        val block = BlockType.ofOrNull(slab.blocks[index].toInt() and 0xFF) ?: return false
         // Exhaustive with no `else`, so a new Passability value is a compile error here rather than a
         // material that silently becomes free headroom. That is what this replaced.
         when (block.passability) {
           Passability.OPEN -> Unit
           Passability.SWIMMABLE -> {
-            wade += Occupancy.fractionOf(voxels.occupancy[offset + z].toInt() and 0xFF)
+            wade += Occupancy.fractionOf(slab.occupancy[index].toInt() and 0xFF)
             if (wade > agent.maxWadeDepth) return false
           }
           Passability.BLOCKED -> return false
