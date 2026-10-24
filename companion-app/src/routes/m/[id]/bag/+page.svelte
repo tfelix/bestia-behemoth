@@ -1,20 +1,25 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { getJson } from '$lib/api/client';
-	import type { Holder } from '$lib/api/model';
+	import type { Bestia, Holder } from '$lib/api/model';
 	import Icon from '$lib/components/Icon.svelte';
 	import { guarded } from '$lib/guard';
-	import { itemDescription, itemName } from '$lib/names';
+	import { itemDescription, itemName, speciesName } from '$lib/names';
 
 	const masterId = $derived(Number(page.params.id));
 	let holders = $state<Holder[] | null>(null);
+	/** The species of each Bestia by id, for the one that has no name of its own. */
+	let species = $state<Record<number, string>>({});
 	let failure = $state<string | null>(null);
 	let open = $state<string | null>(null);
 
 	$effect(() => {
 		const id = masterId;
-		guarded(() => getJson<Holder[]>(`/v1/companion/masters/${id}/inventory`))
-			.then((h) => (holders = h))
+		guarded(() => Promise.all([getJson<Holder[]>(`/v1/companion/masters/${id}/inventory`), getJson<Bestia[]>(`/v1/companion/masters/${id}/bestias`)]))
+			.then(([h, roster]) => {
+				species = Object.fromEntries(roster.map((b) => [b.id, speciesName(b.species)]));
+				holders = h;
+			})
 			.catch((e) => (failure = e instanceof Error ? e.message : String(e)));
 	});
 
@@ -34,7 +39,7 @@
 		{#each holders as holder (holder.kind + holder.id)}
 			<section class="panel rise">
 				<div class="head">
-					<h2>{holder.kind === 'MASTER' ? 'Carried' : (holder.name ?? 'Bestia')}</h2>
+					<h2>{holder.kind === 'MASTER' ? 'Carried' : (holder.name ?? species[holder.id] ?? 'Bestia')}</h2>
 					<span class="coin"><Icon name="coin" size={18} /> {gold(holder)}</span>
 				</div>
 				{#if holder.slots.length === 0}

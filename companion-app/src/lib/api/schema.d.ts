@@ -608,6 +608,8 @@ export interface components {
             position: components["schemas"]["Position"];
             /** Format: int64 */
             asOf: number;
+            /** Format: double */
+            metresPerSecond: number;
             journey?: components["schemas"]["Journey"];
         };
         Journey: {

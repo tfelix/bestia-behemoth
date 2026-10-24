@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { appendLine, lineOf, refusalText, type ChatLine } from './chatLog';
+import { appendLine, closedReason, lineOf, refusalText, type ChatLine } from './chatLog';
 
 function line(id: string): ChatLine {
 	return { id, masterId: 5, channel: 'PARTY', senderName: 'Ayla', text: id, sentAt: 1 };
@@ -37,12 +37,23 @@ describe('appendLine', () => {
 });
 
 describe('refusalText', () => {
-	it('names the group the master is not in', () => {
-		expect(refusalText(409, 'PARTY')).toBe('This Master is in no party.');
-		expect(refusalText(409, 'GUILD')).toBe('This Master is in no guild.');
+	it('names what is missing for chat', () => {
+		expect(refusalText(403)).toBe('Chat needs Basic Skill Lv. 2.');
 	});
 
 	it('leaves other failures to the generic message', () => {
-		expect(refusalText(503, 'PARTY')).toBeNull();
+		expect(refusalText(503)).toBeNull();
+	});
+});
+
+describe('closedReason', () => {
+	it('closes the channel of a group the master is in none of', () => {
+		expect(closedReason('GUILD', { party: true, guild: false })).toBe('You are in no guild.');
+		expect(closedReason('PARTY', { party: false, guild: true })).toBe('You are in no party.');
+	});
+
+	it('leaves a channel open while it is in a group, or not known yet', () => {
+		expect(closedReason('GUILD', { party: false, guild: true })).toBeNull();
+		expect(closedReason('GUILD', { party: null, guild: null })).toBeNull();
 	});
 });

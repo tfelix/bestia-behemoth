@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import { page } from '$app/state';
 	import TabBar from '$lib/components/TabBar.svelte';
+	import { rememberMaster } from '$lib/lastMaster';
 	import { live } from '$lib/live.svelte';
 	// Imported for its listener: the chat log has to be listening before the socket replays what it missed.
 	import '$lib/chat.svelte';
@@ -10,6 +11,9 @@
 	const masterId = $derived(Number(page.params.id));
 
 	onMount(() => live.start());
+
+	// The next start of the app, or sign-in, opens this Master again.
+	$effect(() => rememberMaster(masterId));
 </script>
 
 <header class="bar">

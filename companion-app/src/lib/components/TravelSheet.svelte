@@ -2,19 +2,22 @@
 	import type { Bestia, Position, Route } from '$lib/api/model';
 	import { bestiaColor } from '$lib/map/slotColors';
 	import { speciesName } from '$lib/names';
-	import { distance, distanceText, travelStatus } from '$lib/travel';
+	import { distance, distanceText, routeLength, travelStatus, travelTimeText } from '$lib/travel';
 
 	/**
 	 * Where the bestias are going, and the order being drafted for one: the half of the map page a journey is
-	 * planned from. The page does the asking; this only shows and collects.
+	 * planned from. A tap on the map makes a one-stop draft; with [adding] on, each further tap is one more stop.
+	 * The page does the asking; this only shows and collects.
 	 */
 	let {
 		bestias,
 		routes,
-		selectedId = $bindable(),
+		selectedId,
+		adding = $bindable(),
 		draft,
 		busy,
 		note,
+		onselect,
 		onsend,
 		onclear,
 		onsave,
@@ -26,9 +29,11 @@
 		bestias: Bestia[];
 		routes: Route[];
 		selectedId: number | null;
+		adding: boolean;
 		draft: Position[];
 		busy: boolean;
 		note: string | null;
+		onselect: (bestia: Bestia) => void;
 		onsend: () => void;
 		onclear: () => void;
 		onsave: () => void;
@@ -44,6 +49,12 @@
 
 	const selected = $derived(bestias.find((b) => b.id === selectedId) ?? null);
 	const canOrder = $derived(selected !== null && selected.inWorld && !busy);
+	const length = $derived(selected ? routeLength(selected.position, draft) : 0);
+
+	// A new draft is what the player is looking for: open the sheet to it.
+	$effect(() => {
+		if (draft.length > 0) open = true;
+	});
 
 	function legs(stops: Position[]): string[] {
 		return stops.map((stop, i) => {
@@ -69,6 +80,8 @@
 		<span class="muted">{open ? 'Hide' : selected ? (selected.name ?? speciesName(selected.species)) : 'Send a Bestia'}</span>
 	</button>
 
+	{#if note}<p class="note">{note}</p>{/if}
+
 	{#if open}
 		<div class="chips" role="radiogroup" aria-label="Bestia to send">
 			{#each bestias as b, i (b.id)}
@@ -78,7 +91,7 @@
 					class:away={!b.inWorld}
 					role="radio"
 					aria-checked={b.id === selectedId}
-					onclick={() => (selectedId = b.id)}
+					onclick={() => onselect(b)}
 				>
 					<span class="dot" style:background={bestiaColor(i)}></span>
 					{b.name ?? speciesName(b.species)}
@@ -94,27 +107,40 @@
 				{/if}
 			</p>
 
-			{#if selected.inWorld}
+			{#if !selected.inWorld}
+				<p class="muted hint">It cannot be sent anywhere until you are back in the world.</p>
+			{:else}
 				{#if draft.length === 0}
-					<p class="muted hint">Tap the map to add stops, then send.</p>
+					<p class="muted hint">
+						{adding ? 'Tap the map to add the first stop.' : 'Tap the map to choose where it goes.'}
+					</p>
 				{:else}
-					<ol class="stops">
-						{#each legs(draft) as leg, i (i)}
-							<li>{i === 0 ? leg : `+${leg}`}</li>
-						{/each}
-					</ol>
+					<div class="plan">
+						<p class="summary" title="As the crow flies; the way round obstacles is longer.">
+							<strong>About {distanceText(length)}</strong>
+							<span>{travelTimeText(length, selected.metresPerSecond)}</span>
+						</p>
+						{#if draft.length > 1}
+							<ol class="stops">
+								{#each legs(draft) as leg, i (i)}
+									<li>{i === 0 ? leg : `+${leg}`}</li>
+								{/each}
+							</ol>
+						{/if}
+					</div>
 				{/if}
 				<div class="actions">
-					<button class="btn primary" disabled={!canOrder || draft.length === 0} onclick={onsend}>Send</button>
-					<button class="btn" disabled={draft.length === 0} onclick={onclear}>Clear</button>
-					<button class="btn" disabled={!canOrder || draft.length === 0} onclick={onsave}>Keep as route</button>
+					<button class="btn primary" disabled={!canOrder || draft.length === 0} onclick={onsend}>Go</button>
+					<button class="btn" disabled={draft.length === 0 && !adding} onclick={onclear}>Cancel</button>
+					<button class="btn" class:on={adding} aria-pressed={adding} onclick={() => (adding = !adding)}>
+						{adding ? 'Adding stops' : 'Add stops'}
+					</button>
+					<button class="btn" disabled={!canOrder || draft.length === 0} onclick={onsave}>Save route</button>
 				</div>
 			{/if}
 		{:else}
 			<p class="muted hint">Pick a Bestia to send it somewhere.</p>
 		{/if}
-
-		{#if note}<p class="note">{note}</p>{/if}
 
 		<h2 class="label">Routes</h2>
 		{#if routes.length === 0}
@@ -211,6 +237,17 @@
 		font-size: 0.85rem;
 	}
 
+	.plan {
+		margin: 0.25rem 0 0.5rem;
+	}
+
+	.summary {
+		display: flex;
+		justify-content: space-between;
+		gap: 0.5rem;
+		margin: 0;
+	}
+
 	.stops {
 		margin: 0.25rem 0;
 		padding-left: 1.4rem;
@@ -223,8 +260,14 @@
 		gap: 0.4rem;
 	}
 
+	.btn.on {
+		border-color: var(--brass);
+		color: var(--brass);
+		box-shadow: inset 0 0 0 1px rgb(201 164 92 / 30%);
+	}
+
 	.note {
-		margin: 0.4rem 0 0;
+		margin: 0.4rem 0 0.2rem;
 		color: var(--warn);
 		font-size: 0.85rem;
 	}

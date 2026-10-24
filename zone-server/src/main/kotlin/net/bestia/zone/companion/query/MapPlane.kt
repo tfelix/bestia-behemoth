@@ -17,6 +17,11 @@ class MapPlane(private val worldService: WorldService) {
     return position.y * worldService.config.voxelSize
   }
 
+  /** A speed in voxels a second, the unit the movement system walks in, as metres a second. */
+  fun metresPerSecond(voxelsPerSecond: Float): Double {
+    return voxelsPerSecond * worldService.config.voxelSize
+  }
+
   fun pointOf(position: Vec3L): MapPoint {
     return MapPoint(eastMetres(position), northMetres(position))
   }

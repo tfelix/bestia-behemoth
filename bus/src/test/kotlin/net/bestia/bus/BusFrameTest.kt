@@ -56,7 +56,7 @@ class BusFrameTest {
     val answers = listOf(
       ZoneAnswer.Masters(listOf(ZoneAnswer.Masters.Master(1, 0, "Ayla", 3, "Ashfen", true))),
       ZoneAnswer.Sheet(1, "Ayla", 3, 40, 1, 2, 10, 11, 12, 13, 14, 15, 18, "Ashfen", 61134.0, 27383.0, false, 99),
-      ZoneAnswer.Roster(listOf(ZoneAnswer.Roster.Bestia(2, "Blobby", 1, "blob", 4, "HOLD", 20, true, 1.5, 2.5, 7))),
+      ZoneAnswer.Roster(listOf(ZoneAnswer.Roster.Bestia(2, "Blobby", 1, "blob", 4, "HOLD", 20, true, 1.5, 2.5, 7, 4.0))),
       ZoneAnswer.Bag(listOf(ZoneAnswer.Bag.Holder("MASTER", 1, "Ayla", listOf(ZoneAnswer.Bag.Slot(3, "apple", 5, null, 0, 0, 0))))),
       ZoneAnswer.PartyInfo(ZoneAnswer.PartyInfo.Party("P", 1, listOf(ZoneAnswer.PartyInfo.Member(1, "Ayla", 3, true)))),
       ZoneAnswer.CatalogData("v", listOf(ZoneAnswer.CatalogData.Item(1, "apple", "USABLE", 15, null, true)),
@@ -72,7 +72,7 @@ class BusFrameTest {
       ZoneAnswer.Roster(
         listOf(
           ZoneAnswer.Roster.Bestia(
-            2, "Blobby", 1, "blob", 4, "HOLD", 20, true, 1.5, 2.5, 7,
+            2, "Blobby", 1, "blob", 4, "HOLD", 20, true, 1.5, 2.5, 7, 4.0,
             ZoneAnswer.Journey("Ore run", listOf(MapPoint(9.0, 9.0)), 0, listOf(MapPoint(5.0, 5.0))),
           )
         )

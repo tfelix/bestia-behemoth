@@ -56,3 +56,20 @@ export function distance(a: Position, b: Position): number {
 export function distanceText(metres: number): string {
 	return metres >= 1000 ? `${(metres / 1000).toFixed(1)} km` : `${Math.round(metres)} m`;
 }
+
+/** The straight-line length of the way from [from] through every one of [stops]; the world finds the real way round. */
+export function routeLength(from: Position, stops: Position[]): number {
+	return stops.reduce((sum, stop, i) => sum + distance(i === 0 ? from : stops[i - 1], stop), 0);
+}
+
+/** How long [metres] take at [metresPerSecond], in the words of a trip: "3 min", "1 h 5 min". */
+export function travelTimeText(metres: number, metresPerSecond: number): string {
+	if (metresPerSecond <= 0) return 'unknown';
+
+	const minutes = Math.round(metres / metresPerSecond / 60);
+	if (minutes < 1) return 'under a minute';
+	if (minutes < 60) return `${minutes} min`;
+
+	const rest = minutes % 60;
+	return rest === 0 ? `${Math.floor(minutes / 60)} h` : `${Math.floor(minutes / 60)} h ${rest} min`;
+}
