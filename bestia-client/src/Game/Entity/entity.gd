@@ -151,6 +151,7 @@ const _CORRECTION_IGNORE: float = 0.4    # metres of desync trusted as latency, 
 const _CORRECTION_TIME: float = 0.25     # seconds to bleed a correction back in
 const _CORRECTION_MAX_BOOST: float = 2.5 # cap on extra metres/sec while catching up
 const _SNAP_METRES: float = 2.5          # desync this large just snaps
+const _WARN_CORRECTION_METRES: float = 1.0  # a correction this large is logged, see _warn_correction
 # Shortest an unconfirmed prediction may be given, whatever the measured round trip says. A local server
 # reports well under a millisecond, and letting the grace follow it down would abandon a good prediction
 # over one hitched frame.
@@ -219,6 +220,7 @@ func _update_movement(delta: float) -> void:
 		# Way out of sync (teleport, long stall, dropped packets): jump - backwards too, if that is where
 		# the server is. The floor below used to apply here as well, which silently threw away every
 		# correction that pointed behind us and left an over-run uncorrected for good.
+		_warn_correction("snap along path", absf(_error), "error beyond %.1f m" % _SNAP_METRES)
 		step += _error
 		_error = 0.0
 		snapping = true
@@ -306,6 +308,23 @@ func _report_footfall(node: int) -> void:
 ## step, so that a metre here is a metre there.
 func _ground_distance(from: Vector3, to: Vector3) -> float:
 	return Vector2(to.x - from.x, to.z - from.z).length()
+
+
+## Logs a movement correction big enough to be seen as a snap or a lurch, with the state that explains it.
+##
+## [param kind] names the code path that corrected, [param metres] is how far it moved or will move the entity.
+## Everything else is the walk state at that moment, so a log line alone says whether it was a prediction
+## that lost to the server, a path that never joined, or a plain teleport.
+func _warn_correction(kind: String, metres: float, detail: String = "") -> void:
+	if metres < _WARN_CORRECTION_METRES:
+		return
+
+	var total := 0.0 if _arc.is_empty() else _arc[_arc.size() - 1]
+	push_warning(
+		"[correction] entity %d %s: %.2f m (%s) | speed %.2f, moving %s, predicted walk %s, unanswered prediction %s, awaiting arrival %s, travelled %.2f/%.2f m over %d nodes, server %s, drawn %s" % [
+			entity_id, kind, metres, detail, _speed, _is_moving, _is_predicted_walk,
+			not _predicted_path.is_empty(), _awaiting_arrival, _travelled, total, _nodes.size(),
+			_server_position, _logical_position])
 
 
 ## Asks the visual for a pose, but only when it is not the one already asked for.
@@ -623,6 +642,8 @@ func update_position(msg: PositionComponent) -> void:
 			return
 
 		# Nothing to reconcile against, just snap.
+		_warn_correction("snap while standing", _ground_distance(_logical_position, new_position),
+			"position push with no walk to reconcile against")
 		_logical_position = new_position
 		_error = 0.0
 		_snap_ground_offset()
@@ -632,6 +653,8 @@ func update_position(msg: PositionComponent) -> void:
 	if idx < 0:
 		# Server is off our predicted path (new route/teleport): snap and stop. Whatever we were predicting
 		# is settled by this - the server has stated a position that is not on the path at all.
+		_warn_correction("snap off path", _ground_distance(_logical_position, new_position),
+			"server position not on the walk we are following")
 		_logical_position = new_position
 		_nodes = [new_position]
 		_arc.clear()
@@ -665,6 +688,7 @@ func update_position(msg: PositionComponent) -> void:
 	if _is_predicted_walk and e < 0.0 and absf(e) <= _SNAP_METRES:
 		return
 
+	_warn_correction("catch-up", absf(e), "server node %d, we are %s it" % [idx, "behind" if e < 0.0 else "ahead of"])
 	_error = e
 
 
@@ -893,6 +917,11 @@ func _follow_path(waypoints: Array[Vector3], start_offset: float = 0.0) -> void:
 ## The walk is over - finished, or cut short by combat, sleep, death, a stop or a teleport. Only the
 ## first leaves us where the server is, hence the stop position; snapped, since _error is dropped.
 func _stop_at(msg: PathComponentSMSG) -> void:
+	if msg.HasStopPosition:
+		# Before the state below is cleared, which is the context the warning is for.
+		_warn_correction("snap to stop", _ground_distance(_logical_position, msg.StopPosition),
+			"stop position differs from where we stand")
+
 	_is_moving = false
 	_predicted_path.clear()
 	_is_predicted_walk = false
