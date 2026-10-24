@@ -57,6 +57,8 @@ sealed interface ZoneAnswer {
       val eastMetres: Double,
       val northMetres: Double,
       val asOfEpochMs: Long,
+      /** How far it walks in a second, buffs included, so the app can tell how long a way takes. */
+      val metresPerSecond: Double,
       /** Where it is travelling, null when it stands. */
       val journey: Journey? = null,
     )

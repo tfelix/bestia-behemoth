@@ -61,6 +61,7 @@ class MastersController(
     val inWorld: Boolean,
     val position: Position,
     val asOf: Long,
+    val metresPerSecond: Double,
     /** Where it is travelling, null when it stands. */
     val journey: Journey?,
   )
@@ -161,6 +162,7 @@ class MastersController(
         inWorld = it.inWorld,
         position = Position(it.eastMetres, it.northMetres),
         asOf = it.asOfEpochMs,
+        metresPerSecond = it.metresPerSecond,
         journey = it.journey?.let { journey ->
           Journey(
             name = journey.name,

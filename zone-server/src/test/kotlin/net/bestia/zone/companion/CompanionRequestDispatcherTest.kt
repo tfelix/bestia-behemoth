@@ -75,6 +75,7 @@ class CompanionRequestDispatcherTest {
     assertEquals(master.name, sheet.name)
     assertIs<ZoneAnswer.Roster>(roster)
     assertEquals(playerBestias.findAllByMasterId(master.id).size, roster.bestias.size)
+    assertTrue(roster.bestias.all { it.metresPerSecond > 0.0 })
     assertIs<ZoneAnswer.Bag>(bag)
     assertEquals(listOf("MASTER") + roster.bestias.map { "BESTIA" }, bag.holders.map { it.kind })
   }

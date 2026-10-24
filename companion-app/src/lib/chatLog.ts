@@ -40,16 +40,23 @@ export function appendLine(lines: ChatLine[], line: ChatLine, cap: number = MAX_
 	return [...lines, line].slice(-cap);
 }
 
-/** What to tell the writer when the api-server refused their line. */
-export function refusalText(status: number, channel: Channel): string | null {
+/** What to tell the writer when the api-server refused their line; null for what the generic message says better. */
+export function refusalText(status: number): string | null {
 	switch (status) {
 		case 403:
 			return 'Chat needs Basic Skill Lv. 2.';
-		case 409:
-			return channel === 'PARTY' ? 'This Master is in no party.' : 'This Master is in no guild.';
 		case 400:
 			return `A line is 1 to ${MAX_TEXT_LENGTH} characters.`;
 		default:
 			return null;
 	}
+}
+
+/** Whether the master is in a party and in a guild; null for what is not known yet. */
+export type Membership = { party: boolean | null; guild: boolean | null };
+
+/** Why [channel] cannot be spoken on, for a tooltip; null while it can, or while nothing is known to say it cannot. */
+export function closedReason(channel: Channel, membership: Membership): string | null {
+	if (channel === 'PARTY') return membership.party === false ? 'You are in no party.' : null;
+	return membership.guild === false ? 'You are in no guild.' : null;
 }

@@ -5,6 +5,7 @@ import net.bestia.zone.account.persistence.PlayerBestiaRepository
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.movement.ecs.Position
+import net.bestia.zone.movement.ecs.Speed
 import net.bestia.zone.travel.Journey
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -33,6 +34,9 @@ class BestiaQueries(
     val travelling: Map<Long, ZoneAnswer.Journey> = world.read {
       entityIds.mapNotNull { id -> get(id, Journey::class)?.let { id to journeyOf(it) } }.toMap()
     }
+    val speeds: Map<Long, Float> = world.read {
+      entityIds.mapNotNull { id -> get(id, Speed::class)?.let { id to it.speed } }.toMap()
+    }
     val now = System.currentTimeMillis()
 
     return ZoneAnswer.Roster(
@@ -52,6 +56,8 @@ class BestiaQueries(
           eastMetres = plane.eastMetres(position),
           northMetres = plane.northMetres(position),
           asOfEpochMs = if (here != null) now else row.persistedAtEpochMs,
+          // One at rest walks at the speed it spawns with.
+          metresPerSecond = plane.metresPerSecond(row.entityId?.let { speeds[it] } ?: Speed().speed),
           journey = row.entityId?.let { travelling[it] },
         )
       }

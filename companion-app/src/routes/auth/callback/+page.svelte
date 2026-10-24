@@ -3,13 +3,14 @@
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import { finishLogin } from '$lib/auth';
+	import { landingPath } from '$lib/lastMaster';
 
 	let failure = $state<string | null>(null);
 
 	onMount(async () => {
 		try {
 			await finishLogin(page.url);
-			await goto('/masters', { replaceState: true });
+			await goto(await landingPath(), { replaceState: true });
 		} catch (e) {
 			failure = e instanceof Error ? e.message : String(e);
 		}

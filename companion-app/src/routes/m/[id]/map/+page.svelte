@@ -23,12 +23,19 @@
 	let bestias = $state<Bestia[]>([]);
 	let routes = $state<Route[]>([]);
 	let selectedId = $state<number | null>(null);
+	/** The master as the map draws it; its sheet comes apart from the roster, so its marker is kept here. */
+	let master = $state<{ name: string; position: Position } | null>(null);
 	let draft = $state<Position[]>([]);
+	/** Whether a tap on the map adds a stop to the draft rather than starting a new one. */
+	let adding = $state(false);
 	let busy = $state(false);
 	let note = $state<string | null>(null);
 	/** Where a journey gave up, by bestia, from the live event; shown until that bestia sets off again. */
 	let gaveUpAt = $state<Record<number, Position>>({});
-	let travelLayers: { journeys: L.LayerGroup; draft: L.LayerGroup; failures: L.LayerGroup } | null = null;
+	let travelLayers = $state.raw<{ markers: L.LayerGroup; journeys: L.LayerGroup; draft: L.LayerGroup; failures: L.LayerGroup } | null>(null);
+	let map: L.Map | null = null;
+
+	const selected = $derived(bestias.find((b) => b.id === selectedId) ?? null);
 
 	$effect(() => {
 		const id = habitat;
@@ -48,8 +55,8 @@
 		const species = habitat;
 		if (!element) return;
 
-		let map: L.Map | null = null;
-		const markers = L.layerGroup();
+		let leaflet: L.Map | null = null;
+		let gone = false;
 		// Per visit: tiles and place lists already asked for, so zooming and panning back over them costs nothing.
 		const cache = new ChartCache();
 
@@ -59,20 +66,18 @@
 				getJson<Bestia[]>(`/v1/companion/masters/${id}/bestias`)
 			]);
 			bestias = roster;
+			master = { name: sheet.name, position: sheet.position };
 			if (selectedId === null || !roster.some((b) => b.id === selectedId)) {
-				selectedId = roster.find((b) => b.inWorld)?.id ?? null;
+				// One that rests is picked too when none stands in the world, so the sheet can say why it cannot be sent.
+				selectedId = (roster.find((b) => b.inWorld) ?? roster[0])?.id ?? null;
 			}
-			markers.clearLayers();
-			roster.forEach((b, i) => {
-				marker(latLng(b.position), bestiaColor(i), b.name ?? speciesName(b.species)).addTo(markers);
-			});
-			marker(latLng(sheet.position), MASTER_COLOR, sheet.name).addTo(markers);
 			return sheet;
 		};
 
 		guarded(async () => {
 			const meta = await getJson<MapMeta>(`/v1/companion/masters/${id}/map/meta`);
-			map = L.map(element, {
+			if (gone) return;
+			leaflet = L.map(element, {
 				crs: L.CRS.Simple,
 				minZoom: -meta.maxLevel,
 				maxZoom: MAX_ZOOM,
@@ -83,16 +88,23 @@
 					[meta.worldHeightMetres * 1.1, meta.worldWidthMetres * 1.1]
 				]
 			});
-			chartLayer(id, meta, cache).addTo(map);
-			if (species !== 0) habitatLayer(id, species, meta, cache).addTo(map);
-			placeLabels(id, map, meta, cache).addTo(map);
-			travelLayers = { journeys: L.layerGroup().addTo(map), draft: L.layerGroup().addTo(map), failures: L.layerGroup().addTo(map) };
-			markers.addTo(map);
-			map.on('click', (e: L.LeafletMouseEvent) => addStop({ eastMetres: e.latlng.lng, northMetres: e.latlng.lat }));
+			map = leaflet;
+			chartLayer(id, meta, cache).addTo(leaflet);
+			if (species !== 0) habitatLayer(id, species, meta, cache).addTo(leaflet);
+			placeLabels(id, leaflet, meta, cache).addTo(leaflet);
+			leaflet.on('click', (e: L.LeafletMouseEvent) => tapMap({ eastMetres: e.latlng.lng, northMetres: e.latlng.lat }));
 			routes = await getJson<Route[]>(`/v1/companion/masters/${id}/routes`);
 
 			const sheet = await placeMarkers();
-			map.setView([sheet.position.northMetres, sheet.position.eastMetres], -3);
+			if (gone) return;
+			leaflet.setView([sheet.position.northMetres, sheet.position.eastMetres], -3);
+			// Last, so what the layers draw first already has the roster.
+			travelLayers = {
+				markers: L.layerGroup().addTo(leaflet),
+				journeys: L.layerGroup().addTo(leaflet),
+				draft: L.layerGroup().addTo(leaflet),
+				failures: L.layerGroup().addTo(leaflet)
+			};
 		}).catch((e) => (failure = e instanceof Error ? e.message : String(e)));
 
 		const unsubscribe = live.on((event) => {
@@ -103,10 +115,26 @@
 		});
 
 		return () => {
+			gone = true;
 			unsubscribe();
 			travelLayers = null;
-			map?.remove();
+			map = null;
+			leaflet?.remove();
 		};
+	});
+
+	// Every pin: the master, and each bestia in its colour, ringed when it is the one being sent. A tap on one picks it.
+	$effect(() => {
+		const layers = travelLayers;
+		if (!layers) return;
+
+		layers.markers.clearLayers();
+		bestias.forEach((b, i) => {
+			marker(latLng(b.position), bestiaColor(i), nameOf(b), { chosen: b.id === selectedId, away: !b.inWorld })
+				.on('click', () => select(b))
+				.addTo(layers.markers);
+		});
+		if (master) marker(latLng(master.position), MASTER_COLOR, master.name).addTo(layers.markers);
 	});
 
 	// Every journey in its bestia's colour, and where any gave up. Redrawn whenever the roster or the draft moves.
@@ -131,7 +159,6 @@
 		}
 
 		layers.draft.clearLayers();
-		const selected = bestias.find((b) => b.id === selectedId);
 		if (selected && draft.length > 0) {
 			const colour = bestiaColor(bestias.indexOf(selected));
 			L.polyline([selected.position, ...draft].map(latLng), { color: colour, weight: 3, dashArray: '6 6' }).addTo(layers.draft);
@@ -139,10 +166,51 @@
 		}
 	});
 
-	function addStop(at: Position) {
-		const selected = bestias.find((b) => b.id === selectedId);
-		if (!selected?.inWorld || draft.length >= MAX_STOPS) return;
-		draft = [...draft, at];
+	function nameOf(b: Bestia): string {
+		return b.name ?? speciesName(b.species);
+	}
+
+	/** Picks the bestia to send; a draft made for another is dropped. */
+	function select(b: Bestia) {
+		if (b.id !== selectedId) {
+			draft = [];
+			adding = false;
+		}
+		selectedId = b.id;
+		note = null;
+	}
+
+	/** Picked from the list rather than the map: the map goes to where it stands. */
+	function pick(b: Bestia) {
+		select(b);
+		map?.panTo(latLng(b.position));
+	}
+
+	/** A tap on the map is where the selected bestia should go; with stops being added, one stop further. */
+	function tapMap(at: Position) {
+		if (!selected) {
+			note = 'Pick a Bestia first: tap it on the map or in the list.';
+			return;
+		}
+		if (!selected.inWorld) {
+			note = `${nameOf(selected)} rests until you are back in the world.`;
+			return;
+		}
+
+		note = null;
+		if (!adding) {
+			draft = [at];
+		} else if (draft.length >= MAX_STOPS) {
+			note = `A journey has at most ${MAX_STOPS} stops.`;
+		} else {
+			draft = [...draft, at];
+		}
+	}
+
+	function cancel() {
+		draft = [];
+		adding = false;
+		note = null;
 	}
 
 	function noteJourneyEnded(data: Record<string, unknown>) {
@@ -174,6 +242,7 @@
 			await sendJourney(masterId, id, { waypoints: stops, reverse: false }, key);
 			forgetGaveUp(id);
 			draft = [];
+			adding = false;
 		});
 	}
 
@@ -192,13 +261,13 @@
 
 	/** A route starts where the bestia it was drafted for stands, so it can be walked back the other way too. */
 	function keepRoute() {
-		const selected = bestias.find((b) => b.id === selectedId);
 		if (!selected) return;
 		const waypoints = [selected.position, ...draft];
 		void order(async (key) => {
 			try {
 				routes = await saveRoute(masterId, waypoints, '', key);
 				draft = [];
+				adding = false;
 			} catch (e) {
 				if (e instanceof ApiError && e.status === 400) throw new Error('You keep as many routes as you may. Forget one first.');
 				throw e;
@@ -232,10 +301,11 @@
 		return [at.northMetres, at.eastMetres];
 	}
 
-	function marker(at: L.LatLngExpression, colour: string, title: string): L.Marker {
+	function marker(at: L.LatLngExpression, colour: string, title: string, state: { chosen?: boolean; away?: boolean } = {}): L.Marker {
+		const classes = ['pin', state.chosen ? 'chosen' : '', state.away ? 'away' : ''].join(' ').trim();
 		return L.marker(at, {
 			title,
-			icon: L.divIcon({ className: 'pin', html: `<span style="background:${colour}"></span>`, iconSize: [18, 18], iconAnchor: [9, 9] })
+			icon: L.divIcon({ className: classes, html: `<span style="background:${colour}"></span>`, iconSize: [18, 18], iconAnchor: [9, 9] })
 		}).bindTooltip(title, { direction: 'top', offset: [0, -8] });
 	}
 
@@ -261,12 +331,14 @@
 			<TravelSheet
 				{bestias}
 				{routes}
-				bind:selectedId
+				{selectedId}
+				bind:adding
 				{draft}
 				{busy}
 				{note}
+				onselect={pick}
 				onsend={send}
-				onclear={() => (draft = [])}
+				onclear={cancel}
 				onsave={keepRoute}
 				onstop={stop}
 				onroute={sendAlong}
@@ -275,7 +347,7 @@
 			/>
 		{/if}
 	</div>
-	<p class="legend label">Each Bestia's way is drawn in its colour · fog is ground you have not charted</p>
+	<p class="legend label">Tap a Bestia, then the map, to send it · each way is drawn in its Bestia's colour · fog is ground you have not charted</p>
 </main>
 
 <style>
@@ -324,6 +396,16 @@
 		border: 2px solid #1a1410;
 		border-radius: 50%;
 		box-shadow: 0 0 0 2px var(--brass), 0 2px 6px rgb(0 0 0 / 60%);
+	}
+
+	/* The one a tap on the map sends. */
+	.map :global(.pin.chosen span) {
+		box-shadow: 0 0 0 2px #fff, 0 0 0 5px var(--brass), 0 2px 8px rgb(0 0 0 / 70%);
+	}
+
+	/* One that rests until its master is back: seen where it was left, but cannot be sent. */
+	.map :global(.pin.away span) {
+		opacity: 0.55;
 	}
 
 	.map :global(.stop span) {

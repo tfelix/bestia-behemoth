@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Bestia } from '$lib/api/model';
-import { distanceText, stopsAhead, travelStatus, wayAhead } from './travel';
+import { distanceText, routeLength, stopsAhead, travelStatus, travelTimeText, wayAhead } from './travel';
 
 const here = { eastMetres: 0, northMetres: 0 };
 
@@ -16,6 +16,7 @@ function bestia(overrides: Partial<Bestia>): Bestia {
 		inWorld: true,
 		position: here,
 		asOf: 0,
+		metresPerSecond: 4,
 		...overrides
 	};
 }
@@ -46,5 +47,20 @@ describe('travel', () => {
 	it('words a distance in metres, then kilometres', () => {
 		expect(distanceText(420)).toBe('420 m');
 		expect(distanceText(1530)).toBe('1.5 km');
+	});
+
+	it('adds up the legs from where the bestia stands', () => {
+		const stops = [{ eastMetres: 30, northMetres: 40 }, { eastMetres: 30, northMetres: 140 }];
+
+		expect(routeLength(here, stops)).toBe(150);
+		expect(routeLength(here, [])).toBe(0);
+	});
+
+	it('words how long a way takes at a bestia pace', () => {
+		expect(travelTimeText(100, 4)).toBe('under a minute');
+		expect(travelTimeText(960, 4)).toBe('4 min');
+		expect(travelTimeText(14_400, 4)).toBe('1 h');
+		expect(travelTimeText(15_600, 4)).toBe('1 h 5 min');
+		expect(travelTimeText(100, 0)).toBe('unknown');
 	});
 });
