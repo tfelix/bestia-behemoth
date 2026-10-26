@@ -6,7 +6,7 @@ namespace BestiaBehemothClient.Game.World
   /// <summary>What <see cref="ClientGroundMarks"/> has to ask of the world it lays marks in.</summary>
   public interface IGroundWorld
   {
-    /// <summary>Real milliseconds on a clock that only moves forward. Prints age on it.</summary>
+    /// <summary>Milliseconds on a forward-only clock that runs ahead while snow falls. Prints age on it.</summary>
     long NowMillis { get; }
 
     /// <summary>The Bestia second wear and blood decay on, or -1 while the world clock is not anchored.</summary>
