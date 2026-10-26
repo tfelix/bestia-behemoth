@@ -15,6 +15,7 @@ class_name Crafting
 signal recipes_offered()
 
 const CraftingRowScene = preload("res://Game/UI/Crafting/CraftingRow/CraftingRow.tscn")
+const DiscoveryPanelScript = preload("res://Game/UI/Crafting/Discovery/discovery_panel.gd")
 
 ## What the title says when the work needs no station - a meal, a ritual, an upgrade.
 const _NO_STATION_TITLE := "Handiwork"
@@ -46,12 +47,21 @@ var inventory = null
 ## True between asking for a craft and hearing how it went, which is when a second request would be refused.
 var _awaiting_result: bool = false
 
+## Where a mix of materials is tried to learn a new blueprint of the same skill.
+var _discovery: DiscoveryPanel
+
 
 func _ready() -> void:
 	ConnectionManager.craftable_recipes_received.connect(_on_craftable_recipes)
 	ConnectionManager.operation_error.connect(_on_operation_result)
 	ConnectionManager.operation_success.connect(_on_operation_result)
 	_target_picker.item_selected.connect(_on_target_selected)
+
+	_discovery = DiscoveryPanelScript.new()
+	var body := _status.get_parent()
+	body.add_child(HSeparator.new())
+	body.add_child(_discovery)
+	body.move_child(_status, -1)
 
 	_clear()
 
@@ -82,6 +92,7 @@ func _on_craftable_recipes(msg: CraftableRecipesSMSG) -> void:
 		_fill_target_picker()
 
 	_update_buttons()
+	_discovery.set_offer(msg)
 	recipes_offered.emit()
 
 

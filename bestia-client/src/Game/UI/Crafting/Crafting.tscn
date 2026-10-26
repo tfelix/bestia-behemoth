@@ -6,9 +6,9 @@
 bg_color = Color(0.11, 0.11, 0.13, 1)
 
 [node name="Crafting" type="PanelContainer"]
-custom_minimum_size = Vector2(520, 300)
+custom_minimum_size = Vector2(520, 600)
 offset_right = 520.0
-offset_bottom = 340.0
+offset_bottom = 600.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_bg")
 script = ExtResource("1_craft")
 
