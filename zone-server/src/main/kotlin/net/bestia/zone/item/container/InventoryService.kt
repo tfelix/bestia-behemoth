@@ -165,6 +165,23 @@ class InventoryService(
     return withOwnerContainer(masterId, playerBestiaId) { it.removeNamed(itemId, amount, uniqueId, provenance) }
   }
 
+  /**
+   * Takes every one of [piles] off the owner's container, or nothing at all: what a discovery attempt spends. Each
+   * pile is named by its item and maker, as the live inventory showed it to the player.
+   */
+  @Transactional
+  fun takeNamedPiles(masterId: Long, playerBestiaId: PlayerBestiaId?, piles: List<NamedPile>): Boolean {
+    return withOwnerContainer(masterId, playerBestiaId) { container ->
+      val held = piles.all { container.pileAmount(it.itemId, it.provenance) >= it.amount }
+      if (held) {
+        piles.forEach { container.removeNamed(it.itemId, it.amount, uniqueId = 0L, provenance = it.provenance) }
+      }
+      held
+    }
+  }
+
+  data class NamedPile(val itemId: Long, val provenance: ItemProvenance?, val amount: Int)
+
   /** Empties an owner's bag of everything not worn or promised, and answers what left. See [ItemContainer.removeAllFree]. */
   @Transactional
   fun removeAllFreeFromOwner(masterId: Long, playerBestiaId: PlayerBestiaId?): List<ItemContainer.DetachedItem> {

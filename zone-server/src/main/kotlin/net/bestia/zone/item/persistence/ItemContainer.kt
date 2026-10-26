@@ -65,6 +65,9 @@ class ItemContainer(
     }
   }
 
+  /** How much the free pile of [itemId] made by [provenance] holds; 0 when there is none. */
+  fun pileAmount(itemId: Long, provenance: ItemProvenance?): Int = freePile(itemId, provenance)?.amount ?: 0
+
   /**
    * The one free pile of [itemId] made by [provenance]. Free, not merely unequipped: merging into a reserved
    * pile would quietly enlarge an offer the player has already locked.
