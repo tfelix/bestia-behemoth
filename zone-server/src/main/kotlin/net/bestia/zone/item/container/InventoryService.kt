@@ -464,6 +464,55 @@ class InventoryService(
     return Settlement(toMasterA = toA, toMasterB = toB)
   }
 
+  /**
+   * Moves goods out of a master's inventory into [escrow], a container no player holds - an auction listing's.
+   *
+   * Reserves first so a partial stack splits by the same rules a trade offer does, then detaches the
+   * reservation within this transaction; the marker never reaches the database.
+   *
+   * @return what moved, or null when it is not freely held in that quantity
+   */
+  @Transactional
+  fun moveToEscrow(
+    masterId: Long,
+    itemId: Long,
+    uniqueId: Long,
+    amount: Int,
+    escrow: ItemContainer,
+    provenance: ItemProvenance? = null
+  ): ReservedItem? {
+    require(amount > 0) { "amount > 0 required, was $amount" }
+
+    val master = owners.lockedMaster(masterId)
+    val item = itemRepository.findByIdOrNull(itemId) ?: return null
+
+    val reserved = when {
+      uniqueId != 0L -> master.container.reserveInstance(uniqueId, ESCROW_MARKER)
+      !item.stackable -> master.container.reserveAnyInstance(itemId, ESCROW_MARKER)
+      else -> master.container.reserveStackable(itemId, amount, ESCROW_MARKER, provenance)
+    } ?: return null
+
+    val moved = move(ESCROW_MARKER, setOf(reserved.id), from = master.container, to = escrow).single()
+    owners.save(master)
+
+    return moved
+  }
+
+  /** Moves everything held in [escrow] to a master. @return what arrived, for the live inventory */
+  @Transactional
+  fun moveFromEscrow(escrow: ItemContainer, masterId: Long): List<ReservedItem> {
+    val master = owners.lockedMaster(masterId)
+
+    val arrived = escrow.removeAllFree().map { detached ->
+      add(master.container, detached)
+      arrivedAs(slotId = 0L, detached)
+    }
+
+    owners.save(master)
+
+    return arrived
+  }
+
   private fun move(
     tradeId: Long,
     slotIds: Set<Long>,
@@ -473,13 +522,20 @@ class InventoryService(
     val detached = from.detachReserved(slotId, tradeId)
       ?: throw TradeSettlementFailedException(tradeId, "slot $slotId vanished mid-settlement")
 
+    add(to, detached)
+    arrivedAs(slotId, detached)
+  }
+
+  private fun add(to: ItemContainer, detached: ItemContainer.DetachedItem) {
     if (detached.instance != null) {
       to.addInstance(detached.instance)
     } else {
       to.addStackable(detached.template, detached.amount, detached.provenance)
     }
+  }
 
-    ReservedItem(
+  private fun arrivedAs(slotId: Long, detached: ItemContainer.DetachedItem): ReservedItem {
+    return ReservedItem(
       offerSlotId = slotId,
       itemId = detached.template.id,
       amount = detached.amount,
@@ -519,6 +575,9 @@ class InventoryService(
 
   private companion object {
     private val LOG = KotlinLogging.logger { }
+
+    /** Stands in for a trade id while an escrow move splits a stack. Trade ids count up from 1. */
+    const val ESCROW_MARKER = Long.MIN_VALUE
   }
 
   private fun grant(
