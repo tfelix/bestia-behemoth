@@ -40,7 +40,7 @@ func set_volume(bus: StringName, linear: float) -> void:
 func _apply_volume(bus: StringName, linear: float) -> void:
 	var index := AudioServer.get_bus_index(bus)
 	if index < 0:
-		push_error("Audio: no bus named %s in the bus layout" % bus)
+		push_error("AudioManager: no bus named %s in the bus layout" % bus)
 		return
 
 	AudioServer.set_bus_volume_db(index, linear_to_db(clampf(linear, 0.0, 1.0)))

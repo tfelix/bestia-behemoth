@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="MusicLibrary" format=3]
+
+[ext_resource type="Script" uid="uid://yytugneh7p87" path="res://Manager/AudioManager/music_library.gd" id="1_script"]
+[ext_resource type="AudioStream" uid="uid://bs2hetikbloi3" path="res://Manager/AudioManager/audio/drifting_clouds.ogg" id="2_day"]
+[ext_resource type="AudioStream" uid="uid://yw8d4k30yhcl" path="res://Manager/AudioManager/audio/nocturnal_cycle.ogg" id="3_night"]
+
+[resource]
+script = ExtResource("1_script")
+menu_tracks = Array[AudioStream]([])
+day_track = ExtResource("2_day")
+night_track = ExtResource("3_night")

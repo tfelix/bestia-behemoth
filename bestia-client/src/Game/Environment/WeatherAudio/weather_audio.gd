@@ -47,7 +47,7 @@ func _process(_delta: float) -> void:
 
 
 func _setup_loop(player: AudioStreamPlayer, stream: AudioStream) -> void:
-	player.bus = Audio.AMBIENCE
+	player.bus = AudioManager.AMBIENCE
 	player.volume_linear = 0.0
 	add_child(player)
 
@@ -70,7 +70,7 @@ func _on_lightning_struck(ground: Vector3) -> void:
 
 	var thunder := AudioStreamPlayer3D.new()
 	thunder.stream = pool.pick_random()
-	thunder.bus = Audio.AMBIENCE
+	thunder.bus = AudioManager.AMBIENCE
 	thunder.attenuation_model = AudioStreamPlayer3D.ATTENUATION_LOGARITHMIC
 	# Thunder carries for kilometres; the default unit size would make a strike at 2 km inaudible.
 	thunder.unit_size = 400.0
