@@ -2,6 +2,9 @@ package net.bestia.zone.item.container
 
 import net.bestia.zone.account.persistence.MasterRepository
 import net.bestia.zone.account.persistence.findByIdOrThrow
+import net.bestia.zone.item.PlayerItemIds
+import net.bestia.zone.item.persistence.ItemRepository
+import net.bestia.zone.item.persistence.findByIdentifierOrThrow
 import net.bestia.zone.scenarios.ScenarioDataSetup
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -10,6 +13,7 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.support.TransactionTemplate
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 /**
  * Grants several items to one master across separate [InventoryService.addItem] calls, each its own
@@ -32,6 +36,9 @@ class InventoryServiceRepeatedGrantTest {
 
   @Autowired
   private lateinit var transactionManager: PlatformTransactionManager
+
+  @Autowired
+  private lateinit var itemRepository: ItemRepository
 
   @Test
   fun `granting three items across separate calls does not duplicate earlier grants`() {
@@ -61,6 +68,22 @@ class InventoryServiceRepeatedGrantTest {
     assertEquals(before.amountOf("apple") + 12, slots.amountOf("apple"))
     assertEquals(before.count { it.first == "shoes" } + 1, slots.count { it.first == "shoes" })
     assertEquals(before.count { it.first == "boots" } + 1, slots.count { it.first == "boots" })
+  }
+
+  /** The live inventory already shows these ids, so the rows have to carry them too. */
+  @Test
+  fun `fresh copies are saved under the ids the live inventory minted`() {
+    val masterId = testFixture.account1.masterIds.first()
+    val transactionTemplate = TransactionTemplate(transactionManager)
+    val boots = transactionTemplate.execute { itemRepository.findByIdentifierOrThrow("boots") }!!
+    val minted = listOf(PlayerItemIds.next(), PlayerItemIds.next())
+
+    inventoryService.grantToMaster(masterId, boots.id, 2, freshInstanceIds = minted)
+
+    val heldIds = transactionTemplate.execute {
+      masterRepository.findByIdOrThrow(masterId).container.slots.map { it.uniqueId }
+    }!!
+    assertTrue(heldIds.containsAll(minted), "expected $minted among $heldIds")
   }
 
   private fun List<Pair<String, Int>>.amountOf(identifier: String): Int {

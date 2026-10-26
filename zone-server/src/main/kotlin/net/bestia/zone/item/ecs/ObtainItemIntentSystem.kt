@@ -13,6 +13,7 @@ import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.movement.ecs.Position
+import net.bestia.zone.item.PlayerItemIds
 import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.item.loot.LootItemEntitySpawner
 import net.bestia.zone.util.EntityId
@@ -200,27 +201,34 @@ class ObtainItemIntentSystem(
       LOG.warn { "Entity $entityId lost its Inventory component before the grant could be applied, item ${item.id} lost" }
       return
     }
-    inventory.addItem(
-      Inventory.Item(
-        itemId = item.id,
-        amount = amount,
-        weight = item.weight,
-        uniqueId = uniqueId,
-        stackable = item.stackable,
-        // Mirrors what InventoryService.grant is about to mint: a fresh instance starts unworn, and a
-        // stackable item gets no instance and therefore no durability at all. A re-attached instance
-        // (uniqueId != 0, an item picked back up off the ground) keeps whatever wear it had, which this
-        // cannot see - the client gets the real number on the next full inventory send.
-        durability = if (item.stackable) 0 else item.maxDurability,
-        maxDurability = if (item.stackable) 0 else item.maxDurability,
-        slots = roll?.sockets ?: 0,
-        itemLevel = roll?.itemLevel ?: itemStats.itemLevelOf(item.id),
-        rolledStats = roll?.stats.orEmpty()
+    // Fresh copies of gear are minted here rather than by the database, one per unit, so each shows up as a copy
+    // the player can already name.
+    val freshInstanceIds = if (uniqueId == 0L && !item.stackable) List(amount) { PlayerItemIds.next() } else emptyList()
+    val heldIds = freshInstanceIds.ifEmpty { listOf(uniqueId) }
+
+    heldIds.forEach { heldId ->
+      inventory.addItem(
+        Inventory.Item(
+          itemId = item.id,
+          amount = if (freshInstanceIds.isEmpty()) amount else 1,
+          weight = item.weight,
+          uniqueId = heldId,
+          stackable = item.stackable,
+          // Mirrors what InventoryService.grant is about to mint: a fresh instance starts unworn, and a
+          // stackable item gets no instance and therefore no durability at all. A re-attached instance
+          // (uniqueId != 0, an item picked back up off the ground) keeps whatever wear it had, which this
+          // cannot see - the client gets the real number on the next full inventory send.
+          durability = if (item.stackable) 0 else item.maxDurability,
+          maxDurability = if (item.stackable) 0 else item.maxDurability,
+          slots = roll?.sockets ?: 0,
+          itemLevel = roll?.itemLevel ?: itemStats.itemLevelOf(item.id),
+          rolledStats = roll?.stats.orEmpty()
+        )
       )
-    )
+    }
 
     metrics.itemsGranted(amount)
-    schedulePersist(world, entityId, item.id, amount, uniqueId, roll, craftedByMasterId)
+    schedulePersist(world, entityId, item.id, amount, uniqueId, freshInstanceIds, roll, craftedByMasterId)
   }
 
   /**
@@ -233,6 +241,7 @@ class ObtainItemIntentSystem(
     itemId: Long,
     amount: Int,
     uniqueId: Long,
+    freshInstanceIds: List<Long>,
     roll: ItemRoll?,
     craftedByMasterId: Long?
   ) {
@@ -247,7 +256,7 @@ class ObtainItemIntentSystem(
       try {
         retryingTransientFailures {
           inventoryService.grantToOwner(
-            owner.masterId, owner.playerBestiaId, itemId, amount, uniqueId, roll, craftedByMasterId
+            owner.masterId, owner.playerBestiaId, itemId, amount, uniqueId, roll, craftedByMasterId, freshInstanceIds
           )
         }
       } catch (e: Exception) {

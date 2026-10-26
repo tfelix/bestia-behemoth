@@ -46,6 +46,7 @@ class ObtainItemIntentSystemTest {
 
   private val sword = Item(id = 1L, identifier = "sword", weight = 120, type = Item.ItemType.ETC, material = ItemMaterial.METAL)
   private val boulder = Item(id = 2L, identifier = "boulder", weight = 5000, type = Item.ItemType.ETC, material = ItemMaterial.STONE)
+  private val lantern = Item(id = 3L, identifier = "lantern", weight = 80, type = Item.ItemType.ETC, stackable = false, material = ItemMaterial.METAL)
 
   private lateinit var world: EcsWorld
 
@@ -102,6 +103,27 @@ class ObtainItemIntentSystemTest {
 
     verify(timeout = 1000) { inventoryService.grantToOwner(MASTER_ID, null, sword.id, 3, 0L) }
     verifyNoGroundDrop()
+  }
+
+  /** Each new copy can be named by the player in the tick it arrives, and its row is saved under that same id. */
+  @Test
+  fun `fresh unstackable items are held as one named copy per unit and saved under the same ids`() {
+    setUp()
+    stub(lantern)
+    val entity = createCarrier(capacityMax = 2475)
+
+    world.modify(entity) { id -> add(id, ObtainItemIntent.CreateItemIntent(itemId = lantern.id, amount = 2)) }
+    world.tick(0.1f)
+
+    val copies = world.get(entity, Inventory::class)!!.getItems()
+    assertEquals(listOf(1, 1), copies.map { it.amount })
+    val heldIds = copies.map { it.uniqueId }
+    assertTrue(heldIds.all { it != 0L })
+    assertEquals(2, heldIds.toSet().size)
+
+    verify(timeout = 1000) {
+      inventoryService.grantToOwner(MASTER_ID, null, lantern.id, 2, 0L, null, null, heldIds)
+    }
   }
 
   /** The live inventory already holds the item, so a grant that lost a lock race has to be written after all. */

@@ -3,6 +3,7 @@ package net.bestia.zone.item.container
 import net.bestia.zone.item.stat.ItemStatCatalog
 import net.bestia.zone.item.stat.ItemRoll
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.zone.item.PlayerItemIds
 import net.bestia.zone.item.persistence.Item
 import net.bestia.zone.item.ItemNotFoundException
 import net.bestia.zone.item.persistence.ItemRepository
@@ -59,7 +60,8 @@ class InventoryService(
    * transactions (e.g. looting) where the corresponding ECS/ground entity has already been removed
    * first to avoid duplication. Pass [uniqueId] != 0 to re-attach an existing instance that was
    * lying on the ground; pass 0 for a fresh grant, and whether it becomes a stack or a new instance
-   * is decided from the item template.
+   * is decided from the item template. [freshInstanceIds] are the ids the live inventory already shows for
+   * the new copies; without them the copies get new ids here.
    */
   @Transactional
   fun grantToMaster(
@@ -68,9 +70,10 @@ class InventoryService(
     amount: Int,
     uniqueId: Long = 0L,
     roll: ItemRoll? = null,
-    craftedByMasterId: Long? = null
+    craftedByMasterId: Long? = null,
+    freshInstanceIds: List<Long> = emptyList()
   ) {
-    grantToOwner(masterId, null, itemId, amount, uniqueId, roll, craftedByMasterId)
+    grantToOwner(masterId, null, itemId, amount, uniqueId, roll, craftedByMasterId, freshInstanceIds)
   }
 
   /** [grantToMaster] for whichever entity holds the item: the master when [playerBestiaId] is null. */
@@ -82,11 +85,12 @@ class InventoryService(
     amount: Int,
     uniqueId: Long = 0L,
     roll: ItemRoll? = null,
-    craftedByMasterId: Long? = null
+    craftedByMasterId: Long? = null,
+    freshInstanceIds: List<Long> = emptyList()
   ) {
     withOwnerContainer(masterId, playerBestiaId) { container ->
       val item = itemRepository.findByIdOrNull(itemId) ?: throw ItemNotFoundException(itemId.toString())
-      grant(container, item, amount, uniqueId, roll, craftedByMasterId)
+      grant(container, item, amount, uniqueId, roll, craftedByMasterId, freshInstanceIds)
     }
   }
 
@@ -475,9 +479,14 @@ class InventoryService(
     amount: Int,
     uniqueId: Long,
     roll: ItemRoll? = null,
-    craftedByMasterId: Long? = null
+    craftedByMasterId: Long? = null,
+    freshInstanceIds: List<Long> = emptyList()
   ) {
     require(amount > 0) { "amount > 0 required, was $amount" }
+    require(freshInstanceIds.isEmpty() || freshInstanceIds.size == amount) {
+      "${freshInstanceIds.size} instance ids for $amount copies of item ${item.id}"
+    }
+
     when {
       uniqueId != 0L -> {
         // Re-attach an instance that already exists (e.g. it was lying on the ground).
@@ -486,12 +495,13 @@ class InventoryService(
 
       item.stackable -> container.addStackable(item, amount)
 
-      else -> repeat(amount) {
+      else -> freshInstanceIds.ifEmpty { List(amount) { PlayerItemIds.next() } }.forEach { instanceId ->
         val instance = ItemInstance(
           item = item,
           craftedByMasterId = craftedByMasterId,
           slots = roll?.sockets ?: 0,
-          itemLevel = roll?.itemLevel
+          itemLevel = roll?.itemLevel,
+          id = instanceId
         )
         roll?.let { instance.assignRolledStats(it.stats) }
         container.addInstance(itemInstanceRepository.save(instance))
