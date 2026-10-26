@@ -27,7 +27,9 @@ data class WeatherSMSG(
   val hazardRadiusMetres: Double = 0.0,
 
   /** What WEATHER_SENSE saw coming, or null when the player has no such skill or nothing changes. */
-  val forecast: Forecast? = null
+  val forecast: Forecast? = null,
+
+  val ground: GroundCover = GroundCover.BARE
 ) : SMSG {
 
   override fun toBnetEnvelope(): EnvelopeProto.Envelope {
@@ -55,6 +57,14 @@ data class WeatherSMSG(
         .setHazardRadiusMetres(hazardRadiusMetres.toFloat())
     }
 
+    weather.setGroundWetness(ground.wetness.toFloat())
+    if (ground.snowLine != null && ground.snowFull != null) {
+      weather
+        .setHasSnow(true)
+        .setSnowLine(ground.snowLine.toFloat())
+        .setSnowFull(ground.snowFull.toFloat())
+    }
+
     return EnvelopeProto.Envelope.newBuilder()
       .setWeather(weather.build())
       .build()
@@ -72,7 +82,8 @@ data class WeatherSMSG(
       state: WeatherState,
       temperature: Temperature,
       hazardVoxel: Pair<Long, Long>? = null,
-      forecast: Forecast? = null
+      forecast: Forecast? = null,
+      ground: GroundCover = GroundCover.BARE
     ) = WeatherSMSG(
       regionId = regionId,
       kind = state.kind,
@@ -84,7 +95,8 @@ data class WeatherSMSG(
       hazardX = hazardVoxel?.first,
       hazardY = hazardVoxel?.second,
       hazardRadiusMetres = state.hazard?.radiusMetres ?: 0.0,
-      forecast = forecast
+      forecast = forecast,
+      ground = ground
     )
 
     /**

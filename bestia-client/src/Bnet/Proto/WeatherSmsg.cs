@@ -25,7 +25,7 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "Ch9tZXNzYWdlcy9tYXAvd2VhdGhlcl9zbXNnLnByb3RvEgRibmV0GhptZXNz",
-            "YWdlcy9tYXAvd2VhdGhlci5wcm90byKFAwoLV2VhdGhlclNNU0cSEQoJcmVn",
+            "YWdlcy9tYXAvd2VhdGhlci5wcm90byLVAwoLV2VhdGhlclNNU0cSEQoJcmVn",
             "aW9uX2lkGAEgASgNEh8KBGtpbmQYCiABKA4yES5ibmV0LldlYXRoZXJLaW5k",
             "EhEKCWludGVuc2l0eRgLIAEoAhITCgtjbG91ZF9jb3ZlchgMIAEoAhISCgp3",
             "aW5kX3NwZWVkGA0gASgCEhYKDndpbmRfZGlyZWN0aW9uGA4gASgCEhsKE3Rl",
@@ -33,13 +33,15 @@ namespace Bnet {
             "EigKDWZvcmVjYXN0X2tpbmQYHyABKA4yES5ibmV0LldlYXRoZXJLaW5kEhsK",
             "E2ZvcmVjYXN0X2luX3NlY29uZHMYICABKA0SEgoKaGFzX2hhemFyZBgoIAEo",
             "CBIQCghoYXphcmRfeBgpIAEoEhIQCghoYXphcmRfeRgqIAEoEhIcChRoYXph",
-            "cmRfcmFkaXVzX21ldHJlcxgrIAEoAkoECBUQFlIYZmVsdF90ZW1wZXJhdHVy",
-            "ZV9jZWxzaXVzQikKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0IQV2VhdGhlclNN",
-            "U0dQcm90b2IGcHJvdG8z"));
+            "cmRfcmFkaXVzX21ldHJlcxgrIAEoAhIWCg5ncm91bmRfd2V0bmVzcxgyIAEo",
+            "AhIQCghoYXNfc25vdxgzIAEoCBIRCglzbm93X2xpbmUYNCABKAISEQoJc25v",
+            "d19mdWxsGDUgASgCSgQIFRAWUhhmZWx0X3RlbXBlcmF0dXJlX2NlbHNpdXNC",
+            "KQoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQhBXZWF0aGVyU01TR1Byb3RvYgZw",
+            "cm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Bnet.WeatherReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.WeatherSMSG), global::Bnet.WeatherSMSG.Parser, new[]{ "RegionId", "Kind", "Intensity", "CloudCover", "WindSpeed", "WindDirection", "TemperatureCelsius", "HasForecast", "ForecastKind", "ForecastInSeconds", "HasHazard", "HazardX", "HazardY", "HazardRadiusMetres" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.WeatherSMSG), global::Bnet.WeatherSMSG.Parser, new[]{ "RegionId", "Kind", "Intensity", "CloudCover", "WindSpeed", "WindDirection", "TemperatureCelsius", "HasForecast", "ForecastKind", "ForecastInSeconds", "HasHazard", "HazardX", "HazardY", "HazardRadiusMetres", "GroundWetness", "HasSnow", "SnowLine", "SnowFull" }, null, null, null, null)
           }));
     }
     #endregion
@@ -112,6 +114,10 @@ namespace Bnet {
       hazardX_ = other.hazardX_;
       hazardY_ = other.hazardY_;
       hazardRadiusMetres_ = other.hazardRadiusMetres_;
+      groundWetness_ = other.groundWetness_;
+      hasSnow_ = other.hasSnow_;
+      snowLine_ = other.snowLine_;
+      snowFull_ = other.snowFull_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -331,6 +337,61 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "ground_wetness" field.</summary>
+    public const int GroundWetnessFieldNumber = 50;
+    private float groundWetness_;
+    /// <summary>
+    ///*
+    /// What the weather has left on the ground, replayed from the region's last few days so every client agrees.
+    ///
+    /// Wetness is at the player's own elevation, 0 to 1. Snow lies in patches from `snow_line` up and covers the
+    /// ground from `snow_full` up; both are elevations in voxels, and both are absent when `has_snow` is false.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public float GroundWetness {
+      get { return groundWetness_; }
+      set {
+        groundWetness_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "has_snow" field.</summary>
+    public const int HasSnowFieldNumber = 51;
+    private bool hasSnow_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool HasSnow {
+      get { return hasSnow_; }
+      set {
+        hasSnow_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "snow_line" field.</summary>
+    public const int SnowLineFieldNumber = 52;
+    private float snowLine_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public float SnowLine {
+      get { return snowLine_; }
+      set {
+        snowLine_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "snow_full" field.</summary>
+    public const int SnowFullFieldNumber = 53;
+    private float snowFull_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public float SnowFull {
+      get { return snowFull_; }
+      set {
+        snowFull_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -360,6 +421,10 @@ namespace Bnet {
       if (HazardX != other.HazardX) return false;
       if (HazardY != other.HazardY) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(HazardRadiusMetres, other.HazardRadiusMetres)) return false;
+      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(GroundWetness, other.GroundWetness)) return false;
+      if (HasSnow != other.HasSnow) return false;
+      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(SnowLine, other.SnowLine)) return false;
+      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(SnowFull, other.SnowFull)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -381,6 +446,10 @@ namespace Bnet {
       if (HazardX != 0L) hash ^= HazardX.GetHashCode();
       if (HazardY != 0L) hash ^= HazardY.GetHashCode();
       if (HazardRadiusMetres != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(HazardRadiusMetres);
+      if (GroundWetness != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(GroundWetness);
+      if (HasSnow != false) hash ^= HasSnow.GetHashCode();
+      if (SnowLine != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(SnowLine);
+      if (SnowFull != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(SnowFull);
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -455,6 +524,22 @@ namespace Bnet {
         output.WriteRawTag(221, 2);
         output.WriteFloat(HazardRadiusMetres);
       }
+      if (GroundWetness != 0F) {
+        output.WriteRawTag(149, 3);
+        output.WriteFloat(GroundWetness);
+      }
+      if (HasSnow != false) {
+        output.WriteRawTag(152, 3);
+        output.WriteBool(HasSnow);
+      }
+      if (SnowLine != 0F) {
+        output.WriteRawTag(165, 3);
+        output.WriteFloat(SnowLine);
+      }
+      if (SnowFull != 0F) {
+        output.WriteRawTag(173, 3);
+        output.WriteFloat(SnowFull);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -521,6 +606,22 @@ namespace Bnet {
         output.WriteRawTag(221, 2);
         output.WriteFloat(HazardRadiusMetres);
       }
+      if (GroundWetness != 0F) {
+        output.WriteRawTag(149, 3);
+        output.WriteFloat(GroundWetness);
+      }
+      if (HasSnow != false) {
+        output.WriteRawTag(152, 3);
+        output.WriteBool(HasSnow);
+      }
+      if (SnowLine != 0F) {
+        output.WriteRawTag(165, 3);
+        output.WriteFloat(SnowLine);
+      }
+      if (SnowFull != 0F) {
+        output.WriteRawTag(173, 3);
+        output.WriteFloat(SnowFull);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -571,6 +672,18 @@ namespace Bnet {
         size += 2 + pb::CodedOutputStream.ComputeSInt64Size(HazardY);
       }
       if (HazardRadiusMetres != 0F) {
+        size += 2 + 4;
+      }
+      if (GroundWetness != 0F) {
+        size += 2 + 4;
+      }
+      if (HasSnow != false) {
+        size += 2 + 1;
+      }
+      if (SnowLine != 0F) {
+        size += 2 + 4;
+      }
+      if (SnowFull != 0F) {
         size += 2 + 4;
       }
       if (_unknownFields != null) {
@@ -626,6 +739,18 @@ namespace Bnet {
       }
       if (other.HazardRadiusMetres != 0F) {
         HazardRadiusMetres = other.HazardRadiusMetres;
+      }
+      if (other.GroundWetness != 0F) {
+        GroundWetness = other.GroundWetness;
+      }
+      if (other.HasSnow != false) {
+        HasSnow = other.HasSnow;
+      }
+      if (other.SnowLine != 0F) {
+        SnowLine = other.SnowLine;
+      }
+      if (other.SnowFull != 0F) {
+        SnowFull = other.SnowFull;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -702,6 +827,22 @@ namespace Bnet {
             HazardRadiusMetres = input.ReadFloat();
             break;
           }
+          case 405: {
+            GroundWetness = input.ReadFloat();
+            break;
+          }
+          case 408: {
+            HasSnow = input.ReadBool();
+            break;
+          }
+          case 421: {
+            SnowLine = input.ReadFloat();
+            break;
+          }
+          case 429: {
+            SnowFull = input.ReadFloat();
+            break;
+          }
         }
       }
     #endif
@@ -775,6 +916,22 @@ namespace Bnet {
           }
           case 349: {
             HazardRadiusMetres = input.ReadFloat();
+            break;
+          }
+          case 405: {
+            GroundWetness = input.ReadFloat();
+            break;
+          }
+          case 408: {
+            HasSnow = input.ReadBool();
+            break;
+          }
+          case 421: {
+            SnowLine = input.ReadFloat();
+            break;
+          }
+          case 429: {
+            SnowFull = input.ReadFloat();
             break;
           }
         }

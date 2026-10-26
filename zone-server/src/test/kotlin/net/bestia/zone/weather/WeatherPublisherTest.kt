@@ -27,8 +27,11 @@ class WeatherPublisherTest {
 
   private val out = mockk<OutMessageHandler>(relaxed = true)
 
-  /** A publisher whose world hands back [states] in order, one per call to `publish`. */
-  private fun publisherSeeing(vararg states: WeatherState): WeatherPublisher {
+  /** A publisher whose world hands back [states] and [grounds] in order, one per call to `publish`. */
+  private fun publisherSeeing(
+    vararg states: WeatherState,
+    grounds: List<GroundCover> = listOf(GroundCover.BARE)
+  ): WeatherPublisher {
     val weatherService = mockk<WeatherService> {
       every { at(any(), any(), any()) } returnsMany states.map {
         WeatherAt(regionId = 3, state = it, temperature = Temperature(12.0))
@@ -40,7 +43,9 @@ class WeatherPublisherTest {
     // No WEATHER_SENSE in the catalogue, so no forecast is ever asked for.
     val skills = mockk<SkillRepository> { every { findByIdentifier(any()) } returns null }
 
-    return WeatherPublisher(weatherService, chunkService, out, WeatherConfig(), skills)
+    val groundWeather = mockk<GroundWeather> { every { at(any(), any(), any()) } returnsMany grounds }
+
+    return WeatherPublisher(weatherService, groundWeather, chunkService, out, WeatherConfig(), skills)
   }
 
   private fun sky(kind: WeatherKind, cloud: Double = 0.1, intensity: Double = 0.0) = WeatherState(
@@ -104,13 +109,32 @@ class WeatherPublisherTest {
   }
 
   @Test
+  fun `snow settling or a snow line moving past its band sends again`() {
+    val clear = sky(WeatherKind.CLEAR)
+    val publisher = publisherSeeing(
+      clear, clear, clear, clear,
+      grounds = listOf(
+        GroundCover.BARE,
+        GroundCover(wetness = 0.0, snowLine = 800.0, snowFull = 1_200.0),
+        GroundCover(wetness = 0.0, snowLine = 810.0, snowFull = 1_200.0),
+        GroundCover(wetness = 0.0, snowLine = 760.0, snowFull = 1_200.0),
+      )
+    )
+
+    assertTrue(publisher.publish(accountId, voxelX, voxelY, 0))
+    assertTrue(publisher.publish(accountId, voxelX, voxelY, 0), "snow has settled")
+    assertFalse(publisher.publish(accountId, voxelX, voxelY, 0), "ten metres is inside the band")
+    assertTrue(publisher.publish(accountId, voxelX, voxelY, 0), "the snow line came down fifty metres")
+  }
+
+  @Test
   fun `a column with no surface is skipped rather than invented`() {
     val weatherService = mockk<WeatherService>()
     val chunkService = mockk<ChunkService> {
       every { surfaceElevationAt(any(), any()) } returns null
     }
     val skills = mockk<SkillRepository> { every { findByIdentifier(any()) } returns null }
-    val publisher = WeatherPublisher(weatherService, chunkService, out, WeatherConfig(), skills)
+    val publisher = WeatherPublisher(weatherService, mockk(), chunkService, out, WeatherConfig(), skills)
 
     assertFalse(publisher.publish(accountId, voxelX, voxelY, 0))
 
@@ -123,7 +147,7 @@ class WeatherPublisherTest {
     val chunkService = mockk<ChunkService>()
     val skills = mockk<SkillRepository> { every { findByIdentifier(any()) } returns null }
     val publisher = WeatherPublisher(
-      weatherService, chunkService, out, WeatherConfig(enabled = false), skills
+      weatherService, mockk(), chunkService, out, WeatherConfig(enabled = false), skills
     )
 
     assertFalse(publisher.publish(accountId, voxelX, voxelY, 0))

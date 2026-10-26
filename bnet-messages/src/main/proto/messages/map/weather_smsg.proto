@@ -82,4 +82,15 @@ message WeatherSMSG {
   sint64 hazard_x = 41;
   sint64 hazard_y = 42;
   float hazard_radius_metres = 43;
+
+  /**
+   * What the weather has left on the ground, replayed from the region's last few days so every client agrees.
+   *
+   * Wetness is at the player's own elevation, 0 to 1. Snow lies in patches from `snow_line` up and covers the
+   * ground from `snow_full` up; both are elevations in voxels, and both are absent when `has_snow` is false.
+   */
+  float ground_wetness = 50;
+  bool has_snow = 51;
+  float snow_line = 52;
+  float snow_full = 53;
 }
