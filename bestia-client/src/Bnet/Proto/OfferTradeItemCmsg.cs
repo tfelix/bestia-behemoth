@@ -26,13 +26,13 @@ namespace Bnet {
           string.Concat(
             "CiptZXNzYWdlcy90cmFkZS9vZmZlcl90cmFkZV9pdGVtX2Ntc2cucHJvdG8S",
             "BGJuZXQiWgoST2ZmZXJUcmFkZUl0ZW1DTVNHEhAKCHRyYWRlX2lkGAEgASgE",
-            "Eg8KB2l0ZW1faWQYAiABKA0SEQoJdW5pcXVlX2lkGAMgASgEEg4KBmFtb3Vu",
-            "dBgEIAEoDUIwChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CF09mZmVyVHJhZGVJ",
+            "EhYKDnBsYXllcl9pdGVtX2lkGAUgASgEEg4KBmFtb3VudBgEIAEoDUoECAIQ",
+            "A0oECAMQBEIwChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CF09mZmVyVHJhZGVJ",
             "dGVtQ21zZ1Byb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.OfferTradeItemCMSG), global::Bnet.OfferTradeItemCMSG.Parser, new[]{ "TradeId", "ItemId", "UniqueId", "Amount" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.OfferTradeItemCMSG), global::Bnet.OfferTradeItemCMSG.Parser, new[]{ "TradeId", "PlayerItemId", "Amount" }, null, null, null, null)
           }));
     }
     #endregion
@@ -42,9 +42,6 @@ namespace Bnet {
   /// <summary>
   /// Puts an item from the sender's inventory into their side of the trade window. The server takes it out
   /// of the live inventory at once, so it can no longer be dropped, used or spent on a craft while offered.
-  ///
-  /// unique_id names the exact instance; 0 for a plain stack, and also for an instance obtained this session
-  /// whose row was minted after the live inventory copy was made - the server then falls back to item_id.
   /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class OfferTradeItemCMSG : pb::IMessage<OfferTradeItemCMSG>
@@ -82,8 +79,7 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public OfferTradeItemCMSG(OfferTradeItemCMSG other) : this() {
       tradeId_ = other.tradeId_;
-      itemId_ = other.itemId_;
-      uniqueId_ = other.uniqueId_;
+      playerItemId_ = other.playerItemId_;
       amount_ = other.amount_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
@@ -106,27 +102,18 @@ namespace Bnet {
       }
     }
 
-    /// <summary>Field number for the "item_id" field.</summary>
-    public const int ItemIdFieldNumber = 2;
-    private uint itemId_;
+    /// <summary>Field number for the "player_item_id" field.</summary>
+    public const int PlayerItemIdFieldNumber = 5;
+    private ulong playerItemId_;
+    /// <summary>
+    /// The held pile or copy to offer from, as InventoryItem.player_item_id names it.
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public uint ItemId {
-      get { return itemId_; }
+    public ulong PlayerItemId {
+      get { return playerItemId_; }
       set {
-        itemId_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "unique_id" field.</summary>
-    public const int UniqueIdFieldNumber = 3;
-    private ulong uniqueId_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public ulong UniqueId {
-      get { return uniqueId_; }
-      set {
-        uniqueId_ = value;
+        playerItemId_ = value;
       }
     }
 
@@ -158,8 +145,7 @@ namespace Bnet {
         return true;
       }
       if (TradeId != other.TradeId) return false;
-      if (ItemId != other.ItemId) return false;
-      if (UniqueId != other.UniqueId) return false;
+      if (PlayerItemId != other.PlayerItemId) return false;
       if (Amount != other.Amount) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
@@ -169,8 +155,7 @@ namespace Bnet {
     public override int GetHashCode() {
       int hash = 1;
       if (TradeId != 0UL) hash ^= TradeId.GetHashCode();
-      if (ItemId != 0) hash ^= ItemId.GetHashCode();
-      if (UniqueId != 0UL) hash ^= UniqueId.GetHashCode();
+      if (PlayerItemId != 0UL) hash ^= PlayerItemId.GetHashCode();
       if (Amount != 0) hash ^= Amount.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
@@ -194,17 +179,13 @@ namespace Bnet {
         output.WriteRawTag(8);
         output.WriteUInt64(TradeId);
       }
-      if (ItemId != 0) {
-        output.WriteRawTag(16);
-        output.WriteUInt32(ItemId);
-      }
-      if (UniqueId != 0UL) {
-        output.WriteRawTag(24);
-        output.WriteUInt64(UniqueId);
-      }
       if (Amount != 0) {
         output.WriteRawTag(32);
         output.WriteUInt32(Amount);
+      }
+      if (PlayerItemId != 0UL) {
+        output.WriteRawTag(40);
+        output.WriteUInt64(PlayerItemId);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -220,17 +201,13 @@ namespace Bnet {
         output.WriteRawTag(8);
         output.WriteUInt64(TradeId);
       }
-      if (ItemId != 0) {
-        output.WriteRawTag(16);
-        output.WriteUInt32(ItemId);
-      }
-      if (UniqueId != 0UL) {
-        output.WriteRawTag(24);
-        output.WriteUInt64(UniqueId);
-      }
       if (Amount != 0) {
         output.WriteRawTag(32);
         output.WriteUInt32(Amount);
+      }
+      if (PlayerItemId != 0UL) {
+        output.WriteRawTag(40);
+        output.WriteUInt64(PlayerItemId);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
@@ -245,11 +222,8 @@ namespace Bnet {
       if (TradeId != 0UL) {
         size += 1 + pb::CodedOutputStream.ComputeUInt64Size(TradeId);
       }
-      if (ItemId != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(ItemId);
-      }
-      if (UniqueId != 0UL) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(UniqueId);
+      if (PlayerItemId != 0UL) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(PlayerItemId);
       }
       if (Amount != 0) {
         size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Amount);
@@ -269,11 +243,8 @@ namespace Bnet {
       if (other.TradeId != 0UL) {
         TradeId = other.TradeId;
       }
-      if (other.ItemId != 0) {
-        ItemId = other.ItemId;
-      }
-      if (other.UniqueId != 0UL) {
-        UniqueId = other.UniqueId;
+      if (other.PlayerItemId != 0UL) {
+        PlayerItemId = other.PlayerItemId;
       }
       if (other.Amount != 0) {
         Amount = other.Amount;
@@ -301,16 +272,12 @@ namespace Bnet {
             TradeId = input.ReadUInt64();
             break;
           }
-          case 16: {
-            ItemId = input.ReadUInt32();
-            break;
-          }
-          case 24: {
-            UniqueId = input.ReadUInt64();
-            break;
-          }
           case 32: {
             Amount = input.ReadUInt32();
+            break;
+          }
+          case 40: {
+            PlayerItemId = input.ReadUInt64();
             break;
           }
         }
@@ -336,16 +303,12 @@ namespace Bnet {
             TradeId = input.ReadUInt64();
             break;
           }
-          case 16: {
-            ItemId = input.ReadUInt32();
-            break;
-          }
-          case 24: {
-            UniqueId = input.ReadUInt64();
-            break;
-          }
           case 32: {
             Amount = input.ReadUInt32();
+            break;
+          }
+          case 40: {
+            PlayerItemId = input.ReadUInt64();
             break;
           }
         }

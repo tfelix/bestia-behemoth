@@ -207,7 +207,7 @@ class TradeService(
    * the process dies in between. The commit runs outside the world scope, because a lease must not wait on the
    * database; a concurrent drop of the same item is settled there too, by whichever claims the row first.
    */
-  fun offerItem(accountId: AccountId, tradeId: Long, itemId: Long, uniqueId: Long, amount: Int) {
+  fun offerItem(accountId: AccountId, tradeId: Long, playerItemId: Long, amount: Int) {
     val session = sessions[tradeId] ?: return
 
     val side = synchronized(session) {
@@ -230,18 +230,18 @@ class TradeService(
       return
     }
 
-    val wornCopyOnly = world.read {
-      val inventory = get(side.entityId, Inventory::class)
-      val equipment = get(side.entityId, Equipment::class)
-      inventory != null && equipment?.leavesUnwornCopy(inventory, itemId, uniqueId) == false
+    val held = world.read {
+      val worn = get(side.entityId, Equipment::class)
+      get(side.entityId, Inventory::class)?.byPlayerItemId(playerItemId)
+        ?.takeUnless { it.equipped || worn?.isWorn(it.uniqueId) == true }
     }
-    if (wornCopyOnly) {
-      LOG.warn { "Trade $tradeId: master ${side.masterId} offered item $itemId it is wearing" }
+    if (held == null || held.amount < amount) {
+      LOG.warn { "Trade $tradeId: master ${side.masterId} offered ${amount}x of item $playerItemId it does not hold unworn" }
       resendTo(session, accountId)
       return
     }
 
-    val reserved = inventoryService.reserveForTrade(side.masterId, tradeId, itemId, uniqueId, amount)
+    val reserved = inventoryService.reserveForTrade(side.masterId, tradeId, held.itemId, held.uniqueId, amount)
     if (reserved == null) {
       resendTo(session, accountId)
       return
@@ -249,7 +249,7 @@ class TradeService(
 
     val mirrored = world.modify(side.entityId) { id ->
       val inventory = get(id, Inventory::class) ?: return@modify false
-      removeFromLive(inventory, reserved)
+      inventory.take(playerItemId, reserved.amount)
     } ?: false
 
     if (!mirrored) {
@@ -595,13 +595,6 @@ class TradeService(
     val otherPos = get(other, Position::class)?.toVec3L() ?: return@read false
 
     onePos.distance(otherPos) <= MAX_TRADE_RANGE
-  }
-
-  /** Mirrors a durable reservation into the live inventory by taking the same physical item out of it. */
-  private fun removeFromLive(inventory: Inventory, reserved: ReservedItem): Boolean = when {
-    reserved.uniqueId != 0L -> inventory.removeByUniqueId(reserved.uniqueId)
-    !reserved.stackable -> inventory.removeInstanceOf(reserved.itemId)
-    else -> inventory.removeFromStack(reserved.itemId, reserved.amount)
   }
 
   private fun grantToLive(entityId: EntityId, items: List<ReservedItem>) {

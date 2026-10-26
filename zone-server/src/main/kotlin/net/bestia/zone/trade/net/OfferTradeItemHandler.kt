@@ -21,7 +21,7 @@ class OfferTradeItemHandler(
 
 
   override fun handle(msg: OfferTradeItemCMSG): Boolean {
-    tradeService.offerItem(msg.playerId, msg.tradeId, msg.itemId, msg.uniqueId, msg.amount)
+    tradeService.offerItem(msg.playerId, msg.tradeId, msg.playerItemId, msg.amount)
 
     return true
   }

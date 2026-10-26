@@ -6,8 +6,7 @@ import net.bestia.zone.message.CMSG
 data class OfferTradeItemCMSG(
   override val playerId: Long,
   val tradeId: Long,
-  val itemId: Long,
-  val uniqueId: Long,
+  val playerItemId: Long,
   val amount: Int,
 ) : CMSG {
 
@@ -16,8 +15,7 @@ data class OfferTradeItemCMSG(
       return OfferTradeItemCMSG(
         playerId = accountId,
         tradeId = msg.tradeId,
-        itemId = msg.itemId.toLong(),
-        uniqueId = msg.uniqueId,
+        playerItemId = msg.playerItemId,
         amount = msg.amount
       )
     }

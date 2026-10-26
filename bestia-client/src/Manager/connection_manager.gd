@@ -639,12 +639,12 @@ func answer_trade_request(trade_id: int, accept: bool) -> void:
 
 ## Puts an item into our side of the trade. Nothing is applied locally: the answering TradeStateSMSG is what
 ## draws it, which is also how a refusal corrects itself.
-func offer_trade_item(trade_id: int, item_id: int, unique_id: int, amount: int) -> void:
+## [param player_item_id] names the held pile or copy, as InventoryItem.player_item_id does.
+func offer_trade_item(trade_id: int, player_item_id: int, amount: int) -> void:
 	assert(is_ready_to_send())
 	var msg = OfferTradeItemCMSG.new()
 	msg.TradeId = trade_id
-	msg.ItemId = item_id
-	msg.UniqueId = unique_id
+	msg.PlayerItemId = player_item_id
 	msg.Amount = amount
 	_socket.SendMessage(msg)
 

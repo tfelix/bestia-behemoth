@@ -9,10 +9,8 @@ namespace BestiaBehemothClient.Bnet.Message.Trade
   {
     public ulong TradeId { get; set; }
 
-    public uint ItemId { get; set; }
-
-    /// <summary>The exact instance, or 0 for a plain stack.</summary>
-    public ulong UniqueId { get; set; }
+    /// <summary>The held pile or copy to offer from, as InventoryItem.PlayerItemId names it.</summary>
+    public ulong PlayerItemId { get; set; }
 
     public uint Amount { get; set; }
 
@@ -23,8 +21,7 @@ namespace BestiaBehemothClient.Bnet.Message.Trade
         OfferTradeItem = new global::Bnet.OfferTradeItemCMSG
         {
           TradeId = TradeId,
-          ItemId = ItemId,
-          UniqueId = UniqueId,
+          PlayerItemId = PlayerItemId,
           Amount = Amount
         }
       };
