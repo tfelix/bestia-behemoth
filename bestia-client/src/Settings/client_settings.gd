@@ -65,7 +65,7 @@ const FORMAT_VERSION := 1
 
 @export_group("Audio")
 
-## Linear bus volumes from 0 to 1, read by the Audio autoload. One per bus in `default_bus_layout.tres`.
+## Linear bus volumes from 0 to 1, read by the AudioManager autoload. One per bus in `default_bus_layout.tres`.
 @export_range(0.0, 1.0, 0.01) var master_volume: float = 1.0
 @export_range(0.0, 1.0, 0.01) var music_volume: float = 0.7
 @export_range(0.0, 1.0, 0.01) var ambience_volume: float = 0.8

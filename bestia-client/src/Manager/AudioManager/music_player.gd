@@ -5,6 +5,9 @@ class_name MusicPlayer
 ##
 ## Scenes that are not listed in [constant CONTEXT_OF_SCENE] keep whatever is playing, so the settings
 ## and credits screens do not restart the menu music.
+##
+## In the world the music follows the time of day instead of a playlist: the day track while the sun is up,
+## the night track while it is down, crossfaded as the world clock passes dawn and dusk.
 
 const MENU := &"menu"
 const WORLD := &"world"
@@ -14,12 +17,19 @@ const CONTEXT_OF_SCENE := {
 	"res://Game/Game.tscn": WORLD,
 }
 
-const LIBRARY_PATH := "res://Audio/music_library.tres"
+const LIBRARY_PATH := "res://Manager/AudioManager/music_library.tres"
 
+## Daylight is a ramp through dawn and dusk. The track changes over once it has clearly crossed the middle,
+## so a clock that wobbles around the half way point does not flip the music back and forth.
+const _DAY_BEGINS := 0.55
+const _NIGHT_BEGINS := 0.45
+
+## Short enough not to drag on across a dusk, long enough not to sound like a cut.
 @export var crossfade_seconds: float = 2.5
 
 var _library: MusicLibrary
 var _context: StringName = &""
+var _is_day := true
 
 # Two players, so the outgoing track can fade while the incoming one rises.
 var _current: AudioStreamPlayer
@@ -40,11 +50,21 @@ func _ready() -> void:
 	_announce_main_scene.call_deferred()
 
 
+func _process(_delta: float) -> void:
+	if _context != WORLD:
+		return
+
+	_update_is_day()
+	if _world_track() != _current.stream:
+		_play_next()
+
+
 func play_context(context: StringName) -> void:
 	if context == _context:
 		return
 
 	_context = context
+	_update_is_day()
 	_play_next()
 
 
@@ -59,8 +79,24 @@ func _on_scene_changed(path: String) -> void:
 		play_context(CONTEXT_OF_SCENE[path])
 
 
+func _update_is_day() -> void:
+	var clock := ConnectionManager.world_clock
+	if clock == null:
+		return
+
+	var daylight: float = clock.Daylight
+	if daylight >= _DAY_BEGINS:
+		_is_day = true
+	elif daylight <= _NIGHT_BEGINS:
+		_is_day = false
+
+
+func _world_track() -> AudioStream:
+	return _library.day_track if _is_day else _library.night_track
+
+
 func _play_next() -> void:
-	var next := _pick(_library.tracks_for(_context))
+	var next := _world_track() if _context == WORLD else _pick(_library.tracks_for(_context))
 
 	var outgoing := _current
 	_current = _fading
@@ -95,7 +131,7 @@ func _pick(tracks: Array[AudioStream]) -> AudioStream:
 
 func _new_player() -> AudioStreamPlayer:
 	var player := AudioStreamPlayer.new()
-	player.bus = Audio.MUSIC
+	player.bus = AudioManager.MUSIC
 	player.finished.connect(_on_track_finished.bind(player))
 	add_child(player)
 	return player
