@@ -1,5 +1,6 @@
 package net.bestia.zone.control.net
 
+import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
@@ -23,6 +24,9 @@ import net.bestia.zone.message.SMSG
 import net.bestia.zone.script.ScriptArgs
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.entity.StaticEntityKind
+import net.bestia.zone.entity.ecs.PropPose
+import net.bestia.zone.entity.ecs.StaticVisual
+import net.bestia.zone.prop.PropInteraction
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -41,6 +45,7 @@ class InteractEntityHandlerTest {
   private lateinit var messages: OutMessageProcessor
   private lateinit var dialogs: DialogService
   private lateinit var talk: TalkService
+  private lateinit var hallInteraction: PropInteraction
   private lateinit var handler: InteractEntityHandler
   private var actor: EntityId = 0L
 
@@ -50,6 +55,9 @@ class InteractEntityHandlerTest {
     messages = mockk(relaxed = true)
     dialogs = mockk(relaxed = true)
     talk = mockk(relaxed = true)
+    hallInteraction = mockk(relaxed = true)
+    every { hallInteraction.kind } returns StaticEntityKind.AUCTION_HOUSE
+    every { hallInteraction.interact(any(), any(), any()) } returns null
 
     actor = world.createEntity { id ->
       add(id, Position.fromVec3(standingAt))
@@ -65,6 +73,7 @@ class InteractEntityHandlerTest {
       dialogService = dialogs,
       talkService = talk,
       outMessageProcessor = messages,
+      propInteractions = listOf(hallInteraction),
     )
   }
 
@@ -146,6 +155,18 @@ class InteractEntityHandlerTest {
   }
 
   @Test
+  fun `clicking a prop hands it to the interaction for its kind`() {
+    val hall = spawnProp(StaticEntityKind.AUCTION_HOUSE)
+    val tree = spawnProp(StaticEntityKind.TREE)
+
+    handler.handle(world, interactWith(hall))
+    handler.handle(world, interactWith(tree))
+
+    verify(exactly = 1) { hallInteraction.interact(any(), actor, hall) }
+    verify(exactly = 0) { hallInteraction.interact(any(), any(), tree) }
+  }
+
+  @Test
   fun `an id that names nothing is ignored rather than answered`() {
     handler.handle(world, interactWith(999_999L))
 
@@ -165,6 +186,13 @@ class InteractEntityHandlerTest {
           totalSeconds = 20f
         )
       )
+    }
+  }
+
+  private fun spawnProp(kind: StaticEntityKind): EntityId {
+    return world.createEntity { id ->
+      add(id, PropPose(standingAt, yaw = 0f))
+      add(id, StaticVisual(kind, variant = 0, heightDm = 40))
     }
   }
 

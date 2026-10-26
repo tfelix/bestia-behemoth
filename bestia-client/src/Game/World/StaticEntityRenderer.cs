@@ -380,7 +380,7 @@ namespace BestiaBehemothClient.Game.World
         var position = GroundedPositionOf(entry);
 
         Basis basis;
-        float pickWidth;
+        Vector2 pickSize;
 
         // A placeholder is a BoxMesh, and Godot centres one on its own origin - so drawn at the ground
         // position every one of them stood half underground, which on a three-storey house is four and a half
@@ -392,7 +392,7 @@ namespace BestiaBehemothClient.Game.World
         {
           var scale = appearance.NaturalHeight > 0f ? entry.Height / appearance.NaturalHeight : 1f;
           basis = new Basis(Vector3.Up, entry.Yaw).Scaled(new Vector3(scale, scale, scale));
-          pickWidth = footprint * scale;
+          pickSize = Vector2.One * footprint * scale;
         }
         else
         {
@@ -407,14 +407,17 @@ namespace BestiaBehemothClient.Game.World
           // rhombus with 115 deg corners, and at 90 deg its length and width swapped outright. Uniform scales
           // commute with rotation, which is why the art path above can keep the shorter spelling.
           basis = new Basis(Vector3.Up, entry.Yaw) * Basis.FromScale(new Vector3(along, entry.Height, across));
-          pickWidth = appearance.PlaceholderWidth;
+          // The whole footprint, so a click anywhere on a building's walls lands.
+          pickSize = entry.HasFootprint
+            ? new Vector2(entry.HalfLength * 2f, entry.HalfWidth * 2f)
+            : Vector2.One * appearance.PlaceholderWidth;
           lift = entry.Height * 0.5f;
         }
 
         multi.SetInstanceTransform(i, new Transform3D(basis, position + new Vector3(0f, lift, 0f)));
 
         var picker = appearance.Collectible || appearance.Action != PropAppearance.PropAction.None
-          ? AddPicker(container, entry, position, pickWidth, appearance)
+          ? AddPicker(container, entry, position, pickSize, appearance)
           : null;
 
         Record(key, entry.EntityId, new Drawn { Node = picker, Batch = multi, Slot = i });
@@ -466,27 +469,29 @@ namespace BestiaBehemothClient.Game.World
     /// </para>
     ///
     /// <para>
-    /// No yaw on it, unlike the mesh instance: the box is square in x and z, so turning it changes nothing.
+    /// <paramref name="size"/> is along and across the prop's yaw, the same frame its mesh is scaled in.
     /// </para>
     /// </remarks>
     private Node3D AddPicker(
-      Node3D container, ChunkStaticEntitiesSMSG.Entry entry, Vector3 position, float width,
+      Node3D container, ChunkStaticEntitiesSMSG.Entry entry, Vector3 position, Vector2 size,
       PropAppearance.Kind appearance)
     {
       var area = new Area3D
       {
         Name = $"prop {entry.EntityId}",
-        Transform = new Transform3D(Basis.Identity, position)
+        Transform = new Transform3D(new Basis(Vector3.Up, entry.Yaw), position)
       };
 
       // Before AddChild, so the script is attached by the time the node enters the tree - the same ordering
       // TerrainRenderer.NewBody documents.
       area.SetScript(PropPicker);
 
-      var size = Mathf.Max(width, MinPickWidth);
       area.AddChild(new CollisionShape3D
       {
-        Shape = new BoxShape3D { Size = new Vector3(size, entry.Height, size) },
+        Shape = new BoxShape3D
+        {
+          Size = new Vector3(Mathf.Max(size.X, MinPickWidth), entry.Height, Mathf.Max(size.Y, MinPickWidth))
+        },
         // The prop grows upward from its own origin, so the box's centre sits at half its height.
         Position = new Vector3(0f, entry.Height * 0.5f, 0f)
       });
@@ -495,6 +500,7 @@ namespace BestiaBehemothClient.Game.World
       area.Set("kind", entry.Kind);
       area.Set("collectible", appearance.Collectible);
       area.Set("action", PropAppearance.ActionName(appearance.Action));
+      area.Set("nearest_wall_tiles", entry.HasFootprint ? Mathf.Min(entry.HalfLength, entry.HalfWidth) : 0f);
 
       // Physics picking is a signal on the collision object, and a node built in code has to wire it itself.
       // Enter and exit as well as the click, because the cursor has to name what a click here would do before

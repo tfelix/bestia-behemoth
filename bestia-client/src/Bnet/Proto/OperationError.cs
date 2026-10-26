@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSqlEQoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSq/EQoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -75,8 +75,9 @@ namespace Bnet {
             "TERPV04QUBIbChdHVUlMRF9OT1RfSU5fU1RST05HSE9MRBBREhMKD0dVSUxE",
             "X05PX0JBTk5FUhBSEhwKGEdVSUxEX0JBTk5FUl9OT1RfQUxMT1dFRBBTEh0K",
             "GUdVSUxEX0JBTk5FUl9PVVRfT0ZfUkFOR0UQVBIZChVHVUlMRF9UQVJHRVRf",
-            "RVhQRUxMRUQQVRIPCgtST1VURV9MSU1JVBBWQiwKFW5ldC5iZXN0aWEuYm5l",
-            "dC5wcm90b0ITT3BlcmF0aW9uRXJyb3JQcm90b2IGcHJvdG8z"));
+            "RVhQRUxMRUQQVRIPCgtST1VURV9MSU1JVBBWEhgKFEFVQ1RJT05fT1VUX09G",
+            "X1JBTkdFEFdCLAoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQhNPcGVyYXRpb25F",
+            "cnJvclByb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -413,6 +414,10 @@ namespace Bnet {
     /// The master keeps as many routes as it may; one has to go before another is saved.
     /// </summary>
     [pbr::OriginalName("ROUTE_LIMIT")] RouteLimit = 86,
+    /// <summary>
+    /// Too far from the auction house's walls. The client walks up before it clicks, so this needs latency.
+    /// </summary>
+    [pbr::OriginalName("AUCTION_OUT_OF_RANGE")] AuctionOutOfRange = 87,
   }
 
   #endregion

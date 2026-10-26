@@ -363,6 +363,7 @@ TRAVEL_HINT,Click the map to send it there. Shift+click to add stops.
 TRAVEL_GO,Go
 TRAVEL_CLEAR,Clear
 ERROR_ROUTE_LIMIT,You keep as many routes as you may. Delete one first.
+ERROR_AUCTION_OUT_OF_RANGE,You are too far away from the auction house.
 TRAVEL_ROUTES,Routes
 TRAVEL_NO_ROUTES,No routes kept yet.
 TRAVEL_SAVE_ROUTE,Keep as route

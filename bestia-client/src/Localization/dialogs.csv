@@ -518,3 +518,5 @@ DIALOG_5_TEXT,"Prints you cannot place.
 Distinct trails here: {walkers}"
 DIALOG_6_TITLE,Tracks
 DIALOG_6_TEXT,"Nothing has been over this ground."
+DIALOG_7_TITLE,Auction House
+DIALOG_7_TEXT,"The auction house is still setting up its boards. Come back soon."

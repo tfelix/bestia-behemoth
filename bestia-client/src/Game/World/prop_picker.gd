@@ -33,6 +33,9 @@ var collectible: bool = true
 ## What a click here is for, as a PropAppearance.PropAction name - see DefaultAction.from_prop_name.
 var action: StringName = &"none"
 
+## How far the nearest wall stands from the centre. Zero for anything without walls.
+var nearest_wall_tiles: float = 0.0
+
 
 func _on_input_event(_camera: Node, event: InputEvent, event_position: Vector3, _normal: Vector3, _shape_idx: int) -> void:
 	if not MouseManager.is_click_event(event):
