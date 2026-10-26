@@ -1,0 +1,9 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://Game/UI/Auction/auction_house.gd" id="1_auction"]
+
+[node name="AuctionHouse" type="PanelContainer"]
+custom_minimum_size = Vector2(720, 480)
+offset_right = 720.0
+offset_bottom = 480.0
+script = ExtResource("1_auction")

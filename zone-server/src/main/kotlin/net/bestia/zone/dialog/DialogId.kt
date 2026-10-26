@@ -15,8 +15,7 @@ enum class DialogId(val id: Int) {
   WORKBENCH_PLACEHOLDER(3),
   TRACKS_READING(4),
   TRACKS_FAINT(5),
-  TRACKS_NONE(6),
-  AUCTION_HOUSE_PLACEHOLDER(7);
+  TRACKS_NONE(6);
 
   companion object {
     private val byId = entries.associateBy { it.id }

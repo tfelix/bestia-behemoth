@@ -5,18 +5,20 @@ import io.mockk.mockk
 import io.mockk.verify
 import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.worldgen.core.WorldConfig
-import net.bestia.zone.dialog.DialogId
-import net.bestia.zone.dialog.DialogService
 import net.bestia.zone.ecs.core.EcsWorld
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.entity.StaticEntityKind
 import net.bestia.zone.entity.ecs.PropPose
 import net.bestia.zone.entity.ecs.StaticVisual
+import net.bestia.zone.entity.ecs.WorldObjectIdentity
+import net.bestia.zone.message.OutMessageProcessor
+import net.bestia.zone.message.SMSG
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.world.WorldService
+import net.bestia.zone.world.settlement.StartTownMarkets
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -28,23 +30,28 @@ class AuctionHouseInteractionTest {
   private val hallAt = Vec3L(100, 100, 32)
 
   private lateinit var world: EcsWorld
-  private lateinit var dialogs: DialogService
+  private lateinit var messages: OutMessageProcessor
   private lateinit var interaction: AuctionHouseInteraction
   private var hall: EntityId = 0L
 
   @BeforeEach
   fun setUp() {
     world = testWorld()
-    dialogs = mockk(relaxed = true)
+    messages = mockk(relaxed = true)
 
     val worldService = mockk<WorldService>()
     every { worldService.config } returns WorldConfig(seed = 1L)
 
-    interaction = AuctionHouseInteraction(worldService, dialogs)
+    val markets = mockk<StartTownMarkets>()
+    every { markets.townOf(HALL_PROP_ID) } returns "Ashford"
+    every { markets.towns() } returns listOf("Ashford", "Brightwater", "Coldmere")
+
+    interaction = AuctionHouseInteraction(worldService, markets, messages)
 
     // Eight metres along x, six across y.
     hall = world.createEntity { id ->
       add(id, PropPose(hallAt, yaw = 0f))
+      add(id, WorldObjectIdentity(HALL_PROP_ID, latticeVersion = 1L))
       add(id, StaticVisual(StaticEntityKind.AUCTION_HOUSE, variant = 0, heightDm = 40, halfLengthDm = 80, halfWidthDm = 60))
     }
   }
@@ -54,7 +61,12 @@ class AuctionHouseInteractionTest {
     val player = playerAt(Vec3L(hallAt.x + 10, hallAt.y, hallAt.z))
 
     assertNull(interaction.interact(world, player, hall))
-    verify { dialogs.send(accountId, DialogId.AUCTION_HOUSE_PLACEHOLDER, any(), hall) }
+    verify {
+      messages.sendToPlayer(
+        accountId,
+        AuctionHouseOpenSMSG(hall, "Ashford", listOf("Ashford", "Brightwater", "Coldmere"))
+      )
+    }
   }
 
   @Test
@@ -62,7 +74,7 @@ class AuctionHouseInteractionTest {
     val player = playerAt(Vec3L(hallAt.x, hallAt.y + 10, hallAt.z))
 
     assertEquals(OpError.AUCTION_OUT_OF_RANGE, interaction.interact(world, player, hall))
-    verify(exactly = 0) { dialogs.send(any(), any<DialogId>(), any(), any()) }
+    verify(exactly = 0) { messages.sendToPlayer(any(), any<SMSG>()) }
   }
 
   private fun playerAt(at: Vec3L): EntityId {
@@ -70,5 +82,9 @@ class AuctionHouseInteractionTest {
       add(id, Position.fromVec3(at))
       add(id, Account(accountId))
     }
+  }
+
+  private companion object {
+    const val HALL_PROP_ID = 4242L
   }
 }

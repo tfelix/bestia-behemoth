@@ -1,25 +1,27 @@
 package net.bestia.zone.auction
 
 import net.bestia.bnet.proto.OperationErrorProto.OpError
-import net.bestia.zone.dialog.DialogId
-import net.bestia.zone.dialog.DialogService
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.entity.StaticEntityKind
 import net.bestia.zone.entity.ecs.PropPose
 import net.bestia.zone.entity.ecs.StaticVisual
+import net.bestia.zone.entity.ecs.WorldObjectIdentity
+import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.prop.PropFootprint
 import net.bestia.zone.prop.PropInteraction
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.world.WorldService
+import net.bestia.zone.world.settlement.StartTownMarkets
 import org.springframework.stereotype.Component
 
 /** Clicking an auction house is how its window opens. The building is the entry point, not a clerk. */
 @Component
 class AuctionHouseInteraction(
   private val worldService: WorldService,
-  private val dialogService: DialogService,
+  private val startTownMarkets: StartTownMarkets,
+  private val outMessageProcessor: OutMessageProcessor,
 ) : PropInteraction {
 
   override val kind = StaticEntityKind.AUCTION_HOUSE
@@ -33,10 +35,11 @@ class AuctionHouseInteraction(
       return OpError.AUCTION_OUT_OF_RANGE
     }
 
-    // A stand-in until the auction window exists.
-    world.get(actorId, Account::class)?.accountId?.let { accountId ->
-      dialogService.send(accountId, DialogId.AUCTION_HOUSE_PLACEHOLDER, sourceEntityId = propId)
-    }
+    val hallPropId = world.get(propId, WorldObjectIdentity::class)?.propId ?: return null
+    val town = startTownMarkets.townOf(hallPropId) ?: return null
+    val accountId = world.get(actorId, Account::class)?.accountId ?: return null
+
+    outMessageProcessor.sendToPlayer(accountId, AuctionHouseOpenSMSG(propId, town, startTownMarkets.towns()))
 
     return null
   }

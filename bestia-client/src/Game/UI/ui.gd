@@ -14,6 +14,7 @@ const _BASIC_SKILL_PRIMER := "BASIC_SKILL_PRIMER"
 @onready var _party_win: WidgetWindow = $PartyWin
 @onready var _guild_win: WidgetWindow = $GuildWin
 @onready var _compendium_win: WidgetWindow = $CompendiumWin
+@onready var _auction_win: WidgetWindow = $AuctionWin
 @onready var _invitations: InvitationTray = $Invitations
 @onready var _ground_drop_zone: GroundDropZone = $GroundDropZone
 @onready var _master_profile: MasterProfile = $TopLeftColumn/MasterProfile
@@ -111,6 +112,11 @@ func _ready() -> void:
 	shop.inventory = inventory
 	shop.shop_opened.connect(_on_shop_opened)
 	shop.shop_closed.connect(_on_shop_closed)
+
+	# Clicking an auction house is what opens it; selling there needs the inventory in view.
+	var auction := _auction_win.get_content() as AuctionHousePanel
+	auction.auction_opened.connect(_on_auction_opened)
+	auction.auction_closed.connect(_on_auction_closed)
 
 	# The party and guild windows exist from the start, hidden: they listen for their rosters and invitations
 	# whether open or not. Both speak through the chat, which is the client's one channel for notices.
@@ -458,6 +464,15 @@ func _on_shop_opened() -> void:
 
 func _on_shop_closed() -> void:
 	_shop_win.visible = false
+
+
+func _on_auction_opened() -> void:
+	_auction_win.visible = true
+	_inventory_win.visible = true
+
+
+func _on_auction_closed() -> void:
+	_auction_win.visible = false
 
 
 ## Neither closes another window: the party and guild windows are looked at beside whatever else is open.

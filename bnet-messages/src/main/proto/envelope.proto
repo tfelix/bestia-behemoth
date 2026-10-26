@@ -99,6 +99,7 @@ import "messages/map/collect_prop_cmsg.proto";
 import "messages/map/interact_entity_cmsg.proto";
 import "messages/shop/open_shop_cmsg.proto";
 import "messages/shop/shop_offer_smsg.proto";
+import "messages/auction/auction_house_open_smsg.proto";
 import "messages/shop/shop_trade_cmsg.proto";
 import "messages/map/weather_smsg.proto";
 import "messages/map/world_time_smsg.proto";
@@ -269,6 +270,9 @@ message Envelope {
     OpenShopCMSG open_shop = 820;
     ShopTradeCMSG shop_trade = 821;
     ShopOfferSMSG shop_offer = 822;
+
+    // AUCTION 840
+    AuctionHouseOpenSMSG auction_house_open = 840;
 
     // TRAVEL 900
     RequestSavedRoutesCMSG request_saved_routes = 900;
