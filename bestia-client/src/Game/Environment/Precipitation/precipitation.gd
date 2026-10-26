@@ -351,6 +351,10 @@ func _build_splash_emitter(dot: Texture2D) -> GPUParticles3D:
 	splash.process_material = process
 	splash.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	splash.local_coords = false
+
+	# Spawned only by the rain's collisions. Left at the default it would emit on its own, from the camera
+	# (it is pinned there every frame), as a wash of unshaded dots right against the lens in any weather.
+	splash.emitting = false
 	splash.fixed_fps = 0
 	splash.visibility_aabb = AABB(Vector3(-spawn_radius * 2.0, -60.0, -spawn_radius * 2.0),
 		Vector3(spawn_radius * 4.0, 120.0, spawn_radius * 4.0))
