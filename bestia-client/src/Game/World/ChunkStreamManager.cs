@@ -206,6 +206,17 @@ namespace BestiaBehemothClient.Game.World
     /// <summary>Real seconds between fading wear and blood, as often as the server's own sweep.</summary>
     private const double LevelSweepSeconds = 60.0;
 
+    /// <summary>
+    /// How much faster prints fade while snow falls at full rate: fresh snow fills them in. Prints age on a
+    /// clock that runs ahead by this much, so a print laid after the snow stopped is not filled by it.
+    /// </summary>
+    private const double SnowFillSpeedup = 9.0;
+
+    private double _printClockLeadMillis;
+
+    /// <summary>Set by whoever creates both. Without it prints only fade with age.</summary>
+    public WeatherState Weather { get; set; }
+
     public ChunkStreamManager()
     {
       var host = new GroundHost(this);
@@ -374,6 +385,7 @@ namespace BestiaBehemothClient.Game.World
       }
 
       AgeAnnouncedQuiet(delta);
+      _printClockLeadMillis += delta * 1000.0 * SnowFillSpeedup * (Weather?.SnowRate ?? 0.0f);
       SweepMarks(delta);
       _fire.Sweep(GroundFireClock.Now);
     }
@@ -935,7 +947,7 @@ namespace BestiaBehemothClient.Game.World
         _owner = owner;
       }
 
-      public long NowMillis => (long)Time.GetTicksMsec();
+      public long NowMillis => (long)Time.GetTicksMsec() + (long)_owner._printClockLeadMillis;
 
       public long NowSecond =>
         _owner._clock != null && _owner._clock.IsAnchored() ? _owner._clock.AbsoluteSecond : -1;

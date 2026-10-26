@@ -218,6 +218,7 @@ func _ready() -> void:
 	weather.name = "WeatherState"
 	add_child(weather)
 	weather.Attach(_socket)
+	chunk_stream.Weather = weather
 
 	world_clock = WorldClockScript.new()
 	world_clock.name = "WorldClock"
