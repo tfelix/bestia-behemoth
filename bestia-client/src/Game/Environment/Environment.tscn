@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://bbv2b3q2a8bo6" path="res://Game/Environment/environment.gd" id="1_1xco1"]
 [ext_resource type="Script" path="res://Game/Environment/CloudShadows/cloud_shadows.gd" id="2_cloud"]
 [ext_resource type="Script" path="res://Game/Environment/Precipitation/precipitation.gd" id="3_precip"]
+[ext_resource type="Script" path="res://Game/Environment/WeatherAudio/weather_audio.gd" id="4_audio"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_1xco1"]
 sky_top_color = Color(0.84507084, 0.90585876, 0.98905593, 1)
@@ -51,3 +52,6 @@ script = ExtResource("2_cloud")
 
 [node name="Precipitation" type="Node3D" parent="." unique_id=1746395028]
 script = ExtResource("3_precip")
+
+[node name="WeatherAudio" type="Node" parent="." unique_id=1873402956]
+script = ExtResource("4_audio")
