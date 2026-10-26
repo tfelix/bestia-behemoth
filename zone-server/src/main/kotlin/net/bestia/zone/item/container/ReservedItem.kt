@@ -1,11 +1,12 @@
 package net.bestia.zone.item.container
 
 import net.bestia.zone.item.ItemProvenance
+import net.bestia.zone.item.ecs.Inventory
 import net.bestia.zone.item.stat.StatValue
 import net.bestia.zone.item.persistence.ContainerSlot
 
 /**
- * One line of a trade offer, carrying everything a caller needs to mirror it without going back to the
+ * One line of goods held out of an inventory - a trade offer, later an auction listing - carrying everything a caller needs to mirror it without going back to the
  * database: the live [net.bestia.zone.item.ecs.Inventory] wants weight and the per-instance state, and the
  * trade window wants the same numbers again to draw a wear bar.
  *
@@ -27,6 +28,23 @@ data class ReservedItem(
   val rolledStats: List<StatValue>,
   val provenance: ItemProvenance? = null,
 ) {
+
+  fun toLiveItem(): Inventory.Item {
+    return Inventory.Item(
+      itemId = itemId,
+      amount = amount,
+      weight = weight,
+      uniqueId = uniqueId,
+      stackable = stackable,
+      durability = durability,
+      maxDurability = maxDurability,
+      slots = slots,
+      upgradeLevel = upgradeLevel,
+      itemLevel = itemLevel,
+      rolledStats = rolledStats,
+      provenance = provenance,
+    )
+  }
 
   companion object {
     fun of(slot: ContainerSlot, itemLevel: Int): ReservedItem {
