@@ -85,6 +85,11 @@ extends Node3D
 
 @export var dust_colour: Color = Color(0.76, 0.63, 0.42, 0.30)
 
+## Splashes kept alive at once; a drop that lands while all are in use simply vanishes.
+@export_range(100, 8000, 100) var rain_splashes: int = 1500
+
+@export var splash_colour: Color = Color(0.80, 0.84, 0.90, 0.45)
+
 ## Below this rate an emitter is switched off rather than run at a trickle.
 const _CUTOFF := 0.02
 
@@ -111,6 +116,11 @@ var _weather: Node = null
 var _rain: GPUParticles3D = null
 var _snow: GPUParticles3D = null
 var _dust: GPUParticles3D = null
+var _splash: GPUParticles3D = null
+
+## What rain and snow land on: a height map of the ground, roofs and trees, re-rendered from above as the
+## camera moves. Shown only while something falls, because rendering it costs a depth pass.
+var _ground := GPUParticlesCollisionHeightField3D.new()
 
 ## Rain's own material, kept because [method _drive] writes the wind into it.
 var _rain_streak: ShaderMaterial = null
@@ -157,6 +167,24 @@ func _ready() -> void:
 
 	_turbulence(_dust.process_material as ParticleProcessMaterial, 4.0, 0.30)
 
+	# Dust blows through anything; rain and snow stop where they land, so neither falls through a roof.
+	_ground.size = Vector3(spawn_radius * 2.0, 120.0, spawn_radius * 2.0)
+	_ground.resolution = GPUParticlesCollisionHeightField3D.RESOLUTION_512
+	_ground.update_mode = GPUParticlesCollisionHeightField3D.UPDATE_MODE_WHEN_MOVED
+	_ground.follow_camera_enabled = true
+	_ground.visible = false
+	add_child(_ground)
+
+	(_snow.process_material as ParticleProcessMaterial).collision_mode = \
+		ParticleProcessMaterial.COLLISION_HIDE_ON_CONTACT
+
+	_splash = _build_splash_emitter(soft_dot)
+	var rain_process := _rain.process_material as ParticleProcessMaterial
+	rain_process.collision_mode = ParticleProcessMaterial.COLLISION_HIDE_ON_CONTACT
+	rain_process.sub_emitter_mode = ParticleProcessMaterial.SUB_EMITTER_AT_COLLISION
+	rain_process.sub_emitter_amount_at_collision = 1
+	_rain.sub_emitter = _rain.get_path_to(_splash)
+
 
 func _process(_delta: float) -> void:
 	if _weather == null:
@@ -186,6 +214,10 @@ func _process(_delta: float) -> void:
 		camera, retune)
 	_drive(_dust, dust_rate, wind, dust_fall_speed, dust_wind_factor, dust_spawn_height, dust_lifetime,
 		camera, retune)
+
+	_ground.visible = _rain.emitting or _snow.emitting
+	# Its particles live in world space, but its culling box goes with the node.
+	_splash.global_position = camera.global_position
 
 
 ## Points one emitter at the wind, positions it over the camera, and sets how much of it is running.
@@ -292,6 +324,39 @@ func _build_emitter(node_name: String, amount: int, lifetime: float, material: M
 	add_child(emitter)
 
 	return emitter
+
+
+## A spray of droplets where a raindrop lands. Spawned only by the rain's collisions, never on its own.
+func _build_splash_emitter(dot: Texture2D) -> GPUParticles3D:
+	var mesh := QuadMesh.new()
+	mesh.size = Vector2(0.05, 0.05)
+
+	var process := ParticleProcessMaterial.new()
+	process.direction = Vector3.UP
+	process.spread = 55.0
+	process.initial_velocity_min = 0.8
+	process.initial_velocity_max = 1.8
+	process.gravity = Vector3(0.0, -9.8, 0.0)
+	process.scale_min = 0.6
+	process.scale_max = 1.4
+	process.color_ramp = _build_fade_ramp()
+
+	var splash := GPUParticles3D.new()
+	splash.name = "Splash"
+	splash.amount = rain_splashes
+	splash.lifetime = 0.3
+	splash.transform_align = GPUParticles3D.TRANSFORM_ALIGN_Z_BILLBOARD
+	splash.draw_pass_1 = mesh
+	splash.material_override = _build_dot_material(splash_colour, dot)
+	splash.process_material = process
+	splash.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	splash.local_coords = false
+	splash.fixed_fps = 0
+	splash.visibility_aabb = AABB(Vector3(-spawn_radius * 2.0, -60.0, -spawn_radius * 2.0),
+		Vector3(spawn_radius * 4.0, 120.0, spawn_radius * 4.0))
+	add_child(splash)
+
+	return splash
 
 
 ## A flat camera-facing dot, for the kinds that have no direction to show.
