@@ -107,6 +107,11 @@ class BestiaClock(
       config.speedFactor
     )
 
+  /** The calendar at an absolute Bestia second, counted from the world's epoch. */
+  fun atAbsoluteSecond(absoluteSecond: Long): BestiaDateTime {
+    return after(BestiaDateTime.since(java.time.Duration.ZERO, config.speedFactor), absoluteSecond)
+  }
+
   private companion object {
     private const val SECONDS_PER_BESTIA_DAY =
       BestiaDateTime.HOURS_PER_DAY * 3_600.0
