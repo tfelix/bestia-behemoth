@@ -61,6 +61,9 @@ namespace BestiaBehemothClient.Bnet.Message.Crafting
     /// <summary>True when the player has to pick a held item for this recipe to act on.</summary>
     [Export] public bool NeedsTarget { get; set; }
 
+    /// <summary>Where the blueprint sits in the feature space, one value per axis; empty when it has none.</summary>
+    [Export] public float[] Point { get; set; } = [];
+
     public static CraftableRecipe FromProto(global::Bnet.CraftableRecipe proto)
     {
       var recipe = new CraftableRecipe
@@ -70,7 +73,8 @@ namespace BestiaBehemothClient.Bnet.Message.Crafting
         OutputAmount = proto.OutputAmount,
         SuccessPermille = proto.SuccessPermille,
         CraftMillis = proto.CraftMillis,
-        InputsHeld = proto.InputsHeld
+        InputsHeld = proto.InputsHeld,
+        Point = [.. proto.Point]
       };
 
       recipe.SetEffect((RecipeEffect)proto.Effect);

@@ -25,6 +25,7 @@ signal dialog_received(message: DialogSMSG)
 ## Emitted when the server answers a crafting-skill activation with what can be made here. Account-scoped
 ## for the reason [signal dialog_received] is: it opens a window, and a window belongs to a client.
 signal craftable_recipes_received(message: CraftableRecipesSMSG)
+signal discovery_result_received(message: DiscoveryResultSMSG)
 ## Emitted when a townsperson says something and offers options back. Account-scoped for the reason
 ## [signal dialog_received] is: it opens a window, and a window belongs to a client rather than to an
 ## entity - the speaker travels inside the message as metadata.
@@ -104,6 +105,7 @@ var ConversationChoiceCMSG = load("res://Bnet/Message/System/ConversationChoiceC
 var CollectPropCMSG = load("res://Bnet/Message/Map/CollectPropCMSG.cs")
 var InteractEntityCMSG = load("res://Bnet/Message/Map/InteractEntityCMSG.cs")
 var CraftItemCMSG = load("res://Bnet/Message/Crafting/CraftItemCMSG.cs")
+var DiscoverRecipeCMSG = load("res://Bnet/Message/Crafting/DiscoverRecipeCMSG.cs")
 var CancelCraftCMSG = load("res://Bnet/Message/Crafting/CancelCraftCMSG.cs")
 var RequestTradeCMSG = load("res://Bnet/Message/Trade/RequestTradeCMSG.cs")
 var AnswerTradeRequestCMSG = load("res://Bnet/Message/Trade/AnswerTradeRequestCMSG.cs")
@@ -593,6 +595,17 @@ func craft_item(recipe_id: int, target_unique_id: int = 0) -> void:
 	_socket.SendMessage(msg)
 
 
+## Tries a mix against the blueprints of [param skill_id]. [param materials] maps a held pile's player_item_id to
+## the amount to use. The materials are always spent; the answer arrives as [signal discovery_result_received].
+func discover_recipe(skill_id: int, materials: Dictionary) -> void:
+	assert(is_ready_to_send())
+	var msg = DiscoverRecipeCMSG.new()
+	msg.SkillId = skill_id
+	msg.PlayerItemIds = PackedInt64Array(materials.keys())
+	msg.Amounts = PackedInt32Array(materials.values())
+	_socket.SendMessage(msg)
+
+
 ## Abandons the craft in progress. Nothing is refunded because nothing has been spent yet.
 func cancel_craft() -> void:
 	assert(is_ready_to_send())
@@ -1026,6 +1039,10 @@ func _on_bnet_socket_message_received(message: Object) -> void:
 		conversation_received.emit(message)
 	elif message is CraftableRecipesSMSG:
 		craftable_recipes_received.emit(message)
+	elif message is DiscoveryResultSMSG:
+		discovery_result_received.emit(message)
+	elif message is MaterialAxesSMSG:
+		CraftAxes.store(message.AxesByItemId)
 	elif message is OperationSuccess:
 		operation_success.emit(message)
 	elif message is OperationError:
