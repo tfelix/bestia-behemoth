@@ -46,3 +46,9 @@ dialogs:
     identifier: TRACKS_NONE
     type: CONFIRM
     args: []
+
+  # A stand-in until the auction house has a window of its own to open.
+  - id: 7
+    identifier: AUCTION_HOUSE_PLACEHOLDER
+    type: CONFIRM
+    args: []

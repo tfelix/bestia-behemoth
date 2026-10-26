@@ -242,6 +242,8 @@ enum OpError {
   GUILD_TARGET_EXPELLED = 85;
   // The master keeps as many routes as it may; one has to go before another is saved.
   ROUTE_LIMIT = 86;
+  // Too far from the auction house's walls. The client walks up before it clicks, so this needs latency.
+  AUCTION_OUT_OF_RANGE = 87;
 }
 
 message OperationError {

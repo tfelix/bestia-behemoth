@@ -22,6 +22,8 @@ import net.bestia.zone.message.TickMessageHandler
 import net.bestia.zone.message.decoder
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.prop.PlayerStructureService
+import net.bestia.zone.prop.PropInteraction
+import net.bestia.zone.entity.ecs.StaticVisual
 import org.springframework.stereotype.Component
 
 /**
@@ -42,7 +44,10 @@ class InteractEntityHandler(
   private val dialogService: DialogService,
   private val talkService: TalkService,
   private val outMessageProcessor: OutMessageProcessor,
+  propInteractions: List<PropInteraction>,
 ) : TickMessageHandler<InteractEntityCMSG> {
+
+  private val propInteractionByKind = propInteractions.associateBy { it.kind }
 
   override val wire = decoder(MessageCase.INTERACT_ENTITY) { accountId, envelope ->
     InteractEntityCMSG.fromBnet(accountId, envelope.interactEntity)
@@ -91,6 +96,11 @@ class InteractEntityHandler(
         talkService.open(accountId, actorId, targetId)
       }
       return null
+    }
+
+    val propInteraction = world.get(targetId, StaticVisual::class)?.kind?.let(propInteractionByKind::get)
+    if (propInteraction != null) {
+      return propInteraction.interact(world, actorId, targetId)
     }
 
     LOG.debug { "Entity $actorId interacted with $targetId, which has nothing to interact with" }

@@ -308,7 +308,7 @@ namespace BestiaBehemothClient.Game.World
       // Gilded so a newcomer can find it across the square.
       new Kind
       {
-        PlaceholderWidth = 6.0f, PlaceholderColour = new Color(0.80f, 0.64f, 0.26f)
+        PlaceholderWidth = 6.0f, PlaceholderColour = new Color(0.80f, 0.64f, 0.26f), Action = PropAction.Use
       }, // AUCTION_HOUSE
       new Kind { PlaceholderWidth = 6.0f, PlaceholderColour = new Color(0.74f, 0.72f, 0.66f) }, // BUILDING_TEMPLE
       new Kind { PlaceholderWidth = 6.0f, PlaceholderColour = new Color(0.66f, 0.65f, 0.62f) }, // BUILDING_CIVIC

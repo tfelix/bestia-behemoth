@@ -23,6 +23,9 @@ var _entity_id: int
 
 var _tile_xz: Vector2
 
+## Walking to the centre of a building means walking through it, so arrival is counted from its walls.
+var _arrival_tiles := _REACH_TILES
+
 
 func _init(target: Node3D, entity_id: int) -> void:
 	_target = target
@@ -33,13 +36,16 @@ func _init(target: Node3D, entity_id: int) -> void:
 	var at := target.global_position - TileSpace.CENTRE_OFFSET
 	_tile_xz = Vector2(at.x, at.z)
 
+	if target is PropPicker:
+		_arrival_tiles += (target as PropPicker).nearest_wall_tiles
+
 
 func destination() -> Vector2:
 	return _tile_xz
 
 
 func arrival_tiles() -> float:
-	return _REACH_TILES
+	return _arrival_tiles
 
 
 func is_alive() -> bool:
