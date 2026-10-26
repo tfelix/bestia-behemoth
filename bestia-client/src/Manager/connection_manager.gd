@@ -120,6 +120,8 @@ var ConfirmTradeCMSG = load("res://Bnet/Message/Trade/ConfirmTradeCMSG.cs")
 var CancelTradeCMSG = load("res://Bnet/Message/Trade/CancelTradeCMSG.cs")
 var OpenShopCMSG = load("res://Bnet/Message/Shop/OpenShopCMSG.cs")
 var ShopTradeCMSG = load("res://Bnet/Message/Shop/ShopTradeCMSG.cs")
+var SearchAuctionsCMSG = load("res://Bnet/Message/Auction/SearchAuctionsCMSG.cs")
+var BuyAuctionListingCMSG = load("res://Bnet/Message/Auction/BuyAuctionListingCMSG.cs")
 var RequestPartyInfoCMSG = load("res://Bnet/Message/Party/RequestPartyInfoCMSG.cs")
 var CreatePartyCMSG = load("res://Bnet/Message/Party/CreatePartyCMSG.cs")
 var RequestPartyInvitationCMSG = load("res://Bnet/Message/Party/RequestPartyInvitationCMSG.cs")
@@ -700,6 +702,31 @@ func shop_trade(merchant_entity_id: int, item_id: int, amount: int, selling: boo
 	msg.ItemId = item_id
 	msg.Amount = amount
 	msg.Selling = selling
+	_socket.SendMessage(msg)
+
+
+## Asks one page of the market at [param house_entity_id]. Answered by an AuctionListingsSMSG.
+func search_auctions(
+	house_entity_id: int, category: int, min_level: int, max_level: int, item_ids: Array[int], mine: bool, page: int
+) -> void:
+	assert(is_ready_to_send())
+	var msg = SearchAuctionsCMSG.new()
+	msg.HouseEntityId = house_entity_id
+	msg.Category = category
+	msg.MinLevel = min_level
+	msg.MaxLevel = max_level
+	msg.ItemIds = item_ids
+	msg.Mine = mine
+	msg.Page = page
+	_socket.SendMessage(msg)
+
+
+## Buys a whole listing. Answered by an AuctionPurchasedSMSG, or an OperationError when somebody was faster.
+func buy_auction_listing(house_entity_id: int, listing_id: int) -> void:
+	assert(is_ready_to_send())
+	var msg = BuyAuctionListingCMSG.new()
+	msg.HouseEntityId = house_entity_id
+	msg.ListingId = listing_id
 	_socket.SendMessage(msg)
 
 

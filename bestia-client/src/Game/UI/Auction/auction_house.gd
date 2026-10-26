@@ -15,6 +15,12 @@ const _WALK_AWAY_METRES := 10.0
 
 enum Tab { BROWSE, SELL, COLLECT }
 
+## Assigned by ui.gd, like the shop's: the window only exists once its WidgetWindow is ready.
+var inventory: Inventory = null:
+	set(value):
+		inventory = value
+		inventory.gold_changed.connect(_show_gold)
+
 ## The house the window is open at. Zero while closed. Every request names it.
 var _house_entity_id: int = 0
 var _opened_at := Vector3.ZERO
@@ -22,11 +28,12 @@ var _opened_at := Vector3.ZERO
 var _town: Label
 var _linked: Label
 var _tabs: TabContainer
+var _browse: AuctionBrowsePage
 
 
 func _ready() -> void:
 	add_theme_stylebox_override("panel", UiStyle.flat(UiStyle.PANEL_BG, 0, 0))
-	custom_minimum_size = Vector2(720, 480)
+	custom_minimum_size = Vector2(780, 500)
 	_build()
 
 	ConnectionManager.auction_house_opened.connect(_on_opened)
@@ -64,8 +71,12 @@ func _on_opened(msg: AuctionHouseOpenSMSG) -> void:
 	_town.text = tr("AUCTION_TITLE") % msg.TownName
 	_linked.text = tr("AUCTION_LINKED") % ", ".join(msg.LinkedTownNames)
 
+	_browse.house_entity_id = _house_entity_id
+	_show_gold()
+
 	if not was_open:
 		_tabs.current_tab = Tab.BROWSE
+		_browse.search()
 		auction_opened.emit()
 
 
@@ -73,6 +84,11 @@ func _on_opened(msg: AuctionHouseOpenSMSG) -> void:
 func _on_visibility_changed() -> void:
 	if not is_visible_in_tree():
 		close_house()
+
+
+func _show_gold(_amount: int = 0) -> void:
+	if inventory != null:
+		_browse.set_gold(inventory.gold())
 
 
 func _player() -> Entity:
@@ -94,7 +110,8 @@ func _build() -> void:
 	_tabs.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	body.add_child(_tabs)
 
-	_tabs.add_child(_placeholder_page(tr("AUCTION_BROWSE_EMPTY")))
+	_browse = AuctionBrowsePage.new()
+	_tabs.add_child(_browse)
 	_tabs.add_child(_placeholder_page(tr("AUCTION_SELL_EMPTY")))
 	_tabs.add_child(_placeholder_page(tr("AUCTION_COLLECT_EMPTY")))
 	_tabs.set_tab_title(Tab.BROWSE, tr("AUCTION_TAB_BROWSE"))

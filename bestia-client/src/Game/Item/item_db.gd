@@ -45,3 +45,7 @@ func _load_items() -> void:
 
 func get_item(item_id: int) -> ItemResource:
 	return _items.get(item_id, null)
+
+
+func all_items() -> Array:
+	return _items.values()
