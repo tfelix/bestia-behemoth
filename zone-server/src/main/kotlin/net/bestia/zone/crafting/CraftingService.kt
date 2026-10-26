@@ -30,6 +30,7 @@ import net.bestia.zone.message.OperationSuccessSMSG
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.prop.PlayerStructureService
+import net.bestia.zone.crafting.ecs.KnownRecipes
 import net.bestia.zone.world.WorldService
 import net.bestia.zone.entity.StaticEntityKind
 import org.springframework.stereotype.Service
@@ -74,6 +75,7 @@ class CraftingService(
   private val itemStats: ItemStatCatalog,
   private val roller: ItemStatRoller,
   private val worldService: WorldService,
+  private val starterKit: StarterKit,
   private val metrics: GameMetrics = GameMetrics(),
 ) : RecipeOffering {
 
@@ -95,6 +97,7 @@ class CraftingService(
 
     val offered = recipes.forSkill(skillId)
       .filter { known?.knowsSkill(skillId, it.requiredSkillLevel) == true }
+      .filter { knowsBlueprint(world, casterId, it) }
       // Only a producing recipe can be judged here: the tier that matters for the other three is the tier of
       // the item the player has not picked yet, so those are checked when the craft is asked for.
       .filter { it.needsTarget || withinReach(known, it, outputLevelOf(it)) }
@@ -134,6 +137,10 @@ class CraftingService(
 
     val known = world.get(entityId, KnownSkills::class)
     if (known?.knowsSkill(recipe.requiredSkillId, recipe.requiredSkillLevel) != true) {
+      return OpError.CRAFT_NOT_POSSIBLE
+    }
+
+    if (!knowsBlueprint(world, entityId, recipe)) {
       return OpError.CRAFT_NOT_POSSIBLE
     }
 
@@ -391,6 +398,16 @@ class CraftingService(
 
       RecipeEffect.PRODUCE -> null
     }
+  }
+
+  /**
+   * Whether the crafter knows how to make what [recipe] makes: from the starter kit, or learned. Repairing,
+   * upgrading and cutting a slot are things a skill does to an item, so they need no blueprint.
+   */
+  private fun knowsBlueprint(world: World, entityId: EntityId, recipe: Recipe): Boolean {
+    if (recipe.needsTarget || starterKit.isStarterBlueprint(recipe.id)) return true
+
+    return world.get(entityId, KnownRecipes::class)?.knows(recipe.id) == true
   }
 
   /**

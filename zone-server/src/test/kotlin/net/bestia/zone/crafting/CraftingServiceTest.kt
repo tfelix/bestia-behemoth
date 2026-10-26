@@ -54,6 +54,31 @@ class CraftingServiceTest {
   }
 
   @Test
+  fun `a blueprint nobody taught the crafter cannot be made or seen`() {
+    val fixture = CraftingFixture(listOf(produce), starterBlueprints = emptySet())
+    val crafter = fixture.givenCrafter(items = listOf(stack(INPUT_ITEM, 5)), knownSkills = mapOf(SKILL_ID to 1))
+    var sent: CraftableRecipesSMSG? = null
+    every { fixture.outMessageProcessor.sendToPlayer(any<Long>(), any<CraftableRecipesSMSG>()) } answers {
+      sent = secondArg()
+    }
+
+    assertEquals(OpError.CRAFT_NOT_POSSIBLE, fixture.service.start(fixture.world, crafter, produce.id, targetUniqueId = 0))
+    fixture.service.offerRecipes(fixture.world, crafter, SKILL_ID)
+
+    assertTrue(sent!!.recipes.isEmpty())
+  }
+
+  @Test
+  fun `a learned blueprint can be made`() {
+    val fixture = CraftingFixture(listOf(produce), starterBlueprints = emptySet())
+    val crafter = fixture.givenCrafter(
+      items = listOf(stack(INPUT_ITEM, 5)), knownSkills = mapOf(SKILL_ID to 1), knownRecipes = setOf(produce.id)
+    )
+
+    assertNull(fixture.service.start(fixture.world, crafter, produce.id, targetUniqueId = 0))
+  }
+
+  @Test
   fun `a craft with nothing to make it from is refused before it starts`() {
     val fixture = CraftingFixture(listOf(produce))
     val crafter = fixture.givenCrafter(items = listOf(stack(INPUT_ITEM, 1)), knownSkills = mapOf(SKILL_ID to 1))
