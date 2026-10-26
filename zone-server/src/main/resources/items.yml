@@ -22,6 +22,10 @@
 # `random-stats` is what a forged copy may roll. Each `affixes` entry rolls one stat from a `pool` (ATTRIBUTE,
 # OFFENSE, DEFENSE, ARCANE, RESIST - see `StatPool`) or names one `stat`, with a `chance` in percent (default
 # 100) and an optional `min`/`max`. `sockets` holds one chance per socket. The forge caps how high it rolls.
+#
+# `craft-axes` places a material in the crafting feature space, each axis from -1 to 1 (STATE fluid..solid,
+# INTEGRITY brittle..resilient, HEFT light..massive, EDGE blunt..keen, VITALITY necrotic..restorative, ARCANE
+# warding..charged, COMPLEXITY crude..intricate). A recipe can only be discovered when all its inputs have them.
 items:
   - id: 1
     item-db-name: apple
@@ -29,6 +33,7 @@ items:
     weight: 15
     type: USABLE
     material: FOOD
+    craft-axes: { STATE: 0.2, INTEGRITY: -0.3, HEFT: -0.6, VITALITY: 0.5 }
     script: AppleScript
     description: |
       A fresh apple. 
@@ -41,6 +46,7 @@ items:
     weight: 10
     type: ETC
     material: FOOD
+    craft-axes: { STATE: -0.6, INTEGRITY: -0.6, HEFT: -0.7, VITALITY: 0.3 }
 
   - id: 3
     item-db-name: small_health_potion
@@ -124,6 +130,7 @@ items:
     weight: 300
     type: ETC
     material: STONE
+    craft-axes: { STATE: 1.0, INTEGRITY: 0.3, HEFT: 0.8, COMPLEXITY: -0.9 }
     description: |
       A lump of raw iron ore, streaked with rust-coloured veins.
 
@@ -135,6 +142,7 @@ items:
     weight: 250
     type: ETC
     material: METAL
+    craft-axes: { STATE: 1.0, INTEGRITY: 0.8, HEFT: 0.7, EDGE: 0.2, COMPLEXITY: -0.2 }
     description: |
       A bar of refined iron, still warm from the furnace.
 
@@ -146,6 +154,7 @@ items:
     weight: 100
     type: ETC
     material: WOOD
+    craft-axes: { STATE: 0.8, INTEGRITY: -0.6, HEFT: 0.2, COMPLEXITY: -0.8 }
     description: |
       A handful of coal. It burns hot enough to melt ore, and dirties everything it touches.
 
@@ -155,6 +164,7 @@ items:
     weight: 150
     type: ETC
     material: STONE
+    craft-axes: { STATE: 0.4, INTEGRITY: -0.2, HEFT: 0.3, COMPLEXITY: -0.6 }
     description: |
       Wet river clay, kneaded into a ball. It takes a shape and keeps it.
 
@@ -173,6 +183,7 @@ items:
     weight: 10
     type: ETC
     material: CRYSTAL
+    craft-axes: { STATE: -0.2, HEFT: -0.9, ARCANE: 0.9, COMPLEXITY: 0.3 }
     description: |
       Mana crystal ground to a fine, faintly glowing powder.
 
@@ -193,6 +204,7 @@ items:
     weight: 1
     type: ETC
     material: PAPER
+    craft-axes: { STATE: 0.6, INTEGRITY: -0.5, HEFT: -0.9, ARCANE: 0.3, COMPLEXITY: 0.8 }
     description: |
       A smith's drawing of a blade, annotated in a hand that assumed the reader already knew how.
 
@@ -202,6 +214,7 @@ items:
     weight: 1
     type: ETC
     material: PAPER
+    craft-axes: { STATE: 0.6, INTEGRITY: -0.5, HEFT: -0.9, ARCANE: 0.3, COMPLEXITY: 0.7 }
     description: |
       A smith's drawing of a breastplate, with the hard part - the fitting - left as an exercise.
 
@@ -401,6 +414,7 @@ items:
     weight: 350
     type: ETC
     material: STONE
+    craft-axes: { STATE: 1.0, INTEGRITY: 0.1, HEFT: 0.9, ARCANE: 0.2, COMPLEXITY: -0.9 }
     description: |
       A lump of quartz shot through with soft yellow metal.
 
@@ -412,6 +426,7 @@ items:
     weight: 300
     type: ETC
     material: METAL
+    craft-axes: { STATE: 1.0, INTEGRITY: 0.4, HEFT: 0.9, ARCANE: 0.2, COMPLEXITY: -0.1 }
     description: |
       A finger of refined gold, still dull from the mould.
 
@@ -469,6 +484,7 @@ items:
     weight: 40
     type: ETC
     material: FOOD
+    craft-axes: { STATE: 0.6, INTEGRITY: -0.7, HEFT: -0.4, VITALITY: 0.2 }
     description: |
       A sack of coarse grey salt.
 
@@ -564,6 +580,7 @@ items:
     weight: 150
     type: ETC
     material: WOOD
+    craft-axes: { STATE: 0.9, INTEGRITY: 0.5, HEFT: 0.1, COMPLEXITY: -0.4 }
     description: |
       A sawn board, planed on one face.
 
@@ -671,6 +688,7 @@ items:
     weight: 60
     type: ETC
     material: CLOTH
+    craft-axes: { STATE: 0.5, INTEGRITY: 0.3, HEFT: -0.8, COMPLEXITY: 0.3 }
     description: |
       A bolt of plain woven cloth, sold by the length.
 
@@ -680,6 +698,7 @@ items:
     weight: 40
     type: ETC
     material: GLASS
+    craft-axes: { STATE: -0.8, HEFT: -0.7, COMPLEXITY: 0.2 }
     description: |
       A stoppered pot of deep colour, ground from roadside plants.
 

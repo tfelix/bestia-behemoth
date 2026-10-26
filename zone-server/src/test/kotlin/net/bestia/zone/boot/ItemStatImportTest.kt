@@ -3,6 +3,7 @@ package net.bestia.zone.boot
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import net.bestia.zone.crafting.discovery.CraftVector
 import net.bestia.zone.item.stat.ItemStat
 import net.bestia.zone.item.stat.StatPool
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -22,6 +23,11 @@ class ItemStatImportTest {
   @Test
   fun `every item's stats and template build`() {
     items.forEach { it.toStatSheet() }
+  }
+
+  @Test
+  fun `every material's craft axes lie in the feature space`() {
+    items.filter { it.craftAxes.isNotEmpty() }.forEach { CraftVector(it.craftAxes) }
   }
 
   @Test
