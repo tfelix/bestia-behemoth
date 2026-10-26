@@ -57,6 +57,7 @@ namespace BestiaBehemothClient.Game.World
     private static readonly StringName Wetness = "weather_wetness";
     private static readonly StringName Snow = "weather_snow";
     private static readonly StringName Temperature = "weather_temperature";
+    private static readonly StringName RainParameter = "weather_rain";
     private static readonly StringName SnowLineParameter = "weather_snow_line";
     private static readonly StringName SnowFullParameter = "weather_snow_full";
 
@@ -259,6 +260,8 @@ namespace BestiaBehemothClient.Game.World
     /// a client that started in a dead calm would otherwise leave it standing.
     /// </remarks>
     private Vector3 _publishedWind = new(float.NaN, float.NaN, float.NaN);
+
+    private float _publishedRainRate = float.NaN;
 
     /// <summary>See <see cref="GustDriftParameter"/>. Metres, unwrapped, and doubles so it stays smooth.</summary>
     private double _gustDriftX;
@@ -581,6 +584,7 @@ namespace BestiaBehemothClient.Game.World
           Mathf.IsEqualApprox(snow, _snow) &&
           Mathf.IsEqualApprox(snowLine, _snowLine) &&
           Mathf.IsEqualApprox(snowFull, _snowFull) &&
+          Mathf.IsEqualApprox(_rainRate, _publishedRainRate) &&
           Mathf.IsEqualApprox(temperature, _temperature) &&
           _gustedWind.IsEqualApprox(_publishedWind))
       {
@@ -693,8 +697,10 @@ namespace BestiaBehemothClient.Game.World
       RenderingServer.GlobalShaderParameterSet(Temperature, _temperature);
       RenderingServer.GlobalShaderParameterSet(SnowLineParameter, _snowLine);
       RenderingServer.GlobalShaderParameterSet(SnowFullParameter, _snowFull);
+      RenderingServer.GlobalShaderParameterSet(RainParameter, _rainRate);
       RenderingServer.GlobalShaderParameterSet(WindParameter, _gustedWind);
 
+      _publishedRainRate = _rainRate;
       _publishedWind = _gustedWind;
     }
   }
