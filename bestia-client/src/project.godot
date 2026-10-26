@@ -223,6 +223,14 @@ weather_temperature={
 "type": "float",
 "value": 15.0
 }
+weather_snow_line={
+"type": "float",
+"value": 1000000.0
+}
+weather_snow_full={
+"type": "float",
+"value": 1000000.0
+}
 weather_wind={
 "type": "vec3",
 "value": Vector3(2.2, 0, 1.4)

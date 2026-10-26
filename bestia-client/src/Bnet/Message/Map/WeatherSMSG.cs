@@ -76,6 +76,14 @@ namespace BestiaBehemothClient.Bnet.Message.Map
     [Export] public long HazardY { get; set; }
     [Export] public float HazardRadiusMetres { get; set; }
 
+    /// <summary>How wet the ground at the player's elevation is, 0 to 1, from the region's recent weather.</summary>
+    [Export] public float GroundWetness { get; set; }
+
+    /// <summary>Elevations in voxels where snow lies in patches and in full; only meaningful with HasSnow.</summary>
+    [Export] public bool HasSnow { get; set; }
+    [Export] public float SnowLine { get; set; }
+    [Export] public float SnowFull { get; set; }
+
     public static WeatherSMSG FromProto(global::Bnet.WeatherSMSG proto)
     {
       return new WeatherSMSG
@@ -93,7 +101,11 @@ namespace BestiaBehemothClient.Bnet.Message.Map
         HasHazard = proto.HasHazard,
         HazardX = proto.HazardX,
         HazardY = proto.HazardY,
-        HazardRadiusMetres = proto.HazardRadiusMetres
+        HazardRadiusMetres = proto.HazardRadiusMetres,
+        GroundWetness = proto.GroundWetness,
+        HasSnow = proto.HasSnow,
+        SnowLine = proto.SnowLine,
+        SnowFull = proto.SnowFull
       };
     }
 
@@ -101,9 +113,10 @@ namespace BestiaBehemothClient.Bnet.Message.Map
     {
       var hazard = HasHazard ? $", tornado at ({HazardX},{HazardY}) r={HazardRadiusMetres:F0}m" : "";
       var forecast = HasForecast ? $", sensing {ForecastWeather} in {ForecastInSeconds}s" : "";
+      var snow = HasSnow ? $", snow from {SnowLine:F0} full from {SnowFull:F0}" : "";
       return $"{Weather} intensity {Intensity:F2}, cloud {CloudCover:F2}, wind {WindSpeed:F1} m/s, " +
              $"{TemperatureCelsius:F1}°C, region {RegionId}" +
-             $"{hazard}{forecast}";
+             $", ground wet {GroundWetness:F2}{snow}{hazard}{forecast}";
     }
   }
 }
