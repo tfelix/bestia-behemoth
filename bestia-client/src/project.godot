@@ -27,6 +27,7 @@ DialogManager="*res://Manager/dialog_manager.gd"
 EmblemCache="*res://Manager/emblem_cache.gd"
 ConversationPresenter="*res://Game/UI/Conversation/conversation_presenter.gd"
 RenderDebug="*res://Dev/RenderDebug/render_debug.gd"
+Audio="*res://Audio/audio.gd"
 
 [display]
 

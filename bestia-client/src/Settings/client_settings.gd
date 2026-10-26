@@ -62,3 +62,12 @@ const FORMAT_VERSION := 1
 ## entity-target skills (AttackResource.target_type ENEMY/FRIENDLY) to visually snap onto it. See
 ## MouseStateSkillTargeting._update_entity_snap.
 @export var skill_target_snap_distance: float = 1.5
+
+@export_group("Audio")
+
+## Linear bus volumes from 0 to 1, read by the Audio autoload. One per bus in `default_bus_layout.tres`.
+@export_range(0.0, 1.0, 0.01) var master_volume: float = 1.0
+@export_range(0.0, 1.0, 0.01) var music_volume: float = 0.7
+@export_range(0.0, 1.0, 0.01) var ambience_volume: float = 0.8
+@export_range(0.0, 1.0, 0.01) var effects_volume: float = 1.0
+@export_range(0.0, 1.0, 0.01) var interface_volume: float = 0.8
