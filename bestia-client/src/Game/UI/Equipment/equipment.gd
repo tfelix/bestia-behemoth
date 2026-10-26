@@ -151,9 +151,9 @@ func _render() -> void:
 		slot_node.set_item(item_resource, equipped["unique_id"], detail)
 
 
-func _on_equip_requested(item_id: int, unique_id: int, slot: int) -> void:
+func _on_equip_requested(player_item_id: int, slot: int) -> void:
 	if ConnectionManager.is_ready_to_send():
-		ConnectionManager.equip_item(item_id, unique_id, slot)
+		ConnectionManager.equip_item(player_item_id, slot)
 
 
 func _on_unequip_requested(slot: int) -> void:
@@ -174,7 +174,7 @@ func is_worn(unique_id: int) -> bool:
 
 ## Equips [param item_id] into whichever slot the item itself declares. Used by the inventory's
 ## double-click-to-equip shortcut. Returns false when the item is not equipment at all.
-func equip_to_own_slot(item_id: int, unique_id: int) -> bool:
+func equip_to_own_slot(item_id: int, player_item_id: int) -> bool:
 	var item_resource = ItemDB.get_instance().get_item(item_id)
 	if item_resource == null:
 		return false
@@ -183,5 +183,5 @@ func equip_to_own_slot(item_id: int, unique_id: int) -> bool:
 	if slot < 0 or not EquipmentSlot.has_slot(_available_mask(), slot):
 		return false
 
-	_on_equip_requested(item_id, unique_id, slot)
+	_on_equip_requested(player_item_id, slot)
 	return true

@@ -6,7 +6,7 @@ import net.bestia.zone.script.ScriptArgs
 
 data class UseItemCMSG(
   override val playerId: Long,
-  val itemId: Long,
+  val playerItemId: Long,
 
   /** Whatever the client gathered first, for an item whose script asks for more than "use it". */
   val args: ScriptArgs
@@ -16,7 +16,7 @@ data class UseItemCMSG(
     fun fromBnet(playerId: Long, bnet: UseItemCMSGProto.UseItemCMSG): UseItemCMSG {
       return UseItemCMSG(
         playerId = playerId,
-        itemId = bnet.itemId,
+        playerItemId = bnet.playerItemId,
         args = ScriptArgs.fromBnet(bnet.args)
       )
     }

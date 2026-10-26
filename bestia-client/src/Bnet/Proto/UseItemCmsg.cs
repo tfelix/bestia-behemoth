@@ -25,14 +25,14 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CiZtZXNzYWdlcy9pbnZlbnRvcnkvdXNlX2l0ZW1fY21zZy5wcm90bxIEYm5l",
-            "dBohbWVzc2FnZXMvc3lzdGVtL3NjcmlwdF9hcmdzLnByb3RvIj4KC1VzZUl0",
-            "ZW1DTVNHEg8KB2l0ZW1faWQYASABKAQSHgoEYXJncxgCIAEoCzIQLmJuZXQu",
-            "U2NyaXB0QXJnc0IpChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CEFVzZUl0ZW1D",
-            "TVNHUHJvdG9iBnByb3RvMw=="));
+            "dBohbWVzc2FnZXMvc3lzdGVtL3NjcmlwdF9hcmdzLnByb3RvIksKC1VzZUl0",
+            "ZW1DTVNHEhYKDnBsYXllcl9pdGVtX2lkGAMgASgEEh4KBGFyZ3MYAiABKAsy",
+            "EC5ibmV0LlNjcmlwdEFyZ3NKBAgBEAJCKQoVbmV0LmJlc3RpYS5ibmV0LnBy",
+            "b3RvQhBVc2VJdGVtQ01TR1Byb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Bnet.ScriptArgsReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.UseItemCMSG), global::Bnet.UseItemCMSG.Parser, new[]{ "ItemId", "Args" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.UseItemCMSG), global::Bnet.UseItemCMSG.Parser, new[]{ "PlayerItemId", "Args" }, null, null, null, null)
           }));
     }
     #endregion
@@ -78,7 +78,7 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public UseItemCMSG(UseItemCMSG other) : this() {
-      itemId_ = other.itemId_;
+      playerItemId_ = other.playerItemId_;
       args_ = other.args_ != null ? other.args_.Clone() : null;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
@@ -89,15 +89,18 @@ namespace Bnet {
       return new UseItemCMSG(this);
     }
 
-    /// <summary>Field number for the "item_id" field.</summary>
-    public const int ItemIdFieldNumber = 1;
-    private ulong itemId_;
+    /// <summary>Field number for the "player_item_id" field.</summary>
+    public const int PlayerItemIdFieldNumber = 3;
+    private ulong playerItemId_;
+    /// <summary>
+    /// The held item to use, as InventoryItem.player_item_id names it.
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public ulong ItemId {
-      get { return itemId_; }
+    public ulong PlayerItemId {
+      get { return playerItemId_; }
       set {
-        itemId_ = value;
+        playerItemId_ = value;
       }
     }
 
@@ -135,7 +138,7 @@ namespace Bnet {
       if (ReferenceEquals(other, this)) {
         return true;
       }
-      if (ItemId != other.ItemId) return false;
+      if (PlayerItemId != other.PlayerItemId) return false;
       if (!object.Equals(Args, other.Args)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
@@ -144,7 +147,7 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
-      if (ItemId != 0UL) hash ^= ItemId.GetHashCode();
+      if (PlayerItemId != 0UL) hash ^= PlayerItemId.GetHashCode();
       if (args_ != null) hash ^= Args.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
@@ -164,13 +167,13 @@ namespace Bnet {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
-      if (ItemId != 0UL) {
-        output.WriteRawTag(8);
-        output.WriteUInt64(ItemId);
-      }
       if (args_ != null) {
         output.WriteRawTag(18);
         output.WriteMessage(Args);
+      }
+      if (PlayerItemId != 0UL) {
+        output.WriteRawTag(24);
+        output.WriteUInt64(PlayerItemId);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -182,13 +185,13 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (ItemId != 0UL) {
-        output.WriteRawTag(8);
-        output.WriteUInt64(ItemId);
-      }
       if (args_ != null) {
         output.WriteRawTag(18);
         output.WriteMessage(Args);
+      }
+      if (PlayerItemId != 0UL) {
+        output.WriteRawTag(24);
+        output.WriteUInt64(PlayerItemId);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
@@ -200,8 +203,8 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
-      if (ItemId != 0UL) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(ItemId);
+      if (PlayerItemId != 0UL) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(PlayerItemId);
       }
       if (args_ != null) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(Args);
@@ -218,8 +221,8 @@ namespace Bnet {
       if (other == null) {
         return;
       }
-      if (other.ItemId != 0UL) {
-        ItemId = other.ItemId;
+      if (other.PlayerItemId != 0UL) {
+        PlayerItemId = other.PlayerItemId;
       }
       if (other.args_ != null) {
         if (args_ == null) {
@@ -246,15 +249,15 @@ namespace Bnet {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 8: {
-            ItemId = input.ReadUInt64();
-            break;
-          }
           case 18: {
             if (args_ == null) {
               Args = new global::Bnet.ScriptArgs();
             }
             input.ReadMessage(Args);
+            break;
+          }
+          case 24: {
+            PlayerItemId = input.ReadUInt64();
             break;
           }
         }
@@ -276,15 +279,15 @@ namespace Bnet {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 8: {
-            ItemId = input.ReadUInt64();
-            break;
-          }
           case 18: {
             if (args_ == null) {
               Args = new global::Bnet.ScriptArgs();
             }
             input.ReadMessage(Args);
+            break;
+          }
+          case 24: {
+            PlayerItemId = input.ReadUInt64();
             break;
           }
         }

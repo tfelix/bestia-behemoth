@@ -16,9 +16,11 @@ signal dragged_out()
 ## are separate offers, so the item id could not tell them apart.
 @export var offer_slot_id: int = 0
 
-## Id of the backing item instance, or 0 for a plain stackable pile. Needed to name *which*
-## physical item to equip when several copies are held.
+## Id of the backing item instance, or 0 for a plain stackable pile.
 @export var unique_id: int = 0
+
+## What every action on this held item names it by - see [member InventoryItemResource.player_item_id].
+@export var player_item_id: int = 0
 
 ## Wear on the backing instance. A [member max_durability] of 0 means this item does not wear at all,
 ## which is the case for every material, every consumable and any gear nobody gave a number to - so the
@@ -118,6 +120,8 @@ func _get_drag_data(_at_position: Vector2) -> Variant:
 		"type": "item",
 		"id": item.item_id,
 		"unique_id": unique_id,
+		"player_item_id": player_item_id,
+		"amount": amount,
 		"source": drag_source,
 		"offer_slot_id": offer_slot_id,
 	}
@@ -145,8 +149,8 @@ func _gui_input(event: InputEvent) -> void:
 				return
 			# With the equipment window open, double clicking a piece of gear puts it on; anything
 			# else (or a closed window) falls through to the normal "use this item".
-			if inventory != null and inventory.try_quick_equip(item, unique_id):
+			if inventory != null and inventory.try_quick_equip(item, player_item_id):
 				return
-			item.use_item()
+			item.use_item(player_item_id)
 		elif event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
 			print("Panel was right-clicked!")

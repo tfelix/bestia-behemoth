@@ -38,9 +38,11 @@ class DropItemHandlerTest {
     every { it.submit(MASTER_ID, any()) } answers { pending = secondArg() }
   }
 
+  private val arrows = Inventory.Item(itemId = ARROW, amount = 10)
+
   private val entity = world.createEntity { id ->
     add(id, Position(5, 5, 0))
-    add(id, Inventory(mutableListOf(Inventory.Item(itemId = ARROW, amount = 10))))
+    add(id, Inventory(mutableListOf(arrows)))
     add(id, Equipment(availableSlotMask = EquipmentSlots.ALL))
   }
 
@@ -50,7 +52,7 @@ class DropItemHandlerTest {
 
   private val sut = DropItemHandler(inventoryService, spawner, connections, DeadActionGuard(), executor, world)
 
-  private val drop = DropItemCMSG(playerId = ACCOUNT_ID, itemId = ARROW, amount = 4)
+  private val drop = DropItemCMSG(playerId = ACCOUNT_ID, playerItemId = arrows.playerItemId, amount = 4)
 
   @Test
   fun `the handler only queues the drop, the database is not touched on its thread`() {
@@ -99,16 +101,17 @@ class DropItemHandlerTest {
 
   @Test
   fun `a bestia drops from its own container`() {
+    val bestiaArrows = Inventory.Item(itemId = ARROW, amount = 10)
     val bestia = world.createEntity { id ->
       add(id, Position(5, 5, 0))
-      add(id, Inventory(mutableListOf(Inventory.Item(itemId = ARROW, amount = 10))))
+      add(id, Inventory(mutableListOf(bestiaArrows)))
     }
     connections.registerPlayerBestiaEntity(ACCOUNT_ID, MASTER_ID, PLAYER_BESTIA_ID, bestia)
     connections.activateEntity(ACCOUNT_ID, bestia)
     every { inventoryService.removeOneFromOwner(MASTER_ID, PLAYER_BESTIA_ID, ARROW, 4, 0L) } returns
       ItemContainer.RemovedItem(uniqueId = 0L, instance = null)
 
-    sut.handle(world, drop)
+    sut.handle(world, drop.copy(playerItemId = bestiaArrows.playerItemId))
     pending!!.invoke()
 
     assertEquals(6, world.get(bestia, Inventory::class)!!.getItem(ARROW.toInt())?.amount)
@@ -121,27 +124,30 @@ class DropItemHandlerTest {
     assertNull(pending)
   }
 
-  /** A looted instance is minted in the database after the live copy was added, which still reads uniqueId 0. */
+  /** Two copies of one template can differ, so the one the player dragged is the one that leaves. */
   @Test
-  fun `a freshly looted item leaves the bag when it is dropped`() {
-    every { inventoryService.removeOneFromOwner(MASTER_ID, null, SWORD, 1, 0L) } returns
+  fun `a named copy is dropped by its own id`() {
+    every { inventoryService.removeOneFromOwner(MASTER_ID, null, SWORD, 1, 77L) } returns
       ItemContainer.RemovedItem(uniqueId = 77L, instance = null)
-    world.get(entity, Inventory::class)!!.addItem(Inventory.Item(SWORD, amount = 1, uniqueId = 0L, stackable = false))
+    val inventory = world.get(entity, Inventory::class)!!
+    inventory.addItem(Inventory.Item(SWORD, amount = 1, uniqueId = 77L, stackable = false))
+    inventory.addItem(Inventory.Item(SWORD, amount = 1, uniqueId = 78L, stackable = false))
 
-    sut.handle(world, DropItemCMSG(ACCOUNT_ID, SWORD, amount = 1))
+    sut.handle(world, DropItemCMSG(ACCOUNT_ID, playerItemId = 77L, amount = 1))
     pending!!.invoke()
 
-    assertTrue(world.get(entity, Inventory::class)!!.getItems().none { it.itemId == SWORD })
+    assertEquals(listOf(78L), inventory.getItems().filter { it.itemId == SWORD }.map { it.uniqueId })
+    verify { spawner.spawnLootItem(world, itemId = SWORD, amount = 1, pos = any(), uniqueId = 77L) }
   }
 
   /** Worn a moment ago, so the database still has it free: only the live Equipment knows it is worn. */
   @Test
   fun `worn gear is never dropped`() {
-    world.get(entity, Inventory::class)!!.addItem(Inventory.Item(SWORD, amount = 1, uniqueId = 0L, stackable = false))
+    world.get(entity, Inventory::class)!!.addItem(Inventory.Item(SWORD, amount = 1, uniqueId = 77L, stackable = false))
     world.get(entity, Equipment::class)!!
-      .equip(EquipmentSlot.RIGHT_HAND, Equipment.EquippedItem(itemId = SWORD, uniqueId = 0L))
+      .equip(EquipmentSlot.RIGHT_HAND, Equipment.EquippedItem(itemId = SWORD, uniqueId = 77L))
 
-    sut.handle(world, DropItemCMSG(ACCOUNT_ID, SWORD, amount = 1))
+    sut.handle(world, DropItemCMSG(ACCOUNT_ID, playerItemId = 77L, amount = 1))
 
     assertNull(pending)
   }

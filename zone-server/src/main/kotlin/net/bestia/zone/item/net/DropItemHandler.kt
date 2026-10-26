@@ -50,78 +50,63 @@ class DropItemHandler(
     val masterId = connectionInfoService.getMasterId(msg.playerId)
     val playerBestiaId = connectionInfoService.getActivePlayerBestiaId(msg.playerId)
 
-    val inventory = world.get(activeEntityId, Inventory::class)
-    val holdsIt = inventory != null && holdsDroppable(inventory, world.get(activeEntityId, Equipment::class), msg)
-    if (!holdsIt) {
-      LOG.warn { "Entity $activeEntityId does not hold ${msg.amount}x item ${msg.itemId} (uniqueId ${msg.uniqueId})" }
+    val held = world.get(activeEntityId, Inventory::class)?.byPlayerItemId(msg.playerItemId)
+    if (held == null || !mayDrop(held, world.get(activeEntityId, Equipment::class), msg.amount)) {
+      LOG.warn { "Entity $activeEntityId does not hold ${msg.amount}x of item ${msg.playerItemId} to drop" }
       return true
     }
 
     // Keyed by the master like every other write to its container, so a concurrent use or trade of the same
     // item queues behind this one and finds it gone.
-    asyncJobExecutor.submit(masterId) { dropDurably(msg, masterId, playerBestiaId, activeEntityId) }
+    asyncJobExecutor.submit(masterId) { dropDurably(msg, held.itemId, held.uniqueId, masterId, playerBestiaId, activeEntityId) }
 
     return true
   }
 
   private fun dropDurably(
     msg: DropItemCMSG,
+    itemId: Long,
+    uniqueId: Long,
     masterId: Long,
     playerBestiaId: PlayerBestiaId?,
     activeEntityId: EntityId
   ) {
-    val removed = inventoryService.removeOneFromOwner(masterId, playerBestiaId, msg.itemId, msg.amount, msg.uniqueId)
+    val removed = inventoryService.removeOneFromOwner(masterId, playerBestiaId, itemId, msg.amount, uniqueId)
     if (removed == null) {
-      LOG.warn { "Could not remove ${msg.amount} of item ${msg.itemId} (uniqueId ${msg.uniqueId}) from entity $activeEntityId in DB" }
+      LOG.warn { "Could not remove ${msg.amount} of item $itemId (uniqueId $uniqueId) from entity $activeEntityId in DB" }
       return
     }
 
     val dropped = worldView.modify(activeEntityId) { id ->
       val inventory = get(id, Inventory::class) ?: return@modify null
-      val amount = inventory.mirrorRemoval(msg.itemId, msg.amount, removed.uniqueId) ?: return@modify null
+      if (!inventory.take(msg.playerItemId, msg.amount)) return@modify null
       val pos = get(id, Position::class)?.toVec3L() ?: return@modify null
 
-      Dropped(amount, Vec3L(pos.x + Random.nextLong(-1, 2), pos.y + Random.nextLong(-1, 2), pos.z))
+      Vec3L(pos.x + Random.nextLong(-1, 2), pos.y + Random.nextLong(-1, 2), pos.z)
     }
 
     if (dropped == null) {
-      LOG.warn { "Item ${msg.itemId} left master $masterId in DB but not its live inventory; nothing is dropped" }
+      LOG.warn { "Item $itemId left master $masterId in DB but not its live inventory; nothing is dropped" }
       return
     }
 
     worldView.read {
       lootItemEntitySpawner.spawnLootItem(
         this,
-        itemId = msg.itemId,
-        amount = dropped.amount,
-        pos = dropped.pos,
+        itemId = itemId,
+        amount = msg.amount,
+        pos = dropped,
         uniqueId = removed.uniqueId
       )
     }
   }
 
-  /**
-   * Checked before the durable removal, which cannot be taken back: the database prefers an instance over a pile,
-   * so any instance of the template can be dropped, and a pile only for the full amount.
-   */
-  private fun holdsDroppable(inventory: Inventory, equipment: Equipment?, msg: DropItemCMSG): Boolean {
-    if (equipment != null && !equipment.leavesUnwornCopy(inventory, msg.itemId, msg.uniqueId)) {
-      return false
-    }
+  /** Checked before the durable removal, which cannot be taken back. Worn gear stays on until it is taken off. */
+  private fun mayDrop(held: Inventory.Item, equipment: Equipment?, amount: Int): Boolean {
+    val worn = held.equipped || equipment?.isWorn(held.uniqueId) == true
 
-    val copies = inventory.getItems().filter { it.itemId == msg.itemId }
-
-    if (msg.uniqueId != 0L) {
-      return copies.any { it.uniqueId == msg.uniqueId }
-    }
-
-    return copies.any { !it.isStackable } || copies.filter { it.isStackable }.sumOf { it.amount } >= msg.amount
+    return !worn && held.amount >= amount
   }
-
-  private data class Dropped(
-    val amount: Int,
-    val pos: Vec3L,
-  )
 
   companion object {
     private val LOG = KotlinLogging.logger { }

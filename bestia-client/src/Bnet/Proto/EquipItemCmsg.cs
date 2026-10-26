@@ -25,13 +25,13 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CihtZXNzYWdlcy9pbnZlbnRvcnkvZXF1aXBfaXRlbV9jbXNnLnByb3RvEgRi",
-            "bmV0IkEKDUVxdWlwSXRlbUNNU0cSDwoHaXRlbV9pZBgBIAEoBBIRCgl1bmlx",
-            "dWVfaWQYAiABKAQSDAoEc2xvdBgDIAEoDUIrChVuZXQuYmVzdGlhLmJuZXQu",
+            "bmV0IkEKDUVxdWlwSXRlbUNNU0cSFgoOcGxheWVyX2l0ZW1faWQYBCABKAQS",
+            "DAoEc2xvdBgDIAEoDUoECAEQAkoECAIQA0IrChVuZXQuYmVzdGlhLmJuZXQu",
             "cHJvdG9CEkVxdWlwSXRlbUNNU0dQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.EquipItemCMSG), global::Bnet.EquipItemCMSG.Parser, new[]{ "ItemId", "UniqueId", "Slot" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.EquipItemCMSG), global::Bnet.EquipItemCMSG.Parser, new[]{ "PlayerItemId", "Slot" }, null, null, null, null)
           }));
     }
     #endregion
@@ -78,8 +78,7 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public EquipItemCMSG(EquipItemCMSG other) : this() {
-      itemId_ = other.itemId_;
-      uniqueId_ = other.uniqueId_;
+      playerItemId_ = other.playerItemId_;
       slot_ = other.slot_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
@@ -90,31 +89,18 @@ namespace Bnet {
       return new EquipItemCMSG(this);
     }
 
-    /// <summary>Field number for the "item_id" field.</summary>
-    public const int ItemIdFieldNumber = 1;
-    private ulong itemId_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public ulong ItemId {
-      get { return itemId_; }
-      set {
-        itemId_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "unique_id" field.</summary>
-    public const int UniqueIdFieldNumber = 2;
-    private ulong uniqueId_;
+    /// <summary>Field number for the "player_item_id" field.</summary>
+    public const int PlayerItemIdFieldNumber = 4;
+    private ulong playerItemId_;
     /// <summary>
-    /// Id of the backing ItemInstance, or 0 when the client does not know it yet - the server then
-    /// falls back to picking a held instance of item_id.
+    /// The held item to wear, as InventoryItem.player_item_id names it.
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public ulong UniqueId {
-      get { return uniqueId_; }
+    public ulong PlayerItemId {
+      get { return playerItemId_; }
       set {
-        uniqueId_ = value;
+        playerItemId_ = value;
       }
     }
 
@@ -148,8 +134,7 @@ namespace Bnet {
       if (ReferenceEquals(other, this)) {
         return true;
       }
-      if (ItemId != other.ItemId) return false;
-      if (UniqueId != other.UniqueId) return false;
+      if (PlayerItemId != other.PlayerItemId) return false;
       if (Slot != other.Slot) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
@@ -158,8 +143,7 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
-      if (ItemId != 0UL) hash ^= ItemId.GetHashCode();
-      if (UniqueId != 0UL) hash ^= UniqueId.GetHashCode();
+      if (PlayerItemId != 0UL) hash ^= PlayerItemId.GetHashCode();
       if (Slot != 0) hash ^= Slot.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
@@ -179,17 +163,13 @@ namespace Bnet {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
-      if (ItemId != 0UL) {
-        output.WriteRawTag(8);
-        output.WriteUInt64(ItemId);
-      }
-      if (UniqueId != 0UL) {
-        output.WriteRawTag(16);
-        output.WriteUInt64(UniqueId);
-      }
       if (Slot != 0) {
         output.WriteRawTag(24);
         output.WriteUInt32(Slot);
+      }
+      if (PlayerItemId != 0UL) {
+        output.WriteRawTag(32);
+        output.WriteUInt64(PlayerItemId);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -201,17 +181,13 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (ItemId != 0UL) {
-        output.WriteRawTag(8);
-        output.WriteUInt64(ItemId);
-      }
-      if (UniqueId != 0UL) {
-        output.WriteRawTag(16);
-        output.WriteUInt64(UniqueId);
-      }
       if (Slot != 0) {
         output.WriteRawTag(24);
         output.WriteUInt32(Slot);
+      }
+      if (PlayerItemId != 0UL) {
+        output.WriteRawTag(32);
+        output.WriteUInt64(PlayerItemId);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
@@ -223,11 +199,8 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
-      if (ItemId != 0UL) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(ItemId);
-      }
-      if (UniqueId != 0UL) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(UniqueId);
+      if (PlayerItemId != 0UL) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(PlayerItemId);
       }
       if (Slot != 0) {
         size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Slot);
@@ -244,11 +217,8 @@ namespace Bnet {
       if (other == null) {
         return;
       }
-      if (other.ItemId != 0UL) {
-        ItemId = other.ItemId;
-      }
-      if (other.UniqueId != 0UL) {
-        UniqueId = other.UniqueId;
+      if (other.PlayerItemId != 0UL) {
+        PlayerItemId = other.PlayerItemId;
       }
       if (other.Slot != 0) {
         Slot = other.Slot;
@@ -272,16 +242,12 @@ namespace Bnet {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 8: {
-            ItemId = input.ReadUInt64();
-            break;
-          }
-          case 16: {
-            UniqueId = input.ReadUInt64();
-            break;
-          }
           case 24: {
             Slot = input.ReadUInt32();
+            break;
+          }
+          case 32: {
+            PlayerItemId = input.ReadUInt64();
             break;
           }
         }
@@ -303,16 +269,12 @@ namespace Bnet {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 8: {
-            ItemId = input.ReadUInt64();
-            break;
-          }
-          case 16: {
-            UniqueId = input.ReadUInt64();
-            break;
-          }
           case 24: {
             Slot = input.ReadUInt32();
+            break;
+          }
+          case 32: {
+            PlayerItemId = input.ReadUInt64();
             break;
           }
         }

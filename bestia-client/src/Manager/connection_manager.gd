@@ -511,22 +511,20 @@ func delete_route(route_id: int) -> void:
 ## [param args] carries whatever a scripted item gathered first - a placement position, a facing. Null for
 ## the ordinary case, where using the item is the whole request. Build one with ScriptArgsCls.new() and the
 ## keys in ScriptArgKeys.
-func use_item(item_id: int, args = null) -> void:
+func use_item(player_item_id: int, args = null) -> void:
 	assert(is_ready_to_send())
 	var msg = UseItemCMSG.new()
-	msg.ItemId = item_id
+	msg.PlayerItemId = player_item_id
 	msg.Args = args
 	_socket.SendMessage(msg)
 
 
-## [param unique_id] names which copy to drop and is 0 for a plain stack - see the field comment in
-## drop_item_cmsg.proto for why the server tolerates a 0 on an instance item too.
-func drop_item(item_id: int, amount: int, unique_id: int = 0) -> void:
+## [param player_item_id] names the held pile or copy to drop from, as InventoryItem.player_item_id does.
+func drop_item(player_item_id: int, amount: int) -> void:
 	assert(is_ready_to_send())
 	var msg = DropItemCMSG.new()
-	msg.ItemId = item_id
+	msg.PlayerItemId = player_item_id
 	msg.Amount = amount
-	msg.UniqueId = unique_id
 	_socket.SendMessage(msg)
 
 
@@ -563,14 +561,13 @@ func interact_entity(entity_id: int, args = null) -> void:
 
 
 ## Asks the server to wear a held item. [param slot] is an EquipmentSlot ordinal (see
-## Game/Item/equipment_slot.gd). [param unique_id] may be 0 when the client does not know the
-## item instance id yet - the server then picks any held copy. The server may refuse: it answers
-## with an OperationError plus a fresh EquipmentComponentSMSG, so never assume success locally.
-func equip_item(item_id: int, unique_id: int, slot: int) -> void:
+## Game/Item/equipment_slot.gd). [param player_item_id] names the held copy, as InventoryItem.player_item_id
+## does. The server may refuse: it answers with an OperationError plus a fresh EquipmentComponentSMSG, so
+## never assume success locally.
+func equip_item(player_item_id: int, slot: int) -> void:
 	assert(is_ready_to_send())
 	var msg = EquipItemCMSG.new()
-	msg.ItemId = item_id
-	msg.UniqueId = unique_id
+	msg.PlayerItemId = player_item_id
 	msg.Slot = slot
 	_socket.SendMessage(msg)
 

@@ -26,6 +26,6 @@ func on_targeting_click(item: ItemResource, click_info: Dictionary) -> bool:
 
 	var args = ConnectionManager.ScriptArgsCls.new()
 	args.SetPosition(ScriptArgKeys.POSITION, click_info["tile"])
-	ConnectionManager.use_item(item.item_id, args)
+	ConnectionManager.use_item(player_item_id, args)
 
 	return true

@@ -94,7 +94,8 @@ func _on_entity_received(msg: EntitySMSG) -> void:
 			var inv_item = InventoryItemResource.new()
 			inv_item.item = item_resource
 			inv_item.amount = itemMsg.Amount
-			inv_item.player_item_id = itemMsg.UniqueId
+			inv_item.player_item_id = itemMsg.PlayerItemId
+			inv_item.unique_id = itemMsg.UniqueId
 			inv_item.equipped = itemMsg.Equipped
 			inv_item.durability = itemMsg.Durability
 			inv_item.max_durability = itemMsg.MaxDurability
@@ -173,7 +174,8 @@ func _render_items() -> void:
 		var inv_item = InventoryItem.instantiate()
 		inv_item.amount = item.amount
 		inv_item.item = item.item
-		inv_item.unique_id = item.player_item_id
+		inv_item.unique_id = item.unique_id
+		inv_item.player_item_id = item.player_item_id
 		inv_item.durability = item.durability
 		inv_item.max_durability = item.max_durability
 		inv_item.slots = item.slots
@@ -193,13 +195,13 @@ func _render_items() -> void:
 ## Double-clicking an equipment item while the equipment window is open equips it into the slot the
 ## item itself declares, instead of falling through to "use". Returns false when that didn't apply,
 ## so the caller can do the normal use-item thing.
-func try_quick_equip(item: ItemResource, unique_id: int) -> bool:
+func try_quick_equip(item: ItemResource, player_item_id: int) -> bool:
 	if equipment == null or equipment_window == null or not equipment_window.visible:
 		return false
 	if item.type != ItemResource.ItemType.EQUIP:
 		return false
 
-	return equipment.equip_to_own_slot(item.item_id, unique_id)
+	return equipment.equip_to_own_slot(item.item_id, player_item_id)
 
 
 func is_initialized_for_current_entity() -> bool:
@@ -217,7 +219,7 @@ func held_instances(entity_id: int = selected_entity_id) -> Array:
 		return []
 
 	return _items[entity_id].filter(
-		func(item): return item.player_item_id != 0 and not item.equipped
+		func(item): return item.unique_id != 0 and not item.equipped
 	)
 
 
@@ -232,6 +234,15 @@ func _report_gold_change() -> void:
 
 	_reported_gold = amount
 	gold_changed.emit(amount)
+
+
+## The pile or copy of [param item_id] a shortcut uses: the first one held and not worn, or 0 for none.
+func first_held(item_id: int) -> int:
+	for inv_item in _items.get(selected_entity_id, []):
+		if inv_item.item.item_id == item_id and not inv_item.equipped:
+			return inv_item.player_item_id
+
+	return 0
 
 
 func get_item_count(item_id: int) -> int:

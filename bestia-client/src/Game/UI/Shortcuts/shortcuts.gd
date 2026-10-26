@@ -128,6 +128,8 @@ func _connect_signals() -> void:
 			container.shortcut_changed.connect(_on_shortcut_changed)
 		if not container.item_count_requested.is_connected(_on_item_count_requested):
 			container.item_count_requested.connect(_on_item_count_requested)
+		if not container.item_use_requested.is_connected(_on_item_use_requested):
+			container.item_use_requested.connect(_on_item_use_requested)
 	_connect_inventory_signal()
 
 	var entity_manager := EntityManager.get_instance()
@@ -189,6 +191,19 @@ func _on_item_count_requested(_row: int, _number: int, _item_id: int) -> void:
 	if container:
 		var item_count = _get_item_count_from_inventory(_item_id)
 		container.update_item_count(item_count)
+
+
+func _on_item_use_requested(item_id: int) -> void:
+	var item_res = ItemDB.get_instance().get_item(item_id)
+	if item_res == null:
+		printerr("Shortcuts: Can not use item, no item returned for ID: %s" % [item_id])
+		return
+
+	var player_item_id := inventory.first_held(item_id) if inventory else 0
+	if player_item_id == 0:
+		return
+
+	item_res.use_item(player_item_id)
 
 
 func _on_inventory_updated() -> void:

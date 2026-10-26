@@ -3,7 +3,12 @@ class_name InventoryItemResource
 
 
 @export var amount: int = 1
+## What every action on this held item names it by. Equals [member unique_id] for an instance; a plain pile
+## gets a handle from the server that holds while the pile is held.
 @export var player_item_id: int
+
+## Id of the backing item instance, or 0 for a plain pile.
+@export var unique_id: int = 0
 @export var item: ItemResource
 @export var equipped: bool = false
 

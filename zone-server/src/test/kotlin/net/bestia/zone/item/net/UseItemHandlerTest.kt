@@ -44,6 +44,9 @@ class UseItemHandlerTest {
 
   private val messages = mockk<OutMessageProcessor>(relaxed = true)
 
+  private val potions = Inventory.Item(POTION.id, amount = 3)
+  private val novicePotions = Inventory.Item(NOVICE_POTION.id, amount = 3)
+
   private val skillTree = MasterSkillTreeRegistry().apply {
     load(listOf(MasterSkillTreeNode(skillId = CARPENTRY_ID, identifier = "CARPENTRY", maxLevel = 5, tree = "CRAFTSMAN")))
   }
@@ -57,19 +60,19 @@ class UseItemHandlerTest {
     every { inventoryService.removeOneFromOwner(MASTER_ID, null, POTION.id, 1, 0L) } returns null
     val user = user()
 
-    handler(user).handle(UseItemCMSG(ACCOUNT_ID, POTION.id, ScriptArgs.EMPTY))
+    handler(user).handle(UseItemCMSG(ACCOUNT_ID, potions.playerItemId, ScriptArgs.EMPTY))
 
-    verify(exactly = 0) { scripts.useItem(any(), any(), any(), any()) }
+    verify(exactly = 0) { scripts.useItem(any(), any(), any(), any(), any()) }
   }
 
   @Test
   fun `an item whose script refuses it is given back durably`() {
     every { inventoryService.removeOneFromOwner(MASTER_ID, null, POTION.id, 1, 0L) } returns
       ItemContainer.RemovedItem(uniqueId = 0L, instance = null)
-    every { scripts.useItem(any(), any(), POTION, any()) } returns false
+    every { scripts.useItem(any(), any(), POTION, any(), any()) } returns false
     val user = user()
 
-    handler(user).handle(UseItemCMSG(ACCOUNT_ID, POTION.id, ScriptArgs.EMPTY))
+    handler(user).handle(UseItemCMSG(ACCOUNT_ID, potions.playerItemId, ScriptArgs.EMPTY))
 
     verify { inventoryService.grantToOwner(MASTER_ID, null, POTION.id, 1, 0L) }
   }
@@ -78,10 +81,10 @@ class UseItemHandlerTest {
   fun `a novice-only item is refused to a specialised master, before the database gives it up`() {
     val user = user(KnownSkills(mutableMapOf(CARPENTRY_ID to 1)))
 
-    handler(user).handle(UseItemCMSG(ACCOUNT_ID, NOVICE_POTION.id, ScriptArgs.EMPTY))
+    handler(user).handle(UseItemCMSG(ACCOUNT_ID, novicePotions.playerItemId, ScriptArgs.EMPTY))
 
     verify(exactly = 0) { inventoryService.removeOneFromOwner(any(), any(), any(), any(), any()) }
-    verify(exactly = 0) { scripts.useItem(any(), any(), any(), any()) }
+    verify(exactly = 0) { scripts.useItem(any(), any(), any(), any(), any()) }
     verify { messages.sendToPlayer(ACCOUNT_ID, OperationErrorSMSG(OperationErrorProto.OpError.ITEM_NOVICE_ONLY)) }
   }
 
@@ -89,19 +92,19 @@ class UseItemHandlerTest {
   fun `a novice may use a novice-only item`() {
     every { inventoryService.removeOneFromOwner(MASTER_ID, null, NOVICE_POTION.id, 1, 0L) } returns
       ItemContainer.RemovedItem(uniqueId = 0L, instance = null)
-    every { scripts.useItem(any(), any(), NOVICE_POTION, any()) } returns true
+    every { scripts.useItem(any(), any(), NOVICE_POTION, any(), any()) } returns true
     val user = user(KnownSkills(mutableMapOf()))
 
-    handler(user).handle(UseItemCMSG(ACCOUNT_ID, NOVICE_POTION.id, ScriptArgs.EMPTY))
+    handler(user).handle(UseItemCMSG(ACCOUNT_ID, novicePotions.playerItemId, ScriptArgs.EMPTY))
 
-    verify { scripts.useItem(any(), any(), NOVICE_POTION, any()) }
+    verify { scripts.useItem(any(), any(), NOVICE_POTION, any(), any()) }
   }
 
   @Test
   fun `a novice-only item is refused to a player bestia`() {
     val bestia = holder()
 
-    handler(bestia).handle(UseItemCMSG(ACCOUNT_ID, NOVICE_POTION.id, ScriptArgs.EMPTY))
+    handler(bestia).handle(UseItemCMSG(ACCOUNT_ID, novicePotions.playerItemId, ScriptArgs.EMPTY))
 
     verify(exactly = 0) { inventoryService.removeOneFromOwner(any(), any(), any(), any(), any()) }
     verify { messages.sendToPlayer(ACCOUNT_ID, OperationErrorSMSG(OperationErrorProto.OpError.ITEM_NOVICE_ONLY)) }
@@ -118,7 +121,7 @@ class UseItemHandlerTest {
     return world.createEntity { id ->
       add(
         id,
-        Inventory(mutableListOf(Inventory.Item(POTION.id, amount = 3), Inventory.Item(NOVICE_POTION.id, amount = 3)))
+        Inventory(mutableListOf(potions, novicePotions))
       )
       configure(id)
     }

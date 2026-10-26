@@ -3,6 +3,8 @@ class_name ShortcutContainer
 
 signal shortcut_changed(row: int, number: int, shortcut_data: ShortcutData)
 signal item_count_requested( row: int, number: int, item_id: int)
+## A shortcut names an item kind, not a pile. The bar picks the pile, because only it knows the inventory.
+signal item_use_requested(item_id: int)
 
 @export
 var shortcut_row: int = 0
@@ -262,11 +264,7 @@ func _update_display() -> void:
 
 
 func _use_item() -> void:
-	var item_res = ItemDB.get_instance().get_item(_shortcut_data.reference_id)
-	if item_res == null:
-		printerr("ShortcutContainer: Can not use item, no item returned for ID: %s" % [_shortcut_data.reference_id])
-		return
-	item_res.use_item()
+	item_use_requested.emit(_shortcut_data.reference_id)
 
 
 func _use_skill() -> void:

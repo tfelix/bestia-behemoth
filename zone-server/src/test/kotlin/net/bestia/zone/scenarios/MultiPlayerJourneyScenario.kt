@@ -31,6 +31,7 @@ import net.bestia.zone.entity.VanishEntitySMSG
 import net.bestia.zone.extensions.test
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.item.net.DropItemCMSG
+import net.bestia.zone.item.net.GetInventoryCMSG
 import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.item.net.EquipItemCMSG
 import net.bestia.zone.item.equip.EquipmentSlot
@@ -542,7 +543,9 @@ class MultiPlayerJourneyScenario : BestiaNoSocketScenario(autoClientConnect = fa
   @Test
   @Order(17)
   fun `dropping and re-looting the item round trips through the inventory`() {
-    clientPlayer1.sendMessage(DropItemCMSG(clientPlayer1.connectedPlayerId, itemId = APPLE_ITEM_ID, amount = 1))
+    clientPlayer1.sendMessage(
+      DropItemCMSG(clientPlayer1.connectedPlayerId, playerItemId = heldPlayerItemIdOf(APPLE_ITEM_ID), amount = 1)
+    )
 
     var droppedEntityId: Long = 0
     await {
@@ -570,8 +573,7 @@ class MultiPlayerJourneyScenario : BestiaNoSocketScenario(autoClientConnect = fa
     clientPlayer1.sendMessage(
       EquipItemCMSG(
         playerId = clientPlayer1.connectedPlayerId,
-        itemId = SHOES_ITEM_ID,
-        uniqueId = 0L,
+        playerItemId = heldPlayerItemIdOf(SHOES_ITEM_ID),
         slot = EquipmentSlot.FOOTGEAR
       )
     )
@@ -601,8 +603,7 @@ class MultiPlayerJourneyScenario : BestiaNoSocketScenario(autoClientConnect = fa
     clientPlayer1.sendMessage(
       EquipItemCMSG(
         playerId = clientPlayer1.connectedPlayerId,
-        itemId = BOOTS_ITEM_ID,
-        uniqueId = 0L,
+        playerItemId = heldPlayerItemIdOf(BOOTS_ITEM_ID),
         slot = EquipmentSlot.FOOTGEAR
       )
     )
@@ -651,5 +652,23 @@ class MultiPlayerJourneyScenario : BestiaNoSocketScenario(autoClientConnect = fa
       assertNotNull(boots, "expected the boots to still be listed in the inventory")
       assertFalse(boots.equipped, "expected the boots to be marked as unequipped again")
     }
+  }
+
+  /**
+   * The pile or copy the player would drag: the first unworn one their inventory shows. Asked for afresh, because
+   * the buffer is cleared between steps.
+   */
+  private fun heldPlayerItemIdOf(itemId: Long): Long {
+    clientPlayer1.sendMessage(GetInventoryCMSG(clientPlayer1.connectedPlayerId))
+
+    var playerItemId = 0L
+    await {
+      val held = clientPlayer1.tryGetLastReceived(InventoryComponentSMSG::class)?.items
+        ?.firstOrNull { it.itemId == itemId.toInt() && !it.equipped }
+      assertNotNull(held, "expected to hold item $itemId")
+      playerItemId = held.playerItemId
+    }
+
+    return playerItemId
   }
 }
