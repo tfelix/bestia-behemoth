@@ -1,8 +1,10 @@
 package net.bestia.zone.item.persistence
 
+import net.bestia.zone.item.ItemProvenance
 import net.bestia.zone.item.stat.ItemStat
 import net.bestia.zone.item.stat.StatValue
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -41,6 +43,19 @@ class ItemInstanceStatPersistenceTest {
 
       assertEquals(34, loaded.itemLevel)
       assertEquals(rolled, loaded.rolledStats)
+    }
+  }
+
+  @Test
+  fun `a crafted copy keeps who made it and where, a looted one has no maker`() {
+    val sword = tx.execute { itemRepository.findByIdentifierOrThrow("iron_sword") }!!
+    val provenance = ItemProvenance(crafterName = "Alice", worldName = "Genesis")
+    val craftedId = tx.execute { itemInstanceRepository.save(ItemInstance(item = sword, provenance = provenance)).id }!!
+    val lootedId = tx.execute { itemInstanceRepository.save(ItemInstance(item = sword)).id }!!
+
+    tx.execute {
+      assertEquals(provenance, itemInstanceRepository.findByIdOrNull(craftedId)!!.provenance)
+      assertNull(itemInstanceRepository.findByIdOrNull(lootedId)!!.provenance)
     }
   }
 

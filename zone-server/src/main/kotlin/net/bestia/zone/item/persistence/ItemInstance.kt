@@ -2,6 +2,7 @@ package net.bestia.zone.item.persistence
 
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
+import jakarta.persistence.Embedded
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
@@ -9,6 +10,7 @@ import jakarta.persistence.ManyToOne
 import jakarta.persistence.OneToMany
 import jakarta.persistence.OrderBy
 import jakarta.persistence.Table
+import net.bestia.zone.item.ItemProvenance
 import net.bestia.zone.item.PlayerItemIds
 import net.bestia.zone.item.stat.StatValue
 
@@ -29,8 +31,9 @@ class ItemInstance(
   @JoinColumn(name = "item_id", nullable = false)
   val item: Item,
 
-  @Column(name = "crafted_by_master_id", nullable = true)
-  val craftedByMasterId: Long? = null,
+  /** Who crafted this copy and where. Null for a copy that was looted or bought. */
+  @Embedded
+  val provenance: ItemProvenance? = null,
 
   var upgradeLevel: Int = 0,
 

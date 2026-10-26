@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import net.bestia.zone.item.ItemProvenance
 
 /**
  * The rules a craft is made of: who may start one, what it costs, and what happens when it lands.
@@ -143,7 +144,7 @@ class CraftingServiceTest {
     fixture.service.resolve(fixture.world, crafter, crafting(produce.id))
 
     val intent = fixture.world.get(crafter, ObtainItemIntent.CreateItemIntent::class)!!
-    assertEquals(MASTER_ID, intent.craftedByMasterId)
+    assertEquals(ItemProvenance(crafterName = "Smith", worldName = CraftingFixture.WORLD_NAME), intent.provenance)
     assertEquals(1, intent.roll?.stats?.size, "the one slot always rolls")
   }
 
