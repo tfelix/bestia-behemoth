@@ -305,7 +305,11 @@ namespace BestiaBehemothClient.Game.World
       // Colours are the materials these used to be built from, back when a building was voxels: the tan of
       // timber and plaster for the ordinary ones, worked-stone grey for the civic and religious ones that were
       // masonry more often than not. A player who learned the old palette reads the same town.
-      new Kind { PlaceholderWidth = 6.0f, PlaceholderColour = new Color(0.62f, 0.60f, 0.56f) }, // BUILDING_MARKET
+      // Gilded so a newcomer can find it across the square.
+      new Kind
+      {
+        PlaceholderWidth = 6.0f, PlaceholderColour = new Color(0.80f, 0.64f, 0.26f)
+      }, // AUCTION_HOUSE
       new Kind { PlaceholderWidth = 6.0f, PlaceholderColour = new Color(0.74f, 0.72f, 0.66f) }, // BUILDING_TEMPLE
       new Kind { PlaceholderWidth = 6.0f, PlaceholderColour = new Color(0.66f, 0.65f, 0.62f) }, // BUILDING_CIVIC
       new Kind { PlaceholderWidth = 4.5f, PlaceholderColour = new Color(0.72f, 0.62f, 0.44f) }, // BUILDING_SHOP
