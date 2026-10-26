@@ -13,6 +13,7 @@ import "messages/crafting/cancel_craft_cmsg.proto";
 import "messages/crafting/craftable_recipes_smsg.proto";
 import "messages/crafting/discover_recipe_cmsg.proto";
 import "messages/crafting/discovery_result_smsg.proto";
+import "messages/crafting/material_axes_smsg.proto";
 import "messages/entity/move_entity.proto";
 import "messages/entity/journey_ended_smsg.proto";
 import "messages/travel/saved_routes.proto";
@@ -251,6 +252,7 @@ message Envelope {
     CancelCraftCMSG cancel_craft = 702;
     DiscoverRecipeCMSG discover_recipe = 703;
     DiscoveryResultSMSG discovery_result = 704;
+    MaterialAxesSMSG material_axes = 705;
 
     // TRADE 800
     RequestTradeCMSG request_trade = 800;

@@ -13,6 +13,9 @@ data class CraftVector(private val values: Map<CraftAxis, Double>) {
 
   operator fun get(axis: CraftAxis): Double = values[axis] ?: 0.0
 
+  /** One value per axis in [CraftAxis] order, which is the order the client reads them in. */
+  fun toAxisList(): List<Float> = CraftAxis.entries.map { this[it].toFloat() }
+
   fun distanceTo(other: CraftVector): Double =
     sqrt(CraftAxis.entries.sumOf { axis -> (this[axis] - other[axis]).let { it * it } })
 

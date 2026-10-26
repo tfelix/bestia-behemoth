@@ -1,5 +1,6 @@
 package net.bestia.zone.crafting
 
+import net.bestia.zone.crafting.discovery.BlueprintPoints
 import net.bestia.zone.identity.ecs.OwnedBestia
 import net.bestia.zone.battle.ecs.status.CombatStats
 import net.bestia.zone.battle.status.CombatValues
@@ -121,6 +122,7 @@ class CraftingFixture(
       roller = ItemStatRoller(),
       worldService = worldService,
       crafters = Crafters(starterKit),
+      blueprintPoints = BlueprintPoints(),
     )
   }
 

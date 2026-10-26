@@ -16,4 +16,6 @@ class MaterialAxes {
   }
 
   fun of(itemId: Long): CraftVector? = byItemId[itemId]
+
+  fun all(): Map<Long, CraftVector> = byItemId
 }

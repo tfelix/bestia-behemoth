@@ -27,19 +27,20 @@ namespace Bnet {
             "Ci5tZXNzYWdlcy9jcmFmdGluZy9jcmFmdGFibGVfcmVjaXBlc19zbXNnLnBy",
             "b3RvEgRibmV0ImYKFENyYWZ0YWJsZVJlY2lwZXNTTVNHEhAKCHNraWxsX2lk",
             "GAEgASgEEhQKDHN0YXRpb25fa2luZBgCIAEoDRImCgdyZWNpcGVzGAMgAygL",
-            "MhUuYm5ldC5DcmFmdGFibGVSZWNpcGUiywEKD0NyYWZ0YWJsZVJlY2lwZRIR",
+            "MhUuYm5ldC5DcmFmdGFibGVSZWNpcGUi2gEKD0NyYWZ0YWJsZVJlY2lwZRIR",
             "CglyZWNpcGVfaWQYASABKAQSDgoGZWZmZWN0GAIgASgNEhYKDm91dHB1dF9p",
             "dGVtX2lkGAMgASgNEhUKDW91dHB1dF9hbW91bnQYBCABKA0SIQoGaW5wdXRz",
             "GAUgAygLMhEuYm5ldC5SZWNpcGVJbnB1dBIYChBzdWNjZXNzX3Blcm1pbGxl",
             "GAYgASgNEhQKDGNyYWZ0X21pbGxpcxgHIAEoDRITCgtpbnB1dHNfaGVsZBgI",
-            "IAEoCCI8CgtSZWNpcGVJbnB1dBIPCgdpdGVtX2lkGAEgASgNEg4KBmFtb3Vu",
-            "dBgCIAEoDRIMCgRoZWxkGAMgASgNQjIKFW5ldC5iZXN0aWEuYm5ldC5wcm90",
-            "b0IZQ3JhZnRhYmxlUmVjaXBlc1Ntc2dQcm90b2IGcHJvdG8z"));
+            "IAEoCBINCgVwb2ludBgJIAMoAiI8CgtSZWNpcGVJbnB1dBIPCgdpdGVtX2lk",
+            "GAEgASgNEg4KBmFtb3VudBgCIAEoDRIMCgRoZWxkGAMgASgNQjIKFW5ldC5i",
+            "ZXN0aWEuYm5ldC5wcm90b0IZQ3JhZnRhYmxlUmVjaXBlc1Ntc2dQcm90b2IG",
+            "cHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.CraftableRecipesSMSG), global::Bnet.CraftableRecipesSMSG.Parser, new[]{ "SkillId", "StationKind", "Recipes" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.CraftableRecipe), global::Bnet.CraftableRecipe.Parser, new[]{ "RecipeId", "Effect", "OutputItemId", "OutputAmount", "Inputs", "SuccessPermille", "CraftMillis", "InputsHeld" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.CraftableRecipe), global::Bnet.CraftableRecipe.Parser, new[]{ "RecipeId", "Effect", "OutputItemId", "OutputAmount", "Inputs", "SuccessPermille", "CraftMillis", "InputsHeld", "Point" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.RecipeInput), global::Bnet.RecipeInput.Parser, new[]{ "ItemId", "Amount", "Held" }, null, null, null, null)
           }));
     }
@@ -367,6 +368,7 @@ namespace Bnet {
       successPermille_ = other.successPermille_;
       craftMillis_ = other.craftMillis_;
       inputsHeld_ = other.inputsHeld_;
+      point_ = other.point_.Clone();
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -488,6 +490,22 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "point" field.</summary>
+    public const int PointFieldNumber = 9;
+    private static readonly pb::FieldCodec<float> _repeated_point_codec
+        = pb::FieldCodec.ForFloat(74);
+    private readonly pbc::RepeatedField<float> point_ = new pbc::RepeatedField<float>();
+    /// <summary>
+    /// Where this blueprint sits in the feature space, in the order of MaterialAxes.axes, for the outline the
+    /// discovery chart draws. Empty when it has no point. Only a known blueprint is ever listed, so this never
+    /// gives away one the player has yet to find.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::RepeatedField<float> Point {
+      get { return point_; }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -511,6 +529,7 @@ namespace Bnet {
       if (SuccessPermille != other.SuccessPermille) return false;
       if (CraftMillis != other.CraftMillis) return false;
       if (InputsHeld != other.InputsHeld) return false;
+      if(!point_.Equals(other.point_)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -526,6 +545,7 @@ namespace Bnet {
       if (SuccessPermille != 0) hash ^= SuccessPermille.GetHashCode();
       if (CraftMillis != 0) hash ^= CraftMillis.GetHashCode();
       if (InputsHeld != false) hash ^= InputsHeld.GetHashCode();
+      hash ^= point_.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -573,6 +593,7 @@ namespace Bnet {
         output.WriteRawTag(64);
         output.WriteBool(InputsHeld);
       }
+      point_.WriteTo(output, _repeated_point_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -612,6 +633,7 @@ namespace Bnet {
         output.WriteRawTag(64);
         output.WriteBool(InputsHeld);
       }
+      point_.WriteTo(ref output, _repeated_point_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -644,6 +666,7 @@ namespace Bnet {
       if (InputsHeld != false) {
         size += 1 + 1;
       }
+      size += point_.CalculateSize(_repeated_point_codec);
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -678,6 +701,7 @@ namespace Bnet {
       if (other.InputsHeld != false) {
         InputsHeld = other.InputsHeld;
       }
+      point_.Add(other.point_);
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -729,6 +753,11 @@ namespace Bnet {
             InputsHeld = input.ReadBool();
             break;
           }
+          case 74:
+          case 77: {
+            point_.AddEntriesFrom(input, _repeated_point_codec);
+            break;
+          }
         }
       }
     #endif
@@ -778,6 +807,11 @@ namespace Bnet {
           }
           case 64: {
             InputsHeld = input.ReadBool();
+            break;
+          }
+          case 74:
+          case 77: {
+            point_.AddEntriesFrom(ref input, _repeated_point_codec);
             break;
           }
         }
