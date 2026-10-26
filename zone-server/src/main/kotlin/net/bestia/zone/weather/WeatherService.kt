@@ -159,6 +159,16 @@ class WeatherService(
     return model.regions.regionAt(voxelX * config.voxelSize, voxelY * config.voxelSize).index
   }
 
+  /** The voxel at the centre of a weather region: where its weather is sampled for the whole region. */
+  fun regionCentreVoxel(regionId: Int): Pair<Long, Long> {
+    val centre = model.regions.regions[regionId].centre
+    val voxel = worldService.generated.config.voxelSize
+    return (centre.x / voxel).toLong() to (centre.y / voxel).toLong()
+  }
+
+  /** Degrees the air cools per thousand metres of elevation. */
+  val lapseRate: Double get() = worldService.generated.params.climate.lapseRate
+
   private companion object {
     private val LOG = KotlinLogging.logger { }
 
