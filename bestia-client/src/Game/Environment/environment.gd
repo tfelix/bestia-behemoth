@@ -21,6 +21,9 @@ extends Node
 ## cascade, at 4.4 cm a texel rather than 2.4. Reach is nearly free here; the atlas size and the ratios are
 ## the only things that are not.
 
+## Emitted once per bolt, at the point where it meets the ground, for anything that answers it (thunder).
+signal lightning_struck(ground: Vector3)
+
 ## How high the sun climbs at its peak, in degrees.
 ##
 ## Not 90. A sun directly overhead flattens every slope in the world at midday, which costs exactly the
@@ -147,6 +150,13 @@ extends Node
 
 @export var lightning_colour: Color = Color(0.86, 0.90, 1.0)
 
+## How far from the camera a bolt may land, in metres. Most land out of sight and are only a flash and thunder.
+@export_range(50, 5000, 10) var lightning_min_distance: float = 150.0
+@export_range(100, 10000, 10) var lightning_max_distance: float = 2000.0
+
+## Beyond this a bolt is a flash in the cloud with no channel drawn.
+@export_range(100, 5000, 10) var lightning_visible_distance: float = 1500.0
+
 var _clock: Node = null
 var _weather: Node = null
 
@@ -170,6 +180,8 @@ var _applied_haze: float = -1.0
 var _flash: float = 0.0
 var _next_strike: float = -1.0
 var _strikes_left: int = 0
+var _bolt_is_new: bool = false
+var _bolt: LightningBolt = null
 
 @onready var _sun: DirectionalLight3D = $Sun
 @onready var _moon: DirectionalLight3D = $Moon
@@ -207,6 +219,11 @@ func _ready() -> void:
 	_flash_light.shadow_enabled = false
 	_flash_light.light_color = lightning_colour
 	_flash_light.visible = false
+
+	_bolt = LightningBolt.new()
+	_bolt.name = "Bolt"
+	_bolt.colour = lightning_colour
+	add_child(_bolt)
 
 	_clear_fog_begin = _environment.fog_depth_begin
 	_clear_fog_end = _environment.fog_depth_end
@@ -392,9 +409,10 @@ func _strike() -> void:
 	_flash = 1.0
 	_strikes_left -= 1
 
-	# A bolt somewhere else in the sky each time, so repeated strikes do not all light the world from the
-	# same corner. Elevation stays high: this is the sky flashing, not a light at ground level.
-	_flash_light.rotation = Vector3(deg_to_rad(randf_range(-80.0, -40.0)), randf_range(-PI, PI), 0.0)
+	# The return stroke lights the channel the first stroke already cut, so only a new bolt moves.
+	if _bolt_is_new:
+		_bolt_is_new = false
+		_place_bolt()
 
 	if _strikes_left > 0:
 		# The second stroke of the same bolt, close enough behind to read as one flicker rather than two
@@ -408,6 +426,41 @@ func _strike() -> void:
 func _schedule_strike() -> void:
 	_next_strike = randf_range(lightning_min_gap_seconds, lightning_max_gap_seconds)
 	_strikes_left = 2 if randf() < 0.55 else 1
+	_bolt_is_new = true
+
+
+## Picks where the next bolt lands, aims the flash from it, and draws its channel when it is close enough to see.
+func _place_bolt() -> void:
+	var camera := get_viewport().get_camera_3d()
+	if camera == null:
+		_flash_light.rotation = Vector3(deg_to_rad(randf_range(-80.0, -40.0)), randf_range(-PI, PI), 0.0)
+		return
+
+	var eye := camera.global_position
+	var bearing := randf_range(-PI, PI)
+	var distance := randf_range(lightning_min_distance, lightning_max_distance)
+	var ground := eye + Vector3(cos(bearing), 0.0, sin(bearing)) * distance
+	ground.y = _ground_y_at(ground, eye.y)
+
+	var top := ground + Vector3.UP * _bolt.cloud_base_metres
+	_flash_light.global_basis = Basis.looking_at(eye - top)
+
+	if distance <= lightning_visible_distance:
+		_bolt.build(ground, eye)
+	else:
+		_bolt.clear()
+
+	lightning_struck.emit(ground)
+
+
+## The terrain height under a strike, or the camera's own height where that ground has not been streamed in.
+func _ground_y_at(point: Vector3, fallback: float) -> float:
+	var stream: Node = ConnectionManager.chunk_stream
+	if stream == null:
+		return fallback
+
+	var ground: float = stream.GroundYAt(point.x, point.z, fallback)
+	return fallback if is_nan(ground) else ground
 
 
 func _show_flash() -> void:
@@ -417,6 +470,7 @@ func _show_flash() -> void:
 
 	_flash_light.visible = energy > 0.002
 	_flash_light.light_energy = lightning_energy * energy
+	_bolt.set_energy(energy)
 
 	# The air lights up as well as the ground. Without this the flash stops at whatever the fog is drawn
 	# over, and a storm at distance flickers only in the near field.
