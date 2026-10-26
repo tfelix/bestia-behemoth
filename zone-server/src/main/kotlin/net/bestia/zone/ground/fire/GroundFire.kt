@@ -1,5 +1,6 @@
 package net.bestia.zone.ground.fire
 
+import net.bestia.zone.battle.ecs.effects.AreaFootprint
 import net.bestia.zone.util.EntityId
 
 /**
@@ -26,7 +27,7 @@ class GroundFire(
   val skillLevel: Int,
   /** Bestia second the fire started, stamped onto every column it scars. See [net.bestia.zone.ground.persistence.ScorchMark]. */
   val startedAtSecond: Long,
-) {
+) : AreaFootprint {
 
   /** Packed `(voxelX, voxelY)` to how many steps that cell has been alight. */
   val burning = HashMap<Long, Int>()
@@ -69,6 +70,11 @@ class GroundFire(
   }
 
   fun isBurning(voxelX: Long, voxelY: Long) = burning.containsKey(pack(voxelX, voxelY))
+
+  /** Only cells alight right now hurt, so the damage matches the flames the client draws from the same mask. */
+  override fun covers(voxelX: Long, voxelY: Long): Boolean {
+    return isBurning(voxelX, voxelY)
+  }
 
   /**
    * Where the fire was lit, and where its damage cube stays anchored.

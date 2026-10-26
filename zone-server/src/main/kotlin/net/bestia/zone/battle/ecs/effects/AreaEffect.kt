@@ -48,6 +48,9 @@ data class AreaEffect(
   /** Only items on the ground weigh it so far. A creature takes the same damage whatever the element. */
   val element: Element = Element.NORMAL,
 
+  /** Null for an effect that covers its whole cube. */
+  val footprint: AreaFootprint? = null,
+
   /** Stamped by [AreaEffectSpawner], so the damage gate still knows whose effect this is once the caster is gone. */
   val casterAccountId: AccountId? = null,
 ) : Component {

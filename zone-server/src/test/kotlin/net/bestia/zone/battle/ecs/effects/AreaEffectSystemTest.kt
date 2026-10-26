@@ -97,6 +97,28 @@ class AreaEffectSystemTest {
   }
 
   @Test
+  fun `a footprint spares what stands inside the cube but outside the shape`() {
+    val onShape = victimAt(Vec3L(CENTER.x + 3, CENTER.y, CENTER.z))
+    val offShape = victimAt(Vec3L(CENTER.x - 3, CENTER.y, CENTER.z))
+    world.createEntity { entityId ->
+      add(entityId, Position.fromVec3(CENTER))
+      add(
+        entityId,
+        AreaEffect(
+          casterId = CASTER_ID, skillId = SKILL_ID, skillLevel = 1, radiusTiles = 5,
+          damagePerTick = DAMAGE_PER_TICK, tickIntervalSeconds = TICK_INTERVAL, remainingTicks = 1,
+          footprint = { x, _ -> x > CENTER.x }
+        )
+      )
+    }
+
+    world.tick(TICK_INTERVAL)
+
+    assertEquals(DAMAGE_PER_TICK, stagedDamage(onShape))
+    assertEquals(0, stagedDamage(offShape), "inside the cube but outside the footprint")
+  }
+
+  @Test
   fun `the patch is destroyed once its last tick has landed`() {
     val victim = victimAt(CENTER)
     val patch = emberAt(CENTER)
