@@ -88,6 +88,10 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
     /// </summary>
     [Export] public ulong PlayerItemId { get; set; }
 
+    /// <summary>Who crafted this copy and in which world; both empty for an item nobody crafted.</summary>
+    [Export] public string CraftedBy { get; set; } = "";
+    [Export] public string CraftedIn { get; set; } = "";
+
     /// <summary>
     /// Creates an InventoryItem from protobuf data
     /// </summary>
@@ -105,7 +109,9 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
         UpgradeLevel = protoItem.UpgradeLevel,
         ItemLevel = protoItem.ItemLevel,
         RolledStats = ItemStatValue.FromProto(protoItem.RolledStats),
-        PlayerItemId = protoItem.PlayerItemId
+        PlayerItemId = protoItem.PlayerItemId,
+        CraftedBy = protoItem.CraftedBy,
+        CraftedIn = protoItem.CraftedIn
       };
     }
   }

@@ -96,6 +96,8 @@ func _on_entity_received(msg: EntitySMSG) -> void:
 			inv_item.amount = itemMsg.Amount
 			inv_item.player_item_id = itemMsg.PlayerItemId
 			inv_item.unique_id = itemMsg.UniqueId
+			inv_item.crafted_by = itemMsg.CraftedBy
+			inv_item.crafted_in = itemMsg.CraftedIn
 			inv_item.equipped = itemMsg.Equipped
 			inv_item.durability = itemMsg.Durability
 			inv_item.max_durability = itemMsg.MaxDurability
@@ -176,6 +178,8 @@ func _render_items() -> void:
 		inv_item.item = item.item
 		inv_item.unique_id = item.unique_id
 		inv_item.player_item_id = item.player_item_id
+		inv_item.crafted_by = item.crafted_by
+		inv_item.crafted_in = item.crafted_in
 		inv_item.durability = item.durability
 		inv_item.max_durability = item.max_durability
 		inv_item.slots = item.slots

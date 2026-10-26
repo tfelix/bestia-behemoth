@@ -1149,6 +1149,8 @@ func update_equipment(msg: EquipmentComponentSMSG) -> void:
 			"slots": int(equipped.Slots),
 			"item_level": int(equipped.ItemLevel),
 			"rolled_stats": Array(equipped.RolledStats),
+			"crafted_by": equipped.CraftedBy,
+			"crafted_in": equipped.CraftedIn,
 		}
 	_equipment = by_slot
 

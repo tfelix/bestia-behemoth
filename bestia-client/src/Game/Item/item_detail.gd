@@ -5,7 +5,7 @@ class_name ItemDetail
 ## a copy of the item in hand, and the chat popup, which knows only the kind. The per-copy arguments default to
 ## what "no copy in particular" means, so the kind-only caller passes nothing rather than a null to unpack - a
 ## [param max_durability] of 0 already means "does not wear", an [param item_level] of 0 "the kind's level",
-## and the others "none" and "untouched".
+## and the others "none" and "untouched". An empty [param crafted_by] means nobody crafted the copy.
 ##
 ## Static, so the lookups go through [TranslationServer] for the reason [DialogText] gives.
 
@@ -18,7 +18,9 @@ static func as_bbcode(
 	max_durability: int = 0,
 	slots: int = 0,
 	item_level: int = 0,
-	rolled_stats: Array = []
+	rolled_stats: Array = [],
+	crafted_by: String = "",
+	crafted_in: String = ""
 ) -> String:
 	var title := "[b]%s[/b]" % _translate(item.name_key)
 	if upgrade_level > 0:
@@ -40,6 +42,9 @@ static func as_bbcode(
 
 	if slots > 0:
 		lines.append("%d socket(s)" % slots)
+
+	if not crafted_by.is_empty():
+		lines.append(_translate("ITEM_CRAFTED_BY").format({"crafter": crafted_by, "world": crafted_in}))
 
 	var description := _description_of(item)
 	if not description.is_empty():

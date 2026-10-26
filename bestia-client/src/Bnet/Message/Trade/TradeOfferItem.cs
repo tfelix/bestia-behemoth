@@ -41,6 +41,10 @@ namespace BestiaBehemothClient.Bnet.Message.Trade
 
     [Export] public Godot.Collections.Array<ItemStatValue> RolledStats { get; set; } = [];
 
+    /// <summary>Who crafted this copy and in which world; both empty for an item nobody crafted.</summary>
+    [Export] public string CraftedBy { get; set; } = "";
+    [Export] public string CraftedIn { get; set; } = "";
+
     public static TradeOfferItem FromProto(global::Bnet.TradeOfferItem proto)
     {
       return new TradeOfferItem
@@ -54,7 +58,9 @@ namespace BestiaBehemothClient.Bnet.Message.Trade
         Slots = proto.Slots,
         UpgradeLevel = proto.UpgradeLevel,
         ItemLevel = proto.ItemLevel,
-        RolledStats = ItemStatValue.FromProto(proto.RolledStats)
+        RolledStats = ItemStatValue.FromProto(proto.RolledStats),
+        CraftedBy = proto.CraftedBy,
+        CraftedIn = proto.CraftedIn
       };
     }
   }

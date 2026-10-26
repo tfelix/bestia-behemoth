@@ -313,7 +313,8 @@ data class Inventory(
           upgradeLevel = item.upgradeLevel,
           itemLevel = item.itemLevel,
           rolledStats = item.rolledStats,
-          playerItemId = item.playerItemId
+          playerItemId = item.playerItemId,
+          provenance = item.provenance
         )
       }
     )

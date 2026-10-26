@@ -114,7 +114,8 @@ class EquipItemHandler(
           maxDurability = held.maxDurability,
           slots = held.slots,
           itemLevel = itemLevel,
-          rolledStats = held.rolledStats
+          rolledStats = held.rolledStats,
+          provenance = held.provenance
         )
       )
 

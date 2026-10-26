@@ -1,5 +1,6 @@
 package net.bestia.zone.item.ecs
 
+import net.bestia.zone.item.ItemProvenance
 import net.bestia.zone.item.stat.StatValue
 import net.bestia.bnet.proto.InventoryComponentSMSGProto
 import net.bestia.bnet.proto.StateBatchSmsgProto
@@ -24,6 +25,8 @@ data class InventoryComponentSMSG(
         .setItemLevel(item.itemLevel)
         .addAllRolledStats(item.rolledStats.map { it.toProto() })
         .setPlayerItemId(item.playerItemId)
+        .setCraftedBy(item.provenance?.crafterName.orEmpty())
+        .setCraftedIn(item.provenance?.worldName.orEmpty())
         .build()
     }
 
@@ -45,6 +48,7 @@ data class InventoryComponentSMSG(
     val upgradeLevel: Int = 0,
     val itemLevel: Int = 0,
     val rolledStats: List<StatValue> = emptyList(),
-    val playerItemId: Long = uniqueId
+    val playerItemId: Long = uniqueId,
+    val provenance: ItemProvenance? = null
   )
 }

@@ -279,7 +279,8 @@ class PlayerBestiaEntitySpawner(
           maxDurability = slot.maxDurability,
           slots = slot.slots,
           itemLevel = itemStats.itemLevelOf(slot),
-          rolledStats = slot.rolledStats
+          rolledStats = slot.rolledStats,
+          provenance = slot.heldProvenance
         )
       }.toMutableMap()
     )

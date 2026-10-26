@@ -63,4 +63,8 @@ message TradeOfferItem {
   uint32 upgrade_level = 8;
   uint32 item_level = 9;
   repeated ItemStatValue rolled_stats = 10;
+
+  // See InventoryItem.crafted_by and crafted_in.
+  string crafted_by = 11;
+  string crafted_in = 12;
 }

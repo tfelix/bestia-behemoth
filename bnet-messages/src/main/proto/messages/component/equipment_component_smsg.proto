@@ -41,4 +41,8 @@ message EquippedItem {
   // See InventoryItem.item_level and rolled_stats.
   uint32 item_level = 8;
   repeated ItemStatValue rolled_stats = 9;
+
+  // See InventoryItem.crafted_by and crafted_in.
+  string crafted_by = 10;
+  string crafted_in = 11;
 }
