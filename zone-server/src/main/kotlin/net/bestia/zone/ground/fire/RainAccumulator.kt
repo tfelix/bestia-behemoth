@@ -3,11 +3,9 @@ package net.bestia.zone.ground.fire
 import net.bestia.zone.ground.ColumnKey
 import net.bestia.worldgen.climate.WeatherKind
 import net.bestia.zone.world.time.BestiaClock
-import net.bestia.zone.world.time.BestiaDateTime
 import net.bestia.zone.weather.WeatherService
 import net.bestia.zone.world.WorldService
 import org.springframework.stereotype.Service
-import java.time.Duration
 
 /**
  * How much rain has fallen on one chunk column since the fire that scarred it.
@@ -64,7 +62,7 @@ class RainAccumulator(
 
     var steps = 0
     while (cursor < nowSecond && steps < MAX_STEPS_PER_PASS) {
-      val state = weather.at(voxelX, voxelY, ELEVATION_METRES, at(cursor)).state
+      val state = weather.at(voxelX, voxelY, ELEVATION_METRES, clock.atAbsoluteSecond(cursor)).state
 
       if (state.intensity > 0.0 && state.kind !in FROZEN) {
         scar.rainMm += state.intensity * rainPerHour
@@ -76,10 +74,6 @@ class RainAccumulator(
 
     scar.integratedThroughSecond = minOf(cursor, nowSecond)
   }
-
-  /** The Bestia date/time at an absolute Bestia second. */
-  private fun at(absoluteSecond: Long): BestiaDateTime =
-    clock.after(BestiaDateTime.since(Duration.ZERO, clock.speedFactor), absoluteSecond)
 
   private companion object {
     const val BESTIA_SECONDS_PER_HOUR = 3_600L
