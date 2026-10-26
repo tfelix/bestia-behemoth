@@ -66,6 +66,13 @@ global uniform vec3 weather_wind;
 // error grows with how long the client has been open.
 global uniform vec2 weather_gust_drift;
 
+// Grass sways in its own vertex shader, which the object overlay cannot follow, so it reads the weather here.
+global uniform float weather_wetness;
+#include "res://Game/World/Shader/weather_snow.gdshaderinc"
+
+uniform vec3 snow_colour : source_color = vec3(0.92, 0.94, 0.96);
+uniform float snow_melt_celsius : hint_range(-20.0, 20.0) = 1.0;
+
 group_uniforms mesh;
 
 // True when this mesh's V runs 1 at the base and 0 at the tip, which `grass2` does and `grass` does not.
@@ -332,6 +339,12 @@ void fragment() {
 	float flicker = 0.6 + 0.4 * sin(TIME * (9.0 + 6.0 * plant_seed) + plant_seed * 40.0);
 
 	ALBEDO = mix(ALBEDO, burnt_colour, charred);
+
+	// Snow settles on the upper blade first; wet blades darken and catch the light.
+	float snowed = weather_snow_cover(worldPos.y, snow_melt_celsius) * smoothstep(0.2, 0.9, blade_v);
+	float wet = clamp(weather_wetness, 0.0, 1.0) * (1.0 - snowed);
+	ALBEDO = mix(ALBEDO * mix(1.0, 0.75, wet), snow_colour, snowed);
+	ROUGHNESS = mix(1.0, 0.35, wet);
 	EMISSION = ember_colour * ember_energy * edge * alight * flicker;
 	if (!FRONT_FACING) {
 		NORMAL = -NORMAL;
