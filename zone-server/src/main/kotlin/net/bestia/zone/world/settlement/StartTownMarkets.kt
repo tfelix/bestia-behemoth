@@ -22,18 +22,28 @@ class StartTownMarkets(
   private val siteIndex: SettlementSiteIndex
 ) {
 
-  private val hallPropIds: Set<Long> by lazy { findHalls() }
+  /** Hall prop id to the name of its town. */
+  private val townByHall: Map<Long, String> by lazy { findHalls() }
 
   fun isAuctionHouse(propId: Long): Boolean {
-    return propId in hallPropIds
+    return propId in townByHall
   }
 
-  private fun findHalls(): Set<Long> {
+  fun townOf(propId: Long): String? {
+    return townByHall[propId]
+  }
+
+  /** The towns with a hall. They share one market. */
+  fun towns(): List<String> {
+    return townByHall.values.distinct()
+  }
+
+  private fun findHalls(): Map<Long, String> {
     // The same choice MasterSpawnPointService persists, so its first ranks are these towns.
     val towns = SettlementSpawnPoints.choose(worldService.generated, MasterSpawnPointService.HOMES_HELD)
       .take(MasterSpawnPointService.HOMES_OFFERED)
 
-    val halls = HashSet<Long>()
+    val halls = LinkedHashMap<Long, String>()
 
     for (town in towns) {
       val markets = siteIndex.siteOf(town.settlementIndex)?.buildingsOf(BuildingFunction.MARKET).orEmpty()
@@ -42,7 +52,7 @@ class StartTownMarkets(
         LOG.warn { "Start town ${town.name} has no market hall, so it has no auction house" }
       }
 
-      markets.mapTo(halls) { it.propId }
+      markets.forEach { halls[it.propId] = town.name }
     }
 
     LOG.info { "Auction houses stand in: ${towns.joinToString { it.name }}" }

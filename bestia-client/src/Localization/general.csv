@@ -364,6 +364,14 @@ TRAVEL_GO,Go
 TRAVEL_CLEAR,Clear
 ERROR_ROUTE_LIMIT,You keep as many routes as you may. Delete one first.
 ERROR_AUCTION_OUT_OF_RANGE,You are too far away from the auction house.
+AUCTION_TITLE,Auction House of %s
+AUCTION_LINKED,"Shared market: %s"
+AUCTION_TAB_BROWSE,Browse
+AUCTION_TAB_SELL,Sell
+AUCTION_TAB_COLLECT,Collect
+AUCTION_BROWSE_EMPTY,Nothing is listed yet.
+AUCTION_SELL_EMPTY,Selling opens soon.
+AUCTION_COLLECT_EMPTY,Nothing waits for you here.
 TRAVEL_ROUTES,Routes
 TRAVEL_NO_ROUTES,No routes kept yet.
 TRAVEL_SAVE_ROUTE,Keep as route

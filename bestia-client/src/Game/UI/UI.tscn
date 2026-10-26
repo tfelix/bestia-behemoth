@@ -33,6 +33,7 @@
 [ext_resource type="PackedScene" path="res://Game/UI/Guild/Guild.tscn" id="30_guildwin"]
 [ext_resource type="PackedScene" path="res://Game/UI/Invitation/InvitationTray.tscn" id="31_invites"]
 [ext_resource type="PackedScene" path="res://Game/UI/Compendium/Compendium.tscn" id="32_compendium"]
+[ext_resource type="PackedScene" path="res://Game/UI/Auction/AuctionHouse.tscn" id="33_auction"]
 
 [node name="UI" type="Control" unique_id=549600065]
 layout_mode = 3
@@ -129,6 +130,12 @@ visible = false
 layout_mode = 1
 content = ExtResource("23_shop")
 window_title = "Shop"
+
+[node name="AuctionWin" parent="." instance=ExtResource("8_wdgtw")]
+visible = false
+layout_mode = 1
+content = ExtResource("33_auction")
+window_title = "Auction House"
 
 [node name="PartyWin" parent="." instance=ExtResource("8_wdgtw")]
 visible = false
