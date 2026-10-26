@@ -18,9 +18,7 @@ data class Inventory(
   /**
    * A single held stack. [uniqueId] is the id of the backing
    * [net.bestia.zone.item.persistence.ItemInstance] (unique, upgradable/forgeable items); `0` means a
-   * plain stackable item with no per-instance identity. [stackable] guards against merging a
-   * freshly obtained instance item (e.g. equipment) whose backing instance id is not yet known
-   * this session - such an item has [uniqueId] `0` but must still not stack.
+   * plain stackable item with no per-instance identity.
    */
   class Item(
     val itemId: Long,
@@ -103,23 +101,6 @@ data class Inventory(
   }
 
   /**
-   * Removes one non-stackable entry of [itemId], for a caller that has already decided - durably - that this
-   * copy is leaving but cannot name it by [Item.uniqueId] because its instance row was minted after this
-   * mirror was built.
-   *
-   * `firstOrNull`, not `singleOrNull`: holding two of the same piece of gear is ordinary, and refusing to
-   * remove either of them would be the wrong answer.
-   */
-  fun removeInstanceOf(itemId: Long): Boolean {
-    val item = items.firstOrNull { it.itemId == itemId && !it.isStackable } ?: return false
-
-    items.remove(item)
-    markDirty()
-
-    return true
-  }
-
-  /**
    * Takes [amount] of [itemId] across every plain stack of it, or nothing at all.
    *
    * Exists alongside [removeAmount] because that one uses `singleOrNull` and therefore silently does nothing
@@ -155,10 +136,7 @@ data class Inventory(
       return if (removeFromStack(itemId, amount)) amount else null
     }
 
-    // An instance minted this session is still 0 in the live mirror, so it can only be found by template.
-    val mirrored = removeByUniqueId(uniqueId) || removeInstanceOf(itemId)
-
-    return if (mirrored) 1 else null
+    return if (removeByUniqueId(uniqueId)) 1 else null
   }
 
   // Remove items matching predicate
@@ -180,14 +158,6 @@ data class Inventory(
 
   // Get item by itemId (returns first match)
   fun getItem(itemId: Int): Item? = items.find { it.itemId == itemId.toLong() }
-
-  /**
-   * Returns one held stack matching [itemId] to be dropped, preferring a unique instance so its
-   * identity can be preserved on the ground.
-   */
-  fun findDroppable(itemId: Int): Item? =
-    items.firstOrNull { it.itemId == itemId.toLong() && !it.isStackable }
-      ?: items.firstOrNull { it.itemId == itemId.toLong() }
 
   // Get all items currently held
   fun getItems(): List<Item> = items.toList()
