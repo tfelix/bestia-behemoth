@@ -3,6 +3,7 @@ package net.bestia.zone.crafting
 import net.bestia.bnet.proto.CraftableRecipesSmsgProto
 import net.bestia.bnet.proto.EnvelopeProto
 import net.bestia.zone.message.SMSG
+import net.bestia.zone.crafting.discovery.CraftVector
 import net.bestia.zone.entity.StaticEntityKind
 
 /**
@@ -34,6 +35,7 @@ data class CraftableRecipesSMSG(
         .setSuccessPermille(recipe.successPermille)
         .setCraftMillis(recipe.craftMillis)
         .setInputsHeld(recipe.inputs.all { it.held >= it.amount })
+        .addAllPoint(recipe.point?.toAxisList().orEmpty())
         .addAllInputs(
           recipe.inputs.map { input ->
             CraftableRecipesSmsgProto.RecipeInput.newBuilder()
@@ -72,7 +74,10 @@ data class CraftableRecipesSMSG(
     val successPermille: Int,
 
     /** After the crafter's construction-time reduction - the time they will actually wait. */
-    val craftMillis: Int
+    val craftMillis: Int,
+
+    /** Where the blueprint sits in the feature space, for the discovery chart's outline; null when it has none. */
+    val point: CraftVector? = null
   )
 
   data class Input(

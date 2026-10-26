@@ -33,6 +33,7 @@ import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.prop.PlayerStructureService
 import net.bestia.zone.crafting.ecs.KnownRecipes
+import net.bestia.zone.crafting.discovery.BlueprintPoints
 import net.bestia.zone.battle.ecs.status.CombatStats
 import net.bestia.zone.battle.status.StatusValues
 import net.bestia.zone.world.WorldService
@@ -80,6 +81,7 @@ class CraftingService(
   private val roller: ItemStatRoller,
   private val worldService: WorldService,
   private val crafters: Crafters,
+  private val blueprintPoints: BlueprintPoints,
   private val metrics: GameMetrics = GameMetrics(),
 ) : RecipeOffering {
 
@@ -496,7 +498,8 @@ class CraftingService(
       )
     },
     successPermille = (bonuses.successChance(known, recipe, attributes) * 1000).roundToInt(),
-    craftMillis = (bonuses.craftSeconds(known, recipe) * 1000).roundToInt()
+    craftMillis = (bonuses.craftSeconds(known, recipe) * 1000).roundToInt(),
+    point = blueprintPoints.pointOf(recipe.id)
   )
 
   /**

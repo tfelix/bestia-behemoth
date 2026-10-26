@@ -48,6 +48,11 @@ message CraftableRecipe {
   // Whether the crafter is holding every input right now. The recipe is still listed when they are not -
   // a recipe you cannot afford yet is what tells you what to go and gather.
   bool inputs_held = 8;
+
+  // Where this blueprint sits in the feature space, in the order of MaterialAxes.axes, for the outline the
+  // discovery chart draws. Empty when it has no point. Only a known blueprint is ever listed, so this never
+  // gives away one the player has yet to find.
+  repeated float point = 9;
 }
 
 message RecipeInput {

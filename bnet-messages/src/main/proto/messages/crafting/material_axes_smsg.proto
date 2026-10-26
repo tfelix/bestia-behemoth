@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "MaterialAxesSmsgProto";
+
+/**
+ * Where every crafting material sits in the feature space. Sent on connect, so an item tooltip can say what a
+ * material pushes a mix towards before the player ever opens a crafting window.
+ */
+message MaterialAxesSMSG {
+  repeated MaterialAxes materials = 1;
+}
+
+message MaterialAxes {
+  uint32 item_id = 1;
+  // One value per axis, -1..1, in the server's CraftAxis order: STATE, INTEGRITY, HEFT, EDGE, VITALITY,
+  // ARCANE, COMPLEXITY.
+  repeated float axes = 2;
+}
