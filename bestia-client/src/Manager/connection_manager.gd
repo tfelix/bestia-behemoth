@@ -42,6 +42,7 @@ signal trade_state_received(message: TradeStateSMSG)
 ## updates it, and it arrives again after every trade so the price shown is the price that was just moved.
 signal shop_offer_received(message: ShopOfferSMSG)
 signal auction_house_opened(message: AuctionHouseOpenSMSG)
+signal auction_listings_received(message: AuctionListingsSMSG)
 ## Every party message: the roster, an invitation, the party ending for us. The party window listens.
 signal party_message_received(message: PartySMSG)
 ## Every guild message: the guild, an invitation, leaving it. The guild window listens.
@@ -1057,6 +1058,8 @@ func _on_bnet_socket_message_received(message: Object) -> void:
 		shop_offer_received.emit(message)
 	elif message is AuctionHouseOpenSMSG:
 		auction_house_opened.emit(message)
+	elif message is AuctionListingsSMSG:
+		auction_listings_received.emit(message)
 	elif message is PartySMSG:
 		party_message_received.emit(message)
 	elif message is GuildSMSG:

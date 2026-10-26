@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "AuctionListingsSmsgProto";
+
+import "messages/component/item_stat_value.proto";
+
+// One page of listings, cheapest per unit first.
+message AuctionListingsSMSG {
+  int32 page = 1;
+  int32 page_count = 2;
+  bool mine = 3;
+  repeated AuctionListing listings = 4;
+}
+
+message AuctionListing {
+  uint64 listing_id = 1;
+  uint64 item_id = 2;
+  int32 amount = 3;
+
+  // Coins for the whole lot.
+  int64 price = 4;
+
+  string seller_name = 5;
+
+  // Where it was put up. Linked houses share listings, so this may be another town.
+  string town_name = 6;
+
+  int64 expires_at_epoch_seconds = 7;
+
+  // The copy's own state, so a tooltip can show exactly what is for sale. Zero for a plain stack.
+  int32 item_level = 8;
+  int32 upgrade_level = 9;
+  int32 durability = 10;
+  int32 max_durability = 11;
+  int32 slots = 12;
+  repeated ItemStatValue rolled_stats = 13;
+}

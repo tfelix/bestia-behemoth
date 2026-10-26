@@ -46,7 +46,7 @@ class AuctionHouseInteractionTest {
     every { markets.townOf(HALL_PROP_ID) } returns "Ashford"
     every { markets.towns() } returns listOf("Ashford", "Brightwater", "Coldmere")
 
-    interaction = AuctionHouseInteraction(worldService, markets, messages)
+    interaction = AuctionHouseInteraction(AuctionHouses(worldService, markets), messages)
 
     // Eight metres along x, six across y.
     hall = world.createEntity { id ->
