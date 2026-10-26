@@ -4,6 +4,8 @@ import net.bestia.zone.item.stat.ItemStatCatalog
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.account.persistence.LearnedSkillRepository
 import net.bestia.zone.skill.ecs.KnownSkills
+import net.bestia.zone.crafting.KnownRecipeStore
+import net.bestia.zone.crafting.ecs.KnownRecipes
 import net.bestia.zone.battle.ecs.status.BaseStatusValues
 import net.bestia.zone.battle.ecs.status.CombatStats
 import net.bestia.zone.battle.ecs.status.FormulaDrivenVitals
@@ -81,6 +83,7 @@ class MasterEntitySpawner(
   private val playerBestiaEntitySpawner: PlayerBestiaEntitySpawner,
   private val itemStats: ItemStatCatalog,
   private val guildMemberships: GuildMemberships,
+  private val knownRecipeStore: KnownRecipeStore,
 ) {
 
   /**
@@ -122,6 +125,7 @@ class MasterEntitySpawner(
 
     LOG.info { "Create master entity for account ${master.account.id} with master id: $masterId" }
 
+    val knownRecipeIds = knownRecipeStore.load(masterId)
     val learnedSkillIds = learnedSkillRepository.findAllByMasterId(masterId)
       .associate { it.skill.id to it.level }
 
@@ -151,6 +155,7 @@ class MasterEntitySpawner(
       add(id, Exp(master.exp, levelUpExpCalculator.getRequiredExperience(master.level)))
       add(id, Speed())
       add(id, KnownSkills(learnedSkillIds.toMutableMap()))
+      add(id, KnownRecipes(knownRecipeIds.toMutableSet()))
       add(id, SkillPoints(master.skillPoints))
       add(id, StatusPoints(master.statusPoints))
       add(
