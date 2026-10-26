@@ -78,6 +78,34 @@ class CraftingServiceTest {
     assertNull(fixture.service.start(fixture.world, crafter, produce.id, targetUniqueId = 0))
   }
 
+  /** A master can set a bestia to work: the master's knowledge, the bestia's own bag. */
+  @Test
+  fun `a bestia crafts from its own bag with its master's skills`() {
+    val fixture = CraftingFixture(listOf(produce))
+    val master = fixture.givenCrafter(knownSkills = mapOf(SKILL_ID to 1))
+    val bestia = fixture.givenBestia(items = listOf(stack(INPUT_ITEM, 5)))
+
+    assertNull(fixture.service.start(fixture.world, bestia, produce.id, targetUniqueId = 0, masterEntityId = master))
+    fixture.service.resolve(fixture.world, bestia, fixture.world.get(bestia, Crafting::class)!!)
+
+    assertEquals(3, fixture.inventoryOf(bestia).getItems().single { it.itemId == INPUT_ITEM }.amount)
+    verify { fixture.inventoryService.consumeAll(MASTER_ID, listOf(INPUT_ITEM to 2), CraftingFixture.PLAYER_BESTIA_ID) }
+    val intent = fixture.world.get(bestia, ObtainItemIntent.CreateItemIntent::class)!!
+    assertEquals("Smith", intent.provenance?.crafterName, "the maker is the master, whoever did the work")
+  }
+
+  @Test
+  fun `somebody else's bestia cannot craft with a master's skills`() {
+    val fixture = CraftingFixture(listOf(produce))
+    val master = fixture.givenCrafter(knownSkills = mapOf(SKILL_ID to 1))
+    val stranger = fixture.givenBestia(items = listOf(stack(INPUT_ITEM, 5)), masterId = MASTER_ID + 1)
+
+    assertEquals(
+      OpError.CRAFT_NOT_POSSIBLE,
+      fixture.service.start(fixture.world, stranger, produce.id, targetUniqueId = 0, masterEntityId = master)
+    )
+  }
+
   @Test
   fun `a craft with nothing to make it from is refused before it starts`() {
     val fixture = CraftingFixture(listOf(produce))
@@ -190,7 +218,7 @@ class CraftingServiceTest {
   @Test
   fun `a craft whose durable consume fails grants nothing and gives the inputs back`() {
     val fixture = CraftingFixture(listOf(produce))
-    every { fixture.inventoryService.consumeAll(any(), any()) } returns false
+    every { fixture.inventoryService.consumeAll(any(), any(), any()) } returns false
     val crafter = fixture.givenCrafter(items = listOf(stack(INPUT_ITEM, 5)), knownSkills = mapOf(SKILL_ID to 1))
 
     fixture.service.resolve(fixture.world, crafter, crafting(produce.id))
@@ -211,7 +239,7 @@ class CraftingServiceTest {
     fixture.service.resolve(fixture.world, crafter, crafting(produce.id))
 
     assertNull(fixture.world.get(crafter, ObtainItemIntent.CreateItemIntent::class))
-    verify(exactly = 0) { fixture.inventoryService.consumeAll(any(), any()) }
+    verify(exactly = 0) { fixture.inventoryService.consumeAll(any(), any(), any()) }
   }
 
   @Test
@@ -226,7 +254,7 @@ class CraftingServiceTest {
     fixture.service.resolve(fixture.world, crafter, crafting(repair.id, targetUniqueId = 77))
 
     assertEquals(200, fixture.inventoryOf(crafter).getItems().single { it.uniqueId == 77L }.durability)
-    verify { fixture.inventoryService.updateInstance(MASTER_ID, 77L, any()) }
+    verify { fixture.inventoryService.updateInstance(MASTER_ID, 77L, null, any()) }
   }
 
   @Test

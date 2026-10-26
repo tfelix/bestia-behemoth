@@ -195,7 +195,8 @@ class InventoryService(
   }
 
   /**
-   * Takes every stack in [inputs] off a master's container in one transaction, or nothing at all.
+   * Takes every stack in [inputs] off a master's container (or its bestia's, when [playerBestiaId] is set) in one
+   * transaction, or nothing at all.
    *
    * All-or-nothing is the point: a craft that consumed two of its three materials and then found the
    * third missing would have eaten them for no result and no message. The check and the removals share a
@@ -204,33 +205,31 @@ class InventoryService(
    * @return false, having changed nothing, when any input is not held in full
    */
   @Transactional
-  fun consumeAll(masterId: Long, inputs: List<Pair<Long, Int>>): Boolean {
+  fun consumeAll(masterId: Long, inputs: List<Pair<Long, Int>>, playerBestiaId: PlayerBestiaId? = null): Boolean {
     if (inputs.isEmpty()) return true
-
-    val master = owners.lockedMaster(masterId)
 
     // Summed per item first, so a recipe naming the same material twice is checked against the total
     // rather than against whichever line happened to be looked at last.
     val required = inputs.groupBy({ it.first }, { it.second }).mapValues { (_, amounts) -> amounts.sum() }
 
-    if (required.any { (itemId, amount) -> !master.container.hasItem(itemId, amount) }) {
-      return false
-    }
-
-    required.forEach { (itemId, amount) ->
-      if (!master.container.removeStackable(itemId, amount)) {
-        // Reached only if an input is held solely as instance slots, which `hasItem` counts and
-        // `removeStackable` will not touch. Rolling back is the honest answer: the alternative is
-        // consuming part of the recipe.
-        throw IllegalStateException(
-          "Master $masterId holds item $itemId only as unique instances; recipe inputs must be stackable"
-        )
+    return withOwnerContainer(masterId, playerBestiaId) { container ->
+      if (required.any { (itemId, amount) -> !container.hasItem(itemId, amount) }) {
+        return@withOwnerContainer false
       }
+
+      required.forEach { (itemId, amount) ->
+        if (!container.removeStackable(itemId, amount)) {
+          // Reached only if an input is held solely as instance slots, which `hasItem` counts and
+          // `removeStackable` will not touch. Rolling back is the honest answer: the alternative is
+          // consuming part of the recipe.
+          throw IllegalStateException(
+            "Master $masterId holds item $itemId only as unique instances; recipe inputs must be stackable"
+          )
+        }
+      }
+
+      true
     }
-
-    owners.save(master)
-
-    return true
   }
 
   /**
@@ -243,12 +242,16 @@ class InventoryService(
    * the `Equipment` component, whose entries are immutable snapshots.
    */
   @Transactional(readOnly = true)
-  fun heldInstance(masterId: Long, uniqueId: Long): ItemInstance? {
+  fun heldInstance(masterId: Long, uniqueId: Long, playerBestiaId: PlayerBestiaId? = null): ItemInstance? {
     if (uniqueId == 0L) return null
 
-    val master = owners.lockedMaster(masterId)
+    val container = if (playerBestiaId == null) {
+      owners.lockedMaster(masterId).container
+    } else {
+      owners.lockedPlayerBestia(playerBestiaId).container
+    }
 
-    return master.container.slots
+    return container.slots
       .firstOrNull { it.uniqueId == uniqueId && it.isFree }
       ?.itemInstance
   }
@@ -262,8 +265,13 @@ class InventoryService(
    * @return the mutated instance, or null when it is no longer held
    */
   @Transactional
-  fun updateInstance(masterId: Long, uniqueId: Long, change: (ItemInstance) -> Unit): ItemInstance? {
-    val instance = heldInstance(masterId, uniqueId) ?: return null
+  fun updateInstance(
+    masterId: Long,
+    uniqueId: Long,
+    playerBestiaId: PlayerBestiaId? = null,
+    change: (ItemInstance) -> Unit
+  ): ItemInstance? {
+    val instance = heldInstance(masterId, uniqueId, playerBestiaId) ?: return null
 
     change(instance)
 
@@ -280,11 +288,9 @@ class InventoryService(
    * @return false when the instance was not held
    */
   @Transactional
-  fun destroyInstance(masterId: Long, uniqueId: Long): Boolean {
-    val master = owners.lockedMaster(masterId)
-    val taken = master.container.takeInstance(uniqueId) ?: return false
+  fun destroyInstance(masterId: Long, uniqueId: Long, playerBestiaId: PlayerBestiaId? = null): Boolean {
+    val taken = withOwnerContainer(masterId, playerBestiaId) { it.takeInstance(uniqueId) } ?: return false
 
-    owners.save(master)
     itemInstanceRepository.delete(taken)
 
     return true
