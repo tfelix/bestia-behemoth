@@ -98,7 +98,8 @@ class DropItemHandler(
         itemId = itemId,
         amount = msg.amount,
         pos = dropped,
-        uniqueId = removed.uniqueId
+        uniqueId = removed.uniqueId,
+        provenance = held.provenance
       )
     }
   }

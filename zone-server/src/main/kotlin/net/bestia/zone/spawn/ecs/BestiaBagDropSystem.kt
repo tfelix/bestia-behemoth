@@ -1,5 +1,6 @@
 package net.bestia.zone.spawn.ecs
 
+import net.bestia.zone.item.ItemProvenance
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.battle.ecs.damage.TakenDamage
 import net.bestia.zone.ecs.core.ComponentClassSet
@@ -81,7 +82,8 @@ class BestiaBagDropSystem(
           amount = item.amount,
           pos = fellAt,
           uniqueId = item.uniqueId,
-          lootOwner = killer
+          lootOwner = killer,
+          provenance = item.provenance
         )
       }
     }
@@ -92,13 +94,14 @@ class BestiaBagDropSystem(
     val uniqueId = item.instance?.id ?: 0L
     val amount = mirrorRemoval(itemId, item.amount, uniqueId) ?: return null
 
-    return DroppedItem(itemId, amount, uniqueId)
+    return DroppedItem(itemId, amount, uniqueId, item.instance?.provenance ?: item.provenance)
   }
 
   private data class DroppedItem(
     val itemId: Long,
     val amount: Int,
     val uniqueId: Long,
+    val provenance: ItemProvenance?,
   )
 
   companion object {
