@@ -164,12 +164,20 @@ class WeatherModel(
       if (roll < 0.5) -1.0 + 2.0 * roll else (roll - 0.5) * 2.0
     }
 
+    // A storm drives its own wind, which the gust channel cannot know about. Raised only after `classify`, so
+    // sandstorm and fog still read the synoptic wind and their rates do not move.
+    val windSpeed = if (kind in CONVECTIVE_STORMS) {
+      maxOf(wind.speed, STORM_WIND + severity * STORM_GUST)
+    } else {
+      wind.speed
+    }
+
     return WeatherState(
       kind = kind,
       intensity = if (kind == WeatherKind.CLEAR || kind == WeatherKind.CLOUDY) 0.0 else
         maxOf(intensity, severity * SEVERITY_AS_INTENSITY),
       cloudCover = cloud,
-      windSpeed = wind.speed,
+      windSpeed = windSpeed,
       windDirection = wind.direction,
       // The air mass carries the fortnight, `intensity` vetoes for the front standing over it right now. See
       // `WeatherState.dryness` for why neither half is enough on its own.
@@ -406,6 +414,12 @@ class WeatherModel(
 
     private const val BASE_WIND = 3.0
     private const val GUST_WIND = 22.0
+
+    /** Metres per second. The least wind a thunderstorm brings: a near gale, Beaufort 7. */
+    internal const val STORM_WIND = 14.0
+    private const val STORM_GUST = 12.0
+
+    internal val CONVECTIVE_STORMS = setOf(WeatherKind.THUNDERSTORM, WeatherKind.TORNADO)
 
     /** How far from a region's centre a tornado can be, in metres. Under a region's own half-width. */
     private const val HAZARD_REACH = 6_000.0
