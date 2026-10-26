@@ -44,7 +44,13 @@ class CraftItemHandler(
     castCancelService.cancelCast(world, activeEntityId)
 
     val denial = world.modify(activeEntityId) { id ->
-      craftingService.start(world = this, entityId = id, recipeId = msg.recipeId, targetUniqueId = msg.targetUniqueId)
+      craftingService.start(
+        world = this,
+        entityId = id,
+        recipeId = msg.recipeId,
+        targetUniqueId = msg.targetUniqueId,
+        masterEntityId = connectionInfoService.getSelectedMasterEntityId(msg.playerId)
+      )
     }
 
     if (denial != null) {

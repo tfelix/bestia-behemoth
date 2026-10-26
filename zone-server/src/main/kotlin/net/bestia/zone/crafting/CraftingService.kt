@@ -6,6 +6,8 @@ import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.bnet.proto.OperationSuccessProto.OpSuccess
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.identity.ecs.Master
+import net.bestia.zone.identity.ecs.OwnedBestia
+import net.bestia.zone.util.PlayerBestiaId
 import net.bestia.zone.skill.ecs.KnownSkills
 import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.ecs.core.World
@@ -43,11 +45,11 @@ import net.bestia.zone.casting.RecipeOffering
 /**
  * Everything a craft is: what a crafter can make here, starting one, and what happens when it resolves.
  *
- * ### Only a master crafts
+ * ### A master or its bestia crafts
  *
- * Every skill in the Craftsman and Blacksmith trees is a *master* skill, and the durable side of a craft goes
- * through the master's own [net.bestia.zone.item.persistence.ItemContainer]. A bestia standing at a forge is
- * refused rather than silently crafting out of its owner's bag.
+ * Every skill in the Craftsman and Blacksmith trees is a *master* skill, so the skill levels and the known
+ * blueprints always come from the master. Whoever does the work brings their own hands: their DEX and WIL, their
+ * bag and their container. A bestia never crafts out of its owner's bag. See [Crafter].
  *
  * ### The ECS inventory is the authority inside the tick; the database catches up
  *
@@ -91,7 +93,8 @@ class CraftingService(
    */
   override fun offerRecipes(world: World, casterId: EntityId, skillId: Long) {
     val accountId = world.get(casterId, Account::class)?.accountId ?: return
-    val known = world.get(casterId, KnownSkills::class)
+    val crafter = crafterOf(world, casterId, casterId) ?: return
+    val known = crafter.skills
     val inventory = world.get(casterId, Inventory::class)
     val position = world.get(casterId, Position::class)?.toVec3L()
 
@@ -99,7 +102,7 @@ class CraftingService(
 
     val offered = recipes.forSkill(skillId)
       .filter { known?.knowsSkill(skillId, it.requiredSkillLevel) == true }
-      .filter { knowsBlueprint(world, casterId, it) }
+      .filter { crafter.knowsBlueprint(it) }
       // Only a producing recipe can be judged here: the tier that matters for the other three is the tier of
       // the item the player has not picked yet, so those are checked when the craft is asked for.
       .filter { it.needsTarget || withinReach(known, it, outputLevelOf(it)) }
@@ -125,24 +128,31 @@ class CraftingService(
    *
    * @return the refusal to send back, or null when the craft is now under way
    */
-  fun start(world: World, entityId: EntityId, recipeId: Long, targetUniqueId: Long): OpError? {
+  fun start(
+    world: World,
+    entityId: EntityId,
+    recipeId: Long,
+    targetUniqueId: Long,
+    masterEntityId: EntityId = entityId
+  ): OpError? {
     val recipe = recipes.of(recipeId) ?: return OpError.CRAFT_NOT_POSSIBLE
 
     if (world.get(entityId, Crafting::class) != null) {
       return OpError.CRAFT_ALREADY_IN_PROGRESS
     }
 
-    if (world.get(entityId, Master::class) == null) {
-      LOG.debug { "Entity $entityId is not a master and cannot craft" }
+    val crafter = crafterOf(world, entityId, masterEntityId)
+    if (crafter == null) {
+      LOG.debug { "Entity $entityId is neither master $masterEntityId nor one of its bestias and cannot craft" }
       return OpError.CRAFT_NOT_POSSIBLE
     }
 
-    val known = world.get(entityId, KnownSkills::class)
+    val known = crafter.skills
     if (known?.knowsSkill(recipe.requiredSkillId, recipe.requiredSkillLevel) != true) {
       return OpError.CRAFT_NOT_POSSIBLE
     }
 
-    if (!knowsBlueprint(world, entityId, recipe)) {
+    if (!crafter.knowsBlueprint(recipe)) {
       return OpError.CRAFT_NOT_POSSIBLE
     }
 
@@ -171,7 +181,8 @@ class CraftingService(
       Crafting(
         recipeId = recipe.id,
         targetUniqueId = if (recipe.needsTarget) targetUniqueId else 0L,
-        totalSeconds = bonuses.craftSeconds(known, recipe)
+        totalSeconds = bonuses.craftSeconds(known, recipe),
+        masterEntityId = masterEntityId.takeIf { it != entityId }
       )
     )
 
@@ -189,10 +200,11 @@ class CraftingService(
   fun resolve(world: World, entityId: EntityId, crafting: Crafting) {
     val recipe = recipes.of(crafting.recipeId) ?: return
     val accountId = world.get(entityId, Account::class)?.accountId
-    val master = world.get(entityId, Master::class) ?: return
-    val masterId = master.masterId
+    val crafter = crafterOf(world, entityId, crafting.masterEntityId ?: entityId) ?: return
+    val masterId = crafter.master.masterId
+    val playerBestiaId = crafter.playerBestiaId
     val inventory = world.get(entityId, Inventory::class) ?: return
-    val known = world.get(entityId, KnownSkills::class)
+    val known = crafter.skills
 
     val target = if (recipe.needsTarget) {
       targetFor(recipe, inventory, crafting.targetUniqueId, known)
@@ -221,10 +233,10 @@ class CraftingService(
     val chance = bonuses.successChance(known, recipe, attributesOf(world, entityId))
     val succeeded = Random.nextFloat() <= chance
     val roll = if (succeeded) rollOutput(recipe, known) else null
-    val provenance = ItemProvenance(crafterName = master.name, worldName = worldService.record.name)
+    val provenance = ItemProvenance(crafterName = crafter.master.name, worldName = worldService.record.name)
 
     asyncJobExecutor.submit(masterId) {
-      if (!inventoryService.consumeAll(masterId, inputs.toList())) {
+      if (!inventoryService.consumeAll(masterId, inputs.toList(), playerBestiaId)) {
         LOG.warn { "Master $masterId lost the inputs of ${recipe.identifier} in the database; giving them back" }
         world.modify(entityId) { id -> taken.forEach { get(id, Inventory::class)?.addItem(it) } }
         return@submit refuse(accountId, OpError.CRAFT_MISSING_MATERIALS)
@@ -232,9 +244,9 @@ class CraftingService(
 
       val applied = world.modify(entityId) { id ->
         if (succeeded) {
-          succeed(this, id, accountId, masterId, recipe, target, minted, chance, roll, provenance)
+          succeed(this, id, accountId, masterId, playerBestiaId, recipe, target, minted, chance, roll, provenance)
         } else {
-          fail(this, id, accountId, masterId, recipe, target, known)
+          fail(this, id, accountId, masterId, playerBestiaId, recipe, target, known)
         }
       }
       if (applied == null) {
@@ -248,6 +260,7 @@ class CraftingService(
     entityId: EntityId,
     accountId: Long?,
     masterId: Long,
+    playerBestiaId: PlayerBestiaId?,
     recipe: Recipe,
     target: TargetState?,
     minted: Int,
@@ -278,9 +291,11 @@ class CraftingService(
         if (minted > 0) reserve.charge(minted.toDouble())
       }
 
-      RecipeEffect.ADD_SLOT -> applyToTarget(inventory, masterId, target!!.withSlots(target.slots + 1))
-      RecipeEffect.UPGRADE -> applyToTarget(inventory, masterId, target!!.copy(upgradeLevel = target.upgradeLevel + 1))
-      RecipeEffect.REPAIR -> applyToTarget(inventory, masterId, target!!.copy(durability = target.maxDurability))
+      RecipeEffect.ADD_SLOT -> applyToTarget(inventory, masterId, playerBestiaId, target!!.withSlots(target.slots + 1))
+      RecipeEffect.UPGRADE ->
+        applyToTarget(inventory, masterId, playerBestiaId, target!!.copy(upgradeLevel = target.upgradeLevel + 1))
+      RecipeEffect.REPAIR ->
+        applyToTarget(inventory, masterId, playerBestiaId, target!!.copy(durability = target.maxDurability))
     }
 
     LOG.debug { "Master $masterId completed ${recipe.identifier} (${(chance * 100).roundToInt()}% chance)" }
@@ -296,6 +311,7 @@ class CraftingService(
     entityId: EntityId,
     accountId: Long?,
     masterId: Long,
+    playerBestiaId: PlayerBestiaId?,
     recipe: Recipe,
     target: TargetState?,
     known: KnownSkills?
@@ -304,7 +320,7 @@ class CraftingService(
       Random.nextFloat() <= bonuses.destroyChance(known)
     ) {
       world.get(entityId, Inventory::class)?.removeByUniqueId(target.uniqueId)
-      asyncJobExecutor.submit(masterId) { inventoryService.destroyInstance(masterId, target.uniqueId) }
+      asyncJobExecutor.submit(masterId) { inventoryService.destroyInstance(masterId, target.uniqueId, playerBestiaId) }
 
       LOG.debug { "A failed slot cut destroyed instance ${target.uniqueId} of master $masterId" }
       metrics.crafted(GameMetrics.Craft.ITEM_DESTROYED)
@@ -342,7 +358,7 @@ class CraftingService(
    * The two halves cannot be one call: the ECS copy is what the client sees this tick, and the row is what
    * survives a restart. A write that only did the second would show the player nothing until they logged out.
    */
-  private fun applyToTarget(inventory: Inventory, masterId: Long, updated: TargetState) {
+  private fun applyToTarget(inventory: Inventory, masterId: Long, playerBestiaId: PlayerBestiaId?, updated: TargetState) {
     inventory.updateInstanceState(
       uniqueId = updated.uniqueId,
       durability = updated.durability,
@@ -352,7 +368,7 @@ class CraftingService(
     )
 
     asyncJobExecutor.submit(masterId) {
-      inventoryService.updateInstance(masterId, updated.uniqueId) { instance -> updated.writeOnto(instance) }
+      inventoryService.updateInstance(masterId, updated.uniqueId, playerBestiaId) { instance -> updated.writeOnto(instance) }
     }
   }
 
@@ -406,13 +422,42 @@ class CraftingService(
     world.get(entityId, CombatStats::class)?.values?.attributes
 
   /**
-   * Whether the crafter knows how to make what [recipe] makes: from the starter kit, or learned. Repairing,
-   * upgrading and cutting a slot are things a skill does to an item, so they need no blueprint.
+   * Who works, and whose knowledge they work with. A master crafts alone; a bestia crafts with its master's
+   * skills and blueprints but its own hands, bag and container ([playerBestiaId]).
    */
-  private fun knowsBlueprint(world: World, entityId: EntityId, recipe: Recipe): Boolean {
-    if (recipe.needsTarget || starterKit.isStarterBlueprint(recipe.id)) return true
+  private inner class Crafter(
+    val master: Master,
+    val playerBestiaId: PlayerBestiaId?,
+    val skills: KnownSkills?,
+    private val blueprints: KnownRecipes?,
+  ) {
+    /**
+     * Whether the master knows how to make what [recipe] makes: from the starter kit, or learned. Repairing,
+     * upgrading and cutting a slot are things a skill does to an item, so they need no blueprint.
+     */
+    fun knowsBlueprint(recipe: Recipe): Boolean {
+      if (recipe.needsTarget || starterKit.isStarterBlueprint(recipe.id)) return true
 
-    return world.get(entityId, KnownRecipes::class)?.knows(recipe.id) == true
+      return blueprints?.knows(recipe.id) == true
+    }
+  }
+
+  /** Null when [crafterId] is neither the master at [masterEntityId] nor one of its bestias. */
+  private fun crafterOf(world: World, crafterId: EntityId, masterEntityId: EntityId): Crafter? {
+    val master = world.get(masterEntityId, Master::class) ?: return null
+    val playerBestiaId = if (crafterId == masterEntityId) {
+      null
+    } else {
+      val owned = world.get(crafterId, OwnedBestia::class)?.takeIf { it.masterId == master.masterId } ?: return null
+      owned.playerBestiaId
+    }
+
+    return Crafter(
+      master = master,
+      playerBestiaId = playerBestiaId,
+      skills = world.get(masterEntityId, KnownSkills::class),
+      blueprints = world.get(masterEntityId, KnownRecipes::class),
+    )
   }
 
   /**

@@ -1,5 +1,9 @@
 package net.bestia.zone.crafting
 
+import net.bestia.zone.identity.ecs.OwnedBestia
+import net.bestia.zone.battle.ecs.status.CombatStats
+import net.bestia.zone.battle.status.CombatValues
+import net.bestia.zone.battle.status.StatusValues
 import net.bestia.zone.crafting.ecs.KnownRecipes
 import net.bestia.zone.item.stat.ItemStatCatalog
 import net.bestia.zone.item.stat.ItemStatRoller
@@ -64,7 +68,7 @@ class CraftingFixture(
   val skillRepository = mockk<SkillRepository>()
   /** The durable take succeeds unless a test says otherwise; a relaxed mock would answer false. */
   val inventoryService = mockk<InventoryService>(relaxed = true).also {
-    every { it.consumeAll(any(), any()) } returns true
+    every { it.consumeAll(any(), any(), any()) } returns true
   }
   val structures = mockk<PlayerStructureService>()
   val outMessageProcessor = mockk<OutMessageProcessor>(relaxed = true)
@@ -128,8 +132,7 @@ class CraftingFixture(
   /**
    * A master entity holding [items], knowing [knownSkills], standing at the origin.
    *
-   * [Master] is what makes it a legal crafter at all - `CraftingService` refuses a bestia, since the durable
-   * side of a craft goes through the master container.
+   * [Master] is what makes it a master; [givenBestia] adds one of its bestias.
    */
   fun givenCrafter(
     items: List<Inventory.Item> = emptyList(),
@@ -145,11 +148,25 @@ class CraftingFixture(
     add(id, KnownRecipes(knownRecipes.toMutableSet()))
   }
 
+  /** A bestia of [masterId] holding [items], with [dexterity] as its only notable attribute. */
+  fun givenBestia(
+    items: List<Inventory.Item> = emptyList(),
+    masterId: Long = MASTER_ID,
+    dexterity: Int = 0,
+  ): EntityId = world.createEntity { id ->
+    add(id, OwnedBestia(masterId = masterId, playerBestiaId = PLAYER_BESTIA_ID))
+    add(id, Account(accountId = ACCOUNT_ID))
+    add(id, Position(0, 0, 0))
+    add(id, Inventory(items.toMutableList()))
+    add(id, CombatStats(CombatValues.ofBase(level = 1, base = StatusValues(0, 0, 0, 0, 0, dexterity))))
+  }
+
   fun inventoryOf(entityId: EntityId): Inventory = world.getOrThrow(entityId, Inventory::class)
 
   companion object {
     const val MASTER_ID = 42L
     const val ACCOUNT_ID = 7L
+    const val PLAYER_BESTIA_ID = 13L
     const val STATION_ENTITY_ID = 999L
     const val WORLD_NAME = "Genesis"
 

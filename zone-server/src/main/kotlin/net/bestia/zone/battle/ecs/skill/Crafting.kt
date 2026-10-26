@@ -35,6 +35,9 @@ class Crafting(
 
   val totalSeconds: Float,
   remainingSeconds: Float = totalSeconds,
+
+  /** The master whose skills and blueprints a bestia crafts with, or null when the master crafts itself. */
+  val masterEntityId: EntityId? = null,
 ) : Countdown(remainingSeconds), Removable {
 
   // A craft bar reports "still busy" rather than feeding a decision, so it beats at half the rate a
