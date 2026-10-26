@@ -34,7 +34,7 @@ data class Recipe(
    */
   val station: StaticEntityKind?,
 
-  /** Before [MasterCraftBonusService]'s time factor, which is the whole of what Master Craftsman buys. */
+  /** Before [CraftBonusService]'s time factor, which is the whole of what Master Craftsman buys. */
   val craftSeconds: Float,
 
   /** In `[0, 1]`, before skill bonuses. 1.0 is a craft that cannot fail on its own. */

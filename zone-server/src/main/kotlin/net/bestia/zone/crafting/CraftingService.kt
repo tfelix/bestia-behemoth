@@ -64,7 +64,7 @@ import net.bestia.zone.casting.RecipeOffering
 @Service
 class CraftingService(
   private val recipes: RecipeRegistry,
-  private val bonuses: MasterCraftBonusService,
+  private val bonuses: CraftBonusService,
   private val inventoryService: InventoryService,
   private val structures: PlayerStructureService,
   private val outMessageProcessor: OutMessageProcessor,

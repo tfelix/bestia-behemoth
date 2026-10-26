@@ -35,7 +35,7 @@ enum class SkillId {
   BASIC_SKILL,
 
   // Crafting: each one's invested level buys a success chance, a craft time, an item tier or a rune
-  // slot in net.bestia.zone.crafting.MasterCraftBonusService.
+  // slot in net.bestia.zone.crafting.CraftBonusService.
   CARPENTRY,
 
   /**

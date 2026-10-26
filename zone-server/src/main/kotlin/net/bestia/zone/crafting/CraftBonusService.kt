@@ -32,7 +32,7 @@ import org.springframework.stereotype.Service
  * craft in progress.
  */
 @Service
-class MasterCraftBonusService(
+class CraftBonusService(
   private val skills: SkillRepository
 ) {
 

@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component
  * does not wear at all and one that is already whole - both would take the materials for nothing.
  *
  * The docs give this skill a max item level (20 rising to 100+) and no success table. Items have no level, so
- * that table has no substrate and the recipe's own 80% stands unmodified; `MasterCraftBonusService` deliberately
+ * that table has no substrate and the recipe's own 80% stands unmodified; `CraftBonusService` deliberately
  * adds nothing here rather than inventing a curve.
  */
 @Component

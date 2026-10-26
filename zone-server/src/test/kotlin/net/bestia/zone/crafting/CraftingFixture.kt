@@ -31,13 +31,13 @@ import net.bestia.zone.world.persistence.PersistedWorld
  * A crafter, a world, and a [CraftingService] whose only mocks are the things that leave the tick: the durable
  * inventory, the async executor, the station lookup and the socket.
  *
- * The registries and [MasterCraftBonusService] are real, so a test exercises the actual per-level tables and the
+ * The registries and [CraftBonusService] are real, so a test exercises the actual per-level tables and the
  * actual recipe invariants rather than a restatement of them.
  */
 class CraftingFixture(
   recipeList: List<Recipe> = emptyList(),
 
-  /** Identifier -> id, for the skills [MasterCraftBonusService] resolves lazily. */
+  /** Identifier -> id, for the skills [CraftBonusService] resolves lazily. */
   skillIds: Map<String, Long> = emptyMap(),
 
   /**
@@ -87,7 +87,7 @@ class CraftingFixture(
   /** Empty unless a test loads sheets, so outputs roll nothing. */
   val itemStats = ItemStatCatalog()
 
-  val bonuses: MasterCraftBonusService
+  val bonuses: CraftBonusService
 
   val service: CraftingService
 
@@ -102,7 +102,7 @@ class CraftingFixture(
       if (thirdArg<StaticEntityKind>() in stationsInRange) STATION_ENTITY_ID else null
     }
 
-    bonuses = MasterCraftBonusService(skillRepository)
+    bonuses = CraftBonusService(skillRepository)
     service = CraftingService(
       recipes = recipes,
       bonuses = bonuses,

@@ -15,16 +15,16 @@ import org.junit.jupiter.api.Test
  * Endpoints are where a table is actually wrong when it is wrong: an off-by-one in the indexing shows at level 1,
  * and a table one row too short shows at the top. The middle rows are arithmetic between the two.
  */
-class MasterCraftBonusServiceTest {
+class CraftBonusServiceTest {
 
   private val skills = mockk<SkillRepository>()
-  private val service: MasterCraftBonusService
+  private val service: CraftBonusService
 
   init {
     every { skills.findByIdentifier(any()) } answers {
       SKILL_IDS[firstArg<String>()]?.let { id -> mockk<Skill>().also { every { it.id } returns id } }
     }
-    service = MasterCraftBonusService(skills)
+    service = CraftBonusService(skills)
   }
 
   @Test
@@ -105,10 +105,10 @@ class MasterCraftBonusServiceTest {
 
   @Test
   fun `a craft never resolves in the tick it started`() {
-    val instant = recipeRequiring(CARPENTRY, craftSeconds = MasterCraftBonusService.MIN_CRAFT_SECONDS / 2f)
+    val instant = recipeRequiring(CARPENTRY, craftSeconds = CraftBonusService.MIN_CRAFT_SECONDS / 2f)
 
     assertEquals(
-      MasterCraftBonusService.MIN_CRAFT_SECONDS,
+      CraftBonusService.MIN_CRAFT_SECONDS,
       service.craftSeconds(known(TINKERER to 5), instant),
       TOLERANCE
     )
@@ -145,7 +145,7 @@ class MasterCraftBonusServiceTest {
     assertEquals(90, service.maxItemLevel(known(CARPENTRY to 9), recipe))
     // The docs read "100+", and the plus is taken literally: at full rank the master stops being the limit.
     assertEquals(
-      MasterCraftBonusService.NO_ITEM_LEVEL_CAP,
+      CraftBonusService.NO_ITEM_LEVEL_CAP,
       service.maxItemLevel(known(CARPENTRY to 10), recipe)
     )
   }
@@ -157,7 +157,7 @@ class MasterCraftBonusServiceTest {
     assertEquals(20, service.maxItemLevel(known(WEAPON_REPAIR to 1), recipe))
     assertEquals(80, service.maxItemLevel(known(WEAPON_REPAIR to 4), recipe))
     assertEquals(
-      MasterCraftBonusService.NO_ITEM_LEVEL_CAP,
+      CraftBonusService.NO_ITEM_LEVEL_CAP,
       service.maxItemLevel(known(WEAPON_REPAIR to 5), recipe)
     )
   }
@@ -167,7 +167,7 @@ class MasterCraftBonusServiceTest {
   fun `a skill the docs give no ceiling has none`() {
     for (identifier in listOf(COOKING, ITEM_CUSTOMIZATION, ORE_REFINEMENT, FORGE_WEAPON, UPGRADE_EQUIPMENT)) {
       assertEquals(
-        MasterCraftBonusService.NO_ITEM_LEVEL_CAP,
+        CraftBonusService.NO_ITEM_LEVEL_CAP,
         service.maxItemLevel(known(identifier to 1), recipeRequiring(identifier)),
         "$identifier should have no item level ceiling"
       )
