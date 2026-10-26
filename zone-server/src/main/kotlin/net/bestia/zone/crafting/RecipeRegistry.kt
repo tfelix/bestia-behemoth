@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service
 class RecipeRegistry {
 
   private var byId: Map<Long, Recipe> = emptyMap()
+  private var byIdentifier: Map<String, Recipe> = emptyMap()
   private var bySkillId: Map<Long, List<Recipe>> = emptyMap()
 
   val size get() = byId.size
@@ -29,12 +30,15 @@ class RecipeRegistry {
     }
 
     byId = recipes.associateBy { it.id }
+    byIdentifier = recipes.associateBy { it.identifier }
     bySkillId = recipes.groupBy { it.requiredSkillId }
 
     LOG.debug { "Recipe registry loaded ${recipes.size} recipe(s)" }
   }
 
   fun of(recipeId: Long): Recipe? = byId[recipeId]
+
+  fun ofIdentifier(identifier: String): Recipe? = byIdentifier[identifier]
 
   fun all(): Collection<Recipe> = byId.values
 
