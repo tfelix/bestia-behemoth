@@ -1,0 +1,14 @@
+# What every master starts out knowing.
+#
+# `blueprints` names producing recipes from `recipes.yml` that no master has to discover: the first meal, the
+# first ingots, the first sword and armour. A new player cannot be expected to find their first tools, so these
+# are given; discovery starts after them. They are a baseline rather than a grant: a change here applies to every
+# master, old and new. A recipe that is not listed has to be discovered or learned from a written recipe.
+blueprints:
+  - HEARTY_STEW
+  - ENGRAVING_SET
+  - IRON_INGOT
+  - GOLD_BAR
+  - GOLD_COIN
+  - IRON_SWORD
+  - IRON_CUIRASS
