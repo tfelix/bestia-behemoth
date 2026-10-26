@@ -3,14 +3,13 @@ package net.bestia.zone.item.persistence
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
-import jakarta.persistence.GeneratedValue
-import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.OneToMany
 import jakarta.persistence.OrderBy
 import jakarta.persistence.Table
+import net.bestia.zone.item.PlayerItemIds
 import net.bestia.zone.item.stat.StatValue
 
 /**
@@ -61,6 +60,13 @@ class ItemInstance(
   /** The level this copy rolled to. Null on copies made before item levels existed: read the template's then. */
   @Column(name = "item_level", nullable = true)
   var itemLevel: Int? = null,
+
+  /**
+   * Minted by the zone, not by the database: the live inventory shows a new copy in the tick it is granted,
+   * and the player can only act on a copy whose id they know. See [PlayerItemIds].
+   */
+  @Id
+  val id: Long = PlayerItemIds.next(),
 ) {
 
   @OneToMany(mappedBy = "itemInstance", cascade = [CascadeType.ALL], orphanRemoval = true)
@@ -78,10 +84,6 @@ class ItemInstance(
       rolledStatRows.add(ItemInstanceStat(this, ordinal, rolled.stat, rolled.value))
     }
   }
-
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  val id: Long = 0
 
   val wears: Boolean get() = maxDurability > 0
 
