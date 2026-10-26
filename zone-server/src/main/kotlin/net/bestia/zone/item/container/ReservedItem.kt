@@ -1,5 +1,6 @@
 package net.bestia.zone.item.container
 
+import net.bestia.zone.item.ItemProvenance
 import net.bestia.zone.item.stat.StatValue
 import net.bestia.zone.item.persistence.ContainerSlot
 
@@ -24,6 +25,7 @@ data class ReservedItem(
   val upgradeLevel: Int,
   val itemLevel: Int,
   val rolledStats: List<StatValue>,
+  val provenance: ItemProvenance? = null,
 ) {
 
   companion object {
@@ -43,6 +45,7 @@ data class ReservedItem(
         upgradeLevel = slot.itemInstance?.upgradeLevel ?: 0,
         itemLevel = itemLevel,
         rolledStats = slot.rolledStats,
+        provenance = slot.heldProvenance,
       )
     }
   }

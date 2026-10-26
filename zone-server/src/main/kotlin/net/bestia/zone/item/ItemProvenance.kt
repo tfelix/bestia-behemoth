@@ -16,4 +16,14 @@ data class ItemProvenance(
 
   @Column(name = "crafted_in")
   val worldName: String,
-)
+) {
+
+  companion object {
+    /**
+     * The order a craft, a sale or any other "some of this item" takes piles in: plain piles first, then by
+     * maker. The database and the live inventory both follow it, so both take the same units.
+     */
+    val TAKE_ORDER: Comparator<ItemProvenance?> =
+      nullsFirst(compareBy<ItemProvenance> { it.crafterName }.thenBy { it.worldName })
+  }
+}

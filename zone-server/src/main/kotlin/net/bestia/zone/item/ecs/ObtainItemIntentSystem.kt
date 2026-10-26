@@ -223,7 +223,8 @@ class ObtainItemIntentSystem(
           maxDurability = if (item.stackable) 0 else item.maxDurability,
           slots = roll?.sockets ?: 0,
           itemLevel = roll?.itemLevel ?: itemStats.itemLevelOf(item.id),
-          rolledStats = roll?.stats.orEmpty()
+          rolledStats = roll?.stats.orEmpty(),
+          provenance = provenance
         )
       )
     }

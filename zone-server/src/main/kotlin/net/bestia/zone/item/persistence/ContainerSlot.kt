@@ -1,7 +1,9 @@
 package net.bestia.zone.item.persistence
 
+import net.bestia.zone.item.ItemProvenance
 import net.bestia.zone.item.stat.StatValue
 import jakarta.persistence.Column
+import jakarta.persistence.Embedded
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
@@ -38,6 +40,13 @@ class ContainerSlot(
   val itemInstance: ItemInstance? = null,
 
   var amount: Int = 1,
+
+  /**
+   * Who crafted this pile and where, or null for a plain one. Piles of one item with different makers never
+   * merge. An instance slot keeps this on its [ItemInstance] instead, so it travels with the copy.
+   */
+  @Embedded
+  val provenance: ItemProvenance? = null,
 ) {
 
   /**
@@ -93,6 +102,9 @@ class ContainerSlot(
   val uniqueId: Long get() = itemInstance?.id ?: 0L
 
   val isStackable: Boolean get() = itemInstance == null
+
+  /** Who crafted what this slot holds, whether it is a pile or an instance. */
+  val heldProvenance: ItemProvenance? get() = itemInstance?.provenance ?: provenance
 
   /** Zero for a plain stack, which by construction carries no per-instance state. */
   val durability: Int get() = itemInstance?.durability ?: 0

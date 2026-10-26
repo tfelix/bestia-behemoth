@@ -1,5 +1,6 @@
 package net.bestia.zone.item.ecs
 
+import net.bestia.zone.item.ItemProvenance
 import net.bestia.zone.item.PlayerItemIds
 import net.bestia.zone.item.stat.StatValue
 import net.bestia.zone.ecs.core.Component
@@ -45,7 +46,10 @@ data class Inventory(
     /** This copy's item level, or 0 for a stack and an old copy: their level is the template's. */
     var itemLevel: Int = 0,
 
-    val rolledStats: List<StatValue> = emptyList()
+    val rolledStats: List<StatValue> = emptyList(),
+
+    /** Who crafted this pile or copy and where; null for a plain one. Piles with different makers never merge. */
+    val provenance: ItemProvenance? = null
   ) {
     /**
      * What the player names this held item by. An instance is named by its own id. A pile has no row to name
@@ -63,7 +67,7 @@ data class Inventory(
   // Add a single item
   fun addItem(item: Item) {
     if (item.isStackable) {
-      val existing = items.find { it.itemId == item.itemId && it.isStackable }
+      val existing = items.find { it.itemId == item.itemId && it.isStackable && it.provenance == item.provenance }
       if (existing != null) {
         existing.amount += item.amount
       } else {
@@ -107,16 +111,25 @@ data class Inventory(
    * the moment a template is held both as a stack and as an instance, or in two piles - which is exactly the
    * situation a trade or a drop is most likely to meet.
    */
-  fun removeFromStack(itemId: Long, amount: Int): Boolean {
+  fun removeFromStack(itemId: Long, amount: Int): Boolean = takeAcrossPiles(itemId, amount) != null
+
+  /**
+   * [removeFromStack] that answers what it took, one entry per pile, so a caller that has to give the items back
+   * can give back the same makers. Piles are taken in [ItemProvenance.TAKE_ORDER], as the database takes them.
+   */
+  fun takeAcrossPiles(itemId: Long, amount: Int): List<Item>? {
     require(amount > 0) { "amount > 0 required, was $amount" }
     val piles = items.filter { it.itemId == itemId && it.isStackable }
-    if (piles.sumOf { it.amount } < amount) return false
+      .sortedWith(compareBy(ItemProvenance.TAKE_ORDER) { it.provenance })
+    if (piles.sumOf { it.amount } < amount) return null
 
+    val takenParts = mutableListOf<Item>()
     var remaining = amount
     for (pile in piles) {
       val taken = minOf(pile.amount, remaining)
       pile.amount -= taken
       remaining -= taken
+      takenParts += Item(itemId = itemId, amount = taken, weight = pile.weight, provenance = pile.provenance)
       if (pile.amount <= 0) {
         items.remove(pile)
       }
@@ -124,7 +137,7 @@ data class Inventory(
     }
     markDirty()
 
-    return true
+    return takenParts
   }
 
   /**

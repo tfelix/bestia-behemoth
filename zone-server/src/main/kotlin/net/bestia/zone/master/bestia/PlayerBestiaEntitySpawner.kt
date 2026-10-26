@@ -300,7 +300,8 @@ class PlayerBestiaEntitySpawner(
           slots = slot.slots,
           upgradeLevel = slot.itemInstance?.upgradeLevel ?: 0,
           itemLevel = itemStats.itemLevelOf(slot),
-          rolledStats = slot.rolledStats
+          rolledStats = slot.rolledStats,
+          provenance = slot.heldProvenance
         )
       }.toMutableList()
     )

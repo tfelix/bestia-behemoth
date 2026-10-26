@@ -149,6 +149,22 @@ class InventoryService(
     return withOwnerContainer(masterId, playerBestiaId) { container -> container.removeOne(itemId, amount, uniqueId) }
   }
 
+  /**
+   * Removes what the player named in their live inventory: the instance [uniqueId], or [amount] off the pile of
+   * [itemId] made by [provenance]. See [ItemContainer.removeNamed].
+   */
+  @Transactional
+  fun removeNamedFromOwner(
+    masterId: Long,
+    playerBestiaId: PlayerBestiaId?,
+    itemId: Long,
+    amount: Int,
+    uniqueId: Long,
+    provenance: ItemProvenance?
+  ): ItemContainer.RemovedItem? {
+    return withOwnerContainer(masterId, playerBestiaId) { it.removeNamed(itemId, amount, uniqueId, provenance) }
+  }
+
   /** Empties an owner's bag of everything not worn or promised, and answers what left. See [ItemContainer.removeAllFree]. */
   @Transactional
   fun removeAllFreeFromOwner(masterId: Long, playerBestiaId: PlayerBestiaId?): List<ItemContainer.DetachedItem> {
@@ -297,7 +313,14 @@ class InventoryService(
    * @return what was promised, or null when it is not freely held in that quantity
    */
   @Transactional
-  fun reserveForTrade(masterId: Long, tradeId: Long, itemId: Long, uniqueId: Long, amount: Int): ReservedItem? {
+  fun reserveForTrade(
+    masterId: Long,
+    tradeId: Long,
+    itemId: Long,
+    uniqueId: Long,
+    amount: Int,
+    provenance: ItemProvenance? = null
+  ): ReservedItem? {
     require(amount > 0) { "amount > 0 required, was $amount" }
 
     val master = owners.lockedMaster(masterId)
@@ -308,7 +331,7 @@ class InventoryService(
     when {
       uniqueId != 0L -> master.container.reserveInstance(uniqueId, tradeId)
       !item.stackable -> master.container.reserveAnyInstance(itemId, tradeId)
-      else -> master.container.reserveStackable(itemId, amount, tradeId)
+      else -> master.container.reserveStackable(itemId, amount, tradeId, provenance)
     } ?: return null
 
     val saved = owners.saveAndFlush(master)
@@ -430,7 +453,7 @@ class InventoryService(
     if (detached.instance != null) {
       to.addInstance(detached.instance)
     } else {
-      to.addStackable(detached.template, detached.amount)
+      to.addStackable(detached.template, detached.amount, detached.provenance)
     }
 
     ReservedItem(
@@ -447,6 +470,7 @@ class InventoryService(
       itemLevel = detached.instance?.itemLevel
         ?: itemStats.itemLevelOf(detached.template.id, detached.instance?.rolledStats.orEmpty(), detached.instance?.slots ?: 0),
       rolledStats = detached.instance?.rolledStats.orEmpty(),
+      provenance = detached.instance?.provenance ?: detached.provenance,
     )
   }
 
@@ -494,7 +518,7 @@ class InventoryService(
         container.addInstance(itemInstanceRepository.findByIdOrThrow(uniqueId))
       }
 
-      item.stackable -> container.addStackable(item, amount)
+      item.stackable -> container.addStackable(item, amount, provenance)
 
       else -> freshInstanceIds.ifEmpty { List(amount) { PlayerItemIds.next() } }.forEach { instanceId ->
         val instance = ItemInstance(
