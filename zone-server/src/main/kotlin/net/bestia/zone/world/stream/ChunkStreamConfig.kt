@@ -102,6 +102,14 @@ data class ChunkStreamConfig(
   val slabComputationsPerTick: Int = 4,
 
   /**
+   * Milliseconds of a tick the slab computations may use, whichever of this and [slabComputationsPerTick] is
+   * hit first. A slab over fresh ground is world generation, so four of them held a tick for 400 ms and
+   * delayed everything the tick had already computed - a walking entity's position among it. One slab is
+   * always allowed, so the player's view cannot starve.
+   */
+  val slabMillisPerTick: Long = 8,
+
+  /**
    * Derived structures built or rebuilt per tick, across all players. Queries keep serving the stale structure
    * until then, which is the trade the design argues for: pathing briefly wrong beats a rebuild hitch on the
    * zone thread every time somebody places a block.
@@ -118,6 +126,14 @@ data class ChunkStreamConfig(
    * on demand, which is what took a login into dense ground from whole ticks of overrun back inside budget.
    */
   val derivedRebuildsPerTick: Int = 8,
+
+  /**
+   * Milliseconds of a tick the derived rebuilds may spend, whatever [derivedRebuildsPerTick] still allows. A
+   * build in dense ground takes tens of milliseconds, so eight of them held a tick for a quarter of a second
+   * while a player walked into new terrain - and everything the tick had already computed, a walking
+   * entity's position included, reached its client that much late. At least one chunk is rebuilt per tick.
+   */
+  val derivedRebuildMillisPerTick: Long = 5,
 
   /** Whether the `/carve` chat command is honoured at all. Off in production; the authority check applies too. */
   val allowDebugEdits: Boolean = true,
@@ -162,9 +178,11 @@ data class ChunkStreamConfig(
     require(encodedCacheCapacity > 0) { "The encoded cache must hold at least one chunk" }
     require(hotChunkCapacity > 0) { "The hot chunk cache must hold at least one chunk" }
     require(slabCacheCapacity > 0) { "The slab cache must hold at least one column" }
+    require(slabMillisPerTick > 0) { "A slab time budget of zero would still compute one slab a tick" }
     require(slabComputationsPerTick > 0) { "A slab budget of zero would never offer any terrain" }
     require(deflateLevel in 0..9) { "Deflate level must be 0..9, was $deflateLevel" }
     require(derivedRebuildsPerTick >= 0) { "Rebuild budget cannot be negative" }
+    require(derivedRebuildMillisPerTick > 0) { "A rebuild time budget of zero would still rebuild one chunk a tick" }
     require(editFlushSeconds > 0f) { "Edits must be written out at some point, was every $editFlushSeconds s" }
     require(maxWalkSlopeDegrees > 0.0 && maxWalkSlopeDegrees < 90.0) {
       "maxWalkSlopeDegrees must be strictly between 0 and 90, was $maxWalkSlopeDegrees"

@@ -64,7 +64,7 @@ class AnchorResidencySystem(
 
     releaseAllBut(holders)
 
-    val budget = SlabBudget(config.slabComputationsPerTick)
+    val budget = SlabBudget(config.slabComputationsPerTick, streamSettings.slabMillisPerTick * 1_000_000L)
     for (anchor in holders) {
       index.place(anchor.id, anchor.position)
       holdings.getOrPut(anchor.id) { Holding() }.follow(anchor.chunk, budget)

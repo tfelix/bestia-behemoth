@@ -288,7 +288,7 @@ class ChunkStreamSystem(
 
     // Shared across every player this tick, because the cost being budgeted is the tick's, not any one
     // player's - and two players on the same fresh ground would otherwise pay for it twice.
-    val budget = SlabBudget(settings.slabComputationsPerTick)
+    val budget = SlabBudget(settings.slabComputationsPerTick, settings.slabMillisPerTick * 1_000_000L)
 
     for ((accountId, anchor) in anchors) {
       val previous = subscriptions.anchorOf(accountId)

@@ -1016,7 +1016,11 @@ class ChunkService(
 
   /** Spends the per-tick derived-structure rebuild budget. Returns how many were rebuilt. */
   fun rebuildDerived(): Int =
-    if (settings.derivedRebuildsPerTick == 0) 0 else loaded.derived.rebuild(settings.derivedRebuildsPerTick)
+    if (settings.derivedRebuildsPerTick == 0) {
+      0
+    } else {
+      loaded.derived.rebuild(settings.derivedRebuildsPerTick, settings.derivedRebuildMillisPerTick * 1_000_000L)
+    }
 
   /** One deflater and buffer per thread, reset between uses: the tick and every chunk worker deflate. */
   private val deflaters = ThreadLocal.withInitial { Deflater(settings.deflateLevel) to ByteArray(8192) }

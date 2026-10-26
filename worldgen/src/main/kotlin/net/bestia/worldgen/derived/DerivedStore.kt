@@ -155,16 +155,23 @@ class DerivedStore(
   }
 
   /**
-   * Rebuilds up to [budget] queued chunks.
+   * Rebuilds up to [budget] queued chunks, and stops early once [maxNanos] have been spent.
+   *
+   * The count alone is a poor bound: one build is a merge plus a pass over 262 144 voxels and costs tens of
+   * milliseconds in dense ground, so a count that is cheap in open country held up whole ticks in a cave. At
+   * least one chunk is always rebuilt, so a queue cannot starve however small the time is.
    *
    * @return how many were rebuilt, so a caller can tell whether it is keeping up
    */
-  fun rebuild(budget: Int = 1): Int {
+  fun rebuild(budget: Int = 1, maxNanos: Long = Long.MAX_VALUE): Int {
     require(budget >= 0) { "budget must not be negative, was $budget" }
 
+    val started = System.nanoTime()
     var done = 0
     val iterator = queue.iterator()
     while (done < budget && iterator.hasNext()) {
+      if (done > 0 && System.nanoTime() - started >= maxNanos) break
+
       val chunk = iterator.next()
       iterator.remove()
 

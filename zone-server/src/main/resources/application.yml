@@ -170,6 +170,9 @@ chunk-stream:
   # tick stalls the zone thread for whole ticks. So a manifest grows over a second or so instead, which the
   # protocol already supports since it is a diff. The player's own column is never deferred.
   slab-computations-per-tick: 4
+  # Milliseconds of one tick those slab computations may use, whichever limit is hit first. One slab is always
+  # allowed. A slab over fresh ground is world generation and the count alone held ticks for hundreds of ms.
+  slab-millis-per-tick: 8
   # Derived walkability tiles built or rebuilt per tick, across all players. Queries serve the stale copy until
   # then, which beats a rebuild hitch on the zone thread every time somebody places a block. This budget also
   # pays for the *first* build of every chunk entering a subscription - a login is a whole view volume at once -
@@ -179,6 +182,9 @@ chunk-stream:
   # have no reader and DerivedStore builds them on demand instead. Watch the slow-tick warning from ZoneEngine
   # before raising this - the number that matters is how long a tick takes, not how many chunks it clears.
   derived-rebuilds-per-tick: 8
+  # Milliseconds of one tick the rebuilds above may use, whichever limit is hit first. At least one chunk is
+  # always rebuilt. A build in dense ground costs tens of ms, so the count alone held ticks for ~250 ms.
+  derived-rebuild-millis-per-tick: 5
   # Whether the /carve chat command is honoured. It also needs the TERRAIN authority.
   allow-debug-edits: true
   # How often edited chunks are written to the database. A crash loses at most this much digging; a normal
