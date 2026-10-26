@@ -43,6 +43,10 @@ static func as_bbcode(
 	if slots > 0:
 		lines.append("%d socket(s)" % slots)
 
+	var material_axes := CraftAxes.describe(item.item_id)
+	if not material_axes.is_empty():
+		lines.append(_translate("ITEM_MATERIAL_AXES").format({"axes": material_axes}))
+
 	if not crafted_by.is_empty():
 		lines.append(_translate("ITEM_CRAFTED_BY").format({"crafter": crafted_by, "world": crafted_in}))
 

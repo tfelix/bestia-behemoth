@@ -29,6 +29,8 @@ namespace BestiaBehemothClient.Bnet.Message
       [Envelope.MessageOneofCase.Dialog] = e => System.DialogSMSG.FromProto(e.Dialog),
       [Envelope.MessageOneofCase.Conversation] = e => System.ConversationSMSG.FromProto(e.Conversation),
       [Envelope.MessageOneofCase.CraftableRecipes] = e => Crafting.CraftableRecipesSMSG.FromProto(e.CraftableRecipes),
+      [Envelope.MessageOneofCase.DiscoveryResult] = e => Crafting.DiscoveryResultSMSG.FromProto(e.DiscoveryResult),
+      [Envelope.MessageOneofCase.MaterialAxes] = e => Crafting.MaterialAxesSMSG.FromProto(e.MaterialAxes),
       [Envelope.MessageOneofCase.WorldInfo] = e => Map.WorldInfoSMSG.FromProto(e.WorldInfo),
       [Envelope.MessageOneofCase.WorldTime] = e => Map.WorldTimeSMSG.FromProto(e.WorldTime),
       [Envelope.MessageOneofCase.ChunkManifest] = e => Map.ChunkManifestSMSG.FromProto(e.ChunkManifest),
