@@ -9,6 +9,9 @@ import net.bestia.zone.item.equip.EquipmentSlot
 import net.bestia.zone.item.material.ItemMaterial
 import net.bestia.zone.item.stat.ItemStat
 import net.bestia.zone.item.stat.ItemStatCatalog
+import net.bestia.zone.crafting.discovery.CraftAxis
+import net.bestia.zone.crafting.discovery.CraftVector
+import net.bestia.zone.crafting.discovery.MaterialAxes
 import net.bestia.zone.item.stat.ItemStatSheet
 import net.bestia.zone.item.stat.RandomStatTemplate
 import net.bestia.zone.item.stat.StatPool
@@ -25,7 +28,8 @@ import org.springframework.stereotype.Component
 @Order(100)
 class ItemImporterBootRunner(
   itemRepository: ItemRepository,
-  private val itemStatCatalog: ItemStatCatalog
+  private val itemStatCatalog: ItemStatCatalog,
+  private val materialAxes: MaterialAxes
 ) : CommandLineRunner,
   YmlImporterBootRunner<ItemImporterBootRunner.ItemYamlDto, Item>(
     "Item",
@@ -77,7 +81,11 @@ class ItemImporterBootRunner(
 
     /** What a copy may roll when it is made. Only gear rolls. */
     @JsonProperty("random-stats")
-    val randomStats: RandomStatsDto? = null
+    val randomStats: RandomStatsDto? = null,
+
+    /** Where this item sits in the crafting feature space when it is used as a material. */
+    @JsonProperty("craft-axes")
+    val craftAxes: Map<CraftAxis, Double> = emptyMap()
   ) {
 
     fun toStatSheet(): ItemStatSheet {
@@ -137,7 +145,9 @@ class ItemImporterBootRunner(
 
   override fun run(vararg args: String?) {
     super.run(*args)
-    itemStatCatalog.load(loadYmlItems().associate { it.id to it.toStatSheet() })
+    val items = loadYmlItems()
+    itemStatCatalog.load(items.associate { it.id to it.toStatSheet() })
+    materialAxes.load(items.filter { it.craftAxes.isNotEmpty() }.associate { it.id to CraftVector(it.craftAxes) })
   }
 
   override fun loadYmlItems(): List<ItemYamlDto> {
