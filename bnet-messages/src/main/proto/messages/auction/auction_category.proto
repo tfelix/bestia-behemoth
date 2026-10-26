@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "AuctionCategoryProto";
+
+// What the browse filter groups goods by.
+enum AuctionCategory {
+  AUCTION_CATEGORY_ANY = 0;
+  AUCTION_CATEGORY_WEAPON = 1;
+  AUCTION_CATEGORY_ARMOR = 2;
+  AUCTION_CATEGORY_ACCESSORY = 3;
+  AUCTION_CATEGORY_CONSUMABLE = 4;
+  AUCTION_CATEGORY_MATERIAL = 5;
+}

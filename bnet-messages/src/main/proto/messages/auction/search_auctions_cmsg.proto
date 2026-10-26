@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "SearchAuctionsCmsgProto";
+
+import "messages/auction/auction_category.proto";
+
+// Asks one page of the shared market. Answered by AuctionListingsSMSG.
+message SearchAuctionsCMSG {
+  uint64 house_entity_id = 1;
+  AuctionCategory category = 2;
+
+  // Item levels, inclusive. 0 leaves that end open.
+  int32 min_level = 3;
+  int32 max_level = 4;
+
+  // Names live on the client, so a name search arrives as the items it matched. Empty means any item.
+  repeated uint64 item_ids = 5;
+
+  // Only the sender's own listings, for the Sell tab.
+  bool mine = 6;
+
+  // Zero-based.
+  int32 page = 7;
+}

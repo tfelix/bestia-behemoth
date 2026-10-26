@@ -244,6 +244,10 @@ enum OpError {
   ROUTE_LIMIT = 86;
   // Too far from the auction house's walls. The client walks up before it clicks, so this needs latency.
   AUCTION_OUT_OF_RANGE = 87;
+  // A master may keep this many listings up at once; one has to sell or come down first.
+  AUCTION_LISTING_LIMIT = 88;
+  // The listing fee is paid up front and the purse does not hold it.
+  AUCTION_CANNOT_AFFORD_FEE = 89;
 }
 
 message OperationError {

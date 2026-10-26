@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "ListAuctionItemCmsgProto";
+
+// Puts goods up at a fixed price. Answered by the seller's own listings, or by an OperationError.
+message ListAuctionItemCMSG {
+  uint64 house_entity_id = 1;
+
+  // The held pile or copy to list from, as InventoryItem.player_item_id names it.
+  uint64 player_item_id = 2;
+  int32 amount = 3;
+
+  // Coins for the whole lot.
+  int64 price = 4;
+}
