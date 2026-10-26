@@ -209,11 +209,24 @@ namespace BestiaBehemothClient.Game.World
     private float _hazeTint;
     private Vector3 _wind = Vector3.Zero;
 
+    // Gusts ride on top of the smoothed wind rather than inside it, or the speed smoothing irons them out.
+    private float _gustiness;
+    private double _gustClock;
+    private Vector3 _gustedWind = Vector3.Zero;
+
+    private readonly FastNoiseLite _gustNoise = new()
+    {
+      NoiseType = FastNoiseLite.NoiseTypeEnum.Simplex,
+      Frequency = GustsPerSecond
+    };
+
+    private const float GustsPerSecond = 0.25f;
+
     /// <summary>
     /// The wind as the rendering server last heard it, which is what decides whether a publish is due.
     /// </summary>
     /// <remarks>
-    /// A second copy rather than testing <see cref="_wind"/> against its own new value, because that value has
+    /// A second copy rather than testing <see cref="_gustedWind"/> against its own new value, because that value has
     /// to be committed either way - see <see cref="_Process"/>. Starts at a deliberately impossible vector so
     /// that the first frame always publishes: the project setting's default is a light breeze, not zero, and
     /// a client that started in a dead calm would otherwise leave it standing.
@@ -295,13 +308,13 @@ namespace BestiaBehemothClient.Game.World
     /// </remarks>
     public Vector3 Wind
     {
-      get { return _wind; }
+      get { return _gustedWind; }
     }
 
     /// <summary>Wind speed in metres per second, already carrying <see cref="WeatherLook.WindScale"/>.</summary>
     public float WindSpeed
     {
-      get { return _wind.Length(); }
+      get { return _gustedWind.Length(); }
     }
 
     /// <summary>Wind speed in metres per second as the server reported it, without any look multiplier.</summary>
@@ -477,6 +490,8 @@ namespace BestiaBehemothClient.Game.World
       _visibility = look.Visibility;
       _hazeTint = look.HazeTint * (1.0f - look.Visibility);
       _wind = TargetWind(look);
+      _gustiness = look.Gustiness;
+      _gustedWind = _wind;
 
       Publish();
     }
@@ -506,6 +521,8 @@ namespace BestiaBehemothClient.Game.World
       // read straight off the property every frame by cloud_shadows.gd, so holding it back on a frame that is
       // not worth publishing would stall the shadow drift rather than merely delay a shader parameter.
       _wind = WindSmoothing.Approach(_wind, TargetWind(look), step, WindSpeedSeconds, WindSeconds);
+      _gustiness = Approach(_gustiness, look.Gustiness, step, SkySeconds, SkySeconds);
+      _gustedWind = Gusted(_wind, delta);
 
       // Advanced and published every frame, unlike everything below it, because this one is a clock: holding it
       // back on a frame is not a saved round trip but a stalled animation.
@@ -513,8 +530,8 @@ namespace BestiaBehemothClient.Game.World
       // The whole vector, and not its length: this is where the wind's *bearing* enters the gust field. That
       // it enters as a displacement and never as an angle is the reason a turning wind now slides the field
       // instead of pivoting it about the world origin - see GustDriftParameter.
-      _gustDriftX += _wind.X * delta;
-      _gustDriftZ += _wind.Z * delta;
+      _gustDriftX += _gustedWind.X * delta;
+      _gustDriftZ += _gustedWind.Z * delta;
 
       RenderingServer.GlobalShaderParameterSet(
         GustDriftParameter, new Vector2((float)_gustDriftX, (float)_gustDriftZ));
@@ -524,7 +541,7 @@ namespace BestiaBehemothClient.Game.World
       if (Mathf.IsEqualApprox(wetness, _wetness) &&
           Mathf.IsEqualApprox(snow, _snow) &&
           Mathf.IsEqualApprox(temperature, _temperature) &&
-          _wind.IsEqualApprox(_publishedWind))
+          _gustedWind.IsEqualApprox(_publishedWind))
       {
         return;
       }
@@ -560,6 +577,17 @@ namespace BestiaBehemothClient.Game.World
       return new Vector3(Mathf.Cos(direction), 0.0f, Mathf.Sin(direction)) * speed * look.WindScale;
     }
 
+    private Vector3 Gusted(Vector3 wind, double delta)
+    {
+      _gustClock += delta;
+      var swell = _gustNoise.GetNoise1D((float)_gustClock);
+
+      // A gust lifts the wind further than a lull drops it, which is what reads as a storm rather than a pulse.
+      var lift = swell > 0.0f ? swell * 2.0f : swell * 0.6f;
+
+      return wind * Mathf.Max(1.0f + _gustiness * lift, 0.0f);
+    }
+
     /// <summary>
     /// Exponential approach with a different time constant in each direction.
     /// </summary>
@@ -580,9 +608,9 @@ namespace BestiaBehemothClient.Game.World
       RenderingServer.GlobalShaderParameterSet(Wetness, _wetness);
       RenderingServer.GlobalShaderParameterSet(Snow, _snow);
       RenderingServer.GlobalShaderParameterSet(Temperature, _temperature);
-      RenderingServer.GlobalShaderParameterSet(WindParameter, _wind);
+      RenderingServer.GlobalShaderParameterSet(WindParameter, _gustedWind);
 
-      _publishedWind = _wind;
+      _publishedWind = _gustedWind;
     }
   }
 }
