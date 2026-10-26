@@ -47,7 +47,9 @@ enum class StaticEntityKind {
   // gives: a client dispatches a *mesh* on this value, and a barn has nothing in common with a temple. It is
   // also what gives each of them its own `prop-kinds.yml` row, so the interaction a shop eventually needs -
   // a door, an owner, a stock of goods - is not shared with a warehouse's.
-  BUILDING_MARKET,
+  //
+  // `MARKET` is the exception to the name join: a town's market hall is its auction house.
+  AUCTION_HOUSE,
   BUILDING_TEMPLE,
   BUILDING_CIVIC,
   BUILDING_SHOP,
@@ -167,7 +169,7 @@ enum class StaticEntityKind {
      * function added to worldgen with no constant here fails the boot rather than a player's chunk.
      */
     private val BUILDING_KINDS: List<StaticEntityKind?> = BuildingFunction.entries.map { function ->
-      val name = "BUILDING_${function.name}"
+      val name = if (function == BuildingFunction.MARKET) AUCTION_HOUSE.name else "BUILDING_${function.name}"
       val kind = entries.firstOrNull { it.name == name }
       require(kind != null || function == BuildingFunction.FORTIFICATION) {
         "worldgen's BuildingFunction.${function.name} has no StaticEntityKind.$name; append one and give it " +

@@ -6,6 +6,7 @@ import net.bestia.worldgen.poi.PoiKind
 import net.bestia.worldgen.voxel.PropKind
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.world.WorldService
+import net.bestia.zone.world.settlement.StartTownMarkets
 import net.bestia.zone.world.stream.ChunkCoords
 import org.springframework.stereotype.Component
 import kotlin.math.abs
@@ -25,7 +26,8 @@ import net.bestia.zone.entity.StaticEntityKind
  */
 @Component
 class GeneratedPropSource(
-  private val worldService: WorldService
+  private val worldService: WorldService,
+  private val startTownMarkets: StartTownMarkets
 ) : WorldObjectSource {
 
   /**
@@ -68,6 +70,8 @@ class GeneratedPropSource(
 
     for (i in props.indices) {
       val kind = StaticEntityKind.of(props.kindAt(i), props.isBlighted(i), props.isLarge(i), props.subKindAt(i))
+      if (kind == StaticEntityKind.AUCTION_HOUSE && !startTownMarkets.isAuctionHouse(props.identityAt(i))) continue
+
       val rectangular = props.kindAt(i) == PropKind.BUILDING
 
       // Metres to position units, and the height from the generator's own column rather than from

@@ -126,7 +126,8 @@ kinds:
   # `variants` is 1 throughout and that is a holding position: `StaticEntityRenderer` draws a placeholder box
   # scaled by the footprint on the wire, so a second model would be a second box. It goes up per function when
   # there is art.
-  - kind: BUILDING_MARKET
+  # The market hall, emitted only in the start towns - see `StartTownMarkets`.
+  - kind: AUCTION_HOUSE
     max-hp: 300
     collider: { half-x: 8, half-y: 6, height: 4 }
     variants: 1
