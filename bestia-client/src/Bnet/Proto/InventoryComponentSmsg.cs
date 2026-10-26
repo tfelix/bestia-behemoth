@@ -27,19 +27,19 @@ namespace Bnet {
             "CjFtZXNzYWdlcy9jb21wb25lbnQvaW52ZW50b3J5X2NvbXBvbmVudF9zbXNn",
             "LnByb3RvEgRibmV0GihtZXNzYWdlcy9jb21wb25lbnQvaXRlbV9zdGF0X3Zh",
             "bHVlLnByb3RvIkIKFkludmVudG9yeUNvbXBvbmVudFNNU0cSIgoFaXRlbXMY",
-            "AiADKAsyEy5ibmV0LkludmVudG9yeUl0ZW1KBAgBEAIi5gEKDUludmVudG9y",
+            "AiADKAsyEy5ibmV0LkludmVudG9yeUl0ZW1KBAgBEAIi/gEKDUludmVudG9y",
             "eUl0ZW0SDwoHaXRlbV9pZBgBIAEoDRIRCgl1bmlxdWVfaWQYAiABKAQSDgoG",
             "YW1vdW50GAMgASgNEhAKCGVxdWlwcGVkGAQgASgIEhIKCmR1cmFiaWxpdHkY",
             "BSABKA0SFgoObWF4X2R1cmFiaWxpdHkYBiABKA0SDQoFc2xvdHMYByABKA0S",
             "FQoNdXBncmFkZV9sZXZlbBgIIAEoDRISCgppdGVtX2xldmVsGAkgASgNEikK",
-            "DHJvbGxlZF9zdGF0cxgKIAMoCzITLmJuZXQuSXRlbVN0YXRWYWx1ZUI0ChVu",
-            "ZXQuYmVzdGlhLmJuZXQucHJvdG9CG0ludmVudG9yeUNvbXBvbmVudFNNU0dQ",
-            "cm90b2IGcHJvdG8z"));
+            "DHJvbGxlZF9zdGF0cxgKIAMoCzITLmJuZXQuSXRlbVN0YXRWYWx1ZRIWCg5w",
+            "bGF5ZXJfaXRlbV9pZBgLIAEoBEI0ChVuZXQuYmVzdGlhLmJuZXQucHJvdG9C",
+            "G0ludmVudG9yeUNvbXBvbmVudFNNU0dQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Bnet.ItemStatValueReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.InventoryComponentSMSG), global::Bnet.InventoryComponentSMSG.Parser, new[]{ "Items" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.InventoryItem), global::Bnet.InventoryItem.Parser, new[]{ "ItemId", "UniqueId", "Amount", "Equipped", "Durability", "MaxDurability", "Slots", "UpgradeLevel", "ItemLevel", "RolledStats" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.InventoryItem), global::Bnet.InventoryItem.Parser, new[]{ "ItemId", "UniqueId", "Amount", "Equipped", "Durability", "MaxDurability", "Slots", "UpgradeLevel", "ItemLevel", "RolledStats", "PlayerItemId" }, null, null, null, null)
           }));
     }
     #endregion
@@ -282,6 +282,7 @@ namespace Bnet {
       upgradeLevel_ = other.upgradeLevel_;
       itemLevel_ = other.itemLevel_;
       rolledStats_ = other.rolledStats_.Clone();
+      playerItemId_ = other.playerItemId_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -428,6 +429,22 @@ namespace Bnet {
       get { return rolledStats_; }
     }
 
+    /// <summary>Field number for the "player_item_id" field.</summary>
+    public const int PlayerItemIdFieldNumber = 11;
+    private ulong playerItemId_;
+    /// <summary>
+    /// What every action on this held item names it by. Equals unique_id for an instance. A plain pile gets a
+    /// handle that holds while the pile is held this session.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ulong PlayerItemId {
+      get { return playerItemId_; }
+      set {
+        playerItemId_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -453,6 +470,7 @@ namespace Bnet {
       if (UpgradeLevel != other.UpgradeLevel) return false;
       if (ItemLevel != other.ItemLevel) return false;
       if(!rolledStats_.Equals(other.rolledStats_)) return false;
+      if (PlayerItemId != other.PlayerItemId) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -470,6 +488,7 @@ namespace Bnet {
       if (UpgradeLevel != 0) hash ^= UpgradeLevel.GetHashCode();
       if (ItemLevel != 0) hash ^= ItemLevel.GetHashCode();
       hash ^= rolledStats_.GetHashCode();
+      if (PlayerItemId != 0UL) hash ^= PlayerItemId.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -525,6 +544,10 @@ namespace Bnet {
         output.WriteUInt32(ItemLevel);
       }
       rolledStats_.WriteTo(output, _repeated_rolledStats_codec);
+      if (PlayerItemId != 0UL) {
+        output.WriteRawTag(88);
+        output.WriteUInt64(PlayerItemId);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -572,6 +595,10 @@ namespace Bnet {
         output.WriteUInt32(ItemLevel);
       }
       rolledStats_.WriteTo(ref output, _repeated_rolledStats_codec);
+      if (PlayerItemId != 0UL) {
+        output.WriteRawTag(88);
+        output.WriteUInt64(PlayerItemId);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -610,6 +637,9 @@ namespace Bnet {
         size += 1 + pb::CodedOutputStream.ComputeUInt32Size(ItemLevel);
       }
       size += rolledStats_.CalculateSize(_repeated_rolledStats_codec);
+      if (PlayerItemId != 0UL) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(PlayerItemId);
+      }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -650,6 +680,9 @@ namespace Bnet {
         ItemLevel = other.ItemLevel;
       }
       rolledStats_.Add(other.rolledStats_);
+      if (other.PlayerItemId != 0UL) {
+        PlayerItemId = other.PlayerItemId;
+      }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -709,6 +742,10 @@ namespace Bnet {
             rolledStats_.AddEntriesFrom(input, _repeated_rolledStats_codec);
             break;
           }
+          case 88: {
+            PlayerItemId = input.ReadUInt64();
+            break;
+          }
         }
       }
     #endif
@@ -766,6 +803,10 @@ namespace Bnet {
           }
           case 82: {
             rolledStats_.AddEntriesFrom(ref input, _repeated_rolledStats_codec);
+            break;
+          }
+          case 88: {
+            PlayerItemId = input.ReadUInt64();
             break;
           }
         }

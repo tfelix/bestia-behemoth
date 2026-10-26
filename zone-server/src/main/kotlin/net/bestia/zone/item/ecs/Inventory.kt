@@ -1,5 +1,6 @@
 package net.bestia.zone.item.ecs
 
+import net.bestia.zone.item.PlayerItemIds
 import net.bestia.zone.item.stat.StatValue
 import net.bestia.zone.ecs.core.Component
 import net.bestia.zone.util.EntityId
@@ -48,6 +49,13 @@ data class Inventory(
 
     val rolledStats: List<StatValue> = emptyList()
   ) {
+    /**
+     * What the player names this held item by. An instance is named by its own id. A pile has no row to name
+     * it by, so it gets a handle that lives as long as the pile: a merge keeps the handle of the pile it lands
+     * on.
+     */
+    val playerItemId: Long = if (uniqueId != 0L) uniqueId else PlayerItemIds.next()
+
     val isStackable: Boolean get() = stackable && uniqueId == 0L
     val totalWeight get() = amount * weight
   }
@@ -184,6 +192,8 @@ data class Inventory(
   // Get all items currently held
   fun getItems(): List<Item> = items.toList()
 
+  fun byPlayerItemId(playerItemId: Long): Item? = items.firstOrNull { it.playerItemId == playerItemId }
+
   // Get number of items
   fun size(): Int = items.size
 
@@ -301,7 +311,8 @@ data class Inventory(
           slots = item.slots,
           upgradeLevel = item.upgradeLevel,
           itemLevel = item.itemLevel,
-          rolledStats = item.rolledStats
+          rolledStats = item.rolledStats,
+          playerItemId = item.playerItemId
         )
       }
     )
