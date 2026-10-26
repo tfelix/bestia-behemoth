@@ -160,6 +160,20 @@ namespace BestiaBehemothClient.Tests
       Assert.True(fog.GroundWetRate > 0.0f, "fog leaves the ground bone dry");
     }
 
+    [Fact]
+    public void StormsGustAndCalmSkiesDoNot()
+    {
+      Assert.Equal(0.0f, WeatherLook.For(WeatherSMSG.Kind.Clear, 0.0f, 0.2f).Gustiness, 5);
+      Assert.Equal(0.0f, WeatherLook.For(WeatherSMSG.Kind.Fog, 0.5f, 0.8f).Gustiness, 5);
+
+      var rain = WeatherLook.For(WeatherSMSG.Kind.Rain, 0.5f, 0.8f).Gustiness;
+      var storm = WeatherLook.For(WeatherSMSG.Kind.Thunderstorm, 0.5f, 0.8f).Gustiness;
+      var tornado = WeatherLook.For(WeatherSMSG.Kind.Tornado, 0.5f, 0.8f).Gustiness;
+
+      Assert.True(storm > rain, "a thunderstorm gusts no harder than rain");
+      Assert.True(tornado > storm, "a tornado gusts no harder than a thunderstorm");
+    }
+
     /// <summary>Only the storms flash, and every one of them does.</summary>
     [Fact]
     public void TheStormsAreTheOnesThatFlash()

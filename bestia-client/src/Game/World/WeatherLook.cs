@@ -37,7 +37,8 @@ namespace BestiaBehemothClient.Game.World
     private const float DiffusionOnset = 0.55f;
 
     private WeatherLook(float rainRate, float snowRate, float dustRate, float groundWetRate, float overcast,
-      float visibility, float windScale, bool hasLightning, Color hazeColour = default, float hazeTint = 0.0f)
+      float visibility, float windScale, float gustiness, bool hasLightning, Color hazeColour = default,
+      float hazeTint = 0.0f)
     {
       HazeColour = hazeColour;
       HazeTint = hazeTint;
@@ -48,6 +49,7 @@ namespace BestiaBehemothClient.Game.World
       Overcast = overcast;
       Visibility = visibility;
       WindScale = windScale;
+      Gustiness = gustiness;
       HasLightning = hasLightning;
     }
 
@@ -103,6 +105,9 @@ namespace BestiaBehemothClient.Game.World
     /// snow drifting gently straight down, which is the one thing a blizzard is not.
     /// </remarks>
     public float WindScale { get; }
+
+    /// <summary>How far a gust lifts the wind above its mean, as a share of it. Zero is a steady wind.</summary>
+    public float Gustiness { get; }
 
     /// <summary>Whether this sky flashes.</summary>
     public bool HasLightning { get; }
@@ -284,84 +289,85 @@ namespace BestiaBehemothClient.Game.World
       return kind switch
       {
         WeatherSMSG.Kind.Clear =>
-          Dry(cover, 1.0f, 1.0f),
+          Dry(cover, 1.0f, 1.0f, 0.0f),
 
         WeatherSMSG.Kind.Cloudy =>
-          Dry(Mathf.Max(cover, 0.55f), 1.0f, 1.0f),
+          Dry(Mathf.Max(cover, 0.55f), 1.0f, 1.0f, 0.1f),
 
         // The one dry sky that still wets the ground.
         WeatherSMSG.Kind.Fog =>
           Damp(hard * 0.35f, Mathf.Max(cover, 0.6f), Mathf.Lerp(0.45f, 0.07f, hard), 0.6f),
 
         WeatherSMSG.Kind.Rain =>
-          Rainy(Mathf.Max(hard, 0.25f), Mathf.Max(cover, 0.75f), Mathf.Lerp(0.9f, 0.6f, hard), 1.0f, false),
+          Rainy(Mathf.Max(hard, 0.25f), Mathf.Max(cover, 0.75f), Mathf.Lerp(0.9f, 0.6f, hard), 1.0f, 0.15f, false),
 
         WeatherSMSG.Kind.HeavyRain =>
-          Rainy(Mathf.Max(hard, 0.7f), Mathf.Max(cover, 0.88f), Mathf.Lerp(0.7f, 0.4f, hard), 1.15f, false),
+          Rainy(Mathf.Max(hard, 0.7f), Mathf.Max(cover, 0.88f), Mathf.Lerp(0.7f, 0.4f, hard), 1.15f, 0.3f, false),
 
         WeatherSMSG.Kind.Thunderstorm =>
-          Rainy(Mathf.Max(hard, 0.8f), Mathf.Max(cover, 0.92f), Mathf.Lerp(0.6f, 0.35f, hard), 1.25f, true),
+          Rainy(Mathf.Max(hard, 0.8f), Mathf.Max(cover, 0.92f), Mathf.Lerp(0.6f, 0.35f, hard), 1.25f, 0.55f, true),
 
         WeatherSMSG.Kind.Snow =>
-          Snowy(Mathf.Max(hard, 0.25f), Mathf.Max(cover, 0.7f), Mathf.Lerp(0.8f, 0.5f, hard), 1.0f),
+          Snowy(Mathf.Max(hard, 0.25f), Mathf.Max(cover, 0.7f), Mathf.Lerp(0.8f, 0.5f, hard), 1.0f, 0.15f),
 
         WeatherSMSG.Kind.Blizzard =>
-          Snowy(Mathf.Max(hard, 0.75f), Mathf.Max(cover, 0.95f), Mathf.Lerp(0.35f, 0.08f, hard), 1.4f),
+          Snowy(Mathf.Max(hard, 0.75f), Mathf.Max(cover, 0.95f), Mathf.Lerp(0.35f, 0.08f, hard), 1.4f, 0.6f),
 
         WeatherSMSG.Kind.Sandstorm =>
-          Dusty(Mathf.Max(hard, 0.6f), Mathf.Max(cover, 0.5f), Mathf.Lerp(0.4f, 0.1f, hard), 1.6f,
+          Dusty(Mathf.Max(hard, 0.6f), Mathf.Max(cover, 0.5f), Mathf.Lerp(0.4f, 0.1f, hard), 1.6f, 0.5f,
             new Color(0.78f, 0.64f, 0.42f), 0.85f),
 
         // Ignores shelter and can stand in a clear sky, so it takes the reported cover as it finds it rather
         // than flooring it. The motes it should have are not built; until they are, the honest rendering is a
         // charged, hazy sky with lightning in it, and not a downpour it does not have.
         WeatherSMSG.Kind.ManaStorm =>
-          Dry(cover, Mathf.Lerp(0.85f, 0.55f, hard), 1.2f, true, new Color(0.55f, 0.44f, 0.86f), 0.6f),
+          Dry(cover, Mathf.Lerp(0.85f, 0.55f, hard), 1.2f, 0.4f, true, new Color(0.55f, 0.44f, 0.86f), 0.6f),
 
         // No funnel yet - the hazard fields say where it is and nothing draws it. Rendered as the storm that
         // carries one, which is at least the right weather to be caught outdoors in.
         WeatherSMSG.Kind.Tornado =>
-          Rainy(Mathf.Max(hard, 0.6f), Mathf.Max(cover, 0.95f), Mathf.Lerp(0.5f, 0.25f, hard), 1.8f, true),
+          Rainy(Mathf.Max(hard, 0.6f), Mathf.Max(cover, 0.95f), Mathf.Lerp(0.5f, 0.25f, hard), 1.8f, 0.8f, true),
 
         // Unreachable for the enum as it stands, and not removable: a proto enum can carry a number this
         // build has never heard of, and appending kinds is documented as safe. A newer server degrades to a
         // clear sky rather than throwing.
-        _ => Dry(cover, 1.0f, 1.0f)
+        _ => Dry(cover, 1.0f, 1.0f, 0.0f)
       };
     }
 
     /// <summary>A sky with nothing falling out of it and nothing settling under it.</summary>
-    private static WeatherLook Dry(float overcast, float visibility, float windScale,
+    private static WeatherLook Dry(float overcast, float visibility, float windScale, float gustiness,
       bool hasLightning = false, Color hazeColour = default, float hazeTint = 0.0f)
     {
-      return new WeatherLook(0.0f, 0.0f, 0.0f, 0.0f, overcast, visibility, windScale, hasLightning,
+      return new WeatherLook(0.0f, 0.0f, 0.0f, 0.0f, overcast, visibility, windScale, gustiness, hasLightning,
         hazeColour, hazeTint);
     }
 
     /// <summary>A sky with nothing falling out of it that wets the ground anyway.</summary>
     private static WeatherLook Damp(float groundWetRate, float overcast, float visibility, float windScale)
     {
-      return new WeatherLook(0.0f, 0.0f, 0.0f, groundWetRate, overcast, visibility, windScale, false);
+      return new WeatherLook(0.0f, 0.0f, 0.0f, groundWetRate, overcast, visibility, windScale, 0.0f, false);
     }
 
     /// <summary>Rain wets the ground at the rate it falls, so the two are one number.</summary>
     private static WeatherLook Rainy(float rate, float overcast, float visibility, float windScale,
-      bool hasLightning)
+      float gustiness, bool hasLightning)
     {
-      return new WeatherLook(rate, 0.0f, 0.0f, rate, overcast, visibility, windScale, hasLightning);
+      return new WeatherLook(rate, 0.0f, 0.0f, rate, overcast, visibility, windScale, gustiness, hasLightning);
     }
 
     /// <summary>Snow lies rather than wets, so the ground stays dry however hard it comes down.</summary>
-    private static WeatherLook Snowy(float rate, float overcast, float visibility, float windScale)
+    private static WeatherLook Snowy(float rate, float overcast, float visibility, float windScale,
+      float gustiness)
     {
-      return new WeatherLook(0.0f, rate, 0.0f, 0.0f, overcast, visibility, windScale, false);
+      return new WeatherLook(0.0f, rate, 0.0f, 0.0f, overcast, visibility, windScale, gustiness, false);
     }
 
     private static WeatherLook Dusty(float rate, float overcast, float visibility, float windScale,
-      Color hazeColour, float hazeTint)
+      float gustiness, Color hazeColour, float hazeTint)
     {
-      return new WeatherLook(0.0f, 0.0f, rate, 0.0f, overcast, visibility, windScale, false, hazeColour,
-        hazeTint);
+      return new WeatherLook(0.0f, 0.0f, rate, 0.0f, overcast, visibility, windScale, gustiness, false,
+        hazeColour, hazeTint);
     }
 
     /// <summary>Hermite ease between two edges, clamped.</summary>
