@@ -58,7 +58,7 @@ class TradeServiceTest {
     every { inventoryService.releaseTradeReservation(OFFERER_MASTER, TRADE, RESERVED_APPLE.offerSlotId) } returns
       RESERVED_APPLE
 
-    service.offerItem(OFFERER, TRADE, APPLE, uniqueId = 0L, amount = 1)
+    service.offerItem(OFFERER, TRADE, applesOf(offerer), amount = 1)
 
     verify(exactly = 1) { inventoryService.releaseTradeReservation(OFFERER_MASTER, TRADE, RESERVED_APPLE.offerSlotId) }
     assertEquals(5, world.get(offerer, Inventory::class)!!.getItems().sumOf { it.amount })
@@ -72,7 +72,7 @@ class TradeServiceTest {
     service.answerRequest(PARTNER, TRADE, accept = true)
     world.add(offerer, Dead())
 
-    service.offerItem(OFFERER, TRADE, APPLE, uniqueId = 0L, amount = 1)
+    service.offerItem(OFFERER, TRADE, applesOf(offerer), amount = 1)
 
     verify(exactly = 0) { inventoryService.reserveForTrade(any(), any(), any(), any(), any()) }
   }
@@ -85,10 +85,13 @@ class TradeServiceTest {
 
     service.requestTrade(OFFERER, partner)
     service.answerRequest(PARTNER, TRADE, accept = true)
-    service.offerItem(OFFERER, TRADE, APPLE, uniqueId = 0L, amount = 1)
+    service.offerItem(OFFERER, TRADE, applesOf(asker), amount = 1)
 
     verify(exactly = 0) { inventoryService.reserveForTrade(any(), any(), any(), any(), any()) }
   }
+
+  private fun applesOf(entity: EntityId): Long =
+    world.get(entity, Inventory::class)!!.getItems().single { it.itemId == APPLE }.playerItemId
 
   private fun player(accountId: Long, masterId: Long, x: Long): EntityId {
     val entity = world.createEntity { id ->

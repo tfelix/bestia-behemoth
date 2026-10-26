@@ -120,6 +120,11 @@ class TradeScenarios : BestiaNoSocketScenario() {
       ?: 0
   }
 
+  /** The pile or copy of [itemId] the player would drag into the window: the first one held. */
+  private fun heldPileOf(accountId: Long, itemId: Long): Long = world.read {
+    get(entityOf(accountId), Inventory::class)!!.getItems().first { it.itemId == itemId }.playerItemId
+  }
+
   private fun openTrade(): Long {
     clientPlayer1.sendMessage(RequestTradeCMSG(player1, entityOf(player2)))
 
@@ -191,7 +196,7 @@ class TradeScenarios : BestiaNoSocketScenario() {
 
     val tradeId = openTrade()
 
-    clientPlayer1.sendMessage(OfferTradeItemCMSG(player1, tradeId, apple, uniqueId = 0L, amount = 2))
+    clientPlayer1.sendMessage(OfferTradeItemCMSG(player1, tradeId, heldPileOf(player1, apple), 2))
 
     val offered = awaitValue {
       val state = assertNotNull(clientPlayer1.tryGetLastReceived(TradeStateSMSG::class))
@@ -224,7 +229,7 @@ class TradeScenarios : BestiaNoSocketScenario() {
     val before = liveAmount(player1, apple)
 
     val tradeId = openTrade()
-    clientPlayer1.sendMessage(OfferTradeItemCMSG(player1, tradeId, apple, 0L, 3))
+    clientPlayer1.sendMessage(OfferTradeItemCMSG(player1, tradeId, heldPileOf(player1, apple), 3))
     await { assertEquals(before - 3, liveAmount(player1, apple)) }
 
     clientPlayer2.sendMessage(CancelTradeCMSG(player2, tradeId))
@@ -266,7 +271,7 @@ class TradeScenarios : BestiaNoSocketScenario() {
 
     // Locking means locking: you cannot lock to reassure a partner and then quietly add to your own side.
     val heldBefore = liveAmount(player1, apple)
-    clientPlayer1.sendMessage(OfferTradeItemCMSG(player1, tradeId, apple, 0L, 1))
+    clientPlayer1.sendMessage(OfferTradeItemCMSG(player1, tradeId, heldPileOf(player1, apple), 1))
     await {
       val state = assertNotNull(clientPlayer1.tryGetLastReceived(TradeStateSMSG::class))
       assertTrue(state.ownOffer.isEmpty(), "a locked side may not add to its own offer")
@@ -276,7 +281,7 @@ class TradeScenarios : BestiaNoSocketScenario() {
     // But the partner may still change theirs, and doing so has to drop the lock - otherwise locking early
     // would be a way to hold somebody to contents they have not seen.
     clientPlayer1.clearMessages()
-    clientPlayer2.sendMessage(OfferTradeItemCMSG(player2, tradeId, apple, 0L, 1))
+    clientPlayer2.sendMessage(OfferTradeItemCMSG(player2, tradeId, heldPileOf(player2, apple), 1))
 
     await {
       val state = assertNotNull(clientPlayer1.tryGetLastReceived(TradeStateSMSG::class))
@@ -300,9 +305,9 @@ class TradeScenarios : BestiaNoSocketScenario() {
 
     val tradeId = openTrade()
 
-    clientPlayer1.sendMessage(OfferTradeItemCMSG(player1, tradeId, apple, 0L, 2))
+    clientPlayer1.sendMessage(OfferTradeItemCMSG(player1, tradeId, heldPileOf(player1, apple), 2))
     await { assertEquals(oneBefore - 2, liveAmount(player1, apple)) }
-    clientPlayer2.sendMessage(OfferTradeItemCMSG(player2, tradeId, apple, 0L, 3))
+    clientPlayer2.sendMessage(OfferTradeItemCMSG(player2, tradeId, heldPileOf(player2, apple), 3))
     await { assertEquals(twoBefore - 3, liveAmount(player2, apple)) }
 
     // Confirming before both are locked does nothing at all.
@@ -347,7 +352,7 @@ class TradeScenarios : BestiaNoSocketScenario() {
     val before = liveAmount(player1, apple)
 
     val tradeId = openTrade()
-    clientPlayer1.sendMessage(OfferTradeItemCMSG(player1, tradeId, apple, 0L, 4))
+    clientPlayer1.sendMessage(OfferTradeItemCMSG(player1, tradeId, heldPileOf(player1, apple), 4))
     await { assertEquals(before - 4, liveAmount(player1, apple)) }
 
     val hereBefore = world.read { get(entityOf(player2), Position::class)!!.toVec3L() }
@@ -372,22 +377,16 @@ class TradeScenarios : BestiaNoSocketScenario() {
   fun `worn gear cannot be offered`() {
     val boots = itemRepository.findByIdentifierOrThrow("boots").id
     grant(player1, boots, 1)
-    val uniqueId = TransactionTemplate(transactionManager).execute {
-      masterRepository.findByIdOrThrow(connectionInfoService.getMasterId(player1)).container.slots
-        .first { it.isFree && it.template.id == boots }.uniqueId
-    }!!
-    // What the live inventory looks like after a relog, then what EquipItemHandler does live before its write.
+    val worn = heldPileOf(player1, boots)
+    // What EquipItemHandler does live before its write, so the database still has the boots free.
     world.modify(entityOf(player1)) { id ->
-      val inventory = get(id, Inventory::class)!!
-      inventory.removeInstanceOf(boots)
-      inventory.addItem(Inventory.Item(boots, amount = 1, uniqueId = uniqueId, stackable = false))
-      get(id, Equipment::class)!!.equip(EquipmentSlot.ACCESSORY_1, Equipment.EquippedItem(boots, uniqueId))
-      inventory.setEquipped(uniqueId, true)
+      get(id, Equipment::class)!!.equip(EquipmentSlot.ACCESSORY_1, Equipment.EquippedItem(boots, worn))
+      get(id, Inventory::class)!!.setEquipped(worn, true)
     }
     val held = liveAmount(player1, boots)
     val tradeId = openTrade()
 
-    clientPlayer1.sendMessage(OfferTradeItemCMSG(player1, tradeId, boots, uniqueId = uniqueId, amount = 1))
+    clientPlayer1.sendMessage(OfferTradeItemCMSG(player1, tradeId, worn, amount = 1))
 
     assertEquals(held, liveAmount(player1, boots), "worn boots stay in the bag rather than going into the offer")
 
@@ -404,7 +403,7 @@ class TradeScenarios : BestiaNoSocketScenario() {
     val tradeId = openTrade()
 
     repeat(TradeService.MAX_OFFER_LINES + 1) {
-      clientPlayer1.sendMessage(OfferTradeItemCMSG(player1, tradeId, apple, uniqueId = 0L, amount = 1))
+      clientPlayer1.sendMessage(OfferTradeItemCMSG(player1, tradeId, heldPileOf(player1, apple), 1))
     }
 
     await {

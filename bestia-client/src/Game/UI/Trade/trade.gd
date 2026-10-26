@@ -193,26 +193,21 @@ func _can_drop_data(_at_position: Vector2, data: Variant) -> bool:
 
 func _drop_data(_at_position: Vector2, data: Variant) -> void:
 	var item_id: int = data.get("id")
-	var unique_id: int = data.get("unique_id", 0)
-
-	# A unique item is one thing by definition, so there is no amount to ask about.
-	if unique_id != 0:
-		ConnectionManager.offer_trade_item(_trade_id, item_id, unique_id, 1)
-		return
-
-	var held := inventory.get_item_count(item_id)
+	var player_item_id: int = data.get("player_item_id", 0)
+	var held: int = data.get("amount", 0)
 	if held <= 0:
 		return
 
+	# A unique item is one thing by definition, so there is no amount to ask about.
 	if held == 1:
-		ConnectionManager.offer_trade_item(_trade_id, item_id, 0, 1)
+		ConnectionManager.offer_trade_item(_trade_id, player_item_id, 1)
 		return
 
 	var item_resource = ItemDB.get_instance().get_item(item_id)
 	var dialog = DropAmountDialogScn.instantiate() as DropAmountDialog
 	add_child(dialog)
 	dialog.amount_confirmed.connect(
-		func(id: int, amount: int) -> void: ConnectionManager.offer_trade_item(_trade_id, id, 0, amount)
+		func(_id: int, amount: int) -> void: ConnectionManager.offer_trade_item(_trade_id, player_item_id, amount)
 	)
 	dialog.confirmed.connect(dialog.queue_free)
 	dialog.canceled.connect(dialog.queue_free)
