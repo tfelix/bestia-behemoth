@@ -11,6 +11,7 @@ import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.modify
 import net.bestia.zone.battle.ecs.skill.Crafting
+import net.bestia.zone.item.ItemProvenance
 import net.bestia.zone.item.ecs.Inventory
 import net.bestia.zone.item.ecs.ItemTemplateRegistry
 import net.bestia.zone.economy.CoinReserve
@@ -29,6 +30,7 @@ import net.bestia.zone.message.OperationSuccessSMSG
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.prop.PlayerStructureService
+import net.bestia.zone.world.WorldService
 import net.bestia.zone.entity.StaticEntityKind
 import org.springframework.stereotype.Service
 import kotlin.math.roundToInt
@@ -71,6 +73,7 @@ class CraftingService(
   private val reserve: CoinReserve,
   private val itemStats: ItemStatCatalog,
   private val roller: ItemStatRoller,
+  private val worldService: WorldService,
   private val metrics: GameMetrics = GameMetrics(),
 ) : RecipeOffering {
 
@@ -177,7 +180,8 @@ class CraftingService(
   fun resolve(world: World, entityId: EntityId, crafting: Crafting) {
     val recipe = recipes.of(crafting.recipeId) ?: return
     val accountId = world.get(entityId, Account::class)?.accountId
-    val masterId = world.get(entityId, Master::class)?.masterId ?: return
+    val master = world.get(entityId, Master::class) ?: return
+    val masterId = master.masterId
     val inventory = world.get(entityId, Inventory::class) ?: return
     val known = world.get(entityId, KnownSkills::class)
 
@@ -208,6 +212,7 @@ class CraftingService(
     val chance = bonuses.successChance(known, recipe)
     val succeeded = Random.nextFloat() <= chance
     val roll = if (succeeded) rollOutput(recipe, known) else null
+    val provenance = ItemProvenance(crafterName = master.name, worldName = worldService.record.name)
 
     asyncJobExecutor.submit(masterId) {
       if (!inventoryService.consumeAll(masterId, inputs.toList())) {
@@ -218,7 +223,7 @@ class CraftingService(
 
       val applied = world.modify(entityId) { id ->
         if (succeeded) {
-          succeed(this, id, accountId, masterId, recipe, target, minted, chance, roll)
+          succeed(this, id, accountId, masterId, recipe, target, minted, chance, roll, provenance)
         } else {
           fail(this, id, accountId, masterId, recipe, target, known)
         }
@@ -238,7 +243,8 @@ class CraftingService(
     target: TargetState?,
     minted: Int,
     chance: Float,
-    roll: ItemRoll?
+    roll: ItemRoll?,
+    provenance: ItemProvenance
   ) {
     val inventory = world.get(entityId, Inventory::class) ?: return
     metrics.crafted(GameMetrics.Craft.SUCCESS)
@@ -254,7 +260,7 @@ class CraftingService(
             itemId = output.itemId,
             amount = output.amount,
             roll = roll,
-            craftedByMasterId = masterId
+            provenance = provenance
           )
         )
 

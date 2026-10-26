@@ -3,6 +3,7 @@ package net.bestia.zone.item.container
 import net.bestia.zone.item.stat.ItemStatCatalog
 import net.bestia.zone.item.stat.ItemRoll
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.zone.item.ItemProvenance
 import net.bestia.zone.item.PlayerItemIds
 import net.bestia.zone.item.persistence.Item
 import net.bestia.zone.item.ItemNotFoundException
@@ -70,10 +71,10 @@ class InventoryService(
     amount: Int,
     uniqueId: Long = 0L,
     roll: ItemRoll? = null,
-    craftedByMasterId: Long? = null,
+    provenance: ItemProvenance? = null,
     freshInstanceIds: List<Long> = emptyList()
   ) {
-    grantToOwner(masterId, null, itemId, amount, uniqueId, roll, craftedByMasterId, freshInstanceIds)
+    grantToOwner(masterId, null, itemId, amount, uniqueId, roll, provenance, freshInstanceIds)
   }
 
   /** [grantToMaster] for whichever entity holds the item: the master when [playerBestiaId] is null. */
@@ -85,12 +86,12 @@ class InventoryService(
     amount: Int,
     uniqueId: Long = 0L,
     roll: ItemRoll? = null,
-    craftedByMasterId: Long? = null,
+    provenance: ItemProvenance? = null,
     freshInstanceIds: List<Long> = emptyList()
   ) {
     withOwnerContainer(masterId, playerBestiaId) { container ->
       val item = itemRepository.findByIdOrNull(itemId) ?: throw ItemNotFoundException(itemId.toString())
-      grant(container, item, amount, uniqueId, roll, craftedByMasterId, freshInstanceIds)
+      grant(container, item, amount, uniqueId, roll, provenance, freshInstanceIds)
     }
   }
 
@@ -479,7 +480,7 @@ class InventoryService(
     amount: Int,
     uniqueId: Long,
     roll: ItemRoll? = null,
-    craftedByMasterId: Long? = null,
+    provenance: ItemProvenance? = null,
     freshInstanceIds: List<Long> = emptyList()
   ) {
     require(amount > 0) { "amount > 0 required, was $amount" }
@@ -498,7 +499,7 @@ class InventoryService(
       else -> freshInstanceIds.ifEmpty { List(amount) { PlayerItemIds.next() } }.forEach { instanceId ->
         val instance = ItemInstance(
           item = item,
-          craftedByMasterId = craftedByMasterId,
+          provenance = provenance,
           slots = roll?.sockets ?: 0,
           itemLevel = roll?.itemLevel,
           id = instanceId

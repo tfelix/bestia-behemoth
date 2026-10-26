@@ -23,6 +23,8 @@ import net.bestia.zone.util.EntityId
 import net.bestia.zone.prop.PlayerStructureService
 import net.bestia.zone.entity.StaticEntityKind
 import net.bestia.zone.ecs.core.EcsWorld
+import net.bestia.zone.world.WorldService
+import net.bestia.zone.world.persistence.PersistedWorld
 
 /**
  * A crafter, a world, and a [CraftingService] whose only mocks are the things that leave the tick: the durable
@@ -72,6 +74,10 @@ class CraftingFixture(
     every { executor.submit(any<Long>(), any()) } answers { secondArg<() -> Unit>().invoke() }
   }
 
+  val worldService = mockk<WorldService>().also { worlds ->
+    every { worlds.record } returns mockk<PersistedWorld> { every { name } returns WORLD_NAME }
+  }
+
   /** Empty unless a test loads sheets, so outputs roll nothing. */
   val itemStats = ItemStatCatalog()
 
@@ -103,6 +109,7 @@ class CraftingFixture(
       reserve = reserve,
       itemStats = itemStats,
       roller = ItemStatRoller(),
+      worldService = worldService,
     )
   }
 
@@ -135,6 +142,7 @@ class CraftingFixture(
     const val MASTER_ID = 42L
     const val ACCOUNT_ID = 7L
     const val STATION_ENTITY_ID = 999L
+    const val WORLD_NAME = "Genesis"
 
     /** A plain material pile, which is the only thing a recipe input may be. */
     fun stack(itemId: Long, amount: Int) = Inventory.Item(itemId = itemId, amount = amount, weight = 1)

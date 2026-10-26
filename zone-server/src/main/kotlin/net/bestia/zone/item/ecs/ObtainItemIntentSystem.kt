@@ -13,6 +13,7 @@ import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.movement.ecs.Position
+import net.bestia.zone.item.ItemProvenance
 import net.bestia.zone.item.PlayerItemIds
 import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.item.loot.LootItemEntitySpawner
@@ -148,7 +149,7 @@ class ObtainItemIntentSystem(
     }
 
     if (canObtain(world, entityId, item.weight * intent.amount)) {
-      grantItem(world, entityId, item, intent.amount, roll = intent.roll, craftedByMasterId = intent.craftedByMasterId)
+      grantItem(world, entityId, item, intent.amount, roll = intent.roll, provenance = intent.provenance)
       return
     }
 
@@ -194,7 +195,7 @@ class ObtainItemIntentSystem(
     amount: Int,
     uniqueId: Long = 0L,
     roll: ItemRoll? = null,
-    craftedByMasterId: Long? = null,
+    provenance: ItemProvenance? = null,
   ) {
     val inventory = world.get(entityId, Inventory::class)
     if (inventory == null) {
@@ -228,7 +229,7 @@ class ObtainItemIntentSystem(
     }
 
     metrics.itemsGranted(amount)
-    schedulePersist(world, entityId, item.id, amount, uniqueId, freshInstanceIds, roll, craftedByMasterId)
+    schedulePersist(world, entityId, item.id, amount, uniqueId, freshInstanceIds, roll, provenance)
   }
 
   /**
@@ -243,7 +244,7 @@ class ObtainItemIntentSystem(
     uniqueId: Long,
     freshInstanceIds: List<Long>,
     roll: ItemRoll?,
-    craftedByMasterId: Long?
+    provenance: ItemProvenance?
   ) {
     val owner = itemOwnerOf(world, entityId)
     if (owner == null) {
@@ -256,7 +257,7 @@ class ObtainItemIntentSystem(
       try {
         retryingTransientFailures {
           inventoryService.grantToOwner(
-            owner.masterId, owner.playerBestiaId, itemId, amount, uniqueId, roll, craftedByMasterId, freshInstanceIds
+            owner.masterId, owner.playerBestiaId, itemId, amount, uniqueId, roll, provenance, freshInstanceIds
           )
         }
       } catch (e: Exception) {

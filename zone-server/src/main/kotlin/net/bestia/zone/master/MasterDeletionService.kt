@@ -33,8 +33,6 @@ import net.bestia.zone.account.persistence.MasterRepository
  *   that owns a party cannot simply be deleted underneath it.
  * - **Guild membership** ([GuildService.detachDeletedMaster]) - a member row points at the master. A guild's
  *   leader is not deleted at all ([Denial.LEADS_GUILD]): nobody could take the guild over.
- * - **Crafted items** ([ItemInstanceRepository.clearCraftedByMaster]) - an item this master forged may be in
- *   somebody else's hands and must outlive its maker, so the reference is nulled rather than followed.
  * - **Held item instances** - the container cascade deletes the *slots* but deliberately not the
  *   [net.bestia.zone.item.persistence.ItemInstance] rows in them (an instance outlives its placement so it
  *   survives being moved). With their owner gone nothing can ever reach them again, so they are deleted
@@ -124,7 +122,6 @@ class MasterDeletionService(
     val partyResult = partyService.detachDeletedMaster(master)
     val guildId = guildService.detachDeletedMaster(master.id)
 
-    itemInstanceRepository.clearCraftedByMaster(masterId)
     compendiumStore.deleteAllOf(masterId)
 
     // Removed from the account's collection as well as deleted: `Account.master` cascades ALL but has no
