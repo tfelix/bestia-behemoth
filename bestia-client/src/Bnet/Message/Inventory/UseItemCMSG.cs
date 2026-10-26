@@ -4,7 +4,8 @@ namespace BestiaBehemothClient.Bnet.Message.Inventory
 {
   public partial class UseItemCMSG : ICMSG
   {
-    public ulong ItemId { get; set; }
+    /// <summary>The held item, as InventoryItem.PlayerItemId names it.</summary>
+    public ulong PlayerItemId { get; set; }
 
     /// <summary>What the client gathered first, for an item whose script needs it. Null for a plain use.</summary>
     public Message.ScriptArgs Args { get; set; }
@@ -13,7 +14,7 @@ namespace BestiaBehemothClient.Bnet.Message.Inventory
     {
       var useItem = new global::Bnet.UseItemCMSG
       {
-        ItemId = ItemId,
+        PlayerItemId = PlayerItemId,
         Args = Args?.ToProto()
       };
 

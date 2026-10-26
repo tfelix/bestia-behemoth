@@ -4,19 +4,16 @@ namespace BestiaBehemothClient.Bnet.Message.Inventory
 {
   public partial class DropItemCMSG : ICMSG
   {
-    public ulong ItemId { get; set; }
+    /// <summary>The held item, as InventoryItem.PlayerItemId names it.</summary>
+    public ulong PlayerItemId { get; set; }
     public uint Amount { get; set; }
-
-    /// Which copy to drop; 0 for a plain stack. See the field comment in drop_item_cmsg.proto.
-    public ulong UniqueId { get; set; }
 
     public override Envelope ToEnvelope()
     {
       var dropItem = new global::Bnet.DropItemCMSG
       {
-        ItemId = ItemId,
-        Amount = Amount,
-        UniqueId = UniqueId
+        PlayerItemId = PlayerItemId,
+        Amount = Amount
       };
 
       return new Envelope

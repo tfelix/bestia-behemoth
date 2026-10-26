@@ -194,6 +194,24 @@ data class Inventory(
 
   fun byPlayerItemId(playerItemId: Long): Item? = items.firstOrNull { it.playerItemId == playerItemId }
 
+  /**
+   * Takes [amount] off the held item the player named: from its pile, or the instance itself. Answers false and
+   * changes nothing when that much of it is not held.
+   */
+  fun take(playerItemId: Long, amount: Int): Boolean {
+    require(amount > 0) { "amount > 0 required, was $amount" }
+    val held = byPlayerItemId(playerItemId) ?: return false
+    if (held.amount < amount) return false
+
+    held.amount -= amount
+    if (held.amount <= 0) {
+      items.remove(held)
+    }
+    markDirty()
+
+    return true
+  }
+
   // Get number of items
   fun size(): Int = items.size
 

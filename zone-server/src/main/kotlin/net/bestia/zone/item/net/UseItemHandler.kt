@@ -38,18 +38,6 @@ class UseItemHandler(
   }
 
   override fun handle(msg: UseItemCMSG): Boolean {
-    val item = itemRepository.findByIdOrNull(msg.itemId)
-
-    if (item == null) {
-      LOG.warn { "Item ${msg.itemId} was not found in the database" }
-      return true
-    }
-
-    if (item.type != Item.ItemType.USABLE) {
-      LOG.warn { "Item ${item.identifier} was not usable but account ${msg.playerId} tried to use it" }
-      return true
-    }
-
     // Get the currently selected entity for this player
     val activeEntityId = connectionInfoService.getActiveEntityId(msg.playerId)
 
@@ -57,9 +45,21 @@ class UseItemHandler(
       return true
     }
 
-    val holdsItem = world.read { get(activeEntityId, Inventory::class)?.hasItem(msg.itemId.toInt()) == true }
-    if (!holdsItem) {
-      LOG.warn { "Entity $activeEntityId owned no item ${msg.itemId}" }
+    val held = world.read { get(activeEntityId, Inventory::class)?.byPlayerItemId(msg.playerItemId) }
+    if (held == null) {
+      LOG.warn { "Entity $activeEntityId holds no item ${msg.playerItemId}" }
+      return true
+    }
+
+    val item = itemRepository.findByIdOrNull(held.itemId)
+
+    if (item == null) {
+      LOG.warn { "Item ${held.itemId} was not found in the database" }
+      return true
+    }
+
+    if (item.type != Item.ItemType.USABLE) {
+      LOG.warn { "Item ${item.identifier} was not usable but account ${msg.playerId} tried to use it" }
       return true
     }
 
@@ -74,7 +74,7 @@ class UseItemHandler(
     // held be used again and again.
     val masterId = connectionInfoService.getMasterId(msg.playerId)
     val playerBestiaId = connectionInfoService.getActivePlayerBestiaId(msg.playerId)
-    val removed = inventoryService.removeOneFromOwner(masterId, playerBestiaId, item.id, 1)
+    val removed = inventoryService.removeOneFromOwner(masterId, playerBestiaId, item.id, 1, held.uniqueId)
     if (removed == null) {
       LOG.warn { "Entity $activeEntityId holds no ${item.identifier} in the database, refusing to use it" }
       return true
@@ -82,7 +82,7 @@ class UseItemHandler(
 
     // `this` is the full World, valid only within this lock-held scope.
     val consumed = runCatching {
-      world.modify(activeEntityId) { id -> itemScriptExecutionService.useItem(this, id, item, msg.args) }
+      world.modify(activeEntityId) { id -> itemScriptExecutionService.useItem(this, id, item, held.playerItemId, msg.args) }
     }
 
     if (consumed.getOrNull() != true) {

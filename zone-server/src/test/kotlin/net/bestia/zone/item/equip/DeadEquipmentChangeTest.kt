@@ -36,7 +36,7 @@ class DeadEquipmentChangeTest {
   fun `a dead master equips nothing`() {
     deadMaster()
 
-    equipHandler().handle(EquipItemCMSG(ACCOUNT, SWORD.id, uniqueId = 0L, slot = EquipmentSlot.RIGHT_HAND))
+    equipHandler().handle(EquipItemCMSG(ACCOUNT, playerItemId = 1L, slot = EquipmentSlot.RIGHT_HAND))
 
     verify(exactly = 0) { equipmentService.checkEquip(any(), any(), any(), any(), any(), any(), any(), any()) }
   }

@@ -4,12 +4,8 @@ namespace BestiaBehemothClient.Bnet.Message.Inventory
 {
   public partial class EquipItemCMSG : ICMSG
   {
-    public ulong ItemId { get; set; }
-
-    /// <summary>
-    /// Id of the backing item instance, or 0 when the client does not know it yet.
-    /// </summary>
-    public ulong UniqueId { get; set; }
+    /// <summary>The held item, as InventoryItem.PlayerItemId names it.</summary>
+    public ulong PlayerItemId { get; set; }
 
     /// <summary>
     /// EquipmentSlot ordinal - must match Game/Item/equipment_slot.gd (and the server enum).
@@ -20,8 +16,7 @@ namespace BestiaBehemothClient.Bnet.Message.Inventory
     {
       var equipItem = new global::Bnet.EquipItemCMSG
       {
-        ItemId = ItemId,
-        UniqueId = UniqueId,
+        PlayerItemId = PlayerItemId,
         Slot = Slot
       };
 

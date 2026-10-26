@@ -39,6 +39,6 @@ func on_targeting_click(item: ItemResource, click_info: Dictionary) -> bool:
 
 	# Nothing is applied locally: the site appears when the server spawns it and the kit leaves the bag when
 	# the inventory resyncs. A kit the server refuses is simply still there.
-	ConnectionManager.use_item(item.item_id, args)
+	ConnectionManager.use_item(player_item_id, args)
 
 	return true

@@ -11,7 +11,10 @@ option java_outer_classname = "UseItemCMSGProto";
  * Asks to use one item out of the inventory of the currently selected entity.
  */
 message UseItemCMSG {
-  uint64 item_id = 1;
+  reserved 1; // item_id: two piles of one item can differ, so the client names the one it means
+
+  // The held item to use, as InventoryItem.player_item_id names it.
+  uint64 player_item_id = 3;
 
   /**
    * What the client gathered before sending, for items whose script needs more than "use it".

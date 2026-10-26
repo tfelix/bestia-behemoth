@@ -62,16 +62,18 @@ func get_item_visual() -> PackedScene:
 	return item_visual if item_visual != null else MISSING_VISUAL
 
 
-func use_item() -> void:
+## [param player_item_id] names the held pile or copy to use, as InventoryItem.player_item_id does.
+func use_item(player_item_id: int) -> void:
 	print("ItemResource: Using item: %s" % [tr(name_key)])
 	if item_script:
 		var item_use_instance: ItemUse = _get_or_create_item_use_instance()
 		if item_use_instance:
+			item_use_instance.player_item_id = player_item_id
 			item_use_instance.on_item_used(self)
 		else:
 			printerr("ItemResource: Failed to load or instantiate item script for item: %s" % [tr(name_key)])
 	elif ConnectionManager.is_ready_to_send():
-		ConnectionManager.use_item(item_id)
+		ConnectionManager.use_item(player_item_id)
 	else:
 		printerr("ItemResource: No global connection manager found")
 

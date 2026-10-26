@@ -8,7 +8,7 @@ class_name EquipSlot
 ## decides and answers with a fresh EquipmentComponentSMSG, so this node never mutates its own state
 ## optimistically - it only ever renders what [Equipment] tells it to.
 
-signal equip_requested(item_id: int, unique_id: int, slot: int)
+signal equip_requested(player_item_id: int, slot: int)
 signal unequip_requested(slot: int)
 
 ## Which slot this is, as an [enum EquipmentSlot.Slot].
@@ -86,7 +86,7 @@ func _can_drop_data(_at_position: Vector2, data: Variant) -> bool:
 
 
 func _drop_data(_at_position: Vector2, data: Variant) -> void:
-	equip_requested.emit(data.get("id", 0), data.get("unique_id", 0), slot)
+	equip_requested.emit(data.get("player_item_id", 0), slot)
 
 
 func _gui_input(event: InputEvent) -> void:

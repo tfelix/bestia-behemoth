@@ -50,15 +50,16 @@ class EquipItemHandler(
   }
 
   override fun handle(msg: EquipItemCMSG): Boolean {
-    val item = itemRepository.findByIdOrNull(msg.itemId)
-    if (item == null) {
-      LOG.warn { "Item ${msg.itemId} was not found in the database" }
-      sendDenial(msg.playerId, EquipmentService.Denial.ITEM_NOT_FOUND)
+    val activeEntityId = connectionInfoService.getActiveEntityId(msg.playerId)
+    if (world.read { deadActionGuard.refuses(this, activeEntityId, "equip an item") }) {
       return true
     }
 
-    val activeEntityId = connectionInfoService.getActiveEntityId(msg.playerId)
-    if (world.read { deadActionGuard.refuses(this, activeEntityId, "equip an item") }) {
+    val heldItemId = world.read { get(activeEntityId, Inventory::class)?.byPlayerItemId(msg.playerItemId)?.itemId }
+    val item = heldItemId?.let { itemRepository.findByIdOrNull(it) }
+    if (item == null) {
+      LOG.warn { "Entity $activeEntityId holds no item ${msg.playerItemId} it knows to equip" }
+      sendDenial(msg.playerId, EquipmentService.Denial.ITEM_NOT_FOUND)
       return true
     }
 
@@ -71,20 +72,22 @@ class EquipItemHandler(
         return@modify null
       }
 
-      // Prefer the instance the client named; fall back to any held copy for the case where the
-      // client does not know the instance id yet (see Inventory.Item's KDoc).
-      val held = inventory.getItems()
-        .filter { it.itemId == item.id && !equipment.isWorn(it.uniqueId) }
-        .firstOrNull { msg.uniqueId == 0L || it.uniqueId == msg.uniqueId }
+      // Looked up again under the lock: it may have left the bag or been put on since it was first read.
+      val held = inventory.byPlayerItemId(msg.playerItemId)
+        ?.takeIf { it.itemId == item.id && !equipment.isWorn(it.uniqueId) }
+      if (held == null) {
+        equipment.markDirty()
+        return@modify Applied(denial = EquipmentService.Denial.ITEM_NOT_FOUND)
+      }
 
-      val itemLevel = held?.itemLevel?.takeIf { it > 0 } ?: itemStats.itemLevelOf(item.id)
+      val itemLevel = held.itemLevel.takeIf { it > 0 } ?: itemStats.itemLevelOf(item.id)
       val denial = equipmentService.checkEquip(
         equipment = equipment,
         inventory = inventory,
         item = item,
         itemLevel = itemLevel,
         slot = msg.slot,
-        heldUniqueId = held?.uniqueId ?: msg.uniqueId,
+        heldUniqueId = held.uniqueId,
         // Zero for an entity with no Level component at all, which the service reads as unqualified rather
         // than as exempt.
         wearerLevel = get(id, Level::class)?.level ?: 0,
@@ -103,15 +106,15 @@ class EquipItemHandler(
         msg.slot,
         Equipment.EquippedItem(
           itemId = item.id,
-          uniqueId = held?.uniqueId ?: 0L,
+          uniqueId = held.uniqueId,
           // Carried over from the inventory view rather than re-read from the DB: the wear a client
           // already sees on the item in the bag must be the wear it sees on the item in the slot.
-          upgradeLevel = held?.upgradeLevel ?: 0,
-          durability = held?.durability ?: 0,
-          maxDurability = held?.maxDurability ?: 0,
-          slots = held?.slots ?: 0,
+          upgradeLevel = held.upgradeLevel,
+          durability = held.durability,
+          maxDurability = held.maxDurability,
+          slots = held.slots,
           itemLevel = itemLevel,
-          rolledStats = held?.rolledStats.orEmpty()
+          rolledStats = held.rolledStats
         )
       )
 
@@ -127,9 +130,9 @@ class EquipItemHandler(
 
       // Keep the inventory view's equipped marker in step with what actually got worn/swapped out.
       previous?.let { inventory.setEquipped(it.uniqueId, false) }
-      inventory.setEquipped(held?.uniqueId ?: 0L, true)
+      inventory.setEquipped(held.uniqueId, true)
 
-      Applied(uniqueId = held?.uniqueId ?: 0L, replacedUniqueId = previous?.uniqueId)
+      Applied(itemId = item.id, uniqueId = held.uniqueId, replacedUniqueId = previous?.uniqueId)
     }
 
     if (applied == null) {
@@ -157,7 +160,7 @@ class EquipItemHandler(
       // Unconditional: ItemContainer.equip refuses an occupied slot, and clearing an already empty
       // slot is a no-op, so this covers the swap case without a second branch.
       inventoryService.unequip(masterId, playerBestiaId, msg.slot)
-      inventoryService.equip(masterId, playerBestiaId, msg.itemId, applied.uniqueId, msg.slot)
+      inventoryService.equip(masterId, playerBestiaId, applied.itemId, applied.uniqueId, msg.slot)
     }
   }
 
@@ -166,6 +169,7 @@ class EquipItemHandler(
   }
 
   private data class Applied(
+    val itemId: Long = 0L,
     val uniqueId: Long = 0L,
     val replacedUniqueId: Long? = null,
     val denial: EquipmentService.Denial? = null

@@ -6,14 +6,9 @@ option java_package = "net.bestia.bnet.proto";
 option java_outer_classname = "DropItemCMSGProto";
 
 message DropItemCMSG {
-  uint64 item_id = 1;
-  uint32 amount = 2;
+  reserved 1, 3; // item_id and unique_id, replaced by player_item_id
 
-  // Names the exact copy to drop, so a player holding two of one template (two charts, each with its
-  // own surveyed ground) drops the one they dragged rather than whichever the server finds first.
-  //
-  // 0 for a plain stack, and legitimately 0 for an instance whose row was minted after the client's
-  // inventory copy was made - the server then falls back to picking any free copy, which is the same
-  // fallback equipping makes and for the same reason.
-  uint64 unique_id = 3;
+  // The held item to drop from, as InventoryItem.player_item_id names it.
+  uint64 player_item_id = 4;
+  uint32 amount = 2;
 }

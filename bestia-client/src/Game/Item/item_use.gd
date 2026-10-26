@@ -1,6 +1,10 @@
 extends Object
 class_name ItemUse
 
+## The held item being used, as InventoryItem.player_item_id names it. Set by [ItemResource] before
+## [method on_item_used], so a script that waits for a click still sends the pile the player picked.
+var player_item_id: int = 0
+
 ## Function which gets called if an item is used. It will either immediatly
 ## send the usage request to the server or, depending on the item, first
 ## triggers some feedback to the user to gather more data e.g. positioning.
