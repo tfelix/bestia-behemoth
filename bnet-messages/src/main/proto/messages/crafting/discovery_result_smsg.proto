@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "DiscoveryResultSmsgProto";
+
+/** What a discovery attempt found. */
+message DiscoveryResultSMSG {
+  DiscoveryOutcome outcome = 1;
+  // The blueprint learned. Set only for DISCOVERY_OUTCOME_LEARNED.
+  uint64 recipe_id = 2;
+  // For DISCOVERY_OUTCOME_NOTHING: which way the mix is off from the nearest blueprint the master does not know.
+  // Empty when there is none left to find.
+  repeated AxisHint hints = 3;
+}
+
+enum DiscoveryOutcome {
+  DISCOVERY_OUTCOME_NOTHING = 0;
+  DISCOVERY_OUTCOME_LEARNED = 1;
+  // A blueprint is in reach but the roll failed. Trying the same mix again can work.
+  DISCOVERY_OUTCOME_SLIPPED = 2;
+  // A blueprint is close, but further than the crafting skill reaches.
+  DISCOVERY_OUTCOME_BEYOND_SKILL = 3;
+}
+
+// "Too fluid": the mix leans to the negative pole of STATE. CraftAxis order on the server.
+message AxisHint {
+  uint32 axis = 1;
+  // True when the mix leans too far to the positive pole (too solid), false for the negative (too fluid).
+  bool too_high = 2;
+}

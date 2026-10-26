@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "DiscoverRecipeCmsgProto";
+
+/**
+ * Try a mix of materials to learn a blueprint of one crafting skill. The materials are always consumed. The
+ * answer is a DiscoveryResultSMSG.
+ */
+message DiscoverRecipeCMSG {
+  // The crafting skill whose blueprints the mix is tried against.
+  uint64 skill_id = 1;
+  repeated DiscoveryMaterial materials = 2;
+}
+
+message DiscoveryMaterial {
+  // A held pile, as InventoryItem.player_item_id names it.
+  uint64 player_item_id = 1;
+  uint32 amount = 2;
+}
