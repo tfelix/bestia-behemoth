@@ -1,5 +1,6 @@
 package net.bestia.zone.crafting
 
+import net.bestia.zone.crafting.ecs.KnownRecipes
 import net.bestia.zone.item.stat.ItemStatCatalog
 import net.bestia.zone.item.stat.ItemStatRoller
 import io.mockk.every
@@ -49,7 +50,12 @@ class CraftingFixture(
 
   /** Bottomless unless a test says otherwise, so only the mint's own tests think about the reserve. */
   val reserve: CoinReserve = UnlimitedReserve(),
+
+  /** Every recipe unless a test says otherwise, so only the blueprint tests think about knowing one. */
+  starterBlueprints: Set<Long> = recipeList.map { it.id }.toSet(),
 ) {
+
+  val starterKit = StarterKit().apply { load(starterBlueprints) }
 
   val world: EcsWorld = testWorld()
 
@@ -110,6 +116,7 @@ class CraftingFixture(
       itemStats = itemStats,
       roller = ItemStatRoller(),
       worldService = worldService,
+      starterKit = starterKit,
     )
   }
 
@@ -127,13 +134,15 @@ class CraftingFixture(
   fun givenCrafter(
     items: List<Inventory.Item> = emptyList(),
     knownSkills: Map<Long, Int> = emptyMap(),
-    masterId: Long = MASTER_ID
+    masterId: Long = MASTER_ID,
+    knownRecipes: Set<Long> = emptySet(),
   ): EntityId = world.createEntity { id ->
     add(id, Master(masterId = masterId, name = "Smith"))
     add(id, Account(accountId = ACCOUNT_ID))
     add(id, Position(0, 0, 0))
     add(id, Inventory(items.toMutableList()))
     add(id, KnownSkills(knownSkills.toMutableMap()))
+    add(id, KnownRecipes(knownRecipes.toMutableSet()))
   }
 
   fun inventoryOf(entityId: EntityId): Inventory = world.getOrThrow(entityId, Inventory::class)
