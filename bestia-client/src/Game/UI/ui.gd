@@ -115,6 +115,7 @@ func _ready() -> void:
 
 	# Clicking an auction house is what opens it; selling there needs the inventory in view.
 	var auction := _auction_win.get_content() as AuctionHousePanel
+	auction.inventory = inventory
 	auction.auction_opened.connect(_on_auction_opened)
 	auction.auction_closed.connect(_on_auction_closed)
 
