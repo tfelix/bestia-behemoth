@@ -63,6 +63,11 @@ namespace BestiaBehemothClient.Game.World
     /// <summary>A snow line no terrain reaches, which is how "no snow lying anywhere" reaches the shaders.</summary>
     private const float NoSnowLine = 1.0e6f;
 
+    // Wetness or falling snow that turns the object overlay on, and lower, off again: hysteresis, so a
+    // value resting on one threshold does not toggle a draw per object every frame.
+    private const float OverlayOnAbove = 0.03f;
+    private const float OverlayOffBelow = 0.01f;
+
     /// <summary>
     /// The same vector <see cref="Wind"/> reports, as a global shader parameter.
     /// </summary>
@@ -568,6 +573,8 @@ namespace BestiaBehemothClient.Game.World
       RenderingServer.GlobalShaderParameterSet(
         GustDriftParameter, new Vector2((float)_gustDriftX, (float)_gustDriftZ));
 
+      UpdateOverlay();
+
       // Only publish on a change worth a round trip to the rendering server - the values are stable for minutes
       // at a time and this runs every frame. The sky values above are read as properties and need no publish.
       if (Mathf.IsEqualApprox(wetness, _wetness) &&
@@ -598,6 +605,20 @@ namespace BestiaBehemothClient.Game.World
       }
 
       return WeatherLook.For(_kind, _intensity, _cloudCover);
+    }
+
+    /// <summary>Lets every mesh under <paramref name="root"/> get wet and snowy. For GDScript callers.</summary>
+    public void ExposeToWeather(Node root, bool moving)
+    {
+      WeatherOverlay.Register(root, moving);
+    }
+
+    private void UpdateOverlay()
+    {
+      var threshold = WeatherOverlay.Active ? OverlayOffBelow : OverlayOnAbove;
+      var marked = _wetness > threshold || _snow > threshold || _snowLine < NoSnowLine;
+
+      WeatherOverlay.SetActive(GetTree(), marked);
     }
 
     private float TargetGroundWetness()
