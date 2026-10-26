@@ -49,7 +49,7 @@ import net.bestia.zone.casting.RecipeOffering
  *
  * Every skill in the Craftsman and Blacksmith trees is a *master* skill, so the skill levels and the known
  * blueprints always come from the master. Whoever does the work brings their own hands: their DEX and WIL, their
- * bag and their container. A bestia never crafts out of its owner's bag. See [Crafter].
+ * bag and their container. A bestia never crafts out of its owner's bag. See [Crafters].
  *
  * ### The ECS inventory is the authority inside the tick; the database catches up
  *
@@ -79,7 +79,7 @@ class CraftingService(
   private val itemStats: ItemStatCatalog,
   private val roller: ItemStatRoller,
   private val worldService: WorldService,
-  private val starterKit: StarterKit,
+  private val crafters: Crafters,
   private val metrics: GameMetrics = GameMetrics(),
 ) : RecipeOffering {
 
@@ -93,7 +93,7 @@ class CraftingService(
    */
   override fun offerRecipes(world: World, casterId: EntityId, skillId: Long) {
     val accountId = world.get(casterId, Account::class)?.accountId ?: return
-    val crafter = crafterOf(world, casterId, casterId) ?: return
+    val crafter = crafters.of(world, casterId, casterId) ?: return
     val known = crafter.skills
     val inventory = world.get(casterId, Inventory::class)
     val position = world.get(casterId, Position::class)?.toVec3L()
@@ -141,7 +141,7 @@ class CraftingService(
       return OpError.CRAFT_ALREADY_IN_PROGRESS
     }
 
-    val crafter = crafterOf(world, entityId, masterEntityId)
+    val crafter = crafters.of(world, entityId, masterEntityId)
     if (crafter == null) {
       LOG.debug { "Entity $entityId is neither master $masterEntityId nor one of its bestias and cannot craft" }
       return OpError.CRAFT_NOT_POSSIBLE
@@ -200,7 +200,7 @@ class CraftingService(
   fun resolve(world: World, entityId: EntityId, crafting: Crafting) {
     val recipe = recipes.of(crafting.recipeId) ?: return
     val accountId = world.get(entityId, Account::class)?.accountId
-    val crafter = crafterOf(world, entityId, crafting.masterEntityId ?: entityId) ?: return
+    val crafter = crafters.of(world, entityId, crafting.masterEntityId ?: entityId) ?: return
     val masterId = crafter.master.masterId
     val playerBestiaId = crafter.playerBestiaId
     val inventory = world.get(entityId, Inventory::class) ?: return
@@ -421,44 +421,6 @@ class CraftingService(
   private fun attributesOf(world: World, entityId: EntityId): StatusValues? =
     world.get(entityId, CombatStats::class)?.values?.attributes
 
-  /**
-   * Who works, and whose knowledge they work with. A master crafts alone; a bestia crafts with its master's
-   * skills and blueprints but its own hands, bag and container ([playerBestiaId]).
-   */
-  private inner class Crafter(
-    val master: Master,
-    val playerBestiaId: PlayerBestiaId?,
-    val skills: KnownSkills?,
-    private val blueprints: KnownRecipes?,
-  ) {
-    /**
-     * Whether the master knows how to make what [recipe] makes: from the starter kit, or learned. Repairing,
-     * upgrading and cutting a slot are things a skill does to an item, so they need no blueprint.
-     */
-    fun knowsBlueprint(recipe: Recipe): Boolean {
-      if (recipe.needsTarget || starterKit.isStarterBlueprint(recipe.id)) return true
-
-      return blueprints?.knows(recipe.id) == true
-    }
-  }
-
-  /** Null when [crafterId] is neither the master at [masterEntityId] nor one of its bestias. */
-  private fun crafterOf(world: World, crafterId: EntityId, masterEntityId: EntityId): Crafter? {
-    val master = world.get(masterEntityId, Master::class) ?: return null
-    val playerBestiaId = if (crafterId == masterEntityId) {
-      null
-    } else {
-      val owned = world.get(crafterId, OwnedBestia::class)?.takeIf { it.masterId == master.masterId } ?: return null
-      owned.playerBestiaId
-    }
-
-    return Crafter(
-      master = master,
-      playerBestiaId = playerBestiaId,
-      skills = world.get(masterEntityId, KnownSkills::class),
-      blueprints = world.get(masterEntityId, KnownRecipes::class),
-    )
-  }
 
   /**
    * Whether a crafter at these skill levels may touch an item of [itemLevel] through [recipe].

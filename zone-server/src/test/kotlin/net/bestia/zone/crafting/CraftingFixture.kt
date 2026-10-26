@@ -120,7 +120,7 @@ class CraftingFixture(
       itemStats = itemStats,
       roller = ItemStatRoller(),
       worldService = worldService,
-      starterKit = starterKit,
+      crafters = Crafters(starterKit),
     )
   }
 
