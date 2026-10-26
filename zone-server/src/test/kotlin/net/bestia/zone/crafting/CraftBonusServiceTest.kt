@@ -1,5 +1,6 @@
 package net.bestia.zone.crafting
 
+import net.bestia.zone.battle.status.StatusValues
 import io.mockk.every
 import io.mockk.mockk
 import net.bestia.zone.skill.ecs.KnownSkills
@@ -27,28 +28,37 @@ class CraftBonusServiceTest {
     service = CraftBonusService(skills)
   }
 
+  /** The crafter's own DEX and WIL count for every craft, so a deft bestia is a good crafter. */
+  @Test
+  fun `dexterity and willpower raise every craft's chance`() {
+    val recipe = recipeRequiring(WEAPON_REPAIR, baseSuccessChance = 0.5f)
+    val deft = StatusValues(strength = 0, vitality = 0, intelligence = 0, agility = 0, willpower = 25, dexterity = 34)
+
+    assertEquals(0.5f + 3 * 0.02f + 2 * 0.01f, service.successChance(known(), recipe, deft), TOLERANCE)
+  }
+
   @Test
   fun `carpentry is worth five percent a level up to fifty`() {
     val recipe = recipeRequiring(CARPENTRY)
 
-    assertEquals(0.05f, service.successChance(known(CARPENTRY to 1), recipe), TOLERANCE)
-    assertEquals(0.50f, service.successChance(known(CARPENTRY to 10), recipe), TOLERANCE)
+    assertEquals(0.05f, service.successChance(known(CARPENTRY to 1), recipe, null), TOLERANCE)
+    assertEquals(0.50f, service.successChance(known(CARPENTRY to 10), recipe, null), TOLERANCE)
   }
 
   @Test
   fun `master craftsman adds two percent a level on top of carpentry`() {
     val recipe = recipeRequiring(CARPENTRY)
 
-    assertEquals(0.05f + 0.02f, service.successChance(known(CARPENTRY to 1, TINKERER to 1), recipe), TOLERANCE)
-    assertEquals(0.50f + 0.10f, service.successChance(known(CARPENTRY to 10, TINKERER to 5), recipe), TOLERANCE)
+    assertEquals(0.05f + 0.02f, service.successChance(known(CARPENTRY to 1, TINKERER to 1), recipe, null), TOLERANCE)
+    assertEquals(0.50f + 0.10f, service.successChance(known(CARPENTRY to 10, TINKERER to 5), recipe, null), TOLERANCE)
   }
 
   @Test
   fun `ore refinement is thirty percent a level over three levels`() {
     val recipe = recipeRequiring(ORE_REFINEMENT)
 
-    assertEquals(0.30f, service.successChance(known(ORE_REFINEMENT to 1), recipe), TOLERANCE)
-    assertEquals(0.90f, service.successChance(known(ORE_REFINEMENT to 3), recipe), TOLERANCE)
+    assertEquals(0.30f, service.successChance(known(ORE_REFINEMENT to 1), recipe, null), TOLERANCE)
+    assertEquals(0.90f, service.successChance(known(ORE_REFINEMENT to 3), recipe, null), TOLERANCE)
   }
 
   /** Both smithing passives feed forging, plus the forge skill's own step. */
@@ -57,15 +67,15 @@ class CraftBonusServiceTest {
     val recipe = recipeRequiring(FORGE_WEAPON)
 
     val maxed = known(FORGE_WEAPON to 10, WEAPONRY_RESEARCH to 10, MASTER_SMITH to 5)
-    assertEquals((0.10f + 0.25f + 0.20f).coerceAtMost(1f), service.successChance(maxed, recipe), TOLERANCE)
+    assertEquals((0.10f + 0.25f + 0.20f).coerceAtMost(1f), service.successChance(maxed, recipe, null), TOLERANCE)
   }
 
   @Test
   fun `upgrading adds four percent a level of research and five of master smith`() {
     val recipe = recipeRequiring(UPGRADE_EQUIPMENT, baseSuccessChance = 0f)
 
-    assertEquals(0.04f, service.successChance(known(WEAPONRY_RESEARCH to 1), recipe), TOLERANCE)
-    assertEquals(0.40f + 0.25f, service.successChance(known(WEAPONRY_RESEARCH to 10, MASTER_SMITH to 5), recipe), TOLERANCE)
+    assertEquals(0.04f, service.successChance(known(WEAPONRY_RESEARCH to 1), recipe, null), TOLERANCE)
+    assertEquals(0.40f + 0.25f, service.successChance(known(WEAPONRY_RESEARCH to 10, MASTER_SMITH to 5), recipe, null), TOLERANCE)
   }
 
   /** A repair has no documented success table, so nothing may be invented for it. */
@@ -73,14 +83,14 @@ class CraftBonusServiceTest {
   fun `weapon repair gets no bonus at all`() {
     val recipe = recipeRequiring(WEAPON_REPAIR, baseSuccessChance = 0.8f)
 
-    assertEquals(0.8f, service.successChance(known(WEAPON_REPAIR to 5), recipe), TOLERANCE)
+    assertEquals(0.8f, service.successChance(known(WEAPON_REPAIR to 5), recipe, null), TOLERANCE)
   }
 
   @Test
   fun `a chance never leaves zero to one`() {
     val certain = recipeRequiring(CARPENTRY, baseSuccessChance = 1f)
 
-    assertEquals(1f, service.successChance(known(CARPENTRY to 10, TINKERER to 5), certain), TOLERANCE)
+    assertEquals(1f, service.successChance(known(CARPENTRY to 10, TINKERER to 5), certain, null), TOLERANCE)
   }
 
   @Test
@@ -182,7 +192,7 @@ class CraftBonusServiceTest {
   fun `a level past the end of a table clamps to its last row`() {
     val recipe = recipeRequiring(ORE_REFINEMENT)
 
-    assertEquals(0.90f, service.successChance(known(ORE_REFINEMENT to 99), recipe), TOLERANCE)
+    assertEquals(0.90f, service.successChance(known(ORE_REFINEMENT to 99), recipe, null), TOLERANCE)
   }
 
   private fun known(vararg levels: Pair<String, Int>) =

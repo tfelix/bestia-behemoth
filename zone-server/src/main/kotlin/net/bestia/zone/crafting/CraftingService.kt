@@ -31,6 +31,8 @@ import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.prop.PlayerStructureService
 import net.bestia.zone.crafting.ecs.KnownRecipes
+import net.bestia.zone.battle.ecs.status.CombatStats
+import net.bestia.zone.battle.status.StatusValues
 import net.bestia.zone.world.WorldService
 import net.bestia.zone.entity.StaticEntityKind
 import org.springframework.stereotype.Service
@@ -110,7 +112,7 @@ class CraftingService(
 
         standing
       }
-      .map { recipe -> describe(recipe, known, inventory) }
+      .map { recipe -> describe(recipe, known, inventory, attributesOf(world, casterId)) }
 
     outMessageProcessor.sendToPlayer(
       accountId,
@@ -216,7 +218,7 @@ class CraftingService(
     val inputs = required(recipe)
     val taken = takeInputs(inventory, inputs) ?: return refuse(accountId, OpError.CRAFT_MISSING_MATERIALS)
 
-    val chance = bonuses.successChance(known, recipe)
+    val chance = bonuses.successChance(known, recipe, attributesOf(world, entityId))
     val succeeded = Random.nextFloat() <= chance
     val roll = if (succeeded) rollOutput(recipe, known) else null
     val provenance = ItemProvenance(crafterName = master.name, worldName = worldService.record.name)
@@ -400,6 +402,9 @@ class CraftingService(
     }
   }
 
+  private fun attributesOf(world: World, entityId: EntityId): StatusValues? =
+    world.get(entityId, CombatStats::class)?.values?.attributes
+
   /**
    * Whether the crafter knows how to make what [recipe] makes: from the starter kit, or learned. Repairing,
    * upgrading and cutting a slot are things a skill does to an item, so they need no blueprint.
@@ -469,7 +474,8 @@ class CraftingService(
   private fun describe(
     recipe: Recipe,
     known: KnownSkills?,
-    inventory: Inventory?
+    inventory: Inventory?,
+    attributes: StatusValues?
   ): CraftableRecipesSMSG.CraftableRecipe = CraftableRecipesSMSG.CraftableRecipe(
     recipeId = recipe.id,
     effect = recipe.effect,
@@ -482,7 +488,7 @@ class CraftingService(
         held = inventory?.let { heldAmount(it, input.itemId) } ?: 0
       )
     },
-    successPermille = (bonuses.successChance(known, recipe) * 1000).roundToInt(),
+    successPermille = (bonuses.successChance(known, recipe, attributes) * 1000).roundToInt(),
     craftMillis = (bonuses.craftSeconds(known, recipe) * 1000).roundToInt()
   )
 
