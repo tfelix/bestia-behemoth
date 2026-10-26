@@ -309,6 +309,8 @@ group_uniforms Weather;
 // Driven by WeatherState from the server's WeatherSMSG, as globals rather than material parameters so that
 // water, foliage and anything else added later reads the same numbers rather than its own copy.
 global uniform float weather_wetness;
+// How hard rain is falling right now, 0 to 1. Drives the rings in standing water.
+global uniform float weather_rain;
 #include "res://Game/World/Shader/weather_snow.gdshaderinc"
 
 // How dark wet ground goes. Real ground darkens because water fills the pores and light stops scattering back
@@ -317,6 +319,10 @@ uniform float wetness_darkening : hint_range(0.3, 1.0) = 0.72;
 
 // How smooth standing water is. Terrain is otherwise fully rough, so this is the only specular in the scene.
 uniform float wetness_roughness : hint_range(0.0, 1.0) = 0.12;
+
+// How far a raindrop's ring tilts the normal of a puddle, and how far from the camera rings are still drawn.
+uniform float rain_ripple_strength : hint_range(0.0, 2.0) = 0.6;
+uniform float rain_ripple_reach = 30.0;
 
 // The colour fresh snow is corrected to, matching the palette's own SNOW so that weather snow and the snow the
 // generator placed do not read as two different materials.
@@ -468,6 +474,32 @@ float terrain_hash(vec2 p) {
 	vec3 p3 = fract(vec3(p.xyx) * 0.1031);
 	p3 += dot(p3, p3.yzx + 33.33);
 	return fract((p3.x + p3.y) * p3.z);
+}
+
+// Rings spreading from raindrops landing in standing water, as a slope to add to the normal.
+//
+// Each cell takes one drop at a time, at a spot and phase of its own. Two offset grids keep the rings from
+// lining up, and a ring is clipped at its cell's edge, which is invisible at this size.
+vec2 terrain_rain_ripples(vec2 at, float clock) {
+	const float CELL = 0.35;
+	const float DROPS_PER_SECOND = 0.9;
+
+	vec2 slope = vec2(0.0);
+	for (int layer = 0; layer < 2; layer++) {
+		vec2 p = at / CELL + float(layer) * vec2(0.37, 0.71);
+		vec2 cell = floor(p);
+		float seed = terrain_hash(cell + float(layer) * 17.0);
+		float age = fract(clock * DROPS_PER_SECOND + seed);
+
+		vec2 away = p - (cell + 0.25 + 0.5 * vec2(seed, fract(seed * 7.13)));
+		float distance_out = length(away);
+		float front = age * 0.6;
+		float ring = sin((distance_out - front) * 40.0) * smoothstep(0.08, 0.0, abs(distance_out - front));
+
+		slope += ring * (1.0 - age) * away / max(distance_out, 0.0001);
+	}
+
+	return slope * 0.5;
 }
 
 float terrain_value_noise(vec2 p) {
@@ -939,6 +971,14 @@ TerrainSurface terrain_surface(vec3 tint) {
 
 		albedo *= mix(1.0, wetness_darkening, wet);
 		roughness = mix(roughness, wetness_roughness, pooled);
+
+		float near = 1.0 - smoothstep(rain_ripple_reach * 0.6, rain_ripple_reach,
+			distance(v_world_pos.xz, ground_disturb_centre));
+		float rippling = pooled * clamp(weather_rain, 0.0, 1.0) * near;
+		if (rippling > TERRAIN_WEIGHT_EPSILON) {
+			vec2 ripple = terrain_rain_ripples(v_world_pos.xz, ground_fire_clock);
+			world_normal = normalize(world_normal + vec3(ripple.x, 0.0, ripple.y) * rain_ripple_strength * rippling);
+		}
 	}
 
 	surface.albedo = albedo;
