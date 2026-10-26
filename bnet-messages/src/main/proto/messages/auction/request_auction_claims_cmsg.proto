@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "RequestAuctionClaimsCmsgProto";
+
+// Asks what the market owes the sender. Answered by AuctionClaimsSMSG.
+message RequestAuctionClaimsCMSG {
+  uint64 house_entity_id = 1;
+}

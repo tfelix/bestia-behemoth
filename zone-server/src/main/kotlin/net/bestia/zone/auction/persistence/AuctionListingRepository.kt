@@ -3,12 +3,19 @@ package net.bestia.zone.auction.persistence
 import net.bestia.zone.auction.AuctionCategory
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
+import jakarta.persistence.LockModeType
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Lock
 import org.springframework.data.jpa.repository.Query
 
 interface AuctionListingRepository : JpaRepository<AuctionListing, Long> {
 
   fun countBySellerMasterId(sellerMasterId: Long): Long
+
+  /** Locked, so two buyers of one listing are served one after the other and the second finds it gone. */
+  @Lock(LockModeType.PESSIMISTIC_WRITE)
+  @Query("SELECT l FROM AuctionListing l WHERE l.id = :id")
+  fun findLockedById(id: Long): AuctionListing?
 
   /**
    * Cheapest per unit first. [itemIds] must not be empty - JPQL has no empty `IN` - so "any item" is

@@ -4,6 +4,8 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.account.persistence.MasterRepository
 import net.bestia.zone.account.persistence.findByIdOrThrow
+import net.bestia.zone.auction.persistence.AuctionClaim
+import net.bestia.zone.auction.persistence.AuctionClaimRepository
 import net.bestia.zone.auction.persistence.AuctionListing
 import net.bestia.zone.auction.persistence.AuctionListingRepository
 import net.bestia.zone.ecs.core.WorldView
@@ -13,6 +15,7 @@ import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.item.container.ReservedItem
 import net.bestia.zone.item.ecs.Equipment
 import net.bestia.zone.item.ecs.Inventory
+import net.bestia.zone.item.ecs.grantToLive
 import net.bestia.zone.item.ecs.takeFromLive
 import net.bestia.zone.item.persistence.ItemContainer
 import net.bestia.zone.item.persistence.ItemRepository
@@ -39,6 +42,7 @@ class AuctionService(
   private val connectionInfoService: ConnectionInfoService,
   private val houses: AuctionHouses,
   private val listings: AuctionListingRepository,
+  private val claims: AuctionClaimRepository,
   private val inventoryService: InventoryService,
   private val itemRepository: ItemRepository,
   private val masterRepository: MasterRepository,
@@ -83,8 +87,47 @@ class AuctionService(
     if (!world.takeFromLive(masterEntityId, listed.goods)) {
       LOG.warn { "Master $masterId listed item ${held.itemId} that its live inventory does not hold" }
     }
-    world.takeFromLive(masterEntityId, coins(coinId, fee))
+    world.takeFromLive(masterEntityId, ReservedItem.stack(coinId, fee.toInt(), weight = 0))
     world.read { reserve.charge(-fee.toDouble()) }
+
+    search(accountId, AuctionQuery(houseEntityId, null, 0, 0, emptyList(), mine = true, page = 0))
+  }
+
+  fun buy(accountId: AccountId, houseEntityId: Long, listingId: Long) {
+    val buyerId = connectionInfoService.getMasterId(accountId)
+    townInReach(accountId, houseEntityId) ?: return deny(accountId, OpError.AUCTION_OUT_OF_RANGE)
+    val coinId = commodityItems.coinItemId() ?: return deny(accountId, OpError.REQUEST_REFUSED)
+
+    val bought = transactions.execute { status ->
+      purchase(buyerId, listingId, coinId).also { if (it is Refused) status.setRollbackOnly() }
+    }
+
+    if (bought !is Bought) {
+      return deny(accountId, (bought as? Refused)?.code ?: OpError.REQUEST_REFUSED)
+    }
+
+    val buyerEntityId = connectionInfoService.getSelectedMasterEntityId(accountId)
+    world.grantToLive(buyerEntityId, bought.goods)
+    world.takeFromLive(buyerEntityId, ReservedItem.stack(coinId, bought.price.toInt(), weight = 0))
+
+    val goods = bought.goods.first()
+    outMessageProcessor.sendToPlayer(accountId, AuctionPurchasedSMSG(listingId, goods.itemId, goods.amount))
+  }
+
+  /** The goods come back; the fee does not, as the docs say of any listing that did not sell. */
+  fun takeDown(accountId: AccountId, houseEntityId: Long, listingId: Long) {
+    val sellerId = connectionInfoService.getMasterId(accountId)
+    townInReach(accountId, houseEntityId) ?: return deny(accountId, OpError.AUCTION_OUT_OF_RANGE)
+
+    val returned = transactions.execute {
+      val listing = listings.findLockedById(listingId)?.takeIf { it.sellerMasterId == sellerId }
+        ?: return@execute null
+      val goods = inventoryService.moveFromEscrow(listing.container, sellerId)
+      listings.delete(listing)
+      goods
+    } ?: return deny(accountId, OpError.AUCTION_LISTING_GONE)
+
+    world.grantToLive(connectionInfoService.getSelectedMasterEntityId(accountId), returned)
 
     search(accountId, AuctionQuery(houseEntityId, null, 0, 0, emptyList(), mine = true, page = 0))
   }
@@ -144,6 +187,35 @@ class AuctionService(
     return Listed(goods)
   }
 
+  /** The seller is paid through a claim: they are rarely standing at a house when somebody buys. */
+  private fun purchase(buyerId: Long, listingId: Long, coinId: Long): Outcome {
+    val listing = listings.findLockedById(listingId) ?: return Refused(OpError.AUCTION_LISTING_GONE)
+
+    if (listing.sellerMasterId == buyerId) {
+      return Refused(OpError.REQUEST_REFUSED)
+    }
+
+    if (!inventoryService.consumeAll(buyerId, listOf(coinId to listing.price.toInt()))) {
+      return Refused(OpError.AUCTION_CANNOT_AFFORD)
+    }
+
+    val goods = inventoryService.moveFromEscrow(listing.container, buyerId)
+
+    claims.save(
+      AuctionClaim(
+        masterId = listing.sellerMasterId,
+        reason = AuctionClaim.Reason.SOLD,
+        coins = listing.price,
+        itemId = listing.itemId,
+        amount = listing.amount,
+        createdAt = clock.instant(),
+      )
+    )
+    listings.delete(listing)
+
+    return Bought(goods, listing.price)
+  }
+
   private fun rowOf(listing: AuctionListing): AuctionListingsSMSG.Row {
     return AuctionListingsSMSG.Row(
       listingId = listing.id,
@@ -161,19 +233,13 @@ class AuctionService(
     return world.read { houses.townInReach(this, actorId, houseEntityId) }
   }
 
-  private fun coins(coinId: Long, amount: Long): ReservedItem {
-    return ReservedItem(
-      offerSlotId = 0L, itemId = coinId, amount = amount.toInt(), weight = 0, uniqueId = 0L, stackable = true,
-      durability = 0, maxDurability = 0, slots = 0, upgradeLevel = 0, itemLevel = 0, rolledStats = emptyList(),
-    )
-  }
-
   private fun deny(accountId: AccountId, code: OpError) {
     outMessageProcessor.sendToPlayer(accountId, OperationErrorSMSG(code))
   }
 
   private sealed interface Outcome
   private data class Listed(val goods: ReservedItem) : Outcome
+  private data class Bought(val goods: List<ReservedItem>, val price: Long) : Outcome
   private data class Refused(val code: OpError) : Outcome
 
   companion object {

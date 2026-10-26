@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "CancelAuctionListingCmsgProto";
+
+// Takes the sender's own listing down. The goods come back; the fee does not. Answered by the sender's listings.
+message CancelAuctionListingCMSG {
+  uint64 house_entity_id = 1;
+  uint64 listing_id = 2;
+}

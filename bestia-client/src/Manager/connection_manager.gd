@@ -43,6 +43,8 @@ signal trade_state_received(message: TradeStateSMSG)
 signal shop_offer_received(message: ShopOfferSMSG)
 signal auction_house_opened(message: AuctionHouseOpenSMSG)
 signal auction_listings_received(message: AuctionListingsSMSG)
+signal auction_claims_received(message: AuctionClaimsSMSG)
+signal auction_purchased(message: AuctionPurchasedSMSG)
 ## Every party message: the roster, an invitation, the party ending for us. The party window listens.
 signal party_message_received(message: PartySMSG)
 ## Every guild message: the guild, an invitation, leaving it. The guild window listens.
@@ -1060,6 +1062,10 @@ func _on_bnet_socket_message_received(message: Object) -> void:
 		auction_house_opened.emit(message)
 	elif message is AuctionListingsSMSG:
 		auction_listings_received.emit(message)
+	elif message is AuctionClaimsSMSG:
+		auction_claims_received.emit(message)
+	elif message is AuctionPurchasedSMSG:
+		auction_purchased.emit(message)
 	elif message is PartySMSG:
 		party_message_received.emit(message)
 	elif message is GuildSMSG:

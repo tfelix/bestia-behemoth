@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSr5EQoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSquEgoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -77,8 +77,9 @@ namespace Bnet {
             "GUdVSUxEX0JBTk5FUl9PVVRfT0ZfUkFOR0UQVBIZChVHVUlMRF9UQVJHRVRf",
             "RVhQRUxMRUQQVRIPCgtST1VURV9MSU1JVBBWEhgKFEFVQ1RJT05fT1VUX09G",
             "X1JBTkdFEFcSGQoVQVVDVElPTl9MSVNUSU5HX0xJTUlUEFgSHQoZQVVDVElP",
-            "Tl9DQU5OT1RfQUZGT1JEX0ZFRRBZQiwKFW5ldC5iZXN0aWEuYm5ldC5wcm90",
-            "b0ITT3BlcmF0aW9uRXJyb3JQcm90b2IGcHJvdG8z"));
+            "Tl9DQU5OT1RfQUZGT1JEX0ZFRRBZEhgKFEFVQ1RJT05fTElTVElOR19HT05F",
+            "EFoSGQoVQVVDVElPTl9DQU5OT1RfQUZGT1JEEFtCLAoVbmV0LmJlc3RpYS5i",
+            "bmV0LnByb3RvQhNPcGVyYXRpb25FcnJvclByb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -427,6 +428,14 @@ namespace Bnet {
     /// The listing fee is paid up front and the purse does not hold it.
     /// </summary>
     [pbr::OriginalName("AUCTION_CANNOT_AFFORD_FEE")] AuctionCannotAffordFee = 89,
+    /// <summary>
+    /// Somebody else bought it first, or it ran out, between the board being drawn and the click.
+    /// </summary>
+    [pbr::OriginalName("AUCTION_LISTING_GONE")] AuctionListingGone = 90,
+    /// <summary>
+    /// The purse does not hold the price.
+    /// </summary>
+    [pbr::OriginalName("AUCTION_CANNOT_AFFORD")] AuctionCannotAfford = 91,
   }
 
   #endregion

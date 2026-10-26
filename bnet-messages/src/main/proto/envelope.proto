@@ -103,6 +103,12 @@ import "messages/auction/auction_house_open_smsg.proto";
 import "messages/auction/list_auction_item_cmsg.proto";
 import "messages/auction/search_auctions_cmsg.proto";
 import "messages/auction/auction_listings_smsg.proto";
+import "messages/auction/buy_auction_listing_cmsg.proto";
+import "messages/auction/cancel_auction_listing_cmsg.proto";
+import "messages/auction/request_auction_claims_cmsg.proto";
+import "messages/auction/collect_auction_claim_cmsg.proto";
+import "messages/auction/auction_claims_smsg.proto";
+import "messages/auction/auction_purchased_smsg.proto";
 import "messages/shop/shop_trade_cmsg.proto";
 import "messages/map/weather_smsg.proto";
 import "messages/map/world_time_smsg.proto";
@@ -279,6 +285,12 @@ message Envelope {
     ListAuctionItemCMSG list_auction_item = 841;
     SearchAuctionsCMSG search_auctions = 842;
     AuctionListingsSMSG auction_listings = 843;
+    BuyAuctionListingCMSG buy_auction_listing = 844;
+    CancelAuctionListingCMSG cancel_auction_listing = 845;
+    RequestAuctionClaimsCMSG request_auction_claims = 846;
+    CollectAuctionClaimCMSG collect_auction_claim = 847;
+    AuctionClaimsSMSG auction_claims = 848;
+    AuctionPurchasedSMSG auction_purchased = 849;
 
     // TRAVEL 900
     RequestSavedRoutesCMSG request_saved_routes = 900;

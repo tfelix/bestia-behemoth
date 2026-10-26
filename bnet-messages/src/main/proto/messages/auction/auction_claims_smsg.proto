@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "AuctionClaimsSmsgProto";
+
+// What the market owes the recipient, oldest first.
+message AuctionClaimsSMSG {
+  repeated AuctionClaim claims = 1;
+}
+
+message AuctionClaim {
+  enum Reason {
+    SOLD = 0;
+    RETURNED = 1;
+  }
+
+  uint64 claim_id = 1;
+  Reason reason = 2;
+  int64 coins = 3;
+
+  // The item sold, or the item coming back.
+  uint64 item_id = 4;
+  int32 amount = 5;
+}

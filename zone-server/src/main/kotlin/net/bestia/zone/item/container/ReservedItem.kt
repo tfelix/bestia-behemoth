@@ -47,6 +47,14 @@ data class ReservedItem(
   }
 
   companion object {
+    /** A plain stack with no instance behind it, such as coins. */
+    fun stack(itemId: Long, amount: Int, weight: Int): ReservedItem {
+      return ReservedItem(
+        offerSlotId = 0L, itemId = itemId, amount = amount, weight = weight, uniqueId = 0L, stackable = true,
+        durability = 0, maxDurability = 0, slots = 0, upgradeLevel = 0, itemLevel = 0, rolledStats = emptyList(),
+      )
+    }
+
     fun of(slot: ContainerSlot, itemLevel: Int): ReservedItem {
       val template = slot.template
 

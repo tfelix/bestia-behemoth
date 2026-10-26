@@ -63,6 +63,8 @@ namespace BestiaBehemothClient.Bnet.Message
       [Envelope.MessageOneofCase.ShopOffer] = e => Shop.ShopOfferSMSG.FromProto(e.ShopOffer),
       [Envelope.MessageOneofCase.AuctionHouseOpen] = e => Auction.AuctionHouseOpenSMSG.FromProto(e.AuctionHouseOpen),
       [Envelope.MessageOneofCase.AuctionListings] = e => Auction.AuctionListingsSMSG.FromProto(e.AuctionListings),
+      [Envelope.MessageOneofCase.AuctionClaims] = e => Auction.AuctionClaimsSMSG.FromProto(e.AuctionClaims),
+      [Envelope.MessageOneofCase.AuctionPurchased] = e => Auction.AuctionPurchasedSMSG.FromProto(e.AuctionPurchased),
       [Envelope.MessageOneofCase.PartyInvitation] = e => Party.PartyInvitationSMSG.FromProto(e.PartyInvitation),
       [Envelope.MessageOneofCase.PartyInfo] = e => Party.PartyInfoSMSG.FromProto(e.PartyInfo),
       [Envelope.MessageOneofCase.DisbandParty] = e => Party.DisbandPartySMSG.FromProto(e.DisbandParty),
