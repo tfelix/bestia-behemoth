@@ -14,9 +14,16 @@ const INTERFACE := &"Interface"
 const BUSES: Array[StringName] = [MASTER, MUSIC, AMBIENCE, EFFECTS, INTERFACE]
 
 
+var music: MusicPlayer
+
+
 func _ready() -> void:
 	for bus in BUSES:
 		_apply_volume(bus, volume_of(bus))
+
+	music = MusicPlayer.new()
+	music.name = "Music"
+	add_child(music)
 
 
 func volume_of(bus: StringName) -> float:
