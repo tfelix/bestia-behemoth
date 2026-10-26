@@ -13,7 +13,7 @@ enum class RecipeEffect {
 
   /**
    * Cuts one more rune slot into the target, up to the cap the crafter's Item Customization allows.
-   * A failed cut may destroy the item outright - see [MasterCraftBonusService.destroyChance].
+   * A failed cut may destroy the item outright - see [CraftBonusService.destroyChance].
    */
   ADD_SLOT,
 

@@ -121,7 +121,7 @@ class RecipeCatalogTest {
     val levelById = identifiers("items.yml", "items", "id", "base-level").mapKeys { it.key.toLong() }
     assertTrue(levelById.isNotEmpty(), "items.yml should declare levels")
 
-    val bonuses = MasterCraftBonusService(skillRepository)
+    val bonuses = CraftBonusService(skillRepository)
 
     registry.all().filter { it.effect == RecipeEffect.PRODUCE }.forEach { recipe ->
       val outputLevel = levelById[recipe.output!!.itemId]

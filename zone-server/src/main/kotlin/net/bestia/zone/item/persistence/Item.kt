@@ -58,7 +58,7 @@ class Item(
    *
    * It is where every copy's item level starts ([net.bestia.zone.item.stat.ItemLevel]), which is what a wearer
    * needs to put gear on. It is also the reach a crafter needs to make the item
-   * ([net.bestia.zone.crafting.MasterCraftBonusService.maxItemLevel]), and the tier a material belongs to.
+   * ([net.bestia.zone.crafting.CraftBonusService.maxItemLevel]), and the tier a material belongs to.
    *
    * **A material's level gates nothing on its own today**, and that is deliberate rather than an oversight:
    * a recipe already says which skill and which rank it needs, so gating its inputs as well would be the same

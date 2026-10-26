@@ -1,6 +1,6 @@
 # `base-level` is the item's tier before its stats are counted: what it takes to have anything to do with it.
 # It is the level a wearer needs to put gear on, the reach a crafter needs to make it or work on it (see
-# `MasterCraftBonusService`), and for a material the tier of work it belongs to. Defaults to 1, so an item with
+# `CraftBonusService`), and for a material the tier of work it belongs to. Defaults to 1, so an item with
 # nothing to say about its tier says nothing.
 #
 # A material's level gates nothing by itself - a recipe already names the skill and rank it needs, and saying

@@ -18,7 +18,7 @@
 # `station` names a `StaticEntityKind` that must be standing within `CraftingService.STATION_RANGE`
 # tiles. Cooking deliberately has none: there is no camp-fire prop, so a meal is cooked anywhere.
 #
-# `baseSuccessChance` is before skill bonuses - see `MasterCraftBonusService`, which applies the docs'
+# `baseSuccessChance` is before skill bonuses - see `CraftBonusService`, which applies the docs'
 # per-level tables on top. A recipe at 1.0 cannot fail on its own.
 recipes:
 

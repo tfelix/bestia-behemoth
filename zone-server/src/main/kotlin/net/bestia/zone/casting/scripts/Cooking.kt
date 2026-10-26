@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component
  *
  * The docs put it at a camp fire, and there is no camp-fire prop to stand next to - so it is unstationed rather
  * than gated on something that does not exist. Its level buys what the docs say it buys: `-20%` cooking time and
- * `+20%` success a level, both applied by `MasterCraftBonusService`, which deliberately does not let the
+ * `+20%` success a level, both applied by `CraftBonusService`, which deliberately does not let the
  * reduction stack with Master Craftsman's since the two sit in different trees.
  *
  * The stamina cost the docs give (5 to 11 by level) has no field anywhere in the catalogue and is left out.

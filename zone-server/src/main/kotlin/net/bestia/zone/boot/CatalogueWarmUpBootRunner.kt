@@ -2,7 +2,7 @@ package net.bestia.zone.boot
 
 import net.bestia.zone.casting.SkillExecutionService
 import net.bestia.zone.bestia.BestiaCatalogue
-import net.bestia.zone.crafting.MasterCraftBonusService
+import net.bestia.zone.crafting.CraftBonusService
 import net.bestia.zone.economy.CommodityItems
 import net.bestia.zone.item.ecs.ItemTemplateRegistry
 import net.bestia.zone.weather.EnvironmentalExposureSystem
@@ -23,7 +23,7 @@ class CatalogueWarmUpBootRunner(
   private val commodities: CommodityItems,
   private val loot: MobLootSpawner,
   private val bestias: BestiaCatalogue,
-  private val craftBonus: MasterCraftBonusService,
+  private val craftBonus: CraftBonusService,
   private val exposure: EnvironmentalExposureSystem,
   private val weather: WeatherPublisher,
   private val skills: SkillExecutionService,
