@@ -14,6 +14,8 @@ import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.item.ecs.Equipment
 import net.bestia.zone.item.ecs.Inventory
+import net.bestia.zone.item.ecs.grantToLive
+import net.bestia.zone.item.ecs.takeFromLive
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.trade.ecs.Trading
 import net.bestia.zone.item.container.InventoryService
@@ -247,12 +249,7 @@ class TradeService(
       return
     }
 
-    val mirrored = world.modify(side.entityId) { id ->
-      val inventory = get(id, Inventory::class) ?: return@modify false
-      inventory.take(playerItemId, reserved.amount)
-    } ?: false
-
-    if (!mirrored) {
+    if (!world.takeFromLive(side.entityId, reserved)) {
       // The durable side gave the item up but the live mirror disagrees about holding it. Put it back rather
       // than let the two drift; the player sees the offer simply not appear.
       inventoryService.releaseTradeReservation(side.masterId, tradeId, reserved.offerSlotId)
@@ -286,7 +283,7 @@ class TradeService(
   /** Null from the release means the cancel got to this line after all, and gave it back itself. */
   private fun giveBack(side: TradeSession.Side, tradeId: Long, reserved: ReservedItem) {
     val released = inventoryService.releaseTradeReservation(side.masterId, tradeId, reserved.offerSlotId) ?: return
-    grantToLive(side.entityId, listOf(released))
+    world.grantToLive(side.entityId, listOf(released))
   }
 
   /** Takes one line back out of the caller's own offer. */
@@ -314,7 +311,7 @@ class TradeService(
       return
     }
 
-    world.modify(side.entityId) { id -> get(id, Inventory::class)?.addItem(released.toLiveItem()) }
+    world.grantToLive(side.entityId, listOf(released))
 
     synchronized(session) {
       side.offer.removeIf { it.offerSlotId == offerSlotId }
@@ -463,8 +460,8 @@ class TradeService(
     // Past the commit. Both offers left their live inventories when they were offered, so each side only has
     // to gain what the other gave. Somebody who went offline in between gets theirs from the database on their
     // next login - it is already durable.
-    grantToLive(requester.entityId, settlement.toMasterA)
-    grantToLive(target.entityId, settlement.toMasterB)
+    world.grantToLive(requester.entityId, settlement.toMasterA)
+    world.grantToLive(target.entityId, settlement.toMasterB)
 
     synchronized(session) { session.status = TradeStatus.CLOSED }
 
@@ -492,7 +489,7 @@ class TradeService(
     session.sides().forEach { side ->
       val returned = inventoryService.releaseAllTradeReservations(side.masterId, session.tradeId)
       if (returned.isNotEmpty()) {
-        grantToLive(side.entityId, returned)
+        world.grantToLive(side.entityId, returned)
       }
     }
 
@@ -597,20 +594,6 @@ class TradeService(
     onePos.distance(otherPos) <= MAX_TRADE_RANGE
   }
 
-  private fun grantToLive(entityId: EntityId, items: List<ReservedItem>) {
-    world.modify(entityId) { id ->
-      val inventory = get(id, Inventory::class)
-
-      if (inventory == null) {
-        // Offline, or mid-despawn. The database already holds the items; they turn up on the next login.
-        LOG.debug { "Entity $entityId has no live inventory to receive ${items.size} traded item(s)" }
-        return@modify
-      }
-
-      items.forEach { inventory.addItem(it.toLiveItem()) }
-    }
-  }
-
   private fun pushState(session: TradeSession) {
     session.sides().forEach { side -> outMessageProcessor.sendToPlayer(side.accountId, stateFor(session, side)) }
   }
@@ -669,21 +652,6 @@ class TradeService(
   private fun deny(accountId: AccountId, code: OpError, vararg args: String) {
     outMessageProcessor.sendToPlayer(accountId, OperationErrorSMSG(code, args.toList()))
   }
-
-  private fun ReservedItem.toLiveItem() = Inventory.Item(
-    itemId = itemId,
-    amount = amount,
-    weight = weight,
-    uniqueId = uniqueId,
-    stackable = stackable,
-    durability = durability,
-    maxDurability = maxDurability,
-    slots = slots,
-    upgradeLevel = upgradeLevel,
-    itemLevel = itemLevel,
-    rolledStats = rolledStats,
-    provenance = provenance,
-  )
 
   companion object {
     /**
