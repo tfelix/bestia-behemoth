@@ -241,7 +241,7 @@ class TradeService(
       return
     }
 
-    val reserved = inventoryService.reserveForTrade(side.masterId, tradeId, held.itemId, held.uniqueId, amount)
+    val reserved = inventoryService.reserveForTrade(side.masterId, tradeId, held.itemId, held.uniqueId, amount, held.provenance)
     if (reserved == null) {
       resendTo(session, accountId)
       return
@@ -682,6 +682,7 @@ class TradeService(
     upgradeLevel = upgradeLevel,
     itemLevel = itemLevel,
     rolledStats = rolledStats,
+    provenance = provenance,
   )
 
   companion object {

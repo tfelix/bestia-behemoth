@@ -74,7 +74,7 @@ class UseItemHandler(
     // held be used again and again.
     val masterId = connectionInfoService.getMasterId(msg.playerId)
     val playerBestiaId = connectionInfoService.getActivePlayerBestiaId(msg.playerId)
-    val removed = inventoryService.removeOneFromOwner(masterId, playerBestiaId, item.id, 1, held.uniqueId)
+    val removed = inventoryService.removeNamedFromOwner(masterId, playerBestiaId, item.id, 1, held.uniqueId, held.provenance)
     if (removed == null) {
       LOG.warn { "Entity $activeEntityId holds no ${item.identifier} in the database, refusing to use it" }
       return true
@@ -87,7 +87,7 @@ class UseItemHandler(
 
     if (consumed.getOrNull() != true) {
       asyncJobExecutor.submit(key = masterId) {
-        inventoryService.grantToOwner(masterId, playerBestiaId, item.id, 1, removed.uniqueId)
+        inventoryService.grantToOwner(masterId, playerBestiaId, item.id, 1, removed.uniqueId, provenance = held.provenance)
       }
     }
     consumed.getOrThrow()

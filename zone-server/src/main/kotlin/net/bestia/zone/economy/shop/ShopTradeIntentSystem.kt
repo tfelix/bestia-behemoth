@@ -160,18 +160,16 @@ class ShopTradeIntentSystem(
     val (giveItem, giveAmount) = give
     val inventory = world.get(traderId, Inventory::class) ?: return false
     val masterId = world.get(traderId, Master::class)?.masterId ?: return false
-    val weight = inventory.getItems().firstOrNull { it.itemId == giveItem }?.weight ?: 0
-
-    if (giveAmount > 0 && !inventory.removeFromStack(giveItem, giveAmount)) return false
+    val taken = if (giveAmount > 0) inventory.takeAcrossPiles(giveItem, giveAmount) ?: return false else emptyList()
 
     asyncJobExecutor.submit(masterId) {
-      val taken = giveAmount == 0 || inventoryService.consumeAll(masterId, listOf(giveItem to giveAmount))
+      val durablyTaken = giveAmount == 0 || inventoryService.consumeAll(masterId, listOf(giveItem to giveAmount))
 
-      if (taken) {
+      if (durablyTaken) {
         pay(world, traderId, masterId, receive)
       } else {
         LOG.warn { "Master $masterId lost ${giveAmount}x $giveItem in the database before a shop trade; giving it back" }
-        giveBack(world, traderId, Inventory.Item(giveItem, giveAmount, weight))
+        giveBack(world, traderId, taken)
       }
     }
 
@@ -198,9 +196,9 @@ class ShopTradeIntentSystem(
     }
   }
 
-  private fun giveBack(world: World, traderId: EntityId, taken: Inventory.Item) {
+  private fun giveBack(world: World, traderId: EntityId, taken: List<Inventory.Item>) {
     val accountId = world.modify(traderId) { id ->
-      get(id, Inventory::class)?.addItem(taken)
+      get(id, Inventory::class)?.addItems(taken)
       get(id, Account::class)?.accountId
     } ?: return
 

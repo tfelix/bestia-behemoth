@@ -1,5 +1,6 @@
 package net.bestia.zone.item.persistence
 
+import net.bestia.zone.item.ItemProvenance
 import net.bestia.zone.item.equip.EquipmentSlot
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -28,6 +29,11 @@ class ItemContainerTest {
 
   private lateinit var container: ItemContainer
 
+  private companion object {
+    val ALICE = ItemProvenance(crafterName = "Alice", worldName = "Genesis")
+    val BOB = ItemProvenance(crafterName = "Bob", worldName = "Genesis")
+  }
+
   @BeforeEach
   fun setUp() {
     container = ItemContainer(ItemContainer.Type.MASTER)
@@ -40,6 +46,50 @@ class ItemContainerTest {
 
     assertEquals(1, container.slots.size)
     assertEquals(12, container.slots.single().amount)
+  }
+
+  @Test
+  fun `piles of one item by different makers never merge`() {
+    container.addStackable(potion, 5, ALICE)
+    container.addStackable(potion, 3, BOB)
+    container.addStackable(potion, 2, ALICE)
+    container.addStackable(potion, 1)
+
+    val piles = container.slots.associate { it.provenance to it.amount }
+    assertEquals(mapOf(ALICE to 7, BOB to 3, null to 1), piles)
+  }
+
+  /** The live inventory takes in the same order, so both sides lose the same units. */
+  @Test
+  fun `taking some of an item empties plain piles first, then by maker`() {
+    container.addStackable(potion, 2, BOB)
+    container.addStackable(potion, 2, ALICE)
+    container.addStackable(potion, 2)
+
+    assertTrue(container.removeStackable(potion.id, 3))
+
+    assertEquals(mapOf(ALICE to 1, BOB to 2), container.slots.associate { it.provenance to it.amount })
+  }
+
+  @Test
+  fun `a named pile is taken from that pile only`() {
+    container.addStackable(potion, 2, ALICE)
+    container.addStackable(potion, 5, BOB)
+
+    assertNotNull(container.removeNamed(potion.id, 2, uniqueId = 0L, provenance = ALICE))
+    assertNull(container.removeNamed(potion.id, 1, uniqueId = 0L, provenance = ALICE))
+    assertEquals(5, container.slots.single().amount)
+  }
+
+  @Test
+  fun `a retracted offer goes back to the pile of its own maker`() {
+    container.addStackable(potion, 5, ALICE)
+    container.addStackable(potion, 5, BOB)
+    container.reserveStackable(potion.id, 2, tradeId = 1L, provenance = ALICE)
+
+    container.releaseAllReservations(1L)
+
+    assertEquals(mapOf(ALICE to 5, BOB to 5), container.slots.associate { it.provenance to it.amount })
   }
 
   /** The boot cleanup frees trade reservations in place, which leaves one template in two free piles. */

@@ -1,5 +1,6 @@
 package net.bestia.zone.item.ecs
 
+import net.bestia.zone.item.ItemProvenance
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -384,5 +385,18 @@ class InventoryTest {
     inventory.addItem(Inventory.Item(itemId = 2, amount = 1, uniqueId = 77L, stackable = false))
 
     assertEquals(77L, inventory.byPlayerItemId(77L)?.uniqueId)
+  }
+
+  @Test
+  fun `piles by different makers stay apart and are taken plain first`() {
+    val alice = ItemProvenance(crafterName = "Alice", worldName = "Genesis")
+    inventory.addItem(Inventory.Item(itemId = 1, amount = 2, provenance = alice))
+    inventory.addItem(Inventory.Item(itemId = 1, amount = 2))
+    inventory.addItem(Inventory.Item(itemId = 1, amount = 1, provenance = alice))
+
+    val taken = inventory.takeAcrossPiles(1, 3)
+
+    assertEquals(listOf(null to 2, alice to 1), taken?.map { it.provenance to it.amount })
+    assertEquals(listOf(alice to 2), inventory.getItems().map { it.provenance to it.amount })
   }
 }

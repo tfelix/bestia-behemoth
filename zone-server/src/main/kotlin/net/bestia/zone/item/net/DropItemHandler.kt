@@ -58,22 +58,24 @@ class DropItemHandler(
 
     // Keyed by the master like every other write to its container, so a concurrent use or trade of the same
     // item queues behind this one and finds it gone.
-    asyncJobExecutor.submit(masterId) { dropDurably(msg, held.itemId, held.uniqueId, masterId, playerBestiaId, activeEntityId) }
+    asyncJobExecutor.submit(masterId) { dropDurably(msg, held, masterId, playerBestiaId, activeEntityId) }
 
     return true
   }
 
   private fun dropDurably(
     msg: DropItemCMSG,
-    itemId: Long,
-    uniqueId: Long,
+    held: Inventory.Item,
     masterId: Long,
     playerBestiaId: PlayerBestiaId?,
     activeEntityId: EntityId
   ) {
-    val removed = inventoryService.removeOneFromOwner(masterId, playerBestiaId, itemId, msg.amount, uniqueId)
+    val itemId = held.itemId
+    val removed = inventoryService.removeNamedFromOwner(
+      masterId, playerBestiaId, itemId, msg.amount, held.uniqueId, held.provenance
+    )
     if (removed == null) {
-      LOG.warn { "Could not remove ${msg.amount} of item $itemId (uniqueId $uniqueId) from entity $activeEntityId in DB" }
+      LOG.warn { "Could not remove ${msg.amount} of item $itemId (uniqueId ${held.uniqueId}) from entity $activeEntityId in DB" }
       return
     }
 

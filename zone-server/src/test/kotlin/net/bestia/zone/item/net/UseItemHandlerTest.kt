@@ -57,7 +57,7 @@ class UseItemHandlerTest {
 
   @Test
   fun `an item the database no longer holds has no effect`() {
-    every { inventoryService.removeOneFromOwner(MASTER_ID, null, POTION.id, 1, 0L) } returns null
+    every { inventoryService.removeNamedFromOwner(MASTER_ID, null, POTION.id, 1, 0L, null) } returns null
     val user = user()
 
     handler(user).handle(UseItemCMSG(ACCOUNT_ID, potions.playerItemId, ScriptArgs.EMPTY))
@@ -67,14 +67,14 @@ class UseItemHandlerTest {
 
   @Test
   fun `an item whose script refuses it is given back durably`() {
-    every { inventoryService.removeOneFromOwner(MASTER_ID, null, POTION.id, 1, 0L) } returns
+    every { inventoryService.removeNamedFromOwner(MASTER_ID, null, POTION.id, 1, 0L, null) } returns
       ItemContainer.RemovedItem(uniqueId = 0L, instance = null)
     every { scripts.useItem(any(), any(), POTION, any(), any()) } returns false
     val user = user()
 
     handler(user).handle(UseItemCMSG(ACCOUNT_ID, potions.playerItemId, ScriptArgs.EMPTY))
 
-    verify { inventoryService.grantToOwner(MASTER_ID, null, POTION.id, 1, 0L) }
+    verify { inventoryService.grantToOwner(MASTER_ID, null, POTION.id, 1, 0L, provenance = null) }
   }
 
   @Test
@@ -83,14 +83,14 @@ class UseItemHandlerTest {
 
     handler(user).handle(UseItemCMSG(ACCOUNT_ID, novicePotions.playerItemId, ScriptArgs.EMPTY))
 
-    verify(exactly = 0) { inventoryService.removeOneFromOwner(any(), any(), any(), any(), any()) }
+    verify(exactly = 0) { inventoryService.removeNamedFromOwner(any(), any(), any(), any(), any(), any()) }
     verify(exactly = 0) { scripts.useItem(any(), any(), any(), any(), any()) }
     verify { messages.sendToPlayer(ACCOUNT_ID, OperationErrorSMSG(OperationErrorProto.OpError.ITEM_NOVICE_ONLY)) }
   }
 
   @Test
   fun `a novice may use a novice-only item`() {
-    every { inventoryService.removeOneFromOwner(MASTER_ID, null, NOVICE_POTION.id, 1, 0L) } returns
+    every { inventoryService.removeNamedFromOwner(MASTER_ID, null, NOVICE_POTION.id, 1, 0L, null) } returns
       ItemContainer.RemovedItem(uniqueId = 0L, instance = null)
     every { scripts.useItem(any(), any(), NOVICE_POTION, any(), any()) } returns true
     val user = user(KnownSkills(mutableMapOf()))
@@ -106,7 +106,7 @@ class UseItemHandlerTest {
 
     handler(bestia).handle(UseItemCMSG(ACCOUNT_ID, novicePotions.playerItemId, ScriptArgs.EMPTY))
 
-    verify(exactly = 0) { inventoryService.removeOneFromOwner(any(), any(), any(), any(), any()) }
+    verify(exactly = 0) { inventoryService.removeNamedFromOwner(any(), any(), any(), any(), any(), any()) }
     verify { messages.sendToPlayer(ACCOUNT_ID, OperationErrorSMSG(OperationErrorProto.OpError.ITEM_NOVICE_ONLY)) }
   }
 

@@ -430,10 +430,8 @@ class CraftingService(
   private fun takeInputs(inventory: Inventory, inputs: Map<Long, Int>): List<Inventory.Item>? {
     if (inputs.any { (itemId, amount) -> heldAmount(inventory, itemId) < amount }) return null
 
-    return inputs.map { (itemId, amount) ->
-      val weight = inventory.getItems().first { it.itemId == itemId && it.isStackable }.weight
-      check(inventory.removeFromStack(itemId, amount)) { "Held $itemId was counted but could not be taken" }
-      Inventory.Item(itemId = itemId, amount = amount, weight = weight)
+    return inputs.flatMap { (itemId, amount) ->
+      checkNotNull(inventory.takeAcrossPiles(itemId, amount)) { "Held $itemId was counted but could not be taken" }
     }
   }
 

@@ -10,6 +10,7 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.OneToMany
 import jakarta.persistence.Table
+import net.bestia.zone.item.ItemProvenance
 import net.bestia.zone.item.equip.EquipmentSlot
 
 /**
@@ -51,20 +52,25 @@ class ItemContainer(
   val id: Long = 0
 
   /**
-   * Adds a plain, stackable item: merges into the existing plain stack of the same template if one
-   * exists, otherwise starts a new stack. Never merges into an instance slot.
+   * Adds a plain, stackable item: merges into the existing pile of the same template and [provenance] if one
+   * exists, otherwise starts a new pile. Never merges into an instance slot.
    */
-  fun addStackable(item: Item, amount: Int) {
+  fun addStackable(item: Item, amount: Int, provenance: ItemProvenance? = null) {
     require(amount > 0) { "amount > 0 required, was $amount" }
-    // isFree, not merely unequipped: merging into a reserved pile would quietly enlarge an offer the
-    // player has already locked, and merging into a worn one is meaningless.
-    val existing = _slots.firstOrNull { it.isStackable && it.isFree && it.item?.id == item.id }
+    val existing = freePile(item.id, provenance)
     if (existing != null) {
       existing.amount += amount
     } else {
-      _slots.add(ContainerSlot(container = this, item = item, amount = amount))
+      _slots.add(ContainerSlot(container = this, item = item, amount = amount, provenance = provenance))
     }
   }
+
+  /**
+   * The one free pile of [itemId] made by [provenance]. Free, not merely unequipped: merging into a reserved
+   * pile would quietly enlarge an offer the player has already locked.
+   */
+  private fun freePile(itemId: Long, provenance: ItemProvenance?): ContainerSlot? =
+    _slots.firstOrNull { it.isStackable && it.isFree && it.item?.id == itemId && it.provenance == provenance }
 
   /** Places a unique instance into its own non-merging slot. */
   fun addInstance(instance: ItemInstance) {
@@ -112,12 +118,14 @@ class ItemContainer(
     _slots.mapNotNull { slot -> slot.equippedIn?.let { it to slot } }.toMap()
 
   /**
-   * Removes [amount] of a plain stackable item identified by its template id, across every free pile of it,
-   * or nothing at all. Returns false if not enough is present. Does not touch instance slots.
+   * Removes [amount] of a plain stackable item identified by its template id, across every free pile of it in
+   * [ItemProvenance.TAKE_ORDER], or nothing at all. Returns false if not enough is present. Does not touch
+   * instance slots.
    */
   fun removeStackable(itemId: Long, amount: Int): Boolean {
     require(amount > 0) { "amount > 0 required, was $amount" }
     val piles = _slots.filter { it.isStackable && it.isFree && it.item?.id == itemId }
+      .sortedWith(compareBy(ItemProvenance.TAKE_ORDER) { it.provenance })
     if (piles.sumOf { it.amount } < amount) return false
 
     var remaining = amount
@@ -173,12 +181,31 @@ class ItemContainer(
     return if (removeStackable(itemId, amount)) RemovedItem(uniqueId = 0L, instance = null) else null
   }
 
+  /**
+   * Removes what the player named: the instance [uniqueId], or [amount] from the pile of [itemId] made by
+   * [provenance] when [uniqueId] is 0. Unlike [removeOne], never falls back to another copy or pile, since two
+   * piles of one item can come from different makers.
+   */
+  fun removeNamed(itemId: Long, amount: Int, uniqueId: Long, provenance: ItemProvenance?): RemovedItem? {
+    if (uniqueId != 0L) {
+      return removeOne(itemId, amount, uniqueId)
+    }
+
+    val pile = freePile(itemId, provenance)?.takeIf { it.amount >= amount } ?: return null
+    pile.amount -= amount
+    if (pile.amount <= 0) {
+      _slots.remove(pile)
+    }
+
+    return RemovedItem(uniqueId = 0L, instance = null)
+  }
+
   /** Detaches every free slot and answers what left; worn and promised items stay. Instance rows stay alive. */
   fun removeAllFree(): List<DetachedItem> {
     val free = _slots.filter { it.isFree }
     _slots.removeAll(free.toSet())
 
-    return free.map { DetachedItem(template = it.template, amount = it.amount, instance = it.itemInstance) }
+    return free.map { it.detached() }
   }
 
   /** How much of [itemId] is actually available to spend - worn and promised copies do not count. */
@@ -224,9 +251,9 @@ class ItemContainer(
    *
    * @return the new reserved slot, or null when that much is not freely held
    */
-  fun reserveStackable(itemId: Long, amount: Int, tradeId: Long): ContainerSlot? {
+  fun reserveStackable(itemId: Long, amount: Int, tradeId: Long, provenance: ItemProvenance? = null): ContainerSlot? {
     require(amount > 0) { "amount > 0 required, was $amount" }
-    val source = _slots.firstOrNull { it.isStackable && it.isFree && it.template.id == itemId } ?: return null
+    val source = freePile(itemId, provenance) ?: return null
     if (source.amount < amount) return null
 
     source.amount -= amount
@@ -234,7 +261,7 @@ class ItemContainer(
       _slots.remove(source)
     }
 
-    val reserved = ContainerSlot(container = this, item = source.template, amount = amount)
+    val reserved = ContainerSlot(container = this, item = source.template, amount = amount, provenance = provenance)
     reserved.reservedByTradeId = tradeId
     _slots.add(reserved)
 
@@ -273,7 +300,7 @@ class ItemContainer(
 
     // Fold the split pile back into whatever free one is already there, so retracting an offer does not
     // leave the inventory carrying two half stacks of the same thing.
-    val target = _slots.firstOrNull { it !== slot && it.isStackable && it.isFree && it.item?.id == slot.template.id }
+    val target = freePile(slot.template.id, slot.provenance)?.takeIf { it !== slot }
     if (target != null) {
       target.amount += slot.amount
       _slots.remove(slot)
@@ -291,8 +318,11 @@ class ItemContainer(
 
     _slots.remove(slot)
 
-    return DetachedItem(template = slot.template, amount = slot.amount, instance = slot.itemInstance)
+    return slot.detached()
   }
+
+  private fun ContainerSlot.detached() =
+    DetachedItem(template = template, amount = amount, instance = itemInstance, provenance = provenance)
 
   data class RemovedItem(val uniqueId: Long, val instance: ItemInstance?)
 
@@ -300,7 +330,13 @@ class ItemContainer(
    * A slot lifted out of one container to be put into another. Carries the template as well as the optional
    * instance, because a plain stack has no instance to carry it.
    */
-  data class DetachedItem(val template: Item, val amount: Int, val instance: ItemInstance?)
+  data class DetachedItem(
+    val template: Item,
+    val amount: Int,
+    val instance: ItemInstance?,
+    /** A pile's maker. An instance carries its own. */
+    val provenance: ItemProvenance? = null,
+  )
 
   enum class Type { MASTER, BESTIA, NPC, STORAGE, MAIL }
 }
