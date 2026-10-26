@@ -182,7 +182,20 @@ const _HELD_GROUND_CHECK_SECONDS: float = 0.25
 var _since_held_ground_check: float = _HELD_GROUND_CHECK_SECONDS
 
 
+## The longest frame, in seconds, seen in the last [constant _HITCH_WINDOW_MSEC] and when it happened. Shared by
+## every entity: a correction line reads it to say whether this client hitched, as against the server stalling.
+## The zone logs its own slow ticks with a wall-clock time, so the two logs can be laid side by side.
+const _HITCH_WINDOW_MSEC: int = 3000
+static var _worst_frame: float = 0.0
+static var _worst_frame_at_msec: int = 0
+
+
 func _process(delta: float) -> void:
+	var now_msec := Time.get_ticks_msec()
+	if delta >= _worst_frame or now_msec - _worst_frame_at_msec > _HITCH_WINDOW_MSEC:
+		_worst_frame = delta
+		_worst_frame_at_msec = now_msec
+
 	_update_movement(delta)
 	_update_visual_rotation()
 	_update_ground_offset(delta)
@@ -320,11 +333,12 @@ func _warn_correction(kind: String, metres: float, detail: String = "") -> void:
 		return
 
 	var total := 0.0 if _arc.is_empty() else _arc[_arc.size() - 1]
+	var worst_ms := _worst_frame * 1000.0 if Time.get_ticks_msec() - _worst_frame_at_msec <= _HITCH_WINDOW_MSEC else 0.0
 	push_warning(
-		"[correction] entity %d %s: %.2f m (%s) | speed %.2f, moving %s, predicted walk %s, unanswered prediction %s, awaiting arrival %s, travelled %.2f/%.2f m over %d nodes, server %s, drawn %s" % [
-			entity_id, kind, metres, detail, _speed, _is_moving, _is_predicted_walk,
+		"[correction] %s entity %d %s: %.2f m (%s) | speed %.2f, moving %s, predicted walk %s, unanswered prediction %s, awaiting arrival %s, travelled %.2f/%.2f m over %d nodes, server %s, drawn %s | worst client frame %.0f ms in the last %d s" % [
+			Time.get_time_string_from_system(), entity_id, kind, metres, detail, _speed, _is_moving, _is_predicted_walk,
 			not _predicted_path.is_empty(), _awaiting_arrival, _travelled, total, _nodes.size(),
-			_server_position, _logical_position])
+			_server_position, _logical_position, worst_ms, _HITCH_WINDOW_MSEC / 1000])
 
 
 ## Asks the visual for a pose, but only when it is not the one already asked for.

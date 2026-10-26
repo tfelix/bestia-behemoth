@@ -223,18 +223,6 @@ weather_temperature={
 "type": "float",
 "value": 15.0
 }
-weather_rain={
-"type": "float",
-"value": 0.0
-}
-weather_snow_line={
-"type": "float",
-"value": 1000000.0
-}
-weather_snow_full={
-"type": "float",
-"value": 1000000.0
-}
 weather_wind={
 "type": "vec3",
 "value": Vector3(2.2, 0, 1.4)
@@ -250,4 +238,16 @@ ground_fire_clock={
 ground_fire_burn_seconds={
 "type": "float",
 "value": 4.0
+}
+weather_rain={
+"type": "float",
+"value": 0.0
+}
+weather_snow_line={
+"type": "float",
+"value": 1000000.0
+}
+weather_snow_full={
+"type": "float",
+"value": 1000000.0
 }
