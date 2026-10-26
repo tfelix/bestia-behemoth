@@ -37,5 +37,9 @@ message InventoryItem {
   uint32 item_level = 9;
   // What this copy rolled when it was made. Fixed stats are static item data and not sent.
   repeated ItemStatValue rolled_stats = 10;
+
+  // What every action on this held item names it by. Equals unique_id for an instance. A plain pile gets a
+  // handle that holds while the pile is held this session.
+  uint64 player_item_id = 11;
 }
 

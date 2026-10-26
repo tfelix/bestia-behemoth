@@ -23,6 +23,7 @@ data class InventoryComponentSMSG(
         .setUpgradeLevel(item.upgradeLevel)
         .setItemLevel(item.itemLevel)
         .addAllRolledStats(item.rolledStats.map { it.toProto() })
+        .setPlayerItemId(item.playerItemId)
         .build()
     }
 
@@ -43,6 +44,7 @@ data class InventoryComponentSMSG(
     val slots: Int = 0,
     val upgradeLevel: Int = 0,
     val itemLevel: Int = 0,
-    val rolledStats: List<StatValue> = emptyList()
+    val rolledStats: List<StatValue> = emptyList(),
+    val playerItemId: Long = uniqueId
   )
 }

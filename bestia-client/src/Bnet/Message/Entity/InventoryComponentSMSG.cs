@@ -83,6 +83,12 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
     [Export] public Godot.Collections.Array<ItemStatValue> RolledStats { get; set; } = [];
 
     /// <summary>
+    /// What every action on this held item names it by. Equals <see cref="UniqueId"/> for an instance; a plain
+    /// pile gets a handle that holds while the pile is held this session.
+    /// </summary>
+    [Export] public ulong PlayerItemId { get; set; }
+
+    /// <summary>
     /// Creates an InventoryItem from protobuf data
     /// </summary>
     public static InventoryItem FromProto(global::Bnet.InventoryItem protoItem)
@@ -98,7 +104,8 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
         Slots = protoItem.Slots,
         UpgradeLevel = protoItem.UpgradeLevel,
         ItemLevel = protoItem.ItemLevel,
-        RolledStats = ItemStatValue.FromProto(protoItem.RolledStats)
+        RolledStats = ItemStatValue.FromProto(protoItem.RolledStats),
+        PlayerItemId = protoItem.PlayerItemId
       };
     }
   }

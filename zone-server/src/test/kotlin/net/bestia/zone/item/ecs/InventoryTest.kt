@@ -367,4 +367,22 @@ class InventoryTest {
     assertFalse(twoPiles.removeFromStack(1, 11))
     assertEquals(10, twoPiles.getItems().sumOf { it.amount })
   }
+
+  @Test
+  fun `a pile keeps its player item id when more is added to it`() {
+    inventory.addItem(Inventory.Item(itemId = 1, amount = 10))
+    val pileId = inventory.getItems().single().playerItemId
+
+    inventory.addItem(Inventory.Item(itemId = 1, amount = 5))
+
+    val pile = inventory.byPlayerItemId(pileId)
+    assertEquals(15, pile?.amount)
+  }
+
+  @Test
+  fun `an instance is named by its own id`() {
+    inventory.addItem(Inventory.Item(itemId = 2, amount = 1, uniqueId = 77L, stackable = false))
+
+    assertEquals(77L, inventory.byPlayerItemId(77L)?.uniqueId)
+  }
 }
