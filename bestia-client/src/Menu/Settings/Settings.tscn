@@ -25,4 +25,14 @@ offset_right = 106.0
 offset_bottom = 124.0
 text = "Color"
 
+[node name="Volumes" type="GridContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 56.0
+offset_top = 160.0
+offset_right = 400.0
+offset_bottom = 320.0
+theme_override_constants/h_separation = 16
+columns = 2
+
 [connection signal="pressed" from="Button" to="." method="_on_button_pressed"]
