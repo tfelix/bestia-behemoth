@@ -399,4 +399,14 @@ class InventoryTest {
     assertEquals(listOf(null to 2, alice to 1), taken?.map { it.provenance to it.amount })
     assertEquals(listOf(alice to 2), inventory.getItems().map { it.provenance to it.amount })
   }
+
+  @Test
+  fun `the client is told who crafted a pile`() {
+    val alice = ItemProvenance(crafterName = "Alice", worldName = "Genesis")
+    inventory.addItem(Inventory.Item(itemId = 1, amount = 2, provenance = alice))
+
+    val sent = inventory.toEntityMessage(entityId = 5L, removed = false) as InventoryComponentSMSG
+
+    assertEquals(alice, sent.items.single().provenance)
+  }
 }

@@ -1,5 +1,6 @@
 package net.bestia.zone.item.ecs
 
+import net.bestia.zone.item.ItemProvenance
 import net.bestia.zone.item.stat.StatValue
 import net.bestia.zone.ecs.core.DirtyFlag
 import net.bestia.zone.sync.Dirtyable
@@ -47,7 +48,8 @@ data class Equipment(
     val slots: Int = 0,
 
     val itemLevel: Int = 0,
-    val rolledStats: List<StatValue> = emptyList()
+    val rolledStats: List<StatValue> = emptyList(),
+    val provenance: ItemProvenance? = null
   )
 
   fun isSlotAvailable(slot: EquipmentSlot): Boolean = availableSlotMask.hasEquipSlot(slot)
@@ -99,7 +101,8 @@ data class Equipment(
           slots = item.slots,
           upgradeLevel = item.upgradeLevel,
           itemLevel = item.itemLevel,
-          rolledStats = item.rolledStats
+          rolledStats = item.rolledStats,
+          provenance = item.provenance
         )
       }
     )

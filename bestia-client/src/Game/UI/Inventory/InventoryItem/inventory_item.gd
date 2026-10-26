@@ -22,6 +22,10 @@ signal dragged_out()
 ## What every action on this held item names it by - see [member InventoryItemResource.player_item_id].
 @export var player_item_id: int = 0
 
+## Who crafted this pile or copy, and in which world, for the tooltip. Empty for an item nobody crafted.
+@export var crafted_by: String = ""
+@export var crafted_in: String = ""
+
 ## Wear on the backing instance. A [member max_durability] of 0 means this item does not wear at all,
 ## which is the case for every material, every consumable and any gear nobody gave a number to - so the
 ## bar stays hidden rather than showing a full one, since "cannot break" and "unbroken" are not the same
@@ -63,7 +67,7 @@ func _ready() -> void:
 	_icon.texture = item.get_icon()
 	_update_wear()
 	tooltip_text = ItemDetail.as_bbcode(
-		item, upgrade_level, durability, max_durability, slots, item_level, rolled_stats
+		item, upgrade_level, durability, max_durability, slots, item_level, rolled_stats, crafted_by, crafted_in
 	)
 
 

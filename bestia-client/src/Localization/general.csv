@@ -104,6 +104,7 @@ CAPTURE_FAILED,A Bestia broke free of your trap.
 BESTIA_PARTY_MASTER,Master
 BESTIA_PARTY_EMPTY_SLOT,Empty
 BESTIA_PARTY_EMPTY_SLOT_HINT,Catch a Bestia to fill the empty slot.
+ITEM_CRAFTED_BY,Crafted by {crafter} in {world}
 ITEM_STAT_STR,{value} STR
 ITEM_STAT_AGI,{value} AGI
 ITEM_STAT_VIT,{value} VIT

@@ -67,5 +67,7 @@ data class TradeStateSMSG(
       .setUpgradeLevel(item.upgradeLevel)
       .setItemLevel(item.itemLevel)
       .addAllRolledStats(item.rolledStats.map { it.toProto() })
+      .setCraftedBy(item.provenance?.crafterName.orEmpty())
+      .setCraftedIn(item.provenance?.worldName.orEmpty())
       .build()
 }

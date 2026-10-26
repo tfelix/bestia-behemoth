@@ -27,19 +27,20 @@ namespace Bnet {
             "CjFtZXNzYWdlcy9jb21wb25lbnQvaW52ZW50b3J5X2NvbXBvbmVudF9zbXNn",
             "LnByb3RvEgRibmV0GihtZXNzYWdlcy9jb21wb25lbnQvaXRlbV9zdGF0X3Zh",
             "bHVlLnByb3RvIkIKFkludmVudG9yeUNvbXBvbmVudFNNU0cSIgoFaXRlbXMY",
-            "AiADKAsyEy5ibmV0LkludmVudG9yeUl0ZW1KBAgBEAIi/gEKDUludmVudG9y",
+            "AiADKAsyEy5ibmV0LkludmVudG9yeUl0ZW1KBAgBEAIipgIKDUludmVudG9y",
             "eUl0ZW0SDwoHaXRlbV9pZBgBIAEoDRIRCgl1bmlxdWVfaWQYAiABKAQSDgoG",
             "YW1vdW50GAMgASgNEhAKCGVxdWlwcGVkGAQgASgIEhIKCmR1cmFiaWxpdHkY",
             "BSABKA0SFgoObWF4X2R1cmFiaWxpdHkYBiABKA0SDQoFc2xvdHMYByABKA0S",
             "FQoNdXBncmFkZV9sZXZlbBgIIAEoDRISCgppdGVtX2xldmVsGAkgASgNEikK",
             "DHJvbGxlZF9zdGF0cxgKIAMoCzITLmJuZXQuSXRlbVN0YXRWYWx1ZRIWCg5w",
-            "bGF5ZXJfaXRlbV9pZBgLIAEoBEI0ChVuZXQuYmVzdGlhLmJuZXQucHJvdG9C",
-            "G0ludmVudG9yeUNvbXBvbmVudFNNU0dQcm90b2IGcHJvdG8z"));
+            "bGF5ZXJfaXRlbV9pZBgLIAEoBBISCgpjcmFmdGVkX2J5GAwgASgJEhIKCmNy",
+            "YWZ0ZWRfaW4YDSABKAlCNAoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQhtJbnZl",
+            "bnRvcnlDb21wb25lbnRTTVNHUHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Bnet.ItemStatValueReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.InventoryComponentSMSG), global::Bnet.InventoryComponentSMSG.Parser, new[]{ "Items" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.InventoryItem), global::Bnet.InventoryItem.Parser, new[]{ "ItemId", "UniqueId", "Amount", "Equipped", "Durability", "MaxDurability", "Slots", "UpgradeLevel", "ItemLevel", "RolledStats", "PlayerItemId" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.InventoryItem), global::Bnet.InventoryItem.Parser, new[]{ "ItemId", "UniqueId", "Amount", "Equipped", "Durability", "MaxDurability", "Slots", "UpgradeLevel", "ItemLevel", "RolledStats", "PlayerItemId", "CraftedBy", "CraftedIn" }, null, null, null, null)
           }));
     }
     #endregion
@@ -283,6 +284,8 @@ namespace Bnet {
       itemLevel_ = other.itemLevel_;
       rolledStats_ = other.rolledStats_.Clone();
       playerItemId_ = other.playerItemId_;
+      craftedBy_ = other.craftedBy_;
+      craftedIn_ = other.craftedIn_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -445,6 +448,33 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "crafted_by" field.</summary>
+    public const int CraftedByFieldNumber = 12;
+    private string craftedBy_ = "";
+    /// <summary>
+    /// Who crafted this pile or copy, and in which world. Both empty for an item nobody crafted.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string CraftedBy {
+      get { return craftedBy_; }
+      set {
+        craftedBy_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "crafted_in" field.</summary>
+    public const int CraftedInFieldNumber = 13;
+    private string craftedIn_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string CraftedIn {
+      get { return craftedIn_; }
+      set {
+        craftedIn_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -471,6 +501,8 @@ namespace Bnet {
       if (ItemLevel != other.ItemLevel) return false;
       if(!rolledStats_.Equals(other.rolledStats_)) return false;
       if (PlayerItemId != other.PlayerItemId) return false;
+      if (CraftedBy != other.CraftedBy) return false;
+      if (CraftedIn != other.CraftedIn) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -489,6 +521,8 @@ namespace Bnet {
       if (ItemLevel != 0) hash ^= ItemLevel.GetHashCode();
       hash ^= rolledStats_.GetHashCode();
       if (PlayerItemId != 0UL) hash ^= PlayerItemId.GetHashCode();
+      if (CraftedBy.Length != 0) hash ^= CraftedBy.GetHashCode();
+      if (CraftedIn.Length != 0) hash ^= CraftedIn.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -548,6 +582,14 @@ namespace Bnet {
         output.WriteRawTag(88);
         output.WriteUInt64(PlayerItemId);
       }
+      if (CraftedBy.Length != 0) {
+        output.WriteRawTag(98);
+        output.WriteString(CraftedBy);
+      }
+      if (CraftedIn.Length != 0) {
+        output.WriteRawTag(106);
+        output.WriteString(CraftedIn);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -599,6 +641,14 @@ namespace Bnet {
         output.WriteRawTag(88);
         output.WriteUInt64(PlayerItemId);
       }
+      if (CraftedBy.Length != 0) {
+        output.WriteRawTag(98);
+        output.WriteString(CraftedBy);
+      }
+      if (CraftedIn.Length != 0) {
+        output.WriteRawTag(106);
+        output.WriteString(CraftedIn);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -639,6 +689,12 @@ namespace Bnet {
       size += rolledStats_.CalculateSize(_repeated_rolledStats_codec);
       if (PlayerItemId != 0UL) {
         size += 1 + pb::CodedOutputStream.ComputeUInt64Size(PlayerItemId);
+      }
+      if (CraftedBy.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(CraftedBy);
+      }
+      if (CraftedIn.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(CraftedIn);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -682,6 +738,12 @@ namespace Bnet {
       rolledStats_.Add(other.rolledStats_);
       if (other.PlayerItemId != 0UL) {
         PlayerItemId = other.PlayerItemId;
+      }
+      if (other.CraftedBy.Length != 0) {
+        CraftedBy = other.CraftedBy;
+      }
+      if (other.CraftedIn.Length != 0) {
+        CraftedIn = other.CraftedIn;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -746,6 +808,14 @@ namespace Bnet {
             PlayerItemId = input.ReadUInt64();
             break;
           }
+          case 98: {
+            CraftedBy = input.ReadString();
+            break;
+          }
+          case 106: {
+            CraftedIn = input.ReadString();
+            break;
+          }
         }
       }
     #endif
@@ -807,6 +877,14 @@ namespace Bnet {
           }
           case 88: {
             PlayerItemId = input.ReadUInt64();
+            break;
+          }
+          case 98: {
+            CraftedBy = input.ReadString();
+            break;
+          }
+          case 106: {
+            CraftedIn = input.ReadString();
             break;
           }
         }

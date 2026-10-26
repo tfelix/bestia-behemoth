@@ -81,6 +81,10 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
     /// </summary>
     [Export] public Godot.Collections.Array<ItemStatValue> RolledStats { get; set; } = [];
 
+    /// <summary>Who crafted this copy and in which world; both empty for an item nobody crafted.</summary>
+    [Export] public string CraftedBy { get; set; } = "";
+    [Export] public string CraftedIn { get; set; } = "";
+
     public static EquippedItem FromProto(global::Bnet.EquippedItem protoItem)
     {
       return new EquippedItem
@@ -93,7 +97,9 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
         Slots = protoItem.Slots,
         UpgradeLevel = protoItem.UpgradeLevel,
         ItemLevel = protoItem.ItemLevel,
-        RolledStats = ItemStatValue.FromProto(protoItem.RolledStats)
+        RolledStats = ItemStatValue.FromProto(protoItem.RolledStats),
+        CraftedBy = protoItem.CraftedBy,
+        CraftedIn = protoItem.CraftedIn
       };
     }
   }

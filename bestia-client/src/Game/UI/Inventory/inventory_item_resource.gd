@@ -9,6 +9,10 @@ class_name InventoryItemResource
 
 ## Id of the backing item instance, or 0 for a plain pile.
 @export var unique_id: int = 0
+
+## Who crafted this pile or copy, and in which world. Empty for an item nobody crafted.
+@export var crafted_by: String = ""
+@export var crafted_in: String = ""
 @export var item: ItemResource
 @export var equipped: bool = false
 
