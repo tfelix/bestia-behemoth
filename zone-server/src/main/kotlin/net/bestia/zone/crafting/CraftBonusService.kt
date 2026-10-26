@@ -1,5 +1,6 @@
 package net.bestia.zone.crafting
 
+import net.bestia.zone.battle.status.StatusValues
 import net.bestia.zone.skill.ecs.KnownSkills
 import net.bestia.zone.skill.SkillId
 import net.bestia.zone.skill.persistence.SkillRepository
@@ -62,9 +63,11 @@ class CraftBonusService(
    * Which bonuses apply is decided by the recipe's *required skill*, because that is what says which kind of
    * work this is - a recipe carrying its own category field would be a second answer to the same question,
    * and the two would drift.
+   *
+   * [attributes] are the crafter's own, whoever crafts: a master, or a bestia working with its master's skills.
    */
-  fun successChance(known: KnownSkills?, recipe: Recipe): Float {
-    val base = recipe.baseSuccessChance
+  fun successChance(known: KnownSkills?, recipe: Recipe, attributes: StatusValues?): Float {
+    val base = recipe.baseSuccessChance + attributeBonus(attributes)
     if (known == null) return base.coerceIn(0f, 1f)
 
     val bonus = when (recipe.requiredSkillId) {
@@ -92,6 +95,13 @@ class CraftBonusService(
     }
 
     return (base + bonus).coerceIn(0f, 1f)
+  }
+
+  /** A steady hand and a calm mind: +2% per 10 DEX and +1% per 10 WIL, for every kind of craft. */
+  private fun attributeBonus(attributes: StatusValues?): Float {
+    if (attributes == null) return 0f
+
+    return (attributes.dexterity / 10) * DEX_STEP + (attributes.willpower / 10) * WIL_STEP
   }
 
   /**
@@ -214,6 +224,9 @@ class CraftBonusService(
   private fun at(table: List<Int>, level: Int): Int = at(table, level, 0)
 
   companion object {
+    private const val DEX_STEP = 0.02f
+    private const val WIL_STEP = 0.01f
+
     /** See [craftSeconds]. */
     const val MIN_CRAFT_SECONDS = 0.1f
 
