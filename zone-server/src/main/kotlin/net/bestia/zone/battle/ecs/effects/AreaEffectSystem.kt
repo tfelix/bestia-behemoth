@@ -97,7 +97,11 @@ class AreaEffectSystem(
     // AoiLayer.ALL on purpose: statics are in the same index, and a fire that spares the trees is
     // the defect.
     val edge = effect.radiusTiles * 2
-    val inside = entityAOIService.queryEntitiesInCube(center, edge, AoiLayer.ALL)
+    val footprint = effect.footprint
+    val inside = LinkedHashSet<EntityId>()
+    entityAOIService.forEachInCube(center, edge, AoiLayer.ALL) { id, x, y, _ ->
+      if (footprint == null || footprint.covers(x, y)) inside.add(id)
+    }
 
     // Deferred for the reason SkillExecutionService.applyResult defers: `World.add` is itself
     // deferred while a system iterates, so staging inline would let two sources landing on one target

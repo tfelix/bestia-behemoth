@@ -30,14 +30,12 @@ import org.springframework.stereotype.Component
  * writing an existing entity's `Position` is what lets `GroundFireSystem` declare `AreaEffect` alone instead of
  * conflicting with half the engine over the position store.
  *
- * ### The cube, and what it costs
+ * ### The cube only bounds the search
  *
- * An `AreaEffect` is an axis-aligned cube with no distance filter - `Ember`'s own KDoc admits the same thing:
- * *"they are still a circle and a square"*. So a cube over a fire's bounding box also catches somebody
- * standing on unburnt ground inside it, which for a ring or crescent front is ground that is genuinely not on
- * fire. That is the accepted price of reusing the engine; the escalation, if it reads badly, is a mask-filtered
- * pass here, which would then be ~40 lines duplicating `applyTick` for one honest reason - the shape of the
- * region.
+ * An `AreaEffect` is an axis-aligned cube around the ignition point, as wide as the fire ever reached. That box
+ * holds a lot of ground that is not burning: everything behind the front, and on the far side of the origin
+ * from a wind-driven fire. So the fire is also the effect's [net.bestia.zone.battle.ecs.effects.AreaFootprint],
+ * and only what stands on a burning cell is hurt.
  */
 @Component
 class GroundFireDamage(
@@ -91,7 +89,8 @@ class GroundFireDamage(
         damagePerTick = config.damagePerTick,
         tickIntervalSeconds = config.damageIntervalSeconds,
         remainingTicks = REFRESH_TICKS,
-        element = Element.FIRE
+        element = Element.FIRE,
+        footprint = fire
       )
     )
   }
