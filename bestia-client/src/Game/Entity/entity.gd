@@ -150,7 +150,11 @@ var _posture: String = _POSTURE_NONE
 const _CORRECTION_IGNORE: float = 0.4    # metres of desync trusted as latency, not error
 const _CORRECTION_TIME: float = 0.25     # seconds to bleed a correction back in
 const _CORRECTION_MAX_BOOST: float = 2.5 # cap on extra metres/sec while catching up
-const _SNAP_METRES: float = 2.5          # desync this large just snaps
+const _SNAP_METRES: float = 8.0          # desync this large just snaps; anything under it is bled in
+# How much of its own pace a walk gives up to let the server catch up. Stopping dead for the whole error read as
+# a stutter, and the server's report of a walk is often just late: a tick that ran long sends a position it
+# computed before the stall, which reads as the client being ahead although nothing is wrong with it.
+const _CORRECTION_SLOWDOWN: float = 0.5
 const _WARN_CORRECTION_METRES: float = 1.0  # a correction this large is logged, see _warn_correction
 # Shortest an unconfirmed prediction may be given, whatever the measured round trip says. A local server
 # reports well under a millisecond, and letting the grace follow it down would abandon a good prediction
@@ -240,7 +244,7 @@ func _update_movement(delta: float) -> void:
 	elif absf(_error) > 0.0001:
 		# Fold part of the error into this advance, clamped so we never travel backwards.
 		var corr := _error * minf(1.0, delta / _CORRECTION_TIME)
-		corr = clampf(corr, -_speed * delta, _CORRECTION_MAX_BOOST * delta)
+		corr = clampf(corr, -_speed * _CORRECTION_SLOWDOWN * delta, _CORRECTION_MAX_BOOST * delta)
 		step += corr
 		_error -= corr
 
