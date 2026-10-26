@@ -37,6 +37,7 @@ import kotlin.math.abs
 @Service
 class WeatherPublisher(
   private val weatherService: WeatherService,
+  private val groundWeather: GroundWeather,
   private val chunkService: ChunkService,
   private val out: OutMessageHandler,
   private val config: WeatherConfig,
@@ -92,7 +93,8 @@ class WeatherPublisher(
       weatherService.forecast(voxelX, voxelY, ground, weatherSenseLevel * FORESIGHT_SECONDS_PER_LEVEL)
     }
 
-    val message = WeatherSMSG.of(at.regionId, at.state, at.temperature, hazardVoxel, forecast)
+    val cover = groundWeather.at(voxelX, voxelY, ground)
+    val message = WeatherSMSG.of(at.regionId, at.state, at.temperature, hazardVoxel, forecast, cover)
 
     val now = System.currentTimeMillis()
     val previous = lastSent[accountId]
@@ -143,7 +145,19 @@ class WeatherPublisher(
         abs(previous.intensity - current.intensity) >= config.intensityBand ||
         abs(previous.temperatureCelsius - current.temperatureCelsius) >= config.temperatureBand ||
         abs(previous.windSpeed - current.windSpeed) >= config.windBand ||
-        (previous.hazardX != current.hazardX || previous.hazardY != current.hazardY)
+        (previous.hazardX != current.hazardX || previous.hazardY != current.hazardY) ||
+        groundChanged(previous.ground, current.ground)
+
+  private fun groundChanged(previous: GroundCover, current: GroundCover): Boolean {
+    return abs(previous.wetness - current.wetness) >= config.wetnessBand ||
+        elevationMoved(previous.snowLine, current.snowLine) ||
+        elevationMoved(previous.snowFull, current.snowFull)
+  }
+
+  private fun elevationMoved(previous: Double?, current: Double?): Boolean {
+    if (previous == null || current == null) return previous != current
+    return abs(previous - current) >= config.snowLineBand
+  }
 
   /**
    * A counter stuck at zero is the cheapest possible detector for a subsystem that is complete, tested and

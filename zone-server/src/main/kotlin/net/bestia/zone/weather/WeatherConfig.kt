@@ -38,5 +38,10 @@ data class WeatherConfig(
   val temperatureBand: Double = 1.0,
 
   /** Metres per second. */
-  val windBand: Double = 1.5
+  val windBand: Double = 1.5,
+
+  val wetnessBand: Double = 0.1,
+
+  /** Metres, for both snow elevations. */
+  val snowLineBand: Double = 25.0
 )
