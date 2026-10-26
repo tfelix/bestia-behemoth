@@ -603,6 +603,9 @@ func _release_visual() -> void:
 
 ## Pushes state that arrived before this visual existed into it. Only health needs it so far.
 func _seed_visual(visual: Node) -> void:
+	if ConnectionManager.weather != null:
+		# Buildings keep a cap of snow; anything that moves only frosts over.
+		ConnectionManager.weather.ExposeToWeather(visual, not visual is StructureVisual)
 	if _last_health_msg != null and visual.has_method("update_health"):
 		visual.update_health(_last_health_msg)
 	if _last_worn_gear_msg != null and visual.has_method("update_worn_gear"):

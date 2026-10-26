@@ -314,6 +314,7 @@ namespace BestiaBehemothClient.Game.World
 
       node.Transform = new Transform3D(basis, GroundedPositionOf(entry));
       container.AddChild(node);
+      WeatherOverlay.Register(node, moving: false);
 
       Record(key, entry.EntityId, new Drawn { Node = node });
     }
@@ -420,6 +421,7 @@ namespace BestiaBehemothClient.Game.World
       }
 
       var node = new MultiMeshInstance3D { Multimesh = multi };
+      var swaysInWind = false;
 
       if (art != null)
       {
@@ -427,6 +429,7 @@ namespace BestiaBehemothClient.Game.World
         if (material != null)
         {
           node.MaterialOverride = material;
+          swaysInWind = true;
         }
 
         // The wind in grass.gdshader moves vertices that Godot's own bounds know nothing about, so a leaning
@@ -437,6 +440,13 @@ namespace BestiaBehemothClient.Game.World
       }
 
       container.AddChild(node);
+
+      // An overlay cannot follow vertices its own shader does not move, so the swaying kinds read the weather
+      // in grass.gdshader instead.
+      if (!swaysInWind)
+      {
+        WeatherOverlay.Register(node, moving: false);
+      }
     }
 
     /// <summary>
