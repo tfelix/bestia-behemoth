@@ -1,6 +1,10 @@
 package net.bestia.zone.item.ecs
 
 import net.bestia.zone.item.stat.ItemStatCatalog
+import net.bestia.zone.item.ItemProvenance
+import net.bestia.zone.item.stat.ItemRoll
+import net.bestia.zone.item.stat.ItemStat
+import net.bestia.zone.item.stat.StatValue
 import io.mockk.every
 import io.mockk.andThenJust
 import io.mockk.Runs
@@ -189,6 +193,44 @@ class ObtainItemIntentSystemTest {
       )
     }
     verifyNoItemGranted()
+  }
+
+  /** A copy forged by a smith with a full bag is still the copy they forged, by them, once picked up. */
+  @Test
+  fun `a forged copy that overflows keeps its roll and its maker on the ground`() {
+    setUp()
+    stub(boulder)
+    val entity = createCarrier(capacityMax = 50, pos = Vec3L(3, 4, 0))
+    val roll = ItemRoll(stats = listOf(StatValue(ItemStat.STR, 3)), sockets = 1, itemLevel = 30)
+
+    world.modify(entity) { id ->
+      add(id, ObtainItemIntent.CreateItemIntent(itemId = boulder.id, amount = 1, roll = roll, provenance = ALICE))
+    }
+    world.tick(0.1f)
+
+    verify {
+      lootItemEntitySpawner.spawnLootItem(
+        world = world, itemId = boulder.id, amount = 1, pos = Vec3L(3, 4, 0), provenance = ALICE, roll = roll
+      )
+    }
+  }
+
+  @Test
+  fun `a picked up pile keeps its maker and roll`() {
+    setUp()
+    stub(sword)
+    val roll = ItemRoll(stats = emptyList(), sockets = 0, itemLevel = 20)
+    val looter = createCarrier(capacityMax = 2475, pos = Vec3L(0, 0, 0))
+    val groundStack = world.createEntity { id ->
+      add(id, Position.fromVec3(Vec3L(0, 0, 0)))
+      add(id, GroundItemStack(itemId = sword.id, amount = 2, provenance = ALICE, roll = roll))
+    }
+
+    world.modify(looter) { id -> add(id, ObtainItemIntent.LootItemIntent(sourceEntityItemStackId = groundStack)) }
+    world.tick(0.1f)
+
+    assertEquals(ALICE, world.get(looter, Inventory::class)!!.getItem(sword.id.toInt())?.provenance)
+    verify(timeout = 1000) { inventoryService.grantToOwner(MASTER_ID, null, sword.id, 2, 0L, roll, ALICE, emptyList()) }
   }
 
   @Test
@@ -413,5 +455,6 @@ class ObtainItemIntentSystemTest {
     private const val ACCOUNT_ID = 100L
     private const val MASTER_ID = 55L
     private const val PLAYER_BESTIA_ID = 21L
+    private val ALICE = ItemProvenance(crafterName = "Alice", worldName = "Genesis")
   }
 }

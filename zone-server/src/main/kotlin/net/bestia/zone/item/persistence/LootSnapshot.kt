@@ -1,5 +1,7 @@
 package net.bestia.zone.item.persistence
 
+import net.bestia.zone.item.ItemProvenance
+import net.bestia.zone.item.stat.ItemRoll
 import net.bestia.zone.persistence.EntitySnapshot
 import net.bestia.zone.util.EntityId
 import java.time.Instant
@@ -17,4 +19,6 @@ data class LootSnapshot(
   val despawnAt: Instant? = null,
   /** 0 for an unharmed item, and for rows written before items could be damaged. */
   val integrityLost: Int = 0,
+  val provenance: ItemProvenance? = null,
+  val roll: ItemRoll? = null,
 ) : EntitySnapshot

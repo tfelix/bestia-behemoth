@@ -1,5 +1,7 @@
 package net.bestia.zone.item.loot
 
+import net.bestia.zone.item.ItemProvenance
+import net.bestia.zone.item.stat.ItemRoll
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.config.WorldRulesConfig
 import net.bestia.zone.ecs.core.World
@@ -40,6 +42,8 @@ class LootItemEntitySpawner(
     despawnAt: Instant? = null,
     integrityLost: Int = 0,
     lootOwner: Long? = null,
+    provenance: ItemProvenance? = null,
+    roll: ItemRoll? = null,
   ): EntityId {
     val configure: World.(EntityId) -> Unit = { id ->
       add(id, Position.fromVec3(pos))
@@ -49,7 +53,9 @@ class LootItemEntitySpawner(
         GroundItemStack(
           itemId = itemId,
           amount = amount,
-          uniqueId = uniqueId
+          uniqueId = uniqueId,
+          provenance = provenance,
+          roll = roll
         )
       )
       add(id, GroundItemIntegrity(lost = integrityLost))

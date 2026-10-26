@@ -46,6 +46,8 @@ class ObtainItemIntentSystem(
     val item: ItemTemplateRegistry.Template,
     val amount: Int,
     val uniqueId: Long,
+    val provenance: ItemProvenance?,
+    val roll: ItemRoll?,
   )
 
   /** Whose container the item is saved to: the master's own when [playerBestiaId] is null. */
@@ -123,7 +125,7 @@ class ObtainItemIntentSystem(
       // EntityVisual was synced to.
       groundStackRemoval.remove(this, itemStackEntityId)
 
-      ClaimedLoot(item, stack.amount, stack.uniqueId)
+      ClaimedLoot(item, stack.amount, stack.uniqueId, stack.provenance, stack.roll)
     }
 
     if (claimed == null) {
@@ -131,7 +133,7 @@ class ObtainItemIntentSystem(
       return
     }
 
-    grantItem(world, entityId, claimed.item, claimed.amount, claimed.uniqueId)
+    grantItem(world, entityId, claimed.item, claimed.amount, claimed.uniqueId, claimed.roll, claimed.provenance)
   }
 
   /** Protected kill loot is its killer's alone; a master and its bestias share one account. */
@@ -154,8 +156,8 @@ class ObtainItemIntentSystem(
     }
 
     // Over capacity (or the entity has no inventory at all):
-    // drop it on the ground at the entity's feet instead of losing it. A ground stack carries no instance
-    // state, so a forged copy dropped here loses its roll - the same gap loot drops have.
+    // drop it on the ground at the entity's feet instead of losing it. The roll and the maker go along, so the
+    // copy made on pickup is the one that was forged.
     val pos = world.get(entityId, Position::class)?.toVec3L()
     if (pos == null) {
       LOG.warn { "Entity $entityId can not carry item ${intent.itemId} and has no Position to drop it at; item lost" }
@@ -167,6 +169,8 @@ class ObtainItemIntentSystem(
       itemId = item.id,
       amount = intent.amount,
       pos = pos,
+      provenance = intent.provenance,
+      roll = intent.roll,
     )
   }
 

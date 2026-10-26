@@ -52,6 +52,8 @@ class LootItemEntityPersister(
       x = pos.x, y = pos.y, z = pos.z,
       despawnAt = world.get(id, GroundItemDecay::class)?.despawnAt,
       integrityLost = world.get(id, GroundItemIntegrity::class)?.lost ?: 0,
+      provenance = stack.provenance,
+      roll = stack.roll,
     )
   }
 
@@ -86,6 +88,8 @@ class LootItemEntityPersister(
         entityId = snap.entityId,
         despawnAt = snap.despawnAt,
         integrityLost = snap.integrityLost,
+        provenance = snap.provenance,
+        roll = snap.roll,
       )
       loaded++
     }

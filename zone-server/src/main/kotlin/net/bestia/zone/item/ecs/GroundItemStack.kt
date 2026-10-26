@@ -1,6 +1,8 @@
 package net.bestia.zone.item.ecs
 
 import net.bestia.zone.ecs.core.Component
+import net.bestia.zone.item.ItemProvenance
+import net.bestia.zone.item.stat.ItemRoll
 
 /**
  * The item an entity lying on the ground actually is: what, how many, and which
@@ -15,5 +17,14 @@ data class GroundItemStack(
   val amount: Int,
 
   /** Id of the backing `ItemInstance`; 0 means a plain item with no instance. */
-  val uniqueId: Long = 0
+  val uniqueId: Long = 0,
+
+  /** Who crafted it and where, kept so a pile picked back up lands on its own maker's pile. */
+  val provenance: ItemProvenance? = null,
+
+  /**
+   * What a forged copy rolled, for one that has no instance row yet: it overflowed its crafter's bag. Picking it
+   * up makes the row with this roll.
+   */
+  val roll: ItemRoll? = null,
 ) : Component

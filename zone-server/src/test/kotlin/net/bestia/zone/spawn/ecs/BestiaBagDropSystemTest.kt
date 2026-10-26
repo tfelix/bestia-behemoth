@@ -62,7 +62,7 @@ class BestiaBagDropSystemTest {
   private fun databaseGivesUpTheBag() {
     every { inventoryService.removeAllFreeFromOwner(MASTER_ID, PLAYER_BESTIA_ID) } returns listOf(
       ItemContainer.DetachedItem(arrow, 10, instance = null),
-      ItemContainer.DetachedItem(sword, 1, mockk<ItemInstance> { every { id } returns SWORD_INSTANCE }),
+      ItemContainer.DetachedItem(sword, 1, ItemInstance(item = sword, id = SWORD_INSTANCE)),
     )
   }
 
