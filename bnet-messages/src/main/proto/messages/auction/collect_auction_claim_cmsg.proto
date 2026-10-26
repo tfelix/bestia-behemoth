@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "CollectAuctionClaimCmsgProto";
+
+// Takes what the market owes into the inventory. Answered by AuctionClaimsSMSG.
+message CollectAuctionClaimCMSG {
+  uint64 house_entity_id = 1;
+
+  // 0 collects everything.
+  uint64 claim_id = 2;
+}

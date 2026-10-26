@@ -6,11 +6,18 @@ import net.bestia.worldgen.civ.SettlementSpawnPoints
 import net.bestia.zone.account.persistence.MasterRepository
 import net.bestia.zone.account.persistence.findByIdOrThrow
 import net.bestia.zone.auction.AuctionCategory
+import net.bestia.zone.auction.AuctionClaimsSMSG
+import net.bestia.zone.auction.AuctionPurchasedSMSG
 import net.bestia.zone.auction.AuctionFees
 import net.bestia.zone.auction.AuctionListingsSMSG
 import net.bestia.zone.auction.AuctionQuery
+import net.bestia.zone.auction.net.BuyAuctionListingCMSG
+import net.bestia.zone.auction.net.CancelAuctionListingCMSG
+import net.bestia.zone.auction.net.CollectAuctionClaimCMSG
 import net.bestia.zone.auction.net.ListAuctionItemCMSG
+import net.bestia.zone.auction.net.RequestAuctionClaimsCMSG
 import net.bestia.zone.auction.net.SearchAuctionsCMSG
+import net.bestia.zone.auction.persistence.AuctionClaimRepository
 import net.bestia.zone.auction.persistence.AuctionListingRepository
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.economy.CommodityItems
@@ -69,6 +76,9 @@ class AuctionScenarios : BestiaNoSocketScenario() {
   private lateinit var listings: AuctionListingRepository
 
   @Autowired
+  private lateinit var claims: AuctionClaimRepository
+
+  @Autowired
   private lateinit var commodityItems: CommodityItems
 
   @Autowired
@@ -79,10 +89,15 @@ class AuctionScenarios : BestiaNoSocketScenario() {
 
   private val player get() = clientPlayer1.connectedPlayerId
 
+  private val buyer get() = clientPlayer2.connectedPlayerId
+
   private var house: EntityId = 0L
 
+  /** Where the buyer stands, so both players are in reach of a house of the same market. */
+  private var buyersHouse: EntityId = 0L
+
   @BeforeAll
-  fun placeHouse() {
+  fun placeHouses() {
     val hallPropId = world.read {
       SettlementSpawnPoints.choose(worldService.generated, MasterSpawnPointService.HOMES_HELD)
         .take(MasterSpawnPointService.HOMES_OFFERED)
@@ -91,11 +106,16 @@ class AuctionScenarios : BestiaNoSocketScenario() {
         .propId
     }
 
-    val playerAt = world.read { get(masterEntity(), Position::class)!!.toVec3L() }
+    house = houseBeside(player, hallPropId)
+    buyersHouse = houseBeside(buyer, hallPropId)
+  }
 
-    house = world.read {
+  private fun houseBeside(accountId: Long, hallPropId: Long): EntityId {
+    val standingAt = world.read { get(masterEntity(accountId), Position::class)!!.toVec3L() }
+
+    return world.read {
       createEntity { id ->
-        add(id, PropPose(playerAt, yaw = 0f))
+        add(id, PropPose(standingAt, yaw = 0f))
         add(id, StaticVisual(StaticEntityKind.AUCTION_HOUSE, variant = 0, heightDm = 40, halfLengthDm = 60, halfWidthDm = 40))
         add(id, WorldObjectIdentity(hallPropId, latticeVersion = 1L))
       }
@@ -104,12 +124,16 @@ class AuctionScenarios : BestiaNoSocketScenario() {
 
   @AfterEach
   fun clearListings() {
-    TransactionTemplate(transactionManager).execute { listings.deleteAll() }
+    TransactionTemplate(transactionManager).execute {
+      listings.deleteAll()
+      claims.deleteAll()
+    }
   }
 
   @AfterAll
   fun removeHouse() {
     world.modify(house) { id -> destroy(id) }
+    world.modify(buyersHouse) { id -> destroy(id) }
   }
 
   @Test
@@ -182,6 +206,74 @@ class AuctionScenarios : BestiaNoSocketScenario() {
     assertEquals(OpError.AUCTION_OUT_OF_RANGE, error.code)
   }
 
+  @Test
+  fun `a buyer gets the goods and the seller collects the price`() {
+    val apple = itemRepository.findByIdentifierOrThrow("apple").id
+    val coin = commodityItems.coinItemId()!!
+    val listingId = listApples(amount = 2, price = 30L)
+
+    grant(coin, 30, buyer)
+    val buyerApples = durableAmount(apple, buyer)
+    val buyerCoins = durableAmount(coin, buyer)
+
+    clientPlayer2.sendMessage(BuyAuctionListingCMSG(buyer, buyersHouse, listingId))
+
+    val purchased = awaitValue { assertNotNull(clientPlayer2.tryGetLastReceived(AuctionPurchasedSMSG::class)) }
+    assertEquals(listingId, purchased.listingId)
+    assertEquals(buyerApples + 2, durableAmount(apple, buyer))
+    assertEquals(buyerCoins - 30, durableAmount(coin, buyer))
+    await { assertEquals(buyerCoins - 30, liveAmount(coin, buyer)) }
+
+    clientPlayer1.sendMessage(RequestAuctionClaimsCMSG(player, house))
+    val owed = awaitValue { assertNotNull(clientPlayer1.tryGetLastReceived(AuctionClaimsSMSG::class)) }
+    assertEquals(30L, owed.claims.single().coins)
+
+    val sellerCoins = durableAmount(coin)
+    clientPlayer1.clearMessages()
+    clientPlayer1.sendMessage(CollectAuctionClaimCMSG(player, house, claimId = 0L))
+
+    await { assertTrue(assertNotNull(clientPlayer1.tryGetLastReceived(AuctionClaimsSMSG::class)).claims.isEmpty()) }
+    assertEquals(sellerCoins + 30, durableAmount(coin))
+  }
+
+  @Test
+  fun `a listing bought twice is sold once`() {
+    val listingId = listApples(amount = 1, price = 10L)
+    grant(commodityItems.coinItemId()!!, 20, buyer)
+
+    clientPlayer2.sendMessage(BuyAuctionListingCMSG(buyer, buyersHouse, listingId))
+    awaitValue { assertNotNull(clientPlayer2.tryGetLastReceived(AuctionPurchasedSMSG::class)) }
+    clientPlayer2.sendMessage(BuyAuctionListingCMSG(buyer, buyersHouse, listingId))
+
+    val error = awaitValue { assertNotNull(clientPlayer2.tryGetLastReceived(OperationErrorSMSG::class)) }
+    assertEquals(OpError.AUCTION_LISTING_GONE, error.code)
+  }
+
+  @Test
+  fun `taking a listing down gives the goods back`() {
+    val apple = itemRepository.findByIdentifierOrThrow("apple").id
+    val listingId = listApples(amount = 2, price = 10L)
+    val applesListed = durableAmount(apple)
+    clientPlayer1.clearMessages()
+
+    clientPlayer1.sendMessage(CancelAuctionListingCMSG(player, house, listingId))
+
+    await { assertTrue(assertNotNull(clientPlayer1.tryGetLastReceived(AuctionListingsSMSG::class)).listings.isEmpty()) }
+    assertEquals(applesListed + 2, durableAmount(apple))
+  }
+
+  /** @return the new listing's id */
+  private fun listApples(amount: Int, price: Long): Long {
+    val apple = itemRepository.findByIdentifierOrThrow("apple").id
+    grant(apple, amount)
+    grant(commodityItems.coinItemId()!!, AuctionFees.listingFee(price).toInt())
+    clientPlayer1.clearMessages()
+
+    clientPlayer1.sendMessage(ListAuctionItemCMSG(player, house, heldPileOf(apple), amount = amount, price = price))
+
+    return awaitListings { it.mine && it.listings.isNotEmpty() }.listings.single().listingId
+  }
+
   private fun search(category: AuctionCategory?, itemIds: List<Long>): AuctionListingsSMSG {
     clientPlayer1.clearMessages()
     clientPlayer1.sendMessage(
@@ -199,21 +291,21 @@ class AuctionScenarios : BestiaNoSocketScenario() {
     }
   }
 
-  private fun masterEntity(): EntityId {
-    return connectionInfoService.getSelectedMasterEntityId(player)
+  private fun masterEntity(accountId: Long = player): EntityId {
+    return connectionInfoService.getSelectedMasterEntityId(accountId)
   }
 
   /** Waits for both halves, so the listing finds in the container what the live copy shows. */
-  private fun grant(itemId: Long, amount: Int) {
-    val durableBefore = durableAmount(itemId)
-    world.modify(masterEntity()) { id -> add(id, ObtainItemIntent.CreateItemIntent(itemId, amount)) }
+  private fun grant(itemId: Long, amount: Int, accountId: Long = player) {
+    val durableBefore = durableAmount(itemId, accountId)
+    world.modify(masterEntity(accountId)) { id -> add(id, ObtainItemIntent.CreateItemIntent(itemId, amount)) }
 
-    await { assertTrue(durableAmount(itemId) >= durableBefore + amount) }
+    await { assertTrue(durableAmount(itemId, accountId) >= durableBefore + amount) }
   }
 
-  private fun liveAmount(itemId: Long): Int {
+  private fun liveAmount(itemId: Long, accountId: Long = player): Int {
     return world.read {
-      get(masterEntity(), Inventory::class)?.getItems()?.filter { it.itemId == itemId }?.sumOf { it.amount } ?: 0
+      get(masterEntity(accountId), Inventory::class)?.getItems()?.filter { it.itemId == itemId }?.sumOf { it.amount } ?: 0
     }
   }
 
@@ -222,9 +314,9 @@ class AuctionScenarios : BestiaNoSocketScenario() {
     return world.read { get(masterEntity(), Inventory::class)!!.getItems().first { it.itemId == itemId }.playerItemId }
   }
 
-  private fun durableAmount(itemId: Long): Int {
+  private fun durableAmount(itemId: Long, accountId: Long = player): Int {
     return TransactionTemplate(transactionManager).execute {
-      masterRepository.findByIdOrThrow(connectionInfoService.getMasterId(player)).container.slots
+      masterRepository.findByIdOrThrow(connectionInfoService.getMasterId(accountId)).container.slots
         .filter { it.isFree && it.template.id == itemId }
         .sumOf { it.amount }
     }!!
