@@ -57,6 +57,11 @@ namespace BestiaBehemothClient.Game.World
     private static readonly StringName Wetness = "weather_wetness";
     private static readonly StringName Snow = "weather_snow";
     private static readonly StringName Temperature = "weather_temperature";
+    private static readonly StringName SnowLineParameter = "weather_snow_line";
+    private static readonly StringName SnowFullParameter = "weather_snow_full";
+
+    /// <summary>A snow line no terrain reaches, which is how "no snow lying anywhere" reaches the shaders.</summary>
+    private const float NoSnowLine = 1.0e6f;
 
     /// <summary>
     /// The same vector <see cref="Wind"/> reports, as a global shader parameter.
@@ -124,6 +129,9 @@ namespace BestiaBehemothClient.Game.World
 
     [Export] public float ThawSeconds { get; set; } = 300.0f;
 
+    /// <summary>How long a moving snow line takes to settle where the server put it.</summary>
+    [Export] public float SnowLineSeconds { get; set; } = 30.0f;
+
     /// <summary>Air temperature follows the region rather than integrating, so it only needs smoothing.</summary>
     [Export] public float TemperatureSeconds { get; set; } = 10.0f;
 
@@ -186,6 +194,13 @@ namespace BestiaBehemothClient.Game.World
 
     [Export(PropertyHint.Range, "-40,45,0.5")] public float DebugTemperatureCelsius { get; set; } = 15.0f;
 
+    [Export(PropertyHint.Range, "0,1,0.01")] public float DebugGroundWetness { get; set; }
+
+    /// <summary>World heights where snow lies in patches and in full. Above all terrain means no snow.</summary>
+    [Export(PropertyHint.Range, "-500,6000,10")] public float DebugSnowLine { get; set; } = 6000.0f;
+
+    [Export(PropertyHint.Range, "-500,6000,10")] public float DebugSnowFull { get; set; } = 6000.0f;
+
     private float _wetness;
     private float _snow;
     private float _temperature = 15.0f;
@@ -193,6 +208,13 @@ namespace BestiaBehemothClient.Game.World
     private float _wetnessTarget;
     private float _snowTarget;
     private float _temperatureTarget = 15.0f;
+
+    // What the server replayed for the ground, in world units. The client's own wetness only ever adds to it.
+    private float _groundWetness;
+    private float _snowLineTarget = NoSnowLine;
+    private float _snowFullTarget = NoSnowLine;
+    private float _snowLine = NoSnowLine;
+    private float _snowFull = NoSnowLine;
 
     // The last reading the server sent, kept raw so the look can be rebuilt when a Debug knob is turned.
     private WeatherSMSG.Kind _kind = WeatherSMSG.Kind.Clear;
@@ -450,6 +472,12 @@ namespace BestiaBehemothClient.Game.World
       _windDirection = weather.WindDirection;
       _temperatureTarget = weather.TemperatureCelsius;
 
+      const float voxelSize = (float)WorldLayout.VoxelSizeMetres;
+      _groundWetness = weather.GroundWetness;
+      _snowLineTarget = weather.HasSnow ? weather.SnowLine * voxelSize : NoSnowLine;
+      // Kept above the line, so a shader's smoothstep between the two never has a zero-width edge.
+      _snowFullTarget = weather.HasSnow ? Mathf.Max(weather.SnowFull * voxelSize, _snowLineTarget + 1.0f) : NoSnowLine;
+
       if (_seeded)
       {
         return;
@@ -476,11 +504,12 @@ namespace BestiaBehemothClient.Game.World
     {
       var look = Look();
 
-      _wetnessTarget = look.GroundWetRate;
+      _wetnessTarget = Mathf.Max(look.GroundWetRate, TargetGroundWetness());
       _snowTarget = look.SnowRate;
 
       _wetness = _wetnessTarget;
       _snow = _snowTarget;
+      (_snowLine, _snowFull) = TargetSnowLine();
       _temperature = TargetTemperature();
 
       _rainRate = look.RainRate;
@@ -503,10 +532,13 @@ namespace BestiaBehemothClient.Game.World
 
       // Retargeted every frame rather than on message, so that turning a Debug knob in a running editor shows
       // up immediately - which is the only reason those knobs are worth having.
-      _wetnessTarget = look.GroundWetRate;
+      _wetnessTarget = Mathf.Max(look.GroundWetRate, TargetGroundWetness());
       _snowTarget = look.SnowRate;
 
       var wetness = Approach(_wetness, _wetnessTarget, step, WettingSeconds, DryingSeconds);
+      var (lineTarget, fullTarget) = TargetSnowLine();
+      var snowLine = ApproachSnowLine(_snowLine, lineTarget, step);
+      var snowFull = ApproachSnowLine(_snowFull, fullTarget, step);
       var snow = Approach(_snow, _snowTarget, step, SnowfallSeconds, ThawSeconds);
       var temperature = Approach(_temperature, TargetTemperature(), step, TemperatureSeconds, TemperatureSeconds);
 
@@ -540,6 +572,8 @@ namespace BestiaBehemothClient.Game.World
       // at a time and this runs every frame. The sky values above are read as properties and need no publish.
       if (Mathf.IsEqualApprox(wetness, _wetness) &&
           Mathf.IsEqualApprox(snow, _snow) &&
+          Mathf.IsEqualApprox(snowLine, _snowLine) &&
+          Mathf.IsEqualApprox(snowFull, _snowFull) &&
           Mathf.IsEqualApprox(temperature, _temperature) &&
           _gustedWind.IsEqualApprox(_publishedWind))
       {
@@ -548,6 +582,8 @@ namespace BestiaBehemothClient.Game.World
 
       _wetness = wetness;
       _snow = snow;
+      _snowLine = snowLine;
+      _snowFull = snowFull;
       _temperature = temperature;
 
       Publish();
@@ -562,6 +598,32 @@ namespace BestiaBehemothClient.Game.World
       }
 
       return WeatherLook.For(_kind, _intensity, _cloudCover);
+    }
+
+    private float TargetGroundWetness()
+    {
+      return DebugOverrideEnabled ? DebugGroundWetness : _groundWetness;
+    }
+
+    private (float Line, float Full) TargetSnowLine()
+    {
+      if (DebugOverrideEnabled)
+      {
+        return (DebugSnowLine, Mathf.Max(DebugSnowFull, DebugSnowLine + 1.0f));
+      }
+
+      return (_snowLineTarget, _snowFullTarget);
+    }
+
+    /// <summary>Eases a line the server moved, but lets snow appear or vanish at once, not slide down.</summary>
+    private float ApproachSnowLine(float value, float target, float delta)
+    {
+      if (value >= NoSnowLine || target >= NoSnowLine)
+      {
+        return target;
+      }
+
+      return Approach(value, target, delta, SnowLineSeconds, SnowLineSeconds);
     }
 
     private float TargetTemperature()
@@ -608,6 +670,8 @@ namespace BestiaBehemothClient.Game.World
       RenderingServer.GlobalShaderParameterSet(Wetness, _wetness);
       RenderingServer.GlobalShaderParameterSet(Snow, _snow);
       RenderingServer.GlobalShaderParameterSet(Temperature, _temperature);
+      RenderingServer.GlobalShaderParameterSet(SnowLineParameter, _snowLine);
+      RenderingServer.GlobalShaderParameterSet(SnowFullParameter, _snowFull);
       RenderingServer.GlobalShaderParameterSet(WindParameter, _gustedWind);
 
       _publishedWind = _gustedWind;

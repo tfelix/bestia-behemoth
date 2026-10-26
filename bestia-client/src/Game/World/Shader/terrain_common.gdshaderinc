@@ -309,8 +309,7 @@ group_uniforms Weather;
 // Driven by WeatherState from the server's WeatherSMSG, as globals rather than material parameters so that
 // water, foliage and anything else added later reads the same numbers rather than its own copy.
 global uniform float weather_wetness;
-global uniform float weather_snow;
-global uniform float weather_temperature;
+#include "res://Game/World/Shader/weather_snow.gdshaderinc"
 
 // How dark wet ground goes. Real ground darkens because water fills the pores and light stops scattering back
 // out; 0.72 is about right for soil and generous for rock, which matters less than it having one value.
@@ -866,11 +865,10 @@ TerrainSurface terrain_surface(vec3 tint) {
 	//
 	// It settles on what faces up, melts above a temperature, and fills hollows first - which is what the
 	// height channel is doing in the mask.
-	float cold = smoothstep(snow_melt_celsius + 3.0, snow_melt_celsius, weather_temperature);
 	// The cliff band read backwards, so the snowline moves with the walkable slope - snow does not stick to a
 	// cliff, and a cliff is what that angle now means.
 	float settled = smoothstep(cliff_end, cliff_start, surface.slope) * max(world_normal.y, 0.0);
-	float snow = clamp(weather_snow, 0.0, 1.0) * cold * settled;
+	float snow = weather_snow_cover(v_world_pos.y, snow_melt_celsius) * settled;
 
 	// Deepening snow reaches the ridges last, so the mask leads in the crevices and catches up at full depth.
 	snow = clamp(snow * (1.0 + (1.0 - surface.height)) - (1.0 - snow) * surface.height * 0.5, 0.0, 1.0);
