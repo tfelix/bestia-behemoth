@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://cq1eqslot0001"]
+[gd_scene load_steps=4 format=3 uid="uid://cq1eqslot0001"]
 
 [ext_resource type="Script" path="res://Game/UI/Equipment/EquipSlot/equip_slot.gd" id="1_eqslot"]
+[ext_resource type="PackedScene" uid="uid://bwearbar0001" path="res://Game/UI/Common/WearBar/WearBar.tscn" id="2_wear"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_eqslot"]
 content_margin_left = 0.0
@@ -49,3 +50,7 @@ text = "Slot"
 horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 2
+
+[node name="Wear" parent="." instance=ExtResource("2_wear")]
+unique_name_in_owner = true
+layout_mode = 1

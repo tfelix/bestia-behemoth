@@ -152,7 +152,13 @@ func _render() -> void:
 			equipped.get("crafted_by", ""),
 			equipped.get("crafted_in", "")
 		)
-		slot_node.set_item(item_resource, equipped["unique_id"], detail)
+		slot_node.set_item(
+			item_resource,
+			equipped["unique_id"],
+			detail,
+			equipped.get("durability", 0),
+			equipped.get("max_durability", 0)
+		)
 
 
 func _on_equip_requested(player_item_id: int, slot: int) -> void:
