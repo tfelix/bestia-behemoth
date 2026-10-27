@@ -15,8 +15,11 @@ const MASTER_SELECT_SCENE := "res://Menu/MasterSelect/MasterSelect.tscn"
 @onready var _countdown: Control = $Countdown
 @onready var _countdown_label: Label = $Countdown/CenterContainer/PanelContainer/VBoxContainer/CountdownLabel
 @onready var _confirm_exit: ConfirmationDialog = $ConfirmExitDialog
+@onready var _main_panel: Control = $Menu/CenterContainer
+@onready var _settings_holder: Control = $Menu/SettingsHolder
 
 var _pending_action: PendingAction = PendingAction.NONE
+var _settings_panel: SettingsPanel
 # Local mirror of the server countdown, ticked down each frame for a smooth display and corrected
 # whenever a fresh sync arrives. Negative when no logout is running.
 var _remaining_seconds: float = -1.0
@@ -28,7 +31,10 @@ func _ready() -> void:
 	_menu.add_to_group("world_blocking_ui")
 	_menu.visible = false
 	_countdown.visible = false
+	_style_menu()
 
+	_settings_holder.add_child(_build_settings_panel())
+	$Menu/CenterContainer/PanelContainer/VBoxContainer/SettingsButton.pressed.connect(_show_settings)
 	$Menu/CenterContainer/PanelContainer/VBoxContainer/ContinueButton.pressed.connect(_hide_menu)
 	$Menu/CenterContainer/PanelContainer/VBoxContainer/RespawnButton.pressed.connect(_on_respawn_pressed)
 	$Menu/CenterContainer/PanelContainer/VBoxContainer/MasterSelectButton.pressed.connect(_on_master_select_pressed)
@@ -62,14 +68,65 @@ func _process(delta: float) -> void:
 
 
 func _toggle_menu() -> void:
-	if _menu.visible:
+	if _settings_holder.visible:
+		# ESC steps back out of the settings rather than closing the whole menu.
+		_hide_settings()
+	elif _menu.visible:
 		_hide_menu()
 	else:
-		_menu.visible = true
+		_show_menu()
+
+
+func _show_menu() -> void:
+	_menu.visible = true
+	_hide_settings()
+	$Menu/CenterContainer/PanelContainer/VBoxContainer/ContinueButton.grab_focus()
 
 
 func _hide_menu() -> void:
 	_menu.visible = false
+	_hide_settings()
+
+
+func _show_settings() -> void:
+	_main_panel.visible = false
+	_settings_holder.visible = true
+	_settings_panel.focus_back()
+
+
+func _hide_settings() -> void:
+	_settings_holder.visible = false
+	_main_panel.visible = true
+	SettingsManager.save()
+
+
+func _build_settings_panel() -> SettingsPanel:
+	_settings_panel = SettingsPanel.new()
+	_settings_panel.closed.connect(_hide_settings)
+	return _settings_panel
+
+
+## Dresses the panel; the scene only places the nodes.
+func _style_menu() -> void:
+	$Menu/Scrim.color = Color(0.02, 0.02, 0.04, 0.72)
+	var panel: PanelContainer = $Menu/CenterContainer/PanelContainer
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.09, 0.09, 0.1, 0.94)
+	style.border_color = Color(0.85, 0.7, 0.35, 0.55)
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(8)
+	style.shadow_color = Color(0, 0, 0, 0.5)
+	style.shadow_size = 18
+	style.set_content_margin_all(32)
+	panel.add_theme_stylebox_override("panel", style)
+
+	var column: VBoxContainer = $Menu/CenterContainer/PanelContainer/VBoxContainer
+	column.custom_minimum_size = Vector2(280, 0)
+	for child in column.get_children():
+		if child is Button:
+			child.custom_minimum_size = Vector2(0, 40)
+
+	$Menu/CenterContainer/PanelContainer/VBoxContainer/ExitGameButton.add_theme_color_override("font_color", Color(0.95, 0.5, 0.45))
 
 
 # --- Menu button handlers: pick an action, then start the protected logout. ---

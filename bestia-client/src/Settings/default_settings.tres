@@ -16,3 +16,5 @@ music_volume = 0.7
 ambience_volume = 0.8
 effects_volume = 1.0
 interface_volume = 0.8
+fullscreen = false
+vsync = true

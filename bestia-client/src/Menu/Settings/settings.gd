@@ -1,30 +1,25 @@
 extends Control
+## The main menu's settings page: the shared [SettingsPanel] centred on the menu background.
 
-@onready var _volumes: GridContainer = %Volumes
+const MAIN_SCENE := "res://Menu/Main/Main.tscn"
 
 
 func _ready() -> void:
-	for bus in AudioManager.BUSES:
-		_add_volume_row(bus)
+	var background: Node = load("res://Menu/Main/Background/Background.tscn").instantiate()
+	add_child(background)
+
+	var center := CenterContainer.new()
+	center.set_anchors_preset(Control.PRESET_FULL_RECT)
+	add_child(center)
+
+	var panel := SettingsPanel.new()
+	panel.closed.connect(func(): SceneManager.goto_scene(MAIN_SCENE))
+	center.add_child(panel)
+	panel.focus_back.call_deferred()
 
 
-func _add_volume_row(bus: StringName) -> void:
-	var label := Label.new()
-	label.text = String(bus)
-	_volumes.add_child(label)
-
-	var slider := HSlider.new()
-	slider.min_value = 0.0
-	slider.max_value = 1.0
-	slider.step = 0.01
-	slider.value = AudioManager.volume_of(bus)
-	slider.custom_minimum_size = Vector2(240, 0)
-	slider.value_changed.connect(func(value: float): AudioManager.set_volume(bus, value))
-	slider.drag_ended.connect(func(_changed: bool): SettingsManager.save())
-	_volumes.add_child(slider)
-
-
-func _on_button_pressed() -> void:
-	# Saved here as well, because a click on the track moves the slider without a drag to end.
-	SettingsManager.save()
-	SceneManager.goto_scene("res://Menu/Main/Main.tscn")
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_cancel"):
+		SettingsManager.save()
+		SceneManager.goto_scene(MAIN_SCENE)
+		get_viewport().set_input_as_handled()

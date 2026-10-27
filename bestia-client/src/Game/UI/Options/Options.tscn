@@ -47,6 +47,7 @@ theme_override_constants/separation = 16
 
 [node name="Label" type="Label" parent="Menu/CenterContainer/PanelContainer/VBoxContainer" unique_id=1873035729]
 layout_mode = 2
+theme_override_font_sizes/font_size = 32
 text = "BESTIA"
 horizontal_alignment = 1
 
@@ -59,6 +60,10 @@ visible = false
 layout_mode = 2
 text = "Respawn"
 
+[node name="SettingsButton" type="Button" parent="Menu/CenterContainer/PanelContainer/VBoxContainer" unique_id=110000030]
+layout_mode = 2
+text = "Settings"
+
 [node name="MasterSelectButton" type="Button" parent="Menu/CenterContainer/PanelContainer/VBoxContainer" unique_id=324027276]
 layout_mode = 2
 text = "Master Select"
@@ -70,6 +75,15 @@ text = "Logout"
 [node name="ExitGameButton" type="Button" parent="Menu/CenterContainer/PanelContainer/VBoxContainer" unique_id=317265259]
 layout_mode = 2
 text = "Exit Game"
+
+[node name="SettingsHolder" type="CenterContainer" parent="Menu" unique_id=110000031]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 
 [node name="Countdown" type="Control" parent="." unique_id=110000010]
 visible = false

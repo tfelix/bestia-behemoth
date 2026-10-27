@@ -71,3 +71,10 @@ const FORMAT_VERSION := 1
 @export_range(0.0, 1.0, 0.01) var ambience_volume: float = 0.8
 @export_range(0.0, 1.0, 0.01) var effects_volume: float = 1.0
 @export_range(0.0, 1.0, 0.01) var interface_volume: float = 0.8
+
+@export_group("Video")
+
+## Borderless fullscreen rather than a window, applied by the DisplayManager autoload.
+@export var fullscreen: bool = false
+
+@export var vsync: bool = true

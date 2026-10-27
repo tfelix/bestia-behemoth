@@ -29,6 +29,7 @@ Notebook="*res://Manager/notebook.gd"
 ConversationPresenter="*res://Game/UI/Conversation/conversation_presenter.gd"
 RenderDebug="*res://Dev/RenderDebug/render_debug.gd"
 AudioManager="*res://Manager/AudioManager/AudioManager.gd"
+DisplayManager="*res://Manager/display_manager.gd"
 
 [display]
 
