@@ -511,7 +511,10 @@ namespace BestiaBehemothClient.Game.World.Mesh
       var weights = RentSlotWeights();
       var dominant = AccumulateSurface(patch, px, py, pz, includeMask, appearance, weights);
 
-      colours.Add(appearance.ColourOf(dominant));
+      // Terrain alone carries its slot in alpha; water and lava keep theirs for their own materials.
+      colours.Add(appearance.SurfaceOf(dominant) == BlockAppearance.SurfaceKind.Terrain
+        ? appearance.TintOf(dominant)
+        : appearance.ColourOf(dominant));
       PackWeights(weights, appearance.SlotOf(dominant), slotWeights);
 
       return true;

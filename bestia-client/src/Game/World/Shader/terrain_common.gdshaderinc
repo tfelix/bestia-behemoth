@@ -122,6 +122,10 @@ uniform float slot_uv_scale[16];
 // second time and brighten every material by the same wrong amount.
 uniform vec3 slot_reference_tint[16];
 
+// Each slot's own palette colour, for the runner-up of a blend; negative for a slot no material uses. Set by
+// TerrainMaterials from BlockAppearance.SlotColours, in the same space as the vertex tint.
+uniform vec3 slot_palette[16];
+
 // Where each slot's tiling is measured from, in world metres, snapped by the CPU to a whole number of that
 // slot's own tiles.
 //
@@ -470,6 +474,18 @@ float terrain_bilinear(vec4 gathered, vec2 f) {
 	return mix(mix(gathered.w, gathered.z, f.x), mix(gathered.x, gathered.y, f.x), f.y);
 }
 
+// A palette colour in the space the textures were averaged in. See tint_is_srgb.
+vec3 terrain_linear(vec3 colour) {
+	return tint_is_srgb
+		? mix(colour / 12.92, pow((colour + vec3(0.055)) / 1.055, vec3(2.4)), step(vec3(0.04045), colour))
+		: colour;
+}
+
+// A slot's own palette colour, or its texture's own colour for a slot no material uses.
+vec3 terrain_slot_colour(int slot) {
+	return slot_palette[slot].x < 0.0 ? slot_reference_tint[slot] : terrain_linear(slot_palette[slot]);
+}
+
 float terrain_hash(vec2 p) {
 	vec3 p3 = fract(vec3(p.xyx) * 0.1031);
 	p3 += dot(p3, p3.yzx + 33.33);
@@ -622,8 +638,12 @@ SlotSample terrain_sample_slot(int slot, vec3 geometric, vec3 ddx, vec3 ddy, vec
 
 // The tint is passed in rather than read from COLOR here, because Godot exposes a stage's built-ins only
 // inside that stage's own function - a helper called from fragment() cannot see COLOR at all, the same
-// restriction that keeps the vertex assignments out of this file.
-TerrainSurface terrain_surface(vec3 tint) {
+// restriction that keeps the vertex assignments out of this file. Alpha carries the slot the tint's material is
+// drawn from - see BlockAppearance.TintOf.
+TerrainSurface terrain_surface(vec4 vertex_colour) {
+	vec3 tint = vertex_colour.rgb;
+	float tint_slot = vertex_colour.a * 15.0;
+
 	TerrainSurface surface;
 
 	vec3 normal = normalize(v_world_normal);
@@ -757,20 +777,23 @@ TerrainSurface terrain_surface(vec3 tint) {
 	surface.slot0_share = share0;
 	surface.height = share0 * sample0.height + share1 * sample1.height;
 
-	// The reference tint follows the same blend as the texture, so a pixel halfway between grass and rock is
-	// corrected against a texture that is halfway between them too - which is what it was actually sampled from.
-	vec3 reference = share0 * slot_reference_tint[slot0] + share1 * slot_reference_tint[slot1];
-
 	surface.tint = tint;
 
-	vec3 palette = tint_is_srgb
-		? mix(tint / 12.92, pow((tint + vec3(0.055)) / 1.055, vec3(2.4)), step(vec3(0.04045), tint))
-		: tint;
+	// Each sample is corrected against its own texture's mean, towards its own colour. The vertex tint is one
+	// material's - so granite and basalt still differ on one rock texture - and it is applied only to the slot that
+	// material is drawn from. Every other sample takes its slot's palette colour. Applied to whichever slot won the
+	// pixel, the tint painted the soil showing through a rim of turf green and the turf on a patch of soil brown.
+	vec3 colour0 = mix(terrain_slot_colour(slot0), terrain_linear(tint),
+		1.0 - clamp(abs(tint_slot - float(slot0)), 0.0, 1.0));
+	vec3 colour1 = mix(terrain_slot_colour(slot1), terrain_linear(tint),
+		1.0 - clamp(abs(tint_slot - float(slot1)), 0.0, 1.0));
 
-	vec3 correction = palette / max(reference, vec3(0.0001));
-	vec3 albedo = share0 * sample0.albedo + share1 * sample1.albedo;
+	vec3 correction0 = colour0 / max(slot_reference_tint[slot0], vec3(0.0001));
+	vec3 correction1 = colour1 / max(slot_reference_tint[slot1], vec3(0.0001));
 
-	albedo *= mix(vec3(1.0), correction, tint_strength);
+	vec3 albedo =
+		share0 * sample0.albedo * mix(vec3(1.0), correction0, tint_strength) +
+		share1 * sample1.albedo * mix(vec3(1.0), correction1, tint_strength);
 
 	// THE CANOPY: ground that grass stands on is drawn as grass seen from above, everywhere and always.
 	//
@@ -794,7 +817,11 @@ TerrainSurface terrain_surface(vec3 tint) {
 	// The swing is `grass.gdshader`'s own second factor, divided by its mean so it varies the ground without
 	// moving its average off the correction that was measured for it. Both halves matter: the correction alone
 	// is flat, and the swing alone is the wrong colour.
-	float grassy = weights[TERRAIN_SLOT_GRASS];
+	//
+	// The share of grass this pixel *shows*, not the vertex's grass weight. The height blend lets grass win a
+	// pixel outright on ground that is only partly turf, and weighted by the vertex that pixel got only part of
+	// the correction - so the thin turf at a dirt patch's rim came out brighter than the field around it.
+	float grassy = (slot0 == TERRAIN_SLOT_GRASS ? share0 : 0.0) + (slot1 == TERRAIN_SLOT_GRASS ? share1 : 0.0);
 
 	float variation = texture(grass_canopy_noise, v_world_pos.xz / max(grass_canopy_noise_scale, 0.001)).r;
 
