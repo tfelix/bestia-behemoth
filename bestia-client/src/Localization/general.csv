@@ -339,6 +339,17 @@ MAP_HOVER_GUILD,Guild member
 MAP_HOVER_OPEN,Open now
 MAP_HOVER_CLOSED,Closed now
 MAP_HOVER_SERVICES,%d services in view
+MAP_HELP,drag: pan · wheel: zoom · click: details · right-click: go · R: route · G: grid
+MAP_ROUTE,Route
+MAP_ROUTE_TIP,Plan a route: each click adds a stop (R)
+MAP_GROUND,Open ground
+MAP_GO,Go here
+MAP_GO_TO,Go: %s
+MAP_ADD_TO_ROUTE,Add to route
+MAP_MARK_HERE,Mark here
+MAP_RENAME,Rename
+MAP_DELETE,Delete
+MAP_DISTANCE,%s away
 GUILD_LOG_EMPTY,Nothing has happened in the guild yet.
 GUILD_LOG_FOUNDED,{actor} founded the guild.
 GUILD_LOG_JOINED,{actor} joined the guild.
@@ -369,7 +380,7 @@ TRAVEL_UNNAMED,a place on the map
 TRAVEL_UNDER_WAY,"On the way to %s, %d stop(s) left."
 TRAVEL_STOP,Stop here
 TRAVEL_DRAFT,Stops
-TRAVEL_HINT,Click the map to send it there. Shift+click to add stops.
+TRAVEL_HINT,Right-click the map to send it there. Press Route (R) and click to add stops; drag one to move it.
 TRAVEL_GO,Go
 TRAVEL_CLEAR,Clear
 ERROR_NOTEBOOK_FULL,You keep as many of these as you may. Delete one first.

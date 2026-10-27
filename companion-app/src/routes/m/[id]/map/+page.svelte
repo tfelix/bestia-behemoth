@@ -4,6 +4,7 @@
 	import { page } from '$app/state';
 	import { ApiError, getJson } from '$lib/api/client';
 	import type { Bestia, Catalog, MapMeta, MasterSheet, Place, Position } from '$lib/api/model';
+	import MapCard, { type Card } from '$lib/components/MapCard.svelte';
 	import TravelSheet from '$lib/components/TravelSheet.svelte';
 	import { guarded } from '$lib/guard';
 	import { live } from '$lib/live.svelte';
@@ -14,7 +15,12 @@
 	import { bestiaColor, MASTER_COLOR } from '$lib/map/slotColors';
 	import { speciesName } from '$lib/names';
 	import { Notebook } from '$lib/notebook/notebook.svelte';
-	import { ROUTES, routeBody, routeOf, sendJourney, stopJourney, stopsAhead, wayAhead, type Route, type RouteValue } from '$lib/travel';
+	import type { NotebookEntry } from '$lib/notebook/rules';
+	import { distance, distanceText, ROUTES, routeBody, routeOf, sendJourney, stopJourney, stopsAhead, wayAhead, type Route, type RouteValue } from '$lib/travel';
+
+	/** The notebook collection of the master's own map marks, shared with the game. */
+	const MARKS = 'marks';
+	type MarkValue = { name: string; east: number; north: number; icon: string; note?: string | null };
 
 	const masterId = $derived(Number(page.params.id));
 	/** The species whose habitat is laid over the map, picked in the compendium; 0 for none. */
@@ -27,17 +33,20 @@
 	/** The master's notebook, shared with the game: its routes, and later its marks and map preferences. */
 	let notebook = $state.raw<Notebook | null>(null);
 	const routes = $derived(notebook ? notebook.entries<RouteValue>(ROUTES).map(routeOf) : []);
+	const marks = $derived(notebook ? notebook.entries<MarkValue>(MARKS) : []);
 	let selectedId = $state<number | null>(null);
 	/** The master as the map draws it; its sheet comes apart from the roster, so its marker is kept here. */
 	let master = $state<{ name: string; position: Position } | null>(null);
 	let draft = $state<Position[]>([]);
-	/** Whether a tap on the map adds a stop to the draft rather than starting a new one. */
-	let adding = $state(false);
+	/** Whether a tap on the map adds a stop to the draft, rather than asking what is there. */
+	let routeMode = $state(false);
+	/** What the last tap asked about, and what can be done there. */
+	let card = $state<Card | null>(null);
 	let busy = $state(false);
 	let note = $state<string | null>(null);
 	/** Where a journey gave up, by bestia, from the live event; shown until that bestia sets off again. */
 	let gaveUpAt = $state<Record<number, Position>>({});
-	let travelLayers = $state.raw<{ markers: L.LayerGroup; journeys: L.LayerGroup; draft: L.LayerGroup; failures: L.LayerGroup } | null>(null);
+	let travelLayers = $state.raw<{ markers: L.LayerGroup; journeys: L.LayerGroup; draft: L.LayerGroup; failures: L.LayerGroup; marks: L.LayerGroup } | null>(null);
 	let map: L.Map | null = null;
 	let meta = $state.raw<MapMeta | null>(null);
 	let grid: L.GridLayer | null = null;
@@ -106,14 +115,16 @@
 			map = leaflet;
 			chartLayer(id, meta, cache).addTo(leaflet);
 			if (species !== 0) habitatLayer(id, species, meta, cache).addTo(leaflet);
-			placeLabels(id, leaflet, meta, cache).addTo(leaflet);
+			placeLabels(id, leaflet, meta, cache, openPlace).addTo(leaflet);
 			leaflet.on('click', (e: L.LeafletMouseEvent) => tapMap({ eastMetres: e.latlng.lng, northMetres: e.latlng.lat }));
+			// A right click, where there is one, goes at once: the shortcut for what the card's Go does.
+			leaflet.on('contextmenu', (e: L.LeafletMouseEvent) => goNow({ eastMetres: e.latlng.lng, northMetres: e.latlng.lat }));
 			leaflet.on('mousemove', (e: L.LeafletMouseEvent) => (readout = refOf(e.latlng)));
 			leaflet.on('moveend', () => leaflet && (readout = refOf(leaflet.getCenter())));
 			grid = gridLayer(meta);
 			if (showGrid) grid.addTo(leaflet);
 			const kept = new Notebook(id);
-			await kept.load(ROUTES);
+			await Promise.all([kept.load(ROUTES), kept.load(MARKS)]);
 			if (gone) return;
 			notebook = kept;
 
@@ -125,7 +136,8 @@
 				markers: L.layerGroup().addTo(leaflet),
 				journeys: L.layerGroup().addTo(leaflet),
 				draft: L.layerGroup().addTo(leaflet),
-				failures: L.layerGroup().addTo(leaflet)
+				failures: L.layerGroup().addTo(leaflet),
+				marks: L.layerGroup().addTo(leaflet)
 			};
 		}).catch((e) => (failure = e instanceof Error ? e.message : String(e)));
 
@@ -164,6 +176,25 @@
 		if (master) marker(latLng(master.position), MASTER_COLOR, master.name).addTo(layers.markers);
 	});
 
+	// The master's own marks, from the notebook the game keeps too: a tap on one asks about it.
+	$effect(() => {
+		const layers = travelLayers;
+		if (!layers) return;
+
+		layers.marks.clearLayers();
+		for (const mark of marks) {
+			L.marker([mark.value.north, mark.value.east], {
+				icon: L.divIcon({ className: 'mark', html: '<span></span>', iconSize: [14, 14], iconAnchor: [7, 7] })
+			})
+				.bindTooltip(mark.value.name, { direction: 'top', offset: [0, -6] })
+				.on('click', (e: L.LeafletMouseEvent) => {
+					L.DomEvent.stopPropagation(e);
+					openMark(mark);
+				})
+				.addTo(layers.marks);
+		}
+	});
+
 	// Every journey in its bestia's colour, and where any gave up. Redrawn whenever the roster or the draft moves.
 	$effect(() => {
 		const layers = travelLayers;
@@ -189,7 +220,7 @@
 		if (selected && draft.length > 0) {
 			const colour = bestiaColor(bestias.indexOf(selected));
 			L.polyline([selected.position, ...draft].map(latLng), { color: colour, weight: 3, dashArray: '6 6' }).addTo(layers.draft);
-			draft.forEach((stop, n) => stopMarker(stop, n + 1, colour).addTo(layers.draft));
+			draft.forEach((stop, n) => draftMarker(stop, n, colour).addTo(layers.draft));
 		}
 	});
 
@@ -258,7 +289,7 @@
 	function select(b: Bestia) {
 		if (b.id !== selectedId) {
 			draft = [];
-			adding = false;
+			routeMode = false;
 		}
 		selectedId = b.id;
 		note = null;
@@ -270,30 +301,91 @@
 		map?.panTo(latLng(b.position));
 	}
 
-	/** A tap on the map is where the selected bestia should go; with stops being added, one stop further. */
-	function tapMap(at: Position) {
+	/** Whether the selected bestia may be ordered, and if not, why not on the note. */
+	function canSend(): boolean {
 		if (!selected) {
 			note = 'Pick a Bestia first: tap it on the map or in the list.';
-			return;
+			return false;
 		}
 		if (!selected.inWorld) {
 			note = `${nameOf(selected)} rests until you are back in the world.`;
+			return false;
+		}
+		note = null;
+		return true;
+	}
+
+	/** In route mode a tap is one more stop; otherwise it asks what is there. */
+	function tapMap(at: Position) {
+		if (routeMode) {
+			addStop(at);
 			return;
 		}
+		openCard('Open ground', at, [{ label: 'Mark here', run: () => askMarkName(at) }]);
+	}
 
-		note = null;
-		if (!adding) {
-			draft = [at];
-		} else if (draft.length >= MAX_STOPS) {
+	function addStop(at: Position) {
+		if (!canSend()) return;
+		if (draft.length >= MAX_STOPS) {
 			note = `A journey has at most ${MAX_STOPS} stops.`;
-		} else {
-			draft = [...draft, at];
+			return;
 		}
+		routeMode = true;
+		draft = [...draft, at];
+	}
+
+	/** Sends the selected bestia straight to [at], dropping any draft. */
+	function goNow(at: Position) {
+		if (!canSend()) return;
+		routeMode = false;
+		draft = [at];
+		send();
+	}
+
+	/** The card for [at]: its grid reference and distance, Go and Add to route, then [extra]. */
+	function openCard(title: string, at: Position, extra: Card['actions'], lines: string[] = []) {
+		const away = selected ? `${distanceText(distance(selected.position, at))} away` : '';
+		const ref = meta ? formatGridRef(at.eastMetres, at.northMetres, meta.worldWidthMetres, meta.worldHeightMetres, 3) : '';
+		card = {
+			title,
+			lines: [...lines, ref, away],
+			actions: [{ label: 'Go here', run: () => goNow(at) }, { label: 'Add to route', run: () => addStop(at) }, ...extra]
+		};
+	}
+
+	function openPlace(place: Place) {
+		const tier = place.tier ? place.tier.charAt(0) + place.tier.slice(1).toLowerCase() : '';
+		openCard(place.name ?? 'A place', { eastMetres: place.x, northMetres: place.y }, [], [tier]);
+	}
+
+	function openMark(mark: NotebookEntry<MarkValue>) {
+		const at = { eastMetres: mark.value.east, northMetres: mark.value.north };
+		openCard(mark.value.name, at, [
+			{ label: 'Rename', run: () => askMarkName(at, mark) },
+			{ label: 'Delete', run: () => void order(async () => notebook?.remove(MARKS, mark.key, mark.revision)) }
+		], ['Your mark', mark.value.note ?? '']);
+	}
+
+	/** Asks what to call a mark at [at] - a new one, or [mark] renamed - and keeps it in the notebook. */
+	function askMarkName(at: Position, mark?: NotebookEntry<MarkValue>) {
+		card = {
+			title: mark ? 'Rename mark' : 'Mark this place',
+			lines: [],
+			actions: [],
+			ask: {
+				placeholder: 'Name',
+				value: mark?.value.name ?? '',
+				submit: (name) => {
+					const value = { ...(mark?.value ?? { icon: 'pin' }), name, east: at.eastMetres, north: at.northMetres };
+					void order(async () => (mark ? notebook?.put(MARKS, mark.key, value, mark.revision) : notebook?.add(MARKS, value)));
+				}
+			}
+		};
 	}
 
 	function cancel() {
 		draft = [];
-		adding = false;
+		routeMode = false;
 		note = null;
 	}
 
@@ -326,7 +418,7 @@
 			await sendJourney(masterId, id, { waypoints: stops, reverse: false }, key);
 			forgetGaveUp(id);
 			draft = [];
-			adding = false;
+			routeMode = false;
 		});
 	}
 
@@ -352,7 +444,7 @@
 			try {
 				await kept.add(ROUTES, routeBody(waypoints, ''));
 				draft = [];
-				adding = false;
+				routeMode = false;
 			} catch (e) {
 				if (e instanceof ApiError && e.status === 400) throw new Error('You keep as many routes as you may. Forget one first.');
 				throw e;
@@ -390,6 +482,23 @@
 		}).bindTooltip(title, { direction: 'top', offset: [0, -8] });
 	}
 
+	/** A drafted stop: in route mode it can be dragged to move it, and a tap takes it away. */
+	function draftMarker(at: Position, index: number, colour: string): L.Marker {
+		const pin = L.marker(latLng(at), {
+			draggable: routeMode,
+			icon: L.divIcon({ className: 'stop', html: `<span style="background:${colour}">${index + 1}</span>`, iconSize: [22, 22], iconAnchor: [11, 11] })
+		});
+		pin.on('dragend', () => {
+			const moved = pin.getLatLng();
+			draft = draft.map((stop, i) => (i === index ? { eastMetres: moved.lng, northMetres: moved.lat } : stop));
+		});
+		pin.on('click', (e: L.LeafletMouseEvent) => {
+			L.DomEvent.stopPropagation(e);
+			if (routeMode) draft = draft.filter((_, i) => i !== index);
+		});
+		return pin;
+	}
+
 	function stopMarker(at: Position, number: number, colour: string): L.Marker {
 		return L.marker(latLng(at), {
 			interactive: false,
@@ -423,12 +532,13 @@
 			{/if}
 		</div>
 		{#if readout}<span class="readout label">{readout}</span>{/if}
+		{#if card}<MapCard {card} onclose={() => (card = null)} />{/if}
 		{#if bestias.length > 0}
 			<TravelSheet
 				{bestias}
 				{routes}
 				{selectedId}
-				bind:adding
+				bind:routeMode
 				{draft}
 				{busy}
 				{note}
@@ -443,7 +553,7 @@
 			/>
 		{/if}
 	</div>
-	<p class="legend label">Tap a Bestia, then the map, to send it · each way is drawn in its Bestia's colour · fog is ground you have not charted</p>
+	<p class="legend label">Tap the map for what is there · Route: each tap a stop · each way is drawn in its Bestia's colour · fog is ground you have not charted</p>
 </main>
 
 <style>
@@ -513,6 +623,16 @@
 		border-radius: 50%;
 		color: #1a1410;
 		font: 700 0.7rem var(--label);
+	}
+
+	.map :global(.mark span) {
+		display: block;
+		width: 100%;
+		height: 100%;
+		border: 2px solid #1a1410;
+		border-radius: 50% 50% 50% 0;
+		background: #9fd8ff;
+		transform: rotate(-45deg);
 	}
 
 	.map :global(.gave-up) {

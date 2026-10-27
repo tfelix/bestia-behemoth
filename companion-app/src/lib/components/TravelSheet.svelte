@@ -6,14 +6,14 @@
 
 	/**
 	 * Where the bestias are going, and the order being drafted for one: the half of the map page a journey is
-	 * planned from. A tap on the map makes a one-stop draft; with [adding] on, each further tap is one more stop.
+	 * planned from. With [routeMode] on each tap on the map is one more stop; Go sends the bestia along them.
 	 * The page does the asking; this only shows and collects.
 	 */
 	let {
 		bestias,
 		routes,
 		selectedId,
-		adding = $bindable(),
+		routeMode = $bindable(),
 		draft,
 		busy,
 		note,
@@ -29,7 +29,7 @@
 		bestias: Bestia[];
 		routes: Route[];
 		selectedId: number | null;
-		adding: boolean;
+		routeMode: boolean;
 		draft: Position[];
 		busy: boolean;
 		note: string | null;
@@ -112,7 +112,7 @@
 			{:else}
 				{#if draft.length === 0}
 					<p class="muted hint">
-						{adding ? 'Tap the map to add the first stop.' : 'Tap the map to choose where it goes.'}
+						{routeMode ? 'Tap the map to add the first stop.' : 'Tap the map for what is there, or press Route and tap its stops.'}
 					</p>
 				{:else}
 					<div class="plan">
@@ -131,9 +131,9 @@
 				{/if}
 				<div class="actions">
 					<button class="btn primary" disabled={!canOrder || draft.length === 0} onclick={onsend}>Go</button>
-					<button class="btn" disabled={draft.length === 0 && !adding} onclick={onclear}>Cancel</button>
-					<button class="btn" class:on={adding} aria-pressed={adding} onclick={() => (adding = !adding)}>
-						{adding ? 'Adding stops' : 'Add stops'}
+					<button class="btn" disabled={draft.length === 0 && !routeMode} onclick={onclear}>Cancel</button>
+					<button class="btn" class:on={routeMode} aria-pressed={routeMode} onclick={() => (routeMode = !routeMode)}>
+						{routeMode ? 'Planning a route' : 'Route'}
 					</button>
 					<button class="btn" disabled={!canOrder || draft.length === 0} onclick={onsave}>Save route</button>
 				</div>

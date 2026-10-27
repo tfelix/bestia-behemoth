@@ -164,7 +164,9 @@ func _ready() -> void:
 	_minimap.set_marks(_map_marks)
 	_map_overlay.set_marks(_map_marks)
 	_map_overlay.mark_requested.connect(_on_mark_requested)
-	_map_overlay.mark_clicked.connect(_on_mark_clicked)
+	_map_overlay.mark_delete_requested.connect(_on_mark_clicked)
+	_map_overlay.mark_rename_requested.connect(_on_mark_rename_requested)
+	_minimap.pointed.connect(func(at: Vector2) -> void: _map_overlay.open_at(at))
 	_map_overlay.place_selected.connect(_on_place_selected)
 	_map_overlay.service_selected.connect(_on_service_selected)
 
@@ -293,7 +295,17 @@ func _on_marks_changed() -> void:
 	_update_compass_marks()
 
 
-## Right-clicked ground: ask what to call it, and store it if the player says.
+## Asked from the map's card: what it should be called now.
+func _on_mark_rename_requested(index: int) -> void:
+	var existing: Array[Dictionary] = _map_marks.all()
+	if index < 0 or index >= existing.size():
+		return
+
+	_listen_once(_mark_name_popup.submitted, func(entered: String) -> void: _map_marks.rename(index, entered))
+	_mark_name_popup.ask(DisplayServer.mouse_get_position(), str(existing[index]["name"]))
+
+
+## Asked for from the map: ask what to call it, and store it if the player says.
 func _on_mark_requested(at: Vector2) -> void:
 	if _map_marks.count() >= MapMarks.MAX_MARKS:
 		# Said where the other window-less refusals are said, rather than opening the popup and rejecting
@@ -305,10 +317,7 @@ func _on_mark_requested(at: Vector2) -> void:
 	_ask_for_name(func(entered: String) -> void: _map_marks.add(entered, at))
 
 
-## Right-clicked one of their own: ask whether to take it away.
-##
-## The same gesture that made the mark, so it has to be confirmed. A second right-click near one the player
-## just placed is an easy thing to do by accident, and there is no undo for a note they wrote themselves.
+## Asked from the map's card: confirm before taking it away, since there is no undo for a note the player wrote.
 func _on_mark_clicked(index: int) -> void:
 	var existing: Array[Dictionary] = _map_marks.all()
 	if index < 0 or index >= existing.size():

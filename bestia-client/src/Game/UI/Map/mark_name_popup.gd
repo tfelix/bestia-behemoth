@@ -25,10 +25,11 @@ func _ready() -> void:
 	about_to_popup.connect(_take_focus)
 
 
-## Opens the popup near [param at] in screen coordinates, empty and ready to type into.
-func ask(at: Vector2i) -> void:
+## Opens the popup near [param at] in screen coordinates, holding [param current] - empty for a new mark - and
+## ready to type into.
+func ask(at: Vector2i, current: String = "") -> void:
 	_prompt.text = tr("MARK_NAME_PROMPT")
-	_name.text = ""
+	_name.text = current
 
 	# Offset so the popup sits below-right of the cursor rather than under it, where its own panel would
 	# cover the point the player just picked.

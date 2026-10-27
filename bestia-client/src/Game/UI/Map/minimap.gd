@@ -10,6 +10,9 @@ extends PanelContainer
 ## Shows a kilometre or so of ground at four metres to the pixel, following the player. It does not pan or
 ## zoom: the overlay is for looking around, and this is for knowing where you are.
 
+## The player clicked the minimap at [param at] world metres: the full map opens there.
+signal pointed(at: Vector2)
+
 ## Level 2 is four metres to the pixel, so the panel below shows about a kilometre across. Close enough
 ## that the plan style is drawing streets and buildings rather than the atlas drawing terrain.
 const _LEVEL := 2
@@ -25,7 +28,7 @@ const _SERVICES_REFRESH_SECONDS := 120.0
 func setup(source: MapSource, entities: Node) -> void:
 	_view.follow_player = true
 	_view.interactive = false
-	_view.can_travel = true
+	_view.pointed.connect(func(at: Vector2) -> void: pointed.emit(at))
 	_view.services_refresh_seconds = _SERVICES_REFRESH_SECONDS
 	_view.setup(source, entities)
 	_view.go_to_level(_LEVEL)
@@ -44,7 +47,7 @@ func _ready() -> void:
 
 ## The player's own marks, drawn here as well as on the overlay.
 ##
-## Shown but not editable: this view takes no input at all, which is the same reason it does not pan.
+## Shown but not editable here: a click opens the full map, where they are.
 func set_marks(marks: MapMarks) -> void:
 	_view.marks = marks
 

@@ -78,7 +78,6 @@ interactive = true
 follow_player = true
 show_north = true
 can_travel = true
-can_draft = true
 marker_scale = 2.0
 
 [node name="Travel" type="VBoxContainer" parent="Panel/Margin/Rows/Body"]

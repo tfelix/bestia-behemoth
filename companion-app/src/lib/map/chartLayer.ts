@@ -134,7 +134,14 @@ export function habitatLayer(masterId: number, speciesId: number, meta: MapMeta,
 }
 
 /** The named places of the tiles in view, as labels over the symbols the tiles already draw. */
-export function placeLabels(masterId: number, map: L.Map, meta: MapMeta, cache: ChartCache): L.LayerGroup {
+/** The names of the places the master has charted; a tap on one is [onPlace]'s. */
+export function placeLabels(
+	masterId: number,
+	map: L.Map,
+	meta: MapMeta,
+	cache: ChartCache,
+	onPlace: (place: Place) => void
+): L.LayerGroup {
 	const group = L.layerGroup();
 	const loaded = new Set<string>();
 	// Bumped at every zoom, so an answer for the level just left does not add its labels to the new one.
@@ -144,9 +151,14 @@ export function placeLabels(masterId: number, map: L.Map, meta: MapMeta, cache: 
 		for (const place of places) {
 			if (!place.name) continue;
 			L.marker([place.y, place.x], {
-				interactive: false,
 				icon: L.divIcon({ className: 'place-label', html: escape(place.name), iconSize: undefined })
-			}).addTo(group);
+			})
+				.bindTooltip(place.tier ? `${place.name} · ${place.tier.toLowerCase()}` : place.name, { direction: 'top' })
+				.on('click', (e: L.LeafletMouseEvent) => {
+					L.DomEvent.stopPropagation(e);
+					onPlace(place);
+				})
+				.addTo(group);
 		}
 	};
 

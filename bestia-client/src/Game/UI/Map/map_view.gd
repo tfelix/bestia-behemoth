@@ -206,16 +206,20 @@ signal place_selected(place: Dictionary)
 ## hiding its kind, and the player picking a place instead.
 signal service_selected(service: Dictionary)
 
-## The player right-clicked empty ground at [param at] world metres, asking for a mark there.
+## The player shift-right-clicked ground at [param at] world metres, asking for a mark there.
 ##
 ## Reported rather than acted on: this control draws a map and does not own the marks, so what a request
 ## for one becomes - a popup, a name, a stored entry - belongs to whoever wired the two together.
 signal mark_requested(at: Vector2)
 
-## The player right-clicked one of their own marks. [param index] indexes [member marks].
-signal mark_clicked(index: int)
+## The player clicked something on the map, outside route mode: [param hit] is [method hit_at]'s answer, and
+## [param at] where the click was, in this control's pixels. The overlay answers with its context card.
+signal context_requested(hit: Dictionary, at: Vector2)
 
-## The stops drafted with Shift+click changed; see [member draft].
+## The player clicked a view that does not pan - the minimap - at [param at] world metres.
+signal pointed(at: Vector2)
+
+## The drafted stops changed; see [member draft].
 signal draft_changed
 
 ## Metres per pixel is 2^level, so 0 is one metre to the pixel and 9 is 512.
@@ -234,15 +238,16 @@ signal draft_changed
 ## it is held.
 @export var show_north: bool = false
 
-## Whether a click here sets the player walking. True for both views.
-##
-## Separate from [member interactive], which is about panning and zooming, because the minimap wants one
-## without the other: it is deliberately fixed to the player and deliberately still a place you can point
-## at and say 'there'. Keeping them as one flag was what made a minimap click do nothing at all.
+## Whether this view may send the player off - from its context card, a right click or a drafted route. The
+## overlay's; a click on the minimap opens the overlay there instead, see [signal pointed].
 @export var can_travel: bool = false
 
-## Whether Shift+click drafts stops instead of sending at once. Only on a map that can be panned to them.
-@export var can_draft: bool = false
+## Whether a click adds a stop to [member draft] rather than asking about what is there. Set by the overlay's
+## route button; the minimap never plans.
+var route_mode: bool = false:
+	set(value):
+		route_mode = value
+		queue_redraw()
 
 ## Whether a walk to a single clicked point is drawn as a route. Off on the minimap, which is too small for a
 ## line and pin for every click; there only a real route (several stops, or a saved one) is shown.
@@ -317,6 +322,9 @@ var _owned_dots_drawn: Array[Dictionary] = []
 var _guild_dots_drawn: Array[Vector2] = []
 
 var _dragging := false
+
+## The drafted stop being dragged in route mode, or -1.
+var _dragging_stop := -1
 
 ## What the pointer rests on, as the lines of its hover card (the first is the title), and where the pointer is;
 ## no lines while it rests on nothing.
@@ -653,6 +661,11 @@ func world_under_mouse() -> Variant:
 	return _to_world(at)
 
 
+## The services drawn on the last frame that stand in [param settlement].
+func services_of_settlement(settlement: String) -> Array:
+	return _visible_services.filter(func(service: Dictionary) -> bool: return _text_of(service, "settlement") == settlement)
+
+
 ## World width and height in metres, or zero before [code]/meta[/code].
 func world_size() -> Vector2:
 	return Vector2(_world_width, _world_height)
@@ -679,36 +692,78 @@ func _draw_habitat(key: String, corner: Vector2, tx: int, ty: int) -> void:
 	draw_texture_rect(overlay, Rect2(corner, Vector2(_tile_pixels, _tile_pixels)), false)
 
 
-## A left click that was not a pan: pick the place under it, or set off for the ground.
+## A left click that was not a pan: in route mode a stop, otherwise a question about what is there.
 ##
-## Selecting wins over travelling, because it is the specific intent - the player aimed at a name, and
-## everywhere else on the map is everywhere else. Clicking the same name twice is how they then travel to it,
-## which is the one case where "select" and "go" want the same gesture and can have it.
+## A place or service clicked is selected too, which puts it on the compass. Fog answers nothing: the server
+## refuses it as a destination anyway, and a card about ground nobody charted would have nothing to say.
 func _on_click(at: Vector2) -> void:
-	var hit := _place_at(at)
-
-	if not hit.is_empty():
-		var entry: Dictionary = hit["entry"]
-		if not _is_selected(hit):
-			_select(hit)
-			return
-
-		# Already selected, so this is the second click: go there.
-		_travel_to(_position_of(entry))
+	var hit := hit_at(at)
+	if hit.is_empty():
 		return
 
-	# Ground the player has no tile for is not a destination. The server refuses it anyway - it has the
-	# authoritative fog - but refusing it here means a click on the fog is simply inert rather than a message
-	# that comes back as an error line.
+	if route_mode:
+		add_stop(hit["world"])
+		return
+
+	if hit["kind"] == "place" or hit["kind"] == "service":
+		_select({"entry": hit["entry"], "service": hit["kind"] == "service"})
+	context_requested.emit(hit, at)
+
+
+## A right click: go there at once - to the middle of whatever is under it - or with Shift, mark the ground. In
+## route mode it takes away the stop under it instead.
+func _on_right_click(at: Vector2) -> void:
+	if route_mode:
+		var stop := _stop_at(at)
+		if stop >= 0:
+			draft.remove_at(stop)
+			draft_changed.emit()
+			queue_redraw()
+		return
+
+	var hit := hit_at(at)
+	if hit.is_empty():
+		return
+	if Input.is_key_pressed(KEY_SHIFT):
+		mark_requested.emit(hit["world"])
+		return
+	travel_to(hit["world"])
+
+
+## What is under [param at], nearest and most specific first, as
+## [code]{kind, world, entry, index}[/code]: [code]kind[/code] is mark, bestia, place, service or ground;
+## [code]world[/code] the point in world metres - the thing's own position, so a click near a town means the
+## town; [code]entry[/code] the mark, place or service; [code]index[/code] the mark's, in [member marks].
+## Empty over fog.
+func hit_at(at: Vector2) -> Dictionary:
 	var world := _to_world(at)
 	if source != null and source.is_absent(_key_at(world)):
-		return
+		return {}
 
-	if can_draft and Input.is_key_pressed(KEY_SHIFT):
-		_add_to_draft(world)
-		return
+	if marks != null:
+		var mark := marks.nearest(world, _PLACE_HIT_RADIUS * _metres_per_pixel())
+		if mark >= 0:
+			var entry: Dictionary = marks.all()[mark]
+			return {"kind": "mark", "world": Vector2(float(entry["x"]), float(entry["y"])), "entry": entry, "index": mark}
 
-	_travel_to(world)
+	for dot in _owned_dots():
+		if _to_screen(dot["at"]).distance_to(at) < _PLACE_HIT_RADIUS:
+			return {"kind": "bestia", "world": dot["at"], "entry": dot}
+
+	var hit := _place_at(at)
+	if not hit.is_empty():
+		var entry: Dictionary = hit["entry"]
+		return {"kind": "service" if hit["service"] else "place", "world": _position_of(entry), "entry": entry}
+
+	return {"kind": "ground", "world": world}
+
+
+## Index of the drafted stop under [param at], or -1.
+func _stop_at(at: Vector2) -> int:
+	for i in draft.size():
+		if _to_screen(draft[i]).distance_to(at) < _PLACE_HIT_RADIUS:
+			return i
+	return -1
 
 
 func _is_selected(hit: Dictionary) -> bool:
@@ -792,7 +847,7 @@ static func _position_of(entry: Dictionary) -> Vector2:
 ## until meta arrives, so there is nothing worth clicking on either.
 ##
 ## The walk is a journey the server plans and keeps walking, however far and whoever the player looks at next.
-func _travel_to(at: Vector2) -> void:
+func travel_to(at: Vector2) -> void:
 	if not can_travel or source == null or source.meta.is_empty():
 		return
 
@@ -820,7 +875,7 @@ func _clear_draft_silently() -> void:
 	draft.clear()
 
 
-func _add_to_draft(at: Vector2) -> void:
+func add_stop(at: Vector2) -> void:
 	draft.append(at)
 	draft_changed.emit()
 	queue_redraw()
@@ -1095,25 +1150,6 @@ func _draw_marks() -> void:
 		var width := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, _LABEL_SIZE_DEFAULT).x
 		var origin := Vector2(at.x - width * 0.5, at.y - _LABEL_OFFSET)
 		_draw_haloed(font, origin, text, _LABEL_SIZE_DEFAULT, _MARK_COLOUR)
-
-
-## A right click: on one of the player's own marks, or on ground they might want to mark.
-##
-## Their own marks are tested first and win. A mark sits where the player put it, which is often exactly on
-## top of something worth marking - so resolving the tie the other way would make a mark next to a town
-## impossible to rename.
-func _on_right_click(at: Vector2) -> void:
-	if marks == null:
-		return
-
-	var world := _to_world(at)
-
-	var hit := marks.nearest(world, _PLACE_HIT_RADIUS * _metres_per_pixel())
-	if hit >= 0:
-		mark_clicked.emit(hit)
-		return
-
-	mark_requested.emit(world)
 
 
 ## What to print for a place, or "" for one with nothing to say.
@@ -1447,21 +1483,20 @@ func _gui_input(event: InputEvent) -> void:
 	if not interactive:
 		# A view that does not pan or zoom can still be pointed at. Reached through the gate rather than
 		# folded into it because everything below is about panning, and the minimap does none of it.
-		if (
-			can_travel
-			and event is InputEventMouseButton
-			and event.button_index == MOUSE_BUTTON_LEFT
-			and not event.pressed
-		):
-			_on_click(event.position)
+		if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and not event.pressed:
+			pointed.emit(_to_world(event.position))
 			accept_event()
 		return
 
 	if event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_LEFT:
 			if event.pressed:
-				_dragging = true
+				# In route mode a stop under the press is picked up and moved rather than the map.
+				_dragging_stop = _stop_at(event.position) if route_mode else -1
+				_dragging = _dragging_stop < 0
 				_dragged = false
+			elif _dragging_stop >= 0:
+				_dragging_stop = -1
 			else:
 				_dragging = false
 				# A press and release without motion between them is a click, and a pan ends with a release
@@ -1488,6 +1523,12 @@ func _gui_input(event: InputEvent) -> void:
 		elif event.is_action_pressed("camera_zoom_out"):
 			_zoom(1, event.position)
 			accept_event()
+
+	elif event is InputEventMouseMotion and _dragging_stop >= 0:
+		draft[_dragging_stop] = _to_world(event.position)
+		draft_changed.emit()
+		queue_redraw()
+		accept_event()
 
 	elif event is InputEventMouseMotion and _dragging:
 		_dragged = true

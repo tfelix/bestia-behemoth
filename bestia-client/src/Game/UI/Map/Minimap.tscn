@@ -27,7 +27,6 @@ theme_override_constants/margin_bottom = 4
 
 [node name="View" type="Control" parent="Margin" unique_id=51270523]
 layout_mode = 2
-mouse_filter = 2
 script = ExtResource("2_mapview")
 show_north = true
 show_plain_walks = false

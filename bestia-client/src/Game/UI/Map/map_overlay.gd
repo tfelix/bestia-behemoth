@@ -18,7 +18,6 @@ extends Control
 ## Forwarded from the view, so a listener wires to the widget it can see rather than reaching through
 ## it for a child. See [MapView] for what each one means.
 signal mark_requested(at: Vector2)
-signal mark_clicked(index: int)
 signal place_selected(place: Dictionary)
 signal service_selected(service: Dictionary)
 
@@ -28,6 +27,10 @@ signal hidden_services_changed(kinds: Array[String])
 
 ## The player switched the grid on or off.
 signal grid_overlay_changed(on: bool)
+
+## The player asked to delete, or to rename, one of their own marks; [param index] indexes [MapMarks.all].
+signal mark_delete_requested(index: int)
+signal mark_rename_requested(index: int)
 
 const _ROUTES := "routes"
 
@@ -76,10 +79,16 @@ var _grid_toggle: Button
 var _results: PopupMenu
 var _found: Array = []
 
+## What a click on the map opens; see [method _on_context].
+var _card: MapContextCard
+
+## Puts the map in route mode, where a click adds a stop - see [member MapView.route_mode].
+var _route_toggle: Button
+
 
 func setup(source: MapSource, entities: Node) -> void:
 	_view.mark_requested.connect(func(at: Vector2) -> void: mark_requested.emit(at))
-	_view.mark_clicked.connect(func(index: int) -> void: mark_clicked.emit(index))
+	_view.context_requested.connect(_on_context)
 	_view.place_selected.connect(func(place: Dictionary) -> void: place_selected.emit(place))
 	_view.service_selected.connect(func(service: Dictionary) -> void: service_selected.emit(service))
 	_view.interactive = true
@@ -101,7 +110,7 @@ func _wire_travel(entities: EntityManager) -> void:
 		_travel.show_journey(entities.get_journey(entity_id))
 		_view.queue_redraw()
 	)
-	_travel.go_pressed.connect(_view.send_draft)
+	_travel.go_pressed.connect(_send_draft)
 	_travel.clear_pressed.connect(_view.clear_draft)
 	_travel.stop_pressed.connect(func(entity_id: int) -> void:
 		var none: Array[Vector3] = []
@@ -180,6 +189,9 @@ func _ready() -> void:
 	_build_legend()
 	_build_habitat_chip()
 	_build_search()
+	_card = MapContextCard.new()
+	_view.add_child(_card)
+	($Panel/Margin/Rows/Footer/Help as Label).text = tr("MAP_HELP")
 
 
 ## One toggle per service kind, each beside the glyph the map draws for it.
@@ -243,6 +255,16 @@ func _build_search() -> void:
 	)
 	header.add_child(_grid_toggle)
 	header.move_child(_grid_toggle, close_hint.get_index())
+
+	_route_toggle = Button.new()
+	_route_toggle.text = tr("MAP_ROUTE")
+	_route_toggle.tooltip_text = tr("MAP_ROUTE_TIP")
+	_route_toggle.toggle_mode = true
+	_route_toggle.focus_mode = Control.FOCUS_NONE
+	_route_toggle.add_theme_font_size_override("font_size", 12)
+	_route_toggle.toggled.connect(_set_route_mode)
+	header.add_child(_route_toggle)
+	header.move_child(_route_toggle, close_hint.get_index())
 
 	_results = PopupMenu.new()
 	_results.id_pressed.connect(func(index: int) -> void: _go_to_place(_found[index]))
@@ -362,6 +384,13 @@ func toggle() -> void:
 		open()
 
 
+## Opens the map centred on [param at] world metres rather than on the player - a click on the minimap.
+func open_at(at: Vector2) -> void:
+	open()
+	if visible:
+		_view.centre_on(at)
+
+
 func open() -> void:
 	if not _has_chart:
 		return
@@ -385,7 +414,74 @@ func open() -> void:
 
 
 func close() -> void:
+	_card.close()
+	_route_toggle.button_pressed = false
 	visible = false
+
+
+## Route mode keeps the draft only while it is on: leaving it is how a half-planned route is dropped.
+func _set_route_mode(on: bool) -> void:
+	_card.close()
+	_view.route_mode = on
+	if not on:
+		_view.clear_draft()
+
+
+func _send_draft() -> void:
+	_view.send_draft()
+	_route_toggle.button_pressed = false
+
+
+## The context card for [param hit] - see [method MapView.hit_at] - with what can be done there.
+func _on_context(hit: Dictionary, at: Vector2) -> void:
+	var world: Vector2 = hit["world"]
+	var entry: Dictionary = hit.get("entry", {})
+	var title := tr("MAP_GROUND")
+	var lines: Array[String] = []
+	var actions: Array[Dictionary] = [{"label": tr("MAP_GO"), "run": func() -> void: _view.travel_to(world)}]
+	actions.append({"label": tr("MAP_ADD_TO_ROUTE"), "run": func() -> void: _add_to_route(world)})
+
+	match hit["kind"]:
+		"place":
+			title = _view.label_of(entry)
+			var tier := str(entry.get("tier", "")) if entry.get("tier") != null else ""
+			if not tier.is_empty():
+				lines.append(tr("SETTLEMENT_TIER_" + tier))
+			for service in _view.services_of_settlement(title):
+				var at_service := _position_of(service)
+				actions.append({
+					"label": tr("MAP_GO_TO") % _view.service_label(service),
+					"run": func() -> void: _view.travel_to(at_service),
+				})
+		"service":
+			title = _view.service_label(entry)
+			lines.append(_view.service_hours(entry))
+		"mark":
+			title = str(entry["name"])
+			lines.append(tr("MAP_HOVER_MARK"))
+			var index: int = hit["index"]
+			actions.append({"label": tr("MAP_RENAME"), "run": func() -> void: mark_rename_requested.emit(index)})
+			actions.append({"label": tr("MAP_DELETE"), "run": func() -> void: mark_delete_requested.emit(index)})
+		"bestia":
+			title = tr("MAP_HOVER_BESTIA")
+		_:
+			actions.append({"label": tr("MAP_MARK_HERE"), "run": func() -> void: mark_requested.emit(world)})
+
+	lines.append(_view.grid_ref_of(world))
+	var from: Variant = _view.order_entity_metres()
+	if from != null:
+		lines.append(tr("MAP_DISTANCE") % _distance_text(world.distance_to(from)))
+
+	_card.present(at, title, lines, actions)
+
+
+func _add_to_route(world: Vector2) -> void:
+	_route_toggle.button_pressed = true
+	_view.add_stop(world)
+
+
+static func _distance_text(metres: float) -> String:
+	return "%.1f km" % (metres / 1000.0) if metres >= 1000.0 else "%d m" % int(metres)
 
 
 func _process(_delta: float) -> void:
@@ -418,20 +514,30 @@ func _input(event: InputEvent) -> void:
 	if not visible:
 		return
 
-	# Typing in the search box is not a shortcut.
-	if event is InputEventKey and event.pressed and event.keycode == KEY_G and not _search.has_focus():
-		_grid_toggle.button_pressed = not _grid_toggle.button_pressed
-		get_viewport().set_input_as_handled()
+	if not event is InputEventKey or not event.pressed:
 		return
 
-	# Escape drops a draft first and closes after, and is consumed so it does not also reach whatever else
-	# listens for it.
-	if event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
-		if _view.draft.is_empty():
-			close()
-		else:
-			_view.clear_draft()
-		get_viewport().set_input_as_handled()
+	# Typing in the search box is not a shortcut.
+	var typing := _search.has_focus()
+	match event.keycode:
+		KEY_G when not typing:
+			_grid_toggle.button_pressed = not _grid_toggle.button_pressed
+		KEY_R when not typing:
+			_route_toggle.button_pressed = not _route_toggle.button_pressed
+		KEY_ENTER, KEY_KP_ENTER when _view.route_mode and not typing:
+			_send_draft()
+		# Escape undoes one thing at a time - the card, then route mode, then the map - and is consumed so it
+		# does not also reach whatever else listens for it.
+		KEY_ESCAPE:
+			if _card.visible:
+				_card.close()
+			elif _view.route_mode:
+				_route_toggle.button_pressed = false
+			else:
+				close()
+		_:
+			return
+	get_viewport().set_input_as_handled()
 
 
 ## Names the map after wherever the player is standing.
