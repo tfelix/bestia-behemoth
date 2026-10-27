@@ -10,6 +10,7 @@ import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.AccountTaskExecutor
 import net.bestia.zone.travel.JourneyOrder
+import net.bestia.zone.travel.JourneyRefusal
 import net.bestia.zone.travel.JourneyService
 import net.bestia.zone.travel.SavedRouteService
 import org.springframework.data.repository.findByIdOrNull
@@ -47,13 +48,16 @@ class JourneyCommand(
     val (waypoints, name) = waypointsOf(query) ?: return BusReply.of(correlationId, Status.NOT_FOUND, "no such route")
     if (waypoints.isEmpty()) return BusReply.of(correlationId, Status.INVALID, "a journey needs a destination")
 
-    val refusal = world.modify(entityId) { id ->
-      journeys.start(this, id, waypoints, JourneyOrder.PLAYER, name, query.savedRouteId)
+    // Wrapped, because modify's null means the entity is gone, and start's null means it set off.
+    val attempt = world.modify(entityId) { id ->
+      Attempt(journeys.start(this, id, waypoints, JourneyOrder.PLAYER, name, query.savedRouteId))
     } ?: return resting(correlationId)
 
-    if (refusal != null) return BusReply.of(correlationId, Status.INVALID, refusal.name)
-    return BusReply.ok(correlationId, ZoneAnswer.Done)
+    val refusal = attempt.refusal ?: return BusReply.ok(correlationId, ZoneAnswer.Done)
+    return BusReply.of(correlationId, Status.INVALID, refusal.name)
   }
+
+  private class Attempt(val refusal: JourneyRefusal?)
 
   /** The route's points in the order asked for, with its name; null for a route that is not the master's. */
   private fun waypointsOf(query: ZoneQuery.SendOnJourney): Pair<List<Vec3L>, String?>? {
@@ -64,7 +68,7 @@ class JourneyCommand(
     return points to route.name
   }
 
-  /** The bestia's entity while it is in the world, null when it is not the master's or rests until it returns. */
+  /** The bestia's entity while it is in the world, null when it is not the master's. */
   private fun bestiaEntity(accountId: Long, masterId: Long, playerBestiaId: Long): Long? {
     owned.find(accountId, masterId) ?: return null
     val row = playerBestias.findByIdOrNull(playerBestiaId)?.takeIf { it.master.id == masterId } ?: return null
@@ -72,7 +76,7 @@ class JourneyCommand(
   }
 
   private fun resting(correlationId: String): BusReply {
-    return BusReply.of(correlationId, Status.NOT_FOUND, "not in the world until its master returns")
+    return BusReply.of(correlationId, Status.NOT_FOUND, "not in the world")
   }
 
   /** Never lets [work] throw: a failure in an account's inbox closes that account's game connection. */

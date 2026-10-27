@@ -94,7 +94,7 @@ class PlayerBestiaEntityPersister(
     }
   }
 
-  /** Player bestias are respawned when their master is selected, not at startup. */
+  /** Player bestias are spawned by `PlayerBestiaSpawnBootRunner`, which needs the spawner's AI and stats. */
   override fun loadAll(world: World) = Unit
 
   companion object {

@@ -116,9 +116,15 @@ class PlayerBestiaEntitySpawner(
     return playerBestiaRepository.findAllByMasterId(masterId).map(::load)
   }
 
+  @Transactional(readOnly = true)
+  fun loadAll(): List<LoadedBestia> {
+    return playerBestiaRepository.findAll().map(::load)
+  }
+
   /**
-   * Spawns each of [bestias] that is not in [world]. A bestia stays in the world when its owner leaves, but a
-   * restart loses it. Checked in the same world scope that spawns, so a bestia still in the world is never doubled.
+   * Spawns each of [bestias] that is not in [world]. A bestia stays in the world when its owner leaves, and the
+   * boot brings every one back after a restart; this catches one the boot could not. Checked in the same world
+   * scope that spawns, so a bestia still in the world is never doubled.
    */
   fun respawnMissing(world: World, masterId: Long, bestias: List<LoadedBestia>) {
     val inWorld = OwnedBestia.ownedBy(world, masterId).mapTo(HashSet()) { it.playerBestiaId }
@@ -130,6 +136,13 @@ class PlayerBestiaEntitySpawner(
 
       val entityId = world.createEntity(bestia.entityId) { id -> addComponents(id, bestia) }
       LOG.info { "Respawned player bestia ${bestia.row.id} of master $masterId with entity id: $entityId" }
+    }
+  }
+
+  /** Spawns every one of [bestias], whoever's it is, into a [world] that holds none yet. */
+  fun spawnAtBoot(world: World, bestias: List<LoadedBestia>) {
+    for (bestia in bestias) {
+      world.createEntity(bestia.entityId) { id -> addComponents(id, bestia) }
     }
   }
 

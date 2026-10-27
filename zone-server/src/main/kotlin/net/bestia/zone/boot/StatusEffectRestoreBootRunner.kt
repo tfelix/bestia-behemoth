@@ -20,9 +20,9 @@ import net.bestia.zone.ecs.core.modify
  * per entity id and are indifferent to entity kind, so one sweep covers mobs, ground items and
  * script entities alike.
  *
- * Masters and their bestias are absent here by design - they are materialized on login, and
- * [net.bestia.zone.master.MasterEntitySpawner] and [net.bestia.zone.master.bestia.PlayerBestiaEntitySpawner]
- * restore their effects at that point.
+ * Masters and their bestias are absent here by design - masters are materialized on login and bestias by
+ * [PlayerBestiaSpawnBootRunner] right after this, and [net.bestia.zone.master.MasterEntitySpawner] and
+ * [net.bestia.zone.master.bestia.PlayerBestiaEntitySpawner] restore their effects at that point.
  */
 @Component
 @Order(111)
@@ -46,7 +46,7 @@ class StatusEffectRestoreBootRunner(
 
     var restored = 0
     for ((entityId, effects) in stored) {
-      // An entity that is not in the world yet is normal for a master or bestia waiting for its owner's login.
+      // Not in the world yet is normal for a master waiting for its login, or a bestia spawned after this pass.
       world.modify(entityId) { id ->
         statusEffectPersistenceService.attach(this, id, effects)
         restored++

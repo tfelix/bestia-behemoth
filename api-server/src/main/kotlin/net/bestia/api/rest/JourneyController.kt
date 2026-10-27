@@ -18,8 +18,7 @@ import org.springframework.web.bind.annotation.RestController
 
 /**
  * Sends a bestia off from the app, or stops it - the same journey a map click in the game starts, walked however
- * far while nobody plays. A 404 for a bestia the roster lists out of the world means it rests until its master
- * next enters it.
+ * far while nobody plays. A 404 is a bestia that is not the master's, or not in the world.
  */
 @RestController
 @RequestMapping("/v1/companion/masters/{masterId}/bestias/{bestiaId}/journey")

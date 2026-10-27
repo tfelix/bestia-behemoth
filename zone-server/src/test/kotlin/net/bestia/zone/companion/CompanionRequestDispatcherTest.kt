@@ -129,13 +129,21 @@ class CompanionRequestDispatcherTest {
   }
 
   @Test
-  fun `a bestia that is not in the world cannot be sent off, and a stranger's never`() {
+  fun `a bestia is in the world with nobody playing, is sent off and stopped, and a stranger's never`() {
     val master = masters.findAllByAccountIdOrderBySlot(1L).first()
     val bestia = playerBestias.findAllByMasterId(master.id).first()
     val order = ZoneQuery.SendOnJourney(master.id, bestia.id, listOf(MapPoint(10.0, 10.0)))
 
     assertEquals(Status.NOT_FOUND, ask(2L, order).status)
-    if (bestia.entityId == null) assertEquals(Status.NOT_FOUND, ask(1L, order).status)
+
+    val roster = assertIs<ZoneAnswer.Roster>(ask(1L, ZoneQuery.BestiaRoster(master.id)).answer)
+    assertTrue(roster.bestias.single { it.id == bestia.id }.inWorld, "spawned at boot, its master never selected")
+
+    try {
+      assertEquals(ZoneAnswer.Done, ask(1L, order).answer)
+    } finally {
+      assertEquals(ZoneAnswer.Done, ask(1L, ZoneQuery.StopJourney(master.id, bestia.id)).answer)
+    }
   }
 
   @Test
