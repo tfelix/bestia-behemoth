@@ -62,7 +62,12 @@ class TravelSystem(
 
     val knower = Knower.of(world, id)
     if (planner.needsPlan(journey, knower)) {
-      journey.plan = planner.plan(position, journey, knower) ?: return end(world, id, journey, JourneyFailure.NO_ROUTE)
+      when (val planned = planner.plan(position, journey, knower)) {
+        is RoutePlanner.Planned.Ready -> journey.plan = planned.plan
+        RoutePlanner.Planned.NoRoute -> return end(world, id, journey, JourneyFailure.NO_ROUTE)
+        // Stands where it is rather than walking a way that may lead into the water; the grid needs a tick or two.
+        RoutePlanner.Planned.NotYet -> return
+      }
       journey.route = planner.outline(journey)
     }
 

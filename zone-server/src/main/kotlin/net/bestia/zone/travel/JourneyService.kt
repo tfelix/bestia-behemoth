@@ -7,6 +7,7 @@ import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.movement.ecs.Path
 import net.bestia.zone.movement.ecs.Position
+import net.bestia.zone.navigation.region.RegionGrid
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.world.anchor.AnchorPriority
 import net.bestia.zone.world.anchor.SimulationAnchor
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service
 class JourneyService(
   private val config: TravelConfig,
   private val attackCancel: AttackCancelService,
+  private val grid: RegionGrid,
 ) {
 
   /**
@@ -39,6 +41,7 @@ class JourneyService(
     if (waypoints.size > config.maxWaypoints) return JourneyRefusal.TOO_MANY_WAYPOINTS
     if (!world.has(entity, Position::class)) return JourneyRefusal.NOT_IN_WORLD
     if (world.has(entity, Dead::class)) return JourneyRefusal.DEAD
+    if (isAnyInWater(waypoints)) return JourneyRefusal.IN_WATER
 
     if (order == JourneyOrder.PLAYER) attackCancel.cancelAttack(world, entity)
 
@@ -62,6 +65,12 @@ class JourneyService(
     if (room > 0) journey.append(waypoints.take(room))
     return true
   }
+
+  /**
+   * Whether a waypoint stands in water too deep to wade. Asked before [append] as well as by [start], so a
+   * click into a lake is refused at once rather than ending as no route once the traveller has walked to it.
+   */
+  fun isAnyInWater(waypoints: List<Vec3L>): Boolean = waypoints.any(grid::isWaterAt)
 
   /** Stops [entity] where it stands. */
   fun cancel(world: World, entity: EntityId) {

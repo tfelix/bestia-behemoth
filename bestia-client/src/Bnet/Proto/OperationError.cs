@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSrKEgoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSrrEgoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -79,8 +79,9 @@ namespace Bnet {
             "X1JBTkdFEFcSGQoVQVVDVElPTl9MSVNUSU5HX0xJTUlUEFgSHQoZQVVDVElP",
             "Tl9DQU5OT1RfQUZGT1JEX0ZFRRBZEhgKFEFVQ1RJT05fTElTVElOR19HT05F",
             "EFoSGQoVQVVDVElPTl9DQU5OT1RfQUZGT1JEEFsSGgoWTElHSFRfU09VUkNF",
-            "X0JVUk5UX09VVBBcQiwKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0ITT3BlcmF0",
-            "aW9uRXJyb3JQcm90b2IGcHJvdG8z"));
+            "X0JVUk5UX09VVBBcEh8KG1RSQVZFTF9ERVNUSU5BVElPTl9JTl9XQVRFUhBd",
+            "QiwKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0ITT3BlcmF0aW9uRXJyb3JQcm90",
+            "b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -441,6 +442,10 @@ namespace Bnet {
     /// The last torch in the light slot burnt out and the bag holds no other one to light.
     /// </summary>
     [pbr::OriginalName("LIGHT_SOURCE_BURNT_OUT")] LightSourceBurntOut = 92,
+    /// <summary>
+    /// A map click or a stop on a route lies in water too deep to wade. The client cannot tell from its map tiles.
+    /// </summary>
+    [pbr::OriginalName("TRAVEL_DESTINATION_IN_WATER")] TravelDestinationInWater = 93,
   }
 
   #endregion

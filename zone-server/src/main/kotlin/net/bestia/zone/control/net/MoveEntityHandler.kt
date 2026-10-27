@@ -2,6 +2,7 @@ package net.bestia.zone.control.net
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
+import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.battle.ecs.attack.AttackCancelService
 import net.bestia.zone.battle.ecs.skill.CastCancelService
 import net.bestia.zone.control.ClientLeg
@@ -9,6 +10,8 @@ import net.bestia.zone.control.MoveRequestRateLimit
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.entity.ecs.DeadActionGuard
 import net.bestia.zone.logout.ecs.LogoutCancelService
+import net.bestia.zone.message.OperationErrorSMSG
+import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.message.TickMessageHandler
 import net.bestia.zone.message.decoder
 import net.bestia.zone.movement.ecs.Path
@@ -35,6 +38,7 @@ class MoveEntityHandler(
   private val rateLimit: MoveRequestRateLimit,
   private val journeys: JourneyService,
   private val clientLeg: ClientLeg,
+  private val outMessageProcessor: OutMessageProcessor,
 ) : TickMessageHandler<MoveEntityCMSG> {
   override val wire = decoder(MessageCase.MOVE_ENTITY) { accountId, envelope ->
     MoveEntityCMSG.fromBnet(accountId, envelope.moveEntity)
@@ -56,6 +60,12 @@ class MoveEntityHandler(
     // After the cancels, so a spammed click still counts as intent and cannot be used to keep a cast alive.
     if (!rateLimit.spend(msg.playerId)) {
       LOG.debug { "Dropping move for account ${msg.playerId}: over its request rate" }
+      return true
+    }
+
+    // Before append as well as start: a stop added in a lake is as unreachable as a first one.
+    if (journeys.isAnyInWater(msg.waypoints)) {
+      outMessageProcessor.sendToPlayer(msg.playerId, OperationErrorSMSG(OpError.TRAVEL_DESTINATION_IN_WATER))
       return true
     }
 
