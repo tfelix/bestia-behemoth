@@ -320,13 +320,17 @@ namespace BestiaBehemothClient.Game.World
     [Export] public bool DissolveReveal { get; set; }
 
     /// <summary>How far a blade growing in at the reveal front takes the ground's colour. 0 is off.</summary>
-    [Export(PropertyHint.Range, "0,1,0.05")] public float GroundMatch { get; set; }
+    /// <remarks>
+    /// On by default together with <see cref="GroundMatchFrom"/>: compared in <c>Dev/GrassBench</c> against growing,
+    /// widening and dissolving, it was the one that hid the far field thinning without adding an artefact.
+    /// </remarks>
+    [Export(PropertyHint.Range, "0,1,0.05")] public float GroundMatch { get; set; } = 1.0f;
 
     /// <summary>
     /// Share of the fade band from which every blade starts taking the ground's colour, reaching it at the band's
     /// end. 1 leaves it to the reveal alone. Only acts while <see cref="GroundMatch"/> is above 0.
     /// </summary>
-    [Export(PropertyHint.Range, "0,1,0.05")] public float GroundMatchFrom { get; set; } = 1.0f;
+    [Export(PropertyHint.Range, "0,1,0.05")] public float GroundMatchFrom { get; set; } = 0.25f;
 
     /// <summary>The compensation ceiling in force, which depends on which way the compensation is drawn.</summary>
     private float CoverageCeiling => WidenNotGrow ? MaxWidenScale : MaxCoverageScale;
