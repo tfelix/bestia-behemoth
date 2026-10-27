@@ -63,6 +63,9 @@ class SurfaceSampler(
   private val ditherSeed = GenRng.mix64(seed xor DITHER_SALT)
   private val blightSeed = GenRng.mix64(seed xor BLIGHT_SALT)
   private val shoreSeed = GenRng.mix64(seed xor SHORE_SALT)
+  private val bareSeed = GenRng.mix64(seed xor BARE_SALT)
+  private val bareWarpSeed = GenRng.mix64(seed xor BARE_WARP_SALT)
+  private val bareRimSeed = GenRng.mix64(seed xor BARE_RIM_SALT)
 
   /**
    * Which biome covers this column.
@@ -277,6 +280,37 @@ class SurfaceSampler(
     return 1.0 / (1.0 + exp(-PATCH_RANK_SCALE * (raw - 0.5)))
   }
 
+  /**
+   * Whether the turf on this column has worn through to the earth under it.
+   *
+   * Two fields at two scales. The coarse one draws the patch - warped, so its outline is not a noise blob. Across
+   * a wide rim around its core a fine field decides, and the chance of earth rises with the square of the way in:
+   * the outer rim is turf with the odd clump of earth, the inner rim earth with tufts of turf left on it. The
+   * client grows grass by how much turf surrounds each vertex, so the rim comes out as grass thinning out.
+   *
+   * Both fields are ranked, as in [shorePatchAt]. A raw fbm crowds around 0.5, so comparing the fine field against
+   * the rim's ramp unranked switches at one depth into the rim, and draws the clean edge this rim is meant to blur.
+   */
+  fun isBarePatchAt(worldX: Double, worldY: Double): Boolean {
+    val warped = Noise.warp(bareWarpSeed, worldX, worldY, BARE_WARP_METRES, 1.0 / BARE_PATCH_WAVELENGTH)
+    val patch = rankOf(Noise.fbm(
+      bareSeed, warped[0] / BARE_PATCH_WAVELENGTH, warped[1] / BARE_PATCH_WAVELENGTH, BARE_OCTAVES
+    ))
+
+    if (patch < BARE_RIM_FROM) return false
+    if (patch >= BARE_CORE_FROM) return true
+
+    val intoRim = (patch - BARE_RIM_FROM) / (BARE_CORE_FROM - BARE_RIM_FROM)
+    val clump = rankOf(Noise.fbm(
+      bareRimSeed, worldX / BARE_RIM_WAVELENGTH, worldY / BARE_RIM_WAVELENGTH, BARE_OCTAVES
+    ))
+
+    return clump < intoRim * intoRim
+  }
+
+  /** An fbm value as a share of the ground below it, near enough; see [shorePatchAt]. */
+  private fun rankOf(fbm: Double): Double = 1.0 / (1.0 + exp(-PATCH_RANK_SCALE * ((fbm + 1.0) / 2.0 - 0.5)))
+
   fun temperatureAt(worldX: Double, worldY: Double): Double =
     temperature.sampleBilinear(worldX, worldY)
 
@@ -378,6 +412,25 @@ class SurfaceSampler(
     private const val SHORE_PATCH_WAVELENGTH = 19.0
 
     private const val SHORE_OCTAVES = 2
+
+    private const val BARE_SALT = 0x6D2E81B4C93F07L
+    private const val BARE_WARP_SALT = 0x4A97C3E0D215B8L
+    private const val BARE_RIM_SALT = 0x1F5B26A8E7C04DL
+
+    /** Bare patches come out about half this across, the size of a worn spot a herd or a path leaves. */
+    private const val BARE_PATCH_WAVELENGTH = 28.0
+    private const val BARE_WARP_METRES = 9.0
+    private const val BARE_OCTAVES = 2
+
+    /** Clumps of earth in a patch's rim, a metre or two across. */
+    private const val BARE_RIM_WAVELENGTH = 3.0
+
+    /**
+     * Rank where the rim starts and where the bare core starts. The rim is wide - a quarter of grassland - but
+     * only a third of it is earth, so about an eighth of grassland ends up bare.
+     */
+    const val BARE_RIM_FROM = 0.70
+    const val BARE_CORE_FROM = 0.95
 
     /** 1.702 standard deviations over the measured 0.113. See [shorePatchAt] for the measurement. */
     private const val PATCH_RANK_SCALE = 15.0

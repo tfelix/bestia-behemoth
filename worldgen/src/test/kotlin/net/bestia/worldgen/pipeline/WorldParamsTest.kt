@@ -125,10 +125,12 @@ class WorldParamsTest {
     // cross-street removal from `StreetParams` landing in the same tree - an aggregate over every params
     // class cannot separate two changes that are both in it, which is the one thing this number is worse
     // at than `ParamsVersionTest`'s per-class pins. Re-derive it rather than adjust it if either moves.
+    //
+    // Only the chunk tier moved when grassland began wearing through to dirt: `ChunkMaterializer.VERSION` 6.
     assertEquals(-8_635_386_947_799_670_163L, WorldParams.DEFAULT.version, "re-pin: the world tuning moved")
     // Pinned as a pair so each half stays checkable: a world-tier retune has to move the number above and
     // leave this one alone, and a chunk-tier one the reverse. This is the half the chunk cache is keyed on.
-    assertEquals(-6_999_444_330_786_159_475L, WorldParams.DEFAULT.chunkTierVersion, "re-pin: the chunk tier moved")
+    assertEquals(-3_314_670_411_422_936_717L, WorldParams.DEFAULT.chunkTierVersion, "re-pin: the chunk tier moved")
   }
 
   private fun config() = StandardWorld.demoConfig().copy(widthCells = 64, heightCells = 64)
