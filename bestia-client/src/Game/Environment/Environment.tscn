@@ -5,9 +5,36 @@
 [ext_resource type="Script" path="res://Game/Environment/Precipitation/precipitation.gd" id="3_precip"]
 [ext_resource type="Script" path="res://Game/Environment/WeatherAudio/weather_audio.gd" id="4_audio"]
 [ext_resource type="Shader" path="res://Game/Environment/Sky/sky.gdshader" id="5_sky"]
+[ext_resource type="Script" path="res://Game/Environment/Sky/sky_clouds.gd" id="6_clouds"]
+
+[sub_resource type="FastNoiseLite" id="CloudNoise_fnl"]
+noise_type = 1
+frequency = 0.012
+fractal_octaves = 4
+
+[sub_resource type="NoiseTexture2D" id="CloudNoise_tex"]
+width = 512
+height = 512
+seamless = true
+noise = SubResource("CloudNoise_fnl")
+
+[sub_resource type="FastNoiseLite" id="CloudPuffs_fnl"]
+noise_type = 2
+frequency = 0.02
+fractal_type = 0
+cellular_return_type = 1
+
+[sub_resource type="NoiseTexture2D" id="CloudPuffs_tex"]
+width = 512
+height = 512
+invert = true
+seamless = true
+noise = SubResource("CloudPuffs_fnl")
 
 [sub_resource type="ShaderMaterial" id="SkyMaterial_1xco1"]
 shader = ExtResource("5_sky")
+shader_parameter/cloud_noise = SubResource("CloudNoise_tex")
+shader_parameter/cloud_puffs = SubResource("CloudPuffs_tex")
 
 [sub_resource type="Sky" id="Sky_vrr3t"]
 sky_material = SubResource("SkyMaterial_1xco1")
@@ -54,6 +81,9 @@ light_energy = 0.0
 
 [node name="CloudShadows" type="Node3D" parent="." unique_id=1029384756]
 script = ExtResource("2_cloud")
+
+[node name="SkyClouds" type="Node" parent="." unique_id=1592648370]
+script = ExtResource("6_clouds")
 
 [node name="Precipitation" type="Node3D" parent="." unique_id=1746395028]
 script = ExtResource("3_precip")
