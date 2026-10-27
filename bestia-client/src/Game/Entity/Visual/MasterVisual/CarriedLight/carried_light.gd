@@ -7,6 +7,9 @@ class_name CarriedLight
 ## is also what burns the torch down, so a light is seen exactly while it costs something. Top level, so the
 ## Mage's 0.7 scale does not shrink the light's range. It takes the hand's position but the wearer's facing:
 ## the hand bone points down, and a torch is held flame up.
+##
+## The light itself hangs well above the flame. At hand height it lit a small hot spot; from up there it lights
+## about half the screen evenly, like a dim day, which is what lets a player find their way at night.
 
 const _FADE_SECONDS := 0.6
 const _FLICKER_SPEED := 9.0
