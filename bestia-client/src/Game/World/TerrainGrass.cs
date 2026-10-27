@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using BestiaBehemothClient.Game.World.Mesh;
 using Godot;
 
@@ -310,6 +311,16 @@ namespace BestiaBehemothClient.Game.World
 
     /// <summary>Ceiling on the compensation while <see cref="WidenNotGrow"/> is on.</summary>
     [Export(PropertyHint.Range, "1,4,0.1")] public float MaxWidenScale { get; set; } = 1.6f;
+
+    /// <summary>Dissolves a blade in at the reveal front at full size, rather than growing it from a point.</summary>
+    /// <remarks>
+    /// Swaps the field onto <c>grass_dissolve.gdshader</c>, whose discard costs every blade it draws - judge it
+    /// in <c>Dev/GrassBench</c> by frame time as well as by eye.
+    /// </remarks>
+    [Export] public bool DissolveReveal { get; set; }
+
+    /// <summary>How far a blade growing in at the reveal front takes the ground's colour. 0 is off.</summary>
+    [Export(PropertyHint.Range, "0,1,0.05")] public float GroundMatch { get; set; }
 
     /// <summary>The compensation ceiling in force, which depends on which way the compensation is drawn.</summary>
     private float CoverageCeiling => WidenNotGrow ? MaxWidenScale : MaxCoverageScale;
@@ -698,6 +709,17 @@ namespace BestiaBehemothClient.Game.World
     /// <summary>What the materials were last told about <see cref="WidenNotGrow"/>. False is the shader's default.</summary>
     private bool _pushedWiden;
 
+    private bool _pushedDissolve;
+
+    private float _pushedGroundMatch;
+
+    /// <summary>The field's own shader, kept so <see cref="DissolveReveal"/> can be switched back off.</summary>
+    private Shader _growShader;
+
+    private Shader _dissolveShader;
+
+    private const string DissolveShaderPath = "res://Game/Terrain/Grass/grass_dissolve.gdshader";
+
     /// <summary>Where the camera is looking, which is where the player is. Null until told - see <see cref="SetFocusAt"/>.</summary>
     private Vector3? _focus;
 
@@ -742,6 +764,8 @@ namespace BestiaBehemothClient.Game.World
     private static readonly StringName RevealSpanParameter = "grass_reveal_span";
 
     private static readonly StringName WidenOnlyParameter = "grass_widen_only";
+
+    private static readonly StringName GroundMatchParameter = "grass_ground_match";
 
     private static readonly StringName BurnsWithGroundParameter = "burns_with_ground";
     private static readonly StringName GroundMarksParameter = "ground_marks";
@@ -1257,7 +1281,7 @@ namespace BestiaBehemothClient.Game.World
       Drain(eye);
 
       PushRevealSpan();
-      PushWidenMode();
+      PushRevealLook();
       Vanish(delta);
 
       if (_patches.Count == 0 || !eye.HasValue)
@@ -1422,20 +1446,32 @@ namespace BestiaBehemothClient.Game.World
       }
     }
 
-    /// <summary>Keeps the shader's copy of <see cref="WidenNotGrow"/> in step, so it can be flipped while the game runs.</summary>
-    private void PushWidenMode()
+    /// <summary>
+    /// Keeps the materials in step with <see cref="WidenNotGrow"/>, <see cref="DissolveReveal"/> and
+    /// <see cref="GroundMatch"/>, so each can be flipped while the game runs.
+    /// </summary>
+    private void PushRevealLook()
     {
-      if (_material is not ShaderMaterial shader || _pushedWiden == WidenNotGrow)
+      if (_material is not ShaderMaterial field ||
+          (_pushedWiden == WidenNotGrow && _pushedDissolve == DissolveReveal &&
+           Mathf.IsEqualApprox(_pushedGroundMatch, GroundMatch)))
       {
         return;
       }
 
       _pushedWiden = WidenNotGrow;
-      shader.SetShaderParameter(WidenOnlyParameter, WidenNotGrow);
+      _pushedDissolve = DissolveReveal;
+      _pushedGroundMatch = GroundMatch;
 
-      foreach (var scaled in _scaled.Values)
+      _growShader ??= field.Shader;
+      _dissolveShader ??= GD.Load<Shader>(DissolveShaderPath);
+      var shader = DissolveReveal ? _dissolveShader : _growShader;
+
+      foreach (var material in _scaled.Values.Prepend(field))
       {
-        scaled.SetShaderParameter(WidenOnlyParameter, WidenNotGrow);
+        material.Shader = shader;
+        material.SetShaderParameter(WidenOnlyParameter, WidenNotGrow);
+        material.SetShaderParameter(GroundMatchParameter, GroundMatch);
       }
     }
 
