@@ -43,11 +43,6 @@ signal dragged_out()
 @export var item_level: int = 0
 @export var rolled_stats: Array = []
 
-## Colours for the wear bar, worst state last. Fill is picked by [method _wear_color].
-const _WEAR_FINE := Color(0.36, 0.71, 0.35)
-const _WEAR_WORN := Color(0.85, 0.72, 0.22)
-const _WEAR_BROKEN := Color(0.79, 0.27, 0.24)
-
 ## Assigned by Inventory when this node is instantiated - used for the double-click-to-equip
 ## shortcut, which has to know whether the equipment window is currently open.
 ## Untyped on purpose: statically typing this as Inventory forces inventory_item.gd to resolve
@@ -59,39 +54,16 @@ var _is_dragging_self: bool = false
 
 @onready var _count: Label = %Count
 @onready var _icon: TextureRect = %Icon
-@onready var _wear: ProgressBar = %Wear
+@onready var _wear: WearBar = %Wear
 
 
 func _ready() -> void:
 	_count.text = str(amount)
 	_icon.texture = item.get_icon()
-	_update_wear()
+	_wear.show_wear(durability, max_durability)
 	tooltip_text = ItemDetail.as_bbcode(
 		item, upgrade_level, durability, max_durability, slots, item_level, rolled_stats, crafted_by, crafted_in
 	)
-
-
-func _update_wear() -> void:
-	_wear.visible = max_durability > 0
-	if not _wear.visible:
-		return
-
-	_wear.max_value = max_durability
-	_wear.value = durability
-
-	var fill := StyleBoxFlat.new()
-	fill.bg_color = _wear_color()
-	fill.set_corner_radius_all(2)
-	_wear.add_theme_stylebox_override("fill", fill)
-
-
-func _wear_color() -> Color:
-	var fraction := float(durability) / float(max_durability)
-	if durability <= 0:
-		return _WEAR_BROKEN
-	if fraction < 0.35:
-		return _WEAR_WORN
-	return _WEAR_FINE
 
 
 ## The text is BBCode from [ItemDetail], so the default Label-based tooltip would render the markup

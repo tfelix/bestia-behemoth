@@ -16,6 +16,7 @@ signal unequip_requested(slot: int)
 
 @onready var _icon: TextureRect = %Icon
 @onready var _label: Label = %SlotLabel
+@onready var _wear: WearBar = %Wear
 
 ## False when the wearer's species simply has no such slot - the slot then renders dimmed and
 ## refuses every drop.
@@ -24,6 +25,8 @@ var _item: ItemResource = null
 var _unique_id: int = 0
 ## The worn copy, written out by [ItemDetail]. Empty for an empty slot.
 var _detail: String = ""
+var _durability: int = 0
+var _max_durability: int = 0
 
 
 func _ready() -> void:
@@ -31,10 +34,13 @@ func _ready() -> void:
 
 
 ## Called by [Equipment] whenever the worn item (or the wearer) changes. Pass null to empty the slot.
-func set_item(item: ItemResource, unique_id: int, detail: String = "") -> void:
+## A torch burns down while worn, so the wear bar is shown here as well as in the bag.
+func set_item(item: ItemResource, unique_id: int, detail: String = "", durability: int = 0, max_durability: int = 0) -> void:
 	_item = item
 	_unique_id = unique_id
 	_detail = detail
+	_durability = durability
+	_max_durability = max_durability
 	if is_node_ready():
 		_refresh()
 
@@ -49,6 +55,7 @@ func _refresh() -> void:
 	_icon.texture = _item.get_icon() if _item != null else null
 	_icon.visible = _item != null
 	_label.visible = _item == null
+	_wear.show_wear(_durability if _item != null else 0, _max_durability if _item != null else 0)
 	_label.text = EquipmentSlot.display_name(slot)
 	modulate = Color(1, 1, 1, 1) if _available else Color(1, 1, 1, 0.35)
 	if _item == null:
