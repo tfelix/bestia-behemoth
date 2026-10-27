@@ -40,6 +40,18 @@ class CoverageTest {
   }
 
   @Test
+  fun `charting everything charts every cell, edges and corners included, and only what was not charted is new`() {
+    val coverage = Coverage(grid)
+    val surveyed = coverage.fillDisc(64_000.0, 64_000.0, 2_000.0)
+
+    val added = coverage.fillAll()
+
+    assertEquals(grid.cellsAcross.toLong() * grid.cellsDown, coverage.cellCount())
+    assertEquals(coverage.cellCount() - surveyed, added.toLong())
+    assertEquals(true, coverage.contains(0.0, 0.0) && coverage.contains(127_999.0, 127_999.0))
+  }
+
+  @Test
   fun `charting the same ground twice adds nothing`() {
     val coverage = Coverage(grid)
     val first = coverage.fillDisc(64_000.0, 64_000.0, 2_000.0)

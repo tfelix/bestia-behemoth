@@ -177,6 +177,15 @@ class ChartService(
     return Result.Ok(write(masterId, chartItem, coverage), chartItem, coverage.cellCount())
   }
 
+  /** A chart of [coverage] for a GM, out of nothing: no survey and no blank. */
+  @Transactional
+  fun grantGmChart(masterId: Long, coverage: Coverage): Result {
+    val chartItem = itemRepository.findByIdentifier(CHART_IDENTIFIER)
+      ?: return Result.Refused(OpError.CHART_NOT_FOUND)
+
+    return Result.Ok(write(masterId, chartItem, coverage), chartItem, coverage.cellCount())
+  }
+
   /** Mints the instance, hangs a chart row off it, and answers the instance id. */
   private fun write(masterId: Long, chartItem: Item, coverage: Coverage): Long {
     val instance = inventoryService.mintInstanceForMaster(masterId, chartItem)

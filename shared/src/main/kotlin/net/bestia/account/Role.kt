@@ -19,7 +19,8 @@ enum class Role(val authorities: Set<Authority>) {
       Authority.SKILLS,
       Authority.KICK,
       Authority.BAN,
-      Authority.TEST_BESTIA
+      Authority.TEST_BESTIA,
+      Authority.MAP_REVEAL
     )
   ),
   SUPER_GM(Authority.entries.toSet());

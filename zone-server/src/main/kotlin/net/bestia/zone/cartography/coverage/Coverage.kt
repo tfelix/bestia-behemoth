@@ -85,6 +85,17 @@ class Coverage(val grid: SurveyGrid) {
     return added
   }
 
+  /** Charts every cell of the world, and returns how many were new. */
+  fun fillAll(): Int {
+    var added = 0
+    for (cellY in 0 until grid.cellsDown) {
+      for (cellX in 0 until grid.cellsAcross) {
+        if (setCell(cellX, cellY)) added++
+      }
+    }
+    return added
+  }
+
   /** Adds everything [other] holds. */
   fun orWith(other: Coverage) {
     require(other.grid.cellsAcross == grid.cellsAcross && other.grid.cellsDown == grid.cellsDown) {

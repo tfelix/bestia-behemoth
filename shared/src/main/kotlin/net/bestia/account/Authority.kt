@@ -44,5 +44,11 @@ enum class Authority {
    * Being handed the GM test bestia when a master is created. Not [SPAWN], so a role that moderates but has no
    * use for a cheat creature can leave it out.
    */
-  TEST_BESTIA
+  TEST_BESTIA,
+
+  /**
+   * Charting the whole world, or a disc of it, without a survey or a blank. Separate from [MAP_MOVE] because it
+   * hands out an item - a chart that can be dropped, traded or copied like any other.
+   */
+  MAP_REVEAL
 }
