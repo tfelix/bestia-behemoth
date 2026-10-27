@@ -21,6 +21,8 @@ enum class AuctionCategory {
         Item.ItemType.EQUIP -> when (item.equipSlot) {
           EquipmentSlot.RIGHT_HAND -> WEAPON
           EquipmentSlot.ACCESSORY_1, EquipmentSlot.ACCESSORY_2 -> ACCESSORY
+          // A torch burns down like a potion is drunk, so buyers look for it next to them.
+          EquipmentSlot.LIGHT_SOURCE -> CONSUMABLE
           else -> ARMOR
         }
       }

@@ -16,6 +16,11 @@ class AuctionCategoryTest {
   }
 
   @Test
+  fun `a light source is grouped with the consumables`() {
+    assertEquals(AuctionCategory.CONSUMABLE, AuctionCategory.of(equip(EquipmentSlot.LIGHT_SOURCE)))
+  }
+
+  @Test
   fun `everything else is grouped by what it is for`() {
     assertEquals(AuctionCategory.CONSUMABLE, AuctionCategory.of(item(Item.ItemType.USABLE)))
     assertEquals(AuctionCategory.MATERIAL, AuctionCategory.of(item(Item.ItemType.ETC)))

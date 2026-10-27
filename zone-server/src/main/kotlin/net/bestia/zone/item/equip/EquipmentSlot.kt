@@ -19,7 +19,10 @@ enum class EquipmentSlot {
   RIGHT_HAND,
   LEFT_HAND,
   ACCESSORY_1,
-  ACCESSORY_2;
+  ACCESSORY_2,
+
+  /** A torch or lamp. Not from Ragnarok Online: bestia nights are dark enough to need one. */
+  LIGHT_SOURCE;
 
   val bit: Int get() = 1 shl ordinal
 }
