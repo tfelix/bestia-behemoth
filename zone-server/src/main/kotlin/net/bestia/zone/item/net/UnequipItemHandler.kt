@@ -9,6 +9,7 @@ import net.bestia.zone.ecs.core.modify
 import net.bestia.zone.entity.ecs.DeadActionGuard
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.item.ecs.Equipment
+import net.bestia.zone.item.ecs.EquipmentChanges
 import net.bestia.zone.item.ecs.Inventory
 import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.message.TickMessageHandler
@@ -28,6 +29,7 @@ class UnequipItemHandler(
   private val inventoryService: InventoryService,
   private val asyncJobExecutor: AsyncJobExecutor,
   private val deadActionGuard: DeadActionGuard,
+  private val equipmentChanges: EquipmentChanges,
 ) : TickMessageHandler<UnequipItemCMSG> {
   override val wire = decoder(MessageCase.UNEQUIP_ITEM) { accountId, envelope ->
     UnequipItemCMSG.fromBnet(accountId, envelope.unequipItem)
@@ -47,12 +49,10 @@ class UnequipItemHandler(
         return@modify null
       }
 
-      val removed = equipment.unequip(msg.slot) ?: return@modify null
+      val removed = equipmentChanges.takeOff(equipment, get(id, Inventory::class), msg.slot) ?: return@modify null
 
       // Losing gear changes the derived values just as gaining it does.
       add(id, IsStatusValueDirty)
-
-      get(id, Inventory::class)?.setEquipped(removed.uniqueId, false)
 
       removed
     }
