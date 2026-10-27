@@ -783,6 +783,14 @@ func update_path(msg: PathComponentSMSG) -> void:
 		_stop_at(msg)
 		return
 
+	# A path can come in before the first position does - an entity introduced mid-walk. Anchored where it has no
+	# position yet, at the origin, its first segment was 47 km long and the next report snapped it across all of
+	# them. The path's own first tile is next to where the entity stands, which is all the anchor needs to be.
+	if not _has_position:
+		_note_cause("path before any position")
+		_logical_position = msg.Path[0]
+		_server_position = msg.Path[0]
+
 	# The walk under way, continued: our own click confirmed, a leg appended, a route picked mid-walk. The server
 	# is a trip behind us on it, so rebuilding here would re-anchor the chain where we stand and walk back to the
 	# tile it is stepping onto - a hitch on every click and every leg, which is the thing predicting exists to

@@ -48,6 +48,19 @@ class ClientLeg(
       return
     }
 
+    // A client finishes a walk a trip before this does, and the next click is drawn from the tile it ended on: the
+    // walk's last one, which this has not reached yet. Measured from where this stands, that click starts a tile
+    // too far away and was dropped, which snapped the client back to a tile it had already left - and the walk then
+    // carried on to where the client had been. So it is joined on after the walk instead.
+    val last = existing?.lastWaypoint
+    if (existing != null && last != null && isAdjacent(last, requested.first())) {
+      val steps = walkableStepsOf(last, requested)
+      if (steps.isNotEmpty()) {
+        existing.appendPath(steps)
+        return
+      }
+    }
+
     // Without a known position there is nothing to validate a step against, so the path is trusted as it
     // used to be unconditionally. With one, the path is walked and cut at the first step that is not
     // horizontally adjacent or crosses too steep a rise - see walkableStepsOf.

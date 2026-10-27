@@ -147,6 +147,40 @@ class MoveEntityHandlerTest {
   }
 
   @Test
+  fun `a click from the tile a walk ends on goes on after the walk`() {
+    // The client finished the walk a trip ago and draws its next click from the last tile, which this side has not
+    // reached yet. From the position the route starts four tiles away; it used to be dropped, snapping the client back.
+    val world = testWorld()
+    val id = world.createEntity { }
+    world.add(id, Position(0, 0, 0))
+    val handler = handlerFor(world, id, OpenWalkQuery())
+    walkingEast(world, handler, id, 4)
+
+    handler.handle(world, moveAlong(id, listOf(Vec3L(5, 1, 0), Vec3L(6, 2, 0))))
+
+    assertEquals(
+      listOf(Vec3L(1, 0, 0), Vec3L(2, 0, 0), Vec3L(3, 0, 0), Vec3L(4, 0, 0), Vec3L(5, 1, 0), Vec3L(6, 2, 0)),
+      world.get(id, Path::class)?.path
+    )
+  }
+
+  @Test
+  fun `a click after a walk is checked from the walk's last tile`() {
+    val world = testWorld()
+    val id = world.createEntity { }
+    world.add(id, Position(0, 0, 0))
+    val handler = handlerFor(world, id, WalledWalkQuery(blockedTo = Vec3L(6, 0, 0)))
+    walkingEast(world, handler, id, 4)
+
+    handler.handle(world, moveAlong(id, listOf(Vec3L(5, 0, 0), Vec3L(6, 0, 0))))
+
+    assertEquals(
+      listOf(Vec3L(1, 0, 0), Vec3L(2, 0, 0), Vec3L(3, 0, 0), Vec3L(4, 0, 0), Vec3L(5, 0, 0)),
+      world.get(id, Path::class)?.path
+    )
+  }
+
+  @Test
   fun `a route that joins the walk is checked from where it joins`() {
     val world = testWorld()
     val id = world.createEntity { }
