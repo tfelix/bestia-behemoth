@@ -93,8 +93,16 @@ namespace BestiaBehemothClient.Game.World.Mesh
     /// </summary>
     public bool IsUniform => MaxActiveZ < 0;
 
+    /// <summary>Whether any voxel in the chunk is water.</summary>
+    /// <remarks>
+    /// Noted in the run walk this scan already makes, so it costs a comparison per run. What lets
+    /// <see cref="ShoreField"/> skip its column search on every chunk with no water near it, which is nearly all
+    /// of them: without it the search cost an eighth of the whole mesh on dry ground.
+    /// </remarks>
+    public bool HoldsWater { get; }
+
     private ChunkBands(
-      int size, int height, int words, ulong[] mask, ulong[] material, int minActiveZ, int maxActiveZ)
+      int size, int height, int words, ulong[] mask, ulong[] material, int minActiveZ, int maxActiveZ, bool holdsWater)
     {
       Size = size;
       Height = height;
@@ -103,6 +111,7 @@ namespace BestiaBehemothClient.Game.World.Mesh
       _material = material;
       MinActiveZ = minActiveZ;
       MaxActiveZ = maxActiveZ;
+      HoldsWater = holdsWater;
     }
 
     /// <summary>The words for one column, in cell-index order. Occupancy boundaries only.</summary>
@@ -167,6 +176,7 @@ namespace BestiaBehemothClient.Game.World.Mesh
 
       var minActive = int.MaxValue;
       var maxActive = -1;
+      var holdsWater = false;
 
       for (var column = 0; column < size * size; column++)
       {
@@ -195,6 +205,8 @@ namespace BestiaBehemothClient.Game.World.Mesh
         {
           var rest = blockStrip.Slice(z).IndexOfAnyExcept(blockStrip[z]);
           var next = rest < 0 ? height : z + rest;
+
+          holdsWater |= occupancyStrip[z] != 0 && appearance.SurfaceOf(blockStrip[z]) == BlockAppearance.SurfaceKind.Water;
 
           // Air is excluded by the occupancy test rather than by an id comparison, and the two are the same
           // test: occupancy is zero exactly where the block is air. An undeclared id reads as Terrain, so air
@@ -237,7 +249,8 @@ namespace BestiaBehemothClient.Game.World.Mesh
         }
       }
 
-      return new ChunkBands(size, height, words, mask, material, maxActive < 0 ? -1 : minActive, maxActive);
+      return new ChunkBands(
+        size, height, words, mask, material, maxActive < 0 ? -1 : minActive, maxActive, holdsWater);
     }
 
     /// <summary>

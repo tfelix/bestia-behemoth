@@ -266,11 +266,12 @@ object ProbeMain {
         }
       }
 
-      // Behind the point to the south, at the spring arm's longest reach and a game-like pitch. Godot's camera
-      // looks down its -Z, and Godot (x, y, z) is the server's (x, z, y).
-      val target = doubleArrayOf(centreX, config.seaLevel, centreY)
+      // Behind the point to the south, at the spring arm's longest reach and a game-like pitch, aimed at the ground
+      // there or the sea over it. Godot's camera looks down its -Z, and Godot (x, y, z) is the server's (x, z, y).
+      val ground = maxOf(terrainAt(voxelX, voxelY), config.seaLevel)
+      val target = doubleArrayOf(centreX, ground, centreY)
       val pitch = Math.toRadians(40.0)
-      val eye = doubleArrayOf(centreX, config.seaLevel + 36.0 * Math.sin(pitch), centreY + 36.0 * Math.cos(pitch))
+      val eye = doubleArrayOf(centreX, ground + 36.0 * Math.sin(pitch), centreY + 36.0 * Math.cos(pitch))
       val back = normalised(doubleArrayOf(eye[0] - target[0], eye[1] - target[1], eye[2] - target[2]))
       val right = normalised(doubleArrayOf(back[2], 0.0, -back[0]))
       val up = doubleArrayOf(

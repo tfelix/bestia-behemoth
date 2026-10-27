@@ -211,9 +211,9 @@ namespace BestiaBehemothClient.Tests
     ///
     /// <para>
     /// Faithful down to the rounding, which is the point of writing it out rather than approximating it. A
-    /// column whose water would be thinner than a voxel gets no fluid voxel at all, and then its topmost ground
-    /// voxel is filled to the ground rather than to the waterline - otherwise a player would be walking on the
-    /// surface of a puddle.
+    /// submerged column always keeps a voxel of its water, its bed rounded down to make room: the generator used to
+    /// round the water away instead wherever it was thinner than half a voxel, which left a strand of dry ground
+    /// below the waterline along every gently shelving shore.
     /// </para>
     /// </remarks>
     internal static VoxelChunk Shore(int chunkX, int chunkY, Func<int, int, double> ground, double waterline)
@@ -231,8 +231,8 @@ namespace BestiaBehemothClient.Tests
 
           // The materialiser's two rules, under their own names there: highestVoxelAtOrBelow for a boundary
           // inside the ground, topFilledVoxel for the one against air.
-          var capTop = submerged ? (int)Math.Floor(top - 0.5) : (int)Math.Ceiling(top) - 1;
           var fluidTop = submerged ? (int)Math.Ceiling(waterline) - 1 : (int)Math.Floor(waterline - 0.5);
+          var capTop = submerged ? Math.Min((int)Math.Floor(top - 0.5), fluidTop - 1) : (int)Math.Ceiling(top) - 1;
 
           for (var z = 0; z <= capTop; z++)
           {
@@ -252,7 +252,7 @@ namespace BestiaBehemothClient.Tests
           }
 
           // Whichever elevation actually bounds the topmost voxel written: the waterline where a fluid voxel was
-          // written at all, and the ground itself where the water rounded away.
+          // written, the ground itself in a dry column.
           occupancy[offset + cursor - 1] = Quantise((fluidTop > capTop ? waterline : top) - (cursor - 1));
         }
       }

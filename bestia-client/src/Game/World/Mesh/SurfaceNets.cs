@@ -99,7 +99,7 @@ namespace BestiaBehemothClient.Game.World.Mesh
     /// </param>
     public static ChunkSurface Build(
       TerrainPatch patch, byte[] includeMask, BlockAppearance appearance, float voxelSize,
-      BlockAppearance.SurfaceKind kind)
+      BlockAppearance.SurfaceKind kind, ShoreField shore = null)
     {
       var drawsTheBed = kind == BlockAppearance.SurfaceKind.Terrain;
 
@@ -203,6 +203,11 @@ namespace BestiaBehemothClient.Game.World.Mesh
 
       var indices = BuildQuads(patch, field, backing, vertexAt);
 
+      if (shore != null && drawsTheBed)
+      {
+        ShapeShore(shore, voxelSize, vertices);
+      }
+
       if (indices.Count == 0)
       {
         return null;
@@ -222,6 +227,59 @@ namespace BestiaBehemothClient.Game.World.Mesh
     }
 
     private static int Lattice(int width, int depth, int px, int py, int pz) => (py * width + px) * depth + pz;
+
+    /// <summary>Voxels either side of the shoreline over which the ground is laid to the beach profile.</summary>
+    private const float ShoreBand = 2.5f;
+
+    /// <summary>Rise of the beach profile per voxel across the shoreline: a little over one in nine.</summary>
+    private const float ShoreSlope = 0.12f;
+
+    /// <summary>
+    /// Lays the ground near a shoreline onto a beach profile that crosses the water at a clear slope, along the
+    /// smooth curve <see cref="ShoreField"/> found.
+    /// </summary>
+    /// <remarks>
+    /// The profile is the water's level plus <see cref="ShoreSlope"/> times the distance from the curve, so the
+    /// ground is under the water on one side and out of it on the other by a margin the depth buffer resolves,
+    /// and the waterline a player sees is the curve itself rather than wherever four-millimetre occupancy steps
+    /// happen to put the ground a hair above or below the water. It is blended back to the voxel ground over the
+    /// outer part of <see cref="ShoreBand"/>, and left alone where the ground stands well clear of the water - a
+    /// cliff above it, a deep bed below - which keeps a sea cliff a cliff.
+    ///
+    /// <para>
+    /// The water is not touched. Its sheet still stops in the middle of the last wet cell, half a voxel short of
+    /// the curve, and the strip of profile between is drawn as wet beach rather than under water - which reads as
+    /// the swash line it is, where carrying the sheet on under the bank laid slivers of it over the sand.
+    /// </para>
+    ///
+    /// <para>
+    /// What is drawn here can stand up to about three tenths of a metre off the ground the server walks on. That
+    /// is accepted: the collision mesh is this mesh, so a player stands on the beach they see.
+    /// </para>
+    /// </remarks>
+    private static void ShapeShore(ShoreField shore, float voxelSize, List<Vector3> vertices)
+    {
+      for (var i = 0; i < vertices.Count; i++)
+      {
+        var position = vertices[i];
+        if (!shore.TryRead(position.X / voxelSize, position.Z / voxelSize, out var distance, out var level))
+        {
+          continue;
+        }
+
+        var height = position.Y / voxelSize;
+        var near = 1.0f - Mathf.SmoothStep(ShoreBand * 0.6f, ShoreBand, Mathf.Abs(distance));
+        var close = 1.0f - Mathf.SmoothStep(1.0f, 2.0f, Mathf.Abs(height - level));
+        var weight = near * close;
+        if (weight <= 0.0f)
+        {
+          continue;
+        }
+
+        var profile = level + ShoreSlope * distance;
+        vertices[i] = new Vector3(position.X, Mathf.Lerp(height, profile, weight) * voxelSize, position.Z);
+      }
+    }
 
     /// <summary>
     /// Averages the cell fractions into corner samples, over the whole patch.
@@ -870,6 +928,7 @@ namespace BestiaBehemothClient.Game.World.Mesh
       IChunkSource source, ChunkKey key, BlockAppearance appearance, float voxelSize, ChunkWrap wrap)
     {
       var patch = TerrainPatch.Gather(source, key, wrap, appearance);
+      var shore = patch == null ? null : ShoreField.Build(source, key, wrap, appearance);
       if (patch == null)
       {
         // Nothing to draw here - but if the slab below is not held, that is a provisional verdict rather than a
@@ -900,7 +959,7 @@ namespace BestiaBehemothClient.Game.World.Mesh
 
         surfaces[kind] = Build(
           patch, appearance.MaskOf((BlockAppearance.SurfaceKind)kind), appearance, voxelSize,
-          (BlockAppearance.SurfaceKind)kind);
+          (BlockAppearance.SurfaceKind)kind, shore);
         any |= surfaces[kind] != null;
       }
 
