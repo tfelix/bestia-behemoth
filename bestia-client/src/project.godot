@@ -251,3 +251,7 @@ weather_snow_full={
 "type": "float",
 "value": 1000000.0
 }
+weather_overcast={
+"type": "float",
+"value": 0.0
+}
