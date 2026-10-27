@@ -111,6 +111,19 @@ class StarterGearTest {
     }
   }
 
+  @Test
+  fun `a new master carries five unlit torches in one pile`() {
+    withFreshMaster { master ->
+      val torches = transactionTemplate.execute {
+        masterRepository.findByIdOrThrow(master.id).container.slots
+          .filter { it.template.identifier == "torch" }
+          .map { it.amount to it.isEquipped }
+      }
+
+      assertEquals(listOf(5 to false), torches)
+    }
+  }
+
   /**
    * The container's slots are a lazy collection, so reading them needs a session - the same reason
    * `MasterDeletionServiceTest` reaches for a [TransactionTemplate]. Resolved into plain values inside the

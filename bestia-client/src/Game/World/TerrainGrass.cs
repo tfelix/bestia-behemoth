@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using BestiaBehemothClient.Game.World.Mesh;
 using Godot;
 
@@ -105,7 +106,7 @@ namespace BestiaBehemothClient.Game.World
     ///
     /// <para>
     /// <b>This does not hold coverage, and it is not meant to.</b> The field at 8.6 tufts of 1.26 m hid about
-    /// three quarters of its ground; eleven of 0.68 m hide about half of it, because the height came down
+    /// three quarters of its ground; nine of 0.68 m hide about two fifths of it, because the height came down
     /// twice and the count only went up once. What is uncovered is the terrain's own grass texture, which is
     /// the right thing to be looking at - a shorter field is a thinner one, and pretending otherwise is what
     /// makes short grass read as moss. <b>Raise this first if it reads too sparse</b>, since it is the only
@@ -133,8 +134,25 @@ namespace BestiaBehemothClient.Game.World
     /// sometimes the trade wanted. It is not the same as a denser field everywhere, and it is the opposite of
     /// what a horizon that looks thin is asking for.
     /// </para>
+    ///
+    /// <para>
+    /// Nine rather than the eleven it was, chosen in <c>Dev/GrassBench</c> together with the 2 M
+    /// <see cref="MaxVisibleTriangles"/>: the tufts the near field gives up let the budget carry the field to
+    /// the fade radius at about the same frame time.
+    /// </para>
     /// </remarks>
-    [Export(PropertyHint.Range, "0,20,0.1")] public float Density { get; set; } = 11.0f;
+    [Export(PropertyHint.Range, "0,20,0.1")] public float Density { get; set; } = 9.0f;
+
+    /// <summary>How much faster than the turf itself the tufts thin out where the ground is only partly grass.</summary>
+    /// <remarks>
+    /// The power on the turf share in <see cref="GrassLod.TurfDensity"/>. At 1 a half-grass vertex grows half the
+    /// tufts, which still stands as a wall at a dirt patch's edge; at 2 it grows a quarter. 1 is the old field.
+    /// </remarks>
+    [Export(PropertyHint.Range, "1,4,0.1")] public float EdgeThinning { get; set; } = 2.0f;
+
+    /// <summary>How tall, as a share of a full tuft, grass stands where the turf has all but run out.</summary>
+    /// <remarks>See <see cref="GrassLod.TurfHeight"/>. 1 is the old field, where an edge tuft is full height.</remarks>
+    [Export(PropertyHint.Range, "0.1,1,0.05")] public float EdgeHeightShare { get; set; } = 0.4f;
 
     /// <summary>Height of a tuft in metres, before <see cref="HeightSpread"/>.</summary>
     /// <remarks>
@@ -284,6 +302,39 @@ namespace BestiaBehemothClient.Game.World
     /// </remarks>
     [Export(PropertyHint.Range, "1,4,0.1")] public float MaxCoverageScale { get; set; } = 1.2f;
 
+    /// <summary>Draws a thinned cell's tufts wider rather than larger, so they keep its cover at their height.</summary>
+    /// <remarks>
+    /// Width is not a silhouette the player measures against their character, so the ceiling on it,
+    /// <see cref="MaxWidenScale"/>, can sit well above <see cref="MaxCoverageScale"/>.
+    /// </remarks>
+    [Export] public bool WidenNotGrow { get; set; }
+
+    /// <summary>Ceiling on the compensation while <see cref="WidenNotGrow"/> is on.</summary>
+    [Export(PropertyHint.Range, "1,4,0.1")] public float MaxWidenScale { get; set; } = 1.6f;
+
+    /// <summary>Dissolves a blade in at the reveal front at full size, rather than growing it from a point.</summary>
+    /// <remarks>
+    /// Swaps the field onto <c>grass_dissolve.gdshader</c>, whose discard costs every blade it draws - judge it
+    /// in <c>Dev/GrassBench</c> by frame time as well as by eye.
+    /// </remarks>
+    [Export] public bool DissolveReveal { get; set; }
+
+    /// <summary>How far a blade growing in at the reveal front takes the ground's colour. 0 is off.</summary>
+    /// <remarks>
+    /// On by default together with <see cref="GroundMatchFrom"/>: compared in <c>Dev/GrassBench</c> against growing,
+    /// widening and dissolving, it was the one that hid the far field thinning without adding an artefact.
+    /// </remarks>
+    [Export(PropertyHint.Range, "0,1,0.05")] public float GroundMatch { get; set; } = 1.0f;
+
+    /// <summary>
+    /// Share of the fade band from which every blade starts taking the ground's colour, reaching it at the band's
+    /// end. 1 leaves it to the reveal alone. Only acts while <see cref="GroundMatch"/> is above 0.
+    /// </summary>
+    [Export(PropertyHint.Range, "0,1,0.05")] public float GroundMatchFrom { get; set; } = 0.25f;
+
+    /// <summary>The compensation ceiling in force, which depends on which way the compensation is drawn.</summary>
+    private float CoverageCeiling => WidenNotGrow ? MaxWidenScale : MaxCoverageScale;
+
     /// <summary>
     /// Triangles this may draw at once across the whole field, or 0 for no budget.
     /// </summary>
@@ -300,12 +351,18 @@ namespace BestiaBehemothClient.Game.World
     /// </para>
     ///
     /// <para>
+    /// <b>The count is an upper bound, not what the GPU draws.</b> Godot's own mesh LOD thins the near tufts
+    /// further, so it draws about half of what is counted here. Judge the setting by frame time - F8 in
+    /// <c>RenderDebug</c>, or <c>Dev/GrassBench</c> - not by this number.
+    /// </para>
+    ///
+    /// <para>
     /// <b>What it buys is a flat cost across the whole zoom range and the whole radius.</b> The count is the
     /// same whether the camera is at 8 m or at 36 m; what changes is the exponent, and so how quickly the field
     /// thins with distance. Bring this down first if the field costs more than it is worth.
     /// </para>
     /// </remarks>
-    [Export(PropertyHint.Range, "0,8000000,50000")] public int MaxVisibleTriangles { get; set; } = 1_200_000;
+    [Export(PropertyHint.Range, "0,8000000,50000")] public int MaxVisibleTriangles { get; set; } = 2_000_000;
 
     /// <summary>
     /// How much wider than the camera's own field of view to count ground as visible, in degrees.
@@ -329,7 +386,7 @@ namespace BestiaBehemothClient.Game.World
     /// <summary>How steeply the field may be made to thin with distance to fit its budget.</summary>
     /// <remarks>
     /// The ceiling on <see cref="GrassLod.Sharpen"/>'s exponent. Six is well above what a grassy view volume
-    /// asks for at the default settings - which settles near 2.3 - and exists so that a pathological view
+    /// asks for at the default settings - which settles near 1.2 in an open meadow - and exists so that a pathological view
     /// cannot drive the far field to nothing in one step.
     ///
     /// <para>
@@ -376,7 +433,7 @@ namespace BestiaBehemothClient.Game.World
     /// A backstop rather than a knob. It is applied by scaling <see cref="Density"/> down for the chunk that
     /// would exceed it, so a capped chunk is uniformly thinner rather than bare on one side - but a chunk that
     /// hits it is drawn at a density its neighbours are not, which is a seam. The default is above what a
-    /// wholly grassy 32 m chunk asks for - 1024 square metres at 11.0 is about 11,300 - so nothing reaches it
+    /// wholly grassy 32 m chunk asks for - 1024 square metres at 9.0 is about 9,200 - so nothing reaches it
     /// in ordinary play. <b>It has to move whenever <see cref="Density"/> does</b>, or the greenest ground in
     /// the world is the only ground that gets thinned.
     ///
@@ -659,6 +716,23 @@ namespace BestiaBehemothClient.Game.World
     /// <summary>The ramp width the materials were last told about. NaN so the first push always happens.</summary>
     private float _pushedSpan = float.NaN;
 
+    /// <summary>What the materials were last told about <see cref="WidenNotGrow"/>. False is the shader's default.</summary>
+    private bool _pushedWiden;
+
+    private bool _pushedDissolve;
+
+    private float _pushedGroundMatch;
+
+    /// <summary>Where the ground-match band was last pushed from. NaN so the first frame pushes.</summary>
+    private float _pushedMatchFrom = float.NaN;
+
+    /// <summary>The field's own shader, kept so <see cref="DissolveReveal"/> can be switched back off.</summary>
+    private Shader _growShader;
+
+    private Shader _dissolveShader;
+
+    private const string DissolveShaderPath = "res://Game/Terrain/Grass/grass_dissolve.gdshader";
+
     /// <summary>Where the camera is looking, which is where the player is. Null until told - see <see cref="SetFocusAt"/>.</summary>
     private Vector3? _focus;
 
@@ -672,6 +746,24 @@ namespace BestiaBehemothClient.Game.World
     /// </remarks>
     private float _exponent = 1.0f;
 
+    /// <summary>How steeply the field thins with distance this frame. 1 while it is under budget.</summary>
+    public float Exponent => _exponent;
+
+    /// <summary>Triangles the cells in view asked for this frame, before the budget trimmed them.</summary>
+    public int WantedTriangles { get; private set; }
+
+    /// <summary>Triangles every cell with something to draw holds this frame, in view or not.</summary>
+    public int DrawnTriangles { get; private set; }
+
+    /// <summary>The part of <see cref="DrawnTriangles"/> whose cells overlap the camera's frustum.</summary>
+    public int OnScreenTriangles { get; private set; }
+
+    /// <summary>Where the last tuft goes out this frame, after the zoom widened the band and the reach clamped it.</summary>
+    public float FadeMetres { get; private set; }
+
+    /// <summary>Chunks whose ground has arrived but whose grass is not scattered yet.</summary>
+    public int PendingChunks => _pending.Count;
+
     /// <summary>The shader's scale boost, which is a material uniform - see <see cref="ScaledMaterial"/>.</summary>
     private static readonly StringName ExtraScaleParameter = "grass_extra_scale";
 
@@ -683,6 +775,14 @@ namespace BestiaBehemothClient.Game.World
 
     /// <summary>The ramp's width. A material uniform, so it is set once for the whole field.</summary>
     private static readonly StringName RevealSpanParameter = "grass_reveal_span";
+
+    private static readonly StringName WidenOnlyParameter = "grass_widen_only";
+
+    private static readonly StringName GroundMatchParameter = "grass_ground_match";
+
+    private static readonly StringName MatchFromParameter = "grass_match_from";
+
+    private static readonly StringName MatchToParameter = "grass_match_to";
 
     private static readonly StringName BurnsWithGroundParameter = "burns_with_ground";
     private static readonly StringName GroundMarksParameter = "ground_marks";
@@ -945,7 +1045,7 @@ namespace BestiaBehemothClient.Game.World
         // The wind's margin, plus however far the coverage compensation can grow a plant past the transforms
         // Godot measured the bounds from. Without the second term a compensated cell pops out of view while its
         // plants are still on screen.
-        ExtraCullMargin = WindCullMargin + top * (Mathf.Max(MaxCoverageScale, 1.0f) - 1.0f)
+        ExtraCullMargin = WindCullMargin + top * (Mathf.Max(CoverageCeiling, 1.0f) - 1.0f)
       };
 
       AddChild(node);
@@ -1055,7 +1155,7 @@ namespace BestiaBehemothClient.Game.World
           continue;
         }
 
-        carry += area * grass * density;
+        carry += area * GrassLod.TurfDensity(grass, EdgeThinning) * density;
 
         var wanted = (int)carry;
         carry -= wanted;
@@ -1075,7 +1175,13 @@ namespace BestiaBehemothClient.Game.World
 
           var at = a + ab * u + ac * v;
 
-          var grown = Height * (1.0f + (rng.Float() - 0.5f) * 2.0f * HeightSpread);
+          // The turf share at this tuft's own spot rather than the triangle's average, so a tuft shrinks as it
+          // nears the edge instead of a whole triangle stepping down at once.
+          var turf = (weights[ia * 4 + Grass] * (1.0f - u - v) + weights[ib * 4 + Grass] * u +
+                      weights[ic * 4 + Grass] * v) / 255.0f;
+
+          var grown = Height * GrassLod.TurfHeight(turf, EdgeHeightShare) *
+                      (1.0f + (rng.Float() - 0.5f) * 2.0f * HeightSpread);
           var scale = grown / NaturalHeight;
 
           // Uniform, so the basis stays a rotation times a scalar - which is the assumption grass.gdshader
@@ -1144,7 +1250,7 @@ namespace BestiaBehemothClient.Game.World
         }
 
         var a = vertices[ia];
-        total += (vertices[ib] - a).Cross(vertices[ic] - a).Length() * 0.5f * grass;
+        total += (vertices[ib] - a).Cross(vertices[ic] - a).Length() * 0.5f * GrassLod.TurfDensity(grass, EdgeThinning);
       }
 
       return total;
@@ -1192,6 +1298,7 @@ namespace BestiaBehemothClient.Game.World
       Drain(eye);
 
       PushRevealSpan();
+      PushRevealLook();
       Vanish(delta);
 
       if (_patches.Count == 0 || !eye.HasValue)
@@ -1214,6 +1321,8 @@ namespace BestiaBehemothClient.Game.World
       // streams about 176 and the fog has closed by 220 - so past this the budget would be spent counting cells
       // that were never built.
       var fade = Mathf.Min(FadeOutMetres * band, ReachMetres);
+      FadeMetres = fade;
+      PushGroundMatchBand(fade, zoom);
 
       // **Fixed in metres, and deliberately not widened by the zoom the way the density band is.** The band
       // scales because zooming out puts more ground on screen and the field would otherwise empty; a rung is
@@ -1231,10 +1340,10 @@ namespace BestiaBehemothClient.Game.World
       // Godot's cameras look down their own -Z.
       var forward = -camera.GlobalTransform.Basis.Z;
 
-      // The wedge's apex is at the eye, which sits `zoom` metres behind the player - so everything within that
-      // radius is in front of the character and on screen whatever its bearing. A cell's width on top, because
-      // the test below is against the cell's middle.
-      var near = zoom + CellMetres;
+      // The wedge is wider than the screen, so a turn does not move what the budget is spent on. Near the eye it
+      // is the other way round: a cell close by can be on screen with its middle outside the wedge, so the
+      // frustum answers there. Ground behind the camera is in neither, and costs nothing - Godot culls it.
+      var frustum = camera.GetFrustum();
 
       var wanted = 0;
 
@@ -1262,7 +1371,8 @@ namespace BestiaBehemothClient.Game.World
           // not only for the ones the wedge below is counting.
           patch.Appear = GrassLod.Appear(patch.Appear, 1.0f, (float)delta, AppearSeconds);
 
-          if (GrassLod.InView((patch.Min + patch.Max) * 0.5f, eye.Value, forward, cosHalfAngle, near))
+          if (GrassLod.InView((patch.Min + patch.Max) * 0.5f, eye.Value, forward, cosHalfAngle, 0.0f) ||
+              GrassLod.Overlaps(frustum, patch.Min, patch.Max))
           {
             // What the cell will *draw*, which the ramp puts slightly above its fraction - a plant grown to a
             // fiftieth of its size still costs a vertex shader, so the budget has to see it.
@@ -1274,15 +1384,29 @@ namespace BestiaBehemothClient.Game.World
         }
       }
 
+      WantedTriangles = wanted;
       var trim = GrassLod.BudgetTrim(wanted, MaxVisibleTriangles);
+      var drawn = 0;
+      var onScreen = 0;
 
       foreach (var patches in _patches.Values)
       {
         foreach (var patch in patches)
         {
           Retune(patch, trim);
+
+          var triangles = Mathf.Max(patch.Visible, 0) * TrianglesOf(patch.Drawn);
+          drawn += triangles;
+
+          if (triangles > 0 && GrassLod.Overlaps(frustum, patch.Min, patch.Max))
+          {
+            onScreen += triangles;
+          }
         }
       }
+
+      DrawnTriangles = drawn;
+      OnScreenTriangles = onScreen;
 
       // Last, and fed this frame's own answer: the exponent used above is what produced `wanted`, so the ratio
       // of the two is exactly the overshoot the controller has to correct. Moving this before the passes would
@@ -1337,6 +1461,61 @@ namespace BestiaBehemothClient.Game.World
       foreach (var scaled in _scaled.Values)
       {
         scaled.SetShaderParameter(RevealSpanParameter, RevealSpan);
+      }
+    }
+
+    /// <summary>
+    /// Keeps the materials in step with <see cref="WidenNotGrow"/>, <see cref="DissolveReveal"/> and
+    /// <see cref="GroundMatch"/>, so each can be flipped while the game runs.
+    /// </summary>
+    private void PushRevealLook()
+    {
+      if (_material is not ShaderMaterial field ||
+          (_pushedWiden == WidenNotGrow && _pushedDissolve == DissolveReveal &&
+           Mathf.IsEqualApprox(_pushedGroundMatch, GroundMatch)))
+      {
+        return;
+      }
+
+      _pushedWiden = WidenNotGrow;
+      _pushedDissolve = DissolveReveal;
+      _pushedGroundMatch = GroundMatch;
+
+      _growShader ??= field.Shader;
+      _dissolveShader ??= GD.Load<Shader>(DissolveShaderPath);
+      var shader = DissolveReveal ? _dissolveShader : _growShader;
+
+      foreach (var material in _scaled.Values.Prepend(field))
+      {
+        material.Shader = shader;
+        material.SetShaderParameter(WidenOnlyParameter, WidenNotGrow);
+        material.SetShaderParameter(GroundMatchParameter, GroundMatch);
+      }
+    }
+
+    /// <summary>
+    /// Tells the materials over which camera distance blades fade into the ground's colour.
+    /// </summary>
+    /// <remarks>
+    /// The fade band is measured from the player and the shader measures from the camera, so the zoom is added.
+    /// Pushed only when it moves by a metre, since the band follows the zoom.
+    /// </remarks>
+    private void PushGroundMatchBand(float fade, float zoom)
+    {
+      var from = GroundMatchFrom >= 1.0f ? 100000.0f : fade * GroundMatchFrom + zoom;
+      var to = GroundMatchFrom >= 1.0f ? 100001.0f : fade + zoom;
+
+      if (_material is not ShaderMaterial field || Mathf.Abs(from - _pushedMatchFrom) < 1.0f)
+      {
+        return;
+      }
+
+      _pushedMatchFrom = from;
+
+      foreach (var material in _scaled.Values.Prepend(field))
+      {
+        material.SetShaderParameter(MatchFromParameter, from);
+        material.SetShaderParameter(MatchToParameter, to);
       }
     }
 
@@ -1402,7 +1581,7 @@ namespace BestiaBehemothClient.Game.World
       var revealed = GrassLod.RevealedFraction(
         GrassLod.RevealFront(patch.Coverage, RevealSpan), RevealSpan);
 
-      var scale = GrassLod.CoverageScale(revealed, CoverageCompensation, MaxCoverageScale) * patch.Appear;
+      var scale = GrassLod.CoverageScale(revealed, CoverageCompensation, CoverageCeiling) * patch.Appear;
 
       // Three quarters of a step of dead band around what this cell is already drawing at, rather than a plain
       // round to the nearest step. A cell whose distance leaves it sitting on a step boundary would otherwise

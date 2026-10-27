@@ -1,13 +1,15 @@
 package net.bestia.zone.item.ecs
 
+import java.time.Duration
+import org.awaitility.Awaitility
+import net.bestia.zone.item.persistence.ItemInstance
+import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.item.stat.ItemStatCatalog
 import net.bestia.zone.item.ItemProvenance
 import net.bestia.zone.item.stat.ItemRoll
 import net.bestia.zone.item.stat.ItemStat
 import net.bestia.zone.item.stat.StatValue
 import io.mockk.every
-import io.mockk.andThenJust
-import io.mockk.Runs
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import io.mockk.verify
@@ -54,6 +56,11 @@ class ObtainItemIntentSystemTest {
 
   private lateinit var world: EcsWorld
 
+  /** Hands the persist job's write-back to the test world, which only exists once the system is in it. */
+  private val worldView = mockk<WorldView> {
+    every { modify<Any?>(any(), any()) } answers { world.modify(firstArg(), secondArg()) }
+  }
+
   private fun newSystem() = ObtainItemIntentSystem(
     itemTemplates = ItemTemplateRegistry(itemRepository),
     lootItemEntitySpawner = lootItemEntitySpawner,
@@ -61,6 +68,7 @@ class ObtainItemIntentSystemTest {
     asyncJobExecutor = asyncJobExecutor,
     groundStackRemoval = GroundStackRemoval(PersistedEntityDeletionQueue()),
     itemStats = ItemStatCatalog(),
+    worldView = worldView,
   )
 
   private fun setUp() {
@@ -136,7 +144,7 @@ class ObtainItemIntentSystemTest {
     setUp()
     stub(sword)
     every { inventoryService.grantToOwner(MASTER_ID, null, sword.id, 1, 0L) } throws
-      CannotAcquireLockException("lock wait timeout") andThenJust Runs
+      CannotAcquireLockException("lock wait timeout") andThen null
     val entity = createCarrier(capacityMax = 2475)
 
     world.modify(entity) { id -> add(id, ObtainItemIntent.CreateItemIntent(itemId = sword.id, amount = 1)) }
@@ -304,6 +312,28 @@ class ObtainItemIntentSystemTest {
     val granted = world.get(looter, Inventory::class)!!.getItem(sword.id.toInt())
     assertEquals(77L, granted?.uniqueId)
     verify(timeout = 1000) { inventoryService.grantToOwner(MASTER_ID, null, sword.id, 1, 77L) }
+  }
+
+  @Test
+  fun `a copy picked back up shows the wear its row has, not a fresh one`() {
+    setUp()
+    stub(sword)
+    every { inventoryService.grantToOwner(MASTER_ID, null, sword.id, 1, 78L, any(), any(), any()) } returns
+      ItemInstance(item = sword, maxDurability = 360, durability = 120, id = 78L)
+    val looter = createCarrier(capacityMax = 2475, pos = Vec3L(0, 0, 0))
+    val groundStack = world.createEntity { id ->
+      add(id, Position.fromVec3(Vec3L(0, 0, 0)))
+      add(id, GroundItemStack(itemId = sword.id, amount = 1, uniqueId = 78L))
+    }
+
+    world.modify(looter) { id -> add(id, ObtainItemIntent.LootItemIntent(sourceEntityItemStackId = groundStack)) }
+    world.tick(0.1f)
+
+    Awaitility.await().atMost(Duration.ofSeconds(1)).untilAsserted {
+      val copy = world.get(looter, Inventory::class)!!.byPlayerItemId(78L)!!
+      assertEquals(120, copy.durability)
+      assertEquals(360, copy.maxDurability)
+    }
   }
 
   /** Its destroy can wait for the end of the tick, and it must not end up in an inventory as well. */

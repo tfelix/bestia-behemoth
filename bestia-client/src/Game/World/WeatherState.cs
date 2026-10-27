@@ -61,6 +61,9 @@ namespace BestiaBehemothClient.Game.World
     private static readonly StringName SnowLineParameter = "weather_snow_line";
     private static readonly StringName SnowFullParameter = "weather_snow_full";
 
+    /// <summary>The sky's greyness, published for the water, which turns grey under a storm sky.</summary>
+    private static readonly StringName OvercastParameter = "weather_overcast";
+
     /// <summary>A snow line no terrain reaches, which is how "no snow lying anywhere" reaches the shaders.</summary>
     private const float NoSnowLine = 1.0e6f;
 
@@ -262,6 +265,8 @@ namespace BestiaBehemothClient.Game.World
     private Vector3 _publishedWind = new(float.NaN, float.NaN, float.NaN);
 
     private float _publishedRainRate = float.NaN;
+
+    private float _publishedOvercast = float.NaN;
 
     /// <summary>See <see cref="GustDriftParameter"/>. Metres, unwrapped, and doubles so it stays smooth.</summary>
     private double _gustDriftX;
@@ -585,6 +590,7 @@ namespace BestiaBehemothClient.Game.World
           Mathf.IsEqualApprox(snowLine, _snowLine) &&
           Mathf.IsEqualApprox(snowFull, _snowFull) &&
           Mathf.IsEqualApprox(_rainRate, _publishedRainRate) &&
+          Mathf.IsEqualApprox(_overcast, _publishedOvercast) &&
           Mathf.IsEqualApprox(temperature, _temperature) &&
           _gustedWind.IsEqualApprox(_publishedWind))
       {
@@ -698,9 +704,11 @@ namespace BestiaBehemothClient.Game.World
       RenderingServer.GlobalShaderParameterSet(SnowLineParameter, _snowLine);
       RenderingServer.GlobalShaderParameterSet(SnowFullParameter, _snowFull);
       RenderingServer.GlobalShaderParameterSet(RainParameter, _rainRate);
+      RenderingServer.GlobalShaderParameterSet(OvercastParameter, _overcast);
       RenderingServer.GlobalShaderParameterSet(WindParameter, _gustedWind);
 
       _publishedRainRate = _rainRate;
+      _publishedOvercast = _overcast;
       _publishedWind = _gustedWind;
     }
   }

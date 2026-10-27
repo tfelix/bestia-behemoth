@@ -217,6 +217,10 @@ signal draft_changed
 ## Whether Shift+click drafts stops instead of sending at once. Only on a map that can be panned to them.
 @export var can_draft: bool = false
 
+## Whether a walk to a single clicked point is drawn as a route. Off on the minimap, which is too small for a
+## line and pin for every click; there only a real route (several stops, or a saved one) is shown.
+@export var show_plain_walks: bool = true
+
 ## Size of the player marker, as a multiple of the size the minimap is tuned for.
 ##
 ## Exported for the same reason the zoom is: the minimap is a 168 pixel window, where a 6 pixel arrow is a
@@ -1069,6 +1073,9 @@ func _draw_journeys() -> void:
 
 
 func _draw_journey(journey: JourneyComponentSMSG, entity: Entity, colour: Color) -> void:
+	if not show_plain_walks and journey.Waypoints.size() <= 1 and journey.Name.is_empty():
+		return
+
 	var line := PackedVector2Array()
 	if entity != null:
 		line.append(_to_screen(_metres_of(entity)))

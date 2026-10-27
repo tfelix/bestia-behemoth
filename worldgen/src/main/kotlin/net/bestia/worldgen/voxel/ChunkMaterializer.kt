@@ -1,5 +1,6 @@
 package net.bestia.worldgen.voxel
 
+import net.bestia.worldgen.bio.Biome
 import net.bestia.worldgen.core.ChunkColumnSource
 import net.bestia.worldgen.core.ChunkPos
 import net.bestia.worldgen.core.ColumnHeights
@@ -619,7 +620,7 @@ class ChunkMaterializer(
     // both of those and over the shore, because a gorge cut in rock should still show the rock.
     val capBlock =
       (bed ?: bare ?: riverBed ?: paving ?: shore?.let { SurfaceCover.blight(it, blighted) }
-        ?: SurfaceCover.cap(biome, temperature, waterDepth, blighted)).id.toByte()
+        ?: biomeCap(biome, temperature, waterDepth, blighted, worldX, worldY)).id.toByte()
 
     /*
      * Two rules for two different kinds of boundary, and the distinction is the whole of the occupancy
@@ -903,6 +904,16 @@ class ChunkMaterializer(
    * For the air interface. An elevation landing exactly on a voxel boundary belongs to the voxel *below* it,
    * so a surface at exactly 40 m is a completely full voxel 39 rather than a completely empty voxel 40.
    */
+  /** The biome's cap, worn through to the soil where grassland has a bare patch. */
+  private fun biomeCap(
+    biome: Biome, temperature: Double, waterDepth: Double, blighted: Boolean, worldX: Double, worldY: Double
+  ): BlockType {
+    val cap = SurfaceCover.cap(biome, temperature, waterDepth, blighted)
+    val bare = cap == BlockType.GRASS && biome == Biome.GRASSLAND && surface.isBarePatchAt(worldX, worldY)
+
+    return if (bare) BlockType.DIRT else cap
+  }
+
   private fun topFilledVoxel(elevation: Double): Int =
     ceil(elevation / config.voxelSize).toInt() - 1
 
@@ -943,7 +954,8 @@ class ChunkMaterializer(
     // 5: a river bed caps in its own material by stream power instead of taking the sea's shallow-shelf
     // arm, and the water surface is read from the channel's own station rather than rebuilt from bed and
     // depth. Every submerged river column in every world caps in something it did not cap in before.
-    const val VERSION = 5
+    // 6: grassland wears through to dirt in patches (`SurfaceSampler.isBarePatchAt`).
+    const val VERSION = 6
 
     /**
      * Margin added to a chunk's bounds when querying features, in metres.

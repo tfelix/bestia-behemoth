@@ -467,16 +467,21 @@ items:
 
       Closes a wound a little, and costs little enough to buy by the handful.
 
+  # Stackable gear: unlit torches share one pile, and the one worn in the light slot is split off and burns
+  # down on its own. One point of wear is ten seconds of light, so 360 is one hour.
   - id: 35
     item-db-name: torch
     base-level: 1
     weight: 30
-    type: ETC
+    type: EQUIP
     material: WOOD
+    equip-slot: LIGHT_SOURCE
+    stackable: true
+    max-durability: 360
     description: |
       A reed stalk bound with pitch-soaked cloth.
 
-      Burns long enough to get down a shaft and back up again.
+      Worn in the light slot, it lights itself when it gets dark and burns for about an hour.
 
   - id: 36
     item-db-name: salt

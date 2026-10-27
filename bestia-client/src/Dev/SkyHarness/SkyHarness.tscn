@@ -1,0 +1,78 @@
+[gd_scene load_steps=11 format=3]
+
+[ext_resource type="Script" path="res://Dev/SkyHarness/sky_harness.gd" id="1_harness"]
+[ext_resource type="PackedScene" path="res://Dev/TerrainTestbed/TerrainTestbed.tscn" id="2_testbed"]
+
+[sub_resource type="StandardMaterial3D" id="ground"]
+albedo_color = Color(0.36, 0.52, 0.24, 1)
+roughness = 1.0
+
+[sub_resource type="PlaneMesh" id="ground_mesh"]
+material = SubResource("ground")
+size = Vector2(4000, 4000)
+
+[sub_resource type="StandardMaterial3D" id="white"]
+albedo_color = Color(0.85, 0.85, 0.85, 1)
+roughness = 0.9
+
+[sub_resource type="SphereMesh" id="probe_mesh"]
+material = SubResource("white")
+radius = 1.5
+height = 3.0
+
+[sub_resource type="BoxMesh" id="block_mesh"]
+material = SubResource("white")
+size = Vector3(3, 3, 3)
+
+[sub_resource type="StandardMaterial3D" id="bark"]
+albedo_color = Color(0.45, 0.28, 0.14, 1)
+
+[sub_resource type="CylinderMesh" id="trunk_mesh"]
+material = SubResource("bark")
+top_radius = 0.2
+bottom_radius = 0.5
+height = 6.0
+
+[sub_resource type="StandardMaterial3D" id="leaves"]
+albedo_color = Color(0.42, 0.68, 0.22, 1)
+
+[sub_resource type="SphereMesh" id="canopy_mesh"]
+material = SubResource("leaves")
+radius = 3.0
+height = 5.0
+
+[node name="SkyHarness" type="Node3D"]
+script = ExtResource("1_harness")
+
+[node name="TerrainTestbed" parent="." instance=ExtResource("2_testbed")]
+Palette = 1
+ShowLabels = false
+ReliefMetres = 7.0
+
+[node name="Ground" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 11.9, 0)
+mesh = SubResource("ground_mesh")
+
+[node name="Probe" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 13.5, 0)
+mesh = SubResource("probe_mesh")
+
+[node name="Block" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.866, 0, 0.5, 0, 1, 0, -0.5, 0, 0.866, -4, 13.5, 3)
+mesh = SubResource("block_mesh")
+
+[node name="Tree" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 15, -3)
+mesh = SubResource("trunk_mesh")
+
+[node name="Canopy" type="MeshInstance3D" parent="Tree"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4, 0)
+mesh = SubResource("canopy_mesh")
+
+[node name="SkyCamera" type="Camera3D" parent="."]
+fov = 75.0
+far = 4000.0
+
+[node name="GameCamera" type="Camera3D" parent="."]
+fov = 65.0
+far = 1000.0

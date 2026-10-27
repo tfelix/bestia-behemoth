@@ -566,7 +566,7 @@ edits) is stored over that regenerated base: one `chunk_edit` row per edited chu
   world until `WorldProvisioning.recreate` clears the table.
 
 The client (`bestia-client/src/Game/World/ChunkEngine.cs`) mirrors the server's decode/palette/patch
-version as `ChunkEngine.Version` — **2** on the client against `ChunkMaterializer.VERSION`'s **5** on the
+version as `ChunkEngine.Version` — **3** on the client against `ChunkMaterializer.VERSION`'s **6** on the
 server. They were both reset to 1 together and have since diverged, exactly as this paragraph used to
 predict they would: one is wire/decode compatibility and the other terrain-generation compatibility, so a
 change to what a column materialises into moves the server's and leaves the client's alone. Do not read

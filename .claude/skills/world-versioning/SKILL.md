@@ -36,7 +36,7 @@ The first three travel together as `PipelineVersion` (`store/VersionGate.kt:25`)
 is identical, so there is one implementation. `zone-server` calls it with the stored row playing the part
 of "client" (`WorldService.incompatibilityOf`, `WorldService.kt:290-310`).
 
-`ChunkMaterializer.VERSION` (`voxel/ChunkMaterializer.kt:879`) is not in this table because it is not
+`ChunkMaterializer.VERSION` (`voxel/ChunkMaterializer.kt:958`) is not in this table because it is not
 compared directly — it is folded into `WorldParams.chunkTierVersion` (`pipeline/WorldParams.kt:270-284`)
 and reaches the gate through `pipelineVersion`. Bump it when chunk-tier *code* changes what a voxel is.
 

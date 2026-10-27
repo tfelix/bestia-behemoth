@@ -92,6 +92,9 @@ class ItemImporterBootRunner(
       require(randomStats == null || type.uppercase() == Item.ItemType.EQUIP.name) {
         "item '$identifier' has random-stats but is no EQUIP item"
       }
+      require(randomStats == null || stackable != true) {
+        "item '$identifier' has random-stats but is stackable: rolled copies cannot share a pile"
+      }
 
       return ItemStatSheet(
         baseLevel = baseLevel,

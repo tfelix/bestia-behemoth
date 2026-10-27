@@ -93,6 +93,9 @@ class ItemInstance(
   /** True once wear has used the item up. Never true for an item that does not wear. */
   val isBroken: Boolean get() = wears && durability <= 0
 
+  /** No wear taken yet. A copy of stackable gear in this state is as good as one from its pile. */
+  val isUnused: Boolean get() = durability == maxDurability
+
   /** Takes [amount] off, floored at broken. No-op for an item that does not wear. */
   fun wear(amount: Int) {
     require(amount >= 0) { "amount >= 0 required, was $amount" }

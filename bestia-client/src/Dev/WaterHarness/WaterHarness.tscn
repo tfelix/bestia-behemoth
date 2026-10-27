@@ -1,0 +1,17 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://Dev/WaterHarness/water_harness.gd" id="1_harness"]
+[ext_resource type="PackedScene" uid="uid://ykdxpspi6cly" path="res://Game/Environment/Environment.tscn" id="2_environment"]
+
+[node name="WaterHarness" type="Node3D"]
+script = ExtResource("1_harness")
+
+[node name="Environment" parent="." instance=ExtResource("2_environment")]
+
+[node name="PondCamera" type="Camera3D" parent="."]
+fov = 65.0
+far = 1000.0
+
+[node name="CloseCamera" type="Camera3D" parent="."]
+fov = 65.0
+far = 1000.0

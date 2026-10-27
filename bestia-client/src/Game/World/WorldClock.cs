@@ -62,6 +62,8 @@ namespace BestiaBehemothClient.Game.World
 
     private DayCycle _cycle;
 
+    private MoonCycle _moon;
+
     private bool _anchored;
 
     /// <summary>The minute last broadcast, so the signal fires on a change rather than on a frame.</summary>
@@ -124,6 +126,7 @@ namespace BestiaBehemothClient.Game.World
       _monthsPerYear = info.MonthsPerYear;
       _cycle = new DayCycle(
         info.HoursPerDay, info.NightEndHour, info.DawnEndHour, info.DuskStartHour, info.NightStartHour);
+      _moon = new MoonCycle(info.HoursPerDay, info.DaysPerMonth);
       _anchored = true;
 
       if (!_cycle.IsValid)
@@ -268,6 +271,12 @@ namespace BestiaBehemothClient.Game.World
 
     /// <summary>True during full night, i.e. the dark middle rather than anything short of noon.</summary>
     public bool IsNight => _anchored && _cycle.IsNightAt(HourOfDay);
+
+    /// <summary>How far through its cycle the moon is: 0 new, 0.5 full. See <see cref="MoonCycle"/>.</summary>
+    public double MoonPhase => _moon.PhaseAt(_bestiaSeconds);
+
+    /// <summary>How much of the moon's disc is lit, 0 at new moon to 1 at full moon.</summary>
+    public double MoonIllumination => MoonCycle.IlluminationOf(MoonPhase);
 
     private void Publish(bool force)
     {

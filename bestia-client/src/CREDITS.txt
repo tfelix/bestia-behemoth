@@ -17,3 +17,8 @@ Title: KayKit Adventurers Character Pack (2.0)
 Author: Kay Lousberg
 Source: https://kaylousberg.itch.io/kaykit-adventurers
 License: CC0 1.0
+
+Title: Stylized Grass and Dirt (Stylized_HandpaintedDirt_01, terrain soil slot)
+Author: Julio Sillet (juliovii)
+Source: https://juliovii.itch.io/ftpgrass-dirt
+License: CC-BY

@@ -18,6 +18,7 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import net.bestia.zone.item.persistence.ItemContainer
+import net.bestia.zone.item.persistence.ContainerSlot
 
 /**
  * The single durable-inventory entry point. Adds/removes items on an owner's [ItemContainer] and
@@ -77,7 +78,10 @@ class InventoryService(
     grantToOwner(masterId, null, itemId, amount, uniqueId, roll, provenance, freshInstanceIds)
   }
 
-  /** [grantToMaster] for whichever entity holds the item: the master when [playerBestiaId] is null. */
+  /**
+   * [grantToMaster] for whichever entity holds the item: the master when [playerBestiaId] is null. Answers the
+   * instance [uniqueId] names when one was re-attached, so the caller can show its real wear.
+   */
   @Transactional
   fun grantToOwner(
     masterId: Long,
@@ -88,8 +92,8 @@ class InventoryService(
     roll: ItemRoll? = null,
     provenance: ItemProvenance? = null,
     freshInstanceIds: List<Long> = emptyList()
-  ) {
-    withOwnerContainer(masterId, playerBestiaId) { container ->
+  ): ItemInstance? {
+    return withOwnerContainer(masterId, playerBestiaId) { container ->
       val item = itemRepository.findByIdOrNull(itemId) ?: throw ItemNotFoundException(itemId.toString())
       grant(container, item, amount, uniqueId, roll, provenance, freshInstanceIds)
     }
@@ -206,9 +210,76 @@ class InventoryService(
     return withOwnerContainer(masterId, playerBestiaId) { it.equip(itemId, uniqueId, slot) }
   }
 
+  /**
+   * [equip] for stackable gear: one copy leaves the pile as the instance [instanceId], the id the live
+   * inventory already shows for it. See [ItemContainer.equipFromPile].
+   */
+  @Transactional
+  fun equipFromPile(
+    masterId: Long,
+    playerBestiaId: PlayerBestiaId?,
+    itemId: Long,
+    provenance: ItemProvenance?,
+    instanceId: Long,
+    slot: EquipmentSlot
+  ): Boolean {
+    val item = itemRepository.findByIdOrNull(itemId) ?: throw ItemNotFoundException(itemId.toString())
+
+    return withOwnerContainer(masterId, playerBestiaId) { container ->
+      container.equipFromPile(item, provenance, slot) {
+        itemInstanceRepository.save(ItemInstance(item = item, provenance = provenance, id = instanceId))
+      }
+    }
+  }
+
+  /**
+   * Takes off what is worn in [slot]. A copy of stackable gear that is still unused goes back into its pile, so
+   * a torch carried through a day does not stay a loose copy. `EquipmentChanges.takeOff` folds the live bag the
+   * same way.
+   */
   @Transactional
   fun unequip(masterId: Long, playerBestiaId: PlayerBestiaId?, slot: EquipmentSlot): Boolean {
-    return withOwnerContainer(masterId, playerBestiaId) { it.unequip(slot) != null }
+    var folded: ItemInstance? = null
+    val takenOff = withOwnerContainer(masterId, playerBestiaId) { container ->
+      val taken = container.unequip(slot) ?: return@withOwnerContainer false
+      folded = foldBackIntoPile(container, taken)
+      true
+    }
+    // After the container is saved, so the row is no longer referenced when it goes.
+    folded?.let { itemInstanceRepository.delete(it) }
+
+    return takenOff
+  }
+
+  /** Answers the instance that went back into its pile, which the caller deletes, or null when it stays a copy. */
+  private fun foldBackIntoPile(container: ItemContainer, taken: ContainerSlot): ItemInstance? {
+    val instance = taken.itemInstance?.takeIf { taken.template.stackable && it.isUnused } ?: return null
+
+    container.takeInstance(instance.id)
+    container.addStackable(taken.template, 1, instance.provenance)
+
+    return instance
+  }
+
+  /**
+   * Saves the wear a worn copy has burnt down to. A plain update of one column: it touches no container, and the
+   * caller's job key orders it after the equip that made the copy.
+   */
+  @Transactional
+  fun recordWear(uniqueId: Long, durability: Int) {
+    itemInstanceRepository.updateDurability(uniqueId, durability)
+  }
+
+  /** Takes the light worn in [slot] off and deletes it: it burnt out, nothing is left of it. */
+  @Transactional
+  fun burnOut(masterId: Long, playerBestiaId: PlayerBestiaId?, slot: EquipmentSlot): Boolean {
+    val burnt = withOwnerContainer(masterId, playerBestiaId) { container ->
+      container.unequip(slot)?.uniqueId?.let { container.takeInstance(it) }
+    } ?: return false
+
+    itemInstanceRepository.delete(burnt)
+
+    return true
   }
 
   /**
@@ -588,7 +659,7 @@ class InventoryService(
     roll: ItemRoll? = null,
     provenance: ItemProvenance? = null,
     freshInstanceIds: List<Long> = emptyList()
-  ) {
+  ): ItemInstance? {
     require(amount > 0) { "amount > 0 required, was $amount" }
     require(freshInstanceIds.isEmpty() || freshInstanceIds.size == amount) {
       "${freshInstanceIds.size} instance ids for $amount copies of item ${item.id}"
@@ -597,7 +668,9 @@ class InventoryService(
     when {
       uniqueId != 0L -> {
         // Re-attach an instance that already exists (e.g. it was lying on the ground).
-        container.addInstance(itemInstanceRepository.findByIdOrThrow(uniqueId))
+        val reattached = itemInstanceRepository.findByIdOrThrow(uniqueId)
+        container.addInstance(reattached)
+        return reattached
       }
 
       item.stackable -> container.addStackable(item, amount, provenance)
@@ -614,5 +687,7 @@ class InventoryService(
         container.addInstance(itemInstanceRepository.save(instance))
       }
     }
+
+    return null
   }
 }

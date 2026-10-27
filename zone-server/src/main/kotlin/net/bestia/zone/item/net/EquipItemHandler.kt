@@ -1,6 +1,7 @@
 package net.bestia.zone.item.net
 
 import net.bestia.zone.item.stat.ItemStatCatalog
+import net.bestia.zone.item.ItemProvenance
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.zone.skill.NoviceGate
@@ -11,6 +12,7 @@ import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.entity.ecs.DeadActionGuard
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.item.ecs.Equipment
+import net.bestia.zone.item.ecs.EquipmentChanges
 import net.bestia.zone.item.ecs.Inventory
 import net.bestia.zone.item.persistence.ItemRepository
 import net.bestia.zone.item.container.InventoryService
@@ -36,6 +38,7 @@ import net.bestia.zone.item.equip.toOpError
 class EquipItemHandler(
   private val itemRepository: ItemRepository,
   private val equipmentService: EquipmentService,
+  private val equipmentChanges: EquipmentChanges,
   private val noviceGate: NoviceGate,
   private val connectionInfoService: ConnectionInfoService,
   private val inventoryService: InventoryService,
@@ -101,27 +104,12 @@ class EquipItemHandler(
         return@modify Applied(denial = denial)
       }
 
-      val previous = equipment.unequip(msg.slot)
-      val equipped = equipment.equip(
-        msg.slot,
-        Equipment.EquippedItem(
-          itemId = item.id,
-          uniqueId = held.uniqueId,
-          // Carried over from the inventory view rather than re-read from the DB: the wear a client
-          // already sees on the item in the bag must be the wear it sees on the item in the slot.
-          upgradeLevel = held.upgradeLevel,
-          durability = held.durability,
-          maxDurability = held.maxDurability,
-          slots = held.slots,
-          itemLevel = itemLevel,
-          rolledStats = held.rolledStats,
-          provenance = held.provenance
-        )
-      )
+      val previous = equipmentChanges.takeOff(equipment, inventory, msg.slot)
+      val worn = equipmentChanges.putOn(equipment, inventory, msg.slot, held, itemLevel)
 
-      if (!equipped) {
+      if (worn == null) {
         // Should be unreachable after checkEquip; restore whatever was there and refuse.
-        previous?.let { equipment.equip(msg.slot, it) }
+        previous?.let { equipmentChanges.restore(equipment, inventory, msg.slot, it) }
         equipment.markDirty()
         return@modify Applied(denial = EquipmentService.Denial.NOT_ALLOWED)
       }
@@ -129,11 +117,13 @@ class EquipItemHandler(
       // Gear feeds StatusValueRecalcSystem, so the derived values have to be rebuilt next tick.
       add(id, IsStatusValueDirty)
 
-      // Keep the inventory view's equipped marker in step with what actually got worn/swapped out.
-      previous?.let { inventory.setEquipped(it.uniqueId, false) }
-      inventory.setEquipped(held.uniqueId, true)
-
-      Applied(itemId = item.id, uniqueId = held.uniqueId, replacedUniqueId = previous?.uniqueId)
+      Applied(
+        itemId = item.id,
+        uniqueId = worn.uniqueId,
+        replacedUniqueId = previous?.uniqueId,
+        fromPile = held.isStackable,
+        provenance = worn.provenance
+      )
     }
 
     if (applied == null) {
@@ -161,7 +151,11 @@ class EquipItemHandler(
       // Unconditional: ItemContainer.equip refuses an occupied slot, and clearing an already empty
       // slot is a no-op, so this covers the swap case without a second branch.
       inventoryService.unequip(masterId, playerBestiaId, msg.slot)
-      inventoryService.equip(masterId, playerBestiaId, applied.itemId, applied.uniqueId, msg.slot)
+      if (applied.fromPile) {
+        inventoryService.equipFromPile(masterId, playerBestiaId, applied.itemId, applied.provenance, applied.uniqueId, msg.slot)
+      } else {
+        inventoryService.equip(masterId, playerBestiaId, applied.itemId, applied.uniqueId, msg.slot)
+      }
     }
   }
 
@@ -173,6 +167,9 @@ class EquipItemHandler(
     val itemId: Long = 0L,
     val uniqueId: Long = 0L,
     val replacedUniqueId: Long? = null,
+    /** Worn as a copy split off a pile, see [EquipmentChanges.putOn]. */
+    val fromPile: Boolean = false,
+    val provenance: ItemProvenance? = null,
     val denial: EquipmentService.Denial? = null
   )
 

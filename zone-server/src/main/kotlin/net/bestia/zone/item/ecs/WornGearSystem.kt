@@ -4,23 +4,33 @@ import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
+import net.bestia.zone.item.equip.EquipmentSlot
+import net.bestia.zone.item.equip.LightSourceRules
+import net.bestia.zone.world.time.BestiaClock
 import org.springframework.stereotype.Component as SpringComponent
 
 /**
  * Mirrors [Equipment] into [WornGear] every tick, the way [CarryCapacitySystem] mirrors the inventory. Equip,
  * unequip and revalidation all change [Equipment] alone; this one place makes each of them visible to others.
+ *
+ * Whether a worn light is lit follows [LightSourceRules], the rule [LightSourceSystem] burns it by.
  */
 @SpringComponent
-class WornGearSystem : System {
+class WornGearSystem(
+  private val clock: BestiaClock
+) : System {
   override val phase = Phase.ITEMS
 
   override val reads: ComponentClassSet = setOf(Equipment::class)
   override val writes: ComponentClassSet = setOf(WornGear::class)
 
   override fun update(world: World, deltaTime: Float) {
+    val dark = LightSourceRules.isLit(clock.now())
+
     world.query(WornGear::class).each { id ->
       val equipment = world.get(id, Equipment::class) ?: return@each
-      get<WornGear>().show(equipment.getWorn().mapValues { (_, item) -> item.itemId })
+      val lightLit = dark && equipment.get(EquipmentSlot.LIGHT_SOURCE) != null
+      get<WornGear>().show(equipment.getWorn().mapValues { (_, item) -> item.itemId }, lightLit)
     }
   }
 }

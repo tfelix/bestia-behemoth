@@ -90,8 +90,8 @@ class ItemContainer(
    * [uniqueId] names the exact instance to wear. It may legitimately be 0 for an item obtained this
    * session whose instance row was minted after the live ECS copy was made (see
    * [net.bestia.zone.item.ecs.Inventory.Item]); the item is then located by [itemId] instead,
-   * picking any held, not-yet-worn copy - which is equivalent, since equipment is never stackable
-   * and copies of one template are interchangeable at this point.
+   * picking any held, not-yet-worn copy - which is equivalent, since copies of one non-stackable
+   * template are interchangeable at this point. Stackable gear is worn through [equipFromPile].
    */
   fun equip(itemId: Long, uniqueId: Long, slot: EquipmentSlot): Boolean {
     if (_slots.any { it.equippedIn == slot }) return false
@@ -106,6 +106,27 @@ class ItemContainer(
     if (template.type != Item.ItemType.EQUIP || template.equipSlot != slot) return false
 
     candidate.equippedIn = slot
+    return true
+  }
+
+  /**
+   * Wears one copy off the free pile of [item] made by [provenance] in [slot]. The pile shrinks by one and the
+   * worn copy becomes the instance [mint] makes, because only an instance can carry wear: a lit torch burns
+   * down, the torches still in the pile do not.
+   */
+  fun equipFromPile(item: Item, provenance: ItemProvenance?, slot: EquipmentSlot, mint: () -> ItemInstance): Boolean {
+    if (_slots.any { it.equippedIn == slot }) return false
+    if (item.type != Item.ItemType.EQUIP || item.equipSlot != slot) return false
+    val pile = freePile(item.id, provenance) ?: return false
+
+    pile.amount -= 1
+    if (pile.amount <= 0) {
+      _slots.remove(pile)
+    }
+    val worn = ContainerSlot(container = this, itemInstance = mint())
+    worn.equippedIn = slot
+    _slots.add(worn)
+
     return true
   }
 
@@ -232,9 +253,9 @@ class ItemContainer(
 
   /**
    * Promises one non-stackable copy of [itemId] to [tradeId], for an instance item whose row was minted
-   * after the live inventory copy was made and whose id the caller therefore cannot know yet. Equipment is
-   * never stackable and copies of one template are interchangeable at this point, so any free one will do -
-   * the same fallback [equip] makes, for the same reason.
+   * after the live inventory copy was made and whose id the caller therefore cannot know yet. Copies of one
+   * non-stackable template are interchangeable at this point, so any free one will do - the same fallback
+   * [equip] makes, for the same reason.
    */
   fun reserveAnyInstance(itemId: Long, tradeId: Long): ContainerSlot? {
     val slot = _slots.firstOrNull { !it.isStackable && it.isFree && it.template.id == itemId } ?: return null

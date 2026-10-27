@@ -338,7 +338,8 @@ abstract class ItemDbSyncTask : DefaultTask() {
       "RIGHT_HAND",
       "LEFT_HAND",
       "ACCESSORY_1",
-      "ACCESSORY_2"
+      "ACCESSORY_2",
+      "LIGHT_SOURCE"
     )
   }
 }

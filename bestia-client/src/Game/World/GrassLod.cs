@@ -503,5 +503,50 @@ namespace BestiaBehemothClient.Game.World
 
       return current < target ? Mathf.Min(target, current + step) : Mathf.Max(target, current - step);
     }
+
+    /// <summary>
+    /// Whether a box may be on screen: false only when it lies wholly outside one of the frustum's planes.
+    /// </summary>
+    /// <remarks>
+    /// The conservative test Godot's own culling makes, so a box it keeps is never called hidden here. Godot's
+    /// planes point outwards, so the corner to test against each is the one furthest against its normal.
+    /// </remarks>
+    public static bool Overlaps(System.Collections.Generic.IEnumerable<Plane> frustum, Vector3 min, Vector3 max)
+    {
+      foreach (var plane in frustum)
+      {
+        var nearest = new Vector3(
+          plane.Normal.X > 0.0f ? min.X : max.X,
+          plane.Normal.Y > 0.0f ? min.Y : max.Y,
+          plane.Normal.Z > 0.0f ? min.Z : max.Z);
+
+        if (plane.DistanceTo(nearest) > 0.0f)
+        {
+          return false;
+        }
+      }
+
+      return true;
+    }
+
+    /// <summary>
+    /// Share of a full field's tufts to grow on ground that is <paramref name="turf"/> grass, 0 to 1.
+    /// </summary>
+    /// <remarks>
+    /// Raised to <paramref name="thinning"/> so grass thins faster than the turf runs out. Linear, a dirt patch's
+    /// rim stood as a wall of grass up to where the earth took over.
+    /// </remarks>
+    public static float TurfDensity(float turf, float thinning) =>
+      Mathf.Pow(Mathf.Clamp(turf, 0.0f, 1.0f), Mathf.Max(thinning, 1.0f));
+
+    /// <summary>
+    /// Share of its full height a tuft grows to on ground that is <paramref name="turf"/> grass.
+    /// </summary>
+    /// <remarks>
+    /// From <paramref name="edgeShare"/> where the turf has run out to full height on full turf, eased so the
+    /// field stays at full height until it is well into the rim. Worn ground grows short grass.
+    /// </remarks>
+    public static float TurfHeight(float turf, float edgeShare) =>
+      Mathf.Lerp(Mathf.Clamp(edgeShare, 0.0f, 1.0f), 1.0f, Mathf.SmoothStep(0.0f, 1.0f, turf));
   }
 }

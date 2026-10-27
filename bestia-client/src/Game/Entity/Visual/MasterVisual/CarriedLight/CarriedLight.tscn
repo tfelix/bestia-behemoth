@@ -1,0 +1,52 @@
+[gd_scene load_steps=7 format=3 uid="uid://bcarriedlight1"]
+
+[ext_resource type="Script" path="res://Game/Entity/Visual/MasterVisual/CarriedLight/carried_light.gd" id="1_light"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_stick"]
+top_radius = 0.035
+bottom_radius = 0.025
+height = 0.5
+radial_segments = 8
+rings = 1
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_stick"]
+albedo_color = Color(0.36, 0.23, 0.13, 1)
+roughness = 0.9
+
+[sub_resource type="SphereMesh" id="SphereMesh_flame"]
+radius = 0.07
+height = 0.22
+radial_segments = 8
+rings = 4
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_flame"]
+shading_mode = 0
+albedo_color = Color(1, 0.62, 0.22, 1)
+emission_enabled = true
+emission = Color(1, 0.45, 0.1, 1)
+emission_energy_multiplier = 3.0
+
+[node name="CarriedLight" type="Node3D"]
+script = ExtResource("1_light")
+
+[node name="Stick" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.15, 0)
+cast_shadow = 0
+mesh = SubResource("CylinderMesh_stick")
+surface_material_override/0 = SubResource("StandardMaterial3D_stick")
+
+[node name="Flame" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, 0)
+visible = false
+cast_shadow = 0
+mesh = SubResource("SphereMesh_flame")
+surface_material_override/0 = SubResource("StandardMaterial3D_flame")
+
+[node name="Light" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.6, 0)
+visible = false
+light_color = Color(1, 0.62, 0.3, 1)
+light_energy = 0.0
+shadow_enabled = false
+omni_range = 16.0
+omni_attenuation = 0.35
