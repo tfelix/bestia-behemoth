@@ -25,14 +25,15 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CjFtZXNzYWdlcy9jb21wb25lbnQvd29ybl9nZWFyX2NvbXBvbmVudF9zbXNn",
-            "LnByb3RvEgRibmV0IjYKFVdvcm5HZWFyQ29tcG9uZW50U01TRxIdCgVpdGVt",
-            "cxgBIAMoCzIOLmJuZXQuV29ybkl0ZW0iKQoIV29ybkl0ZW0SDAoEc2xvdBgB",
-            "IAEoDRIPCgdpdGVtX2lkGAIgASgNQjMKFW5ldC5iZXN0aWEuYm5ldC5wcm90",
-            "b0IaV29ybkdlYXJDb21wb25lbnRTTVNHUHJvdG9iBnByb3RvMw=="));
+            "LnByb3RvEgRibmV0IkkKFVdvcm5HZWFyQ29tcG9uZW50U01TRxIdCgVpdGVt",
+            "cxgBIAMoCzIOLmJuZXQuV29ybkl0ZW0SEQoJbGlnaHRfbGl0GAIgASgIIikK",
+            "CFdvcm5JdGVtEgwKBHNsb3QYASABKA0SDwoHaXRlbV9pZBgCIAEoDUIzChVu",
+            "ZXQuYmVzdGlhLmJuZXQucHJvdG9CGldvcm5HZWFyQ29tcG9uZW50U01TR1By",
+            "b3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.WornGearComponentSMSG), global::Bnet.WornGearComponentSMSG.Parser, new[]{ "Items" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.WornGearComponentSMSG), global::Bnet.WornGearComponentSMSG.Parser, new[]{ "Items", "LightLit" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.WornItem), global::Bnet.WornItem.Parser, new[]{ "Slot", "ItemId" }, null, null, null, null)
           }));
     }
@@ -81,6 +82,7 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public WornGearComponentSMSG(WornGearComponentSMSG other) : this() {
       items_ = other.items_.Clone();
+      lightLit_ = other.lightLit_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -101,6 +103,22 @@ namespace Bnet {
       get { return items_; }
     }
 
+    /// <summary>Field number for the "light_lit" field.</summary>
+    public const int LightLitFieldNumber = 2;
+    private bool lightLit_;
+    /// <summary>
+    /// The item in the light-source slot burns and gives light. The server decides, because it is also what
+    /// burns the item down; the client only draws it.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool LightLit {
+      get { return lightLit_; }
+      set {
+        lightLit_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -117,6 +135,7 @@ namespace Bnet {
         return true;
       }
       if(!items_.Equals(other.items_)) return false;
+      if (LightLit != other.LightLit) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -125,6 +144,7 @@ namespace Bnet {
     public override int GetHashCode() {
       int hash = 1;
       hash ^= items_.GetHashCode();
+      if (LightLit != false) hash ^= LightLit.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -144,6 +164,10 @@ namespace Bnet {
       output.WriteRawMessage(this);
     #else
       items_.WriteTo(output, _repeated_items_codec);
+      if (LightLit != false) {
+        output.WriteRawTag(16);
+        output.WriteBool(LightLit);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -155,6 +179,10 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
       items_.WriteTo(ref output, _repeated_items_codec);
+      if (LightLit != false) {
+        output.WriteRawTag(16);
+        output.WriteBool(LightLit);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -166,6 +194,9 @@ namespace Bnet {
     public int CalculateSize() {
       int size = 0;
       size += items_.CalculateSize(_repeated_items_codec);
+      if (LightLit != false) {
+        size += 1 + 1;
+      }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -179,6 +210,9 @@ namespace Bnet {
         return;
       }
       items_.Add(other.items_);
+      if (other.LightLit != false) {
+        LightLit = other.LightLit;
+      }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -202,6 +236,10 @@ namespace Bnet {
             items_.AddEntriesFrom(input, _repeated_items_codec);
             break;
           }
+          case 16: {
+            LightLit = input.ReadBool();
+            break;
+          }
         }
       }
     #endif
@@ -223,6 +261,10 @@ namespace Bnet {
             break;
           case 10: {
             items_.AddEntriesFrom(ref input, _repeated_items_codec);
+            break;
+          }
+          case 16: {
+            LightLit = input.ReadBool();
             break;
           }
         }

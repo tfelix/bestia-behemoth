@@ -11,6 +11,10 @@ option java_outer_classname = "WornGearComponentSMSGProto";
  */
 message WornGearComponentSMSG {
   repeated WornItem items = 1;
+
+  // The item in the light-source slot burns and gives light. The server decides, because it is also what
+  // burns the item down; the client only draws it.
+  bool light_lit = 2;
 }
 
 message WornItem {

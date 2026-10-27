@@ -11,9 +11,12 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
   {
     [Export] public Godot.Collections.Array<int> ItemIds { get; set; } = [];
 
+    /// <summary>The item worn in the light-source slot burns. Decided by the server, which burns it down.</summary>
+    [Export] public bool LightLit { get; set; }
+
     public static WornGearComponentSMSG FromProto(ulong entityId, global::Bnet.WornGearComponentSMSG protoWornGear)
     {
-      var wornGear = new WornGearComponentSMSG { EntityId = entityId };
+      var wornGear = new WornGearComponentSMSG { EntityId = entityId, LightLit = protoWornGear.LightLit };
       foreach (var item in protoWornGear.Items)
       {
         wornGear.ItemIds.Add((int)item.ItemId);
@@ -23,7 +26,7 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
 
     public override string ToString()
     {
-      return $"WornGearComponentSMSG(EntityId={EntityId}, ItemIds=[{string.Join(", ", ItemIds)}])";
+      return $"WornGearComponentSMSG(EntityId={EntityId}, ItemIds=[{string.Join(", ", ItemIds)}], LightLit={LightLit})";
     }
   }
 }
