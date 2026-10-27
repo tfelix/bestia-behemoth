@@ -22,6 +22,13 @@ class AccountContainerOwners(
       ?: throw PlayerBestiaNotFoundException(playerBestiaId)
   }
 
+  override fun lockedPlayerBestiaOf(masterId: Long, playerBestiaId: PlayerBestiaId): ContainerOwner? {
+    val playerBestia = playerBestiaRepository.findByIdForUpdate(playerBestiaId)
+      ?: throw PlayerBestiaNotFoundException(playerBestiaId)
+
+    return playerBestia.takeIf { it.master.id == masterId }
+  }
+
   override fun save(owner: ContainerOwner) {
     when (owner) {
       is Master -> masterRepository.save(owner)

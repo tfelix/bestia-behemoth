@@ -142,6 +142,8 @@ func _ready() -> void:
 
 	# Gold is coins in the bag, so the inventory is what knows how much the profile should show.
 	inventory.gold_changed.connect(_master_profile.show_gold)
+	# Swapping goods with an own bestia from the world's right-click menu needs the bags in view.
+	inventory.exchange_opened.connect(_on_exchange_opened)
 	_master_profile.show_gold(inventory.gold())
 
 	# The map lives beside the game rather than inside it: both views draw from one MapSource, so panning
@@ -428,6 +430,11 @@ func _on_items_gained(gains: Array) -> void:
 
 func _on_master_profile_inventory_win_toggled() -> void:
 	_inventory_win.visible = !_inventory_win.visible
+	_skills.visible = false
+
+
+func _on_exchange_opened() -> void:
+	_inventory_win.visible = true
 	_skills.visible = false
 
 

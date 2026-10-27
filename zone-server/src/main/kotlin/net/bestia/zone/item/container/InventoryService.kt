@@ -555,18 +555,77 @@ class InventoryService(
     require(amount > 0) { "amount > 0 required, was $amount" }
 
     val master = owners.lockedMaster(masterId)
-    val item = itemRepository.findByIdOrNull(itemId) ?: return null
+    val reserved = reserveInTransaction(master.container, itemId, uniqueId, amount, provenance) ?: return null
 
-    val reserved = when {
-      uniqueId != 0L -> master.container.reserveInstance(uniqueId, ESCROW_MARKER)
-      !item.stackable -> master.container.reserveAnyInstance(itemId, ESCROW_MARKER)
-      else -> master.container.reserveStackable(itemId, amount, ESCROW_MARKER, provenance)
-    } ?: return null
-
-    val moved = move(ESCROW_MARKER, setOf(reserved.id), from = master.container, to = escrow).single()
+    val moved = move(IN_TX_MARKER, setOf(reserved.id), from = master.container, to = escrow).single()
     owners.save(master)
 
     return moved
+  }
+
+  /**
+   * Hands goods from one of a master's own entities to another: master to bestia, bestia to master, or bestia to
+   * bestia. [fromBestia] or [toBestia] null names the master itself.
+   *
+   * One transaction holds both containers, so the goods are in exactly one of them whenever anybody looks. Both
+   * rows are locked in a fixed order - the master first, then the bestias by id - and a bestia that is not
+   * [masterId]'s own is refused here too, not only on the tick. An instance moves as the same row, keeping its
+   * wear and its maker; a pile keeps its maker and so lands apart from another maker's.
+   *
+   * @return what arrived, for the receiver's live inventory, or null when the giver does not freely hold it
+   */
+  @Transactional
+  fun transferBetweenOwners(
+    masterId: Long,
+    fromBestia: PlayerBestiaId?,
+    toBestia: PlayerBestiaId?,
+    itemId: Long,
+    uniqueId: Long,
+    amount: Int,
+    provenance: ItemProvenance? = null,
+  ): ReservedItem? {
+    require(amount > 0) { "amount > 0 required, was $amount" }
+    require(fromBestia != toBestia) { "Giver and receiver are the same (bestia $fromBestia of master $masterId)" }
+
+    val master = if (fromBestia == null || toBestia == null) owners.lockedMaster(masterId) else null
+    val bestias = mutableMapOf<PlayerBestiaId, ContainerOwner>()
+    for (playerBestiaId in listOfNotNull(fromBestia, toBestia).sorted()) {
+      bestias[playerBestiaId] = owners.lockedPlayerBestiaOf(masterId, playerBestiaId) ?: run {
+        LOG.warn { "Player bestia $playerBestiaId is not master $masterId's own; nothing is transferred" }
+        return null
+      }
+    }
+
+    val giver = fromBestia?.let(bestias::getValue) ?: master!!
+    val receiver = toBestia?.let(bestias::getValue) ?: master!!
+
+    val reserved = reserveInTransaction(giver.container, itemId, uniqueId, amount, provenance) ?: return null
+    val moved = move(IN_TX_MARKER, setOf(reserved.id), from = giver.container, to = receiver.container).single()
+
+    owners.save(giver)
+    owners.save(receiver)
+
+    return moved
+  }
+
+  /**
+   * Splits what is to be moved off into a slot of its own, marked for this transaction only: the caller detaches
+   * it before the commit, so the marker never reaches the database.
+   */
+  private fun reserveInTransaction(
+    container: ItemContainer,
+    itemId: Long,
+    uniqueId: Long,
+    amount: Int,
+    provenance: ItemProvenance?,
+  ): ContainerSlot? {
+    val item = itemRepository.findByIdOrNull(itemId) ?: return null
+
+    return when {
+      uniqueId != 0L -> container.reserveInstance(uniqueId, IN_TX_MARKER)
+      !item.stackable -> container.reserveAnyInstance(itemId, IN_TX_MARKER)
+      else -> container.reserveStackable(itemId, amount, IN_TX_MARKER, provenance)
+    }
   }
 
   /** Moves everything held in [escrow] to a master. @return what arrived, for the live inventory */
@@ -647,8 +706,11 @@ class InventoryService(
   private companion object {
     private val LOG = KotlinLogging.logger { }
 
-    /** Stands in for a trade id while an escrow move splits a stack. Trade ids count up from 1. */
-    const val ESCROW_MARKER = Long.MIN_VALUE
+    /**
+     * Stands in for a trade id while an escrow move or a transfer splits a stack within one transaction. Trade
+     * ids count up from 1.
+     */
+    const val IN_TX_MARKER = Long.MIN_VALUE
   }
 
   private fun grant(

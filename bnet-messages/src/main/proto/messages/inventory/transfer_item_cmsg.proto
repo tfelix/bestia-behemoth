@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "TransferItemCMSGProto";
+
+// Moves a held item from one of the master's own entities to another standing near it: the master and its
+// bestias, either way, and bestia to bestia. Neither has to be the entity the player drives.
+message TransferItemCMSG {
+  uint64 from_entity_id = 1;
+  uint64 to_entity_id = 2;
+
+  // The held item to move, as InventoryItem.player_item_id names it in the giver's bag.
+  uint64 player_item_id = 3;
+  uint32 amount = 4;
+}

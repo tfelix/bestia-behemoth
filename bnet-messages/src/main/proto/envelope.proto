@@ -47,6 +47,7 @@ import "messages/inventory/drop_item_cmsg.proto";
 import "messages/inventory/loot_item_cmsg.proto";
 import "messages/inventory/equip_item_cmsg.proto";
 import "messages/inventory/unequip_item_cmsg.proto";
+import "messages/inventory/transfer_item_cmsg.proto";
 import "messages/system/request_logout_cmsg.proto";
 import "messages/system/respawn_cmsg.proto";
 import "messages/system/dialog_smsg.proto";
@@ -189,6 +190,7 @@ message Envelope {
     LootItemCMSG loot_item = 304;
     EquipItemCMSG equip_item = 305;
     UnequipItemCMSG unequip_item = 306;
+    TransferItemCMSG transfer_item = 307;
 
     // MASTER & BESTIA 400
     GetMasterCMSG get_master = 401;

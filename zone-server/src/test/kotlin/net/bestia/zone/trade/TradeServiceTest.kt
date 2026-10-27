@@ -7,6 +7,11 @@ import net.bestia.zone.account.persistence.Master
 import net.bestia.zone.account.persistence.MasterRepository
 import net.bestia.zone.skill.BasicSkillGate
 import net.bestia.zone.identity.ecs.Account
+import net.bestia.zone.identity.ecs.OwnedBestia
+import net.bestia.zone.identity.ecs.Master as MasterMarker
+import net.bestia.zone.message.OperationErrorSMSG
+import net.bestia.zone.message.OutMessageProcessor
+import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.entity.ecs.DeadActionGuard
 import net.bestia.zone.session.ConnectionInfoService
@@ -30,6 +35,8 @@ class TradeServiceTest {
   private val sessions = ConnectionInfoService()
   private val inventoryService = mockk<InventoryService>(relaxed = true)
 
+  private val outMessages = mockk<OutMessageProcessor>(relaxed = true)
+
   private val masterRepository = mockk<MasterRepository> {
     every { findById(any()) } answers { Optional.of(mockk<Master>(relaxed = true)) }
   }
@@ -39,7 +46,7 @@ class TradeServiceTest {
     connectionInfoService = sessions,
     masterRepository = masterRepository,
     inventoryService = inventoryService,
-    outMessageProcessor = mockk(relaxed = true),
+    outMessageProcessor = outMessages,
     basicSkillGate = mockk<BasicSkillGate> { every { mayTrade(any()) } returns true },
     asyncJobExecutor = mockk(relaxed = true),
     deadActionGuard = DeadActionGuard(),
@@ -90,6 +97,27 @@ class TradeServiceTest {
     verify(exactly = 0) { inventoryService.reserveForTrade(any(), any(), any(), any(), any()) }
   }
 
+  @Test
+  fun `a master driving a bestia is told to trade as the master`() {
+    val master = player(OFFERER, OFFERER_MASTER, x = 0)
+    val bestia = world.createEntity { id ->
+      add(id, Position(0, 1, 0))
+      add(id, Account(OFFERER))
+      add(id, OwnedBestia(OFFERER_MASTER, playerBestiaId = 3L))
+      add(id, Inventory(mutableListOf(Inventory.Item(APPLE, amount = 5, weight = 1))))
+    }
+    sessions.activateSession(OFFERER, OFFERER_MASTER, master, listOf(ConnectionInfoService.PlayerEntity(3L, bestia)))
+    sessions.activateEntity(OFFERER, bestia)
+    val partner = player(PARTNER, PARTNER_MASTER, x = 1)
+
+    service.requestTrade(OFFERER, partner)
+    service.answerRequest(PARTNER, TRADE, accept = true)
+    service.offerItem(OFFERER, TRADE, applesOf(bestia), amount = 1)
+
+    verify(exactly = 0) { inventoryService.reserveForTrade(any(), any(), any(), any(), any()) }
+    verify { outMessages.sendToPlayer(OFFERER, OperationErrorSMSG(OpError.TRADE_NEEDS_MASTER)) }
+  }
+
   private fun applesOf(entity: EntityId): Long =
     world.get(entity, Inventory::class)!!.getItems().single { it.itemId == APPLE }.playerItemId
 
@@ -97,6 +125,7 @@ class TradeServiceTest {
     val entity = world.createEntity { id ->
       add(id, Position(x, 0, 0))
       add(id, Account(accountId))
+      add(id, MasterMarker(masterId))
       add(id, Inventory(mutableListOf(Inventory.Item(APPLE, amount = 5, weight = 1))))
     }
     sessions.activateSession(accountId, masterId, entity)

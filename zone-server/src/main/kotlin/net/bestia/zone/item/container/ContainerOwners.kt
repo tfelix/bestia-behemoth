@@ -17,6 +17,12 @@ interface ContainerOwners {
   /** Locks the player bestia's row. Throws when there is no such player bestia. */
   fun lockedPlayerBestia(playerBestiaId: PlayerBestiaId): ContainerOwner
 
+  /**
+   * [lockedPlayerBestia], for a write that must only touch [masterId]'s own bestias: null when it belongs to
+   * another master. Throws when there is no such player bestia.
+   */
+  fun lockedPlayerBestiaOf(masterId: Long, playerBestiaId: PlayerBestiaId): ContainerOwner?
+
   fun save(owner: ContainerOwner)
 
   /** Saves and flushes, and answers the saved row, whose new container slots now have ids. */

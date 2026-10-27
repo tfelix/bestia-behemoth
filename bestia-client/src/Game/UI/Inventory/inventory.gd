@@ -12,10 +12,23 @@ signal items_gained(gains: Array[Dictionary])
 ## The gold coins the controlled entity carries, each time that number changes.
 signal gold_changed(amount: int)
 
+## The player asked to swap goods with one of their own entities from outside this window - the world's
+## right-click menu - so the window has to come up.
+signal exchange_opened()
+
 ## Gold is carried as coins like any other item; items.yml `gold_coin`, the server's shop currency.
 const GOLD_COIN_ITEM_ID := 27
 
+## How close another of the player's own entities has to stand to swap goods with the driven one: the server's
+## ExchangeReach. It only counts as gone again past [constant _EXCHANGE_LEAVE_METRES], so a bestia pacing
+## at the edge does not make the exchange column flicker.
+const _EXCHANGE_REACH_METRES := 5.0
+const _EXCHANGE_LEAVE_METRES := 6.0
+const _EXCHANGE_REACH_HEIGHT := 3.0
+const _REACH_POLL_SECONDS := 0.25
+
 var InventoryItem = preload("res://Game/UI/Inventory/InventoryItem/InventoryItem.tscn")
+var DropAmountDialogScn = preload("res://Game/UI/Inventory/DropAmountDialog/DropAmountDialog.tscn")
 
 ## This is only for testing. In reality you will receive the items from the server.
 @export var preset_items: Array[InventoryItemResource]
@@ -29,18 +42,37 @@ var equipment_window: WidgetWindow = null
 @onready var _usable_grid: GridContainer = %UsableGrid
 @onready var _equip_grid: GridContainer = %EquipGrid
 @onready var _etc_grid: GridContainer = %EtcGrid
+@onready var _partner_strip: HBoxContainer = %PartnerStrip
+@onready var _exchange: ExchangeColumn = %ExchangeColumn
 
 var _items: Dictionary[int, Array]
 var _reported_gold := 0
 
+## Carry limit per owned entity, as the server last sent it. Only the limit is read: the load is summed off
+## the bag itself, which is always the newer of the two.
+var _carry_max: Dictionary[int, int]
+
+## The own entity whose bag the exchange column shows, or 0. Kept while it walks out of reach, so the column
+## comes back on its own when it returns.
+var _partner_id := 0
+
+## Which own entities stand within reach of the driven one, with the hysteresis the constants describe.
+var _in_reach: Dictionary[int, bool]
+var _reach_poll := 0.0
+
 func _ready() -> void:
+	# How the world's right-click menu, built long after this window, finds it.
+	add_to_group("inventory")
 	ConnectionManager.connect("entity_received", _on_entity_received)
 	# Every change to a bag, and every switch of the controlled entity, already goes out as this signal.
 	inventory_updated.connect(_report_gold_change)
+	_exchange.item_dropped.connect(_on_dropped_on_partner)
+	_exchange.item_requested.connect(_on_partner_row_requested)
 
 	var entity_manager := EntityManager.get_instance()
 	if entity_manager != null:
 		entity_manager.controlled_entity_changed.connect(_on_controlled_entity_changed)
+		entity_manager.owned_bestias_changed.connect(func(_bestias) -> void: _rebuild_partner_strip())
 
 	# We usually overlook the first inventory update because we did not yet
 	# fully load but the server already send it out. So we request it again to be
@@ -63,13 +95,23 @@ func _ready() -> void:
 ## now, so a listener that concluded "nothing carried" from it is never told otherwise for the rest of the
 ## session. That is what hid the minimap and made M do nothing while a chart sat in the inventory window,
 ## and what left the shortcut bar reading zero for items in hand.
-func _on_controlled_entity_changed(_previous_id: int, entity_id: int) -> void:
+func _on_controlled_entity_changed(previous_id: int, entity_id: int) -> void:
 	selected_entity_id = entity_id
+	# Taking control of the partner turns the exchange around rather than ending it.
+	if entity_id == _partner_id:
+		_partner_id = previous_id
 	_render_items()
+	_update_reach()
 	inventory_updated.emit()
 
 
 func _on_entity_received(msg: EntitySMSG) -> void:
+	if msg is CarryCapacityComponentSMSG:
+		_carry_max[msg.EntityId] = msg.Max
+		if msg.EntityId == _partner_id:
+			_render_partner()
+		return
+
 	# Skip when it is not adressing our own entity.
 	if msg is InventoryComponentSMSG:
 		# A bag arriving for the first time is what the player already owns rather than news, so it seeds and
@@ -107,6 +149,8 @@ func _on_entity_received(msg: EntitySMSG) -> void:
 			inv_item.rolled_stats = Array(itemMsg.RolledStats)
 			selected_entity_items.append(inv_item)
 		_render_items()
+		if msg.EntityId == _partner_id:
+			_render_partner()
 		inventory_updated.emit()
 
 		# Gated on the entity the player drives: every owned entity's bag is synced here, and only that one's
@@ -187,6 +231,8 @@ func _render_items() -> void:
 		inv_item.item_level = item.item_level
 		inv_item.rolled_stats = item.rolled_stats
 		inv_item.inventory = self
+		inv_item.drop_target = self
+		inv_item.move_requested.connect(_on_own_row_requested.bind(inv_item))
 		match item.item.type:
 			ItemResource.ItemType.USABLE:
 				_usable_grid.add_child(inv_item)
@@ -206,6 +252,194 @@ func try_quick_equip(item: ItemResource, player_item_id: int) -> bool:
 		return false
 
 	return equipment.equip_to_own_slot(item.item_id, player_item_id)
+
+
+# ------------------------------------------------------------------ exchange
+
+## True while the exchange column shows another own entity's bag to swap goods with.
+func is_exchanging() -> bool:
+	return _partner_id != 0 and _in_reach.get(_partner_id, false)
+
+
+## Opens the exchange with [param entity_id], one of the player's own entities - from the partner strip, or
+## from right-clicking it in the world. The same partner again closes it.
+func exchange_with(entity_id: int) -> void:
+	_partner_id = 0 if entity_id == _partner_id else entity_id
+	_update_reach()
+	_rebuild_partner_strip()
+	_render_partner()
+
+
+## [method exchange_with], but always opening, and bringing the window up with it.
+func open_exchange_with(entity_id: int) -> void:
+	if entity_id != _partner_id:
+		exchange_with(entity_id)
+	exchange_opened.emit()
+
+
+func _process(delta: float) -> void:
+	if not is_visible_in_tree():
+		return
+
+	_reach_poll -= delta
+	if _reach_poll > 0.0:
+		return
+
+	_reach_poll = _REACH_POLL_SECONDS
+	_update_reach()
+
+
+## Re-reads who stands within reach of the driven entity, and redraws the strip and the column when that changed.
+## An own entity out of view counts as out of reach: the client has no position for it.
+func _update_reach() -> void:
+	var entity_manager := EntityManager.get_instance()
+	if entity_manager == null:
+		return
+
+	var driven := entity_manager.get_entity(selected_entity_id)
+	var reach: Dictionary[int, bool] = {}
+	for entity_id in entity_manager.get_owned_entity_ids():
+		if entity_id == selected_entity_id or entity_id == 0:
+			continue
+
+		var other := entity_manager.get_entity(entity_id)
+		var was_near: bool = _in_reach.get(entity_id, false)
+		reach[entity_id] = driven != null and other != null and _within_reach(driven, other, was_near)
+
+	if reach == _in_reach:
+		return
+
+	_in_reach = reach
+	_rebuild_partner_strip()
+	_render_partner()
+
+
+func _within_reach(one: Entity, other: Entity, was_near: bool) -> bool:
+	var a := one.get_logical_position()
+	var b := other.get_logical_position()
+	var limit := _EXCHANGE_LEAVE_METRES if was_near else _EXCHANGE_REACH_METRES
+
+	return Vector2(a.x - b.x, a.z - b.z).length() <= limit and absf(a.y - b.y) <= _EXCHANGE_REACH_HEIGHT
+
+
+## One button per other own entity, coloured by its slot; greyed out while it stands too far away.
+func _rebuild_partner_strip() -> void:
+	for child in _partner_strip.get_children():
+		_partner_strip.remove_child(child)
+		child.queue_free()
+
+	var entity_manager := EntityManager.get_instance()
+	if entity_manager == null:
+		return
+
+	var owned := entity_manager.get_owned_entity_ids()
+	for slot in owned.size():
+		var entity_id: int = owned[slot]
+		if entity_id == selected_entity_id or entity_id == 0:
+			continue
+
+		var button := Button.new()
+		button.text = tr("EXCHANGE_WITH") % _name_of(entity_id)
+		button.toggle_mode = true
+		button.button_pressed = entity_id == _partner_id
+		button.disabled = not _in_reach.get(entity_id, false)
+		button.tooltip_text = tr("EXCHANGE_TOO_FAR") if button.disabled else tr("EXCHANGE_HINT")
+		button.modulate = OwnedSlots.color_of(slot)
+		button.pressed.connect(exchange_with.bind(entity_id))
+		_partner_strip.add_child(button)
+
+	_partner_strip.visible = _partner_strip.get_child_count() > 0
+
+
+func _render_partner() -> void:
+	_exchange.visible = is_exchanging()
+	if not _exchange.visible:
+		return
+
+	_exchange.show_bag(_name_of(_partner_id), _items.get(_partner_id, []), _bag_weight(_partner_id), _carry_max.get(_partner_id, 0))
+
+
+func _name_of(entity_id: int) -> String:
+	var entity_manager := EntityManager.get_instance()
+	if entity_manager == null:
+		return "?"
+
+	if entity_id == entity_manager.get_owned_master_entity_id():
+		return ConnectionManager.selected_master_info.Name if ConnectionManager.selected_master_info != null else tr("BESTIA_PARTY_MASTER")
+
+	for bestia in entity_manager.get_owned_bestias():
+		if bestia.EntityId == entity_id:
+			return OwnedSlots.name_of(bestia)
+
+	return "?"
+
+
+func _bag_weight(entity_id: int) -> int:
+	var total := 0
+	for inv_item in _items.get(entity_id, []):
+		total += inv_item.amount * inv_item.item.weight
+
+	return total
+
+
+## How many of [param wanted] the receiver can still carry. An entity whose limit has not arrived yet is not
+## second-guessed: the server checks every move anyway, this only spares the player a refusal.
+func _fitting(entity_id: int, item: ItemResource, wanted: int) -> int:
+	var limit: int = _carry_max.get(entity_id, 0)
+	if limit <= 0 or item.weight <= 0:
+		return wanted
+
+	return clampi((limit - _bag_weight(entity_id)) / item.weight, 0, wanted)
+
+
+func _can_drop_data(_at_position: Vector2, data: Variant) -> bool:
+	return is_exchanging() and typeof(data) == TYPE_DICTIONARY and data.get("source") == "exchange_partner"
+
+
+## A partner's item dragged into the inventory comes over. Holding Ctrl on the drop asks how many.
+func _drop_data(_at_position: Vector2, data: Variant) -> void:
+	var amount: int = 0 if Input.is_key_pressed(KEY_CTRL) else data.get("amount", 0)
+	_move(_partner_id, selected_entity_id, data.get("player_item_id", 0), data.get("id"), data.get("amount", 0), amount)
+
+
+func _on_dropped_on_partner(data: Dictionary) -> void:
+	var amount: int = 0 if Input.is_key_pressed(KEY_CTRL) else data.get("amount", 0)
+	_move(selected_entity_id, _partner_id, data.get("player_item_id", 0), data.get("id"), data.get("amount", 0), amount)
+
+
+func _on_own_row_requested(amount: int, row: Control) -> void:
+	if is_exchanging():
+		_move(selected_entity_id, _partner_id, row.player_item_id, row.item.item_id, row.amount, amount)
+
+
+func _on_partner_row_requested(row: Control, amount: int) -> void:
+	_move(_partner_id, selected_entity_id, row.player_item_id, row.item.item_id, row.amount, amount)
+
+
+## Sends one move of up to [param amount] of the [param held] in the giver's bag, never more than the receiver
+## can carry. [param amount] 0 asks the player first, offering at most what fits.
+func _move(from_id: int, to_id: int, player_item_id: int, item_id: int, held: int, amount: int) -> void:
+	if not is_exchanging() or held <= 0:
+		return
+
+	var item: ItemResource = ItemDB.get_instance().get_item(item_id)
+	var fits := _fitting(to_id, item, held)
+	if fits <= 0:
+		_exchange.flash_refusal()
+		return
+
+	if amount > 0 or fits == 1:
+		ConnectionManager.transfer_item(from_id, to_id, player_item_id, mini(maxi(amount, 1), fits))
+		return
+
+	var dialog = DropAmountDialogScn.instantiate() as DropAmountDialog
+	add_child(dialog)
+	dialog.amount_confirmed.connect(
+		func(_id: int, picked: int) -> void: ConnectionManager.transfer_item(from_id, to_id, player_item_id, picked)
+	)
+	dialog.confirmed.connect(dialog.queue_free)
+	dialog.canceled.connect(dialog.queue_free)
+	dialog.open_for(item, fits, tr("EXCHANGE_MOVE_HOW_MANY"))
 
 
 func is_initialized_for_current_entity() -> bool:

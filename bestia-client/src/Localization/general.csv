@@ -406,3 +406,15 @@ TRAVEL_SEND_ROUTE,Send along it
 TRAVEL_SEND_BACK,Send back the other way
 TRAVEL_RENAME,Rename (empty for the made name)
 TRAVEL_DELETE,Forget this route
+ERROR_EXCHANGE_OUT_OF_REACH,They walked too far apart to hand anything over.
+ERROR_EXCHANGE_TOO_HEAVY,They cannot carry that much more.
+ERROR_TRADE_NEEDS_MASTER,"Only your master can trade. Hand the goods to your master first."
+CONTEXT_EXCHANGE_ITEMS,Exchange items
+EXCHANGE_WITH,Exchange with %s
+EXCHANGE_HINT,"Show their bag beside yours. Drag between the two, Shift-click to move a whole stack, hold Ctrl on the drop to choose how many."
+EXCHANGE_TOO_FAR,Too far away to hand anything over.
+EXCHANGE_WEIGHT,Weight %.1f / %.1f kg
+EXCHANGE_MOVE_ALL,Move all
+EXCHANGE_MOVE_ONE,Move one
+EXCHANGE_MOVE_AMOUNT,Move amount...
+EXCHANGE_MOVE_HOW_MANY,Move how many %s?

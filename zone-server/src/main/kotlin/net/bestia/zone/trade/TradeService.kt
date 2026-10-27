@@ -8,6 +8,7 @@ import net.bestia.zone.account.persistence.MasterRepository
 import net.bestia.zone.account.persistence.findByIdOrThrow
 import net.bestia.zone.skill.BasicSkillGate
 import net.bestia.zone.identity.ecs.Account
+import net.bestia.zone.identity.ecs.Master
 import net.bestia.zone.entity.ecs.DeadActionGuard
 import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.ecs.core.WorldView
@@ -112,6 +113,13 @@ class TradeService(
       return
     }
 
+    // A trade reserves and settles against the master's container, so its live side has to be the master's bag
+    // too; a bestia hands its goods to the master first. The sides are fixed here, so switching later is harmless.
+    if (!world.read { has(requesterEntityId, Master::class) }) {
+      deny(accountId, OpError.TRADE_NEEDS_MASTER)
+      return
+    }
+
     val targetAccountId = world.read { get(targetEntityId, Account::class)?.accountId }
     if (targetAccountId == null || targetAccountId == accountId) {
       deny(accountId, OpError.TRADE_TARGET_UNAVAILABLE)
@@ -126,7 +134,8 @@ class TradeService(
       null
     }
 
-    if (targetActive != targetEntityId || !basicSkillGate.mayTrade(targetAccountId)) {
+    val targetIsMaster = world.read { has(targetEntityId, Master::class) }
+    if (targetActive != targetEntityId || !targetIsMaster || !basicSkillGate.mayTrade(targetAccountId)) {
       deny(accountId, OpError.TRADE_TARGET_UNAVAILABLE)
       return
     }

@@ -99,6 +99,7 @@ var UseItemCMSG = load("res://Bnet/Message/Inventory/UseItemCMSG.cs")
 ## Not a message: the argument bag a scripted item fills before one of the above is sent.
 var ScriptArgsCls = load("res://Bnet/Message/ScriptArgs.cs")
 var DropItemCMSG = load("res://Bnet/Message/Inventory/DropItemCMSG.cs")
+var TransferItemCMSG = load("res://Bnet/Message/Inventory/TransferItemCMSG.cs")
 var LootItemCMSG = load("res://Bnet/Message/Inventory/LootItemCMSG.cs")
 var EquipItemCMSG = load("res://Bnet/Message/Inventory/EquipItemCMSG.cs")
 var UnequipItemCMSG = load("res://Bnet/Message/Inventory/UnequipItemCMSG.cs")
@@ -562,6 +563,20 @@ func use_item(player_item_id: int, args = null) -> void:
 func drop_item(player_item_id: int, amount: int) -> void:
 	assert(is_ready_to_send())
 	var msg = DropItemCMSG.new()
+	msg.PlayerItemId = player_item_id
+	msg.Amount = amount
+	_socket.SendMessage(msg)
+
+
+## Hands a held item from one of the player's own entities to another standing next to it - the master and
+## its bestias, any way round. [param player_item_id] names the item in [param from_entity_id]'s bag. The
+## server may refuse (out of reach, too heavy) with an OperationError; both bags arrive fresh either way,
+## so nothing is applied locally.
+func transfer_item(from_entity_id: int, to_entity_id: int, player_item_id: int, amount: int) -> void:
+	assert(is_ready_to_send())
+	var msg = TransferItemCMSG.new()
+	msg.FromEntityId = from_entity_id
+	msg.ToEntityId = to_entity_id
 	msg.PlayerItemId = player_item_id
 	msg.Amount = amount
 	_socket.SendMessage(msg)

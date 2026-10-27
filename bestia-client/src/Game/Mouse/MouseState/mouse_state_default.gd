@@ -73,11 +73,12 @@ func handle_right_click(mgr: MouseManager, screen_position: Vector2) -> void:
 	if not is_instance_valid(target):
 		return
 
-	# Our own bodies are under the cursor as often as anyone else's, and there is nothing to do to them.
+	# The body we drive is under the cursor as often as anyone else's, and there is nothing to do to it. Our
+	# other bodies offer to swap goods with it.
 	var entity_manager := EntityManager.get_instance()
-	var is_ours: bool = entity_manager != null and target.has_method("get_bestia_entity_id") \
-			and entity_manager.is_owned_entity_id(target.get_bestia_entity_id())
-	if is_ours:
+	var is_driven: bool = entity_manager != null and target.has_method("get_bestia_entity_id") \
+			and target.get_bestia_entity_id() == entity_manager.get_controlled_entity_id()
+	if is_driven:
 		return
 
 	mgr.open_context_menu_for(target, screen_position)

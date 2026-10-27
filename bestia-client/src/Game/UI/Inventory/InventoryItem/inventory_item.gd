@@ -4,12 +4,19 @@ extends Panel
 ## Only ever fires while [member drag_source] is "trade_offer".
 signal dragged_out()
 
+## Asks to hand this item to the other bag of the inventory window's exchange: [param amount] of it, or 0 to
+## ask the player how many. Shift-click and the right-click menu send it; whoever lists the row decides
+## whether an exchange is open at all.
+signal move_requested(amount: int)
+
 @export var item: ItemResource
 @export var amount: int
 
 ## Which list this row belongs to, and therefore what dragging it means. "inventory_item" is a held item on
 ## its way somewhere; "trade_offer" is a line already inside a trade window, where dragging out retracts it
-## and double-clicking must not use it - it is not in the inventory to be used.
+## and double-clicking must not use it - it is not in the inventory to be used. "exchange_partner" is held by
+## the other entity of an exchange, so only the inventory takes it: dropping, using or wearing it would act on
+## the entity the player drives.
 @export var drag_source: String = "inventory_item"
 
 ## Names this offer line for a retraction. Set only for a "trade_offer" row; two rows of the same template
@@ -49,6 +56,10 @@ signal dragged_out()
 ## the Inventory class while it's parsed, and Inventory in turn preloads InventoryItem.tscn -
 ## a load cycle that Godot rejects with a "Busy" parse error.
 var inventory = null
+
+## The list this row sits in, which takes drops landing on the row as if they landed beside it. A row would
+## otherwise swallow the drop, and a full bag has no gap left to aim for. Untyped for the reason above.
+var drop_target = null
 
 var _is_dragging_self: bool = false
 
@@ -113,13 +124,21 @@ func _notification(what: int) -> void:
 			dragged_out.emit()
 
 
-func _can_drop_data(_at_position: Vector2, _data: Variant) -> bool:
-	return false
+func _can_drop_data(at_position: Vector2, data: Variant) -> bool:
+	return drop_target != null and drop_target._can_drop_data(at_position, data)
+
+
+func _drop_data(at_position: Vector2, data: Variant) -> void:
+	drop_target._drop_data(at_position, data)
 
 
 func _gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
-		if event.button_index == MOUSE_BUTTON_LEFT and event.double_click:
+		if event.button_index == MOUSE_BUTTON_LEFT and event.pressed and event.shift_pressed:
+			if drag_source != "trade_offer":
+				move_requested.emit(amount)
+			accept_event()
+		elif event.button_index == MOUSE_BUTTON_LEFT and event.double_click:
 			# An item sitting in a trade window is not held any more - there is nothing here to wear or eat.
 			if drag_source != "inventory_item":
 				return
@@ -129,4 +148,31 @@ func _gui_input(event: InputEvent) -> void:
 				return
 			item.use_item(player_item_id)
 		elif event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
-			print("Panel was right-clicked!")
+			if _can_move():
+				_open_move_menu()
+				accept_event()
+
+
+## A partner's row always sits in an open exchange; an inventory row only while one is open.
+func _can_move() -> bool:
+	if drag_source == "exchange_partner":
+		return true
+
+	return drag_source == "inventory_item" and inventory != null and inventory.is_exchanging()
+
+
+func _open_move_menu() -> void:
+	var menu := PopupMenu.new()
+	menu.add_item(tr("EXCHANGE_MOVE_ALL"), 0)
+	if amount > 1:
+		menu.add_item(tr("EXCHANGE_MOVE_ONE"), 1)
+		menu.add_item(tr("EXCHANGE_MOVE_AMOUNT"), 2)
+	menu.id_pressed.connect(func(id: int) -> void:
+		match id:
+			0: move_requested.emit(amount)
+			1: move_requested.emit(1)
+			2: move_requested.emit(0)
+	)
+	menu.popup_hide.connect(menu.queue_free)
+	add_child(menu)
+	menu.popup(Rect2i(Vector2i(get_global_mouse_position()), Vector2i.ZERO))

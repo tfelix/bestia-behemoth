@@ -256,6 +256,15 @@ enum OpError {
   LIGHT_SOURCE_BURNT_OUT = 92;
   // A map click or a stop on a route lies in water too deep to wade. The client cannot tell from its map tiles.
   TRAVEL_DESTINATION_IN_WATER = 93;
+  // Moving an item between two of the master's own entities. The client only offers it while they stand
+  // together, so this needs one of them to walk off with the move in flight.
+  EXCHANGE_OUT_OF_REACH = 94;
+  // The receiver cannot carry that much more. The client caps what it sends at what fits, so this needs the
+  // receiver to pick something up with the move in flight.
+  EXCHANGE_TOO_HEAVY = 95;
+  // Only a master trades: a trade settles against the master's own bag, so goods a bestia carries are handed to
+  // the master first.
+  TRADE_NEEDS_MASTER = 96;
 }
 
 message OperationError {

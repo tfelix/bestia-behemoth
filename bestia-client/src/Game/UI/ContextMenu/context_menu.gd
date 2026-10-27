@@ -10,6 +10,7 @@ class_name ContextMenu
 ## Ids, not indices: [signal id_pressed] carries the id, and indices shift as the menu is rebuilt per target.
 const _ACTION_TRADE: int = 1
 const _ACTION_TALK: int = 2
+const _ACTION_EXCHANGE: int = 3
 
 var _target_entity_id: int = 0
 
@@ -25,7 +26,14 @@ func open_for(target: Node3D, screen_position: Vector2) -> bool:
 	clear()
 	_target_entity_id = 0
 
-	if target is MasterVisual:
+	# One of the player's own bodies, other than the one they drive: the only thing to do to it is swap goods.
+	var entity_manager := EntityManager.get_instance()
+	var own_id: int = target.get_bestia_entity_id() if target.has_method("get_bestia_entity_id") else 0
+	if entity_manager != null and entity_manager.is_owned_entity_id(own_id):
+		_target_entity_id = own_id
+		add_item(tr("CONTEXT_EXCHANGE_ITEMS"), _ACTION_EXCHANGE)
+
+	elif target is MasterVisual:
 		_target_entity_id = target.get_bestia_entity_id()
 		add_item("Trade with %s" % target.get_master_name(), _ACTION_TRADE)
 
@@ -70,3 +78,7 @@ func _on_id_pressed(id: int) -> void:
 		_ACTION_TALK:
 			if _target_entity_id != 0:
 				ConnectionManager.interact(_target_entity_id)
+		_ACTION_EXCHANGE:
+			var inventory = get_tree().get_first_node_in_group("inventory")
+			if inventory != null and _target_entity_id != 0:
+				inventory.open_exchange_with(_target_entity_id)

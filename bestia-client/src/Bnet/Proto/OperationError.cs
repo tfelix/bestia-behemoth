@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSrrEgoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSq2EwoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -80,8 +80,9 @@ namespace Bnet {
             "Tl9DQU5OT1RfQUZGT1JEX0ZFRRBZEhgKFEFVQ1RJT05fTElTVElOR19HT05F",
             "EFoSGQoVQVVDVElPTl9DQU5OT1RfQUZGT1JEEFsSGgoWTElHSFRfU09VUkNF",
             "X0JVUk5UX09VVBBcEh8KG1RSQVZFTF9ERVNUSU5BVElPTl9JTl9XQVRFUhBd",
-            "QiwKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0ITT3BlcmF0aW9uRXJyb3JQcm90",
-            "b2IGcHJvdG8z"));
+            "EhkKFUVYQ0hBTkdFX09VVF9PRl9SRUFDSBBeEhYKEkVYQ0hBTkdFX1RPT19I",
+            "RUFWWRBfEhYKElRSQURFX05FRURTX01BU1RFUhBgQiwKFW5ldC5iZXN0aWEu",
+            "Ym5ldC5wcm90b0ITT3BlcmF0aW9uRXJyb3JQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -446,6 +447,21 @@ namespace Bnet {
     /// A map click or a stop on a route lies in water too deep to wade. The client cannot tell from its map tiles.
     /// </summary>
     [pbr::OriginalName("TRAVEL_DESTINATION_IN_WATER")] TravelDestinationInWater = 93,
+    /// <summary>
+    /// Moving an item between two of the master's own entities. The client only offers it while they stand
+    /// together, so this needs one of them to walk off with the move in flight.
+    /// </summary>
+    [pbr::OriginalName("EXCHANGE_OUT_OF_REACH")] ExchangeOutOfReach = 94,
+    /// <summary>
+    /// The receiver cannot carry that much more. The client caps what it sends at what fits, so this needs the
+    /// receiver to pick something up with the move in flight.
+    /// </summary>
+    [pbr::OriginalName("EXCHANGE_TOO_HEAVY")] ExchangeTooHeavy = 95,
+    /// <summary>
+    /// Only a master trades: a trade settles against the master's own bag, so goods a bestia carries are handed to
+    /// the master first.
+    /// </summary>
+    [pbr::OriginalName("TRADE_NEEDS_MASTER")] TradeNeedsMaster = 96,
   }
 
   #endregion
