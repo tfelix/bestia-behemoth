@@ -7,6 +7,7 @@ import net.bestia.bus.contract.ZoneQuery
 import net.bestia.zone.bestia.BestiaCatalogue
 import net.bestia.zone.cartography.tile.MapTileService
 import net.bestia.zone.compendium.CompendiumStore
+import net.bestia.zone.place.ecs.PlaceRegionService
 import net.bestia.zone.cartography.tile.TileId
 import net.bestia.zone.cartography.tile.TileRenderPool
 import org.springframework.stereotype.Service
@@ -25,6 +26,7 @@ class MapQueries(
   private val owned: OwnedMasters,
   private val compendium: CompendiumStore,
   private val catalogue: BestiaCatalogue,
+  private val regions: PlaceRegionService,
 ) {
 
   fun meta(correlationId: String): BusReply {
@@ -98,6 +100,25 @@ class MapQueries(
 
     val listed = places.places.map { ZoneAnswer.Places.Place(it.id, it.kind, it.x, it.y, it.name, it.tier, it.poi) }
     return BusReply.ok(correlationId, ZoneAnswer.Places(places.etag, places.shared, listed))
+  }
+
+  /** A NOT_FOUND is a place the master has not charted, or one that does not exist - indistinguishably. */
+  fun place(correlationId: String, accountId: Long, query: ZoneQuery.MapPlace): BusReply {
+    owned.find(accountId, query.masterId) ?: return BusReply.of(correlationId, Status.NOT_FOUND)
+    val detail = tiles.placeDetail(query.masterId, query.placeId) ?: return BusReply.of(correlationId, Status.NOT_FOUND)
+
+    val place = detail.place
+    val services = detail.services.map {
+      ZoneAnswer.Services.Service(it.id, it.kind.name, it.business, it.x, it.y, it.settlement, it.openFrom, it.openTo)
+    }
+    return BusReply.ok(
+      correlationId,
+      ZoneAnswer.PlaceDetail(
+        ZoneAnswer.Places.Place(place.id, place.kind, place.x, place.y, place.name, place.tier, place.poi),
+        regions.regions.regionAt(place.x, place.y).name,
+        services,
+      )
+    )
   }
 
   fun find(correlationId: String, accountId: Long, query: ZoneQuery.MapFind): BusReply {

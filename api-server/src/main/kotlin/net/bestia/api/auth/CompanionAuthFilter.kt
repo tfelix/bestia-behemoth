@@ -92,7 +92,7 @@ class CompanionAuthFilter(
     private val PUBLIC_PATHS = setOf("/v1/companion/ws", "/v1/companion/openapi.json", "/v1/companion/push/key")
 
     /** The map routes of `MapController`; with [EMBLEM_ROUTE], the only routes a game client's ticket opens. */
-    private val MAP_ROUTE = Regex("""^/v1/companion/masters/\d+/map/(meta|find|[tps]/\d+/-?\d+/-?\d+(\.png|\.json)?|h/\d+/\d+/-?\d+/-?\d+\.png)$""")
+    private val MAP_ROUTE = Regex("""^/v1/companion/masters/\d+/map/(meta|find|places/\d+|[tps]/\d+/-?\d+/-?\d+(\.png|\.json)?|h/\d+/\d+/-?\d+/-?\d+\.png)$""")
 
     private val EMBLEM_ROUTE = Regex("""^/v1/companion/emblems/[0-9a-f]{64}\.png$""")
   }

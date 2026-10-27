@@ -204,6 +204,24 @@ class MapController(
       .body(places.places.map { Place(it.id, it.kind, it.x, it.y, it.name, it.tier, it.poi) })
   }
 
+  /** A place, the region it lies in and its standing services, all as charted; what a tap on a town shows. */
+  data class PlaceDetail(val place: Place, val region: String?, val services: List<Service>)
+
+  @GetMapping("/places/{placeId}")
+  fun place(
+    @RequestAttribute(ACCOUNT_ID) accountId: Long,
+    @PathVariable masterId: Long,
+    @PathVariable placeId: Long,
+  ): PlaceDetail {
+    val detail = zone.ask(accountId, ZoneQuery.MapPlace(masterId, placeId)).answerOrThrow<ZoneAnswer.PlaceDetail>()
+    val place = detail.place
+    return PlaceDetail(
+      Place(place.id, place.kind, place.x, place.y, place.name, place.tier, place.poi),
+      detail.region,
+      detail.services.map { Service(it.id, it.kind, it.business, it.x, it.y, it.settlement, it.openFrom, it.openTo) },
+    )
+  }
+
   /** Charted places whose names contain [q], best first, for the map's search box. */
   @GetMapping("/find")
   fun find(

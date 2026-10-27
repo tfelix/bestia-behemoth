@@ -1,9 +1,10 @@
 <script lang="ts">
 	import 'leaflet/dist/leaflet.css';
 	import L from 'leaflet';
+	import { untrack } from 'svelte';
 	import { page } from '$app/state';
 	import { ApiError, getJson } from '$lib/api/client';
-	import type { Bestia, Catalog, MapMeta, MasterSheet, Place, Position } from '$lib/api/model';
+	import type { Bestia, Catalog, MapMeta, MasterSheet, Place, PlaceDetail, Position, Service } from '$lib/api/model';
 	import MapCard, { type Card } from '$lib/components/MapCard.svelte';
 	import TravelSheet from '$lib/components/TravelSheet.svelte';
 	import { guarded } from '$lib/guard';
@@ -11,16 +12,20 @@
 	import { ChartCache } from '$lib/map/chartCache';
 	import { chartLayer, habitatLayer, MAX_ZOOM, placeLabels } from '$lib/map/chartLayer';
 	import { gridLayer } from '$lib/map/gridLayer';
+	import { serviceHours, serviceName, servicesLayer } from '$lib/map/servicesLayer';
 	import { formatGridRef, MAX_DIGITS, parseGridRef } from '$lib/map/gridRef';
 	import { bestiaColor, MASTER_COLOR } from '$lib/map/slotColors';
 	import { speciesName } from '$lib/names';
-	import { Notebook } from '$lib/notebook/notebook.svelte';
+	import { Notebook, SINGLE_KEY } from '$lib/notebook/notebook.svelte';
 	import type { NotebookEntry } from '$lib/notebook/rules';
 	import { distance, distanceText, ROUTES, routeBody, routeOf, sendJourney, stopJourney, stopsAhead, wayAhead, type Route, type RouteValue } from '$lib/travel';
 
 	/** The notebook collection of the master's own map marks, shared with the game. */
 	const MARKS = 'marks';
 	type MarkValue = { name: string; east: number; north: number; icon: string; note?: string | null };
+	/** How the master likes their map, kept with the game's: the service kinds its legend hides, and the grid. */
+	const MAP_PREFS = 'map-prefs';
+	type MapPrefs = { hiddenServiceKinds: string[]; gridOverlay: boolean };
 
 	const masterId = $derived(Number(page.params.id));
 	/** The species whose habitat is laid over the map, picked in the compendium; 0 for none. */
@@ -34,6 +39,8 @@
 	let notebook = $state.raw<Notebook | null>(null);
 	const routes = $derived(notebook ? notebook.entries<RouteValue>(ROUTES).map(routeOf) : []);
 	const marks = $derived(notebook ? notebook.entries<MarkValue>(MARKS) : []);
+	const prefs = $derived(notebook?.document<MapPrefs>(MAP_PREFS) ?? null);
+	let services: { restart: () => void } | null = null;
 	let selectedId = $state<number | null>(null);
 	/** The master as the map draws it; its sheet comes apart from the roster, so its marker is kept here. */
 	let master = $state<{ name: string; position: Position } | null>(null);
@@ -116,6 +123,9 @@
 			chartLayer(id, meta, cache).addTo(leaflet);
 			if (species !== 0) habitatLayer(id, species, meta, cache).addTo(leaflet);
 			placeLabels(id, leaflet, meta, cache, openPlace).addTo(leaflet);
+			const shown = servicesLayer(id, leaflet, meta, () => prefs?.hiddenServiceKinds ?? [], openService);
+			shown.group.addTo(leaflet);
+			services = shown;
 			leaflet.on('click', (e: L.LeafletMouseEvent) => tapMap({ eastMetres: e.latlng.lng, northMetres: e.latlng.lat }));
 			// A right click, where there is one, goes at once: the shortcut for what the card's Go does.
 			leaflet.on('contextmenu', (e: L.LeafletMouseEvent) => goNow({ eastMetres: e.latlng.lng, northMetres: e.latlng.lat }));
@@ -124,7 +134,7 @@
 			grid = gridLayer(meta);
 			if (showGrid) grid.addTo(leaflet);
 			const kept = new Notebook(id);
-			await Promise.all([kept.load(ROUTES), kept.load(MARKS)]);
+			await Promise.all([kept.load(ROUTES), kept.load(MARKS), kept.load(MAP_PREFS)]);
 			if (gone) return;
 			notebook = kept;
 
@@ -155,6 +165,7 @@
 			unsubscribe();
 			travelLayers = null;
 			notebook = null;
+			services = null;
 			map = null;
 			grid = null;
 			pinMarker = null;
@@ -174,6 +185,17 @@
 				.addTo(layers.markers);
 		});
 		if (master) marker(latLng(master.position), MASTER_COLOR, master.name).addTo(layers.markers);
+	});
+
+	// The legend is the game's, so a kind switched off there is gone here as well, and the grid follows it too.
+	$effect(() => {
+		void prefs?.hiddenServiceKinds;
+		services?.restart();
+	});
+
+	$effect(() => {
+		const wanted = prefs?.gridOverlay ?? false;
+		if (wanted !== untrack(() => showGrid)) setGrid(wanted);
 	});
 
 	// The master's own marks, from the notebook the game keeps too: a tap on one asks about it.
@@ -228,11 +250,18 @@
 		meta = value;
 	}
 
-	function toggleGrid() {
-		showGrid = !showGrid;
+	function setGrid(on: boolean) {
+		showGrid = on;
 		if (!map || !grid) return;
-		if (showGrid) grid.addTo(map);
+		if (on) grid.addTo(map);
 		else grid.remove();
+	}
+
+	/** The button keeps the choice in the notebook, so the game's map shows the grid too. */
+	function toggleGrid() {
+		setGrid(!showGrid);
+		const keep = { hiddenServiceKinds: prefs?.hiddenServiceKinds ?? [], gridOverlay: showGrid };
+		void notebook?.put(MAP_PREFS, SINGLE_KEY, keep).catch(() => {});
 	}
 
 	/** A reference with a cell no finer than a pixel at the map's zoom. */
@@ -353,9 +382,27 @@
 		};
 	}
 
+	/** The card for a town at once, then every service it has as the world tells it - none are drawn at coarse zooms. */
 	function openPlace(place: Place) {
 		const tier = place.tier ? place.tier.charAt(0) + place.tier.slice(1).toLowerCase() : '';
-		openCard(place.name ?? 'A place', { eastMetres: place.x, northMetres: place.y }, [], [tier]);
+		const at = { eastMetres: place.x, northMetres: place.y };
+		openCard(place.name ?? 'A place', at, [], [tier]);
+		const opened = card;
+
+		void getJson<PlaceDetail>(`/v1/companion/masters/${masterId}/map/places/${place.id}`)
+			.then((detail) => {
+				if (card !== opened) return;
+				const goTo = detail.services.map((service) => ({
+					label: `Go: ${serviceName(service)}`,
+					run: () => goNow({ eastMetres: service.x, northMetres: service.y })
+				}));
+				openCard(place.name ?? 'A place', at, goTo, [tier, detail.region ?? '']);
+			})
+			.catch(() => {});
+	}
+
+	function openService(service: Service) {
+		openCard(serviceName(service), { eastMetres: service.x, northMetres: service.y }, [], [serviceHours(service)]);
 	}
 
 	function openMark(mark: NotebookEntry<MarkValue>) {
@@ -623,6 +670,43 @@
 		border-radius: 50%;
 		color: #1a1410;
 		font: 700 0.7rem var(--label);
+	}
+
+	.map :global(.service span) {
+		display: block;
+		width: 100%;
+		height: 100%;
+		border: 2px solid #261c14;
+		border-radius: 50%;
+		background: #f5c74d;
+	}
+
+	.map :global(.service-market span) {
+		background: #f08c3d;
+		border-radius: 0;
+		transform: rotate(45deg) scale(0.8);
+	}
+
+	.map :global(.service-inn span) {
+		background: #94cc66;
+		border-radius: 0;
+		clip-path: polygon(50% 0, 100% 40%, 100% 100%, 0 100%, 0 40%);
+	}
+
+	.map :global(.service-temple span) {
+		background: #f5f2e0;
+		border-radius: 0;
+		clip-path: polygon(50% 0, 95% 100%, 5% 100%);
+	}
+
+	.map :global(.service-guard span) {
+		background: #db4d47;
+		border-radius: 0 0 50% 50%;
+	}
+
+	.map :global(.service-ward_stone span) {
+		background: #b894f5;
+		border-radius: 30% 30% 10% 10%;
 	}
 
 	.map :global(.mark span) {

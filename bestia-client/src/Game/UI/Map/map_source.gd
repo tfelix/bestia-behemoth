@@ -48,6 +48,10 @@ signal habitat_species_changed(species_id: int)
 ## The answer to [method find] for [param text]: place entries like [method places_of]'s, best first.
 signal places_found(text: String, places: Array)
 
+## The answer to [method place_detail]: [code]{place, region, services}[/code], or empty on any failure - an
+## uncharted place among them.
+signal place_detail_ready(place_id: int, detail: Dictionary)
+
 ## The server refused this client's ticket, so nothing more will be asked for.
 ##
 ## Exists because the alternative is what this used to do: treat a 401 as a transient failure and re-ask every
@@ -506,6 +510,26 @@ func find(text: String) -> void:
 	if request.request(_map_base() + "/find?q=" + text.uri_encode(), _headers()) != OK:
 		request.queue_free()
 		places_found.emit(text, [])
+
+
+## Asks for one place, the region it lies in and every standing service it has; see [signal place_detail_ready].
+func place_detail(place_id: int) -> void:
+	var request := HTTPRequest.new()
+	add_child(request)
+	request.request_completed.connect(
+		func(result: int, code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
+			request.queue_free()
+			var detail: Dictionary = {}
+			if result == HTTPRequest.RESULT_SUCCESS and code == 200:
+				var parsed: Variant = JSON.parse_string(body.get_string_from_utf8())
+				if parsed is Dictionary:
+					detail = parsed
+			place_detail_ready.emit(place_id, detail)
+	)
+
+	if request.request("%s/places/%d" % [_map_base(), place_id], _headers()) != OK:
+		request.queue_free()
+		place_detail_ready.emit(place_id, {})
 
 
 func _retry_meta(attempt: int) -> void:

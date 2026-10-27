@@ -425,6 +425,26 @@ class MapTileService(
       .map { it.second }
   }
 
+  /** A place, and the services standing in it as the world now is. */
+  data class PlaceDetail(val place: Place, val services: List<MapPoi>)
+
+  /**
+   * The named place [placeId] and its standing services the master has charted, or null when the master has not
+   * charted the place itself. Not gated on zoom: it is what a click on a town asks, at whatever scale the town was.
+   */
+  fun placeDetail(masterId: Long, placeId: Long): PlaceDetail? {
+    val place = namedPlaces.firstOrNull { it.second.id == placeId }?.second ?: return null
+    val coverage = coverageFor(masterId)
+    if (!coverage.contains(place.x, place.y)) return null
+
+    val around = Aabb(place.x - SERVICE_REACH_METRES, place.y - SERVICE_REACH_METRES,
+      place.x + SERVICE_REACH_METRES, place.y + SERVICE_REACH_METRES)
+    val services = pois.liveIn(around)
+      .filter { it.settlement == place.name && coverage.contains(it.x, it.y) }
+      .sortedWith(compareBy({ it.kind.ordinal }, { it.business.orEmpty() }))
+    return PlaceDetail(place, services)
+  }
+
   /** Every place with a generated name, whatever the zoom; what [find] searches. The world never changes them. */
   private val namedPlaces: List<Pair<String, Place>> by lazy {
     val chronicle = resources.inputs.chronicle
@@ -629,5 +649,8 @@ class MapTileService(
 
     /** Shorter than this, a search matches half the world. */
     const val MIN_FIND_LENGTH = 2
+
+    /** Wider than a city's footprint, so every service a settlement has is inside it. */
+    const val SERVICE_REACH_METRES = 2_000.0
   }
 }

@@ -190,6 +190,9 @@ sealed interface ZoneAnswer {
     )
   }
 
+  /** A place, the named region it lies in, and its standing services the asker has charted, by kind. */
+  data class PlaceDetail(val place: Places.Place, val region: String?, val services: List<Services.Service>) : ZoneAnswer
+
   /** A name search's matches, best first. */
   data class Found(val places: List<Places.Place>) : ZoneAnswer
 

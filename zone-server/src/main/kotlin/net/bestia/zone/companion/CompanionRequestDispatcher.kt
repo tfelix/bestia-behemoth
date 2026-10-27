@@ -58,6 +58,7 @@ class CompanionRequestDispatcher(
       is ZoneQuery.MapPlaces -> map.places(id, account, query)
       is ZoneQuery.MapServices -> map.services(id, account, query)
       is ZoneQuery.MapFind -> map.find(id, account, query)
+      is ZoneQuery.MapPlace -> map.place(id, account, query)
       is ZoneQuery.HabitatTile -> map.habitat(id, account, query)
       is ZoneQuery.WhoseTicket -> tickets.owner(id, query)
       is ZoneQuery.GuildEmblem -> emblems.emblem(id, query)

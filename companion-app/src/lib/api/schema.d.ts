@@ -260,6 +260,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/companion/masters/{masterId}/map/places/{placeId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["place"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/companion/masters/{masterId}/map/p/{level}/{x}/{y}.json": {
         parameters: {
             query?: never;
@@ -579,6 +595,11 @@ export interface components {
             name?: string;
             tier?: string;
             poi?: string;
+        };
+        PlaceDetail: {
+            place: components["schemas"]["Place"];
+            region?: string;
+            services: components["schemas"]["Service"][];
         };
         MapMeta: {
             worldMapVersion: string;
@@ -1246,6 +1267,29 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["Services"];
+                };
+            };
+        };
+    };
+    place: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                masterId: number;
+                placeId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PlaceDetail"];
                 };
             };
         };

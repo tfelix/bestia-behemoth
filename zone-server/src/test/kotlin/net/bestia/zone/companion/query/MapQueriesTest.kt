@@ -323,6 +323,22 @@ class MapQueriesTest {
   }
 
   @Test
+  fun `a charted town lists its standing services, and nobody else's master sees it`() {
+    val shop = someService(4)
+    val name = shop.settlement ?: error("a service with a business names its settlement")
+    chartedAt(shop.x, shop.y, radiusMetres = 1_500.0)
+    val placeId = found(name).first { it.name == name }.id
+
+    val detail = assertIs<ZoneAnswer.PlaceDetail>(ask(ZoneQuery.MapPlace(masterId, placeId)).answer)
+
+    assertEquals(name, detail.place.name)
+    assertTrue(detail.services.isNotEmpty(), "$name has a staffed service")
+    assertTrue(detail.services.all { it.settlement == name })
+    assertTrue(detail.region != null)
+    assertEquals(Status.NOT_FOUND, ask(ZoneQuery.MapPlace(masterId, placeId), asker = 999L).status)
+  }
+
+  @Test
   fun `a level above the pyramid is invalid rather than a rendered void`() {
     assertEquals(Status.INVALID, ask(tileQuery(TileId(20, 0, 0))).status)
   }

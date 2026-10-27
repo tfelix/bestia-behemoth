@@ -11,6 +11,7 @@ enum class ApiRoute {
   MAP_SERVICES,
   MAP_META,
   MAP_FIND,
+  MAP_PLACE,
   EMBLEM,
   MASTERS,
   CATALOG,
@@ -43,6 +44,7 @@ enum class ApiRoute {
           "s" -> MAP_SERVICES
           "meta" -> MAP_META
           "find" -> MAP_FIND
+          "places" -> MAP_PLACE
           else -> OTHER
         }
       }

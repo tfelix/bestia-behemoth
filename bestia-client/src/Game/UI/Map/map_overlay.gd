@@ -85,6 +85,10 @@ var _card: MapContextCard
 ## Puts the map in route mode, where a click adds a stop - see [member MapView.route_mode].
 var _route_toggle: Button
 
+## The place the card shows and where it was opened, so its detail can fill the card in when it arrives.
+var _card_place_id := 0
+var _card_at := Vector2.ZERO
+
 
 func setup(source: MapSource, entities: Node) -> void:
 	_view.mark_requested.connect(func(at: Vector2) -> void: mark_requested.emit(at))
@@ -101,6 +105,7 @@ func setup(source: MapSource, entities: Node) -> void:
 	_habitat_chip.pressed.connect(func() -> void: source.set_habitat_species(0))
 	source.habitat_species_changed.connect(_show_habitat_chip)
 	source.places_found.connect(_on_places_found)
+	source.place_detail_ready.connect(_on_place_detail)
 
 
 ## The panel picks who the map's orders go to; the view drafts the stops and draws every journey.
@@ -433,7 +438,7 @@ func _send_draft() -> void:
 
 
 ## The context card for [param hit] - see [method MapView.hit_at] - with what can be done there.
-func _on_context(hit: Dictionary, at: Vector2) -> void:
+func _on_context(hit: Dictionary, at: Vector2, services: Array = []) -> void:
 	var world: Vector2 = hit["world"]
 	var entry: Dictionary = hit.get("entry", {})
 	var title := tr("MAP_GROUND")
@@ -441,13 +446,23 @@ func _on_context(hit: Dictionary, at: Vector2) -> void:
 	var actions: Array[Dictionary] = [{"label": tr("MAP_GO"), "run": func() -> void: _view.travel_to(world)}]
 	actions.append({"label": tr("MAP_ADD_TO_ROUTE"), "run": func() -> void: _add_to_route(world)})
 
+	_card_place_id = 0
 	match hit["kind"]:
 		"place":
 			title = _view.label_of(entry)
 			var tier := str(entry.get("tier", "")) if entry.get("tier") != null else ""
 			if not tier.is_empty():
 				lines.append(tr("SETTLEMENT_TIER_" + tier))
-			for service in _view.services_of_settlement(title):
+			if entry.get("region") != null:
+				lines.append(str(entry["region"]))
+			# What the view has drawn at once, and the whole town from the server a moment later - see
+			# [method _on_place_detail] - since at coarse zooms no service is drawn at all.
+			if services.is_empty():
+				services = _view.services_of_settlement(title)
+				_card_place_id = int(entry.get("id", 0))
+				_card_at = at
+				_view.source.place_detail(_card_place_id)
+			for service in services:
 				var at_service := _position_of(service)
 				actions.append({
 					"label": tr("MAP_GO_TO") % _view.service_label(service),
@@ -473,6 +488,19 @@ func _on_context(hit: Dictionary, at: Vector2) -> void:
 		lines.append(tr("MAP_DISTANCE") % _distance_text(world.distance_to(from)))
 
 	_card.present(at, title, lines, actions)
+
+
+## Fills the open card in with every service of its town, once the server has said what they are.
+func _on_place_detail(place_id: int, detail: Dictionary) -> void:
+	if place_id != _card_place_id or not _card.visible or detail.is_empty():
+		return
+
+	var place: Dictionary = detail.get("place", {}).duplicate()
+	place["region"] = detail.get("region")
+	var services: Array = detail.get("services", [])
+	if services.is_empty():
+		return
+	_on_context({"kind": "place", "world": _position_of(place), "entry": place}, _card_at, services)
 
 
 func _add_to_route(world: Vector2) -> void:

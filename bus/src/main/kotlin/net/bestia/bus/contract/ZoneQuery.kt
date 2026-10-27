@@ -34,6 +34,9 @@ sealed interface ZoneQuery {
 
   data class MapServices(val masterId: Long, val level: Int, val x: Long, val y: Long, val ifNoneMatch: String?) : ZoneQuery
 
+  /** One named place and its services, if the master charted it. Answered with [ZoneAnswer.PlaceDetail]. */
+  data class MapPlace(val masterId: Long, val placeId: Long) : ZoneQuery
+
   /** The places the master has charted whose names contain [text]. Answered with [ZoneAnswer.Found]. */
   data class MapFind(val masterId: Long, val text: String) : ZoneQuery
 
