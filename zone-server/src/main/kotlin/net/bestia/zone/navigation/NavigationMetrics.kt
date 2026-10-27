@@ -41,7 +41,7 @@ class NavigationMetrics(private val registry: MeterRegistry = SimpleMeterRegistr
 
   /** How asking the macro tier for a route ended. */
   enum class Macro {
-    PLANNED, NO_GRAPH, NO_START, NO_GOAL, SAME_NODE, NO_ROUTE
+    PLANNED, NO_GRAPH, NO_START, NO_GOAL, SAME_NODE, OVERSHOT, NO_ROUTE
   }
 
   private val local = Local.entries.associateWith { outcome ->

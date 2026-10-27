@@ -1,10 +1,13 @@
 package net.bestia.zone.navigation
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.worldgen.core.MovementMode
+import net.bestia.worldgen.core.NavEdgeKind
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.navigation.graph.AStar
 import net.bestia.zone.navigation.graph.MacroGraphService
 import net.bestia.zone.navigation.graph.MacroPathfinder
+import net.bestia.zone.navigation.graph.RuntimeNavGraph
 import net.bestia.zone.navigation.local.LocalPathfindingService
 import net.bestia.zone.navigation.profile.MovementProfile
 import net.bestia.zone.navigation.profile.MovementProfileRegistry
@@ -54,9 +57,9 @@ class NavigationService(
    * A course from [from] to [destination] that avoids every edge [isBlocked] names, or null when there is none
    * for this creature.
    *
-   * Empty when there is nothing to steer by - no graph, or both ends nearest the same node - so the traveller
-   * walks straight. Which edges count as blocked is the caller's: a traveller avoids what it believes, not
-   * what is true.
+   * Empty when there is nothing to steer by - no graph, both ends nearest the same node, or a goal node that
+   * stands past the destination (see [overshoots]) - so the traveller walks straight. Which edges count as
+   * blocked is the caller's: a traveller avoids what it believes, not what is true.
    */
   fun planCourse(from: Vec3L, destination: Vec3L, profileId: String?, isBlocked: (Int) -> Boolean): MacroCourse? {
     macroGraph.ensureLoaded()
@@ -73,8 +76,39 @@ class NavigationService(
       pathfinder.cheapestEdge(a, b) ?: return ended(NavigationMetrics.Macro.NO_ROUTE)
     }
 
+    if (overshoots(graph, from, destination, goal, edges)) {
+      return ended(NavigationMetrics.Macro.OVERSHOT, MacroCourse(emptyList(), emptyList()))
+    }
+
     metrics.macro(NavigationMetrics.Macro.PLANNED)
     return MacroCourse(nodes.drop(1), edges)
+  }
+
+  /**
+   * Whether the traveller already stands as near the destination as the course's [goal] does.
+   *
+   * The goal is only the node nearest the destination, and with nodes kilometres apart it can stand well past
+   * it: a click beside a town, on the far side from its centre, walked to the centre and then back out. The
+   * last stretch from the goal is walked straight anyway, so walking straight from here is no longer.
+   *
+   * Not when the course crosses water. Its bridge, sea lane or ford is what gets the traveller over, and the
+   * traveller may well be nearer the destination as the crow flies from the other bank.
+   */
+  private fun overshoots(graph: RuntimeNavGraph, from: Vec3L, destination: Vec3L, goal: Int, edges: List<Int>): Boolean {
+    val crossesWater = edges.any { index ->
+      val edge = graph.edges[index]
+      edge.kind == NavEdgeKind.BRIDGE || edge.kind == NavEdgeKind.SEA_LANE || MovementMode.SWIM in edge.modes
+    }
+    if (crossesWater) return false
+
+    return flatDistanceSq(from, destination) <= flatDistanceSq(graph.nodePositions[goal], destination)
+  }
+
+  /** Node positions carry no height, so only the horizontal counts. */
+  private fun flatDistanceSq(a: Vec3L, b: Vec3L): Long {
+    val dx = a.x - b.x
+    val dy = a.y - b.y
+    return dx * dx + dy * dy
   }
 
   fun nodePosition(node: Int): Vec3L {
