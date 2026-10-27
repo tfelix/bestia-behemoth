@@ -106,6 +106,10 @@ const _SUFFIXES := {
 
 const _CACHE_ROOT := "user://mapcache/"
 
+## How many of the pool's connections [method prefetch] may hold at once. The rest stay free so a view that
+## starts drawing is never queued behind tiles nobody has looked at yet.
+const _BACKGROUND_SLOTS := 2
+
 ## World geometry, empty until [signal meta_ready]. Read it rather than assuming 256 or level 9.
 var meta: Dictionary = {}
 
@@ -153,6 +157,10 @@ var _retry_after: Dictionary = {}
 
 var _idle: Array[HTTPRequest] = []
 var _queue: Array[String] = []
+
+## Tiles asked for ahead of need, by [method prefetch]. Only drained into free connections once [member _queue]
+## is empty, and at most [constant _BACKGROUND_SLOTS] at a time.
+var _background: Array[String] = []
 var _in_flight: Dictionary = {}
 
 ## What is on disk, as key -> path, without having decoded any of it.
@@ -350,6 +358,30 @@ func want_services(level: int, tx: int, ty: int, checked_since_msec: int) -> voi
 	_want(_WANT_SERVICES, key)
 
 
+## Requests the picture of a tile nobody is looking at yet, so it is already here when somebody does.
+##
+## Same conditions as [method want], but queued behind everything a view asks for and limited to
+## [constant _BACKGROUND_SLOTS] connections. Safe against staleness for the reason the disk cache is: shared tiles
+## are immutable and personal ones are dropped with the chart set that produced them, which also empties this
+## queue - see [method set_chart_signature].
+func prefetch(level: int, tx: int, ty: int) -> void:
+	if not _may_request():
+		return
+
+	var key := key_of(level, tx, ty)
+	var id := _WANT_TILE + ":" + key
+	# Asked of the indexes rather than of cached(): a tile on disk is already as good as here, and decoding a
+	# screenful of them for a map nobody has opened is the hitch the disk index exists to avoid.
+	var held := _shared.has(key) or _personal.has(key) or _disk_shared.has(key) or _disk_personal.has(key)
+	if held or _absent.has(id) or _in_flight.has(id) or _queue.has(id) or _background.has(id):
+		return
+	if Time.get_ticks_msec() < int(_retry_after.get(id, 0)):
+		return
+
+	_background.append(id)
+	_pump()
+
+
 func _want(kind: String, key: String) -> void:
 	if not _may_request():
 		return
@@ -368,6 +400,8 @@ func _want(kind: String, key: String) -> void:
 	if Time.get_ticks_msec() < int(_retry_after.get(id, 0)):
 		return
 
+	# A view wants what a prefetch was only hoping for: it goes to the front of the line.
+	_background.erase(id)
 	_queue.append(id)
 	_pump()
 
@@ -400,6 +434,7 @@ func set_chart_signature(signature: String) -> void:
 		return
 
 	_chart_key = key
+	_background.clear()
 	_personal.clear()
 	_habitat.clear()
 	_places.clear()
@@ -465,8 +500,15 @@ func _retry_meta(attempt: int) -> void:
 
 
 func _pump() -> void:
-	while not _queue.is_empty() and not _idle.is_empty():
-		var id: String = _queue.pop_front()
+	while not _idle.is_empty():
+		var id: String
+		if not _queue.is_empty():
+			id = _queue.pop_front()
+		elif not _background.is_empty() and _idle.size() > _POOL_SIZE - _BACKGROUND_SLOTS:
+			id = _background.pop_front()
+		else:
+			break
+
 		var request: HTTPRequest = _idle.pop_back()
 		_in_flight[id] = request
 
@@ -665,6 +707,7 @@ func _refuse() -> void:
 
 	_refused = true
 	_queue.clear()
+	_background.clear()
 	push_warning("MapSource: the map server refused this session's ticket; asking for nothing further")
 	map_unavailable.emit()
 
@@ -695,6 +738,7 @@ func _use_version(version: String) -> void:
 		return
 
 	_cache_dir = dir
+	_background.clear()
 	_shared.clear()
 	_personal.clear()
 	_places.clear()

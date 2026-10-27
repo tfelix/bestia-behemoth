@@ -374,6 +374,38 @@ func revalidate_services() -> void:
 	queue_redraw()
 
 
+## Asks the source, in the background, for the tiles this view would draw if it were centred on the player and
+## [param extent_pixels] across, with a tile of margin. Nearest the player first.
+##
+## For a view that is not on screen: it is what lets the overlay open onto a finished map. Returns the tile the
+## player stands on at this level, so a caller can tell when they have walked into a new one and a repeat would
+## ask for something new; null when there is no player or no meta yet, and nothing was asked.
+func prefetch_around_player(extent_pixels: Vector2) -> Variant:
+	var at: Variant = player_metres()
+	if source == null or source.meta.is_empty() or at == null:
+		return null
+
+	var span := _tile_pixels * _metres_per_pixel()
+	var last_x := _last_tile(_world_width, span)
+	var last_y := _last_tile(_world_height, span)
+	var home := Vector2i(floori(at.x / span), floori(at.y / span))
+	var reach := extent_pixels * 0.5 * _metres_per_pixel()
+	var margin := Vector2i(ceili(reach.x / span) + 1, ceili(reach.y / span) + 1)
+
+	var wanted: Array[Vector2i] = []
+	for ty in range(maxi(home.y - margin.y, 0), mini(home.y + margin.y, last_y) + 1):
+		for tx in range(maxi(home.x - margin.x, 0), mini(home.x + margin.x, last_x) + 1):
+			wanted.append(Vector2i(tx, ty))
+
+	wanted.sort_custom(func(a: Vector2i, b: Vector2i) -> bool:
+		return (a - home).length_squared() < (b - home).length_squared()
+	)
+	for tile in wanted:
+		source.prefetch(level, tile.x, tile.y)
+
+	return home
+
+
 ## Whether this view draws services at its current zoom. What the overlay shows its legend by, so the legend
 ## is only there when there is something on the map for it to switch.
 func draws_services() -> bool:

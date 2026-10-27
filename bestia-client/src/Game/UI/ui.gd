@@ -71,6 +71,10 @@ var _marks_loaded_version: String = ""
 
 var _compass_refresh_countdown: float = 0.0
 
+## How often the hidden map overlay's first screen is topped up in the background - see [method MapOverlay.warm].
+const _MAP_WARM_SECONDS := 5.0
+var _map_warm_countdown: float = 0.0
+
 ## The service picked on the map, or empty. Kept here rather than asked of the map each refresh because it is
 ## a waypoint: it stays on the compass however far the player walks from it, and while the map is closed.
 var _selected_service: Dictionary = {}
@@ -197,6 +201,13 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _process(delta: float) -> void:
+	_map_warm_countdown -= delta
+	if _map_warm_countdown <= 0.0:
+		_map_warm_countdown = _MAP_WARM_SECONDS
+		# Cheap when nothing moved: the source skips every tile it already holds. Asking again is what picks
+		# up ground the player has walked towards, and the first ask after a chart change.
+		_map_overlay.warm()
+
 	_compass_refresh_countdown -= delta
 	if _compass_refresh_countdown <= 0.0:
 		_compass_refresh_countdown = _COMPASS_REFRESH_SECONDS
@@ -395,6 +406,7 @@ func _on_inventory_updated(inventory: Inventory) -> void:
 		return
 
 	_chart_signature = signature
+	_map_warm_countdown = 0.0
 	_minimap.set_has_chart(not held.is_empty())
 	_map_overlay.set_has_chart(not held.is_empty())
 	(_compendium_win.get_content() as CompendiumPanel).set_has_chart(not held.is_empty())

@@ -222,6 +222,18 @@ func set_has_chart(has_chart: bool) -> void:
 		close()
 
 
+## Warms the tiles the overlay will open onto, so the first press of M does not wait for the network.
+##
+## Returns the tile the player stands on at the overlay's zoom, or null when nothing was asked - no chart, an
+## overlay already open and asking for itself, or no player yet. Sized from the window rather than from this
+## control, which has no layout while it is hidden.
+func warm() -> Variant:
+	if not _has_chart or visible:
+		return null
+
+	return _view.prefetch_around_player(Vector2(get_viewport_rect().size))
+
+
 func toggle() -> void:
 	if visible:
 		close()
