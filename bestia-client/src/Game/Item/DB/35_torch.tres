@@ -8,4 +8,5 @@ item_id = 35
 name_key = "TORCH"
 description_key = "TORCH_DESC"
 weight = 30
-type = 2
+type = 1
+equip_slot = 10
