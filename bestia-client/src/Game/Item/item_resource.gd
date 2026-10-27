@@ -46,8 +46,18 @@ const MISSING_VISUAL: PackedScene = preload("res://Game/Entity/Visual/ItemVisual
 ## Whether wearing this item hides the hair, so a full helmet cannot clip through it.
 @export var hides_hair: bool = false
 
+## The light this item casts around its wearer while it burns in the light-source slot. Hand-authored:
+## ItemDbSyncTask leaves these alone. A [member light_range] of 0 means the item gives no light.
+@export var light_color: Color = Color(1.0, 0.7, 0.4)
+@export var light_range: float = 0.0
+@export var light_energy: float = 1.0
+
 ## Cache for instantiated ItemUse objects. Key: GDScript path, Value: ItemUse instance
 static var _script_instance_cache: Dictionary = {}
+
+
+func gives_light() -> bool:
+	return light_range > 0.0
 
 
 ## The texture to draw for this item. Always prefer this over reading [member icon] directly, so the

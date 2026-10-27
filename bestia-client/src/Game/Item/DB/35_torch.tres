@@ -10,3 +10,6 @@ description_key = "TORCH_DESC"
 weight = 30
 type = 1
 equip_slot = 10
+light_color = Color(1, 0.62, 0.3, 1)
+light_range = 9.0
+light_energy = 1.6
