@@ -240,8 +240,8 @@ enum OpError {
   // The master was expelled from the guild and stays out until a rank that may kick lifts it. Carries the name
   // in args[0].
   GUILD_TARGET_EXPELLED = 85;
-  // The master keeps as many routes as it may; one has to go before another is saved.
-  ROUTE_LIMIT = 86;
+  // The notebook collection - routes, map marks - holds as many entries as it may; one has to go first.
+  NOTEBOOK_FULL = 86;
   // Too far from the auction house's walls. The client walks up before it clicks, so this needs latency.
   AUCTION_OUT_OF_RANGE = 87;
   // A master may keep this many listings up at once; one has to sell or come down first.
@@ -265,6 +265,10 @@ enum OpError {
   // Only a master trades: a trade settles against the master's own bag, so goods a bestia carries are handed to
   // the master first.
   TRADE_NEEDS_MASTER = 96;
+  // A notebook entry changed in the other app since this one read it. The client lists it again.
+  NOTEBOOK_STALE = 97;
+  // A notebook entry this client may not write, or one its collection does not accept.
+  NOTEBOOK_INVALID = 98;
 }
 
 message OperationError {

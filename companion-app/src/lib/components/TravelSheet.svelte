@@ -1,8 +1,8 @@
 <script lang="ts">
-	import type { Bestia, Position, Route } from '$lib/api/model';
+	import type { Bestia, Position } from '$lib/api/model';
 	import { bestiaColor } from '$lib/map/slotColors';
 	import { speciesName } from '$lib/names';
-	import { distance, distanceText, routeLength, travelStatus, travelTimeText } from '$lib/travel';
+	import { distance, distanceText, routeLength, travelStatus, travelTimeText, type Route } from '$lib/travel';
 
 	/**
 	 * Where the bestias are going, and the order being drafted for one: the half of the map page a journey is
@@ -44,7 +44,7 @@
 	} = $props();
 
 	let open = $state(true);
-	let renaming = $state<number | null>(null);
+	let renaming = $state<string | null>(null);
 	let newName = $state('');
 
 	const selected = $derived(bestias.find((b) => b.id === selectedId) ?? null);
@@ -64,7 +64,7 @@
 	}
 
 	function startRename(route: Route) {
-		renaming = route.id;
+		renaming = route.key;
 		newName = route.customName ? route.name : '';
 	}
 
@@ -147,9 +147,9 @@
 			<p class="muted hint">None kept yet. Draft stops and keep them as a route.</p>
 		{/if}
 		<ul class="routes">
-			{#each routes as route (route.id)}
+			{#each routes as route (route.key)}
 				<li>
-					{#if renaming === route.id}
+					{#if renaming === route.key}
 						<form class="rename" onsubmit={(e) => (e.preventDefault(), finishRename(route))}>
 							<!-- svelte-ignore a11y_autofocus -->
 							<input bind:value={newName} placeholder={route.name} maxlength="40" autofocus aria-label="Route name" />

@@ -63,12 +63,6 @@ const _COMPASS_MARK_COLOUR := Color(0.62, 0.85, 1.0)
 ## still drops the cache.
 var _chart_signature: String = ""
 
-## The world the marks were last loaded for, so a version arriving after a master selection - or the other
-## way round - still ends with the pair loaded exactly once.
-var _marks_version: String = ""
-var _marks_master_id: int = 0
-var _marks_loaded_version: String = ""
-
 var _compass_refresh_countdown: float = 0.0
 
 ## How often the hidden map overlay's first screen is topped up in the background - see [method MapOverlay.warm].
@@ -156,6 +150,8 @@ func _ready() -> void:
 		# stuck on the world origin, showing fog and no player marker, for the whole session.
 		push_error("No EntityManager for the map views; the map cannot follow the player.")
 
+	# A notebook still held is the master played before this scene; the views below ask for this one's.
+	Notebook.forget()
 	_minimap.setup(_map_source, entities)
 	_map_overlay.setup(_map_source, entities)
 
@@ -163,8 +159,6 @@ func _ready() -> void:
 	# window-less refusals do. Connected before the first request, so a refusal of it is not missed.
 	_map_source.map_unavailable.connect(_on_map_unavailable)
 
-	# The player's own marks, wired before the first request for the same reason: /meta is what names the
-	# world they are keyed to, and missing that answer would leave them unloaded for the session.
 	_map_source.meta_ready.connect(_on_map_meta_ready)
 	_map_marks.marks_changed.connect(_on_marks_changed)
 	_minimap.set_marks(_map_marks)
@@ -174,13 +168,15 @@ func _ready() -> void:
 	_map_overlay.place_selected.connect(_on_place_selected)
 	_map_overlay.service_selected.connect(_on_service_selected)
 
-	# The legend's settings are the master's, stored beside their marks: the overlay reports a change, the
-	# marks keep it, and whatever the marks hold - stored or just set - is what both views filter by.
+	# The legend and the grid are the master's, kept in their notebook beside their marks: the overlay reports a
+	# change, the notebook keeps it, and whatever it holds - set here or in the companion app - is what is drawn.
 	_map_overlay.hidden_services_changed.connect(_map_marks.set_hidden_services)
 	_map_marks.hidden_services_changed.connect(_on_hidden_services_changed)
+	_map_overlay.grid_overlay_changed.connect(_map_marks.set_grid_overlay)
+	_map_marks.grid_overlay_changed.connect(_map_overlay.set_grid_overlay)
 
 	_map_source.fetch_meta()
-	_load_marks()
+	_map_marks.watch()
 
 	# The one thing the client needs to know about its own fog is which charts it holds, and that arrives
 	# with the inventory it was already being sent. No map channel message, no coverage-changed push.
@@ -289,31 +285,6 @@ func _on_map_meta_ready(meta: Dictionary) -> void:
 		Vector2(float(meta.get("worldWidthMetres", 0.0)), float(meta.get("worldHeightMetres", 0.0))),
 		float(meta.get("metresPerVoxel", 1.0))
 	)
-	_marks_version = str(meta.get("worldMapVersion", ""))
-	_load_marks()
-
-
-## Loads the marks once both halves of their key are known.
-##
-## The world version arrives from `/meta` and the master from the selection that preceded this scene, and
-## neither order is guaranteed - so this is called from both and does nothing until it has both.
-func _load_marks() -> void:
-	var master_id := 0
-	if ConnectionManager.selected_master_info != null:
-		master_id = int(ConnectionManager.selected_master_info.MasterId)
-
-	if _marks_version.is_empty() or master_id == 0:
-		return
-
-	# Compared against what was last loaded rather than against whether anything came back: a master with no
-	# marks yet is the ordinary case, and a guard that keyed on the set being non-empty would reload the file
-	# on every call for exactly the players who have nothing in it.
-	if master_id == _marks_master_id and _marks_version == _marks_loaded_version:
-		return
-
-	_marks_master_id = master_id
-	_marks_loaded_version = _marks_version
-	_map_marks.use(_marks_version, master_id)
 
 
 func _on_marks_changed() -> void:

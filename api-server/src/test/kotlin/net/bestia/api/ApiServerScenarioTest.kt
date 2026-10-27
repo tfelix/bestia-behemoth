@@ -154,31 +154,39 @@ class ApiServerScenarioTest : ApiScenarioTestBase() {
         BusReply.ok(request.correlationId, ZoneAnswer.Done)
       }
     }
-    val route = mapOf("savedRouteId" to 3, "reverse" to true)
+    val route = mapOf("routeKey" to "k3", "reverse" to true)
 
     val sent = put("/v1/companion/masters/5/bestias/7/journey", route, 47, UUID.randomUUID().toString())
     val resting = put("/v1/companion/masters/5/bestias/8/journey", route, 47, UUID.randomUUID().toString())
 
     assertEquals(204, sent.statusCode.value())
-    assertEquals(ZoneQuery.SendOnJourney(5, 7, emptyList(), savedRouteId = 3, reverse = true), orders.first())
+    assertEquals(ZoneQuery.SendOnJourney(5, 7, emptyList(), routeKey = "k3", reverse = true), orders.first())
     assertEquals(404, resting.statusCode.value())
   }
 
   @Test
-  fun `a saved route answers with the master's whole list, in metres`() {
+  fun `a notebook entry goes to the zone as JSON, comes back as JSON, and a stale write is a conflict`() {
+    val puts = ArrayList<ZoneQuery.NotebookPut>()
     answer = { request ->
-      val save = request.query as ZoneQuery.SaveRoute
-      val route = ZoneAnswer.RouteList.Route(3, "Ironhill → Ashford", false, save.waypoints)
-      BusReply.ok(request.correlationId, ZoneAnswer.RouteList(listOf(route)))
+      val put = request.query as ZoneQuery.NotebookPut
+      puts.add(put)
+      if (put.baseRevision == 1L) {
+        BusReply.of(request.correlationId, BusReply.Status.INVALID, "NOTEBOOK_STALE")
+      } else {
+        BusReply.ok(request.correlationId, ZoneAnswer.NotebookWritten(4, "k9", put.json.replace("}", ",\"customName\":true}")))
+      }
     }
-    val points = listOf(mapOf("eastMetres" to 1.0, "northMetres" to 2.0), mapOf("eastMetres" to 3.0, "northMetres" to 4.0))
+    val mark = mapOf("value" to mapOf("name" to "Ore", "east" to 1.5, "north" to 2.0))
 
-    val saved = post("/v1/companion/masters/5/routes", mapOf("waypoints" to points), 47, UUID.randomUUID().toString())
+    val added = post("/v1/companion/masters/5/notebook/marks", mark, 47, UUID.randomUUID().toString())
+    val stale = put("/v1/companion/masters/5/notebook/marks/k9", mark + ("baseRevision" to 1), 47, UUID.randomUUID().toString())
 
-    assertEquals(201, saved.statusCode.value())
-    val first = json(saved)[0]
-    assertEquals("Ironhill → Ashford", first["name"].asText())
-    assertEquals(3.0, first["waypoints"][1]["eastMetres"].asDouble())
+    assertEquals(201, added.statusCode.value())
+    assertEquals("k9", json(added)["key"].asText())
+    assertEquals(1.5, json(added)["value"]["east"].asDouble())
+    assertEquals(true, json(added)["value"]["customName"].asBoolean())
+    assertEquals(ZoneQuery.NotebookPut(5, "marks", null, """{"name":"Ore","east":1.5,"north":2.0}""", null), puts.first())
+    assertEquals(409, stale.statusCode.value())
   }
 
   @Test
@@ -386,6 +394,31 @@ class ApiServerScenarioTest : ApiScenarioTestBase() {
 
     refusal = ZoneAnswer.ChatSent.CHAT_LOCKED
     assertEquals(403, post("/v1/companion/masters/5/chat", line, accountId = 50, idempotencyKey = UUID.randomUUID().toString()).statusCode.value())
+  }
+
+  @Test
+  fun `a notebook write reaches the app's socket with its entry, and is replayed to one that was away`() {
+    val frames = CopyOnWriteArrayList<JsonNode>()
+    val socket = connect(52, lastEventId = null, frames)
+    await().atMost(Duration.ofSeconds(5)).until { frames.any { it["type"].asText() == "ready" } }
+    val lastSeen = frames.first { it["type"].asText() == "ready" }["lastEventId"].asText()
+
+    val route = """{"name":"Ore run","customName":true,"waypoints":[]}"""
+    events.publish(ZoneEvent.NotebookChanged(52, masterId = 5, collection = "routes", key = "k1", revision = 3, deleted = false, json = route))
+
+    await().atMost(Duration.ofSeconds(5)).until { frames.any { it["type"].asText() == "event" } }
+    val event = frames.first { it["type"].asText() == "event" }["event"]
+    assertEquals("NotebookChanged", event["type"].asText())
+    assertEquals("routes", event["data"]["collection"].asText())
+    assertEquals(3, event["data"]["revision"].asInt())
+    assertEquals(route, event["data"]["json"].asText())
+    socket.close()
+
+    val replayed = CopyOnWriteArrayList<JsonNode>()
+    connect(52, lastEventId = lastSeen, replayed).use {
+      await().atMost(Duration.ofSeconds(5)).until { replayed.any { it["type"].asText() == "ready" } }
+      assertEquals("k1", replayed.single { it["type"].asText() == "event" }["event"]["data"]["key"].asText())
+    }
   }
 
   @Test

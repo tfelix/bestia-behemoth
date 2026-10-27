@@ -45,6 +45,21 @@ sealed interface ZoneEvent {
   data class ChartsChanged(override val accountId: Long, val masterId: Long) : ZoneEvent
 
   /**
+   * A notebook entry was written or [deleted], in either app, and its [collection] - of [masterId], or of the whole
+   * account when null - is now at [revision]. [json] is the entry as shown, null for a deletion. A revision more than
+   * one past the last one an app saw means it missed one, and lists the collection again.
+   */
+  data class NotebookChanged(
+    override val accountId: Long,
+    val masterId: Long?,
+    val collection: String,
+    val key: String,
+    val revision: Long,
+    val deleted: Boolean,
+    val json: String?,
+  ) : ZoneEvent
+
+  /**
    * A line of party or guild chat ([channel] PARTY or GUILD) that reached [masterId], a member of the group, whether
    * it was typed in the game or in an app. One event per member, the sender's own master included.
    */

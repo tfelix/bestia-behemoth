@@ -34,7 +34,7 @@ class JourneyService(
     waypoints: List<Vec3L>,
     order: JourneyOrder,
     name: String? = null,
-    savedRouteId: Long? = null,
+    routeKey: String? = null,
     leaseExpiresAt: Long? = null,
   ): JourneyRefusal? {
     if (waypoints.isEmpty()) return JourneyRefusal.NO_DESTINATION
@@ -45,7 +45,7 @@ class JourneyService(
 
     if (order == JourneyOrder.PLAYER) attackCancel.cancelAttack(world, entity)
 
-    world.add(entity, Journey(waypoints, order, name, savedRouteId, leaseExpiresAt))
+    world.add(entity, Journey(waypoints, order, name, routeKey, leaseExpiresAt))
     if (!world.has(entity, Vicinity::class)) world.add(entity, Vicinity())
     world.get(entity, SimulationAnchor::class)?.priority = AnchorPriority.TRAVELLER
 

@@ -16,7 +16,7 @@ import net.bestia.zone.companion.query.JourneyCommand
 import net.bestia.zone.companion.query.MapQueries
 import net.bestia.zone.companion.query.MasterQueries
 import net.bestia.zone.companion.query.PartyQueries
-import net.bestia.zone.companion.query.SavedRouteCommands
+import net.bestia.zone.companion.query.NotebookCommands
 import net.bestia.zone.companion.query.StanceCommand
 import net.bestia.zone.companion.query.TicketQueries
 import org.springframework.stereotype.Component
@@ -37,7 +37,7 @@ class CompanionRequestDispatcher(
   private val emblems: GuildEmblemQueries,
   private val guilds: GuildQueries,
   private val journeys: JourneyCommand,
-  private val routes: SavedRouteCommands,
+  private val notebook: NotebookCommands,
 ) : RequestHandler {
 
   override fun handle(request: BusRequest): BusReply {
@@ -65,10 +65,9 @@ class CompanionRequestDispatcher(
       is ZoneQuery.SendChat -> chat.send(id, account, query)
       is ZoneQuery.SendOnJourney -> journeys.send(id, account, query)
       is ZoneQuery.StopJourney -> journeys.stop(id, account, query)
-      is ZoneQuery.SavedRoutes -> routes.list(id, account, query)
-      is ZoneQuery.SaveRoute -> routes.save(id, account, query)
-      is ZoneQuery.RenameRoute -> routes.rename(id, account, query)
-      is ZoneQuery.DeleteRoute -> routes.delete(id, account, query)
+      is ZoneQuery.NotebookList -> notebook.list(id, account, query)
+      is ZoneQuery.NotebookPut -> notebook.put(id, account, query)
+      is ZoneQuery.NotebookDelete -> notebook.delete(id, account, query)
     }
   }
 

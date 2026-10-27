@@ -22,8 +22,8 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
     /// <summary>What the journey is called on the map; the saved route's name when it follows one.</summary>
     [Export] public string Name { get; set; } = "";
 
-    /// <summary>The saved route the waypoints come from, 0 for none.</summary>
-    [Export] public ulong SavedRouteId { get; set; }
+    /// <summary>The notebook key of the saved route the waypoints come from, empty for none.</summary>
+    [Export] public string RouteKey { get; set; } = "";
 
     public override Envelope ToEnvelope()
     {
@@ -32,7 +32,7 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
         EntityId = EntityId,
         Append = Append,
         Name = Name,
-        SavedRouteId = SavedRouteId
+        RouteKey = RouteKey
       };
 
       foreach (var waypoint in Waypoints)

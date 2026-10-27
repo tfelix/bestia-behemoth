@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSq2EwoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSriEwoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -75,14 +75,15 @@ namespace Bnet {
             "TERPV04QUBIbChdHVUlMRF9OT1RfSU5fU1RST05HSE9MRBBREhMKD0dVSUxE",
             "X05PX0JBTk5FUhBSEhwKGEdVSUxEX0JBTk5FUl9OT1RfQUxMT1dFRBBTEh0K",
             "GUdVSUxEX0JBTk5FUl9PVVRfT0ZfUkFOR0UQVBIZChVHVUlMRF9UQVJHRVRf",
-            "RVhQRUxMRUQQVRIPCgtST1VURV9MSU1JVBBWEhgKFEFVQ1RJT05fT1VUX09G",
-            "X1JBTkdFEFcSGQoVQVVDVElPTl9MSVNUSU5HX0xJTUlUEFgSHQoZQVVDVElP",
-            "Tl9DQU5OT1RfQUZGT1JEX0ZFRRBZEhgKFEFVQ1RJT05fTElTVElOR19HT05F",
-            "EFoSGQoVQVVDVElPTl9DQU5OT1RfQUZGT1JEEFsSGgoWTElHSFRfU09VUkNF",
-            "X0JVUk5UX09VVBBcEh8KG1RSQVZFTF9ERVNUSU5BVElPTl9JTl9XQVRFUhBd",
-            "EhkKFUVYQ0hBTkdFX09VVF9PRl9SRUFDSBBeEhYKEkVYQ0hBTkdFX1RPT19I",
-            "RUFWWRBfEhYKElRSQURFX05FRURTX01BU1RFUhBgQiwKFW5ldC5iZXN0aWEu",
-            "Ym5ldC5wcm90b0ITT3BlcmF0aW9uRXJyb3JQcm90b2IGcHJvdG8z"));
+            "RVhQRUxMRUQQVRIRCg1OT1RFQk9PS19GVUxMEFYSGAoUQVVDVElPTl9PVVRf",
+            "T0ZfUkFOR0UQVxIZChVBVUNUSU9OX0xJU1RJTkdfTElNSVQQWBIdChlBVUNU",
+            "SU9OX0NBTk5PVF9BRkZPUkRfRkVFEFkSGAoUQVVDVElPTl9MSVNUSU5HX0dP",
+            "TkUQWhIZChVBVUNUSU9OX0NBTk5PVF9BRkZPUkQQWxIaChZMSUdIVF9TT1VS",
+            "Q0VfQlVSTlRfT1VUEFwSHwobVFJBVkVMX0RFU1RJTkFUSU9OX0lOX1dBVEVS",
+            "EF0SGQoVRVhDSEFOR0VfT1VUX09GX1JFQUNIEF4SFgoSRVhDSEFOR0VfVE9P",
+            "X0hFQVZZEF8SFgoSVFJBREVfTkVFRFNfTUFTVEVSEGASEgoOTk9URUJPT0tf",
+            "U1RBTEUQYRIUChBOT1RFQk9PS19JTlZBTElEEGJCLAoVbmV0LmJlc3RpYS5i",
+            "bmV0LnByb3RvQhNPcGVyYXRpb25FcnJvclByb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -416,9 +417,9 @@ namespace Bnet {
     /// </summary>
     [pbr::OriginalName("GUILD_TARGET_EXPELLED")] GuildTargetExpelled = 85,
     /// <summary>
-    /// The master keeps as many routes as it may; one has to go before another is saved.
+    /// The notebook collection - routes, map marks - holds as many entries as it may; one has to go first.
     /// </summary>
-    [pbr::OriginalName("ROUTE_LIMIT")] RouteLimit = 86,
+    [pbr::OriginalName("NOTEBOOK_FULL")] NotebookFull = 86,
     /// <summary>
     /// Too far from the auction house's walls. The client walks up before it clicks, so this needs latency.
     /// </summary>
@@ -462,6 +463,14 @@ namespace Bnet {
     /// the master first.
     /// </summary>
     [pbr::OriginalName("TRADE_NEEDS_MASTER")] TradeNeedsMaster = 96,
+    /// <summary>
+    /// A notebook entry changed in the other app since this one read it. The client lists it again.
+    /// </summary>
+    [pbr::OriginalName("NOTEBOOK_STALE")] NotebookStale = 97,
+    /// <summary>
+    /// A notebook entry this client may not write, or one its collection does not accept.
+    /// </summary>
+    [pbr::OriginalName("NOTEBOOK_INVALID")] NotebookInvalid = 98,
   }
 
   #endregion

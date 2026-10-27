@@ -12,7 +12,8 @@ import net.bestia.zone.message.AccountTaskExecutor
 import net.bestia.zone.travel.JourneyOrder
 import net.bestia.zone.travel.JourneyRefusal
 import net.bestia.zone.travel.JourneyService
-import net.bestia.zone.travel.SavedRouteService
+import net.bestia.zone.notebook.NotebookService
+import net.bestia.zone.travel.RoutesCollection
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 
@@ -24,7 +25,8 @@ import org.springframework.stereotype.Service
 class JourneyCommand(
   private val owned: OwnedMasters,
   private val playerBestias: PlayerBestiaRepository,
-  private val routes: SavedRouteService,
+  private val notebook: NotebookService,
+  private val routes: RoutesCollection,
   private val journeys: JourneyService,
   private val world: WorldView,
   private val plane: MapPlane,
@@ -45,12 +47,12 @@ class JourneyCommand(
 
   private fun sendOwned(correlationId: String, accountId: Long, query: ZoneQuery.SendOnJourney): BusReply {
     val entityId = bestiaEntity(accountId, query.masterId, query.playerBestiaId) ?: return resting(correlationId)
-    val (waypoints, name) = waypointsOf(query) ?: return BusReply.of(correlationId, Status.NOT_FOUND, "no such route")
+    val (waypoints, name) = waypointsOf(accountId, query) ?: return BusReply.of(correlationId, Status.NOT_FOUND, "no such route")
     if (waypoints.isEmpty()) return BusReply.of(correlationId, Status.INVALID, "a journey needs a destination")
 
     // Wrapped, because modify's null means the entity is gone, and start's null means it set off.
     val attempt = world.modify(entityId) { id ->
-      Attempt(journeys.start(this, id, waypoints, JourneyOrder.PLAYER, name, query.savedRouteId))
+      Attempt(journeys.start(this, id, waypoints, JourneyOrder.PLAYER, name, query.routeKey))
     } ?: return resting(correlationId)
 
     val refusal = attempt.refusal ?: return BusReply.ok(correlationId, ZoneAnswer.Done)
@@ -60,12 +62,13 @@ class JourneyCommand(
   private class Attempt(val refusal: JourneyRefusal?)
 
   /** The route's points in the order asked for, with its name; null for a route that is not the master's. */
-  private fun waypointsOf(query: ZoneQuery.SendOnJourney): Pair<List<Vec3L>, String?>? {
-    val routeId = query.savedRouteId ?: return query.waypoints.map { plane.positionAt(it) } to null
+  private fun waypointsOf(accountId: Long, query: ZoneQuery.SendOnJourney): Pair<List<Vec3L>, String?>? {
+    val routeKey = query.routeKey ?: return query.waypoints.map { plane.positionAt(it) } to null
 
-    val route = routes.find(query.masterId, routeId) ?: return null
-    val points = if (query.reverse) route.waypoints.reversed() else route.waypoints
-    return points to route.name
+    val route = notebook.read(NotebookService.Owner(accountId, query.masterId), routes, routeKey) ?: return null
+    val shown = routes.shown(route)
+    val points = if (query.reverse) shown.waypoints.reversed() else shown.waypoints
+    return points.map { plane.positionAt(it) } to shown.name
   }
 
   /** The bestia's entity while it is in the world, null when it is not the master's. */

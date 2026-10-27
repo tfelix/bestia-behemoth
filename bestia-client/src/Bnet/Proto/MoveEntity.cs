@@ -26,15 +26,15 @@ namespace Bnet {
           string.Concat(
             "CiFtZXNzYWdlcy9lbnRpdHkvbW92ZV9lbnRpdHkucHJvdG8SBGJuZXQaGW1l",
             "c3NhZ2VzL2RlbHRhX3BhdGgucHJvdG8aE21lc3NhZ2VzL3ZlYzMucHJvdG8i",
-            "mAEKCk1vdmVFbnRpdHkSEQoJZW50aXR5X2lkGAEgASgEEh0KCXdheXBvaW50",
+            "kwEKCk1vdmVFbnRpdHkSEQoJZW50aXR5X2lkGAEgASgEEh0KCXdheXBvaW50",
             "cxgCIAMoCzIKLmJuZXQuVmVjMxIOCgZhcHBlbmQYAyABKAgSIgoJZmlyc3Rf",
-            "bGVnGAQgASgLMg8uYm5ldC5EZWx0YVBhdGgSDAoEbmFtZRgFIAEoCRIWCg5z",
-            "YXZlZF9yb3V0ZV9pZBgGIAEoBEIoChVuZXQuYmVzdGlhLmJuZXQucHJvdG9C",
-            "D01vdmVFbnRpdHlQcm90b2IGcHJvdG8z"));
+            "bGVnGAQgASgLMg8uYm5ldC5EZWx0YVBhdGgSDAoEbmFtZRgFIAEoCRIRCgly",
+            "b3V0ZV9rZXkYBiABKAlCKAoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQg9Nb3Zl",
+            "RW50aXR5UHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Bnet.DeltaPathReflection.Descriptor, global::Bnet.Vec3Reflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.MoveEntity), global::Bnet.MoveEntity.Parser, new[]{ "EntityId", "Waypoints", "Append", "FirstLeg", "Name", "SavedRouteId" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.MoveEntity), global::Bnet.MoveEntity.Parser, new[]{ "EntityId", "Waypoints", "Append", "FirstLeg", "Name", "RouteKey" }, null, null, null, null)
           }));
     }
     #endregion
@@ -86,7 +86,7 @@ namespace Bnet {
       append_ = other.append_;
       firstLeg_ = other.firstLeg_ != null ? other.firstLeg_.Clone() : null;
       name_ = other.name_;
-      savedRouteId_ = other.savedRouteId_;
+      routeKey_ = other.routeKey_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -165,18 +165,18 @@ namespace Bnet {
       }
     }
 
-    /// <summary>Field number for the "saved_route_id" field.</summary>
-    public const int SavedRouteIdFieldNumber = 6;
-    private ulong savedRouteId_;
+    /// <summary>Field number for the "route_key" field.</summary>
+    public const int RouteKeyFieldNumber = 6;
+    private string routeKey_ = "";
     /// <summary>
-    /// The saved route the waypoints were taken from, 0 for none.
+    /// The notebook key of the saved route the waypoints were taken from, empty for none.
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public ulong SavedRouteId {
-      get { return savedRouteId_; }
+    public string RouteKey {
+      get { return routeKey_; }
       set {
-        savedRouteId_ = value;
+        routeKey_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
       }
     }
 
@@ -200,7 +200,7 @@ namespace Bnet {
       if (Append != other.Append) return false;
       if (!object.Equals(FirstLeg, other.FirstLeg)) return false;
       if (Name != other.Name) return false;
-      if (SavedRouteId != other.SavedRouteId) return false;
+      if (RouteKey != other.RouteKey) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -213,7 +213,7 @@ namespace Bnet {
       if (Append != false) hash ^= Append.GetHashCode();
       if (firstLeg_ != null) hash ^= FirstLeg.GetHashCode();
       if (Name.Length != 0) hash ^= Name.GetHashCode();
-      if (SavedRouteId != 0UL) hash ^= SavedRouteId.GetHashCode();
+      if (RouteKey.Length != 0) hash ^= RouteKey.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -249,9 +249,9 @@ namespace Bnet {
         output.WriteRawTag(42);
         output.WriteString(Name);
       }
-      if (SavedRouteId != 0UL) {
-        output.WriteRawTag(48);
-        output.WriteUInt64(SavedRouteId);
+      if (RouteKey.Length != 0) {
+        output.WriteRawTag(50);
+        output.WriteString(RouteKey);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -280,9 +280,9 @@ namespace Bnet {
         output.WriteRawTag(42);
         output.WriteString(Name);
       }
-      if (SavedRouteId != 0UL) {
-        output.WriteRawTag(48);
-        output.WriteUInt64(SavedRouteId);
+      if (RouteKey.Length != 0) {
+        output.WriteRawTag(50);
+        output.WriteString(RouteKey);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
@@ -307,8 +307,8 @@ namespace Bnet {
       if (Name.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(Name);
       }
-      if (SavedRouteId != 0UL) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(SavedRouteId);
+      if (RouteKey.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(RouteKey);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -338,8 +338,8 @@ namespace Bnet {
       if (other.Name.Length != 0) {
         Name = other.Name;
       }
-      if (other.SavedRouteId != 0UL) {
-        SavedRouteId = other.SavedRouteId;
+      if (other.RouteKey.Length != 0) {
+        RouteKey = other.RouteKey;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -383,8 +383,8 @@ namespace Bnet {
             Name = input.ReadString();
             break;
           }
-          case 48: {
-            SavedRouteId = input.ReadUInt64();
+          case 50: {
+            RouteKey = input.ReadString();
             break;
           }
         }
@@ -429,8 +429,8 @@ namespace Bnet {
             Name = input.ReadString();
             break;
           }
-          case 48: {
-            SavedRouteId = input.ReadUInt64();
+          case 50: {
+            RouteKey = input.ReadString();
             break;
           }
         }

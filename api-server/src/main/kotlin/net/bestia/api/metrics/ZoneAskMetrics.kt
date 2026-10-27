@@ -31,10 +31,9 @@ enum class ZoneQueryKind {
   SEND_CHAT,
   SEND_ON_JOURNEY,
   STOP_JOURNEY,
-  SAVED_ROUTES,
-  SAVE_ROUTE,
-  RENAME_ROUTE,
-  DELETE_ROUTE,
+  NOTEBOOK_LIST,
+  NOTEBOOK_PUT,
+  NOTEBOOK_DELETE,
   ;
 
   companion object {
@@ -60,10 +59,9 @@ enum class ZoneQueryKind {
         is ZoneQuery.SendChat -> SEND_CHAT
         is ZoneQuery.SendOnJourney -> SEND_ON_JOURNEY
         is ZoneQuery.StopJourney -> STOP_JOURNEY
-        is ZoneQuery.SavedRoutes -> SAVED_ROUTES
-        is ZoneQuery.SaveRoute -> SAVE_ROUTE
-        is ZoneQuery.RenameRoute -> RENAME_ROUTE
-        is ZoneQuery.DeleteRoute -> DELETE_ROUTE
+        is ZoneQuery.NotebookList -> NOTEBOOK_LIST
+        is ZoneQuery.NotebookPut -> NOTEBOOK_PUT
+        is ZoneQuery.NotebookDelete -> NOTEBOOK_DELETE
       }
     }
   }

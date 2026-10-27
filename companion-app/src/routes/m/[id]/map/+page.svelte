@@ -3,7 +3,7 @@
 	import L from 'leaflet';
 	import { page } from '$app/state';
 	import { ApiError, getJson } from '$lib/api/client';
-	import type { Bestia, Catalog, MapMeta, MasterSheet, Place, Position, Route } from '$lib/api/model';
+	import type { Bestia, Catalog, MapMeta, MasterSheet, Place, Position } from '$lib/api/model';
 	import TravelSheet from '$lib/components/TravelSheet.svelte';
 	import { guarded } from '$lib/guard';
 	import { live } from '$lib/live.svelte';
@@ -13,7 +13,8 @@
 	import { formatGridRef, MAX_DIGITS, parseGridRef } from '$lib/map/gridRef';
 	import { bestiaColor, MASTER_COLOR } from '$lib/map/slotColors';
 	import { speciesName } from '$lib/names';
-	import { deleteRoute, renameRoute, saveRoute, sendJourney, stopJourney, stopsAhead, wayAhead } from '$lib/travel';
+	import { Notebook } from '$lib/notebook/notebook.svelte';
+	import { ROUTES, routeBody, routeOf, sendJourney, stopJourney, stopsAhead, wayAhead, type Route, type RouteValue } from '$lib/travel';
 
 	const masterId = $derived(Number(page.params.id));
 	/** The species whose habitat is laid over the map, picked in the compendium; 0 for none. */
@@ -23,7 +24,9 @@
 	let failure = $state<string | null>(null);
 
 	let bestias = $state<Bestia[]>([]);
-	let routes = $state<Route[]>([]);
+	/** The master's notebook, shared with the game: its routes, and later its marks and map preferences. */
+	let notebook = $state.raw<Notebook | null>(null);
+	const routes = $derived(notebook ? notebook.entries<RouteValue>(ROUTES).map(routeOf) : []);
 	let selectedId = $state<number | null>(null);
 	/** The master as the map draws it; its sheet comes apart from the roster, so its marker is kept here. */
 	let master = $state<{ name: string; position: Position } | null>(null);
@@ -109,7 +112,10 @@
 			leaflet.on('moveend', () => leaflet && (readout = refOf(leaflet.getCenter())));
 			grid = gridLayer(meta);
 			if (showGrid) grid.addTo(leaflet);
-			routes = await getJson<Route[]>(`/v1/companion/masters/${id}/routes`);
+			const kept = new Notebook(id);
+			await kept.load(ROUTES);
+			if (gone) return;
+			notebook = kept;
 
 			const sheet = await placeMarkers();
 			if (gone) return;
@@ -125,6 +131,8 @@
 
 		const unsubscribe = live.on((event) => {
 			if (event.data.masterId !== id) return;
+			// A notebook write changes what the notebook holds and nothing on the map, so the roster is not asked again.
+			if (notebook?.receive(event)) return;
 			if (event.type === 'ChartsChanged' || event.type === 'CompendiumChanged') cache.clear();
 			if (event.type === 'JourneyEnded') noteJourneyEnded(event.data);
 			void placeMarkers().catch(() => {});
@@ -134,6 +142,7 @@
 			gone = true;
 			unsubscribe();
 			travelLayers = null;
+			notebook = null;
 			map = null;
 			grid = null;
 			pinMarker = null;
@@ -325,7 +334,7 @@
 		const id = selectedId;
 		if (id === null) return;
 		void order(async (key) => {
-			await sendJourney(masterId, id, { waypoints: [], savedRouteId: route.id, reverse: back }, key);
+			await sendJourney(masterId, id, { waypoints: [], routeKey: route.key, reverse: back }, key);
 			forgetGaveUp(id);
 		});
 	}
@@ -336,11 +345,12 @@
 
 	/** A route starts where the bestia it was drafted for stands, so it can be walked back the other way too. */
 	function keepRoute() {
-		if (!selected) return;
+		const kept = notebook;
+		if (!selected || !kept) return;
 		const waypoints = [selected.position, ...draft];
-		void order(async (key) => {
+		void order(async () => {
 			try {
-				routes = await saveRoute(masterId, waypoints, '', key);
+				await kept.add(ROUTES, routeBody(waypoints, ''));
 				draft = [];
 				adding = false;
 			} catch (e) {
@@ -351,15 +361,11 @@
 	}
 
 	function rename(route: Route, name: string) {
-		void order(async (key) => {
-			routes = await renameRoute(masterId, route.id, name, key);
-		});
+		void order(async () => notebook?.put(ROUTES, route.key, routeBody(route.waypoints, name), route.revision));
 	}
 
 	function forget(route: Route) {
-		void order(async (key) => {
-			routes = await deleteRoute(masterId, route.id, key);
-		});
+		void order(async () => notebook?.remove(ROUTES, route.key, route.revision));
 	}
 
 	function forgetGaveUp(bestiaId: number) {

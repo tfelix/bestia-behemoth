@@ -372,7 +372,9 @@ TRAVEL_DRAFT,Stops
 TRAVEL_HINT,Click the map to send it there. Shift+click to add stops.
 TRAVEL_GO,Go
 TRAVEL_CLEAR,Clear
-ERROR_ROUTE_LIMIT,You keep as many routes as you may. Delete one first.
+ERROR_NOTEBOOK_FULL,You keep as many of these as you may. Delete one first.
+ERROR_NOTEBOOK_STALE,That changed in the companion app meanwhile; this is the newer version.
+ERROR_NOTEBOOK_INVALID,That could not be kept.
 ERROR_AUCTION_OUT_OF_RANGE,You are too far away from the auction house.
 ERROR_AUCTION_LISTING_LIMIT,You have as many goods up for sale as you may. Let one sell or take it down first.
 ERROR_AUCTION_CANNOT_AFFORD_FEE,You cannot pay the listing fee.

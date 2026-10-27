@@ -834,13 +834,19 @@ func _send(stops: Array[Vector2]) -> void:
 	ConnectionManager.send_on_journey(entity.entity_id, _waypoints_of(stops, entity))
 
 
-## The draft as the server takes waypoints.
-func draft_waypoints() -> Array[Vector3]:
+## [param stops] in world metres as the server takes waypoints, for the entity orders go to.
+func waypoints_of(stops: Array[Vector2]) -> Array[Vector3]:
 	var entity := order_entity()
 	if entity == null:
 		var none: Array[Vector3] = []
 		return none
-	return _waypoints_of(draft, entity)
+	return _waypoints_of(stops, entity)
+
+
+## Where the entity orders go to stands, in world metres, or null when there is none.
+func order_entity_metres() -> Variant:
+	var entity := order_entity()
+	return null if entity == null else _metres_of(entity)
 
 
 ## Metres to tiles, the exact inverse of [method _metres_of]. The map's northing is the entity's z, hence the y

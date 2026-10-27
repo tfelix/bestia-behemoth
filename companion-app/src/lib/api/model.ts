@@ -23,8 +23,6 @@ export type CompendiumEntry = Schemas['CompendiumEntry'];
 export type Position = Schemas['Position'];
 export type Journey = Schemas['Journey'];
 export type JourneyOrder = Schemas['JourneyOrder'];
-export type Route = Schemas['Route'];
-export type NewRoute = Schemas['NewRoute'];
 
 export const STANCES = ['HOLD', 'PATROL', 'FORAGE', 'DEFEND'] as const;
 export type Stance = (typeof STANCES)[number];

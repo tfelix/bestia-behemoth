@@ -17,7 +17,8 @@ data class MoveEntityCMSG(
   val firstLeg: List<Vec3L> = emptyList(),
   /** What the journey is called on the map; the saved route's name when it follows one. */
   val name: String = "",
-  val savedRouteId: Long? = null,
+  /** The notebook key of the saved route it follows. */
+  val routeKey: String? = null,
 ) : CMSG {
   companion object {
     fun fromBnet(accountId: Long, move: MoveEntityProto.MoveEntity): MoveEntityCMSG {
@@ -28,7 +29,7 @@ data class MoveEntityCMSG(
         append = move.append,
         firstLeg = if (move.hasFirstLeg()) DeltaPaths.decode(move.firstLeg) else emptyList(),
         name = move.name,
-        savedRouteId = move.savedRouteId.takeIf { it != 0L },
+        routeKey = move.routeKey.ifEmpty { null },
       )
     }
   }

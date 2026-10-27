@@ -71,28 +71,38 @@ sealed interface ZoneQuery {
   data class SendChat(val masterId: Long, val channel: String, val text: String) : ZoneQuery
 
   /**
-   * Sends an owned bestia through [waypoints], or along the saved route [savedRouteId] - from its last point back
-   * when [reverse]. A write: send it with an idempotency key.
+   * Sends an owned bestia through [waypoints], or along the saved route under [routeKey] in the master's notebook -
+   * from its last point back when [reverse]. A write: send it with an idempotency key.
    */
   data class SendOnJourney(
     val masterId: Long,
     val playerBestiaId: Long,
     val waypoints: List<MapPoint>,
-    val savedRouteId: Long? = null,
+    val routeKey: String? = null,
     val reverse: Boolean = false,
   ) : ZoneQuery
 
   /** Stops an owned bestia where it stands. A write: send it with an idempotency key. */
   data class StopJourney(val masterId: Long, val playerBestiaId: Long) : ZoneQuery
 
-  data class SavedRoutes(val masterId: Long) : ZoneQuery
+  /**
+   * One collection of the player's notebook - routes, marks, map preferences - of [masterId], or of the whole
+   * account when it is null. Answered with [ZoneAnswer.Notebook].
+   */
+  data class NotebookList(val masterId: Long?, val collection: String) : ZoneQuery
 
-  /** A blank [name] lets the zone name the route from where it starts and ends. A write. */
-  data class SaveRoute(val masterId: Long, val waypoints: List<MapPoint>, val name: String) : ZoneQuery
+  /**
+   * Keeps [json] under [key], or under a new key when it is null. With [baseRevision] it lands only while the entry
+   * is still at it, 0 for one that must not exist yet. Answered with [ZoneAnswer.NotebookWritten]. A write.
+   */
+  data class NotebookPut(
+    val masterId: Long?,
+    val collection: String,
+    val key: String?,
+    val json: String,
+    val baseRevision: Long?,
+  ) : ZoneQuery
 
-  /** A blank [name] gives the route its made name back. A write. */
-  data class RenameRoute(val masterId: Long, val routeId: Long, val name: String) : ZoneQuery
-
-  /** A write. */
-  data class DeleteRoute(val masterId: Long, val routeId: Long) : ZoneQuery
+  /** Answered with [ZoneAnswer.NotebookWritten]. A write. */
+  data class NotebookDelete(val masterId: Long?, val collection: String, val key: String, val baseRevision: Long?) : ZoneQuery
 }

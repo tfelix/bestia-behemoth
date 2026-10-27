@@ -9,7 +9,9 @@ import net.bestia.bus.contract.ZoneQuery
 import net.bestia.zone.account.persistence.MasterRepository
 import net.bestia.zone.account.persistence.PlayerBestiaRepository
 import net.bestia.zone.ai.profile.IdleStance
+import net.bestia.zone.companion.query.NotebookCommands
 import net.bestia.zone.compendium.CompendiumStore
+import net.bestia.zone.travel.RoutesCollection
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -109,22 +111,31 @@ class CompanionRequestDispatcherTest {
   }
 
   @Test
-  fun `a master keeps, renames and forgets routes, and a stranger touches none`() {
+  fun `a master keeps, renames and forgets routes in the notebook, and a stranger touches none`() {
     val master = masters.findAllByAccountIdOrderBySlot(1L).first()
-    val points = listOf(MapPoint(100.0, 200.0), MapPoint(900.0, 950.0))
+    val json = """{"name":"","waypoints":[{"east":100.0,"north":200.0},{"east":900.0,"north":950.0}]}"""
 
-    val saved = ask(1L, ZoneQuery.SaveRoute(master.id, points, name = "")).answer as ZoneAnswer.RouteList
-    val route = saved.routes.last()
-    assertEquals(false, route.customName)
-    assertEquals(points, route.waypoints)
+    val saved = assertIs<ZoneAnswer.NotebookWritten>(ask(1L, ZoneQuery.NotebookPut(master.id, ROUTES, null, json, null)).answer)
+    assertTrue(saved.json!!.contains("\"customName\":false"), "an unnamed route is shown with its made name: ${saved.json}")
 
     try {
-      val renamed = ask(1L, ZoneQuery.RenameRoute(master.id, route.id, "Ore run")).answer as ZoneAnswer.RouteList
-      assertEquals("Ore run", renamed.routes.single { it.id == route.id }.name)
-      assertEquals(Status.NOT_FOUND, ask(2L, ZoneQuery.RenameRoute(master.id, route.id, "Mine")).status)
+      val renamed = assertIs<ZoneAnswer.NotebookWritten>(
+        ask(1L, ZoneQuery.NotebookPut(master.id, ROUTES, saved.key, json.replace("\"name\":\"\"", "\"name\":\"Ore run\""), saved.revision)).answer
+      )
+      assertEquals(saved.revision + 1, renamed.revision, "each write takes the next revision")
+      assertTrue(renamed.json!!.contains("\"name\":\"Ore run\""))
+
+      val stale = ask(1L, ZoneQuery.NotebookPut(master.id, ROUTES, saved.key, json, saved.revision))
+      assertEquals(Status.INVALID, stale.status, "a write against the revision before the rename")
+      assertEquals(NotebookCommands.STALE, stale.detail)
+
+      assertEquals(Status.NOT_FOUND, ask(2L, ZoneQuery.NotebookPut(master.id, ROUTES, saved.key, json, null)).status)
+      assertEquals(Status.NOT_FOUND, ask(2L, ZoneQuery.NotebookList(master.id, ROUTES)).status)
+      assertEquals(Status.INVALID, ask(1L, ZoneQuery.NotebookPut(master.id, ROUTES, null, """{"waypoints":[]}""", null)).status)
     } finally {
-      val left = ask(1L, ZoneQuery.DeleteRoute(master.id, route.id)).answer as ZoneAnswer.RouteList
-      assertTrue(left.routes.none { it.id == route.id })
+      assertEquals(Status.OK, ask(1L, ZoneQuery.NotebookDelete(master.id, ROUTES, saved.key, null)).status)
+      val left = assertIs<ZoneAnswer.Notebook>(ask(1L, ZoneQuery.NotebookList(master.id, ROUTES)).answer)
+      assertTrue(left.entries.none { it.key == saved.key })
     }
   }
 
@@ -180,5 +191,6 @@ class CompanionRequestDispatcherTest {
 
   private companion object {
     const val BLOB = 1L
+    const val ROUTES = RoutesCollection.ID
   }
 }

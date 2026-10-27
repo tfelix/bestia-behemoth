@@ -1,8 +1,27 @@
 import { sendJson } from '$lib/api/client';
-import type { Bestia, Journey, JourneyOrder, Position, Route } from '$lib/api/model';
+import type { Bestia, Journey, JourneyOrder, Position } from '$lib/api/model';
+import type { NotebookEntry } from '$lib/notebook/rules';
+
+/** The notebook collection the routes are kept in, shared with the game. */
+export const ROUTES = 'routes';
+
+/** A route as the notebook shows it: [customName] is false while [name] is the one made from where it starts and ends. */
+export type RouteValue = { name: string; customName: boolean; waypoints: { east: number; north: number }[] };
+
+export type Route = { key: string; revision: number; name: string; customName: boolean; waypoints: Position[] };
+
+export function routeOf(entry: NotebookEntry<RouteValue>): Route {
+	const waypoints = entry.value.waypoints.map((point) => ({ eastMetres: point.east, northMetres: point.north }));
+	return { key: entry.key, revision: entry.revision, name: entry.value.name, customName: entry.value.customName, waypoints };
+}
+
+/** What a route is kept as; a blank [name] lets the world name it from where it starts and ends. */
+export function routeBody(waypoints: Position[], name: string) {
+	return { name, waypoints: waypoints.map((point) => ({ east: point.eastMetres, north: point.northMetres })) };
+}
 
 /**
- * Journeys and saved routes as the app orders them. Every write carries a fresh Idempotency-Key: sending again
+ * Journeys as the app orders them. Every write carries a fresh Idempotency-Key: sending again
  * after a timeout cannot give the order twice, because the zone answers a repeated key with its first reply.
  */
 export function sendJourney(masterId: number, bestiaId: number, order: JourneyOrder, key: string): Promise<void> {
@@ -11,20 +30,6 @@ export function sendJourney(masterId: number, bestiaId: number, order: JourneyOr
 
 export function stopJourney(masterId: number, bestiaId: number, key: string): Promise<void> {
 	return sendJson<void>('DELETE', `/v1/companion/masters/${masterId}/bestias/${bestiaId}/journey`, undefined, { 'Idempotency-Key': key });
-}
-
-/** A blank [name] lets the world name it from where it starts and ends. */
-export function saveRoute(masterId: number, waypoints: Position[], name: string, key: string): Promise<Route[]> {
-	return sendJson<Route[]>('POST', `/v1/companion/masters/${masterId}/routes`, { waypoints, name }, { 'Idempotency-Key': key });
-}
-
-/** A blank [name] gives the route its made name back. */
-export function renameRoute(masterId: number, routeId: number, name: string, key: string): Promise<Route[]> {
-	return sendJson<Route[]>('PATCH', `/v1/companion/masters/${masterId}/routes/${routeId}`, { name }, { 'Idempotency-Key': key });
-}
-
-export function deleteRoute(masterId: number, routeId: number, key: string): Promise<Route[]> {
-	return sendJson<Route[]>('DELETE', `/v1/companion/masters/${masterId}/routes/${routeId}`, undefined, { 'Idempotency-Key': key });
 }
 
 /** The stops a journey still has to visit. */

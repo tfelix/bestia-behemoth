@@ -72,11 +72,13 @@ sealed interface ZoneAnswer {
     val route: List<MapPoint>,
   ) : ZoneAnswer
 
-  /** The master's routes, oldest first. */
-  data class RouteList(val routes: List<Route>) : ZoneAnswer {
-    /** [customName] is false while [name] is the one made from where it starts and ends. */
-    data class Route(val id: Long, val name: String, val customName: Boolean, val waypoints: List<MapPoint>)
+  /** A notebook collection at [revision], its entries oldest first. [json] is each entry as the app shows it. */
+  data class Notebook(val revision: Long, val entries: List<Entry>) : ZoneAnswer {
+    data class Entry(val key: String, val revision: Long, val json: String)
   }
+
+  /** A notebook write landed, and the collection is now at [revision]. [json] is null for a deletion. */
+  data class NotebookWritten(val revision: Long, val key: String, val json: String?) : ZoneAnswer
 
   /** A write that has nothing to say back but that it was done. */
   data object Done : ZoneAnswer

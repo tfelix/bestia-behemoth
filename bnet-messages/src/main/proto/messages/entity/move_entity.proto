@@ -22,6 +22,6 @@ message MoveEntity {
   DeltaPath first_leg = 4;
   // What the journey is called on the map, the saved route's name when it follows one.
   string name = 5;
-  // The saved route the waypoints were taken from, 0 for none.
-  uint64 saved_route_id = 6;
+  // The notebook key of the saved route the waypoints were taken from, empty for none.
+  string route_key = 6;
 }

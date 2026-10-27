@@ -20,7 +20,7 @@ class Journey(
   waypoints: List<Vec3L>,
   val order: JourneyOrder,
   val name: String? = null,
-  val savedRouteId: Long? = null,
+  val routeKey: String? = null,
   leaseExpiresAt: Long? = null,
 ) : Component, Removable {
 

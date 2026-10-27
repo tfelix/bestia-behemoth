@@ -14,8 +14,10 @@ signal owned_bestias_received(message: OwnedBestiasSMSG)
 signal active_entity_received(message: ActiveEntitySMSG)
 ## One of the player's own entities ended a journey, arrived or not.
 signal journey_ended(message: JourneyEndedSMSG)
-## Every route the selected master keeps, after asking or after one changed.
-signal saved_routes_received(message: SavedRoutesSMSG)
+## A whole notebook collection, as asked for with [method notebook_list].
+signal notebook_received(message: NotebookSMSG)
+## One notebook entry written or deleted, here or in the companion app.
+signal notebook_changed(message: NotebookChangedSMSG)
 ## A trap was sprung near us and the catch was rolled.
 signal bestia_capture_received(message: BestiaCaptureSMSG)
 signal chat_received(message: ChatSMSG)
@@ -86,10 +88,9 @@ var CreateMasterCMSG = load("res://Bnet/Message/Master/CreateMasterCMSG.cs")
 var DeleteMasterCMSG = load("res://Bnet/Message/Master/DeleteMasterCMSG.cs")
 var AttackEntityCMSG = load("res://Bnet/Message/Entity/AttackEntityCMSG.cs")
 var MoveEntityCMSG = load("res://Bnet/Message/Entity/MoveEntityCMSG.cs")
-var RequestSavedRoutesCMSG = load("res://Bnet/Message/Travel/RequestSavedRoutesCMSG.cs")
-var SaveRouteCMSG = load("res://Bnet/Message/Travel/SaveRouteCMSG.cs")
-var RenameRouteCMSG = load("res://Bnet/Message/Travel/RenameRouteCMSG.cs")
-var DeleteRouteCMSG = load("res://Bnet/Message/Travel/DeleteRouteCMSG.cs")
+var NotebookListCMSG = load("res://Bnet/Message/Notebook/NotebookListCMSG.cs")
+var NotebookPutCMSG = load("res://Bnet/Message/Notebook/NotebookPutCMSG.cs")
+var NotebookDeleteCMSG = load("res://Bnet/Message/Notebook/NotebookDeleteCMSG.cs")
 var SelectActiveEntityCMSG = load("res://Bnet/Message/Entity/SelectActiveEntityCMSG.cs")
 var GetInventoryCMSG = load("res://Bnet/Message/Inventory/GetInventoryCMSG.cs")
 var GetSkillsCMSG = load("res://Bnet/Message/Master/GetSkillsCMSG.cs")
@@ -503,9 +504,9 @@ func _walkable_prefix(start: Vector3, path: Array[Vector3]) -> Array[Vector3]:
 
 ## Sends one of the player's own entities through [param waypoints], however far: the server plans the way and
 ## keeps walking it while the player looks elsewhere. [param append] adds them to the journey under way;
-## [param journey_name] and [param saved_route_id] say which saved route it follows, if any.
+## [param journey_name] and [param route_key] say which saved route it follows, if any.
 func send_on_journey(
-	entity_id: int, waypoints: Array[Vector3], append: bool = false, journey_name: String = "", saved_route_id: int = 0
+	entity_id: int, waypoints: Array[Vector3], append: bool = false, journey_name: String = "", route_key: String = ""
 ) -> void:
 	assert(is_ready_to_send())
 
@@ -514,37 +515,34 @@ func send_on_journey(
 	msg.Waypoints = waypoints
 	msg.Append = append
 	msg.Name = journey_name
-	msg.SavedRouteId = saved_route_id
+	msg.RouteKey = route_key
 	_socket.SendMessage(msg)
 
 
-func request_saved_routes() -> void:
+func notebook_list(collection: String) -> void:
 	assert(is_ready_to_send())
-	_socket.SendMessage(RequestSavedRoutesCMSG.new())
-
-
-## An empty [param route_name] lets the server name it from where it starts and ends.
-func save_route(waypoints: Array[Vector3], route_name: String = "") -> void:
-	assert(is_ready_to_send())
-	var msg = SaveRouteCMSG.new()
-	msg.Waypoints = waypoints
-	msg.Name = route_name
+	var msg = NotebookListCMSG.new()
+	msg.Collection = collection
 	_socket.SendMessage(msg)
 
 
-## An empty [param route_name] gives the route its server-made name back.
-func rename_route(route_id: int, route_name: String) -> void:
+## An empty [param key] lets the server pick one. A [param base_revision] of -1 lets the last write win.
+func notebook_put(collection: String, key: String, json: String, base_revision: int = -1) -> void:
 	assert(is_ready_to_send())
-	var msg = RenameRouteCMSG.new()
-	msg.RouteId = route_id
-	msg.Name = route_name
+	var msg = NotebookPutCMSG.new()
+	msg.Collection = collection
+	msg.Key = key
+	msg.Json = json
+	msg.BaseRevision = base_revision
 	_socket.SendMessage(msg)
 
 
-func delete_route(route_id: int) -> void:
+func notebook_delete(collection: String, key: String, base_revision: int = -1) -> void:
 	assert(is_ready_to_send())
-	var msg = DeleteRouteCMSG.new()
-	msg.RouteId = route_id
+	var msg = NotebookDeleteCMSG.new()
+	msg.Collection = collection
+	msg.Key = key
+	msg.BaseRevision = base_revision
 	_socket.SendMessage(msg)
 
 
@@ -1104,8 +1102,10 @@ func _on_bnet_socket_message_received(message: Object) -> void:
 		active_entity_received.emit(message)
 	elif message is JourneyEndedSMSG:
 		journey_ended.emit(message)
-	elif message is SavedRoutesSMSG:
-		saved_routes_received.emit(message)
+	elif message is NotebookSMSG:
+		notebook_received.emit(message)
+	elif message is NotebookChangedSMSG:
+		notebook_changed.emit(message)
 	elif message is BestiaCaptureSMSG:
 		bestia_capture_received.emit(message)
 	elif message is ChatSMSG:

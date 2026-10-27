@@ -16,7 +16,7 @@ import "messages/crafting/discovery_result_smsg.proto";
 import "messages/crafting/material_axes_smsg.proto";
 import "messages/entity/move_entity.proto";
 import "messages/entity/journey_ended_smsg.proto";
-import "messages/travel/saved_routes.proto";
+import "messages/notebook/notebook.proto";
 import "messages/entity/select_active_entity.proto";
 import "messages/system/authentication_success.proto";
 import "messages/system/disconnected.proto";
@@ -294,12 +294,12 @@ message Envelope {
     AuctionClaimsSMSG auction_claims = 848;
     AuctionPurchasedSMSG auction_purchased = 849;
 
-    // TRAVEL 900
-    RequestSavedRoutesCMSG request_saved_routes = 900;
-    SavedRoutesSMSG saved_routes = 901;
-    SaveRouteCMSG save_route = 902;
-    RenameRouteCMSG rename_route = 903;
-    DeleteRouteCMSG delete_route = 904;
+    // NOTEBOOK 900
+    NotebookListCMSG notebook_list = 900;
+    NotebookSMSG notebook = 901;
+    NotebookPutCMSG notebook_put = 902;
+    NotebookDeleteCMSG notebook_delete = 903;
+    NotebookChangedSMSG notebook_changed = 904;
 
     // MISC
   }

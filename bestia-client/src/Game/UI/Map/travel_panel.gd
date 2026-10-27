@@ -10,10 +10,11 @@ signal clear_pressed
 ## Asks to stop [param entity_id] where it stands.
 signal stop_pressed(entity_id: int)
 signal save_draft_pressed
-## Asks to send the chosen entity along [param route], from its last waypoint back when [param backwards].
-signal route_sent(route: SavedRouteInfo, backwards: bool)
-signal route_renamed(route: SavedRouteInfo, new_name: String)
-signal route_deleted(route: SavedRouteInfo)
+## Asks to send the chosen entity along [param route], from its last waypoint back when [param backwards]. A route
+## is a notebook entry: [code]{key, revision, value}[/code], the value as the server's [code]RoutesCollection[/code] shows it.
+signal route_sent(route: Dictionary, backwards: bool)
+signal route_renamed(route: Dictionary, new_name: String)
+signal route_deleted(route: Dictionary)
 
 const _SWATCH_SIZE := 12.0
 const _FONT_SIZE := 13
@@ -120,7 +121,7 @@ func show_draft(stops: Array[Vector2]) -> void:
 
 
 ## The routes the master keeps, each with send, send back, rename and forget.
-func show_routes(routes: Array[SavedRouteInfo]) -> void:
+func show_routes(routes: Array[Dictionary]) -> void:
 	for row in _routes.get_children():
 		row.queue_free()
 
@@ -130,12 +131,13 @@ func show_routes(routes: Array[SavedRouteInfo]) -> void:
 		_routes.add_child(_route_row(route))
 
 
-func _route_row(route: SavedRouteInfo) -> HBoxContainer:
+func _route_row(route: Dictionary) -> HBoxContainer:
 	var row := HBoxContainer.new()
-	var title := _label(route.Name)
+	var route_name := str(route["value"].get("name", ""))
+	var title := _label(route_name)
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title.clip_text = true
-	title.tooltip_text = route.Name
+	title.tooltip_text = route_name
 	title.mouse_filter = Control.MOUSE_FILTER_PASS
 	row.add_child(title)
 
@@ -147,10 +149,11 @@ func _route_row(route: SavedRouteInfo) -> HBoxContainer:
 
 
 ## Swaps the name for a field in place; Enter keeps the new name, an empty one asks for the made name back.
-func _start_rename(row: HBoxContainer, title: Label, route: SavedRouteInfo) -> void:
+func _start_rename(row: HBoxContainer, title: Label, route: Dictionary) -> void:
+	var route_name := str(route["value"].get("name", ""))
 	var field := LineEdit.new()
-	field.text = route.Name if route.CustomName else ""
-	field.placeholder_text = route.Name
+	field.text = route_name if route["value"].get("customName", false) else ""
+	field.placeholder_text = route_name
 	field.max_length = _MAX_NAME_LENGTH
 	field.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	field.add_theme_font_size_override("font_size", _FONT_SIZE)

@@ -26,6 +26,11 @@ signal service_selected(service: Dictionary)
 ## store the answer rather than replay the clicks.
 signal hidden_services_changed(kinds: Array[String])
 
+## The player switched the grid on or off.
+signal grid_overlay_changed(on: bool)
+
+const _ROUTES := "routes"
+
 
 @onready var _view: MapView = $Panel/Margin/Rows/Body/View
 @onready var _travel: TravelPanel = $Panel/Margin/Rows/Body/Travel
@@ -105,13 +110,15 @@ func _wire_travel(entities: EntityManager) -> void:
 	_view.draft_changed.connect(func() -> void: _travel.show_draft(_view.draft))
 	_travel.save_draft_pressed.connect(_save_draft_as_route)
 	_travel.route_sent.connect(_send_along_route)
-	_travel.route_renamed.connect(func(route: SavedRouteInfo, new_name: String) -> void:
-		ConnectionManager.rename_route(route.Id, new_name)
+	_travel.route_renamed.connect(_rename_route)
+	_travel.route_deleted.connect(func(route: Dictionary) -> void:
+		Notebook.delete(_ROUTES, route["key"], route["revision"])
 	)
-	_travel.route_deleted.connect(func(route: SavedRouteInfo) -> void: ConnectionManager.delete_route(route.Id))
-	ConnectionManager.saved_routes_received.connect(func(message: SavedRoutesSMSG) -> void:
-		_travel.show_routes(message.Routes)
+	Notebook.collection_changed.connect(func(collection: String) -> void:
+		if collection == _ROUTES:
+			_travel.show_routes(Notebook.entries(_ROUTES))
 	)
+	Notebook.watch(_ROUTES)
 	entities.journey_changed.connect(func(entity_id: int) -> void:
 		if entity_id == _travel.chosen_entity_id():
 			_travel.show_journey(entities.get_journey(entity_id))
@@ -120,28 +127,44 @@ func _wire_travel(entities: EntityManager) -> void:
 	entities.controlled_entity_changed.connect(func(_previous: int, _now: int) -> void: _show_travellers(entities))
 
 
-## A route starts where the entity it was planned for stands, so it can be walked back the other way too.
+## A route starts where the entity it was planned for stands, so it can be walked back the other way too. Kept in
+## map metres, as the companion app keeps them; an empty name lets the server make one.
 func _save_draft_as_route() -> void:
-	var entity := _view.order_entity()
-	if entity == null or _view.draft.is_empty():
+	var from: Variant = _view.order_entity_metres()
+	if from == null or _view.draft.is_empty():
 		return
 
-	var waypoints: Array[Vector3] = [entity.get_logical_position()]
-	waypoints.append_array(_view.draft_waypoints())
-	ConnectionManager.save_route(waypoints)
+	var points: Array[Vector2] = [from]
+	points.append_array(_view.draft)
+	Notebook.put(_ROUTES, "", {"name": "", "waypoints": _points_json(points)}, 0)
 	_view.clear_draft()
 
 
-func _send_along_route(route: SavedRouteInfo, backwards: bool) -> void:
+## An empty name gives the route its made name back.
+func _rename_route(route: Dictionary, new_name: String) -> void:
+	var value: Dictionary = route["value"]
+	Notebook.put(_ROUTES, route["key"], {"name": new_name, "waypoints": value.get("waypoints", [])}, route["revision"])
+
+
+func _send_along_route(route: Dictionary, backwards: bool) -> void:
 	var entity := _view.order_entity()
 	if entity == null:
 		return
 
-	var waypoints: Array[Vector3] = []
-	waypoints.assign(route.Waypoints)
+	var points: Array[Vector2] = []
+	for point in route["value"].get("waypoints", []):
+		points.append(Vector2(float(point.get("east", 0.0)), float(point.get("north", 0.0))))
 	if backwards:
-		waypoints.reverse()
-	ConnectionManager.send_on_journey(entity.entity_id, waypoints, false, route.Name, route.Id)
+		points.reverse()
+	var route_name := str(route["value"].get("name", ""))
+	ConnectionManager.send_on_journey(entity.entity_id, _view.waypoints_of(points), false, route_name, route["key"])
+
+
+static func _points_json(points: Array[Vector2]) -> Array:
+	var json := []
+	for point in points:
+		json.append({"east": point.x, "north": point.y})
+	return json
 
 
 ## Orders go to the entity being driven until the player picks another, and again whenever it changes hands.
@@ -214,7 +237,10 @@ func _build_search() -> void:
 	_grid_toggle.toggle_mode = true
 	_grid_toggle.focus_mode = Control.FOCUS_NONE
 	_grid_toggle.add_theme_font_size_override("font_size", 12)
-	_grid_toggle.toggled.connect(func(on: bool) -> void: _view.show_grid = on)
+	_grid_toggle.toggled.connect(func(on: bool) -> void:
+		_view.show_grid = on
+		grid_overlay_changed.emit(on)
+	)
 	header.add_child(_grid_toggle)
 	header.move_child(_grid_toggle, close_hint.get_index())
 
@@ -300,6 +326,12 @@ func set_hidden_services(kinds: Array[String]) -> void:
 	_view.hidden_services = kinds.duplicate()
 
 
+## Shows the grid as the notebook has it, without reporting back, so loading the setting does not save it again.
+func set_grid_overlay(on: bool) -> void:
+	_grid_toggle.set_pressed_no_signal(on)
+	_view.show_grid = on
+
+
 ## Called whenever the inventory changes, like [method Minimap.set_has_chart].
 ##
 ## Closes an open map rather than leaving it to the next keypress: the charts can go while it is being read -
@@ -338,8 +370,6 @@ func open() -> void:
 	var entities := EntityManager.get_instance()
 	if entities != null:
 		_show_travellers(entities)
-	if ConnectionManager.is_ready_to_send():
-		ConnectionManager.request_saved_routes()
 	# The zoom is deliberately left alone - see [constant _OPEN_LEVEL]. It is set once in [method setup] and
 	# is the view's own from then on.
 	_view.centre_on_player()

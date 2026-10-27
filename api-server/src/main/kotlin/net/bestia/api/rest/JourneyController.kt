@@ -28,12 +28,12 @@ class JourneyController(
 ) {
 
   /**
-   * Through [waypoints] in turn, or along the saved route [savedRouteId] instead - from its end back when
-   * [reverse].
+   * Through [waypoints] in turn, or along the saved route under [routeKey] in the master's notebook instead - from
+   * its end back when [reverse].
    */
   data class JourneyOrder(
     val waypoints: List<MastersController.Position> = emptyList(),
-    val savedRouteId: Long? = null,
+    val routeKey: String? = null,
     val reverse: Boolean = false,
   )
 
@@ -46,7 +46,7 @@ class JourneyController(
     @RequestBody order: JourneyOrder,
   ): ResponseEntity<Void> {
     val waypoints = order.waypoints.take(MAX_WAYPOINTS).map { MapPoint(it.eastMetres, it.northMetres) }
-    val query = ZoneQuery.SendOnJourney(masterId, bestiaId, waypoints, order.savedRouteId, order.reverse)
+    val query = ZoneQuery.SendOnJourney(masterId, bestiaId, waypoints, order.routeKey, order.reverse)
     zone.ask(accountId, query, idempotencyKey.take(MAX_KEY_LENGTH)).answerOrThrow<ZoneAnswer.Done>()
 
     cache.forget(accountId)

@@ -93,7 +93,7 @@ class MoveEntityHandler(
   /** @return whether it set off */
   private fun startJourney(world: World, msg: MoveEntityCMSG): Boolean {
     val name = msg.name.trim().take(MAX_NAME_LENGTH).ifEmpty { null }
-    return journeys.start(world, msg.entityId, msg.waypoints, JourneyOrder.PLAYER, name, msg.savedRouteId) == null
+    return journeys.start(world, msg.entityId, msg.waypoints, JourneyOrder.PLAYER, name, msg.routeKey) == null
   }
 
   private fun stop(world: World, id: EntityId) {

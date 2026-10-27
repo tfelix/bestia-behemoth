@@ -9,6 +9,7 @@ import net.bestia.zone.cartography.chart.ChartsChangedEvent
 import net.bestia.zone.compendium.CompendiumChangedEvent
 import net.bestia.zone.master.HomeFellEvent
 import net.bestia.zone.master.bestia.BestiaAiConfigChangedEvent
+import net.bestia.zone.notebook.NotebookChangedEvent
 import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.prop.StructureCompletedEvent
 import net.bestia.zone.session.ConnectionInfoService
@@ -105,6 +106,16 @@ class ZoneEventRelay(
   @EventListener
   fun onCompendiumChanged(event: CompendiumChangedEvent) {
     events.publish(ZoneEvent.CompendiumChanged(event.accountId, event.masterId))
+  }
+
+  /** After the commit, so an app that lists the collection again at once sees the write. */
+  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
+  fun onNotebookChanged(event: NotebookChangedEvent) {
+    events.publish(
+      ZoneEvent.NotebookChanged(
+        event.accountId, event.masterId, event.collection, event.key, event.revision, event.deleted, event.body
+      )
+    )
   }
 
   /** After the commit, so an app that refetches the map at once sees the new charts. */

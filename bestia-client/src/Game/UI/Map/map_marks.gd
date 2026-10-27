@@ -1,72 +1,43 @@
 class_name MapMarks
 extends Node
 
-## The marks a player has put on their own map, kept on this machine.
+## The marks a master has put on their own map, and how they like the map drawn - the hidden service kinds and the
+## grid. Kept in the player's [code]Notebook[/code] on the server, so the companion app shows and edits the same
+## ones, and a change made there arrives here as it happens.
 ##
-## [b]Client-side, unlike everything else the map knows.[/b] A chart is an item the server owns because it is
-## a thing that can be carried, traded and lost; a mark is a note about a place, and nobody else can see it or
-## take it. So there is no table, no message and no handler - which also means a mark survives nothing but
-## this installation, and that is the trade.
-##
-## [b]Keyed to the map, not just to the master.[/b] A mark is a world coordinate, so a regenerated world makes
-## every one of them a note about terrain that is not there any more. The file therefore lives under the
-## server's [code]worldMapVersion[/code] - the same key [MapSource] hangs its tile cache on, and for the same
-## reason - and a new version reads an empty set rather than misplaced marks. Directories for other versions
-## are swept, so a reseeded dev world does not accumulate one per reseed.
-##
-## Marks are per master under that: two characters on one account keep separate notes, which is what "my map"
-## means when the charts are per master too.
-##
-## The service kinds the master has switched off in the map's legend are kept here as well, in a file beside
-## the marks: they are the same sort of thing - how this player has chosen to annotate their own map - and
-## want the same key and the same sweep.
+## Writes are sent, not applied: a mark appears when the server says it was kept, the same way one added in the
+## companion app does.
 
-## The set changed: added, renamed, removed, or reloaded for a different master or world.
+## The set changed: added, renamed, removed - here or in the companion app - or loaded for another master.
 signal marks_changed()
 
-## The hidden service kinds changed: set from the legend, or reloaded for a different master or world.
+## The hidden service kinds changed, here, in the companion app, or loaded for another master.
 signal hidden_services_changed(kinds: Array[String])
 
-const _ROOT := "user://mapmarks/"
+## Whether the grid is drawn changed.
+signal grid_overlay_changed(on: bool)
 
-## Cap on how many one master may keep in one world.
-##
-## Not a storage limit - the file is bytes per mark - but a legibility one: the compass and the map both draw
-## every mark in range, and a player who could drop a thousand would be able to make their own map unusable.
+const MARKS := "marks"
+const PREFS := "map-prefs"
+
+## As the server's `MarksCollection` holds them.
 const MAX_MARKS := 200
-
 const MAX_NAME_LENGTH := 32
+const ICONS: Array[String] = ["pin", "star", "danger", "treasure", "camp", "resource"]
 
 var _marks: Array[Dictionary] = []
-
 var _hidden_services: Array[String] = []
-
-var _version: String = ""
-var _master_id: int = 0
+var _grid_overlay := false
 
 
-## Points this at a world and a character, and reads what was stored for the pair.
-##
-## Safe to call repeatedly with the same arguments - it reloads, which is what makes it usable as the "the
-## master changed" hook without a second entry point.
-func use(version: String, master_id: int) -> void:
-	_version = version
-	_master_id = master_id
-	_marks.clear()
-	# A new array rather than a cleared one: the views were handed the old one through the signal.
-	_hidden_services = []
+func _ready() -> void:
+	Notebook.collection_changed.connect(_on_collection_changed)
 
-	if _version.is_empty() or _master_id == 0:
-		marks_changed.emit()
-		hidden_services_changed.emit(_hidden_services)
-		return
 
-	DirAccess.make_dir_recursive_absolute(_dir())
-	_discard_other_versions()
-	_load()
-	_load_hidden_services()
-	marks_changed.emit()
-	hidden_services_changed.emit(_hidden_services)
+## Asks for the marks and preferences of the master now played.
+func watch() -> void:
+	Notebook.watch(MARKS)
+	Notebook.watch(PREFS)
 
 
 ## The service kinds switched off in the legend. Empty - everything shown - for a master who never touched it.
@@ -77,16 +48,22 @@ func hidden_services() -> Array[String]:
 func set_hidden_services(kinds: Array[String]) -> void:
 	if kinds == _hidden_services:
 		return
-
-	_hidden_services = kinds.duplicate()
-	_save_hidden_services()
-	hidden_services_changed.emit(_hidden_services)
+	_write_prefs(kinds, _grid_overlay)
 
 
-## Every mark, as [code]{name, x, y}[/code] with the position in world metres.
+func grid_overlay() -> bool:
+	return _grid_overlay
+
+
+func set_grid_overlay(on: bool) -> void:
+	if on != _grid_overlay:
+		_write_prefs(_hidden_services, on)
+
+
+## Every mark, as [code]{key, revision, name, x, y, icon, note}[/code] with the position in world metres.
 ##
-## The same shape [MapView] gets from [method MapSource.places_of], minus the fields only a world place has,
-## so one drawing path can take both.
+## The same [code]x[/code]/[code]y[/code] shape [MapView] gets from [method MapSource.places_of], so one drawing
+## path can take both.
 func all() -> Array[Dictionary]:
 	return _marks
 
@@ -95,22 +72,27 @@ func count() -> int:
 	return _marks.size()
 
 
-## Adds a mark, returning whether there was room for it.
+## Sends a new mark, returning whether there was room for one and a name to give it.
 ##
-## An empty or whitespace-only name is refused rather than stored blank: a mark with no name is a dot the
-## player cannot tell from the next one, and the popup that calls this can say so.
-func add(mark_name: String, at: Vector2) -> bool:
+## An empty or whitespace-only name is refused rather than stored blank: a mark with no name is a dot the player
+## cannot tell from the next one, and the popup that calls this can say so.
+func add(mark_name: String, at: Vector2, icon: String = "pin") -> bool:
 	var trimmed := mark_name.strip_edges()
 	if trimmed.is_empty() or _marks.size() >= MAX_MARKS:
 		return false
 
-	_marks.append({
-		"name": trimmed.substr(0, MAX_NAME_LENGTH),
-		"x": at.x,
-		"y": at.y,
-	})
-	_save()
-	marks_changed.emit()
+	Notebook.put(MARKS, "", _body(trimmed, at, icon, ""), 0)
+	return true
+
+
+func rename(index: int, mark_name: String) -> bool:
+	var trimmed := mark_name.strip_edges()
+	if index < 0 or index >= _marks.size() or trimmed.is_empty():
+		return false
+
+	var mark := _marks[index]
+	var at := Vector2(float(mark["x"]), float(mark["y"]))
+	Notebook.put(MARKS, mark["key"], _body(trimmed, at, mark["icon"], mark["note"]), mark["revision"])
 	return true
 
 
@@ -118,9 +100,7 @@ func remove(index: int) -> bool:
 	if index < 0 or index >= _marks.size():
 		return false
 
-	_marks.remove_at(index)
-	_save()
-	marks_changed.emit()
+	Notebook.delete(MARKS, _marks[index]["key"], _marks[index]["revision"])
 	return true
 
 
@@ -139,108 +119,64 @@ func nearest(at: Vector2, radius: float) -> int:
 	return best
 
 
-func _dir() -> String:
-	return _ROOT + _version + "/"
+static func _body(mark_name: String, at: Vector2, icon: String, note: String) -> Dictionary:
+	var body := {"name": mark_name.substr(0, MAX_NAME_LENGTH), "east": at.x, "north": at.y, "icon": icon}
+	if not note.is_empty():
+		body["note"] = note
+	return body
 
 
-func _path() -> String:
-	return "%s%d.json" % [_dir(), _master_id]
+func _write_prefs(hidden: Array[String], grid: bool) -> void:
+	Notebook.put(PREFS, Notebook.SINGLE_KEY, {"hiddenServiceKinds": hidden, "gridOverlay": grid})
 
 
-func _hidden_services_path() -> String:
-	return "%s%d.legend.json" % [_dir(), _master_id]
+func _on_collection_changed(collection: String) -> void:
+	if collection == MARKS:
+		_read_marks()
+		marks_changed.emit()
+	elif collection == PREFS:
+		_read_prefs()
 
 
-## Drops the marks of every other world.
-##
-## The same sweep [MapSource] performs on its tile directories, for a stronger reason: a stale tile is only
-## wasted disk, and a stale mark would be a note pointing at ground that has been regenerated into something
-## else. Keeping them could only ever mislead.
-func _discard_other_versions() -> void:
-	var root := DirAccess.open(_ROOT)
-	if root == null:
-		return
-
-	for entry in root.get_directories():
-		if entry == _version:
+## Rebuilt field by field: an entry the companion app wrote reaches the drawing code through here, and a malformed
+## one must cost one mark rather than a crash per frame.
+func _read_marks() -> void:
+	_marks = []
+	for held in Notebook.entries(MARKS):
+		var value: Variant = held["value"]
+		if not value is Dictionary:
 			continue
-
-		var stale := DirAccess.open(_ROOT + entry + "/")
-		if stale == null:
-			continue
-
-		for file in stale.get_files():
-			stale.remove(file)
-		DirAccess.remove_absolute(_ROOT + entry)
-
-
-func _load() -> void:
-	var file := FileAccess.open(_path(), FileAccess.READ)
-	if file == null:
-		return
-
-	var json := JSON.new()
-	if json.parse(file.get_as_text()) != OK or typeof(json.data) != TYPE_ARRAY:
-		push_warning("MapMarks: %s was not readable; starting with none" % _path())
-		return
-
-	# Rebuilt field by field rather than trusted wholesale. This file is on disk where anything can edit it,
-	# and a malformed entry that reached the drawing code would be a crash per frame rather than one bad mark.
-	for entry in json.data:
-		if typeof(entry) != TYPE_DICTIONARY:
-			continue
-		var mark_name := str(entry.get("name", "")).strip_edges()
+		var mark_name := str(value.get("name", "")).strip_edges()
 		if mark_name.is_empty():
 			continue
+		var note: Variant = value.get("note")
 		_marks.append({
-			"name": mark_name.substr(0, MAX_NAME_LENGTH),
-			"x": float(entry.get("x", 0.0)),
-			"y": float(entry.get("y", 0.0)),
+			"key": held["key"],
+			"revision": held["revision"],
+			"name": mark_name,
+			"x": float(value.get("east", 0.0)),
+			"y": float(value.get("north", 0.0)),
+			"icon": str(value.get("icon", "pin")),
+			"note": "" if note == null else str(note),
 		})
-		if _marks.size() >= MAX_MARKS:
-			break
 
 
-func _save() -> void:
-	if _version.is_empty() or _master_id == 0:
-		return
-
-	DirAccess.make_dir_recursive_absolute(_dir())
-	var file := FileAccess.open(_path(), FileAccess.WRITE)
-	if file == null:
-		push_warning("MapMarks: could not write %s; this session's marks are not being kept" % _path())
-		return
-
-	file.store_string(JSON.stringify(_marks))
-
-
-## Reads the hidden kinds, leaving everything shown when there is no file or it will not read.
-##
-## Shown is the safe side to fail to: a legend that lost its settings costs the player a click, while one that
+## Shown and gridless are the defaults to fall back to: a legend that lost its settings costs a click, one that
 ## came back hiding everything would look like a map with no services on it.
-func _load_hidden_services() -> void:
-	var file := FileAccess.open(_hidden_services_path(), FileAccess.READ)
-	if file == null:
-		return
+func _read_prefs() -> void:
+	var prefs := Notebook.document(PREFS)
 
-	var json := JSON.new()
-	if json.parse(file.get_as_text()) != OK or typeof(json.data) != TYPE_ARRAY:
-		push_warning("MapMarks: %s was not readable; showing every service" % _hidden_services_path())
-		return
+	var hidden: Array[String] = []
+	var kinds: Variant = prefs.get("hiddenServiceKinds", [])
+	if kinds is Array:
+		for kind in kinds:
+			if kind is String and kind not in hidden:
+				hidden.append(kind)
+	if hidden != _hidden_services:
+		_hidden_services = hidden
+		hidden_services_changed.emit(_hidden_services)
 
-	for entry in json.data:
-		if typeof(entry) == TYPE_STRING and entry not in _hidden_services:
-			_hidden_services.append(entry)
-
-
-func _save_hidden_services() -> void:
-	if _version.is_empty() or _master_id == 0:
-		return
-
-	DirAccess.make_dir_recursive_absolute(_dir())
-	var file := FileAccess.open(_hidden_services_path(), FileAccess.WRITE)
-	if file == null:
-		push_warning("MapMarks: could not write %s; the legend will reset" % _hidden_services_path())
-		return
-
-	file.store_string(JSON.stringify(_hidden_services))
+	var grid := bool(prefs.get("gridOverlay", false))
+	if grid != _grid_overlay:
+		_grid_overlay = grid
+		grid_overlay_changed.emit(_grid_overlay)

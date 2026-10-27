@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "NotebookProto";
+
+// What a player keeps - routes, map marks, preferences - one store for every kind, shared with the companion app.
+// A collection names the kind; an entry's json is what that kind holds, as the server's NotebookCollection reads it.
+
+message NotebookEntry {
+  string key = 1;
+  // The collection's revision when this entry was last written.
+  uint64 revision = 2;
+  string json = 3;
+}
+
+// Every entry of one collection of the selected master or of the account, and the collection's revision.
+message NotebookSMSG {
+  string collection = 1;
+  uint64 revision = 2;
+  repeated NotebookEntry entries = 3;
+}
+
+message NotebookListCMSG {
+  string collection = 1;
+}
+
+// An empty key lets the server pick one. With a base revision the write only lands while the entry is still at
+// it - 0 for one that must not exist yet; without, the last write wins.
+message NotebookPutCMSG {
+  string collection = 1;
+  string key = 2;
+  string json = 3;
+  optional uint64 base_revision = 4;
+}
+
+message NotebookDeleteCMSG {
+  string collection = 1;
+  string key = 2;
+  optional uint64 base_revision = 3;
+}
+
+// One entry was written or deleted, here or in the companion app, and the collection is now at revision. Also the
+// answer to this client's own put or delete. A revision more than one past the last one seen means one was missed:
+// list the collection again.
+message NotebookChangedSMSG {
+  string collection = 1;
+  string key = 2;
+  uint64 revision = 3;
+  bool deleted = 4;
+  string json = 5;
+}

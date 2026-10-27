@@ -22,12 +22,12 @@ class BusFrameTest {
       ZoneQuery.SendChat(masterId = 7, channel = "PARTY", text = "on my way"),
       ZoneQuery.Compendium(masterId = 7),
       ZoneQuery.SendOnJourney(masterId = 7, playerBestiaId = 11, waypoints = listOf(MapPoint(1.5, 2.5))),
-      ZoneQuery.SendOnJourney(7, playerBestiaId = 11, waypoints = emptyList(), savedRouteId = 3, reverse = true),
+      ZoneQuery.SendOnJourney(7, playerBestiaId = 11, waypoints = emptyList(), routeKey = "k3", reverse = true),
       ZoneQuery.StopJourney(masterId = 7, playerBestiaId = 11),
-      ZoneQuery.SavedRoutes(masterId = 7),
-      ZoneQuery.SaveRoute(masterId = 7, waypoints = listOf(MapPoint(1.0, 2.0), MapPoint(3.0, 4.0)), name = ""),
-      ZoneQuery.RenameRoute(masterId = 7, routeId = 3, name = "Ore run"),
-      ZoneQuery.DeleteRoute(masterId = 7, routeId = 3),
+      ZoneQuery.NotebookList(masterId = 7, collection = "routes"),
+      ZoneQuery.NotebookList(masterId = null, collection = "keybindings"),
+      ZoneQuery.NotebookPut(7, "routes", key = null, json = """{"name":"Ore run"}""", baseRevision = 4),
+      ZoneQuery.NotebookDelete(7, "marks", key = "k3", baseRevision = null),
     )
 
     for (query in queries) {
@@ -77,7 +77,8 @@ class BusFrameTest {
           )
         )
       ),
-      ZoneAnswer.RouteList(listOf(ZoneAnswer.RouteList.Route(3, "Ore run", true, listOf(MapPoint(1.0, 2.0))))),
+      ZoneAnswer.Notebook(5, listOf(ZoneAnswer.Notebook.Entry("k3", 5, """{"name":"Ore run"}"""))),
+      ZoneAnswer.NotebookWritten(6, "k3", null),
       ZoneAnswer.Done,
     )
 
@@ -93,6 +94,7 @@ class BusFrameTest {
       ZoneEvent.BestiaDiedAway(accountId = 1, masterId = 2, playerBestiaId = 3, bestiaName = null, species = "blob"),
       ZoneEvent.ChatLine(accountId = 1, masterId = 2, channel = "GUILD", senderName = "Ayla", text = "hi", sentAtEpochMs = 5),
       ZoneEvent.CompendiumChanged(accountId = 1, masterId = 2),
+      ZoneEvent.NotebookChanged(1, masterId = null, collection = "keybindings", key = "_", revision = 3, deleted = false, json = "{}"),
       ZoneEvent.JourneyEnded(1, 2, 3, "Rex", "wolf", "Ore run", "STUCK", MapPoint(1.0, 2.0), whilePlaying = false),
     )
 
