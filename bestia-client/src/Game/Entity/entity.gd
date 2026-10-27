@@ -121,6 +121,13 @@ var _prediction_deadline_msec: int = 0
 # Whether that walk set off from standing rather than continuing one, which decides what a position push means
 # while it waits - see update_position.
 var _predicted_from_standing: bool = false
+# The walk a continuing prediction replaced, kept until it is answered so that an unanswered one can go back to
+# it. Empty for a prediction from standing, where the server's last position is current and is the way back.
+var _unpredicted_nodes: Array[Vector3] = []
+var _unpredicted_arc: Array[float] = []
+var _unpredicted_was_predicted: bool = false
+var _unpredicted_awaiting_arrival: bool = false
+var _unpredicted_destination: Vector3 = Vector3.ZERO
 
 # Whether the walk currently running is one we started ourselves, as opposed to one the server handed us for
 # somebody else's entity. Outlives _predicted_path, which only covers the wait for confirmation: we stay a
@@ -752,7 +759,8 @@ func update_position(msg: PositionComponent) -> void:
 	if _is_predicted_walk and e < 0.0 and absf(e) <= _SNAP_METRES:
 		return
 
-	_warn_correction("catch-up", absf(e), "server node %d, we are %s it" % [idx, "behind" if e < 0.0 else "ahead of"])
+	# e is where the server is minus where we are, so a negative one has us past it.
+	_warn_correction("catch-up", absf(e), "server node %d, we are %s it" % [idx, "ahead of" if e < 0.0 else "behind"])
 	_error = e
 
 
@@ -801,14 +809,25 @@ func update_path(msg: PathComponentSMSG) -> void:
 ##
 ## A path that starts on [method joining_tile] continues the walk under way from there, as the server does.
 func predict_path(waypoints: Array[Vector3]) -> void:
+	var previous_answered := _predicted_path.is_empty()
 	_predicted_path = waypoints.duplicate()
 	_prediction_deadline_msec = Time.get_ticks_msec() + _prediction_grace_msec()
 
 	var node := _joining_node()
 	_predicted_from_standing = node < 0 or not _same_column(_nodes[node], waypoints[0])
 	if _predicted_from_standing:
+		_unpredicted_nodes.clear()
+		_unpredicted_arc.clear()
 		_follow_path(waypoints)
 	else:
+		# A click on top of a click still unanswered keeps whatever the first of them kept: the walk from before
+		# both, which is the last one the server is known to be on, or nothing if that one set off from standing.
+		if previous_answered:
+			_unpredicted_nodes = _nodes.duplicate()
+			_unpredicted_arc = _arc.duplicate()
+			_unpredicted_was_predicted = _is_predicted_walk
+			_unpredicted_awaiting_arrival = _awaiting_arrival
+			_unpredicted_destination = _predicted_destination
 		_continue_from(node, waypoints, 0)
 
 	_is_predicted_walk = true
@@ -923,7 +942,16 @@ func _prediction_grace_msec() -> int:
 
 
 ## Gives up on an unconfirmed prediction and returns to where the server last said we were.
+##
+## A prediction that continued a walk goes back to that walk instead. The server only reports a walking body
+## every few steps, so the last position it stated is metres behind, and snapping there threw the body back
+## along its own path and then let the next report pull it forward again. The server is still walking the walk
+## it had, so that is the one to keep walking.
 func _abandon_prediction() -> void:
+	if not _unpredicted_nodes.is_empty():
+		_resume_unpredicted()
+		return
+
 	_predicted_path.clear()
 	_nodes.clear()
 	_arc.clear()
@@ -937,6 +965,27 @@ func _abandon_prediction() -> void:
 	_awaiting_arrival = false
 	_logical_position = _server_position
 	_snap_ground_offset()
+
+
+## Puts back the walk a continuing prediction replaced, keeping how far along it we are.
+func _resume_unpredicted() -> void:
+	_nodes = _unpredicted_nodes
+	_arc = _unpredicted_arc
+	_unpredicted_nodes = []
+	_unpredicted_arc = []
+	_predicted_path.clear()
+	_is_predicted_walk = _unpredicted_was_predicted
+	_awaiting_arrival = _unpredicted_awaiting_arrival
+	_predicted_destination = _unpredicted_destination
+
+	# Past the old walk's end only by what the prediction added after it, at most a grace period's walking.
+	var total := _arc[_arc.size() - 1]
+	_travelled = minf(_travelled, total)
+	_seg = mini(_seg, maxi(_nodes.size() - 2, 0))
+	_footfall_node = mini(_footfall_node, _nodes.size() - 1)
+	_faced_seg = -1
+	_error = 0.0
+	_is_moving = _travelled < total
 
 
 ## Anchors a chain of waypoints where the entity currently is and starts walking it.
@@ -1080,12 +1129,19 @@ func _update_animation_from_client(animation_name: String) -> void:
 
 
 func _index_of_node(p: Vector3) -> int:
+	# A walk extended by click after click doubles back over its own tiles, so one tile can be several nodes. The
+	# first of them was taken before, and a report from the far end of a zig-zag then read as the server being
+	# tens of metres behind us - which snapped the body back to where the walk had passed through a minute ago.
+	# The node meant is the one nearest to how far we have come.
 	var best := -1
-	var best_d := 0.5   # must land within half a tile to count as "this node"
+	var best_gap := INF
 	for i in _nodes.size():
 		var d := Vector2(_nodes[i].x - p.x, _nodes[i].z - p.z).length()
-		if d < best_d:
-			best_d = d
+		if d >= 0.5:   # must land within half a tile to count as "this node"
+			continue
+		var gap := absf(_arc[i] - _travelled)
+		if gap < best_gap:
+			best_gap = gap
 			best = i
 	return best
 
