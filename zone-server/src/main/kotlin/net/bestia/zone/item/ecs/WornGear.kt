@@ -19,17 +19,22 @@ class WornGear : Component, Dirtyable {
   var itemIds: Map<EquipmentSlot, Long> = emptyMap()
     private set
 
-  /** Marks the component dirty only when the worn items really changed. */
-  fun show(worn: Map<EquipmentSlot, Long>) {
-    if (worn == itemIds) {
+  /** True while the item in [EquipmentSlot.LIGHT_SOURCE] burns. */
+  var lightLit: Boolean = false
+    private set
+
+  /** Marks the component dirty only when the worn items or the light really changed. */
+  fun show(worn: Map<EquipmentSlot, Long>, lightLit: Boolean = false) {
+    if (worn == itemIds && lightLit == this.lightLit) {
       return
     }
     itemIds = worn
+    this.lightLit = lightLit
     markDirty()
   }
 
   override fun toEntityMessage(entityId: Long, removed: Boolean): EntitySMSG {
-    return WornGearComponentSMSG(entityId, itemIds.map { (slot, itemId) -> slot.ordinal to itemId.toInt() })
+    return WornGearComponentSMSG(entityId, itemIds.map { (slot, itemId) -> slot.ordinal to itemId.toInt() }, lightLit)
   }
 
   override fun syncTargets(world: World, entityId: EntityId): SyncTargets = SyncTargets.PublicInRange
