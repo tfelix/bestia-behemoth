@@ -24,7 +24,7 @@ namespace BestiaBehemothClient.Dev
   /// <para>
   /// Run it with a window, because the headless renderer draws nothing and measures nothing:
   /// <c>DISPLAY=:0 godot --path bestia-client/src --resolution 1600x900 res://Dev/GrassBench/GrassBench.tscn --
-  /// --out=DIR [--label=name] [--budget=1200000] [--fade=150] [--reach=176] [--margin=20] [--chunks=11]
+  /// --out=DIR [--label=name] [--budget=2000000] [--fade=150] [--reach=176] [--margin=20] [--chunks=11]
   /// [--patches | --patch-mask=png] [--pitch=-20] [--zoom=10] [--nolod] [--stats] [--gi-off] [--hide-grass] [--shot-only] [--walk=seconds]
   /// [--set=Property=value,...]</c>.
   /// </para>
