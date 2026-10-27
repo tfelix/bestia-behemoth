@@ -372,6 +372,7 @@ func _warn_correction(kind: String, metres: float, detail: String = "") -> void:
 ## measures the body as drawn instead, so whatever the eye sees as a snap has a line here with its cause.
 const _JERK_HORIZONTAL_SLACK_METRES: float = 0.15
 const _JERK_VERTICAL_METRES: float = 0.25
+const _WALK_BACK_METRES: float = 6.0   # farther than an unanswered click can have walked; past it, snap
 const _ONE_STEP_METRES: float = 1.5   # a diagonal step, sqrt(2), and some slack
 var _last_drawn: Vector3 = Vector3.ZERO
 # What last rebuilt or moved the walk outside the frame's own advance, for the [jerk] line. Cleared each frame.
@@ -978,6 +979,15 @@ func _abandon_prediction() -> void:
 		return
 
 	_predicted_path.clear()
+
+	# Walked back rather than put back, when it is near: a click refused from standing has taken the body at most a
+	# grace period's walk from where the server holds it, and a teleport of a couple of metres reads as a snap where
+	# turning round does not. The server's own route, if it plans one, takes over from wherever this has got to.
+	if _ground_distance(_logical_position, _server_position) <= _WALK_BACK_METRES:
+		_note_cause("abandon click, walk back to server position")
+		_follow_path([_server_position])
+		return
+
 	_nodes.clear()
 	_arc.clear()
 	_seg = 0
@@ -1091,6 +1101,9 @@ func _stop_at(msg: PathComponentSMSG) -> void:
 		_has_position = true
 		_note_cause("stop")
 		_logical_position = msg.StopPosition
+		# What the server last said, as much as a position push is. Left behind, an abandoned click afterwards went
+		# back to where the entity had stood before this walk - metres from where it now is.
+		_server_position = msg.StopPosition
 		_snap_ground_offset()   # applies the position too
 
 	_nodes.clear()

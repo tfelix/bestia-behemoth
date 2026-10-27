@@ -461,7 +461,11 @@ func move_to(destination: Vector3) -> void:
 	if walking:
 		path.push_front(join)
 
-	var waypoints: Array[Vector3] = [destination]
+	# The tile the path was drawn to, not the raw click: the path floors it into a tile and the wire rounds it, so
+	# every click in the upper half of a tile named the neighbour as the destination. The server then saw a leg that
+	# stopped one short of its goal, planned its own over it, and the client - not recognising that answer as its own
+	# click - waited it out and snapped back.
+	var waypoints: Array[Vector3] = [TileSpace.world_to_tile(destination)]
 	var msg = MoveEntityCMSG.new()
 	msg.EntityId = owned_entity.entity_id
 	msg.Waypoints = waypoints
