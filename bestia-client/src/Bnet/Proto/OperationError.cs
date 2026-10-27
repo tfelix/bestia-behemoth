@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSquEgoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSrKEgoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -78,8 +78,9 @@ namespace Bnet {
             "RVhQRUxMRUQQVRIPCgtST1VURV9MSU1JVBBWEhgKFEFVQ1RJT05fT1VUX09G",
             "X1JBTkdFEFcSGQoVQVVDVElPTl9MSVNUSU5HX0xJTUlUEFgSHQoZQVVDVElP",
             "Tl9DQU5OT1RfQUZGT1JEX0ZFRRBZEhgKFEFVQ1RJT05fTElTVElOR19HT05F",
-            "EFoSGQoVQVVDVElPTl9DQU5OT1RfQUZGT1JEEFtCLAoVbmV0LmJlc3RpYS5i",
-            "bmV0LnByb3RvQhNPcGVyYXRpb25FcnJvclByb3RvYgZwcm90bzM="));
+            "EFoSGQoVQVVDVElPTl9DQU5OT1RfQUZGT1JEEFsSGgoWTElHSFRfU09VUkNF",
+            "X0JVUk5UX09VVBBcQiwKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0ITT3BlcmF0",
+            "aW9uRXJyb3JQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -436,6 +437,10 @@ namespace Bnet {
     /// The purse does not hold the price.
     /// </summary>
     [pbr::OriginalName("AUCTION_CANNOT_AFFORD")] AuctionCannotAfford = 91,
+    /// <summary>
+    /// The last torch in the light slot burnt out and the bag holds no other one to light.
+    /// </summary>
+    [pbr::OriginalName("LIGHT_SOURCE_BURNT_OUT")] LightSourceBurntOut = 92,
   }
 
   #endregion

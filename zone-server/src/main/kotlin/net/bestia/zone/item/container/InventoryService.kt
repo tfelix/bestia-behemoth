@@ -262,6 +262,27 @@ class InventoryService(
   }
 
   /**
+   * Saves the wear a worn copy has burnt down to. A plain update of one column: it touches no container, and the
+   * caller's job key orders it after the equip that made the copy.
+   */
+  @Transactional
+  fun recordWear(uniqueId: Long, durability: Int) {
+    itemInstanceRepository.updateDurability(uniqueId, durability)
+  }
+
+  /** Takes the light worn in [slot] off and deletes it: it burnt out, nothing is left of it. */
+  @Transactional
+  fun burnOut(masterId: Long, playerBestiaId: PlayerBestiaId?, slot: EquipmentSlot): Boolean {
+    val burnt = withOwnerContainer(masterId, playerBestiaId) { container ->
+      container.unequip(slot)?.uniqueId?.let { container.takeInstance(it) }
+    } ?: return false
+
+    itemInstanceRepository.delete(burnt)
+
+    return true
+  }
+
+  /**
    * Takes every stack in [inputs] off a master's container (or its bestia's, when [playerBestiaId] is set) in one
    * transaction, or nothing at all.
    *

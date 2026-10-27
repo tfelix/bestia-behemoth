@@ -252,6 +252,8 @@ enum OpError {
   AUCTION_LISTING_GONE = 90;
   // The purse does not hold the price.
   AUCTION_CANNOT_AFFORD = 91;
+  // The last torch in the light slot burnt out and the bag holds no other one to light.
+  LIGHT_SOURCE_BURNT_OUT = 92;
 }
 
 message OperationError {

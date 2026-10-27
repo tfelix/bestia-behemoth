@@ -68,6 +68,8 @@ class EquipmentChanges(
     if (foldsBack(removed)) {
       inventory?.foldBack(removed.uniqueId)
     } else {
+      // The slot knew the wear better while the copy was worn: a torch burns down in the slot, not in the bag.
+      inventory?.mirrorWear(removed.uniqueId, removed.durability, removed.maxDurability)
       inventory?.setEquipped(removed.uniqueId, false)
     }
 

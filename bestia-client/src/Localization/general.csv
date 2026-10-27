@@ -368,6 +368,7 @@ ERROR_AUCTION_LISTING_LIMIT,You have as many goods up for sale as you may. Let o
 ERROR_AUCTION_CANNOT_AFFORD_FEE,You cannot pay the listing fee.
 ERROR_AUCTION_LISTING_GONE,That listing is no longer for sale.
 ERROR_AUCTION_CANNOT_AFFORD,You cannot afford that.
+ERROR_LIGHT_SOURCE_BURNT_OUT,Your last torch burnt out.
 AUCTION_TITLE,Auction House of %s
 AUCTION_LINKED,"Shared market: %s"
 AUCTION_TAB_BROWSE,Browse
