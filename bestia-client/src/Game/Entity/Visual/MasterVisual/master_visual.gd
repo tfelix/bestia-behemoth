@@ -1,5 +1,7 @@
 class_name MasterVisual extends Visual
 
+const CarriedLightScn := preload("res://Game/Entity/Visual/MasterVisual/CarriedLight/CarriedLight.tscn")
+
 # TODO implement a failsafe where the client sends out a sync request
 #  if it thinks after a certain time not all entities are there e.g. the master.
 
@@ -15,10 +17,13 @@ var _selected: bool = false
 @onready var _cast_bar: CastBar = $CastBar
 @onready var _name_tag = $NameTag
 @onready var _skeleton: Skeleton3D = $Mage/Rig/Skeleton3D
+@onready var _left_hand: Node3D = $Mage/Rig/Skeleton3D/handslot_l
 
 var _look: MasterVisualComponentSMSG = null
 var _worn_gear: WornGearComponentSMSG = null
 var _parts: MasterParts = null
+## Made on the first light worn, then kept and only switched, since a torch is put on every evening.
+var _carried_light: CarriedLight = null
 
 
 ## Every body type is a set of parts on the Mage's rig, so the Mage's skeleton and animations serve all.
@@ -60,6 +65,7 @@ func _apply_worn_gear() -> void:
 		return
 	var parts: Array[String] = []
 	var hide_hair := false
+	var light: ItemResource = null
 	for item_id in _worn_gear.ItemIds:
 		var item := ItemDB.get_instance().get_item(item_id)
 		if item == null:
@@ -67,7 +73,20 @@ func _apply_worn_gear() -> void:
 		if item.worn_part != "":
 			parts.append(item.worn_part)
 		hide_hair = hide_hair or item.hides_hair
+		if EquipmentSlot.from_item_value(item.equip_slot) == EquipmentSlot.Slot.LIGHT_SOURCE:
+			light = item
 	_parts.wear(parts, hide_hair)
+	_carry_light(light)
+
+
+func _carry_light(light: ItemResource) -> void:
+	if _carried_light == null:
+		if light == null:
+			return
+		_carried_light = CarriedLightScn.instantiate()
+		add_child(_carried_light)
+		_carried_light.follow(_left_hand)
+	_carried_light.show_light(light, _worn_gear.LightLit)
 
 
 func set_guild_tag(tag: GuildTagComponentSMSG) -> void:
