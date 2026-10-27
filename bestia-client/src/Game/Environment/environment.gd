@@ -176,7 +176,7 @@ signal lightning_struck(ground: Vector3)
 @export_range(2, 200, 1) var whiteout_fog_end: float = 60.0
 
 ## How far up the sky the haze reaches, clear air to a whiteout, as the sine of an elevation.
-@export_range(0, 1, 0.01) var clear_haze_height: float = 0.08
+@export_range(0, 1, 0.01) var clear_haze_height: float = 0.035
 @export_range(0, 1, 0.01) var max_haze_height: float = 0.6
 
 @export_subgroup("Lightning")

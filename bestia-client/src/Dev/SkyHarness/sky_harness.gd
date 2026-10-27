@@ -10,6 +10,7 @@ extends Node3D
 
 ## WeatherSMSG.Kind ordinals. The C# enum is nested in the message class, where GDScript cannot name it.
 const CLEAR := 0
+const CLOUDY := 1
 const THUNDERSTORM := 5
 
 ## name, hour, day of the month, weather kind, cloud cover, wind m/s, mood strength, which way to look.
@@ -19,6 +20,8 @@ const SHOTS := [
 	["sunset", 20.95, 15, CLEAR, 0.35, 4.0, 0.0, "sun"],
 	["night_full_moon", 1.0, 15, CLEAR, 0.25, 3.0, 0.0, "moon"],
 	["night_crescent", 4.6, 27, CLEAR, 0.2, 3.0, 0.0, "moon"],
+	# What a live server sent on 2026-10-27: a dry grey day with a gale under it.
+	["cloudy_gale", 12.0, 15, CLOUDY, 0.71, 20.0, 0.0, "anti_sun"],
 	["storm", 15.0, 15, THUNDERSTORM, 1.0, 18.0, 0.0, "anti_sun"],
 	["doomsday", 20.8, 15, CLEAR, 0.4, 5.0, 1.0, "sun"],
 ]

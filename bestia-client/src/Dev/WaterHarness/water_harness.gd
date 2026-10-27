@@ -19,6 +19,8 @@ const THUNDERSTORM := 5
 const SHOTS := [
 	["sunny", 12.0, CLEAR, 0.1, 2.0],
 	["overcast", 12.0, CLOUDY, 0.7, 7.0],
+	# What a live server sent on 2026-10-27: a dry grey day with a gale under it.
+	["cloudy_gale", 12.0, CLOUDY, 0.71, 20.0],
 	["storm", 12.0, THUNDERSTORM, 1.0, 18.0],
 ]
 

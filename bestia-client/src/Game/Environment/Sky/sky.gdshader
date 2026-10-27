@@ -82,8 +82,16 @@ uniform vec2 cloud_offset = vec2(0.0);
 // nothing.
 uniform float cloud_altitude = 220.0;
 
+// How far the deck bends down toward the horizon. Small keeps it flat, so clouds near the horizon flatten to
+// slivers in the haze; the game camera only ever sees the lowest twenty degrees of sky, so it needs clouds
+// that still stand up there.
+uniform float deck_curve : hint_range(0.02, 1.0) = 0.35;
+
+// Elevation, as a sine, over which clouds fade into the haze at the horizon.
+uniform float cloud_horizon_fade : hint_range(0.0, 0.3) = 0.03;
+
 // Metres across one noise tile. Larger means fewer, bigger clouds.
-uniform float cloud_tile_metres = 2600.0;
+uniform float cloud_tile_metres = 1800.0;
 
 // How many flat light bands a cloud is painted in. The painted look is in these steps.
 uniform float cloud_bands : hint_range(1.0, 8.0) = 3.0;
@@ -214,7 +222,7 @@ vec3 stars(vec3 eye) {
 // Where the eye ray meets the cloud deck, in metres. The divisor is lifted so the deck curves away like the
 // ground does, rather than running out to infinity at the horizon.
 vec2 deck_point(vec3 eye) {
-	return eye.xz / (eye.y + 0.12) * cloud_altitude;
+	return eye.xz / (eye.y + deck_curve) * cloud_altitude;
 }
 
 // The large shapes only: where clouds are and the big puffs they are heaped from. Shading reads this, so a
@@ -226,16 +234,21 @@ float cloud_mass(vec2 uv) {
 float cloud_density(vec2 metres) {
 	vec2 uv = (metres - cloud_offset) / cloud_tile_metres;
 
-	// The small puffs only shape the outline.
-	return cloud_mass(uv) * 0.88 + texture(cloud_puffs, uv * 6.1 + 0.71).r * 0.12;
+	// The small puffs only shape the outline: two sizes of them, so the edge is heaped from lobes on lobes the way
+	// a cumulus is, rather than one row of equal bumps.
+	return cloud_mass(uv) * 0.82 + texture(cloud_puffs, uv * 6.1 + 0.71).r * 0.12
+		+ texture(cloud_puffs, uv * 14.3 + 0.29).r * 0.06;
 }
 
 // How much of the deck at this density counts as cloud. Coverage lowers the threshold, thickness sharpens
 // and fills the cores.
 float cloud_cover_at(float density) {
 	// Curved so that the reported cover reads as roughly that share of the sky.
-	float threshold = mix(0.72, 0.2, pow(cloud_coverage, 1.4));
-	float softness = mix(0.05, 0.10, cloud_thickness);
+	float threshold = mix(0.72, 0.2, pow(cloud_coverage, 2.0));
+
+	// A painted cloud has a crisp outline. The noise is magnified many times over a cloud near the zenith, so a
+	// softness in density units smeared that outline over a fifth of the screen; a pixel or two does not.
+	float softness = max(fwidth(density) * 1.5, 0.004) + 0.02 * cloud_thickness;
 	float cover = smoothstep(threshold - softness, threshold + softness, density);
 
 	// The last stretch toward a closed deck fills the gaps outright. Noise alone never quite closes, and an
@@ -259,26 +272,35 @@ vec4 cumulus(vec3 eye, bool painted) {
 	// Lit where the cloud thins toward the light and shaded where it thickens: the slope of the density
 	// toward the light, not how much cloud there is. So each puff gets a bright side and a shaded side, and
 	// the inside of a big cloud stays bright instead of all falling into shadow.
+	// Sampled a big puff away, not a small one: a short step finds every dip inside a cloud and paints it as a
+	// shaded hollow, the dark blue "eyes" that made a deck read as camouflage rather than as cumulus.
 	vec2 toward_light = normalize(cloud_light_direction.xz + vec2(0.0001));
 	vec2 uv = (here - cloud_offset) / cloud_tile_metres;
 	float mass = cloud_mass(uv);
-	float slope = mass - cloud_mass(uv + toward_light * 0.015);
-	float blocked = clamp(-slope * 5.0, 0.0, 1.0);
-	float light = clamp(0.8 + slope * 4.5, 0.0, 1.0);
+	float slope = mass - cloud_mass(uv + toward_light * 0.04);
+	float blocked = clamp(-slope * 4.0, 0.0, 1.0);
+	float light = clamp(0.95 + slope * 3.0, 0.45, 1.0);
+
+	// The side of a cloud nearest the viewer is its base, seen from below, and the base is in its own shade.
+	// That is what gives a painted cumulus a bright heaped top over a flat grey-blue underside.
+	vec2 outward = normalize(eye.xz + vec2(0.0001));
+	float base = clamp((mass - cloud_mass(uv - outward * 0.03)) * 6.0, 0.0, 1.0);
+	// Straight overhead "nearest the viewer" has no direction, so the base shading fades out toward the zenith.
+	light *= 1.0 - 0.45 * base * (1.0 - smoothstep(0.6, 0.95, eye.y));
 
 	// Thick cloud is darker underneath, which is most of what the eye sees from below. In a storm that is
 	// what breaks a closed deck into dark heavy masses instead of a flat grey sheet.
-	light *= 1.0 - cloud_thickness * smoothstep(0.3, 0.7, mass) * 0.7;
+	light *= 1.0 - cloud_thickness * smoothstep(0.3, 0.7, mass) * 0.45;
 
 	// Painted steps: flat bands with a narrow blend between them, rather than a smooth ramp.
 	if (painted) {
 		float scaled = light * cloud_bands;
 		float band = floor(scaled);
-		light = (band + smoothstep(0.25, 0.75, fract(scaled))) / cloud_bands;
+		light = (band + smoothstep(0.2, 0.8, fract(scaled))) / cloud_bands;
 	}
 
 	// Heavy cloud is grey even where it is lit; that, more than the cover, is what makes a storm sky.
-	vec3 lit = cloud_lit_colour * (1.0 - 0.6 * cloud_thickness);
+	vec3 lit = cloud_lit_colour * (1.0 - 0.45 * cloud_thickness);
 	vec3 shaded = cloud_shadow_colour * (1.0 - 0.7 * cloud_thickness);
 	vec3 colour = mix(shaded, lit, light);
 
@@ -291,7 +313,7 @@ vec4 cumulus(vec3 eye, bool painted) {
 	colour += flash_colour * flash * (0.6 + 0.8 * cover);
 
 	// Far clouds sink into the haze rather than meeting the horizon as a hard band.
-	float opacity = cover * smoothstep(0.0, 0.12, eye.y);
+	float opacity = cover * smoothstep(0.0, cloud_horizon_fade, eye.y);
 
 	return vec4(colour, opacity);
 }

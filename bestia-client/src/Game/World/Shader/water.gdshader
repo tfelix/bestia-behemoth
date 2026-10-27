@@ -24,8 +24,9 @@ uniform vec3 storm_deep_colour : source_color = vec3(0.15, 0.25, 0.29);
 // How far toward the storm colours a full overcast goes. Zero keeps the sunny colours in every weather.
 uniform float storm_tint : hint_range(0.0, 1.0) = 0.85;
 
-// Cloud cover below this leaves the colour alone, so a few clouds on a fine day do not grey the sea.
-uniform float storm_tint_start : hint_range(0.0, 1.0) = 0.35;
+// Cloud cover below this leaves the colour alone, so a few clouds on a fine day do not grey the sea. Above a
+// cloudy sky's floor of 0.55, so a dry grey day keeps the water blue and only rain clouds turn it.
+uniform float storm_tint_start : hint_range(0.0, 1.0) = 0.6;
 
 // Metres of water column before the colour is mostly `deep_colour`. Exponential, so a scale length.
 uniform float absorption_distance : hint_range(0.2, 40.0) = 2.4;
@@ -89,9 +90,11 @@ uniform float wave_speed : hint_range(0.0, 1.0) = 0.045;
 uniform float wave_strength : hint_range(0.0, 2.0) = 0.1;
 uniform float storm_wave_strength : hint_range(0.0, 2.0) = 1.1;
 
-// Wind speeds in m/s, read from `weather_wind`, between which the waves grow from calm to storm.
-uniform float calm_wind_speed : hint_range(0.0, 40.0) = 3.0;
-uniform float storm_wind_speed : hint_range(0.0, 40.0) = 16.0;
+// Wind speeds in m/s, read from `weather_wind`, between which the waves grow from calm to storm. High, because
+// the server's wind is 3 + 22 m/s of gust and averages near 14: a storm at 16 had every other dry, grey day
+// throwing whitecaps across the whole sea.
+uniform float calm_wind_speed : hint_range(0.0, 40.0) = 8.0;
+uniform float storm_wind_speed : hint_range(0.0, 40.0) = 28.0;
 
 // Fraction of the wind's drift the ripples travel with, so storm waves run downwind.
 uniform float wind_follow : hint_range(0.0, 0.2) = 0.03;
@@ -299,7 +302,8 @@ void fragment() {
 	float glow = (1.0 - smoothstep(0.0, 2.5, water_depth / foam_distance)) * shore_glow;
 
 	float crest = smoothstep(0.82 - foam_softness, 0.82 + foam_softness, here / (1.0 + chop) + breakup * 0.25);
-	float caps = crest * storm * whitecaps;
+	// Only the top of the storm range breaks, so a dry gale ruffles the water without flecking all of it.
+	float caps = crest * smoothstep(0.7, 1.0, storm) * whitecaps;
 
 	float foam = clamp(max(max(band, streaks), max(caps, glow)), 0.0, 1.0) * level_face;
 	albedo = mix(albedo, foam_colour, foam);
