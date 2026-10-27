@@ -105,7 +105,7 @@ namespace BestiaBehemothClient.Game.World
     ///
     /// <para>
     /// <b>This does not hold coverage, and it is not meant to.</b> The field at 8.6 tufts of 1.26 m hid about
-    /// three quarters of its ground; eleven of 0.68 m hide about half of it, because the height came down
+    /// three quarters of its ground; nine of 0.68 m hide about two fifths of it, because the height came down
     /// twice and the count only went up once. What is uncovered is the terrain's own grass texture, which is
     /// the right thing to be looking at - a shorter field is a thinner one, and pretending otherwise is what
     /// makes short grass read as moss. <b>Raise this first if it reads too sparse</b>, since it is the only
@@ -133,8 +133,14 @@ namespace BestiaBehemothClient.Game.World
     /// sometimes the trade wanted. It is not the same as a denser field everywhere, and it is the opposite of
     /// what a horizon that looks thin is asking for.
     /// </para>
+    ///
+    /// <para>
+    /// Nine rather than the eleven it was, chosen in <c>Dev/GrassBench</c> together with the 2 M
+    /// <see cref="MaxVisibleTriangles"/>: the tufts the near field gives up let the budget carry the field to
+    /// the fade radius at about the same frame time.
+    /// </para>
     /// </remarks>
-    [Export(PropertyHint.Range, "0,20,0.1")] public float Density { get; set; } = 11.0f;
+    [Export(PropertyHint.Range, "0,20,0.1")] public float Density { get; set; } = 9.0f;
 
     /// <summary>How much faster than the turf itself the tufts thin out where the ground is only partly grass.</summary>
     /// <remarks>
@@ -324,12 +330,18 @@ namespace BestiaBehemothClient.Game.World
     /// </para>
     ///
     /// <para>
+    /// <b>The count is an upper bound, not what the GPU draws.</b> Godot's own mesh LOD thins the near tufts
+    /// further, so it draws about half of what is counted here. Judge the setting by frame time - F8 in
+    /// <c>RenderDebug</c>, or <c>Dev/GrassBench</c> - not by this number.
+    /// </para>
+    ///
+    /// <para>
     /// <b>What it buys is a flat cost across the whole zoom range and the whole radius.</b> The count is the
     /// same whether the camera is at 8 m or at 36 m; what changes is the exponent, and so how quickly the field
     /// thins with distance. Bring this down first if the field costs more than it is worth.
     /// </para>
     /// </remarks>
-    [Export(PropertyHint.Range, "0,8000000,50000")] public int MaxVisibleTriangles { get; set; } = 1_200_000;
+    [Export(PropertyHint.Range, "0,8000000,50000")] public int MaxVisibleTriangles { get; set; } = 2_000_000;
 
     /// <summary>
     /// How much wider than the camera's own field of view to count ground as visible, in degrees.
@@ -353,7 +365,7 @@ namespace BestiaBehemothClient.Game.World
     /// <summary>How steeply the field may be made to thin with distance to fit its budget.</summary>
     /// <remarks>
     /// The ceiling on <see cref="GrassLod.Sharpen"/>'s exponent. Six is well above what a grassy view volume
-    /// asks for at the default settings - which settles near 2.3 - and exists so that a pathological view
+    /// asks for at the default settings - which settles near 1.2 in an open meadow - and exists so that a pathological view
     /// cannot drive the far field to nothing in one step.
     ///
     /// <para>
@@ -400,7 +412,7 @@ namespace BestiaBehemothClient.Game.World
     /// A backstop rather than a knob. It is applied by scaling <see cref="Density"/> down for the chunk that
     /// would exceed it, so a capped chunk is uniformly thinner rather than bare on one side - but a chunk that
     /// hits it is drawn at a density its neighbours are not, which is a seam. The default is above what a
-    /// wholly grassy 32 m chunk asks for - 1024 square metres at 11.0 is about 11,300 - so nothing reaches it
+    /// wholly grassy 32 m chunk asks for - 1024 square metres at 9.0 is about 9,200 - so nothing reaches it
     /// in ordinary play. <b>It has to move whenever <see cref="Density"/> does</b>, or the greenest ground in
     /// the world is the only ground that gets thinned.
     ///
