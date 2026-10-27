@@ -78,7 +78,10 @@ class InventoryService(
     grantToOwner(masterId, null, itemId, amount, uniqueId, roll, provenance, freshInstanceIds)
   }
 
-  /** [grantToMaster] for whichever entity holds the item: the master when [playerBestiaId] is null. */
+  /**
+   * [grantToMaster] for whichever entity holds the item: the master when [playerBestiaId] is null. Answers the
+   * instance [uniqueId] names when one was re-attached, so the caller can show its real wear.
+   */
   @Transactional
   fun grantToOwner(
     masterId: Long,
@@ -89,8 +92,8 @@ class InventoryService(
     roll: ItemRoll? = null,
     provenance: ItemProvenance? = null,
     freshInstanceIds: List<Long> = emptyList()
-  ) {
-    withOwnerContainer(masterId, playerBestiaId) { container ->
+  ): ItemInstance? {
+    return withOwnerContainer(masterId, playerBestiaId) { container ->
       val item = itemRepository.findByIdOrNull(itemId) ?: throw ItemNotFoundException(itemId.toString())
       grant(container, item, amount, uniqueId, roll, provenance, freshInstanceIds)
     }
@@ -635,7 +638,7 @@ class InventoryService(
     roll: ItemRoll? = null,
     provenance: ItemProvenance? = null,
     freshInstanceIds: List<Long> = emptyList()
-  ) {
+  ): ItemInstance? {
     require(amount > 0) { "amount > 0 required, was $amount" }
     require(freshInstanceIds.isEmpty() || freshInstanceIds.size == amount) {
       "${freshInstanceIds.size} instance ids for $amount copies of item ${item.id}"
@@ -644,7 +647,9 @@ class InventoryService(
     when {
       uniqueId != 0L -> {
         // Re-attach an instance that already exists (e.g. it was lying on the ground).
-        container.addInstance(itemInstanceRepository.findByIdOrThrow(uniqueId))
+        val reattached = itemInstanceRepository.findByIdOrThrow(uniqueId)
+        container.addInstance(reattached)
+        return reattached
       }
 
       item.stackable -> container.addStackable(item, amount, provenance)
@@ -661,5 +666,7 @@ class InventoryService(
         container.addInstance(itemInstanceRepository.save(instance))
       }
     }
+
+    return null
   }
 }
