@@ -50,36 +50,33 @@ group_uniforms Foam;
 uniform vec3 foam_colour : source_color = vec3(0.95, 0.98, 1.0);
 
 // Water column in metres over which the shore foam fades out.
-uniform float foam_distance : hint_range(0.05, 4.0) = 0.18;
+uniform float foam_distance : hint_range(0.05, 4.0) = 0.35;
 
 // Metres across the surface the shore foam reaches where the bed is too steep for `foam_distance` to show it.
-uniform float foam_width : hint_range(0.1, 4.0) = 0.4;
+uniform float foam_width : hint_range(0.1, 4.0) = 0.6;
 
 // How far out from the waterline the shore is looked for, and over how deep a column. The streaks reach
 // `streak_reach` foam widths, so a search shorter than that cuts them off. Zero turns the search off.
 uniform float shore_search_metres : hint_range(0.0, 6.0) = 1.8;
 uniform float shore_search_depth : hint_range(0.0, 6.0) = 2.5;
 
-// How ragged the shore band is: how far the breakup noise pushes its inner edge in and out, in foam widths.
-uniform float foam_breakup : hint_range(0.0, 2.0) = 0.3;
-
 // Width of the soft edge on every foam shape. Small keeps the cartoon look; zero would alias.
 uniform float foam_softness : hint_range(0.005, 0.3) = 0.04;
 
 // Soft wisps of foam lying along the shore beyond the band, drifting in toward it.
-uniform float streak_strength : hint_range(0.0, 1.0) = 0.6;
+uniform float streak_strength : hint_range(0.0, 1.0) = 0.85;
 
 // Streaks per foam width, and how many foam widths out from the shore they reach.
-uniform float streak_density : hint_range(0.5, 6.0) = 1.0;
-uniform float streak_reach : hint_range(1.0, 8.0) = 3.5;
+uniform float streak_density : hint_range(0.5, 6.0) = 2.0;
+uniform float streak_reach : hint_range(1.0, 8.0) = 2.4;
 
 // Width of one streak as a fraction of the gap between two. Wider reads softer.
-uniform float streak_width : hint_range(0.02, 0.5) = 0.12;
+uniform float streak_width : hint_range(0.02, 0.5) = 0.2;
 
 uniform float streak_speed : hint_range(0.0, 1.0) = 0.12;
 
 // A whitish wash over the shallows just past the band, so the foam fades into the water instead of ending.
-uniform float shore_glow : hint_range(0.0, 1.0) = 0.12;
+uniform float shore_glow : hint_range(0.0, 1.0) = 0.15;
 
 // Foam on wave crests in a storm, scaled by the same wind factor as the waves.
 uniform float whitecaps : hint_range(0.0, 1.0) = 0.6;
@@ -311,10 +308,10 @@ void fragment() {
 	vec3 behind_world = (INV_VIEW_MATRIX * vec4(behind_view, 1.0)).xyz;
 	float water_depth = clamp(v_world_pos.y - behind_world.y, 0.0, max_depth);
 
-	// Near a shore the water reads as though its bed rose at `foam_distance` per `foam_width` to the waterline,
-	// however the bed is really shaped, and the foam, streaks and glow are drawn from that. Not the colour: a
-	// search this coarse draws its own shape, and a whole pale octagon round every rock shows it. Only
-	// searched over shallow water: the open sea is never within reach of land.
+	// Where the bed steps up to the shore, the water reads as though it rose at `foam_distance` per `foam_width`
+	// to the waterline, and the foam, streaks and glow are drawn from that. Not the colour: a search this coarse
+	// draws its own shape, and a whole pale octagon round every rock shows it. Only searched over shallow water:
+	// the open sea is never within reach of land.
 	float foam_depth = water_depth;
 	if (shore_search_metres > 0.0 && water_depth < shore_search_depth && FRONT_FACING) {
 		// The taps turned by slow noise, so the straight sides a fixed star of directions draws into the foam's
@@ -323,7 +320,12 @@ void fragment() {
 		float to_shore = shore_metres(v_world_pos, spin, VIEW_MATRIX, PROJECTION_MATRIX, INV_PROJECTION_MATRIX,
 			INV_VIEW_MATRIX);
 		if (to_shore < shore_search_metres) {
-			foam_depth = min(water_depth, to_shore * foam_distance / foam_width);
+			// Only where the bed is a step. On a sloping bed the column is already a good measure of the
+			// shore, and the coarse search would only roughen the foam it draws; on a step the water is far
+			// deeper than any slope would leave it this close to land, and that is how a step is told apart.
+			float sloped = to_shore * foam_distance / foam_width;
+			float step = smoothstep(1.3, 2.0, water_depth / max(sloped, 0.001));
+			foam_depth = mix(water_depth, min(water_depth, sloped), step);
 		}
 	}
 
@@ -377,7 +379,7 @@ void fragment() {
 	// noise is finer than the waves so the band is ragged rather than a contour of the depth.
 	float breakup = texture(wave_noise, wave_uv(v_world_pos.xz, wave_scale * 0.12, vec2(2.0, 0.0), TIME)).r;
 	float shore = 1.0 - clamp(foam_depth / foam_distance, 0.0, 1.0);
-	float band = smoothstep(0.5 - foam_softness, 0.5 + foam_softness, shore + (breakup - 0.5) * foam_breakup);
+	float band = smoothstep(0.5 - foam_softness, 0.5 + foam_softness, shore + (breakup - 0.5) * 1.1);
 
 	// Streaks follow the depth contours, so they lie along any shore without knowing its direction. Coarse
 	// noise bends the contours and thins them out in patches; nothing is cut hard, so no dash ends show.
