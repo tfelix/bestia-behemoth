@@ -8,6 +8,7 @@ import net.bestia.zone.battle.ecs.status.IsStatusValueDirty
 import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.item.ecs.Equipment
+import net.bestia.zone.item.ecs.EquipmentChanges
 import net.bestia.zone.item.ecs.Inventory
 import net.bestia.zone.item.persistence.ItemRepository
 import net.bestia.zone.item.container.InventoryService
@@ -43,6 +44,7 @@ class EquipmentRevalidationService(
   private val world: WorldView,
   private val itemRepository: ItemRepository,
   private val equipmentService: EquipmentService,
+  private val equipmentChanges: EquipmentChanges,
   private val noviceGate: NoviceGate,
   private val inventoryService: InventoryService,
   private val asyncJobExecutor: AsyncJobExecutor,
@@ -132,8 +134,7 @@ class EquipmentRevalidationService(
           continue
         }
 
-        equipment.unequip(piece.slot) ?: continue
-        inventory?.setEquipped(piece.uniqueId, false)
+        equipmentChanges.takeOff(equipment, inventory, piece.slot) ?: continue
         removed.add(entry)
       }
 
