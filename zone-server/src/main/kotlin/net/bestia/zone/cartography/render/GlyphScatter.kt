@@ -102,8 +102,11 @@ object GlyphScatter {
     val cols = (toX - fromX + 1).toInt()
     val rows = (toY - fromY + 1).toInt()
     val placed = arrayOfNulls<Placed>(cols * rows)
+    // Over every candidate cell, slack ring included, not only the bounds: a candidate out there decides its
+    // neighbours' fate, so ground that blocks it has to be seen by every tile that looks at it.
+    val candidates = Aabb(fromX * pitch, fromY * pitch, (toX + 1) * pitch, (toY + 1) * pitch)
     val clearance = Clearance.of(
-      inputs, bounds, sizePixels * CLEARANCE_GLYPHS * view.metresPerPixel, avoid, keepOffSettlements
+      inputs, candidates, sizePixels * CLEARANCE_GLYPHS * view.metresPerPixel, avoid, keepOffSettlements
     )
 
     for (cellY in fromY..toY) {
@@ -405,10 +408,14 @@ object GlyphScatter {
       ): Clearance {
         val cell = margin.coerceAtLeast(MIN_CLEARANCE_METRES)
         val area = bounds.expanded(cell * PLACE_CLEARANCE_CELLS)
-        val cols = ceil(area.width / cell).toInt() + 1
-        val rows = ceil(area.height / cell).toInt() + 1
+        // On whole cells of the world, not from the area's corner: two tiles with different corners would cut the
+        // ground into different cells and disagree about which of them a road or a field blocks.
+        val minX = floor(area.minX / cell) * cell
+        val minY = floor(area.minY / cell) * cell
+        val cols = ceil((area.maxX - minX) / cell).toInt() + 1
+        val rows = ceil((area.maxY - minY) / cell).toInt() + 1
 
-        val grid = Clearance(cell, area.minX, area.minY, cols, rows, BooleanArray(cols * rows))
+        val grid = Clearance(cell, minX, minY, cols, rows, BooleanArray(cols * rows))
 
         for (feature in inputs.featuresIn(area)) {
           when (feature.kind) {
