@@ -19,6 +19,8 @@ import net.bestia.zone.navigation.graph.MacroGraphService
 import net.bestia.zone.navigation.local.LocalPathfindingService
 import net.bestia.zone.navigation.local.LocalWalkQuery
 import net.bestia.zone.navigation.profile.MovementProfileRegistry
+import net.bestia.zone.navigation.region.RegionGrid
+import net.bestia.zone.navigation.region.WaterSource
 import net.bestia.zone.travel.knowledge.RouteKnowledge
 import net.bestia.zone.travel.knowledge.RouteSense
 import net.bestia.zone.util.EntityId
@@ -34,7 +36,10 @@ class TravelTestWorld(
   travelConfig: TravelConfig,
   knowledge: RouteKnowledge,
   onEnded: (JourneyEndedEvent) -> Unit,
+  water: WaterSource = WaterSource.NONE,
 ) {
+
+  private val grid = RegionGrid(water)
 
   private val navigationConfig = NavigationConfig()
   private val navigation = NavigationService(
@@ -45,7 +50,7 @@ class TravelTestWorld(
   )
   private val budget = TravelBudget(travelConfig)
   private val travel = TravelSystem(
-    RoutePlanner(navigation, knowledge, navigationConfig),
+    RoutePlanner(navigation, knowledge, navigationConfig, grid, budget),
     LegRefiner(navigation, budget, travelConfig, navigationConfig),
     ProgressWatchdog(knowledge, travelConfig),
     budget,
@@ -60,7 +65,7 @@ class TravelTestWorld(
   private val vicinity = VicinitySystem(chunkService, vicinityIndex, listOf(RouteSense(macroGraph, vicinityIndex, knowledge)))
 
   val world = testWorld(systems = listOf(travel, MoveSystem({ 0L }, GroundTrample.NONE, walkQuery)))
-  val journeys = JourneyService(travelConfig, AttackCancelService())
+  val journeys = JourneyService(travelConfig, AttackCancelService(), grid)
 
   fun bestiaAt(masterId: Long, position: Vec3L): EntityId {
     return world.createEntity { id ->
@@ -89,10 +94,11 @@ class TravelTestWorld(
       knowledge: RouteKnowledge,
       onEnded: (JourneyEndedEvent) -> Unit,
       walkable: (Vec3L) -> Boolean = { true },
+      water: WaterSource = WaterSource.NONE,
     ): TravelTestWorld {
       val ground = TestNavigation.flatGround(walkable)
       val noGraph = MacroGraphService(TestNavigation.noMacroGraph(), ground, NavigationConfig())
-      return TravelTestWorld(ground, noGraph, config, knowledge, onEnded)
+      return TravelTestWorld(ground, noGraph, config, knowledge, onEnded, water)
     }
   }
 }

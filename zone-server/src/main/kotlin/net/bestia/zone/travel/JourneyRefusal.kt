@@ -5,5 +5,8 @@ enum class JourneyRefusal {
   NO_DESTINATION,
   TOO_MANY_WAYPOINTS,
   NOT_IN_WORLD,
-  DEAD
+  DEAD,
+
+  /** A waypoint stands in water too deep to wade. */
+  IN_WATER
 }

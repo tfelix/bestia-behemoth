@@ -1,6 +1,9 @@
 package net.bestia.zone.travel
 
+import net.bestia.worldgen.vector.Aabb
 import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.navigation.region.WaterSource
+import net.bestia.zone.navigation.region.WaterSurvey
 import net.bestia.zone.movement.ecs.Path
 import net.bestia.zone.travel.knowledge.Knower
 import net.bestia.zone.travel.knowledge.RouteKnowledge
@@ -149,6 +152,46 @@ class TravelSystemTest {
     assertTrue(travellers.all { h.world.has(it, Path::class) }, "one search a tick still reached all three")
   }
 
+  @Test
+  fun `a lake across the way is walked round`() {
+    val h = onOpenGround(walkable = { !inLake(it) }, water = LAKE)
+    val bestia = h.bestiaAt(MASTER_ID, Vec3L(0, 0, 0))
+    val shore = Vec3L(600, 0, 0)
+
+    h.journeys.start(h.world, bestia, listOf(shore), JourneyOrder.PLAYER)
+    val end = travelUntilEnded(bestia) { if (inLake(it)) fail("It walked into the lake at $it") }
+
+    assertNull(end.failure)
+    assertTrue(distance(h.positionOf(bestia), shore) <= 1)
+  }
+
+  @Test
+  fun `an island the lake rings is no route, and said so at once`() {
+    val ring = { at: Vec3L -> Math.hypot(at.x - 300.0, at.y.toDouble()) in 100.0..260.0 }
+    val h = onOpenGround(walkable = { !ring(it) }, water = waterWhere { x, y -> ring(Vec3L(x.toLong(), y.toLong(), 0)) })
+    val bestia = h.bestiaAt(MASTER_ID, Vec3L(0, 0, 0))
+
+    h.journeys.start(h.world, bestia, listOf(Vec3L(300, 0, 0)), JourneyOrder.PLAYER)
+
+    assertEquals(JourneyFailure.NO_ROUTE, travelUntilEnded(bestia, maxSeconds = 1).failure)
+  }
+
+  @Test
+  fun `a waypoint in the lake is refused before the journey starts`() {
+    val h = onOpenGround(walkable = { !inLake(it) }, water = LAKE)
+    val bestia = h.bestiaAt(MASTER_ID, Vec3L(0, 0, 0))
+
+    val refusal = h.journeys.start(h.world, bestia, listOf(Vec3L(300, 0, 0)), JourneyOrder.PLAYER)
+
+    assertEquals(JourneyRefusal.IN_WATER, refusal)
+  }
+
+  private fun onOpenGround(walkable: (Vec3L) -> Boolean, water: WaterSource): TravelTestWorld {
+    return TravelTestWorld.onOpenGround(config, knowledge, ended::add, walkable, water).also { harness = it }
+  }
+
+  private fun inLake(at: Vec3L) = Math.hypot(at.x - 300.0, at.y.toDouble()) <= LAKE_RADIUS
+
   /** West of the river and near the road to the bridge, rather than out on the way round. */
   private fun isOnTheWestRoad(at: Vec3L): Boolean {
     return at.x < BridgeCountry.BRIDGE_WEST.x && at.y < 50
@@ -163,5 +206,15 @@ class TravelSystemTest {
 
     /** The way round, from the ford down to the east bank. */
     const val FORD_EAST_EDGE = 4
+
+    /** Wider than a local search can see round: walked straight at, the far shore is never found. */
+    const val LAKE_RADIUS = 200.0
+
+    val LAKE = waterWhere { x, y -> Math.hypot(x - 300.0, y) <= LAKE_RADIUS }
+
+    fun waterWhere(isDeep: (Double, Double) -> Boolean) = object : WaterSource {
+      override val isReady get() = true
+      override fun survey(area: Aabb, exact: Boolean) = WaterSurvey(isDeep, emptyList())
+    }
   }
 }

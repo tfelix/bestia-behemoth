@@ -1,6 +1,15 @@
 package net.bestia.zone.control.net
 
+import io.mockk.mockk
+import io.mockk.verify
+import net.bestia.bnet.proto.OperationErrorProto.OpError
+import net.bestia.worldgen.vector.Aabb
 import net.bestia.zone.battle.ecs.attack.AttackCancelService
+import net.bestia.zone.message.OperationErrorSMSG
+import net.bestia.zone.message.OutMessageProcessor
+import net.bestia.zone.navigation.region.RegionGrid
+import net.bestia.zone.navigation.region.WaterSource
+import net.bestia.zone.navigation.region.WaterSurvey
 import net.bestia.zone.battle.ecs.skill.CastCancelService
 import net.bestia.zone.config.WorldRulesConfig
 import net.bestia.zone.session.ConnectionInfoService
@@ -29,6 +38,7 @@ class MoveEntityHandlerTest {
 
   private val accountId = 1L
   private val connectionInfoService = ConnectionInfoService()
+  private val messages = mockk<OutMessageProcessor>(relaxed = true)
 
   /** Every step allowed: adjacency and slope both pass. Stands in for a NoQuery world's open floor. */
   private class OpenWalkQuery : LocalWalkQuery {
@@ -70,6 +80,7 @@ class MoveEntityHandlerTest {
     entityId: EntityId,
     walkQuery: LocalWalkQuery,
     rateLimit: MoveRequestRateLimit = MoveRequestRateLimit(WorldRulesConfig(tickRate = 20)),
+    water: WaterSource = WaterSource.NONE,
   ): MoveEntityHandler {
     connectionInfoService.activateSession(accountId, masterId = 1L, masterEntityId = entityId)
 
@@ -80,9 +91,27 @@ class MoveEntityHandlerTest {
       attackCancelService = AttackCancelService(),
       deadActionGuard = DeadActionGuard(),
       rateLimit = rateLimit,
-      journeys = JourneyService(TravelConfig(), AttackCancelService()),
+      journeys = JourneyService(TravelConfig(), AttackCancelService(), RegionGrid(water)),
       clientLeg = ClientLeg(walkQuery, WorldRulesConfig(tickRate = 20)),
+      outMessageProcessor = messages,
     )
+  }
+
+  @Test
+  fun `a click into deep water is refused at once and said why`() {
+    val world = testWorld()
+    val id = world.createEntity { }
+    world.add(id, Position(0, 0, 0))
+    val lake = object : WaterSource {
+      override val isReady get() = true
+      override fun survey(area: Aabb, exact: Boolean) = WaterSurvey({ x, _ -> x > 100.0 }, emptyList())
+    }
+    val handler = handlerFor(world, id, OpenWalkQuery(), water = lake)
+
+    handler.handle(world, MoveEntityCMSG(accountId, id, waypoints = listOf(Vec3L(50, 0, 0), Vec3L(150, 0, 0))))
+
+    assertNull(world.get(id, Journey::class), "it set off for the lake")
+    verify { messages.sendToPlayer(accountId, OperationErrorSMSG(OpError.TRAVEL_DESTINATION_IN_WATER)) }
   }
 
   /** A click the way the client sends one: to the last tile, with the steps it already walks there. */
