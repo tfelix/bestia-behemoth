@@ -322,6 +322,12 @@ namespace BestiaBehemothClient.Game.World
     /// <summary>How far a blade growing in at the reveal front takes the ground's colour. 0 is off.</summary>
     [Export(PropertyHint.Range, "0,1,0.05")] public float GroundMatch { get; set; }
 
+    /// <summary>
+    /// Share of the fade band from which every blade starts taking the ground's colour, reaching it at the band's
+    /// end. 1 leaves it to the reveal alone. Only acts while <see cref="GroundMatch"/> is above 0.
+    /// </summary>
+    [Export(PropertyHint.Range, "0,1,0.05")] public float GroundMatchFrom { get; set; } = 1.0f;
+
     /// <summary>The compensation ceiling in force, which depends on which way the compensation is drawn.</summary>
     private float CoverageCeiling => WidenNotGrow ? MaxWidenScale : MaxCoverageScale;
 
@@ -713,6 +719,9 @@ namespace BestiaBehemothClient.Game.World
 
     private float _pushedGroundMatch;
 
+    /// <summary>Where the ground-match band was last pushed from. NaN so the first frame pushes.</summary>
+    private float _pushedMatchFrom = float.NaN;
+
     /// <summary>The field's own shader, kept so <see cref="DissolveReveal"/> can be switched back off.</summary>
     private Shader _growShader;
 
@@ -766,6 +775,10 @@ namespace BestiaBehemothClient.Game.World
     private static readonly StringName WidenOnlyParameter = "grass_widen_only";
 
     private static readonly StringName GroundMatchParameter = "grass_ground_match";
+
+    private static readonly StringName MatchFromParameter = "grass_match_from";
+
+    private static readonly StringName MatchToParameter = "grass_match_to";
 
     private static readonly StringName BurnsWithGroundParameter = "burns_with_ground";
     private static readonly StringName GroundMarksParameter = "ground_marks";
@@ -1305,6 +1318,7 @@ namespace BestiaBehemothClient.Game.World
       // that were never built.
       var fade = Mathf.Min(FadeOutMetres * band, ReachMetres);
       FadeMetres = fade;
+      PushGroundMatchBand(fade, zoom);
 
       // **Fixed in metres, and deliberately not widened by the zoom the way the density band is.** The band
       // scales because zooming out puts more ground on screen and the field would otherwise empty; a rung is
@@ -1472,6 +1486,32 @@ namespace BestiaBehemothClient.Game.World
         material.Shader = shader;
         material.SetShaderParameter(WidenOnlyParameter, WidenNotGrow);
         material.SetShaderParameter(GroundMatchParameter, GroundMatch);
+      }
+    }
+
+    /// <summary>
+    /// Tells the materials over which camera distance blades fade into the ground's colour.
+    /// </summary>
+    /// <remarks>
+    /// The fade band is measured from the player and the shader measures from the camera, so the zoom is added.
+    /// Pushed only when it moves by a metre, since the band follows the zoom.
+    /// </remarks>
+    private void PushGroundMatchBand(float fade, float zoom)
+    {
+      var from = GroundMatchFrom >= 1.0f ? 100000.0f : fade * GroundMatchFrom + zoom;
+      var to = GroundMatchFrom >= 1.0f ? 100001.0f : fade + zoom;
+
+      if (_material is not ShaderMaterial field || Mathf.Abs(from - _pushedMatchFrom) < 1.0f)
+      {
+        return;
+      }
+
+      _pushedMatchFrom = from;
+
+      foreach (var material in _scaled.Values.Prepend(field))
+      {
+        material.SetShaderParameter(MatchFromParameter, from);
+        material.SetShaderParameter(MatchToParameter, to);
       }
     }
 

@@ -140,6 +140,12 @@ uniform bool grass_widen_only = false;
 // against a background it matches. Set by `TerrainGrass.GroundMatch`; nought is the blade's own colour.
 uniform float grass_ground_match : hint_range(0.0, 1.0) = 0.0;
 
+// Camera distance, in metres, over which blades fade into the ground's colour on top of the reveal - so where
+// the field thins out with distance, there is no contrast left to see it thinning. Set by `TerrainGrass` from
+// its fade band; the default never reaches any blade.
+uniform float grass_match_from = 100000.0;
+uniform float grass_match_to = 100001.0;
+
 // Where this cell's reveal has reached, in shares of its own instance order, and how wide the ramp behind that
 // front is. Written per cell by `TerrainGrass.Retune`; the arithmetic is `GrassLod.RevealFront`, and the two
 // lines below transcribe `GrassLod.Reveal`.
@@ -359,9 +365,11 @@ void fragment() {
 	}
 #endif
 
-	// The blade's own root colour, which is what the terrain's grass canopy is matched to.
-	vec3 ground = color2 * mix(color, color2, noiseLevel.r);
-	ALBEDO = mix(ALBEDO, ground, (1.0 - reveal_grow) * grass_ground_match);
+	// The blade's colour averaged from root to tip, which is what the terrain's grass canopy is matched to.
+	vec3 ground = mix(color, color2, 0.5) * mix(color, color2, noiseLevel.r);
+	// VERTEX is in view space here, so its length is the distance from the camera.
+	float far = smoothstep(grass_match_from, grass_match_to, length(VERTEX));
+	ALBEDO = mix(ALBEDO, ground, max(1.0 - reveal_grow, far) * grass_ground_match);
 
 	// The char climbs from the root and reaches the tip at 60% of the burn, with embers along its edge.
 	float char_front = burn * 1.6;
