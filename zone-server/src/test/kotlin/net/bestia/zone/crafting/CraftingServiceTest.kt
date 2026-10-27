@@ -1,5 +1,7 @@
 package net.bestia.zone.crafting
 
+import net.bestia.zone.item.material.ItemMaterial
+import net.bestia.zone.item.ecs.ItemTemplateRegistry
 import net.bestia.zone.item.stat.ItemStatSheet
 import net.bestia.zone.item.stat.RandomStatTemplate
 import net.bestia.zone.item.stat.StatPool
@@ -277,6 +279,24 @@ class CraftingServiceTest {
     assertEquals(
       OpError.CRAFT_NOT_POSSIBLE,
       fixture.service.start(fixture.world, crafter, repair.id, targetUniqueId = 2)
+    )
+  }
+
+  @Test
+  fun `a half burnt torch is not repaired back into a fresh one`() {
+    val repair = recipe(id = 7, identifier = "REPAIR", effect = RecipeEffect.REPAIR)
+    val fixture = CraftingFixture(listOf(repair))
+    fixture.stackableGear[TARGET_ITEM] = ItemTemplateRegistry.Template(
+      id = TARGET_ITEM, baseLevel = 1, weight = 30, stackable = true, maxDurability = 200, material = ItemMaterial.WOOD
+    )
+    val crafter = fixture.givenCrafter(
+      items = listOf(stack(INPUT_ITEM, 5), instance(TARGET_ITEM, uniqueId = 99, durability = 12, maxDurability = 200)),
+      knownSkills = mapOf(SKILL_ID to 1)
+    )
+
+    assertEquals(
+      OpError.CRAFT_NOT_POSSIBLE,
+      fixture.service.start(fixture.world, crafter, repair.id, targetUniqueId = 99)
     )
   }
 

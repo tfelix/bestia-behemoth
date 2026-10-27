@@ -195,6 +195,37 @@ data class Inventory(
     return true
   }
 
+  /**
+   * Takes one copy off the [pile] and holds it as the instance [uniqueId] at full wear - the live half of
+   * `ItemContainer.equipFromPile`. Answers the new copy, or null when the pile is empty.
+   */
+  fun splitOff(pile: Item, uniqueId: Long, maxDurability: Int): Item? {
+    if (!pile.isStackable || !take(pile.playerItemId, 1)) return null
+
+    val copy = Item(
+      itemId = pile.itemId,
+      amount = 1,
+      weight = pile.weight,
+      uniqueId = uniqueId,
+      durability = maxDurability,
+      maxDurability = maxDurability,
+      provenance = pile.provenance
+    )
+    items.add(copy)
+
+    return copy
+  }
+
+  /** Puts the copy [uniqueId] back into the pile of its kind and maker - the live half of an unused fold-back. */
+  fun foldBack(uniqueId: Long): Boolean {
+    val copy = items.firstOrNull { it.uniqueId == uniqueId && uniqueId != 0L } ?: return false
+
+    items.remove(copy)
+    addItem(Item(itemId = copy.itemId, amount = 1, weight = copy.weight, provenance = copy.provenance))
+
+    return true
+  }
+
   // Get number of items
   fun size(): Int = items.size
 

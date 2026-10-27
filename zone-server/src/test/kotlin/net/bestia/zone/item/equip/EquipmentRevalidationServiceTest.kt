@@ -17,6 +17,7 @@ import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.item.ecs.Equipment
 import net.bestia.zone.item.ecs.EquipmentChanges
+import net.bestia.zone.item.ecs.ItemTemplateRegistry
 import net.bestia.zone.item.ecs.Inventory
 import net.bestia.zone.item.persistence.Item
 import net.bestia.zone.item.persistence.ItemRepository
@@ -68,7 +69,7 @@ class EquipmentRevalidationServiceTest {
     world = world,
     itemRepository = itemRepository,
     equipmentService = EquipmentService(),
-    equipmentChanges = EquipmentChanges(),
+    equipmentChanges = EquipmentChanges(ItemTemplateRegistry(mockk { every { findAll() } answers { listOf(noviceShirt, shoes) } })),
     noviceGate = NoviceGate(registry),
     inventoryService = inventoryService,
     asyncJobExecutor = asyncJobExecutor,

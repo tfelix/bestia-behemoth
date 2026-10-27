@@ -26,6 +26,11 @@ class ItemContainerTest {
     equipSlot = EquipmentSlot.FOOTGEAR,
     material = ItemMaterial.LEATHER
   )
+  private val torch = Item(
+    id = 5L, identifier = "torch", weight = 30, type = Item.ItemType.EQUIP,
+    equipSlot = EquipmentSlot.LIGHT_SOURCE, stackable = true, maxDurability = 360,
+    material = ItemMaterial.WOOD
+  )
 
   private lateinit var container: ItemContainer
 
@@ -257,6 +262,38 @@ class ItemContainerTest {
     container.unequip(EquipmentSlot.RIGHT_HAND)
     assertNotNull(container.removeOne(sword.id, 1))
     assertTrue(container.slots.isEmpty())
+  }
+
+  @Test
+  fun `wearing from a pile takes one torch off the pile as a worn copy`() {
+    container.addStackable(torch, 5, ALICE)
+
+    assertTrue(container.equipFromPile(torch, ALICE, EquipmentSlot.LIGHT_SOURCE) { ItemInstance(item = torch, provenance = ALICE) })
+
+    assertEquals(4, container.pileAmount(torch.id, ALICE))
+    val worn = container.equipped().getValue(EquipmentSlot.LIGHT_SOURCE)
+    assertEquals(torch.maxDurability, worn.durability)
+    assertEquals(ALICE, worn.heldProvenance)
+  }
+
+  @Test
+  fun `the worn copy can not be spent with the pile`() {
+    container.addStackable(torch, 1)
+    container.equipFromPile(torch, null, EquipmentSlot.LIGHT_SOURCE) { ItemInstance(item = torch) }
+
+    assertFalse(container.hasItem(torch.id))
+    assertNull(container.removeOne(torch.id, 1))
+  }
+
+  @Test
+  fun `wearing from a pile refuses a taken slot and an empty pile`() {
+    container.addStackable(torch, 1)
+
+    assertFalse(container.equipFromPile(torch, ALICE, EquipmentSlot.LIGHT_SOURCE) { ItemInstance(item = torch) })
+    assertTrue(container.equipFromPile(torch, null, EquipmentSlot.LIGHT_SOURCE) { ItemInstance(item = torch) })
+    container.addStackable(torch, 1)
+    assertFalse(container.equipFromPile(torch, null, EquipmentSlot.LIGHT_SOURCE) { ItemInstance(item = torch) })
+    assertEquals(1, container.pileAmount(torch.id, null))
   }
 
   @Test

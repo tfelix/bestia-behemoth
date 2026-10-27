@@ -54,4 +54,12 @@ class ItemStatImportTest {
 
     assertThrows<IllegalArgumentException> { apple.toStatSheet() }
   }
+
+  @Test
+  fun `stackable gear does not roll`() {
+    val pileOfSwords = items.single { it.identifier == "iron_sword" }
+      .copy(stackable = true, randomStats = ItemImporterBootRunner.RandomStatsDto(sockets = listOf(50)))
+
+    assertThrows<IllegalArgumentException> { pileOfSwords.toStatSheet() }
+  }
 }
