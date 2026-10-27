@@ -309,6 +309,20 @@ class MapQueriesTest {
   }
 
   @Test
+  fun `a place is found by part of its name only once it is charted`() {
+    val town = someService(3)
+    val name = town.settlement ?: error("a service with a business names its settlement")
+
+    assertTrue(found(name).none { it.name == name }, "$name was found before anyone charted it")
+
+    chartedAt(town.x, town.y, radiusMetres = 500.0)
+
+    assertEquals(name, found(name.lowercase()).first().name)
+    assertTrue(found(name.substring(0, 3)).any { it.name == name }, "a prefix of $name finds it")
+    assertTrue(found(name.substring(0, 1)).isEmpty(), "one letter matches half the world")
+  }
+
+  @Test
   fun `a level above the pyramid is invalid rather than a rendered void`() {
     assertEquals(Status.INVALID, ask(tileQuery(TileId(20, 0, 0))).status)
   }
@@ -333,6 +347,12 @@ class MapQueriesTest {
       .distinctBy { it.settlement }
 
     return towns.getOrNull(nth) ?: error("the test world has fewer than ${nth + 1} towns with a service")
+  }
+
+  private fun found(text: String): List<ZoneAnswer.Places.Place> {
+    val reply = ask(ZoneQuery.MapFind(masterId, text))
+    assertEquals(Status.OK, reply.status, "find '$text'")
+    return assertIs<ZoneAnswer.Found>(reply.answer).places
   }
 
   private fun servicesIn(tile: TileId): List<ZoneAnswer.Services.Service> {

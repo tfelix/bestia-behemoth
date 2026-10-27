@@ -3,12 +3,14 @@
 	import L from 'leaflet';
 	import { page } from '$app/state';
 	import { ApiError, getJson } from '$lib/api/client';
-	import type { Bestia, Catalog, MapMeta, MasterSheet, Position, Route } from '$lib/api/model';
+	import type { Bestia, Catalog, MapMeta, MasterSheet, Place, Position, Route } from '$lib/api/model';
 	import TravelSheet from '$lib/components/TravelSheet.svelte';
 	import { guarded } from '$lib/guard';
 	import { live } from '$lib/live.svelte';
 	import { ChartCache } from '$lib/map/chartCache';
 	import { chartLayer, habitatLayer, MAX_ZOOM, placeLabels } from '$lib/map/chartLayer';
+	import { gridLayer } from '$lib/map/gridLayer';
+	import { formatGridRef, MAX_DIGITS, parseGridRef } from '$lib/map/gridRef';
 	import { bestiaColor, MASTER_COLOR } from '$lib/map/slotColors';
 	import { speciesName } from '$lib/names';
 	import { deleteRoute, renameRoute, saveRoute, sendJourney, stopJourney, stopsAhead, wayAhead } from '$lib/travel';
@@ -34,6 +36,15 @@
 	let gaveUpAt = $state<Record<number, Position>>({});
 	let travelLayers = $state.raw<{ markers: L.LayerGroup; journeys: L.LayerGroup; draft: L.LayerGroup; failures: L.LayerGroup } | null>(null);
 	let map: L.Map | null = null;
+	let meta = $state.raw<MapMeta | null>(null);
+	let grid: L.GridLayer | null = null;
+	let pinMarker: L.Marker | null = null;
+	let showGrid = $state(false);
+	/** The grid reference under the pointer, or of the middle of the map on a touch screen. */
+	let readout = $state('');
+	let query = $state('');
+	let found = $state<Place[]>([]);
+	let searchNote = $state<string | null>(null);
 
 	const selected = $derived(bestias.find((b) => b.id === selectedId) ?? null);
 
@@ -77,6 +88,7 @@
 		guarded(async () => {
 			const meta = await getJson<MapMeta>(`/v1/companion/masters/${id}/map/meta`);
 			if (gone) return;
+			setMeta(meta);
 			leaflet = L.map(element, {
 				crs: L.CRS.Simple,
 				minZoom: -meta.maxLevel,
@@ -93,6 +105,10 @@
 			if (species !== 0) habitatLayer(id, species, meta, cache).addTo(leaflet);
 			placeLabels(id, leaflet, meta, cache).addTo(leaflet);
 			leaflet.on('click', (e: L.LeafletMouseEvent) => tapMap({ eastMetres: e.latlng.lng, northMetres: e.latlng.lat }));
+			leaflet.on('mousemove', (e: L.LeafletMouseEvent) => (readout = refOf(e.latlng)));
+			leaflet.on('moveend', () => leaflet && (readout = refOf(leaflet.getCenter())));
+			grid = gridLayer(meta);
+			if (showGrid) grid.addTo(leaflet);
 			routes = await getJson<Route[]>(`/v1/companion/masters/${id}/routes`);
 
 			const sheet = await placeMarkers();
@@ -119,6 +135,8 @@
 			unsubscribe();
 			travelLayers = null;
 			map = null;
+			grid = null;
+			pinMarker = null;
 			leaflet?.remove();
 		};
 	});
@@ -165,6 +183,63 @@
 			draft.forEach((stop, n) => stopMarker(stop, n + 1, colour).addTo(layers.draft));
 		}
 	});
+
+	function setMeta(value: MapMeta) {
+		meta = value;
+	}
+
+	function toggleGrid() {
+		showGrid = !showGrid;
+		if (!map || !grid) return;
+		if (showGrid) grid.addTo(map);
+		else grid.remove();
+	}
+
+	/** A reference with a cell no finer than a pixel at the map's zoom. */
+	function refOf(at: L.LatLng): string {
+		if (!meta || !map) return '';
+		const metresPerPixel = 2 ** -map.getZoom();
+		const digits = Math.min(MAX_DIGITS, Math.max(1, MAX_DIGITS - Math.ceil(Math.log10(metresPerPixel))));
+		return formatGridRef(at.lng, at.lat, meta.worldWidthMetres, meta.worldHeightMetres, digits);
+	}
+
+	/** A grid reference is answered at once; anything else is looked up among the places this master has charted. */
+	async function search() {
+		const text = query.trim();
+		found = [];
+		searchNote = null;
+		if (!text || !meta) return;
+
+		const point = parseGridRef(text, meta.worldWidthMetres, meta.worldHeightMetres);
+		if (point) {
+			showPin({ eastMetres: point.eastMetres, northMetres: point.northMetres });
+			return;
+		}
+
+		try {
+			const places = await getJson<Place[]>(`/v1/companion/masters/${masterId}/map/find?q=${encodeURIComponent(text)}`);
+			if (places.length === 0) searchNote = `No charted place matches ${text}.`;
+			else if (places.length === 1) goToPlace(places[0]);
+			else found = places;
+		} catch (e) {
+			searchNote = (e as Error).message;
+		}
+	}
+
+	function goToPlace(place: Place) {
+		found = [];
+		showPin({ eastMetres: place.x, northMetres: place.y });
+	}
+
+	function showPin(at: Position) {
+		if (!map) return;
+		pinMarker?.remove();
+		pinMarker = L.marker(latLng(at), {
+			interactive: false,
+			icon: L.divIcon({ className: 'search-pin', html: '<span></span>', iconSize: [22, 22], iconAnchor: [11, 11] })
+		}).addTo(map);
+		map.setView(latLng(at), Math.max(map.getZoom(), -4));
+	}
 
 	function nameOf(b: Bestia): string {
 		return b.name ?? speciesName(b.species);
@@ -327,6 +402,21 @@
 	{/if}
 	<div class="map-area">
 		<div class="map" bind:this={container}></div>
+		<div class="map-tools">
+			<form class="search" onsubmit={(e) => { e.preventDefault(); void search(); }}>
+				<input type="search" placeholder="Place or grid reference (H12 41 37)" bind:value={query} aria-label="Find a place or grid reference" />
+			</form>
+			<button type="button" class="chip" class:on={showGrid} onclick={toggleGrid} aria-pressed={showGrid}>Grid</button>
+			{#if searchNote}<p class="search-note">{searchNote}</p>{/if}
+			{#if found.length > 0}
+				<ul class="found">
+					{#each found as place (place.id)}
+						<li><button type="button" onclick={() => goToPlace(place)}>{place.name} <span class="label">{meta ? formatGridRef(place.x, place.y, meta.worldWidthMetres, meta.worldHeightMetres) : ''}</span></button></li>
+					{/each}
+				</ul>
+			{/if}
+		</div>
+		{#if readout}<span class="readout label">{readout}</span>{/if}
 		{#if bestias.length > 0}
 			<TravelSheet
 				{bestias}
@@ -436,6 +526,73 @@
 		transform: translateX(-50%);
 		background: var(--card);
 		color: var(--brass);
+	}
+
+	.map-tools {
+		position: absolute;
+		top: 0.5rem;
+		left: 3.2rem;
+		right: 0.5rem;
+		z-index: 600;
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.4rem;
+		align-items: flex-start;
+		pointer-events: none;
+	}
+
+	.map-tools > * {
+		pointer-events: auto;
+	}
+
+	.search {
+		flex: 1;
+		max-width: 22rem;
+	}
+
+	.search input {
+		width: 100%;
+	}
+
+	.map-tools .chip.on {
+		color: var(--brass);
+		box-shadow: 0 0 0 2px var(--brass);
+	}
+
+	.found,
+	.search-note {
+		flex-basis: 100%;
+		max-width: 22rem;
+		margin: 0;
+		padding: 0.3rem;
+		list-style: none;
+		background: var(--card);
+		border-radius: 0.4rem;
+	}
+
+	.found button {
+		width: 100%;
+		text-align: left;
+	}
+
+	.readout {
+		position: absolute;
+		bottom: 0.4rem;
+		left: 0.5rem;
+		z-index: 600;
+		padding: 0.1rem 0.4rem;
+		background: var(--card);
+		border-radius: 0.3rem;
+		pointer-events: none;
+	}
+
+	.map :global(.search-pin span) {
+		display: block;
+		width: 100%;
+		height: 100%;
+		border: 3px solid var(--brass);
+		border-radius: 50%;
+		box-shadow: 0 0 0 2px #1a1410;
 	}
 
 	.legend {

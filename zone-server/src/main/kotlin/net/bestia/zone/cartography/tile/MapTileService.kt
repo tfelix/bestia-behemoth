@@ -3,6 +3,7 @@ package net.bestia.zone.cartography.tile
 import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.annotation.PreDestroy
 import net.bestia.worldgen.bio.Biome
+import net.bestia.worldgen.vector.Aabb
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.zone.bestia.persistence.Bestia
 import net.bestia.zone.cartography.habitat.HabitatLayer
@@ -405,6 +406,46 @@ class MapTileService(
   }
 
   /**
+   * The named places whose names start with or contain [text], among those [masterId] has charted: names that
+   * start with it first, then shorter names. Empty for a [text] too short to mean anything.
+   *
+   * Not gated on zoom, unlike [places]: a search is for finding a hamlet that is too small to label at the zoom
+   * the player is looking at.
+   */
+  fun find(masterId: Long, text: String, limit: Int): List<Place> {
+    val wanted = text.trim()
+    if (wanted.length < MIN_FIND_LENGTH) return emptyList()
+
+    val coverage = coverageFor(masterId)
+
+    return namedPlaces
+      .filter { (name, place) -> name.contains(wanted, ignoreCase = true) && coverage.contains(place.x, place.y) }
+      .sortedWith(compareBy({ !it.first.startsWith(wanted, ignoreCase = true) }, { it.first.length }, { it.second.id }))
+      .take(limit)
+      .map { it.second }
+  }
+
+  /** Every place with a generated name, whatever the zoom; what [find] searches. The world never changes them. */
+  private val namedPlaces: List<Pair<String, Place>> by lazy {
+    val chronicle = resources.inputs.chronicle
+    val world = Aabb(0.0, 0.0, resources.widthMetres, resources.heightMetres)
+
+    resources.inputs.featuresIn(world).mapNotNull { feature ->
+      if (feature !is PointMarker || !MapVisibility.of(feature.kind).isPlace) return@mapNotNull null
+
+      val tier = if (feature.kind == FeatureKind.SETTLEMENT) {
+        PlaceNames.tierOf(feature)?.takeIf { PlaceNames.wasFounded(chronicle, feature) } ?: return@mapNotNull null
+      } else {
+        null
+      }
+      val name = PlaceNames.nameOf(chronicle, feature) ?: return@mapNotNull null
+
+      name to Place(feature.id.value, feature.kind.name, feature.position.x, feature.position.y, name, tier?.name,
+        PlaceNames.poiKindOf(feature)?.name)
+    }
+  }
+
+  /**
    * Every place in the tile the asker may know about, at this zoom.
    *
    * Three gates, and they are not interchangeable. [MapVisibility.draws] is the **disclosure** rule - its
@@ -585,5 +626,8 @@ class MapTileService(
 
     /** Stands in for a coverage digest in the case that cannot arise. See its only use. */
     const val UNKEYED_DIGEST = 0L
+
+    /** Shorter than this, a search matches half the world. */
+    const val MIN_FIND_LENGTH = 2
   }
 }

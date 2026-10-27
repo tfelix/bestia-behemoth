@@ -100,6 +100,14 @@ class MapQueries(
     return BusReply.ok(correlationId, ZoneAnswer.Places(places.etag, places.shared, listed))
   }
 
+  fun find(correlationId: String, accountId: Long, query: ZoneQuery.MapFind): BusReply {
+    owned.find(accountId, query.masterId) ?: return BusReply.of(correlationId, Status.NOT_FOUND)
+
+    val found = tiles.find(query.masterId, query.text, FIND_LIMIT)
+      .map { ZoneAnswer.Places.Place(it.id, it.kind, it.x, it.y, it.name, it.tier, it.poi) }
+    return BusReply.ok(correlationId, ZoneAnswer.Found(found))
+  }
+
   /** Never cached for keeps: a service can be destroyed, so its ETag carries the world's service revision. */
   fun services(correlationId: String, accountId: Long, query: ZoneQuery.MapServices): BusReply {
     owned.find(accountId, query.masterId) ?: return BusReply.of(correlationId, Status.NOT_FOUND)
@@ -118,5 +126,10 @@ class MapQueries(
       ZoneAnswer.Services.Service(it.id, it.kind.name, it.business, it.x, it.y, it.settlement, it.openFrom, it.openTo)
     }
     return BusReply.ok(correlationId, ZoneAnswer.Services(services.etag, listed))
+  }
+
+  private companion object {
+    /** A search box shows a short list; past this the player should type more. */
+    const val FIND_LIMIT = 10
   }
 }

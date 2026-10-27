@@ -23,6 +23,7 @@ enum class ZoneQueryKind {
   MAP_TILE,
   MAP_PLACES,
   MAP_SERVICES,
+  MAP_FIND,
   HABITAT_TILE,
   WHOSE_TICKET,
   GUILD_EMBLEM,
@@ -51,6 +52,7 @@ enum class ZoneQueryKind {
         is ZoneQuery.MapTile -> MAP_TILE
         is ZoneQuery.MapPlaces -> MAP_PLACES
         is ZoneQuery.MapServices -> MAP_SERVICES
+        is ZoneQuery.MapFind -> MAP_FIND
         is ZoneQuery.HabitatTile -> HABITAT_TILE
         is ZoneQuery.WhoseTicket -> WHOSE_TICKET
         is ZoneQuery.GuildEmblem -> GUILD_EMBLEM

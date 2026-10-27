@@ -188,6 +188,9 @@ sealed interface ZoneAnswer {
     )
   }
 
+  /** A name search's matches, best first. */
+  data class Found(val places: List<Places.Place>) : ZoneAnswer
+
   /**
    * What a tile's services are: shops, inns, markets, ward stones, as they stand now. [openFrom] and [openTo] are
    * game hours, null for something with no hours.

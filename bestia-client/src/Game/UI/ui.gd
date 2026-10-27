@@ -285,6 +285,10 @@ func _bearing_mark(here: Vector2, at: Dictionary, label: String, colour: Color) 
 
 
 func _on_map_meta_ready(meta: Dictionary) -> void:
+	_master_profile.set_world_metres(
+		Vector2(float(meta.get("worldWidthMetres", 0.0)), float(meta.get("worldHeightMetres", 0.0))),
+		float(meta.get("metresPerVoxel", 1.0))
+	)
 	_marks_version = str(meta.get("worldMapVersion", ""))
 	_load_marks()
 

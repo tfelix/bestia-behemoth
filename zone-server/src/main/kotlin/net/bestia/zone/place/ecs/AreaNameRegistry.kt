@@ -125,6 +125,13 @@ class AreaNameRegistry {
     return best
   }
 
+  /** The area called [name], ignoring case; the lowest [Entry.id] when two share it. */
+  fun named(name: String): Entry? {
+    return byId.values
+      .filter { it.name.equals(name.trim(), ignoreCase = true) }
+      .minByOrNull { it.id }
+  }
+
   fun clear() {
     byCell.clear()
     byId.clear()

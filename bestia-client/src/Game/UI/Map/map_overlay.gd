@@ -63,6 +63,14 @@ var _has_chart: bool = false
 ## Names the species whose habitat is shown, and clears it when pressed. Hidden while none is.
 var _habitat_chip: Button
 
+## Takes a grid reference or a place name; see [method _on_search].
+var _search: LineEdit
+var _grid_toggle: Button
+
+## The places a name search found, offered to pick from when there is more than one.
+var _results: PopupMenu
+var _found: Array = []
+
 
 func setup(source: MapSource, entities: Node) -> void:
 	_view.mark_requested.connect(func(at: Vector2) -> void: mark_requested.emit(at))
@@ -78,6 +86,7 @@ func setup(source: MapSource, entities: Node) -> void:
 
 	_habitat_chip.pressed.connect(func() -> void: source.set_habitat_species(0))
 	source.habitat_species_changed.connect(_show_habitat_chip)
+	source.places_found.connect(_on_places_found)
 
 
 ## The panel picks who the map's orders go to; the view drafts the stops and draws every journey.
@@ -147,6 +156,7 @@ func _ready() -> void:
 	visible = false
 	_build_legend()
 	_build_habitat_chip()
+	_build_search()
 
 
 ## One toggle per service kind, each beside the glyph the map draws for it.
@@ -183,6 +193,85 @@ func _build_habitat_chip() -> void:
 	_habitat_chip.tooltip_text = tr("MAP_HABITAT_CLEAR")
 	_title.get_parent().add_child(_habitat_chip)
 	_title.get_parent().move_child(_habitat_chip, _title.get_index() + 1)
+
+
+## The search box and the grid toggle, in the header before the close hint.
+func _build_search() -> void:
+	var header := _title.get_parent()
+	var close_hint := header.get_node("Close")
+
+	_search = LineEdit.new()
+	_search.placeholder_text = tr("MAP_SEARCH_HINT")
+	_search.custom_minimum_size = Vector2(260, 0)
+	_search.add_theme_font_size_override("font_size", 13)
+	_search.text_submitted.connect(_on_search)
+	header.add_child(_search)
+	header.move_child(_search, close_hint.get_index())
+
+	_grid_toggle = Button.new()
+	_grid_toggle.text = tr("MAP_GRID")
+	_grid_toggle.tooltip_text = tr("MAP_GRID_TIP")
+	_grid_toggle.toggle_mode = true
+	_grid_toggle.focus_mode = Control.FOCUS_NONE
+	_grid_toggle.add_theme_font_size_override("font_size", 12)
+	_grid_toggle.toggled.connect(func(on: bool) -> void: _view.show_grid = on)
+	header.add_child(_grid_toggle)
+	header.move_child(_grid_toggle, close_hint.get_index())
+
+	_results = PopupMenu.new()
+	_results.id_pressed.connect(func(index: int) -> void: _go_to_place(_found[index]))
+	add_child(_results)
+
+
+## A grid reference is answered here at once; anything else is asked of the server as a place name.
+func _on_search(text: String) -> void:
+	var wanted := text.strip_edges()
+	if wanted.is_empty():
+		_view.pin = null
+		return
+
+	var world := _view.world_size()
+	var point := GridRef.parse(wanted, world.x, world.y)
+	if not point.is_empty():
+		_show_pin(Vector2(point["east"], point["north"]))
+		return
+
+	_view.source.find(wanted)
+
+
+func _on_places_found(text: String, places: Array) -> void:
+	if text != _search.text.strip_edges():
+		return
+
+	_found = places
+	if places.is_empty():
+		_search.text = ""
+		_search.placeholder_text = tr("MAP_SEARCH_NONE") % text
+		return
+
+	if places.size() == 1:
+		_go_to_place(places[0])
+		return
+
+	_results.clear()
+	for i in places.size():
+		_results.add_item("%s  ·  %s" % [_view.label_of(places[i]), _view.grid_ref_of(_position_of(places[i]))], i)
+	_results.popup(Rect2i(Vector2i(_search.global_position + Vector2(0, _search.size.y)), Vector2i(_search.size.x, 0)))
+
+
+func _go_to_place(place: Dictionary) -> void:
+	_search.placeholder_text = tr("MAP_SEARCH_HINT")
+	_show_pin(_position_of(place))
+
+
+static func _position_of(place: Dictionary) -> Vector2:
+	return Vector2(float(place.get("x", 0.0)), float(place.get("y", 0.0)))
+
+
+func _show_pin(at: Vector2) -> void:
+	_view.pin = at
+	_view.centre_on(at)
+	_search.release_focus()
 
 
 func _show_habitat_chip(species_id: int) -> void:
@@ -287,13 +376,22 @@ func _update_legend() -> void:
 			entry.visible = shown
 
 
+## The scale, and the grid reference under the cursor - or of the middle of the map while the cursor is off it.
 func _update_scale() -> void:
 	var metres_per_pixel := pow(2.0, _view.level)
-	_scale_label.text = "%d m / px  -  L%d" % [int(metres_per_pixel), _view.level]
+	var under: Variant = _view.world_under_mouse()
+	var ref := _view.grid_ref_of(under if under != null else _view.centre)
+	_scale_label.text = "%d m / px  -  L%d    %s" % [int(metres_per_pixel), _view.level, ref]
 
 
 func _input(event: InputEvent) -> void:
 	if not visible:
+		return
+
+	# Typing in the search box is not a shortcut.
+	if event is InputEventKey and event.pressed and event.keycode == KEY_G and not _search.has_focus():
+		_grid_toggle.button_pressed = not _grid_toggle.button_pressed
+		get_viewport().set_input_as_handled()
 		return
 
 	# Escape drops a draft first and closes after, and is consumed so it does not also reach whatever else

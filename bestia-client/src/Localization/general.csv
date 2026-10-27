@@ -329,6 +329,10 @@ COMPENDIUM_SHOW_HABITAT,Show on map
 COMPENDIUM_HABITAT_NEEDS_CHART,Carry a map to see where it lives.
 MAP_HABITAT_CHIP,Habitat: %s  ✕
 MAP_HABITAT_CLEAR,Stop showing this habitat
+MAP_SEARCH_HINT,Place or grid reference (H12 41 37)
+MAP_SEARCH_NONE,No charted place matches %s
+MAP_GRID,Grid
+MAP_GRID_TIP,Show the grid squares (G)
 GUILD_LOG_EMPTY,Nothing has happened in the guild yet.
 GUILD_LOG_FOUNDED,{actor} founded the guild.
 GUILD_LOG_JOINED,{actor} joined the guild.

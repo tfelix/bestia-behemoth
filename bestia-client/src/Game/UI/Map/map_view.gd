@@ -168,6 +168,16 @@ const _SERVICES_MAX_LEVEL := 3
 ## stale and waits a whole second interval, making every refresh twice as slow as it says.
 const _SERVICES_SLACK_MSEC := 1000
 
+## The grid: a firm line round each [constant GridRef.SQUARE_METRES] square, a faint one per kilometre where
+## those are far enough apart to read, and the squares' names along the top and left edges.
+const _GRID_INK := Color(0.15, 0.11, 0.08, 0.55)
+const _GRID_KM_INK := Color(0.15, 0.11, 0.08, 0.22)
+const _GRID_KM_MIN_PIXELS := 48.0
+const _GRID_LABEL_SIZE := 12
+
+## A search result's marker: a ring with a cross through it, in the selected label's ink.
+const _PIN_RADIUS := 7.0
+
 ## The player picked a place on the map. Carries the whole entry - see [method MapSource.places_of] - so a
 ## listener can put it on the compass without asking anything back.
 signal place_selected(place: Dictionary)
@@ -245,6 +255,18 @@ var hidden_services: Array[String] = []:
 		hidden_services = value
 		if not _selected_service.is_empty() and _text_of(_selected_service, "kind") in value:
 			_deselect_service()
+		queue_redraw()
+
+## Whether the grid squares are drawn over the map.
+var show_grid: bool = false:
+	set(value):
+		show_grid = value
+		queue_redraw()
+
+## A point the player searched for, in world metres, marked until the next search; null for none.
+var pin: Variant = null:
+	set(value):
+		pin = value
 		queue_redraw()
 
 ## Where the player's own marker is drawn, and what [member follow_player] follows.
@@ -516,6 +538,8 @@ func _draw() -> void:
 
 	_visible_places = places
 	_visible_services = services
+	if show_grid:
+		_draw_grid(west, east, south, north)
 	_draw_places()
 	_draw_services()
 	_draw_marks()
@@ -525,7 +549,98 @@ func _draw() -> void:
 	_draw_guild_members()
 	_draw_owned_entities()
 	_draw_player()
+	_draw_pin()
 	_draw_north()
+
+
+## Lines between [param west]..[param east] and [param south]..[param north] world metres, clipped to the
+## world, with each square's column letter along the top and row number down the left.
+func _draw_grid(west: float, east: float, south: float, north: float) -> void:
+	if _world_width <= 0.0 or _world_height <= 0.0:
+		return
+
+	var mpp := _metres_per_pixel()
+	var left := maxf(west, 0.0)
+	var right := minf(east, _world_width)
+	var bottom := maxf(south, 0.0)
+	var top := minf(north, _world_height)
+	var step := 1000.0 if 1000.0 / mpp >= _GRID_KM_MIN_PIXELS else GridRef.SQUARE_METRES
+
+	var x := ceilf(left / step) * step
+	while x <= right:
+		var square := is_zero_approx(fmod(x, GridRef.SQUARE_METRES))
+		draw_line(_to_screen(Vector2(x, bottom)), _to_screen(Vector2(x, top)),
+			_GRID_INK if square else _GRID_KM_INK, 1.5 if square else 1.0)
+		x += step
+
+	var y := ceilf(bottom / step) * step
+	while y <= top:
+		var square := is_zero_approx(fmod(y, GridRef.SQUARE_METRES))
+		draw_line(_to_screen(Vector2(left, y)), _to_screen(Vector2(right, y)),
+			_GRID_INK if square else _GRID_KM_INK, 1.5 if square else 1.0)
+		y += step
+
+	var font := get_theme_default_font()
+	if font == null:
+		return
+
+	var column := floori(left / GridRef.SQUARE_METRES)
+	while column * GridRef.SQUARE_METRES < right:
+		var middle := clampf((column + 0.5) * GridRef.SQUARE_METRES, left, right)
+		var text := GridRef.column_name(column)
+		var width := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, _GRID_LABEL_SIZE).x
+		var at := Vector2(_to_screen(Vector2(middle, 0.0)).x - width * 0.5, font.get_ascent(_GRID_LABEL_SIZE) + 4.0)
+		_draw_haloed(font, at, text, _GRID_LABEL_SIZE, _LABEL_COLOUR)
+		column += 1
+
+	var row := floori(bottom / GridRef.SQUARE_METRES)
+	while row * GridRef.SQUARE_METRES < top:
+		var middle := clampf((row + 0.5) * GridRef.SQUARE_METRES, bottom, top)
+		var at := Vector2(4.0, _to_screen(Vector2(0.0, middle)).y + font.get_ascent(_GRID_LABEL_SIZE) * 0.5)
+		_draw_haloed(font, at, str(row + 1), _GRID_LABEL_SIZE, _LABEL_COLOUR)
+		row += 1
+
+
+func _draw_pin() -> void:
+	if pin == null:
+		return
+
+	var at := _to_screen(pin)
+	for pass_ink: Color in [_MARKER_OUTLINE, _LABEL_SELECTED]:
+		var width := 4.0 if pass_ink == _MARKER_OUTLINE else 2.0
+		draw_arc(at, _PIN_RADIUS, 0.0, TAU, 24, pass_ink, width, true)
+		draw_line(at - Vector2(_PIN_RADIUS + 3.0, 0.0), at + Vector2(_PIN_RADIUS + 3.0, 0.0), pass_ink, width)
+		draw_line(at - Vector2(0.0, _PIN_RADIUS + 3.0), at + Vector2(0.0, _PIN_RADIUS + 3.0), pass_ink, width)
+
+
+## [param world] metres as a grid reference with a cell no finer than a pixel at this zoom. Empty before [code]/meta[/code] has said how big the world is.
+func grid_ref_of(world: Vector2) -> String:
+	if _world_width <= 0.0 or _world_height <= 0.0:
+		return ""
+
+	var digits := clampi(GridRef.MAX_DIGITS - ceili(log(_metres_per_pixel()) / log(10.0)), 1, GridRef.MAX_DIGITS)
+	return GridRef.format(world.x, world.y, _world_width, _world_height, digits)
+
+
+## The point under the mouse in world metres, or null while it is off this view.
+func world_under_mouse() -> Variant:
+	var at := get_local_mouse_position()
+	if not Rect2(Vector2.ZERO, size).has_point(at):
+		return null
+	return _to_world(at)
+
+
+## World width and height in metres, or zero before [code]/meta[/code].
+func world_size() -> Vector2:
+	return Vector2(_world_width, _world_height)
+
+
+## Moves the view to [param world] metres and stops following the player.
+func centre_on(world: Vector2) -> void:
+	centre = world
+	follow_player = false
+	_clamp_centre()
+	queue_redraw()
 
 
 ## The species the player is hunting, over the tile it lives on. Under the names and marks, which stay readable.

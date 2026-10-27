@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestAttribute
 import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import java.time.Duration
 
@@ -201,6 +202,17 @@ class MapController(
       .cacheControl(cacheControl(places.shared))
       .contentType(MediaType.APPLICATION_JSON)
       .body(places.places.map { Place(it.id, it.kind, it.x, it.y, it.name, it.tier, it.poi) })
+  }
+
+  /** Charted places whose names contain [q], best first, for the map's search box. */
+  @GetMapping("/find")
+  fun find(
+    @RequestAttribute(ACCOUNT_ID) accountId: Long,
+    @PathVariable masterId: Long,
+    @RequestParam q: String,
+  ): List<Place> {
+    val found = zone.ask(accountId, ZoneQuery.MapFind(masterId, q)).answerOrThrow<ZoneAnswer.Found>()
+    return found.places.map { Place(it.id, it.kind, it.x, it.y, it.name, it.tier, it.poi) }
   }
 
   private fun png(tile: ZoneAnswer.Tile, bytes: ByteArray): ResponseEntity<ByteArray> {

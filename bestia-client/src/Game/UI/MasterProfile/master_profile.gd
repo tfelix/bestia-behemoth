@@ -22,6 +22,11 @@ var _shown_entity_id: int = 0
 var _shown_tile: Vector3i = Vector3i.ZERO
 var _has_shown_tile: bool = false
 
+## The world's size in metres and a voxel's edge, from the map's [code]/meta[/code]; zero until it answers, and
+## until then the position has no grid reference beside it.
+var _world_metres := Vector2.ZERO
+var _metres_per_voxel := 1.0
+
 @onready var _master_name: Label = %MasterName
 @onready var _level: Label = %Level
 @onready var _position: Label = %Position
@@ -184,6 +189,16 @@ func _update_position(pos: Vector3) -> void:
 	_shown_tile = tile
 	_has_shown_tile = true
 	_position.text = "%s %s %s" % [tile.x, tile.y, tile.z]
+	if _world_metres.x > 0.0 and _world_metres.y > 0.0:
+		_position.text += "  ·  " + GridRef.format(
+			tile.x * _metres_per_voxel, tile.y * _metres_per_voxel, _world_metres.x, _world_metres.y, 3
+		)
+
+
+func set_world_metres(world: Vector2, metres_per_voxel: float) -> void:
+	_world_metres = world
+	_metres_per_voxel = metres_per_voxel
+	_has_shown_tile = false
 
 
 ## Reads the position off the shown entity rather than waiting for a PositionComponent: the server
