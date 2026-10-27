@@ -3,22 +3,22 @@
 	import L from 'leaflet';
 	import { untrack } from 'svelte';
 	import { page } from '$app/state';
-	import { ApiError, getJson } from '$lib/api/client';
-	import type { Bestia, Catalog, MapMeta, MasterSheet, Place, PlaceDetail, Position, Service } from '$lib/api/model';
-	import MapCard, { type Card } from '$lib/components/MapCard.svelte';
-	import TravelSheet from '$lib/components/TravelSheet.svelte';
-	import { guarded } from '$lib/guard';
-	import { live } from '$lib/live.svelte';
-	import { ChartCache } from '$lib/map/chartCache';
-	import { chartLayer, habitatLayer, MAX_ZOOM, placeLabels } from '$lib/map/chartLayer';
-	import { gridLayer } from '$lib/map/gridLayer';
-	import { serviceHours, serviceName, servicesLayer } from '$lib/map/servicesLayer';
-	import { formatGridRef, MAX_DIGITS, parseGridRef } from '$lib/map/gridRef';
-	import { bestiaColor, MASTER_COLOR } from '$lib/map/slotColors';
-	import { speciesName } from '$lib/names';
-	import { Notebook, SINGLE_KEY } from '$lib/notebook/notebook.svelte';
-	import type { NotebookEntry } from '$lib/notebook/rules';
-	import { distance, distanceText, ROUTES, routeBody, routeOf, sendJourney, stopJourney, stopsAhead, wayAhead, type Route, type RouteValue } from '$lib/travel';
+	import { ApiError, getJson } from '#lib/api/client.ts';
+	import type { Bestia, Catalog, MapMeta, MasterSheet, Place, PlaceDetail, Position, Service } from '#lib/api/model.ts';
+	import MapCard, { type Card } from '#lib/components/MapCard.svelte';
+	import TravelSheet from '#lib/components/TravelSheet.svelte';
+	import { guarded } from '#lib/guard.ts';
+	import { live } from '#lib/live.svelte.ts';
+	import { ChartCache } from '#lib/map/chartCache.ts';
+	import { chartLayer, habitatLayer, MAX_ZOOM, placeLabels } from '#lib/map/chartLayer.ts';
+	import { gridLayer } from '#lib/map/gridLayer.ts';
+	import { serviceHours, serviceName, servicesLayer } from '#lib/map/servicesLayer.ts';
+	import { formatGridRef, MAX_DIGITS, parseGridRef } from '#lib/map/gridRef.ts';
+	import { bestiaColor, MASTER_COLOR } from '#lib/map/slotColors.ts';
+	import { speciesName } from '#lib/names.ts';
+	import { Notebook, SINGLE_KEY } from '#lib/notebook/notebook.svelte.ts';
+	import type { NotebookEntry } from '#lib/notebook/rules.ts';
+	import { distance, distanceText, ROUTES, routeBody, routeOf, sendJourney, stopJourney, stopsAhead, wayAhead, type Route, type RouteValue } from '#lib/travel.ts';
 
 	/** The notebook collection of the master's own map marks, shared with the game. */
 	const MARKS = 'marks';

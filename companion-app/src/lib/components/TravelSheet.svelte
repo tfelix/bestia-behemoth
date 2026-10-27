@@ -1,8 +1,8 @@
 <script lang="ts">
-	import type { Bestia, Position } from '$lib/api/model';
-	import { bestiaColor } from '$lib/map/slotColors';
-	import { speciesName } from '$lib/names';
-	import { distance, distanceText, routeLength, travelStatus, travelTimeText, type Route } from '$lib/travel';
+	import type { Bestia, Position } from '#lib/api/model.ts';
+	import { bestiaColor } from '#lib/map/slotColors.ts';
+	import { speciesName } from '#lib/names.ts';
+	import { distance, distanceText, routeLength, travelStatus, travelTimeText, type Route } from '#lib/travel.ts';
 
 	/**
 	 * Where the bestias are going, and the order being drafted for one: the half of the map page a journey is

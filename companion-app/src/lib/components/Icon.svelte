@@ -1,6 +1,6 @@
 <script lang="ts">
 	// The client's Tabler icons, recoloured to follow the surrounding text.
-	const sources = import.meta.glob('$lib/icons/*.svg', { query: '?raw', import: 'default', eager: true }) as Record<string, string>;
+	const sources = import.meta.glob('../icons/*.svg', { query: '?raw', import: 'default', eager: true }) as Record<string, string>;
 	const icons = Object.fromEntries(
 		Object.entries(sources).map(([path, svg]) => [
 			path.split('/').pop()!.replace('.svg', ''),

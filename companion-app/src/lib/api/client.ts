@@ -1,4 +1,4 @@
-import { accessToken, refresh } from '$lib/auth';
+import { accessToken, refresh } from '#lib/auth.ts';
 
 export class ApiError extends Error {
 	constructor(

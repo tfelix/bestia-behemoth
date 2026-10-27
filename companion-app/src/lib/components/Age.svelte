@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { age } from '$lib/age';
+	import { age } from '#lib/age.ts';
 
 	let { asOf, live = false }: { asOf: number; live?: boolean } = $props();
 	let now = $state(Date.now());

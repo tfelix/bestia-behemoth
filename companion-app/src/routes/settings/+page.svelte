@@ -1,12 +1,12 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
-	import { call, getJson, sendJson } from '$lib/api/client';
-	import type { Preferences } from '$lib/api/model';
-	import { logout } from '$lib/auth';
-	import { guarded } from '$lib/guard';
-	import { live } from '$lib/live.svelte';
-	import { currentSubscription, disablePush, enablePush, isInstalled, pushUnavailableReason } from '$lib/push';
+	import { call, getJson, sendJson } from '#lib/api/client.ts';
+	import type { Preferences } from '#lib/api/model.ts';
+	import { logout } from '#lib/auth.ts';
+	import { guarded } from '#lib/guard.ts';
+	import { live } from '#lib/live.svelte.ts';
+	import { currentSubscription, disablePush, enablePush, isInstalled, pushUnavailableReason } from '#lib/push.ts';
 
 	let prefs = $state<Preferences | null>(null);
 	let pushOn = $state(false);

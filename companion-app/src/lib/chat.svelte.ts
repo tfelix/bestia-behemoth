@@ -1,5 +1,5 @@
-import { appendLine, lineOf, type ChatLine } from '$lib/chatLog';
-import { live } from '$lib/live.svelte';
+import { appendLine, lineOf, type ChatLine } from '#lib/chatLog.ts';
+import { live } from '#lib/live.svelte.ts';
 
 const STORE = (masterId: number) => `bestia.chat.${masterId}`;
 

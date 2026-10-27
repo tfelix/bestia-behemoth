@@ -1,4 +1,4 @@
-import { accessToken, refresh } from '$lib/auth';
+import { accessToken, refresh } from '#lib/auth.ts';
 
 /** An event from the world, as the api-server relays it. */
 export type LiveEvent = { id: string; type: string; data: Record<string, unknown> };

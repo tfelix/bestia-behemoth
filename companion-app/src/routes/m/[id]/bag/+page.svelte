@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { getJson } from '$lib/api/client';
-	import type { Bestia, Holder } from '$lib/api/model';
-	import Icon from '$lib/components/Icon.svelte';
-	import { guarded } from '$lib/guard';
-	import { itemDescription, itemName, speciesName } from '$lib/names';
+	import { getJson } from '#lib/api/client.ts';
+	import type { Bestia, Holder } from '#lib/api/model.ts';
+	import Icon from '#lib/components/Icon.svelte';
+	import { guarded } from '#lib/guard.ts';
+	import { itemDescription, itemName, speciesName } from '#lib/names.ts';
 
 	const masterId = $derived(Number(page.params.id));
 	let holders = $state<Holder[] | null>(null);

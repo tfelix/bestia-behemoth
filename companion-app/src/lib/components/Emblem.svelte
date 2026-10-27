@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { emblemUrl } from '$lib/emblems';
+	import { emblemUrl } from '#lib/emblems.ts';
 
 	/** [scale] whole times the emblem's 32 pixels: only whole numbers keep its pixels square. */
 	let { hash, scale = 2 }: { hash: string; scale?: 1 | 2 | 3 } = $props();

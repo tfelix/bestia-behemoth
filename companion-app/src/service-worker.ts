@@ -7,11 +7,13 @@
  * The app's own files, cached so it opens without a network; and the notifications. API answers are not cached
  * here: they belong to one account, and a shared device must not show the last player's Masters to the next.
  */
-import { build, files, version } from '$service-worker';
+import { version } from '$app/env';
+import { assets, immutable } from '$app/manifest';
 
 const worker = self as unknown as ServiceWorkerGlobalScope;
 const SHELL = `shell-${version}`;
-const ASSETS = [...build, ...files];
+// The manifest's paths are relative to the base path, which is where this worker's scope starts.
+const ASSETS = [...immutable, ...assets].map((file) => new URL(file.path, worker.registration.scope).pathname);
 
 worker.addEventListener('install', (event) => {
 	event.waitUntil(

@@ -1,4 +1,4 @@
-import { call } from '$lib/api/client';
+import { call } from '#lib/api/client.ts';
 
 /**
  * Guild emblems as object URLs, by the hash that names them. A hash names one picture forever, so an URL is made

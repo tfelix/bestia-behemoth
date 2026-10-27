@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { MasterSummary } from '$lib/api/model';
+import type { MasterSummary } from '#lib/api/model.ts';
 import { pickRemembered } from './lastMaster';
 
 function master(id: number): MasterSummary {

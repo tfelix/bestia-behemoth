@@ -1,9 +1,11 @@
 /// <reference types="vitest/config" />
+import adapter from '@sveltejs/adapter-static';
 import { sveltekit } from '@sveltejs/kit/vite';
+import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { defineConfig, type Plugin } from 'vite';
-import { parseCsv } from './src/lib/csv';
+import { parseCsv } from './src/lib/csv.ts';
 
 const LOCALIZATION = fileURLToPath(new URL('../bestia-client/src/Localization/', import.meta.url));
 const NAMES_MODULE = 'virtual:bestia-names';
@@ -39,7 +41,15 @@ function bestiaNames(): Plugin {
 // api-server, so no request is cross-origin and the refresh cookie is first-party. IPv4 literals, because
 // `localhost` may resolve to ::1 where the servers are not listening.
 export default defineConfig({
-	plugins: [sveltekit(), bestiaNames()],
+	plugins: [
+		// A single-page app: every route renders in the browser, and the static host answers every path with
+		// index.html. The service worker is SvelteKit's own (src/service-worker.ts).
+		sveltekit({
+			preprocess: vitePreprocess(),
+			adapter: adapter({ fallback: 'index.html' })
+		}),
+		bestiaNames()
+	],
 	server: {
 		// The bestia portraits are the game client's own files, imported from beside this app.
 		fs: { allow: ['.', '../bestia-client/src/Game/Bestia'] },

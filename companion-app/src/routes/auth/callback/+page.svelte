@@ -2,8 +2,8 @@
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
-	import { finishLogin } from '$lib/auth';
-	import { landingPath } from '$lib/lastMaster';
+	import { finishLogin } from '#lib/auth.ts';
+	import { landingPath } from '#lib/lastMaster.ts';
 
 	let failure = $state<string | null>(null);
 

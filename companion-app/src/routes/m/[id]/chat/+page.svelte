@@ -1,13 +1,13 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { age } from '$lib/age';
-	import { ApiError, getJson, sendJson } from '$lib/api/client';
-	import type { ChatOrder, GuildView, PartyView } from '$lib/api/model';
-	import { chat } from '$lib/chat.svelte';
-	import { closedReason, MAX_TEXT_LENGTH, refusalText, type Channel, type Membership } from '$lib/chatLog';
-	import { touchesMaster } from '$lib/events';
-	import { guarded } from '$lib/guard';
-	import { live } from '$lib/live.svelte';
+	import { age } from '#lib/age.ts';
+	import { ApiError, getJson, sendJson } from '#lib/api/client.ts';
+	import type { ChatOrder, GuildView, PartyView } from '#lib/api/model.ts';
+	import { chat } from '#lib/chat.svelte.ts';
+	import { closedReason, MAX_TEXT_LENGTH, refusalText, type Channel, type Membership } from '#lib/chatLog.ts';
+	import { touchesMaster } from '#lib/events.ts';
+	import { guarded } from '#lib/guard.ts';
+	import { live } from '#lib/live.svelte.ts';
 
 	const CHANNELS: { value: Channel; name: string }[] = [
 		{ value: 'PARTY', name: 'Party' },

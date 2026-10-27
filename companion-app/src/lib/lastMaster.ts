@@ -1,5 +1,5 @@
-import { getJson } from '$lib/api/client';
-import type { MasterSummary } from '$lib/api/model';
+import { getJson } from '#lib/api/client.ts';
+import type { MasterSummary } from '#lib/api/model.ts';
 
 const KEY = 'bestia.lastMaster';
 

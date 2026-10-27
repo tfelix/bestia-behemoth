@@ -1,13 +1,13 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { getJson } from '$lib/api/client';
-	import type { Catalog, CompendiumEntry } from '$lib/api/model';
-	import { matches, numberLabel, type Tab } from '$lib/compendium';
-	import { touchesMaster } from '$lib/events';
-	import { guarded } from '$lib/guard';
-	import { live } from '$lib/live.svelte';
-	import { biomeName, speciesDescription, speciesName } from '$lib/names';
-	import { portraitOf } from '$lib/portraits';
+	import { getJson } from '#lib/api/client.ts';
+	import type { Catalog, CompendiumEntry } from '#lib/api/model.ts';
+	import { matches, numberLabel, type Tab } from '#lib/compendium.ts';
+	import { touchesMaster } from '#lib/events.ts';
+	import { guarded } from '#lib/guard.ts';
+	import { live } from '#lib/live.svelte.ts';
+	import { biomeName, speciesDescription, speciesName } from '#lib/names.ts';
+	import { portraitOf } from '#lib/portraits.ts';
 
 	type Species = Catalog['bestias'][number];
 

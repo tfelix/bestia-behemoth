@@ -1,5 +1,5 @@
 import L from 'leaflet';
-import type { MapMeta } from '$lib/api/model';
+import type { MapMeta } from '#lib/api/model.ts';
 import { columnName, SQUARE_METRES } from './gridRef';
 import { MAX_ZOOM } from './chartLayer';
 import { serverTileOf, spanMetres } from './tiles';

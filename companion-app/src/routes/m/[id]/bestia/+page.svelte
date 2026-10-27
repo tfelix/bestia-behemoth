@@ -1,13 +1,13 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { ApiError, getJson, sendJson } from '$lib/api/client';
-	import { STANCES, type Bestia, type StanceOrder } from '$lib/api/model';
-	import Age from '$lib/components/Age.svelte';
-	import { touchesMaster } from '$lib/events';
-	import { guarded } from '$lib/guard';
-	import { live } from '$lib/live.svelte';
-	import { speciesName, STANCE_TEXT } from '$lib/names';
-	import { stopJourney, travelStatus } from '$lib/travel';
+	import { ApiError, getJson, sendJson } from '#lib/api/client.ts';
+	import { STANCES, type Bestia, type StanceOrder } from '#lib/api/model.ts';
+	import Age from '#lib/components/Age.svelte';
+	import { touchesMaster } from '#lib/events.ts';
+	import { guarded } from '#lib/guard.ts';
+	import { live } from '#lib/live.svelte.ts';
+	import { speciesName, STANCE_TEXT } from '#lib/names.ts';
+	import { stopJourney, travelStatus } from '#lib/travel.ts';
 
 	type Draft = { stance: string; aggression: number; key: string; sending: boolean; note: string | null };
 

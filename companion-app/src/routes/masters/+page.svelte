@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { getJson } from '$lib/api/client';
-	import type { MasterSummary } from '$lib/api/model';
-	import Icon from '$lib/components/Icon.svelte';
-	import TabBar from '$lib/components/TabBar.svelte';
-	import { guarded } from '$lib/guard';
-	import { live } from '$lib/live.svelte';
+	import { getJson } from '#lib/api/client.ts';
+	import type { MasterSummary } from '#lib/api/model.ts';
+	import Icon from '#lib/components/Icon.svelte';
+	import TabBar from '#lib/components/TabBar.svelte';
+	import { guarded } from '#lib/guard.ts';
+	import { live } from '#lib/live.svelte.ts';
 
 	let masters = $state<MasterSummary[] | null>(null);
 	let failure = $state<string | null>(null);

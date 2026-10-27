@@ -1,6 +1,6 @@
-import { sendJson } from '$lib/api/client';
-import type { Bestia, Journey, JourneyOrder, Position } from '$lib/api/model';
-import type { NotebookEntry } from '$lib/notebook/rules';
+import { sendJson } from '#lib/api/client.ts';
+import type { Bestia, Journey, JourneyOrder, Position } from '#lib/api/model.ts';
+import type { NotebookEntry } from '#lib/notebook/rules.ts';
 
 /** The notebook collection the routes are kept in, shared with the game. */
 export const ROUTES = 'routes';

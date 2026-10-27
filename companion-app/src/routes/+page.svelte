@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
-	import { refresh } from '$lib/auth';
-	import { landingPath } from '$lib/lastMaster';
+	import { refresh } from '#lib/auth.ts';
+	import { landingPath } from '#lib/lastMaster.ts';
 
 	// A start from the home screen: resume the session if the refresh cookie still holds one, on the last Master.
 	onMount(async () => {

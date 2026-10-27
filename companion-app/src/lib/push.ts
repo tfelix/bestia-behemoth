@@ -1,4 +1,4 @@
-import { sendJson } from '$lib/api/client';
+import { sendJson } from '#lib/api/client.ts';
 
 /** Why notifications cannot be turned on here, or null when they can. */
 export function pushUnavailableReason(): string | null {

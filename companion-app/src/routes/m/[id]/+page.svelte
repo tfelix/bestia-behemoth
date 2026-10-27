@@ -1,12 +1,12 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { getJson } from '$lib/api/client';
-	import type { GuildView, MasterSheet, PartyView } from '$lib/api/model';
-	import Age from '$lib/components/Age.svelte';
-	import Emblem from '$lib/components/Emblem.svelte';
-	import { touchesMaster } from '$lib/events';
-	import { guarded } from '$lib/guard';
-	import { live } from '$lib/live.svelte';
+	import { getJson } from '#lib/api/client.ts';
+	import type { GuildView, MasterSheet, PartyView } from '#lib/api/model.ts';
+	import Age from '#lib/components/Age.svelte';
+	import Emblem from '#lib/components/Emblem.svelte';
+	import { touchesMaster } from '#lib/events.ts';
+	import { guarded } from '#lib/guard.ts';
+	import { live } from '#lib/live.svelte.ts';
 
 	const masterId = $derived(Number(page.params.id));
 	let sheet = $state<MasterSheet | null>(null);

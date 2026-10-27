@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { Bestia } from '$lib/api/model';
+import type { Bestia } from '#lib/api/model.ts';
 import { distanceText, routeLength, stopsAhead, travelStatus, travelTimeText, wayAhead } from './travel';
 
 const here = { eastMetres: 0, northMetres: 0 };

@@ -1,4 +1,4 @@
-import type { LiveEvent } from '$lib/live.svelte';
+import type { LiveEvent } from '#lib/live.svelte.ts';
 
 export type Channel = 'PARTY' | 'GUILD';
 

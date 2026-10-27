@@ -1,5 +1,5 @@
-import { ApiError, getJson, sendJson } from '$lib/api/client';
-import type { LiveEvent } from '$lib/live.svelte';
+import { ApiError, getJson, sendJson } from '#lib/api/client.ts';
+import type { LiveEvent } from '#lib/live.svelte.ts';
 import { applyChange, type Collection, type NotebookEntry } from './rules';
 
 type Page = { revision: number; entries: NotebookEntry[] };

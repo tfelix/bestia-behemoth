@@ -1,6 +1,6 @@
 import L from 'leaflet';
-import { call, SignedOut } from '$lib/api/client';
-import type { MapMeta, Place } from '$lib/api/model';
+import { call, SignedOut } from '#lib/api/client.ts';
+import type { MapMeta, Place } from '#lib/api/model.ts';
 import type { ChartCache } from './chartCache';
 import { isTransient, MAX_ATTEMPTS, retryDelayMillis } from './retry';
 import { inWorld, serverTileOf, type ServerTile } from './tiles';

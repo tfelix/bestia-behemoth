@@ -1,6 +1,6 @@
 import L from 'leaflet';
-import { call } from '$lib/api/client';
-import type { MapMeta, Service } from '$lib/api/model';
+import { call } from '#lib/api/client.ts';
+import type { MapMeta, Service } from '#lib/api/model.ts';
 import { inWorld } from './tiles';
 
 /** The finest-detail levels are the only ones the world lists services at, as in the game. */

@@ -1,5 +1,5 @@
-import type { LiveEvent } from '$lib/live.svelte';
-import { speciesName, STANCE_TEXT } from '$lib/names';
+import type { LiveEvent } from '#lib/live.svelte.ts';
+import { speciesName, STANCE_TEXT } from '#lib/names.ts';
 
 /** A toast's words for an event, or null for those that only refresh what is on screen. */
 export function describe(event: LiveEvent): { title: string; body: string } | null {

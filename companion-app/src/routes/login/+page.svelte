@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { startLogin } from '$lib/auth';
-	import { isInstalled, isIos } from '$lib/push';
+	import { startLogin } from '#lib/auth.ts';
+	import { isInstalled, isIos } from '#lib/push.ts';
 
 	let busy = $state(false);
 	let failure = $state<string | null>(null);

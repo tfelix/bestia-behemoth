@@ -1,4 +1,4 @@
-import type { Place } from '$lib/api/model';
+import type { Place } from '#lib/api/model.ts';
 
 /** How long a tile or a place list is trusted without asking again. Charting also clears it at once, see [ChartCache.clear]. */
 const TTL_MILLIS = 120_000;

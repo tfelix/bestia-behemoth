@@ -56,7 +56,7 @@ export async function startLogin(intent: 'LOGIN' | 'REGISTER' = 'LOGIN'): Promis
 }
 
 /** Trades the code on the callback URL for a session. */
-export async function finishLogin(callback: URL): Promise<void> {
+export async function finishLogin(callback: { readonly searchParams: { get(name: string): string | null } }): Promise<void> {
 	const pending = sessionStorage.getItem(PENDING);
 	sessionStorage.removeItem(PENDING);
 	const code = callback.searchParams.get('code');

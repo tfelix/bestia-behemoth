@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { live, type LiveEvent } from '$lib/live.svelte';
-	import { describe } from '$lib/events';
+	import { live, type LiveEvent } from '#lib/live.svelte.ts';
+	import { describe } from '#lib/events.ts';
 
 	let toasts = $state<{ id: string; title: string; body: string }[]>([]);
 
