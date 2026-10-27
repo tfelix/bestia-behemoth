@@ -58,6 +58,7 @@
  - UPKEEP wave 36: EnvironmentalExposureSystem [EveryTick]
  - UPKEEP wave 36: GroundLevelDecaySystem [EveryTick]
  - UPKEEP wave 36: GuildTagSystem [EverySeconds(seconds=1.0)]
+ - UPKEEP wave 36: LightSourceSystem [EverySeconds(seconds=10.0)]
  - UPKEEP wave 36: LogoutSystem [EverySeconds(seconds=1.0)]
  - UPKEEP wave 36: RumourExpirySystem [EverySeconds(seconds=180.0)]
  - UPKEEP wave 36: ScorchRegrowthSystem [EverySeconds(seconds=60.0)]

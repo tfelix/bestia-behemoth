@@ -11,6 +11,7 @@ import net.bestia.zone.scenarios.ScenarioDataSetup
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -87,6 +88,21 @@ class InventoryServiceStackableEquipTest {
 
     assertEquals(1, pile())
     assertTrue(itemInstanceRepository.existsById(copyId))
+  }
+
+  @Test
+  fun `burnt wear is saved, and a burnt out torch leaves nothing behind`() {
+    inventoryService.addItem(master, "torch", 1)
+    val copyId = PlayerItemIds.next()
+    inventoryService.equipFromPile(master, null, torchId, null, copyId, EquipmentSlot.LIGHT_SOURCE)
+
+    inventoryService.recordWear(copyId, 7)
+    assertEquals(7, tx.execute { itemInstanceRepository.findById(copyId).get().durability })
+
+    assertTrue(inventoryService.burnOut(master, null, EquipmentSlot.LIGHT_SOURCE))
+    assertNull(wornCopy())
+    assertEquals(0, pile())
+    assertFalse(itemInstanceRepository.existsById(copyId))
   }
 
   private fun pile(): Int = tx.execute {

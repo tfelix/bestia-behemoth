@@ -31,8 +31,8 @@ data class Equipment(
 
   /**
    * One worn item. [uniqueId] is the id of the backing
-   * [net.bestia.zone.item.persistence.ItemInstance]; equipment is never stackable so it always has
-   * one, except in the window between a fresh grant and its async DB write (see [Inventory.Item]).
+   * [net.bestia.zone.item.persistence.ItemInstance]. Stackable gear is worn as a copy split off its pile,
+   * so every worn item has one.
    */
   data class EquippedItem(
     val itemId: Long,
@@ -79,6 +79,13 @@ data class Equipment(
     markDirty()
 
     return true
+  }
+
+  /** Swaps what [slot] holds for a newer snapshot of the same copy, such as a torch that burnt a little further. */
+  fun replace(slot: EquipmentSlot, item: EquippedItem) {
+    require(worn[slot]?.uniqueId == item.uniqueId) { "$slot does not hold copy ${item.uniqueId}" }
+    worn[slot] = item
+    markDirty()
   }
 
   fun unequip(slot: EquipmentSlot): EquippedItem? {

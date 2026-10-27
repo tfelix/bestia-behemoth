@@ -19,7 +19,6 @@ import net.bestia.zone.item.PlayerItemIds
 import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.item.loot.LootItemEntitySpawner
 import net.bestia.zone.util.EntityId
-import net.bestia.zone.util.PlayerBestiaId
 import org.springframework.stereotype.Component
 import net.bestia.zone.ecs.core.modify
 import net.bestia.zone.persistence.retryingTransientFailures
@@ -53,11 +52,6 @@ class ObtainItemIntentSystem(
   )
 
   /** Whose container the item is saved to: the master's own when [playerBestiaId] is null. */
-  private data class ItemOwner(
-    val masterId: Long,
-    val playerBestiaId: PlayerBestiaId?,
-  )
-
   override val reads: ComponentClassSet = setOf(
     ObtainItemIntent.LootItemIntent::class, ObtainItemIntent.CreateItemIntent::class,
     Position::class, Account::class, Master::class, OwnedBestia::class, GroundItemStack::class, CarryCapacity::class,
@@ -253,7 +247,7 @@ class ObtainItemIntentSystem(
     roll: ItemRoll?,
     provenance: ItemProvenance?
   ) {
-    val owner = itemOwnerOf(world, entityId)
+    val owner = ItemOwner.of(world, entityId)
     if (owner == null) {
       LOG.warn { "Entity $entityId belongs to no master, granted item $itemId will not be persisted" }
       return
@@ -278,13 +272,6 @@ class ObtainItemIntentSystem(
         throw e
       }
     }
-  }
-
-  private fun itemOwnerOf(world: World, entityId: EntityId): ItemOwner? {
-    world.get(entityId, Master::class)?.let { return ItemOwner(it.masterId, null) }
-    world.get(entityId, OwnedBestia::class)?.let { return ItemOwner(it.masterId, it.playerBestiaId) }
-
-    return null
   }
 
   companion object {
