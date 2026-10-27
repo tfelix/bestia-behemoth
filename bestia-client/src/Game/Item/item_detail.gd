@@ -36,7 +36,10 @@ static func as_bbcode(
 	for rolled in rolled_stats:
 		lines.append(_stat_line(rolled.Stat, rolled.Value))
 
-	if max_durability > 0:
+	if max_durability > 0 and item.gives_light():
+		# A light's wear is the time it has left to burn, which reads better as a share than as points.
+		lines.append("Light left: %d%%" % roundi(100.0 * durability / max_durability))
+	elif max_durability > 0:
 		var broken := " (broken)" if durability <= 0 else ""
 		lines.append("Durability %d/%d%s" % [durability, max_durability, broken])
 

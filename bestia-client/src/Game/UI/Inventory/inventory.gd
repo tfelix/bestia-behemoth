@@ -217,13 +217,14 @@ func is_initialized_for_current_entity() -> bool:
 ##
 ## Worn gear is excluded because the server refuses it: you take a piece off to work on it, the same rule the
 ## item container applies to dropping and consuming. A plain stack is excluded because it has no instance at
-## all, so there is nothing per-item to change.
+## all, so there is nothing per-item to change. A partly burnt torch is excluded because the server refuses
+## it too: its wear is burn time, and no craft gives that back.
 func held_instances(entity_id: int = selected_entity_id) -> Array:
 	if not _items.has(entity_id):
 		return []
 
 	return _items[entity_id].filter(
-		func(item): return item.unique_id != 0 and not item.equipped
+		func(item): return item.unique_id != 0 and not item.equipped and not (item.item != null and item.item.gives_light())
 	)
 
 
