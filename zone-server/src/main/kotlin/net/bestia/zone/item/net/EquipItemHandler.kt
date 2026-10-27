@@ -1,6 +1,7 @@
 package net.bestia.zone.item.net
 
 import net.bestia.zone.item.stat.ItemStatCatalog
+import net.bestia.zone.item.ItemProvenance
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.zone.skill.NoviceGate
@@ -116,7 +117,13 @@ class EquipItemHandler(
       // Gear feeds StatusValueRecalcSystem, so the derived values have to be rebuilt next tick.
       add(id, IsStatusValueDirty)
 
-      Applied(itemId = item.id, uniqueId = worn.uniqueId, replacedUniqueId = previous?.uniqueId)
+      Applied(
+        itemId = item.id,
+        uniqueId = worn.uniqueId,
+        replacedUniqueId = previous?.uniqueId,
+        fromPile = held.isStackable,
+        provenance = worn.provenance
+      )
     }
 
     if (applied == null) {
@@ -144,7 +151,11 @@ class EquipItemHandler(
       // Unconditional: ItemContainer.equip refuses an occupied slot, and clearing an already empty
       // slot is a no-op, so this covers the swap case without a second branch.
       inventoryService.unequip(masterId, playerBestiaId, msg.slot)
-      inventoryService.equip(masterId, playerBestiaId, applied.itemId, applied.uniqueId, msg.slot)
+      if (applied.fromPile) {
+        inventoryService.equipFromPile(masterId, playerBestiaId, applied.itemId, applied.provenance, applied.uniqueId, msg.slot)
+      } else {
+        inventoryService.equip(masterId, playerBestiaId, applied.itemId, applied.uniqueId, msg.slot)
+      }
     }
   }
 
@@ -156,6 +167,9 @@ class EquipItemHandler(
     val itemId: Long = 0L,
     val uniqueId: Long = 0L,
     val replacedUniqueId: Long? = null,
+    /** Worn as a copy split off a pile, see [EquipmentChanges.putOn]. */
+    val fromPile: Boolean = false,
+    val provenance: ItemProvenance? = null,
     val denial: EquipmentService.Denial? = null
   )
 

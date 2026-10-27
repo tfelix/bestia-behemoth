@@ -18,6 +18,7 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import net.bestia.zone.item.persistence.ItemContainer
+import net.bestia.zone.item.persistence.ContainerSlot
 
 /**
  * The single durable-inventory entry point. Adds/removes items on an owner's [ItemContainer] and
@@ -206,9 +207,55 @@ class InventoryService(
     return withOwnerContainer(masterId, playerBestiaId) { it.equip(itemId, uniqueId, slot) }
   }
 
+  /**
+   * [equip] for stackable gear: one copy leaves the pile as the instance [instanceId], the id the live
+   * inventory already shows for it. See [ItemContainer.equipFromPile].
+   */
+  @Transactional
+  fun equipFromPile(
+    masterId: Long,
+    playerBestiaId: PlayerBestiaId?,
+    itemId: Long,
+    provenance: ItemProvenance?,
+    instanceId: Long,
+    slot: EquipmentSlot
+  ): Boolean {
+    val item = itemRepository.findByIdOrNull(itemId) ?: throw ItemNotFoundException(itemId.toString())
+
+    return withOwnerContainer(masterId, playerBestiaId) { container ->
+      container.equipFromPile(item, provenance, slot) {
+        itemInstanceRepository.save(ItemInstance(item = item, provenance = provenance, id = instanceId))
+      }
+    }
+  }
+
+  /**
+   * Takes off what is worn in [slot]. A copy of stackable gear that is still unused goes back into its pile, so
+   * a torch carried through a day does not stay a loose copy. `EquipmentChanges.takeOff` folds the live bag the
+   * same way.
+   */
   @Transactional
   fun unequip(masterId: Long, playerBestiaId: PlayerBestiaId?, slot: EquipmentSlot): Boolean {
-    return withOwnerContainer(masterId, playerBestiaId) { it.unequip(slot) != null }
+    var folded: ItemInstance? = null
+    val takenOff = withOwnerContainer(masterId, playerBestiaId) { container ->
+      val taken = container.unequip(slot) ?: return@withOwnerContainer false
+      folded = foldBackIntoPile(container, taken)
+      true
+    }
+    // After the container is saved, so the row is no longer referenced when it goes.
+    folded?.let { itemInstanceRepository.delete(it) }
+
+    return takenOff
+  }
+
+  /** Answers the instance that went back into its pile, which the caller deletes, or null when it stays a copy. */
+  private fun foldBackIntoPile(container: ItemContainer, taken: ContainerSlot): ItemInstance? {
+    val instance = taken.itemInstance?.takeIf { taken.template.stackable && it.isUnused } ?: return null
+
+    container.takeInstance(instance.id)
+    container.addStackable(taken.template, 1, instance.provenance)
+
+    return instance
   }
 
   /**

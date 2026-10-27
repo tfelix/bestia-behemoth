@@ -391,6 +391,8 @@ class CraftingService(
 
     val held = inventory.getItems().firstOrNull { it.uniqueId == uniqueId } ?: return null
     if (held.equipped) return null
+    // A half-burnt torch: once repaired it would be unused again and fold back into its pile as a fresh one.
+    if (itemTemplates.templateOf(held.itemId)?.stackable == true) return null
 
     // Null for an item the catalogue does not know, which `withinReach` then refuses outright.
     val baseLevel = itemTemplates.baseLevelOf(held.itemId) ?: return null

@@ -78,7 +78,11 @@ class CraftingFixture(
 
   val itemTemplates = mockk<ItemTemplateRegistry>().also { templates ->
     every { templates.baseLevelOf(any()) } answers { itemLevels[firstArg<Long>()] ?: DEFAULT_ITEM_LEVEL }
+    every { templates.templateOf(any()) } answers { stackableGear[firstArg<Long>()] }
   }
+
+  /** Templates of stackable gear such as torches, by id. Every other item is plain gear to the service. */
+  val stackableGear = mutableMapOf<Long, ItemTemplateRegistry.Template>()
 
   /** Runs submitted jobs immediately, so a test can assert the durable side without waiting on a thread. */
   val asyncJobExecutor = mockk<AsyncJobExecutor>().also { executor ->
