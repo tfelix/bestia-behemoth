@@ -907,6 +907,34 @@ namespace BestiaBehemothClient.Game.World
     }
 
     /// <summary>
+    /// Where a step from one tile to the next lands, by the rule the server walks by - see <see cref="WalkRules"/>.
+    /// </summary>
+    /// <remarks>
+    /// Tiles in Godot's axis order, as <c>entity.gd</c> holds them: x and z across, y the height. Returns the floor
+    /// the step lands on, <c>NaN</c> when the server would refuse the step, and <c>+Inf</c> when the terrain is not
+    /// streamed here and the step has to be taken on trust, as the server takes it.
+    /// </remarks>
+    public float StepLanding(float fromX, float fromY, float fromZ, float toX, float toZ)
+    {
+      if (WorldInfo == null)
+      {
+        return float.PositiveInfinity;
+      }
+
+      var step = WalkRules.Check(
+        Store, _wrap, WorldLayout.ChunkSize, WorldLayout.ChunkHeight,
+        (long)Math.Round(fromX), (long)Math.Round(fromZ), fromY / WorldLayout.VoxelSizeMetres,
+        (long)Math.Round(toX), (long)Math.Round(toZ), out var landing);
+
+      return step switch
+      {
+        WalkRules.Step.Allowed => (float)(landing * WorldLayout.VoxelSizeMetres),
+        WalkRules.Step.Refused => float.NaN,
+        _ => float.PositiveInfinity
+      };
+    }
+
+    /// <summary>
     /// Lays what one footstep leaves on the ground: a print, and wear on the tile and the four beside it.
     /// </summary>
     /// <remarks>

@@ -450,11 +450,16 @@ func move_to(destination: Vector3) -> void:
 	var join: Vector3 = owned_entity.joining_tile()
 	var walking := join.is_finite()
 	var start: Vector3 = join if walking else owned_entity.get_logical_position()
-	var path := PathCalculator.calculate_tile_path(start, destination)
+	var drawn := PathCalculator.calculate_tile_path(start, destination)
+	if drawn.is_empty():
+		return
+
+	# Only as far as the server will walk it. Predicting a step it refuses - into a slope, out over deep water -
+	# had the body walk on and then be pulled back to where the server stopped. The click still goes out whole:
+	# the destination is the server's to plan a way round to, and its path takes over from where this one stops.
+	var path := _walkable_prefix(start, drawn)
 	if walking:
 		path.push_front(join)
-	if path.is_empty():
-		return
 
 	var waypoints: Array[Vector3] = [destination]
 	var msg = MoveEntityCMSG.new()
@@ -467,7 +472,28 @@ func move_to(destination: Vector3) -> void:
 	# moving put the whole round trip between the click and the first step, which is what made movement feel
 	# unresponsive however well the interpolation behaved. The server walks these steps as sent when they are
 	# valid - see Entity.predict_path for what happens when it disagrees, or does not answer.
-	owned_entity.predict_path(path)
+	if not path.is_empty():
+		owned_entity.predict_path(path)
+
+
+## The steps of [param path] the server would take from [param start], stopping before the first it would refuse -
+## the same cut its ClientLeg makes. Each step lands on the floor the server would put it on; where the terrain is
+## not streamed the step is taken on trust, as the server takes it.
+func _walkable_prefix(start: Vector3, path: Array[Vector3]) -> Array[Vector3]:
+	if chunk_stream == null:
+		return path
+
+	var walkable: Array[Vector3] = []
+	var from := start
+	for step in path:
+		var landing: float = chunk_stream.StepLanding(from.x, from.y, from.z, step.x, step.z)
+		if is_nan(landing):
+			break
+		var landed := Vector3(step.x, roundf(landing) if is_finite(landing) else step.y, step.z)
+		walkable.append(landed)
+		from = landed
+
+	return walkable
 
 
 ## Sends one of the player's own entities through [param waypoints], however far: the server plans the way and
