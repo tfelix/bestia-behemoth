@@ -189,7 +189,7 @@ namespace BestiaBehemothClient.Tests
       var terrain = Mesh(source).Terrain;
       Assert.NotNull(terrain);
 
-      var grass = Appearance.ColourOf(TerrainFixtures.Grass);
+      var grass = Appearance.TintOf(TerrainFixtures.Grass);
       var interior = Interior(terrain).ToList();
 
       Assert.NotEmpty(interior);
@@ -254,7 +254,7 @@ namespace BestiaBehemothClient.Tests
       var terrain = Mesh(source).Terrain;
       Assert.NotNull(terrain);
 
-      var grass = Appearance.ColourOf(TerrainFixtures.Grass);
+      var grass = Appearance.TintOf(TerrainFixtures.Grass);
       var interior = Interior(terrain).ToList();
 
       // A metre of relief every four columns, so the extra vertices this is about are certainly in here.
@@ -295,7 +295,7 @@ namespace BestiaBehemothClient.Tests
       Assert.NotNull(terrain);
       Assert.NotNull(mesh.Water);
 
-      var sand = Appearance.ColourOf(TerrainFixtures.Sand);
+      var sand = Appearance.TintOf(TerrainFixtures.Sand);
       var interior = Interior(terrain).ToList();
 
       Assert.NotEmpty(interior);
@@ -399,7 +399,7 @@ namespace BestiaBehemothClient.Tests
       var terrain = Mesh(source).Terrain;
       Assert.NotNull(terrain);
 
-      var granite = Appearance.ColourOf(TerrainFixtures.Granite);
+      var granite = Appearance.TintOf(TerrainFixtures.Granite);
       var interior = Interior(terrain).ToList();
 
       Assert.NotEmpty(interior);
@@ -532,8 +532,8 @@ namespace BestiaBehemothClient.Tests
       var terrain = Mesh(source).Terrain;
       Assert.NotNull(terrain);
 
-      var gold = Appearance.ColourOf(TerrainFixtures.GoldOre);
-      var granite = Appearance.ColourOf(TerrainFixtures.Granite);
+      var gold = Appearance.TintOf(TerrainFixtures.GoldOre);
+      var granite = Appearance.TintOf(TerrainFixtures.Granite);
 
       var atOre = VertexOver(terrain, OreX, OreY);
       var beside = VertexOver(terrain, OreX + 2, OreY);

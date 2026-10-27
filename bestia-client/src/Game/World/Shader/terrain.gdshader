@@ -17,7 +17,7 @@ void vertex() {
 }
 
 void fragment() {
-	TerrainSurface surface = terrain_surface(COLOR.rgb);
+	TerrainSurface surface = terrain_surface(COLOR);
 
 	ALBEDO = surface.albedo;
 	EMISSION = surface.emission;

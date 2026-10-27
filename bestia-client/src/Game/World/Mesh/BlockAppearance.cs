@@ -560,6 +560,45 @@ namespace BestiaBehemothClient.Game.World.Mesh
 
     public Color ColourOf(byte blockId) => _colour[blockId];
 
+    /// <summary>
+    /// The vertex colour a material puts on the terrain: its colour, with the slot it is drawn from in alpha.
+    /// </summary>
+    /// <remarks>
+    /// The terrain shader applies the tint only to that slot's texture, so a vertex that is mostly grass but shows
+    /// soil in places does not paint the soil green.
+    /// </remarks>
+    public Color TintOf(byte blockId)
+    {
+      var colour = _colour[blockId];
+      colour.A = (int)_slot[blockId] / (float)(Slots - 1);
+
+      return colour;
+    }
+
+    /// <summary>
+    /// Each slot's own colour: that of the first terrain material drawn from it, or a negative sentinel for a slot
+    /// no material uses.
+    /// </summary>
+    /// <remarks>
+    /// A vertex carries one tint, its fullest material's. The terrain shader colours the runner-up slot of a blend
+    /// with this instead, so soil showing through turf is drawn the colour of soil rather than of grass.
+    /// </remarks>
+    public static Vector3[] SlotColours()
+    {
+      var colours = new Vector3[Slots];
+      System.Array.Fill(colours, -Vector3.One);
+
+      foreach (var block in Palette)
+      {
+        if (block.Surface == SurfaceKind.Terrain && colours[(int)block.Slot].X < 0.0f)
+        {
+          colours[(int)block.Slot] = new Vector3(block.Colour.R, block.Colour.G, block.Colour.B);
+        }
+      }
+
+      return colours;
+    }
+
     /// <summary>The texture layer a material draws from. Grey for one this palette does not know.</summary>
     public SurfaceSlot SlotOf(byte blockId) => _slot[blockId];
 

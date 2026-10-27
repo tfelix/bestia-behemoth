@@ -192,6 +192,7 @@ namespace BestiaBehemothClient.Game.World
     private static readonly StringName AlbedoHeight = "albedo_height";
     private static readonly StringName NormalRoughAo = "normal_rough_ao";
     private static readonly StringName SlotReferenceTint = "slot_reference_tint";
+    private static readonly StringName SlotPalette = "slot_palette";
     private static readonly StringName SlotUvScale = "slot_uv_scale";
     private static readonly StringName SlotUvOrigin = "slot_uv_origin";
     private static readonly StringName CliffStart = "cliff_start";
@@ -232,6 +233,7 @@ namespace BestiaBehemothClient.Game.World
         // The array type has to match the uniform's exactly - see ReferenceTints, which is a Vector3[] for this
         // one reason. A Color[] is accepted here, stored, and read back intact, and never reaches the GPU.
         material?.SetShaderParameter(SlotReferenceTint, assembled.ReferenceTints);
+        material?.SetShaderParameter(SlotPalette, BlockAppearance.SlotColours());
       }
     }
 

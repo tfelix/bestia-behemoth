@@ -144,7 +144,7 @@ void vertex() {
 }
 
 void fragment() {
-	TerrainSurface surface = terrain_surface(COLOR.rgb);
+	TerrainSurface surface = terrain_surface(COLOR);
 
 	if (debug_view == 0) {
 		ALBEDO = surface.albedo;

@@ -369,6 +369,7 @@ namespace BestiaBehemothClient.Dev
       material.SetShaderParameter("albedo_height", textures.Albedo);
       material.SetShaderParameter("normal_rough_ao", textures.Surface);
       material.SetShaderParameter("slot_reference_tint", textures.ReferenceTints);
+      material.SetShaderParameter("slot_palette", BlockAppearance.SlotColours());
 
       // The field is a few dozen metres across and sits on the origin, so there is no precision to protect and
       // every origin can be zero. Set rather than left alone because the shader's array is sixteen long, and a
