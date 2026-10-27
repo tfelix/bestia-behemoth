@@ -1035,5 +1035,29 @@ namespace BestiaBehemothClient.Tests
       Assert.False(GrassLod.Overlaps(frustum, new Vector3(11, 0, 0), new Vector3(30, 1, 1)));
       Assert.False(GrassLod.Overlaps(frustum, new Vector3(0, 0, -30), new Vector3(1, 1, -11)));
     }
+
+    /// <summary>Full turf grows the full field, and thinning only ever takes tufts away from partial turf.</summary>
+    [Fact]
+    public void TurfDensityThinsOnlyPartialTurf()
+    {
+      Assert.Equal(1.0f, GrassLod.TurfDensity(1.0f, 2.0f));
+      Assert.Equal(0.0f, GrassLod.TurfDensity(0.0f, 2.0f));
+      Assert.Equal(0.25f, GrassLod.TurfDensity(0.5f, 2.0f), 4);
+
+      // A thinning of 1 is the old linear field.
+      Assert.Equal(0.5f, GrassLod.TurfDensity(0.5f, 1.0f), 4);
+    }
+
+    /// <summary>A tuft stands full height on full turf and at the edge share where the turf has run out.</summary>
+    [Fact]
+    public void TurfHeightRunsFromTheEdgeShareToFull()
+    {
+      Assert.Equal(1.0f, GrassLod.TurfHeight(1.0f, 0.4f), 4);
+      Assert.Equal(0.4f, GrassLod.TurfHeight(0.0f, 0.4f), 4);
+      Assert.InRange(GrassLod.TurfHeight(0.5f, 0.4f), 0.4f, 1.0f);
+
+      // A share of 1 is the old field, where an edge tuft is full height.
+      Assert.Equal(1.0f, GrassLod.TurfHeight(0.2f, 1.0f), 4);
+    }
   }
 }

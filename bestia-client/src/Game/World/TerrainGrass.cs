@@ -136,6 +136,17 @@ namespace BestiaBehemothClient.Game.World
     /// </remarks>
     [Export(PropertyHint.Range, "0,20,0.1")] public float Density { get; set; } = 11.0f;
 
+    /// <summary>How much faster than the turf itself the tufts thin out where the ground is only partly grass.</summary>
+    /// <remarks>
+    /// The power on the turf share in <see cref="GrassLod.TurfDensity"/>. At 1 a half-grass vertex grows half the
+    /// tufts, which still stands as a wall at a dirt patch's edge; at 2 it grows a quarter. 1 is the old field.
+    /// </remarks>
+    [Export(PropertyHint.Range, "1,4,0.1")] public float EdgeThinning { get; set; } = 2.0f;
+
+    /// <summary>How tall, as a share of a full tuft, grass stands where the turf has all but run out.</summary>
+    /// <remarks>See <see cref="GrassLod.TurfHeight"/>. 1 is the old field, where an edge tuft is full height.</remarks>
+    [Export(PropertyHint.Range, "0.1,1,0.05")] public float EdgeHeightShare { get; set; } = 0.4f;
+
     /// <summary>Height of a tuft in metres, before <see cref="HeightSpread"/>.</summary>
     /// <remarks>
     /// The mesh is scaled uniformly, so this is its whole scale and not only its height: at 0.80 m one spans
@@ -1073,7 +1084,7 @@ namespace BestiaBehemothClient.Game.World
           continue;
         }
 
-        carry += area * grass * density;
+        carry += area * GrassLod.TurfDensity(grass, EdgeThinning) * density;
 
         var wanted = (int)carry;
         carry -= wanted;
@@ -1093,7 +1104,13 @@ namespace BestiaBehemothClient.Game.World
 
           var at = a + ab * u + ac * v;
 
-          var grown = Height * (1.0f + (rng.Float() - 0.5f) * 2.0f * HeightSpread);
+          // The turf share at this tuft's own spot rather than the triangle's average, so a tuft shrinks as it
+          // nears the edge instead of a whole triangle stepping down at once.
+          var turf = (weights[ia * 4 + Grass] * (1.0f - u - v) + weights[ib * 4 + Grass] * u +
+                      weights[ic * 4 + Grass] * v) / 255.0f;
+
+          var grown = Height * GrassLod.TurfHeight(turf, EdgeHeightShare) *
+                      (1.0f + (rng.Float() - 0.5f) * 2.0f * HeightSpread);
           var scale = grown / NaturalHeight;
 
           // Uniform, so the basis stays a rotation times a scalar - which is the assumption grass.gdshader
@@ -1162,7 +1179,7 @@ namespace BestiaBehemothClient.Game.World
         }
 
         var a = vertices[ia];
-        total += (vertices[ib] - a).Cross(vertices[ic] - a).Length() * 0.5f * grass;
+        total += (vertices[ib] - a).Cross(vertices[ic] - a).Length() * 0.5f * GrassLod.TurfDensity(grass, EdgeThinning);
       }
 
       return total;
