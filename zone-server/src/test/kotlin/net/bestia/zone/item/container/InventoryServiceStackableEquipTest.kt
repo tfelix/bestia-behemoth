@@ -9,6 +9,7 @@ import net.bestia.zone.item.persistence.ItemRepository
 import net.bestia.zone.item.persistence.findByIdentifierOrThrow
 import net.bestia.zone.scenarios.ScenarioDataSetup
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNull
@@ -52,14 +53,25 @@ class InventoryServiceStackableEquipTest {
 
   private val torchId: Long get() = tx.execute { itemRepository.findByIdentifierOrThrow("torch").id }!!
 
-  /** The fixture master is shared with other tests, so nothing of this one may stay behind. */
+  /** The fixture master is shared with other tests and starts with torches of its own; only these may change. */
+  private var pileBefore = 0
+
+  @BeforeEach
+  fun rememberPile() {
+    pileBefore = pile()
+  }
+
   @AfterEach
   fun dropTorches() {
     inventoryService.unequip(master, null, EquipmentSlot.LIGHT_SOURCE)
     tx.execute {
       val container = masterRepository.findByIdOrThrow(master).container
-      container.slots.filter { it.template.id == torchId }
-        .forEach { container.removeNamed(torchId, it.amount, it.uniqueId, it.provenance) }
+      container.slots.filter { it.template.id == torchId && !it.isStackable }
+        .forEach { container.removeNamed(torchId, 1, it.uniqueId, null) }
+      val added = container.pileAmount(torchId, null) - pileBefore
+      if (added > 0) {
+        container.removeNamed(torchId, added, 0L, null)
+      }
     }
   }
 
@@ -69,11 +81,11 @@ class InventoryServiceStackableEquipTest {
     val copyId = PlayerItemIds.next()
 
     assertTrue(inventoryService.equipFromPile(master, null, torchId, null, copyId, EquipmentSlot.LIGHT_SOURCE))
-    assertEquals(4, pile())
+    assertEquals(pileBefore + 4, pile())
     assertEquals(copyId, wornCopy())
 
     assertTrue(inventoryService.unequip(master, null, EquipmentSlot.LIGHT_SOURCE))
-    assertEquals(5, pile())
+    assertEquals(pileBefore + 5, pile())
     assertFalse(itemInstanceRepository.existsById(copyId))
   }
 
@@ -86,7 +98,7 @@ class InventoryServiceStackableEquipTest {
 
     inventoryService.unequip(master, null, EquipmentSlot.LIGHT_SOURCE)
 
-    assertEquals(1, pile())
+    assertEquals(pileBefore + 1, pile())
     assertTrue(itemInstanceRepository.existsById(copyId))
   }
 
@@ -101,7 +113,7 @@ class InventoryServiceStackableEquipTest {
 
     assertTrue(inventoryService.burnOut(master, null, EquipmentSlot.LIGHT_SOURCE))
     assertNull(wornCopy())
-    assertEquals(0, pile())
+    assertEquals(pileBefore, pile())
     assertFalse(itemInstanceRepository.existsById(copyId))
   }
 

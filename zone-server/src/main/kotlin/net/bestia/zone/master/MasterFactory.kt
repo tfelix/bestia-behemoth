@@ -149,7 +149,7 @@ class MasterFactory(
     statusEffectPersistenceService.seed(savedMaster.entityId, StatusEffectId.MASTER_INTRO_MARKER)
     grantStarterChart(savedMaster, spawnPoint)
     grantStarterGear(savedMaster)
-    grantStarterPotions(savedMaster)
+    grantStarterSupplies(savedMaster)
 
     return savedMaster
   }
@@ -191,12 +191,12 @@ class MasterFactory(
    *
    * Failure is logged and swallowed, for the reason [grantStarterChart] gives.
    */
-  private fun grantStarterPotions(master: Master) {
-    STARTER_POTIONS.forEach { (identifier, amount) ->
+  private fun grantStarterSupplies(master: Master) {
+    STARTER_SUPPLIES.forEach { (identifier, amount) ->
       val item = itemRepository.findByIdentifier(identifier)
 
       if (item == null) {
-        LOG.error { "Starter potion '$identifier' is not in the catalogue; master ${master.id} goes without" }
+        LOG.error { "Starter item '$identifier' is not in the catalogue; master ${master.id} goes without" }
         return@forEach
       }
 
@@ -322,10 +322,14 @@ class MasterFactory(
       "novice_boots" to EquipmentSlot.FOOTGEAR
     )
 
-    /** What a new master is created carrying to drink, by `items.yml` identifier and amount. */
-    private val STARTER_POTIONS = listOf(
+    /**
+     * What a new master is created carrying, by `items.yml` identifier and amount. The torches are carried, not
+     * worn: a master who never puts one in the light slot never burns one.
+     */
+    private val STARTER_SUPPLIES = listOf(
       "novice_health_potion" to 20,
-      "novice_mana_potion" to 10
+      "novice_mana_potion" to 10,
+      "torch" to 5
     )
 
     /**
