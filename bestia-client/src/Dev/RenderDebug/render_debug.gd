@@ -29,6 +29,8 @@ const _GRASS_SCRIPT := "res://Game/World/TerrainGrass.cs"
 
 const _CLOUD_SCRIPT := "res://Game/Environment/CloudShadows/cloud_shadows.gd"
 
+const _TERRAIN_SCRIPT := "res://Game/World/TerrainRenderer.cs"
+
 ## The view modes F1 walks through, in the order they answer questions.
 ##
 ## A curated list rather than the whole of [enum Viewport.DebugDraw], most of which is about lights and
@@ -107,7 +109,7 @@ func _ready() -> void:
 
 	# Printed rather than only shown, because the readout is hidden until something is off its default and a
 	# key nobody knows about is a key nobody presses.
-	print("[render debug] F1 / shift+F1 cycle view mode, F2 sdfgi, F3 ssil, F4 ssao, F8 frame times, ",
+	print("[render debug] F1 / shift+F1 cycle view mode, F2 sdfgi, F3 ssil, F4 ssao, F7 dump chunks, F8 frame times, ",
 		"F9 all three off, F10 grass draw budget, F11 shadow cascade blending, F12 cloud shadow decals")
 
 	set_process(false)
@@ -139,6 +141,8 @@ func _input(event: InputEvent) -> void:
 			_toggle_gi("ssil_enabled", "ssil")
 		KEY_F4:
 			_toggle_gi("ssao_enabled", "ssao")
+		KEY_F7:
+			_dump_chunks()
 		KEY_F8:
 			_toggle_stats()
 		KEY_F9:
@@ -310,6 +314,25 @@ func _toggle_cloud_shadows() -> void:
 		clouds.visible = false
 
 	print("[render debug] cloud shadow decals: %s" % ("off" if running else "on"))
+
+
+## Writes the streamed chunks around the camera, and the camera, to [code]user://chunk_dumps[/code].
+##
+## For the water harness's [code]--chunks=[/code], which meshes the dump with the real renderer and looks at it
+## from this same view, so a fault only the world's own ground shows can be worked on without a server. Two
+## columns each way is five chunks across, which covers everything the camera sees at the spring arm's reach.
+func _dump_chunks() -> void:
+	var terrain := _find(func(node: Node) -> bool: return _has_script(node, _TERRAIN_SCRIPT))
+	if terrain == null:
+		push_warning("[render debug] no terrain in this scene; there is nothing to dump.")
+		return
+
+	var path: String = terrain.call("DumpChunks", get_viewport().get_camera_3d(), 2)
+	if path.is_empty():
+		push_warning("[render debug] the terrain holds no chunks yet; nothing was dumped.")
+		return
+
+	print("[render debug] chunks dumped to ", path)
 
 
 ## The environment the viewport is actually rendering with.

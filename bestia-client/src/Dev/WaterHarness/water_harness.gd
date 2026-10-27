@@ -4,11 +4,15 @@ extends Node3D
 ##
 ## Run it with a window - the headless renderer draws nothing:
 ##   DISPLAY=:0 godot --path bestia-client/src res://Dev/WaterHarness/WaterHarness.tscn -- --out=DIR [--shots=a,b]
-##     [--set=reflection_strength=1.0,storm_tint=0] [--no-gi] [--stepped]
+##     [--set=reflection_strength=1.0,storm_tint=0] [--no-gi] [--stepped] [--chunks=FILE]
 ##
 ## --no-gi turns SDFGI off. Over this bare, bright plane it overexposes a clear noon until it has settled.
 ##
 ## --stepped terraces the bed the way the voxel world does, so the shore is a short step rather than a slope.
+##
+## --chunks meshes a dump taken in game with F7 (see render_debug.gd) through the real terrain renderer instead
+## of building the pond, and shoots it from the camera the dump was taken from; the close shot moves two thirds
+## of the way in toward what that camera looked at. For faults only the world's own ground shows.
 ##
 ## The pond is built here rather than streamed, so the shot needs no server and no generated world.
 
@@ -60,6 +64,7 @@ var _warmup := WARMUP_FRAMES
 var _settle := SETTLE_FRAMES
 var _overrides := {}
 var _stepped := false
+var _chunks := ""
 
 @onready var _pond_camera: Camera3D = $PondCamera
 @onready var _close_camera: Camera3D = $CloseCamera
@@ -74,6 +79,8 @@ func _ready() -> void:
 		elif arg.begins_with("--frames="):
 			_warmup = int(arg.trim_prefix("--frames="))
 			_settle = _warmup
+		elif arg.begins_with("--chunks="):
+			_chunks = arg.trim_prefix("--chunks=")
 		elif arg == "--stepped":
 			_stepped = true
 		elif arg.begins_with("--set="):
@@ -81,14 +88,17 @@ func _ready() -> void:
 				var parts := pair.split("=")
 				_overrides[parts[0]] = float(parts[1])
 
-	_build_ground()
-	_build_rocks()
-	_build_trees()
-	_build_water()
+	if _chunks.is_empty():
+		_build_ground()
+		_build_rocks()
+		_build_trees()
+		_build_water()
 
-	# The pond camera stands where the reference shot was taken from: high on the far bank, looking across.
-	_pond_camera.look_at_from_position(Vector3(0, 9.0, 15.0), Vector3(0, 0, -2.0))
-	_close_camera.look_at_from_position(Vector3(2.0, 3.0, 4.0), Vector3(-0.5, 0, -1.0))
+		# The pond camera stands where the reference shot was taken from: high on the far bank, looking across.
+		_pond_camera.look_at_from_position(Vector3(0, 9.0, 15.0), Vector3(0, 0, -2.0))
+		_close_camera.look_at_from_position(Vector3(2.0, 3.0, 4.0), Vector3(-0.5, 0, -1.0))
+	else:
+		_load_chunks()
 
 	if OS.get_cmdline_user_args().has("--no-gi"):
 		($Environment/WorldEnvironment as WorldEnvironment).environment.sdfgi_enabled = false
@@ -144,6 +154,31 @@ func _apply(shot: Array) -> void:
 	weather.DryingSeconds = 0.2
 
 	$Environment.set("_last_updated_since", 1.0e9)
+
+
+## Meshes a chunk dump through the real terrain renderer, and puts both cameras on the view it was taken from.
+func _load_chunks() -> void:
+	var terrain: Node3D = load("res://Game/World/TerrainRenderer.cs").new()
+	terrain.name = "Terrain"
+	add_child(terrain)
+	var view: Dictionary = terrain.call("LoadChunkDump", _chunks)
+
+	# The renderer loads the shared water.tres, so the overrides go on that one rather than on a copy.
+	var water: ShaderMaterial = load("res://Game/World/Shader/water.tres")
+	for parameter in _overrides:
+		water.set_shader_parameter(parameter, _overrides[parameter])
+
+	var camera: Transform3D = view["camera"]
+	for each in [_pond_camera, _close_camera]:
+		each.fov = view["fov"]
+		each.far = 2000.0
+
+	_pond_camera.global_transform = camera
+
+	# In along the view to the water plane, the server's sea level at y = 0, and two thirds of the way there.
+	var forward := -camera.basis.z
+	var reach := camera.origin.y / maxf(-forward.y, 0.05)
+	_close_camera.global_transform = camera.translated(forward * reach * 0.66)
 
 
 ## A sand bowl that rises into a grass plain, with the shore wobbled so it is not a circle.

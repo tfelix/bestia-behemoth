@@ -1079,6 +1079,55 @@ namespace BestiaBehemothClient.Game.World
       return (int)quotient;
     }
 
+    /// <summary>
+    /// Writes every held chunk within <paramref name="radius"/> columns of the camera, and the camera, to a
+    /// dump under <c>user://chunk_dumps</c>. Returns the file's absolute path, or an empty string if there was
+    /// nothing to dump. See <see cref="ChunkDump"/>.
+    /// </summary>
+    /// <remarks>
+    /// Centred on the camera rather than the player: the camera is what the screenshot saw, and at the spring
+    /// arm's longest reach the player is never more than a column and a half away from it.
+    /// </remarks>
+    public string DumpChunks(Camera3D camera, int radius)
+    {
+      if (_store == null || camera == null)
+      {
+        return "";
+      }
+
+      var centre = ChunkAt(camera.GlobalPosition);
+      var keys = _store.HeldKeys().FindAll(key =>
+        Math.Abs(key.X - centre.X) <= radius && Math.Abs(key.Y - centre.Y) <= radius);
+
+      var path = $"user://chunk_dumps/{DateTime.Now:yyyyMMdd-HHmmss}.cdmp";
+      ChunkDump.Write(path, _store, keys, camera);
+
+      return ProjectSettings.GlobalizePath(path);
+    }
+
+    /// <summary>
+    /// Meshes a dump written by <see cref="DumpChunks"/>, replacing whatever this renderer held, and returns the
+    /// camera it was taken from as <c>{ "camera": Transform3D, "fov": float }</c>.
+    /// </summary>
+    public Godot.Collections.Dictionary LoadChunkDump(string path)
+    {
+      var snapshot = ChunkDump.Read(path);
+      var store = new ClientChunkStore();
+
+      foreach (var (key, chunk) in snapshot.Chunks)
+      {
+        store.Put(key, chunk, 1);
+      }
+
+      Configure(store, null);
+      foreach (var (key, _) in snapshot.Chunks)
+      {
+        Invalidate(key);
+      }
+
+      return new Godot.Collections.Dictionary { { "camera", snapshot.Camera }, { "fov", snapshot.Fov } };
+    }
+
     public string Summary() =>
       $"terrain: {_tiles.Count} tiles, {_pending.Count} queued, {_running} meshing";
   }
