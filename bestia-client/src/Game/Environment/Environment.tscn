@@ -11,6 +11,7 @@ shader = ExtResource("5_sky")
 
 [sub_resource type="Sky" id="Sky_vrr3t"]
 sky_material = SubResource("SkyMaterial_1xco1")
+process_mode = 3
 
 [sub_resource type="Environment" id="Environment_gi4sg"]
 background_mode = 2
