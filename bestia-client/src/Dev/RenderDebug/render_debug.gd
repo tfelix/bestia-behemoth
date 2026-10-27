@@ -86,6 +86,12 @@ var _saved_gi := {}
 ## The grass budget F10 took away, or -1 while the field is running on its own.
 var _saved_budget := -1
 
+## Whether F8's frame-time line is showing. It is the one line here that is a measurement, not a switch.
+var _stats := false
+
+## Seconds since the frame-time line was last rewritten. A number that changes every frame cannot be read.
+var _stats_age := 0.0
+
 var _layer: CanvasLayer = null
 var _panel: PanelContainer = null
 var _label: Label = null
@@ -101,8 +107,10 @@ func _ready() -> void:
 
 	# Printed rather than only shown, because the readout is hidden until something is off its default and a
 	# key nobody knows about is a key nobody presses.
-	print("[render debug] F1 / shift+F1 cycle view mode, F2 sdfgi, F3 ssil, F4 ssao, ",
+	print("[render debug] F1 / shift+F1 cycle view mode, F2 sdfgi, F3 ssil, F4 ssao, F8 frame times, ",
 		"F9 all three off, F10 grass draw budget, F11 shadow cascade blending, F12 cloud shadow decals")
+
+	set_process(false)
 
 	_build_readout()
 
@@ -131,6 +139,8 @@ func _input(event: InputEvent) -> void:
 			_toggle_gi("ssil_enabled", "ssil")
 		KEY_F4:
 			_toggle_gi("ssao_enabled", "ssao")
+		KEY_F8:
+			_toggle_stats()
 		KEY_F9:
 			_toggle_all_gi()
 		KEY_F10:
@@ -223,6 +233,47 @@ func _toggle_grass_budget() -> void:
 	grass.MaxVisibleTriangles = _saved_budget
 	print("[render debug] grass draw budget: %d" % _saved_budget)
 	_saved_budget = -1
+
+
+## Shows what a frame costs and what the grass field is spending, so that its settings can be judged by the
+## frame time on the machine at hand rather than by a triangle count.
+func _toggle_stats() -> void:
+	_stats = not _stats
+	RenderingServer.viewport_set_measure_render_time(get_viewport().get_viewport_rid(), _stats)
+	set_process(_stats)
+	print("[render debug] frame times: %s" % ("on" if _stats else "off"))
+
+
+func _process(delta: float) -> void:
+	_stats_age += delta
+	if _stats_age >= 0.25:
+		_stats_age = 0.0
+		_refresh()
+
+
+func _stats_lines() -> Array[String]:
+	var viewport := get_viewport()
+	var rid := viewport.get_viewport_rid()
+	var lines: Array[String] = [
+		"%d fps   cpu %.1f ms   gpu %.1f ms" % [
+			Engine.get_frames_per_second(),
+			RenderingServer.viewport_get_measured_render_time_cpu(rid)
+				+ Performance.get_monitor(Performance.TIME_PROCESS) * 1000.0,
+			RenderingServer.viewport_get_measured_render_time_gpu(rid)],
+		"%.2f M primitives   %d draw calls" % [
+			viewport.get_render_info(Viewport.RENDER_INFO_TYPE_VISIBLE,
+				Viewport.RENDER_INFO_PRIMITIVES_IN_FRAME) / 1.0e6,
+			viewport.get_render_info(Viewport.RENDER_INFO_TYPE_VISIBLE,
+				Viewport.RENDER_INFO_DRAW_CALLS_IN_FRAME)],
+	]
+
+	var grass := _find(func(node: Node) -> bool: return _has_script(node, _GRASS_SCRIPT))
+	if grass != null:
+		lines.append("grass %.2f M wanted / %.2f M budget   %.2f M on screen   exponent %.1f   fade %d m" % [
+			grass.WantedTriangles / 1.0e6, grass.MaxVisibleTriangles / 1.0e6,
+			grass.OnScreenTriangles / 1.0e6, grass.Exponent, grass.FadeMetres])
+
+	return lines
 
 
 ## Switches the sun's PSSM cascade blending, which is where a shadow edge can wobble on its own.
@@ -361,6 +412,9 @@ func _refresh() -> void:
 		return
 
 	var lines: Array[String] = []
+
+	if _stats:
+		lines.append_array(_stats_lines())
 
 	if _draw != 0:
 		lines.append("view mode: %s" % _DRAW_NAMES[_draw])

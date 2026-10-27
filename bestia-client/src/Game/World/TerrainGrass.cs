@@ -672,6 +672,24 @@ namespace BestiaBehemothClient.Game.World
     /// </remarks>
     private float _exponent = 1.0f;
 
+    /// <summary>How steeply the field thins with distance this frame. 1 while it is under budget.</summary>
+    public float Exponent => _exponent;
+
+    /// <summary>Triangles the cells in view asked for this frame, before the budget trimmed them.</summary>
+    public int WantedTriangles { get; private set; }
+
+    /// <summary>Triangles every cell with something to draw holds this frame, in view or not.</summary>
+    public int DrawnTriangles { get; private set; }
+
+    /// <summary>The part of <see cref="DrawnTriangles"/> whose cells overlap the camera's frustum.</summary>
+    public int OnScreenTriangles { get; private set; }
+
+    /// <summary>Where the last tuft goes out this frame, after the zoom widened the band and the reach clamped it.</summary>
+    public float FadeMetres { get; private set; }
+
+    /// <summary>Chunks whose ground has arrived but whose grass is not scattered yet.</summary>
+    public int PendingChunks => _pending.Count;
+
     /// <summary>The shader's scale boost, which is a material uniform - see <see cref="ScaledMaterial"/>.</summary>
     private static readonly StringName ExtraScaleParameter = "grass_extra_scale";
 
@@ -1214,6 +1232,7 @@ namespace BestiaBehemothClient.Game.World
       // streams about 176 and the fog has closed by 220 - so past this the budget would be spent counting cells
       // that were never built.
       var fade = Mathf.Min(FadeOutMetres * band, ReachMetres);
+      FadeMetres = fade;
 
       // **Fixed in metres, and deliberately not widened by the zoom the way the density band is.** The band
       // scales because zooming out puts more ground on screen and the field would otherwise empty; a rung is
@@ -1274,15 +1293,30 @@ namespace BestiaBehemothClient.Game.World
         }
       }
 
+      WantedTriangles = wanted;
       var trim = GrassLod.BudgetTrim(wanted, MaxVisibleTriangles);
+      var drawn = 0;
+      var onScreen = 0;
+      var frustum = camera.GetFrustum();
 
       foreach (var patches in _patches.Values)
       {
         foreach (var patch in patches)
         {
           Retune(patch, trim);
+
+          var triangles = Mathf.Max(patch.Visible, 0) * TrianglesOf(patch.Drawn);
+          drawn += triangles;
+
+          if (triangles > 0 && GrassLod.Overlaps(frustum, patch.Min, patch.Max))
+          {
+            onScreen += triangles;
+          }
         }
       }
+
+      DrawnTriangles = drawn;
+      OnScreenTriangles = onScreen;
 
       // Last, and fed this frame's own answer: the exponent used above is what produced `wanted`, so the ratio
       // of the two is exactly the overshoot the controller has to correct. Moving this before the passes would
