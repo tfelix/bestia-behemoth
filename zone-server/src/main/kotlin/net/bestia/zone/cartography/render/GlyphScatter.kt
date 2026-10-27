@@ -4,9 +4,11 @@ import net.bestia.worldgen.bio.Biome
 import net.bestia.worldgen.core.GenRng
 import net.bestia.worldgen.render.Viewport
 import net.bestia.worldgen.vector.Aabb
+import net.bestia.worldgen.vector.AreaFeature
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.PointMarker
 import net.bestia.worldgen.vector.VectorFeature
+import java.awt.geom.Path2D
 import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.cos
@@ -73,7 +75,10 @@ object GlyphScatter {
      * and relying on draw order - does not work once symbols are opaque: whichever family is drawn second
      * punches holes in the other, and a wood drawn over a range hides the peaks it is standing on.
      */
-    avoid: List<DoubleArray> = emptyList()
+    avoid: List<DoubleArray> = emptyList(),
+
+    /** Whether fields and town quarters are kept clear, for a plan that draws them over the country. */
+    keepOffSettlements: Boolean = false
   ): List<Glyph> {
     val pitch = spacingPixels * view.metresPerPixel
     val level = levelSaltOf(view.metresPerPixel)
@@ -97,7 +102,9 @@ object GlyphScatter {
     val cols = (toX - fromX + 1).toInt()
     val rows = (toY - fromY + 1).toInt()
     val placed = arrayOfNulls<Placed>(cols * rows)
-    val clearance = Clearance.of(inputs, bounds, sizePixels * CLEARANCE_GLYPHS * view.metresPerPixel, avoid)
+    val clearance = Clearance.of(
+      inputs, bounds, sizePixels * CLEARANCE_GLYPHS * view.metresPerPixel, avoid, keepOffSettlements
+    )
 
     for (cellY in fromY..toY) {
       for (cellX in fromX..toX) {
@@ -349,6 +356,28 @@ object GlyphScatter {
       }
     }
 
+    /** Every cell whose centre lies inside [feature], and the cells along its edge. */
+    private fun markArea(feature: AreaFeature) {
+      val ring = Path2D.Double()
+      for ((i, v) in feature.ring.vertices.withIndex()) {
+        if (i == 0) ring.moveTo(v.x, v.y) else ring.lineTo(v.x, v.y)
+      }
+      ring.closePath()
+
+      val box = ring.bounds2D
+      val fromCol = floor((box.minX - minX) / cell).toInt().coerceAtLeast(0)
+      val toCol = floor((box.maxX - minX) / cell).toInt().coerceAtMost(cols - 1)
+      val fromRow = floor((box.minY - minY) / cell).toInt().coerceAtLeast(0)
+      val toRow = floor((box.maxY - minY) / cell).toInt().coerceAtMost(rows - 1)
+
+      for (row in fromRow..toRow) {
+        for (col in fromCol..toCol) {
+          if (ring.contains(minX + (col + 0.5) * cell, minY + (row + 0.5) * cell)) blocked[row * cols + col] = true
+        }
+      }
+      markOutline(feature)
+    }
+
     private fun markOutline(feature: VectorFeature) {
       for (line in feature.outline()) {
         val points = line.points
@@ -367,7 +396,13 @@ object GlyphScatter {
 
     companion object {
 
-      fun of(inputs: TileInputs, bounds: Aabb, margin: Double, avoid: List<DoubleArray>): Clearance {
+      fun of(
+        inputs: TileInputs,
+        bounds: Aabb,
+        margin: Double,
+        avoid: List<DoubleArray>,
+        keepOffSettlements: Boolean
+      ): Clearance {
         val cell = margin.coerceAtLeast(MIN_CLEARANCE_METRES)
         val area = bounds.expanded(cell * PLACE_CLEARANCE_CELLS)
         val cols = ceil(area.width / cell).toInt() + 1
@@ -384,6 +419,10 @@ object GlyphScatter {
             // which is a good deal wider than the road running into it.
             FeatureKind.SETTLEMENT -> if (feature is PointMarker) {
               grid.mark(feature.position.x, feature.position.y, PLACE_CLEARANCE_CELLS)
+            }
+
+            FeatureKind.FIELD, FeatureKind.DISTRICT -> if (keepOffSettlements && feature is AreaFeature) {
+              grid.markArea(feature)
             }
 
             else -> Unit

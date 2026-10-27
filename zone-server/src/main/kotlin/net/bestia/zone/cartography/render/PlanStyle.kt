@@ -2,7 +2,6 @@ package net.bestia.zone.cartography.render
 
 import net.bestia.worldgen.civ.DistrictChannels
 import net.bestia.worldgen.civ.DistrictKind
-import net.bestia.worldgen.render.Colors
 import net.bestia.worldgen.render.Viewport
 import net.bestia.worldgen.vector.AreaFeature
 import net.bestia.worldgen.vector.FeatureKind
@@ -12,9 +11,7 @@ import net.bestia.worldgen.vector.Profiles
 import net.bestia.worldgen.vector.VectorFeature
 import java.awt.BasicStroke
 import java.awt.Graphics2D
-import java.awt.RenderingHints
 import java.awt.image.BufferedImage
-import java.awt.image.DataBufferInt
 import java.awt.geom.Path2D
 
 /**
@@ -32,39 +29,35 @@ import java.awt.geom.Path2D
  * lines. That is how the reference plate reads and it is also self-correcting: the generator lays buildings
  * along streets, so the two fit together without this style having to know how they were placed.
  *
- * ### What it does when there is no town
+ * ### The country around the town is the atlas's own
  *
- * Falls through to open ground with the atlas's own relief and coastline under it. A plan tile over wilderness
- * is a legitimate request - the minimap follows the player wherever they walk - and it must not come out blank.
+ * Paper, coast, relief, woods, rivers and roads are [AtlasStyle]'s passes, drawn here too, so zooming from the
+ * atlas into a plan keeps the hills and forests and the ground's colour, and only adds the town. The glyphs keep
+ * off the town's fields and quarters, so no tree stands on a roof.
  */
 class PlanStyle(
   private val palette: PlanPalette = PlanPalette.SLATE,
-  private val atlas: AtlasPalette = AtlasPalette.VIVID
+  atlas: AtlasPalette = AtlasPalette.VIVID
 ) : MapStyle {
+
+  private val country = AtlasStyle(atlas)
 
   override val version: Int = VERSION
 
   override fun render(view: Viewport, inputs: TileInputs): BufferedImage {
-    val image = BufferedImage(view.widthPx, view.heightPx, BufferedImage.TYPE_INT_RGB)
-    val pixels = (image.raster.dataBuffer as DataBufferInt).data
+    val image = country.paper(view, inputs)
 
-    val terrain = TerrainRaster.sample(view, inputs, atlas)
-
-    ground(pixels, view, terrain)
-    Coastline.apply(pixels, view, terrain, atlas)
-
-    val g = image.createGraphics()
+    val g = country.pen(image)
     try {
-      g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
-      g.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE)
-
       val features = inputs.featuresIn(view.bounds.expanded(view.metresPerPixel * MARGIN_PIXELS))
 
-      // Under everything: worked ground is what a settlement sits in, so anything drawn over it - a road
-      // through the fields, a district that reaches into them - stays legible.
+      country.glyphs(g, view, inputs, keepOffSettlements = true)
+      // Worked ground is what a settlement sits in, so anything drawn over it - a road through the fields, a
+      // district that reaches into them - stays legible.
       fields(g, view, features)
       districts(g, view, features)
-      WaterInk.draw(g, view, inputs, palette.water, palette.waterEdge)
+      country.water(g, view, inputs)
+      country.routes(g, view, inputs)
       streets(g, view, features)
       buildings(g, view, features)
       walls(g, view, features)
@@ -73,22 +66,6 @@ class PlanStyle(
     }
 
     return image
-  }
-
-  /** Open country, in a flatter tone than the atlas uses: a plan's ground is a backdrop, not a subject. */
-  private fun ground(pixels: IntArray, view: Viewport, terrain: TerrainRaster) {
-    for (py in 0 until view.heightPx) {
-      for (px in 0 until view.widthPx) {
-        val t = terrain.index(px, py)
-        val i = py * view.widthPx + px
-
-        pixels[i] = when {
-          terrain.ground[t].isNaN() -> palette.ground
-          terrain.shore[t] > 0.0 -> palette.water
-          else -> Colors.mix(palette.ground, terrain.landTone[t], GROUND_BIOME_SHARE)
-        }
-      }
-    }
   }
 
   /**
@@ -249,7 +226,7 @@ class PlanStyle(
   companion object {
 
     /** Bumped whenever any pass changes what it draws. Part of the tile cache key; see [AtlasStyle.VERSION]. */
-    const val VERSION = 2
+    const val VERSION = 3
 
     /**
      * Coarsest zoom the plan style is used at. Above this the atlas draws instead.
@@ -260,9 +237,6 @@ class PlanStyle(
     const val MAX_METRES_PER_PIXEL = 12.0
 
     private const val MARGIN_PIXELS = 24.0
-
-    /** How much of the biome tint reaches a plan's open ground. Low: a plan is not a land-cover map. */
-    private const val GROUND_BIOME_SHARE = 0.45
 
     /** Softer than a district, so a field reads as ground rather than as another quarter. */
     private const val FIELD_ALPHA = 0.62

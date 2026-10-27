@@ -60,26 +60,15 @@ class AtlasStyle(
   override val version: Int = VERSION
 
   override fun render(view: Viewport, inputs: TileInputs): BufferedImage {
-    val image = BufferedImage(view.widthPx, view.heightPx, BufferedImage.TYPE_INT_RGB)
-    val pixels = (image.raster.dataBuffer as DataBufferInt).data
+    val image = paper(view, inputs)
 
-    val terrain = TerrainRaster.sample(view, inputs, palette)
-
-    ground(pixels, view, terrain)
-    Parchment.apply(pixels, view, inputs.seed, paperStrength)
-    Coastline.apply(pixels, view, terrain, palette)
-
-    // Everything above wrote pixels directly; everything below is drawn. Taking the Graphics2D only now is
+    // Everything in [paper] wrote pixels directly; everything below is drawn. Taking the Graphics2D only now is
     // what guarantees the order the class comment describes rather than merely documenting it.
-    val g = image.createGraphics()
+    val g = pen(image)
     try {
-      g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
-      g.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE)
-      g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON)
-
       glyphs(g, view, inputs)
-      WaterInk.draw(g, view, inputs, palette.water, palette.waterInk)
-      RouteInk.draw(g, view, inputs, palette)
+      water(g, view, inputs)
+      routes(g, view, inputs)
       PlaceInk.draw(g, view, inputs, palette)
       RegionInk.draw(g, view, inputs)
     } finally {
@@ -89,18 +78,41 @@ class AtlasStyle(
     return image
   }
 
+  /** The per-pixel passes - ground, paper, coast - which [PlanStyle] lays its town over too. */
+  internal fun paper(view: Viewport, inputs: TileInputs): BufferedImage {
+    val image = BufferedImage(view.widthPx, view.heightPx, BufferedImage.TYPE_INT_RGB)
+    val pixels = (image.raster.dataBuffer as DataBufferInt).data
+
+    val terrain = TerrainRaster.sample(view, inputs, palette)
+
+    ground(pixels, view, terrain)
+    Parchment.apply(pixels, view, inputs.seed, paperStrength)
+    Coastline.apply(pixels, view, terrain, palette)
+
+    return image
+  }
+
+  internal fun water(g: Graphics2D, view: Viewport, inputs: TileInputs) {
+    WaterInk.draw(g, view, inputs, palette.water, palette.waterInk)
+  }
+
+  internal fun routes(g: Graphics2D, view: Viewport, inputs: TileInputs) {
+    RouteInk.draw(g, view, inputs, palette)
+  }
+
   /**
-   * Relief symbols, then cover on top of them.
+   * Relief symbols, then cover on top of them; off a town's fields and quarters when [keepOffSettlements].
    *
    * Two scatters rather than one, because a wooded hill is a hill with trees on it - see [GlyphKind]. Relief
    * goes first so a tree stands in front of the slope it grows on.
    */
-  private fun glyphs(g: Graphics2D, view: Viewport, inputs: TileInputs) {
+  internal fun glyphs(g: Graphics2D, view: Viewport, inputs: TileInputs, keepOffSettlements: Boolean = false) {
     val spread = reliefSpread(view)
 
     val relief = GlyphScatter.scatter(
       view, inputs, GlyphKind.Family.RELIEF,
-      RELIEF_SPACING_PIXELS * spread, RELIEF_SIZE_PIXELS * spread.pow(RELIEF_SIZE_GAIN)
+      RELIEF_SPACING_PIXELS * spread, RELIEF_SIZE_PIXELS * spread.pow(RELIEF_SIZE_GAIN),
+      keepOffSettlements = keepOffSettlements
     )
 
     for (glyph in relief) {
@@ -115,7 +127,8 @@ class AtlasStyle(
     }
 
     for (glyph in GlyphScatter.scatter(
-      view, inputs, GlyphKind.Family.COVER, COVER_SPACING_PIXELS, COVER_SIZE_PIXELS, openGround, taken
+      view, inputs, GlyphKind.Family.COVER, COVER_SPACING_PIXELS, COVER_SIZE_PIXELS, openGround, taken,
+      keepOffSettlements
     )) {
       Glyphs.draw(g, glyph, palette)
     }
@@ -136,6 +149,14 @@ class AtlasStyle(
   private fun reliefSpread(view: Viewport): Double =
     (REFERENCE_METRES_PER_PIXEL / view.metresPerPixel).pow(RELIEF_SPREAD_EXPONENT)
       .coerceIn(1.0, MAX_RELIEF_SPREAD)
+
+  internal fun pen(image: BufferedImage): Graphics2D {
+    val g = image.createGraphics()
+    g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
+    g.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE)
+    g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON)
+    return g
+  }
 
   /** Land tone where dry, water graded by depth where wet, void outside the world. */
   private fun ground(pixels: IntArray, view: Viewport, terrain: TerrainRaster) {
@@ -166,7 +187,7 @@ class AtlasStyle(
      * Part of the tile cache key. Without it a change in here serves whatever was baked under the previous
      * look, and a half-restyled map is indistinguishable from a rendering bug.
      */
-    const val VERSION = 4
+    const val VERSION = 5
 
     /**
      * Lattice pitch and symbol size in pixels, per family.

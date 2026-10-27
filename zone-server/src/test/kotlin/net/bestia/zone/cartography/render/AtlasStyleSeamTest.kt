@@ -38,30 +38,40 @@ class AtlasStyleSeamTest {
 
   @Test
   fun `four quadrants match the whole they tile`() {
-    val whole = viewAt(CENTRE_X, CENTRE_Y, LEVEL, TILE * 2, TILE * 2)
+    assertQuadrantsMatchWhole(style, CENTRE_X, CENTRE_Y, LEVEL, TILE)
+  }
+
+  /** The plan draws the atlas's woods round a town and keeps them off its fields, which must not depend on the tile. */
+  @Test
+  fun `four plan quadrants over a town match the whole they tile`() {
+    assertQuadrantsMatchWhole(PlanStyle(), TOWN_X, TOWN_Y, PLAN_LEVEL, PLAN_TILE)
+  }
+
+  private fun assertQuadrantsMatchWhole(style: MapStyle, centreX: Double, centreY: Double, level: Int, tile: Int) {
+    val whole = viewAt(centreX, centreY, level, tile * 2, tile * 2)
     val wholePixels = pixelsOf(style.render(whole, inputs))
 
-    val span = TILE * whole.metresPerPixel
+    val span = tile * whole.metresPerPixel
 
     // Quadrant centres are half a tile from the whole view's centre in each direction.
     for (quadrantY in 0..1) {
       for (quadrantX in 0..1) {
         val view = viewAt(
-          CENTRE_X + (quadrantX - 0.5) * span,
-          CENTRE_Y + (0.5 - quadrantY) * span,
-          LEVEL,
-          TILE,
-          TILE
+          centreX + (quadrantX - 0.5) * span,
+          centreY + (0.5 - quadrantY) * span,
+          level,
+          tile,
+          tile
         )
-        val tile = pixelsOf(style.render(view, inputs))
+        val rendered = pixelsOf(style.render(view, inputs))
 
-        val offsetX = quadrantX * TILE
-        val offsetY = quadrantY * TILE
+        val offsetX = quadrantX * tile
+        val offsetY = quadrantY * tile
 
-        for (py in 0 until TILE) {
-          for (px in 0 until TILE) {
-            val expected = wholePixels[(py + offsetY) * TILE * 2 + px + offsetX]
-            val actual = tile[py * TILE + px]
+        for (py in 0 until tile) {
+          for (px in 0 until tile) {
+            val expected = wholePixels[(py + offsetY) * tile * 2 + px + offsetX]
+            val actual = rendered[py * tile + px]
 
             assertEquals(
               expected,
@@ -165,6 +175,12 @@ class AtlasStyleSeamTest {
     const val LEVEL = 6
 
     const val TILE = 64
+
+    /** Trestein, found with `mapInspect -Ptowns`: its fields, quarters and the wood beside it at 8 m per pixel. */
+    const val TOWN_X = 35000.0
+    const val TOWN_Y = 31300.0
+    const val PLAN_LEVEL = 3
+    const val PLAN_TILE = 128
 
     /** Points along the walk across the coast. Enough to cross it and to cost a fraction of a second. */
     const val CROSS_ZOOM_SAMPLES = 100

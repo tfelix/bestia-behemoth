@@ -333,6 +333,12 @@ MAP_SEARCH_HINT,Place or grid reference (H12 41 37)
 MAP_SEARCH_NONE,No charted place matches %s
 MAP_GRID,Grid
 MAP_GRID_TIP,Show the grid squares (G)
+MAP_HOVER_MARK,Your mark
+MAP_HOVER_BESTIA,Your Bestia
+MAP_HOVER_GUILD,Guild member
+MAP_HOVER_OPEN,Open now
+MAP_HOVER_CLOSED,Closed now
+MAP_HOVER_SERVICES,%d services in view
 GUILD_LOG_EMPTY,Nothing has happened in the guild yet.
 GUILD_LOG_FOUNDED,{actor} founded the guild.
 GUILD_LOG_JOINED,{actor} joined the guild.

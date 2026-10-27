@@ -61,6 +61,23 @@ const _LABEL_COLOUR := Color(0.97, 0.93, 0.85)
 const _LABEL_SELECTED := Color(1.0, 0.86, 0.35)
 const _LABEL_HALO := Color(0.11, 0.095, 0.08, 0.8)
 
+## A place name is printed the way the atlas would letter it: dark ink in a paper halo, which reads over the
+## parchment and the woods where light text in a dark halo turned into a smudge.
+const _PLACE_INK := Color(0.16, 0.11, 0.06)
+const _PLACE_SELECTED := Color(0.62, 0.14, 0.10)
+const _PLACE_HALO := Color(0.96, 0.91, 0.80, 0.92)
+
+## Halo width in pixels, drawn as a font outline.
+const _HALO_PIXELS := 4
+
+## The hover card: how far from the pointer it sits, its padding, and its text sizes.
+const _HOVER_OFFSET := Vector2(18.0, 18.0)
+const _HOVER_PADDING := 6.0
+const _HOVER_TITLE_SIZE := 14
+const _HOVER_LINE_SIZE := 12
+const _HOVER_FILL := Color(0.11, 0.095, 0.08, 0.94)
+const _HOVER_BORDER := Color(0.62, 0.50, 0.32)
+
 ## The player's own marks. A cool ink against the warm one the world's places use, because the difference
 ## that matters at a glance is 'mine' against 'the world's' rather than which kind of place it is.
 const _MARK_COLOUR := Color(0.62, 0.85, 1.0)
@@ -80,12 +97,12 @@ const _FAILURE_ARM := 4.0
 ## Point size per settlement tier, and for everything that is not a settlement. A city's name carries further
 ## than a hamlet's for the same reason its symbol does.
 const _LABEL_SIZES := {
-	"CITY": 14,
-	"TOWN": 12,
-	"VILLAGE": 10,
-	"HAMLET": 9,
+	"CITY": 18,
+	"TOWN": 16,
+	"VILLAGE": 13,
+	"HAMLET": 12,
 }
-const _LABEL_SIZE_DEFAULT := 10
+const _LABEL_SIZE_DEFAULT := 12
 
 ## Pixels above the symbol the name sits, per tier, so a name clears the mark it belongs to.
 ##
@@ -94,10 +111,10 @@ const _LABEL_SIZE_DEFAULT := 10
 ## hand rather than sent with the place: the numbers are a drawing decision on each side, and shipping them
 ## per tile would put the atlas's pen sizes on the wire for every town.
 const _LABEL_OFFSETS := {
-	"CITY": 15.0,
-	"TOWN": 12.4,
-	"VILLAGE": 10.7,
-	"HAMLET": 8.3,
+	"CITY": 20.0,
+	"TOWN": 16.0,
+	"VILLAGE": 13.5,
+	"HAMLET": 10.0,
 }
 
 ## For everything that is not a settlement: the site marks are all about the same size.
@@ -300,6 +317,11 @@ var _owned_dots_drawn: Array[Dictionary] = []
 var _guild_dots_drawn: Array[Vector2] = []
 
 var _dragging := false
+
+## What the pointer rests on, as the lines of its hover card (the first is the title), and where the pointer is;
+## no lines while it rests on nothing.
+var _hover_lines: Array[String] = []
+var _hover_at := Vector2.ZERO
 
 ## Whether the pointer moved between press and release. What separates a click from the end of a pan.
 var _dragged := false
@@ -551,6 +573,7 @@ func _draw() -> void:
 	_draw_player()
 	_draw_pin()
 	_draw_north()
+	_draw_hover()
 
 
 ## Lines between [param west]..[param east] and [param south]..[param north] world metres, clipped to the
@@ -873,20 +896,10 @@ func _draw_places() -> void:
 		var origin := Vector2(at.x - width * 0.5, at.y - lift)
 
 		var selected: bool = _selected_id != 0 and int(place.get("id", 0)) == _selected_id
-		var ink := _LABEL_SELECTED if selected else _LABEL_COLOUR
 
-		# A halo of the fog colour behind the text rather than a box, the same trick the atlas uses: a name
-		# over hatching or a forest has to stay readable, and a plate behind every label would bury the map.
-		for dx in [-1, 0, 1]:
-			for dy in [-1, 0, 1]:
-				if dx == 0 and dy == 0:
-					continue
-				draw_string(
-					font, origin + Vector2(dx, dy), text,
-					HORIZONTAL_ALIGNMENT_LEFT, -1, points, _LABEL_HALO
-				)
-
-		draw_string(font, origin, text, HORIZONTAL_ALIGNMENT_LEFT, -1, points, ink)
+		# A halo behind the text rather than a box, the same trick the atlas uses: a name over hatching or a
+		# forest has to stay readable, and a plate behind every label would bury the map.
+		_draw_haloed(font, origin, text, points, _PLACE_SELECTED if selected else _PLACE_INK, _PLACE_HALO)
 
 
 ## A glyph per service in view, dimmed where it is shut, and the selected one's name and hours over it.
@@ -933,14 +946,9 @@ func _draw_service_label(at: Vector2, service: Dictionary) -> void:
 		baseline += line_height
 
 
-## Text with a halo of the fog colour behind it, the way [method _draw_places] writes a name.
-func _draw_haloed(font: Font, origin: Vector2, text: String, points: int, ink: Color) -> void:
-	for dx in [-1, 0, 1]:
-		for dy in [-1, 0, 1]:
-			if dx == 0 and dy == 0:
-				continue
-			draw_string(font, origin + Vector2(dx, dy), text, HORIZONTAL_ALIGNMENT_LEFT, -1, points, _LABEL_HALO)
-
+## Text with a halo behind it, the fog colour unless [param halo] says otherwise.
+func _draw_haloed(font: Font, origin: Vector2, text: String, points: int, ink: Color, halo: Color = _LABEL_HALO) -> void:
+	draw_string_outline(font, origin, text, HORIZONTAL_ALIGNMENT_LEFT, -1, points, _HALO_PIXELS, halo)
 	draw_string(font, origin, text, HORIZONTAL_ALIGNMENT_LEFT, -1, points, ink)
 
 
@@ -1080,17 +1088,7 @@ func _draw_marks() -> void:
 		var text := str(mark["name"])
 		var width := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, _LABEL_SIZE_DEFAULT).x
 		var origin := Vector2(at.x - width * 0.5, at.y - _LABEL_OFFSET)
-
-		for dx in [-1, 0, 1]:
-			for dy in [-1, 0, 1]:
-				if dx == 0 and dy == 0:
-					continue
-				draw_string(
-					font, origin + Vector2(dx, dy), text,
-					HORIZONTAL_ALIGNMENT_LEFT, -1, _LABEL_SIZE_DEFAULT, _LABEL_HALO
-				)
-
-		draw_string(font, origin, text, HORIZONTAL_ALIGNMENT_LEFT, -1, _LABEL_SIZE_DEFAULT, _MARK_COLOUR)
+		_draw_haloed(font, origin, text, _LABEL_SIZE_DEFAULT, _MARK_COLOUR)
 
 
 ## A right click: on one of the player's own marks, or on ground they might want to mark.
@@ -1487,6 +1485,7 @@ func _gui_input(event: InputEvent) -> void:
 
 	elif event is InputEventMouseMotion and _dragging:
 		_dragged = true
+		_hover_lines.clear()
 		var mpp := _metres_per_pixel()
 		centre.x -= event.relative.x * mpp
 		centre.y += event.relative.y * mpp
@@ -1494,6 +1493,110 @@ func _gui_input(event: InputEvent) -> void:
 		_clamp_centre()
 		queue_redraw()
 		accept_event()
+
+	elif event is InputEventMouseMotion:
+		_update_hover(event.position)
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_MOUSE_EXIT and not _hover_lines.is_empty():
+		_hover_lines.clear()
+		queue_redraw()
+
+
+## Redraws only when what is under the pointer changed, or the card has to follow the pointer across it.
+func _update_hover(at: Vector2) -> void:
+	var lines := _hover_lines_at(at)
+	if lines.is_empty() and _hover_lines.is_empty():
+		return
+
+	_hover_lines = lines
+	_hover_at = at
+	queue_redraw()
+
+
+## The hover card for whatever is nearest under [param at]: the player's own marks and entities first, since they
+## sit on top of the world's places, then services and places.
+func _hover_lines_at(at: Vector2) -> Array[String]:
+	var lines: Array[String] = []
+	var reach := _PLACE_HIT_RADIUS * _metres_per_pixel()
+	var world := _to_world(at)
+
+	if marks != null:
+		var mark := marks.nearest(world, reach)
+		if mark >= 0:
+			var entry: Dictionary = marks.all()[mark]
+			lines.assign([str(entry["name"]), tr("MAP_HOVER_MARK"), grid_ref_of(Vector2(float(entry["x"]), float(entry["y"])))])
+			return lines
+
+	for dot in _owned_dots():
+		if _to_screen(dot["at"]).distance_to(at) < _PLACE_HIT_RADIUS:
+			var entity = entity_manager.get_entity(entity_manager.get_owned_entity_ids()[dot["slot"]])
+			var name_of: String = entity.get_display_name() if entity != null else ""
+			lines.assign([tr("MAP_HOVER_BESTIA") if name_of.is_empty() else name_of, grid_ref_of(dot["at"])])
+			return lines
+
+	if entity_manager != null:
+		var beacons: Dictionary = entity_manager.get_guild_beacons()
+		for entity_id in beacons:
+			var beacon: GuildMemberBeaconComponentSMSG = beacons[entity_id]
+			var beacon_at := Vector2(beacon.Position.x, beacon.Position.z) * _metres_per_voxel
+			if entity_id != entity_manager.get_owned_master_entity_id() and _to_screen(beacon_at).distance_to(at) < _PLACE_HIT_RADIUS:
+				var member = entity_manager.get_entity(entity_id)
+				var name_of: String = member.get_display_name() if member != null else ""
+				lines.assign([tr("MAP_HOVER_GUILD") if name_of.is_empty() else name_of, beacon.AreaName, grid_ref_of(beacon_at)])
+				return lines
+
+	var hit := _place_at(at)
+	if hit.is_empty():
+		return lines
+
+	var entry: Dictionary = hit["entry"]
+	if hit["service"]:
+		lines.append(service_label(entry))
+		var hours := service_hours(entry)
+		if not hours.is_empty():
+			lines.append(hours)
+			lines.append(tr("MAP_HOVER_OPEN") if is_open(entry, _hour_of_day()) else tr("MAP_HOVER_CLOSED"))
+		return lines
+
+	lines.append(label_of(entry))
+	var tier := _text_of(entry, "tier")
+	if not tier.is_empty():
+		lines.append(tr("SETTLEMENT_TIER_" + tier))
+	lines.append(grid_ref_of(_position_of(entry)))
+	var services := _visible_services.filter(func(s: Dictionary) -> bool: return _text_of(s, "settlement") == label_of(entry))
+	if not services.is_empty():
+		lines.append(tr("MAP_HOVER_SERVICES") % services.size())
+	return lines
+
+
+## The card, beside the pointer and kept inside the view.
+func _draw_hover() -> void:
+	var font := get_theme_default_font()
+	if _hover_lines.is_empty() or font == null:
+		return
+
+	var width := 0.0
+	var height := 0.0
+	for i in _hover_lines.size():
+		var points := _HOVER_TITLE_SIZE if i == 0 else _HOVER_LINE_SIZE
+		width = maxf(width, font.get_string_size(_hover_lines[i], HORIZONTAL_ALIGNMENT_LEFT, -1, points).x)
+		height += font.get_height(points)
+
+	var box := Rect2(_hover_at + _HOVER_OFFSET, Vector2(width, height) + Vector2.ONE * _HOVER_PADDING * 2.0)
+	box.position.x = minf(box.position.x, size.x - box.size.x)
+	box.position.y = minf(box.position.y, size.y - box.size.y)
+	draw_rect(box, _HOVER_FILL)
+	draw_rect(box, _HOVER_BORDER, false, 1.0)
+
+	var baseline := box.position.y + _HOVER_PADDING
+	for i in _hover_lines.size():
+		var points := _HOVER_TITLE_SIZE if i == 0 else _HOVER_LINE_SIZE
+		baseline += font.get_ascent(points)
+		draw_string(font, Vector2(box.position.x + _HOVER_PADDING, baseline), _hover_lines[i],
+			HORIZONTAL_ALIGNMENT_LEFT, -1, points, _LABEL_SELECTED if i == 0 else _LABEL_COLOUR)
+		baseline += font.get_descent(points)
 
 
 ## Zooms a step, keeping the world point under the cursor where it is - so zooming follows what the player

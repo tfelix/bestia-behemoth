@@ -626,7 +626,7 @@ object PlaceInk {
   /**
    * How far outside the tile features are gathered, in pixels.
    *
-   * Comfortably wider than the widest pair [isCrowded] can compare - a city's ten pixels against a site's
+   * Comfortably wider than the widest pair [isCrowded] can compare - a city's fifteen pixels against a site's
    * six - because a symbol inside the tile must see every mark that could suppress it, including ones whose
    * own centres fall outside. Too narrow and a tomb beside a city would be drawn on one tile and dropped on
    * the next.
@@ -639,19 +639,18 @@ object PlaceInk {
   /**
    * Half-width of each tier's symbol, in pixels, at every zoom.
    *
-   * Roughly twice what they were. The old marks were rings of two or three pixels, which is legible on bare
-   * paper and invisible the moment a wood or a range is drawn under them - and both are drawn far more
-   * densely now than when those numbers were chosen.
+   * A town has to stand out of the woods and ranges drawn around it, which are dense, and be big enough to aim a
+   * click or a hover at. The client lifts each name clear of these radii by hand: `map_view.gd` `_LABEL_OFFSETS`.
    */
   private val SettlementTier.radius: Double
     get() = when (this) {
-      SettlementTier.CITY -> 10.0
-      SettlementTier.TOWN -> 7.4
-      SettlementTier.VILLAGE -> 5.7
-      SettlementTier.HAMLET -> 3.3
+      SettlementTier.CITY -> 15.0
+      SettlementTier.TOWN -> 11.0
+      SettlementTier.VILLAGE -> 8.5
+      SettlementTier.HAMLET -> 5.0
     }
 
-  private const val SYMBOL_PEN = 1.2f
+  private const val SYMBOL_PEN = 1.6f
 
   private const val SITE_RADIUS = 6.3
   private const val SITE_PEN = 1.3f
