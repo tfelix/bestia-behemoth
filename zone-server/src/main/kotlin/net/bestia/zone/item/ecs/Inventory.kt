@@ -329,6 +329,18 @@ data class Inventory(
     return true
   }
 
+  /** Shows the wear the copy [uniqueId] really has, which the database or a worn slot knew better. */
+  fun mirrorWear(uniqueId: Long, durability: Int, maxDurability: Int): Boolean {
+    if (uniqueId == 0L) return false
+    val item = items.find { it.uniqueId == uniqueId } ?: return false
+
+    item.durability = durability
+    item.maxDurability = maxDurability
+    markDirty()
+
+    return true
+  }
+
   override fun toEntityMessage(entityId: Long, removed: Boolean): EntitySMSG {
     return InventoryComponentSMSG(
       entityId = entityId,

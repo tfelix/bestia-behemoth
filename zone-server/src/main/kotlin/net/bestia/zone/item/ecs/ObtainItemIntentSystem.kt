@@ -1,5 +1,6 @@
 package net.bestia.zone.item.ecs
 
+import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.entity.GameMetrics
 import net.bestia.zone.item.stat.ItemStatCatalog
 import net.bestia.zone.item.stat.ItemRoll
@@ -38,6 +39,7 @@ class ObtainItemIntentSystem(
   private val asyncJobExecutor: AsyncJobExecutor,
   private val groundStackRemoval: GroundStackRemoval,
   private val itemStats: ItemStatCatalog,
+  private val worldView: WorldView,
   private val metrics: GameMetrics = GameMetrics(),
 ) : System {
   override val phase = Phase.ITEMS
@@ -222,7 +224,7 @@ class ObtainItemIntentSystem(
           // Mirrors what InventoryService.grant is about to mint: a fresh instance starts unworn, and a
           // stackable item gets no instance and therefore no durability at all. A re-attached instance
           // (uniqueId != 0, an item picked back up off the ground) keeps whatever wear it had, which this
-          // cannot see - the client gets the real number on the next full inventory send.
+          // cannot see - the persist job mirrors it once the row is read.
           durability = if (item.stackable) 0 else item.maxDurability,
           maxDurability = if (item.stackable) 0 else item.maxDurability,
           slots = roll?.sockets ?: 0,
@@ -260,10 +262,16 @@ class ObtainItemIntentSystem(
     // The live inventory already holds the item, so a write lost here is an item gone after a restart.
     asyncJobExecutor.submit(key = owner.masterId) {
       try {
-        retryingTransientFailures {
+        val reattached = retryingTransientFailures {
           inventoryService.grantToOwner(
             owner.masterId, owner.playerBestiaId, itemId, amount, uniqueId, roll, provenance, freshInstanceIds
           )
+        }
+        // Otherwise a half-burnt torch picked back up would look, and fold back into its pile, as a fresh one.
+        reattached?.let { instance ->
+          worldView.modify(entityId) { id ->
+            get(id, Inventory::class)?.mirrorWear(instance.id, instance.durability, instance.maxDurability)
+          }
         }
       } catch (e: Exception) {
         LOG.error { "${amount}x item $itemId for $owner was not saved and is gone after a restart" }
