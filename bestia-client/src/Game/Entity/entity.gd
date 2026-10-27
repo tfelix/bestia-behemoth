@@ -200,10 +200,19 @@ func _process(delta: float) -> void:
 		_worst_frame = delta
 		_worst_frame_at_msec = now_msec
 
+	# Where the last frame left the body rather than where this one starts: a network message between frames moves
+	# it too, and that is exactly the kind of jump this is looking for.
+	var drawn_before := _last_drawn
+	var error_before := _error
+	var ground_before := _ground_offset
+
 	_update_movement(delta)
 	_update_visual_rotation()
 	_update_ground_offset(delta)
 	_update_visible_on_held_ground(delta)
+
+	_log_jerk(delta, drawn_before, error_before, ground_before)
+	_last_drawn = position
 
 	# After a whole frame, so everything an appear snapshot says about a body has been applied by now.
 	if _has_position and not _is_dead:
@@ -343,6 +352,40 @@ func _warn_correction(kind: String, metres: float, detail: String = "") -> void:
 			Time.get_time_string_from_system(), entity_id, kind, metres, detail, _speed, _is_moving, _is_predicted_walk,
 			not _predicted_path.is_empty(), _awaiting_arrival, _travelled, total, _nodes.size(),
 			_server_position, _logical_position, worst_ms, _HITCH_WINDOW_MSEC / 1000])
+
+
+## Logs a frame in which the player's own body moved in a way a steady walk does not: faster than its pace
+## plus the catch-up boost, backwards along its path, or up or down by more than the ground offset may ease.
+##
+## Corrections under [constant _WARN_CORRECTION_METRES] are never logged by [method _warn_correction], and a
+## jolt that is not a correction at all - the ground offset, a path rebuilt under the feet - never is either. This
+## measures the body as drawn instead, so whatever the eye sees as a snap has a line here with its cause.
+const _JERK_HORIZONTAL_SLACK_METRES: float = 0.15
+const _JERK_VERTICAL_METRES: float = 0.25
+var _last_drawn: Vector3 = Vector3.ZERO
+
+func _log_jerk(delta: float, drawn_before: Vector3, error_before: float, ground_before: float) -> void:
+	# Zero is the first frame with a position, whose jump in from the origin says nothing.
+	if _camera == null or not _has_position or delta <= 0.0 or drawn_before == Vector3.ZERO:
+		return
+
+	var moved := position - drawn_before
+	var flat := Vector2(moved.x, moved.z).length()
+	var allowed := (_speed + _CORRECTION_MAX_BOOST) * delta + _JERK_HORIZONTAL_SLACK_METRES
+	var heading := Vector2.ZERO
+	if _is_moving and _seg + 1 < _nodes.size():
+		var along := _nodes[_seg + 1] - _nodes[_seg]
+		heading = Vector2(along.x, along.z).normalized()
+	var backwards := heading != Vector2.ZERO and Vector2(moved.x, moved.z).dot(heading) < -_JERK_HORIZONTAL_SLACK_METRES
+
+	if flat <= allowed and absf(moved.y) <= _JERK_VERTICAL_METRES and not backwards:
+		return
+
+	print("[jerk] %s entity %d frame %.0f ms: moved %.2f m flat (allowed %.2f), %.2f m up%s | moving %s, predicted %s, error %.2f -> %.2f, ground offset %.2f -> %.2f, travelled %.2f/%.2f m, seg %d/%d, logical %s" % [
+		Time.get_time_string_from_system(), entity_id, delta * 1000.0, flat, allowed, moved.y,
+		", BACKWARDS" if backwards else "", _is_moving, _is_predicted_walk, error_before, _error,
+		ground_before, _ground_offset, _travelled, 0.0 if _arc.is_empty() else _arc[_arc.size() - 1],
+		_seg, maxi(_nodes.size() - 1, 0), _logical_position])
 
 
 ## Asks the visual for a pose, but only when it is not the one already asked for.
