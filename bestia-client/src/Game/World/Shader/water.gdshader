@@ -54,9 +54,20 @@ uniform float foam_distance : hint_range(0.05, 4.0) = 0.35;
 // Width of the soft edge on every foam shape. Small keeps the cartoon look; zero would alias.
 uniform float foam_softness : hint_range(0.005, 0.3) = 0.04;
 
-// Lines that roll toward the shore and merge into the foam band, one every `1 / foam_line_speed` seconds.
-uniform float foam_line_strength : hint_range(0.0, 1.0) = 0.7;
-uniform float foam_line_speed : hint_range(0.0, 1.0) = 0.22;
+// Soft wisps of foam lying along the shore beyond the band, drifting in toward it.
+uniform float streak_strength : hint_range(0.0, 1.0) = 0.85;
+
+// Streaks per foam width, and how many foam widths out from the shore they reach.
+uniform float streak_density : hint_range(0.5, 6.0) = 2.0;
+uniform float streak_reach : hint_range(1.0, 8.0) = 2.4;
+
+// Width of one streak as a fraction of the gap between two. Wider reads softer.
+uniform float streak_width : hint_range(0.02, 0.5) = 0.2;
+
+uniform float streak_speed : hint_range(0.0, 1.0) = 0.12;
+
+// A whitish wash over the shallows just past the band, so the foam fades into the water instead of ending.
+uniform float shore_glow : hint_range(0.0, 1.0) = 0.15;
 
 // Foam on wave crests in a storm, scaled by the same wind factor as the waves.
 uniform float whitecaps : hint_range(0.0, 1.0) = 0.6;
@@ -75,7 +86,7 @@ uniform float wave_speed : hint_range(0.0, 1.0) = 0.045;
 
 // How far the normal tilts in calm air and at `storm_wind_speed`. Normals only: the server's water height
 // decides wading and swimming, so the sheet must stay where the mesher put it.
-uniform float wave_strength : hint_range(0.0, 2.0) = 0.22;
+uniform float wave_strength : hint_range(0.0, 2.0) = 0.1;
 uniform float storm_wave_strength : hint_range(0.0, 2.0) = 1.1;
 
 // Wind speeds in m/s, read from `weather_wind`, between which the waves grow from calm to storm.
@@ -87,9 +98,6 @@ uniform float wind_follow : hint_range(0.0, 0.2) = 0.03;
 
 // Extra chop from rain, read from the shared wetness global.
 uniform float rain_chop : hint_range(0.0, 1.0) = 0.45;
-
-// Faint bright lines along the ripple ridges, the painted look of a sunlit surface.
-uniform float surface_lines : hint_range(0.0, 1.0) = 0.08;
 
 group_uniforms;
 
@@ -228,7 +236,7 @@ void fragment() {
 
 	float storm = storminess();
 	float wetness = clamp(weather_wetness, 0.0, 1.0);
-	float chop = 0.35 + rain_chop * wetness + 0.4 * storm;
+	float chop = 0.2 + rain_chop * wetness + 0.55 * storm;
 
 	// Central differences on the height field: cheaper than a normal map and needs no tangents, which
 	// surface nets does not emit.
@@ -272,31 +280,28 @@ void fragment() {
 	// Grazing angles hide the bed whatever the depth, which keeps a wide sea from fading out at the horizon.
 	alpha = clamp(alpha + fresnel * level_face * (1.0 - alpha) * sheen_strength, 0.0, 1.0);
 
-	// Ridges of the ripple layer, where its noise crosses the middle value: thin wandering lines. Calm
-	// weather only, since storm chop would turn them into static.
-	float ridge = abs(here / (1.0 + chop) - 0.5);
-	float lines = smoothstep(0.04, 0.0, ridge) * surface_lines * (1.0 - storm) * level_face;
-	albedo = mix(albedo, foam_colour, lines);
-
-	// Foam, every part of it a hard-edged shape cut from noise. The breakup noise is sampled finer than
-	// the waves so the shore band is ragged rather than a contour of the depth.
+	// Foam. The band and the whitecaps are hard-edged shapes cut from noise; the streaks are soft. The breakup
+	// noise is finer than the waves so the band is ragged rather than a contour of the depth.
 	float breakup = texture(wave_noise, wave_uv(v_world_pos.xz, wave_scale * 0.12, vec2(2.0, 0.0), TIME)).r;
 	float shore = 1.0 - clamp(water_depth / foam_distance, 0.0, 1.0);
-	float band = smoothstep(0.5 - foam_softness, 0.5 + foam_softness, shore + (breakup - 0.5) * 0.7);
+	float band = smoothstep(0.5 - foam_softness, 0.5 + foam_softness, shore + (breakup - 0.5) * 1.1);
 
-	// Each rolling line starts two foam widths out and fades in as it nears the band, then joins it.
-	float travel = fract(TIME * foam_line_speed);
-	float line_at = 2.2 - travel * 1.4;
-	float line_width = 0.07 + 0.05 * breakup;
-	float distance_to_line = abs(water_depth / foam_distance - line_at);
-	float gaps = texture(wave_noise, wave_uv(v_world_pos.xz, wave_scale * 0.5, vec2(0.0), TIME)).r;
-	float rolling = smoothstep(line_width + foam_softness, line_width, distance_to_line)
-		* smoothstep(0.0, 0.3, travel) * smoothstep(0.4, 0.5, gaps) * foam_line_strength;
+	// Streaks follow the depth contours, so they lie along any shore without knowing its direction. Coarse
+	// noise bends the contours and thins them out in patches; nothing is cut hard, so no dash ends show.
+	float bend = texture(wave_noise, wave_uv(v_world_pos.xz, wave_scale * 0.3, vec2(0.0, 1.0), TIME)).r;
+	float patches = texture(wave_noise, wave_uv(v_world_pos.xz, wave_scale * 0.45, vec2(-0.5, 0.0), TIME)).r;
+	float foam_widths = water_depth / foam_distance + (bend - 0.5) * 1.2;
+	float phase = fract(foam_widths * streak_density + TIME * streak_speed);
+	float streak_core = smoothstep(streak_width, streak_width * 0.25, abs(phase - 0.5));
+	float streak_fade = smoothstep(0.7, 1.0, foam_widths) * (1.0 - smoothstep(1.0, streak_reach, foam_widths));
+	float streaks = streak_core * streak_fade * smoothstep(0.4, 0.75, patches) * streak_strength;
+
+	float glow = (1.0 - smoothstep(0.0, 2.5, water_depth / foam_distance)) * shore_glow;
 
 	float crest = smoothstep(0.82 - foam_softness, 0.82 + foam_softness, here / (1.0 + chop) + breakup * 0.25);
 	float caps = crest * storm * whitecaps;
 
-	float foam = clamp(max(max(band, rolling), caps), 0.0, 1.0) * level_face;
+	float foam = clamp(max(max(band, streaks), max(caps, glow)), 0.0, 1.0) * level_face;
 	albedo = mix(albedo, foam_colour, foam);
 	alpha = max(alpha, foam);
 
