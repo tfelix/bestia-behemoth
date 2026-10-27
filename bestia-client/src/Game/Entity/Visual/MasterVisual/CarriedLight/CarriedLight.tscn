@@ -43,10 +43,10 @@ mesh = SubResource("SphereMesh_flame")
 surface_material_override/0 = SubResource("StandardMaterial3D_flame")
 
 [node name="Light" type="OmniLight3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.55, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.6, 0)
 visible = false
 light_color = Color(1, 0.62, 0.3, 1)
 light_energy = 0.0
 shadow_enabled = false
-omni_range = 9.0
-omni_attenuation = 1.2
+omni_range = 16.0
+omni_attenuation = 0.35
