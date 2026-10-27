@@ -128,6 +128,7 @@ var _unpredicted_arc: Array[float] = []
 var _unpredicted_was_predicted: bool = false
 var _unpredicted_awaiting_arrival: bool = false
 var _unpredicted_destination: Vector3 = Vector3.ZERO
+var _unpredicted_join: int = 0
 
 # Whether the walk currently running is one we started ourselves, as opposed to one the server handed us for
 # somebody else's entity. Outlives _predicted_path, which only covers the wait for confirmation: we stay a
@@ -220,6 +221,7 @@ func _process(delta: float) -> void:
 
 	_log_jerk(delta, drawn_before, error_before, ground_before)
 	_last_drawn = position
+	_jerk_cause = ""
 
 	# After a whole frame, so everything an appear snapshot says about a body has been applied by now.
 	if _has_position and not _is_dead:
@@ -254,6 +256,7 @@ func _update_movement(delta: float) -> void:
 		# the server is. The floor below used to apply here as well, which silently threw away every
 		# correction that pointed behind us and left an over-run uncorrected for good.
 		_warn_correction("snap along path", absf(_error), "error beyond %.1f m" % _SNAP_METRES)
+		_note_cause("snap along path")
 		step += _error
 		_error = 0.0
 		snapping = true
@@ -369,7 +372,13 @@ func _warn_correction(kind: String, metres: float, detail: String = "") -> void:
 ## measures the body as drawn instead, so whatever the eye sees as a snap has a line here with its cause.
 const _JERK_HORIZONTAL_SLACK_METRES: float = 0.15
 const _JERK_VERTICAL_METRES: float = 0.25
+const _ONE_STEP_METRES: float = 1.5   # a diagonal step, sqrt(2), and some slack
 var _last_drawn: Vector3 = Vector3.ZERO
+# What last rebuilt or moved the walk outside the frame's own advance, for the [jerk] line. Cleared each frame.
+var _jerk_cause: String = ""
+
+func _note_cause(cause: String) -> void:
+	_jerk_cause = cause if _jerk_cause.is_empty() else _jerk_cause + ", " + cause
 
 func _log_jerk(delta: float, drawn_before: Vector3, error_before: float, ground_before: float) -> void:
 	# Zero is the first frame with a position, whose jump in from the origin says nothing.
@@ -388,9 +397,9 @@ func _log_jerk(delta: float, drawn_before: Vector3, error_before: float, ground_
 	if flat <= allowed and absf(moved.y) <= _JERK_VERTICAL_METRES and not backwards:
 		return
 
-	print("[jerk] %s entity %d frame %.0f ms: moved %.2f m flat (allowed %.2f), %.2f m up%s | moving %s, predicted %s, error %.2f -> %.2f, ground offset %.2f -> %.2f, travelled %.2f/%.2f m, seg %d/%d, logical %s" % [
+	print("[jerk] %s entity %d frame %.0f ms: moved %.2f m flat (allowed %.2f), %.2f m up%s | cause: %s | moving %s, predicted %s, error %.2f -> %.2f, ground offset %.2f -> %.2f, travelled %.2f/%.2f m, seg %d/%d, logical %s" % [
 		Time.get_time_string_from_system(), entity_id, delta * 1000.0, flat, allowed, moved.y,
-		", BACKWARDS" if backwards else "", _is_moving, _is_predicted_walk, error_before, _error,
+		", BACKWARDS" if backwards else "", "walk advance" if _jerk_cause.is_empty() else _jerk_cause, _is_moving, _is_predicted_walk, error_before, _error,
 		ground_before, _ground_offset, _travelled, 0.0 if _arc.is_empty() else _arc[_arc.size() - 1],
 		_seg, maxi(_nodes.size() - 1, 0), _logical_position])
 
@@ -715,6 +724,7 @@ func update_position(msg: PositionComponent) -> void:
 		# Nothing to reconcile against, just snap.
 		_warn_correction("snap while standing", _ground_distance(_logical_position, new_position),
 			"position push with no walk to reconcile against")
+		_note_cause("snap while standing")
 		_logical_position = new_position
 		_error = 0.0
 		_snap_ground_offset()
@@ -726,6 +736,7 @@ func update_position(msg: PositionComponent) -> void:
 		# is settled by this - the server has stated a position that is not on the path at all.
 		_warn_correction("snap off path", _ground_distance(_logical_position, new_position),
 			"server position not on the walk we are following")
+		_note_cause("snap off path")
 		_logical_position = new_position
 		_nodes = [new_position]
 		_arc.clear()
@@ -761,6 +772,7 @@ func update_position(msg: PositionComponent) -> void:
 
 	# e is where the server is minus where we are, so a negative one has us past it.
 	_warn_correction("catch-up", absf(e), "server node %d, we are %s it" % [idx, "ahead of" if e < 0.0 else "behind"])
+	_note_cause("catch-up")
 	_error = e
 
 
@@ -786,6 +798,7 @@ func update_path(msg: PathComponentSMSG) -> void:
 			return
 
 		_predicted_path.clear()
+		_note_cause("server path joined")
 		_continue_from(_joining_node(), msg.Path, at)
 		if _awaiting_arrival:
 			_predicted_destination = _nodes[_nodes.size() - 1]
@@ -796,6 +809,7 @@ func update_path(msg: PathComponentSMSG) -> void:
 		return
 
 	_predicted_path.clear()
+	_note_cause("server path re-anchored")
 	_follow_path(msg.Path, msg.StartOffset)
 
 
@@ -818,6 +832,7 @@ func predict_path(waypoints: Array[Vector3]) -> void:
 	if _predicted_from_standing:
 		_unpredicted_nodes.clear()
 		_unpredicted_arc.clear()
+		_note_cause("click from standing")
 		_follow_path(waypoints)
 	else:
 		# A click on top of a click still unanswered keeps whatever the first of them kept: the walk from before
@@ -828,6 +843,8 @@ func predict_path(waypoints: Array[Vector3]) -> void:
 			_unpredicted_was_predicted = _is_predicted_walk
 			_unpredicted_awaiting_arrival = _awaiting_arrival
 			_unpredicted_destination = _predicted_destination
+			_unpredicted_join = node
+		_note_cause("click continues walk")
 		_continue_from(node, waypoints, 0)
 
 	_is_predicted_walk = true
@@ -963,29 +980,42 @@ func _abandon_prediction() -> void:
 	_is_moving = false
 	_is_predicted_walk = false
 	_awaiting_arrival = false
+	_note_cause("abandon click, back to server position")
 	_logical_position = _server_position
 	_snap_ground_offset()
 
 
-## Puts back the walk a continuing prediction replaced, keeping how far along it we are.
+## Goes back to the walk a continuing prediction replaced, from wherever the prediction has taken us.
+##
+## Not by putting the old chain back as it was: past the node the click joined at, the same distance along the old
+## chain is somewhere else entirely, and the body jumped there. Instead the walk heads from here to the old walk's
+## next tile and on along it, which turns rather than jumps; the server's next report bleeds in what is left.
 func _resume_unpredicted() -> void:
-	_nodes = _unpredicted_nodes
-	_arc = _unpredicted_arc
+	var rest: Array[Vector3] = []
+	var from := mini(_unpredicted_join, _unpredicted_nodes.size() - 1)
+	for i in range(from, _unpredicted_nodes.size()):
+		# The join node itself only if we have not reached it yet; otherwise heading back to it is a reversal.
+		if i == from and _travelled >= _arc[mini(_unpredicted_join, _arc.size() - 1)]:
+			continue
+		rest.append(_unpredicted_nodes[i])
+
+	var was_predicted := _unpredicted_was_predicted
+	var awaiting := _unpredicted_awaiting_arrival
+	var destination := _unpredicted_destination
 	_unpredicted_nodes = []
 	_unpredicted_arc = []
 	_predicted_path.clear()
-	_is_predicted_walk = _unpredicted_was_predicted
-	_awaiting_arrival = _unpredicted_awaiting_arrival
-	_predicted_destination = _unpredicted_destination
 
-	# Past the old walk's end only by what the prediction added after it, at most a grace period's walking.
-	var total := _arc[_arc.size() - 1]
-	_travelled = minf(_travelled, total)
-	_seg = mini(_seg, maxi(_nodes.size() - 2, 0))
-	_footfall_node = mini(_footfall_node, _nodes.size() - 1)
-	_faced_seg = -1
-	_error = 0.0
-	_is_moving = _travelled < total
+	_note_cause("resume walk after unanswered click")
+	if rest.is_empty():
+		_is_moving = false
+		_error = 0.0
+	else:
+		_follow_path(rest)
+
+	_is_predicted_walk = was_predicted
+	_awaiting_arrival = awaiting
+	_predicted_destination = destination
 
 
 ## Anchors a chain of waypoints where the entity currently is and starts walking it.
@@ -1016,7 +1046,11 @@ func _follow_path(waypoints: Array[Vector3], start_offset: float = 0.0) -> void:
 	# Not zero: the server may be telling us about a walk already under way, and _nodes[0] is the tile it
 	# last reached rather than where it stands. StartOffset is the share of that first step already walked,
 	# so in metres it is that share of the first segment.
-	if _nodes.size() >= 2:
+	#
+	# Only when that segment is the server's own step, though. Anchored somewhere else - a path that did not
+	# join the walk we were drawing - the first segment runs from wherever we are to the server's next tile,
+	# and a share of that was a jump of metres along it in a single frame.
+	if _nodes.size() >= 2 and _arc[1] <= _ONE_STEP_METRES:
 		_travelled = clampf(start_offset, 0.0, 1.0) * _arc[1]
 	else:
 		_travelled = 0.0
@@ -1047,6 +1081,7 @@ func _stop_at(msg: PathComponentSMSG) -> void:
 
 	if msg.HasStopPosition:
 		_has_position = true
+		_note_cause("stop")
 		_logical_position = msg.StopPosition
 		_snap_ground_offset()   # applies the position too
 
