@@ -49,6 +49,8 @@ internal object TownFields {
     /** How many fields to aim for. Fewer come back where the ground refuses. */
     wanted: Int,
     channels: List<Polyline>,
+    /** Whether a point is out of the sea and every lake; see [Shoreline]. */
+    dry: (Vec2d) -> Boolean,
     settlement: Int,
     roll: (Long, Long) -> Double,
     nextId: () -> FeatureId
@@ -87,8 +89,10 @@ internal object TownFields {
       if (polygon.size < 3 || ConvexPolygons.area(polygon) < MIN_AREA) continue
 
       val ring = runCatching { Ring(simplified(polygon)) }.getOrNull() ?: continue
-      // Sown only where the whole field would stand: a cell half in a lake is not a half field, it is a
-      // shoreline, and the buildable test is the one every other producer here already uses.
+      // Sown only on land, all of it: a cell half in a lake is not a half field, it is a shoreline. The outline is
+      // walked every few metres, because a narrow inlet passes between corners. Slope is the buildable test's,
+      // which may refuse a corner; water may not.
+      if (!wholeOnLand(ring, dry)) continue
       if (ring.vertices.count { frame.buildable(it) } < ring.vertexCount - 1) continue
 
       out.add(
@@ -106,6 +110,22 @@ internal object TownFields {
     }
 
     return out
+  }
+
+  /** Whether every point along [ring], every [SHORE_STEP] metres, and its middle, are dry. */
+  private fun wholeOnLand(ring: Ring, dry: (Vec2d) -> Boolean): Boolean {
+    val corners = ring.vertices
+    for (i in corners.indices) {
+      val from = corners[i]
+      val to = corners[(i + 1) % corners.size]
+      val steps = (from.distanceTo(to) / SHORE_STEP).toInt() + 1
+      for (step in 0 until steps) {
+        val t = step.toDouble() / steps
+        if (!dry(Vec2d(from.x + (to.x - from.x) * t, from.y + (to.y - from.y) * t))) return false
+      }
+    }
+    val middle = Vec2d(corners.sumOf { it.x } / corners.size, corners.sumOf { it.y } / corners.size)
+    return dry(middle)
   }
 
   /**
@@ -146,6 +166,9 @@ internal object TownFields {
 
   /** Sides of the polygon the fields are cut out of. Enough that the outermost field is not visibly a chord. */
   private const val REACH_SIDES = 20
+
+  /** How far apart the points are that a field's outline is tested for water at, in metres. */
+  private const val SHORE_STEP = 10.0
 
   private const val REACH_FACTOR = 2.6
   private const val MIN_REACH = 260.0

@@ -338,7 +338,8 @@ class TownStage(
   // 12: a settlement whose streets all sit inside its own boundary still gets a way in - see `StreetTraffic`.
   // 13: streets are grown by a Parish-Muller expansion rather than a random walk - see `StreetPlanner`.
   // 14: the surveyed cross streets are gone - the expansion closes its own cycles and they cost plots.
-  override val version = 14
+  // 15: nothing stands, and nothing is sown, in the sea or a pond - see `Shoreline`.
+  override val version = 15
 
   override val paramsVersion get() = GenRng.hash(params.digest().value, Culture.catalogueDigest(), SettlementTier.catalogueDigest())
   /**
@@ -663,6 +664,7 @@ class TownStage(
         reach = fieldReach,
         wanted = TownFields.countFor(placed.size),
         channels = world.channelsNear(town.position, fieldReach),
+        dry = { world.dry(it) },
         settlement = town.index,
         roll = roll,
         nextId = nextId
@@ -1769,6 +1771,8 @@ internal class WorldGround(
     params = params.detail
   )
 
+  private val shoreline = Shoreline(elevation, waterLevel, ctx.config.seaLevel, ctx.features.query(region.toWorld()))
+
   /** River channels, so a street is never routed into one. Cached per world, queried per settlement. */
   private val rivers: List<PolylineFeature> = ctx.features.query(region.toWorld())
     .filter { it.kind == FeatureKind.RIVER_CHANNEL }
@@ -1849,9 +1853,7 @@ internal class WorldGround(
    * for a wall would shorten walls for reasons that have nothing to do with water.
    */
   fun dry(at: Vec2d): Boolean {
-    val cellX = Math.floor(at.x / metres).toInt()
-    val cellY = Math.floor(at.y / metres).toInt()
-    return region.contains(cellX, cellY) && waterLevel[cellX, cellY].isNaN()
+    return shoreline.isDry(at.x, at.y)
   }
 
   /** Whether anything may stand here: dry, gentle enough, inside the world, and clear of the channel. */
@@ -1859,7 +1861,7 @@ internal class WorldGround(
     val cellX = Math.floor(at.x / metres).toInt()
     val cellY = Math.floor(at.y / metres).toInt()
     if (!region.contains(cellX, cellY)) return false
-    if (!waterLevel[cellX, cellY].isNaN()) return false
+    if (!shoreline.isDry(at.x, at.y)) return false
 
     if (slopeAt(cellX, cellY) > params.maxBuildableSlope) return false
 

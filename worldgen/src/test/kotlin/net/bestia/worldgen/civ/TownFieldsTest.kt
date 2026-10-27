@@ -47,7 +47,8 @@ class TownFieldsTest {
     radius: Double = 180.0,
     wanted: Int = 12,
     seed: Long = 1L,
-    buildable: (Vec2d) -> Boolean = { true }
+    buildable: (Vec2d) -> Boolean = { true },
+    dry: (Vec2d) -> Boolean = { true }
   ): List<AreaFeature> {
     var next = 0L
     val f = frame(radius, seed, buildable)
@@ -57,6 +58,7 @@ class TownFieldsTest {
       reach = TownFields.reachFor(radius),
       wanted = wanted,
       channels = emptyList(),
+      dry = dry,
       settlement = 3,
       roll = roll(seed),
       nextId = { FeatureId(++next) }
@@ -72,6 +74,20 @@ class TownFieldsTest {
       fields.all { it.attribute(FieldChannels.SETTLEMENT).toInt() == 3 },
       "every field names the settlement that works it"
     )
+  }
+
+  @Test
+  fun `a coastal settlement sows nothing that reaches the sea, not even one corner or an edge`() {
+    // The sea starts 120 m east of the centre, well inside the reach, so fields on that side would cross it.
+    val coast = centre.x + 120.0
+    val land = fields { it.x < coast }
+    val everywhere = fields()
+
+    assertTrue(land.isNotEmpty(), "the landward side still has fields")
+    assertTrue(land.size < everywhere.size, "the seaward fields are gone: ${land.size} of ${everywhere.size}")
+    for (field in land) {
+      assertTrue(field.ring.vertices.all { it.x < coast }, "field ${field.id} has a corner in the sea")
+    }
   }
 
   @Test

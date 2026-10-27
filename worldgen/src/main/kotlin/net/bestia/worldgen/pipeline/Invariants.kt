@@ -6,6 +6,7 @@ import net.bestia.worldgen.civ.DistrictChannels
 import net.bestia.worldgen.civ.GateChannels
 import net.bestia.worldgen.civ.SettlementChannels
 import net.bestia.worldgen.civ.SettlementTier
+import net.bestia.worldgen.civ.Shoreline
 import net.bestia.worldgen.civ.TownMetrics
 import net.bestia.worldgen.civ.WallChannels
 import net.bestia.worldgen.climate.SeasonalPrecipitation
@@ -1658,7 +1659,7 @@ object Invariants {
   }
 
   /**
-   * Nothing is built in water: no building, no street, no wall.
+   * Nothing is built in water: no building, no street, no wall - and no field is sown in the sea or a lake.
    *
    * The most visible possible failure of the layout, and one the buildable test is meant to prevent - so what
    * this really checks is that the test was consulted everywhere rather than only where it was convenient.
@@ -1673,8 +1674,23 @@ object Invariants {
       return water.region.contains(cellX, cellY) && !water[cellX, cellY].isNaN()
     }
 
+    val shoreline = Shoreline(
+      generated.world.layers.require(LayerId.ELEVATION),
+      water,
+      generated.config.seaLevel,
+      generated.world.features.all(),
+    )
+
     for (feature in generated.world.features.all()) {
       when (feature.kind) {
+        FeatureKind.FIELD -> {
+          val field = feature as? AreaFeature ?: continue
+          if (field.ring.vertices.any { !shoreline.isDry(it.x, it.y) }) {
+            fail("nothing is built in water", "field ${feature.id} is sown in water")
+            return
+          }
+        }
+
         FeatureKind.BUILDING -> {
           val building = feature as? FootprintFeature ?: continue
           if (wet(building.center.x, building.center.y)) {
