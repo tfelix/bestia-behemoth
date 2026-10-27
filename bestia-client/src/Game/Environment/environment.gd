@@ -70,20 +70,29 @@ signal lightning_struck(ground: Vector3)
 
 @export var moon_colour: Color = Color(0.55, 0.67, 1.0)
 
-@export var sky_top_day: Color = Color(0.845, 0.906, 0.989)
-@export var sky_top_twilight: Color = Color(0.24, 0.24, 0.46)
-@export var sky_top_night: Color = Color(0.021, 0.030, 0.086)
+## How much brighter than white the sun's disc is drawn. Clouds and haze take their share of it.
+@export_range(0, 20, 0.1) var sun_disc_energy: float = 6.0
 
-@export var sky_horizon_day: Color = Color(0.646, 0.656, 0.671)
-@export var sky_horizon_twilight: Color = Color(0.86, 0.42, 0.24)
-@export var sky_horizon_night: Color = Color(0.055, 0.075, 0.15)
+## The warm glow the sky gets around the sun. It spreads along the horizon when the sun is low.
+@export_range(0, 4, 0.01) var sun_glow_strength: float = 0.6
 
-@export var ground_day: Color = Color(0.646, 0.656, 0.671)
+## A saturated painted blue rather than a physical one. Ambient light is sampled from this dome, so the blue
+## is also what tints every shadow on a clear day.
+@export var sky_top_day: Color = Color(0.16, 0.50, 0.90)
+@export var sky_top_twilight: Color = Color(0.22, 0.24, 0.50)
+@export var sky_top_night: Color = Color(0.012, 0.020, 0.060)
+
+@export var sky_horizon_day: Color = Color(0.58, 0.84, 0.97)
+@export var sky_horizon_twilight: Color = Color(0.92, 0.48, 0.26)
+@export var sky_horizon_night: Color = Color(0.040, 0.060, 0.130)
+
+@export var ground_day: Color = Color(0.36, 0.40, 0.36)
 @export var ground_twilight: Color = Color(0.33, 0.22, 0.20)
 @export var ground_night: Color = Color(0.026, 0.030, 0.048)
 
-@export var fog_day: Color = Color(0.630, 0.729, 0.829)
-@export var fog_twilight: Color = Color(0.72, 0.42, 0.30)
+## Close to the horizon colours, because the sky fades into the fog at the horizon.
+@export var fog_day: Color = Color(0.62, 0.80, 0.92)
+@export var fog_twilight: Color = Color(0.78, 0.46, 0.32)
 @export var fog_night: Color = Color(0.045, 0.060, 0.115)
 
 ## How much of the twilight palette the crossover actually gets, in [0, 1].
@@ -116,8 +125,7 @@ signal lightning_struck(ground: Vector3)
 ##
 ## A pair rather than the single authored 1.0, because a shadow reads as crisp from two things - how narrow
 ## its edge is and how deep its interior goes - and only the first was ever driven. Ambient here is sampled
-## from the sky dome, and the clear-day dome is a bright grey along the horizon, so a shadow at noon was
-## filled nearly as well as one under cloud and the sun had to fight its own fill for contrast.
+## from the sky dome: blue under a clear sky, so shadows go blue, and a bright grey under a closed deck.
 ##
 ## Driven from WeatherLook.Diffusion, like the sun's disc and its energy, so the fill rises exactly as the
 ## direct light is taken away. Moving light out of one direction and into every direction is what cloud
@@ -136,6 +144,10 @@ signal lightning_struck(ground: Vector3)
 ## is the effect; losing the character you are steering is a bug.
 @export_range(1, 100, 1) var whiteout_fog_begin: float = 22.0
 @export_range(2, 200, 1) var whiteout_fog_end: float = 60.0
+
+## How far up the sky the haze reaches, clear air to a whiteout, as the sine of an elevation.
+@export_range(0, 1, 0.01) var clear_haze_height: float = 0.08
+@export_range(0, 1, 0.01) var max_haze_height: float = 0.6
 
 @export_subgroup("Lightning")
 
@@ -190,7 +202,7 @@ var _bolt: LightningBolt = null
 
 # The sky material is reached through the Environment rather than exported separately, because the two have
 # to be the *same* sky - the one the background draws and the one ambient light is sampled from.
-@onready var _sky: ProceduralSkyMaterial = _environment.sky.sky_material as ProceduralSkyMaterial
+@onready var _sky: ShaderMaterial = _environment.sky.sky_material as ShaderMaterial
 
 ## How far overcast or visibility has to drift before the throttled pass is brought forward.
 ##
@@ -293,6 +305,8 @@ func _apply_lights(daylight: float, twilight: float) -> void:
 	# and the whole of full night would be paying for a pass that contributes nothing.
 	_sun.visible = daylight > 0.002
 
+	_apply_sun_disc(elevation, azimuth, twilight, dimming)
+
 	# The anti-sun: it rises as the sun sets, which is free and is also roughly what a moon does.
 	#
 	# Cloud is between the player and both lights, so `dimming` takes the same cut out of each. A moon still
@@ -301,6 +315,20 @@ func _apply_lights(daylight: float, twilight: float) -> void:
 	_moon.light_energy = moon_energy * (1.0 - daylight) * dimming
 	_moon.light_angular_distance = softness
 	_moon.visible = daylight < 0.998
+
+
+## The sun as the sky draws it.
+##
+## From the arc itself rather than from the light, which stops at min_elevation_degrees: the disc has to set
+## even though the shadows must not keep lengthening.
+func _apply_sun_disc(elevation: float, azimuth: float, twilight: float, dimming: float) -> void:
+	var toward_sun := Basis.from_euler(Vector3(-elevation, azimuth, 0.0)).z
+
+	_sky.set_shader_parameter("sun_direction", toward_sun)
+	_sky.set_shader_parameter("sun_colour", _sun.light_color)
+	_sky.set_shader_parameter("glow_colour", sun_day_colour.lerp(sun_twilight_colour, maxf(twilight, 0.35)))
+	_sky.set_shader_parameter("sun_disc_energy", sun_disc_energy * dimming)
+	_sky.set_shader_parameter("glow_strength", sun_glow_strength * dimming)
 
 
 ## A bearing and an elevation as an Euler rotation for a light pointing along its own -Z, with the
@@ -340,13 +368,13 @@ func _solar_progress(hour_of_day: float) -> float:
 
 
 func _apply_sky(daylight: float, twilight: float, overcast: float, visibility: float) -> void:
-	_sky.sky_top_color = _weathered(
-		sky_top_night, sky_top_day, sky_top_twilight, overcast_sky_top, overcast, daylight, twilight)
-	_sky.sky_horizon_color = _weathered(
+	_sky.set_shader_parameter("zenith_colour", _weathered(
+		sky_top_night, sky_top_day, sky_top_twilight, overcast_sky_top, overcast, daylight, twilight))
+	_sky.set_shader_parameter("horizon_colour", _weathered(
 		sky_horizon_night, sky_horizon_day, sky_horizon_twilight, overcast_sky_horizon,
-		overcast, daylight, twilight)
-	_sky.ground_horizon_color = _weathered(
-		ground_night, ground_day, ground_twilight, overcast_ground, overcast, daylight, twilight)
+		overcast, daylight, twilight))
+	_sky.set_shader_parameter("ground_colour", _weathered(
+		ground_night, ground_day, ground_twilight, overcast_ground, overcast, daylight, twilight))
 
 	# Fog is the loudest of the three. It is drawn over everything at distance, so a fog still lit for
 	# midday is a pale band along the horizon of a night scene - which reads as the night not having
@@ -358,6 +386,11 @@ func _apply_sky(daylight: float, twilight: float, overcast: float, visibility: f
 		fog_night, fog_day, fog_twilight, overcast_fog, overcast, daylight, twilight).lerp(
 			_haze_colour(), _haze_tint())
 	_environment.fog_light_color = _base_fog_colour
+
+	# The fog does not reach the sky (fog_sky_affect is 0), so the sky draws its own haze band in the same
+	# colour. Thicker air hides more of the sky as well as more of the ground.
+	_sky.set_shader_parameter("haze_colour", _base_fog_colour)
+	_sky.set_shader_parameter("haze_height", lerpf(max_haze_height, clear_haze_height, visibility))
 
 	# Rain, fog and snow are all things in the air between the player and the horizon, so they are the same
 	# effect at different strengths and all of them belong here rather than in a per-kind branch.
