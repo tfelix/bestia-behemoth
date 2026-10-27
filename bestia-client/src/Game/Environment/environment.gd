@@ -77,6 +77,20 @@ signal lightning_struck(ground: Vector3)
 @export_range(0, 8, 0.1) var night_moon_disc_energy: float = 1.05
 @export_range(0, 8, 0.1) var day_moon_disc_energy: float = 0.35
 
+@export_group("Clouds")
+
+## The sides of a cloud facing the light. Twilight warms them; night leaves them a dim moonlit grey.
+@export var cloud_lit_day: Color = Color(1.0, 0.99, 0.96)
+@export var cloud_lit_twilight: Color = Color(1.0, 0.66, 0.46)
+@export var cloud_lit_night: Color = Color(0.13, 0.16, 0.26)
+
+## The sides in their own shadow. Blue by day, because what lights them then is the sky.
+@export var cloud_shadow_day: Color = Color(0.60, 0.70, 0.84)
+@export var cloud_shadow_twilight: Color = Color(0.46, 0.34, 0.44)
+@export var cloud_shadow_night: Color = Color(0.04, 0.05, 0.09)
+
+@export_group("")
+
 ## How much brighter than white the sun's disc is drawn. Clouds and haze take their share of it.
 @export_range(0, 20, 0.1) var sun_disc_energy: float = 6.0
 
@@ -344,7 +358,15 @@ func _apply_moon(sun_progress: float, daylight: float, dimming: float, softness:
 	_moon.light_angular_distance = softness
 	_moon.visible = daylight < 0.998
 
-	_sky.set_shader_parameter("moon_direction", Basis.from_euler(Vector3(-elevation, azimuth, 0.0)).z)
+	var toward_moon := Basis.from_euler(Vector3(-elevation, azimuth, 0.0)).z
+	_sky.set_shader_parameter("moon_direction", toward_moon)
+
+	# A switch rather than a blend: at dusk a full moon is opposite the sun, and halfway between the two is no
+	# direction at all. The clouds are dim by then, so the jump does not show.
+	if daylight < 0.25:
+		_sky.set_shader_parameter("cloud_light_direction", toward_moon)
+	else:
+		_sky.set_shader_parameter("cloud_light_direction", _sky.get_shader_parameter("sun_direction"))
 	_sky.set_shader_parameter("moon_phase", phase)
 	_sky.set_shader_parameter("moon_energy", lerpf(night_moon_disc_energy, day_moon_disc_energy, daylight))
 
@@ -423,6 +445,13 @@ func _apply_sky(daylight: float, twilight: float, overcast: float, visibility: f
 	# colour. Thicker air hides more of the sky as well as more of the ground.
 	_sky.set_shader_parameter("haze_colour", _base_fog_colour)
 	_sky.set_shader_parameter("star_visibility", pow(1.0 - daylight, 2.0) * (1.0 - overcast))
+
+	# The clouds take their colours from the same day/night/twilight blend as the sky, so a sunset reaches the
+	# clouds and a night leaves them dim. Weather does not enter here: how heavy they are is cloud_thickness.
+	_sky.set_shader_parameter("cloud_lit_colour",
+		cloud_lit_night.lerp(cloud_lit_day, daylight).lerp(cloud_lit_twilight, twilight))
+	_sky.set_shader_parameter("cloud_shadow_colour",
+		cloud_shadow_night.lerp(cloud_shadow_day, daylight).lerp(cloud_shadow_twilight, twilight))
 	_sky.set_shader_parameter("haze_height", lerpf(max_haze_height, clear_haze_height, visibility))
 
 	# Rain, fog and snow are all things in the air between the player and the horizon, so they are the same
@@ -537,6 +566,7 @@ func _show_flash() -> void:
 	_flash_light.visible = energy > 0.002
 	_flash_light.light_energy = lightning_energy * energy
 	_bolt.set_energy(energy)
+	_sky.set_shader_parameter("flash", energy)
 
 	# The air lights up as well as the ground. Without this the flash stops at whatever the fog is drawn
 	# over, and a storm at distance flickers only in the near field.
