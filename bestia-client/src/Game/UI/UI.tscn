@@ -163,7 +163,7 @@ layout_mode = 1
 
 [node name="BuffList" parent="." unique_id=1824369573 instance=ExtResource("9_74y3c")]
 layout_mode = 1
-offset_left = -80.0
+offset_left = -48.0
 offset_top = 250.0
 offset_right = -16.0
 offset_bottom = 450.0

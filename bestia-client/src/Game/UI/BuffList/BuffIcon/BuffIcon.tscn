@@ -10,13 +10,16 @@ theme_override_constants/separation = 0
 script = ExtResource("2_bfic0")
 
 [node name="BuffIconButton" type="TextureButton" parent="." unique_id=1171179767]
-custom_maximum_size = Vector2(64, 64)
+custom_minimum_size = Vector2(32, 32)
+custom_maximum_size = Vector2(32, 32)
 layout_mode = 2
+ignore_texture_size = true
 texture_normal = ExtResource("1_mtpa7")
 texture_pressed = ExtResource("1_mtpa7")
 stretch_mode = 5
 
 [node name="DurationLabel" type="Label" parent="." unique_id=695985219]
 layout_mode = 2
+theme_override_font_sizes/font_size = 11
 text = "2m"
 horizontal_alignment = 1
