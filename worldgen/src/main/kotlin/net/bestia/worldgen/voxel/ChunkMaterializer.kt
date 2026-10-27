@@ -646,12 +646,23 @@ class ChunkMaterializer(
     val submerged = fluidLevel > top
 
     // Global voxel indices of the top of each interval.
-    val capTop = if (submerged) highestVoxelAtOrBelow(top) else topFilledVoxel(top)
+    val fluidTop =
+      if (submerged) topFilledVoxel(fluidLevel) else highestVoxelAtOrBelow(fluidLevel)
+
+    // A submerged bed always leaves its fluid at least one voxel, rounding down by up to one where it must.
+    //
+    // By the centre rule alone a bed less than half a voxel under the surface rounds *up* into the fluid's top
+    // voxel, the fluid rounds away to nothing, and the column comes out as dry ground below the waterline. On a
+    // coastal shelf rising a metre per hundred that was every column within half a metre of sea level - a strand
+    // about fifty metres wide drawn as dry sand that is under the sea, with the visible water stopping short of
+    // it at a hard edge half a metre deep, and nowhere for the shallows or their foam to be. A bed lowered by a
+    // fraction of a voxel is invisible under water; water missing from a column is not. `ChannelGauge` fixed the
+    // same rounding for rivers by deepening their channels, which this does not replace: a creek still needs its
+    // gauge to be a channel at all, where this only decides who gets the voxel the waterline falls in.
+    val capTop = if (submerged) min(highestVoxelAtOrBelow(top), fluidTop - 1) else topFilledVoxel(top)
     val soilTop = capTop - 1
     val rockTop = min(soilTop, highestVoxelAtOrBelow(top - soilDepth))
     val basementTop = min(rockTop, highestVoxelAtOrBelow(rock.basementTop))
-    val fluidTop =
-      if (submerged) topFilledVoxel(fluidLevel) else highestVoxelAtOrBelow(fluidLevel)
 
     // Basement, as one fill.
     var cursor = fill(out, offset, baseZ, height, 0, basementTop, rock.basementRock.id.toByte())
@@ -697,10 +708,9 @@ class ChunkMaterializer(
     // voxel the interface falls inside is partial. Air is left at zero, which the fresh array already is.
     Arrays.fill(out.occupancy, offset, offset + cursor, Occupancy.FULL_BYTE)
     if (cursor > 0) {
-      // Whichever elevation actually bounds the topmost voxel written. Usually the fluid surface, but a fluid
-      // shallower than one voxel rounds away to no fluid voxel at all - and then the top voxel is ground, and
-      // filling it to the waterline would report the ground standing up to a voxel higher than it is. A player
-      // would be walking on the surface of a puddle.
+      // Whichever elevation actually bounds the topmost voxel written: the fluid surface where fluid was
+      // written, the ground where it was not. A submerged column always gets its fluid voxel (see `capTop`), so
+      // "not" is a dry column, and filling that to a waterline below it would raise the ground.
       val bounding = if (cursor > groundCursor) fluidLevel else top
       out.occupancy[offset + cursor - 1] = Occupancy.byteOf(
         fillFractionOf(bounding, baseZ + cursor - 1)
@@ -955,7 +965,9 @@ class ChunkMaterializer(
     // arm, and the water surface is read from the channel's own station rather than rebuilt from bed and
     // depth. Every submerged river column in every world caps in something it did not cap in before.
     // 6: grassland wears through to dirt in patches (`SurfaceSampler.isBarePatchAt`).
-    const val VERSION = 6
+    // 7: a submerged column always keeps a voxel of its water, its bed rounded down to make room (`capTop`), so
+    // every shore within half a voxel of its waterline is wet where it was dry.
+    const val VERSION = 7
 
     /**
      * Margin added to a chunk's bounds when querying features, in metres.

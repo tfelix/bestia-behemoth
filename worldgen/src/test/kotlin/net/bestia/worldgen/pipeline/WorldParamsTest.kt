@@ -127,10 +127,11 @@ class WorldParamsTest {
     // at than `ParamsVersionTest`'s per-class pins. Re-derive it rather than adjust it if either moves.
     //
     // Only the chunk tier moved when grassland began wearing through to dirt: `ChunkMaterializer.VERSION` 6.
+    // And again when a submerged column began always keeping a voxel of its water: `ChunkMaterializer.VERSION` 7.
     assertEquals(-8_635_386_947_799_670_163L, WorldParams.DEFAULT.version, "re-pin: the world tuning moved")
     // Pinned as a pair so each half stays checkable: a world-tier retune has to move the number above and
     // leave this one alone, and a chunk-tier one the reverse. This is the half the chunk cache is keyed on.
-    assertEquals(-3_314_670_411_422_936_717L, WorldParams.DEFAULT.chunkTierVersion, "re-pin: the chunk tier moved")
+    assertEquals(-1_605_641_739_729_157_020L, WorldParams.DEFAULT.chunkTierVersion, "re-pin: the chunk tier moved")
   }
 
   private fun config() = StandardWorld.demoConfig().copy(widthCells = 64, heightCells = 64)

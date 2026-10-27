@@ -21,6 +21,11 @@ import net.bestia.worldgen.poi.PoiKind
 import net.bestia.worldgen.voxel.PropKind
 import net.bestia.worldgen.voxel.SurfaceColumns
 import net.bestia.worldgen.voxel.VoxelChunk
+import java.io.DataOutputStream
+import java.io.File
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
+import java.util.zip.GZIPOutputStream
 import java.util.Locale
 
 /**
@@ -113,6 +118,12 @@ object ProbeMain {
       probe.nearestLand(elevation, want).also {
         println("  no coordinate given, so: nearest land to ${want.toInt()} m is (${it.first.toInt()}, ${it.second.toInt()})")
       }
+    }
+
+    val chunkDump = cli.value(CHUNK_DUMP)
+    if (chunkDump != null) {
+      probe.chunkDump(centre.first, centre.second, chunkDump)
+      return
     }
 
     probe.describe(centre.first, centre.second)
@@ -218,6 +229,78 @@ object ProbeMain {
       }
 
       return Window(counts, lowest, highest)
+    }
+
+    /**
+     * Writes the chunks within two columns of a point, every slab from below its lowest ground to above its
+     * highest, as the client's chunk dump (`bestia-client/src/Game/World/ChunkDump.cs`, which is the format's
+     * owner), with a camera where the game's spring arm would hold it over the point.
+     *
+     * So the client's water harness can mesh ground straight out of the generator, through the real renderer,
+     * with no server: the one way to look at a materialiser change before a world is regenerated with it.
+     */
+    fun chunkDump(centreX: Double, centreY: Double, path: String) {
+      val voxelX = Math.floor(centreX / config.voxelSize).toInt()
+      val voxelY = Math.floor(centreY / config.voxelSize).toInt()
+      val chunkX = Math.floorDiv(voxelX, config.chunkSize)
+      val chunkY = Math.floorDiv(voxelY, config.chunkSize)
+
+      var low = Double.MAX_VALUE
+      var high = -Double.MAX_VALUE
+      for (x in (chunkX - 2) * config.chunkSize until (chunkX + 3) * config.chunkSize step 4) {
+        for (y in (chunkY - 2) * config.chunkSize until (chunkY + 3) * config.chunkSize step 4) {
+          val ground = terrainAt(x, y)
+          low = minOf(low, ground)
+          high = maxOf(high, ground, config.seaLevel)
+        }
+      }
+      val slabs = Math.floorDiv(config.voxelZOf(low) - 2, config.chunkHeight)..
+        Math.floorDiv(config.voxelZOf(high) + 2, config.chunkHeight)
+
+      val chunks = ArrayList<VoxelChunk>()
+      for (x in chunkX - 2..chunkX + 2) {
+        for (y in chunkY - 2..chunkY + 2) {
+          for (z in slabs) {
+            chunks.add(generated.materializer.materialize(ChunkPos(x, y, z)))
+          }
+        }
+      }
+
+      // Behind the point to the south, at the spring arm's longest reach and a game-like pitch. Godot's camera
+      // looks down its -Z, and Godot (x, y, z) is the server's (x, z, y).
+      val target = doubleArrayOf(centreX, config.seaLevel, centreY)
+      val pitch = Math.toRadians(40.0)
+      val eye = doubleArrayOf(centreX, config.seaLevel + 36.0 * Math.sin(pitch), centreY + 36.0 * Math.cos(pitch))
+      val back = normalised(doubleArrayOf(eye[0] - target[0], eye[1] - target[1], eye[2] - target[2]))
+      val right = normalised(doubleArrayOf(back[2], 0.0, -back[0]))
+      val up = doubleArrayOf(
+        back[1] * right[2] - back[2] * right[1],
+        back[2] * right[0] - back[0] * right[2],
+        back[0] * right[1] - back[1] * right[0]
+      )
+
+      val header = ByteBuffer.allocate(4 + 4 + 12 * 4 + 4 + 4).order(ByteOrder.LITTLE_ENDIAN)
+      header.putInt(0x504D4443).putInt(1)
+      for (axis in listOf(right, up, back, eye)) axis.forEach { header.putFloat(it.toFloat()) }
+      header.putFloat(75f).putInt(chunks.size)
+
+      DataOutputStream(GZIPOutputStream(File(path).outputStream().buffered())).use { out ->
+        out.write(header.array())
+        for (chunk in chunks) {
+          val key = ByteBuffer.allocate(20).order(ByteOrder.LITTLE_ENDIAN)
+          key.putInt(chunk.chunk.x).putInt(chunk.chunk.y).putInt(chunk.chunk.z).putInt(chunk.size).putInt(chunk.height)
+          out.write(key.array())
+          out.write(chunk.blocks)
+          out.write(chunk.occupancy)
+        }
+      }
+
+      println("wrote ${chunks.size} chunks (slabs $slabs) around (${centreX.toInt()}, ${centreY.toInt()}) to $path")
+    }
+
+    private fun normalised(v: DoubleArray): DoubleArray {
+      val length = Math.sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2])
+      return doubleArrayOf(v[0] / length, v[1] / length, v[2] / length)
     }
 
     fun describe(centreX: Double, centreY: Double) {
@@ -977,6 +1060,12 @@ object ProbeMain {
   private const val SECTION = "--section"
 
   /**
+   * Writes the chunks around `--x`/`--y` as a client chunk dump, for the water harness's `--chunks=`. See
+   * [Probe.chunkDump].
+   */
+  private const val CHUNK_DUMP = "--chunkdump"
+
+  /**
    * Metres of ground to print below the lowest column of a section.
    *
    * Spelled `--below` and reached by `-Pbelow` rather than the obvious `--depth`, because `-Pdepth` cannot be
@@ -1009,6 +1098,6 @@ object ProbeMain {
 
   private val PROBE_FLAGS = setOf(
     "--x", "--y", "--span", "--at", "--survey", "--on", "--nth", "--channels", BELOW,
-    DROPLETS, ECOTONE, PROPS, SECTION, STEEPNESS
+    DROPLETS, ECOTONE, PROPS, SECTION, STEEPNESS, CHUNK_DUMP
   )
 }

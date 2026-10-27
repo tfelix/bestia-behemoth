@@ -339,6 +339,8 @@ tasks.register('probe', JavaExec) {
     // See `cli` at the top of this file.
     if (cli('section') != null) args '--section'
     if (cli('below') != null) args '--below', cli('below')
+    // The chunks around -Px/-Py as a client chunk dump, for the water harness's --chunks=. See ProbeMain.chunkDump.
+    if (cli('chunkdump') != null) args '--chunkdump', cli('chunkdump')
     // Chunk-scale droplet erosion, which ships off. See geo/DropletHeightField; this is the only view of it,
     // because the viewer renders whole worlds and a gully is a pixel there.
     if (cli('droplets') != null) args '--droplets'
