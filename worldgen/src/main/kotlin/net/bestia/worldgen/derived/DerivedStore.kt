@@ -51,11 +51,20 @@ class DerivedStore(
   /** Insertion-ordered, so rebuilds happen oldest-invalidation-first rather than at random. */
   private val queue = LinkedHashSet<ChunkPos>()
 
+  /**
+   * Chunks taken off the queue for [buildTile] on another thread and not yet [finishBuild]-ed. Still stale as far as
+   * [isStale] goes: their structures are not in [entries] yet.
+   */
+  private val inFlight = HashSet<ChunkPos>()
+
+  /** Chunks edited or forgotten-and-tracked-again while in [inFlight], whose finished tile is therefore out of date. */
+  private val redirtied = HashSet<ChunkPos>()
+
   val trackedChunks get() = entries.size
-  val pendingRebuilds get() = queue.size
+  val pendingRebuilds get() = queue.size + inFlight.size
 
   /** Chunks currently holding stale structures. Useful in a test, and in a health endpoint. */
-  fun staleChunks(): Set<ChunkPos> = queue.toSet()
+  fun staleChunks(): Set<ChunkPos> = queue.toSet() + inFlight
 
   /** Built on the first ask rather than with the chunk, then cached - see [Entry]. */
   fun summaryOf(chunk: ChunkPos): ColumnSummary {
@@ -89,7 +98,7 @@ class DerivedStore(
    * Covers a chunk that has never been built at all as well as one whose build went out of date - [queue]
    * means "needs building" for both, and neither has an answer a caller can trust yet.
    */
-  fun isStale(chunk: ChunkPos) = chunk in queue
+  fun isStale(chunk: ChunkPos) = chunk in queue || chunk in inFlight
 
   /**
    * Whether this chunk's structures are already built, so asking about it is a lookup rather than a rebuild.
@@ -119,7 +128,7 @@ class DerivedStore(
    * queued for a pointless rebuild.
    */
   fun track(chunk: ChunkPos) {
-    if (chunk in entries) return
+    if (chunk in entries || chunk in inFlight) return
     queue.add(chunk)
   }
 
@@ -140,6 +149,8 @@ class DerivedStore(
   }
 
   private fun markStale(chunk: ChunkPos) {
+    if (chunk in inFlight) redirtied.add(chunk)
+
     val entry = entries[chunk] ?: return
     entry.stale = true
     queue.add(chunk)
@@ -152,6 +163,10 @@ class DerivedStore(
   fun forget(chunk: ChunkPos) {
     entries.remove(chunk)
     queue.remove(chunk)
+
+    // A build under way for it finds itself no longer wanted in [finishBuild].
+    inFlight.remove(chunk)
+    redirtied.remove(chunk)
   }
 
   /**
@@ -175,30 +190,78 @@ class DerivedStore(
       val chunk = iterator.next()
       iterator.remove()
 
-      // A queued chunk may have no entry yet - that is what `track` queues, a first build rather than a
-      // rebuild - so an absent entry is inserted rather than skipped. An existing one is updated in place so
-      // that anything holding the entry keeps seeing the current structures.
-      val merged = voxels(chunk)
-      val walkable = walkableTileOf(chunk, merged)
-      val entry = entries[chunk]
-
-      if (entry == null) {
-        entries[chunk] = Entry(walkable = walkable)
-      } else {
-        entry.walkable = walkable
-
-        // The lazy parts are dropped rather than rebuilt, and dropped *here* rather than in `invalidate`.
-        // Dropping them on invalidation would have the next query rebuild from the edited voxels, which is
-        // exactly the answer this class promises not to give until the budget has paid for it.
-        entry.summary = null
-        entry.opacity = null
-        entry.stale = false
-      }
-
+      install(chunk, walkableTileOf(chunk, voxels(chunk)))
       done++
     }
 
     return done
+  }
+
+  /**
+   * Takes the next queued chunk off the queue to be built elsewhere, or null when none is waiting. Hand its tile to
+   * [finishBuild], on the thread that owns this store, once [buildTile] has produced it.
+   */
+  fun beginBuild(): ChunkPos? {
+    val iterator = queue.iterator()
+    if (!iterator.hasNext()) return null
+
+    val chunk = iterator.next()
+    iterator.remove()
+    inFlight.add(chunk)
+    return chunk
+  }
+
+  /**
+   * The walkable tile of [chunk] from [voxelsOf], which has to answer for [chunk] and the slab above it.
+   *
+   * Pure: it reads nothing of this store, so it may run on any thread as long as [voxelsOf] is safe there.
+   */
+  fun buildTile(chunk: ChunkPos, voxelsOf: (ChunkPos) -> VoxelChunk): WalkableTile =
+    WalkableTile.of(voxelsOf(chunk), agent) { voxelsOf(chunk.copy(z = chunk.z + 1)) }
+
+  /**
+   * Puts a tile built after [beginBuild] into the store.
+   *
+   * @return false when it was dropped: the chunk was forgotten meanwhile, or edited, in which case it is queued
+   *   again to be built from what is there now.
+   */
+  fun finishBuild(chunk: ChunkPos, walkable: WalkableTile): Boolean {
+    if (!inFlight.remove(chunk)) return false
+
+    if (redirtied.remove(chunk)) {
+      queue.add(chunk)
+      return false
+    }
+
+    install(chunk, walkable)
+    return true
+  }
+
+  /** A build that failed leaves the chunk queued, so the next budget tries it again. */
+  fun abandonBuild(chunk: ChunkPos) {
+    if (!inFlight.remove(chunk)) return
+    redirtied.remove(chunk)
+    queue.add(chunk)
+  }
+
+  private fun install(chunk: ChunkPos, walkable: WalkableTile) {
+    // A queued chunk may have no entry yet - that is what `track` queues, a first build rather than a
+    // rebuild - so an absent entry is inserted rather than skipped. An existing one is updated in place so
+    // that anything holding the entry keeps seeing the current structures.
+    val entry = entries[chunk]
+
+    if (entry == null) {
+      entries[chunk] = Entry(walkable = walkable)
+    } else {
+      entry.walkable = walkable
+
+      // The lazy parts are dropped rather than rebuilt, and dropped *here* rather than in `invalidate`.
+      // Dropping them on invalidation would have the next query rebuild from the edited voxels, which is
+      // exactly the answer this class promises not to give until the budget has paid for it.
+      entry.summary = null
+      entry.opacity = null
+      entry.stale = false
+    }
   }
 
   /** Rebuilds everything queued. For tests and for world load, never for the zone loop. */

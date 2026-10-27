@@ -60,8 +60,17 @@ class ViewVolume(
 
       // The player's own column is never deferred: they must have ground under them on the first tick, whatever
       // the budget says. Everywhere else waits its turn.
+      // The player's own column is the one answer that cannot wait for a worker. Every other column is only
+      // asked for here and offered once it has come back, which a later tick's manifest picks up.
       val slabs = chunkService.cachedSlabsOf(column)
-        ?: if (isAnchorColumn || budget.trySpend()) chunkService.surfaceSlabsOf(column) else null
+        ?: if (isAnchorColumn) {
+          chunkService.surfaceSlabsOf(column)
+        } else {
+          // A column already on its way costs nothing more, so it must not spend the budget again every tick
+          // and starve the farther columns that have not been asked for yet.
+          if (!chunkService.slabsInFlight(column) && budget.trySpend()) chunkService.requestSurfaceSlabs(column)
+          chunkService.cachedSlabsOf(column)
+        }
 
       if (slabs == null) {
         complete = false

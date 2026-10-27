@@ -341,6 +341,49 @@ class ChunkService(
   }
 
   /**
+   * Starts the generated slabs of [column] computing on a [ChunkWorkers] thread, unless they are cached or
+   * already being computed. The answer shows up in [cachedSlabsOf] on a later tick, and moves [slabEpoch] when
+   * it does, so a manifest left unsettled by it is recomputed.
+   *
+   * This is what [surfaceSlabsOf] costs on fresh ground - a feature query and noise for every column of the
+   * chunk, 100 ms or more - so a tick that has to wait for it stalls for that long, and so does everything the
+   * tick had already computed and not yet sent. [computeSurfaceSlabs] reads only the immutable world, so any
+   * thread may run it; the cache itself is only ever touched here, on the tick.
+   */
+  fun requestSurfaceSlabs(column: ChunkPos) {
+    val key = column.x to column.y
+    if (key in slabs || key in slabsInFlight) return
+
+    slabsInFlight.add(key)
+    workers.submit(
+      work = { computeSurfaceSlabs(column) },
+      deliver = { result -> takeSlabs(key, result) }
+    )
+  }
+
+  private val slabsInFlight = HashSet<Pair<Int, Int>>()
+
+  /** Whether [requestSurfaceSlabs] has [column] on a worker already. */
+  fun slabsInFlight(column: ChunkPos): Boolean = (column.x to column.y) in slabsInFlight
+
+  private fun takeSlabs(key: Pair<Int, Int>, result: Result<IntArray>) {
+    slabsInFlight.remove(key)
+
+    val generated = result.getOrElse {
+      LOG.warn(it) { "Slabs of column $key failed; the next manifest asks again" }
+      return
+    }
+
+    // A synchronous [surfaceSlabsOf] may have got there first, and its answer is the same one.
+    if (key in slabs) return
+
+    computed++
+    metrics.slabComputed()
+    slabChanges++
+    slabs[key] = generated
+  }
+
+  /**
    * The cached slabs, or `null` if the *generated* half has not been computed yet.
    *
    * Lets a caller distinguish "free" from "expensive" and spend a budget accordingly, rather than discovering
@@ -1015,12 +1058,77 @@ class ChunkService(
   }
 
   /** Spends the per-tick derived-structure rebuild budget. Returns how many were rebuilt. */
-  fun rebuildDerived(): Int =
-    if (settings.derivedRebuildsPerTick == 0) {
-      0
-    } else {
-      loaded.derived.rebuild(settings.derivedRebuildsPerTick, settings.derivedRebuildMillisPerTick * 1_000_000L)
+  fun rebuildDerived(): Int {
+    if (settings.derivedRebuildsPerTick == 0) return 0
+
+    val derived = loaded.derived
+    val started = System.nanoTime()
+    val maxNanos = settings.derivedRebuildMillisPerTick * 1_000_000L
+    var begun = 0
+
+    while (begun < settings.derivedRebuildsPerTick) {
+      val chunk = derived.beginBuild() ?: break
+      begun++
+
+      if (!buildDerivedOnWorker(chunk)) {
+        derived.finishBuild(chunk, derived.buildTile(chunk, loaded.store::merged))
+
+        // Only the builds done here cost the tick anything; the rest are on their way to a worker.
+        if (System.nanoTime() - started >= maxNanos) break
+      }
     }
+
+    return begun
+  }
+
+  /**
+   * Starts building [chunk]'s walkable tile on a [ChunkWorkers] thread, and says whether it did.
+   *
+   * A tile takes a pass over 262 144 voxels, and the chunk first has to be generated if nobody has asked for it
+   * yet: 30 to 180 ms in dense ground, which on the tick is a stall for every client in the world. Neither half
+   * needs the tick, but the store is not safe to read from another thread, so the inputs are taken here: the
+   * hot base chunk if there is one, and otherwise the worker generates it from the same pure materializer the
+   * encoding workers use, and the tick adopts the result so the next reader finds it hot.
+   *
+   * Only for a chunk and a slab above it that nobody has dug in. An edit lives in the store's delta, which the
+   * tick mutates, so those few build here as they always did.
+   */
+  private fun buildDerivedOnWorker(chunk: ChunkPos): Boolean {
+    val upper = chunk.copy(z = chunk.z + 1)
+    if (isEdited(chunk) || isEdited(upper)) return false
+
+    val lowerBase = loaded.cache.peek(chunk)
+    val upperBase = loaded.cache.peek(upper)
+    val derived = loaded.derived
+    val materializer = worldService.generated.materializer
+
+    workers.submit(
+      work = {
+        var generated: VoxelChunk? = null
+        val tile = derived.buildTile(chunk) { wanted ->
+          when {
+            wanted == chunk && lowerBase != null -> lowerBase
+            wanted == upper && upperBase != null -> upperBase
+            else -> materializer.materialize(wanted).also { if (wanted == chunk) generated = it }
+          }
+        }
+        tile to generated
+      },
+      deliver = { result ->
+        result.onSuccess { (tile, generated) ->
+          generated?.let { loaded.cache.adopt(chunk, it) }
+          derived.finishBuild(chunk, tile)
+        }.onFailure {
+          LOG.warn(it) { "Walkable tile of $chunk failed to build; it stays queued for the next try" }
+          derived.abandonBuild(chunk)
+        }
+      }
+    )
+
+    return true
+  }
+
+  private fun isEdited(chunk: ChunkPos): Boolean = loaded.store.isBaked(chunk) || loaded.store.deltaOf(chunk) != null
 
   /** One deflater and buffer per thread, reset between uses: the tick and every chunk worker deflate. */
   private val deflaters = ThreadLocal.withInitial { Deflater(settings.deflateLevel) to ByteArray(8192) }
