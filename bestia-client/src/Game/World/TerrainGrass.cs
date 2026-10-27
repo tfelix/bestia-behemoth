@@ -1267,10 +1267,10 @@ namespace BestiaBehemothClient.Game.World
       // Godot's cameras look down their own -Z.
       var forward = -camera.GlobalTransform.Basis.Z;
 
-      // The wedge's apex is at the eye, which sits `zoom` metres behind the player - so everything within that
-      // radius is in front of the character and on screen whatever its bearing. A cell's width on top, because
-      // the test below is against the cell's middle.
-      var near = zoom + CellMetres;
+      // The wedge is wider than the screen, so a turn does not move what the budget is spent on. Near the eye it
+      // is the other way round: a cell close by can be on screen with its middle outside the wedge, so the
+      // frustum answers there. Ground behind the camera is in neither, and costs nothing - Godot culls it.
+      var frustum = camera.GetFrustum();
 
       var wanted = 0;
 
@@ -1298,7 +1298,8 @@ namespace BestiaBehemothClient.Game.World
           // not only for the ones the wedge below is counting.
           patch.Appear = GrassLod.Appear(patch.Appear, 1.0f, (float)delta, AppearSeconds);
 
-          if (GrassLod.InView((patch.Min + patch.Max) * 0.5f, eye.Value, forward, cosHalfAngle, near))
+          if (GrassLod.InView((patch.Min + patch.Max) * 0.5f, eye.Value, forward, cosHalfAngle, 0.0f) ||
+              GrassLod.Overlaps(frustum, patch.Min, patch.Max))
           {
             // What the cell will *draw*, which the ramp puts slightly above its fraction - a plant grown to a
             // fiftieth of its size still costs a vertex shader, so the budget has to see it.
@@ -1314,7 +1315,6 @@ namespace BestiaBehemothClient.Game.World
       var trim = GrassLod.BudgetTrim(wanted, MaxVisibleTriangles);
       var drawn = 0;
       var onScreen = 0;
-      var frustum = camera.GetFrustum();
 
       foreach (var patches in _patches.Values)
       {
