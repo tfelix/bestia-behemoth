@@ -103,8 +103,9 @@ func _apply(shot: Array) -> void:
 	weather.WindSeconds = 0.2
 	weather.WindSpeedSeconds = 0.2
 
-	if "mood_strength" in _environment:
-		_environment.mood_strength = shot[6]
+	if shot[6] > 0.0 and _environment.mood == null:
+		_environment.mood = load("res://Game/Environment/Sky/moods/doomsday.tres")
+	_environment.mood_strength = shot[6]
 
 	# The environment only re-reads the clock every update_delay_seconds; a jump in time has to cut that short.
 	_environment.set("_last_updated_since", 1.0e9)

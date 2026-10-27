@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="SkyMood" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Environment/Sky/sky_mood.gd" id="1_mood"]
+
+[resource]
+script = ExtResource("1_mood")
+sky_tint = Color(0.55, 0.05, 0.04, 1)
+horizon_tint = Color(0.88, 0.14, 0.07, 1)
+cloud_tint = Color(0.72, 0.13, 0.09, 1)
+light_tint = Color(1, 0.30, 0.18, 1)
+fog_tint = Color(0.70, 0.12, 0.07, 1)
+brightness = 0.65
