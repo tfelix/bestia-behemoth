@@ -52,6 +52,14 @@ uniform vec3 foam_colour : source_color = vec3(0.95, 0.98, 1.0);
 // Water column in metres over which the shore foam fades out.
 uniform float foam_distance : hint_range(0.05, 4.0) = 0.35;
 
+// Metres across the surface the shore foam reaches where the bed is too steep for `foam_distance` to show it.
+uniform float foam_width : hint_range(0.1, 4.0) = 1.0;
+
+// How far out from the waterline the shore is looked for, and over how deep a column. The streaks reach
+// `streak_reach` foam widths, so a search shorter than that cuts them off. Zero turns the search off.
+uniform float shore_search_metres : hint_range(0.0, 6.0) = 2.6;
+uniform float shore_search_depth : hint_range(0.0, 6.0) = 2.5;
+
 // Width of the soft edge on every foam shape. Small keeps the cartoon look; zero would alias.
 uniform float foam_softness : hint_range(0.005, 0.3) = 0.04;
 
@@ -137,6 +145,11 @@ global uniform vec2 weather_gust_drift;
 // Steps of the reflection trace, then halvings to place the hit between the last two steps.
 const int REFLECTION_STEPS = 32;
 const int REFLECTION_REFINES = 6;
+
+// Taps of the shore search: rings out to `shore_search_metres`, directions per ring, halvings to place the hit.
+const int SHORE_RINGS = 4;
+const int SHORE_DIRECTIONS = 8;
+const int SHORE_REFINES = 3;
 
 varying vec3 v_world_pos;
 varying vec3 v_world_normal;
@@ -230,12 +243,86 @@ vec3 trace_reflection(vec3 origin, vec3 direction, mat4 projection, mat4 inv_pro
 	return vec3(0.0);
 }
 
+// Whether ground stands above the water at a point on the surface, read from the depth buffer there. The hit
+// must lie near the point itself, or anything in front of the water - a tree, the player - would count.
+bool is_land(vec3 surface_point, float reach, mat4 view, mat4 projection, mat4 inv_projection, mat4 inv_view) {
+	vec3 view_point = (view * vec4(surface_point, 1.0)).xyz;
+	if (view_point.z > -0.05) {
+		return false;
+	}
+
+	vec2 uv = to_screen(view_point, projection);
+	if (uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0) {
+		return false;
+	}
+
+	vec3 scene = (inv_view * vec4(scene_position(uv, inv_projection), 1.0)).xyz;
+	return scene.y > surface_point.y - 0.02 && distance(scene.xz, surface_point.xz) < reach;
+}
+
+// Metres across the surface to the nearest ground above it, or `shore_search_metres` if there is none that close.
+//
+// The column alone cannot find a shore in the streamed world. One-metre voxels on a coastal shelf rising a metre
+// per hundred lay the bed in flat terraces, so the water is a voxel deep right up to a short step at the
+// waterline, and the column only falls below `foam_distance` on a strip a few centimetres wide. So the ground is
+// looked for sideways instead: rings of taps, the first ring that finds land refined by halving along that tap.
+float shore_metres(vec3 surface_point, float spin, mat4 view, mat4 projection, mat4 inv_projection,
+		mat4 inv_view) {
+	float inner = 0.0;
+
+	for (int ring = 1; ring <= SHORE_RINGS; ring++) {
+		float radius = shore_search_metres * float(ring) / float(SHORE_RINGS);
+		// Each ring turned half a step against the last, so the gaps between taps do not line up into spokes.
+		float turn = spin + float(ring % 2) * 3.14159 / float(SHORE_DIRECTIONS);
+
+		for (int d = 0; d < SHORE_DIRECTIONS; d++) {
+			float angle = turn + 6.28318 * float(d) / float(SHORE_DIRECTIONS);
+			vec3 heading = vec3(cos(angle), 0.0, sin(angle));
+			float reach = radius * 0.5 + 0.3;
+
+			if (is_land(surface_point + heading * radius, reach, view, projection, inv_projection, inv_view)) {
+				float near = inner;
+				float far = radius;
+				for (int r = 0; r < SHORE_REFINES; r++) {
+					float middle = (near + far) * 0.5;
+					if (is_land(surface_point + heading * middle, reach, view, projection, inv_projection, inv_view)) {
+						far = middle;
+					} else {
+						near = middle;
+					}
+				}
+				return far;
+			}
+		}
+
+		inner = radius;
+	}
+
+	return shore_search_metres;
+}
+
 void fragment() {
 	// Water column measured straight down from the surface to whatever is behind it, not along the view ray:
 	// the slant distance saturates on faces seen edge on and changes the shoreline with the viewing angle.
 	vec3 behind_view = scene_position(SCREEN_UV, INV_PROJECTION_MATRIX);
 	vec3 behind_world = (INV_VIEW_MATRIX * vec4(behind_view, 1.0)).xyz;
 	float water_depth = clamp(v_world_pos.y - behind_world.y, 0.0, max_depth);
+
+	// Near a shore the water reads as though its bed rose at `foam_distance` per `foam_width` to the waterline,
+	// however the bed is really shaped, and the foam, streaks and glow are drawn from that. Not the colour: a
+	// search this coarse draws its own shape, and a whole pale octagon round every rock shows it. Only
+	// searched over shallow water: the open sea is never within reach of land.
+	float foam_depth = water_depth;
+	if (shore_search_metres > 0.0 && water_depth < shore_search_depth && FRONT_FACING) {
+		// The taps turned by slow noise, so the straight sides a fixed star of directions draws into the foam's
+		// edge wander instead.
+		float spin = texture(wave_noise, v_world_pos.xz / (wave_scale * 0.2)).r * 6.28318;
+		float to_shore = shore_metres(v_world_pos, spin, VIEW_MATRIX, PROJECTION_MATRIX, INV_PROJECTION_MATRIX,
+			INV_VIEW_MATRIX);
+		if (to_shore < shore_search_metres) {
+			foam_depth = min(water_depth, to_shore * foam_distance / foam_width);
+		}
+	}
 
 	float storm = storminess();
 	float wetness = clamp(weather_wetness, 0.0, 1.0);
@@ -286,20 +373,20 @@ void fragment() {
 	// Foam. The band and the whitecaps are hard-edged shapes cut from noise; the streaks are soft. The breakup
 	// noise is finer than the waves so the band is ragged rather than a contour of the depth.
 	float breakup = texture(wave_noise, wave_uv(v_world_pos.xz, wave_scale * 0.12, vec2(2.0, 0.0), TIME)).r;
-	float shore = 1.0 - clamp(water_depth / foam_distance, 0.0, 1.0);
+	float shore = 1.0 - clamp(foam_depth / foam_distance, 0.0, 1.0);
 	float band = smoothstep(0.5 - foam_softness, 0.5 + foam_softness, shore + (breakup - 0.5) * 1.1);
 
 	// Streaks follow the depth contours, so they lie along any shore without knowing its direction. Coarse
 	// noise bends the contours and thins them out in patches; nothing is cut hard, so no dash ends show.
 	float bend = texture(wave_noise, wave_uv(v_world_pos.xz, wave_scale * 0.3, vec2(0.0, 1.0), TIME)).r;
 	float patches = texture(wave_noise, wave_uv(v_world_pos.xz, wave_scale * 0.45, vec2(-0.5, 0.0), TIME)).r;
-	float foam_widths = water_depth / foam_distance + (bend - 0.5) * 1.2;
+	float foam_widths = foam_depth / foam_distance + (bend - 0.5) * 1.2;
 	float phase = fract(foam_widths * streak_density + TIME * streak_speed);
 	float streak_core = smoothstep(streak_width, streak_width * 0.25, abs(phase - 0.5));
 	float streak_fade = smoothstep(0.7, 1.0, foam_widths) * (1.0 - smoothstep(1.0, streak_reach, foam_widths));
 	float streaks = streak_core * streak_fade * smoothstep(0.4, 0.75, patches) * streak_strength;
 
-	float glow = (1.0 - smoothstep(0.0, 2.5, water_depth / foam_distance)) * shore_glow;
+	float glow = (1.0 - smoothstep(0.0, 2.5, foam_depth / foam_distance)) * shore_glow;
 
 	float crest = smoothstep(0.82 - foam_softness, 0.82 + foam_softness, here / (1.0 + chop) + breakup * 0.25);
 	// Only the top of the storm range breaks, so a dry gale ruffles the water without flecking all of it.

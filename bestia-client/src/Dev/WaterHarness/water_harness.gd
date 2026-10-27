@@ -4,9 +4,11 @@ extends Node3D
 ##
 ## Run it with a window - the headless renderer draws nothing:
 ##   DISPLAY=:0 godot --path bestia-client/src res://Dev/WaterHarness/WaterHarness.tscn -- --out=DIR [--shots=a,b]
-##     [--set=reflection_strength=1.0,storm_tint=0] [--no-gi]
+##     [--set=reflection_strength=1.0,storm_tint=0] [--no-gi] [--stepped]
 ##
 ## --no-gi turns SDFGI off. Over this bare, bright plane it overexposes a clear noon until it has settled.
+##
+## --stepped terraces the bed the way the voxel world does, so the shore is a short step rather than a slope.
 ##
 ## The pond is built here rather than streamed, so the shot needs no server and no generated world.
 
@@ -57,6 +59,7 @@ var _only: PackedStringArray = []
 var _warmup := WARMUP_FRAMES
 var _settle := SETTLE_FRAMES
 var _overrides := {}
+var _stepped := false
 
 @onready var _pond_camera: Camera3D = $PondCamera
 @onready var _close_camera: Camera3D = $CloseCamera
@@ -71,6 +74,8 @@ func _ready() -> void:
 		elif arg.begins_with("--frames="):
 			_warmup = int(arg.trim_prefix("--frames="))
 			_settle = _warmup
+		elif arg == "--stepped":
+			_stepped = true
 		elif arg.begins_with("--set="):
 			for pair in arg.trim_prefix("--set=").split(","):
 				var parts := pair.split("=")
@@ -181,7 +186,14 @@ func _ground_height(point: Vector2) -> float:
 	var wobble := 0.6 * sin(atan2(stretched.y, stretched.x) * 3.0) + 0.3 * sin(atan2(stretched.y, stretched.x) * 7.0)
 	var distance := stretched.length() + wobble
 
-	return -POND_DEPTH + (POND_DEPTH + 0.7) * smoothstep(POND_RADIUS * 0.3, POND_RADIUS * 1.15, distance)
+	var height := -POND_DEPTH + (POND_DEPTH + 0.7) * smoothstep(POND_RADIUS * 0.3, POND_RADIUS * 1.15, distance)
+	if not _stepped:
+		return height
+
+	# The streamed world's shore: one-metre voxels on a shelf rising a metre per hundred lay the bed in flat
+	# terraces, so the water stays a voxel deep right up to a short step at the waterline.
+	var level := floorf(height + 0.75)
+	return level - 0.75 + smoothstep(0.8, 1.0, height + 0.75 - level)
 
 
 func _build_rocks() -> void:
