@@ -123,6 +123,15 @@ signal lightning_struck(ground: Vector3)
 ## play under it.
 @export_range(0, 1, 0.01) var twilight_strength: float = 0.75
 
+@export_group("Mood")
+
+## An artistic grade over the sky and its light, for example the red of a world that is ending. Nothing sets it
+## yet; the doomsday events will, through mood_strength.
+@export var mood: SkyMood = null
+
+## How much of the mood is applied, 0 none to 1 full.
+@export_range(0, 1, 0.01) var mood_strength: float = 0.0
+
 @export_group("Weather")
 
 ## What the daytime sky goes under a full overcast.
@@ -209,6 +218,7 @@ var _clear_fog_end: float = 0.0
 var _applied_overcast: float = -1.0
 var _applied_visibility: float = -1.0
 var _applied_haze: float = -1.0
+var _applied_mood: float = -1.0
 
 var _flash: float = 0.0
 var _next_strike: float = -1.0
@@ -273,10 +283,12 @@ func _process(delta: float) -> void:
 
 	if _last_updated_since >= float(update_delay_seconds) \
 			or absf(overcast - _applied_overcast) > _WEATHER_BAND \
-			or absf(visibility - _applied_visibility) > _WEATHER_BAND:
+			or absf(visibility - _applied_visibility) > _WEATHER_BAND \
+			or absf(mood_strength - _applied_mood) > _WEATHER_BAND:
 		_last_updated_since = 0.0
 		_applied_overcast = overcast
 		_applied_visibility = visibility
+		_applied_mood = mood_strength
 
 		var daylight: float = _clock.Daylight
 
@@ -323,7 +335,7 @@ func _apply_lights(daylight: float, twilight: float) -> void:
 
 	_sun.rotation = _light_rotation(elevation, azimuth)
 	_sun.light_energy = sun_energy * daylight * dimming
-	_sun.light_color = sun_day_colour.lerp(sun_twilight_colour, twilight)
+	_sun.light_color = _graded(sun_day_colour.lerp(sun_twilight_colour, twilight), &"light_tint")
 	_sun.light_angular_distance = softness
 
 	# Hidden rather than merely dark. A DirectionalLight3D at zero energy still renders its shadow map,
@@ -354,6 +366,7 @@ func _apply_moon(sun_progress: float, daylight: float, dimming: float, softness:
 	var strength := maxf(moonlight_floor, illumination * above_horizon)
 
 	_moon.rotation = _light_rotation(elevation, azimuth)
+	_moon.light_color = _graded(moon_colour, &"light_tint")
 	_moon.light_energy = moon_energy * strength * (1.0 - daylight) * dimming
 	_moon.light_angular_distance = softness
 	_moon.visible = daylight < 0.998
@@ -380,7 +393,8 @@ func _apply_sun_disc(elevation: float, azimuth: float, twilight: float, dimming:
 
 	_sky.set_shader_parameter("sun_direction", toward_sun)
 	_sky.set_shader_parameter("sun_colour", _sun.light_color)
-	_sky.set_shader_parameter("glow_colour", sun_day_colour.lerp(sun_twilight_colour, maxf(twilight, 0.35)))
+	_sky.set_shader_parameter("glow_colour",
+		_graded(sun_day_colour.lerp(sun_twilight_colour, maxf(twilight, 0.35)), &"light_tint"))
 	_sky.set_shader_parameter("sun_disc_energy", sun_disc_energy * dimming)
 	_sky.set_shader_parameter("glow_strength", sun_glow_strength * dimming)
 
@@ -422,13 +436,15 @@ func _solar_progress(hour_of_day: float) -> float:
 
 
 func _apply_sky(daylight: float, twilight: float, overcast: float, visibility: float) -> void:
-	_sky.set_shader_parameter("zenith_colour", _weathered(
-		sky_top_night, sky_top_day, sky_top_twilight, overcast_sky_top, overcast, daylight, twilight))
-	_sky.set_shader_parameter("horizon_colour", _weathered(
+	_sky.set_shader_parameter("zenith_colour", _graded(_weathered(
+		sky_top_night, sky_top_day, sky_top_twilight, overcast_sky_top, overcast, daylight, twilight),
+		&"sky_tint"))
+	_sky.set_shader_parameter("horizon_colour", _graded(_weathered(
 		sky_horizon_night, sky_horizon_day, sky_horizon_twilight, overcast_sky_horizon,
-		overcast, daylight, twilight))
-	_sky.set_shader_parameter("ground_colour", _weathered(
-		ground_night, ground_day, ground_twilight, overcast_ground, overcast, daylight, twilight))
+		overcast, daylight, twilight), &"horizon_tint"))
+	_sky.set_shader_parameter("ground_colour", _graded(_weathered(
+		ground_night, ground_day, ground_twilight, overcast_ground, overcast, daylight, twilight),
+		&"fog_tint"))
 
 	# Fog is the loudest of the three. It is drawn over everything at distance, so a fog still lit for
 	# midday is a pale band along the horizon of a night scene - which reads as the night not having
@@ -436,23 +452,23 @@ func _apply_sky(daylight: float, twilight: float, overcast: float, visibility: f
 	# Kinds whose air has a colour of its own tint the fog on top of the hour and the cloud. Applied last so
 	# it survives them both: a sandstorm at dusk is sand-coloured, not orange, because what is between the
 	# player and the horizon is sand rather than sky.
-	_base_fog_colour = _weathered(
+	_base_fog_colour = _graded(_weathered(
 		fog_night, fog_day, fog_twilight, overcast_fog, overcast, daylight, twilight).lerp(
-			_haze_colour(), _haze_tint())
+			_haze_colour(), _haze_tint()), &"fog_tint")
 	_environment.fog_light_color = _base_fog_colour
 
 	# The fog does not reach the sky (fog_sky_affect is 0), so the sky draws its own haze band in the same
 	# colour. Thicker air hides more of the sky as well as more of the ground.
 	_sky.set_shader_parameter("haze_colour", _base_fog_colour)
+	_sky.set_shader_parameter("haze_height", lerpf(max_haze_height, clear_haze_height, visibility))
 	_sky.set_shader_parameter("star_visibility", pow(1.0 - daylight, 2.0) * (1.0 - overcast))
 
 	# The clouds take their colours from the same day/night/twilight blend as the sky, so a sunset reaches the
 	# clouds and a night leaves them dim. Weather does not enter here: how heavy they are is cloud_thickness.
-	_sky.set_shader_parameter("cloud_lit_colour",
-		cloud_lit_night.lerp(cloud_lit_day, daylight).lerp(cloud_lit_twilight, twilight))
-	_sky.set_shader_parameter("cloud_shadow_colour",
-		cloud_shadow_night.lerp(cloud_shadow_day, daylight).lerp(cloud_shadow_twilight, twilight))
-	_sky.set_shader_parameter("haze_height", lerpf(max_haze_height, clear_haze_height, visibility))
+	_sky.set_shader_parameter("cloud_lit_colour", _graded(
+		cloud_lit_night.lerp(cloud_lit_day, daylight).lerp(cloud_lit_twilight, twilight), &"cloud_tint"))
+	_sky.set_shader_parameter("cloud_shadow_colour", _graded(
+		cloud_shadow_night.lerp(cloud_shadow_day, daylight).lerp(cloud_shadow_twilight, twilight), &"cloud_tint"))
 
 	# Rain, fog and snow are all things in the air between the player and the horizon, so they are the same
 	# effect at different strengths and all of them belong here rather than in a per-kind branch.
@@ -462,6 +478,17 @@ func _apply_sky(daylight: float, twilight: float, overcast: float, visibility: f
 	# Here with the sky rather than with the lights, because this is the sky's own contribution: ambient is
 	# sampled from the dome set above, and this only says how much of it arrives.
 	_environment.ambient_light_energy = lerpf(clear_ambient_energy, overcast_ambient_energy, _diffusion())
+
+
+## A colour with the mood's grade applied, using the mood's tint of that name.
+##
+## Applied last, after weather and hour, because the mood is art direction over the whole sky rather than
+## another kind of weather.
+func _graded(colour: Color, tint: StringName) -> Color:
+	if mood == null or mood_strength <= 0.0:
+		return colour
+
+	return mood.grade(colour, mood.get(tint), mood_strength)
 
 
 ## The palette entry for one surface: weather first, then the hour.
