@@ -133,6 +133,10 @@ group_uniforms;
 // materials for the whole world, and no per-instance allocation at all.
 uniform float grass_extra_scale = 0.0;
 
+// Applies `grass_extra_scale` across the ground only, so a far tuft standing in for thinned neighbours covers
+// their ground without standing taller than they did. Set by `TerrainGrass.WidenNotGrow`.
+uniform bool grass_widen_only = false;
+
 // Where this cell's reveal has reached, in shares of its own instance order, and how wide the ramp behind that
 // front is. Written per cell by `TerrainGrass.Retune`; the arithmetic is `GrassLod.RevealFront`, and the two
 // lines below transcribe `GrassLod.Reveal`.
@@ -233,7 +237,9 @@ void vertex() {
 	// is what a shorter blade should do. At `grow` of nought the offset is zero, which the length-preserving
 	// drop below already guards for. Uniformly, never a squash in y - that would flatten the splayed blades of
 	// a clump into a disc lying on the ground, which from this camera is worse than the pop it would fix.
-	VERTEX *= grow * (1.0 + grass_extra_scale) * (1.0 - smoothstep(0.25, 1.0, burn));
+	float extra = 1.0 + grass_extra_scale;
+	VERTEX *= grow * (1.0 - smoothstep(0.25, 1.0, burn));
+	VERTEX *= grass_widen_only ? vec3(extra, 1.0, extra) : vec3(extra);
 
 	// Where this vertex would stand in dead calm. Kept, because the offset has to be turned back into model
 	// space at the end and because the albedo noise below is a property of the ground, not of the blade.

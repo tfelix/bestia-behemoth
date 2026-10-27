@@ -295,6 +295,19 @@ namespace BestiaBehemothClient.Game.World
     /// </remarks>
     [Export(PropertyHint.Range, "1,4,0.1")] public float MaxCoverageScale { get; set; } = 1.2f;
 
+    /// <summary>Draws a thinned cell's tufts wider rather than larger, so they keep its cover at their height.</summary>
+    /// <remarks>
+    /// Width is not a silhouette the player measures against their character, so the ceiling on it,
+    /// <see cref="MaxWidenScale"/>, can sit well above <see cref="MaxCoverageScale"/>.
+    /// </remarks>
+    [Export] public bool WidenNotGrow { get; set; }
+
+    /// <summary>Ceiling on the compensation while <see cref="WidenNotGrow"/> is on.</summary>
+    [Export(PropertyHint.Range, "1,4,0.1")] public float MaxWidenScale { get; set; } = 1.6f;
+
+    /// <summary>The compensation ceiling in force, which depends on which way the compensation is drawn.</summary>
+    private float CoverageCeiling => WidenNotGrow ? MaxWidenScale : MaxCoverageScale;
+
     /// <summary>
     /// Triangles this may draw at once across the whole field, or 0 for no budget.
     /// </summary>
@@ -670,6 +683,9 @@ namespace BestiaBehemothClient.Game.World
     /// <summary>The ramp width the materials were last told about. NaN so the first push always happens.</summary>
     private float _pushedSpan = float.NaN;
 
+    /// <summary>What the materials were last told about <see cref="WidenNotGrow"/>. False is the shader's default.</summary>
+    private bool _pushedWiden;
+
     /// <summary>Where the camera is looking, which is where the player is. Null until told - see <see cref="SetFocusAt"/>.</summary>
     private Vector3? _focus;
 
@@ -712,6 +728,8 @@ namespace BestiaBehemothClient.Game.World
 
     /// <summary>The ramp's width. A material uniform, so it is set once for the whole field.</summary>
     private static readonly StringName RevealSpanParameter = "grass_reveal_span";
+
+    private static readonly StringName WidenOnlyParameter = "grass_widen_only";
 
     private static readonly StringName BurnsWithGroundParameter = "burns_with_ground";
     private static readonly StringName GroundMarksParameter = "ground_marks";
@@ -974,7 +992,7 @@ namespace BestiaBehemothClient.Game.World
         // The wind's margin, plus however far the coverage compensation can grow a plant past the transforms
         // Godot measured the bounds from. Without the second term a compensated cell pops out of view while its
         // plants are still on screen.
-        ExtraCullMargin = WindCullMargin + top * (Mathf.Max(MaxCoverageScale, 1.0f) - 1.0f)
+        ExtraCullMargin = WindCullMargin + top * (Mathf.Max(CoverageCeiling, 1.0f) - 1.0f)
       };
 
       AddChild(node);
@@ -1227,6 +1245,7 @@ namespace BestiaBehemothClient.Game.World
       Drain(eye);
 
       PushRevealSpan();
+      PushWidenMode();
       Vanish(delta);
 
       if (_patches.Count == 0 || !eye.HasValue)
@@ -1391,6 +1410,23 @@ namespace BestiaBehemothClient.Game.World
       }
     }
 
+    /// <summary>Keeps the shader's copy of <see cref="WidenNotGrow"/> in step, so it can be flipped while the game runs.</summary>
+    private void PushWidenMode()
+    {
+      if (_material is not ShaderMaterial shader || _pushedWiden == WidenNotGrow)
+      {
+        return;
+      }
+
+      _pushedWiden = WidenNotGrow;
+      shader.SetShaderParameter(WidenOnlyParameter, WidenNotGrow);
+
+      foreach (var scaled in _scaled.Values)
+      {
+        scaled.SetShaderParameter(WidenOnlyParameter, WidenNotGrow);
+      }
+    }
+
     /// <summary>Sets one cell's mesh, instance count and plant size from the share it was given this frame.</summary>
     private void Retune(Patch patch, float trim)
     {
@@ -1453,7 +1489,7 @@ namespace BestiaBehemothClient.Game.World
       var revealed = GrassLod.RevealedFraction(
         GrassLod.RevealFront(patch.Coverage, RevealSpan), RevealSpan);
 
-      var scale = GrassLod.CoverageScale(revealed, CoverageCompensation, MaxCoverageScale) * patch.Appear;
+      var scale = GrassLod.CoverageScale(revealed, CoverageCompensation, CoverageCeiling) * patch.Appear;
 
       // Three quarters of a step of dead band around what this cell is already drawing at, rather than a plain
       // round to the nearest step. A cell whose distance leaves it sitting on a step boundary would otherwise
