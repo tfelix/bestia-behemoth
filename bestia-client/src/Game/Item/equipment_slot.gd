@@ -15,9 +15,10 @@ enum Slot {
 	LEFT_HAND = 6,
 	ACCESSORY_1 = 7,
 	ACCESSORY_2 = 8,
+	LIGHT_SOURCE = 9,
 }
 
-const COUNT := 9
+const COUNT := 10
 
 ## Every slot set - what a master has. A bestia only has the subset its species declares.
 const ALL_MASK := (1 << COUNT) - 1
@@ -45,4 +46,5 @@ static func display_name(slot: int) -> String:
 		Slot.LEFT_HAND: return "Left Hand"
 		Slot.ACCESSORY_1: return "Accessory 1"
 		Slot.ACCESSORY_2: return "Accessory 2"
+		Slot.LIGHT_SOURCE: return "Light Source"
 		_: return "Unknown"
