@@ -2,6 +2,7 @@ package net.bestia.zone.economy
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 /**
@@ -14,6 +15,7 @@ class ShopTest {
 
   private val catalogue = EconomyCatalogue().apply { load() }
   private val bread = catalogue.commodityOrThrow("bread")
+  private val grain = catalogue.commodityOrThrow("grain")
 
   private val village = SettlementReference.of(catalogue, settlement = 7, population = 300, wealth = 0.4, traffic = 1.5)
 
@@ -92,6 +94,37 @@ class ShopTest {
     val flush = shop(LedgerState(treasury = village.treasury * 10, lastStepDay = DAY))
 
     assertEquals(Shop.Refusal.TREASURY_FULL, flush.quoteBuy(bread, 20).refusal)
+  }
+
+  @Test
+  fun `a basket's balance is what is sold less what is bought`() {
+    val shop = shop()
+    val sold = shop.quoteSell(grain, 4).coins
+    val bought = shop.quoteBuy(bread, 2).coins
+
+    val quote = shop.quoteBasket(listOf(Shop.BasketLine(grain, 4, selling = true), Shop.BasketLine(bread, 2, selling = false)))
+
+    assertEquals(listOf(sold, bought), quote.lineCoins)
+    assertEquals(sold - bought, quote.balance)
+  }
+
+  @Test
+  fun `a town with an empty strongbox still takes goods in part payment`() {
+    // Only the balance changes hands, and here the player pays it: the town needs no coin of its own.
+    val broke = shop(LedgerState(treasury = 0.0, lastStepDay = DAY))
+
+    val quote = broke.quoteBasket(listOf(Shop.BasketLine(grain, 1, selling = true), Shop.BasketLine(bread, 1, selling = false)))
+
+    assertNull(quote.refusal)
+    assertTrue(quote.balance < 0)
+  }
+
+  @Test
+  fun `a refused basket names the line at fault`() {
+    val quote = shop().quoteBasket(listOf(Shop.BasketLine(bread, 1, selling = false), Shop.BasketLine(null, 1, selling = true)))
+
+    assertEquals(Shop.Refusal.NOT_STOCKED, quote.refusal)
+    assertEquals(1, quote.refusedLine)
   }
 
   @Test
