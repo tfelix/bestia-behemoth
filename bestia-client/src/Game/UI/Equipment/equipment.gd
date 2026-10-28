@@ -25,7 +25,7 @@ var _bestia_id_by_entity: Dictionary = {}
 ## earlier sibling than EntityManager, and Godot fires signal listeners in connection order),
 ## reading through the cache on the live path meant this window always rendered one equip change
 ## behind. The cache is still used, but only to seed _worn on first show / entity switch, mirroring
-## Skills._seed_skill_points_from_cache / BuffList._on_self_received.
+## Skills._seed_skill_points_from_cache / BuffList._on_controlled_entity_changed.
 var _worn: Dictionary = {}
 
 
@@ -58,7 +58,7 @@ func _on_self_received(msg: SelfSMSG) -> void:
 
 ## Seeds from whatever the Entity node already has cached (see entity.gd/entity_manager.gd) so
 ## this is correct immediately, without waiting for the next live EquipmentComponentSMSG -
-## mirrors Skills._seed_skill_points_from_cache / BuffList._on_self_received.
+## mirrors Skills._seed_skill_points_from_cache / BuffList._on_controlled_entity_changed.
 func _on_controlled_entity_changed(_previous_id: int, entity_id: int) -> void:
 	_selected_entity_id = entity_id
 	_seed_worn_from_cache()
