@@ -22,6 +22,16 @@ namespace BestiaBehemothClient.Bnet.Message.Shop
     /// </summary>
     [Export] public ulong MerchantEntityId { get; set; }
 
+    [Export] public string MerchantName { get; set; } = "";
+
+    /// <summary>False for a merchant who keeps no hours; the two minutes below are then meaningless.</summary>
+    [Export] public bool KeepsHours { get; set; }
+
+    /// <summary>The merchant's own minutes of the day, already moved by how early or late they work.</summary>
+    [Export] public int OpensAtMinute { get; set; }
+
+    [Export] public int ClosesAtMinute { get; set; }
+
     [Export] public Godot.Collections.Array<ShopEntry> Entries { get; set; } = [];
 
     public static ShopOfferSMSG FromProto(global::Bnet.ShopOfferSMSG proto)
@@ -36,6 +46,10 @@ namespace BestiaBehemothClient.Bnet.Message.Shop
       {
         Settlement = proto.Settlement,
         MerchantEntityId = proto.MerchantEntityId,
+        MerchantName = proto.MerchantName,
+        KeepsHours = proto.Hours != null,
+        OpensAtMinute = proto.Hours?.OpensAtMinute ?? 0,
+        ClosesAtMinute = proto.Hours?.ClosesAtMinute ?? 0,
         Entries = entries
       };
     }
