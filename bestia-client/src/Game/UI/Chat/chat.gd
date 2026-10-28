@@ -116,6 +116,8 @@ func _handle_chat_send() -> void:
 	# Special case handling for internal commands.
 	if chat_text == "/clear":
 		_handle_clear_chat()
+	elif _refuses_emote(chat_text):
+		pass
 	elif chat_text.begins_with("/"):
 		# Mode 7 is the command type as this is a command for the server. The text with any mode prefix taken
 		# off, so "/p /help" asks for help rather than for a command called "/p".
@@ -126,6 +128,16 @@ func _handle_chat_send() -> void:
 		ConnectionManager.send_chat(chat_text, bnet_mode)
 	
 	_clear_input()
+
+
+## An emote the body the player controls has no clips for - a bestia asked to cheer - is answered here rather than
+## sent: the server would play it, and nobody would see anything. Every other emote is an ordinary command.
+func _refuses_emote(chat_text: String) -> bool:
+	var emote := EmoteDB.get_instance().from_command(chat_text)
+	if emote == null or EmoteDB.controlled_can_play(emote):
+		return false
+	error_line(tr("EMOTE_BODY_CANNOT") % [tr(emote.label_key)])
+	return true
 
 
 func _clear_input() -> void:

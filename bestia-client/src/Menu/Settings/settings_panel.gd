@@ -26,6 +26,7 @@ const _WINDOW_KEYS := [
 	["Party", &"toggle_party"],
 	["Guild", &"toggle_guild"],
 	["Compendium", &"toggle_compendium"],
+	["Emotes", &"toggle_emotes"],
 	["Map", &"toggle_map"],
 	["Menu", &"ui_cancel"],
 ]
@@ -156,6 +157,7 @@ func _build_keys_tab() -> Control:
 	)
 	# The chat reads Enter itself rather than through an action.
 	rows.append(["Chat", OS.get_keycode_string(KEY_ENTER)])
+	rows.append(["Emote bar", "%s - %s" % [Hotkeys.label_of(&"emote_1"), Hotkeys.label_of(&"emote_10")]])
 
 	for row in rows:
 		var name_label := _name_label(row[0])

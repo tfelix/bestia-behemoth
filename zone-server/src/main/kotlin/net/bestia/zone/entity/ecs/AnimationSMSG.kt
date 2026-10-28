@@ -16,10 +16,30 @@ data class AnimationSMSG(
   }
 
   companion object {
-    private fun Animation.AnimationKind.toProto(): AnimationComponentSMSGProto.AnimationKind =
+    fun Animation.AnimationKind.toProto(): AnimationComponentSMSGProto.AnimationKind =
       when (this) {
         Animation.AnimationKind.IDLE -> AnimationComponentSMSGProto.AnimationKind.IDLE
         Animation.AnimationKind.SLEEP -> AnimationComponentSMSGProto.AnimationKind.SLEEP
+        Animation.AnimationKind.CHEER -> AnimationComponentSMSGProto.AnimationKind.CHEER
+        Animation.AnimationKind.JUMP -> AnimationComponentSMSGProto.AnimationKind.JUMP
+        Animation.AnimationKind.POINT -> AnimationComponentSMSGProto.AnimationKind.POINT
+        Animation.AnimationKind.FLOURISH -> AnimationComponentSMSGProto.AnimationKind.FLOURISH
+        Animation.AnimationKind.SIT -> AnimationComponentSMSGProto.AnimationKind.SIT
+        Animation.AnimationKind.LIE -> AnimationComponentSMSGProto.AnimationKind.LIE
+      }
+
+    /** Null for a value this server does not know, which only a client built against a newer schema sends. */
+    fun AnimationComponentSMSGProto.AnimationKind.fromProto(): Animation.AnimationKind? =
+      when (this) {
+        AnimationComponentSMSGProto.AnimationKind.IDLE -> Animation.AnimationKind.IDLE
+        AnimationComponentSMSGProto.AnimationKind.SLEEP -> Animation.AnimationKind.SLEEP
+        AnimationComponentSMSGProto.AnimationKind.CHEER -> Animation.AnimationKind.CHEER
+        AnimationComponentSMSGProto.AnimationKind.JUMP -> Animation.AnimationKind.JUMP
+        AnimationComponentSMSGProto.AnimationKind.POINT -> Animation.AnimationKind.POINT
+        AnimationComponentSMSGProto.AnimationKind.FLOURISH -> Animation.AnimationKind.FLOURISH
+        AnimationComponentSMSGProto.AnimationKind.SIT -> Animation.AnimationKind.SIT
+        AnimationComponentSMSGProto.AnimationKind.LIE -> Animation.AnimationKind.LIE
+        AnimationComponentSMSGProto.AnimationKind.UNRECOGNIZED -> null
       }
   }
 }

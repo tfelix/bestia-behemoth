@@ -24,6 +24,10 @@ var _worn_gear: WornGearComponentSMSG = null
 var _parts: MasterParts = null
 ## Made on the first light worn, then kept and only switched, since a torch is put on every evening.
 var _carried_light: CarriedLight = null
+## The emote this body is showing, so IDLE can stand it back up rather than snap.
+var _emote_clips: EmoteClips = null
+
+const _IDLE_CLIP := &"Idle"
 
 
 ## Every body type is a set of parts on the Mage's rig, so the Mage's skeleton and animations serve all.
@@ -144,10 +148,11 @@ func clear_casting() -> void:
 	_cast_bar.clear_casting()
 
 
-## Death is entity state, not one of the server's three AnimationKinds, so it bypasses
+## Death is entity state, not one of the server's AnimationKinds, so it bypasses
 ## [method _map_animation_name] entirely. Death_A plays through once and Death_A_Pose holds the body
 ## on the ground; [Entity] stops feeding walk/idle in the meantime.
 func set_dead(dead: bool) -> void:
+	_emote_clips = null
 	if not dead:
 		if _anim_player.has_animation("Idle"):
 			_anim_player.play("Idle")
@@ -159,12 +164,22 @@ func set_dead(dead: bool) -> void:
 			_anim_player.queue("Death_A_Pose")
 
 
+## A master's only server poses are emotes; IDLE ends the one showing, through its way back up.
 func update_animation(msg: AnimationComponentSMSG) -> void:
-	if _anim_player.current_animation == msg.Kind:
+	var emote := EmoteDB.get_instance().get_emote(msg.Kind)
+	var clips := emote.clips_for(self) if emote != null else null
+	if clips != null:
+		_emote_clips = clips
+		clips.start_on(_anim_player)
 		return
-	
+
+	if _emote_clips != null:
+		_emote_clips.end_on(_anim_player, _IDLE_CLIP)
+		_emote_clips = null
+		return
+
 	var mapped_animation = _map_animation_name(msg.Kind)
-	
+
 	if _anim_player.has_animation(mapped_animation):
 		_anim_player.play(mapped_animation)
 
@@ -172,6 +187,8 @@ func update_animation(msg: AnimationComponentSMSG) -> void:
 ## Called by [Entity] every frame it is walking, so it has to be cheap and idempotent - the guard below
 ## is what keeps it from restarting the walk clip on each of those frames.
 func update_animation_from_client(animation_name: String) -> void:
+	# The heuristic only speaks once no pose is asserted, so whatever emote was showing is over.
+	_emote_clips = null
 	var mapped_animation = _map_animation_name(animation_name)
 	if _anim_player.current_animation == mapped_animation:
 		return

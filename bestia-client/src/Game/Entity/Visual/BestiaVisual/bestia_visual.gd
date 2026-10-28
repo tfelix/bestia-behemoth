@@ -5,6 +5,8 @@ const CarriedLightScn := preload("res://Game/Entity/Visual/MasterVisual/CarriedL
 
 const _IDLE_ANIM = "Idle"
 const _APPEAR_ANIM = "appear"
+## The server's poses that are not emotes, as this placeholder's clips. Emotes say their own clips in [EmoteDB].
+const _POSTURE_CLIPS = {"SLEEP": "Sleep"}
 
 var _bestia_id: int = 0
 var _bestia_entity_id: int = 0
@@ -16,6 +18,8 @@ var _guild_line: String = ""
 var _emblem_hash: String = ""
 var _emblem: NameTagEmblem = null
 var _hovered: bool = false
+## The emote this body is showing, so IDLE can play its way out of it rather than snap.
+var _emote_clips: EmoteClips = null
 var _selected: bool = false
 ## Made on the first light worn, then kept and only switched, as on [MasterVisual].
 var _carried_light: CarriedLight = null
@@ -101,13 +105,38 @@ func clear_casting() -> void:
 
 
 func update_animation(msg: AnimationComponentSMSG) -> void:
-	_play_clip(msg.Kind)
+	var emote := EmoteDB.get_instance().get_emote(msg.Kind)
+	var clips := emote.clips_for(self) if emote != null else null
+	if clips != null:
+		_start_emote(clips)
+		return
+
+	if _emote_clips != null:
+		_emote_clips.end_on(_anim_player, _IDLE_ANIM)
+		_emote_clips = null
+		return
+
+	_play_clip(_POSTURE_CLIPS.get(msg.Kind, _IDLE_ANIM))
+
+
+func _start_emote(clips: EmoteClips) -> void:
+	_emote_clips = clips
+	# Like _play_clip, the fade-in is let finish: a body that comes into view mid-emote takes it up after.
+	if _anim_player.current_animation == _APPEAR_ANIM and _anim_player.is_playing():
+		_anim_player.clear_queue()
+		_anim_player.queue(clips.enter)
+		if not clips.loop.is_empty():
+			_anim_player.queue(clips.loop)
+		return
+	clips.start_on(_anim_player)
 
 
 ## [Entity] drives walk and idle off its own movement state instead of waiting for the server, and says so
 ## in the server's uppercase kinds. This placeholder has no walk clip, so WALK lands on Idle by the same
 ## fallback as any other kind it cannot play.
 func update_animation_from_client(animation_name: String) -> void:
+	# The heuristic only speaks once no pose is asserted, so whatever emote was showing is over.
+	_emote_clips = null
 	if animation_name.to_upper() == "WALK":
 		_play_clip("Walk")
 	else:
@@ -138,6 +167,7 @@ func _play_clip(kind: String) -> void:
 ## Wild mobs never get here: they are destroyed on death and take the vanish path instead.
 func set_dead(dead: bool) -> void:
 	_anim_player.clear_queue()
+	_emote_clips = null
 
 	if dead:
 		_anim_player.play("death")

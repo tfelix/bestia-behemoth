@@ -153,6 +153,8 @@ var _driven_pose: String = ""
 # walk/idle heuristic owns the pose. Walk and idle never arrive here - sleeping and the like do.
 const _POSTURE_NONE = "IDLE"
 var _posture: String = _POSTURE_NONE
+# The message that set _posture, replayed onto a visual that arrives later or a body that gets back up.
+var _last_animation_msg: AnimationComponentSMSG = null
 
 
 const _CORRECTION_IGNORE: float = 0.4    # metres of desync trusted as latency, not error
@@ -232,6 +234,11 @@ func _update_movement(delta: float) -> void:
 	# A corpse neither walks nor idles - its pose belongs to the visual.
 	if _is_dead:
 		return
+
+	# An emote never survives a step: the server ends it on the move that starts the walk, so the walk is not held
+	# back waiting for that to arrive.
+	if _is_moving and _posture != _POSTURE_NONE and EmoteDB.get_instance().get_emote(_posture) != null:
+		_posture = _POSTURE_NONE
 
 	# Likewise an asserted posture (asleep, say). Movement still runs, so it slides rather than sits.
 	var pose_is_ours := _posture == _POSTURE_NONE
@@ -679,8 +686,11 @@ func _release_visual() -> void:
 	existing.queue_free()
 
 
-## Pushes state that arrived before this visual existed into it. Only health needs it so far.
+## Pushes state that arrived before this visual existed into it.
 func _seed_visual(visual: Node) -> void:
+	# A body that comes into view sitting, or asleep, has to show it; the posture is not sent again.
+	if _posture != _POSTURE_NONE and not _is_dead and _last_animation_msg != null and visual.has_method("update_animation"):
+		visual.update_animation(_last_animation_msg)
 	if ConnectionManager.weather != null:
 		# Buildings keep a cap of snow; anything that moves only frosts over.
 		ConnectionManager.weather.ExposeToWeather(visual, not visual is StructureVisual)
@@ -1139,10 +1149,19 @@ func update_dead(msg: DeadComponentSMSG) -> void:
 	if visual != null and visual.has_method("set_dead"):
 		visual.set_dead(_is_dead)
 
+	# Back up, into whatever posture was asserted while it lay there.
+	if not _is_dead and _posture != _POSTURE_NONE and _last_animation_msg != null and visual != null:
+		visual.update_animation(_last_animation_msg)
+
 
 ## Whether this entity is a body waiting to respawn.
 func is_dead() -> bool:
 	return _is_dead
+
+
+## The body drawn for this entity, or null before its visual component has arrived.
+func get_visual() -> Visual:
+	return get_node_or_null(_VISUAL_NODE_NAME) as Visual
 
 
 ## Soaks the blood of this entity's death into the ground under it, once per death.
@@ -1159,23 +1178,30 @@ func _bleed() -> void:
 	ConnectionManager.chunk_stream.RecordDeath(tile.x, tile.z)
 
 
-## A posture from the server: a pose no observer could work out for itself. Walk and idle are not
-## among them. "IDLE" drops the claim and hands the pose back to the local heuristic.
+## A posture from the server: a pose no observer could work out for itself - sleep, or an emote. Walk
+## and idle are not among them. "IDLE" drops the claim and hands the pose back to the local heuristic.
 func update_animation(msg: AnimationComponentSMSG) -> void:
+	var previous := _posture
 	_posture = msg.Kind.to_upper()
+	_last_animation_msg = msg
 
 	# The death pose outranks every posture, and one may still be in flight from the tick it died.
 	if _is_dead:
 		return
 
-	if _posture == _POSTURE_NONE:
-		# Nothing to play, but _update_movement has to re-assert its pose over a stale latch.
-		_driven_pose = ""
+	# Nothing was asserted to end: the emote this closes was dropped on the first step of a walk already.
+	if _posture == _POSTURE_NONE and previous == _POSTURE_NONE:
 		return
 
 	var visual = _get_visual_for_method("update_animation")
 	if visual != null:
 		visual.update_animation(msg)
+
+	if _posture == _POSTURE_NONE:
+		# The visual has just played its way back to idle - standing up, or letting a cheer finish - so the
+		# heuristic takes over latched on IDLE rather than cutting that short. A walk still takes over at once,
+		# being a different pose. With no visual yet there is nothing to cut short, and nothing to latch.
+		_driven_pose = "IDLE" if visual != null else ""
 
 # Called from client code, not the server, when an action implies the animation (e.g. a new path).
 func _update_animation_from_client(animation_name: String) -> void:

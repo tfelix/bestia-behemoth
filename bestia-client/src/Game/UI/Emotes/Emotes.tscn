@@ -1,0 +1,108 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://Game/UI/Emotes/emote_window.gd" id="1_script"]
+[ext_resource type="PackedScene" uid="uid://bj2gh3l07bh1s" path="res://Game/UI/Shortcuts/ShortcutContainer/ShortcutContainer.tscn" id="2_slot"]
+
+[node name="Emotes" type="PanelContainer"]
+offset_right = 700.0
+offset_bottom = 260.0
+script = ExtResource("1_script")
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="Layout" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="BarTitle" type="Label" parent="Margin/Layout"]
+layout_mode = 2
+text = "EMOTE_BAR_TITLE"
+
+[node name="Bar" type="HBoxContainer" parent="Margin/Layout"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Slot1" parent="Margin/Layout/Bar" instance=ExtResource("2_slot")]
+layout_mode = 2
+action_name = "emote_1"
+listens_to_key = false
+emotes_only = true
+
+[node name="Slot2" parent="Margin/Layout/Bar" instance=ExtResource("2_slot")]
+layout_mode = 2
+shortcut_number = 1
+action_name = "emote_2"
+listens_to_key = false
+emotes_only = true
+
+[node name="Slot3" parent="Margin/Layout/Bar" instance=ExtResource("2_slot")]
+layout_mode = 2
+shortcut_number = 2
+action_name = "emote_3"
+listens_to_key = false
+emotes_only = true
+
+[node name="Slot4" parent="Margin/Layout/Bar" instance=ExtResource("2_slot")]
+layout_mode = 2
+shortcut_number = 3
+action_name = "emote_4"
+listens_to_key = false
+emotes_only = true
+
+[node name="Slot5" parent="Margin/Layout/Bar" instance=ExtResource("2_slot")]
+layout_mode = 2
+shortcut_number = 4
+action_name = "emote_5"
+listens_to_key = false
+emotes_only = true
+
+[node name="Slot6" parent="Margin/Layout/Bar" instance=ExtResource("2_slot")]
+layout_mode = 2
+shortcut_number = 5
+action_name = "emote_6"
+listens_to_key = false
+emotes_only = true
+
+[node name="Slot7" parent="Margin/Layout/Bar" instance=ExtResource("2_slot")]
+layout_mode = 2
+shortcut_number = 6
+action_name = "emote_7"
+listens_to_key = false
+emotes_only = true
+
+[node name="Slot8" parent="Margin/Layout/Bar" instance=ExtResource("2_slot")]
+layout_mode = 2
+shortcut_number = 7
+action_name = "emote_8"
+listens_to_key = false
+emotes_only = true
+
+[node name="Slot9" parent="Margin/Layout/Bar" instance=ExtResource("2_slot")]
+layout_mode = 2
+shortcut_number = 8
+action_name = "emote_9"
+listens_to_key = false
+emotes_only = true
+
+[node name="Slot10" parent="Margin/Layout/Bar" instance=ExtResource("2_slot")]
+layout_mode = 2
+shortcut_number = 9
+action_name = "emote_10"
+listens_to_key = false
+emotes_only = true
+
+[node name="Hint" type="Label" parent="Margin/Layout"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.6, 0.66, 1)
+text = "EMOTE_WINDOW_HINT"
+autowrap_mode = 3
+
+[node name="Tiles" type="GridContainer" parent="Margin/Layout"]
+unique_name_in_owner = true
+layout_mode = 2
+columns = 6

@@ -28,6 +28,7 @@
  - WORLD wave 15: WorldObjectResidencySystem [EveryTick]
  - WORLD wave 16: GroundOverlaySystem [EveryTick]
  - WORLD wave 16: PropSupportSystem [EveryTick]
+ - STATUS wave 17: EmoteSystem [EveryTick]
  - STATUS wave 17: StatusEffectDurationSystem [EverySeconds(seconds=1.0)]
  - STATUS wave 18: GuildAuraSystem [EverySeconds(seconds=2.0)]
  - STATUS wave 19: StatusValueRecalcSystem [EveryTick]

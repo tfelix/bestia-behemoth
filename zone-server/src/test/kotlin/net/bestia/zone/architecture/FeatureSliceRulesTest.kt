@@ -137,7 +137,7 @@ class FeatureSliceRulesTest {
     val TIERS = listOf(
       "root", "util", "geometry", "ecs", "config", "bus", "message", "session", "sync", "persistence", "notebook",
       "identity", "aoi", "entity", "logout", "navigation", "movement", "world", "water", "script", "place", "skill",
-      "dialog", "battle", "weather", "ground", "item", "bestia", "spoor", "prop", "casting", "travel", "ai", "spawn",
+      "dialog", "battle", "weather", "ground", "item", "bestia", "spoor", "prop", "casting", "emote", "travel", "ai", "spawn",
       "account", "party", "guild", "compendium", "economy", "crafting", "cartography", "townsfolk", "master", "respawn", "trade", "auction",
       "capture", "chat", "control", "companion", "socket", "metrics", "engine", "boot",
     )

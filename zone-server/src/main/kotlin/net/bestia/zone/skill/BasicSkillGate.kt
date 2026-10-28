@@ -41,6 +41,9 @@ class BasicSkillGate(
   /** True once the account may talk to other players. Public chat and whispers both; GM commands never. */
   fun mayChat(accountId: AccountId): Boolean = rankOf(accountId) >= CHAT_RANK
 
+  /** True once the account may emote. Body language is talking too, so it opens with chat. */
+  fun mayEmote(accountId: AccountId): Boolean = rankOf(accountId) >= CHAT_RANK
+
   /** True once the account may form or grow a party. */
   fun mayParty(accountId: AccountId): Boolean = rankOf(accountId) >= PARTY_RANK
 

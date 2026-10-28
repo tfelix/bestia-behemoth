@@ -4,6 +4,9 @@ class_name Shortcuts
 const SHORTCUTS_SAVE_PATH = "user://shortcuts_config.json"
 const SHARED_MARK := ShortcutContainer.SHARED_MARK
 
+## The emote bar was edited, another master's was loaded, or the controlled body changed what it can play.
+signal emote_bar_changed
+
 ## Assigned by Game/UI/ui.gd after WidgetWindow instantiates the Inventory content, which
 ## happens later than this node's own _ready() - so the signal connection can't happen
 ## inline here and is deferred to the setter instead.
@@ -46,6 +49,35 @@ func _shortcut_input(event: InputEvent) -> void:
 			select_layer(layer)
 			get_viewport().set_input_as_handled()
 			return
+	# Answered here and not by the emote window's slots, so the bar works with the window closed.
+	for number in ShortcutLayout.EMOTE_SLOT_COUNT:
+		if event.is_action_pressed(emote_action(number), false, true):
+			trigger_emote_slot(number)
+			get_viewport().set_input_as_handled()
+			return
+
+
+static func emote_action(number: int) -> StringName:
+	return StringName("emote_%d" % [number + 1])
+
+
+func get_emote_slot(number: int) -> ShortcutData:
+	return _layout.get_emote_slot(number)
+
+
+func set_emote_slot(number: int, data: ShortcutData) -> void:
+	_layout.set_emote_slot(number, data)
+	save_shortcuts()
+	emote_bar_changed.emit()
+
+
+func trigger_emote_slot(number: int) -> void:
+	var slot := _layout.get_emote_slot(number)
+	if slot.type != ShortcutData.ShortcutType.EMOTE or slot.is_empty():
+		return
+	var emote := EmoteDB.get_instance().get_emote(slot.emote_kind)
+	if emote != null and EmoteDB.controlled_can_play(emote):
+		ConnectionManager.send_emote(emote.kind)
 
 
 func select_layer(layer: int) -> void:
@@ -135,6 +167,7 @@ func _on_controlled_entity_changed(_previous_id: int, entity_id: int) -> void:
 	_controlled_entity_id = entity_id
 	_entity_key = ShortcutLayout.entity_key_of(entity_id, EntityManager.get_instance().get_owned_master_entity_id())
 	_show_active_layer()
+	emote_bar_changed.emit()
 	# The server answers for the controlled entity, so this fetches the skills of the one just switched to.
 	if ConnectionManager.is_ready_to_send():
 		ConnectionManager.get_skills()
@@ -247,6 +280,7 @@ func load_shortcuts() -> void:
 	_read_store_from_disk()
 	_layout = ShortcutLayout.from_dict(_all_shortcuts.get(ConnectionManager.current_master_key()))
 	_show_active_layer()
+	emote_bar_changed.emit()
 
 
 func _read_store_from_disk() -> void:

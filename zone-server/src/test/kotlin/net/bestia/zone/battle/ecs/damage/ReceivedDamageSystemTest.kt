@@ -24,6 +24,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
+import net.bestia.zone.entity.ecs.Animation
 import net.bestia.zone.entity.ecs.Dead
 
 /** Death tagging, that a body already on the ground is not killed a second time, and that no reported hit is lost. */
@@ -114,6 +115,20 @@ class ReceivedDamageSystemTest {
     world.tick(0f)
 
     assertFalse(world.has(id, Dead::class))
+  }
+
+  @Test
+  fun `a hit stands a sitting entity up`() {
+    val world = testWorld()
+    val id = world.createEntity { eid ->
+      add(eid, Health(current = 10, max = 100))
+      add(eid, Animation().also { it.startEmote(Animation.AnimationKind.SIT) })
+      add(eid, IncomingDamage().also { it.add(3, sourceEntity = 99L) })
+    }
+
+    sut.update(world, 0f)
+
+    assertEquals(Animation.AnimationKind.IDLE, world.getOrThrow(id, Animation::class).currentAnimation)
   }
 
   private fun World.spawnFighter(at: Vec3L): EntityId {

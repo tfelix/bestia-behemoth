@@ -36,6 +36,7 @@ import net.bestia.zone.battle.ecs.level.Level
 import net.bestia.zone.battle.ecs.status.SkillPoints
 import net.bestia.zone.battle.ecs.status.StatusPoints
 import net.bestia.zone.master.ecs.MasterVisual
+import net.bestia.zone.entity.ecs.Animation
 import net.bestia.zone.entity.ecs.Living
 import net.bestia.zone.identity.ecs.OwnedBestia
 import net.bestia.zone.battle.ecs.exp.Exp
@@ -236,6 +237,8 @@ class MasterEntitySpawner(
       )
 
       add(id, ActivePlayer)
+      // The pose channel, for emotes: a master's walk and idle are the client's own, and nothing else sets it.
+      add(id, Animation())
       add(id, SimulationAnchor())
       // Sees the routes it passes, for itself and its bestias.
       add(id, Vicinity())

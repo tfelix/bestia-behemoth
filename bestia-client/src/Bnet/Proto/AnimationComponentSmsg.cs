@@ -26,10 +26,11 @@ namespace Bnet {
           string.Concat(
             "CjFtZXNzYWdlcy9jb21wb25lbnQvYW5pbWF0aW9uX2NvbXBvbmVudF9zbXNn",
             "LnByb3RvEgRibmV0IkEKFkFuaW1hdGlvbkNvbXBvbmVudFNNU0cSIQoEa2lu",
-            "ZBgCIAEoDjITLmJuZXQuQW5pbWF0aW9uS2luZEoECAEQAioqCg1BbmltYXRp",
-            "b25LaW5kEggKBElETEUQABIJCgVTTEVFUBACIgQIARABQjQKFW5ldC5iZXN0",
-            "aWEuYm5ldC5wcm90b0IbQW5pbWF0aW9uQ29tcG9uZW50U01TR1Byb3RvYgZw",
-            "cm90bzM="));
+            "ZBgCIAEoDjITLmJuZXQuQW5pbWF0aW9uS2luZEoECAEQAipqCg1BbmltYXRp",
+            "b25LaW5kEggKBElETEUQABIJCgVTTEVFUBACEgkKBUNIRUVSEAMSCAoESlVN",
+            "UBAEEgkKBVBPSU5UEAUSDAoIRkxPVVJJU0gQBhIHCgNTSVQQBxIHCgNMSUUQ",
+            "CCIECAEQAUI0ChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CG0FuaW1hdGlvbkNv",
+            "bXBvbmVudFNNU0dQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.AnimationKind), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -46,9 +47,12 @@ namespace Bnet {
   ///
   /// Deliberately narrow. Walking used to be in here too, and it was pure duplication: the client
   /// already plays its walk clip off its own movement prediction, every frame, so the server's WALK
-  /// lost the argument anyway - and a master, which has no Animation component at all, has always been
-  /// animated that way. Anything an observer can read off ordinary components (moving = has a path,
-  /// dead = has the Dead component) does not belong here.
+  /// lost the argument anyway. Anything an observer can read off ordinary components (moving = has a
+  /// path, dead = has the Dead component) does not belong here.
+  ///
+  /// Emotes are poses too: nothing else about a cheering master says it is cheering. A player asks for
+  /// one with EmoteCMSG, and the server answers through this enum like any other pose. SLEEP is not an
+  /// emote - only the AI plan sets it.
   /// </summary>
   public enum AnimationKind {
     /// <summary>
@@ -59,6 +63,18 @@ namespace Bnet {
     ///* Lying down asleep - knowledge only the AI plan has (see ai/core/action/Posture). 
     /// </summary>
     [pbr::OriginalName("SLEEP")] Sleep = 2,
+    /// <summary>
+    /// Emotes, played once.
+    /// </summary>
+    [pbr::OriginalName("CHEER")] Cheer = 3,
+    [pbr::OriginalName("JUMP")] Jump = 4,
+    [pbr::OriginalName("POINT")] Point = 5,
+    [pbr::OriginalName("FLOURISH")] Flourish = 6,
+    /// <summary>
+    /// Emotes that last until the entity walks, casts, is hit or dies.
+    /// </summary>
+    [pbr::OriginalName("SIT")] Sit = 7,
+    [pbr::OriginalName("LIE")] Lie = 8,
   }
 
   #endregion

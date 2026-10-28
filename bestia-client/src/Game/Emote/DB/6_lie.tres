@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="EmoteResource" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://Game/Emote/emote_resource.gd" id="1_script"]
+[ext_resource type="Script" path="res://Game/Emote/emote_clips.gd" id="2_clips"]
+
+[sub_resource type="Resource" id="Resource_master"]
+script = ExtResource("2_clips")
+enter = &"Lie_Down"
+loop = &"Lie_Idle"
+exit = &"Lie_StandUp"
+
+[sub_resource type="Resource" id="Resource_bestia"]
+script = ExtResource("2_clips")
+enter = &"Sleep"
+
+[resource]
+script = ExtResource("1_script")
+kind = "LIE"
+label_key = "EMOTE_LIE"
+glyph = "zz"
+lasts = true
+master_clips = SubResource("Resource_master")
+bestia_clips = SubResource("Resource_bestia")
