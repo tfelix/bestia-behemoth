@@ -31,6 +31,22 @@ class Shop(
 
   enum class Refusal { NOT_STOCKED, OUT_OF_STOCK, TREASURY_EMPTY, TREASURY_FULL }
 
+  /** One line of a basket. A null [commodity] is something this counter does not deal in. */
+  class BasketLine(val commodity: Commodity?, val units: Int, val selling: Boolean)
+
+  /**
+   * What a basket would come to, or why it cannot happen.
+   *
+   * @param balance positive when the town pays the player, negative when the player pays
+   * @param refusedLine the line at fault, or null when the basket as a whole is refused
+   */
+  class BasketQuote(
+    val lineCoins: List<Long>,
+    val balance: Long,
+    val refusal: Refusal? = null,
+    val refusedLine: Int? = null,
+  )
+
   class Offer(val commodity: Commodity, val offered: Int, val buyPrice: Long, val sellPrice: Long)
 
   fun offers(): List<Offer> {
@@ -46,34 +62,64 @@ class Shop(
 
   /** What the player pays for [units]. Refused rather than trimmed: a short fill is a surprise. */
   fun quoteBuy(commodity: Commodity?, units: Int): Quote {
-    if (commodity == null) return Quote(0, 0, Refusal.NOT_STOCKED)
-
-    val offered = floor(market.offerableOf(commodity.id)).toInt()
-    if (units > offered) return Quote(0, 0, Refusal.OUT_OF_STOCK)
-
-    val coins = buyTotal(commodity, units)
-
-    // The town cannot hold more than its ceiling, and refusing is honest where a collapsing price would
-    // still be an income. I9, from the buying side: coin comes in, so the ceiling is what bites.
-    if (market.treasuryWith(coins) > treasuryCap()) return Quote(0, 0, Refusal.TREASURY_FULL)
-
-    return Quote(units, coins)
+    return quoteOne(BasketLine(commodity, units, selling = false))
   }
 
   /** What the player is paid for [units], and whether the town can find the coin at all. */
   fun quoteSell(commodity: Commodity?, units: Int): Quote {
-    if (commodity == null) return Quote(0, 0, Refusal.NOT_STOCKED)
+    return quoteOne(BasketLine(commodity, units, selling = true))
+  }
 
-    val coins = sellTotal(commodity, units)
+  /**
+   * Every line priced on its own, and the treasury checked against the **balance** alone: only the
+   * difference changes hands, so a town with an empty purse can still take grain in exchange for flour.
+   */
+  fun quoteBasket(lines: List<BasketLine>): BasketQuote {
+    val lineCoins = ArrayList<Long>(lines.size)
 
-    // I8. A shop that cannot pay refuses; it never pays with money it has not got.
-    if (market.treasuryWith(-coins) < 0.0) return Quote(0, 0, Refusal.TREASURY_EMPTY)
+    lines.forEachIndexed { index, line ->
+      val refusal = stockRefusal(line)
+      if (refusal != null) return BasketQuote(emptyList(), 0, refusal, index)
 
-    // I4, from the selling side: what the warehouse cannot hold would spoil on the pile the same day.
-    val room = reference.warehouseCap(commodity.id) - market.stockOf(commodity.id)
-    if (units > room) return Quote(0, 0, Refusal.OUT_OF_STOCK)
+      lineCoins += line.coins()
+    }
 
-    return Quote(units, coins)
+    val balance = lines.indices.sumOf { if (lines[it].selling) lineCoins[it] else -lineCoins[it] }
+    val treasuryAfter = market.treasuryWith(-balance)
+
+    // I8: a shop that cannot pay refuses; it never pays with money it has not got.
+    if (balance > 0 && treasuryAfter < 0.0) return BasketQuote(emptyList(), 0, Refusal.TREASURY_EMPTY)
+    // I9: the town cannot hold more than its ceiling, and refusing is honest where a collapsing price
+    // would still be an income.
+    if (balance < 0 && treasuryAfter > treasuryCap()) return BasketQuote(emptyList(), 0, Refusal.TREASURY_FULL)
+
+    return BasketQuote(lineCoins, balance)
+  }
+
+  private fun quoteOne(line: BasketLine): Quote {
+    val quote = quoteBasket(listOf(line))
+    if (quote.refusal != null) return Quote(0, 0, quote.refusal)
+
+    return Quote(line.units, quote.lineCoins.single())
+  }
+
+  private fun stockRefusal(line: BasketLine): Refusal? {
+    val commodity = line.commodity ?: return Refusal.NOT_STOCKED
+
+    return if (line.selling) {
+      // I4, from the selling side: what the warehouse cannot hold would spoil on the pile the same day.
+      val room = reference.warehouseCap(commodity.id) - market.stockOf(commodity.id)
+      if (line.units > room) Refusal.OUT_OF_STOCK else null
+    } else {
+      val offered = floor(market.offerableOf(commodity.id)).toInt()
+      if (line.units > offered) Refusal.OUT_OF_STOCK else null
+    }
+  }
+
+  private fun BasketLine.coins(): Long {
+    val good = commodity ?: return 0
+
+    return if (selling) sellTotal(good, units) else buyTotal(good, units)
   }
 
   /**
