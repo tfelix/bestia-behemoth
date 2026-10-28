@@ -116,7 +116,7 @@ func _wire_travel(entities: EntityManager) -> void:
 		_view.queue_redraw()
 	)
 	_travel.go_pressed.connect(_send_draft)
-	_travel.clear_pressed.connect(_view.clear_draft)
+	_travel.clear_pressed.connect(_leave_route_mode)
 	_travel.stop_pressed.connect(func(entity_id: int) -> void:
 		var none: Array[Vector3] = []
 		ConnectionManager.send_on_journey(entity_id, none)
@@ -151,7 +151,7 @@ func _save_draft_as_route() -> void:
 	var points: Array[Vector2] = [from]
 	points.append_array(_view.draft)
 	Notebook.put(_ROUTES, "", {"name": "", "waypoints": _points_json(points)}, 0)
-	_view.clear_draft()
+	_leave_route_mode()
 
 
 ## An empty name gives the route its made name back.
@@ -430,6 +430,13 @@ func _set_route_mode(on: bool) -> void:
 	_view.route_mode = on
 	if not on:
 		_view.clear_draft()
+
+
+## Clearing, saving and sending the draft each finish the plan, so the next click asks about the map again.
+## The draft is cleared here too: with route mode already off the toggle does not fire.
+func _leave_route_mode() -> void:
+	_route_toggle.button_pressed = false
+	_view.clear_draft()
 
 
 func _send_draft() -> void:
