@@ -18,6 +18,21 @@ layout_mode = 2
 [node name="Body" type="VBoxContainer" parent="MarginContainer"]
 layout_mode = 2
 
+[node name="Toolbar" type="HBoxContainer" parent="MarginContainer/Body"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Search" type="LineEdit" parent="MarginContainer/Body/Toolbar"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "INVENTORY_SEARCH"
+clear_button_enabled = true
+
+[node name="Sort" type="OptionButton" parent="MarginContainer/Body/Toolbar"]
+unique_name_in_owner = true
+layout_mode = 2
+
 [node name="PartnerStrip" type="HBoxContainer" parent="MarginContainer/Body"]
 unique_name_in_owner = true
 visible = false
