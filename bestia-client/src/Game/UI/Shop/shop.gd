@@ -7,8 +7,8 @@ class_name Shop
 ## whole list, which is also how a refusal corrects itself - the server answers with the truth and there is
 ## no per-refusal handling here.
 ##
-## Like the crafting and trade windows this has no toggle of its own: asking a merchant for their wares is
-## what opens it, so the message is what shows it and walking away is what closes it.
+## Like the crafting and trade windows this has no toggle of its own: talking to a merchant at work is what
+## opens it, so the message is what shows it, and walking away or the end of their shift is what closes it.
 ##
 ## Prices are the settlement's and the merchant only decides the counter, so a smith and a baker in one town
 ## quote the same loaf the same - if they both had one, which they do not.
@@ -20,16 +20,27 @@ signal shop_closed()
 ## cannot be reached through an editor-wired NodePath.
 var inventory: Inventory = null
 
+const _WALK_AWAY_METRES := 10.0
+
+## The conversation's root topic. Talking to a merchant at work opens this window, so this is how to chat.
+const _CONVERSATION_ROOT := 0
+
+@onready var _title: Label = %Title
+@onready var _hours: Label = %Hours
 @onready var _rows: VBoxContainer = %Rows
 @onready var _amount: SpinBox = %Amount
 @onready var _empty: Label = %Empty
 
 ## Whose counter is open. Zero while there is none, which is what says whether the buttons mean anything.
 var _merchant_entity_id: int = 0
+var _opened_at := Vector3.ZERO
 
 
 func _ready() -> void:
 	ConnectionManager.shop_offer_received.connect(_on_shop_offer)
+	ConnectionManager.operation_error.connect(_on_operation_error)
+	%Chat.pressed.connect(_on_chat_pressed)
+	set_process(false)
 	# The window's own close button only hides it, so this is how walking away from a counter is noticed.
 	visibility_changed.connect(_on_visibility_changed)
 
@@ -50,16 +61,53 @@ func close_shop() -> void:
 		return
 
 	_merchant_entity_id = 0
+	set_process(false)
 	shop_closed.emit()
+
+
+func _process(_delta: float) -> void:
+	var player := _player()
+	if player == null or player.global_position.distance_to(_opened_at) > _WALK_AWAY_METRES:
+		close_shop()
 
 
 func _on_shop_offer(msg: ShopOfferSMSG) -> void:
 	var was_open := is_shopping()
 	_merchant_entity_id = msg.MerchantEntityId
+	_render_header(msg)
 	_render(msg)
 
 	if not was_open:
+		var player := _player()
+		_opened_at = player.global_position if player != null else Vector3.ZERO
+		set_process(player != null)
 		shop_opened.emit()
+
+
+func _on_operation_error(message) -> void:
+	if is_shopping() and message.CodeName == "shop_closed":
+		close_shop()
+
+
+func _on_chat_pressed() -> void:
+	if is_shopping():
+		ConnectionManager.answer_conversation(_merchant_entity_id, _CONVERSATION_ROOT)
+
+
+func _render_header(msg: ShopOfferSMSG) -> void:
+	_title.text = msg.MerchantName
+	_hours.visible = msg.KeepsHours
+	if msg.KeepsHours:
+		_hours.text = tr("SHOP_HOURS") % [_clock(msg.OpensAtMinute), _clock(msg.ClosesAtMinute)]
+
+
+static func _clock(minute_of_day: int) -> String:
+	return "%d:%02d" % [floori(minute_of_day / 60.0), minute_of_day % 60]
+
+
+func _player() -> Entity:
+	var manager := EntityManager.get_instance()
+	return manager.get_controlled_entity() if manager != null else null
 
 
 func _render(msg: ShopOfferSMSG) -> void:
