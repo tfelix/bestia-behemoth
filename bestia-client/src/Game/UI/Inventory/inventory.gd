@@ -39,6 +39,8 @@ var DropAmountDialogScn = preload("res://Game/UI/Inventory/DropAmountDialog/Drop
 var equipment: Equipment = null
 var equipment_window: WidgetWindow = null
 
+@onready var _search: LineEdit = %Search
+@onready var _sort: OptionButton = %Sort
 @onready var _usable_grid: GridContainer = %UsableGrid
 @onready var _equip_grid: GridContainer = %EquipGrid
 @onready var _etc_grid: GridContainer = %EtcGrid
@@ -46,6 +48,10 @@ var equipment_window: WidgetWindow = null
 @onready var _exchange: ExchangeColumn = %ExchangeColumn
 
 var _items: Dictionary[int, Array]
+
+## The orders the sort menu offers, as [code]{label, before: Callable(a, b) -> bool}[/code] over held
+## [InventoryItemResource]s, in menu order. A list rather than an enum so another window can add its own.
+var _sort_keys: Array[Dictionary] = []
 var _reported_gold := 0
 
 ## Carry limit per owned entity, as the server last sent it. Only the limit is read: the load is summed off
@@ -68,6 +74,11 @@ func _ready() -> void:
 	inventory_updated.connect(_report_gold_change)
 	_exchange.item_dropped.connect(_on_dropped_on_partner)
 	_exchange.item_requested.connect(_on_partner_row_requested)
+	_search.text_changed.connect(func(_text: String) -> void: _render_items())
+	_sort.item_selected.connect(func(_index: int) -> void: _render_items())
+	_add_sort_key("INVENTORY_SORT_NAME", _by_name)
+	_add_sort_key("INVENTORY_SORT_AMOUNT", func(a, b) -> bool: return a.amount > b.amount)
+	_add_sort_key("INVENTORY_SORT_WEIGHT", func(a, b) -> bool: return _weight_of(a) > _weight_of(b))
 
 	var entity_manager := EntityManager.get_instance()
 	if entity_manager != null:
@@ -209,14 +220,7 @@ func _render_items() -> void:
 	if !_items.has(selected_entity_id):
 		return
 
-	var selected_entity_items = _items[selected_entity_id]
-
-	for item in selected_entity_items:
-		# A worn item is still held (the server keeps it in the same container, only flagged), but
-		# showing it in both places would let the player drag the same physical item twice.
-		if item.equipped:
-			continue
-
+	for item in _shown_items():
 		var inv_item = InventoryItem.instantiate()
 		inv_item.amount = item.amount
 		inv_item.item = item.item
@@ -240,6 +244,41 @@ func _render_items() -> void:
 				_equip_grid.add_child(inv_item)
 			ItemResource.ItemType.ETC:
 				_etc_grid.add_child(inv_item)
+
+
+## The held items the grids show: matching the search, in the chosen order.
+##
+## A worn item is still held (the server keeps it in the same container, only flagged), but showing it here as
+## well would let the player drag the same physical item twice.
+func _shown_items() -> Array:
+	var query := _search.text.strip_edges().to_lower()
+	var shown := _items[selected_entity_id].filter(
+		func(item) -> bool: return not item.equipped and (query.is_empty() or _name_of_item(item).to_lower().contains(query))
+	)
+
+	var key: Dictionary = _sort_keys[_sort.selected] if _sort.selected >= 0 else _sort_keys[0]
+	var before: Callable = key.before
+	# Ties fall back to the name, so equal piles do not swap places on every redraw.
+	shown.sort_custom(func(a, b) -> bool: return before.call(a, b) or (not before.call(b, a) and _by_name(a, b)))
+
+	return shown
+
+
+func _add_sort_key(label: String, before: Callable) -> void:
+	_sort_keys.append({"label": label, "before": before})
+	_sort.add_item(tr(label))
+
+
+func _by_name(a, b) -> bool:
+	return _name_of_item(a).naturalnocasecmp_to(_name_of_item(b)) < 0
+
+
+func _name_of_item(held) -> String:
+	return tr(held.item.name_key)
+
+
+func _weight_of(held) -> int:
+	return held.item.weight * held.amount
 
 
 ## Double-clicking an equipment item while the equipment window is open equips it into the slot the
