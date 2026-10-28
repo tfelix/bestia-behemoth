@@ -1,14 +1,22 @@
 package net.bestia.worldgen.civ
 
+import net.bestia.worldgen.core.CellRegion
+import net.bestia.worldgen.core.FloatLayer
+import net.bestia.worldgen.core.LayerId
 import net.bestia.worldgen.core.MovementMode
 import net.bestia.worldgen.core.NavEdgeKind
+import net.bestia.worldgen.core.NavNode
+import net.bestia.worldgen.core.NavNodeId
 import net.bestia.worldgen.core.NavNodeKind
+import net.bestia.worldgen.core.Resolution
 import net.bestia.worldgen.core.WorldConfig
+import net.bestia.worldgen.fields.Grid
 import net.bestia.worldgen.pipeline.StandardWorld
 import net.bestia.worldgen.pipeline.TestWorlds
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.PointMarker
 import net.bestia.worldgen.vector.Vec2d
+import kotlin.math.abs
 import kotlin.math.tan
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -273,6 +281,157 @@ class NavGraphStageTest {
 
     val reached = seen.count { it }.toDouble() / graph.nodes.size
     assertTrue(reached > 0.5, "only ${(reached * 100).toInt()}% of the graph is reachable from a town")
+  }
+
+  @Test
+  fun `the lattice on the reference world stays the size it was measured at`() {
+    // Measured at 779 placed of 833 wanted when the spacing went from 8 km to 4 km (it was 164 of 198). The band
+    // catches both failures that matter: a lattice that quietly stopped being placed, and one whose size ran away
+    // with a tuning change - graph search time at runtime follows it.
+    val placed = graph.wildernessNodesPlaced
+    assertTrue(placed in 600..1_000, "the lattice has $placed nodes, outside the 600..1000 measured band")
+    assertTrue(
+      placed <= graph.wildernessNodesWanted,
+      "placed $placed lattice nodes but wanted only ${graph.wildernessNodesWanted}"
+    )
+    assertTrue(placed < NavParams().maxWildernessNodes, "the cap bound on a 160 km world")
+  }
+
+  @Test
+  fun `no lattice node stands on a slope or a summit when better ground was in reach`() {
+    val params = NavParams()
+    val walkable = tan(Math.toRadians(params.walkableSlopeDegrees))
+    val steepest = tan(Math.toRadians(params.maxSlopeDegrees))
+
+    val layers = generated.world.layers
+    val elevationLayer = layers.require<FloatLayer>(LayerId.ELEVATION)
+    val terrain = Terrain(
+      region = elevationLayer.region,
+      metresPerCell = elevationLayer.region.resolution.metresPerCell,
+      elevation = Grid.from(elevationLayer),
+      waterLevel = Grid.from(layers.require<FloatLayer>(LayerId.WATER_LEVEL)),
+      discharge = Grid.from(layers.require<FloatLayer>(LayerId.DISCHARGE)),
+      civDistance = Grid.from(layers.require<FloatLayer>(LayerId.CIVILISATION_DISTANCE)),
+      movementCost = Grid.from(layers.require<FloatLayer>(LayerId.MOVEMENT_COST))
+    )
+    val metres = terrain.metresPerCell
+    val spacing = params.wildernessSpacingMetres
+    val reach = spacing * params.siteReachFactor
+    val originX = terrain.region.minX * metres + spacing * 0.5
+    val originY = terrain.region.minY * metres + spacing * 0.5
+
+    // The lattice is the last pass to add nodes, so its nodes are the tail of the list.
+    val lattice = graph.nodes.takeLast(graph.wildernessNodesPlaced)
+    assertTrue(lattice.all { it.kind == NavNodeKind.WILDERNESS }, "the tail of the node list is not the lattice")
+
+    var hadAFlatterChoice = 0
+    for (node in lattice) {
+      // A node moved less than half a spacing, so the lattice point it came from is the nearest one.
+      val point = Vec2d(
+        originX + Math.round((node.position.x - originX) / spacing) * spacing,
+        originY + Math.round((node.position.y - originY) / spacing) * spacing
+      )
+      val own = terrain.cellAt(point)
+      val candidates = (0 until terrain.width * terrain.height).filter { cell ->
+        (cell == own || terrain.centreOf(cell).distanceTo(point) <= reach) &&
+            terrain.movementCost.data[cell] < Terms.IMPASSABLE &&
+            !terrain.isWater(cell) &&
+            terrain.slopeAt(cell) <= steepest
+      }
+      val chosen = terrain.cellAt(node.position)
+      assertTrue(chosen in candidates, "$node stands outside the reach of lattice point $point")
+
+      val walkableChoices = candidates.filter { terrain.slopeAt(it) <= walkable }
+      if (walkableChoices.isNotEmpty() && walkableChoices.size < candidates.size) hadAFlatterChoice++
+      if (walkableChoices.isNotEmpty()) {
+        assertTrue(terrain.slopeAt(chosen) <= walkable, "$node stands on a slope with walkable ground in reach")
+      }
+      if (walkableChoices.any { !terrain.isSummit(it) } && terrain.slopeAt(chosen) <= walkable) {
+        assertTrue(!terrain.isSummit(chosen), "$node stands on a summit with other walkable ground in reach")
+      }
+    }
+
+    // Habit 6: the rule above is vacuous on a world where no lattice point ever had a slope to avoid.
+    assertTrue(hadAFlatterChoice > 0, "no lattice point had both steep and walkable ground in reach")
+  }
+
+  @Test
+  fun `a lattice point on a gentle summit moves off it`() {
+    // A dome rising a tenth of a metre per metre to a summit on cell (5, 5), right beside the lattice point at
+    // (6 km, 6 km). The summit's central-difference gradient is zero, so by movement cost it is the cheapest
+    // cell in reach - exactly the trap the summit rule is there for.
+    val summit = Vec2d(5_500.0, 5_500.0)
+    val terrain = syntheticTerrain(16, 16) { centre -> 500.0 - 0.1 * centre.distanceTo(summit) }
+
+    val builder = GraphBuilder(terrain, NavParams())
+    builder.addWildernessLattice()
+    val graph = builder.build()
+
+    val near = graph.nodes.minBy { it.position.distanceTo(Vec2d(6_000.0, 6_000.0)) }
+    assertTrue(near.position.distanceTo(Vec2d(6_000.0, 6_000.0)) < 1_000.0, "the lattice point by the summit was dropped")
+    assertTrue(
+      terrain.cellAt(near.position) != terrain.cellAt(summit),
+      "the node by the summit stands on it at ${near.position}"
+    )
+  }
+
+  @Test
+  fun `a hop along a valley costs less than a hop of the same length over a pass`() {
+    // Two straight 10 km hops over ground of identical movement cost: one along a valley floor that falls
+    // gently, one up and over a 250 m pass. Uniform movement cost makes the two routes cost the same by ground,
+    // so whatever separates them is the climb.
+    val valleyRow = 3
+    val passRow = 9
+    val terrain = syntheticTerrain(30, 13, uniformCost = true) { centre ->
+      val x = centre.x / 1_000.0
+      when ((centre.y / 1_000.0).toInt()) {
+        valleyRow -> 300.0 - 2.0 * x
+        passRow -> 300.0 + 250.0 - 50.0 * abs(x - 15.0).coerceAtMost(5.0)
+        else -> 300.0
+      }
+    }
+
+    val builder = GraphBuilder(terrain, NavParams())
+    fun node(id: Int, x: Int, y: Int) = NavNode(NavNodeId(id), terrain.centreOf(y * 30 + x), NavNodeKind.WILDERNESS)
+
+    val valley = assertNotNull(builder.route(node(0, 10, valleyRow), node(1, 20, valleyRow)), "no valley hop")
+    val pass = assertNotNull(builder.route(node(2, 10, passRow), node(3, 20, passRow)), "no pass hop")
+
+    assertEquals(valley.lengthMetres, pass.lengthMetres, 1e-6, "the two hops are meant to be the same length")
+    assertTrue(
+      valley.cost < pass.cost,
+      "a valley hop costs ${valley.cost} and a pass hop of the same length ${pass.cost}"
+    )
+  }
+
+  /**
+   * Dry land of [width] x [height] kilometre cells, shaped by [elevation] at each cell centre.
+   *
+   * Movement cost is a stand-in for `Terms`' slope term - so a summit really is the cheapest cell by movement
+   * cost, as it is on a generated world - or one everywhere with [uniformCost].
+   */
+  private fun syntheticTerrain(
+    width: Int,
+    height: Int,
+    uniformCost: Boolean = false,
+    elevation: (Vec2d) -> Double
+  ): Terrain {
+    val region = CellRegion(0, 0, width, height, Resolution(1_000.0))
+    val heights = Grid(width, height, DoubleArray(width * height) { i ->
+      elevation(Vec2d((i % width + 0.5) * 1_000.0, (i / width + 0.5) * 1_000.0))
+    })
+    val cost = Grid(width, height, DoubleArray(width * height) { i ->
+      if (uniformCost) 1.0 else 1.0 + 14.0 * heights.gradient(i % width, i / width, 1_000.0)
+    })
+    return Terrain(
+      region = region,
+      metresPerCell = 1_000.0,
+      elevation = heights,
+      waterLevel = Grid(width, height, DoubleArray(width * height) { Double.NaN }),
+      discharge = Grid(width, height, DoubleArray(width * height)),
+      civDistance = Grid(width, height, DoubleArray(width * height)),
+      movementCost = cost
+    )
   }
 
   private fun elevationAt(

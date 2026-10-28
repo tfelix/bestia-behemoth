@@ -137,6 +137,38 @@ core to villages **loses** buildings (their grown streets cross the patches, so 
 core's plots), and raising `segmentLength` to widen blocks improves plots-per-metre while collapsing total
 street length — net worse.
 
+### The macro nav graph (`civ/NavGraphStage`)
+
+One `NavGraph` per world: settlements, gates, bridge abutments and cave mouths, joined by road, bridge and
+sea-lane edges read off the features that already exist, plus an open-country lattice whose hops are the only
+thing this stage routes. The zone walks the ground itself for a day's march and uses this graph as the corridor
+beyond that, so what the lattice has to get right is *which valley*.
+
+- **The lattice is 4 km** (`NavParams.wildernessSpacingMetres`; it was 8). Not 2: hops are routed on kilometre
+  cells, and a two-cell hop learns nothing. Remote thinning and `maxWildernessNodes` still bound large worlds.
+  Genesis carries 547 lattice nodes (was 101), the 160-cell test world 779 (was 164); the nav stage still runs in
+  well under a second.
+- **Each lattice point moves to the best cell within `siteReachFactor` (a quarter spacing)** before the
+  separation test. Three rules in order: walkable ground beats anything steeper than `walkableSlopeDegrees`,
+  anything beats a summit (higher than all eight neighbours), then the lowest half-cell `MOVEMENT_COST` plus
+  `climbCostPerMetre` x elevation. The summit rule is there because `MOVEMENT_COST` reads slope as a central
+  difference, which is **zero on a summit**: choosing by cost alone left seven genesis nodes on peaks (three unmoved).
+  At kilometre cells and a 1 km reach this is a choice among four cells, so it gets nodes off peaks and slopes
+  rather than down into the valley; a node standing 150 m above its lowest neighbour is still the norm.
+- **A hop's `baseCost` adds `climbCostPerMetre` (4) per metre climbed or descended along its cells.** Summed both
+  ways because one direction's ascent is the other's descent, so the sum is twice the direction-averaged ascent,
+  and 4 is Naismith's 8.3 m per metre of ascent halved. The larger of the two ascents would score a pass and a
+  ramp of the same height alike. The term charges the found route; it does not steer the search.
+
+**The measured residual: hop costs are on a cart's scale.** A hop's base is `RouteFinder`'s cost over
+`MOVEMENT_COST`, the field roads were planned on: slope x14 plus a bare-rock x4, forest x1.7, a river cell x8. Open
+country averages about 7 per metre against a road's 0.5, so a course will walk up to fourteen times as far to stay on a road,
+and courses go round a gorge on the plateau above it. Over 300 random 30-60 km genesis journeys (nearest-node
+entry) course length over straight distance has a median of 2.35 at 8 km, and 2.20 with the 4 km lattice and the
+climb term. Charging a hop `length + climb x 4` instead brought it to **1.46** (p90 4.4 -> 2.3); keeping the biome
+factors but not the river's, 1.56. Those were measured and not landed: they change what `baseCost` means to the
+zone's `MacroPathfinder`.
+
 ### How a river gets its bed, and the three things that made it look wrong
 
 A `RIVER_CHANNEL` is a `PolylineFeature` blended `MIN`, cut by `Profiles.riverChannel`. Two of its inputs

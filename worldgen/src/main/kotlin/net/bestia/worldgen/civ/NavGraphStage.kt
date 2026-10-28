@@ -45,14 +45,43 @@ data class NavParams(
   /**
    * Spacing of the open-country node lattice, in metres.
    *
-   * The main lever on graph size, and quadratic in it: halving this quadruples the wilderness nodes. Eight
-   * kilometres is about an hour's walk, which is the granularity a long journey actually needs - the fine
-   * detail of getting round a particular boulder is the chunk tier's problem, not this one's.
+   * The main lever on graph size, and quadratic in it: halving this quadruples the wilderness nodes.
+   *
+   * Four kilometres because the runtime walks the ground itself for anything up to a day's march and asks
+   * this graph only for the corridor beyond that, so what the lattice has to get right is *which valley* -
+   * and at eight kilometres a valley narrower than the spacing had no node in it, and a long journey took
+   * the nearest node even when it stood on the mountain beside it. Not two: hops are routed on kilometre
+   * cells, and a two-cell hop learns nothing about the ground the straight line did not already say.
    */
-  val wildernessSpacingMetres: Double = 8_000.0,
+  val wildernessSpacingMetres: Double = 4_000.0,
 
   /** As a fraction of [wildernessSpacingMetres]: how close a candidate may sit to an already-placed node. */
   val minNodeSeparationFactor: Double = 0.6,
+
+  /**
+   * As a fraction of [wildernessSpacingMetres]: how far a lattice point may move to stand on better ground.
+   *
+   * Below a half so that a point can never cross over to its neighbour's side, which keeps the lattice a
+   * lattice. At a quarter the separation test can still drop a point whose neighbour moved towards it - two
+   * points that both slid into the same valley are one node, not two.
+   */
+  val siteReachFactor: Double = 0.25,
+
+  /**
+   * Cost of one metre of height gained or lost along a wilderness hop, in flat-metre units.
+   *
+   * [LayerId.MOVEMENT_COST] charges for slope through each cell's gradient, and a central difference is zero
+   * on a summit and on a saddle alike - so a hop straight over a pass looked as cheap as one along the valley
+   * beside it. This term sees the climb itself.
+   *
+   * Charged on everything climbed *and* descended, which is the symmetric choice that tells a pass from
+   * a ramp: the larger of the two directions' ascents scores a three-hundred-metre ramp and a pass three
+   * hundred metres up and down the same, when the pass is a climb whichever way it is walked. And because one
+   * direction's ascent is the other's descent, the sum is exactly twice the ascent averaged over both - so the
+   * four here is Naismith's rule (an hour per 5 km, plus an hour per 600 m climbed: 8.3 flat metres per metre
+   * of ascent) halved, for an edge that does not know which way it will be walked.
+   */
+  val climbCostPerMetre: Double = 4.0,
 
   /** As a fraction of [wildernessSpacingMetres]: how far to look for a node to connect to. */
   val connectRadiusFactor: Double = 1.6,
@@ -153,6 +182,10 @@ data class NavParams(
       "connectRadiusFactor $connectRadiusFactor is below minNodeSeparationFactor $minNodeSeparationFactor, " +
           "so a placed node could never reach the neighbour that displaced it"
     }
+    require(siteReachFactor >= 0.0 && siteReachFactor < 0.5) {
+      "siteReachFactor must be in [0, 0.5), or a lattice point could move past its neighbour, was $siteReachFactor"
+    }
+    require(climbCostPerMetre >= 0.0) { "climbCostPerMetre must not be negative, was $climbCostPerMetre" }
     require(maxNeighboursPerNode > 0) { "maxNeighboursPerNode must be positive, was $maxNeighboursPerNode" }
     require(remoteWildernessDistanceMetres >= 0.0) { "remoteWildernessDistanceMetres must not be negative" }
     require(remoteSpacingMultiplier >= 1.0) {
@@ -176,6 +209,8 @@ data class NavParams(
     wildernessSpacingMetres = source.double("wildernessSpacingMetres", wildernessSpacingMetres),
     minNodeSeparationFactor = source.double("minNodeSeparationFactor", minNodeSeparationFactor),
     connectRadiusFactor = source.double("connectRadiusFactor", connectRadiusFactor),
+    siteReachFactor = source.double("siteReachFactor", siteReachFactor),
+    climbCostPerMetre = source.double("climbCostPerMetre", climbCostPerMetre),
     maxNeighboursPerNode = source.int("maxNeighboursPerNode", maxNeighboursPerNode),
     remoteWildernessDistanceMetres = source.double(
       "remoteWildernessDistanceMetres",
@@ -194,6 +229,8 @@ data class NavParams(
     .put("wildernessSpacingMetres", wildernessSpacingMetres)
     .put("minNodeSeparationFactor", minNodeSeparationFactor)
     .put("connectRadiusFactor", connectRadiusFactor)
+    .put("siteReachFactor", siteReachFactor)
+    .put("climbCostPerMetre", climbCostPerMetre)
     .put("maxNeighboursPerNode", maxNeighboursPerNode)
     .put("remoteWildernessDistanceMetres", remoteWildernessDistanceMetres)
     .put("remoteSpacingMultiplier", remoteSpacingMultiplier)
@@ -249,7 +286,7 @@ class NavGraphStage(
 ) : Stage {
 
   override val id = ID
-  override val version = 1
+  override val version = 2
 
   override val paramsVersion get() = params.digest().value
 
@@ -298,8 +335,13 @@ class NavGraphStage(
   }
 }
 
-/** The rasters the graph is built against, bundled so the builder's signatures stay readable. */
-private class Terrain(
+/**
+ * The rasters the graph is built against, bundled so the builder's signatures stay readable.
+ *
+ * Internal rather than private so a test can hand the builder synthetic ground: a valley and a pass of the
+ * same length are easy to draw and hard to find on a generated world.
+ */
+internal class Terrain(
   val region: CellRegion,
   val metresPerCell: Double,
   val elevation: Grid,
@@ -330,6 +372,19 @@ private class Terrain(
   /** Local terrain gradient as a tangent - rise over run - which is what a slope cutoff compares against. */
   fun slopeAt(cell: Int): Double =
     elevation.gradient(cell % width, cell / width, metresPerCell)
+
+  /** Higher than all eight neighbours. A cell at the region's edge never is: its clamped neighbour is itself. */
+  fun isSummit(cell: Int): Boolean {
+    val x = cell % width
+    val y = cell / width
+    val here = elevation[x, y]
+    for (dy in -1..1) {
+      for (dx in -1..1) {
+        if ((dx != 0 || dy != 0) && elevation[x + dx, y + dy] >= here) return false
+      }
+    }
+    return true
+  }
 }
 
 /**
@@ -338,7 +393,7 @@ private class Terrain(
  * A class rather than a pile of locals because node identity has to be allocated in one place: every edge
  * refers to nodes by index, so "which index did that settlement get" cannot be re-derived later.
  */
-private class GraphBuilder(private val terrain: Terrain, private val params: NavParams) {
+internal class GraphBuilder(private val terrain: Terrain, private val params: NavParams) {
 
   private val nodes = ArrayList<NavNode>()
   private val edges = ArrayList<NavEdge>()
@@ -625,15 +680,17 @@ private class GraphBuilder(private val terrain: Terrain, private val params: Nav
   /**
    * Nodes over country the roads do not reach.
    *
-   * Placed on a lattice and then thinned twice: candidates too close to something already placed are
-   * dropped, and the spacing itself widens once [NavParams.remoteWildernessDistanceMetres] from anything
-   * civilised. The first keeps the graph from clumping around towns, the second is what stops a large
-   * world's node count from following its area.
+   * Placed on a lattice, each point moved onto the best ground within [NavParams.siteReachFactor] of it, and
+   * then thinned twice: candidates too close to something already placed are dropped, and the spacing itself
+   * widens once [NavParams.remoteWildernessDistanceMetres] from anything civilised. The first keeps the graph
+   * from clumping around towns, the second is what stops a large world's node count from following its area.
+   * Both tests read the moved position, since that is where the node will stand.
    */
   fun addWildernessLattice() {
     val spacing = params.wildernessSpacingMetres
     val separation = spacing * params.minNodeSeparationFactor
     val remoteSpacing = spacing * params.remoteSpacingMultiplier
+    val reach = spacing * params.siteReachFactor
 
     val region = terrain.region
     val metres = terrain.metresPerCell
@@ -652,14 +709,12 @@ private class GraphBuilder(private val terrain: Terrain, private val params: Nav
     while (y < maxY) {
       var x = minX + spacing * 0.5
       while (x < maxX) {
-        val position = Vec2d(x, y)
+        val point = Vec2d(x, y)
         x += spacing
 
-        val cell = terrain.cellAt(position)
+        val cell = siteNear(point, reach)
         if (cell < 0) continue
-        if (terrain.movementCost.data[cell] >= Terms.IMPASSABLE) continue
-        if (terrain.isWater(cell)) continue
-        if (terrain.slopeAt(cell) > maxSlopeTangent) continue
+        val position = terrain.centreOf(cell)
 
         // Out in the deep wilderness, keep every other lattice point.
         val remote = terrain.civDistance.data[cell] > params.remoteWildernessDistanceMetres
@@ -679,6 +734,85 @@ private class GraphBuilder(private val terrain: Terrain, private val params: Nav
     wildernessNodesWanted = wanted
     wildernessNodesPlaced = placed
   }
+
+  /**
+   * The cell a lattice point at [point] should stand on, or -1 when nothing within [reach] can carry a node.
+   *
+   * The candidates are the point's own cell and every cell whose centre is within [reach]; water, impassable
+   * ground and anything past [NavParams.maxSlopeDegrees] are never one. Among the rest, walkable ground
+   * always beats ground steeper than [NavParams.walkableSlopeDegrees], anything beats a summit, and then the
+   * lowest [siteCost] wins.
+   *
+   * Both are rules rather than weights so that "no node on a slope, or on a peak, when better ground was in
+   * reach" is a guarantee and not a property of how terms happen to compare. The summit rule is the one that
+   * earned its place by measurement: [LayerId.MOVEMENT_COST] reads slope as a central difference, which is
+   * zero on a summit, so a summit cell looks like the cheapest ground for kilometres around. On the genesis
+   * world choosing by cost alone left seven lattice nodes on peaks, against three for the lattice unmoved.
+   */
+  private fun siteNear(point: Vec2d, reach: Double): Int {
+    val metres = terrain.metresPerCell
+    val own = terrain.cellAt(point)
+    val reachSq = reach * reach
+
+    var best = -1
+    var bestSteep = true
+    var bestSummit = true
+    var bestCost = Double.MAX_VALUE
+    var bestDistanceSq = Double.MAX_VALUE
+
+    val fromX = floor((point.x - reach) / metres).toInt() - terrain.region.minX
+    val toX = floor((point.x + reach) / metres).toInt() - terrain.region.minX
+    val fromY = floor((point.y - reach) / metres).toInt() - terrain.region.minY
+    val toY = floor((point.y + reach) / metres).toInt() - terrain.region.minY
+
+    for (cy in max(fromY, 0)..minOf(toY, terrain.height - 1)) {
+      for (cx in max(fromX, 0)..minOf(toX, terrain.width - 1)) {
+        val cell = cy * terrain.width + cx
+        val distanceSq = terrain.centreOf(cell).distanceSquaredTo(point)
+        if (cell != own && distanceSq > reachSq) continue
+
+        if (terrain.movementCost.data[cell] >= Terms.IMPASSABLE) continue
+        if (terrain.isWater(cell)) continue
+        val slope = terrain.slopeAt(cell)
+        if (slope > maxSlopeTangent) continue
+
+        val steep = slope > walkableSlopeTangent
+        val summit = terrain.isSummit(cell)
+        val cost = siteCost(cell)
+
+        // Ties go to the cell nearest the lattice point, then to the scan order, so the choice never depends
+        // on anything but the ground.
+        val better = when {
+          steep != bestSteep -> !steep
+          summit != bestSummit -> !summit
+          cost != bestCost -> cost < bestCost
+          else -> distanceSq < bestDistanceSq
+        }
+        if (best < 0 || better) {
+          best = cell
+          bestSteep = steep
+          bestSummit = summit
+          bestCost = cost
+          bestDistanceSq = distanceSq
+        }
+      }
+    }
+
+    return best
+  }
+
+  /**
+   * What every hop leaving [cell] pays for a node standing on it, in the same units as a hop's cost.
+   *
+   * Two parts. A hop starts at the cell centre, so it crosses half a cell of this ground at its
+   * [LayerId.MOVEMENT_COST]. And it has to climb to or from the node's height, at
+   * [NavParams.climbCostPerMetre], which the movement cost does not see. Absolute elevation rather than height
+   * above some local floor: only differences between candidates decide anything, and those are the same
+   * either way.
+   */
+  private fun siteCost(cell: Int): Double =
+    terrain.metresPerCell * 0.5 * terrain.movementCost.data[cell] +
+        params.climbCostPerMetre * terrain.elevation.data[cell]
 
   /**
    * Hops between lattice nodes, routed over the movement-cost field.
@@ -733,14 +867,23 @@ private class GraphBuilder(private val terrain: Terrain, private val params: Nav
   }
 
   /** A routed open-country hop, or null when the terrain does not offer one. */
-  private class Hop(
+  internal class Hop(
     val lengthMetres: Double,
     val cost: Double,
     val modes: Set<MovementMode>,
     val waypoints: List<Vec2d>?
   )
 
-  private fun route(from: NavNode, to: NavNode): Hop? {
+  /**
+   * One open-country hop: routed over [LayerId.MOVEMENT_COST], then charged for every metre it climbs or
+   * descends on the way at [NavParams.climbCostPerMetre].
+   *
+   * The climb is added to the found route's cost rather than steering the search, so the line a hop takes is
+   * still the cheapest by ground; what changes is what the graph believes that line costs. That is enough for
+   * the job this graph has - choosing between hops, where a pass now loses to the valley beside it - and it
+   * keeps every hop's shape identical to the one the ground alone would give.
+   */
+  internal fun route(from: NavNode, to: NavNode): Hop? {
     val start = terrain.cellAt(from.position)
     val goal = terrain.cellAt(to.position)
     if (start < 0 || goal < 0 || start == goal) return null
@@ -754,6 +897,7 @@ private class GraphBuilder(private val terrain: Terrain, private val params: Nav
 
     val modes = HashSet<MovementMode>()
     var length = 0.0
+    var climb = 0.0
     var waterRun = 0.0
 
     for (i in 1 until route.cells.size) {
@@ -767,6 +911,7 @@ private class GraphBuilder(private val terrain: Terrain, private val params: Nav
       // between two elevations - and the gradient at a cell centre says something about its neighbourhood,
       // not about this particular crossing.
       val rise = abs(terrain.elevation.data[cell] - terrain.elevation.data[previous])
+      climb += rise
       val slope = if (step > 0.0) rise / step else 0.0
       val localSlope = max(terrain.slopeAt(cell), terrain.slopeAt(previous))
 
@@ -795,7 +940,7 @@ private class GraphBuilder(private val terrain: Terrain, private val params: Nav
 
     return Hop(
       lengthMetres = length,
-      cost = route.cost,
+      cost = route.cost + climb * params.climbCostPerMetre,
       modes = modes,
       waypoints = waypointsOf(route.cells)
     )

@@ -309,10 +309,10 @@ class NavGraphOverlay(private val graph: NavGraph) {
     /**
      * Coarser than this, the wilderness lattice is not drawn as nodes at all.
      *
-     * Set against the default 8 km lattice spacing: at 400 m/px neighbours are twenty pixels apart, which
+     * Set against the default 4 km lattice spacing: at 200 m/px neighbours are twenty pixels apart, which
      * still reads as a mesh. Past it they crowd into a texture that hides the roads underneath.
      */
-    private const val WILDERNESS_NODE_BELOW_METRES_PER_PIXEL = 400.0
+    private const val WILDERNESS_NODE_BELOW_METRES_PER_PIXEL = 200.0
 
     private const val HUB_NODE_PIXELS = 4
 
