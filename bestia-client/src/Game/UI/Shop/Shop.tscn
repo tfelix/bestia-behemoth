@@ -6,9 +6,9 @@
 bg_color = Color(0.11, 0.11, 0.13, 1)
 
 [node name="Shop" type="PanelContainer"]
-custom_minimum_size = Vector2(420, 300)
-offset_right = 420.0
-offset_bottom = 320.0
+custom_minimum_size = Vector2(480, 0)
+offset_right = 480.0
+offset_bottom = 460.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_bg")
 script = ExtResource("1_shop")
 
@@ -35,6 +35,7 @@ size_flags_horizontal = 3
 [node name="Hours" type="Label" parent="Margin/Body/Header"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.6, 0.66, 1)
 theme_override_font_sizes/font_size = 12
 
 [node name="Chat" type="Button" parent="Margin/Body/Header"]
@@ -42,35 +43,119 @@ unique_name_in_owner = true
 layout_mode = 2
 text = "SHOP_CHAT"
 
-[node name="Controls" type="HBoxContainer" parent="Margin/Body"]
+[node name="WaresLabel" type="Label" parent="Margin/Body"]
 layout_mode = 2
-theme_override_constants/separation = 6
-
-[node name="AmountLabel" type="Label" parent="Margin/Body/Controls"]
-layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.6, 0.66, 1)
 theme_override_font_sizes/font_size = 12
-text = "Amount"
+text = "SHOP_WARES"
 
-[node name="Amount" type="SpinBox" parent="Margin/Body/Controls"]
-unique_name_in_owner = true
-layout_mode = 2
-min_value = 1.0
-max_value = 500.0
-value = 1.0
-
-[node name="Scroll" type="ScrollContainer" parent="Margin/Body"]
+[node name="WaresScroll" type="ScrollContainer" parent="Margin/Body"]
+mouse_filter = 1
+custom_minimum_size = Vector2(0, 170)
 layout_mode = 2
 size_flags_vertical = 3
+horizontal_scroll_mode = 0
 
-[node name="Rows" type="VBoxContainer" parent="Margin/Body/Scroll"]
+[node name="Wares" type="VBoxContainer" parent="Margin/Body/WaresScroll"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 4
+theme_override_constants/separation = 2
 
 [node name="Empty" type="Label" parent="Margin/Body"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
-text = "Nothing to spare today."
+text = "SHOP_NOTHING_SPARE"
+
+[node name="SellingLabel" type="Label" parent="Margin/Body"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.6, 0.66, 1)
+theme_override_font_sizes/font_size = 12
+text = "SHOP_YOU_SELL"
+
+[node name="SellingScroll" type="ScrollContainer" parent="Margin/Body"]
+mouse_filter = 1
+custom_minimum_size = Vector2(0, 90)
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="Selling" type="VBoxContainer" parent="Margin/Body/SellingScroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 2
+
+[node name="SellHint" type="Label" parent="Margin/Body/SellingScroll/Selling"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.6, 0.66, 1)
+theme_override_font_sizes/font_size = 12
+text = "SHOP_SELL_HINT"
+
+[node name="Separator" type="HSeparator" parent="Margin/Body"]
+layout_mode = 2
+
+[node name="Totals" type="HBoxContainer" parent="Margin/Body"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="BuyTotal" type="Label" parent="Margin/Body/Totals"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.6, 0.66, 1)
+
+[node name="SellTotal" type="Label" parent="Margin/Body/Totals"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.6, 0.66, 1)
+
+[node name="Gap" type="Control" parent="Margin/Body/Totals"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="BalanceLabel" type="Label" parent="Margin/Body/Totals"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.6, 0.66, 1)
+
+[node name="Balance" type="HBoxContainer" parent="Margin/Body/Totals"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Status" type="HBoxContainer" parent="Margin/Body"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Gold" type="Label" parent="Margin/Body/Status"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+
+[node name="Load" type="Label" parent="Margin/Body/Status"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+
+[node name="Gap" type="Control" parent="Margin/Body/Status"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Clear" type="Button" parent="Margin/Body/Status"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "SHOP_CLEAR"
+
+[node name="Confirm" type="Button" parent="Margin/Body/Status"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"PrimaryButton"
+text = "SHOP_CONFIRM"
+
+[node name="Reason" type="Label" parent="Margin/Body"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.38, 0.38, 1)
+theme_override_font_sizes/font_size = 12
+horizontal_alignment = 2
