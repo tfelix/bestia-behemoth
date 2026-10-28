@@ -1,13 +1,16 @@
 package net.bestia.zone.master
 
+import net.bestia.geo.GridRef
 import net.bestia.zone.account.AvailableBestiaSlotService
 import net.bestia.zone.account.persistence.Account
 import net.bestia.zone.account.persistence.AccountRepository
 import net.bestia.zone.account.persistence.findByIdOrThrow
 import net.bestia.zone.identity.ecs.OwnedBestia
 import net.bestia.zone.ecs.core.WorldView
+import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.AccountId
 import net.bestia.zone.world.SpawnPointAvailability
+import net.bestia.zone.world.WorldService
 import org.springframework.stereotype.Component
 
 @Component
@@ -18,10 +21,14 @@ class AvailableMasterResolver(
   private val bestiaSlots: AvailableBestiaSlotService,
   private val availability: SpawnPointAvailability,
   private val homeFacts: HomeFacts,
+  private val worldService: WorldService,
 ) {
 
   fun getAvailableMaster(accountId: AccountId): AvailableMasterSMSG {
     val account = accountRepository.findByIdOrThrow(accountId)
+
+    val config = worldService.config
+    val gridRef = GridRef(config.widthMetres, config.heightMetres)
 
     // The account holds its masters in a set, which has no order of its own.
     val masterInfos = account.master.sortedBy { it.slot }.map { master ->
@@ -40,6 +47,7 @@ class AvailableMasterResolver(
         face = master.face,
         body = master.body,
         position = master.currentPosition,
+        gridRef = gridRefOf(gridRef, master.currentPosition, config.voxelSize),
         bestias = masterBestiaInfos
       )
     }
@@ -66,4 +74,8 @@ class AvailableMasterResolver(
       spawnPoints = spawnPoints
     )
   }
+
+  /** To the 10 m cell, the precision the in-game profile window shows beside the voxel position. */
+  private fun gridRefOf(gridRef: GridRef, position: Vec3L, voxelSize: Double): String =
+    gridRef.format(position.x * voxelSize, position.y * voxelSize, digits = 3)
 }

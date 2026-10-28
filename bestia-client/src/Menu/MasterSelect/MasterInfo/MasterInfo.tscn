@@ -58,25 +58,13 @@ text = "Lv. 1"
 label_settings = ExtResource("3_5ufew")
 horizontal_alignment = 1
 
-[node name="PosLine" type="HBoxContainer" parent="VBoxContainer"]
-layout_mode = 2
-mouse_filter = 2
-alignment = 1
-theme_override_constants/separation = 10
-
-[node name="PosX" type="Label" parent="VBoxContainer/PosLine"]
+[node name="GridRef" type="Label" parent="VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 mouse_filter = 2
-text = "X: 0"
+text = "A1 000 000"
 label_settings = ExtResource("3_5ufew")
-
-[node name="PosY" type="Label" parent="VBoxContainer/PosLine"]
-unique_name_in_owner = true
-layout_mode = 2
-mouse_filter = 2
-text = "Y: 0"
-label_settings = ExtResource("3_5ufew")
+horizontal_alignment = 1
 
 [node name="DeleteButton" type="Button" parent="VBoxContainer"]
 unique_name_in_owner = true

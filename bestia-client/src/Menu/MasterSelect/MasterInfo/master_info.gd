@@ -9,8 +9,7 @@ signal delete_requested(master_info: MasterInfo)
 ## preload here is a load cycle and MasterInfo.tscn fails to parse.
 const SCENE_PATH := "res://Menu/MasterSelect/MasterInfo/MasterInfo.tscn"
 
-@onready var pos_x = %PosX
-@onready var pos_y = %PosY
+@onready var _grid_ref: Label = %GridRef
 @onready var master_name = %MasterName
 @onready var level_label = %Level
 @onready var profile_image = %MasterProfileImage
@@ -31,12 +30,7 @@ static func create(master_info: MasterInfo) -> MasterInfoScn:
 func _ready() -> void:
 	master_name.text = _master_info.Name
 	level_label.text = "Lv. %s" % _master_info.Level
-	# Named with the server's axes, the same way the in-game profile window is. Only the horizontal
-	# pair is shown here, so there is no height to label - but the swap still goes through the one
-	# helper, so the two screens cannot drift apart again.
-	var shown := TileSpace.to_server_axes(_master_info.Position)
-	pos_x.text = "X: %s" % str(int(shown.x))
-	pos_y.text = "Y: %s" % str(int(shown.y))
+	_grid_ref.text = _master_info.GridRef
 	profile_image.load_master(_master_info)
 
 	_highlight.hide()

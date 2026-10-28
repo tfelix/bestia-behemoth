@@ -31,6 +31,8 @@ data class AvailableMasterSMSG(
     val face: Face,
     val body: BodyType,
     val position: Vec3L,
+    /** [position] as a grid reference, see [net.bestia.geo.GridRef]. */
+    val gridRef: String,
     val level: Int,
     /** The account slot the master is pinned to, counted from 0. See [net.bestia.zone.account.persistence.Master.slot]. */
     val slot: Int,
@@ -93,6 +95,7 @@ data class AvailableMasterSMSG(
         .setLevel(masterInfo.level)
         .setSlot(masterInfo.slot)
         .setPosition(position)
+        .setGridRef(masterInfo.gridRef)
         .setBody(mapBodyType(masterInfo.body))
         .setSkinColor(skinColor)
         .setHairColor(hairColor)

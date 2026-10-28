@@ -33,6 +33,7 @@ class AvailableMasterSMSGTest {
     face = Face.FACE_1,
     body = BodyType.BODY_M_1,
     position = Vec3L.ZERO,
+    gridRef = "A1 000 000",
     level = 1,
     slot = slot,
     bestias = emptyList()

@@ -38,20 +38,20 @@ namespace Bnet {
             "bnRDYW5kaWRhdGUSCgoCaWQYASABKA0SFwoPc2V0dGxlbWVudF9uYW1lGAIg",
             "ASgJEgwKBHRpZXIYAyABKAkSEgoKcG9wdWxhdGlvbhgEIAEoDRIJCgF4GAUg",
             "ASgDEgkKAXkYBiABKAMSEwoLYmlvbWVfdG9rZW4YByABKAkSGwoHaGlzdG9y",
-            "eRgIIAMoCzIKLmJuZXQuTGluZSKkAgoKTWFzdGVySW5mbxIRCgltYXN0ZXJf",
+            "eRgIIAMoCzIKLmJuZXQuTGluZSK2AgoKTWFzdGVySW5mbxIRCgltYXN0ZXJf",
             "aWQYASABKAQSDAoEbmFtZRgDIAEoCRINCgVsZXZlbBgEIAEoDRIcCghwb3Np",
             "dGlvbhgFIAEoCzIKLmJuZXQuVmVjMxIcCgRib2R5GAYgASgOMg4uYm5ldC5C",
             "b2R5VHlwZRIYCgRmYWNlGAcgASgOMgouYm5ldC5GYWNlEh8KCnNraW5fY29s",
             "b3IYCCABKAsyCy5ibmV0LkNvbG9yEh8KCmhhaXJfY29sb3IYCSABKAsyCy5i",
             "bmV0LkNvbG9yEiEKB2Jlc3RpYXMYCiADKAsyEC5ibmV0LkJlc3RpYUluZm8S",
-            "HQoEaGFpchgLIAEoDjIPLmJuZXQuSGFpcnN0eWxlEgwKBHNsb3QYDCABKA0q",
-            "JgoIQm9keVR5cGUSDAoIQk9EWV9NXzEQABIMCghCT0RZX0ZfMRABKn8KBEZh",
-            "Y2USCgoGRkFDRV8xEAASCgoGRkFDRV8yEAESCgoGRkFDRV8zEAISCgoGRkFD",
-            "RV80EAMSCgoGRkFDRV81EAQSCgoGRkFDRV82EAUSCgoGRkFDRV83EAYSCgoG",
-            "RkFDRV84EAcSCgoGRkFDRV85EAgSCwoHRkFDRV8xMBAJKkcKCUhhaXJzdHls",
-            "ZRIKCgZIQUlSXzEQABIKCgZIQUlSXzIQARIKCgZIQUlSXzMQAhIKCgZIQUlS",
-            "XzQQAxIKCgZIQUlSXzUQBEIkChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CC01h",
-            "c3RlclByb3RvYgZwcm90bzM="));
+            "HQoEaGFpchgLIAEoDjIPLmJuZXQuSGFpcnN0eWxlEgwKBHNsb3QYDCABKA0S",
+            "EAoIZ3JpZF9yZWYYDSABKAkqJgoIQm9keVR5cGUSDAoIQk9EWV9NXzEQABIM",
+            "CghCT0RZX0ZfMRABKn8KBEZhY2USCgoGRkFDRV8xEAASCgoGRkFDRV8yEAES",
+            "CgoGRkFDRV8zEAISCgoGRkFDRV80EAMSCgoGRkFDRV81EAQSCgoGRkFDRV82",
+            "EAUSCgoGRkFDRV83EAYSCgoGRkFDRV84EAcSCgoGRkFDRV85EAgSCwoHRkFD",
+            "RV8xMBAJKkcKCUhhaXJzdHlsZRIKCgZIQUlSXzEQABIKCgZIQUlSXzIQARIK",
+            "CgZIQUlSXzMQAhIKCgZIQUlSXzQQAxIKCgZIQUlSXzUQBEIkChVuZXQuYmVz",
+            "dGlhLmJuZXQucHJvdG9CC01hc3RlclByb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Bnet.Vec3Reflection.Descriptor, global::Bnet.BestiaInfoReflection.Descriptor, global::Bnet.ConversationSmsgReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.BodyType), typeof(global::Bnet.Face), typeof(global::Bnet.Hairstyle), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -59,7 +59,7 @@ namespace Bnet {
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.EffortValues), global::Bnet.EffortValues.Parser, new[]{ "Strength", "Agility", "Vitality", "Intelligence", "Dexterity", "Willpower" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.Master), global::Bnet.Master.Parser, new[]{ "MaxAvailableMasterSlots", "MaxAvailableBestiaSlots", "Master_", "SpawnPoints" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.MasterSpawnPointCandidate), global::Bnet.MasterSpawnPointCandidate.Parser, new[]{ "Id", "SettlementName", "Tier", "Population", "X", "Y", "BiomeToken", "History" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.MasterInfo), global::Bnet.MasterInfo.Parser, new[]{ "MasterId", "Name", "Level", "Position", "Body", "Face", "SkinColor", "HairColor", "Bestias", "Hair", "Slot" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.MasterInfo), global::Bnet.MasterInfo.Parser, new[]{ "MasterId", "Name", "Level", "Position", "Body", "Face", "SkinColor", "HairColor", "Bestias", "Hair", "Slot", "GridRef" }, null, null, null, null)
           }));
     }
     #endregion
@@ -1569,6 +1569,7 @@ namespace Bnet {
       bestias_ = other.bestias_.Clone();
       hair_ = other.hair_;
       slot_ = other.slot_;
+      gridRef_ = other.gridRef_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -1713,6 +1714,22 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "grid_ref" field.</summary>
+    public const int GridRefFieldNumber = 13;
+    private string gridRef_ = "";
+    /// <summary>
+    /// Where the master stands as a grid reference, like "H12 413 372". Formatted by the zone because the
+    /// selection screen comes before the client knows the world's size.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string GridRef {
+      get { return gridRef_; }
+      set {
+        gridRef_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -1739,6 +1756,7 @@ namespace Bnet {
       if(!bestias_.Equals(other.bestias_)) return false;
       if (Hair != other.Hair) return false;
       if (Slot != other.Slot) return false;
+      if (GridRef != other.GridRef) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -1757,6 +1775,7 @@ namespace Bnet {
       hash ^= bestias_.GetHashCode();
       if (Hair != global::Bnet.Hairstyle.Hair1) hash ^= Hair.GetHashCode();
       if (Slot != 0) hash ^= Slot.GetHashCode();
+      if (GridRef.Length != 0) hash ^= GridRef.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -1816,6 +1835,10 @@ namespace Bnet {
         output.WriteRawTag(96);
         output.WriteUInt32(Slot);
       }
+      if (GridRef.Length != 0) {
+        output.WriteRawTag(106);
+        output.WriteString(GridRef);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -1867,6 +1890,10 @@ namespace Bnet {
         output.WriteRawTag(96);
         output.WriteUInt32(Slot);
       }
+      if (GridRef.Length != 0) {
+        output.WriteRawTag(106);
+        output.WriteString(GridRef);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -1907,6 +1934,9 @@ namespace Bnet {
       }
       if (Slot != 0) {
         size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Slot);
+      }
+      if (GridRef.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(GridRef);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -1959,6 +1989,9 @@ namespace Bnet {
       }
       if (other.Slot != 0) {
         Slot = other.Slot;
+      }
+      if (other.GridRef.Length != 0) {
+        GridRef = other.GridRef;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -2032,6 +2065,10 @@ namespace Bnet {
             Slot = input.ReadUInt32();
             break;
           }
+          case 106: {
+            GridRef = input.ReadString();
+            break;
+          }
         }
       }
     #endif
@@ -2102,6 +2139,10 @@ namespace Bnet {
           }
           case 96: {
             Slot = input.ReadUInt32();
+            break;
+          }
+          case 106: {
+            GridRef = input.ReadString();
             break;
           }
         }

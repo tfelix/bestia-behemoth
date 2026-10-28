@@ -107,5 +107,8 @@ message MasterInfo {
   // The account slot this master is pinned to, counted from 0. Chosen once, at creation, and never changed:
   // the selection screen draws the master in this slot, so a gap left by a deletion stays a gap.
   uint32 slot = 12;
+  // Where the master stands as a grid reference, like "H12 413 372". Formatted by the zone because the
+  // selection screen comes before the client knows the world's size.
+  string grid_ref = 13;
   // TODO add an equipment list
 }

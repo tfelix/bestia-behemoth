@@ -27,6 +27,13 @@ namespace BestiaBehemothClient.Bnet.Message.Master
     [Export]
     public Vector3 Position { get; set; }
 
+    /// <summary>
+    /// Where the master stands as a grid reference, like "H12 413 372". The zone formats it, since the
+    /// client does not know the world's size before a master is selected.
+    /// </summary>
+    [Export]
+    public string GridRef { get; set; } = string.Empty;
+
     [Export]
     public int BodyType { get; set; }
 
@@ -58,6 +65,7 @@ namespace BestiaBehemothClient.Bnet.Message.Master
         Name = protoMasterInfo.Name,
         Level = protoMasterInfo.Level,
         Slot = protoMasterInfo.Slot,
+        GridRef = protoMasterInfo.GridRef,
         BodyType = (int)protoMasterInfo.Body,
         Face = (int)protoMasterInfo.Face,
         Hair = (int)protoMasterInfo.Hair
