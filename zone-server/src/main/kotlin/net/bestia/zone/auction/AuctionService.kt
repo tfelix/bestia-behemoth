@@ -11,6 +11,7 @@ import net.bestia.zone.auction.persistence.AuctionListingRepository
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.economy.CommodityItems
 import net.bestia.zone.economy.WorldReserve
+import net.bestia.zone.entity.GameMetrics.CoinSource
 import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.item.container.ReservedItem
 import net.bestia.zone.item.ecs.Equipment
@@ -88,7 +89,7 @@ class AuctionService(
       LOG.warn { "Master $masterId listed item ${held.itemId} that its live inventory does not hold" }
     }
     world.takeFromLive(masterEntityId, ReservedItem.stack(coinId, fee.toInt(), weight = 0))
-    world.read { reserve.charge(-fee.toDouble()) }
+    world.read { reserve.charge(-fee.toDouble(), CoinSource.AUCTION_FEE) }
 
     search(accountId, AuctionQuery(houseEntityId, null, 0, 0, emptyList(), mine = true, page = 0))
   }

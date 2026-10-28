@@ -1,5 +1,7 @@
 package net.bestia.zone.economy
 
+import net.bestia.zone.entity.GameMetrics.CoinSource
+
 /**
  * Where coin comes from when it did not come out of somebody's purse, and where it goes when it stops
  * being in one.
@@ -12,8 +14,8 @@ interface CoinReserve {
   /** What the reserve can still pay out. Never negative. */
   fun available(): Double
 
-  /** Moves [coins] out of the reserve, or back into it when negative. */
-  fun charge(coins: Double)
+  /** Moves [coins] out of the reserve, or back into it when negative, on behalf of [source]. */
+  fun charge(coins: Double, source: CoinSource)
 }
 
 /**
@@ -28,6 +30,6 @@ class UnlimitedReserve : CoinReserve {
     return Double.POSITIVE_INFINITY
   }
 
-  override fun charge(coins: Double) {
+  override fun charge(coins: Double, source: CoinSource) {
   }
 }

@@ -1,6 +1,7 @@
 package net.bestia.zone.economy
 
 import net.bestia.zone.entity.GameMetrics
+import net.bestia.zone.entity.GameMetrics.CoinSource
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.world.WorldRecreatedEvent
@@ -33,6 +34,8 @@ class WorldReserve(
   private val metrics: GameMetrics = GameMetrics(),
 ) : CoinReserve {
 
+  /** Volatile so the metrics scrape can read it off the tick thread. */
+  @Volatile
   private var balance: Double = 0.0
 
   private var dirty: Boolean = false
@@ -48,12 +51,12 @@ class WorldReserve(
    * The caller has already moved the other side. This is the half that keeps the total constant, so it
    * must be called for every gain that did not come from another purse.
    */
-  override fun charge(coins: Double) {
+  override fun charge(coins: Double, source: CoinSource) {
     if (coins == 0.0) return
 
     balance -= coins
     dirty = true
-    metrics.reserveCharged(coins)
+    metrics.reserveCharged(coins, source)
   }
 
   fun flush() {

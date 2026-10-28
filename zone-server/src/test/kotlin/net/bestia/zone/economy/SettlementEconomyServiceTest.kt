@@ -159,6 +159,19 @@ class SettlementEconomyServiceTest {
   }
 
   @Test
+  fun `a flush publishes what the disturbed towns hold above their reference`() {
+    service.settle(VILLAGE, "bread", units = 50, coins = 100, selling = false)
+    service.settle(VILLAGE, "bread", units = 20, coins = 40, selling = true)
+
+    assertEquals(0.0, service.treasurySurplus, "the snapshot moved before the flush")
+
+    service.flush()
+
+    assertEquals(60.0, service.treasurySurplus, 1e-9)
+    assertEquals(1, service.disturbedSettlements)
+  }
+
+  @Test
   fun `a town that recovers before its first flush is never written or deleted`() {
     service.settle(VILLAGE, "bread", units = 50, coins = 100, selling = false)
 

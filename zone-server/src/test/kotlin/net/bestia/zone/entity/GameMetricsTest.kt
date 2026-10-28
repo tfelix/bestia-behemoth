@@ -32,12 +32,13 @@ class GameMetricsTest {
   }
 
   @Test
-  fun `a charge to the reserve is coin minted, and a negative one is coin returned`() {
-    metrics.reserveCharged(100.0)
-    metrics.reserveCharged(-30.0)
+  fun `a charge to the reserve is coin minted, and a negative one is coin returned, under who moved it`() {
+    metrics.reserveCharged(100.0, GameMetrics.CoinSource.MINT)
+    metrics.reserveCharged(-30.0, GameMetrics.CoinSource.SETTLEMENT)
 
-    assertEquals(100.0, count("zone.economy.coins", "flow", "minted"))
-    assertEquals(30.0, count("zone.economy.coins", "flow", "returned"))
+    assertEquals(100.0, count("zone.economy.coins", "flow", "minted", "source", "mint"))
+    assertEquals(30.0, count("zone.economy.coins", "flow", "returned", "source", "settlement"))
+    assertEquals(0.0, count("zone.economy.coins", "flow", "minted", "source", "settlement"))
   }
 
   @Test

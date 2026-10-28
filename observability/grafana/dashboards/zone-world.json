@@ -1345,7 +1345,7 @@
       "id": 23,
       "type": "timeseries",
       "title": "Coin entering and leaving the world",
-      "description": "Coin handed out of the world reserve (minted) and taken back (returned). It is conserved everywhere else, so a sudden rise in minted is where a duplication bug would show.",
+      "description": "Coin handed out of the world reserve (minted) and taken back (returned), by who moved it: settlement treasuries drifting toward their reference, the mint, auction fees. It is conserved everywhere else, so a sudden rise in minted is where a duplication bug would show.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -1363,8 +1363,8 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "sum by (flow) (rate(zone_economy_coins_total{application=\"zone-server\",shard=~\"$shard\"}[$__rate_interval]))",
-          "legendFormat": "{{flow}}"
+          "expr": "sum by (flow, source) (rate(zone_economy_coins_total{application=\"zone-server\",shard=~\"$shard\"}[$__rate_interval]))",
+          "legendFormat": "{{flow}} by {{source}}"
         }
       ],
       "fieldConfig": {
@@ -1897,6 +1897,154 @@
       "fieldConfig": {
         "defaults": {
           "unit": "ops",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "mappings": [],
+          "min": 0,
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 8,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": []
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "transformations": []
+    },
+    {
+      "id": 31,
+      "type": "timeseries",
+      "title": "Where the coin is",
+      "description": "The world reserve and the settlement treasuries as they hold it; players is the rest of the fixed supply. Stacked, so the top is the whole supply.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 16,
+        "y": 51
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "sum by (holder) (zone_economy_coin_held{application=\"zone-server\",shard=~\"$shard\"})",
+          "legendFormat": "{{holder}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "mappings": [],
+          "min": 0,
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 25,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "mode": "normal",
+              "group": "A"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": []
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "transformations": []
+    },
+    {
+      "id": 32,
+      "type": "timeseries",
+      "title": "Settlements away from their reference",
+      "description": "Towns whose stock, price or treasury a player or damage moved. Each one drifts back and leaves this count on its own.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 0,
+        "y": 58
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "sum(zone_economy_settlements_disturbed{application=\"zone-server\",shard=~\"$shard\"})",
+          "legendFormat": "settlements"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
           "color": {
             "mode": "palette-classic"
           },
